@@ -2,8 +2,6 @@
 // and Default main tip it found, and Done keeps separate captured pairs.
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { retainedBranchPairFiles } from "../../server/retainedReviewPair.ts";
-import { realpathSync } from "node:fs";
-import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -13,70 +11,45 @@ import {
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
 import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
-import {
-  aCheckout,
-  aCheckoutWithCanonicalWorktree,
-  type Checkout,
-  historyBeforeTheCase,
-  inWorktree,
-  keep,
-  markDone,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
-import { aDoneBranch } from "../support/doneCaptureReview.ts";
+import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
-const branch = "draft";
-const published = { id: source, ref: "refs/heads/main" };
+const branch = "draft" as const;
 
-const aDraftWorktree = () => aCheckoutWithCanonicalWorktree(branch);
-
-// A launch that committed on main while the draft worktree took a commit and
-// an uncommitted edit of its own.
-async function aDraftBeforeEntry() {
-  const { checkout, workspace } = await aDraftWorktree();
-  const launch = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .inClaudeSession({ sessionId: "declared" });
-  const { onMain } = await work(
-    checkout,
+// A kept launch that committed on main while the draft worktree took a
+// commit and an uncommitted edit of its own.
+const aDraftBeforeEntry = aDoneCaptureCase()
+  .withOrigin()
+  .withWorkspace(branch)
+  .withDefaultMainLaunch("declared", { launched: 60 })
+  .withWork((at) =>
     makeMe.aCheckoutWork.committing("onMain", {
-      at: minutesAgo(50),
+      at: at(50),
       files: { "main-work.txt": "main work\n" },
     }),
-  );
-  const { entered } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork
-      .committing("entered", { at: minutesAgo(45) })
-      .editing("prior-draft", { at: minutesAgo(44) }),
-  );
-  return { checkout, workspace, launch, onMain, entered };
-}
+  )
+  .withWork(
+    (at) =>
+      makeMe.aCheckoutWork
+        .committing("entered", { at: at(45) })
+        .editing("prior-draft", { at: at(44) }),
+    { in: branch },
+  )
+  .kept();
 
-// That launch, kept, then identified the draft worktree as its branch.
-async function aDeclaredDraft() {
-  const { launch, ...draft } = await aDraftBeforeEntry();
-  const record = launch.please();
-  keep(record);
-  const { workspace } = draft;
+test("a declared branch keeps its entry state and Default main tip after main moves", async () => {
+  const {
+    published,
+    at,
+    worktrees: { [branch]: workspace },
+    records: { declared: record },
+    work: { onMain, entered },
+    performWork,
+  } = await aDraftBeforeEntry.please();
   const entry = await recordSessionBranchEntry(published, record, {
     workspace,
     branch,
   });
-  return { ...draft, record, entry };
-}
-
-const mainMoves = (checkout: Checkout) =>
-  work(
-    checkout,
-    makeMe.aCheckoutWork.committing("later-main", { at: minutesAgo(20) }),
-  );
-
-test("a declared branch keeps its entry state and Default main tip after main moves", async () => {
-  const { checkout, workspace, record, onMain, entered, entry } =
-    await aDeclaredDraft();
 
   expect(entry).toMatchObject({
     workspace,
@@ -90,7 +63,9 @@ test("a declared branch keeps its entry state and Default main tip after main mo
     { objectId: onMain },
     { objectId: entry.tree },
   ]);
-  await mainMoves(checkout);
+  await performWork(
+    makeMe.aCheckoutWork.committing("later-main", { at: at(20) }),
+  );
   expect(
     await recordSessionBranchEntry(published, record, { workspace, branch }),
   ).toEqual(entry);
@@ -98,19 +73,32 @@ test("a declared branch keeps its entry state and Default main tip after main mo
 });
 
 test("Done saves the entry-time Default main run and the declared branch's own pair", async () => {
-  const { checkout, workspace, record, entry } = await aDeclaredDraft();
-  const { result } = await work(
-    inWorktree(checkout, workspace),
+  const {
+    published,
+    at,
+    checkout,
+    worktrees: { [branch]: workspace },
+    records: { declared: record },
+    performWork,
+  } = await aDraftBeforeEntry.please();
+  const entry = await recordSessionBranchEntry(published, record, {
+    workspace,
+    branch,
+  });
+  const { result } = await performWork(
     makeMe.aCheckoutWork.committing("result", {
-      at: minutesAgo(30),
+      at: at(30),
       files: { "session.txt": "session.txt\n" },
     }),
+    { in: branch },
   );
-  await mainMoves(checkout);
+  await performWork(
+    makeMe.aCheckoutWork.committing("later-main", { at: at(20) }),
+  );
 
-  await setRecordDoneAt(source, record.session, minutesAgo(10));
+  await setRecordDoneAt(published.id, record.session, at(10));
 
-  const saved = await keptSession(source, record.session);
+  const saved = await keptSession(published.id, record.session);
   expect(saved?.sessionCommits?.runs).toEqual([
     { base: checkout.base, revision: entry.defaultTip },
   ]);
@@ -121,50 +109,28 @@ test("Done saves the entry-time Default main run and the declared branch's own p
 });
 
 test("two declared sessions each capture their own branch", async () => {
-  const checkout = await aCheckout({
-    history: historyBeforeTheCase()
-      .withWorkspace(branch, { from: "base" })
-      .withWorkspace("other", { from: "base" }),
-    withOrigin: true,
-  });
-  const workspace = realpathSync(checkout.execution ?? "");
-  const other = realpathSync(
-    path.join(checkout.integration, ".worktrees", "other"),
-  );
-  const { base } = checkout;
-  const { stdout } = await git(workspace, "rev-parse", `${base}^{tree}`);
-  const atBase = {
-    repository: checkout.gitDirectory,
-    committedTip: base,
-    tree: stdout.trim(),
-    trunk: { remote: "origin", target: "refs/heads/main", revision: base },
-  };
-  const first = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .inClaudeSession({ sessionId: "first" })
-    .enteredBranch({
-      ...atBase,
-      workspace,
-      branch,
-    });
-  const second = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .inClaudeSession({ sessionId: "second" })
-    .enteredBranch({ ...atBase, workspace: other, branch: "other" });
-  const [{ ours }, { theirs }] = await Promise.all([
-    work(
-      inWorktree(checkout, workspace),
-      makeMe.aCheckoutWork.committing("ours", { at: minutesAgo(30) }),
-    ),
-    work(
-      inWorktree(checkout, other),
-      makeMe.aCheckoutWork.committing("theirs", { at: minutesAgo(30) }),
-    ),
+  const {
+    at,
+    records: { first, second },
+    work: { ours, theirs },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace(branch)
+    .withWorkspace("other")
+    .withDeclaringLaunch("first", { launched: 60 }, branch)
+    .withDeclaringLaunch("second", { launched: 60 }, "other")
+    .withWork((at) => makeMe.aCheckoutWork.committing("ours", { at: at(30) }), {
+      in: branch,
+    })
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("theirs", { at: at(30) }),
+      { in: "other" },
+    )
+    .please();
+  const [{ result: ownBranch }, { result: otherBranch }] = await Promise.all([
+    captureBranchResult(first, at(10)),
+    captureBranchResult(second, at(10)),
   ]);
-  const done = await Promise.all([aDoneBranch(first), aDoneBranch(second)]);
-  const [ownBranch, otherBranch] = done.map(({ branchResult }) => branchResult);
-  if (ownBranch === undefined || otherBranch === undefined)
-    throw new Error("Missing the captured comparisons.");
   const signal = new AbortController().signal;
 
   expect([ownBranch.revision, otherBranch.revision]).toEqual([ours, theirs]);
@@ -177,20 +143,23 @@ test("two declared sessions each capture their own branch", async () => {
 });
 
 test("an undeclared checkout move explains the missing branch association", async () => {
-  const checkout = await aCheckout();
-  const record = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .inClaudeSession({ sessionId: "undeclared" })
-    .please();
-  keep(record);
-  await git(checkout.integration, "switch", "--quiet", "-c", "not-identified");
-  await work(
+  const {
+    published,
+    at,
     checkout,
-    makeMe.aCheckoutWork.committing("not-attributed", { at: minutesAgo(30) }),
+    records: { undeclared: record },
+    performWork,
+  } = await aDoneCaptureCase()
+    .withDefaultMainLaunch("undeclared", { launched: 60 })
+    .kept()
+    .please();
+  await git(checkout.integration, "switch", "--quiet", "-c", "not-identified");
+  await performWork(
+    makeMe.aCheckoutWork.committing("not-attributed", { at: at(30) }),
   );
-  await markDone(record);
+  await setRecordDoneAt(published.id, record.session, at(10));
 
-  const saved = await keptSession(source, record.session);
+  const saved = await keptSession(published.id, record.session);
   if (saved === undefined) throw new Error("Missing the kept launch.");
   expect(
     await storyReview(

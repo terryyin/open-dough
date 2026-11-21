@@ -49,7 +49,8 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
 
   intent.offerRevision(b);
   await notice.reads(`New revision available — showing ${short(a)}`);
-  intent.offerRevision(c);
+  // The notice already shows the offered action while its revision changes.
+  await intent.offerRevision(c).committed;
   await notice.isShownOnce();
   await notice.offers(["Show latest"]);
   await jobsReading.isFocused();

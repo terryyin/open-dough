@@ -36,7 +36,7 @@ export function useIntentCiComparison(
   head?: string,
 ): ComparisonReading {
   const { readComparison } = useContext(IntentCiReadSourceOnPage);
-  const [owner] = useState(createCiComparisonReading);
+  const [owner] = useState(() => createCiComparisonReading(readComparison));
   const state = useSyncExternalStore(
     owner.subscribe,
     owner.getSnapshot,
@@ -49,8 +49,8 @@ export function useIntentCiComparison(
     [owner],
   );
   useEffect(() => {
-    void owner.select(source, identity, head, readComparison);
-  }, [owner, source, identity, head, readComparison]);
+    void owner.select(source, identity, head);
+  }, [owner, source, identity, head]);
   const current = state.key === comparisonReadingKey(source, identity);
   return {
     shown: current ? state.shown : undefined,

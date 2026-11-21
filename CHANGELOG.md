@@ -1,3 +1,15 @@
+## 0.3.110 - 2026-11-21
+
+- Dough Land publishes an accepted comparison as a session record when ordinary reviewed work has a Dashboard landing context. Other landing routes keep their existing publisher. The shared record identifies the accepted Git range and close time so another machine can review the published changes.
+- Recently done lists published sessions from the selected project revision and keeps a single entry when the originating machine already has that session. A failed listing appears as a read gap. Open story cards can expand their own Done sessions while keeping the current work visible.
+- Dashboard tests exercise delivery and landing decisions through typed inputs and use mounted components for Review, Intent and Settings. Distribution CI redistributes delivery-evidence checks across its existing jobs.
+
+The Promoted payload contains 385 files. It adds the two session-record modules, revises three Dough Land guidance files and retires no paths. Dashboard and CI changes are in the source repository.
+
+The self-installation baseline, focused install, update and publication checks, and Dashboard type-check passed locally. Scratch installation verified byte equality and a successful import in both skill roots. Representative review covered a Dashboard-launched landing, a native start without launch context, and work the remote refuses. [Hosted CI passed at `6cbaf1e24`](https://github.com/terryyin/open-dough/actions/runs/44891425962). The later promotion changes the payload declaration and extends the all-tools installation check.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), the existing discovery, installation and host-hook integrations reuse their native evidence. The shared session-record publication uses the existing Dashboard landing context and publisher and has deterministic Git proof. No fresh native acceptance was run for this release. Previously pending supplier-watch, freshness-ordering and oversized-file observations remain open.
+
 ## 0.3.109 - 2026-11-20
 
 - MakeMe gives recurring test data a named builder example. Tests can refine the example before completion and read the identities they need from the result.

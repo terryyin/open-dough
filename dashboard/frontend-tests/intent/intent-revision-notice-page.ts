@@ -1,7 +1,8 @@
 // Intent's one polite notice of a newer published revision, as the reader
 // reads and operates it (../../src/IntentRevisionNotice.tsx).
 import { expect } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 export function intentRevisionNotice() {
   const notice = page
@@ -34,11 +35,11 @@ export function intentRevisionNotice() {
       return revisionNotice;
     },
     async showLatest() {
-      await userEvent.click(button("Show latest"));
+      await activateButton(button("Show latest"));
       return revisionNotice;
     },
     async retry() {
-      await userEvent.click(button("Retry"));
+      await activateButton(button("Retry"));
       return revisionNotice;
     },
     async isGone() {

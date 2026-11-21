@@ -155,10 +155,10 @@ export async function perform(
               );
             case "published-sessions-at":
               return await performPublishedSessionsRead(
-                pinned,
                 source,
                 read,
-                signal,
+                pinned.lister(source, read.revision, signal),
+                pinned.blobReader(source, read.revision, signal),
               );
             case "addition-at":
               return await performAdditionRead(pinned, source, read, signal);

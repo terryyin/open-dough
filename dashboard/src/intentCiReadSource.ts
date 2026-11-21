@@ -7,21 +7,22 @@ import {
   readKeptIntentCiStatus,
 } from "./authenticatedIntentCiStatusRead.ts";
 
-// Uncached CI reads; the Intent CI hooks retain their reading state and abort boundaries.
+// Uncached CI reads. The disposable reading owners keep abort, identity,
+// attempt and refresh-round checks; the authenticated readers validate.
 export type IntentCiReadSource = {
+  readonly readComparison: typeof readIntentCiComparison;
+  readonly readProof: typeof readIntentCiProof;
   readonly readStatus: typeof readIntentCiStatus;
   readonly readKeptStatus: typeof readKeptIntentCiStatus;
-  readonly readProof: typeof readIntentCiProof;
-  readonly readHistory: typeof readIntentCiHistory;
-  readonly readComparison: typeof readIntentCiComparison;
+  readonly readHistory?: typeof readIntentCiHistory | undefined;
 };
 
 export const defaultIntentCiReadSource: IntentCiReadSource = {
+  readComparison: readIntentCiComparison,
+  readProof: readIntentCiProof,
   readStatus: readIntentCiStatus,
   readKeptStatus: readKeptIntentCiStatus,
-  readProof: readIntentCiProof,
   readHistory: readIntentCiHistory,
-  readComparison: readIntentCiComparison,
 };
 
 export const IntentCiReadSourceOnPage = createContext<IntentCiReadSource>(

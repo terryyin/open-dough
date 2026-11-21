@@ -5,10 +5,10 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { defaultLaunchStartFacts } from "../../server/defaultLaunchStart.ts";
 import { localFolder } from "../../server/projectFolders.ts";
-import { aCheckout } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 test("a default launch records its start only while Git can read the checkout", async () => {
-  const checkout = await aCheckout();
+  const { checkout } = await aDoneCaptureCase().please();
   const folder = localFolder(checkout.integration);
   const { request } = makeMe.aLaunchRecord.adHoc({ title: "Session" }).please();
   const gitDirectory = path.join(folder.path, ".git");

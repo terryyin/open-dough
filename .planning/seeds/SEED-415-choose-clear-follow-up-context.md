@@ -34,6 +34,10 @@ associate with the comment or note they describe.
 
 **Examples.**
 
+- Starting Follow up from the shared Intent review carries the story or
+  session and the exact reviewed comparison as the source. The dialog uses
+  the review's selected sessions to identify relevant context. The developer
+  still makes a separate choice about which optional material to send.
 - The developer clears every optional checkbox and sends the follow-up. The
   message still includes the story information and the developer's follow-up
   request.

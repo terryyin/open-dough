@@ -7,15 +7,8 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptSession } from "../../server/launchRecordStore.ts";
-import {
-  aCheckout,
-  aKeptSession,
-  keep,
-  markDone,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { keep, markDone, source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 // Leaves `commit` on no branch, with no reflog or loose object reaching it.
 async function forgetInCheckout(
@@ -33,28 +26,35 @@ async function forgetInCheckout(
 }
 
 test("a Default main launch's commit kept at Done remains reviewable after trunk advances and every branch leaves it", async () => {
-  const checkout = await aCheckout({ withOrigin: true });
-  const record = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
-  keep(record);
-  const { pulled, typo } = await work(
+  const {
     checkout,
+    records: { launch: record },
+    timeline: { launch },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withDefaultMainLaunch("launch", { launched: 60 })
+    .please();
+  keep(record);
+  const { pulled, typo } = await performWork(
     makeMe.aCheckoutWork
-      .fastForwardingToTrunkWork("pulled", { at: minutesAgo(40) })
-      .committing("typo", { at: minutesAgo(30) })
-      .pushingToTrunk("pushed", { at: minutesAgo(20) }),
+      .fastForwardingToTrunkWork("pulled", { at: at(40) })
+      .committing("typo", { at: at(30) })
+      .pushingToTrunk("pushed", { at: at(20) }),
   );
 
   await markDone(record);
 
   const kept = {
     kind: "session-commits",
-    session: { launchedAt: minutesAgo(60), doneAt: minutesAgo(10) },
+    session: { launchedAt: launch.launchedAt, doneAt: at(10) },
     commitRun: 0,
     commitRuns: [
       {
         commits: 1,
         subject: "Add typo.txt",
-        committedAt: minutesAgo(30),
+        committedAt: at(30),
         baseline: pulled,
         tree: typo,
       },
@@ -68,11 +68,10 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
   // The first read uses the fixed pair while trunk advances past it.
   const [whileOnTrunk] = await Promise.all([
     storyReview({ record: saved, read: {} }, new AbortController().signal),
-    work(
-      checkout,
+    performWork(
       makeMe.aCheckoutWork
-        .committing("later", { at: minutesAgo(8) })
-        .pushingToTrunk("advanced", { at: minutesAgo(5) }),
+        .committing("later", { at: at(8) })
+        .pushingToTrunk("advanced", { at: at(5) }),
     ),
   ]);
   expect(whileOnTrunk).toEqual(kept);
@@ -95,14 +94,21 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
 });
 
 test("Done stores and pins the commit of an established Default main session", async () => {
-  const { checkout, record } = await aKeptSession();
-  const { base, integration } = checkout;
-  const { typo } = await work(
+  const {
     checkout,
-    makeMe.aCheckoutWork.committing("typo", { at: minutesAgo(30) }),
+    records: { "established-default-main": record },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withEstablishedSession("established-default-main", { launched: 60 })
+    .please();
+  keep(record);
+  const { base, integration } = checkout;
+  const { typo } = await performWork(
+    makeMe.aCheckoutWork.committing("typo", { at: at(30) }),
   );
 
-  const doneAt = minutesAgo(10);
+  const doneAt = at(10);
   await markDone(record, doneAt);
 
   expect(await keptSession(source, record.session)).toMatchObject({

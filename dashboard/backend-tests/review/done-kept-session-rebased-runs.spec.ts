@@ -2,20 +2,26 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
-import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 test("capture keeps the published run when an amended session rebases onto pulled trunk", async () => {
-  const checkout = await aCheckout({ withOrigin: true });
-  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
-  const { integration } = checkout;
-  const { pulled } = await work(
+  const {
     checkout,
+    records: { launch },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withDefaultMainLaunch("launch", { launched: 60 })
+    .please();
+  const { integration } = checkout;
+  const { pulled } = await performWork(
     makeMe.aCheckoutWork
-      .committing("first", { at: minutesAgo(45) })
-      .committing("second", { at: minutesAgo(40) })
-      .amending("amended", { at: minutesAgo(35) })
-      .rebasingOntoTrunkWork("pulled", { at: minutesAgo(25) })
-      .pushingToTrunk("pushed", { at: minutesAgo(20) }),
+      .committing("first", { at: at(45) })
+      .committing("second", { at: at(40) })
+      .amending("amended", { at: at(35) })
+      .rebasingOntoTrunkWork("pulled", { at: at(25) })
+      .pushingToTrunk("pushed", { at: at(20) }),
   );
   const published = (
     await git(integration, "rev-parse", "origin/main")
@@ -32,15 +38,21 @@ test("capture keeps the published run when an amended session rebases onto pulle
 });
 
 test("capture keeps the published commit rebased onto fetched trunk", async () => {
-  const checkout = await aCheckout({ withOrigin: true });
-  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
-  const { integration } = checkout;
-  const { made, fetched, pushed } = await work(
+  const {
     checkout,
+    records: { launch },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withDefaultMainLaunch("launch", { launched: 60 })
+    .please();
+  const { integration } = checkout;
+  const { made, fetched, pushed } = await performWork(
     makeMe.aCheckoutWork
-      .committing("made", { at: minutesAgo(45) })
-      .rebasingTipOntoFetchedTrunkWork("fetched", { at: minutesAgo(25) })
-      .pushingToTrunk("pushed", { at: minutesAgo(20) }),
+      .committing("made", { at: at(45) })
+      .rebasingTipOntoFetchedTrunkWork("fetched", { at: at(25) })
+      .pushingToTrunk("pushed", { at: at(20) }),
   );
 
   const { runs } = await readSessionCommits(launch, { workspace: integration });

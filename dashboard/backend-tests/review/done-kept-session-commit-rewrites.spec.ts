@@ -2,23 +2,28 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
-import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 test("capture keeps a continued cherry-pick with the session's conflict resolution", async () => {
-  const checkout = await aCheckout({ withOrigin: true });
-  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
-  const { integration } = checkout;
-  const { baseline } = await work(
+  const {
     checkout,
+    records: { launch },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withDefaultMainLaunch("launch", { launched: 60 })
+    .please();
+  const { integration } = checkout;
+  const { baseline } = await performWork(
     makeMe.aCheckoutWork.committing("baseline", {
-      at: minutesAgo(90),
+      at: at(90),
       files: { "notes.txt": "Local notes\n" },
     }),
   );
-  const { tree } = await work(
-    checkout,
+  const { tree } = await performWork(
     makeMe.aCheckoutWork.continuingConflictedCherryPick("tree", {
-      at: minutesAgo(30),
+      at: at(30),
       file: "notes.txt",
       incoming: "Incoming notes\n",
       resolution: "Reconciled notes\n",
@@ -36,17 +41,21 @@ test("capture keeps a continued cherry-pick with the session's conflict resoluti
 
 for (const mode of ["fixup", "squash"] as const) {
   test(`capture keeps the rewritten commit after autosquashing a ${mode}`, async () => {
-    const checkout = await aCheckout();
-    const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
+    const {
+      checkout,
+      records: { launch },
+      performWork,
+      at,
+    } = await aDoneCaptureCase()
+      .withDefaultMainLaunch("launch", { launched: 60 })
+      .please();
     const { base, integration } = checkout;
-    const { target } = await work(
-      checkout,
-      makeMe.aCheckoutWork.committing("target", { at: minutesAgo(40) }),
+    const { target } = await performWork(
+      makeMe.aCheckoutWork.committing("target", { at: at(40) }),
     );
-    const { tree } = await work(
-      checkout,
+    const { tree } = await performWork(
       makeMe.aCheckoutWork.autosquashing("tree", {
-        at: minutesAgo(25),
+        at: at(25),
         target,
         mode,
         file: "added.txt",

@@ -7,7 +7,9 @@ import type { PublishedSource } from "./publishedSource.ts";
 export type ProofRead =
   CiProof | { readonly kind: "unanswered"; readonly detail?: string };
 
-export function createCiProofReading() {
+export function createCiProofReading(
+  readProof: typeof readIntentCiProof = readIntentCiProof,
+) {
   let selected:
     | { readonly source: PublishedSource; readonly key: string | undefined }
     | undefined;
@@ -31,7 +33,6 @@ export function createCiProofReading() {
       source: PublishedSource,
       key: string | undefined,
       subject: CiProofSubject | undefined,
-      readProof: typeof readIntentCiProof = readIntentCiProof,
     ) {
       if (active && selected?.source === source && selected.key === key) return;
       selected = { source, key };

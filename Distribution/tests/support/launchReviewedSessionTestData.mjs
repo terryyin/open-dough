@@ -116,6 +116,30 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   }
 
   /**
+   * A Default main launch in the `claude` session `session` that identified
+   * the worktree `workspace` on `branch`, then holding the checkout's base
+   * `tree`, as its own branch, witnessing trunk and its default branch at
+   * that base.
+   * @param {string} session
+   * @param {{ integration: string, base: string, gitDirectory: string }} checkout
+   * @param {{ workspace: string, branch: string, tree: string }} worktree
+   */
+  ofDeclaringDefaultMainLaunch(session, checkout, { workspace, branch, tree }) {
+    const { base, gitDirectory } = checkout;
+    return this.startedOnMainOf(checkout)
+      .inClaudeSession({ sessionId: session })
+      .enteredBranch({
+        repository: gitDirectory,
+        workspace,
+        branch,
+        committedTip: base,
+        tree,
+        defaultTip: base,
+        trunk: { remote: "origin", target: "refs/heads/main", revision: base },
+      });
+  }
+
+  /**
    * The project keeps one Done one-shot execution of the story in this
    * `claude` session, reporting under `reference`; a one-shot start counts as
    * the story's landed run.

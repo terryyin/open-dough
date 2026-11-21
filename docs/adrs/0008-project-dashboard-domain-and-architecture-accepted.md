@@ -58,7 +58,13 @@ planning.
 Each Product intent contains **Purpose**, the
 expected behavior and why it matters, and **Proof**, executable verification
 and supporting evidence. Proof distinguishes maintained procedures from
-particular observed results.
+particular observed results. CI observations identify the revision measured.
+A delta attributed to a contribution requires comparable observations that
+isolate it.
+
+Intent is the shared context for reading and reviewing a project. Its scope
+identifies the project, optional story and sessions, revision or comparison,
+and repository path. Purpose, source, diffs and Proof share that scope.
 
 Storage, proof representation, and presentation remain design choices.
 Detailed semantics, evidence considerations, and open questions belong in the
@@ -83,10 +89,10 @@ evidence from an explicit negative result.
 | Story card | A representation of one story within a Column, holding its facts, actions, and associated Session entries. |
 | Session entry | A representation of one agent session, within a Story card, directly in a Column, or in the Sessions sidebar. |
 | Sessions sidebar | The left-hand region listing open agent sessions across projects, with an optional Running Cursor sessions section. |
-| Side panel | The auxiliary region, normally to the Board's right, showing one terminal, final report, or story review at a time. |
+| Side panel | The auxiliary region, normally to the Board's right, showing one terminal or final report at a time. |
 | Panel divider | The resize control between the Board and Side panel when they appear side by side. |
 | Scrollbar | A control that scrolls its owning region; qualify it by that region, such as Board scrollbar or Side panel scrollbar. |
-| Selected story | The page's one story, or none, that the dashboard is showing. Opening that story's content in the Side panel, clicking an empty area of its Story card, selecting a Recently done sessions row linked to the completed story, or choosing a Recent stories row can set it. Closing the Side panel preserves the current selection. Clicking an empty area of the selected Story card or showing a session attached to no story clears it. Intent reads it. |
+| Selected story | The page's one story, or none, that the dashboard is showing. Opening its review in Intent or its content in the Side panel, clicking an empty area of its Story card, selecting a Recently done sessions row linked to the completed story, or choosing a Recent stories row can set it. Closing the Side panel preserves the current selection. Clicking an empty area of the selected Story card or showing a session attached to no story clears it. Intent reads it. |
 | Recent stories | The banner control and its list of recently set Selected stories in this browser. A filled bookmark shows that a story is selected; an outline bookmark shows that none is. The list is most recent first, each project and story pair once, and clearing the Selected story leaves the list as it is. |
 | Highlight | The selected story's visual indication on its Story card. |
 | Inspect | Opening or closing a Story card's inline detail, which leaves the Selected story as it is. |
@@ -101,8 +107,8 @@ standalone session is selected.
 Use these names directly across UI language, architecture, code, tests, and
 documentation, adapting casing only to programming syntax. Each concept has
 one name and responsibility; keep no competing synonym or alias layer. A Panel
-divider resizes; a Scrollbar scrolls. Terminals, final reports, and story reviews
-are Side panel contents, not names for the shared region. Layout and scrolling mechanics stay with the dashboard UI implementation.
+divider resizes. A Scrollbar scrolls. Layout and scrolling mechanics stay with
+the dashboard UI implementation.
 
 ### Durable project state and local operational state
 
@@ -110,7 +116,12 @@ The project repository owns the workflow records for backlog membership,
 developer assignments, and published progress. A done record beside the backlog
 identifies each completed story. Each session that publishes work has its own
 record linking the session to its changes and, where applicable, its story.
+Published session identities and comparisons survive checkout retirement.
 The dashboard can rebuild its views and caches from their sources.
+
+Marking an ad hoc session Done creates a Done story if the session has no
+story. An existing association and the story's status are preserved. Each
+follow-up has its own session ID under that story.
 
 Project configuration is machine-local operational state, separate from the
 observed repositories' workflow records. There is no application/server
@@ -156,8 +167,9 @@ groups supported workflow facts; drawing a connector does not establish a new
 persisted state, a dependency between stories, or a mandatory linear lifecycle.
 Story identity and source evidence remain stable independently of card placement.
 
-Viewport position, zoom, focused work, and animation are presentation state,
-separate from published project facts and machine-local operational evidence.
+Viewport position, zoom, focused work, animation, review navigation, and file
+filters are presentation state, separate from published project facts and
+machine-local operational evidence.
 Losing them loses no project progress. Motion can explain a change between
 observed snapshots; it cannot establish unobserved activity. This
 intention does not prescribe canvas, a graph library, or stored layout data.
@@ -204,11 +216,10 @@ machine without becoming the authority for project state. Current capabilities
 are documented by the dashboard's code, automated tests, and configuration
 ([ADR 0000](./0000-use-adrs-accepted.md)).
 
-The Product intent and Structure perspectives remain design direction.
-Their meaning constrains how we understand the product without requiring their
-machinery in advance. Their UX/UI, proof information, and architectural North
-Star placement remain open. Presentation and storage choices belong to that
-design work.
+Intent already reads test source and CI observations. The shared review
+interface is described in the
+[Dashboard UX/UI North Star](../dashboard-ux-ui-north-star.md#review-in-intent).
+Structure remains a separate design direction.
 
 ## Consequences
 

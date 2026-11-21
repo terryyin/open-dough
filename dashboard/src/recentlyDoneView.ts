@@ -80,6 +80,18 @@ function useDestinationAnswer(
 
 export const recentlyDoneName = "Recently done";
 
+export function recentlyDoneProblems(
+  done: PublishedWork["done"],
+  publishedSessions: PublishedWork["publishedSessions"],
+) {
+  return [
+    ...(done?.status === "unavailable" ? [done.problem] : []),
+    ...(publishedSessions?.status === "unavailable"
+      ? [publishedSessions.problem]
+      : []),
+  ];
+}
+
 // Done stories and the selected project's closed sessions use one list for
 // rendering and counts, of which the requested first entries show.
 // Unresolved creations remain recovery evidence only.
@@ -202,12 +214,7 @@ export function useRecentlyDone({
     none: noneKept
       ? "No sessions launched from this dashboard are kept."
       : "No sessions are listed in Recently done.",
-    problems: [
-      ...(done?.status === "unavailable" ? [done.problem] : []),
-      ...(publishedSessions?.status === "unavailable"
-        ? [publishedSessions.problem]
-        : []),
-    ],
+    problems: recentlyDoneProblems(done, publishedSessions),
     unreadable: unreadable.map((record) => ({
       file: record.fileName,
       detail: details.detailOf(record),

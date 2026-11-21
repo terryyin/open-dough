@@ -3,6 +3,7 @@ import {
   composeBackgrounds,
   contrastRatio,
 } from "../../test-support/composedColours.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 declare module "vitest/browser" {
   interface LocatorSelectors {
@@ -106,7 +107,7 @@ export function reviewDiffPage() {
     firstToken: () => reading.getByCSS(".source-token").first(),
     scrollTop: () => reading.element().scrollTop,
     openLineMenu: (label: string) =>
-      reading.getByRole("button", { name: label, exact: true }).click(),
+      activateButton(reading.getByRole("button", { name: label, exact: true })),
     lineMenu(label: string) {
       const menu = reading.getByRole("menu", { name: label, exact: true });
       return {
@@ -119,9 +120,11 @@ export function reviewDiffPage() {
       };
     },
     showPrecedingLines: () =>
-      revealedBefore
-        .getByRole("button", { name: /^Show \d+ preceding lines?$/ })
-        .click(),
+      activateButton(
+        revealedBefore.getByRole("button", {
+          name: /^Show \d+ preceding lines?$/,
+        }),
+      ),
     firstRevealedLine: () =>
       diffLine(revealedBefore.getByCSS("li.story-review-line").first()),
     revealedLines: () =>

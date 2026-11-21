@@ -2,7 +2,7 @@
 // folder and file results. Browser observations live in the Summary and file
 // Proof page owners.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 
 export const entry = "dashboard/tests";
 export const folder = `${entry}/folder`;

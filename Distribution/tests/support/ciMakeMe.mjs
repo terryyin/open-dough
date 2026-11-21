@@ -1,8 +1,6 @@
 // @ts-check
 // CI-domain MakeMe builders: defined as accessors so each `makeMe.aThing`
 // access stays a fresh builder while the public entry stays a thin aggregate.
-import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
-import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
 import {
   PublishedStoryEndpointBuilder,
   TakenStoryEndpointBuilder,
@@ -17,10 +15,7 @@ import { LandedCiHistoryBuilder } from "./landedCiHistoryTestData.mjs";
 import { ciHistoryAnswerMakeMeProperties } from "./ciHistoryAnswerTestData.mjs";
 import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
 import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
-import {
-  intentCiStatusMakeMeProperties,
-  StoryCiComparisonBuilder,
-} from "./comparisonViewTestData.mjs";
+import { comparisonViewMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
 import { DashboardProofRecordBuilder } from "./dashboardProofRecordTestData.mjs";
 import { GitHubJobBuilder } from "./ciJobTestData.mjs";
@@ -41,7 +36,7 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 /**
  * CI builders exposed on MakeMe (fresh on each access).
  *
- * @typedef {CiOwnMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
+ * @typedef {CiOwnMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").ComparisonViewMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
  */
 /**
  * @typedef {object} CiOwnMakeMe
@@ -49,14 +44,11 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
  * @property {FactBuilder<import("../../../dashboard/server/ciFollowUpStore.ts").RepeatRequest>} aCiRepeatRequest
  * @property {FactBuilder<ComparisonEndpointProof>} aComparisonEndpointProof
  * @property {import("./landedCiProofTestData.mjs").LandedCiResolutionBuilder} aLandedCiResolution
- * @property {import("./comparisonViewTestData.mjs").StoryCiComparisonBuilder} aStoryCiComparison
  * @property {import("./ciComparisonTestData.mjs").PublishedStoryEndpointBuilder} aPublishedStoryEndpoint
  * @property {import("./ciComparisonTestData.mjs").TakenStoryEndpointBuilder} aTakenStoryEndpoint
  * @property {import("./ciRunTestData.mjs").RevisionCiRunBuilder} aRevisionCiRun
  * @property {import("./ciProofArtifactTestData.mjs").CiProofArtifactBuilder} aCiProofArtifact
  * @property {import("./ciTimingTestData.mjs").CiTimingJobBuilder} aCiTimingJob
- * @property {import("./ciProofEntryTestData.mjs").CiProofEntryBuilder} aCiProofEntry
- * @property {import("./ciProofEvidenceTestData.mjs").CiProofEvidenceBuilder} aCiProofEvidence
  * @property {import("./ciProofFragmentTestData.mjs").CiProofFragmentBuilder} aCiProofFragment
  * @property {import("./ciProofSummaryTestData.mjs").CiProofSummaryBuilder} aCiProofSummary
  * @property {import("./dashboardProofRecordTestData.mjs").DashboardProofRecordBuilder} aDashboardProofRecord
@@ -97,12 +89,6 @@ export function ciMakeMeProperties() {
         return new LandedCiResolutionBuilder();
       },
     },
-    aStoryCiComparison: {
-      enumerable: true,
-      get() {
-        return new StoryCiComparisonBuilder();
-      },
-    },
     aPublishedStoryEndpoint: {
       enumerable: true,
       get() {
@@ -131,18 +117,6 @@ export function ciMakeMeProperties() {
       enumerable: true,
       get() {
         return new CiTimingJobBuilder();
-      },
-    },
-    aCiProofEntry: {
-      enumerable: true,
-      get() {
-        return new CiProofEntryBuilder();
-      },
-    },
-    aCiProofEvidence: {
-      enumerable: true,
-      get() {
-        return new CiProofEvidenceBuilder();
       },
     },
     aCiProofFragment: {
@@ -203,6 +177,6 @@ export function ciMakeMeProperties() {
     ...ciReusePolicyMakeMeProperties(),
     ...ciComparisonAnswerMakeMeProperties(),
     ...comparedStoryMakeMeProperties(),
-    ...intentCiStatusMakeMeProperties(),
+    ...comparisonViewMakeMeProperties(),
   };
 }

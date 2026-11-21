@@ -11,16 +11,20 @@ scope: six stories
 
 A developer should be able to find what a session contributed from any machine with the project repository. Today a completed story can be reconstructed from published history, while session comparisons depend on local launch records. [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state) places the published association in the repository.
 
+The [unified Intent review seed](SEED-420-unified-intent-review.md) owns
+the review destination, the Recent stories regression and the identity of
+standalone Done work. This seed owns session attribution and selection.
+
 <a id="attribute-every-workflow-session-record"></a>
 
 ### Attribute every workflow session’s published changes
 
 **Identity:** SEED-418#attribute-every-workflow-session-record
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-418#attribute-every-workflow-session-record","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session record contract and Dashboard reader","rationale":"Every workflow's record extends the published record format, its publication path and the Dashboard reader that the standalone story establishes; defining them twice would split one contract.","condition":"A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.","state":"waiting","resolution":{"revision":"2d82175d5ba4b7cdaba48cfa8312cfa261de4816","path":".planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes","summary":"Still waiting. The record contract, publishSessionClose and the Dashboard published-record reader are delivered and proved by E2E with a real publishSessionClose record, but the retrospective found that no real Land reaches publishSessionClose: native starts have no session UUID source and the Dashboard-launched route never names it. Next action: deliver SEED-418#correct-published-session-review (plan 746) slice 2, then re-judge on the next visit.\nCondition remains unresolved: A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.\nAccepted integration: 8be1d19835f1448ceb5a70342bf35fe122739408 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"identity":"SEED-418#attribute-every-workflow-session-record","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session record contract and Dashboard reader","rationale":"Every workflow's record extends the published record format, its publication path and the Dashboard reader that the standalone story establishes; defining them twice would split one contract.","condition":"A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.","state":"satisfied","resolution":{"revision":"2d82175d5ba4b7cdaba48cfa8312cfa261de4816","path":".planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes","summary":"Satisfied. The earlier wait named the missing route: no real Land reached publishSessionClose. SEED-418#correct-published-session-review delivered it in eed84c8c4 (plan 746 slice 2): Dough Land's publisher choice sends ordinary reviewed work with the launch's Dashboard landing context to publishSessionClose under the launch reference, and 48b697b58 installed that guidance and its modules. At 107ac15cb, Distribution/tests/skills/dough-land/session-record-publication.test.mjs passed 4 cases, including a Dashboard-launched Land publishing the record of its accepted comparison to the remote under the launch reference, and e2e/sessions/recently-done-published-sessions.spec.ts reviews another machine's record through the Dashboard's published-record reader after trunk advances.\nCondition satisfied: A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.\nAccepted integration: 8be1d19835f1448ceb5a70342bf35fe122739408 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/747-attribute-every-workflow-session-record/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6b15d2208ffdb8bb2c0e5e076a4c66afd981027ab356b598f5dc97e8e9bc76e2","plan":"fc8fce64e1756f4cdb7a02e783b0a0752b8366228ae972ce5b3a638240483260"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/747-attribute-every-workflow-session-record/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e0b09f810be8d6485aa85ce073ec2f712d154ad217fe7688e69ea2f240b70f33","plan":"6ed4f2a983012e516f11ce544a6b2c94601af87af098b6ed0df430f3378f7692"}}
 ```
 
 Split on 2026-11-21 from `SEED-418#review-published-session-changes` at its
@@ -89,7 +93,14 @@ repository are sufficient to review the comparisons.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-In a story’s **Review changes**, a developer can choose one completed session and inspect its contribution. Offer refinements, execution, and linked ad hoc follow-ups, including follow-ups published after story completion. Identify repeated refinements individually and explain a missing comparison for the selected session.
+In the shared Intent review, **Sessions** defaults to the whole story.
+A developer can choose one completed session from the story's refinements,
+execution and linked follow-ups, including follow-ups after story completion.
+Name repeated refinements individually. With **All changes**, inspect the
+chosen session's contribution. With **Landed runs**, show its recorded runs
+under the same session and allow selection when it has several. A session
+without a landing stays selected with an explanation. Source, diff and Proof
+use that selection.
 
 Given two refinements, execution, and a follow-up on another machine, selecting the second refinement shows the changes attributed to that refinement. The whole-story comparison remains available.
 
@@ -109,6 +120,11 @@ A developer can select several sessions in the story review and see their net ef
 
 A skipped session or an unrelated trunk change can fall between two selections. Exclude that work from the combined result. Where a selected edit depends on an excluded change and the net result cannot be separated faithfully, explain the gap and offer the selected comparisons individually.
 
+Use the same Sessions picker for one or several sessions and their runs.
+Switching between All changes and Landed runs preserves the chosen sessions.
+Proof names the measured revisions for that selection and offers per-range
+evidence when the combined changes have no corresponding build.
+
 <a id="recover-expired-session-reviews"></a>
 
 ### Recover expired session reviews from Git history
@@ -122,35 +138,3 @@ A skipped session or an unrelated trunk change can fall between two selections. 
 ```
 
 After the 30-day window removes a published session file from the current snapshot, a developer can find that session and review its contribution using the record in published Git history. Recover its original UUID, story association when present, and recorded comparison. Check from a second machine with no local launch history. This covers sessions for which the workflow previously published a record.
-
-<a id="name-unavailable-published-session-review"></a>
-
-### Correct the published-session review’s gap naming and tests
-
-**Identity:** SEED-418#name-unavailable-published-session-review
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/750-name-unavailable-published-session-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"da19fe99d64abd19c793afe53986dc5f6734f44223628440c44321de5a4e507e","plan":"ce030dd4105600686b083274732ae3cdb91be7847776ab68fe1cc61f8f739bb9"}}
-```
-
-Correction from the outcome reviews of
-SEED-418#correct-published-session-review
-(`6302d70889f6b798df1fd8d8a5381e71d729f3ae:.planning/slice-plans/746-correct-published-session-review/PLAN.md`,
-commits `126fabd26..85cdf9d64` on its branch, landed through `cb341cec7`).
-Plan 746's promises stay as written.
-
-**Goal.** A developer who opens a published session whose recorded commits
-this machine lacks still sees a published-session gap, and a hung fetch still
-answers from the last fetched trunk. The published-session review and listing
-are proved by tests that exercise production code directly, with test support
-smaller than before plan 746's execution, as the
-[North Star](../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
-requires.
-
-**Scope.** Name the unavailable published answer as published changes. Return
-the listing-gap proof, the listing handler spec and the review subject cases
-to mounted or plain-Vitest cases over typed inputs, removing the frontend-app
-substitute additions, the server-and-HTTP Playwright listing spec and the
-hand-rolled `act` mounting. Restore one record-path rule and give the
-published source's fallback its own budget. Kept-session gaps, Land routing,
-listing suppression and the pinned listing path stay unchanged. Plan:
-[750](../slice-plans/750-name-unavailable-published-session-review/PLAN.md).

@@ -9,25 +9,31 @@ import {
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
-import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { notCaptured } from "../support/doneCaptureReview.ts";
 
 test("a pending Done refuses the previous review and its files", async () => {
-  const checkout = await aCheckout();
-  const { first } = await work(
+  const {
     checkout,
-    makeMe.aCheckoutWork
-      .committing("first", { at: minutesAgo(40) })
-      .committing("second", { at: minutesAgo(20) }),
-  );
-  const record = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .markedDoneAt(minutesAgo(10))
-    .keptSessionCommits({
-      repository: path.join(checkout.integration, ".git"),
-      runs: [{ base: checkout.base, revision: first }],
-      readAt: minutesAgo(30),
-    })
+    work: { first },
+    records: { launch: record },
+  } = await aDoneCaptureCase()
+    .withWork((at) =>
+      makeMe.aCheckoutWork
+        .committing("first", { at: at(40) })
+        .committing("second", { at: at(20) }),
+    )
+    .withDefaultMainLaunch(
+      "launch",
+      { launched: 60, done: 10 },
+      // The previous capture read the first commit before Done was pending.
+      (launch, { at, checkout, work }) =>
+        launch.keptSessionCommits({
+          repository: path.join(checkout.integration, ".git"),
+          runs: [{ base: checkout.base, revision: work.first }],
+          readAt: at(30),
+        }),
+    )
     .please();
   const read = makeMe.aSessionReviewRead.ofRecord(record);
   const review = read.please();
@@ -52,19 +58,21 @@ test("a pending Done refuses the previous review and its files", async () => {
 });
 
 test("a pending Done cannot inherit the previous no-commit finding", async () => {
-  const checkout = await aCheckout();
-  await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("first", { at: minutesAgo(20) }),
-  );
-  const record = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .markedDoneAt(minutesAgo(10))
-    .keptSessionCommits({
-      repository: path.join(checkout.integration, ".git"),
-      runs: [],
-      readAt: minutesAgo(30),
-    })
+  const {
+    records: { launch: record },
+  } = await aDoneCaptureCase()
+    .withWork((at) => makeMe.aCheckoutWork.committing("first", { at: at(20) }))
+    .withDefaultMainLaunch(
+      "launch",
+      { launched: 60, done: 10 },
+      // The previous capture found no commit before Done was pending.
+      (launch, { at, checkout }) =>
+        launch.keptSessionCommits({
+          repository: path.join(checkout.integration, ".git"),
+          runs: [],
+          readAt: at(30),
+        }),
+    )
     .please();
   const read = makeMe.aSessionReviewRead.ofRecord(record).please();
 
@@ -74,20 +82,25 @@ test("a pending Done cannot inherit the previous no-commit finding", async () =>
 });
 
 test("capture excludes a commit that arrives after Done's tip was read", async () => {
-  const checkout = await aCheckout();
-  const { second } = await work(
+  const {
     checkout,
-    makeMe.aCheckoutWork
-      .committing("first", { at: minutesAgo(40) })
-      .committing("second", { at: minutesAgo(20) }),
-  );
-  const { launchedAt } = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
+    work: { second },
+    timeline: {
+      launch: { launchedAt },
+    },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withWork((at) =>
+      makeMe.aCheckoutWork
+        .committing("first", { at: at(40) })
+        .committing("second", { at: at(20) }),
+    )
+    .withDefaultMainLaunch("launch", { launched: 60 })
     .please();
 
-  await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("after-done", { at: minutesAgo(5) }),
+  await performWork(
+    makeMe.aCheckoutWork.committing("after-done", { at: at(5) }),
   );
 
   const capture = await readSessionCommitsAt({

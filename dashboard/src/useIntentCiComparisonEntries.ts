@@ -35,7 +35,7 @@ export function useIntentCiComparisonEndpointProofs(
   checkedAgain: number,
 ): ComparisonEndpointProofs | undefined {
   const { readProof } = useContext(IntentCiReadSourceOnPage);
-  const [owner] = useState(createCiComparisonProofs);
+  const [owner] = useState(() => createCiComparisonProofs(readProof));
   useSyncExternalStore(owner.subscribe, owner.getSnapshot, owner.getSnapshot);
   useEffect(
     () => () => {
@@ -44,8 +44,8 @@ export function useIntentCiComparisonEndpointProofs(
     [owner],
   );
   useEffect(() => {
-    void owner.select(source, answer, checkedAgain, readProof);
-  }, [owner, source, answer, checkedAgain, readProof]);
+    void owner.select(source, answer, checkedAgain);
+  }, [owner, source, answer, checkedAgain]);
   return owner.proofsFor(source, answer, checkedAgain);
 }
 

@@ -1,0 +1,261 @@
+---
+id: SEED-420
+status: active
+planted: 2026-11-21
+planted_during: Review of the SEED-413 file-count comparison and unified Intent design
+trigger_when: selected from the product backlog
+scope: seven stories
+---
+
+# SEED-420 — Review code and proof in the same Intent workspace
+
+A developer reviewing a story should be able to follow one revision and path
+from source to proof and back. Filtering today's Changed tests table alone
+would hide one symptom while leaving the two review destinations and their
+different baselines in place. Keep the current review, history, notes and CI
+evidence capabilities in one workspace. [Design direction](../../docs/dashboard-ux-ui-north-star.md#review-in-intent)
+and [dashboard ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships).
+The [interactive design example](SEED-420-unified-intent-review/preview.html)
+uses illustrative sessions. Narrow the window to see the icon-only bookmark.
+
+Keep the existing owners for [published session records and session selection](SEED-418-review-published-session-changes.md),
+[sidebar behavior](SEED-417-use-sidebars-consistently-across-the-dashboard.md),
+[Board actions](SEED-416-put-story-actions-in-the-comment-toolbar.md) and
+[outgoing follow-up context](SEED-415-choose-clear-follow-up-context.md).
+The effort bands below are relative hypotheses. Each section delivers a
+usable change, independently of the later polish.
+
+<a id="review-standalone-done-work"></a>
+
+### Reopen completed ad hoc work and its follow-ups under one identity
+
+**Identity:** SEED-420#review-standalone-done-work
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-420#review-standalone-done-work","dependencies":[{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Published session records for ad hoc Land and ad hoc story follow-ups, carrying the associated story identity","rationale":"The Done story is published with the session's record and read across machines through it. Building it first would define the record's story association and the ad hoc Land publication path twice.","condition":"An ad hoc session's Land and an ad hoc story follow-up's Land each publish a versioned session record on trunk that carries the UUID, close time, comparisons and story identity when associated, and the Dashboard reads it from another clone.","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/756-reopen-completed-ad-hoc-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ca95967715c47174aa8d7ecdbf27d7dceb1313c8da50865b723318f01cc2e69e","plan":"593d31baf36cf1ed44907b3e890190e868281ef545c9b52f04e1c2a0e4d45bb5"}}
+```
+
+**Goal.** A developer can return to completed ad hoc work as a story, from
+any machine once the work is published. Each ad hoc session marked Done
+with no story gets a new Done story, and the session is attached to it.
+Later follow-ups join that story, so the Board, Recent stories and the
+[shared Intent review](#open-review-in-intent) treat the work like any
+other Done story.
+
+**Scope.**
+
+- Marking an ad hoc session Done with no story creates a Done story and
+  attaches the session to it. The original session's UUID gives the story's
+  identity, so a repeated Done, a lost response or a second writer closing
+  the same session all reach the same story. The story's title comes from
+  the session. A session that already has a story keeps that association
+  and the story's current status. No new story is created for it.
+- A follow-up started from that Done story gets its own session UUID and
+  belongs to the same story. Marking it Done leaves one card, the story at
+  Done, with the follow-up's session added under it.
+- The session's Land publishes the Done story with that session's record
+  through the workflow's authorized publication path. The Done story
+  follows the same done-record window and catalog as any other Done
+  story. Records carry the original UUID, close time, story identity
+  and published comparisons. Dashboard Done stays local-only: a session
+  marked Done without a published Land has a Done story on this machine
+  only. It appears under Recently done and its review states that there is
+  no published comparison.
+- In Recently done sessions, choosing a new ad hoc Done row selects its
+  Done story, as a linked row does.
+- Standalone records from before this change keep their existing
+  references and still open their own comparison. Attach an older session
+  to a story only when a published record or a launch record names that
+  story. Never infer the association from timing or file overlap. When a
+  session's records name different stories, show the conflict and leave the
+  association for the developer to resolve. Never choose one silently.
+- Extend the Distribution work item identity contract to include this
+  session-derived story identity. Seed allocation and the existing
+  `SEED-NNN#anchor` identities are unchanged.
+
+Out of scope: selecting individual sessions in the review
+([SEED-418](SEED-418-review-published-session-changes.md#select-a-story-session-for-review)),
+the review destination itself, follow-up context choices
+([SEED-415](SEED-415-choose-clear-follow-up-context.md)) and card cues for
+open follow-ups
+([SEED-395](SEED-395-richer-done-follow-up-card-cues.md)). This story also
+does not migrate older standalone records in bulk.
+
+**Key examples.**
+
+- Ad hoc session `A` lands and is marked Done. A Done story named for `A`'s
+  UUID appears with `A` attached. On another clone after fetching, the same
+  story and `A`'s published comparison appear.
+- `A`'s Done is repeated after a lost response, and a quiet completion
+  report and a manual Done race on the same session. One story and one
+  record of `A`, with its original close time, result.
+- Follow up from that story starts session `B` with a new UUID. `B` lands
+  and is marked Done. The Board still shows one Done card, now listing `A`
+  and `B`.
+- A follow-up of a Taken story is marked Done. It stays under that story,
+  the story stays Taken, and no new story is created.
+- Ad hoc session `C` is marked Done without landing. A Done story for `C`
+  appears only on this machine. Its review states that no published
+  comparison exists.
+- A retained standalone record from before the change still opens its own
+  comparison. A session whose records name two different stories shows the
+  conflict instead of choosing one.
+
+**Architecture.** [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+already decides that Done creates a story only for a session with none.
+It also decides that follow-ups keep their own session IDs under that story.
+The durable story is a done record beside the backlog, published with the
+session record that SEED-418's
+[workflow session records](SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record)
+define. This story adds the session-derived identity and the attachment,
+generalizing the current split into linked and standalone Done rows. It does
+not add a third kind of Done row.
+
+**Effort hypothesis:** L, medium confidence. The critical uncertainty is
+reconciling workflow publication and local Done across machines.
+
+<a id="open-review-in-intent"></a>
+
+### Open a story's change review in Intent
+
+**Identity:** SEED-420#open-review-in-intent
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A reviewer opens **Review changes** from Development and lands on Intent at
+the selected story's cumulative diff, including production code and tests.
+Entering Intent directly for the same story offers that same review. Open a
+file, read its Proof and return to the same diff line. Home returns to the
+story's existing CI overview. Preserve review notes, review state, follow-ups,
+Intent coverage and direct links to the selected work.
+
+For a Taken story preserve the workspace/commit range and uncommitted choice
+where available. A Done story opens the published completion or its supported
+retained comparison after workspace retirement. Missing evidence names the
+gap. Existing session reviews remain reachable during rollout.
+
+**Effort hypothesis:** M, medium confidence, reusing the shared file diff.
+
+<a id="compare-story-contributions"></a>
+
+### Compare a story branch with and without incoming trunk changes
+
+**Identity:** SEED-420#compare-story-contributions
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A reviewer can inspect the branch's own contribution by default and widen the
+same comparison to include merged changes. Retain edits made while resolving
+the branch's own merge and identify inseparable changes. The control applies
+only to branch comparisons with the necessary history. In Trunk Mode, show
+the recorded ranges and identify shared-checkout ambiguity.
+
+In the landing-record story, the handoff spec is byte-identical in the
+attributed baseline tree `44a059b` and completion `daf6997`. Widening to the
+full interval reveals the separate handoff story's edit. The selected file,
+diff, folder summary and displayed range agree on the choice.
+
+**Effort hypothesis:** M, medium confidence, using existing Git attribution.
+
+<a id="read-proof-for-the-comparison"></a>
+
+### Read CI proof for the selected comparison
+
+**Identity:** SEED-420#read-proof-for-the-comparison
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A reviewer can tell what ran at the selected revision and whether the available
+CI runs support a delta for the selected work. Display the measured revision
+and run for each side, including an ancestor or a later build. For a combined
+session selection with disjoint ranges, show supported observations per range
+and say when a combined delta is unavailable. This story reads existing proof.
+
+For the handoff spec, the baseline build `8ecbf43` ran one case and the
+completion `daf6997` ran nine. The full-range view can show **1 → 9**. The
+story-only view can show **9 passed at completion** and the missing matching
+baseline. A failure in an untouched test remains visible in the CI overview.
+[Baseline run](https://github.com/terryyin/open-dough/actions/runs/44839032104) · [Completion run](https://github.com/terryyin/open-dough/actions/runs/44861394227)
+
+**Effort hypothesis:** M, medium confidence. The meaningful comparison is
+between equivalent proof units on revisions that isolate the contribution.
+
+<a id="choose-review-scope"></a>
+
+### Choose the whole project or a recent story from the bookmark
+
+**Identity:** SEED-420#choose-review-scope
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer uses the banner bookmark to switch stories or choose **Whole
+project**. Clearing the story preserves its recent-list entry. On mobile the
+closed control shows only the bookmark icon, with a touch target and accessible
+name conveying its scope. At desktop width it can show the current scope.
+
+Repair the reported failure to open the menu while the selected story is
+already visible. Verify Board and Intent: the first click on a visible story
+opens the list, the first click with the story offscreen reveals it, and the
+next click opens the list. Selecting another project's recent story navigates
+to it. Exercise keyboard activation as well as touch.
+
+**Effort hypothesis:** S, medium confidence. Reproduce the visibility
+regression at the affected viewport before changing its detection.
+
+<a id="filter-review-files"></a>
+
+### Filter the file browser by Intent and by changes
+
+**Identity:** SEED-420#filter-review-files
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer sees the same files in the tree and folder list for the selected
+revision and filters. **Intent only** means configured Intent locations.
+**Changes only** means added, modified, removed or renamed paths in the chosen
+comparison. With both enabled, a changed spec appears and an untouched spec
+and changed production file are hidden. Turning off either filter widens the
+selection along that dimension. Preserve historical locations, deletion and
+rename navigation, and the full comparison's evidence on Overview.
+
+Home precedes both filters in the sidebar header and returns to the current
+overview. Opening and hiding the sidebar follows SEED-417. A snapshot with
+no comparison offers Intent filtering and explains why Changes only is
+unavailable.
+
+**Effort hypothesis:** M, medium confidence, given the current story overlay.
+
+<a id="browse-the-project-at-a-revision"></a>
+
+### Read the whole repository and its CI from Project Intent
+
+**Identity:** SEED-420#browse-the-project-at-a-revision
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+With no story selected, a developer starts at the project's existing CI
+overview and can open a production file, test, or document at the named
+revision. Read a test's Purpose and Proof or a production file's source.
+Explain missing file-level evidence. Moving to another path keeps the named
+revision. Returning to Home restores the project's CI changes and measured
+builds. Project browsing also works for a repository with no Intent locations.
+
+**Effort hypothesis:** M, medium confidence. This expands the inventory beyond
+test locations while preserving revision-pinned reads.
+
+## Order and scope
+
+Prioritize readable, retry-safe session identity and existing record-format
+work before designs that depend on those facts. The shared review and its
+proof baseline are the first opportunity to replay the reported discrepancy.
+The bookmark repair travels with scope selection at ordinary priority. Whole
+project browsing can be deferred while story review, once delivered, remains
+useful. Structure and generating new paired CI runs are separate directions.

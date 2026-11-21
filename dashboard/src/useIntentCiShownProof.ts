@@ -62,7 +62,7 @@ export function useIntentCiShownProof(
     judgment === undefined || !readable
       ? undefined
       : `${source.id}|${JSON.stringify(ciProofSubjectOf(run))}|${judgment.checkedAt}`;
-  const [owner] = useState(createCiProofReading);
+  const [owner] = useState(() => createCiProofReading(readProof));
   const answer = useSyncExternalStore(
     owner.subscribe,
     owner.getSnapshot,
@@ -82,9 +82,8 @@ export function useIntentCiShownProof(
       source,
       key,
       shown === undefined ? undefined : ciProofSubjectOf(shown),
-      readProof,
     );
-  }, [owner, source, key, readProof]);
+  }, [owner, source, key]);
 
   if (judgment === undefined || judgment.unpublished === true) return undefined;
   return {

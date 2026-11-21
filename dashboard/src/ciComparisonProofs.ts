@@ -1,7 +1,7 @@
 // One disposable proof reader per endpoint, shared by all comparison views.
 // Equal subjects in different slots still make separate reads, as before.
-import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
 import type { CiProof, CiProofSubject } from "./ciProof.ts";
+import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
 import { createCiProofReading } from "./ciProofReading.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type {
@@ -68,11 +68,13 @@ function slotsOf(
   ] as const;
 }
 
-export function createCiComparisonProofs() {
+export function createCiComparisonProofs(
+  readProof: typeof readIntentCiProof = readIntentCiProof,
+) {
   const readers = [
-    createCiProofReading(),
-    createCiProofReading(),
-    createCiProofReading(),
+    createCiProofReading(readProof),
+    createCiProofReading(readProof),
+    createCiProofReading(readProof),
   ] as const;
   const listeners = new Set<() => void>();
   let version = 0;
@@ -93,7 +95,6 @@ export function createCiComparisonProofs() {
       source: PublishedSource,
       answer: StoryCiComparisonAnswer | undefined,
       round: number,
-      readProof: typeof readIntentCiProof = readIntentCiProof,
     ) {
       const identity =
         answer?.kind === "comparison" ? answer.identity : undefined;
@@ -105,8 +106,7 @@ export function createCiComparisonProofs() {
         slots.map((slot, index) => {
           const { key, subject } = slotRead(source, identity, slot, round);
           return (
-            readers[index]?.select(source, key, subject, readProof) ??
-            Promise.resolve()
+            readers[index]?.select(source, key, subject) ?? Promise.resolve()
           );
         }),
       );

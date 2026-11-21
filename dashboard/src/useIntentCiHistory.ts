@@ -8,6 +8,7 @@
 // beside it.
 
 import { useContext, useEffect, useState } from "react";
+import { readIntentCiHistory } from "./authenticatedIntentCiHistoryRead.ts";
 import { unreadMeasureHistoryReason } from "./ciHistoryMeasureCapability.ts";
 import { IntentCiReadSourceOnPage } from "./intentCiReadSource.ts";
 import type { MeasuredHistory } from "./landedCiHistory.ts";
@@ -24,7 +25,9 @@ export function useIntentCiHistory(
   source: PublishedSource,
   round: string | undefined,
 ): HistoryReading | undefined {
-  const { readHistory } = useContext(IntentCiReadSourceOnPage);
+  const { readHistory = readIntentCiHistory } = useContext(
+    IntentCiReadSourceOnPage,
+  );
   const [shown, setShown] = useState<MeasuredHistory | undefined>(undefined);
   const [failed, setFailed] = useState<string | undefined>(undefined);
   // Another source's history is never shown as this one's.

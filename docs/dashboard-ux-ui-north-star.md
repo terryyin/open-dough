@@ -16,6 +16,42 @@ Still ahead:
 - The Structure perspective. It is deferred; its later interface is separate
   design work.
 
+## Review in Intent
+
+**Review changes** opens Intent at the selected story's cumulative diff.
+
+- **Scope.** The banner bookmark is the one scope chooser. Its menu offers
+  **Whole project** to clear the story and recent stories to select. On
+  mobile, only the bookmark icon occupies the banner. Its accessible name
+  identifies the selection. The [Board interaction](dashboard-board-interaction.md#touch-browsing-and-selection)
+  defines when a click first reveals an offscreen selection.
+- **Sessions and Compare.** A story opens as a whole. Choose individual
+  refinements, execution sessions or follow-ups, including several together.
+  **All changes** reads their net contribution. **Landed runs** uses captured
+  landings, grouped under the same sessions picker. Retain commit/range
+  inspection, published completion and available working-tree evidence in
+  the shared reader. Explain a missing or inseparable comparison in place.
+  In Story Branch Mode, **Include merged changes** widens the comparison to
+  include incoming trunk changes. With it off, retain the branch's own merge
+  edits and flag mixed resolutions. Direct trunk work uses its recorded ranges.
+- **Files.** A toolbar button shows or hides the file sidebar. The first
+  sidebar row holds the **Home** icon, **Intent only**, and **Changes only**,
+  in that order, together on mobile. Intent only shows the configured Intent
+  locations and their tests. Changes only shows paths changed in the active
+  comparison. Both on shows their intersection, both off the repository
+  inventory at the selected revision, including comparison paths for deletions
+  and renames. Tree and folder file lists use the same filters.
+- **Home and Proof.** Home returns to the existing project CI overview or the
+  selected story's overview with its comparison and sessions intact. File
+  filters affect browsing. A failing unchanged test still appears in overview
+  proof. Opening a file's Proof and returning to its diff restores the path,
+  line and comparison. Code and CI can have different evidence available:
+  name the measured build, and explain a missing matching baseline.
+- **Done work.** Marking an ad hoc session Done creates a Done story only if
+  it has no story. The original session and its follow-ups appear under that
+  story with their own session IDs. A retained standalone record from before
+  this change still opens its own comparison.
+
 Open choices that are not interface direction stay in
 [project visibility requirements](project-visibility-requirements.md#questions-retained-for-later-design).
 Delete a topic here once it is implemented.

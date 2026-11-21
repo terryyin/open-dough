@@ -6,61 +6,60 @@ import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
-import {
-  aCheckoutWithWorktree,
-  inWorktree,
-  minutesAgo,
-  type Checkout,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
-const branch = "topic";
+const branch = "topic" as const;
 
-// The project's checkout with an origin and the topic worktree at its base,
-// which holds the shared file.
-const aTopicWorktree = () =>
-  aCheckoutWithWorktree(branch, { "shared.txt": "original\n" });
-
-// A Default main launch that then identified the existing topic worktree as
-// its branch, entering it with whatever the worktree already held and the
-// trunk it observed then.
-async function aDeclaredTopic(checkout: Checkout, workspace: string) {
-  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout);
-  const { entry } = await proposeBranchEntry(
-    "refs/heads/main",
-    launch.please(),
-    { workspace, branch },
-  );
-  return { launch: launch.enteredBranch(entry), entry };
-}
+// A Default main launch beside the topic worktree, at a base that holds the
+// shared file.
+const aTopicCase = aDoneCaptureCase()
+  .withBaseFiles({ "shared.txt": "original\n" })
+  .withOrigin()
+  .withWorkspace(branch)
+  .withDefaultMainLaunch("declared", { launched: 80 });
 
 test("capture separates declared branch work from its entry and its trunk import", async () => {
-  const { checkout, workspace } = await aTopicWorktree();
-  await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork
-      .committing("earlier-commit", { at: minutesAgo(70) })
-      .editing("earlier-draft", { at: minutesAgo(65) }),
-  );
-  const { launch, entry } = await aDeclaredTopic(checkout, workspace);
-  const { "session-only": committedTip } = await work(
-    inWorktree(checkout, workspace),
+  const {
+    published,
+    at,
+    checkout,
+    worktrees: { [branch]: workspace },
+    records: { declared: record },
+    performWork,
+  } = await aTopicCase
+    .withWork(
+      (at) =>
+        makeMe.aCheckoutWork
+          .committing("earlier-commit", { at: at(70) })
+          .editing("earlier-draft", { at: at(65) }),
+      { in: branch },
+    )
+    .please();
+  const { entry } = await proposeBranchEntry(published.ref, record, {
+    workspace,
+    branch,
+  });
+  const { "session-only": committedTip } = await performWork(
     makeMe.aCheckoutWork
       .mergingTrunkWork("imported", {
-        at: minutesAgo(40),
+        at: at(40),
         files: {
           "import-only.txt": "trunk addition\n",
           "shared.txt": "imported line\n",
         },
       })
-      .committing("session-only", { at: minutesAgo(30) })
+      .committing("session-only", { at: at(30) })
       .editing("edit", {
-        at: minutesAgo(20),
+        at: at(20),
         files: { "shared.txt": "session edit of imported line\n" },
       }),
+    { in: branch },
   );
 
-  const { result } = await captureBranchResult(launch.please(), minutesAgo(10));
+  const { result } = await captureBranchResult(
+    { ...record, branchEntry: entry },
+    at(10),
+  );
   const { integration } = checkout;
   expect(result.attributionGap).toBeUndefined();
   expect(result.committedTip).toBe(committedTip);
@@ -88,32 +87,45 @@ test("capture separates declared branch work from its entry and its trunk import
 });
 
 test("conflicting baseline evidence explains why the branch changes cannot be attributed", async () => {
-  const { checkout, workspace } = await aTopicWorktree();
-  await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("earlier", {
-      at: minutesAgo(70),
-      files: { "shared.txt": "branch line from before entry\n" },
-    }),
-  );
-  const { launch, entry } = await aDeclaredTopic(checkout, workspace);
-  const { imported } = await work(
-    checkout,
+  const {
+    published,
+    at,
+    worktrees: { [branch]: workspace },
+    records: { declared: record },
+    performWork,
+  } = await aTopicCase
+    .withWork(
+      (at) =>
+        makeMe.aCheckoutWork.committing("earlier", {
+          at: at(70),
+          files: { "shared.txt": "branch line from before entry\n" },
+        }),
+      { in: branch },
+    )
+    .please();
+  const { entry } = await proposeBranchEntry(published.ref, record, {
+    workspace,
+    branch,
+  });
+  const { imported } = await performWork(
     makeMe.aCheckoutWork
       .committing("imported", {
-        at: minutesAgo(40),
+        at: at(40),
         files: { "shared.txt": "trunk line\n" },
       })
-      .pushingToTrunk("pushed", { at: minutesAgo(40) }),
+      .pushingToTrunk("pushed", { at: at(40) }),
   );
   await git(workspace, "fetch", "--quiet", "origin");
   await git(workspace, "merge", "--quiet", "--no-edit", "-X", "ours", imported);
-  const { tip } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
+  const { tip } = await performWork(
+    makeMe.aCheckoutWork.committing("tip", { at: at(30) }),
+    { in: branch },
   );
 
-  const { result } = await captureBranchResult(launch.please(), minutesAgo(10));
+  const { result } = await captureBranchResult(
+    { ...record, branchEntry: entry },
+    at(10),
+  );
 
   expect(result).toMatchObject({
     base: entry.tree,

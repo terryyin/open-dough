@@ -9,7 +9,8 @@ import {
 } from "../../server/observedSessionLandings.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { branchResultAtDone } from "../../src/sessionBranchResult.ts";
-import { aCheckout, source } from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const observedTrunk = { id: source, ref: "main" };
 const observed = "c".repeat(40);
@@ -18,7 +19,9 @@ const trunk = { remote: "origin", target: "refs/heads/main" };
 // A Done branch awaiting delivery whose inspection finds `pair`, a revision
 // of a real repository so the adapter can pin it.
 async function aDeliveredDoneBranch() {
-  const { integration: repository, base } = await aCheckout();
+  const {
+    checkout: { integration: repository, base },
+  } = await aDoneCaptureCase().please();
   const record = makeMe.aLaunchRecord
     .adHoc({ title: "draft" })
     .awaitingManualDelivery({ repository, base, revision: base })

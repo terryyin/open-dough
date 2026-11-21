@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Maria-chan",
-  "email": "maria-chan@example.org",
-  "identity": "SEED-413#speed-intent-ci-comparison-proof",
-  "mode": "story-branch",
-  "branch": "claude/get-fast-proof-of-a-story-s-intent-ci-comparison",
-  "host": "claude"
-}

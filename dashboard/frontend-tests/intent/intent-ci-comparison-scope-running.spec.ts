@@ -1,70 +1,33 @@
-import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
-// Real child navigation retains one provider for a running Landed fallback.
-// The fast request rule lives in backend-tests/intent/ci-comparison-client-scopes.spec.ts.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../../test-support/support/comparisonMountPage.ts";
-import { childName } from "../../test-support/intentScopeProofPage.ts";
+// A running Landed keeps one Branch fallback, read once, as the reader moves
+// from the story's comparison to the entry, its folders and a file's Proof.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { mountCiScope, scopeReadsOf } from "./intent-ci-scope-page.tsx";
 
-const variants: readonly ("running" | "no proof")[] = ["running"];
-for (const landed of variants) {
-  test(`Landed ${landed} preserves one Branch fallback through entry, folders and file Proof`, async ({
-    page,
-    comparisonServer,
-    comparisonServices,
-  }) => {
-    const story = makeMe.aComparedStory.inSummaryScope();
-    if (landed === "running") story.withLanded({ kind: "running" });
-    const facts = story.please();
-    comparisonServices.serve(facts);
-    const standardProof = comparisonServices.proof;
-    Object.assign(comparisonServices, {
-      proof: (params: URLSearchParams) => {
-        if (landed !== "no proof" || params.get("run") !== "3")
-          return standardProof(params);
-        return {
-          json: {
-            ...facts.proof(3),
-            proof: makeMe.aCiProof.unavailable("none").please(),
-          },
-        };
-      },
-    });
-    await mountComparison(page, comparisonServer, facts);
-    const summary = page.getByRole("region", { name: "Summary", exact: true });
-    const reason =
-      landed === "running"
-        ? "Landed is not used: Build is still running."
-        : "Landed is not used: This run published no CI proof summary.";
-    // Keyboard activation skips the pointer's frame-paced stability wait.
-    for (const child of [undefined, "folder/", "nested/"]) {
-      if (child !== undefined) await childName(summary, child).press("Enter");
-      await expect(
-        summary.getByRole("heading", {
-          name: "Baseline compared with Branch",
-          exact: true,
-        }),
-      ).toBeVisible();
-      await expect(comparisonReading(summary).fallbackReason).toHaveText(
-        reason,
-      );
-    }
-    await childName(summary, "c.spec.ts").press("Enter");
-    const proof = page.getByRole("region", { name: "Proof", exact: true });
-    await expect(
-      proof.getByRole("heading", {
-        name: "Baseline compared with Branch",
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(comparisonReading(proof).fallbackReason).toHaveText(reason);
-    await expect(proof.getByRole("table").getByRole("cell").nth(2)).toHaveText(
-      "+70 ms",
-    );
-    expect(comparisonServices.comparisons).toBe(1);
-    expect(comparisonServices.proofs).toBe(landed === "running" ? 2 : 3);
-  });
-}
+test("Landed running preserves one Branch fallback through entry, folders and file Proof", async () => {
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .withLanded({ kind: "running" })
+    .please();
+  const ci = scopeReadsOf(story);
+  const scope = await mountCiScope(story, ci.source);
+  const reason = "Landed is not used: Build is still running.";
+  const fallback = ["Baseline compared with Branch"];
+  await expect.poll(() => scope.story.activeComparison()).toEqual(fallback);
+  expect(scope.story.fallbackReason()).toEqual([reason]);
+  for (const child of [undefined, "folder/", "nested/"]) {
+    if (child !== undefined) await scope.summary.open(child);
+    await expect.poll(() => scope.summary.activeComparison()).toEqual(fallback);
+    expect(scope.summary.fallbackReason()).toEqual([reason]);
+  }
+  await scope.summary.open("c.spec.ts");
+  await expect.poll(() => scope.proof.activeComparison()).toEqual(fallback);
+  expect(scope.proof.fallbackReason()).toEqual([reason]);
+  await expect
+    .element(
+      scope.proof.fileCell("dashboard/tests/folder/nested/c.spec.ts", "Branch"),
+    )
+    .toHaveTextContent("+70 ms");
+  expect(ci.asked.comparisons).toHaveLength(1);
+  expect(ci.asked.proofs).toHaveLength(2);
+});

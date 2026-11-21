@@ -9,53 +9,52 @@ import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
-import {
-  aCheckout,
-  historyBeforeTheCase,
-  inWorktree,
-  keep,
-  markDone,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
-
-const launchFiles = historyBeforeTheCase({
-  files: { "deleted.txt": "delete this\n", ".gitignore": "ignored.txt\n" },
-}).withWorkspace("draft", { from: "base" });
+import { markDone, source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 test("Done keeps the worktree snapshot through a later edit and forced retirement", async () => {
-  const checkout = await aCheckout({ history: launchFiles, withOrigin: true });
-  const workspace = checkout.execution;
-  if (workspace === undefined) throw new Error("Missing the worktree.");
-  const baseline = checkout.base;
-  const record = makeMe.aLaunchRecord
-    .isolatedIn(checkout, { workspace, branch: "draft" })
+  const {
+    checkout,
+    worktrees: { draft: workspace },
+    records: { "isolated-draft": record },
+    work: { committedTip },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withBaseFiles({
+      "deleted.txt": "delete this\n",
+      ".gitignore": "ignored.txt\n",
+    })
+    .withOrigin()
+    .withWorkspace("draft")
+    .withIsolatedLaunch("isolated-draft", { launched: 60 }, "draft")
+    .withWork(
+      (at) =>
+        makeMe.aCheckoutWork
+          .committing("committedTip", {
+            at: at(30),
+            files: { "draft.txt": "committed draft\n" },
+          })
+          .editing("staged", {
+            at: at(25),
+            files: { "draft.txt": "staged draft\n", "staged.txt": "staged\n" },
+          }),
+      { in: "draft" },
+    )
+    .kept()
     .please();
-  keep(record);
-  const { committedTip } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork
-      .committing("committedTip", {
-        at: minutesAgo(30),
-        files: { "draft.txt": "committed draft\n" },
-      })
-      .editing("staged", {
-        at: minutesAgo(25),
-        files: { "draft.txt": "staged draft\n", "staged.txt": "staged\n" },
-      }),
-  );
+  const baseline = checkout.base;
   git(workspace, "add", "draft.txt", "staged.txt");
-  await work(
-    inWorktree(checkout, workspace),
+  await performWork(
     makeMe.aCheckoutWork.editing("unstaged", {
-      at: minutesAgo(20),
+      at: at(20),
       files: {
         "draft.txt": "draft left for review\n",
         "untracked.txt": "keep this\n",
         "ignored.txt": "leave this out\n",
       },
     }),
+    { in: "draft" },
   );
   rmSync(path.join(workspace, "deleted.txt"));
   const draftFile = path.join(workspace, "draft.txt");

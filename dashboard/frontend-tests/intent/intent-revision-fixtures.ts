@@ -1,4 +1,4 @@
-import { createElement, useState } from "react";
+import { createElement, useLayoutEffect, useState } from "react";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   pygardonFeatures,
@@ -90,11 +90,16 @@ export async function mountProjectIntent(
 function ChosenView({
   work,
   initial,
+  onOfferCommitted,
 }: {
   readonly work: PublishedWork;
   readonly initial: IntentMode;
+  readonly onOfferCommitted: (() => void) | undefined;
 }) {
   const [mode, setMode] = useState(initial);
+  useLayoutEffect(() => {
+    onOfferCommitted?.();
+  }, [onOfferCommitted]);
   return createElement(ProjectIntentReading, {
     source: work.source,
     work,
@@ -111,15 +116,26 @@ export async function mountIntentReading(
   revision: string,
   mode: IntentMode,
 ) {
+  const source = makeMe.aPublishedSource.pygardon.please();
   const workAt = (observed: string) =>
-    makeMe.aPublishedWork.ofPygardon.at(observed).please();
-  const reading = (work: PublishedWork, shown: boolean) =>
+    makeMe.aPublishedWork.of(source).at(observed).please();
+  const reading = (
+    work: PublishedWork,
+    shown: boolean,
+    onOfferCommitted?: () => void,
+  ) =>
     createElement(
       IntentReadSourceOnPage,
       { value: readSource },
       createElement(IntentReadingProvider, {
         project: work.source.id,
-        children: shown && createElement(ChosenView, { work, initial: mode }),
+        children:
+          shown &&
+          createElement(ChosenView, {
+            work,
+            initial: mode,
+            onOfferCommitted,
+          }),
       }),
     );
   const intent = await mountComponent(reading(workAt(revision), true), {
@@ -128,7 +144,10 @@ export async function mountIntentReading(
   });
   return {
     offerRevision: (observed: string) => {
-      intent.rerender(reading(workAt(observed), true));
+      const committed = new Promise<void>((resolve) => {
+        intent.rerender(reading(workAt(observed), true, resolve));
+      });
+      return { committed };
     },
     closeReading: (observed: string) => {
       intent.rerender(reading(workAt(observed), false));

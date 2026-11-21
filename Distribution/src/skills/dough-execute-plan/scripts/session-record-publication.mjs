@@ -6,14 +6,14 @@
 // `reference`, or for a native start the explicitly retained `sessionId`. Launch state, conversations, paths and native controls
 // stay local and never enter the record.
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join, posix } from "node:path";
+import { dirname, join } from "node:path";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { defaultBacklogPath } from "./owned-suffix-reconciliation.mjs";
 import { git } from "./publication-git.mjs";
 import { resolvePublicationLandingContext } from "./resolve-publication-landing-context.mjs";
 import {
   isSessionId,
-  sessionRecordRelativePath,
+  sessionRecordPathBeside,
   sessionRecordVersion,
 } from "./session-record.mjs";
 
@@ -21,10 +21,7 @@ export function sessionRecordPath(sessionId, backlogPath = defaultBacklogPath) {
   if (!isSessionId(sessionId)) {
     throw new Error(`session id ${JSON.stringify(sessionId)} is not a UUID`);
   }
-  return posix.join(
-    posix.dirname(backlogPath),
-    sessionRecordRelativePath(sessionId),
-  );
+  return sessionRecordPathBeside(backlogPath, sessionId);
 }
 
 /**

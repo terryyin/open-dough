@@ -8,35 +8,32 @@ import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
-  aCheckout,
   aHeldDone,
-  historyBeforeTheCase,
-  inWorktree,
-  keep,
   markDone,
   minutesAgo,
   source,
   undoDone,
-  work,
 } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 // A kept isolated launch whose worktree started on `draft` at the base.
 async function anIsolatedDraft() {
-  const history = historyBeforeTheCase().withWorkspace("draft", {
-    from: "base",
-  });
-  const checkout = await aCheckout({ history, withOrigin: true });
-  const workspace = checkout.execution;
-  if (workspace === undefined) throw new Error("Missing the worktree.");
-  const record = makeMe.aLaunchRecord
-    .isolatedIn(checkout, { workspace, branch: "draft" })
+  const {
+    checkout,
+    records: { "isolated-draft": record },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace("draft")
+    .withIsolatedLaunch("isolated-draft", { launched: 60 }, "draft")
+    .kept()
     .please();
-  keep(record);
   const commit = async <Name extends string>(name: Name, minutes: number) =>
     (
-      await work(
-        inWorktree(checkout, workspace),
-        makeMe.aCheckoutWork.committing(name, { at: minutesAgo(minutes) }),
+      await performWork(
+        makeMe.aCheckoutWork.committing(name, { at: at(minutes) }),
+        { in: "draft" },
       )
     )[name];
   const pins = () => sessionBranchPins(checkout.integration, record.session);

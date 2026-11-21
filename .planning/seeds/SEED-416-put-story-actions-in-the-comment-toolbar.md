@@ -29,7 +29,8 @@ session controls. The available actions vary with the story's state.
 **Examples.**
 
 - Selecting a completed story that offers **Follow up** and **Review changes**
-  shows both in the comment toolbar. Each opens its existing workflow for that
+  shows both in the comment toolbar. Review changes opens the selected story's
+  cumulative diff in Intent. Follow up opens its context dialog for that
   story. The toolbar is the sole entry point for those story-level actions on
   the Board.
 - Selecting a different story replaces the toolbar actions with those available
