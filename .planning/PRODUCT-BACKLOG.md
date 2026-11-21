@@ -34,7 +34,6 @@ intent introduced or affected by a newly developed story.
 - [Get fast proof of board and side-panel interactions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-board-and-panel-proof) — SEED-413#speed-dashboard-board-and-panel-proof ([plan](slice-plans/758-speed-dashboard-board-and-panel-proof/PLAN.md))
 - [Read every file a story changed in Intent](seeds/SEED-420-unified-intent-review.md#open-review-in-intent) — SEED-420#open-review-in-intent ([plan](slice-plans/759-read-every-changed-file-in-intent/PLAN.md))
 - [Get fast proof of Intent timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof) — SEED-413#speed-intent-timing-history-proof ([plan](slice-plans/759-speed-intent-timing-history-proof/PLAN.md))
-- [Stop repeating git work in shared publication](seeds/SEED-421-stop-repeating-git-work-in-shared-publication.md#stop-repeating-git-work-in-shared-publication) — SEED-421#stop-repeating-git-work-in-shared-publication ([plan](slice-plans/763-stop-repeating-git-work-in-shared-publication/PLAN.md))
 - [Get fast proof of composing and starting a launch](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof) — SEED-413#speed-dashboard-launch-proof ([plan](slice-plans/762-speed-dashboard-launch-proof/PLAN.md))
 - [Choose what a story's review compares in Intent](seeds/SEED-420-unified-intent-review.md#choose-story-comparison-in-intent) — SEED-420#choose-story-comparison-in-intent ([plan](slice-plans/760-choose-story-comparison-in-intent/PLAN.md))
 

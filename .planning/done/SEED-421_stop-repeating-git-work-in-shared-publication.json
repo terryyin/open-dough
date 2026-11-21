@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-421#stop-repeating-git-work-in-shared-publication",
+  "title": "Stop repeating git work in shared publication",
+  "completedAt": "2026-11-21T16:35:24.823Z",
+  "developer": "Terry Yin",
+  "agent": "Yua-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** The maintained deletion test caught a partial cleanup of the retained landing pins.\n\n**Scope.** SEED-421#stop-repeating-git-work-in-shared-publication at revision `dccc658650a3286715a229758e45dcfd512d83f2`. The checked promise is that failed cleanup keeps both observed pins available for retry, and that the retry removes only the selected launch's pins.\n\n**Fault and observation.** In a detached scratch checkout, I changed `dashboard/server/launchLandingPins.ts:77` to delete each observed ref in its own transaction. The existing fixture locked the revision ref. The deletion rejected on the Git lock, then the independent held-ref read showed only the revision pin where the pre-delete read showed both pins. The equality assertion at `dashboard/backend-tests/review/one-shot-landing-recovery-deletion.spec.ts:100` caught the missing base pin.\n\n**Verification.** I ran `caffeinate -s -i npm run --silent test:dashboard:backend -- --workers=1 --reporter=line one-shot-landing-recovery-deletion.spec.ts` for all three runs. The baseline passed, the faulted run failed at the intended assertion, and the restored run passed, including the final retry and the other launch's retained pins. I compared the scratch status with its recorded initial state, verified clean tracked and staged diffs, and removed the scratch checkout.\n\n**Next proof action.** Keep the current assertion. This confirms the lock-failure proof already carried by Slice 3.\n\n- **Test runtime.** Baseline 45.4 s and restored 28.8 s (measured, Playwright summaries). Faulted command 19.7 s (measured wall time from the log and exit-record creation timestamps).\n- **Human effort.** Unavailable. The probe tracked command and overall elapsed times.\n- **Agent effort.** Unavailable. Active agent time was outside the clock measurement's scope.\n\n\n- **Invocation-to-report elapsed.** 232561 ms (measured), from 1795278563097 to 1795278795658 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\n## Wrap-up disposition\n\nChecked revision dccc658650a3286715a229758e45dcfd512d83f2. Verdict Caught. No follow-up.\n"
+  }
+}

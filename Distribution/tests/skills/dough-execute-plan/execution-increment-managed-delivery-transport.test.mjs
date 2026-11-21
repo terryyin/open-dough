@@ -194,3 +194,36 @@ test("a slow but responsive transport delivers as before", async (t) => {
   );
   assertCoveredOnce(delivered, fixture.candidateSha);
 });
+
+test("a stalled post-push confirmation recovers the accepted candidate without another push", async (t) => {
+  const { fixture, stall, deliver } = await stalledDeliveryFixture(t);
+  stall.stall({ service: "upload-pack", call: 2 });
+
+  const { result: stoppedRun, elapsed } = await timed(() => deliver());
+
+  assertTransportStop(stoppedRun, elapsed, {
+    stage: "confirmation-tip",
+    pushIssued: true,
+    candidate: fixture.candidateSha,
+    preRebaseSha: fixture.candidateSha,
+    previouslyPublishedBase: fixture.trunkSha,
+    suffixBase: fixture.trunkSha,
+    remoteTip: fixture.trunkSha,
+    reconciliations: 0,
+  });
+  assert.equal(
+    await lsRemoteSha(fixture.origin, trunkTarget),
+    fixture.candidateSha,
+  );
+
+  stall.pass();
+  const recovered = await deliver();
+
+  assert.equal(recovered.classification, "already-published");
+  assert.deepEqual(recovered.receipt, {
+    sha: fixture.candidateSha,
+    target: trunkTarget,
+  });
+  assert.equal(receivePacks(stall), 1);
+  assertCoveredOnce(recovered, fixture.candidateSha);
+});
