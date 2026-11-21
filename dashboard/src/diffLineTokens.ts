@@ -19,6 +19,13 @@ import { useSourceHighlight } from "./useSourceHighlight.ts";
 
 export type DiffLineTokens = (line: DiffLine) => SourceTokenLine | undefined;
 
+// Each side's token lines, `undefined` until they arrive or when the diff
+// reads in no grammar.
+export type DiffSideTokens = {
+  readonly oldSide: readonly SourceTokenLine[] | undefined;
+  readonly newSide: readonly SourceTokenLine[] | undefined;
+};
+
 function tokenLineAt(
   side: readonly SourceTokenLine[] | undefined,
   number: number | undefined,
@@ -30,6 +37,17 @@ function tokenLineAt(
   return tokens.map((token) => token.content).join("") === text
     ? tokens
     : undefined;
+}
+
+// The token line `line` reads: a removed line's from the old side and every
+// other line's from the new side, or none when its side does not spell it.
+export function diffLineTokenLine(
+  line: DiffLine,
+  { oldSide, newSide }: DiffSideTokens,
+): SourceTokenLine | undefined {
+  return line.kind === "removed"
+    ? tokenLineAt(oldSide, line.oldNumber, line.text)
+    : tokenLineAt(newSide, line.newNumber, line.text);
 }
 
 // The grammar a diff of `path` reads in: its path's grammar, else the hint's.
@@ -52,8 +70,5 @@ export function useDiffLineTokens(
     text === undefined ? undefined : diffLanguage(path, syntaxHint);
   const oldSide = useSourceHighlight(text?.baseline ?? "", language);
   const newSide = useSourceHighlight(text?.tree ?? "", language);
-  return (line) =>
-    line.kind === "removed"
-      ? tokenLineAt(oldSide, line.oldNumber, line.text)
-      : tokenLineAt(newSide, line.newNumber, line.text);
+  return (line) => diffLineTokenLine(line, { oldSide, newSide });
 }

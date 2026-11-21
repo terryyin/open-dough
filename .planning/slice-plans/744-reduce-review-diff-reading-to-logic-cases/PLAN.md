@@ -144,7 +144,7 @@ and `limitAtPath`.
 ### 4. Each line's side tokens read as logic
 
 Type: Structure
-Status: planned
+Status: done
 
 Export the per-line side rule from `diffLineTokens.ts`. Add logic cases over
 `greetText` tokenized by `highlightSourceLines`: a removed line reads the old
@@ -155,6 +155,15 @@ facts and copy unchanged once styled, and revealed lines styled.
 
 **Proof.** Logic cases fail when the removed line reads the new side; the
 mounted case keeps its rendering assertions and has a median under 500 ms.
+
+**Result.** `diffLineTokenLine(line, sides)` is exported and used by
+`useDiffLineTokens`. `story-review-diff-line-sides.spec.ts` holds 14 logic
+cases over `greetText`, each in 0–2 ms. Five of them fail when a removed line
+reads the new side. `story-review-diff-syntax-mounted.spec.ts` keeps one case:
+plain facts and copy, and revealed lines styled. Under load 22–26 it took 0.59×
+the old case's time; G2 carries its absolute median to slice 5. The commitment
+4 audit found no further data-logic case: `syntax-languages-mounted` compares
+rendered colours with backgrounds and contrast.
 
 ### 5. Frontend test names say what they test
 
@@ -205,5 +214,10 @@ found.
 
 ### G1. Intent gaps case stays over 500 ms under load (first reported in slice 1; acceptance runs at load about 10: 621, 455, 571 ms; remaining time is the app's reloads, navigation and first render)
 Reported: slice 1 — "The gaps case's median is still 571 ms"
+Story clause: "every case in the touched files has a median of three attempts under 500 ms"
+Disposition: receiving slice 5
+
+### G2. Reduced styled-diff mounted case not yet measured under 500 ms (first reported in slice 4; load 22–26, paired runs: old 1449/1108/1123 ms, new 686/657/523 ms, ratio 0.59 of the quiet 672 ms baseline ≈ 393 ms)
+Reported: slice 4 — "the mounted case's median is over 500 ms in absolute terms on this loaded machine"
 Story clause: "every case in the touched files has a median of three attempts under 500 ms"
 Disposition: receiving slice 5
