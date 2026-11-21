@@ -242,6 +242,10 @@ original checkout. Verify the wrapper module and its imports are gone.
 
 **Accepted.** `captureBranchEntryCommand` now sits in the handoff spec (246 lines, so no split was needed) and `support/capturedCommandFetch.ts` is deleted with no importers left. The handoff spec passed 9/9 with 12 assertions before and after. Refactor pass: already clean. Story totals since 439c23da5: the Done capture support went from 572 lines in six modules to 561 in five; three assertions were removed (two publisher restatements and the guessed filename) and one agreement assertion added; no production path changed.
 
+## Execution complete
+
+Product advice: no change. The correction keeps product behavior as it was and makes the Done capture setup state each fact once. The queued SEED-413#optimize-done-capture-family-cases can now profile the delivered builders; load timeouts at about 37 recurred during slice 4 proof, which supports its goal.
+
 ## Local gates and review
 
 - On AC power, use
