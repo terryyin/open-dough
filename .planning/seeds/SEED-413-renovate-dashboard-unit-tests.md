@@ -184,28 +184,66 @@ landing reports (completed; recoverable at `086faa5a:.planning/seeds/SEED-413-re
 ### Bring Intent source recovery and late styling cases under 500 ms
 
 **Identity:** SEED-413#speed-intent-source-recovery-and-late-styling-cases
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/753-speed-intent-source-recovery-and-late-styling-cases/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"06a1758b1180ff20188479cd6b7491e5c8d7a4751d97e2759f26402a78462de7","plan":"e4ee63c8a2386d3aeb6c1fc19ddf082e5e3cf3e5adf2bca418876aa626095578"}}
+```
 
 Requested by Terry on 21 November 2026, split from
-SEED-413#reduce-review-diff-reading-to-logic-cases at its slice 5.
+SEED-413#reduce-review-diff-reading-to-logic-cases at its slice 5. Refined
+the same day; Terry chose in-page activation and the 0.5× paired ratio.
 
 - **Goal.** Dashboard maintainers get fast feedback from the Intent source
   recovery and Review diff late-styling cases. Each case runs under 500 ms,
   aiming at about 100 ms.
-- **Scope.** The two cases in
-  `dashboard/frontend-tests/intent/intent-source-target-recovery.spec.ts`
-  ("…held then released" and "…failed then retried") and the arrival case in
-  `dashboard/frontend-tests/review/story-review-diff-late-styling.spec.ts`. Step
-  timing on 21 November 2026 put most of the recovery cases' time in mounting
-  and opening the source (290–575 ms) and in each re-render after Show latest
-  or Retry (93–250 ms). Pressing those controls by keyboard did not reliably
-  help. The shared harness under `dashboard/test-support/mounted-dashboard/` is
-  in scope here when the cost lives there. Product behavior stays unchanged.
-- **Key examples.** The recovery cases measured 583–1017 ms and the
-  late-styling arrival case 536–621 ms, at machine load 8–20. Each comes under
-  500 ms while keeping every assertion.
-- **Acceptance.** Each of the three cases has a median of three attempts under
-  500 ms. On a loaded machine this is judged through paired runs against the
-  original under the same load, recorded per case.
+- **Scope.**
+  - The two cases in
+    `dashboard/frontend-tests/intent/intent-source-target-recovery.spec.ts`
+    ("…held then released" and "…failed then retried") and the arrival case
+    ("styling that arrives after the diff keeps the reading position, revealed
+    context and an open line menu") in
+    `dashboard/frontend-tests/review/story-review-diff-late-styling.spec.ts`.
+    Every assertion stays. Product behavior stays unchanged.
+  - The page objects these cases drive activate controls in the page: wait
+    until the control is visible, yield one task, then click it as an element.
+    This covers opening a candidate's source, Show latest, Retry, showing
+    preceding lines and opening a line menu. Other specs that use those methods
+    get the same activation. A later page-object change may extend it to more
+    controls, but this story does not promise that.
+  - Other test-side waits in these cases that are paced by browser frames, such
+    as the in-viewport check on the targeted line, are in scope when the held
+    case needs them to reach the ratio.
+  - Excluded: harness changes under `dashboard/test-support/` (these cases
+    mount with `component-mount/mountComponent.ts`, not
+    `mounted-dashboard/`), browser launch flags, and production code.
+- **Key examples.**
+  - Show latest during a held read. Precondition: a case's source is open at
+    the old revision, and a newer revision is offered. Trigger: Show latest is
+    activated in the page as soon as the notice is visible. Result: the old
+    source stays at line 44 with its focus and scroll until the read is
+    released. On 21 November 2026, clicking in the same task the notice
+    appeared, before React's effects ran, lost the old source. Yielding one
+    task first kept it in every run. That is a test artifact, not a product
+    race: a reader cannot click before the notice is painted.
+  - Arrival case: showing preceding lines and opening the line menu by in-page
+    activation keep every assertion. Paired medians of five at load 13–18
+    were 644 → 380 ms (0.59×).
+  - Failed then retried: 955 → 483 ms (0.51×) under the same pairing.
+    Held then released: 868 → 718 ms (0.83×). Its remaining time is opening
+    the source as the first case in its file (about 230–280 ms) and
+    frame-paced waits for the targeted line and the revision label
+    (about 30–150 ms each).
+- **Facts behind the direction (21 November 2026, load 9–18).** A Vitest
+  provider click (`userEvent.click` or `locator.click`) on a bare button cost
+  100–380 ms. An in-page `element.click()` cost about 1 ms. Keyboard
+  activation through the provider cost 2–160 ms. The Chromium flags
+  `--disable-renderer-backgrounding`,
+  `--disable-background-timer-throttling`,
+  `--disable-backgrounding-occluded-windows`, `--disable-gpu-vsync` and
+  `--disable-frame-rate-limit` did not change those costs.
+- **Acceptance.** For each of the three cases, take the median of three
+  attempts. The case passes when that median is under 500 ms. On a loaded
+  machine it passes instead when that median is at most 0.5× the original
+  case's median from the same paired runs. Record each case's result.
 
 <a id="prove-renamed-diff-grammar-from-new-path"></a>
 
