@@ -11,6 +11,10 @@ import {
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { establishObservation } from "./execution-increment-observation.mjs";
+import {
+  resolveLaunchLanding,
+  recordAcceptedIncrement,
+} from "./execution-session-evidence.mjs";
 export { resumeManagedExecutionIncrement } from "./execution-increment-resume.mjs";
 import { targetBranchName } from "./publication-git.mjs";
 import { executionBudgetMs } from "./watch-ci-execution.mjs";
@@ -110,6 +114,17 @@ export async function deliverManagedExecutionIncrement(request) {
       })
     : undefined;
 
+  // The launch reference, when this publication carries one, names the
+  // session whose evidence the accepted pair joins.
+  const { landingContext: resolvedLanding, reference } =
+    await resolveLaunchLanding({
+      landingContext,
+      workspace,
+      branch,
+      remote,
+      targetRef,
+    });
+
   // Observation attaches before the first applicable push when a live owner is
   // established. An unavailable bridge still preserves accepted publication.
   const published = await publishExecutionIncrement({
@@ -125,7 +140,7 @@ export async function deliverManagedExecutionIncrement(request) {
     backlogPath,
     beforeRetryPush,
     beforePush,
-    landingContext,
+    landingContext: resolvedLanding,
     onFetchedTarget,
   });
 
@@ -167,6 +182,12 @@ export async function deliverManagedExecutionIncrement(request) {
       maintenance: published.maintenance ?? null,
     };
   }
+
+  recordAcceptedIncrement(workspace, {
+    base: published.suffixBase,
+    candidate: published.receipt.sha,
+    reference,
+  });
 
   if (observation.directory && observation.state !== "unobserved") {
     registerPushedRevision(observation.directory, published.receipt.sha);

@@ -178,6 +178,7 @@ managed_files+=(
   dough-execute-plan/scripts/execution-admission-source.mjs
   dough-execute-plan/scripts/execution-admission-reconcile.mjs
   dough-execute-plan/scripts/execution-start-carry.mjs
+  dough-execute-plan/scripts/execution-session-evidence.mjs
   dough-execute-plan/scripts/one-shot-ownership.mjs
   dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-candidate.mjs

@@ -1,7 +1,7 @@
 // What a published session close record is: the short published fact that one
 // session closed with accepted Git comparisons, kept beside the backlog. The
-// directory, file name, version, session-UUID rule, and standalone workflow
-// value have one owner here. No filesystem, Git, or Node-only imports, so every
+// directory, file name, version, session-UUID rule, and workflow values have
+// one owner here. No filesystem, Git, or Node-only imports, so every
 // reader of published session records shares it.
 
 // Session records live beside the backlog, one file per session UUID.
@@ -10,9 +10,10 @@ export const sessionRecordDirectory = "sessions";
 // The record schema version every writer and reader shares.
 export const sessionRecordVersion = 1;
 
-// The standalone (Dashboard ad-hoc) workflow value a close record may carry.
-// Other workflows may add values later; this module owns only this one.
+// The workflow values a close record may carry: a standalone (Dashboard
+// ad-hoc) session, or a plan execution.
 export const standaloneSessionWorkflow = "ad-hoc";
+export const executionSessionWorkflow = "dough-execute-plan";
 
 // Whether `value` is a session UUID as records spell it.
 export function isSessionId(value) {
