@@ -295,6 +295,22 @@ SEED-413#reduce-review-diff-reading-to-logic-cases at its slice 5.
   500 ms. On a loaded machine this is judged through paired runs against the
   original under the same load, recorded per case.
 
+<a id="prove-renamed-diff-grammar-from-new-path"></a>
+
+### Prove a renamed file's Review diff reads its grammar from the new path
+
+**Identity:** SEED-413#prove-renamed-diff-grammar-from-new-path
+
+Correction from the Intent Coverage check of
+SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
+
+- **Goal.** Dashboard maintainers get a failing test when a renamed file's
+  Review diff reads its grammar from the old path instead of the new one.
+- **Scope.** One maintained case for the choice of path given to diff styling.
+  It is either a logic case over that choice or a case through
+  `StoryReviewFileDiff`. Product behavior stays unchanged.
+- **Plan:** [plan](../slice-plans/746-prove-renamed-diff-grammar-from-new-path/PLAN.md)
+
 <a id="restore-done-capture-proof-after-composed-reviews"></a>
 
 ### Restore Done capture proof and focus session Review tests
