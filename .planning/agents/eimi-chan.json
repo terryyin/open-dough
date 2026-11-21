@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Eimi-chan",
-  "email": "eimi-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-413#tie-done-capture-cases-to-production",
-  "host": "codex",
-  "model": "gpt-6.2-sol"
-}

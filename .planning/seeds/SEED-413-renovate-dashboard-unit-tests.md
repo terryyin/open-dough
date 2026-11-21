@@ -197,47 +197,6 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
 
-<a id="tie-done-capture-cases-to-production"></a>
-
-### Tie Done capture cases to the real branch entry and retire the fold's residue
-
-**Identity:** SEED-413#tie-done-capture-cases-to-production
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/754-tie-done-capture-cases-to-production/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1476ac5c0b4f71b0c4db743846045979411ec04714b779187eafdf5b71082ec8","plan":"3f1f313ea388471d66fdbf1dc9ec0f3859b0e60db3442ce84d0b3a2b5cf0e011"}}
-```
-
-Correction from the execution retrospective of
-Build Done capture cases from MakeMe launch steps (SEED-413#fold-done-capture-launches-into-makeme; story and plan 737 recoverable at `47af39ca6`).
-
-- **Goal.** Dashboard maintainers can detect when the declaring-launch recipe
-  and the production branch-entry proposal diverge, and can read Done capture
-  cases whose setup states each fact once and uses the artifacts production
-  returns.
-- **Scope.** Check the composed branch entry against `proposeBranchEntry` and
-  correct the publisher assertions and README accordingly. Reuse the existing
-  MakeMe reporting-attempt recipe, consolidate declared-landing and record
-  setup, and give quiet Done cases a single source for their timeline. Retire
-  the guessed context filename, silent worktree fallback, circular type
-  dependency, unused re-export, and single-caller command-capture module.
-  Preserve product behavior, machine-store publication proof, and independent
-  assertions. Runtime work belongs to the
-  [optimization](#optimize-done-capture-family-cases). The builder's generic
-  casts stay, and the two specs identified in plan 754 take no new lines.
-- **Key examples.**
-  - On a fresh worktree, the recipe and a real proposal agree on the full
-    entry. Removing the recipe's trunk revision makes the agreement case fail.
-  - After the installed publisher delivers and retires the comparison
-    worktree, the record built from the returned context path still opens the
-    delivered rename and the distinct captured working-tree change.
-  - A case naming an undeclared worktree fails at `please()` with that name.
-  - A retry of a quiet completion uses the case's stated Done time and still
-    resumes the pending native mark while retaining the earlier capture failure.
-- **Evaluation.** Same assertions minus the restating and guessed ones;
-  support surface shrinks or holds.
-  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-- **Effort hypothesis.** S, one plan with bounded proof for each correction.
-- **Plan.** [754](../slice-plans/754-tie-done-capture-cases-to-production/PLAN.md)
-
 <a id="optimize-done-capture-family-cases"></a>
 
 ### Bring the Done capture family's cases to 100–200 ms
