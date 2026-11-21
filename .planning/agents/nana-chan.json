@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Nana-chan",
+  "email": "nana-chan@example.org",
+  "identity": "SEED-413#speed-intent-source-and-story-reading",
+  "mode": "story-branch",
+  "branch": "cursor/get-fast-proof-of-intent-source-and-story-readin",
+  "host": "cursor",
+  "model": "gemini-4-carbon"
+}

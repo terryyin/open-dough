@@ -247,7 +247,7 @@ Build Done capture cases from MakeMe launch steps (SEED-413#fold-done-capture-la
 {"schemaVersion":1,"identity":"SEED-413#optimize-done-capture-family-cases","dependencies":[{"supplier":{"identity":"SEED-413#split-done-mark-decision-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store"},"implementation":"Typed Done transition, Git branch-result capture, and review cases composed from Done state.","rationale":"Profiling the old review setup would measure machine-store writes and Done replay that this story removes.","condition":"The typed Done transition and Git capture are separate from the store adapter, and review-topic cases use composed Done records without replaying the store-backed Done action.","state":"satisfied","resolution":{"revision":"6250b73992afc1df2fd9b12bb502008527e568d6","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store","summary":"Satisfied at integration 2a7260d6d: dashboard/server/doneTransition.ts holds the pure Done transition and sessionBranchCapture.ts exports the Git-only captureBranchResult as setRecordDoneAt's collaborator; review-topic cases compose Done records without markDone (plan 734 slices 1, 2, 4–7). The correction SEED-413#restore-done-capture-proof-after-composed-reviews, queued first, adds back a few adapter cases before this measurement.\nCondition satisfied: The typed Done transition and Git capture are separate from the store adapter, and review-topic cases use composed Done records without replaying the store-backed Done action.\nAccepted integration: 2a7260d6d2596365b432d11731b6b57d01dc0f0f on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#split-branch-entry-proposal-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store"},"implementation":"Typed branch-entry proposal, production pin-ref query, and review cases composed from branch-entry state.","rationale":"The optimization needs to measure the branch-entry setup that remains after repeated store-backed entry actions are removed from review cases.","condition":"Branch-entry proposals are separate from persistence, the session pin-ref query is available, and cases where branch entry is a precondition use composed branch-entry state.","state":"satisfied","resolution":{"revision":"9969388902eb48c56588d9a1d30f45d8be6ac4b3","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store","summary":"Directly satisfied. The proposal is separate from persistence (branchEntryProposal.ts vs sessionBranchEntry.ts), the session pin-ref query is production sessionBranchPins in launchRecordPins.ts (with heldLandingPins for one-shot pins), and cases where the entry is a precondition compose it with makeMe enteredBranch; no test-side identifyBranch, aDeclaringLaunch or aDeclaredBranch remains. Proved by the branch-entry and pin specs and hosted CI run 44783274270 on e8b7e417.\nCondition satisfied: Branch-entry proposals are separate from persistence, the session pin-ref query is available, and cases where branch entry is a precondition use composed branch-entry state.\nAccepted integration: e8b7e4170c63f978270efba32e2396989fd555a1 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#fold-done-capture-launches-into-makeme","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme"},"implementation":"Done capture launch cases built through domain-named MakeMe steps.","rationale":"The launch arrangement changes the setup that the optimization measures, so the remaining costs need to be established with the delivered builders.","condition":"The Done capture cases use MakeMe launch and repository steps, with the checkout, record, and timeline carried by one case object.","state":"satisfied","resolution":{"revision":"47af39ca65b8c40ee3bd1b352db274a3330c975d","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme","summary":"Directly satisfied at integration 7b89046e3. The 36-spec Done capture family builds through aDoneCaptureCase() (dashboard/backend-tests/support/doneCaptureCaseBuilder.ts), whose please() returns one value carrying checkout, records, timeline, work and the case clock; its launch steps compose the MakeMe named examples startedOnMainOf, establishedOnMainOf and isolatedIn (from 1cf323753) and the repository step withBaseBeforeEveryLaunch. The preset modules declaredPublisherBranch.ts, reportedIsolatedBranch.ts and reportedDoneCase.ts are retired. Family roster passed at one worker on the merged state; the load-sensitive race cost (ad-hoc-branch-result-race, captureBranchResult's sequential Git calls) is recorded in this consumer's Measured notes. The queued correction SEED-413#tie-done-capture-cases-to-production slightly changes this setup and precedes this story.\nCondition satisfied: The Done capture cases use MakeMe launch and repository steps, with the checkout, record, and timeline carried by one case object.\nAccepted integration: 7b89046e3586e4d407ee231164934840b11365f5 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#observe-done-deliveries-over-typed-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records"},"implementation":"Typed delivery-observation decision over composed Done records, with the store adapter alone saving deliveries and pins.","rationale":"Profiling the observation cases before the split would measure machine-store reads and writes in a stubbed HOME that this story removes.","condition":"Delivery observation decides from typed kept records separately from its store adapter, and observation cases other than the adapter's races use composed records.","state":"satisfied","resolution":{"revision":"24864be6360f87cc9fec3dc4333de5361de165eb","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records","summary":"Directly satisfied. Plan 736's typed decision, witness, retry and offline restart cases use composed Done state and real Git; the explicit adapter cases own live record and pin races. The final seven-spec observation family has no direct machine-store imports, HOME setup or Mark Done calls. All 26 passed with the ordinary two workers and default timeouts. The paired ADR 0010 results are recoverable in the completed plan and showed no consistent timing change.\nCondition satisfied: Delivery observation decides from typed kept records separately from its store adapter, and observation cases other than the adapter's races use composed records.\nAccepted integration: 0747fb0a2558f72b185b4299a3ecbb28cd9f3327 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#decide-landings-over-typed-attempts-and-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records"},"implementation":"Typed landing decision over composed attempts and records, production landing request admission, and the publisher bridge delegating to it.","rationale":"Profiling the publication cases before the split would measure attempt and record store writes and the test-side receiver that this story removes.","condition":"Landing preparation and recording decide from typed attempts and records separately from their store adapter, the landing request admission is a production function, and only the publisher-topic cases run the installed publisher.","state":"satisfied","resolution":{"revision":"086faa5a284a7030a101032405772eff1cf69077","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records","summary":"Directly satisfied. SEED-413#decide-landings-over-typed-attempts-and-records delivered decideLanding over composed attempts/records, LandingStores on handleLanding, caller-directed branchLandingContext, admitLandingRequest, and the installed-publisher bridge on production admission with composed stores. Key examples and Intent Coverage Caught at 233d31e6c (ad-hoc-prepared-landing-done). Approved remainders (HOME for blank/worktree machine deletion; 29 server specs; local LandingStores until ObservedLandingStore) do not block this condition. Recoverable story/plan at 086faa5a; accepted on origin/main at 4a5ceb24.\nCondition satisfied: Landing preparation and recording decide from typed attempts and records separately from their store adapter, the landing request admission is a production function, and only the publisher-topic cases run the installed publisher.\nAccepted integration: 4a5ceb24a2d50569dfe181e16a1a6a6b1efa9798 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/757-optimize-done-capture-family-cases/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b64cf094a852b5f947a68b1fa902745b768f5d2cf689ab488959d5a20339b3fe","plan":"94b71e1c5a4f6e32d4558b2a9ea9dc1debf68f95c16edd62b6495c69794bbe40"}}
 ```
 
 Follows the closed SEED-413#arrange-done-ad-hoc-observation-and-publication
@@ -301,9 +301,12 @@ does not depend on them.
   because the review then reads `unavailable`. `ad-hoc-branch-result` cases
   also timed out twice in a long one-worker roster run at load 12–17.
 - **Scope.**
-  - On macOS the family's cases run the Git binary directly, resolved once
-    per run. Where `git` is already another binary, and on Linux, nothing
-    changes. How the binary is reached is the open decision below.
+  - On macOS the dashboard server and installed publisher run the Git binary
+    selected by `xcrun -f git` when the effective `PATH` selects Apple’s
+    launcher. Reuse the selection within the process for the same environment.
+    Preserve a caller-selected Git, normal invocation on other platforms, and
+    Git's existing fallback when the developer-tool lookup fails. Leave
+    selection of other tools to the caller’s `PATH`.
   - Cut the Git processes each case starts, in the family's support and in
     production seams that start more than their answer needs. The family is
     the Git-heavy Done capture cases under `dashboard/backend-tests/review/`
@@ -311,8 +314,9 @@ does not depend on them.
     the case builder `doneCaptureCaseBuilder.ts` with
     `doneCaptureCaseMaterialization.ts` and `doneCaptureCasePlaces.ts`,
     `doneCaptureCase.ts`, `doneCaptureReview.ts`, `installedPublisher.ts`
-    and `adHocBranchRefs.ts`, as the five import-list stories leave them. Profile per case first: checkout creation,
-    checkout work, production Done capture, observation and review reads.
+    and `adHocBranchRefs.ts`, as the five import-list stories leave them.
+    Profile per case first, covering checkout creation, checkout work,
+    production Done capture, observation and review reads.
     After the branch-entry story, entry setup is gone; the Done review,
     attribution, declared publication and lifecycle deletion cases still take
     4.1–4.6 s at load ~20 in real Done capture and fixture Git.
@@ -320,40 +324,26 @@ does not depend on them.
     assertion. The proof is of Git's own behavior (reflog times, merges,
     worktrees, pins), so a Git library in the test process does not replace
     it. Raising timeouts is out of scope.
-- **Open decision (Terry).** Which owner reaches the binary. Slice planning
-  waits for it.
-  - *The Git runners resolve it* (recommended). `dashboard/server/gitRunner.ts`
-    and the installed `publication-git.mjs` start the binary `xcrun -f git`
-    names when `git` is the launcher. Tests and a developer's own dashboard
-    both save the launcher on every Git call, and no other tool's
-    resolution changes. It changes shipped code in two places.
-  - *The test environment puts the binary's directory first on `PATH`.* No
-    product change, and the family gets the measured saving. Every check
-    then also takes `python3`, `make` and `clang` from that directory.
-  - *Fewer processes only.* No change to how Git starts. The family keeps
-    the launcher's cost on each remaining call.
+- **Decision (Terry, 2026-11-21).** The Git runners own selection.
+  `dashboard/server/gitRunner.ts` and the installed `publication-git.mjs`
+  use the selected binary for their own calls. The existing Playwright
+  service setup has separate `PATH` handling. The Done capture Vitest group
+  does not run that setup.
 - **Alternatives considered.**
-  - *Run the binary directly* (first, by the owner decided below). Measured
-    above and independent of the earlier stories. On its own it leaves the
-    median case near 350 ms under load.
-  - *Fewer processes per case* (chosen second). Build a checkout's history in
-    fewer calls, and answer several production reads from one call. The
-    saving is whatever the per-case profile shows. Each change is judged by
-    the process count.
-  - *One built checkout copied per case*, as a machine image is cloned for
-    each instance. The image is the materialized base history and the
-    instance is a case's checkout. Git stores absolute paths for worktrees
-    and the origin, so a copy fits only checkouts with neither. A candidate
-    for those cases, to be judged by the profile.
-  - *One long-lived `git cat-file --batch` process for reads*, as a
-    connection pool reuses one connection. It serves object reads only and
-    adds a process lifetime to the production server. Not pursued in this
-    story.
+  - Prepending the toolchain’s directory to the test `PATH` also changes
+    how checks find `python3`, `make` and `clang`.
+  - Cutting Git calls is the second experiment. Start from the repository
+    fixture’s existing private copies of shared templates and its repair of
+    origin and worktree paths.
+  - A long-lived `git cat-file --batch` process would cover object reads
+    only and add a process lifetime to the server. It is outside this story.
 - **Key examples.**
-  - On macOS a family run starts Git without the launcher. Its cases pass
-    with their assertions unchanged.
-  - A Done branch capture with a real merge and a typed review read finishes
-    within about 200 ms at low load.
+  - When Apple’s launcher is first on `PATH`, a Done capture and an
+    installed publication start the selected Git binary directly. An earlier
+    Git executable on `PATH` still receives the calls.
+  - A Done branch capture with a real merge and a typed review read targets
+    about 200 ms in the low-load comparison. The review keeps the accepted
+    trunk parent and actual merge resolution.
   - At load 15 or more, the family passes several runs in a row at
     `--workers=2` with no timeout.
   - A case whose topic is the review of an already Done session starts no
@@ -647,22 +637,46 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#speed-dashboard-board-and-panel-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/758-speed-dashboard-board-and-panel-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"62c3028cc7fbf9ed30a92dc4d4cf937a098eb5321e92f048683d91607335e396","plan":"44f1bdb549fc52e52baa25bfdea3e926efc2c31f1f4a17cb85e24c51d83760d4"}}
 ```
 
-- **Outcome.** Developers get fast proof of a usable board and adjacent
-  panels across keyboard, touch and constrained layouts. Evaluate a board
-  page turn with a panel open, plus scroll, focus, kept position and
-  announcement behavior on the relevant surfaces.
-- **Boundary.** Own navigation's `accessible-board*`, `board-*`,
-  `story-card*`, `side-panel-width*`, `development-intent-frame*` and
-  `frame-*` legacy specs. Narrow both mounted phone-board suites and the
-  Stories scan-emphasis case that still uses the whole-app mount. Keep the
-  distinct production layout, pointer and state interactions. A real load,
-  reload or cross-destination history belongs to the applicable E2E journey.
-- **Effort and stopping point.** Large, medium confidence. Mounted component
-  proof gives usable layout and interaction feedback as soon as it replaces
-  the equivalent built-app cases.
+**Goal.** Dashboard maintainers get faster feedback when a change affects
+how developers read and navigate the Board beside other dashboard surfaces.
+Preserve the keyboard, touch, announcement, and layout evidence that makes
+the Board usable in a narrow window and with a Side panel open.
+
+**Scope.** Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)
+to the legacy `accessible-board*`, `board-*`, `story-card*`,
+`side-panel-width*`, `development-intent-frame*`, and `frame-*` navigation
+specs. Narrow the existing `board-swipe`, `board-indicators`, and
+`story-card-scan-emphasis` Vitest specs from their whole-dashboard mounts.
+Keep representative real page loads, reloads, URL destinations, and
+cross-destination history in E2E. This story owns the Board and frame
+observations of launch, review, and session interactions. The sibling stories
+own the internals of those workflows and the final runner retirement.
+
+**Key examples**
+
+- With a Side panel open and room for two columns, page from Backlog to
+  Taken and Recently done. The Board shows whole columns, its keyboard controls
+  keep focus reachable, and a wider frame recovers the chosen position. A long
+  hidden column contributes no blank scroll tail.
+- On a phone, a horizontal swipe pages the Board without activating the
+  story or Start under the touch. A vertical drag still reads the current
+  column. Tapping an indicator shares the swipe destination, and rotation
+  preserves an inspected story and its separate selection.
+- While published work refreshes or fails to read, the Board announces the
+  result, keeps retained work and the problem reachable, and leaves the
+  reader's focus in place. Keyboard reading and zoom keep links and story
+  controls usable.
+- After a developer chooses a panel width by dragging or keyboard, opening
+  the Sessions sidebar or narrowing the window can constrain or cover the
+  Board. Restoring room restores the chosen width, and an open terminal or
+  Review retains its identity and read state through the layout change.
+- When a session's sidebar entry reveals a hidden or tall card, the Board
+  pages to the card and brings its top into view. Switching perspectives or
+  following browser history preserves the intended project, panel attachment,
+  and selected story on the relevant path.
 
 <a id="speed-dashboard-launch-proof"></a>
 
