@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers
 **Source:** [Prove ad hoc review handoffs with typed handlers](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-ad-hoc-review-handoffs-with-typed-handlers)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Goal and scope
 
@@ -98,7 +99,7 @@ review files. Sweep selectors and indirect consumers again at execution.
 ### 1. Let the Done coordinator use a controlled branch capture
 
 Type: Structure
-Status: planned
+Status: done
 
 Expose the narrow production collaborator from `NativeDoneMarks` to the
 manual `setRecordDoneAt` invocation so the race in slice 2 can wait at real
@@ -110,6 +111,15 @@ host effects and durable outcome ordering, using the file seam above.
 `sessions/agent-launch-done-close` cases. The race observes the winner and
 no stop, and the close cases observe an abandoned rename and the independent
 manual stop. Use the next slice for the typed invocation's race proof.
+
+**Accepted proof and learnings.** `doneMarks.ts` (179 lines) forwards optional
+`DoneCollaborators.capture?: BranchCapture` to `setRecordDoneAt` and narrows
+`markDone`'s `launches` parameter to `DoneLaunches = Pick<AgentLaunches, "stateOf">`;
+`finishNativeDone.ts` (103 lines) extracts the native finish operation.
+Verified by `npm run typecheck:dashboard`,
+`npm run test:dashboard:backend -- review/ad-hoc-branch-result-race.spec.ts sessions/agent-launch-done-close.spec.ts --workers=2`,
+and consumer specs `review/ad-hoc-session-commits{,-done}.spec.ts` and
+`sessions/{agent-completion-quiet-rename,agent-launch-done,agent-launch-done-stop}.spec.ts`.
 
 ### 2. Keep the quiet report's revision after a held manual Done
 
