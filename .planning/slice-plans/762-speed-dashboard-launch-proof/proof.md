@@ -73,3 +73,9 @@ files. The affected dialog, instruction handoff and ProjectActions cases
 passed after repair. The Git evidence directory holds
 `slice1-format-repair.log.run.json` for the dialog and handoff and
 `slice1-locator-repair.log.run.json` for the final ProjectActions selection.
+
+Story-branch CI found a native tap could leave the options disclosure closed.
+A controlled scroll reproduced the symptom on Linux arm64. The repaired
+test helper checks stable geometry and the trusted pointer target. The
+controlled contrast and both maintained touch specs passed on Linux arm64
+and macOS. [Diagnosis and hosted confirmation](diagnosis-refinement-touch-disclosure.md).

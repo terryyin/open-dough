@@ -43,20 +43,62 @@ export async function tap(control: Locator) {
   await expect.element(control).toBeVisible();
   const target = control.element();
   target.scrollIntoView({ block: "nearest" });
+
+  // Let the scroll reach the rendered viewport before sending page-level input.
+  const renderedBox = () =>
+    new Promise<DOMRect>((resolve) => {
+      requestAnimationFrame(() => {
+        resolve(target.getBoundingClientRect());
+      });
+    });
+  await expect
+    .poll(
+      async () => {
+        const before = await renderedBox();
+        const after = await renderedBox();
+        return (
+          before.x === after.x &&
+          before.y === after.y &&
+          before.width === after.width &&
+          before.height === after.height
+        );
+      },
+      { message: "touch target stays in place after scrolling" },
+    )
+    .toBe(true);
   const bounds = target.getBoundingClientRect();
   const x = bounds.x + bounds.width / 2;
   const y = bounds.y + bounds.height / 2;
   expect(target.contains(document.elementFromPoint(x, y))).toBe(true);
   const frame = window.frameElement?.getBoundingClientRect();
   const session = chromium();
-  await session.send("Input.dispatchTouchEvent", {
-    type: "touchStart",
-    touchPoints: [{ x: x + (frame?.left ?? 0), y: y + (frame?.top ?? 0) }],
+  let reachedControl = false;
+  const observeTouch = (event: PointerEvent) => {
+    reachedControl =
+      event.pointerType === "touch" &&
+      event.isTrusted &&
+      event.target instanceof Node &&
+      target.contains(event.target);
+  };
+  window.addEventListener("pointerdown", observeTouch, {
+    capture: true,
+    once: true,
   });
-  await session.send("Input.dispatchTouchEvent", {
-    type: "touchEnd",
-    touchPoints: [],
-  });
+  try {
+    await session.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x: x + (frame?.left ?? 0), y: y + (frame?.top ?? 0) }],
+    });
+    await session.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [],
+    });
+  } finally {
+    window.removeEventListener("pointerdown", observeTouch, true);
+  }
+  expect(reachedControl, "native touch reaches the intended control").toBe(
+    true,
+  );
 }
 
 export function noSidewaysScroll(container: Locator) {
