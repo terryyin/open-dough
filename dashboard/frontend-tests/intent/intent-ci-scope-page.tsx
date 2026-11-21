@@ -96,12 +96,14 @@ function comparisonIn(region: Locator) {
       ].map(visibleText),
     showPercent: region.getByRole("checkbox", { name: "Show %", exact: true }),
     // Opens a Summary child or file by keyboard, which skips the pointer's
-    // frame-paced stability wait.
+    // frame-paced stability wait. A child with several units heads one
+    // row per unit; the first opens it.
     async open(name: string) {
       const child = region
         .getByRole("table")
         .getByRole("rowheader")
-        .getByRole("button", { name, exact: true });
+        .getByRole("button", { name, exact: true })
+        .first();
       await expect.element(child).toBeVisible();
       (child.element() as HTMLElement).focus();
       await userEvent.keyboard("{Enter}");

@@ -219,7 +219,7 @@ now come from `ciProofMakeMeProperties`, so `pageMakeMe` exposes them.
 ### 6. The real controls retain each measured unit through the reading
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move comparison `-units`, `-units-bindings` and `-presentation-bindings`.
 Keep one mounted native control check across the relevant transitions and
@@ -228,6 +228,13 @@ test the distinct unit calculations with typed inputs.
 **Proof.** Case and file units stay separate at the entry, location, folder,
 tree and file. Native Enter and Space reach the expected action; visible and
 accessible cues retain the same units.
+
+**Accepted.** Six cases became three Vitest cases in
+`intent-ci-comparison-units.spec.ts` (2,002 ms versus 546 ms); the units- and
+presentation-bindings specs were retired, and their read-count checks stay with
+the head, strict-mode and scope-running cases. The units spec temporarily holds
+the native Enter and Space header-sort case; Slice 7 moves it into the sort
+spec, beside keyboard proof for Branch and Landed.
 
 ### 7. Signed entry figures sort accurately in both directions
 

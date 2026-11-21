@@ -1,152 +1,160 @@
-import { expectFileComparisonRows } from "../../test-support/intentFileProofPage.ts";
-import {
-  expectNamedScopeRows,
-  expectNamedScopeFigures,
-} from "../../test-support/intentScopeProofPage.ts";
-import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../test-support/support/pageTest.ts";
-import { intentLocationName } from "../../test-support/intentPerspectivePage.ts";
+// Test cases and test files stay separate units, each with its own time,
+// through the real comparison, location tree, Summary and file Proof
+// (example 39); native Enter and Space reach the entry header sort.
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   aSpec,
   dashboardTests,
   entry,
   folder,
 } from "../../test-support/support/ciComparisonUnitsJourney.ts";
-import { expectCueState } from "../../test-support/support/expectCiComparisonCues.ts";
-import { expectCiComparisonEntryRows } from "../../test-support/support/expectCiComparisonEntryRows.ts";
-import { summaryComparisonChanges } from "../../test-support/support/intentSummaryStoryComparisonFixture.ts";
-import { intentFile } from "../../test-support/support/intentStoryPage.ts";
+import {
+  cueOf,
+  mountComparison,
+  rowTextsOf,
+  shownComparison,
+} from "./intent-ci-comparison-page.ts";
+import { mountCiScope, scopeReadsOf } from "./intent-ci-scope-page.tsx";
 
-// Five/six/seven test cases and one test file, arranged anew by every case.
-function casesAndFiles() {
-  return [
-    [dashboardTests({ cases: true }, 3, 30_000, 7_000)],
-    [dashboardTests({ cases: true }, 4, 35_000, 8_000)],
-    [dashboardTests({ cases: true }, 5, 40_000, 7_000)],
-  ];
-}
-const parts = "1 of 1 part present";
-const casesChange = "3 → 4 test cases (+1) → 5 test cases (+2)";
-const filesUnchanged = "1 test file (no change)";
-test("Baseline's five test cases and one test file against seven test cases and one test file show +2 test cases and no change in test files in the overall Counts, and each unit on its own entry row with its own time (example 39)", async ({
-  renderComparison,
-}) => {
-  const story = makeMe.aComparedStory
+// Five/six/seven test cases and one test file.
+const unitsStory = () =>
+  makeMe.aComparedStory
     .inSummaryScope()
-    .withEntries(casesAndFiles())
+    .withEntries([
+      [dashboardTests({ cases: true }, 3, 30_000, 7_000)],
+      [dashboardTests({ cases: true }, 4, 35_000, 8_000)],
+      [dashboardTests({ cases: true }, 5, 40_000, 7_000)],
+    ])
     .please();
-  const panel = await renderComparison({ ...story, scope: undefined });
-  const overall = comparisonReading(panel).overallCounts;
-  await expect(overall).toHaveText(
+
+const parts = "1 of 1 part present";
+const cases = "3 → 4 test cases (+1) → 5 test cases (+2)";
+const files = "1 test file (no change)";
+const modified = "Modified dashboard/tests/folder/a.spec.ts";
+
+test("with case and file units, the overall Counts and each unit's own entry row keep the units separate with their own times (example 39)", async () => {
+  const comparison = await mountComparison({
+    ...unitsStory(),
+    scope: undefined,
+  });
+  await expect
+    .poll(() => comparison.entryRows())
+    .toEqual([
+      [
+        entry,
+        "5 → 6 test cases (+1) → 7 test cases (+2)",
+        "40 s",
+        "+5 s",
+        "+10 s",
+      ],
+      [entry, files, "7 s", "+1 s", "0 s"],
+    ]);
+  expect(comparison.overallCounts()).toEqual([
     "5 → 7 test cases (+2); 1 test file (no change)",
-  );
-  await expectCueState(overall, { count: "more-light" });
-  await expectCiComparisonEntryRows(panel, [
-    [
-      entry,
-      "5 → 6 test cases (+1) → 7 test cases (+2)",
-      "40 s",
-      "+5 s",
-      "+10 s",
-    ],
-    [entry, filesUnchanged, "7 s", "+1 s", "0 s"],
+  ]);
+  expect(comparison.overallCountsCues()).toMatchObject([
+    { count: "more-light" },
   ]);
 });
 
-test("Baseline's five test cases and one test file against seven test cases and one test file show each unit's own figures and child rows with their own time in the location Summary (example 39)", async ({
-  page,
-  renderComparison,
-}) => {
-  await renderComparison(
-    makeMe.aComparedStory
-      .inSummaryScope()
-      .withEntries(casesAndFiles())
-      .please(),
-  );
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expectNamedScopeFigures(summary, `CI proof of ${entry}: test cases`, [
-    "5 → 6 test cases (+1) → 7 test cases (+2)",
-    "40.0 s",
-    "+5.0 s",
-    "+10.0 s",
-    parts,
-  ]);
-  await expectNamedScopeFigures(summary, `CI proof of ${entry}: test files`, [
-    filesUnchanged,
-    "7.0 s",
-    "+1.0 s",
-    "0 ms",
-    parts,
-  ]);
-  await expectNamedScopeRows(summary, entry, "folder/", [
-    ["", casesChange, "30.0 s", "+5.0 s", "+10.0 s"],
-    ["", filesUnchanged, "7.0 s", "+1.0 s", "0 ms"],
-  ]);
-  await expectNamedScopeRows(summary, entry, "root.spec.ts", [
-    ["", "2 test cases (no change)", "10.0 s", "0 ms", "0 ms"],
-  ]);
-});
-
-test("Baseline's five test cases and one test file against seven test cases and one test file show each unit's own figures and file rows with their own time in the folder Summary (example 39)", async ({
-  page,
-  renderComparison,
-}) => {
-  await renderComparison(
-    makeMe.aComparedStory
-      .inSummaryScope()
-      .withEntries(casesAndFiles())
-      .selecting(folder, "folder")
-      .please(),
-  );
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expect(summary.locator(".intent-summary-path")).toHaveText(folder);
-  await expectNamedScopeFigures(summary, `CI proof of ${folder}: test cases`, [
-    casesChange,
-    "30.0 s",
-    "+5.0 s",
-    "+10.0 s",
-    parts,
-  ]);
-  await expectNamedScopeFigures(summary, `CI proof of ${folder}: test files`, [
-    filesUnchanged,
-    "7.0 s",
-    "+1.0 s",
-    "0 ms",
-    parts,
-  ]);
-  await expectNamedScopeRows(summary, folder, "a.spec.ts", [
-    ["modified", casesChange, "30.0 s", "+5.0 s", "+10.0 s"],
-    ["modified", filesUnchanged, "7.0 s", "+1.0 s", "0 ms"],
-  ]);
-});
-
-test("Baseline's five test cases and one test file against seven test cases and one test file name each unit's change and time on the tree's file and location controls, which take the cue their rows agree on, and on the file's Proof rows (example 39)", async ({
-  page,
-  renderComparison,
-  renderComparisonTree,
-}) => {
-  const story = makeMe.aComparedStory
-    .inSummaryScope()
-    .withEntries(casesAndFiles());
-  await renderComparisonTree(story.please());
-  const intent = page.locator("#root");
-  const file = intentFile(intent, summaryComparisonChanges.modified);
-  await expect(file).toHaveAttribute(
-    "aria-label",
-    `${summaryComparisonChanges.modified}, ${casesChange}, +10.0 s; ${filesUnchanged}, 0 ms`,
-  );
-  await expectCueState(file, {
+test("with case and file units, the location tree, location and folder Summary and file Proof keep the units separate with their own times (example 39)", async () => {
+  const story = unitsStory();
+  const scope = await mountCiScope(story, scopeReadsOf(story).source);
+  const tree = page.getByRole("navigation", { name: "Intent files" });
+  await expect
+    .element(tree.getByRole("button", { name: new RegExp(`^${entry}, `) }))
+    .toHaveAccessibleName(
+      `${entry}, typescript, **/*.spec.ts, 5 → 6 test cases (+1) → 7 test cases (+2), +10.0 s; ${files}, 0 ms`,
+    );
+  await tree.getByRole("button", { name: "Expand folder" }).click();
+  const file = tree.getByRole("button", { name: new RegExp(`^${modified}, `) });
+  await expect
+    .element(file)
+    .toHaveAccessibleName(`${modified}, ${cases}, +10.0 s; ${files}, 0 ms`);
+  expect(cueOf(file.element())).toMatchObject({
     count: "more-strong",
     duration: "slower-light",
   });
-  await expect(intentLocationName(intent, entry)).toHaveAttribute(
-    "aria-label",
-    `${entry}, typescript, **/*.spec.ts, 5 → 6 test cases (+1) → 7 test cases (+2), +10.0 s; ${filesUnchanged}, 0 ms`,
-  );
-  await renderComparison(story.selecting(aSpec, "file").please());
-  await expectFileComparisonRows(intent, aSpec, [
-    [`${aSpec} modified`, casesChange, "30.0 s", "+5.0 s", "+10.0 s"],
-    [`${aSpec} modified`, filesUnchanged, "7.0 s", "+1.0 s", "0 ms"],
+
+  const { summary } = scope;
+  await expect
+    .poll(() => summary.figuresOf(`CI proof of ${entry}: test cases`))
+    .toEqual([
+      "5 → 6 test cases (+1) → 7 test cases (+2)",
+      "40.0 s",
+      "+5.0 s",
+      "+10.0 s",
+      parts,
+    ]);
+  expect(summary.figuresOf(`CI proof of ${entry}: test files`)).toEqual([
+    files,
+    "7.0 s",
+    "+1.0 s",
+    "0 ms",
+    parts,
   ]);
+  const unitRows = (path: string, named: readonly string[]) =>
+    summary
+      .rowsOf(`CI proof of the immediate folders and files of ${path}`)
+      .filter(([name]) => named.includes(name ?? ""));
+  expect(unitRows(entry, ["folder/", "root.spec.ts"])).toEqual([
+    ["folder/", "", cases, "30.0 s", "+5.0 s", "+10.0 s"],
+    ["folder/", "", files, "7.0 s", "+1.0 s", "0 ms"],
+    ["root.spec.ts", "", "2 test cases (no change)", "10.0 s", "0 ms", "0 ms"],
+  ]);
+
+  await summary.open("folder/");
+  await expect
+    .poll(() => summary.figuresOf(`CI proof of ${folder}: test cases`))
+    .toEqual([cases, "30.0 s", "+5.0 s", "+10.0 s", parts]);
+  expect(summary.figuresOf(`CI proof of ${folder}: test files`)).toEqual([
+    files,
+    "7.0 s",
+    "+1.0 s",
+    "0 ms",
+    parts,
+  ]);
+  expect(unitRows(folder, ["a.spec.ts"])).toEqual([
+    ["a.spec.ts", "modified", cases, "30.0 s", "+5.0 s", "+10.0 s"],
+    ["a.spec.ts", "modified", files, "7.0 s", "+1.0 s", "0 ms"],
+  ]);
+
+  await summary.open("a.spec.ts");
+  await expect
+    .poll(() => scope.proof.rowsOf(`CI proof of ${aSpec}`))
+    .toEqual([
+      [`${aSpec} modified`, cases, "30.0 s", "+5.0 s", "+10.0 s"],
+      [`${aSpec} modified`, files, "7.0 s", "+1.0 s", "0 ms"],
+    ]);
+});
+
+test("native Enter and Space on the entry headers sort Baseline both ways and Counts ascending", async () => {
+  const story = makeMe.aComparedStory.wallTimed().withMixedEntries().please();
+  await mountCiScope(story, scopeReadsOf(story).source);
+  const { entryTable } = await shownComparison();
+  const order = () => rowTextsOf(entryTable).map(([name]) => name);
+  const sortedBy = () =>
+    [...entryTable.element().querySelectorAll("th[aria-sort]")]
+      .filter((th) => th.getAttribute("aria-sort") !== "none")
+      .map((th) => `${th.textContent.trim()} ${th.getAttribute("aria-sort")}`);
+  const press = async (column: string, key: string) => {
+    const button = entryTable.getByRole("button", {
+      name: column,
+      exact: true,
+    });
+    await expect.element(button).toBeVisible();
+    (button.element() as HTMLElement).focus();
+    await userEvent.keyboard(key);
+  };
+  await press("Baseline", "{Enter}");
+  await expect.poll(sortedBy).toEqual(["Baseline ascending"]);
+  expect(order()).toEqual(["tests", "dashboard/tests", "src/skills"]);
+  await press("Baseline", "{Enter}");
+  await expect.poll(sortedBy).toEqual(["Baseline descending"]);
+  expect(order()).toEqual(["dashboard/tests", "tests", "src/skills"]);
+  await press("Counts", " ");
+  await expect.poll(sortedBy).toEqual(["Counts ascending"]);
+  expect(order()).toEqual(["src/skills", "tests", "dashboard/tests"]);
 });

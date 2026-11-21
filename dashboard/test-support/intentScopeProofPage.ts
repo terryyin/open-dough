@@ -159,32 +159,6 @@ export async function expectChildNames(
   ).toHaveText(names);
 }
 
-// The Summary rows of PATH's table named NAME read ROWS: Change then cells.
-export async function expectNamedScopeRows(
-  summary: Locator,
-  path: string,
-  name: string,
-  rows: readonly (readonly string[])[],
-) {
-  const named = proofTableRowsNamed(scopeTable(summary, path), name);
-  await expect(named).toHaveCount(rows.length);
-  for (const [at, cells] of rows.entries()) {
-    await expect(named.nth(at).getByRole("cell")).toHaveText([...cells]);
-  }
-}
-
-// The own figures group NAME (`CI proof of <path>: <unit>`) reads FIGURES,
-// Parts last.
-export async function expectNamedScopeFigures(
-  summary: Locator,
-  name: string,
-  figures: readonly string[],
-) {
-  await expect(
-    summary.getByRole("group", { name, exact: true }).getByRole("definition"),
-  ).toHaveText([...figures]);
-}
-
 export type ComparisonColumn = (typeof comparisonTableColumns)[number];
 
 // A selected scope's own comparison figure, above the child table.

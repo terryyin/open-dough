@@ -31,10 +31,10 @@ export type FileComparisonRow = readonly [
   string,
 ];
 
-export async function expectFileComparisonRows(
+export async function expectFileComparisonRow(
   proof: Locator,
   path: string,
-  rows: readonly FileComparisonRow[],
+  row: FileComparisonRow,
 ) {
   await expectProofTableRows(
     fileProofTable(proof, path),
@@ -44,16 +44,8 @@ export async function expectFileComparisonRows(
         name === "Branch" || name === "Landed" ? `${name} vs baseline` : name,
       ),
     ],
-    rows,
+    [row],
   );
-}
-
-export async function expectFileComparisonRow(
-  proof: Locator,
-  path: string,
-  row: FileComparisonRow,
-) {
-  await expectFileComparisonRows(proof, path, [row]);
 }
 
 // One figure of a file's single-row comparison, regardless of selection route.
