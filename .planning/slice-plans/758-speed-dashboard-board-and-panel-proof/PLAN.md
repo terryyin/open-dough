@@ -251,7 +251,7 @@ selected story.
 ### 8. The launch, roster, and session surfaces stay readable in the frame
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `frame-launch-look` and `frame-sessions-look` (5). Mount the actual
 launch dialogs, `AgentRoster`, and session surfaces over typed choices,
@@ -553,6 +553,8 @@ published as `3880060c0dbc8004765060b32cc0a7e740976842`.
 
 ### Slice 7
 
+Published on the story branch as `6471977a879732cbf293a17088dcf3195bf368c5`.
+
 Five mounted Chromium cases and three real E2E journeys preserve seven
 legacy cases. The eleven-path mounted fixture run passed 19/19 in 33.34 s,
 with the five current cases taking 6.76 summed case-seconds. The three
@@ -578,3 +580,48 @@ into `e2e/navigation/development-intent-terminal-history.spec.ts`. The two
 project and Settings journeys remain in `development-intent-history.spec.ts`.
 All three passed across both paths in 37.10 s including preparation. The
 retained report is `slice-7-refactor-return.md`.
+
+### Slice 8
+
+The five launch, roster and session frame cases passed in mounted Chromium.
+The final two-path selection passed in 6.46 s and dashboard typecheck passed.
+The existing dashboard-header case owns delivered PNG bytes and intrinsic
+dimensions at the same Sessions control. The three retired harness cases
+tested only the removed whole-dashboard mount. The test-support diff from
+the baseline removes 860 lines across seven files and adds 33 lines to
+BoardView. Separate program inputs and observable browser effects retain
+the full map below. Exact commands and aggregate runner records are in
+`slice-8-return.md`.
+
+| Retired legacy case | Observed owner and equivalent |
+| --- | --- |
+| `frame-launch-look.spec.ts` — Start refinement's fields, disclosures, and footer read clearly, with Start the filled action | Same literal title. Mounts the real `StartLaunch` and `LaunchDialog` with a long typed work entry and the offered shape parsed from the shipped refinement options. Native clicks open Refinement options (None selected) and Command details. Exact Instruction label, long subject, command text, named Start and Cancel, every visible text and field/control contrast, decorative Lucide glyphs, and the differing Start fill are observed at 1440×900. |
+| `frame-launch-look.spec.ts` — at a narrow window, Start session keeps every control reachable and readable without sideways scrolling | Separate literal title at 420×900. Real project action and modal in the same production frame. The accessible Claude/Open Dough heading and autofocus on the prompt are observed. All visible buttons, inputs, selects, text areas and summaries are natively scrolled and measured against clipping ancestors and the viewport, and center hit testing confirms the target is reachable. Readability and chrome contrast are checked on the actual text and controls. Cancel returns focus to the launcher. Keyboard Enter reopens it and native Tab can reach the prompt and both footer actions. |
+| `frame-launch-look.spec.ts` — at 200% zoom, Start session keeps every control reachable and readable without sideways scrolling | Separate literal title with the same controls at 640×450 CSS pixels and native DPR 2, confirmed in the browser and restored after the case. The short viewport independently stresses vertical reach. The shorter layout, no sideways scroll and Tab observations stay separate from the 420×900 result. |
+| `frame-launch-look.spec.ts` — the agent roster's heading and Back read clearly and fit a narrow and a zoomed window | Same literal title in `frame-roster-look.spec.ts`. The real addressed `AgentRoster` in its production frame starts with focus on the heading. The real pinned Doughnut publication renders both the source wording and the first agent's typed preparation assignment, including the assigned story. The exact Back to stories action retains one decorative glyph and distinguishable contrast. The heading, source and Back text pass contrast, and the roster has no sideways overflow or cropped words at both 420×900 and 320×256. The existing frame Board look and compact-header observations own surrounding banner and project controls. |
+| `frame-sessions-look.spec.ts` — the Sessions sidebar and terminal read clearly, keep their names, and fit a narrow and a zoomed window | Same literal title. Real PageFrame, DashboardBanner, SessionsSidebar and xterm over working and waiting typed execution records. The closed badges show literal accessible names and ordered counts, fit inside their box, and opening exposes both entries. Sessions retains the 32 px decorative product mark, 40 px frame control, hover and native reverse-Tab/Tab tooltip, viewport fit and visible focus outline. The sidebar heading, first row title and elapsed time retain contrast; the open sidebar and visible non-truncated time/heading fit at 420×900 and 320×256. The named working session opens the real terminal, takes focus, and renders the injected boundary output. The long title and exact Execution session metadata keep text contrast. Close and Mark as done retain exact names, decorative 20 px icons, 3:1 icon and outline contrast, and named hover/keyboard tooltips. Both covering sizes keep Close visible, omit Maximize and Restore, refit actual xterm rows within the terminal, and leave the document horizontally still. The row and terminal headings intentionally truncate visually while retaining full accessible names; the existing frame/panel proof owns the rest of the page's geometry. The exact existing legacy dashboard-header case owns PNG bytes, dimensions and real asset delivery. The existing side-panel-terminal-width and development-intent-terminal-history E2Es own real session attachment, continuity and input. |
+
+#### Whole-story measurements
+
+Before scope comes from the plan's measured `37567ec2f` roster. The 28 named legacy paths took 91.46 s for 63 cases (162.07 summed case-seconds), and the three named whole-App Vitest paths took 9.15 s for 11 cases. Total frontend wall time was 100.61 s across the two commands. The six retained composed paths took 30.6 s for seven E2E cases. Before totals were 74 frontend plus 7 E2E across the selected 37 files and 131.21 s across three commands. The historical table recorded 1-minute load 11.41 before legacy and 17.39 before Vitest. It did not split the historical elapsed time into preparation and execution or retain the E2E pre-run load separately.
+
+| Candidate selection | Cases and paths | Wall clock including preparation | Evidence |
+| --- | --- | ---: | --- |
+| Full mounted Chromium Vitest selection | 69 in 31, 0 in Playwright-only legacy, 0 in Node-only Vitest | 54.066 s at load 15.47, before a local assertion strengthening | `slice-8-roster-frontend.log.run.json`, `slice-8-roster-frontend.json`, `slice-8-roster-frontend-host.txt`. 1.181 s until group reporting starts and 52.616 s under that reporter, including Vitest collection and boot. Aggregate case durations sum to 73.644 s. |
+| Full mounted Chromium verification with stronger reachability and actual Start paint | 69 in the same 31 paths | 50.502 s at load 9.35 | `slice-8-roster-frontend-final.log.run.json`, `slice-8-roster-frontend-final.json`, `slice-8-roster-frontend-final-host.txt`. 0.165 s until group reporting and 50.250 s in the reporter. Aggregate case durations sum to 89.647 s. |
+| Full built Chromium E2E selection | 19 in 14, of which 7 in the six unchanged retained specs, 2 in the previously existing expanded publication spec, and 10 in seven newly promoted specs | 59.017 s at load 11.50 | `slice-8-roster-e2e.log.run.json`, `slice-8-roster-e2e.json`, `slice-8-roster-e2e-host.txt`. 0.742 s until Playwright reporting starts and another 2.312 s before the first case. |
+| Retained Playwright frontend contract, separate exact filter | 1 unchanged Chromium case in `dashboard-header.spec.ts` | 5.840 s | `slice-8-retained-native.log.run.json`, `slice-8-retained-native.json`. This verifies the shared banner case that checks shipped PNG bytes and natural dimensions, plus 32 px decorative rendering and same accessible Sessions control on both project selections. This case is outside both core migration denominators and a separate operational cost. |
+
+Final Vitest destination counts by slice/source family are 13 Board position and height, 10 phone gesture and paging controls, 13 published Board and reading, 6 card selection/dependency/scan, 7 Side panel width, 10 Board/Side panel/Sessions geometry, 5 Development and Intent, and 5 launch/roster/Sessions looks. The 10 newly promoted E2Es are two preference cases in `board-kept-position`, two preference cases in `side-panel-kept-width`, one each in `side-panel-terminal-width`, `board-scrollbar-side-panel`, and `board-session-destination`, two in `development-intent-history`, and one in `development-intent-terminal-history`. Of the 95.970 total E2E case-seconds, 51.162 were the new promoted cases, 39.352 the unchanged cases and 5.456 the two pre-existing publication cases. Summed case durations overlap across two workers. The actual whole E2E invocation increased 28.417 s from the earlier 30.6 s six-path measurement, including preparation, the 10 promotions, and two pre-existing expanded publication cases absent from that old invocation. The difference is not an isolated per-case measurement.
+
+The main hypothesis was that keeping native proof only at the actual page/host boundary and using the production components over typed inputs elsewhere would reduce feedback time even with the promoted costs included. The first full candidate measurement, under higher one-minute load than the 63-case legacy run and close to the 11-case old mounted run, was 113.083 s including all 19 E2Es, against 131.21 s in the historical selection. Frontend-only wall time fell 46.3%, and observed total fell 13.8% with two more pre-existing publication cases on the candidate side. Adding the separate named native check gives 118.923 s. Two workers, AC power, 16 logical cores, and Node 24.21.0 throughout. The second mounted attempt was bounded by the strengthened dialog assertions and corroborated the direction; its host was less loaded, so the more conservative first observation is the comparison above. The observed wall reduction was larger than the mounted difference between the two candidate runs. No extra baseline rerun or broad full-suite timing was used. These are focused local observations, with elapsed time and comparison limitations stated, rather than a CI throughput forecast.
+
+The original slowest named legacy cases took 7.93, 7.57 and 6.83 s for width reload, terminal divider input and hidden long Recently done layout. The final aggregate mounted run's slowest were full native swipes (5.62 s), zoomed published Board reflow (4.12 s), empty-area selection (3.71 s), native keyboard reading and link activation (3.50 s), and native rotation with retained inspection (3.44 s). The slowest built cases were existing Review/Terminal replacement (9.72 s), promoted live terminal width/covering continuity (9.61 s), promoted wide Board preference reload (8.85 s), and promoted Review width reload (7.17 s). They keep independent real layout or true reload purposes.
+
+
+The roster case moved into `frame-roster-look.spec.ts` during refactoring.
+The final roster has the same 69 mounted cases in 32 paths. The complete
+timing runs above covered those cases in 31 paths before the split. A
+focused post-split run passed the five frame cases in 6.82 s, with dashboard
+typecheck passing in 15.53 s. The retained report is
+`slice-8-refactor-return.md`.

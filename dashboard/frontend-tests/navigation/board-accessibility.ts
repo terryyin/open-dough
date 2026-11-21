@@ -9,6 +9,12 @@ import {
 export const narrowViewport = { width: 420, height: 900 };
 export const zoomedViewport = { width: 320, height: 256 };
 
+export function visibleParts(area: Element, selector: string) {
+  return [...area.querySelectorAll(selector)].filter((part) =>
+    part.checkVisibility({ visibilityProperty: true }),
+  );
+}
+
 export function readsWhole(element: Element, container: Element = element) {
   const bounds = container.getBoundingClientRect();
   const range = new Range();
@@ -45,7 +51,7 @@ export async function tabTo(element: Element) {
   throw new Error(`Tab never reached ${element.textContent}.`);
 }
 
-function paintedBackground(element: Element | null) {
+export function paintedBackground(element: Element | null) {
   const colors: string[] = [];
   for (let at = element; at !== null; at = at.parentElement)
     colors.push(getComputedStyle(at).backgroundColor);

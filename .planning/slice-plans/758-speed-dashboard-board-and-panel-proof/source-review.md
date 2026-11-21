@@ -69,7 +69,7 @@ with SEED-341.
 | S03 | Apply shared campaign acceptance to legacy `story-card*` navigation specs. | slice 4 | observed: story-card-selection.spec.ts and story-card-dependency-selection.spec.ts exercise actual Board selection, Inspect and dependency disclosure in mounted Chromium; E2E retains supplier-link navigation |
 | S04 | Apply shared campaign acceptance to legacy `side-panel-width*` navigation specs. | slice 5 | observed: Four same-path width specs run mounted Chromium; e2e/navigation/side-panel-kept-width.spec.ts and side-panel-terminal-width.spec.ts cover real storage and terminal attach |
 | S05 | Apply shared campaign acceptance to legacy `development-intent-frame*` navigation specs. | slice 7 | observed: The three original frame files exercise five mounted cases and the new real E2E path exercises three composed journeys, with the seven legacy outcomes mapped |
-| S06 | Apply shared campaign acceptance to legacy `frame-*` navigation specs. | slice 8 | |
+| S06 | Apply shared campaign acceptance to legacy `frame-*` navigation specs. | slice 8 | observed: frame-board-look.spec.ts and frame-launch, frame-roster and frame-sessions look specs offer mounted Chromium frame proof with the five final legacy cases mapped |
 | S07 | Narrow the existing `board-swipe` Vitest spec from its whole-dashboard mount. | slice 2 | observed: board-swipe.spec.ts mounts Board in production PageFrame over typed published work |
 | S08 | Narrow the existing `board-indicators` Vitest spec from its whole-dashboard mount. | slice 2 | observed: board-indicators.spec.ts mounts Board in production PageFrame and observes native taps and keyboard focus |
 | S09 | Narrow the existing `story-card-scan-emphasis` Vitest spec from its whole-dashboard mount. | slice 4 | observed: story-card-scan-emphasis.spec.ts, all four cases mount StoryCard over typed slice and current/Done session evidence and observe layout, paint and native Tab |
@@ -77,27 +77,27 @@ with SEED-341.
 | S11 | Retain representative reloads in E2E. | slice 1 | observed: e2e/navigation/board-kept-position.spec.ts, durable position through wide and narrow reloads and fallback after storage refusal |
 | S12 | Retain representative URL destinations in E2E. | slice 6 | observed: e2e/navigation/board-session-destination.spec.ts, real project/story URL focuses the tall card at its reading edge at both viewports |
 | S13 | Retain representative cross-destination history in E2E. | slice 7 | observed: e2e/navigation/development-intent-history.spec.ts and development-intent-terminal-history.spec.ts, real project/perspective visits, Settings return and Back/Forward under an attached terminal |
-| A01 | Scoped frontend unit checks use plain Vitest. | slice 8 | |
-| A02 | Retire `actSettled` as its test families move. | slice 8 | |
-| A03 | Retire React `act` wrapping as its test families move. | slice 8 | |
-| A04 | Retire `IS_REACT_ACT_ENVIRONMENT` as its test families move. | slice 8 | |
-| A05 | Remove spent support after the last consumer moves. | slice 8 | |
-| A06 | Keep the shared test-support surface shrinking. | slice 8 | |
-| A07 | Retain distinct case names where the risk needs separate setup or diagnosis. | slice 8 | |
-| A08 | Preserve exact wording wherever it is part of the proof. | slice 8 | |
-| A09 | Preserve accessibility distinctions wherever they are part of the proof. | slice 8 | |
-| A10 | Preserve viewport distinctions wherever they are part of the proof. | slice 8 | |
-| A11 | Preserve input distinctions wherever they are part of the proof. | slice 8 | |
-| A12 | Preserve race distinctions wherever they are part of the proof. | slice 8 | |
-| A13 | Preserve error and retry distinctions wherever they are part of the proof. | slice 8 | |
-| A14 | Avoid long unrelated assertion chains. | slice 8 | |
-| A15 | Avoid hidden case registration. | slice 8 | |
-| A16 | Map every distinct retired assertion to a new owner or named existing equivalent before deletion. | slice 8 | |
-| A17 | Report the reason for each consolidation. | slice 8 | |
-| A18 | Report the reason for keeping any repeated cases. | slice 8 | |
-| A19 | Compare comparable before and after selections with two workers, recording elapsed time including preparation and pairing runs under comparable load when noisy. | slice 8 | |
-| A20 | Record case counts by engine. | slice 8 | |
-| A21 | Record case counts by destination. | slice 8 | |
-| A22 | Record the slow cases remaining. | slice 8 | |
-| A23 | Run each engine selection explicitly while the legacy runner exists. | slice 8 | |
-| A24 | Include the runtime of promoted E2E proof. | slice 8 | |
+| A01 | Scoped frontend unit checks use plain Vitest. | slice 8 | observed: 69 scoped Chromium Vitest cases now live in 32 paths; the measured pre-split roster ran the same 69 cases and the final 5 frame cases passed in their three files |
+| A02 | Retire `actSettled` as its test families move. | slice 8 | observed: Slice 4 retired mountedActSettled and its exclusive whole-dashboard/phone mount callers; scoped spec search found no remaining references |
+| A03 | Retire React `act` wrapping as its test families move. | slice 8 | observed: The 31 destination specs render and operate production owners without wrapping actions in React act |
+| A04 | Retire `IS_REACT_ACT_ENVIRONMENT` as its test families move. | slice 8 | observed: The 31 destination specs leave IS_REACT_ACT_ENVIRONMENT unset and the updated frontend README records its mount convention |
+| A05 | Remove spent support after the last consumer moves. | slice 8 | observed: Slices 2 and 4 consumer searches and retired harness map account for the exclusive support and commands removed when the last caller moved |
+| A06 | Keep the shared test-support surface shrinking. | slice 8 | observed: Slice 8 support comparison versus 37567ec2f, seven files and 860 lines removed and 33 BoardView lines added, net minus 827 |
+| A07 | Retain distinct case names where the risk needs separate setup or diagnosis. | slice 8 | observed: Literal Board and frame names distinguish focus, failed storage, tall-card limits, native input, Viewport and attached-session cases across the eight maps |
+| A08 | Preserve exact wording wherever it is part of the proof. | slice 8 | observed: Exact Done disclosure labels in board-height.spec.ts and the exact status, alert, Start, roster and terminal wording in the mapped frame/read cases |
+| A09 | Preserve accessibility distinctions wherever they are part of the proof. | slice 8 | observed: Board keyboard order, native focus and named controls in the accessible and phone specs and the mounted session badge and tooltip assertions |
+| A10 | Preserve viewport distinctions wherever they are part of the proof. | slice 8 | observed: Named 420×900 and 640×450 DPR2 launch cases, 320×256 frame reads, and separate 700×800/900/1600 Board reveal variants |
+| A11 | Preserve input distinctions wherever they are part of the proof. | slice 8 | observed: Native mouse, wheel, touch, cancellation, Enter and Tab, scrollbar track and terminal keys observed at consuming paths in the accepted maps |
+| A12 | Preserve race distinctions wherever they are part of the proof. | slice 8 | observed: Held publication and arriving Done evidence sequence, and unchanged Review read counts through layout transitions, in the typed mounted owners |
+| A13 | Preserve error and retry distinctions wherever they are part of the proof. | slice 8 | observed: Distinct transient and missing publication alerts, original invalid/refused preference cases, no extra read after failure and genuine reload fallback |
+| A14 | Avoid long unrelated assertion chains. | slice 8 | observed: Mounted specs keep actions on their shared reading or interaction purpose; composed E2E paths use named steps for each browser or attachment transition |
+| A15 | Avoid hidden case registration. | slice 8 | observed: The measured 69 mounted case names are literal and the final three-path run discovered the unchanged launch, roster and Sessions names |
+| A16 | Map every distinct retired assertion to a new owner or named existing equivalent before deletion. | slice 8 | observed: Every legacy and narrowed case appears in the accepted eight-slice assertion maps with a mounted or named true-page/host proof owner |
+| A17 | Report the reason for each consolidation. | slice 8 | observed: The plan records equivalent narrow/wide preference reload, invalid storage values, shared 700×800 cover and separated inspection and Done-range risks |
+| A18 | Report the reason for keeping any repeated cases. | slice 8 | observed: The maps retain named distinct input and viewport extremes and explain the cases requiring different layout, failure or focus evidence |
+| A19 | Compare comparable before and after selections with two workers, recording elapsed time including preparation and pairing runs under comparable load when noisy. | slice 8 | observed: Slice 8 compares the same locked Mac and two workers, 100.61 s historical vs 54.066 s mounted, 131.21 s vs 113.083 s including composed E2E, with scope and load limits |
+| A20 | Record case counts by engine. | slice 8 | observed: Baseline 63 legacy Chromium/11 Vitest/7 E2E, candidate 69 Chromium Vitest/19 E2E and one separate existing legacy asset case |
+| A21 | Record case counts by destination. | slice 8 | observed: Slice 8 records 69 mounted cases by slice and 19 E2E by retained, expanded publication and promoted destinations |
+| A22 | Record the slow cases remaining. | slice 8 | observed: Slice 8 named runner results identify full swipes, zoomed Board, selection and keyboard as slow mounted cases and terminal/reload as slow E2E cases |
+| A23 | Run each engine selection explicitly while the legacy runner exists. | slice 8 | observed: Baseline explicit legacy and mounted selections, candidate explicit 31-path timing and 14 E2E paths, separately filtered legacy asset, and all 5 final frame cases after the split |
+| A24 | Include the runtime of promoted E2E proof. | slice 8 | observed: The expanded E2E command passed 19 cases in 59.017 s including setup, with ten promoted cases contributing 51.162 summed case-seconds |
