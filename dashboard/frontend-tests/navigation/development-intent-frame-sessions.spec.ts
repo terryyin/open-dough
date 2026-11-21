@@ -14,6 +14,7 @@ import {
   terminal,
 } from "./board-session-view.ts";
 import {
+  currentHistoryIndex,
   development,
   intent,
   intentChoice,
@@ -63,7 +64,7 @@ test("a Sessions sidebar entry from Intent goes to its project's Development sto
     name: pygardonStory.title,
     exact: true,
   });
-  const before = history.length;
+  const before = currentHistoryIndex();
   await openSidebarSession(pygardonStory.title);
   const compactProject = page.getByRole("button", {
     name: "Project",
@@ -84,7 +85,7 @@ test("a Sessions sidebar entry from Intent goes to its project's Development sto
   expect(params().get("project")).toBe("pygardon");
   expect(params().get("view")).toBeNull();
   expect(params().get("perspective")).toBeNull();
-  expect(history.length).toBe(before + 1);
+  expect(currentHistoryIndex()).toBe(before + 1);
   const card = backlogCard(pygardonStory.title);
   await expect
     .element(card.getByText("Shown in terminal", { exact: true }))
@@ -112,12 +113,12 @@ test("a Sessions sidebar entry from Intent goes to its project's Development sto
 
   await intentChoice.click();
   await expect.element(intent).toBeVisible();
-  const from = history.length;
+  const from = currentHistoryIndex();
   const alreadyRevealed = reveal.mock.contexts.length;
   await entry.click();
   await expect.element(intent).not.toBeInTheDocument();
   await expect.element(development).toBeChecked();
-  expect(history.length).toBe(from + 1);
+  expect(currentHistoryIndex()).toBe(from + 1);
   await expect
     .poll(() =>
       reveal.mock.contexts.slice(alreadyRevealed).includes(card.element()),

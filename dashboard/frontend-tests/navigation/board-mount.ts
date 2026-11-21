@@ -186,20 +186,27 @@ export async function mountBoard(
 
 export const positionKey = "open-dough.board.position";
 export const formerPositionKey = "open-dough.dashboardColumns.position";
+export const sidebarKey = "open-dough.sessionsSidebar.open";
 
 export function withBoardStorage(initial?: string) {
-  const before = localStorage.getItem(positionKey);
-  const former = localStorage.getItem(formerPositionKey);
-  const restore = (key: string, value: string | null) => {
+  withFramePreference(positionKey, initial ?? null);
+  withFramePreference(formerPositionKey, null);
+}
+
+export function withClosedSessionsSidebar() {
+  withFramePreference(sidebarKey, "false");
+}
+
+export function withFramePreference(key: string, initial: string | null) {
+  const kept = localStorage.getItem(key);
+  const store = (value: string | null) => {
     if (value === null) localStorage.removeItem(key);
     else localStorage.setItem(key, value);
   };
   onTestFinished(() => {
-    restore(positionKey, before);
-    restore(formerPositionKey, former);
+    store(kept);
   });
-  restore(positionKey, initial ?? null);
-  localStorage.removeItem(formerPositionKey);
+  store(initial);
 }
 
 export function reducedBoardMotion() {

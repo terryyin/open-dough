@@ -1,4 +1,4 @@
-import { expect, onTestFinished, vi } from "vitest";
+import { expect, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewSource } from "../../src/reviewSource.ts";
@@ -6,7 +6,7 @@ import type { WorkEntry } from "../../src/publishedWork.ts";
 import { browserSession } from "../review/browser-session.ts";
 import { reviewFiles } from "../review/story-review-files-view.ts";
 import { reviewSourceAnswering } from "../review/story-review-panel-page.ts";
-import { mountBoard } from "./board-mount.ts";
+import { mountBoard, sidebarKey, withFramePreference } from "./board-mount.ts";
 import { boardReading, center } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 
@@ -15,7 +15,7 @@ export const narrow = { width: 420, height: 900 };
 export const minimum = 320;
 export const keyStep = 32;
 export const widthKey = "open-dough.sidePanel.width";
-export const sidebarKey = "open-dough.sessionsSidebar.open";
+export { sidebarKey };
 
 const reviewed = story("Inspect the chosen width", 59);
 
@@ -177,14 +177,6 @@ export async function movePointer(at: { x: number; y: number }) {
 }
 
 export function withWidthStorage() {
-  const preferences = [widthKey, sidebarKey].map(
-    (key) => [key, localStorage.getItem(key)] as const,
-  );
-  for (const [key] of preferences) localStorage.removeItem(key);
-  onTestFinished(() => {
-    for (const [key, value] of preferences) {
-      if (value === null) localStorage.removeItem(key);
-      else localStorage.setItem(key, value);
-    }
-  });
+  withFramePreference(widthKey, null);
+  withFramePreference(sidebarKey, null);
 }
