@@ -34,7 +34,7 @@ usable change, independently of the later polish.
 {"schemaVersion":1,"identity":"SEED-420#review-standalone-done-work","dependencies":[{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Published session records for ad hoc Land and ad hoc story follow-ups, carrying the associated story identity","rationale":"The Done story is published with the session's record and read across machines through it. Building it first would define the record's story association and the ad hoc Land publication path twice.","condition":"An ad hoc session's Land and an ad hoc story follow-up's Land each publish a versioned session record on trunk that carries the UUID, close time, comparisons and story identity when associated, and the Dashboard reads it from another clone.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/755-reopen-completed-ad-hoc-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ca95967715c47174aa8d7ecdbf27d7dceb1313c8da50865b723318f01cc2e69e","plan":"593d31baf36cf1ed44907b3e890190e868281ef545c9b52f04e1c2a0e4d45bb5"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/756-reopen-completed-ad-hoc-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ca95967715c47174aa8d7ecdbf27d7dceb1313c8da50865b723318f01cc2e69e","plan":"593d31baf36cf1ed44907b3e890190e868281ef545c9b52f04e1c2a0e4d45bb5"}}
 ```
 
 **Goal.** A developer can return to completed ad hoc work as a story, from
