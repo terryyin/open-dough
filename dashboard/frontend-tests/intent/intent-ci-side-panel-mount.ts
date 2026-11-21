@@ -41,6 +41,7 @@ import { SidePanelTitle } from "../../src/SidePanelTitle.tsx";
 import { storyCardMarks } from "../../src/storyCardFocus.ts";
 import { StoryCardSessions } from "../../src/StoryCardSessions.tsx";
 import "../../src/side-panel.css";
+import { withClosedSessionsSidebar } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { unavailableReviewSource } from "./intent-ci-perspective-mount.ts";
 
@@ -225,6 +226,7 @@ export async function mountSidePanelIntentPage({
   readonly readSource: IntentReadSource;
   readonly ciReads: IntentCiReadSource;
 }) {
+  withClosedSessionsSidebar();
   await mountComponent(
     createElement(
       ReviewSourceOnPage,

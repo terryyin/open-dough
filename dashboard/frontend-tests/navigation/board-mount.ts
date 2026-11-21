@@ -1,5 +1,4 @@
 import { createElement, useState } from "react";
-import { onTestFinished } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
 import { Board } from "../../src/Board.tsx";
@@ -14,6 +13,10 @@ import {
 } from "../../src/reviewSource.ts";
 import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
 import { StoryNavigationOnPage } from "../../src/storyNavigation.tsx";
+import {
+  withClosedSessionsSidebar,
+  withFramePreference,
+} from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { emulateMedia } from "../review/browser-session.ts";
 
@@ -136,8 +139,12 @@ export async function mountBoard(
       "records" | "launched" | "start" | "keptStartOf" | "sessionPolicyOffer"
     >
   > = {},
-  reviews?: ReviewSource,
+  {
+    reviews,
+    sessionsSidebar = "closed",
+  }: { reviews?: ReviewSource; sessionsSidebar?: "closed" | "kept" } = {},
 ) {
+  if (sessionsSidebar === "closed") withClosedSessionsSidebar();
   let sessions = { ...noSessions, ...observed };
   let work = projects;
   const notes = new Map(
@@ -186,27 +193,10 @@ export async function mountBoard(
 
 export const positionKey = "open-dough.board.position";
 export const formerPositionKey = "open-dough.dashboardColumns.position";
-export const sidebarKey = "open-dough.sessionsSidebar.open";
 
 export function withBoardStorage(initial?: string) {
   withFramePreference(positionKey, initial ?? null);
   withFramePreference(formerPositionKey, null);
-}
-
-export function withClosedSessionsSidebar() {
-  withFramePreference(sidebarKey, "false");
-}
-
-export function withFramePreference(key: string, initial: string | null) {
-  const kept = localStorage.getItem(key);
-  const store = (value: string | null) => {
-    if (value === null) localStorage.removeItem(key);
-    else localStorage.setItem(key, value);
-  };
-  onTestFinished(() => {
-    store(kept);
-  });
-  store(initial);
 }
 
 export function reducedBoardMotion() {

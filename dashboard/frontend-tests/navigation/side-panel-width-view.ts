@@ -3,10 +3,15 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import type { WorkEntry } from "../../src/publishedWork.ts";
+import {
+  sidebarKey,
+  withClosedSessionsSidebar,
+  withFramePreference,
+} from "../../test-support/component-mount/framePreferences.ts";
 import { browserSession } from "../review/browser-session.ts";
 import { reviewFiles } from "../review/story-review-files-view.ts";
 import { reviewSourceAnswering } from "../review/story-review-panel-page.ts";
-import { mountBoard, sidebarKey, withFramePreference } from "./board-mount.ts";
+import { mountBoard } from "./board-mount.ts";
 import { boardReading, center } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 
@@ -80,7 +85,10 @@ export async function mountWidthReview(
     [boardWork(backlog, { taken: [reviewed] })],
     viewport,
     { records, launched: records },
-    reviewSourceAnswering({ review, fileDiff }),
+    {
+      reviews: reviewSourceAnswering({ review, fileDiff }),
+      sessionsSidebar: "kept",
+    },
   );
   await expect
     .element(
@@ -178,5 +186,5 @@ export async function movePointer(at: { x: number; y: number }) {
 
 export function withWidthStorage() {
   withFramePreference(widthKey, null);
-  withFramePreference(sidebarKey, null);
+  withClosedSessionsSidebar();
 }

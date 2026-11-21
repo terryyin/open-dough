@@ -6,7 +6,6 @@ import {
   mountBoard,
   reducedBoardMotion,
   withBoardStorage,
-  withClosedSessionsSidebar,
 } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { sessions } from "./board-session-view.ts";
@@ -47,7 +46,6 @@ const tapIndicator = (name: Parameters<typeof board.control>[0]) =>
 
 test.beforeEach(async () => {
   withBoardStorage("0");
-  withClosedSessionsSidebar();
   await useTouchScreen();
 });
 

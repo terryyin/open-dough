@@ -38,7 +38,7 @@ test("storage refusal starts the Board at Backlog and still keeps a choice for t
   onTestFinished(() => {
     storage.mockRestore();
   });
-  await mountBoard(projects, viewport);
+  await mountBoard(projects, viewport, {}, { sessionsSidebar: "kept" });
   await atBacklog();
   await board.control("Recently done").click();
   await atTaken();

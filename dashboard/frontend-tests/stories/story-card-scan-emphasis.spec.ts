@@ -6,6 +6,7 @@ import { PageFrame } from "../../src/PageFrame.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import { sessionKey } from "../../src/sessionReference.ts";
 import { StoryCard } from "../../src/StoryCard.tsx";
+import { withClosedSessionsSidebar } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { tabTo } from "../navigation/board-accessibility.ts";
 import { noSessions } from "../navigation/board-mount.ts";
@@ -13,6 +14,7 @@ import { boardWork, story } from "../navigation/board-work.ts";
 import { scanEmphasisCard } from "./scan-emphasis-card-page.ts";
 
 async function mountScanEmphasisCard(width: number) {
+  withClosedSessionsSidebar();
   const entry = story("Scan emphasis story", 414, {
     planSlices: {
       status: "interpreted",
