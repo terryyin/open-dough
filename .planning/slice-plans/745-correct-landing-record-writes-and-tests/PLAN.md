@@ -20,6 +20,8 @@
   cell `g72:18`, session `72505`. The initial claim's trunk CI is unobserved.
 - Keep the planning authority of the accepted plan. No override of overrun
   replanning was requested.
+- Slice 1 accepted on the Story Branch at
+  `e4554c51f7d03ca34bc1f89270ead1244c71b5dd`, attached to the same observer.
 
 ## Correction input
 
@@ -170,7 +172,7 @@ evidence directory.
 ### 2. A branch handoff keeps a concurrent Done and reports only what it saved
 
 Type: Behavior
-Status: planned
+Status: done
 
 Pre-condition: a kept Default main launch with a branch entry and a
 storyless-capable installed landing module, arranged as
@@ -185,6 +187,22 @@ the saved file.
 **Proof.** Both cases at the typed branch-entry handler under the stubbed
 machine HOME; the concurrent case fails when the save returns `answered`
 (scratch revert). Rerun `ad-hoc-session-branch-entry`.
+
+**Observed.** Before the guarded save, three interleaved cases lost a
+newer stop explanation, cleared a real Done mark, or overwrote a changed
+branch entry. With the fix, all four typed cases passed, including the
+successful default save whose returned path matches the persisted file.
+Four existing branch-entry cases and the installed handoff command passed.
+Plan 742 had not landed, so the route delegates to the minimal typed handler
+and retains its admission and command proof.
+
+The expanded run hit the existing timeout in both declared publisher
+specs and the mixed comparison spec on the loaded local host. The direct
+handler and command results were strict passes. The three existing cases
+are covered by plan 743's publisher and mixed-review proof reduction
+(`c16c24200` on its active branch). The outstanding gate is coordination
+with that owner and rechecking the final integrated proof. See
+`slice-2-report.md` and its named proof files in the worktree Git evidence.
 
 ### 3. Composed cases mark Done through the production Done write
 

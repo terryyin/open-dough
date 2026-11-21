@@ -20,13 +20,13 @@ and preservation of creation records on writes.
 | 6 | In that prepare journey, preparation is confined to the landing launch. | slice 1 | observed: landingRecordPersistence.spec.ts exact afterPrepare array keeps other and creation unchanged |
 | 7 | When an attempt-path landing is decided while another session in the same project is marked Done, that session keeps its Done time. | slice 1 | observed: landingRecordPersistence.spec.ts attempt case changes other to Done between decision and save and checks its complete record |
 | 8 | In that concurrent Done journey, no record moves to history as removed. | slice 1 | observed: landingRecordPersistence.spec.ts attempt case exact document retains all original session keys and the newly arrived one; launchRecordDocument.ts derives removed via key difference |
-| 9 | A branch handoff preserves every launch record it does not own. | slice 2 | |
-| 10 | A branch-context save merges only `landingReporting` into the current record. | slice 2 | |
-| 11 | The branch-context save rechecks `doneAt`. When the same session is marked Done while the handoff copies context, the saved record keeps `doneAt`. | slice 2 | |
-| 12 | The branch-context save rechecks `branchEntry`. | slice 2 | |
-| 13 | When the same session is marked Done while the handoff copies context, the saved record gains no landing reporting. | slice 2 | |
-| 14 | The branch handoff includes `landingContext` only for a file it saved. In the concurrent Done journey, the answer carries no `landingContext`. | slice 2 | |
-| 15 | Without a concurrent change, the branch handoff answers with the saved file. | slice 2 | |
+| 9 | A branch handoff preserves every launch record it does not own. | slice 2 | observed: branch-landing-handoff.spec.ts open-launch change proves exact unrelated session and creation remain |
+| 10 | A branch-context save merges only `landingReporting` into the current record. | slice 2 | observed: acceptBranchLandingAnswer only sets landingReporting into current; branch-landing-handoff.spec.ts keeps newer stop explanation and answers saved context |
+| 11 | The branch-context save rechecks `doneAt`. When the same session is marked Done while the handoff copies context, the saved record keeps `doneAt`. | slice 2 | observed: branch-landing-handoff.spec.ts concurrent production setRecordDoneAt keeps the exact stored Done time |
+| 12 | The branch-context save rechecks `branchEntry`. | slice 2 | observed: branch-landing-handoff.spec.ts changed persisted defaultTip survives with no saved or returned context; sameBranchEntry tests all entry witnesses in production |
+| 13 | When the same session is marked Done while the handoff copies context, the saved record gains no landing reporting. | slice 2 | observed: branch-landing-handoff.spec.ts concurrent Done leaves persisted landingReporting absent |
+| 14 | The branch handoff includes `landingContext` only for a file it saved. In the concurrent Done journey, the answer carries no `landingContext`. | slice 2 | observed: branch-landing-handoff.spec.ts concurrent Done and changed entry cases omit landingContext; handler verifies saved reporting object |
+| 15 | Without a concurrent change, the branch handoff answers with the saved file. | slice 2 | observed: branch-landing-handoff.spec.ts default context maker succeeds and the returned path equals the saved path and opens with the saved reference |
 | 16 | The test-only re-export of `decideAttemptLanding` is retired. | slice 4 | |
 | 17 | The duplicate retained lookup in `handleLanding` is removed. | slice 4 | |
 | 18 | The unused `LandingDecision.path` is removed. | slice 4 | |
@@ -52,6 +52,6 @@ and preservation of creation records on writes.
 | 38 | Assertions that restate their inputs are removed. | slice 6 | |
 | 39 | Record deletion in `declared-blank-launch-publication` acts on the record holding the landing. | slice 7 | |
 | 40 | The landing persistence cases fail when the landing persistence fix is reverted. | slice 1 | observed: slice-1-break.log and run record in worktree Git evidence; both adapter cases fail against the snapshot implementation |
-| 41 | The branch-entry persistence cases fail when the branch-entry persistence fix is reverted. | slice 2 | |
+| 41 | The branch-entry persistence cases fail when the branch-entry persistence fix is reverted. | slice 2 | observed: slice-2-red.log and run record in the worktree Git evidence; reverting the guarded save and response checks fails the open, concurrent Done and changed-entry cases |
 | 42 | The local test count for the decision specs does not grow. | slice 6 | |
 | 43 | The local run time of the decision specs does not grow. | slice 6 | |

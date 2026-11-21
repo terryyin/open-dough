@@ -115,27 +115,32 @@ export async function submitSessionBranchEntry(req: IncomingMessage) {
   const parsed = requestSchema.safeParse(await jsonBody(req));
   if (!parsed.success)
     throw new RefusedRequest(400, "The branch handoff request is malformed.");
-  const request = parsed.data;
+  return handleSessionBranchEntry(parsed.data, `http://${req.headers.host}`);
+}
+
+export async function handleSessionBranchEntry(
+  request: BranchRequest,
+  origin: string,
+  prepareLanding = branchLandingContext,
+) {
   const source = knownSource(request.source);
-  const record = await namedLaunch(
-    source,
-    request,
-    `http://${req.headers.host}`,
-  );
+  const record = await namedLaunch(source, request, origin);
   const entry = await recordSessionBranchEntry(source, record, request);
-  const origin = `http://${req.headers.host}`;
   const reference = record.request.reporting?.reference ?? randomUUID();
-  const answered = await branchLandingContext(
+  const answered = await prepareLanding(
     machineDashboardPath("reporting", reference, "branch-landing"),
     { ...record, branchEntry: entry },
     { origin, source: source.id, reference },
   );
   let landingContext: string | undefined;
   if (answered !== undefined) {
-    await changeSessionRecord(source.id, record.session, (current) =>
-      acceptBranchLandingAnswer(current, answered.record),
+    const saved = await changeSessionRecord(
+      source.id,
+      record.session,
+      (current) => acceptBranchLandingAnswer(current, answered.record),
     );
-    landingContext = answered.file;
+    if (saved?.landingReporting === answered.record.landingReporting)
+      landingContext = answered.file;
   }
   return {
     session: record.session.sessionId,
