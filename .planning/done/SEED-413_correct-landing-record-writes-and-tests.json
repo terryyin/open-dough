@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#correct-landing-record-writes-and-tests",
+  "title": "Keep kept records intact through landings and prove it at the landing adapter",
+  "completedAt": "2026-11-21T03:21:12.691Z",
+  "developer": "Terry Yin",
+  "agent": "Yui-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
