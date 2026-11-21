@@ -338,7 +338,7 @@ Accepted: evidence `s4-slice4-return-report.md`. Commitments 4 and 5 observed. R
 ### 5. Published reviews fetch only when the record is missing
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.**
 - Given a record present at the last fetched `origin/<ref>`, opening the
@@ -360,6 +360,9 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
+
+
+Accepted: evidence `s5-slice5-return-report.md`. Commitments 7 and 8 observed.
 
 ### 6. Bound the published listing's record reads
 
