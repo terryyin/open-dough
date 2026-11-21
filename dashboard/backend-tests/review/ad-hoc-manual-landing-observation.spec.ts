@@ -2,6 +2,11 @@
 // branch: after a restart, a later advance and branch retirement it keeps
 // the comparison fixed at Done beside the delivered one, and a check at an
 // unchanged revision still finds a session that became Done since.
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import {
+  reviewedFileDiff,
+  reviewedFileText,
+} from "../../server/storyReviewFileResponse.ts";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
@@ -18,12 +23,7 @@ import {
   minutesAgo,
   work,
 } from "../support/doneCaptureCase.ts";
-import {
-  aDoneBranch,
-  fileDiff,
-  fileText,
-  review,
-} from "../support/doneCaptureReview.ts";
+import { aDoneBranch } from "../support/doneCaptureReview.ts";
 import { observedTrunk } from "../support/doneBranchObservation.ts";
 
 const branch = "draft";
@@ -56,7 +56,10 @@ test("the first observation after restart discovers a delivery while preserving 
   if (branchResult === undefined)
     throw new Error("Missing the Done branch result.");
   await keepBranchResultRefs(record.session, branchResult);
-  const branchAtDone = await review([record], record);
+  const branchAtDone = await storyReview(
+    { record, read: {} },
+    new AbortController().signal,
+  );
   expect(branchAtDone).toMatchObject({
     kind: "branch-result",
     baseline,
@@ -89,7 +92,9 @@ test("the first observation after restart discovers a delivery while preserving 
   });
 
   const restarted = observedSessionDeliveries();
-  expect(await review([record], record)).toEqual(branchAtDone);
+  expect(
+    await storyReview({ record, read: {} }, new AbortController().signal),
+  ).toEqual(branchAtDone);
   const [delivery] = await restarted.observe(observedTrunk, latest, [record]);
   if (delivery === undefined)
     throw new Error("Missing the delivery after restart.");
@@ -98,7 +103,10 @@ test("the first observation after restart discovers a delivery while preserving 
     ...delivery.record,
     landing: makeMe.aLaunchLanding.capturedFrom(pair).comparing(pair).please(),
   };
-  const delivered = await review([kept], record);
+  const delivered = await storyReview(
+    { record: kept, read: {} },
+    new AbortController().signal,
+  );
   expect(delivered).toMatchObject({
     kind: "landed",
     baseline: trunkParent,
@@ -106,7 +114,10 @@ test("the first observation after restart discovers a delivery while preserving 
     sessionComparisonKeys: ["delivered", "branch-result"],
     files: [{ path: "draft.txt" }],
   });
-  const savedBranch = await review([kept], record, "branch-result");
+  const savedBranch = await storyReview(
+    { record: kept, read: { run: "branch-result" } },
+    new AbortController().signal,
+  );
   expect(savedBranch).toMatchObject({
     kind: "branch-result",
     baseline,
@@ -124,8 +135,15 @@ test("the first observation after restart discovers a delivery while preserving 
     "origin",
     path.join(path.dirname(integration), "offline"),
   );
-  expect(await review([kept], record)).toEqual(delivered);
-  expect(await review([kept], record, "branch-result")).toEqual(savedBranch);
+  expect(
+    await storyReview({ record: kept, read: {} }, new AbortController().signal),
+  ).toEqual(delivered);
+  expect(
+    await storyReview(
+      { record: kept, read: { run: "branch-result" } },
+      new AbortController().signal,
+    ),
+  ).toEqual(savedBranch);
   for (const [comparison, before, after, reference] of [
     [
       delivered,
@@ -141,12 +159,20 @@ test("the first observation after restart discovers a delivery while preserving 
       path: "draft.txt",
       ...(reference === undefined ? {} : { reference }),
     };
-    const diff = await fileDiff([kept], record, file);
+    const diff = await reviewedFileDiff(
+      { record: kept, read: file },
+      new AbortController().signal,
+    );
     expect(diff.kind).toBe("diff");
     expect(diff.kind === "diff" && diff.printed).toContain(
       `-${before}\n+${after}`,
     );
-    expect(await fileText([kept], record, file)).toEqual({
+    expect(
+      await reviewedFileText(
+        { record: kept, read: file },
+        new AbortController().signal,
+      ),
+    ).toEqual({
       kind: "text",
       baseline: `${before}\n`,
       tree: `${after}\n`,
@@ -161,6 +187,8 @@ test("an unchanged revision check discovers delivery for a newly Done session", 
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("newly-done", { at: minutesAgo(30) }),
   );
+  const open = launch.please();
+  const done = await aDoneBranch(launch, { doneAt: minutesAgo(4) });
   const { merge } = await work(
     checkout,
     makeMe.aCheckoutWork
@@ -168,11 +196,8 @@ test("an unchanged revision check discovers delivery for a newly Done session", 
       .pushingToTrunk("pushed", { at: minutesAgo(5) }),
   );
   const observations = observedSessionDeliveries();
-  expect(
-    await observations.observe(observedTrunk, merge, [launch.please()]),
-  ).toEqual([]);
+  expect(await observations.observe(observedTrunk, merge, [open])).toEqual([]);
 
-  const done = await aDoneBranch(launch);
   expect(done.branchResult?.manualDeliveryChecked).toBe(true);
   expect(done.landing).toBeUndefined();
   const [delivery] = await observations.observe(observedTrunk, merge, [done]);
@@ -183,7 +208,9 @@ test("an unchanged revision check discovers delivery for a newly Done session", 
     ...delivery.record,
     landing: makeMe.aLaunchLanding.capturedFrom(pair).comparing(pair).please(),
   };
-  expect(await review([kept], done)).toMatchObject({
+  expect(
+    await storyReview({ record: kept, read: {} }, new AbortController().signal),
+  ).toMatchObject({
     kind: "landed",
     baseline: checkout.base,
     tree: merge,

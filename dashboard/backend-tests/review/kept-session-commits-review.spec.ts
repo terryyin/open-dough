@@ -37,10 +37,7 @@ test("the retained landing of a Default main session takes precedence over its l
     })
     .markedDone()
     .please();
-  const read = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record])
-    .please();
+  const read = makeMe.aSessionReviewRead.ofRecord(record).please();
 
   expect(await storyReview(read, new AbortController().signal)).toMatchObject({
     kind: "landed",
@@ -76,9 +73,7 @@ test("a file text read answers both sides of a kept run's pair and refuses a dif
     })
     .markedDone()
     .please();
-  const review = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record]);
+  const review = makeMe.aSessionReviewRead.ofRecord(record);
   const read = (baseline: string) =>
     reviewedFileText(
       review.readingFile({ baseline, tree: result, path: "work.txt" }).please(),
@@ -133,9 +128,7 @@ test("a Done session's branch result and kept run open as separate comparisons",
     })
     .markedDone()
     .please();
-  const read = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record]);
+  const read = makeMe.aSessionReviewRead.ofRecord(record);
   const signal = new AbortController().signal;
 
   expect(await storyReview(read.please(), signal)).toMatchObject({

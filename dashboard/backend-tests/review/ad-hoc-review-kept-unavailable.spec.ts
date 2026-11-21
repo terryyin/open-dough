@@ -65,22 +65,17 @@ test("Given an ad hoc landing whose comparison objects are gone, when its review
 });
 
 test("Given an unreadable kept comparison, when its review is read, then it still identifies the session's commits", async () => {
-  const records = [
-    makeMe.aLaunchRecord
-      .adHoc({ title: "Missing kept repository" })
-      .inClaudeSession({ sessionId: "unreadable-kept-commits" })
-      .keptSessionCommits({
-        repository: gone("kept-repo"),
-        runs: [{ base: "a".repeat(40), revision: "b".repeat(40) }],
-      })
-      .markedDone()
-      .please(),
-  ];
-
-  const read = makeMe.aSessionReviewRead
-    .ofSession("unreadable-kept-commits")
-    .keeping(records)
+  const record = makeMe.aLaunchRecord
+    .adHoc({ title: "Missing kept repository" })
+    .inClaudeSession({ sessionId: "unreadable-kept-commits" })
+    .keptSessionCommits({
+      repository: gone("kept-repo"),
+      runs: [{ base: "a".repeat(40), revision: "b".repeat(40) }],
+    })
+    .markedDone()
     .please();
+
+  const read = makeMe.aSessionReviewRead.ofRecord(record).please();
 
   expect(await review(read)).toEqual({
     kind: "landing-unavailable",
@@ -113,9 +108,7 @@ test("Review reports an attribution gap and refuses files of that branch pair", 
       })
       .markedDone()
       .please();
-    const read = makeMe.aSessionReviewRead
-      .ofSession(record.session.sessionId)
-      .keeping([record]);
+    const read = makeMe.aSessionReviewRead.ofRecord(record);
 
     expect(await review(read.please())).toMatchObject({
       kind: "unavailable",

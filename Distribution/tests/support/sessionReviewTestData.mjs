@@ -1,59 +1,38 @@
 // @ts-check
 // A session review read as the review handler takes it
-// (../../../dashboard/server/storyReviewSnapshot.ts): one session of the
-// `open-dough` project, on the `claude` host unless named, with the launch
-// records kept for that project.
+// (../../../dashboard/server/storyReviewSnapshot.ts): one admitted launch
+// record and an optional comparison key.
 // `.readingFile(...)` turns it into the file read the file handlers take
 // (../../../dashboard/server/storyReviewFileResponse.ts).
 import { LaunchReviewedSessionBuilder } from "./launchReviewedSessionTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/launchRecord.ts").LaunchRecord} LaunchRecord */
-/** @typedef {Extract<import("../../../dashboard/server/storyReviewInput.ts").StoryReviewInput, { readonly kept: unknown }>} SessionReviewRead */
-/** @typedef {Extract<import("../../../dashboard/server/storyReviewInput.ts").ReviewedFileInput, { readonly kept: unknown }>} SessionFileRead */
+/** @typedef {Extract<import("../../../dashboard/server/storyReviewInput.ts").StoryReviewInput, { readonly record: LaunchRecord }>} SessionReviewRead */
+/** @typedef {Extract<import("../../../dashboard/server/storyReviewInput.ts").ReviewedFileInput, { readonly record: LaunchRecord }>} SessionFileRead */
 /**
  * The file a session file read names within a comparison, and the landed
  * run's launch reference when it names one.
- * @typedef {Omit<SessionFileRead["read"], "subject">} NamedFile
+ * @typedef {SessionFileRead["read"]} NamedFile
  */
 /**
  * @typedef {import("./launchReviewedSessionTestData.mjs").CapturedLanding} CapturedLanding
  */
 
 export class SessionReviewReadBuilder {
-  /** @type {string | undefined} */
-  #session;
-  /** @type {SessionReviewRead["read"]["subject"]["host"]} */
-  #host = "claude";
+  /** @type {LaunchRecord | undefined} */
+  #record;
   /** @type {string | undefined} */
   #run;
-  /** @type {readonly LaunchRecord[]} */
-  #records = [];
 
-  /**
-   * @param {string} session the reviewed session's ID
-   * @param {SessionReviewRead["read"]["subject"]["host"]} [host] its host
-   */
-  ofSession(session, host = "claude") {
-    this.#session = session;
-    this.#host = host;
+  /** @param {LaunchRecord} record the admitted session launch */
+  ofRecord(record) {
+    this.#record = record;
     return this;
   }
 
   /** @param {string} run the kept comparison key to select */
   selectingRun(run) {
     this.#run = run;
-    return this;
-  }
-
-  /** @param {readonly LaunchRecord[]} records the project's kept launches */
-  keeping(records) {
-    this.#records = records;
-    return this;
-  }
-
-  /** @param {readonly LaunchRecord[]} records further kept launches */
-  alsoKeeping(records) {
-    this.#records = [...this.#records, ...records];
     return this;
   }
 
@@ -64,11 +43,11 @@ export class SessionReviewReadBuilder {
    * @param {CapturedLanding} landing
    */
   ofLandedAdHocSession(session, landing) {
-    return this.ofSession(session).keeping([
+    return this.ofRecord(
       new LaunchReviewedSessionBuilder()
         .ofLandedAdHocSession(session, landing)
         .please(),
-    ]);
+    );
   }
 
   /**
@@ -78,11 +57,11 @@ export class SessionReviewReadBuilder {
    * @param {{ repository: string, run: { base: string, revision: string } }} kept
    */
   ofAdHocSessionWithKeptRun(session, kept) {
-    return this.ofSession(session).keeping([
+    return this.ofRecord(
       new LaunchReviewedSessionBuilder()
         .ofAdHocSessionWithKeptRun(session, kept)
         .please(),
-    ]);
+    );
   }
 
   /**
@@ -90,41 +69,42 @@ export class SessionReviewReadBuilder {
    * @param {NamedFile} file
    */
   readingFile(file) {
-    return new SessionFileReadBuilder(this.please(), file);
+    return new SessionFileReadBuilder(this.#admittedRecord(), file);
   }
 
   /** @returns {SessionReviewRead} */
   please() {
-    const session = this.#session;
-    if (session === undefined) throw new Error("choose .ofSession(...) first");
     return {
-      read: {
-        subject: { source: "open-dough", host: this.#host, session },
-        ...(this.#run === undefined ? {} : { run: this.#run }),
-      },
-      kept: { records: this.#records },
+      read: this.#run === undefined ? {} : { run: this.#run },
+      record: this.#admittedRecord(),
     };
+  }
+
+  #admittedRecord() {
+    const record = this.#record;
+    if (record === undefined) throw new Error("choose .ofRecord(...) first");
+    return record;
   }
 }
 
 class SessionFileReadBuilder {
-  #review;
+  #record;
   #file;
 
   /**
-   * @param {SessionReviewRead} review
+   * @param {LaunchRecord} record
    * @param {NamedFile} file
    */
-  constructor(review, file) {
-    this.#review = review;
+  constructor(record, file) {
+    this.#record = record;
     this.#file = file;
   }
 
   /** @returns {SessionFileRead} */
   please() {
     return {
-      read: { subject: this.#review.read.subject, ...this.#file },
-      kept: this.#review.kept,
+      read: { ...this.#file },
+      record: this.#record,
     };
   }
 }

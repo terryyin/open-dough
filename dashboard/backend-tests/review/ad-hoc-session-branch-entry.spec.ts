@@ -1,5 +1,7 @@
 // A Default main launch identifies its own branch: the entry keeps the state
 // and Default main tip it found, and Done keeps separate captured pairs.
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { retainedBranchPairFiles } from "../../server/retainedReviewPair.ts";
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
@@ -7,7 +9,6 @@ import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
-  keptRecords,
   keptSession,
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
@@ -26,7 +27,7 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { aDoneBranch, review } from "../support/doneCaptureReview.ts";
+import { aDoneBranch } from "../support/doneCaptureReview.ts";
 
 const branch = "draft";
 const published = { id: source, ref: "refs/heads/main" };
@@ -119,7 +120,7 @@ test("Done saves the entry-time Default main run and the declared branch's own p
   });
 });
 
-test("two declared sessions each review their own branch", async () => {
+test("two declared sessions each capture their own branch", async () => {
   const checkout = await aCheckout({
     history: historyBeforeTheCase()
       .withWorkspace(branch, { from: "base" })
@@ -157,13 +158,18 @@ test("two declared sessions each review their own branch", async () => {
     ),
   ]);
   const done = await Promise.all([aDoneBranch(first), aDoneBranch(second)]);
+  const [ownBranch, otherBranch] = done.map(({ branchResult }) => branchResult);
+  if (ownBranch === undefined || otherBranch === undefined)
+    throw new Error("Missing the captured comparisons.");
+  const signal = new AbortController().signal;
 
-  expect(
-    await Promise.all(done.map((launch) => review(done, launch))),
-  ).toMatchObject([
-    { kind: "branch-result", tree: ours, files: [{ path: "ours.txt" }] },
-    { kind: "branch-result", tree: theirs, files: [{ path: "theirs.txt" }] },
-  ]);
+  expect([ownBranch.revision, otherBranch.revision]).toEqual([ours, theirs]);
+  expect(await retainedBranchPairFiles(ownBranch, signal)).toMatchObject({
+    files: [{ path: "ours.txt" }],
+  });
+  expect(await retainedBranchPairFiles(otherBranch, signal)).toMatchObject({
+    files: [{ path: "theirs.txt" }],
+  });
 });
 
 test("an undeclared checkout move explains the missing branch association", async () => {
@@ -177,7 +183,14 @@ test("an undeclared checkout move explains the missing branch association", asyn
   );
   await markDone(record);
 
-  expect(await review(await keptRecords(source), record)).toMatchObject({
+  const saved = await keptSession(source, record.session);
+  if (saved === undefined) throw new Error("Missing the kept launch.");
+  expect(
+    await storyReview(
+      { record: saved, read: {} },
+      new AbortController().signal,
+    ),
+  ).toMatchObject({
     kind: "landing-unavailable",
     explanation:
       "No branch was identified for this session, and no Default main commits were captured.",

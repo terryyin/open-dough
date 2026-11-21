@@ -12,6 +12,7 @@ import {
   storyReviewFileResponse,
   storyReviewFileTextResponse,
 } from "../../server/storyReviewFileResponse.ts";
+import { reviewInput } from "../../server/storyReviewInput.ts";
 import { storyReviewResponse } from "../../server/storyReviewSnapshot.ts";
 import {
   storyReviewEndpoint,
@@ -31,6 +32,15 @@ const routed = (endpoint: string, query: Record<string, string>) => {
 };
 
 const response = () => new ServerResponse(new IncomingMessage(new Socket()));
+
+async function expectRefusal(
+  refused: Promise<unknown>,
+  status: number,
+  message: string,
+) {
+  await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
+  await expect(refused).rejects.toMatchObject({ status, message });
+}
 
 function keepForReview(...records: Parameters<typeof keep>) {
   const home = keep();
@@ -76,11 +86,11 @@ async function keptAcrossHosts() {
     .markedDone()
     .please();
   keepForReview(claudeRecord, codexRecord);
-  return checkout.revisions;
+  return { ...checkout.revisions, claudeRecord, codexRecord };
 }
 
 test("the comparison route selects the requested host's named run when native IDs match", async () => {
-  const { first, codex } = await keptAcrossHosts();
+  const { first, codex, codexRecord } = await keptAcrossHosts();
   const subject = { ...session, host: "codex" };
   const request = await routed(storyReviewEndpoint, { ...subject, run: "1" });
   if (request.kind !== "story-review")
@@ -88,6 +98,11 @@ test("the comparison route selects the requested host's named run when native ID
   expect(request).toEqual({
     kind: "story-review",
     read: { subject, run: "1" },
+  });
+
+  expect(await reviewInput(request.read)).toEqual({
+    read: { run: "1" },
+    record: codexRecord,
   });
 
   expect(await storyReviewResponse(request, response())).toMatchObject({
@@ -103,9 +118,10 @@ test("the comparison route selects the requested host's named run when native ID
 });
 
 test("both file routes read the requested host's literal pair when native IDs match", async () => {
-  const { base, claude } = await keptAcrossHosts();
+  const { base, claude, claudeRecord } = await keptAcrossHosts();
   const pair = { baseline: base, tree: claude, path: workFile };
   const query = { ...session, ...pair };
+  const admittedFile = { read: pair, record: claudeRecord };
   const diff = await routed(storyReviewFileEndpoint, query);
   if (diff.kind !== "story-review-file")
     throw new Error("Expected a file diff read");
@@ -113,6 +129,7 @@ test("both file routes read the requested host's literal pair when native IDs ma
     kind: "story-review-file",
     read: { subject: session, ...pair },
   });
+  expect(await reviewInput(diff.read)).toEqual(admittedFile);
   expect(await storyReviewFileResponse(diff, response())).toMatchObject({
     status: 200,
     body: {
@@ -127,6 +144,7 @@ test("both file routes read the requested host's literal pair when native IDs ma
     kind: "story-review-file-text",
     read: { subject: session, ...pair },
   });
+  expect(await reviewInput(text.read)).toEqual(admittedFile);
   expect(await storyReviewFileTextResponse(text, response())).toEqual({
     status: 200,
     body: { kind: "text", baseline: "before\n", tree: "claude work\n" },
@@ -152,12 +170,7 @@ for (const [endpoint, query, error] of [
 ] as const)
   test(`Given a malformed query, when ${endpoint} admits it, then it is refused: ${error}`, async () => {
     const refused = (async () => routed(endpoint, query))();
-
-    await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
-    await expect(refused).rejects.toMatchObject({
-      status: 400,
-      message: error,
-    });
+    await expectRefusal(refused, 400, error);
   });
 
 const storySession = "story-session";
@@ -200,6 +213,36 @@ for (const [subject, status, message] of [
       throw new Error("Expected a file text read");
 
     const refused = storyReviewFileTextResponse(request, response());
-    await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
-    await expect(refused).rejects.toMatchObject({ status, message });
+    await expectRefusal(refused, status, message);
   });
+
+test("both standalone file responses direct a one-shot story launch to its story", async () => {
+  const identity = "SEED-7#story-a";
+  keepForReview(
+    makeMe.aLaunchRecord
+      .ofOneShotStoryLaunch(storySession, {
+        identity,
+        reference: "11111111-1111-4111-8111-111111111111",
+      })
+      .executing({ identity, source: session.source, title: "One-shot story" })
+      .please(),
+  );
+  const query = { ...session, session: storySession, ...file };
+  const diff = await routed(storyReviewFileEndpoint, query);
+  const text = await routed(storyReviewFileTextEndpoint, query);
+  if (
+    diff.kind !== "story-review-file" ||
+    text.kind !== "story-review-file-text"
+  )
+    throw new Error("Expected both file reads");
+  for (const read of [
+    () => storyReviewFileResponse(diff, response()),
+    () => storyReviewFileTextResponse(text, response()),
+  ]) {
+    await expectRefusal(
+      read(),
+      400,
+      "This session belongs to a story launch and is reviewed by its story.",
+    );
+  }
+});

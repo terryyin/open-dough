@@ -1,5 +1,6 @@
 // Done identifies other kept sessions that overlapped in the same checkout,
 // and the review says so.
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -19,7 +20,7 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { aDoneSession, review } from "../support/doneCaptureReview.ts";
+import { aDoneSession } from "../support/doneCaptureReview.ts";
 
 // Whether Done of `record` at `doneAt` finds its checkout shared among `kept`.
 const sharedAtDone = (
@@ -114,7 +115,9 @@ test("Review says the checkout was shared when its kept run has the flag", async
     .markedDone()
     .please();
 
-  expect(await review([record], record)).toMatchObject({
+  expect(
+    await storyReview({ record, read: {} }, new AbortController().signal),
+  ).toMatchObject({
     kind: "session-commits",
     session: { shared: true },
   });
@@ -130,7 +133,10 @@ test("a session whose checkout was not shared reviews its commits without saying
     { base: checkout.base, revision: committed },
   ]);
 
-  const answer = await review([record], record);
+  const answer = await storyReview(
+    { record, read: {} },
+    new AbortController().signal,
+  );
   expect(answer).toMatchObject({ kind: "session-commits", tree: committed });
   expect(answer).not.toHaveProperty("session.shared");
 });

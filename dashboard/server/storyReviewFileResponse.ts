@@ -1,7 +1,7 @@
 // One common literal file diff serves workspace and fixed historical comparisons.
 // The same admission also answers revision-consistent file text at those trees.
 // The handlers admit a typed read and answer under the caller's signal; the
-// response adapters read a session's kept state and bound that signal.
+// response adapters admit the named session and bound that signal.
 import type { ServerResponse } from "node:http";
 import {
   storyReviewWaitMs,
@@ -44,7 +44,7 @@ export async function storyReviewFileTextResponse(
   return { status: 200, body };
 }
 
-// The admitted file's diff within its comparison. A refusal the kept state
+// The admitted file's diff within its comparison. A refusal the record
 // or repository decides is thrown as `RefusedRequest` with its status.
 export async function reviewedFileDiff(
   input: ReviewedFileInput,

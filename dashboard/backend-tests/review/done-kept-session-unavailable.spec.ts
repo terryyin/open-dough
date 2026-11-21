@@ -1,10 +1,11 @@
 // Why a Default main session's capture finds no readable run, how its review
 // says so, and that Done keeps its timestamp when the capture fails.
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { renameSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keptRecords } from "../../server/launchRecordStore.ts";
+import { keptSession } from "../../server/launchRecordStore.ts";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
@@ -18,11 +19,7 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import {
-  noCommits,
-  notCaptured,
-  review,
-} from "../support/doneCaptureReview.ts";
+import { noCommits, notCaptured } from "../support/doneCaptureReview.ts";
 
 const doneAt = minutesAgo(10);
 
@@ -47,7 +44,9 @@ test("a blank default launch that edited files and committed nothing says it mad
     .markedDoneAt(doneAt)
     .please();
 
-  expect(await review([record], record)).toEqual(noCommits);
+  expect(
+    await storyReview({ record, read: {} }, new AbortController().signal),
+  ).toEqual(noCommits);
 });
 
 test("a session whose only commit stays on another branch fails its capture", async () => {
@@ -99,10 +98,16 @@ test("a session whose checkout log cannot be read at Done is done and says its c
 
   expect((await markDone(record, doneAt))?.doneAt).toBe(doneAt);
 
-  const [kept] = await keptRecords(source);
-  expect(kept).toMatchObject({ doneAt });
-  expect(kept?.sessionCommits).toBeUndefined();
-  expect(await review(await keptRecords(source), record)).toEqual(notCaptured);
+  const saved = await keptSession(source, record.session);
+  if (saved === undefined) throw new Error("Missing the kept launch.");
+  expect(saved).toMatchObject({ doneAt });
+  expect(saved.sessionCommits).toBeUndefined();
+  expect(
+    await storyReview(
+      { record: saved, read: {} },
+      new AbortController().signal,
+    ),
+  ).toEqual(notCaptured);
 });
 
 test("a session whose checkout log holds no entry at Done fails its capture", async () => {

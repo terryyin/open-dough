@@ -1,6 +1,7 @@
 // After the installed publisher delivers a Done isolated session and its
 // branch is retired, both its delivered rename and its working-tree
 // comparison still hold their own file contents.
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
@@ -13,7 +14,6 @@ import {
 } from "../../server/launchRecordStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { minutesAgo, source } from "../support/doneCaptureCase.ts";
-import { fileText } from "../support/doneCaptureReview.ts";
 import { publishInstalled } from "../support/installedPublisher.ts";
 import { aReportedIsolatedBranch } from "../support/reportedIsolatedBranch.ts";
 
@@ -78,17 +78,23 @@ test("the same Done session opens its delivery and keeps its different branch re
     tree: saved.branchResult.revision,
   };
   expect(
-    await fileText([saved], saved, { ...renamed, ...deliveryPair }),
+    await reviewedFileText(
+      { record: saved, read: { ...renamed, ...deliveryPair } },
+      new AbortController().signal,
+    ),
   ).toEqual({
     kind: "text",
     baseline,
     tree: committed,
   });
-  expect(await fileText([saved], saved, { ...renamed, ...branchPair })).toEqual(
-    {
-      kind: "text",
-      baseline,
-      tree: working,
-    },
-  );
+  expect(
+    await reviewedFileText(
+      { record: saved, read: { ...renamed, ...branchPair } },
+      new AbortController().signal,
+    ),
+  ).toEqual({
+    kind: "text",
+    baseline,
+    tree: working,
+  });
 });

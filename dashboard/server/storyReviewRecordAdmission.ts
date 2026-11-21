@@ -140,16 +140,11 @@ async function admittedIdentityReview(
   };
 }
 
-// Admits a typed review read against the kept records; a session read
-// against its kept session state.
+// Admit a story read or select a comparison from the admitted session record.
 export async function keptStoryReview(
   input: StoryReviewInput,
 ): Promise<KeptStoryReview> {
-  if ("kept" in input)
-    return admittedSessionReview(
-      input.read.subject,
-      input.read.run,
-      input.kept,
-    );
+  if ("record" in input)
+    return admittedSessionReview(input.record, input.read.run);
   return admittedIdentityReview(input.read);
 }

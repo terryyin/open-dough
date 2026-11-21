@@ -1,11 +1,12 @@
 // Done keeps the work a Default main session made, with Git references that
 // let the typed review read it after the checkout's branches move away.
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keptRecords, keptSession } from "../../server/launchRecordStore.ts";
+import { keptSession } from "../../server/launchRecordStore.ts";
 import {
   aCheckout,
   aDefaultLaunch,
@@ -16,7 +17,6 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { review } from "../support/doneCaptureReview.ts";
 
 // Leaves `commit` on no branch, with no reflog or loose object reaching it.
 async function forgetInCheckout(
@@ -64,9 +64,11 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
     tree: typo,
     files: [expect.objectContaining({ path: "typo.txt", kind: "added" })],
   };
+  const saved = await keptSession(source, record.session);
+  if (saved === undefined) throw new Error("Missing the kept launch.");
   // The first read uses the fixed pair while trunk advances past it.
   const [whileOnTrunk] = await Promise.all([
-    review(await keptRecords(source), record),
+    storyReview({ record: saved, read: {} }, new AbortController().signal),
     work(
       checkout,
       makeMe.aCheckoutWork
@@ -79,7 +81,14 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
   const indexPath = path.join(checkout.integration, ".git", "index");
   const index = readFileSync(indexPath);
 
-  expect(await review(await keptRecords(source), record)).toEqual(kept);
+  const retained = await keptSession(source, record.session);
+  if (retained === undefined) throw new Error("Missing the retained launch.");
+  expect(
+    await storyReview(
+      { record: retained, read: {} },
+      new AbortController().signal,
+    ),
+  ).toEqual(kept);
   expect(
     (await git(checkout.integration, "rev-parse", "HEAD")).stdout.trim(),
   ).toBe(checkout.base);

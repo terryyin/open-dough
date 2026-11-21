@@ -1,6 +1,6 @@
 // The typed file diff and file text handlers in-process admit an ad hoc
 // session's file read by its captured reference, comparison and listed
-// rename, or by its kept run's pair, given the session's typed kept state: no
+// rename, or by its kept run's pair, given the admitted launch record: no
 // server, no machine stores. Each refusal carries its HTTP status.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -81,7 +81,7 @@ for (const [subject, handler, mismatch] of [
     () => ({ reference: otherReference }),
   ],
 ] as const) {
-  test(`Given a kept landed session beside another, when a file read names ${subject}, then it is refused as not on the captured run`, async () => {
+  test(`Given a kept landed session, when a file read names ${subject}, then it is refused as not on the captured run`, async () => {
     const repository = await renameRevisionRepo();
     try {
       const { base, result } = repository.revisions;
@@ -90,9 +90,6 @@ for (const [subject, handler, mismatch] of [
         comparing: { base, revision: result },
         reference: owned,
       });
-      const other = makeMe.aLaunchRecord
-        .ofLandedAdHocSession("other-session", landing(otherReference))
-        .please();
       const named = {
         reference,
         baseline: base,
@@ -102,7 +99,6 @@ for (const [subject, handler, mismatch] of [
       };
       const read = makeMe.aSessionReviewRead
         .ofLandedAdHocSession("ad-hoc-file-refuse", landing(reference))
-        .alsoKeeping([other])
         .readingFile(named)
         .please();
 
@@ -148,8 +144,7 @@ for (const [subject, handler, fileFields, message] of [
         .branchResultFrom({ repository: workspace, base, revision: branch })
         .please();
       const read = makeMe.aSessionReviewRead
-        .ofSession(record.session.sessionId)
-        .keeping([record])
+        .ofRecord(record)
         .readingFile({
           baseline: base,
           tree: branch,

@@ -1,6 +1,6 @@
 // The Done capture family's stereotype: a Default main checkout whose history
 // predates the case, launch records kept in a private machine store, dated
-// checkout work and the Done mark; doneCaptureReview.ts reads the result.
+// checkout work and the Done mark.
 // Times are minutes before the case's clock: launch at 60, Done at 10.
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";

@@ -32,6 +32,9 @@
   reused the live observer. Run 44848998117 attempt 1 had no failed jobs
   and was superseded by 44850082670 under same-ref CI concurrency.
 
+- Slice 8 accepted at `4056d73bd257e88d344c124e9082d5a3a61078cc` and reused
+  the live observer.
+
 ## Correction input
 
 - **Provenance.** Retrospective of SEED-413#split-done-mark-decision-from-store.
@@ -384,23 +387,22 @@ initializing the real catalog in the private home.
 ### 9. Pass the admitted record through standalone Review
 
 Type: Structure
-Status: planned
+Status: done
 
 Apply the single-record boundary in `storyReviewInput.ts` shared by the
 comparison and both file readers. Preserve slice 8’s source, host and session admission and refusals. The typed handlers and MakeMe input builder no longer
 take a record list. Remove the generic comparison, diff and text wrappers
 from `doneCaptureReview.ts`. Update the backend test reference.
 
-**Coordination.** Begin with the shared boundary and its independent readers.
-Settle the switch and deliver only after both sibling readers can be migrated
-against their accepted form or under an agreement with the existing owners.
-Hold their affected paths while they are still owned by an unlanded execution.
-At pinned trunk `7ed7478c86f2adcad65c14f8cb6aeaab0d13e3cc`, plan 736's
-published work at `24864be63` still owns the restart and observation readers
-using the shared wrapper. Plan 742's published work at `98c8abdbe` owns the
-typed branch-race and manual-landing-precedence readers using the list-based
-builder. Recheck accepted integration and preserve their distinct proof. Keep
-the final comparison baseline on the same integrated revision as the candidate.
+**Coordination.** Plan 736's accepted restart and observation readers were
+integrated at `0747fb0a2`. The branch-only fixture now captures before the
+manual publish so the same observed revision can discover a newly Done
+record with no preselected delivery. The offline pair and both old file
+versions, lifecycle races and all pin assertions remain covered. Plan 742's
+closure `fe9755dba` was accepted at `be03d5643`. Its two typed handoffs now
+read the saved host-qualified record; the actual branch-entry handoff was
+rechecked. Those 11 cases passed at default settings. The final comparison
+uses the same accepted `be03d5643` basis on both sides.
 
 **Proof.** Exercise both route shapes and all three production response paths
 through admission. Use the composed selection, unavailable, file-pair, rename,
@@ -409,7 +411,37 @@ Review smoke that uses the other variant of each contract. Review earlier
 slices' remaining wrapper callers before switching the input. Any retained
 caller must use the production boundary appropriate to what it proves.
 
+**Accepted proof.** The focused records are `slice9-return.md`,
+`slice9-refactor-current.md`, `slice9-plan742-return.md` and
+`slice9-refactor-plan742.md`. The current and peer readers preserve exact
+handler admission, signal behavior, pairs and file bytes. The typed adapter
+resolves the project, host and native ID once and passes only the selected
+record and requested fields.
+
 ## Accounting and gates
+
+The union contains 43 spec paths. Live baseline Vitest collection
+(`vitest list --no-staticParse`) gives 146 cases, and the native Chromium
+listing gives two, for 148 on `be03d5643`. The guarded integrated candidate
+run passed all 146 selected cases (144 Vitest, two Chromium) across 41
+surviving specs. Two removed files remain in the baseline roster. Live
+collection counts each loop iteration, including cases that previously timed out. The same roster has 138 baseline and 68 candidate standalone
+Review reads at the comparison, diff and text handler entries, counting the
+actual invocations from test loops and wrappers. The 742 handoffs preserve
+one comparison read each. The offline, post-prune and forced-retirement
+examples retain actual reads in their own cases. Checkout evidence includes
+`slice9-integrated-audit-roster`, `slice9-baseline-runtime-be03d5643.json`,
+`slice9-baseline-native-be03d5643.json`, `slice9-integrated-backend.json` and
+`slice9-read-audit-be03d5643.json`.
+
+After selective formatting and the affected backend cohort, Dashboard
+typecheck and repository lint passed sequentially under the AC guard. The
+recorded Chromium historical journey selected and passed its single
+case, including the saved Intent coverage and historical Review after
+cleanup. See `slice9-integrated-typecheck.log`,
+`slice9-integrated-lint.log` and
+`slice9-integrated-historical-browser.json`.
+
 
 - Audit the baseline and final selected backend cases from runner results
   using the union of affected specs across both revisions, including moved

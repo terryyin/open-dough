@@ -37,8 +37,8 @@ export async function storyReviewResponse(
 }
 
 // Answers one review read for a story or an ad hoc session. A session read
-// answers from the kept session state it carries. A refusal the kept state
-// decides is thrown as `RefusedRequest` with its status.
+// answers from its admitted launch record. A refusal is thrown as
+// `RefusedRequest` with its status.
 export async function storyReview(
   input: StoryReviewInput,
   signal: AbortSignal,

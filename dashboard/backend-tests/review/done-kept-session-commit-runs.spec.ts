@@ -1,4 +1,6 @@
 import { expect, test } from "vitest";
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
@@ -8,11 +10,7 @@ import {
   minutesAgo,
   work,
 } from "../support/doneCaptureCase.ts";
-import {
-  aDoneSession,
-  fileDiff,
-  review,
-} from "../support/doneCaptureReview.ts";
+import { aDoneSession } from "../support/doneCaptureReview.ts";
 
 const notes = (first: string, last: string) =>
   [first, "two", "three", "four", "five", "six", "seven", last, ""].join("\n");
@@ -41,7 +39,9 @@ test("commits either side of a pulled story landing are two runs, oldest first, 
     { base: pulled, revision: second },
   ]);
 
-  expect(await review([record], record)).toMatchObject({
+  expect(
+    await storyReview({ record, read: {} }, new AbortController().signal),
+  ).toMatchObject({
     commitRuns: [
       {
         commits: 1,
@@ -60,20 +60,37 @@ test("commits either side of a pulled story landing are two runs, oldest first, 
     ],
     files: [{ path: "notes.txt", kind: "added" }],
   });
-  expect(await review([record], record, 1)).toMatchObject({
+  expect(
+    await storyReview(
+      { record, read: { run: "1" } },
+      new AbortController().signal,
+    ),
+  ).toMatchObject({
     commitRun: 1,
     files: [{ path: "notes.txt", kind: "modified" }],
   });
-  const firstDiff = await fileDiff([record], record, {
-    baseline: checkout.base,
-    tree: first,
-    path: "notes.txt",
-  });
-  const secondDiff = await fileDiff([record], record, {
-    baseline: pulled,
-    tree: second,
-    path: "notes.txt",
-  });
+  const firstDiff = await reviewedFileDiff(
+    {
+      record,
+      read: {
+        baseline: checkout.base,
+        tree: first,
+        path: "notes.txt",
+      },
+    },
+    new AbortController().signal,
+  );
+  const secondDiff = await reviewedFileDiff(
+    {
+      record,
+      read: {
+        baseline: pulled,
+        tree: second,
+        path: "notes.txt",
+      },
+    },
+    new AbortController().signal,
+  );
   expect(JSON.stringify(secondDiff)).toContain("+session's one");
   expect(JSON.stringify(secondDiff)).not.toContain("story's eight");
   expect(JSON.stringify(firstDiff)).not.toContain("story's");

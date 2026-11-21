@@ -1,4 +1,5 @@
 // Done keeps its worktree snapshot through later edits and forced retirement.
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test, vi } from "vitest";
@@ -19,7 +20,6 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText } from "../support/doneCaptureReview.ts";
 
 const launchFiles = historyBeforeTheCase({
   files: { "deleted.txt": "delete this\n", ".gitignore": "ignored.txt\n" },
@@ -147,7 +147,10 @@ test("Done keeps the worktree snapshot through a later edit and forced retiremen
     { objectId: committedTip },
   ]);
   expect(
-    await fileText([saved], record, { baseline, tree, path: "draft.txt" }),
+    await reviewedFileText(
+      { record: saved, read: { baseline, tree, path: "draft.txt" } },
+      new AbortController().signal,
+    ),
   ).toEqual({
     kind: "text",
     baseline: null,

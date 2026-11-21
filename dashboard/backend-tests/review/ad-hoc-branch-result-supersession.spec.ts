@@ -1,6 +1,7 @@
 // A Done held after capture cannot outlast changes to the launch: reopening
 // keeps the saved evidence, a newer Done wins with only its pins, and
 // deletion leaves none.
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
@@ -19,7 +20,6 @@ import {
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText } from "../support/doneCaptureReview.ts";
 
 // A kept isolated launch whose worktree started on `draft` at the base.
 async function anIsolatedDraft() {
@@ -66,11 +66,17 @@ test("reopening keeps the branch evidence and refuses the old file pair", async 
     revision: first,
   });
   expect(await pins()).toEqual(originalPins);
-  const oldFile = fileText([reopened], record, {
-    baseline,
-    tree: first,
-    path: "first.txt",
-  });
+  const oldFile = reviewedFileText(
+    {
+      record: reopened,
+      read: {
+        baseline,
+        tree: first,
+        path: "first.txt",
+      },
+    },
+    new AbortController().signal,
+  );
   await expect(oldFile).rejects.toBeInstanceOf(RefusedRequest);
   await expect(oldFile).rejects.toMatchObject({ status: 409 });
 });

@@ -1,6 +1,7 @@
 // A held observation may discover a delivery after the launch it inspected
 // was removed or changed. Only a matching, retained launch can keep it.
 import { expect, test } from "vitest";
+import { retainedCommitPairFiles } from "../../server/retainedReviewPair.ts";
 import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import {
   keepBranchResultRefs,
@@ -23,7 +24,6 @@ import {
   observedTrunk,
   twoDoneBranchesMergedByHand,
 } from "../support/doneBranchObservation.ts";
-import { review } from "../support/doneCaptureReview.ts";
 
 async function heldObservation() {
   const {
@@ -108,18 +108,16 @@ async function expectOnlyTheSurvivorDelivered(
   removed: LaunchRecord,
   survivor: LaunchRecord,
 ) {
-  const delivered = await review(records, survivor);
-  expect(delivered).toMatchObject({
-    kind: "landed",
-    files: [{ path: "staying.txt" }],
-  });
-  if (delivered.kind !== "landed")
-    throw new Error("Missing independent delivery");
+  const [kept] = records;
+  const landing = kept?.landing;
+  if (landing === undefined) throw new Error("Missing independent delivery");
+  expect(
+    await retainedCommitPairFiles(landing, new AbortController().signal),
+  ).toMatchObject({ files: [{ path: "staying.txt" }] });
   expect(records.map((record) => record.session.sessionId)).toEqual([
     survivor.session.sessionId,
   ]);
   expect(await sessionBranchPins(integration, removed.session)).toEqual([]);
-  const { landing } = delivered;
   const pinned = `refs/open-dough/one-shot/${landing.reference}/${landing.delivery}`;
   expect(await heldLandingPins(integration)).toEqual([
     { ref: `${pinned}/base`, objectId: landing.base },

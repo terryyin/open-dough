@@ -1,6 +1,7 @@
 // Observing a published revision delivers a Done branch merged on trunk by
 // hand once: repeated and later observations, also after a restart, keep the
 // same receipt and landing pins until the launch is deleted.
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { heldLandingPins } from "../../server/launchLandingGit.ts";
@@ -22,7 +23,7 @@ import {
   minutesAgo,
   work,
 } from "../support/doneCaptureCase.ts";
-import { aDoneBranch, fileText, review } from "../support/doneCaptureReview.ts";
+import { aDoneBranch } from "../support/doneCaptureReview.ts";
 import { observedTrunk } from "../support/doneBranchObservation.ts";
 
 const branch = "draft";
@@ -68,25 +69,13 @@ test("ordinary revision checks retain one delivery across repeated observations"
   );
 
   await sessionLandingObservations({ store }).observe(observedTrunk, merge);
-  const captured = await review(records, record);
-  expect(captured).toMatchObject({
-    kind: "landed",
-    baseline: checkout.base,
-    tree: merge,
-    files: [{ path: "draft.txt" }],
-  });
-  if (captured.kind !== "landed") throw new Error("Missing the delivery.");
-  expect(
-    await fileText(records, record, {
-      reference: captured.landing.reference,
-      baseline: checkout.base,
-      tree: merge,
-      path: "draft.txt",
-    }),
-  ).toEqual({ kind: "text", baseline: null, tree: "draft work\n" });
-  const saved = records[0]?.landing;
-  const pinned = `refs/open-dough/one-shot/${captured.landing.reference}/${captured.landing.delivery}`;
-  const pins = await heldLandingPins(integration, captured.landing);
+  const [delivered] = records;
+  const saved = delivered?.landing;
+  if (delivered === undefined || saved === undefined)
+    throw new Error("Missing the delivery.");
+  expect(saved).toMatchObject({ base: checkout.base, revision: merge });
+  const pinned = `refs/open-dough/one-shot/${saved.reference}/${saved.delivery}`;
+  const pins = await heldLandingPins(integration, saved);
   expect(pins).toEqual([
     { ref: `${pinned}/base`, objectId: checkout.base },
     { ref: `${pinned}/revision`, objectId: merge },
@@ -101,14 +90,28 @@ test("ordinary revision checks retain one delivery across repeated observations"
       .pushingToTrunk("advance", { at: minutesAgo(5) }),
   );
   await observations.observe(observedTrunk, advance);
-  expect(await review(records, record)).toEqual(captured);
   expect(records[0]?.landing).toEqual(saved);
   expect(await heldLandingPins(integration)).toEqual(pins);
 
   const [removed] = records;
   if (removed === undefined) throw new Error("Missing the kept record.");
+  const retained = removed;
+  expect(
+    await reviewedFileText(
+      {
+        record: retained,
+        read: {
+          reference: saved.reference,
+          baseline: checkout.base,
+          tree: merge,
+          path: "draft.txt",
+        },
+      },
+      new AbortController().signal,
+    ),
+  ).toEqual({ kind: "text", baseline: null, tree: "draft work\n" });
   records = [];
-  await releaseExpiredRecordPins(removed);
+  await releaseExpiredRecordPins(retained);
   expect(await sessionBranchPins(integration, record.session)).toEqual([]);
   expect(await heldLandingPins(integration)).toEqual([]);
 });

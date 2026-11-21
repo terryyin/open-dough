@@ -1,9 +1,7 @@
 // A done session's file read matches its kept result: the landed run its
 // launch reference names, or the exact retained pair and literal file list of
-// its branch result or kept commits. The handler reads only the kept launch
-// records the adapter passed.
+// its branch result or kept commits.
 import { establishedPlace } from "../src/establishedPlace.ts";
-import type { ReviewedSessionSubject } from "../src/reviewedWorkSubject.ts";
 import { branchResultAtDone } from "../src/sessionBranchResult.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
@@ -19,20 +17,17 @@ import {
   type AdmittedReviewedFile,
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import { keptSessionOf, type KeptSessionState } from "./storyReviewInput.ts";
 import { keptSessionPair } from "./storyReviewSessionCommits.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 
 // Admit a file against the session's landed run (by its launch reference) or
 // its kept comparison pair.
 export async function admitSessionReviewedFile(
-  subject: ReviewedSessionSubject,
+  record: LaunchRecord,
   reference: string | undefined,
   file: HistoricalReviewedFileFields,
-  kept: KeptSessionState,
   signal: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
-  const record = keptSessionOf(kept, subject);
   return reference === undefined
     ? admitKeptPairFile(record, file, signal)
     : admitSessionLandedRun(record, reference, file, signal);

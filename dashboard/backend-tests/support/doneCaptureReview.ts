@@ -1,13 +1,5 @@
-// The typed review of a Done case's session among the kept records: its
-// comparisons, their files, and the answers that explain a missing capture.
-// Cases compose their Done records; a case whose topic is the store passes
-// what the store keeps.
+// Composed Done launch records and the shared unavailable answers.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  reviewedFileDiff,
-  reviewedFileText,
-} from "../../server/storyReviewFileResponse.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import {
@@ -15,8 +7,6 @@ import {
   minutesAgo,
   type Checkout,
 } from "./doneCaptureCase.ts";
-
-type Kept = readonly LaunchRecord[];
 
 // A Done session established in the checkout at `revision` (its base by
 // default) that kept these runs of its commits there.
@@ -43,49 +33,6 @@ export async function aDoneBranch(
   if (delivery !== undefined)
     throw new Error("A branch-only Done fixture received a verified delivery.");
   return launch.branchResultFrom(result).markedDoneAt(doneAt).please();
-}
-
-const reviewRead = (kept: Kept, record: LaunchRecord) =>
-  makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId, record.session.host)
-    .keeping([...kept]);
-
-// The typed review of the session, at its first run or at `run`.
-export async function review(
-  kept: Kept,
-  record: LaunchRecord,
-  run?: number | string,
-) {
-  const read = reviewRead(kept, record);
-  if (run !== undefined) read.selectingRun(`${run}`);
-  return storyReview(read.please(), new AbortController().signal);
-}
-
-// A file of one comparison; a landed run's read also names its reference.
-type NamedFile = {
-  baseline: string;
-  tree: string;
-  path: string;
-  oldPath?: string;
-  reference?: string;
-};
-
-export async function fileText(
-  kept: Kept,
-  record: LaunchRecord,
-  file: NamedFile,
-) {
-  const read = reviewRead(kept, record).readingFile(file).please();
-  return reviewedFileText(read, new AbortController().signal);
-}
-
-export async function fileDiff(
-  kept: Kept,
-  record: LaunchRecord,
-  file: NamedFile,
-) {
-  const read = reviewRead(kept, record).readingFile(file).please();
-  return reviewedFileDiff(read, new AbortController().signal);
 }
 
 export const notCaptured = {
