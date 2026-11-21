@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#tie-done-capture-cases-to-production
 **Source:** [Tie Done capture cases to the real branch entry and retire the fold's residue](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#tie-done-capture-cases-to-production)
+**Source review:** [source-review.md](source-review.md)
 
 ## Correction input
 
@@ -108,7 +109,7 @@ below use the local gate prefix, with `CI=1`. All scratch edits were reverted.
 ### 1. The declaring recipe agrees with the production proposal
 
 Type: Structure
-Status: planned
+Status: done
 
 Add the observed fresh-worktree comparison to
 `review/branch-entry-proposal.spec.ts`. A composed declared record and a
@@ -122,6 +123,8 @@ description of the fixture and its agreement check.
 specs. Show that removing `trunk.revision` from the declaring recipe fails
 the maintained equality and that restoration passes. Check the README against
 the two call paths.
+
+**Accepted.** Agreement case `the declaring recipe's entry is the proposal for its fresh worktree` added; the publisher's two restating assertions removed (1 added, 2 removed). Proposal plus both declared publisher specs passed 6/6; dropping the recipe's trunk revision failed only the agreement case. Refactor pass: already clean.
 
 ### 2. The comparison launch uses the file production wrote
 
