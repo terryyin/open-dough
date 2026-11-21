@@ -205,6 +205,16 @@ later cases ran at load approximately 23–24. The prior comparable baseline
 samples were 3,335 and 3,741 ms. The checkout's Git evidence directory retains
 `s3-separated-group.log`, `s3-separated-load.log` and `s3-final-single.trace`.
 
+Full Distribution passed in the CI-platform container after three native
+deadlines on the busy macOS host.
+The full browser gates are running there before integration. Wrap-up owns
+the deferred process review after checking the rewritten pin-lock proof.
+
+## Execution complete
+
+Product advice: no change. The representative launch case and the existing
+lifecycle journeys remain useful proof.
+
 ## Local gates
 
 - Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
