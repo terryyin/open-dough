@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-ci-comparison-proof
 **Source:** [Get fast proof of a story's Intent CI comparison](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-comparison-proof)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -103,7 +104,7 @@ reaches those same behaviors over the typed source.
 ### 1. Each endpoint names the real build and proof it represents
 
 Type: Behavior
-Status: planned
+Status: done
 
 Take the family baseline before moving cases. Move `comparisonEndpointCases`,
 `comparisonAdapterCases` and the comparison `-wording` cases against typed
@@ -115,6 +116,16 @@ reason. Exercise shipped wording logic directly for equivalent value variants.
 cancelled provenance, adapter limits and ambiguity, accessible names and
 hover cues. Wall and execution times, counts and their gaps remain distinct.
 Keep exact endpoint and attempt selection proof.
+
+**Accepted.** Family baseline at `81b22bafd` before any move: the 69 legacy
+cases passed in 19.64 s at two workers (per-case record kept in this
+checkout's evidence as `s1-baseline-family.json`). 14 endpoint, adapter and
+wording cases became 7 Vitest cases in `intent-ci-comparison-endpoints`,
+`-adapter-proof` and `-overall-metrics` with the colocated
+`intent-ci-comparison-page.ts`; moved cases summed 1,468 ms as Playwright and
+502 ms as Vitest. Consolidation shows the 1 MiB limit at Branch only and
+ambiguity at Landed only, since each endpoint renders its reason through the
+same production path. Later slices reuse the colocated `mountComparison`.
 
 ### 2. Landed gaps keep the usable Branch evidence and explain the nearest result
 
