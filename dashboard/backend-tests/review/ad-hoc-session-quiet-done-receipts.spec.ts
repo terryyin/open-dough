@@ -55,11 +55,7 @@ async function keepRecordedAttempt(
   };
   await keepAttempt(
     makeMe.anAcceptedAttempt
-      .withId(dashboardReporting.reference)
-      .adHoc()
-      .reportingTo(dashboardReporting.origin)
-      .capturingLanding({ reporting: dashboardReporting })
-      .launched(record.session)
+      .reportingFor(record)
       .withCompletion(completion, [receipt])
       .please(),
   );

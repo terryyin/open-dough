@@ -209,7 +209,7 @@ Inspect that both timeline entries agree with their starting records.
 ### 6. The accepted attempt follows its reporting launch
 
 Type: Structure
-Status: planned
+Status: done
 
 Adopt the existing reporting-attempt recipe in
 `ad-hoc-session-commits-done.spec.ts`, `ad-hoc-session-quiet-done-receipts.spec.ts`
@@ -220,6 +220,8 @@ MakeMe entry points already expose this recipe.
 **Proof.** Run those three specs. Preserve the held-rename and reopen
 observations, receipt identity and native mark retry, and which revision the
 racing marks pin. Verify the diff keeps the shared factory unchanged.
+
+**Accepted.** All three specs use `reportingFor(record)`. The race reapplies its isolated request and the quiet case keeps `withCompletion`. No case keeps a landing repository, so `landingIn` is unused. The shared factory is unchanged. The three specs passed 6/6 with no assertion change and fell from 511 to 496 lines. Refactor pass: already clean.
 
 ### 7. The command handoff spec owns its request observation
 
