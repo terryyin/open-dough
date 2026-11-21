@@ -38,6 +38,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Name an unavailable published-session review as published changes](seeds/SEED-418-review-published-session-changes.md#name-unavailable-published-session-review) — SEED-418#name-unavailable-published-session-review
 - [Attribute every workflow session’s published changes](seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record) — SEED-418#attribute-every-workflow-session-record
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
