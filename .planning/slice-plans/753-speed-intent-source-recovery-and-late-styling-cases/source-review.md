@@ -18,13 +18,13 @@ premises. The selected seed retains their full conditions.
 | --- | --- | --- | --- |
 | P01 | Held then released: Every existing assertion stays. | slice 4 | |
 | P02 | Failed then retried: Every existing assertion stays. | slice 3 | |
-| P03 | Styling arrives after the diff: Every existing assertion stays with in-page preceding-lines and line-menu activation. | slice 2 | |
+| P03 | Styling arrives after the diff: Every existing assertion stays with in-page preceding-lines and line-menu activation. | slice 2 | observed: Slice 2 unchanged arrival spec and paired and consumer proof |
 | P04 | Held then released: its median of three attempts is under 500 ms. On a loaded machine, its median can instead qualify at or below 0.5× the original case’s median from the same paired runs. | slice 4 | |
 | P05 | Failed then retried: its median of three attempts is under 500 ms. On a loaded machine, its median can instead qualify at or below 0.5× the original case’s median from the same paired runs. | slice 3 | |
-| P06 | Styling arrives after the diff: its median of three attempts is under 500 ms. On a loaded machine, its median can instead qualify at or below 0.5× the original case’s median from the same paired runs. | slice 2 | |
+| P06 | Styling arrives after the diff: its median of three attempts is under 500 ms. On a loaded machine, its median can instead qualify at or below 0.5× the original case’s median from the same paired runs. | slice 2 | observed: Slice 2 paired timing table and s2-pair-{1,2,3}.json |
 | P07 | Held then released: its result is recorded. | slice 4 | |
 | P08 | Failed then retried: its result is recorded. | slice 3 | |
-| P09 | Styling arrives after the diff: its result is recorded. | slice 2 | |
+| P09 | Styling arrives after the diff: its result is recorded. | slice 2 | observed: Slice 2 paired timing table |
 | P10 | Open a candidate’s source: Waits until visible. This applies to other specs using the same method. | slice 3 | |
 | P11 | Open a candidate’s source: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 3 | |
 | P12 | Open a candidate’s source: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 3 | |
@@ -34,16 +34,16 @@ premises. The selected seed retains their full conditions.
 | P16 | Retry: Waits until visible. This applies to other specs using the same method. | slice 3 | |
 | P17 | Retry: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 3 | |
 | P18 | Retry: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 3 | |
-| P19 | Show preceding lines: Waits until visible. This applies to other specs using the same method. | slice 2 | |
-| P20 | Show preceding lines: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 2 | |
-| P21 | Show preceding lines: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 2 | |
-| P22 | Open a line menu: Waits until visible. This applies to other specs using the same method. | slice 2 | |
-| P23 | Open a line menu: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 2 | |
-| P24 | Open a line menu: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 2 | |
+| P19 | Show preceding lines: Waits until visible. This applies to other specs using the same method. | slice 2 | observed: reviewDiffPage.showPrecedingLines and activateButton visible button assertion |
+| P20 | Show preceding lines: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 2 | observed: reviewDiffPage.showPrecedingLines and activateButton task yield |
+| P21 | Show preceding lines: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 2 | observed: reviewDiffPage.showPrecedingLines and activateButton DOM click |
+| P22 | Open a line menu: Waits until visible. This applies to other specs using the same method. | slice 2 | observed: reviewDiffPage.openLineMenu and activateButton visible button assertion |
+| P23 | Open a line menu: Yields one task after visibility and before clicking. This applies to other specs using the same method. | slice 2 | observed: reviewDiffPage.openLineMenu and activateButton task yield |
+| P24 | Open a line menu: Clicks the control as an element in the page. This applies to other specs using the same method. | slice 2 | observed: reviewDiffPage.openLineMenu and activateButton DOM click |
 | P25 | With the old source open and a newer revision offered, after in-page Show latest once the notice is visible and until release: The old source remains open. | slice 4 | |
 | P26 | With the old source open and a newer revision offered, after in-page Show latest once the notice is visible and until release: Line 44 remains targeted. | slice 4 | |
 | P27 | With the old source open and a newer revision offered, after in-page Show latest once the notice is visible and until release: The old source retains its focus. | slice 4 | |
 | P28 | With the old source open and a newer revision offered, after in-page Show latest once the notice is visible and until release: The old source retains its scroll position. | slice 4 | |
-| P29 | When styling arrives after the diff, after showing preceding lines and opening the menu in the page: The reading position is retained. | slice 2 | |
-| P30 | When styling arrives after the diff, after showing preceding lines and opening the menu in the page: The revealed context is retained. | slice 2 | |
-| P31 | When styling arrives after the diff, after showing preceding lines and opening the menu in the page: The line menu stays open. | slice 2 | |
+| P29 | When styling arrives after the diff, after showing preceding lines and opening the menu in the page: The reading position is retained. | slice 2 | observed: story-review-diff-late-styling.spec.ts arrival case reading.place assertion after rerender |
+| P30 | When styling arrives after the diff, after showing preceding lines and opening the menu in the page: The revealed context is retained. | slice 2 | observed: story-review-diff-late-styling.spec.ts arrival case 20 lines, tokens and identical context line numbers after rerender |
+| P31 | When styling arrives after the diff, after showing preceding lines and opening the menu in the page: The line menu stays open. | slice 2 | observed: story-review-diff-late-styling.spec.ts arrival case visible menu and item labels after rerender |

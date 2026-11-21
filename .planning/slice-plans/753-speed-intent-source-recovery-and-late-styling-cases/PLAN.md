@@ -132,7 +132,7 @@ its linked patches and run records. Records-only delivery.
 ### 2. Review diff controls activate in the page
 
 Type: Structure
-Status: planned
+Status: done
 
 `reviewDiffPage.ts` activates `showPrecedingLines` and `openLineMenu` in the
 page, through the single activation owner.
@@ -141,6 +141,15 @@ page, through the single activation owner.
 against the original in the same runs, with the load. These Vitest consumers
 pass: `story-review-diff-late-styling`, `-word-emphasis-decoration`,
 `-styled-rendering`, `-token-readability` and `-language-colours`.
+
+**Observed at `e26d57a55` with Slice 2 changes.** Same-run Chromium case
+durations on Territory.local at one-minute load 5.46–5.50, original → in-page
+in ms: 510.4 → 162.7, 599.0 → 138.1, 785.9 → 186.5. Medians 599.0 → 162.7
+(0.272×). The unchanged arrival case kept the line position, all 20 revealed
+lines and the same open menu after styling. All six cases in each pair and
+all 11 cases across the five consumers passed. The shared `activateButton`
+owns visibility, task yield and DOM click. Independent refactor found no
+edits. See checkout Git evidence `s2-report.md`.
 
 ### 3. Intent source and recovery controls activate in the page
 
