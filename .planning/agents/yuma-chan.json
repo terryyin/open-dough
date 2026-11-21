@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yuma-chan",
-  "email": "yuma-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-421#stop-repeating-git-work-in-shared-publication",
-  "host": "codex",
-  "model": "gpt-6.2-sol"
-}
