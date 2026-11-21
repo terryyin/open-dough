@@ -237,3 +237,10 @@ Reported: slice 3 — "Activation alone missed the planned failed-retry timing g
 Story clause: "For each of the three cases, take the median of three attempts."
 Disposition: proved by slice 4: final paired timing table and s4-pair-{1,2,3}.json, 354.8 ms median
 Commitment: P05
+
+## Execution complete
+
+Product advice: no backlog change. All three cases meet the agreed timing
+bar with the same assertions and mounted production boundary. Retain the
+existing sequencing for the related Intent test work. Its distinct proof
+and source-reading cases remain with their current owners.
