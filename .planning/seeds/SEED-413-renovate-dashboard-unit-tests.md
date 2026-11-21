@@ -256,8 +256,44 @@ SEED-413#mount-story-review-diff-reading landed (`2d1e73020`).
 - **Acceptance.** No frontend unit test file name contains `mounted` apart
   from the harness's own spec; the grammar-selection and other audited data
   rules are proved without a mount; every case in the touched files has a
-  median of three attempts under 500 ms, recorded per case as in the
-  baseline table.
+  median of three attempts recorded per case as in the baseline table, and
+  every new or changed case has that median under 500 ms. On a loaded shared
+  machine a changed case is judged relative to its baseline through paired runs
+  under the same load. Cases in files this story only renamed, or whose
+  references it updated, are recorded but owe no speed change here.
+- **Amendment.** Terry decided on 21 November 2026, after slice 5. The two
+  `intent-source-target-recovery` cases (583–1017 ms) and `late-styling`'s
+  arrival case (536–621 ms) spend their time mounting and re-rendering through
+  the shared harness, which this story excludes. They move to
+  [Bring Intent source recovery and late styling cases under 500 ms](#speed-intent-source-recovery-and-late-styling-cases).
+
+<a id="speed-intent-source-recovery-and-late-styling-cases"></a>
+
+### Bring Intent source recovery and late styling cases under 500 ms
+
+**Identity:** SEED-413#speed-intent-source-recovery-and-late-styling-cases
+
+Requested by Terry on 21 November 2026, split from
+SEED-413#reduce-review-diff-reading-to-logic-cases at its slice 5.
+
+- **Goal.** Dashboard maintainers get fast feedback from the Intent source
+  recovery and Review diff late-styling cases. Each case runs under 500 ms,
+  aiming at about 100 ms.
+- **Scope.** The two cases in
+  `dashboard/frontend-tests/intent/intent-source-target-recovery.spec.ts`
+  ("…held then released" and "…failed then retried") and the arrival case in
+  `dashboard/frontend-tests/review/story-review-diff-late-styling.spec.ts`. Step
+  timing on 21 November 2026 put most of the recovery cases' time in mounting
+  and opening the source (290–575 ms) and in each re-render after Show latest
+  or Retry (93–250 ms). Pressing those controls by keyboard did not reliably
+  help. The shared harness under `dashboard/test-support/mounted-dashboard/` is
+  in scope here when the cost lives there. Product behavior stays unchanged.
+- **Key examples.** The recovery cases measured 583–1017 ms and the
+  late-styling arrival case 536–621 ms, at machine load 8–20. Each comes under
+  500 ms while keeping every assertion.
+- **Acceptance.** Each of the three cases has a median of three attempts under
+  500 ms. On a loaded machine this is judged through paired runs against the
+  original under the same load, recorded per case.
 
 <a id="restore-done-capture-proof-after-composed-reviews"></a>
 

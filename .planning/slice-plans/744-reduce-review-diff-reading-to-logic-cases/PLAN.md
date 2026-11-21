@@ -274,33 +274,13 @@ Pressing Show latest and Retry by keyboard in the spec-local page objects did
 not reliably shorten those steps (219/93 and 188 ms), so the edit was
 withdrawn. Commitment 11 stays open for these four cases.
 
-### 6. The remaining touched cases run under 500 ms
-
-Type: Structure
-Status: planned
-
-Human checkpoint first. Four cases are still over 500 ms after slice 5:
-`styled-rendering` (G2), `late-styling`'s arrival case, and both
-`intent-source-target-recovery` cases (G3). Slice 5's step timing puts the
-recovery cases' time in mounting, opening the source and re-rendering. Test-side
-activation changes did not reliably help. The likely remedy is cheaper
-mounting in the shared harness, which the story excludes. A developer decides
-among three paths:
-- re-measure on a quiet machine, with a paired comparison against `b9493978`;
-- amend the story to admit a harness change or move the harness work to a
-  follow-up story;
-- amend which files count as touched.
-
-**Proof.** Every case in the touched files has a median of three attempts
-under 500 ms, recorded per case, or the story records the developer's changed
-promise.
-
 ## Concern evidence
 
 Refinement was not needed: each slice has one proof loop, slices 2–4 share
 the one rule that domain logic is proved over the exported rule while
-rendering stays mounted, and five slices fit the limit; slice 6 was split from slice 5's
-unmet timing promise at its human checkpoint. Slice 1's cause is
+rendering stays mounted, and five slices fit the limit. Terry amended the timing
+acceptance after slice 5. The cases still over 500 ms that this story only
+renamed moved to a follow-up story. Slice 1's cause is
 not yet observed; it is an early probe whose stop condition keeps the later
 slices from depending on an unknown. No other slice-specific concern was
 found.
@@ -323,15 +303,15 @@ found.
 
 ### G1. Intent gaps case stays over 500 ms under load (first reported in slice 1; acceptance runs at load about 10: 621, 455, 571 ms; remaining time is the app's reloads, navigation and first render)
 Reported: slice 1 — "The gaps case's median is still 571 ms"
-Story clause: "every case in the touched files has a median of three attempts under 500 ms"
+Story clause: "every new or changed case has that median under 500 ms"
 Disposition: proved by slice 5: PLAN.md slice 5 Result, `intent-ci-comparison-gaps.spec.ts` 459/464/278 ms, median 459 ms (evidence s5-time-pw-1..3)
 
 ### G2. Reduced styled-diff mounted case not yet measured under 500 ms (first reported in slice 4; load 22–26, paired runs: old 1449/1108/1123 ms, new 686/657/523 ms, ratio 0.59 of the quiet 672 ms baseline ≈ 393 ms)
 Reported: slice 4 — "the mounted case's median is over 500 ms in absolute terms on this loaded machine"
-Story clause: "every case in the touched files has a median of three attempts under 500 ms"
-Disposition: receiving slice 6
+Story clause: "every new or changed case has that median under 500 ms"
+Disposition: proved by slice 4: PLAN.md slice 4 Result. In paired runs under the same load the reduced case took 0.59× the old one (evidence s4-q1..3), which is the relative judgement the amended Acceptance prescribes for a loaded machine.
 
 ### G3. Renamed touched cases over 500 ms (first reported in slice 5; `late-styling` arrival 536 ms and 621 ms medians; `intent-source-target-recovery` held then released 583 and 723 ms, failed then retried 1017 and 788 ms; mostly mount and re-render)
 Reported: slice 5 — "three cases in files that only became touched through the rename are over 500 ms"
-Story clause: "every case in the touched files has a median of three attempts under 500 ms"
-Disposition: receiving slice 6
+Story clause: "Cases in files this story only renamed, or whose references it updated, are recorded but owe no speed change here"
+Disposition: owner changed "They move to"
