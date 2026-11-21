@@ -28,6 +28,8 @@
   `e1f8d3b1e9afa62d97fcfedeb1bb49208b3f5d7f`.
 - Slice 4 accepted on the same branch and observer at
   `8b5ac52fa8adbd320a5a3ea88995e3ffe5378075`.
+- Slice 5 accepted on the same branch and observer at
+  `a97475d9fad087e9906f2bcee6a7fb725541c3ea`.
 - GitHub canceled the superseded slice 2 push run `44848314743/1`
   after the slice 3 push had scheduled run `44849901905` on the same
   branch. The workflow cancels in-progress runs on superseding pushes
@@ -303,7 +305,7 @@ four machine aged-out/removed history cases, 18 strict passes in
 ### 6. Decision specs keep refusals as tables over MakeMe data
 
 Type: Structure
-Status: planned
+Status: done
 
 Removes the decision specs' private data helpers: `attemptLandingDecisionCase.ts`
 helpers become MakeMe steps or named examples, with one declared-landing
@@ -316,6 +318,19 @@ Drop assertions that restate inputs.
 row; `launchLandingDecision.spec.ts` and `retainedLandingDecision.spec.ts`
 import nothing from support beyond MakeMe; the case count and run time do
 not grow (ADR 0010).
+
+**Observed.** The two tables preserve all nine exact refusals, including
+the explicit receipt-clock case. Both import only MakeMe for setup. The
+declared-landing example supplies the retained table, landing adapter, and
+prepared Done case. Real adapter observations cover prepare, exact prepare
+and record retry, and persistence. The machine retained route still proves
+recording against an expired attempt's retained launch.
+
+Fifteen focused cases and Dashboard typecheck passed. Decision cases fell
+from twelve to nine and summed case time fell from 1,083 ms to 12.03 ms in
+the compared single-worker local runs, excluding runner startup.
+`slice-6-report.md` retains the status/message map and proof in the
+worktree Git evidence directory.
 
 ### 7. Record deletion acts on the record that holds the landing
 

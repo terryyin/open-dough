@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -6,13 +6,12 @@ import {
   type LandingStores,
 } from "../../server/launchLandingReporting.ts";
 import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
+import { landingReportingReference } from "../../src/launchLanding.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import {
-  aComposedDeclaredLanding,
-  composedLandingStores,
-} from "../support/composedLandingStores.ts";
+import { composedLandingStores } from "../support/composedLandingStores.ts";
 import {
   aCheckoutWithCanonicalWorktree,
+  aDefaultLaunch,
   anIsolatedLaunch,
   canonicalGitDirectory,
   inWorktree,
@@ -57,13 +56,23 @@ test.each(["retained", "attempt"] as const)(
     const { checkout, workspace } =
       await aCheckoutWithCanonicalWorktree(branch);
     const { base } = checkout;
-    const { record, reference, attempts } =
+    const { record, attempts } =
       path === "attempt"
         ? attemptLanding(checkout, workspace, branch)
         : {
-            ...aComposedDeclaredLanding(checkout, { workspace, branch }),
+            record: aDefaultLaunch(checkout)
+              .withDeclaredLanding({
+                repository: canonicalGitDirectory(checkout),
+                workspace,
+                branch,
+                committedTip: base,
+                origin: dashboardOrigin,
+              })
+              .please(),
             attempts: [],
           };
+    const reference = landingReportingReference(record);
+    if (reference === undefined) throw new Error("Missing landing reference.");
     const creation = makeMe.aCreationRecord
       .adHoc({ title: "Waiting for native creation" })
       .unresolved({
@@ -97,7 +106,6 @@ test.each(["retained", "attempt"] as const)(
       .forLaunch({ reference })
       .comparing({ base, revision })
       .please();
-
     const receipt = await handleLanding(
       submission,
       dashboardOrigin,
@@ -106,6 +114,11 @@ test.each(["retained", "attempt"] as const)(
     );
     const afterPrepare = stores.records()[source];
     const prepared = stores.recordOf(record.session.sessionId);
+    const replaceRecords = vi.fn<LandingStores["replaceRecords"]>();
+    const retryStores = { ...stores, replaceRecords };
+    await expect(
+      handleLanding(submission, dashboardOrigin, "prepare", retryStores),
+    ).resolves.toEqual(receipt);
     await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
     const doneAt = minutesAgo(10);
     let done: LaunchRecord | undefined;
@@ -128,15 +141,13 @@ test.each(["retained", "attempt"] as const)(
       "record",
       recordingStores,
     );
-
-    expect(receipt.state).toBe("prepared");
+    const { state, ...landed } = receipt;
+    expect(state).toBe("prepared");
     expect.soft(afterPrepare).toEqual([prepared, creation, other]);
     expect(prepared?.landingReporting?.preparations).toMatchObject([
       { receipt: receipt.receipt, base, revision },
     ]);
-    const { state, ...landed } = recorded;
-    expect(state).toBe("recorded");
-    expect(recorded).toEqual({ ...receipt, state });
+    expect(recorded).toEqual({ ...landed, state: "recorded" });
     expect(done?.doneAt).toBe(doneAt);
     expect(stores.records()[source]).toEqual([
       {
@@ -147,15 +158,10 @@ test.each(["retained", "attempt"] as const)(
       done,
       arrived,
     ]);
-    const retryStores = {
-      ...stores,
-      replaceRecords: () => {
-        throw new Error("An exact recorded retry has no record change.");
-      },
-    };
     await expect(
       handleLanding(submission, dashboardOrigin, "record", retryStores),
     ).resolves.toEqual(recorded);
+    expect(replaceRecords).not.toHaveBeenCalled();
   },
 );
 
@@ -193,12 +199,12 @@ test("a late prepare keeps the preparations already saved by the next prepare", 
     await handleLanding(delayed, dashboardOrigin, "prepare", racingStores),
   ).toMatchObject({ state: "prepared" });
 
-  expect(
-    stores.recordOf(record.session.sessionId)?.landingReporting?.preparations,
-  ).toMatchObject([
-    { delivery: delayed.delivery },
-    { delivery: next.delivery },
-  ]);
+  const deliveries = [delayed, next].map(({ delivery }) => ({ delivery }));
+  const prepared = stores.recordOf(record.session.sessionId)?.landingReporting;
+  expect(prepared?.preparations).toMatchObject(deliveries);
+  expect(stores.attempts()[source]?.[0]?.landingPreparations).toMatchObject(
+    deliveries,
+  );
 });
 
 test("a late prepare leaves a replacement launch's record untouched", async () => {

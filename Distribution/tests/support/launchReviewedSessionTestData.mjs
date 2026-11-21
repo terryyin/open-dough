@@ -1,12 +1,15 @@
 // @ts-check
-// Named Done session records that review cases share: a landed isolated
-// ad hoc session, a Default-main ad hoc session with one kept run, and a
-// one-shot story launch. All are steps on the launch record builder
+// Named session records that landing and review cases share. All are
+// steps on the launch record builder
 // (`./launchTestData.mjs`) that `makeMe.aLaunchRecord` returns; this layer
 // keeps `launchTestData.mjs` within the 250-line check.
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { LaunchLandingBuilder } from "./launchLandingEvidenceTestData.mjs";
+import {
+  LandingAuthorityBuilder,
+  LaunchLandingBuilder,
+} from "./launchLandingEvidenceTestData.mjs";
+import { reportingReference } from "./launchLandingTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 
 /**
@@ -17,6 +20,42 @@ import { LaunchRecordBuilder } from "./launchTestData.mjs";
  */
 
 export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
+  /**
+   * The session declared a branch and received its storyless landing context.
+   * @param {{ repository?: string, workspace?: string, branch?: string, committedTip?: string, origin?: string, reference?: string, deletedAt?: string }} [facts]
+   */
+  withDeclaredLanding({
+    repository = "/repo",
+    workspace = "/work",
+    branch = "dough/decision",
+    committedTip = "a1".repeat(20),
+    origin = "http://127.0.0.1:4173",
+    reference = reportingReference,
+    deletedAt,
+  } = {}) {
+    const authority = new LandingAuthorityBuilder()
+      .ofRepository(repository)
+      .inWorktree({ workspace, branch })
+      .please();
+    return this.enteredBranch({
+      repository,
+      workspace,
+      branch,
+      committedTip,
+      tree: committedTip,
+      trunk: { remote: authority.remote, target: authority.target },
+    }).withLandingReporting({
+      origin,
+      authority,
+      preparations: [],
+      branchContext: {
+        reference,
+        file: "/tmp/declared-landing-context.json",
+      },
+      ...(deletedAt !== undefined && { deletedAt }),
+    });
+  }
+
   /**
    * The project keeps one Done ad hoc session that landed with this capture;
    * its isolated workspace has since been retired.

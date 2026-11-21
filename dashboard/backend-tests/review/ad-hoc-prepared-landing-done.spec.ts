@@ -5,10 +5,13 @@ import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { handleLanding } from "../../server/launchLandingReporting.ts";
 import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
-import { aComposedDeclaredLanding } from "../support/composedLandingStores.ts";
+import { landingReportingReference } from "../../src/launchLanding.ts";
+import { composedLandingStores } from "../support/composedLandingStores.ts";
 import { dashboardOrigin } from "../support/declaredPublisherBranch.ts";
 import {
   aCheckoutWithCanonicalWorktree,
+  aDefaultLaunch,
+  canonicalGitDirectory,
   inWorktree,
   keep,
   minutesAgo,
@@ -21,13 +24,19 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
   keep();
   const branch = "prepared-draft";
   const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
-  const { record, reference, stores } = aComposedDeclaredLanding(checkout, {
-    workspace,
-    branch,
-  });
-  const entry = record.branchEntry;
-  if (entry === undefined) throw new Error("Missing the branch entry.");
-  const base = entry.committedTip;
+  const { base } = checkout;
+  const record = aDefaultLaunch(checkout)
+    .withDeclaredLanding({
+      repository: canonicalGitDirectory(checkout),
+      workspace,
+      branch,
+      committedTip: base,
+      origin: dashboardOrigin,
+    })
+    .please();
+  const reference = landingReportingReference(record);
+  if (reference === undefined) throw new Error("Missing landing reference.");
+  const stores = composedLandingStores({ records: { [source]: [record] } });
   const { draft: revision } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("draft", { at: minutesAgo(30) }),
