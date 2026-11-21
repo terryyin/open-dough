@@ -217,7 +217,7 @@ limit under local load.
 ### 5. A project without Intent locations lists the story's changed files
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a project with no `intent.locations` and a selected story with a
 comparison → **Changes** → the changed files are listed under their
@@ -228,6 +228,11 @@ and Retry.
 **Proof.** A frontend case beside
 `dashboard/frontend-tests/intent/intent-story-changes-gaps.spec.ts`. The
 existing not-configured and settings-problem cases stay green.
+
+**Proof (accepted).** `intent-story-changes-no-locations.spec.ts` lists the
+changed files with their diffs under the not-configured explanation, and
+keeps the no-workspace and several-worktrees explanations without Retry, as
+today. The browser mounts with no locations only for a compared story.
 
 ## Local gates and review
 

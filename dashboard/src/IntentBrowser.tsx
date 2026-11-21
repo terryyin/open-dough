@@ -17,8 +17,10 @@
 // and scroll; a story selected while Intent is hidden starts its tree's
 // arrangement afresh, toggle off. The story's changed files outside every
 // location follow them (`./IntentTreeGroups.tsx`). Hide files hides the
-// column, still mounted.
+// column, still mounted. A lead, as the explanation that no locations are
+// configured, heads the column.
 
+import type { ReactNode } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
@@ -60,6 +62,7 @@ export function IntentBrowser({
   source,
   revision,
   locations,
+  lead,
   project,
   storySummary,
   story,
@@ -69,6 +72,7 @@ export function IntentBrowser({
   readonly source: PublishedSource;
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
+  readonly lead?: ReactNode;
   // The selected story with what is known of its comparison, and the
   // comparison once read.
   readonly storySummary: StorySummary | undefined;
@@ -178,6 +182,7 @@ export function IntentBrowser({
       >
         <div className="intent-locations" id={files.id} hidden={!files.shown}>
           <h3 className="visually-hidden">Purpose locations</h3>
+          {lead}
           {storyScope !== undefined && (
             <StoryTreeScopeChoice scope={storyScope} />
           )}

@@ -58,7 +58,15 @@ export function IntentPage({
   readonly story?: IntentPageStory;
   readonly onBackToStory?: (() => void) | undefined;
 }) {
-  const { notice, locations, explanation, shownRevision } = shown;
+  const { notice, locations, shownRevision } = shown;
+  // Without configured locations, a compared story's Changes still lists its
+  // changed files, all outside, under the explanation.
+  const browserLocations =
+    locations ?? (shown.unconfigured && story?.compared ? [] : undefined);
+  // The explanation stands in the browser's place, or leads it once it shows.
+  const explanation =
+    browserLocations === undefined ? shown.explanation : undefined;
+  const lead = browserLocations === undefined ? undefined : shown.explanation;
   const { tab, chooseTab } = useStoryTab(story?.selection);
   const [filesShown, setFilesShown] = useKeptReading("filesShown", () => true);
   const tabsIdPrefix =
@@ -151,7 +159,7 @@ export function IntentPage({
           <FileBrowserToggle
             icon
             browser={
-              view === browserView && locations !== undefined
+              view === browserView && browserLocations !== undefined
                 ? files
                 : undefined
             }
@@ -178,11 +186,12 @@ export function IntentPage({
           </div>
         )}
       </div>
-      {locations !== undefined && shownRevision !== undefined && (
+      {browserLocations !== undefined && shownRevision !== undefined && (
         <IntentBrowser
           source={source}
           revision={shownRevision}
-          locations={locations}
+          locations={browserLocations}
+          lead={lead}
           project={story === undefined ? project : undefined}
           storySummary={story?.summary}
           story={story?.compared}
