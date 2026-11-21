@@ -12,10 +12,10 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { RefusedRequest } from "../../server/localOrigin.ts";
-import { storyNotes } from "../../server/storyNotes.ts";
+import { storyNotes, waitingStoryNotes } from "../../server/storyNotes.ts";
 import {
   storyNoteChangeSchema,
   type StoryNote,
@@ -46,6 +46,7 @@ beforeEach(() => {
   process.env.HOME = home;
 });
 afterEach(() => {
+  vi.useRealTimers();
   process.env.HOME = realHome;
   rmSync(home, { recursive: true, force: true });
 });
@@ -173,34 +174,35 @@ describe("Given notes already saved for a story", () => {
   });
 });
 
-test("Given a delivered note, when it is edited, even to unchanged text, then it keeps delivered and gets a new version each time", async () => {
-  const delivered = "2026-11-17T00:10:00.000Z";
-  const note = makeMe.aStoryNote
-    .withText("Delivered observation")
-    .savedAt(delivered)
-    .deliveredAs(delivered)
-    .please();
-  storeNotes([note]);
-  const edit = { action: "edit", id: note.id, text: "Revised" };
-
-  const [afterChange] =
-    notesOf(await storyNotes(project, change(edit)))[identity] ?? [];
-  const [afterSame] =
-    notesOf(await storyNotes(project, change(edit)))[identity] ?? [];
-
-  expect(afterChange).toEqual({
-    ...note,
-    text: "Revised",
-    delivered,
-    editedAt: expect.any(String) as unknown,
-  });
-  expect(afterChange?.editedAt).not.toBe(delivered);
-  expect(afterSame).toEqual({
-    ...afterChange,
-    editedAt: expect.any(String) as unknown,
-  });
-  expect(afterSame?.editedAt).not.toBe(afterChange?.editedAt);
-});
+const savedAt = "2026-11-17T00:10:00.000Z";
+const editTime = "2026-11-17T00:11:00.000Z";
+test.each([
+  [savedAt, editTime, "2026-11-17T00:11:00.001Z"],
+  [
+    "9999-12-31T23:59:59.9999Z",
+    "9999-12-31T23:59:59.99991Z",
+    "9999-12-31T23:59:59.999911Z",
+  ],
+])(
+  "Given a note delivered at %s, when it is edited twice, then each edit gets a new waiting version",
+  async (delivered, firstVersion, secondVersion) => {
+    const note = makeMe.aStoryNote
+      .savedAt(savedAt)
+      .deliveredAs(delivered)
+      .please();
+    storeNotes([note]);
+    const edited = { ...note, text: "Revised" };
+    const edit = change({ action: "edit", id: note.id, text: edited.text });
+    vi.useFakeTimers({ now: new Date(editTime), toFake: ["Date"] });
+    const [afterChange] =
+      notesOf(await storyNotes(project, edit))[identity] ?? [];
+    const [afterSame] =
+      notesOf(await storyNotes(project, edit))[identity] ?? [];
+    expect(afterChange).toEqual({ ...edited, editedAt: firstVersion });
+    expect(afterSame).toEqual({ ...edited, editedAt: secondVersion });
+    expect(await waitingStoryNotes(project, identity)).toEqual([afterSame]);
+  },
+);
 
 for (const [kind, bytes] of [
   ["not JSON", "{not json"],
