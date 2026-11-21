@@ -18,7 +18,7 @@ Still ahead:
 
 ## Review in Intent
 
-The following design accompanies [proposed ADR 0011](adrs/0011-review-scope-in-product-intent.md).
+**Review changes** opens Intent at the selected story's cumulative diff.
 
 - **Scope.** The banner bookmark is the one scope chooser. Its menu offers
   **Whole project** to clear the story and recent stories to select. On

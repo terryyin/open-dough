@@ -14,7 +14,7 @@ from source to proof and back. Filtering today's Changed tests table alone
 would hide one symptom while leaving the two review destinations and their
 different baselines in place. Keep the current review, history, notes and CI
 evidence capabilities in one workspace. [Design direction](../../docs/dashboard-ux-ui-north-star.md#review-in-intent)
-and [proposed ADR 0011](../../docs/adrs/0011-review-scope-in-product-intent.md).
+and [dashboard ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships).
 The [interactive design example](SEED-420-unified-intent-review/preview.html)
 uses illustrative sessions. Narrow the window to see the icon-only bookmark.
 
