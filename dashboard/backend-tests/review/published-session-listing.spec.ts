@@ -81,6 +81,24 @@ test("Given malformed files beside a valid record, when the listing is read, the
   });
 });
 
+test("Given a two-range record, when the listing is read, then it is skipped as malformed", async () => {
+  const one = makeMe.aSessionRecord.please();
+  const twoRanges = {
+    ...one,
+    ranges: [
+      one.ranges[0],
+      { base: "c".repeat(40), candidate: "d".repeat(40) },
+    ],
+  };
+
+  const outcome = await listed(atItsPath(twoRanges));
+
+  expect(outcome).toMatchObject({
+    kind: "answered",
+    answer: { sessions: [] },
+  });
+});
+
 test("Given a listing request at an unpinned revision, when it is parsed, then it is refused", () => {
   expect(
     parseRequestedRead(

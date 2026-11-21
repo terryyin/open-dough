@@ -272,7 +272,7 @@ git grep -n '"standalone"' -- Distribution/src/skills/dough-land Distribution/te
 ### 3. The published review names its published changes and close time
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.**
 - **Pre-condition:** a published record with one range, read on a machine
@@ -301,6 +301,9 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
+
+
+Accepted: evidence `s3-slice3-return-report.md` (s3-frontend-2/s3-backend/s3-e2e). Commitments 3 and 9 observed. Refactor: `storyReviewFiles.ts` seam; follow-up: unavailable published gap still session-commits-shaped.
 
 ### 4. A live launch stands for its published record
 

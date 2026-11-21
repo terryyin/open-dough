@@ -23,10 +23,7 @@ import {
   type AdmittedReviewedFile,
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import {
-  runChoice,
-  unavailableSessionCommitsReview,
-} from "./storyReviewSessionCommits.ts";
+import { unavailableSessionCommitsReview } from "./storyReviewSessionCommits.ts";
 
 // What the published read needs: the configured checkout, the published
 // revision it reads records from, and the configured backlog path.
@@ -87,10 +84,11 @@ export async function publishedSessionRecord(
   return record;
 }
 
-// The files of one recorded pair, read from the configured checkout's objects.
+// The files of the one recorded pair, read from the configured checkout's
+// objects.
 const recordedPairFiles = (
   source: PublishedSessionSource,
-  { base, candidate }: PublishedSessionRecord["ranges"][number],
+  { base, candidate }: PublishedSessionRecord["ranges"][0],
   signal: AbortSignal,
 ) =>
   retainedCommitPairFiles(
@@ -105,7 +103,6 @@ export async function publishedSessionReview(
 ): Promise<StoryReview> {
   const record = await publishedSessionRecord(source, session, signal);
   const [range] = record.ranges;
-  if (range === undefined) throw unknownSession();
   const read = await recordedPairFiles(source, range, signal);
   if ("missing" in read)
     return unavailableSessionCommitsReview(
@@ -118,21 +115,15 @@ export async function publishedSessionReview(
       }[read.missing],
     );
   return {
-    kind: "session-commits",
-    session: { launchedAt: record.closedAt, doneAt: record.closedAt },
-    commitRuns: await Promise.all(
-      record.ranges.map(({ base, candidate }) =>
-        runChoice(source.repository, { base, revision: candidate }, signal),
-      ),
-    ),
-    commitRun: 0,
+    kind: "published-session",
+    session: { closedAt: record.closedAt },
     baseline: range.base,
     tree: range.candidate,
     files: read.files,
   };
 }
 
-// A file read admits only the literal path of a recorded pair of this session.
+// A file read admits only the literal path of this session's recorded pair.
 export async function admitPublishedSessionFile(
   source: PublishedSessionSource,
   session: string,
@@ -140,11 +131,10 @@ export async function admitPublishedSessionFile(
   signal: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
   const record = await publishedSessionRecord(source, session, signal);
-  const range = record.ranges.find(
-    ({ base, candidate }) => base === file.baseline && candidate === file.tree,
-  );
+  const [range] = record.ranges;
+  const onPair = range.base === file.baseline && range.candidate === file.tree;
   const read =
-    range && (await recordedPairFiles(source, range, admissionBound(signal)));
+    onPair && (await recordedPairFiles(source, range, admissionBound(signal)));
   throwIfRequestAborted(signal);
   if (!read || "missing" in read || !belongsOnRetainedPair(read.files, file))
     throw new RefusedRequest(

@@ -16,9 +16,9 @@ export const publishedSessionRecordSchema = z.object({
   sessionId: z.string().refine(isSessionId),
   workflow: z.string().min(1),
   closedAt: z.iso.datetime(),
-  ranges: z
-    .array(z.object({ base: commitSchema, candidate: commitSchema }))
-    .min(1),
+  // Exactly one recorded pair: the page reviews one comparison. A several-
+  // range record is skipped as malformed (plan 747 widens run selection).
+  ranges: z.tuple([z.object({ base: commitSchema, candidate: commitSchema })]),
 });
 
 export type PublishedSessionRecord = z.infer<

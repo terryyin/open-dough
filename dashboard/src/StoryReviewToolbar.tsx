@@ -12,6 +12,7 @@ import {
 } from "./FileBrowserToggle.tsx";
 import {
   reviewsLanding,
+  reviewsPublishedSession,
   reviewsSessionCommits,
   type ReviewComparison,
   type StoryReview,
@@ -21,6 +22,7 @@ import {
   type ComparisonChoice,
 } from "./StoryReviewComparison.tsx";
 import { sessionCommitsName } from "./StoryReviewSessionCommitsContext.tsx";
+import { publishedSessionName } from "./StoryReviewPublishedSessionContext.tsx";
 import { branchResultName } from "./sessionReviewComparisons.ts";
 import { sessionComparisonName } from "./StoryReviewSessionRuns.tsx";
 import "./story-review-toolbar.css";
@@ -36,7 +38,8 @@ export function reviewListsFiles(
     (review?.kind === "landed" ||
       review?.kind === "published" ||
       review?.kind === "branch-result" ||
-      review?.kind === "session-commits") &&
+      review?.kind === "session-commits" ||
+      review?.kind === "published-session") &&
     review.files.length > 0
   );
 }
@@ -56,6 +59,7 @@ export const toolbarComparisonName = (
   // still names the comparison it describes.
   if (review === undefined || review.kind === "unavailable") return "";
   if (review.kind === "branch-result") return branchResultName;
+  if (reviewsPublishedSession(review)) return publishedSessionName;
   if (reviewsSessionCommits(review)) return sessionCommitsName;
   return comparisonName(reviewsLanding(review) ? "landed" : shown);
 };

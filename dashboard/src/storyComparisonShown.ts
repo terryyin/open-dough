@@ -1,12 +1,12 @@
 // The comparison a story's diff reads (`./StoryReviewFileDiff.tsx`), as one
 // derivation for every view that shows a story's changes: the story reviewed,
 // the comparison's *from* tree and changed files, and the tree it reaches. A
-// published completion, a landed run or a session's kept commits show their
-// fixed comparison; a workspace
-// snapshot shows the comparison chosen for it
-// (`./useStoryReviewComparison.ts`), once that is known. A changed file's diff
-// runs from its own tree when it includes trunk's changes, else from the
-// comparison's *from* tree (`diffStartOf`), in Review changes and Intent alike.
+// published completion, a landed run, a published session or a session's kept
+// commits show their fixed comparison; a workspace snapshot shows the
+// comparison chosen for it (`./useStoryReviewComparison.ts`), once that is
+// known. A changed file's diff runs from its own tree when it includes trunk's
+// changes, else from the comparison's *from* tree (`diffStartOf`), in Review
+// changes and Intent alike.
 
 import type { ReviewedWork } from "./reviewedFileRead.ts";
 import type {
@@ -38,6 +38,7 @@ export function storyComparisonShown({
     review?.kind === "published" ||
     review?.kind === "landed" ||
     review?.kind === "session-commits" ||
+    review?.kind === "published-session" ||
     review?.kind === "branch-result"
   )
     return {
@@ -60,7 +61,14 @@ export function storyComparisonShown({
 function fixedComparisonName(
   review: Extract<
     StoryReview,
-    { kind: "published" | "landed" | "session-commits" | "branch-result" }
+    {
+      kind:
+        | "published"
+        | "landed"
+        | "session-commits"
+        | "published-session"
+        | "branch-result";
+    }
   >,
 ) {
   if (review.kind === "published") return { completion: review.completion };

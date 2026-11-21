@@ -61,11 +61,13 @@ test("Given a published session record and a later trunk revision, when its UUID
   const review = await read(published);
 
   expect(review).toMatchObject({
-    kind: "session-commits",
+    kind: "published-session",
+    session: { closedAt: expect.any(String) as unknown },
     baseline: published.base,
     tree: published.candidate,
     files: [expect.objectContaining({ path: "notes.md" })],
   });
+  expect(review).not.toHaveProperty("commitRuns");
 });
 
 test("Given a project that published no such session, when that UUID is reviewed, then it is refused as unknown", async () => {
