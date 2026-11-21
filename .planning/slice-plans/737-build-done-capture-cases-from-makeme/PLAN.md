@@ -203,7 +203,7 @@ a race (G6), so its repair stays with the optimization story.
 ### 5. A manual delivery case shows the merge and both Done times
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move the manual-landing presets and visible timeline onto the isolated
 case, preserving real conflict resolution, publication and undo. Keep the
@@ -216,6 +216,13 @@ cases with the recorded baseline.
 `observed-session-delivery-witnesses`. Keep both distinct text comparisons,
 the remote/ref restriction, the early quiet Done pair, exact delivery without
 pin writes and all negative delivery cases.
+
+**Accepted.** Manual landing, precedence, observation and observed delivery
+cases build their checkout, worktrees, dated tips and isolated launches through
+the case; conflict resolution, pushes, merges and delivery stay in the bodies.
+Paired runs at one worker against `b3cd1acfe` (load 3.7–4.1) put the slowest
+cases at 0.55–0.76 s before and after (`s5-timing-records`); none recurs near
+5 s. `aCheckoutWithWorktree` is private to `doneCaptureCase.ts`.
 
 ### 6. Publisher cases share the launch and its reporting context
 

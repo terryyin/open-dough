@@ -12,19 +12,25 @@ import { bindRecord } from "../../server/launchRecordBinding.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
-import {
-  aCheckoutWithWorktree,
-  canonicalGitDirectory,
-  inWorktree,
-  keep,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 test("an early quiet Done keeps its verified manual pair when the native session binds", async () => {
-  const { checkout, workspace } = await aCheckoutWithWorktree("draft");
+  const {
+    checkout,
+    worktrees: { draft: workspace },
+    work: { early },
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace("draft")
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("early", { at: at(30) }),
+      { in: "draft" },
+    )
+    .kept()
+    .please();
   const baseline = checkout.base;
   const reporting = {
     origin: dashboardOrigin,
@@ -40,13 +46,12 @@ test("an early quiet Done keeps its verified manual pair when the native session
       workspace,
       branch: "draft",
       startingRevision: baseline,
-      repository: canonicalGitDirectory(checkout),
+      repository: checkout.gitDirectory,
     })
     .inClaudeSession({ sessionId: "isolated-draft" })
-    .launchedAt(minutesAgo(60))
+    .launchedAt(at(60))
     .reportingThrough(reporting)
     .please();
-  keep();
   await keepAttempt(
     makeMe.anAcceptedAttempt
       .withId(reporting.reference)
@@ -66,10 +71,6 @@ test("an early quiet Done keeps its verified manual pair when the native session
       reference: reporting.reference,
     })
     .please();
-  const { early } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("early", { at: minutesAgo(30) }),
-  );
   await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
 
   const folder = localFolder(checkout.integration);
@@ -81,7 +82,7 @@ test("an early quiet Done keeps its verified manual pair when the native session
   onTestFinished(() => marks.close());
   const reported = vi.spyOn(marks, "reported");
 
-  vi.setSystemTime(minutesAgo(10));
+  vi.setSystemTime(at(10));
   const pending = await deliverCompletion(submission, reporting.origin, marks);
   expect(pending.state).toBe("pending-native-session");
   expect(reported).not.toHaveBeenCalled();

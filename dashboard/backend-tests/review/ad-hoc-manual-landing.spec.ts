@@ -10,24 +10,24 @@ import {
 } from "../../server/manualSessionLanding.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
-import {
-  aCheckoutWithWorktree,
-  anIsolatedLaunch,
-  canonicalGitDirectory,
-  inWorktree,
-  minutesAgo,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const branch = "draft";
 const target = "refs/heads/main";
 
 async function anIsolatedDraft() {
-  const { checkout, workspace } = await aCheckoutWithWorktree(branch, {
-    "draft.txt": "Original draft\n",
-  });
-  const repository = canonicalGitDirectory(checkout);
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  const {
+    checkout,
+    records: { "isolated-draft": record },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withBaseFiles({ "draft.txt": "Original draft\n" })
+    .withOrigin()
+    .withWorkspace(branch)
+    .withIsolatedLaunch("isolated-draft", { launched: 60 }, branch)
+    .please();
+  const repository = checkout.gitDirectory;
   const inspect = (tip: string, acceptedTrunk: string) =>
     inspectManualLanding(
       repository,
@@ -37,27 +37,29 @@ async function anIsolatedDraft() {
       { cwd: repository, maxBuffer: defaultGitOutputLimit },
     );
   const onBranch = <Name extends string>(steps: CheckoutWorkBuilder<Name>) =>
-    work(inWorktree(checkout, workspace), steps);
-  return { checkout, record, repository, onBranch, inspect };
+    performWork(steps, { in: branch });
+  const onMain = <Name extends string>(steps: CheckoutWorkBuilder<Name>) =>
+    performWork(steps);
+  return { checkout, record, repository, onBranch, onMain, inspect, at };
 }
 
 test("a verified manual merge retains its accepted trunk parent and actual resolution", async () => {
-  const { checkout, repository, onBranch, inspect } = await anIsolatedDraft();
+  const { checkout, repository, onBranch, onMain, inspect, at } =
+    await anIsolatedDraft();
   const { integration } = checkout;
   const { tip } = await onBranch(
     makeMe.aCheckoutWork.committing("tip", {
-      at: minutesAgo(50),
+      at: at(50),
       files: { "draft.txt": "Branch draft\n" },
     }),
   );
-  const { trunkParent } = await work(
-    checkout,
+  const { trunkParent } = await onMain(
     makeMe.aCheckoutWork
       .committing("trunkParent", {
-        at: minutesAgo(40),
+        at: at(40),
         files: { "draft.txt": "Trunk draft\n" },
       })
-      .pushingToTrunk("published-parent", { at: minutesAgo(40) }),
+      .pushingToTrunk("published-parent", { at: at(40) }),
   );
   resolveStoryConflict(
     integration,
@@ -69,12 +71,11 @@ test("a verified manual merge retains its accepted trunk parent and actual resol
   const { stdout: merge } = await git(integration, "rev-parse", "HEAD");
   expect(await inspect(tip, trunkParent)).toBeUndefined();
 
-  const { acceptedTrunk } = await work(
-    checkout,
+  const { acceptedTrunk } = await onMain(
     makeMe.aCheckoutWork
-      .pushingToTrunk("published-merge", { at: minutesAgo(30) })
-      .committing("later", { at: minutesAgo(20) })
-      .pushingToTrunk("acceptedTrunk", { at: minutesAgo(20) }),
+      .pushingToTrunk("published-merge", { at: at(30) })
+      .committing("later", { at: at(20) })
+      .pushingToTrunk("acceptedTrunk", { at: at(20) }),
   );
   const delivery = await inspect(tip, acceptedTrunk);
 
@@ -95,18 +96,15 @@ test("a verified manual merge retains its accepted trunk parent and actual resol
 });
 
 test("branch capture ignores a merge accepted on a different remote branch", async () => {
-  const { checkout, record, onBranch } = await anIsolatedDraft();
+  const { checkout, record, onBranch, at } = await anIsolatedDraft();
   const { integration, base } = checkout;
   const { tip } = await onBranch(
-    makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
+    makeMe.aCheckoutWork.committing("tip", { at: at(30) }),
   );
   await git(integration, "merge", "--quiet", "--no-ff", "--no-edit", branch);
   await git(integration, "push", "--quiet", "origin", "HEAD:elsewhere");
 
-  const { result, delivery } = await captureBranchResult(
-    record,
-    minutesAgo(10),
-  );
+  const { result, delivery } = await captureBranchResult(record, at(10));
 
   expect(delivery).toBeUndefined();
   expect(result).toMatchObject({
@@ -130,10 +128,10 @@ test("branch capture ignores a merge accepted on a different remote branch", asy
 });
 
 test("an exact fast-forward proves the delivery and leaves the branch attributable", async () => {
-  const { checkout, record, repository, onBranch, inspect } =
+  const { checkout, record, repository, onBranch, inspect, at } =
     await anIsolatedDraft();
   const { tip } = await onBranch(
-    makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
+    makeMe.aCheckoutWork.committing("tip", { at: at(30) }),
   );
   await git(checkout.integration, "merge", "--quiet", "--ff-only", tip);
   await git(checkout.integration, "push", "--quiet", "origin", "main");
@@ -145,18 +143,18 @@ test("an exact fast-forward proves the delivery and leaves the branch attributab
     base: checkout.base,
     revision: tip,
   });
-  const { result } = await captureBranchResult(record, minutesAgo(10));
+  const { result } = await captureBranchResult(record, at(10));
   expect(result).toMatchObject({ base: checkout.base, revision: tip });
   expect(result.attributionGap).toBeUndefined();
 });
 
 test("a fast-forward with an unwitnessed previous tip leaves delivery unverified", async () => {
-  const { checkout, onBranch, inspect } = await anIsolatedDraft();
+  const { checkout, onBranch, inspect, at } = await anIsolatedDraft();
   const { integration } = checkout;
   const { second } = await onBranch(
     makeMe.aCheckoutWork
-      .committing("first", { at: minutesAgo(35) })
-      .committing("second", { at: minutesAgo(30) }),
+      .committing("first", { at: at(35) })
+      .committing("second", { at: at(30) }),
   );
   await git(integration, "merge", "--quiet", "--ff-only", second);
   await git(integration, "push", "--quiet", "origin", "main");
@@ -165,10 +163,10 @@ test("a fast-forward with an unwitnessed previous tip leaves delivery unverified
 });
 
 test("a squash with the same tree as the branch does not prove manual delivery", async () => {
-  const { checkout, onBranch, inspect } = await anIsolatedDraft();
+  const { checkout, onBranch, inspect, at } = await anIsolatedDraft();
   const { integration } = checkout;
   const { tip } = await onBranch(
-    makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
+    makeMe.aCheckoutWork.committing("tip", { at: at(30) }),
   );
   await git(integration, "merge", "--quiet", "--squash", tip);
   await git(integration, "commit", "--quiet", "-m", "Squash the edit");

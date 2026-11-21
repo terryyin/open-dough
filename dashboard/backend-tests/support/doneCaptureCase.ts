@@ -29,12 +29,6 @@ const now = Math.floor(Date.now() / 1000) * 1000;
 export const minutesAgo = (minutes: number) =>
   new Date(now - minutes * 60_000).toISOString();
 
-// A history whose base revision, holding `files`, predates every launch the
-// case states.
-export const historyBeforeTheCase = (
-  base: { files?: Readonly<Record<string, string>> } = {},
-) => makeMe.aRepository.withBaseBeforeEveryLaunch(base.files);
-
 export type Checkout = Awaited<ReturnType<typeof aCheckout>>;
 
 // The project's Default main checkout, with an origin when the case's work
@@ -44,7 +38,9 @@ export async function aCheckout<Name extends string = "base">({
   history,
   withOrigin = false,
 }: { history?: RepositoryBuilder<Name | "base">; withOrigin?: boolean } = {}) {
-  const built = (history ?? historyBeforeTheCase()).please();
+  const built = (
+    history ?? makeMe.aRepository.withBaseBeforeEveryLaunch()
+  ).please();
   const repository = withOrigin
     ? await materializeRepository(built)
     : await materializeLocalCheckout(undefined, built);
@@ -120,14 +116,14 @@ export const anIsolatedLaunch = (
 
 // The project's checkout with an origin, holding `files` at its base, and its
 // worktree on `branch` there.
-export async function aCheckoutWithWorktree(
+async function aCheckoutWithWorktree(
   branch: string,
   files: Readonly<Record<string, string>> = {},
 ) {
   const checkout = await aCheckout({
-    history: historyBeforeTheCase({ files }).withWorkspace(branch, {
-      from: "base",
-    }),
+    history: makeMe.aRepository
+      .withBaseBeforeEveryLaunch(files)
+      .withWorkspace(branch, { from: "base" }),
     withOrigin: true,
   });
   const workspace = checkout.execution;
