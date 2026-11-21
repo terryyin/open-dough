@@ -147,7 +147,7 @@ retirement. Trace the single returned path into the record and publisher.
 ### 3. The case keeps its complete record set at setup
 
 Type: Structure
-Status: planned
+Status: done
 
 Use `.kept()` in the four equivalent sites in
 `done-kept-session-shared-checkout.spec.ts`, `done-kept-session-commits.spec.ts`
@@ -159,6 +159,8 @@ existing machine-store boundary.
 **Proof.** Run the three specs. Check the shared-checkout flag and runs, kept
 commit pins and review after branch movement, and removal in the missing
 repository case. In the pin-release case keep the before/after pin assertions.
+
+**Accepted.** The four sites use `.kept()`, which keeps in materialization before `please()` returns; the pin-release case keeps its explicit keep after reading baseline pins. The three specs passed 12/12 with no assertion change. Refactor pass: already clean.
 
 ### 4. Named worktrees resolve once for the launch case
 

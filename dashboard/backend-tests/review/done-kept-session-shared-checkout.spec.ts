@@ -9,7 +9,7 @@ import {
 } from "../../server/launchRecordStore.ts";
 import { checkoutSharedMeanwhile } from "../../server/sessionCheckoutShared.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { type Checkout, keep, source } from "../support/doneCaptureCase.ts";
+import { type Checkout, source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { aDoneSession } from "../support/doneCaptureReview.ts";
 
@@ -24,14 +24,14 @@ const sharedAtDone = (
 test("Done saves the run and shared flag when two sessions overlap in Default main", async () => {
   const {
     checkout,
-    records: { first, other },
+    records: { first },
     performWork,
     at,
   } = await aDoneCaptureCase()
     .withDefaultMainLaunch("first", { launched: 60 })
     .withDefaultMainLaunch("other", { launched: 60 })
+    .kept()
     .please();
-  keep(first, other);
   const { committed } = await performWork(
     makeMe.aCheckoutWork.committing("committed", { at: at(30) }),
   );

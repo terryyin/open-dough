@@ -157,8 +157,8 @@ for (const [reason, { done, remove }] of Object.entries(removals)) {
     } = await aDoneCaptureCase()
       .withWork(makeMe.aCheckoutWork.committing("kept", { at: workedAt }))
       .withEstablishedSession("leaving", { launched, done }, keepingRun("kept"))
+      .kept()
       .please();
-    keep(record);
     rmSync(path.join(checkout.integration, ".git"), { recursive: true });
     expect(await storedSessionIds()).toEqual(["leaving"]);
 
