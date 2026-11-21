@@ -10,6 +10,9 @@ import { useDisposableTestHome } from "./test-support/support/runnerConfig.mjs";
 
 useDisposableTestHome();
 
+const desktopLaunchOffers =
+  "dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts";
+
 export default defineConfig({
   plugins: [react()],
   test: {
@@ -28,8 +31,24 @@ export default defineConfig({
         launchOptions: { args: dashboardBrowserArgs },
         contextOptions: { hasTouch: true },
       }),
-      commands: mountedDashboardCommands,
-      instances: [{ browser: "chromium" }],
+      commands: {
+        ...mountedDashboardCommands,
+        tapMountedControl: ({ iframe }, selector: string) =>
+          iframe.locator(selector).tap(),
+      },
+      instances: [
+        { browser: "chromium", exclude: [desktopLaunchOffers] },
+        // A touch context cannot acquire a Linux fine pointer by disabling touch.
+        {
+          browser: "chromium",
+          name: "chromium-desktop",
+          include: [desktopLaunchOffers],
+          provider: playwright({
+            launchOptions: { args: dashboardBrowserArgs },
+            contextOptions: { hasTouch: false },
+          }),
+        },
+      ],
     },
   },
 });

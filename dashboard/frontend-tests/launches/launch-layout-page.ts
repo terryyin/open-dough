@@ -1,5 +1,11 @@
 import { expect, onTestFinished } from "vitest";
-import { cdp, page, type Locator } from "vitest/browser";
+import { cdp, commands, page, type Locator } from "vitest/browser";
+
+declare module "vitest/browser" {
+  interface BrowserCommands {
+    tapMountedControl(selector: string): Promise<void>;
+  }
+}
 
 export const narrowDialog = { width: 320, height: 640 };
 export const twiceZoomedDialog = { width: 640, height: 450 };
@@ -40,59 +46,20 @@ export function box(control: Locator) {
 }
 
 export async function tap(control: Locator) {
-  await expect.element(control).toBeVisible();
-  const target = control.element();
-  target.scrollIntoView({ block: "nearest" });
-
-  // Let the scroll reach the rendered viewport before sending page-level input.
-  const renderedBox = () =>
-    new Promise<DOMRect>((resolve) => {
-      requestAnimationFrame(() => {
-        resolve(target.getBoundingClientRect());
-      });
-    });
-  await expect
-    .poll(
-      async () => {
-        const before = await renderedBox();
-        const after = await renderedBox();
-        return (
-          before.x === after.x &&
-          before.y === after.y &&
-          before.width === after.width &&
-          before.height === after.height
-        );
-      },
-      { message: "touch target stays in place after scrolling" },
-    )
-    .toBe(true);
-  const bounds = target.getBoundingClientRect();
-  const x = bounds.x + bounds.width / 2;
-  const y = bounds.y + bounds.height / 2;
-  expect(target.contains(document.elementFromPoint(x, y))).toBe(true);
-  const frame = window.frameElement?.getBoundingClientRect();
-  const session = chromium();
   let reachedControl = false;
   const observeTouch = (event: PointerEvent) => {
-    reachedControl =
+    if (
       event.pointerType === "touch" &&
       event.isTrusted &&
       event.target instanceof Node &&
-      target.contains(event.target);
+      control.query()?.contains(event.target)
+    ) {
+      reachedControl = true;
+    }
   };
-  window.addEventListener("pointerdown", observeTouch, {
-    capture: true,
-    once: true,
-  });
+  window.addEventListener("pointerdown", observeTouch, true);
   try {
-    await session.send("Input.dispatchTouchEvent", {
-      type: "touchStart",
-      touchPoints: [{ x: x + (frame?.left ?? 0), y: y + (frame?.top ?? 0) }],
-    });
-    await session.send("Input.dispatchTouchEvent", {
-      type: "touchEnd",
-      touchPoints: [],
-    });
+    await commands.tapMountedControl(control.serialize().selector);
   } finally {
     window.removeEventListener("pointerdown", observeTouch, true);
   }

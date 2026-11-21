@@ -1,8 +1,8 @@
-import { expect, onTestFinished, test } from "vitest";
+import { expect, test } from "vitest";
 import { userEvent, type Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { contrastRatio } from "../../test-support/composedColours.ts";
-import { browserSession, emulateMedia } from "../review/browser-session.ts";
+import { emulateMedia } from "../review/browser-session.ts";
 import { launchDialog } from "./ad-hoc-launch-page.ts";
 import {
   box,
@@ -16,17 +16,12 @@ import { mountStoryLaunches } from "./story-card-launch-page.ts";
 
 const notReady = "Not assessed as ready";
 
-async function useDesktopPointer() {
-  const session = browserSession();
-  await session.send("Emulation.setTouchEmulationEnabled", { enabled: false });
-  onTestFinished(async () => {
-    await session.send("Emulation.setTouchEmulationEnabled", { enabled: true });
-  });
-  await expect.poll(() => matchMedia("(hover: hover)").matches).toBe(true);
+function expectDesktopHover() {
+  expect(matchMedia("(hover: hover) and (pointer: fine)").matches).toBe(true);
 }
 
 test("Backlog offers execution then refinement with an assessment note when needed, and Taken offers neither", async () => {
-  await useDesktopPointer();
+  expectDesktopHover();
   const ready = makeMe.aWorkEntry
     .with({
       identity: "SEED-B#b",
@@ -90,7 +85,7 @@ function expectGlyph(action: Locator, glyph: string) {
 }
 
 test("story Starts keep their reading order and visible keyboard focus at narrow and zoomed widths", async () => {
-  await useDesktopPointer();
+  expectDesktopHover();
   const story = makeMe.aWorkEntry
     .with({ identity: "SEED-A#a", title: "A queued story" })
     .please();
@@ -140,7 +135,7 @@ test("story Starts keep their reading order and visible keyboard focus at narrow
 });
 
 test("noted execution and preparing refinement stay readable and distinct from unavailable Starts in both schemes", async () => {
-  await useDesktopPointer();
+  expectDesktopHover();
   const story = makeMe.aWorkEntry
     .with({
       identity: "SEED-A#a",

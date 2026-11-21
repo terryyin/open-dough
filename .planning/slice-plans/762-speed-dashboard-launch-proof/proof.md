@@ -126,3 +126,9 @@ Independent review removed the unused shared chevron journey, aligned
 the inspection steps and corrected stale E2E comment references. The
 focused inspection case passed after the edit. The Git evidence directory
 holds `slice3-refactor-consumers.md` with the proof and consumer trace.
+
+The hosted Slice 3 run exposed Chromium desktop-hover setup and another
+manual touch-coordinate failure. A fresh desktop context isolates the
+three appearance cases, and Playwright supplies native actionability inside
+the mounted iframe. Eight focused cases passed on Linux arm64 and macOS.
+The normal runner collected each affected title once. [Diagnosis and proof](diagnosis-launch-browser-input.md).
