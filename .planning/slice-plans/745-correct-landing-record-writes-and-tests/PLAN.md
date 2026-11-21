@@ -26,6 +26,8 @@
   `a58d03eacfcce654007a9c7e9467918c411eb186`.
 - Slice 3 accepted on the same branch and observer at
   `e1f8d3b1e9afa62d97fcfedeb1bb49208b3f5d7f`.
+- Slice 4 accepted on the same branch and observer at
+  `8b5ac52fa8adbd320a5a3ea88995e3ffe5378075`.
 - GitHub canceled the superseded slice 2 push run `44848314743/1`
   after the slice 3 push had scheduled run `44849901905` on the same
   branch. The workflow cancels in-progress runs on superseding pushes
@@ -50,7 +52,7 @@
   [743](../743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
   (Taken at `44d066285`) slice 4 narrows the publisher cases and leaves
   this story the composed-store fixture and the deletion fix. Plan
-  [736](../736-observe-done-deliveries-over-typed-records/PLAN.md) owns
+  [736](https://github.com/terryyin/open-dough/blob/24864be6360f87cc9fec3dc4333de5361de165eb/.planning/slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md) owns
   observation fixtures. Recheck each one's landed form before editing a
   shared file.
 
@@ -271,7 +273,7 @@ worktree Git evidence.
 ### 5. Landing admission agrees with the local origin rule and its order
 
 Type: Behavior
-Status: planned
+Status: done
 
 Pre-condition: a landing request on a loopback host. Trigger: a same-origin
 request with `Sec-Fetch-Site: same-origin` and no `Origin`; a GET with a
@@ -281,6 +283,22 @@ answers 405.
 **Proof.** Admission cases in `landingRequestAdmission.spec.ts` as one
 `test.each` table of refusals plus the admitted case; each fails against
 the current order or origin rule.
+
+**Observed.** The old path rejected a metadata-only same-origin prepare
+with 403 and returned 415 before the method and route refusals. The revised
+admission table passed all ten cases. The two backend selections passed
+86 cases, and two Chromium cases exercised installed publication and
+reporting-only retry through the live route. Dashboard typecheck passed.
+See `slice-5-report.md` in the worktree Git evidence.
+
+Plan 736 landed at `0747fb0a2`, with its plan-link update at `434d4262f`
+absorbed through source freshness. The landed observation code shares
+`withinRetention` via `launchRecordRetention.ts`. Carry its exact module
+and retention imports forward so the landing document and composed reader
+share that predicate. The reconciling delta leaves the landed observation
+fixture's work on trunk. Rechecked the persistence and admission specs and
+four machine aged-out/removed history cases, 18 strict passes in
+`slice-5-retention-reconciled.json`.
 
 ### 6. Decision specs keep refusals as tables over MakeMe data
 

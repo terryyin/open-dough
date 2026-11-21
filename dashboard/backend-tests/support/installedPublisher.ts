@@ -25,12 +25,14 @@ async function receive(
   init?: RequestInit,
 ): Promise<Response> {
   const url = new URL(input instanceof Request ? input.url : input);
+  const headers = new Headers(init?.headers);
   try {
     const { operation, submission } = admitLandingRequest({
       route: url.pathname,
       method: init?.method,
-      origin: new Headers(init?.headers).get("Origin"),
+      origin: headers.get("origin"),
       host: url.host,
+      fetchSite: headers.get("sec-fetch-site"),
       bodyText: typeof init?.body === "string" ? init.body : "",
     });
     return Response.json(

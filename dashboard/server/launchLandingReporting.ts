@@ -8,7 +8,8 @@ import {
 } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
-  admitLandingRequest,
+  landingRequestOperation,
+  parseLandingSubmission,
   type LandingOperation,
   type LandingSubmission,
 } from "./launchLandingAdmission.ts";
@@ -63,20 +64,14 @@ export async function submitLanding(
   req: IncomingMessage,
 ): Promise<LandingReceipt> {
   verifyLocalOrigin(req);
-  const host = req.headers.host;
-  const { operation, submission } = admitLandingRequest({
-    route: new URL(req.url ?? "", `http://${host ?? "local"}`).pathname,
-    method: req.method,
-    origin: headerValue(req.headers.origin),
-    host,
-    bodyText: await textBody(req, undefined, 128 * 1024),
-  });
+  const origin = `http://${req.headers.host}`;
+  const route = new URL(req.url ?? "", origin).pathname;
+  const operation = landingRequestOperation(route, req.method);
+  const submission = parseLandingSubmission(
+    await textBody(req, undefined, 128 * 1024),
+  );
   knownSource(submission.source);
-  return handleLanding(submission, `http://${host}`, operation);
-}
-
-function headerValue(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
+  return handleLanding(submission, origin, operation);
 }
 
 async function pinNewLanding(

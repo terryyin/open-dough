@@ -3,10 +3,8 @@ import { randomUUID } from "node:crypto";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { LandingStores } from "../../server/launchLandingReporting.ts";
-import {
-  recordRetention,
-  withinRetention,
-} from "../../server/launchRecordDocument.ts";
+import { recordRetention } from "../../server/launchRecordDocument.ts";
+import { withinRetention } from "../../server/launchRecordRetention.ts";
 import { leaveMachineJson } from "../../server/machineJsonStore.ts";
 import {
   aDefaultLaunch,

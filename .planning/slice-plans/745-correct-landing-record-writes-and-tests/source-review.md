@@ -32,8 +32,8 @@ and preservation of creation records on writes.
 | 18 | The unused `LandingDecision.path` is removed. | slice 4 | observed: LandingDecision uses an optional attempt update without path; both focused decision specs observe update/no-update results |
 | 19 | The decision takes `now` from `receivedAt` in place of `Date.now()`. | slice 4 | observed: retainedLandingDecision.spec.ts receipt-time 404 differs from scratch wall-clock 409 in slice-4-clock-red.log and passes with receivedAt |
 | 20 | The decision takes a typed input in place of seven positional arguments. | slice 4 | observed: LandingDecisionInput in launchLandingDecision.ts is shared by decideLanding and decideAttemptLanding; adapter and direct specs build named inputs |
-| 21 | Landing admission accepts requests that `verifyLocalOrigin` accepts, including a request with `Sec-Fetch-Site: same-origin` and no `Origin` header. | slice 5 | |
-| 22 | Landing admission returns 405 before 415, preserving the existing precedence. A GET with non-JSON content type receives 405. | slice 5 | |
+| 21 | Landing admission accepts requests that `verifyLocalOrigin` accepts, including a request with `Sec-Fetch-Site: same-origin` and no `Origin` header. | slice 5 | observed: landingRequestAdmission.spec.ts metadata-only prepare admitted and foreign Host rejected; localOrigin.ts shares the Host/Origin decision; installedPublisher passes both fields |
+| 22 | Landing admission returns 405 before 415, preserving the existing precedence. A GET with non-JSON content type receives 405. | slice 5 | observed: landingRequestAdmission.spec.ts IncomingMessage non-JSON GET returns 405 and non-JSON POST still returns 415; red returns 415 for GET |
 | 23 | `composedLandingStores` reads session records only through `keptRecords` when applying writes. | slice 1 | observed: composedLandingStores.ts keptRecords applies the session discriminator to withinRetention; landingRecordPersistence.spec.ts passes creation in the persisted document |
 | 24 | `composedLandingStores` applies record-store retention semantics. | slice 1 | observed: launchRecordDocument.ts recordRetention used by replaceRecords and composedLandingStores.ts; landingRecordPersistence.spec.ts excludes the aged-out launch |
 | 25 | `composedLandingStores` keeps creation records when applying writes. | slice 1 | observed: landingRecordPersistence.spec.ts exact retained and attempt output retains the unresolved creation after both writes |
@@ -46,7 +46,7 @@ and preservation of creation records on writes.
 | 32 | The decision refusal cases run through `decideLanding`. | slice 6 | |
 | 33 | Decision refusal cases are expressed as `test.each` tables. | slice 6 | |
 | 34 | The typed decision tests import only MakeMe for setup. | slice 6 | |
-| 35 | Admission refusals are also expressed as `test.each` tables. | slice 5 | |
+| 35 | Admission refusals are also expressed as `test.each` tables. | slice 5 | observed: landingRequestAdmission.spec.ts one test.each table of eight refusals with two separate admitted operation cases |
 | 36 | The helpers in `attemptLandingDecisionCase.ts` become MakeMe steps or named examples. | slice 6 | |
 | 37 | One declared-landing example replaces both `aDeclaredRecord` and `aComposedDeclaredLanding`. | slice 6 | |
 | 38 | Assertions that restate their inputs are removed. | slice 6 | |
