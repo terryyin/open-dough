@@ -8,8 +8,6 @@ import {
   type Checkout,
   historyBeforeTheCase,
   inWorktree,
-  keep,
-  markDone,
   minutesAgo,
   source,
   work,
@@ -32,16 +30,14 @@ async function committedIn<Name extends string>(
   return committed[name];
 }
 
-// Two kept Done branches, each with one commit adding `<branch>.txt` in its
+// Two composed Done branches, each with one commit adding `<branch>.txt` in its
 // own worktree, merged by hand in that order into trunk, which is then
 // published. Answers each branch's launch and tip, the merge of the first
-// and the published head, which merges the second. The records are composed
-// Done unless `pinned`: then the Done adapter keeps, marks, and pins them
-// in a private machine home for cases about releasing that evidence.
+// and the published head, which merges the second.
 export async function twoDoneBranchesMergedByHand<
   First extends string,
   Second extends string,
->(first: First, second: Second, { pinned = false } = {}) {
+>(first: First, second: Second) {
   const checkout = await aCheckout({
     history: historyBeforeTheCase()
       .withWorkspace(first, { from: "base" })
@@ -55,20 +51,12 @@ export async function twoDoneBranchesMergedByHand<
   const secondWorkspace = path.join(checkout.integration, ".worktrees", second);
   const firstTip = await committedIn(checkout, firstWorkspace, first);
   const secondTip = await committedIn(checkout, secondWorkspace, second);
-  const recorded = (launch: ReturnType<typeof anIsolatedLaunch>) =>
-    pinned ? launch.please() : aDoneBranch(launch);
-  const firstRecord = await recorded(
+  const firstRecord = await aDoneBranch(
     anIsolatedLaunch(checkout, { workspace: firstWorkspace, branch: first }),
   );
-  const secondRecord = await recorded(
+  const secondRecord = await aDoneBranch(
     anIsolatedLaunch(checkout, { workspace: secondWorkspace, branch: second }),
   );
-  let home: string | undefined;
-  if (pinned) {
-    home = keep(firstRecord, secondRecord);
-    await markDone(firstRecord);
-    await markDone(secondRecord);
-  }
   const { firstMerge, head } = await work(
     checkout,
     makeMe.aCheckoutWork
@@ -78,7 +66,6 @@ export async function twoDoneBranchesMergedByHand<
   );
   return {
     checkout,
-    home,
     first: { record: firstRecord, tip: firstTip },
     second: { record: secondRecord, tip: secondTip },
     firstMerge,

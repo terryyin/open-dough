@@ -12,7 +12,7 @@ import {
   keepLaunchRecords,
   keptLaunchRecords,
 } from "../../test-support/support/launchStore.ts";
-import { withinRetention } from "../../server/launchRecordDocument.ts";
+import { withinRetention } from "../../server/launchRecordRetention.ts";
 import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
 import { reviewRunKey } from "../../src/storyReviewLandedRun.ts";
 

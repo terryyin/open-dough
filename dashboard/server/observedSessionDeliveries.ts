@@ -22,7 +22,7 @@ export type ObservedDelivery = {
   pair: ManualLanding;
 };
 
-type DeliveryInspection = {
+export type DeliveryInspection = {
   readTrunkHead?: typeof readBranchTrunkRevision;
   inspect?: typeof inspectManualLanding;
 };

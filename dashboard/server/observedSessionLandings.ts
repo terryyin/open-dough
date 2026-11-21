@@ -6,39 +6,42 @@ import {
   branchResultAtDone,
 } from "../src/sessionBranchResult.ts";
 import { sessionKey } from "../src/sessionReference.ts";
-import type { RecordsDroppedByRetention } from "./launchRecordDocument.ts";
 import {
   changeSessionRecord,
   keptRecords,
-  keptSession,
+  sessionRecord,
 } from "./launchRecordStore.ts";
 import {
-  inspectManualLanding,
   keepManualLanding,
   releaseManualLanding,
 } from "./manualSessionLanding.ts";
 import {
   observedSessionDeliveries,
+  type DeliveryInspection,
   type ObservedDelivery,
   type ObservedSource,
 } from "./observedSessionDeliveries.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 
-// A fresh adapter starts as a restarted Dashboard would. Records its writes
-// drop by retention go to `droppedByRetention` (`replaceRecords`).
-export function sessionLandingObservations(
-  inspect: typeof inspectManualLanding = inspectManualLanding,
-  droppedByRetention?: RecordsDroppedByRetention,
-) {
-  const deliveries = observedSessionDeliveries({ inspect });
+export type ObservedLandingStore = {
+  keptRecords: typeof keptRecords;
+  changeSessionRecord: typeof changeSessionRecord;
+};
+
+// A fresh adapter rediscovers deliveries from the store's currently kept
+// records, as a restarted Dashboard would.
+export function sessionLandingObservations({
+  store = { keptRecords, changeSessionRecord },
+  ...inspection
+}: DeliveryInspection & { store?: ObservedLandingStore } = {}) {
+  const deliveries = observedSessionDeliveries(inspection);
   return {
     async observe(source: ObservedSource, revision: string): Promise<void> {
       await deliveries.run(
         source,
         revision,
-        () => keptRecords(source.id),
-        (delivery) =>
-          keepObservedDelivery(source.id, delivery, droppedByRetention),
+        () => store.keptRecords(source.id),
+        (delivery) => keepObservedDelivery(store, source.id, delivery),
       );
     },
   };
@@ -57,13 +60,14 @@ export function observeProjectRevision(
 }
 
 async function keepObservedDelivery(
+  store: ObservedLandingStore,
   sourceId: string,
   { record, result, pair }: ObservedDelivery,
-  droppedByRetention: RecordsDroppedByRetention | undefined,
 ) {
   let landing: LaunchRecord["landing"];
+  let saved: LaunchRecord | undefined;
   try {
-    await changeSessionRecord(
+    saved = await store.changeSessionRecord(
       sourceId,
       record.session,
       async (current) => {
@@ -82,14 +86,13 @@ async function keepObservedDelivery(
         landing = await keepManualLanding(current, pair);
         return landing === undefined ? current : { ...current, landing };
       },
-      droppedByRetention,
     );
   } catch {
-    if (
-      landing !== undefined &&
-      (await keptSession(sourceId, record.session))?.landing?.delivery !==
-        landing.delivery
-    )
-      await releaseManualLanding(landing);
+    // A write can throw after the record was saved.
   }
+  if (landing === undefined || saved?.landing?.delivery === landing.delivery)
+    return;
+  const kept = sessionRecord(await store.keptRecords(sourceId), record.session);
+  if (kept?.landing?.delivery !== landing.delivery)
+    await releaseManualLanding(landing);
 }

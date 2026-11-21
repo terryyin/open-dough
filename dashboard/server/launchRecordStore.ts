@@ -9,9 +9,9 @@ import type { AgentLaunchRequest, LaunchRecord } from "../src/agentLaunch.ts";
 import {
   readStoredRecords,
   replaceRecords,
-  withinRetention,
   type RecordsDroppedByRetention,
 } from "./launchRecordDocument.ts";
+import { withinRetention } from "./launchRecordRetention.ts";
 
 // Every project's records still kept, by project id, each oldest first.
 export async function keptRecordsByProject(): Promise<

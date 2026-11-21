@@ -36,19 +36,19 @@ The sibling responsibilities and effort hypothesis remain scope context.
 | 16 | Advancing the observed revision resets checked witnesses and rechecks previously skipped branches. | slice 2 | observed: dashboard/backend-tests/review/observed-session-delivery-witnesses.spec.ts unmerged witness is inspected again at the real second published head |
 | 17 | The typed decision owns each project’s last observed revision and checked witnesses independently. | slice 2 | observed: dashboard/backend-tests/review/observed-session-delivery-witnesses.spec.ts project isolation case inspects same witness separately and advancing one does not invalidate the other |
 | 18 | The typed decision owns each project’s in-flight pass coalescing. | slice 2 | observed: dashboard/backend-tests/review/observed-session-delivery-witnesses.spec.ts held application case observes one read, inspection and apply across concurrent checks |
-| 19 | The adapter saves a discovery for the matching kept live record, while it remains in retention. | slice 3 | |
-| 20 | Deletion during inspection precludes pinning, saving or recreating the removed launch. | slice 3 | |
-| 21 | Expiry during inspection precludes pinning, saving or recreating the expired launch. | slice 3 | |
-| 22 | Different `launchedAt` prevents pinning and saving the discovery. | slice 3 | |
-| 23 | Different `branchPinOwner` prevents pinning and saving the discovery. | slice 3 | |
-| 24 | Different live branch result prevents pinning and saving the discovery, preserving newer Done state. | slice 3 | |
-| 25 | A saving failure after pinning releases the unkept delivery pins. | slice 3 | |
-| 26 | A save that loses releases the unkept delivery pins. | slice 3 | |
+| 19 | The adapter saves a discovery for the matching kept live record, while it remains in retention. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-lifecycle.spec.ts survivor landed review and exact pins; dashboard/backend-tests/review/ad-hoc-manual-landing-observation-write-loss.spec.ts post-save error retains exact persisted pair |
+| 20 | Deletion during inspection precludes pinning, saving or recreating the removed launch. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-lifecycle.spec.ts deletion during held inspection leaves only survivor and its pair |
+| 21 | Expiry during inspection precludes pinning, saving or recreating the expired launch. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-lifecycle.spec.ts production retention removes expired record and branch pins during live write; only survivor retains delivery |
+| 22 | Different `launchedAt` prevents pinning and saving the discovery. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-lifecycle.spec.ts changed launch timestamp preserves newer record and leaves only survivor pins |
+| 23 | Different `branchPinOwner` prevents pinning and saving the discovery. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-lifecycle.spec.ts changed pin owner preserves newer record and leaves only survivor pins |
+| 24 | Different live branch result prevents pinning and saving the discovery, preserving newer Done state. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-lifecycle.spec.ts changed Done result preserves newer record and leaves only survivor pins; live guard mutation caught |
+| 25 | A saving failure after pinning releases the unkept delivery pins. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-write-loss.spec.ts failed save observes real pins before throw and none afterward; no-release mutation caught |
+| 26 | A save that loses releases the unkept delivery pins. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-write-loss.spec.ts lost save observes real pins before missing result and none afterward; no-release mutation caught |
 | 27 | Repeated or later adapter observations retain one delivery until removal. | slice 4 | |
 | 28 | Repeated or later adapter observations retain one delivery pin pair until removal. | slice 4 | |
 | 29 | Removal ends retention of the delivery pin pair. | slice 4 | |
-| 30 | In the two-branch adapter race, the survivor’s delivery settles when the other launch is deleted or expires during inspection. | slice 3 | |
-| 31 | In that same race, the survivor’s pins are kept. | slice 3 | |
+| 30 | In the two-branch adapter race, the survivor’s delivery settles when the other launch is deleted or expires during inspection. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-lifecycle.spec.ts deletion and expiry both settle staying.txt landed review |
+| 31 | In that same race, the survivor’s pins are kept. | slice 3 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-lifecycle.spec.ts deletion and expiry both retain only survivor's exact two delivery refs |
 | 32 | With origin offline after branch-result pinning, branch retirement, and a conflict-resolved hand merge, observation preserves the delivered comparison. | slice 4 | |
 | 33 | In that same offline case, observation preserves the fixed branch-result comparison. | slice 4 | |
 | 34 | In that same offline case, the delivered file diffs remain available. | slice 4 | |

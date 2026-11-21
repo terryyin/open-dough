@@ -200,7 +200,7 @@ and its accepted proof are unchanged.
 ### 3. Apply deliveries and prove deletion, expiry, and write-loss races over an explicit record store
 
 Type: Behavior
-Status: planned
+Status: done
 
 Give `sessionLandingObservations` its explicit `ObservedLandingStore`
 collaborator (`{ store, readTrunkHead, inspect }`, defaulting `store` to
@@ -226,6 +226,18 @@ and `installRecordRemovalDispatch` from the spec.
 Scratch-omitting `releaseManualLanding` in `observedSessionLandings.ts` fails
 the write-loss case, and scratch-omitting the live-record guard fails the
 changed-record case. `npm run typecheck:dashboard` and `npm run lint` pass.
+
+**Accepted proof.** The explicit-store race and retention checks plus
+reached authenticated revision readers passed all 25 selected cases.
+Changing the launch time, pin owner, or current Done branch result during
+inspection preserves the newer record. A throw or lost write after pinning
+releases the unkept pair. A throw after saving retains the saved pair.
+Scratch-removing cleanup leaked pins and scratch-removing the live guard
+overwrote the newer records. Dashboard typecheck passed.
+
+The sibling correction in plan 743 assigns the observation fixtures, pin
+switch and default-timeout repair to this plan. Its other review work does
+not overlap this delivery on trunk through `7ed7478c`.
 
 ### 4. Move restart comparison survival and repeated-revision pin retention off the machine store and evaluate
 
