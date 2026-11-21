@@ -23,10 +23,11 @@ export async function remoteBranchHead(
       ["ls-remote", "--exit-code", "--refs", "--", remote, ref],
       call,
     );
-    const [sha, named] = stdout.trimEnd().split("\t");
-    if (named !== ref)
-      throw new Error("The remote returned an invalid branch head.");
-    return commitIdSchema.parse(sha);
+    const exact = stdout
+      .split("\n")
+      .map((line) => line.split("\t"))
+      .find(([, name]) => name === ref);
+    return exact === undefined ? undefined : commitIdSchema.parse(exact[0]);
   } catch (error) {
     if (
       error instanceof GitFailure &&

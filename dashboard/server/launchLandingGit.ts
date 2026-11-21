@@ -1,13 +1,27 @@
 // Recording owns object preservation; reads never need to create these refs.
 import type { LaunchLanding } from "../src/launchLanding.ts";
 import { runGit, defaultGitOutputLimit } from "./gitRunner.ts";
+import { remoteBranchHead } from "./gitTargetFetch.ts";
+import {
+  comparisonPins,
+  heldPins,
+  landingGitCall,
+  pinPair,
+  removePins,
+  type HeldPin,
+} from "./launchLandingPins.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+
+export {
+  heldPins,
+  pinPair,
+  removePins,
+  writePins,
+  type HeldPin,
+} from "./launchLandingPins.ts";
+
 const git = (repository: string, args: readonly string[]) =>
-  runGit(args, {
-    cwd: repository,
-    maxBuffer: defaultGitOutputLimit,
-    signal: AbortSignal.timeout(30_000),
-  });
+  runGit(args, landingGitCall(repository));
 const oneShotRefPrefix = "refs/open-dough/one-shot/";
 const landingRefPrefix = (reference: string) =>
   `${oneShotRefPrefix}${reference}/`;
@@ -98,20 +112,26 @@ export async function readLandingOrder(
   }
   return best;
 }
+async function verifyComparison({ repository, base, revision }: LaunchLanding) {
+  const { stdout } = await runGit(["cat-file", "--batch-check=%(objecttype)"], {
+    ...landingGitCall(repository),
+    input: `${base}\n${revision}\n`,
+  });
+  if (stdout.trim() !== "commit\ncommit")
+    throw new Error("Both comparison ends must be commits.");
+  await git(repository, ["merge-base", "--is-ancestor", base, revision]);
+}
+
 export async function verifyLanding(
   landing: LaunchLanding,
   prepare?: { workspace: string; branch: string },
-): Promise<void> {
-  const { repository, base, revision, remote, target } = landing;
+): Promise<HeldPin[]> {
+  const { repository, revision, remote, target } = landing;
+  const prefix = landingDeliveryRefPrefix(landing);
+  const expected = comparisonPins(prefix, landing);
   try {
-    for (const object of [base, revision])
-      if (
-        (await git(repository, ["cat-file", "-t", object])).stdout.trim() !==
-        "commit"
-      )
-        throw new Error("Both comparison ends must be commits.");
-    await git(repository, ["merge-base", "--is-ancestor", base, revision]);
     if (prepare !== undefined) {
+      await verifyComparison(landing);
       // The candidate is what the workspace holds and carries the launch's
       // branch: its tip, or a detached integration of that tip onto trunk.
       if (
@@ -125,7 +145,22 @@ export async function verifyLanding(
         `refs/heads/${prepare.branch}`,
         revision,
       ]);
-      return;
+      return expected;
+    }
+    const held = await heldPins(repository, prefix);
+    const repairs = expected.filter(
+      ({ ref, objectId }) =>
+        !held.some((pin) => pin.ref === ref && pin.objectId === objectId),
+    );
+    if (repairs.length === 0) {
+      const tip = await remoteBranchHead(
+        remote,
+        target,
+        landingGitCall(repository),
+      );
+      if (tip === revision) return repairs;
+      if (tip === undefined)
+        throw new Error("The authorized target is missing.");
     }
     // Fetch only into FETCH_HEAD: the record operation moves no checkout branch.
     await git(repository, ["fetch", "--no-tags", "--refmap=", remote, target]);
@@ -135,6 +170,8 @@ export async function verifyLanding(
       revision,
       "FETCH_HEAD",
     ]);
+    if (repairs.length > 0) await verifyComparison(landing);
+    return repairs;
   } catch {
     throw new RefusedRequest(
       409,
@@ -143,44 +180,6 @@ export async function verifyLanding(
         : "This is not the established launch's workspace candidate and commit comparison.",
     );
   }
-}
-// Holds a comparison's two ends in `repository` by references under `prefix`,
-// so the pair outlives its branches.
-export async function pinPair(
-  repository: string,
-  prefix: string,
-  pair: { readonly base: string; readonly revision: string },
-): Promise<void> {
-  await git(repository, ["update-ref", `${prefix}base`, pair.base]);
-  await git(repository, ["update-ref", `${prefix}revision`, pair.revision]);
-}
-export type HeldPin = { readonly ref: string; readonly objectId: string };
-// Every reference held under `prefix`, ordered by Git ref name.
-export async function heldPins(
-  repository: string,
-  prefix: string,
-): Promise<HeldPin[]> {
-  const listed = await git(repository, [
-    "for-each-ref",
-    "--format=%(refname) %(objectname)",
-    prefix,
-  ]);
-  return listed.stdout
-    .trim()
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const [ref = "", objectId = ""] = line.split(" ");
-      return { ref, objectId };
-    });
-}
-// Releases every pair held under `prefix`.
-export async function removePins(
-  repository: string,
-  prefix: string,
-): Promise<void> {
-  for (const { ref } of await heldPins(repository, prefix))
-    await git(repository, ["update-ref", "-d", ref]);
 }
 // The landing pins `repository` holds, ordered by Git ref name: the whole
 // one-shot namespace, one reporting reference's pins, or one delivery's pair.

@@ -107,6 +107,9 @@ preparation. Its partial trace is retained as `s1-installed-baseline.trace`.
 - Slice 1 accepted on the story branch at
   `6d6cbebcf7e8700e595cd334382a8f06472645a2`; managed delivery
   attached the revision to the existing Codex observer.
+- Slice 2 accepted on the same branch at
+  `9b3e40a36eecf4aa4257d6d95dc1173a129b2bb6` and attached to
+  that observer. The independent refactor review found no edits necessary.
 
 ## Ordered slices
 
@@ -170,19 +173,37 @@ trace, and five passing installed Dashboard consumer cases.
 ### 3. Reuse prepared landing evidence while recording acceptance
 Type: Behavior
 
-Status: planned
+Status: done
 
-Given the receiver's matching prepared delivery, record still confirms the
-revision on the authorized remote. Reuse validated facts for the same
-immutable comparison and avoid rewriting healthy pins. Repair missing or
-wrong pins before committing accepted metadata. Preserve a different pair's
-refusal, exact retry after retirement and release on deletion. Use the
-declared-blank and declared-worktree installed-publisher journeys and the
-launch admission, retained and one-shot capture backend cases. If needed,
-add one receiver-boundary case that prepares a real pair, removes one held
-pin, publishes, then checks the recorded receipt and both repaired refs.
-Compare the final root counts and run the matched group timing and full-suite
-gates before implementation landing.
+Verify the authorized target independently before recording the same prepared
+pair. Reuse valid facts and healthy pins, repair missing or wrong refs before
+storage, and preserve refusal, exact retry after retirement, and deletion.
+Use the installed blank and declared-worktree cases, launch admission, retained
+and one-shot journeys, and the typed receiver's damaged-pin case.
+
+The first implementation reduced the trace to 54 root starts and passed in
+2,620, 3,156 and 3,163 ms. It still timed out at 5,068 ms at load 25.43–25.78,
+with no sleep. The Trace2 diagnostic passed in 4,179 ms at load 24.65–24.25.
+It isolated two sequential commit type reads, two initial ref writes, two
+deletes, and a receiver fetch and ancestry check for an exact tip. Batch
+those operations and reuse the independent exact branch lookup for an equal
+tip. Keep the ancestry check for an advanced tip and validation for damaged
+pins. The two Slice 3 return reports retain consumer assertions and commands.
+
+The corrected trace counted 50 root starts and 75 including nested Git, down
+from 61 and 89. It has one batch type check, one prepare transaction, one
+independent exact target query, and one delete transaction. The original case,
+default test budget, and retirement and pruning helper are byte-identical.
+Two corrected runs overlapped full Distribution on the host and timed out at
+5,060 and 5,059 ms as load rose to about 31 and 47.10.
+`s3-final-group.log`, `s3-representative-group.log` and its load log retain
+those results.
+
+With the same roster apart from whole-suite work, the final candidate passed
+in 2,669, 2,493 and 2,178 ms. Two-second load samples reached 24.38, and the
+later cases ran at load approximately 23–24. The prior comparable baseline
+samples were 3,335 and 3,741 ms. The checkout's Git evidence directory retains
+`s3-separated-group.log`, `s3-separated-load.log` and `s3-final-single.trace`.
 
 ## Local gates
 
@@ -217,10 +238,3 @@ gates before implementation landing.
   publisher, reporting receiver and retained evidence have consumers across
   workflows. Hold the existing assertions and default timeouts. Run installed
   distribution parity checks for any script changes.
-
-## Plan review
-
-Slice-plan refinement was unnecessary. Each slice removes repeated work at
-one coherent proof boundary, with candidate observations scoped by commit
-and remote observations scoped by operation. The load-dependent observation
-is bounded above. The review identified no other slice-specific concern.
