@@ -1,12 +1,14 @@
 import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
+import type { PublishedWork } from "../../src/publishedWork.ts";
 import {
   mountBoard,
   reducedBoardMotion,
   withBoardStorage,
 } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
+import { sessions } from "./board-session-view.ts";
 import {
   landscape,
   portrait,
@@ -47,8 +49,16 @@ test.beforeEach(async () => {
   await useTouchScreen();
 });
 
+async function mountPhoneBoard(
+  work: PublishedWork,
+  observed?: Parameters<typeof mountBoard>[2],
+) {
+  await mountBoard([work], portrait, observed);
+  await expect.element(sessions).toHaveAttribute("aria-expanded", "false");
+}
+
 test("completed swipes traverse one whole column and stop at both ends", async () => {
-  await mountBoard([work], portrait);
+  await mountPhoneBoard(work);
   await atBacklog();
   const titles = (name: "Backlog" | "Taken") =>
     board
@@ -76,7 +86,7 @@ test("completed swipes traverse one whole column and stop at both ends", async (
 });
 
 test("short and cancelled gestures leave the view alone, and the next swipe works", async () => {
-  await mountBoard([work], portrait);
+  await mountPhoneBoard(work);
   await atBacklog();
   await swipe("left", { distance: 24 });
   await atBacklog();
@@ -89,7 +99,7 @@ test("short and cancelled gestures leave the view alone, and the next swipe work
 test("swiping from a card or action does not select, inspect or launch it; taps still work", async () => {
   const startLaunch = vi.fn<MachineSessions["start"]>();
   await reducedBoardMotion();
-  await mountBoard([work], portrait, { start: startLaunch });
+  await mountPhoneBoard(work, { start: startLaunch });
   await atBacklog();
 
   const title = card().getByRole("heading", { name: readyStory.title });
@@ -128,7 +138,7 @@ test("swiping from a card or action does not select, inspect or launch it; taps 
 });
 
 test("a native vertical drag reads down the same column without paging", async () => {
-  await mountBoard([boardWork(longBacklog)], portrait);
+  await mountPhoneBoard(boardWork(longBacklog));
   await atBacklog();
   expect(getComputedStyle(board.view()).touchAction).toContain("pan-y");
   const before = board.position();
@@ -139,7 +149,7 @@ test("a native vertical drag reads down the same column without paging", async (
 
 test("swipes and indicators share a chosen column while rotation keeps inspection and selection", async () => {
   await reducedBoardMotion();
-  await mountBoard([work], portrait);
+  await mountPhoneBoard(work);
   await atBacklog();
   expect(matchMedia("(prefers-reduced-motion: reduce)").matches).toBe(true);
   await tapWhereShown(

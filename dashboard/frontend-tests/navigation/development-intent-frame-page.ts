@@ -67,6 +67,14 @@ export const project = (label: string) =>
   page.getByRole("radio", { name: label, exact: true });
 export const params = () => new URL(location.href).searchParams;
 
+export function currentHistoryIndex() {
+  // A push can discard Forward entries while still advancing this frame.
+  const entry = navigation.currentEntry;
+  if (entry === null)
+    throw new Error("The frame has no current history entry.");
+  return entry.index;
+}
+
 export async function showsUnconfiguredIntent(label: string) {
   await expect.element(intentChoice).toBeChecked();
   await expect.element(development).not.toBeChecked();

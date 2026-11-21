@@ -3,6 +3,7 @@ import { page } from "vitest/browser";
 import { ReadProblem } from "../../src/readProblem.ts";
 import { expectDocumentStill, readsWhole } from "./board-accessibility.ts";
 import {
+  currentHistoryIndex,
   development,
   intent,
   intentChoice,
@@ -37,12 +38,12 @@ test("Development and Intent keep their names, marks and selected project's publ
   await expect
     .element(page.getByRole("radio", { name: "Structure", exact: true }))
     .not.toBeInTheDocument();
-  const before = history.length;
+  const before = currentHistoryIndex();
 
   await intentChoice.click();
   await showsUnconfiguredIntent("Open Dough");
   await expect.element(project("Open Dough")).toBeChecked();
-  expect(history.length).toBe(before + 1);
+  expect(currentHistoryIndex()).toBe(before + 1);
   expect(params().get("project")).toBeNull();
   expect(params().get("perspective")).toBe("intent");
 

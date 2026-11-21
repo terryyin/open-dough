@@ -13,6 +13,7 @@ import { useObservedRevisionDelivery } from "../../src/observedRevisionDelivery.
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { readPublishedWork } from "../../src/publishedWorkRead.ts";
+import { withClosedSessionsSidebar } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { noSessions } from "./board-mount.ts";
 
@@ -43,6 +44,7 @@ export async function mountBoardFrame(
     intentReads?: IntentReadSource;
   } = {},
 ) {
+  withClosedSessionsSidebar();
   const originalUrl = location.href;
   const originalState: unknown = history.state;
   if (view === "roster") {

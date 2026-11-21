@@ -1,5 +1,4 @@
 import { createElement, useState } from "react";
-import { onTestFinished } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
 import { Board } from "../../src/Board.tsx";
@@ -14,6 +13,10 @@ import {
 } from "../../src/reviewSource.ts";
 import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
 import { StoryNavigationOnPage } from "../../src/storyNavigation.tsx";
+import {
+  withClosedSessionsSidebar,
+  withFramePreference,
+} from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { emulateMedia } from "../review/browser-session.ts";
 
@@ -136,8 +139,12 @@ export async function mountBoard(
       "records" | "launched" | "start" | "keptStartOf" | "sessionPolicyOffer"
     >
   > = {},
-  reviews?: ReviewSource,
+  {
+    reviews,
+    sessionsSidebar = "closed",
+  }: { reviews?: ReviewSource; sessionsSidebar?: "closed" | "kept" } = {},
 ) {
+  if (sessionsSidebar === "closed") withClosedSessionsSidebar();
   let sessions = { ...noSessions, ...observed };
   let work = projects;
   const notes = new Map(
@@ -188,18 +195,8 @@ export const positionKey = "open-dough.board.position";
 export const formerPositionKey = "open-dough.dashboardColumns.position";
 
 export function withBoardStorage(initial?: string) {
-  const before = localStorage.getItem(positionKey);
-  const former = localStorage.getItem(formerPositionKey);
-  const restore = (key: string, value: string | null) => {
-    if (value === null) localStorage.removeItem(key);
-    else localStorage.setItem(key, value);
-  };
-  onTestFinished(() => {
-    restore(positionKey, before);
-    restore(formerPositionKey, former);
-  });
-  restore(positionKey, initial ?? null);
-  localStorage.removeItem(formerPositionKey);
+  withFramePreference(positionKey, initial ?? null);
+  withFramePreference(formerPositionKey, null);
 }
 
 export function reducedBoardMotion() {
