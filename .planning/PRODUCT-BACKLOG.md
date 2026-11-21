@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 - [Correct the published-session review’s gap naming and tests](seeds/SEED-418-review-published-session-changes.md#name-unavailable-published-session-review) — SEED-418#name-unavailable-published-session-review ([plan](slice-plans/750-name-unavailable-published-session-review/PLAN.md))
 - [Get fast proof of a story's Intent CI comparison](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-comparison-proof) — SEED-413#speed-intent-ci-comparison-proof ([plan](slice-plans/751-speed-intent-ci-comparison-proof/PLAN.md))
 - [Get fast proof of Intent evidence and timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing) — SEED-413#speed-intent-proof-and-timing ([plan](slice-plans/752-speed-intent-proof-and-timing/PLAN.md))
+- [Bring Intent source recovery and late styling cases under 500 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-recovery-and-late-styling-cases) — SEED-413#speed-intent-source-recovery-and-late-styling-cases ([plan](slice-plans/753-speed-intent-source-recovery-and-late-styling-cases/PLAN.md))
 
 ## Backlog list
 
@@ -46,7 +47,6 @@ intent introduced or affected by a newly developed story.
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof
 - [Get fast proof of live sessions and terminal work](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof) — SEED-413#speed-dashboard-live-session-and-terminal-proof
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
-- [Bring Intent source recovery and late styling cases under 500 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-recovery-and-late-styling-cases) — SEED-413#speed-intent-source-recovery-and-late-styling-cases
 - [Prove a renamed file's Review diff reads its grammar from the new path](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-renamed-diff-grammar-from-new-path) — SEED-413#prove-renamed-diff-grammar-from-new-path
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
