@@ -40,6 +40,17 @@ const visibleText = (node: Element) =>
 
 export async function mountComparison(story: ComparedStory) {
   const mounted = await mountComponent(comparisonOf(story));
+  const comparison = await shownComparison();
+  return {
+    ...comparison,
+    showsStory(next: ComparedStory) {
+      mounted.rerender(comparisonOf(next));
+    },
+  };
+}
+
+// The visible comparison region's readings, however it was mounted.
+export async function shownComparison() {
   const region = page.getByRole("region", {
     name: "CI timing comparison",
     exact: true,
@@ -58,9 +69,6 @@ export async function mountComparison(story: ComparedStory) {
 
   const comparison = {
     region,
-    showsStory(next: ComparedStory) {
-      mounted.rerender(comparisonOf(next));
-    },
     // Each endpoint's Build cell: its words and any source icon's selection
     // and hover title.
     identities: () =>

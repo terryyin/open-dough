@@ -17,10 +17,7 @@ import { LandedCiHistoryBuilder } from "./landedCiHistoryTestData.mjs";
 import { ciHistoryAnswerMakeMeProperties } from "./ciHistoryAnswerTestData.mjs";
 import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
 import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
-import {
-  intentCiStatusMakeMeProperties,
-  StoryCiComparisonBuilder,
-} from "./comparisonViewTestData.mjs";
+import { comparisonViewMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
 import { DashboardProofRecordBuilder } from "./dashboardProofRecordTestData.mjs";
 import { GitHubJobBuilder } from "./ciJobTestData.mjs";
@@ -41,7 +38,7 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 /**
  * CI builders exposed on MakeMe (fresh on each access).
  *
- * @typedef {CiOwnMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
+ * @typedef {CiOwnMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").ComparisonViewMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
  */
 /**
  * @typedef {object} CiOwnMakeMe
@@ -49,7 +46,6 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
  * @property {FactBuilder<import("../../../dashboard/server/ciFollowUpStore.ts").RepeatRequest>} aCiRepeatRequest
  * @property {FactBuilder<ComparisonEndpointProof>} aComparisonEndpointProof
  * @property {import("./landedCiProofTestData.mjs").LandedCiResolutionBuilder} aLandedCiResolution
- * @property {import("./comparisonViewTestData.mjs").StoryCiComparisonBuilder} aStoryCiComparison
  * @property {import("./ciComparisonTestData.mjs").PublishedStoryEndpointBuilder} aPublishedStoryEndpoint
  * @property {import("./ciComparisonTestData.mjs").TakenStoryEndpointBuilder} aTakenStoryEndpoint
  * @property {import("./ciRunTestData.mjs").RevisionCiRunBuilder} aRevisionCiRun
@@ -95,12 +91,6 @@ export function ciMakeMeProperties() {
       enumerable: true,
       get() {
         return new LandedCiResolutionBuilder();
-      },
-    },
-    aStoryCiComparison: {
-      enumerable: true,
-      get() {
-        return new StoryCiComparisonBuilder();
       },
     },
     aPublishedStoryEndpoint: {
@@ -203,6 +193,6 @@ export function ciMakeMeProperties() {
     ...ciReusePolicyMakeMeProperties(),
     ...ciComparisonAnswerMakeMeProperties(),
     ...comparedStoryMakeMeProperties(),
-    ...intentCiStatusMakeMeProperties(),
+    ...comparisonViewMakeMeProperties(),
   };
 }

@@ -150,7 +150,7 @@ presentation rerender one mount, polling each exact reason.
 ### 3. Check again and observed head changes read the current comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `comparisonTakenCases` and comparison `-check-again`, `-gaps`, `-head`,
 `-selection` and `-strict-mode`. Start with one retry against the actual
@@ -164,6 +164,17 @@ proof rereads once, the same head avoids a reread, the new head requests one,
 and a held result for an old identity or attempt leaves the current result
 intact. Story Branch and Trunk provisional readings keep their respective
 judgments and endpoints.
+
+**Accepted.** `IntentCiReadSourceOnPage` (`dashboard/src/intentCiReadSource.ts`)
+supplies the comparison, proof, status and kept-status reads with production
+defaults; the reading owners take their reader as a defaulted parameter. The
+seam gate passed first. 12 legacy titles became 12 Vitest cases (2,232 ms
+versus 3,312 ms) sharing `intent-ci-evidence-page.tsx`; the strict-mode test
+support was retired. In the real composition proofs start after the comparison
+answers, so StrictMode aborts only the first comparison read. E2E read, retry
+and status paths passed 6/6. Learning for Slice 4: `useIntentCiShownProof.ts`
+still builds its proof reading without the read source; drill-down cases that
+need a held shown proof route it through `IntentCiReadSourceOnPage`.
 
 ### 4. Reading across scopes retains the same current comparison
 

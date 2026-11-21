@@ -20,8 +20,8 @@ coordination; backend and E2E groups keep their own runner and coverage.
 | --- | --- | --- | --- |
 | 1 | The comparison names the right builds, timing, test results and limits (Goal) | slice 2 | observed: intent-ci-comparison-endpoints, -adapter-proof, -overall-metrics (slice 1) and -landed-fallback, -timing-gaps (slice 2) specs |
 | 2 | Landed proof unavailable → Branch fallback with the real reason and measured figures | slice 2 | observed: intent-ci-comparison-landed-fallback.spec.ts "unavailable Landed proof retains the Branch counts, time and exact adapter reason" and "running Landed retains Branch fallback…" |
-| 3 | Check again recovers Landed | slice 3 | |
-| 4 | A previous selection's held result cannot replace the current comparison | slice 3 | |
+| 3 | Check again recovers Landed | slice 3 | observed: intent-ci-comparison-check-again.spec.ts "Check again reads all endpoint proofs afresh and replaces Branch fallback with recovered Landed proof" (held reply disables Check again; release shows Landed) |
+| 4 | A previous selection's held result cannot replace the current comparison | slice 3 | observed: intent-ci-comparison-selection.spec.ts: old comparison and attempt-proof reads aborted and released late leave the current story ddddddd and 10 → 4 test cases (−6) shown |
 | 5 | Cross-scope observations reuse the same preference, fallback or held evidence | slice 4 | |
 | 6a | Legacy, case and file units with partially missing evidence: comparison and drill-down preserve the available figures | slice 5 | |
 | 6b | Units stay separate | slice 6 | |

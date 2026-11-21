@@ -29,15 +29,25 @@ export const comparisonViewFacts = {
   },
 };
 
-/** @typedef {Pick<typeof comparisonViewFacts, "anIntentCiStatus">} IntentCiStatusMakeMe */
+/**
+ * @typedef {Pick<typeof comparisonViewFacts, "anIntentCiStatus"> & {
+ *   readonly aStoryCiComparison: StoryCiComparisonBuilder;
+ * }} ComparisonViewMakeMe
+ */
 
 /** @returns {PropertyDescriptorMap} */
-export function intentCiStatusMakeMeProperties() {
+export function comparisonViewMakeMeProperties() {
   return {
     anIntentCiStatus: {
       enumerable: true,
       get() {
         return comparisonViewFacts.anIntentCiStatus;
+      },
+    },
+    aStoryCiComparison: {
+      enumerable: true,
+      get() {
+        return new StoryCiComparisonBuilder();
       },
     },
   };

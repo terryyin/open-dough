@@ -1,47 +1,38 @@
-import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 // The real control stays usable through repeated unavailable Baseline answers.
+import { expect, test } from "vitest";
+import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
-  test,
-  expect,
-  mountComparison,
-  type ComparisonReply,
-} from "../../test-support/support/comparisonMountPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  ciReadsOf,
+  heldReply,
+  mountCiEvidence,
+} from "./intent-ci-evidence-page.tsx";
 
-test("each failed Baseline Check again holds the button disabled and retains the query and failure reason", async ({
-  page,
-  comparisonServer,
-  comparisonServices,
-}) => {
-  const facts = makeMe.aComparedStory.please();
-  const reason = `head_sha=${facts.answer.storyStart}: GitHub is unreachable`;
+test("each failed Baseline Check again holds the button disabled and retains the query and failure reason", async () => {
+  const story = makeMe.aComparedStory.please();
+  const reason = `head_sha=${story.answer.storyStart}: GitHub is unreachable`;
   const failed = makeMe.aStoryCiComparison
     .with({
-      ...facts.answer,
+      ...story.answer,
       baseline: { kind: "unavailable", explanation: reason },
     })
     .please();
-  let nextRead: Promise<ComparisonReply> | undefined;
-  Object.assign(comparisonServices, {
-    comparison: () => nextRead ?? { json: failed },
-    proof: (params: URLSearchParams) => ({
-      json: facts.proof(Number(params.get("run"))),
-    }),
-  });
-  const panel = await mountComparison(page, comparisonServer, facts);
-  const baseline = comparisonReading(panel).identities.first();
-  const check = panel.getByRole("button", { name: "Check again", exact: true });
-  await expect(baseline).toHaveText(reason);
+  const reads = ciReadsOf(story);
+  let nextRead: Promise<StoryCiComparisonAnswer> | undefined;
+  reads.answers.comparison = () => nextRead ?? failed;
+  const evidence = await mountCiEvidence(story, reads.source);
+  const comparison = await evidence.comparison();
+  const baseline = () => comparison.identities()[0]?.text;
+  await expect.poll(baseline).toBe(reason);
   for (let round = 0; round < 2; round += 1) {
-    const held = comparisonServices.hold();
+    const held = heldReply<StoryCiComparisonAnswer>();
     nextRead = held.promise;
-    // Keyboard activation skips the pointer's frame-paced stability wait.
-    await check.press("Enter");
-    await expect(check).toBeDisabled();
-    await expect.poll(() => comparisonServices.comparisons).toBe(round + 2);
-    held.resolve({ json: failed });
-    await expect(check).toBeEnabled();
-    await expect(baseline).toHaveText(reason);
+    await evidence.checkAgain.click();
+    await expect.element(evidence.checkAgain).toBeDisabled();
+    expect(reads.asked.comparisons).toHaveLength(round + 2);
+    held.resolve(failed);
+    await expect.element(evidence.checkAgain).toBeEnabled();
+    expect(baseline()).toBe(reason);
   }
-  await expect.poll(() => comparisonServices.proofs).toBe(6);
+  await expect.poll(() => reads.asked.proofs.length).toBe(6);
 });
