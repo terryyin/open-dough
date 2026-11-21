@@ -1,9 +1,9 @@
 // Launch boundary answers for frontend-only launch dialog journeys, in place
 // of dashboardServer and the native hosts: the acceptance a dialog's Start
 // asks for (../../server/launchBoundary.ts), image uploads, and a host's model
-// choices (../../server/launchHostOptionsResponse.ts). Every acceptance and
-// upload the page asked for stays inspectable; an acceptance is refused unless
-// the case answers it, and nothing is ever launched. An acceptance's answer
+// choices (../../server/launchHostOptionsResponse.ts). Every acceptance the
+// page asked for stays inspectable. An acceptance is refused unless the case
+// answers it, and nothing is ever launched. An acceptance's answer
 // may be lost on the way to the page; the page's waits for an accepted
 // attempt's change stay waiting until the case tells them it changed, and one
 // begun after the case told it is answered at once, as is one for an attempt
@@ -42,8 +42,6 @@ export type HostChoices = LaunchHostOptions | "unreadable";
 export type FrontendLaunchBoundary = {
   // Every launch the page asked the boundary to accept, in order.
   readonly acceptances: readonly AgentLaunchRequest[];
-  // How many image uploads the page sent.
-  readonly uploads: () => number;
   // The project and host of every model choices read the page asked for.
   readonly choicesAsked: () => readonly ChoicesRead[];
   // From the next read on, `host` answers `choices` for `source`, or for
@@ -101,7 +99,6 @@ export async function installFrontendLaunchBoundary(
   } = {},
 ): Promise<FrontendLaunchBoundary> {
   const acceptances: AgentLaunchRequest[] = [];
-  let uploads = 0;
   const asked: ChoicesRead[] = [];
   const choices = new Map<string, HostChoices>();
   let nextHold: AnswerHold | undefined;
@@ -143,7 +140,6 @@ export async function installFrontendLaunchBoundary(
   await page.route(
     (url) => url.pathname === launchAttachmentEndpoint,
     async (route) => {
-      uploads += 1;
       await fulfillJson(route, { error: refusal }, 422);
     },
   );
@@ -174,7 +170,6 @@ export async function installFrontendLaunchBoundary(
   );
   return {
     acceptances,
-    uploads: () => uploads,
     answerChoices: (host, answer, source) => {
       choices.set(source === undefined ? host : `${source} ${host}`, answer);
     },

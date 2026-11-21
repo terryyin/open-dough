@@ -79,3 +79,24 @@ A controlled scroll reproduced the symptom on Linux arm64. The repaired
 test helper checks stable geometry and the trusted pointer target. The
 controlled contrast and both maintained touch specs passed on Linux arm64
 and macOS. [Diagnosis and hosted confirmation](diagnosis-refinement-touch-disclosure.md).
+
+## Slice 2. Launch attachments
+
+| Retired case | Replacement case and observable proof |
+| --- | --- |
+| `agent-launch-ad-hoc-attachments-paste.spec.ts`, “pasting text into the instruction field still inserts the text” | “pasting text into the instruction inserts it without attaching an image” copies into Chromium's clipboard with the native keyboard, sets the insertion point after the existing draft, sends the native paste shortcut, and observes the appended suffix and absence of Attached images. |
+| `agent-launch-ad-hoc-attachments-refusal.spec.ts`, “PDF, oversized PNG and a sixth image are refused with reasons while the draft stays” | “refused images explain why, keep the draft, and leave only accepted images for Start” feeds file selections to the production picker. It observes the PDF reason and unchanged instruction after the PDF alone, then both PDF and oversized PNG reasons together, one incumbent preview, unchanged instruction, Claude, Default main, and Wait for review. At the count limit it observes the named sixth-file rejection, five previews including the original and last admissible file in order, and the retained instruction and workspace selection. Start sends just the five names in order and the original instruction to the typed launch operation. |
+| `agent-launch-ad-hoc-attachments-cancel.spec.ts`, “Cancel after attaching uploads nothing; reopening shows no attachment” | “Cancel after attaching uploads nothing and opens an empty draft next time” supplies a typed draft and genuine image File, observes the preview, clicks Cancel, waits for closure, reopens via Start session, and observes empty instruction and no attachment list. A launch-operation recorder and an observing fetch spy prove no launch call or attachment endpoint request from the mounted path. |
+| Same file, “Escape after attaching uploads nothing; reopening shows no attachment” | “Escape after attaching uploads nothing and opens an empty draft next time” uses the same precondition and independent assertions, with a native Escape keypress as the dismissal trigger. |
+
+Four mounted Chromium cases passed at two workers in 4.35 s including
+preparation, with 2.62 summed case-seconds versus 4.17 in the legacy
+cohort. Cancel was the slowest mounted case at 1.02 s. The retained E2E
+attachment suite owns native chooser, copied bytes, and image-only and
+pasted-image launch. The checkout Git evidence directory holds
+`slice2-implementation.md` with commands, observations and run records.
+
+Independent review removed the unused substitute upload counter and
+updated the existing E2E pointer to mounted paste proof. The live
+substitute route and executable E2E and mounted observations were
+preserved. See `slice2-refactor-consumers.md` in the Git evidence directory.

@@ -117,7 +117,7 @@ inspection arguments.
 ### 2. Attachment paste, refusal, and cancel keep the draft
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `agent-launch-ad-hoc-attachments-paste`,
 `agent-launch-ad-hoc-attachments-refusal`, and

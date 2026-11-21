@@ -3,7 +3,7 @@
 // launch-attachments folder, and that file holds the picked bytes. An image
 // pasted into the instruction field is sent the same way as pasted.png
 // (SEED-204 E1 / commitments 5b, 5c); pasting text is
-// ../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-attachments-paste.spec.ts.
+// ../../dashboard/frontend-tests/launches/launch-attachments.spec.ts.
 
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";

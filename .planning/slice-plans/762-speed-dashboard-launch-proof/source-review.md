@@ -55,17 +55,17 @@ follow-ups, and SEED-341 coordination supply context.
 | P27 | Existing creation gates continue to enforce their conditions. The source names the in-flight and unresolved conditions in E5 and leaves any other gates unspecified. [S, E5] | slice 4 | |
 | P28 | The instruction layout preserves its existing observable behavior at the covered viewports. [S, A4] | slice 1 | observed: ad-hoc-start-session-layout.spec.ts and ad-hoc-launch-dialog.spec.ts: keyboard order, 320 CSS px and 200% conditions, reachability and footer |
 | P29 | Touch can operate the instruction area on the existing covered paths. [S, A4] | slice 1 | observed: ad-hoc-refinement-touch.spec.ts and ad-hoc-start-session-answer.spec.ts: native touch, edit, rotate, close and direction disclosure |
-| P30 | Pasting text inserts it into the instruction field. [E3] | slice 2 | |
-| P31 | The PDF in the refusal journey is rejected. [E3] | slice 2 | |
-| P32 | An oversized image is rejected. [E3] | slice 2 | |
-| P33 | Excess images are rejected. [E3] | slice 2 | |
-| P34 | Each named attachment refusal keeps the instruction draft. [E3] | slice 2 | |
-| P35 | The PDF refusal gives its reason. [E3] | slice 2 | |
-| P36 | The oversized-image refusal gives its reason. [E3] | slice 2 | |
-| P37 | The excess-image refusal gives its reason. [E3] | slice 2 | |
-| P38 | Start preserves the intended accepted attachments. [G, S] | slice 2 | |
-| P39 | After Attach, Escape and Cancel each close without uploading anything. [E3] | slice 2 | |
-| P40 | Reopening after either close in the Attach journey starts with empty attachment state. [E3] | slice 2 | |
+| P30 | Pasting text inserts it into the instruction field. [E3] | slice 2 | observed: native keyboard paste in launch-attachments.spec.ts appends text at the caret without an attachment |
+| P31 | The PDF in the refusal journey is rejected. [E3] | slice 2 | observed: refusal case in launch-attachments.spec.ts keeps the incumbent preview and sends no PDF |
+| P32 | An oversized image is rejected. [E3] | slice 2 | observed: refusal case in launch-attachments.spec.ts keeps one incumbent preview after the oversized selection and sends no oversized file |
+| P33 | Excess images are rejected. [E3] | slice 2 | observed: refusal case in launch-attachments.spec.ts keeps five previews and sends only the five admissible files |
+| P34 | Each named attachment refusal keeps the instruction draft. [E3] | slice 2 | observed: refusal case in launch-attachments.spec.ts observes the unchanged instruction after the PDF, oversized PNG, and sixth-file selections |
+| P35 | The PDF refusal gives its reason. [E3] | slice 2 | observed: refusal case in launch-attachments.spec.ts renders the supported image types for notes.pdf |
+| P36 | The oversized-image refusal gives its reason. [E3] | slice 2 | observed: refusal case in launch-attachments.spec.ts renders the 10 MB limit and recovery advice for huge.png |
+| P37 | The excess-image refusal gives its reason. [E3] | slice 2 | observed: refusal case in launch-attachments.spec.ts renders the five-image limit for extra-4.png |
+| P38 | Start preserves the intended accepted attachments. [G, S] | slice 2 | observed: refusal case in launch-attachments.spec.ts captures the five intended files in order at Start, and agent-launch-ad-hoc-attachments.spec.ts retains native chooser and copied bytes assertions |
+| P39 | After Attach, Escape and Cancel each close without uploading anything. [E3] | slice 2 | observed: Cancel and Escape in launch-attachments.spec.ts close attached drafts with no Start invocation or attachment endpoint request |
+| P40 | Reopening after either close in the Attach journey starts with empty attachment state. [E3] | slice 2 | observed: Cancel and Escape in launch-attachments.spec.ts each reopen with an empty instruction and no attachment list |
 | P41 | The existing instruction voice-capture path makes the captured instruction available for composition. [G, S] | slice 7 | |
 | P42 | If dictation would overflow 4,000 characters, the original instruction draft remains available for editing. [E4] | slice 7 | |
 | P43 | In the same overflow condition, the transcription remains available for editing. [E4] | slice 7 | |
