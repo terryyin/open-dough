@@ -152,3 +152,9 @@ and supplies named values. It now keeps the browser-owned picker closed
 during this setup and retains the subsequent native gestures. The
 focused case passed on macOS and Linux arm64.
 [Diagnosis and proof](diagnosis-refinement-touch-picker.md).
+
+The picker repair passed the hosted launch selection. Two hosted frontend
+shards then exposed separate Board and Projects fixture defects. The
+branch adopted the landed Board preference fix at `396f81d69` and pinned
+the existing Projects refusal test to its desktop viewport. The combined
+Linux arm64 selection passed all 17 cases. [Diagnosis and proof](diagnosis-mounted-viewport-ci.md).

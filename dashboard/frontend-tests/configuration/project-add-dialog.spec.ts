@@ -34,6 +34,7 @@ test("origin mismatch stays linked to the path, retains both inputs and saves no
     original,
     [original],
     select,
+    { width: 1280, height: 720 },
   );
 
   await settings.openAdd();
