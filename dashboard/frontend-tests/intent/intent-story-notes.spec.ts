@@ -1,6 +1,7 @@
 // Built app with explicit Intent and notes substitutes: notes taken from Intent
-// → Changed tests keep that view, and Story notes leaves Intent's reading as
-// it was (../../src/IntentSelectionReading.tsx).
+// → Changes keep that view, saved ones naming Intent → Changed tests still
+// read it, and Story notes leaves Intent's reading as it was
+// (../../src/IntentSelectionReading.tsx).
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
 import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
@@ -41,7 +42,7 @@ test("the unreadable Notes warning leaves the Notes icon beside a long Intent st
   const service = await installFrontendStoryNotes(page);
   service.unreadable("open-dough");
   const { intent } = await openStoryIntent(page, title);
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await page.setViewportSize({ width: 420, height: 720 });
   const summary = storySummary(intent);
   const notes = storyNotesPage(page);
@@ -49,7 +50,7 @@ test("the unreadable Notes warning leaves the Notes icon beside a long Intent st
   await notes.expectIconBeside(summary, storyTitle(intent));
 });
 
-test("a line note from Intent Changed tests records the Intent view", async ({
+test("a line note from Intent Changes records the Intent view", async ({
   page,
   frontendServices,
 }) => {
@@ -60,19 +61,39 @@ test("a line note from Intent Changed tests records the Intent view", async ({
   await expect(reading.name).toHaveText(deepSpec);
   const notes = storyNotesPage(page);
   await notes.fromLine(reading.container, "new", 13);
-  await notes.expectComposerContext([
-    "Intent → Changed tests",
-    "Line 13 · new",
-  ]);
+  await notes.expectComposerContext(["Intent → Changes", "Line 13 · new"]);
   await notes.saveDiffNote("Intent observation");
   expect(service.changes()[0]).toMatchObject({
     action: "add",
     context: {
-      view: "Intent → Changed tests",
+      view: "Intent → Changes",
       path: deepSpec.replace(/^Added /, ""),
       line: { number: 13, side: "new" },
     },
   });
+});
+
+test("a note saved from Intent → Changed tests still reads its view", async ({
+  page,
+  frontendServices,
+}) => {
+  const service = await installFrontendStoryNotes(page);
+  service.answer("open-dough", {
+    [storyA.identity]: [
+      makeMe.aStoryNote
+        .withText("Older observation")
+        .withContext({
+          view: "Intent → Changed tests",
+          path: "dashboard/src/App.tsx",
+          comparison: { name: "Story branch", baseline: "abc", tree: "def" },
+        })
+        .please(),
+    ],
+  });
+  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
+  const notes = storyNotesPage(page);
+  await notes.open(storySummary(intent));
+  await notes.expectNoteContext("Older observation", "Intent → Changed tests");
 });
 
 test("a line note can start from the diff of a file outside Intent locations", async ({
@@ -87,7 +108,7 @@ test("a line note can start from the diff of a file outside Intent locations", a
     "dashboard/src/App.tsx",
   );
   const { intent } = await openStoryIntent(page, "Story A");
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   const app = "Modified dashboard/src/App.tsx";
   await intentStory(intent).outsideFile(app).click();
   const reading = intentDiffReading(intent);
@@ -95,7 +116,7 @@ test("a line note can start from the diff of a file outside Intent locations", a
   const notes = storyNotesPage(page);
   await notes.fromLine(reading.container, "new", 1);
   await notes.expectComposerContext([
-    "Intent → Changed tests",
+    "Intent → Changes",
     "dashboard/src/App.tsx",
     "Line 1 · new",
   ]);

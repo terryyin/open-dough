@@ -20,7 +20,7 @@ const title = "Keep notes beside a story";
 const identity = "SEED-001#keep-notes";
 const storyContext = `${title} · ${identity}`;
 const lineContext = {
-  view: "Intent → Changed tests",
+  view: "Intent → Changes",
   path: "src/result.ts",
   oldPath: "src/before.ts",
   comparison: { name: "Published completion", baseline: "abc", tree: "def" },
@@ -28,7 +28,7 @@ const lineContext = {
 } as const;
 const lineNote = makeMe.aStoryNote.withContext(lineContext).please();
 const lineContextWords = [
-  "Intent → Changed tests",
+  "Intent → Changes",
   "src/before.ts → src/result.ts",
   "Published completion abc → def",
   "Line 7 · new",

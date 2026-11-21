@@ -138,7 +138,7 @@ for (const history of ["published", "capture"] as const)
         selectedRun: story.reporting.reference,
       });
     }
-    await chooseStoryTab(intent, "Changed tests");
+    await chooseStoryTab(intent, "Changes");
     await expandIntentGroup(intent, "dashboard/tests");
     await expect(intentFile(intent, modified)).toBeVisible();
     for (const path of ["current-a", "later", "local"])

@@ -115,7 +115,7 @@ test("a Done story's later completion outranks its execution launch's first capt
     kind: "published",
     completion,
   });
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   const original = await intentDiff(intent, modified);
   expect(original).toContain("the final completed execution");

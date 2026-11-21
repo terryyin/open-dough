@@ -186,7 +186,7 @@
   overflow-wrap: anywhere;
 }
 
-/* "Selected story only" heading the Changed tests tree. */
+/* "Selected story only" heading the Changes tree. */
 .intent-story-scope {
   flex: none;
   padding: var(--space-2) var(--space-3);

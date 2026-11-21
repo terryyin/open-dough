@@ -29,8 +29,8 @@ test("the changed files outside every Intent location follow the locations, once
   const { intent } = await openStoryIntent(page, "Story A");
   const story = intentStory(intent);
 
-  await test.step("Given the story's Changed tests", async () => {
-    await story.chooseTab("Changed tests");
+  await test.step("Given the story's Changes", async () => {
+    await story.chooseTab("Changes");
   });
 
   await test.step("Then the outside group comes last, listing each outside file once", async () => {
@@ -64,8 +64,8 @@ test("the selected story's header counts none of the files listed outside every 
   const { intent } = await openStoryIntent(page, "Story A");
   const story = intentStory(intent);
 
-  await test.step("Given the story's Changed tests listing a file outside", async () => {
-    await story.chooseTab("Changed tests");
+  await test.step("Given the story's Changes listing a file outside", async () => {
+    await story.chooseTab("Changes");
     await expect(story.outsideFile(app)).toBeVisible();
   });
 
@@ -94,8 +94,8 @@ test("a file outside every Intent location reads its diff as Purpose and stays s
   const { intent } = await openStoryIntent(page, "Story A");
   const story = intentStory(intent);
 
-  await test.step("Given the story's Changed tests", async () => {
-    await story.chooseTab("Changed tests");
+  await test.step("Given the story's Changes", async () => {
+    await story.chooseTab("Changes");
   });
 
   await test.step("When the outside file is selected", async () => {
@@ -136,8 +136,8 @@ test("a Done story lists its published completion's product code outside the loc
   const { intent } = await selectDoneStoryInIntent(page);
   const story = intentStory(intent);
 
-  await test.step("Given the Done story's Changed tests", async () => {
-    await story.chooseTab("Changed tests");
+  await test.step("Given the Done story's Changes", async () => {
+    await story.chooseTab("Changes");
   });
 
   await test.step("Then the outside file's diff reads as Purpose", async () => {

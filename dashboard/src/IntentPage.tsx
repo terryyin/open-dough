@@ -75,7 +75,7 @@ export function IntentPage({
     );
   }, [entryReturns, tabsIdPrefix]);
   const view = story === undefined ? project.mode : tab;
-  const browserView = story === undefined ? "ci" : "changed";
+  const browserView = story === undefined ? "ci" : "changes";
   const panel = (name: string) => ({
     className: "intent-page-panel",
     tabIndex: -1,
@@ -165,7 +165,7 @@ export function IntentPage({
           </div>
         )}
         {explanation !== undefined && (
-          <div {...panel(story === undefined ? view : "changed")}>
+          <div {...panel(story === undefined ? view : "changes")}>
             {explanation}
             {story === undefined && project.mode === "ci" ? (
               <IntentCiStatus />
@@ -203,7 +203,7 @@ export function IntentPage({
       onOpen={(path) => {
         setSelection({ path, scope: "location" });
         if (story === undefined) project.onModeChange("ci");
-        else chooseTab("changed");
+        else chooseTab("changes");
       }}
     >
       {page}

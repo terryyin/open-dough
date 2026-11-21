@@ -40,12 +40,12 @@ test("narrow, a selected story's views and Hide files stay reachable by keyboard
   putFrontendIntentStory(frontendServices);
   await answerFrontendIntentChanges(page);
   const { intent } = await openStoryIntent(page, "Story A");
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await page.setViewportSize({ width: 390, height: 760 });
   const width = await page.evaluate(() => document.documentElement.clientWidth);
   for (const control of [
     storyTab(intent, "CI comparison"),
-    storyTab(intent, "Changed tests"),
+    storyTab(intent, "Changes"),
     storyTab(intent, "Intent coverage"),
     filesToggle(intent),
   ]) {
@@ -60,14 +60,14 @@ test("narrow, a selected story's views and Hide files stay reachable by keyboard
     ),
   ).toBe(true);
 
-  await storyTab(intent, "Changed tests").focus();
+  await storyTab(intent, "Changes").focus();
   await page.keyboard.press("Tab");
   await expect(filesToggle(intent)).toBeFocused();
   await page.keyboard.press("Enter");
   await expectFilesShown(intent, false);
   await page.keyboard.press("Space");
   await expectFilesShown(intent, true);
-  await storyTab(intent, "Changed tests").focus();
+  await storyTab(intent, "Changes").focus();
   await page.keyboard.press("Home");
   await expectStoryTab(intent, "CI comparison");
   await expect(storyTab(intent, "CI comparison")).toBeFocused();

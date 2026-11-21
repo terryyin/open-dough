@@ -1,5 +1,5 @@
 // The selected story's views in Intent (`./IntentPage.tsx`): **CI
-// comparison**, **Changed tests** and **Intent coverage**, in that order,
+// comparison**, **Changes** and **Intent coverage**, in that order,
 // one Intent tablist (`./IntentTabs.tsx`) under the story's header
 // (`./IntentHeader.tsx`). The chosen view is disposable page state
 // (ADR 0008) kept with the project's reading place
@@ -7,7 +7,7 @@
 // (`./pageStorySelection.tsx`), so every new selection, even of a story
 // cleared and selected again while Intent is hidden, opens CI comparison;
 // returning from Development, Project Intent or another view keeps it. Every
-// view stays mounted while another shows, so the Changed tests reader and
+// view stays mounted while another shows, so the Changes reader and
 // tree keep their place. A file's Proof returns directly to CI comparison
 // through `useStoryCiReturn`, which also focuses that tab.
 //
@@ -30,7 +30,7 @@ import { intentTabId, type IntentTabOption } from "./IntentTabs.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 
-export type IntentStoryTab = "ci" | "changed" | "coverage";
+export type IntentStoryTab = "ci" | "changes" | "coverage";
 export type IntentScope = "story" | "project";
 
 // Live chooseScope from the mounted Intent body. The banner sits above Intent,
@@ -77,7 +77,7 @@ export function useProvideIntentScopeChooser(
 
 export const storyTabs: readonly IntentTabOption<IntentStoryTab>[] = [
   { value: "ci", label: "CI comparison" },
-  { value: "changed", label: "Changed tests" },
+  { value: "changes", label: "Changes" },
   { value: "coverage", label: "Intent coverage" },
 ];
 

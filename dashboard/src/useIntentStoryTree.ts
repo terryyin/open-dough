@@ -5,7 +5,7 @@
 // browser has a compared story, and at each toggle either way, it opens the
 // first changed location and the folders containing changes and collapses the
 // rest; the files outside every location open the same way. The toggle, off
-// at first, heads the Changed tests tree (`./IntentStorySummary.tsx`); the
+// at first, heads the Changes tree (`./IntentStorySummary.tsx`); the
 // story's header counts the changed files
 // outside every location from the same overlay (`./IntentPerspective.tsx`).
 // The toggle and the expansion it asked for are kept with the tree's arrangement

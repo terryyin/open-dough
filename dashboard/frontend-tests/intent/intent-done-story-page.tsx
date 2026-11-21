@@ -121,17 +121,17 @@ export async function mountDoneStory(
     </IntentReadSourceOnPage>,
     { viewport: { width: 1280, height: 600 } },
   );
-  const tab = (name: "CI comparison" | "Changed tests") =>
+  const tab = (name: "CI comparison" | "Changes") =>
     page.getByRole("tab", { name, exact: true });
-  const changedTests = page.getByRole("tabpanel", { name: "Changed tests" });
-  const failure = changedTests.getByRole("alert");
+  const changes = page.getByRole("tabpanel", { name: "Changes", exact: true });
+  const failure = changes.getByRole("alert");
   return {
     tab,
     title: page
       .getByRole("region", { name: "Selected story", exact: true })
       .getByRole("heading", { level: 2 }),
     headers: page.getByRole("region", { name: "Selected story", exact: true }),
-    changedTests,
+    changes,
     failure,
     retry: failure.getByRole("button", { name: "Retry", exact: true }),
   };

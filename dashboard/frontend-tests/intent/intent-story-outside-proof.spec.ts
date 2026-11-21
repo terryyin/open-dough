@@ -23,7 +23,7 @@ import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
 import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
 import { intentStory } from "../../test-support/support/intentStoryPage.ts";
-import { selectDoneStoryForChangedTests } from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
+import { selectDoneStoryForChanges } from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
 
 const landing = "dashboard/src/landing.ts";
 const landingFile = `Modified ${landing}`;
@@ -53,7 +53,7 @@ test("an outside file's Proof names the story's CI comparison and says it has no
     ),
     landing,
   );
-  const { intent } = await selectDoneStoryForChangedTests(page);
+  const { intent } = await selectDoneStoryForChanges(page);
   const story = intentStory(intent);
   let offset = 0;
 
@@ -88,9 +88,9 @@ test("an outside file's Proof names the story's CI comparison and says it has no
     await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
   });
 
-  await test.step("When the story's CI comparison is read and Changed tests chosen again", async () => {
+  await test.step("When the story's CI comparison is read and Changes chosen again", async () => {
     await story.chooseTab("CI comparison");
-    await story.chooseTab("Changed tests");
+    await story.chooseTab("Changes");
   });
 
   await test.step("Then the same file's diff shows the same place", async () => {

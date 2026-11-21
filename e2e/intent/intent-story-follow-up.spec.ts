@@ -1,4 +1,4 @@
-// Follow up from a Done story's Intent → Changed tests Purpose diff: the file
+// Follow up from a Done story's Intent → Changes Purpose diff: the file
 // header offers Follow up, which opens the same Start session dialog with the
 // story subject and that file's context. Old line 85's menu starts a blank
 // follow-up whose terminal opens and whose first input names that line.
@@ -48,7 +48,7 @@ const assertion = "await intent.expectLatestTests();";
 const trunkSpec = `${lines("a", 84)}${assertion}\n${lines("tail", 5)}`;
 const storySpec = `${lines("a", 84)}${lines("tail", 5)}`;
 
-test("Intent Changed tests Purpose offers file Follow up and opens the existing dialog with the file context", async ({
+test("Intent Changes Purpose offers file Follow up and opens the existing dialog with the file context", async ({
   page,
   origin,
 }) => {
@@ -58,7 +58,7 @@ test("Intent Changed tests Purpose offers file Follow up and opens the existing 
       files: { "dashboard/src/landing.ts": "export const landing = 1;\n" },
     },
   });
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   await intentFile(intent, changed.modified).click();
   const reading = intentDiffReading(intent);
@@ -85,7 +85,7 @@ test("Intent Changed tests Purpose offers file Follow up and opens the existing 
   await dialog.getByRole("button", { name: "Cancel" }).click();
 });
 
-test("Intent Changed tests old line 85 Follow up starts blank and opens the terminal with that line in the first input", async ({
+test("Intent Changes old line 85 Follow up starts blank and opens the terminal with that line in the first input", async ({
   page,
   dashboard,
   origin,
@@ -105,7 +105,7 @@ test("Intent Changed tests old line 85 Follow up starts blank and opens the term
       },
     },
   });
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   await intentFile(intent, changed.modified).click();
   const reading = intentDiffReading(intent);

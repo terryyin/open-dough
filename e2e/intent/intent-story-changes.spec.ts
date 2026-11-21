@@ -4,7 +4,7 @@ import {
 } from "../../dashboard/test-support/intentModePage.ts";
 // A Taken card's empty area selects its story: one header above the views
 // names it, its revisions and outside count, and offers Project Intent and
-// Review changes. Changed tests starts with "Selected story only"; the whole
+// Review changes. Changes starts with "Selected story only"; the whole
 // tree shows change styling, auto-opened containing folders and the first
 // changed location. The location's change mark differs from a folder's row
 // background and stays visible after selection. Changed Purpose matches Review
@@ -71,9 +71,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     ).toHaveCount(1);
     await expect(story.title).toHaveText("Story A");
     await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
-    await expect(story.views).toHaveText(
-      "CI comparisonChanged testsIntent coverage",
-    );
+    await expect(story.views).toHaveText("CI comparisonChangesIntent coverage");
     await expect(
       column.locator(":scope > :not(.visually-hidden)").first(),
     ).toHaveClass("intent-story-scope");

@@ -4,6 +4,7 @@ import {
   expectStoryTab,
   filesColumn,
   storySummary,
+  storyTabPanel,
   storyViews,
 } from "../intentModePage.ts";
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
@@ -31,6 +32,7 @@ export {
   storySummary,
   storyViews,
   storyTab,
+  storyTabPanel,
   expectStoryTab,
   chooseStoryTab,
 } from "../intentModePage.ts";
@@ -165,6 +167,8 @@ export function intentStory(intent: Locator) {
       chooseStoryTab(intent, name),
     expectTab: (name: Parameters<typeof expectStoryTab>[1]) =>
       expectStoryTab(intent, name),
+    panel: (name: Parameters<typeof storyTabPanel>[1]) =>
+      storyTabPanel(intent, name),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     diff: (name: string) => intentDiff(intent, name),
     outsideDiff: (name: string) =>

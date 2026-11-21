@@ -186,7 +186,7 @@ passed. A journey checking a kept reading place chooses the tab with
 ### 4. The story's file view is named Changes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a selected story in Intent → its views read CI comparison,
 **Changes**, Intent coverage. A note written from an Intent diff names
@@ -201,6 +201,12 @@ and settle every consumer. At `7634d96a0` the words appear in 8 files under
 `dashboard/frontend-tests/intent/intent-story-notes.spec.ts` for a saved
 note with the old view. Run the frontend readers and the `e2e/intent`
 readers.
+
+**Proof (accepted).** The tab reads **Changes** with the value `"changes"`.
+`intent-story-changes.spec.ts` shows the three views in order.
+`intent-story-notes.spec.ts` shows new notes storing `Intent → Changes` and a
+saved `Intent → Changed tests` note still reading. Story view panels are
+found through `storyTabPanel` in `dashboard/test-support/intentModePage.ts`.
 
 ### 5. A project without Intent locations lists the story's changed files
 
