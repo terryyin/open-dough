@@ -1,3 +1,5 @@
+import type { PublishedSource } from "./publishedSource.ts";
+
 export const projectListEndpoint = "/__project-configuration";
 export const projectAddEndpoint = `${projectListEndpoint}/add`;
 export const projectRemoveEndpoint = `${projectListEndpoint}/remove`;
@@ -17,4 +19,8 @@ export type ProjectSettings = {
   readonly id: string;
   readonly localPath: string;
   readonly clientConfiguration: ClientConfigurationInspection;
+};
+export type AddedProject = {
+  readonly project: PublishedSource;
+  readonly projects: readonly PublishedSource[];
 };

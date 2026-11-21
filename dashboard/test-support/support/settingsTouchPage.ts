@@ -1,4 +1,5 @@
 import type { Locator } from "@playwright/test";
+import { clippedSettingContent } from "../../frontend-tests/configuration/system-settings-reading.ts";
 import { expect } from "./pageTest.ts";
 import { scrollByTouch } from "../touchGestures.ts";
 
@@ -38,48 +39,7 @@ export async function readSetting(content: Locator) {
   // Read rendered text, rather than a paragraph's fractional line-box edge.
   // Every text rectangle must fit the viewport and its scrolling ancestors.
   expect(
-    await content.evaluate((element) => {
-      let left = 0,
-        top = 0,
-        right = innerWidth,
-        bottom = innerHeight;
-      for (
-        let at: Element | null = element;
-        at;
-        at = at.matches(":modal") ? null : at.parentElement
-      ) {
-        const style = getComputedStyle(at);
-        const bounds = at.getBoundingClientRect();
-        if (style.overflowX !== "visible") {
-          left = Math.max(left, bounds.left + at.clientLeft);
-          right = Math.min(right, bounds.left + at.clientLeft + at.clientWidth);
-        }
-        if (style.overflowY !== "visible") {
-          top = Math.max(top, bounds.top + at.clientTop);
-          bottom = Math.min(
-            bottom,
-            bounds.top + at.clientTop + at.clientHeight,
-          );
-        }
-      }
-      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-      const clipped: string[] = [];
-      for (let text = walker.nextNode(); text; text = walker.nextNode()) {
-        if (!text.textContent?.trim()) continue;
-        const range = document.createRange();
-        range.selectNodeContents(text);
-        for (const rectangle of range.getClientRects()) {
-          if (
-            rectangle.left < left ||
-            rectangle.right > right ||
-            rectangle.top < top ||
-            rectangle.bottom > bottom
-          )
-            clipped.push(text.textContent);
-        }
-      }
-      return clipped;
-    }),
+    await content.evaluate(clippedSettingContent, "text" as const),
     "all rendered setting text is in view and unclipped",
   ).toEqual([]);
   expect(

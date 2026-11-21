@@ -1,39 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  openAIConfigurationEndpoint,
-  openAIRemoveEndpoint,
-  openAISaveEndpoint,
-  type OpenAIConfigurationStatus,
-} from "./openAIConfiguration.ts";
+  openAIUpdateFailure,
+  type OpenAIConfigurationSource,
+} from "./openAIConfigurationSource.ts";
 import "./frame-controls.css";
-import { localSettingRequest } from "./localSettingRequest.ts";
 import { useLocalSetting } from "./useLocalSetting.ts";
 
-const updateFailure =
-  "OpenAI configuration could not be updated. Retry the operation.";
-
-async function configurationRequest(
-  endpoint: string,
-  body?: { readonly apiKey?: string },
-): Promise<OpenAIConfigurationStatus> {
-  const answer = await localSettingRequest(endpoint, body, updateFailure);
-  if (
-    typeof answer !== "object" ||
-    answer === null ||
-    !("configured" in answer) ||
-    typeof answer.configured !== "boolean"
-  )
-    throw new Error(
-      "OpenAI configuration could not be read. Retry the operation.",
-    );
-  return { configured: answer.configured };
-}
-
-function readConfiguration(): Promise<OpenAIConfigurationStatus> {
-  return configurationRequest(openAIConfigurationEndpoint);
-}
-
-export function OpenAISettings() {
+export function OpenAISettings({
+  source,
+}: {
+  readonly source: OpenAIConfigurationSource;
+}) {
   const {
     value: status,
     problem,
@@ -42,9 +19,9 @@ export function OpenAISettings() {
     retryRead,
     change,
   } = useLocalSetting(
-    readConfiguration,
+    source.read,
     "OpenAI configuration could not be read.",
-    updateFailure,
+    openAIUpdateFailure,
   );
   const [apiKey, setAPIKey] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -65,9 +42,7 @@ export function OpenAISettings() {
       return;
     }
     await change(async () => {
-      const answer = await (remove
-        ? configurationRequest(openAIRemoveEndpoint, {})
-        : configurationRequest(openAISaveEndpoint, { apiKey }));
+      const answer = await (remove ? source.remove() : source.save(apiKey));
       setAPIKey("");
       focusAfterSave.current = true;
       return answer;

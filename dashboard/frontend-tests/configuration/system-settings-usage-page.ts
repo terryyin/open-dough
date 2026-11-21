@@ -6,7 +6,11 @@ import { page, userEvent } from "vitest/browser";
 import { SystemSettingsUsage } from "../../src/SystemSettingsUsage.tsx";
 import type { UsageSource } from "../../src/usageSource.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { touchSettingsControl } from "./system-settings-browser.ts";
+import { usageChartView } from "./system-settings-usage-chart-page.ts";
 import { usageToolsView } from "./system-settings-usage-tools-page.ts";
+import "../../src/frame-controls.css";
+import "../../src/project-configuration.css";
 
 type FactWords = string | { readonly at: string; readonly outcome: string };
 
@@ -23,8 +27,18 @@ const usageChartName =
 const selectedReadout = (readout: string) =>
   readout.replace(/^([^·]+ · (?:Codex|Claude Code) · )/, "$1Selected task · ");
 
-export async function mountUsage(source: UsageSource) {
-  await mountComponent(createElement(SystemSettingsUsage, { source }));
+export async function mountUsage(
+  source: UsageSource,
+  viewport?: { readonly width: number; readonly height: number },
+) {
+  await mountComponent(
+    createElement(
+      "main",
+      { className: "system-settings" },
+      createElement(SystemSettingsUsage, { source }),
+    ),
+    viewport && { viewport },
+  );
   return usageView();
 }
 
@@ -82,9 +96,11 @@ function usageView() {
         .toMatch(new RegExp(` · ${words.outcome}$`));
     }
   };
+  const chart = usageChartView(view, trend, chartDrawing, mark);
 
   return {
-    ...usageToolsView(view, trend, chartDrawing),
+    ...usageToolsView(view, trend, chart.medianLines),
+    chart,
     async chooseDays(days: string) {
       await daysField.fill(days);
     },
@@ -173,10 +189,12 @@ function usageView() {
         .toBeVisible();
       await expect.poll(markCount).toBe(0);
     },
-    async selectPoint(readout: string, by: "pointer" | "keyboard") {
+    async selectPoint(readout: string, by: "pointer" | "touch" | "keyboard") {
       const target = mark(readout);
       if (by === "pointer") {
         await userEvent.click(target);
+      } else if (by === "touch") {
+        await touchSettingsControl(target);
       } else {
         await expect.element(target).toBeInTheDocument();
         (target.element() as HTMLElement).focus();
@@ -208,6 +226,9 @@ function usageView() {
       }
     },
     showsFact,
+    async showsNoDetail() {
+      await expect.element(detail).not.toBeInTheDocument();
+    },
     async closeDetail(readout: string) {
       await userEvent.click(
         detail.getByRole("button", { name: "Close", exact: true }),

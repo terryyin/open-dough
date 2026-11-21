@@ -85,6 +85,25 @@ export async function deliverAttachedStoryNotes(
   });
 }
 
+function nextEditTime(note: StoryNote): string {
+  const versions = [
+    note.savedAt,
+    storyNoteVersion(note),
+    note.delivered ?? note.savedAt,
+  ];
+  const latest = Math.max(...versions.map((version) => Date.parse(version)));
+  const next = new Date(Math.max(Date.now(), latest + 1)).toISOString();
+  if (!next.startsWith("+")) return next;
+
+  // The store's ISO schema uses four-digit years. At its last millisecond,
+  // advance the fractional part instead of rolling into an expanded year.
+  const lastInstant = versions.reduce((furthest, version) => {
+    const instant = version.slice(0, -1);
+    return instant > furthest ? instant : furthest;
+  }, "9999-12-31T23:59:59.999");
+  return `${lastInstant}1Z`;
+}
+
 async function changeNotes(
   project: string,
   change: StoryNoteChange,
@@ -113,7 +132,7 @@ async function changeNotes(
                 ? {
                     ...note,
                     text: change.text,
-                    editedAt: new Date().toISOString(),
+                    editedAt: nextEditTime(note),
                   }
                 : note,
             )

@@ -618,92 +618,6 @@ dozen cases over one owner. It follows the
   seven slices.
 - **Plan.** [748](../slice-plans/748-mount-story-review-changes-panel/PLAN.md)
 
-<a id="mount-system-settings-sections-and-usage-charts"></a>
-
-### Read System settings' sections and the Usage charts in mounted cases
-
-**Identity:** SEED-413#mount-system-settings-sections-and-usage-charts
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/749-mount-system-settings-sections-and-usage-charts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3be348768249b536691e29ae85b3426489cf2d8c6718aade28a74dd5b46db90d","plan":"187e00eede15816bed6b81142113f16027b2e46ab8e7e0ea68ba96e4e3f52bdd"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on 2026-11-21 as the second Configuration piece, queued ahead of the
-remaining families. At Terry's request it is larger than the earlier pieces.
-It reuses what
-[the Usage Token index story](#usage-token-index-reading-after-migration)
-left for the chart cases.
-
-- **Goal.** Dashboard developers read the proof of the Usage charts and of
-  the OpenAI, terminal theme and Projects settings as plain Vitest cases on
-  mounted Chromium, with each setting and Token index answer given as a
-  typed reply. Today these 29 cases in nine Configuration specs load
-  `<App />` on the settings view (48.3 summed seconds in CI run
-  44855532096). Afterwards the Configuration folder keeps only the cases
-  that need the page frame.
-- **Scope.** Move these specs:
-  - The five Usage chart specs `system-settings-usage-average`, `-compare`,
-    `-legend`, `-overflow` and `-spacing` (20 cases) onto the mounted
-    [`SystemSettingsUsage`](../../dashboard/src/SystemSettingsUsage.tsx)
-    over the existing typed `UsageSource`, `makeMe.aTokenIndexAnswer` and
-    the mounted Usage page objects, extended for the chart's marks, axis,
-    legend, readouts and spacing. Pointer, touch and keyboard selection,
-    light and dark, narrow windows and zoom keep their proof.
-  - `system-settings-openai` (4 cases), `-terminal-theme` (2),
-    `-project-management-touch` (1) and `project-add-dialog` (2), each on
-    its own section: [`OpenAISettings`](../../dashboard/src/OpenAISettings.tsx),
-    [`TerminalThemeSettings`](../../dashboard/src/TerminalThemeSettings.tsx)
-    and [`ProjectsSettings`](../../dashboard/src/ProjectsSettings.tsx). Each
-    section reads and changes its setting through a typed source behind its
-    reading hook, as Story Notes and Usage do. The page supplies the sources
-    that speak to the endpoints and keep their refusal wording. A case
-    supplies replies of the shared setting contracts and holds its own
-    deferred reply where it observes a pending read or save.
-  - A touch case reaches its control by a CDP touch, and rotation and
-    reduced height by the mounted viewport.
-  - Build setting answers with page-loadable MakeMe steps, and operate each
-    section through small page objects beside the specs. The Playwright
-    settings page objects stay for the remaining built-app cases and E2E.
-  - Preserve each distinct assertion and name each retired built-app case
-    with its mounted case. Remove a case only where an E2E journey proves
-    the same thing, and name that journey.
-  - Retire each `dashboard/test-support/` export or module whose last
-    consumer moves, and keep what E2E and the remaining specs use.
-  - **Scope limits.** `dashboard-system-appearance`,
-    `project-hide-selection`, `system-settings-navigation` and
-    `system-settings-look` stay in the parent story. They prove the frame,
-    the board, deep links and history, or the whole settings page with its
-    product mark and project choice, and join the Navigation audit. The
-    full-group timing comparison and the `frontendApp.ts` retirement also
-    stay there. This story compares the focused selection before and after.
-- **Key examples.**
-  - *Coincident large tasks.* Codex answers two tasks of 65,000,000 and
-    70,000,000 on the same day, one partial. The chart shows both as large
-    marks above the axis `0`, `25M`, `50M`, with the note that every priced
-    task is above 50 million. Pointer, touch and keyboard each select either
-    mark, its detail names its value and partial coverage, and Close returns
-    focus to the mark.
-  - *Two tools compared.* Codex and Claude Code share one time axis and
-    scale, each with its own median, unit and note, and a selected task
-    keeps its tool. An empty tool says so and a failed read names its tool.
-  - *A held OpenAI status.* A status read that answers what the machine
-    held before is held while the reader saves a key. The save answers
-    first, the held read is released afterwards, and the section still reads
-    `API key: Configured`. The same holds for Remove (`API key: Not
-    configured`) and for a save after a refused read.
-  - *A refused terminal theme save.* On touch the reader chooses Solarized
-    Dark and the save is refused. The saved theme stays shown with the refusal, and Retry
-    is reachable after rotation.
-  - *A refused project change.* At reduced height on touch, the reader edits
-    a project and the save is refused. Retry sends the exact draft again.
-  - *Adding a project.* An origin that does not match the path stays linked
-    to the path field, keeps both inputs and saves nothing. Cancel and
-    Escape save nothing and return focus.
-- **Effort hypothesis.** M, at the upper end: 29 cases over four owners
-  whose chart owner and source exist, three small typed setting sources,
-  seven slices.
-- **Plan.** [749](../slice-plans/749-mount-system-settings-sections-and-usage-charts/PLAN.md)
-
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -720,9 +634,9 @@ Candidates revision cases already run as mounted cases in
 [Story Review diff reading](#review-diff-reading-after-migration) and
 [Usage Token index reading](#usage-token-index-reading-after-migration) now run
 in mounted Chromium.
-Two pieces are split out and queued ahead of this story:
-[the Review changes panel](#mount-story-review-changes-panel) and
-[System settings' sections and the Usage charts](#mount-system-settings-sections-and-usage-charts).
+[The Review changes panel](#mount-story-review-changes-panel) is a separate
+story ahead of this one. [System settings' sections and the Usage charts](#system-settings-sections-and-usage-charts-after-migration)
+now run in mounted Chromium.
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
@@ -1088,6 +1002,78 @@ proving `pageUsageSource`'s refusal wording and abort forwarding.
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:30` (`"a refused read shows Usage could not be read. or the endpoint's own message"`) | `58, 81, 91` | `81` |
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:61` (`"a refused Refresh shows Usage could not be refreshed. or the endpoint's own message"`) | `440, 465, 477` | `465` |
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:99` (`"leaving a pending read aborts the page source's request"`) | `104, 111, 106` | `106` |
+
+##### System settings sections and Usage charts after migration
+
+The nine Configuration specs in the table below moved all 29 original cases
+to mounted Chromium. Each built-app title, including its viewport context,
+matches one mounted title at the same spec path. No whole case was omitted.
+The retained built-app appearance and Settings Look cases still observe the
+real outer Settings heading and sticky header.
+
+The local comparison ran the same nine explicit spec paths with two workers
+on the AC-powered arm64 Mac under `caffeinate -s -i` and Node 24.21.0.
+Three runs in a detached checkout of `0759aff061` with its own locked
+`npm ci` install interleaved with three runs from `75ba18360` and the
+support cleanup in the working tree. Each run passed 29 cases with no retry.
+The elapsed time includes runner startup. The parenthesized values are
+one-minute load before and after each run.
+
+| Pair | Built app | Mounted |
+| --- | ---: | ---: |
+| 1 | 34.864 s (15.76 → 17.23) | 14.090 s (17.23 → 17.02) |
+| 2 | 27.731 s (17.02 → 18.30) | 17.645 s (18.30 → 15.75) |
+| 3 | 22.312 s (15.75 → 13.07) | 14.366 s (13.07 → 11.94) |
+
+Median focused elapsed time fell from **27.731 s to 14.366 s**
+(**48.2% less**). The earlier clean baseline took 25.624, 26.558
+and 36.570 s at one-minute starting loads of 5.53, 7.47 and 12.23. The
+interleaved comparison reflects this machine and selection at the observed
+load.
+
+Tracked Dashboard Test Support fell from 83,084 lines in 797 files at the
+published baseline to 82,626 lines in 796 files. The earlier reading move
+removed 40 lines from `settingsTouchPage.ts`. The final cleanup removed 418
+more across `frontendSettingsSubstitutes.ts` (63), `systemSettingsUsagePage.ts`
+(17), `usageChartPage.ts` (200), `usageLegendPage.ts` (74),
+`usageSpacingPage.ts` (32), and `usageToolsPage.ts` (32).
+
+The times below are milliseconds from each runner's completed case record.
+The mounted attempts are shown in run order, rounded to the nearest
+millisecond. Each median is computed from the original three durations
+before rounding.
+
+| Configuration spec | Original and mounted case title | Built-app median | Mounted attempts | Mounted median |
+| --- | --- | ---: | ---: | ---: |
+| `project-add-dialog.spec.ts` | Cancel and Escape save nothing, return focus and keep project arrows inside the modal | 1110 | 425, 932, 720 | 720 |
+| `project-add-dialog.spec.ts` | origin mismatch stays linked to the path, retains both inputs and saves nothing | 1374 | 284, 689, 737 | 689 |
+| `system-settings-openai.spec.ts` | a held status response cannot overwrite successful remove | 1338 | 610, 981, 709 | 709 |
+| `system-settings-openai.spec.ts` | a held status response cannot overwrite successful save | 889 | 212, 467, 340 | 340 |
+| `system-settings-openai.spec.ts` | a held status response cannot overwrite successful save after read error | 811 | 306, 683, 601 | 601 |
+| `system-settings-openai.spec.ts` | phone OpenAI settings recovery › touch keeps the password draft and the configured key through reduced height, rotation, a refused save and explicit recovery | 2755 | 2347, 3180, 2829 | 2829 |
+| `system-settings-project-management-touch.spec.ts` | phone project settings editing › touch edits at reduced height and retries a refused save with the exact draft | 2486 | 2116, 2889, 2088 | 2116 |
+| `system-settings-terminal-theme.spec.ts` | phone terminal theme recovery › touch reads the theme, keeps the saved theme shown after a refused save, and reaches Retry after rotation | 3151 | 1496, 1768, 1855 | 1768 |
+| `system-settings-terminal-theme.spec.ts` | terminal Light and Solarized samples keep their palette while settings chrome follows the system appearance | 741 | 102, 162, 95 | 102 |
+| `system-settings-usage-average.spec.ts` | 200% zoom › day control, task actions and true overflow values remain readable without hovering | 1283 | 483, 688, 373 | 483 |
+| `system-settings-usage-average.spec.ts` | an in-scale median breaks across above-scale observations and all-large medians stay explicit | 663 | 98, 69, 77 | 77 |
+| `system-settings-usage-average.spec.ts` | narrow touch › day control, task actions and true overflow values remain readable without hovering | 986 | 341, 585, 529 | 529 |
+| `system-settings-usage-average.spec.ts` | the chart shows a one-million median and the sixty-five-million task separately | 752 | 53, 63, 100 | 63 |
+| `system-settings-usage-average.spec.ts` | the rolling median is distinct above dots and never enlarges ordinary geometry | 889 | 125, 143, 140 | 140 |
+| `system-settings-usage-compare.spec.ts` | an empty tool says so, a failed read names its tool, and neither tool asks for one | 1589 | 448, 879, 528 | 528 |
+| `system-settings-usage-compare.spec.ts` | both tools share one time axis and scale with their own medians, units and notes, keeping each task's tool through inspection | 1393 | 881, 1056, 514 | 881 |
+| `system-settings-usage-compare.spec.ts` | each tool's marks differ by shape, partial ones keep the caution stroke, and either tool's selected task is the one larger diamond | 1345 | 364, 730, 596 | 596 |
+| `system-settings-usage-compare.spec.ts` | narrowest reading window › tool choices work by keyboard and a compared point opens by touch, in light and dark, without sideways scroll | 2024 | 969, 996, 1125 | 996 |
+| `system-settings-usage-compare.spec.ts` | phone › tool choices work by keyboard and a compared point opens by touch, in light and dark, without sideways scroll | 1742 | 880, 1550, 1360 | 1360 |
+| `system-settings-usage-legend.spec.ts` | narrowest reading window › the compared key fits without sideways scroll in light and dark | 1373 | 90, 220, 193 | 193 |
+| `system-settings-usage-legend.spec.ts` | phone › the compared key fits without sideways scroll in light and dark | 1228 | 113, 262, 263 | 262 |
+| `system-settings-usage-legend.spec.ts` | the key and summary swatches show each shown tool's marks, and a hidden tool leaves the key | 1663 | 323, 602, 371 | 371 |
+| `system-settings-usage-overflow.spec.ts` | coincident large tasks remain separate by pointer touch and keyboard with partial details and focus return | 2374 | 1446, 2440, 2452 | 2440 |
+| `system-settings-usage-overflow.spec.ts` | exactly fifty million remains ordinary and measured zero keeps an honest scale | 846 | 129, 90, 70 | 90 |
+| `system-settings-usage-overflow.spec.ts` | large tasks keep actual values and dates without flattening ordinary points | 1106 | 186, 338, 231 | 231 |
+| `system-settings-usage-spacing.spec.ts` | an above-scale median stands at its own large task's slot under equal spacing | 984 | 203, 605, 392 | 392 |
+| `system-settings-usage-spacing.spec.ts` | equal spacing gives each shown task one slot in completion order across tools, keeps medians on their tasks and actual times, and restores time positions | 2333 | 1377, 2366, 1327 | 1377 |
+| `system-settings-usage-spacing.spec.ts` | narrowest reading window › equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll | 1935 | 1011, 1366, 1266 | 1266 |
+| `system-settings-usage-spacing.spec.ts` | phone › equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll | 1946 | 996, 1778, 1385 | 1385 |
 
 #### Frontend campaign baseline
 

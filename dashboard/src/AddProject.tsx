@@ -4,13 +4,16 @@ import { Icon } from "./Icon.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useReplaceProjects } from "./projectList.tsx";
 import { AddProjectDialog } from "./AddProjectDialog.tsx";
+import type { ProjectSettingsSource } from "./projectSettingsSource.ts";
 import "./frame-controls.css";
 import "./project-configuration.css";
 
 export function AddProject({
+  add,
   onSelect,
   autoFocus = false,
 }: {
+  readonly add: ProjectSettingsSource["add"];
   readonly onSelect?: (source: PublishedSource) => void;
   readonly autoFocus?: boolean;
 }) {
@@ -36,6 +39,7 @@ export function AddProject({
       </button>
       {open && (
         <AddProjectDialog
+          add={add}
           onAdded={({ projects, project }) => {
             replaceProjects(projects);
             onSelect?.(project);

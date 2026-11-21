@@ -2,23 +2,14 @@
 // unit and notes over one completion-time axis and one numeric scale, with
 // tool identity kept in mark shapes, readouts and detail, and each read's
 // failure or emptiness shown as that tool's.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  requestedCohort,
-  usageRefreshEndpoint,
-  usageTokenIndexEndpoint,
-  type TokenIndexAnswer,
-  type UsageTool,
-} from "../../src/usageTokenIndex.ts";
-import { narrowWindow } from "../../test-support/accessibleReading.ts";
-import { expect } from "../../test-support/dashboardTest.ts";
-import { test } from "../../test-support/support/frontendApp.ts";
-import { usageChart } from "../../test-support/support/usageChartPage.ts";
-import { visitUsage } from "../../test-support/support/systemSettingsUsagePage.ts";
-import type { Page } from "@playwright/test";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { UsageSource } from "../../src/usageSource.ts";
+import { settingsColourScheme } from "./system-settings-browser.ts";
+import { mountUsage } from "./system-settings-usage-page.ts";
 
-const at = (date: number, hour = 12) =>
-  new Date(Date.UTC(2026, 10, date, hour)).toISOString();
+const at = (date: number) =>
+  new Date(Date.UTC(2026, 10, date, 12)).toISOString();
 const codexUnit = "Codex test rate card · GPT-6.1 Sol input-token equivalents";
 const claudeUnit =
   "Claude test rate card · Claude Opus 5.5 input-token equivalents";
@@ -50,63 +41,56 @@ const claude = () =>
     .withTrend([{ at: at(4), value: 3_500 }])
     .underTariff(claudeUnit);
 
-async function answering(
-  page: Page,
-  answer: (tool: UsageTool) => TokenIndexAnswer | "fail",
-) {
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => {
-      const cohort = requestedCohort(
-        new URL(route.request().url()).searchParams,
-      );
-      const body = answer(cohort?.tool ?? "codex");
-      return body === "fail"
-        ? route.fulfill({ status: 500, json: {} })
-        : route.fulfill({ json: body });
+function comparing(viewport?: {
+  readonly width: number;
+  readonly height: number;
+}) {
+  return mountUsage(
+    {
+      read: (cohort) =>
+        Promise.resolve(
+          (cohort.tool === "claude" ? claude() : codex())
+            .forCohort(cohort)
+            .please(),
+        ),
+      refresh: () => Promise.resolve(),
     },
+    viewport,
   );
 }
 
-// Usage with both tools shown, each answering its own cohort.
-async function comparing(page: Page) {
-  await answering(page, (tool) =>
-    (tool === "claude" ? claude() : codex()).forCohort({ tool }).please(),
-  );
-  return visitUsage(page);
-}
-
-test.beforeEach(async ({ page }) => {
-  await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(at(15)));
+});
+afterEach(() => {
+  vi.useRealTimers();
 });
 
-test("both tools share one time axis and scale with their own medians, units and notes, keeping each task's tool through inspection", async ({
-  page,
-}) => {
-  const usage = await comparing(page);
-  const chart = usageChart(page);
+test("both tools share one time axis and scale with their own medians, units and notes, keeping each task's tool through inspection", async () => {
+  const usage = await comparing();
+  const { chart } = usage;
+  const comparedReadouts = [
+    "Nov 1 · Codex · 1,000",
+    "Nov 3 · Codex · 2,000",
+    "Nov 3 · Claude Code · 3,000",
+    "Nov 4 · Claude Code · 4,000 · Partial",
+    "Nov 9 · Codex · 4,000 · Partial",
+  ];
+
   await usage.showTool("Claude Code", true);
-  await usage.showsPoints([
-    "Nov 1 · Codex · 1,000",
-    "Nov 3 · Codex · 2,000",
-    "Nov 3 · Claude Code · 3,000",
-    "Nov 4 · Claude Code · 4,000 · Partial",
-    "Nov 9 · Codex · 4,000 · Partial",
-  ]);
-  const x = await chart.markCentres([
-    "Nov 1 · Codex · 1,000",
-    "Nov 3 · Codex · 2,000",
-    "Nov 3 · Claude Code · 3,000",
-    "Nov 4 · Claude Code · 4,000 · Partial",
-    "Nov 9 · Codex · 4,000 · Partial",
-  ]);
-  const day = ((x[1]?.x ?? 0) - (x[0]?.x ?? 0)) / 2;
+  await usage.showsPoints(comparedReadouts);
+  const [nov1, nov3Codex, nov3Claude, nov4, nov9] =
+    await chart.markCentres(comparedReadouts);
+  if (!nov1 || !nov3Codex || !nov3Claude || !nov4 || !nov9)
+    throw new Error("Comparison must draw all five tasks.");
+  const day = (nov3Codex.x - nov1.x) / 2;
   expect(day).toBeGreaterThan(0);
-  expect(x[2]?.x).toBeCloseTo(x[1]?.x ?? 0, 1);
-  expect(((x[3]?.x ?? 0) - (x[2]?.x ?? 0)) / day).toBeCloseTo(1, 1);
-  expect(((x[4]?.x ?? 0) - (x[3]?.x ?? 0)) / day).toBeCloseTo(5, 1);
+  expect(nov3Claude.x).toBeCloseTo(nov3Codex.x, 1);
+  expect((nov4.x - nov3Claude.x) / day).toBeCloseTo(1, 1);
+  expect((nov9.x - nov4.x) / day).toBeCloseTo(5, 1);
   // One numeric scale: equal indices of different tools stand level.
-  expect(x[3]?.y).toBeCloseTo(x[4]?.y ?? 0, 1);
+  expect(nov4.y).toBeCloseTo(nov9.y, 1);
   await usage.showsMedian("2,000", "Codex");
   await usage.showsMedian("3,500", "Claude Code");
   await usage.showsCohortNote("3 tasks · 1 partial · Last 30 days", "Codex");
@@ -115,6 +99,8 @@ test("both tools share one time axis and scale with their own medians, units and
     "Claude Code",
   );
   await usage.showsToolNotes([codexUnit, claudeUnit, leftOut]);
+  await usage.showsToolNotes([codexUnit], "Codex");
+  await usage.showsToolNotes([claudeUnit, leftOut], "Claude Code");
   await chart.showsNote(
     "One numeric scale; each tool's values stay in its own reference unit, not a common cost or a measure of tool efficiency.",
   );
@@ -145,36 +131,37 @@ test("both tools share one time axis and scale with their own medians, units and
   await usage.showsToolSummaries(["Codex"]);
 });
 
-test("each tool's marks differ by shape, partial ones keep the caution stroke, and either tool's selected task is the one larger diamond", async ({
-  page,
-}) => {
-  const usage = await comparing(page);
-  const chart = usageChart(page);
+test("each tool's marks differ by shape, partial ones keep the caution stroke, and either tool's selected task is the one larger diamond", async () => {
+  const usage = await comparing();
+  const { chart } = usage;
   await usage.showTool("Claude Code", true);
   await chart.showsDistinctTraces();
   await usage.selectPoint("Nov 3 · Claude Code · 3,000", "pointer");
-  await chart.showsSelectedDiamond();
+  await chart.showsSelectedDiamond("Claude Code");
   await usage.selectPoint("Nov 1 · Codex · 1,000", "pointer");
-  await chart.showsSelectedDiamond();
+  await chart.showsSelectedDiamond("Codex");
 });
 
-test("an empty tool says so, a failed read names its tool, and neither tool asks for one", async ({
-  page,
-}) => {
-  let claudeAnswer: "empty" | "fail" = "empty";
-  await answering(page, (tool) =>
-    tool !== "claude"
-      ? codex().please()
-      : claudeAnswer === "fail"
-        ? "fail"
-        : claude()
-            .with({ indexes: [] })
-            .withUnpricedTasks(0)
-            .withTrend([])
-            .forCohort({ tool })
-            .please(),
-  );
-  const usage = await visitUsage(page);
+test("an empty tool says so, a failed read names its tool, and neither tool asks for one", async () => {
+  let refuseClaude = false;
+  const source: UsageSource = {
+    read: (cohort) => {
+      if (cohort.tool === "codex")
+        return Promise.resolve(codex().forCohort(cohort).please());
+      if (refuseClaude)
+        return Promise.reject(new Error("Usage could not be read."));
+      return Promise.resolve(
+        claude()
+          .with({ indexes: [] })
+          .withUnpricedTasks(0)
+          .withTrend([])
+          .forCohort(cohort)
+          .please(),
+      );
+    },
+    refresh: () => Promise.resolve(),
+  };
+  const usage = await mountUsage(source);
   await usage.showTool("Claude Code", true);
   await usage.showsEmptyTool(
     "Claude Code",
@@ -183,12 +170,7 @@ test("an empty tool says so, a failed read names its tool, and neither tool asks
   await usage.showsCohortNote("0 tasks · Last 30 days", "Claude Code");
   await usage.showsPointCount(3);
 
-  claudeAnswer = "fail";
-  await page.route(
-    (url) => url.pathname === usageRefreshEndpoint,
-    (route) =>
-      route.fulfill({ json: { checkedAt: "2026-11-15T11:00:00.000Z" } }),
-  );
+  refuseClaude = true;
   await usage.refresh();
   await usage.showsProblem("Claude Code: Usage could not be read.");
   // The last answer for this selection stays with its check time.
@@ -203,21 +185,20 @@ test("an empty tool says so, a failed read names its tool, and neither tool asks
   await usage.showTool("Codex", false);
   await usage.showTool("Claude Code", false);
   await usage.showsSelectToolPrompt();
+  await usage.showsPointCount(0);
 });
 
 for (const [name, viewport] of [
   ["phone", { width: 390, height: 844 }],
-  ["narrowest reading window", narrowWindow],
+  ["narrowest reading window", { width: 420, height: 900 }],
 ] as const) {
-  test.describe(name, () => {
-    test.use({ viewport, hasTouch: true });
-    test("tool choices work by keyboard and a compared point opens by touch, in light and dark, without sideways scroll", async ({
-      page,
-    }) => {
-      const usage = await comparing(page);
-      const chart = usageChart(page);
+  describe(name, () => {
+    test("tool choices work by keyboard and a compared point opens by touch, in light and dark, without sideways scroll", async () => {
+      const appearance = settingsColourScheme();
+      const usage = await comparing(viewport);
+      const { chart } = usage;
       for (const colorScheme of ["light", "dark"] as const) {
-        await page.emulateMedia({ colorScheme });
+        await appearance(colorScheme);
         await usage.showTool("Claude Code", true, "keyboard");
         await usage.showsToolSummaries(["Codex", "Claude Code"]);
         await usage.showsFocusedToolChoice("Claude Code");
