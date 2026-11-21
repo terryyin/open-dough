@@ -80,7 +80,7 @@ export function IntentPage({
   const outside =
     story?.compared !== undefined && locations !== undefined
       ? intentStoryOverlay(locations, story.compared.shown.comparison.files)
-          .outside
+          .outside.length
       : undefined;
   const panel = (name: string) => ({
     className: "intent-page-panel",

@@ -5,6 +5,7 @@ import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
 import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
 import { storyNotesPage } from "../../test-support/support/storyNotesPage.ts";
+import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
 import {
   answerFrontendIntentChanges,
   putFrontendIntentStory,
@@ -13,6 +14,7 @@ import {
   chooseStoryTab,
   expectOutsideCount,
   intentDiffReading,
+  intentStory,
   intentFile,
   outsideCount,
 } from "../../test-support/support/intentStoryPage.ts";
@@ -84,6 +86,32 @@ test("a line note from Intent Changed tests records the Intent view", async ({
       line: { number: 13, side: "new" },
     },
   });
+});
+
+test("a line note can start from the diff of a file outside Intent locations", async ({
+  page,
+  frontendServices,
+}) => {
+  await installFrontendStoryNotes(page);
+  putFrontendIntentStory(frontendServices);
+  const review = await answerFrontendIntentChanges(page);
+  review.answerFile(
+    frontendFileDiff("dashboard/src/App.tsx", ["+app change"]),
+    "dashboard/src/App.tsx",
+  );
+  const { intent } = await openStoryIntent(page, "Story A");
+  await chooseStoryTab(intent, "Changed tests");
+  const app = "Modified dashboard/src/App.tsx";
+  await intentStory(intent).outsideFile(app).click();
+  const reading = intentDiffReading(intent);
+  await expect(reading.name).toHaveText(app);
+  const notes = storyNotesPage(page);
+  await notes.fromLine(reading.container, "new", 1);
+  await notes.expectComposerContext([
+    "Intent → Changed tests",
+    "dashboard/src/App.tsx",
+    "Line 1 · new",
+  ]);
 });
 
 test("Notes from Intent keeps the selected file's reading and returns focus", async ({

@@ -98,9 +98,15 @@ export const storyOnly = (intent: Locator) =>
 // A file's control in Intent's tree, by its accessible name: its full path,
 // or for a changed file its kind and path as Review changes names it. A story
 // comparison may append Proof's Counts and after-side words after a comma.
+const fileName = (name: string) =>
+  new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:,|$)`);
 export const intentFile = (intent: Locator, name: string) =>
-  filesColumn(intent).getByRole("button", {
-    name: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:,|$)`),
+  filesColumn(intent).getByRole("button", { name: fileName(name) });
+
+// The story's changed files outside every location, after the locations.
+export const outsideGroup = (intent: Locator) =>
+  filesColumn(intent).getByRole("region", {
+    name: "Outside Intent locations",
   });
 
 // A folder's toggle in Intent, by the folder's name and whether it is open.
@@ -196,6 +202,15 @@ export function intentStory(intent: Locator) {
     folderRow: (name: string) => folderRow(intent, name),
     folderItem: (name: string) => folderItem(intent, name),
     locationGroup: (path: string) => locationGroup(intent, path),
+    outside: outsideGroup(intent),
+    groups: filesColumn(intent).locator(":scope section"),
+    outsideFile: (name: string) =>
+      outsideGroup(intent).getByRole("button", { name: fileName(name) }),
+    // An outside file's row, which carries its change marker.
+    outsideRow: (name: string) =>
+      outsideGroup(intent)
+        .getByRole("button", { name: fileName(name) })
+        .locator("xpath=.."),
     headerDetail: () => storyHeaderDetail(intent),
     expectOutsideCount: (count: number) => expectOutsideCount(intent, count),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>

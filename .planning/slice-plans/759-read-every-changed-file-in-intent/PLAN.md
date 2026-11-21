@@ -2,6 +2,7 @@
 
 **Identity:** SEED-420#open-review-in-intent
 **Source:** [Read every file a story changed in Intent](../../seeds/SEED-420-unified-intent-review.md#open-review-in-intent)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -89,7 +90,7 @@ No premise remains open.
 ### 1. Changes lists the changed files outside Intent locations
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a selected story whose comparison changed a spec in an Intent
 location and two files no location admits → the story's file view → the
@@ -101,13 +102,21 @@ lists its code beside the message that no test files in Intent locations
 changed. A Done story lists the outside files of its published completion.
 A rename no location admits at either path is listed outside once.
 
-**Proof.** Extend `dashboard/backend-tests/intent/intent-story-overlay.spec.ts`
-for the listed outside files and `storyChangesOnly`. Extend
-`dashboard/frontend-tests/intent/intent-story-changes-only.spec.ts` for the
-group, the selection, the diff and the product-code-only story, and
-`intent-done-review-modes.spec.ts` for a Done story. Reach the tree through
-`dashboard/test-support/support/intentStoryPage.ts`. The header count stays
-in this slice, so its readers stay green.
+**Proof (accepted).** `dashboard/backend-tests/intent/intent-story-overlay.spec.ts`
+lists the outside files once, a rename included, and holds them in
+`overlayFilesByPath`. `dashboard/frontend-tests/intent/intent-story-outside-locations.spec.ts`
+proves the group, its markers and folders, the diff as Purpose, Selected
+story only and a Done story. `intent-story-changes-only.spec.ts` keeps the
+product-code-only message. Outside diffs offer Follow up
+(`e2e/intent/intent-story-follow-up.spec.ts`) and line notes
+(`intent-story-notes.spec.ts`). Whole `dashboard/frontend-tests/intent` and
+`e2e/intent` passed.
+
+**Learning for slice 2.** `e2e/intent/intent-story-changes.spec.ts` and
+`intent-story-changes-moves.spec.ts` now assert the outside files are listed
+once beside the count. The location groups live in
+`dashboard/src/IntentTreeGroups.tsx` and the outside group in
+`dashboard/src/IntentOutsideGroup.tsx`.
 
 ### 2. The header no longer counts files outside Intent locations
 

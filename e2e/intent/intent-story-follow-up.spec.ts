@@ -18,6 +18,7 @@ import {
   chooseStoryTab,
   intentFile,
   intentDiffReading,
+  intentStory,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import {
   expectFileFollowUpDialog,
@@ -41,6 +42,7 @@ import { sidePanelContents } from "../../dashboard/test-support/support/sidePane
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 
 const storyName = `${queuedIdentity} — Story A`;
+const landing = "Added dashboard/src/landing.ts";
 const assertion = "await intent.expectLatestTests();";
 // Old line 85 is the removed assertion; the story drops it and keeps the tails.
 const trunkSpec = `${lines("a", 84)}${assertion}\n${lines("tail", 5)}`;
@@ -50,7 +52,12 @@ test("Intent Changed tests Purpose offers file Follow up and opens the existing 
   page,
   origin,
 }) => {
-  const { intent } = await selectCompletedStoryInIntent(page, origin);
+  const { intent } = await selectCompletedStoryInIntent(page, origin, {
+    implementation: {
+      message: "add the landing code",
+      files: { "dashboard/src/landing.ts": "export const landing = 1;\n" },
+    },
+  });
   await chooseStoryTab(intent, "Changed tests");
   await expandIntentGroup(intent, "dashboard/tests");
   await intentFile(intent, changed.modified).click();
@@ -66,6 +73,16 @@ test("Intent Changed tests Purpose offers file Follow up and opens the existing 
   ]);
   await dialog.getByRole("button", { name: "Cancel" }).click();
   await expect(dialog).toBeHidden();
+
+  // A file outside every Intent location offers the same Follow up.
+  await intentStory(intent).outsideFile(landing).click();
+  await expect(reading.name).toHaveText(landing);
+  await fileFollowUp(intent, storyName).click();
+  await expectFileFollowUpDialog(dialog, storyName, [
+    "Path: dashboard/src/landing.ts",
+    /Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}/,
+  ]);
+  await dialog.getByRole("button", { name: "Cancel" }).click();
 });
 
 test("Intent Changed tests old line 85 Follow up starts blank and opens the terminal with that line in the first input", async ({

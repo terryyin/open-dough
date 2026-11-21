@@ -97,10 +97,10 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
   });
 
-  await test.step("the changed files outside every location are counted once each, pointing to Review changes", async () => {
+  await test.step("the changed files outside every location are counted and listed once each after the locations", async () => {
     await story.expectOutsideCount(2);
-    await expect(intent.getByText("App.tsx")).toHaveCount(0);
-    await expect(intent.getByText(/notes\.md/)).toHaveCount(0);
+    await expect(story.outside.getByText("App.tsx")).toHaveCount(1);
+    await expect(story.outside.getByText(/notes\.md/)).toHaveCount(1);
   });
 
   await test.step("the first changed location and its folders containing changes are open; the rest stay collapsed", async () => {

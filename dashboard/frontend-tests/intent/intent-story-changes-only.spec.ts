@@ -170,7 +170,9 @@ test("a story that changed only product code says Selected story only has no tes
   await expect(toggle).not.toBeChecked();
   await story.expectOutsideCount(1);
   await expect(none).toHaveCount(0);
-  await expect(intent.locator("[data-kind]")).toHaveCount(0);
+  await expect(
+    intent.locator("section.intent-location [data-kind]"),
+  ).toHaveCount(0);
   await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
     "aria-expanded",
     "false",

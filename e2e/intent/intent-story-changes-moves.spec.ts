@@ -4,8 +4,8 @@
 // path, its old folder gone; a rename into a location from outside is
 // inserted at its new path; a rename out of a location stays reviewable at
 // its old path; each opens the same diff Review changes shows. A rename with
-// neither path in a location is not listed and counts once, with the
-// product change, among the changed files outside the locations. All of this
+// neither path in a location is listed and counted once, with the product
+// change, among the changed files outside the locations. All of this
 // holds with "Selected story only" off and on, the location's unchanged file
 // left out when it is on. A folder's Summary lists the files the overlaid
 // tree shows, the story's added one included. The highlighted journey:
@@ -21,6 +21,7 @@ import {
   intentDiff,
   intentFile,
   openReviewFromIntent,
+  outsideGroup,
   reviewDiff,
   storyOnly,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
@@ -39,7 +40,7 @@ import {
   summaryRegion,
 } from "../../dashboard/test-support/intentScopeProofPage.ts";
 
-test("deletions and renames admitted by either path stay reviewable in Intent with Review changes' diff; a rename neither path admits counts once outside", async ({
+test("deletions and renames admitted by either path stay reviewable in Intent with Review changes' diff; a rename neither path admits is listed once outside", async ({
   page,
   origin,
 }) => {
@@ -93,8 +94,8 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
       );
     });
 
-    await test.step(`Selected story only ${state}: a rename neither path admits is not listed and counts once outside`, async () => {
-      await expect(intent.getByText(/notes\.md/)).toHaveCount(0);
+    await test.step(`Selected story only ${state}: a rename neither path admits is listed and counted once outside`, async () => {
+      await expect(outsideGroup(intent).getByText(/notes\.md/)).toHaveCount(1);
       await expectOutsideCount(intent, 2);
     });
 
