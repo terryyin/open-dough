@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-418#name-unavailable-published-session-review",
+  "title": "Correct the published-session review’s gap naming and tests",
+  "completedAt": "2026-11-21T09:37:40.445Z",
+  "developer": "Terry Yin",
+  "agent": "Nao-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
