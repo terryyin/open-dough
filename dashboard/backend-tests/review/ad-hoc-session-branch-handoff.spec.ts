@@ -1,37 +1,246 @@
-import { realpathSync } from "node:fs";
-import { commit } from "../../test-support/support/launchLanding.ts";
-import { reportingChild } from "../../test-support/support/completionRecovery.ts";
-import { keptRecords } from "../../test-support/support/cursorSessionRecovery.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { branchEntryCommand } from "../../test-support/support/reportingInputAssertions.ts";
-import { launched } from "../../test-support/support/startSessionLandingCapture.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
+// A Default main launch's first input carries a branch-entry command whose
+// outgoing request, admitted and handled through the typed branch-entry seam,
+// binds the original checkout's own branch and entered commit to that launch.
+import { execFile } from "node:child_process";
+import fs from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { promisify } from "node:util";
+import { expect, test } from "vitest";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { reportingReference } from "../../../Distribution/tests/support/launchLandingTestData.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { RefusedRequest } from "../../server/localOrigin.ts";
+import {
+  admitSessionBranchEntryRequest,
+  handleSessionBranchEntry,
+  type BranchEntryRequestAdmission,
+  type BranchEntrySubmission,
+} from "../../server/sessionBranchEntry.ts";
+import { unattachedInput } from "../../server/unattachedInput.ts";
+import { sessionBranchEntryEndpoint } from "../../src/sessionBranchResult.ts";
+import {
+  aCheckout,
+  aDefaultLaunch,
+  canonicalGitDirectory,
+  keep,
+  keptRecordOf,
+  minutesAgo,
+  source,
+  work,
+} from "../support/doneCaptureCase.ts";
+import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
-test.use({ serverMode: "boundary" });
+const runShell = promisify(execFile);
+const host = new URL(dashboardOrigin).host;
+const publishedSource = makeMe.aPublishedSource
+  .with({ id: source, label: "Open Dough", repository: "terryyin/open-dough" })
+  .please();
+const reporting = {
+  origin: dashboardOrigin,
+  reference: reportingReference,
+  command: "dashboard-completion",
+};
+const handle = (submission: BranchEntrySubmission, origin = dashboardOrigin) =>
+  handleSessionBranchEntry(submission, origin, () => publishedSource);
 
-test("the launch command binds the original checkout's own branch", async ({
-  dashboard,
-  origin,
-}) => {
-  const { record, sent } = await launched(dashboard, {
-    instruction: "Continue the draft",
-  });
-  const workspace = realpathSync(origin.project);
-  git(workspace, "switch", "--quiet", "-c", "draft");
-  const entered = commit(workspace, "prior-commit.txt");
-  const command = branchEntryCommand(sent);
-  if (command === undefined)
+type CapturedFetch = BranchEntryRequestAdmission & { readonly url: string };
+
+async function captureBranchEntryCommand(
+  command: string,
+  cwd: string,
+): Promise<CapturedFetch> {
+  const dir = fs.mkdtempSync(path.join(tmpdir(), "dough-branch-handoff-"));
+  try {
+    const preload = path.join(dir, "capture-fetch.mjs");
+    const captured = path.join(dir, "captured.json");
+    fs.writeFileSync(
+      preload,
+      `import { writeFileSync } from "node:fs";
+globalThis.fetch = (input, init) => {
+  const url = new URL(input instanceof Request ? input.url : String(input));
+  const origin = new Headers(init?.headers).get("Origin");
+  const bodyText = typeof init?.body === "string" ? init.body : "";
+  writeFileSync(process.env.CAPTURED_FETCH ?? "", JSON.stringify({ url: url.href, route: url.pathname, method: init?.method, origin, host: url.host, bodyText }));
+  return Promise.resolve(new Response("{}", { status: 200 }));
+};\n`,
+    );
+    await runShell("/bin/sh", ["-c", command], {
+      cwd,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: `--import=${pathToFileURL(preload).href}`,
+        CAPTURED_FETCH: captured,
+      },
+    });
+    return JSON.parse(fs.readFileSync(captured, "utf8")) as CapturedFetch;
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+async function aDraftCheckout() {
+  const checkout = await aCheckout();
+  const workspace = fs.realpathSync(checkout.integration);
+  await git(workspace, "switch", "--quiet", "-c", "draft");
+  const { entered } = await work(
+    checkout,
+    makeMe.aCheckoutWork.committing("entered", { at: minutesAgo(30) }),
+  );
+  return { checkout, workspace, entered };
+}
+
+const draftPlace = {
+  source,
+  host: "claude" as const,
+  workspace: "/w",
+  branch: "draft",
+};
+const validWire: BranchEntryRequestAdmission = {
+  route: sessionBranchEntryEndpoint,
+  method: "POST",
+  origin: dashboardOrigin,
+  host,
+  bodyText: JSON.stringify({ ...draftPlace, reference: reportingReference }),
+};
+
+function refuse(overrides: Partial<BranchEntryRequestAdmission>) {
+  try {
+    admitSessionBranchEntryRequest({ ...validWire, ...overrides });
+    throw new Error("expected a refusal");
+  } catch (error) {
+    expect(error).toBeInstanceOf(RefusedRequest);
+    return error as RefusedRequest;
+  }
+}
+
+test("the launch command binds the original checkout's own branch", async () => {
+  const { checkout, workspace, entered } = await aDraftCheckout();
+  const record = makeMe.aLaunchRecord
+    .adHoc({ title: "Continue the draft", instruction: "Continue the draft" })
+    .startingInDefaultCheckout({
+      workspace: checkout.integration,
+      startingRevision: checkout.base,
+      repository: canonicalGitDirectory(checkout),
+      branch: "refs/heads/main",
+    })
+    .inClaudeSession({ sessionId: "default-launch" })
+    .launchedAt(minutesAgo(60))
+    .reportingThrough(reporting)
+    .please();
+  keep(record);
+
+  const sent = unattachedInput(record.request, undefined);
+  const command = /^- branch entry command: (.+)$/m.exec(sent ?? "")?.[1];
+  if (command === undefined) {
     throw new Error("No branch entry command in launch input.");
+  }
 
-  const accepted = await reportingChild(command, workspace);
-  expect(accepted.ok, `${accepted.stderr}\n${accepted.stdout}`).toBe(true);
-  const answer = JSON.parse(accepted.stdout) as { branchEntry: unknown };
-  expect(answer).toMatchObject({
+  const observed = await captureBranchEntryCommand(command, workspace);
+  expect(observed).toMatchObject({
+    url: `${reporting.origin}${sessionBranchEntryEndpoint}`,
+    route: sessionBranchEntryEndpoint,
+    method: "POST",
+    origin: reporting.origin,
+    host,
+  });
+
+  const admitted = admitSessionBranchEntryRequest(observed);
+  const receipt = await handle(admitted.submission, admitted.origin);
+  expect(admitted).toEqual({
+    origin: reporting.origin,
+    submission: {
+      source,
+      host: record.session.host,
+      reference: reporting.reference,
+      workspace,
+      branch: "draft",
+    },
+  });
+  expect(receipt).toMatchObject({
     session: record.session.sessionId,
     branchEntry: { workspace, branch: "draft", committedTip: entered },
   });
-  const stored = keptRecords(dashboard.home).find(
-    (each) => each.session.sessionId === record.session.sessionId,
+  expect((await keptRecordOf(record.session.sessionId))?.branchEntry).toEqual(
+    receipt.branchEntry,
   );
-  expect(stored?.branchEntry).toEqual(answer.branchEntry);
+});
+
+test("a session-addressed handoff binds the named session to its checkout", async () => {
+  const { checkout, workspace, entered } = await aDraftCheckout();
+  const record = aDefaultLaunch(checkout, { sessionId: "by-session" }).please();
+  keep(record);
+
+  const bodyText = JSON.stringify({
+    source,
+    host: record.session.host,
+    session: record.session.sessionId,
+    workspace,
+    branch: "draft",
+  });
+  const admitted = admitSessionBranchEntryRequest({ ...validWire, bodyText });
+  const receipt = await handle(admitted.submission, admitted.origin);
+  expect(receipt).toMatchObject({
+    session: record.session.sessionId,
+    branchEntry: { workspace, branch: "draft", committedTip: entered },
+  });
+  expect((await keptRecordOf(record.session.sessionId))?.branchEntry).toEqual(
+    receipt.branchEntry,
+  );
+});
+
+test.each([
+  { name: "cross-origin", wire: { origin: "http://127.0.0.1:9" }, code: 403 },
+  { name: "wrong route", wire: { route: "/__agent-launch/other" }, code: 404 },
+  { name: "non-POST", wire: { method: "GET" }, code: 405 },
+  { name: "malformed body", wire: { bodyText: "{broken" }, code: 400 },
+])("admission refuses $name request", ({ wire, code }) => {
+  expect(refuse(wire).status).toBe(code);
+});
+
+test("an unknown session is refused", async () => {
+  keep();
+  await expect(
+    handle({ ...draftPlace, session: "missing" }),
+  ).rejects.toMatchObject({ status: 404 });
+});
+
+test("a reporting reference from another origin is refused", async () => {
+  keep(
+    makeMe.aLaunchRecord
+      .adHoc({ title: "Known" })
+      .reportingThrough(reporting)
+      .please(),
+  );
+  await expect(
+    handle(
+      { ...draftPlace, reference: reporting.reference },
+      "http://127.0.0.1:9999",
+    ),
+  ).rejects.toMatchObject({ status: 404 });
+});
+
+test("a handoff while still on the project's trunk is refused", async () => {
+  const checkout = await aCheckout();
+  const workspace = fs.realpathSync(checkout.integration);
+  const record = aDefaultLaunch(checkout, { sessionId: "trunk-launch" })
+    .reportingThrough(reporting)
+    .please();
+  keep(record);
+
+  await expect(
+    handle({
+      ...draftPlace,
+      reference: reporting.reference,
+      workspace,
+      branch: "main",
+    }),
+  ).rejects.toMatchObject({
+    status: 409,
+    message: "Identify your own branch after leaving the project's trunk.",
+  });
+  expect(
+    (await keptRecordOf(record.session.sessionId))?.branchEntry,
+  ).toBeUndefined();
 });

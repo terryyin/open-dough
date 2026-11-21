@@ -9,9 +9,7 @@ import {
 import type { DashboardServer } from "./dashboardServer.ts";
 import { repoRoot } from "./repositoryRoot.ts";
 
-export function branchEntryCommand(
-  input: string | undefined,
-): string | undefined {
+function branchEntryCommand(input: string | undefined): string | undefined {
   return /^- branch entry command: (.+)$/m.exec(input ?? "")?.[1];
 }
 

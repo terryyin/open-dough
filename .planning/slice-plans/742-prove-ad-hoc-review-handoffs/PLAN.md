@@ -188,7 +188,7 @@ plan 743 Slice 6, so that file was preserved untouched).
 ### 4. Prove the branch-entry command through its typed admission
 
 Type: Behavior
-Status: planned
+Status: done
 
 Build one Default main recorded request and its distinct retained launch
 reference, then create the draft branch and entered commit in its
@@ -206,6 +206,38 @@ extracting admission. Preserve the existing wrong-origin, unknown session
 and trunk refusals at their owning boundary. Run `ad-hoc-session-branch-entry`
 and `sessions/agent-completion-input` for branch-entry and first-input
 regressions. The new case must fail when branch detection is forced to trunk.
+
+**Accepted proof and learnings.** `sessionBranchEntry.ts` (204 lines) extracts
+`admitSessionBranchEntryRequest` (`404` route, `405` method, `403` same-origin,
+`400` JSON/`requestSchema`) and `handleSessionBranchEntry` (`404` session/origin
+lookup, `recordSessionBranchEntry`, optional `branchLandingContext`), keeping
+`submitSessionBranchEntry(req)` wired through `verifyLocalOrigin(req)` ->
+`admitSessionBranchEntryRequest` -> `handleSessionBranchEntry`.
+`ad-hoc-session-branch-handoff.spec.ts` (246 lines) runs 9 cases on plain Node
+Vitest (`[node]`): executing the `unattachedInput` command in the real `draft`
+checkout and binding `{ session: "default-launch", branchEntry: { workspace, branch: "draft", committedTip: entered } }`,
+exercising the `session` variant, and proving `403`, `404`, `405`, `400`,
+unknown-session `404`, mismatched-origin `404`, and trunk `409` refusals;
+`reportingInputAssertions.ts` (125 lines) unexports `branchEntryCommand`.
+Scratch forcing branch detection in `reportingInstruction.ts` to `"main"` failed
+the command case at `handleSessionBranchEntry` with the `409` trunk refusal.
+Verified by `typecheck:dashboard`, `ad-hoc-session-branch-handoff`,
+`ad-hoc-session-branch-entry`, `sessions/agent-completion-input`,
+`ad-hoc-branch-cursor-recovery`, and `launches/agent-launch-ad-hoc-codex-input`.
+Active slice clock recorded `16.8` minutes (`storyOverruns: 1`): implementation
+and all proof runs completed at `14.5` active minutes before writing the slice
+return report crossed `15.0` (extracting both typed seams plus 9 Vitest cases,
+scratch break check, and 3-case comparison in one slice left < 1 minute for
+report writing; zero unfinished changes remained).
+ Three-case local gate comparison (`--workers=2`, `caffeinate -s -i`, AC power):
+pre-change Playwright ran 3 cases in `4,621 ms` wall-clock (`4,094 ms` runner:
+`2,171 ms` race, `1,457 ms` precedence, `761 ms` handoff); post-change Node
+Vitest ran all 3 files (11 cases) in `2,464 ms` wall-clock (`2,293 ms` runner at
+1-min load `15.55`, and `2,350 ms` wall-clock / `1,940 ms` runner post-refactor:
+`1,012 ms` race, `779 ms` precedence, `632 ms` handoff file / `398 ms` command
+case), retiring `adHocReview.ts` and `branchResultValidation.ts` (`-70` lines,
+zero wrappers added) while preserving every Git, persistence, native-Done, and
+refusal check per ADR 0010.
 
 ## Local gates
 

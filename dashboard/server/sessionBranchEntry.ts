@@ -9,6 +9,7 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import {
   branchPinOwner,
+  sessionBranchEntryEndpoint,
   type SessionBranchEntry,
 } from "../src/sessionBranchResult.ts";
 import {
@@ -22,13 +23,17 @@ import {
   branchLandingContext,
 } from "./branchLandingContext.ts";
 import { isReportingRecord } from "./completionAdmission.ts";
-import { jsonBody } from "./jsonRequestBody.ts";
+import { textBody } from "./jsonRequestBody.ts";
 import {
   keepBranchEntryRefs,
   releaseBranchEntryRefs,
 } from "./launchRecordPins.ts";
 import { changeSessionRecord, keptRecords } from "./launchRecordStore.ts";
-import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
+import {
+  RefusedRequest,
+  verifyLocalOrigin,
+  verifySameOrigin,
+} from "./localOrigin.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import {
   knownSource,
@@ -46,11 +51,58 @@ const requestSchema = z.union([
   branchRequest.extend({ reference: z.uuid() }),
   branchRequest.extend({ session: z.string().min(1) }),
 ]);
-type BranchRequest = z.infer<typeof requestSchema>;
+export type BranchEntrySubmission = z.infer<typeof requestSchema>;
+
+export type BranchEntryRequestAdmission = {
+  readonly route: string;
+  readonly method: string | undefined;
+  readonly origin: string | null | undefined;
+  readonly host: string | undefined;
+  readonly bodyText: string;
+};
+
+export type AdmittedBranchEntryRequest = {
+  readonly origin: string;
+  readonly submission: BranchEntrySubmission;
+};
+
+export type SessionBranchEntryReceipt = {
+  readonly session: string;
+  readonly branchEntry: SessionBranchEntry;
+  readonly landingContext?: string;
+};
+
+// Admits a branch-entry request from its wire values: the branch-entry route,
+// POST, same-origin Origin against Host, and a body matching the submission.
+export function admitSessionBranchEntryRequest(
+  request: BranchEntryRequestAdmission,
+): AdmittedBranchEntryRequest {
+  if (request.route !== sessionBranchEntryEndpoint) {
+    throw new RefusedRequest(404, "This is not a branch handoff route.");
+  }
+  if (request.method !== "POST") {
+    throw new RefusedRequest(405, "Only POST is accepted here.");
+  }
+  verifySameOrigin(request.origin, request.host);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(request.bodyText);
+  } catch {
+    throw new RefusedRequest(400, "The branch handoff request is malformed.");
+  }
+  const submission = requestSchema.safeParse(parsed);
+  if (!submission.success) {
+    throw new RefusedRequest(400, "The branch handoff request is malformed.");
+  }
+  return {
+    origin: `http://${request.host ?? ""}`,
+    submission: submission.data,
+  };
+}
 
 async function namedLaunch(
   source: PublishedSource,
-  request: BranchRequest,
+  request: BranchEntrySubmission,
   origin: string,
 ) {
   if ("session" in request)
@@ -108,22 +160,14 @@ export async function recordSessionBranchEntry(
   }
 }
 
-export async function submitSessionBranchEntry(req: IncomingMessage) {
-  verifyLocalOrigin(req);
-  if (req.method !== "POST")
-    throw new RefusedRequest(405, "Only POST is accepted here.");
-  const parsed = requestSchema.safeParse(await jsonBody(req));
-  if (!parsed.success)
-    throw new RefusedRequest(400, "The branch handoff request is malformed.");
-  const request = parsed.data;
-  const source = knownSource(request.source);
-  const record = await namedLaunch(
-    source,
-    request,
-    `http://${req.headers.host}`,
-  );
+export async function handleSessionBranchEntry(
+  request: BranchEntrySubmission,
+  origin: string,
+  sourceOf: (id: string) => PublishedSource = knownSource,
+): Promise<SessionBranchEntryReceipt> {
+  const source = sourceOf(request.source);
+  const record = await namedLaunch(source, request, origin);
   const entry = await recordSessionBranchEntry(source, record, request);
-  const origin = `http://${req.headers.host}`;
   const reference = record.request.reporting?.reference ?? randomUUID();
   const answered = await branchLandingContext(
     machineDashboardPath("reporting", reference, "branch-landing"),
@@ -142,4 +186,19 @@ export async function submitSessionBranchEntry(req: IncomingMessage) {
     branchEntry: entry,
     ...(landingContext === undefined ? {} : { landingContext }),
   };
+}
+
+export async function submitSessionBranchEntry(
+  req: IncomingMessage,
+): Promise<SessionBranchEntryReceipt> {
+  verifyLocalOrigin(req);
+  const host = req.headers.host;
+  const { origin, submission } = admitSessionBranchEntryRequest({
+    route: new URL(req.url ?? "", `http://${host ?? "local"}`).pathname,
+    method: req.method,
+    origin: req.headers.origin,
+    host,
+    bodyText: req.method === "POST" ? await textBody(req) : "",
+  });
+  return handleSessionBranchEntry(submission, origin);
 }
