@@ -116,90 +116,6 @@ not add a third kind of Done row.
 **Effort hypothesis:** L, medium confidence. The critical uncertainty is
 reconciling workflow publication and local Done across machines.
 
-<a id="open-review-in-intent"></a>
-
-### Read every file a story changed in Intent
-
-**Identity:** SEED-420#open-review-in-intent
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/759-read-every-changed-file-in-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e2846f0afd3789904856983d69ca602b6f8de18bc5cb9e06cd40fb32a4b2c671","plan":"9dbd97a002241b323f9c6e6300ba9130657859e3100e8f29029936f45b315f8f"}}
-```
-
-This is the first of three stories that together open a story's change
-review in Intent. The second
-[moves the comparison choices](#choose-story-comparison-in-intent) and the
-third [sends **Review changes** there](#route-review-changes-to-intent).
-
-**Goal.** A developer reading a selected story in Intent sees every file the
-story changed, production code beside tests, and reads each diff next to its
-Proof. Today Intent lists only the changed tests in its Intent locations and
-counts the rest, so the production code needs a second review in the Side
-panel.
-
-**Scope.**
-
-- **Changes** replaces **Changed tests** as the name of the selected story's
-  file view.
-- **Changes** lists every file the story's comparison changed. A file in an
-  Intent location stays in that location's tree. Any other changed file,
-  such as production code, a plan or a document, is listed after the
-  locations under its repository folders, with the same rows, change
-  markers and folder controls.
-- A listed file's Purpose is its diff, with the diff notes and Follow up
-  that Intent's diffs offer today. Proof reads a test file's CI evidence as
-  today and says when a file has no file-level CI evidence. Going from a
-  diff to Proof or to CI comparison and back returns to the same file and
-  line, as it does today for a changed test.
-- **Selected story only** narrows the tree to the changed files, including
-  those outside Intent locations.
-- The header's count of changed files outside Intent locations goes, since
-  the files are listed.
-- A project with no configured Intent locations still lists the selected
-  story's changed files under their repository folders.
-- The comparison is the story's default one, as Intent reads it today. A
-  Taken story with no workspace on this machine, several worktrees holding
-  its claim, or a failed read keeps today's explanation and Retry.
-
-Out of scope: the comparison choices and **Review changes** on a card, which
-the next two stories own. Also the
-[Intent only and Changes only filters, the Home control and the repository
-inventory](#filter-review-files), and
-[sidebar behavior](SEED-417-use-sidebars-consistently-across-the-dashboard.md).
-The selected file and line stay presentation state and are not part of a
-link.
-
-**Key examples.**
-
-- A Taken story's worktree changed `dashboard/server/landing.ts`, the spec
-  `dashboard/backend-tests/review/landing.spec.ts` in an Intent location, and
-  its `PLAN.md`. The story's **Changes** view lists the spec in its location
-  and the other two after the locations. Selecting `landing.ts` shows its
-  diff. No count of outside files shows in the header.
-- The developer scrolls the spec's diff to a changed case, opens Proof,
-  reads its CI evidence and returns to Purpose. The diff is at the same
-  line. Proof of `landing.ts` says that it has no file-level CI evidence.
-- **Selected story only** leaves the spec, `landing.ts` and `PLAN.md`. A
-  story that changed only product code lists that code and says that no
-  test files in Intent locations changed.
-- A Done story whose worktree is retired lists every file of its published
-  completion, production code included.
-- In a project with no Intent locations, the selected story's **Changes**
-  lists its changed files and still says that no locations are configured.
-
-**UI.** The story's Intent keeps its three views in the order CI comparison,
-**Changes**, Intent coverage. Files outside Intent locations follow the
-locations in the same tree under one heading that says they are outside
-Intent locations.
-
-**Architecture.** [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
-makes Intent the shared context for reviewing, with a scope of project,
-optional story, comparison and path. The tree becomes one join of the Intent
-locations with all changed files, replacing the count of files it left out.
-No Accepted decision conflicts.
-
-**Effort hypothesis:** M, medium confidence. The diff, the Proof round trip
-and the default comparison already exist in Intent.
-
 <a id="choose-story-comparison-in-intent"></a>
 
 ### Choose what a story's review compares in Intent
@@ -209,7 +125,7 @@ and the default comparison already exist in Intent.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-Split from [Read every file a story changed in Intent](#open-review-in-intent)
+Split from the completed SEED-420#open-review-in-intent
 with a [provisional plan](../slice-plans/760-choose-story-comparison-in-intent/PLAN.md).
 
 **Goal.** A developer reviewing a story in Intent chooses what is compared
@@ -276,7 +192,7 @@ in the Side panel review. Hosting them in Intent's header is new.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-Split from [Read every file a story changed in Intent](#open-review-in-intent)
+Split from the completed SEED-420#open-review-in-intent
 with a [provisional plan](../slice-plans/761-route-review-changes-to-intent/PLAN.md).
 
 **Goal.** A story has one review destination. **Review changes** on a Story

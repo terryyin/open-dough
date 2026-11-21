@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_open-review-in-intent.json",
+      "identity": "SEED-420#open-review-in-intent",
+      "completedAt": "2026-11-21T17:14:05.193Z",
+      "blob": "c9100463ad5bc4f7b92017709d6427013e754261"
+    },
+    {
       "fileName": "SEED-413_speed-intent-ci-comparison-proof.json",
       "identity": "SEED-413#speed-intent-ci-comparison-proof",
       "completedAt": "2026-11-21T10:49:05.914Z",

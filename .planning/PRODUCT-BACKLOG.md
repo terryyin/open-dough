@@ -35,7 +35,6 @@ intent introduced or affected by a newly developed story.
 - [Get fast proof of Intent source and story reading](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading) — SEED-413#speed-intent-source-and-story-reading ([plan](slice-plans/755-speed-intent-source-and-story-reading/PLAN.md))
 - [Tie Done capture cases to the real branch entry and retire the fold’s residue](seeds/SEED-413-renovate-dashboard-unit-tests.md#tie-done-capture-cases-to-production) — SEED-413#tie-done-capture-cases-to-production ([plan](slice-plans/754-tie-done-capture-cases-to-production/PLAN.md))
 - [Get fast proof of board and side-panel interactions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-board-and-panel-proof) — SEED-413#speed-dashboard-board-and-panel-proof ([plan](slice-plans/758-speed-dashboard-board-and-panel-proof/PLAN.md))
-- [Read every file a story changed in Intent](seeds/SEED-420-unified-intent-review.md#open-review-in-intent) — SEED-420#open-review-in-intent ([plan](slice-plans/759-read-every-changed-file-in-intent/PLAN.md))
 
 ## Backlog list
 

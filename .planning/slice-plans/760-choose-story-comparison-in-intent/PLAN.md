@@ -9,7 +9,7 @@ This provisional plan is **awaiting story refinement — not ready for slice-pla
 
 A developer reviewing a story in Intent chooses what is compared without
 leaving it. The seed holds the scope and examples. They were split from
-[Read every file a story changed in Intent](../../seeds/SEED-420-unified-intent-review.md#open-review-in-intent)
+the completed SEED-420#open-review-in-intent
 at `7634d96a0`. No original executable plan existed. These slices provisionally
 receive that story's comparison scope. Refinement must confirm the examples
 and proof operations before this plan becomes executable.
