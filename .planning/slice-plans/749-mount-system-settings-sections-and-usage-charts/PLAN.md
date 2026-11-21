@@ -164,7 +164,7 @@ large marks fails the coincident case and is reverted.
 ### 4. Settings sections read and change through typed sources
 
 Type: Structure
-Status: planned
+Status: done
 
 Give `OpenAISettings`, `SavedTerminalThemeProvider` and `ProjectsSettings`
 their typed sources, with the page sources passed by `SystemSettings` and

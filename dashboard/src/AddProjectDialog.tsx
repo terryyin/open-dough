@@ -1,20 +1,22 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { projectAddEndpoint } from "./projectConfiguration.ts";
-import { githubRepository, type ProjectField } from "./projectInput.ts";
-import type { PublishedSource } from "./publishedSource.ts";
+import type { AddedProject } from "./projectConfiguration.ts";
+import {
+  githubRepository,
+  ProjectInputProblem,
+  type ProjectField,
+} from "./projectInput.ts";
+import type { ProjectSettingsSource } from "./projectSettingsSource.ts";
 import "./launch-dialog.css";
 import "./frame-controls.css";
 
-type AddedProject = {
-  readonly project: PublishedSource;
-  readonly projects: readonly PublishedSource[];
-};
 type Problem = { readonly error: string; readonly field?: ProjectField };
 
 export function AddProjectDialog({
+  add,
   onAdded,
   onClose,
 }: {
+  readonly add: ProjectSettingsSource["add"];
   readonly onAdded: (answer: AddedProject) => void;
   readonly onClose: (added: boolean) => void;
 }) {
@@ -35,24 +37,16 @@ export function AddProjectDialog({
     setSubmitting(true);
     setProblem(undefined);
     try {
-      const response = await fetch(projectAddEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ githubUrl, localPath }),
-      });
-      const answer = (await response.json()) as AddedProject & Problem;
-      if (!response.ok) {
-        setProblem(answer);
-        return;
-      }
+      const answer = await add({ githubUrl, localPath });
       added.current = true;
       onAdded(answer);
       dialog.current?.close();
-    } catch {
-      setProblem({
-        error:
-          "The project could not be added. Check the local dashboard server and try again.",
-      });
+    } catch (error) {
+      setProblem(
+        error instanceof ProjectInputProblem
+          ? { error: error.message, field: error.field }
+          : { error: error instanceof Error ? error.message : String(error) },
+      );
     } finally {
       setSubmitting(false);
     }

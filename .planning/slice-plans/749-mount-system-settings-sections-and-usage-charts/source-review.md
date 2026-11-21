@@ -27,18 +27,18 @@ and Escape. The four built-app frame specs, full-group comparison and
 | S07 | Move the two existing `system-settings-terminal-theme` cases to plain Vitest on mounted Chromium using `TerminalThemeSettings`. (Goal, Scope) | slice 6 | |
 | S08 | Move the existing `system-settings-project-management-touch` case to plain Vitest on mounted Chromium using `ProjectsSettings`. (Goal, Scope) | slice 6 | |
 | S09 | Move the two existing `project-add-dialog` cases to plain Vitest on mounted Chromium using `ProjectsSettings`. (Goal, Scope) | slice 6 | |
-| S10 | `OpenAISettings` reads its setting through a typed source behind its reading hook. (Goal, Scope) | slice 4 | |
-| S11 | `OpenAISettings` changes its setting through that source. (Scope) | slice 4 | |
-| S12 | `TerminalThemeSettings` reads its setting through a typed source behind its reading hook. (Goal, Scope) | slice 4 | |
-| S13 | `TerminalThemeSettings` changes its setting through that source. (Scope) | slice 4 | |
-| S14 | `ProjectsSettings` reads its setting through a typed source behind its reading hook. (Goal, Scope) | slice 4 | |
-| S15 | `ProjectsSettings` changes its setting through that source. (Scope) | slice 4 | |
-| S16 | The page supplies the OpenAI source that communicates with the endpoints. (Scope) | slice 4 | |
-| S17 | The page supplies the terminal theme source that communicates with the endpoints. (Scope) | slice 4 | |
-| S18 | The page supplies the Projects source that communicates with the endpoints. (Scope) | slice 4 | |
-| S19 | The OpenAI source preserves the existing endpoint refusal wording. (Scope) | slice 4 | |
-| S20 | The terminal theme source preserves the existing endpoint refusal wording. (Scope) | slice 4 | |
-| S21 | The Projects source preserves the existing endpoint refusal wording. (Scope) | slice 4 | |
+| S10 | `OpenAISettings` reads its setting through a typed source behind its reading hook. (Goal, Scope) | slice 4 | observed: OpenAISettings.tsx passes stable typed source.read to useLocalSetting. The mounted OpenAI case reads the actual GET route and status refusal |
+| S11 | `OpenAISettings` changes its setting through that source. (Scope) | slice 4 | observed: OpenAISettings.tsx invokes typed save and remove through useLocalSetting.change. Mounted source cases observe the save request and Configuration E2E covers actual save and remove |
+| S12 | `TerminalThemeSettings` reads its setting through a typed source behind its reading hook. (Goal, Scope) | slice 4 | observed: savedTerminalTheme.ts reads source.read through the saved-theme hook. The mounted terminal source case observes the GET and rendered read refusal |
+| S13 | `TerminalThemeSettings` changes its setting through that source. (Scope) | slice 4 | observed: savedTerminalTheme.ts saves through source.save. Mounted source proof observes the draft POST and fallback. Configuration E2E observes persistent choice and failed save |
+| S14 | `ProjectsSettings` reads its setting through a typed source behind its reading hook. (Goal, Scope) | slice 4 | observed: ProjectsSettings.tsx reads through the typed source with the current AbortSignal. The mounted Projects source case observes the request, read refusal and retry |
+| S15 | `ProjectsSettings` changes its setting through that source. (Scope) | slice 4 | observed: ProjectsSettings.tsx passes typed add, visibility and removal to its controls. Mounted source proof observes the draft and field refusal; built-app and E2E cover visible selection and persistent changes |
+| S16 | The page supplies the OpenAI source that communicates with the endpoints. (Scope) | slice 4 | observed: SystemSettings.tsx passes pageOpenAIConfigurationSource. The retained built-app OpenAI cases run from the normal page, and Configuration E2E exercises real endpoints |
+| S17 | The page supplies the terminal theme source that communicates with the endpoints. (Scope) | slice 4 | observed: App.tsx passes pageTerminalThemeSource to SavedTerminalThemeProvider. The built-app theme, Terminals and Configuration E2E prove the page wiring and shared saved state |
+| S18 | The page supplies the Projects source that communicates with the endpoints. (Scope) | slice 4 | observed: SystemSettings.tsx passes pageProjectSettingsSource. Built-app Project Add, hide selection and Settings Look and project E2E exercise the normal page |
+| S19 | The OpenAI source preserves the existing endpoint refusal wording. (Scope) | slice 4 | observed: system-settings-page-sources.spec.ts OpenAI case reads the exact status fallback and the credential-folder save refusal from the visible alert |
+| S20 | The terminal theme source preserves the existing endpoint refusal wording. (Scope) | slice 4 | observed: system-settings-page-sources.spec.ts terminal theme case reads exact endpoint read refusal and the save fallback including previous-theme-kept wording |
+| S21 | The Projects source preserves the existing endpoint refusal wording. (Scope) | slice 4 | observed: system-settings-page-sources.spec.ts Projects case observes the read fallback and exact Add refusal linked to Local path. Project E2E exercises real refusal and retry |
 | S22a | Mounted OpenAI cases build replies of the shared setting contracts with page-loadable MakeMe steps. (Goal, Scope) | slice 5 | |
 | S22b | Mounted terminal theme cases build replies of the shared setting contracts with page-loadable MakeMe steps. (Goal, Scope) | slice 6 | |
 | S22c | Mounted Projects cases build replies of the shared setting contracts with page-loadable MakeMe steps. (Goal, Scope) | slice 6 | |
