@@ -2,6 +2,17 @@
 
 **Identity:** SEED-413#restore-done-capture-proof-after-composed-reviews
 **Source:** [Restore Done capture proof and focus session Review tests](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#restore-done-capture-proof-after-composed-reviews)
+**Source review:** [Source-only commitments](source-review.md)
+
+## Execution context
+
+- Agent Rina-chan, publisher `dashboard-territory.local-open-dough`, Story Branch Mode.
+- Execution checkout `/Users/terryyin/git/open-dough/.worktrees/restore-done-capture-proof-and-focus-session-rev`, branch `codex/restore-done-capture-proof-and-focus-session-rev`. Integration checkout `/Users/terryyin/git/open-dough`.
+- Authorized remote `origin`, target `main`. Starting revision `623efa1fd11c9b09d321dea5d6bbb89765cb2c5e`; established claim on trunk and branch `44d066285382c809f7ed78c081cf438ebe3f3715`.
+- Checkout-bound `npm ci` and `npm run typecheck:dashboard` passed with Node 24.21.0. The tracked check-only hook uses staged lint and Dashboard typecheck.
+- GitHub Actions `ci.yml` (CI), branch `codex/restore-done-capture-proof-and-focus-session-rev`. Codex stream coordinator `rina-743-1b49221c`, directory `/tmp/dough-ci-501/watch-dRtRwr`, session 75465, PID 71136, cell `g65:12`. The claim's trunk CI is unobserved.
+- Replanning stays within existing planning authority.
+
 
 ## Correction input
 
@@ -101,7 +112,7 @@ This review found no remaining slice-specific planning concern.
 ### 1. Attribute Default main commits from Git's reflog
 
 Type: Structure
-Status: planned
+Status: done
 
 Reuse the existing dated Git checkout recipes in the composed rebased-run,
 commit-run and rewrite specs. Exercise `readSessionCommits` with Git's own
@@ -117,6 +128,17 @@ composed history case only when its distinct assertion has a passing owner.
 is rejected or the capture selects the discarded tip. Preserve omitted older
 or imported work, empty runs, and existing failed-capture outcomes. Keep
 fixture histories small enough to fit the default timeout.
+
+**Accepted proof.** Six backend specs passed 29 cases with the AC guard,
+default timeouts and two workers. The literal command and captured pairs are in
+the checkout evidence `slice1-return.md` and `slice1-reflog-focused.log.run.json`.
+The amended pull/rebase example observes the actual pushed tip and surviving
+bytes. The fetch/rebase, two merge forms, continued cherry-pick and both
+autosquash forms observe their own capture pairs. The composed pulled-story
+comparison retains ordered selection and diff isolation. The checkout-edit
+case in `done-kept-session-unavailable.spec.ts` owns the repeated empty-run
+response. The three edited specs go from 9 to 8 cases and 15 to 4 standalone
+Review reads. The final accounting uses the full affected roster.
 
 ### 2. Prove which Default main evidence the Done write saves
 
