@@ -50,9 +50,6 @@ export async function aCheckout<Name extends string = "base">({
   return { ...repository, base, gitDirectory };
 }
 
-export const canonicalGitDirectory = (checkout: Checkout) =>
-  checkout.gitDirectory;
-
 type LaunchFacts = {
   sessionId?: string;
   title?: string;
@@ -88,59 +85,6 @@ export const aDefaultLaunch = (
     .ofDefaultMainLaunch(sessionId, checkout, { title, gitDirectory })
     .launchedAt(launchedAt);
 
-// A launch whose start established the worktree `workspace` of the checkout
-// on `branch` at `startingRevision` (the base by default), for review.
-export const anIsolatedLaunch = (
-  checkout: Checkout,
-  {
-    workspace,
-    branch,
-    startingRevision,
-    sessionId = `isolated-${branch}`,
-    title,
-    launchedAt = minutesAgo(60),
-  }: LaunchFacts & {
-    workspace: string;
-    branch: string;
-    startingRevision?: string;
-  },
-) =>
-  makeMe.aLaunchRecord
-    .ofIsolatedLaunch(sessionId, checkout, {
-      workspace,
-      branch,
-      startingRevision,
-      title,
-    })
-    .launchedAt(launchedAt);
-
-// The project's checkout with an origin, holding `files` at its base, and its
-// worktree on `branch` there.
-async function aCheckoutWithWorktree(
-  branch: string,
-  files: Readonly<Record<string, string>> = {},
-) {
-  const checkout = await aCheckout({
-    history: makeMe.aRepository
-      .withBaseBeforeEveryLaunch(files)
-      .withWorkspace(branch, { from: "base" }),
-    withOrigin: true,
-  });
-  const workspace = checkout.execution;
-  if (workspace === undefined)
-    throw new Error(`Missing the ${branch} worktree.`);
-  return { checkout, workspace };
-}
-
-// That checkout with its worktree named by the canonical path Git registers.
-export async function aCheckoutWithCanonicalWorktree(
-  branch: string,
-  files: Readonly<Record<string, string>> = {},
-) {
-  const { checkout, workspace } = await aCheckoutWithWorktree(branch, files);
-  return { checkout, workspace: realpathSync(workspace) };
-}
-
 // Keeps these records as the project's whole store in a private machine
 // home, and answers the home.
 export function keep(...records: LaunchRecord[]) {
@@ -166,12 +110,6 @@ export const work = <Name extends string>(
   checkout: Checkout,
   steps: CheckoutWorkBuilder<Name>,
 ) => performCheckoutWork(checkout, steps.please());
-
-// The same checkout, working in its worktree `workspace` instead.
-export const inWorktree = (checkout: Checkout, workspace: string) => ({
-  ...checkout,
-  integration: workspace,
-});
 
 export const markDone = (record: LaunchRecord, at = minutesAgo(10)) =>
   setRecordDoneAt(source, record.session, at);

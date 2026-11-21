@@ -9,35 +9,39 @@ import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
 import { landingReportingReference } from "../../src/launchLanding.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { composedLandingStores } from "../support/composedLandingStores.ts";
-import {
-  aCheckoutWithCanonicalWorktree,
-  aDefaultLaunch,
-  anIsolatedLaunch,
-  canonicalGitDirectory,
-  inWorktree,
-  keep,
-  minutesAgo,
-  source,
-  work,
-  type Checkout,
-} from "../support/doneCaptureCase.ts";
+import { minutesAgo, source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
-function attemptLanding(checkout: Checkout, workspace: string, branch: string) {
-  const reference = "11111111-0000-4000-8000-000000000745";
-  const reporting = { origin: dashboardOrigin, reference, command: "report" };
-  const record = anIsolatedLaunch(checkout, { workspace, branch })
-    .reportingThrough(reporting)
-    .please();
+const reference = "11111111-0000-4000-8000-000000000745";
+const reporting = { origin: dashboardOrigin, reference, command: "report" };
+
+// A kept case whose isolated launch on `branch` reports its landing through
+// the attempt the dashboard accepted for it.
+async function anAttemptLanding<Branch extends string>(branch: Branch) {
+  const { checkout, worktrees, records, timeline, performWork } =
+    await aDoneCaptureCase()
+      .withOrigin()
+      .withWorkspace(branch)
+      .withIsolatedLaunch(
+        "isolated-launch",
+        { launched: 60 },
+        branch,
+        (launch) => launch.reportingThrough(reporting),
+      )
+      .kept()
+      .please();
+  const workspace = worktrees[branch];
+  const record = records["isolated-launch"];
   const attempt = makeMe.anAcceptedAttempt
     .adHoc()
     .withId(reference)
-    .acceptedAt(minutesAgo(60))
+    .acceptedAt(timeline["isolated-launch"].launchedAt)
     .reportingTo(dashboardOrigin)
     .capturingLanding({
       reporting,
       landingRepository: makeMe.aLandingAuthority
-        .ofRepository(canonicalGitDirectory(checkout))
+        .ofRepository(checkout.gitDirectory)
         .inWorktree({ workspace, branch })
         .please(),
     })
@@ -46,31 +50,42 @@ function attemptLanding(checkout: Checkout, workspace: string, branch: string) {
       sessionId: record.session.sessionId,
     })
     .please();
-  return { record, reference, reporting, attempts: [attempt] };
+  return { checkout, workspace, record, attempts: [attempt], performWork };
+}
+
+// A kept case whose Default main launch declared its landing from `branch`.
+async function aRetainedLanding<Branch extends string>(branch: Branch) {
+  const { checkout, worktrees, records, performWork } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace(branch)
+    .withDefaultMainLaunch(
+      "default-launch",
+      { launched: 60 },
+      (launch, { checkout, worktrees }) =>
+        launch.withDeclaredLanding({
+          repository: checkout.gitDirectory,
+          workspace: worktrees[branch] ?? "",
+          branch,
+          committedTip: checkout.base,
+          origin: dashboardOrigin,
+        }),
+    )
+    .kept()
+    .please();
+  const record = records["default-launch"];
+  const workspace = worktrees[branch];
+  return { checkout, workspace, record, attempts: [], performWork };
 }
 
 test.each(["retained", "attempt"] as const)(
   "the %s landing keeps the creation and sessions outside its write",
   async (path) => {
     const branch = "landing-draft";
-    const { checkout, workspace } =
-      await aCheckoutWithCanonicalWorktree(branch);
+    const { checkout, workspace, record, attempts, performWork } =
+      await (path === "attempt"
+        ? anAttemptLanding(branch)
+        : aRetainedLanding(branch));
     const { base } = checkout;
-    const { record, attempts } =
-      path === "attempt"
-        ? attemptLanding(checkout, workspace, branch)
-        : {
-            record: aDefaultLaunch(checkout)
-              .withDeclaredLanding({
-                repository: canonicalGitDirectory(checkout),
-                workspace,
-                branch,
-                committedTip: base,
-                origin: dashboardOrigin,
-              })
-              .please(),
-            attempts: [],
-          };
     const reference = landingReportingReference(record);
     if (reference === undefined) throw new Error("Missing landing reference.");
     const creation = makeMe.aCreationRecord
@@ -93,14 +108,13 @@ test.each(["retained", "attempt"] as const)(
       .inClaudeSession({ sessionId: "past-retention" })
       .markedDoneAt("2020-01-01T00:00:00.000Z")
       .please();
-    keep();
     const stores = composedLandingStores({
       attempts: { [source]: attempts },
       records: { [source]: [record, creation, other, agedOut] },
     });
-    const { draft: revision } = await work(
-      inWorktree(checkout, workspace),
-      makeMe.aCheckoutWork.committing("draft", { at: minutesAgo(30) }),
+    const { draft: revision } = await performWork(
+      (at) => makeMe.aCheckoutWork.committing("draft", { at: at(30) }),
+      { in: branch },
     );
     const submission = makeMe.aLandingSubmission
       .forLaunch({ reference })
@@ -152,7 +166,7 @@ test.each(["retained", "attempt"] as const)(
     expect(stores.records()[source]).toEqual([
       {
         ...prepared,
-        landing: { ...landed, repository: canonicalGitDirectory(checkout) },
+        landing: { ...landed, repository: checkout.gitDirectory },
       },
       creation,
       done,
@@ -166,13 +180,8 @@ test.each(["retained", "attempt"] as const)(
 );
 
 test("a late prepare keeps the preparations already saved by the next prepare", async () => {
-  const branch = "delayed-prepare";
-  const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
-  const { record, reference, attempts } = attemptLanding(
-    checkout,
-    workspace,
-    branch,
-  );
+  const { checkout, record, attempts } =
+    await anAttemptLanding("delayed-prepare");
   const { base } = checkout;
   const submission = () =>
     makeMe.aLandingSubmission
@@ -182,7 +191,6 @@ test("a late prepare keeps the preparations already saved by the next prepare", 
   const next = submission()
     .inDelivery("11111111-0000-4000-8000-000000000746")
     .please();
-  keep();
   const stores = composedLandingStores({
     attempts: { [source]: attempts },
     records: { [source]: [record] },
@@ -209,26 +217,18 @@ test("a late prepare keeps the preparations already saved by the next prepare", 
 
 test("a late prepare leaves a replacement launch's record untouched", async () => {
   const branch = "replaced-launch";
-  const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
-  const { record, reference, reporting, attempts } = attemptLanding(
-    checkout,
-    workspace,
-    branch,
-  );
+  const { checkout, workspace, record, attempts } =
+    await anAttemptLanding(branch);
   const { base } = checkout;
   const submission = makeMe.aLandingSubmission
     .forLaunch({ reference })
     .comparing({ base, revision: base })
     .please();
-  const replacement = anIsolatedLaunch(checkout, {
-    workspace,
-    branch,
-    sessionId: record.session.sessionId,
-    launchedAt: minutesAgo(5),
-  })
+  const replacement = makeMe.aLaunchRecord
+    .ofIsolatedLaunch(record.session.sessionId, checkout, { workspace, branch })
+    .launchedAt(minutesAgo(5))
     .reportingThrough(reporting)
     .please();
-  keep();
   const stores = composedLandingStores({
     attempts: { [source]: attempts },
     records: { [source]: [record] },

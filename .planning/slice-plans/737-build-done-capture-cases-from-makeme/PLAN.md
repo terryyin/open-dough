@@ -253,7 +253,7 @@ with the landing-context write. Paired timings show no case near 5 s (G4).
 ### 7. Branch handoff and landing record cases share the declaring launch
 
 Type: Behavior
-Status: planned
+Status: done
 
 Arrange the handoff and landing-record cases from the declaring-launch case
 of slice 3 and the publisher values of slice 6, including
@@ -265,6 +265,15 @@ races.
 `landingRecordPersistence`. Keep the bound branch, the refusals, the saved
 publisher file, the concurrent Done and changed-entry answers, and both late
 prepare survivors.
+
+**Accepted.** Handoff, landing-handoff and landing-record cases build from
+the declaring and isolated case launches; the handoff request, context save and
+late prepare remain the operations under test. `ofDeclaringDefaultMainLaunch`
+records `defaultTip: base` as the real proposal does.
+`captureBranchEntryCommand` moved to `capturedCommandFetch.ts`, and
+`doneCaptureCase.ts` retired its worktree and isolated-launch presets
+(140 lines). Proof: 49 backend files in `review`, `launches` and `server`
+(218 tests) and the frontend group (176).
 
 ### 8. Quiet completion cases show the launch, receipt and Done sequence
 

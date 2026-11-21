@@ -1,12 +1,7 @@
 // A Default main launch's first input carries a branch-entry command whose
 // outgoing request, admitted and handled through the typed branch-entry seam,
 // binds the original checkout's own branch and entered commit to that launch.
-import { execFile } from "node:child_process";
 import fs from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
-import { pathToFileURL } from "node:url";
-import { promisify } from "node:util";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { reportingReference } from "../../../Distribution/tests/support/launchLandingTestData.mjs";
@@ -20,19 +15,18 @@ import {
 } from "../../server/sessionBranchEntry.ts";
 import { unattachedInput } from "../../server/unattachedInput.ts";
 import { sessionBranchEntryEndpoint } from "../../src/sessionBranchResult.ts";
+import { captureBranchEntryCommand } from "../support/capturedCommandFetch.ts";
 import {
-  aCheckout,
-  aDefaultLaunch,
-  canonicalGitDirectory,
+  type Checkout,
   keep,
   keptRecordOf,
   minutesAgo,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
-const runShell = promisify(execFile);
 const host = new URL(dashboardOrigin).host;
 const publishedSource = makeMe.aPublishedSource
   .with({ id: source, label: "Open Dough", repository: "terryyin/open-dough" })
@@ -45,50 +39,15 @@ const reporting = {
 const handle = (submission: BranchEntrySubmission, origin = dashboardOrigin) =>
   handleSessionBranchEntry(submission, origin, () => publishedSource);
 
-type CapturedFetch = BranchEntryRequestAdmission & { readonly url: string };
-
-async function captureBranchEntryCommand(
-  command: string,
-  cwd: string,
-): Promise<CapturedFetch> {
-  const dir = fs.mkdtempSync(path.join(tmpdir(), "dough-branch-handoff-"));
-  try {
-    const preload = path.join(dir, "capture-fetch.mjs");
-    const captured = path.join(dir, "captured.json");
-    fs.writeFileSync(
-      preload,
-      `import { writeFileSync } from "node:fs";
-globalThis.fetch = (input, init) => {
-  const url = new URL(input instanceof Request ? input.url : String(input));
-  const origin = new Headers(init?.headers).get("Origin");
-  const bodyText = typeof init?.body === "string" ? init.body : "";
-  writeFileSync(process.env.CAPTURED_FETCH ?? "", JSON.stringify({ url: url.href, route: url.pathname, method: init?.method, origin, host: url.host, bodyText }));
-  return Promise.resolve(new Response("{}", { status: 200 }));
-};\n`,
-    );
-    await runShell("/bin/sh", ["-c", command], {
-      cwd,
-      env: {
-        ...process.env,
-        NODE_OPTIONS: `--import=${pathToFileURL(preload).href}`,
-        CAPTURED_FETCH: captured,
-      },
-    });
-    return JSON.parse(fs.readFileSync(captured, "utf8")) as CapturedFetch;
-  } finally {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-}
-
-async function aDraftCheckout() {
-  const checkout = await aCheckout();
+// The case's checkout switched to its own draft branch, entered by a commit.
+async function onDraft(checkout: Checkout) {
   const workspace = fs.realpathSync(checkout.integration);
   await git(workspace, "switch", "--quiet", "-c", "draft");
   const { entered } = await work(
     checkout,
     makeMe.aCheckoutWork.committing("entered", { at: minutesAgo(30) }),
   );
-  return { checkout, workspace, entered };
+  return { workspace, entered };
 }
 
 const draftPlace = {
@@ -116,13 +75,14 @@ function refuse(overrides: Partial<BranchEntryRequestAdmission>) {
 }
 
 test("the launch command binds the original checkout's own branch", async () => {
-  const { checkout, workspace, entered } = await aDraftCheckout();
+  const { checkout } = await aDoneCaptureCase().please();
+  const { workspace, entered } = await onDraft(checkout);
   const record = makeMe.aLaunchRecord
     .adHoc({ title: "Continue the draft", instruction: "Continue the draft" })
     .startingInDefaultCheckout({
       workspace: checkout.integration,
       startingRevision: checkout.base,
-      repository: canonicalGitDirectory(checkout),
+      repository: checkout.gitDirectory,
       branch: "refs/heads/main",
     })
     .inClaudeSession({ sessionId: "default-launch" })
@@ -168,9 +128,12 @@ test("the launch command binds the original checkout's own branch", async () => 
 });
 
 test("a session-addressed handoff binds the named session to its checkout", async () => {
-  const { checkout, workspace, entered } = await aDraftCheckout();
-  const record = aDefaultLaunch(checkout, { sessionId: "by-session" }).please();
-  keep(record);
+  const { checkout, records } = await aDoneCaptureCase()
+    .withDefaultMainLaunch("by-session", { launched: 60 })
+    .kept()
+    .please();
+  const record = records["by-session"];
+  const { workspace, entered } = await onDraft(checkout);
 
   const bodyText = JSON.stringify({
     source,
@@ -222,12 +185,14 @@ test("a reporting reference from another origin is refused", async () => {
 });
 
 test("a handoff while still on the project's trunk is refused", async () => {
-  const checkout = await aCheckout();
-  const workspace = fs.realpathSync(checkout.integration);
-  const record = aDefaultLaunch(checkout, { sessionId: "trunk-launch" })
-    .reportingThrough(reporting)
+  const { checkout, records } = await aDoneCaptureCase()
+    .withDefaultMainLaunch("trunk-launch", { launched: 60 }, (launch) =>
+      launch.reportingThrough(reporting),
+    )
+    .kept()
     .please();
-  keep(record);
+  const record = records["trunk-launch"];
+  const workspace = fs.realpathSync(checkout.integration);
 
   await expect(
     handle({
