@@ -226,7 +226,7 @@ racing marks pin. Verify the diff keeps the shared factory unchanged.
 ### 7. The command handoff spec owns its request observation
 
 Type: Structure
-Status: planned
+Status: done
 
 Return `captureBranchEntryCommand` to its only caller and delete
 `support/capturedCommandFetch.ts`. The spec is currently 209 lines and the
@@ -239,6 +239,8 @@ with the handoff.
 **Proof.** Run the handoff and any extracted admission spec. Keep assertions
 on the emitted request, admission, saved entry, all refusal reasons and the
 original checkout. Verify the wrapper module and its imports are gone.
+
+**Accepted.** `captureBranchEntryCommand` now sits in the handoff spec (246 lines, so no split was needed) and `support/capturedCommandFetch.ts` is deleted with no importers left. The handoff spec passed 9/9 with 12 assertions before and after. Refactor pass: already clean. Story totals since 439c23da5: the Done capture support went from 572 lines in six modules to 561 in five; three assertions were removed (two publisher restatements and the guessed filename) and one agreement assertion added; no production path changed.
 
 ## Local gates and review
 

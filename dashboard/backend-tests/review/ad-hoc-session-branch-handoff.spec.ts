@@ -1,7 +1,12 @@
 // A Default main launch's first input carries a branch-entry command whose
 // outgoing request, admitted and handled through the typed branch-entry seam,
 // binds the original checkout's own branch and entered commit to that launch.
+import { execFile } from "node:child_process";
 import fs from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { promisify } from "node:util";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { reportingReference } from "../../../Distribution/tests/support/launchLandingTestData.mjs";
@@ -15,7 +20,6 @@ import {
 } from "../../server/sessionBranchEntry.ts";
 import { unattachedInput } from "../../server/unattachedInput.ts";
 import { sessionBranchEntryEndpoint } from "../../src/sessionBranchResult.ts";
-import { captureBranchEntryCommand } from "../support/capturedCommandFetch.ts";
 import type { Checkout } from "../support/doneCaptureCaseMaterialization.ts";
 import {
   keep,
@@ -46,6 +50,39 @@ async function onDraft(checkout: Checkout) {
     makeMe.aCheckoutWork.committing("entered", { at: minutesAgo(30) }),
   );
   return { workspace, entered };
+}
+
+// Runs the command with Node `fetch` captured instead of sent, and returns
+// the one request it made, as the dashboard would admit it.
+async function captureBranchEntryCommand(command: string, cwd: string) {
+  const dir = fs.mkdtempSync(path.join(tmpdir(), "dough-branch-handoff-"));
+  try {
+    const preload = path.join(dir, "capture-fetch.mjs");
+    const captured = path.join(dir, "captured.json");
+    fs.writeFileSync(
+      preload,
+      `import { writeFileSync } from "node:fs";
+globalThis.fetch = (input, init) => {
+  const url = new URL(input instanceof Request ? input.url : String(input));
+  const origin = new Headers(init?.headers).get("Origin");
+  const bodyText = typeof init?.body === "string" ? init.body : "";
+  writeFileSync(process.env.CAPTURED_FETCH ?? "", JSON.stringify({ url: url.href, route: url.pathname, method: init?.method, origin, host: url.host, bodyText }));
+  return Promise.resolve(new Response("{}", { status: 200 }));
+};\n`,
+    );
+    await promisify(execFile)("/bin/sh", ["-c", command], {
+      cwd,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: `--import=${pathToFileURL(preload).href}`,
+        CAPTURED_FETCH: captured,
+      },
+    });
+    const observed: unknown = JSON.parse(fs.readFileSync(captured, "utf8"));
+    return observed as BranchEntryRequestAdmission & { readonly url: string };
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 const draftPlace = {
