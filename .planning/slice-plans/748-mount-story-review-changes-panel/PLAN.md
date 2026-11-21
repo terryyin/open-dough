@@ -130,7 +130,7 @@ built-app, so name built-app specs by file. Case results come from the
 ### 2. The toolbar names only what the review has read
 
 Type: Behavior
-Status: planned
+Status: done
 
 Add the page MakeMe review steps, the panel page object with its mount, and
 move the five `story-review-toolbar-truthful` cases, each holding or
@@ -139,6 +139,19 @@ refusing its own snapshot read. Remove the built-app file.
 **Proof.** The mounted spec passes with all five titles. One scratch break
 that names the comparison before the published answer arrives fails the
 pending case and is reverted.
+
+**Accepted.** `story-review-toolbar-truthful.spec.ts` is now the mounted
+spec with the same five titles; a break naming "Published completion" early
+failed the pending case, and one keeping the problem after a retry failed the
+refused case. Builders live in `Distribution/tests/support/storyReviewTestData.mjs`
+(`aStoryReview`, `.published()`, `.landed()`, `aReviewedFileDiff`) on
+`pageMakeMe.mjs`. The panel page object `story-review-panel-page.ts` mounts
+through `story-review-page-contexts.ts` (`onReviewPage`, `doneStory`,
+`adHocSession`). Page consumers (`stories/`, `sessions/`, `configuration/`,
+`review/`, 168 cases) and the 15 remaining built-app review specs passed.
+Orphans for slice 7: `expectNoComparisonNameOrDetails` in
+`reviewChangesPage.ts` and `expectNoToolbarComparisonOrDetails` in
+`reviewDetails.ts`. Mounted cases took 0.2–1.7 s each at load about 24.
 
 ### 3. Landed runs and their gaps name the toolbar
 
