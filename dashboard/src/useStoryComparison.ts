@@ -15,6 +15,7 @@ import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
+import { shownChoice } from "./StoryReviewComparison.tsx";
 
 // The comparison such a view reads of a workspace: all changes, with its
 // uncommitted changes included as Review changes includes them at every
@@ -49,7 +50,8 @@ export function useStoryComparison({
   readonly reading: boolean;
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
-  // The choice of what is compared, while the story has a workspace.
+  // The choice of what is compared, while the story has a workspace, a
+  // published completion or captured landed runs.
   readonly compare: StoryCompare | undefined;
 } {
   const subject: ReviewedStorySubject = { source, identity };
@@ -62,7 +64,11 @@ export function useStoryComparison({
     reading,
     problem,
     chosen,
-    onWorkspace,
+    onChoose,
+    onRun,
+    runs,
+    selectedRun,
+    published,
     includeUncommitted,
     setIncludeUncommitted,
   } = useStoryReviewSelection({
@@ -107,17 +113,26 @@ export function useStoryComparison({
     problem,
     shown: storyComparisonShown({ subject, review, comparison, tree }),
     compare:
-      snapshot === undefined || review?.kind !== "snapshot"
+      (snapshot === undefined || review?.kind !== "snapshot") &&
+      published === undefined &&
+      runs.length === 0
         ? undefined
         : {
-            shown,
+            shown: shownChoice(shown, review, selectedRun),
+            workspace: snapshot !== undefined,
+            published: published !== undefined,
+            runs,
+            selectedRun,
+            onRun,
             items,
             selectedItems,
             trunkIntegrated,
-            onWorkspace,
+            onChoose,
             onSelect,
             includeUncommitted:
-              committed === undefined ? undefined : includeUncommitted,
+              committed === undefined || review?.kind !== "snapshot"
+                ? undefined
+                : includeUncommitted,
             onIncludeUncommitted: setIncludeUncommitted,
             onRefresh,
           },

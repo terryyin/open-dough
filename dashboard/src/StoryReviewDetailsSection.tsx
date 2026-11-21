@@ -5,7 +5,6 @@ import {
   ComparisonSwitch,
   UncommittedCheck,
   type ComparisonChoice,
-  type ShownComparison,
 } from "./StoryReviewComparison.tsx";
 import { ReviewContext } from "./StoryReviewContext.tsx";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
@@ -20,10 +19,7 @@ import type {
   StoryReview,
   TakenStoryReview,
 } from "./storyReviewContract.ts";
-import {
-  preferredReviewRun,
-  type ReviewRunChoice,
-} from "./storyReviewLandedRun.ts";
+import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
 import type { ReviewDetailsPlace } from "./StoryReviewToolbar.tsx";
 
 export function reviewHoldsDetails({
@@ -98,7 +94,7 @@ export function StoryReviewDetailsSection({
   availablePublished,
   committed,
   includeUncommitted,
-  onWorkspace,
+  onChoose,
   onRun,
   setIncludeUncommitted,
 }: {
@@ -115,7 +111,7 @@ export function StoryReviewDetailsSection({
   readonly availablePublished: StoryReview | undefined;
   readonly committed: TakenStoryReview["committed"];
   readonly includeUncommitted: boolean;
-  readonly onWorkspace: (choice: ShownComparison) => void;
+  readonly onChoose: (choice: ComparisonChoice) => void;
   readonly onRun: (run: string) => void;
   readonly setIncludeUncommitted: (include: boolean) => void;
 }) {
@@ -135,16 +131,9 @@ export function StoryReviewDetailsSection({
       {(runs.length > 0 || items.length > 0) && (
         <ComparisonSwitch
           shown={shownComparison}
-          onSwitch={(choice) => {
-            if (choice === "published") onWorkspace("all");
-            else if (choice !== "landed") onWorkspace(choice);
-            else {
-              const newest = preferredReviewRun(runs, (run) => run.comparison);
-              if (newest !== undefined) onRun(newest.key);
-            }
-          }}
+          onSwitch={onChoose}
           workspace={workspace !== undefined}
-          commits={workspace !== undefined && items.length > 0}
+          commits={items.length > 0}
           landed={runs.length > 0}
           published={availablePublished !== undefined}
         />

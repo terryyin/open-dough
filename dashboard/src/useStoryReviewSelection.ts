@@ -3,7 +3,10 @@
 // workspace keeps its comparison and Commits endpoints, and whether all
 // changes include the workspace's uncommitted changes.
 import { type StoryReview } from "./storyReviewContract.ts";
-import type { ShownComparison } from "./StoryReviewComparison.tsx";
+import type {
+  ComparisonChoice,
+  ShownComparison,
+} from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
 import { useStateKeyedBy } from "./stateKeyedBy.ts";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
@@ -119,6 +122,17 @@ export function useStoryReviewSelection({
     : answeredRunKey(runRead.answer) === selection.run
       ? runRead.answer
       : undefined;
+  const onWorkspace = (workspace: ShownComparison) => {
+    setSelection({ of: answer, workspace });
+  };
+  const onRun = (run: string) => {
+    setSelection({
+      of: answer,
+      workspace: selection.workspace,
+      run,
+      explicit: true,
+    });
+  };
   return {
     // The default answer, whatever run is chosen.
     defaultReview: answer,
@@ -141,16 +155,17 @@ export function useStoryReviewSelection({
       : runRead.reading
         ? undefined
         : runRead.problem,
-    onWorkspace: (workspace: ShownComparison) => {
-      setSelection({ of: answer, workspace });
-    },
-    onRun: (run: string) => {
-      setSelection({
-        of: answer,
-        workspace: selection.workspace,
-        run,
-        explicit: true,
-      });
+    onWorkspace,
+    onRun,
+    // A comparison chosen in the switch: the published completion is the
+    // answer the workspace choice returns to; Landed runs opens on the newest.
+    onChoose: (choice: ComparisonChoice) => {
+      if (choice === "published") onWorkspace("all");
+      else if (choice !== "landed") onWorkspace(choice);
+      else {
+        const newest = preferredReviewRun(runs, (run) => run.comparison);
+        if (newest !== undefined) onRun(newest.key);
+      }
     },
   };
 }

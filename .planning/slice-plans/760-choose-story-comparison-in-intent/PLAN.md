@@ -186,7 +186,7 @@ uncommitted check (46) passed.
 ### 4. A Done story chooses its published completion or a captured landed run
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a Done story whose worktree is retired opens on **Published
 completion**, naming the completion revision → **Landed runs** and a
@@ -199,6 +199,16 @@ captured run moves Intent to that run.
 **Proof.** A case beside `dashboard/frontend-tests/intent/intent-done-review-modes.spec.ts`,
 with `answerHistoricalSnapshot` and `answerRunSnapshot`, asserting the
 locations revision and the CI comparison's endpoint unchanged.
+
+**Accepted.** `intent-story-compare-done.spec.ts` (2 tests) passed with the
+whole `dashboard/frontend-tests/intent` folder (242) and the Done and
+follow-up e2e specs (7). Compare reuses `ComparisonSwitch` and `RunChoice`;
+the locations and landed endpoint already read `defaultReview`. The Node
+`makeMe` gained the story-review builders.
+The refactor pass gave the Side panel and Intent one switch rule
+(`onChoose` in `useStoryReviewSelection`, `shownChoice`); intent and review
+frontend folders (351) and 31 e2e specs using the switch, Done or follow-up
+paths (57) passed.
 
 ### 5. CI views say when they describe the whole story
 
@@ -257,4 +267,4 @@ answers and `holdNextRange` for a failed read.
 ### G1. Intent keeps an earlier automatic run over a newer default (first reported in slice 1)
 Reported: slice 1 — "If a later answer for the same read (same story and Done state) names a different selectedRun while the old run is still listed, Intent keeps the old one. Before slice 1 it always followed the newer default."
 Story clause: "Intent offers the choices the Side panel review offers a story, with their present defaults and availability"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: dashboard/frontend-tests/intent/intent-story-compare-done.spec.ts, "a newer default run moves an unchosen run but not a chosen one while the old run is still listed" (fails when `explicit` is ignored)

@@ -153,10 +153,14 @@ export function storyCompare(intent: Locator) {
   const choice = (name: string) => region.getByRole("radio", { name });
   const commit = (subject: string) =>
     commits.getByRole("button").filter({ hasText: subject });
+  const run = region.getByRole("listbox", { name: "Landed run" });
   return {
     region,
     choice,
     choose: (name: string) => choice(name).check(),
+    // The captured landed run chosen, offered with Landed runs.
+    run,
+    chooseRun: (key: string) => run.selectOption(key),
     includeUncommitted: uncommittedCheck(region),
     refresh: () => reviewRefresh(region).click(),
     commits,

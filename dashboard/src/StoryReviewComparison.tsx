@@ -3,6 +3,7 @@
 // offer available historical comparisons.
 
 import { useId, type ReactNode } from "react";
+import type { StoryReview } from "./storyReviewContract.ts";
 
 export type ShownComparison = "all" | "commits";
 
@@ -54,6 +55,19 @@ export function ComparisonChoices<Key extends string>({
 // A comparison the switch offers: of the workspace, or a fixed historical one.
 export type ComparisonChoice = ShownComparison | "landed" | "published";
 
+// The choice a review shows: a chosen landed run, the published completion
+// read, or the workspace's comparison.
+export const shownChoice = (
+  shown: ShownComparison,
+  review: StoryReview | undefined,
+  selectedRun: unknown,
+): ComparisonChoice =>
+  selectedRun !== undefined
+    ? "landed"
+    : review?.kind === "published"
+      ? "published"
+      : shown;
+
 // A comparison's name, in the switch and in the review's toolbar.
 export const comparisonName = (shown: ComparisonChoice) =>
   shown === "landed"
@@ -72,6 +86,7 @@ export function ComparisonSwitch({
 }: {
   readonly shown: ComparisonChoice;
   readonly onSwitch: (shown: ComparisonChoice) => void;
+  // Whether the workspace holds commits to choose among.
   readonly commits: boolean;
   readonly landed?: boolean;
   readonly published?: boolean;
@@ -79,7 +94,7 @@ export function ComparisonSwitch({
 }) {
   const offered: readonly ComparisonChoice[] = [
     ...(workspace ? ["all" as const] : []),
-    ...(commits ? ["commits" as const] : []),
+    ...(workspace && commits ? ["commits" as const] : []),
     ...(published ? ["published" as const] : []),
     ...(landed ? ["landed" as const] : []),
   ];

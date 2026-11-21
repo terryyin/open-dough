@@ -2,24 +2,34 @@
 // revisions through Review changes' own selection (`./useStoryComparison.ts`):
 // all changes, uncommitted changes included or left out, or a contiguous range
 // of the story's commits chosen by its two ends, named as the Side panel
-// review names it. Refresh reads the worktree again and keeps the choice.
+// review names it; a Done story's published completion or one of its captured
+// landed runs. Refresh reads the worktree again and keeps the choice.
 
 import {
   ComparisonSwitch,
   UncommittedCheck,
-  type ShownComparison,
+  type ComparisonChoice,
 } from "./StoryReviewComparison.tsx";
 import { CommitList, CommitRangeHeading } from "./StoryReviewCommits.tsx";
+import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import type { ReviewItem } from "./storyReviewContract.ts";
+import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 
 export type StoryCompare = {
-  readonly shown: ShownComparison;
+  readonly shown: ComparisonChoice;
+  // Whether the story has a workspace to compare.
+  readonly workspace: boolean;
+  // Whether the story's published completion is offered.
+  readonly published: boolean;
+  readonly runs: readonly ReviewRunChoice[];
+  readonly selectedRun: ReviewRunChoice | undefined;
+  readonly onRun: (run: string) => void;
   readonly items: readonly ReviewItem[];
   readonly selectedItems: readonly ReviewItem[];
   readonly trunkIntegrated: boolean;
-  readonly onWorkspace: (choice: ShownComparison) => void;
+  readonly onChoose: (choice: ComparisonChoice) => void;
   readonly onSelect: (id: string) => void;
   // Whether all changes include uncommitted changes, offered only while
   // all changes are shown of a worktree holding some.
@@ -49,17 +59,24 @@ export function IntentStoryCompare({
     <div className="intent-story-compare" aria-label="Compare" role="group">
       <ComparisonSwitch
         shown={compare.shown}
-        onSwitch={(choice) => {
-          if (choice === "all" || choice === "commits")
-            compare.onWorkspace(choice);
-        }}
+        onSwitch={compare.onChoose}
+        workspace={compare.workspace}
         commits={compare.items.length > 0}
+        landed={compare.runs.length > 0}
+        published={compare.published}
       />
       <IconButton
         label="Refresh"
         icon={RefreshCw}
         onClick={compare.onRefresh}
       />
+      {compare.selectedRun !== undefined && (
+        <RunChoice
+          runs={compare.runs}
+          selected={compare.selectedRun}
+          onSelect={compare.onRun}
+        />
+      )}
       {compare.includeUncommitted !== undefined && (
         <UncommittedCheck
           included={compare.includeUncommitted}
