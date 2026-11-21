@@ -1,71 +1,63 @@
-// Done checks whether an isolated ad hoc branch reached trunk without the
-// installed publisher: it keeps a verified manual delivery beside the branch
-// result, and otherwise says why delivery is unverified.
-import path from "node:path";
+// A manual delivery requires Git evidence on the launch's recorded target.
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { CheckoutWorkBuilder } from "../../../Distribution/tests/support/repositoryCheckoutWorkTestData.mjs";
-import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
+import { defaultGitOutputLimit } from "../../server/gitRunner.ts";
+import {
+  inspectManualLanding,
+  manualLandingTrunk,
+} from "../../server/manualSessionLanding.ts";
+import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
 import {
-  anIsolatedBranch,
+  aCheckoutWithWorktree,
+  anIsolatedLaunch,
+  canonicalGitDirectory,
   inWorktree,
-  markDone,
   minutesAgo,
-  source,
-  undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText, review } from "../support/doneCaptureReview.ts";
-import { keptRecords } from "../../server/launchRecordStore.ts";
 
 const branch = "draft";
-const unverified = expect.stringContaining(
-  "Delivery to trunk is unverified",
-) as string;
+const target = "refs/heads/main";
 
-// The isolated draft, its base holding the original draft, worked on its
-// branch or on trunk.
 async function anIsolatedDraft() {
-  const { checkout, workspace, record } = await anIsolatedBranch(branch, {
+  const { checkout, workspace } = await aCheckoutWithWorktree(branch, {
     "draft.txt": "Original draft\n",
   });
+  const repository = canonicalGitDirectory(checkout);
+  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  const inspect = (tip: string, acceptedTrunk: string) =>
+    inspectManualLanding(
+      repository,
+      tip,
+      manualLandingTrunk(record),
+      acceptedTrunk,
+      { cwd: repository, maxBuffer: defaultGitOutputLimit },
+    );
   const onBranch = <Name extends string>(steps: CheckoutWorkBuilder<Name>) =>
     work(inWorktree(checkout, workspace), steps);
-  const onTrunk = <Name extends string>(steps: CheckoutWorkBuilder<Name>) =>
-    work(checkout, steps);
-  return { checkout, workspace, record, onBranch, onTrunk };
+  return { checkout, record, repository, onBranch, inspect };
 }
 
-// Another change published to trunk from the project's checkout.
-const publishing = (name: string, at = minutesAgo(25)) =>
-  makeMe.aCheckoutWork
-    .committing(name, { at })
-    .pushingToTrunk(`${name}-pushed`, { at });
-
-test("a verified manual merge retains its trunk parent and actual resolution", async () => {
-  const { checkout, workspace, record, onBranch, onTrunk } =
-    await anIsolatedDraft();
+test("a verified manual merge retains its accepted trunk parent and actual resolution", async () => {
+  const { checkout, repository, onBranch, inspect } = await anIsolatedDraft();
   const { integration } = checkout;
-  await onBranch(
-    makeMe.aCheckoutWork
-      .committing("branch-draft", {
-        at: minutesAgo(50),
-        files: { "draft.txt": "Branch draft\n" },
-      })
-      .editing("working", {
-        at: minutesAgo(45),
-        files: { "draft.txt": "Working draft\n" },
-      }),
+  const { tip } = await onBranch(
+    makeMe.aCheckoutWork.committing("tip", {
+      at: minutesAgo(50),
+      files: { "draft.txt": "Branch draft\n" },
+    }),
   );
-  const { trunkParent } = await onTrunk(
+  const { trunkParent } = await work(
+    checkout,
     makeMe.aCheckoutWork
       .committing("trunkParent", {
         at: minutesAgo(40),
         files: { "draft.txt": "Trunk draft\n" },
       })
-      .pushingToTrunk("pushed", { at: minutesAgo(40) }),
+      .pushingToTrunk("published-parent", { at: minutesAgo(40) }),
   );
   resolveStoryConflict(
     integration,
@@ -74,136 +66,92 @@ test("a verified manual merge retains its trunk parent and actual resolution", a
     "Resolution on trunk\n",
     "Resolve the draft manually",
   );
-  const merge = (await git(integration, "rev-parse", "HEAD")).stdout.trim();
-  await markDone(record, minutesAgo(35));
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "branch-result",
-    deliveryGap: unverified,
-  });
-  await undoDone(record);
+  const { stdout: merge } = await git(integration, "rev-parse", "HEAD");
+  expect(await inspect(tip, trunkParent)).toBeUndefined();
 
-  await git(integration, "push", "--quiet", "origin", "main");
-  await onTrunk(publishing("before-done"));
-  await markDone(record);
-  await onTrunk(publishing("later", minutesAgo(5)));
-  retireAdHocBranch(integration, workspace, branch, {
-    discardWorkingChanges: true,
-  });
-  await git(
-    integration,
-    "remote",
-    "set-url",
-    "origin",
-    path.join(path.dirname(integration), "offline"),
+  const { acceptedTrunk } = await work(
+    checkout,
+    makeMe.aCheckoutWork
+      .pushingToTrunk("published-merge", { at: minutesAgo(30) })
+      .committing("later", { at: minutesAgo(20) })
+      .pushingToTrunk("acceptedTrunk", { at: minutesAgo(20) }),
   );
+  const delivery = await inspect(tip, acceptedTrunk);
 
-  const delivered = await review(await keptRecords(source), record);
-  expect(delivered).toMatchObject({
-    kind: "landed",
-    baseline: trunkParent,
-    tree: merge,
-    landing: { remote: "origin", target: "refs/heads/main" },
-    files: [{ path: "draft.txt" }],
+  expect(delivery).toEqual({
+    repository,
+    remote: "origin",
+    target,
+    base: trunkParent,
+    revision: merge.trim(),
   });
-  if (delivered.kind !== "landed")
-    throw new Error("Missing delivered comparison.");
+  if (delivery === undefined) throw new Error("Missing the verified delivery.");
   expect(
-    await fileText(await keptRecords(source), record, {
-      reference: delivered.landing.reference,
-      baseline: trunkParent,
-      tree: merge,
-      path: "draft.txt",
-    }),
-  ).toEqual({
-    kind: "text",
-    baseline: "Trunk draft\n",
-    tree: "Resolution on trunk\n",
-  });
-  const branchResult = await review(
-    await keptRecords(source),
-    record,
-    "branch-result",
-  );
-  if (branchResult.kind !== "branch-result")
-    throw new Error("Missing branch result.");
+    (await git(integration, "show", `${delivery.base}:draft.txt`)).stdout,
+  ).toBe("Trunk draft\n");
   expect(
-    await fileText(await keptRecords(source), record, {
-      baseline: branchResult.baseline,
-      tree: branchResult.tree,
-      path: "draft.txt",
-    }),
-  ).toEqual({
-    kind: "text",
-    baseline: "Original draft\n",
-    tree: "Working draft\n",
-  });
+    (await git(integration, "show", `${delivery.revision}:draft.txt`)).stdout,
+  ).toBe("Resolution on trunk\n");
 });
 
-test("acceptance on another remote branch leaves trunk delivery unverified", async () => {
-  const { checkout, record, onBranch } = await anIsolatedDraft();
-  const { integration } = checkout;
-  const { edit } = await onBranch(
-    makeMe.aCheckoutWork.committing("edit", { at: minutesAgo(30) }),
-  );
-  await git(integration, "merge", "--quiet", "--no-ff", "--no-edit", branch);
-  await git(integration, "push", "--quiet", "origin", "HEAD:elsewhere");
-
-  await markDone(record);
-
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "branch-result",
-    tree: edit,
-    files: [{ path: "edit.txt" }],
-    deliveryGap: unverified,
-  });
-});
-
-test("an unrelated accepted change leaves the saved branch available", async () => {
-  const { record, onBranch, onTrunk } = await anIsolatedDraft();
-  const { edit } = await onBranch(
-    makeMe.aCheckoutWork.committing("edit", { at: minutesAgo(30) }),
-  );
-  await onTrunk(publishing("other-change"));
-
-  await markDone(record);
-
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "branch-result",
-    tree: edit,
-    files: [{ path: "edit.txt" }],
-    deliveryGap: unverified,
-  });
-});
-
-test("a continuous fast-forward from the witnessed parent retains both comparisons", async () => {
+test("branch capture ignores a merge accepted on a different remote branch", async () => {
   const { checkout, record, onBranch } = await anIsolatedDraft();
   const { integration, base } = checkout;
   const { tip } = await onBranch(
     makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
   );
-  await git(integration, "merge", "--quiet", "--ff-only", tip);
-  await git(integration, "push", "--quiet", "origin", "main");
+  await git(integration, "merge", "--quiet", "--no-ff", "--no-edit", branch);
+  await git(integration, "push", "--quiet", "origin", "HEAD:elsewhere");
 
-  await markDone(record);
+  const { result, delivery } = await captureBranchResult(
+    record,
+    minutesAgo(10),
+  );
 
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "landed",
-    baseline: base,
-    tree: tip,
-    sessionComparisonKeys: ["delivered", "branch-result"],
+  expect(delivery).toBeUndefined();
+  expect(result).toMatchObject({
+    base,
+    committedTip: tip,
+    revision: tip,
+    manualDeliveryChecked: true,
   });
+  expect(result.attributionGap).toBeUndefined();
   expect(
-    await review(await keptRecords(source), record, "branch-result"),
-  ).toMatchObject({
-    kind: "branch-result",
-    baseline: base,
-    tree: tip,
-    files: [{ path: "tip.txt" }],
+    (
+      await git(
+        integration,
+        "diff",
+        "--name-only",
+        result.base,
+        result.revision,
+      )
+    ).stdout,
+  ).toBe("tip.txt\n");
+});
+
+test("an exact fast-forward proves the delivery and leaves the branch attributable", async () => {
+  const { checkout, record, repository, onBranch, inspect } =
+    await anIsolatedDraft();
+  const { tip } = await onBranch(
+    makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
+  );
+  await git(checkout.integration, "merge", "--quiet", "--ff-only", tip);
+  await git(checkout.integration, "push", "--quiet", "origin", "main");
+
+  expect(await inspect(tip, tip)).toEqual({
+    repository,
+    remote: "origin",
+    target,
+    base: checkout.base,
+    revision: tip,
   });
+  const { result } = await captureBranchResult(record, minutesAgo(10));
+  expect(result).toMatchObject({ base: checkout.base, revision: tip });
+  expect(result.attributionGap).toBeUndefined();
 });
 
 test("a fast-forward with an unwitnessed previous tip leaves delivery unverified", async () => {
-  const { checkout, record, onBranch } = await anIsolatedDraft();
+  const { checkout, onBranch, inspect } = await anIsolatedDraft();
   const { integration } = checkout;
   const { second } = await onBranch(
     makeMe.aCheckoutWork
@@ -213,38 +161,20 @@ test("a fast-forward with an unwitnessed previous tip leaves delivery unverified
   await git(integration, "merge", "--quiet", "--ff-only", second);
   await git(integration, "push", "--quiet", "origin", "main");
 
-  await markDone(record);
-
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "unavailable",
-    deliveryGap: expect.stringContaining("exact fast-forward") as string,
-  });
+  expect(await inspect(second, second)).toBeUndefined();
 });
 
-test("a same-content squash leaves the saved branch readable and delivery unverified", async () => {
-  const { checkout, workspace, record, onBranch } = await anIsolatedDraft();
-  const { integration, base } = checkout;
-  const { edit } = await onBranch(
-    makeMe.aCheckoutWork.committing("edit", { at: minutesAgo(30) }),
+test("a squash with the same tree as the branch does not prove manual delivery", async () => {
+  const { checkout, onBranch, inspect } = await anIsolatedDraft();
+  const { integration } = checkout;
+  const { tip } = await onBranch(
+    makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
   );
-  await git(integration, "merge", "--quiet", "--squash", edit);
+  await git(integration, "merge", "--quiet", "--squash", tip);
   await git(integration, "commit", "--quiet", "-m", "Squash the edit");
   await git(integration, "push", "--quiet", "origin", "main");
+  const { stdout: squash } = await git(integration, "rev-parse", "HEAD");
+  await git(integration, "diff", "--exit-code", tip, squash.trim());
 
-  await markDone(record);
-  retireAdHocBranch(integration, workspace, branch);
-
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "branch-result",
-    tree: edit,
-    files: [{ path: "edit.txt" }],
-    deliveryGap: unverified,
-  });
-  expect(
-    await fileText(await keptRecords(source), record, {
-      baseline: base,
-      tree: edit,
-      path: "edit.txt",
-    }),
-  ).toMatchObject({ kind: "text", tree: "edit work\n" });
+  expect(await inspect(tip, squash.trim())).toBeUndefined();
 });

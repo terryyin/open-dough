@@ -33,9 +33,7 @@ test("a pending Done refuses the previous review and its files", async () => {
       readAt: minutesAgo(30),
     })
     .please();
-  const read = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record]);
+  const read = makeMe.aSessionReviewRead.ofRecord(record);
   const review = read.please();
   const file = read
     .readingFile({ baseline: checkout.base, tree: first, path: "first.txt" })
@@ -71,10 +69,7 @@ test("a pending Done cannot inherit the previous no-commit finding", async () =>
       readAt: minutesAgo(30),
     })
     .please();
-  const read = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record])
-    .please();
+  const read = makeMe.aSessionReviewRead.ofRecord(record).please();
 
   expect(await storyReview(read, new AbortController().signal)).toEqual(
     notCaptured,

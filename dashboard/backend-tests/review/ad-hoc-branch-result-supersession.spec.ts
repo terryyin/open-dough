@@ -1,10 +1,11 @@
-// A Done capture held in its ancestry read cannot outlast what happened to
-// the launch meanwhile: reopening keeps the saved evidence, a newer Done wins
-// with only its pins, and deletion leaves none.
+// A Done held after capture cannot outlast changes to the launch: reopening
+// keeps the saved evidence, a newer Done wins with only its pins, and
+// deletion leaves none.
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
-import { deleteRecord, keptRecords } from "../../server/launchRecordStore.ts";
+import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
   aCheckout,
@@ -19,7 +20,6 @@ import {
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText, review } from "../support/doneCaptureReview.ts";
 
 // A kept isolated launch whose worktree started on `draft` at the base.
 async function anIsolatedDraft() {
@@ -49,44 +49,60 @@ test("reopening keeps the branch evidence and refuses the old file pair", async 
   const { baseline, record, commit, pins } = await anIsolatedDraft();
   const first = await commit("first", 30);
   await markDone(record);
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "branch-result",
-    tree: first,
-  });
   const originalPins = await pins();
+  expect(originalPins).toMatchObject([
+    { objectId: baseline },
+    { objectId: first },
+  ]);
 
   await undoDone(record);
 
-  expect(await pins()).toEqual(originalPins);
-  const oldFile = fileText(await keptRecords(source), record, {
-    baseline,
-    tree: first,
-    path: "first.txt",
+  const reopened = await keptSession(source, record.session);
+  if (reopened === undefined)
+    throw new Error("The reopened session is missing.");
+  expect(reopened.doneAt).toBeUndefined();
+  expect(reopened.branchResult).toMatchObject({
+    base: baseline,
+    revision: first,
   });
+  expect(await pins()).toEqual(originalPins);
+  const oldFile = reviewedFileText(
+    {
+      record: reopened,
+      read: {
+        baseline,
+        tree: first,
+        path: "first.txt",
+      },
+    },
+    new AbortController().signal,
+  );
   await expect(oldFile).rejects.toBeInstanceOf(RefusedRequest);
   await expect(oldFile).rejects.toMatchObject({ status: 409 });
 });
 
-test("a newer Done wins over a held stale capture with only its pins", async () => {
+test("a newer Done wins when an earlier Done waits after capture", async () => {
   const { baseline, record, commit, pins } = await anIsolatedDraft();
   await commit("stale", 30);
   const staleDone = aHeldDone(record);
+  const newerDoneAt = minutesAgo(5);
   let latest: string;
   try {
     await staleDone.reading;
-    expect(await review(await keptRecords(source), record)).toMatchObject({
-      kind: "unavailable",
-    });
+    const pending = await keptSession(source, record.session);
+    expect(pending).toBeDefined();
+    expect(pending?.doneAt).toBeUndefined();
+    expect(pending?.branchResult).toBeUndefined();
     latest = await commit("latest", 20);
-    await markDone(record, minutesAgo(5));
+    await markDone(record, newerDoneAt);
   } finally {
     staleDone.release();
     await staleDone.marking;
   }
 
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "branch-result",
-    tree: latest,
+  expect(await keptSession(source, record.session)).toMatchObject({
+    doneAt: newerDoneAt,
+    branchResult: { doneAt: newerDoneAt, base: baseline, revision: latest },
   });
   expect(await pins()).toMatchObject([
     { objectId: baseline },
@@ -94,7 +110,7 @@ test("a newer Done wins over a held stale capture with only its pins", async () 
   ]);
 });
 
-test("deleting a record while its Done capture is reading leaves no pins", async () => {
+test("deleting a record after branch capture leaves no session or pins when Done settles", async () => {
   const { record, commit, pins } = await anIsolatedDraft();
   await commit("abandoned", 30);
   const done = aHeldDone(record);
@@ -106,5 +122,6 @@ test("deleting a record while its Done capture is reading leaves no pins", async
     await done.marking;
   }
 
+  expect(await keptSession(source, record.session)).toBeUndefined();
   expect(await pins()).toEqual([]);
 });

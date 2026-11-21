@@ -1,7 +1,7 @@
 // Decides a kept record's next Done state as plain values.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { doneAutomatically } from "../src/completionReport.ts";
-import { hasBranchReview } from "./sessionBranchCapture.ts";
+import { hasBranchReview } from "../src/sessionBranchResult.ts";
 
 export type DoneTransitionOptions = {
   readonly doneProblem?: string | undefined;

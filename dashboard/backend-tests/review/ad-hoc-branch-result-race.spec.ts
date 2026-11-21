@@ -8,7 +8,7 @@ import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks, type DoneLaunches } from "../../server/doneMarks.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
-import { keptRecords } from "../../server/launchRecordStore.ts";
+import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
@@ -136,11 +136,10 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
     await marking;
   }
 
+  const kept = await keptSession(source, record.session);
+  if (kept === undefined) throw new Error("Missing the kept launch.");
   const reviewed = await storyReview(
-    makeMe.aSessionReviewRead
-      .ofSession(record.session.sessionId, record.session.host)
-      .keeping([...(await keptRecords(source))])
-      .please(),
+    makeMe.aSessionReviewRead.ofRecord(kept).please(),
     new AbortController().signal,
   );
   expect(reviewed).toMatchObject({

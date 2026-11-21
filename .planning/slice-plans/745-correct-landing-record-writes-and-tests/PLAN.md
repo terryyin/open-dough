@@ -19,8 +19,8 @@
 - **Boundaries.** Plan
   [742](../742-prove-ad-hoc-review-handoffs/PLAN.md) (Taken) slice 4
   extracts the branch-entry command's typed admission and handler. Plan
-  [743](../743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
-  (Taken at `44d066285`) slice 4 narrows the publisher cases and leaves
+  [743](https://github.com/terryyin/open-dough/blob/514bc1d2df0fd5310e15c05bffe7d6639cb3e0d0/.planning/slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
+  slice 4 narrowed the publisher cases and left
   this story the composed-store fixture and the deletion fix. Plan
   [736](https://github.com/terryyin/open-dough/blob/24864be6360f87cc9fec3dc4333de5361de165eb/.planning/slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md) owns
   observation fixtures. Recheck each one's landed form before editing a

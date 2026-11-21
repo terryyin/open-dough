@@ -5,7 +5,7 @@ import path from "node:path";
 import { expect, test, vi } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { deleteRecord, keptRecords } from "../../server/launchRecordStore.ts";
+import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
@@ -19,7 +19,6 @@ import {
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
-import { notCaptured, review } from "../support/doneCaptureReview.ts";
 
 const prefix = "refs/open-dough/session-commits/claude/default-launch/";
 const pairRefs = (base: string, revision: string) => [
@@ -81,9 +80,9 @@ test("a later Done with an unreadable log releases the earlier capture", async (
 
   await markDone(record);
 
-  expect(await review(await keptRecords(source), record)).toMatchObject(
-    notCaptured,
-  );
+  const saved = await keptSession(source, record.session);
+  expect(saved).toMatchObject({ sessionCommitsFailedAt: minutesAgo(10) });
+  expect(saved?.sessionCommits).toBeUndefined();
   expect(await refs(checkout.integration, prefix)).toEqual([]);
 });
 
@@ -114,9 +113,9 @@ test("deleting a record from an older failed capture releases refs its earlier D
   await markDone(record);
   // An older reader left Done without a comparison and kept its Git refs.
   keepLaunchStore(home, { [source]: [{ ...record, doneAt: minutesAgo(10) }] });
-  expect(await review(await keptRecords(source), record)).toMatchObject(
-    notCaptured,
-  );
+  const saved = await keptSession(source, record.session);
+  expect(saved).toMatchObject({ doneAt: minutesAgo(10) });
+  expect(saved?.sessionCommits).toBeUndefined();
   expect(await refs(checkout.integration, prefix)).toEqual(
     pairRefs(checkout.base, notes),
   );
