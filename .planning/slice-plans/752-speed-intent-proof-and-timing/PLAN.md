@@ -186,7 +186,7 @@ on those 2 files).
 ### 3. Side panel story selection chooses the intended CI status and status proof runs faster
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-ci-status-side-panel` (1 file, 1 legacy case) over
 `usePageStorySelection`, `usePageSidePanel`, and `IntentPerspective`. Measure
@@ -198,7 +198,13 @@ branch, switching to another story's report moves the judged branch there,
 toggling a card keeps selection when closing the panel, showing an ad hoc
 session clears selection to `main`, closing that session's terminal keeps
 project scope, and the 7-file status suite gives faster Vitest feedback than
-the legacy status baseline.
+the legacy status baseline. Accepted at `--workers=2`: `npm run typecheck:dashboard`
+and `npm run format` passed; `intent-ci-status-side-panel.spec.ts` with
+colocated `intent-ci-side-panel-mount.ts` passed 1 `mounted-chromium` case (`0`
+legacy Playwright cases remain across all 7 status + dark-contrast files);
+complete 7-file / 15-case status + dark-contrast Vitest selection passed in
+`8,315 ms` (`8.32 s`) elapsed including preparation vs `13,532 ms` (`13.53 s`)
+settled legacy baseline (`-5,217 ms` / `-38.6%`).
 
 ### 4. Project and Done history give an honest compact reading
 
