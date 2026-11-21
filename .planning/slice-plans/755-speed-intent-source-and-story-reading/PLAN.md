@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-source-and-story-reading
 **Source:** [Get fast proof of Intent source and story reading](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -66,8 +67,8 @@ install.
 | Premise and consuming operation | Observation and consequence |
 | --- | --- |
 | The normal frontend runner selects the legacy roster used to compare feedback. | `caffeinate -s -i npm run --silent test:dashboard:frontend -- --list --reporter=line` listed 71 legacy cases in the 37 scoped specs. The comparison registration modules and mounted Vitest specs were excluded from that legacy count. |
-| The typed production reader can retain the pinned file and switch after Retry. | The normal runner at two workers, selecting `intent-source-target-recovery.spec.ts` and `intent-revision-update-failures.spec.ts`, passed five Chromium cases. A failed locations update kept the old tree usable until Retry applied the new revision. A held or failed file reply kept line 44 until release or Retry. The typed source and actual reader are the route for slices 1–3. |
-| Production Candidates and Notes readers can expose recovery and save ordering through typed replies. | The same run also selected `intent-candidates-read-recovery.spec.ts` and `story-notes-control.spec.ts` and passed their ten cases. Candidates recovery distinguished a standing limit from manual Retry, absence and mismatched content. Notes refresh updated the open list and a late read left the saved note visible. Slices 3 and 7 verify those same outcomes when changing their mount inputs. |
+| The typed production reader can retain the pinned file and switch after Retry. | The normal runner at two workers, selecting `intent-source-target-recovery.spec.ts` and `intent-revision-update-failures.spec.ts`, passed five Chromium cases. A failed locations update kept the old tree usable until Retry applied the new revision. A held or failed file reply kept line 44 until release or Retry. The typed source and actual reader are the route for slices 1–4. |
+| Production Candidates and Notes readers can expose recovery and save ordering through typed replies. | The same run also selected `intent-candidates-read-recovery.spec.ts` and `story-notes-control.spec.ts` and passed their ten cases. Candidates recovery distinguished a standing limit from manual Retry, absence and mismatched content. Notes refresh updated the open list and a late read left the saved note visible. Slices 4 and 8 verify those same outcomes when changing their mount inputs. |
 | The Candidates publication mount works through the page's providers. | With the fixture's separate Intent mode and reading providers replaced by `IntentPageProviders` in scratch, the normal runner at two workers passed all 12 cases in its eight consuming specs. They observed opening and returning with focus, exact source line and revision, and the same record recovery. The edit was reverted. |
 
 The normal runner with the 37 explicit legacy paths, `--workers=2` and
@@ -83,24 +84,42 @@ Names below omit `.spec.ts`. Intent names are relative to
 `dashboard/frontend-tests/intent/`; navigation and stories paths are named
 explicitly.
 
-### 1. Failed Intent locations recover on the correct schedule
+### 1. Unreadable, malformed and failed Intent location reads explain their cause and retry on demand
 
 Type: Behavior
 Status: planned
 
-Move `intent-read-recovery` and `intent-gherkin-settings-problems` (7).
-Use `anIntentLocationsAnswer` and observe `ProjectIntentReading` over
-typed replies. Use the real `IntentReadRecovery` and shared transient
-schedule for automatic retry. For the shared-wait case exercise both
-published detail and locations where their waits interact. Retain the
-authenticated boundary in `e2e/intent/intent-read-boundary-recovery.spec.ts`.
-Check callers and remove the unused `locationsRequest` export.
+Move `intent-gherkin-settings-problems` (2). Reshape zero-caller
+`makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`)
+to build `IntentLocations` and observe `ProjectIntentReading` over typed
+replies. Check callers and remove the unused `locationsRequest` export
+(`intentReadRecoveryPage.ts`) and `pygardon`
+(`intentGherkinUnusableFixtures.ts`).
+
+**Proof.** Unreadable and malformed settings stay distinct from
+not-configured, a failed locations read names its specific cause and
+revision, and manual Retry reads it again and shows the configured or
+absent result.
+
+### 2. Failed Intent locations recover on the shared transient and rate-limit schedule
+
+Type: Behavior
+Status: planned
+
+Move `intent-read-recovery` (5). Reuse `anIntentLocationsAnswer` and
+observe `ProjectIntentReading` with the real `IntentReadRecovery` and
+shared transient schedule over isolated monotonic fake-clock epochs.
+Forward optional `readFile` on `loadRepositoryTexts`
+(`dashboard/src/repositoryFileReads.ts`) so the shared-wait case
+exercises both real published-detail recovery and Intent locations where
+their waits interact. Retain the authenticated boundary in
+`e2e/intent/intent-read-boundary-recovery.spec.ts`.
 
 **Proof.** Preserve the 15/30/60/60 schedule, visibility and rate-limit
-rules, independent recovery of published detail, exact failure wording,
-and manual Retry for malformed settings with no spontaneous retry.
+rules, independent recovery of published detail, and manual Retry for
+malformed settings with no spontaneous retry.
 
-### 2. Source opens at the location and revision the reader chose
+### 3. Source opens at the location and revision the reader chose
 
 Type: Behavior
 Status: planned
@@ -121,7 +140,7 @@ its exact source and line. A missing Java grammar keeps readable text.
 Canonical and plan links use the inspected revision. External, invalid
 and unsafe targets retain their distinct results.
 
-### 3. A detour returns the developer to the same reading
+### 4. A detour returns the developer to the same reading
 
 Type: Behavior
 Status: planned
@@ -143,7 +162,7 @@ scroll and focus without extra reads. A late selection answer cannot
 replace the current text. A project switch resets the place, and keyboard
 activation and an unread-revision notice keep their existing meaning.
 
-### 4. Changed tests stays usable with the selected story's context
+### 5. Changed tests stays usable with the selected story's context
 
 Type: Behavior
 Status: planned
@@ -164,7 +183,7 @@ rereading published text. Preserve exact title, accessible CI cues,
 dark appearance, keyboard activation, narrow layout and independent
 sidebar state through story and project visits.
 
-### 5. Done Intent and ordinary Review use the selected historical or live source
+### 6. Done Intent and ordinary Review use the selected historical or live source
 
 Type: Behavior
 Status: planned
@@ -180,7 +199,7 @@ historical answer. Refresh leaves Done Purpose and its place readable.
 Switching Review modes in the open panel waits for each mode's actual
 answer, and ordinary Review clears the captured-run selection.
 
-### 6. Done references lead to the intended story or explain what stopped them
+### 7. Done references lead to the intended story or explain what stopped them
 
 Type: Behavior
 Status: planned
@@ -199,7 +218,7 @@ narrow reduced-motion viewport. Navigation, pointer input and Tab can
 supersede a held reveal, and disclosure waits for opening before reading
 the replaced dependency.
 
-### 7. Story notes update in place and keep the reader's context
+### 8. Story notes update in place and keep the reader's context
 
 Type: Behavior
 Status: planned
@@ -218,7 +237,7 @@ and closing Notes keeps the file and restores focus. A line note records
 the Intent subject. Refresh updates the subscribed control and a held
 older read leaves the saved note visible.
 
-### 8. Recorded slice progress and completion expose their actual evidence
+### 9. Recorded slice progress and completion expose their actual evidence
 
 Type: Behavior
 Status: planned
@@ -238,12 +257,26 @@ proof. Distinguish absent, unavailable, failed and insufficient coverage
 records. Every retired test has an observed owner and the end-of-story
 measurements cover all selected destinations.
 
+## Learnings
+
+- **Original Slice 1 overrun (`17` elapsed active minutes, `storyOverruns: 1`, completed proof: none):** Unfinished attempt-owned edits were parked and reverted before in-place slice refinement. The sizing assumption that `anIntentLocationsAnswer` and published-detail recovery were already directly usable on `IntentReadSource` / fake clock proved false: `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`, zero callers after `556535c335`) still returned the retired wire `IntentLocationsAnswer` shape rather than `IntentLocations`, and `loadRepositoryTexts` (`dashboard/src/repositoryFileReads.ts`) lacked the optional `readFile` collaborator parameter that `readCachedFile` in the same module already accepts. In addition, `readingLimit.ts` keeps a monotonic module-level `limitedUntil`, so fake-clock cases in `intent-read-recovery` must use past, monotonically increasing epochs (`2020-01-01` + `1h` per case) and `>= 15s` `directedSeconds`. Splitting the in-progress slice into Slice 1 (typed builder + settings explanations/Retry + unused export cleanup, 2 cases) and Slice 2 (`loadRepositoryTexts` `readFile` seam + fake-clock schedule/shared-wait recovery, 5 cases) brings the plan to 9 slices within the 10-slice execution split cap; former Slices 2–8 become Slices 3–9 unchanged in scope.
+
 ## Plan review
 
-The eight slices follow distinct reading transitions and use the same
+The nine slices follow distinct reading transitions and use the same
 source, revision and reading-place model. The Changed tests cases share
 the selected-story setup, with product read lifecycle and native layout
-assertions kept where each is observed. Refinement was unnecessary after
-checking the roster against the slice boundaries and identifying the
-existing render and read owners. No remaining slice-specific concern was
-identified.
+assertions kept where each is observed. Original Slice 1 was refined in
+place after its overrun to separate the typed locations-answer and
+settings-explanation proof loop from the fake-clock transient/shared-wait
+recovery proof loop; remaining slices retain their boundaries.
+
+## Execution resume context
+
+- **Mode:** Story Branch Mode (`story-branch`)
+- **Workspace:** `/Users/terryyin/git/open-dough/.worktrees/get-fast-proof-of-intent-source-and-story-readin` on branch `cursor/get-fast-proof-of-intent-source-and-story-readin` (default/integration checkout: `/Users/terryyin/git/open-dough`)
+- **Target:** `origin` / `main`
+- **Publisher ID:** `dashboard-territory.local-open-dough` (agent `Nana-chan`)
+- **Published revisions:** claim `c346263b78d91b9d8cabb18ee418360f56ce0462` on `origin/main` (startingRevision `0648ff017ce13c60a489a5442c1bad3e2f2f41a6`, candidateSha `c346263b78d91b9d8cabb18ee418360f56ce0462`; claim `pendingCi: unobserved`)
+- **CI observer:** GitHub Actions, workflow `ci.yml` (`CI`), watching `terryyin/open-dough` branch `cursor/get-fast-proof-of-intent-source-and-story-readin`, mailbox `/tmp/dough-ci-501/watch-dqoYbt`
+- **Baseline `dashboard/test-support/` surface at `c346263b7`:** 792 files, 82,277 lines
