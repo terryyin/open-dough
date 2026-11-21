@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-20
 planted_during: Terry's review of cross-machine session attribution and follow-up context
 trigger_when: selected from the product backlog
-scope: five stories
+scope: six stories
 ---
 
 # SEED-418 — Review published changes by session
@@ -140,3 +140,27 @@ missing or conflicting identity stops before any push stays unchanged.
 Multiple ranges remain with
 [Attribute every workflow session’s published changes](#attribute-every-workflow-session-record).
 Plan: [746](../slice-plans/746-correct-published-session-review/PLAN.md).
+
+<a id="name-unavailable-published-session-review"></a>
+
+### Name an unavailable published-session review as published changes
+
+**Identity:** SEED-418#name-unavailable-published-session-review
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/750-name-unavailable-published-session-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c11c970164f752d18735e71e651adf80e6aa9af9045fcc5d4f82701c781f7a6a","plan":"c3f2188e5ec3f5575b7be298beb381a6bd05a928353c0371bc5a42daecf0a700"}}
+```
+
+Correction from the outcome review of
+Correct the published session review after its outcome review
+(`.planning/slice-plans/746-correct-published-session-review/PLAN.md`,
+range `126fabd26..576150249`). Plan 746's promises stay as written.
+
+**Goal.** A developer who opens a published session whose recorded commits
+this machine lacks still sees a published-session gap: the review chrome
+names published changes, not kept session commits.
+
+**Scope.** Replace the published review's reuse of
+`unavailableSessionCommitsReview` so an unavailable published answer carries
+a published-session comparison and the page's published-session naming.
+Kept-session unavailable gaps stay unchanged. Plan:
+[750](../slice-plans/750-name-unavailable-published-session-review/PLAN.md).

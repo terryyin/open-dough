@@ -465,3 +465,12 @@ another beyond slice 1's contract, which slices 2–3 consume.
 Plan size is eight slices, the maximum. Slice 1 touches about seven files
 mechanically within one proof loop. This review found no remaining
 slice-specific concern.
+
+## Execution complete
+
+Product advice:
+- Queue SEED-418#name-unavailable-published-session-review (plan 750) after closure.
+- Before Dough Land publishes this story branch, integrate `origin/main` so `eed84c8c4` is an ancestor of the tip; confirm Land guidance and session-record-publication match slice 2 (`ad-hoc`, plain publisher without UUID). Absorb `126fabd26` marked slice 2 done without carrying that product onto this branch tip.
+- Commitments 1–2 and 10–12 are observed on trunk only until that integrate.
+- No North Star or priority change. Supplier story attribute-every-workflow-session-record can re-judge after Land is on tip.
+- Direction aligned (ADR 0008). Named follow-up for unavailable published gap wording is plan 750 / DD-604 context.
