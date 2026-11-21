@@ -78,19 +78,14 @@ test("skips malformed records and valid records at another UUID's path", async (
   });
 });
 
-test("skips a session record with two ranges", async () => {
-  const record = makeMe.aSessionRecord.please();
-  const twoRanges = {
-    ...record,
-    ranges: [
-      ...record.ranges,
-      { base: "c".repeat(40), candidate: "d".repeat(40) },
-    ],
-  };
+test("lists a session record of several ordered ranges", async () => {
+  const twoRanges = makeMe.aSessionRecord
+    .andClosing({ base: "c".repeat(40), candidate: "d".repeat(40) })
+    .please();
 
   expect(await readListing(atItsPath(twoRanges))).toEqual({
     kind: "answered",
-    answer: { revision, sessions: [] },
+    answer: { revision, sessions: [twoRanges] },
   });
 });
 

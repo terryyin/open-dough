@@ -11,14 +11,9 @@ import { commitAll, git, writeAt } from "./support/storyReviewWorktree.ts";
 const workspaceOf = (origin: StartOrigin) =>
   path.join(origin.machine, "originating-machine");
 
-// The originating clone, with the project checkout's identity, on `branch` off
-// the origin's current trunk with `file` added; answers the clone and the
-// trunk commit the branch left.
-export function addedOnBranch(
-  origin: StartOrigin,
-  branch: string,
-  file: string,
-) {
+// The originating clone, with the project checkout's identity, fetched up to
+// the origin.
+function originatingClone(origin: StartOrigin) {
   const workspace = workspaceOf(origin);
   if (existsSync(workspace)) git(workspace, "fetch", "--quiet", "origin");
   else
@@ -33,6 +28,17 @@ export function addedOnBranch(
       origin.origin,
       workspace,
     );
+  return workspace;
+}
+
+// The originating clone on `branch` off the origin's current trunk with `file`
+// added; answers the clone and the trunk commit the branch left.
+export function addedOnBranch(
+  origin: StartOrigin,
+  branch: string,
+  file: string,
+) {
+  const workspace = originatingClone(origin);
   const trunk = git(workspace, "rev-parse", "origin/main");
   git(workspace, "switch", "--quiet", "-c", branch, trunk);
   writeAt(workspace, file, "published by another machine\n");
@@ -40,13 +46,23 @@ export function addedOnBranch(
   return { workspace, trunk };
 }
 
-// Trunk moves on from the originating clone with `file` added; answers the
+// Trunk moves on from the originating clone with `file` written; answers the
 // origin's new trunk commit.
-export function trunkAdvancedWith(origin: StartOrigin, file: string) {
-  const workspace = workspaceOf(origin);
+export function trunkAdvancedWith(
+  origin: StartOrigin,
+  file: string,
+  text = "trunk moved on\n",
+) {
+  const workspace = originatingClone(origin);
   git(workspace, "switch", "--quiet", "--detach", "origin/main");
-  writeAt(workspace, file, "trunk moved on\n");
+  writeAt(workspace, file, text);
   commitAll(workspace, "Advance trunk after the session");
   git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
   return git(origin.origin, "rev-parse", "main");
+}
+
+// The pair trunk publishes as it moves on with `file` added.
+export function publishedPairAdding(origin: StartOrigin, file: string) {
+  const base = git(originatingClone(origin), "rev-parse", "origin/main");
+  return { base, candidate: trunkAdvancedWith(origin, file) };
 }

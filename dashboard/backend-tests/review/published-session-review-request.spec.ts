@@ -42,10 +42,24 @@ test("Given a published session's UUID, when the review and file diff routes adm
   });
 });
 
+test("Given a published session's UUID and a range position, when the review route admits them, then its read selects that range", async () => {
+  expect(
+    await routed(storyReviewEndpoint, { ...published, run: "1" }),
+  ).toMatchObject({ read: { run: "1" } });
+});
+
+test("Given a published session's UUID and a range position not spelled canonically, when the review route reads them, then it is refused as malformed", async () => {
+  await expect(
+    Promise.resolve().then(() =>
+      routed(storyReviewEndpoint, { ...published, run: "01" }),
+    ),
+  ).rejects.toMatchObject({ status: 400 });
+});
+
 for (const [endpoint, query] of [
   [storyReviewEndpoint, { ...published, session: "ad-hoc", host: "claude" }],
   [storyReviewEndpoint, { ...published, published: "../PRODUCT-BACKLOG" }],
-  [storyReviewEndpoint, { ...published, run: "1" }],
+  [storyReviewEndpoint, { ...published, reference: randomUUID() }],
   [storyReviewFileEndpoint, { ...published, ...file, reference: randomUUID() }],
   [storyReviewFileEndpoint, { ...published, ...file, completion: file.tree }],
 ] as const)
@@ -185,7 +199,7 @@ test("a hung fetch lets the review answer from the last fetched trunk", async ()
       },
     );
     expect(resolved.revision).toBe(recordedAt);
-    return publishedSessionReview(resolved, missing, newSignal());
+    return publishedSessionReview(resolved, missing, undefined, newSignal());
   };
 
   await expect(review()).rejects.toMatchObject({

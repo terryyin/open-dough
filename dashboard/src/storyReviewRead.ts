@@ -27,9 +27,11 @@ export interface SessionReviewRead {
   readonly run?: string;
 }
 
-// What a published session review reads: only its subject.
+// What a published session review reads: its subject and, for a record of
+// several ranges, the selected range's position.
 export interface PublishedSessionReviewRead {
   readonly subject: ReviewedPublishedSessionSubject;
+  readonly run?: string;
 }
 
 export function storyReviewQuery(

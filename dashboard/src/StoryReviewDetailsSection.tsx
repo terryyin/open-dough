@@ -10,6 +10,7 @@ import { ReviewContext } from "./StoryReviewContext.tsx";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import {
   SessionComparisonSwitch,
+  PublishedRangeSwitch,
   SessionRunSwitch,
 } from "./StoryReviewSessionRuns.tsx";
 import type { SessionComparisonKey } from "./sessionReviewComparisons.ts";
@@ -169,6 +170,13 @@ export function StoryReviewDetailsSection({
             onSelect={onRun}
           />
         )}
+      {review?.kind === "published-session" && review.ranges !== undefined && (
+        <PublishedRangeSwitch
+          ranges={review.ranges}
+          selected={runKey}
+          onSelect={onRun}
+        />
+      )}
       {selectedRun !== undefined && (
         <RunChoice runs={runs} selected={selectedRun} onSelect={onRun} />
       )}

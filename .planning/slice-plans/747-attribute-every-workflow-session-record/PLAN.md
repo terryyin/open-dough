@@ -126,7 +126,7 @@ capture and verify a refused work push creates no record.
 ### 2. Inspect each published comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.** Recently done opens a published UUID and offers the existing range
 selector for its ordered comparisons. Each selection opens only its recorded
@@ -138,6 +138,8 @@ still opens directly.
 Git pairs and no local launch for the selected UUID. Switch pairs and read
 both diffs. Extend the published-route checks for an invalid selection and a
 foreign file pair. Keep local Done controls and the single-range journey.
+
+**Accepted.** Published records carry one or more ordered ranges; the published review takes an optional `run` position, refuses an unknown one (409) and admits a file only on an exact recorded pair. The Dashboard's "Published ranges" switch reuses the comparison choices. Proof: E2E "Recently done reviews each published range of another machine's session" in `e2e/sessions/recently-done-published-sessions.spec.ts`, and backend `review/published-session-review`, `review/published-session-review-request`, `review/published-session-listing`.
 
 ### 3. Recover earlier trunk publications at wrap-up
 
@@ -268,3 +270,13 @@ Disposition: proved by slice 1: Distribution/tests/skills/dough-land/session-clo
 Reported: slice 1 — "Not covered: a crash after the work is accepted but before the record is sealed."
 Story clause: "A close retry keeps the original record and resumes its first unfinished step."
 Disposition: proved by slice 1: Distribution/tests/skills/dough-land/session-close-resume.test.mjs "a close whose accepted work push lost its result resumes from the retained work and publishes the record once" (resume confirms work with pushCount 0 via resumeInterruptedPublication, then seals and publishes one record; no earlier record existed, so its seal time is the original close time)
+
+### G3. One unreadable range hides every range of the record
+Reported: slice 2 — "If one range's commits aren't in this machine's Git, the whole review shows unavailable with no range switch, so the other ranges can't be reached from the UI."
+Story clause: "Include earlier accepted trunk and story-branch work when its comparison becomes reachable from trunk."
+Disposition: interim until slices 3, 4
+
+### G4. The range switch disappears while another range loads
+Reported: slice 2 — "The switch disappears briefly while another range loads."
+Story clause: "A developer on another machine can review what an individual publishing session contributed."
+Disposition: no user cost "A developer on another machine can review what an individual publishing session contributed.": the switch returns with the loaded range and its selection, so every range stays selectable (observed in the E2E journey switching to range 2 and reading its diff)

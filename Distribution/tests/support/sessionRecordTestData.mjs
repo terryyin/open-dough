@@ -20,14 +20,23 @@ import {
  */
 /** @typedef {SessionRecord["ranges"][number]} SessionRange */
 
-/** A standalone ad hoc close of one recorded pair, under a fresh UUID. */
+/**
+ * A standalone ad hoc close of its recorded pairs in order, under a fresh
+ * UUID; one pair unless more are added.
+ */
 export class SessionRecordBuilder {
-  /** @type {SessionRange} */
-  #range = { base: "a".repeat(40), candidate: "b".repeat(40) };
+  /** @type {SessionRange[]} */
+  #ranges = [{ base: "a".repeat(40), candidate: "b".repeat(40) }];
 
   /** @param {SessionRange} range */
   closing(range) {
-    this.#range = range;
+    this.#ranges = [range];
+    return this;
+  }
+
+  /** @param {SessionRange} range the next recorded pair, after the others */
+  andClosing(range) {
+    this.#ranges = [...this.#ranges, range];
     return this;
   }
 
@@ -38,7 +47,7 @@ export class SessionRecordBuilder {
       sessionId: globalThis.crypto.randomUUID(),
       workflow: standaloneSessionWorkflow,
       closedAt: "2026-11-20T10:00:00.000Z",
-      ranges: [this.#range],
+      ranges: this.#ranges,
     };
   }
 }

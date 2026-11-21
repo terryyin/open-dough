@@ -66,11 +66,11 @@ export async function publishedSessionRecord(
   return record;
 }
 
-// The files of the one recorded pair, read from the configured checkout's
+// The files of one recorded pair, read from the configured checkout's
 // objects.
 const recordedPairFiles = (
   source: PublishedSessionSource,
-  { base, candidate }: PublishedSessionRecord["ranges"][0],
+  { base, candidate }: PublishedSessionRecord["ranges"][number],
   signal: AbortSignal,
 ) =>
   retainedCommitPairFiles(
@@ -78,13 +78,28 @@ const recordedPairFiles = (
     signal,
   );
 
+// The recorded range a review selects by position; the first unless named.
+function selectedRange(
+  record: PublishedSessionRecord,
+  run: string | undefined,
+) {
+  const range = record.ranges[run === undefined ? 0 : Number(run)];
+  if (range === undefined)
+    throw new RefusedRequest(
+      409,
+      "The selected comparison does not belong to this session's published changes.",
+    );
+  return range;
+}
+
 export async function publishedSessionReview(
   source: PublishedSessionSource,
   session: string,
+  run: string | undefined,
   signal: AbortSignal,
 ): Promise<StoryReview> {
   const record = await publishedSessionRecord(source, session, signal);
-  const [range] = record.ranges;
+  const range = selectedRange(record, run);
   const read = await recordedPairFiles(source, range, signal);
   if ("missing" in read)
     return {
@@ -101,13 +116,20 @@ export async function publishedSessionReview(
   return {
     kind: "published-session",
     session: { closedAt: record.closedAt },
+    ...(record.ranges.length === 1
+      ? {}
+      : {
+          ranges: record.ranges.length,
+          selectedRun: String(record.ranges.indexOf(range)),
+        }),
     baseline: range.base,
     tree: range.candidate,
     files: read.files,
   };
 }
 
-// A file read admits only the literal path of this session's recorded pair.
+// A file read admits only the literal path of one of this session's recorded
+// pairs.
 export async function admitPublishedSessionFile(
   source: PublishedSessionSource,
   session: string,
@@ -115,10 +137,12 @@ export async function admitPublishedSessionFile(
   signal: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
   const record = await publishedSessionRecord(source, session, signal);
-  const [range] = record.ranges;
-  const onPair = range.base === file.baseline && range.candidate === file.tree;
+  const range = record.ranges.find(
+    ({ base, candidate }) => base === file.baseline && candidate === file.tree,
+  );
   const read =
-    onPair && (await recordedPairFiles(source, range, admissionBound(signal)));
+    range !== undefined &&
+    (await recordedPairFiles(source, range, admissionBound(signal)));
   throwIfRequestAborted(signal);
   if (!read || "missing" in read || !belongsOnRetainedPair(read.files, file))
     throw new RefusedRequest(

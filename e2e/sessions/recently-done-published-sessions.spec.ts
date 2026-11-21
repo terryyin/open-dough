@@ -17,6 +17,7 @@ import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPag
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   addedOnBranch,
+  publishedPairAdding,
   trunkAdvancedWith,
 } from "../../dashboard/test-support/originatingMachine.ts";
 import {
@@ -28,6 +29,8 @@ import { keepLaunchStore } from "../../dashboard/test-support/support/launchStor
 import { sessionDetailsControl } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import { publishSessionClose } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
+import { defaultBacklogPath } from "../../Distribution/src/skills/dough-execute-plan/scripts/owned-suffix-reconciliation.mjs";
+import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
@@ -119,5 +122,66 @@ test("Recently done lists this machine's published session once and reviews anot
     await review.files.expectSelected(`Added ${otherFile}`);
     await review.expectNoText(ownFile);
     await review.expectNoText(laterFile);
+  });
+});
+
+const firstRangeFile = "first-range.txt";
+const secondRangeFile = "second-range.txt";
+const betweenFile = "another-writer.txt";
+
+// Another machine's session whose close record names two trunk pairs, one
+// adding each range's file, with another writer's commit between them;
+// answers its UUID.
+function publishedInTwoRanges(origin: StartOrigin) {
+  const first = publishedPairAdding(origin, firstRangeFile);
+  trunkAdvancedWith(origin, betweenFile);
+  const second = publishedPairAdding(origin, secondRangeFile);
+  const record = makeMe.aSessionRecord
+    .closing(first)
+    .andClosing(second)
+    .please();
+  trunkAdvancedWith(
+    origin,
+    sessionRecordPathBeside(defaultBacklogPath, record.sessionId),
+    `${JSON.stringify(record)}\n`,
+  );
+  return record.sessionId;
+}
+
+test("Recently done reviews each published range of another machine's session", async ({
+  page,
+  origin,
+}) => {
+  const session =
+    await test.step("Given another machine published a session's two pairs with another writer's work between them, and its close record", () =>
+      publishedInTwoRanges(origin));
+  await test.step("And trunk moves on after the record", async () => {
+    await publishCommittedOrigin(page, {
+      repoDir: origin.origin,
+      revision: trunkAdvancedWith(origin, laterFile),
+      repository: "terryyin/open-dough",
+      follows: true,
+    });
+  });
+  const review =
+    await test.step("When this machine, with no launch of it, opens Review changes on that session", async () => {
+      await page.setViewportSize({ width: 1600, height: 900 });
+      await page.goto("/");
+      return openReviewChanges(
+        page,
+        publishedSessionEntry(parts(page).recentlyDone, session),
+      );
+    });
+  await test.step("Then the first range shows only its own file", async () => {
+    await review.files.chooseShown(`Added ${firstRangeFile}`);
+    await review.expectNoText(secondRangeFile);
+    await review.expectNoText(betweenFile);
+  });
+  await test.step("When it selects the second range", () =>
+    review.comparison.choosePublishedRange("Published range 2 of 2"));
+  await test.step("Then only the second range's file shows", async () => {
+    await review.files.chooseShown(`Added ${secondRangeFile}`);
+    await review.expectNoText(firstRangeFile);
+    await review.expectNoText(betweenFile);
   });
 });

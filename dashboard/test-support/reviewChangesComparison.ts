@@ -96,6 +96,15 @@ export class ReviewComparison {
     return this;
   }
 
+  async choosePublishedRange(label: string) {
+    await this.#reach();
+    await this.#review
+      .getByRole("radiogroup", { name: "Published ranges" })
+      .getByRole("radio", { name: label, exact: true })
+      .check();
+    return this;
+  }
+
   // Sets Include uncommitted changes, without waiting for any read.
   async includeUncommitted(include: boolean, using: Using = "mouse") {
     await this.#reach();

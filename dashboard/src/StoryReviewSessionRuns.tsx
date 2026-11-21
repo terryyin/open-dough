@@ -2,7 +2,8 @@
 // (`./StoryReviewComparison.tsx`): one choice per run, oldest first, named by
 // its commit count, last commit's subject and time. Runs are chosen by
 // position, spelled as the selection's run key
-// (`./useStoryReviewSelection.ts`).
+// (`./useStoryReviewSelection.ts`). A published session of several recorded
+// ranges is offered the same way, one choice per range in recorded order.
 import { ComparisonChoices } from "./StoryReviewComparison.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
 import type { SessionRunChoice } from "./sessionCommits.ts";
@@ -19,7 +20,9 @@ export const sessionRunKeys = (answer: StoryReview | undefined) =>
   answer?.sessionComparisonKeys ??
   (answer?.kind === "session-commits"
     ? Array.from(answer.commitRuns.keys(), String)
-    : []);
+    : answer?.kind === "published-session"
+      ? Array.from(Array(answer.ranges ?? 1).keys(), String)
+      : []);
 export const answeredRunKey = (answer: StoryReview | undefined) =>
   answer?.selectedRun ??
   (answer?.kind === "session-commits" ? String(answer.commitRun) : undefined);
@@ -90,6 +93,29 @@ export function SessionRunSwitch({
             {new Date(run.committedAt).toLocaleString()}
           </>
         ),
+      }))}
+      shown={selected}
+      onChoose={onSelect}
+    />
+  );
+}
+
+// The ranges a published close record names, chosen by position.
+export function PublishedRangeSwitch({
+  ranges,
+  selected,
+  onSelect,
+}: {
+  readonly ranges: number;
+  readonly selected: string | undefined;
+  readonly onSelect: (key: string) => void;
+}) {
+  return (
+    <ComparisonChoices
+      label="Published ranges"
+      choices={Array.from(Array(ranges).keys(), (position) => ({
+        key: String(position),
+        label: `Published range ${String(position + 1)} of ${String(ranges)}`,
       }))}
       shown={selected}
       onChoose={onSelect}

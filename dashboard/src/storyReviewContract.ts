@@ -139,14 +139,17 @@ export const storyReviewSchema = z
       commitRun: z.number().int().nonnegative(),
       ...fixedComparison,
     }),
-    // A standalone session's published close record: one recorded pair and
-    // the session's close time. No kept-run switch; launch history is not
+    // A standalone session's published close record: the selected recorded
+    // pair and the session's close time. A record of several ordered ranges
+    // names how many and which position is shown; launch history is not
     // required (`../server/publishedSessionReview.ts`).
     z.object({
       kind: z.literal("published-session"),
       session: z.object({
         closedAt: z.iso.datetime(),
       }),
+      ranges: z.number().int().min(2).optional(),
+      selectedRun: z.string().regex(/^\d+$/).optional(),
       ...fixedComparison,
     }),
     z.object({

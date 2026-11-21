@@ -47,6 +47,7 @@ export async function storyReview(
     return publishedSessionReview(
       input.published,
       input.read.subject.published,
+      input.read.run,
       signal,
     );
   const request = await keptStoryReview(input);

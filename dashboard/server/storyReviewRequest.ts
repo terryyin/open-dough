@@ -81,10 +81,20 @@ function identityReviewRead(
 export function storyReviewRequest(url: URL): AdmittedStoryReview {
   const subject = reviewedWorkSubjectQuery(url);
   if (subject.kind === "published") {
-    requireExactQuery(url, subject.keys, "review");
+    const run = url.searchParams.get("run");
+    requireExactQuery(
+      url,
+      [...subject.keys, ...(run === null ? [] : ["run"])],
+      "review",
+    );
+    if (run !== null && !/^(0|[1-9]\d*)$/.test(run))
+      throw new RefusedRequest(400, "The review run is malformed.");
     return {
       kind: "story-review",
-      read: { subject: queriedPublishedSessionSubject(url) },
+      read: {
+        subject: queriedPublishedSessionSubject(url),
+        ...(run === null ? {} : { run }),
+      },
     };
   }
   const read =
