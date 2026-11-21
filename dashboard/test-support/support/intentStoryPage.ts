@@ -1,7 +1,4 @@
-import { fileBrowser } from "./reviewContextLine.ts";
-import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import { codePane, expectContextRead } from "./reviewPanes.ts";
-import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
@@ -12,15 +9,14 @@ import {
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
 // read of the page: the selected story's header and views, the contains-changes
 // background, the "Selected story only" toggle, and a changed file's diff in
-// Intent's Purpose beside the same file's diff in Review changes. Scenarios
-// that read several of these hold `intentStory`. Arranging the taken story:
-// ./selectTakenStoryInIntent.ts. A row's change-kind style: ./changeKindStyle.ts.
+// Intent's Purpose. Scenarios that read several of these hold `intentStory`.
+// Arranging the taken story: ./selectTakenStoryInIntent.ts. A row's
+// change-kind style: ./changeKindStyle.ts.
 
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator } from "@playwright/test";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
-import { expectReviewRead } from "./reviewRead.ts";
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -56,31 +52,6 @@ export function storyHeaderReading(intent: Locator) {
 // The header's title, which names the story in full.
 export const storyTitle = (intent: Locator) =>
   storySummary(intent).getByRole("heading", { level: 2 });
-
-// The count of changed files outside Intent locations ending the header's
-// title line, and the name and hover text that explain it.
-export const outsideCount = (intent: Locator) =>
-  storySummary(intent)
-    .locator(".intent-story-title-line")
-    .getByRole("button", { name: /outside Intent locations/ });
-export const outsideName = (count: number) =>
-  `${count} changed file${count === 1 ? "" : "s"} outside Intent locations — open Review changes`;
-
-// The count shows only the number, explained by its name and hover text, on
-// the title's line; the sentence it replaced is gone.
-export async function expectOutsideCount(intent: Locator, count: number) {
-  const button = outsideCount(intent);
-  await expect(button).toHaveText(String(count));
-  await expect(button).toHaveAccessibleName(outsideName(count));
-  await expect(button).toHaveAttribute("title", outsideName(count));
-  await expect(intent.getByText(/shown in Review changes/)).toHaveCount(0);
-  const line = await storyTitle(intent).boundingBox();
-  const box = await button.boundingBox();
-  if (line === null || box === null) throw new Error("Not laid out.");
-  const middle = box.y + box.height / 2;
-  expect(middle).toBeGreaterThan(line.y);
-  expect(middle).toBeLessThan(line.y + line.height);
-}
 
 // What the header says beyond the title: the identity, and the revisions or
 // full explanation of the comparison. Nothing collapses it.
@@ -163,28 +134,6 @@ export async function intentDiff(intent: Locator, name: string) {
   return readIntentDiff(intent);
 }
 
-// The same file's diff in Review changes, opened from Intent's count of
-// changed files outside its locations.
-export async function reviewDiff(page: Page, name: string) {
-  const review = reviewRegion(page);
-  await listedFile(fileBrowser(review), name, { exact: true }).click();
-  const diff = fileDiff(review, name);
-  const code = codePane(diff);
-  await expectDiffReady(code);
-  return code.innerText();
-}
-
-// Opens Review changes from the header's count outside Intent locations,
-// leaving the header in place.
-export async function openReviewFromIntent(page: Page, intent: Locator) {
-  await outsideCount(intent).click();
-  await expect(storyTitle(intent)).toBeVisible();
-  const review = reviewRegion(page);
-  await expectReviewRead(review);
-  await expect(fileBrowser(review)).toBeVisible();
-  return showReviewDetails(review);
-}
-
 // The selected story in Intent. Diff text comes back for the scenario to
 // compare; `background` stays a measurement the scenario compares itself.
 export function intentStory(intent: Locator) {
@@ -193,7 +142,6 @@ export function intentStory(intent: Locator) {
     header: storyHeaderReading(intent),
     title: storyTitle(intent),
     views: storyViews(intent),
-    outsideCount: outsideCount(intent),
     diffReading: intentDiffReading(intent),
     storyOnly: (scope?: Locator) => storyOnly(scope ?? intent),
     file: (name: string) => intentFile(intent, name),
@@ -212,14 +160,11 @@ export function intentStory(intent: Locator) {
         .getByRole("button", { name: fileName(name) })
         .locator("xpath=.."),
     headerDetail: () => storyHeaderDetail(intent),
-    expectOutsideCount: (count: number) => expectOutsideCount(intent, count),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
       chooseStoryTab(intent, name),
     expectTab: (name: Parameters<typeof expectStoryTab>[1]) =>
       expectStoryTab(intent, name),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     diff: (name: string) => intentDiff(intent, name),
-    openReview: () => openReviewFromIntent(intent.page(), intent),
-    reviewDiff: (name: string) => reviewDiff(intent.page(), name),
   };
 }

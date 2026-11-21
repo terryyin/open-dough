@@ -43,14 +43,14 @@ import {
 } from "../../test-support/support/frontendIntentStory.ts";
 
 // The published tree shows as without a story: no change marks, no outside
-// count, no toggle, no claim that nothing changed, and a file reads its
+// files, no toggle, no claim that nothing changed, and a file reads its
 // source.
 async function expectPublishedTreeUsable(intent: Locator) {
   const story = intentStory(intent);
   await expect(story.storyOnly()).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
   await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
-  await expect(story.outsideCount).toHaveCount(0);
+  await expect(story.outside).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
   await expandIntentGroup(intent, "dashboard/tests");
   await expandIntentFolders(intent, "dashboard/tests");
@@ -125,7 +125,11 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await expect(story.header.revisions).toBeVisible();
   await expect(problem).toHaveCount(0);
   await expect(story.storyOnly()).not.toBeChecked();
-  await story.expectOutsideCount(2);
+  for (const name of [
+    "Modified dashboard/src/App.tsx",
+    "Renamed docs/notes.md → docs/renamed-notes.md",
+  ])
+    await expect(story.outsideFile(name)).toBeVisible();
   await expect(story.file(changed.modified)).toBeVisible();
   await expect(story.file(changed.added)).toBeVisible();
 });
@@ -150,7 +154,6 @@ test("without configured Intent locations the header names the selected story, C
   await expect(story.header.status).toHaveText("No comparison is available.");
   await expect(story.header.identity).toHaveText("SEED-A#a");
   await expect(story.storyOnly()).toHaveCount(0);
-  await expect(story.outsideCount).toHaveCount(0);
   await story.expectTab("CI comparison");
   await expect(
     intent

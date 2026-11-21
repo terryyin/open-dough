@@ -1,7 +1,8 @@
 // The selected story's changed files outside every Intent location, listed
 // after the locations in their repository folders, each read as Purpose like a
 // located file and kept under "Selected story only"; a Done story lists its
-// published completion's the same way. The real Git overlay is observed in
+// published completion's the same way. The header counts none of them. The
+// real Git overlay is observed in
 // ../../../e2e/intent/intent-story-changes.spec.ts.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
@@ -51,6 +52,28 @@ test("the changed files outside every Intent location follow the locations, once
 
   await test.step("And their folders holding changes are open", async () => {
     await expect(story.folderToggle("docs", true)).toBeVisible();
+  });
+});
+
+test("the selected story's header counts none of the files listed outside every Intent location", async ({
+  page,
+  frontendServices,
+}) => {
+  putFrontendIntentStory(frontendServices);
+  await answerFrontendIntentChanges(page);
+  const { intent } = await openStoryIntent(page, "Story A");
+  const story = intentStory(intent);
+
+  await test.step("Given the story's Changed tests listing a file outside", async () => {
+    await story.chooseTab("Changed tests");
+    await expect(story.outsideFile(app)).toBeVisible();
+  });
+
+  await test.step("Then its header neither counts them nor offers to open them", async () => {
+    await expect(story.summary).not.toContainText("outside Intent locations");
+    await expect(
+      story.summary.getByRole("button", { name: /outside/ }),
+    ).toHaveCount(0);
   });
 });
 

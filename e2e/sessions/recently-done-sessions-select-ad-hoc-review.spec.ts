@@ -3,8 +3,6 @@
 // (../../dashboard/src/recentlyDoneSelection.ts) without rewriting Ad hoc. Reuses the
 // real completion publish path (../../dashboard/test-support/support/adHocCompletedAssociation.ts) and
 // Intent review helpers (../../dashboard/test-support/support/intentStoryPage.ts).
-import { listedFile } from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   expect,
   test,
@@ -15,7 +13,6 @@ import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessi
 import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
 import {
   chooseStoryTab,
-  openReviewFromIntent,
   storyHeaderReading,
   storyTitle,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
@@ -100,11 +97,5 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
     expect(baseline).not.toBe(published);
     expect(baseline).not.toBe(linked.completion);
     expect(published).not.toBe(linked.completion);
-
-    await openReviewFromIntent(page, intent);
-    const review = reviewRegion(page);
-    await expect(
-      listedFile(review, `Added ${vendorPath}`, { exact: true }),
-    ).toBeVisible();
   });
 });

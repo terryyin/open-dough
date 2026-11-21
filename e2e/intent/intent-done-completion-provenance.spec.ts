@@ -22,8 +22,6 @@ import {
   folderToggle,
   intentDiff,
   intentFile,
-  openReviewFromIntent,
-  reviewDiff,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import { capturedChoice } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
@@ -104,6 +102,4 @@ test("a Done story reads its published execution instead of an earlier refinemen
   await intentFile(intent, unchanged).click();
   await expect(purposeRegion(intent)).toContainText("kept 11");
   expect(sourceReads).toEqual([completion]);
-  await openReviewFromIntent(page, intent);
-  expect(await reviewDiff(page, modified)).toBe(original);
 });

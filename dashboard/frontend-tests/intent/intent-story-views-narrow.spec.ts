@@ -29,7 +29,6 @@ import {
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   expectStoryTab,
-  outsideCount,
   storyTab,
   storyViews,
 } from "../../test-support/support/intentStoryPage.ts";
@@ -49,7 +48,6 @@ test("narrow, a selected story's views and Hide files stay reachable by keyboard
     storyTab(intent, "Changed tests"),
     storyTab(intent, "Intent coverage"),
     filesToggle(intent),
-    outsideCount(intent),
   ]) {
     await expect(control).toBeVisible();
     const at = await box(control);

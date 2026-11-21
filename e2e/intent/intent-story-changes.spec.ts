@@ -1,4 +1,3 @@
-import { assumeReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   filesColumn,
   intentModeViews,
@@ -97,8 +96,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
   });
 
-  await test.step("the changed files outside every location are counted and listed once each after the locations", async () => {
-    await story.expectOutsideCount(2);
+  await test.step("the changed files outside every location are listed once each after the locations", async () => {
     await expect(story.outside.getByText("App.tsx")).toHaveCount(1);
     await expect(story.outside.getByText(/notes\.md/)).toHaveCount(1);
   });
@@ -179,18 +177,8 @@ test("Intent highlights a selected Taken story's test changes over the published
     });
   });
 
-  await test.step("a changed file's Purpose is Review changes' diff", async () => {
-    const inIntent = await story.diff(changed.modified);
-    expect(inIntent).toContain("more");
-    await story.openReview();
-    const review = await assumeReviewChanges(page);
-    await review.files.expectListed(/changed file/, [
-      "Modified dashboard/src/App.tsx",
-    ]);
-    expect(await story.reviewDiff(changed.modified)).toBe(inIntent);
-    expect(await story.diff(changed.added)).toBe(
-      await story.reviewDiff(changed.added),
-    );
+  await test.step("a changed file's Purpose is its diff", async () => {
+    expect(await story.diff(changed.modified)).toContain("more");
   });
 
   await test.step("an unchanged file shows its published source", async () => {
@@ -199,11 +187,8 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(story.diffReading.code).toHaveCount(0);
   });
 
-  await test.step("closing the story's review keeps the selected story; deselecting its card removes the header", async () => {
+  await test.step("deselecting its card removes the header", async () => {
     const { development, intentChoice } = parts(page);
-    await (await assumeReviewChanges(page)).close();
-    await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(story.title).toHaveText("Story A");
     await development.click();
     await expectSelected(card, true);
     await emptyArea(card).click();
@@ -211,7 +196,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(header.region).toHaveCount(0);
-    await expect(story.outsideCount).toHaveCount(0);
+    await expect(story.outside).toHaveCount(0);
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
     const unchanged = await locationHeaderLookAt(intent, "tests");

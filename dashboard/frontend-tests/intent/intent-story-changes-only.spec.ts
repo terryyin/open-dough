@@ -34,6 +34,9 @@ import {
   openStoryIntent,
 } from "../../test-support/intentModePage.ts";
 
+const app = "Modified dashboard/src/App.tsx";
+const notes = "Renamed docs/notes.md → docs/renamed-notes.md";
+
 const changedInFirstLocation = [
   changed.modified,
   changed.added,
@@ -83,7 +86,8 @@ test("Selected story only shows just the story's changed files, expanded, and of
     for (const name of [kept, other])
       await expect(story.file(name)).toHaveCount(0);
     await expect(story.folderRow("other")).toHaveCount(0);
-    await story.expectOutsideCount(2);
+    for (const name of [app, notes])
+      await expect(story.outsideFile(name)).toBeVisible();
     await expect(intent.locator(".intent-story-none")).toHaveCount(0);
   });
 
@@ -150,7 +154,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   });
 });
 
-test("a story that changed only product code says Selected story only has no test files in Intent locations, with the count outside", async ({
+test("a story that changed only product code says Selected story only has no test files in Intent locations, with its code outside", async ({
   page,
   frontendServices,
 }) => {
@@ -168,7 +172,7 @@ test("a story that changed only product code says Selected story only has no tes
   await expect(story.header.revisions).toBeVisible();
   const toggle = story.storyOnly();
   await expect(toggle).not.toBeChecked();
-  await story.expectOutsideCount(1);
+  await expect(story.outsideFile(app)).toBeVisible();
   await expect(none).toHaveCount(0);
   await expect(
     intent.locator("section.intent-location [data-kind]"),
@@ -182,7 +186,7 @@ test("a story that changed only product code says Selected story only has no tes
   await expect(none).toHaveText(
     "No test files in Intent locations changed in this story",
   );
-  await story.expectOutsideCount(1);
+  await expect(story.outsideFile(app)).toBeVisible();
   await expect(intent.locator("section.intent-location")).toHaveCount(0);
 
   await toggle.uncheck();

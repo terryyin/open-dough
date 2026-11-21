@@ -12,11 +12,10 @@ import {
 } from "../../test-support/support/frontendIntentStory.ts";
 import {
   chooseStoryTab,
-  expectOutsideCount,
   intentDiffReading,
   intentStory,
   intentFile,
-  outsideCount,
+  storyTitle,
 } from "../../test-support/support/intentStoryPage.ts";
 import {
   intentReadingScroll,
@@ -30,22 +29,11 @@ import { deepSpec } from "../../test-support/support/intentStoryWorktree.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
 
-test("the Intent story title shows matching Notes and Review changes icons side by side", async ({
+test("the unreadable Notes warning leaves the Notes icon beside a long Intent story title", async ({
   page,
   frontendServices,
 }) => {
-  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
-  await storyNotesPage(page).expectIconBeside(
-    storySummary(intent),
-    outsideCount(intent),
-  );
-});
-
-test("the unreadable Notes warning leaves both icons beside a long Intent story title", async ({
-  page,
-  frontendServices,
-}) => {
-  const title = "Story A shows a long title beside its review and notes";
+  const title = "Story A shows a long title beside its notes";
   putFrontendIntentStory(frontendServices, {
     story: makeMe.aBacklogEntry.with({ ...storyA, title }).please(),
   });
@@ -58,8 +46,7 @@ test("the unreadable Notes warning leaves both icons beside a long Intent story 
   const summary = storySummary(intent);
   const notes = storyNotesPage(page);
   await notes.expectUnreadable(summary, "The notes could not be read.");
-  await expectOutsideCount(intent, 2);
-  await notes.expectIconBeside(summary, outsideCount(intent));
+  await notes.expectIconBeside(summary, storyTitle(intent));
 });
 
 test("a line note from Intent Changed tests records the Intent view", async ({

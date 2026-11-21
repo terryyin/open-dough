@@ -117,7 +117,7 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
   await expect(story.header.revisions).toHaveCount(0);
   await expect(story.storyOnly()).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
-  await expect(story.outsideCount).toHaveCount(0);
+  await expect(story.outside).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
   await story.chooseTab("Changed tests");
   await expect(filesColumn(intent)).toHaveCount(0);

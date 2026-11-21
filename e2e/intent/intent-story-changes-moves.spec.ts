@@ -11,18 +11,14 @@
 // tree shows, the story's added one included. The highlighted journey:
 // ./intent-story-changes.spec.ts.
 
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
-  expectOutsideCount,
   intentDiff,
   intentFile,
-  openReviewFromIntent,
   outsideGroup,
-  reviewDiff,
   storyOnly,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { selectTakenStoryInIntent } from "../../dashboard/test-support/support/selectTakenStoryInIntent.ts";
@@ -94,9 +90,8 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
       );
     });
 
-    await test.step(`Selected story only ${state}: a rename neither path admits is listed and counted once outside`, async () => {
+    await test.step(`Selected story only ${state}: a rename neither path admits is listed once outside`, async () => {
       await expect(outsideGroup(intent).getByText(/notes\.md/)).toHaveCount(1);
-      await expectOutsideCount(intent, 2);
     });
 
     await test.step(`Selected story only ${state}: each deletion and rename opens its diff, the same in both states`, async () => {
@@ -114,17 +109,8 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
     });
   }
 
-  await test.step("each deletion and rename's diff in Intent is the one Review changes shows", async () => {
+  await test.step("each deletion and rename's diff shows its change", () => {
     expect(inIntent.get(changed.deleted)).toContain("gone 0");
     expect(inIntent.get(changed.between)).toContain("renamed");
-    await openReviewFromIntent(page, intent);
-    for (const [name, diff] of inIntent)
-      expect(await reviewDiff(page, name), name).toBe(diff);
-    await expect(
-      reviewRegion(page).getByRole("button", {
-        name: "Renamed docs/notes.md → docs/renamed-notes.md",
-        exact: true,
-      }),
-    ).toBeVisible();
   });
 });

@@ -20,7 +20,6 @@ import {
   type ComparedStory,
   type StorySummary,
 } from "./IntentStorySummary.tsx";
-import { intentStoryOverlay } from "./intentStoryOverlay.ts";
 import {
   StoryCiReturnProvider,
   storyTabs,
@@ -77,11 +76,6 @@ export function IntentPage({
   }, [entryReturns, tabsIdPrefix]);
   const view = story === undefined ? project.mode : tab;
   const browserView = story === undefined ? "ci" : "changed";
-  const outside =
-    story?.compared !== undefined && locations !== undefined
-      ? intentStoryOverlay(locations, story.compared.shown.comparison.files)
-          .outside.length
-      : undefined;
   const panel = (name: string) => ({
     className: "intent-page-panel",
     tabIndex: -1,
@@ -128,7 +122,6 @@ export function IntentPage({
         <IntentHeader
           summary={story?.summary}
           source={source.id}
-          outside={outside}
           navigation={navigation}
           projectVisit={onBackToStory !== undefined}
           browserRevision={shownRevision}

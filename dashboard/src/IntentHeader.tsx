@@ -1,71 +1,25 @@
 // Intent's persistent header for project evidence or a selected story.
-// The common page supplies its navigation; story metadata, comparison and
-// outside-location action appear only in that story's evidence context.
+// The common page supplies its navigation; story metadata and comparison
+// appear only in that story's evidence context.
 
-import { GitCompare } from "lucide-react";
 import type { ReactNode } from "react";
-import { Icon } from "./Icon.tsx";
 import {
   CompactComparisonState,
   ComparisonDetail,
 } from "./IntentStoryComparison.tsx";
-import type { LensStory, StorySummary } from "./IntentStorySummary.tsx";
-import { useOpenStoryReview } from "./pageStoryReviews.ts";
+import type { StorySummary } from "./IntentStorySummary.tsx";
 import { shortRevision } from "./publishedWork.ts";
-import { changedFiles } from "./StoryReviewFileTree.tsx";
 import { StoryNotes } from "./StoryNotesControl.tsx";
-import { defaultStoryComparison } from "./useStoryComparison.ts";
-
-const outsideWords = (count: number) =>
-  `${changedFiles(count)} outside Intent locations — open Review changes`;
-
-// How many of the story's changed files no Intent location admits, as an
-// icon and the count that open Review changes, which shows them, explained by
-// its name and hover text; nothing when there are none.
-function StoryOutsideLocations({
-  source,
-  story,
-  outside,
-}: {
-  readonly source: string;
-  readonly story: LensStory;
-  readonly outside: number;
-}) {
-  const openStoryReview = useOpenStoryReview();
-  if (outside === 0) return null;
-  return (
-    <button
-      type="button"
-      className="intent-story-outside"
-      aria-label={outsideWords(outside)}
-      title={outsideWords(outside)}
-      onClick={(event) => {
-        openStoryReview({
-          subject: { source, identity: story.identity },
-          title: story.title,
-          control: event.currentTarget,
-          comparison: defaultStoryComparison,
-          ...(story.completed ? { completed: true, historical: true } : {}),
-        });
-      }}
-    >
-      <Icon icon={GitCompare} />
-      {outside}
-    </button>
-  );
-}
 
 export function IntentHeader({
   summary,
   source,
-  outside,
   navigation,
   projectVisit,
   browserRevision,
 }: {
   readonly summary: StorySummary | undefined;
   readonly source: string;
-  readonly outside: number | undefined;
   readonly navigation: ReactNode;
   readonly projectVisit: boolean;
   readonly browserRevision: string | undefined;
@@ -103,13 +57,6 @@ export function IntentHeader({
             sourceId={source}
             identity={story.identity}
             title={story.title}
-          />
-        )}
-        {story !== undefined && outside !== undefined && (
-          <StoryOutsideLocations
-            source={source}
-            story={story}
-            outside={outside}
           />
         )}
       </div>

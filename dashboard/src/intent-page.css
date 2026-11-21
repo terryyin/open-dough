@@ -91,33 +91,9 @@
   margin-left: var(--space-1);
 }
 
-/* The count outside every location: a quiet icon and number that opens
-   Review changes. */
-.intent-story-outside {
-  display: inline-flex;
-  box-sizing: border-box;
-  flex: none;
-  align-items: center;
-  min-height: var(--control-size);
-  gap: 0.2rem;
-  padding: 0 var(--space-1);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--quiet);
-  font: inherit;
-  font-size: var(--text-sm);
-  cursor: pointer;
-}
-
-.intent-story-outside:hover {
-  color: var(--text);
-  background: var(--hover);
-}
-
 .intent-story-title-line:has(> .story-notes-problem) {
   display: grid;
-  grid-template-columns: minmax(0, max-content) repeat(2, max-content);
+  grid-template-columns: minmax(0, max-content) max-content;
 }
 
 .intent-story-title-line > .story-notes-problem {

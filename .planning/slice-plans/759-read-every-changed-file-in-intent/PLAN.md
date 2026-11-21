@@ -121,7 +121,7 @@ once beside the count. The location groups live in
 ### 2. The header no longer counts files outside Intent locations
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a selected story with changed files outside Intent locations → its
 Intent header → no count and no control that opens the Side panel review.
@@ -133,6 +133,33 @@ listed files where the case is about outside files, and drop it where the
 count was incidental. `intent-story-review-return.spec.ts` proves only the
 return from the review this control opened, so it goes with the control. Run
 every named frontend reader and the five `e2e/intent` readers.
+
+**Decision at slice 2 start.** The consumer trace found the count is the
+only control that opens the Side panel review from Intent
+(`openReviewFromIntent`, `intentStory(...).openReview()` in
+`dashboard/test-support/support/intentStoryPage.ts`). Cases whose subject is
+that Intent-opened review go with the control, as
+`intent-story-review-return.spec.ts` does:
+`intent-done-landed-review-mode.spec.ts`, the Intent-opened cases of
+`intent-done-review-modes.spec.ts` and `e2e/intent/intent-story-changes-landed-run.spec.ts`.
+A case there that observes Intent's own reading or the card's review
+without the control stays. Where a case only cross-checks the Review diff
+against the Intent diff after opening Review from the count, drop that step
+and keep its Intent assertions: `intent-done-prior-execution`,
+`intent-done-completion-provenance`, `intent-done-retained-landing`,
+`intent-done-retained-workspace`, `intent-summary-story-comparison-renamed`,
+`intent-story-changes-moves`, `intent-story-changes` and
+`intent-story-completed` under `e2e/intent`, and the Intent step of
+`e2e/sessions/recently-done-sessions-select-ad-hoc-review.spec.ts`.
+Retargeting them to the card's **Review changes** is rejected, since
+[plan 761](../761-route-review-changes-to-intent/PLAN.md) sends that control
+to Intent. Run those specs too.
+
+**Proof (accepted).** `intent-story-outside-locations.spec.ts` shows the
+header holds no outside count while the files are listed. Whole
+`dashboard/frontend-tests/intent`, whole `e2e/intent` and the
+`e2e/sessions` spec passed. The header count was the only route from Intent
+into the Side panel review.
 
 ### 3. Proof names a file without file-level CI evidence
 

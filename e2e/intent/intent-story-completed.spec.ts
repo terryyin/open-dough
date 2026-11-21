@@ -130,38 +130,27 @@ test("Intent overlays a completed story's published history comparison, naming i
       await expect(story.folderToggle("other", false)).toHaveCount(
         only ? 0 : 1,
       );
-      await story.expectOutsideCount(6);
     });
   }
 
   const inIntent = new Map<string, string>();
-  await test.step("each changed file opens its diff", async () => {
+  await test.step("each changed file opens its completed change", async () => {
     for (const name of Object.values(changed)) {
       inIntent.set(name, await story.diff(name));
     }
-  });
-
-  await test.step("each changed file's diff in Intent is the one Review changes shows", async () => {
     expect(inIntent.get(changed.deleted)).toContain("gone 0");
     expect(inIntent.get(changed.modified)).toContain("completed");
     expect(inIntent.get(changed.added)).toContain("added");
-    await story.openReview();
-    const review = await assumeReviewChanges(page);
-    await review.expectText("Published completion");
-    // Its three test files and the six Intent counts outside the locations.
-    await review.files.expectKindMarks(9);
-    for (const [name, diff] of inIntent)
-      expect(await story.reviewDiff(name), name).toBe(diff);
   });
 
   await test.step("the done card's Review changes selects and highlights it for Intent's summary; toggling its selection clears it and leaves the review open", async () => {
-    const review = await assumeReviewChanges(page);
     const { development, intentChoice } = parts(page);
     await development.click();
     await showColumn(page, "Recently done");
     await emptyArea(card).click();
     await expectSelected(card, false);
     await reviewChanges(card).press("Enter");
+    const review = await assumeReviewChanges(page);
     await expectSelected(card, true);
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
