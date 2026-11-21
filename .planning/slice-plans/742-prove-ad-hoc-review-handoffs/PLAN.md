@@ -239,6 +239,10 @@ case), retiring `adHocReview.ts` and `branchResultValidation.ts` (`-70` lines,
 zero wrappers added) while preserving every Git, persistence, native-Done, and
 refusal check per ADR 0010.
 
+## Execution complete
+
+Product advice: no change — `SEED-413#renovate-later-dashboard-backend-unit-test-families` already sequences `intent/` landed CI next after ad hoc review handoffs, and the remaining Done-capture store/builder stories (`SEED-413#restore-done-capture-proof-after-composed-reviews`, `SEED-413#fold-done-capture-launches-into-makeme`, `SEED-413#optimize-done-capture-family-cases`) are already ordered at the top of the product backlog.
+
 ## Local gates
 
 - Apply [MakeMe selection](../../../.agents/skills/dough-makeme/SKILL.md),
