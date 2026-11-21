@@ -1,33 +1,31 @@
-// Done keeps the isolated worktree it read: staged, untracked and deleted
-// files but not ignored ones, without touching the index, HEAD or files, and
-// without an edit made while the capture is held. The result outlives a
-// forced retirement of the branch.
+// Done keeps its worktree snapshot through later edits and forced retirement.
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import * as gitRunner from "../../server/gitRunner.ts";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
+import { keptSession } from "../../server/launchRecordStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import {
   aCheckout,
-  aHeldDone,
   anIsolatedLaunch,
   historyBeforeTheCase,
   inWorktree,
   keep,
+  markDone,
   minutesAgo,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
-import { keptRecords } from "../../server/launchRecordStore.ts";
+import { fileText } from "../support/doneCaptureReview.ts";
 
 const launchFiles = historyBeforeTheCase({
   files: { "deleted.txt": "delete this\n", ".gitignore": "ignored.txt\n" },
 }).withWorkspace("draft", { from: "base" });
 
-test("Done keeps the working tree it read and outlives a forced retirement", async () => {
+test("Done keeps the worktree snapshot through a later edit and forced retirement", async () => {
   const checkout = await aCheckout({ history: launchFiles, withOrigin: true });
   const workspace = checkout.execution;
   if (workspace === undefined) throw new Error("Missing the worktree.");
@@ -72,14 +70,43 @@ test("Done keeps the working tree it read and outlives a forced retirement", asy
   );
   const originalIndex = readFileSync(index);
 
-  const done = aHeldDone(record);
+  let reachedAncestry!: () => void;
+  let releaseAncestry!: () => void;
+  const snapshotTaken = new Promise<void>((resolve) => {
+    reachedAncestry = resolve;
+  });
+  const waitForEdit = new Promise<void>((resolve) => {
+    releaseAncestry = resolve;
+  });
+  const runGit = gitRunner.runGit;
+  const ancestry = vi
+    .spyOn(gitRunner, "runGit")
+    .mockImplementation(async (args, call) => {
+      // Capture checks this ancestry immediately after taking its snapshot.
+      if (
+        call.cwd === workspace &&
+        args.join(" ") ===
+          `merge-base --is-ancestor ${baseline} ${committedTip}`
+      ) {
+        reachedAncestry();
+        await waitForEdit;
+      }
+      return runGit(args, call);
+    });
+
+  const marking = markDone(record);
   try {
-    await done.reading;
-    expect(readFileSync(draftFile, "utf8")).toBe("draft left for review\n");
+    await Promise.race([
+      snapshotTaken,
+      marking.then(() => {
+        throw new Error("Done settled before the worktree ancestry check.");
+      }),
+    ]);
     writeFileSync(draftFile, "a later edit\n");
   } finally {
-    done.release();
-    await done.marking;
+    releaseAncestry();
+    ancestry.mockRestore();
+    await marking;
   }
   expect(readFileSync(index)).toEqual(originalIndex);
   expect(git(workspace, "rev-parse", "HEAD")).toBe(committedTip);
@@ -89,16 +116,25 @@ test("Done keeps the working tree it read and outlives a forced retirement", asy
     discardWorkingChanges: true,
   });
 
-  const result = await review(await keptRecords(source), record);
-  expect(result).toMatchObject({ kind: "branch-result", baseline });
-  if (result.kind !== "branch-result")
+  const saved = await keptSession(source, record.session);
+  if (saved?.branchResult === undefined)
     throw new Error("Missing the retained branch result.");
-  const { tree } = result;
-  expect(result.files.map(({ path, kind }) => [path, kind])).toEqual([
-    ["deleted.txt", "deleted"],
-    ["draft.txt", "added"],
-    ["staged.txt", "added"],
-    ["untracked.txt", "added"],
+  expect(saved.branchResult.base).toBe(baseline);
+  const tree = saved.branchResult.revision;
+  expect(
+    git(
+      checkout.integration,
+      "diff",
+      "--name-status",
+      "--no-renames",
+      baseline,
+      tree,
+    ).split("\n"),
+  ).toEqual([
+    "D\tdeleted.txt",
+    "A\tdraft.txt",
+    "A\tstaged.txt",
+    "A\tuntracked.txt",
   ]);
   expect(git(checkout.integration, "cat-file", "-t", committedTip)).toBe(
     "commit",
@@ -110,22 +146,11 @@ test("Done keeps the working tree it read and outlives a forced retirement", asy
     { objectId: tree },
     { objectId: committedTip },
   ]);
-  const draft = { baseline, tree, path: "draft.txt" };
   expect(
-    await fileDiff(await keptRecords(source), record, draft),
-  ).toMatchObject({
-    kind: "diff",
-    printed: expect.stringContaining("+draft left for review") as string,
-  });
-  expect(await fileText(await keptRecords(source), record, draft)).toEqual({
+    await fileText([saved], record, { baseline, tree, path: "draft.txt" }),
+  ).toEqual({
     kind: "text",
     baseline: null,
     tree: "draft left for review\n",
-  });
-  const deleted = { ...draft, path: "deleted.txt" };
-  expect(await fileText(await keptRecords(source), record, deleted)).toEqual({
-    kind: "text",
-    baseline: "delete this\n",
-    tree: null,
   });
 });

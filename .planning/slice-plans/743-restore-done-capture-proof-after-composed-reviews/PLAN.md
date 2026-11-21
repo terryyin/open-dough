@@ -20,6 +20,8 @@
 - Slice 3 accepted at `00870a50094edd8bfa352e7b0b26e125b06efe92` and reused the
   live observer. The slice 2 attempt had no failed jobs and was superseded by
   the slice 3 push-triggered run 44845496590 under the same concurrency group.
+- Slice 4 accepted at `c16c2420094baa6f1c686ed9cb5a574c088a21d4` and reused the
+  live observer.
 
 
 ## Correction input
@@ -243,24 +245,42 @@ remaining declared publisher fixtures passed their cases again; see
 ### 5. Prove the snapshot survives later workspace edits and retirement
 
 Type: Structure
-Status: planned
+Status: done
 
 Hold the ancestry check after `readBranchWorkspace` has taken the snapshot.
 Edit the file before capture completes. Use Vitest's spy on the existing
 Git-runner call, forwarding other Git calls and releasing the hold in cleanup. Keep the old bytes, unchanged live index and HEAD, and
 readable retained objects after forced retirement. The supersession case
-holds after capture and names that actual phase.
+holds after capture and names that actual phase. In the newer-Done case, inspect the saved
+state before the second mark and the saved newer branch pair, timestamp and
+pins at settlement. The focused refactor run timed out at 5.079 seconds on
+the 16-logical-CPU Mac while its one-minute load was 24.23. Move this case's
+planned slice 6 saved-record migration here to remove two full Review reads
+from the time-sensitive interval. Keep the pending and newer-wins observations.
 
 **Proof.** A late re-read of the live file changes the retained bytes and
 fails the test. Keep the post-retirement file text that observes those bytes.
 Move repeated diff or file-kind assertions to their independent Review proof.
+
+**Accepted proof.** The two changed specs passed all four cases at default
+settings after the targeted supersession migration. The snapshot compares the
+live index, HEAD, pinned file set and earlier bytes after forced retirement.
+The independent Chromium backend deleted-file case proves baseline text and a
+null result side. A held first Done now leaves the saved session unmarked.
+After release, the newer Done timestamp, branch pair and only its Git pins
+remain. This case passed in 1.643 seconds with load 20.86 before and 20.02
+after, lower than the timed-out run's load. The proof establishes headroom
+in those conditions; the timing difference includes the workload change.
+Cases stay at four and full Review reads go from eight to three.
+See `slice5-return.md`, `slice5-saved-supersession.log.run.json` and
+`slice5-deleted-review-proof.json` in checkout evidence.
 
 ### 6. Observe lifecycle results in saved records and refs
 
 Type: Structure
 Status: planned
 
-In completion/reopen/retry and branch supersession cases observe saved Done
+In completion/reopen/retry and remaining branch supersession cases observe saved Done
 time, runs, failure markers and pins alongside the native events and ordering
 signals. Remove Review calls used solely to inspect persisted state. Keep
 the Default main post-prune read. Carry forward plan 736's offline restart
