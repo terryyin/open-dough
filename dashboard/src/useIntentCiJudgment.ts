@@ -8,9 +8,9 @@
 // read on time alone, and nothing without a branch. A judgment of another
 // branch is never given as this one's.
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
-import { IntentCiReadSourceOnPage } from "./intentCiReadSource.ts";
+import { useIntentCiReads } from "./pageReads.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export const unreadReason = "The CI status could not be read";
@@ -61,7 +61,7 @@ export function useIntentCiJudgment(
   branch: string | undefined,
   head: string | undefined,
 ): JudgedReading {
-  const { readStatus, readKeptStatus } = useContext(IntentCiReadSourceOnPage);
+  const { readStatus, readKeptStatus } = useIntentCiReads();
   const key = branch === undefined ? undefined : `${source.id}#${branch}`;
   const [judgment, setJudgment] = useState<Judgment | undefined>(undefined);
   const [reading, setReading] = useState(true);

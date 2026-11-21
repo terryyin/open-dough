@@ -4,7 +4,6 @@
 // speaks to the endpoints; `useReviewRead` keeps memo, rounds and the last
 // answer above whichever source it is given.
 
-import { createContext } from "react";
 import type { z } from "zod";
 import {
   reviewedFileDiffSchema,
@@ -61,5 +60,3 @@ export const pageReviewSource: ReviewSource = {
   fileDiff: endpointRead(storyReviewFileEndpoint, reviewedFileDiffSchema),
   fileText: endpointRead(storyReviewFileTextEndpoint, reviewedFileTextSchema),
 };
-
-export const ReviewSourceOnPage = createContext<ReviewSource>(pageReviewSource);

@@ -13,13 +13,12 @@ import {
   type IntentLocations,
 } from "../../src/authenticatedIntentRead.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { intentBrowser } from "./intent-browser-page.ts";
 import { fixtureFor } from "./intent-revision-fixtures.ts";
 import { intentSettingsExplanation } from "./intent-settings-explanation-page.ts";
@@ -39,8 +38,8 @@ async function mountReading(
 ) {
   const render = (work: PublishedWork) =>
     createElement(
-      IntentReadSourceOnPage,
-      { value: readSource },
+      PageReadsOnPage,
+      { reads: pageReadsSupplying({ intent: readSource }) },
       createElement(ProjectIntentReading, {
         source: work.source,
         work,

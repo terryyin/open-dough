@@ -7,10 +7,9 @@ import { IntentCiEvidenceProvider } from "../../src/IntentCiEvidence.tsx";
 import { JudgedBranch } from "../../src/IntentCiJudgedBranch.tsx";
 import "../../src/intent-ci-status.css";
 import { IntentCiStatus } from "../../src/IntentCiStatus.tsx";
-import {
-  IntentCiReadSourceOnPage,
-  type IntentCiReadSource,
-} from "../../src/intentCiReadSource.ts";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { measuredHistoryOf } from "../../src/landedCiHistory.ts";
 import {
   IntentReadingPlaceOfItsOwn,
@@ -159,8 +158,8 @@ export async function mountIntentCiEvidence({
     const nextSource = next.source ?? source;
     const nextWork = next.work ?? work;
     return createElement(
-      IntentCiReadSourceOnPage,
-      { value: ciReads },
+      PageReadsOnPage,
+      { reads: pageReadsSupplying({ ci: ciReads }) },
       createElement(IntentReadingProvider, {
         project: nextSource.id,
         children: createElement(IntentReadingPlaceOfItsOwn, {

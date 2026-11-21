@@ -8,7 +8,7 @@
 // retain each path's validated success or typed failure without storing
 // failure bodies as content.
 
-import { readRepositoryFileAt } from "./authenticatedRead.ts";
+import type { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { mapPool } from "./boundedPool.ts";
 import { cachedFile, rememberFile } from "./fileContentCache.ts";
 import {
@@ -32,7 +32,7 @@ export async function readCachedFile(
   revision: string,
   repositoryPath: string,
   signal: AbortSignal,
-  readFile: typeof readRepositoryFileAt = readRepositoryFileAt,
+  readFile: typeof readRepositoryFileAt,
 ): Promise<string> {
   const hit = cachedFile(source.repository, revision, repositoryPath);
   if (hit !== undefined) {
@@ -70,7 +70,7 @@ export async function loadRepositoryTexts(
   problem: string,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
-  readFile: typeof readRepositoryFileAt = readRepositoryFileAt,
+  readFile: typeof readRepositoryFileAt,
 ): Promise<{
   readonly text: Map<string, string>;
   readonly problems: Map<string, GapCause>;

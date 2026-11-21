@@ -7,10 +7,9 @@
 // read keeps the history shown until it answers; one that fails is said
 // beside it.
 
-import { useContext, useEffect, useState } from "react";
-import { readIntentCiHistory } from "./authenticatedIntentCiHistoryRead.ts";
+import { useEffect, useState } from "react";
 import { unreadMeasureHistoryReason } from "./ciHistoryMeasureCapability.ts";
-import { IntentCiReadSourceOnPage } from "./intentCiReadSource.ts";
+import { useIntentCiReads } from "./pageReads.tsx";
 import type { MeasuredHistory } from "./landedCiHistory.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
@@ -25,9 +24,7 @@ export function useIntentCiHistory(
   source: PublishedSource,
   round: string | undefined,
 ): HistoryReading | undefined {
-  const { readHistory = readIntentCiHistory } = useContext(
-    IntentCiReadSourceOnPage,
-  );
+  const { readHistory } = useIntentCiReads();
   const [shown, setShown] = useState<MeasuredHistory | undefined>(undefined);
   const [failed, setFailed] = useState<string | undefined>(undefined);
   // Another source's history is never shown as this one's.

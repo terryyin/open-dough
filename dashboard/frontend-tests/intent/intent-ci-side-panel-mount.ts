@@ -8,16 +8,11 @@ import {
 } from "../../src/agentLaunch.ts";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
 import { IntentPerspective } from "../../src/IntentPerspective.tsx";
-import {
-  IntentCiReadSourceOnPage,
-  type IntentCiReadSource,
-} from "../../src/intentCiReadSource.ts";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import { IntentPageProviders } from "../../src/intentPageProviders.tsx";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { SessionsOnPage } from "../../src/pageSessions.ts";
 import { usePageSidePanel } from "../../src/pageSidePanel.ts";
 import {
@@ -29,7 +24,6 @@ import {
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork, WorkEntry } from "../../src/publishedWork.ts";
 import { useRecentlyDoneRange } from "../../src/recentlyDoneRange.ts";
-import { ReviewSourceOnPage } from "../../src/reviewSource.ts";
 import {
   SessionsButton,
   SessionsSidebarOnPage,
@@ -227,21 +221,19 @@ export async function mountSidePanelIntentPage({
 }) {
   await mountComponent(
     createElement(
-      ReviewSourceOnPage,
-      { value: unavailableReviewSource },
-      createElement(
-        IntentReadSourceOnPage,
-        { value: readSource },
-        createElement(
-          IntentCiReadSourceOnPage,
-          { value: ciReads },
-          createElement(SidePanelIntentFrame, {
-            work,
-            records,
-            hostOperations,
-          }),
-        ),
-      ),
+      PageReadsOnPage,
+      {
+        reads: {
+          intent: readSource,
+          ci: ciReads,
+          review: unavailableReviewSource,
+        },
+      },
+      createElement(SidePanelIntentFrame, {
+        work,
+        records,
+        hostOperations,
+      }),
     ),
     { viewport: { width: 1280, height: 800 }, fillsViewport: true },
   );

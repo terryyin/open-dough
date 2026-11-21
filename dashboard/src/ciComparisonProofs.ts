@@ -1,7 +1,7 @@
 // One disposable proof reader per endpoint, shared by all comparison views.
 // Equal subjects in different slots still make separate reads, as before.
 import type { CiProof, CiProofSubject } from "./ciProof.ts";
-import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
+import type { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
 import { createCiProofReading } from "./ciProofReading.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type {
@@ -68,9 +68,7 @@ function slotsOf(
   ] as const;
 }
 
-export function createCiComparisonProofs(
-  readProof: typeof readIntentCiProof = readIntentCiProof,
-) {
+export function createCiComparisonProofs(readProof: typeof readIntentCiProof) {
   const readers = [
     createCiProofReading(readProof),
     createCiProofReading(readProof),

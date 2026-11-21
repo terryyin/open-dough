@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-timing-history-proof
 **Source:** [Get fast proof of Intent timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof)
+**Source review:** [source-review.md](source-review.md)
 **Split from:** SEED-413#speed-intent-proof-and-timing (recoverable at `3acae5160:.planning/slice-plans/752-speed-intent-proof-and-timing/PLAN.md`, former Slices 4–6) on 2026-11-21 at its delivered Slice 3 boundary
 
 ## Goal and scope
@@ -196,7 +197,7 @@ representative E2E history consumers when shared contracts change.
 ### 1. Intent, CI and review reads enter through one required typed page entry
 
 Type: Structure
-Status: planned
+Status: done
 
 Replace the three default-valued contexts (`IntentCiReadSourceOnPage`,
 `IntentReadSourceOnPage`, `ReviewSourceOnPage`) with one production provider.
@@ -216,6 +217,22 @@ in their assertions. One representative Intent CI E2E journey passes,
 proving that production supplies the authenticated readers. `grep` finds no
 default-valued read context, optional read member or defaulted reader
 parameter in `dashboard/src`.
+
+**Accepted (21 November 2026).** `dashboard/src/pageReads.tsx` is the entry
+(`PageReads`, `PageReadsOnPage`, `useIntentReads`/`useIntentCiReads`/
+`useReviewReads`, `authenticatedPageReads`). Cases supply reads through
+`pageReadsSupplying` in `dashboard/test-support/component-mount/unreadPageReads.ts`;
+unsupplied reads reject. `readCachedFile` also lost its defaulted reader.
+Proof: typecheck, full `npm run --silent test:dashboard:frontend` (Vitest 100
+files / 306 tests plus legacy Playwright), backend `ci-comparison-client*` and
+`intent-shared-reads`, E2E `intent-ci-status` and `story-review-commits`.
+Learning for Slices 4–8: the legacy timing-history specs mount through
+`dashboard/test-support/comparison-mount/entry.tsx`, which now supplies
+`authenticatedPageReads` against its real test servers; it stays until its
+last consumer moves. The full frontend group also exposed a flake: a
+settings touch helper switched off the context's touch emulation for later
+spec files (`board-indicators` lost its coarse pointer). It was fixed in
+`system-settings-browser.ts`.
 
 ### 2. Homepage, kept and Side panel CI status cases render the production page frame
 

@@ -13,7 +13,7 @@
 // beside the reading revision, so Development → Intent restores it when the
 // reading revision has no kept answer yet.
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { agentSettingsPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   keptIntentLocationsAt,
@@ -24,7 +24,7 @@ import {
   intentRecoveryOf,
   useIntentReadRecovery,
 } from "./intentReadRecovery.tsx";
-import { IntentReadSourceOnPage } from "./intentReadSource.ts";
+import { useIntentReads } from "./pageReads.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { ReadProblem } from "./readProblem.ts";
@@ -100,7 +100,7 @@ export function useIntentLocations(
   // never lend another story's source while their own revision is read.
   keepPrevious = true,
 ) {
-  const { readLocations } = useContext(IntentReadSourceOnPage);
+  const { readLocations } = useIntentReads();
   const [keptShownRevision, setKeptShownRevision] = useKeptReading<
     string | undefined
   >("shown-revision", () => undefined);
