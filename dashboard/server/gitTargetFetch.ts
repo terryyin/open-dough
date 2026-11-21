@@ -95,3 +95,20 @@ export async function fetchGitTarget(
     },
   );
 }
+
+// Ensures the repository holds `revision`, first fetching the trunk `target`
+// from `remote` when it lacks the commit, as a machine that has not fetched
+// since another one published would. Rejects while the commit stays missing.
+export async function fetchUnlessCommitPresent(
+  revision: string,
+  { remote, target }: { readonly remote: string; readonly target: string },
+  call: GitCall & { readonly signal: AbortSignal },
+): Promise<void> {
+  const commit = ["cat-file", "-e", `${revision}^{commit}`];
+  try {
+    await runGit(commit, call);
+  } catch {
+    await fetchGitTarget(remote, target, call);
+    await runGit(commit, call);
+  }
+}

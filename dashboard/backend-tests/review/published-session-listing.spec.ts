@@ -24,7 +24,12 @@ async function listed(files: Readonly<Record<string, string>>) {
     history: historyBeforeTheCase({ files }),
   });
   return performPublishedSessionsRead(
-    { repository: checkout.integration, revision: checkout.base, backlogPath },
+    {
+      repository: checkout.integration,
+      revision: checkout.base,
+      backlogPath,
+      ref: "main",
+    },
     new AbortController().signal,
   );
 }

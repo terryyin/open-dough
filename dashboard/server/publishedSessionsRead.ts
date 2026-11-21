@@ -2,6 +2,7 @@
 // boundary (`./requestedRead.ts`): with `sessions=published` and a pinned
 // revision, every session close record the configured project published
 // beside its backlog, read from that project's fetched Git at the revision.
+// A revision the checkout lacks is first fetched with the project's trunk.
 // Each record is validated against the one record contract
 // (`../src/publishedSessionRecord.ts`) and must sit at the path the producer
 // names for its UUID; any other file there is skipped. The performed read
@@ -13,6 +14,7 @@ import {
   publishedSessionsRead,
   readingPathAt,
 } from "../src/authenticatedReadRules.ts";
+import { fetchUnlessCommitPresent } from "./gitTargetFetch.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { parsePinnedListing } from "./listedReadParameters.ts";
 import {
@@ -54,15 +56,23 @@ export function readingPublishedSessionsOf(
   return readingPathAt(sessionDirectoryOf(backlogPath), revision);
 }
 
-// Every valid session record listed at the source's revision, in path order.
+// Every valid session record listed at the source's revision, in path order;
+// a revision the checkout lacks is first fetched with the project's trunk `ref`.
 export async function performPublishedSessionsRead(
-  source: PublishedSessionSource,
+  source: PublishedSessionSource & { readonly ref: string },
   signal: AbortSignal,
 ): Promise<Outcome> {
   const directory = sessionDirectoryOf(source.backlogPath);
+  const call = {
+    cwd: source.repository,
+    signal,
+    maxBuffer: defaultGitOutputLimit,
+  };
+  const trunk = { remote: "origin", target: source.ref };
+  await fetchUnlessCommitPresent(source.revision, trunk, call);
   const { stdout } = await runGit(
     ["ls-tree", "--name-only", source.revision, `${directory}/`],
-    { cwd: source.repository, signal, maxBuffer: defaultGitOutputLimit },
+    call,
   );
   const listed = stdout
     .split("\n")

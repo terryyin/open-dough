@@ -159,6 +159,7 @@ export async function perform(
                   repository: projectFolder(source).path,
                   revision: read.revision,
                   backlogPath: source.backlogPath,
+                  ref: source.ref,
                 },
                 signal,
               );

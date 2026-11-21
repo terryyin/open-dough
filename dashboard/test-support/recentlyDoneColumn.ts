@@ -1,10 +1,12 @@
 // The Recently done journeys' view of the column
 // (../../e2e/stories/recently-done-stories.spec.ts,
 // ../frontend-tests/sessions/recently-done-story-sessions.spec.ts,
-// ../../e2e/sessions/recently-done-story-sessions-expired.spec.ts): the names of
-// the sessions outside any done story, those sessions as the synthetic `claude`
-// lists them, the column's own entries in order, and its two range actions. Its
-// count is `columnCountOf` (./dashboardParts.ts).
+// ../../e2e/sessions/recently-done-story-sessions-expired.spec.ts,
+// ../../e2e/sessions/recently-done-published-session-second-machine.spec.ts):
+// the names of the sessions outside any done story, a published session's
+// entry, those sessions as the synthetic `claude` lists them, the column's own
+// entries in order, and its two range actions. Its count is `columnCountOf`
+// (./dashboardParts.ts).
 
 import type { Locator } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
@@ -81,3 +83,10 @@ export const sessionReviewChanges = (recent: Locator, title: string) =>
       exact: true,
     }),
   );
+
+// The entry of a session the project published and this machine never launched.
+export const publishedSessionEntry = (recent: Locator, sessionId: string) =>
+  recent.getByRole("article", {
+    name: `Published session ${sessionId}`,
+    exact: true,
+  });

@@ -261,7 +261,7 @@ fixed counts; the full dashboard-frontend group passed locally.
 ### 7. Discover and open a published session on a second machine
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.** Given a published record and a newer revision of trunk, a
 configured second machine with empty launch history shows the standalone Done
@@ -275,6 +275,19 @@ advance) through the existing
 [review page object](../../../dashboard/test-support/reviewChangesPage.ts)
 with a second configured checkout and empty launch storage. The kept-local
 Done listing journeys pass.
+
+**Accepted.** `e2e/sessions/recently-done-published-session-second-machine.spec.ts`
+publishes through `publishSessionClose`, advances trunk and opens the
+"Published session <uuid>" entry's diff on a checkout with empty launch
+storage (N4, N5). It exposed and fixed two defects: the listing now fetches
+trunk when the pinned revision is missing (`fetchUnlessCommitPresent` in
+`dashboard/server/gitTargetFetch.ts`, shared with branch attribution), and the
+published review answers one commit run per recorded range. Proof: the new
+journey and 11 Done listing journeys, frontend sessions/review/header cases,
+typecheck and lint. The backend review folder passed before the refactor; after
+it, seven git-heavy branch-attribution cases time out at the 5 s default at load
+~21 on both the original and refactored attribution code, so they are left to
+the branch CI verdict and recorded as a load-sensitivity finding.
 
 ### 8. Show one entry for a published session on its originating machine
 

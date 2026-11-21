@@ -19,7 +19,10 @@ import {
   type AdmittedReviewedFile,
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import { unavailableSessionCommitsReview } from "./storyReviewSessionCommits.ts";
+import {
+  runChoice,
+  unavailableSessionCommitsReview,
+} from "./storyReviewSessionCommits.ts";
 
 // What the published read needs: the configured checkout, the published
 // revision it reads records from, and the configured backlog path.
@@ -110,7 +113,11 @@ export async function publishedSessionReview(
   return {
     kind: "session-commits",
     session: { launchedAt: record.closedAt, doneAt: record.closedAt },
-    commitRuns: [],
+    commitRuns: await Promise.all(
+      record.ranges.map(({ base, candidate }) =>
+        runChoice(source.repository, { base, revision: candidate }, signal),
+      ),
+    ),
     commitRun: 0,
     baseline: range.base,
     tree: range.candidate,

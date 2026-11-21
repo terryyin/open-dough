@@ -1,5 +1,6 @@
 // One entry Recently done lists (`./RecentlyDone.tsx`): a session outside
-// any done story, or a done story's card (`./DoneStoryCard.tsx`) with what the
+// any done story, a published session this machine never launched, or a done
+// story's card (`./DoneStoryCard.tsx`) with what the
 // card holds beside its record's facts -- its own sessions, closed story
 // follow-ups, its CI follow-up, its Follow up, and its review state -- or,
 // until its record is read, what it says instead.
@@ -13,6 +14,7 @@ import { unreadableDoneRecord } from "./doneRecord.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { AdHocSessionReviewAction } from "./AdHocSessionReviewAction.tsx";
 import { SessionFollowUp, StoryFollowUp } from "./FollowUp.tsx";
+import { PublishedSessionEntry } from "./PublishedSessionEntry.tsx";
 import type { Listed } from "./recentlyDoneView.ts";
 import { SessionEntry } from "./SessionEntry.tsx";
 import { StoryReviewStateAction } from "./StoryReviewStateAction.tsx";
@@ -59,6 +61,11 @@ export function ListedEntry({
   readonly selectedIdentity: string | undefined;
   readonly onSelect: (identity: string) => void;
 }) {
+  if ("published" in each) {
+    return (
+      <PublishedSessionEntry record={each.published} sourceId={sourceId} />
+    );
+  }
   if (!("record" in each)) {
     return (
       <SessionEntry
