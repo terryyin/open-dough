@@ -5,8 +5,8 @@
 // ./agent-launch-preparation-codex.spec.ts; effort launches are
 // ./agent-launch-codex-effort.spec.ts; catalog reading and effort choices in
 // the dialog alone are
-// ../../dashboard/frontend-tests/launches/agent-launch-codex-catalog.spec.ts and
-// ../../dashboard/frontend-tests/launches/agent-launch-native-effort.spec.ts.
+// ../../dashboard/frontend-tests/launches/launch-host-catalog.spec.ts and
+// ../../dashboard/frontend-tests/launches/launch-native-effort.spec.ts.
 import { existsSync, readFileSync } from "node:fs";
 import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 import path from "node:path";

@@ -117,3 +117,7 @@ Use one automatic hosted CI run on the published repair. Expect the
 three- and two-column Board results with the stored sidebar preference
 scoped, and a real Add click followed by the path refusal at the explicit
 desktop viewport. Any further failure needs its actual new evidence.
+
+The next published revision included these repairs and Slice 4. Both
+frontend shards and the entire hosted check passed at `e90a94283`.
+[Hosted run 44934101206](https://github.com/terryyin/open-dough/actions/runs/44934101206).

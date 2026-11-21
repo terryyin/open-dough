@@ -45,6 +45,7 @@ import {
 import { Play, PencilLine, type LucideIcon } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import { LaunchDialog } from "./LaunchDialog.tsx";
+import { requestLaunchHostOptions } from "./launchHostOptionsClient.ts";
 import { storySession } from "./LaunchSessionPolicy.tsx";
 import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
@@ -180,6 +181,7 @@ export function StartLaunch({
       )}
       {open && (
         <LaunchDialog
+          readOptions={requestLaunchHostOptions}
           sourceId={sourceId}
           host={host}
           onHost={

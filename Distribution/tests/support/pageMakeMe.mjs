@@ -36,6 +36,9 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./storyReviewTestData.mjs").StoryReviewMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
+ *     readonly aLaunchHostOptions: import("./factBuilder.mjs").FactBuilder<
+ *       import("../../../dashboard/src/launchHostOptions.ts").LaunchHostOptions
+ *     >;
  *     readonly anAcceptedAttempt: AcceptedAttemptBuilder;
  *     readonly anAttemptObservation: AttemptObservationBuilder;
  *     readonly aCreationRecord: CreationRecordBuilder;
@@ -84,6 +87,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new LaunchRecordBuilder();
+    },
+  },
+  aLaunchHostOptions: {
+    enumerable: true,
+    get() {
+      return { with: copyFacts };
     },
   },
   aCreationRecord: {

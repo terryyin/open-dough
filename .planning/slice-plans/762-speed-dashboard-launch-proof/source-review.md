@@ -43,12 +43,12 @@ and the existing project, campaign and follow-up owners govern delivery.
 | P13 | Escape restores keyboard focus to the initiating offer. [E1, “returns the keyboard to the offer”] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts and the ad-hoc dialog case observe focus on the actual initiating offer after Escape and Cancel |
 | P14 | Cancel restores keyboard focus to the initiating offer. [E1, “returns the keyboard to the offer”] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts and the ad-hoc dialog case observe focus on the actual initiating offer after Escape and Cancel |
 | P15 | Starting carries through the intended instruction draft. [G, “composing and starting a launch keeps the intended draft”] | slice 7 |  |
-| P16 | Choosing a host updates the host Start asks for. [G, S, E2] | slice 5 |  |
-| P17 | Choosing a model updates the model Start asks for. [G, S, E2] | slice 5 |  |
-| P18 | Choosing effort updates the effort Start asks for. [G, S, E2] | slice 5 |  |
+| P16 | Choosing a host updates the host Start asks for. [G, S, E2] | slice 5 | observed: Codex Start in launch-model-effort.spec.ts records the chosen host in the real dialog Start operation |
+| P17 | Choosing a model updates the model Start asks for. [G, S, E2] | slice 5 | observed: Codex Start in launch-model-effort.spec.ts records Native Sol as the chosen model |
+| P18 | Choosing effort updates the effort Start asks for. [G, S, E2] | slice 5 | observed: launch-model-effort.spec.ts records actual Claude medium and max choices and Codex ultra at Start |
 | P19 | Choosing refinement options updates the options Start asks for. [G, S, E2] | slice 6 |  |
-| P20 | Changing host resets incompatible effort. [E2] | slice 5 |  |
-| P21 | A late catalog reply for the prior host leaves the current host’s options intact. [E2, “cannot replace another host’s current options”] | slice 5 |  |
+| P20 | Changing host resets incompatible effort. [E2] | slice 5 | observed: launch-model-effort.spec.ts switches Claude low through Codex default and back to Claude medium |
+| P21 | A late catalog reply for the prior host leaves the current host’s options intact. [E2, “cannot replace another host’s current options”] | slice 5 | observed: launch-host-catalog.spec.ts observes the prior read abort and keeps the current host options when the old answer resolves |
 | P22 | Following a refusal, the selection is still held before dismissal. The source leaves the selection’s individual fields unspecified. [E2, “Cancel after a refusal drops the kept selection”] | slice 6 |  |
 | P23 | Cancel after the refusal discards that held selection. [E2] | slice 6 |  |
 | P24 | Pasting text into the instruction field inserts it there. [E3, “still inserts it”] | slice 2 | observed: native keyboard paste in launch-attachments.spec.ts appends text at the caret without an attachment |
@@ -95,10 +95,10 @@ and the existing project, campaign and follow-up owners govern delivery.
 | P65 | With no waiting notes, **Start** still works. [E6] | slice 8 |  |
 | P66 | A Taken card shows that notes are waiting when they are. [E6] | slice 8 |  |
 | P67 | The Taken card in that waiting-notes example offers no **Follow up**. [E6] | slice 8 |  |
-| S14 | The existing host catalog choices are available through the launch UI. [S] | slice 5 |  |
-| S15 | The existing model choices are available under the applicable host and provider conditions. [S, E2] | slice 5 |  |
-| S16 | The existing effort choices are available under the applicable host and provider conditions. [S, E2] | slice 5 |  |
-| S17 | UI-owned provider constraints remain observable on the paths where they apply. The source leaves the individual constraints unspecified. [S] | slice 5 |  |
+| S14 | The existing host catalog choices are available through the launch UI. [S] | slice 5 | observed: launch-host-catalog.spec.ts holds and fails a Codex read, then observes the three catalog choices after Retry |
+| S15 | The existing model choices are available under the applicable host and provider conditions. [S, E2] | slice 5 | observed: launch-host-catalog.spec.ts observes the correct Claude and per-project model list, and launch-native-effort.spec.ts exercises Cursor models |
+| S16 | The existing effort choices are available under the applicable host and provider conditions. [S, E2] | slice 5 | observed: launch-model-effort.spec.ts and launch-native-effort.spec.ts observe the exact Claude labels and Codex and Cursor model-sensitive effort choices |
+| S17 | UI-owned provider constraints remain observable on the paths where they apply. The source leaves the individual constraints unspecified. [S] | slice 5 | observed: launch-native-effort.spec.ts distinguishes compatible effort, incompatible effort with linked invalidity and disabled Start, and unknown configured model defaults |
 | S18 | The existing refinement options are available in the refinement flow. [S, E2] | slice 6 |  |
 | S27 | Existing creation gates continue to enforce their conditions. The source names the in-flight and unresolved conditions in E5 and leaves any other gates unspecified. [S, E5] | slice 4 | observed: story-card-startup.spec.ts and startup-recovery.spec.ts observe held, accepted and unresolved launch gates, and responsive-session-start.spec.ts protects the actual Backlog card without making a Taken assignment |
 | S28 | The instruction layout preserves its existing observable behavior at the covered viewports. [S, A4] | slice 1 | observed: ad-hoc-start-session-layout.spec.ts and ad-hoc-launch-dialog.spec.ts: keyboard order, 320 CSS px and 200% conditions, reachability and footer |

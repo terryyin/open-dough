@@ -3,10 +3,12 @@ import type { OfferedShape } from "./commandOptions.ts";
 import type { AgentLaunchRequest, LaunchChoices } from "./agentLaunch.ts";
 import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import type { DialogSession } from "./LaunchSessionPolicy.tsx";
+import type { ReadLaunchHostOptions } from "./launchHostOptionsClient.ts";
 
 // Shared startup-dialog contract: subject, Session group, options, and the
 // Start/Cancel outcomes. Mounted only while open (`LaunchDialog.tsx`).
 export type LaunchDialogProps = {
+  readonly readOptions: ReadLaunchHostOptions;
   readonly sourceId: string;
   readonly projectContext?: boolean;
   readonly host: AgentLaunchRequest["host"];

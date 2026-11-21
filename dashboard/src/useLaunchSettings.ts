@@ -4,11 +4,13 @@
 import { useEffect, useState } from "react";
 import type { AgentLaunchRequest, LaunchModel } from "./agentLaunch.ts";
 import type { LaunchHostOptions } from "./launchHostOptions.ts";
+import type { ReadLaunchHostOptions } from "./launchHostOptionsClient.ts";
 import { useLaunchHostOptions } from "./useLaunchHostOptions.ts";
 import { effortBlocked } from "./launchEffort.ts";
 import { hostDescription, launchHosts } from "./hostDescription.ts";
 
 export function useLaunchSettings(
+  readOptions: ReadLaunchHostOptions,
   sourceId: string,
   host: AgentLaunchRequest["host"],
   projectContext: boolean,
@@ -19,7 +21,12 @@ export function useLaunchSettings(
     setModel("");
     setEffort(initialEffort(host));
   }, [sourceId, host]);
-  const catalog = useLaunchHostOptions(sourceId, host, projectContext);
+  const catalog = useLaunchHostOptions(
+    readOptions,
+    sourceId,
+    host,
+    projectContext,
+  );
   const settingsBlocked = launchSettingsBlocked(
     host,
     model,

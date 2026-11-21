@@ -46,6 +46,7 @@ import {
   unattachedWhere,
 } from "./sessionPolicyWords.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
+import { requestLaunchHostOptions } from "./launchHostOptionsClient.ts";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import type { OpenTerminal } from "./pageSessions.ts";
@@ -173,6 +174,7 @@ export function StartSession({
       )}
       {open && (
         <LaunchDialog
+          readOptions={requestLaunchHostOptions}
           sourceId={sourceId}
           projectContext
           host={host}

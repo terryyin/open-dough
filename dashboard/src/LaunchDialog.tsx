@@ -25,6 +25,7 @@ import "./launch-session.css";
 // was not accepted hands its selection back (`onRefused`) for the next
 // opening to start from (`kept`), so the developer can change it.
 export function LaunchDialog({
+  readOptions,
   sourceId,
   projectContext = false,
   heading,
@@ -67,7 +68,7 @@ export function LaunchDialog({
   );
   const { selected, flags } = selection;
   const { model, setModel, effort, setEffort, catalog, settingsBlocked } =
-    useLaunchSettings(sourceId, host, projectContext);
+    useLaunchSettings(readOptions, sourceId, host, projectContext);
   const attachments = useLaunchAttachments();
   // Unless a launch found existing changes to confirm, closes with its answer.
   const confirmation = useLaunchConfirmation({

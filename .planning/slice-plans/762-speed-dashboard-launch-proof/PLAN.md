@@ -163,7 +163,7 @@ Preparing/Starting choice and never borrow another host's native-check advice.
 ### 5. Host catalog, model, and effort drive what Start asks for
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `agent-launch-codex-catalog`, `agent-launch-model`, and
 `agent-launch-native-effort` (11). Early probe: add a required typed host-options
