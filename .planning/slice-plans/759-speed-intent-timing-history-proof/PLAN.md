@@ -196,3 +196,12 @@ CI status frame and evidence mounts and the 31-case / 19-file timing-history
 moves) moved to `764-speed-intent-ci-status-frame-and-timing-history/PLAN.md`
 as Slices 2–8, after a new Slice 1 that moves those three reads behind the
 entry.
+
+
+## Story obligations
+
+### G1. Trunk board mounts reached the real readers (discovered in the execution retrospective)
+Reported: slice 2 — "slice 2 — "After merging c64549aac, board-frame-mount.ts and board-mount.ts supplied authenticatedPageReads, so their cases reached the real Intent, CI and review readers when they supplied none.""
+Story clause: "Cases supply reads through `pageReadsSupplying`, which rejects unsupplied reads"
+Disposition: proved by slice 2: dashboard/frontend-tests/navigation/board-frame-mount.ts and board-mount.ts now pass pageReadsSupplying with only their supplied reads plus explicit authenticatedSessionServices; the 28 specs that use them pass (evidence retro-board-mounts-2, 62 tests), and no test mount except the legacy comparison-mount entry and the whole-App mount supplies authenticated reads
+Commitment: N6

@@ -7,12 +7,13 @@ import {
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { useObservedRevisionDelivery } from "../../src/observedRevisionDelivery.ts";
-import { authenticatedPageReads } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { readPublishedWork } from "../../src/publishedWorkRead.ts";
+import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import { withClosedSessionsSidebar } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { noSessions } from "./board-mount.ts";
 
 vi.mock(import("../../src/agentLaunches.ts"), () => ({
@@ -76,10 +77,10 @@ export async function mountBoardFrame(
     projects: snapshots.map(({ source }) => source),
     replaceProjects: () => {},
     children: createElement(ConfiguredDashboard, {
-      reads:
-        intentReads === undefined
-          ? authenticatedPageReads
-          : { ...authenticatedPageReads, intent: intentReads },
+      reads: pageReadsSupplying({
+        sessions: authenticatedSessionServices,
+        ...(intentReads === undefined ? {} : { intent: intentReads }),
+      }),
       settingsOpen: false,
       onOpenSettings: () => {},
       onDashboardReady: () => {},
