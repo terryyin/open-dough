@@ -11,46 +11,6 @@ scope: five stories
 
 A developer should be able to find what a session contributed from any machine with the project repository. Today a completed story can be reconstructed from published history, while session comparisons depend on local launch records. [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state) places the published association in the repository.
 
-<a id="review-published-session-changes"></a>
-
-### Review a session’s published changes from another machine
-
-**Identity:** SEED-418#review-published-session-changes
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/739-review-published-session-changes/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05912cc0ffb2acaf645b3dbc9e6987d17c668eb9bf2b8956e4f1d5149c16d28a","plan":"949d9ec0dbae3344395512b0b5700e0210878ad0583fd1dc952c088998aba261"}}
-```
-
-**Goal.** A developer can open **Review changes** for a standalone Done
-session on another machine and see what it contributed to the project.
-
-**Scope.** When Land closes a standalone publishing session, publish one JSON
-record in the project repository. Record the session UUID, workflow, close
-time, and the accepted comparison of its published work. Use accepted Git
-evidence so work left locally and unsuccessful push attempts stay outside the
-published comparison.
-
-The existing standalone Done entry offers **Review changes** on a machine with
-the published repository and no local launch history. Records for other
-workflow closes and earlier publications, multiple ranges, shared-checkout
-uncertainty, close retry, story association and the 30-day lifetime belong to
-[Attribute every workflow session’s published changes](#attribute-every-workflow-session-record).
-Story-session selection, combined comparisons, recovery of expired reviews from
-Git history, and carrying the UUID in a follow-up message belong to their
-linked stories.
-
-**Key examples.**
-
-- A standalone session lands a file edit. A developer with a fresh clone opens
-  its Done entry, selects **Review changes**, and reads the file diff even
-  after the original workspace is retired and trunk has advanced.
-
-**Architecture.** [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
-places attribution in the published repository. The workflow assembles the
-record from accepted publication evidence and the Dashboard reads that record
-through the configured project. Keep launch state, conversations, workspace
-paths, and native session controls on the originating machine. A UUID and
-readable Git endpoints must remain sufficient after workspace retirement.
-
 <a id="attribute-every-workflow-session-record"></a>
 
 ### Attribute every workflow session’s published changes
@@ -102,7 +62,7 @@ removes expired files from the current snapshot.
   earlier Git snapshot still holds the original record.
 
 **Architecture.** Follow the
-[original story’s architecture](#review-published-session-changes): records
+original story’s architecture (`2d82175d5:.planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes`): records
 come from accepted publication evidence, launch state stays on the originating
 machine, and a UUID with readable Git endpoints remains sufficient after
 workspace retirement.
@@ -163,7 +123,7 @@ After the 30-day window removes a published session file from the current snapsh
 ```
 
 Correction from the outcome review of
-[Review a session’s published changes from another machine](#review-published-session-changes)
+Review a session’s published changes from another machine (`2d82175d5:.planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes`)
 (range `953a8a123..9d33efde9`). Its promises stay as written.
 
 **Goal.** A developer who lands a session through Dough Land, or reviews one

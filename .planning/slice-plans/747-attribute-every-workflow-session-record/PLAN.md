@@ -2,7 +2,7 @@
 
 **Identity:** SEED-418#attribute-every-workflow-session-record
 **Source:** [Attribute every workflow session’s published changes](../../seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record)
-**Split from:** SEED-418#review-published-session-changes ([plan 739](../739-review-published-session-changes/PLAN.md)) on 2026-11-21 at its delivered slice-2 boundary
+**Split from:** SEED-418#review-published-session-changes (plan 739 at `2d82175d5:.planning/slice-plans/739-review-published-session-changes/PLAN.md`) on 2026-11-21 at its delivered slice-2 boundary
 
 This provisional plan is **awaiting story refinement — not ready for slice-plan refinement or execution**.
 It resumes through story refinement and plan realignment; the original slices'

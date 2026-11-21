@@ -7,8 +7,8 @@
 
 - **Provenance.** This plan follows the outcome review of the completed
   execution of
-  [SEED-418#review-published-session-changes](../../seeds/SEED-418-review-published-session-changes.md#review-published-session-changes)
-  ([plan 739](../739-review-published-session-changes/PLAN.md), commits
+  SEED-418#review-published-session-changes (`2d82175d5:.planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes`)
+  (plan 739 at `2d82175d5:.planning/slice-plans/739-review-published-session-changes/PLAN.md`, commits
   `953a8a123..9d33efde9`). Each finding was rechecked at `9d33efde9` on
   2026-11-21.
 - **Preserved promises.** A developer can review a published session from a
