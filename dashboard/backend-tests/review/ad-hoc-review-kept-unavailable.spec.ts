@@ -7,6 +7,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 
 // A path no test creates: kept records name it as gone.
@@ -108,4 +109,51 @@ test("Given an unreadable kept comparison, when its review is read, then it stil
     explanation:
       "The repository that kept this session's commits is missing or unreadable.",
   });
+});
+
+test("Review reports an attribution gap and refuses files of that branch pair", async () => {
+  const repository = await materializeLocalCheckout(
+    undefined,
+    makeMe.aRepository
+      .withRevision("base")
+      .withRevision("tip", { files: { "draft.txt": "session draft\n" } })
+      .please(),
+  );
+  try {
+    const { base, tip } = repository.revisions;
+    const attributionGap = "The saved branch changes could not be separated.";
+    const record = makeMe.aLaunchRecord
+      .adHoc({ title: "Conflicting branch changes" })
+      .inClaudeSession({ sessionId: "unattributed-branch" })
+      .branchResultFrom({
+        repository: repository.integration,
+        base,
+        revision: tip,
+        attributionGap,
+        manualDeliveryChecked: true,
+      })
+      .markedDone()
+      .please();
+    const read = makeMe.aSessionReviewRead
+      .ofSession(record.session.sessionId)
+      .keeping([record]);
+
+    expect(await review(read.please())).toMatchObject({
+      kind: "unavailable",
+      explanation: attributionGap,
+      deliveryGap: expect.stringContaining("exact fast-forward") as string,
+    });
+    const file = read
+      .readingFile({ baseline: base, tree: tip, path: "draft.txt" })
+      .please();
+    await expect(
+      reviewedFileDiff(file, new AbortController().signal),
+    ).rejects.toMatchObject({
+      status: 409,
+      message:
+        "The file or comparison does not belong to this session's branch result.",
+    });
+  } finally {
+    await repository.cleanup();
+  }
 });

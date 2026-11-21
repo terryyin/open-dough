@@ -25,6 +25,9 @@
 - Slice 5 accepted at `0c95fce81672b657968fde5c5f46bfe46e397126` and reused the
   live observer.
 
+- Slice 6 accepted at `0ba5db4a69ae63f6a61afe4e2000a7a8b4d21f2c` and reused the
+  live observer.
+
 ## Correction input
 
 - **Provenance.** Retrospective of SEED-413#split-done-mark-decision-from-store.
@@ -308,7 +311,7 @@ with their owner.
 ### 7. Verify delivery attribution at the Git decision
 
 Type: Structure
-Status: planned
+Status: done
 
 Use `inspectManualLanding` for witnessed fast-forward, unwitnessed parent,
 unrelated target advance and same-content squash. Use `captureBranchResult`
@@ -324,6 +327,18 @@ history case if the same-content squash fails by a different rule.
 inside the default timeout. The remaining cases reject each false witness
 and inspect the exact accepted pair. Capture and attribution mutations
 distinguish the preserved outcomes without rendering Review.
+
+**Accepted proof.** Fifteen cases in four specs passed at default settings.
+The real conflicting merge proves the local-only refusal, the accepted actual
+trunk parent and the exact resolution bytes in 3.544 seconds with other
+worktrees active. The same-content squash retains the previous unrelated
+change case's branch-tip ancestry refusal. A new typed attribution-gap case
+retains the explanation and refusal for an otherwise literal file pair.
+Three bounded, reverted probes rejected incorrect remote recognition,
+branch attribution and omission of the gap at their intended assertions.
+Cases stay at 15 and full Review reads go from 25 to 6.
+See `slice7-return.md`, `slice7-git-attribution.log.run.json` and
+`slice7-probe.log.run.json`; the independent pass made no edits.
 
 ### 8. Pass the admitted record through standalone Review
 

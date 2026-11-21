@@ -1,5 +1,5 @@
-// Done saves an isolated ad hoc branch's own changes apart from the trunk
-// history the branch took in, or explains why it cannot.
+// Capture separates isolated branch work from imported trunk, and Done
+// keeps the branch result alongside independently verified delivery.
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -9,6 +9,7 @@ import {
   keptSession,
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
+import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import {
   aCheckoutWithWorktree,
   anIsolatedLaunch,
@@ -18,7 +19,6 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { aDoneBranch, fileDiff, review } from "../support/doneCaptureReview.ts";
 
 const branch = "topic";
 
@@ -26,14 +26,7 @@ const branch = "topic";
 const anIsolatedTopic = () =>
   aCheckoutWithWorktree(branch, { "shared.txt": "original\n" });
 
-// The isolated launch whose start created the worktree, marked Done with the
-// branch result Git captures.
-const theDoneTopic = (
-  checkout: Awaited<ReturnType<typeof anIsolatedTopic>>["checkout"],
-  workspace: string,
-) => aDoneBranch(anIsolatedLaunch(checkout, { workspace, branch }));
-
-test("an isolated Done retains its committed and working changes across a trunk import", async () => {
+test("capture separates an isolated branch's committed and working changes from imported trunk", async () => {
   const { checkout, workspace } = await anIsolatedTopic();
   await work(
     inWorktree(checkout, workspace),
@@ -49,21 +42,25 @@ test("an isolated Done retains its committed and working changes across a trunk 
       }),
   );
 
-  const record = await theDoneTopic(checkout, workspace);
+  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  const { result } = await captureBranchResult(record, minutesAgo(10));
 
-  const answer = await review([record], record);
-  if (answer.kind !== "branch-result") throw new Error(JSON.stringify(answer));
-  expect(answer.files.map(({ path }) => path)).toEqual(["draft.txt"]);
+  expect(result.attributionGap).toBeUndefined();
+  const { integration } = checkout;
   expect(
-    await fileDiff([record], record, {
-      baseline: answer.baseline,
-      tree: answer.tree,
-      path: "draft.txt",
-    }),
-  ).toMatchObject({
-    kind: "diff",
-    printed: expect.stringContaining("+draft work\n+working change") as string,
-  });
+    (
+      await git(
+        integration,
+        "diff",
+        "--name-only",
+        result.base,
+        result.revision,
+      )
+    ).stdout,
+  ).toBe("draft.txt\n");
+  expect(
+    (await git(integration, "show", `${result.revision}:draft.txt`)).stdout,
+  ).toBe("draft work\nworking change\n");
 });
 
 test("Done saves and pins the branch and delivery pairs after a manual merge", async () => {
@@ -136,11 +133,10 @@ test("new shared first-parent history can leave branch attribution ambiguous", a
     makeMe.aCheckoutWork.committing("after-direct", { at: minutesAgo(40) }),
   );
 
-  const record = await theDoneTopic(checkout, workspace);
+  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
+  const { result } = await captureBranchResult(record, minutesAgo(10));
 
-  expect(await review([record], record)).toMatchObject({
-    kind: "unavailable",
-    explanation:
-      "The saved branch changes could not be separated from trunk history.",
-  });
+  expect(result.attributionGap).toBe(
+    "The saved branch changes could not be separated from trunk history.",
+  );
 });
