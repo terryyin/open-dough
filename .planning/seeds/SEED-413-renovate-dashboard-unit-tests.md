@@ -726,20 +726,53 @@ own the internals of those workflows and the final runner retirement.
 
 **Identity:** SEED-413#speed-dashboard-launch-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/762-speed-dashboard-launch-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"31a4bd56b0029f6e09371a9c4c4d8edd8351232e62f54a6630e82cfc32069219","plan":"f9ec2735525b40433886d9eb017076b6852677c16f63e572860c131ffef254d5"}}
 ```
 
-- **Outcome.** Developers get fast proof of a launch's choices and action.
-  When an attachment or startup is refused, the reader can see whether the
-  correct draft, options and recovery path survive.
-- **Boundary.** Own all legacy `launches/` specs, including workflow, host,
-  model, effort, instructions, attachments, dictation, creation gates, note
-  handoff, startup answers and responsive session access. Keep distinct
-  provider constraints and handoff routes. E2E owns journeys that need
-  actual installation, native launch or cross-service startup.
-- **Effort and stopping point.** Large, medium confidence. Retain one
-  maintained proof owner for each launch behavior while other families still
-  use their legacy runner.
+**Goal.** Dashboard maintainers get faster feedback that composing and
+starting a launch keeps the intended draft, host, model, effort, options,
+attachments, dictation, and note handoff, and that a refused or uncertain
+start leaves a truthful recovery path.
+
+**Scope.** Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)
+to every legacy `launches/` spec (29 sources, 81 cases): ad-hoc Start
+session placement and dialogs, story-card Start execution and Start
+refinement offers and dialogs, host catalog and model or effort choices,
+refinement options, creation gates, instruction layout and touch,
+attachments (paste, refusal, cancel), instruction voice capture and
+overflow, Follow up note attach, startup answers and host words, and
+responsive session access including unattached starts and recovery reads.
+Keep distinct provider constraints and handoff routes observable where the
+UI owns them. Retain journeys that need actual installation, a native host
+launch, or cross-service startup in existing `e2e/launches/` coverage.
+[Board and side-panel](#speed-dashboard-board-and-panel-proof) owns Board
+and frame observations of opening a launch; [Done session review](#speed-dashboard-done-session-review-proof)
+and [live sessions and terminal](#speed-dashboard-live-session-and-terminal-proof)
+own post-start session and review proof; the final campaign story owns
+frontend runner retirement. Backend launch-boundary and attachment specs
+keep their existing owners.
+
+**Key examples**
+
+- Opening Start session or a story's Start execution / Start refinement
+  names the project or story and host, focuses the instruction field, and
+  Escape or Cancel sends nothing and returns the keyboard to the offer.
+- Choosing host, model, effort, or refinement options updates what Start
+  asks for; changing host resets incompatible effort; a late catalog reply
+  cannot replace another host's current options; Cancel after a refusal
+  drops the kept selection.
+- Pasting text into the instruction still inserts it; refused PDF,
+  oversized, or excess images keep the draft with reasons; Cancel or Escape
+  after Attach uploads nothing and reopens empty.
+- Dictation that overflows 4,000 characters retains both drafts for edit;
+  Cancel or Escape abandons a held transcription and a late grant or reply
+  cannot populate the next dialog.
+- While a start runs or an answer is lost or uncertain, Start is disabled,
+  the story or Start session stays protected with reachable recovery, and
+  settling does not steal the keyboard from a task begun meanwhile.
+- Follow up offers Attach when notes wait and Start names the choice; with
+  no waiting notes Attach is unavailable and Start still works; a Taken
+  card shows notes waiting and offers no Follow up.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 
