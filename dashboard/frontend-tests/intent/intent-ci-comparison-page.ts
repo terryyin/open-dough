@@ -5,9 +5,21 @@ import { createElement } from "react";
 import { expect } from "vitest";
 import { page, type Locator } from "vitest/browser";
 import { IntentCiComparisonContent } from "../../src/IntentCiComparisonContent.tsx";
+import { useCiProofSorting } from "../../src/CiProofTable.tsx";
 import { comparisonProofOf } from "../../src/storyCiComparisonEntries.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
+
+// The comparison with the production in-memory sort choice
+// (../../src/IntentCiComparison.tsx), unsorted until a header is activated.
+function SortableComparison(
+  props: Omit<Parameters<typeof IntentCiComparisonContent>[0], "sorting">,
+) {
+  return createElement(IntentCiComparisonContent, {
+    ...props,
+    sorting: useCiProofSorting(),
+  });
+}
 
 function comparisonOf(story: ComparedStory) {
   const { answer, proofs } = story;
@@ -23,11 +35,10 @@ function comparisonOf(story: ComparedStory) {
           ),
           landed: comparisonProofOf(answer.landed, proofs[2], false),
         };
-  return createElement(IntentCiComparisonContent, {
+  return createElement(SortableComparison, {
     answer,
     proofs: endpointProofs,
     preference: { showPercent: false, onShowPercent() {} },
-    sorting: { sort: undefined, onSort() {} },
     checkAgainButton: null,
   });
 }

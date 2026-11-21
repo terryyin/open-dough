@@ -1,8 +1,8 @@
 // Test cases and test files stay separate units, each with its own time,
 // through the real comparison, location tree, Summary and file Proof
-// (example 39); native Enter and Space reach the entry header sort.
+// (example 39).
 import { expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   aSpec,
@@ -10,12 +10,7 @@ import {
   entry,
   folder,
 } from "../../test-support/support/ciComparisonUnitsJourney.ts";
-import {
-  cueOf,
-  mountComparison,
-  rowTextsOf,
-  shownComparison,
-} from "./intent-ci-comparison-page.ts";
+import { cueOf, mountComparison } from "./intent-ci-comparison-page.ts";
 import { mountCiScope, scopeReadsOf } from "./intent-ci-scope-page.tsx";
 
 // Five/six/seven test cases and one test file.
@@ -128,33 +123,4 @@ test("with case and file units, the location tree, location and folder Summary a
       [`${aSpec} modified`, cases, "30.0 s", "+5.0 s", "+10.0 s"],
       [`${aSpec} modified`, files, "7.0 s", "+1.0 s", "0 ms"],
     ]);
-});
-
-test("native Enter and Space on the entry headers sort Baseline both ways and Counts ascending", async () => {
-  const story = makeMe.aComparedStory.wallTimed().withMixedEntries().please();
-  await mountCiScope(story, scopeReadsOf(story).source);
-  const { entryTable } = await shownComparison();
-  const order = () => rowTextsOf(entryTable).map(([name]) => name);
-  const sortedBy = () =>
-    [...entryTable.element().querySelectorAll("th[aria-sort]")]
-      .filter((th) => th.getAttribute("aria-sort") !== "none")
-      .map((th) => `${th.textContent.trim()} ${th.getAttribute("aria-sort")}`);
-  const press = async (column: string, key: string) => {
-    const button = entryTable.getByRole("button", {
-      name: column,
-      exact: true,
-    });
-    await expect.element(button).toBeVisible();
-    (button.element() as HTMLElement).focus();
-    await userEvent.keyboard(key);
-  };
-  await press("Baseline", "{Enter}");
-  await expect.poll(sortedBy).toEqual(["Baseline ascending"]);
-  expect(order()).toEqual(["tests", "dashboard/tests", "src/skills"]);
-  await press("Baseline", "{Enter}");
-  await expect.poll(sortedBy).toEqual(["Baseline descending"]);
-  expect(order()).toEqual(["dashboard/tests", "tests", "src/skills"]);
-  await press("Counts", " ");
-  await expect.poll(sortedBy).toEqual(["Counts ascending"]);
-  expect(order()).toEqual(["src/skills", "tests", "dashboard/tests"]);
 });

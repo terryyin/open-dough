@@ -239,7 +239,7 @@ spec, beside keyboard proof for Branch and Landed.
 ### 7. Signed entry figures sort accurately in both directions
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move comparison `-sort` using `CiProofTable` and its production sorting
 state. Consolidate repeated browser setups around one actual sort sequence
@@ -248,6 +248,11 @@ and preserve direct checks for each distinct ordering rule.
 **Proof.** Baseline and Counts use their own values. Branch and Landed use
 signed timing, the intended initial order is visible, gaps stay last and
 the header exposes the current sort direction.
+
+**Accepted.** Five sort cases and the moved keyboard case became three Vitest
+cases; the comparison mount holds the production `useCiProofSorting()`.
+Keyboard proof now covers Baseline, Counts, Branch and Landed. Direct ordering
+rules stay in the existing Distribution sort tests.
 
 ### 8. Show % retains geometry and all comparison proof runs faster
 
