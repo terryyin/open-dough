@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-421_stop-repeating-git-work-in-shared-publication.json",
+      "identity": "SEED-421#stop-repeating-git-work-in-shared-publication",
+      "completedAt": "2026-11-21T16:35:24.823Z",
+      "blob": "e258a47883a07f6323d5f33fa654a6dda73df8e6"
+    },
+    {
       "fileName": "SEED-413_tie-done-capture-cases-to-production.json",
       "identity": "SEED-413#tie-done-capture-cases-to-production",
       "completedAt": "2026-11-21T14:01:09.473Z",
