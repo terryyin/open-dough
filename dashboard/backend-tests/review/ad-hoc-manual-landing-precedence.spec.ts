@@ -1,65 +1,104 @@
+// A quiet completion reported for an isolated ad hoc launch before its native
+// session binds answers pending-native-session, and binding then captures and
+// keeps the verified manual landing pair for Review changes.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { reportingReference } from "../../../Distribution/tests/support/launchLandingTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { completionReceiptSchema } from "../../src/completionReport.ts";
-import { acceptanceSchema } from "../../src/launchOutcome.ts";
+import { deliverCompletion } from "../../server/completionDelivery.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { keepAttempt } from "../../server/launchAttemptStore.ts";
+import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { localFolder } from "../../server/projectFolders.ts";
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import {
-  keptAttempts,
-  settledOutcome,
-} from "../../test-support/acceptedAttempts.ts";
-import { accept } from "../../test-support/agentLaunchBoundary.ts";
-import { adHocReview } from "../../test-support/support/adHocReview.ts";
-import { reportingChild } from "../../test-support/support/completionRecovery.ts";
-import { commit, git } from "../../test-support/support/launchLanding.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
+  aCheckoutWithWorktree,
+  canonicalGitDirectory,
+  inWorktree,
+  keep,
+  minutesAgo,
+  source,
+  work,
+} from "../support/doneCaptureCase.ts";
+import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
-test.use({ serverMode: "boundary" });
-
-test("an early quiet Done keeps its verified manual pair when the native session binds", async ({
-  dashboard,
-  request,
-}) => {
-  dashboard.claudeScenario("held");
-  const launched = await accept(
-    dashboard,
-    makeMe.aLaunchRequest
-      .adHoc({ instruction: "Keep the branch draft" })
-      .withPolicy({ workspace: "isolated", landing: "review" })
+test("an early quiet Done keeps its verified manual pair when the native session binds", async () => {
+  const { checkout, workspace } = await aCheckoutWithWorktree("draft");
+  const baseline = checkout.base;
+  const reporting = {
+    origin: dashboardOrigin,
+    reference: reportingReference,
+    command: "dashboard-completion",
+  };
+  const record = makeMe.aLaunchRecord
+    .adHoc({
+      title: "Keep the branch draft",
+      instruction: "Keep the branch draft",
+    })
+    .inIsolatedWorkspace({
+      workspace,
+      branch: "draft",
+      startingRevision: baseline,
+      repository: canonicalGitDirectory(checkout),
+    })
+    .inClaudeSession({ sessionId: "isolated-draft" })
+    .launchedAt(minutesAgo(60))
+    .reportingThrough(reporting)
+    .please();
+  keep();
+  await keepAttempt(
+    makeMe.anAcceptedAttempt
+      .withId(reporting.reference)
+      .requesting(
+        makeMe.aLaunchRequest
+          .adHoc({ instruction: "Keep the branch draft" })
+          .withPolicy({ workspace: "isolated", landing: "review" })
+          .please(),
+      )
+      .reportingTo(reporting.origin)
+      .capturingLanding({ reporting })
       .please(),
   );
-  expect(launched.status, launched.body).toBe(200);
-  const accepted = acceptanceSchema.parse(JSON.parse(launched.body));
-  if (accepted.kind !== "accepted") throw new Error("Missing launch attempt.");
-  const current = () =>
-    keptAttempts(dashboard).find(
-      (attempt) => attempt.id === accepted.attempt.id,
-    );
-  await expect.poll(() => current()?.landingRepository).toBeDefined();
-  await expect.poll(() => dashboard.claudeLaunchCalls().length).toBe(1);
-  const attempt = current();
-  const workspace = attempt?.landingRepository?.workspace;
-  const command = attempt?.reporting?.command;
-  if (workspace === undefined || command === undefined)
-    throw new Error("Missing isolated launch workspace and reporting command.");
-  const base = git(workspace, "rev-parse", "HEAD");
-  const revision = commit(workspace, "early.txt");
-  git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
-  const reported = await reportingChild(
-    `${command} --outcome completed`,
-    workspace,
+  const submission = makeMe.aCompletionSubmission
+    .reportingFor({
+      host: record.session.host,
+      reference: reporting.reference,
+    })
+    .please();
+  const { early } = await work(
+    inWorktree(checkout, workspace),
+    makeMe.aCheckoutWork.committing("early", { at: minutesAgo(30) }),
   );
-  expect(reported.ok, reported.stderr).toBe(true);
-  expect(completionReceiptSchema.parse(JSON.parse(reported.stdout)).state).toBe(
-    "pending-native-session",
+  await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
+
+  const folder = localFolder(checkout.integration);
+  const marks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: () => undefined,
+    reportingFolder: () => folder,
+  });
+  onTestFinished(() => marks.close());
+  const reported = vi.spyOn(marks, "reported");
+
+  vi.setSystemTime(minutesAgo(10));
+  const pending = await deliverCompletion(submission, reporting.origin, marks);
+  expect(pending.state).toBe("pending-native-session");
+  expect(reported).not.toHaveBeenCalled();
+
+  const earlyReport = await bindRecord(source, record);
+  expect(earlyReport?.receipt).toBe(pending.receipt);
+
+  const reviewed = await storyReview(
+    makeMe.aSessionReviewRead
+      .ofSession(record.session.sessionId, record.session.host)
+      .keeping([...(await keptRecords(source))])
+      .please(),
+    new AbortController().signal,
   );
-
-  dashboard.releaseHeldClaude();
-  const outcome = await settledOutcome(dashboard, accepted.attempt.id);
-  if (outcome.kind !== "launched") throw new Error("No bound session.");
-
-  expect(
-    await adHocReview(request, dashboard, outcome.session.sessionId),
-  ).toMatchObject({
+  expect(reviewed).toMatchObject({
     kind: "landed",
-    baseline: base,
-    tree: revision,
+    baseline,
+    tree: early,
   });
 });

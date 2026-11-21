@@ -155,7 +155,7 @@ and `test:dashboard:backend` across `ad-hoc-branch-result-race`,
 ### 3. Keep the verified landed pair when an early report binds
 
 Type: Behavior
-Status: planned
+Status: done
 
 Arrange the reporting attempt without an outcome or accepted landing pair
 and a corresponding isolated `LaunchRecord` that has yet to bind. Push
@@ -169,6 +169,21 @@ delete `adHocReview.ts` after the import sweep.
 the verified pair. Scratch suppressing the real manual comparison should
 fail the landed review assertion. Run the neighboring completion-binding
 and manual-landing cases for independent binding and comparison behavior.
+
+**Accepted proof and learnings.** `ad-hoc-manual-landing-precedence.spec.ts`
+(104 lines) runs on plain Node Vitest (`[node]`), pushing `early` to private
+`origin` `HEAD:refs/heads/main`, observing `pending-native-session` with unused
+`NativeDoneMarks.reported` from `deliverCompletion`, then calling `bindRecord`
+and observing the matched `earlyReport?.receipt` and `{ kind: "landed", baseline, tree: early }`
+through `storyReview`. Scratch suppressing `manualLandingComparison` in
+`sessionBranchCapture.ts` failed at line 99 with `{ kind: "unavailable" }`.
+Deleted `adHocReview.ts`. Verified with `typecheck:dashboard` and
+`test:dashboard:backend` across `ad-hoc-manual-landing-precedence`,
+`ad-hoc-manual-landing`, and `sessions/agent-completion-binding` (12/12 pass;
+initial 5038 ms load spike on `ad-hoc-manual-landing.spec.ts:46` at 1-min load
+26.27 attributed to its multi-Done Git setup, whose restructuring is actively
+owned by Taken sibling `SEED-413#restore-done-capture-proof-after-composed-reviews`,
+plan 743 Slice 6, so that file was preserved untouched).
 
 ### 4. Prove the branch-entry command through its typed admission
 
