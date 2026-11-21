@@ -12,7 +12,11 @@
 - Checkout-bound `npm ci` and `npm run typecheck:dashboard` passed with Node 24.21.0. The tracked check-only hook uses staged lint and Dashboard typecheck.
 - GitHub Actions `ci.yml` (CI), branch `codex/restore-done-capture-proof-and-focus-session-rev`. Codex stream coordinator `rina-743-1b49221c`, directory `/tmp/dough-ci-501/watch-dRtRwr`, session 75465, PID 71136, cell `g65:12`. The claim's trunk CI is unobserved.
 - Replanning stays within existing planning authority.
-- Slice 1 accepted on the execution branch at `0d4666c3f8105e53189babd8355ee061dfe8639e`; observation reused the live stream.
+- Slices 1 and 2 accepted on the execution branch at
+  `0d4666c3f8105e53189babd8355ee061dfe8639e` and
+  `5af3c3a034dc94fbea55a5ac3643b7e769ea7c06`. Both reused the live stream.
+  Run 44843537632 attempt 1 had no failed jobs and was superseded by the
+  push-triggered run 44844609085 for slice 2 under same-ref CI concurrency.
 
 
 ## Correction input
@@ -172,7 +176,7 @@ the default and literal file reads. See `slice2-refactor.md`.
 ### 3. Preserve receipt precedence and both kinds of Done evidence
 
 Type: Structure
-Status: planned
+Status: done
 
 On a kept launch whose branch record includes the witnessed trunk revision,
 prepare through `handleLanding`, push its exact tip, and mark Done with
@@ -187,6 +191,16 @@ the prepared pair. The merged case fails if settlement drops either pair or
 fails to pin it. A remaining branch-only fixture that uses
 `captureBranchResult` must reject an unexpected delivery, with the merged
 case exercising the positive delivery path at its real persistence owner.
+
+**Accepted proof.** Ten cases in seven backend specs passed the final
+selection with default timeout and worker settings. The prepared record keeps
+its branch result and receipt at Done, then records that exact receipt. The
+unprepared manual merge stores and pins both pairs. The two edited specs
+retain four cases and reduce full Review reads from five to three.
+See `slice3-return.md` and `slice3-branch-consumers.log.run.json` in checkout
+evidence. The two unused imitation helpers are removed. Slice 4 owns retirement
+of the remaining composed Done procedure and the final observation for
+commitment 25.
 
 ### 4. Focus publisher and worktree-retirement proof
 

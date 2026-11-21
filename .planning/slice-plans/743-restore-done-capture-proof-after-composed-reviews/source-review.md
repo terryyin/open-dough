@@ -24,13 +24,13 @@ stories.
 | 3 | When two launches overlap in one Default main checkout, the attribution result identifies the checkout as shared. | slice 2 | observed: done-kept-session-shared-checkout.spec.ts, the two kept Default main launches overlap at Done and production attribution sets the saved capture’s shared flag. The direct historical-overlap case also returns true for an earlier launch that closed during this launch’s lifetime. |
 | 4 | Marking one of those launches Done stores that launch’s captured run in its saved session. | slice 2 | observed: done-kept-session-shared-checkout.spec.ts, the real Done write is followed by a keptSession reread that observes the captured checkout base and actual Git commit together with the requested Done time. |
 | 5 | The saved capture for that launch carries the shared-checkout flag. | slice 2 | observed: done-kept-session-shared-checkout.spec.ts, the keptSession reread asserts shared: true in the persisted sessionCommits after marking one of two overlapping Default main launches Done. |
-| 6 | When an accepted branch tip has a prepared receipt at Done, the saved session retains the branch result. | slice 3 | |
-| 7 | The saved session retains the prepared receipt alongside that branch result. | slice 3 | |
-| 8 | Done recording uses the prepared receipt for that accepted branch tip. | slice 3 | |
-| 9 | With a verified manual merge and no prepared receipt, Done saves the branch pair in the session. | slice 3 | |
-| 10 | Under the same conditions, Done saves the delivery pair in the session. | slice 3 | |
-| 11 | Under the same conditions, Done pins the branch pair in Git. | slice 3 | |
-| 12 | Under the same conditions, Done pins the delivery pair in Git. | slice 3 | |
+| 6 | When an accepted branch tip has a prepared receipt at Done, the saved session retains the branch result. | slice 3 | observed: ad-hoc-prepared-landing-done.spec.ts, Done leaves the prepared receipt recordable after acceptance. A witnessed trunk base and published draft make a competing manual landing possible. After setRecordDoneAt the kept session has the exact entry tree and draft tip. |
+| 7 | The saved session retains the prepared receipt alongside that branch result. | slice 3 | observed: ad-hoc-prepared-landing-done.spec.ts, the same kept-session reread after the real Done write observes the original preparation receipt, delivery and exact commit pair alongside the branch result and no substitute manual landing. |
+| 8 | Done recording uses the prepared receipt for that accepted branch tip. | slice 3 | observed: ad-hoc-prepared-landing-done.spec.ts, production handleLanding records the original submission after Done, returns the prepared receipt with state recorded, and persists the same receipt, delivery and pair. |
+| 9 | With a verified manual merge and no prepared receipt, Done saves the branch pair in the session. | slice 3 | observed: ad-hoc-branch-attribution.spec.ts, Done saves and pins the branch and delivery pairs after a manual merge. With no preparation, the real Done store retains the imported Git tree to the draft tip and excludes trunk-added paths. |
+| 10 | Under the same conditions, Done saves the delivery pair in the session. | slice 3 | observed: ad-hoc-branch-attribution.spec.ts, the same real kept-session reread saves the actual merge’s trunk parent to the accepted merge and excludes the later trunk advance. |
+| 11 | Under the same conditions, Done pins the branch pair in Git. | slice 3 | observed: ad-hoc-branch-attribution.spec.ts, the unprepared manual-merge case queries sessionBranchPins and compares both object IDs to the actual branch pair. |
+| 12 | Under the same conditions, Done pins the delivery pair in Git. | slice 3 | observed: ad-hoc-branch-attribution.spec.ts, the unprepared manual-merge case queries heldLandingPins for the saved delivery and compares both object IDs to the actual trunk parent and merge. |
 | 13 | If a working file changes after Done snapshots it but before Done settles, a representative historical Review file read after worktree retirement returns the earlier bytes. | slice 5 | |
 | 14 | A representative historical Review read after pruning can still read the supported retained evidence. | slice 6 | |
 | 15 | The production Review boundary resolves the requested session using its source, host, and session identity. When two hosts share a native session ID, it resolves the requested host’s record. | slice 8 | |
@@ -43,5 +43,5 @@ stories.
 | 22 | File admission evaluated against composed retained evidence preserves the refusal for a story launch. | slice 8 | |
 | 23 | The revised proof has fewer cases while retaining protection for distinct regressions. | slice 8 | |
 | 24 | The revised proof performs fewer full Review reads while retaining representative reads that establish evidence survival. | slice 8 | |
-| 25 | The procedures that imitate Done are retired. | slice 3 | |
+| 25 | The procedures that imitate Done are retired. | slice 4 |  |
 | 26 | The procedures that route unrelated tests through Review are retired. | slice 8 | |
