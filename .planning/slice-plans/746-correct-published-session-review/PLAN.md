@@ -388,7 +388,7 @@ Accepted: evidence `s6-slice6-return-report.md`. Commitment 14 observed. Refacto
 ### 7. Recently done shows a failed published listing as a gap
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.**
 - **Pre-condition:** the published-session listing is `unavailable`.
@@ -405,6 +405,9 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --sil
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
+
+
+Accepted: evidence `s7-slice7-return-report.md`. Commitment 6 observed. Refactor: publication helpers + RecentlyDoneReadGaps.
 
 ### 8. Header journeys hold the exact opening-read budget
 

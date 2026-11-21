@@ -136,6 +136,8 @@ export function useRecentlyDone({
           ),
         ];
   const { publishedSessions } = work;
+  // Only a listed answer contributes sessions; an unavailable listing is a
+  // gap in `problems`, never an empty set of published entries.
   const listed = newestFirst(
     included,
     records ?? [],
@@ -200,7 +202,12 @@ export function useRecentlyDone({
     none: noneKept
       ? "No sessions launched from this dashboard are kept."
       : "No sessions are listed in Recently done.",
-    problem: done?.status === "unavailable" ? done.problem : undefined,
+    problems: [
+      ...(done?.status === "unavailable" ? [done.problem] : []),
+      ...(publishedSessions?.status === "unavailable"
+        ? [publishedSessions.problem]
+        : []),
+    ],
     unreadable: unreadable.map((record) => ({
       file: record.fileName,
       detail: details.detailOf(record),
