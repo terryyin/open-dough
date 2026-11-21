@@ -5,6 +5,7 @@ import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
 import type { ReviewSource } from "../../src/reviewSource.ts";
+import type { SessionServices } from "../../src/sessionServices.ts";
 
 const unread = (name: string) => () =>
   Promise.reject(new Error(`Unexpected ${name} read`));
@@ -30,6 +31,14 @@ const unreadReviewReads: ReviewSource = {
   fileText: unread("review file text"),
 };
 
+const unreadSessionServices: SessionServices = {
+  readFinalReport: unread("final report"),
+  readHostStatus: unread("host status"),
+  openTerminal: () => {
+    throw new Error("Unexpected terminal attach");
+  },
+};
+
 // The page's reads with only SUPPLIED answering; every other read rejects.
 export const pageReadsSupplying = (
   supplied: Partial<PageReads>,
@@ -37,5 +46,6 @@ export const pageReadsSupplying = (
   intent: unreadIntentReads,
   ci: unreadCiReads,
   review: unreadReviewReads,
+  sessions: unreadSessionServices,
   ...supplied,
 });

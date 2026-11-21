@@ -1,15 +1,12 @@
 // One mounted xterm/WebSocket attachment and its input, rendering and cleanup.
 import { Terminal, type ITheme } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
-import type { LaunchRecord } from "./agentLaunch.ts";
 import {
-  agentTerminalEndpoint,
   terminalEndedCode,
   terminalAttachFailedCode,
   terminalAttachRefusalCode,
   terminalAttachRefusalSchema,
   terminalReadinessSchema,
-  terminalSessionQuery,
   terminalReplaySchema,
   terminalWorkspaceUnavailableSchema,
   terminalWorkspaceUnavailableCode,
@@ -17,19 +14,15 @@ import {
   type TerminalMessage,
 } from "./agentTerminal.ts";
 import type { SessionOperation, SessionRequest } from "./pageSessions.ts";
+import type { TerminalSocket } from "./sessionServices.ts";
 import { listenToTerminalTouchScroll } from "./terminalTouchScroll.ts";
-
-export function terminalUrl(record: LaunchRecord): string {
-  const scheme = window.location.protocol === "https:" ? "wss:" : "ws:";
-  return `${scheme}//${window.location.host}${agentTerminalEndpoint}?${terminalSessionQuery(record).toString()}`;
-}
 
 // Why the panel's attachment is no longer open, if it is not.
 export type TerminalEnding = "disconnected" | "ended" | "failed";
 
 export function attachTerminal(
   screen: HTMLDivElement,
-  url: string,
+  socket: TerminalSocket,
   session: SessionRequest,
   theme: ITheme,
   takesKeyboard: boolean,
@@ -54,8 +47,6 @@ export function attachTerminal(
 
   const stopTouchScroll = listenToTerminalTouchScroll(screen, terminal);
 
-  const socket = new WebSocket(url);
-  socket.binaryType = "arraybuffer";
   let current = true;
   const send = (message: TerminalMessage) => {
     if (current && socket.readyState === WebSocket.OPEN) {

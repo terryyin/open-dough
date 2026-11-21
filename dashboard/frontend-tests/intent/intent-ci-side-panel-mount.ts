@@ -36,6 +36,7 @@ import { storyCardMarks } from "../../src/storyCardFocus.ts";
 import { StoryCardSessions } from "../../src/StoryCardSessions.tsx";
 import "../../src/side-panel.css";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { unavailableReviewSource } from "./intent-ci-perspective-mount.ts";
 
 function TakenSelectionCards({
@@ -223,11 +224,11 @@ export async function mountSidePanelIntentPage({
     createElement(
       PageReadsOnPage,
       {
-        reads: {
+        reads: pageReadsSupplying({
           intent: readSource,
           ci: ciReads,
           review: unavailableReviewSource,
-        },
+        }),
       },
       createElement(SidePanelIntentFrame, {
         work,

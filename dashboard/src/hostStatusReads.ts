@@ -6,11 +6,13 @@
 // watching again, asks at once. Undefined until the first read answers.
 
 import { useEffect, useRef, useState } from "react";
-import { readHostStatus, type HostStatus } from "./hostStatus.ts";
+import type { HostStatus } from "./hostStatus.ts";
+import { useSessionServices } from "./pageReads.tsx";
 import { usePageVisibility } from "./pageVisibility.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 
 export function useHostStatus(watching: boolean): HostStatus | undefined {
+  const { readHostStatus } = useSessionServices();
   const [status, setStatus] = useState<HostStatus>();
   const [reads, setReads] = useState(0);
   const { visibility, settleRevealed } = usePageVisibility();
@@ -41,6 +43,6 @@ export function useHostStatus(watching: boolean): HostStatus | undefined {
       clearTimeout(waiting);
       unwanted.abort();
     };
-  }, [watching, visibility, reads, settleRevealed]);
+  }, [readHostStatus, watching, visibility, reads, settleRevealed]);
   return status;
 }

@@ -18,6 +18,7 @@ import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { fullSha } from "./intent-ci-status-fixtures.ts";
 
@@ -99,11 +100,11 @@ export async function mountIntentPerspective({
     createElement(
       PageReadsOnPage,
       {
-        reads: {
+        reads: pageReadsSupplying({
           intent: readSource,
           ci: ciReads,
           review: unavailableReviewSource,
-        },
+        }),
       },
       createElement(PerspectiveScene, {
         work: currentWork,

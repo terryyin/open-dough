@@ -7,7 +7,7 @@
 
 ## Goal and scope
 
-**Correction first.** Before any history move, Slices 1–3 correct the test
+**Correction first.** Before any history move, Slices 1–4 correct the test
 entry delivered by SEED-413#speed-intent-proof-and-timing (see
 [Correction of the CI status test entry](#correction-of-the-ci-status-test-entry)),
 so the history slices build on the corrected entry instead of extending it.
@@ -66,10 +66,10 @@ React `act`, and `IS_REACT_ACT_ENVIRONMENT` while covering any changed owner.
 - Size each slice to one mount boundary and 3–6 test files (avoiding the
   20-file / 3-surface bundle that overran former Slice 4 in `plan 752`).
   Capture the 19-file / 31-case legacy Playwright baseline with
-  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` at `--workers=2` in Slice 4
+  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` at `--workers=2` in Slice 5
   before replacing the first legacy spec, and compare the completed history
-  suite in Slice 8. Remove any history `dashboard/test-support/` module whose
-  last consumer moves in Slice 8.
+  suite in Slice 9. Remove any history `dashboard/test-support/` module whose
+  last consumer moves in Slice 9.
 
 ## Correction of the CI status test entry
 
@@ -184,13 +184,14 @@ representative E2E history consumers when shared contracts change.
 | Promise | Owning proof |
 | --- | --- |
 | Production and every case supply Intent, CI and review reads through one required typed entry. Readers are fixed at creation, with no optional members, defaulted parameters or test-only reselection. | Slice 1 (`npm run typecheck:dashboard`, the CI status and comparison families, one representative Intent E2E journey). |
-| Homepage, kept-status and Side-panel cases render production `PageFrame` and the production Intent composition, not test copies. | Slice 2 (`intent-ci-status-{homepage,kept,side-panel}`). |
-| Status freshness, execution timing, sort and dark-contrast cases render their owning production composition with MakeMe inputs, with no private pipeline calls or hand-built hook state. | Slice 3 (`intent-ci-status-{freshness,execution-time,sort}`, `intent-ci-cues-dark-contrast`, 7-file timing). |
-| Done wall-time history keeps its separate read boundary from live Proof, states missing/pending/outside-retention/zero-base facts accurately, and follows reference lifecycle changes | Slice 4 (`intent-ci-compact-readout`, `intent-ci-done-glance`, `intent-ci-done-reference-lifecycle`). |
-| Existing Project CI wall-time mounts refresh cleanly without `act` wrapping when `JudgedBranch` narrows, and Done/Project scope chart marks preserve keyboard order, labels, and narrow layout | Slice 5 (`intent-ci-wall-time-history{,-gaps,-evidence}`, `intent-ci-history-chart-marks`, `intent-project-ci-history-chart-marks`). |
-| Project and Done scope glances and source/project history keys stay isolated to their own source and project | Slice 6 (`intent-project-scope-glance`, `intent-scope-glance`, `intent-project-scope-history-{source-identity,project-isolation}`). |
-| Project scope history distinguishes scope keys, preserves kept history and live Proof on failure, and recovers via Retry or refresh across remounts | Slice 7 (`intent-project-scope-history-{key-isolation,recovery,refresh,remount}`). |
-| Collected scope timing keeps case/file units, provenance, segments, and gap explanations distinct, removes spent history support, and runs faster on Vitest | Slice 8 (`intent-scope-timing-history-{absent,gaps,provenance,reading,segments,units}` + two-worker before/after comparison). |
+| The final-report, host-status and terminal-attach calls go through the required typed page entry that production supplies. | Slice 2 (typecheck, full frontend group, representative session E2E journeys). |
+| Homepage, kept-status and Side-panel cases render production `PageFrame` and the production Board/Intent composition, not test copies. | Slice 3 (`intent-ci-status-{homepage,kept,side-panel}`). |
+| Status freshness, execution timing, sort and dark-contrast cases render their owning production composition with MakeMe inputs, with no private pipeline calls or hand-built hook state. | Slice 4 (`intent-ci-status-{freshness,execution-time,sort}`, `intent-ci-cues-dark-contrast`, 7-file timing). |
+| Done wall-time history keeps its separate read boundary from live Proof, states missing/pending/outside-retention/zero-base facts accurately, and follows reference lifecycle changes | Slice 5 (`intent-ci-compact-readout`, `intent-ci-done-glance`, `intent-ci-done-reference-lifecycle`). |
+| Existing Project CI wall-time mounts refresh cleanly without `act` wrapping when `JudgedBranch` narrows, and Done/Project scope chart marks preserve keyboard order, labels, and narrow layout | Slice 6 (`intent-ci-wall-time-history{,-gaps,-evidence}`, `intent-ci-history-chart-marks`, `intent-project-ci-history-chart-marks`). |
+| Project and Done scope glances and source/project history keys stay isolated to their own source and project | Slice 7 (`intent-project-scope-glance`, `intent-scope-glance`, `intent-project-scope-history-{source-identity,project-isolation}`). |
+| Project scope history distinguishes scope keys, preserves kept history and live Proof on failure, and recovers via Retry or refresh across remounts | Slice 8 (`intent-project-scope-history-{key-isolation,recovery,refresh,remount}`). |
+| Collected scope timing keeps case/file units, provenance, segments, and gap explanations distinct, removes spent history support, and runs faster on Vitest | Slice 9 (`intent-scope-timing-history-{absent,gaps,provenance,reading,segments,units}` + two-worker before/after comparison). |
 
 ## Slices
 
@@ -226,7 +227,7 @@ unsupplied reads reject. `readCachedFile` also lost its defaulted reader.
 Proof: typecheck, full `npm run --silent test:dashboard:frontend` (Vitest 100
 files / 306 tests plus legacy Playwright), backend `ci-comparison-client*` and
 `intent-shared-reads`, E2E `intent-ci-status` and `story-review-commits`.
-Learning for Slices 4–8: the legacy timing-history specs mount through
+Learning for Slices 5–9: the legacy timing-history specs mount through
 `dashboard/test-support/comparison-mount/entry.tsx`, which now supplies
 `authenticatedPageReads` against its real test servers; it stays until its
 last consumer moves. The full frontend group also exposed a flake: a
@@ -234,19 +235,10 @@ settings touch helper switched off the context's touch emulation for later
 spec files (`board-indicators` lost its coarse pointer). It was fixed in
 `system-settings-browser.ts`.
 
-### 2. Homepage, kept and Side panel CI status cases render the production page frame
+### 2. Side-panel service calls enter through the typed page entry
 
 Type: Structure
-Status: planned
-
-Replace `intent-ci-side-panel-mount.ts` and `intent-ci-perspective-mount.ts`.
-The cases mount production `PageFrame` with MakeMe sessions and stories,
-around the production Intent body that `ConfiguredDashboardContent` renders
-(`IntentReadRecovery` + `IntentPerspective`), through the Slice 1 entry. When
-that body cannot stand alone, extract it in production so that
-`ConfiguredDashboardContent` and the cases render the same component. Supply
-the page's launches (`LaunchesOnPage`, typed `MachineSessions`) as
-`ConfiguredDashboard` does, because `Terminal` requires them.
+Status: done
 
 Decided (Terry, 21 November 2026, option (a)): put the panels' three untyped
 service calls behind the Slice 1 typed page entry. `ConfiguredDashboard`
@@ -259,6 +251,44 @@ replies, keeping the real frame:
 - the terminal attach (`attachTerminal` in `attachedTerminal.ts`, used by
   `useAttachedTerminal.ts`, a WebSocket to `/__agent-terminal`).
 
+`PageReads` gains a required `sessions` member (`dashboard/src/sessionServices.ts`:
+`readFinalReport`, `readHostStatus`, `openTerminal`) that
+`authenticatedPageReads` supplies; `pageReadsSupplying` rejects unsupplied
+session calls. The two legacy mounts that Slice 3 replaces supply it until
+then.
+
+**Proof.** `npm run typecheck:dashboard` passes; the full frontend group
+passes; representative E2E journeys for the final report, the attached
+terminal and its host status pass, proving production supplies the
+authenticated services.
+
+**Accepted (22 November 2026).** `attachTerminal` takes the opened
+`TerminalSocket`; the client `terminalUrl` is gone. Proof: typecheck, full
+frontend group (Vitest 102 files / 314 tests plus legacy Playwright), E2E
+`agent-terminal-done-report`, `sessions-sidebar-host-status`,
+`agent-launch-ad-hoc-terminal`, `agent-terminal-keyboard` and
+`intent-ci-status`. Learning for Slice 3: Slice 3 should record each case's
+`fetch` and `WebSocket` calls and show none outside its typed replies. Under
+load 15–20 the full frontend group took about 24 minutes wall time.
+
+### 3. Homepage, kept and Side panel CI status cases render the production page frame
+
+Type: Structure
+Status: planned
+
+Replace `intent-ci-side-panel-mount.ts` and `intent-ci-perspective-mount.ts`.
+The cases mount production `PageFrame` with MakeMe sessions and stories,
+through the Slice 1 entry, around one production component extracted from
+`ConfiguredDashboardContent`: the part that shows either the Board
+(`<main hidden><Board/></main>`, owning the Taken story cards, the "Read
+final report" button and card selection) or the Intent body
+(`IntentReadRecovery` → `IntentPerspective`/`RetainedFollowUpPerspective`).
+`ConfiguredDashboardContent` and the cases render that same component; a
+case switches view through its typed `showsIntent` input, as the route does.
+Supply the page's launches (`LaunchesOnPage`, typed `MachineSessions` built
+by MakeMe with every member) as `ConfiguredDashboard` does, because
+`Terminal` and `Board` require them.
+
 Add a Taken-story step to `aPublishedWork` in place of `takenStoryEntry`.
 Drop the `watchedBranchHeads` assertions on builder output. Keep role-based
 colocated page objects.
@@ -269,9 +299,9 @@ observations and pass at `--workers=2`. No test file renders `usePageSidePanel`,
 `SessionsSidebarOpenList`, `StorySelectionProvider` or `IntentPageProviders`
 itself. The side-panel case records no `fetch` or `WebSocket` call outside
 its typed replies. Record each replaced helper's production import count
-before and after.
+before (side-panel mount 21, perspective mount 11 at `40408c07c`) and after.
 
-### 3. Status evidence and cue-contrast cases render their owning composition with MakeMe inputs
+### 4. Status evidence and cue-contrast cases render their owning composition with MakeMe inputs
 
 Type: Structure
 Status: planned
@@ -294,7 +324,7 @@ noise with its reason. Record each spec's and helper's production import
 count before and after. `intent-ci-status-fixtures.ts` keeps no production
 transform.
 
-### 4. Done wall-time history keeps its separate boundary, compact readout, and reference lifecycle
+### 5. Done wall-time history keeps its separate boundary, compact readout, and reference lifecycle
 
 Type: Behavior
 Status: planned
@@ -317,7 +347,7 @@ and cues; Done glance marks and hover/focus details match the landing;
 changing or retrying the Done reference updates or preserves history without
 perturbing live Proof (`0` legacy Playwright cases remain on the 3 files).
 
-### 5. Project CI wall-time mounts drop `act` wrapping and chart marks keep keyboard and narrow layout
+### 6. Project CI wall-time mounts drop `act` wrapping and chart marks keep keyboard and narrow layout
 
 Type: Behavior
 Status: planned
@@ -336,7 +366,7 @@ onto `mountComponent` (retiring `createRoot`, React `act`, and
 history chart marks preserve build/date labels, accessible descriptions,
 run links, and narrow-viewport fit.
 
-### 6. Scope glances and project/source history keys stay isolated to their source
+### 7. Scope glances and project/source history keys stay isolated to their source
 
 Type: Behavior
 Status: planned
@@ -352,7 +382,7 @@ and `AbortSignal`.
 switching source identity or project issues the right request and aborts/ignores
 other projects' or sources' answers without leaking history across projects.
 
-### 7. Project scope history isolates scope keys, retains live proof on failure, and recovers on Retry
+### 8. Project scope history isolates scope keys, retains live proof on failure, and recovers on Retry
 
 Type: Behavior
 Status: planned
@@ -368,7 +398,7 @@ across remounts; a failed or empty history read preserves both the last kept
 history and live Scope Proof, offers `Retry`, and recovers or refreshes
 without borrowing history from another endpoint or scope.
 
-### 8. Collected scope timing preserves units, provenance, segments, and gaps and runs faster on Vitest
+### 9. Collected scope timing preserves units, provenance, segments, and gaps and runs faster on Vitest
 
 Type: Behavior
 Status: planned
@@ -380,7 +410,7 @@ Move `intent-scope-timing-history-absent`, `intent-scope-timing-history-gaps`,
 timing checks only where DOM rendering is not the proof). Remove any
 `dashboard/test-support/` history module whose last consumer across `e2e/` and
 `dashboard/frontend-tests/` has moved, and record the two-worker before/after
-timing and case-disposition comparison against Slice 4's 19-file legacy
+timing and case-disposition comparison against Slice 5's 19-file legacy
 baseline and the `3,437 ms` Vitest wall-time baseline.
 
 **Proof.** Absent, partial, and unavailable timing reasons, separate case vs
@@ -404,3 +434,13 @@ the scratch mount (see the premises) named the three untyped calls it moves.
 Slice 3 may need a production extraction to make the CI status owner stand
 alone; that extraction is bounded to the slice's own owner. No remaining
 concern blocks readiness.
+
+Refined in execution on 22 November 2026: Slice 2 stopped at 9 of 15 active
+minutes because its premise failed. The side-panel case also observes the
+Taken story cards (`Board`) and the Development/Intent switch, which sit
+outside `PageFrame` plus the Intent body, so the mount boundary needs one
+extracted Board/Intent production component. The plan's own rule ("extract
+it in production") covers that extraction. Former Slice 2 split into Slice 2
+(service calls behind the entry, nearly complete) and Slice 3 (frame mount),
+renumbering former Slices 3–8 to 4–9. Nine slices stays within the
+in-execution limit for splitting the slice in progress.
