@@ -90,7 +90,7 @@ test("a blank Default main launch keeps its declared landing until record deleti
     { ref: `${pinned}/revision`, objectId: candidate },
   ]);
 
-  // Record deletion stays on the machine record store.
-  expect(await deleteRecord(source, record.session)).toBe(true);
+  expect(await deleteRecord(source, record.session, stores)).toBe(true);
+  expect(stores.recordOf(session)).toBeUndefined();
   expect(await heldLandingPins(checkout.integration)).toEqual([]);
 });

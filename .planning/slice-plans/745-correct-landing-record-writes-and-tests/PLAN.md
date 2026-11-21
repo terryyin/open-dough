@@ -30,10 +30,13 @@
   `8b5ac52fa8adbd320a5a3ea88995e3ffe5378075`.
 - Slice 5 accepted on the same branch and observer at
   `a97475d9fad087e9906f2bcee6a7fb725541c3ea`.
+- Slice 6 accepted on the same branch and observer at
+  `93892f11328df46c90243c7ada92b0f947253eff`.
 - GitHub canceled the superseded slice 2 push run `44848314743/1`
   after the slice 3 push had scheduled run `44849901905` on the same
-  branch. The workflow cancels in-progress runs on superseding pushes
-  to the same ref.
+  branch. Slice 5 run `44852220119/1` was likewise canceled after
+  slice 6 scheduled `44853250807`. The workflow cancels in-progress
+  runs on superseding pushes to the same ref.
 
 ## Correction input
 
@@ -335,7 +338,7 @@ worktree Git evidence directory.
 ### 7. Record deletion acts on the record that holds the landing
 
 Type: Structure
-Status: planned
+Status: done
 
 In `declared-blank-launch-publication`, delete the record the composed
 stores hold (the one with the landing) rather than the machine store's,
@@ -343,6 +346,14 @@ so pin release is observed on the owning record.
 
 **Proof.** The case fails when deletion leaves pins held; the publisher
 specs pass.
+
+**Observed.** Production deletion uses the same record store as landing
+capture. The blank publisher scenario confirmed the composed record was
+gone and both real Git pins were released. A scratch run leaving pin
+cleanup out removed the record but failed exactly at the pin assertion.
+Both publisher cases and thirteen machine deletion/cleanup cases passed,
+including retry after a retained pin-cleanup failure. Dashboard typecheck
+passed. See `slice-7-report.md` in the worktree Git evidence.
 
 ## Proof map
 

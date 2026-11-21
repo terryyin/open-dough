@@ -12,16 +12,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished } from "vitest";
 import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
-import {
-  acceptBranchLandingAnswer,
-  branchLandingContext,
-} from "../../server/branchLandingContext.ts";
+import { branchLandingContext } from "../../server/branchLandingContext.ts";
 import type { LandingSubmission } from "../../server/launchLandingAdmission.ts";
 import {
   handleLanding,
   type LandingStores,
 } from "../../server/launchLandingReporting.ts";
-import { changeSessionRecord } from "../../server/launchRecordStore.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import { composedLandingStores } from "./composedLandingStores.ts";
@@ -71,8 +67,8 @@ type PublisherLaunch = {
 
 // The checkout with an origin and its worktree on `branch`, whose installed
 // publisher holds the context of a kept Default main launch (blank unless it
-// reports through `reporting`) that entered that worktree. Landing stores are
-// composed; record deletion stays on the machine record store.
+// reports through `reporting`) that entered that worktree. The launch records
+// live in the composed store.
 export async function aDeclaredPublisherBranch(
   branch: string,
   { reporting, others = () => [] }: PublisherLaunch = {},
@@ -92,7 +88,7 @@ export async function aDeclaredPublisherBranch(
   );
   const record = launch.enteredBranch(entry).please();
   const extra = others(checkout);
-  keep(record, ...extra);
+  keep();
   const directory = mkdtempSync(path.join(tmpdir(), "dough-branch-landing-"));
   onTestFinished(() => {
     rmSync(directory, { recursive: true, force: true });
@@ -102,10 +98,6 @@ export async function aDeclaredPublisherBranch(
     source,
   });
   if (answered === undefined) throw new Error("Missing the landing context.");
-  // Machine store keeps the answered record for deleteRecord pin cleanup.
-  await changeSessionRecord(source, record.session, (current) =>
-    acceptBranchLandingAnswer(current, answered.record),
-  );
   const stores = composedLandingStores({
     records: { [source]: [answered.record, ...extra] },
   });
