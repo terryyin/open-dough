@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-dashboard-launch-proof
 **Source:** [Get fast proof of composing and starting a launch](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof)
+**Source review:** [Source-only commitments](source-review.md)
 
 ## Goal and scope
 
@@ -63,29 +64,28 @@ Run the named E2E paths with `npm run test:e2e -- <paths> --workers=2` when
 changing their observations or their composed boundary. Typecheck changed
 dashboard production inputs and callers with `npm run typecheck:dashboard`.
 
-## Baseline and planning observations
+See [launch proof evidence](proof.md) for the baseline, decisive premises,
+and preserved observations.
 
-Observations are from the owned checkout at `3eef0b526` on 21 November 2026,
-on AC power with Node 24.21.0 and its locked install.
+## Execution context
 
-| Consuming operation | Observation |
-| --- | --- |
-| Normal frontend runner lists the scoped legacy proof | `caffeinate -s -i npm run --silent test:dashboard:frontend -- dashboard/frontend-tests/launches --list --reporter=line` listed 81 Chromium cases in 29 specs. |
-| Existing legacy specs exercise the starting journeys | The same runner with `--workers=2` and `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` at `/tmp/launches-frontend-proof.md` passed 81/81 in 68.68 s elapsed including preparation (123.56 summed case-seconds). Load average was 16.17 before the run. Slowest cases: voice overflow beyond 4,000 (5.08 s), voice permission unavailability (4.08 s), Start session refusal touch (3.94 s), dialog touch rotation (3.44 s), and responsive keyboard start (3.37 s). |
-| `LaunchDialog` mounts alone for open/cancel | Scratch `launch-dialog-preparation-probe.spec.ts` (reverted) passed on Vitest at two workers: `mountComponent` of `LaunchDialog` with `unattachedSession`, host `claude`, and stub `onStart` focused the instruction field; Escape and Cancel closed without calling Start. A wrong host identity (`claude-code`) threw in `useLaunchSettings` before paint — host values must be `HostIdentity`. |
-| `StartLaunch` mounts alone for story Starts | Scratch `start-launch-preparation-probe.spec.ts` (reverted) passed: `StartLaunch` with typed work and callback `onStart` offered Start execution, opened `LaunchDialog`, and Cancel closed without Start. |
-| Host catalog and transcription still fetch inside hooks | `useLaunchHostOptions` calls `fetch(launchHostOptionsEndpoint)` with no typed source. `useInstructionRecording` fetches transcription the same way. Catalog hosts (`codex`, `cursor`) need a required typed source before controlled catalog cases leave App substitutes. Claude dialogs that do not read a model catalog already mount without it. |
-| Composed native and install journeys stay in E2E | Existing `e2e/launches/` coverage named from the legacy specs (ad-hoc start, story-card start, attachments, model/options boundary, voice, responsive held start, follow-up) remains the owner for real install, native host, mic, and cross-service startup. |
-
-## Decisive premises
-
-| Premise | Consuming operation | Form and profile | Result |
-| --- | --- | --- | --- |
-| `LaunchDialog` stands alone for open/cancel over typed props | Vitest `mountComponent` of `LaunchDialog` with unattached session | Scratch probe at `3eef0b526`, Vitest browser Chromium, two workers | Passed; Escape/Cancel close without Start |
-| `StartLaunch` stands alone for opening a story Start dialog | Vitest `mountComponent` of `StartLaunch` with callback `onStart` | Scratch probe at `3eef0b526`, Vitest browser Chromium, two workers | Passed; Cancel closes without Start |
-| Controlled host catalog answers reach `LaunchDialog` without App substitutes | Slice 5 early probe: introduce required typed host-options source, mount dialog, hold/fail/retry catalog | Same Vitest runner as replacement cases | Early probe in Slice 5; failure stops catalog-dependent work |
-| Controlled transcription answers reach instruction voice without App substitutes | Slice 7 early probe: introduce required typed transcription source, mount dialog, abandon/overflow paths | Same Vitest runner as replacement cases | Early probe in Slice 7; failure stops voice-dependent work |
-| Instructed or empty ad-hoc handoff observes terminal presentation without full App | Slice 1 / Slice 8 early probe: `StartSession` with minimal `MachineSessions` and `SessionsOnPage` stub or production handoff observation | Same Vitest runner | Early probe when that assertion moves; real held start stays E2E |
+- Story Branch Mode in the dashboard-established worktree
+  `get-fast-proof-of-composing-and-starting-a-launc`, on
+  `codex/get-fast-proof-of-composing-and-starting-a-launc`. The default
+  `open-dough` checkout is the integration checkout. Trunk is `origin/main`.
+- Publisher `dashboard-territory.local-open-dough`, agent Ai-chan. Starting
+  revision `0da1d3a2b316e6255b68b2f9c751ac49ea23cf97`. The established claim
+  `d709083818ab9ae49c7980d4b82fc5038e70ad6d` is on trunk and was published as
+  the initial story-branch candidate.
+- Checkout-local `npm ci`, `node scripts/setup-native.mjs check`, and
+  `npm run typecheck:dashboard` passed. The plan's recorded legacy proof is
+  retained as `legacy-launches-baseline.jsonl` in the checkout's Git evidence
+  directory. No launch spec changed between that baseline and the claim.
+- Story-branch CI observes GitHub Actions `ci.yml` (CI), coordinator
+  `launch-proof-762`, mailbox `/tmp/dough-ci-501/watch-8V0V1S`, PID `98694`,
+  Codex session `82053`, cell `g185:13`.
+- Preserve existing planning authority. The invocation selected neither
+  `--replan` nor `--no-replan`.
 
 ## Slices
 
@@ -95,7 +95,7 @@ and omit `.spec.ts` unless otherwise specified.
 ### 1. Ad-hoc Start session opens, cancels, and stays readable
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `agent-launch-ad-hoc`, `agent-launch-ad-hoc-instructed`,
 `agent-launch-creation-gates`, `agent-launch-start-session-layout`,

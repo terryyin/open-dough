@@ -29,7 +29,14 @@ export class PublishedSourceBuilder {
     return { please: () => publishedSource(facts) };
   }
 
-  // The named example: Pygardon, published from its GitHub repository.
+  get openDough() {
+    return this.with({
+      id: "open-dough",
+      label: "Open Dough",
+      repository: "terryyin/open-dough",
+    });
+  }
+
   get pygardon() {
     return this.with({
       id: "pygardon",

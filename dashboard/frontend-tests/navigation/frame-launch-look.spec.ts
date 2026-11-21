@@ -3,7 +3,7 @@
 // buttons are recognisable, with Start the one filled action; at a narrow
 // window and at 200% zoom nothing in Start session scrolls sideways and every
 // control is reachable (Start refinement's fit, with every option selected, is
-// ../launches/agent-launch-dialog-layout.spec.ts); the roster's heading and
+// ../launches/ad-hoc-launch-dialog.spec.ts); the roster's heading and
 // Back read clearly and fit a narrow and a zoomed window.
 
 import type { Locator } from "@playwright/test";

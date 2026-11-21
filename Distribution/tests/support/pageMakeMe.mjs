@@ -12,6 +12,7 @@ import { storyReviewMakeMeProperties } from "./storyReviewTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { CreationRecordBuilder } from "./launchCreationTestData.mjs";
 import {
   ObservedLaunchBuilder,
   SessionStateBuilder,
@@ -32,6 +33,7 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./storyReviewTestData.mjs").StoryReviewMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
+ *     readonly aCreationRecord: CreationRecordBuilder;
  *     readonly aSessionState: SessionStateBuilder;
  *     readonly anObservedLaunch: ObservedLaunchBuilder;
  *     readonly aMachineAnswer: MachineAnswerBuilder;
@@ -70,6 +72,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new LaunchRecordBuilder();
+    },
+  },
+  aCreationRecord: {
+    enumerable: true,
+    get() {
+      return new CreationRecordBuilder();
     },
   },
   aSessionState: {

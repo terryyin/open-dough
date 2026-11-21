@@ -9,6 +9,7 @@ import type { Visibility } from "./pageVisibility.ts";
 import { AgentRoster } from "./AgentRoster.tsx";
 import { ProjectActions } from "./ProjectActions.tsx";
 import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
+import { usePageSessions } from "./pageSessions.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { RetainedFollowUpPerspective } from "./RetainedFollowUpPerspective.tsx";
@@ -64,6 +65,7 @@ export function ConfiguredDashboardContent({
   readonly onBack: () => void;
   readonly showStories: (project: PublishedSource) => void;
 }) {
+  const { presentTerminal } = usePageSessions();
   return (
     <div
       className={
@@ -100,6 +102,7 @@ export function ConfiguredDashboardContent({
             source={source}
             work={work}
             launches={launches}
+            presentTerminal={presentTerminal}
             hidden={!showsBoard}
           />
           {showsBoard && (
