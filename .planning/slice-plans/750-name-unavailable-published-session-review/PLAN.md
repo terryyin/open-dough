@@ -2,6 +2,17 @@
 
 **Identity:** SEED-418#name-unavailable-published-session-review
 **Source:** [Correct the published-session review’s gap naming and tests](../../seeds/SEED-418-review-published-session-changes.md#name-unavailable-published-session-review)
+**Source review:** [Independent source commitments](source-review.md)
+
+## Execution context
+
+Story Branch Mode in the established `codex/correct-the-published-session-review-s-gap-namin` checkout.
+Publisher `dashboard-territory.local-open-dough`, agent Nao-chan.
+The Take `ff70603c59747a7ecc1d581cb68ccd0137596d90` was confirmed on
+`origin/main` and the execution branch, with starting revision
+`389f7268ad3ebeb72c97382cb8a15cd7605f738e`. Existing planning authority
+applies, with no separate overrun replanning instruction. Checkout setup used
+Node 24.21.0, `npm ci`, and a passing Dashboard typecheck.
 
 ## Correction input
 
@@ -179,7 +190,7 @@ on 2026-11-21.
 ### 1. Published-session review cases mount through `mountComponent`
 
 Type: Structure
-Status: pending
+Status: done
 
 **Structure.** Rewrite the cases in `frontend-tests/review/published-session-subject.spec.ts`
 that hand-roll `createRoot` and React `act` — the heading case and the two
@@ -195,10 +206,17 @@ git grep -n -E "\bact\(|createRoot|IS_REACT_ACT_ENVIRONMENT" -- dashboard/fronte
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
 
+**Accepted proof.** `caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --silent test:dashboard:frontend -- review/published-session-subject`
+passed seven cases. The published UUID and one-file review with a close time
+exercise the heading, context and refresh status of their owning components.
+The planned grep found no local React mount or act setup. The first run
+exposed a phrase locator that missed the paragraph, then the nested time
+locator passed with the same localized timestamp expectation.
+
 ### 2. Unavailable published review names published changes
 
 Type: Behavior
-Status: pending
+Status: planned
 
 **Behavior.**
 - **Pre-condition:** a published session record whose recorded pair this
@@ -227,7 +245,7 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ### 3. Prove Recently done's read gaps without the frontend app
 
 Type: Structure
-Status: pending
+Status: planned
 
 **Structure.** Apply the "Recently done's gaps are a pure derivation"
 decision. Replace `recently-done-published-listing-gap.spec.ts` with plain
@@ -262,7 +280,7 @@ stands for that name.
 ### 4. Unit-test the published listing through typed reads
 
 Type: Structure
-Status: pending
+Status: planned
 
 **Structure.** Apply the "listing handler takes what it reads" decision.
 Rewrite `published-session-listing.spec.ts` as plain Vitest calling
@@ -288,7 +306,7 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ### 5. One record-path rule beside the backlog
 
 Type: Structure
-Status: pending
+Status: planned
 
 **Structure.** Apply the "one record-path rule" decision. Add
 `sessionRecordPathBeside` to `session-record.mjs`; make the producer,
@@ -314,7 +332,7 @@ next manual run. Paid runs stay manual.
 ### 6. A hung fetch answers from the last fetched trunk in production
 
 Type: Behavior
-Status: pending
+Status: planned
 
 **Behavior.**
 - **Pre-condition:** a checkout whose last fetched trunk lacks the requested

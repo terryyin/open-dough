@@ -2,9 +2,9 @@
 // session, never a story, and the page lists published sessions at its
 // revision or says why it cannot. Its review names published changes and
 // the session's close time, never kept-session launch wording.
-import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { createElement } from "react";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { withCarriedFacts } from "../../src/carriedFacts.ts";
 import { publishedSessionRecordSchema } from "../../src/publishedSessionRecord.ts";
@@ -26,6 +26,7 @@ import {
   reviewedWorkQuery,
   sameReviewedWorkSubject,
 } from "../../src/reviewedWorkSubject.ts";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 
 const source = "review-project";
 const uuid = "6b1f0c2e-8d4a-4c1e-9f3b-2a7d5e0c9b11";
@@ -33,8 +34,6 @@ const published = { source, published: uuid };
 const story = { source, identity: "SEED-001#review" };
 const session = { source, host: "codex", session: uuid } as const;
 const revision = "c".repeat(40);
-
-vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
 
 test("a published session is its own review subject, never a story", () => {
   expect(reviewedStoryIdentity(published)).toBeUndefined();
@@ -47,25 +46,15 @@ test("a published session is its own review subject, never a story", () => {
   );
 });
 
-test("a published session's review heading names its UUID", () => {
-  const host = document.body.appendChild(document.createElement("div"));
-  const root = createRoot(host);
-  onTestFinished(() => {
-    act(() => {
-      root.unmount();
-    });
-    host.remove();
-  });
-  act(() => {
-    root.render(
-      createElement(StoryReviewHeading, {
-        subject: published,
-        title: "Ad hoc development",
-        headingId: "published-heading",
-      }),
-    );
-  });
-  expect(host.textContent).toContain(`Session review ${uuid}`);
+test("a published session's review heading names its UUID", async () => {
+  await mountComponent(
+    createElement(StoryReviewHeading, {
+      subject: published,
+      title: "Ad hoc development",
+      headingId: "published-heading",
+    }),
+  );
+  await expect.element(page.getByText(`Session review ${uuid}`)).toBeVisible();
 });
 
 const closedAt = "2026-11-20T10:00:00.000Z";
@@ -79,55 +68,39 @@ const publishedSessionReview = (): StoryReview => ({
   ],
 });
 
-test("a published-session review names published changes and the close time", () => {
+test("a published-session review names published changes and the close time", async () => {
   const review = publishedSessionReview();
-  const host = document.body.appendChild(document.createElement("div"));
-  const root = createRoot(host);
-  onTestFinished(() => {
-    act(() => {
-      root.unmount();
-    });
-    host.remove();
-  });
-  act(() => {
-    root.render(createElement(ReviewContext, { review }));
-  });
-  expect(host.textContent).toContain(
-    "Published changes of this session, closed",
-  );
-  expect(host.textContent).toContain(new Date(closedAt).toLocaleString());
-  expect(host.textContent).not.toMatch(/launched|done|Default main/i);
+  await mountComponent(createElement(ReviewContext, { review }));
+  const closed = page
+    .getByRole("paragraph")
+    .filter({ hasText: "Published changes of this session, closed" });
+  await expect
+    .element(closed.getByRole("time"))
+    .toHaveTextContent(new Date(closedAt).toLocaleString());
+  expect(document.body.textContent).not.toMatch(/launched|done|Default main/i);
   expect(reviewDescription(review)).toMatch(/published changes/i);
   expect(reviewDescription(review)).not.toMatch(/launched|kept|Default main/i);
 });
 
-test("a published-session refresh names published changes", () => {
-  const review = publishedSessionReview();
-  const host = document.body.appendChild(document.createElement("div"));
-  const root = createRoot(host);
-  onTestFinished(() => {
-    act(() => {
-      root.unmount();
-    });
-    host.remove();
-  });
-  act(() => {
-    root.render(
-      createElement(ReviewFeedback, {
-        review,
-        reading: false,
-        problem: undefined,
-        range: { reading: false },
-        shown: "all",
-        comparison: undefined,
-        round: 1,
-      }),
-    );
-  });
-  expect(host.textContent).toContain(
-    "Review refreshed: 1 changed file in the published changes.",
+test("a published-session refresh names published changes", async () => {
+  await mountComponent(
+    createElement(ReviewFeedback, {
+      review: publishedSessionReview(),
+      reading: false,
+      problem: undefined,
+      range: { reading: false },
+      shown: "all",
+      comparison: undefined,
+      round: 1,
+    }),
   );
-  expect(host.textContent).not.toMatch(/kept session commits/i);
+  const feedback = page.getByRole("status");
+  await expect
+    .element(feedback)
+    .toHaveTextContent(
+      "Review refreshed: 1 changed file in the published changes.",
+    );
+  expect(feedback.element().textContent).not.toMatch(/kept session commits/i);
 });
 
 // The record as the page receives it: parsed at the read boundary.
