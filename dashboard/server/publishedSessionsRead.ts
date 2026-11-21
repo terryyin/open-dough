@@ -8,8 +8,6 @@
 // names for its UUID; any other file there is skipped. The performed read
 // (`./performedRead.ts`) answers it here.
 
-import { posix } from "node:path";
-import { sessionRecordPath } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import {
   publishedSessionsRead,
   readingPathAt,
@@ -21,6 +19,7 @@ import {
   publishedRecordAt,
   type PublishedSessionSource,
 } from "./publishedSessionReview.ts";
+import { sessionRecordDirectoryOf } from "./recordsBesideBacklog.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import type { RefusedParameters } from "./refusedParameters.ts";
 
@@ -42,18 +41,11 @@ export function parsePublishedSessionsRead(
     : read;
 }
 
-// The directory the producer publishes every session's record in, beside the
-// backlog: the directory of any one session's record path.
-const sessionDirectoryOf = (backlogPath: string) =>
-  posix.dirname(
-    sessionRecordPath("00000000-0000-0000-0000-000000000000", backlogPath),
-  );
-
 export function readingPublishedSessionsOf(
   backlogPath: string,
   { revision }: PublishedSessionsRead,
 ): string {
-  return readingPathAt(sessionDirectoryOf(backlogPath), revision);
+  return readingPathAt(sessionRecordDirectoryOf({ backlogPath }), revision);
 }
 
 // Every valid session record listed at the source's revision, in path order;
@@ -62,7 +54,7 @@ export async function performPublishedSessionsRead(
   source: PublishedSessionSource & { readonly ref: string },
   signal: AbortSignal,
 ): Promise<Outcome> {
-  const directory = sessionDirectoryOf(source.backlogPath);
+  const directory = sessionRecordDirectoryOf(source);
   const call = {
     cwd: source.repository,
     signal,

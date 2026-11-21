@@ -1,10 +1,23 @@
 // @ts-check
-// Builder of a published session close record, the value
-// `sessionRecord` in ../../src/skills/dough-execute-plan/scripts/session-record-publication.mjs
-// encodes beside the backlog. Node-free and typed only, so the native journeys'
-// makeMe import closure does not reach the publication workflow.
+// Builder of a published session close record under the shared contract in
+// ../../src/skills/dough-execute-plan/scripts/session-record.mjs. Node-free and
+// typed only, so the native journeys' makeMe import closure does not reach the
+// publication workflow.
 
-/** @typedef {ReturnType<typeof import("../../src/skills/dough-execute-plan/scripts/session-record-publication.mjs").sessionRecord>} SessionRecord */
+import {
+  sessionRecordVersion,
+  standaloneSessionWorkflow,
+} from "../../src/skills/dough-execute-plan/scripts/session-record.mjs";
+
+/**
+ * @typedef {{
+ *   version: typeof sessionRecordVersion,
+ *   sessionId: string,
+ *   workflow: string,
+ *   closedAt: string,
+ *   ranges: { base: string, candidate: string }[],
+ * }} SessionRecord
+ */
 /** @typedef {SessionRecord["ranges"][number]} SessionRange */
 
 /** A standalone ad hoc close of one recorded pair, under a fresh UUID. */
@@ -21,9 +34,9 @@ export class SessionRecordBuilder {
   /** @returns {SessionRecord} */
   please() {
     return {
-      version: 1,
+      version: sessionRecordVersion,
       sessionId: globalThis.crypto.randomUUID(),
-      workflow: "ad-hoc",
+      workflow: standaloneSessionWorkflow,
       closedAt: "2026-11-20T10:00:00.000Z",
       ranges: [this.#range],
     };

@@ -193,7 +193,7 @@ Observed read-only in this checkout at `9d33efde9` on 2026-11-21.
 ### 1. One Node-free session record contract
 
 Type: Structure
-Status: planned
+Status: done
 
 **Structure.** Add the contract module from Current decisions. The
 following then read from it:
@@ -222,6 +222,12 @@ git grep -n "session-record-publication" -- dashboard   # no import remains
 ```
 The changed builder closure makes recorded native evidence keyed on it stale
 until its next manual run. Paid runs stay manual.
+
+Accepted in this checkout: evidence `s1-slice1-return-report.md` with run
+records `s1-publication`, `s1-backend-2`, `s1-frontend`, `s1-native-identity`,
+`s1-typecheck-2`, `s1-lint-2`, `s1-grep` (no dashboard import), and
+`s1-consumer-trace`. Commitments 13 and 16 observed. Refactor: none — already
+clean (PLAN.md size excepted as planning record).
 
 ### 2. Land records a session close only when the session has a UUID
 

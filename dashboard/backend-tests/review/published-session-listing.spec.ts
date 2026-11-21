@@ -5,17 +5,24 @@
 import { randomUUID } from "node:crypto";
 import { posix } from "node:path";
 import { expect, test } from "vitest";
+import {
+  sessionRecordDirectory,
+  sessionRecordFileName,
+  sessionRecordRelativePath,
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { backlogPath } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { sessionRecordPath } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import { performPublishedSessionsRead } from "../../server/publishedSessionsRead.ts";
 import { parseRequestedRead } from "../../server/requestedRead.ts";
 import { aCheckout, historyBeforeTheCase } from "../support/doneCaptureCase.ts";
 
 const commit = (digit: string) => digit.repeat(40);
 
+const recordPath = (sessionId: string) =>
+  posix.join(posix.dirname(backlogPath), sessionRecordRelativePath(sessionId));
+
 const atItsPath = (record: { sessionId: string }) => ({
-  [sessionRecordPath(record.sessionId, backlogPath)]: JSON.stringify(record),
+  [recordPath(record.sessionId)]: JSON.stringify(record),
 });
 
 // The sessions listed at the base revision of a checkout holding `files`.
@@ -52,15 +59,18 @@ test("Given published session records at a revision, when the listing is read th
 
 test("Given malformed files beside a valid record, when the listing is read, then only the valid record is listed", async () => {
   const valid = makeMe.aSessionRecord.please();
-  const directory = posix.dirname(
-    sessionRecordPath(valid.sessionId, backlogPath),
+  const directory = posix.join(
+    posix.dirname(backlogPath),
+    sessionRecordDirectory,
   );
 
   const outcome = await listed({
     ...atItsPath(valid),
-    [`${directory}/${randomUUID()}.json`]: "not json",
-    [`${directory}/${randomUUID()}.json`]: JSON.stringify({ version: 2 }),
-    [`${directory}/${randomUUID()}.json`]: JSON.stringify(
+    [`${directory}/${sessionRecordFileName(randomUUID())}`]: "not json",
+    [`${directory}/${sessionRecordFileName(randomUUID())}`]: JSON.stringify({
+      version: 2,
+    }),
+    [`${directory}/${sessionRecordFileName(randomUUID())}`]: JSON.stringify(
       makeMe.aSessionRecord.please(),
     ),
   });

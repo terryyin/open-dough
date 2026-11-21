@@ -23,10 +23,14 @@ import {
 } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { doneRecordDirectory } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { doneCatalogPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { sessionRecordDirectory } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 
 // Where a directory of published records named by the shared backlog
 // modules lives for this source: beside its backlog.
-function besideBacklog(source: PublishedSource, name: string): string {
+function besideBacklog(
+  source: { readonly backlogPath: string },
+  name: string,
+): string {
   const directory = resolveBesideFile(source.backlogPath, name);
   if (directory === undefined) {
     throw new Error(`No ${name} directory beside ${source.backlogPath}`);
@@ -42,6 +46,13 @@ export function agentProfileDirectoryOf(source: PublishedSource): string {
 // Where done records live for this source: beside its backlog.
 export function doneRecordDirectoryOf(source: PublishedSource): string {
   return besideBacklog(source, doneRecordDirectory);
+}
+
+// Where session close records live for this source: beside its backlog.
+export function sessionRecordDirectoryOf(source: {
+  readonly backlogPath: string;
+}): string {
+  return besideBacklog(source, sessionRecordDirectory);
 }
 
 // Where the done catalog lives for this source: among its done records.

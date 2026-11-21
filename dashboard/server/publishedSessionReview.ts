@@ -3,7 +3,10 @@
 // recorded pair is read from that project's Git objects alone. No launch
 // history is needed. A record is read as valid only at its own UUID's path,
 // here and in the published-session listing (`./publishedSessionsRead.ts`).
-import { sessionRecordPath } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
+import {
+  isSessionId,
+  sessionRecordFileName,
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import {
   publishedSessionRecordSchema,
   type PublishedSessionRecord,
@@ -11,6 +14,7 @@ import {
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { sessionRecordDirectoryOf } from "./recordsBesideBacklog.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 import {
   admissionBound,
@@ -31,6 +35,11 @@ export interface PublishedSessionSource {
   readonly revision: string;
   readonly backlogPath: string;
 }
+
+const sessionRecordPathOf = (
+  source: PublishedSessionSource,
+  sessionId: string,
+) => `${sessionRecordDirectoryOf(source)}/${sessionRecordFileName(sessionId)}`;
 
 const unknownSession = () =>
   new RefusedRequest(404, "This project published no such session.");
@@ -54,7 +63,7 @@ export async function publishedRecordAt(
     return undefined;
   }
   return parsed.success &&
-    sessionRecordPath(parsed.data.sessionId, source.backlogPath) === path
+    sessionRecordPathOf(source, parsed.data.sessionId) === path
     ? parsed.data
     : undefined;
 }
@@ -64,12 +73,10 @@ export async function publishedSessionRecord(
   session: string,
   signal: AbortSignal,
 ): Promise<PublishedSessionRecord> {
-  let file: string;
-  try {
-    file = sessionRecordPath(session, source.backlogPath);
-  } catch {
+  if (!isSessionId(session)) {
     throw new RefusedRequest(400, "The review session is malformed.");
   }
+  const file = sessionRecordPathOf(source, session);
   let record: PublishedSessionRecord | undefined;
   try {
     record = await publishedRecordAt(source, file, signal);
