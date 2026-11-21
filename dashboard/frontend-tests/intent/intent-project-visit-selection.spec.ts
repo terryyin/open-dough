@@ -28,7 +28,7 @@ test("each new selection opens the story at CI comparison, even one cleared and 
     page,
     frontendServices,
   );
-  await expectStoryTab(intent, "Changed tests");
+  await expectStoryTab(intent, "Changes");
   await openProjectIntent(intent);
   await chooseOptimizationCandidates(intent);
   const { development, intentChoice } = parts(page);

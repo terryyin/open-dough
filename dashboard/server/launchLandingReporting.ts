@@ -20,7 +20,7 @@ import {
 } from "./launchLandingDecision.ts";
 import { decideRetainedLanding } from "./retainedLandingDecision.ts";
 import { registerFollowUpReceipt } from "./ciFollowUpAdmission.ts";
-import { pinLanding } from "./launchLandingGit.ts";
+import { writePins } from "./launchLandingGit.ts";
 import { replaceAttempts, withKeptAttempts } from "./launchAttemptStore.ts";
 import {
   machineRecordStore,
@@ -81,7 +81,7 @@ async function pinNewLanding(
   answered: LandingDecision,
 ): Promise<void> {
   if (!answered.isNew) return;
-  await pinLanding(answered.landing);
+  await writePins(answered.landing.repository, answered.pinWrites);
   const preparations =
     attempts.find((entry) => entry.id === report.reference)
       ?.landingPreparations ??

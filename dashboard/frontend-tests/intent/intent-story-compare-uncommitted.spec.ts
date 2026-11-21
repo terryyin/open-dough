@@ -68,7 +68,7 @@ test("clearing Include uncommitted changes leaves out landing.spec.ts, and Refre
   const { intent } = await openStoryIntent(page, "Story A");
   const story = intentStory(intent);
   const compare = story.compare();
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
   await story.headerDetail();
 
   await test.step("all changes offers the check, on, with landing.spec.ts listed", async () => {

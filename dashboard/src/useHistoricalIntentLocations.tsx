@@ -33,6 +33,7 @@ export function useHistoricalIntentLocations(
       notice: undefined,
       shownRevision: undefined,
       locations: undefined,
+      unconfigured: false,
       explanation:
         comparison.state === "reading" || revision !== undefined ? (
           <p className="quiet">
@@ -46,6 +47,7 @@ export function useHistoricalIntentLocations(
         ),
     };
   }
+  const unconfigured = "status" in intent && intent.status === "not-configured";
   const settled = settledLocationsOf(
     intent,
     `${source.label} at the story's landed revision ${shortRevision(revision)}`,
@@ -55,14 +57,14 @@ export function useHistoricalIntentLocations(
     notice: undefined,
     shownRevision,
     locations: "locations" in settled ? settled.locations : undefined,
-    explanation:
-      "status" in intent && intent.status === "not-configured" ? (
-        <p className="intent-not-configured">
-          No Intent locations were configured at the story&apos;s landed
-          revision <code>{shortRevision(revision)}</code>.
-        </p>
-      ) : "unavailable" in settled ? (
-        settled.unavailable
-      ) : undefined,
+    unconfigured,
+    explanation: unconfigured ? (
+      <p className="intent-not-configured">
+        No Intent locations were configured at the story&apos;s landed revision{" "}
+        <code>{shortRevision(revision)}</code>.
+      </p>
+    ) : "unavailable" in settled ? (
+      settled.unavailable
+    ) : undefined,
   };
 }

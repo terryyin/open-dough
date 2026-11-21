@@ -193,7 +193,7 @@ test("selecting another Done story follows its published default instead of reta
       "data-state",
       "compared",
     );
-    await chooseStoryTab(intent, "Changed tests");
+    await chooseStoryTab(intent, "Changes");
     await expandIntentGroup(intent, "second/tests");
     await expect(intentFile(intent, "dashboard/tests/a.spec.ts")).toHaveCount(
       0,

@@ -2,7 +2,7 @@
 // Purpose shows the changed file's diff without comparison above it; Proof
 // keeps the compared row of a modified, added, renamed-across-units and
 // merge-edited file, and returns directly to the story's CI comparison
-// (../../src/intentStoryTabs.tsx), Changed tests keeping the file and Proof
+// (../../src/intentStoryTabs.tsx), Changes keeping the file and Proof
 // for the way back. The changed files, merge edit included, are the
 // Backend's explicit review answer; its Git judgment is
 // ../../../e2e/intent/intent-summary-story-comparison-{source,renamed}.spec.ts's.
@@ -33,9 +33,10 @@ import {
   expectStoryTab,
   intentFile,
   storyTab,
+  storyTabPanel,
   intentDiffReading,
 } from "../../test-support/support/intentStoryPage.ts";
-import { selectDoneStoryForChangedTests } from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
+import { selectDoneStoryForChanges } from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
 import {
   addedFileRow,
   mergeEditedFileRow,
@@ -81,8 +82,8 @@ for (const merge of ["clean", "merge-edited"] as const) {
       (params) => params.get("intent") === "ci-comparison",
       releases,
     );
-    const { intent } = await selectDoneStoryForChangedTests(page);
-    // Choosing Changed tests does not depend on the CI comparison finishing.
+    const { intent } = await selectDoneStoryForChanges(page);
+    // Choosing Changes does not depend on the CI comparison finishing.
     await expect.poll(() => ci.held()).toBeGreaterThan(0);
     ci.release();
 
@@ -119,7 +120,7 @@ for (const merge of ["clean", "merge-edited"] as const) {
     );
 
     if (merge === "clean")
-      await test.step("the file's Proof returns directly to the story's CI comparison by keyboard, and Changed tests keeps the file and Proof", async () => {
+      await test.step("the file's Proof returns directly to the story's CI comparison by keyboard, and Changes keeps the file and Proof", async () => {
         await proof
           .getByRole("button", {
             name: "View story CI comparison",
@@ -130,14 +131,12 @@ for (const merge of ["clean", "merge-edited"] as const) {
         await expectStoryTab(intent, "CI comparison");
         await expect(storyTab(intent, "CI comparison")).toBeFocused();
         await expect(
-          comparisonReading(
-            intent.getByRole("tabpanel", { name: "CI comparison" }),
-          ).entryTable,
+          comparisonReading(storyTabPanel(intent, "CI comparison")).entryTable,
         ).toBeVisible();
         await expect(proof).toBeHidden();
         // Arrow keys move along the story's views.
         await page.keyboard.press("ArrowRight");
-        await expectStoryTab(intent, "Changed tests");
+        await expectStoryTab(intent, "Changes");
         await expect(
           intentFile(intent, summaryComparisonChanges.modified),
         ).toHaveAttribute("aria-pressed", "true");

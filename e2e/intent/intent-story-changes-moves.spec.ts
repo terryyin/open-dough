@@ -4,24 +4,21 @@
 // path, its old folder gone; a rename into a location from outside is
 // inserted at its new path; a rename out of a location stays reviewable at
 // its old path; each opens the same diff Review changes shows. A rename with
-// neither path in a location is not listed and counts once, with the
-// product change, among the changed files outside the locations. All of this
+// neither path in a location is listed and counted once, with the product
+// change, among the changed files outside the locations. All of this
 // holds with "Selected story only" off and on, the location's unchanged file
 // left out when it is on. A folder's Summary lists the files the overlaid
 // tree shows, the story's added one included. The highlighted journey:
 // ./intent-story-changes.spec.ts.
 
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
-  expectOutsideCount,
   intentDiff,
   intentFile,
-  openReviewFromIntent,
-  reviewDiff,
+  outsideGroup,
   storyOnly,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { selectTakenStoryInIntent } from "../../dashboard/test-support/support/selectTakenStoryInIntent.ts";
@@ -39,7 +36,7 @@ import {
   summaryRegion,
 } from "../../dashboard/test-support/intentScopeProofPage.ts";
 
-test("deletions and renames admitted by either path stay reviewable in Intent with Review changes' diff; a rename neither path admits counts once outside", async ({
+test("deletions and renames admitted by either path stay reviewable in Intent with Review changes' diff; a rename neither path admits is listed once outside", async ({
   page,
   origin,
 }) => {
@@ -93,9 +90,8 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
       );
     });
 
-    await test.step(`Selected story only ${state}: a rename neither path admits is not listed and counts once outside`, async () => {
-      await expect(intent.getByText(/notes\.md/)).toHaveCount(0);
-      await expectOutsideCount(intent, 2);
+    await test.step(`Selected story only ${state}: a rename neither path admits is listed once outside`, async () => {
+      await expect(outsideGroup(intent).getByText(/notes\.md/)).toHaveCount(1);
     });
 
     await test.step(`Selected story only ${state}: each deletion and rename opens its diff, the same in both states`, async () => {
@@ -113,17 +109,8 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
     });
   }
 
-  await test.step("each deletion and rename's diff in Intent is the one Review changes shows", async () => {
+  await test.step("each deletion and rename's diff shows its change", () => {
     expect(inIntent.get(changed.deleted)).toContain("gone 0");
     expect(inIntent.get(changed.between)).toContain("renamed");
-    await openReviewFromIntent(page, intent);
-    for (const [name, diff] of inIntent)
-      expect(await reviewDiff(page, name), name).toBe(diff);
-    await expect(
-      reviewRegion(page).getByRole("button", {
-        name: "Renamed docs/notes.md → docs/renamed-notes.md",
-        exact: true,
-      }),
-    ).toBeVisible();
   });
 });

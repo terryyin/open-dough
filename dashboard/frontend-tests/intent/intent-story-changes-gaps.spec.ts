@@ -3,13 +3,13 @@
 // active story with no workspace on this machine says no comparison is
 // available, and of a review read that fails says so with a retry, which
 // then shows the story's changes; each gives its full explanation. Either way
-// the published tree stays usable in Changed tests, without change marks, an
+// the published tree stays usable in Changes, without change marks, an
 // outside count, or a "Selected story only" toggle, which would have no
 // changes to show only; the retried read offers it, off. Without configured
 // locations the header names the story, CI comparison shows its CI status
-// and Changed tests the explanation; Project Intent shows main's CI status
+// and Changes the explanation; Project Intent shows main's CI status
 // beside the explanation, which Optimization Candidates also shows, and Back
-// to selected story returns to Changed tests. The highlighted journey:
+// to selected story returns to Changes. The highlighted journey:
 // ../../../e2e/intent/intent-story-changes.spec.ts.
 
 import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
@@ -43,14 +43,14 @@ import {
 } from "../../test-support/support/frontendIntentStory.ts";
 
 // The published tree shows as without a story: no change marks, no outside
-// count, no toggle, no claim that nothing changed, and a file reads its
+// files, no toggle, no claim that nothing changed, and a file reads its
 // source.
 async function expectPublishedTreeUsable(intent: Locator) {
   const story = intentStory(intent);
   await expect(story.storyOnly()).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
   await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
-  await expect(story.outsideCount).toHaveCount(0);
+  await expect(story.outside).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
   await expandIntentGroup(intent, "dashboard/tests");
   await expandIntentFolders(intent, "dashboard/tests");
@@ -79,7 +79,7 @@ test("an active story with no workspace explains that no comparison is available
   );
   await expect(scoped.getByRole("button", { name: "Retry" })).toHaveCount(0);
   await expect(story.header.revisions).toHaveCount(0);
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
   await expectPublishedTreeUsable(intent);
 });
 
@@ -106,7 +106,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   );
   const { intent } = await openStoryIntent(page, "Story A");
   const story = intentStory(intent);
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
   const scoped = story.summary;
   const problem = scoped.getByRole("alert");
   await expect(problem).toHaveText(
@@ -125,12 +125,16 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await expect(story.header.revisions).toBeVisible();
   await expect(problem).toHaveCount(0);
   await expect(story.storyOnly()).not.toBeChecked();
-  await story.expectOutsideCount(2);
+  for (const name of [
+    "Modified dashboard/src/App.tsx",
+    "Renamed docs/notes.md → docs/renamed-notes.md",
+  ])
+    await expect(story.outsideFile(name)).toBeVisible();
   await expect(story.file(changed.modified)).toBeVisible();
   await expect(story.file(changed.added)).toBeVisible();
 });
 
-test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changed tests the explanation, and Project Intent main's CI status beside it", async ({
+test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changes the explanation, and Project Intent main's CI status beside it", async ({
   page,
   frontendServices,
 }) => {
@@ -150,17 +154,16 @@ test("without configured Intent locations the header names the selected story, C
   await expect(story.header.status).toHaveText("No comparison is available.");
   await expect(story.header.identity).toHaveText("SEED-A#a");
   await expect(story.storyOnly()).toHaveCount(0);
-  await expect(story.outsideCount).toHaveCount(0);
   await story.expectTab("CI comparison");
   await expect(
-    intent
-      .getByRole("tabpanel", { name: "CI comparison" })
+    story
+      .panel("CI comparison")
       .getByRole("region", { name: "CI status", exact: true }),
   ).toBeVisible();
-  await story.chooseTab("Changed tests");
-  await expect(
-    intent.getByRole("tabpanel", { name: "Changed tests" }),
-  ).toContainText("No intent locations are configured");
+  await story.chooseTab("Changes");
+  await expect(story.panel("Changes")).toContainText(
+    "No intent locations are configured",
+  );
   await expect(
     intent.getByRole("region", { name: "CI status", exact: true }),
   ).toHaveCount(0);
@@ -176,13 +179,13 @@ test("without configured Intent locations the header names the selected story, C
   await expect(
     intent.getByRole("tabpanel", { name: "Optimization Candidates" }),
   ).toContainText("No intent locations are configured");
-  // Back to the story's Changed tests, as it was left.
+  // Back to the story's Changes, as it was left.
   await returnToStory(intent);
-  await story.expectTab("Changed tests");
+  await story.expectTab("Changes");
   await expect(story.summary).toBeVisible();
-  await expect(
-    intent.getByRole("tabpanel", { name: "Changed tests" }),
-  ).toContainText("No intent locations are configured");
+  await expect(story.panel("Changes")).toContainText(
+    "No intent locations are configured",
+  );
 
   // Cleared after a visit that ended on Optimization Candidates, the story
   // leaves Project Intent's CI status as the landing.

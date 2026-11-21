@@ -65,7 +65,7 @@ test("a Done story keeps landing locations, inventory and unchanged source after
     { later },
   );
   const story = intentStory(intent);
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   await expect(story.file(changed.modified)).toBeVisible();
   await expect(story.file(changed.added)).toBeVisible();
@@ -117,13 +117,11 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
   await expect(story.header.revisions).toHaveCount(0);
   await expect(story.storyOnly()).toHaveCount(0);
   await expect(intent.locator("[data-kind]")).toHaveCount(0);
-  await expect(story.outsideCount).toHaveCount(0);
+  await expect(story.outside).toHaveCount(0);
   await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
   await expect(filesColumn(intent)).toHaveCount(0);
-  await expect(
-    intent.getByRole("tabpanel", { name: "Changed tests" }),
-  ).toContainText(
+  await expect(story.panel("Changes")).toContainText(
     "The story's historical Intent locations and test source are unavailable: its landed result could not be established.",
   );
   await story.chooseTab("Intent coverage");

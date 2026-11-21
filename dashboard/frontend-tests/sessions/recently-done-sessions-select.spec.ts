@@ -152,7 +152,7 @@ test("selecting standalone rows from Intent keeps the project, file, Selected st
   await emptyArea(card).click();
   await expectSelected(card, true);
   await intentChoice.click();
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   const file = intentFile(intent, readSpec);
   await file.click();

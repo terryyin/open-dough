@@ -4,7 +4,6 @@ import { IntentLocationHeader } from "../../src/IntentLocationHeader.tsx";
 import { IntentTreeFileRow } from "../../src/IntentTreeFileRow.tsx";
 import { intentStoryOverlay } from "../../src/intentStoryOverlay.ts";
 import { treeComparisonReadingOf } from "../../src/intentTreeComparison.ts";
-import { reviewedFileWords } from "../../src/StoryReviewFileTree.tsx";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import { preparedComparisonEvidence } from "./evidence.ts";
@@ -30,11 +29,6 @@ export function comparisonTreeMarkup(facts: ComparedStory) {
           {overlay.locations[at]?.files.map((file) => (
             <IntentTreeFileRow
               key={file.path}
-              label={
-                file.change === undefined
-                  ? `${location.path}/${file.path}`
-                  : reviewedFileWords(file.change)
-              }
               name={file.path}
               selected={
                 scope.selection.path === `${location.path}/${file.path}`

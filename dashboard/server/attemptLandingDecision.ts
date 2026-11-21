@@ -44,7 +44,7 @@ export async function decideAttemptLanding({
       409,
       "This launch has no retained reporting session.",
     );
-  const { landing, isNew } = await resolveLandingComparison(
+  const reservation = await resolveLandingComparison(
     authority,
     report,
     prepare,
@@ -53,6 +53,7 @@ export async function decideAttemptLanding({
     receiptId,
     receivedAt,
   );
+  const { landing, isNew } = reservation;
   const nextAttempts = isNew
     ? attempts.map((entry) =>
         entry.id === report.reference
@@ -98,8 +99,7 @@ export async function decideAttemptLanding({
           };
         });
   return {
-    landing,
-    isNew,
+    ...reservation,
     state: prepare
       ? "prepared"
       : bound !== undefined

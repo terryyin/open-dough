@@ -1,6 +1,6 @@
 // Intent's selection reading (`./IntentBrowser.tsx`): in Project Intent the
 // trunk's CI status when nothing is selected (`./IntentCiStatus.tsx`), or in
-// the selected story's Changed tests, whose CI comparison is its own view
+// the selected story's Changes, whose CI comparison is its own view
 // (`./intentStoryTabs.tsx`), a prompt to choose a changed test; Summary
 // (`./IntentSummary.tsx`) or Purpose and Proof tabs (`./IntentFileReading.tsx`)
 // once a location, folder or file is selected. A selection the shown revision
@@ -66,13 +66,13 @@ export function IntentSelectionReading({
   readonly readingKey: number;
   // Purpose or Proof, kept across file selections.
   readonly fileReading: IntentFileReadingPlace;
-  // This reading is the selected story's Changed tests view.
+  // This reading is the selected story's Changes view.
   readonly storySelected: boolean;
 }) {
   const scope = selectionScope(selection);
   if (scope === "none") {
     return storySelected ? (
-      <p className="quiet intent-changed-tests-prompt">
+      <p className="quiet intent-changes-prompt">
         Choose a test, folder or location to read its Purpose and Proof.
       </p>
     ) : (
@@ -95,7 +95,7 @@ export function IntentSelectionReading({
           onOpen={onOpen}
         />
       ) : scope === "file" ? (
-        <StoryNoteView.Provider value="Intent → Changed tests">
+        <StoryNoteView.Provider value="Intent → Changes">
           <IntentFileReading
             key={readingKey}
             place={fileReading}

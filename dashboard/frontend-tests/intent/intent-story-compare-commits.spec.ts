@@ -63,7 +63,7 @@ test("choosing the two oldest commits lists only their files with diffs from the
   const { card, intent } = await openStoryIntent(page, "Story A");
   const story = intentStory(intent);
   const compare = story.compare();
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
 
   await test.step("a Taken story opens on all changes, uncommitted included, beside an uncollapsible header", async () => {
     await story.headerDetail();
@@ -103,7 +103,7 @@ test("choosing the two oldest commits lists only their files with diffs from the
 
   await test.step("CI comparison and back keeps the range and the selected file", async () => {
     await story.chooseTab("CI comparison");
-    await story.chooseTab("Changed tests");
+    await story.chooseTab("Changes");
     await expect(compare.choice("Commits")).toBeChecked();
     await expect(compare.range).toContainText("Changes in 2 commits");
     await expect(story.diffReading.name).toHaveText(changed.modified);
@@ -123,7 +123,7 @@ test("choosing the two oldest commits lists only their files with diffs from the
       .click();
     await emptyArea(card).click();
     await intentChoice.click();
-    await story.chooseTab("Changed tests");
+    await story.chooseTab("Changes");
     await expect(compare.choice("All changes")).toBeChecked();
     await expect(story.file(changed.deleted)).toHaveCount(1);
     // Commits again anchors as a first choice: its newest item alone.

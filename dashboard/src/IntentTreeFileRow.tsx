@@ -1,7 +1,8 @@
-// Intent location-tree file control with optional shared CI comparison cues
-// (`./intentTreeComparison.ts`): Proof's Counts and after-side words, row by
-// row, join the existing path or change-kind label in the accessible name;
-// cue attrs match Summary and Proof rows.
+// Intent tree file control with optional shared CI comparison cues
+// (`./intentTreeComparison.ts`): its label is the file's repository path, or
+// for a changed file its kind and path as Review changes names it; Proof's
+// Counts and after-side words, row by row, join that label in the accessible
+// name; cue attrs match Summary and Proof rows.
 
 import { scopeCueRowAttrs } from "./ciScopeComparisonCuePresentation.ts";
 import type { TreeComparisonReading } from "./intentTreeComparison.ts";
@@ -10,9 +11,9 @@ import {
   treeFileComparisonOf,
 } from "./intentTreeComparison.ts";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
+import { reviewedFileWords } from "./StoryReviewFileTree.tsx";
 
 export function IntentTreeFileRow({
-  label,
   name,
   selected,
   onSelect,
@@ -20,14 +21,16 @@ export function IntentTreeFileRow({
   path,
   treeFile,
 }: {
-  readonly label: string;
   readonly name: string;
   readonly selected: boolean;
   readonly onSelect: () => void;
   readonly reading: TreeComparisonReading;
+  // The file's repository path.
   readonly path: string;
   readonly treeFile: IntentTreeFile;
 }) {
+  const label =
+    treeFile.change === undefined ? path : reviewedFileWords(treeFile.change);
   const comparison = treeFileComparisonOf(reading, path, treeFile);
   const accessible =
     comparison === undefined

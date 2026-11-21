@@ -164,7 +164,7 @@ test("a running story branch shows its completed ancestor's run's proof, and sho
 
   await test.step("a Summary names that story branch's ancestor evidence and its counts", async () => {
     const intent = parts(page).intent;
-    await chooseStoryTab(intent, "Changed tests");
+    await chooseStoryTab(intent, "Changes");
     await intentLocationName(intent, "tests").click();
     const summary = summaryRegion(intent);
     await expectLeadingEvidenceLabels(evidenceLabels(summary), [
