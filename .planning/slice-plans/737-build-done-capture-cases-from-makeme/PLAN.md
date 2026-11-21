@@ -124,6 +124,11 @@ old presets delegate to them until their last callers move. Later slices extend
 this builder with their launch flavors. Proof: the nine specs 40/40, typecheck,
 45 Distribution and 63 backend consumers (near-limit timeouts are G1–G4). Do
 not run the Distribution consumers concurrently with the backend roster.
+CI repair (run 44875595320): builders that `makeMe` reaches also load in the
+browser-mode frontend specs, so a `node:fs` import there broke every frontend
+import. Filesystem facts live on the Node-side checkout value (`gitDirectory`)
+and builders take them as inputs. A slice that changes a `makeMe`-reached
+builder includes the frontend group in its consumer proof.
 
 ### 2. Dated Done and record removal use the same Default main case
 

@@ -11,7 +11,6 @@ import {
 } from "./launchLandingEvidenceTestData.mjs";
 import { reportingReference } from "./launchLandingTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
-import { repositoryAsGitResolves } from "./launchWorkspaceTestData.mjs";
 
 /**
  * What a landed ad hoc session captured: the repository it landed in and the
@@ -111,19 +110,16 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
 
   /**
    * A blank ad hoc launch in the `claude` session `session` whose start found
-   * the Default main checkout on main at its `base`, naming its repository as
-   * Git resolves it unless `gitDirectory` states otherwise.
+   * the Default main checkout on main at its `base`, naming the checkout's
+   * `gitDirectory` as its repository unless `facts` state another.
    * @param {string} session
-   * @param {{ integration: string, base: string }} checkout
+   * @param {{ integration: string, base: string, gitDirectory: string }} checkout
    * @param {{ title?: string | undefined, gitDirectory?: string | undefined }} [facts]
    */
   ofDefaultMainLaunch(
     session,
-    { integration, base },
-    {
-      title = "Fix the typo",
-      gitDirectory = repositoryAsGitResolves(integration),
-    } = {},
+    { integration, base, gitDirectory: checkoutGitDirectory },
+    { title = "Fix the typo", gitDirectory = checkoutGitDirectory } = {},
   ) {
     return this.adHoc({ title })
       .startingInDefaultCheckout({

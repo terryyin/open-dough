@@ -7,7 +7,6 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { repositoryAsGitResolves } from "../../../Distribution/tests/support/launchWorkspaceTestData.mjs";
 import { performCheckoutWork } from "../../../Distribution/tests/support/repository-checkout-work.mjs";
 import {
   materializeLocalCheckout,
@@ -39,7 +38,8 @@ export const historyBeforeTheCase = (
 export type Checkout = Awaited<ReturnType<typeof aCheckout>>;
 
 // The project's Default main checkout, with an origin when the case's work
-// takes in or publishes trunk.
+// takes in or publishes trunk, naming its Git directory as Git resolves it so
+// its worktrees report the same repository.
 export async function aCheckout<Name extends string = "base">({
   history,
   withOrigin = false,
@@ -50,13 +50,12 @@ export async function aCheckout<Name extends string = "base">({
     : await materializeLocalCheckout(undefined, built);
   onTestFinished(repository.cleanup);
   const { base } = repository.revisions as Readonly<Record<"base", string>>;
-  return { ...repository, base };
+  const gitDirectory = realpathSync(path.join(repository.integration, ".git"));
+  return { ...repository, base, gitDirectory };
 }
 
-// The checkout's Git directory as Git resolves it, so its worktrees report the
-// same repository.
 export const canonicalGitDirectory = (checkout: Checkout) =>
-  repositoryAsGitResolves(checkout.integration);
+  checkout.gitDirectory;
 
 type LaunchFacts = {
   sessionId?: string;
