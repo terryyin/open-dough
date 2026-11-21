@@ -130,6 +130,9 @@ export function useIntentStoryLens({
       identity: story?.identity ?? "",
       completed: story?.completed ?? false,
       round,
+      onRefresh: () => {
+        setRound((n) => n + 1);
+      },
       enabled: offered === true,
     });
   const comparison: LensComparison =

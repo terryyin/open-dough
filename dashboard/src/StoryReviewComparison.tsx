@@ -1,5 +1,6 @@
-// All changes comes with the workspace snapshot; Commits reads the selected
-// points. Native radios also offer available historical comparisons.
+// All changes comes with the workspace snapshot, its uncommitted changes
+// included or left out; Commits reads the selected points. Native radios also
+// offer available historical comparisons.
 
 import { useId, type ReactNode } from "react";
 
@@ -91,5 +92,30 @@ export function ComparisonSwitch({
       shown={shown}
       onChoose={onSwitch}
     />
+  );
+}
+
+// Whether all changes include the workspace's uncommitted changes, offered
+// while it holds some.
+export function UncommittedCheck({
+  included,
+  onInclude,
+}: {
+  readonly included: boolean;
+  readonly onInclude: (include: boolean) => void;
+}) {
+  return (
+    <div className="story-review-uncommitted">
+      <label>
+        <input
+          type="checkbox"
+          checked={included}
+          onChange={(event) => {
+            onInclude(event.target.checked);
+          }}
+        />{" "}
+        Include uncommitted changes
+      </label>
+    </div>
   );
 }

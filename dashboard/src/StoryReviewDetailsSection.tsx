@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import {
   ComparisonSwitch,
+  UncommittedCheck,
   type ComparisonChoice,
   type ShownComparison,
 } from "./StoryReviewComparison.tsx";
@@ -174,18 +175,10 @@ export function StoryReviewDetailsSection({
       )}
       <ReviewContext review={review} />
       {review?.kind === "snapshot" && committed !== undefined && (
-        <div className="story-review-uncommitted">
-          <label>
-            <input
-              type="checkbox"
-              checked={includeUncommitted}
-              onChange={(event) => {
-                setIncludeUncommitted(event.target.checked);
-              }}
-            />{" "}
-            Include uncommitted changes
-          </label>
-        </div>
+        <UncommittedCheck
+          included={includeUncommitted}
+          onInclude={setIncludeUncommitted}
+        />
       )}
     </ReviewDetails>
   );

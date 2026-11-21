@@ -1,7 +1,12 @@
 import { fileBrowser } from "./reviewContextLine.ts";
 import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import { codePane, expectContextRead } from "./reviewPanes.ts";
-import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
+import {
+  reviewRegion,
+  reviewRefresh,
+  showReviewDetails,
+  uncommittedCheck,
+} from "./reviewControls.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
@@ -181,8 +186,9 @@ export async function openReviewFromIntent(page: Page, intent: Locator) {
 }
 
 // The Compare choice beside the header's compared revisions: what the story's
-// Intent compares, and for Commits the story's commits whose two ends choose
-// the range, which the header then names.
+// Intent compares, with All changes the check that leaves uncommitted changes
+// out, Refresh reading the worktree again, and for Commits the story's commits
+// whose two ends choose the range, which the header then names.
 export function storyCompare(intent: Locator) {
   const region = storySummary(intent).getByRole("group", { name: "Compare" });
   const commits = region.getByRole("list", { name: "Story commits" });
@@ -193,6 +199,8 @@ export function storyCompare(intent: Locator) {
     region,
     choice,
     choose: (name: string) => choice(name).check(),
+    includeUncommitted: uncommittedCheck(region),
+    refresh: () => reviewRefresh(region).click(),
     commits,
     commit,
     // Chooses one commit alone: twice, so it starts and ends its own range.

@@ -209,7 +209,7 @@ and the default comparison already exist in Intent.
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/760-choose-story-comparison-in-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3b58c95cb3489f4d68489e15849ae8aac2bc8a72cd9c134046c2e408c0e56e5","plan":"20c4e9c13174fa34094872bf05497dbb88309424b16822476ffe5c7e624f7c99"}}
 ```
 
-Split from [Read every file a story changed in Intent](#open-review-in-intent).
+Split from the completed SEED-420#open-review-in-intent.
 [Plan](../slice-plans/760-choose-story-comparison-in-intent/PLAN.md).
 
 **Goal.** A developer reviewing a story in Intent chooses what is compared

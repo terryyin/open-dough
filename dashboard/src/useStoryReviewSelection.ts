@@ -1,6 +1,7 @@
 // One active comparison over the server's opening answer for a story, its
 // default. Refresh reconciles retained run identities; returning to the
-// workspace keeps its comparison and Commits endpoints.
+// workspace keeps its comparison and Commits endpoints, and whether all
+// changes include the workspace's uncommitted changes.
 import { type StoryReview } from "./storyReviewContract.ts";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
@@ -20,6 +21,7 @@ export function useStoryReviewSelection({
   completed = false,
   enabled = true,
   initial = "all",
+  includesUncommitted = true,
   historical: historicalComparison = false,
   keyedBy,
   followsDefault = false,
@@ -31,6 +33,8 @@ export function useStoryReviewSelection({
   readonly enabled?: boolean;
   // The workspace choice it opens on.
   readonly initial?: ShownComparison | undefined;
+  // Whether all changes open with the workspace's uncommitted changes.
+  readonly includesUncommitted?: boolean | undefined;
   // Historical Review asks for a completed result rather than a retained workspace.
   readonly historical?: boolean | undefined;
   // A changed key drops the choice, so the selection opens on its default.
@@ -59,6 +63,13 @@ export function useStoryReviewSelection({
     workspace: ShownComparison;
   }>({ of: undefined, workspace: initial }, keyedBy);
   const answer = defaultRead.answer;
+  const snapshot = answer?.kind === "snapshot" ? answer : undefined;
+  const { value: includeUncommitted, set: setIncludeUncommitted } =
+    useStateKeyedBy(includesUncommitted, keyedBy);
+  // A snapshot without uncommitted changes offers no check; the next that
+  // holds some offers it on.
+  if (!includeUncommitted && snapshot !== undefined && !snapshot.committed)
+    setIncludeUncommitted(true);
   const runs = answer?.runs ?? [];
   // A session's kept runs are chosen by position; landed runs by their key.
   const keys = [...runs.map((run) => run.key), ...sessionRunKeys(answer)];
@@ -119,9 +130,11 @@ export function useStoryReviewSelection({
     runKey: selection.run,
     // The run the workspace answer itself shows: its landed fallback.
     answerRun: answer?.selectedRun,
-    snapshot: answer?.kind === "snapshot" ? answer : undefined,
+    snapshot,
     published: answer?.kind === "published" ? answer : undefined,
     chosen: selection.workspace,
+    includeUncommitted,
+    setIncludeUncommitted,
     reading: defaultRead.reading || runRead.reading,
     problem: !readsSelectedRun
       ? defaultRead.problem

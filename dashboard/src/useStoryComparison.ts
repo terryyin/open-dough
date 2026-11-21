@@ -29,6 +29,7 @@ export function useStoryComparison({
   identity,
   completed,
   round,
+  onRefresh,
   enabled,
 }: {
   readonly source: string;
@@ -36,6 +37,8 @@ export function useStoryComparison({
   readonly completed: boolean;
   // How many times the reader asked for a new read.
   readonly round: number;
+  // Reads the worktree again, keeping the choice.
+  readonly onRefresh: () => void;
   // A disabled comparison reads nothing and shows none.
   readonly enabled: boolean;
 }): {
@@ -60,6 +63,8 @@ export function useStoryComparison({
     problem,
     chosen,
     onWorkspace,
+    includeUncommitted,
+    setIncludeUncommitted,
   } = useStoryReviewSelection({
     subject,
     round,
@@ -72,6 +77,7 @@ export function useStoryComparison({
   const {
     comparison,
     tree,
+    committed,
     items,
     selectedItems,
     shown,
@@ -81,7 +87,7 @@ export function useStoryComparison({
     subject,
     snapshot,
     chosen,
-    includeUncommitted: defaultStoryComparison.includeUncommitted,
+    includeUncommitted,
     keyedBy,
     active: enabled && !completed && review?.selectedRun === undefined,
   });
@@ -110,6 +116,10 @@ export function useStoryComparison({
             trunkIntegrated,
             onWorkspace,
             onSelect,
+            includeUncommitted:
+              committed === undefined ? undefined : includeUncommitted,
+            onIncludeUncommitted: setIncludeUncommitted,
+            onRefresh,
           },
   };
 }

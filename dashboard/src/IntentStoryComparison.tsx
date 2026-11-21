@@ -29,9 +29,11 @@ export type LensComparison =
 function ComparedRevisions({
   shown,
   review,
+  uncommittedLeftOut,
 }: {
   readonly shown: ShownStoryComparison;
   readonly review: StoryReview | undefined;
+  readonly uncommittedLeftOut: boolean;
 }) {
   const from =
     review?.kind === "snapshot"
@@ -45,8 +47,8 @@ function ComparedRevisions({
       Compared {rev(from)} with{" "}
       {review?.kind === "snapshot" ? (
         <>
-          worktree <code>{review.workspace}</code> at {rev(review.head)},
-          uncommitted changes included
+          worktree <code>{review.workspace}</code> at {rev(review.head)}
+          {!uncommittedLeftOut && <>, uncommitted changes included</>}
         </>
       ) : review?.kind === "published" ? (
         <>completion {rev(review.completion)}</>
@@ -123,6 +125,10 @@ export function ComparisonDetail({
   return comparison.compare?.shown === "commits" ? (
     <ComparedRange compare={comparison.compare} />
   ) : (
-    <ComparedRevisions shown={comparison.shown} review={comparison.review} />
+    <ComparedRevisions
+      shown={comparison.shown}
+      review={comparison.review}
+      uncommittedLeftOut={comparison.compare?.includeUncommitted === false}
+    />
   );
 }
