@@ -4,6 +4,16 @@
 // worktree on its story branch, kept as an execution's claimed start or a
 // refinement's preparation, or an ad hoc session's isolated workspace waiting
 // for review or its place in the project's default checkout.
+import { realpathSync } from "node:fs";
+import path from "node:path";
+
+/**
+ * The repository a launch in the checkout `workspace` names: its Git
+ * directory as Git resolves it, so the checkout's worktrees report the same.
+ * @param {string} workspace
+ */
+export const repositoryAsGitResolves = (workspace) =>
+  realpathSync(path.join(workspace, ".git"));
 
 /** @typedef {{ workspace: string, branch: string }} EstablishedBranch */
 /**

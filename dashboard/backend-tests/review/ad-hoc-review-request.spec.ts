@@ -4,7 +4,6 @@ import { IncomingMessage, ServerResponse } from "node:http";
 import { Socket } from "node:net";
 import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { launchExactReads } from "../../server/launchExactReads.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
@@ -20,7 +19,7 @@ import {
   storyReviewFileTextEndpoint,
 } from "../../src/storyReviewContract.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import { historyBeforeTheCase, keep } from "../support/doneCaptureCase.ts";
+import { aCheckout, keep } from "../support/doneCaptureCase.ts";
 
 const session = { source: "doughnut", host: "claude", session: "ad-hoc" };
 const file = { baseline: "a".repeat(40), tree: "b".repeat(40), path: "a.txt" };
@@ -51,18 +50,16 @@ function keepForReview(...records: Parameters<typeof keep>) {
 const workFile = "work[1].txt";
 
 async function keptAcrossHosts() {
-  const checkout = await materializeLocalCheckout(
-    undefined,
-    historyBeforeTheCase({ files: { [workFile]: "before\n" } })
+  const checkout = await aCheckout({
+    history: makeMe.aRepository
+      .withBaseBeforeEveryLaunch({ [workFile]: "before\n" })
       .withRevision("first", { files: { "first.txt": "first run\n" } })
       .withRevision("codex", { files: { [workFile]: "codex work\n" } })
       .withRevision("claude", {
         parents: ["base"],
         files: { [workFile]: "claude work\n" },
-      })
-      .please(),
-  );
-  onTestFinished(checkout.cleanup);
+      }),
+  });
   const { base, first, codex, claude } = checkout.revisions;
   const claudeRecord = makeMe.aLaunchRecord
     .adHoc({ source: session.source, title: "Claude work" })

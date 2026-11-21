@@ -2,16 +2,17 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
-import {
-  aCheckout,
-  aDefaultLaunch,
-  minutesAgo,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { minutesAgo, work } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 test("capture keeps a continued cherry-pick with the session's conflict resolution", async () => {
-  const checkout = await aCheckout({ withOrigin: true });
-  const launch = aDefaultLaunch(checkout).please();
+  const {
+    checkout,
+    records: { launch },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withDefaultMainLaunch("launch", { launched: 60 })
+    .please();
   const { integration } = checkout;
   const { baseline } = await work(
     checkout,
@@ -41,8 +42,12 @@ test("capture keeps a continued cherry-pick with the session's conflict resoluti
 
 for (const mode of ["fixup", "squash"] as const) {
   test(`capture keeps the rewritten commit after autosquashing a ${mode}`, async () => {
-    const checkout = await aCheckout();
-    const launch = aDefaultLaunch(checkout).please();
+    const {
+      checkout,
+      records: { launch },
+    } = await aDoneCaptureCase()
+      .withDefaultMainLaunch("launch", { launched: 60 })
+      .please();
     const { base, integration } = checkout;
     const { target } = await work(
       checkout,

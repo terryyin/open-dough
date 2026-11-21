@@ -7,9 +7,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { repositoryAsGitResolves } from "../../../Distribution/tests/support/launchWorkspaceTestData.mjs";
 import { performCheckoutWork } from "../../../Distribution/tests/support/repository-checkout-work.mjs";
 import {
-  integrationDeveloper,
   materializeLocalCheckout,
   materializeRepository,
 } from "../../../Distribution/tests/support/repository-fixture.mjs";
@@ -34,32 +34,29 @@ export const minutesAgo = (minutes: number) =>
 // case states.
 export const historyBeforeTheCase = (
   base: { files?: Readonly<Record<string, string>> } = {},
-) =>
-  makeMe.aRepository.withRevision("base", {
-    ...base,
-    backlog: null,
-    committer: { ...integrationDeveloper, date: "2019-01-01T00:00:00Z" },
-  });
+) => makeMe.aRepository.withBaseBeforeEveryLaunch(base.files);
 
 export type Checkout = Awaited<ReturnType<typeof aCheckout>>;
 
 // The project's Default main checkout, with an origin when the case's work
 // takes in or publishes trunk.
-export async function aCheckout({
-  history = historyBeforeTheCase(),
+export async function aCheckout<Name extends string = "base">({
+  history,
   withOrigin = false,
-}: { history?: RepositoryBuilder<"base">; withOrigin?: boolean } = {}) {
+}: { history?: RepositoryBuilder<Name | "base">; withOrigin?: boolean } = {}) {
+  const built = (history ?? historyBeforeTheCase()).please();
   const repository = withOrigin
-    ? await materializeRepository(history.please())
-    : await materializeLocalCheckout(undefined, history.please());
+    ? await materializeRepository(built)
+    : await materializeLocalCheckout(undefined, built);
   onTestFinished(repository.cleanup);
-  return { ...repository, base: repository.revisions.base };
+  const { base } = repository.revisions as Readonly<Record<"base", string>>;
+  return { ...repository, base };
 }
 
 // The checkout's Git directory as Git resolves it, so its worktrees report the
 // same repository.
 export const canonicalGitDirectory = (checkout: Checkout) =>
-  realpathSync(path.join(checkout.integration, ".git"));
+  repositoryAsGitResolves(checkout.integration);
 
 type LaunchFacts = {
   sessionId?: string;
@@ -72,19 +69,13 @@ export const anEstablishedSession = (
   checkout: Checkout,
   {
     sessionId = "established-default-main",
-    title = "Established in Default main",
+    title,
     launchedAt = minutesAgo(60),
-    revision = checkout.base,
+    revision,
   }: LaunchFacts & { revision?: string } = {},
 ) =>
   makeMe.aLaunchRecord
-    .adHoc({ title })
-    .inDefaultCheckout({
-      workspace: checkout.integration,
-      landing: "review",
-      revision,
-    })
-    .inClaudeSession({ sessionId })
+    .ofEstablishedDefaultMainSession(sessionId, checkout, { title, revision })
     .launchedAt(launchedAt);
 
 // A blank launch whose start found the checkout on main at its base, naming
@@ -93,20 +84,13 @@ export const aDefaultLaunch = (
   checkout: Checkout,
   {
     sessionId = "default-launch",
-    title = "Fix the typo",
+    title,
     launchedAt = minutesAgo(60),
-    gitDirectory = canonicalGitDirectory(checkout),
+    gitDirectory,
   }: LaunchFacts & { gitDirectory?: string | undefined } = {},
 ) =>
   makeMe.aLaunchRecord
-    .adHoc({ title })
-    .startingInDefaultCheckout({
-      workspace: checkout.integration,
-      startingRevision: checkout.base,
-      repository: gitDirectory,
-      branch: "refs/heads/main",
-    })
-    .inClaudeSession({ sessionId })
+    .ofDefaultMainLaunch(sessionId, checkout, { title, gitDirectory })
     .launchedAt(launchedAt);
 
 // A launch whose start established the worktree `workspace` of the checkout

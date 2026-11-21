@@ -11,6 +11,7 @@ import {
   declareWorkspace,
   workspacesWithRevisions,
 } from "./repository-workspace.mjs";
+import { integrationDeveloper } from "./repository-revision-commit.mjs";
 export { backlogPath } from "./repository-revision-facts.mjs";
 export { describedWorkspaces } from "./repository-workspace.mjs";
 
@@ -129,6 +130,19 @@ export class RepositoryBuilder {
     /** @type {NamedRevision<Name | NewName>[]} */
     const revisions = [...this.#revisions, { ...facts, name }];
     return new RepositoryBuilder(revisions, this.#facts);
+  }
+
+  /**
+   * The shared `base` revision, holding `files`, committed at a fixed date
+   * that predates every launch a dated case states.
+   * @param {Readonly<Record<string, string>>} [files]
+   */
+  withBaseBeforeEveryLaunch(files) {
+    return this.withRevision("base", {
+      ...(files !== undefined && { files }),
+      backlog: null,
+      committer: { ...integrationDeveloper, date: "2019-01-01T00:00:00Z" },
+    });
   }
 
   /**

@@ -11,6 +11,7 @@ import {
 } from "./launchLandingEvidenceTestData.mjs";
 import { reportingReference } from "./launchLandingTestData.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { repositoryAsGitResolves } from "./launchWorkspaceTestData.mjs";
 
 /**
  * What a landed ad hoc session captured: the repository it landed in and the
@@ -106,6 +107,53 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
       .inClaudeSession({ sessionId: session })
       .keptSessionCommits({ repository, runs: [run] })
       .markedDone();
+  }
+
+  /**
+   * A blank ad hoc launch in the `claude` session `session` whose start found
+   * the Default main checkout on main at its `base`, naming its repository as
+   * Git resolves it unless `gitDirectory` states otherwise.
+   * @param {string} session
+   * @param {{ integration: string, base: string }} checkout
+   * @param {{ title?: string | undefined, gitDirectory?: string | undefined }} [facts]
+   */
+  ofDefaultMainLaunch(
+    session,
+    { integration, base },
+    {
+      title = "Fix the typo",
+      gitDirectory = repositoryAsGitResolves(integration),
+    } = {},
+  ) {
+    return this.adHoc({ title })
+      .startingInDefaultCheckout({
+        workspace: integration,
+        startingRevision: base,
+        repository: gitDirectory,
+        branch: "refs/heads/main",
+      })
+      .inClaudeSession({ sessionId: session });
+  }
+
+  /**
+   * An ad hoc session in the `claude` session `session` established in the
+   * Default main checkout at `revision` (its `base` by default), for review.
+   * @param {string} session
+   * @param {{ integration: string, base: string }} checkout
+   * @param {{ title?: string | undefined, revision?: string | undefined }} [facts]
+   */
+  ofEstablishedDefaultMainSession(
+    session,
+    { integration, base },
+    { title = "Established in Default main", revision = base } = {},
+  ) {
+    return this.adHoc({ title })
+      .inDefaultCheckout({
+        workspace: integration,
+        landing: "review",
+        revision,
+      })
+      .inClaudeSession({ sessionId: session });
   }
 
   /**

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#fold-done-capture-launches-into-makeme
 **Source:** [Build Done capture cases from MakeMe launch steps](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -97,7 +98,7 @@ The slice rows supply the literal selector basenames (append `.spec.ts`).
 ### 1. Dated Default main cases show which work belongs
 
 Type: Behavior
-Status: planned
+Status: done
 
 Introduce the shared case arrangement through the existing MakeMe owners.
 Migrate Default main and established-launch setups, naming start and Done
@@ -112,6 +113,17 @@ pre-launch revision and work during and outside the session.
 `published-session-review` and `ad-hoc-review-request`. Inspect the start,
 run, time-bound, shared, published-pair and absence assertions and the
 removal of preset imports.
+
+**Accepted.** The case value is `aDoneCaptureCase()` in
+`dashboard/backend-tests/support/doneCaptureCaseBuilder.ts` (beside
+`doneCaptureCase.ts`, which would pass 250 lines), returning
+`{ checkout, records, timeline }` with times in minutes before the case's
+clock. MakeMe gained `aRepository.withBaseBeforeEveryLaunch` and
+`aLaunchRecord.ofDefaultMainLaunch` / `ofEstablishedDefaultMainSession`; the
+old presets delegate to them until their last callers move. Later slices extend
+this builder with their launch flavors. Proof: the nine specs 40/40, typecheck,
+45 Distribution and 63 backend consumers (near-limit timeouts are G1–G4). Do
+not run the Distribution consumers concurrently with the backend roster.
 
 ### 2. Dated Done and record removal use the same Default main case
 
@@ -140,7 +152,8 @@ dirty tree, canonical paths, repo mismatch and Cursor replacement.
 **Proof.** Run `ad-hoc-session-branch-entry`, `branch-entry-proposal`,
 `ad-hoc-branch-entry-attribution` and `ad-hoc-branch-cursor-recovery`. Keep the separate review pairs, rejection,
 attribution and ref observations. Inspect the branch-entry spec for zero
-local setup helpers and at most one case-builder binding from the old support.
+local setup helpers and at most one case-builder binding (`aDoneCaptureCase`)
+from the case support.
 
 ### 4. Isolated launch cases show the recorded and working branch state
 
@@ -255,3 +268,25 @@ import and line comparison.
   The same checkout, launch records and timeline drive each slice. No other
   slice-specific concern remains. Slice 4 owns the race timeout, and slices 5
   and 6 own the rechecks of their near-limit cases.
+
+## Story obligations
+
+### G1. Long one-worker roster runs time out `done-kept-session-commits` at 5 s
+Reported: slice 1 — "s1-backend-consumers2: four 5 s timeouts while a Distribution run was going at the same time (ad-hoc-branch-entry-attribution, ad-hoc-branch-worktree-result, ad-hoc-session-comparisons, done-kept-session-commits); all four pass alone in 2.1–3.9 s."
+Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
+Disposition: receiving slice 2
+
+### G2. Long one-worker roster runs time out `ad-hoc-branch-entry-attribution` at 5 s
+Reported: slice 1 — "s1-backend-consumers2: 5 s timeout in ad-hoc-branch-entry-attribution under concurrent load; passes alone."
+Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
+Disposition: receiving slice 3
+
+### G3. Long one-worker roster runs time out `ad-hoc-branch-result` and `ad-hoc-branch-worktree-result` at 5 s
+Reported: slice 1 — "s1-backend-consumers3, run alone at load 12–17: 119/121 passed; the two timeouts were ad-hoc-branch-result.spec.ts:87 and :194; ad-hoc-branch-worktree-result also timed out in s1-backend-consumers2."
+Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
+Disposition: receiving slice 4
+
+### G4. Long one-worker roster runs time out `ad-hoc-session-comparisons` at 5 s
+Reported: slice 1 — "s1-backend-consumers2: 5 s timeout in ad-hoc-session-comparisons under concurrent load; passes alone."
+Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
+Disposition: receiving slice 6

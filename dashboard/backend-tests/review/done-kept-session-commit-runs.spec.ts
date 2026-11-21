@@ -4,12 +4,8 @@ import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
-import {
-  aCheckout,
-  aDefaultLaunch,
-  minutesAgo,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { aDoneSession } from "../support/doneCaptureReview.ts";
 
 const notes = (first: string, last: string) =>
@@ -97,8 +93,13 @@ test("commits either side of a pulled story landing are two runs, oldest first, 
 });
 
 test("commits either side of merged trunk work are two runs without the merge or its work", async () => {
-  const checkout = await aCheckout({ withOrigin: true });
-  const launch = aDefaultLaunch(checkout).please();
+  const {
+    checkout,
+    records: { launch },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withDefaultMainLaunch("launch", { launched: 60 })
+    .please();
   const { base, integration } = checkout;
   const { first, merge, second } = await work(
     checkout,
@@ -121,8 +122,13 @@ test("commits either side of merged trunk work are two runs without the merge or
 });
 
 test("commits either side of an amended merge stay separate without the merge's files", async () => {
-  const checkout = await aCheckout({ withOrigin: true });
-  const launch = aDefaultLaunch(checkout).please();
+  const {
+    checkout,
+    records: { launch },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withDefaultMainLaunch("launch", { launched: 60 })
+    .please();
   const { base, integration } = checkout;
   const { first, amended, second } = await work(
     checkout,
