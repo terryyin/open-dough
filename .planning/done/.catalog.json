@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_choose-story-comparison-in-intent.json",
+      "identity": "SEED-420#choose-story-comparison-in-intent",
+      "completedAt": "2026-11-21T18:53:27.577Z",
+      "blob": "e378292b145bb58c0050ae83ae1e69cd696836b7"
+    },
+    {
       "fileName": "SEED-413_speed-dashboard-board-and-panel-proof.json",
       "identity": "SEED-413#speed-dashboard-board-and-panel-proof",
       "completedAt": "2026-11-21T17:16:33.345Z",

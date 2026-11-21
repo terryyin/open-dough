@@ -3,9 +3,11 @@
 // appear only in that story's evidence context.
 
 import type { ReactNode } from "react";
+import { IntentStoryCompare } from "./IntentStoryCompare.tsx";
 import {
   CompactComparisonState,
   ComparisonDetail,
+  compareOf,
 } from "./IntentStoryComparison.tsx";
 import type { StorySummary } from "./IntentStorySummary.tsx";
 import { shortRevision } from "./publishedWork.ts";
@@ -25,6 +27,8 @@ export function IntentHeader({
   readonly browserRevision: string | undefined;
 }) {
   const story = summary?.story;
+  const compare =
+    summary === undefined ? undefined : compareOf(summary.comparison);
   return (
     <section
       className="intent-header"
@@ -80,6 +84,7 @@ export function IntentHeader({
               comparison={summary.comparison}
               completed={summary.story.completed}
             />
+            {compare !== undefined && <IntentStoryCompare compare={compare} />}
           </div>
         </>
       )}

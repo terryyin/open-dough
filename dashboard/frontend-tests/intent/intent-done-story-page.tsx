@@ -70,7 +70,7 @@ function summaryOf(story: ComparedStory, completion: string): StorySummary {
       completed: true,
       record: { state: "reading" },
     },
-    comparison: { state: "compared", shown, review },
+    comparison: { state: "compared", shown, review, defaultReview: review },
     onRetry() {},
   };
 }

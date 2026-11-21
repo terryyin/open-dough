@@ -3,10 +3,10 @@
 // for the points currently chosen has settled. All changes of a snapshot
 // holding uncommitted changes can leave them out: its committed work alone,
 // to the head's tree, which came with the snapshot.
-import { useState } from "react";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { reviewItemId, type TakenStoryReview } from "./storyReviewContract.ts";
 import { useReviewRead } from "./useReviewRead.ts";
+import { useStateKeyedBy } from "./stateKeyedBy.ts";
 import {
   reviewedWorkQuery,
   type ReviewedWorkSubject,
@@ -18,6 +18,8 @@ export function useStoryReviewComparison({
   chosen,
   includeUncommitted,
   active,
+  keyedBy,
+  round = 0,
 }: {
   readonly subject: ReviewedWorkSubject;
   readonly snapshot: TakenStoryReview | undefined;
@@ -25,8 +27,14 @@ export function useStoryReviewComparison({
   // Whether all changes include the snapshot's uncommitted changes.
   readonly includeUncommitted: boolean;
   readonly active: boolean;
+  // A changed key drops the chosen ends, so Commits anchors as at first.
+  readonly keyedBy?: string | undefined;
+  // How many times the reader asked for a new read.
+  readonly round?: number;
 }) {
-  const [ends, setEnds] = useState<readonly [string, string]>();
+  const { value: ends, set: setEnds } = useStateKeyedBy<
+    readonly [string, string] | undefined
+  >(undefined, keyedBy);
   const items = [
     ...(snapshot?.uncommitted === undefined ? [] : [snapshot.uncommitted]),
     ...(snapshot?.commits ?? []),
@@ -88,7 +96,7 @@ export function useStoryReviewComparison({
           })),
       ),
     },
-    { enabled: active && shown === "commits" },
+    { round, enabled: active && shown === "commits" },
   );
   const rangeComparison =
     !range.reading && range.answer?.kind === "comparison"
