@@ -1,98 +1,75 @@
-// Real target transitions and Taken judgment/comparison coupling. Fast reading
-// facets live in backend-tests/intent/ci-comparison-client-scopes.spec.ts.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  test,
-  expect,
-  mountComparison,
-  updateComparison,
-} from "../../test-support/support/comparisonMountPage.ts";
-import {
-  comparisonLabels,
-  expectEvidenceLabels,
-  expectLabelInFull,
-  expectNoComparisonFraming,
-  expectObservedNotAttributed,
-} from "../../test-support/ciEvidenceLabelsPage.ts";
-import { expectComparisonScopeRows } from "../../test-support/intentScopeProofPage.ts";
-import { entryComparisonRows } from "../../test-support/support/summaryComparisonExpectedRows.ts";
+// The Summary follows the page's selected story: a queued story clears the
+// previous story's comparison, and a Taken story's Summary keeps its
+// provisional endpoint words beside its actual live judgment.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { mountCiScope, scopeReadsOf } from "./intent-ci-scope-page.tsx";
 
-test("selecting a queued story clears the previous Summary comparison and Baseline column", async ({
-  page,
-  comparisonServer,
-  comparisonServices,
-}) => {
+test("selecting a queued story clears the previous Summary comparison and Baseline column", async () => {
   const story = makeMe.aComparedStory.inSummaryScope();
   const facts = story.please();
-  comparisonServices.serve(facts);
-  await mountComparison(page, comparisonServer, facts);
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expectComparisonScopeRows(
-    summary,
-    "dashboard/tests",
-    entryComparisonRows,
+  const ci = scopeReadsOf(facts);
+  const scope = await mountCiScope(facts, ci.source);
+  await expect
+    .element(scope.summary.figure("dashboard/tests", "Branch"))
+    .toHaveTextContent("+9.5 s");
+  scope.selects(story.ofQueuedStory().please());
+  await expect.poll(() => scope.summary.frames()).toEqual([]);
+  expect(scope.summary.labels(facts.identity)).toEqual([]);
+  await expect
+    .element(
+      scope.summary.region.getByRole("columnheader", { name: "Baseline" }),
+    )
+    .not.toBeInTheDocument();
+  expect(scope.summary.region.element().textContent).not.toContain(
+    facts.identity,
   );
-  await updateComparison(page, story.ofQueuedStory().please());
-  await expectNoComparisonFraming(summary);
-  await expect(comparisonLabels(summary, facts.identity)).toHaveCount(0);
-  await expect(
-    summary.getByRole("columnheader", { name: "Baseline" }),
-  ).toHaveCount(0);
-  await expect(summary).not.toContainText(facts.identity);
-  expect(comparisonServices.comparisons).toBe(1);
-  expect(comparisonServices.proofs).toBe(3);
+  expect(ci.asked.comparisons).toHaveLength(1);
+  expect(ci.asked.proofs).toHaveLength(3);
 });
 
-test("a Taken Story Branch Summary labels its provisional comparison and not-yet-landed endpoint", async ({
-  page,
-  comparisonServer,
-  comparisonServices,
-}) => {
+test("a Taken Story Branch Summary labels its provisional comparison and not-yet-landed endpoint", async () => {
   const facts = makeMe.aComparedStory
     .inSummaryScope()
     .takenOnStoryBranch()
     .please();
-  comparisonServices.serve(facts);
-  Object.assign(comparisonServices, {
-    status: (params: URLSearchParams) => ({
-      json:
-        params.get("kept") === "1"
-          ? { none: true }
-          : makeMe.anIntentCiStatus
-              .with({
-                branch: "feature/a",
-                revision: facts.work.revision,
-                subject: "branch",
-                state: "unread",
-                laterWithoutResult: 0,
-                reason: "Live branch judgment unavailable",
-                checkedAt: facts.answer.checkedAt,
-                freshness: "fresh",
-              })
-              .please(),
-    }),
-  });
-  await mountComparison(page, comparisonServer, facts);
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
-  const labels = comparisonLabels(summary, "Story A");
-  await expectEvidenceLabels(labels, [
-    "Provisional",
-    "Baseline No build aaaaaaa",
-    "Branch bbbbbbb",
-    "Landed Not landed yet",
-  ]);
-  await expectLabelInFull(
-    labels,
-    "Landed Not landed yet",
+  const ci = scopeReadsOf(facts);
+  ci.answers.status = () =>
+    makeMe.anIntentCiStatus
+      .with({
+        branch: "feature/a",
+        revision: facts.work.revision,
+        subject: "branch",
+        state: "unread",
+        laterWithoutResult: 0,
+        reason: "Live branch judgment unavailable",
+        checkedAt: facts.answer.checkedAt,
+        freshness: "fresh",
+      })
+      .please();
+  const scope = await mountCiScope(facts, ci.source);
+  await expect
+    .poll(() => scope.summary.labels("Story A"))
+    .toEqual([
+      "Provisional",
+      "Baseline No build aaaaaaa",
+      "Branch bbbbbbb",
+      "Landed Not landed yet",
+    ]);
+  expect(scope.summary.region.element().textContent).toMatch(
     /has not landed yet/,
   );
-  await expectObservedNotAttributed(summary);
-  await expect(
-    summary.getByRole("table", {
-      name: "CI proof of the immediate folders and files of dashboard/tests",
-    }),
-  ).toBeVisible();
-  expect(comparisonServices.comparisons).toBe(1);
-  expect(comparisonServices.proofs).toBe(2);
-  await expect.poll(() => comparisonServices.statuses).toBe(2);
+  expect(scope.summary.framing()).toEqual([
+    "Observed builds; differences are not attributed to the story",
+  ]);
+  await expect
+    .element(
+      scope.summary.region.getByRole("table", {
+        name: "CI proof of the immediate folders and files of dashboard/tests",
+      }),
+    )
+    .toBeVisible();
+  expect(ci.asked.comparisons).toHaveLength(1);
+  expect(ci.asked.proofs).toHaveLength(2);
+  await expect.poll(() => ci.asked.statuses).toBe(1);
 });

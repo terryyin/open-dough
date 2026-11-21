@@ -499,7 +499,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 
 | Order | Story | Legacy cases | Listed sources |
 | --- | --- | ---: | ---: |
-| 1 | [Get fast proof of a story's Intent CI comparison](#speed-intent-ci-comparison-proof) | 69 | 24 |
+| 1 | Get fast proof of a story's Intent CI comparison (completed; recoverable at `28e16d406:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-comparison-proof`) | 69 | 24 |
 | 2 | [Get fast proof of Intent evidence and timing history](#speed-intent-proof-and-timing) | 95 | 44 |
 | 3 | [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading) | 71 | 37 |
 | 4 | [Get fast proof of board and side-panel interactions](#speed-dashboard-board-and-panel-proof) | 63 | 28 |
@@ -565,38 +565,6 @@ Continuing one component at a time would extend the life of both runners.
   use their results when available. The migrations own the remaining
   legacy cases. Keep this campaign's test work coordinated with
   [SEED-341](SEED-341-simplify-session-tests.md).
-
-<a id="speed-intent-ci-comparison-proof"></a>
-
-### Get fast proof of a story's Intent CI comparison
-
-**Identity:** SEED-413#speed-intent-ci-comparison-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/751-speed-intent-ci-comparison-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6f6c414e043b1c80e828981706837c8ef8b8fd3806cb12e551af8afc6c06fbbd","plan":"17312de0ce18a770603bed88ec9bcbf74e9e310c429edce39c4e73e7abe7d184"}}
-```
-
-- **Goal.** A dashboard maintainer gets fast, readable feedback that the
-  selected story's comparison names the right builds, timing, test results and
-  limits, and recovers correctly when its evidence changes.
-- **Scope.** Own `intent-ci-comparison-*.spec.ts` and the five comparison
-  case registration modules in `dashboard/frontend-tests/intent/`. This
-  includes cross-scope observations that start from the comparison and prove
-  the same preference, fallback or held evidence is reused. The Summary's
-  own evidence rules and collected timing history belong to the next story.
-  Use direct logic proof for presentation rules that need no DOM. Preserve
-  representative authenticated and real composition boundaries in E2E.
-- **Key examples.** Landed proof unavailable → a reader sees the Branch
-  fallback with the real reason and measured figures → Check again recovers
-  Landed, and a previous selection's held result cannot replace it.
-  With legacy, case and file units and partially missing evidence, the
-  comparison and drill-down preserve the available figures, separate units
-  and disclose why a difference cannot be claimed. Sorting uses the signed
-  changes with gaps last and native headers work by keyboard. Show % keeps
-  the geometry and order and follows the reader between relevant scopes.
-- **Evaluation.** All 69 legacy cases have a traceable disposition and the
-  unit proof runs on Vitest. Apply the shared timing, case-count and coverage
-  checks. Each completed slice lets maintainers use its faster proof before
-  the next slice lands.
 
 <a id="speed-intent-proof-and-timing"></a>
 

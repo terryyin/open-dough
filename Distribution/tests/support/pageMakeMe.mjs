@@ -4,7 +4,8 @@
 import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
 import { ciHistoryAnswerMakeMeProperties } from "./ciHistoryAnswerTestData.mjs";
 import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
-import { intentCiStatusMakeMeProperties } from "./comparisonViewTestData.mjs";
+import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
+import { comparisonViewMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
 import { storyReviewMakeMeProperties } from "./storyReviewTestData.mjs";
@@ -23,7 +24,8 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  * @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe &
  *   import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe &
  *   import("./ciProofTestData.mjs").CiProofMakeMe &
- *   import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe &
+ *   import("./comparedStoryTestData.mjs").ComparedStoryMakeMe &
+ *   import("./comparisonViewTestData.mjs").ComparisonViewMakeMe &
  *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe &
  *   import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe &
  *   import("./sessionRecordTestData.mjs").SessionRecordMakeMe &
@@ -51,7 +53,8 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...storyNoteMakeMeProperties(),
   ...ciHistoryAnswerMakeMeProperties(),
   ...ciProofMakeMeProperties(),
-  ...intentCiStatusMakeMeProperties(),
+  ...comparedStoryMakeMeProperties(),
+  ...comparisonViewMakeMeProperties(),
   ...publishedReadingMakeMeProperties(),
   ...terminalThemeSettingMakeMeProperties(),
   ...sessionRecordMakeMeProperties(),

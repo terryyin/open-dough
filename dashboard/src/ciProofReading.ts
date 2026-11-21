@@ -7,7 +7,9 @@ import type { PublishedSource } from "./publishedSource.ts";
 export type ProofRead =
   CiProof | { readonly kind: "unanswered"; readonly detail?: string };
 
-export function createCiProofReading() {
+export function createCiProofReading(
+  readProof: typeof readIntentCiProof = readIntentCiProof,
+) {
   let selected:
     | { readonly source: PublishedSource; readonly key: string | undefined }
     | undefined;
@@ -39,7 +41,7 @@ export function createCiProofReading() {
       if (key === undefined || subject === undefined) return;
       const request = new AbortController();
       controller = request;
-      return readIntentCiProof(source, subject, request.signal)
+      return readProof(source, subject, request.signal)
         .then((read) => {
           if (!request.signal.aborted) publish(key, read);
         })

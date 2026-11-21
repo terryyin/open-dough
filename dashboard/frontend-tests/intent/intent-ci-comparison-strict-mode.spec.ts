@@ -1,113 +1,38 @@
-// Real development StrictMode and hooks, with the external HTTP boundary replaced.
-import type { AddressInfo } from "node:net";
-import { fileURLToPath } from "node:url";
-import { test, expect } from "../../test-support/support/pageTest.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { StrictCiReadingFacts } from "../../test-support/support/strictCiReadingTypes.ts";
+// Development StrictMode cleanup and setup around the actual evidence owner:
+// the first attachment's comparison read is abandoned, the reattached owners
+// answer, and unmounting abandons every read.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { ciReadsOf, mountCiEvidence } from "./intent-ci-evidence-page.tsx";
 
-test("StrictMode reattaches comparison and proof reads after effect cleanup", async ({
-  page,
-}, testInfo) => {
-  const facts = makeMe.aComparedStory.please();
-  const input: StrictCiReadingFacts = {
-    source: facts.source,
-    identity: facts.identity,
-    answer: facts.answer,
-  };
-  const [{ createServer }, { default: react }] = await Promise.all([
-    import("vite"),
-    import("@vitejs/plugin-react"),
-  ]);
-  const server = await createServer({
-    configFile: false,
-    cacheDir: testInfo.outputPath("vite-cache"),
-    root: fileURLToPath(
-      new URL("../../test-support/comparison-mount/", import.meta.url),
-    ),
-    plugins: [react()],
-    logLevel: "error",
-    server: {
-      host: "127.0.0.1",
-      port: 0,
-      hmr: false,
-      ws: false,
-      fs: { allow: [fileURLToPath(new URL("../../../", import.meta.url))] },
-    },
+test("StrictMode reattaches comparison and proof reads after effect cleanup", async () => {
+  const story = makeMe.aComparedStory.please();
+  const reads = ciReadsOf(story);
+  const evidence = await mountCiEvidence(story, reads.source, {
+    strict: true,
   });
-  try {
-    await server.listen();
-    const address = server.httpServer?.address() as AddressInfo;
-    await page.addInitScript(() => {
-      window.strictCiReads = [];
-      const fetch = window.fetch.bind(window);
-      window.fetch = (input, init) => {
-        const url =
-          typeof input === "string"
-            ? input
-            : input instanceof URL
-              ? input.href
-              : input.url;
-        const record = { url, aborted: false };
-        window.strictCiReads.push(record);
-        init?.signal?.addEventListener(
-          "abort",
-          () => {
-            record.aborted = true;
-          },
-          { once: true },
-        );
-        return fetch(input, init);
-      };
-    });
-    await page.route("**/__authenticated-read?**", async (route) => {
-      const query = new URL(route.request().url()).searchParams;
-      await route.fulfill({
-        json:
-          query.get("intent") === "ci-comparison"
-            ? facts.answer
-            : facts.proof(Number(query.get("run"))),
-      });
-    });
-    await page.goto(`http://127.0.0.1:${String(address.port)}/strict.html`);
-    await page.evaluate((value) => {
-      window.mountStrictCiReading(value);
-    }, input);
-    await expect(page.getByTestId("comparison")).toHaveText("SEED-A#a");
-    await expect(page.getByTestId("proofs")).toHaveText(
-      '["summary","summary","summary"]',
-    );
-    await expect(
-      page.getByRole("button", { name: "Check again" }),
-    ).toBeEnabled();
-    const reads = await page.evaluate(() => window.strictCiReads);
-    const comparisons = reads.filter(({ url }) =>
-      url.includes("intent=ci-comparison"),
-    );
-    const proofs = reads.filter(({ url }) => url.includes("intent=ci-proof"));
-    expect(comparisons.map(({ aborted }) => aborted)).toEqual([true, false]);
-    expect(proofs.map(({ aborted }) => aborted)).toEqual([
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-    ]);
-    await page.evaluate(() => {
-      if (window.unmountStrictCiReading === undefined)
-        throw new Error("StrictMode reading did not mount");
-      window.unmountStrictCiReading();
-    });
-    expect(
-      await page.evaluate(() =>
-        window.strictCiReads.every(({ aborted }) => aborted),
+  const comparison = await evidence.comparison();
+  await expect
+    .poll(comparison.activeComparison)
+    .toEqual(["Baseline compared with Landed"]);
+  await expect.element(evidence.checkAgain).toBeEnabled();
+  expect(reads.asked.comparisons.map(({ aborted }) => aborted)).toEqual([
+    true,
+    false,
+  ]);
+  // Endpoint proofs start only once the comparison answers, after StrictMode's
+  // cleanup, so the reattached proof owner reads each endpoint just once.
+  expect(reads.asked.proofs.map(({ aborted }) => aborted)).toEqual([
+    false,
+    false,
+    false,
+  ]);
+  evidence.unmount();
+  await expect
+    .poll(() =>
+      [...reads.asked.comparisons, ...reads.asked.proofs].every(
+        ({ aborted }) => aborted,
       ),
-    ).toBe(true);
-  } finally {
-    if (!page.isClosed())
-      await page.evaluate(() => {
-        window.unmountStrictCiReading?.();
-      });
-    await server.close();
-  }
+    )
+    .toBe(true);
 });
