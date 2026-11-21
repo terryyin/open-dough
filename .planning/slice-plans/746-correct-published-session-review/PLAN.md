@@ -367,7 +367,7 @@ Accepted: evidence `s5-slice5-return-report.md`. Commitments 7 and 8 observed.
 ### 6. Bound the published listing's record reads
 
 Type: Structure
-Status: planned
+Status: done
 
 **Structure.** `performPublishedSessionsRead` reads its records through
 `mapPool` at the listed-records concurrency (shared from
@@ -381,6 +381,9 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --sil
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
+
+
+Accepted: evidence `s6-slice6-return-report.md`. Commitment 14 observed. Refactor: already clean.
 
 ### 7. Recently done shows a failed published listing as a gap
 

@@ -3,17 +3,20 @@
 // revision, every session close record the configured project published
 // beside its backlog, read from that project's fetched Git at the revision.
 // A revision the checkout lacks is first fetched with the project's trunk.
-// Each record is validated against the one record contract
-// (`../src/publishedSessionRecord.ts`) and must sit at the path the producer
-// names for its UUID; any other file there is skipped. The performed read
-// (`./performedRead.ts`) answers it here.
+// Records are read a few at a time through `mapPool` at the listed-records
+// concurrency (`./listedRecordsRead.ts`). Each record is validated against
+// the one record contract (`../src/publishedSessionRecord.ts`) and must sit
+// at the path the producer names for its UUID; any other file there is
+// skipped. The performed read (`./performedRead.ts`) answers it here.
 
 import {
   publishedSessionsRead,
   readingPathAt,
 } from "../src/authenticatedReadRules.ts";
+import { mapPool } from "../src/boundedPool.ts";
 import { fetchUnlessCommitPresent } from "./gitTargetFetch.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
+import { listedReadConcurrency } from "./listedRecordsRead.ts";
 import { parsePinnedListing } from "./listedReadParameters.ts";
 import {
   publishedRecordAt,
@@ -70,8 +73,8 @@ export async function performPublishedSessionsRead(
     .split("\n")
     .filter((path) => path.endsWith(".json"))
     .sort();
-  const records = await Promise.all(
-    listed.map((path) => publishedRecordAt(source, path, signal)),
+  const records = await mapPool(listed, listedReadConcurrency, (path) =>
+    publishedRecordAt(source, path, signal),
   );
   return answered({
     revision: source.revision,
