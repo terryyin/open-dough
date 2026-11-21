@@ -205,10 +205,10 @@ later cases ran at load approximately 23–24. The prior comparable baseline
 samples were 3,335 and 3,741 ms. The checkout's Git evidence directory retains
 `s3-separated-group.log`, `s3-separated-load.log` and `s3-final-single.trace`.
 
-Full Distribution passed in the CI-platform container after three native
-deadlines on the busy macOS host.
-The full browser gates are running there before integration. Wrap-up owns
-the deferred process review after checking the rewritten pin-lock proof.
+Full Distribution, E2E, Dashboard Frontend and Dashboard Backend passed in
+the CI-platform container after three native deadlines on the busy macOS host.
+Story-branch CI passed for implementation revision `dccc65865`. The scratch
+coverage check caught partial pin cleanup and passed after restoration.
 
 ## Execution complete
 
