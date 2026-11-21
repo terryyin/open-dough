@@ -182,7 +182,7 @@ and keeps Done and Inspect usable at 360 px and through keyboard traversal.
 ### 5. Side panel width follows available room and restores the saved choice
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `side-panel-width` and `side-panel-width-{covering,kept,review}` (8).
 Use `PageFrame`, `useSidePanelWidth`, `PanelDivider`, and the actual panel
@@ -428,6 +428,8 @@ typecheck still cover their established paths. The retained report is
 
 ### Slice 4
 
+Published on the story branch as `302ccb05acad0330e0bab8c871795af96c3d6327`.
+
 Two card interaction cases migrated to mounted Chromium. Four scan-emphasis
 cases mount StoryCard with typed work, slice progress, and current and Done
 records. All six passed in 6.22 s including preparation. The four scan cases
@@ -456,3 +458,33 @@ across touch and selection cases and removed obsolete paths from both
 dashboard TypeScript configurations. All seven affected Chromium cases
 passed in 19.07 s, with dashboard typecheck passing in 16.01 s. The retained
 report is `slice-4-refactor-return.md`.
+
+### Slice 5
+
+Seven mounted Chromium width cases passed in 6.77 s including preparation.
+The widest shared-mount selection passed 49/49 across 21 paths. The three
+real reload and terminal cases passed in 16.75 s, and dashboard typecheck
+passed. The real terminal proves fitted column growth, continued input
+and screen output on the same attachment through both covering layouts,
+and a second attachment after Close and reopen. Mounted Review reads use
+typed sources and preserve the same diff and observed read counts. The
+fixtures account for scaled native pointer coordinates and wait for the
+measured divider after layout changes. Terminal paths and exact commands
+are retained in `slice-5-return.md`.
+
+| Original case | Current proof |
+| --- | --- |
+| `side-panel-width.spec.ts` — mouse and keyboard choose one bounded width for an attached terminal that fits it | `mouse and keyboard choose one bounded panel width` checks named vertical separator, default half, width announcement and minimum/maximum, side-by-side positions, native drag +200 within bounds, Board minimum, pointer movement after release, both extrema, Close and heading at the minimum, cancellation, native reverse-Tab/focus, 32 px Left/Right steps/clamps, no history change, Maximize taking the shared room, Restore, and Close/reopen with the same width. E2E `terminal fits the chosen width and keeps its attachment through both covering layouts` checks original and fitted native column counts, earlier output, terminal-focused Left, Maximize/Restore, same live attachment under resizing, and second attachment on reopening. |
+| `side-panel-width-covering.spec.ts` — at a narrow window the panel covers the page with no Maximize, and a wide window recovers the chosen width and Maximize choice | `a narrow window covers the page and widening restores width and Maximize choice`: maximum chosen by native drag, exact covering viewport bounds, no divider or maximize control, Board and banner hidden from the reading surface, Sessions toggle stays usable, no sideways document scroll, heading text and shown buttons fit, reverse Tab and Tab return to an indicated Close, widening recovers the split, Close/reopen keeps the preference, and Maximize survives narrowing/widening until Restore. |
+| `side-panel-width-covering.spec.ts` — beside the open sidebar with too little room, the panel covers the page column without Maximize | `the open sidebar leaves too little room and the panel fills the remaining column`: 880 px with sidebar visible, panel begins at the sidebar's right edge, fills the remaining width and viewport height, omits controls for the split and hides the page. Close reveals its banner. |
+| `side-panel-width-covering.spec.ts` — at a narrow window the terminal covers the page with no Maximize, still attached, and a wide window recovers the chosen width | E2E terminal journey also checks 420 px full-window covering, controls usable and heading visible, earlier output and live attachment retained, and width restored on widening. At 900 px with sidebar open it fills the remaining area alongside the sidebar. Terminal input and output still work on the same attachment; wider room gives a split and closing sidebar restores the chosen width. |
+| `side-panel-width-kept.spec.ts` — a chosen width is recovered after a reload, and neither less room nor Maximize replaces it | `less room and Maximize temporarily fit a chosen width without replacing it` observes mounted live constraints and the real preference key. E2E `reload restores the preferred review width within the room available` opens a real published story and Git review, observes half-width default, chooses half +200, reloads into the chosen width and announces it, shows half in an independent browser context, clamps to leave 320 px after reloading at 1000 px, restores that clamp after Maximize without overwriting storage, and reloads at 760 px in covering mode. Widening restores the preference, and reloading while maximized opens the preferred split. |
+| `side-panel-width-kept.spec.ts` — an unusable kept width starts at half the room, leaving the other preferences, and the next choice is kept | `an unusable kept width starts at half the room and leaves the sidebar preference`: real storage values `wide`, `0`, `Infinity`; reload-equivalent fresh PageFrame owners each start at half while sidebar stays open. Left chooses and stores a width, with the sidebar key still `true`. Another PageFrame recovers it. No uncaught script exception. |
+| `side-panel-width-kept.spec.ts` — where the browser refuses storage, the panel starts at half the room and resizes for the page's lifetime without error | Mounted `when browser storage is refused, the panel starts at half and resizes for the lifetime of the page` installs the browser's SecurityError getter and verifies initial width, native drag, announced width and the fresh PageFrame default. E2E `reload starts at half the room when the browser refuses the preference` exercises the same behavior across actual document reload and checks the actual pageerror collection. |
+| `side-panel-width-review.spec.ts` — a review resized and maximized keeps its reads, and the open sidebar narrows the room without losing the chosen width | `review keeps its story, chosen file and reads through width and sidebar changes`: actual StoryCard opens Review changes against typed work, actual file list chooses Modified unstaged.txt and reads its diff, then observes mouse, keys, maximize/sessions close/reset, clamped sidebar geometry and bound announcement, sidebar closure restoring the previous width, cover/recovery keeping the same Review and reads, and a newer drag/key width beside the sidebar surviving its closure. |
+
+The refactor placed the preference reloads in
+`e2e/navigation/side-panel-kept-width.spec.ts` and the native attachment
+case in `e2e/navigation/side-panel-terminal-width.spec.ts`. All three
+passed after the split, with Playwright reporting 19.9 s. The proof is
+retained in `slice-5-refactor-return.md`.

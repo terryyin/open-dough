@@ -45,16 +45,16 @@ with SEED-341.
 | P22 | Keyboard reading keeps story controls usable. | slice 3 | observed: accessible-board-keyboard.spec.ts and accessible-board-scroll.spec.ts, native forward/reverse traversal, focused Inspect/Hide and enabled refinement |
 | P23 | Zoom keeps links usable. | slice 3 | observed: accessible-board.spec.ts, long links fit their card and carry the expected hrefs at narrow and equivalent zoom widths |
 | P24 | Zoom keeps story controls usable. | slice 3 | observed: accessible-board.spec.ts, at both widths paging and native Enter leave Inspect, the revealed plan link, and Hide detail usable |
-| P25 | A developer can choose the Side panel width by dragging. | slice 5 | |
-| P26 | A developer can choose the Side panel width by keyboard. | slice 5 | |
-| P27 | Opening the Sessions sidebar after a width choice can constrain or cover the Board as space requires. | slice 5 | |
-| P28 | Narrowing the window after a width choice can constrain or cover the Board as space requires. | slice 5 | |
-| P29 | Restoring room after a sidebar layout change restores the chosen width. | slice 5 | |
-| P30 | Restoring room after a window layout change restores the chosen width. | slice 5 | |
-| P31 | An open terminal retains its identity through the relevant sidebar and window layout changes. | slice 5 | |
-| P32 | An open terminal retains its read state through the relevant sidebar and window layout changes. | slice 5 | |
-| P33 | An open Review retains its identity through the relevant sidebar and window layout changes. | slice 5 | |
-| P34 | An open Review retains its read state through the relevant sidebar and window layout changes. | slice 5 | |
+| P25 | A developer can choose the Side panel width by dragging. | slice 5 | observed: side-panel-width.spec.ts, native drag changes rendered pane width, split and accessible announcement |
+| P26 | A developer can choose the Side panel width by keyboard. | slice 5 | observed: side-panel-width.spec.ts, reverse Tab reaches divider and native Left/Right use equal bounds and steps |
+| P27 | Opening the Sessions sidebar after a width choice can constrain or cover the Board as space requires. | slice 5 | observed: side-panel-width-review.spec.ts clamps beside Sessions; side-panel-width-covering.spec.ts covers remaining page when room runs out |
+| P28 | Narrowing the window after a width choice can constrain or cover the Board as space requires. | slice 5 | observed: side-panel-width-covering.spec.ts and e2e/navigation/side-panel-terminal-width.spec.ts, Review and terminal cover at narrow viewport with no divider or Maximize |
+| P29 | Restoring room after a sidebar layout change restores the chosen width. | slice 5 | observed: side-panel-width-review.spec.ts and e2e/navigation/side-panel-terminal-width.spec.ts, closing Sessions restores chosen Review and terminal split |
+| P30 | Restoring room after a window layout change restores the chosen width. | slice 5 | observed: side-panel-width-covering.spec.ts, returning room restores usable divider and previously chosen split or Maximize |
+| P31 | An open terminal retains its identity through the relevant sidebar and window layout changes. | slice 5 | observed: e2e/navigation/side-panel-terminal-width.spec.ts, the same live native attachment lasts through viewport and sidebar covers |
+| P32 | An open terminal retains its read state through the relevant sidebar and window layout changes. | slice 5 | observed: e2e/navigation/side-panel-terminal-width.spec.ts, earlier output persists and later typed input and screen output reach that same attachment |
+| P33 | An open Review retains its identity through the relevant sidebar and window layout changes. | slice 5 | observed: side-panel-width-review.spec.ts, same Review heading element and pressed file remain through Maximize, sidebar, cover and widening |
+| P34 | An open Review retains its read state through the relevant sidebar and window layout changes. | slice 5 | observed: side-panel-width-review.spec.ts, selected diff remains readable and typed Review and file-read counts stay fixed through layout changes |
 | P35 | A sidebar session reveal pages to the card when it is off the current Board page, including the hidden or tall case as applicable. | slice 6 | |
 | P36 | A sidebar session reveal brings the hidden card top into view. | slice 6 | |
 | P37 | A sidebar session reveal brings the tall card top into view. | slice 6 | |
@@ -67,7 +67,7 @@ with SEED-341.
 | S01 | Apply shared campaign acceptance to legacy `accessible-board*` navigation specs. | slice 3 | observed: All seven migrated Board reading specs and the earlier phone Vitest cases ran in the 36-case selection; true popup/reload proof ran in E2E |
 | S02 | Apply shared campaign acceptance to legacy `board-*` navigation specs. | slice 6 | |
 | S03 | Apply shared campaign acceptance to legacy `story-card*` navigation specs. | slice 4 | observed: story-card-selection.spec.ts and story-card-dependency-selection.spec.ts exercise actual Board selection, Inspect and dependency disclosure in mounted Chromium; E2E retains supplier-link navigation |
-| S04 | Apply shared campaign acceptance to legacy `side-panel-width*` navigation specs. | slice 5 | |
+| S04 | Apply shared campaign acceptance to legacy `side-panel-width*` navigation specs. | slice 5 | observed: Four same-path width specs run mounted Chromium; e2e/navigation/side-panel-kept-width.spec.ts and side-panel-terminal-width.spec.ts cover real storage and terminal attach |
 | S05 | Apply shared campaign acceptance to legacy `development-intent-frame*` navigation specs. | slice 7 | |
 | S06 | Apply shared campaign acceptance to legacy `frame-*` navigation specs. | slice 8 | |
 | S07 | Narrow the existing `board-swipe` Vitest spec from its whole-dashboard mount. | slice 2 | observed: board-swipe.spec.ts mounts Board in production PageFrame over typed published work |

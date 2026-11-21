@@ -4,9 +4,15 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
 import { Board } from "../../src/Board.tsx";
 import { DashboardBanner } from "../../src/DashboardBanner.tsx";
+import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { PageFrame } from "../../src/PageFrame.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
+import {
+  ReviewSourceOnPage,
+  type ReviewSource,
+} from "../../src/reviewSource.ts";
+import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
 import { StoryNavigationOnPage } from "../../src/storyNavigation.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { emulateMedia } from "../review/browser-session.ts";
@@ -127,10 +133,33 @@ export async function mountBoard(
   observed: Partial<
     Pick<MachineSessions, "records" | "launched" | "start">
   > = {},
+  reviews?: ReviewSource,
 ) {
   const sessions = { ...noSessions, ...observed };
-  const reading = (next: readonly PublishedWork[], key = 0) =>
-    createElement(ReadingBoard, { key, projects: next, sessions });
+  const notes = new Map(
+    projects.map(({ source }) => [
+      source.id,
+      storyNotesState(() => Promise.resolve({ kind: "notes", notes: {} })),
+    ]),
+  );
+  const reading = (next: readonly PublishedWork[], key = 0) => {
+    const board = createElement(ReadingBoard, {
+      key,
+      projects: next,
+      sessions,
+    });
+    if (reviews === undefined) return board;
+    return createElement(ReviewSourceOnPage, {
+      value: reviews,
+      children: createElement(LaunchesOnPage, {
+        value: sessions,
+        children: createElement(StoryNotesOnPage, {
+          value: notes,
+          children: board,
+        }),
+      }),
+    });
+  };
   const { rerender } = await mountComponent(reading(projects), {
     viewport,
     fillsViewport: true,
