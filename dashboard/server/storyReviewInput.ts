@@ -3,21 +3,29 @@
 // Only this module reaches keptRecords / knownSource for those session paths.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type {
+  PublishedSessionFileRead,
   ReviewedFileRead,
   SessionFileRead,
 } from "../src/reviewedFileRead.ts";
 import {
+  isReviewedPublishedSessionSubject,
   isReviewedSessionSubject,
+  isReviewedStorySubject,
   type ReviewedSessionSubject,
   type ReviewedStorySubject,
+  type ReviewedWorkSubject,
 } from "../src/reviewedWorkSubject.ts";
 import type {
+  PublishedSessionReviewRead,
   SessionReviewRead,
   StoryReviewRead,
 } from "../src/storyReviewRead.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import type { PublishedSessionSource } from "./publishedSessionReview.ts";
+import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
+import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
 import { knownSource, namedSessionRecord } from "./sessionAdmission.ts";
 
 // What a session review reads: the launch records kept for the subject's
@@ -39,15 +47,27 @@ export type ReviewInput<
       readonly kept: KeptSessionState;
     };
 
-export type StoryReviewInput = ReviewInput<
+// A published session read with the configured project source it reads from.
+export interface PublishedSessionInput<
+  R extends PublishedSessionReviewRead | PublishedSessionFileRead,
+> {
+  readonly read: R;
+  readonly published: PublishedSessionSource;
+}
+
+export type KeptStoryReviewInput = ReviewInput<
   StoryReviewRead & { readonly subject: ReviewedStorySubject },
   SessionReviewRead
 >;
+export type StoryReviewInput =
+  KeptStoryReviewInput | PublishedSessionInput<PublishedSessionReviewRead>;
 
-export type ReviewedFileInput = ReviewInput<
-  ReviewedFileRead & { readonly subject: ReviewedStorySubject },
-  SessionFileRead
->;
+export type ReviewedFileInput =
+  | ReviewInput<
+      ReviewedFileRead & { readonly subject: ReviewedStorySubject },
+      SessionFileRead
+    >
+  | PublishedSessionInput<PublishedSessionFileRead>;
 
 // The kept launch record for a session subject among already-read kept state.
 // Story-launch sessions are refused here so session review and file admission
@@ -68,20 +88,37 @@ export function keptSessionOf(
   return record;
 }
 
-// The adapters read a session's kept launch records on every request; an
-// unknown source is refused here, before any record is read. Session reads are
-// narrowed to SessionReviewRead / SessionFileRead so story-only fields cannot
-// reach the session handlers.
+// The adapters read a session's kept launch records, or a published session's
+// fetched project source under the request's signal, on every request; an
+// unknown source is refused here, before any record or Git is read. Session
+// reads are narrowed to SessionReviewRead / SessionFileRead so story-only
+// fields cannot reach the session handlers.
 export async function reviewInput(
-  read: StoryReviewRead | SessionReviewRead,
+  read: StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead,
+  signal: AbortSignal,
 ): Promise<StoryReviewInput>;
 export async function reviewInput(
-  read: ReviewedFileRead | SessionFileRead,
+  read: ReviewedFileRead | SessionFileRead | PublishedSessionFileRead,
+  signal: AbortSignal,
 ): Promise<ReviewedFileInput>;
 export async function reviewInput(
   read:
-    StoryReviewRead | SessionReviewRead | ReviewedFileRead | SessionFileRead,
+    | StoryReviewRead
+    | SessionReviewRead
+    | PublishedSessionReviewRead
+    | ReviewedFileRead
+    | SessionFileRead
+    | PublishedSessionFileRead,
+  signal: AbortSignal,
 ): Promise<StoryReviewInput | ReviewedFileInput> {
+  if (isPublishedRead(read))
+    return {
+      read,
+      published: await fetchedPublishedSessionSource(
+        knownSource(read.subject.source),
+        admissionBound(signal),
+      ),
+    };
   const { subject } = read;
   if (isReviewedSessionSubject(subject)) {
     const kept = {
@@ -110,5 +147,13 @@ export async function reviewInput(
       kept,
     };
   }
+  // A published subject was answered above; only a story remains.
+  if (!isReviewedStorySubject(subject))
+    throw new RefusedRequest(400, "The review request is malformed.");
   return { read: { ...read, subject } };
 }
+
+const isPublishedRead = (read: {
+  readonly subject: ReviewedWorkSubject;
+}): read is PublishedSessionReviewRead | PublishedSessionFileRead =>
+  isReviewedPublishedSessionSubject(read.subject);

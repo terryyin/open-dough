@@ -5,6 +5,7 @@
 // A done session's kept result follows the same pair rule in
 // `./storyReviewSessionFileAdmission.ts`.
 import type { PublishedSource } from "../src/publishedSource.ts";
+import type { ReviewedPairFile } from "../src/reviewedFileRead.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -19,12 +20,7 @@ import {
 } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
 
-export interface HistoricalReviewedFileFields {
-  readonly baseline: string;
-  readonly tree: string;
-  readonly path: string;
-  readonly oldPath?: string;
-}
+export type HistoricalReviewedFileFields = ReviewedPairFile;
 
 // One admitted comparison identity for printed diff or revision file text,
 // covering workspace, historical, and kept-session file reads.

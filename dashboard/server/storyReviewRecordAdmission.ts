@@ -16,7 +16,7 @@ import {
   admittedSessionReview,
   type AdmittedSessionReview,
 } from "./storyReviewSessionAdmission.ts";
-import type { StoryReviewInput } from "./storyReviewInput.ts";
+import type { KeptStoryReviewInput } from "./storyReviewInput.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import type { StoryReviewRead } from "../src/storyReviewRead.ts";
@@ -143,7 +143,7 @@ async function admittedIdentityReview(
 // Admits a typed review read against the kept records; a session read
 // against its kept session state.
 export async function keptStoryReview(
-  input: StoryReviewInput,
+  input: KeptStoryReviewInput,
 ): Promise<KeptStoryReview> {
   if ("kept" in input)
     return admittedSessionReview(

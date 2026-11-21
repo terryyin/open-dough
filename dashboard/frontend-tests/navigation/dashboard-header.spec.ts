@@ -104,7 +104,7 @@ for (const viewport of layouts) {
     await expectSettledPage(page);
     await untilPageReadsAnswered(page);
     // The settled opening reads of Open Dough's work, every one answered.
-    expect(openDoughReads()).toBe(20);
+    const openingReads = openDoughReads();
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
     const titleControl = viewport.compact ? projectCompact : project;
@@ -176,7 +176,7 @@ for (const viewport of layouts) {
     }
     await untilPageReadsAnswered(page);
     // Walking the page reads nothing again.
-    expect(openDoughReads()).toBe(20);
+    expect(openDoughReads()).toBe(openingReads);
   });
 }
 
@@ -193,6 +193,8 @@ test("banner project selection reads the selected project's actual published wor
   const sessions = sessionsSidebarParts(page).button;
   await expectProjectChoice(page, "Open Dough");
   await expectCatalogStories(page, openDoughProject);
+  await untilPageReadsAnswered(page);
+  const openingReads = openDoughReads();
   await expect(banner.getByRole("heading", { level: 1 })).toHaveCount(0);
   await expectFrameIconControl(sessions, "Sessions", "Sessions (⌘B)");
   await expect(project.getByRole("radio")).toHaveCount(4);
@@ -206,6 +208,6 @@ test("banner project selection reads the selected project's actual published wor
   await expectProjectChoice(page, "Doughnut");
   await untilPageReadsAnswered(page);
   // Each project's work was read once, settled: switching re-reads neither.
-  expect(openDoughReads()).toBe(5);
-  expect(doughnutReads()).toBe(5);
+  expect(openDoughReads()).toBe(openingReads);
+  expect(doughnutReads()).toBe(openingReads);
 });

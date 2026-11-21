@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Eimi-chan",
-  "email": "eimi-chan@example.org",
-  "identity": "SEED-418#review-published-session-changes",
-  "mode": "story-branch",
-  "branch": "claude/review-a-session-s-published-changes-from-anothe",
-  "host": "claude"
-}

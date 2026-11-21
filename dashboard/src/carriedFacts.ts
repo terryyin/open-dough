@@ -177,5 +177,9 @@ export function withCarriedFacts(
         unreadableProfiles: shown.unreadableProfiles,
       }),
     ...(loading(work.done) && shown.done !== undefined && { done: shown.done }),
+    ...(loading(work.publishedSessions) &&
+      shown.publishedSessions !== undefined && {
+        publishedSessions: shown.publishedSessions,
+      }),
   };
 }

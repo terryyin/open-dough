@@ -243,6 +243,8 @@ export const launchWithStateSchema = launchRecordSchema.extend({
   workspaceState: workspaceStateSchema.optional(),
   shownWorkspace: z.string().min(1).optional(),
   sessionState: sessionStateSchema,
+  // A Done listing's reporting reference; the history keeps its handoff.
+  reportingReference: z.uuid().optional(),
 });
 
 export type LaunchWithState = z.infer<typeof launchWithStateSchema>;

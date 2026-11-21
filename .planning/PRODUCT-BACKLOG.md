@@ -30,12 +30,13 @@ intent introduced or affected by a newly developed story.
 
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
-- [Review a session’s published changes from another machine](seeds/SEED-418-review-published-session-changes.md#review-published-session-changes) — SEED-418#review-published-session-changes ([plan](slice-plans/739-review-published-session-changes/PLAN.md))
 - [Restore Done capture proof and focus session Review tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#restore-done-capture-proof-after-composed-reviews) — SEED-413#restore-done-capture-proof-after-composed-reviews ([plan](slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md))
 - [Keep kept records intact through landings and prove it at the landing adapter](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-landing-record-writes-and-tests) — SEED-413#correct-landing-record-writes-and-tests ([plan](slice-plans/745-correct-landing-record-writes-and-tests/PLAN.md))
 
 ## Backlog list
 
+- [Correct the published session review](seeds/SEED-418-review-published-session-changes.md#correct-published-session-review) — SEED-418#correct-published-session-review
+- [Attribute every workflow session’s published changes](seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record) — SEED-418#attribute-every-workflow-session-record
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families

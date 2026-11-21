@@ -123,7 +123,9 @@ export function RecentlyDone({
               key={
                 "record" in each
                   ? `done ${each.record.identity}`
-                  : sessionKey(each.session.session)
+                  : "published" in each
+                    ? `published ${each.published.sessionId}`
+                    : sessionKey(each.session.session)
               }
             >
               <ListedEntry

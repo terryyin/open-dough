@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-418_review-published-session-changes.json",
+      "identity": "SEED-418#review-published-session-changes",
+      "completedAt": "2026-11-21T02:25:23.075Z",
+      "blob": "f5745477129bddcaad76809a6c772b5fc4f7d272"
+    },
+    {
       "fileName": "SEED-413_prove-ad-hoc-review-handoffs-with-typed-handlers.json",
       "identity": "SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers",
       "completedAt": "2026-11-21T02:11:38.054Z",

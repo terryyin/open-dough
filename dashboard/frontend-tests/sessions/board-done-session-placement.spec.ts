@@ -135,7 +135,7 @@ test("a completed story's Done sessions nest on its done card", () => {
 test("Done sessions of no card stand alone in Recently done", () => {
   const { records, unrelated } = boardSessions();
   const standalone = recentlyDone(records).flatMap((each) =>
-    "record" in each ? [] : keys([each.session]),
+    "session" in each ? keys([each.session]) : [],
   );
   expect(standalone).toEqual(keys([unrelated]));
 });

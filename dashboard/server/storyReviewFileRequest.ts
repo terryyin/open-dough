@@ -3,6 +3,7 @@
 // repository decide the rest in the handlers (`./storyReviewFileResponse.ts`).
 import { z } from "zod";
 import type {
+  PublishedSessionFileRead,
   ReviewedFileRead,
   SessionFileRead,
 } from "../src/reviewedFileRead.ts";
@@ -13,6 +14,7 @@ import {
 } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
+  queriedPublishedSessionSubject,
   queriedSessionSubject,
   queriedStorySubject,
   reviewedWorkSubjectQuery,
@@ -23,7 +25,8 @@ export interface AdmittedReviewedFileRead {
   readonly kind: "story-review-file" | "story-review-file-text";
   readonly read:
     | (ReviewedFileRead & { readonly subject: ReviewedStorySubject })
-    | SessionFileRead;
+    | SessionFileRead
+    | PublishedSessionFileRead;
 }
 
 const reviewedFileQuerySchema = z.object({
@@ -38,7 +41,8 @@ function reviewedFileRead(
   label: "file diff" | "file text",
 ):
   | (ReviewedFileRead & { readonly subject: ReviewedStorySubject })
-  | SessionFileRead {
+  | SessionFileRead
+  | PublishedSessionFileRead {
   const subject = reviewedWorkSubjectQuery(url);
   const reference = url.searchParams.get("reference");
   const completion = url.searchParams.get("completion");
@@ -70,6 +74,12 @@ function reviewedFileRead(
     path,
     ...(oldPath === undefined ? {} : { oldPath }),
   };
+  // A published session names its pair alone, never a run or completion.
+  if (subject.kind === "published") {
+    if (reference !== null || completion !== null)
+      throw new RefusedRequest(400, `The ${label} request is malformed.`);
+    return { subject: queriedPublishedSessionSubject(url), ...file };
+  }
   if (
     completion !== null &&
     (!objectIdSchema.safeParse(completion).success || reference !== null)
