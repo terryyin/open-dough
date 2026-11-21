@@ -42,6 +42,8 @@ test("revealed details and status share one height budget above a usable code pa
   await review.expectDetailsLack(keptStatus);
   await review.expectFeedbackSays(keptStatus);
 
+  // The short touch layout caps the room above the work area once it applies.
+  await expect.poll(() => review.measureAboveBody().budget).toBeGreaterThan(0);
   const measured = review.measureAboveBody();
   expect(measured.visible).toBeLessThanOrEqual(measured.budget + 1);
   expect(measured.aboveHeight).toBeLessThanOrEqual(measured.budget + 1);
