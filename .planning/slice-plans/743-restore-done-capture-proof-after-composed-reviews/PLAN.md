@@ -35,6 +35,9 @@
 - Slice 8 accepted at `4056d73bd257e88d344c124e9082d5a3a61078cc` and reused
   the live observer.
 
+- Slice 9 published at `706285f9ee7ead02168f8885d046429207996f87`.
+  The accepted SEED-418 Review surface was reconciled in `a98710b79`.
+
 ## Correction input
 
 - **Provenance.** Retrospective of SEED-413#split-done-mark-decision-from-store.
@@ -465,3 +468,39 @@ cleanup. See `slice9-integrated-typecheck.log`,
   [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   to every failure. Run consumer trace for changed boundaries, including
   shared test builders and browser journeys reached by the adapter.
+
+## Concurrent published-session Review
+
+SEED-418 landed on trunk at `8be1d198` after the initial implementation
+was published. The merge `a98710b79` keeps three explicit admission
+paths. Local sessions carry one saved record, published sessions carry
+their configured fetched source and bounded request signal, and story
+reads use the existing story input. The focused reconciliation passed
+26 local and published cases. The subsequent request-spec refactor passed
+nine cases and the final combined local gates passed.
+
+The final matched roster adds the three published-session backend specs
+on both sides. Live Vitest collection and native listing selected 165
+baseline cases across 46 specs. The reconciled candidate passed all 163
+cases across 44 surviving specs. Full standalone Review reads on that
+roster go from 145 to 75, including seven published-session calls on
+each side. Dashboard typecheck, repository lint and the one-case
+Chromium historical journey passed on the combined candidate. See
+`slice9-final-audit-roster`, `slice9-baseline-runtime-8be1d198.json`,
+`slice9-baseline-native-8be1d198.json`, `slice9-read-audit-8be1d198.json`,
+`slice9-reconciled-backend.json` and `slice9-reconciled-historical-browser.json`.
+
+## Execution complete
+
+Product advice: Keep the direct Done capture and persistence proof, and
+the separate, single-record standalone Review admission. The now-retained
+historical workflow and its unit-level signal, file and store proofs
+support keeping the current order of Done fixture composition and
+performance measurement. The outcome review found no further correction.
+The existing Chromium journey was a regression check for the shared
+boundary. [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+supports the distinct kept and published evidence, and the matched counts
+support the local proof improvement under
+[ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+The process review recorded [DD-604](../../../DearDough.md#dd-604) and a
+[DD-594 occurrence](../../../DearDough.md#dd-594).
