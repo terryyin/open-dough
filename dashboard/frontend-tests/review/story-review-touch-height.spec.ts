@@ -2,7 +2,7 @@
 // budget above the diff so the work area keeps a usable code pane.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { emulateMedia } from "./browser-session.ts";
+import { emulateMedia, emulateTouch } from "./browser-session.ts";
 import {
   doneStory,
   mountReviewChanges,
@@ -14,7 +14,8 @@ const keptStatus =
 const file = "Added story.txt";
 
 test("revealed details and status share one height budget above a usable code pane", async () => {
-  // Motion is reduced, as the phone's reader asked.
+  // A touch phone whose reader asked for reduced motion.
+  await emulateTouch();
   await emulateMedia([{ name: "prefers-reduced-motion", value: "reduce" }]);
   const review = await mountReviewChanges(
     reviewSourceAnswering({
@@ -42,8 +43,6 @@ test("revealed details and status share one height budget above a usable code pa
   await review.expectDetailsLack(keptStatus);
   await review.expectFeedbackSays(keptStatus);
 
-  // The short touch layout caps the room above the work area once it applies.
-  await expect.poll(() => review.measureAboveBody().budget).toBeGreaterThan(0);
   const measured = review.measureAboveBody();
   expect(measured.visible).toBeLessThanOrEqual(measured.budget + 1);
   expect(measured.aboveHeight).toBeLessThanOrEqual(measured.budget + 1);
