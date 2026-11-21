@@ -1,6 +1,11 @@
 // Done saves an isolated ad hoc branch's result with Git references, so its
 // review outlives the worktree and branch, and only that launch's removal
 // releases them.
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import {
+  reviewedFileDiff,
+  reviewedFileText,
+} from "../../server/storyReviewFileResponse.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
@@ -10,7 +15,7 @@ import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
   changeSessionRecord,
   deleteRecord,
-  keptRecords,
+  keptSession,
 } from "../../server/launchRecordStore.ts";
 import { retireExpiredRecords } from "../../server/launchRecordRemoval.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
@@ -30,12 +35,7 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import {
-  aDoneBranch,
-  fileDiff,
-  fileText,
-  review,
-} from "../support/doneCaptureReview.ts";
+import { aDoneBranch } from "../support/doneCaptureReview.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 
 // A checkout whose isolated launches each started a worktree at its base,
@@ -96,28 +96,27 @@ test("the branch comparison at Done and its files survive worktree and branch re
   retireAdHocBranch(checkout.integration, workspace, branch);
 
   const baseline = checkout.base;
-  expect(await review(await keptRecords(source), record)).toMatchObject({
+  const saved = await keptSession(source, record.session);
+  if (saved === undefined) throw new Error("Missing the kept launch.");
+  const signal = new AbortController().signal;
+  expect(await storyReview({ record: saved, read: {} }, signal)).toMatchObject({
     kind: "branch-result",
     baseline,
     tree,
     files: [expect.objectContaining({ path: "draft.txt", kind: "added" })],
   });
-  const named = { baseline, tree, path: "draft.txt" };
-  expect(
-    await fileDiff(await keptRecords(source), record, named),
-  ).toMatchObject({
+  const file = { record: saved, read: { baseline, tree, path: "draft.txt" } };
+  expect(await reviewedFileDiff(file, signal)).toMatchObject({
     kind: "diff",
     printed: expect.stringContaining("+draft work") as string,
   });
-  expect(await fileText(await keptRecords(source), record, named)).toEqual({
+  expect(await reviewedFileText(file, signal)).toEqual({
     kind: "text",
     baseline: null,
     tree: "draft work\n",
   });
-  const refused = fileText(await keptRecords(source), record, {
-    ...named,
-    baseline: tree,
-  });
+  const wrongPair = { ...file.read, baseline: tree };
+  const refused = reviewedFileText({ record: saved, read: wrongPair }, signal);
   await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
   await expect(refused).rejects.toMatchObject({ status: 409 });
 });
@@ -151,15 +150,19 @@ test("Done reviews an empty branch result apart from a missing checkout", async 
     .branchResultFailedAt(doneAt)
     .markedDoneAt(doneAt)
     .please();
-  const done = [emptyDone, missingDone];
 
-  expect(await review(done, emptyDone)).toMatchObject({
+  const signal = new AbortController().signal;
+  expect(
+    await storyReview({ record: emptyDone, read: {} }, signal),
+  ).toMatchObject({
     kind: "branch-result",
     baseline: checkout.base,
     tree: checkout.base,
     files: [],
   });
-  expect(await review(done, missingDone)).toMatchObject({
+  expect(
+    await storyReview({ record: missingDone, read: {} }, signal),
+  ).toMatchObject({
     kind: "unavailable",
     explanation: "This session's branch changes at Done were not captured.",
   });

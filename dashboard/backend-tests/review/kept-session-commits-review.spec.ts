@@ -1,6 +1,7 @@
 // Review reads the kept state and Git directly for a landed session or
 // a file in a kept commit run.
 import { expect, onTestFinished, test } from "vitest";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { RefusedRequest } from "../../server/localOrigin.ts";
@@ -36,10 +37,7 @@ test("the retained landing of a Default main session takes precedence over its l
     })
     .markedDone()
     .please();
-  const read = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record])
-    .please();
+  const read = makeMe.aSessionReviewRead.ofRecord(record).please();
 
   expect(await storyReview(read, new AbortController().signal)).toMatchObject({
     kind: "landed",
@@ -75,9 +73,7 @@ test("a file text read answers both sides of a kept run's pair and refuses a dif
     })
     .markedDone()
     .please();
-  const review = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record]);
+  const review = makeMe.aSessionReviewRead.ofRecord(record);
   const read = (baseline: string) =>
     reviewedFileText(
       review.readingFile({ baseline, tree: result, path: "work.txt" }).please(),
@@ -98,34 +94,66 @@ test("a file text read answers both sides of a kept run's pair and refuses a dif
   });
 });
 
-test("a Done session's captured branch result reviews the branch's work", async () => {
+test("a Done session's branch result and kept run open as separate comparisons", async () => {
   const repository = await materializeLocalCheckout(
     undefined,
     makeMe.aRepository
       .withRevision("base", { backlog: null })
-      .withRevision("branched", { files: { "draft.txt": "branch work\n" } })
+      .withRevision("onMain", { files: { "main-work.txt": "main work\n" } })
+      .withRevision("branched", {
+        parents: ["base"],
+        files: { "draft.txt": "branch work\n" },
+      })
       .please(),
   );
   onTestFinished(repository.cleanup);
   const {
     integration: workspace,
-    revisions: { base, branched },
+    revisions: { base, onMain, branched },
   } = repository;
+  const { stdout } = await git(workspace, "rev-parse", `${base}^{tree}`);
+  const entryTree = stdout.trim();
   const record = makeMe.aLaunchRecord
     .adHoc({ title: "Branch result" })
     .inDefaultCheckout({ workspace, landing: "review", revision: base })
     .inClaudeSession({ sessionId: "branch-result" })
-    .branchResultFrom({ repository: workspace, base, revision: branched })
+    .branchResultFrom({
+      repository: workspace,
+      base: entryTree,
+      revision: branched,
+    })
+    .keptSessionCommits({
+      repository: workspace,
+      runs: [{ base, revision: onMain }],
+    })
     .markedDone()
     .please();
-  const read = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record])
-    .please();
+  const read = makeMe.aSessionReviewRead.ofRecord(record);
+  const signal = new AbortController().signal;
 
-  expect(await storyReview(read, new AbortController().signal)).toMatchObject({
-    baseline: base,
+  expect(await storyReview(read.please(), signal)).toMatchObject({
+    kind: "branch-result",
+    selectedRun: "branch-result",
+    sessionComparisonKeys: ["branch-result", "0"],
+    baseline: entryTree,
     tree: branched,
-    files: [expect.objectContaining({ path: "draft.txt", kind: "added" })],
+    files: [{ path: "draft.txt", kind: "added" }],
   });
+  expect(
+    await storyReview(read.selectingRun("0").please(), signal),
+  ).toMatchObject({
+    kind: "session-commits",
+    selectedRun: "0",
+    sessionComparisonKeys: ["branch-result", "0"],
+    tree: onMain,
+    files: [{ path: "main-work.txt", kind: "added" }],
+  });
+  expect(
+    await reviewedFileText(
+      read
+        .readingFile({ baseline: entryTree, tree: branched, path: "draft.txt" })
+        .please(),
+      signal,
+    ),
+  ).toEqual({ kind: "text", baseline: null, tree: "branch work\n" });
 });

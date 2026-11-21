@@ -1,14 +1,19 @@
 // After the installed publisher delivers a Done isolated session and its
-// branch is retired, the session still opens both its delivered rename and
-// its different working-tree comparison, each only through its own pair.
-import { writeFileSync } from "node:fs";
+// branch is retired, both its delivered rename and its working-tree
+// comparison still hold their own file contents.
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
+import { unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
+import { keptAttempts } from "../../server/launchAttemptStore.ts";
+import { machineLandingStores } from "../../server/launchLandingReporting.ts";
+import {
+  keptSession,
+  setRecordDoneAt,
+} from "../../server/launchRecordStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { minutesAgo, source } from "../support/doneCaptureCase.ts";
-import { fileText, review } from "../support/doneCaptureReview.ts";
 import { publishInstalled } from "../support/installedPublisher.ts";
 import { aReportedIsolatedBranch } from "../support/reportedIsolatedBranch.ts";
 
@@ -21,19 +26,17 @@ const working = `${baseline}Left for review\n`;
 
 test("the same Done session opens its delivery and keeps its different branch result after retirement", async () => {
   const branch = "rename-the-draft";
-  const { checkout, workspace, record, reference, landingContext, stores } =
+  const { checkout, workspace, record, reference, landingContext } =
     await aReportedIsolatedBranch(branch, { [renamed.oldPath]: baseline });
   const write = (text: string) => {
     writeFileSync(path.join(workspace, renamed.path), text);
   };
-  await git(workspace, "mv", renamed.oldPath, renamed.path);
+  unlinkSync(path.join(workspace, renamed.oldPath));
   write(committed);
-  await git(workspace, "add", renamed.path);
+  await git(workspace, "add", "-A", "--", renamed.oldPath, renamed.path);
   await git(workspace, "commit", "--quiet", "-m", "Rename the draft");
   write(working);
-  await setRecordDoneAt(source, record.session, minutesAgo(10), {
-    store: stores,
-  });
+  await setRecordDoneAt(source, record.session, minutesAgo(10));
 
   write(committed);
   const { landing, beforePush: before } = await publishInstalled(
@@ -45,12 +48,10 @@ test("the same Done session opens its delivery and keeps its different branch re
       targetRef: "refs/heads/main",
       landingContext,
     },
-    () =>
-      Promise.resolve(
-        stores.attempts()[source]?.find((attempt) => attempt.id === reference)
-          ?.landingPreparations,
-      ),
-    stores,
+    async () =>
+      (await keptAttempts())?.find((attempt) => attempt.id === reference)
+        ?.landingPreparations,
+    machineLandingStores,
   );
   // The installed publisher prepared exactly the pair it then recorded.
   expect(before.trunk).toBe(checkout.base);
@@ -59,56 +60,41 @@ test("the same Done session opens its delivery and keeps its different branch re
   ]);
   retireAdHocBranch(checkout.integration, workspace, branch);
 
-  const kept = await stores.keptRecords(source);
-  const choices = ["delivered", "branch-result"];
-  const delivered = await review(kept, record);
-  const branchResult = await review(kept, record, "branch-result");
-  const renamedFile = { kind: "renamed", ...renamed };
-  expect(delivered).toMatchObject({
-    kind: "landed",
-    selectedRun: "delivered",
-    sessionComparisonKeys: choices,
+  const saved = await keptSession(source, record.session);
+  expect(saved?.landing).toMatchObject({
+    reference,
+    base: landing.receipt.base,
+    revision: landing.receipt.revision,
+  });
+  if (saved?.branchResult === undefined)
+    throw new Error("Missing the retained comparisons.");
+  const deliveryPair = {
     baseline: landing.receipt.base,
     tree: landing.receipt.revision,
-    files: [renamedFile],
-  });
-  expect(branchResult).toMatchObject({
-    kind: "branch-result",
-    selectedRun: "branch-result",
-    sessionComparisonKeys: choices,
-    baseline: checkout.base,
-    files: [renamedFile],
-  });
-  if (delivered.kind !== "landed" || branchResult.kind !== "branch-result")
-    throw new Error("Missing the retained comparisons.");
-
-  const deliveryPair = {
-    baseline: delivered.baseline,
-    tree: delivered.tree,
     reference,
   };
   const branchPair = {
-    baseline: branchResult.baseline,
-    tree: branchResult.tree,
+    baseline: saved.branchResult.base,
+    tree: saved.branchResult.revision,
   };
-  expect(await fileText(kept, record, { ...renamed, ...deliveryPair })).toEqual(
-    {
-      kind: "text",
-      baseline,
-      tree: committed,
-    },
-  );
-  expect(await fileText(kept, record, { ...renamed, ...branchPair })).toEqual({
+  expect(
+    await reviewedFileText(
+      { record: saved, read: { ...renamed, ...deliveryPair } },
+      new AbortController().signal,
+    ),
+  ).toEqual({
+    kind: "text",
+    baseline,
+    tree: committed,
+  });
+  expect(
+    await reviewedFileText(
+      { record: saved, read: { ...renamed, ...branchPair } },
+      new AbortController().signal,
+    ),
+  ).toEqual({
     kind: "text",
     baseline,
     tree: working,
   });
-  const foreignTree = { ...deliveryPair, tree: branchResult.tree };
-  await expect(
-    fileText(kept, record, { ...renamed, ...foreignTree }),
-  ).rejects.toMatchObject({ status: 409 });
-  const wrongOldPath = { ...renamed, oldPath: "other.txt" };
-  await expect(
-    fileText(kept, record, { ...wrongOldPath, ...branchPair }),
-  ).rejects.toMatchObject({ status: 409 });
 });

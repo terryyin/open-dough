@@ -1,16 +1,18 @@
-// The typed review and file readers read a Done session's rewritten checkout
-// work as its kept run.
 import { expect, test } from "vitest";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
+import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
 import {
-  aDoneSession,
-  fileText,
-  review,
-} from "../support/doneCaptureReview.ts";
+  aCheckout,
+  aDefaultLaunch,
+  minutesAgo,
+  work,
+} from "../support/doneCaptureCase.ts";
 
-test("a continued cherry-pick is reviewed with the session's conflict resolution", async () => {
+test("capture keeps a continued cherry-pick with the session's conflict resolution", async () => {
   const checkout = await aCheckout({ withOrigin: true });
+  const launch = aDefaultLaunch(checkout).please();
+  const { integration } = checkout;
   const { baseline } = await work(
     checkout,
     makeMe.aCheckoutWork.committing("baseline", {
@@ -27,27 +29,21 @@ test("a continued cherry-pick is reviewed with the session's conflict resolution
       resolution: "Reconciled notes\n",
     }),
   );
-  const record = aDoneSession(
-    checkout,
-    [{ base: baseline, revision: tree }],
-    baseline,
+  const { runs } = await readSessionCommits(launch, { workspace: integration });
+  expect(runs).toEqual([{ base: baseline, revision: tree }]);
+  expect((await git(integration, "show", `${baseline}:notes.txt`)).stdout).toBe(
+    "Local notes\n",
   );
-
-  expect(await review([record], record)).toMatchObject({
-    commitRuns: [{ commits: 1, baseline, tree }],
-  });
-  expect(
-    await fileText([record], record, { baseline, tree, path: "notes.txt" }),
-  ).toEqual({
-    kind: "text",
-    baseline: "Local notes\n",
-    tree: "Reconciled notes\n",
-  });
+  expect((await git(integration, "show", `${tree}:notes.txt`)).stdout).toBe(
+    "Reconciled notes\n",
+  );
 });
 
 for (const mode of ["fixup", "squash"] as const) {
-  test(`an autosquashed ${mode} is reviewed as one commit with both files`, async () => {
+  test(`capture keeps the rewritten commit after autosquashing a ${mode}`, async () => {
     const checkout = await aCheckout();
+    const launch = aDefaultLaunch(checkout).please();
+    const { base, integration } = checkout;
     const { target } = await work(
       checkout,
       makeMe.aCheckoutWork.committing("target", { at: minutesAgo(40) }),
@@ -62,13 +58,15 @@ for (const mode of ["fixup", "squash"] as const) {
         content: "Added file\n",
       }),
     );
-    const record = aDoneSession(checkout, [
-      { base: checkout.base, revision: tree },
-    ]);
-
-    expect(await review([record], record)).toMatchObject({
-      commitRuns: [{ commits: 1, baseline: checkout.base, tree }],
-      files: [{ path: "added.txt" }, { path: "target.txt" }],
+    const { runs } = await readSessionCommits(launch, {
+      workspace: integration,
     });
+    expect(runs).toEqual([{ base, revision: tree }]);
+    expect(
+      (await git(integration, "diff", "--name-only", base, tree)).stdout,
+    ).toBe("added.txt\ntarget.txt\n");
+    expect((await git(integration, "show", `${tree}:added.txt`)).stdout).toBe(
+      "Added file\n",
+    );
   });
 }

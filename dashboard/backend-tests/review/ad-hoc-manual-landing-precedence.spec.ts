@@ -9,7 +9,7 @@ import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { bindRecord } from "../../server/launchRecordBinding.ts";
-import { keptRecords } from "../../server/launchRecordStore.ts";
+import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import {
@@ -89,11 +89,10 @@ test("an early quiet Done keeps its verified manual pair when the native session
   const earlyReport = await bindRecord(source, record);
   expect(earlyReport?.receipt).toBe(pending.receipt);
 
+  const kept = await keptSession(source, record.session);
+  if (kept === undefined) throw new Error("Missing the kept launch.");
   const reviewed = await storyReview(
-    makeMe.aSessionReviewRead
-      .ofSession(record.session.sessionId, record.session.host)
-      .keeping([...(await keptRecords(source))])
-      .please(),
+    makeMe.aSessionReviewRead.ofRecord(kept).please(),
     new AbortController().signal,
   );
   expect(reviewed).toMatchObject({

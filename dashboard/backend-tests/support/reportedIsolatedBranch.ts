@@ -1,17 +1,17 @@
-// An isolated launch that established its worktree with landing reporting:
-// the composed attempt and record the publisher bridge hands the landing
-// adapter, and the landing context its installed publisher reads.
+// An isolated launch whose Done write and installed publisher share private
+// machine stores, with the landing context its publisher reads.
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { onTestFinished } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { writeLandingContext } from "../../server/launchReportingFiles.ts";
-import { composedLandingStores } from "./composedLandingStores.ts";
 import {
   aCheckoutWithCanonicalWorktree,
   anIsolatedLaunch,
   canonicalGitDirectory,
+  keep,
   minutesAgo,
   source,
 } from "./doneCaptureCase.ts";
@@ -58,9 +58,7 @@ export async function aReportedIsolatedBranch(
     .launched({ host: "claude", sessionId })
     .capturingLanding({ reporting, landingRepository: authority })
     .please();
-  const stores = composedLandingStores({
-    attempts: { [source]: [attempt] },
-    records: { [source]: [record] },
-  });
-  return { checkout, workspace, record, reference, landingContext, stores };
+  keep(record);
+  await keepAttempt(attempt);
+  return { checkout, workspace, record, reference, landingContext };
 }

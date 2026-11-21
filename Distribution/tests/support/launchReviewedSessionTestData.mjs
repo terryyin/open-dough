@@ -22,13 +22,15 @@ import { LaunchRecordBuilder } from "./launchTestData.mjs";
 export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   /**
    * The session declared a branch and received its storyless landing context.
-   * @param {{ repository?: string, workspace?: string, branch?: string, committedTip?: string, origin?: string, reference?: string, deletedAt?: string }} [facts]
+   * @param {{ repository?: string, workspace?: string, branch?: string, committedTip?: string, tree?: string, trunkRevision?: string, origin?: string, reference?: string, deletedAt?: string }} [facts]
    */
   withDeclaredLanding({
     repository = "/repo",
     workspace = "/work",
     branch = "dough/decision",
     committedTip = "a1".repeat(20),
+    tree = committedTip,
+    trunkRevision,
     origin = "http://127.0.0.1:4173",
     reference = reportingReference,
     deletedAt,
@@ -42,8 +44,12 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
       workspace,
       branch,
       committedTip,
-      tree: committedTip,
-      trunk: { remote: authority.remote, target: authority.target },
+      tree,
+      trunk: {
+        remote: authority.remote,
+        target: authority.target,
+        ...(trunkRevision !== undefined && { revision: trunkRevision }),
+      },
     }).withLandingReporting({
       origin,
       authority,

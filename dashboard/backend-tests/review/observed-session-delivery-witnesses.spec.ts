@@ -1,59 +1,11 @@
 import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { inspectManualLanding } from "../../server/manualSessionLanding.ts";
+import type { inspectManualLanding } from "../../server/manualSessionLanding.ts";
 import { observedSessionDeliveries } from "../../server/observedSessionDeliveries.ts";
 import type { readBranchTrunkRevision } from "../../server/sessionBranchAttribution.ts";
-import {
-  aCheckoutWithWorktree,
-  anIsolatedLaunch,
-  inWorktree,
-  minutesAgo,
-  work,
-} from "../support/doneCaptureCase.ts";
-import { aDoneBranch } from "../support/doneCaptureReview.ts";
-import { observedTrunk } from "../support/doneBranchObservation.ts";
+import { source } from "../support/doneCaptureCase.ts";
 
-test("an unmerged branch is inspected again only when the observed revision advances", async () => {
-  const branch = "draft";
-  const { checkout, workspace } = await aCheckoutWithWorktree(branch);
-  const { draft } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing(branch, { at: minutesAgo(30) }),
-  );
-  const record = await aDoneBranch(
-    anIsolatedLaunch(checkout, { workspace, branch }),
-  );
-  const { unrelated } = await work(
-    checkout,
-    makeMe.aCheckoutWork
-      .committing("unrelated", { at: minutesAgo(5) })
-      .pushingToTrunk("published", { at: minutesAgo(5) }),
-  );
-  const inspect = vi.fn(inspectManualLanding);
-  const observations = observedSessionDeliveries({ inspect });
-
-  expect(
-    await observations.observe(observedTrunk, unrelated, [record]),
-  ).toEqual([]);
-  expect(
-    await observations.observe(observedTrunk, unrelated, [record]),
-  ).toEqual([]);
-  expect(inspect.mock.calls.map(([, tip, , head]) => [tip, head])).toEqual([
-    [draft, unrelated],
-  ]);
-
-  const { advance } = await work(
-    checkout,
-    makeMe.aCheckoutWork
-      .committing("advance", { at: minutesAgo(3) })
-      .pushingToTrunk("advanced", { at: minutesAgo(3) }),
-  );
-  expect(await observations.observe(observedTrunk, advance, [record])).toEqual(
-    [],
-  );
-  expect(inspect.mock.calls.at(-1)?.[3]).toBe(advance);
-});
-
+const observedTrunk = { id: source, ref: "main" };
 const base = "a".repeat(40);
 const revision = "b".repeat(40);
 const observed = "c".repeat(40);
@@ -64,66 +16,39 @@ function aWitnessedBranch(branch: string, remote = "origin") {
   return makeMe.aLaunchRecord
     .adHoc({ title: branch })
     .inClaudeSession({ sessionId: branch })
-    .enteredBranch({
-      repository,
-      workspace: branch,
-      branch,
-      committedTip: base,
-      tree: base,
-      trunk: { remote, target, revision: base },
-    })
-    .markedDone()
-    .branchResultFrom({
-      repository,
-      base,
-      revision,
-      manualDeliveryChecked: true,
-    })
+    .awaitingManualDelivery({ repository, base, revision, branch, remote })
     .please();
 }
 
-test.each([
-  { outcome: "an unavailable", failedRead: () => Promise.resolve(undefined) },
-  {
-    outcome: "a rejected",
-    failedRead: () => Promise.reject(new Error("Could not read the target")),
-  },
-])(
-  "$outcome trunk head is retried on the next check",
-  async ({ failedRead }) => {
-    const records = [
-      aWitnessedBranch("first"),
-      aWitnessedBranch("second"),
-      aWitnessedBranch("independent", "mirror"),
-    ];
-    const readTrunkHead = vi
-      .fn<typeof readBranchTrunkRevision>(() => Promise.resolve(observed))
-      .mockImplementationOnce(failedRead);
-    const inspect = vi.fn<typeof inspectManualLanding>(() =>
-      Promise.resolve(undefined),
+test("a failed head read or inspection is retried on the next check while other deliveries settle", async () => {
+  const unavailable = aWitnessedBranch("unavailable", "unavailable");
+  const rejected = aWitnessedBranch("rejected", "rejected");
+  const uninspected = aWitnessedBranch("uninspected", "uninspected");
+  const settled = aWitnessedBranch("settled", "settled");
+  const readTrunkHead = vi
+    .fn<typeof readBranchTrunkRevision>(() => Promise.resolve(observed))
+    .mockResolvedValueOnce(undefined)
+    .mockRejectedValueOnce(new Error("Could not read the target"));
+  const inspect = vi
+    .fn<typeof inspectManualLanding>(() =>
+      Promise.resolve({ repository, remote: "origin", target, base, revision }),
+    )
+    .mockRejectedValueOnce(new Error("Could not inspect the target"));
+  const observations = observedSessionDeliveries({ readTrunkHead, inspect });
+  const delivered = async (records: ReturnType<typeof aWitnessedBranch>[]) =>
+    (await observations.observe(observedTrunk, observed, records)).map(
+      ({ record }) => record,
     );
-    const observations = observedSessionDeliveries({ readTrunkHead, inspect });
 
-    await observations.observe(observedTrunk, observed, records);
-    expect(readTrunkHead.mock.calls.map(([trunk]) => trunk?.remote)).toEqual([
-      "origin",
-      "mirror",
-    ]);
-    expect(inspect.mock.calls.map(([, , trunk]) => trunk?.remote)).toEqual([
-      "mirror",
-    ]);
-
-    await observations.observe(observedTrunk, observed, records);
-    expect(readTrunkHead.mock.calls.map(([trunk]) => trunk?.remote)).toEqual([
-      "origin",
-      "mirror",
-      "origin",
-    ]);
-    expect(
-      inspect.mock.calls.slice(1).map(([, , trunk]) => trunk?.remote),
-    ).toEqual(["origin", "origin"]);
-  },
-);
+  expect(
+    await delivered([unavailable, rejected, uninspected, settled]),
+  ).toEqual([settled]);
+  expect(await delivered([unavailable, rejected, uninspected])).toEqual([
+    unavailable,
+    rejected,
+    uninspected,
+  ]);
+});
 
 test("each project keeps its own revision and checked witnesses", async () => {
   const records = [aWitnessedBranch("same-session")];

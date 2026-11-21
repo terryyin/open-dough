@@ -1,9 +1,14 @@
 // A profile addition read for the local authenticated read boundary
 // (`./requestedRead.ts`, `./avatarRead.ts`): which commit added an agent
-// profile's current allocation as of a pinned revision.
+// profile's current allocation as of a pinned revision. The performed read
+// (`./performedRead.ts`) answers it here.
 
 import { profileAgentName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import type { PublishedSource } from "../src/publishedSource.ts";
+import type { PinnedTexts } from "./pinnedTexts.ts";
 import { parseSafeRepositoryPath } from "./reachablePaths.ts";
+import { answered, unreachable, type Outcome } from "./readOutcome.ts";
+import { listedProfileAddition } from "./recordsBesideBacklog.ts";
 import {
   isPinnedRevision,
   refused,
@@ -38,4 +43,29 @@ export function parseAdditionRead(
     return refused("An addition read names only an agent profile path.");
   }
   return { kind: "addition-at", revision, path: repositoryPath };
+}
+
+// Which commit added the profile, unreachable when the revision lists no such
+// profile. The avatar source stays here: the page asks for the image through
+// `./avatarRead.ts`, never from GitHub itself.
+export async function performAdditionRead(
+  pinned: PinnedTexts,
+  source: PublishedSource,
+  read: AdditionRead,
+  signal: AbortSignal,
+): Promise<Outcome> {
+  const added = await listedProfileAddition(pinned, source, read, signal);
+  if (added === undefined) {
+    return unreachable;
+  }
+  return answered({
+    revision: read.revision,
+    path: read.path,
+    added: added && {
+      commit: added.commit,
+      committerName: added.committerName,
+      committedAt: added.committedAt,
+      login: added.login,
+    },
+  });
 }

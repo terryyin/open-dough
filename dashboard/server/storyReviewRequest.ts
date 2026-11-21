@@ -3,12 +3,14 @@
 // handler (`storyReview` in `./storyReviewSnapshot.ts`).
 import { sessionComparisonKeySchema } from "../src/sessionReviewComparisons.ts";
 import type {
+  PublishedSessionReviewRead,
   SessionReviewRead,
   StoryReviewRead,
 } from "../src/storyReviewRead.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import {
+  queriedPublishedSessionSubject,
   queriedSessionSubject,
   queriedStorySubject,
   reviewedWorkSubjectQuery,
@@ -19,7 +21,8 @@ export interface AdmittedStoryReview {
   readonly kind: "story-review";
   readonly read:
     | (StoryReviewRead & { readonly subject: ReviewedStorySubject })
-    | SessionReviewRead;
+    | SessionReviewRead
+    | PublishedSessionReviewRead;
 }
 
 function sessionReviewRead(url: URL): SessionReviewRead {
@@ -76,8 +79,16 @@ function identityReviewRead(
 }
 
 export function storyReviewRequest(url: URL): AdmittedStoryReview {
+  const subject = reviewedWorkSubjectQuery(url);
+  if (subject.kind === "published") {
+    requireExactQuery(url, subject.keys, "review");
+    return {
+      kind: "story-review",
+      read: { subject: queriedPublishedSessionSubject(url) },
+    };
+  }
   const read =
-    reviewedWorkSubjectQuery(url).kind === "session"
+    subject.kind === "session"
       ? sessionReviewRead(url)
       : identityReviewRead(url);
   return { kind: "story-review", read };

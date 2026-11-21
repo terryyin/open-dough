@@ -4,6 +4,7 @@
 // narrower SessionReviewRead; the page query still emits from StoryReviewRead.
 import {
   reviewedWorkQuery,
+  type ReviewedPublishedSessionSubject,
   type ReviewedSessionSubject,
   type ReviewedWorkSubject,
 } from "./reviewedWorkSubject.ts";
@@ -24,6 +25,11 @@ export interface StoryReviewRead {
 export interface SessionReviewRead {
   readonly subject: ReviewedSessionSubject;
   readonly run?: string;
+}
+
+// What a published session review reads: only its subject.
+export interface PublishedSessionReviewRead {
+  readonly subject: ReviewedPublishedSessionSubject;
 }
 
 export function storyReviewQuery(

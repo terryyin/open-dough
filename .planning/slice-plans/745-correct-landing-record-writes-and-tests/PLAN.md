@@ -56,8 +56,8 @@
 - **Boundaries.** Plan
   [742](../742-prove-ad-hoc-review-handoffs/PLAN.md) (Taken) slice 4
   extracts the branch-entry command's typed admission and handler. Plan
-  [743](../743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
-  (Taken at `44d066285`) slice 4 narrows the publisher cases and leaves
+  [743](https://github.com/terryyin/open-dough/blob/514bc1d2df0fd5310e15c05bffe7d6639cb3e0d0/.planning/slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
+  slice 4 narrowed the publisher cases and left
   this story the composed-store fixture and the deletion fix. Plan
   [736](https://github.com/terryyin/open-dough/blob/24864be6360f87cc9fec3dc4333de5361de165eb/.planning/slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md) owns
   observation fixtures. Recheck each one's landed form before editing a
@@ -397,9 +397,16 @@ ownership preserved the affected proof. Guarded delivery contained two
 mechanical type-aware lint findings before Git publication. No new process
 change was identified.
 
-The final target still owes the support-wide Done-write scan when plan 743
-integrates `00870a500`. The typed composed Done path and its regression
-proof are delivered on this branch.
+Plan 743 integrated its Done-helper removal at `f6f42edab`. The combined
+backend-support scan found only MakeMe setup, capture parameters and
+forwarding to the production Done write. The focused publisher and Review
+cases keep their landed assertions. The composed landing adapter still
+uses the production Done write during its race, and the blank publisher
+deletes the composed record that owns the landing. The same declared-landing
+builder now supplies the prepared Done case's actual Git entry tree and
+observed trunk revision. The combined selection passed 46 cases and
+Dashboard typecheck. See `closure-743-reconciled.json` in the worktree Git
+evidence.
 
 Hosted backend run `44853956929/1` failed one existing lost-start recovery
 case. A controlled worker-first shutdown reproduced the exact missing

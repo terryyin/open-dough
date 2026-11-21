@@ -20,6 +20,7 @@ import {
 } from "./storyReviewRecordAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
+import { publishedSessionReview } from "./publishedSessionReview.ts";
 import { historicalStoryReview } from "./storyReviewHistorical.ts";
 import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
 
@@ -27,22 +28,27 @@ export async function storyReviewResponse(
   { read }: AdmittedStoryReview,
   res: ServerResponse,
 ): Promise<AgentLaunchAnswer> {
-  const input = await reviewInput(read);
   const body = await withResponseSignal(
     res,
-    (signal) => storyReview(input, signal),
+    async (signal) => storyReview(await reviewInput(read, signal), signal),
     storyReviewWaitMs,
   );
   return { status: 200, body };
 }
 
-// Answers one review read for a story or an ad hoc session. A session read
-// answers from the kept session state it carries. A refusal the kept state
-// decides is thrown as `RefusedRequest` with its status.
+// Answer one review read for a story or an ad hoc session. A local session
+// uses its admitted launch record. A published session uses its fetched
+// project source. Refusals carry their status in `RefusedRequest`.
 export async function storyReview(
   input: StoryReviewInput,
   signal: AbortSignal,
 ): Promise<StoryReview> {
+  if ("published" in input)
+    return publishedSessionReview(
+      input.published,
+      input.read.subject.published,
+      signal,
+    );
   const request = await keptStoryReview(input);
   const choices =
     request.runs.length === 0

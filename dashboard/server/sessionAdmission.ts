@@ -21,11 +21,7 @@ import type { Recorded } from "./recordedSessionLookup.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { launchHost } from "./launchHosts.ts";
 import { projectFolder } from "./projectFolders.ts";
-import {
-  keptRecords,
-  keptSession,
-  sessionRecord,
-} from "./launchRecordStore.ts";
+import { keptSession } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { heldCursorSessions } from "./hosts/cursor/heldSessions.ts";
 import { sessionKey } from "../src/sessionReference.ts";
@@ -81,23 +77,12 @@ export async function recordedSession(
   }
 }
 
-// A kept session named as other session reads name it, or the unknown-session
-// refusal. Mutating namedSession and unread-report reads resolve through this;
-// review builds kept state through the review-input adapter instead.
+// Resolve a kept session by its host-qualified name, or refuse the request.
 export async function namedKeptSession(
   source: PublishedSource,
   session: SessionReference,
 ): Promise<LaunchRecord> {
-  return namedSessionRecord(await keptRecords(source.id), session);
-}
-
-// The same session among the records kept for its project, which the caller
-// has read.
-export function namedSessionRecord(
-  records: readonly LaunchRecord[],
-  session: SessionReference,
-): LaunchRecord {
-  const record = sessionRecord(records, session);
+  const record = await keptSession(source.id, session);
   if (record === undefined) throw noSuchSession();
   return record;
 }

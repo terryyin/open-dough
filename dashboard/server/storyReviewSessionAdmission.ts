@@ -4,13 +4,14 @@ import {
   sessionDeliveryRun,
   type SessionComparisonKey,
 } from "../src/sessionReviewComparisons.ts";
-import { branchResultAtDone } from "../src/sessionBranchResult.ts";
-import type { ReviewedSessionSubject } from "../src/reviewedWorkSubject.ts";
+import {
+  branchResultAtDone,
+  hasBranchReview,
+} from "../src/sessionBranchResult.ts";
+import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { hasBranchReview } from "./sessionBranchCapture.ts";
 import { branchResultReview } from "./storyReviewBranchResult.ts";
-import { keptSessionOf, type KeptSessionState } from "./storyReviewInput.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import {
   keptSessionRun,
@@ -25,14 +26,11 @@ export type AdmittedSessionReview = {
   readonly readSession: (signal: AbortSignal) => Promise<StoryReview>;
 };
 
-// The kept session record admits the session subject and its named run key.
+// Choose the named run from the admitted session's retained comparisons.
 export function admittedSessionReview(
-  subject: ReviewedSessionSubject,
+  record: LaunchRecord,
   named: string | undefined,
-  kept: KeptSessionState,
 ): AdmittedSessionReview {
-  const record = keptSessionOf(kept, subject);
-
   const branch = branchResultAtDone(record);
   const firstRun = keptSessionRun(record);
   const choices: SessionComparisonKey[] = [];

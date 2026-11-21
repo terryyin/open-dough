@@ -2,7 +2,8 @@
 // listing facts (`../server/machineSessionsFragments.ts`). Reporting handoff,
 // landing evidence, first input text and resolved follow-up context come with
 // the history when a developer opens or acts on a retained session or expands
-// Recently done sessions (`./retainedHistory.ts`). Open sessions are listed in
+// Recently done sessions (`./retainedHistory.ts`); the listing keeps only the
+// handoff's reference, which names the session's published record. Open sessions are listed in
 // full except that a follow-up lists its source without the resolved context
 // or the copy in its first input text.
 
@@ -67,8 +68,17 @@ export function sessionListing(record: LaunchWithState): LaunchWithState {
             historyOnlyFields.firstInput,
           ),
         }),
+    ...(done &&
+      record.request.reporting !== undefined && {
+        reportingReference: record.request.reporting.reference,
+      }),
   };
 }
+
+// The reporting reference of a session as either its listing or a full answer
+// (a mark-done, read, stop, delete or recovery answer) gives it.
+export const reportingReferenceOf = (session: LaunchWithState) =>
+  session.reportingReference ?? session.request.reporting?.reference;
 
 // A retained session as the history read gives it in full, kept current by
 // the overview's later `listing` of it: the listing's facts stand, and the

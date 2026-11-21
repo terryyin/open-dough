@@ -7,6 +7,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 
 // A path no test creates: kept records name it as gone.
@@ -14,27 +15,6 @@ const gone = (name: string) =>
   path.join(tmpdir(), `ad-hoc-review-${process.pid}-${name}`);
 const review = (input: Parameters<typeof storyReview>[0]) =>
   storyReview(input, new AbortController().signal);
-
-test("Given a default launch without a landing, when its review is read, then it says its changes were not captured", async () => {
-  const records = [
-    makeMe.aLaunchRecord
-      .adHoc({ title: "Default" })
-      .inClaudeSession({ sessionId: "default-no-landing" })
-      .markedDone()
-      .please(),
-  ];
-
-  const read = makeMe.aSessionReviewRead
-    .ofSession("default-no-landing")
-    .keeping(records)
-    .please();
-
-  expect(await review(read)).toEqual({
-    kind: "landing-unavailable",
-    comparison: "session-commits",
-    explanation: "This session's changes were not captured.",
-  });
-});
 
 test("Given an ad hoc landing whose repository is gone, when its review is read, then it explains the gap", async () => {
   const read = makeMe.aSessionReviewRead
@@ -85,22 +65,17 @@ test("Given an ad hoc landing whose comparison objects are gone, when its review
 });
 
 test("Given an unreadable kept comparison, when its review is read, then it still identifies the session's commits", async () => {
-  const records = [
-    makeMe.aLaunchRecord
-      .adHoc({ title: "Missing kept repository" })
-      .inClaudeSession({ sessionId: "unreadable-kept-commits" })
-      .keptSessionCommits({
-        repository: gone("kept-repo"),
-        runs: [{ base: "a".repeat(40), revision: "b".repeat(40) }],
-      })
-      .markedDone()
-      .please(),
-  ];
-
-  const read = makeMe.aSessionReviewRead
-    .ofSession("unreadable-kept-commits")
-    .keeping(records)
+  const record = makeMe.aLaunchRecord
+    .adHoc({ title: "Missing kept repository" })
+    .inClaudeSession({ sessionId: "unreadable-kept-commits" })
+    .keptSessionCommits({
+      repository: gone("kept-repo"),
+      runs: [{ base: "a".repeat(40), revision: "b".repeat(40) }],
+    })
+    .markedDone()
     .please();
+
+  const read = makeMe.aSessionReviewRead.ofRecord(record).please();
 
   expect(await review(read)).toEqual({
     kind: "landing-unavailable",
@@ -108,4 +83,49 @@ test("Given an unreadable kept comparison, when its review is read, then it stil
     explanation:
       "The repository that kept this session's commits is missing or unreadable.",
   });
+});
+
+test("Review reports an attribution gap and refuses files of that branch pair", async () => {
+  const repository = await materializeLocalCheckout(
+    undefined,
+    makeMe.aRepository
+      .withRevision("base")
+      .withRevision("tip", { files: { "draft.txt": "session draft\n" } })
+      .please(),
+  );
+  try {
+    const { base, tip } = repository.revisions;
+    const attributionGap = "The saved branch changes could not be separated.";
+    const record = makeMe.aLaunchRecord
+      .adHoc({ title: "Conflicting branch changes" })
+      .inClaudeSession({ sessionId: "unattributed-branch" })
+      .branchResultFrom({
+        repository: repository.integration,
+        base,
+        revision: tip,
+        attributionGap,
+        manualDeliveryChecked: true,
+      })
+      .markedDone()
+      .please();
+    const read = makeMe.aSessionReviewRead.ofRecord(record);
+
+    expect(await review(read.please())).toMatchObject({
+      kind: "unavailable",
+      explanation: attributionGap,
+      deliveryGap: expect.stringContaining("exact fast-forward") as string,
+    });
+    const file = read
+      .readingFile({ baseline: base, tree: tip, path: "draft.txt" })
+      .please();
+    await expect(
+      reviewedFileDiff(file, new AbortController().signal),
+    ).rejects.toMatchObject({
+      status: 409,
+      message:
+        "The file or comparison does not belong to this session's branch result.",
+    });
+  } finally {
+    await repository.cleanup();
+  }
 });

@@ -19,6 +19,7 @@ import { readingIntentCiProofOf } from "./intentCiProofRead.ts";
 import { readingIntentCiStatusOf } from "./intentCiStatusRead.ts";
 import { readingIntentLocationsOf } from "./intentLocationsRead.ts";
 import { readingListedRecordsOf } from "./listedRecordsRead.ts";
+import { readingPublishedSessionsOf } from "./publishedSessionsRead.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 
 export function readingOf(
@@ -40,6 +41,8 @@ export function readingOf(
       return readingPathAt(read.path, read.onBranch?.head ?? read.revision);
     case "agent-profiles-at":
       return readingListedRecordsOf(source, read);
+    case "published-sessions-at":
+      return readingPublishedSessionsOf(source.backlogPath, read);
     case "done-catalog-at":
     case "done-bodies-at":
       return readingDoneCatalogOf(source, read);

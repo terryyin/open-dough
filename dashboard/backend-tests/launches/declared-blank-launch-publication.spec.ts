@@ -1,14 +1,11 @@
 // A blank Default main launch that declared its worktree keeps its installed
-// landing, exact retry and landing pins after retirement and Done, until its
+// landing, exact retry and landing pins after retirement, until its
 // record is deleted.
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { heldLandingPins } from "../../server/launchLandingGit.ts";
-import {
-  deleteRecord,
-  setRecordDoneAt,
-} from "../../server/launchRecordStore.ts";
+import { deleteRecord } from "../../server/launchRecordStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaredPublisherBranch,
@@ -20,7 +17,6 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { review } from "../support/doneCaptureReview.ts";
 import {
   publishInstalled,
   retryInstalledLanding,
@@ -69,22 +65,17 @@ test("a blank Default main launch keeps its declared landing until record deleti
   expect(await trunk()).toBe(candidate);
   retireAdHocBranch(checkout.integration, workspace, branch);
 
-  await setRecordDoneAt(source, record.session, minutesAgo(10), {
-    store: stores,
-  });
-  const kept = await stores.keptRecords(source);
   expect(await retryInstalledLanding(context, stores)).toEqual(landing.receipt);
-  expect(stores.recordOf(session)?.request.reporting).toBeUndefined();
-  const reviewed = await review(kept, record);
-  expect(reviewed).toMatchObject({
-    kind: "landed",
-    baseline: base,
-    tree: candidate,
-    landing: { reference },
-    files: [{ kind: "added", path: "blank-landing.txt" }],
+  const saved = stores.recordOf(session);
+  expect(saved?.request.reporting).toBeUndefined();
+  expect(saved?.landing).toMatchObject({
+    reference,
+    base,
+    revision: candidate,
+    delivery: landing.receipt.delivery,
+    receipt: landing.receipt.receipt,
   });
-  if (reviewed.kind !== "landed") throw new Error("Missing the delivery.");
-  const pinned = `refs/open-dough/one-shot/${reference}/${reviewed.landing.delivery}`;
+  const pinned = `refs/open-dough/one-shot/${reference}/${landing.receipt.delivery}`;
   expect(await heldLandingPins(checkout.integration)).toEqual([
     { ref: `${pinned}/base`, objectId: base },
     { ref: `${pinned}/revision`, objectId: candidate },

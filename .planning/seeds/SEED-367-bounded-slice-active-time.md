@@ -44,6 +44,13 @@ Claude Code and Codex executions in the 30 days to 2026-11-15.
 - **Priority.** After the SEED-345 efficiency stories, because the mechanism
   is still unclear. SEED-334's product-wide end-to-end execution made 410 test
   runs, and repair agents carried 22.8M of its 80.7M.
+- **Evidence (SEED-418, 2026-11-21).** Seven git-heavy backend review cases
+  under `dashboard/backend-tests/review/` (the `ad-hoc-branch-*`,
+  `ad-hoc-manual-landing*`, `ad-hoc-session-comparisons` and
+  `done-kept-session-*` specs) took 3.6–4.8 s at moderate load and timed out
+  at the 5 s default at load ~21, on unchanged code and with `--workers=2`,
+  while branch CI passed them. Refinement should decide those cases' supported
+  load and whether the defect is their speed or their bound.
 - **Effort and boundary.** Medium, low confidence. Refinement first identifies
   each proof's required and supported conditions and how they are measured;
   it does not introduce a universal quiet-machine gate.
