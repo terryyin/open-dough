@@ -5,7 +5,11 @@ import { storyOf } from "../src/launchWorkflow.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
 import type { LandingDecision } from "./launchLandingDecision.ts";
-import { boundLandingReporting } from "./launchLandingRecord.ts";
+import {
+  boundLandingReporting,
+  changeBoundLandingRecord,
+  withLandingPreparations,
+} from "./launchLandingRecord.ts";
 import {
   authorizedLanding,
   resolveLandingComparison,
@@ -70,40 +74,39 @@ export async function decideAttemptLanding(
     throw new Error("Landing reservation is missing.");
   if (nextAttempt.landing !== undefined)
     sameComparison(nextAttempt.landing, report);
-  const binding = { found: false };
-  const nextRecords = records.map((entry) => {
-    if (
-      !("session" in entry) ||
-      entry.request.reporting?.reference !== report.reference
-    )
-      return entry;
-    binding.found = true;
-    const reporting = boundLandingReporting(nextAttempt, entry);
-    return {
-      ...entry,
-      ...(prepare ? {} : { landing }),
-      landingReporting:
-        reporting === undefined
-          ? undefined
-          : {
-              ...reporting,
-              preparations:
-                nextAttempt.landingPreparations ?? reporting.preparations,
-            },
-    };
-  });
-  if (!binding.found && nextAttempt.outcome !== undefined)
-    throw new RefusedRequest(409, "The reporting session was deleted.");
+  const changeRecords =
+    bound === undefined
+      ? undefined
+      : changeBoundLandingRecord(bound, (current) => {
+          const reporting = boundLandingReporting(nextAttempt, current);
+          const landingReporting =
+            reporting === undefined
+              ? undefined
+              : withLandingPreparations(
+                  reporting,
+                  nextAttempt.landingPreparations ?? [],
+                );
+          if (
+            landingReporting === current.landingReporting &&
+            (prepare || current.landing?.receipt === landing.receipt)
+          )
+            return current;
+          return {
+            ...current,
+            ...(prepare ? {} : { landing }),
+            landingReporting,
+          };
+        });
   return {
     landing,
     isNew,
     state: prepare
       ? "prepared"
-      : binding.found
+      : bound !== undefined
         ? "recorded"
         : "pending-native-session",
     path: "attempt",
     nextAttempts,
-    nextRecords,
+    changeRecords,
   };
 }

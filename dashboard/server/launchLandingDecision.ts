@@ -7,6 +7,7 @@ import {
 } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
+import type { LandingRecordChange } from "./launchLandingRecord.ts";
 import { decideAttemptLanding } from "./attemptLandingDecision.ts";
 import {
   declaredLandingRecord,
@@ -20,7 +21,7 @@ export type LandingDecision = {
   readonly state: LandingReceipt["state"];
   readonly path: "attempt" | "retained";
   readonly nextAttempts: readonly LaunchAttemptRecord[];
-  readonly nextRecords: readonly LaunchRecord[];
+  readonly changeRecords?: LandingRecordChange | undefined;
 };
 
 export { decideAttemptLanding, declaredLandingRecord, expiredAttemptRecord };

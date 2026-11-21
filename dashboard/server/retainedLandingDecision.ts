@@ -9,6 +9,10 @@ import type { LandingSubmission } from "./launchLandingAdmission.ts";
 import type { LandingDecision } from "./launchLandingDecision.ts";
 import { establishedStory } from "./launchRecord.ts";
 import {
+  changeBoundLandingRecord,
+  withLandingPreparations,
+} from "./launchLandingRecord.ts";
+import {
   authorizedLanding,
   resolveLandingComparison,
 } from "./launchLandingReservation.ts";
@@ -145,23 +149,25 @@ export async function decideRetainedLanding(
       state: prepare ? "prepared" : "recorded",
       path: "retained",
       nextAttempts: attempts,
-      nextRecords: records,
     };
-  const next = prepare
-    ? {
-        ...current,
-        landingReporting: {
-          ...retained,
-          preparations: [...retained.preparations, landing],
-        },
-      }
-    : { ...current, landing };
+  const changeRecords = changeBoundLandingRecord(current, (record) => {
+    const reporting = record.landingReporting;
+    if (reporting === undefined) return record;
+    if (!prepare)
+      return record.landing?.receipt === landing.receipt
+        ? record
+        : { ...record, landing };
+    const landingReporting = withLandingPreparations(reporting, [landing]);
+    return landingReporting === reporting
+      ? record
+      : { ...record, landingReporting };
+  });
   return {
     landing,
     isNew: true,
     state: prepare ? "prepared" : "recorded",
     path: "retained",
     nextAttempts: attempts,
-    nextRecords: records.map((entry) => (entry === current ? next : entry)),
+    changeRecords,
   };
 }

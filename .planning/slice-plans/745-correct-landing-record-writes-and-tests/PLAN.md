@@ -2,6 +2,24 @@
 
 **Identity:** SEED-413#correct-landing-record-writes-and-tests
 **Source:** [Keep kept records intact through landings and prove it at the landing adapter](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-landing-record-writes-and-tests)
+**Source review:** [Independent promises](source-review.md)
+
+## Execution context
+
+- Accepted Story Branch claim: `7ed7478c86f2adcad65c14f8cb6aeaab0d13e3cc`
+  on `origin/main` and the published execution branch
+  `codex/keep-kept-records-intact-through-landings-and-pr`. Starting revision
+  `f7190a3b1e077ab8de9f6ed943120ec45d129c1a`. Publisher:
+  `dashboard-territory.local-open-dough`, agent Yui-chan.
+- Owned execution checkout is the established
+  `.worktrees/keep-kept-records-intact-through-landings-and-pr` worktree.
+  The integration checkout is the repository's default worktree.
+  Locked install and Dashboard typecheck passed with Node 24.21.0.
+- Codex observer for the execution branch: GitHub `ci.yml` (CI), coordinator
+  `yui-745`, directory `/tmp/dough-ci-501/watch-P95x26`, PID 69075, yielded
+  cell `g72:18`, session `72505`. The initial claim's trunk CI is unobserved.
+- Keep the planning authority of the accepted plan. No override of overrun
+  replanning was requested.
 
 ## Correction input
 
@@ -90,8 +108,20 @@ is a pure eight-line function and the admission order is sequential calls in
 the outcome; each slice's case still fails before its fix. The affected
 specs passed in hosted CI at `8ecbf43ae` (2026-11-20 23:44 UTC, success),
 whose `dashboard/server` and `dashboard/backend-tests/support` match this
-revision. Run the affected cohort locally before slice 1 as the timing
-baseline.
+revision.
+
+At `7ed7478c8`, the eight-spec baseline had 23 passing cases and three
+default-timeout failures with the runner's two local workers:
+`declared-blank-launch-publication`, `declared-worktree-publication` and
+`ad-hoc-session-comparisons`. All 26 passed at the same default timeout with
+`--workers=1` (21.46 s total). The respective publisher and mixed Review
+case durations were 2.45 s, 3.17 s and 3.15 s under that selection. Plan 743
+slice 4 owns the publisher and mixed-case proof reductions and the
+worktree/mixed default-timeout repair. Use the one-worker cohort for local
+comparison; the serial pass supplies a controlled baseline and leaves the
+default-load failures attributed separately. The two decision specs ran 12
+cases in about 1.09 s of case time combined. The checkout's Git evidence
+directory retains `baseline-default.json` and `baseline-serial.txt`.
 
 ## Plan review
 
@@ -105,7 +135,7 @@ remaining slice-specific planning concern.
 ### 1. A landing changes only the record it binds
 
 Type: Behavior
-Status: planned
+Status: done
 
 Pre-condition: composed stores keep a project's declared-landing launch, an
 unresolved creation record and another session. Trigger: `handleLanding`
@@ -120,6 +150,22 @@ decisions, so these cases observe what the machine store would keep.
 **Proof.** Persistence cases at `handleLanding` with composed stores fail
 when the adapter writes the decision's snapshot (scratch revert). Rerun the
 existing landing and publisher specs that read the stores.
+
+**Observed.** Both adapter cases failed before the write fix with the
+production-retention fixture in place. Prepare dropped the creation and record
+overwrote the intervening Done and newly added session. With the fix, the
+retained and attempt paths preserved the exact kept documents. Exact retries
+performed no record write. Interleaved preparations kept both deliveries,
+and a replaced launch kept its record untouched.
+
+The serial nine-spec cohort passed 30 cases, the expanded machine
+landing/recovery/history/follow-up checks passed, and the eight selected
+Chromium specs passed 11 cases without retries. The early one-shot case now
+asserts a pending-native-session receipt and an unconsumed record EIO marker.
+The browser recovery case still observes a real bound-record EIO, reporting
+retry, and the exact landed comparison. Literal commands, assertions, trace,
+and logs are in `slice-1-report.md` beside the runs in the worktree Git
+evidence directory.
 
 ### 2. A branch handoff keeps a concurrent Done and reports only what it saved
 

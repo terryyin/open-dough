@@ -3,6 +3,10 @@ import { randomUUID } from "node:crypto";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { LandingStores } from "../../server/launchLandingReporting.ts";
+import {
+  recordRetention,
+  withinRetention,
+} from "../../server/launchRecordDocument.ts";
 import { leaveMachineJson } from "../../server/machineJsonStore.ts";
 import { withBranchResultAtDone } from "../../server/sessionBranchCapture.ts";
 import {
@@ -43,7 +47,7 @@ export function composedLandingStores(initial?: {
         "session" in entry && entry.session.sessionId === sessionId,
     );
   const replaceRecords: LandingStores["replaceRecords"] = async (change) => {
-    const next = await change(records);
+    const next = await change(recordRetention(records, Date.now()).kept);
     if (next !== leaveMachineJson) records = next;
   };
   return {
@@ -85,7 +89,7 @@ export function composedLandingStores(initial?: {
     },
     keptRecords: (sourceId) =>
       Promise.resolve(
-        (records[sourceId] ?? []).filter(
+        withinRetention(records[sourceId] ?? [], Date.now()).filter(
           (entry): entry is LaunchRecord => "session" in entry,
         ),
       ),

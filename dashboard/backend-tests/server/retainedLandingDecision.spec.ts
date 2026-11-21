@@ -158,5 +158,7 @@ test("an expired attempt beyond retention records against its retained record", 
   expect(decision.state).toBe("recorded");
   expect(decision.landing).toEqual(prepared);
   expect(decision.nextAttempts).toEqual([]);
-  expect(decision.nextRecords[0]?.landing).toEqual(prepared);
+  expect(decision.changeRecords?.(records)[0]).toMatchObject({
+    landing: prepared,
+  });
 });
