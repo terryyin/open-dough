@@ -252,6 +252,12 @@ plus the unchanged review journeys and backend review specs. Vitest browser
 specs take builders from `pageMakeMe.mjs`, which now includes
 `aSessionRecord`; the native evidence identity check passes.
 
+**CI repair (run 44841049977).** The new per-snapshot listing read broke the
+header journeys' exact read counts and was unknown to the frontend read
+substitute. The substitute now answers it with an empty listing, and the
+header journeys compare later reads with their own opening reads instead of
+fixed counts; the full dashboard-frontend group passed locally.
+
 ### 7. Discover and open a published session on a second machine
 
 Type: Behavior
