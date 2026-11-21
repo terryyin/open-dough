@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_speed-intent-source-and-story-reading.json",
+      "identity": "SEED-413#speed-intent-source-and-story-reading",
+      "completedAt": "2026-11-21T14:53:17.813Z",
+      "blob": "098ce1f7d03039d9cd5577beb761b99fc355f093"
+    },
+    {
       "fileName": "SEED-413_tie-done-capture-cases-to-production.json",
       "identity": "SEED-413#tie-done-capture-cases-to-production",
       "completedAt": "2026-11-21T14:01:09.473Z",

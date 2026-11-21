@@ -452,7 +452,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 2a | Get fast proof of Intent CI status and cue contrast (completed; recoverable at `3acae5160:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing`) | 15 | 7 |
 | 2b | [Get fast proof of Intent timing history](#speed-intent-timing-history-proof) | 31 | 19 |
 | 2c | [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof) | 49 | 18 |
-| 3a | [Get fast proof of Intent locations read recovery and settings problems](#speed-intent-source-and-story-reading) | 7 | 2 |
+| 3a | Get fast proof of Intent locations read recovery and settings problems (completed; recoverable at `e0f7d6a6a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading`) | 7 | 2 |
 | 3b | [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours) | 23 | 16 |
 | 3c | [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading) | 41 | 19 |
 | 4 | [Get fast proof of board and side-panel interactions](#speed-dashboard-board-and-panel-proof) | 63 | 28 |
@@ -551,7 +551,7 @@ and `pageMakeMe.mjs` CI proof builders.
   Proof. Homepage attempt proof and Summary proof belong to
   [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof);
   the story-source and location views belong to
-  [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading).
+  [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours).
 - **Key examples.** A collected history read fails → the selected scope keeps
   its last history and live proof, offers Retry, and recovers without
   borrowing history from a different project, endpoint, or scope key. Done
@@ -595,7 +595,7 @@ boundary alongside [Get fast proof of Intent timing history](#speed-intent-timin
   `SEED-413#speed-intent-proof-and-timing`; collected timing history belongs to
   [Get fast proof of Intent timing history](#speed-intent-timing-history-proof);
   the story-source and location views belong to
-  [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading).
+  [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours).
 - **Key examples.** The chosen attempt lacks some proof → the homepage and
   Summary identify which evidence survived → sorting, drilling into a file, and
   returning preserve the reading, Show % preference, and units without
@@ -607,65 +607,6 @@ boundary alongside [Get fast proof of Intent timing history](#speed-intent-timin
   [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
   case-count, spent-support, and coverage checks. Summary proof gives faster
   feedback as soon as its slices land.
-
-<a id="speed-intent-source-and-story-reading"></a>
-
-### Get fast proof of Intent locations read recovery and settings problems
-
-**Identity:** SEED-413#speed-intent-source-and-story-reading
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/755-speed-intent-source-and-story-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"df5153187713c625d9e0ac1370d718025ce8d3e871767a57e0a32e9eefc66629","plan":"37bd65576583652b72d63c5bd407771ef3272e985b1bd065d13673380fde3206"}}
-```
-
-- **Goal.** Dashboard maintainers get fast Vitest feedback that a developer
-  reading Project Intent sees the specific cause when Intent settings are
-  unreadable, malformed or absent or when a locations read fails, can Retry on
-  demand to open the configured source or absent explanation, and recovers
-  unreachable or rate-limited Intent locations on the shared schedule without
-  conflating published-detail waits.
-- **Scope.** Own the 2 legacy Intent locations read-recovery and
-  settings-problem specs (`intent-gherkin-settings-problems` and
-  `intent-read-recovery` — 7 legacy cases), plus reshaping
-  `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`)
-  to build typed `IntentLocations`, forwarding optional `readFile` on
-  `loadRepositoryTexts` (`dashboard/src/repositoryFileReads.ts`) so
-  shared-wait recovery exercises both published-detail and Intent locations
-  readers, and retiring the unused `locationsRequest` export
-  (`dashboard/test-support/intentReadRecoveryPage.ts`) and `pygardon`
-  (`dashboard/test-support/intentGherkinUnusableFixtures.ts`) after checking
-  callers. Retain the authenticated recovery and published Gherkin boundaries
-  in `e2e/intent/intent-read-boundary-recovery.spec.ts` and
-  `e2e/intent/intent-gherkin-unusable.spec.ts`. Source browsing, pinned
-  navigation links, and reading-place detours belong to
-  [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours);
-  Changed tests story context, Done Intent and Review modes, Done story
-  references, Story notes, and recorded slice progress and execution completion
-  belong to
-  [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading);
-  independent CI comparison, status, timing history, and Summary proof belong
-  to the preceding stories; frontend runner retirement belongs to
-  [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner).
-- **Key examples.** Unreadable and malformed Intent settings stay distinct
-  from not-configured. When an Intent locations read fails, the reader sees
-  the specific `.planning/open-dough.json` cause and revision, and manual
-  Retry reads it again and shows the configured Gherkin source at its revision
-  or the not-configured explanation. Unreachable Intent locations recover on
-  the 15, 30, 60, and 60 second schedule while visible, pause recovery while
-  hidden and ask once on reveal, reread when a standing rate limit ends, keep
-  malformed settings visible until manual Retry with no spontaneous retry, and
-  share a transient wait with published detail while keeping Intent pending
-  when only detail heals.
-- **Evaluation.** All 7 legacy cases across the 2 owned files have a traceable
-  disposition and the unit proof runs on Vitest over `ProjectIntentReading`,
-  `IntentReadSourceOnPage`, `IntentReadRecovery`, and
-  `makeMe.anIntentLocationsAnswer` without `act` wrapping. Apply the
-  applicable [shared acceptance](#acceptance-shared-by-the-eight-stories)
-  timing, case-count, spent-support, and coverage checks for this 2-file
-  locations cohort (`act` retirement in `stories/story-notes-control` and
-  removal of shared `test-support` modules still consumed by E2E or later
-  specs belong to their owning stories). Locations read-recovery and
-  settings-problem proof gives faster feedback at two workers than its
-  comparable legacy Playwright selection.
 
 <a id="speed-intent-source-browsing-and-detours"></a>
 
