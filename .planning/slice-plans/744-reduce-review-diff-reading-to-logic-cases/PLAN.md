@@ -168,7 +168,7 @@ rendered colours with backgrounds and contrast.
 ### 5. Frontend test names say what they test
 
 Type: Structure
-Status: planned
+Status: done
 
 Rename the remaining review specs and helpers (`syntax-appearance-mounted`,
 `syntax-arrival-mounted`, `syntax-languages-mounted`, `mountedFileDiff.ts`,
@@ -184,14 +184,123 @@ spec headers.
 lists only `test-harness/mounted-dashboard.spec.ts`; the frontend Vitest and
 Playwright runs select the same case counts as before the rename; no stale
 path remains in `git grep`; typecheck and lint pass. Every case in the
-touched files has a median of three attempts under 500 ms, recorded per case
-in this plan.
+touched files has its median of three attempts recorded per case in this plan.
+
+**Result.** Every review `-mounted` spec, both review helpers, the 21 Intent
+`-mounted` specs and the five `mountedComparison*Cases.ts` modules are renamed
+by what they check; only `test-harness/mounted-dashboard.spec.ts` keeps
+`mounted`. The mounted review specs took names apart from the built-app specs:
+`token-readability` (in-diff token colour and contrast) beside
+`syntax-appearance` (agreement with Intent's source reading), `late-styling`
+(styling that arrives after the diff) beside `syntax-arrival` (unreadable text
+or failed grammar), `language-colours` and `styled-rendering`. Intent
+collisions: `-relative-scale` beside `intent-ci-comparison-relative`,
+`-check-again` beside e2e `intent-ci-comparison-retry`, `-file-proof-counts`
+beside `intent-summary-story-comparison-file`, `-column-sort` beside
+`intent-summary-story-comparison-sort`, and `-rows` for the bare summary spec.
+Case titles listed by both runners are identical before and after; the full
+frontend run selects 643 Playwright and 169 Vitest cases, all passing.
+
+Per-case medians of three attempts, 21 November 2026, AC power. Playwright
+(`--workers=2 --reporter=json`) at load 22.2, 20.5, 17.2; Vitest
+(`--reporter=json`) at load 19.7, 17.9, 18.3 (one-minute average at each
+attempt's start).
+
+| File | Cases | Medians |
+| --- | --- | --- |
+| `comparisonAdapterCases.ts` | 3 | ≤ 108 ms |
+| `comparisonCancelledCases.ts` | 4 | ≤ 118 ms |
+| `comparisonEndpointCases.ts` | 6 | ≤ 123 ms |
+| `comparisonGapCases.ts` | 9 | ≤ 119 ms |
+| `comparisonTakenCases.ts` | 4 | ≤ 128 ms |
+| `intent-ci-comparison-check-again.spec.ts` | 3 | ≤ 349 ms |
+| `intent-ci-comparison-entries.spec.ts` | 3 | ≤ 131 ms |
+| `intent-ci-comparison-gaps.spec.ts` | 1 | ≤ 459 ms |
+| `intent-ci-comparison-head.spec.ts` | 1 | ≤ 217 ms |
+| `intent-ci-comparison-legacy.spec.ts` | 3 | ≤ 186 ms |
+| `intent-ci-comparison-relative-scale.spec.ts` | 4 | ≤ 188 ms |
+| `intent-ci-comparison-scope-running.spec.ts` | 1 | ≤ 292 ms |
+| `intent-ci-comparison-scope-selection.spec.ts` | 2 | ≤ 343 ms |
+| `intent-ci-comparison-selection.spec.ts` | 2 | ≤ 284 ms |
+| `intent-ci-comparison-sort.spec.ts` | 5 | ≤ 126 ms |
+| `intent-ci-comparison-units.spec.ts` | 4 | ≤ 120 ms |
+| `intent-ci-comparison-wording.spec.ts` | 5 | ≤ 149 ms |
+| `intent-source-target-recovery.spec.ts` | 2 | ≤ 1017 ms |
+| `intent-summary-story-comparison-column-sort.spec.ts` | 3 | ≤ 252 ms |
+| `intent-summary-story-comparison-fallback.spec.ts` | 3 | ≤ 172 ms |
+| `intent-summary-story-comparison-file-proof-counts.spec.ts` | 5 | ≤ 113 ms |
+| `intent-summary-story-comparison-gaps.spec.ts` | 5 | ≤ 125 ms |
+| `intent-summary-story-comparison-outside.spec.ts` | 1 | ≤ 167 ms |
+| `intent-summary-story-comparison-relative.spec.ts` | 6 | ≤ 166 ms |
+| `intent-summary-story-comparison-rows.spec.ts` | 6 | ≤ 129 ms |
+| `intent-summary-story-comparison-signed-sort.spec.ts` | 4 | ≤ 208 ms |
+| `story-review-diff-grammar-selection.spec.ts` | 36 | ≤ 164 ms |
+| `story-review-diff-language-colours.spec.ts` | 3 | ≤ 300 ms |
+| `story-review-diff-late-styling.spec.ts` | 3 | ≤ 536 ms |
+| `story-review-diff-line-sides.spec.ts` | 14 | ≤ 1 ms |
+| `story-review-diff-styled-rendering.spec.ts` | 1 | ≤ 528 ms |
+| `story-review-diff-token-readability.spec.ts` | 3 | ≤ 250 ms |
+| `story-review-diff-word-emphasis-decoration.spec.ts` | 1 | ≤ 367 ms |
+| `story-review-diff-word-emphasis.spec.ts` | 7 | ≤ 2 ms |
+
+| Case | Attempts (ms) | Median |
+| --- | --- | --- |
+| `intent-ci-comparison-gaps.spec.ts` · each failed Baseline Check again holds the button disabled and retains the query and failure reason | 459/464/278 | 459 ms |
+| `story-review-diff-late-styling.spec.ts` · styling that arrives after the diff keeps the reading position, revealed context and an open line menu | 536/372/610 | 536 ms |
+| `story-review-diff-styled-rendering.spec.ts` · a styled TypeScript diff keeps the plain diff's change facts and copy, and styles revealed lines | 528/256/532 | 528 ms |
+| `intent-source-target-recovery.spec.ts` · a selected source case keeps line 44 and reading while the new revision's file read is held then released | 673/475/583 | 583 ms |
+| `intent-source-target-recovery.spec.ts` · a selected source case keeps line 44 and reading while the new revision's file read failed then retried | 1017/683/1175 | 1017 ms |
+
+G1 is observed: the gaps case's median is 459 ms. G2 is not: the styled
+rendering case's median is 528 ms at load about 18–20. `late-styling`'s
+arrival case (536 ms) and both `intent-source-target-recovery` cases (583
+and 1017 ms) are also over 500 ms; they became touched files through the
+rename. No test-side wait was found in them without a shared page-object
+change, which is outside this slice. Commitment 11 is open.
+
+A follow-up at load 7.7–8.1 timed the four cases in one Vitest run of their
+three files. The medians were worse, not better:
+- recovery "held then released": 723/660/981 ms
+- recovery "failed then retried": 735/788/938 ms
+- `late-styling` arrival: 621/558/823 ms
+- `styled-rendering`: 624/616/1035 ms, now the first case in its run
+
+Step timing of the recovery cases puts most of their time in the app's own
+work, not in test-side waits:
+- mounting and opening the source: 290–575 ms
+- each activation and the re-render that follows: 93–250 ms
+
+Pressing Show latest and Retry by keyboard in the spec-local page objects did
+not reliably shorten those steps (219/93 and 188 ms), so the edit was
+withdrawn. Commitment 11 stays open for these four cases.
+
+### 6. The remaining touched cases run under 500 ms
+
+Type: Structure
+Status: planned
+
+Human checkpoint first. Four cases are still over 500 ms after slice 5:
+`styled-rendering` (G2), `late-styling`'s arrival case, and both
+`intent-source-target-recovery` cases (G3). Slice 5's step timing puts the
+recovery cases' time in mounting, opening the source and re-rendering. Test-side
+activation changes did not reliably help. The likely remedy is cheaper
+mounting in the shared harness, which the story excludes. A developer decides
+among three paths:
+- re-measure on a quiet machine, with a paired comparison against `b9493978`;
+- amend the story to admit a harness change or move the harness work to a
+  follow-up story;
+- amend which files count as touched.
+
+**Proof.** Every case in the touched files has a median of three attempts
+under 500 ms, recorded per case, or the story records the developer's changed
+promise.
 
 ## Concern evidence
 
 Refinement was not needed: each slice has one proof loop, slices 2–4 share
 the one rule that domain logic is proved over the exported rule while
-rendering stays mounted, and five slices fit the limit. Slice 1's cause is
+rendering stays mounted, and five slices fit the limit; slice 6 was split from slice 5's
+unmet timing promise at its human checkpoint. Slice 1's cause is
 not yet observed; it is an early probe whose stop condition keeps the later
 slices from depending on an unknown. No other slice-specific concern was
 found.
@@ -215,9 +324,14 @@ found.
 ### G1. Intent gaps case stays over 500 ms under load (first reported in slice 1; acceptance runs at load about 10: 621, 455, 571 ms; remaining time is the app's reloads, navigation and first render)
 Reported: slice 1 — "The gaps case's median is still 571 ms"
 Story clause: "every case in the touched files has a median of three attempts under 500 ms"
-Disposition: receiving slice 5
+Disposition: proved by slice 5: PLAN.md slice 5 Result, `intent-ci-comparison-gaps.spec.ts` 459/464/278 ms, median 459 ms (evidence s5-time-pw-1..3)
 
 ### G2. Reduced styled-diff mounted case not yet measured under 500 ms (first reported in slice 4; load 22–26, paired runs: old 1449/1108/1123 ms, new 686/657/523 ms, ratio 0.59 of the quiet 672 ms baseline ≈ 393 ms)
 Reported: slice 4 — "the mounted case's median is over 500 ms in absolute terms on this loaded machine"
 Story clause: "every case in the touched files has a median of three attempts under 500 ms"
-Disposition: receiving slice 5
+Disposition: receiving slice 6
+
+### G3. Renamed touched cases over 500 ms (first reported in slice 5; `late-styling` arrival 536 ms and 621 ms medians; `intent-source-target-recovery` held then released 583 and 723 ms, failed then retried 1017 and 788 ms; mostly mount and re-render)
+Reported: slice 5 — "three cases in files that only became touched through the rename are over 500 ms"
+Story clause: "every case in the touched files has a median of three attempts under 500 ms"
+Disposition: receiving slice 6

@@ -9,8 +9,8 @@ import {
   greetDiff,
   greetText,
 } from "../../test-support/support/diffSyntaxFixtures.ts";
-import { styledDiffReading } from "./mountedFileDiff.ts";
-import { mountedReviewDiff } from "./mountedReviewDiffPage.ts";
+import { styledDiffReading } from "./styledDiffReading.ts";
+import { reviewDiffPage } from "./reviewDiffPage.ts";
 
 function greetingDiff(path: string) {
   return styledDiffReading({
@@ -23,7 +23,7 @@ function greetingDiff(path: string) {
 
 test("a styled TypeScript diff keeps the plain diff's change facts and copy, and styles revealed lines", async () => {
   const { rerender } = await mountComponent(greetingDiff("base.txt"));
-  const diff = mountedReviewDiff();
+  const diff = reviewDiffPage();
   await expect
     .element(diff.newLine(31).line)
     .toHaveTextContent(" export default greeting;", {

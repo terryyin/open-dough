@@ -6,7 +6,7 @@ import { textLines } from "../../src/diffContextExpansion.ts";
 import { DiffLines } from "../../src/StoryReviewDiffLines.tsx";
 import type { ReviewedFileText } from "../../src/storyReviewContract.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
-import { mountedReviewDiff } from "./mountedReviewDiffPage.ts";
+import { reviewDiffPage } from "./reviewDiffPage.ts";
 import { limit } from "./wordEmphasisCases.ts";
 
 function plainDiff({
@@ -27,7 +27,7 @@ function plainDiff({
 
 async function mountPlainDiff(input: Parameters<typeof plainDiff>[0]) {
   await mountComponent(plainDiff(input));
-  return mountedReviewDiff();
+  return reviewDiffPage();
 }
 
 test("emphasized words are underlined, copy plain, and revealed context stays unemphasized", async () => {

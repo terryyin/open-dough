@@ -86,7 +86,7 @@ function underlineAppearance(mark: Locator, line: Locator) {
   };
 }
 
-export function mountedReviewDiff() {
+export function reviewDiffPage() {
   const reading = page.getByCSS(".story-review-code");
   const revealedBefore = reading.getByRole("list", {
     name: "Omitted lines before the next change",

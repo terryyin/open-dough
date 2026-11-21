@@ -1,5 +1,5 @@
 // Printed review diffs for the word-emphasis rule. `limit` also carries both
-// file texts, so mounted cases can reveal its surrounding context.
+// file texts, so the decoration case can reveal its surrounding context.
 import type { ReviewedFileText } from "../../src/storyReviewContract.ts";
 import { printedDiff } from "./styledDiffCases.ts";
 
