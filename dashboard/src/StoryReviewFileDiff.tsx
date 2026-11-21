@@ -13,10 +13,6 @@ import {
 } from "./StoryAnchoredFollowUp.tsx";
 import { StyledFileDiff } from "./StyledFileDiff.tsx";
 import {
-  reviewedFileDiffSchema,
-  reviewedFileTextSchema,
-  storyReviewFileEndpoint,
-  storyReviewFileTextEndpoint,
   type ReviewedFile,
   type ReviewedFileDiff,
   type ReviewedFileText,
@@ -61,12 +57,9 @@ export function FileDiff({
 }) {
   const note = useDiffStoryNote(reviewed, from, tree, file);
   const query = reviewFileQuery(reviewed, from, tree, file);
-  const { answer, problem, reading } = useReviewRead<ReviewedFileDiff>(
-    storyReviewFileEndpoint,
-    query,
-    reviewedFileDiffSchema,
-    { fixed: diffFixed },
-  );
+  const { answer, problem, reading } = useReviewRead("fileDiff", query, {
+    fixed: diffFixed,
+  });
   const [textRound, setTextRound] = useState(0);
   const [lineFollow, setLineFollow] = useState<{
     readonly line: number;
@@ -77,12 +70,11 @@ export function FileDiff({
     done !== undefined &&
     fileFollowUpParts(reviewed, from, tree, file) !== undefined;
   const textEnabled = answer?.kind === "diff";
-  const textRead = useReviewRead<ReviewedFileText>(
-    storyReviewFileTextEndpoint,
-    query,
-    reviewedFileTextSchema,
-    { round: textRound, enabled: textEnabled, fixed: textFixed },
-  );
+  const textRead = useReviewRead("fileText", query, {
+    round: textRound,
+    enabled: textEnabled,
+    fixed: textFixed,
+  });
   const text = textRead.answer?.kind === "text" ? textRead.answer : undefined;
   const textProblem =
     textRead.problem ??

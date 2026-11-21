@@ -1,80 +1,95 @@
 // The Files divider's chosen width serves every review opened afterwards in
-// this browser, also after a reload. An unusable kept value and refused
-// storage each leave the sidebar at 16rem (shared parsing and refusal:
-// ../navigation/side-panel-width-kept.spec.ts). Until a choice is kept, the
-// sidebar is 16rem and nothing is kept
-// (./story-review-files-divider.spec.ts first step). The divider's own
-// resizing is ./story-review-files-divider.spec.ts.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+// this browser's real storage. An unusable kept value and refused storage
+// each leave the sidebar at 16rem (shared parsing and refusal:
+// ../navigation/side-panel-width-kept.spec.ts). Until a choice is kept the
+// sidebar is 16rem and nothing is kept, and the divider's own resizing is
+// ./story-review-files-divider.spec.ts.
+import { expect, onTestFinished, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
 import {
-  filesDividerOf,
+  forgetFilesWidth,
   keepFilesWidth,
+  keptFilesWidth,
   rem,
-} from "../../test-support/filesDividerPage.ts";
-import { watchPageErrors } from "../../test-support/pageErrors.ts";
+} from "./story-review-files-divider-view.ts";
 import {
-  anotherStoryWithReview,
-  openAnotherStoryReview,
-  openReview,
-  reloadAndOpenReview,
-  takenStoryWithReview,
-} from "../../test-support/support/frontendSidePanelWidth.ts";
+  doneStory,
+  mountReviewChanges,
+  reviewSourceAnswering,
+} from "./story-review-panel-page.ts";
 
-test("the chosen file sidebar width serves another story's review and a reload", async ({
-  page,
-  frontendServices,
-}) => {
-  anotherStoryWithReview(frontendServices);
-  await takenStoryWithReview(page, frontendServices);
-  const review = await openReview(page);
-  const files = filesDividerOf(review);
-  await files.press("ArrowRight", 3);
-  await files.showsSidebarWidth(19 * rem);
-  expect(await files.keptWidth()).toBe(String(19 * rem));
+const oneFile = reviewSourceAnswering({
+  review: () =>
+    Promise.resolve(makeMe.aStoryReview.adding("first.txt").please()),
+  fileDiff: () =>
+    Promise.resolve(
+      makeMe.aReviewedFileDiff.adding("first.txt", "alpha").please(),
+    ),
+});
+const desktop = { viewport: { width: 1280, height: 720 } };
+const otherStory: ReviewedWorkSubject = {
+  ...doneStory,
+  identity: "SEED-2#other-story",
+};
 
-  await test.step("another story's review opens at the chosen width", async () => {
-    const other = filesDividerOf(await openAnotherStoryReview(page, review));
-    await other.showsSidebarWidth(19 * rem);
+// Each case starts and ends with nothing kept, and collects the page's
+// uncaught errors.
+function freshStorageWatchingErrors() {
+  forgetFilesWidth();
+  const errors: string[] = [];
+  const heard = (event: ErrorEvent) => errors.push(event.message);
+  window.addEventListener("error", heard);
+  onTestFinished(() => {
+    window.removeEventListener("error", heard);
+    forgetFilesWidth();
   });
+  return errors;
+}
 
-  await test.step("a reload keeps the chosen width", async () => {
-    await filesDividerOf(await reloadAndOpenReview(page)).showsSidebarWidth(
-      19 * rem,
-    );
-  });
+test("the chosen file sidebar width serves another story's review", async () => {
+  freshStorageWatchingErrors();
+  const review = await mountReviewChanges(oneFile, doneStory, desktop);
+  await review.pressOnFilesDivider("ArrowRight", 3);
+  await review.expectSidebarWidth(19 * rem);
+  expect(keptFilesWidth()).toBe(String(19 * rem));
+
+  // Another story's review opens anew, reading the kept width.
+  const other = review.openAnother(otherStory);
+  await other.expectDiffShows("Added first.txt", "+alpha");
+  await other.expectSidebarWidth(19 * rem);
 });
 
-test("an unusable kept file sidebar width gives 16rem", async ({
-  page,
-  frontendServices,
-}) => {
-  await takenStoryWithReview(page, frontendServices);
-  const errors = watchPageErrors(page);
-  await keepFilesWidth(page, "wide");
-  const files = filesDividerOf(await reloadAndOpenReview(page));
-  await files.showsSidebarWidth(16 * rem);
+test("an unusable kept file sidebar width gives 16rem", async () => {
+  const errors = freshStorageWatchingErrors();
+  keepFilesWidth("wide");
+  const review = await mountReviewChanges(oneFile, doneStory, desktop);
+  await review.expectSidebarWidth(16 * rem);
   expect(errors).toEqual([]);
 });
 
-test("where the browser refuses storage, the sidebar is 16rem and resizes for the page's lifetime without error", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.addInitScript(() => {
-    const refused = () => {
-      throw new DOMException("Storage is refused.", "SecurityError");
-    };
-    Object.defineProperty(window, "localStorage", {
+test("where the browser refuses storage, the sidebar is 16rem and resizes without error", async () => {
+  const errors = freshStorageWatchingErrors();
+  const methods = ["getItem", "setItem", "removeItem"] as const;
+  const kept = methods.map((name) =>
+    Object.getOwnPropertyDescriptor(Storage.prototype, name),
+  );
+  const refused = () => {
+    throw new DOMException("Storage is refused.", "SecurityError");
+  };
+  for (const name of methods)
+    Object.defineProperty(Storage.prototype, name, {
       configurable: true,
-      get: refused,
+      value: refused,
+    });
+  onTestFinished(() => {
+    methods.forEach((name, at) => {
+      Object.defineProperty(Storage.prototype, name, kept[at] ?? {});
     });
   });
-  const errors = watchPageErrors(page);
-  await takenStoryWithReview(page, frontendServices);
-  const files = filesDividerOf(await openReview(page));
-  await files.showsSidebarWidth(16 * rem);
-  await files.drag(48);
-  await files.showsSidebarWidth(16 * rem + 48);
+  const review = await mountReviewChanges(oneFile, doneStory, desktop);
+  await review.expectSidebarWidth(16 * rem);
+  await review.dragFilesDivider(48);
+  await review.expectSidebarWidth(16 * rem + 48);
   expect(errors).toEqual([]);
 });

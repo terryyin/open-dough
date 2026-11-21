@@ -517,107 +517,6 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="mount-story-review-changes-panel"></a>
-
-### Read the Review changes panel's toolbar, details, files and notes in mounted cases
-
-**Identity:** SEED-413#mount-story-review-changes-panel
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/748-mount-story-review-changes-panel/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d654a316edcdfcc36863ffb2d0e1676031ed0ac1420bc7ea56dbc8d5d52d8c6b","plan":"66ea707bf6056b282ef3b055b692359fedbb065a5ab8bb61a8d6350a95dc1310"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on 2026-11-21 as the second Review piece, queued ahead of the remaining
-families. At Terry's request it is larger than the earlier pieces, about two
-dozen cases over one owner. It follows the
-[experience from the completed frontend families](#experience-from-the-completed-frontend-families).
-
-- **Goal.** Dashboard developers read the proof of what the Review changes
-  panel names, reveals, lists and keeps as plain Vitest cases on mounted
-  Chromium, with each review read answered as a typed reply. Today 23
-  built-app cases in eleven `story-review-*` specs load `<App />`, publish a
-  story, open its review from the board and answer the review endpoints
-  through page routes (45.9 summed seconds in CI run 44855532096). After the
-  diff reading moved, Review is still the second-costliest folder per case.
-- **Scope.** Move the specs whose behavior the panel owns:
-  `story-review-toolbar-truthful`, `-toolbar-truthful-gaps`, `-details`,
-  `-details-published`, `-details-runs`, `-uncommitted-check`,
-  `-files-divider`, `-files-divider-kept`, `-touch-height`, `-notes` and
-  `-note-context`.
-  - The owner is [`StoryReview`](../../dashboard/src/StoryReview.tsx). It
-    already takes a typed `request`. Its reads go through
-    [`useReviewRead`](../../dashboard/src/useReviewRead.ts), which calls
-    `fetch` on the four review endpoints. Give it a typed review source
-    behind that hook: one read per endpoint with its query and abort signal,
-    answering the shared
-    [`storyReviewContract.ts`](../../dashboard/src/storyReviewContract.ts)
-    shapes or rejecting with the refusal's words. The page supplies the
-    source that speaks to the endpoints. The kept-answer memo, rounds and
-    the last answer kept while reading stay where they are.
-  - The panel sits inside the page frame. A mounted case supplies the
-    frame's typed state it reads: the projects list, the Sessions sidebar
-    state behind the header's Sessions button, the page's launches behind
-    Follow up, and story notes through `storyNotesState(source)`. These are
-    existing production contexts given typed values, not new wrappers.
-  - Build review answers with page-loadable MakeMe steps (a snapshot, a
-    published review, landed runs, session commits, a range and a file diff)
-    from Node-free builders on `pageMakeMe.mjs`. They replace the
-    `frontendStoryReviewFixtures.ts` shapes for the moved cases.
-  - Operate the panel through small page objects beside the specs. The
-    Playwright `reviewChangesPage.ts` and `reviewControls.ts` stay for the
-    remaining built-app cases and E2E.
-  - Preserve each distinct assertion, including the toolbar's name before
-    and after a published answer, a refused first read and its retry, focus
-    return to the eye, the kept file sidebar width across reviews and where
-    storage is refused, and the shared height budget on a phone. Name each
-    retired built-app case and the mounted case that carries its assertions.
-    Remove a case only where an E2E journey proves the same thing, and name
-    that journey.
-  - Retire each `dashboard/test-support/` export or module whose last
-    consumer moves, and keep what the remaining review specs and E2E use.
-  - **Scope limits.** These stay built-app cases in the parent story,
-    because their behavior belongs to an owner above the panel:
-    `story-review-action` (the story card's inspection group),
-    `-files-divider-room` (the Side panel's width and Maximize, which the
-    page frame owns) and the three `story-review-diff-syntax-*` specs, which
-    read Intent settings or fail a grammar module load. The full-group
-    timing comparison and the `frontendApp.ts` retirement also stay there.
-    This story compares the focused selection before and after.
-- **Key examples.**
-  - *A pending published answer.* A Done story's review opens before its
-    published answer arrives. The toolbar holds progress with no comparison
-    name and no eye. Once the answer arrives it names the comparison and
-    offers the eye.
-  - *A refused first read.* The first read is refused with `refused for
-    proof`. The panel keeps the problem and Refresh. Refresh reads
-    again, the answer arrives and the problem is gone.
-  - *Refresh keeps what is shown.* While a readable comparison is read
-    again the panel keeps its name, eye and diff and shows progress.
-  - *Details behind the eye.* A workspace review opens on the diff with its
-    details hidden. The eye reveals and hides them without moving the
-    reading place. Choosing Commits in the details renames the toolbar, and
-    the range and commit list stay when the details hide. Another story's
-    review opens collapsed with the files shown.
-  - *Landed runs.* A Done story with two captured runs opens on the newer
-    one. Escape from the run picker returns focus to the eye. A selected
-    landed gap offers Landed runs and the eye; a bare landing gap names
-    Landed runs without an eye.
-  - *Uncommitted changes.* The check leaves uncommitted changes out of All
-    changes and back without reading the snapshot again.
-  - *The file sidebar width.* Dragging the Files divider resizes the file
-    sidebar within both minimums. The chosen width serves another story's
-    review. An unusable kept width gives 16rem, and where storage is
-    refused the sidebar is 16rem and resizes without error.
-  - *Notes from a review.* The Notes icon sits with Refresh. A file's note
-    from a Taken workspace keeps the comparison's words and endpoints, and
-    its line menu offers Add note alone. A landed run's note keeps the
-    renamed path and exact endpoints. Closing Notes keeps the diff and
-    returns focus.
-- **Effort hypothesis.** M, at the upper end: 23 cases over one owner, one
-  typed source behind one hook, new page MakeMe steps and page objects,
-  seven slices.
-- **Plan.** [748](../slice-plans/748-mount-story-review-changes-panel/PLAN.md)
-
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -634,8 +533,8 @@ Candidates revision cases already run as mounted cases in
 [Story Review diff reading](#review-diff-reading-after-migration) and
 [Usage Token index reading](#usage-token-index-reading-after-migration) now run
 in mounted Chromium.
-[The Review changes panel](#mount-story-review-changes-panel) is a separate
-story ahead of this one. [System settings' sections and the Usage charts](#system-settings-sections-and-usage-charts-after-migration)
+[The Review changes panel](#review-changes-panel-reading-after-migration) and
+[System settings' sections and the Usage charts](#system-settings-sections-and-usage-charts-after-migration)
 now run in mounted Chromium.
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
@@ -803,6 +702,19 @@ sidebar plan).
   cases (focus after delete, no reread after 70 s) and restored it in a
   later slice. Name each retired case and the mounted case that carries
   each of its assertions before deleting it.
+- **The Review changes panel (plan 748, 2026-11-21).** 23 cases over one
+  owner took seven slices; a typed `ReviewSourceOnPage` behind
+  `useReviewRead` was the only production change. Four of six moving slices
+  were returned at acceptance for a dropped or self-supplied check (the
+  problem gone after a retry, the eye's tooltip and centring, a
+  test-chosen remount key instead of `storyReviewPanelKey`, the comparison
+  description after Notes). The panel still needs an inert
+  `MachineSessions` of about 30 members for `LaunchesOnPage`, though Follow
+  up reads only `records`, and a Done record's body is read over HTTP, so a
+  mounted case reaches Add note only through a Taken story. Mounted cases
+  took about 0.6 s each; the divider drag and the first details mount cost
+  most. Built-app per-case results need
+  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
 - **Support.** Each story retired the support whose last consumer moved,
   and none could retire a module that E2E or another family still used.
   Steps already owned by an E2E journey (the revision check pace, host
@@ -1074,6 +986,19 @@ before rounding.
 | `system-settings-usage-spacing.spec.ts` | equal spacing gives each shown task one slot in completion order across tools, keeps medians on their tasks and actual times, and restores time positions | 2333 | 1377, 2366, 1327 | 1377 |
 | `system-settings-usage-spacing.spec.ts` | narrowest reading window › equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll | 1935 | 1011, 1366, 1266 | 1266 |
 | `system-settings-usage-spacing.spec.ts` | phone › equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll | 1946 | 996, 1778, 1385 | 1385 |
+
+##### Review changes panel reading after migration
+
+The eleven Review changes panel specs (23 cases) ran by file with
+`--workers=2` on AC power under the macOS sleep guard. Built-app at
+`17fe6c2c4` (load 6–9): 30.8, 34.5 and 29.7 s elapsed. Mounted on the
+slice 7 working tree at `5a6b3f667` (load 8.3 → 10.5, 10.5 → 17.6,
+17.6 → 16.0): 16.7, 16.6 and 11.0 s. The median fell 46%, from 30.8 s to
+16.6 s, under a higher load than the baseline, so the baseline was not
+rerun. Mounted cases took a median of 488–693 ms and 593–787 ms on average
+per run (58 ms to 2.9 s; the divider drag and the first details mount
+are slowest). Retiring the support the moved cases left behind took
+`dashboard/test-support/` from 79,355 to 79,143 lines (753 modules).
 
 #### Frontend campaign baseline
 

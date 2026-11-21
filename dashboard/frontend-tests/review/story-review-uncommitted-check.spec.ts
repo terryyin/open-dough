@@ -1,97 +1,52 @@
-import type { Page } from "@playwright/test";
+// The uncommitted check leaves uncommitted changes out of All changes and
+// back from the snapshot already read.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
-  storyReviewEndpoint,
-  storyReviewRangeEndpoint,
-} from "../../src/storyReviewContract.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  frontendFileDiff,
-  frontendReviewIds,
-  frontendReviewSnapshot,
-} from "../../test-support/support/frontendStoryReview.ts";
-import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
+  doneStory,
+  mountReviewChanges,
+  reviewSourceAnswering,
+} from "./story-review-panel-page.ts";
 
-function reviewRequests(page: Page) {
-  const made: string[] = [];
-  page.on("request", (request) => {
-    const { pathname } = new URL(request.url());
-    if ([storyReviewEndpoint, storyReviewRangeEndpoint].includes(pathname))
-      made.push(pathname);
-  });
-  return () => made;
-}
+const snapshot = makeMe.aStoryReview
+  .adding("story.txt", 2)
+  .modifying("staged.txt")
+  .committedAs(makeMe.aStoryReview.adding("story.txt"))
+  .please();
+const diffOf = (lines: string[]) =>
+  makeMe.aReviewedFileDiff.adding("story.txt", ...lines).please();
 
-test("the check leaves uncommitted changes out of all changes and back without reading the snapshot again", async ({
-  page,
-  frontendServices,
-}) => {
-  const wholeFiles = [
-    {
-      kind: "added" as const,
-      path: "story.txt",
-      lines: { added: 2, removed: 0 },
+test("the check leaves uncommitted changes out of all changes and back without reading the snapshot again", async () => {
+  let snapshotReads = 0;
+  let storyLines = ["story", "more"];
+  const source = reviewSourceAnswering({
+    review: () => {
+      snapshotReads += 1;
+      return Promise.resolve(snapshot);
     },
-    {
-      kind: "modified" as const,
-      path: "staged.txt",
-      lines: { added: 1, removed: 0 },
-    },
-  ];
-  const committedFiles = [
-    {
-      kind: "added" as const,
-      path: "story.txt",
-      lines: { added: 1, removed: 0 },
-    },
-  ];
-  const snapshot = frontendReviewSnapshot({
-    files: wholeFiles,
-    uncommitted: {
-      kind: "uncommitted",
-      tree: frontendReviewIds.tree,
-      baseline: frontendReviewIds.baseline,
-      fromTree: frontendReviewIds.baseline,
-      fromBaseline: frontendReviewIds.baseline,
-    },
-    committed: {
-      from: frontendReviewIds.baseline,
-      tree: frontendReviewIds.head,
-      files: committedFiles,
-    },
+    fileDiff: () => Promise.resolve(diffOf(storyLines)),
   });
-  const { answers, reviewChanges: review } =
-    await openFrontendStoryReviewAsOpened(
-      page,
-      frontendServices,
-      snapshot,
-      (initial) => {
-        initial.answerFile(
-          frontendFileDiff("story.txt", ["+story", "+more"]),
-          "story.txt",
-        );
-      },
-    );
-  const { files, diffs } = review;
+  const review = await mountReviewChanges(source, doneStory);
   const file = "Added story.txt";
-  await files.expectListed("2 changed files");
-  await review.comparison.expectUncommittedIncluded(true);
-  await files.chooseShown(file, "keyboard");
-  await files.expectLineCounts(file, "+2 −0");
-  await diffs.expectShows(file, "+more");
-  const requests = reviewRequests(page);
-  answers.answerFile(frontendFileDiff("story.txt", ["+story"]), "story.txt");
-  await review.comparison.includeUncommitted(false);
-  await files.expectRows("1 changed file", ["story.txt"]);
-  await files.expectLineCounts(file, "+1 −0");
-  await diffs.expectShows(file, "+story");
-  await diffs.expectLacks(file, "+more");
-  await review.comparison.expectUncommittedIncluded(false);
-  answers.answerFile(
-    frontendFileDiff("story.txt", ["+story", "+more"]),
-    "story.txt",
-  );
-  await review.comparison.includeUncommitted(true);
-  await files.expectListed("2 changed files");
-  await diffs.expectShows(file, "+more");
-  expect(requests()).toEqual([]);
+  await review.expectListed("2 changed files");
+  await review.revealDetails();
+  await review.expectUncommittedIncluded(true);
+  await review.chooseFileByKeyboard(file);
+  await review.expectLineCounts(file, "+2 −0");
+  await review.expectDiffShows(file, "+more");
+  const readsBefore = snapshotReads;
+
+  storyLines = ["story"];
+  await review.includeUncommitted(false);
+  await review.expectRows("1 changed file", ["story.txt"]);
+  await review.expectLineCounts(file, "+1 −0");
+  await review.expectDiffShows(file, "+story");
+  await review.expectDiffLacks(file, "+more");
+  await review.expectUncommittedIncluded(false);
+
+  storyLines = ["story", "more"];
+  await review.includeUncommitted(true);
+  await review.expectListed("2 changed files");
+  await review.expectDiffShows(file, "+more");
+  expect(snapshotReads).toBe(readsBefore);
 });

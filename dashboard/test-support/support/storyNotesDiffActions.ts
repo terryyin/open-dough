@@ -18,10 +18,6 @@ export function diffNoteActions(page: Page, dialog: Locator) {
       await scope.getByRole("button", { name: n.add, exact: true }).click();
       await expect(dialog).toBeVisible();
     },
-    lineActions: async (scope: Locator, side: DiffLineSide, line: number) => {
-      await lineNumber(scope, side, line).click();
-      return lineMenu.getByRole("menuitem");
-    },
     chooseAddNote,
     fromLine: async (scope: Locator, side: DiffLineSide, line: number) => {
       await lineNumber(scope, side, line).click();

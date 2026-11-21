@@ -1,11 +1,7 @@
 // One active comparison. Refresh reconciles retained run identities; returning
 // to the workspace keeps its comparison and Commits endpoints.
 import { useState } from "react";
-import {
-  storyReviewEndpoint,
-  storyReviewSchema,
-  type StoryReview,
-} from "./storyReviewContract.ts";
+import { type StoryReview } from "./storyReviewContract.ts";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
 import { useDefaultStoryReview } from "./useDefaultStoryReview.ts";
@@ -81,10 +77,9 @@ export function useStoryReviewSelection({
   const selectedRun = runs.find((run) => run.key === selection.run);
   const readsSelectedRun =
     selection.run !== undefined && answered !== selection.run;
-  const runRead = useReviewRead<StoryReview>(
-    storyReviewEndpoint,
+  const runRead = useReviewRead(
+    "review",
     storyReviewQuery({ subject, run: selection.run ?? "" }),
-    storyReviewSchema,
     {
       round,
       enabled: enabled && readsSelectedRun,

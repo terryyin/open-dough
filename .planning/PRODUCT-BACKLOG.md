@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
-- [Read the Review changes panel's toolbar, details, files and notes in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-changes-panel) — SEED-413#mount-story-review-changes-panel ([plan](slice-plans/748-mount-story-review-changes-panel/PLAN.md))
 - [Correct the published session review](seeds/SEED-418-review-published-session-changes.md#correct-published-session-review) — SEED-418#correct-published-session-review ([plan](slice-plans/746-correct-published-session-review/PLAN.md))
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme ([plan](slice-plans/737-build-done-capture-cases-from-makeme/PLAN.md))
 
