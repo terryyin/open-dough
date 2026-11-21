@@ -436,6 +436,8 @@ Accepted: evidence `s8-slice8-return-report.md`. Commitment 15 observed (21 and 
 
 CI repair after `219fc98a5`: published-session listing reads through the pinned GitHub path (`listedSessionRecords` / `pinned.lister`) so stub revisions without a sessions directory list empty instead of unavailable; real listing failures still show as Recently done gaps.
 
+CI repair after `33defaba`: catalog project observation expects the pinned `.planning/sessions` listing that the published-session read now performs through GitHub.
+
 ## Local gates
 
 - Apply the
