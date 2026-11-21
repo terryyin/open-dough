@@ -16,6 +16,10 @@ export function intentBrowser() {
     page.getByRole("button", {
       name: new RegExp(`^(Expand|Collapse) ${path}$`),
     });
+  const location = (path: string) =>
+    page.getByRole("button", {
+      name: new RegExp(`^${path}(\\s|$)`),
+    });
   const file = (path: string) =>
     page.getByRole("button", { name: path, exact: true });
   // The focusable area the selected file's reading scrolls in.
@@ -53,6 +57,10 @@ export function intentBrowser() {
       await expect
         .element(folder(path))
         .toHaveAttribute("aria-expanded", "true");
+      return browser;
+    },
+    async showsLocation(path: string) {
+      await expect.element(location(path)).toBeVisible();
       return browser;
     },
     async showsNoFolder(path: string) {

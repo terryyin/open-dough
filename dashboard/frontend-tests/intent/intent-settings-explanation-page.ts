@@ -24,6 +24,10 @@ export function intentSettingsExplanation() {
         .toBe(text);
       return explanation;
     },
+    async offersRetry() {
+      await expect.element(retryButton).toBeVisible();
+      return explanation;
+    },
     async retry() {
       await retryButton.click();
       return explanation;

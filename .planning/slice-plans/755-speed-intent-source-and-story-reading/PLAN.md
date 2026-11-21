@@ -104,7 +104,7 @@ absent result.
 ### 2. Failed Intent locations recover on the shared transient and rate-limit schedule
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-read-recovery` (5). Reuse `anIntentLocationsAnswer` and
 observe `ProjectIntentReading` with the real `IntentReadRecovery` and
@@ -260,6 +260,10 @@ measurements cover all selected destinations.
 ## Learnings
 
 - **Original Slice 1 overrun (`17` elapsed active minutes, `storyOverruns: 1`, completed proof: none):** Unfinished attempt-owned edits were parked and reverted before in-place slice refinement. The sizing assumption that `anIntentLocationsAnswer` and published-detail recovery were already directly usable on `IntentReadSource` / fake clock proved false: `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`, zero callers after `556535c335`) still returned the retired wire `IntentLocationsAnswer` shape rather than `IntentLocations`, and `loadRepositoryTexts` (`dashboard/src/repositoryFileReads.ts`) lacked the optional `readFile` collaborator parameter that `readCachedFile` in the same module already accepts. In addition, `readingLimit.ts` keeps a monotonic module-level `limitedUntil`, so fake-clock cases in `intent-read-recovery` must use past, monotonically increasing epochs (`2020-01-01` + `1h` per case) and `>= 15s` `directedSeconds`. Splitting the in-progress slice into Slice 1 (typed builder + settings explanations/Retry + unused export cleanup, 2 cases) and Slice 2 (`loadRepositoryTexts` `readFile` seam + fake-clock schedule/shared-wait recovery, 5 cases) brings the plan to 9 slices within the 10-slice execution split cap; former Slices 2–8 become Slices 3–9 unchanged in scope.
+- **Story-boundary reassessment after Slice 2 clock crossed 15m during report assembly (`17.7` elapsed active minutes at pause, `storyOverruns: 2`):**
+  - *Delivered value so far (Slices 1–2):* All 7 Intent locations recovery and settings-problem legacy Playwright cases now run on plain Vitest browser mode (`8` `[mounted-chromium]` cases in `3.9–4.9 s`), `makeMe.anIntentLocationsAnswer` builds typed `IntentLocations`, `loadRepositoryTexts` accepts an optional `readFile` collaborator, and `-6` lines of unused `dashboard/test-support/` exports are retired.
+  - *Remaining scope:* Slices 3–9 (`64` legacy Playwright cases across `35` files: source browsing & navigation, detours & reading place, Changed tests story context, Done Intent & Review modes, Done story references, Story notes, and slice progress/completion/coverage + whole-roster reconciliation).
+  - *Concrete sizing reason for continuing without resplitting or slice-only refinement:* Slice 2 completed all code edits and all 7 verification commands at `15.0` active minutes (`overrun: false` on the final `slice-clock.mjs run`), crossing the 15-minute mark only during verbose report drafting (`2.7` minutes). No slice-only refinement is proposed; the shared `ProjectIntentReading`, `IntentReadSource`, and `anIntentLocationsAnswer` seams are now settled, and keeping implementation reports concise (table-based substance without prose duplication) recovers the `2.5–3` minutes spent on report assembly so remaining cohesive slices fit the 15-minute active-time budget.
 
 ## Plan review
 
@@ -277,9 +281,9 @@ recovery proof loop; remaining slices retain their boundaries.
 - **Workspace:** `/Users/terryyin/git/open-dough/.worktrees/get-fast-proof-of-intent-source-and-story-readin` on branch `cursor/get-fast-proof-of-intent-source-and-story-readin` (default/integration checkout: `/Users/terryyin/git/open-dough`)
 - **Target:** `origin` / `main`
 - **Publisher ID:** `dashboard-territory.local-open-dough` (agent `Nana-chan`)
-- **Published revisions:** claim `c346263b78d91b9d8cabb18ee418360f56ce0462` on `origin/main` (startingRevision `0648ff017ce13c60a489a5442c1bad3e2f2f41a6`, candidateSha `c346263b78d91b9d8cabb18ee418360f56ce0462`; claim `pendingCi: unobserved`); plan-refinement increment `cd05ef9b75ba42c388af72e491affb22a9b6f00a` on `origin/cursor/get-fast-proof-of-intent-source-and-story-readin`
+- **Published revisions:** claim `c346263b78d91b9d8cabb18ee418360f56ce0462` on `origin/main` (startingRevision `0648ff017ce13c60a489a5442c1bad3e2f2f41a6`, candidateSha `c346263b78d91b9d8cabb18ee418360f56ce0462`; claim `pendingCi: unobserved`); plan-refinement increment `cd05ef9b75ba42c388af72e491affb22a9b6f00a` and Slice 1 increment `b2c7b1dc319336bc0216fe265d207c1bbca614ca` on `origin/cursor/get-fast-proof-of-intent-source-and-story-readin`
 - **CI observer:** GitHub Actions, workflow `ci.yml` (`CI`), watching `terryyin/open-dough` branch `cursor/get-fast-proof-of-intent-source-and-story-readin`, mailbox `/tmp/dough-ci-501/watch-dqoYbt`
-- **Baseline `dashboard/test-support/` surface at `c346263b7`:** 792 files, 82,277 lines (after Slice 1: 792 files, 82,271 lines; `-6` lines)
+- **Baseline `dashboard/test-support/` surface at `c346263b7`:** 792 files, 82,277 lines (after Slice 2: 792 files, 82,271 lines; `-6` lines)
 
 ## Proof mapping and measurements
 
@@ -292,3 +296,16 @@ recovery proof loop; remaining slices retain their boundaries.
   - `"unreadable and malformed Intent settings stay distinct from not-configured"` → same title (`:105-156`, preserves Doughnut unreadable + Pygardon malformed + competing-text exclusions and adds Doughnut not-configured check).
   - `"an Intent locations read that fails names its cause, and Retry reads it again"` → same title (`:158-178`, preserves exact `.planning/open-dough.json` + revision alert, Retry alert removal, and `No intent locations are configured for Doughnut.`), paired with `"retrying a failed Intent locations read opens the configured source at its revision"` (`:180-217`, proves commitment `3b` configured source & revision recovery).
 - **Support retired:** `locationsRequest` (`dashboard/test-support/intentReadRecoveryPage.ts`), `pygardon` (`dashboard/test-support/intentGherkinUnusableFixtures.ts`).
+
+### Slice 2 (`intent-read-recovery` — 5 legacy Playwright → 5 `mounted-chromium` Vitest, 0 new E2E)
+
+- **Accepted proof:**
+  - `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-read-recovery.spec.ts --workers=2` (`pass`, `4.44 s` Vitest duration after refactor / `3.94 s` pre-refactor; summed case time `1.29 s`): mounts `PageIntentRecovery` (`dashboard/frontend-tests/intent/intent-read-recovery-page.tsx:62-155`) wiring `usePageVisibility`, `ObservationOutcomes`, `loadRepositoryTexts` (`dashboard/src/repositoryFileReads.ts:72,99-102`), `recordSettledOutcomes`, `useLimitRecovery`, `PublishedReadStatus`, `IntentReadRecovery`, and `ProjectIntentReading` over `makeMe.anIntentLocationsAnswer` and monotonic fake-clock epochs (`onRecoveryClock()`).
+  - `caffeinate -s -i npm run typecheck:dashboard` (`pass`), `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts dashboard/frontend-tests/intent/intent-revision-update-failures.spec.ts --workers=2` (`pass`), `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/intent/intent-shared-reads.spec.ts --workers=2` (`pass`), and `caffeinate -s -i npm run test:e2e -- e2e/intent/intent-read-boundary-recovery.spec.ts --workers=2` (`pass`, `8.03 s`, 3 boundary cases).
+- **Retired legacy case mapping (`dashboard/frontend-tests/intent/intent-read-recovery.spec.ts`):**
+  - `"unreachable Intent locations recover after 15, 30, 60 and 60 seconds while revision checks continue"` → `"unreachable Intent locations recover after 15, 30, 60 and 60 seconds"` (`:67-103`, preserves 15/30/60/60 window bounds, Retry offer, `scripts` + revision recovery, and no 6th read after `+61 s`, plus `showsNoUnansweredDetail()`); composed `headsChecks` continuation at `15 s` is already owned by retained `e2e/intent/intent-read-boundary-recovery.spec.ts:78-85`.
+  - `"Intent locations make no recovery request while hidden and ask once on reveal"` → same title (`:105-123`).
+  - `"published detail and Intent locations share a wait, and healing detail leaves Intent pending"` → same title (`:125-165`).
+  - `"malformed Intent settings stay visible until manual Retry"` → same title (`:167-186`).
+  - `"rate-limited Intent locations reread when the standing limit ends"` → same title (`:188-221`).
+- **Support check:** All `dashboard/test-support/` symbols dropped from `intent-read-recovery.spec.ts` retain active E2E or remaining legacy frontend consumers (`0` zero-caller exports exposed yet).
