@@ -165,7 +165,7 @@ repository case. In the pin-release case keep the before/after pin assertions.
 ### 4. Named worktrees resolve once for the launch case
 
 Type: Structure
-Status: planned
+Status: done
 
 At case materialization, resolve requested worktrees against the declared
 set and the Git paths. Give launch setup one checked lookup and reject an

@@ -9,7 +9,8 @@ import {
 } from "../../server/launchRecordStore.ts";
 import { checkoutSharedMeanwhile } from "../../server/sessionCheckoutShared.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { type Checkout, source } from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import type { Checkout } from "../support/doneCaptureCaseMaterialization.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { aDoneSession } from "../support/doneCaptureReview.ts";
 

@@ -16,8 +16,8 @@ import {
 import { unattachedInput } from "../../server/unattachedInput.ts";
 import { sessionBranchEntryEndpoint } from "../../src/sessionBranchResult.ts";
 import { captureBranchEntryCommand } from "../support/capturedCommandFetch.ts";
+import type { Checkout } from "../support/doneCaptureCaseMaterialization.ts";
 import {
-  type Checkout,
   keep,
   keptRecordOf,
   minutesAgo,
