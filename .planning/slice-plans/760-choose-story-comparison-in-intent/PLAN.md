@@ -157,7 +157,7 @@ for slice 3; the same proof reran green (33, 109, 8 e2e).
 ### 3. Leaving out uncommitted changes and refreshing the worktree
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the same story on **All changes** → clearing **Include
 uncommitted changes** removes `landing.ts`, which only the uncommitted edit
@@ -169,6 +169,19 @@ changes offers no check.
 **Proof.** A case in `intent-story-compare-commits.spec.ts` or a sibling
 `intent-story-compare-uncommitted.spec.ts`, with `answerNextSnapshot` for
 the refreshed worktree.
+
+**Accepted.** `intent-story-compare-uncommitted.spec.ts` uses
+`dashboard/tests/landing.spec.ts` for the story's `landing.ts`, since
+Intent's file view lists located files. The refactor pass moved the
+include-uncommitted setting and its re-enable rule into
+`useStoryReviewSelection` and shared `UncommittedCheck` with the Side
+panel. The intent and review frontend specs (143) and the Side panel's
+uncommitted e2e journeys (11) passed.
+Plan 759 landed first: trunk `f79646813` is merged in, the header keeps
+Compare without the removed outside-location action, and the Compare specs
+use the **Changes** tab. On the merge, `dashboard/frontend-tests/intent`
+and `review` (349) and the 32 e2e specs using the Intent page object or the
+uncommitted check (46) passed.
 
 ### 4. A Done story chooses its published completion or a captured landed run
 
