@@ -1,32 +1,40 @@
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageTokenIndexEndpoint } from "../../src/usageTokenIndex.ts";
-import { test, expect } from "../../test-support/support/frontendApp.ts";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
 import {
-  narrowWindow,
-  twiceZoomedWindow,
-} from "../../test-support/accessibleReading.ts";
-import { visitUsage } from "../../test-support/support/systemSettingsUsagePage.ts";
-import { usageChart } from "../../test-support/support/usageChartPage.ts";
+  doubleUsageDeviceScale,
+  usageColourScheme,
+} from "./system-settings-usage-browser.ts";
+import { mountUsage } from "./system-settings-usage-page.ts";
 
 const million = 1_000_000;
 const day = (date: number) =>
-  `2026-11-${String(date).padStart(2, "0")}T12:00:00.000Z`;
-test.beforeEach(async ({ page }) => {
-  await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
+  new Date(Date.UTC(2026, 10, date, 12)).toISOString();
+
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(day(15)));
+});
+afterEach(() => {
+  vi.useRealTimers();
 });
 
-test("the rolling median is distinct above dots and never enlarges ordinary geometry", async ({
-  page,
-}) => {
+function readingUsage(
+  answer: () => TokenIndexAnswer,
+  viewport?: { readonly width: number; readonly height: number },
+) {
+  return mountUsage(
+    { read: () => Promise.resolve(answer()), refresh: async () => {} },
+    viewport,
+  );
+}
+
+test("the rolling median is distinct above dots and never enlarges ordinary geometry", async () => {
   let answer = makeMe.aTokenIndexAnswer
     .with({ indexes: [million, 2 * million] })
     .please();
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: answer }),
-  );
-  const usage = await visitUsage(page),
-    chart = usageChart(page);
+  const usage = await readingUsage(() => answer);
+  const { chart } = usage;
   await usage.showsPointCount(2);
   const separation = await chart.ordinarySeparation();
   answer = makeMe.aTokenIndexAnswer
@@ -41,6 +49,7 @@ test("the rolling median is distinct above dots and never enlarges ordinary geom
     ["Nov 3 · Codex · 10-task rolling median above scale · 8,000,000"],
   );
   await chart.showsMedianAtLargeDate();
+
   answer = makeMe.aTokenIndexAnswer
     .with({
       indexes: [
@@ -54,36 +63,28 @@ test("the rolling median is distinct above dots and never enlarges ordinary geom
     .please();
   await usage.chooseDays("30");
   await usage.showsPointCount(10);
-  for (const colorScheme of ["light", "dark"] as const) {
-    await page.emulateMedia({ colorScheme });
+  const appearance = usageColourScheme();
+  for (const colour of ["light", "dark"] as const) {
+    await appearance(colour);
     await chart.showsDistinctMedianAboveDots();
   }
 });
 
-test("the chart shows a one-million median and the sixty-five-million task separately", async ({
-  page,
-}) => {
+test("the chart shows a one-million median and the sixty-five-million task separately", async () => {
   const answer = makeMe.aTokenIndexAnswer
     .with({ indexes: [...Array<number>(9).fill(million), 65 * million] })
     .withTrend([{ at: day(10), value: million }])
     .please();
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: answer }),
-  );
-  const usage = await visitUsage(page);
-  const chart = usageChart(page);
+  const usage = await readingUsage(() => answer);
   await usage.showsMedian("1,000,000");
-  await chart.hasAxis(["0", "500K", "1M"]);
-  await chart.showsLarge(
+  await usage.chart.hasAxis(["0", "500K", "1M"]);
+  await usage.chart.showsLarge(
     ["Nov 10 · Codex · 65,000,000 · Large task above 50 million"],
     ["65,000,000"],
   );
 });
 
-test("an in-scale median breaks across above-scale observations and all-large medians stay explicit", async ({
-  page,
-}) => {
+test("an in-scale median breaks across above-scale observations and all-large medians stay explicit", async () => {
   let answer = makeMe.aTokenIndexAnswer
     .with({
       indexes: [
@@ -100,14 +101,11 @@ test("an in-scale median breaks across above-scale observations and all-large me
       { at: day(24), value: million },
     ])
     .please();
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: answer }),
-  );
-  const usage = await visitUsage(page),
-    chart = usageChart(page);
+  const usage = await readingUsage(() => answer);
+  const { chart } = usage;
   await usage.showsPointCount(24);
   await chart.showsSeparatedMedianLevels();
+
   answer = makeMe.aTokenIndexAnswer
     .with({ indexes: Array<number>(10).fill(65 * million) })
     .withTrend([{ at: day(10), value: 65 * million }])
@@ -122,42 +120,31 @@ test("an in-scale median breaks across above-scale observations and all-large me
   );
 });
 
-for (const [name, viewport, deviceScaleFactor] of [
-  ["narrow touch", narrowWindow, 1],
-  ["200% zoom", twiceZoomedWindow, 2],
+for (const [name, viewport, zoom] of [
+  ["narrow touch", { width: 420, height: 900 }, false],
+  ["200% zoom", { width: 640, height: 450 }, true],
 ] as const) {
-  test.describe(name, () => {
-    test.use({ viewport, deviceScaleFactor, hasTouch: true });
-    test("day control, task actions and true overflow values remain readable without hovering", async ({
-      page,
-    }) => {
+  describe(name, () => {
+    if (zoom) beforeEach(doubleUsageDeviceScale);
+    test("day control, task actions and true overflow values remain readable without hovering", async () => {
       const answer = makeMe.aTokenIndexAnswer
         .with({ indexes: [million, 65 * million] })
         .withTask(0, { endedAt: day(9) })
         .withTask(1, { endedAt: day(10) })
         .withTrend([{ at: day(10), value: 65 * million }])
         .please();
-      await page.route(
-        (url) => url.pathname === usageTokenIndexEndpoint,
-        (route) => route.fulfill({ json: answer }),
-      );
-      const usage = await visitUsage(page),
-        chart = usageChart(page);
+      const usage = await readingUsage(() => answer, viewport);
       await usage.chooseDays("7");
       await usage.showsDays("7");
-      await chart.showsMedianOverflow(
+      await usage.chart.showsMedianOverflow(
         ["Codex Median ↑ 65,000,000"],
         ["Nov 10 · Codex · 10-task rolling median above scale · 65,000,000"],
       );
-      await chart.fitsReadingWindow();
-      await usage.selectPoint(
-        "Nov 10 · Codex · 65,000,000 · Large task above 50 million",
-        "touch",
-      );
+      await usage.chart.fitsReadingWindow();
+      const large = "Nov 10 · Codex · 65,000,000 · Large task above 50 million";
+      await usage.selectPoint(large, "touch");
       await usage.showsFact("Token index", "65,000,000");
-      await usage.closeDetail(
-        "Nov 10 · Codex · 65,000,000 · Large task above 50 million",
-      );
+      await usage.closeDetail(large);
     });
   });
 }

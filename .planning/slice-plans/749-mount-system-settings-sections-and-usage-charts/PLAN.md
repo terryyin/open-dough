@@ -2,6 +2,25 @@
 
 **Identity:** SEED-413#mount-system-settings-sections-and-usage-charts
 **Source:** [Read System settings' sections and the Usage charts in mounted cases](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-system-settings-sections-and-usage-charts)
+**Source review:** [Numbered source review](source-review.md)
+
+## Execution context
+
+Story Branch Mode in the dashboard-owned worktree, branch
+`codex/read-system-settings-sections-and-the-usage-char`. The established
+claim `0759aff061bdf15d18ed216fe045454f4b5d67d4` is on `origin/main`
+and the published story branch. Starting revision `17fe6c2c4`.
+Sola-chan, publisher `dashboard-territory.local-open-dough`.
+
+GitHub Actions `ci.yml` observer for the story branch
+(`sola-chan-seed413-749`, `/tmp/dough-ci-501/watch-GxjafV`, PID 95092,
+Codex session 14239 and cell g114:13).
+
+Before any changes, the nine built-app specs passed three times at the claim
+revision. Wall time was 25.624, 26.558 and 36.570 seconds with two workers,
+Node 24.21.0, AC power, 55% free memory before launch, and one-minute load
+5.53, 7.47 and 12.23 at the three launches. Run records and per-file times
+are in the checkout's Git evidence directory as `slice1-baseline-*`.
 
 ## Goal and scope
 
@@ -100,7 +119,7 @@ and each scratch spec was removed afterwards.
 ### 1. Medians, large values and the compared key read in mounted charts
 
 Type: Behavior
-Status: planned
+Status: done
 
 Take the local focused baseline first: run the nine built-app specs alone,
 three times, and keep the elapsed times for slice 7. Then move
@@ -111,6 +130,14 @@ both built-app files.
 **Proof.** The mounted specs pass with all eight titles. One scratch break
 that draws the median at ordinary dot size fails the geometry case and is
 reverted.
+
+The [case mapping](case-mapping.md#slice-1) records the eight replacements.
+Configuration passed with all 24 mounted cases and the retained built-app
+specs. Typecheck passed. Reducing the solitary median to the dot's rendered
+width failed the expected geometry assertion, then the production file was
+restored and checked before the final Configuration run. See local proof
+records `slice1-configuration`, `slice1-typecheck-final` and
+`slice1-median-scratch`.
 
 ### 2. Two tools compare on one axis
 
