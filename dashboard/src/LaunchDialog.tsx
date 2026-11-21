@@ -26,6 +26,7 @@ import "./launch-session.css";
 // opening to start from (`kept`), so the developer can change it.
 export function LaunchDialog({
   readOptions,
+  transcription,
   sourceId,
   projectContext = false,
   heading,
@@ -56,7 +57,7 @@ export function LaunchDialog({
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const instruction = useRef<HTMLTextAreaElement>(null);
-  const dictation = useLaunchInstruction(instruction, dialog);
+  const dictation = useLaunchInstruction(instruction, dialog, transcription);
   const headingId = `${id}-heading`;
   const hintId = `${id}-instruction-hint`;
   const accepted = useRef(false);

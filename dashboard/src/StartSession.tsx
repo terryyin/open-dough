@@ -22,7 +22,6 @@
 // mechanics, including the keyboard's return to the button when nothing was
 // accepted, belong to `LaunchDialog`. A launch that did not start, or may
 // not have, says so beside the button, which stays enabled to start again.
-// Nothing here makes a card or a story.
 //
 // An entry in Recently done that no longer offers Open terminal opens the
 // same dialog from its Follow up (`followUp`), with the same choices and
@@ -46,6 +45,7 @@ import {
   unattachedWhere,
 } from "./sessionPolicyWords.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
+import { instructionTranscription } from "./instructionTranscriptionSource.ts";
 import { requestLaunchHostOptions } from "./launchHostOptionsClient.ts";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
@@ -175,6 +175,7 @@ export function StartSession({
       {open && (
         <LaunchDialog
           readOptions={requestLaunchHostOptions}
+          transcription={instructionTranscription}
           sourceId={sourceId}
           projectContext
           host={host}

@@ -6,6 +6,7 @@ import { IconButton } from "./Icon.tsx";
 import { TerminalPrompts } from "./TerminalPrompts.tsx";
 import { useInstructionRecording } from "./useInstructionRecording.ts";
 import { instructionProblems } from "./instructionTranscription.ts";
+import { instructionTranscription } from "./instructionTranscriptionSource.ts";
 import { terminalDictationText } from "./terminalDictation.ts";
 import { SettingsNavigation } from "./settingsNavigation.ts";
 
@@ -28,11 +29,14 @@ export function useTerminalDictation(
     if (insert(text)) setPending(undefined);
     else setPending({ text, action: recovery() });
   };
-  const recording = useInstructionRecording((transcript) => {
-    const text = terminalDictationText(transcript);
-    if (!text) setProblem(instructionProblems.empty);
-    else offer(text);
-  });
+  const recording = useInstructionRecording(
+    instructionTranscription,
+    (transcript) => {
+      const text = terminalDictationText(transcript);
+      if (!text) setProblem(instructionProblems.empty);
+      else offer(text);
+    },
+  );
   const recordingNow = recording.phase === "recording";
   return {
     control: (

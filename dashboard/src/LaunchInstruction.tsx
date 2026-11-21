@@ -8,11 +8,13 @@ import {
 } from "react";
 import { launchInstructionLimit } from "./agentLaunch.ts";
 import { SettingsNavigation } from "./settingsNavigation.ts";
+import type { InstructionTranscriptionSource } from "./instructionTranscriptionSource.ts";
 import { useInstructionRecording } from "./useInstructionRecording.ts";
 
 export function useLaunchInstruction(
   field: RefObject<HTMLTextAreaElement | null>,
   dialog: RefObject<HTMLDialogElement | null>,
+  source: InstructionTranscriptionSource,
   { before = "Start", subject = "instruction", recordLabel = "Record" } = {},
 ) {
   const openSettings = useContext(SettingsNavigation);
@@ -37,7 +39,7 @@ export function useLaunchInstruction(
     destination.focus();
     return true;
   };
-  const recording = useInstructionRecording((text) => {
+  const recording = useInstructionRecording(source, (text) => {
     if (!append(text)) {
       setOverflow(text);
     }

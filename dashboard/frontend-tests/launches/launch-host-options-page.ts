@@ -3,6 +3,7 @@ import { vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { unattachedPolicyOf } from "../../src/agentLaunch.ts";
 import { hostName } from "../../src/sessionCapabilities.ts";
+import { instructionTranscription } from "../../src/instructionTranscriptionSource.ts";
 import type { HostIdentity } from "../../src/hostDescription.ts";
 import { LaunchDialog } from "../../src/LaunchDialog.tsx";
 import type { LaunchDialogProps } from "../../src/LaunchDialogProps.ts";
@@ -65,6 +66,7 @@ export async function mountCatalogDialog({
       sourceId: source.id,
       projectContext: true,
       readOptions,
+      transcription: instructionTranscription,
       host,
       onHost: (next) => {
         show(source, next);

@@ -10,9 +10,8 @@
 // stays on the card with the action; while the story starts, its card says
 // so (`StoryCardLaunches`) and protects the action (`StoryCard`). The dialog's
 // mechanics, including the keyboard's return to the action, belong to
-// `LaunchDialog`. On a card whose
-// story this machine started without a session (`resumes`), the dialog names
-// the published claim's host/model and the session opens in its kept workspace.
+// `LaunchDialog`. A resume names the published claim's host/model and opens
+// in its kept workspace.
 // A story's Session choices (`LaunchSessionPolicy`) decide its tracking,
 // workspace and landing; the line beside Start (`StartEffects`) says what
 // follows from them. A kept start shows the policy it was started with.
@@ -45,6 +44,7 @@ import {
 import { Play, PencilLine, type LucideIcon } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import { LaunchDialog } from "./LaunchDialog.tsx";
+import { instructionTranscription } from "./instructionTranscriptionSource.ts";
 import { requestLaunchHostOptions } from "./launchHostOptionsClient.ts";
 import { storySession } from "./LaunchSessionPolicy.tsx";
 import type { StartAnswer } from "./useLaunchConfirmation.tsx";
@@ -182,6 +182,7 @@ export function StartLaunch({
       {open && (
         <LaunchDialog
           readOptions={requestLaunchHostOptions}
+          transcription={instructionTranscription}
           sourceId={sourceId}
           host={host}
           onHost={

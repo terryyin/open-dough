@@ -42,7 +42,7 @@ and the existing project, campaign and follow-up owners govern delivery.
 | P12 | Cancel dismisses the dialog without sending a start. [E1, “Escape or Cancel sends nothing”] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts and the ad-hoc dialog case close unsent drafts by Escape and Cancel and record zero Start calls |
 | P13 | Escape restores keyboard focus to the initiating offer. [E1, “returns the keyboard to the offer”] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts and the ad-hoc dialog case observe focus on the actual initiating offer after Escape and Cancel |
 | P14 | Cancel restores keyboard focus to the initiating offer. [E1, “returns the keyboard to the offer”] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts and the ad-hoc dialog case observe focus on the actual initiating offer after Escape and Cancel |
-| P15 | Starting carries through the intended instruction draft. [G, “composing and starting a launch keeps the intended draft”] | slice 7 |  |
+| P15 | Starting carries through the intended instruction draft. [G, “composing and starting a launch keeps the intended draft”] | slice 7 | observed: remaining-proof.md slice 7 names the exact 4,000 and edited final instruction sent once through LaunchDialog Start. Existing session-instruction-voice.spec.ts observes exact story argv and final unattached input. |
 | P16 | Choosing a host updates the host Start asks for. [G, S, E2] | slice 5 | observed: Codex Start in launch-model-effort.spec.ts records the chosen host in the real dialog Start operation |
 | P17 | Choosing a model updates the model Start asks for. [G, S, E2] | slice 5 | observed: Codex Start in launch-model-effort.spec.ts records Native Sol as the chosen model |
 | P18 | Choosing effort updates the effort Start asks for. [G, S, E2] | slice 5 | observed: launch-model-effort.spec.ts records actual Claude medium and max choices and Codex ultra at Start |
@@ -67,18 +67,18 @@ and the existing project, campaign and follow-up owners govern delivery.
 | P37 | Escape after Attach leaves the upload count at zero. [E3, “Cancel or Escape after Attach uploads nothing”] | slice 2 | observed: Cancel and Escape in launch-attachments.spec.ts close attached drafts with no Start invocation or attachment endpoint request |
 | P38 | After Cancel following Attach, the dialog reopens empty. [E3, “reopens empty”] | slice 2 | observed: Cancel and Escape in launch-attachments.spec.ts each reopen with an empty instruction and no attachment list |
 | P39 | After Escape following Attach, the dialog reopens empty. [E3, “reopens empty”] | slice 2 | observed: Cancel and Escape in launch-attachments.spec.ts each reopen with an empty instruction and no attachment list |
-| P40 | Composing and starting preserve the intended dictation. [G, S, “instruction voice capture”] | slice 7 |  |
-| P41 | When dictation overflows 4,000 characters, the existing instruction draft remains available for edit. [E4, “retains both drafts for edit”] | slice 7 |  |
-| P42 | In the same overflow, the dictation draft remains available for edit. [E4, “retains both drafts for edit”] | slice 7 |  |
-| P43 | Cancel abandons a held transcription. [E4] | slice 7 |  |
-| P44 | Escape abandons a held transcription. [E4] | slice 7 |  |
-| P45 | A late grant after either dismissal leaves the next dialog unpopulated by the old interaction. [E4, “a late grant or reply cannot populate the next dialog”] | slice 7 |  |
-| P46 | A late reply after either dismissal leaves the next dialog unpopulated by the old interaction. [E4, “a late grant or reply cannot populate the next dialog”] | slice 7 |  |
+| P40 | Composing and starting preserve the intended dictation. [G, S, “instruction voice capture”] | slice 7 | observed: remaining-proof.md slice 7 shows the 4,000-character transcript append and the final edited dictation sent once in mounted-instruction-voice-overflow.spec.ts, with real story and unattached delivery in session-instruction-voice.spec.ts. |
+| P41 | When dictation overflows 4,000 characters, the existing instruction draft remains available for edit. [E4, “retains both drafts for edit”] | slice 7 | observed: mounted-instruction-voice-overflow.spec.ts preserves and shows the separately retained original draft during review, then returns it editable to the focused field on discard. |
+| P42 | In the same overflow, the dictation draft remains available for edit. [E4, “retains both drafts for edit”] | slice 7 | observed: mounted-instruction-voice-overflow.spec.ts shows the complete candidate including its tail, keyboard shortening and Add, and no extra transcription before the final edited launch. |
+| P43 | Cancel abandons a held transcription. [E4] | slice 7 | observed: mounted-instruction-voice.spec.ts holds one captured clip’s reply, clicks Cancel, and observes its aborted signal, released native track, no Start, and empty next dialog. |
+| P44 | Escape abandons a held transcription. [E4] | slice 7 | observed: mounted-instruction-voice.spec.ts holds one captured clip’s reply, sends Escape, and observes its aborted signal, no Start, and empty next dialog. |
+| P45 | A late grant after either dismissal leaves the next dialog unpopulated by the old interaction. [E4, “a late grant or reply cannot populate the next dialog”] | slice 7 | observed: mounted-instruction-voice.spec.ts holds native stream permission across Cancel and Escape, then observes newly granted tracks released and empty new dialogs with no request. |
+| P46 | A late reply after either dismissal leaves the next dialog unpopulated by the old interaction. [E4, “a late grant or reply cannot populate the next dialog”] | slice 7 | observed: mounted-instruction-voice.spec.ts resolves held transcription after reopening for both Cancel and Escape and observes an empty ready field with no start. |
 | P47 | **Start** is disabled while startup runs. [E5] | slice 8 |  |
 | P48 | **Start** is disabled if the startup answer is lost. [E5] | slice 8 |  |
 | P49 | **Start** is disabled if the startup answer is uncertain. [E5] | slice 8 |  |
 | P50 | The originating story stays protected during an in-progress start, a lost answer, or an uncertain answer. The source leaves the exact guard unspecified. [E5, “the story or Start session stays protected”] | slice 8 |  |
-| P51 | The originating **Start session** stays protected under those same conditions. [E5, “the story or Start session stays protected”] | slice 8 |  |
+| P51 | The originating **Start session** stays protected under those same conditions. [E5, “the story or Start session stays protected”] |  | G1 |
 | P52 | Recovery remains reachable while startup runs. [E5, “with reachable recovery”] | slice 8 |  |
 | P53 | Recovery remains reachable after a lost startup answer. [E5, “with reachable recovery”] | slice 8 |  |
 | P54 | Recovery remains reachable after an uncertain startup answer. [E5, “with reachable recovery”] | slice 8 |  |

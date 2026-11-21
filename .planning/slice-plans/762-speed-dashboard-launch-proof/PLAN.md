@@ -199,7 +199,7 @@ Recently done duplicate; absent model or effort lines stay absent.
 ### 7. Instruction voice abandons cleanly and respects the character limit
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `session-instruction-voice-lifecycle`,
 `session-instruction-voice-overflow`, and
@@ -236,13 +236,12 @@ a task begun meanwhile focused. Starts wait for launch evidence; lost acceptance
 keeps static protection with Recheck until a later read shows the accepted
 start.
 
-## Plan review
+See the [plan review](remaining-proof.md#plan-review) for the proof boundaries.
 
-Slice-plan refinement was not needed: eight Behavior slices follow distinct
-compose, refuse, and recover outcomes; cumulative design reuses `LaunchDialog`
-and typed launch attempts rather than accumulating special-case mounts; proof
-ownership splits unit mounts from E2E native/install journeys; counts are the
-starting 81-case workload with consolidation authorized where risks coincide.
-No remaining slice-specific concern. Early probes for typed host-options and
-transcription sources, and for `SessionsOnPage` handoff where asserted, are
-named on Slices 1, 5, 7, and 8.
+## Story obligations
+
+### G1. Standalone Start session re-enables during startup recovery
+Reported: slice 8 — "Slice 8 preflight found StartSession disables the launcher only while its local attempt is starting. The existing responsive ad hoc recovery and ad hoc timeout E2E cases depend on a separate Startup recovery path, and the timeout case explicitly requires the launcher to re-enable while startup remains uncertain."
+Story clause: "the story or Start session stays protected with reachable recovery"
+Disposition: return
+Commitment: P51
