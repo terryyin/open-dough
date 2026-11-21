@@ -640,107 +640,6 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="mount-story-review-changes-panel"></a>
-
-### Read the Review changes panel's toolbar, details, files and notes in mounted cases
-
-**Identity:** SEED-413#mount-story-review-changes-panel
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/748-mount-story-review-changes-panel/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d654a316edcdfcc36863ffb2d0e1676031ed0ac1420bc7ea56dbc8d5d52d8c6b","plan":"66ea707bf6056b282ef3b055b692359fedbb065a5ab8bb61a8d6350a95dc1310"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on 2026-11-21 as the second Review piece, queued ahead of the remaining
-families. At Terry's request it is larger than the earlier pieces, about two
-dozen cases over one owner. It follows the
-[experience from the completed frontend families](#experience-from-the-completed-frontend-families).
-
-- **Goal.** Dashboard developers read the proof of what the Review changes
-  panel names, reveals, lists and keeps as plain Vitest cases on mounted
-  Chromium, with each review read answered as a typed reply. Today 23
-  built-app cases in eleven `story-review-*` specs load `<App />`, publish a
-  story, open its review from the board and answer the review endpoints
-  through page routes (45.9 summed seconds in CI run 44855532096). After the
-  diff reading moved, Review is still the second-costliest folder per case.
-- **Scope.** Move the specs whose behavior the panel owns:
-  `story-review-toolbar-truthful`, `-toolbar-truthful-gaps`, `-details`,
-  `-details-published`, `-details-runs`, `-uncommitted-check`,
-  `-files-divider`, `-files-divider-kept`, `-touch-height`, `-notes` and
-  `-note-context`.
-  - The owner is [`StoryReview`](../../dashboard/src/StoryReview.tsx). It
-    already takes a typed `request`. Its reads go through
-    [`useReviewRead`](../../dashboard/src/useReviewRead.ts), which calls
-    `fetch` on the four review endpoints. Give it a typed review source
-    behind that hook: one read per endpoint with its query and abort signal,
-    answering the shared
-    [`storyReviewContract.ts`](../../dashboard/src/storyReviewContract.ts)
-    shapes or rejecting with the refusal's words. The page supplies the
-    source that speaks to the endpoints. The kept-answer memo, rounds and
-    the last answer kept while reading stay where they are.
-  - The panel sits inside the page frame. A mounted case supplies the
-    frame's typed state it reads: the projects list, the Sessions sidebar
-    state behind the header's Sessions button, the page's launches behind
-    Follow up, and story notes through `storyNotesState(source)`. These are
-    existing production contexts given typed values, not new wrappers.
-  - Build review answers with page-loadable MakeMe steps (a snapshot, a
-    published review, landed runs, session commits, a range and a file diff)
-    from Node-free builders on `pageMakeMe.mjs`. They replace the
-    `frontendStoryReviewFixtures.ts` shapes for the moved cases.
-  - Operate the panel through small page objects beside the specs. The
-    Playwright `reviewChangesPage.ts` and `reviewControls.ts` stay for the
-    remaining built-app cases and E2E.
-  - Preserve each distinct assertion, including the toolbar's name before
-    and after a published answer, a refused first read and its retry, focus
-    return to the eye, the kept file sidebar width across reviews and where
-    storage is refused, and the shared height budget on a phone. Name each
-    retired built-app case and the mounted case that carries its assertions.
-    Remove a case only where an E2E journey proves the same thing, and name
-    that journey.
-  - Retire each `dashboard/test-support/` export or module whose last
-    consumer moves, and keep what the remaining review specs and E2E use.
-  - **Scope limits.** These stay built-app cases in the parent story,
-    because their behavior belongs to an owner above the panel:
-    `story-review-action` (the story card's inspection group),
-    `-files-divider-room` (the Side panel's width and Maximize, which the
-    page frame owns) and the three `story-review-diff-syntax-*` specs, which
-    read Intent settings or fail a grammar module load. The full-group
-    timing comparison and the `frontendApp.ts` retirement also stay there.
-    This story compares the focused selection before and after.
-- **Key examples.**
-  - *A pending published answer.* A Done story's review opens before its
-    published answer arrives. The toolbar holds progress with no comparison
-    name and no eye. Once the answer arrives it names the comparison and
-    offers the eye.
-  - *A refused first read.* The first read is refused with `refused for
-    proof`. The panel keeps the problem and Refresh. Refresh reads
-    again, the answer arrives and the problem is gone.
-  - *Refresh keeps what is shown.* While a readable comparison is read
-    again the panel keeps its name, eye and diff and shows progress.
-  - *Details behind the eye.* A workspace review opens on the diff with its
-    details hidden. The eye reveals and hides them without moving the
-    reading place. Choosing Commits in the details renames the toolbar, and
-    the range and commit list stay when the details hide. Another story's
-    review opens collapsed with the files shown.
-  - *Landed runs.* A Done story with two captured runs opens on the newer
-    one. Escape from the run picker returns focus to the eye. A selected
-    landed gap offers Landed runs and the eye; a bare landing gap names
-    Landed runs without an eye.
-  - *Uncommitted changes.* The check leaves uncommitted changes out of All
-    changes and back without reading the snapshot again.
-  - *The file sidebar width.* Dragging the Files divider resizes the file
-    sidebar within both minimums. The chosen width serves another story's
-    review. An unusable kept width gives 16rem, and where storage is
-    refused the sidebar is 16rem and resizes without error.
-  - *Notes from a review.* The Notes icon sits with Refresh. A file's note
-    from a Taken workspace keeps the comparison's words and endpoints, and
-    its line menu offers Add note alone. A landed run's note keeps the
-    renamed path and exact endpoints. Closing Notes keeps the diff and
-    returns focus.
-- **Effort hypothesis.** M, at the upper end: 23 cases over one owner, one
-  typed source behind one hook, new page MakeMe steps and page objects,
-  seven slices.
-- **Plan.** [748](../slice-plans/748-mount-story-review-changes-panel/PLAN.md)
-
 <a id="mount-system-settings-sections-and-usage-charts"></a>
 
 ### Read System settings' sections and the Usage charts in mounted cases
@@ -843,8 +742,7 @@ Candidates revision cases already run as mounted cases in
 [Story Review diff reading](#review-diff-reading-after-migration) and
 [Usage Token index reading](#usage-token-index-reading-after-migration) now run
 in mounted Chromium.
-Two pieces are split out and queued ahead of this story:
-[the Review changes panel](#mount-story-review-changes-panel) and
+One piece is split out and queued ahead of this story:
 [System settings' sections and the Usage charts](#mount-system-settings-sections-and-usage-charts).
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
