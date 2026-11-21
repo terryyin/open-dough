@@ -124,7 +124,7 @@ and consumer specs `review/ad-hoc-session-commits{,-done}.spec.ts` and
 ### 2. Keep the quiet report's revision after a held manual Done
 
 Type: Behavior
-Status: planned
+Status: done
 
 Arrange an isolated kept launch and matching reporting attempt, a real
 checkout and two successive commits. Call `NativeDoneMarks.markDone` with
@@ -139,6 +139,18 @@ and remove the now-unused `branchResultValidation.ts` fixture.
 stale capture guard should break the replacement just as it broke the
 legacy case. Run the adjacent branch supersession and worktree result cases
 for unchanged Git capture and pin behavior.
+
+**Accepted proof and learnings.** `ad-hoc-branch-result-race.spec.ts` (158 lines)
+runs on plain Node Vitest (`[node]`), holding `captureBranchResult` on `earlier`
+inside `NativeDoneMarks.markDone`, delivering quiet `deliverCompletion` on `later`,
+and verifying `{ kind: "branch-result", baseline, tree: later }` through `storyReview`,
+`sessionBranchPins` `[baseline, later]` excluding `earlier`, and unused `doneStop`.
+Scratch inverting `record.doneAt !== candidate.doneAt` in `doneTransition.ts` failed
+the tree assertion (`earlier` vs `later`). Deleted `branchResultValidation.ts` and
+unused `launchIsolatedReview` in `adHocReview.ts`. Verified with `typecheck:dashboard`
+and `test:dashboard:backend` across `ad-hoc-branch-result-race`,
+`ad-hoc-branch-result-supersession`, `ad-hoc-branch-worktree-result`, and
+`ad-hoc-manual-landing-precedence`.
 
 ### 3. Keep the verified landed pair when an early report binds
 
