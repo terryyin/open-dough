@@ -1,8 +1,9 @@
-# Get fast proof of Intent evidence and timing history
+# Get fast proof of Intent CI status and cue contrast
 
 **Identity:** SEED-413#speed-intent-proof-and-timing
-**Source:** [Get fast proof of Intent evidence and timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing)
+**Source:** [Get fast proof of Intent CI status and cue contrast](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing)
 **Source review:** [source-review.md](source-review.md)
+**Split:** Terry authorized splitting at delivered Slice 3 on 2026-11-21; former Slices 4–6 moved to `SEED-413#speed-intent-timing-history-proof` ([plan 759](../759-speed-intent-timing-history-proof/PLAN.md), Slices 1–5) and former Slices 7–10 moved to `SEED-413#speed-intent-attempt-and-summary-proof` ([plan 760](../760-speed-intent-attempt-and-summary-proof/PLAN.md), provisional Slices 1–5).
 
 ## Execution context
 
@@ -12,18 +13,23 @@
 - **Target selection:** remote `origin`, trunk `main`
 - **Publisher / agent:** `dashboard-territory.local-open-dough` / `Rio-chan`
 - **Retained published revisions:** claim `58b829487ba83a8a0752eabfeb37391e4169a596` on `origin/main` and `origin/cursor/get-fast-proof-of-intent-evidence-and-timing-his` (`pendingCi: unobserved` for trunk claim published before observer arming)
-- **CI observer:** GitHub Actions (`terryyin/open-dough`, branch `cursor/get-fast-proof-of-intent-evidence-and-timing-his`, selector `ci.yml`, display name `CI`, mailbox `/tmp/dough-ci-501/watch-6mIHcl`)
 
 ## Goal and scope
 
-Dashboard maintainers get fast Vitest feedback on the CI status and
-proof shown at the homepage, entry, folder and file, and on how the
-independent timing histories recover and stay with their source. Move 95
-legacy cases in `dashboard/frontend-tests/intent/` from the status,
-history, proof and Summary families named below. The comparison story owns
-`intent-ci-comparison-*`. The source-reading story owns cases about
-location discovery, file and story selection, navigation and recovery
-outside these proof and timing families.
+Dashboard maintainers get fast Vitest feedback on the CI status and cue
+contrast shown at Intent's homepage, perspective tabs, and side-panel story
+selection. Move the 15 legacy cases across the 7 CI status and dark-contrast
+files in `dashboard/frontend-tests/intent/` (`intent-ci-status-freshness`,
+`intent-ci-status-execution-time`, `intent-ci-status-sort`,
+`intent-ci-status-homepage`, `intent-ci-status-kept`,
+`intent-ci-status-side-panel`, and `intent-ci-cues-dark-contrast`), wire
+`IntentCiReadSourceOnPage` across status, kept-status, proof, history, and
+comparison reads, and expose Node-free `aCiProofEntry`, `aCiProofEvidence`,
+and `aComparedStory` on `pageMakeMe.mjs`. Timing history belongs to
+`SEED-413#speed-intent-timing-history-proof` (`plan 759`), attempt and Summary
+proof belongs to `SEED-413#speed-intent-attempt-and-summary-proof` (`plan 760`),
+CI comparison belongs to `SEED-413#speed-intent-ci-comparison-proof`, and
+source/story reading belongs to `SEED-413#speed-intent-source-and-story-reading`.
 
 ## Decisions and existing owners
 
@@ -31,40 +37,17 @@ outside these proof and timing families.
   [frontend guidance](../../../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
   and [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
   Reuse `mountComponent`, page-loadable history and proof MakeMe builders,
-  and the node-free entry builders behind `aCiProof`. Add the latter to
-  `pageMakeMe` if needed for a case. Preserve literal, diagnostic test
-  titles and share one fixture for multiple independent results of one
-  action where that keeps its purpose clear.
+  and the Node-free entry builders behind `aCiProof` on `pageMakeMe.mjs`.
+  Preserve literal, diagnostic test titles and share one fixture for multiple
+  independent results of one action where that keeps its purpose clear.
 - Reuse `IntentCiEvidenceProvider` and its judgment/attempt proof owners
   for status changes and live proof selection. Supply typed `PublishedSource`,
   `PublishedWork`, active identity and the required typed CI status, kept
-  status and proof read collaborators with the real authenticated defaults.
-  Reuse the comparison story's proof seam when available. Keep a narrow
-  boundary on the existing owner when starting independently.
-- For history use the production `IntentCiHistoryPanel`, `IntentCiHistory`
-  and `IntentScopeTimingHistory` with the existing read state. In cases
-  that observe the read, pass the actual endpoint (source, revision and
-  observation time), selected scope and reading place into the production
-  hooks. Use the existing signatures of `readIntentCiHistory`,
-  `readIntentCiDoneWallTimeHistory` and `readIntentCiScopeHistory` as the
-  typed sources, with `AbortSignal`. Keep the endpoint-key,
-  `useIntentCiEndpointHistory` and `useKeptReading` logic intact. History
-  has its own refresh and displays beside the live proof.
-- For output use `IntentCiProof`, `IntentScopeProofView`,
-  `IntentFileProofView` and `ciScopeComparison` with typed evidence, file
-  inventory, overlay paths and actual callbacks. Mount the production
-  reading place and its sorting/preference state when the selection,
-  drill-down or retention is the result. A case asserting an existing
-  single or compared answer's presentation can give the held answer
-  directly. Keep native keyboard, narrow/zoom layout, contrast and
-  accessible labels in Chromium.
-- Retain the observation owner for each retired title. Move equivalent
-  loop-started mount cases onto one reading or direct production rule
-  check only when all independent words, behaviors and risks still have
-  proof. Record before/after elapsed and counts from comparable rosters,
-  including any proof moved to E2E. Collect the baseline in Slice 1 using
-  the original focused legacy selection and its normal reporter with
-  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
+  status, proof, history, and comparison read collaborators with real
+  authenticated defaults via `IntentCiReadSourceOnPage`.
+- Retain the observation owner for each retired title and record two-worker
+  before/after elapsed time including preparation, engine/destination counts,
+  consolidation/retention rationale, and remaining slow cases.
 
 ## Local gate
 
@@ -79,59 +62,39 @@ costs and changed-owner checks in the slice's verification.
 
 ## Decisive premises and proof
 
-At `42a660a17` on 21 November 2026, macOS on AC with Node 24.21.0 and the
-locked install, the scratch
-`caffeinate -s -i npm run --silent test:dashboard:frontend -- dashboard/frontend-tests/intent/zz-preparation-413-evidence.spec.ts --workers=2`
-mounted `IntentScopeProofView` over typed comparison evidence, inventory
-and explicit sort and preference. The file row was visible and clicking the
-file sent its exact path to the selected-scope callback. The scratch file
-was removed. This substantiates the typed view route for slices 6–9.
-Lifecycle slices exercise real read/selection owners with typed replies.
-
-At the same base,
-`caffeinate -s -i npm run --silent test:dashboard:frontend -- intent-ci-comparison-relative-scale.spec.ts intent-summary-story-comparison-rows.spec.ts --workers=2 --reporter=line`
-passed 10 Playwright cases. Six were the legacy Summary and file rows,
-including exact build messages, independent cues, unchanged meaning,
-and owning-merge evidence. The normal runner's listing identified 95
-legacy titles in this story's scope. Obtain the whole family baseline at
-the execution revision before replacing its cases.
-
 At `58b829487ba83a8a0752eabfeb37391e4169a596` on 21 November 2026 (macOS on AC under `caffeinate -s -i`, `--workers=2`, load 6.34–7.46), the settled pre-change baselines were captured with `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`:
-- Whole 44-file / 95-case legacy Playwright family (`open-dough/evidence/baseline-legacy-95.proof.json`): 95 passed `chromium` cases in 36,187 ms (36.19 s) elapsed including preparation.
+- Whole 44-file / 95-case pre-split legacy Playwright family (`open-dough/evidence/baseline-legacy-95.proof.json`): 95 passed `chromium` cases in 36,187 ms (36.19 s) elapsed including preparation.
 - Status + dark-contrast 7-file / 15-case legacy subset (`open-dough/evidence/baseline-slice1-status.proof.json`): 15 passed `chromium` cases in 13,532 ms (13.53 s) elapsed including preparation.
-- Existing 3-file / 5-case Vitest Project CI wall-time history (`open-dough/evidence/baseline-vitest-wall-time-history.proof.json`): 5 passed `mounted-chromium` cases in 3,437 ms (3.44 s) elapsed including preparation.
-
-The same runner with selectors `intent-project-scope-history-recovery.spec.ts`,
-`intent-ci-comparison-check-again.spec.ts` and
-`intent-ci-comparison-selection.spec.ts`, at two workers with its line
-reporter, passed seven cases. The two project history cases observed a
-failed and empty history preserving live Scope Proof, a measured zero
-and separate partial-unit gaps. Slice 4 reaches those outcomes over the
-typed history source.
+- Existing 3-file / 5-case Vitest Project CI wall-time history (`open-dough/evidence/baseline-vitest-wall-time-history.proof.json`, carried forward to `plan 759`): 5 passed `mounted-chromium` cases in 3,437 ms (3.44 s) elapsed including preparation.
 
 | Promise | Owning proof |
 | --- | --- |
-| Status shows the selected attempt and correct freshness/proof | Slices 1–3. Exercise real selection and typed status/proof reads, including a failure with retained evidence, homepage/side-panel selection and accessible cues. |
-| Project and Done checks keep their actual timing evidence, including independent failure and recovery | Slices 4–6. Observe history, gaps, retry, request keys and the unchanged live proof through the views. |
-| Proof numbers and gaps stay truthful across the homepage, Summary and file | Slices 7–9. Exact rendered words/cues, direct aggregate rules, path selection and no extra live CI read. |
-| Sorting, relative scale and the reading place remain usable | Slice 10. Native controls, kept presentation on drill-down/return and visible ordering. |
-| The run has fewer repeated cases and costs less where equivalent proof permits | Slice 10. Terminal listing, proof destinations, counts, elapsed and leftover runtime. |
+| Status reader replaces warm kept evidence, retains cold usable evidence on failure, and rejects stale trunk answers | Slice 1 (`intent-ci-status-freshness.spec.ts` over `IntentCiEvidenceProvider` + `IntentCiReadSourceOnPage`). |
+| Execution timing, missing/untimed shard words, Proof sorting, and dark-surface cues stay truthful and accessible | Slice 1 (`intent-ci-status-execution-time.spec.ts`, `intent-ci-status-sort.spec.ts`, `intent-ci-cues-dark-contrast.spec.ts`). |
+| Homepage tabs, location recovery, perspective toggles, and trunk-head changes choose and retain CI status without redundant reads | Slice 2 (`intent-ci-status-homepage.spec.ts`, `intent-ci-status-kept.spec.ts` over `IntentPageProviders` + `IntentPerspective`). |
+| Side-panel story selection and ad hoc session transitions choose the intended CI status and the 7-file suite runs faster on Vitest | Slice 3 (`intent-ci-status-side-panel.spec.ts` over `usePageStorySelection` + `usePageSidePanel` + `IntentPerspective`; `8,315 ms` vs `13,532 ms` baseline). |
+
+### Case-disposition ledger and two-worker timing comparison
+
+- **Disposition across all 15 legacy cases (`7` files, `0` legacy Playwright cases remaining on owned files, `0` cases promoted to E2E):**
+  - `intent-ci-status-freshness.spec.ts` (`3` legacy `chromium` -> `3` Vitest `mounted-chromium`): kept as 3 separately named cases because warm kept replacement, cold-load failed refresh retention, and late-trunk race suppression require incompatible reader histories and promise timings.
+  - `intent-ci-status-execution-time.spec.ts` (`4` legacy `chromium` -> `4` Vitest `mounted-chromium`): kept as 4 separately named cases (`6.8–150.5 ms`) for distinct shard-duration failure diagnosis (complete/empty shard sum vs wall time, legacy summary without durations, missing shard explanation, untimed vs `0 ms` shard).
+  - `intent-ci-status-sort.spec.ts` (`2` legacy `chromium` -> `2` Vitest `mounted-chromium`): kept as 2 separately named cases (`506–639 ms`) separating single-unit keyboard/click column sort from multi-unit row sorting without type summation.
+  - `intent-ci-cues-dark-contrast.spec.ts` (`1` legacy `chromium` -> `1` Vitest `mounted-chromium`): already consolidated to 1 `20 ms` case checking every composed CI cue variant on dark surfaces.
+  - `intent-ci-status-homepage.spec.ts` (`2` legacy `chromium` -> `2` Vitest `mounted-chromium`): kept as 2 cases separating homepage/tab/not-configured navigation (`1,461.6 ms`) from locations load/fail/recover independence (`344.7 ms`).
+  - `intent-ci-status-kept.spec.ts` (`2` legacy `chromium` -> `2` Vitest `mounted-chromium`): kept as 2 cases separating perspective/project selection memory (`792.7 ms`) from trunk-head revision vs time-only/other-branch re-query rules (`497.4 ms`).
+  - `intent-ci-status-side-panel.spec.ts` (`1` legacy `chromium` -> `1` Vitest `mounted-chromium`): already sequences Taken final-report switching, card-toggle close retention, and ad hoc terminal clearing in 1 case (`2,777.7 ms`).
+- **Two-worker before/after comparison (`caffeinate -s -i`, `--workers=2`, elapsed including preparation):**
+  - **Before (`baseline-slice1-status.proof.json`):** `15` passed `chromium` Playwright cases (`0` Vitest, `0` E2E) in **`13,532 ms` (`13.53 s`)**.
+  - **After (`slice3-status-7files.proof.json`):** `15` passed `mounted-chromium` Vitest cases (`0` pure-logic Vitest, `0` legacy Playwright, `0` promoted to E2E) in **`8,315 ms` (`8.32 s`, `7,330 ms` runner duration)** — **`-5,217 ms` (`-38.6%`, `1.63x` faster)**.
+  - **Remaining cost / slow cases:** 13 of 15 cases finish in `6.8–792.7 ms`; only `intent-ci-status-homepage.spec.ts` case 1 (`1,461.6 ms`) and `intent-ci-status-side-panel.spec.ts` (`2,777.7 ms`) exceed `1 s` because each drives multiple interactive perspective/side-panel transitions in real Chromium.
+  - **Shared `test-support` audit:** Grep across `e2e/` and remaining `dashboard/frontend-tests/` confirmed every `dashboard/test-support/` helper formerly imported by these 7 files (`intentCiStatusPage.ts`, `intentCiStoryBoard.ts`, `intentCiStoryRecords.ts`, `frontendCiStatusAnswers.ts`, `frontendCiRunProofAnswers.ts`, `frontendFinalReportSubstitutes.ts`, `expectCiComparisonCues.ts`, `expectSortedColumns.ts`) still has live consumers in `e2e/intent/` or the remaining legacy frontend specs; cohort-end spent-support removal moves with `plan 759` and `plan 760`.
 
 ## Learnings
 
-- **Original Slice 1 active-time overrun and split (`15.5` active minutes at stop, `17.0` paused on `slice-clock.mjs`, `storyOverruns: 1`):** Original Slice 1 bundled wiring the 5-collaborator `IntentCiReadSourceOnPage` seam + `pageMakeMe.mjs` extensions with 7 spec files (15 cases, 1,240 lines) across four distinct mount boundaries (`IntentCiEvidenceProvider`, `JudgedBranch`/`IntentCiProof`, `IntentPageProviders`+`ProjectIntentReading`, and `usePageSidePanel`+`IntentPerspective`). Unfinished attempt-owned edits were reverted cleanly (parked in `open-dough/evidence/slice-1-overrun-parked/`) and Original Slice 1 was split in place into Slice 1 (seam + 4 standalone freshness/execution-time/sort/contrast files) and Slice 2 (3 homepage/kept/side-panel selection files + status-family speedup comparison), renumbering former Slices 2–8 to Slices 3–9 (9 slices total, within the 10-slice execution split limit).
-- **Slice 2 active-time overrun, story-boundary reassessment, and split (`15.2` active minutes at stop, `15.7` paused on `slice-clock.mjs`, `storyOverruns: 2`):**
-  - *Delivered value so far:* Slice 1 (`b1a3f27ea77a2ea852aaf628ad6591f889af1408`) wired `IntentCiReadSourceOnPage` across all five Intent CI read owners (`useIntentCiJudgment`, `useIntentCiShownProof`, `useIntentCiHistory`, `useIntentCiComparison`, `useIntentCiComparisonEntries`), exposed Node-free `aCiProofEntry`, `aCiProofEvidence`, and `aComparedStory` on `pageMakeMe.mjs`, and moved 4 standalone status and dark-contrast files (10 cases) to Vitest Browser Mode.
-  - *Completed proof and failed sizing assumption on Slice 2:* `npm run typecheck:dashboard` passed (`0` errors) and test-entry rules were verified before stop; unfinished attempt-owned edits were reverted and parked in `open-dough/evidence/slice-2-overrun-parked/`. Slice 2 overran because it combined two distinct production mount compositions (`IntentPageProviders` + `IntentPerspective` for `homepage`/`kept` versus `usePageStorySelection` + `usePageSidePanel` + `useSessionsSidebar` + `StoryCardSessions` + `IntentPerspective` for `side-panel`) alongside an early repo-wide `test-support` consumer audit.
-  - *Story-boundary reassessment and concrete sizing reason for continuing:* Cutting the story at Slice 1 leaves commitment `12a` (faster status feedback across the 7-file status family) open, and `SEED-413`'s human-authored eight-story campaign groups status, history, and Summary together (sibling `SEED-413#speed-intent-ci-comparison-proof` completed 69 cases in 8 slices). Splitting Slice 2 by mount owner into Slice 2 (`homepage` + `kept`) and Slice 3 (`side-panel` + `12a` status speedup) and renumbering former Slices 3–9 to Slices 4–10 reaches 10 slices (within the 10-slice cap for splitting an active slice during execution). Remaining slices stay within 15 active minutes because each owns a single mount seam (`IntentPerspective`, `usePageSidePanel`, `JudgedBranch`/`IntentCiHistory`, `IntentScopeTimingHistory`, and held-evidence `IntentCiProof`/`IntentScopeProofView`/`IntentFileProofView` with `IntentCiReadSourceOnPage` already wired from Slice 1), while repo-wide spent-support removal is deferred once to Slice 10.
-- **Standalone `IntentCiEvidenceProvider` place boundary:** `IntentCiEvidenceProvider` calls `useObservedTrunkEndpoint` -> `useKeptReading("ciObservedTrunkEndpoint")` (`dashboard/src/IntentCiEvidence.tsx:57`) and therefore requires `<IntentReadingProvider project={source.id}><IntentReadingPlaceOfItsOwn project={source.id}>...</IntentReadingPlaceOfItsOwn></IntentReadingProvider>` when mounted outside `ProjectIntentReading` / `IntentPerspective`.
-- **Typed CI read collaborators (`IntentCiReadSourceOnPage`):** Mounting `IntentCiEvidenceProvider` activates `readKeptIntentCiStatus` + `readIntentCiStatus` (`useIntentCiJudgment`), `readIntentCiProof` (`useIntentCiShownProof`), `readIntentCiHistory` on trunk rounds (`useIntentCiHistory`), and `readIntentCiComparison` + endpoint proofs on Taken Story Branch selections (`useIntentCiComparison` / `useIntentCiComparisonEntries`). Supplying all 5 on `IntentCiReadSourceOnPage` with real authenticated defaults — and optional defaulted parameters on `createCiProofReading`, `createCiComparisonReading`, and `createCiComparisonProofs` — keeps `dashboard/backend-tests/support/ciComparisonClient.ts` and `dashboard/backend-tests/intent/ci-comparison-client-identity.spec.ts` untouched (and matches sibling `SEED-413#speed-intent-ci-comparison-proof`'s `IntentCiReadSourceOnPage` property names).
-- **Node-free builders, contrast helpers, and ESLint rules:** `CiProofEntryBuilder`, `CiProofEvidenceBuilder`, and `ComparedStoryBuilder` have zero `node:*` imports and work directly on `Distribution/tests/support/pageMakeMe.mjs`. `dashboard/test-support/composedColours.ts` works directly in Vitest Browser Mode with `cdp().send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] })`. `eslint.config.mjs` enforces `curly: ["error", "all"]`, `@typescript-eslint/no-unused-vars` with `args: "all"` (use `(...[, arg]) =>` rather than `_unused`), `@typescript-eslint/no-non-null-assertion` (use `presentElement(...)`), and `@typescript-eslint/no-unnecessary-condition` (`element().textContent` is non-nullish `string`).
-- **Named sibling coordination (`SEED-413#speed-intent-source-recovery-and-late-styling-cases` landed on `main` at `4d8152c42`; `SEED-413#speed-intent-ci-comparison-proof` landed on `main` at `0ed001fd1`, merged into this branch at `6b1afcd88`):** Keep new colocated CI status/history/proof page objects in their own files under `dashboard/frontend-tests/intent/` rather than editing `intent-browser-page.ts`, `intent-candidates-page.ts`, `intent-file-reading-page.ts`, `intent-ci-evidence-page.tsx`, `intent-ci-scope-page.tsx`, or `intent-done-story-page.tsx`.
-- **Slice 4 active-time overrun, 10-slice execution cap, and story-split stop (`awaiting story review`; `15.2` active minutes at stop, `16.0` paused on `slice-clock.mjs`, `storyOverruns: 3`):**
-  - *Completed work and parked evidence:* Slices 1–3 are delivered and published (`b41efa7cb`, merged with `origin/main` at `6b1afcd88`), migrating all 7 status + dark-contrast files (15 `mounted-chromium` cases in `8,315 ms` vs `13,532 ms` legacy baseline, `-38.6%`, observing commitment `12a`) and wiring `IntentCiReadSourceOnPage` + `pageMakeMe.mjs`. On Slice 4, `npm run typecheck:dashboard` passed (`open-dough/evidence/slice4-typecheck3.log.run.json`) and 10/16 cases passed on the first run (`open-dough/evidence/slice4-vitest.log.run.json`) before the 15-minute budget expired; all unfinished Slice 4 changes (`tracked.patch` + 5 colocated helper files) were reverted from the working tree and parked intact in `open-dough/evidence/slice-4-overrun-parked/`.
-  - *Failed sizing assumption and over-limit check:* Slice 4 combined three distinct history surfaces (Done wall-time readout/glance/lifecycle across 3 legacy files, Done & Project scope history chart marks across 2 legacy files, and Project CI wall-time owner-refresh + `act`/`createRoot` retirement across 3 Vitest files, plus `readDoneWallTimeHistory`/`readScopeHistory`/`aDoneWallTimeHistory` seams and 5 colocated helpers = 20 files). Splitting Slice 4 in place exceeds the 10-slice execution cap (`problem-decomposition.md#limit-slices-per-plan`), and consolidating any of Slices 5–10 (32 remaining legacy files / 70 cases across 6 slices) would create 10–14-file slices that repeat the overrun.
-  - *Resume condition (`awaiting story review`):* Execution is paused at the delivered Slice 3 boundary awaiting Terry's decision on `.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md` (`#speed-intent-proof-and-timing` Goal, Scope, Key examples, Evaluation, and `#acceptance-shared-by-the-eight-stories` campaign table): (1) authorize splitting at delivered Slice 3 so `SEED-413#speed-intent-proof-and-timing` closes on its independent 7-file / 15-case status + dark-contrast Vitest outcome while the remaining 80 legacy cases move to two bounded `SEED-413` stories — **Intent timing history proof** (Slices 4–6, 19 legacy files / 31 cases + 3 Vitest `act` retirements in 5 slices, reusing `open-dough/evidence/slice-4-overrun-parked/`) and **Intent attempt and Summary proof** (Slices 7–10, 18 legacy files / 49 cases + spent-support cleanup and full 95-case timing comparison in 5 slices) — or (2) choose an alternative scope/slice disposition.
+- **Original Slice 1 (`storyOverruns: 1`) and Slice 2 (`storyOverruns: 2`) active-time overruns and in-place splits:** Original Slice 1 bundled the 5-collaborator `IntentCiReadSourceOnPage` seam + `pageMakeMe.mjs` extensions with 7 spec files across 4 mount boundaries, and Slice 2 bundled `IntentPerspective` (`homepage`/`kept`) with `usePageSidePanel` (`side-panel`). Splitting by mount owner let Slices 1, 2, and 3 each finish cleanly within budget.
+- **Standalone `IntentCiEvidenceProvider` place boundary and `IntentCiReadSourceOnPage` reconciliation (`6b1afcd88`):** `IntentCiEvidenceProvider` requires `<IntentReadingProvider project={source.id}><IntentReadingPlaceOfItsOwn project={source.id}>...</IntentReadingPlaceOfItsOwn></IntentReadingProvider>` when mounted outside `ProjectIntentReading` / `IntentPerspective`. Keeping `readHistory?: typeof readIntentCiHistory | undefined` optional on `IntentCiReadSource` (with fallback `readHistory = readIntentCiHistory` in `useIntentCiHistory.ts`) reconciled cleanly with `SEED-413#speed-intent-ci-comparison-proof` (`0ed001fd1`) while leaving `dashboard/backend-tests/support/ciComparisonClient.ts` untouched.
+- **Slice 4 active-time overrun (`15.2` active minutes, `storyOverruns: 3`) and authorized story split at delivered Slice 3:** Slice 4 bundled 3 history surfaces across 8 test files + seam + 5 helpers (`20` files) while the plan was already at the 10-slice execution cap. Unfinished Slice 4 edits were reverted cleanly, and Terry authorized narrowing `SEED-413#speed-intent-proof-and-timing` to its delivered 7-file / 15-case status and dark-contrast outcome while splitting the remaining 80 legacy cases into `SEED-413#speed-intent-timing-history-proof` (`plan 759`, 5 slices) and `SEED-413#speed-intent-attempt-and-summary-proof` (`plan 760`, 5 provisional slices).
 
 ## Slices
 
@@ -210,118 +173,12 @@ complete 7-file / 15-case status + dark-contrast Vitest selection passed in
 `8,315 ms` (`8.32 s`) elapsed including preparation vs `13,532 ms` (`13.53 s`)
 settled legacy baseline (`-5,217 ms` / `-38.6%`).
 
-### 4. Project and Done history give an honest compact reading
-
-Type: Behavior
-Status: planned
-
-Move `intent-ci-compact-readout`, `intent-ci-done-glance`,
-`intent-ci-done-reference-lifecycle` and the project/CI history chart-mark
-specs. Narrow `JudgedBranch`'s presentation input to what it reads while
-the history owner keeps its refresh round. Put gap rows, run links,
-history-only keyboard order and narrow overflow in the history-only mount.
-Keep the panel-level keyboard path from Check again to Builds and evidence.
-Replace existing act-settle mechanics in the touched Project CI history cases.
-
-**Proof.** The history presents measured, absent and previously retrieved
-facts accurately. A failed or pending history can still show its prior
-figures. Preserve actual build/date marks, compact wording and keyboard
-order at each boundary.
-
-### 5. Project scope history follows the correct source, revision and place
-
-Type: Behavior
-Status: planned
-
-Move `intent-project-scope-glance`, `intent-project-scope-history-*` and
-`intent-scope-glance`. Exercise the history owner against typed replies
-recording the selected source, endpoint, scope and abort. Start with one held
-source switch and observe a new request and its content before migrating the
-remaining isolation cases. Build the common fixture from the real reading
-place and the case's facts.
-
-**Proof.** Project switches, source identity, revision changes, remount and
-retained readings distinguish each relevant key without leaking results.
-Refresh and Retry preserve and replace the appropriate reading.
-
-### 6. Collected timing keeps its units, provenance and gaps
-
-Type: Behavior
-Status: planned
-
-Move `intent-scope-timing-history-*` with a typed history answer and real
-scope history control where the case acts on it. Exercise chart layout and
-membership in Chromium. Use existing pure timing functions for distinct
-segment, unit and provenance calculations.
-
-**Proof.** The chosen build explains absent, partial and unavailable timing.
-Separate case/file readings, interrupted segments, dates and provenance
-remain visible, and history can recover beside usable live proof.
-
-### 7. Homepage and Summary use the same named attempt's proof
-
-Type: Behavior
-Status: planned
-
-Move `intent-ci-proof*` and `intent-summary-ci-proof*`. Compose the typed
-attempt proof and kept evidence. Use the production homepage and Scope
-views for sorting and labels and a production controller for carryover.
-
-**Proof.** Grouped locations, surviving per-part figures, exact gap and
-freshness words, and correct row membership remain readable. A file outside
-the tree counts exactly once. Accessible group/row names and fit at the
-existing viewport and zoom conditions protect the rendered result.
-
-### 8. Compared Summary rows disclose fallback, gaps and outside evidence
-
-Type: Behavior
-Status: planned
-
-Move `intent-summary-story-comparison-{fallback,gaps,outside,rows}`.
-Use one typed overlay and the real scope aggregation for an equivalent
-set of rows. Preserve separate coverage for endpoint choice, owning merge,
-missing units and unavailable provenance.
-
-**Proof.** Selected and ancestor builds are distinguishable. Outside
-rows and fallback counts come from their real endpoint, and each count,
-time and change cue retains its visible and accessible meaning.
-
-### 9. Drill-down gives a file the correct evidence and actions
-
-Type: Behavior
-Status: planned
-
-Move `intent-summary-story-comparison-{file,file-proof-counts,presentation-bindings}`.
-Use the production selection callbacks and file proof boundary, carrying
-the actual overlay or rename and path data. Keep a mounted check wherever
-native controls or binding to the real file selection is the proof.
-
-**Proof.** The real selected file receives its own case/file counts and
-timing, renamed paths select the intended endpoints, and empty or partial
-evidence keeps its distinct reason. Drilling into Proof reuses the same
-attempt without another live proof read where the original case checks it.
-
-### 10. Sorting and relative figures stay with the reader and all proof runs faster
-
-Type: Behavior
-Status: planned
-
-Move `intent-summary-story-comparison-{column-sort,relative,signed-sort,sort}`
-with the production reading place and table. Compare the complete story
-selection with its baseline, count consolidated and retained cases and
-remove support whose last consumer migrated.
-
-**Proof.** Native sorting and Show % expose the expected signed order,
-accessible direction, per-scope scaling and retained preference across
-drill-down and return. Verify the comparison's ownership ledger, Vitest
-selection, elapsed time and case counts across both evidence destinations.
-
 ## Plan review
 
-Refined in place after Original Slice 1's active-time overrun (`storyOverruns: 1`)
-and Slice 2's active-time overrun (`storyOverruns: 2`): reassessed the story
-boundary, split Slice 2 by mount owner into Slice 2 (`homepage` + `kept` on
-`IntentPerspective`) and Slice 3 (`side-panel` on `usePageSidePanel` + status
-speedup), and renumbered former Slices 3–9 to Slices 4–10 (10 slices total,
-within the 10-slice execution-split cap). Each remaining slice exercises a
-single bounded mount seam within the 15-minute active budget.
+Narrowed at delivered Slice 3 on Terry's authorization (`dough-resplit-story`
+`#split-at-a-delivered-slice-boundary`): Slices 1–3 are `done` with independent
+proof and `-38.6%` faster two-worker feedback (`8,315 ms` vs `13,532 ms`), while
+former Slices 4–6 (`31` legacy cases across `19` files + `3` Vitest `act`
+retirements) moved to `759-speed-intent-timing-history-proof/PLAN.md` and former
+Slices 7–10 (`49` legacy cases across `18` files + cohort-end spent-support
+cleanup) moved to `760-speed-intent-attempt-and-summary-proof/PLAN.md`.
