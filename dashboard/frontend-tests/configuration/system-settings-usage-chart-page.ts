@@ -2,10 +2,13 @@
 import { expect } from "vitest";
 import type { Locator } from "vitest/browser";
 import {
-  composeBackgrounds,
-  contrastRatio,
-  painted,
-} from "../../test-support/composedColours.ts";
+  centreOf,
+  markContrast,
+  paintOf,
+  tokenColour,
+  type TraceMarks,
+} from "./system-settings-usage-chart-mark.ts";
+import { usageComparedChartView } from "./system-settings-usage-compared-chart-page.ts";
 import { usageLegendView } from "./system-settings-usage-legend-page.ts";
 import type { UsageToolName } from "./system-settings-usage-tools-page.ts";
 
@@ -18,30 +21,6 @@ const grid = ".history-chart-grid";
 
 const traceSelector = (name: UsageToolName) =>
   name === "Codex" ? ":not(.history-chart-trace-1)" : ".history-chart-trace-1";
-
-function centreOf(element: Element) {
-  const { x, y, width, height } = element.getBoundingClientRect();
-  return { x: x + width / 2, y: y + height / 2 };
-}
-
-function backgroundBehind(element: Element) {
-  const backgrounds: string[] = [];
-  for (
-    let ancestor = element.parentElement;
-    ancestor;
-    ancestor = ancestor.parentElement
-  )
-    backgrounds.push(getComputedStyle(ancestor).backgroundColor);
-  return composeBackgrounds(backgrounds);
-}
-
-function tokenColour(root: Element, token: string) {
-  const probe = root.appendChild(document.createElement("span"));
-  probe.style.color = `var(${token})`;
-  const colour = getComputedStyle(probe).color;
-  probe.remove();
-  return colour;
-}
 
 const wordsOf = (elements: Iterable<Element>) =>
   [...elements].map((element) => element.textContent.trim());
@@ -58,23 +37,23 @@ export function usageChartView(
   const singleLine = () => drawing()?.querySelector(median);
   const overflowLabels = () =>
     drawn(`${aboveScale} text, ${aboveScaleMedian} text`);
+  const marksFor = (name: UsageToolName): TraceMarks => {
+    const trace = traceSelector(name);
+    return {
+      task: drawn(`${measured}${trace}`)[0],
+      partial: drawn(`${partial}${trace}`)[0],
+      median: drawn(`${median}${trace}`)[0],
+    };
+  };
   return {
-    ...usageLegendView(trend, (name) => {
-      const trace = traceSelector(name);
-      return {
-        task: drawn(`${measured}${trace}`)[0],
-        partial: drawn(`${partial}${trace}`)[0],
-        median: drawn(`${median}${trace}`)[0],
-      };
-    }),
-    async showsLatestMedian(value: string) {
-      await expect
-        .poll(
-          () =>
-            trend.query()?.querySelector(".usage-median strong")?.textContent,
-        )
-        .toBe(value);
-    },
+    ...usageLegendView(trend, marksFor),
+    ...usageComparedChartView(trend, drawn, mark, marksFor),
+    medianLines: (name?: UsageToolName) =>
+      drawn(
+        name === undefined
+          ? ".history-chart-line"
+          : `${median}${traceSelector(name)}`,
+      ),
     async showsMedianOverflow(
       labels: readonly string[],
       readouts: readonly string[],
@@ -92,7 +71,7 @@ export function usageChartView(
       for (const label of drawn(`${aboveScaleMedian} text`)) {
         expect(label).toBeVisible();
         expect(
-          contrastRatio(getComputedStyle(label).fill, backgroundBehind(label)),
+          markContrast(label, [paintOf(label).fill]),
         ).toBeGreaterThanOrEqual(4.5);
       }
     },
@@ -124,13 +103,7 @@ export function usageChartView(
         ),
       );
       expect(aboveDots).toBe(true);
-      expect(
-        Math.max(
-          ...[stroke, fill]
-            .filter(painted)
-            .map((colour) => contrastRatio(colour, backgroundBehind(line))),
-        ),
-      ).toBeGreaterThanOrEqual(3);
+      expect(markContrast(line, [stroke, fill])).toBeGreaterThanOrEqual(3);
     },
     async showsSeparatedMedianLevels() {
       await expect

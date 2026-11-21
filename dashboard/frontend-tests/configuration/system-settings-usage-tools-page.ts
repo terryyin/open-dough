@@ -11,7 +11,7 @@ type RegionLocator = ReturnType<typeof page.getByRole>;
 export function usageToolsView(
   view: RegionLocator,
   trend: RegionLocator,
-  chartDrawing: () => Element | null,
+  medianLines: (name?: UsageToolName) => readonly Element[],
 ) {
   const tool = (name: UsageToolName) =>
     view
@@ -21,9 +21,17 @@ export function usageToolsView(
     name: "Selected tools",
     exact: true,
   });
-  const summary = () => list.getByRole("listitem").query();
-  const medianLines = () =>
-    chartDrawing()?.querySelectorAll(".history-chart-line");
+  const summary = (name?: UsageToolName) =>
+    list.getByRole("listitem", name === undefined ? {} : { name, exact: true });
+
+  async function showsLatestMedian(figure: string, name?: UsageToolName) {
+    const row = summary(name);
+    await expect
+      .poll(
+        () => row.query()?.querySelector(".usage-median strong")?.textContent,
+      )
+      .toBe(figure);
+  }
 
   return {
     async showTool(
@@ -58,6 +66,22 @@ export function usageToolsView(
         }
       }
     },
+    async showsFocusedToolChoice(name: UsageToolName) {
+      const choice = tool(name);
+      await expect.element(choice).toHaveFocus();
+      expect(getComputedStyle(choice.element()).outlineStyle).not.toBe("none");
+    },
+    async showsSelectToolPrompt() {
+      await expect
+        .element(
+          view.getByText(
+            "Select Codex or Claude Code to show its token index.",
+            { exact: true },
+          ),
+        )
+        .toBeVisible();
+      await expect.element(trend).not.toBeInTheDocument();
+    },
     async showsToolSummaries(names: readonly UsageToolName[]) {
       await expect
         .poll(() =>
@@ -67,44 +91,53 @@ export function usageToolsView(
         )
         .toEqual([...names]);
     },
-    async showsCohortNote(words: string) {
-      await expect
-        .poll(() => summary()?.querySelector(".usage-tool-count")?.textContent)
-        .toBe(words);
-    },
-    async showsMedian(figure: string) {
+    async showsCohortNote(words: string, name?: UsageToolName) {
       await expect
         .poll(
-          () => summary()?.querySelector(".usage-median strong")?.textContent,
+          () =>
+            summary(name).query()?.querySelector(".usage-tool-count")
+              ?.textContent,
         )
-        .toBe(figure);
+        .toBe(words);
+    },
+    showsLatestMedian,
+    async showsMedian(figure: string, name?: UsageToolName) {
+      await showsLatestMedian(figure, name);
+      const row = summary(name);
       await expect
-        .poll(() => summary()?.querySelector(".usage-median span")?.textContent)
+        .poll(
+          () => row.query()?.querySelector(".usage-median span")?.textContent,
+        )
         .toBe("10-task rolling median");
       await expect
         .poll(() => {
-          const lines = medianLines();
-          return lines?.length === 1
+          const lines = medianLines(name);
+          return lines.length === 1
             ? (lines[0]?.getBoundingClientRect().width ?? 0)
             : 0;
         })
         .toBeGreaterThan(0);
     },
     async showsNoMedian(words: string) {
+      await showsLatestMedian("—");
       await expect
         .poll(
-          () => summary()?.querySelector(".usage-median strong")?.textContent,
+          () =>
+            summary().query()?.querySelector(".usage-median span")?.textContent,
         )
-        .toBe("—");
-      await expect
-        .poll(() => summary()?.querySelector(".usage-median span")?.textContent)
         .toBe(words);
-      await expect.poll(() => medianLines()?.length ?? 0).toBe(0);
+      await expect.poll(() => medianLines().length).toBe(0);
     },
-    async showsToolNotes(notes: readonly string[]) {
+    async showsEmptyTool(name: UsageToolName, words: string) {
+      await expect
+        .element(summary(name).getByText(words, { exact: true }))
+        .toBeVisible();
+    },
+    async showsToolNotes(notes: readonly string[], name?: UsageToolName) {
+      const scope = name === undefined ? trend : summary(name);
       await expect
         .poll(() =>
-          [...(trend.query()?.querySelectorAll(".usage-tool-note") ?? [])].map(
+          [...(scope.query()?.querySelectorAll(".usage-tool-note") ?? [])].map(
             (note) => note.textContent,
           ),
         )
@@ -118,9 +151,10 @@ export function usageToolsView(
     async showsRateCardWarnings(words: readonly string[]) {
       await expect
         .poll(() =>
-          [...(summary()?.querySelectorAll(".usage-rate-warning") ?? [])].map(
-            (warning) => warning.textContent,
-          ),
+          [
+            ...(summary().query()?.querySelectorAll(".usage-rate-warning") ??
+              []),
+          ].map((warning) => warning.textContent),
         )
         .toEqual([...words]);
     },

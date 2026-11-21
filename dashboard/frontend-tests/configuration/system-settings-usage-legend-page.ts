@@ -1,18 +1,12 @@
 // The chart key and tool summary swatches compared to their rendered marks.
 import { expect } from "vitest";
 import type { Locator } from "vitest/browser";
+import {
+  paintOf,
+  shapeOf,
+  type TraceMarks,
+} from "./system-settings-usage-chart-mark.ts";
 import type { UsageToolName } from "./system-settings-usage-tools-page.ts";
-
-function shapeOf(mark: Element) {
-  if (mark.tagName === "circle") return "circle";
-  const outline = mark.getAttribute("points") ?? mark.getAttribute("d") ?? "";
-  return (outline.match(/-?[\d.]+[ ,]-?[\d.]+/g) ?? []).length;
-}
-
-function paintOf(mark: Element) {
-  const { fill, stroke, strokeDasharray } = getComputedStyle(mark);
-  return { fill, stroke, strokeDasharray };
-}
 
 function expectMatchingMarks(shown: Element, drawn: Element) {
   expect(shapeOf(shown)).toBe(shapeOf(drawn));
@@ -21,11 +15,7 @@ function expectMatchingMarks(shown: Element, drawn: Element) {
 
 export function usageLegendView(
   trend: Locator,
-  marksFor: (name: UsageToolName) => {
-    readonly task: Element | undefined;
-    readonly partial: Element | undefined;
-    readonly median: Element | undefined;
-  },
+  marksFor: (name: UsageToolName) => TraceMarks,
 ) {
   const key = trend.getByRole("list", { name: "Chart key", exact: true });
   const summaries = trend.getByRole("list", {

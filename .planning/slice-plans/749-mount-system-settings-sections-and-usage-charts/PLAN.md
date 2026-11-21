@@ -142,7 +142,7 @@ records `slice1-configuration`, `slice1-typecheck-final` and
 ### 2. Two tools compare on one axis
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `-usage-compare` (5 cases), each tool answered or refused by its own
 source reply. Remove the built-app file.

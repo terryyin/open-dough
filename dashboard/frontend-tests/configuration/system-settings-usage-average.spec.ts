@@ -113,7 +113,7 @@ test("an in-scale median breaks across above-scale observations and all-large me
   await usage.chooseDays("7");
   await usage.showsPointCount(10);
   await chart.hasAxis(["0", "25M", "50M"]);
-  await chart.showsLatestMedian("65,000,000");
+  await usage.showsLatestMedian("65,000,000");
   await chart.showsMedianOverflow(
     ["Codex Median ↑ 65,000,000"],
     ["Nov 10 · Codex · 10-task rolling median above scale · 65,000,000"],

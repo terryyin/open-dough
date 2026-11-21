@@ -96,10 +96,11 @@ function usageView() {
         .toMatch(new RegExp(` · ${words.outcome}$`));
     }
   };
+  const chart = usageChartView(view, trend, chartDrawing, mark);
 
   return {
-    ...usageToolsView(view, trend, chartDrawing),
-    chart: usageChartView(view, trend, chartDrawing, mark),
+    ...usageToolsView(view, trend, chart.medianLines),
+    chart,
     async chooseDays(days: string) {
       await daysField.fill(days);
     },
@@ -225,6 +226,9 @@ function usageView() {
       }
     },
     showsFact,
+    async showsNoDetail() {
+      await expect.element(detail).not.toBeInTheDocument();
+    },
     async closeDetail(readout: string) {
       await userEvent.click(
         detail.getByRole("button", { name: "Close", exact: true }),

@@ -19,7 +19,7 @@ and Escape. The four built-app frame specs, full-group comparison and
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
 | S01 | Move `system-settings-usage-average` to plain Vitest cases on mounted Chromium using `SystemSettingsUsage`. (Goal, Scope) | slice 1 | observed: system-settings-usage-average.spec.ts, all five mounted Chromium cases and the Slice 1 case mapping |
-| S02 | Move `system-settings-usage-compare` to the same mounted section. (Goal, Scope) | slice 2 | |
+| S02 | Move `system-settings-usage-compare` to the same mounted section. (Goal, Scope) | slice 2 | observed: system-settings-usage-compare.spec.ts, five mounted Chromium replacements at the same path |
 | S03 | Move `system-settings-usage-legend` to the same mounted section. (Goal, Scope) | slice 1 | observed: system-settings-usage-legend.spec.ts, all three mounted Chromium cases and the Slice 1 case mapping |
 | S04 | Move `system-settings-usage-overflow` to the same mounted section. (Goal, Scope) | slice 3 | |
 | S05 | Move `system-settings-usage-spacing` to the same mounted section. (Goal, Scope) | slice 3 | |
@@ -86,17 +86,17 @@ and Escape. The four built-app frame specs, full-group comparison and
 | C12 | The 70,000,000 task’s detail names its value. (Coincident large tasks) | slice 3 | |
 | C13 | The selected partial task’s detail names its partial coverage. (Coincident large tasks) | slice 3 | |
 | C14 | Close returns focus to the selected mark. (Coincident large tasks) | slice 3 | |
-| C15 | Codex and Claude Code share one time axis. (Two tools compared) | slice 2 | |
-| C16 | Codex and Claude Code share one scale. (Two tools compared) | slice 2 | |
-| C17 | Codex has its own median. (Two tools compared) | slice 2 | |
-| C18 | Claude Code has its own median. (Two tools compared) | slice 2 | |
-| C19 | Codex has its own unit. (Two tools compared) | slice 2 | |
-| C20 | Claude Code has its own unit. (Two tools compared) | slice 2 | |
-| C21 | Codex has its own note. (Two tools compared) | slice 2 | |
-| C22 | Claude Code has its own note. (Two tools compared) | slice 2 | |
-| C23 | A selected task retains its tool identity. (Two tools compared) | slice 2 | |
-| C24 | An empty tool indicates that it is empty. (Two tools compared) | slice 2 | |
-| C25 | A failed read names the tool whose read failed. (Two tools compared) | slice 2 | |
+| C15 | Codex and Claude Code share one time axis. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, Nov 3 coincident positions and one-day and five-day intervals |
+| C16 | Codex and Claude Code share one scale. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, level 4,000 marks and one-scale note |
+| C17 | Codex has its own median. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, the named Codex 2,000 summary and rendered median line |
+| C18 | Claude Code has its own median. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, the named Claude Code 3,500 summary and rendered median line |
+| C19 | Codex has its own unit. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, Codex tariff note scoped to Codex and included on the combined plot |
+| C20 | Claude Code has its own unit. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, Claude tariff note scoped to Claude Code and included on the combined plot |
+| C21 | Codex has its own note. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, named Codex three-task, one-partial summary and note |
+| C22 | Claude Code has its own note. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, named Claude Code summary with partial and unpriced counts and excluded-work note |
+| C23 | A selected task retains its tool identity. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, selected mark plus named Claude Code detail on a shared task ID and separate Codex value |
+| C24 | An empty tool indicates that it is empty. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts empty-tool case, named Claude Code empty state while Codex keeps its three marks |
+| C25 | A failed read names the tool whose read failed. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts empty-tool case, Claude Code refusal retains checked results on Refresh and clears the old cohort on selection |
 | E01 | Hold an OpenAI status read of the prior machine state while saving a key. Let the save answer first, then release the read. The section still shows `API key: Configured`. (A held OpenAI status) | slice 5 | |
 | E02 | With the analogous held status read and reply order, Remove leaves the section showing `API key: Not configured`. (A held OpenAI status) | slice 5 | |
 | E03 | A successful key save after a refused status read leaves the section showing `API key: Configured`. (A held OpenAI status) | slice 5 | |
