@@ -38,11 +38,11 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#route-review-changes-to-intent) — SEED-420#route-review-changes-to-intent
 - [Get fast proof of Intent source browsing, pinned links and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours) — SEED-413#speed-intent-source-browsing-and-detours
 - [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading
 - [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
-- [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#route-review-changes-to-intent) — SEED-420#route-review-changes-to-intent
 - [Compare a story branch with and without incoming trunk changes](seeds/SEED-420-unified-intent-review.md#compare-story-contributions) — SEED-420#compare-story-contributions
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
