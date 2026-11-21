@@ -100,13 +100,18 @@ export class DoneCaptureCaseBuilder<
     session: Name,
     times: Times,
     worktree: Worktree,
+    refine?: Refinement<Work>,
   ) {
-    return this.#with(session, times, ({ checkout, baseTree, worktrees }) =>
-      makeMe.aLaunchRecord.ofDeclaringDefaultMainLaunch(session, checkout, {
-        workspace: worktrees[worktree] ?? "",
-        branch: worktree,
-        tree: baseTree,
-      }),
+    return this.#with(
+      session,
+      times,
+      ({ checkout, baseTree, worktrees }) =>
+        makeMe.aLaunchRecord.ofDeclaringDefaultMainLaunch(session, checkout, {
+          workspace: worktrees[worktree] ?? "",
+          branch: worktree,
+          tree: baseTree,
+        }),
+      refine,
     );
   }
 

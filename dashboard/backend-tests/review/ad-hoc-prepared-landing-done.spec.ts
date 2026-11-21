@@ -7,51 +7,58 @@ import {
   keptSession,
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
-import {
-  aCheckoutWithCanonicalWorktree,
-  aDefaultLaunch,
-  canonicalGitDirectory,
-  inWorktree,
-  keep,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+
+const submissionReference = "11111111-0000-4000-8000-000000000737";
 
 test("Done leaves the prepared receipt recordable after acceptance", async () => {
   const branch = "prepared-draft";
-  const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
+  const {
+    checkout,
+    baseTree: entryTree,
+    worktrees,
+    work: { draft: revision },
+    records: { "default-launch": record },
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace(branch)
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("draft", { at: at(30) }),
+      {
+        in: branch,
+      },
+    )
+    .withDefaultMainLaunch(
+      "default-launch",
+      { launched: 60 },
+      (launch, facts) =>
+        launch.withDeclaredLanding({
+          repository: facts.checkout.gitDirectory,
+          workspace: facts.worktrees[branch] ?? "",
+          branch,
+          committedTip: facts.checkout.base,
+          tree: facts.baseTree,
+          trunkRevision: facts.checkout.base,
+          origin: dashboardOrigin,
+          reference: submissionReference,
+        }),
+    )
+    .kept()
+    .please();
   const { base } = checkout;
-  const repository = canonicalGitDirectory(checkout);
-  const entryTree = (
-    await git(workspace, "rev-parse", `${base}^{tree}`)
-  ).stdout.trim();
-  const { draft: revision } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("draft", { at: minutesAgo(30) }),
-  );
+  const workspace = worktrees[branch];
   const submission = makeMe.aLandingSubmission
+    .forLaunch({ reference: submissionReference })
     .comparing({ base, revision })
     .please();
-  const record = aDefaultLaunch(checkout)
-    .withDeclaredLanding({
-      repository,
-      workspace,
-      branch,
-      committedTip: base,
-      tree: entryTree,
-      trunkRevision: base,
-      origin: dashboardOrigin,
-      reference: submission.reference,
-    })
-    .please();
-  keep(record);
   const receipt = await handleLanding(submission, dashboardOrigin, "prepare");
   expect(receipt.state).toBe("prepared");
   await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
 
-  const doneAt = minutesAgo(10);
+  const doneAt = at(10);
   await setRecordDoneAt(source, record.session, doneAt);
 
   const saved = await keptSession(source, record.session);

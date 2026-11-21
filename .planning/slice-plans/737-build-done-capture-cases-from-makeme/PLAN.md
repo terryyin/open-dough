@@ -223,11 +223,14 @@ the case; conflict resolution, pushes, merges and delivery stay in the bodies.
 Paired runs at one worker against `b3cd1acfe` (load 3.7–4.1) put the slowest
 cases at 0.55–0.76 s before and after (`s5-timing-records`); none recurs near
 5 s. `aCheckoutWithWorktree` is private to `doneCaptureCase.ts`.
+CI run 44881785768 on `c0544ae4`: dashboard-backend shard 1/3 failed only its
+"Keep the Playwright report" upload with GitHub's "The server is busy"; the
+test step passed, so the attempt is infrastructure.
 
 ### 6. Publisher cases share the launch and its reporting context
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use the delivered builders for a declared or reported isolated branch,
 matching attempt, landing authority and context. Leave submission,
@@ -240,6 +243,12 @@ accepting this slice, compare the `declared-worktree-publication` and
 `declared-worktree-publication`, `ad-hoc-prepared-landing-done` and
 `ad-hoc-session-comparisons`. Observe the publisher's accepted pair,
 exact retry, distinct file comparisons and pin release.
+
+**Accepted.** Both publisher preset modules are deleted; the declared and
+reported branches compose from `withDeclaringLaunch` / `withIsolatedLaunch`
+with reporting refinements, and `please()` also returns `baseTree`.
+`installPublisher` moved to `installedPublisher.ts`, called in the test body
+with the landing-context write. Paired timings show no case near 5 s (G4).
 
 ### 7. Branch handoff and landing record cases share the declaring launch
 
@@ -325,7 +334,7 @@ Disposition: excluded "Runtime optimization has its own story."
 ### G4. Long one-worker roster runs time out `ad-hoc-session-comparisons` at 5 s
 Reported: slice 1 — "s1-backend-consumers2: 5 s timeout in ad-hoc-session-comparisons under concurrent load; passes alone."
 Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
-Disposition: receiving slice 6
+Disposition: proved by slice 6: evidence/s6-before.log and s6-after.log, paired one-worker runs at load 4.0–4.2, measured ad-hoc-session-comparisons at 1265 ms before and 1320 ms after and declared-worktree-publication at 939 and 803 ms; the reported timeout occurred only while a Distribution suite ran concurrently
 
 ### G5. `ad-hoc-branch-cursor-recovery` still arranges its own isolated Cursor launches (first reported in slice 3)
 Reported: slice 3 — "ad-hoc-branch-cursor-recovery.spec.ts (224 lines): not moved; the builder needs an isolated Cursor launch on a named worktree and a Cursor-session refinement of the Default main launch first."

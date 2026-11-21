@@ -1,22 +1,27 @@
 // After the installed publisher delivers a Done isolated session and its
 // branch is retired, both its delivered rename and its working-tree
 // comparison still hold their own file contents.
-import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
-import { unlinkSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { keptAttempts } from "../../server/launchAttemptStore.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
 import { machineLandingStores } from "../../server/launchLandingReporting.ts";
 import {
   keptSession,
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
+import { writeLandingContext } from "../../server/launchReportingFiles.ts";
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
-import { minutesAgo, source } from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { publishInstalled } from "../support/installedPublisher.ts";
-import { aReportedIsolatedBranch } from "../support/reportedIsolatedBranch.ts";
+import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
+const reference = "11111111-0000-4000-8000-000000000613";
 const baseline = [...Array(12).keys()]
   .map((line) => `unchanged ${line}\n`)
   .join("");
@@ -26,8 +31,50 @@ const working = `${baseline}Left for review\n`;
 
 test("the same Done session opens its delivery and keeps its different branch result after retirement", async () => {
   const branch = "rename-the-draft";
-  const { checkout, workspace, record, reference, landingContext } =
-    await aReportedIsolatedBranch(branch, { [renamed.oldPath]: baseline });
+  const sessionId = "isolated-rename-the-draft";
+  const directory = mkdtempSync(path.join(tmpdir(), "dough-reporting-"));
+  onTestFinished(() => {
+    rmSync(directory, { recursive: true, force: true });
+  });
+  const reporting = {
+    origin: dashboardOrigin,
+    reference,
+    command: "report",
+    landingContext: path.join(directory, "landing-context.json"),
+  };
+  const { checkout, worktrees, records, at } = await aDoneCaptureCase()
+    .withOrigin()
+    .withBaseFiles({ [renamed.oldPath]: baseline })
+    .withWorkspace(branch)
+    .withIsolatedLaunch(sessionId, { launched: 60 }, branch, (launch) =>
+      launch.reportingThrough(reporting),
+    )
+    .kept()
+    .please();
+  const workspace = worktrees[branch];
+  const record = records[sessionId];
+  const authority = makeMe.aLandingAuthority
+    .ofRepository(checkout.gitDirectory)
+    .inWorktree({ workspace, branch })
+    .please();
+  // The installed publisher reads the context the accepted launch reports to.
+  expect(
+    await writeLandingContext(
+      directory,
+      { origin: dashboardOrigin, source, host: "claude", reference },
+      authority,
+    ),
+  ).toBe(reporting.landingContext);
+  await keepAttempt(
+    makeMe.anAcceptedAttempt
+      .withId(reference)
+      .adHoc()
+      .acceptedAt(at(60))
+      .reportingTo(dashboardOrigin)
+      .launched({ host: "claude", sessionId })
+      .capturingLanding({ reporting, landingRepository: authority })
+      .please(),
+  );
   const write = (text: string) => {
     writeFileSync(path.join(workspace, renamed.path), text);
   };
@@ -36,7 +83,7 @@ test("the same Done session opens its delivery and keeps its different branch re
   await git(workspace, "add", "-A", "--", renamed.oldPath, renamed.path);
   await git(workspace, "commit", "--quiet", "-m", "Rename the draft");
   write(working);
-  await setRecordDoneAt(source, record.session, minutesAgo(10));
+  await setRecordDoneAt(source, record.session, at(10));
 
   write(committed);
   const { landing, beforePush: before } = await publishInstalled(
@@ -46,7 +93,7 @@ test("the same Done session opens its delivery and keeps its different branch re
       previouslyPublishedBase: checkout.base,
       remote: "origin",
       targetRef: "refs/heads/main",
-      landingContext,
+      landingContext: reporting.landingContext,
     },
     async () =>
       (await keptAttempts())?.find((attempt) => attempt.id === reference)

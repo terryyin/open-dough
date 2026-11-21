@@ -24,10 +24,11 @@ const published: Pick<PublishedSource, "id" | "ref"> = {
   ref: "refs/heads/main",
 };
 export type LaunchBuilder = ReturnType<typeof makeMe.aLaunchRecord.adHoc>;
-// The case's checkout, its worktrees by branch, and the commits its dated
-// precondition work made.
+// The case's checkout, the tree of its base, its worktrees by branch, and
+// the commits its dated precondition work made.
 export type CaseFacts<Work extends string> = {
   checkout: Checkout;
+  baseTree: string;
   worktrees: Readonly<Record<string, string>>;
   work: Record<Work, string>;
 };
@@ -87,7 +88,13 @@ export async function materialize<
     const doneAt =
       times.done === undefined ? undefined : minutesAgo(times.done);
     const recipe = record(places).launchedAt(launchedAt);
-    const launch = refine?.(recipe, { checkout, worktrees, work }) ?? recipe;
+    const launch =
+      refine?.(recipe, {
+        checkout,
+        baseTree: places.baseTree,
+        worktrees,
+        work,
+      }) ?? recipe;
     records[session as Session] = (
       doneAt === undefined ? launch : launch.markedDoneAt(doneAt)
     ).please();
@@ -101,6 +108,7 @@ export async function materialize<
     published,
     at: minutesAgo,
     checkout,
+    baseTree: places.baseTree,
     worktrees,
     work,
     records,
