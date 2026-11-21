@@ -741,92 +741,6 @@ dozen cases over one owner. It follows the
   seven slices.
 - **Plan.** [748](../slice-plans/748-mount-story-review-changes-panel/PLAN.md)
 
-<a id="mount-system-settings-sections-and-usage-charts"></a>
-
-### Read System settings' sections and the Usage charts in mounted cases
-
-**Identity:** SEED-413#mount-system-settings-sections-and-usage-charts
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/749-mount-system-settings-sections-and-usage-charts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3be348768249b536691e29ae85b3426489cf2d8c6718aade28a74dd5b46db90d","plan":"187e00eede15816bed6b81142113f16027b2e46ab8e7e0ea68ba96e4e3f52bdd"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on 2026-11-21 as the second Configuration piece, queued ahead of the
-remaining families. At Terry's request it is larger than the earlier pieces.
-It reuses what
-[the Usage Token index story](#usage-token-index-reading-after-migration)
-left for the chart cases.
-
-- **Goal.** Dashboard developers read the proof of the Usage charts and of
-  the OpenAI, terminal theme and Projects settings as plain Vitest cases on
-  mounted Chromium, with each setting and Token index answer given as a
-  typed reply. Today these 29 cases in nine Configuration specs load
-  `<App />` on the settings view (48.3 summed seconds in CI run
-  44855532096). Afterwards the Configuration folder keeps only the cases
-  that need the page frame.
-- **Scope.** Move these specs:
-  - The five Usage chart specs `system-settings-usage-average`, `-compare`,
-    `-legend`, `-overflow` and `-spacing` (20 cases) onto the mounted
-    [`SystemSettingsUsage`](../../dashboard/src/SystemSettingsUsage.tsx)
-    over the existing typed `UsageSource`, `makeMe.aTokenIndexAnswer` and
-    the mounted Usage page objects, extended for the chart's marks, axis,
-    legend, readouts and spacing. Pointer, touch and keyboard selection,
-    light and dark, narrow windows and zoom keep their proof.
-  - `system-settings-openai` (4 cases), `-terminal-theme` (2),
-    `-project-management-touch` (1) and `project-add-dialog` (2), each on
-    its own section: [`OpenAISettings`](../../dashboard/src/OpenAISettings.tsx),
-    [`TerminalThemeSettings`](../../dashboard/src/TerminalThemeSettings.tsx)
-    and [`ProjectsSettings`](../../dashboard/src/ProjectsSettings.tsx). Each
-    section reads and changes its setting through a typed source behind its
-    reading hook, as Story Notes and Usage do. The page supplies the sources
-    that speak to the endpoints and keep their refusal wording. A case
-    supplies replies of the shared setting contracts and holds its own
-    deferred reply where it observes a pending read or save.
-  - A touch case reaches its control by a CDP touch, and rotation and
-    reduced height by the mounted viewport.
-  - Build setting answers with page-loadable MakeMe steps, and operate each
-    section through small page objects beside the specs. The Playwright
-    settings page objects stay for the remaining built-app cases and E2E.
-  - Preserve each distinct assertion and name each retired built-app case
-    with its mounted case. Remove a case only where an E2E journey proves
-    the same thing, and name that journey.
-  - Retire each `dashboard/test-support/` export or module whose last
-    consumer moves, and keep what E2E and the remaining specs use.
-  - **Scope limits.** `dashboard-system-appearance`,
-    `project-hide-selection`, `system-settings-navigation` and
-    `system-settings-look` stay in the parent story. They prove the frame,
-    the board, deep links and history, or the whole settings page with its
-    product mark and project choice, and join the Navigation audit. The
-    full-group timing comparison and the `frontendApp.ts` retirement also
-    stay there. This story compares the focused selection before and after.
-- **Key examples.**
-  - *Coincident large tasks.* Codex answers two tasks of 65,000,000 and
-    70,000,000 on the same day, one partial. The chart shows both as large
-    marks above the axis `0`, `25M`, `50M`, with the note that every priced
-    task is above 50 million. Pointer, touch and keyboard each select either
-    mark, its detail names its value and partial coverage, and Close returns
-    focus to the mark.
-  - *Two tools compared.* Codex and Claude Code share one time axis and
-    scale, each with its own median, unit and note, and a selected task
-    keeps its tool. An empty tool says so and a failed read names its tool.
-  - *A held OpenAI status.* A status read that answers what the machine
-    held before is held while the reader saves a key. The save answers
-    first, the held read is released afterwards, and the section still reads
-    `API key: Configured`. The same holds for Remove (`API key: Not
-    configured`) and for a save after a refused read.
-  - *A refused terminal theme save.* On touch the reader chooses Solarized
-    Dark and the save is refused. The saved theme stays shown with the refusal, and Retry
-    is reachable after rotation.
-  - *A refused project change.* At reduced height on touch, the reader edits
-    a project and the save is refused. Retry sends the exact draft again.
-  - *Adding a project.* An origin that does not match the path stays linked
-    to the path field, keeps both inputs and saves nothing. Cancel and
-    Escape save nothing and return focus.
-- **Effort hypothesis.** M, at the upper end: 29 cases over four owners
-  whose chart owner and source exist, three small typed setting sources,
-  seven slices.
-- **Plan.** [749](../slice-plans/749-mount-system-settings-sections-and-usage-charts/PLAN.md)
-
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -843,9 +757,9 @@ Candidates revision cases already run as mounted cases in
 [Story Review diff reading](#review-diff-reading-after-migration) and
 [Usage Token index reading](#usage-token-index-reading-after-migration) now run
 in mounted Chromium.
-Two pieces are split out and queued ahead of this story:
-[the Review changes panel](#mount-story-review-changes-panel) and
-[System settings' sections and the Usage charts](#mount-system-settings-sections-and-usage-charts).
+[The Review changes panel](#mount-story-review-changes-panel) is a separate
+story ahead of this one. [System settings' sections and the Usage charts](#system-settings-sections-and-usage-charts-after-migration)
+now run in mounted Chromium.
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
