@@ -69,6 +69,20 @@ Report `work` as the publication result and `record.status`; a `stopped`
 record leaves the accepted work in place. Other publishers write no session
 record; for ordinary reviewed work, report that none was written.
 
+Retain `record.record` once `work` is accepted; a `stopped` record still
+returns it. When the work stops with its push unanswered
+(for example `transport-timeout`), retain the `session` and the stopped
+work's `candidate` and `suffixBase`. To resume, call `resumeSessionClose` from the same module
+with the same `workspace`, `branch`, `targetRef` and `backlogPath`, plus the
+retained `record` when you have one. When the work's result was lost before a
+record came back, pass the retained `session`, `candidateSha` and `suffixBase`
+instead; it confirms the work on the remote, then records it. Neither form
+publishes accepted work again. Report its `record.status`, and `work` when
+present. A `needs-validation` publication names the rebased record `candidate`; rerun with it as
+`validatedCandidate`. `published` settles the close, including when the remote
+already holds the identical record. `session-record-conflict` means a different
+record holds that UUID; report it with the accepted work in place.
+
 ## Land completed selected work
 
 When retained context establishes completed selected work with a recorded

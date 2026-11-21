@@ -2,6 +2,7 @@
 
 **Identity:** SEED-418#attribute-every-workflow-session-record
 **Source:** [Attribute every workflow session’s published changes](../../seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record)
+**Source review:** [source-review.md](source-review.md)
 **Split from:** SEED-418#review-published-session-changes (plan 739 at `2d82175d5:.planning/slice-plans/739-review-published-session-changes/PLAN.md`) on 2026-11-21 at its delivered slice-2 boundary
 
 ## Goal and scope
@@ -107,7 +108,7 @@ The Chromium run of `npm run --silent test:e2e -- e2e/sessions/recently-done-pub
 ### 1. Resume publishing the same close record
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.** A publishing Land session keeps its launch or native UUID and
 resumes after work acceptance, record rejection, or lost acknowledgement.
@@ -119,6 +120,8 @@ temporary origin. Refuse the record push and simulate loss after acceptance,
 then resume from retained production inputs. Assert work/record push counts,
 record bytes, and same UUID for the native rerun. Preserve launch-reference
 capture and verify a refused work push creates no record.
+
+**Accepted.** `resumeSessionClose` in `session-record-publication.mjs` resumes from a sealed record or, when the work result was lost, from the retained session and work coordinates through `resumeInterruptedPublication`. A record commit rebased onto an advanced target keeps the publisher's `needs-validation` stop, so a resume reruns with `validatedCandidate`. Proof: `npm test -- Distribution/tests/skills/dough-land/session-record-publication.test.mjs Distribution/tests/skills/dough-land/session-close-resume.test.mjs` (10 cases). Later slices extend this same sealed-record and resume route.
 
 ### 2. Inspect each published comparison
 
@@ -253,3 +256,15 @@ publication and verification loop. Each slice has one main proof loop sized
 for 15 active minutes. The sequence uses one accepted-comparison model across
 workflows and keeps eight slices. The review found no remaining slice-specific
 concern. The recorded supplier agreement remains the start prerequisite.
+
+## Story obligations
+
+### G1. Sealed record lost when the record stage throws
+Reported: slice 1 — "Acceptance found publishSessionClose returns the sealed record only when the record stage returns; a throw from fetch, commit or publication loses it."
+Story clause: "A close retry keeps the original record and resumes its first unfinished step."
+Disposition: proved by slice 1: Distribution/tests/skills/dough-land/session-close-resume.test.mjs "a record stage that throws after work acceptance returns the sealed record, and resuming it publishes the work once" (hook-refused record commit returns the sealed record; resume pushes work once, record once, original bytes)
+
+### G2. No record after the work push loses its acknowledgement
+Reported: slice 1 — "Not covered: a crash after the work is accepted but before the record is sealed."
+Story clause: "A close retry keeps the original record and resumes its first unfinished step."
+Disposition: proved by slice 1: Distribution/tests/skills/dough-land/session-close-resume.test.mjs "a close whose accepted work push lost its result resumes from the retained work and publishes the record once" (resume confirms work with pushCount 0 via resumeInterruptedPublication, then seals and publishes one record; no earlier record existed, so its seal time is the original close time)
