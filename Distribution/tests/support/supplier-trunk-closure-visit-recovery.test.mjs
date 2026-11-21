@@ -27,6 +27,7 @@ import {
   recordPushes,
   releaseCi,
 } from "../skills/dough-story-wrap-up/trunk-closure-test-fixtures.mjs";
+import { targetHolds } from "../skills/dough-story-wrap-up/trunk-closure-session-record-test-fixtures.mjs";
 
 const main = "refs/heads/main";
 const question = "Does the late story adopt B's contract?";
@@ -79,7 +80,8 @@ test("a clean visit printed by finish lets its worktree-absent rerun name --visi
   assert.equal(stopped.result.acceptedSha, final);
   assert.match(stopped.result.recovery, /clean visit.*earlier finish/);
   assert.ok(stopped.result.recovery.includes(`--visit-settled ${final}`));
-  assert.equal(await branchSha(fixture), final);
+  // The branch stays at the session record the first finish committed on it.
+  assert.equal(await branchSha(fixture), first.result.record.sha);
 
   const finished = await rerun(["--visit-settled", final]);
   assert.equal(finished.code, 0, finished.stderr);
@@ -89,7 +91,7 @@ test("a clean visit printed by finish lets its worktree-absent rerun name --visi
   assert.equal(finished.result.cleanup.branch, "removed");
   assert.equal(await branchSha(fixture), "");
   assert.deepEqual(recorded.pushes(), []);
-  assert.equal(await lsRemoteSha(fixture.origin, main), final);
+  assert.ok(await targetHolds(fixture, final));
 });
 
 test("finish for a selected supplier whose worktree is gone before the visit settled stops at the visit with nothing pushed, completed or retired", async (t) => {
@@ -161,5 +163,5 @@ test("a settled consumer publication whose observer ended recovers completion wh
   assert.equal(finished.result.cleanup.worktree, "removed");
   assert.equal(existsSync(fixture.execution), false);
   assert.equal(await branchSha(fixture), "");
-  assert.equal(await lsRemoteSha(fixture.origin, main), consumerSha);
+  assert.ok(await targetHolds(fixture, consumerSha));
 });

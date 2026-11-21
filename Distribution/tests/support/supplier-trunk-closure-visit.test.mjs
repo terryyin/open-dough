@@ -36,6 +36,7 @@ import {
   finishThroughCli,
   releaseCi,
 } from "../skills/dough-story-wrap-up/trunk-closure-test-fixtures.mjs";
+import { targetHolds } from "../skills/dough-story-wrap-up/trunk-closure-session-record-test-fixtures.mjs";
 
 const main = "refs/heads/main";
 const question =
@@ -173,7 +174,7 @@ test("Trunk Mode finish visits a consumer a racing writer added before completin
     "complete-and-retire",
   ]);
 
-  assert.equal(await lsRemoteSha(fixture.origin, main), consumerSha);
+  assert.ok(await targetHolds(fixture, consumerSha));
   const view = {
     directory: join(fixture.fixture, "final-view"),
     inputDirectory: fixture.fixture,

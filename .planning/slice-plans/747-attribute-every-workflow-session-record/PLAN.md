@@ -82,8 +82,14 @@ session-close route, one shared record contract and one record path.
 - At trunk wrap-up, publish the record as a separate commit after the final
   closure is accepted. Its ranges include the closure pair, because closure is
   separately evidenced session work and a commit cannot name its own hash.
-  Retirement waits for that record and its observation, and a `finish` rerun
-  resumes the record stage through `resumeSessionClose`.
+  Completion and retirement keep observing the accepted closure SHA, the final
+  accepted delivery. The record commit carries only the record, like the
+  closure commit. `finish` publishes it after the closure, any consumer visit
+  and the closure's completion receipt settle, because visit deliveries,
+  observer recovery and integrated-state completion all name the closure.
+  It stops before retirement until the record publication is accepted, and retirement treats the record commit as
+  contained. A `finish` rerun resumes the record stage through
+  `resumeSessionClose`.
 
 ## Decisive premises
 
@@ -95,10 +101,10 @@ Git repositories. The five Distribution specs below, under
 | Consuming operation | Result-bearing baseline |
 | --- | --- |
 | Land's work and record publisher, slice 1 | `dough-land/session-record-publication.test.mjs` observes the accepted pair in a second clone and no record for a refused work push. Recovery coverage must interrupt the record stage after work acceptance and assert that work publication happens once. |
-| Published record admission and local overlap, slices 2, 7–8 | `npm run --silent test:dashboard:backend -- review/published-session-review review/published-session-listing review/done-kept-session-shared-checkout` passed 23 cases. The published routes read a recorded pair after trunk advances, reject a foreign comparison, and currently refuse a published run selector. Done capture detects concurrent and previously overlapping activity in the same checkout, distinguishes isolated and nonoverlapping sessions, and shows the existing warning. Its result establishes the local rule. Slice 7 owns its use before Done at an accepted close. |
-| Accepted rerun evidence, slices 3–4 | `dough-execute-plan/execution-increment-comparison.test.mjs` observes candidate/base together after retry rewrites the suffix. `dough-story-wrap-up/trunk-closure-rebased-rerun.test.mjs` observes closure from the retained original request after a rebase and retirement without another push. |
-| Story-branch reachability, slice 5 | `dough-execute-plan/history-preserving-landing-expectation.test.mjs` proves branch publication takes no first-trunk landing context and accepted integration takes it once. At `9efbd70c1`, the retained plan 739 Git probe pushed a branch, integrated both histories, retired the branch, and diffed the original pair from a default-branch-only clone. The wider merge pair included `unrelated.txt`. Slice 5 proves the same reachability and exclusion through the record and close. |
-| Preparation release, slice 6 | `dough-story-refinement/preparation-assignment-land.test.mjs` reads the prepared facts and removal of only the closed assignment from the same accepted snapshot. Its simulated Land drives the release rule. The new proof must drive the installed publisher and observe the second snapshot carrying the session record. |
+| Published record admission and local overlap, slices 2, 8–9 | `npm run --silent test:dashboard:backend -- review/published-session-review review/published-session-listing review/done-kept-session-shared-checkout` passed 23 cases. The published routes read a recorded pair after trunk advances, reject a foreign comparison, and currently refuse a published run selector. Done capture detects concurrent and previously overlapping activity in the same checkout, distinguishes isolated and nonoverlapping sessions, and shows the existing warning. Its result establishes the local rule. Slice 8 owns its use before Done at an accepted close. |
+| Accepted rerun evidence, slices 3–5 | `dough-execute-plan/execution-increment-comparison.test.mjs` observes candidate/base together after retry rewrites the suffix. `dough-story-wrap-up/trunk-closure-rebased-rerun.test.mjs` observes closure from the retained original request after a rebase and retirement without another push. |
+| Story-branch reachability, slice 6 | `dough-execute-plan/history-preserving-landing-expectation.test.mjs` proves branch publication takes no first-trunk landing context and accepted integration takes it once. At `9efbd70c1`, the retained plan 739 Git probe pushed a branch, integrated both histories, retired the branch, and diffed the original pair from a default-branch-only clone. The wider merge pair included `unrelated.txt`. Slice 6 proves the same reachability and exclusion through the record and close. |
+| Preparation release, slice 7 | `dough-story-refinement/preparation-assignment-land.test.mjs` reads the prepared facts and removal of only the closed assignment from the same accepted snapshot. Its simulated Land drives the release rule. The new proof must drive the installed publisher and observe the second snapshot carrying the session record. |
 
 At `107ac15cb`, after the shared record contract and path refactor, the
 Land publisher spec passed its four cases again under `node --test`.
@@ -111,10 +117,10 @@ The Chromium run of `npm run --silent test:e2e -- e2e/sessions/recently-done-pub
 | --- | --- |
 | Stable identity and retry, accepted work only | 1. Observe one work publication, one UUID file, immutable close time and ranges, and recovery without a repeated push. |
 | Inspect all accepted comparisons from another machine | 2. Open a published record from a clone without launch state and select each comparison. Inspect the corresponding file diff and refuse a pair outside that UUID. |
-| Earlier trunk and story-branch contributions | 3–5. Check accepted ranges from a fresh clone after intervening work and retirement. Check exact files and retained hashes for both execution modes. |
-| Workflow and story association | 6. Land a refinement and follow-up, then read both UUIDs and the release from the remote. Slices 1, 3–5 cover standalone and execution. |
-| Shared-checkout uncertainty and exclusions | 7. Inspect the affected published range from another checkout. Observe the warning and absence of pulled-only and unpublished edits. |
-| 30-day expiry and pruning | 8–9. Check just before and at expiry. Publish against an advanced target, then inspect its live set and the old snapshot. |
+| Earlier trunk and story-branch contributions | 3–6. Check accepted ranges from a fresh clone after intervening work and retirement. Check exact files and retained hashes for both execution modes. |
+| Workflow and story association | 7. Land a refinement and follow-up, then read both UUIDs and the release from the remote. Slices 1, 3–6 cover standalone and execution. |
+| Shared-checkout uncertainty and exclusions | 8. Inspect the affected published range from another checkout. Observe the warning and absence of pulled-only and unpublished edits. |
+| 30-day expiry and pruning | 9–10. Check just before and at expiry. Publish against an advanced target, then inspect its live set and the old snapshot. |
 
 ## Ordered slices
 
@@ -175,27 +181,50 @@ resume but differs for a fresh start.
 
 **Accepted.** `execution-session-evidence.mjs` keeps the per-worktree session evidence; increment delivery appends each accepted pair under the launch reference, and a newly published claim or admission begins a native session. Proof: `execution-session-evidence-delivery.test.mjs` and `execution-session-evidence-start.test.mjs` under `Distribution/tests/skills/dough-execute-plan/`.
 CI repair (run 44903981736): execution start must not load landing modules, which older or incomplete installs lack, so `resolveLaunchLanding` lives beside the landing-context resolver. Proof: `dashboard/backend-tests/launches/agent-launch-incomplete-reporting-settlement.spec.ts`.
+The same repair met `dashboard/backend-tests/launches/declared-blank-launch-publication.spec.ts:23` timing out at load ~25 (5088 ms; 515 ms in CI), from about 61 git starts on a path this story does not change. On 2026-11-21 Terry chose to queue its repair as SEED-421#stop-repeating-git-work-in-shared-publication, first in the Backlog list at `72d22311d`, instead of a per-test timeout or a split.
 
 ### 4. Publish the session record at trunk wrap-up
 
 Type: Behavior
-Status: planned
+Status: done
 
-**Behavior.** Trunk Mode closes through Story Wrap-up after multiple accepted
-increments. After the final closure is accepted, `finish` seals the record
-from the session's accepted pairs and the accepted closure pair, publishes it
-as a separate record commit, and only then completes and retires. Existing
-observer duties apply to the final accepted delivery. A rerun resumes the
-record stage from the sealed record without republishing the closure.
+**Behavior.** After the final closure is accepted and any consumer visit
+settles, `finish` seals the record
+from the session evidence plus the accepted closure pair and stores it locally.
+After the completion receipt for the accepted closure SHA, it publishes the
+record as a separate commit through `resumeSessionClose`, then retires.
+Retirement stops until the record publication is accepted, including when the
+worktree is already gone, and it treats the record commit as contained. A rerun after a refused record push publishes the stored
+record without another closure push. Existing closure tests follow the record
+commit at the trunk tip.
 
 **Proof.** Drive `trunk-closure.mjs finish` with real Git and its existing
-controlled CI observer fixture after slice 3's increments. A fresh clone reads
-both increments and the accepted close work, with the other writer, refused
-candidates and the record commit absent. Assert retirement only after the
-required receipt, and a rerun after a refused record push publishes one record
-without another closure push.
+controlled CI observer fixture. Assert the record lands after the closure,
+completion names the closure SHA, and retirement happens only after the record
+is accepted. Then refuse the record push and rerun: one record is published
+and the closure is pushed once. Keep every existing `trunk-closure*` test
+passing with the new tip.
 
-### 5. Keep story-branch comparisons after integration
+**Accepted.** `trunk-closure-session-record.mjs` seals and publishes the records-only record commit after the closure's completion receipt. The default-checkout refresh follows the record, and retirement treats the record commit as contained. The record push passes `landingContext: null`, which the resolver reads as "not a landing", so a Dashboard launch's open landing expectation stays with the closure. Proof: `Distribution/tests/skills/dough-story-wrap-up/trunk-closure-session-record.test.mjs`, every `trunk-closure*` suite, and `e2e/sessions/agent-completion-quiet.spec.ts`. Trunk since `0648ff017` changed publication validation and confirmation (`6d6cbebcf`, `9b3e40a36`), so integration needs merged-state proof of these suites.
+
+### 5. Read every trunk contribution of a wrapped-up session
+
+Type: Behavior
+Status: planned
+
+**Behavior.** A Trunk Mode session publishes two increments, with another
+writer's change between them, and a retried increment, then wraps up. Its
+published record lists the workflow, the original close time and the accepted
+comparisons in order. The comparisons are the increments and the closure,
+excluding the other writer, refused candidates and the record commit.
+
+**Proof.** Produce the increments through production delivery against a
+temporary origin and close through `finish`. From a fresh default-branch-only
+clone, read the record, check every range's commits are present and its file
+diffs are exact, and confirm the other writer's change, refused candidates and
+the record commit are absent.
+
+### 6. Keep story-branch comparisons after integration
 
 Type: Behavior
 Status: planned
@@ -210,7 +239,7 @@ separate accepted continuation. Read exact pairs and file diffs from a fresh
 default-branch-only clone after retirement. Assert original branch hashes,
 the continuation's edits, and absence of duplicate and intervening work.
 
-### 6. Record refinement and follow-up through Land
+### 7. Record refinement and follow-up through Land
 
 Type: Behavior
 Status: planned
@@ -226,7 +255,7 @@ with the same story context. Read both records and the earlier preparation
 snapshot from the origin. Verify distinct UUIDs, workflow values and
 comparisons, the common story identity, and release of only that assignment.
 
-### 7. Disclose ambiguity in a shared checkout
+### 8. Disclose ambiguity in a shared checkout
 
 Type: Behavior
 Status: planned
@@ -242,7 +271,7 @@ close path with observed checkout intervals and accepted Git pairs. Open
 the published range from another clone and check its warning and files.
 Keep the existing Done capture observations at their normal entry point.
 
-### 8. Stop offering expired published records
+### 9. Stop offering expired published records
 
 Type: Behavior
 Status: planned
@@ -256,7 +285,7 @@ the configured trunk. Observe listing and review immediately before and at
 expiry. Check that the record’s close time controls the boundary
 even when the Git commit time differs and that a local kept entry keeps its own lifecycle.
 
-### 9. Prune expired records on authorized publication
+### 10. Prune expired records on authorized publication
 
 Type: Behavior
 Status: planned
@@ -293,7 +322,7 @@ Slice-plan refinement split the range reader from execution capture and the
 expiry read from the pruning write. Land's association cases share one
 publication and verification loop. Each slice has one main proof loop sized
 for 15 active minutes. The sequence uses one accepted-comparison model across
-workflows. Execution split the trunk wrap-up slice into increment capture (3) and record publication at `finish` (4), giving nine slices. The review found no remaining slice-specific
+workflows. Execution split the trunk wrap-up slice into increment capture (3) and record publication at `finish` (4), giving nine slices. It then split record publication at `finish` (4) from its outside-in proof across increments (5), because every existing closure fixture now publishes a record and moves the trunk tip those tests assert. That gives ten slices. The review found no remaining slice-specific
 concern. The recorded supplier agreement remains the start prerequisite.
 
 ## Story obligations
@@ -311,7 +340,7 @@ Disposition: proved by slice 1: Distribution/tests/skills/dough-land/session-clo
 ### G3. One unreadable range hides every range of the record
 Reported: slice 2 — "If one range's commits aren't in this machine's Git, the whole review shows unavailable with no range switch, so the other ranges can't be reached from the UI."
 Story clause: "Include earlier accepted trunk and story-branch work when its comparison becomes reachable from trunk."
-Disposition: interim until slices 3, 4, 5
+Disposition: interim until slices 3, 4, 5, 6
 
 ### G4. The range switch disappears while another range loads
 Reported: slice 2 — "The switch disappears briefly while another range loads."
@@ -321,7 +350,7 @@ Disposition: no user cost "A developer on another machine can review what an ind
 ### G5. A Dashboard-launched story-branch execution keeps its native UUID
 Reported: slice 3 — "A story-branch first publication carries no landing context, so its evidence keeps the native UUID; that is left for slice 5."
 Story clause: "Use the launch UUID when supplied"
-Disposition: receiving slice 5
+Disposition: receiving slice 6
 
 ### G6. A resumed interrupted increment adds no pair
 Reported: slice 3 — "resumeManagedExecutionIncrement never calls recordAcceptedIncrement. If an interrupted publication is resumed and then accepted, its pair is not added to the session evidence."

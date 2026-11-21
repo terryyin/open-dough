@@ -96,7 +96,9 @@ async function commitRecord(workspace, path, record) {
   const file = join(workspace, path);
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, recordBytes(record));
-  await git(workspace, "add", "--", path);
+  // The record is published content even where the project's own directory
+  // is ignored, as for a project below an ignoring Git toplevel.
+  await git(workspace, "add", "--force", "--", path);
   const pending = (await git(workspace, "status", "--porcelain", "--", path))
     .stdout;
   if (!pending.trim()) return;
@@ -133,7 +135,9 @@ export async function publishSealedRecord({
   const published = await publishExecutionIncrement({
     ...publication,
     previouslyPublishedBase: record.ranges.at(-1).candidate,
-    landingContext: undefined,
+    // A record commit is never the launch's landing, even while its landing
+    // expectation is still open.
+    landingContext: null,
   });
   return {
     status: published.ok ? "published" : "stopped",

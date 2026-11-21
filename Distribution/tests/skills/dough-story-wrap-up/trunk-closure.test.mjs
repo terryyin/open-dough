@@ -22,6 +22,7 @@ import {
   finishThroughCli,
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
+import { targetHolds } from "./trunk-closure-session-record-test-fixtures.mjs";
 import { git } from "../dough-execute-plan/execution-increment-managed-delivery-test-fixtures.mjs";
 import { deliverThroughCli } from "../dough-execute-plan/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import "./trunk-closure-integrated-state-cases.mjs";
@@ -45,13 +46,16 @@ test("finish publishes the final closure, completes it once on its coordinator's
   assert.equal(result.ok, true);
   assert.equal(result.publication, "accepted");
   assert.equal(result.acceptedSha, final);
-  assert.equal(await lsRemoteSha(fixture.origin, main), final);
+  assert.ok(await targetHolds(fixture, final));
   assert.equal(result.observation.state, "reused");
   assert.equal(result.observation.directory, before.observation.directory);
   assert.equal(result.completion.verdict, "success");
   assert.equal(result.completion.requestedSha, final);
   assert.equal(result.completion.shutdown.status, "confirmed");
-  assert.equal(await revParse(fixture.integration, "main"), final);
+  assert.equal(
+    await revParse(fixture.integration, "main"),
+    await lsRemoteSha(fixture.origin, main),
+  );
   assert.deepEqual(
     [result.cleanup.worktree, result.cleanup.branch],
     ["removed", "removed"],
@@ -81,7 +85,7 @@ test("a stopped default-checkout refresh keeps the accepted closure, still retir
   assert.equal(result.refresh.result, "stopped");
   assert.equal(result.refresh.reason, "unexpected-branch");
   assert.equal(await revParse(fixture.integration, "HEAD"), sideHead);
-  assert.equal(await lsRemoteSha(fixture.origin, main), final);
+  assert.ok(await targetHolds(fixture, final));
   assert.equal(result.completion.shutdown.status, "confirmed");
   assert.equal(result.cleanup.worktree, "removed");
   assert.equal(existsSync(fixture.execution), false);
@@ -131,7 +135,7 @@ test("finish publishes a final closure whose identity an earlier published closu
   assert.equal(code, 0, JSON.stringify({ result, stderr }));
   assert.equal(result.acceptedSha, final);
   assert.equal(result.pushCount, 1);
-  assert.equal(await lsRemoteSha(fixture.origin, main), final);
+  assert.ok(await targetHolds(fixture, final));
 });
 
 test("finish establishes its coordinator's observer on a non-default remote and target when it holds none, without a default checkout", async (t) => {
@@ -160,7 +164,7 @@ test("finish establishes its coordinator's observer on a non-default remote and 
   assert.equal(code, 0, stderr);
   assert.equal(result.observation.state, "attached");
   assert.equal(result.target, release);
-  assert.equal(await lsRemoteSha(fixture.origin, release), final);
+  assert.ok(await targetHolds(fixture, final, release));
   assert.equal(await lsRemoteSha(fixture.origin, main), fixture.trunkSha);
   assert.equal(result.completion.shutdown.status, "confirmed");
   assert.equal(result.refresh.result, "not applicable");

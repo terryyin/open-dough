@@ -70,3 +70,31 @@ export function recordAcceptedIncrement(
     evidence.ranges.push({ base, candidate });
   return writeSessionEvidence(workspace, evidence);
 }
+
+/**
+ * Seals the session at its close: appends the accepted closure pair unless
+ * delivery already recorded it, keeps `closing` (what the close already
+ * settled, such as its completion receipt), and fixes the close time before
+ * the first record publication attempt, so a rerun keeps the original close
+ * time and ranges and resumes after what `closing` holds.
+ * @param {string} workspace
+ * @param {{ base: string, candidate: string }} closure
+ * @param {object} closing
+ * @param {() => Date} now
+ */
+export function sealSessionEvidence(
+  workspace,
+  closure,
+  closing,
+  now = () => new Date(),
+) {
+  const kept = readSessionEvidence(workspace);
+  if (kept?.closedAt) return kept;
+  const held = kept?.ranges.some(
+    (range) => range.candidate === closure.candidate,
+  );
+  const evidence = held ? kept : recordAcceptedIncrement(workspace, closure);
+  evidence.closing = closing;
+  evidence.closedAt = now().toISOString();
+  return writeSessionEvidence(workspace, evidence);
+}

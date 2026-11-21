@@ -28,6 +28,7 @@ import {
   recordPushes,
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
+import { targetHolds } from "./trunk-closure-session-record-test-fixtures.mjs";
 
 const main = "refs/heads/main";
 
@@ -97,7 +98,7 @@ test("a rerun after the final closure was accepted pushes nothing, completes onc
   assert.equal(result.cleanup.worktree, "removed");
   assert.equal(existsSync(fixture.execution), false);
   assert.equal(await branchSha(fixture), "");
-  assert.equal(await lsRemoteSha(fixture.origin, main), final);
+  assert.ok(await targetHolds(fixture, final));
 });
 
 test("a rerun after completion repeats it safely on the ended observer, pushes nothing, and retires", async (t) => {
@@ -127,7 +128,7 @@ test("a rerun after completion repeats it safely on the ended observer, pushes n
   assert.equal(existsSync(fixture.execution), false);
 });
 
-test("a rerun after the worktree was removed works from the recorded management context, pushes nothing, and reports cleanup done", async (t) => {
+test("a rerun after the worktree was removed works from the recorded management context, completes the closure, and stops at the session record the worktree held without retiring", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
   installInIntegration(fixture);
   const { beforeCleanup, final, directory } = await acceptBothClosures(fixture);
@@ -151,23 +152,18 @@ test("a rerun after the worktree was removed works from the recorded management 
   assert.match(lost.result.recovery, /--repository/);
   assert.equal(await branchSha(fixture), final);
 
+  // The removed worktree held the session evidence, so the record stage
+  // stops before retirement and names the unpublished record.
   const { result, code, stderr } = await rerun(["--repository", repository]);
-  assert.equal(code, 0, stderr);
+  assert.equal(code, 1, stderr);
   assert.equal(result.repository, repository);
   assert.equal(result.pushCount, 0);
   assert.equal(result.completion.shutdown.status, "confirmed");
-  assert.deepEqual(
-    [result.cleanup.worktree, result.cleanup.branch],
-    ["already-absent", "removed"],
-  );
-  assert.equal(await branchSha(fixture), "");
-
-  const again = await rerun(["--repository", repository]);
-  assert.equal(again.code, 0, again.stderr);
-  assert.deepEqual(
-    [again.result.cleanup.worktree, again.result.cleanup.branch],
-    ["already-absent", "already-absent"],
-  );
+  assert.equal(result.step, "record");
+  assert.deepEqual(result.record, { status: "not-published" });
+  assert.match(result.recovery, /sealed session record/);
+  assert.equal(result.cleanup, "not-performed");
+  assert.equal(await branchSha(fixture), final);
   assert.deepEqual(recorder.pushes(), []);
   assert.equal(await lsRemoteSha(fixture.origin, main), final);
 });
@@ -244,5 +240,5 @@ test("a final closure the target moved past is rebased and published once, and t
   assert.equal(result.completion.shutdown.status, "confirmed");
   assert.equal(result.cleanup.worktree, "removed");
   assert.equal(existsSync(fixture.execution), false);
-  assert.equal(await lsRemoteSha(fixture.origin, main), rebased);
+  assert.ok(await targetHolds(fixture, rebased));
 });

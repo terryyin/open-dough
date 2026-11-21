@@ -55,9 +55,13 @@ node <installed>/dough-story-wrap-up/scripts/trunk-closure.mjs finish \
 It confirms the fetched target contains the before-cleanup commit, publishes
 the final closure through managed delivery on this coordinator's own observer,
 runs [the shared completion operation](ci-completion-wait.md#await-the-applicable-revision-at-completion)
-once for the accepted SHA there, attempts the default-checkout refresh when one is
-given, and only after a `success` receipt whose shutdown is confirmed retires
-the worktree and branch under Dough Land's
+once for the accepted SHA there, and only after a `success` receipt whose
+shutdown is confirmed seals this execution's session record from its accepted
+increments and the accepted closure, keeps it in the worktree, and publishes it
+as one separate record commit that no observer covers. After completion, or
+the record when one is published, it attempts the default-checkout refresh when
+one is given, and after a published record retires the worktree and branch
+under Dough Land's
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree), which
 removes the worktree only when its
 [creation record](../../dough-manual-testing/references/exploration-workspace.md#close-or-retain-it)
@@ -98,6 +102,7 @@ not count. Without `--visit-settled`, a rerun repeats the visit only.
 | `step: "before-cleanup"`          | Nothing was published. Publish the before-cleanup commit through `deliver` first                                                                                                                                                                                                                                                      |
 | `step: "context"`                 | The worktree is gone. Follow its `recovery`: rerun with `--repository`, rerun with an earlier result's `acceptedSha` as `--final`, or report the unpublished final closure                                                                                                                                                            |
 | `step: "conflict"` or `"publish"` | The final closure is unpublished; the worktree, branch, and both commits remain. Follow its `recovery`                                                                                                                                                                                                                                |
+| `step: "record"`                  | The final closure is accepted and completed; the session record is not. Follow `recovery`: rerun `finish` to publish the kept record without another closure push or completion, or report it unpublished                                                                                                                             |
 | `step: "visit"`                   | The final closure is accepted; this call has not run completion or retirement. Act on `visit` as above, or follow `reason` and `recovery` when the visit stopped, `--visit-settled` names no accepted SHA containing the closure or one earlier than a publication registered on this coordinator's observers (rerun naming that later SHA), or the worktree is gone. If an earlier `finish` printed a clean visit with no consumers and no problems before the worktree disappeared, rerun with `--final <acceptedSha>` and `--visit-settled <acceptedSha>` to finish completion and retirement. Otherwise report the unfinished visit. Resources stay |
 | `step: "observation"`             | The final closure is accepted and `finish`, which completes it on this coordinator's live observer before any ended one, completed it on none of this coordinator's observers: its owner was not named, it holds no live observer and recovery could not establish one, its ended ones leave none to repeat completion on once the worktree is gone (for example, none registered the closure, or those that did, whether one or several, recorded no CI verdict for it or verdicts that differ), or it holds several live ones. Follow the step `observation.reason` names: rerun, with this coordinator's own owner input when that was missing; keep the retained one of several live observers, stop the others, and rerun; as a session that replaces the coordinator stop the recorded observer; when this coordinator's observers have ended while the execution worktree exists, `finish` runs `execution-completion-recovery.mjs complete`; otherwise report lost coverage. Resources stay |
 | `step: "completion"`              | Report the receipt: a CI failure, a receipt with no verdict, or retained or unconfirmed shutdown keeps the worktree and branch. Follow its `recovery`                                                                                                                                                                                 |

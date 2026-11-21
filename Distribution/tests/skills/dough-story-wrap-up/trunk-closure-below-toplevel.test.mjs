@@ -8,11 +8,11 @@ import { existsSync } from "node:fs";
 import { test } from "node:test";
 import { deliverThroughCli } from "../dough-execute-plan/execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import {
-  countPushes,
   coverage,
   revisions,
 } from "../dough-execute-plan/execution-increment-managed-delivery-owner-test-fixtures.mjs";
 import { closureBelowToplevel } from "./trunk-closure-owner-test-fixtures.mjs";
+import { countClosurePushes } from "./trunk-closure-session-record-test-fixtures.mjs";
 import {
   commitFinalClosure,
   releaseCi,
@@ -31,7 +31,7 @@ test("a finish rerun on an accepted closure for a project below its Git toplevel
   const beforeCleanup = delivered.receipt.sha;
   const final = await commitFinalClosure(fixture);
   releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
-  const pushes = await countPushes(fixture);
+  const pushes = await countClosurePushes(fixture);
   const closure = { beforeCleanup, final, extra: ["--created-for-work"] };
 
   const first = await finish(closure);
@@ -50,12 +50,13 @@ test("a finish rerun on an accepted closure for a project below its Git toplevel
   assert.equal(again.code, 1);
   assert.equal(pushes(), 1);
   assert.equal(again.result.acceptedSha, final);
-  assert.deepEqual(again.result.observation, {
-    state: "recovered",
-    directory: observer,
-    reused: true,
-    notifies: delivered.observation.notifies,
-  });
+  // The rerun reports the observation of the completion the first finish
+  // sealed with its session record, not a repeated completion.
+  assert.deepEqual(again.result.observation, first.result.observation);
+  assert.equal(
+    again.result.observation.notifies,
+    delivered.observation.notifies,
+  );
   assert.deepEqual(coverage(observer), revisions(beforeCleanup, final));
   assert.equal(again.result.completion.requestedSha, final);
   assert.equal(again.result.completion.shutdown.status, "confirmed");

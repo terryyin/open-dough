@@ -24,6 +24,7 @@ import {
   finishThroughCli,
   recordPushes,
 } from "../dough-story-wrap-up/trunk-closure-test-fixtures.mjs";
+import { targetHolds } from "../dough-story-wrap-up/trunk-closure-session-record-test-fixtures.mjs";
 
 import { main, deliver, waitTarget } from "./ci-reuse-trunk-test-fixtures.mjs";
 import "./ci-reuse-trunk-retention-cases.mjs";
@@ -83,7 +84,7 @@ test("ordinary direct Trunk increment, repair and final closure run fresh withou
     extra: ["--created-for-work", "--default-checkout", fixture.integration],
   });
   await awaitSignalWhileRunning(
-    () => lsRemoteSha(fixture.origin, main).then((sha) => sha === final),
+    () => targetHolds(fixture, final),
     settledProbe(finishing),
     () => "finish ended before final publication",
   );

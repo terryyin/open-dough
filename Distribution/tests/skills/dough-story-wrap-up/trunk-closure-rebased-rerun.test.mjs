@@ -22,6 +22,7 @@ import {
   commitFinalClosure,
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
+import { targetHolds } from "./trunk-closure-session-record-test-fixtures.mjs";
 
 const main = "refs/heads/main";
 
@@ -102,6 +103,6 @@ test("a rerun with the original final closure after it was rebased and published
     ["already-absent", "already-absent"],
   );
   assert.equal(pushes(), 0);
-  assert.equal(await lsRemoteSha(fixture.origin, main), rebased);
+  assert.ok(await targetHolds(fixture, rebased));
   journey.assertSiblingUntouched();
 });

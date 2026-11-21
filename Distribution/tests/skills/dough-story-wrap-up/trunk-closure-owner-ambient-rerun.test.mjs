@@ -26,7 +26,7 @@ import {
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
 
-test("a rerun after completion and worktree removal settles only for the owner: without its identity or as another coordinator the accepted closure is reported unobserved and the branch stays", async (t) => {
+test("a rerun after completion and worktree removal completes only for the owner and stops at the unpublished record: without its identity or as another coordinator the accepted closure is reported unobserved and the branch stays", async (t) => {
   const journey = await closureBesideSibling(t, "claude");
   const { fixture, publisher } = journey;
   const beforeCleanup = await deliverBeforeCleanup(journey);
@@ -60,19 +60,21 @@ test("a rerun after completion and worktree removal settles only for the owner: 
     assert.equal(await branchSha(fixture), final);
   }
 
-  const { result, code, stderr } = await rerun(journey.owner);
-  assert.equal(code, 0, stderr);
+  const { result, code } = await rerun(journey.owner);
+  assert.equal(code, 1);
   assert.equal(result.observation.directory, publisher);
   assert.equal(result.completion.shutdown.status, "confirmed");
-  assert.deepEqual(
-    [result.cleanup.worktree, result.cleanup.branch],
-    ["already-absent", "removed"],
-  );
+  // The removed worktree held the unpublished session record, so the owner's
+  // settlement stops at the record stage and the branch stays.
+  assert.equal(result.step, "record");
+  assert.deepEqual(result.record, { status: "not-published" });
+  assert.equal(result.cleanup, "not-performed");
+  assert.equal(await branchSha(fixture), final);
   assert.equal(pushes(), 0);
   journey.assertSiblingUntouched();
 });
 
-test("an ambient rerun after worktree removal whose coordinator's observers never registered the final closure registers, completes, and stops that coordinator's one live observer of the target, and leaves the sibling's alone", async (t) => {
+test("an ambient rerun after worktree removal whose coordinator's observers never registered the final closure registers, completes, and stops that coordinator's one live observer of the target, stops at the unpublished record, and leaves the sibling's alone", async (t) => {
   // Armed from the default checkout, the publisher's observer outlives the
   // execution worktree as the sibling's does.
   const journey = await closureBesideSibling(t, "claude", "sibling");
@@ -89,7 +91,7 @@ test("an ambient rerun after worktree removal whose coordinator's observers neve
     final,
   });
 
-  assert.equal(code, 0, stderr);
+  assert.equal(code, 1, stderr);
   assert.equal(result.pushCount, 0);
   assert.equal(result.observation.directory, publisher);
   assert.match(
@@ -98,10 +100,10 @@ test("an ambient rerun after worktree removal whose coordinator's observers neve
   );
   assert.deepEqual(coverage(publisher), revisions(final));
   assertCompletedAndStopped(result, publisher, final);
-  assert.deepEqual(
-    [result.cleanup.worktree, result.cleanup.branch],
-    ["already-absent", "removed"],
-  );
+  // The removed worktree held the unpublished session record.
+  assert.equal(result.step, "record");
+  assert.deepEqual(result.record, { status: "not-published" });
+  assert.equal(result.cleanup, "not-performed");
   assert.equal(pushes(), 0);
   journey.assertSiblingUntouched();
 });

@@ -189,7 +189,9 @@ export async function withInstalledCompletionClosure(
         cleanup: { removed: true },
       });
     }
-    expect((await origin.originGit("rev-parse", "main")).trim()).toBe(final);
+    // Trunk wrap-up publishes the session record commit on the final closure.
+    const closed = closure === "Trunk Wrap Up" ? "main^" : "main";
+    expect((await origin.originGit("rev-parse", closed)).trim()).toBe(final);
     if (closure !== "Trunk Wrap Up") {
       const retired = JSON.parse(
         (

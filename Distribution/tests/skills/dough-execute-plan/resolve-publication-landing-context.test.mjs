@@ -1,5 +1,6 @@
 // Publication resolves an omitted landingContext from an open first-landing
-// expectation; an explicit path still wins; a mismatched branch stays clear.
+// expectation; an explicit path still wins; a mismatched branch or a
+// publication naming no landing stays clear.
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -100,3 +101,17 @@ for (const destination of [
     );
   });
 }
+
+test("a publication that names no landing, as a session record commit does, resolves none despite an open expectation", async (t) => {
+  const fixture = await gitWorkspace(t);
+  await plantFirstLandingExpectation(fixture);
+  assert.equal(
+    await resolvePublicationLandingContext({
+      ...fixture,
+      remote: "origin",
+      targetRef: "refs/heads/main",
+      landingContext: null,
+    }),
+    undefined,
+  );
+});

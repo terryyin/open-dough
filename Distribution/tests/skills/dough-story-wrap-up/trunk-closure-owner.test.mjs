@@ -17,7 +17,6 @@ import {
   startReceipt,
 } from "../dough-execute-plan/execution-increment-managed-delivery-owner-test-fixtures.mjs";
 import { completeThroughCli } from "../dough-execute-plan/execution-increment-managed-delivery-cli-test-fixtures.mjs";
-import { lsRemoteSha } from "../dough-execute-plan/publication-test-fixtures.mjs";
 import {
   armingCheckouts,
   assertCompletedAndStopped,
@@ -30,8 +29,7 @@ import {
   commitFinalClosure,
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
-
-const main = "refs/heads/main";
+import { targetHolds } from "./trunk-closure-session-record-test-fixtures.mjs";
 
 // Where each host's rerun journey arms its publisher's observer. The arming
 // checkout reaches an observer's owner and access only through the identity
@@ -58,7 +56,7 @@ for (const host of Object.keys(hosts)) {
     assert.equal(code, 0, stderr);
     assert.equal(pushes(), 1);
     assert.equal(result.acceptedSha, final);
-    assert.equal(await lsRemoteSha(fixture.origin, main), final);
+    assert.ok(await targetHolds(fixture, final));
     assert.equal(result.observation.state, "reused");
     assert.equal(result.observation.directory, publisher);
     assert.deepEqual(coverage(publisher), revisions(beforeCleanup, final));
@@ -131,7 +129,7 @@ for (const host of Object.keys(hosts)) {
       );
       assert.deepEqual(coverage(publisher), revisions(beforeCleanup, final));
       assert.equal(pushes(), 0);
-      assert.equal(await lsRemoteSha(fixture.origin, main), final);
+      assert.ok(await targetHolds(fixture, final));
       journey.assertSiblingUntouched();
     });
   }

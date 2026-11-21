@@ -19,7 +19,6 @@ import { isLiveMatchingMailbox } from "../../../src/skills/dough-execute-plan/sc
 import { checkMailboxWorkerLiveness } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-worker-process.mjs";
 import {
   acceptedIncrement,
-  countPushes,
   coverage,
   hosts,
   siblingCheckouts,
@@ -39,6 +38,7 @@ import {
   installClosureSkills,
   installInIntegration,
 } from "./trunk-closure-test-fixtures.mjs";
+import { countClosurePushes } from "./trunk-closure-session-record-test-fixtures.mjs";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
 import { trunkWithOneUnpublishedIncrement } from "../dough-execute-plan/publication-clean-trunk-fixtures.mjs";
 
@@ -127,8 +127,9 @@ export async function closureBesideSibling(t, host, armedFrom = "publisher") {
     owner: publisherCoordinator,
     publisher,
     sibling,
-    // Counts the pushes the bare remote receives from now on.
-    pushes: () => countPushes(fixture),
+    // Counts the pushes the bare remote receives from now on, apart from
+    // session record commits.
+    pushes: () => countClosurePushes(fixture),
     deliver: (base, extra = [], coordinator = publisherCoordinator) =>
       checkouts.deliver(base, coordinator, extra),
     // The installed `finish` as `coordinator`'s host runs it.

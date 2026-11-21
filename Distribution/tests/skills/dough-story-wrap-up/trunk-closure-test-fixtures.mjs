@@ -24,6 +24,7 @@ import {
   git,
 } from "../dough-execute-plan/execution-increment-managed-delivery-test-fixtures.mjs";
 import { revParse } from "../dough-execute-plan/publication-test-fixtures.mjs";
+import { sessionRecordCommits } from "./trunk-closure-session-record-test-fixtures.mjs";
 
 const skills = fileURLToPath(new URL("../../../src/skills/", import.meta.url));
 export const session = "trunk-closure-coordinator";
@@ -80,7 +81,8 @@ export function installInIntegration(fixture, platform = ".claude") {
 }
 
 // Returns an environment whose `git` records every push it runs, and a reader
-// for those recorded pushes.
+// for those recorded pushes apart from session record commits, which the
+// record stage's tests observe.
 export function recordPushes(fixture, env = fixture.env) {
   const bin = join(fixture.fixture, "bin");
   const log = join(fixture.fixture, "pushes.log");
@@ -93,10 +95,16 @@ export function recordPushes(fixture, env = fixture.env) {
     `#!/bin/sh\ncase " $* " in *" push "*) printf '%s\\n' "$*" >>'${log}' ;; esac\nexec '${real}' "$@"\n`,
     { mode: 0o755 },
   );
+  const closurePush = (line, records) =>
+    !records.has(line.match(/([0-9a-f]{40}):/)?.[1]);
   return {
     env: { ...env, PATH: `${bin}:${env.PATH}` },
-    pushes: () =>
-      existsSync(log) ? readFileSync(log, "utf8").trim().split("\n") : [],
+    pushes: () => {
+      if (!existsSync(log)) return [];
+      const records = sessionRecordCommits(fixture.origin);
+      const lines = readFileSync(log, "utf8").trim().split("\n");
+      return lines.filter((line) => closurePush(line, records));
+    },
   };
 }
 

@@ -16,7 +16,6 @@ import {
 } from "../dough-execute-plan/execution-increment-managed-delivery-codex-test-fixtures.mjs";
 import {
   acceptedIncrement,
-  countPushes,
   coverage,
   revisions,
 } from "../dough-execute-plan/execution-increment-managed-delivery-owner-test-fixtures.mjs";
@@ -24,7 +23,6 @@ import {
   createManagedFixture,
   installManagedDelivery,
 } from "../dough-execute-plan/execution-increment-managed-delivery-test-fixtures.mjs";
-import { lsRemoteSha } from "../dough-execute-plan/publication-test-fixtures.mjs";
 import {
   armingCheckouts,
   assertObserverEnded,
@@ -38,8 +36,10 @@ import {
   installInIntegration,
   releaseCi,
 } from "./trunk-closure-test-fixtures.mjs";
-
-const main = "refs/heads/main";
+import {
+  countClosurePushes,
+  targetHolds,
+} from "./trunk-closure-session-record-test-fixtures.mjs";
 
 // A publishing coordinator's stream beside a sibling coordinator's, armed
 // from the default checkout's own install. The publisher's is armed from
@@ -92,7 +92,7 @@ for (const [armedFrom, where] of Object.entries(armingCheckouts)) {
     const beforeCleanup = delivered.receipt.sha;
     const final = await commitFinalClosure(fixture);
     releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
-    const pushes = await countPushes(fixture);
+    const pushes = await countClosurePushes(fixture);
     const repository = join(fixture.integration, ".git");
 
     const { result, code, stderr } = await journey.finish(
@@ -157,7 +157,7 @@ test("a Codex finish without its retained stream, or naming a sibling's, reports
   // The interrupted `finish` pushed the final closure and registered nothing.
   const final = await acceptedIncrement(fixture);
   releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
-  const pushes = await countPushes(fixture);
+  const pushes = await countClosurePushes(fixture);
 
   for (const [owner, ownership, reason] of [
     [[], "unidentified", /Codex closure registers only.*--coordinator and/],
@@ -197,7 +197,7 @@ test("a Codex finish without its retained stream, or naming a sibling's, reports
   assert.equal(result.completion.shutdown.status, "confirmed");
   assertObserverEnded(publisher.directory);
   assert.equal(result.cleanup.worktree, "removed");
-  assert.equal(await lsRemoteSha(fixture.origin, main), final);
+  assert.ok(await targetHolds(fixture, final));
   journey.assertSiblingUntouched();
 });
 

@@ -1,5 +1,7 @@
 // An omitted landingContext resolves only for the open expectation's remote
-// and target. Explicit landingContext still wins and is validated by its caller. Kept apart
+// and target; `null` names a publication that is no landing, such as a
+// session record commit. Explicit landingContext still wins and is validated
+// by its caller. Kept apart
 // from first-landing-expectation.mjs so the reporting-dir clear copy never
 // needs publication-git.
 import { readFile } from "node:fs/promises";
@@ -16,6 +18,7 @@ export async function resolvePublicationLandingContext({
   if (typeof landingContext === "string" && landingContext !== "") {
     return landingContext;
   }
+  if (landingContext === null) return undefined;
   if (
     typeof workspace !== "string" ||
     workspace === "" ||
