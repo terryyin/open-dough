@@ -181,13 +181,26 @@ proved by `sessions/recently-done-ad-hoc-session-commits.spec.ts`,
 ### 4. Details stay behind the eye and keep the reading place
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `-details` (3 cases) and `-uncommitted-check` (1), the latter counting
 snapshot reads on its source. Remove both built-app files.
 
 **Proof.** The mounted specs pass. One scratch break that reads the snapshot
 again when the uncommitted check changes fails that case and is reverted.
+
+**Accepted.** Both specs are mounted in place under their titles. The
+re-read break failed the uncommitted case, and a `storyReviewPanelKey` that
+ignores the subject failed the another-story case: every mount and
+`openAnother` rerender keys the panel with production `storyReviewPanelKey`.
+New steps `adding(path, lines)`, `committedAs`, `pleaseRange()`
+(`storyReviewSnapshotTestData.mjs`); `story-review-files-view.ts` owns the
+file list, code pane and diffs. Opening from a Done card stays proved by
+`sessions/recently-done-ad-hoc-review.spec.ts` and
+`e2e/sessions/recently-done-published-session-second-machine.spec.ts`.
+Orphans for slice 7: `expectListAndRangeShown` in `reviewChangesCommits.ts`,
+`escapeFromComparison` in `reviewChangesDetails.ts`, `scrollTo` and
+`scrollTop` in `reviewChangesCode.ts`.
 
 ### 5. The file sidebar keeps its chosen width
 

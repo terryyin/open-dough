@@ -2,7 +2,7 @@
 // Builders of the story review's answers (dashboard/src/storyReviewContract.ts):
 // a taken story's snapshot, a completed story's published comparison, an ad
 // hoc landing's or a captured run's landed comparison, a Default main
-// session's commits, a landing gap, and a file's printed diff. Node-free, so
+// session's commits, a landing gap, a commit range and a file's printed diff. Node-free, so
 // pageMakeMe.mjs exposes them to mounted cases.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").StoryReview} StoryReview */
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
@@ -10,18 +10,11 @@
 /** @typedef {import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice} ReviewRunChoice */
 import { ReviewedFileDiffBuilder } from "./reviewedFileDiffTestData.mjs";
 import { ReviewRunBuilder } from "./storyReviewRunTestData.mjs";
-
-/** @param {number} n */
-const oid = (n) => n.toString(16).padStart(40, "0");
-
-const storyReviewIds = Object.freeze({
-  baseline: oid(1),
-  tree: oid(2),
-  head: oid(3),
-  commit: oid(4),
-  commitTree: oid(5),
-  completion: oid(7),
-});
+import {
+  commitRange,
+  storyReviewIds,
+  takenSnapshot,
+} from "./storyReviewSnapshotTestData.mjs";
 
 export class StoryReviewBuilder {
   /** @type {ReviewedFile[]} */
@@ -33,10 +26,29 @@ export class StoryReviewBuilder {
   #runs;
   /** @type {ReviewRunChoice | undefined} */
   #selected;
+  /** @type {ReviewedFile[] | undefined} */
+  #committed;
 
-  /** @param {string} path a file the comparison adds, one line long */
-  adding(path) {
-    this.#files.push({ kind: "added", path, lines: { added: 1, removed: 0 } });
+  /**
+   * @param {string} path a file the comparison adds
+   * @param {number} lines how many lines long
+   */
+  adding(path, lines = 1) {
+    this.#files.push({
+      kind: "added",
+      path,
+      lines: { added: lines, removed: 0 },
+    });
+    return this;
+  }
+
+  /**
+   * A snapshot whose committed part, `committed`'s files, can be told from
+   * its uncommitted changes, so the uncommitted check is offered.
+   * @param {StoryReviewBuilder} committed
+   */
+  committedAs(committed) {
+    this.#committed = committed.#files;
     return this;
   }
 
@@ -84,6 +96,14 @@ export class StoryReviewBuilder {
     this.#selected = selected;
     this.#runs = [...runs];
     return this;
+  }
+
+  /**
+   * The range read of the snapshot's commit, holding this review's files.
+   * @returns {import("../../../dashboard/src/storyReviewContract.ts").ReviewRange}
+   */
+  pleaseRange() {
+    return commitRange(this.#files);
   }
 
   /** @returns {StoryReview} */
@@ -157,31 +177,7 @@ export class StoryReviewBuilder {
         tree,
         files,
       };
-    return {
-      kind: "snapshot",
-      workspace: "~/git/open-dough/.worktrees/story-review",
-      branch: "claude/taken",
-      remote: "origin",
-      target: "main",
-      baseline,
-      tree,
-      head: storyReviewIds.head,
-      files,
-      commits: [
-        {
-          kind: "commit",
-          revision: storyReviewIds.commit,
-          shortRevision: "aaaaaaa",
-          subject: "story file",
-          committedAt: "2026-01-01T00:00:00.000Z",
-          merge: false,
-          tree: storyReviewIds.commitTree,
-          baseline,
-          fromTree: baseline,
-          fromBaseline: baseline,
-        },
-      ],
-    };
+    return takenSnapshot({ baseline, tree, files, committed: this.#committed });
   }
 }
 

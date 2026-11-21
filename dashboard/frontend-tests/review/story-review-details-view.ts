@@ -1,7 +1,8 @@
 // The Review changes panel's details as a reader meets them
 // (./story-review-panel-page.ts): the toolbar's eye beside the comparison's
 // name, the section it reveals and hides, the comparison switch and landed run
-// picker that section holds, and the facts of the comparison shown.
+// picker that section holds, the facts of the comparison shown, and Commits'
+// range and commit list.
 import { expect } from "vitest";
 import { userEvent, type Locator } from "vitest/browser";
 
@@ -14,12 +15,26 @@ export const box = (element: Element | null | undefined) => {
 export const comparisonNameIn = (toolbar: Locator) =>
   toolbar.element().querySelector(".story-review-toolbar-name");
 
+// Escape from a control inside the details hides them and returns focus to
+// the eye.
+async function escapeFrom(inside: Locator, eye: Locator) {
+  (inside.element() as HTMLElement).focus();
+  await expect.element(inside).toHaveFocus();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(eye).toHaveAttribute("aria-expanded", "false");
+  const controlled = eye.element().getAttribute("aria-controls") ?? "";
+  expect(document.getElementById(controlled)?.checkVisibility()).toBe(false);
+  await expect.element(eye).toHaveFocus();
+}
+
 export function reviewDetails(region: Locator, toolbar: Locator) {
   const eye = toolbar.getByRole("button", {
     name: /^(Show|Hide) review details$/,
   });
   const section = region.getByRole("group", { name: "Review details" });
   const picker = region.getByRole("listbox", { name: "Landed run" });
+  const choice = (name: string) =>
+    section.getByRole("radio", { name, exact: true });
   const shownTimes = () =>
     [...region.element().querySelectorAll("time")].filter((time) =>
       time.checkVisibility(),
@@ -27,9 +42,12 @@ export function reviewDetails(region: Locator, toolbar: Locator) {
 
   const details = {
     // The eye, an icon right after the comparison's name on its row, whose
-    // tooltip says its name, offers the details.
-    async expectEyeBesideComparison() {
-      await expect.element(eye).toHaveAccessibleName("Show review details");
+    // tooltip says its name, offers or hides the details.
+    async expectEyeBesideComparison(
+      name:
+        "Show review details" | "Hide review details" = "Show review details",
+    ) {
+      await expect.element(eye).toHaveAccessibleName(name);
       await expect.element(eye).toHaveTextContent("");
       expect(eye.element().querySelector("svg")).not.toBeNull();
       const [nameAt, eyeAt] = [
@@ -44,7 +62,7 @@ export function reviewDetails(region: Locator, toolbar: Locator) {
       ).toBeLessThan(eyeAt.height / 2);
       await userEvent.hover(eye);
       await expect
-        .element(toolbar.getByText("Show review details", { exact: true }))
+        .element(toolbar.getByText(name, { exact: true }))
         .toBeVisible();
       return details;
     },
@@ -71,6 +89,14 @@ export function reviewDetails(region: Locator, toolbar: Locator) {
       return details.expectDetailsRevealed();
     },
 
+    // The eye hides the details again.
+    async hideDetails() {
+      await toolbar
+        .getByRole("button", { name: "Hide review details", exact: true })
+        .click();
+      return details.expectDetailsCollapsed();
+    },
+
     async expectDetailsRevealed() {
       await expect.element(eye).toHaveAccessibleName("Hide review details");
       await expect.element(eye).toHaveAttribute("aria-expanded", "true");
@@ -93,6 +119,29 @@ export function reviewDetails(region: Locator, toolbar: Locator) {
       return details;
     },
 
+    async chooseComparison(name: string) {
+      await choice(name).click();
+      return details;
+    },
+
+    // Commits shows its commit list and the range it reads.
+    async expectCommitsAndRangeShown() {
+      const commits = region.getByRole("list", {
+        name: "Story commits",
+        exact: true,
+      });
+      await expect.element(commits.getByRole("button").first()).toBeVisible();
+      await expect
+        .poll(() =>
+          region
+            .element()
+            .querySelector(".story-review-range-heading")
+            ?.checkVisibility(),
+        )
+        .toBe(true);
+      return details;
+    },
+
     async expectLandedRunChosen(key: string) {
       await expect.element(picker).toHaveValue(key);
       return details;
@@ -105,15 +154,13 @@ export function reviewDetails(region: Locator, toolbar: Locator) {
 
     // Escape from the picker hides the details and returns focus to the eye.
     async escapeFromLandedRuns() {
-      (picker.element() as HTMLElement).focus();
-      await expect.element(picker).toHaveFocus();
-      await userEvent.keyboard("{Escape}");
-      await expect.element(eye).toHaveAttribute("aria-expanded", "false");
-      const controlled = eye.element().getAttribute("aria-controls") ?? "";
-      expect(document.getElementById(controlled)?.checkVisibility()).toBe(
-        false,
-      );
-      await expect.element(eye).toHaveFocus();
+      await escapeFrom(picker, eye);
+      return details;
+    },
+
+    // The same Escape from a comparison choice.
+    async escapeFromComparison(name: string) {
+      await escapeFrom(choice(name), eye);
       return details;
     },
 

@@ -1,11 +1,15 @@
 // The Review changes panel (../../src/StoryReview.tsx) mounted in the page
 // contexts it reads (./story-review-page-contexts.ts), with its reads answered
-// by the case's review source, and the panel's toolbar, status and diffs as a
-// reader meets them; its details are ./story-review-details-view.ts.
+// by the case's review source, and the panel's toolbar and status as a reader
+// meets them; its details are ./story-review-details-view.ts and its files
+// and diffs ./story-review-files-view.ts.
 import { createElement } from "react";
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
-import type { StoryReviewRequest } from "../../src/pageStoryReviews.ts";
+import {
+  storyReviewPanelKey,
+  type StoryReviewRequest,
+} from "../../src/pageStoryReviews.ts";
 import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { StoryReview } from "../../src/StoryReview.tsx";
@@ -15,6 +19,7 @@ import {
   comparisonNameIn,
   reviewDetails,
 } from "./story-review-details-view.ts";
+import { reviewFiles } from "./story-review-files-view.ts";
 import { onReviewPage } from "./story-review-page-contexts.ts";
 
 export { adHocSession, doneStory } from "./story-review-page-contexts.ts";
@@ -32,32 +37,42 @@ export const reviewSourceAnswering = (
   ...reads,
 });
 
-// Opens the panel on `subject`'s review, read from `source`.
+// Opens the panel on `subject`'s review, read from `source`; another story's
+// review replaces it, keyed as the page keys each opening.
 export async function mountReviewChanges(
   source: ReviewSource,
   subject: ReviewedWorkSubject,
   { completed = false }: { completed?: boolean } = {},
 ) {
-  const request: StoryReviewRequest = {
-    subject,
-    title: "Done story",
-    control: document.body,
-    completed,
-  };
-  await mountComponent(
-    onReviewPage(
+  const panelOn = (shown: ReviewedWorkSubject) => {
+    const request: StoryReviewRequest = {
+      subject: shown,
+      title: "Done story",
+      control: document.body,
+      completed,
+    };
+    return onReviewPage(
       source,
       createElement(StoryReview, {
+        key: storyReviewPanelKey(request),
         request,
         maximized: false,
         onMaximize: () => undefined,
         offerMaximize: false,
         onClose: () => undefined,
       }),
-    ),
-    { fillsViewport: true },
-  );
-  return reviewChanges();
+    );
+  };
+  const mounted = await mountComponent(panelOn(subject), {
+    fillsViewport: true,
+  });
+  return {
+    ...reviewChanges(),
+    openAnother(another: ReviewedWorkSubject) {
+      mounted.rerender(panelOn(another));
+      return reviewChanges();
+    },
+  };
 }
 
 function reviewChanges() {
@@ -74,8 +89,6 @@ function reviewChanges() {
   const eitherFilesToggle = toolbar.getByRole("button", {
     name: /^(Hide|Show) files$/,
   });
-  const diff = (file: string) =>
-    region.getByRole("region", { name: file, exact: true });
 
   // No comparison name and no eye: before an answer or after a failure.
   const expectNoComparisonNameOrDetails = async () => {
@@ -85,6 +98,22 @@ function reviewChanges() {
 
   const view = {
     ...details,
+    ...reviewFiles(region),
+
+    // Whether the file browser is shown beside the diff.
+    async expectFilesShown(shown: boolean) {
+      await expect.element(toolbar).toBeVisible();
+      await expect
+        .poll(
+          () =>
+            region
+              .element()
+              .querySelector(".story-review-files")
+              ?.checkVisibility() ?? false,
+        )
+        .toBe(shown);
+      return view;
+    },
 
     async expectFeedback(text: string) {
       await expect.poll(() => feedback().trim()).toBe(text);
@@ -124,12 +153,6 @@ function reviewChanges() {
 
     async expectComparisonNamed(name: string) {
       await expect.poll(() => comparisonName()?.textContent).toBe(name);
-      return view;
-    },
-
-    async expectDiffShows(file: string, text: string) {
-      await expect.element(diff(file)).toBeVisible();
-      await expect.poll(() => diff(file).element().textContent).toContain(text);
       return view;
     },
 
