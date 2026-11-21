@@ -1,238 +1,143 @@
-// Development and Intent: two perspectives of the selected project in the one
-// dashboard frame (../../test-support/intentPerspectivePage.ts). Development is the
-// first-visit default; Intent keeps the selected project and, when no intent
-// locations are published, says so naming the setting and file, never that the
-// project has no tests or Proof, even when the published read failed. Changing
-// projects keeps the perspective; Back, Forward, reload and System settings
-// return to it, and a reload keeps the selected project with its own Board;
-// Development resumes its stories or roster. Its keys are
-// ./development-intent-frame-keyboard.spec.ts's, its sessions
-// ./development-intent-frame-sessions.spec.ts's.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
-import { controlFrontendAuthenticatedRead } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
-import { historyLength } from "../../test-support/sessionNavigationJourney.ts";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { ReadProblem } from "../../src/readProblem.ts";
+import { expectDocumentStill, readsWhole } from "./board-accessibility.ts";
 import {
-  expectBelowBanner,
-  expectPinnedShortBanner,
-} from "../../test-support/bannerReading.ts";
-import {
-  chooseProject,
-  expectProblemAndNoSnapshot,
-  expectProjectChoice,
-  openDirection,
-  parts,
-  projectTab,
-  rosterParts,
-  shortRevision,
-} from "../../test-support/dashboardPage.ts";
-import {
-  expectAddress,
-  expectNotConfiguredIntent,
-} from "../../test-support/intentPerspectivePage.ts";
-import {
-  compactProjectSelectCut,
-  expectNoSidewaysScrollAndWholeText,
-} from "../../test-support/pageLayout.ts";
-import {
-  openUntilRead,
-  reloadUntilRead,
-} from "../../test-support/pageRequestNotes.ts";
-import { expectPerspectiveMeaningMarks } from "../../test-support/perspectiveMarks.ts";
-import {
-  doughnutProject,
-  expectCatalogStories,
-  openDoughProject,
-} from "../../test-support/projectKeyboardNavigationJourney.ts";
-import {
-  back,
-  settings,
-} from "../../test-support/support/systemSettingsPage.ts";
-import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
+  development,
+  intent,
+  intentChoice,
+  mountPerspectiveFrame,
+  params,
+  perspective,
+  project,
+  showsProjectBoard,
+  showsUnconfiguredIntent,
+} from "./development-intent-frame-page.ts";
 
-test("Intent keeps the selected project and says no intent locations are configured; project changes, history and reload keep it, and Development resumes the stories", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await answerCatalogProjects(page, frontendServices);
-  await openUntilRead(page);
-  const { development, intentChoice, perspective, readRevision } = parts(page);
-  // Development is the first-visit default, with its stories and direction.
-  await expect(development).toBeChecked();
-  await expectCatalogStories(page, openDoughProject);
-  await openDirection(page);
-  await expect(parts(page).direction).toContainText(openDoughProject.direction);
-  const before = await historyLength(page);
+test("Development and Intent keep their names, marks and selected project's published work", async () => {
+  await mountPerspectiveFrame();
+  await showsProjectBoard("Open Dough");
+  const marks = perspective.element().querySelectorAll("svg");
+  expect(marks).toHaveLength(2);
+  expect(
+    [...marks].map((mark) => mark.getAttribute("data-perspective-mark")),
+  ).toEqual(["development", "intent"]);
+  expect([...marks].map((mark) => mark.getAttribute("aria-hidden"))).toEqual([
+    "true",
+    "true",
+  ]);
+  expect(marks.item(0).innerHTML).not.toBe(marks.item(1).innerHTML);
+  expect(
+    [
+      ...perspective
+        .element()
+        .querySelectorAll("label > span:not(.frame-tooltip)"),
+    ].map((mark) => mark.textContent),
+  ).toEqual(["", ""]);
+  await expect
+    .element(page.getByRole("radio", { name: "Structure", exact: true }))
+    .not.toBeInTheDocument();
+  const before = history.length;
 
-  await test.step("each perspective keeps its name and shows a distinct decorative meaning mark", async () => {
-    await expectPerspectiveMeaningMarks({
-      development,
-      intentChoice,
-      perspective,
-    });
-  });
-
-  await test.step("choosing Intent keeps Open Dough selected and says no intent locations are configured", async () => {
-    await intentChoice.click();
-    await expectNotConfiguredIntent(page, "Open Dough");
-    await expect(projectTab(page, "Open Dough")).toBeChecked();
-    await expectProjectChoice(page, "Open Dough");
-    expect(await historyLength(page)).toBe(before + 1);
-    expectAddress(page, { project: null, perspective: "intent" });
-  });
-
-  await test.step("choosing Doughnut keeps Intent, with the same not-configured content", async () => {
-    await projectTab(page, "Doughnut").check();
-    await expectProjectChoice(page, "Doughnut");
-    await expectNotConfiguredIntent(page, "Doughnut");
-    // The published read status still names what was read of Doughnut.
-    await expect(readRevision).toContainText(
-      shortRevision(doughnutProject.revision),
-    );
-    expectAddress(page, { project: "doughnut", perspective: "intent" });
-  });
-
-  await test.step("Back returns to Open Dough's Intent, then its Development stories; Forward and reload keep Doughnut's Intent", async () => {
-    await page.goBack();
-    await expect(projectTab(page, "Open Dough")).toBeChecked();
-    await expectNotConfiguredIntent(page, "Open Dough");
-    await page.goBack();
-    await expect(development).toBeChecked();
-    await expectCatalogStories(page, openDoughProject);
-    await expect(parts(page).intent).toHaveCount(0);
-    expectAddress(page, { project: null, perspective: null });
-    await page.goForward();
-    await page.goForward();
-    await expect(projectTab(page, "Doughnut")).toBeChecked();
-    await expectNotConfiguredIntent(page, "Doughnut");
-    await reloadUntilRead(page);
-    await expect(projectTab(page, "Doughnut")).toBeChecked();
-    await expectNotConfiguredIntent(page, "Doughnut");
-  });
-
-  await test.step("Development resumes Doughnut's stories, direction and Start session", async () => {
-    await development.click();
-    await expect(intentChoice).not.toBeChecked();
-    await expectCatalogStories(page, doughnutProject);
-    await openDirection(page);
-    await expect(parts(page).direction).toContainText(
-      doughnutProject.direction,
-    );
-    await expect(
-      page.getByRole("button", { name: "Start session in Doughnut" }),
-    ).toBeVisible();
-    await expect(parts(page).intent).toHaveCount(0);
-    expectAddress(page, { project: "doughnut", perspective: null });
-  });
-
-  await test.step("a reload keeps Doughnut selected with its own Board", async () => {
-    await reloadUntilRead(page);
-    await expect(projectTab(page, "Doughnut")).toBeChecked();
-    await expect(development).toBeChecked();
-    await expectCatalogStories(page, doughnutProject);
-    await expect(parts(page).board).not.toContainText(openDoughProject.taken);
-  });
-});
-
-test("System settings from Intent returns to the project and Intent with the keyboard on System settings, and Development returns to the roster", async ({
-  page,
-  frontendServices,
-}) => {
-  await answerCatalogProjects(page, frontendServices);
-  await page.goto("/?project=doughnut&view=roster");
-  const { roster } = rosterParts(page);
-  const { development, intentChoice } = parts(page);
-  const settingsHeading = page.getByRole("heading", {
-    name: "System settings",
-    exact: true,
-  });
-  await expect(roster).toBeVisible();
   await intentChoice.click();
-  await expectNotConfiguredIntent(page, "Doughnut");
-  await expect(roster).toBeHidden();
-  // Intent keeps the roster to return to.
-  const intentAtRoster = {
-    project: "doughnut",
-    view: "roster",
-    perspective: "intent",
-  };
-  expectAddress(page, intentAtRoster);
+  await showsUnconfiguredIntent("Open Dough");
+  await expect.element(project("Open Dough")).toBeChecked();
+  expect(history.length).toBe(before + 1);
+  expect(params().get("project")).toBeNull();
+  expect(params().get("perspective")).toBe("intent");
 
-  await test.step("Back from System settings returns to Doughnut's Intent", async () => {
-    await settings(page).click();
-    await expect(settingsHeading).toBeFocused();
-    await back(page).click();
-    await expectNotConfiguredIntent(page, "Doughnut");
-    await expect(settings(page)).toBeFocused();
-    expectAddress(page, intentAtRoster);
-  });
+  await project("Doughnut").click();
+  await expect.element(project("Doughnut")).toBeChecked();
+  await showsUnconfiguredIntent("Doughnut");
+  await expect
+    .element(
+      page.getByText(/Published work read at revision d7d7d7d, retrieved/),
+    )
+    .toBeInTheDocument();
+  expect(params().get("project")).toBe("doughnut");
+  expect(params().get("perspective")).toBe("intent");
 
-  await test.step("a reloaded System settings still returns to Doughnut's Intent", async () => {
-    await settings(page).click();
-    await expect(settingsHeading).toBeVisible();
-    await page.reload();
-    await expect(settingsHeading).toBeVisible();
-    await back(page).click();
-    await expectNotConfiguredIntent(page, "Doughnut");
-    await expect(settings(page)).toBeFocused();
-  });
-
-  await test.step("Development returns to Doughnut's roster", async () => {
-    await development.click();
-    await expect(roster).toBeVisible();
-    await expect(parts(page).intent).toHaveCount(0);
-    expectAddress(page, { ...intentAtRoster, perspective: null });
-  });
+  await development.click();
+  await showsProjectBoard("Doughnut");
+  expect(params().get("project")).toBe("doughnut");
+  expect(params().get("perspective")).toBeNull();
 });
 
-test("at a phone width the perspective stays reachable under the compact title, and choosing a project there keeps Intent", async ({
-  page,
-  frontendServices,
-}) => {
-  const { portrait } = phoneLaunchTouchViewport;
-  await page.setViewportSize(portrait);
-  await answerCatalogProjects(page, frontendServices);
-  await openUntilRead(page);
-  const { intentChoice, perspective, projectCompact } = parts(page);
-  await expect(projectCompact).toHaveText("Open Dough");
+test("at a phone width the perspective stays reachable under the compact title, and choosing a project there keeps Intent", async () => {
+  const height = 844;
+  await mountPerspectiveFrame({ width: 390, height });
+  const compact = page.getByRole("button", { name: "Project", exact: true });
+  await expect.element(compact).toHaveTextContent("Open Dough");
   await intentChoice.click();
-  await expectNotConfiguredIntent(page, "Open Dough");
-  await expect(perspective).toBeInViewport({ ratio: 1 });
-  await expect(parts(page).intent).toBeInViewport();
-  await chooseProject(page, "Doughnut");
-  await expect(projectCompact).toHaveText("Doughnut");
-  await expect(projectCompact).toBeFocused();
-  await expectNotConfiguredIntent(page, "Doughnut");
-  expectAddress(page, { project: "doughnut", perspective: "intent" });
-  await expectPinnedShortBanner(page, portrait.height);
-  await expectBelowBanner(parts(page).intent);
-  // Compact project select may ellipsis on the one-line phone banner.
-  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
+  await showsUnconfiguredIntent("Open Dough");
+  await compact.click();
+  await page.getByRole("option", { name: "Doughnut", exact: true }).click();
+  await expect.element(compact).toHaveTextContent("Doughnut");
+  await expect.element(compact).toHaveFocus();
+  const explanation = await showsUnconfiguredIntent("Doughnut");
+  expect(params().get("project")).toBe("doughnut");
+  expect(params().get("perspective")).toBe("intent");
+  const banner = page.getByRole("banner").element().getBoundingClientRect();
+  const choice = perspective.element().getBoundingClientRect();
+  expect(banner.top).toBe(0);
+  expect(banner.height).toBeLessThan(height / 4);
+  expect(choice.left).toBeGreaterThanOrEqual(0);
+  expect(choice.right).toBeLessThanOrEqual(innerWidth);
+  expect(choice.top).toBeGreaterThanOrEqual(banner.top);
+  expect(choice.bottom).toBeLessThanOrEqual(banner.bottom);
+  const content = intent.element().getBoundingClientRect();
+  expect(content.top).toBeGreaterThanOrEqual(banner.bottom);
+  expect(content.top).toBeLessThan(height);
+  expect(readsWhole(explanation.element())).toBe(true);
+  expectDocumentStill();
 });
 
-test("with the published read failed, Intent still says only that no intent locations are configured, and Development keeps the read problem", async ({
-  page,
-  frontendServices,
-}) => {
-  Object.assign(frontendServices, {
-    locations: { revision: frontendServices.revision, locations: null },
-  });
-  // The boundary's 404 wording is the E2E read-failure journey's to prove.
+test("with the published read failed, Intent still says only that no intent locations are configured, and Development keeps the read problem", async () => {
   const message =
     "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).";
-  const backlogRead = await controlFrontendAuthenticatedRead(page, (params) =>
-    [...params.keys()].every((key) => ["source", "revision"].includes(key)),
-  );
-  backlogRead.respond({ error: message }, 404);
-  await page.goto("/");
-  await expectProblemAndNoSnapshot(page, message);
-  const { development, intentChoice, problem } = parts(page);
+  await mountPerspectiveFrame(undefined, { failure: new ReadProblem(message) });
+  const problem = page.getByRole("alert").filter({ hasText: message });
+  async function expectFailedDevelopmentRead() {
+    await expect
+      .element(
+        problem.getByRole("heading", {
+          name: "Published work could not be read",
+        }),
+      )
+      .toBeVisible();
+    await expect
+      .element(problem.getByText(message, { exact: true }))
+      .toBeVisible();
+    await expect
+      .element(
+        problem.getByText(
+          /No published work is shown, because none has been read\./,
+        ),
+      )
+      .toBeVisible();
+    await expect
+      .element(
+        problem.getByText("Reload the page to read again.", { exact: true }),
+      )
+      .toBeVisible();
+    await expect.element(project("Open Dough")).toBeChecked();
+    for (const snapshot of [
+      page.getByRole("region", { name: "Board", exact: true }),
+      page.getByRole("article"),
+      page.getByText(
+        /\d+ entr(y|ies)|entries are recorded|Reading published work/,
+      ),
+      page.getByRole("heading", { name: "Near-future direction" }),
+    ])
+      await expect.element(snapshot).not.toBeInTheDocument();
+  }
+  await expectFailedDevelopmentRead();
+
   await intentChoice.click();
-  await expectNotConfiguredIntent(page, "Open Dough");
-  // The read problem keeps its own meaning; Intent claims nothing from it.
-  await expect(problem).toContainText(message);
+  await showsUnconfiguredIntent("Open Dough");
+  await expect
+    .element(problem.getByText(message, { exact: true }))
+    .toBeVisible();
   await development.click();
-  await expectProblemAndNoSnapshot(page, message);
+  await expectFailedDevelopmentRead();
 });

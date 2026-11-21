@@ -3,7 +3,6 @@ import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import {
   landingReceiptSchema,
   type LandingReceipt,
-  type LaunchLanding,
 } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type {
@@ -11,6 +10,7 @@ import type {
   LandingSubmission,
 } from "./launchLandingAdmission.ts";
 import type { LandingRecordChange } from "./launchLandingRecord.ts";
+import type { LandingReservation } from "./launchLandingReservation.ts";
 import { decideAttemptLanding } from "./attemptLandingDecision.ts";
 import { decideRetainedLanding } from "./retainedLandingDecision.ts";
 
@@ -24,9 +24,7 @@ export type LandingDecisionInput = {
   readonly receivedAt: string;
 };
 
-export type LandingDecision = {
-  readonly landing: LaunchLanding;
-  readonly isNew: boolean;
+export type LandingDecision = LandingReservation & {
   readonly state: LandingReceipt["state"];
   readonly nextAttempts?: readonly LaunchAttemptRecord[] | undefined;
   readonly changeRecords?: LandingRecordChange | undefined;

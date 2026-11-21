@@ -41,6 +41,6 @@ export async function openCollectedHistoryStory(page: Page, address = "/") {
   await untilPageReadsAnswered(page);
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
   await expect(comparisonReading(panel).entryTable).toBeVisible();
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   return { intent, panel, card };
 }

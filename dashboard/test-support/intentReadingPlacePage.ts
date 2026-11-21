@@ -2,6 +2,7 @@
 // (../src/pageIntentReading.tsx): the pane, its offset, and a developer
 // scrolling it.
 import { expect, type Locator } from "@playwright/test";
+import { fileReadingTab } from "./intentPerspectivePage.ts";
 
 // The pane that scrolls the selected file's reading.
 export const intentReadingPane = (intent: Locator) =>
@@ -48,4 +49,18 @@ export async function scrollIntentReadingHalfway(intent: Locator) {
   );
   expect(offset).toBeGreaterThan(20);
   return offset;
+}
+
+// Chooses Purpose or Proof where the developer is reading. A located click
+// would first scroll the pane to bring the sticky tab fully into view, moving
+// the very place a return should restore.
+export async function chooseReadingTabInPlace(
+  intent: Locator,
+  name: "Purpose" | "Proof",
+) {
+  await fileReadingTab(intent, name).dispatchEvent("click");
+  await expect(fileReadingTab(intent, name)).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
 }

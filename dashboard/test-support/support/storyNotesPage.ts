@@ -5,7 +5,7 @@ import {
   storyNoteWaitingForFollowUp,
   storyNotesWaitingDescription,
 } from "../../src/storyNote.ts";
-import { box, expectOnOneLine } from "../partArrangement.ts";
+import { box } from "../partArrangement.ts";
 import { diffNoteActions } from "./storyNotesDiffActions.ts";
 import { storyNotesControl } from "../storyCardControls.ts";
 import { storyNotesNames as n } from "../storyNotesNames.ts";
@@ -57,14 +57,15 @@ export function storyNotesPage(page: Page) {
     expectOpenerFocused: async (scope: Locator) => {
       await expect(storyNotesControl(scope)).toBeFocused();
     },
-    expectIconBeside: async (scope: Locator, next: Locator) => {
+    // The icon alone, after TITLE and within its lines.
+    expectIconBeside: async (scope: Locator, title: Locator) => {
       const control = storyNotesControl(scope);
       await expect(control).toHaveText("");
-      await expectOnOneLine([control, next]);
-      const icon = await box(control.locator("svg"));
-      const nextIcon = await box(next.locator("svg"));
-      expect(icon.width).toBe(nextIcon.width);
-      expect(icon.height).toBe(nextIcon.height);
+      const icon = await box(control);
+      const words = await box(title);
+      expect(icon.x).toBeGreaterThanOrEqual(words.x + words.width);
+      expect(icon.y).toBeGreaterThanOrEqual(words.y);
+      expect(icon.y + icon.height).toBeLessThanOrEqual(words.y + words.height);
     },
     expectComposerContext: async (texts: readonly (string | RegExp)[]) => {
       for (const text of texts)

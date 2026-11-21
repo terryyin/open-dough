@@ -12,6 +12,8 @@ import {
 import { PublishedFilesBuilder } from "./publishedFilesTestData.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 
+/** @typedef {import("../../../dashboard/src/publishedWork.ts").WorkEntry} WorkEntry */
+
 /**
  * @typedef {object} PublishedReadingMakeMe
  * @property {PublishedSourceBuilder} aPublishedSource
@@ -24,16 +26,18 @@ import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
  */
 
 class WorkEntryBuilder {
-  /** @param {Omit<import("../../../dashboard/src/publishedWork.ts").WorkEntry, "canonical">} facts */
+  /** @param {Omit<WorkEntry, "canonical"> & { canonical?: WorkEntry["canonical"] }} facts */
   with(facts) {
     return copyFacts({
       ...facts,
-      canonical: /** @type {const} */ ({
-        kind: "snapshot",
-        recorded: "seeds/SEED-1.md",
-        url: "https://example.test/seeds/SEED-1.md",
-        revision: "a".repeat(40),
-      }),
+      canonical:
+        facts.canonical ??
+        /** @type {const} */ ({
+          kind: "snapshot",
+          recorded: "seeds/SEED-1.md",
+          url: "https://example.test/seeds/SEED-1.md",
+          revision: "a".repeat(40),
+        }),
     });
   }
 }

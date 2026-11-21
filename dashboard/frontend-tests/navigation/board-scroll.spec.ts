@@ -1,105 +1,69 @@
-// The agent roster scrolls below its stationary banner, and a classic Board
-// scrollbar keeps the Column boundary and a saved Board position. That the
-// Board alone scrolls beside an open Side panel is
-// ./board-scroll-side-panel.spec.ts.
+import { expect, onTestFinished, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { agentNames } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { expectDocumentStill } from "./board-accessibility.ts";
+import { mountBoardFrame } from "./board-frame-mount.ts";
+import { mountBoard, positionKey, withBoardStorage } from "./board-mount.ts";
+import { boardReading as board } from "./board-reading-page.ts";
+import { boardWork, longBacklog } from "./board-work.ts";
 
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { putFrontendPublished } from "../../test-support/support/frontendServiceState.ts";
-import {
-  publishLargeBacklog,
-  queuedCount,
-} from "../../test-support/accessibleBoard.ts";
-import {
-  boardPositionKey,
-  boardScroll,
-  expectView,
-  keptBoardPosition,
-} from "../../test-support/boardPage.ts";
-import { expectDocumentStill } from "../../test-support/boardReading.ts";
-import {
-  expectSettledPage,
-  parts,
-  rosterParts,
-} from "../../test-support/dashboardPage.ts";
-import { box } from "../../test-support/pageLayout.ts";
-import {
-  openDough,
-  openDoughFiles,
-} from "../../test-support/agentRosterRecords.ts";
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
-import { dashboardBrowserArgs } from "../../test-support/support/browserArgs.ts";
-
-// Exercise the browser's actual scrollbar; Playwright normally hides it.
-test.use({
-  launchOptions: {
-    args: dashboardBrowserArgs,
-    ignoreDefaultArgs: ["--hide-scrollbars"],
-  },
-});
-
-test("the agent roster scrolls below its stationary banner without scrolling the document", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 700, height: 800 });
-  putFrontendPublished(frontendServices, {
-    revision: openDough.revision,
-    backlog: openDoughFiles[".planning/PRODUCT-BACKLOG.md"] ?? "",
-    files: openDoughFiles,
+test("the agent roster scrolls below its stationary banner without scrolling the document", async () => {
+  const work = boardWork([], {
+    roster: {
+      status: "read",
+      members: agentNames.map((name) => ({ name, profile: undefined })),
+    },
   });
-  await openUntilRead(page, "/?project=open-dough&view=roster");
-  const { banner } = parts(page);
-  const { members } = rosterParts(page);
-  const region = page.locator(".roster-scroll");
-  const before = await box(banner);
-  const at = await box(region);
-  await page.mouse.move(at.x + at.width / 2, at.y + at.height / 2);
-  await page.mouse.wheel(0, 600);
+  await mountBoardFrame(work, { width: 700, height: 800 }, "roster");
+  const roster = page.getByRole("region", { name: "Agent roster" });
   await expect
-    .poll(() => region.evaluate((element) => element.scrollTop))
-    .toBeGreaterThan(0);
-  expect(await box(banner)).toEqual(before);
-  await expectDocumentStill(page);
-  await members.last().scrollIntoViewIfNeeded();
-  await expect(members.last()).toBeInViewport({ ratio: 1 });
-  await expectDocumentStill(page);
+    .element(roster.getByText(/agent profiles published at revision aaaaaaa/))
+    .toBeVisible();
+  const last = roster.getByRole("listitem").last();
+  await expect.element(last).toBeInTheDocument();
+  const scrolling = roster.element().closest(".roster-scroll");
+  if (!(scrolling instanceof HTMLElement))
+    throw new Error("The roster has no scroll region.");
+  const banner = page.getByRole("banner").element();
+  const before: unknown = banner.getBoundingClientRect().toJSON();
+  await userEvent.wheel(
+    roster.getByRole("heading", { name: "Agent roster" }).element(),
+    { delta: { y: 600 } },
+  );
+  await expect.poll(() => scrolling.scrollTop).toBeGreaterThan(0);
+  expect(banner.getBoundingClientRect().toJSON()).toEqual(before);
+  expectDocumentStill();
+  last.element().scrollIntoView({ block: "nearest" });
+  await expect
+    .poll(() => {
+      const part = last.element().getBoundingClientRect();
+      const room = scrolling.getBoundingClientRect();
+      return part.top >= room.top && part.bottom <= room.bottom;
+    })
+    .toBe(true);
+  expectDocumentStill();
 });
 
-test("a classic Board scrollbar's width owns the Column boundary and keeps a saved position", async ({
-  page,
-  frontendServices,
-}, testInfo) => {
-  await page.setViewportSize({ width: 1152, height: 800 });
-  await page.addInitScript((key) => {
-    // A classic track, as on hosts without overlay scrollbars, whatever
-    // this host's own scrollbar style.
-    document.addEventListener("DOMContentLoaded", () => {
-      const track = document.createElement("style");
-      track.textContent = ".board-scroll::-webkit-scrollbar { width: 15px; }";
-      document.head.append(track);
-    });
-    if (localStorage.getItem(key) === null) localStorage.setItem(key, "1");
-  }, boardPositionKey);
-  publishLargeBacklog(frontendServices);
-  await page.goto("/");
-  await expectSettledPage(page);
-  const room = await boardScroll(page).evaluate((element) => {
-    const board = element.querySelector(".board");
-    if (!board) throw new Error("No Board in its scroll region");
-    return {
-      board: element.clientWidth,
-      page: element.closest(".page-column")?.clientWidth,
-      shown: getComputedStyle(board).getPropertyValue("--columns-shown"),
-    };
+test("a classic Board scrollbar's width owns the Column boundary and keeps a saved position", async () => {
+  withBoardStorage("1");
+  const track = document.head.appendChild(document.createElement("style"));
+  track.textContent = ".board-scroll::-webkit-scrollbar { width: 15px; }";
+  onTestFinished(() => {
+    track.remove();
   });
-  await testInfo.attach("native Board room", {
-    body: JSON.stringify(room),
-    contentType: "application/json",
-  });
-  expect(room.board).toBeLessThan(1152);
-  const backlogControl = `Backlog ${queuedCount} entries`;
-  await expectView(page, ["Taken", "Recently done"], [backlogControl]);
-  expect(await keptBoardPosition(page)).toBe("1");
-  await page.reload();
-  await expectView(page, ["Taken", "Recently done"], [backlogControl]);
+  const work = boardWork(longBacklog);
+  const reading = await mountBoard([work], { width: 1152, height: 800 });
+  const controls = [`Backlog ${longBacklog.length} entries`];
+  await board.shows(["Taken", "Recently done"], controls);
+  const scroller = board.view().closest(".board-scroll");
+  if (!(scroller instanceof HTMLElement))
+    throw new Error("The Board has no scroll region.");
+  expect(scroller.offsetWidth - scroller.clientWidth).toBeGreaterThanOrEqual(
+    15,
+  );
+  expect(scroller.clientWidth).toBeLessThan(1152);
+  expect(localStorage.getItem(positionKey)).toBe("1");
+  reading.restart(1);
+  await board.shows(["Taken", "Recently done"], controls);
+  expect(localStorage.getItem(positionKey)).toBe("1");
 });

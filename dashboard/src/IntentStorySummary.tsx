@@ -90,7 +90,7 @@ export function publishedDoneEndpointReasonOf(
     : "Published history does not identify this Done result’s represented landing.";
 }
 
-// "Selected story only" heading the Changed tests tree, with its message when
+// "Selected story only" heading the Changes tree, with its message when
 // no location's test file changed.
 export function StoryTreeScopeChoice({
   scope,

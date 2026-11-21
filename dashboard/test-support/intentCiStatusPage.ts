@@ -116,7 +116,7 @@ export async function chooseCiStatus(intent: Locator) {
 // Return home by directly activating the CI tab, even while it is chosen: by
 // click, or by Enter or Space with it focused. In Project Intent the browsing
 // selection clears; with a selected story its CI comparison shows, its
-// Changed tests reading kept. CI status shows; returns that region.
+// Changes reading kept. CI status shows; returns that region.
 export async function activateIntentHome(
   intent: Locator,
   how: "click" | "Enter" | "Space" = "click",

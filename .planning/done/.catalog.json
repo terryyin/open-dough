@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_speed-dashboard-board-and-panel-proof.json",
+      "identity": "SEED-413#speed-dashboard-board-and-panel-proof",
+      "completedAt": "2026-11-21T17:16:33.345Z",
+      "blob": "3cff0732dafff1b209f24dfc69a332c2a800b789"
+    },
+    {
+      "fileName": "SEED-420_open-review-in-intent.json",
+      "identity": "SEED-420#open-review-in-intent",
+      "completedAt": "2026-11-21T17:14:05.193Z",
+      "blob": "c9100463ad5bc4f7b92017709d6427013e754261"
+    },
+    {
+      "fileName": "SEED-421_stop-repeating-git-work-in-shared-publication.json",
+      "identity": "SEED-421#stop-repeating-git-work-in-shared-publication",
+      "completedAt": "2026-11-21T16:35:24.823Z",
+      "blob": "e258a47883a07f6323d5f33fa654a6dda73df8e6"
+    },
+    {
       "fileName": "SEED-413_speed-intent-source-and-story-reading.json",
       "identity": "SEED-413#speed-intent-source-and-story-reading",
       "completedAt": "2026-11-21T14:53:17.813Z",

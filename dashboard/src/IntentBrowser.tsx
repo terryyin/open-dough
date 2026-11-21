@@ -1,7 +1,7 @@
 // Configured Intent locations browser, drawn once for each reading scope
 // (`./pageIntentReading.tsx`), each with its own selection, reading and
 // arrangement: Project Intent's CI status view, beside its Test Optimization
-// Candidates record, or the selected story's **Changed tests** view (each
+// Candidates record, or the selected story's **Changes** view (each
 // `./IntentPage.tsx`'s), its panel named by the caller and hidden, still
 // mounted, while another view shows. Locations (book icon) and folders (folder
 // icon) share toggle (expansion only) and name (select; toggle once selected)
@@ -15,14 +15,17 @@
 // not list is never read. The browser unmounts with its scope, whose reading
 // place keeps the selection, expanded location, reveal, Purpose/Proof choice
 // and scroll; a story selected while Intent is hidden starts its tree's
-// arrangement afresh, toggle off. Hide files hides the column, still mounted.
+// arrangement afresh, toggle off. The story's changed files outside every
+// location follow them (`./IntentTreeGroups.tsx`). Hide files hides the
+// column, still mounted. A lead, as the explanation that no locations are
+// configured, heads the column.
 
+import type { ReactNode } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
 import { IntentCandidatesPanel } from "./IntentCandidatesRecord.tsx";
 import { storyDiffOf, useKeptFileReadingPlace } from "./IntentFileReading.tsx";
-import { IntentLocationGroup } from "./IntentLocationGroup.tsx";
-import { intentLocationIdPrefix } from "./intentLocationIds.ts";
+import { IntentTreeGroups } from "./IntentTreeGroups.tsx";
 import { IntentSelectionReading } from "./IntentSelectionReading.tsx";
 import type { ModeChoice } from "./pageIntentMode.tsx";
 import { useKeptArrangement, useKeptReading } from "./pageIntentReading.tsx";
@@ -59,6 +62,7 @@ export function IntentBrowser({
   source,
   revision,
   locations,
+  lead,
   project,
   storySummary,
   story,
@@ -68,6 +72,7 @@ export function IntentBrowser({
   readonly source: PublishedSource;
   readonly revision: string;
   readonly locations: readonly IntentLocation[];
+  readonly lead?: ReactNode;
   // The selected story with what is known of its comparison, and the
   // comparison once read.
   readonly storySummary: StorySummary | undefined;
@@ -101,17 +106,12 @@ export function IntentBrowser({
   const fileReading = useKeptFileReadingPlace();
   const treeSelection: IntentSelection =
     project === undefined || project.mode === "ci" ? selection : { path: "" };
-  const {
-    overlay,
-    shownOverlay,
-    changesOnly,
-    locationExpansion,
-    scope: storyScope,
-  } = useIntentStoryTree({
+  const storyTree = useIntentStoryTree({
     locations,
     story,
     onExpandLocation: setExpandedPath,
   });
+  const { overlay, scope: storyScope } = storyTree;
 
   function select(next: IntentSelection, entrySlug?: string) {
     setSelection(next);
@@ -182,32 +182,19 @@ export function IntentBrowser({
       >
         <div className="intent-locations" id={files.id} hidden={!files.shown}>
           <h3 className="visually-hidden">Purpose locations</h3>
+          {lead}
           {storyScope !== undefined && (
             <StoryTreeScopeChoice scope={storyScope} />
           )}
-          {locations.map((location, index) => {
-            const shown = shownOverlay.locations[index];
-            if (changesOnly && !shown?.containsChanges) return null;
-            return (
-              <IntentLocationGroup
-                key={location.path}
-                location={location}
-                files={shown?.files ?? []}
-                containsChanges={shown?.containsChanges ?? false}
-                expansion={locationExpansion(index)}
-                selection={treeSelection}
-                onSelect={select}
-                reveal={reveal}
-                idPrefix={intentLocationIdPrefix(location.path)}
-                expanded={expandedPath === location.path}
-                onToggle={() => {
-                  setExpandedPath((was) =>
-                    was === location.path ? null : location.path,
-                  );
-                }}
-              />
-            );
-          })}
+          <IntentTreeGroups
+            locations={locations}
+            tree={storyTree}
+            selection={treeSelection}
+            onSelect={select}
+            reveal={reveal}
+            expandedPath={expandedPath}
+            onExpandedPath={setExpandedPath}
+          />
         </div>
         <div
           ref={fileReading.readingArea}

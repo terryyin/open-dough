@@ -1,147 +1,176 @@
-// The frame's look: the row below the banner, the Board's headings and counts,
-// and what the frame says in place of work -- an empty column, a failed read,
-// no projects -- read clearly, keep their names, and fit a narrow window
-// without sideways scrolling. With no project, Open Dough's mark still leads
-// the banner and System settings. The cards inside the Board are not this
-// look's to change. A failed check's server wording is the Backend
-// authenticated-read specs' (../../backend-tests/observation/).
-
+import { createElement } from "react";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { useProjectConfiguration } from "../../src/projectList.tsx";
+import { ReadProblem } from "../../src/readProblem.ts";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { putFrontendBacklog } from "../../test-support/support/frontendServiceState.ts";
-import { answerBoardOnPausedPageTime } from "../../test-support/support/frontendBoardPageTime.ts";
-import { controlFrontendAuthenticatedRead } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
-import { passTimeUntilChecked } from "../../test-support/autoRefreshJourney.ts";
-import {
-  expectControlContrast,
-  expectReadableContrast,
-  narrowWindow,
-  zoomedWindow,
-} from "../../test-support/accessibleReading.ts";
-import { openDirection, parts } from "../../test-support/dashboardPage.ts";
-import { expectDecorativeIcon } from "../../test-support/frameIconControl.ts";
-import { expectProductMark } from "../../test-support/productMark.ts";
-import {
-  compactProjectSelectCut,
-  expectNoSidewaysScrollAndWholeText,
-} from "../../test-support/pageLayout.ts";
-import { describedBacklog } from "../../test-support/describedRevisions.ts";
-import {
-  back,
-  settings,
-} from "../../test-support/support/systemSettingsPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  controlContrast,
+  decorativeIcon,
+  expectDocumentStill,
+  narrowViewport,
+  readsWhole,
+  textContrast,
+  zoomedViewport,
+} from "./board-accessibility.ts";
+import { mountBoardFrame } from "./board-frame-mount.ts";
+import { withBoardStorage } from "./board-mount.ts";
+import { boardReading as board } from "./board-reading-page.ts";
+import { boardWork, story } from "./board-work.ts";
 
-test("the row below the banner and the Board read clearly in the frame's look", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await openFrontendTakenBacklog(page);
-  const { backlog, taken, directionToggle } = parts(page);
+vi.mock(import("../../src/projectList.tsx"), async (original) => ({
+  ...(await original()),
+  useProjectConfiguration: vi.fn(),
+}));
 
-  const start = page.getByRole("button", {
-    name: "Start session in Open Dough",
-  });
-  await expect(start).toHaveText("Start session");
-  await expectDecorativeIcon(start);
-  await expectReadableContrast(start);
-  await expectControlContrast(start);
+const direction = () =>
+  page.getByRole("heading", { name: "Near-future direction" });
+const start = () =>
+  page.getByRole("button", { name: "Start session in Open Dough" });
+const settings = () =>
+  page.getByRole("button", { name: "System settings", exact: true });
 
-  await expectDecorativeIcon(directionToggle);
-  await expectReadableContrast(
-    directionToggle.getByRole("heading", { name: "Near-future direction" }),
+function expectPassiveProductMark(mark: Element) {
+  if (!(mark instanceof HTMLImageElement))
+    throw new Error("The product mark is missing.");
+  const { left, top, width, height } = mark.getBoundingClientRect();
+  const imagePixels = /^\/icon-(\d+)\.png$/.exec(
+    mark.getAttribute("src") ?? "",
+  )?.[1];
+  expect(width).toBeCloseTo(height, 1);
+  expect(width).toBeGreaterThanOrEqual(16);
+  expect(width * 2).toBeLessThanOrEqual(Number(imagePixels));
+  expect(mark.tabIndex).toBe(-1);
+  expect(
+    mark.closest("a, button, summary, label, [role], [tabindex]"),
+  ).toBeNull();
+  expect(document.elementFromPoint(left + width / 2, top + height / 2)).toBe(
+    mark,
   );
+}
 
-  for (const [column, name] of [
-    [backlog, "Backlog"],
-    [taken, "Taken"],
-  ] as const) {
-    await expectReadableContrast(
-      column.getByRole("heading", { level: 2, name, exact: true }),
+test("the row below the banner and the Board read clearly in the frame's look", async () => {
+  withBoardStorage("0");
+  const purpose = "Make publishing easier to follow.";
+  await mountBoardFrame(
+    boardWork([story("Read the next work", 60)], { direction: purpose }),
+    { width: 1440, height: 900 },
+  );
+  await board.shows(["Backlog", "Taken", "Recently done"], []);
+  await expect
+    .poll(() => start().element().textContent.trim())
+    .toBe("Start session");
+  const disclosure = direction().element().closest("summary");
+  if (disclosure === null) throw new Error("Direction has no disclosure.");
+  decorativeIcon(start().element());
+  textContrast(start().element());
+  controlContrast(start().element());
+  decorativeIcon(disclosure);
+  textContrast(direction().element());
+  for (const column of ["Backlog", "Taken"] as const) {
+    const group = board.column(column);
+    textContrast(
+      group.getByRole("heading", { name: column, exact: true }).element(),
     );
-    await expectReadableContrast(column.getByText(/^\d+ entr(y|ies)$/));
+    textContrast(group.getByText(/^\d+ entr(y|ies)$/).element());
   }
-
-  for (const size of [narrowWindow, zoomedWindow]) {
-    await page.setViewportSize(size);
-    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
+  for (const { width, height } of [narrowViewport, zoomedViewport]) {
+    await page.viewport(width, height);
+    await board.shows(["Backlog"], ["Taken 1 entry"]);
+    for (const part of [start(), direction()])
+      expect(readsWhole(part.element())).toBe(true);
+    expectDocumentStill();
   }
-  await openDirection(page);
-  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
+  await direction().click();
+  const message = page.getByText(purpose, { exact: true });
+  await expect.element(message).toBeVisible();
+  expect(readsWhole(message.element())).toBe(true);
 });
 
-test("an empty column and a failed read are said in the frame's look, whole in a narrow window", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendBacklog(frontendServices, {
-    revision: "e1".repeat(20),
-    backlog: describedBacklog(makeMe.aRepository.please()),
-  });
-  const check = await controlFrontendAuthenticatedRead(page, (params) =>
-    params.has("since"),
+test("an empty column and a failed read are said in the frame's look, whole in a narrow window", async () => {
+  withBoardStorage("0");
+  const frame = await mountBoardFrame(
+    boardWork([], { taken: [] }),
+    narrowViewport,
   );
-  await answerBoardOnPausedPageTime(page, frontendServices);
-  await page.setViewportSize(narrowWindow);
-  await page.goto("/");
-  const { backlog, problem } = parts(page);
-  const empty = backlog.getByText("No Backlog entries are recorded.");
-  await expect(empty).toBeVisible();
-  await expectReadableContrast(empty);
-
-  check.respond(
-    {
-      error:
-        "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403).",
-      recovery: "transient",
-    },
-    502,
-  );
-  await passTimeUntilChecked(page, 502);
-  const heading = problem.getByRole("heading", {
+  const empty = board
+    .column("Backlog")
+    .getByText("No Backlog entries are recorded.", { exact: true });
+  await expect.element(empty).toBeVisible();
+  textContrast(empty.element());
+  const message =
+    "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403).";
+  frame.revisionCheckFailed(new ReadProblem(message, undefined, "transient"));
+  const alert = page.getByRole("alert");
+  const heading = alert.getByRole("heading", {
     name: "Published work could not be read",
+    exact: true,
   });
-  await expect(heading).toBeVisible();
-  await expectDecorativeIcon(heading);
-  for (const text of await problem.locator("h2, p").all())
-    await expectReadableContrast(text);
-  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
-  await page.setViewportSize(zoomedWindow);
-  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
+  await expect.element(heading).toBeVisible();
+  await expect.element(alert.getByText(message, { exact: true })).toBeVisible();
+  decorativeIcon(heading.element());
+  for (const { width, height } of [narrowViewport, zoomedViewport]) {
+    await page.viewport(width, height);
+    for (const text of alert.element().querySelectorAll("h2, p")) {
+      textContrast(text);
+      expect(readsWhole(text)).toBe(true);
+    }
+    expectDocumentStill();
+  }
 });
 
-test("no projects configured reads clearly and whole in a narrow window", async ({
-  page,
-  frontendServices,
-}) => {
-  Object.assign(frontendServices, { projects: [] });
-  await page.setViewportSize(narrowWindow);
-  await page.goto("/");
+test("no projects configured reads clearly and whole in a narrow window", async () => {
+  vi.mocked(useProjectConfiguration).mockReturnValue({
+    projects: [],
+    problem: undefined,
+    replaceProjects: () => {},
+  });
+  const url = location.href;
+  const state: unknown = history.state;
+  onTestFinished(() => {
+    history.replaceState(state, "", url);
+  });
+  const { App } = await import("../../src/App.tsx");
+  await mountComponent(createElement(App), { viewport: narrowViewport });
   const heading = page.getByRole("heading", {
     name: "No projects configured",
+    exact: true,
   });
-  await expect(heading).toBeVisible();
-  await expectReadableContrast(heading);
-  await expectReadableContrast(
-    page.getByText("Open System settings → Projects", { exact: false }),
+  const guidance = page.getByText(
+    "Open System settings → Projects to add a project and see its published work and start sessions.",
+    { exact: true },
   );
-  for (const size of [narrowWindow, zoomedWindow]) {
-    await page.setViewportSize(size);
-    await expect(settings(page)).toBeInViewport({ ratio: 1 });
-    await expectProductMark(page.getByRole("banner"));
-    await expectNoSidewaysScrollAndWholeText(page);
+  await expect.element(heading).toBeVisible();
+  textContrast(heading.element());
+  textContrast(guidance.element());
+  for (const { width, height } of [narrowViewport, zoomedViewport]) {
+    await page.viewport(width, height);
+    const mark = page
+      .getByRole("banner")
+      .getByRole("img", { name: "Open Dough", exact: true });
+    await expect.element(mark).toBeVisible();
+    expectPassiveProductMark(mark.element());
+    const rect = settings().element().getBoundingClientRect();
+    expect(rect.left).toBeGreaterThanOrEqual(0);
+    expect(rect.right).toBeLessThanOrEqual(innerWidth);
+    expect(rect.bottom).toBeLessThanOrEqual(innerHeight);
+    expect(readsWhole(guidance.element())).toBe(true);
+    expectDocumentStill();
   }
-
-  await settings(page).click();
-  await expect(
-    page.getByRole("heading", { name: "System settings", exact: true }),
-  ).toBeFocused();
-  await expectProductMark(page.getByRole("main"));
-  await expect(back(page)).toBeVisible();
-  await back(page).click();
-  await expect(heading).toBeVisible();
-  await expectProductMark(page.getByRole("banner"));
+  await settings().click();
+  await expect
+    .element(
+      page.getByRole("heading", { name: "System settings", exact: true }),
+    )
+    .toHaveFocus();
+  const settingsMark = page
+    .getByRole("main")
+    .getByRole("img", { name: "Open Dough", exact: true });
+  await expect.element(settingsMark).toBeVisible();
+  expectPassiveProductMark(settingsMark.element());
+  await page.getByRole("button", { name: "Back to dashboard" }).click();
+  await expect.element(heading).toBeVisible();
+  await expect
+    .element(page.getByRole("banner").getByRole("img", { name: "Open Dough" }))
+    .toBeVisible();
 });

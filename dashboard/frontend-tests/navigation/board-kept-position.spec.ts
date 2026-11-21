@@ -1,147 +1,115 @@
-// This browser keeps the Board's Columns' one position, for every project:
-// a first visit shows Backlog leftmost; once the developer moves the view, a
-// project switch or a reload shows the same columns, limited only by what the
-// Board's width allows, and a wide Board that shows every column does not lose
-// it. A browser that refuses storage starts at Backlog and pages for the
-// page's lifetime without error. That the position follows column paging
-// controls, focus, and width is ./board-paging.spec.ts.
-// Each case's browser context keeps its own real `localStorage`.
-
-import type { Page } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { chooseProject } from "../../test-support/dashboardPage.ts";
-import { watchPageErrors } from "../../test-support/pageErrors.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { boardReading as board } from "./board-reading-page.ts";
 import {
-  boardPositionKey,
-  expectView,
-  keptBoardPosition,
-  rem,
-  showColumn,
-} from "../../test-support/boardPage.ts";
-import {
-  openUntilRead,
-  reloadUntilRead,
-} from "../../test-support/pageRequestNotes.ts";
+  formerPositionKey,
+  mountBoard,
+  positionKey,
+  withBoardStorage,
+} from "./board-mount.ts";
+import { boardWork, story } from "./board-work.ts";
 
-// Room for two of the three columns, and for all three.
-const narrowWindow = { width: 54 * rem, height: 800 };
-const wideWindow = { width: 1728, height: 800 };
+const viewport = { width: 864, height: 800 };
+const firstOpenDoughStory = story("First Open Dough story", 1);
+const firstDoughnutStory = story("First Doughnut story", 3);
+const openDough = boardWork([
+  firstOpenDoughStory,
+  story("Second Open Dough story", 2),
+]);
+const doughnut = boardWork(
+  [firstDoughnutStory, story("Second Doughnut story", 4)],
+  {
+    id: "doughnut",
+    label: "Doughnut",
+  },
+);
+const projects = [openDough, doughnut];
+const atBacklog = () =>
+  board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
+const atTaken = () =>
+  board.shows(["Taken", "Recently done"], ["Backlog 2 entries"]);
 
-// The default project holds two Backlog entries, one Taken, none done.
-const expectAtBacklog = (page: Page) =>
-  expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
-const expectAtTaken = (page: Page) =>
-  expectView(page, ["Taken", "Recently done"], ["Backlog 2 entries"]);
-
-test("the chosen Board columns stay across a project switch", async ({
-  page,
-  frontendServices,
-}) => {
-  frontendServices.listThreeProjects();
-  await page.setViewportSize(narrowWindow);
-  await openUntilRead(page);
-  await expectAtBacklog(page);
-  await showColumn(page, "Recently done");
-  await expectAtTaken(page);
-  await chooseProject(page, "Doughnut");
-  await expectAtTaken(page);
-  await showColumn(page, "Backlog");
-  await chooseProject(page, "Open Dough");
-  await expectAtBacklog(page);
-});
-
-test("the chosen Board columns stay across a reload", async ({ page }) => {
-  await page.setViewportSize(narrowWindow);
-  await openUntilRead(page);
-  await showColumn(page, "Recently done");
-  await expectAtTaken(page);
-  await reloadUntilRead(page);
-  await expectAtTaken(page);
-  await showColumn(page, "Backlog");
-  await reloadUntilRead(page);
-  await expectAtBacklog(page);
-});
-
-test("the chosen Board columns stay in a wide Board", async ({ page }) => {
-  await page.setViewportSize(narrowWindow);
-  await openUntilRead(page);
-  await showColumn(page, "Recently done");
-  await expectAtTaken(page);
-  await page.setViewportSize(wideWindow);
-  await expectView(page, ["Backlog", "Taken", "Recently done"], []);
-  await reloadUntilRead(page);
-  await expectView(page, ["Backlog", "Taken", "Recently done"], []);
-  await page.setViewportSize(narrowWindow);
-  await expectAtTaken(page);
-});
-
-test("a position kept under the former Board key is recovered once and kept under the Board key", async ({
-  page,
-}) => {
-  await page.setViewportSize(narrowWindow);
-  await openUntilRead(page);
-  await page.evaluate((key) => {
-    localStorage.removeItem(key);
-    localStorage.setItem("open-dough.dashboardColumns.position", "1");
-  }, boardPositionKey);
-  await reloadUntilRead(page);
-  await expectAtTaken(page);
-  expect(await keptBoardPosition(page)).toBe("1");
-
-  // Once adopted, the new key wins over a different former value.
-  await page.evaluate(() => {
-    localStorage.setItem("open-dough.dashboardColumns.position", "0");
-  });
-  await reloadUntilRead(page);
-  await expectAtTaken(page);
-  await showColumn(page, "Backlog");
-  expect(await keptBoardPosition(page)).toBe("0");
-  await reloadUntilRead(page);
-  await expectAtBacklog(page);
-});
-
-test("an unusable kept position starts at Backlog", async ({ page }) => {
-  await page.setViewportSize(narrowWindow);
-  const errors = watchPageErrors(page);
-  await openUntilRead(page);
-  for (const malformed of ["taken", "-1", "1.5"]) {
-    await test.step(`kept as ${JSON.stringify(malformed)}`, async () => {
-      await page.evaluate(
-        ([key, value]) => {
-          localStorage.setItem(key, value);
-        },
-        [boardPositionKey, malformed] as const,
-      );
-      await reloadUntilRead(page);
-      await expectAtBacklog(page);
-    });
-  }
-  expect(errors).toEqual([]);
-});
-
-test("where the browser refuses storage, the view starts at Backlog and pages for the page's lifetime without error", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.addInitScript(() => {
-    const refused = () => {
+test("storage refusal starts the Board at Backlog and still keeps a choice for the life of the page", async () => {
+  const storage = vi
+    .spyOn(window, "localStorage", "get")
+    .mockImplementation(() => {
       throw new DOMException("Storage is refused.", "SecurityError");
-    };
-    Object.defineProperty(window, "localStorage", {
-      configurable: true,
-      get: refused,
     });
+  onTestFinished(() => {
+    storage.mockRestore();
   });
-  frontendServices.listThreeProjects();
-  const errors = watchPageErrors(page);
-  await page.setViewportSize(narrowWindow);
-  await openUntilRead(page);
-  await expectAtBacklog(page);
-  await showColumn(page, "Recently done");
-  await expectAtTaken(page);
-  await chooseProject(page, "Doughnut");
-  await expectAtTaken(page);
-  await reloadUntilRead(page);
-  await expectAtBacklog(page);
-  expect(errors).toEqual([]);
+  await mountBoard(projects, viewport);
+  await atBacklog();
+  await board.control("Recently done").click();
+  await atTaken();
+  await page.getByRole("radio", { name: "Doughnut" }).click();
+  await expect
+    .element(
+      board
+        .column("Backlog")
+        .getByRole("article", { name: firstDoughnutStory.title }),
+    )
+    .toBeInTheDocument();
+  await atTaken();
+  await board.control("Backlog").click();
+  await atBacklog();
+});
+
+test("a chosen Board position follows the reader between projects", async () => {
+  withBoardStorage("0");
+  await mountBoard(projects, viewport);
+  await atBacklog();
+  await board.control("Recently done").click();
+  await atTaken();
+
+  await page.getByRole("radio", { name: "Doughnut" }).click();
+  await expect
+    .element(
+      board
+        .column("Backlog")
+        .getByRole("article", { name: firstDoughnutStory.title }),
+    )
+    .toBeInTheDocument();
+  await atTaken();
+  await board.control("Backlog").click();
+  await page.getByRole("radio", { name: "Open Dough" }).click();
+  await expect
+    .element(
+      board
+        .column("Backlog")
+        .getByRole("article", { name: firstOpenDoughStory.title }),
+    )
+    .toBeInTheDocument();
+  await atBacklog();
+});
+
+test("the former Board preference is adopted once and later writes keep the current preference", async () => {
+  withBoardStorage();
+  localStorage.setItem(formerPositionKey, "1");
+  const reading = await mountBoard(projects, viewport);
+  await atTaken();
+  expect(localStorage.getItem(positionKey)).toBe("1");
+
+  localStorage.setItem(formerPositionKey, "0");
+  reading.restart(1);
+  await atTaken();
+  await board.control("Backlog").click();
+  await atBacklog();
+  expect(localStorage.getItem(positionKey)).toBe("0");
+  reading.restart(2);
+  await atBacklog();
+});
+
+test("an unusable Board preference falls back to Backlog", async () => {
+  withBoardStorage("taken");
+  const reading = await mountBoard(projects, viewport);
+  await atBacklog();
+
+  for (const [index, value] of ["-1", "1.5"].entries()) {
+    await board.control("Recently done").click();
+    await atTaken();
+    localStorage.setItem(positionKey, value);
+    reading.restart(index + 1);
+    await atBacklog();
+  }
 });

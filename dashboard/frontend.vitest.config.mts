@@ -5,7 +5,6 @@ import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
 import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
 import { isVitestFile } from "./test-support/support/groupSelection.mjs";
 import { dashboardSpecFiles } from "./test-support/support/testFiles.mjs";
-import { mountedDashboardCommands } from "./test-support/support/mountedDashboardCommands.ts";
 import { useDisposableTestHome } from "./test-support/support/runnerConfig.mjs";
 
 useDisposableTestHome();
@@ -32,7 +31,6 @@ export default defineConfig({
         contextOptions: { hasTouch: true },
       }),
       commands: {
-        ...mountedDashboardCommands,
         tapMountedControl: ({ iframe }, selector: string) =>
           iframe.locator(selector).tap(),
       },

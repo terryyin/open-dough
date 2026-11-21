@@ -101,7 +101,7 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
   await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
   await expect(storyHeaderReading(intent).done).toHaveText("Done");
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   expect(await intentDiff(intent, modified)).toContain(
     "published completion after active selection",
   );

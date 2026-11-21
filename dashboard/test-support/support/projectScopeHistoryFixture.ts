@@ -45,7 +45,7 @@ type Point = "baseline" | "branchSide" | "completion" | "latest";
 
 // The machine keeps each landing's build of `runs` measured with its proof;
 // the provider answers every run of `runs` live. Opens the Done story's
-// Changed tests.
+// Changes.
 export async function readKeptProjectHistory(
   page: Page,
   dashboard: DashboardServer,
@@ -118,9 +118,9 @@ export async function readKeptProjectHistory(
   await keepLandedCiHistory(dashboard.home, history.please());
   await pausePageClockAt(page, new Date());
   await page.setViewportSize({ width: 1280, height: 700 });
-  // The Done comparison's reads go on while the case reads Changed tests; a
+  // The Done comparison's reads go on while the case reads Changes; a
   // case waits for the page's reads before it counts acquisitions.
   const { intent } = await openDoneStoryIntent(page, dashboard.origin);
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   return { setup, latest, intent };
 }

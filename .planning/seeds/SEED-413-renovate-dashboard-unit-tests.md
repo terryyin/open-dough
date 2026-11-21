@@ -455,7 +455,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 3a | Get fast proof of Intent locations read recovery and settings problems (completed; recoverable at `e0f7d6a6a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading`) | 7 | 2 |
 | 3b | [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours) | 23 | 16 |
 | 3c | [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading) | 41 | 19 |
-| 4 | [Get fast proof of board and side-panel interactions](#speed-dashboard-board-and-panel-proof) | 63 | 28 |
+| 4 | Get fast proof of board and side-panel interactions (completed) | 63 | 28 |
 | 5 | [Get fast proof of composing and starting a launch](#speed-dashboard-launch-proof) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
 | 7 | [Get fast proof of live sessions and terminal work](#speed-dashboard-live-session-and-terminal-proof) | 77 | 31 |
@@ -499,7 +499,7 @@ Continuing one component at a time would extend the life of both runners.
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
   Use page-loadable MakeMe inputs and colocated page objects where they
   clarify the journey. Render and act directly and wait on the observed
-  result. Retire `actSettled`, React `act` wrapping and
+  result. Retire React `act` wrapping and
   `IS_REACT_ACT_ENVIRONMENT` as their families move. Remove spent support as
   its last consumer moves. Keep the shared test-support surface shrinking.
 - Aim for fewer maintained cases as well as faster feedback in every story.
@@ -761,53 +761,6 @@ Slice 2 boundary alongside
   [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
   case-count, spent-support, and coverage checks.
 
-<a id="speed-dashboard-board-and-panel-proof"></a>
-
-### Get fast proof of board and side-panel interactions
-
-**Identity:** SEED-413#speed-dashboard-board-and-panel-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/758-speed-dashboard-board-and-panel-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"62c3028cc7fbf9ed30a92dc4d4cf937a098eb5321e92f048683d91607335e396","plan":"44f1bdb549fc52e52baa25bfdea3e926efc2c31f1f4a17cb85e24c51d83760d4"}}
-```
-
-**Goal.** Dashboard maintainers get faster feedback when a change affects
-how developers read and navigate the Board beside other dashboard surfaces.
-Preserve the keyboard, touch, announcement, and layout evidence that makes
-the Board usable in a narrow window and with a Side panel open.
-
-**Scope.** Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)
-to the legacy `accessible-board*`, `board-*`, `story-card*`,
-`side-panel-width*`, `development-intent-frame*`, and `frame-*` navigation
-specs. Narrow the existing `board-swipe`, `board-indicators`, and
-`story-card-scan-emphasis` Vitest specs from their whole-dashboard mounts.
-Keep representative real page loads, reloads, URL destinations, and
-cross-destination history in E2E. This story owns the Board and frame
-observations of launch, review, and session interactions. The sibling stories
-own the internals of those workflows and the final runner retirement.
-
-**Key examples**
-
-- With a Side panel open and room for two columns, page from Backlog to
-  Taken and Recently done. The Board shows whole columns, its keyboard controls
-  keep focus reachable, and a wider frame recovers the chosen position. A long
-  hidden column contributes no blank scroll tail.
-- On a phone, a horizontal swipe pages the Board without activating the
-  story or Start under the touch. A vertical drag still reads the current
-  column. Tapping an indicator shares the swipe destination, and rotation
-  preserves an inspected story and its separate selection.
-- While published work refreshes or fails to read, the Board announces the
-  result, keeps retained work and the problem reachable, and leaves the
-  reader's focus in place. Keyboard reading and zoom keep links and story
-  controls usable.
-- After a developer chooses a panel width by dragging or keyboard, opening
-  the Sessions sidebar or narrowing the window can constrain or cover the
-  Board. Restoring room restores the chosen width, and an open terminal or
-  Review retains its identity and read state through the layout change.
-- When a session's sidebar entry reveals a hidden or tall card, the Board
-  pages to the card and brings its top into view. Switching perspectives or
-  following browser history preserves the intended project, panel attachment,
-  and selected story on the relevant path.
-
 <a id="speed-dashboard-launch-proof"></a>
 
 ### Get fast proof of composing and starting a launch
@@ -833,10 +786,11 @@ responsive session access including unattached starts and recovery reads.
 Keep distinct provider constraints and handoff routes observable where the
 UI owns them. Retain journeys that need actual installation, a native host
 launch, or cross-service startup in existing `e2e/launches/` coverage.
-[Board and side-panel](#speed-dashboard-board-and-panel-proof) owns Board
-and frame observations of opening a launch; [Done session review](#speed-dashboard-done-session-review-proof)
-and [live sessions and terminal](#speed-dashboard-live-session-and-terminal-proof)
-own post-start session and review proof; the final campaign story owns
+[Board and frame launch-opening checks](../../dashboard/frontend-tests/navigation/frame-launch-look.spec.ts)
+cover opening the dialog.
+[Done session review](#speed-dashboard-done-session-review-proof) and
+[live sessions and terminal](#speed-dashboard-live-session-and-terminal-proof)
+own post-start session and review proof. The final campaign story owns
 frontend runner retirement. Backend launch-boundary and attachment specs
 keep their existing owners.
 
@@ -935,8 +889,7 @@ keep their existing owners.
   `frontend.playwright.config.ts`, its registration and frontend-specific
   Playwright selection and output branches, `frontendGlobalSetup.ts`,
   `frontendApp.ts`, the comparison bundle/mount and `pageTest.ts` paths
-  with no surviving consumers, the whole-app `mounted-dashboard/` harness,
-  `mountedDashboardCommands.ts`, `mountedActSettled.ts`,
+  with no surviving consumers,
   `frontendServiceSubstitutes.ts`, `frontendSubstituteAnswers.ts` and
   spent `frontend*Rule.ts`/route state. Trace their transitive imports,
   documentation, package commands, CI and generated-output settings.

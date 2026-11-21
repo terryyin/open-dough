@@ -26,7 +26,7 @@ import {
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
 import { reviewFileTree } from "./reviewFileTree.ts";
-import { FileTree, reviewedFileWords } from "./StoryReviewFileTree.tsx";
+import { FileTree } from "./StoryReviewFileTree.tsx";
 import {
   useLocationOpenFolders,
   type LocationExpansion,
@@ -148,11 +148,6 @@ export function IntentLocationGroup({
               }}
               renderFile={({ file, name, selected, onSelect: select }) => (
                 <IntentTreeFileRow
-                  label={
-                    file.change === undefined
-                      ? `${location.path}/${file.path}`
-                      : reviewedFileWords(file.change)
-                  }
                   name={name}
                   selected={selected}
                   reading={comparison}
