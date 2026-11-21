@@ -17,6 +17,7 @@ import { ComparisonMountScope } from "../../test-support/comparison-mount/scope.
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
   activeComparisonIn,
+  rowTextsOf,
   textsIn,
   visibleText,
 } from "./intent-ci-comparison-page.ts";
@@ -121,6 +122,16 @@ function comparisonIn(region: Locator) {
         .filter({ has: page.getByRole("rowheader", { name: child }) })
         .getByRole("cell")
         .nth(1 + columns.indexOf(column)),
+    // The own figures group NAME (`CI proof of <path>: <unit>`), Parts last.
+    figuresOf: (name: string) =>
+      region
+        .getByRole("group", { name, exact: true })
+        .getByRole("definition")
+        .elements()
+        .map(visibleText),
+    // Each body row of the table named NAME: its header, then its cells.
+    rowsOf: (name: string) =>
+      rowTextsOf(region.getByRole("table", { name, exact: true })),
     // The file Proof's comparison figure under COLUMN.
     fileCell: (path: string, column: Column) =>
       region

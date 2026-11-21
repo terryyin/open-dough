@@ -1,8 +1,6 @@
 // @ts-check
 // CI-domain MakeMe builders: defined as accessors so each `makeMe.aThing`
 // access stays a fresh builder while the public entry stays a thin aggregate.
-import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
-import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
 import {
   PublishedStoryEndpointBuilder,
   TakenStoryEndpointBuilder,
@@ -51,8 +49,6 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
  * @property {import("./ciRunTestData.mjs").RevisionCiRunBuilder} aRevisionCiRun
  * @property {import("./ciProofArtifactTestData.mjs").CiProofArtifactBuilder} aCiProofArtifact
  * @property {import("./ciTimingTestData.mjs").CiTimingJobBuilder} aCiTimingJob
- * @property {import("./ciProofEntryTestData.mjs").CiProofEntryBuilder} aCiProofEntry
- * @property {import("./ciProofEvidenceTestData.mjs").CiProofEvidenceBuilder} aCiProofEvidence
  * @property {import("./ciProofFragmentTestData.mjs").CiProofFragmentBuilder} aCiProofFragment
  * @property {import("./ciProofSummaryTestData.mjs").CiProofSummaryBuilder} aCiProofSummary
  * @property {import("./dashboardProofRecordTestData.mjs").DashboardProofRecordBuilder} aDashboardProofRecord
@@ -121,18 +117,6 @@ export function ciMakeMeProperties() {
       enumerable: true,
       get() {
         return new CiTimingJobBuilder();
-      },
-    },
-    aCiProofEntry: {
-      enumerable: true,
-      get() {
-        return new CiProofEntryBuilder();
-      },
-    },
-    aCiProofEvidence: {
-      enumerable: true,
-      get() {
-        return new CiProofEvidenceBuilder();
       },
     },
     aCiProofFragment: {

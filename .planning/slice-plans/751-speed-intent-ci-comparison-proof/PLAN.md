@@ -200,7 +200,7 @@ No production change. The legacy page-level open, scroll and return through
 ### 5. Entry rows and their drill-downs keep missing and legacy results explicit
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move comparison `-entries`, `-count-gaps` and `-legacy` using the actual
 entry calculations and the Scope and File Proof views where their output
@@ -210,6 +210,11 @@ arrangement and use direct rule proof for the distinct counts and gaps.
 **Proof.** Partial and ambiguous evidence keeps exact gap reasons in the
 overall Counts, rows and tree. Legacy results keep both labels and counts.
 An expired or untimed result never supplies a false zero or cue.
+
+**Accepted.** Eight cases became nine Vitest cases (3,553 ms versus 1,012 ms);
+the ambiguous count gap needs a separate file Proof mount because the scope
+keeps its selection for one story. `aCiProofEntry` and `aCiProofEvidence`
+now come from `ciProofMakeMeProperties`, so `pageMakeMe` exposes them.
 
 ### 6. The real controls retain each measured unit through the reading
 

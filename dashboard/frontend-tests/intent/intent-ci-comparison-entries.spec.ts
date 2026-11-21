@@ -1,50 +1,55 @@
-import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
-// The actual comparison renders prepared canonical proof answers.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../test-support/support/pageTest.ts";
-import {
-  expectCiComparisonEntryRows,
-  comparedStoryEntryRows,
-  comparedStoryEntryCues,
-} from "../../test-support/support/expectCiComparisonEntryRows.ts";
-import { expectEntryRowCues } from "../../test-support/support/expectCiComparisonCues.ts";
-import { expectUnsortedRows } from "../../test-support/support/expectSortedColumns.ts";
+// Entry rows of the actual comparison (./intent-ci-comparison-page.ts): an
+// expired proof explains the missing table, and missing or partial timings
+// keep their exact gap rather than a false zero or cue.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { mountComparison } from "./intent-ci-comparison-page.ts";
 
-test("expired entry proofs keep Branch and Landed wall times and explain absence of the table", async ({
-  renderComparison,
-}) => {
+test("expired entry proofs keep Branch and Landed wall times and explain absence of the table", async () => {
   const expired = makeMe.aCiProof.unavailable("expired").please();
-  const panel = await renderComparison(
+  const comparison = await mountComparison(
     makeMe.aComparedStory
       .wallTimed()
       .withProofs(expired, expired, expired)
       .please(),
   );
-  await expect(comparisonReading(panel).wallTimes.nth(1)).toHaveText(
-    "3 min 20 s",
-  );
-  await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
-  await expect(comparisonReading(panel).entryEvidence).toContainText(
-    "This run's CI proof summary has expired.",
-  );
-  await expect(comparisonReading(panel).entryTable).toHaveCount(0);
+  await expect
+    .poll(() => comparison.entryEvidence())
+    .toContain("This run's CI proof summary has expired.");
+  expect(comparison.wallTimes().slice(1)).toEqual(["3 min 20 s", "4 min"]);
+  await expect.element(comparison.entryTable).not.toBeInTheDocument();
 });
 
-test("entry rows retain counts, signed whole seconds and independent count and time cues", async ({
-  renderComparison,
-}) => {
-  const panel = await renderComparison(
+test("entry rows retain counts, signed whole seconds and independent count and time cues", async () => {
+  const comparison = await mountComparison(
     makeMe.aComparedStory.wallTimed().withMixedEntries().please(),
   );
-  const table = comparisonReading(panel).entryTable;
-  await expectUnsortedRows(table, ["dashboard/tests", "tests", "src/skills"]);
-  await expectCiComparisonEntryRows(panel, comparedStoryEntryRows);
-  await expectEntryRowCues(panel, comparedStoryEntryCues);
+  await expect
+    .poll(() => comparison.entryRows())
+    .toEqual([
+      [
+        "dashboard/tests",
+        "2,090 → 2,092 test cases (+2)",
+        "4 min",
+        "+30 s",
+        "+1 min",
+      ],
+      ["tests", "5 test files (no change)", "2 min", "−30 s", "−1 min"],
+      ["src/skills", "added → 3 test files", "added", "30 s", "30 s"],
+    ]);
+  expect(comparison.entryRowCues()).toMatchObject([
+    { count: "more-light", duration: "slower-light" },
+    { count: "none", countReason: "unchanged", duration: "faster-strong" },
+    {
+      count: "none",
+      countReason: "added",
+      duration: "none",
+      durationReason: "added",
+    },
+  ]);
 });
 
-test("no duration and an untimed part keep exact accessible gap explanations instead of zero", async ({
-  renderComparison,
-}) => {
+test("no duration and an untimed part keep exact accessible gap explanations instead of zero", async () => {
   const partial = makeMe.aCiProofEntry
     .at("tests")
     .holding({
@@ -66,7 +71,7 @@ test("no duration and an untimed part keep exact accessible gap explanations ins
       ],
     })
     .please();
-  const panel = await renderComparison(
+  const comparison = await mountComparison(
     makeMe.aComparedStory
       .wallTimed()
       .withMixedEntries()
@@ -76,35 +81,40 @@ test("no duration and an untimed part keep exact accessible gap explanations ins
       ])
       .please(),
   );
-  await expectCiComparisonEntryRows(panel, [
-    [
-      "dashboard/tests",
-      "2,090 → 2,092 test cases (+2)",
-      "No timings",
-      "4 min 30 s",
-      "5 min",
-    ],
-    [
-      "tests",
-      "5 test files (no change)",
-      "Part 2 untimed",
-      "1 min 30 s",
-      "1 min",
-    ],
-    ["src/skills", "added → 3 test files", "added", "30 s", "30 s"],
-  ]);
-  const cells = comparisonReading(panel).entryTable.locator("tbody tr");
-  await expect(
-    cells.nth(0).getByRole("cell").nth(1),
-  ).toHaveAccessibleDescription(
-    "Not recorded: this summary has no test execution durations",
-  );
-  const untimed = cells.nth(1).getByRole("cell").nth(1);
-  await expect(untimed).toHaveAccessibleDescription(
-    "Partial: part 2 of 2 has no duration",
-  );
-  await expect(untimed).toHaveAttribute(
-    "title",
-    "Partial: part 2 of 2 has no duration",
-  );
+  await expect
+    .poll(() => comparison.entryRows())
+    .toEqual([
+      [
+        "dashboard/tests",
+        "2,090 → 2,092 test cases (+2)",
+        "No timings",
+        "4 min 30 s",
+        "5 min",
+      ],
+      [
+        "tests",
+        "5 test files (no change)",
+        "Part 2 untimed",
+        "1 min 30 s",
+        "1 min",
+      ],
+      ["src/skills", "added → 3 test files", "added", "30 s", "30 s"],
+    ]);
+  const baseline = (row: number) =>
+    comparison.entryTable
+      .getByRole("row")
+      .nth(row + 1)
+      .getByRole("cell")
+      .nth(1);
+  await expect
+    .element(baseline(0))
+    .toHaveAccessibleDescription(
+      "Not recorded: this summary has no test execution durations",
+    );
+  await expect
+    .element(baseline(1))
+    .toHaveAccessibleDescription("Partial: part 2 of 2 has no duration");
+  await expect
+    .element(baseline(1))
+    .toHaveAttribute("title", "Partial: part 2 of 2 has no duration");
 });

@@ -38,6 +38,23 @@ export const visibleText = (node: Element) =>
     .trim()
     .replace(/\s+/g, " ");
 
+// The count and duration cues NODE carries.
+export const cueOf = (node: Element) => ({
+  count: node.getAttribute("data-ci-count-cue"),
+  countReason: node.getAttribute("data-ci-count-cue-reason"),
+  duration: node.getAttribute("data-ci-duration-cue"),
+  durationReason: node.getAttribute("data-ci-duration-cue-reason"),
+});
+
+// The body rows of TABLE.
+export const bodyRowsOf = (table: Locator) => [
+  ...table.element().querySelectorAll("tbody tr"),
+];
+
+// Each body row of TABLE: its header, then its cells.
+export const rowTextsOf = (table: Locator) =>
+  bodyRowsOf(table).map((row) => [...row.children].map(visibleText));
+
 // The visible words of each element SELECTOR finds in REGION.
 export const textsIn = (region: Locator) => (selector: string) =>
   [...region.element().querySelectorAll(selector)].map(visibleText);
@@ -73,15 +90,14 @@ export async function shownComparison() {
     ...region.element().querySelectorAll(selector),
   ];
   const texts = textsIn(region);
-  const cues = (selector: string) =>
-    all(selector).map((node) => ({
-      count: node.getAttribute("data-ci-count-cue"),
-      duration: node.getAttribute("data-ci-duration-cue"),
-      durationReason: node.getAttribute("data-ci-duration-cue-reason"),
-    }));
+  const entryTable = region.getByRole("table", {
+    name: "CI entry timing comparison",
+  });
+  const cues = (selector: string) => all(selector).map(cueOf);
 
   const comparison = {
     region,
+    entryTable,
     // Each endpoint's Build cell: its words and any source icon's selection
     // and hover title.
     identities: () =>
@@ -106,13 +122,9 @@ export async function shownComparison() {
     metricNames: () => texts(".intent-ci-comparison-metrics dt"),
     entryEvidence: () => texts(".intent-ci-comparison-entries").join(" "),
     // Each entry row's header and cells, in column order.
-    entryRows: () =>
-      [
-        ...region
-          .getByRole("table", { name: "CI entry timing comparison" })
-          .element()
-          .querySelectorAll("tbody tr"),
-      ].map((row) => [...row.children].map(visibleText)),
+    entryRows: () => rowTextsOf(entryTable),
+    // Each entry row's count and duration cues.
+    entryRowCues: () => bodyRowsOf(entryTable).map(cueOf),
     headings: () =>
       region
         .getByRole("heading")
