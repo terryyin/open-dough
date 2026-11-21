@@ -499,6 +499,8 @@ retained in `slice-5-refactor-return.md`.
 
 ### Slice 6
 
+Published on the story branch as `6e08f49483ad43d42c3b0653c6b1ae0df76c2ff2`.
+
 Ten mounted Chromium cases carry the eleven legacy cases. The 18-path
 consumer run passed 43/43 in 44.92 s including preparation, with 12.33 summed
 case-seconds for the ten new cases. The two new E2E cases use the direct
@@ -537,3 +539,13 @@ between the real reload and track cases. Both new E2E journeys use named
 setup, actions and observations. The three affected E2E files passed all
 four cases in 19.84 s, and dashboard typecheck passed. The retained report
 is `slice-6-refactor-return.md`.
+
+CI [run 44921975200, attempt 1](https://github.com/terryyin/open-dough/actions/runs/44921975200)
+showed the three columns whole and caught a threshold assertion using the
+wrong element. A controlled 15 px track reproduced the same 1137 px Board
+inside a 1185 px query container. The Board's two 24 px margins explain
+the difference. The repair compares the rendered Board to its original
+split width and still checks all three whole columns, exact control labels
+and the same open Terminal before and after narrowing. Both focused cases
+passed with the controlled gutter and again with ordinary browser settings.
+The evidence is `slice-6-ci-board-gutter-repair-return.md`.

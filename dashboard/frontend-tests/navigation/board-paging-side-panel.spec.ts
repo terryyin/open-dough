@@ -62,8 +62,8 @@ test("the Side panel leaves two whole columns, hands off paging focus, and resto
   expect(board.room().width).toBeCloseTo(wide.width / 2, 0);
 
   const first = board.column("Backlog").getByRole("article").first().element();
-  const available = board.width();
-  const unpagedShare = (available - 2 * 24 - 16) / 2 - 2 * (16 + 1);
+  const splitWidth = board.width();
+  const unpagedShare = (splitWidth - 2 * 24 - 16) / 2 - 2 * (16 + 1);
   expect(first.getBoundingClientRect().width).toBeGreaterThanOrEqual(
     unpagedShare - 0.5,
   );
@@ -88,7 +88,7 @@ test("the Side panel leaves two whole columns, hands off paging focus, and resto
   const opened = terminal.element();
   await page.viewport(2400, wide.height);
   await board.shows(columns, []);
-  expect(board.width()).toBeGreaterThanOrEqual(72 * 16);
+  expect(board.width()).toBeGreaterThan(splitWidth);
   expect(terminal.element()).toBe(opened);
   await page.viewport(wide.width, wide.height);
   await board.shows(
