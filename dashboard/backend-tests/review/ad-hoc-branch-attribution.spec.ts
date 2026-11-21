@@ -13,44 +13,46 @@ import {
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
-import {
-  aCheckoutWithWorktree,
-  inWorktree,
-  keep,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const branch = "topic";
 
-// The topic checkout, its base holding the shared file, and its worktree.
+// The topic checkout, its base holding the shared file, its worktree, and
+// the launch whose start established it.
 const anIsolatedTopic = () =>
-  aCheckoutWithWorktree(branch, {
-    "shared.txt": "original\n",
-    "session-only.txt": "Original session notes\n",
-  });
+  aDoneCaptureCase()
+    .withBaseFiles({
+      "shared.txt": "original\n",
+      "session-only.txt": "Original session notes\n",
+    })
+    .withOrigin()
+    .withWorkspace(branch)
+    .withIsolatedLaunch(branch, { launched: 60 }, branch);
 
 test("capture separates an isolated branch's committed and working changes from imported trunk", async () => {
-  const { checkout, workspace } = await anIsolatedTopic();
-  await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork
-      .committing("draft", { at: minutesAgo(50) })
-      .mergingTrunkWork("imported", {
-        at: minutesAgo(40),
-        files: { "import-only.txt": "trunk addition\n" },
-      })
-      .editing("working", {
-        at: minutesAgo(30),
-        files: { "draft.txt": "draft work\nworking change\n" },
-      }),
-  );
-
-  const record = makeMe.aLaunchRecord
-    .isolatedIn(checkout, { workspace, branch })
+  const {
+    checkout,
+    records: { [branch]: record },
+    at,
+  } = await anIsolatedTopic()
+    .withWork(
+      (at) =>
+        makeMe.aCheckoutWork
+          .committing("draft", { at: at(50) })
+          .mergingTrunkWork("imported", {
+            at: at(40),
+            files: { "import-only.txt": "trunk addition\n" },
+          })
+          .editing("working", {
+            at: at(30),
+            files: { "draft.txt": "draft work\nworking change\n" },
+          }),
+      { in: branch },
+    )
     .please();
-  const { result } = await captureBranchResult(record, minutesAgo(10));
+
+  const { result } = await captureBranchResult(record, at(10));
 
   expect(result.attributionGap).toBeUndefined();
   const { integration } = checkout;
@@ -71,20 +73,26 @@ test("capture separates an isolated branch's committed and working changes from 
 });
 
 test("Done saves and pins the branch and manual delivery pairs for offline review", async () => {
-  const { checkout, workspace } = await anIsolatedTopic();
-  const record = makeMe.aLaunchRecord
-    .isolatedIn(checkout, { workspace, branch })
+  const {
+    checkout,
+    worktrees: { [branch]: workspace },
+    records: { [branch]: record },
+    work: { branchTip },
+    performWork,
+    at,
+  } = await anIsolatedTopic()
+    .withWork(
+      (at) =>
+        makeMe.aCheckoutWork
+          .committing("session-only", { at: at(50) })
+          .mergingTrunkWork("branchTip", {
+            at: at(45),
+            files: { "import-only.txt": "trunk addition\n" },
+          }),
+      { in: branch },
+    )
+    .kept()
     .please();
-  keep(record);
-  const { branchTip } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork
-      .committing("session-only", { at: minutesAgo(50) })
-      .mergingTrunkWork("branchTip", {
-        at: minutesAgo(45),
-        files: { "import-only.txt": "trunk addition\n" },
-      }),
-  );
   const { integration } = checkout;
   await git(integration, "pull", "--quiet", "--ff-only", "origin", "main");
   const trunkParent = (
@@ -93,16 +101,15 @@ test("Done saves and pins the branch and manual delivery pairs for offline revie
   const branchBase = (
     await git(integration, "rev-parse", "HEAD^{tree}")
   ).stdout.trim();
-  const { merge } = await work(
-    checkout,
+  const { merge } = await performWork(
     makeMe.aCheckoutWork
-      .mergingTipByHand("merge", { tip: branchTip, at: minutesAgo(40) })
-      .pushingToTrunk("published-merge", { at: minutesAgo(40) })
-      .committing("later-trunk", { at: minutesAgo(35) })
-      .pushingToTrunk("pushed", { at: minutesAgo(35) }),
+      .mergingTipByHand("merge", { tip: branchTip, at: at(40) })
+      .pushingToTrunk("published-merge", { at: at(40) })
+      .committing("later-trunk", { at: at(35) })
+      .pushingToTrunk("pushed", { at: at(35) }),
   );
 
-  const doneAt = minutesAgo(10);
+  const doneAt = at(10);
   await setRecordDoneAt(source, record.session, doneAt);
 
   const saved = await keptSession(source, record.session);
@@ -158,22 +165,26 @@ test("Done saves and pins the branch and manual delivery pairs for offline revie
 });
 
 test("new shared first-parent history can leave branch attribution ambiguous", async () => {
-  const { checkout, workspace } = await anIsolatedTopic();
-  const { direct } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("direct", { at: minutesAgo(50) }),
-  );
+  const {
+    checkout,
+    records: { [branch]: record },
+    work: { direct },
+    performWork,
+    at,
+  } = await anIsolatedTopic()
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("direct", { at: at(50) }),
+      { in: branch },
+    )
+    .please();
   await git(checkout.integration, "merge", "--quiet", "--ff-only", direct);
   await git(checkout.integration, "push", "--quiet", "origin", "main");
-  await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("after-direct", { at: minutesAgo(40) }),
+  await performWork(
+    makeMe.aCheckoutWork.committing("after-direct", { at: at(40) }),
+    { in: branch },
   );
 
-  const record = makeMe.aLaunchRecord
-    .isolatedIn(checkout, { workspace, branch })
-    .please();
-  const { result } = await captureBranchResult(record, minutesAgo(10));
+  const { result } = await captureBranchResult(record, at(10));
 
   expect(result.attributionGap).toBe(
     "The saved branch changes could not be separated from trunk history.",

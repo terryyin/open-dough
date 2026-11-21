@@ -2,6 +2,7 @@
 // the typed landing handler through production landing admission, so the
 // publisher's retained comparison is exactly what the handler prepares and
 // records.
+import { appendFileSync, copyFileSync, mkdirSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -121,5 +122,34 @@ export async function retryInstalledLanding(landingContext: string) {
       "--retry",
       pending,
     ]),
+  );
+}
+
+const publisherScripts = [
+  "dashboard-completion.mjs",
+  "ci-direct-entry.mjs",
+  "dashboard-landing.mjs",
+  "first-landing-expectation.mjs",
+];
+
+// Installs this repository's real publisher scripts into `workspace`, a
+// worktree of the checkout at `integration`, outside the work its commits
+// stage.
+export function installPublisher(integration: string, workspace: string) {
+  const relative = path.join(
+    ".claude",
+    "skills",
+    "dough-execute-plan",
+    "scripts",
+  );
+  mkdirSync(path.join(workspace, relative), { recursive: true });
+  for (const script of publisherScripts)
+    copyFileSync(
+      path.join(repoRoot, relative, script),
+      path.join(workspace, relative, script),
+    );
+  appendFileSync(
+    path.join(integration, ".git", "info", "exclude"),
+    "/.claude/\n",
   );
 }

@@ -1,62 +1,63 @@
-import path from "node:path";
 import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import { observedSessionDeliveries } from "../../server/observedSessionDeliveries.ts";
+import { minutesAgo, source } from "../support/doneCaptureCase.ts";
 import {
-  aCheckout,
-  historyBeforeTheCase,
-  inWorktree,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+  aDoneCaptureCase,
+  type Refinement,
+} from "../support/doneCaptureCaseBuilder.ts";
 
 const sourceTrunk = { id: source, ref: "main" };
 const originTrunk = { remote: "origin", target: "refs/heads/main" };
 
 test("decides each hand-merged Done branch's exact delivery without writing pins", async () => {
-  const checkout = await aCheckout({
-    history: historyBeforeTheCase()
-      .withWorkspace("first", { from: "base" })
-      .withWorkspace("second", { from: "base" }),
-    withOrigin: true,
-  });
-  const firstWorkspace = checkout.execution;
-  if (firstWorkspace === undefined) throw new Error("Missing first worktree.");
-  const secondWorkspace = path.join(
-    checkout.integration,
-    ".worktrees",
-    "second",
-  );
-  const { first: firstTip } = await work(
-    inWorktree(checkout, firstWorkspace),
-    makeMe.aCheckoutWork.committing("first", { at: minutesAgo(30) }),
-  );
-  const { second: secondTip } = await work(
-    inWorktree(checkout, secondWorkspace),
-    makeMe.aCheckoutWork.committing("second", { at: minutesAgo(30) }),
-  );
-  const repository = checkout.gitDirectory;
-  const doneBranch = (branch: string, workspace: string, revision: string) =>
-    makeMe.aLaunchRecord
-      .isolatedIn(checkout, { workspace, branch })
-      .branchResultFrom({
-        repository,
+  const doneFrom =
+    (tip: "first" | "second"): Refinement<"first" | "second"> =>
+    (launch, { checkout, work }) =>
+      launch.branchResultFrom({
+        repository: checkout.gitDirectory,
         base: checkout.base,
-        revision,
+        revision: work[tip],
         manualDeliveryChecked: true,
-      })
-      .markedDoneAt(minutesAgo(10))
-      .please();
-  const first = doneBranch("first", firstWorkspace, firstTip);
-  const second = doneBranch("second", secondWorkspace, secondTip);
-  const { firstMerge, head } = await work(
+      });
+  const {
     checkout,
+    records: { "isolated-first": first, "isolated-second": second },
+    work: { first: firstTip, second: secondTip },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace("first")
+    .withWorkspace("second")
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("first", { at: at(30) }),
+      { in: "first" },
+    )
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("second", { at: at(30) }),
+      { in: "second" },
+    )
+    .withIsolatedLaunch(
+      "isolated-first",
+      { launched: 60, done: 10 },
+      "first",
+      doneFrom("first"),
+    )
+    .withIsolatedLaunch(
+      "isolated-second",
+      { launched: 60, done: 10 },
+      "second",
+      doneFrom("second"),
+    )
+    .please();
+  const repository = checkout.gitDirectory;
+  const { firstMerge, head } = await performWork(
     makeMe.aCheckoutWork
-      .mergingTipByHand("firstMerge", { tip: firstTip, at: minutesAgo(5) })
-      .mergingTipByHand("head", { tip: secondTip, at: minutesAgo(5) })
-      .pushingToTrunk("pushed", { at: minutesAgo(5) }),
+      .mergingTipByHand("firstMerge", { tip: firstTip, at: at(5) })
+      .mergingTipByHand("head", { tip: secondTip, at: at(5) })
+      .pushingToTrunk("pushed", { at: at(5) }),
   );
 
   const actual = await observedSessionDeliveries().observe(sourceTrunk, head, [

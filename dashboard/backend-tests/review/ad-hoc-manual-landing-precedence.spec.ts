@@ -3,7 +3,6 @@
 // keeps the verified manual landing pair for Review changes.
 import { expect, onTestFinished, test, vi } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { reportingReference } from "../../../Distribution/tests/support/launchLandingTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
@@ -12,24 +11,26 @@ import { bindRecord } from "../../server/launchRecordBinding.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
-import {
-  aCheckoutWithWorktree,
-  inWorktree,
-  keep,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
-import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
+import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
 test("an early quiet Done keeps its verified manual pair when the native session binds", async () => {
-  const { checkout, workspace } = await aCheckoutWithWorktree("draft");
+  const {
+    checkout,
+    worktrees: { draft: workspace },
+    work: { early },
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace("draft")
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("early", { at: at(30) }),
+      { in: "draft" },
+    )
+    .kept()
+    .please();
   const baseline = checkout.base;
-  const reporting = {
-    origin: dashboardOrigin,
-    reference: reportingReference,
-    command: "dashboard-completion",
-  };
   const record = makeMe.aLaunchRecord
     .adHoc({
       title: "Keep the branch draft",
@@ -42,33 +43,28 @@ test("an early quiet Done keeps its verified manual pair when the native session
       repository: checkout.gitDirectory,
     })
     .inClaudeSession({ sessionId: "isolated-draft" })
-    .launchedAt(minutesAgo(60))
-    .reportingThrough(reporting)
+    .launchedAt(at(60))
+    .reportingThrough(dashboardReporting)
     .please();
-  keep();
   await keepAttempt(
     makeMe.anAcceptedAttempt
-      .withId(reporting.reference)
+      .withId(dashboardReporting.reference)
       .requesting(
         makeMe.aLaunchRequest
           .adHoc({ instruction: "Keep the branch draft" })
           .withPolicy({ workspace: "isolated", landing: "review" })
           .please(),
       )
-      .reportingTo(reporting.origin)
-      .capturingLanding({ reporting })
+      .reportingTo(dashboardReporting.origin)
+      .capturingLanding({ reporting: dashboardReporting })
       .please(),
   );
   const submission = makeMe.aCompletionSubmission
     .reportingFor({
       host: record.session.host,
-      reference: reporting.reference,
+      reference: dashboardReporting.reference,
     })
     .please();
-  const { early } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("early", { at: minutesAgo(30) }),
-  );
   await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
 
   const folder = localFolder(checkout.integration);
@@ -80,8 +76,12 @@ test("an early quiet Done keeps its verified manual pair when the native session
   onTestFinished(() => marks.close());
   const reported = vi.spyOn(marks, "reported");
 
-  vi.setSystemTime(minutesAgo(10));
-  const pending = await deliverCompletion(submission, reporting.origin, marks);
+  vi.setSystemTime(at(10));
+  const pending = await deliverCompletion(
+    submission,
+    dashboardReporting.origin,
+    marks,
+  );
   expect(pending.state).toBe("pending-native-session");
   expect(reported).not.toHaveBeenCalled();
 

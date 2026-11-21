@@ -4,7 +4,6 @@ import { Socket } from "node:net";
 import path from "node:path";
 import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { branchLandingContext } from "../../server/branchLandingContext.ts";
 import {
   changeSessionRecord,
@@ -24,12 +23,8 @@ import {
   keepLaunchStore,
 } from "../../test-support/support/launchStore.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
-import {
-  aCheckoutWithCanonicalWorktree,
-  keep,
-  minutesAgo,
-  source,
-} from "../support/doneCaptureCase.ts";
+import { keep, minutesAgo, source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 async function aKeptBranchHandoff() {
@@ -48,20 +43,17 @@ async function aKeptBranchHandoff() {
         [path.relative(repoRoot, file), await readFile(file, "utf8")] as const,
     ),
   );
-  const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(
-    branch,
-    Object.fromEntries(files),
-  );
-  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout);
-  const { entry } = await proposeBranchEntry(
-    "refs/heads/main",
-    launch.please(),
-    {
-      workspace,
-      branch,
-    },
-  );
-  const record = launch.enteredBranch(entry).please();
+  const {
+    checkout,
+    worktrees,
+    records: { "default-launch": record },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withBaseFiles(Object.fromEntries(files))
+    .withWorkspace(branch)
+    .withDeclaringLaunch("default-launch", { launched: 60 }, branch)
+    .please();
+  const workspace = worktrees[branch];
   const creation = makeMe.aCreationRecord
     .adHoc({ title: "Waiting for a native session" })
     .unresolved({

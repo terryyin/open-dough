@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Tsubomi-chan",
-  "email": "tsubomi-chan@example.org",
-  "identity": "SEED-413#fold-done-capture-launches-into-makeme",
-  "mode": "story-branch",
-  "branch": "claude/build-done-capture-cases-from-makeme-launch-step",
-  "host": "claude"
-}

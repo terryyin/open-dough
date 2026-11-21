@@ -9,45 +9,33 @@ import {
 } from "../../server/launchRecordStore.ts";
 import { checkoutSharedMeanwhile } from "../../server/sessionCheckoutShared.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import {
-  aCheckout,
-  type Checkout,
-  historyBeforeTheCase,
-  keep,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { type Checkout, keep, source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { aDoneSession } from "../support/doneCaptureReview.ts";
 
-// Whether Done of `record` at `doneAt` finds its checkout shared among `kept`.
+// Whether Done of `record`, at its stated Done time, finds its checkout shared
+// among `kept`.
 const sharedAtDone = (
   checkout: Checkout,
   record: LaunchRecord,
   kept: readonly LaunchRecord[],
-) =>
-  checkoutSharedMeanwhile(
-    { ...record, doneAt: minutesAgo(10) },
-    { workspace: checkout.integration },
-    kept,
-  );
+) => checkoutSharedMeanwhile(record, { workspace: checkout.integration }, kept);
 
 test("Done saves the run and shared flag when two sessions overlap in Default main", async () => {
-  const checkout = await aCheckout();
-  const first = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .inClaudeSession({ sessionId: "first" })
-    .please();
-  const other = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .inClaudeSession({ sessionId: "other" })
+  const {
+    checkout,
+    records: { first, other },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withDefaultMainLaunch("first", { launched: 60 })
+    .withDefaultMainLaunch("other", { launched: 60 })
     .please();
   keep(first, other);
-  const { committed } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("committed", { at: minutesAgo(30) }),
+  const { committed } = await performWork(
+    makeMe.aCheckoutWork.committing("committed", { at: at(30) }),
   );
-  const doneAt = minutesAgo(10);
+  const doneAt = at(10);
 
   await setRecordDoneAt(source, first.session, doneAt);
 
@@ -60,66 +48,58 @@ test("Done saves the run and shared flag when two sessions overlap in Default ma
 });
 
 test("a session done after this one launched still shares the Default main checkout", async () => {
-  const checkout = await aCheckout();
-  const earlier = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .inClaudeSession({ sessionId: "earlier" })
-    .launchedAt(minutesAgo(70))
-    .markedDoneAt(minutesAgo(15))
+  const {
+    checkout,
+    records: { earlier, session },
+  } = await aDoneCaptureCase()
+    .withDefaultMainLaunch("earlier", { launched: 70, done: 15 })
+    .withDefaultMainLaunch("session", { launched: 60, done: 10 })
     .please();
-  const record = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
 
-  expect(sharedAtDone(checkout, record, [earlier])).toBe(true);
+  expect(sharedAtDone(checkout, session, [earlier])).toBe(true);
 });
 
 test("a session open meanwhile in an isolated workspace of the project does not share the Default main checkout", async () => {
-  const checkout = await aCheckout({
-    history: historyBeforeTheCase().withWorkspace("isolated", { from: "base" }),
-  });
+  const {
+    checkout,
+    records: { session },
+    at,
+  } = await aDoneCaptureCase()
+    .withWorkspace("isolated")
+    .withDefaultMainLaunch("session", { launched: 60, done: 10 })
+    .please();
   const workspace = checkout.execution;
   if (workspace === undefined) throw new Error("Missing isolated worktree");
   const isolated = makeMe.aLaunchRecord
     .adHoc({ title: "Isolated meanwhile" })
     .inIsolatedWorkspace({ workspace, branch: "isolated" })
     .inClaudeSession({ sessionId: "isolated-meanwhile" })
-    .launchedAt(minutesAgo(70))
+    .launchedAt(at(70))
     .please();
 
-  expect(
-    sharedAtDone(
-      checkout,
-      makeMe.aLaunchRecord.startedOnMainOf(checkout).please(),
-      [isolated],
-    ),
-  ).toBe(false);
+  expect(sharedAtDone(checkout, session, [isolated])).toBe(false);
 });
 
 test("a session done in the Default main checkout before this one launched does not share it", async () => {
-  const checkout = await aCheckout();
-  const earlier = makeMe.aLaunchRecord
-    .establishedOnMainOf(checkout)
-    .inClaudeSession({ sessionId: "done-before" })
-    .launchedAt(minutesAgo(90))
-    .markedDoneAt(minutesAgo(70))
+  const {
+    checkout,
+    records: { earlier, session },
+  } = await aDoneCaptureCase()
+    .withEstablishedSession("earlier", { launched: 90, done: 70 })
+    .withDefaultMainLaunch("session", { launched: 60, done: 10 })
     .please();
 
-  expect(
-    sharedAtDone(
-      checkout,
-      makeMe.aLaunchRecord.startedOnMainOf(checkout).please(),
-      [earlier],
-    ),
-  ).toBe(false);
+  expect(sharedAtDone(checkout, session, [earlier])).toBe(false);
 });
 
 test("Review says the checkout was shared when its kept run has the flag", async () => {
-  const checkout = await aCheckout();
-  const { committed } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("committed", { at: minutesAgo(30) }),
+  const { checkout, performWork, at } = await aDoneCaptureCase().please();
+  const { committed } = await performWork(
+    makeMe.aCheckoutWork.committing("committed", { at: at(30) }),
   );
   const record = makeMe.aLaunchRecord
     .startedOnMainOf(checkout)
+    .launchedAt(at(60))
     .keptSessionCommits({
       repository: checkout.integration,
       runs: [{ base: checkout.base, revision: committed }],
@@ -137,10 +117,9 @@ test("Review says the checkout was shared when its kept run has the flag", async
 });
 
 test("a session whose checkout was not shared reviews its commits without saying it was shared", async () => {
-  const checkout = await aCheckout();
-  const { committed } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("committed", { at: minutesAgo(30) }),
+  const { checkout, performWork, at } = await aDoneCaptureCase().please();
+  const { committed } = await performWork(
+    makeMe.aCheckoutWork.committing("committed", { at: at(30) }),
   );
   const record = aDoneSession(checkout, [
     { base: checkout.base, revision: committed },

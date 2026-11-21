@@ -83,7 +83,7 @@ branch entry (SEED-413#split-branch-entry-proposal-from-store; recoverable at
 `9969388`); the others are
 [delivery observation](https://github.com/terryyin/open-dough/blob/24864be6360f87cc9fec3dc4333de5361de165eb/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records),
 landing reports (completed; recoverable at `086faa5a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records`) and
-[launch flavors as MakeMe steps](#fold-done-capture-launches-into-makeme).
+launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme`).
 
 - **Analysis (shared by the five stories, at `25f76e98d`).**
   - *Symptom.* 21 specs under `dashboard/backend-tests/review/` import from
@@ -197,63 +197,43 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
 
-<a id="fold-done-capture-launches-into-makeme"></a>
+<a id="tie-done-capture-cases-to-production"></a>
 
-### Build Done capture cases from MakeMe launch steps
+### Tie Done capture cases to the real branch entry and retire the fold's residue
 
-**Identity:** SEED-413#fold-done-capture-launches-into-makeme
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#fold-done-capture-launches-into-makeme","dependencies":[{"supplier":{"identity":"SEED-413#split-done-mark-decision-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store"},"implementation":"Composed typed Done state for the Done capture family.","rationale":"The case preset must supply the delivered review input and timeline. Folding the present keep-and-mark setup would embed the store replay this story is meant to remove.","condition":"MakeMe can compose a Done record with captured branch or commit evidence, and the review-topic Done capture cases accept composed records.","state":"satisfied","resolution":{"revision":"6250b73992afc1df2fd9b12bb502008527e568d6","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store","summary":"Satisfied at integration 2a7260d6d: MakeMe composes Done records with captured evidence (keptSessionCommits, sessionCommitsFailedAt, branchResultFrom, branchResultFailedAt with markedDone/markedDoneAt), and review-topic Done capture cases take composed records through doneCaptureReview.ts (plan 734 slices 4–7). Restoring the adapter proof those moves dropped is queued first as SEED-413#restore-done-capture-proof-after-composed-reviews.\nCondition satisfied: MakeMe can compose a Done record with captured branch or commit evidence, and the review-topic Done capture cases accept composed records.\nAccepted integration: 2a7260d6d2596365b432d11731b6b57d01dc0f0f on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#split-branch-entry-proposal-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store"},"implementation":"Typed branch-entry proposal and composed branch-entry preconditions.","rationale":"The declaring-launch recipe needs the delivered branch-entry value and a separate operation for cases that prove keeping it. Folding the old helper would hide the operation that the handoff cases observe.","condition":"The branch-entry proposal is callable separately from persistence, and review and publisher preconditions can be composed with a typed branch entry.","state":"satisfied","resolution":{"revision":"9969388902eb48c56588d9a1d30f45d8be6ac4b3","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store","summary":"Directly satisfied. proposeBranchEntry (dashboard/server/branchEntryProposal.ts) proposes from the trunk ref, typed LaunchRecord and place with no store, and recordSessionBranchEntry alone keeps the entry and its pins; makeMe.aLaunchRecord(...).enteredBranch(entry) composes the entry, used by the review, attribution and declared publisher preconditions (ad-hoc-session-branch-entry, ad-hoc-branch-entry-attribution, support/declaredPublisherBranch.ts). Proved by branch-entry-proposal.spec.ts and hosted CI run 44783274270 on e8b7e417.\nCondition satisfied: The branch-entry proposal is callable separately from persistence, and review and publisher preconditions can be composed with a typed branch entry.\nAccepted integration: e8b7e4170c63f978270efba32e2396989fd555a1 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#observe-done-deliveries-over-typed-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records"},"implementation":"Delivery observation over typed Done records with a separate store adapter.","rationale":"The two-branch preset supplies the delivered decision input. Reusing the ambient-store preset first would encode the store effects in the shared builder and require rebuilding it around the typed boundary.","condition":"Observation decides delivery from typed kept records with real Git inspection, and the store adapter separately owns persistence and lifecycle races.","state":"satisfied","resolution":{"revision":"24864be6360f87cc9fec3dc4333de5361de165eb","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records","summary":"Directly satisfied. observedSessionDeliveries.ts decides exact hand-merged comparisons from composed Done records and real Git; observedSessionLandings.ts applies the discoveries through ObservedLandingStore and owns persistence, live-record guards and pin cleanup. Plan 736 slices 1–4 verify exact pairs, adapter deletion, expiry, failed and lost writes, and repeated pin retention. Intent Coverage Caught a missing Done branch-result pin.\nCondition satisfied: Observation decides delivery from typed kept records with real Git inspection, and the store adapter separately owns persistence and lifecycle races.\nAccepted integration: 0747fb0a2558f72b185b4299a3ecbb28cd9f3327 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#decide-landings-over-typed-attempts-and-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records"},"implementation":"Composable landing attempts and launch records with production request admission for the installed publisher.","rationale":"Both publisher recipes must share the delivered reporting values. Composing the current machine-store setup would put staging effects or the duplicate receiver behind a new builder API.","condition":"Landing preparation and recording take typed attempts and records, MakeMe can compose their shared reporting context, and the publisher bridge uses production request admission.","state":"satisfied","resolution":{"revision":"086faa5a284a7030a101032405772eff1cf69077","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records","summary":"Directly satisfied. SEED-413#decide-landings-over-typed-attempts-and-records delivered decideLanding over composed attempts/records, LandingStores on handleLanding, caller-directed branchLandingContext, admitLandingRequest, and the installed-publisher bridge on production admission with composed stores. Key examples and Intent Coverage Caught at 233d31e6c (ad-hoc-prepared-landing-done). Approved remainders (HOME for blank/worktree machine deletion; 29 server specs; local LandingStores until ObservedLandingStore) do not block this condition. Recoverable story/plan at 086faa5a; accepted on origin/main at 4a5ceb24.\nCondition satisfied: Landing preparation and recording take typed attempts and records, MakeMe can compose their shared reporting context, and the publisher bridge uses production request admission.\nAccepted integration: 4a5ceb24a2d50569dfe181e16a1a6a6b1efa9798 on origin/refs/heads/main."}}]}
-```
+**Identity:** SEED-413#tie-done-capture-cases-to-production
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/737-build-done-capture-cases-from-makeme/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"465bddcd78c2560549b0f3fcfc169175f7a6568b0e5bc08f81ad0d3547c3937a","plan":"c27d9acd0ea2b26216e1a7baecd0a853ef41faaa436c9008f985ce49ab88dad7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/754-tie-done-capture-cases-to-production/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bd0d0afb5e1de5d696fc1e24c6fcc6886d6588c8e8d21599947a6d1256c8f16e","plan":"70086a2b974af91a4c641eaa57367b1aece15965f7720a1054b16a8835480ab7"}}
 ```
 
-Fifth of the [Done capture import-list stories](#done-capture-import-list-analysis);
-which records the initial analysis and the decision to fold the final typed
-arrangements after the four preceding renovations.
+Correction from the execution retrospective of
+Build Done capture cases from MakeMe launch steps (SEED-413#fold-done-capture-launches-into-makeme; story and plan 737 recoverable at `47af39ca6`).
 
-- **Goal.** Dashboard maintainers can read a Done capture case from its
-  MakeMe setup through the production entry and assertions. One scenario value
-  carries the checkout, its launch record or records, and the timeline so a
-  maintainer can see which work occurred during each launch.
-- **Scope.**
-  - Move the established Default main, blank Default main, isolated and
-    declaring launch presets onto the existing launch builder. Give the
-    repository builder the shared pre-launch history and use the real checkout
-    fixture to materialize named worktrees, with an origin where the case
-    publishes. State launch and Done times at the call site and retain the
-    distinction between case work and the action under test.
-  - Compose the declared publisher branch and the reported isolated branch
-    from those same builders. Reuse the delivered Done, branch-entry and
-    landing-report values. Cases that
-    exercise persistence, a race, or the installed publisher keep the real
-    operation and its independent observations.
-  - Remove arrangements and redundant verbs from `doneCaptureCase.ts`,
-    `declaredPublisherBranch.ts`,
-    `reportedIsolatedBranch.ts`, `reportedDoneCase.ts` and the specs. Retire
-    modules once their last caller moves. Keep any remaining effect in its
-    existing owner and add no support wrappers. The four supplier stories
-    own the production seam changes. Runtime optimization has its own story.
+- **Goal.** Dashboard maintainers get a failing test when production's branch
+  entry proposal stops producing the entry the declaring-launch recipe composes,
+  and read Done capture cases that state each fact once: no assertion restates
+  the case's own setup, no file name is guessed, records are kept one way, and
+  a missing worktree fails instead of giving an empty workspace.
+- **Scope.** One agreement case between `proposeBranchEntry` and
+  `ofDeclaringDefaultMainLaunch`, replacing the publisher spec's restating
+  assertions, and the README sentence it corrects. The setup duplication,
+  guessed file name, second keeping verb, silent worktree fallback, type cycle,
+  unused re-export and the single-caller command-capture support module that
+  the fold introduced. Product behavior and every legitimate assertion stay.
+  Runtime belongs to the [optimization](#optimize-done-capture-family-cases);
+  the builder's generic casts and the two specs already at 250 lines before
+  the fold stay as they are.
 - **Key examples.**
-  - A Default main case names its launch and Done times in MakeMe. Real work
-    before, within and after those times keeps the existing inclusion and
-    exclusion assertions, including a shared checkout with overlapping sessions.
-  - The branch-entry spec declares the worktrees and launch facts in MakeMe.
-    A dirty entry still preserves its first tree and Default main tip, review
-    still reads the separate comparisons, and foreign or conflicting places
-    are still refused. The spec has no local setup helpers, and any remaining
-    import from `doneCaptureCase.ts` is limited to one case builder.
-  - A publisher case starts from the matching launch, attempt
-    and context and keeps the distinct branch and delivered comparisons,
-    including across retirement and exact retry.
-- **Evaluation.** Compare support imports and named bindings per affected
-  spec, and lines in the affected specs and support, including builders that
-  receive moved setup. Rebase the comparison on the delivered supplier state.
-  Fewer support verbs and visible scenario facts with every assertion preserved
-  are the gain, with any added lines counted in the trade-off.
+  - Removing the trunk revision from `ofDeclaringDefaultMainLaunch` fails the
+    agreement case.
+  - The comparisons case keeps the record built from the landing context
+    production wrote, without asserting its file name.
+  - A case naming a worktree it never declared throws at `please()`.
+- **Evaluation.** Same assertions minus the restating and guessed ones;
+  support surface shrinks or holds.
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-- **Effort hypothesis.** M, one plan of eight slices. The suppliers moved twelve more specs onto the presets, so the roster grew from 28 to 35.
+- **Effort hypothesis.** S, one plan of four slices.
+- **Plan.** [754](../slice-plans/754-tie-done-capture-cases-to-production/PLAN.md)
 
 <a id="optimize-done-capture-family-cases"></a>
 
@@ -308,6 +288,15 @@ does not depend on them.
   - Load moved between runs and the same arrangement varied twofold, so a
     duration at a named load does not reproduce. The count of Git processes
     per case does.
+- **Observed during the fold (2026-11-21, plan 737 at `b3cd1acfe`).**
+  `ad-hoc-branch-result-race` took 1.3–2.3 s at load 8.6 and timed out once at
+  5 s at load 27–30: case setup 421–762 ms, the held first capture about
+  300–500 ms, the quiet-Done delivery 410–810 ms, review and pins about 100 ms.
+  Every phase grew with load; no timer, wait or race was involved.
+  `captureBranchResult` (`dashboard/server/sessionBranchCapture.ts`) runs
+  about ten Git calls one after another, and the origin cannot be dropped
+  because the review then reads `unavailable`. `ad-hoc-branch-result` cases
+  also timed out twice in a long one-worker roster run at load 12–17.
 - **Scope.**
   - On macOS the family's cases run the Git binary directly, resolved once
     per run. Where `git` is already another binary, and on Linux, nothing
@@ -316,10 +305,10 @@ does not depend on them.
     production seams that start more than their answer needs. The family is
     the Git-heavy Done capture cases under `dashboard/backend-tests/review/`
     and `dashboard/backend-tests/launches/`, with their shared support:
-    `doneCaptureCase.ts`, `doneCaptureReview.ts`,
-    `declaredPublisherBranch.ts`, `installedPublisher.ts`,
-    `reportedIsolatedBranch.ts` and `adHocBranchRefs.ts`, as the five
-    import-list stories leave them. Profile per case first: checkout creation,
+    the case builder `doneCaptureCaseBuilder.ts` with
+    `doneCaptureCaseMaterialization.ts` and `doneCaptureCasePlaces.ts`,
+    `doneCaptureCase.ts`, `doneCaptureReview.ts`, `installedPublisher.ts`
+    and `adHocBranchRefs.ts`, as the five import-list stories leave them. Profile per case first: checkout creation,
     checkout work, production Done capture, observation and review reads.
     After the branch-entry story, entry setup is gone; the Done review,
     attribution, declared publication and lifecycle deletion cases still take

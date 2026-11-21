@@ -15,78 +15,80 @@ import {
   launchRetentionDays,
   type LaunchRecord,
 } from "../../src/launchRecord.ts";
-import { daysAgo } from "../../test-support/machineLaunchRecords.ts";
+import { keep, minutesAgo, source } from "../support/doneCaptureCase.ts";
 import {
-  aCheckout,
-  type Checkout,
-  keep,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+  aDoneCaptureCase,
+  type Refinement,
+} from "../support/doneCaptureCaseBuilder.ts";
+
+const days = (count: number) => count * 24 * 60;
+// Launched and worked in before the retention window, so expiry can apply.
+const launched = days(launchRetentionDays + 3);
+const workedAt = minutesAgo(days(launchRetentionDays + 2));
 
 const removals = {
   deletion: {
-    doneAt: minutesAgo(10),
+    done: 10,
     remove: async (record: LaunchRecord) => {
       expect(await deleteRecord(source, record.session)).toBe(true);
     },
   },
   expiry: {
-    doneAt: daysAgo(launchRetentionDays + 1),
+    done: days(launchRetentionDays + 1),
     remove: async () => {
       await replaceRecords((kept) => kept, retireExpiredRecords);
     },
   },
 };
 
-function keepingRun(
-  checkout: Checkout,
-  repository: string,
-  sessionId: string,
-  revision: string,
-  doneAt: string,
-) {
-  return makeMe.aLaunchRecord
-    .establishedOnMainOf(checkout)
-    .inClaudeSession({ sessionId })
-    .launchedAt(daysAgo(launchRetentionDays + 3))
-    .keptSessionCommits({
+// The record kept the comparison of the case's `commit` at Done and, when
+// `landed`, the landing captured from it.
+const keepingRun =
+  <Work extends string>(
+    commit: Work,
+    { landed = false } = {},
+  ): Refinement<Work> =>
+  (launch, { checkout, work }) => {
+    const repository = path.join(checkout.integration, ".git");
+    const revision = work[commit];
+    const kept = launch.keptSessionCommits({
       repository,
       runs: [{ base: checkout.base, revision }],
-    })
-    .markedDoneAt(doneAt);
-}
+    });
+    return landed
+      ? kept.withCapturedLanding(
+          makeMe.aLaunchLanding
+            .capturedFrom({ repository })
+            .forLaunch(randomUUID())
+            .comparing({ base: checkout.base, revision })
+            .please(),
+        )
+      : kept;
+  };
 
-async function recordKeepingPins(
-  checkout: Checkout,
-  repository: string,
-  sessionId: string,
-  revision: string,
-  doneAt: string,
-) {
-  const landing = makeMe.aLaunchLanding
-    .capturedFrom({ repository })
-    .forLaunch(randomUUID())
-    .comparing({ base: checkout.base, revision })
-    .please();
-  const record = keepingRun(checkout, repository, sessionId, revision, doneAt)
-    .withCapturedLanding(landing)
-    .please();
+// Pins the record's session and landing pairs the way its Done left them.
+async function pinsOf(record: LaunchRecord) {
+  const { session, sessionCommits, landing } = record;
+  const run = sessionCommits?.runs[0];
+  if (
+    sessionCommits === undefined ||
+    run === undefined ||
+    landing === undefined
+  )
+    throw new Error("Missing the kept comparison or captured landing.");
+  const { repository } = sessionCommits;
+  const { base, revision } = run;
   const prefixes = [
-    `refs/open-dough/session-commits/${record.session.host}/${sessionId}/0/`,
+    `refs/open-dough/session-commits/${session.host}/${session.sessionId}/0/`,
     `refs/open-dough/one-shot/${landing.reference}/${landing.delivery}/`,
   ];
   const pins: string[] = [];
   for (const prefix of prefixes) {
-    await git(repository, "update-ref", `${prefix}base`, checkout.base);
+    await git(repository, "update-ref", `${prefix}base`, base);
     await git(repository, "update-ref", `${prefix}revision`, revision);
-    pins.push(
-      `${prefix}base ${checkout.base}`,
-      `${prefix}revision ${revision}`,
-    );
+    pins.push(`${prefix}base ${base}`, `${prefix}revision ${revision}`);
   }
-  return { record, pins };
+  return pins;
 }
 
 async function refs(repository: string) {
@@ -108,63 +110,56 @@ async function storedSessionIds() {
   );
 }
 
-for (const [reason, { doneAt, remove }] of Object.entries(removals)) {
+for (const [reason, { done, remove }] of Object.entries(removals)) {
   test(`${reason} releases only the leaving record's session and landing pins`, async () => {
-    const checkout = await aCheckout();
-    const { first, second } = await work(
+    const {
       checkout,
-      makeMe.aCheckoutWork
-        .committing("first", { at: daysAgo(launchRetentionDays + 2) })
-        .committing("second", { at: daysAgo(launchRetentionDays + 2) }),
-    );
+      records: { leaving, staying },
+    } = await aDoneCaptureCase()
+      .withWork(
+        makeMe.aCheckoutWork
+          .committing("first", { at: workedAt })
+          .committing("second", { at: workedAt }),
+      )
+      .withEstablishedSession(
+        "leaving",
+        { launched, done },
+        keepingRun("first", { landed: true }),
+      )
+      .withEstablishedSession(
+        "staying",
+        { launched, done: 10 },
+        keepingRun("second", { landed: true }),
+      )
+      .please();
     const repository = path.join(checkout.integration, ".git");
     const beforePins = await refs(repository);
-    const leaving = await recordKeepingPins(
-      checkout,
-      repository,
-      "leaving",
-      first,
-      doneAt,
-    );
-    const staying = await recordKeepingPins(
-      checkout,
-      repository,
-      "staying",
-      second,
-      minutesAgo(10),
-    );
-    keep(leaving.record, staying.record);
+    const leavingPins = await pinsOf(leaving);
+    const stayingPins = await pinsOf(staying);
+    keep(leaving, staying);
     expect(await storedSessionIds()).toEqual(["leaving", "staying"]);
     expect(await refs(repository)).toEqual(
-      [...beforePins, ...leaving.pins, ...staying.pins].sort(),
+      [...beforePins, ...leavingPins, ...stayingPins].sort(),
     );
 
-    await remove(leaving.record);
+    await remove(leaving);
 
     expect(await refs(repository)).toEqual(
-      [...beforePins, ...staying.pins].sort(),
+      [...beforePins, ...stayingPins].sort(),
     );
     expect(await storedSessionIds()).toEqual(["staying"]);
   });
 
   test(`${reason} removes a record whose saved repository is gone`, async () => {
-    const checkout = await aCheckout();
-    const { kept } = await work(
+    const {
       checkout,
-      makeMe.aCheckoutWork.committing("kept", {
-        at: daysAgo(launchRetentionDays + 2),
-      }),
-    );
-    const repository = path.join(checkout.integration, ".git");
-    const record = keepingRun(
-      checkout,
-      repository,
-      "leaving",
-      kept,
-      doneAt,
-    ).please();
+      records: { leaving: record },
+    } = await aDoneCaptureCase()
+      .withWork(makeMe.aCheckoutWork.committing("kept", { at: workedAt }))
+      .withEstablishedSession("leaving", { launched, done }, keepingRun("kept"))
+      .please();
     keep(record);
-    rmSync(repository, { recursive: true });
+    rmSync(path.join(checkout.integration, ".git"), { recursive: true });
     expect(await storedSessionIds()).toEqual(["leaving"]);
 
     await remove(record);

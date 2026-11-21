@@ -63,7 +63,9 @@ declared branch is a MakeMe launch record entered at the entry
 capture helpers below.
 
 [`ad-hoc-session-commits-done.spec.ts`](review/ad-hoc-session-commits-done.spec.ts)
-calls typed completion delivery and Done marks and reads the saved session.
+and
+[`ad-hoc-session-quiet-done-receipts.spec.ts`](review/ad-hoc-session-quiet-done-receipts.spec.ts)
+call typed completion delivery and Done marks and read the saved session.
 [`ad-hoc-session-commits-pending-done.spec.ts`](review/ad-hoc-session-commits-pending-done.spec.ts)
 checks stale review and capture at the resolved Git tip.
 [`kept-commits-release.spec.ts`](review/kept-commits-release.spec.ts) calls the
@@ -71,10 +73,12 @@ kept-record store for deletion and expiry, and
 [`default-launch-start-facts.spec.ts`](review/default-launch-start-facts.spec.ts)
 reads the start from the Default main checkout.
 
-The Done capture family arranges each case through
-[`doneCaptureCase.ts`](support/doneCaptureCase.ts): a checkout whose history
-predates the case, the stereotype launches and dated `makeMe.aCheckoutWork`.
-State work times with `minutesAgo`, after the launch (60) and before Done (10).
+The Done capture family states each case as one value from
+[`aDoneCaptureCase()`](support/doneCaptureCaseBuilder.ts): a checkout whose
+history predates the case, its named launches with their times, and dated
+`makeMe.aCheckoutWork`, in minutes before the case's clock (`at`). Its
+machine-store effects, such as `keep` and `markDone`, stay in
+[`doneCaptureCase.ts`](support/doneCaptureCase.ts).
 Compose the Done state: a review case builds an already-Done record over the
 work's real commits with `makeMe.aLaunchRecord` steps such as
 `.keptSessionCommits(...)`, `.branchResultFrom(...)` or their `…FailedAt`

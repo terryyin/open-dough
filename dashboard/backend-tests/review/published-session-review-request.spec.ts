@@ -23,7 +23,7 @@ import {
   storyReviewFileEndpoint,
 } from "../../src/storyReviewContract.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
-import { aCheckout } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const published = { source: "open-dough", published: randomUUID() };
 const file = { baseline: "a".repeat(40), tree: "b".repeat(40), path: "a.txt" };
@@ -86,7 +86,7 @@ const originMain = async (cwd: string) =>
 // A checkout whose last-fetched origin/main holds a session record while the
 // bare origin has already advanced past that revision.
 async function aFetchedPublishedSession() {
-  const checkout = await aCheckout({ withOrigin: true });
+  const { checkout } = await aDoneCaptureCase().withOrigin().please();
   const repository = checkout.integration;
   const candidate = await commitDeclaredRevision(repository, {
     files: { "notes.md": "edited\n" },

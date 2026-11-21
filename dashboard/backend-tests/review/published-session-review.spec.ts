@@ -12,7 +12,7 @@ import { sessionRecordRelativePath } from "../../../Distribution/src/skills/doug
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
-import { aCheckout } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const recordPath = (sessionId: string) =>
   posix.join(posix.dirname(backlogPath), sessionRecordRelativePath(sessionId));
@@ -20,7 +20,7 @@ const recordPath = (sessionId: string) =>
 // A checkout whose trunk published a session's edit, its close record, and a
 // later unrelated revision.
 async function aPublishedSession(range?: { base: string; candidate: string }) {
-  const checkout = await aCheckout();
+  const { checkout } = await aDoneCaptureCase().please();
   const repository = checkout.integration;
   const candidate = await commitDeclaredRevision(repository, {
     files: { "notes.md": "edited\n" },

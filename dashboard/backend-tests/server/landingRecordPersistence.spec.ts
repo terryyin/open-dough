@@ -18,40 +18,72 @@ import {
   keptLaunchRecords,
   keptLaunchStore,
 } from "../../test-support/support/launchStore.ts";
-import {
-  aCheckoutWithCanonicalWorktree,
-  inWorktree,
-  keep,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { keepAttempt } from "../../server/launchAttemptStore.ts";
+import { keep, minutesAgo, source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
-import { aReportedIsolatedBranch } from "../support/reportedIsolatedBranch.ts";
 
-// The retained landing a blank launch declared, kept alone in the store.
-async function aDeclaredLanding(branch: string) {
-  const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
-  const record = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .withDeclaredLanding({
-      repository: checkout.gitDirectory,
-      workspace,
-      branch,
-      committedTip: checkout.base,
-      origin: dashboardOrigin,
-    })
+const reference = "11111111-0000-4000-8000-000000000745";
+const reporting = { origin: dashboardOrigin, reference, command: "report" };
+
+// The case's isolated launch on `branch`, kept alone in the store, reporting
+// its landing through the attempt the dashboard accepted for it.
+async function aReportedIsolatedLanding<Branch extends string>(branch: Branch) {
+  const { checkout, worktrees, records, performWork } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace(branch)
+    .withIsolatedLaunch("isolated-launch", { launched: 60 }, branch, (launch) =>
+      launch.reportingThrough(reporting),
+    )
     .please();
-  return { checkout, workspace, record, home: keep(record) };
+  const workspace = worktrees[branch];
+  const record = records["isolated-launch"];
+  const home = keep(record);
+  await keepAttempt(
+    makeMe.anAcceptedAttempt
+      .reportingFor(record)
+      .landingIn(
+        makeMe.aLandingAuthority
+          .ofRepository(checkout.gitDirectory)
+          .inWorktree({ workspace, branch })
+          .please(),
+      )
+      .please(),
+  );
+  return { checkout, workspace, record, reference, home, performWork };
+}
+
+// The case's Default main launch that declared its landing from `branch`,
+// kept alone in the store.
+async function aDeclaredLanding<Branch extends string>(branch: Branch) {
+  const { checkout, worktrees, records, performWork } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace(branch)
+    .withDefaultMainLaunch(
+      "default-launch",
+      { launched: 60 },
+      (launch, { checkout, worktrees }) =>
+        launch.withDeclaredLanding({
+          repository: checkout.gitDirectory,
+          workspace: worktrees[branch] ?? "",
+          branch,
+          committedTip: checkout.base,
+          origin: dashboardOrigin,
+        }),
+    )
+    .please();
+  const record = records["default-launch"];
+  const workspace = worktrees[branch];
+  return { checkout, workspace, record, home: keep(record), performWork };
 }
 
 test.each(["retained", "attempt"] as const)(
   "the %s landing keeps the creation and sessions outside its write",
   async (path) => {
     const branch = "landing-draft";
-    const { checkout, workspace, record, home } =
+    const { checkout, workspace, record, home, performWork } =
       path === "attempt"
-        ? await aReportedIsolatedBranch(branch)
+        ? await aReportedIsolatedLanding(branch)
         : await aDeclaredLanding(branch);
     const { base } = checkout;
     const reference = landingReportingReference(record);
@@ -77,9 +109,9 @@ test.each(["retained", "attempt"] as const)(
       .markedDoneAt("2020-01-01T00:00:00.000Z")
       .please();
     keepMoreLaunchRecords(home, [creation, other, agedOut]);
-    const { draft: revision } = await work(
-      inWorktree(checkout, workspace),
-      makeMe.aCheckoutWork.committing("draft", { at: minutesAgo(30) }),
+    const { draft: revision } = await performWork(
+      (at) => makeMe.aCheckoutWork.committing("draft", { at: at(30) }),
+      { in: branch },
     );
     const submission = makeMe.aLandingSubmission
       .forLaunch({ reference })
@@ -136,7 +168,7 @@ test.each(["retained", "attempt"] as const)(
 
 test("a late prepare keeps the preparations already saved by the next prepare", async () => {
   const { checkout, record, reference } =
-    await aReportedIsolatedBranch("delayed-prepare");
+    await aReportedIsolatedLanding("delayed-prepare");
   const { base } = checkout;
   const submission = () =>
     makeMe.aLandingSubmission
@@ -168,7 +200,7 @@ test("a late prepare keeps the preparations already saved by the next prepare", 
 
 test("a late prepare leaves a replacement launch's record untouched", async () => {
   const { checkout, record, reference, home } =
-    await aReportedIsolatedBranch("replaced-launch");
+    await aReportedIsolatedLanding("replaced-launch");
   const { base } = checkout;
   const submission = makeMe.aLandingSubmission
     .forLaunch({ reference })
