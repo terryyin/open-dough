@@ -154,7 +154,7 @@ its pull; its cost belongs to the optimization story.
 ### 3. A declaring launch names its worktrees in MakeMe
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use named worktrees with the established Default main case and explicit
 entry facts. Move the four setup helpers out of the branch-entry spec by
@@ -168,6 +168,15 @@ attribution and ref observations. Inspect the branch-entry spec for zero
 local setup helpers and at most one case-builder binding (`aDoneCaptureCase`)
 from the case support.
 
+**Accepted.** The case builder gained `withBaseFiles`, typed named
+`withWorkspace`, dated `withWork((at) => ..., { in })`, `kept()` and
+`withDeclaringLaunch` (through `makeMe.aLaunchRecord.ofDeclaringDefaultMainLaunch`);
+`please()` returns `published`, `at`, `worktrees` and `performWork`; `doneCaptureCasePlaces.ts` reads worktree paths as Git registers
+them. The branch-entry, attribution and proposal specs import nothing from
+`doneCaptureCase.ts`. The builder is 233 lines: slices 4–8 split it by launch
+flavor before adding steps. Cursor recovery moved to slice 4 (G5), which adds
+isolated launches.
+
 ### 4. Isolated launch cases show the recorded and working branch state
 
 Type: Behavior
@@ -179,7 +188,7 @@ prove them. Move setup verbs out of scope as their last caller migrates.
 Diagnose and repair the `ad-hoc-branch-result-race` timeout recorded in the
 premise table before accepting this slice.
 
-**Proof.** Run `ad-hoc-branch-attribution`, `ad-hoc-branch-result`,
+**Proof.** Run `ad-hoc-branch-cursor-recovery` (G5), `ad-hoc-branch-attribution`, `ad-hoc-branch-result`,
 `ad-hoc-branch-result-supersession`, `ad-hoc-branch-result-race` and
 `ad-hoc-branch-worktree-result`. Keep ambiguity, empty/missing, retirement,
 supersession, quiet-Done precedence and pin observations.
@@ -292,7 +301,7 @@ Disposition: proved by slice 2: evidence/ci-repair1-backend.log ran the 35-spec 
 ### G2. Long one-worker roster runs time out `ad-hoc-branch-entry-attribution` at 5 s
 Reported: slice 1 — "s1-backend-consumers2: 5 s timeout in ad-hoc-branch-entry-attribution under concurrent load; passes alone."
 Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: evidence/s3-consumers.log and s3-final.log, run with no concurrent suite, measured the two attribution cases at 1601–1764 ms (load 10–12.5, 16 cores), about a third of the default limit, across two samples; the reported timeout occurred only while a Distribution suite ran concurrently
 
 ### G3. Long one-worker roster runs time out `ad-hoc-branch-result` and `ad-hoc-branch-worktree-result` at 5 s
 Reported: slice 1 — "s1-backend-consumers3, run alone at load 12–17: 119/121 passed; the two timeouts were ad-hoc-branch-result.spec.ts:87 and :194; ad-hoc-branch-worktree-result also timed out in s1-backend-consumers2."
@@ -303,3 +312,8 @@ Disposition: receiving slice 4
 Reported: slice 1 — "s1-backend-consumers2: 5 s timeout in ad-hoc-session-comparisons under concurrent load; passes alone."
 Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
 Disposition: receiving slice 6
+
+### G5. `ad-hoc-branch-cursor-recovery` still arranges its own isolated Cursor launches (first reported in slice 3)
+Reported: slice 3 — "ad-hoc-branch-cursor-recovery.spec.ts (224 lines): not moved; the builder needs an isolated Cursor launch on a named worktree and a Cursor-session refinement of the Default main launch first."
+Story clause: "Remove arrangements and redundant verbs from `doneCaptureCase.ts`, `declaredPublisherBranch.ts`, `reportedIsolatedBranch.ts`, `reportedDoneCase.ts` and the specs."
+Disposition: receiving slice 4

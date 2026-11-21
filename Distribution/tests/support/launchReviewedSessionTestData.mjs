@@ -132,6 +132,26 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   }
 
   /**
+   * A Default main launch in the `claude` session `session` that identified
+   * the worktree `workspace` on `branch`, then holding the checkout's base
+   * `tree`, as its own branch, witnessing trunk at that base.
+   * @param {string} session
+   * @param {{ integration: string, base: string, gitDirectory: string }} checkout
+   * @param {{ workspace: string, branch: string, tree: string }} worktree
+   */
+  ofDeclaringDefaultMainLaunch(session, checkout, { workspace, branch, tree }) {
+    const { base, gitDirectory } = checkout;
+    return this.ofDefaultMainLaunch(session, checkout).enteredBranch({
+      repository: gitDirectory,
+      workspace,
+      branch,
+      committedTip: base,
+      tree,
+      trunk: { remote: "origin", target: "refs/heads/main", revision: base },
+    });
+  }
+
+  /**
    * An ad hoc session in the `claude` session `session` established in the
    * Default main checkout at `revision` (its `base` by default), for review.
    * @param {string} session
