@@ -20,52 +20,62 @@ A developer should be able to find what a session contributed from any machine w
 {"schemaVersion":1,"identity":"SEED-418#attribute-every-workflow-session-record","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session record contract and Dashboard reader","rationale":"Every workflow's record extends the published record format, its publication path and the Dashboard reader that the standalone story establishes; defining them twice would split one contract.","condition":"A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.","state":"waiting","resolution":{"revision":"2d82175d5ba4b7cdaba48cfa8312cfa261de4816","path":".planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes","summary":"Still waiting. The record contract, publishSessionClose and the Dashboard published-record reader are delivered and proved by E2E with a real publishSessionClose record, but the retrospective found that no real Land reaches publishSessionClose: native starts have no session UUID source and the Dashboard-launched route never names it. Next action: deliver SEED-418#correct-published-session-review (plan 746) slice 2, then re-judge on the next visit.\nCondition remains unresolved: A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.\nAccepted integration: 8be1d19835f1448ceb5a70342bf35fe122739408 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/747-attribute-every-workflow-session-record/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement after the 2026-11-21 resplit from SEED-418#review-published-session-changes; plan 747 holds provisional slices only."],"basis":{"document":"11d676856e1669611abb2cac1d8ccf56bee8ff1e000537359b8fed7f7597e5f2","plan":"3a25c8e126548175674560106fc4964ce3912928262bee13f7f32ba749d0ed01"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/747-attribute-every-workflow-session-record/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6b15d2208ffdb8bb2c0e5e076a4c66afd981027ab356b598f5dc97e8e9bc76e2","plan":"fc8fce64e1756f4cdb7a02e783b0a0752b8366228ae972ce5b3a638240483260"}}
 ```
 
 Split on 2026-11-21 from `SEED-418#review-published-session-changes` at its
 delivered slice boundary. That story keeps the standalone outcome and supplies
 the published record contract and its Dashboard reader.
 
-**Goal.** Every publishing session, not just a standalone Land, leaves a
-faithful published record of what it contributed. A stable UUID lets later
-story reviews and follow-ups refer to the same published contribution.
+**Goal.** A developer on another machine can review what an individual
+publishing session contributed. Its UUID identifies the same contribution
+across repeated refinements, execution increments, and later story follow-ups.
 
-**Scope.** When Land or Story Wrap-up closes a refinement, execution or ad hoc
-story follow-up session, publish its record in the published contract. Record
-the story identity when associated, and the commits or exact comparison ranges
-attributable to its published work, including earlier publications on trunk or
-a story branch. A retry preserves the UUID and original close time. Record
-multiple ranges when intervening work makes an enclosing range inaccurate.
-Mark the affected ranges when a shared checkout makes attribution uncertain.
-Use accepted Git evidence so work left locally and unsuccessful push attempts
-stay outside the published comparison.
+**Scope.** Extend the standalone Land record to publishing sessions closed
+through Land or Story Wrap-up, including refinement, execution, standalone
+ad hoc work, and ad hoc story follow-ups. Use the launch UUID when supplied
+and retain a session UUID for native starts. Publish one record with the
+workflow, original close time, story identity when associated, and ordered
+comparisons for that session's accepted work. Include earlier accepted trunk
+and story-branch work when its comparison becomes reachable from trunk.
+Exclude intervening contributions, unsuccessful push attempts, unpublished
+edits, and the record's own publication. When shared-checkout evidence cannot
+distinguish individual contributions, mark the affected ranges and show the
+uncertainty in the review. A close retry keeps the original record and resumes
+its first unfinished step.
 
-Keep records current for 30 days from close. The current review stops offering
-the entry at expiry, and the next authorized session-record publication
-removes expired files from the current snapshot.
+Use the existing published-session review to open and inspect each range for
+a UUID. Keep repository-backed records current until 30 days after close.
+At expiry they leave current review, and the next authorized session-record
+publication prunes their files from the current snapshot. Earlier Git
+snapshots retain them. Story-card session selection, combined comparisons
+across sessions, historical recovery, and passing a selected UUID into a
+follow-up remain with their linked stories.
 
 **Key examples.**
 
-- An execution publishes twice with another session's trunk change in between.
-  At wrap-up, its UUID resolves both contributions while excluding the
-  intervening change. An earlier story-branch publication still resolves after
-  history-preserving integration and branch retirement. A refinement and a
-  later ad hoc story follow-up each have their own UUID and the associated story
-  identity.
-- Two sessions share a checkout. When one closes, its record identifies which
-  published comparison may contain the other session's work. Retrying a close
-  after an interrupted response yields the same record, with its initial close
-  time and attributable comparisons.
-- At 30 days from close, a repository-backed entry leaves the current review.
-  A later authorized session-record publication prunes its file, and the
-  earlier Git snapshot still holds the original record.
+- An execution publishes two increments with a different writer's change in
+  between, then wraps up. A developer using only another clone opens its
+  UUID and can inspect both contributions. Neither comparison includes the
+  intervening change. In Story Branch Mode, the developer can still read the
+  original branch hashes after integration and retirement without reviewing
+  the same contribution twice.
+- A refinement lands, then an ad hoc follow-up to that story lands. Each
+  UUID resolves its own changes and carries the same story identity. If
+  another session was writing in the follow-up's checkout, the affected
+  comparison discloses the overlap and omits changes received only by pull.
+- Work reaches trunk but the record push fails or loses its response. A
+  retry keeps the UUID, close time and accepted comparisons. The repository
+  ends with one record and one publication of the work.
+- Just before 30 days a record is available to review. At 30 days it leaves
+  current review. The next authorized close removes its file while preserving
+  live records and the expired record's earlier Git snapshot.
 
-**Architecture.** Follow the
-original story’s architecture (`2d82175d5:.planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes`): records
-come from accepted publication evidence, launch state stays on the originating
-machine, and a UUID with readable Git endpoints remains sufficient after
-workspace retirement.
+**Architecture.** [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+places durable attribution in the repository. Assemble records from accepted
+publication evidence. Keep launch state, conversations, workspace paths and
+native controls on the originating machine. The UUID and the published
+repository are sufficient to review the comparisons.
 
 <a id="select-a-story-session-for-review"></a>
 
