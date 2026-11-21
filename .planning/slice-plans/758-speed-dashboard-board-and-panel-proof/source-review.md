@@ -21,12 +21,12 @@ with SEED-341.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| P01 | With the Side panel open and room for two columns, the Board pages from Backlog to Taken. | slice 6 | |
-| P02 | With the Side panel open and room for two columns, the Board pages to Recently done. | slice 6 | |
-| P03 | With the Side panel open and room for two columns, the Board shows whole columns. | slice 6 | |
-| P04 | With the Side panel open and room for two columns, keyboard controls keep focus reachable. | slice 6 | |
-| P05 | With the Side panel open, a wider frame restores the chosen Board position. | slice 6 | |
-| P06 | With the Side panel open, a long hidden column adds no blank scroll tail. | slice 6 | |
+| P01 | With the Side panel open and room for two columns, the Board pages from Backlog to Taken. | slice 6 | observed: board-paging-side-panel.spec.ts, Backlog and Taken initially fit beside the open terminal and native Enter advances the Board |
+| P02 | With the Side panel open and room for two columns, the Board pages to Recently done. | slice 6 | observed: board-paging-side-panel.spec.ts, after one slide Recently done is whole beside Taken with the exact Backlog destination |
+| P03 | With the Side panel open and room for two columns, the Board shows whole columns. | slice 6 | observed: board-paging-side-panel.spec.ts, the split shows equal whole columns and keeps Backlog card share |
+| P04 | With the Side panel open and room for two columns, keyboard controls keep focus reachable. | slice 6 | observed: board-paging-side-panel.spec.ts, native Enter hands focus to the new Backlog control while the terminal remains open |
+| P05 | With the Side panel open, a wider frame restores the chosen Board position. | slice 6 | observed: board-paging-side-panel.spec.ts, widening the same open Terminal from 1728 to 2400 exposes three whole columns and narrowing restores Taken/Recently done |
+| P06 | With the Side panel open, a long hidden column adds no blank scroll tail. | slice 6 | observed: board-paging-side-panel.spec.ts, the hidden long Backlog extends beyond the Board and adds no scroll tail beside the open terminal |
 | P07 | On a phone, a horizontal swipe pages the Board. | slice 2 | observed: board-swipe.spec.ts, native complete swipes visit the next whole column and stop at each end |
 | P08 | On a phone, a horizontal swipe does not activate the touched story. | slice 2 | observed: board-swipe.spec.ts, native swipe from the card and compatibility click leave detail collapsed and selection clear |
 | P09 | On a phone, a horizontal swipe does not activate the touched Start. | slice 2 | observed: board-swipe.spec.ts, native swipe from enabled Start and compatibility click leave no dialog or recorded launch |
@@ -55,9 +55,9 @@ with SEED-341.
 | P32 | An open terminal retains its read state through the relevant sidebar and window layout changes. | slice 5 | observed: e2e/navigation/side-panel-terminal-width.spec.ts, earlier output persists and later typed input and screen output reach that same attachment |
 | P33 | An open Review retains its identity through the relevant sidebar and window layout changes. | slice 5 | observed: side-panel-width-review.spec.ts, same Review heading element and pressed file remain through Maximize, sidebar, cover and widening |
 | P34 | An open Review retains its read state through the relevant sidebar and window layout changes. | slice 5 | observed: side-panel-width-review.spec.ts, selected diff remains readable and typed Review and file-read counts stay fixed through layout changes |
-| P35 | A sidebar session reveal pages to the card when it is off the current Board page, including the hidden or tall case as applicable. | slice 6 | |
-| P36 | A sidebar session reveal brings the hidden card top into view. | slice 6 | |
-| P37 | A sidebar session reveal brings the tall card top into view. | slice 6 | |
+| P35 | A sidebar session reveal pages to the card when it is off the current Board page, including the hidden or tall case as applicable. | slice 6 | observed: board-paging-sessions-sidebar.spec.ts, clicking a real sidebar session pages to its initially hidden Backlog card |
+| P36 | A sidebar session reveal brings the hidden card top into view. | slice 6 | observed: board-paging-sessions-sidebar.spec.ts, the hidden card becomes whole and reachable in its own Board scroll region |
+| P37 | A sidebar session reveal brings the tall card top into view. | slice 6 | observed: board-session-reading.spec.ts, sidebar choice reveals the tall card below the sticky heading beside terminal and after Close at 700×800 and 700×900 |
 | P38 | Perspective switching preserves the intended project on the relevant path. | slice 7 | |
 | P39 | Perspective switching preserves the panel attachment on the relevant path. | slice 7 | |
 | P40 | Perspective switching preserves the selected story on the relevant path. | slice 7 | |
@@ -65,7 +65,7 @@ with SEED-341.
 | P42 | Browser history preserves the panel attachment on the relevant path. | slice 7 | |
 | P43 | Browser history preserves the selected story on the relevant path. | slice 7 | |
 | S01 | Apply shared campaign acceptance to legacy `accessible-board*` navigation specs. | slice 3 | observed: All seven migrated Board reading specs and the earlier phone Vitest cases ran in the 36-case selection; true popup/reload proof ran in E2E |
-| S02 | Apply shared campaign acceptance to legacy `board-*` navigation specs. | slice 6 | |
+| S02 | Apply shared campaign acceptance to legacy `board-*` navigation specs. | slice 6 | observed: The earlier and current named board-* cases run in mounted Chromium, with true page/scrollbar actions in focused E2E |
 | S03 | Apply shared campaign acceptance to legacy `story-card*` navigation specs. | slice 4 | observed: story-card-selection.spec.ts and story-card-dependency-selection.spec.ts exercise actual Board selection, Inspect and dependency disclosure in mounted Chromium; E2E retains supplier-link navigation |
 | S04 | Apply shared campaign acceptance to legacy `side-panel-width*` navigation specs. | slice 5 | observed: Four same-path width specs run mounted Chromium; e2e/navigation/side-panel-kept-width.spec.ts and side-panel-terminal-width.spec.ts cover real storage and terminal attach |
 | S05 | Apply shared campaign acceptance to legacy `development-intent-frame*` navigation specs. | slice 7 | |
@@ -75,7 +75,7 @@ with SEED-341.
 | S09 | Narrow the existing `story-card-scan-emphasis` Vitest spec from its whole-dashboard mount. | slice 4 | observed: story-card-scan-emphasis.spec.ts, all four cases mount StoryCard over typed slice and current/Done session evidence and observe layout, paint and native Tab |
 | S10 | Retain representative real page loads in E2E. | slice 2 | observed: e2e/navigation/phone-board.spec.ts, published work appears after the built dashboard loads and the Board accepts composed touch input |
 | S11 | Retain representative reloads in E2E. | slice 1 | observed: e2e/navigation/board-kept-position.spec.ts, durable position through wide and narrow reloads and fallback after storage refusal |
-| S12 | Retain representative URL destinations in E2E. | slice 6 | |
+| S12 | Retain representative URL destinations in E2E. | slice 6 | observed: e2e/navigation/board-session-destination.spec.ts, real project/story URL focuses the tall card at its reading edge at both viewports |
 | S13 | Retain representative cross-destination history in E2E. | slice 7 | |
 | A01 | Scoped frontend unit checks use plain Vitest. | slice 8 | |
 | A02 | Retire `actSettled` as its test families move. | slice 8 | |

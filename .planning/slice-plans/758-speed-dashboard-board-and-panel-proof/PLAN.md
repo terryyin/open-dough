@@ -202,7 +202,7 @@ refused width choices leave unrelated preferences intact.
 ### 6. Panel, sidebar, and launch actions reveal or preserve the right Board position
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `board-paging-{side-panel,sessions-sidebar,launch-dialog}`,
 `board-scroll-side-panel`, and `board-session-reading` (11). Use
@@ -285,6 +285,12 @@ geometry or focus result.
 Reported: slice 1 — "Acceptance found that substring checks would allow extra words in the older-entries disclosure."
 Story clause: "Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)"
 Disposition: proved by slice 1: board-height.spec.ts checks the full rendered disclosure label for all three expansion steps and when 41 Done entries arrive.
+
+### G2. Recover the Board position while the panel stays open
+
+Reported: slice 6 — "Acceptance found that closing and reopening the terminal did not exercise widening the same split."
+Story clause: "a wider frame recovers the chosen position"
+Disposition: proved by slice 6: board-paging-side-panel.spec.ts widens and narrows the split with the same Terminal and recovers Taken and Recently done.
 
 ## Accepted proof
 
@@ -461,6 +467,8 @@ report is `slice-4-refactor-return.md`.
 
 ### Slice 5
 
+Published on the story branch as `595e3a3fe760e13dbde84fb23a5d6edea797cba8`.
+
 Seven mounted Chromium width cases passed in 6.77 s including preparation.
 The widest shared-mount selection passed 49/49 across 21 paths. The three
 real reload and terminal cases passed in 16.75 s, and dashboard typecheck
@@ -488,3 +496,44 @@ The refactor placed the preference reloads in
 case in `e2e/navigation/side-panel-terminal-width.spec.ts`. All three
 passed after the split, with Playwright reporting 19.9 s. The proof is
 retained in `slice-5-refactor-return.md`.
+
+### Slice 6
+
+Ten mounted Chromium cases carry the eleven legacy cases. The 18-path
+consumer run passed 43/43 in 44.92 s including preparation, with 12.33 summed
+case-seconds for the ten new cases. The two new E2E cases use the direct
+published story URL and a genuine Chromium scrollbar track. Their combined
+run with the two retained composed journeys passed 4/4 in 28.04 s.
+Dashboard typecheck passed. The additional native viewport change while
+the same Terminal remains open passed both focused cases in 4.97 s.
+Literal proof and the prior case map are retained in `slice-6-return.md`.
+
+| Original case | Current proof |
+| --- | --- |
+| `board-paging-side-panel.spec.ts` — beside the side panel a 54rem Board shows two columns and pages between them; a wider Board shows all three and gives the view back | First mounted test, “the Side panel leaves two whole columns, hands off paging focus, and restores the wider Board's choice.” Real 108rem frame has three columns first; opening genuine Terminal measures half the Board, shows the visible pair with exact control and retained card share. Native Enter gives the next pair and one slide, surviving focus and zero hidden-long-column tail. With the same Terminal still open, widening the viewport shows three whole columns and restoring the viewport recovers the chosen pair. Close and reopen also recover the original wide and chosen split arrangements. |
+| `board-paging-side-panel.spec.ts` — paged back to Backlog beside the side panel, a session started from the ready Backlog card stays on its card, adds nothing to Recently done, and the view stays | Second mounted test, “starting a ready Backlog story beside the terminal keeps the view and its session on the card.” Actual paging to Taken/Recently done and Backlog/Taken, same Terminal heading, real execution dialog and its Start calls the typed acceptance with the ready identity and workflow, observed running record renders on that card, and Recently done still has zero with the original view. |
+| `board-paging-sessions-sidebar.spec.ts` — a session whose story card is hidden shows its column and brings the card into view | “a Session sidebar choice pages to a hidden column and brings its card into the Board's reading room.” The real open sidebar can page away from Backlog. Its button opens the actual terminal for the matching session, takes terminal keyboard focus, scrolls the correct whole card with smooth request, and marks it as selected and shown. Banner, sidebar and Side panel top bars share both edges. Reading to the Board's bottom reaches the last whole card and the column's full extent. The allowed one-line sidebar/panel titles still belong to their composed navigation proof. |
+| `board-paging-launch-dialog.spec.ts` — opening and leaving Start execution on a shown Taken card keeps the view on Taken and Recently done | Same exact case title in mounted Chromium with typed kept-start evidence and real sidebar. Opening the real Claude execution dialog takes focus and preserves the current two-column view; Escape closes without changing the view. Remounting the real Board/PageFrame reads the same stored paging and sidebar choices, visibly recovers the pair and labels. The true browser reload of the same kept Board position is in `e2e/navigation/board-kept-position.spec.ts`; no standalone launch acceptance is asserted in this case. |
+| `board-scroll-side-panel.spec.ts` — the Board alone scrolls with an open Side panel at 1400×420 | Same mounted title. The actual Review is open beside the long published Board. Native wheel moves the story by 600 px while the measured panel, banner and region positions and stationary document remain. Region starts under the banner and ends directly at the panel edge, uses overflow auto and an actual 15 px gutter, and its edge hit test cannot target the divider. Maximize hides the banner, Restore returns the exact prior geometry and scroll position, and native divider drag changes width by the intended amount and keeps the document still. `e2e/navigation/board-scrollbar-side-panel.spec.ts` adds the native visible track click with Chromium's scrollbar launch option, same split and long Board, real selected session terminal, stationary panel/Board bounds and one actual fake-host attachment. |
+| `board-scroll-side-panel.spec.ts` — the Board alone scrolls with an open Side panel at 700×800 | “the Board alone scrolls after Close from a covering Side panel at 700×800.” Real Review covers the whole viewport with the Board and banner hidden. Close exposes banner, paging returns Backlog, native wheel reads the long Backlog while the document stays still. |
+| `board-session-reading.spec.ts` — URL and Session entry reveal a tall card's top within the Board at 1400×360 | Mounted “a sidebar session reveals the tall card's sticky reading edge beside a terminal through height changes” uses actual sidebar, focused Terminal, real inspected card taller than its viewport, same top at initial and two height resizes and stationary document. True URL, real focused card, sticky clearance, taller-than-room condition and height resizes are in the new URL E2E. |
+| `board-session-reading.spec.ts` — URL and Session entry reveal a tall card's top within the Board at 700×800 | True URL and height-only changes on that actual viewport are in the same URL E2E. Mounted 700×800 covering case opens the Terminal from the actual sidebar, closes it and observes the selected tall card's sticky reading edge. |
+| `board-session-reading.spec.ts` — the Session entry reveals the same story on the Board after Close at 700×800 | Mounted 700×800 tall case. Sidebar dismisses into a real covering terminal and its keyboard, Close restores the same highlighted story and sticky edge, returns focus to Sessions and leaves the document still. |
+| `board-session-reading.spec.ts` — the Session entry reveals the same story on the Board after Close at 700×900 | Separate mounted 700×900 case observes the same tall-card conditions and focus return at that viewport. |
+| `board-session-reading.spec.ts` — the Session entry reveals the same story on the Board after Close at 700×1600 | Separate mounted 700×1600 case leaves the goal closed so the story card fits whole, verifies both fit precondition and whole room, plus retained actual selection, Sessions focus return and stationary document. |
+
+The full five-path frontend replacement is 10 mounted cases. Two independent new E2E
+cases carry the real URL and native track actions. The two former 700×800 journeys
+share the one mounted cover check while the URL case retains the actual document
+navigation and both viewport variants. The retained
+`e2e/navigation/side-panel-content-switching.spec.ts` observes actual Review/Terminal
+replacement and their independent story selection/title access. The retained
+`e2e/sessions/sessions-sidebar-navigation.spec.ts` observes actual cross-project
+session activation, attachment identity, reveal, history, selected story and focus
+return. Both retained cases ran under the combined proof.
+
+BoardView now shares the classic scrollbar setup and width measurement
+between the real reload and track cases. Both new E2E journeys use named
+setup, actions and observations. The three affected E2E files passed all
+four cases in 19.84 s, and dashboard typecheck passed. The retained report
+is `slice-6-refactor-return.md`.

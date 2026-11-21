@@ -2,6 +2,7 @@ import { expect, onTestFinished, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewSource } from "../../src/reviewSource.ts";
+import type { WorkEntry } from "../../src/publishedWork.ts";
 import { browserSession } from "../review/browser-session.ts";
 import { reviewFiles } from "../review/story-review-files-view.ts";
 import { reviewSourceAnswering } from "../review/story-review-panel-page.ts";
@@ -52,7 +53,10 @@ export async function openReview() {
     .toBeVisible();
 }
 
-export async function mountWidthReview(viewport = wide) {
+export async function mountWidthReview(
+  viewport = wide,
+  backlog: readonly WorkEntry[] = [],
+) {
   const snapshot = makeMe.aStoryReview
     .adding("story.txt")
     .modifying("unstaged.txt")
@@ -73,7 +77,7 @@ export async function mountWidthReview(viewport = wide) {
       );
     });
   const frame = await mountBoard(
-    [boardWork([], { taken: [reviewed] })],
+    [boardWork(backlog, { taken: [reviewed] })],
     viewport,
     { records, launched: records },
     reviewSourceAnswering({ review, fileDiff }),
@@ -86,7 +90,7 @@ export async function mountWidthReview(viewport = wide) {
     )
     .toBeInTheDocument();
   await openReview();
-  return { ...frame, review, fileDiff };
+  return { ...frame, review, fileDiff, story: reviewed };
 }
 
 export function measured() {

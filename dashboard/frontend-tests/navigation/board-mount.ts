@@ -131,11 +131,15 @@ export async function mountBoard(
   projects: readonly PublishedWork[],
   viewport: { width: number; height: number },
   observed: Partial<
-    Pick<MachineSessions, "records" | "launched" | "start">
+    Pick<
+      MachineSessions,
+      "records" | "launched" | "start" | "keptStartOf" | "sessionPolicyOffer"
+    >
   > = {},
   reviews?: ReviewSource,
 ) {
-  const sessions = { ...noSessions, ...observed };
+  let sessions = { ...noSessions, ...observed };
+  let work = projects;
   const notes = new Map(
     projects.map(({ source }) => [
       source.id,
@@ -148,15 +152,16 @@ export async function mountBoard(
       projects: next,
       sessions,
     });
-    if (reviews === undefined) return board;
+    const launched = createElement(LaunchesOnPage, {
+      value: sessions,
+      children: board,
+    });
+    if (reviews === undefined) return launched;
     return createElement(ReviewSourceOnPage, {
       value: reviews,
-      children: createElement(LaunchesOnPage, {
-        value: sessions,
-        children: createElement(StoryNotesOnPage, {
-          value: notes,
-          children: board,
-        }),
+      children: createElement(StoryNotesOnPage, {
+        value: notes,
+        children: launched,
       }),
     });
   };
@@ -166,7 +171,12 @@ export async function mountBoard(
   });
   return {
     supply: (next: readonly PublishedWork[]) => {
+      work = next;
       rerender(reading(next));
+    },
+    supplySessions: (records: NonNullable<MachineSessions["records"]>) => {
+      sessions = { ...sessions, records, launched: records };
+      rerender(reading(work));
     },
     restart: (key: number) => {
       rerender(reading(projects, key));

@@ -4,11 +4,13 @@ import {
   largeBacklogRepository,
   queuedTitles,
 } from "../../dashboard/test-support/accessibleBoard.ts";
-import { boardView } from "../../dashboard/test-support/boardView.ts";
+import {
+  boardView,
+  classicBoardScrollbarLaunchOptions,
+} from "../../dashboard/test-support/boardView.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { watchPageErrors } from "../../dashboard/test-support/pageErrors.ts";
-import { dashboardBrowserArgs } from "../../dashboard/test-support/support/browserArgs.ts";
 
 const twoColumnViewport = { width: 864, height: 800 };
 const backlogPagingLabel = `Backlog ${queuedTitles.length} entries`;
@@ -17,10 +19,7 @@ const classicScrollbarWidth = 15;
 test.use({
   viewport: twoColumnViewport,
   reducedMotion: "reduce",
-  launchOptions: {
-    args: dashboardBrowserArgs,
-    ignoreDefaultArgs: ["--hide-scrollbars"],
-  },
+  launchOptions: classicBoardScrollbarLaunchOptions,
 });
 
 async function openPublishedBoard(
@@ -45,18 +44,7 @@ test("reload restores the chosen Board position even when all three columns fit 
   afterGitHubStops,
 }) => {
   await test.step("Given this browser reserves room for the classic Board scrollbar", async () => {
-    await page.addInitScript((width) => {
-      document.addEventListener(
-        "DOMContentLoaded",
-        () => {
-          const track = document.head.appendChild(
-            document.createElement("style"),
-          );
-          track.textContent = `.board-scroll::-webkit-scrollbar { width: ${width}px; }`;
-        },
-        { once: true },
-      );
-    }, classicScrollbarWidth);
+    await boardView(page).useClassicScrollbar(classicScrollbarWidth);
   });
   const board =
     await test.step("And a published Board showing Backlog and Taken", async () => {
@@ -96,14 +84,7 @@ test("reload restores the chosen Board position even when all three columns fit 
   });
   await test.step("Then the scrollbar leaves room for the chosen pair", async () => {
     await expect
-      .poll(() =>
-        board
-          .scrollRegion()
-          .evaluate(
-            (region) =>
-              region.getBoundingClientRect().width - region.clientWidth,
-          ),
-      )
+      .poll(() => board.scrollbarWidth())
       .toBeGreaterThanOrEqual(classicScrollbarWidth);
     await board.shows(["Taken", "Recently done"], [backlogPagingLabel]);
   });

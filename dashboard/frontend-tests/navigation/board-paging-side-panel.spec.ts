@@ -1,95 +1,158 @@
-// The Board's own width decides how many Board Columns show, so the side
-// panel opening and closing pages them as a window would: beside it a 54rem
-// Board shows two columns and a column paging control naming the hidden one,
-// a move slides the view, and the chosen position comes back where the width
-// allows it; a session started beside the panel leaves the view and the
-// Recently done count as they were. How a narrow window pages the columns is
-// ./board-paging.spec.ts; that an active story's open session stays out of
-// Recently done beside its matching done card is
-// ../sessions/recently-done-active-story-sessions.spec.ts.
-
+import { expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import type { MachineSessions } from "../../src/agentLaunches.ts";
 import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
+  mountBoard,
+  reducedBoardMotion,
+  withBoardStorage,
+} from "./board-mount.ts";
+import { boardReading as board, columns } from "./board-reading-page.ts";
 import {
-  takenStoryWorking,
-  takenStoryWorkingSession,
-} from "../../test-support/support/frontendCardSessions.ts";
-import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
-import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
-import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
-import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
-import { readyStory } from "../../test-support/launchJourney.ts";
-import { columns, rem } from "../../test-support/boardPage.ts";
+  answerTerminal,
+  backlogCard,
+  closeTerminal,
+  machineWorking,
+  openRecord,
+  terminal,
+} from "./board-session-view.ts";
+import { withWidthStorage } from "./side-panel-width-view.ts";
+import { boardWork, longBacklog, story } from "./board-work.ts";
 
-// A 108rem window, which the side panel leaves a 54rem Board.
-test.use({ viewport: { width: 108 * rem, height: 900 } });
+const wide = { width: 1728, height: 900 };
+const taken = story("Read the running story", 59);
+const ready = story("Run the ready story", 8, {
+  preparation: {
+    status: "recorded",
+    refinement: "refined",
+    approach: { kind: "planless" },
+    assessment: { status: "ready", changedSinceReview: false, reasons: [] },
+  },
+  dependencies: { status: "not-recorded", entries: [], blocking: [] },
+});
+const running = openRecord(taken);
 
-test("beside the side panel a 54rem Board shows two columns and pages between them; a wider Board shows all three and gives the view back", async ({
-  page,
-  frontendServices,
-}) => {
-  await takenStoryWorkingSession(page, frontendServices);
-  const board = await openFrontendTakenBacklog(page);
-  await board.countSlides();
+async function openTaken() {
+  const action = board
+    .column("Taken")
+    .getByRole("button", { name: "Open terminal", exact: true });
+  await expect.element(action).toBeInTheDocument();
+  const control = action.element();
+  if (!(control instanceof HTMLElement))
+    throw new Error("Expected a terminal control.");
+  control.focus();
+  await userEvent.keyboard("{Enter}");
+  await expect
+    .element(terminal.getByRole("heading", { name: taken.title, exact: true }))
+    .toBeVisible();
+}
 
-  await test.step("a 108rem Board shows all three and no column paging control", async () => {
-    await board.shows(columns, []);
-  });
+test("the Side panel leaves two whole columns, hands off paging focus, and restores the wider Board's choice", async () => {
+  withBoardStorage("0");
+  withWidthStorage();
+  answerTerminal();
+  await mountBoard(
+    [boardWork(longBacklog, { taken: [taken] })],
+    wide,
+    machineWorking(running),
+  );
+  await board.shows(columns, []);
+  const slides = board.observeSlides();
+  await openTaken();
+  await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
+  expect(board.room().width).toBeCloseTo(wide.width / 2, 0);
 
-  const terminal =
-    await test.step("the side panel opens, leaving 54rem: Backlog and Taken fill the Board, and the right control names Recently done", async () => {
-      const terminal = await board.openTakenStoryTerminal();
-      expect(await board.width()).toBeCloseTo(54 * rem, 0);
-      await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
-      await board.keepsStoryCardShare(2);
-      return terminal;
-    });
+  const first = board.column("Backlog").getByRole("article").first().element();
+  const available = board.width();
+  const unpagedShare = (available - 2 * 24 - 16) / 2 - 2 * (16 + 1);
+  expect(first.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+    unpagedShare - 0.5,
+  );
+  const right = board.control("Recently done").element();
+  if (!(right instanceof HTMLElement))
+    throw new Error("Expected a paging button.");
+  right.focus();
+  await userEvent.keyboard("{Enter}");
+  await board.shows(
+    ["Taken", "Recently done"],
+    [`Backlog ${longBacklog.length} entries`],
+  );
+  await expect.element(board.control("Backlog")).toHaveFocus();
+  expect(board.inReadingRoom(board.control("Backlog").element())).toBe(true);
+  expect(slides).toHaveLength(1);
+  const last = board.column("Backlog").getByRole("article").last().element();
+  await expect
+    .poll(() => board.endOf(last) - board.extent())
+    .toBeGreaterThan(48);
+  await board.endsWith(["Taken", "Recently done"]);
 
-  await test.step("the right control shows Taken and Recently done, with a slide, and the left control names Backlog", async () => {
-    await board.pageTo("Recently done");
-    await board.shows(["Taken", "Recently done"], ["Backlog 2 entries"]);
-    expect(await board.slides()).toBe(1);
-  });
+  const opened = terminal.element();
+  await page.viewport(2400, wide.height);
+  await board.shows(columns, []);
+  expect(board.width()).toBeGreaterThanOrEqual(72 * 16);
+  expect(terminal.element()).toBe(opened);
+  await page.viewport(wide.width, wide.height);
+  await board.shows(
+    ["Taken", "Recently done"],
+    [`Backlog ${longBacklog.length} entries`],
+  );
+  expect(terminal.element()).toBe(opened);
 
-  await test.step("the side panel closes: all three show and both controls go", async () => {
-    const closed = await terminal.close({ using: "mouse" });
-    await closed.showsNoTerminal();
-    await closed.shows(columns, []);
-  });
-
-  await test.step("the side panel reopens: Taken and Recently done show again", async () => {
-    await board.openTakenStoryTerminal();
-    await board.shows(["Taken", "Recently done"], ["Backlog 2 entries"]);
-  });
+  await closeTerminal();
+  await board.shows(columns, []);
+  await openTaken();
+  await board.shows(
+    ["Taken", "Recently done"],
+    [`Backlog ${longBacklog.length} entries`],
+  );
 });
 
-test("paged back to Backlog beside the side panel, a session started from the ready Backlog card stays on its card, adds nothing to Recently done, and the view stays", async ({
-  page,
-  frontendServices,
-}) => {
-  await takenStoryWorkingSession(page, frontendServices);
-  // The start's attempt, whose machine answers keep the Taken story's
-  // working session.
-  const attempt = frontendAttempt(frontendServices, (answer) =>
-    answer.observing(takenStoryWorking()),
+test("starting a ready Backlog story beside the terminal keeps the view and its session on the card", async () => {
+  withBoardStorage("0");
+  withWidthStorage();
+  await reducedBoardMotion();
+  answerTerminal();
+  const accept = vi.fn<MachineSessions["start"]>().mockResolvedValue(true);
+  const mounted = await mountBoard(
+    [
+      boardWork([ready, story("Read another backlog card", 15)], {
+        taken: [taken],
+      }),
+    ],
+    wide,
+    {
+      ...machineWorking(running),
+      start: accept,
+      sessionPolicyOffer: () => "unavailable",
+    },
   );
-  const boundary = await installFrontendLaunchBoundary(page, {
-    accept: attempt.accept,
-  });
-  const board = await openFrontendTakenBacklog(page);
-  await board.openTakenStoryTerminal();
-  await board.pageTo("Recently done");
-  await board.pageTo("Backlog");
+  await openTaken();
+  await board.control("Recently done").click();
+  await board.shows(["Taken", "Recently done"], ["Backlog 2 entries"]);
+  await board.control("Backlog").click();
   await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
 
-  await board.startExecution(readyStory);
-  attempt.launch(frontendStoryLaunch("executing", readyStory).please());
-  await boundary.tellChanged();
-  await untilPageRequestsAnswered(page);
-
-  await board.showsBacklogCardSessions(readyStory, 1);
+  const card = backlogCard(ready.title);
+  await card
+    .getByRole("button", { name: "Start execution", exact: true })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Start execution in Claude Code" })
+    .getByRole("button", { name: "Start", exact: true })
+    .click();
+  expect(accept).toHaveBeenCalledWith(
+    "open-dough",
+    expect.objectContaining({ identity: ready.identity }),
+    "execution",
+    expect.anything(),
+    expect.any(Function),
+  );
+  const started = machineWorking(running, openRecord(ready));
+  mounted.supplySessions(started.records);
+  await expect
+    .element(card.getByRole("list", { name: "Sessions" }).getByRole("article"))
+    .toBeVisible();
   await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
+  await expect
+    .element(terminal.getByRole("heading", { name: taken.title, exact: true }))
+    .toBeVisible();
 });
