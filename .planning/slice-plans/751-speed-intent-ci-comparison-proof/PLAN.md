@@ -281,6 +281,18 @@ runs including preparation under load 12–24 took 68.1 s and 50.9 s before and
 comparison specs took 47.05 s. The slowest remaining case is the drill-down
 relative reading at about 1–1.4 s.
 
+## Execution complete
+
+Product advice: no change to priorities. The comparison family now runs as
+48 Vitest cases through `IntentCiReadSourceOnPage` and the colocated
+`intent-ci-comparison-page.ts`, `intent-ci-evidence-page.tsx`
+(`StoryCiEvidence`) and `intent-ci-scope-page.tsx` owners. The queued
+[evidence and timing story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing)
+can reuse them for Summary, status and history cases. When it moves live
+Proof cases, it should route `useIntentCiShownProof.ts`'s proof reading
+through the same read source. The legacy Playwright helpers still used by the
+`intent-summary-story-comparison-*` specs retire with that story.
+
 ## Plan review
 
 Refinement pass unnecessary after review of the eight proof boundaries.
