@@ -317,3 +317,16 @@ Built-app per-case JSON needs `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
 Reported: slice 6 — "Add note only appears after the Done record's body has been read ... over HTTP (readDoneRecordBodiesAt). No production context carries the body."
 Story clause: "Remove a case only where an E2E journey proves the same thing, and name that journey."
 Disposition: proved by slice 6: e2e/review/story-review-diff-add-note.spec.ts "Published diff file and line notes show and keep their immutable context" opens the published Done Story A from Recently done and adds file and line notes; the mounted notes cases reach Add note through a Taken entry
+
+## Execution complete
+
+Product advice: no change to priorities. For the remaining frontend families:
+- Mounted Review cases still take about 0.6 s each, against the seed's
+  150 ms budget; the divider drag (2.8 s) and the first details mount
+  (2.4 s) cost most. Record per-case mounted time and prefer the narrowest
+  owner.
+- `LaunchesOnPage` makes a mounted panel supply an inert `MachineSessions`
+  of about 30 members, while Follow up reads only `records`. A Done record's
+  body is read over HTTP, so a mounted case cannot reach Add note through a
+  Done record (G1). A typed source for either, following
+  `ReviewSourceOnPage`, is worth a story only when a later family needs it.
