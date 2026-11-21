@@ -8,11 +8,20 @@ import { boardView } from "../../dashboard/test-support/boardView.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { watchPageErrors } from "../../dashboard/test-support/pageErrors.ts";
+import { dashboardBrowserArgs } from "../../dashboard/test-support/support/browserArgs.ts";
 
 const twoColumnViewport = { width: 864, height: 800 };
 const backlogPagingLabel = `Backlog ${queuedTitles.length} entries`;
+const classicScrollbarWidth = 15;
 
-test.use({ viewport: twoColumnViewport, reducedMotion: "reduce" });
+test.use({
+  viewport: twoColumnViewport,
+  reducedMotion: "reduce",
+  launchOptions: {
+    args: dashboardBrowserArgs,
+    ignoreDefaultArgs: ["--hide-scrollbars"],
+  },
+});
 
 async function openPublishedBoard(
   page: Page,
@@ -35,8 +44,22 @@ test("reload restores the chosen Board position even when all three columns fit 
   page,
   afterGitHubStops,
 }) => {
+  await test.step("Given this browser reserves room for the classic Board scrollbar", async () => {
+    await page.addInitScript((width) => {
+      document.addEventListener(
+        "DOMContentLoaded",
+        () => {
+          const track = document.head.appendChild(
+            document.createElement("style"),
+          );
+          track.textContent = `.board-scroll::-webkit-scrollbar { width: ${width}px; }`;
+        },
+        { once: true },
+      );
+    }, classicScrollbarWidth);
+  });
   const board =
-    await test.step("Given a published Board showing Backlog and Taken", async () => {
+    await test.step("And a published Board showing Backlog and Taken", async () => {
       const opened = await openPublishedBoard(page, afterGitHubStops);
       await opened.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
       return opened;
@@ -65,10 +88,35 @@ test("reload restores the chosen Board position even when all three columns fit 
   await test.step("Then all three columns still fit", async () => {
     await board.shows(["Backlog", "Taken", "Recently done"], []);
   });
-  await test.step("When I return the window to its two-column width", async () => {
+  await test.step("When I narrow the window to the three-column boundary with a classic scrollbar", async () => {
+    await page.setViewportSize({
+      width: 1152,
+      height: twoColumnViewport.height,
+    });
+  });
+  await test.step("Then the scrollbar leaves room for the chosen pair", async () => {
+    await expect
+      .poll(() =>
+        board
+          .scrollRegion()
+          .evaluate(
+            (region) =>
+              region.getBoundingClientRect().width - region.clientWidth,
+          ),
+      )
+      .toBeGreaterThanOrEqual(classicScrollbarWidth);
+    await board.shows(["Taken", "Recently done"], [backlogPagingLabel]);
+  });
+  await test.step("When I reload with the classic scrollbar", async () => {
+    await board.reload();
+  });
+  await test.step("Then the chosen pair is still shown", async () => {
+    await board.shows(["Taken", "Recently done"], [backlogPagingLabel]);
+  });
+  await test.step("When I return to the original width", async () => {
     await page.setViewportSize(twoColumnViewport);
   });
-  await test.step("Then the Board recovers my chosen position", async () => {
+  await test.step("Then the chosen pair is still shown at the original width", async () => {
     await board.shows(["Taken", "Recently done"], [backlogPagingLabel]);
   });
   await test.step("When I page back to Backlog", async () => {

@@ -141,7 +141,7 @@ readable and preserve inspection and selection across layout changes.
 ### 3. Published work stays readable through refresh, narrow layout, and native scrolling
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `accessible-board`, `accessible-board-announcements`,
 `accessible-board-keyboard`, `accessible-board-scroll`,
@@ -387,4 +387,39 @@ text, inspected state and focus return. Both controlled checks and all ten
 ordinary phone Board cases passed after the repair. Local proof is retained
 in `slice-2-ci-tablet-repair-return.md`. Refactor disposition is covered by
 the accepted slice 2 pass, which covered the existing rotation case and
-its consumers.
+its consumers. The repair was published as
+`e9687f54fa49a2f25cc80195dba6bda97d9bd082`.
+
+### Slice 3
+
+Thirteen Chromium Vitest cases now cover the published Board, announcements,
+native reading, frame styling, and zoomed layout. Test cases use the production
+observation with typed work and revision answers when ordering matters.
+The fourteen selected frontend paths passed 36/36 in 29.91 s including
+preparation. The slowest current cases were zoomed reflow at 4.08 s, Board
+scroll and reverse Tab at 2.99 s, and keyboard reading at 2.97 s. The four
+real publication and reload cases passed in 8.71 s. Dashboard typecheck
+passed. The real popup and scrollbar-boundary reload stay with their E2E
+journeys. Exact commands and terminal proof are retained in
+`slice-3-return.md` under the checkout's Git proof directory.
+
+| Original title | Maintained replacement and each distinct observation |
+| --- | --- |
+| accessible-board / accessible Board reflows long published work for a narrow window and page zoom | Same title. Three equal whole columns fit a wide frame, align at the top with no extra gap over 24 px, then Backlog and Taken each appear alone in the narrow cases under Direction. Actual line rectangles keep the title, long identity, plan target, external source and unusable source target inside their card. Operate paging and Inspect/Hide at both narrow shapes, and check expected link href versus unavailable text. Direction expands, the short read revision remains available, the document fits horizontally, and the raw production document keeps native browser zoom available. Legacy screenshot capture was descriptive; maintained proof uses the rendered geometry directly. |
+| accessible-board / accessible Board keeps empty groups readable in a narrow window | Same title. Actual empty Backlog and Taken announcements render in their paged columns below the expanded actual no-direction text, fit within their boxes and the document, and preserve announced snapshot revision. The separate existing published-work E2E empty case proves successful empty origin data. |
+| accessible-board-announcements / accessible Board announces reading, the read result, and a failure while focus stays where it is | Same title. First success has exact revision and retrieval datetime, an assistive result taking a one-pixel box, and an empty offered focus notice. Native Tab chooses Settings. B's held typed response triggers a visible exact pending sentence while A still renders; release updates membership and datetime inside the same status node with focus unchanged. A failed check becomes a role alert with the 403 sentence and does not ask for work, leaves one standing empty live status node and does not move focus. |
+| accessible-board-announcements / accessible Board keeps a read problem and the retained work reachable in a narrow window | Same title. Typed work read rejection at a different revision keeps the earlier card. The exact alert is above the Board, contains both timestamps and describes retention. Its published path text fits the alert with no page overflow. Reach both the alert sentence and retained Inspect control by scrolling inside the actual Board while focus stays in Settings. |
+| accessible-board-keyboard / accessible Board is read by keyboard in reading order, with visible focus, and Enter follows a link | Same title. One-by-one native Tab/Shift+Tab verifies Sessions, perspective, Recent stories, project, Settings, Direction, Start session and badge legend before each card's controls in Backlog/Taken order. Both queued executions are disabled with the dependency explanation; refinement is enabled and a Tab stop. No links before inspection or positive Board tab indices; exactly eight programmatic-focus positions; Tab leaves the final stop and the reverse sequence returns. Inspect on Enter then Notes and canonical link are reachable. Each focused control has native focus-visible and the painted outline. Keyboard-generated link activation targets the pinned URL; the actual popup navigation and heading now run in the published-work E2E case. Closing with Enter restores and visibly indicates the original card and removes its links. |
+| accessible-board-scroll / accessible Board reads a backlog longer than one screen by scrolling the Board | Same title. Typed list produces all queued titles; native End takes the actual Board to the previously offscreen last Inspect with priority 16. The sticky heading and count stay in frame, the document stays still, and every native reverse-Tab focus remains readable below that heading until the first card's Inspect. |
+| board-reading-keys / body reading keys use native Board scrolling while focused controls and modal help keep their keys | Same title. Real hook installed by production ConfiguredDashboard. End focuses/reaches the Board bottom; Home returns to zero; PageDown and PageUp move naturally. The focused Inspect retains keyboard ownership. Native modal close focus and scroll position remain after End; Escape returns focus to the badge legend without moving the view or document. |
+| board-reading-keys / native modified reading keys move an unfocused Board and preserve modal and app shortcuts | Same title. Platform-specific modified input first moves a plain native document to End and Home and then the actual otherwise unfocused Board to its extremes. Body focus is explicit when handing the key to production. Modal retains key/focus and scroll, Escape closes it, and Meta+B opens and closes Sessions with the same Board position. |
+| board-scroll / the agent roster scrolls below its stationary banner without scrolling the document | Same title. Actual AgentRoster reads a typed list tied to the shown revision. Native wheel at a visible roster heading scrolls its own region while the banner's entire rectangle and the document stay still. The last member enters that region's viewport. |
+| board-scroll / a classic Board scrollbar's width owns the Column boundary and keeps a saved position | Same title in the mounted suite, plus the extended `e2e/navigation/board-kept-position.spec.ts` normal reload. At 1152 px with a classic 15 px track the production Board inner width is smaller and shows the saved Taken/Done pair, with real preference still one through a remount. The E2E runs with the native scrollbar enabled, attaches its track at document load, measures the reserved width, observes the same whole pair, and reloads the real page at that boundary. It also retains the former all-three-columns and normal-width reload observations. |
+| frame-board-look / the row below the banner and the Board read clearly in the frame's look | Same title. Real ProjectActions renders the exact Start label; Start and Direction have one hidden decorative Lucide mark. Computed composited text contrast for the controls and Board heading/counts meets 4.5:1; Start fill/edge contrast meets 3:1. Named controls fit at 420 px and effective zoom width, document stays inside the viewport, and opening Direction still exposes whole text. |
+| frame-board-look / an empty column and a failed read are said in the frame's look, whole in a narrow window | Same title. Exact empty Backlog wording is visible with measured text contrast. A typed check failure yields the actual named heading, hidden decorative icon, specific 403 and additional paragraphs. All paragraphs and heading fit and meet 4.5:1 at both narrow and zoom shapes. |
+| frame-board-look / no projects configured reads clearly and whole in a narrow window | Same title. The real App reads an empty typed project configuration. The actual heading and guidance meet 4.5:1 and fit, Settings is inside each viewport, and the passive Open Dough mark is named, square, uncropped, high-resolution by named source, on top, and never a control or tab stop. Settings opens with its heading focused and the passive mark in main. Back again shows the expected dashboard and banner mark. Existing built-preview `dashboard/frontend-tests/configuration/system-settings-look.spec.ts`, "settings and its project dialogs fit a 420 pixel window without sideways scrolling", uses `expectProductMark` to check the delivered PNG signature, dimensions and loaded pixels in the Settings placement. The mount covers the unconfigured banner and settings placement; it does not serve production PNG bytes. |
+
+The independent refactor clarified both E2E journeys. All four Chromium cases
+passed again, with Playwright reporting 18.6 s. The mounted proof and
+typecheck still cover their established paths. The retained report is
+`slice-3-refactor-return.md`.

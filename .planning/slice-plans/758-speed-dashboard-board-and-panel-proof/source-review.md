@@ -34,17 +34,17 @@ with SEED-341.
 | P11 | On a phone, tapping an indicator reaches the corresponding swipe destination. | slice 2 | observed: board-indicators.spec.ts, a swipe and hit-tested taps share Board column destinations |
 | P12 | Phone rotation preserves the inspected story. | slice 2 | observed: board-swipe.spec.ts and accessible-board-touch.spec.ts, detail remains expanded through phone rotation and paging |
 | P13 | Phone rotation preserves the separate selection. | slice 2 | observed: board-swipe.spec.ts, native title tap selects independently of Inspect and the selected state remains after rotation |
-| P14 | The Board announces the result of a published-work refresh. | slice 3 | |
-| P15 | The Board announces a published-work read failure. | slice 3 | |
-| P16 | Retained work stays reachable during a published-work refresh. | slice 3 | |
-| P17 | Retained work stays reachable after a published-work read failure. | slice 3 | |
-| P18 | The problem stays reachable after a published-work read failure. | slice 3 | |
-| P19 | The reader retains focus during a published-work refresh. | slice 3 | |
-| P20 | The reader retains focus through a published-work read failure. | slice 3 | |
-| P21 | Keyboard reading keeps links usable. | slice 3 | |
-| P22 | Keyboard reading keeps story controls usable. | slice 3 | |
-| P23 | Zoom keeps links usable. | slice 3 | |
-| P24 | Zoom keeps story controls usable. | slice 3 | |
+| P14 | The Board announces the result of a published-work refresh. | slice 3 | observed: accessible-board-announcements.spec.ts, typed refresh B updates the standing status to B revision and retrieval time |
+| P15 | The Board announces a published-work read failure. | slice 3 | observed: accessible-board-announcements.spec.ts, typed 403 check and 404 work read produce distinct alerts |
+| P16 | Retained work stays reachable during a published-work refresh. | slice 3 | observed: accessible-board-announcements.spec.ts, retained snapshot A card renders during held B and is replaced after release |
+| P17 | Retained work stays reachable after a published-work read failure. | slice 3 | observed: accessible-board-announcements.spec.ts, after typed 404 the earlier card remains and its Inspect is reachable in the Board reading room |
+| P18 | The problem stays reachable after a published-work read failure. | slice 3 | observed: accessible-board-announcements.spec.ts, narrow alert names the missing backlog and remains reachable above the retained Board |
+| P19 | The reader retains focus during a published-work refresh. | slice 3 | observed: accessible-board-announcements.spec.ts, Settings holds focus both during the held refresh and after B appears |
+| P20 | The reader retains focus through a published-work read failure. | slice 3 | observed: accessible-board-announcements.spec.ts, failed check and failed work read preserve Settings focus |
+| P21 | Keyboard reading keeps links usable. | slice 3 | observed: accessible-board-keyboard.spec.ts, native Tabs reach the revealed canonical link; e2e/stories/published-work.spec.ts verifies the pinned popup destination after Enter |
+| P22 | Keyboard reading keeps story controls usable. | slice 3 | observed: accessible-board-keyboard.spec.ts and accessible-board-scroll.spec.ts, native forward/reverse traversal, focused Inspect/Hide and enabled refinement |
+| P23 | Zoom keeps links usable. | slice 3 | observed: accessible-board.spec.ts, long links fit their card and carry the expected hrefs at narrow and equivalent zoom widths |
+| P24 | Zoom keeps story controls usable. | slice 3 | observed: accessible-board.spec.ts, at both widths paging and native Enter leave Inspect, the revealed plan link, and Hide detail usable |
 | P25 | A developer can choose the Side panel width by dragging. | slice 5 | |
 | P26 | A developer can choose the Side panel width by keyboard. | slice 5 | |
 | P27 | Opening the Sessions sidebar after a width choice can constrain or cover the Board as space requires. | slice 5 | |
@@ -64,7 +64,7 @@ with SEED-341.
 | P41 | Browser history preserves the intended project on the relevant path. | slice 7 | |
 | P42 | Browser history preserves the panel attachment on the relevant path. | slice 7 | |
 | P43 | Browser history preserves the selected story on the relevant path. | slice 7 | |
-| S01 | Apply shared campaign acceptance to legacy `accessible-board*` navigation specs. | slice 3 | |
+| S01 | Apply shared campaign acceptance to legacy `accessible-board*` navigation specs. | slice 3 | observed: All seven migrated Board reading specs and the earlier phone Vitest cases ran in the 36-case selection; true popup/reload proof ran in E2E |
 | S02 | Apply shared campaign acceptance to legacy `board-*` navigation specs. | slice 6 | |
 | S03 | Apply shared campaign acceptance to legacy `story-card*` navigation specs. | slice 4 | |
 | S04 | Apply shared campaign acceptance to legacy `side-panel-width*` navigation specs. | slice 5 | |

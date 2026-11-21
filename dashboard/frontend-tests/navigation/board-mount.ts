@@ -18,7 +18,7 @@ const unexpected = () => {
   throw new Error("This Board reading does not operate a session.");
 };
 
-const noSessions: MachineSessions = {
+export const noSessions: MachineSessions = {
   records: [],
   launched: [],
   sessionsSettled: true,
