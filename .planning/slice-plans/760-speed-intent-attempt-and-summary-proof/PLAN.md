@@ -29,19 +29,30 @@ before/after comparison for this 18-file / 49-case cohort (plus the combined
 
 ## Preserved decisions and premises from `plan 752`
 
-- Reuse `IntentCiReadSourceOnPage` (`dashboard/src/intentCiReadSource.ts`) and
-  Node-free `aCiProofEntry`, `aCiProofEvidence`, and `aComparedStory` on
-  `Distribution/tests/support/pageMakeMe.mjs` landed by
-  `SEED-413#speed-intent-proof-and-timing`.
-- Mount `IntentCiProof`, `IntentScopeProofView`, and `IntentFileProofView`
-  with typed evidence, file inventory, overlay paths, and real callbacks;
-  mount the production reading place (`IntentReadingProvider` +
-  `IntentReadingPlaceOfItsOwn`) when sorting, `Show %` preference, or
-  drill-down/return carryover is the proof. Keep colocated helpers in
-  dedicated files without modifying sibling-owned page objects
+- Depend on SEED-413#speed-intent-timing-history-proof, whose Slices 1–3
+  [correct the CI status test entry](../759-speed-intent-timing-history-proof/PLAN.md#correction-of-the-ci-status-test-entry).
+  Read CI through its required typed page-reads entry, never a default-valued
+  context or an optional or defaulted reader. Reuse Node-free `aCiProofEntry`,
+  `aCiProofEvidence` and `aComparedStory` on
+  `Distribution/tests/support/pageMakeMe.mjs`.
+- Render the production composition that owns attempt proof and Summary
+  (the Intent body with its reading place) for a selected scope, fed by
+  typed CI reads. Do not mount `IntentCiProof`, `IntentScopeProofView` or
+  `IntentFileProofView` with props built by calling `ciTargetOf`,
+  `scopeEvidenceOf`, `comparisonProofOf`, `intentStoryOverlay`,
+  `overlayFilesByPath`, `owningLocation` or `filesOfSelection`. Do not wrap
+  them in hand-written ancestor classes. The dark-contrast case before its
+  correction is the counterexample. Mount a view directly only when it
+  stands alone in production with typed props and the case's subject is
+  that view's own presentation. Keep each spec's and helper's production
+  imports to the entry, its typed inputs and stylesheets. Keep colocated
+  helpers in dedicated files without modifying sibling-owned page objects
   (`intent-ci-scope-page.tsx`, `intent-ci-evidence-page.tsx`,
   `intent-done-story-page.tsx`, `intent-browser-page.ts`,
   `intent-candidates-page.ts`, `intent-file-reading-page.ts`).
+- The scratch check below mounted `IntentScopeProofView` over hand-built
+  evidence. It shows the view renders, not that this is the case entry.
+  Refinement re-settles the entry under the decision above.
 - At `42a660a17` on 21 November 2026 (`--workers=2`, `caffeinate -s -i`), a
   scratch Vitest Browser Mode check mounted `IntentScopeProofView` over typed
   comparison evidence, inventory, and explicit sort/preference, verified the
@@ -60,7 +71,7 @@ Capture the 18-file / 49-case legacy baseline at `--workers=2` before
 replacing the first legacy file, and move `intent-ci-proof`,
 `intent-ci-proof-accessibility`, and `intent-ci-proof-grouped-location`
 (3 files, 5 legacy cases) over `IntentCiProof` and `IntentCiEvidenceProvider`
-with `IntentCiReadSourceOnPage`.
+through the typed page-reads entry.
 
 **Proof.** Surviving per-part figures, grouped locations, accessible group and
 row names, and narrow/zoom fit remain readable without redundant live reads.
@@ -72,7 +83,7 @@ Status: planned
 
 Move `intent-summary-ci-proof-gaps`, `intent-summary-ci-proof-kept`,
 `intent-summary-ci-proof-sort`, and `intent-summary-ci-proof-table` (4 files,
-7 legacy cases) over `IntentScopeProofView` and the production reading place.
+7 legacy cases) through the production Intent composition for the selected scope.
 
 **Proof.** Summary reuses kept attempt proof across scope navigation without
 rereading CI, counts outside files once, explains gaps, and sorts cleanly.
@@ -85,8 +96,8 @@ Status: planned
 Move `intent-summary-story-comparison-fallback`,
 `intent-summary-story-comparison-gaps`,
 `intent-summary-story-comparison-outside`, and
-`intent-summary-story-comparison-rows` (4 files, 14 legacy cases) over
-`IntentScopeProofView` and `ciScopeComparison`.
+`intent-summary-story-comparison-rows` (4 files, 14 legacy cases) through
+the production Intent composition with typed comparison reads.
 
 **Proof.** Selected, ancestor, and owning-merge builds stay distinguishable,
 outside rows and fallback counts come from their intended endpoint, and each
@@ -100,7 +111,7 @@ Status: planned
 Move `intent-summary-story-comparison-file`,
 `intent-summary-story-comparison-file-proof-counts`, and
 `intent-summary-story-comparison-presentation-bindings` (3 files, 13 legacy
-cases) over `IntentFileProofView` and the production selection callbacks.
+cases) through the production Intent composition's file drill-down.
 
 **Proof.** Selected and renamed paths receive their own case/file counts and
 timing once, partial/empty evidence states its reason, and drilling into Proof
@@ -114,8 +125,8 @@ Status: planned
 Move `intent-summary-story-comparison-column-sort`,
 `intent-summary-story-comparison-relative`,
 `intent-summary-story-comparison-signed-sort`, and
-`intent-summary-story-comparison-sort` (4 files, 10 legacy cases) over the
-production reading place and table. Remove spent `dashboard/test-support/`
+`intent-summary-story-comparison-sort` (4 files, 10 legacy cases) through the
+production Intent composition. Remove spent `dashboard/test-support/`
 modules whose last consumer migrated, and record the two-worker before/after
 timing and case-disposition comparison.
 

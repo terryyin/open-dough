@@ -483,6 +483,15 @@ Continuing one component at a time would extend the life of both runners.
   answers. Real page loads, URL history and other behavior that requires a
   built dashboard belong in representative E2E journeys. Keep the runner
   and coverage of the backend and E2E groups with their respective owners.
+- Render the production owner at the typed entry production renders it
+  through, with typed sources that production also supplies explicitly.
+  Never build a test copy of a production composition, restate a provider
+  stack, or call private pipeline functions to make a view's props. Make an
+  owner stand alone in production instead. Add a read to a required typed
+  source, never as an optional member, context default or defaulted
+  parameter. A long production import list in a spec or colocated helper
+  is the warning sign; see
+  [the CI status entry correction](../slice-plans/759-speed-intent-timing-history-proof/PLAN.md#correction-of-the-ci-status-test-entry).
 - Follow the [frontend test guidance](../../dashboard/frontend-tests/README.md#which-entry-a-case-uses),
   [Architectural North Star](../NORTH-STAR.md), and
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
@@ -523,7 +532,7 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#speed-intent-timing-history-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/759-speed-intent-timing-history-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"26eb4ccf945f09722b4f02a1d9b454251034f1e6d3af30d4597da5e6bd6176b5","plan":"bee063270af32669136aef22b2e489a3630a02efa0ec00e948d6a06f6ae69a0b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/759-speed-intent-timing-history-proof/PLAN.md","assessment":"not-ready","reasons":["Slice 2 entry unsettled: production PageFrame renders FinalReport (direct fetch) and Terminal (module-level WebSocket attach); choose typed seams for both or typed panel collaborators before Slice 2 (plan review)."],"basis":{"document":"5079b46ca4cada462a8a85e0614e1e56d8eb90f1cd9aef62e3a565142a273ed1","plan":"ae532d579b995ad3264176b4c64a6c13dec738479113ba831574f359da6b4764"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-413#speed-intent-timing-history-proof","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-proof-and-timing","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing"},"implementation":"Wires IntentCiReadSourceOnPage (including optional readHistory) across status, kept-status, proof, history, and comparison reads, exposes Node-free CI proof builders on pageMakeMe.mjs, and lands the narrowed 7-file status split on main.","rationale":"Timing-history slices extend IntentCiReadSourceOnPage with readDoneWallTimeHistory and readScopeHistory and depend on the narrowed SEED-413 split and reconciled IntentCiReadSource contract already being integrated on main rather than diverging on a duplicate seam.","condition":"SEED-413#speed-intent-proof-and-timing has landed its reconciled IntentCiReadSourceOnPage contract, pageMakeMe.mjs CI proof builders, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"3acae51604f0f3960816dc48f093c24688572ed4","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing","summary":"Delivered Slices 1-3 (done) wired IntentCiReadSourceOnPage (including optional readHistory) across status, kept-status, proof, history, and comparison reads in dashboard/src/intentCiReadSource.ts, exposed Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on Distribution/tests/support/pageMakeMe.mjs, and landed the narrowed 7-file status split on main.\nCondition satisfied: SEED-413#speed-intent-proof-and-timing has landed its reconciled IntentCiReadSourceOnPage contract, pageMakeMe.mjs CI proof builders, and narrowed story split on main.\nAccepted integration: 75ab8266d13595ce74344cb9d8c2bf903479d3d9 on origin/refs/heads/main."}}]}
@@ -533,6 +542,13 @@ Continuing one component at a time would extend the life of both runners.
 7-file CI status and cue-contrast Vitest suite, `IntentCiReadSourceOnPage`,
 and `pageMakeMe.mjs` CI proof builders.
 
+- **Correction first.** The retrospective of the split-from story found that
+  its CI status cases render test copies of the page frame and Intent
+  composition. They read through default-valued contexts that production
+  never provides, and production gained test-only reader parameters. Slices
+  1–3 of [plan 759](../slice-plans/759-speed-intent-timing-history-proof/PLAN.md#correction-of-the-ci-status-test-entry)
+  correct that entry for the 7 CI status and cue-contrast files and the
+  seam's comparison consumers before any history move.
 - **Goal.** A dashboard maintainer can quickly check what collected Project
   and Done timing history say across the homepage, location, folder, and file,
   including timing gaps, units, provenance, source identity, and independently
@@ -557,7 +573,10 @@ and `pageMakeMe.mjs` CI proof builders.
   baselines accurately and resolves stand-in builds. Collected scope timing
   keeps case and file units distinct, explains absent, partial, and
   interrupted segments, and preserves keyboard order and narrow-viewport marks.
-- **Evaluation.** All 31 legacy cases across the 19 owned files and the 3
+- **Evaluation.** Production and every case supply Intent, CI and review
+  reads through one required typed entry. No test file re-creates the page
+  frame, provider stacks or private evidence pipelines, and the corrected
+  7-file status selection keeps its recorded speed. All 31 legacy cases across the 19 owned files and the 3
   refreshed Project CI wall-time Vitest specs have a traceable disposition and
   run on Vitest without `act` wrapping. Apply the
   [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
@@ -571,10 +590,10 @@ and `pageMakeMe.mjs` CI proof builders.
 
 **Identity:** SEED-413#speed-intent-attempt-and-summary-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment."],"basis":{"document":"7949e50cb804f5375068912025af0845815a4ab85a051906ea48d4dab5f70fe5","plan":"4912fd1c4a6a0d9ed26d486ae735bd41d2fa9278c39806370e133bb72fcd4f73"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment onto the corrected CI status test entry."],"basis":{"document":"005a3f982ec657217f5fd52b6c542072871a109f1f27416fabd537bfd9cb0e46","plan":"9b5476b60fe36a5a0fc4658dadecfa9de7ecf93de14c990daf5d523268657b3a"}}
 ```
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#speed-intent-attempt-and-summary-proof","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-proof-and-timing","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing"},"implementation":"Wires IntentCiReadSourceOnPage (including readProof, readComparison, and endpoint proof readers) and exposes Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on pageMakeMe.mjs.","rationale":"Attempt-proof and Summary slices mount IntentCiProof, IntentScopeProofView, and IntentFileProofView directly over the pageMakeMe.mjs builders and IntentCiReadSourceOnPage contract delivered by SEED-413#speed-intent-proof-and-timing.","condition":"SEED-413#speed-intent-proof-and-timing has landed its IntentCiReadSourceOnPage contract, Node-free pageMakeMe.mjs CI proof builders, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"3acae51604f0f3960816dc48f093c24688572ed4","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing","summary":"Delivered Slices 1-3 (done) wired IntentCiReadSourceOnPage (including readProof, readComparison, and endpoint proof readers) in dashboard/src/intentCiReadSource.ts, exposed Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on Distribution/tests/support/pageMakeMe.mjs, and landed the narrowed 7-file status split on main.\nCondition satisfied: SEED-413#speed-intent-proof-and-timing has landed its IntentCiReadSourceOnPage contract, Node-free pageMakeMe.mjs CI proof builders, and narrowed story split on main.\nAccepted integration: 75ab8266d13595ce74344cb9d8c2bf903479d3d9 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"identity":"SEED-413#speed-intent-attempt-and-summary-proof","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-proof-and-timing","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing"},"implementation":"Wires IntentCiReadSourceOnPage (including readProof, readComparison, and endpoint proof readers) and exposes Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on pageMakeMe.mjs.","rationale":"Attempt-proof and Summary slices mount IntentCiProof, IntentScopeProofView, and IntentFileProofView directly over the pageMakeMe.mjs builders and IntentCiReadSourceOnPage contract delivered by SEED-413#speed-intent-proof-and-timing.","condition":"SEED-413#speed-intent-proof-and-timing has landed its IntentCiReadSourceOnPage contract, Node-free pageMakeMe.mjs CI proof builders, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"3acae51604f0f3960816dc48f093c24688572ed4","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing","summary":"Delivered Slices 1-3 (done) wired IntentCiReadSourceOnPage (including readProof, readComparison, and endpoint proof readers) in dashboard/src/intentCiReadSource.ts, exposed Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on Distribution/tests/support/pageMakeMe.mjs, and landed the narrowed 7-file status split on main.\nCondition satisfied: SEED-413#speed-intent-proof-and-timing has landed its IntentCiReadSourceOnPage contract, Node-free pageMakeMe.mjs CI proof builders, and narrowed story split on main.\nAccepted integration: 75ab8266d13595ce74344cb9d8c2bf903479d3d9 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-intent-timing-history-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof"},"implementation":"Slices 1–3 of plan 759 replace the default-valued Intent, CI and review read contexts with one required typed page-reads entry that production supplies, remove the test-only defaulted reader parameters, and render the CI status cases through production PageFrame and the production Intent composition.","rationale":"Every attempt-proof and Summary case reads CI and mounts the Intent composition. Starting before the corrected entry lands would either extend the default-valued seam and hand-assembled Summary props that the correction removes, or duplicate the correction inside this story.","condition":"SEED-413#speed-intent-timing-history-proof has landed its Slices 1–3 test-entry correction on main.","state":"waiting"}]}
 ```
 
 **Split from** SEED-413#speed-intent-proof-and-timing at its delivered Slice 3
@@ -594,6 +613,10 @@ boundary alongside [Get fast proof of Intent timing history](#speed-intent-timin
   [Get fast proof of Intent timing history](#speed-intent-timing-history-proof);
   the story-source and location views belong to
   [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading).
+  Cases render the production Intent composition through the typed page-reads
+  entry that [the timing history story](#speed-intent-timing-history-proof)
+  corrects. They do not hand-assemble Summary or Proof props from private
+  evidence pipelines.
 - **Key examples.** The chosen attempt lacks some proof → the homepage and
   Summary identify which evidence survived → sorting, drilling into a file, and
   returning preserve the reading, Show % preference, and units without
