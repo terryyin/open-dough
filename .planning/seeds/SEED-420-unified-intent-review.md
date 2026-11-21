@@ -30,26 +30,88 @@ usable change, independently of the later polish.
 ### Reopen completed ad hoc work and its follow-ups under one identity
 
 **Identity:** SEED-420#review-standalone-done-work
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-420#review-standalone-done-work","dependencies":[{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Published session records for ad hoc Land and ad hoc story follow-ups, carrying the associated story identity","rationale":"The Done story is published with the session's record and read across machines through it. Building it first would define the record's story association and the ad hoc Land publication path twice.","condition":"An ad hoc session's Land and an ad hoc story follow-up's Land each publish a versioned session record on trunk that carries the UUID, close time, comparisons and story identity when associated, and the Dashboard reads it from another clone.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/755-reopen-completed-ad-hoc-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ca95967715c47174aa8d7ecdbf27d7dceb1313c8da50865b723318f01cc2e69e","plan":"593d31baf36cf1ed44907b3e890190e868281ef545c9b52f04e1c2a0e4d45bb5"}}
 ```
 
-A developer can return to ad hoc work after marking it Done, including from
-another machine when the work is published. Create a Done story at Done only
-for an ad hoc session with no existing story. A session that belongs to a
-story keeps that association and the story's current status. Retain the
-original session UUID, close time and published comparisons. Each follow-up
-has its own session UUID under the same story.
+**Goal.** A developer can return to completed ad hoc work as a story, from
+any machine once the work is published. Each ad hoc session marked Done
+with no story gets a new Done story, and the session is attached to it.
+Later follow-ups join that story, so the Board, Recent stories and the
+[shared Intent review](#open-review-in-intent) treat the work like any
+other Done story.
 
-Exercise a repeated Done, a lost response and two writers closing the same
-session. They converge on one story and one original session. Marking a linked
-follow-up Done keeps it under the same story without creating a second card.
-A Done session with no published code can still be found, with the evidence
-gap visible.
-Older standalone records remain readable by their existing references. Tie
-older work to a story only from verified evidence. Preserve local-only close
-semantics and use the workflow's authorized publication path for durable
-records. A conflicting association needs an explicit resolution.
+**Scope.**
+
+- Marking an ad hoc session Done with no story creates a Done story and
+  attaches the session to it. The original session's UUID gives the story's
+  identity, so a repeated Done, a lost response or a second writer closing
+  the same session all reach the same story. The story's title comes from
+  the session. A session that already has a story keeps that association
+  and the story's current status. No new story is created for it.
+- A follow-up started from that Done story gets its own session UUID and
+  belongs to the same story. Marking it Done leaves one card, the story at
+  Done, with the follow-up's session added under it.
+- The session's Land publishes the Done story with that session's record
+  through the workflow's authorized publication path. The Done story
+  follows the same done-record window and catalog as any other Done
+  story. Records carry the original UUID, close time, story identity
+  and published comparisons. Dashboard Done stays local-only: a session
+  marked Done without a published Land has a Done story on this machine
+  only. It appears under Recently done and its review states that there is
+  no published comparison.
+- In Recently done sessions, choosing a new ad hoc Done row selects its
+  Done story, as a linked row does.
+- Standalone records from before this change keep their existing
+  references and still open their own comparison. Attach an older session
+  to a story only when a published record or a launch record names that
+  story. Never infer the association from timing or file overlap. When a
+  session's records name different stories, show the conflict and leave the
+  association for the developer to resolve. Never choose one silently.
+- Extend the Distribution work item identity contract to include this
+  session-derived story identity. Seed allocation and the existing
+  `SEED-NNN#anchor` identities are unchanged.
+
+Out of scope: selecting individual sessions in the review
+([SEED-418](SEED-418-review-published-session-changes.md#select-a-story-session-for-review)),
+the review destination itself, follow-up context choices
+([SEED-415](SEED-415-choose-clear-follow-up-context.md)) and card cues for
+open follow-ups
+([SEED-395](SEED-395-richer-done-follow-up-card-cues.md)). This story also
+does not migrate older standalone records in bulk.
+
+**Key examples.**
+
+- Ad hoc session `A` lands and is marked Done. A Done story named for `A`'s
+  UUID appears with `A` attached. On another clone after fetching, the same
+  story and `A`'s published comparison appear.
+- `A`'s Done is repeated after a lost response, and a quiet completion
+  report and a manual Done race on the same session. One story and one
+  record of `A`, with its original close time, result.
+- Follow up from that story starts session `B` with a new UUID. `B` lands
+  and is marked Done. The Board still shows one Done card, now listing `A`
+  and `B`.
+- A follow-up of a Taken story is marked Done. It stays under that story,
+  the story stays Taken, and no new story is created.
+- Ad hoc session `C` is marked Done without landing. A Done story for `C`
+  appears only on this machine. Its review states that no published
+  comparison exists.
+- A retained standalone record from before the change still opens its own
+  comparison. A session whose records name two different stories shows the
+  conflict instead of choosing one.
+
+**Architecture.** [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+already decides that Done creates a story only for a session with none.
+It also decides that follow-ups keep their own session IDs under that story.
+The durable story is a done record beside the backlog, published with the
+session record that SEED-418's
+[workflow session records](SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record)
+define. This story adds the session-derived identity and the attachment,
+generalizing the current split into linked and standalone Done rows. It does
+not add a third kind of Done row.
 
 **Effort hypothesis:** L, medium confidence. The critical uncertainty is
 reconciling workflow publication and local Done across machines.
