@@ -21,8 +21,8 @@ and Escape. The four built-app frame specs, full-group comparison and
 | S01 | Move `system-settings-usage-average` to plain Vitest cases on mounted Chromium using `SystemSettingsUsage`. (Goal, Scope) | slice 1 | observed: system-settings-usage-average.spec.ts, all five mounted Chromium cases and the Slice 1 case mapping |
 | S02 | Move `system-settings-usage-compare` to the same mounted section. (Goal, Scope) | slice 2 | observed: system-settings-usage-compare.spec.ts, five mounted Chromium replacements at the same path |
 | S03 | Move `system-settings-usage-legend` to the same mounted section. (Goal, Scope) | slice 1 | observed: system-settings-usage-legend.spec.ts, all three mounted Chromium cases and the Slice 1 case mapping |
-| S04 | Move `system-settings-usage-overflow` to the same mounted section. (Goal, Scope) | slice 3 | |
-| S05 | Move `system-settings-usage-spacing` to the same mounted section. (Goal, Scope) | slice 3 | |
+| S04 | Move `system-settings-usage-overflow` to the same mounted section. (Goal, Scope) | slice 3 | observed: system-settings-usage-overflow.spec.ts, three retained titles run on mounted Chromium |
+| S05 | Move `system-settings-usage-spacing` to the same mounted section. (Goal, Scope) | slice 3 | observed: system-settings-usage-spacing.spec.ts, four retained titles run on mounted Chromium |
 | S06 | Move the four existing `system-settings-openai` cases to plain Vitest on mounted Chromium using `OpenAISettings`. (Goal, Scope) | slice 5 | |
 | S07 | Move the two existing `system-settings-terminal-theme` cases to plain Vitest on mounted Chromium using `TerminalThemeSettings`. (Goal, Scope) | slice 6 | |
 | S08 | Move the existing `system-settings-project-management-touch` case to plain Vitest on mounted Chromium using `ProjectsSettings`. (Goal, Scope) | slice 6 | |
@@ -48,7 +48,7 @@ and Escape. The four built-app frame specs, full-group comparison and
 | S25b | Extend the mounted Usage page objects for the chart axis. (Scope) | slice 1 | observed: system-settings-usage-chart-page.ts hasAxis reads rendered ticks in mounted one-million and all-large median cases |
 | S25c | Extend the mounted Usage page objects for the chart legend. (Scope) | slice 1 | observed: system-settings-usage-legend-page.ts showsKeyFor and showsSummarySwatches compare named shapes and computed paint in all mounted legend cases |
 | S25d | Extend the mounted Usage page objects for chart readouts. (Scope) | slice 1 | observed: system-settings-usage-chart-page.ts showsMedianOverflow reads visible, contrasting SVG labels and dated text without task controls in the mounted average cases |
-| S25e | Extend the mounted Usage page objects for chart spacing. (Scope) | slice 3 | |
+| S25e | Extend the mounted Usage page objects for chart spacing. (Scope) | slice 3 | observed: system-settings-usage-spacing-page.ts owns spacing input, focus, axis and median coordinate readings used in the mounted equal-spacing cases |
 | S26a | Mounted OpenAI cases operate their section through a small page object beside the specs. (Scope) | slice 5 | |
 | S26b | Mounted terminal theme cases operate their section through a small page object beside the specs. (Scope) | slice 6 | |
 | S26c | Mounted Projects cases operate their section through a small page object beside the specs. (Scope) | slice 6 | |
@@ -63,29 +63,29 @@ and Escape. The four built-app frame specs, full-group comparison and
 | S34 | Keep the support the remaining specs use. (Scope) | slice 7 | |
 | S35 | The resulting Configuration folder contains only cases that need the page frame. (Goal) | slice 7 | |
 | S36 | Compare the focused selection’s timing before and after the move. (Scope) | slice 7 | |
-| S37 | Retain chart proof in light mode. (Scope) | slice 3 | |
-| S38 | Retain chart proof in dark mode. (Scope) | slice 3 | |
-| S39 | Retain chart proof in narrow windows. (Scope) | slice 3 | |
+| S37 | Retain chart proof in light mode. (Scope) | slice 3 | observed: system-settings-usage-spacing.spec.ts, both narrow layouts run keyboard, touch and fit assertions with CDP light appearance |
+| S38 | Retain chart proof in dark mode. (Scope) | slice 3 | observed: system-settings-usage-spacing.spec.ts, both narrow layouts run keyboard, touch and fit assertions with CDP dark appearance |
+| S39 | Retain chart proof in narrow windows. (Scope) | slice 3 | observed: system-settings-usage-spacing.spec.ts, 390×844 and 420×900 layouts fit in time and equal spacing modes |
 | S40 | Retain chart proof at zoom. (Scope) | slice 1 | observed: system-settings-usage-average.spec.ts 200% zoom case mounts at 640 by 450 and doubleUsageDeviceScale observes DPR 2 before day, clipping, touch detail and focus checks |
 | S41 | Use CDP touch to reach the control in a touch case. (Scope) | slice 6 | |
 | S42 | Drive rotation by changing the mounted viewport. (Scope) | slice 6 | |
 | S43 | Drive reduced-height cases through the mounted viewport. (Scope) | slice 6 | |
-| S44 | Run the moved Usage chart cases over the existing typed `UsageSource`. (Goal, Scope) | slice 3 | |
-| S45 | Supply their typed Token index answers through `makeMe.aTokenIndexAnswer`. (Goal, Scope) | slice 3 | |
-| C01 | The chart shows the 65,000,000 task as a large mark above the axis. (Coincident large tasks) | slice 3 | |
-| C02 | The chart shows the 70,000,000 task as a large mark above the axis. (Coincident large tasks) | slice 3 | |
-| C03 | The axis shows `0`, `25M`, and `50M`. (Coincident large tasks) | slice 3 | |
-| C04 | The note says that every priced task is above 50 million. (Coincident large tasks) | slice 3 | |
-| C05 | Pointer selects the 65,000,000 task. (Coincident large tasks) | slice 3 | |
-| C06 | Pointer selects the 70,000,000 task. (Coincident large tasks) | slice 3 | |
-| C07 | Touch selects the 65,000,000 task. (Coincident large tasks) | slice 3 | |
-| C08 | Touch selects the 70,000,000 task. (Coincident large tasks) | slice 3 | |
-| C09 | Keyboard selects the 65,000,000 task. (Coincident large tasks) | slice 3 | |
-| C10 | Keyboard selects the 70,000,000 task. (Coincident large tasks) | slice 3 | |
-| C11 | The 65,000,000 task’s detail names its value. (Coincident large tasks) | slice 3 | |
-| C12 | The 70,000,000 task’s detail names its value. (Coincident large tasks) | slice 3 | |
-| C13 | The selected partial task’s detail names its partial coverage. (Coincident large tasks) | slice 3 | |
-| C14 | Close returns focus to the selected mark. (Coincident large tasks) | slice 3 | |
+| S44 | Run the moved Usage chart cases over the existing typed `UsageSource`. (Goal, Scope) | slice 3 | observed: All five migrated Usage specs mount the actual SystemSettingsUsage with typed UsageSource replies |
+| S45 | Supply their typed Token index answers through `makeMe.aTokenIndexAnswer`. (Goal, Scope) | slice 3 | observed: All five migrated Usage specs supply the chart replies through pageMakeMe.mjs aTokenIndexAnswer |
+| C01 | The chart shows the 65,000,000 task as a large mark above the axis. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, 65M label, SVG mark and button aligned above top grid row |
+| C02 | The chart shows the 70,000,000 task as a large mark above the axis. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, 70M partial label, SVG mark and button aligned above top grid row with separate mark geometry |
+| C03 | The axis shows `0`, `25M`, and `50M`. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, visible 0/25M/50M vertical ticks |
+| C04 | The note says that every priced task is above 50 million. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, visible every-priced-task-above-50-million note |
+| C05 | Pointer selects the 65,000,000 task. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, pointer reaches the 65M mark and opens its detail |
+| C06 | Pointer selects the 70,000,000 task. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, pointer reaches the separate 70M mark and opens its detail |
+| C07 | Touch selects the 65,000,000 task. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, native CDP touch reaches the 65M mark and opens its detail |
+| C08 | Touch selects the 70,000,000 task. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, native CDP touch reaches the separate 70M mark and opens its detail |
+| C09 | Keyboard selects the 65,000,000 task. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, Enter on the focused 65M mark opens its detail |
+| C10 | Keyboard selects the 70,000,000 task. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, Enter on the separate focused 70M mark opens its detail |
+| C11 | The 65,000,000 task’s detail names its value. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, Token index reads 65,000,000 in detail for each input mode |
+| C12 | The 70,000,000 task’s detail names its value. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, Token index reads 70,000,000 in detail for each input mode |
+| C13 | The selected partial task’s detail names its partial coverage. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, partial detail reads Partial · Worker usage missing for each input mode |
+| C14 | Close returns focus to the selected mark. (Coincident large tasks) | slice 3 | observed: system-settings-usage-overflow.spec.ts, same-day coincident overflow case, all six uses of Close return focus to precisely the mark that opened detail |
 | C15 | Codex and Claude Code share one time axis. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, Nov 3 coincident positions and one-day and five-day intervals |
 | C16 | Codex and Claude Code share one scale. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, level 4,000 marks and one-scale note |
 | C17 | Codex has its own median. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, the named Codex 2,000 summary and rendered median line |

@@ -2,21 +2,10 @@
 // completion order, a tie by tool then task ID, with each tool's median at
 // its own task; readouts and detail keep actual times, and switching it off
 // restores each time position.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  requestedCohort,
-  usageRefreshEndpoint,
-  usageTokenIndexEndpoint,
-  type TokenIndexAnswer,
-  type UsageTool,
-} from "../../src/usageTokenIndex.ts";
-import { narrowWindow } from "../../test-support/accessibleReading.ts";
-import { expect } from "../../test-support/dashboardTest.ts";
-import { test } from "../../test-support/support/frontendApp.ts";
-import { usageChart } from "../../test-support/support/usageChartPage.ts";
-import { usageSpacing } from "../../test-support/support/usageSpacingPage.ts";
-import { visitUsage } from "../../test-support/support/systemSettingsUsagePage.ts";
-import type { Page } from "@playwright/test";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { usageColourScheme } from "./system-settings-usage-browser.ts";
+import { mountUsage } from "./system-settings-usage-page.ts";
 
 const at = (date: number, hour = 12) =>
   new Date(Date.UTC(2026, 10, date, hour)).toISOString();
@@ -55,42 +44,42 @@ const claude = (median = 3_500) =>
         : [{ at: at(4, 13), value: median }],
     );
 
-async function answering(
-  page: Page,
-  answer: (tool: UsageTool) => TokenIndexAnswer,
-) {
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => {
-      const tool =
-        requestedCohort(new URL(route.request().url()).searchParams)?.tool ??
-        "codex";
-      return route.fulfill({ json: answer(tool) });
+function comparing({
+  viewport = { width: 1280, height: 720 },
+  claudeMedian = 3_500,
+}: {
+  readonly viewport?: { readonly width: number; readonly height: number };
+  readonly claudeMedian?: number;
+} = {}) {
+  return mountUsage(
+    {
+      read: (cohort) =>
+        Promise.resolve(
+          (cohort.tool === "claude" ? claude(claudeMedian) : codex())
+            .forCohort(cohort)
+            .please(),
+        ),
+      refresh: () => Promise.resolve(),
     },
+    viewport,
   );
 }
 
 const gaps = (xs: readonly { readonly x: number }[]) =>
   xs.slice(1).map((point, at) => point.x - (xs[at]?.x ?? 0));
 
-test.beforeEach(async ({ page }) => {
-  await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(at(15)));
+});
+afterEach(() => {
+  vi.useRealTimers();
 });
 
-test("equal spacing gives each shown task one slot in completion order across tools, keeps medians on their tasks and actual times, and restores time positions", async ({
-  page,
-}) => {
-  await answering(page, (tool) =>
-    (tool === "claude" ? claude() : codex()).forCohort({ tool }).please(),
-  );
-  await page.route(
-    (url) => url.pathname === usageRefreshEndpoint,
-    (route) =>
-      route.fulfill({ json: { checkedAt: "2026-11-15T11:00:00.000Z" } }),
-  );
-  const usage = await visitUsage(page);
-  const chart = usageChart(page);
-  const spacing = usageSpacing(page);
+test("equal spacing gives each shown task one slot in completion order across tools, keeps medians on their tasks and actual times, and restores time positions", async () => {
+  const usage = await comparing();
+  const { chart } = usage;
+  const { spacing } = chart;
   await usage.showTool("Claude Code", true);
   await usage.showsPoints(inOrder);
   await spacing.showsDateAxis(["Nov 1", "Nov 4", "Nov 9"]);
@@ -123,11 +112,11 @@ test("equal spacing gives each shown task one slot in completion order across to
       (timed[index]?.y ?? 0) - (timed[0]?.y ?? 0),
       1,
     );
-  expect(await spacing.medianX("Codex")).toBeCloseTo(spaced[5]?.x ?? 0, 1);
-  expect(await spacing.medianX("Claude Code")).toBeCloseTo(
-    spaced[2]?.x ?? 0,
-    1,
-  );
+  const [, , claudeMedianTask, , , codexMedianTask] = spaced;
+  if (!claudeMedianTask || !codexMedianTask)
+    throw new Error("Both median tasks must have positions.");
+  await spacing.showsMedianAt("Codex", codexMedianTask.x);
+  await spacing.showsMedianAt("Claude Code", claudeMedianTask.x);
   await usage.showsMedian("2,000", "Codex");
   await usage.showsMedian("3,500", "Claude Code");
 
@@ -156,17 +145,10 @@ test("equal spacing gives each shown task one slot in completion order across to
     expect(point.x).toBeCloseTo(timed[index]?.x ?? 0, 1);
 });
 
-test("an above-scale median stands at its own large task's slot under equal spacing", async ({
-  page,
-}) => {
-  await answering(page, (tool) =>
-    (tool === "claude" ? claude(70_000_000) : codex())
-      .forCohort({ tool })
-      .please(),
-  );
-  const usage = await visitUsage(page);
-  const chart = usageChart(page);
-  const spacing = usageSpacing(page);
+test("an above-scale median stands at its own large task's slot under equal spacing", async () => {
+  const usage = await comparing({ claudeMedian: 70_000_000 });
+  const { chart } = usage;
+  const { spacing } = chart;
   await usage.showTool("Claude Code", true);
   await spacing.space(true);
   await chart.showsMedianOverflow(
@@ -174,28 +156,24 @@ test("an above-scale median stands at its own large task's slot under equal spac
     ["Nov 4 · Claude Code · 10-task rolling median above scale · 70,000,000"],
   );
   const [largeMark] = await chart.markCentres([large]);
-  expect(await spacing.overflowMedianX()).toBeCloseTo(largeMark?.x ?? 0, 1);
+  if (!largeMark) throw new Error("The large task must have a position.");
+  await spacing.showsOverflowMedianAt(largeMark.x);
   await chart.fitsReadingWindow();
 });
 
 for (const [name, viewport] of [
   ["phone", { width: 390, height: 844 }],
-  ["narrowest reading window", narrowWindow],
+  ["narrowest reading window", { width: 420, height: 900 }],
 ] as const) {
-  test.describe(name, () => {
-    test.use({ viewport, hasTouch: true });
-    test("equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll", async ({
-      page,
-    }) => {
-      await answering(page, (tool) =>
-        (tool === "claude" ? claude() : codex()).forCohort({ tool }).please(),
-      );
-      const usage = await visitUsage(page);
-      const chart = usageChart(page);
-      const spacing = usageSpacing(page);
+  describe(name, () => {
+    test("equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll", async () => {
+      const appearance = usageColourScheme();
+      const usage = await comparing({ viewport });
+      const { chart } = usage;
+      const { spacing } = chart;
       await usage.showTool("Claude Code", true);
       for (const colorScheme of ["light", "dark"] as const) {
-        await page.emulateMedia({ colorScheme });
+        await appearance(colorScheme);
         await spacing.space(true, "keyboard");
         await spacing.showsFocusedSpacing();
         await spacing.showsTaskOrderAxis();

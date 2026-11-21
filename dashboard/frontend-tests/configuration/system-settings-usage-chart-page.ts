@@ -10,6 +10,7 @@ import {
 } from "./system-settings-usage-chart-mark.ts";
 import { usageComparedChartView } from "./system-settings-usage-compared-chart-page.ts";
 import { usageLegendView } from "./system-settings-usage-legend-page.ts";
+import { usageSpacingView } from "./system-settings-usage-spacing-page.ts";
 import type { UsageToolName } from "./system-settings-usage-tools-page.ts";
 
 const measured = ":is(circle, polygon).history-chart-point";
@@ -48,6 +49,12 @@ export function usageChartView(
   return {
     ...usageLegendView(trend, marksFor),
     ...usageComparedChartView(trend, drawn, mark, marksFor),
+    spacing: usageSpacingView(
+      trend,
+      drawing,
+      (name) => marksFor(name).median,
+      () => drawn(`${aboveScaleMedian} path`)[0],
+    ),
     medianLines: (name?: UsageToolName) =>
       drawn(
         name === undefined
@@ -116,6 +123,20 @@ export function usageChartView(
       if (first === undefined || second === undefined)
         throw new Error("Two ordinary task dots were not drawn.");
       return Math.abs(centreOf(first).y - centreOf(second).y);
+    },
+    async showsOrdinary(count: number) {
+      await expect.poll(() => drawn(measured)).toHaveLength(count);
+    },
+    async sameDateAsLastOrdinary() {
+      await expect
+        .poll(() => {
+          const [large] = drawn(`${aboveScale} path`);
+          const ordinary = drawn(measured).at(-1);
+          return large && ordinary
+            ? centreOf(large).x - centreOf(ordinary).x
+            : undefined;
+        })
+        .toBeCloseTo(0, 1);
     },
     async showsLarge(readouts: readonly string[], labels: readonly string[]) {
       await expect.poll(() => drawn(aboveScale)).toHaveLength(readouts.length);

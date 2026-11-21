@@ -153,7 +153,7 @@ the same mark shape fails the shape case and is reverted.
 ### 3. Large tasks and equal spacing keep their places
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `-usage-overflow` (3 cases) and `-usage-spacing` (4), selecting by
 pointer, CDP touch and keyboard. Remove both built-app files.

@@ -1,26 +1,32 @@
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageTokenIndexEndpoint } from "../../src/usageTokenIndex.ts";
-import { test, expect } from "../../test-support/support/frontendApp.ts";
-import { visitUsage } from "../../test-support/support/systemSettingsUsagePage.ts";
-import { usageChart } from "../../test-support/support/usageChartPage.ts";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
+import { mountUsage } from "./system-settings-usage-page.ts";
 
-test.use({ hasTouch: true });
-test.beforeEach(async ({ page }) => {
-  await page.clock.install({ time: new Date("2026-11-15T12:00:00.000Z") });
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-15T12:00:00.000Z"));
+});
+afterEach(() => {
+  vi.useRealTimers();
 });
 
-test("large tasks keep actual values and dates without flattening ordinary points", async ({
-  page,
-}) => {
+function readingUsage(answer: () => TokenIndexAnswer) {
+  return mountUsage(
+    {
+      read: () => Promise.resolve(answer()),
+      refresh: () => Promise.resolve(),
+    },
+    { width: 1280, height: 720 },
+  );
+}
+
+test("large tasks keep actual values and dates without flattening ordinary points", async () => {
   let answer = makeMe.aTokenIndexAnswer
     .with({ indexes: [1_000_000, 2_000_000] })
     .please();
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: answer }),
-  );
-  const usage = await visitUsage(page);
-  const chart = usageChart(page);
+  const usage = await readingUsage(() => answer);
+  const { chart } = usage;
   await usage.showsPointCount(2);
   const separation = await chart.ordinarySeparation();
   expect(separation).toBeGreaterThan(40);
@@ -46,9 +52,7 @@ test("large tasks keep actual values and dates without flattening ordinary point
   await usage.showsFact("Token index", "65,000,000");
 });
 
-test("coincident large tasks remain separate by pointer touch and keyboard with partial details and focus return", async ({
-  page,
-}) => {
+test("coincident large tasks remain separate by pointer touch and keyboard with partial details and focus return", async () => {
   const answer = makeMe.aTokenIndexAnswer
     .with({ indexes: [65_000_000, 70_000_000] })
     .withTask(1, {
@@ -56,18 +60,18 @@ test("coincident large tasks remain separate by pointer touch and keyboard with 
       coverage: { kind: "partial", gaps: ["missing-worker-evidence"] },
     })
     .please();
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: answer }),
-  );
-  const usage = await visitUsage(page);
-  const chart = usageChart(page);
+  const usage = await readingUsage(() => answer);
+  const { chart } = usage;
   const readouts = [
     "Nov 1 · Codex · 65,000,000 · Large task above 50 million",
     "Nov 1 · Codex · 70,000,000 · Partial · Large task above 50 million",
   ];
   await chart.showsLarge(readouts, ["65,000,000", "70,000,000 · Partial"]);
-  await chart.coincidentMarks(readouts);
+  const [first, second] = await chart.markCentres(readouts);
+  if (!first || !second)
+    throw new Error("Both large marks must be positioned.");
+  expect(first.x).toBe(second.x);
+  expect(Math.abs(first.y - second.y)).toBeGreaterThanOrEqual(40);
   await chart.hasAxis(["0", "25M", "50M"]);
   await chart.showsNote(
     "No ordinary task points in this period; every priced task is above 50 million.",
@@ -88,18 +92,12 @@ test("coincident large tasks remain separate by pointer touch and keyboard with 
   }
 });
 
-test("exactly fifty million remains ordinary and measured zero keeps an honest scale", async ({
-  page,
-}) => {
+test("exactly fifty million remains ordinary and measured zero keeps an honest scale", async () => {
   let answer = makeMe.aTokenIndexAnswer
     .with({ indexes: [0, 50_000_000, 50_000_001] })
     .please();
-  await page.route(
-    (url) => url.pathname === usageTokenIndexEndpoint,
-    (route) => route.fulfill({ json: answer }),
-  );
-  const usage = await visitUsage(page);
-  const chart = usageChart(page);
+  const usage = await readingUsage(() => answer);
+  const { chart } = usage;
   await usage.showsPointCount(3);
   await chart.showsOrdinary(2);
   await chart.showsLarge(
