@@ -7,7 +7,7 @@
 // drilling down and across Development and back, never on the URL or in
 // storage (SEED-259#scan-intent-ci-summaries key example 2). The proof answer
 // is controlled (../../test-support/support/frontendSummaryCiProof.ts). A story
-// comparison's Summary: ./intent-summary-story-comparison-mounted-sort.spec.ts.
+// comparison's Summary: ./intent-summary-story-comparison-column-sort.spec.ts.
 
 import type { Locator } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";

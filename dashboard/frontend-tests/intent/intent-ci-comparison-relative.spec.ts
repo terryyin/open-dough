@@ -14,8 +14,8 @@ import {
 // to Project Intent (SEED-275#story-intent-tabs). The comparison and each
 // run's proof are canonical endpoint answers
 // (../../test-support/support/frontendIntentComparison.ts); rule variants are
-// intent-ci-comparison-mounted-relative.spec.ts's and
-// intent-summary-story-comparison-mounted-relative.spec.ts's.
+// intent-ci-comparison-relative-scale.spec.ts's and
+// intent-summary-story-comparison-relative.spec.ts's.
 
 import {
   openProjectIntent,

@@ -2,12 +2,12 @@ import { expect, test } from "vitest";
 import type { ReviewedFileText } from "../../src/storyReviewContract.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { diffColorScheme } from "./diffColorScheme.ts";
-import { styledDiffReading } from "./mountedFileDiff.ts";
+import { styledDiffReading } from "./styledDiffReading.ts";
 import {
-  mountedReviewDiff,
+  reviewDiffPage,
   tokenAppearance,
   tokenContrast,
-} from "./mountedReviewDiffPage.ts";
+} from "./reviewDiffPage.ts";
 import { addedLineDiff, printedDiff } from "./styledDiffCases.ts";
 
 test("a modified README heading and fence take distinct token colours while markers and backgrounds stay", async () => {
@@ -31,7 +31,7 @@ test("a modified README heading and fence take distinct token colours while mark
       text,
     }),
   );
-  const diff = mountedReviewDiff();
+  const diff = reviewDiffPage();
   const added = diff.newLine(2);
   const removed = diff.removedLine(2);
   const heading = added.token(/^# Shown$/);
@@ -56,7 +56,7 @@ test("a JSON property name and string value take distinct colours from each othe
   await setColorScheme("dark");
   const code = '{ "shown": "value" }';
   await mountComponent(styledDiffReading(addedLineDiff("config.json", code)));
-  const line = mountedReviewDiff().newLine(1);
+  const line = reviewDiffPage().newLine(1);
   const name = line.token(/^"shown"$/);
   const value = line.token(/^"value"$/);
   const punctuation = line.token(/^:\s*$/);
@@ -98,7 +98,7 @@ test("a removed CSS property and colour value differ and stay readable when appe
       text,
     }),
   );
-  const line = mountedReviewDiff().removedLine(2);
+  const line = reviewDiffPage().removedLine(2);
   const property = line.token(/^--accent$/);
   const value = line.token(/^#ff0000$/);
   await expect.element(property).toBeVisible();

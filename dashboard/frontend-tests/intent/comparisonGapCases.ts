@@ -1,5 +1,5 @@
 import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
-// Endpoint-only gap words; imported by the mounted wording spec.
+// Endpoint-only gap words; imported by the wording spec.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { test, expect } from "../../test-support/support/pageTest.ts";
 import { expectCiComparisonEntryRows } from "../../test-support/support/expectCiComparisonEntryRows.ts";

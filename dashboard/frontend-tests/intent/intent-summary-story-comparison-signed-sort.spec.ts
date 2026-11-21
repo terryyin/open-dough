@@ -15,7 +15,7 @@ import {
   timeMarks,
   percentages,
 } from "../../test-support/support/relativeTimingMarks.ts";
-import { mountedSummarySortExpected } from "../../test-support/support/mountedSummarySortExpected.ts";
+import { summarySortExpected } from "../../test-support/support/summarySortExpected.ts";
 const entry = "dashboard/tests";
 const timed = (path: string, ms: number) =>
   makeMe.aCiProofEntry.at(path).timed(ms).please();
@@ -57,7 +57,7 @@ for (const column of ["Branch", "Landed", "Baseline"] as const) {
     ]);
     await expect(showPercent(summary)).not.toBeChecked();
     const { ascending, descending } =
-      mountedSummarySortExpected[column === "Baseline" ? "baseline" : "signed"];
+      summarySortExpected[column === "Baseline" ? "baseline" : "signed"];
     await renderComparison(story, {
       showPercent: true,
       sort: {

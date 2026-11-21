@@ -86,7 +86,7 @@ function underlineAppearance(mark: Locator, line: Locator) {
   };
 }
 
-export function mountedReviewDiff() {
+export function reviewDiffPage() {
   const reading = page.getByCSS(".story-review-code");
   const revealedBefore = reading.getByRole("list", {
     name: "Omitted lines before the next change",
@@ -103,9 +103,6 @@ export function mountedReviewDiff() {
           `li.story-review-removed[data-old="${String(number)}"]`,
         ),
       ),
-    hunkMarks: (header: string) =>
-      diffMarks(reading.getByRole("list", { name: header, exact: true }))
-        .observations,
     firstToken: () => reading.getByCSS(".source-token").first(),
     scrollTop: () => reading.element().scrollTop,
     openLineMenu: (label: string) =>

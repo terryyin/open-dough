@@ -62,7 +62,7 @@
 - **Boundaries.** Plan 736 owns the observation decision and store split.
   Branch entry, landing store design, launch presets, and timing targets
   for the family stay with their respective stories. Plans
-  [736](../736-observe-done-deliveries-over-typed-records/PLAN.md) and
+  [736](https://github.com/terryyin/open-dough/blob/24864be6360f87cc9fec3dc4333de5361de165eb/.planning/slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md) and
   [742](../742-prove-ad-hoc-review-handoffs/PLAN.md) were Taken at
   `e6cd3a320` and `9889c9925`. Plan 736 owns the observation fixtures,
   the pin setup switch and the timeout repairs for its restart and lifecycle
