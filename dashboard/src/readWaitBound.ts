@@ -108,6 +108,19 @@ export function gapCauseOf(
   return { problem: unreadable };
 }
 
+// A column's gap cause, said after the column's own headline (such as "Done
+// stories could not be read."), keeping the typed meaning recovery keeps.
+export function headedGapCause(
+  headline: string,
+  error: unknown,
+  untilEither: AbortSignal,
+  bound: AbortSignal,
+  reading: string,
+): GapCause {
+  const cause = gapCauseOf(error, untilEither, bound, reading, "");
+  return { ...cause, problem: `${headline} ${cause.problem}`.trimEnd() };
+}
+
 // Runs `read` with a signal that aborts when `signal` does or when the bound
 // passes, whichever comes first; `bound` aborts only when the bound passed.
 export async function withinReadWait<T>(

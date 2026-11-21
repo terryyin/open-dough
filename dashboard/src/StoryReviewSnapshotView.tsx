@@ -32,7 +32,7 @@ import {
   FileRow,
   FileTree,
 } from "./StoryReviewFileTree.tsx";
-import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
+import { isReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import { useProjects } from "./projectList.tsx";
 import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
 import { StoryReviewWorkarea } from "./StoryReviewWorkarea.tsx";
@@ -167,7 +167,7 @@ export function SnapshotView({
       commitsReview={commitsReview}
       committedOnly={committedOnly}
       published={reviewed.completion !== undefined}
-      sessionSubject={isReviewedSessionSubject(reviewed.subject)}
+      sessionSubject={!isReviewedStorySubject(reviewed.subject)}
       sessionCommits={reviewed.reference === undefined}
       branchResult={branchResult}
     />

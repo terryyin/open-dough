@@ -6,6 +6,7 @@ import { ciHistoryAnswerMakeMeProperties } from "./ciHistoryAnswerTestData.mjs";
 import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
 import { intentCiStatusMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
+import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
@@ -20,7 +21,8 @@ import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
  *   import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe &
  *   import("./ciProofTestData.mjs").CiProofMakeMe &
  *   import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe &
- *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & {
+ *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe &
+ *   import("./sessionRecordTestData.mjs").SessionRecordMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
  *     readonly aSessionState: SessionStateBuilder;
@@ -39,6 +41,7 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...ciProofMakeMeProperties(),
   ...intentCiStatusMakeMeProperties(),
   ...publishedReadingMakeMeProperties(),
+  ...sessionRecordMakeMeProperties(),
   aTestOptimizationCandidatesRecord: {
     enumerable: true,
     get() {

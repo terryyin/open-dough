@@ -8,9 +8,12 @@ import type {
   SessionFileRead,
 } from "../src/reviewedFileRead.ts";
 import {
+  isReviewedPublishedSessionSubject,
   isReviewedSessionSubject,
+  isReviewedStorySubject,
   type ReviewedSessionSubject,
   type ReviewedStorySubject,
+  type ReviewedWorkSubject,
 } from "../src/reviewedWorkSubject.ts";
 import type {
   PublishedSessionReviewRead,
@@ -144,10 +147,13 @@ export async function reviewInput(
       kept,
     };
   }
+  // A published subject was answered above; only a story remains.
+  if (!isReviewedStorySubject(subject))
+    throw new RefusedRequest(400, "The review request is malformed.");
   return { read: { ...read, subject } };
 }
 
 const isPublishedRead = (read: {
-  readonly subject: object;
+  readonly subject: ReviewedWorkSubject;
 }): read is PublishedSessionReviewRead | PublishedSessionFileRead =>
-  "published" in read.subject;
+  isReviewedPublishedSessionSubject(read.subject);
