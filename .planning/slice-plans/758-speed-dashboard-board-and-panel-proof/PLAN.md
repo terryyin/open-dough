@@ -342,6 +342,8 @@ without changing the proof boundary. The four focused frontend paths passed
 
 ### Slice 2
 
+Published on the story branch as `71cb524dc5e02173bc88b7bb46bea29d077a041e`.
+
 Ten mounted Chromium cases carry the three Playwright and seven whole-app
 Vitest cases. Native CDP gestures and hit-tested taps prove layout, focus,
 input suppression, and the read position. Explicit compatibility clicks preserve
@@ -375,3 +377,14 @@ The independent refactor consolidated the Done catalog and body fixture, native
 input coordinates, and slide observer. All 23 mounted Board checks passed in
 26.90 s and dashboard typecheck passed. The prior harness and E2E evidence
 still covers their inputs. The retained report is `slice-2-refactor-return.md`.
+
+CI [run 44912294218, attempt 1](https://github.com/terryyin/open-dough/actions/runs/44912294218)
+found the 768 px tablet expectation wrong with a classic scrollbar. A
+controlled 15 px gutter measured 753 px for the Board and reproduced the
+same missing second-column assertion. The repair uses rendered Board width
+against 48rem while retaining the exact geometry, labels, rotation, long
+text, inspected state and focus return. Both controlled checks and all ten
+ordinary phone Board cases passed after the repair. Local proof is retained
+in `slice-2-ci-tablet-repair-return.md`. Refactor disposition is covered by
+the accepted slice 2 pass, which covered the existing rotation case and
+its consumers.

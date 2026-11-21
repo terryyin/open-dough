@@ -153,6 +153,8 @@ test("project and column navigation keep a long story readable and its detail op
     await expect.poll(() => board.inReadingRoom(rendered)).toBe(true);
   }
   const hide = card.getByRole("button", { name: "Hide detail" });
+  const twoColumnWidth =
+    48 * Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
   for (const size of [
     portrait,
     landscape,
@@ -160,7 +162,8 @@ test("project and column navigation keep a long story readable and its detail op
     portrait,
   ]) {
     await page.viewport(size.width, size.height);
-    if (size.width >= 768)
+    // The Board's scrolling content can be narrower than the viewport.
+    if (board.width() >= twoColumnWidth)
       await board.shows(["Taken", "Recently done"], ["Backlog 3 entries"]);
     else
       await board.shows(
