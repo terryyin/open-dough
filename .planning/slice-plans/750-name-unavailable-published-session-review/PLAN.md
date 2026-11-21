@@ -346,7 +346,7 @@ All three backend specs reference the shared path, and the old helper grep is em
 ### 6. A hung fetch answers from the last fetched trunk in production
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.**
 - **Pre-condition:** a checkout whose last fetched trunk lacks the requested
@@ -372,6 +372,9 @@ git grep -n "as ReviewedStorySubject" -- dashboard/server   # none
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
+
+**Accepted proof.** The planned backend selection passed 29 cases. It observes zero fetches for a present UUID, one fetch for an absent UUID, and the expected review refusal from the last fetched trunk after a hung fetch. With the same 500 ms bounds started together the regression instead returned the old “has not fetched” refusal. Restoring deferred fallback creation passed the test. The original story-subject filter resolves to no standalone file. The `review/ad-hoc-review-request` and `review/story-review-file-text-admission` selections supplied direct proof for the affected kept and story adapters.
+The selected published-session and story file-text E2E journeys also passed. Typecheck and the planned spy, elapsed and cast greps passed. No changed test imports Playwright. The correction removes 64 net Dashboard support lines, with nine net lines added only to the MakeMe builder. The two support roots together have 13 fewer lines than before the previous correction. The local gate arguments and sleep guard apply.
 
 ## Local gates
 

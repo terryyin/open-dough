@@ -1,31 +1,25 @@
 // The adapter's read of where a published session record lives: the
 // configured project's checkout at its last fetched trunk, fetching only when
-// that ref or the UUID's record is absent. An unknown project is refused
-// before any Git read.
+// that ref or the UUID's record is absent.
 import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { fetchGitTarget } from "./gitTargetFetch.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { projectFolder } from "./projectFolders.ts";
 import type { PublishedSessionSource } from "./publishedSessionReview.ts";
 
-// Separate bounds so a hung fetch cannot spend the fallback rev-parse budget.
-export type PublishedSessionSourceBounds = {
-  readonly admission: AbortSignal;
-  readonly fetch: AbortSignal;
+type PublishedSessionSourceBounds = {
+  readonly admission: () => AbortSignal;
+  readonly fetch: () => AbortSignal;
 };
 
 async function revisionAtOrigin(
-  source: PublishedSource,
+  ref: string,
   call: GitCall,
 ): Promise<string | undefined> {
   try {
     return (
-      await runGit(
-        ["rev-parse", "--verify", `origin/${source.ref}^{commit}`],
-        call,
-      )
+      await runGit(["rev-parse", "--verify", `origin/${ref}^{commit}`], call)
     ).stdout.trim();
   } catch {
     return undefined;
@@ -33,12 +27,12 @@ async function revisionAtOrigin(
 }
 
 async function recordPresentAt(
-  source: PublishedSource,
+  backlogPath: string,
   revision: string,
   sessionId: string,
   call: GitCall,
 ): Promise<boolean> {
-  const path = sessionRecordPathBeside(source.backlogPath, sessionId);
+  const path = sessionRecordPathBeside(backlogPath, sessionId);
   try {
     await runGit(["cat-file", "-e", `${revision}:${path}`], call);
     return true;
@@ -48,37 +42,41 @@ async function recordPresentAt(
 }
 
 export async function fetchedPublishedSessionSource(
-  source: PublishedSource,
+  repository: string,
+  { ref, backlogPath }: Pick<PublishedSource, "ref" | "backlogPath">,
   sessionId: string,
   bounds: PublishedSessionSourceBounds,
 ): Promise<PublishedSessionSource> {
-  const repository = projectFolder(source).path;
   const admission: GitCall = {
     cwd: repository,
-    signal: bounds.admission,
+    signal: bounds.admission(),
     maxBuffer: 1024 * 1024,
   };
   const at = (revision: string): PublishedSessionSource => ({
     repository,
     revision,
-    backlogPath: source.backlogPath,
+    backlogPath,
   });
-  const current = await revisionAtOrigin(source, admission);
+  const current = await revisionAtOrigin(ref, admission);
   if (
     current !== undefined &&
-    (await recordPresentAt(source, current, sessionId, admission))
+    (await recordPresentAt(backlogPath, current, sessionId, admission))
   )
     return at(current);
 
   try {
-    await fetchGitTarget("origin", source.ref, {
+    await fetchGitTarget("origin", ref, {
       ...admission,
-      signal: bounds.fetch,
+      signal: bounds.fetch(),
     });
   } catch {
     // Unreachable or hung origin: the last fetched trunk still names records.
   }
-  const revision = await revisionAtOrigin(source, admission);
+  // Give the fallback its read budget after the fetch settles.
+  const revision = await revisionAtOrigin(ref, {
+    ...admission,
+    signal: bounds.admission(),
+  });
   if (revision === undefined)
     throw new RefusedRequest(
       404,

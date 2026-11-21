@@ -29,11 +29,11 @@ construction, cast, duplicate case, and test scaffolding.
 | P12 | Done kept launch stands for its publication. | slice 3 | observed: recently-done-published-session-launch.spec.ts checks Done suppression and the published-sessions E2E journey observes its native controls once |
 | P13 | Unavailable listing renders as Recently done gap. | slice 3 | observed: recently-done-read-gaps.spec.ts supplies an unavailable listing and checks its text in the mounted gap |
 | P14 | Missing sessions directory lists empty. | slice 4 | observed: published-session-listing.spec.ts observes the empty listing, and unchanged ghContents maps missing directory 404 to that lister input |
-| P15 | Opening a present UUID does not fetch. | slice 6 | |
+| P15 | Opening a present UUID does not fetch. | slice 6 | observed: published-session-review-request.spec.ts resolves a present record at the older ref and observes zero fetch-bound calls |
 | P16 | Header journeys hold 21. | slice 4 | observed: dashboard-header.spec.ts passed 21 opening reads at four viewports with no further walking reads |
 | P17 | Header journeys hold 6/6. | slice 4 | observed: dashboard-header.spec.ts project switch passed six reads for each of Open Dough and Doughnut |
-| P18 | When fetch hangs to its bound, review answers from last fetched trunk. | slice 6 | |
-| P19 | Published-source fallback has its own budget. | slice 6 | |
+| P18 | When fetch hangs to its bound, review answers from last fetched trunk. | slice 6 | observed: the hung origin regression observes the last fetched revision and the actual review refusal This project published no such session |
+| P19 | Published-source fallback has its own budget. | slice 6 | observed: the equal 500 ms bound regression fails with simultaneous factories and passes when fallback starts after the fetch signal expires |
 | P20 | Producer, `publishedSessionSource.ts`, `publishedSessionReview.ts` and the three backend-spec helpers use a single UUID record-path rule beside the backlog (scope, finding 5, including `.planning/` hardcode). | slice 5 | observed: session-record.mjs owns the shared file and directory path. The real producer publication checks the literal default path, typed listing checks a relocated backlog, and the parity probe checks 10 old POSIX paths |
 | P21 | Listing-gap derivation is proved over typed inputs with production `useRecentlyDone` code in mounted/plain Vitest. | slice 3 | observed: three recently-done-read-gaps.spec.ts cases call recentlyDoneProblems with typed unavailable and listed answers |
 | P22 | Owning list rendering of the gap is proved with production code in mounted/plain Vitest. | slice 3 | observed: recently-done-read-gaps.spec.ts mounts RecentlyDoneReadGaps and observes both paragraphs in order |
@@ -46,9 +46,9 @@ construction, cast, duplicate case, and test scaffolding.
 | P29 | New frontend cases omit `actSettled`. | slice 3 | observed: no actSettled appears in the replacement spec or the new published-gap mount |
 | P30 | New frontend cases omit React `act`. | slice 3 | observed: no React act appears in the changed frontend cases |
 | P31 | No `@playwright/test` additions beyond baseline in `dashboard/frontend-tests/`. | slice 3 | observed: the two changed frontend specs import plain Vitest and the old Playwright listing-gap spec is gone |
-| P32 | No `@playwright/test` additions beyond baseline in `dashboard/backend-tests/`. | slice 6 | |
-| P33 | No `@playwright/test` in new or rewritten cases. | slice 6 | |
-| P34 | Handler unit cases use typed dependencies the handler reads. | slice 6 | |
-| P35 | Handler unit cases omit environments. | slice 6 | |
-| P36 | Handler unit cases omit module spies (finding 6 highlights `projectFolder`). | slice 6 | |
-| P37 | Test support is smaller than before plan 746, with the exact constraint “Test support only shrinks outside MakeMe builders and page objects.” | slice 6 | |
+| P32 | No `@playwright/test` additions beyond baseline in `dashboard/backend-tests/`. | slice 6 | observed: the backend spec diff from the Take adds no Playwright import |
+| P33 | No `@playwright/test` in new or rewritten cases. | slice 6 | observed: the frontend and backend spec diff from the Take adds no Playwright import |
+| P34 | Handler unit cases use typed dependencies the handler reads. | slice 6 | observed: typed source path and bound factories are supplied to the handler, and slice 4 tests supply the listing’s typed lister and blob reader |
+| P35 | Handler unit cases omit environments. | slice 6 | observed: both typed handler tests use direct checkout or in-memory inputs and no application environment wrapper |
+| P36 | Handler unit cases omit module spies (finding 6 highlights `projectFolder`). | slice 6 | observed: old projectFolders spy and elapsed assertions have no hits in the rewritten request spec |
+| P37 | Test support is smaller than before plan 746, with the exact constraint “Test support only shrinks outside MakeMe builders and page objects.” | slice 6 | observed: the Take range removes 64 net Dashboard support lines with only a nine-line MakeMe addition; both support roots are 13 lines smaller than the pre-746 Take overall |
