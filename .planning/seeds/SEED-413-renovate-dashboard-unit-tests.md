@@ -301,53 +301,6 @@ SEED-413#decide-landings-over-typed-attempts-and-records (landed at
   write fix in a scratch edit fails its case. No backend-test support writes
   Done. The decision specs import no data helper from support beyond MakeMe.
 
-<a id="restore-done-capture-proof-after-composed-reviews"></a>
-
-### Restore Done capture proof and focus session Review tests
-
-**Identity:** SEED-413#restore-done-capture-proof-after-composed-reviews
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4a86e7b26b66316ea4d7db66b392daf011d218c52ed55dc44eed64fe47830c50","plan":"5dbeeac03d5719bf3be3522198cbe46a7e41bd2e3bec5a331e439f08f5b7bce2"}}
-```
-
-Correction from the execution retrospective of
-SEED-413#split-done-mark-decision-from-store (story at
-`6250b7399:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md`).
-
-- **Goal.** Dashboard maintainers can change Done capture, persistence, or
-  session Review rules by updating the proof of that behavior. Restore proof
-  of real Git reflogs, shared checkouts, capture through branch entry,
-  prepared receipts, and retention of both branch and delivery evidence.
-  Reduce the number of cases and full Review reads while preserving distinct
-  regression protection.
-- **Scope.** Prove capture and attribution from their own results, writes and
-  races from the saved session and Git pins, and comparison selection and
-  file admission from composed retained evidence. Keep representative reads
-  that establish evidence actually survives retirement or pruning. Resolve
-  the requested session at the production Review boundary and give the
-  comparison and file handlers that session's record. Retire the procedures
-  that imitate Done or route unrelated tests through Review. Branch entry,
-  observation and landing store reads, and the launch preset fold stay with
-  their stories.
-- **Key examples.**
-  - A Default main launch amends work and rebases it onto a pulled trunk
-    commit. The real Git reflog yields the surviving session run. If the
-    launch enters a branch before Default main advances again, its saved
-    Default main capture ends at the recorded entry tip.
-  - Two launches overlap in one Default main checkout. Marking one Done
-    stores its captured run with the shared-checkout flag.
-  - An accepted branch tip has a prepared receipt when the session is marked
-    Done. The saved branch result and prepared receipt remain together,
-    and recording uses that receipt. With a verified manual merge and no
-    prepared receipt, Done saves and pins both the branch and delivery pairs.
-  - A working file changes after Done snapshots it and before Done settles.
-    The earlier bytes are still readable after the worktree is retired.
-  - Two hosts have the same native session ID. Review comparison and file
-    reads select the record for the requested host and use its retained
-    run and literal file pair. Admission preserves the existing refusals
-    for unknown sources, missing sessions, and story launches.
-- **Plan.** [743](../slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
-
 <a id="fold-done-capture-launches-into-makeme"></a>
 
 ### Build Done capture cases from MakeMe launch steps

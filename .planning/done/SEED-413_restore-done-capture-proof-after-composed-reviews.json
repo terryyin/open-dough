@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#restore-done-capture-proof-after-composed-reviews",
+  "title": "Restore Done capture proof and focus session Review tests",
+  "completedAt": "2026-11-21T03:07:13.755Z",
+  "developer": "Terry Yin",
+  "agent": "Rina-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
