@@ -283,6 +283,44 @@ arrangements after the four preceding renovations.
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 - **Effort hypothesis.** M, one plan of eight slices. The suppliers moved twelve more specs onto the presets, so the roster grew from 28 to 35.
 
+<a id="tie-done-capture-cases-to-production"></a>
+
+### Tie Done capture cases to the real branch entry and retire the fold's residue
+
+**Identity:** SEED-413#tie-done-capture-cases-to-production
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/754-tie-done-capture-cases-to-production/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bd0d0afb5e1de5d696fc1e24c6fcc6886d6588c8e8d21599947a6d1256c8f16e","plan":"70086a2b974af91a4c641eaa57367b1aece15965f7720a1054b16a8835480ab7"}}
+```
+
+Correction from the execution retrospective of
+[Build Done capture cases from MakeMe launch steps](#fold-done-capture-launches-into-makeme).
+
+- **Goal.** Dashboard maintainers get a failing test when production's branch
+  entry proposal stops producing the entry the declaring-launch recipe composes,
+  and read Done capture cases that state each fact once: no assertion restates
+  the case's own setup, no file name is guessed, records are kept one way, and
+  a missing worktree fails instead of giving an empty workspace.
+- **Scope.** One agreement case between `proposeBranchEntry` and
+  `ofDeclaringDefaultMainLaunch`, replacing the publisher spec's restating
+  assertions, and the README sentence it corrects. The setup duplication,
+  guessed file name, second keeping verb, silent worktree fallback, type cycle,
+  unused re-export and the single-caller command-capture support module that
+  the fold introduced. Product behavior and every legitimate assertion stay.
+  Runtime belongs to the [optimization](#optimize-done-capture-family-cases);
+  the builder's generic casts and the two specs already at 250 lines before
+  the fold stay as they are.
+- **Key examples.**
+  - Removing the trunk revision from `ofDeclaringDefaultMainLaunch` fails the
+    agreement case.
+  - The comparisons case keeps the record built from the landing context
+    production wrote, without asserting its file name.
+  - A case naming a worktree it never declared throws at `please()`.
+- **Evaluation.** Same assertions minus the restating and guessed ones;
+  support surface shrinks or holds.
+  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+- **Effort hypothesis.** S, one plan of four slices.
+- **Plan.** [754](../slice-plans/754-tie-done-capture-cases-to-production/PLAN.md)
+
 <a id="optimize-done-capture-family-cases"></a>
 
 ### Bring the Done capture family's cases to 100–200 ms

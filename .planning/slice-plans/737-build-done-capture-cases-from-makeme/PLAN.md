@@ -366,3 +366,17 @@ Disposition: proved by slice 4: ad-hoc-branch-cursor-recovery.spec.ts builds its
 Reported: slice 4 — "Every phase grows with load; there is no timer, no wait on another case's effect, and no stuck promise. The time goes to sequential git processes: checkout with origin, two branch captures (captureBranchResult makes about 10 git calls one after another) and pin writes; 1.3–2.3 s at load 8.6, 5 s at load 27–30."
 Story clause: "Runtime optimization has its own story."
 Disposition: excluded "Runtime optimization has its own story."
+
+## Execution complete
+
+Product advice: The Done capture family now reads as one MakeMe case per
+scenario. Retrospective review found that the declared-worktree publisher's
+entry assertions restate the recipe's entry and that nothing ties
+`ofDeclaringDefaultMainLaunch` to the real proposal, plus residue from removing
+the presets. The correction
+[SEED-413#tie-done-capture-cases-to-production](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#tie-done-capture-cases-to-production)
+(plan 754) addresses both. Queue it ahead of
+SEED-413#optimize-done-capture-family-cases, because it slightly changes the
+setup that story measures. That story also owns the G3/G6 load-sensitive Git
+cost in `ad-hoc-branch-result-race` and `ad-hoc-branch-result`. Process review
+is deferred into wrap-up with the Intent Coverage check.
