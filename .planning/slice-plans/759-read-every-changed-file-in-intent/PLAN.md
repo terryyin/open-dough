@@ -234,6 +234,23 @@ changed files with their diffs under the not-configured explanation, and
 keeps the no-workspace and several-worktrees explanations without Retry, as
 today. The browser mounts with no locations only for a compared story.
 
+## Execution complete
+
+Product advice:
+
+- The not-configured explanation reads "No intent locations are configured"
+  with a lowercase "intent", now directly above **Outside Intent locations**,
+  while a Done story's reads "No Intent locations were configured". A small
+  wording story would make them consistent; about 15 specs and page objects
+  assert the current text.
+- Slice 2 dropped the checks that the Side panel review and Intent showed the
+  same diff, since their only Intent entry was the removed count.
+  [Plan 761](../761-route-review-changes-to-intent/PLAN.md), which sends
+  **Review changes** to Intent, can make that agreement observable again.
+- No test reads a Done story's Changes in a project whose landed revision had
+  no Intent locations; the shared branch is proved for a current project.
+- Process review deferred into Story Wrap Up with the Intent coverage check.
+
 ## Local gates and review
 
 - On AC power, prefix test commands with `caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR`,
