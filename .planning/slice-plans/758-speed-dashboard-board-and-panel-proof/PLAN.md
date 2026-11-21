@@ -583,6 +583,8 @@ retained report is `slice-7-refactor-return.md`.
 
 ### Slice 8
 
+Published on the story branch as `56ff0790ffbfeeda72c36bddec1376c4e432dbb5`.
+
 The five launch, roster and session frame cases passed in mounted Chromium.
 The final two-path selection passed in 6.46 s and dashboard typecheck passed.
 The existing dashboard-header case owns delivered PNG bytes and intrinsic
@@ -625,3 +627,24 @@ timing runs above covered those cases in 31 paths before the split. A
 focused post-split run passed the five frame cases in 6.82 s, with dashboard
 typecheck passing in 15.53 s. The retained report is
 `slice-8-refactor-return.md`.
+
+
+## Execution complete
+
+Product advice: no change. Keep the delivered Board and Side panel proof and
+the remaining campaign order. The measured frontend selection took 54.07 s
+including preparation, compared with 100.61 s in the historical two-engine
+selection. The full comparison including composed E2E was 113.08 s against
+131.21 s. The separately retained shared asset check took 5.84 s. The
+historical load samples and expanded publication selection bound the
+comparison. The final frame extraction retained the same 69 mounted cases.
+
+The delivered implementation from `caffd17dd` through `56ff0790f` consists
+of eight story increments and the two focused scrollbar-related CI repairs.
+The original prepared plan is recoverable at `4d34ba70a`. Published work,
+machine evidence, frame selection, inspection and panel content retain
+their production owners under ADR 0008. Actual reload, URL, history,
+scrollbar track and native attachment use the built dashboard. The review
+found no remaining product or test correction. Applicable branch CI and
+the configured intent coverage check are still owed at this boundary.
+Process review is deferred into wrap-up with that check's disposition.
