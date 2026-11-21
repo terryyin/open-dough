@@ -164,7 +164,7 @@ into the Side panel review.
 ### 3. Proof names a file without file-level CI evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a selected outside file with usable story CI evidence → Proof →
 one line says that no file-level CI evidence exists for this file, with the
@@ -176,6 +176,12 @@ before.
 `dashboard/frontend-tests/intent/intent-summary-story-comparison-file.spec.ts`
 for the absence line and the return to the same scroll position. Its
 existing cases stay green.
+
+**Proof (accepted).** `intent-story-outside-proof.spec.ts` shows Proof of an
+outside file naming the evidence and its absence line, and the same offset
+after Proof or CI comparison and back. Whole `dashboard/frontend-tests/intent`
+passed. A journey checking a kept reading place chooses the tab with
+`chooseReadingTabInPlace`, since a located click first scrolls the pane.
 
 ### 4. The story's file view is named Changes
 

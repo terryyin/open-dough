@@ -126,13 +126,18 @@ async function expectDiffReady(code: Locator) {
 export const readIntentDiff = (intent: Locator) =>
   intentDiffReading(intent).code.innerText();
 
-// The selecting operation keeps its original action, then delegates reading.
-export async function intentDiff(intent: Locator, name: string) {
-  await intentFile(intent, name).click();
+// Selects the file's row, then reads its diff once ready.
+async function selectedDiff(intent: Locator, row: Locator, name: string) {
+  await row.click();
   await expect(intentDiffReading(intent).name).toHaveText(name);
   await expectDiffReady(intentDiffReading(intent).code);
   return readIntentDiff(intent);
 }
+export const intentDiff = (intent: Locator, name: string) =>
+  selectedDiff(intent, intentFile(intent, name), name);
+
+const outsideFile = (intent: Locator, name: string) =>
+  outsideGroup(intent).getByRole("button", { name: fileName(name) });
 
 // The selected story in Intent. Diff text comes back for the scenario to
 // compare; `background` stays a measurement the scenario compares itself.
@@ -152,13 +157,9 @@ export function intentStory(intent: Locator) {
     locationGroup: (path: string) => locationGroup(intent, path),
     outside: outsideGroup(intent),
     groups: filesColumn(intent).locator(":scope section"),
-    outsideFile: (name: string) =>
-      outsideGroup(intent).getByRole("button", { name: fileName(name) }),
+    outsideFile: (name: string) => outsideFile(intent, name),
     // An outside file's row, which carries its change marker.
-    outsideRow: (name: string) =>
-      outsideGroup(intent)
-        .getByRole("button", { name: fileName(name) })
-        .locator("xpath=.."),
+    outsideRow: (name: string) => outsideFile(intent, name).locator("xpath=.."),
     headerDetail: () => storyHeaderDetail(intent),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
       chooseStoryTab(intent, name),
@@ -166,5 +167,7 @@ export function intentStory(intent: Locator) {
       expectStoryTab(intent, name),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     diff: (name: string) => intentDiff(intent, name),
+    outsideDiff: (name: string) =>
+      selectedDiff(intent, outsideFile(intent, name), name),
   };
 }

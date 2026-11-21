@@ -32,6 +32,8 @@ export type IntentTreeFile = {
   readonly change?: ReviewedFile;
   // Whether the published revision lists this file in the location.
   readonly published: boolean;
+  // A changed file no location admits, which CI evidence holds no unit of.
+  readonly outside?: true;
 };
 
 // Path whose baseline CI figures a rename reads; otherwise `path`.
@@ -84,6 +86,7 @@ export function intentStoryOverlay(
       outside.push({
         path: change.path,
         published: false,
+        outside: true,
         kind: change.kind,
         change,
       });
