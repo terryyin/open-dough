@@ -25,6 +25,38 @@ export type LensComparison =
       readonly compare?: StoryCompare | undefined;
     };
 
+// Whether a comparison other than the story's default is chosen, while the
+// CI views keep describing the whole story through its default.
+export const otherThanDefaultChosen = (comparison: LensComparison) =>
+  comparison.state === "compared" && comparison.compare?.isDefault === false;
+
+// The whole story a CI view describes while another comparison is chosen:
+// the build its default comparison measured, when known.
+export type WholeStory = { readonly revision?: string };
+
+// What each CI view says while another comparison is chosen; nothing while
+// the default is.
+export function WholeStoryNote({
+  whole,
+}: {
+  readonly whole: WholeStory | undefined;
+}) {
+  if (whole === undefined) return null;
+  return (
+    <p className="intent-story-whole quiet" role="note">
+      Describes the whole story
+      {whole.revision !== undefined && (
+        <>
+          {" "}
+          at build{" "}
+          <code title={whole.revision}>{shortRevision(whole.revision)}</code>
+        </>
+      )}
+      , not the chosen comparison.
+    </p>
+  );
+}
+
 // The two sides the comparison runs between, as Review changes names them.
 function ComparedRevisions({
   shown,

@@ -119,6 +119,10 @@ export function useStoryComparison({
         ? undefined
         : {
             shown: shownChoice(shown, review, selectedRun),
+            isDefault:
+              review === defaultReview &&
+              chosen === defaultStoryComparison.chosen &&
+              includeUncommitted === defaultStoryComparison.includeUncommitted,
             workspace: snapshot !== undefined,
             published: published !== undefined,
             runs,

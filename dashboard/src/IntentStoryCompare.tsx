@@ -19,6 +19,8 @@ import { IconButton } from "./Icon.tsx";
 
 export type StoryCompare = {
   readonly shown: ComparisonChoice;
+  // Whether the story's default comparison is the one chosen.
+  readonly isDefault: boolean;
   // Whether the story has a workspace to compare.
   readonly workspace: boolean;
   // Whether the story's published completion is offered.

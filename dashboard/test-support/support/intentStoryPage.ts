@@ -205,6 +205,9 @@ export function intentStory(intent: Locator) {
       storyTabPanel(intent, name),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     diff: (name: string) => intentDiff(intent, name),
+    // What a CI view says while another comparison than the default is chosen.
+    wholeStoryNote: (view: Locator) =>
+      view.getByRole("note").filter({ hasText: "whole story" }),
     outsideDiff: (name: string) =>
       selectedDiff(intent, outsideFile(intent, name), name),
   };

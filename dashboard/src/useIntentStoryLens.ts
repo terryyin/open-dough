@@ -14,7 +14,11 @@ import { useDoneDetails } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
-import type { ComparedStory, LensStory } from "./IntentStorySummary.tsx";
+import {
+  wholeStoryOf,
+  type ComparedStory,
+  type LensStory,
+} from "./IntentStorySummary.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -156,7 +160,11 @@ export function useIntentStoryLens({
     comparison,
     compared:
       story !== undefined && comparison.state === "compared"
-        ? { lens: story, shown: comparison.shown }
+        ? {
+            lens: story,
+            shown: comparison.shown,
+            wholeStory: wholeStoryOf({ story, comparison }),
+          }
         : undefined,
     retry: () => {
       setRound((n) => n + 1);

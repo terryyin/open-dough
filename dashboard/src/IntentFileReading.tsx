@@ -23,6 +23,7 @@ import { IntentFileProof } from "./IntentFileProof.tsx";
 import { shortRevision } from "./publishedWork.ts";
 import { IntentSourceLines } from "./IntentSourceLines.tsx";
 import type { ComparedStory } from "./IntentStorySummary.tsx";
+import { WholeStoryNote } from "./IntentStoryComparison.tsx";
 import {
   IntentTabs,
   intentTabId,
@@ -226,6 +227,7 @@ export function IntentFileReading({
       <div className="intent-reading-panel" {...panel("proof")}>
         <section className="intent-proof" aria-label="Proof">
           <h3 className="visually-hidden">Proof</h3>
+          <WholeStoryNote whole={story?.wholeStory} />
           <IntentFileProof
             path={path}
             treeFile={treeFile}

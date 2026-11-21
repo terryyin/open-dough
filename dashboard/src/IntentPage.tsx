@@ -16,6 +16,7 @@ import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import { IntentHeader } from "./IntentHeader.tsx";
 import { backToStoryId, projectTabs } from "./intentProjectTabs.ts";
 import { IntentStoryCoverage } from "./IntentStoryCoverage.tsx";
+import { WholeStoryNote } from "./IntentStoryComparison.tsx";
 import {
   type ComparedStory,
   type StorySummary,
@@ -68,6 +69,7 @@ export function IntentPage({
     browserLocations === undefined ? shown.explanation : undefined;
   const lead = browserLocations === undefined ? undefined : shown.explanation;
   const { tab, chooseTab } = useStoryTab(story?.selection);
+  const wholeStory = story?.compared?.wholeStory;
   const [filesShown, setFilesShown] = useKeptReading("filesShown", () => true);
   const tabsIdPrefix =
     story === undefined
@@ -169,6 +171,7 @@ export function IntentPage({
         {story === undefined && notice}
         {story !== undefined && (
           <div {...panel("ci")}>
+            <WholeStoryNote whole={wholeStory} />
             <IntentCiStatus />
           </div>
         )}
@@ -182,6 +185,7 @@ export function IntentPage({
         )}
         {story !== undefined && (
           <div {...panel("coverage")}>
+            <WholeStoryNote whole={wholeStory} />
             <IntentStoryCoverage story={story.summary.story} />
           </div>
         )}

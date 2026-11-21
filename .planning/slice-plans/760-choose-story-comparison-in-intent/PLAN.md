@@ -213,7 +213,7 @@ paths (57) passed.
 ### 5. CI views say when they describe the whole story
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: with a comparison other than the story's default chosen → CI
 comparison, a file's Proof and Intent coverage each say that they describe
@@ -223,6 +223,14 @@ none says so.
 **Proof.** One case per view in a new
 `dashboard/frontend-tests/intent/intent-story-compare-evidence.spec.ts`,
 choosing a commit range as slice 2 does, and the default case.
+
+**Accepted.** `intent-story-compare-evidence.spec.ts` (2 tests) shows the
+note in all three views for a chosen range, none for the default, and for
+a Done story's chosen landed run each note names the measured build. Intent
+coverage named no build before, so the shared `WholeStoryNote` names it,
+from `wholeStoryOf` over the default's landed endpoint. After the refactor
+pass the intent folder (244) and 11 e2e Intent CI and Done specs (15)
+passed.
 
 ### 6. A chosen comparison that cannot be read explains itself
 
