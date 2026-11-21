@@ -39,8 +39,9 @@ for (const landed of variants) {
       landed === "running"
         ? "Landed is not used: Build is still running."
         : "Landed is not used: This run published no CI proof summary.";
+    // Keyboard activation skips the pointer's frame-paced stability wait.
     for (const child of [undefined, "folder/", "nested/"]) {
-      if (child !== undefined) await childName(summary, child).click();
+      if (child !== undefined) await childName(summary, child).press("Enter");
       await expect(
         summary.getByRole("heading", {
           name: "Baseline compared with Branch",
@@ -51,7 +52,7 @@ for (const landed of variants) {
         reason,
       );
     }
-    await childName(summary, "c.spec.ts").click();
+    await childName(summary, "c.spec.ts").press("Enter");
     const proof = page.getByRole("region", { name: "Proof", exact: true });
     await expect(
       proof.getByRole("heading", {

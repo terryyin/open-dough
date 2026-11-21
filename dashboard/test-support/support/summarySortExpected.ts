@@ -1,5 +1,5 @@
 // Independent orders distinguish absolute Baseline from signed later changes.
-export const mountedSummarySortExpected = {
+export const summarySortExpected = {
   baseline: {
     ascending: [
       "folder/",

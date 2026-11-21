@@ -35,7 +35,8 @@ test("each failed Baseline Check again holds the button disabled and retains the
   for (let round = 0; round < 2; round += 1) {
     const held = comparisonServices.hold();
     nextRead = held.promise;
-    await check.click();
+    // Keyboard activation skips the pointer's frame-paced stability wait.
+    await check.press("Enter");
     await expect(check).toBeDisabled();
     await expect.poll(() => comparisonServices.comparisons).toBe(round + 2);
     held.resolve({ json: failed });

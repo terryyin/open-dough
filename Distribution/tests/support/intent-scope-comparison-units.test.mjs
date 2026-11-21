@@ -9,7 +9,7 @@
 // ./intent-scope-comparison-unit-gaps.test.mjs. Count words:
 // ./intent-scope-comparison-wording.test.mjs. Overall counts:
 // ./intent-ci-comparison-overall-counts.test.mjs. Browser journey:
-// ../../../dashboard/frontend-tests/intent/intent-ci-comparison-mounted-units.spec.ts.
+// ../../../dashboard/frontend-tests/intent/intent-ci-comparison-units.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { scopeComparisonRowsOf } from "../../../dashboard/src/ciScopeComparison.ts";

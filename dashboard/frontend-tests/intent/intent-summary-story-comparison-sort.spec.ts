@@ -3,7 +3,7 @@
 // returns. Story A's comparison is the canonical Summary-scope answer; Story
 // B's Summary is one trunk run's (../../test-support/support/frontendQueuedStoryOneRun.ts).
 // Column ordering and zoom rules live in
-// intent-summary-story-comparison-mounted-sort.spec.ts.
+// intent-summary-story-comparison-column-sort.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../../test-support/support/frontendApp.ts";

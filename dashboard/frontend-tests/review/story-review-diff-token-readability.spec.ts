@@ -5,18 +5,18 @@ import {
   greetText,
 } from "../../test-support/support/diffSyntaxFixtures.ts";
 import { diffColorScheme } from "./diffColorScheme.ts";
-import { styledDiffReading } from "./mountedFileDiff.ts";
+import { styledDiffReading } from "./styledDiffReading.ts";
 import {
-  mountedReviewDiff,
+  reviewDiffPage,
   tokenAppearance,
   tokenContrast,
-} from "./mountedReviewDiffPage.ts";
+} from "./reviewDiffPage.ts";
 import { limitAtPath } from "./wordEmphasisCases.ts";
 
 async function mountLimitDiff() {
   const path = "limit.ts";
   await mountComponent(styledDiffReading({ path, ...limitAtPath(path) }));
-  const diff = mountedReviewDiff();
+  const diff = reviewDiffPage();
   return { added: diff.newLine(25), removed: diff.removedLine(25) };
 }
 
@@ -110,7 +110,7 @@ test("diff tokens on added, removed and unchanged lines read at 4.5:1 in both ap
       text: greetText,
     }),
   );
-  const diff = mountedReviewDiff();
+  const diff = reviewDiffPage();
   const lines = [
     { kind: "unchanged", line: diff.newLine(28), comment: diff.newLine(27) },
     { kind: "added", line: diff.newLine(29), comment: diff.newLine(29) },

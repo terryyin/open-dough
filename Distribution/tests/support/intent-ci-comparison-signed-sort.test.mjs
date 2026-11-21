@@ -6,7 +6,7 @@
 // does not report last in either direction, and a Summary's outside row
 // pinned last; Baseline by measured time. Other
 // comparison columns: ./intent-ci-comparison-sort.test.mjs. Browser journey:
-// ../../../dashboard/frontend-tests/intent/intent-summary-story-comparison-mounted-signed-sort.spec.ts.
+// ../../../dashboard/frontend-tests/intent/intent-summary-story-comparison-signed-sort.spec.ts.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { sortedRows } from "../../../dashboard/src/ciProofSort.ts";
