@@ -42,7 +42,7 @@ test("without configured Intent locations the story's Changes lists its changed 
 
   await test.step("Then it still says no locations are configured", async () => {
     await expect(story.panel("Changes")).toContainText(
-      "No intent locations are configured",
+      "No Intent locations are configured",
     );
   });
 

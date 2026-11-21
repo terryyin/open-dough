@@ -152,7 +152,7 @@ test("the hidden column stays hidden through a Project Intent visit, which keeps
   // Without locations, the explanation in their place offers no toggle.
   await chooseProject(page, "Doughnut");
   await expect(intent).toContainText(
-    "No intent locations are configured for Doughnut.",
+    "No Intent locations are configured for Doughnut.",
   );
   await expect(filesToggle(intent)).toHaveCount(0);
   await chooseProject(page, "Open Dough");

@@ -103,7 +103,7 @@ test("a Sessions sidebar entry from Intent goes to its project's Development sto
     .toHaveAttribute("data-selected-story", pygardonStory.identity);
   await expect
     .element(
-      intent.getByText(/^No intent locations are configured for Pygardon\./),
+      intent.getByText(/^No Intent locations are configured for Pygardon\./),
     )
     .toBeInTheDocument();
   expect(terminal.element()).toBe(screen);

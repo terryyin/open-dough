@@ -106,7 +106,7 @@ test("CI homepage shows again across Development and back; Optimization Candidat
     .toHaveAttribute("aria-selected", "true");
   await expect
     .element(
-      page.getByText("No intent locations are configured for Doughnut.", {
+      page.getByText("No Intent locations are configured for Doughnut.", {
         exact: false,
       }),
     )

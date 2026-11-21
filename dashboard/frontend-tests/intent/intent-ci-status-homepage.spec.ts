@@ -169,7 +169,7 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
     .toHaveAttribute("aria-selected", "true");
   await expect
     .element(
-      page.getByText("No intent locations are configured for Doughnut.", {
+      page.getByText("No Intent locations are configured for Doughnut.", {
         exact: false,
       }),
     )

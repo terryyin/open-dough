@@ -59,7 +59,7 @@ export function settledLocationsOf(
 export function LocationsNotConfigured({ label }: { readonly label: string }) {
   return (
     <p className="intent-not-configured">
-      No intent locations are configured for {label}. Add an{" "}
+      No Intent locations are configured for {label}. Add an{" "}
       <code>intent.locations</code> setting to <code>{agentSettingsPath}</code>{" "}
       to publish test-source folders for Intent to read.
     </p>

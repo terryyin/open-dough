@@ -162,7 +162,7 @@ test("without configured Intent locations the header names the selected story, C
   ).toBeVisible();
   await story.chooseTab("Changes");
   await expect(story.panel("Changes")).toContainText(
-    "No intent locations are configured",
+    "No Intent locations are configured",
   );
   await expect(
     intent.getByRole("region", { name: "CI status", exact: true }),
@@ -171,20 +171,20 @@ test("without configured Intent locations the header names the selected story, C
   await openProjectIntent(intent);
   await expect(story.summary).toHaveCount(0);
   const project = intent.getByRole("tabpanel", { name: "CI status" });
-  await expect(project).toContainText("No intent locations are configured");
+  await expect(project).toContainText("No Intent locations are configured");
   await expect(
     project.getByRole("heading", { name: "CI status of main", exact: true }),
   ).toBeVisible();
   await chooseOptimizationCandidates(intent);
   await expect(
     intent.getByRole("tabpanel", { name: "Optimization Candidates" }),
-  ).toContainText("No intent locations are configured");
+  ).toContainText("No Intent locations are configured");
   // Back to the story's Changes, as it was left.
   await returnToStory(intent);
   await story.expectTab("Changes");
   await expect(story.summary).toBeVisible();
   await expect(story.panel("Changes")).toContainText(
-    "No intent locations are configured",
+    "No Intent locations are configured",
   );
 
   // Cleared after a visit that ended on Optimization Candidates, the story
@@ -200,7 +200,7 @@ test("without configured Intent locations the header names the selected story, C
     "true",
   );
   const landing = intent.getByRole("tabpanel", { name: "CI status" });
-  await expect(landing).toContainText("No intent locations are configured");
+  await expect(landing).toContainText("No Intent locations are configured");
   await expect(
     landing.getByRole("heading", { name: "CI status of main", exact: true }),
   ).toBeVisible();

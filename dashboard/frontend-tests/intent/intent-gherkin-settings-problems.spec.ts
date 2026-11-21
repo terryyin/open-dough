@@ -139,14 +139,14 @@ test("unreadable and malformed Intent settings stay distinct from not-configured
   await explanation.reads(
     ".planning/open-dough.json could not be read, so Intent locations for Doughnut are unavailable.",
   );
-  await explanation.panelExcludes("No intent locations are configured");
+  await explanation.panelExcludes("No Intent locations are configured");
   await explanation.panelExcludes("is not valid JSON");
 
   intent.showProject(malformed);
   await explanation.reads(
     ".planning/open-dough.json is not valid JSON, so Intent locations for Pygardon could not be read.",
   );
-  await explanation.panelExcludes("No intent locations are configured");
+  await explanation.panelExcludes("No Intent locations are configured");
   await explanation.panelExcludes(
     "could not be read, so Intent locations for Pygardon are unavailable.",
   );
@@ -154,7 +154,7 @@ test("unreadable and malformed Intent settings stay distinct from not-configured
   intent.showProject(unconfigured);
   await explanation.isAbsent();
   await explanation.panelReads(
-    "No intent locations are configured for Doughnut.",
+    "No Intent locations are configured for Doughnut.",
   );
   await explanation.panelExcludes("could not be read");
   await explanation.panelExcludes("is not valid JSON");
@@ -179,7 +179,7 @@ test("an Intent locations read that fails names its cause, and Retry reads it ag
   await explanation.retry();
   await explanation.isAbsent();
   await explanation.panelReads(
-    "No intent locations are configured for Doughnut.",
+    "No Intent locations are configured for Doughnut.",
   );
   expect(attempts()).toBe(2);
 });

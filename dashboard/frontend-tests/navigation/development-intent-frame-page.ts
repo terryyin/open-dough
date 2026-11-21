@@ -79,7 +79,7 @@ export async function showsUnconfiguredIntent(label: string) {
   await expect.element(intentChoice).toBeChecked();
   await expect.element(development).not.toBeChecked();
   const explanation = intent.getByText(
-    `No intent locations are configured for ${label}. Add an intent.locations setting to .planning/open-dough.json to publish test-source folders for Intent to read.`,
+    `No Intent locations are configured for ${label}. Add an intent.locations setting to .planning/open-dough.json to publish test-source folders for Intent to read.`,
     { exact: true },
   );
   await expect.element(explanation).toBeVisible();

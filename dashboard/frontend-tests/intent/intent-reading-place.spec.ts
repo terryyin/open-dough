@@ -131,7 +131,7 @@ test("another project shows none of the reading place, and choosing the project 
 
   await chooseProject(page, "Doughnut");
   await expect(intent).toContainText(
-    "No intent locations are configured for Doughnut.",
+    "No Intent locations are configured for Doughnut.",
   );
   await expect(intent.getByRole("button", { name: deepSpec })).toHaveCount(0);
   await expect(intent.locator('[aria-pressed="true"]')).toHaveCount(0);
