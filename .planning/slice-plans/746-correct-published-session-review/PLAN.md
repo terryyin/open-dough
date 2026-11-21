@@ -2,6 +2,7 @@
 
 **Identity:** SEED-418#correct-published-session-review
 **Source:** [Correct the published session review after its outcome review](../../seeds/SEED-418-review-published-session-changes.md#correct-published-session-review)
+**Source review:** [source-review.md](./source-review.md)
 
 ## Correction input
 
@@ -225,7 +226,15 @@ until its next manual run. Paid runs stay manual.
 ### 2. Land records a session close only when the session has a UUID
 
 Type: Behavior
-Status: planned
+Status: done
+Proof: delivered on trunk by the 2026-11-21 Land guidance follow-up, with the
+behavior review below; `session-record-publication.test.mjs` uses `"ad-hoc"`
+and `git grep standalone` finds nothing under the Land guidance or its tests.
+Behavior review: a Dashboard-launched ordinary Land of a wholly unpublished
+suffix matches the session-close row of `publish-reviewed-checkout.md` and
+calls `publishSessionClose` with the request, `backlogPath` and
+`workflow: "ad-hoc"`; a native start has no landing context, matches the
+publish-the-candidate row and reports that no session record was written.
 
 **Behavior.** Land's guidance has one route, applied in `SKILL.md` §
 Publish, `dashboard-completion.md` and `publish-reviewed-checkout.md`:
@@ -278,11 +287,11 @@ empty-range guard. A two-range record is skipped as malformed.
   context. It fails on the current "launched … done" text.
 - `published-session-review.spec.ts` asserts the new kind and `closedAt`.
 - A listing case skips a two-range record.
-- The second-machine E2E journey still opens the diff.
+- The published-sessions E2E journey still opens the diff.
 ```
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --silent test:dashboard:frontend -- review/published-session-subject
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --silent test:dashboard:backend -- review/published-session-review review/published-session-listing review/published-session-review-request
-env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:e2e -- e2e/sessions/recently-done-published-session-second-machine.spec.ts
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:e2e -- e2e/sessions/recently-done-published-sessions.spec.ts
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
@@ -306,10 +315,10 @@ and the Board passes `launches.launched` for the source.
 - A `newestFirst` case in `recently-done-published-session-launch.spec.ts`
   with a non-Done launch, given both by listing and in full, fails before the
   fix.
-- The existing cases and the originating-machine journey pass.
+- The existing cases and the published-sessions journey pass.
 ```
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --silent test:dashboard:frontend -- sessions/recently-done-published-session-launch sessions/board-done-session-placement
-env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:e2e -- e2e/sessions/recently-done-published-session-originating-machine.spec.ts
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:e2e -- e2e/sessions/recently-done-published-sessions.spec.ts
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
@@ -335,7 +344,7 @@ Remove the unreachable story-subject guard in `storyReviewInput.ts`.
 Both new cases fail before the fix.
 ```
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --silent test:dashboard:backend -- review/published-session-review-request review/published-session-review review/ad-hoc-review-subject review/ad-hoc-review-file
-env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:e2e -- e2e/sessions/recently-done-published-session-second-machine.spec.ts
+env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:e2e -- e2e/sessions/recently-done-published-sessions.spec.ts
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```

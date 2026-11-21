@@ -1,0 +1,32 @@
+# Source-only review — SEED-418#correct-published-session-review
+
+**Launch.** Fresh general-purpose reviewer (`d6cc2ee7-f696-4118-a5e0-332e89848088`), no conversation inheritance. Input: seed Goal/Scope for `#correct-published-session-review` plus the plan's Correction input and Goal and scope sections only (no Current decisions, Ordered slices, or product files).
+
+## Source context (unnumbered)
+
+- Identity: SEED-418#correct-published-session-review. Correction from the outcome review of SEED-418#review-published-session-changes (`2d82175d5:.planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes`, plan 739, commits `953a8a123..9d33efde9`); findings rechecked at `9d33efde9` on 2026-11-21. Plan 739's promises and history stay as written; this story's original promises stay as written.
+- Scope framing: Land's routing for a session record, the published review's description, suppression by any kept launch, one shared record contract, bounded published reads, the exact opening-read budget, and residue from the delivered slices. This plan keeps exactly one range.
+- Genuine constraints / ownership: changing the stop-before-push API is Terry's decision; this correction only routes Land so it does not reach that case. ADR 0008 and the North Star on directly testable production code apply. Plan 747 owns multiple ranges, run selection, other workflows' records, and the 30-day window. Load-sensitive branch-attribution backend timeouts belong to SEED-367 or test optimization.
+- Exclusions: does not change the stop-before-push rule, add records for other workflows, or select among multiple ranges; does not include branch-attribution test timeouts.
+- Diagnostic / residue context: Land guidance gaps; published review misdescription; Done-only suppression; split record contract; repeated fetch and shared admission bound; unbounded listing `git show`; unreachable guards and unavailable-as-empty.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | Landing without a session UUID publishes the work (Goal; Correction goal; Finding 1; route Land away from `session-identity-missing` before push) | slice 2 | observed: trunk eed84c8c4 Land guidance: native start uses plain publisher; publishSessionClose only with landing-context UUID (plan slice 2 Proof) |
+| 2 | That landing reports that no session record was written (Correction goal) | slice 2 | observed: trunk eed84c8c4 behavior review: native start reports no session record (plan slice 2 Proof) |
+| 3 | The published-session review presents itself as showing published changes and the session's close time (Goal; Correction goal; Finding 2) | slice 3 | |
+| 4 | On the originating machine, each session appears once in the listing, including while the launch is still live (Goal; Correction goal; Scope suppression by any kept launch; Finding 3) | slice 4 | |
+| 5 | A Done launch whose reporting reference equals the record UUID appears as one entry and keeps its native controls (Preserved promises) | slice 4 | |
+| 6 | A failed / unavailable published-session listing read shows as a gap, never as an empty set (Goal; Correction goal; Finding 7) | slice 7 | |
+| 7 | Opening a published-session review does not perform a repeated `git fetch` (Goal; Correction goal; Finding 5) | slice 5 | |
+| 8 | When a fetch hangs, the fallback path still succeeds rather than failing as a 404 from the shared admission bound (Correction goal; Finding 5) | slice 5 | |
+| 9 | A developer can review a published session from a machine that lacks that session's launch history (Preserved promises; Goal review on any machine) | slice 3 | |
+| 10 | Only accepted Git evidence is written into the published-session record (Preserved promises) | slice 2 | observed: publishSessionClose still records only after accepted publishExecutionIncrement (preserved; Land route unchanged API) |
+| 11 | Launch state remains local, not part of the published record (Preserved promises) | slice 2 | observed: session record fields remain UUID/workflow/closedAt/ranges only; launch state stays local (preserved contract) |
+| 12 | `publishSessionClose` still stops before any push when the session identity is missing or conflicting (Scope; Genuine constraints; Exclusions) | slice 2 | observed: closeIdentity still returns session-identity-missing/conflict before push; Land routes away from missing case (constraint preserved) |
+| 13 | Path, identity validation, and version for the published-session record share one contract (Scope; Finding 4) | slice 1 | observed: session-record.mjs owns version/directory/UUID/file-name/workflow; producer thin path; Dashboard schema+directoryOf+reads; grep dashboard clear of publication import; s1-publication/s1-backend-2/s1-frontend/s1-typecheck-2/s1-lint-2 pass |
+| 14 | Published-session reads (including listing) are bounded (Scope; Finding 5 unbounded listing `git show`) | slice 6 | |
+| 15 | Opening-read counts remain pinned to an exact budget so growth is detected (Scope; Finding 6; prior 20 and 5/5 at correction 687 — measure and restore exact counts) | slice 8 | |
+| 16 | MakeMe builders do not import runtime publication code under the native evidence identity check (Genuine constraints) | slice 1 | observed: sessionRecordTestData.mjs imports only session-record.mjs; native-evidence-identity.sh exit 0 (s1-native-identity) |
