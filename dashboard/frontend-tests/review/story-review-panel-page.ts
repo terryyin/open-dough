@@ -1,18 +1,36 @@
 // The Review changes panel (../../src/StoryReview.tsx) mounted in the page
 // contexts it reads (./story-review-page-contexts.ts), with its reads answered
 // by the case's review source, and the panel's toolbar, status and diffs as a
-// reader meets them.
+// reader meets them; its details are ./story-review-details-view.ts.
 import { createElement } from "react";
 import { expect } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import type { StoryReviewRequest } from "../../src/pageStoryReviews.ts";
 import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { StoryReview } from "../../src/StoryReview.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import {
+  box,
+  comparisonNameIn,
+  reviewDetails,
+} from "./story-review-details-view.ts";
 import { onReviewPage } from "./story-review-page-contexts.ts";
 
 export { adHocSession, doneStory } from "./story-review-page-contexts.ts";
+
+const unanswered = () => new Promise<never>(() => undefined);
+
+// A review source answering `reads`; any other read stays unanswered.
+export const reviewSourceAnswering = (
+  reads: Partial<ReviewSource>,
+): ReviewSource => ({
+  review: unanswered,
+  range: unanswered,
+  fileDiff: unanswered,
+  fileText: unanswered,
+  ...reads,
+});
 
 // Opens the panel on `subject`'s review, read from `source`.
 export async function mountReviewChanges(
@@ -45,35 +63,34 @@ export async function mountReviewChanges(
 function reviewChanges() {
   const region = page.getByRole("region", { name: /(?:Story|Session) review/ });
   const toolbar = region.getByRole("group", { name: "Review toolbar" });
-  const comparisonName = () =>
-    toolbar.element().querySelector(".story-review-toolbar-name");
-  const eye = toolbar.getByRole("button", {
-    name: /^(Show|Hide) review details$/,
-  });
+  const details = reviewDetails(region, toolbar);
+  const comparisonName = () => comparisonNameIn(toolbar);
   const feedback = () =>
     region.element().querySelector(".story-review-top [role=status]")
       ?.textContent ?? "";
   const refresh = region.getByRole("button", { name: "Refresh", exact: true });
   const filesToggle = (name: "Hide files" | "Show files") =>
     toolbar.getByRole("button", { name, exact: true });
+  const eitherFilesToggle = toolbar.getByRole("button", {
+    name: /^(Hide|Show) files$/,
+  });
   const diff = (file: string) =>
     region.getByRole("region", { name: file, exact: true });
-  const box = (element: Element | null | undefined) => {
-    if (!element) throw new Error("Not laid out.");
-    return element.getBoundingClientRect();
-  };
 
   // No comparison name and no eye: before an answer or after a failure.
   const expectNoComparisonNameOrDetails = async () => {
-    await expect.element(toolbar).toBeVisible();
+    await details.expectNoDetails();
     expect(comparisonName()).toBeNull();
-    expect(eye.query()).toBeNull();
-    expect(
-      region.getByRole("group", { name: "Review details" }).query(),
-    ).toBeNull();
   };
 
   const view = {
+    ...details,
+
+    async expectFeedback(text: string) {
+      await expect.poll(() => feedback().trim()).toBe(text);
+      return view;
+    },
+
     async expectFeedbackSays(text: string) {
       await expect.poll(feedback).toContain(text);
       return view;
@@ -110,32 +127,6 @@ function reviewChanges() {
       return view;
     },
 
-    // The eye, an icon right after the comparison's name, offers the details.
-    async expectEyeBesideComparison() {
-      await expect.element(eye).toHaveAccessibleName("Show review details");
-      await expect.element(eye).toHaveTextContent("");
-      expect(eye.element().querySelector("svg")).not.toBeNull();
-      const nameAt = box(comparisonName());
-      const gap = box(eye.element()).x - (nameAt.x + nameAt.width);
-      expect(gap).toBeGreaterThanOrEqual(0);
-      expect(gap).toBeLessThan(24);
-      return view;
-    },
-
-    // The details wait behind the eye, which says so.
-    async expectDetailsCollapsed() {
-      await expect.element(eye).toHaveAccessibleName("Show review details");
-      await expect.element(eye).toHaveAttribute("aria-expanded", "false");
-      const controlled = eye.element().getAttribute("aria-controls");
-      const section =
-        controlled === null ? null : document.getElementById(controlled);
-      expect(section).not.toBeNull();
-      expect(section?.checkVisibility()).toBe(false);
-      expect(region.getByRole("radio").query()).toBeNull();
-      expect(region.getByRole("listbox").query()).toBeNull();
-      return view;
-    },
-
     async expectDiffShows(file: string, text: string) {
       await expect.element(diff(file)).toBeVisible();
       await expect.poll(() => diff(file).element().textContent).toContain(text);
@@ -144,6 +135,34 @@ function reviewChanges() {
 
     async expectFilesToggleNamed(name: "Hide files" | "Show files") {
       await expect.element(filesToggle(name)).toBeVisible();
+      return view;
+    },
+
+    // The files toggle, an icon whose tooltip says its name, leads the
+    // toolbar before the comparison's name.
+    async expectFilesToggleLeads(comparisonShown: string) {
+      await view.expectComparisonNamed(comparisonShown);
+      await expect.element(eitherFilesToggle).toHaveTextContent("");
+      expect(eitherFilesToggle.element().querySelector("svg")).not.toBeNull();
+      await userEvent.hover(eitherFilesToggle);
+      const label =
+        eitherFilesToggle.element().getAttribute("aria-label") ?? "";
+      await expect
+        .element(toolbar.getByText(label, { exact: true }))
+        .toBeVisible();
+      const [barAt, toggleAt, nameAt] = [
+        box(toolbar.element()),
+        box(eitherFilesToggle.element()),
+        box(comparisonName()),
+      ];
+      expect(toggleAt.x - barAt.x).toBeLessThan(24);
+      expect(nameAt.x).toBeGreaterThanOrEqual(toggleAt.x + toggleAt.width);
+      return view;
+    },
+
+    async expectNoFilesToggle() {
+      await expect.element(toolbar).toBeVisible();
+      expect(eitherFilesToggle.query()).toBeNull();
       return view;
     },
 

@@ -1,12 +1,15 @@
 // @ts-check
 // Builders of the story review's answers (dashboard/src/storyReviewContract.ts):
 // a taken story's snapshot, a completed story's published comparison, an ad
-// hoc landing's landed comparison, and a file's printed diff. Node-free, so
+// hoc landing's or a captured run's landed comparison, a Default main
+// session's commits, a landing gap, and a file's printed diff. Node-free, so
 // pageMakeMe.mjs exposes them to mounted cases.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").StoryReview} StoryReview */
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
-/** @typedef {import("../../../dashboard/src/storyReviewContract.ts").ReviewedFileDiff} ReviewedFileDiff */
 /** @typedef {TakenStoryReview["files"][number]} ReviewedFile */
+/** @typedef {import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice} ReviewRunChoice */
+import { ReviewedFileDiffBuilder } from "./reviewedFileDiffTestData.mjs";
+import { ReviewRunBuilder } from "./storyReviewRunTestData.mjs";
 
 /** @param {number} n */
 const oid = (n) => n.toString(16).padStart(40, "0");
@@ -23,8 +26,13 @@ const storyReviewIds = Object.freeze({
 export class StoryReviewBuilder {
   /** @type {ReviewedFile[]} */
   #files = [];
-  /** @type {"snapshot" | "published" | "landed"} */
+  /** @type {"snapshot" | "published" | "landed" | "session-commits" | "landing-unavailable"} */
   #kind = "snapshot";
+  #explanation = "";
+  /** @type {ReviewRunChoice[] | undefined} */
+  #runs;
+  /** @type {ReviewRunChoice | undefined} */
+  #selected;
 
   /** @param {string} path a file the comparison adds, one line long */
   adding(path) {
@@ -54,10 +62,70 @@ export class StoryReviewBuilder {
     return this;
   }
 
+  // A Default main session's commits: one kept run.
+  sessionCommits() {
+    this.#kind = "session-commits";
+    return this;
+  }
+
+  /** @param {string} explanation a landing gap's words, with no comparison */
+  landingGap(explanation) {
+    this.#kind = "landing-unavailable";
+    this.#explanation = explanation;
+    return this;
+  }
+
+  /**
+   * Offers `runs`, selecting `selected`; a landed comparison is that run's.
+   * @param {ReviewRunChoice} selected
+   * @param {readonly ReviewRunChoice[]} runs
+   */
+  onRun(selected, runs = [selected]) {
+    this.#selected = selected;
+    this.#runs = [...runs];
+    return this;
+  }
+
   /** @returns {StoryReview} */
   please() {
-    const { baseline, tree } = storyReviewIds;
+    const review = this.#comparison();
+    if (!this.#selected) return review;
+    return {
+      ...review,
+      runs: structuredClone(this.#runs),
+      selectedRun: this.#selected.key,
+    };
+  }
+
+  /** @returns {StoryReview} */
+  #comparison() {
+    const run = this.#selected;
+    const baseline = run?.comparison?.base ?? storyReviewIds.baseline;
+    const tree = run?.comparison?.revision ?? storyReviewIds.tree;
     const files = structuredClone(this.#files);
+    if (this.#kind === "landing-unavailable")
+      return { kind: "landing-unavailable", explanation: this.#explanation };
+    if (this.#kind === "session-commits")
+      return {
+        kind: "session-commits",
+        session: {
+          launchedAt: "2026-01-02T12:00:00.000Z",
+          doneAt: "2026-01-02T13:00:00.000Z",
+        },
+        commitRuns: [
+          {
+            commits: 1,
+            subject: "session commit",
+            committedAt: "2026-01-02T12:30:00.000Z",
+            baseline,
+            tree,
+          },
+        ],
+        commitRun: 0,
+        baseline,
+        tree,
+        files,
+      };
     if (this.#kind === "published")
       return {
         kind: "published",
@@ -82,8 +150,8 @@ export class StoryReviewBuilder {
           receivedAt: "2026-01-02T13:00:00.000Z",
           remote: "origin",
           target: "refs/heads/main",
-          workflow: "ad-hoc",
-          launchedAt: "2026-01-02T12:00:00.000Z",
+          workflow: run?.workflow ?? "ad-hoc",
+          launchedAt: run?.launchedAt ?? "2026-01-02T12:00:00.000Z",
         },
         baseline,
         tree,
@@ -117,44 +185,11 @@ export class StoryReviewBuilder {
   }
 }
 
-export class ReviewedFileDiffBuilder {
-  #path = "story.txt";
-  /** @type {string[]} */
-  #lines = ["+story"];
-
-  /**
-   * @param {string} path
-   * @param {...string} lines each printed added
-   */
-  adding(path, ...lines) {
-    this.#path = path;
-    this.#lines = lines.map((line) =>
-      line.startsWith("+") ? line : `+${line}`,
-    );
-    return this;
-  }
-
-  /** @returns {ReviewedFileDiff} */
-  please() {
-    const path = this.#path;
-    return {
-      kind: "diff",
-      printed: [
-        `diff --git a/${path} b/${path}`,
-        `--- a/${path}`,
-        `+++ b/${path}`,
-        `@@ -0,0 +1,${this.#lines.length} @@`,
-        ...this.#lines,
-        "",
-      ].join("\n"),
-    };
-  }
-}
-
 /**
  * @typedef {object} StoryReviewMakeMe
  * @property {StoryReviewBuilder} aStoryReview
  * @property {ReviewedFileDiffBuilder} aReviewedFileDiff
+ * @property {ReviewRunBuilder} aReviewRun
  */
 
 /** @returns {PropertyDescriptorMap} */
@@ -170,6 +205,12 @@ export function storyReviewMakeMeProperties() {
       enumerable: true,
       get() {
         return new ReviewedFileDiffBuilder();
+      },
+    },
+    aReviewRun: {
+      enumerable: true,
+      get() {
+        return new ReviewRunBuilder();
       },
     },
   };

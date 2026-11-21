@@ -156,7 +156,7 @@ Orphans for slice 7: `expectNoComparisonNameOrDetails` in
 ### 3. Landed runs and their gaps name the toolbar
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `-toolbar-truthful-gaps` (3 cases), `-details-runs` (1) and
 `-details-published` (1), with landed run and session commit answers from
@@ -164,6 +164,19 @@ MakeMe steps. Remove the three built-app files.
 
 **Proof.** The mounted specs pass. One scratch break that opens a Done story
 on its older run fails the runs case and is reverted.
+
+**Accepted.** The three specs are mounted in place under their titles; the
+older-run break failed the runs case. New steps: `sessionCommits()`,
+`landingGap(explanation)`, `onRun(selected, runs)`, `aReviewRun`
+(`storyReviewRunTestData.mjs`); the file-diff builder moved to
+`reviewedFileDiffTestData.mjs`. `story-review-details-view.ts` owns the eye,
+the run picker and the facts; `reviewSourceAnswering(reads)` in the panel page
+leaves unnamed reads unanswered. Opening from the Recently done column stays
+proved by `sessions/recently-done-ad-hoc-session-commits.spec.ts`,
+`sessions/recently-done-ad-hoc-review-gaps.spec.ts` and
+`e2e/review/story-review-completed.spec.ts`. Orphans for slice 7:
+`expectNoCodeShown`, `expectNoTimeShown`, `escapeFromLandedRuns` in
+`reviewChangesDetails.ts`, `expectNoDetails` in `reviewToolbarPages.ts`.
 
 ### 4. Details stay behind the eye and keep the reading place
 

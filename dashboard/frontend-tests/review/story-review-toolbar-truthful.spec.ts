@@ -3,7 +3,7 @@
 // prior answer, and not before the first answer or after a cleared failure.
 import { test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import type { ReviewRead, ReviewSource } from "../../src/reviewSource.ts";
+import type { ReviewRead } from "../../src/reviewSource.ts";
 import type {
   ReviewedFileDiff,
   StoryReview,
@@ -12,19 +12,15 @@ import {
   adHocSession,
   doneStory,
   mountReviewChanges,
+  reviewSourceAnswering,
 } from "./story-review-panel-page.ts";
 
 // A source whose review read is `review`, answering every file with `diff`.
-function sourceOf(
-  review: ReviewRead<StoryReview>,
-  diff: ReviewedFileDiff,
-): ReviewSource {
-  return {
+function sourceOf(review: ReviewRead<StoryReview>, diff: ReviewedFileDiff) {
+  return reviewSourceAnswering({
     review,
-    range: () => new Promise(() => undefined),
     fileDiff: () => Promise.resolve(diff),
-    fileText: () => new Promise(() => undefined),
-  };
+  });
 }
 
 // A review read that waits until the case answers it.

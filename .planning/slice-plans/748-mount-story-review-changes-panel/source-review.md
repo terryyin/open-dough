@@ -29,10 +29,10 @@ added by the coordinator.
 | 13b | "Choosing Commits in the details renames the toolbar" | slice 4 |  |
 | 13c | "the range and commit list stay when the details hide." | slice 4 |  |
 | 13d | "Another story's review opens collapsed with the files shown." | slice 4 |  |
-| 14a | *Landed runs:* "A Done story with two captured runs opens on the newer one." | slice 3 |  |
-| 14b | Preserve "focus return to the eye" — "Escape from the run picker returns focus to the eye." | slice 3 |  |
-| 14c | "A selected landed gap offers Landed runs and the eye" | slice 3 |  |
-| 14d | "a bare landing gap names Landed runs without an eye." | slice 3 |  |
+| 14a | *Landed runs:* "A Done story with two captured runs opens on the newer one." | slice 3 | observed: dashboard/frontend-tests/review/story-review-details-runs.spec.ts "a Done story opens on the newer of two captured runs and Escape from the picker returns to the eye" (opens on the newer run's diff; scratch break to the older run failed it) |
+| 14b | Preserve "focus return to the eye" — "Escape from the run picker returns focus to the eye." | slice 3 | observed: dashboard/frontend-tests/review/story-review-details-runs.spec.ts "a Done story opens on the newer of two captured runs and Escape from the picker returns to the eye" (Escape from the run picker focuses the eye) |
+| 14c | "A selected landed gap offers Landed runs and the eye" | slice 3 | observed: dashboard/frontend-tests/review/story-review-toolbar-truthful-gaps.spec.ts "a selected landed gap offers Landed runs and the eye" |
+| 14d | "a bare landing gap names Landed runs without an eye." | slice 3 | observed: dashboard/frontend-tests/review/story-review-toolbar-truthful-gaps.spec.ts "a bare landing gap names Landed runs without an eye" |
 | 15 | *Uncommitted changes:* "The check leaves uncommitted changes out of All changes and back without reading the snapshot again." | slice 4 |  |
 | 16a | *The file sidebar width:* "Dragging the Files divider resizes the file sidebar within both minimums." | slice 5 |  |
 | 16b | Preserve "the kept file sidebar width across reviews" — "The chosen width serves another story's review." | slice 5 |  |
