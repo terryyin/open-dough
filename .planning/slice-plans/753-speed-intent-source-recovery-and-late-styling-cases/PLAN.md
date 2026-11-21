@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-source-recovery-and-late-styling-cases
 **Source:** [Bring Intent source recovery and late styling cases under 500 ms](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-recovery-and-late-styling-cases)
+**Source review:** [Independent source review](source-review.md)
 
 ## Goal and scope
 
@@ -75,12 +76,26 @@ at one-minute load 8–18. Scratch edits were reverted.
   [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md),
   carried by link into every delegation brief and repair handoff.
 
+## Execution context
+
+- Airi-chan, Story Branch Mode, publisher `dashboard-territory.local-open-dough`.
+- Owned worktree `.worktrees/bring-intent-source-recovery-and-late-styling-ca`,
+  branch `codex/bring-intent-source-recovery-and-late-styling-ca`, integration
+  checkout `/Users/terryyin/git/open-dough`, target `origin/main`.
+- Starting revision `58b829487ba83a8a0752eabfeb37391e4169a596`, published
+  claim and original candidate `c6edbee9e35490086c97f8e6234cf2a4a36e741b`.
+- Codex CI observer for the story branch, GitHub Actions `ci.yml`, coordinator
+  `codex-79f23eaa-69ef-4bbc-a1c8-02b7e976166e`, directory
+  `/tmp/dough-ci-501/watch-x5aq2S`, PID 46551, session 28200, cell g141:13.
+- Setup in this worktree passed `npm ci` and `npm run typecheck:dashboard`.
+  No explicit change to ordinary plan refinement authority.
+
 ## Ordered slices
 
 ### 1. Settle why an immediate Show latest fails the newer-revisions case
 
 Type: Structure (early probe)
-Status: planned
+Status: done
 
 Reproduce the `intent-revision-apply` failure with an in-page Show latest
 right after the second revision is offered. Find which state is not yet
@@ -100,6 +115,20 @@ on and the verdict. For test-side, a scratch run of `intent-revision-apply`
 with the readiness wait passes 3/3 with in-page activation and no delay. All
 scratch edits are reverted.
 
+**Observed at `c6edbee9e`.** The original fixture failed at `Updating…` after
+a visible control, one task and an element click. A commit witness with the
+original fixture failed at the same assertion in both runs. C had committed,
+C's locations were requested once, B's were never requested, and there was no
+displayed revision during the held read. Keeping the fixture's source stable
+and awaiting C's commit made immediate in-page activation pass 3/3 with no
+delay and every assertion retained. The dashboard keeps the selected source
+in `usePublishedObservation` as work advances. Replacing it only in the
+fixture restarts the read for A and clears its shown answer just before C
+needs to keep it. The test-side fix is to model the dashboard's stable source
+and await the offered commit when the old button is already visible.
+Scratch edits were reverted. See checkout Git evidence `s1-report.md` and
+its linked patches and run records. Records-only delivery.
+
 ### 2. Review diff controls activate in the page
 
 Type: Structure
@@ -118,8 +147,12 @@ pass: `story-review-diff-late-styling`, `-word-emphasis-decoration`,
 Type: Structure
 Status: planned
 
-Depends on slice 1's test-side verdict. These page objects activate in the
-page, each after its readiness observation:
+Slice 1's verdict requires a stable selected source in the mounted Intent
+fixture and a commit signal for the newer-revisions case before it uses the
+already-visible button. Check the fixture's consumers as well as the cases
+using the page objects. The page-object actions wait for their own visible
+controls, including the failure's Retry, before yielding one task and
+activating in the page:
 - `intentCandidates().openSource`;
 - `intentRevisionNotice().showLatest` and `retry`;
 - `intentBrowser().retryRead`.
