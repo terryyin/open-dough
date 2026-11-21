@@ -6,19 +6,16 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keptRecords, keptSession } from "../../server/launchRecordStore.ts";
+import { keepBranchResultRefs } from "../../server/launchRecordPins.ts";
 import { observedSessionDeliveries } from "../../server/observedSessionDeliveries.ts";
-import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
+import { branchResultAtDone } from "../../src/sessionBranchResult.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
 import {
   aCheckoutWithWorktree,
-  anIsolatedBranch,
   anIsolatedLaunch,
   inWorktree,
-  markDone,
   minutesAgo,
-  source,
   work,
 } from "../support/doneCaptureCase.ts";
 import {
@@ -34,7 +31,7 @@ const head = async (checkout: string) =>
   (await git(checkout, "rev-parse", "HEAD")).stdout.trim();
 
 test("the first observation after restart discovers a delivery while preserving the fixed branch comparison", async () => {
-  const { checkout, workspace, record } = await anIsolatedBranch(branch, {
+  const { checkout, workspace } = await aCheckoutWithWorktree(branch, {
     "draft.txt": "Original draft\n",
   });
   const { integration, base: baseline } = checkout;
@@ -51,8 +48,15 @@ test("the first observation after restart discovers a delivery while preserving 
       }),
   );
   const done = minutesAgo(10);
-  await markDone(record, done);
-  const branchAtDone = await review(await keptRecords(source), record);
+  const record = await aDoneBranch(
+    anIsolatedLaunch(checkout, { workspace, branch }),
+    { doneAt: done },
+  );
+  const branchResult = branchResultAtDone(record);
+  if (branchResult === undefined)
+    throw new Error("Missing the Done branch result.");
+  await keepBranchResultRefs(record.session, branchResult);
+  const branchAtDone = await review([record], record);
   expect(branchAtDone).toMatchObject({
     kind: "branch-result",
     baseline,
@@ -84,10 +88,17 @@ test("the first observation after restart discovers a delivery while preserving 
     discardWorkingChanges: true,
   });
 
-  const restarted = sessionLandingObservations();
-  expect(await review(await keptRecords(source), record)).toEqual(branchAtDone);
-  await restarted.observe(observedTrunk, latest);
-  const delivered = await review(await keptRecords(source), record);
+  const restarted = observedSessionDeliveries();
+  expect(await review([record], record)).toEqual(branchAtDone);
+  const [delivery] = await restarted.observe(observedTrunk, latest, [record]);
+  if (delivery === undefined)
+    throw new Error("Missing the delivery after restart.");
+  const { pair } = delivery;
+  const kept = {
+    ...delivery.record,
+    landing: makeMe.aLaunchLanding.capturedFrom(pair).comparing(pair).please(),
+  };
+  const delivered = await review([kept], record);
   expect(delivered).toMatchObject({
     kind: "landed",
     baseline: trunkParent,
@@ -95,11 +106,7 @@ test("the first observation after restart discovers a delivery while preserving 
     sessionComparisonKeys: ["delivered", "branch-result"],
     files: [{ path: "draft.txt" }],
   });
-  const savedBranch = await review(
-    await keptRecords(source),
-    record,
-    "branch-result",
-  );
+  const savedBranch = await review([kept], record, "branch-result");
   expect(savedBranch).toMatchObject({
     kind: "branch-result",
     baseline,
@@ -108,7 +115,7 @@ test("the first observation after restart discovers a delivery while preserving 
   if (delivered.kind !== "landed" || savedBranch.kind !== "branch-result")
     throw new Error("Missing the saved branch and delivered comparisons.");
   expect(branchAtDone).toMatchObject({ tree: savedBranch.tree });
-  expect((await keptSession(source, record.session))?.doneAt).toBe(done);
+  expect(kept.doneAt).toBe(done);
 
   await git(
     integration,
@@ -117,10 +124,8 @@ test("the first observation after restart discovers a delivery while preserving 
     "origin",
     path.join(path.dirname(integration), "offline"),
   );
-  expect(await review(await keptRecords(source), record)).toEqual(delivered);
-  expect(
-    await review(await keptRecords(source), record, "branch-result"),
-  ).toEqual(savedBranch);
+  expect(await review([kept], record)).toEqual(delivered);
+  expect(await review([kept], record, "branch-result")).toEqual(savedBranch);
   for (const [comparison, before, after, reference] of [
     [
       delivered,
@@ -136,12 +141,12 @@ test("the first observation after restart discovers a delivery while preserving 
       path: "draft.txt",
       ...(reference === undefined ? {} : { reference }),
     };
-    const diff = await fileDiff(await keptRecords(source), record, file);
+    const diff = await fileDiff([kept], record, file);
     expect(diff.kind).toBe("diff");
     expect(diff.kind === "diff" && diff.printed).toContain(
       `-${before}\n+${after}`,
     );
-    expect(await fileText(await keptRecords(source), record, file)).toEqual({
+    expect(await fileText([kept], record, file)).toEqual({
       kind: "text",
       baseline: `${before}\n`,
       tree: `${after}\n`,

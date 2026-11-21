@@ -242,7 +242,7 @@ not overlap this delivery on trunk through `7ed7478c`.
 ### 4. Move restart comparison survival and repeated-revision pin retention off the machine store and evaluate
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move the first case of `ad-hoc-manual-landing-observation.spec.ts` ("the first
 observation after restart discovers a delivery while preserving the fixed
@@ -266,6 +266,17 @@ reached `observation/authenticated-read-revision-*` readers and the backend
 family gate (`backend-tests/review backend-tests/launches backend-tests/sessions`),
 `npm run typecheck:dashboard`, and `npm run lint`. Record the ADR 0010
 comparison under [Local gates](#local-gates).
+
+**Accepted proof.** All seven observation specs passed their 26 cases with
+the ordinary two workers and default timeouts. After offline restart, both
+the delivered and fixed Done comparison, each diff and exact file text
+survive. Repeated and advanced observations keep the same delivery and
+pin pair. The original branch pin is observed before cleanup. All 47
+authenticated revision-reader cases passed. The backend review, launches
+and sessions gate passed 905 cases with one expected opt-in replay skip.
+Dashboard typecheck passed. The execution-base consumer trace identified
+the same production reader entry points and the observation family. The
+initial default-timeout restart failure did not recur in either final gate.
 
 ## Local gates
 
@@ -316,6 +327,45 @@ and two through `anIsolatedBranch`) and four direct `markDone` calls. The
 baseline records in the checkout's Git evidence directory retain the case
 times and exact selection. Expand the final check to all new cases and
 compare the original six separately for timing.
+
+### Final evaluation under ADR 0010
+
+Dashboard maintainers can arrange the delivery cases from typed records and
+real Git. The live adapter cases exercise retained state and pin ownership
+through the explicit store boundary. Across the four original observation
+specs and their helper:
+
+| Setup measure | Execution base | Candidate |
+| --- | ---: | ---: |
+| `doneCaptureCase.ts` imports | 5 | 3 |
+| Calls to imports from `doneCaptureCase.ts` | 46 | 42 |
+| Direct imports from machine-store modules | 7 | 0 |
+| `doneBranchObservation.ts` imports | 4 | 4 |
+| Machine-home setup call sites | 4 | 0 |
+| Direct `markDone` calls | 4 | 0 |
+
+The enlarged seven-spec candidate has six `doneCaptureCase.ts` imports,
+77 calls to those imports and six `doneBranchObservation.ts` imports.
+It still has zero direct machine-store imports, machine-home steps and
+`markDone` calls. These counts include the observation helper.
+
+The comparison alternated the execution base and candidate in three
+pairs on the same AC-powered Mac with one test worker. Sums and medians
+below use only the six matched cases. Each run passed.
+
+| Pair | One-minute load, base / candidate | Sum, base / candidate | Median per case, base / candidate |
+| --- | --- | --- | --- |
+| 1 | 10.08 / 9.67 | 9.957 / 10.048 s | 1.741 / 1.632 s |
+| 2 | 14.12 / 13.04 | 9.798 / 13.357 s | 1.759 / 2.411 s |
+| 3 | 14.41 / 12.72 | 9.281 / 8.902 s | 1.565 / 1.550 s |
+
+All 26 candidate cases summed to 19.370, 23.910 and 16.988 s, with
+medians of 0.782, 0.997 and 0.628 s. Their increased coverage makes these
+totals a separate series. Timing across the six matched cases showed no
+consistent speedup. The reduction in unrelated store setup, continued
+proof of the original behavior and added lifecycle and witness coverage
+justify keeping the seam. Long-term runtime and flake rates remain unmeasured. The ordinary two-worker candidate run
+passed all 26 cases at the default timeout, including restart in 3.402 s.
 
 ## Plan review
 
