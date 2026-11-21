@@ -34,7 +34,6 @@ intent introduced or affected by a newly developed story.
 - [Correct the published-session review’s gap naming and tests](seeds/SEED-418-review-published-session-changes.md#name-unavailable-published-session-review) — SEED-418#name-unavailable-published-session-review ([plan](slice-plans/750-name-unavailable-published-session-review/PLAN.md))
 - [Get fast proof of a story's Intent CI comparison](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-comparison-proof) — SEED-413#speed-intent-ci-comparison-proof ([plan](slice-plans/751-speed-intent-ci-comparison-proof/PLAN.md))
 - [Get fast proof of Intent evidence and timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing) — SEED-413#speed-intent-proof-and-timing ([plan](slice-plans/752-speed-intent-proof-and-timing/PLAN.md))
-- [Bring Intent source recovery and late styling cases under 500 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-recovery-and-late-styling-cases) — SEED-413#speed-intent-source-recovery-and-late-styling-cases ([plan](slice-plans/753-speed-intent-source-recovery-and-late-styling-cases/PLAN.md))
 
 ## Backlog list
 
