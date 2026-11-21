@@ -128,17 +128,24 @@ export function useIntentStoryLens({
           )
         : undefined;
   const [round, setRound] = useState(0);
-  const { review, defaultReview, reading, problem, shown, compare } =
-    useStoryComparison({
-      source: source.id,
-      identity: story?.identity ?? "",
-      completed: story?.completed ?? false,
-      round,
-      onRefresh: () => {
-        setRound((n) => n + 1);
-      },
-      enabled: offered === true,
-    });
+  const {
+    review,
+    defaultReview,
+    reading,
+    problem,
+    shown,
+    compare,
+    unreadable,
+  } = useStoryComparison({
+    source: source.id,
+    identity: story?.identity ?? "",
+    completed: story?.completed ?? false,
+    round,
+    onRefresh: () => {
+      setRound((n) => n + 1);
+    },
+    enabled: offered === true,
+  });
   const comparison: LensComparison =
     offered === undefined
       ? { state: "reading" }
@@ -148,13 +155,15 @@ export function useIntentStoryLens({
           ? { state: "reading" }
           : shown !== undefined
             ? { state: "compared", shown, review, defaultReview, compare }
-            : problem !== undefined
-              ? { state: "failed", problem }
-              : review !== undefined &&
-                  (review.kind === "unavailable" ||
-                    review.kind === "landing-unavailable")
-                ? { state: "unavailable", explanation: review.explanation }
-                : { state: "reading" };
+            : unreadable !== undefined && compare !== undefined
+              ? { state: "unreadable", unreadable, defaultReview, compare }
+              : problem !== undefined
+                ? { state: "failed", problem }
+                : review !== undefined &&
+                    (review.kind === "unavailable" ||
+                      review.kind === "landing-unavailable")
+                  ? { state: "unavailable", explanation: review.explanation }
+                  : { state: "reading" };
   return {
     story,
     comparison,

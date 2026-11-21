@@ -8,6 +8,7 @@ import { shortRevision } from "./publishedWork.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { ComparedRange, type StoryCompare } from "./IntentStoryCompare.tsx";
 import { baselineRevision, type StoryReview } from "./storyReviewContract.ts";
+import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
 
 // What Intent knows of the selected story's comparison.
 export type LensComparison =
@@ -23,12 +24,31 @@ export type LensComparison =
       readonly defaultReview: StoryReview | undefined;
       // The choice of what is compared, while the story has a workspace.
       readonly compare?: StoryCompare | undefined;
+    }
+  // A chosen comparison that cannot be read, with the choice still offered.
+  | {
+      readonly state: "unreadable";
+      readonly unreadable: UnreadComparison;
+      readonly defaultReview: StoryReview | undefined;
+      readonly compare: StoryCompare;
     };
+
+// The default review read, while a comparison is chosen.
+export const defaultReviewOf = (comparison: LensComparison) =>
+  comparison.state === "compared" || comparison.state === "unreadable"
+    ? comparison.defaultReview
+    : undefined;
+
+// The choice of what is compared, while one is offered.
+export const compareOf = (comparison: LensComparison) =>
+  comparison.state === "compared" || comparison.state === "unreadable"
+    ? comparison.compare
+    : undefined;
 
 // Whether a comparison other than the story's default is chosen, while the
 // CI views keep describing the whole story through its default.
 export const otherThanDefaultChosen = (comparison: LensComparison) =>
-  comparison.state === "compared" && comparison.compare?.isDefault === false;
+  compareOf(comparison)?.isDefault === false;
 
 // The whole story a CI view describes while another comparison is chosen:
 // the build its default comparison measured, when known.
@@ -124,6 +144,20 @@ export function CompactComparisonState({
         </button>
       </p>
     );
+  if (comparison.state === "unreadable")
+    return (
+      <p className="intent-story-state" role="alert">
+        The chosen changes could not be read.
+        {comparison.unreadable.failed && (
+          <>
+            {" "}
+            <button type="button" onClick={onRetry}>
+              Retry
+            </button>
+          </>
+        )}
+      </p>
+    );
   return null;
 }
 
@@ -152,6 +186,13 @@ export function ComparisonDetail({
         {completed
           ? "The story's historical test source is unavailable."
           : "Intent shows the published tree without them."}
+      </p>
+    );
+  if (comparison.state === "unreadable")
+    return (
+      <p className="intent-story-problem">
+        {comparison.unreadable.explanation} Intent shows the published tree
+        without the chosen changes.
       </p>
     );
   return comparison.compare?.shown === "commits" ? (

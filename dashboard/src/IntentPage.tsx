@@ -20,6 +20,7 @@ import { WholeStoryNote } from "./IntentStoryComparison.tsx";
 import {
   type ComparedStory,
   type StorySummary,
+  wholeStoryOf,
 } from "./IntentStorySummary.tsx";
 import {
   StoryCiReturnProvider,
@@ -69,7 +70,7 @@ export function IntentPage({
     browserLocations === undefined ? shown.explanation : undefined;
   const lead = browserLocations === undefined ? undefined : shown.explanation;
   const { tab, chooseTab } = useStoryTab(story?.selection);
-  const wholeStory = story?.compared?.wholeStory;
+  const wholeStory = wholeStoryOf(story?.summary);
   const [filesShown, setFilesShown] = useKeptReading("filesShown", () => true);
   const tabsIdPrefix =
     story === undefined

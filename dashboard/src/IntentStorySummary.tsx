@@ -3,6 +3,7 @@
 // header lives in IntentHeader; the page layout lives in IntentPage.
 
 import {
+  defaultReviewOf,
   otherThanDefaultChosen,
   type LensComparison,
   type WholeStory,
@@ -59,9 +60,9 @@ export function publishedDoneEndpointOf(
   storySummary: Pick<StorySummary, "story" | "comparison"> | undefined,
 ) {
   const review =
-    storySummary?.comparison.state === "compared"
-      ? storySummary.comparison.defaultReview
-      : undefined;
+    storySummary === undefined
+      ? undefined
+      : defaultReviewOf(storySummary.comparison);
   return storySummary?.story.completed !== true
     ? undefined
     : review?.kind === "published"

@@ -7,6 +7,7 @@ import { IntentStoryCompare } from "./IntentStoryCompare.tsx";
 import {
   CompactComparisonState,
   ComparisonDetail,
+  compareOf,
 } from "./IntentStoryComparison.tsx";
 import type { StorySummary } from "./IntentStorySummary.tsx";
 import { shortRevision } from "./publishedWork.ts";
@@ -26,6 +27,8 @@ export function IntentHeader({
   readonly browserRevision: string | undefined;
 }) {
   const story = summary?.story;
+  const compare =
+    summary === undefined ? undefined : compareOf(summary.comparison);
   return (
     <section
       className="intent-header"
@@ -81,10 +84,7 @@ export function IntentHeader({
               comparison={summary.comparison}
               completed={summary.story.completed}
             />
-            {summary.comparison.state === "compared" &&
-              summary.comparison.compare !== undefined && (
-                <IntentStoryCompare compare={summary.comparison.compare} />
-              )}
+            {compare !== undefined && <IntentStoryCompare compare={compare} />}
           </div>
         </>
       )}

@@ -17,6 +17,7 @@ import {
 } from "./StoryReviewSessionRuns.tsx";
 import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
 import { storyReviewQuery } from "./storyReviewRead.ts";
+import { unreadReview } from "./StoryReviewFeedback.tsx";
 
 export function useStoryReviewSelection({
   subject,
@@ -155,6 +156,9 @@ export function useStoryReviewSelection({
       : runRead.reading
         ? undefined
         : runRead.problem,
+    // Why a chosen run other than the default answer's own holds no
+    // comparison, once its read settles.
+    runUnread: readsSelectedRun ? unreadReview(runRead) : undefined,
     onWorkspace,
     onRun,
     // A comparison chosen in the switch: the published completion is the

@@ -16,6 +16,7 @@ import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
 import { shownChoice } from "./StoryReviewComparison.tsx";
+import { unreadRange, type UnreadComparison } from "./StoryReviewFeedback.tsx";
 
 // The comparison such a view reads of a workspace: all changes, with its
 // uncommitted changes included as Review changes includes them at every
@@ -53,6 +54,8 @@ export function useStoryComparison({
   // The choice of what is compared, while the story has a workspace, a
   // published completion or captured landed runs.
   readonly compare: StoryCompare | undefined;
+  // Why the chosen comparison cannot be read, once settled.
+  readonly unreadable?: UnreadComparison | undefined;
 } {
   const subject: ReviewedStorySubject = { source, identity };
   // The choice is the story's, and a story becoming Done opens on its result.
@@ -68,6 +71,7 @@ export function useStoryComparison({
     onRun,
     runs,
     selectedRun,
+    runUnread,
     published,
     includeUncommitted,
     setIncludeUncommitted,
@@ -89,12 +93,14 @@ export function useStoryComparison({
     shown,
     onSelect,
     trunkIntegrated,
+    range,
   } = useStoryReviewComparison({
     subject,
     snapshot,
     chosen,
     includeUncommitted,
     keyedBy,
+    round,
     active: enabled && !completed && review?.selectedRun === undefined,
   });
   if (!enabled)
@@ -106,12 +112,25 @@ export function useStoryComparison({
       shown: undefined,
       compare: undefined,
     };
+  const storyShown = storyComparisonShown({
+    subject,
+    review,
+    comparison,
+    tree,
+  });
+  // A chosen run other than the answer's own, or a chosen commit range, read
+  // as the Side panel review explains them.
+  const unreadable =
+    reading || storyShown !== undefined
+      ? undefined
+      : (runUnread ?? (shown === "commits" ? unreadRange(range) : undefined));
   return {
     review,
     defaultReview,
     reading,
     problem,
-    shown: storyComparisonShown({ subject, review, comparison, tree }),
+    unreadable,
+    shown: storyShown,
     compare:
       (snapshot === undefined || review?.kind !== "snapshot") &&
       published === undefined &&

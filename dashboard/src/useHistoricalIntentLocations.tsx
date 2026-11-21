@@ -3,6 +3,7 @@
 // provenance. Missing history never borrows the project's current test tree.
 
 import { settledLocationsOf } from "./IntentLocationsUnavailable.tsx";
+import { defaultReviewOf } from "./IntentStoryComparison.tsx";
 import type { StorySummary } from "./IntentStorySummary.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { shortRevision } from "./publishedWork.ts";
@@ -15,8 +16,7 @@ export function useHistoricalIntentLocations(
   summary: StorySummary,
 ): ShownIntentLocations {
   const comparison = summary.comparison;
-  const review =
-    comparison.state === "compared" ? comparison.defaultReview : undefined;
+  const review = defaultReviewOf(comparison);
   const revision =
     review?.kind === "published"
       ? review.completion

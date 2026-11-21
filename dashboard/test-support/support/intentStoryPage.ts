@@ -49,6 +49,8 @@ export function storyHeaderReading(intent: Locator) {
     identity: region.locator(".record-identity"),
     revisions: region.locator(".intent-story-revisions"),
     status: region.getByRole("status"),
+    // A chosen comparison that cannot be read, with Retry after a failed read.
+    alert: region.getByRole("alert"),
     done: region.locator(".intent-story-done"),
   };
 }

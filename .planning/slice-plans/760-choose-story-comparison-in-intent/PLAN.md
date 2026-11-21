@@ -235,7 +235,7 @@ passed.
 ### 6. A chosen comparison that cannot be read explains itself
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a chosen landed run answered `unavailable`, or a commit range
 answered `unavailable` → Intent explains, where it explains the story's
@@ -250,6 +250,18 @@ gaps spec, using `answerRunSnapshot` and `answerRange` with `unavailable`
 answers and `holdNextRange` for a failed read.
 `intent-story-changes-gaps.spec.ts` and
 `intent-summary-story-comparison-gaps.spec.ts` stay green.
+
+**Accepted.** `intent-story-compare-gaps.spec.ts` (4 tests) shows an
+unavailable range or landed run explained in the header with the other
+choices offered, and Retry rereading a failed range or run read through
+`failNextRange` and `failNextRunSnapshot`. The refactor pass shared the
+unread wording through `StoryReviewFeedback.tsx`. Acceptance found that an
+unreadable choice dropped the whole-story note from CI comparison and
+Intent coverage; `otherThanDefaultChosen` now reads the choice in either
+state, and the gaps spec asserts the note, naming the measured build for a
+Done story. Proof opens only from a listed file, so it has no surface
+while the choice lists none. The intent folder (248), the review folder
+(357 with intent) and 21 e2e Intent, session and review specs passed.
 
 ## Local gates and review
 

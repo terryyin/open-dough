@@ -19,6 +19,7 @@ export function useStoryReviewComparison({
   includeUncommitted,
   active,
   keyedBy,
+  round = 0,
 }: {
   readonly subject: ReviewedWorkSubject;
   readonly snapshot: TakenStoryReview | undefined;
@@ -28,6 +29,8 @@ export function useStoryReviewComparison({
   readonly active: boolean;
   // A changed key drops the chosen ends, so Commits anchors as at first.
   readonly keyedBy?: string | undefined;
+  // How many times the reader asked for a new read.
+  readonly round?: number;
 }) {
   const { value: ends, set: setEnds } = useStateKeyedBy<
     readonly [string, string] | undefined
@@ -93,7 +96,7 @@ export function useStoryReviewComparison({
           })),
       ),
     },
-    { enabled: active && shown === "commits" },
+    { round, enabled: active && shown === "commits" },
   );
   const rangeComparison =
     !range.reading && range.answer?.kind === "comparison"

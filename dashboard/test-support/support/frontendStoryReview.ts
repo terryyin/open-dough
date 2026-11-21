@@ -16,6 +16,11 @@ import type {
 } from "../../src/storyReviewContract.ts";
 import { frontendReviewSnapshot } from "./frontendStoryReviewFixtures.ts";
 import {
+  storyReviewEndpoint,
+  storyReviewRangeEndpoint,
+} from "../../src/storyReviewContract.ts";
+import {
+  failNextReviewRead,
   installReviewRoutes,
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
@@ -57,6 +62,10 @@ export type FrontendStoryReview = {
   readonly holdNextRange: () => ReturnType<
     ReturnType<typeof controls>["holdNext"]
   >;
+  // The next range ask fails; later asks are answered as staged.
+  readonly failNextRange: () => Promise<void>;
+  // The next ask naming `run` fails; later asks are answered as staged.
+  readonly failNextRunSnapshot: (run: string) => Promise<void>;
   readonly answerFile: (diff: ReviewedFileDiff, path?: string) => void;
   readonly answerNextFile: (diff: ReviewedFileDiff, path?: string) => void;
   readonly holdNextFile: (
@@ -107,6 +116,13 @@ export async function installFrontendStoryReview(
       rangeCtl.answerNext(reviewRangeSchema.parse(range));
     },
     holdNextRange: () => rangeCtl.holdNext(),
+    failNextRange: () => failNextReviewRead(page, storyReviewRangeEndpoint),
+    failNextRunSnapshot: (run) =>
+      failNextReviewRead(
+        page,
+        storyReviewEndpoint,
+        (query) => query.get("run") === run,
+      ),
     answerFile: (diff, path) => {
       state.fileByPath.set(keyFor(path), reviewedFileDiffSchema.parse(diff));
     },
