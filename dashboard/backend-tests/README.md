@@ -59,9 +59,8 @@ declared branch is a MakeMe launch record entered at the entry
 `proposeBranchEntry` proposes, the rest of the arrangement from the Done
 capture helpers below.
 
-[`ad-hoc-session-commits.spec.ts`](review/ad-hoc-session-commits.spec.ts) and
 [`ad-hoc-session-commits-done.spec.ts`](review/ad-hoc-session-commits-done.spec.ts)
-call typed completion delivery and Done marks.
+calls typed completion delivery and Done marks and reads the saved session.
 [`ad-hoc-session-commits-pending-done.spec.ts`](review/ad-hoc-session-commits-pending-done.spec.ts)
 checks stale review and capture at the resolved Git tip.
 [`kept-commits-release.spec.ts`](review/kept-commits-release.spec.ts) calls the

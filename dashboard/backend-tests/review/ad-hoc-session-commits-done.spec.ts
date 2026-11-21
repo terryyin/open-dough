@@ -3,7 +3,7 @@ import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import type { LaunchHost } from "../../server/launchHosts.ts";
-import { keptRecords, keptSession } from "../../server/launchRecordStore.ts";
+import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import { nativeDoneMarkPending } from "../../src/doneMark.ts";
 import {
@@ -16,7 +16,6 @@ import {
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
-import { notCaptured, review } from "../support/doneCaptureReview.ts";
 import {
   aKeptReportingLaunch,
   keepReportedDone,
@@ -35,28 +34,48 @@ async function aSessionWithHeldRename() {
   const renameReleased = new Promise<void>((resolve) => {
     release = resolve;
   });
-  const rename: NonNullable<LaunchHost["rename"]> = async (
-    ...[, , , , stopped]
-  ) => {
-    stopped.addEventListener("abort", release, { once: true });
-    entered(stopped);
-    try {
-      await renameReleased;
-    } finally {
-      stopped.removeEventListener("abort", release);
-    }
-  };
-  const marks = marksWithRename(localFolder(checkout.integration), rename);
+  const rename = vi.fn<NonNullable<LaunchHost["rename"]>>(
+    async (...[, , , , stopped]) => {
+      stopped.addEventListener("abort", release, { once: true });
+      entered(stopped);
+      try {
+        await renameReleased;
+      } finally {
+        stopped.removeEventListener("abort", release);
+      }
+    },
+  );
+  const folder = localFolder(checkout.integration);
+  const marks = marksWithRename(folder, rename);
   onTestFinished(async () => {
     release();
     await marks.close();
   });
-  return { checkout, record, marks, renameEntered, origin, submission };
+  return {
+    checkout,
+    record,
+    folder,
+    marks,
+    rename,
+    renameEntered,
+    releaseRename: release,
+    origin,
+    submission,
+  };
 }
 
 test("a quiet report during an earlier rename wait refreshes the commits", async () => {
-  const { checkout, record, marks, renameEntered, origin, submission } =
-    await aSessionWithHeldRename();
+  const {
+    checkout,
+    record,
+    folder,
+    marks,
+    rename,
+    renameEntered,
+    releaseRename,
+    origin,
+    submission,
+  } = await aSessionWithHeldRename();
   const reported = vi.spyOn(marks, "reported");
   const { first } = await work(
     checkout,
@@ -65,10 +84,10 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
   vi.setSystemTime(minutesAgo(30));
   const earlier = await deliverCompletion(submission, origin, marks);
   const stopped = await renameEntered;
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "session-commits",
-    session: { doneAt: earlier.receivedAt },
-    tree: first,
+  expect(reported).toHaveBeenCalledExactlyOnceWith(source, earlier);
+  expect(await keptSession(source, record.session)).toMatchObject({
+    doneAt: earlier.receivedAt,
+    sessionCommits: { runs: [{ base: checkout.base, revision: first }] },
   });
 
   const { second } = await work(
@@ -77,14 +96,22 @@ test("a quiet report during an earlier rename wait refreshes the commits", async
   );
   vi.setSystemTime(minutesAgo(10));
   const later = await deliverCompletion(submission, origin, marks);
+  expect(reported).toHaveBeenNthCalledWith(2, source, later);
   await reported.mock.results[1]?.value;
 
   expect(stopped.aborted).toBe(false);
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "session-commits",
-    session: { doneAt: later.receivedAt },
-    commitRuns: [{ commits: 2, subject: "Add second.txt" }],
-    tree: second,
+  expect(rename).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({ session: record.session }),
+    folder,
+    expect.any(Function),
+    "reporting",
+    stopped,
+  );
+  releaseRename();
+  await expect(reported.mock.results[0]?.value).resolves.toBeUndefined();
+  expect(await keptSession(source, record.session)).toMatchObject({
+    doneAt: later.receivedAt,
+    sessionCommits: { runs: [{ base: checkout.base, revision: second }] },
   });
 });
 
@@ -134,12 +161,10 @@ test("reopening keeps the earlier commit run until the next Done", async () => {
   const doneAt = minutesAgo(10);
   vi.setSystemTime(doneAt);
   await markDone(record, doneAt);
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "session-commits",
-    session: { launchedAt: record.launchedAt, doneAt },
-    baseline: checkout.base,
-    tree: second,
-    commitRuns: [{ commits: 2, subject: "Add second.txt" }],
+  expect(await keptSession(source, record.session)).toMatchObject({
+    launchedAt: record.launchedAt,
+    doneAt,
+    sessionCommits: { runs: [{ base: checkout.base, revision: second }] },
   });
 });
 
@@ -173,12 +198,9 @@ test("a quiet report after confirmed native Done keeps the additional commit", a
 
   expect(receipt.receivedAt).not.toBe(earlierDone);
   expect(rename).not.toHaveBeenCalled();
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "session-commits",
-    session: { doneAt: receipt.receivedAt },
-    baseline: checkout.base,
-    tree: second,
-    commitRuns: [{ commits: 2, subject: "Add second.txt" }],
+  expect(await keptSession(source, record.session)).toMatchObject({
+    doneAt: receipt.receivedAt,
+    sessionCommits: { runs: [{ base: checkout.base, revision: second }] },
   });
 });
 
@@ -210,8 +232,7 @@ test("retrying the same quiet delivery resumes native Done without repeating its
 
   expect(rename).toHaveBeenCalledTimes(1);
   const kept = await keptSession(source, record.session);
+  expect(kept).toMatchObject({ doneAt, sessionCommitsFailedAt: doneAt });
   expect(kept?.doneProblem).toBeUndefined();
-  expect(kept?.sessionCommits).toEqual(record.sessionCommits);
-  expect(kept?.sessionCommitsFailedAt).toBe(doneAt);
-  expect(await review(await keptRecords(source), record)).toEqual(notCaptured);
+  expect(kept?.sessionCommits).toBeUndefined();
 });

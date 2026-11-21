@@ -4,11 +4,7 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
-import {
-  deleteRecord,
-  keptRecords,
-  keptSession,
-} from "../../server/launchRecordStore.ts";
+import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
   aCheckout,
@@ -23,7 +19,7 @@ import {
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileText, review } from "../support/doneCaptureReview.ts";
+import { fileText } from "../support/doneCaptureReview.ts";
 
 // A kept isolated launch whose worktree started on `draft` at the base.
 async function anIsolatedDraft() {
@@ -53,16 +49,24 @@ test("reopening keeps the branch evidence and refuses the old file pair", async 
   const { baseline, record, commit, pins } = await anIsolatedDraft();
   const first = await commit("first", 30);
   await markDone(record);
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    kind: "branch-result",
-    tree: first,
-  });
   const originalPins = await pins();
+  expect(originalPins).toMatchObject([
+    { objectId: baseline },
+    { objectId: first },
+  ]);
 
   await undoDone(record);
 
+  const reopened = await keptSession(source, record.session);
+  if (reopened === undefined)
+    throw new Error("The reopened session is missing.");
+  expect(reopened.doneAt).toBeUndefined();
+  expect(reopened.branchResult).toMatchObject({
+    base: baseline,
+    revision: first,
+  });
   expect(await pins()).toEqual(originalPins);
-  const oldFile = fileText(await keptRecords(source), record, {
+  const oldFile = fileText([reopened], record, {
     baseline,
     tree: first,
     path: "first.txt",
@@ -100,7 +104,7 @@ test("a newer Done wins when an earlier Done waits after capture", async () => {
   ]);
 });
 
-test("deleting a record after branch capture leaves no pins when Done settles", async () => {
+test("deleting a record after branch capture leaves no session or pins when Done settles", async () => {
   const { record, commit, pins } = await anIsolatedDraft();
   await commit("abandoned", 30);
   const done = aHeldDone(record);
@@ -112,5 +116,6 @@ test("deleting a record after branch capture leaves no pins when Done settles", 
     await done.marking;
   }
 
+  expect(await keptSession(source, record.session)).toBeUndefined();
   expect(await pins()).toEqual([]);
 });

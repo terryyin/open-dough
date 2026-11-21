@@ -5,7 +5,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keptRecords } from "../../server/launchRecordStore.ts";
+import { keptRecords, keptSession } from "../../server/launchRecordStore.ts";
 import {
   aCheckout,
   aDefaultLaunch,
@@ -86,7 +86,7 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
   expect(readFileSync(indexPath)).toEqual(index);
 });
 
-test("Done stores and pins the commit of an established Default main session and its review answers the kept run", async () => {
+test("Done stores and pins the commit of an established Default main session", async () => {
   const { checkout, record } = await aKeptSession();
   const { base, integration } = checkout;
   const { typo } = await work(
@@ -94,11 +94,13 @@ test("Done stores and pins the commit of an established Default main session and
     makeMe.aCheckoutWork.committing("typo", { at: minutesAgo(30) }),
   );
 
-  await markDone(record);
+  const doneAt = minutesAgo(10);
+  await markDone(record, doneAt);
 
-  expect(await keptRecords(source)).toMatchObject([
-    { sessionCommits: { runs: [{ base, revision: typo }] } },
-  ]);
+  expect(await keptSession(source, record.session)).toMatchObject({
+    doneAt,
+    sessionCommits: { runs: [{ base, revision: typo }] },
+  });
   const refs =
     "refs/open-dough/session-commits/claude/established-default-main/0";
   expect(
@@ -111,9 +113,4 @@ test("Done stores and pins the commit of an established Default main session and
       )
     ).stdout,
   ).toBe(`${refs}/base ${base}\n${refs}/revision ${typo}\n`);
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    commitRuns: [
-      { commits: 1, subject: "Add typo.txt", baseline: base, tree: typo },
-    ],
-  });
 });

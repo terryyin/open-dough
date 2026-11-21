@@ -22,7 +22,8 @@
   the slice 3 push-triggered run 44845496590 under the same concurrency group.
 - Slice 4 accepted at `c16c2420094baa6f1c686ed9cb5a574c088a21d4` and reused the
   live observer.
-
+- Slice 5 accepted at `0c95fce81672b657968fde5c5f46bfe46e397126` and reused the
+  live observer.
 
 ## Correction input
 
@@ -278,7 +279,7 @@ See `slice5-return.md`, `slice5-saved-supersession.log.run.json` and
 ### 6. Observe lifecycle results in saved records and refs
 
 Type: Structure
-Status: planned
+Status: done
 
 In completion/reopen/retry and remaining branch supersession cases observe saved Done
 time, runs, failure markers and pins alongside the native events and ordering
@@ -291,6 +292,18 @@ replacement of that fixture.
 **Proof.** The cases detect a stale capture winning, a retry recapturing a
 failed Done, and deletion or expiry retaining evidence or resurrecting a
 record. The saved-state cases have fewer full comparison and file reads.
+
+**Accepted proof.** Seventeen cases in four backend specs passed at default
+settings. Completion, reopen, retry and supersession now observe saved Done
+fields and pins together with native ordering and removal. The held-rename
+case carries the removed standalone example's receipt and native rename
+arguments. The two Default main historical reads still pass after trunk
+advance and after prune; the old branch-pair refusal remains.
+Cases go from 11 to 10 and full Review reads from 11 to 3 across the affected
+specs. See `slice6-return.md`, `slice6-lifecycle.log.run.json` and
+`slice6-lifecycle.json`. The observed plan 736 branch at `1bb48cd6f` still owns
+its restart and actual revision-pin cases; this delivery leaves those paths
+with their owner.
 
 ### 7. Verify delivery attribution at the Git decision
 
