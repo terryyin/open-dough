@@ -103,9 +103,6 @@ export function mountedReviewDiff() {
           `li.story-review-removed[data-old="${String(number)}"]`,
         ),
       ),
-    hunkMarks: (header: string) =>
-      diffMarks(reading.getByRole("list", { name: header, exact: true }))
-        .observations,
     firstToken: () => reading.getByCSS(".source-token").first(),
     scrollTop: () => reading.element().scrollTop,
     openLineMenu: (label: string) =>

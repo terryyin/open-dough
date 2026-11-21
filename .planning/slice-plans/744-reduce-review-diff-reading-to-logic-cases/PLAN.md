@@ -119,7 +119,7 @@ that one path.
 ### 3. Word emphasis reads as logic
 
 Type: Structure
-Status: planned
+Status: done
 
 Replace the word-emphasis mounted cases with logic cases over
 `emphasizedRangesByLine` on `parsedUnifiedDiff` hunks from
@@ -132,6 +132,14 @@ and no emphasis on revealed context, unless
 **Proof.** The logic spec passes and fails on scratch edits to
 `MIN_BLOCK_WORD_SIMILARITY` and `MAX_BLOCK_LINES_TO_COMPARE`; the mounted
 case passes.
+
+**Result.** `story-review-diff-word-emphasis.spec.ts` holds seven logic cases
+over `emphasizedRangesByLine` per parsed hunk, as `StoryReviewDiffLines`
+reads it, each in 0–2 ms. `story-review-diff-word-emphasis-decoration.spec.ts`
+keeps one mounted case (409 ms median) for underline, plain copy and
+unemphasized revealed context; `syntax-appearance-mounted` checks only
+underline contrast. `wordEmphasisCases.ts` keeps file texts only for `limit`
+and `limitAtPath`.
 
 ### 4. Each line's side tokens read as logic
 
