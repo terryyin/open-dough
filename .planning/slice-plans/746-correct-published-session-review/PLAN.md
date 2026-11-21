@@ -412,7 +412,7 @@ Accepted: evidence `s7-slice7-return-report.md`. Commitment 6 observed. Refactor
 ### 8. Header journeys hold the exact opening-read budget
 
 Type: Structure
-Status: planned
+Status: done
 
 **Structure.** Restore exact counts in `dashboard-header.spec.ts`: the
 settled opening reads and the walk, and each project's reads after
@@ -431,6 +431,8 @@ Assertion gap). The settled project-selection budget measured there is 6.
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --silent test:dashboard:frontend -- navigation/dashboard-header
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
+
+Accepted: evidence `s8-slice8-return-report.md`. Commitment 15 observed (21 and 6/6). Refactor: already clean (test-only exact pin).
 
 ## Local gates
 
