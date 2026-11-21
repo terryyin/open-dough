@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-420#open-review-in-intent",
+  "mode": "story-branch",
+  "branch": "claude/read-every-file-a-story-changed-in-intent",
+  "host": "claude"
+}
