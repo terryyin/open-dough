@@ -14,11 +14,10 @@ import {
 } from "./launchLandingAdmission.ts";
 import {
   decideLanding,
-  declaredLandingRecord,
-  expiredAttemptRecord,
   landingDecisionReceipt,
   type LandingDecision,
 } from "./launchLandingDecision.ts";
+import { decideRetainedLanding } from "./retainedLandingDecision.ts";
 import { registerFollowUpReceipt } from "./ciFollowUpAdmission.ts";
 import { pinLanding } from "./launchLandingGit.ts";
 import { replaceAttempts, withKeptAttempts } from "./launchAttemptStore.ts";
@@ -48,8 +47,9 @@ export const machineLandingStores: LandingStores = {
 async function saveLandingRecordChange(
   stores: LandingStores,
   sourceId: string,
-  change: LandingRecordChange,
+  change: LandingRecordChange | undefined,
 ): Promise<void> {
+  if (change === undefined) return;
   await stores.replaceRecords((document) => {
     const current = document[sourceId] ?? [];
     const next = change(current);
@@ -106,8 +106,13 @@ export async function handleLanding(
   stores: LandingStores = machineLandingStores,
 ): Promise<LandingReceipt> {
   try {
-    const receiptId = randomUUID();
-    const receivedAt = new Date().toISOString();
+    const delivery = {
+      report,
+      origin,
+      operation,
+      receiptId: randomUUID(),
+      receivedAt: new Date().toISOString(),
+    };
     // Retained landings keep the attempt store untouched (including an
     // unreadable attempts file) under the shared read lock, as before.
     const retained = await stores.withKeptAttempts(async (kept) => {
@@ -115,26 +120,18 @@ export async function handleLanding(
         (entry) => entry.request.source === report.source,
       );
       const records = await stores.keptRecords(report.source);
-      const record =
-        declaredLandingRecord(records, report, origin) ??
-        expiredAttemptRecord(attempts, records, report, origin);
-      if (record === undefined) return undefined;
-      const answered = await decideLanding(
-        report,
-        origin,
-        operation,
+      const answered = await decideRetainedLanding({
+        ...delivery,
         attempts,
         records,
-        receiptId,
-        receivedAt,
-      );
+      });
+      if (answered === undefined) return undefined;
       await pinNewLanding(report, attempts, records, answered);
-      if (answered.changeRecords !== undefined)
-        await saveLandingRecordChange(
-          stores,
-          report.source,
-          answered.changeRecords,
-        );
+      await saveLandingRecordChange(
+        stores,
+        report.source,
+        answered.changeRecords,
+      );
       return answered;
     });
     if (retained !== undefined) return landingDecisionReceipt(retained);
@@ -143,17 +140,18 @@ export async function handleLanding(
     await stores.replaceAttempts(async (kept) => {
       const attempts = kept[report.source] ?? [];
       const records = await stores.keptRecords(report.source);
-      const answered = await decideLanding(
-        report,
-        origin,
-        operation,
-        attempts,
-        records,
-        receiptId,
-        receivedAt,
-      );
+      const answered = await decideLanding({ ...delivery, attempts, records });
       await pinNewLanding(report, attempts, records, answered);
       decided = answered;
+      if (answered.nextAttempts === undefined) {
+        // The landing can become retained between locking attempts for read and write.
+        await saveLandingRecordChange(
+          stores,
+          report.source,
+          answered.changeRecords,
+        );
+        return leaveMachineJson;
+      }
       if (!answered.isNew) return kept;
       return {
         ...kept,
@@ -163,7 +161,7 @@ export async function handleLanding(
     if (decided === undefined) throw new Error("No stored landing receipt.");
     const answered = decided;
     const change = answered.changeRecords;
-    if (change !== undefined) {
+    if (answered.nextAttempts !== undefined && change !== undefined) {
       await stores.withKeptAttempts(() =>
         saveLandingRecordChange(stores, report.source, change),
       );

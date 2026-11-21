@@ -24,6 +24,12 @@
   `e4554c51f7d03ca34bc1f89270ead1244c71b5dd`, attached to the same observer.
 - Slice 2 accepted on the same branch and observer at
   `a58d03eacfcce654007a9c7e9467918c411eb186`.
+- Slice 3 accepted on the same branch and observer at
+  `e1f8d3b1e9afa62d97fcfedeb1bb49208b3f5d7f`.
+- GitHub canceled the superseded slice 2 push run `44848314743/1`
+  after the slice 3 push had scheduled run `44849901905` on the same
+  branch. The workflow cancels in-progress runs on superseding pushes
+  to the same ref.
 
 ## Correction input
 
@@ -240,7 +246,7 @@ selections, terminal results and separate timeout evidence.
 ### 4. Decide landings over one typed input and its own clock
 
 Type: Structure
-Status: planned
+Status: done
 
 Apply the decision-input decision: typed input, `receivedAt` for expiry,
 no re-export, no `path`, no duplicate retained lookup in `handleLanding`.
@@ -248,6 +254,19 @@ no re-export, no `path`, no duplicate retained lookup in `handleLanding`.
 **Proof.** Landing decision, retained, publisher and Done-landing specs pass;
 a retained expiry case decides by `receivedAt` (a `receivedAt` past the
 window refuses or expires as `Date.now()` did) without faking time.
+
+**Observed.** The adapter delegates retained lookup to the decision and uses
+an optional attempt update in place of `path`. A result that becomes retained
+between the two attempt-lock acquisitions saves under the lock in which it
+was decided. The two stable paths were exercised and the between-lock
+transition was inspected in the handler.
+
+The fixed receipt-time case returned the intended 404. Restoring `Date.now()`
+for that case returned a comparison 409, which the assertion rejected.
+Keep this refusal when moving the decisions into tables. The serial cohort
+passed 24 cases in 11 files without retries, including the publisher and
+mixed cases and the native retained route. See `slice-4-report.md` in the
+worktree Git evidence.
 
 ### 5. Landing admission agrees with the local origin rule and its order
 

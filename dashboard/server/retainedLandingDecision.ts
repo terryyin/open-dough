@@ -1,12 +1,14 @@
 // Retained-record landings: declared branch handoffs and expired attempts.
-import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import { landingReportingReference } from "../src/launchLanding.ts";
 import { launchRetentionDays, type LaunchRecord } from "../src/launchRecord.ts";
 import { storyOf } from "../src/launchWorkflow.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
-import type { LandingDecision } from "./launchLandingDecision.ts";
+import type {
+  LandingDecision,
+  LandingDecisionInput,
+} from "./launchLandingDecision.ts";
 import { establishedStory } from "./launchRecord.ts";
 import {
   changeBoundLandingRecord,
@@ -20,7 +22,7 @@ import { RefusedRequest } from "./localOrigin.ts";
 
 // The bound record is authoritative for a branch handoff, even while the
 // original startup attempt is still kept.
-export function declaredLandingRecord(
+function declaredLandingRecord(
   records: readonly LaunchRecord[],
   report: LandingSubmission,
   origin: string,
@@ -54,12 +56,13 @@ export function declaredLandingRecord(
   return record;
 }
 
-export function expiredAttemptRecord(
-  attempts: readonly LaunchAttemptRecord[],
-  records: readonly LaunchRecord[],
-  report: LandingSubmission,
-  origin: string,
-): LaunchRecord | undefined {
+function expiredAttemptRecord({
+  attempts,
+  records,
+  report,
+  origin,
+  receivedAt,
+}: LandingDecisionInput): LaunchRecord | undefined {
   if (attempts.some((entry) => entry.id === report.reference)) {
     reportingAttempt(attempts, report, origin);
     return undefined;
@@ -73,7 +76,7 @@ export function expiredAttemptRecord(
   if (
     retained === undefined ||
     retained.settledAt === undefined ||
-    Date.now() - Date.parse(retained.settledAt) <=
+    Date.parse(receivedAt) - Date.parse(retained.settledAt) <=
       launchRetentionDays * 86_400_000 ||
     retained.origin !== origin
   )
@@ -111,14 +114,14 @@ export function expiredAttemptRecord(
 }
 
 export async function decideRetainedLanding(
-  record: LaunchRecord,
-  report: LandingSubmission,
-  prepare: boolean,
-  attempts: readonly LaunchAttemptRecord[],
-  records: readonly LaunchRecord[],
-  receiptId: string,
-  receivedAt: string,
-): Promise<LandingDecision> {
+  input: LandingDecisionInput,
+): Promise<LandingDecision | undefined> {
+  const { records, report, origin, operation, receiptId, receivedAt } = input;
+  const record =
+    declaredLandingRecord(records, report, origin) ??
+    expiredAttemptRecord(input);
+  if (record === undefined) return undefined;
+  const prepare = operation === "prepare";
   const current = records.find(
     (entry) =>
       "session" in entry &&
@@ -147,8 +150,6 @@ export async function decideRetainedLanding(
       landing,
       isNew: false,
       state: prepare ? "prepared" : "recorded",
-      path: "retained",
-      nextAttempts: attempts,
     };
   const changeRecords = changeBoundLandingRecord(current, (record) => {
     const reporting = record.landingReporting;
@@ -166,8 +167,6 @@ export async function decideRetainedLanding(
     landing,
     isNew: true,
     state: prepare ? "prepared" : "recorded",
-    path: "retained",
-    nextAttempts: attempts,
     changeRecords,
   };
 }

@@ -27,11 +27,11 @@ and preservation of creation records on writes.
 | 13 | When the same session is marked Done while the handoff copies context, the saved record gains no landing reporting. | slice 2 | observed: branch-landing-handoff.spec.ts concurrent Done leaves persisted landingReporting absent |
 | 14 | The branch handoff includes `landingContext` only for a file it saved. In the concurrent Done journey, the answer carries no `landingContext`. | slice 2 | observed: branch-landing-handoff.spec.ts concurrent Done and changed entry cases omit landingContext; handler verifies saved reporting object |
 | 15 | Without a concurrent change, the branch handoff answers with the saved file. | slice 2 | observed: branch-landing-handoff.spec.ts default context maker succeeds and the returned path equals the saved path and opens with the saved reference |
-| 16 | The test-only re-export of `decideAttemptLanding` is retired. | slice 4 | |
-| 17 | The duplicate retained lookup in `handleLanding` is removed. | slice 4 | |
-| 18 | The unused `LandingDecision.path` is removed. | slice 4 | |
-| 19 | The decision takes `now` from `receivedAt` in place of `Date.now()`. | slice 4 | |
-| 20 | The decision takes a typed input in place of seven positional arguments. | slice 4 | |
+| 16 | The test-only re-export of `decideAttemptLanding` is retired. | slice 4 | observed: launchLandingDecision.ts no attempt decision re-export; launchLandingDecision.spec.ts exercises the public decideLanding |
+| 17 | The duplicate retained lookup in `handleLanding` is removed. | slice 4 | observed: handleLanding asks decideRetainedLanding for the locked retained path; retainedLandingDecision.ts owns record selection |
+| 18 | The unused `LandingDecision.path` is removed. | slice 4 | observed: LandingDecision uses an optional attempt update without path; both focused decision specs observe update/no-update results |
+| 19 | The decision takes `now` from `receivedAt` in place of `Date.now()`. | slice 4 | observed: retainedLandingDecision.spec.ts receipt-time 404 differs from scratch wall-clock 409 in slice-4-clock-red.log and passes with receivedAt |
+| 20 | The decision takes a typed input in place of seven positional arguments. | slice 4 | observed: LandingDecisionInput in launchLandingDecision.ts is shared by decideLanding and decideAttemptLanding; adapter and direct specs build named inputs |
 | 21 | Landing admission accepts requests that `verifyLocalOrigin` accepts, including a request with `Sec-Fetch-Site: same-origin` and no `Origin` header. | slice 5 | |
 | 22 | Landing admission returns 405 before 415, preserving the existing precedence. A GET with non-JSON content type receives 405. | slice 5 | |
 | 23 | `composedLandingStores` reads session records only through `keptRecords` when applying writes. | slice 1 | observed: composedLandingStores.ts keptRecords applies the session discriminator to withinRetention; landingRecordPersistence.spec.ts passes creation in the persisted document |

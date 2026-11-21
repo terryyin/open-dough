@@ -1,10 +1,10 @@
 // Attempt-path prepare or record when no retained record owns the landing.
-import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
 import { storyOf } from "../src/launchWorkflow.ts";
 import { reportingAttempt } from "./completionAdmission.ts";
-import type { LandingSubmission } from "./launchLandingAdmission.ts";
-import type { LandingDecision } from "./launchLandingDecision.ts";
+import type {
+  LandingDecision,
+  LandingDecisionInput,
+} from "./launchLandingDecision.ts";
 import {
   boundLandingReporting,
   changeBoundLandingRecord,
@@ -17,15 +17,15 @@ import {
 } from "./launchLandingReservation.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
-export async function decideAttemptLanding(
-  report: LandingSubmission,
-  origin: string,
-  operation: "prepare" | "record",
-  attempts: readonly LaunchAttemptRecord[],
-  records: readonly LaunchRecord[],
-  receiptId: string,
-  receivedAt: string,
-): Promise<LandingDecision> {
+export async function decideAttemptLanding({
+  report,
+  origin,
+  operation,
+  attempts,
+  records,
+  receiptId,
+  receivedAt,
+}: LandingDecisionInput): Promise<LandingDecision> {
   const prepare = operation === "prepare";
   const attempt = reportingAttempt(attempts, report, origin);
   const authority = authorizedLanding(attempt.landingRepository, report);
@@ -105,7 +105,6 @@ export async function decideAttemptLanding(
       : bound !== undefined
         ? "recorded"
         : "pending-native-session",
-    path: "attempt",
     nextAttempts,
     changeRecords,
   };

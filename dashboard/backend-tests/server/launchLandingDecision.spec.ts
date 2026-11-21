@@ -17,7 +17,7 @@ import {
   reportingReference,
   revisionSha,
 } from "../support/attemptLandingDecisionCase.ts";
-import { decideAttemptLanding } from "../../server/launchLandingDecision.ts";
+import { decideLanding } from "../../server/launchLandingDecision.ts";
 
 test("a deleted reporting session refuses a landing from composed values", async () => {
   const authority = aWorktreeAuthority();
@@ -29,15 +29,15 @@ test("a deleted reporting session refuses a landing from composed values", async
 
   await expect(
     refuse(() =>
-      decideAttemptLanding(
-        aSubmission({ base: baseSha, revision: revisionSha }),
+      decideLanding({
+        report: aSubmission({ base: baseSha, revision: revisionSha }),
         origin,
-        "prepare",
-        [attempt],
-        [record],
-        landingReceipt,
-        receiptTime,
-      ),
+        operation: "prepare",
+        attempts: [attempt],
+        records: [record],
+        receiptId: landingReceipt,
+        receivedAt: receiptTime,
+      }),
     ),
   ).resolves.toEqual({
     status: 409,
@@ -53,15 +53,15 @@ test("a launch with an outcome but no bound record refuses", async () => {
 
   await expect(
     refuse(() =>
-      decideAttemptLanding(
-        aSubmission({ base: baseSha, revision: revisionSha }),
+      decideLanding({
+        report: aSubmission({ base: baseSha, revision: revisionSha }),
         origin,
-        "prepare",
-        [attempt],
-        [],
-        landingReceipt,
-        receiptTime,
-      ),
+        operation: "prepare",
+        attempts: [attempt],
+        records: [],
+        receiptId: landingReceipt,
+        receivedAt: receiptTime,
+      }),
     ),
   ).resolves.toEqual({
     status: 409,
@@ -77,15 +77,18 @@ test("another story's identity refuses", async () => {
 
   await expect(
     refuse(() =>
-      decideAttemptLanding(
-        aSubmission({ base: baseSha, revision: revisionSha }, "SEED-413#other"),
+      decideLanding({
+        report: aSubmission(
+          { base: baseSha, revision: revisionSha },
+          "SEED-413#other",
+        ),
         origin,
-        "prepare",
-        [attempt],
-        [],
-        landingReceipt,
-        receiptTime,
-      ),
+        operation: "prepare",
+        attempts: [attempt],
+        records: [],
+        receiptId: landingReceipt,
+        receivedAt: receiptTime,
+      }),
     ),
   ).resolves.toEqual({
     status: 409,
@@ -98,15 +101,15 @@ test("recording a comparison that was never prepared is refused as plain values"
 
   await expect(
     refuse(() =>
-      decideAttemptLanding(
-        aSubmission({ base: baseSha, revision: revisionSha }),
+      decideLanding({
+        report: aSubmission({ base: baseSha, revision: revisionSha }),
         origin,
-        "record",
-        [attempt],
-        [],
-        landingReceipt,
-        receiptTime,
-      ),
+        operation: "record",
+        attempts: [attempt],
+        records: [],
+        receiptId: landingReceipt,
+        receivedAt: receiptTime,
+      }),
     ),
   ).resolves.toEqual({
     status: 409,
@@ -126,21 +129,21 @@ test("a second prepare of the same delivery answers the first receipt as plain v
     .please();
   const attempts = [aReportingAttempt({ authority, preparations: [prepared] })];
 
-  const decision = await decideAttemptLanding(
-    aSubmission({ base: baseSha, revision: revisionSha }),
+  const decision = await decideLanding({
+    report: aSubmission({ base: baseSha, revision: revisionSha }),
     origin,
-    "prepare",
+    operation: "prepare",
     attempts,
-    [],
-    "55555555-5555-4555-8555-555555555555",
-    "2026-11-20T13:00:00.000Z",
-  );
+    records: [],
+    receiptId: "55555555-5555-4555-8555-555555555555",
+    receivedAt: "2026-11-20T13:00:00.000Z",
+  });
 
   expect(decision.isNew).toBe(false);
   expect(decision.state).toBe("prepared");
   expect(decision.landing).toEqual(prepared);
   expect(decision.nextAttempts).toBe(attempts);
-  expect(decision.nextAttempts[0]?.landingPreparations).toEqual([prepared]);
+  expect(decision.nextAttempts?.[0]?.landingPreparations).toEqual([prepared]);
 });
 
 test("a different comparison after acceptance refuses", async () => {
@@ -156,15 +159,15 @@ test("a different comparison after acceptance refuses", async () => {
 
   await expect(
     refuse(() =>
-      decideAttemptLanding(
-        aSubmission({ base: baseSha, revision: otherSha }),
+      decideLanding({
+        report: aSubmission({ base: baseSha, revision: otherSha }),
         origin,
-        "record",
-        [attempt],
-        [],
-        landingReceipt,
-        receiptTime,
-      ),
+        operation: "record",
+        attempts: [attempt],
+        records: [],
+        receiptId: landingReceipt,
+        receivedAt: receiptTime,
+      }),
     ),
   ).resolves.toEqual({
     status: 409,
@@ -177,15 +180,15 @@ test("a new prepare answers prepared with next attempts holding the pair", async
   const attempt = aReportingAttempt({ authority });
   const report = aSubmission({ base, revision });
 
-  const decision = await decideAttemptLanding(
+  const decision = await decideLanding({
     report,
     origin,
-    "prepare",
-    [attempt],
-    [],
-    landingReceipt,
-    receiptTime,
-  );
+    operation: "prepare",
+    attempts: [attempt],
+    records: [],
+    receiptId: landingReceipt,
+    receivedAt: receiptTime,
+  });
 
   expect(decision.isNew).toBe(true);
   expect(decision.state).toBe("prepared");
@@ -201,7 +204,7 @@ test("a new prepare answers prepared with next attempts holding the pair", async
     receivedAt: receiptTime,
   });
   expect(decision.nextAttempts).toHaveLength(1);
-  expect(decision.nextAttempts[0]?.landingPreparations).toEqual([
+  expect(decision.nextAttempts?.[0]?.landingPreparations).toEqual([
     decision.landing,
   ]);
 });

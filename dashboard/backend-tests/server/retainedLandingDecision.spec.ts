@@ -26,15 +26,15 @@ test("a declared branch landing from another origin is refused", async () => {
 
   await expect(
     refuse(() =>
-      decideLanding(
-        aSubmission({ base: baseSha, revision: revisionSha }),
-        "http://127.0.0.1:9999",
-        "prepare",
-        [],
-        [record],
-        landingReceipt,
-        receiptTime,
-      ),
+      decideLanding({
+        report: aSubmission({ base: baseSha, revision: revisionSha }),
+        origin: "http://127.0.0.1:9999",
+        operation: "prepare",
+        attempts: [],
+        records: [record],
+        receiptId: landingReceipt,
+        receivedAt: receiptTime,
+      }),
     ),
   ).resolves.toEqual({
     status: 409,
@@ -51,15 +51,15 @@ test("a declared branch landing from another host is refused", async () => {
 
   await expect(
     refuse(() =>
-      decideLanding(
+      decideLanding({
         report,
         origin,
-        "prepare",
-        [],
-        [record],
-        landingReceipt,
-        receiptTime,
-      ),
+        operation: "prepare",
+        attempts: [],
+        records: [record],
+        receiptId: landingReceipt,
+        receivedAt: receiptTime,
+      }),
     ),
   ).resolves.toEqual({
     status: 409,
@@ -74,15 +74,15 @@ test("a deleted declared landing is refused", async () => {
 
   await expect(
     refuse(() =>
-      decideLanding(
-        aSubmission({ base: baseSha, revision: revisionSha }),
+      decideLanding({
+        report: aSubmission({ base: baseSha, revision: revisionSha }),
         origin,
-        "prepare",
-        [],
-        [record],
-        landingReceipt,
-        receiptTime,
-      ),
+        operation: "prepare",
+        attempts: [],
+        records: [record],
+        receiptId: landingReceipt,
+        receivedAt: receiptTime,
+      }),
     ),
   ).resolves.toEqual({
     status: 409,
@@ -90,24 +90,24 @@ test("a deleted declared landing is refused", async () => {
   });
 });
 
-test("an expired attempt inside retention is refused", async () => {
+test("a missing attempt inside retention at receipt time is refused", async () => {
   const authority = aWorktreeAuthority();
   const record = aSettledRetainedRecord({
     authority,
-    settledAt: new Date().toISOString(),
+    settledAt: "2000-11-20T12:00:00.000Z",
   });
 
   await expect(
     refuse(() =>
-      decideLanding(
-        aSubmission({ base: baseSha, revision: revisionSha }),
+      decideLanding({
+        report: aSubmission({ base: baseSha, revision: revisionSha }),
         origin,
-        "prepare",
-        [],
-        [record],
-        landingReceipt,
-        receiptTime,
-      ),
+        operation: "record",
+        attempts: [],
+        records: [record],
+        receiptId: landingReceipt,
+        receivedAt: "2000-11-21T12:00:00.000Z",
+      }),
     ),
   ).resolves.toEqual({
     status: 404,
@@ -134,7 +134,7 @@ test("an expired attempt beyond retention records against its retained record", 
     .receivedAt(receiptTime)
     .please();
   const settledAt = new Date(
-    Date.now() - (launchRetentionDays + 1) * 86_400_000,
+    Date.parse(receiptTime) - (launchRetentionDays + 1) * 86_400_000,
   ).toISOString();
   const records = [
     aSettledRetainedRecord({
@@ -144,20 +144,20 @@ test("an expired attempt beyond retention records against its retained record", 
     }),
   ];
 
-  const decision = await decideLanding(
-    aSubmission({ base, revision }),
+  const decision = await decideLanding({
+    report: aSubmission({ base, revision }),
     origin,
-    "record",
-    [],
+    operation: "record",
+    attempts: [],
     records,
-    landingReceipt,
-    receiptTime,
-  );
+    receiptId: landingReceipt,
+    receivedAt: receiptTime,
+  });
 
   expect(decision.isNew).toBe(true);
   expect(decision.state).toBe("recorded");
   expect(decision.landing).toEqual(prepared);
-  expect(decision.nextAttempts).toEqual([]);
+  expect(decision.nextAttempts).toBeUndefined();
   expect(decision.changeRecords?.(records)[0]).toMatchObject({
     landing: prepared,
   });
