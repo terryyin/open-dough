@@ -208,6 +208,12 @@ readers.
 saved `Intent → Changed tests` note still reading. Story view panels are
 found through `storyTabPanel` in `dashboard/test-support/intentModePage.ts`.
 
+**CI repair.** Run 44921720807 on `0596f54e` failed
+`e2e/sessions/agent-terminal-done-pending.spec.ts`: both held-Done journeys
+expected the panel to close within 5 s of releasing the held POST. They now
+wait for the Done answer. `agent-terminal-done.spec.ts` stays near its 30 s
+limit under local load.
+
 ### 5. A project without Intent locations lists the story's changed files
 
 Type: Behavior
