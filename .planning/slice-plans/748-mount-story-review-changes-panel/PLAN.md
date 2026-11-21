@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#mount-story-review-changes-panel
 **Source:** [Read the Review changes panel's toolbar, details, files and notes in mounted cases](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-changes-panel)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -95,7 +96,7 @@ and the scratch spec was removed afterwards.
 ### 1. Review reads go through a typed source
 
 Type: Structure
-Status: planned
+Status: done
 
 Take the local focused baseline first: run the eleven built-app specs alone,
 three times, and keep the elapsed times for slice 7. Then put the review
@@ -108,6 +109,23 @@ enables slices 2–6.
 **Proof.** `npm run typecheck:dashboard`. Every built-app `story-review-*`
 spec and every mounted `story-review-diff-*` spec pass unchanged, and the
 `e2e/review/` journeys pass. The page-source case passes.
+
+**Accepted.** `reviewSource.ts` holds `ReviewSource` (`review`, `range`,
+`fileDiff`, `fileText`) and `pageReviewSource` as `ReviewSourceOnPage`'s
+default; `useReviewRead(read, query, options)` names a read key.
+`story-review-page-source.spec.ts` proves the refusal words and abort.
+Unchanged built-app `story-review-*` (25), Playwright `intent/` and
+`review/` (249), `e2e/review/` (72) and the Intent story-comparison
+journeys (15) passed. A non-default provider is first used in slice 2.
+
+**Local focused baseline for slice 7.** At `17fe6c2c4`, load 6–9, AC
+power, the eleven built-app specs alone by file with `--workers=2`:
+30.8 s, 34.5 s, 29.7 s wall time, 23/23 passing each run.
+
+**Learning.** `test:dashboard:frontend -- review/story-review` selects only
+the Vitest specs; the three `story-review-diff-syntax-*` specs are
+built-app, so name built-app specs by file. Case results come from the
+`OPEN_DOUGH_DASHBOARD_PROOF_RECORD` JSON, not the strict-reporter log.
 
 ### 2. The toolbar names only what the review has read
 
