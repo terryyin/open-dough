@@ -2,6 +2,21 @@
 
 **Identity:** SEED-413#speed-dashboard-board-and-panel-proof
 **Source:** [Get fast proof of board and side-panel interactions](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-board-and-panel-proof)
+**Source review:** [Independent source review](source-review.md)
+
+## Execution context
+
+Story Branch Mode in `/Users/terryyin/git/open-dough/.worktrees/get-fast-proof-of-board-and-side-panel-interacti`
+on `codex/get-fast-proof-of-board-and-side-panel-interacti`, published to the
+same branch on `origin`. Integration checkout is
+`/Users/terryyin/git/open-dough`, targeting `origin/main`. Dashboard-established
+publisher `dashboard-territory.local-open-dough` assigned Rina-chan. Starting
+revision `7634d96a0262dfefde36ece021f30df2ed801adf`. Published claim and first
+delivery base `c2dd0a1edd70b84751bb38fd44cdb0dfbde741bd`.
+
+Codex observer for `terryyin/open-dough`, `ci.yml` (CI), on the execution
+branch. Coordinator `rina-chan-3114fc7a`, stream cell `g167:14`, shell session
+`24965`, mailbox `/tmp/dough-ci-501/watch-i8N2qE`, PID `40217`.
 
 ## Goal and scope
 
@@ -86,7 +101,7 @@ and omit `.spec.ts` unless otherwise specified.
 ### 1. The Board keeps the developer's place as room and focus change
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `board-paging`, `board-kept-position`, `board-clamp`, and `board-height`
 (14 legacy cases). Use `Board`, `useColumnPaging`, and production container CSS
@@ -199,9 +214,12 @@ Carry the direct-URL tall-card observation into a focused
 `e2e/navigation/board-session-destination.spec.ts` case. Reuse a mounted
 journey for viewport variants with the same destination and different clipping.
 
-**Proof.** Board paging beside a shown panel retains its chosen position.
-A dialog round trip and starting a ready card keep the visible columns and put
-the new session on that card without a Recently done entry. Sidebar and URL
+**Proof.** With the Side panel open and room for two columns, paging reveals
+Taken and Recently done as whole columns and keeps the keyboard controls
+reachable. A wider frame recovers the chosen position. A long hidden column
+adds no blank scroll tail. A dialog round trip and starting a ready card keep
+the visible columns and put the new session on that card without a Recently
+done entry. Sidebar and URL
 destinations reveal the hidden or tall card's top. Closing the panel preserves
 the relevant selection and return point. Assert actual scroll ownership in
 split and covering layouts and preserve tall-card reveal at distinct heights.
@@ -259,3 +277,63 @@ at the consuming behavior. Counts are starting workload, including two
 loop-generated zoom variants and five tall-card viewport cases. Use the
 assertion map during execution to consolidate setup without losing a distinct
 geometry or focus result.
+
+## Story obligations
+
+### G1. Keep the exact Done disclosure wording
+
+Reported: slice 1 — "Acceptance found that substring checks would allow extra words in the older-entries disclosure."
+Story clause: "Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)"
+Disposition: proved by slice 1: board-height.spec.ts checks the full rendered disclosure label for all three expansion steps and when 41 Done entries arrive.
+
+## Accepted proof
+
+### Slice 1
+
+The mounted checks replace 14 legacy cases with 13 narrow Chromium Vitest
+cases and 2 real Chromium reload cases. The former and malformed values use
+actual browser storage. The refused-storage branch uses a throwing browser
+getter. The wide reload, chosen positions in both directions, and refusal
+across a new document are observed in E2E. The normal two-worker frontend
+runner passed twice after switching the wheel to the provider's
+element-targeted native input, taking 13.67 s and 9.82 s including preparation.
+The subsequent exact Done wording pass selected all 3 Board height cases.
+The two-worker E2E runner took 11.26 s including preparation. Dashboard
+typecheck passed. Load varied between runs, so the aggregate comparison
+remains in slice 8.
+
+The mounted frame uses the production Board, PageFrame and banner with typed
+work. The machine type carries some unused operations for inactive launch and
+terminal paths. The active card, Done card and frame each consume a substantial
+part of that contract. Production launch and terminal contracts kept their
+current owners. Full terminal evidence is in `slice-1-return.md` under the
+checkout's Git proof directory.
+
+| Legacy owner and case | Replacement and distinct observations |
+| --- | --- |
+| board-paging / a 40rem Board shows one column; each move shows the next, and wider and narrower Boards keep the leftmost shown column | board-paging / one whole Board column follows each page move and the chosen column returns after widening. All published Backlog titles, actual available card width, whole column fit/side-scroll constraints, visible pair after widening, restored Recently done position after shrinking, and named controls with exact counts. The E2E reload cases' BoardView.shows also exercises authored text clipping and whole-page fitting in the two- and three-column branches. |
+| board-paging / from the keyboard, a control gone after its move hands the keyboard to the other side's control | board-paging / the keyboard stays on the paging control and hands off when it disappears. Native Enter leaves the surviving Recently done control focused, then hands off to Taken. The page geometry and exact controls are checked after each move. |
+| board-paging / far down a long Backlog the column paging control stays in sight and moves the view, and the shown column heading stays stuck below the banner | board-paging / the heading and paging control stay in reach below the banner while reading the long Backlog. The long Backlog uses 16 published dependency gaps to give the cards length. Native wheels to 1000 and 1500 keep the heading below the fixed banner and the control in sight. Paging puts the shorter pair at its bottom with the Taken heading and Backlog control remaining reachable. Paging back keeps the held read position and the heading sticks in the same place after further scrolling. Ends-with geometry is also proved by board-clamp. |
+| board-paging / with reduced motion asked for, a move shows the next column at once | board-paging / reducing motion pages the Board immediately without a slide. CDP emulates the media preference. The Taken column immediately appears in the Board's control inset. No transform transition fires and the whole Taken column is shown. |
+| board-paging / tabbing backwards out of Taken into the last Backlog card shows Backlog with that card in sight | board-paging / reverse Tab from Taken reveals the final Backlog card without taking its focus. Region ordering includes hidden Backlog; native reverse Tab reaches the final card and gives it full reading room below the banner. It still holds focus and remains fully readable at the Board's end. |
+| board-kept-position / the chosen Board columns stay across a project switch | board-kept-position / a chosen Board position follows the reader between projects. Real project radios and distinct published stories show the switch, with Taken/Recently done held across it. Choosing Backlog and returning to Open Dough preserves the Backlog choice. |
+| board-kept-position / the chosen Board columns stay across a reload | e2e/navigation/board-kept-position / reload restores the chosen Board position even when all three columns fit at the time. Real page reloads after choosing each position show the same visible pair and exact controls. |
+| board-kept-position / the chosen Board columns stay in a wide Board | same E2E case. The intermediate wide reload displays all three whole columns. Narrowing recovers the pre-existing choice. This is one durable-position journey with both widths and reset observed. |
+| board-kept-position / a position kept under the former Board key is recovered once and kept under the Board key | board-kept-position / the former Board preference is adopted once and later writes keep the current preference. Actual storage supplies the former key, whose value is rendered and migrated. With conflicting former value a new Board reads the current key. Choosing Backlog writes zero and a new Board reads it. True reload belongs to E2E. |
+| board-kept-position / an unusable kept position starts at Backlog | board-kept-position / an unusable Board preference falls back to Backlog. Actual storage holds taken, -1 and 1.5 on fresh Board instances. Each renders Backlog without an uncaught browser error. One case keeps all three invalid value shapes. |
+| board-kept-position / where the browser refuses storage, the view starts at Backlog and pages for the page's lifetime without error | board-kept-position / storage refusal starts the Board at Backlog and still keeps a choice for the life of the page. The window's getter throws before mount. Paging and the real radio project switch preserve the in-memory position. E2E / reload starts again at Backlog if the browser refuses storage additionally observes that navigating a fresh document loses that choice and collects no page errors. |
+| board-clamp / a long Backlog read far down: shorter columns clamp the Board to their bottom, a position they hold stays, and widening or narrowing keeps the Board as long as the columns it shows | board-clamp / paging down a long Backlog clamps at the shorter columns' end and restores the Backlog's length. Native wheel and control click clamp 1500 to a nonzero shorter-column bottom; hidden Backlog remains longer but contributes no scroll tail. In-place return click preserves the position, last card action is visible at bottom, and the end remains the longest shown column or controls through three- and one-column widths and final short Recently done-only view. |
+| board-height / a hidden long Recently done adds no blank tail below Backlog and Taken; an inspection lengthens and shortens the Board, and Recently done shown is read whole | board-height / a hidden long Recently done contributes no blank tail and its oldest story is reachable when shown observes all three exact reveal labels, no reveal at oldest, the oldest Done card in reading room, clamping and reachable return control after hiding it, and hidden card beyond scroll range. A separate inspection case opens and reads the last words of a long purpose, observes its added extent and the still-longer hidden Done, then verifies closing restores the original length. The two cases separate Done-range and inspection regressions. |
+| board-height / done stories arriving in a hidden Recently done add no blank tail below Backlog and Taken | board-height / Done stories arriving in the hidden column leave the shown Board's length unchanged. The published catalog begins loading, then the test supplies the complete catalog and typed record-body answers. The latest and tenth cards appear, the exact 31 remaining label is beyond the shown Board's extent, and the two shown columns keep the same bottom and extent. The authored behavior here is consuming changed evidence, not reading the catalog over HTTP. |
+
+After refactoring the mounted setup and naming the reload steps, all 13
+mounted cases passed in 15.30 s and both real reloads passed in 7.22 s with
+the counted reporter. Dashboard typecheck and whitespace checks passed.
+The second E2E refactor run exposed the selected count. It was not a paired
+timing comparison. The retained report is `slice-1-refactor-return.md`.
+
+Guarded preparation flagged unchecked TypeScript assertions and unused mock
+arguments. Explicit checks and typed fixture values cleared those findings
+without changing the proof boundary. The four focused frontend paths passed
+13/13 again with the repaired code. The retained runner record is
+`slice-1-delivery-repair.proof.json`.

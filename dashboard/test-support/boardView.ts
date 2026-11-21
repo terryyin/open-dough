@@ -64,6 +64,11 @@ export class BoardView {
     return this;
   }
 
+  async reload(): Promise<this> {
+    await this.page.reload();
+    return this;
+  }
+
   pagingControl(column: ColumnName): Locator {
     return columnPagingControl(this.page, column);
   }
