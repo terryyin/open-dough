@@ -490,7 +490,9 @@ things, and the CI revision predates current changes to Sessions and Review.
 | Order | Story | Legacy cases | Listed sources |
 | --- | --- | ---: | ---: |
 | 1 | Get fast proof of a story's Intent CI comparison (completed; recoverable at `28e16d406:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-comparison-proof`) | 69 | 24 |
-| 2 | [Get fast proof of Intent evidence and timing history](#speed-intent-proof-and-timing) | 95 | 44 |
+| 2a | Get fast proof of Intent CI status and cue contrast (completed; recoverable at `3acae5160:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing`) | 15 | 7 |
+| 2b | [Get fast proof of Intent timing history](#speed-intent-timing-history-proof) | 31 | 19 |
+| 2c | [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof) | 49 | 18 |
 | 3 | [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading) | 71 | 37 |
 | 4 | [Get fast proof of board and side-panel interactions](#speed-dashboard-board-and-panel-proof) | 63 | 28 |
 | 5 | [Get fast proof of composing and starting a launch](#speed-dashboard-launch-proof) | 81 | 29 |
@@ -556,36 +558,94 @@ Continuing one component at a time would extend the life of both runners.
   legacy cases. Keep this campaign's test work coordinated with
   [SEED-341](SEED-341-simplify-session-tests.md).
 
-<a id="speed-intent-proof-and-timing"></a>
+<a id="speed-intent-timing-history-proof"></a>
 
-### Get fast proof of Intent evidence and timing history
+### Get fast proof of Intent timing history
 
-**Identity:** SEED-413#speed-intent-proof-and-timing
+**Identity:** SEED-413#speed-intent-timing-history-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/752-speed-intent-proof-and-timing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"86ddfc09ad3e8efed29d5fdbc15d186361546db40acdebfa6dbea3cfc0868006","plan":"d68704a827df3419022a324baa1dcbb08c246fa8a90a4616fc8d1307851c8ab7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/759-speed-intent-timing-history-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"26eb4ccf945f09722b4f02a1d9b454251034f1e6d3af30d4597da5e6bd6176b5","plan":"bee063270af32669136aef22b2e489a3630a02efa0ec00e948d6a06f6ae69a0b"}}
+```
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#speed-intent-timing-history-proof","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-proof-and-timing","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing"},"implementation":"Wires IntentCiReadSourceOnPage (including optional readHistory) across status, kept-status, proof, history, and comparison reads, exposes Node-free CI proof builders on pageMakeMe.mjs, and lands the narrowed 7-file status split on main.","rationale":"Timing-history slices extend IntentCiReadSourceOnPage with readDoneWallTimeHistory and readScopeHistory and depend on the narrowed SEED-413 split and reconciled IntentCiReadSource contract already being integrated on main rather than diverging on a duplicate seam.","condition":"SEED-413#speed-intent-proof-and-timing has landed its reconciled IntentCiReadSourceOnPage contract, pageMakeMe.mjs CI proof builders, and narrowed story split on main.","state":"waiting"}]}
 ```
 
-- **Goal.** A dashboard maintainer can quickly check what current proof and
-  collected history say at the homepage, location, folder and file, including
-  timing and count gaps, source identity and independently recoverable reads.
-- **Scope.** Own the remaining legacy `intent-ci-*` cases outside the CI
-  comparison story, plus `intent-project-ci-history-*`, `intent-project-scope-*`,
-  `intent-scope-*` and `intent-summary-*`. Refresh existing Project CI
-  history mounts when their owner changes. Project and Done timing reads keep
-  separate boundaries from live Proof. The story-source and location views
-  themselves belong to the next story.
+**Split from** SEED-413#speed-intent-proof-and-timing, which delivered the
+7-file CI status and cue-contrast Vitest suite, `IntentCiReadSourceOnPage`,
+and `pageMakeMe.mjs` CI proof builders.
+
+- **Goal.** A dashboard maintainer can quickly check what collected Project
+  and Done timing history say across the homepage, location, folder, and file,
+  including timing gaps, units, provenance, source identity, and independently
+  recoverable reads.
+- **Scope.** Own the 19 legacy timing-history specs (31 legacy cases):
+  `intent-ci-compact-readout`, `intent-ci-done-glance`,
+  `intent-ci-done-reference-lifecycle`, `intent-ci-history-chart-marks`,
+  `intent-project-ci-history-chart-marks`, `intent-project-scope-glance`,
+  `intent-project-scope-history-*`, `intent-scope-glance`, and
+  `intent-scope-timing-history-*`. Refresh existing Project CI history mounts
+  (`intent-ci-wall-time-history{,-gaps,-evidence}`) when their owner changes,
+  and retire their `createRoot`, React `act`, and `IS_REACT_ACT_ENVIRONMENT`
+  wrapping. Project and Done timing reads keep separate boundaries from live
+  Proof. Homepage attempt proof and Summary proof belong to
+  [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof);
+  the story-source and location views belong to
+  [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading).
+- **Key examples.** A collected history read fails → the selected scope keeps
+  its last history and live proof, offers Retry, and recovers without
+  borrowing history from a different project, endpoint, or scope key. Done
+  wall-time history states missing, pending, outside-retention, and zero-base
+  baselines accurately and resolves stand-in builds. Collected scope timing
+  keeps case and file units distinct, explains absent, partial, and
+  interrupted segments, and preserves keyboard order and narrow-viewport marks.
+- **Evaluation.** All 31 legacy cases across the 19 owned files and the 3
+  refreshed Project CI wall-time Vitest specs have a traceable disposition and
+  run on Vitest without `act` wrapping. Apply the
+  [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
+  case-count, and coverage checks, removing any history `test-support` module
+  whose last consumer moves. History proof gives faster feedback as soon as
+  its slices land.
+
+<a id="speed-intent-attempt-and-summary-proof"></a>
+
+### Get fast proof of Intent attempt and Summary proof
+
+**Identity:** SEED-413#speed-intent-attempt-and-summary-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment."],"basis":{"document":"7949e50cb804f5375068912025af0845815a4ab85a051906ea48d4dab5f70fe5","plan":"4912fd1c4a6a0d9ed26d486ae735bd41d2fa9278c39806370e133bb72fcd4f73"}}
+```
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#speed-intent-attempt-and-summary-proof","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-proof-and-timing","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing"},"implementation":"Wires IntentCiReadSourceOnPage (including readProof, readComparison, and endpoint proof readers) and exposes Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on pageMakeMe.mjs.","rationale":"Attempt-proof and Summary slices mount IntentCiProof, IntentScopeProofView, and IntentFileProofView directly over the pageMakeMe.mjs builders and IntentCiReadSourceOnPage contract delivered by SEED-413#speed-intent-proof-and-timing.","condition":"SEED-413#speed-intent-proof-and-timing has landed its IntentCiReadSourceOnPage contract, Node-free pageMakeMe.mjs CI proof builders, and narrowed story split on main.","state":"waiting"}]}
+```
+
+**Split from** SEED-413#speed-intent-proof-and-timing at its delivered Slice 3
+boundary alongside [Get fast proof of Intent timing history](#speed-intent-timing-history-proof).
+
+- **Goal.** A dashboard maintainer can quickly check what current attempt
+  proof and compared Summary rows say at the homepage, location, folder, and
+  file, including count and timing gaps, fallback endpoints, renamed or
+  outside files, and retained presentation across sorting and drill-down.
+- **Scope.** Provisional remainder owning the 18 legacy attempt-proof and
+  Summary specs (49 legacy cases): `intent-ci-proof`,
+  `intent-ci-proof-accessibility`, `intent-ci-proof-grouped-location`,
+  `intent-summary-ci-proof-*`, and `intent-summary-story-comparison-*`, plus
+  removing spent `dashboard/test-support/` modules whose last consumer moved
+  across the split proof cohort. CI status belongs to
+  `SEED-413#speed-intent-proof-and-timing`; collected timing history belongs to
+  [Get fast proof of Intent timing history](#speed-intent-timing-history-proof);
+  the story-source and location views belong to
+  [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading).
 - **Key examples.** The chosen attempt lacks some proof → the homepage and
-  Summary identify which evidence survived → sorting, drilling and returning
-  preserve the reading and its units without rereading CI. A collected
-  history read fails → the selected scope keeps its last history and live
-  proof, offers Retry and recovers without borrowing history from a different
-  project or endpoint. A scope with one renamed or unlisted file assigns its
-  evidence once and explains gaps. Keyboard and narrow/zoomed reading still
-  expose the same controls, words and cues.
-- **Evaluation.** All 95 legacy cases have a traceable disposition and
-  the unit proof runs on Vitest. Apply the shared timing, case-count and
-  coverage checks. The status, history and Summary proof each give faster
-  feedback as soon as their slices land.
+  Summary identify which evidence survived → sorting, drilling into a file, and
+  returning preserve the reading, Show % preference, and units without
+  rereading CI. A scope with one renamed or unlisted file assigns its evidence
+  once from the intended endpoint and explains gaps. Keyboard and
+  narrow/zoomed reading still expose the same controls, words, and cues.
+- **Evaluation.** All 49 legacy cases across the 18 owned files have a
+  traceable disposition and the unit proof runs on Vitest. Apply the
+  [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
+  case-count, spent-support, and coverage checks. Summary proof gives faster
+  feedback as soon as its slices land.
 
 <a id="speed-intent-source-and-story-reading"></a>
 

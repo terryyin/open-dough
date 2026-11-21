@@ -9,19 +9,11 @@
 // (SEED-259#scan-intent-ci-summaries key example 1). The comparator's cases
 // live in ../../../Distribution/tests/support/intent-ci-proof-sort.test.mjs.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  ciProofReading,
-  proofTable,
-} from "../../test-support/intentCiProofPage.ts";
-import {
-  expectSortedBy,
-  expectUnsortedRows,
-  rowNames,
-  sortButton,
-} from "../../test-support/support/expectSortedColumns.ts";
-import { openFrontendRunProof } from "../../test-support/support/frontendCiRunProofAnswers.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { mountJudgedRunProof } from "./intent-ci-status-fixtures.ts";
+import { intentCiProof } from "./intent-ci-status-page.ts";
 
 // tests/a 12.5 s with 4 tests; tests/b 340 ms with 3 tests, 1 failed;
 // tests/c Part 2 untimed with 3 tests.
@@ -86,31 +78,26 @@ const groupedEntries = () => [
     .please(),
 ];
 
-test("Proof sorts by Test execution time and Counts by click, Enter and Space, unmeasured last", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  const { proof } = await openFrontendRunProof(page, exampleEntries());
-  const table = proofTable(proof);
+test("Proof sorts by Test execution time and Counts by click, Enter and Space, unmeasured last", async () => {
+  await mountJudgedRunProof(exampleEntries());
+  const proof = intentCiProof();
   // Declaration order, no header sorted, and no totals row.
-  await expectUnsortedRows(table, ["tests/a", "tests/b", "tests/c"]);
-  await expect(table.locator("tbody tr td:nth-of-type(2)")).toHaveText([
-    "12.5 s",
-    "340 ms",
-    "Part 2 untimed",
-  ]);
-  await expect(table.getByRole("row")).toHaveCount(4);
+  await proof.showsUnsorted(["tests/a", "tests/b", "tests/c"]);
+  expect(
+    proof.executionCells().map((cell) => cell.element().textContent.trim()),
+  ).toEqual(["12.5 s", "340 ms", "Part 2 untimed"]);
+  expect(proof.table.getByRole("row").elements()).toHaveLength(4);
 
-  const time = sortButton(table, "Test execution time");
-  await time.click();
-  await expectSortedBy(table, "Test execution time", "ascending", [
+  const time = proof.sortButton("Test execution time");
+  await userEvent.click(time);
+  await proof.showsSortedBy("Test execution time", "ascending", [
     "tests/b",
     "tests/a",
     "tests/c",
   ]);
-  await time.click();
+  await userEvent.click(time);
   // The partial row stays last.
-  await expectSortedBy(table, "Test execution time", "descending", [
+  await proof.showsSortedBy("Test execution time", "descending", [
     "tests/a",
     "tests/b",
     "tests/c",
@@ -118,70 +105,63 @@ test("Proof sorts by Test execution time and Counts by click, Enter and Space, u
 
   // Tab reaches the next header from the one before it; Enter and Space
   // activate it.
-  await sortButton(table, "Entry").focus();
-  await page.keyboard.press("Tab");
-  const countsButton = sortButton(table, "Counts");
-  await expect(countsButton).toBeFocused();
-  await page.keyboard.press("Enter");
+  (proof.sortButton("Entry").element() as HTMLElement).focus();
+  await userEvent.tab();
+  const countsButton = proof.sortButton("Counts");
+  await expect.element(countsButton).toHaveFocus();
+  await userEvent.keyboard("{Enter}");
   // 3 with 1 failed before 3 passed, then 4.
-  await expectSortedBy(table, "Counts", "ascending", [
+  await proof.showsSortedBy("Counts", "ascending", [
     "tests/b",
     "tests/c",
     "tests/a",
   ]);
-  await page.keyboard.press("Space");
+  await userEvent.keyboard("{Space}");
   // Failed first among equal totals in either direction.
-  await expectSortedBy(table, "Counts", "descending", [
+  await proof.showsSortedBy("Counts", "descending", [
     "tests/a",
     "tests/b",
     "tests/c",
   ]);
-  await expect(table.getByRole("row")).toHaveCount(4);
+  expect(proof.table.getByRole("row").elements()).toHaveLength(4);
 });
 
-test("a multi-unit location sorts as one row by each unit's figures without summing types", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  const { proof } = await openFrontendRunProof(page, groupedEntries(), {
-    state: "failed",
-  });
-  const table = proofTable(proof);
-  await expect(rowNames(table)).toHaveText([
-    "grouped/slow",
-    "grouped/fast",
-    "grouped/gap",
-  ]);
-  await expect(table.getByRole("row")).toHaveCount(4);
+test("a multi-unit location sorts as one row by each unit's figures without summing types", async () => {
+  await mountJudgedRunProof(groupedEntries(), { state: "failed" });
+  const proof = intentCiProof();
+  await proof.showsUnsorted(["grouped/slow", "grouped/fast", "grouped/gap"]);
+  expect(proof.table.getByRole("row").elements()).toHaveLength(4);
 
-  const time = sortButton(table, "Test execution time");
-  await sortButton(table, "Entry").focus();
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await expect(time).toBeFocused();
-  await page.keyboard.press("Enter");
+  const time = proof.sortButton("Test execution time");
+  (proof.sortButton("Entry").element() as HTMLElement).focus();
+  await userEvent.tab();
+  await userEvent.tab();
+  await expect.element(time).toHaveFocus();
+  await userEvent.keyboard("{Enter}");
   // Case times 500, 800, 5000; gap's file line stays with its row.
-  await expectSortedBy(table, "Test execution time", "ascending", [
+  await proof.showsSortedBy("Test execution time", "ascending", [
     "grouped/fast",
     "grouped/gap",
     "grouped/slow",
   ]);
-  await expect(
-    ciProofReading(table.locator("tbody tr").nth(1)).unitLines.filter({
-      hasText: "Part 2 missing",
-    }),
-  ).toHaveAttribute("aria-label", "test files: Part 2 missing");
+  const gapRow = proof.table.element().querySelectorAll("tbody tr")[1];
+  const gapLine = [
+    ...(gapRow?.querySelectorAll(".intent-ci-proof-unit-line") ?? []),
+  ].find((node) => node.textContent.includes("Part 2 missing"));
+  expect(gapLine?.getAttribute("aria-label")).toBe(
+    "test files: Part 2 missing",
+  );
 
-  await page.keyboard.press("Space");
-  await expectSortedBy(table, "Test execution time", "descending", [
+  await userEvent.keyboard("{Space}");
+  await proof.showsSortedBy("Test execution time", "descending", [
     "grouped/slow",
     "grouped/gap",
     "grouped/fast",
   ]);
 
-  await sortButton(table, "Counts").click();
+  await userEvent.click(proof.sortButton("Counts"));
   // Case totals 3, then 10/10; file breaks the 10-tie (2 before 4).
-  await expectSortedBy(table, "Counts", "ascending", [
+  await proof.showsSortedBy("Counts", "ascending", [
     "grouped/gap",
     "grouped/slow",
     "grouped/fast",

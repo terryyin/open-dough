@@ -9,7 +9,7 @@
 // branch is never given as this one's.
 
 import { useContext, useEffect, useRef, useState } from "react";
-import { type IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
+import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
 import { IntentCiReadSourceOnPage } from "./intentCiReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
