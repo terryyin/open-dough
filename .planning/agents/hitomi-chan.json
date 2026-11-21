@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-413#speed-intent-source-and-story-reading",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
