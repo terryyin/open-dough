@@ -45,9 +45,10 @@ and `reviewedFileDiff` and `reviewedFileText`
 records. A case constructs exactly that state and its repositories through
 MakeMe, here `makeMe.aSessionReviewRead`. A case calls another handler in
 its arrangement only when that step is the behavior under test. The
-`review/ad-hoc-review-{landed,kept-unavailable,subject,file}.spec.ts` specs
-call these handlers, and `review/ad-hoc-review-request.spec.ts` calls the
-launch boundary's routes for them with a URL. The branch result and its
+`review/ad-hoc-review-{landed,kept-unavailable,file}.spec.ts` specs call
+these handlers. `review/ad-hoc-review-request.spec.ts` admits standalone
+URLs through the launch routes and exercises all three responses and the
+subject refusals with an isolated kept store. The branch result and its
 handoff are proved the same way:
 `review/ad-hoc-branch-result-supersession.spec.ts`,
 `review/ad-hoc-branch-worktree-result.spec.ts`,

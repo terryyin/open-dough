@@ -28,6 +28,10 @@
 - Slice 6 accepted at `0ba5db4a69ae63f6a61afe4e2000a7a8b4d21f2c` and reused the
   live observer.
 
+- Slice 7 accepted at `4308b3bbc0f3f0426f17b2c58e9c2b1870074043` and
+  reused the live observer. Run 44848998117 attempt 1 had no failed jobs
+  and was superseded by 44850082670 under same-ref CI concurrency.
+
 ## Correction input
 
 - **Provenance.** Retrospective of SEED-413#split-done-mark-decision-from-store.
@@ -340,19 +344,63 @@ Cases stay at 15 and full Review reads go from 25 to 6.
 See `slice7-return.md`, `slice7-git-attribution.log.run.json` and
 `slice7-probe.log.run.json`; the independent pass made no edits.
 
-### 8. Pass the admitted record through standalone Review
+### 8. Prove standalone Review at production admission
+
+Type: Structure
+Status: done
+
+Exercise both wire shapes and comparison, diff and text production responses
+from one isolated configured source and store. Two hosts use the same native
+session ID and hold different actual Git pairs. Retain source, missing-session
+and story-launch refusals and literal file fields. Keep one exact no-capture
+Review response on the real failed-Done example and preserve independently
+composed object, availability and attribution-gap cases. Move
+`hasBranchReview` beside the branch-result domain predicates to remove the
+typed Done transition's Git adapter dependency.
+
+**Proof.** The focused production responses return the selected host's run
+and literal file results, and the boundary refuses unknown sources, missing
+sessions and story launches. The existing branch and Done guards pass with
+the relocated predicate.
+
+**Boundary decision.** The ninth slice is a split of the in-progress eighth
+slice within the execution cap of ten. Admission proof and the predicate
+relocation stand independently and can be delivered while the two named
+siblings still own unlanded readers. The original shared-input change and the
+whole-story accounting remain together in slice 9. The story outcome, scope
+and evaluation are unchanged.
+
+**Accepted proof.** The production admission and branch-guard cohort passed
+37 cases across seven specs. Repeating only the request spec after moving the
+matching native IDs under the nondefault configured source passed all eight
+cases. The real unreadable-log Done case retains the exact no-capture response
+for two redundant composed cases. Cases go from 19 to 18 across the four
+edited specs. The old shared handler still sees the two handler-level
+refusals, so full typed calls go from 11 to 12 here; slice 9 owns final
+accounting. See `slice8-admission-return.md`, the two passing run records and
+their selected-case reports. The preceding configuration failure was fixed by
+initializing the real catalog in the private home.
+
+### 9. Pass the admitted record through standalone Review
 
 Type: Structure
 Status: planned
 
 Apply the single-record boundary in `storyReviewInput.ts` shared by the
-comparison and both file readers. Transfer unknown-source, missing-session,
-host qualification and story-launch checks to a boundary case with an
-isolated kept store. The typed handlers and MakeMe input builder no longer
+comparison and both file readers. Preserve slice 8’s source, host and session admission and refusals. The typed handlers and MakeMe input builder no longer
 take a record list. Remove the generic comparison, diff and text wrappers
-from `doneCaptureReview.ts`. Move `hasBranchReview` beside the existing
-branch-result domain predicates so the typed Done transition imports no
-Git adapter. Update the backend test reference.
+from `doneCaptureReview.ts`. Update the backend test reference.
+
+**Coordination.** Begin with the shared boundary and its independent readers.
+Settle the switch and deliver only after both sibling readers can be migrated
+against their accepted form or under an agreement with the existing owners.
+Hold their affected paths while they are still owned by an unlanded execution.
+At pinned trunk `7ed7478c86f2adcad65c14f8cb6aeaab0d13e3cc`, plan 736's
+published work at `24864be63` still owns the restart and observation readers
+using the shared wrapper. Plan 742's published work at `98c8abdbe` owns the
+typed branch-race and manual-landing-precedence readers using the list-based
+builder. Recheck accepted integration and preserve their distinct proof. Keep
+the final comparison baseline on the same integrated revision as the candidate.
 
 **Proof.** Exercise both route shapes and all three production response paths
 through admission. Use the composed selection, unavailable, file-pair, rename,

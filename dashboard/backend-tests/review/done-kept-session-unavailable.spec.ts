@@ -50,16 +50,6 @@ test("a blank default launch that edited files and committed nothing says it mad
   expect(await review([record], record)).toEqual(noCommits);
 });
 
-test("a session whose checkout read failed at Done says its changes were not captured", async () => {
-  const checkout = await aCheckout();
-  const record = anEstablishedSession(checkout)
-    .sessionCommitsFailedAt(doneAt)
-    .markedDoneAt(doneAt)
-    .please();
-
-  expect(await review([record], record)).toEqual(notCaptured);
-});
-
 test("a session whose only commit stays on another branch fails its capture", async () => {
   const checkout = await aCheckout();
   await work(

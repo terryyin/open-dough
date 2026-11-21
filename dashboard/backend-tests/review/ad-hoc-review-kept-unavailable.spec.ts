@@ -16,27 +16,6 @@ const gone = (name: string) =>
 const review = (input: Parameters<typeof storyReview>[0]) =>
   storyReview(input, new AbortController().signal);
 
-test("Given a default launch without a landing, when its review is read, then it says its changes were not captured", async () => {
-  const records = [
-    makeMe.aLaunchRecord
-      .adHoc({ title: "Default" })
-      .inClaudeSession({ sessionId: "default-no-landing" })
-      .markedDone()
-      .please(),
-  ];
-
-  const read = makeMe.aSessionReviewRead
-    .ofSession("default-no-landing")
-    .keeping(records)
-    .please();
-
-  expect(await review(read)).toEqual({
-    kind: "landing-unavailable",
-    comparison: "session-commits",
-    explanation: "This session's changes were not captured.",
-  });
-});
-
 test("Given an ad hoc landing whose repository is gone, when its review is read, then it explains the gap", async () => {
   const read = makeMe.aSessionReviewRead
     .ofLandedAdHocSession("missing-repo", {

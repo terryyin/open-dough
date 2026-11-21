@@ -4,6 +4,7 @@ import { sessionKey } from "../src/sessionReference.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
 import {
   branchPinOwner,
+  hasBranchReview,
   type SessionBranchEntry,
   type SessionBranchResult,
 } from "../src/sessionBranchResult.ts";
@@ -42,13 +43,6 @@ export async function isolatedBranchReviewRepository(
   if (session.role !== "isolated" || session.landing !== "review")
     return undefined;
   return commonGitDirectory(gitCall(session.workspace)).catch(() => undefined);
-}
-
-export function hasBranchReview(record: LaunchRecord): boolean {
-  return (
-    record.branchEntry !== undefined ||
-    record.branchReviewRepository !== undefined
-  );
 }
 
 function branchCapturePending(record: LaunchRecord, doneAt: string): boolean {

@@ -4,11 +4,13 @@ import {
   sessionDeliveryRun,
   type SessionComparisonKey,
 } from "../src/sessionReviewComparisons.ts";
-import { branchResultAtDone } from "../src/sessionBranchResult.ts";
+import {
+  branchResultAtDone,
+  hasBranchReview,
+} from "../src/sessionBranchResult.ts";
 import type { ReviewedSessionSubject } from "../src/reviewedWorkSubject.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { hasBranchReview } from "./sessionBranchCapture.ts";
 import { branchResultReview } from "./storyReviewBranchResult.ts";
 import { keptSessionOf, type KeptSessionState } from "./storyReviewInput.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
