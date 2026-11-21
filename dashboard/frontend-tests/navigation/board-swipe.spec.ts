@@ -106,7 +106,7 @@ test("swiping from a card or action does not select, inspect or launch it; taps 
       new MouseEvent("click", { bubbles: true, cancelable: true, detail: 1 }),
     );
     await atTaken();
-    await expect.element(card()).not.toHaveClass("story-card-selected");
+    await board.expectStorySelection(card(), false);
     await expect.element(detail()).not.toBeInTheDocument();
     await expect.element(inspect).toHaveAttribute("aria-expanded", "false");
     await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
@@ -124,20 +124,7 @@ test("swiping from a card or action does not select, inspect or launch it; taps 
   const heading = title.element();
   heading.scrollIntoView({ block: "nearest" });
   await tapWhereShown(heading);
-  await expect.element(card()).toHaveClass("story-card-selected");
-  const selected = card().element();
-  const paint = getComputedStyle(selected);
-  expect(paint.boxShadow).toContain("inset");
-  const sample = document.createElement("span");
-  sample.style.backgroundColor = "var(--accent-soft)";
-  selected.append(sample);
-  try {
-    expect(paint.backgroundColor).toBe(
-      getComputedStyle(sample).backgroundColor,
-    );
-  } finally {
-    sample.remove();
-  }
+  await board.expectStoryHighlight(card());
 });
 
 test("a native vertical drag reads down the same column without paging", async () => {
@@ -159,11 +146,11 @@ test("swipes and indicators share a chosen column while rotation keeps inspectio
     card().getByRole("button", { name: "Inspect story" }).element(),
   );
   await expect.element(detail()).toBeVisible();
-  await expect.element(card()).not.toHaveClass("story-card-selected");
+  await board.expectStorySelection(card(), false);
   await tapWhereShown(
     card().getByRole("heading", { name: readyStory.title }).element(),
   );
-  await expect.element(card()).toHaveClass("story-card-selected");
+  await board.expectStorySelection(card(), true);
 
   const slides = board.observeSlides();
   await swipe("left");
@@ -181,5 +168,5 @@ test("swipes and indicators share a chosen column while rotation keeps inspectio
   await tapIndicator("Backlog");
   await atBacklog();
   await expect.element(detail()).toBeVisible();
-  await expect.element(card()).toHaveClass("story-card-selected");
+  await board.expectStorySelection(card(), true);
 });

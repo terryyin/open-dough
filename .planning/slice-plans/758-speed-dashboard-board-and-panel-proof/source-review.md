@@ -66,13 +66,13 @@ with SEED-341.
 | P43 | Browser history preserves the selected story on the relevant path. | slice 7 | |
 | S01 | Apply shared campaign acceptance to legacy `accessible-board*` navigation specs. | slice 3 | observed: All seven migrated Board reading specs and the earlier phone Vitest cases ran in the 36-case selection; true popup/reload proof ran in E2E |
 | S02 | Apply shared campaign acceptance to legacy `board-*` navigation specs. | slice 6 | |
-| S03 | Apply shared campaign acceptance to legacy `story-card*` navigation specs. | slice 4 | |
+| S03 | Apply shared campaign acceptance to legacy `story-card*` navigation specs. | slice 4 | observed: story-card-selection.spec.ts and story-card-dependency-selection.spec.ts exercise actual Board selection, Inspect and dependency disclosure in mounted Chromium; E2E retains supplier-link navigation |
 | S04 | Apply shared campaign acceptance to legacy `side-panel-width*` navigation specs. | slice 5 | |
 | S05 | Apply shared campaign acceptance to legacy `development-intent-frame*` navigation specs. | slice 7 | |
 | S06 | Apply shared campaign acceptance to legacy `frame-*` navigation specs. | slice 8 | |
 | S07 | Narrow the existing `board-swipe` Vitest spec from its whole-dashboard mount. | slice 2 | observed: board-swipe.spec.ts mounts Board in production PageFrame over typed published work |
 | S08 | Narrow the existing `board-indicators` Vitest spec from its whole-dashboard mount. | slice 2 | observed: board-indicators.spec.ts mounts Board in production PageFrame and observes native taps and keyboard focus |
-| S09 | Narrow the existing `story-card-scan-emphasis` Vitest spec from its whole-dashboard mount. | slice 4 | |
+| S09 | Narrow the existing `story-card-scan-emphasis` Vitest spec from its whole-dashboard mount. | slice 4 | observed: story-card-scan-emphasis.spec.ts, all four cases mount StoryCard over typed slice and current/Done session evidence and observe layout, paint and native Tab |
 | S10 | Retain representative real page loads in E2E. | slice 2 | observed: e2e/navigation/phone-board.spec.ts, published work appears after the built dashboard loads and the Board accepts composed touch input |
 | S11 | Retain representative reloads in E2E. | slice 1 | observed: e2e/navigation/board-kept-position.spec.ts, durable position through wide and narrow reloads and fallback after storage refusal |
 | S12 | Retain representative URL destinations in E2E. | slice 6 | |

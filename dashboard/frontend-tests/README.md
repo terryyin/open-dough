@@ -95,36 +95,9 @@ Dashboard Test Support is frozen: new cases add only MakeMe builders to
 `../test-support/`. The retained Playwright specs keep the page objects they
 use until their folders move to this entry.
 
-## Mounted dashboard support
-
-The mounted dashboard specs in `test-harness/` and the story-card scan
-emphasis cases in `stories/` mount the production app through
-[`mounted-dashboard/`](../test-support/mounted-dashboard/):
-`mountAnsweredDashboard` answers the board's service requests from prepared
-answers, and `mountDefaultDashboard` mounts the default board. Any unanswered
-`/__` request fails the case by name, so a spec answers every service its
-board reads.
-
-- Arrange data in Node through a command in
-  `../test-support/support/mountedDashboardCommands.ts` (MakeMe and the
-  service state import Node modules), and pass the result to the mount.
-- The notes answers come from `../test-support/support/frontendStoryNotesRule.ts`,
-  which both engines use.
-- `mountAnsweredDashboard` settles its mount through `actSettled` in
-  `mountedActSettled.ts` until both retire with this support. A page still
-  changing after its round cap fails the case with `UnsettledPageError`,
-  which names the cap.
-- The board's revision stream is unreachable, so the banner reads
-  `disconnected` and the board reads project changes through its check
-  schedule.
-- Give every case a literal title. The runner names and selects cases from
-  the titles Vitest reads without running the file, so a title built in a
-  loop or by `test.each` cannot be listed or selected by title; share the
-  steps in a helper and declare each case with its own title.
-- A mount is not a reload: every mount clears `localStorage`, resets the board
-  position and sets history to `/`, and carries from an earlier mount only the
-  services passed in, such as its notes rule. One cleanup tears all mounts
-  down and restores the page.
+Give every case a literal title. The runner names and selects cases from
+the titles Vitest reads without running the file. Share common steps in a
+helper and declare each case with its own title.
 
 A case stays on a built-app page only when its behavior needs the real page:
 a real page load or reload or native input the mount cannot deliver.

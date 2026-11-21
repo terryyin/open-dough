@@ -165,7 +165,7 @@ appearance and contrast observations alongside layout.
 ### 4. Card selection, inspection, and scan emphasis stay distinct
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `story-card-selection` and `story-card-dependency-selection` (2) and
 narrow `stories/story-card-scan-emphasis.spec.ts` (4 mounted cases). Mount
@@ -392,6 +392,8 @@ its consumers. The repair was published as
 
 ### Slice 3
 
+Published on the story branch as `e5c0d6a059cfe0af1897e16fa9177846dad20031`.
+
 Thirteen Chromium Vitest cases now cover the published Board, announcements,
 native reading, frame styling, and zoomed layout. Test cases use the production
 observation with typed work and revision answers when ordering matters.
@@ -423,3 +425,34 @@ The independent refactor clarified both E2E journeys. All four Chromium cases
 passed again, with Playwright reporting 18.6 s. The mounted proof and
 typecheck still cover their established paths. The retained report is
 `slice-3-refactor-return.md`.
+
+### Slice 4
+
+Two card interaction cases migrated to mounted Chromium. Four scan-emphasis
+cases mount StoryCard with typed work, slice progress, and current and Done
+records. All six passed in 6.22 s including preparation. The four scan cases
+took 0.46 summed case-seconds. Nineteen changed-fixture and config consumers
+passed in 22.14 s. The composed supplier-link E2E case passed in 15.92 s.
+Dashboard typecheck and ordinary frontend registration passed. Exact commands
+and counts are retained in `slice-4-return.md`.
+
+The retired mount's three remaining tests exercised its scheduler, substituted
+responses and per-case reset. After the scan migration, no product check
+consumes that mount. Its three self-tests, browser commands, exclusive
+support modules, and setup instructions were removed. The runner list
+still shows the migrated cases and the independent legacy selection.
+
+| Case before slice 4 | Named observation after slice 4 |
+| --- | --- |
+| `story-card-selection.spec.ts` — empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select | Same title in Chromium Vitest. Production Board and Recently done render StoryCard and DoneStoryCard over typed work, Done catalog and retained session answers in ConfiguredDashboard. Active heading toggles selected highlight with inset and accent fill, independently of default closed detail. Inspect changes aria-expanded and the actual detail while leaving selection alone. Clicking detail leaves selection clear. Heading selects and clears while detail stays open, then Hide closes it without selecting. An actual touch at the disabled Start's hit target leaves the selected card and opens no dialog or start. The Done heading takes the sole selection without adding detail; its retained session heading captures a history request, preserves selection and opens no Side panel. Intent receives the selected Done identity and no Selected story only toggle. Returning to Development restores the highlight, and clearing it leaves Intent without a selected identity or toggle. |
+| `story-card-dependency-selection.spec.ts` — a dependency disclosure and its explanation text do not change the selected story or open detail | Same title in Chromium Vitest. Production Board and card render the declared waiting and decision-needed suppliers with an unrelated Not ready assessment. Opening Dependencies exposes the actual reason without choosing the card or opening detail. Clicking the explanation leaves it open and preserves selection in both unselected and selected states. Clicking the heading explicitly selects and clears. The existing E2E case in `e2e/stories/story-card-inspection.spec.ts` still follows the actual supplier reference, opens the supplier detail while the other two stay open, and preserves the independently selected story. |
+| `story-card-scan-emphasis.spec.ts` — a Taken card leads with title and compact progress, then the current session, Done and Inspect | Same name. Only the real StoryCard in the real frame context, with one done and two planned typed slices plus a currently observed execution and a retained Done refinement. Browser geometry proves title → progress → current session → Done disclosure → inspection. Exact count, each segment status, and the currently shown session ID remain observed. |
+| `story-card-scan-emphasis.spec.ts` — the current session carries the accent wash while Done and Inspect stay quiet | Same name. The current session's computed fill matches the accent and its ink matches the card. Actual Done and Inspect colors match the quiet token and the card ink differs. |
+| `story-card-scan-emphasis.spec.ts` — Open terminal, Done and Inspect take keyboard focus in turn | Same name. Native Tab traverses Open terminal, Session details, Done summary and Inspect in that order. The previous check focused each DOM control by direct call; this check observes the actual traversal. |
+| `story-card-scan-emphasis.spec.ts` — at 360 pixels wide the card keeps its scan facts visible and its meta line fits | Same name. A 360 px Chromium viewport retains rendered title, progress, current session, Open terminal, Done and Inspect, with the meta line fitting the width. |
+
+The independent refactor consolidated the selected-card paint observation
+across touch and selection cases and removed obsolete paths from both
+dashboard TypeScript configurations. All seven affected Chromium cases
+passed in 19.07 s, with dashboard typecheck passing in 16.01 s. The retained
+report is `slice-4-refactor-return.md`.

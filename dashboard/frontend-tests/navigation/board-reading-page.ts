@@ -1,5 +1,5 @@
 import { expect, onTestFinished } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page, userEvent, type Locator } from "vitest/browser";
 import { browserSession } from "../review/browser-session.ts";
 
 export const columns = ["Backlog", "Taken", "Recently done"] as const;
@@ -140,6 +140,29 @@ function inReadingRoom(element: Element) {
   );
 }
 
+async function expectStorySelection(card: Locator, selected: boolean) {
+  const appearance = expect.element(card);
+  if (selected) await appearance.toHaveClass("story-card-selected");
+  else await appearance.not.toHaveClass("story-card-selected");
+}
+
+async function expectStoryHighlight(card: Locator) {
+  await expectStorySelection(card, true);
+  const selected = card.element();
+  const paint = getComputedStyle(selected);
+  expect(paint.boxShadow).toContain("inset");
+  const sample = document.createElement("span");
+  sample.style.backgroundColor = "var(--accent-soft)";
+  selected.append(sample);
+  try {
+    expect(paint.backgroundColor).toBe(
+      getComputedStyle(sample).backgroundColor,
+    );
+  } finally {
+    sample.remove();
+  }
+}
+
 function observeSlides() {
   const slides: string[] = [];
   const record = (event: TransitionEvent) => {
@@ -172,5 +195,7 @@ export const boardReading = {
   room: () => rect(scroll()),
   endOf,
   inReadingRoom,
+  expectStorySelection,
+  expectStoryHighlight,
   observeSlides,
 };

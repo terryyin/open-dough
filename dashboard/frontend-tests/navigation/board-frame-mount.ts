@@ -1,6 +1,9 @@
 import { createElement } from "react";
 import { onTestFinished, vi } from "vitest";
-import { useAgentLaunches } from "../../src/agentLaunches.ts";
+import {
+  useAgentLaunches,
+  type MachineSessions,
+} from "../../src/agentLaunches.ts";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
 import { useObservedRevisionDelivery } from "../../src/observedRevisionDelivery.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
@@ -25,6 +28,7 @@ export async function mountBoardFrame(
   work: PublishedWork,
   viewport: { width: number; height: number },
   view: "stories" | "roster" = "stories",
+  sessions: MachineSessions = noSessions,
 ) {
   const originalUrl = location.href;
   const originalState: unknown = history.state;
@@ -38,7 +42,7 @@ export async function mountBoardFrame(
     history.replaceState(originalState, "", originalUrl);
   });
   workRead.mockReset().mockResolvedValue(work);
-  vi.mocked(useAgentLaunches).mockReturnValue(noSessions);
+  vi.mocked(useAgentLaunches).mockReturnValue(sessions);
   let revisionAnswers:
     Parameters<typeof useObservedRevisionDelivery>[0] | undefined;
   vi.mocked(useObservedRevisionDelivery).mockImplementation((answers) => {

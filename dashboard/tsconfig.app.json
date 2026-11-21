@@ -11,8 +11,6 @@
   "include": [
     "src",
     "test-support/comparison-mount",
-    "test-support/component-mount",
-    "test-support/mounted-dashboard",
-    "test-support/phone-board-mount"
+    "test-support/component-mount"
   ]
 }

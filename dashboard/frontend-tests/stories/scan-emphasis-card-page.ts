@@ -1,4 +1,4 @@
-// The parts of a mounted Board's story card that a reader scans: its title,
+// The parts of a story card that a reader scans: its title,
 // compact progress, current session, Done disclosure and inspection group,
 // with the colours and boxes the browser computes for them.
 
@@ -30,8 +30,7 @@ function openTerminalIn(session: HTMLElement) {
   return button;
 }
 
-export function scanEmphasisCard(container: HTMLElement, title: string) {
-  const card = get(container, `article[aria-label="${title}"]`);
+export function scanEmphasisCard(card: Element) {
   const doneDisclosure = get(card, "details.story-card-done");
   const openSession = get(card, ".story-card-sessions .session-entry");
   const parts = {
@@ -84,12 +83,6 @@ export function scanEmphasisCard(container: HTMLElement, title: string) {
       expect(getComputedStyle(parts.inspect).color).toBe(
         tokenColour("--quiet"),
       );
-    },
-    expectFocusedInTurn(controls: readonly HTMLElement[]) {
-      for (const control of controls) {
-        control.focus();
-        expect(document.activeElement).toBe(control);
-      }
     },
     expectVisible(shown: readonly Element[]) {
       for (const each of shown) expect(each.checkVisibility()).toBe(true);
