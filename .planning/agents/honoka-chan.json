@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Honoka-chan",
+  "email": "honoka-chan@example.org",
+  "identity": "SEED-413#tie-done-capture-cases-to-production",
+  "mode": "story-branch",
+  "branch": "claude/tie-done-capture-cases-to-the-real-branch-entry",
+  "host": "claude"
+}
