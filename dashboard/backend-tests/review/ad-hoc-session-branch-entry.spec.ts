@@ -1,13 +1,16 @@
 // A Default main launch identifies its own branch: the entry keeps the state
-// and Default main tip it found, and Done reviews the branch apart from the
-// captured Default main commits.
+// and Default main tip it found, and Done keeps separate captured pairs.
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
+import {
+  keptRecords,
+  keptSession,
+  setRecordDoneAt,
+} from "../../server/launchRecordStore.ts";
 import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
 import {
   aCheckout,
@@ -23,8 +26,7 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { aDoneBranch, fileText, review } from "../support/doneCaptureReview.ts";
-import { keptRecords } from "../../server/launchRecordStore.ts";
+import { aDoneBranch, review } from "../support/doneCaptureReview.ts";
 
 const branch = "draft";
 const published = { id: source, ref: "refs/heads/main" };
@@ -94,13 +96,8 @@ test("a declared branch keeps its entry state and Default main tip after main mo
   expect(await sessionBranchPins(workspace, record.session)).toEqual(pins);
 });
 
-test("Done reviews a declared branch apart from the Default main commits before its entry", async () => {
-  const { checkout, workspace, launch, onMain } = await aDraftBeforeEntry();
-  const { entry } = await proposeBranchEntry(
-    "refs/heads/main",
-    launch.please(),
-    { workspace, branch },
-  );
+test("Done saves the entry-time Default main run and the declared branch's own pair", async () => {
+  const { checkout, workspace, record, entry } = await aDeclaredDraft();
   const { result } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("result", {
@@ -109,34 +106,16 @@ test("Done reviews a declared branch apart from the Default main commits before 
     }),
   );
   await mainMoves(checkout);
-  const record = await aDoneBranch(
-    launch.enteredBranch(entry).keptSessionCommits({
-      repository: checkout.integration,
-      runs: [{ base: checkout.base, revision: onMain }],
-    }),
-  );
 
-  expect(await review([record], record)).toMatchObject({
-    kind: "branch-result",
-    selectedRun: "branch-result",
-    sessionComparisonKeys: ["branch-result", "0"],
-    baseline: entry.tree,
-    tree: result,
-    files: [{ kind: "added", path: "session.txt" }],
-  });
-  expect(
-    await fileText([record], record, {
-      baseline: entry.tree,
-      tree: result,
-      path: "session.txt",
-    }),
-  ).toEqual({ kind: "text", baseline: null, tree: "session.txt\n" });
-  expect(await review([record], record, 0)).toMatchObject({
-    kind: "session-commits",
-    selectedRun: "0",
-    sessionComparisonKeys: ["branch-result", "0"],
-    tree: onMain,
-    files: [{ kind: "added", path: "main-work.txt" }],
+  await setRecordDoneAt(source, record.session, minutesAgo(10));
+
+  const saved = await keptSession(source, record.session);
+  expect(saved?.sessionCommits?.runs).toEqual([
+    { base: checkout.base, revision: entry.defaultTip },
+  ]);
+  expect(saved?.branchResult).toMatchObject({
+    base: entry.tree,
+    revision: result,
   });
 });
 

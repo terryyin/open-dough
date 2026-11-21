@@ -12,6 +12,7 @@
 - Checkout-bound `npm ci` and `npm run typecheck:dashboard` passed with Node 24.21.0. The tracked check-only hook uses staged lint and Dashboard typecheck.
 - GitHub Actions `ci.yml` (CI), branch `codex/restore-done-capture-proof-and-focus-session-rev`. Codex stream coordinator `rina-743-1b49221c`, directory `/tmp/dough-ci-501/watch-dRtRwr`, session 75465, PID 71136, cell `g65:12`. The claim's trunk CI is unobserved.
 - Replanning stays within existing planning authority.
+- Slice 1 accepted on the execution branch at `0d4666c3f8105e53189babd8355ee061dfe8639e`; observation reused the live stream.
 
 
 ## Correction input
@@ -143,7 +144,7 @@ Review reads. The final accounting uses the full affected roster.
 ### 2. Prove which Default main evidence the Done write saves
 
 Type: Structure
-Status: planned
+Status: done
 
 Keep two overlapping Default main launches, mark one through
 `setRecordDoneAt`, and assert the persisted capture has `shared: true`.
@@ -155,6 +156,18 @@ and leave comparison choice and file rendering with the Review owners.
 
 **Proof.** Removing propagation of the computed `shared` field or using the
 current Default main tip fails the corresponding persisted assertion.
+
+**Accepted proof.** The three affected backend specs passed 13 cases.
+After the mixed Review case adopted the Git tree baseline from the moved
+branch-entry fixture, all three cases in its typed Review spec passed.
+See `slice2-return.md`, `slice2-durable-done.log.run.json` and
+`slice2-entry-tree.log.run.json` in checkout evidence. The changed cases
+observe the saved pairs and flag after real Done writes and keep the typed
+overlap, comparison choices and file content checks. Across those specs
+cases go from 12 to 13 and full Review reads go from 13 to 11.
+The independent pass moved run selection into the existing MakeMe Review
+builder and passed eight reached cases, including numeric and named selections,
+the default and literal file reads. See `slice2-refactor.md`.
 
 ### 3. Preserve receipt precedence and both kinds of Done evidence
 

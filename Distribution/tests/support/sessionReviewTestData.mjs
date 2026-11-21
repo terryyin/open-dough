@@ -24,6 +24,8 @@ export class SessionReviewReadBuilder {
   #session;
   /** @type {SessionReviewRead["read"]["subject"]["host"]} */
   #host = "claude";
+  /** @type {string | undefined} */
+  #run;
   /** @type {readonly LaunchRecord[]} */
   #records = [];
 
@@ -34,6 +36,12 @@ export class SessionReviewReadBuilder {
   ofSession(session, host = "claude") {
     this.#session = session;
     this.#host = host;
+    return this;
+  }
+
+  /** @param {string} run the kept comparison key to select */
+  selectingRun(run) {
+    this.#run = run;
     return this;
   }
 
@@ -90,7 +98,10 @@ export class SessionReviewReadBuilder {
     const session = this.#session;
     if (session === undefined) throw new Error("choose .ofSession(...) first");
     return {
-      read: { subject: { source: "open-dough", host: this.#host, session } },
+      read: {
+        subject: { source: "open-dough", host: this.#host, session },
+        ...(this.#run === undefined ? {} : { run: this.#run }),
+      },
       kept: { records: this.#records },
     };
   }

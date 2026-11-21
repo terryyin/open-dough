@@ -73,12 +73,9 @@ export async function review(
   record: LaunchRecord,
   run?: number | string,
 ) {
-  const input = reviewRead(kept, record).please();
-  const read =
-    run === undefined
-      ? input
-      : { ...input, read: { ...input.read, run: `${run}` } };
-  return storyReview(read, new AbortController().signal);
+  const read = reviewRead(kept, record);
+  if (run !== undefined) read.selectingRun(`${run}`);
+  return storyReview(read.please(), new AbortController().signal);
 }
 
 // A file of one comparison; a landed run's read also names its reference.
