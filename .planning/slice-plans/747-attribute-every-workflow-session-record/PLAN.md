@@ -174,6 +174,7 @@ other writer, the launch-reference identity, and a native UUID that survives
 resume but differs for a fresh start.
 
 **Accepted.** `execution-session-evidence.mjs` keeps the per-worktree session evidence; increment delivery appends each accepted pair under the launch reference, and a newly published claim or admission begins a native session. Proof: `execution-session-evidence-delivery.test.mjs` and `execution-session-evidence-start.test.mjs` under `Distribution/tests/skills/dough-execute-plan/`.
+CI repair (run 44903981736): execution start must not load landing modules, which older or incomplete installs lack, so `resolveLaunchLanding` lives beside the landing-context resolver. Proof: `dashboard/backend-tests/launches/agent-launch-incomplete-reporting-settlement.spec.ts`.
 
 ### 4. Publish the session record at trunk wrap-up
 

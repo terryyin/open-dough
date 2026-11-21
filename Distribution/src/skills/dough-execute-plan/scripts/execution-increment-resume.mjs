@@ -16,10 +16,8 @@ import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { recoverObservationForResume } from "./execution-increment-observation-recovery.mjs";
 import { stopped } from "./applicable-candidate-proof.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
-import {
-  resolveLaunchLanding,
-  recordAcceptedIncrement,
-} from "./execution-session-evidence.mjs";
+import { recordAcceptedIncrement } from "./execution-session-evidence.mjs";
+import { resolveLaunchLanding } from "./resolve-publication-landing-context.mjs";
 import { targetBranchName } from "./publication-git.mjs";
 
 export function observerAdapter(directory, targetRef) {

@@ -45,3 +45,14 @@ export async function resolvePublicationLandingContext({
     ? open.landingContext
     : undefined;
 }
+
+// The publication's landing context, resolved once, and the launch reference
+// it names, so the accepted pair joins that session's evidence. Kept out of
+// execution-session-evidence.mjs so execution start never needs landing.
+export async function resolveLaunchLanding(request) {
+  const landingContext = await resolvePublicationLandingContext(request);
+  const reference = landingContext
+    ? JSON.parse(await readFile(landingContext, "utf8")).reference
+    : undefined;
+  return { landingContext, reference };
+}

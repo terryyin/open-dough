@@ -9,8 +9,6 @@ import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { readFile } from "node:fs/promises";
-import { resolvePublicationLandingContext } from "./resolve-publication-landing-context.mjs";
 import { executionSessionWorkflow } from "./session-record.mjs";
 
 function sessionEvidencePath(workspace) {
@@ -71,14 +69,4 @@ export function recordAcceptedIncrement(
   if (last?.base !== base || last?.candidate !== candidate)
     evidence.ranges.push({ base, candidate });
   return writeSessionEvidence(workspace, evidence);
-}
-
-// The publication's landing context, resolved once, and the launch reference
-// it names, so the accepted pair joins that session's evidence.
-export async function resolveLaunchLanding(request) {
-  const landingContext = await resolvePublicationLandingContext(request);
-  const reference = landingContext
-    ? JSON.parse(await readFile(landingContext, "utf8")).reference
-    : undefined;
-  return { landingContext, reference };
 }

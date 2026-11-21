@@ -11,10 +11,8 @@ import {
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { establishObservation } from "./execution-increment-observation.mjs";
-import {
-  resolveLaunchLanding,
-  recordAcceptedIncrement,
-} from "./execution-session-evidence.mjs";
+import { recordAcceptedIncrement } from "./execution-session-evidence.mjs";
+import { resolveLaunchLanding } from "./resolve-publication-landing-context.mjs";
 export { resumeManagedExecutionIncrement } from "./execution-increment-resume.mjs";
 import { targetBranchName } from "./publication-git.mjs";
 import { executionBudgetMs } from "./watch-ci-execution.mjs";
