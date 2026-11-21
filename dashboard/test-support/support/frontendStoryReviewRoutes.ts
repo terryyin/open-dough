@@ -34,3 +34,17 @@ export async function installReviewRoutes(page: Page, state: ReviewBuckets) {
     },
   );
 }
+
+// Refuses the next ask of `endpoint` that `matches` accepts, ahead of the
+// installed answers; later asks are answered as staged.
+export async function failNextReviewRead(
+  page: Page,
+  endpoint: string,
+  matches: (query: URLSearchParams) => boolean = () => true,
+) {
+  await page.route(
+    (url) => url.pathname === endpoint && matches(url.searchParams),
+    (route) => route.fulfill({ status: 500, body: "review read refused" }),
+    { times: 1 },
+  );
+}

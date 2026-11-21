@@ -1,5 +1,7 @@
-// A story's default comparison follows the server's opening answer. Review
-// owns explicit run choices; Intent does not keep one over a newer default.
+// A story's default comparison follows the server's opening answer. The
+// chosen comparison is read through Review changes' selection, keyed by the
+// story and whether it is Done, so it equals the default until a choice is
+// made, and a story becoming Done opens on its completed result.
 // An active workspace shows all changes, including uncommitted work. Done
 // Intent reads the completed result even while that workspace remains.
 
@@ -9,9 +11,12 @@ import {
 } from "./storyComparisonShown.ts";
 import type { RequestedComparison } from "./pageStoryReviews.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
-import { useDefaultStoryReview } from "./useDefaultStoryReview.ts";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
+import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
+import type { StoryCompare } from "./IntentStoryCompare.tsx";
+import { shownChoice } from "./StoryReviewComparison.tsx";
+import { unreadRange, type UnreadComparison } from "./StoryReviewFeedback.tsx";
 
 // The comparison such a view reads of a workspace: all changes, with its
 // uncommitted changes included as Review changes includes them at every
@@ -26,6 +31,7 @@ export function useStoryComparison({
   identity,
   completed,
   round,
+  onRefresh,
   enabled,
 }: {
   readonly source: string;
@@ -33,45 +39,125 @@ export function useStoryComparison({
   readonly completed: boolean;
   // How many times the reader asked for a new read.
   readonly round: number;
+  // Reads the worktree again, keeping the choice.
+  readonly onRefresh: () => void;
   // A disabled comparison reads nothing and shows none.
   readonly enabled: boolean;
 }): {
-  // The review read, which explains a comparison it cannot show.
+  // The chosen review read, which explains a comparison it cannot show.
   readonly review: StoryReview | undefined;
+  // The default review read, which owns the story's completed result.
+  readonly defaultReview: StoryReview | undefined;
   readonly reading: boolean;
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
+  // The choice of what is compared, while the story has a workspace, a
+  // published completion or captured landed runs.
+  readonly compare: StoryCompare | undefined;
+  // Why the chosen comparison cannot be read, once settled.
+  readonly unreadable?: UnreadComparison | undefined;
 } {
   const subject: ReviewedStorySubject = { source, identity };
+  // The choice is the story's, and a story becoming Done opens on its result.
+  const keyedBy = `${identity}${completed ? " done" : ""}`;
   const {
-    answer: review,
+    defaultReview,
+    review,
+    snapshot,
     reading,
     problem,
-  } = useDefaultStoryReview({
+    chosen,
+    onChoose,
+    onRun,
+    runs,
+    selectedRun,
+    runUnread,
+    published,
+    includeUncommitted,
+    setIncludeUncommitted,
+  } = useStoryReviewSelection({
     subject,
     round,
     completed,
     enabled,
     historical: completed,
+    keyedBy,
+    followsDefault: true,
   });
-  const snapshot = review?.kind === "snapshot" ? review : undefined;
-  const { comparison, tree } = useStoryReviewComparison({
+  const {
+    comparison,
+    tree,
+    committed,
+    items,
+    selectedItems,
+    shown,
+    onSelect,
+    trunkIntegrated,
+    range,
+  } = useStoryReviewComparison({
     subject,
     snapshot,
-    ...defaultStoryComparison,
+    chosen,
+    includeUncommitted,
+    keyedBy,
+    round,
     active: enabled && !completed && review?.selectedRun === undefined,
   });
   if (!enabled)
     return {
       review: undefined,
+      defaultReview: undefined,
       reading: false,
       problem: undefined,
       shown: undefined,
+      compare: undefined,
     };
+  const storyShown = storyComparisonShown({
+    subject,
+    review,
+    comparison,
+    tree,
+  });
+  // A chosen run other than the answer's own, or a chosen commit range, read
+  // as the Side panel review explains them.
+  const unreadable =
+    reading || storyShown !== undefined
+      ? undefined
+      : (runUnread ?? (shown === "commits" ? unreadRange(range) : undefined));
   return {
     review,
+    defaultReview,
     reading,
     problem,
-    shown: storyComparisonShown({ subject, review, comparison, tree }),
+    unreadable,
+    shown: storyShown,
+    compare:
+      (snapshot === undefined || review?.kind !== "snapshot") &&
+      published === undefined &&
+      runs.length === 0
+        ? undefined
+        : {
+            shown: shownChoice(shown, review, selectedRun),
+            isDefault:
+              review === defaultReview &&
+              chosen === defaultStoryComparison.chosen &&
+              includeUncommitted === defaultStoryComparison.includeUncommitted,
+            workspace: snapshot !== undefined,
+            published: published !== undefined,
+            runs,
+            selectedRun,
+            onRun,
+            items,
+            selectedItems,
+            trunkIntegrated,
+            onChoose,
+            onSelect,
+            includeUncommitted:
+              committed === undefined || review?.kind !== "snapshot"
+                ? undefined
+                : includeUncommitted,
+            onIncludeUncommitted: setIncludeUncommitted,
+            onRefresh,
+          },
   };
 }

@@ -12,7 +12,12 @@ export const storyNoteTextSchema = z
   .max(storyNoteTextLimit);
 
 export const storyNoteContextSchema = z.strictObject({
-  view: z.enum(["Review changes", "Intent → Changed tests"]),
+  view: z.enum([
+    "Review changes",
+    "Intent → Changes",
+    // Notes saved before the view was named Changes keep their view.
+    "Intent → Changed tests",
+  ]),
   path: z.string().min(1),
   oldPath: z.string().min(1).optional(),
   comparison: z.strictObject({

@@ -50,7 +50,7 @@ test("all Done tabs ignore project freshness while Project Intent notices the la
   );
   await firstRequested;
   expect(locations).toEqual([completion]);
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expect(filesColumn(intent)).toBeVisible();
   expect(locations).toEqual([completion]);
 
@@ -59,7 +59,7 @@ test("all Done tabs ignore project freshness while Project Intent notices the la
   expect(locations).toEqual([completion, published]);
   await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
   await returnToStory(intent);
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   const revisions = storyHeaderReading(intent).revisions;
   const endpoints = await revisions.innerText();
   expect(endpoints).toContain(completion.slice(0, 7));
@@ -73,11 +73,7 @@ test("all Done tabs ignore project freshness while Project Intent notices the la
     })
     .please().revisions[0];
   await advanceDoneProject(page, origin, later);
-  for (const tab of [
-    "CI comparison",
-    "Intent coverage",
-    "Changed tests",
-  ] as const) {
+  for (const tab of ["CI comparison", "Intent coverage", "Changes"] as const) {
     await chooseStoryTab(intent, tab);
     await expect(revisionNotice(intent)).toHaveCount(0);
     await expect(browserRevision(intent)).toHaveCount(0);

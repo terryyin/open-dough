@@ -1,65 +1,51 @@
-// The perspective choices by keyboard (../../src/PerspectiveSelect.tsx): their
-// arrows choose a perspective and never another project, the page-wide project
-// arrows still choose projects from Intent's content, and the keyboard never
-// stays in content a perspective change hid.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
-import { parts, projectTab } from "../../test-support/dashboardPage.ts";
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { focusedAndVisible } from "./board-accessibility.ts";
+import { backlogCard, sessions } from "./board-session-view.ts";
 import {
-  expectAddress,
-  expectNotConfiguredIntent,
-} from "../../test-support/intentPerspectivePage.ts";
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
-import {
-  expectCatalogStories,
-  openDoughProject,
-} from "../../test-support/projectKeyboardNavigationJourney.ts";
-import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
+  development,
+  intentChoice,
+  mountPerspectiveFrame,
+  openDoughStory,
+  params,
+  project,
+  showsUnconfiguredIntent,
+} from "./development-intent-frame-page.ts";
 
-test("perspective keys choose a perspective without choosing another project, and the keyboard never stays in content the change hid", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await answerCatalogProjects(page, frontendServices);
-  await openUntilRead(page);
-  const { backlog, development, intent, intentChoice } = parts(page);
-  await expectCatalogStories(page, openDoughProject);
+test("perspective keys choose a perspective without choosing another project, and the keyboard never stays in content the change hid", async () => {
+  await mountPerspectiveFrame();
+  const card = backlogCard(openDoughStory.title);
+  await expect.element(card).toBeVisible();
+  const toggle = sessions.element();
+  if (!(toggle instanceof HTMLElement))
+    throw new Error("Sessions cannot take focus.");
+  toggle.focus();
+  await userEvent.tab();
+  focusedAndVisible(development.element());
 
-  await test.step("Tab reaches Development after Sessions, and its arrows move between perspectives only", async () => {
-    await sessionsSidebarParts(page).button.focus();
-    await page.keyboard.press("Tab");
-    await expect(development).toBeFocused();
-    await expect(development).toHaveCSS("outline-style", "solid");
-    await page.keyboard.press("ArrowRight");
-    await expect(intentChoice).toBeFocused();
-    await expectNotConfiguredIntent(page, "Open Dough");
-    await expect(intentChoice).toHaveCSS("outline-style", "solid");
-    await expect(projectTab(page, "Open Dough")).toBeChecked();
-    expectAddress(page, { project: null, perspective: "intent" });
-    await page.keyboard.press("ArrowLeft");
-    await expect(development).toBeFocused();
-    await expect(development).toBeChecked();
-    await expect(projectTab(page, "Open Dough")).toBeChecked();
-    await expectCatalogStories(page, openDoughProject);
-  });
+  await userEvent.keyboard("{ArrowRight}");
+  await showsUnconfiguredIntent("Open Dough");
+  focusedAndVisible(intentChoice.element());
+  await expect.element(project("Open Dough")).toBeChecked();
+  expect(params().get("project")).toBeNull();
+  expect(params().get("perspective")).toBe("intent");
 
-  await test.step("Back to Intent takes the keyboard from the hidden Board to Intent's choice", async () => {
-    const inspect = backlog
-      .getByRole("article", { name: openDoughProject.queued })
-      .getByRole("button", { name: "Inspect story" });
-    await inspect.focus();
-    await page.goBack();
-    await expectNotConfiguredIntent(page, "Open Dough");
-    await expect(intentChoice).toBeFocused();
-  });
+  await userEvent.keyboard("{ArrowLeft}");
+  await expect.element(development).toBeChecked();
+  await expect.element(development).toHaveFocus();
+  await expect.element(project("Open Dough")).toBeChecked();
+  await expect.element(card).toBeVisible();
+  const inspect = card.getByRole("button", { name: "Inspect story" }).element();
+  if (!(inspect instanceof HTMLElement))
+    throw new Error("Inspect cannot take focus.");
+  inspect.focus();
+  history.back();
+  const explanation = await showsUnconfiguredIntent("Open Dough");
+  await expect.element(intentChoice).toHaveFocus();
 
-  await test.step("a page-wide arrow from Intent's content chooses Doughnut and keeps Intent", async () => {
-    await intent.getByText("No intent locations are configured").click();
-    await page.keyboard.press("ArrowRight");
-    await expect(projectTab(page, "Doughnut")).toBeChecked();
-    await expect(projectTab(page, "Doughnut")).toBeFocused();
-    await expectNotConfiguredIntent(page, "Doughnut");
-  });
+  await explanation.click();
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.element(project("Doughnut")).toBeChecked();
+  await expect.element(project("Doughnut")).toHaveFocus();
+  await showsUnconfiguredIntent("Doughnut");
 });

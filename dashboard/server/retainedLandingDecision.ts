@@ -136,7 +136,7 @@ export async function decideRetainedLanding(
     retained.deletedAt !== undefined
   )
     throw new RefusedRequest(409, "The reporting session was deleted.");
-  const { landing, isNew } = await resolveLandingComparison(
+  const reservation = await resolveLandingComparison(
     authorizedLanding(retained.authority, report),
     report,
     prepare,
@@ -145,10 +145,10 @@ export async function decideRetainedLanding(
     receiptId,
     receivedAt,
   );
+  const { landing, isNew } = reservation;
   if (!isNew)
     return {
-      landing,
-      isNew: false,
+      ...reservation,
       state: prepare ? "prepared" : "recorded",
     };
   const changeRecords = changeBoundLandingRecord(current, (record) => {
@@ -164,8 +164,7 @@ export async function decideRetainedLanding(
       : { ...record, landingReporting };
   });
   return {
-    landing,
-    isNew: true,
+    ...reservation,
     state: prepare ? "prepared" : "recorded",
     changeRecords,
   };

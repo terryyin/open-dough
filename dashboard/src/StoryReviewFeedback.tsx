@@ -15,6 +15,41 @@ import type { ReviewReadState } from "./useReviewRead.ts";
 
 type RangeRead = ReviewReadState<ReviewRange>;
 
+// Why a settled read holds no comparison, as this region says it: a failed
+// read, which reading again may mend, or an answer explaining what is missing.
+export type UnreadComparison = {
+  readonly failed: boolean;
+  readonly explanation: string;
+};
+
+const reviewReadFailure = (problem: string) =>
+  `The review could not be read: ${problem}`;
+
+// What a settled review read leaves unread.
+export function unreadReview(
+  read: ReviewReadState<StoryReview>,
+): UnreadComparison | undefined {
+  if (read.reading) return undefined;
+  if (read.problem !== undefined)
+    return { failed: true, explanation: reviewReadFailure(read.problem) };
+  return read.answer?.kind === "unavailable"
+    ? { failed: false, explanation: read.answer.explanation }
+    : undefined;
+}
+
+// What a settled read of the chosen commits leaves unread.
+export function unreadRange(range: RangeRead): UnreadComparison | undefined {
+  if (range.reading) return undefined;
+  if (range.problem !== undefined)
+    return {
+      failed: true,
+      explanation: `The chosen commits could not be read: ${range.problem}`,
+    };
+  return range.answer?.kind === "unavailable"
+    ? { failed: false, explanation: range.answer.explanation }
+    : undefined;
+}
+
 export function ReviewFeedback({
   review,
   reading,
@@ -109,7 +144,7 @@ export function ReviewFeedback({
       )}
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
       {review?.deliveryGap !== undefined && <p>{review.deliveryGap}</p>}
-      {problem !== undefined && <p>The review could not be read: {problem}</p>}
+      {problem !== undefined && <p>{reviewReadFailure(problem)}</p>}
       {review?.kind === "unavailable" && (
         <p>
           {review.explanation}
@@ -127,15 +162,11 @@ export function ReviewFeedback({
 
 // Range feedback is rendered in the panel's one status region.
 function RangeFeedback({ range }: { readonly range: RangeRead }) {
+  const unread = unreadRange(range);
   return (
     <>
       {range.reading && <p>Reading the chosen commits&apos; changes…</p>}
-      {!range.reading && range.problem !== undefined && (
-        <p>The chosen commits could not be read: {range.problem}</p>
-      )}
-      {!range.reading && range.answer?.kind === "unavailable" && (
-        <p>{range.answer.explanation}</p>
-      )}
+      {unread !== undefined && <p>{unread.explanation}</p>}
     </>
   );
 }

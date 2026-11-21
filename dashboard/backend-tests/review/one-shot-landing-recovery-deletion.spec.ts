@@ -4,7 +4,8 @@ import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
 import { requestFor } from "../../test-support/support/launchDashboard.ts";
 import { commit } from "../../test-support/support/launchLanding.ts";
-import { landingGitFault } from "../../test-support/support/launchLandingFault.ts";
+import { mkdirSync, unlinkSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { context } from "../../test-support/support/oneShotLanding.ts";
 import {
   captureReviewRun,
@@ -44,8 +45,7 @@ test("deletion after attempt expiry retains refusal and repository through a rea
     codexProtocol: native,
     extraEnv: clock.env,
   });
-  const fault = landingGitFault(origin.machine);
-  const env = { ...fault.env, ...clock.env };
+  const env = clock.env;
   try {
     await launch(receiver, {
       ...requestFor("execution", oneShot("isolated", "auto-land")),
@@ -78,17 +78,26 @@ test("deletion after attempt expiry retains refusal and repository through a rea
     clock.advanceDays(31);
     await dropExpiredAttempts(receiver.home, env);
     expect(keptAttempts(receiver)).toHaveLength(0);
-    fault.failCleanup();
-    await expect(
-      recordOperation(
-        receiver,
-        "deleteRecord",
-        ["open-dough", original.session],
-        env,
-      ),
-    ).rejects.toThrow("Injected pin cleanup EIO");
+    const pinsBefore = await heldLandingPins(repository, ownPins);
+    const revisionPin = pinsBefore.find(({ ref }) => ref.endsWith("/revision"));
+    if (revisionPin === undefined) throw new Error("No retained revision pin");
+    const lock = path.join(repository, `${revisionPin.ref}.lock`);
+    mkdirSync(path.dirname(lock), { recursive: true });
+    writeFileSync(lock, "", { flag: "wx" });
+    try {
+      await expect(
+        recordOperation(
+          receiver,
+          "deleteRecord",
+          ["open-dough", original.session],
+          env,
+        ),
+      ).rejects.toThrow("cannot lock ref");
+    } finally {
+      unlinkSync(lock);
+    }
     expect(stored(receiver.home)[0]?.landingReporting?.deletedAt).toBeDefined();
-    expect(await heldLandingPins(repository, ownPins)).not.toEqual([]);
+    expect(await heldLandingPins(repository, ownPins)).toEqual(pinsBefore);
     const refused = await reportingChild(input.retry, origin.machine);
     expect(refused.ok).toBe(false);
     expect(refused.stderr).toContain("deleted");

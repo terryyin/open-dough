@@ -5,7 +5,7 @@ import {
   scopeHistoryReading,
 } from "../../test-support/intentScopeHistoryPage.ts";
 // Dark system appearance for a selected Done story's Intent reading: CI
-// comparison, Changed tests with files shown/hidden, Intent coverage, cued
+// comparison, Changes with files shown/hidden, Intent coverage, cued
 // rows, diffs, and source stay legible; captures support visual review against
 // the approved dark mockup; live preference changes keep reading state.
 
@@ -70,8 +70,8 @@ test("a Done story's Intent evidence stays readable under the system dark appear
     await expectNoAppearanceSwitch(page);
   });
 
-  await test.step("Changed tests with files shown and hidden stay readable at desktop and phone widths", async () => {
-    await chooseStoryTab(intent, "Changed tests");
+  await test.step("Changes with files shown and hidden stay readable at desktop and phone widths", async () => {
+    await chooseStoryTab(intent, "Changes");
     await expect(filesToggle(intent)).toHaveText("Hide files");
     await expandIntentGroup(intent, "dashboard/tests");
     await expectReadableContrast(
@@ -107,7 +107,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
   });
 
   await test.step("cued rows, Purpose diffs, and highlighted source stay distinguishable", async () => {
-    await chooseStoryTab(intent, "Changed tests");
+    await chooseStoryTab(intent, "Changes");
     await expandIntentGroup(intent, "dashboard/tests");
     const file = intentFile(intent, cuedFileLabel);
     await expectCueState(file, {
@@ -191,7 +191,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
   });
 
   await test.step("changing system appearance keeps the selected story and reading place", async () => {
-    await chooseStoryTab(intent, "Changed tests");
+    await chooseStoryTab(intent, "Changes");
     await expandIntentGroup(intent, "dashboard/tests");
     await intentFile(intent, unchangedPath).click();
     await fileReadingTab(intent, "Purpose").click();

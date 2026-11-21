@@ -26,6 +26,9 @@ export type ShownIntentLocations = {
   readonly locations: readonly IntentLocation[] | undefined;
   // What shows in place of the locations browser until it can show.
   readonly explanation: ReactNode;
+  // Whether the settled answer is that no locations are configured, when a
+  // compared story's changed files still list outside every location.
+  readonly unconfigured: boolean;
 };
 
 export function useShownIntentLocations(
@@ -57,6 +60,11 @@ export function useShownIntentLocations(
       settled !== undefined && "locations" in settled
         ? settled.locations
         : undefined,
+    unconfigured:
+      settled !== undefined &&
+      intent !== "loading" &&
+      "status" in intent &&
+      intent.status === "not-configured",
     explanation:
       work === undefined ? (
         <LocationsNotConfigured label={source.label} />
