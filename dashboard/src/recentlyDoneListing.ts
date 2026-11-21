@@ -12,6 +12,7 @@ import {
 } from "./agentLaunch.ts";
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import type { HeldEntry } from "./recentlyDoneRange.ts";
+import { reportingReferenceOf } from "./sessionListing.ts";
 import { sessionKey } from "./sessionReference.ts";
 
 export type Listed =
@@ -25,7 +26,8 @@ export type Listed =
     }
   | { readonly at: number; readonly session: LaunchWithState }
   // A session the project published a close record for, with no local launch
-  // on this machine.
+  // on this machine: a launch whose reporting reference is the record's UUID
+  // stands for it with its native controls.
   | { readonly at: number; readonly published: PublishedSessionRecord };
 
 // Closed ad hoc launches whose saved follow-up names this project story.
@@ -55,7 +57,7 @@ const holdingsOf = (
 // Done stories by completion, each holding its sessions and closed follow-ups,
 // and the sessions of no listed done story by launch, newest first; sessions
 // launched at one moment keep their newest-first order. Published session
-// records stand by their close time.
+// records of no Done launch here stand by their close time.
 export function newestFirst(
   records: readonly CataloguedDoneRecord[],
   doneSessions: readonly LaunchWithState[],
@@ -68,6 +70,7 @@ export function newestFirst(
     sessions: storySessionsOf(doneSessions, sourceId, record.identity),
     followUps: closedStoryFollowUpsOf(doneSessions, sourceId, record.identity),
   }));
+  const launched = new Set(doneSessions.map(reportingReferenceOf));
   const held = new Set(
     cards.flatMap((card) => holdingsOf(card.sessions, card.followUps)),
   );
@@ -77,10 +80,12 @@ export function newestFirst(
       .filter((session) => !held.has(session))
       .toReversed()
       .map((session) => ({ at: Date.parse(session.launchedAt), session })),
-    ...published.map((record) => ({
-      at: Date.parse(record.closedAt),
-      published: record,
-    })),
+    ...published
+      .filter((record) => !launched.has(record.sessionId))
+      .map((record) => ({
+        at: Date.parse(record.closedAt),
+        published: record,
+      })),
   ].sort((one, other) => other.at - one.at);
 }
 

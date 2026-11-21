@@ -299,7 +299,7 @@ which owns `dashboard/test-support/originatingMachine.ts`.
 ### 8. Show one entry for a published session on its originating machine
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.** The Done listing merges a published record with the local launch
 whose launch `reference` equals the record UUID, so the originating machine
@@ -307,6 +307,17 @@ shows one entry with its native controls instead of a duplicate.
 
 **Proof.** An E2E originating-machine case shows one entry with its native
 controls. The existing kept-local listing cases pass.
+
+**Accepted.** Done overview listings carry a typed `reportingReference`
+(full `reporting` stays history-only, enforced by the 1,000-session scale
+case), and `newestFirst` drops a published record whose UUID equals a Done
+launch's reference, read through `reportingReferenceOf` so full answers
+(mark-done, stop, recovery) merge too. Proof:
+`e2e/sessions/recently-done-published-session-originating-machine.spec.ts`
+(one entry with Session details, also without a global Git identity), 20 Done
+listing journeys, frontend sessions (including
+`recently-done-published-session-launch.spec.ts`), backend sessions,
+typecheck and lint.
 
 ## Local gates
 
