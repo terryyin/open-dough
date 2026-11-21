@@ -28,8 +28,8 @@ Use the [shared comparison](../../seeds/SEED-401-retrospective-finding-pilots.md
   Codex thread that owns the [Taken claim](https://github.com/terryyin/open-dough/commit/e2fc81fd43727f4d3ee44a0dba0ff481c5bdf9de).
   The assessment runs from `.worktrees/seed-401-first-report-assessment`, on
   `codex/seed-401-first-report-assessment`. Its `ci.yml` observer is
-  `seed401-assessment` at `/tmp/dough-ci-501/watch-aGOpCQ`, rearmed at the
-  first automated check after the previous worker ended. The prior mailbox
+  `seed401-assessment` at `/tmp/dough-ci-501/watch-0KlJHm`, rearmed for the
+  Pygardon cohort checkpoint after the previous worker ended. The prior mailbox
   retained successful applicable CI for the last planning-only checkpoint.
 - The window starts at integration `211360795b04901fca1eefd95e1b4256d411024c`
   on 18 November 2026 at 23:43:11 Singapore time. It closes on 25 November
@@ -128,6 +128,36 @@ pair and keep history recovery and numbering identical across its two arms.
   history and interleaved other work. Counts describe the two records. They
   cannot isolate the wording's effect or establish a combined cost change.
   This execution used the ordinary rule and supplies no live candidate use.
+
+### Pygardon cohort closed on 21 November
+
+Both ordinary completions were selected from first-parent done-record additions
+before inspecting any review outputs. Trunk `b579e2b18` contains one later
+ordinary completion, outside this project's fixed two-case sample.
+
+| Order | Identity | Completion recorded in Singapore time | First-parent addition |
+| --- | --- | --- | --- |
+| 1 | `SEED-20261117#play-video-on-iphone-and-ipad` | 21 November 10:01:50 | [`5557e25a93`](https://github.com/terryyin/pygardon/commit/5557e25a93f4bb82dff9cb62111ad08542e39648), 10:01:59 |
+| 2 | `SEED-20261117#webkit-jump-before-media-seekable` | 21 November 11:05:15 | [`fe431c5c9`](https://github.com/terryyin/pygardon/commit/fe431c5c9c532175788f79f333eee56b158bb50b), 11:07:13 |
+
+- Terry set `skipProcessRetrospective: true` in both clients on 21 November at
+  06:55:41 Singapore time. [Doughnut](https://github.com/nerds-odd-e/doughnut/commit/03d34cc353519af6eb1be5ee4041d4f981511356) ·
+  [Pygardon](https://github.com/terryyin/pygardon/commit/374bc9a320912f58e773a50f62782817a1cd30b1)
+- The Pygardon reviewers ran in Claude Code with Open Dough 0.3.109. The
+  completion-time checkouts at `156728b0a` and `a314ddf33` both had the
+  setting enabled. The playback session `87dc2327-98a4-4915-a090-9e1b88943d6e`
+  documents its explicit skip at lines 1678 and 1735. The WebKit correction
+  session `fbbf2697-1769-48f0-a040-3c6e464da395` documents its skip at lines
+  677–685 and 814. Both included product or implementation review.
+- Pygardon's fixed sample contains two ordinary completions, two skipped
+  process reviews and zero first-report admission decisions. The separate
+  repeat rule was available in project guidance. Neither review applied it.
+  There is no writer or downstream effort comparison for the first-report
+  rule, and no candidate replay was run for skipped reviews. The retained
+  scope supports an evidence gap, not a verdict on omissions or savings.
+- The temporary notice and its Claude Code pointer were removed on Pygardon
+  main. The repeat guidance and process-review default were verified unchanged.
+  [Pygardon withdrawal](https://github.com/terryyin/pygardon/commit/4d9470aef6e07fbd82a2869cbaad2dcdc780b732)
 
 ## Basis for the trial
 
