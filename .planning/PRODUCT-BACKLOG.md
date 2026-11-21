@@ -34,7 +34,6 @@ intent introduced or affected by a newly developed story.
 - [Keep kept records intact through landings and prove it at the landing adapter](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-landing-record-writes-and-tests) — SEED-413#correct-landing-record-writes-and-tests ([plan](slice-plans/745-correct-landing-record-writes-and-tests/PLAN.md))
 - [Read the Review changes panel's toolbar, details, files and notes in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-changes-panel) — SEED-413#mount-story-review-changes-panel ([plan](slice-plans/748-mount-story-review-changes-panel/PLAN.md))
 - [Read System settings' sections and the Usage charts in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-system-settings-sections-and-usage-charts) — SEED-413#mount-system-settings-sections-and-usage-charts ([plan](slice-plans/749-mount-system-settings-sections-and-usage-charts/PLAN.md))
-- [Correct the published session review](seeds/SEED-418-review-published-session-changes.md#correct-published-session-review) — SEED-418#correct-published-session-review ([plan](slice-plans/746-correct-published-session-review/PLAN.md))
 
 ## Backlog list
 

@@ -7,7 +7,7 @@
 
 - **Provenance.** Outcome review of the completed execution of
   SEED-418#correct-published-session-review (plan 746 at
-  `.planning/slice-plans/746-correct-published-session-review/PLAN.md`,
+  `6302d70889f6b798df1fd8d8a5381e71d729f3ae:.planning/slice-plans/746-correct-published-session-review/PLAN.md`,
   attributable commits `126fabd26..576150249` after Take
   `343b15f2c89edef12b755475e513d5561277a90e`). Slice 3's refactor already
   named this residue. Rechecked at `576150249` on 2026-11-21.
