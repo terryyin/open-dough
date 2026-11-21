@@ -32,6 +32,8 @@
   `a97475d9fad087e9906f2bcee6a7fb725541c3ea`.
 - Slice 6 accepted on the same branch and observer at
   `93892f11328df46c90243c7ada92b0f947253eff`.
+- Slice 7 accepted on the same branch and observer at
+  `1e9fb0cbd4d864ba1942e87982136492ec0547cf`.
 - GitHub canceled the superseded slice 2 push run `44848314743/1`
   after the slice 3 push had scheduled run `44849901905` on the same
   branch. Slice 5 run `44852220119/1` was likewise canceled after
@@ -366,6 +368,39 @@ passed. See `slice-7-report.md` in the worktree Git evidence.
 | Admission accepts what `verifyLocalOrigin` accepts; 405 before 415 | Slice 5 |
 | Decision specs import no data helper beyond MakeMe; refusals as tables | Slice 6 |
 | Deletion acts on the landing record | Slice 7 |
+
+## Execution complete
+
+Product advice: no change. Keep the already-owned shared test cleanup on
+its existing story.
+
+The review compared the original ready plan at `f7190a3b1` and selected
+seed section with the seven accepted branch revisions recorded above.
+Sibling 736's landed retention predicate occupies its existing shared
+module. The rest of that sibling's work stays independently attributed.
+Product outcomes match the scoped correction. The record delta, request
+admission, state decision, and production record-store responsibilities
+each have a clear owner. Typed backend regressions drove development.
+The existing browser journeys cover the deployed route and real installed
+publisher, Git, native session binding, and Review interactions. The
+decision tables now cover pure refusals, and their success observations live
+at the typed adapter or existing native route. No new product correction
+or test follow-up was supported by the review.
+
+The combined one-worker local gate passed 35 cases across ten specs,
+Dashboard typecheck and lint with the default individual test timeouts.
+The strict case recording is `final-local-cohort.json` in the worktree's Git
+evidence. The process review used the execution conversation and retained
+run records. The two-worker baseline and wider-run timeouts were exposed
+under machine contention, and the bounded serial gate and independent
+ownership preserved the affected proof. Guarded delivery contained two
+mechanical type-aware lint findings before Git publication. No new process
+change was identified.
+
+The final target still owes the support-wide Done-write scan when plan 743
+integrates `00870a500`. The typed composed Done path and its regression
+proof are delivered on this branch. Applicable hosted CI is pending on the
+retained observer.
 
 ## Local gates
 
