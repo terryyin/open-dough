@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 - [Read every file a story changed in Intent](seeds/SEED-420-unified-intent-review.md#open-review-in-intent) — SEED-420#open-review-in-intent ([plan](slice-plans/759-read-every-changed-file-in-intent/PLAN.md))
 - [Get fast proof of Intent timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof) — SEED-413#speed-intent-timing-history-proof ([plan](slice-plans/759-speed-intent-timing-history-proof/PLAN.md))
 - [Stop repeating git work in shared publication](seeds/SEED-421-stop-repeating-git-work-in-shared-publication.md#stop-repeating-git-work-in-shared-publication) — SEED-421#stop-repeating-git-work-in-shared-publication ([plan](slice-plans/763-stop-repeating-git-work-in-shared-publication/PLAN.md))
+- [Get fast proof of composing and starting a launch](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof) — SEED-413#speed-dashboard-launch-proof ([plan](slice-plans/762-speed-dashboard-launch-proof/PLAN.md))
 
 ## Backlog list
 
@@ -48,7 +49,6 @@ intent introduced or affected by a newly developed story.
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
-- [Get fast proof of composing and starting a launch](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof) — SEED-413#speed-dashboard-launch-proof
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof
 - [Get fast proof of live sessions and terminal work](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof) — SEED-413#speed-dashboard-live-session-and-terminal-proof
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
