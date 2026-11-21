@@ -1,6 +1,7 @@
 // An open Default main launch proposes the registered worktree it names as its
 // own branch from its typed record and real Git: the captured or already kept
-// entry, or a refusal of any other place.
+// entry, or a refusal of any other place. The declaring recipe's composed
+// entry agrees with that proposal on a fresh worktree.
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
@@ -124,4 +125,23 @@ test("the same place proposes the kept entry after main and the worktree move", 
       { workspace, branch },
     ),
   ).toEqual({ kept: true, entry });
+});
+
+test("the declaring recipe's entry is the proposal for its fresh worktree", async () => {
+  const {
+    worktrees: { [branch]: workspace },
+    records: { declared, open },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace(branch)
+    .withDeclaringLaunch("declared", { launched: 60 }, branch)
+    .withDefaultMainLaunch("open", { launched: 60 })
+    .please();
+
+  const { entry } = await proposeBranchEntry(trunkRef, open, {
+    workspace,
+    branch,
+  });
+
+  expect(declared.branchEntry).toEqual(entry);
 });

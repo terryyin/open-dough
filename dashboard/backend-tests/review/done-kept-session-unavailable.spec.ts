@@ -8,8 +8,8 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
+import type { Checkout } from "../support/doneCaptureCaseMaterialization.ts";
 import {
-  type Checkout,
   keep,
   markDone,
   minutesAgo,

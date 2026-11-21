@@ -59,18 +59,7 @@ async function aDeclaredLanding<Branch extends string>(branch: Branch) {
   const { checkout, worktrees, records, performWork } = await aDoneCaptureCase()
     .withOrigin()
     .withWorkspace(branch)
-    .withDefaultMainLaunch(
-      "default-launch",
-      { launched: 60 },
-      (launch, { checkout, worktrees }) =>
-        launch.withDeclaredLanding({
-          repository: checkout.gitDirectory,
-          workspace: worktrees[branch] ?? "",
-          branch,
-          committedTip: checkout.base,
-          origin: dashboardOrigin,
-        }),
-    )
+    .withDeclaredLandingLaunch("default-launch", { launched: 60 }, branch)
     .please();
   const record = records["default-launch"];
   const workspace = worktrees[branch];
