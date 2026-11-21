@@ -7,16 +7,12 @@ import { expect, test } from "vitest";
 import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-revision-commit.mjs";
 import { backlogPath } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { posix } from "node:path";
-import { sessionRecordRelativePath } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { sessionRecordPathBeside } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { storyReviewSchema } from "../../src/storyReviewContract.ts";
 import { aCheckout } from "../support/doneCaptureCase.ts";
-
-const recordPath = (sessionId: string) =>
-  posix.join(posix.dirname(backlogPath), sessionRecordRelativePath(sessionId));
 
 // A checkout whose trunk published a session's edit, its close record, and a
 // later unrelated revision.
@@ -31,7 +27,8 @@ async function aPublishedSession(range?: { base: string; candidate: string }) {
   const { sessionId } = record;
   await commitDeclaredRevision(repository, {
     files: {
-      [recordPath(sessionId)]: `${JSON.stringify(record)}\n`,
+      [sessionRecordPathBeside(backlogPath, sessionId)]:
+        `${JSON.stringify(record)}\n`,
     },
   });
   const revision = await commitDeclaredRevision(repository, {

@@ -8,8 +8,7 @@ import { expect, test, vi } from "vitest";
 import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-revision-commit.mjs";
 import { backlogPath } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { posix } from "node:path";
-import { sessionRecordRelativePath } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { sessionRecordPathBeside } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { launchExactReads } from "../../server/launchExactReads.ts";
 import { reviewInput } from "../../server/storyReviewInput.ts";
@@ -69,9 +68,6 @@ test("Given a published session of a project this dashboard does not configure, 
   ).rejects.toMatchObject({ status: 404, message: "Unknown catalog source." });
 });
 
-const recordPath = (sessionId: string) =>
-  posix.join(posix.dirname(backlogPath), sessionRecordRelativePath(sessionId));
-
 const catalogSource = (ref = "main"): PublishedSource => ({
   id: "open-dough",
   label: "Open Dough",
@@ -96,7 +92,8 @@ async function aFetchedPublishedSession() {
     .please();
   const recordedAt = await commitDeclaredRevision(repository, {
     files: {
-      [recordPath(record.sessionId)]: `${JSON.stringify(record)}\n`,
+      [sessionRecordPathBeside(backlogPath, record.sessionId)]:
+        `${JSON.stringify(record)}\n`,
     },
   });
   await git(repository, "push", "--quiet", "origin", "main");

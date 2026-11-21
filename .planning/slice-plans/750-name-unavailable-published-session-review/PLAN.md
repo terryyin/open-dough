@@ -317,7 +317,7 @@ The `navigation/dashboard-header` frontend selection passed nine cases, includin
 ### 5. One record-path rule beside the backlog
 
 Type: Structure
-Status: planned
+Status: done
 
 **Structure.** Apply the "one record-path rule" decision. Add
 `sessionRecordPathBeside` to `session-record.mjs`; make the producer,
@@ -339,6 +339,9 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
 The producer closure change makes native evidence keyed on it stale until its
 next manual run. Paid runs stay manual.
+
+**Accepted proof.** The producer’s `session-record-publication.test.mjs` passed four cases under the Homebrew Bash test runner. It reads the actual remote’s literal record path and checks the accepted Git pair. The 23-case backend review and listing selection includes a relocated backlog with independently specified listing path, and the cross-machine E2E passed. The credential-free `native-evidence-identity.sh` harness and Dashboard typecheck passed.
+All three backend specs reference the shared path, and the old helper grep is empty. Ten root, nested and normalized path comparisons matched the previous producer’s POSIX output. The first backend run caught incorrect use of an existing MakeMe named example and passed after the fixture fix. Paid native evidence remains manual as planned. The local gate arguments and sleep guard apply.
 
 ### 6. A hung fetch answers from the last fetched trunk in production
 

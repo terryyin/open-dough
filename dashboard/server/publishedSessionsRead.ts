@@ -20,7 +20,7 @@ import { mapPool } from "../src/boundedPool.ts";
 import { listedReadConcurrency } from "./listedRecordsRead.ts";
 import { parsePinnedListing } from "./listedReadParameters.ts";
 import type { ListedPath } from "./pinnedTexts.ts";
-import { publishedRecordFromText } from "./publishedSessionReview.ts";
+import { publishedRecordFromText } from "./publishedSessionRecordText.ts";
 import type { PinnedLister } from "./reachablePaths.ts";
 import {
   listedSessionRecords,
@@ -64,7 +64,11 @@ export async function performPublishedSessionsRead(
 ): Promise<Outcome> {
   const listed = await listedSessionRecords(source, listPinned);
   const records = await mapPool(listed, listedReadConcurrency, async (file) =>
-    publishedRecordFromText(source, file.path, await readBlob(file)),
+    publishedRecordFromText(
+      source.backlogPath,
+      file.path,
+      await readBlob(file),
+    ),
   );
   return answered({
     revision,

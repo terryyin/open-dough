@@ -3,23 +3,24 @@
 
 import { randomUUID } from "node:crypto";
 import { expect, test } from "vitest";
-import {
-  sessionRecordDirectory,
-  sessionRecordRelativePath,
-} from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { sessionRecordPathBeside } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { performPublishedSessionsRead } from "../../server/publishedSessionsRead.ts";
 import { parseRequestedRead } from "../../server/requestedRead.ts";
 
-const source = makeMe.aPublishedSource.pygardon.please();
+const source = makeMe.aPublishedSource
+  .with({
+    ...makeMe.aPublishedSource.pygardon.please(),
+    backlogPath: "planning/team/WORK.md",
+  })
+  .please();
 const revision = "a1".repeat(20);
 const read = { kind: "published-sessions-at", revision } as const;
-const sessionsDirectory = `.planning/${sessionRecordDirectory}`;
-const recordPath = (sessionId: string) =>
-  `.planning/${sessionRecordRelativePath(sessionId)}`;
+const sessionsDirectory = "planning/team/sessions";
 
 const atItsPath = (record: { sessionId: string }) => ({
-  [recordPath(record.sessionId)]: JSON.stringify(record),
+  [sessionRecordPathBeside(source.backlogPath, record.sessionId)]:
+    JSON.stringify(record),
 });
 
 const readListing = (files: Readonly<Record<string, string>>) =>
@@ -63,9 +64,13 @@ test("skips malformed records and valid records at another UUID's path", async (
   expect(
     await readListing({
       ...atItsPath(valid),
-      [recordPath(randomUUID())]: "not json",
-      [recordPath(randomUUID())]: JSON.stringify({ version: 2 }),
-      [recordPath(randomUUID())]: JSON.stringify(misplaced),
+      [sessionRecordPathBeside(source.backlogPath, randomUUID())]: "not json",
+      [sessionRecordPathBeside(source.backlogPath, randomUUID())]:
+        JSON.stringify({
+          version: 2,
+        }),
+      [sessionRecordPathBeside(source.backlogPath, randomUUID())]:
+        JSON.stringify(misplaced),
     }),
   ).toEqual({
     kind: "answered",
