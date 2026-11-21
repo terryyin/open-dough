@@ -1,6 +1,6 @@
 // The page's reads of Intent, its CI and the story review, and its calls for a
-// shown session. The composition root (`./ConfiguredDashboard.tsx`) supplies
-// the authenticated implementations; every consumer reaches them through this
+// shown session. The app (`./App.tsx`) gives `./ConfiguredDashboard.tsx` the
+// authenticated implementations; every consumer reaches them through this
 // one entry and fails outside it.
 
 import { createContext, useContext, type ReactNode } from "react";

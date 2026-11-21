@@ -25,13 +25,15 @@ Remove spent `dashboard/test-support/` modules whose last consumer across
 `e2e/` and `dashboard/frontend-tests/` has migrated, and record the two-worker
 before/after comparison for this 18-file / 49-case cohort (plus the combined
 95-case pre-split baseline `36,187 ms` from `58b829487` alongside `plan 752`'s
-`8,315 ms` status result and `plan 759`'s history result when available).
+`8,315 ms` status result and `plan 764`'s history result when available).
 
 ## Preserved decisions and premises from `plan 752`
 
-- Depend on SEED-413#speed-intent-timing-history-proof, whose Slices 1–3
-  [correct the CI status test entry](../759-speed-intent-timing-history-proof/PLAN.md#correction-of-the-ci-status-test-entry).
-  Read CI through its required typed page-reads entry, never a default-valued
+- Depend on SEED-413#speed-intent-timing-history-proof, whose plan 759
+  delivers the required typed page-reads entry, and on
+  SEED-413#speed-intent-ci-status-frame-and-timing-history, whose plan 764
+  Slices 1–3 [finish correcting the CI status test entry](../764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry).
+  Read CI through the required typed page-reads entry, never a default-valued
   context or an optional or defaulted reader. Reuse Node-free `aCiProofEntry`,
   `aCiProofEvidence` and `aComparedStory` on
   `Distribution/tests/support/pageMakeMe.mjs`.

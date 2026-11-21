@@ -8,9 +8,10 @@ import { PageFrame } from "../../src/PageFrame.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import {
-  ReviewSourceOnPage,
-  type ReviewSource,
-} from "../../src/reviewSource.ts";
+  authenticatedPageReads,
+  PageReadsOnPage,
+} from "../../src/pageReads.tsx";
+import type { ReviewSource } from "../../src/reviewSource.ts";
 import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
 import { StoryNavigationOnPage } from "../../src/storyNavigation.tsx";
 import {
@@ -163,9 +164,13 @@ export async function mountBoard(
       value: sessions,
       children: board,
     });
-    if (reviews === undefined) return launched;
-    return createElement(ReviewSourceOnPage, {
-      value: reviews,
+    if (reviews === undefined)
+      return createElement(PageReadsOnPage, {
+        reads: authenticatedPageReads,
+        children: launched,
+      });
+    return createElement(PageReadsOnPage, {
+      reads: { ...authenticatedPageReads, review: reviews },
       children: createElement(StoryNotesOnPage, {
         value: notes,
         children: launched,

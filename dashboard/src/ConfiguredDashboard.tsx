@@ -15,7 +15,7 @@ import { LaunchesOnPage } from "./pageLaunches.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { StoryReferenceNavigation } from "./storyNavigation.tsx";
 import { ConfiguredDashboardContent } from "./configuredDashboardContent.tsx";
-import { authenticatedPageReads, PageReadsOnPage } from "./pageReads.tsx";
+import { PageReadsOnPage, type PageReads } from "./pageReads.tsx";
 
 export type DashboardSelection = {
   readonly source: PublishedSource | undefined;
@@ -23,10 +23,12 @@ export type DashboardSelection = {
 };
 
 export function ConfiguredDashboard({
+  reads,
   settingsOpen,
   onOpenSettings,
   onDashboardReady,
 }: {
+  readonly reads: PageReads;
   readonly settingsOpen: boolean;
   readonly onOpenSettings: () => void;
   readonly onDashboardReady: (value: DashboardSelection) => void;
@@ -99,7 +101,7 @@ export function ConfiguredDashboard({
   );
 
   return (
-    <PageReadsOnPage reads={authenticatedPageReads}>
+    <PageReadsOnPage reads={reads}>
       <LaunchesOnPage value={launches}>
         <FollowUpNavigationOnPage value={openFollowUp}>
           <PageFrame

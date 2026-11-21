@@ -4,6 +4,7 @@ import {
   ConfiguredDashboard,
   type DashboardSelection,
 } from "./ConfiguredDashboard.tsx";
+import { authenticatedPageReads } from "./pageReads.tsx";
 import { SettingsGear } from "./DashboardBanner.tsx";
 import { ProductMark } from "./ProductMark.tsx";
 import { SystemSettings } from "./SystemSettings.tsx";
@@ -117,6 +118,7 @@ export function App() {
                 </>
               ) : (
                 <ConfiguredDashboard
+                  reads={authenticatedPageReads}
                   settingsOpen={settings}
                   onOpenSettings={openSettings}
                   onDashboardReady={(value) => {

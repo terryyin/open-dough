@@ -5,11 +5,9 @@ import {
   type MachineSessions,
 } from "../../src/agentLaunches.ts";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { useObservedRevisionDelivery } from "../../src/observedRevisionDelivery.ts";
+import { authenticatedPageReads } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { readPublishedWork } from "../../src/publishedWorkRead.ts";
@@ -78,20 +76,16 @@ export async function mountBoardFrame(
     projects: snapshots.map(({ source }) => source),
     replaceProjects: () => {},
     children: createElement(ConfiguredDashboard, {
+      reads:
+        intentReads === undefined
+          ? authenticatedPageReads
+          : { ...authenticatedPageReads, intent: intentReads },
       settingsOpen: false,
       onOpenSettings: () => {},
       onDashboardReady: () => {},
     }),
   });
-  await mountComponent(
-    intentReads === undefined
-      ? dashboard
-      : createElement(IntentReadSourceOnPage, {
-          value: intentReads,
-          children: dashboard,
-        }),
-    { viewport, fillsViewport: true },
-  );
+  await mountComponent(dashboard, { viewport, fillsViewport: true });
   const delivery = () => {
     if (revisionAnswers === undefined)
       throw new Error("The Board hasn't bound its revision delivery.");

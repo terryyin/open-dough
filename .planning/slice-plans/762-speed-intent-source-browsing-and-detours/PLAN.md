@@ -9,9 +9,9 @@
 **Correction first.** Slices 1–2 correct the locations read-recovery and
 settings-problem entry delivered by SEED-413#speed-intent-source-and-story-reading
 (see [Correction of the locations recovery test entry](#correction-of-the-locations-recovery-test-entry))
-before any source-browsing move builds on it. They start after plan 759's
-Slices 1–2 land the required typed page entry and the standalone production
-Intent body.
+before any source-browsing move builds on it. They start after plan 759
+lands the required typed page entry and plan 764's Slices 1–2 land the
+remaining page reads and the standalone production Intent body.
 
 Dashboard maintainers get fast Vitest feedback that a developer can browse
 Gherkin and code sources at the chosen scope, line and revision, follow
@@ -40,8 +40,9 @@ Review of SEED-413#speed-intent-source-and-story-reading (`plan 755`,
 recoverable at `e0f7d6a6a:.planning/slice-plans/755-speed-intent-source-and-story-reading/PLAN.md`;
 implementation `634838a49`, landed at `6fa6ef623`) on 21 November 2026.
 Terry raised it on reading the new page helper's import list. It repeats the
-[CI status entry correction](../759-speed-intent-timing-history-proof/PLAN.md#correction-of-the-ci-status-test-entry)
-in plan 759, which landed about an hour after this delivery, and breaks the
+[CI status entry correction](../764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry)
+recorded in plan 759 about an hour after this delivery and now carried by
+plan 764, and breaks the
 same [shared acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories)
 rule.
 
@@ -112,10 +113,10 @@ visibility, which is the real input `usePageVisibility` observes, and stays.
   objects under `dashboard/frontend-tests/intent/` and
   `dashboard/frontend-tests/navigation/` without `actSettled`, React `act`, or
   `IS_REACT_ACT_ENVIRONMENT`.
-- Supply every read through the required typed page entry from plan 759
-  Slice 1, which `ConfiguredDashboard` supplies with the authenticated
-  readers. Render the production Intent body that plan 759 Slice 2 makes
-  stand alone (`IntentReadRecovery` + `IntentPerspective`), or production
+- Supply every read through the required typed page entry from plan 759,
+  which `ConfiguredDashboard` supplies with the authenticated
+  readers. Render the production Intent body that plan 764 Slice 2 makes
+  stand alone (`BoardOrIntent`: `IntentReadRecovery` + `IntentPerspective`), or production
   `ConfiguredDashboard` when the page observation is part of the proof. No
   test file renders `IntentPageProviders`, `IntentReadingProvider`,
   `StorySelectionProvider`, `useLimitRecovery` or `IntentReadRecovery`
