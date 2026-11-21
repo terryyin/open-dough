@@ -67,7 +67,8 @@ async function keepRecordedAttempt(
 }
 
 test("a quiet report after confirmed native Done keeps the additional commit", async () => {
-  const completion = aReceivedCompletion(minutesAgo(30));
+  const times = { launched: 60, done: 30 };
+  const completion = aReceivedCompletion(minutesAgo(times.done));
   const {
     checkout,
     records: { "default-launch": record },
@@ -81,7 +82,7 @@ test("a quiet report after confirmed native Done keeps the additional commit", a
     )
     .withDefaultMainLaunch(
       "default-launch",
-      { launched: 60, done: 30 },
+      times,
       (launch, { checkout, work }) =>
         launch
           .keptSessionCommits({
@@ -116,7 +117,8 @@ test("a quiet report after confirmed native Done keeps the additional commit", a
 });
 
 test("retrying the same quiet delivery resumes native Done without repeating its failed capture", async () => {
-  const doneAt = minutesAgo(10);
+  const times = { launched: 60, done: 10 };
+  const doneAt = minutesAgo(times.done);
   const completion = aReceivedCompletion(doneAt);
   const {
     checkout,
@@ -124,7 +126,7 @@ test("retrying the same quiet delivery resumes native Done without repeating its
     performWork,
     at,
   } = await aDoneCaptureCase()
-    .withDefaultMainLaunch("default-launch", { launched: 60 }, (launch) =>
+    .withDefaultMainLaunch("default-launch", times, (launch) =>
       launch
         .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
         .sessionCommitsFailedAt(doneAt)

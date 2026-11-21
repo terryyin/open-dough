@@ -184,10 +184,14 @@ worker, explicitly including `ad-hoc-prepared-landing-done.spec.ts` and
 persistence observations, default worktree behavior and the file-size bound.
 Check that the affected setup no longer has an empty workspace fallback.
 
+**Accepted.** `placesOf` resolves only declared worktrees and gives one checked `worktree(branch)` lookup, used by the declaring, isolated and declared-landing recipes and dated work; a scratch undeclared case was rejected at `please()` with its name. `withDeclaredLandingLaunch` states repository, base, worktree and origin once; `doneCaptureCase.ts` exports only `WorkCheckout`; the `CaseFacts` re-export is gone; the persistence spec fell from 225 to 214 lines. On the final code, the 36 reached consumer specs passed 128/128 at one worker, load 8–11. An earlier run at load about 37 timed out 11 cases at 5 s, and they passed again at lower load. Those load timeouts belong to the [optimization story](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases), whose goal names them.
+
+**Learning for slice 7.** The support files grew from 524 to 561 lines, mostly the new builder step and the checked lookup. Slice 7's deletion of the 48-line capture module must bring support back to at or below 524 lines before commitment 19 is observed.
+
 ### 5. The quiet receipt and Done timeline share the case time
 
 Type: Structure
-Status: planned
+Status: done
 
 State Done in the timeline for both `ad-hoc-session-quiet-done-receipts` cases.
 Give the completion and pending-mark refinement the same computed time.
@@ -199,6 +203,8 @@ by the timing change. The new quiet report still captures the additional
 commit without a rename. The retry still returns the same receipt, renames
 once, preserves the earlier failed capture, and clears the pending problem.
 Inspect that both timeline entries agree with their starting records.
+
+**Accepted.** Both cases declare `times` once. The completion, the case timeline, the pending-mark refinement and the failed capture all read `minutesAgo(times.done)`. The builder's own Done mark keeps the refinement's pending problem. The quiet-receipt spec passed 2/2 with no assertion changed. Refactor pass: already clean. CI run 44907064093 on slice 4 then failed an unrelated e2e race. It was repaired in 2827eb3e6; see [the diagnosis](diagnosis-codex-done-page-timeout.md).
 
 ### 6. The accepted attempt follows its reporting launch
 
