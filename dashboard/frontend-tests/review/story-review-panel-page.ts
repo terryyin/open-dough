@@ -19,8 +19,10 @@ import {
   comparisonNameIn,
   reviewDetails,
 } from "./story-review-details-view.ts";
+import { reviewFilesDivider } from "./story-review-files-divider-view.ts";
 import { reviewFiles } from "./story-review-files-view.ts";
 import { onReviewPage } from "./story-review-page-contexts.ts";
+import { reviewTouchBudget } from "./story-review-touch-budget-view.ts";
 
 export { adHocSession, doneStory } from "./story-review-page-contexts.ts";
 
@@ -38,11 +40,18 @@ export const reviewSourceAnswering = (
 });
 
 // Opens the panel on `subject`'s review, read from `source`; another story's
-// review replaces it, keyed as the page keys each opening.
+// review replaces it, keyed as the page keys each opening. The panel fills
+// the case's viewport, as a maximized panel fills the page.
 export async function mountReviewChanges(
   source: ReviewSource,
   subject: ReviewedWorkSubject,
-  { completed = false }: { completed?: boolean } = {},
+  {
+    completed = false,
+    viewport,
+  }: {
+    completed?: boolean;
+    viewport?: { readonly width: number; readonly height: number };
+  } = {},
 ) {
   const panelOn = (shown: ReviewedWorkSubject) => {
     const request: StoryReviewRequest = {
@@ -65,6 +74,7 @@ export async function mountReviewChanges(
   };
   const mounted = await mountComponent(panelOn(subject), {
     fillsViewport: true,
+    ...(viewport && { viewport }),
   });
   return {
     ...reviewChanges(),
@@ -99,6 +109,8 @@ function reviewChanges() {
   const view = {
     ...details,
     ...reviewFiles(region),
+    ...reviewFilesDivider(region),
+    ...reviewTouchBudget(region),
 
     // Whether the file browser is shown beside the diff.
     async expectFilesShown(shown: boolean) {

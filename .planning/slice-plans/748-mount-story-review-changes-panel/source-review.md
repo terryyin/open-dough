@@ -34,11 +34,11 @@ added by the coordinator.
 | 14c | "A selected landed gap offers Landed runs and the eye" | slice 3 | observed: dashboard/frontend-tests/review/story-review-toolbar-truthful-gaps.spec.ts "a selected landed gap offers Landed runs and the eye" |
 | 14d | "a bare landing gap names Landed runs without an eye." | slice 3 | observed: dashboard/frontend-tests/review/story-review-toolbar-truthful-gaps.spec.ts "a bare landing gap names Landed runs without an eye" |
 | 15 | *Uncommitted changes:* "The check leaves uncommitted changes out of All changes and back without reading the snapshot again." | slice 4 | observed: dashboard/frontend-tests/review/story-review-uncommitted-check.spec.ts "the check leaves uncommitted changes out of all changes and back without reading the snapshot again" (snapshotReads unchanged; re-read break failed it) |
-| 16a | *The file sidebar width:* "Dragging the Files divider resizes the file sidebar within both minimums." | slice 5 |  |
-| 16b | Preserve "the kept file sidebar width across reviews" — "The chosen width serves another story's review." | slice 5 |  |
-| 16c | "An unusable kept width gives 16rem" | slice 5 |  |
-| 16d | Preserve the kept width "where storage is refused" — "where storage is refused the sidebar is 16rem and resizes without error." | slice 5 |  |
-| 17 | Preserve "the shared height budget on a phone." (`-touch-height`) | slice 5 |  |
+| 16a | *The file sidebar width:* "Dragging the Files divider resizes the file sidebar within both minimums." | slice 5 | observed: dashboard/frontend-tests/review/story-review-files-divider.spec.ts "the Files divider resizes the file sidebar against the diff within both minimums" |
+| 16b | Preserve "the kept file sidebar width across reviews" — "The chosen width serves another story's review." | slice 5 | observed: dashboard/frontend-tests/review/story-review-files-divider-kept.spec.ts "the chosen file sidebar width serves another story's review" (kept in real localStorage; remount by storyReviewPanelKey reads it; ignore-kept break failed it) |
+| 16c | "An unusable kept width gives 16rem" | slice 5 | observed: dashboard/frontend-tests/review/story-review-files-divider-kept.spec.ts "an unusable kept file sidebar width gives 16rem" |
+| 16d | Preserve the kept width "where storage is refused" — "where storage is refused the sidebar is 16rem and resizes without error." | slice 5 | observed: dashboard/frontend-tests/review/story-review-files-divider-kept.spec.ts "where the browser refuses storage, the sidebar is 16rem and resizes without error" |
+| 17 | Preserve "the shared height budget on a phone." (`-touch-height`) | slice 5 | observed: dashboard/frontend-tests/review/story-review-touch-height.spec.ts "revealed details and status share one height budget above a usable code pane" (780x390, touch) |
 | 18a | *Notes from a review:* "The Notes icon sits with Refresh." | slice 6 |  |
 | 18b | "A file's note from a Taken workspace keeps the comparison's words and endpoints" | slice 6 |  |
 | 18c | "its line menu offers Add note alone." | slice 6 |  |

@@ -28,6 +28,8 @@ export class StoryReviewBuilder {
   #selected;
   /** @type {ReviewedFile[] | undefined} */
   #committed;
+  /** @type {number | undefined} */
+  #publishedKept;
 
   /**
    * @param {string} path a file the comparison adds
@@ -49,6 +51,16 @@ export class StoryReviewBuilder {
    */
   committedAs(committed) {
     this.#committed = committed.#files;
+    return this;
+  }
+
+  /**
+   * A Trunk Mode snapshot whose agent published `commits` on trunk that this
+   * machine's Git could not take out of its baseline.
+   * @param {number} commits
+   */
+  keepingPublishedCommits(commits) {
+    this.#publishedKept = commits;
     return this;
   }
 
@@ -177,7 +189,21 @@ export class StoryReviewBuilder {
         tree,
         files,
       };
-    return takenSnapshot({ baseline, tree, files, committed: this.#committed });
+    const snapshot = takenSnapshot({
+      baseline,
+      tree,
+      files,
+      committed: this.#committed,
+    });
+    if (this.#publishedKept === undefined) return snapshot;
+    return {
+      ...snapshot,
+      published: {
+        trunk: baseline,
+        commits: this.#publishedKept,
+        kept: "not-restated",
+      },
+    };
   }
 }
 

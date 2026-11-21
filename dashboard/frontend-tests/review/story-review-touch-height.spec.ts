@@ -1,66 +1,61 @@
 // On a short touch landscape, revealed details and status share one height
 // budget above the diff so the work area keeps a usable code pane.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { emulateMedia } from "./browser-session.ts";
 import {
-  frontendFileDiff,
-  frontendReviewIds,
-  frontendReviewSnapshot,
-} from "../../test-support/support/frontendStoryReview.ts";
-import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
-
-test.use({
-  hasTouch: true,
-  viewport: { width: 780, height: 390 },
-  reducedMotion: "reduce",
-});
+  doneStory,
+  mountReviewChanges,
+  reviewSourceAnswering,
+} from "./story-review-panel-page.ts";
 
 const keptStatus =
-  /This machine's Git cannot take the story's 2 published commits out of trunk/;
+  "This machine's Git cannot take the story's 2 published commits out of trunk";
+const file = "Added story.txt";
 
-test("revealed details and status share one height budget above a usable code pane", async ({
-  page,
-  frontendServices,
-}) => {
-  const path = "story.txt";
-  const { reviewChanges: review } = await openFrontendStoryReviewAsOpened(
-    page,
-    frontendServices,
-    frontendReviewSnapshot({
-      published: {
-        trunk: frontendReviewIds.baseline,
-        commits: 2,
-        kept: "not-restated",
-      },
+test("revealed details and status share one height budget above a usable code pane", async () => {
+  // Motion is reduced, as the phone's reader asked.
+  await emulateMedia([{ name: "prefers-reduced-motion", value: "reduce" }]);
+  const review = await mountReviewChanges(
+    reviewSourceAnswering({
+      review: () =>
+        Promise.resolve(
+          makeMe.aStoryReview
+            .adding("story.txt")
+            .keepingPublishedCommits(2)
+            .please(),
+        ),
+      fileDiff: () =>
+        Promise.resolve(
+          makeMe.aReviewedFileDiff.adding("story.txt", "kept line").please(),
+        ),
     }),
-    (answers) => {
-      answers.answerFile(frontendFileDiff(path, ["+kept line"]));
-    },
+    doneStory,
+    { viewport: { width: 780, height: 390 } },
   );
-  const { details, code, status } = review;
-  const file = `Added ${path}`;
 
-  await status.expectFeedbackSays(keptStatus);
-  await review.details.expectCollapsed();
-  await code.expectShows(file, "+kept line");
+  await review.expectFeedbackSays(keptStatus);
+  await review.expectDetailsCollapsed();
+  await review.expectDiffShows(file, "+kept line");
 
-  await details.reveal();
-  await details.expectText(keptStatus, false);
-  await status.expectFeedbackSays(keptStatus);
+  await review.revealDetails();
+  await review.expectDetailsLack(keptStatus);
+  await review.expectFeedbackSays(keptStatus);
 
-  const measured = await details.measureAboveBody();
+  const measured = review.measureAboveBody();
   expect(measured.visible).toBeLessThanOrEqual(measured.budget + 1);
   expect(measured.aboveHeight).toBeLessThanOrEqual(measured.budget + 1);
   // Two separate 30% caps at this viewport used ~176 px; one shared cap ~117.
   expect(measured.visible).toBeLessThan(150);
 
-  await details.reachFeedback();
+  await review.reachFeedback();
 
-  expect(await code.height(file)).toBeGreaterThanOrEqual(44);
-  await code.expectLineInView(file, "+kept line");
+  expect(review.codeHeight(file)).toBeGreaterThanOrEqual(44);
+  await review.expectCodeLineInView(file, "+kept line");
 
-  await review.details.hide();
-  await status.expectFeedbackSays(keptStatus);
-  expect((await details.measureAboveBody()).visible).toBeLessThanOrEqual(
+  await review.hideDetails();
+  await review.expectFeedbackSays(keptStatus);
+  expect(review.measureAboveBody().visible).toBeLessThanOrEqual(
     measured.budget + 1,
   );
 });

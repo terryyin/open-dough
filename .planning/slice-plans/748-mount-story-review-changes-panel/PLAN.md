@@ -205,7 +205,7 @@ Orphans for slice 7: `expectListAndRangeShown` in `reviewChangesCommits.ts`,
 ### 5. The file sidebar keeps its chosen width
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `-files-divider` (1 case), `-files-divider-kept` (3) and
 `-touch-height` (1), at the viewports those cases use. The divider drags by
@@ -213,6 +213,22 @@ pointer through the page object. Remove the three built-app files.
 
 **Proof.** The mounted specs pass. One scratch break that ignores the kept
 width fails the kept-width case and is reverted.
+
+**Accepted.** The three specs are mounted in place under their titles at
+their viewports; the ignore-kept-width break failed the kept and refused
+cases. The divider drags by CDP pointer events through
+`story-review-files-divider-view.ts`; `story-review-touch-budget-view.ts`
+reads the phone budget; `browser-session.ts` is the review folder's one CDP
+entry. The old reload step is carried by the remount: `usePreferredSize`
+reads storage on every mount. Board and Side panel opening stay proved by
+`navigation/side-panel-width-review.spec.ts`,
+`navigation/side-panel-width-kept.spec.ts` and
+`review/story-review-files-divider-room.spec.ts`. Orphans for slice 7:
+`keepFilesWidth`, `press`, `isTheOnlyFilesDivider`, `setFilesShown`,
+`hiddenSidebarWidths` in `filesDividerPage.ts`; `anotherStoryWithReview`,
+`openAnotherStoryReview` in `frontendSidePanelWidth.ts`;
+`openFrontendStoryReviewAsOpened`; `measureAboveBody`, `reachFeedback` and
+then `aboveBodyTouchBudget` in `reviewChangesDetails.ts`.
 
 ### 6. Notes open from the review with its comparison
 

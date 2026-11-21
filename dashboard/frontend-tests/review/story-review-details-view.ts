@@ -169,6 +169,12 @@ export function reviewDetails(region: Locator, toolbar: Locator) {
       return details;
     },
 
+    async expectDetailsLack(text: string) {
+      await expect.element(section).toBeVisible();
+      expect(section.element().textContent).not.toContain(text);
+      return details;
+    },
+
     async expectDetailsHeading(name: string) {
       await expect
         .element(section.getByRole("heading", { name, exact: true }))
