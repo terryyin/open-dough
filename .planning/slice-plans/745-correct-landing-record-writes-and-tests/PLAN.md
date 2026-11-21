@@ -399,8 +399,16 @@ change was identified.
 
 The final target still owes the support-wide Done-write scan when plan 743
 integrates `00870a500`. The typed composed Done path and its regression
-proof are delivered on this branch. Applicable hosted CI is pending on the
-retained observer.
+proof are delivered on this branch.
+
+Hosted backend run `44853956929/1` failed one existing lost-start recovery
+case. A controlled worker-first shutdown reproduced the exact missing
+start journal. The test now crashes the owned server before allowing its
+held worker to exit. Both scenarios passed without changing the recovery
+assertions, the test timeout, or runtime code. The focused correction leaves
+the product review's advice intact. [Diagnosis](diagnosis-lost-start-recovery.md)
+retains the proof and the single hosted confirmation intended for the
+repair. The retained observer owns that confirmation.
 
 ## Local gates
 
