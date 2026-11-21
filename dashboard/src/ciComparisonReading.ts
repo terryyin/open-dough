@@ -23,6 +23,7 @@ export function createCiComparisonReading() {
         source: PublishedSource;
         identity: string | undefined;
         head: string | undefined;
+        readComparison: typeof readIntentCiComparison;
       }
     | undefined;
   let state: ComparisonReadState = {
@@ -48,11 +49,8 @@ export function createCiComparisonReading() {
     controller = request;
     const round = askedAgain;
     publish({ ...state, reading: true, failed: undefined });
-    return readIntentCiComparison(
-      current.source,
-      current.identity,
-      request.signal,
-    )
+    return current
+      .readComparison(current.source, current.identity, request.signal)
       .then((shown) => {
         if (request.signal.aborted) return;
         publish({ ...state, shown, checkedAgain: round, reading: false });
@@ -82,6 +80,7 @@ export function createCiComparisonReading() {
       source: PublishedSource,
       identity: string | undefined,
       head?: string,
+      readComparison: typeof readIntentCiComparison = readIntentCiComparison,
     ) {
       const key = comparisonReadingKey(source, identity);
       const changed = state.key !== key;
@@ -89,10 +88,11 @@ export function createCiComparisonReading() {
         !active ||
         selected?.source !== source ||
         selected.identity !== identity ||
+        selected.readComparison !== readComparison ||
         (selected.head !== undefined &&
           head !== undefined &&
           selected.head !== head);
-      selected = { source, identity, head };
+      selected = { source, identity, head, readComparison };
       active = true;
       if (changed) {
         askedAgain = 0;

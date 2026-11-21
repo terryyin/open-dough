@@ -130,7 +130,7 @@ typed history source.
 ### 1. CI status reader replaces held evidence, keeps usable status on failure, and renders execution timing and dark contrast
 
 Type: Behavior
-Status: planned
+Status: done
 
 Wire `IntentCiReadSourceOnPage` (with real authenticated defaults for status,
 kept status, proof, history, and comparison reads) and expose Node-free
@@ -148,7 +148,13 @@ the fresh answer replaces them, cold failed refreshes retain the usable
 reading, late trunk answers do not overwrite a switched story branch's kept
 answer, execution timing and missing/untimed shard words stay specific, Proof
 sorts by click/Enter/Space without summing units, and composed CI cues stay
-readable on dark surfaces.
+readable on dark surfaces. Accepted at `--workers=2`: `npm run typecheck:dashboard`
+passed; 4 migrated Vitest files (`intent-ci-status-freshness`, `intent-ci-status-execution-time`,
+`intent-ci-status-sort`, `intent-ci-cues-dark-contrast`) passed 10 `mounted-chromium`
+cases in 9.02s (`0` legacy Playwright cases remain on those 4 files); untouched
+consumers (`ci-comparison-client-identity`, `ci-comparison-client-reading`,
+`intent-ci-wall-time-history`, `intent-ci-status-homepage`, `intent-ci-comparison-strict-mode`)
+passed unchanged.
 
 ### 2. Homepage, trunk head changes, and Side panel story selection choose the intended CI status
 

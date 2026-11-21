@@ -10,11 +10,12 @@
 // proofs the comparison shows are read again with each
 // (`./useIntentCiComparisonEntries.ts`).
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useContext, useEffect, useState, useSyncExternalStore } from "react";
 import {
   comparisonReadingKey,
   createCiComparisonReading,
 } from "./ciComparisonReading.ts";
+import { IntentCiReadSourceOnPage } from "./intentCiReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
 
@@ -34,6 +35,7 @@ export function useIntentCiComparison(
   // Observed tip for a Taken comparison; undefined for done stories.
   head?: string,
 ): ComparisonReading {
+  const { readComparison } = useContext(IntentCiReadSourceOnPage);
   const [owner] = useState(createCiComparisonReading);
   const state = useSyncExternalStore(
     owner.subscribe,
@@ -47,8 +49,8 @@ export function useIntentCiComparison(
     [owner],
   );
   useEffect(() => {
-    void owner.select(source, identity, head);
-  }, [owner, source, identity, head]);
+    void owner.select(source, identity, head, readComparison);
+  }, [owner, source, identity, head, readComparison]);
   const current = state.key === comparisonReadingKey(source, identity);
   return {
     shown: current ? state.shown : undefined,

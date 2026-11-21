@@ -4,6 +4,9 @@
 import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
 import { ciHistoryAnswerMakeMeProperties } from "./ciHistoryAnswerTestData.mjs";
 import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
+import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
+import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 import { intentCiStatusMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
@@ -23,11 +26,14 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  * @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe &
  *   import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe &
  *   import("./ciProofTestData.mjs").CiProofMakeMe &
+ *   import("./comparedStoryTestData.mjs").ComparedStoryMakeMe &
  *   import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe &
  *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe &
  *   import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe &
  *   import("./sessionRecordTestData.mjs").SessionRecordMakeMe &
  *   import("./storyReviewTestData.mjs").StoryReviewMakeMe & {
+ *     readonly aCiProofEntry: CiProofEntryBuilder;
+ *     readonly aCiProofEvidence: CiProofEvidenceBuilder;
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
  *     readonly aSessionState: SessionStateBuilder;
@@ -51,11 +57,24 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...storyNoteMakeMeProperties(),
   ...ciHistoryAnswerMakeMeProperties(),
   ...ciProofMakeMeProperties(),
+  ...comparedStoryMakeMeProperties(),
   ...intentCiStatusMakeMeProperties(),
   ...publishedReadingMakeMeProperties(),
   ...terminalThemeSettingMakeMeProperties(),
   ...sessionRecordMakeMeProperties(),
   ...storyReviewMakeMeProperties(),
+  aCiProofEntry: {
+    enumerable: true,
+    get() {
+      return new CiProofEntryBuilder();
+    },
+  },
+  aCiProofEvidence: {
+    enumerable: true,
+    get() {
+      return new CiProofEvidenceBuilder();
+    },
+  },
   aTestOptimizationCandidatesRecord: {
     enumerable: true,
     get() {

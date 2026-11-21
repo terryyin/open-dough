@@ -31,6 +31,7 @@ export function createCiProofReading() {
       source: PublishedSource,
       key: string | undefined,
       subject: CiProofSubject | undefined,
+      readProof: typeof readIntentCiProof = readIntentCiProof,
     ) {
       if (active && selected?.source === source && selected.key === key) return;
       selected = { source, key };
@@ -39,7 +40,7 @@ export function createCiProofReading() {
       if (key === undefined || subject === undefined) return;
       const request = new AbortController();
       controller = request;
-      return readIntentCiProof(source, subject, request.signal)
+      return readProof(source, subject, request.signal)
         .then((read) => {
           if (!request.signal.aborted) publish(key, read);
         })
