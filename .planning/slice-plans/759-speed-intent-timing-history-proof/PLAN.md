@@ -169,6 +169,16 @@ representative E2E history consumers when shared contracts change.
   `SessionsSidebar.tsx` already throws when a consumer sits outside its
   provider ("The Sessions button is outside the page's PageFrame."), the
   precedent for a required page entry.
+- Scratch mount at `ebd6cc201` on 21 November 2026 (Vitest Browser Mode,
+  `frontend.vitest.config.mts`): real `PageFrame` inside `ProjectsOnPage` and
+  `LaunchesOnPage`, with the Side panel case's MakeMe sessions and global
+  `fetch`/`WebSocket` recorded. Mounting made no call. Showing the Taken
+  story's final report fetched `/__agent-launch/result?source=open-dough&host=claude&session=f-session`.
+  Showing the ad hoc session's terminal fetched `/__host-status`, opened
+  `ws://…/__agent-terminal?source=open-dough&session=…&host=claude`, and
+  called `launches.rereadSessions`. Without `LaunchesOnPage`, `Terminal`
+  throws "A launch control is shown outside the page's launches." The
+  scratch spec was deleted.
 
 | Promise | Owning proof |
 | --- | --- |
@@ -217,17 +227,32 @@ The cases mount production `PageFrame` with MakeMe sessions and stories,
 around the production Intent body that `ConfiguredDashboardContent` renders
 (`IntentReadRecovery` + `IntentPerspective`), through the Slice 1 entry. When
 that body cannot stand alone, extract it in production so that
-`ConfiguredDashboardContent` and the cases render the same component. Add a
-Taken-story step to `aPublishedWork` in place of `takenStoryEntry`. Drop the
-`watchedBranchHeads` assertions on builder output. Keep role-based colocated
-page objects.
+`ConfiguredDashboardContent` and the cases render the same component. Supply
+the page's launches (`LaunchesOnPage`, typed `MachineSessions`) as
+`ConfiguredDashboard` does, because `Terminal` requires them.
+
+Decided (Terry, 21 November 2026, option (a)): put the panels' three untyped
+service calls behind the Slice 1 typed page entry. `ConfiguredDashboard`
+supplies their authenticated implementations and each case supplies typed
+replies, keeping the real frame:
+- the final-report read (`FinalReport.tsx`, `fetch` of
+  `/__agent-launch/result`);
+- the host-status read (`hostStatusReads.ts`, `/__host-status`, reached when
+  the terminal shows);
+- the terminal attach (`attachTerminal` in `attachedTerminal.ts`, used by
+  `useAttachedTerminal.ts`, a WebSocket to `/__agent-terminal`).
+
+Add a Taken-story step to `aPublishedWork` in place of `takenStoryEntry`.
+Drop the `watchedBranchHeads` assertions on builder output. Keep role-based
+colocated page objects.
 
 **Proof.** `intent-ci-status-homepage`, `intent-ci-status-kept` and
 `intent-ci-status-side-panel` keep their titles and distinguishing
 observations and pass at `--workers=2`. No test file renders `usePageSidePanel`,
 `SessionsSidebarOpenList`, `StorySelectionProvider` or `IntentPageProviders`
-itself. Record each replaced helper's production import count before and
-after.
+itself. The side-panel case records no `fetch` or `WebSocket` call outside
+its typed replies. Record each replaced helper's production import count
+before and after.
 
 ### 3. Status evidence and cue-contrast cases render their owning composition with MakeMe inputs
 
@@ -357,16 +382,8 @@ decisions no longer extend the corrected seam with optional defaulted
 readers or restated provider stacks. Eight slices is the plan limit.
 Refinement was not needed: each correction slice keeps one boundary (the
 production read entry, the page-frame mount, the evidence mount).
-Remaining concern (Slice 2, blocks readiness): production `PageFrame`
-renders `FinalReport`, which fetches `finalReportEndpoint` directly, and
-`Terminal`, whose `useAttachedTerminal` imports `attachTerminal` (a live
-WebSocket) at module level. The Side panel case opens both panels, so
-rendering the real frame would reach live services. Neither read has a typed
-seam yet. Before Slice 2 starts, refinement settles one of two options:
-(a) put the final-report read and terminal attach behind the Slice 1 typed
-page entry, keeping the real frame (recommended, since it removes the
-untyped reads for every later frame case), or (b) give `PageFrame` its panel
-views as typed collaborators. A short scratch mount of `PageFrame` with the
-case's MakeMe sessions establishes which reads it actually reaches. Slice 3
-may need a production extraction to make the CI status owner stand alone;
-that extraction is bounded to the slice's own owner.
+Slice 2's entry is settled: Terry chose option (a) on 21 November 2026, and
+the scratch mount (see the premises) named the three untyped calls it moves.
+Slice 3 may need a production extraction to make the CI status owner stand
+alone; that extraction is bounded to the slice's own owner. No remaining
+concern blocks readiness.
