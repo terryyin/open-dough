@@ -216,6 +216,14 @@ and time per mounted case in the parent story's
 and a list pairing every removed built-app title with its mounted case or
 the E2E journey that owns it.
 
+## Execution complete
+
+Product advice: no change. Keep the remaining frontend families in their
+existing order. The focused migration preserved all 29 case identities and
+reduced median local elapsed time from 27.731 s to 14.366 s at two workers.
+The four framed Settings specs and the end-to-end machine workflows retain
+their original boundaries.
+
 ## Local gates and review
 
 - Apply [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) and
