@@ -288,3 +288,18 @@ while the choice lists none. The intent folder (248), the review folder
 Reported: slice 1 — "If a later answer for the same read (same story and Done state) names a different selectedRun while the old run is still listed, Intent keeps the old one. Before slice 1 it always followed the newer default."
 Story clause: "Intent offers the choices the Side panel review offers a story, with their present defaults and availability"
 Disposition: proved by slice 4: dashboard/frontend-tests/intent/intent-story-compare-done.spec.ts, "a newer default run moves an unchosen run but not a chosen one while the old run is still listed" (fails when `explicit` is ignored)
+
+## Execution complete
+
+Product advice:
+- SEED-420#route-review-changes-to-intent's waiting dependency on this
+  story is met: Intent chooses worktree commits, uncommitted changes, a
+  landed run or the published completion, and the tree and diffs follow.
+- The retrospective found that Intent drops Compare and a Done story's
+  default reads while a chosen read is in flight. That correction is folded
+  into plan 761 as its first slice, to land before Review changes routes to
+  Intent.
+- The North Star's "Sessions and Compare" clause on commit/range
+  inspection, published completion and working-tree evidence in the shared
+  reader is realized; its sessions and merged-changes clauses are not.
+- No priority change.
