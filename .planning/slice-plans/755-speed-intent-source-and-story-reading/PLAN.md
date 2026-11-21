@@ -118,6 +118,10 @@ their waits interact. Retain the authenticated boundary in
 rules, independent recovery of published detail, and manual Retry for
 malformed settings with no spontaneous retry.
 
+## Execution complete
+
+Product advice: no change — the remaining 64 legacy reading cases are already split and queued first in `PRODUCT-BACKLOG.md` as `SEED-413#speed-intent-source-browsing-and-detours` (plan `762`, `ready`) and `SEED-413#speed-story-changes-notes-and-progress-reading` (plan `763`, awaiting story refinement).
+
 ## Learnings
 
 - **Original Slice 1 overrun (`17` elapsed active minutes, `storyOverruns: 1`) and in-place split into Slices 1–2:** `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`, zero callers after `556535c335`) still returned the retired wire `IntentLocationsAnswer` shape rather than `IntentLocations`, `loadRepositoryTexts` (`dashboard/src/repositoryFileReads.ts`) lacked the optional `readFile` collaborator parameter that `readCachedFile` already accepts, and `readingLimit.ts` keeps a module-level monotonic `limitedUntil` requiring past monotonically increasing fake-clock epochs (`2020-01-01` + `1h` per case) and `>= 15s` `directedSeconds`.
