@@ -6,7 +6,7 @@ import { page, userEvent } from "vitest/browser";
 import { SystemSettingsUsage } from "../../src/SystemSettingsUsage.tsx";
 import type { UsageSource } from "../../src/usageSource.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
-import { touchUsageControl } from "./system-settings-usage-browser.ts";
+import { touchSettingsControl } from "./system-settings-browser.ts";
 import { usageChartView } from "./system-settings-usage-chart-page.ts";
 import { usageToolsView } from "./system-settings-usage-tools-page.ts";
 import "../../src/frame-controls.css";
@@ -194,7 +194,7 @@ function usageView() {
       if (by === "pointer") {
         await userEvent.click(target);
       } else if (by === "touch") {
-        await touchUsageControl(target);
+        await touchSettingsControl(target);
       } else {
         await expect.element(target).toBeInTheDocument();
         (target.element() as HTMLElement).focus();

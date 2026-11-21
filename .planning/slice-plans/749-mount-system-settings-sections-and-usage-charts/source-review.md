@@ -23,7 +23,7 @@ and Escape. The four built-app frame specs, full-group comparison and
 | S03 | Move `system-settings-usage-legend` to the same mounted section. (Goal, Scope) | slice 1 | observed: system-settings-usage-legend.spec.ts, all three mounted Chromium cases and the Slice 1 case mapping |
 | S04 | Move `system-settings-usage-overflow` to the same mounted section. (Goal, Scope) | slice 3 | observed: system-settings-usage-overflow.spec.ts, three retained titles run on mounted Chromium |
 | S05 | Move `system-settings-usage-spacing` to the same mounted section. (Goal, Scope) | slice 3 | observed: system-settings-usage-spacing.spec.ts, four retained titles run on mounted Chromium |
-| S06 | Move the four existing `system-settings-openai` cases to plain Vitest on mounted Chromium using `OpenAISettings`. (Goal, Scope) | slice 5 | |
+| S06 | Move the four existing `system-settings-openai` cases to plain Vitest on mounted Chromium using `OpenAISettings`. (Goal, Scope) | slice 5 | observed: system-settings-openai.spec.ts has all four original titles on mounted OpenAISettings, including the phone recovery case |
 | S07 | Move the two existing `system-settings-terminal-theme` cases to plain Vitest on mounted Chromium using `TerminalThemeSettings`. (Goal, Scope) | slice 6 | |
 | S08 | Move the existing `system-settings-project-management-touch` case to plain Vitest on mounted Chromium using `ProjectsSettings`. (Goal, Scope) | slice 6 | |
 | S09 | Move the two existing `project-add-dialog` cases to plain Vitest on mounted Chromium using `ProjectsSettings`. (Goal, Scope) | slice 6 | |
@@ -39,17 +39,17 @@ and Escape. The four built-app frame specs, full-group comparison and
 | S19 | The OpenAI source preserves the existing endpoint refusal wording. (Scope) | slice 4 | observed: system-settings-page-sources.spec.ts OpenAI case reads the exact status fallback and the credential-folder save refusal from the visible alert |
 | S20 | The terminal theme source preserves the existing endpoint refusal wording. (Scope) | slice 4 | observed: system-settings-page-sources.spec.ts terminal theme case reads exact endpoint read refusal and the save fallback including previous-theme-kept wording |
 | S21 | The Projects source preserves the existing endpoint refusal wording. (Scope) | slice 4 | observed: system-settings-page-sources.spec.ts Projects case observes the read fallback and exact Add refusal linked to Local path. Project E2E exercises real refusal and retry |
-| S22a | Mounted OpenAI cases build replies of the shared setting contracts with page-loadable MakeMe steps. (Goal, Scope) | slice 5 | |
+| S22a | Mounted OpenAI cases build replies of the shared setting contracts with page-loadable MakeMe steps. (Goal, Scope) | slice 5 | observed: system-settings-openai.spec.ts supplies OpenAIConfigurationStatus replies with pageMakeMe anOpenAIConfigurationStatus using the production shared type |
 | S22b | Mounted terminal theme cases build replies of the shared setting contracts with page-loadable MakeMe steps. (Goal, Scope) | slice 6 | |
 | S22c | Mounted Projects cases build replies of the shared setting contracts with page-loadable MakeMe steps. (Goal, Scope) | slice 6 | |
-| S23 | A case observing a pending read owns its deferred reply. (Scope) | slice 5 |  |
+| S23 | A case observing a pending read owns its deferred reply. (Scope) | slice 5 | observed: The three held-status cases each own their typed Promise and resolver or rejecter. The named negative scratch caught all three stale updates |
 | S24 | A case observing a pending save owns its deferred reply. (Scope) | slice 6 | |
 | S25a | Extend the mounted Usage page objects for chart marks. (Scope) | slice 1 | observed: system-settings-usage-chart-page.ts showsLarge and showsDistinctMedianAboveDots compare rendered SVG marks and task controls in the mounted average cases |
 | S25b | Extend the mounted Usage page objects for the chart axis. (Scope) | slice 1 | observed: system-settings-usage-chart-page.ts hasAxis reads rendered ticks in mounted one-million and all-large median cases |
 | S25c | Extend the mounted Usage page objects for the chart legend. (Scope) | slice 1 | observed: system-settings-usage-legend-page.ts showsKeyFor and showsSummarySwatches compare named shapes and computed paint in all mounted legend cases |
 | S25d | Extend the mounted Usage page objects for chart readouts. (Scope) | slice 1 | observed: system-settings-usage-chart-page.ts showsMedianOverflow reads visible, contrasting SVG labels and dated text without task controls in the mounted average cases |
 | S25e | Extend the mounted Usage page objects for chart spacing. (Scope) | slice 3 | observed: system-settings-usage-spacing-page.ts owns spacing input, focus, axis and median coordinate readings used in the mounted equal-spacing cases |
-| S26a | Mounted OpenAI cases operate their section through a small page object beside the specs. (Scope) | slice 5 | |
+| S26a | Mounted OpenAI cases operate their section through a small page object beside the specs. (Scope) | slice 5 | observed: system-settings-openai-page.ts owns the mounted section, rendered status and draft, controls, focus and touch layout readings |
 | S26b | Mounted terminal theme cases operate their section through a small page object beside the specs. (Scope) | slice 6 | |
 | S26c | Mounted Projects cases operate their section through a small page object beside the specs. (Scope) | slice 6 | |
 | S27a | Keep the Playwright settings page objects for the remaining built-app cases. (Scope) | slice 7 | |
@@ -97,9 +97,9 @@ and Escape. The four built-app frame specs, full-group comparison and
 | C23 | A selected task retains its tool identity. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts shared-axis case, selected mark plus named Claude Code detail on a shared task ID and separate Codex value |
 | C24 | An empty tool indicates that it is empty. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts empty-tool case, named Claude Code empty state while Codex keeps its three marks |
 | C25 | A failed read names the tool whose read failed. (Two tools compared) | slice 2 | observed: system-settings-usage-compare.spec.ts empty-tool case, Claude Code refusal retains checked results on Refresh and clears the old cohort on selection |
-| E01 | Hold an OpenAI status read of the prior machine state while saving a key. Let the save answer first, then release the read. The section still shows `API key: Configured`. (A held OpenAI status) | slice 5 | |
-| E02 | With the analogous held status read and reply order, Remove leaves the section showing `API key: Not configured`. (A held OpenAI status) | slice 5 | |
-| E03 | A successful key save after a refused status read leaves the section showing `API key: Configured`. (A held OpenAI status) | slice 5 | |
+| E01 | Hold an OpenAI status read of the prior machine state while saving a key. Let the save answer first, then release the read. The section still shows `API key: Configured`. (A held OpenAI status) | slice 5 | observed: The held-save case observes the exact Save draft, releases the stale false status, and still reads Configured with no alert or key echo |
+| E02 | With the analogous held status read and reply order, Remove leaves the section showing `API key: Not configured`. (A held OpenAI status) | slice 5 | observed: The held-remove case observes the retry started after empty-draft validation and the Remove call, releases stale true status, and still reads Not configured |
+| E03 | A successful key save after a refused status read leaves the section showing `API key: Configured`. (A held OpenAI status) | slice 5 | observed: The save-after-read-error case sees the initial refusal, holds a second read on Retry, saves successfully and stays Configured without stale feedback after the refusal settles |
 | E04 | When touch selects Solarized Dark and the save is refused, the previously saved theme remains visible. (A refused terminal theme save) | slice 6 | |
 | E05 | The refusal is visible when that save is refused. (A refused terminal theme save) | slice 6 | |
 | E06 | Retry is reachable after rotating the viewport following that refused save. (A refused terminal theme save) | slice 6 | |

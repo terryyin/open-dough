@@ -30,6 +30,9 @@ import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
  *     readonly anObservedLaunch: ObservedLaunchBuilder;
  *     readonly aMachineAnswer: MachineAnswerBuilder;
  *     readonly aTokenIndexAnswer: TokenIndexAnswerBuilder;
+ *     readonly anOpenAIConfigurationStatus: import("./factBuilder.mjs").FactBuilder<
+ *       import("../../../dashboard/src/openAIConfiguration.ts").OpenAIConfigurationStatus
+ *     >;
  *     readonly aHostStatus: import("./factBuilder.mjs").FactBuilder<
  *       import("../../../dashboard/src/hostStatus.ts").HostStatus
  *     >;
@@ -82,6 +85,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     },
   },
   aHostStatus: {
+    enumerable: true,
+    get() {
+      return { with: copyFacts };
+    },
+  },
+  anOpenAIConfigurationStatus: {
     enumerable: true,
     get() {
       return { with: copyFacts };

@@ -180,7 +180,7 @@ journeys pass. The page-source cases pass.
 ### 5. A held OpenAI status cannot overwrite a change
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move the four `system-settings-openai` cases, each holding its own status
 reply. Remove the built-app file.
