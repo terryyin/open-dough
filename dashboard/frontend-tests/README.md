@@ -40,9 +40,9 @@ Reusable harness helpers and fixtures live in [Dashboard Test Support](../test-s
   from `pageTest.ts`; they render actual components and CSS from prepared
   answers (`intent/`).
 
-The mounted phone-board specs in `navigation/` render the production app with prepared
-service answers in the browser. They deliver touch events directly, control
-the transition and click-suppression clocks, and measure the real layout.
+The mounted phone-board specs in `navigation/` render the production Board
+in its scroll frame with typed published work and session data. They use
+Chromium touch and keyboard input and measure the rendered layout.
 [`e2e/navigation/phone-board.spec.ts`](../../e2e/navigation/phone-board.spec.ts)
 covers the published-project load, board gesture wiring, vertical reading and
 the thin indicator's real hit target through the built app.
@@ -97,8 +97,8 @@ use until their folders move to this entry.
 
 ## Mounted dashboard support
 
-The mounted dashboard specs in `test-harness/` and the phone board in
-`navigation/` mount the production app through
+The mounted dashboard specs in `test-harness/` and the story-card scan
+emphasis cases in `stories/` mount the production app through
 [`mounted-dashboard/`](../test-support/mounted-dashboard/):
 `mountAnsweredDashboard` answers the board's service requests from prepared
 answers, and `mountDefaultDashboard` mounts the default board. Any unanswered

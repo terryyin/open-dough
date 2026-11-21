@@ -1,4 +1,10 @@
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import {
+  doneRecordFileName,
+  renderDoneRecord,
+} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import type { readDoneRecordBodiesAt } from "../../src/authenticatedDoneRead.ts";
+import type { DoneStories } from "../../src/doneStories.ts";
 import type { PublishedWork, WorkEntry } from "../../src/publishedWork.ts";
 
 export function story(
@@ -53,6 +59,37 @@ export function boardWork(
       ...evidence,
     })
     .please();
+}
+
+export function cataloguedDone(
+  stories: readonly Parameters<typeof renderDoneRecord>[0][],
+) {
+  const bodies = new Map<string, string>();
+  const records = stories.map((story, index) => {
+    const fileName = doneRecordFileName(story.identity);
+    bodies.set(fileName, renderDoneRecord(story));
+    return {
+      identity: story.identity,
+      completedAt: story.completedAt,
+      fileName,
+      blob: (index + 1).toString(16).padStart(40, "0"),
+    };
+  });
+  const done = {
+    status: "catalogued",
+    revision: "d".repeat(40),
+    records,
+    unreadable: [],
+  } satisfies Extract<DoneStories, { status: "catalogued" }>;
+  const readBodies: typeof readDoneRecordBodiesAt = (...[, , files]) =>
+    Promise.resolve(
+      files.map((path) => {
+        const text = bodies.get(path);
+        if (text === undefined) throw new Error(`No Done record for ${path}.`);
+        return { path, text };
+      }),
+    );
+  return { done, readBodies };
 }
 
 export const longBacklog = Array.from(

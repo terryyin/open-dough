@@ -27,13 +27,13 @@ with SEED-341.
 | P04 | With the Side panel open and room for two columns, keyboard controls keep focus reachable. | slice 6 | |
 | P05 | With the Side panel open, a wider frame restores the chosen Board position. | slice 6 | |
 | P06 | With the Side panel open, a long hidden column adds no blank scroll tail. | slice 6 | |
-| P07 | On a phone, a horizontal swipe pages the Board. | slice 2 | |
-| P08 | On a phone, a horizontal swipe does not activate the touched story. | slice 2 | |
-| P09 | On a phone, a horizontal swipe does not activate the touched Start. | slice 2 | |
-| P10 | On a phone, a vertical drag reads the current column. | slice 2 | |
-| P11 | On a phone, tapping an indicator reaches the corresponding swipe destination. | slice 2 | |
-| P12 | Phone rotation preserves the inspected story. | slice 2 | |
-| P13 | Phone rotation preserves the separate selection. | slice 2 | |
+| P07 | On a phone, a horizontal swipe pages the Board. | slice 2 | observed: board-swipe.spec.ts, native complete swipes visit the next whole column and stop at each end |
+| P08 | On a phone, a horizontal swipe does not activate the touched story. | slice 2 | observed: board-swipe.spec.ts, native swipe from the card and compatibility click leave detail collapsed and selection clear |
+| P09 | On a phone, a horizontal swipe does not activate the touched Start. | slice 2 | observed: board-swipe.spec.ts, native swipe from enabled Start and compatibility click leave no dialog or recorded launch |
+| P10 | On a phone, a vertical drag reads the current column. | slice 2 | observed: board-swipe.spec.ts, native vertical drag increases the scroll offset and keeps Backlog shown |
+| P11 | On a phone, tapping an indicator reaches the corresponding swipe destination. | slice 2 | observed: board-indicators.spec.ts, a swipe and hit-tested taps share Board column destinations |
+| P12 | Phone rotation preserves the inspected story. | slice 2 | observed: board-swipe.spec.ts and accessible-board-touch.spec.ts, detail remains expanded through phone rotation and paging |
+| P13 | Phone rotation preserves the separate selection. | slice 2 | observed: board-swipe.spec.ts, native title tap selects independently of Inspect and the selected state remains after rotation |
 | P14 | The Board announces the result of a published-work refresh. | slice 3 | |
 | P15 | The Board announces a published-work read failure. | slice 3 | |
 | P16 | Retained work stays reachable during a published-work refresh. | slice 3 | |
@@ -70,10 +70,10 @@ with SEED-341.
 | S04 | Apply shared campaign acceptance to legacy `side-panel-width*` navigation specs. | slice 5 | |
 | S05 | Apply shared campaign acceptance to legacy `development-intent-frame*` navigation specs. | slice 7 | |
 | S06 | Apply shared campaign acceptance to legacy `frame-*` navigation specs. | slice 8 | |
-| S07 | Narrow the existing `board-swipe` Vitest spec from its whole-dashboard mount. | slice 2 | |
-| S08 | Narrow the existing `board-indicators` Vitest spec from its whole-dashboard mount. | slice 2 | |
+| S07 | Narrow the existing `board-swipe` Vitest spec from its whole-dashboard mount. | slice 2 | observed: board-swipe.spec.ts mounts Board in production PageFrame over typed published work |
+| S08 | Narrow the existing `board-indicators` Vitest spec from its whole-dashboard mount. | slice 2 | observed: board-indicators.spec.ts mounts Board in production PageFrame and observes native taps and keyboard focus |
 | S09 | Narrow the existing `story-card-scan-emphasis` Vitest spec from its whole-dashboard mount. | slice 4 | |
-| S10 | Retain representative real page loads in E2E. | slice 2 | |
+| S10 | Retain representative real page loads in E2E. | slice 2 | observed: e2e/navigation/phone-board.spec.ts, published work appears after the built dashboard loads and the Board accepts composed touch input |
 | S11 | Retain representative reloads in E2E. | slice 1 | observed: e2e/navigation/board-kept-position.spec.ts, durable position through wide and narrow reloads and fallback after storage refusal |
 | S12 | Retain representative URL destinations in E2E. | slice 6 | |
 | S13 | Retain representative cross-destination history in E2E. | slice 7 | |

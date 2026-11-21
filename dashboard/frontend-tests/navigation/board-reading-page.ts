@@ -1,4 +1,4 @@
-import { expect } from "vitest";
+import { expect, onTestFinished } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { browserSession } from "../review/browser-session.ts";
 
@@ -24,10 +24,10 @@ const pagingControls = () =>
     })
     .elements();
 
-function viewBox() {
-  const view = board.element().querySelector(".board-view");
-  if (view === null) throw new Error("The Board has no column view.");
-  return rect(view);
+function view() {
+  const surface = board.element().querySelector(".board-view");
+  if (surface === null) throw new Error("The Board has no column view.");
+  return surface;
 }
 
 function shownAs(view: DOMRect, part: DOMRect) {
@@ -41,8 +41,10 @@ function shownAs(view: DOMRect, part: DOMRect) {
 async function shows(shown: readonly Column[], controls: readonly string[]) {
   await expect
     .poll(() => {
-      const view = viewBox();
-      return columns.map((name) => shownAs(view, rect(column(name).element())));
+      const surface = rect(view());
+      return columns.map((name) =>
+        shownAs(surface, rect(column(name).element())),
+      );
     })
     .toEqual(
       columns.map((name) => (shown.includes(name) ? "whole" : "outside")),
@@ -55,13 +57,13 @@ async function shows(shown: readonly Column[], controls: readonly string[]) {
       ),
     )
     .toEqual(controls);
-  const view = viewBox();
+  const surface = rect(view());
   const boxes = shown.map((name) => rect(column(name).element()));
   const first = boxes[0];
   const last = boxes.at(-1);
   if (first === undefined || last === undefined)
     throw new Error("Expected the Board to show a column.");
-  expect(last.right - first.left).toBeCloseTo(view.width, 0);
+  expect(last.right - first.left).toBeCloseTo(surface.width, 0);
   for (const box of boxes) expect(box.width).toBeCloseTo(first.width, 0);
   expect(scroll().scrollWidth).toBe(scroll().clientWidth);
   expect(document.documentElement.scrollWidth).toBe(
@@ -74,12 +76,16 @@ const endOf = (element: Element) =>
 const bottom = () => scroll().scrollHeight - scroll().clientHeight;
 const position = () => scroll().scrollTop;
 
-function centerInBrowser(surface: DOMRect) {
-  const frame = window.frameElement;
-  const offset = frame ? rect(frame) : { left: 0, top: 0 };
+export function pointInBrowser({ x, y }: { x: number; y: number }) {
+  const frame = window.frameElement?.getBoundingClientRect();
+  return { x: x + (frame?.left ?? 0), y: y + (frame?.top ?? 0) };
+}
+
+export function center(element: Element) {
+  const bounds = rect(element);
   return {
-    x: offset.left + surface.left + surface.width / 2,
-    y: offset.top + surface.top + surface.height / 2,
+    x: bounds.left + bounds.width / 2,
+    y: bounds.top + bounds.height / 2,
   };
 }
 
@@ -88,7 +94,7 @@ function centerInBrowser(surface: DOMRect) {
 async function pressWhereShown(destination: Column) {
   const button = control(destination).element();
   expect(inReadingRoom(button)).toBe(true);
-  const point = centerInBrowser(rect(button));
+  const point = pointInBrowser(center(button));
   await browserSession().send("Input.dispatchMouseEvent", {
     type: "mousePressed",
     button: "left",
@@ -134,9 +140,28 @@ function inReadingRoom(element: Element) {
   );
 }
 
+function observeSlides() {
+  const slides: string[] = [];
+  const record = (event: TransitionEvent) => {
+    if (
+      event.propertyName === "transform" &&
+      event.target instanceof Element &&
+      event.target.matches(".board-row")
+    )
+      slides.push(event.propertyName);
+  };
+  document.addEventListener("transitionrun", record);
+  onTestFinished(() => {
+    document.removeEventListener("transitionrun", record);
+  });
+  return slides;
+}
+
 export const boardReading = {
   column,
   control,
+  view,
+  width: () => rect(board.element()).width,
   pressWhereShown,
   shows,
   wheelTo,
@@ -147,4 +172,5 @@ export const boardReading = {
   room: () => rect(scroll()),
   endOf,
   inReadingRoom,
+  observeSlides,
 };

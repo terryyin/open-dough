@@ -54,7 +54,13 @@ const noSessions: MachineSessions = {
   readSession: unexpected,
 };
 
-function ReadingBoard({ projects }: { projects: readonly PublishedWork[] }) {
+function ReadingBoard({
+  projects,
+  sessions,
+}: {
+  projects: readonly PublishedWork[];
+  sessions: MachineSessions;
+}) {
   const [selected, select] = useState(projects[0]?.source.id);
   const work =
     projects.find(({ source }) => source.id === selected) ?? projects[0];
@@ -67,7 +73,7 @@ function ReadingBoard({ projects }: { projects: readonly PublishedWork[] }) {
     projects: sources,
     replaceProjects: unexpected,
     children: createElement(PageFrame, {
-      sessions: noSessions,
+      sessions,
       stories: {
         selected: work.source.id,
         shown: work.source.id,
@@ -103,7 +109,7 @@ function ReadingBoard({ projects }: { projects: readonly PublishedWork[] }) {
                   sourceId: work.source.id,
                   project: work.source.label,
                   work,
-                  launches: noSessions,
+                  launches: sessions,
                   onOpenRoster: unexpected,
                 }),
               ),
@@ -118,9 +124,13 @@ function ReadingBoard({ projects }: { projects: readonly PublishedWork[] }) {
 export async function mountBoard(
   projects: readonly PublishedWork[],
   viewport: { width: number; height: number },
+  observed: Partial<
+    Pick<MachineSessions, "records" | "launched" | "start">
+  > = {},
 ) {
+  const sessions = { ...noSessions, ...observed };
   const reading = (next: readonly PublishedWork[], key = 0) =>
-    createElement(ReadingBoard, { key, projects: next });
+    createElement(ReadingBoard, { key, projects: next, sessions });
   const { rerender } = await mountComponent(reading(projects), {
     viewport,
     fillsViewport: true,

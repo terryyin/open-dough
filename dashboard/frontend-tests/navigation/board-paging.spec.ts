@@ -1,4 +1,4 @@
-import { expect, onTestFinished, test } from "vitest";
+import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { boardReading as board, columns } from "./board-reading-page.ts";
 import {
@@ -103,18 +103,7 @@ test("reducing motion pages the Board immediately without a slide", async () => 
   await reducedBoardMotion();
   await mountBoard([boardWork(longBacklog)], narrow);
   await board.shows(["Backlog"], ["Taken 1 entry"]);
-  const slides: string[] = [];
-  const count = (event: TransitionEvent) => {
-    if (
-      event.propertyName === "transform" &&
-      (event.target as Element).matches(".board-row")
-    )
-      slides.push(event.propertyName);
-  };
-  document.addEventListener("transitionrun", count);
-  onTestFinished(() => {
-    document.removeEventListener("transitionrun", count);
-  });
+  const slides = board.observeSlides();
   await board.control("Taken").click();
   const at = board.column("Taken").element().getBoundingClientRect().left;
   expect(at).toBeGreaterThanOrEqual(board.room().left);

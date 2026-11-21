@@ -120,7 +120,7 @@ bottom clamping, and variable inspection or Done height preserve reading room.
 ### 2. Phone gestures page the Board while preserving reading and card controls
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `accessible-board-touch` (3 legacy cases) and narrow `board-swipe` and
 `board-indicators` (7 mounted cases). Use `Board`, `useBoardSwipe`,
@@ -290,6 +290,8 @@ Disposition: proved by slice 1: board-height.spec.ts checks the full rendered di
 
 ### Slice 1
 
+Published on the story branch as `caffd17ddc119cf38cffb03c4c7ad53e1669290d`.
+
 The mounted checks replace 14 legacy cases with 13 narrow Chromium Vitest
 cases and 2 real Chromium reload cases. The former and malformed values use
 actual browser storage. The refused-storage branch uses a throwing browser
@@ -329,11 +331,47 @@ checkout's Git proof directory.
 After refactoring the mounted setup and naming the reload steps, all 13
 mounted cases passed in 15.30 s and both real reloads passed in 7.22 s with
 the counted reporter. Dashboard typecheck and whitespace checks passed.
-The second E2E refactor run exposed the selected count. It was not a paired
-timing comparison. The retained report is `slice-1-refactor-return.md`.
+The second E2E refactor run exposed the selected count. Load and reporting
+mode varied between runs. The retained report is `slice-1-refactor-return.md`.
 
 Guarded preparation flagged unchecked TypeScript assertions and unused mock
 arguments. Explicit checks and typed fixture values cleared those findings
 without changing the proof boundary. The four focused frontend paths passed
 13/13 again with the repaired code. The retained runner record is
 `slice-1-delivery-repair.proof.json`.
+
+### Slice 2
+
+Ten mounted Chromium cases carry the three Playwright and seven whole-app
+Vitest cases. Native CDP gestures and hit-tested taps prove layout, focus,
+input suppression, and the read position. Explicit compatibility clicks preserve
+the negative Start and story-selection assertions even when Chromium omits them.
+The changed Board setup and command registry reached thirteen earlier Board
+cases and seven remaining mounted-dashboard cases. The nine-path run passed
+30/30 in 24.03 s including preparation. Ten slice 2 cases took 21.79 summed
+case-seconds, with the full swipe traversal slowest at 4.75 s. The two unchanged
+composed E2E journeys passed in 11.93 s. Dashboard typecheck passed. Full
+commands and counts are retained under the checkout's Git proof directory in
+`slice-2-return.md`.
+
+The phone-only mount and its Node browser command had no more consumers and
+were deleted. The scan-emphasis test and mounted harness still use the
+remaining whole-dashboard setup.
+
+| Original title | Current observation |
+| --- | --- |
+| `board-swipe` / completed swipes traverse one whole column and stop at both ends | Same title, typed published and Taken titles, real native full moves in both directions and clamping at both ends, real transform transition and settled whole column geometry with exact labels. |
+| `board-swipe` / short and cancelled gestures leave the view alone, and the next swipe works | Same title, short 24 px stroke, cancelled full stroke, both leave Backlog, next completed move takes exactly one column. |
+| `board-swipe` / swiping from a card or action does not select, inspect or launch it; taps still work | Same title, enabled Start and headline hit-tests, native swipe and simulated compatibility click, no selected highlight, collapsed aria-expanded, no detail/dialog/launch, native detail and selection taps, inset and accent paint. |
+| `board-swipe` / the board leaves vertical touch available for native reading without paging | "a native vertical drag reads down the same column without paging": actual position advances from a native finger drag, computed pan-y stays available, the Backlog destination is unchanged. |
+| `board-swipe` / swipes share the controls' chosen column and preserve open detail through rotation with reduced motion | "swipes and indicators share a chosen column while rotation keeps inspection and selection": real media preference, no transform transition, typed-card detail and independent selected state, matching swipe/tap position, actual portrait/landscape column fit, restored pose and state. |
+| `board-indicators` / thin phone indicators give stories more room and taps share the swipe destinations | Same title, whole-column reading room, two named controls at most 16 px, view and card each admit over 44 px more than the prior design, native taps to both named destinations and reverse swipe. |
+| `board-indicators` / thin indicators retain complete destination names, keyboard activation and focus handoff | Same title, rendered roles/names including counts, enabled actual initial control, Enter through surviving and re-created control, keyboard focus handed off then Enter returns. |
+| `accessible-board-touch` / project and column navigation keep a long story readable and its detail selected through rotation | "project and column navigation keep a long story readable and its detail open through rotation". Compact project control chooses empty Doughnut and returns to three Backlog articles. Native tap shows both precise Taken destinations. Name and heading, actual rendered title/identity/plan line boxes within the card and initially visible in read room, expanded detail across 844 × 390, 768 × 1024 and 390 × 844, whole shown columns and no page or Board horizontal scroll, hide tap closes and focuses the card. Touch shows the published Done card with whole heading, Taken remains reachable, and chooser still displays Open Dough. Composed whole-page text checks still run on a published phone Board and a rotated dependency/Inspect journey in the named E2Es. |
+| `accessible-board-touch` / an open session's disabled Start reason is readable without hover and does not start another session | Same title, MakeMe open execution evidence on the matching queued card, hover-none emulation, exact visible reason in card and viewport, both controls disabled and accessibly described, native taps create neither a dialog nor a recorded start. |
+| `accessible-board-touch` / thin Column indicators show work where the developer is reading on phone and tablet | `board-indicators` / "phone and tablet indicators remain reachable far down the Board and retain its position": scroll to 1000, hit-tested native tap still takes Taken, 1024 px wide tablet admits the Taken/Done pair, tap Backlog leaves Backlog/Taken, portrait returns Backlog; actual rendered whole columns, control labels and no page or Board sideways scrolling. |
+
+The independent refactor consolidated the Done catalog and body fixture, native
+input coordinates, and slide observer. All 23 mounted Board checks passed in
+26.90 s and dashboard typecheck passed. The prior harness and E2E evidence
+still covers their inputs. The retained report is `slice-2-refactor-return.md`.

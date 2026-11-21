@@ -1,27 +1,20 @@
 import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import {
-  doneRecordFileName,
-  renderDoneRecord,
-} from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { readDoneRecordBodiesAt } from "../../src/authenticatedDoneRead.ts";
-import type { DoneStories } from "../../src/doneStories.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import {
   mountBoard,
   reducedBoardMotion,
   withBoardStorage,
 } from "./board-mount.ts";
-import { boardWork, longBacklog, story } from "./board-work.ts";
+import { boardWork, cataloguedDone, longBacklog, story } from "./board-work.ts";
 
 vi.mock(import("../../src/authenticatedDoneRead.ts"), async (original) => ({
   ...(await original()),
   readDoneRecordBodiesAt: vi.fn(),
 }));
 
-function publishedDone(
-  count: number,
-): Extract<DoneStories, { status: "catalogued" }> {
+function publishedDone(count: number) {
   const now = Date.now();
   const stories = Array.from(new Array<undefined>(count).keys(), (index) =>
     makeMe.aDoneRecord
@@ -32,33 +25,9 @@ function publishedDone(
       })
       .please(),
   );
-  const records = stories.map(({ identity, completedAt }, index) => ({
-    identity,
-    completedAt,
-    fileName: doneRecordFileName(identity),
-    blob: (index + 1).toString(16).padStart(40, "0"),
-  }));
-  const byFile = new Map(
-    stories.map((record) => [
-      doneRecordFileName(record.identity),
-      renderDoneRecord(record),
-    ]),
-  );
-  vi.mocked(readDoneRecordBodiesAt).mockImplementation((...[, , files]) =>
-    Promise.resolve(
-      files.map((path) => {
-        const text = byFile.get(path);
-        if (text === undefined) throw new Error(`No Done record for ${path}.`);
-        return { path, text };
-      }),
-    ),
-  );
-  return {
-    status: "catalogued",
-    revision: "d".repeat(40),
-    records,
-    unreadable: [],
-  };
+  const { done, readBodies } = cataloguedDone(stories);
+  vi.mocked(readDoneRecordBodiesAt).mockImplementation(readBodies);
+  return done;
 }
 
 const showOlder = () =>
