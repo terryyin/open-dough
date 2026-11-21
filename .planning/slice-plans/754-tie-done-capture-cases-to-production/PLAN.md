@@ -129,7 +129,7 @@ the two call paths.
 ### 2. The comparison launch uses the file production wrote
 
 Type: Structure
-Status: planned
+Status: done
 
 Build the checkout, then write the context using its landing authority. Use the
 returned path for the reporting launch record and installed publisher. Build
@@ -141,6 +141,8 @@ that record and authority.
 **Proof.** Run `ad-hoc-session-comparisons.spec.ts`. Preserve the preparation
 and accepted receipt assertions and both file-content observations after
 retirement. Trace the single returned path into the record and publisher.
+
+**Accepted.** `writeLandingContext`'s returned path now feeds the isolated launch record's reporting, `reportingFor(record).landingIn(authority)` and `publishInstalled`; the filename assertion is removed (1 removed, 0 added). The comparison spec passed 1/1. Refactor pass: already clean.
 
 ### 3. The case keeps its complete record set at setup
 
