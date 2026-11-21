@@ -1012,6 +1012,19 @@ sidebar plan).
   cases (focus after delete, no reread after 70 s) and restored it in a
   later slice. Name each retired case and the mounted case that carries
   each of its assertions before deleting it.
+- **The Review changes panel (plan 748, 2026-11-21).** 23 cases over one
+  owner took seven slices; a typed `ReviewSourceOnPage` behind
+  `useReviewRead` was the only production change. Four of six moving slices
+  were returned at acceptance for a dropped or self-supplied check (the
+  problem gone after a retry, the eye's tooltip and centring, a
+  test-chosen remount key instead of `storyReviewPanelKey`, the comparison
+  description after Notes). The panel still needs an inert
+  `MachineSessions` of about 30 members for `LaunchesOnPage`, though Follow
+  up reads only `records`, and a Done record's body is read over HTTP, so a
+  mounted case reaches Add note only through a Taken story. Mounted cases
+  took about 0.6 s each; the divider drag and the first details mount cost
+  most. Built-app per-case results need
+  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
 - **Support.** Each story retired the support whose last consumer moved,
   and none could retire a module that E2E or another family still used.
   Steps already owned by an E2E journey (the revision check pace, host
