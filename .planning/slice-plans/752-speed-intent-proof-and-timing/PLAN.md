@@ -163,7 +163,7 @@ passed unchanged.
 ### 2. Homepage and trunk head changes choose and retain the intended CI status
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-ci-status-homepage` and `intent-ci-status-kept` (2 files, 4 legacy
 cases) reusing `IntentCiReadSourceOnPage` and `IntentPageProviders` +
@@ -176,7 +176,12 @@ with the tree open, not-configured projects show CI status beside the
 explanation, CI status stays readable without rereading CI while locations
 load/fail/recover, Optimization Candidates stays kept across perspective toggle
 while project switches start on CI status, and a new trunk head asks again while
-time-only or other-branch movement asks for none.
+time-only or other-branch movement asks for none. Accepted at `--workers=2`:
+`npm run typecheck:dashboard` and `npm run format` passed; 2 migrated Vitest
+files (`intent-ci-status-homepage`, `intent-ci-status-kept`) with colocated
+`intent-ci-perspective-mount.ts` passed 4 `mounted-chromium` cases in 3.46s
+(`4,330 ms` elapsed including preparation; `0` legacy Playwright cases remain
+on those 2 files).
 
 ### 3. Side panel story selection chooses the intended CI status and status proof runs faster
 
