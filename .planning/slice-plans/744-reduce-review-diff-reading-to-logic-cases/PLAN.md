@@ -274,6 +274,17 @@ Pressing Show latest and Retry by keyboard in the spec-local page objects did
 not reliably shorten those steps (219/93 and 188 ms), so the edit was
 withdrawn. Commitment 11 stays open for these four cases.
 
+## Execution complete
+
+Product advice: no new product priority follows from this structure story. Its
+learning sits in the already queued follow-up
+SEED-413#speed-intent-source-recovery-and-late-styling-cases: those three
+cases spend their time in mounting and re-rendering through the shared
+harness, not in test-side waits. Later timing promises on this shared machine
+should name a relative judgement under load, as the amended acceptance now
+does. The retrospective found no correction; process review is deferred into
+wrap-up with the Intent Coverage check.
+
 ## Concern evidence
 
 Refinement was not needed: each slice has one proof loop, slices 2–4 share
