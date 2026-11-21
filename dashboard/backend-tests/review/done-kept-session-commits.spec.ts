@@ -7,7 +7,7 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptSession } from "../../server/launchRecordStore.ts";
-import { keep, markDone, source } from "../support/doneCaptureCase.ts";
+import { markDone, source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 // Leaves `commit` on no branch, with no reflog or loose object reaching it.
@@ -35,8 +35,8 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
   } = await aDoneCaptureCase()
     .withOrigin()
     .withDefaultMainLaunch("launch", { launched: 60 })
+    .kept()
     .please();
-  keep(record);
   const { pulled, typo } = await performWork(
     makeMe.aCheckoutWork
       .fastForwardingToTrunkWork("pulled", { at: at(40) })
@@ -101,8 +101,8 @@ test("Done stores and pins the commit of an established Default main session", a
     at,
   } = await aDoneCaptureCase()
     .withEstablishedSession("established-default-main", { launched: 60 })
+    .kept()
     .please();
-  keep(record);
   const { base, integration } = checkout;
   const { typo } = await performWork(
     makeMe.aCheckoutWork.committing("typo", { at: at(30) }),

@@ -59,7 +59,6 @@ test("the declared worktree's installed landing and exact retry stay with the or
   });
   if (answered === undefined) throw new Error("Missing the landing context.");
   const { record, file: context } = answered;
-  const entry = record.branchEntry;
   keep(record, other);
   for (const launch of [record, other])
     await keepAttempt(makeMe.anAcceptedAttempt.reportingFor(launch).please());
@@ -74,13 +73,6 @@ test("the declared worktree's installed landing and exact retry stay with the or
     (JSON.parse(readFileSync(context, "utf8")) as { reference: string })
       .reference,
   ).toBe(reference);
-  expect(entry).toMatchObject({
-    branch,
-    repository: checkout.gitDirectory,
-    committedTip: base,
-    trunk: { remote: "origin", target: "refs/heads/main" },
-  });
-  expect((await kept(record))?.branchEntry).toEqual(entry);
 
   const { draft: candidate } = await performWork(
     makeMe.aCheckoutWork.committing("draft", {

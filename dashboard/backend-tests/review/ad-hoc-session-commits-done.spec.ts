@@ -25,15 +25,7 @@ async function aSessionWithHeldRename() {
     )
     .kept()
     .please();
-  await keepAttempt(
-    makeMe.anAcceptedAttempt
-      .withId(dashboardReporting.reference)
-      .adHoc()
-      .reportingTo(dashboardReporting.origin)
-      .capturingLanding({ reporting: dashboardReporting })
-      .launched(record.session)
-      .please(),
-  );
+  await keepAttempt(makeMe.anAcceptedAttempt.reportingFor(record).please());
   const submission = makeMe.aCompletionSubmission
     .reportingFor({
       host: record.session.host,

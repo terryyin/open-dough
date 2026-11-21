@@ -30,20 +30,22 @@ intent introduced or affected by a newly developed story.
 
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
-- [Get fast proof of Intent evidence and timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing) — SEED-413#speed-intent-proof-and-timing ([plan](slice-plans/752-speed-intent-proof-and-timing/PLAN.md))
 - [Attribute every workflow session’s published changes](seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record) — SEED-418#attribute-every-workflow-session-record ([plan](slice-plans/747-attribute-every-workflow-session-record/PLAN.md))
 - [Get fast proof of Intent source and story reading](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading) — SEED-413#speed-intent-source-and-story-reading ([plan](slice-plans/755-speed-intent-source-and-story-reading/PLAN.md))
+- [Get fast proof of board and side-panel interactions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-board-and-panel-proof) — SEED-413#speed-dashboard-board-and-panel-proof ([plan](slice-plans/758-speed-dashboard-board-and-panel-proof/PLAN.md))
+- [Read every file a story changed in Intent](seeds/SEED-420-unified-intent-review.md#open-review-in-intent) — SEED-420#open-review-in-intent ([plan](slice-plans/759-read-every-changed-file-in-intent/PLAN.md))
 
 ## Backlog list
 
+- [Get fast proof of Intent timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof) — SEED-413#speed-intent-timing-history-proof
+- [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
-- [Tie Done capture cases to the real branch entry and retire the fold’s residue](seeds/SEED-413-renovate-dashboard-unit-tests.md#tie-done-capture-cases-to-production) — SEED-413#tie-done-capture-cases-to-production
-- [Open a story's change review in Intent](seeds/SEED-420-unified-intent-review.md#open-review-in-intent) — SEED-420#open-review-in-intent
+- [Choose what a story's review compares in Intent](seeds/SEED-420-unified-intent-review.md#choose-story-comparison-in-intent) — SEED-420#choose-story-comparison-in-intent
+- [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#route-review-changes-to-intent) — SEED-420#route-review-changes-to-intent
 - [Compare a story branch with and without incoming trunk changes](seeds/SEED-420-unified-intent-review.md#compare-story-contributions) — SEED-420#compare-story-contributions
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
-- [Get fast proof of board and side-panel interactions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-board-and-panel-proof) — SEED-413#speed-dashboard-board-and-panel-proof
 - [Get fast proof of composing and starting a launch](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof) — SEED-413#speed-dashboard-launch-proof
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof
 - [Get fast proof of live sessions and terminal work](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof) — SEED-413#speed-dashboard-live-session-and-terminal-proof

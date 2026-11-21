@@ -92,7 +92,7 @@ export async function materialize<
     ),
     facts.origin,
   );
-  const places = await placesOf<Worktree>(checkout);
+  const places = await placesOf<Worktree>(checkout, facts.workspaces);
   const { worktrees } = places;
   const performWork = performIn(places);
   let work = {} as Record<Work, string>;

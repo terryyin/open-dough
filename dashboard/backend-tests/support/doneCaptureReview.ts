@@ -2,7 +2,8 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
-import { minutesAgo, type Checkout } from "./doneCaptureCase.ts";
+import { minutesAgo } from "./doneCaptureCase.ts";
+import type { Checkout } from "./doneCaptureCaseMaterialization.ts";
 
 // A Done session established in the checkout at `revision` (its base by
 // default) that kept these runs of its commits there.

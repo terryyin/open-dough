@@ -5,19 +5,21 @@
 // and ./doneCaptureCaseMaterialization.ts, which builds what it states.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import type { Dated } from "./doneCaptureCasePlaces.ts";
+import type { Dated, Places } from "./doneCaptureCasePlaces.ts";
+import { dashboardOrigin } from "./publisherDashboardOrigin.ts";
 import {
   type Facts,
   type Launch,
+  type LaunchBuilder,
   materialize,
   type Refinement,
   type Times,
 } from "./doneCaptureCaseMaterialization.ts";
 
-export type {
-  CaseFacts,
-  Refinement,
-} from "./doneCaptureCaseMaterialization.ts";
+export type { Refinement } from "./doneCaptureCaseMaterialization.ts";
+
+// The landing a declaring session received.
+type DeclaredLanding = Parameters<LaunchBuilder["withDeclaredLanding"]>[0];
 
 export class DoneCaptureCaseBuilder<
   Session extends string = never,
@@ -126,9 +128,9 @@ export class DoneCaptureCaseBuilder<
     return this.#with(
       session,
       times,
-      ({ checkout, baseTree, worktrees }) =>
+      ({ checkout, baseTree, worktree: at }) =>
         makeMe.aLaunchRecord.ofDeclaringDefaultMainLaunch(session, checkout, {
-          workspace: worktrees[worktree] ?? "",
+          workspace: at(worktree),
           branch: worktree,
           tree: baseTree,
         }),
@@ -147,14 +149,38 @@ export class DoneCaptureCaseBuilder<
     return this.#with(
       session,
       times,
-      ({ checkout, worktrees }) =>
+      ({ checkout, worktree: at }) =>
         makeMe.aLaunchRecord
           .isolatedIn(checkout, {
-            workspace: worktrees[worktree] ?? "",
+            workspace: at(worktree),
             branch: worktree,
           })
           .inClaudeSession({ sessionId: session }),
       refine,
+    );
+  }
+
+  // A Default main launch that declared its landing from the named
+  // `worktree` at the case's base, reporting to the dashboard; `landing`
+  // states the scenario's further landing data.
+  withDeclaredLandingLaunch<Name extends string>(
+    session: Name,
+    times: Times,
+    worktree: Worktree,
+    landing: (places: Places) => DeclaredLanding = () => ({}),
+  ) {
+    return this.#with(session, times, (places) =>
+      makeMe.aLaunchRecord
+        .startedOnMainOf(places.checkout)
+        .inClaudeSession({ sessionId: session })
+        .withDeclaredLanding({
+          repository: places.checkout.gitDirectory,
+          workspace: places.worktree(worktree),
+          branch: worktree,
+          committedTip: places.checkout.base,
+          origin: dashboardOrigin,
+          ...landing(places),
+        }),
     );
   }
 
