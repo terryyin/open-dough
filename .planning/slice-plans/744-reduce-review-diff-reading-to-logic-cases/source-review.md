@@ -1,0 +1,46 @@
+# Source review
+
+A fresh general-purpose reviewer, launched by the coordinator on 21 November
+2026 without conversation inheritance, read only the story's Goal, Scope, Key
+examples and Acceptance from
+[SEED-413#reduce-review-diff-reading-to-logic-cases](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#reduce-review-diff-reading-to-logic-cases),
+extracted verbatim to the execution evidence location as
+`source-review-input.md`. It received no plan, product or proof.
+
+Unnumbered context the reviewer returned: names say what a test checks, not
+how; built-app Playwright specs are being retired; the harness spec names its
+subject; the baseline timings (`syntax-mounted` 672 ms, `syntax-arrival`
+473 ms, Intent 93 cases at median 125 ms, "Landed running…" 604 ms); 27
+`-mounted` files at `846c4db58`; "around 100 ms" is an aim, only 500 ms is
+checkable; the shared harness under `dashboard/test-support/mounted-dashboard/`
+is out of scope; the audit covers `dashboard/frontend-tests/review/story-review-diff-*`
+and their support.
+
+## Commitments
+
+| Id | Source commitment | Slice | Observation or obligation |
+| --- | --- | --- | --- |
+| 1 | Path-and-hint grammar selection is proved by cases over the selection logic directly, with no component mounted. These cases replace `story-review-diff-syntax-paths-mounted.spec.ts`, which mounted a diff only to check that selection. | slice 2 | |
+| 1.1 | From the path alone, with nothing mounted: `a.mts` selects TypeScript, `A.java` selects Java, `settings.yml` selects YAML and `notes.txt` selects no grammar. | slice 2 | |
+| 1.2 | A rename selects from the new path: `old.txt` → `new.ts` selects TypeScript, and `old.ts` → `new.txt` selects none. | slice 2 | |
+| 1.3 | Hints: `scripts/setup.test` with hint `shell` selects shell, and with hint `unfamiliar-language` selects none. `lib/app.ts` with hint `shell` keeps TypeScript because the path wins. | slice 2 | |
+| 2 | Changed-block emphasis ("which words a changed block emphasizes") is read as ranges from the emphasis rule, not from rendered marks, with no mount. | slice 3 | |
+| 2.1 | `const limit = 20;` → `const limit = 25;` emphasizes `20` as deleted and `25` as inserted. | slice 3 | |
+| 2.2 | A low-similarity rewrite, a pure addition and a several-hundred-line block each emphasize nothing. | slice 3 | |
+| 3 | Token-side and hunk-styling rules are checked over token lines, with no mount. | slice 4 | |
+| 3.1 | A removed line reads its tokens from the old side, and every other line reads from the new side. | slice 4 | |
+| 3.2 | A comment opened above a hunk styles that hunk's lines. | slice 4 | |
+| 4 | Every other case in the Review diff syntax and emphasis scope (`story-review-diff-*` and their support) that checks data logic with a clear domain meaning through UI elements is reduced to the logic it names and proved without a mount. | slice 4 | |
+| 5 | Cases that check rendering, appearance or arrival behavior stay mounted, including colour contrast and appearance. | slice 4 | |
+| 6 | Rendering promises left behind by the reduced cases each keep one mounted or logic case, rather than disappearing with the reduced cases. | slice 3 | |
+| 6.1 | Underline decoration keeps a case. | slice 3 | |
+| 6.2 | Plain copy keeps a case. | slice 3 | |
+| 6.3 | Grammars that actually load for every selected language keep a case. | slice 2 | |
+| 7 | No frontend unit test file name contains `mounted`, apart from the harness's own spec. `-mounted` is removed from every frontend unit test file name (the 27 in `review/` and `intent/`). | slice 5 | |
+| 7.1 | `test-harness/mounted-dashboard.spec.ts` keeps its name. | slice 5 | |
+| 8 | Case and helper modules beside the renamed specs that name their runner (`mountedComparison*Cases.ts`, `mountedFileDiff.ts`, `mountedReviewDiffPage.ts`) are renamed under the same rule, by what they are rather than by "mounted". | slice 5 | |
+| 9 | Where a renamed file meets a remaining built-app spec of the same name (for example `story-review-diff-syntax-appearance` and `-syntax-arrival`), the two are combined or renamed by what each tests rather than by its runner. Example: `story-review-diff-syntax-appearance-mounted.spec.ts` and the built-app `story-review-diff-syntax-appearance.spec.ts` end with names that say what each checks (such as in-diff token appearance versus agreement with Intent's source reading), and neither name says `mounted`. | slice 5 | |
+| 10 | The Intent comparison specs keep their cases while losing `-mounted`. | slice 5 | |
+| 11 | Every case in the touched files, including each new or changed case, has a median of three attempts under 500 ms. | slice 5 | |
+| 11.1 | `intent-ci-comparison-mounted-scope-running` "Landed running preserves one Branch fallback through entry, folders and file Proof" (previously a median of 604 ms) comes under 500 ms. | slice 1 | observed: dashboard/frontend-tests/intent/intent-ci-comparison-mounted-scope-running.spec.ts "Landed running preserves one Branch fallback through entry, folders and file Proof": 425/268/383 ms, median 383 ms, three separate --workers=2 runs at load 9.8–10 (evidence s1-accept-{1,2,3}.json), all assertions unchanged |
+| 11.2 | The timings are recorded per case as in the baseline table, with the renamed Intent files measured the same way as the baseline. | slice 5 | |

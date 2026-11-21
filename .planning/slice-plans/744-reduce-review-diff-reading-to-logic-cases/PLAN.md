@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#reduce-review-diff-reading-to-logic-cases
 **Source:** [Test Review diff reading's data logic directly and drop "mounted" from frontend test names](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#reduce-review-diff-reading-to-logic-cases)
+**Source review:** [source review](source-review.md)
 
 ## Goal and scope
 
@@ -64,7 +65,7 @@ unchanged.
 ### 1. Intent comparison's slow cases run under 500 ms
 
 Type: Structure
-Status: planned
+Status: done
 
 Early probe. Find why the `Click` steps in
 `intent-ci-comparison-mounted-scope-running` ("Landed running preserves one
@@ -78,6 +79,16 @@ before the later slices.
 
 **Proof.** Both cases pass with their assertions; three attempts each give
 medians under 500 ms.
+
+**Result.** Playwright waited for pointer stability once per browser frame,
+and that wait cost 130–180 ms per click on this host. Keyboard `press("Enter")`
+removed it with every assertion kept. Scope-running now has a median of 383 ms
+(425/268/383 at load about 10), so commitment 11.1 is observed. Gaps
+still has a median of 571 ms (621/455/571). Its remaining time is the app's
+own reloads (proof reads, then Check again re-enabled), navigation and
+first render, not a test-side wait. G1 carries it to slice 5. Profiling needs
+`--reporter=json --output=<tmp>`, because the strict reporter deletes a passing
+run's traces.
 
 ### 2. Grammar selection reads as logic
 
@@ -172,3 +183,10 @@ found.
   concurrently. Slice 5 also runs `npm run --silent test:dashboard:frontend`
   for the selection counts, since the rename changes every Intent spec path.
   Keep default timeouts; never `test.slow()`.
+
+## Story obligations
+
+### G1. Intent gaps case stays over 500 ms under load (first reported in slice 1; acceptance runs at load about 10: 621, 455, 571 ms; remaining time is the app's reloads, navigation and first render)
+Reported: slice 1 — "The gaps case's median is still 571 ms"
+Story clause: "every case in the touched files has a median of three attempts under 500 ms"
+Disposition: receiving slice 5
