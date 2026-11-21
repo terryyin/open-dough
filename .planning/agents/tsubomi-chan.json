@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "identity": "SEED-420#choose-story-comparison-in-intent",
+  "mode": "story-branch",
+  "branch": "claude/choose-what-a-story-s-review-compares-in-intent",
+  "host": "claude"
+}
