@@ -7,18 +7,26 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptRecords, keptSession } from "../../server/launchRecordStore.ts";
+import { observedSessionDeliveries } from "../../server/observedSessionDeliveries.ts";
 import { sessionLandingObservations } from "../../server/observedSessionLandings.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
 import {
+  aCheckoutWithWorktree,
   anIsolatedBranch,
+  anIsolatedLaunch,
   inWorktree,
   markDone,
   minutesAgo,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { fileDiff, fileText, review } from "../support/doneCaptureReview.ts";
+import {
+  aDoneBranch,
+  fileDiff,
+  fileText,
+  review,
+} from "../support/doneCaptureReview.ts";
 import { observedTrunk } from "../support/doneBranchObservation.ts";
 
 const branch = "draft";
@@ -142,8 +150,8 @@ test("the first observation after restart discovers a delivery while preserving 
 });
 
 test("an unchanged revision check discovers delivery for a newly Done session", async () => {
-  const { checkout, workspace, record } = await anIsolatedBranch(branch);
-  const { integration } = checkout;
+  const { checkout, workspace } = await aCheckoutWithWorktree(branch);
+  const launch = anIsolatedLaunch(checkout, { workspace, branch });
   const { "newly-done": tip } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("newly-done", { at: minutesAgo(30) }),
@@ -154,30 +162,23 @@ test("an unchanged revision check discovers delivery for a newly Done session", 
       .mergingTipByHand("merge", { tip, at: minutesAgo(5) })
       .pushingToTrunk("pushed", { at: minutesAgo(5) }),
   );
-  const observations = sessionLandingObservations();
-  await observations.observe(observedTrunk, merge);
+  const observations = observedSessionDeliveries();
+  expect(
+    await observations.observe(observedTrunk, merge, [launch.please()]),
+  ).toEqual([]);
 
-  const remote = (
-    await git(integration, "remote", "get-url", "origin")
-  ).stdout.trim();
-  await git(
-    integration,
-    "remote",
-    "set-url",
-    "origin",
-    path.join(path.dirname(integration), "offline"),
-  );
-  try {
-    await markDone(record);
-  } finally {
-    await git(integration, "remote", "set-url", "origin", remote);
-  }
-  const intermediate = await keptSession(source, record.session);
-  expect(intermediate?.branchResult?.manualDeliveryChecked).toBe(true);
-  expect(intermediate?.landing).toBeUndefined();
-
-  await observations.observe(observedTrunk, merge);
-  expect(await review(await keptRecords(source), record)).toMatchObject({
+  const done = await aDoneBranch(launch);
+  expect(done.branchResult?.manualDeliveryChecked).toBe(true);
+  expect(done.landing).toBeUndefined();
+  const [delivery] = await observations.observe(observedTrunk, merge, [done]);
+  if (delivery === undefined)
+    throw new Error("Missing the newly Done delivery.");
+  const { pair } = delivery;
+  const kept = {
+    ...delivery.record,
+    landing: makeMe.aLaunchLanding.capturedFrom(pair).comparing(pair).please(),
+  };
+  expect(await review([kept], done)).toMatchObject({
     kind: "landed",
     baseline: checkout.base,
     tree: merge,

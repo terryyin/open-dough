@@ -36,8 +36,8 @@ async function committedIn<Name extends string>(
 // own worktree, merged by hand in that order into trunk, which is then
 // published. Answers each branch's launch and tip, the merge of the first
 // and the published head, which merges the second. The records are composed
-// Done unless `pinned`: then the Done adapter marks them and pins their
-// branches, for cases about releasing that evidence.
+// Done unless `pinned`: then the Done adapter keeps, marks, and pins them
+// in a private machine home for cases about releasing that evidence.
 export async function twoDoneBranchesMergedByHand<
   First extends string,
   Second extends string,
@@ -63,8 +63,9 @@ export async function twoDoneBranchesMergedByHand<
   const secondRecord = await recorded(
     anIsolatedLaunch(checkout, { workspace: secondWorkspace, branch: second }),
   );
-  const home = keep(firstRecord, secondRecord);
+  let home: string | undefined;
   if (pinned) {
+    home = keep(firstRecord, secondRecord);
     await markDone(firstRecord);
     await markDone(secondRecord);
   }

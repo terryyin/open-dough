@@ -31,6 +31,7 @@ async function heldObservation() {
   } = await twoDoneBranchesMergedByHand("leaving", "staying", {
     pinned: true,
   });
+  if (home === undefined) throw new Error("Missing the kept launch home.");
   expect(
     await sessionBranchPins(checkout.integration, leaving.session),
   ).toContainEqual(expect.objectContaining({ objectId: leavingTip }));

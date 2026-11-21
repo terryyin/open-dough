@@ -166,7 +166,7 @@ inspection, so the live adapter still applies deliveries in inspection order.
 ### 2. Prove witness skipping, newly-Done discovery, and inspection retry over composed records
 
 Type: Behavior
-Status: planned
+Status: done
 
 Extend `observed-session-deliveries.spec.ts` to prove that an unmerged Done
 branch is inspected once and skipped on a repeat check at the same revision,
@@ -186,6 +186,16 @@ workaround.
 `checked.add(witness)` inside `catch` fails
 `ad-hoc-manual-landing-observation-retry.spec.ts`. `npm run typecheck:dashboard`
 and `npm run lint` pass.
+
+**Accepted proof.** The focused run selected 19 cases and all passed.
+`observed-session-delivery-witnesses.spec.ts` keeps the new witness cases
+together within the file-size limit. It covers retry after unavailable or
+rejected heads, per-target reads, project isolation and coalescing through
+held application. The migrated cases observe landed reviews for
+`newly-done.txt`, `independent.txt` and `retry.txt` from the returned Git
+pairs. Scratch-marking the thrown inspection checked failed the retry
+review assertion. Dashboard typecheck passed. The production reader code
+and its accepted proof are unchanged.
 
 ### 3. Apply deliveries and prove deletion, expiry, and write-loss races over an explicit record store
 

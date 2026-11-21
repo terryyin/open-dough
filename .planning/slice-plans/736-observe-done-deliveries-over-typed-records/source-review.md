@@ -28,14 +28,14 @@ The sibling responsibilities and effort hypothesis remain scope context.
 | 08 | Eligibility requires a witnessed trunk revision. | slice 1 | observed: dashboard/backend-tests/review/observed-session-deliveries.spec.ts rejects absent witnessed trunk revision before head read |
 | 09 | A witnessed trunk revision equal to the observed revision is excluded. | slice 1 | observed: dashboard/backend-tests/review/observed-session-deliveries.spec.ts rejects a witnessed revision equal to the observed revision before head read |
 | 10 | Eligibility requires the target to match the project’s trunk ref. | slice 1 | observed: dashboard/backend-tests/review/observed-session-deliveries.spec.ts rejects another trunk ref before head read |
-| 11 | An unmerged Done branch inspected with no delivery is skipped on a repeat check at the same revision by the process-lifetime decision owner. | slice 2 | |
-| 12 | A newly Done session is inspected and delivered on a repeat check at the same revision. | slice 2 | |
-| 13 | An unreachable trunk head leaves the witness unchecked for retry. | slice 2 | |
-| 14 | A thrown inspection leaves the affected witness unchecked for retry at the same revision. | slice 2 | |
-| 15 | A thrown inspection still lets an independent branch’s delivery settle. | slice 2 | |
-| 16 | Advancing the observed revision resets checked witnesses and rechecks previously skipped branches. | slice 2 | |
-| 17 | The typed decision owns each project’s last observed revision and checked witnesses independently. | slice 2 | |
-| 18 | The typed decision owns each project’s in-flight pass coalescing. | slice 2 | |
+| 11 | An unmerged Done branch inspected with no delivery is skipped on a repeat check at the same revision by the process-lifetime decision owner. | slice 2 | observed: dashboard/backend-tests/review/observed-session-delivery-witnesses.spec.ts single real inspection after two observations at the same revision |
+| 12 | A newly Done session is inspected and delivered on a repeat check at the same revision. | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation.spec.ts newly Done case at unchanged head returns a landed review with newly-done.txt |
+| 13 | An unreachable trunk head leaves the witness unchecked for retry. | slice 2 | observed: dashboard/backend-tests/review/observed-session-delivery-witnesses.spec.ts unavailable and rejected head cases retry both records at the same revision and keep independent remote progress |
+| 14 | A thrown inspection leaves the affected witness unchecked for retry at the same revision. | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-retry.spec.ts failed verification returns landing for retry.txt on same-revision retry; scratch catch mutation caught |
+| 15 | A thrown inspection still lets an independent branch’s delivery settle. | slice 2 | observed: dashboard/backend-tests/review/ad-hoc-manual-landing-observation-retry.spec.ts first pass settles independent.txt while retrying launch still reads branch-result |
+| 16 | Advancing the observed revision resets checked witnesses and rechecks previously skipped branches. | slice 2 | observed: dashboard/backend-tests/review/observed-session-delivery-witnesses.spec.ts unmerged witness is inspected again at the real second published head |
+| 17 | The typed decision owns each project’s last observed revision and checked witnesses independently. | slice 2 | observed: dashboard/backend-tests/review/observed-session-delivery-witnesses.spec.ts project isolation case inspects same witness separately and advancing one does not invalidate the other |
+| 18 | The typed decision owns each project’s in-flight pass coalescing. | slice 2 | observed: dashboard/backend-tests/review/observed-session-delivery-witnesses.spec.ts held application case observes one read, inspection and apply across concurrent checks |
 | 19 | The adapter saves a discovery for the matching kept live record, while it remains in retention. | slice 3 | |
 | 20 | Deletion during inspection precludes pinning, saving or recreating the removed launch. | slice 3 | |
 | 21 | Expiry during inspection precludes pinning, saving or recreating the expired launch. | slice 3 | |
