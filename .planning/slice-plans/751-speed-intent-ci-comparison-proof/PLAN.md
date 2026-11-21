@@ -130,7 +130,7 @@ same production path. Later slices reuse the colocated `mountComparison`.
 ### 2. Landed gaps keep the usable Branch evidence and explain the nearest result
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `comparisonGapCases` and `comparisonCancelledCases`. Use the typed
 answer/attempt inputs that make actual fallback and provenance observable.
@@ -141,6 +141,11 @@ the choice of fallback or timing changes.
 each independent adapter or final timing cause and the nearest cancelled,
 running or proofless result. Preserve absence of borrowed timing and
 fabricated zero.
+
+**Accepted.** 13 gap and cancelled cases became 5 Vitest cases in
+`intent-ci-comparison-landed-fallback` and `-timing-gaps`; moved cases summed
+1,650 ms as Playwright and 1,055 ms as Vitest. Variants sharing one
+presentation rerender one mount, polling each exact reason.
 
 ### 3. Check again and observed head changes read the current comparison
 

@@ -1,5 +1,2 @@
-// Registers the comparison gap, Taken and cancelled cases until they move to
-// mounted specs.
-import "./comparisonGapCases.ts";
+// Registers the comparison Taken cases until they move to mounted specs.
 import "./comparisonTakenCases.ts";
-import "./comparisonCancelledCases.ts";

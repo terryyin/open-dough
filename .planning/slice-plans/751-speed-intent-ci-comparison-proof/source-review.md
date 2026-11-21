@@ -18,8 +18,8 @@ coordination; backend and E2E groups keep their own runner and coverage.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | The comparison names the right builds, timing, test results and limits (Goal) | slice 2 | |
-| 2 | Landed proof unavailable → Branch fallback with the real reason and measured figures | slice 2 | |
+| 1 | The comparison names the right builds, timing, test results and limits (Goal) | slice 2 | observed: intent-ci-comparison-endpoints, -adapter-proof, -overall-metrics (slice 1) and -landed-fallback, -timing-gaps (slice 2) specs |
+| 2 | Landed proof unavailable → Branch fallback with the real reason and measured figures | slice 2 | observed: intent-ci-comparison-landed-fallback.spec.ts "unavailable Landed proof retains the Branch counts, time and exact adapter reason" and "running Landed retains Branch fallback…" |
 | 3 | Check again recovers Landed | slice 3 | |
 | 4 | A previous selection's held result cannot replace the current comparison | slice 3 | |
 | 5 | Cross-scope observations reuse the same preference, fallback or held evidence | slice 4 | |

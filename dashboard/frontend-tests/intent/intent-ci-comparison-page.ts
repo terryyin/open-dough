@@ -77,6 +77,7 @@ export async function mountComparison(story: ComparedStory) {
     wallTimes: () => texts(".intent-ci-comparison-wall"),
     timesWithoutWaits: () => texts(".intent-ci-comparison-without-waits"),
     activeComparison: () => texts(".intent-ci-comparison-active"),
+    fallbackReason: () => texts(".intent-ci-comparison-active-reason"),
     overallCounts: () => texts(".intent-ci-comparison-overall-counts"),
     overallCountsCues: () => cues(".intent-ci-comparison-overall-counts"),
     overallTiming: () => texts(".intent-ci-comparison-overall-timing"),
@@ -84,6 +85,14 @@ export async function mountComparison(story: ComparedStory) {
     overallWallTime: () => texts(".intent-ci-comparison-overall-wall"),
     metricNames: () => texts(".intent-ci-comparison-metrics dt"),
     entryEvidence: () => texts(".intent-ci-comparison-entries").join(" "),
+    // Each entry row's header and cells, in column order.
+    entryRows: () =>
+      [
+        ...region
+          .getByRole("table", { name: "CI entry timing comparison" })
+          .element()
+          .querySelectorAll("tbody tr"),
+      ].map((row) => [...row.children].map(visibleText)),
     headings: () =>
       region
         .getByRole("heading")
