@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-413#correct-landing-record-writes-and-tests",
+  "mode": "story-branch",
+  "branch": "codex/keep-kept-records-intact-through-landings-and-pr",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
