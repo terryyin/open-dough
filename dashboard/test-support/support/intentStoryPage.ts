@@ -21,6 +21,7 @@ import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
 import { expectReviewRead } from "./reviewRead.ts";
+import { commitRangeHeading } from "./storyReviewCommitChoice.ts";
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -179,6 +180,30 @@ export async function openReviewFromIntent(page: Page, intent: Locator) {
   return showReviewDetails(review);
 }
 
+// The Compare choice beside the header's compared revisions: what the story's
+// Intent compares, and for Commits the story's commits whose two ends choose
+// the range, which the header then names.
+export function storyCompare(intent: Locator) {
+  const region = storySummary(intent).getByRole("group", { name: "Compare" });
+  const commits = region.getByRole("list", { name: "Story commits" });
+  const choice = (name: string) => region.getByRole("radio", { name });
+  const commit = (subject: string) =>
+    commits.getByRole("button").filter({ hasText: subject });
+  return {
+    region,
+    choice,
+    choose: (name: string) => choice(name).check(),
+    commits,
+    commit,
+    // Chooses one commit alone: twice, so it starts and ends its own range.
+    chooseAlone: async (subject: string) => {
+      await commit(subject).click();
+      await commit(subject).click();
+    },
+    range: commitRangeHeading(storySummary(intent)),
+  };
+}
+
 // The selected story in Intent. Diff text comes back for the scenario to
 // compare; `background` stays a measurement the scenario compares itself.
 export function intentStory(intent: Locator) {
@@ -197,6 +222,7 @@ export function intentStory(intent: Locator) {
     folderItem: (name: string) => folderItem(intent, name),
     locationGroup: (path: string) => locationGroup(intent, path),
     headerDetail: () => storyHeaderDetail(intent),
+    compare: () => storyCompare(intent),
     expectOutsideCount: (count: number) => expectOutsideCount(intent, count),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
       chooseStoryTab(intent, name),

@@ -14,6 +14,7 @@ import type { StoryReview } from "./storyReviewContract.ts";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
+import type { StoryCompare } from "./IntentStoryCompare.tsx";
 
 // The comparison such a view reads of a workspace: all changes, with its
 // uncommitted changes included as Review changes includes them at every
@@ -45,21 +46,43 @@ export function useStoryComparison({
   readonly reading: boolean;
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
+  // The choice of what is compared, while the story has a workspace.
+  readonly compare: StoryCompare | undefined;
 } {
   const subject: ReviewedStorySubject = { source, identity };
-  const { defaultReview, review, snapshot, reading, problem } =
-    useStoryReviewSelection({
-      subject,
-      round,
-      completed,
-      enabled,
-      historical: completed,
-      keyedBy: `${identity}${completed ? " done" : ""}`,
-    });
-  const { comparison, tree } = useStoryReviewComparison({
+  // The choice is the story's, and a story becoming Done opens on its result.
+  const keyedBy = `${identity}${completed ? " done" : ""}`;
+  const {
+    defaultReview,
+    review,
+    snapshot,
+    reading,
+    problem,
+    chosen,
+    onWorkspace,
+  } = useStoryReviewSelection({
+    subject,
+    round,
+    completed,
+    enabled,
+    historical: completed,
+    keyedBy,
+    followsDefault: true,
+  });
+  const {
+    comparison,
+    tree,
+    items,
+    selectedItems,
+    shown,
+    onSelect,
+    trunkIntegrated,
+  } = useStoryReviewComparison({
     subject,
     snapshot,
-    ...defaultStoryComparison,
+    chosen,
+    includeUncommitted: defaultStoryComparison.includeUncommitted,
+    keyedBy,
     active: enabled && !completed && review?.selectedRun === undefined,
   });
   if (!enabled)
@@ -69,6 +92,7 @@ export function useStoryComparison({
       reading: false,
       problem: undefined,
       shown: undefined,
+      compare: undefined,
     };
   return {
     review,
@@ -76,5 +100,16 @@ export function useStoryComparison({
     reading,
     problem,
     shown: storyComparisonShown({ subject, review, comparison, tree }),
+    compare:
+      snapshot === undefined || review?.kind !== "snapshot"
+        ? undefined
+        : {
+            shown,
+            items,
+            selectedItems,
+            trunkIntegrated,
+            onWorkspace,
+            onSelect,
+          },
   };
 }

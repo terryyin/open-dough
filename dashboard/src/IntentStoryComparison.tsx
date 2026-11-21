@@ -6,6 +6,7 @@
 
 import { shortRevision } from "./publishedWork.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
+import { ComparedRange, type StoryCompare } from "./IntentStoryCompare.tsx";
 import { baselineRevision, type StoryReview } from "./storyReviewContract.ts";
 
 // What Intent knows of the selected story's comparison.
@@ -20,6 +21,8 @@ export type LensComparison =
       readonly review: StoryReview | undefined;
       // The default review read: the completed result's owner.
       readonly defaultReview: StoryReview | undefined;
+      // The choice of what is compared, while the story has a workspace.
+      readonly compare?: StoryCompare | undefined;
     };
 
 // The two sides the comparison runs between, as Review changes names them.
@@ -117,7 +120,9 @@ export function ComparisonDetail({
           : "Intent shows the published tree without them."}
       </p>
     );
-  return (
+  return comparison.compare?.shown === "commits" ? (
+    <ComparedRange compare={comparison.compare} />
+  ) : (
     <ComparedRevisions shown={comparison.shown} review={comparison.review} />
   );
 }

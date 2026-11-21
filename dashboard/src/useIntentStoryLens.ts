@@ -124,15 +124,14 @@ export function useIntentStoryLens({
           )
         : undefined;
   const [round, setRound] = useState(0);
-  const { review, defaultReview, reading, problem, shown } = useStoryComparison(
-    {
+  const { review, defaultReview, reading, problem, shown, compare } =
+    useStoryComparison({
       source: source.id,
       identity: story?.identity ?? "",
       completed: story?.completed ?? false,
       round,
       enabled: offered === true,
-    },
-  );
+    });
   const comparison: LensComparison =
     offered === undefined
       ? { state: "reading" }
@@ -141,7 +140,7 @@ export function useIntentStoryLens({
         : reading
           ? { state: "reading" }
           : shown !== undefined
-            ? { state: "compared", shown, review, defaultReview }
+            ? { state: "compared", shown, review, defaultReview, compare }
             : problem !== undefined
               ? { state: "failed", problem }
               : review !== undefined &&

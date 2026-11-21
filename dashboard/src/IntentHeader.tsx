@@ -5,6 +5,7 @@
 import { GitCompare } from "lucide-react";
 import type { ReactNode } from "react";
 import { Icon } from "./Icon.tsx";
+import { IntentStoryCompare } from "./IntentStoryCompare.tsx";
 import {
   CompactComparisonState,
   ComparisonDetail,
@@ -133,6 +134,10 @@ export function IntentHeader({
               comparison={summary.comparison}
               completed={summary.story.completed}
             />
+            {summary.comparison.state === "compared" &&
+              summary.comparison.compare !== undefined && (
+                <IntentStoryCompare compare={summary.comparison.compare} />
+              )}
           </div>
         </>
       )}

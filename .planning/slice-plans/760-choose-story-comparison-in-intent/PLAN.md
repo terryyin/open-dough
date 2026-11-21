@@ -124,7 +124,7 @@ holds the remaining automatic-run retention.
 ### 2. Choosing a commit range changes the story's files, diffs and header
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a Taken story with three commits and an uncommitted edit, read in
 Intent → **Compare** → **Commits**, then the two oldest commits as the
@@ -141,6 +141,18 @@ knows where the Compare controls live. Answers come from
 `installFrontendStoryReview` (`answerSnapshot`, `answerRange`,
 `answerFile`). Assert the asked range query names the chosen ends. The
 premise row's specs stay green.
+
+**Accepted.** `intent-story-compare-commits.spec.ts` passed with the 13
+premise-row specs (33 tests), `dashboard/frontend-tests/review` (109) and
+the landed-run and CI follow-up e2e specs (7). Range ends are keyed by
+story in `useStoryReviewComparison`; `makeMe.aReviewCommit` is the shared
+commit builder. `useStoryReviewSelection` gained `followsDefault`, on for
+Intent, so an unchosen run follows each newer default (G1). Its observing
+assertion moved to slice 4, whose Done story with captured runs is the
+setup it needs; slice 2 used 14.7 of 15 minutes.
+The refactor pass moved the keyed reset into `stateKeyedBy.ts`, gave the
+range ends the selection's key, and added `makeMe.anUncommittedReviewItem`
+for slice 3; the same proof reran green (33, 109, 8 e2e).
 
 ### 3. Leaving out uncommitted changes and refreshing the worktree
 
@@ -168,7 +180,8 @@ completion**, naming the completion revision → **Landed runs** and a
 captured run → that run's changes are listed and the header names its tree.
 Its Intent locations and the CI comparison's Done endpoint stay on the
 story's landed result. Choosing **Published completion** again returns to
-it.
+it. G1: until a run is chosen, a newer default answer naming another
+captured run moves Intent to that run.
 
 **Proof.** A case beside `dashboard/frontend-tests/intent/intent-done-review-modes.spec.ts`,
 with `answerHistoricalSnapshot` and `answerRunSnapshot`, asserting the
@@ -231,4 +244,4 @@ answers and `holdNextRange` for a failed read.
 ### G1. Intent keeps an earlier automatic run over a newer default (first reported in slice 1)
 Reported: slice 1 — "If a later answer for the same read (same story and Done state) names a different selectedRun while the old run is still listed, Intent keeps the old one. Before slice 1 it always followed the newer default."
 Story clause: "Intent offers the choices the Side panel review offers a story, with their present defaults and availability"
-Disposition: receiving slice 2
+Disposition: receiving slice 4
