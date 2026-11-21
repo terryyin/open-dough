@@ -288,7 +288,7 @@ The three retained substitute files match `6cb718146^`, their separate publicati
 ### 4. Unit-test the published listing through typed reads
 
 Type: Structure
-Status: planned
+Status: done
 
 **Structure.** Apply the "listing handler takes what it reads" decision.
 Rewrite `published-session-listing.spec.ts` as plain Vitest calling
@@ -310,6 +310,9 @@ git grep -n -E "pageTest|dashboardServer|fakeGitHub|rawHttp" -- dashboard/backen
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
+
+**Accepted proof.** The `review/published-session-listing observation/authenticated-read-listed-records` backend selection passed 11 cases. The handler observes ordered valid records, skipped malformed and wrong-path records, skipped extra ranges, an empty listing, and propagated lister refusal. The request-admission cases retain pinned and unpinned coverage.
+The `navigation/dashboard-header` frontend selection passed nine cases, including the 21 opening reads and six per source on switch. The selected published-sessions E2E passed through the pinned route and opened the other machine’s review. The retired server and Playwright imports are absent. Dashboard typecheck passed after fixing a test pair’s static type. The local gate arguments and sleep guard apply.
 
 ### 5. One record-path rule beside the backlog
 

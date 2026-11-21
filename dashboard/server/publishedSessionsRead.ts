@@ -19,8 +19,9 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { mapPool } from "../src/boundedPool.ts";
 import { listedReadConcurrency } from "./listedRecordsRead.ts";
 import { parsePinnedListing } from "./listedReadParameters.ts";
-import type { PinnedTexts } from "./pinnedTexts.ts";
+import type { ListedPath } from "./pinnedTexts.ts";
 import { publishedRecordFromText } from "./publishedSessionReview.ts";
+import type { PinnedLister } from "./reachablePaths.ts";
 import {
   listedSessionRecords,
   sessionRecordDirectoryOf,
@@ -56,16 +57,12 @@ export function readingPublishedSessionsOf(
 // Every valid session record listed at the source's revision through pinned
 // GitHub listing and blob reads, in path order.
 export async function performPublishedSessionsRead(
-  pinned: PinnedTexts,
-  source: PublishedSource,
+  source: Pick<PublishedSource, "backlogPath">,
   { revision }: PublishedSessionsRead,
-  signal: AbortSignal,
+  listPinned: PinnedLister,
+  readBlob: (file: ListedPath) => Promise<string>,
 ): Promise<Outcome> {
-  const listed = await listedSessionRecords(
-    source,
-    pinned.lister(source, revision, signal),
-  );
-  const readBlob = pinned.blobReader(source, revision, signal);
+  const listed = await listedSessionRecords(source, listPinned);
   const records = await mapPool(listed, listedReadConcurrency, async (file) =>
     publishedRecordFromText(source, file.path, await readBlob(file)),
   );

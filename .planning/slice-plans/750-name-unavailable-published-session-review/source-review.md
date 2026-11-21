@@ -24,23 +24,23 @@ construction, cast, duplicate case, and test scaffolding.
 | P07 | Success includes close time. | slice 1 | observed: published-session-subject.spec.ts checks the localized timestamp inside the published paragraph |
 | P08 | Existing session-commits cases retain kept-session wording. | slice 2 | observed: kept-unavailable backend and mounted toolbar gap checks confirm the kept tag, explanation and Session commits |
 | P09 | That wording is exclusive to session-commits. | slice 2 | observed: mounted published, kept and landing toolbar cases observe distinct descriptions or names from their typed answers |
-| P10 | Machine with no launch history can open the published review with both recorded commits in Git. | slice 4 | |
+| P10 | Machine with no launch history can open the published review with both recorded commits in Git. | slice 4 | observed: published-sessions E2E stores only the local launch and opens the other UUID at its actual pair after trunk advances |
 | P11 | Live kept launch stands for its publication. | slice 3 | observed: recently-done-published-session-launch.spec.ts checks live launch suppression in overview and full answers |
 | P12 | Done kept launch stands for its publication. | slice 3 | observed: recently-done-published-session-launch.spec.ts checks Done suppression and the published-sessions E2E journey observes its native controls once |
 | P13 | Unavailable listing renders as Recently done gap. | slice 3 | observed: recently-done-read-gaps.spec.ts supplies an unavailable listing and checks its text in the mounted gap |
-| P14 | Missing sessions directory lists empty. | slice 4 | |
+| P14 | Missing sessions directory lists empty. | slice 4 | observed: published-session-listing.spec.ts observes the empty listing, and unchanged ghContents maps missing directory 404 to that lister input |
 | P15 | Opening a present UUID does not fetch. | slice 6 | |
-| P16 | Header journeys hold 21. | slice 4 | |
-| P17 | Header journeys hold 6/6. | slice 4 | |
+| P16 | Header journeys hold 21. | slice 4 | observed: dashboard-header.spec.ts passed 21 opening reads at four viewports with no further walking reads |
+| P17 | Header journeys hold 6/6. | slice 4 | observed: dashboard-header.spec.ts project switch passed six reads for each of Open Dough and Doughnut |
 | P18 | When fetch hangs to its bound, review answers from last fetched trunk. | slice 6 | |
 | P19 | Published-source fallback has its own budget. | slice 6 | |
 | P20 | Producer, `publishedSessionSource.ts`, `publishedSessionReview.ts` and the three backend-spec helpers use a single UUID record-path rule beside the backlog (scope, finding 5, including `.planning/` hardcode). | slice 5 | |
 | P21 | Listing-gap derivation is proved over typed inputs with production `useRecentlyDone` code in mounted/plain Vitest. | slice 3 | observed: three recently-done-read-gaps.spec.ts cases call recentlyDoneProblems with typed unavailable and listed answers |
 | P22 | Owning list rendering of the gap is proved with production code in mounted/plain Vitest. | slice 3 | observed: recently-done-read-gaps.spec.ts mounts RecentlyDoneReadGaps and observes both paragraphs in order |
-| P23 | Listing handler production behavior is proved in plain Vitest over the typed directory lister and blob reader it reads. | slice 4 | |
+| P23 | Listing handler production behavior is proved in plain Vitest over the typed directory lister and blob reader it reads. | slice 4 | observed: seven plain Vitest tests observe listing and request admission, with real handler and typed in-memory directory and blob functions |
 | P24 | Review subject cases exercise the owning production component directly in mounted Vitest (finding 4 locates two new cases and one older heading case, points to `mountComponent` and retrying assertions). | slice 1 | observed: published-session-subject.spec.ts mounts StoryReviewHeading, ReviewContext and ReviewFeedback with retrying Chromium assertions |
 | P25 | Remove frontend-app publication substitute additions (finding 2 inventories). | slice 3 | observed: scoped diff to 6cb718146^ is empty for three substitute files, the fourth module is gone, and retired symbols have no hits |
-| P26 | Remove server-and-HTTP Playwright listing spec. | slice 4 | |
+| P26 | Remove server-and-HTTP Playwright listing spec. | slice 4 | observed: the rewritten listing spec imports plain Vitest and the server, fake GitHub, raw HTTP and pageTest grep is empty |
 | P27 | Remove the three cases’ hand-rolled `createRoot` / `act` / `onTestFinished` mounting. | slice 1 | observed: planned grep on published-session-subject.spec.ts is empty and the diff removes the local root, cleanup and act environment |
 | P28 | New frontend cases mount the owning component. | slice 3 | observed: the new case uses mountComponent on RecentlyDoneReadGaps and polls only its paragraphs |
 | P29 | New frontend cases omit `actSettled`. | slice 3 | observed: no actSettled appears in the replacement spec or the new published-gap mount |

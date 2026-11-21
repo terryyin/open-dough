@@ -1,38 +1,20 @@
-// The published-session listing read (../../server/publishedSessionsRead.ts)
-// lists the session close records a project published beside its backlog at a
-// pinned revision through the same pinned GitHub path as listed records and
-// the done catalog; the read boundary's request parsing admits it only at a
-// pinned revision. Tested against real HTTP and a synthetic `gh` answering
-// from the fake GitHub.
+// The published-session listing admits only pinned revisions and lists the
+// valid session close records at their own paths beside the backlog.
 
 import { randomUUID } from "node:crypto";
+import { expect, test } from "vitest";
 import {
   sessionRecordDirectory,
-  sessionRecordFileName,
   sessionRecordRelativePath,
 } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { performPublishedSessionsRead } from "../../server/publishedSessionsRead.ts";
 import { parseRequestedRead } from "../../server/requestedRead.ts";
-import { describedFiles } from "../../test-support/describedRevisions.ts";
-import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
 
-test.describe.configure({ mode: "serial" });
-
-const knownSourceId = "open-dough";
-const revisionOf = (pair: string) => pair.repeat(20);
+const source = makeMe.aPublishedSource.pygardon.please();
+const revision = "a1".repeat(20);
+const read = { kind: "published-sessions-at", revision } as const;
 const sessionsDirectory = `.planning/${sessionRecordDirectory}`;
-const commit = (digit: string) => digit.repeat(40);
-
 const recordPath = (sessionId: string) =>
   `.planning/${sessionRecordRelativePath(sessionId)}`;
 
@@ -40,112 +22,93 @@ const atItsPath = (record: { sessionId: string }) => ({
   [recordPath(record.sessionId)]: JSON.stringify(record),
 });
 
-const answerOf = (response: { body: string }) =>
-  JSON.parse(response.body) as {
-    revision?: string;
-    sessions?: { sessionId: string }[];
-    error?: string;
-  };
+const readListing = (files: Readonly<Record<string, string>>) =>
+  performPublishedSessionsRead(
+    source,
+    read,
+    (directory) => {
+      expect(directory).toBe(sessionsDirectory);
+      return Promise.resolve(
+        Object.keys(files).map((path, index) => ({
+          name: path.slice(directory.length + 1),
+          sha: index.toString(16).padStart(40, "0"),
+        })),
+      );
+    },
+    ({ path }) => {
+      const text = files[path];
+      if (text === undefined) throw new Error(`Unexpected blob read: ${path}`);
+      return Promise.resolve(text);
+    },
+  );
 
-test.describe("authenticated published-session listing (development environment)", () => {
-  let server: DashboardServer;
+test("lists two valid published records in path order at the requested revision", async () => {
+  const one = makeMe.aSessionRecord.please();
+  const other = makeMe.aSessionRecord.please();
+  const [first, last] =
+    one.sessionId < other.sessionId ? [one, other] : [other, one];
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+  expect(
+    await readListing({ ...atItsPath(last), ...atItsPath(first) }),
+  ).toEqual({
+    kind: "answered",
+    answer: { revision, sessions: [first, last] },
   });
+});
 
-  test.afterAll(async () => {
-    await server.close();
-  });
+test("skips malformed records and valid records at another UUID's path", async () => {
+  const valid = makeMe.aSessionRecord.please();
+  const misplaced = makeMe.aSessionRecord.please();
 
-  const listedAt = async (revision: string) =>
-    rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&sessions=published`,
-      headers: { Origin: server.origin },
-    });
-
-  const publishAt = (
-    revision: string,
-    files: Readonly<Record<string, string>>,
-  ) => {
-    server.github.serve(
-      everyRepository,
-      publishes({
-        revision,
-        files: describedFiles({ backlog: null, files }),
-      }),
-    );
-  };
-
-  test("Given published session records at a revision, when the listing is read there, then each record is listed", async () => {
-    const revision = revisionOf("a1");
-    const [one, other] = [
-      makeMe.aSessionRecord.please(),
-      makeMe.aSessionRecord.please(),
-    ];
-    publishAt(revision, { ...atItsPath(one), ...atItsPath(other) });
-
-    const response = await listedAt(revision);
-    expect(response.status).toBe(200);
-    const answered = answerOf(response);
-    expect(answered.revision).toBe(revision);
-    expect(
-      (answered.sessions ?? []).map(({ sessionId }) => sessionId).sort(),
-    ).toEqual([one.sessionId, other.sessionId].sort());
-  });
-
-  test("Given malformed files beside a valid record, when the listing is read, then only the valid record is listed", async () => {
-    const revision = revisionOf("b2");
-    const valid = makeMe.aSessionRecord.please();
-    publishAt(revision, {
+  expect(
+    await readListing({
       ...atItsPath(valid),
-      [`${sessionsDirectory}/${sessionRecordFileName(randomUUID())}`]:
-        "not json",
-      [`${sessionsDirectory}/${sessionRecordFileName(randomUUID())}`]:
-        JSON.stringify({ version: 2 }),
-      [`${sessionsDirectory}/${sessionRecordFileName(randomUUID())}`]:
-        JSON.stringify(makeMe.aSessionRecord.please()),
-    });
-
-    const response = await listedAt(revision);
-    expect(response.status).toBe(200);
-    expect(answerOf(response)).toEqual({
-      revision,
-      sessions: [valid],
-    });
+      [recordPath(randomUUID())]: "not json",
+      [recordPath(randomUUID())]: JSON.stringify({ version: 2 }),
+      [recordPath(randomUUID())]: JSON.stringify(misplaced),
+    }),
+  ).toEqual({
+    kind: "answered",
+    answer: { revision, sessions: [valid] },
   });
+});
 
-  test("Given a two-range record, when the listing is read, then it is skipped as malformed", async () => {
-    const revision = revisionOf("c3");
-    const one = makeMe.aSessionRecord.please();
-    const twoRanges = {
-      ...one,
-      ranges: [
-        one.ranges[0],
-        { base: "c".repeat(40), candidate: "d".repeat(40) },
-      ],
-    };
-    publishAt(revision, atItsPath(twoRanges));
+test("skips a session record with two ranges", async () => {
+  const record = makeMe.aSessionRecord.please();
+  const twoRanges = {
+    ...record,
+    ranges: [
+      ...record.ranges,
+      { base: "c".repeat(40), candidate: "d".repeat(40) },
+    ],
+  };
 
-    const response = await listedAt(revision);
-    expect(response.status).toBe(200);
-    expect(answerOf(response)).toEqual({
-      revision,
-      sessions: [],
-    });
+  expect(await readListing(atItsPath(twoRanges))).toEqual({
+    kind: "answered",
+    answer: { revision, sessions: [] },
   });
+});
 
-  test("Given a revision with no session directory, when the listing is read, then it answers an empty listing", async () => {
-    const revision = revisionOf("d0");
-    publishAt(revision, {});
-
-    const response = await listedAt(revision);
-    expect(response.status).toBe(200);
-    expect(answerOf(response)).toEqual({
-      revision,
-      sessions: [],
-    });
+test("answers with no sessions when the directory lists no files", async () => {
+  expect(await readListing({})).toEqual({
+    kind: "answered",
+    answer: { revision, sessions: [] },
   });
+});
+
+test("propagates a directory listing refusal", async () => {
+  const refusal = new Error(
+    "The published sessions directory could not be read",
+  );
+
+  await expect(
+    performPublishedSessionsRead(
+      source,
+      read,
+      () => Promise.reject(refusal),
+      () => Promise.reject(new Error("Unexpected blob read")),
+    ),
+  ).rejects.toBe(refusal);
 });
 
 test("Given a listing request at an unpinned revision, when it is parsed, then it is refused", () => {
@@ -159,7 +122,7 @@ test("Given a listing request at an unpinned revision, when it is parsed, then i
 test("Given a listing request at a pinned revision, when it is parsed, then it names the listing at that revision", () => {
   expect(
     parseRequestedRead(
-      new URLSearchParams({ sessions: "published", revision: commit("c") }),
+      new URLSearchParams({ sessions: "published", revision }),
     ),
-  ).toEqual({ kind: "published-sessions-at", revision: commit("c") });
+  ).toEqual(read);
 });
