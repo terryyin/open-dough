@@ -2,7 +2,9 @@
 // authenticated read boundary may read at a pinned revision, decided only
 // from that revision's own listing of their directory. Agent profiles are
 // reachable only as the profile files the listing names, and a profile's Take
-// (`./ghProfileAddition.ts`) is asked only for a listed profile. Done records
+// (`./ghProfileAddition.ts`) is asked only for a listed profile. Session
+// close records are listed the same way (`listedSessionRecords`) for the
+// published-session listing (`./publishedSessionsRead.ts`). Done records
 // are read only as the record files the done catalog agreeing with their
 // directory's listing names (`./doneCatalogRead.ts`). The one project
 // setting file the shared profile module names is reachable only as part of
@@ -86,6 +88,20 @@ export function listedAgentProfiles(
   return listedBesideBacklog(
     agentProfileDirectoryOf(source),
     (name) => profileAgentName(name) !== undefined,
+    listPinned,
+  );
+}
+
+// The session close records listed beside the backlog at a pinned revision;
+// only `.json` names are candidates, and the published-session listing
+// (`./publishedSessionsRead.ts`) keeps those that validate at their UUID path.
+export function listedSessionRecords(
+  source: { readonly backlogPath: string },
+  listPinned: PinnedLister,
+): Promise<ListedPath[]> {
+  return listedBesideBacklog(
+    sessionRecordDirectoryOf(source),
+    (name) => name.endsWith(".json"),
     listPinned,
   );
 }

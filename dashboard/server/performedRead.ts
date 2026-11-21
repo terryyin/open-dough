@@ -155,12 +155,9 @@ export async function perform(
               );
             case "published-sessions-at":
               return await performPublishedSessionsRead(
-                {
-                  repository: projectFolder(source).path,
-                  revision: read.revision,
-                  backlogPath: source.backlogPath,
-                  ref: source.ref,
-                },
+                pinned,
+                source,
+                read,
                 signal,
               );
             case "addition-at":

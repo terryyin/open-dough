@@ -434,6 +434,8 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 
 Accepted: evidence `s8-slice8-return-report.md`. Commitment 15 observed (21 and 6/6). Refactor: already clean (test-only exact pin).
 
+CI repair after `219fc98a5`: published-session listing reads through the pinned GitHub path (`listedSessionRecords` / `pinned.lister`) so stub revisions without a sessions directory list empty instead of unavailable; real listing failures still show as Recently done gaps.
+
 ## Local gates
 
 - Apply the

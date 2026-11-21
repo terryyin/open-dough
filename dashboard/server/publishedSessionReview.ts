@@ -34,12 +34,32 @@ export interface PublishedSessionSource {
 }
 
 const sessionRecordPathOf = (
-  source: PublishedSessionSource,
+  source: { readonly backlogPath: string },
   sessionId: string,
 ) => `${sessionRecordDirectoryOf(source)}/${sessionRecordFileName(sessionId)}`;
 
 const unknownSession = () =>
   new RefusedRequest(404, "This project published no such session.");
+
+// The record a published file's text holds, undefined unless it is valid and
+// sits at its own UUID's path. Shared by the local git-show review read and
+// the pinned listing (`./publishedSessionsRead.ts`).
+export function publishedRecordFromText(
+  source: { readonly backlogPath: string },
+  path: string,
+  text: string,
+): PublishedSessionRecord | undefined {
+  let parsed: ReturnType<typeof publishedSessionRecordSchema.safeParse>;
+  try {
+    parsed = publishedSessionRecordSchema.safeParse(JSON.parse(text));
+  } catch {
+    return undefined;
+  }
+  return parsed.success &&
+    sessionRecordPathOf(source, parsed.data.sessionId) === path
+    ? parsed.data
+    : undefined;
+}
 
 // The record a published file holds, undefined unless it is valid and sits at
 // its own UUID's path.
@@ -53,16 +73,7 @@ export async function publishedRecordAt(
     signal,
     maxBuffer: defaultGitOutputLimit,
   });
-  let parsed: ReturnType<typeof publishedSessionRecordSchema.safeParse>;
-  try {
-    parsed = publishedSessionRecordSchema.safeParse(JSON.parse(stdout));
-  } catch {
-    return undefined;
-  }
-  return parsed.success &&
-    sessionRecordPathOf(source, parsed.data.sessionId) === path
-    ? parsed.data
-    : undefined;
+  return publishedRecordFromText(source, path, stdout);
 }
 
 export async function publishedSessionRecord(

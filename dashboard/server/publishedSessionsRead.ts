@@ -1,28 +1,30 @@
 // The published-session listing read for the local authenticated read
 // boundary (`./requestedRead.ts`): with `sessions=published` and a pinned
 // revision, every session close record the configured project published
-// beside its backlog, read from that project's fetched Git at the revision.
-// A revision the checkout lacks is first fetched with the project's trunk.
-// Records are read a few at a time through `mapPool` at the listed-records
-// concurrency (`./listedRecordsRead.ts`). Each record is validated against
-// the one record contract (`../src/publishedSessionRecord.ts`) and must sit
-// at the path the producer names for its UUID; any other file there is
-// skipped. The performed read (`./performedRead.ts`) answers it here.
+// beside its backlog, listed through `listedSessionRecords`
+// (`./recordsBesideBacklog.ts`) and read through the same pinned GitHub path
+// as listed records and the done catalog (`./pinnedTexts.ts`). Records are
+// read a few at a time through `mapPool` at the listed-records concurrency
+// (`./listedRecordsRead.ts`). Each record is validated against the one
+// record contract (`../src/publishedSessionRecord.ts`) and must sit at the
+// path the producer names for its UUID; any other file there is skipped. A
+// revision that lists no session directory (GitHub's 404) answers an empty
+// listing. The performed read (`./performedRead.ts`) answers it here.
 
 import {
   publishedSessionsRead,
   readingPathAt,
 } from "../src/authenticatedReadRules.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
 import { mapPool } from "../src/boundedPool.ts";
-import { fetchUnlessCommitPresent } from "./gitTargetFetch.ts";
-import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { listedReadConcurrency } from "./listedRecordsRead.ts";
 import { parsePinnedListing } from "./listedReadParameters.ts";
+import type { PinnedTexts } from "./pinnedTexts.ts";
+import { publishedRecordFromText } from "./publishedSessionReview.ts";
 import {
-  publishedRecordAt,
-  type PublishedSessionSource,
-} from "./publishedSessionReview.ts";
-import { sessionRecordDirectoryOf } from "./recordsBesideBacklog.ts";
+  listedSessionRecords,
+  sessionRecordDirectoryOf,
+} from "./recordsBesideBacklog.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import type { RefusedParameters } from "./refusedParameters.ts";
 
@@ -51,33 +53,24 @@ export function readingPublishedSessionsOf(
   return readingPathAt(sessionRecordDirectoryOf({ backlogPath }), revision);
 }
 
-// Every valid session record listed at the source's revision, in path order;
-// a revision the checkout lacks is first fetched with the project's trunk `ref`.
+// Every valid session record listed at the source's revision through pinned
+// GitHub listing and blob reads, in path order.
 export async function performPublishedSessionsRead(
-  source: PublishedSessionSource & { readonly ref: string },
+  pinned: PinnedTexts,
+  source: PublishedSource,
+  { revision }: PublishedSessionsRead,
   signal: AbortSignal,
 ): Promise<Outcome> {
-  const directory = sessionRecordDirectoryOf(source);
-  const call = {
-    cwd: source.repository,
-    signal,
-    maxBuffer: defaultGitOutputLimit,
-  };
-  const trunk = { remote: "origin", target: source.ref };
-  await fetchUnlessCommitPresent(source.revision, trunk, call);
-  const { stdout } = await runGit(
-    ["ls-tree", "--name-only", source.revision, `${directory}/`],
-    call,
+  const listed = await listedSessionRecords(
+    source,
+    pinned.lister(source, revision, signal),
   );
-  const listed = stdout
-    .split("\n")
-    .filter((path) => path.endsWith(".json"))
-    .sort();
-  const records = await mapPool(listed, listedReadConcurrency, (path) =>
-    publishedRecordAt(source, path, signal),
+  const readBlob = pinned.blobReader(source, revision, signal);
+  const records = await mapPool(listed, listedReadConcurrency, async (file) =>
+    publishedRecordFromText(source, file.path, await readBlob(file)),
   );
   return answered({
-    revision: source.revision,
+    revision,
     sessions: records.filter((record) => record !== undefined),
   });
 }
