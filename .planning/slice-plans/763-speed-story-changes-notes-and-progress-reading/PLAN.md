@@ -38,11 +38,20 @@ cohort.
 ## Preserved decisions and premises from `plan 755`
 
 - Reuse typed `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`)
-  and `loadRepositoryTexts`'s optional `readFile` collaborator
-  (`dashboard/src/repositoryFileReads.ts`) landed by
-  `SEED-413#speed-intent-source-and-story-reading`, plus `IntentPageProviders`
-  in `intent-candidates-publication.ts` from
-  `SEED-413#speed-intent-source-browsing-and-detours` when available.
+  landed by `SEED-413#speed-intent-source-and-story-reading`. Supply every
+  read through the required typed page entry (plan 759 Slice 1, with the page
+  observation's reads added by plan 762 Slice 1) and render the production
+  Intent body or `ConfiguredDashboard`, as
+  [plan 762's correction](../762-speed-intent-source-browsing-and-detours/PLAN.md#correction-of-the-locations-recovery-test-entry)
+  establishes. `loadRepositoryTexts`'s former optional `readFile` and the
+  provider composition in `intent-candidates-publication.ts` were the
+  test-entry defects that correction removes; do not reuse either.
+- No spec or colocated helper builds a test copy of a production
+  composition, restates a provider stack, calls a private pipeline such as
+  `enrichPreparation` to make props, spies on `fetch`, or calls transport or
+  module-state functions. Build replies and recurring inputs with MakeMe
+  steps. Record each touched file's production import count before and after;
+  keep it to the entry, its typed inputs and stylesheets.
 - Follow [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
   published source, Done records, and Taken progress retain their actual
   provenance while Story Notes stay on the machine-local project subscription

@@ -637,16 +637,24 @@ boundary alongside [Get fast proof of Intent timing history](#speed-intent-timin
 
 **Identity:** SEED-413#speed-intent-source-browsing-and-detours
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#speed-intent-source-browsing-and-detours","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-and-story-reading","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading"},"implementation":"Reshapes makeMe.anIntentLocationsAnswer to build typed IntentLocations, forwards optional readFile on loadRepositoryTexts, retires locationsRequest and pygardon, and lands the narrowed 2-file locations split on main.","rationale":"Source-browsing and detour slices build their configured and empty IntentLocations fixtures through makeMe.anIntentLocationsAnswer and depend on the narrowed SEED-413 story split and retired support already being integrated on main rather than diverging on the unsplit story.","condition":"SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"e0f7d6a6a52e3ecec7c4556171c6e7a95ddd303f","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading","summary":"Delivered Slices 1-2 (done) reshaped makeMe.anIntentLocationsAnswer in Distribution/tests/support/intentLocationTestData.mjs to build typed IntentLocations, forwarded optional readFile on loadRepositoryTexts in dashboard/src/repositoryFileReads.ts, retired unused locationsRequest and pygardon, proved all 7 legacy locations cases across 8 Vitest checks in dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts and intent-read-recovery.spec.ts, and integrated the narrowed 2-file SEED-413 story split on main.\nCondition satisfied: SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.\nAccepted integration: 6fa6ef623823d329f9e466994ff0b6500cda9a15 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"identity":"SEED-413#speed-intent-source-browsing-and-detours","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-and-story-reading","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading"},"implementation":"Reshapes makeMe.anIntentLocationsAnswer to build typed IntentLocations, forwards optional readFile on loadRepositoryTexts, retires locationsRequest and pygardon, and lands the narrowed 2-file locations split on main.","rationale":"Source-browsing and detour slices build their configured and empty IntentLocations fixtures through makeMe.anIntentLocationsAnswer and depend on the narrowed SEED-413 story split and retired support already being integrated on main rather than diverging on the unsplit story.","condition":"SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"e0f7d6a6a52e3ecec7c4556171c6e7a95ddd303f","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading","summary":"Delivered Slices 1-2 (done) reshaped makeMe.anIntentLocationsAnswer in Distribution/tests/support/intentLocationTestData.mjs to build typed IntentLocations, forwarded optional readFile on loadRepositoryTexts in dashboard/src/repositoryFileReads.ts, retired unused locationsRequest and pygardon, proved all 7 legacy locations cases across 8 Vitest checks in dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts and intent-read-recovery.spec.ts, and integrated the narrowed 2-file SEED-413 story split on main.\nCondition satisfied: SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.\nAccepted integration: 6fa6ef623823d329f9e466994ff0b6500cda9a15 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-intent-timing-history-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof"},"implementation":"Slices 1–2 of plan 759 replace the default-valued Intent, CI and review read contexts with one required typed page-reads entry that ConfiguredDashboard supplies, remove defaulted reader parameters, and make the production Intent body (IntentReadRecovery + IntentPerspective) stand alone under the real PageFrame.","rationale":"Plan 762's correction Slices 1–2 add the page observation's reads to that entry and render the locations recovery and settings-problem cases through the standalone Intent body. Starting first would either extend IntentReadSourceOnPage and the defaulted readers the correction removes, or duplicate plan 759's entry inside this story.","condition":"SEED-413#speed-intent-timing-history-proof has landed its Slices 1–2 typed page-reads entry and standalone production Intent body on main.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7a9580d6e186b5cef759c6a23a2eaa292a3e8ab46f704ab94e8555a59d07f4b9","plan":"a4eaa290c631158a57a09ba07780cd4a477e2f5f814336fa1f0968bdd618a893"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d4e14e6de9cc228771d3a31e3427779f735d1b12a8bafbe90d0edf258dea9d50","plan":"b42356ff4f29d2d723843d1a108f197c4326d09cf706c8367f6ddd062a354407"}}
 ```
 
 **Split from** SEED-413#speed-intent-source-and-story-reading, which delivered
 the 2-file Intent locations read-recovery and settings-problem Vitest suite,
-typed `makeMe.anIntentLocationsAnswer`, and the `loadRepositoryTexts`
-`readFile` seam.
+and typed `makeMe.anIntentLocationsAnswer`.
+
+- **Correction first.** Review of the split-from story found that its
+  recovery cases render a test copy of the page's published observation and
+  Intent body (`PageIntentRecovery`), through a defaulted `readFile` reader
+  that production gained only for that copy. The settings-problem cases spy
+  on `fetch` and call transport and limit functions directly. Slices 1–2 of
+  [plan 762](../slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md#correction-of-the-locations-recovery-test-entry)
+  add the page observation's reads to the required typed page entry and
+  render both files through production before any source-browsing move.
 
 - **Goal.** Dashboard maintainers get fast Vitest feedback that a developer
   can browse Gherkin and code sources at the chosen scope, line and revision,
@@ -661,8 +669,9 @@ typed `makeMe.anIntentLocationsAnswer`, and the `loadRepositoryTexts`
   `intent-home-activation`, `intent-project-visit`,
   `intent-project-visit-selection`, `intent-read-reuse`,
   `intent-reading-place`, `intent-recent-stories`, `intent-selection-reads`,
-  and `intent-story-review-return`. Use production `IntentPageProviders` in
-  `intent-candidates-publication.ts` and retire spent
+  and `intent-story-review-return`. Replace the provider composition in
+  `intent-candidates-publication.ts` with the production Intent body and
+  retire spent
   `dashboard/test-support/` modules whose last consumer moves
   (`frontendSourceNavigation.ts`, `intentEntryFolderSummariesFixtures.ts`, and
   `putFrontendFolderSources` on `frontendRepositorySources.ts`). Retain
@@ -688,7 +697,10 @@ typed `makeMe.anIntentLocationsAnswer`, and the `loadRepositoryTexts`
   wrapping. Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories)
   timing, case-count, spent-support, and coverage checks, recording each
   retired case's proof owner, any E2E popup/focus runtime, and the two-worker
-  elapsed comparison for this 16-file cohort.
+  elapsed comparison for this 16-file cohort. Production and every case
+  supply reads through the required typed page entry; no test file
+  re-creates the page observation, the Intent body or its providers, and no
+  production read keeps a defaulted reader parameter.
 
 <a id="speed-story-changes-notes-and-progress-reading"></a>
 
@@ -696,10 +708,10 @@ typed `makeMe.anIntentLocationsAnswer`, and the `loadRepositoryTexts`
 
 **Identity:** SEED-413#speed-story-changes-notes-and-progress-reading
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#speed-story-changes-notes-and-progress-reading","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-and-story-reading","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading"},"implementation":"Reshapes makeMe.anIntentLocationsAnswer to build typed IntentLocations, forwards optional readFile on loadRepositoryTexts, and lands the narrowed SEED-413 story split on main.","rationale":"Story-changes, Done-Intent, Done-reference, notes, and progress slices share the typed IntentLocations builder and narrowed SEED-413 story split landed by SEED-413#speed-intent-source-and-story-reading.","condition":"SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"e0f7d6a6a52e3ecec7c4556171c6e7a95ddd303f","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading","summary":"Delivered Slices 1-2 (done) reshaped makeMe.anIntentLocationsAnswer in Distribution/tests/support/intentLocationTestData.mjs to build typed IntentLocations, forwarded optional readFile on loadRepositoryTexts in dashboard/src/repositoryFileReads.ts, proved the 2-file locations cohort on Vitest, and integrated the narrowed SEED-413 story split on main.\nCondition satisfied: SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.\nAccepted integration: 6fa6ef623823d329f9e466994ff0b6500cda9a15 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"identity":"SEED-413#speed-story-changes-notes-and-progress-reading","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-and-story-reading","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading"},"implementation":"Reshapes makeMe.anIntentLocationsAnswer to build typed IntentLocations, forwards optional readFile on loadRepositoryTexts, and lands the narrowed SEED-413 story split on main.","rationale":"Story-changes, Done-Intent, Done-reference, notes, and progress slices share the typed IntentLocations builder and narrowed SEED-413 story split landed by SEED-413#speed-intent-source-and-story-reading.","condition":"SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"e0f7d6a6a52e3ecec7c4556171c6e7a95ddd303f","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading","summary":"Delivered Slices 1-2 (done) reshaped makeMe.anIntentLocationsAnswer in Distribution/tests/support/intentLocationTestData.mjs to build typed IntentLocations, forwarded optional readFile on loadRepositoryTexts in dashboard/src/repositoryFileReads.ts, proved the 2-file locations cohort on Vitest, and integrated the narrowed SEED-413 story split on main.\nCondition satisfied: SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.\nAccepted integration: 6fa6ef623823d329f9e466994ff0b6500cda9a15 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-intent-source-browsing-and-detours","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours"},"implementation":"Slices 1–2 of plan 762 add the page observation's reads to the required typed page entry, remove the defaulted readFile reader from loadRepositoryTexts and readCachedFile, and render the locations recovery and settings-problem cases through production with MakeMe replies.","rationale":"Story changes, Done Intent and Done-reference cases read published detail and Intent sources through the page observation. Starting before that correction would extend the test-only reader and the test copy of the page observation, or duplicate the correction inside this story.","condition":"SEED-413#speed-intent-source-browsing-and-detours has landed its Slices 1–2 test-entry correction on main.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/763-speed-story-changes-notes-and-progress-reading/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment."],"basis":{"document":"0a6eaa596173fe40ab6d5eaa62368d48a53d86c7803e60d3bc3614721751e678","plan":"cb7105c50fb3f73437083a2579a1ed07a678475bcba304498c16d372afe659d0"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/763-speed-story-changes-notes-and-progress-reading/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment onto the corrected typed page entry."],"basis":{"document":"cec7aec641bc24baf9cf1905b1a1fa2a57d9f0f70631392dd69e17b26e221f25","plan":"33839dd0ea8524f56a18b1ae1bbcdd79460eeade24a92ce2c7f72ebef45bd0b8"}}
 ```
 
 **Split from** SEED-413#speed-intent-source-and-story-reading at its delivered
@@ -724,7 +736,11 @@ Slice 2 boundary alongside
   `stories/story-notes-control` to its project's subscribed state and removing
   its legacy `act` settle path, and removing any remaining
   `dashboard/test-support/` modules whose last consumer moved across the split
-  reading cohort. Locations read recovery belongs to
+  reading cohort. Cases render the production Intent body or page through
+  the typed page entry that
+  [the source-browsing story](#speed-intent-source-browsing-and-detours)
+  corrects; they do not mount below it with hand-supplied props or a
+  test-only reader. Locations read recovery belongs to
   `SEED-413#speed-intent-source-and-story-reading`; source browsing, pinned
   links, and reading-place detours belong to
   [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours).
