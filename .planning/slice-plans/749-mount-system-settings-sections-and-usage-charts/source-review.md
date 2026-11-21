@@ -52,17 +52,17 @@ and Escape. The four built-app frame specs, full-group comparison and
 | S26a | Mounted OpenAI cases operate their section through a small page object beside the specs. (Scope) | slice 5 | observed: system-settings-openai-page.ts owns the mounted section, rendered status and draft, controls, focus and touch layout readings |
 | S26b | Mounted terminal theme cases operate their section through a small page object beside the specs. (Scope) | slice 6 | observed: system-settings-terminal-theme-page.ts owns section, controls, sample palette, contrast, status, focus, viewport and native touch |
 | S26c | Mounted Projects cases operate their section through a small page object beside the specs. (Scope) | slice 6 | observed: system-settings-projects-page.ts owns mount context, Add/Remove controls, draft and field association, viewport and real project arrow guard |
-| S27a | Keep the Playwright settings page objects for the remaining built-app cases. (Scope) | slice 7 | |
-| S27b | Keep the Playwright settings page objects for E2E. (Scope) | slice 7 | |
-| S28 | Preserve every distinct assertion of the existing cases. (Scope) | slice 7 | |
-| S29 | Omit an existing case only where an E2E journey proves the same behavior. (Scope) | slice 7 | |
-| S30 | Name that covering E2E journey for every case omitted under S29. (Scope) | slice 7 | |
-| S31 | Pair every retired built-app case that is migrated with its mounted case by name. (Scope) | slice 7 | |
-| S32 | Retire each `dashboard/test-support/` export or module whose last consumer moves. (Scope) | slice 7 | |
-| S33 | Keep the support E2E uses. (Scope) | slice 7 | |
-| S34 | Keep the support the remaining specs use. (Scope) | slice 7 | |
-| S35 | The resulting Configuration folder contains only cases that need the page frame. (Goal) | slice 7 | |
-| S36 | Compare the focused selection’s timing before and after the move. (Scope) | slice 7 | |
+| S27a | Keep the Playwright settings page objects for the remaining built-app cases. (Scope) | slice 7 | observed: All four retained built-app Configuration specs use their actual frame and Playwright Settings readers; retained frontend proof passed |
+| S27b | Keep the Playwright settings page objects for E2E. (Scope) | slice 7 | observed: Four unchanged Usage E2E specs still use the real Settings entry and retained chart, summary and spacing readers. Five journeys passed; terminal theme and OpenAI readers stay with their E2E callers |
+| S28 | Preserve every distinct assertion of the existing cases. (Scope) | slice 7 | observed: case-mapping.md lists 29 setup and assertion replacements; appearance and Settings Look keep the actual heading/header observations. Strict timing and retained frontend proof pass |
+| S29 | Omit an existing case only where an E2E journey proves the same behavior. (Scope) | slice 7 | observed: All 29 original path, viewport context and title identities pass on mounted Chromium. No case uses the E2E-only omission exception |
+| S30 | Name that covering E2E journey for every case omitted under S29. (Scope) | slice 7 | observed: Exact baseline and mounted identity comparison finds zero omitted cases, so no E2E-only omission owner is needed |
+| S31 | Pair every retired built-app case that is migrated with its mounted case by name. (Scope) | slice 7 | observed: case-mapping.md pairs all 29 titles, checked against three baseline and three mounted strict timing records |
+| S32 | Retire each `dashboard/test-support/` export or module whose last consumer moves. (Scope) | slice 7 | observed: Slice 7 consumer trace identifies the unused legend module and retired per-case readers and substitute operations. Live imports pass retained checks |
+| S33 | Keep the support E2E uses. (Scope) | slice 7 | observed: Retained Usage E2E proves summaries, measured equal spacing, filters, detail and real page routing; terminal and OpenAI E2E helpers keep live imports |
+| S34 | Keep the support the remaining specs use. (Scope) | slice 7 | observed: Retained Configuration, Navigation, Launch/Stories voice and Terminal voice checks exercise the remaining project facts, theme, and OpenAI reply owners |
+| S35 | The resulting Configuration folder contains only cases that need the page frame. (Goal) | slice 7 | observed: Exactly dashboard-system-appearance, project-hide-selection, system-settings-look and system-settings-navigation use built-app Configuration. Their frame checks passed and the replacement specs run mounted |
+| S36 | Compare the focused selection’s timing before and after the move. (Scope) | slice 7 | observed: The parent seed's System settings sections and Usage charts after migration subsection records three interleaved pairs, the 27.731 s versus 14.366 s medians, loads, 29 per-case results and support counts |
 | S37 | Retain chart proof in light mode. (Scope) | slice 3 | observed: system-settings-usage-spacing.spec.ts, both narrow layouts run keyboard, touch and fit assertions with CDP light appearance |
 | S38 | Retain chart proof in dark mode. (Scope) | slice 3 | observed: system-settings-usage-spacing.spec.ts, both narrow layouts run keyboard, touch and fit assertions with CDP dark appearance |
 | S39 | Retain chart proof in narrow windows. (Scope) | slice 3 | observed: system-settings-usage-spacing.spec.ts, 390×844 and 420×900 layouts fit in time and equal spacing modes |

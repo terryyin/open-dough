@@ -203,7 +203,7 @@ save with an emptied draft fails the touch case and is reverted.
 ### 7. The moved cases leave their support and show their cost
 
 Type: Behavior
-Status: planned
+Status: done
 
 Remove each `dashboard/test-support/` export or module left with no
 consumer, keeping what the four remaining Configuration specs, other

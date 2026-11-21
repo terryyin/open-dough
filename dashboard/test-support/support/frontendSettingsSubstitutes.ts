@@ -3,8 +3,6 @@
 // theme and feedback maintenance, kept as state that the page's accepted
 // changes update the way the local dashboard server answers them
 // (../../server/projectConfigurationBoundary.ts, ../../server/localJsonEndpoints.ts).
-// A test refuses or holds one answer to observe the page's recovery; every
-// change the page posts stays inspectable in `changes`.
 
 import type { Page, Route } from "@playwright/test";
 import type { ConfiguredProject } from "../../server/projectConfiguration.ts";
@@ -32,49 +30,21 @@ import {
 } from "../../src/feedbackMaintenanceSetting.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
-import {
-  answerHeld,
-  fulfillJson,
-  holdAnswer,
-  type AnswerHold,
-  type HeldAnswer,
-} from "./frontendSubstituteAnswers.ts";
+import { fulfillJson } from "./frontendSubstituteAnswers.ts";
 
 export { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
 
 // What this machine's settings hold before the page changes them.
-export type FrontendSettingsMachine = {
+type FrontendSettingsMachine = {
   readonly projects: readonly ConfiguredProject[];
   readonly clientConfigurations?: Readonly<
     Record<string, ClientConfigurationInspection>
   >;
-  // The project an accepted Add answers with, at the local path it was given.
-  readonly adding?: PublishedSource;
   // Whether an OpenAI API key is saved; none unless stated.
   readonly openAIConfigured?: boolean;
 };
 
-export type SettingsChange = {
-  readonly endpoint: string;
-  readonly body: unknown;
-};
-
 type Answer = { readonly status: number; readonly body: unknown };
-
-export type FrontendSettings = {
-  // Every change the page posted to a settings endpoint, refused or not.
-  readonly changes: readonly SettingsChange[];
-  // The next request to `endpoint` is refused with `error` and changes nothing.
-  readonly refuseNext: (
-    endpoint: string,
-    status: number,
-    error: string,
-    field?: string,
-  ) => void;
-  // The next request to `endpoint` answers the settings as they stood when it
-  // was asked, delivered only once released.
-  readonly holdNext: (endpoint: string) => HeldAnswer;
-};
 
 const settingsEndpoints = [
   projectSettingsEndpoint,
@@ -106,14 +76,11 @@ export async function installFrontendSettingsSubstitutes(
   page: Page,
   services: FrontendServiceState,
   machine: FrontendSettingsMachine,
-): Promise<FrontendSettings> {
+): Promise<void> {
   let configured = [...machine.projects];
   let openAIConfigured = machine.openAIConfigured ?? false;
   let terminalTheme: TerminalThemeId = "default";
   const feedbackMaintenance: FeedbackMaintenanceSetting = { enabled: false };
-  const changes: SettingsChange[] = [];
-  const refusals = new Map<string, Answer>();
-  const holds = new Map<string, AnswerHold>();
   const publish = () => {
     Object.assign(services, {
       projects: configured.map(published),
@@ -137,19 +104,8 @@ export async function installFrontendSettingsSubstitutes(
           },
         })),
       };
-    if (endpoint === projectAddEndpoint) {
-      if (machine.adding === undefined)
-        return { status: 501, body: { error: "No project to add." } };
-      const project = {
-        ...machine.adding,
-        localPath: String(body["localPath"]),
-      };
-      const answer = changed([...configured, project]);
-      return {
-        status: 200,
-        body: { ...(answer.body as object), project: published(project) },
-      };
-    }
+    if (endpoint === projectAddEndpoint)
+      return { status: 501, body: { error: "No project to add." } };
     if (endpoint === projectRemoveEndpoint)
       return changed(configured.filter((project) => project.id !== body["id"]));
     if (endpoint === projectVisibilityEndpoint)
@@ -183,31 +139,12 @@ export async function installFrontendSettingsSubstitutes(
       request.method() === "POST"
         ? (request.postDataJSON() as Record<string, unknown>)
         : {};
-    if (request.method() === "POST") changes.push({ endpoint, body });
-    const refusal = refusals.get(endpoint);
-    refusals.delete(endpoint);
-    const reply = refusal ?? accept(endpoint, body);
-    const hold = holds.get(endpoint);
-    holds.delete(endpoint);
-    await answerHeld(hold, () => fulfillJson(route, reply.body, reply.status));
+    const reply = accept(endpoint, body);
+    await fulfillJson(route, reply.body, reply.status);
   };
   for (const endpoint of settingsEndpoints)
     await page.route(
       (url) => url.pathname === endpoint,
       (route) => answer(route, endpoint),
     );
-  return {
-    changes,
-    refuseNext: (endpoint, status, error, field) => {
-      refusals.set(endpoint, {
-        status,
-        body: field === undefined ? { error } : { error, field },
-      });
-    },
-    holdNext: (endpoint) => {
-      const { held, hold } = holdAnswer(page);
-      holds.set(endpoint, hold);
-      return held;
-    },
-  };
 }

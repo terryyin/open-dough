@@ -1212,6 +1212,78 @@ proving `pageUsageSource`'s refusal wording and abort forwarding.
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:61` (`"a refused Refresh shows Usage could not be refreshed. or the endpoint's own message"`) | `440, 465, 477` | `465` |
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:99` (`"leaving a pending read aborts the page source's request"`) | `104, 111, 106` | `106` |
 
+##### System settings sections and Usage charts after migration
+
+The nine Configuration specs in the table below moved all 29 original cases
+to mounted Chromium. Each built-app title, including its viewport context,
+matches one mounted title at the same spec path. No whole case was omitted.
+The retained built-app appearance and Settings Look cases still observe the
+real outer Settings heading and sticky header.
+
+The local comparison ran the same nine explicit spec paths with two workers
+on the AC-powered arm64 Mac under `caffeinate -s -i` and Node 24.21.0.
+Three runs in a detached checkout of `0759aff061` with its own locked
+`npm ci` install interleaved with three runs from `75ba18360` and the
+support cleanup in the working tree. Each run passed 29 cases with no retry.
+The elapsed time includes runner startup. The parenthesized values are
+one-minute load before and after each run.
+
+| Pair | Built app | Mounted |
+| --- | ---: | ---: |
+| 1 | 34.864 s (15.76 → 17.23) | 14.090 s (17.23 → 17.02) |
+| 2 | 27.731 s (17.02 → 18.30) | 17.645 s (18.30 → 15.75) |
+| 3 | 22.312 s (15.75 → 13.07) | 14.366 s (13.07 → 11.94) |
+
+Median focused elapsed time fell from **27.731 s to 14.366 s**
+(**48.2% less**). The earlier clean baseline took 25.624, 26.558
+and 36.570 s at one-minute starting loads of 5.53, 7.47 and 12.23. The
+interleaved comparison reflects this machine and selection at the observed
+load.
+
+Tracked Dashboard Test Support fell from 83,084 lines in 797 files at the
+published baseline to 82,626 lines in 796 files. The earlier reading move
+removed 40 lines from `settingsTouchPage.ts`. The final cleanup removed 418
+more across `frontendSettingsSubstitutes.ts` (63), `systemSettingsUsagePage.ts`
+(17), `usageChartPage.ts` (200), `usageLegendPage.ts` (74),
+`usageSpacingPage.ts` (32), and `usageToolsPage.ts` (32).
+
+The times below are milliseconds from each runner's completed case record.
+The mounted attempts are shown in run order, rounded to the nearest
+millisecond. Each median is computed from the original three durations
+before rounding.
+
+| Configuration spec | Original and mounted case title | Built-app median | Mounted attempts | Mounted median |
+| --- | --- | ---: | ---: | ---: |
+| `project-add-dialog.spec.ts` | Cancel and Escape save nothing, return focus and keep project arrows inside the modal | 1110 | 425, 932, 720 | 720 |
+| `project-add-dialog.spec.ts` | origin mismatch stays linked to the path, retains both inputs and saves nothing | 1374 | 284, 689, 737 | 689 |
+| `system-settings-openai.spec.ts` | a held status response cannot overwrite successful remove | 1338 | 610, 981, 709 | 709 |
+| `system-settings-openai.spec.ts` | a held status response cannot overwrite successful save | 889 | 212, 467, 340 | 340 |
+| `system-settings-openai.spec.ts` | a held status response cannot overwrite successful save after read error | 811 | 306, 683, 601 | 601 |
+| `system-settings-openai.spec.ts` | phone OpenAI settings recovery › touch keeps the password draft and the configured key through reduced height, rotation, a refused save and explicit recovery | 2755 | 2347, 3180, 2829 | 2829 |
+| `system-settings-project-management-touch.spec.ts` | phone project settings editing › touch edits at reduced height and retries a refused save with the exact draft | 2486 | 2116, 2889, 2088 | 2116 |
+| `system-settings-terminal-theme.spec.ts` | phone terminal theme recovery › touch reads the theme, keeps the saved theme shown after a refused save, and reaches Retry after rotation | 3151 | 1496, 1768, 1855 | 1768 |
+| `system-settings-terminal-theme.spec.ts` | terminal Light and Solarized samples keep their palette while settings chrome follows the system appearance | 741 | 102, 162, 95 | 102 |
+| `system-settings-usage-average.spec.ts` | 200% zoom › day control, task actions and true overflow values remain readable without hovering | 1283 | 483, 688, 373 | 483 |
+| `system-settings-usage-average.spec.ts` | an in-scale median breaks across above-scale observations and all-large medians stay explicit | 663 | 98, 69, 77 | 77 |
+| `system-settings-usage-average.spec.ts` | narrow touch › day control, task actions and true overflow values remain readable without hovering | 986 | 341, 585, 529 | 529 |
+| `system-settings-usage-average.spec.ts` | the chart shows a one-million median and the sixty-five-million task separately | 752 | 53, 63, 100 | 63 |
+| `system-settings-usage-average.spec.ts` | the rolling median is distinct above dots and never enlarges ordinary geometry | 889 | 125, 143, 140 | 140 |
+| `system-settings-usage-compare.spec.ts` | an empty tool says so, a failed read names its tool, and neither tool asks for one | 1589 | 448, 879, 528 | 528 |
+| `system-settings-usage-compare.spec.ts` | both tools share one time axis and scale with their own medians, units and notes, keeping each task's tool through inspection | 1393 | 881, 1056, 514 | 881 |
+| `system-settings-usage-compare.spec.ts` | each tool's marks differ by shape, partial ones keep the caution stroke, and either tool's selected task is the one larger diamond | 1345 | 364, 730, 596 | 596 |
+| `system-settings-usage-compare.spec.ts` | narrowest reading window › tool choices work by keyboard and a compared point opens by touch, in light and dark, without sideways scroll | 2024 | 969, 996, 1125 | 996 |
+| `system-settings-usage-compare.spec.ts` | phone › tool choices work by keyboard and a compared point opens by touch, in light and dark, without sideways scroll | 1742 | 880, 1550, 1360 | 1360 |
+| `system-settings-usage-legend.spec.ts` | narrowest reading window › the compared key fits without sideways scroll in light and dark | 1373 | 90, 220, 193 | 193 |
+| `system-settings-usage-legend.spec.ts` | phone › the compared key fits without sideways scroll in light and dark | 1228 | 113, 262, 263 | 262 |
+| `system-settings-usage-legend.spec.ts` | the key and summary swatches show each shown tool's marks, and a hidden tool leaves the key | 1663 | 323, 602, 371 | 371 |
+| `system-settings-usage-overflow.spec.ts` | coincident large tasks remain separate by pointer touch and keyboard with partial details and focus return | 2374 | 1446, 2440, 2452 | 2440 |
+| `system-settings-usage-overflow.spec.ts` | exactly fifty million remains ordinary and measured zero keeps an honest scale | 846 | 129, 90, 70 | 90 |
+| `system-settings-usage-overflow.spec.ts` | large tasks keep actual values and dates without flattening ordinary points | 1106 | 186, 338, 231 | 231 |
+| `system-settings-usage-spacing.spec.ts` | an above-scale median stands at its own large task's slot under equal spacing | 984 | 203, 605, 392 | 392 |
+| `system-settings-usage-spacing.spec.ts` | equal spacing gives each shown task one slot in completion order across tools, keeps medians on their tasks and actual times, and restores time positions | 2333 | 1377, 2366, 1327 | 1377 |
+| `system-settings-usage-spacing.spec.ts` | narrowest reading window › equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll | 1935 | 1011, 1366, 1266 | 1266 |
+| `system-settings-usage-spacing.spec.ts` | phone › equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll | 1946 | 996, 1778, 1385 | 1385 |
+
 #### Frontend campaign baseline
 
 At `267a27502` there are 304 frontend spec files, including nine

@@ -41,11 +41,6 @@ export async function visitUsage(page: Page, baseURL = "") {
 }
 
 type FactWords = string | { readonly at: string; readonly outcome: string };
-type TaskDetail = {
-  readonly title: string;
-  readonly about: string;
-  readonly facts: readonly (readonly [term: string, words: FactWords])[];
-};
 
 // A mark's readout once selected: "Selected task" follows its tool's name.
 const selectedReadout = (readout: string) =>
@@ -80,7 +75,7 @@ function usageView(page: Page) {
     }
   };
   return {
-    ...usageToolsView(page, view, trend, chart),
+    ...usageToolsView(view, trend, chart),
     async chooseDays(days: string) {
       await view.getByRole("textbox", { name: "Last N days" }).fill(days);
     },
@@ -107,9 +102,6 @@ function usageView(page: Page) {
       await filter(label).selectOption({ label: choice });
       await expect(filter(label).locator("option:checked")).toHaveText(choice);
     },
-    async showsPointCount(count: number) {
-      await expect(chart.marks).toHaveCount(count);
-    },
     // One mark per plotted task, each read as "<end date> · <index>".
     async showsPoints(readouts: readonly string[]) {
       await expect(chart.marks).toHaveCount(readouts.length);
@@ -128,10 +120,9 @@ function usageView(page: Page) {
     },
     // Selects the point read as `readout`, pressing it by pointer or, once
     // focused, with Enter; it shows as the one selected point.
-    async selectPoint(readout: string, by: "pointer" | "keyboard" | "touch") {
+    async selectPoint(readout: string, by: "pointer" | "keyboard") {
       const mark = chart.mark(readout);
       if (by === "pointer") await mark.click();
-      else if (by === "touch") await mark.tap();
       else {
         await mark.focus();
         await page.keyboard.press("Enter");
@@ -140,14 +131,6 @@ function usageView(page: Page) {
         chart.box.getByRole("button", { pressed: true }),
       ).toHaveAccessibleName(selectedReadout(readout));
       await expect(detail).toBeVisible();
-    },
-    async showsDetail({ title, about, facts }: TaskDetail) {
-      await expect(detail.getByRole("heading")).toHaveText(title);
-      await expect(detail.locator(".settings-note")).toHaveText(about);
-      await expect(detail.locator("dt")).toHaveText(
-        facts.map(([term]) => term),
-      );
-      for (const [term, words] of facts) await showsFact(term, words);
     },
     showsFact,
     // Closes the detail; focus returns to the point read as `readout`.
