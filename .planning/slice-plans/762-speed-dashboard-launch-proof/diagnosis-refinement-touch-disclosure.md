@@ -132,3 +132,9 @@ that stable geometry and trusted hit verification also keep the options
 disclosure usable in the affected amd64 shard. If that observation fails
 again, diagnose the reported hit or disclosure failure before another
 attempt. The independent refactor review made no edits.
+
+Both dashboard frontend shards passed on hosted amd64, including the shard
+that had failed on the original revision. The overall run was cancelled
+when the next published slice superseded it. The repository workflow
+cancels older runs on the same ref, and the superseding revision contains
+the repair. [Hosted run 44925570234](https://github.com/terryyin/open-dough/actions/runs/44925570234).

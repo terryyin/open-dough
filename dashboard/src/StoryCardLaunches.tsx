@@ -1,10 +1,5 @@
-import { sessionKey } from "./sessionReference.ts";
-// Story-card launches: Backlog offers each workflow's Start and notes/answers;
-// open sessions gate every Start. StartupStatus follows the listed story, with
-// reconciliation in Startup recovery. Cards list sessions not marked done;
-// Taken resumes its kept workspace without another Take. Launch focuses its
-// session entry; answers whose Start vanished stay. Inspection owns Review changes.
-// Sessions are local evidence; origin alone places the story.
+// Backlog offers each workflow's Start. Taken resumes its kept workspace.
+// Open sessions and startup evidence gate both, and a launch focuses its entry.
 
 import { useId, useState } from "react";
 import type { LaunchChoices, LaunchWorkflow } from "./agentLaunch.ts";
@@ -27,6 +22,8 @@ import { StoryCardSessions } from "./StoryCardSessions.tsx";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { keyboardRestsOn } from "./launchHandoff.ts";
 import { storyCard } from "./storyCardFocus.ts";
+import { sessionKey } from "./sessionReference.ts";
+import type { LaunchOffers } from "./launchOffers.ts";
 
 export function StoryCardLaunches({
   sourceId,
@@ -39,7 +36,10 @@ export function StoryCardLaunches({
   // The project whose work item the card shows.
   sourceId: string;
   entry: WorkEntry;
-  launches: MachineSessions;
+  launches: LaunchOffers &
+    Pick<MachineSessions, "launched" | "creations" | "rereadOffers"> &
+    Pick<MachineSessions, "keptStartOf" | "runningStartOf" | "storyStartupOf"> &
+    Pick<MachineSessions, "attemptEvidence" | "attemptOf" | "start">;
   // Backlog offers every workflow; Taken offers only a kept execution.
   offersStart: boolean;
   // Why dependencies make a new execution unavailable (`./startEligibility.ts`).

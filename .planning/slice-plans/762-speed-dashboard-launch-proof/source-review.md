@@ -28,16 +28,16 @@ follow-ups, and SEED-341 coordination supply context.
 | --- | --- | --- | --- |
 | P01 | The ad-hoc **Start session** offer is available at its established placement. [S, E1] | slice 1 | observed: ad-hoc-start-session-answer.spec.ts: project-specific enabled offer, direction/help geometry and hidden roster |
 | P02 | **Start session** opens its launch dialog. [S, E1] | slice 1 | observed: ad-hoc-start-session.spec.ts: clicking the enabled offer opens the named modal |
-| P03 | An applicable story card offers **Start execution**. [S, E1] | slice 3 | |
-| P04 | **Start execution** opens its launch dialog. [S, E1] | slice 3 | |
-| P05 | An applicable story card offers **Start refinement**. [S, E1] | slice 3 | |
-| P06 | **Start refinement** opens its launch dialog. [S, E1] | slice 3 | |
+| P03 | An applicable story card offers **Start execution**. [S, E1] | slice 3 | observed: story-card-launch-offers.spec.ts observes an enabled Start execution on Ready and unassessed Backlog work |
+| P04 | **Start execution** opens its launch dialog. [S, E1] | slice 3 | observed: story-card-launch-dialogs.spec.ts opens the named execution modal from Start execution |
+| P05 | An applicable story card offers **Start refinement**. [S, E1] | slice 3 | observed: story-card-launch-offers.spec.ts observes an enabled Start refinement following Start execution |
+| P06 | **Start refinement** opens its launch dialog. [S, E1] | slice 3 | observed: story-card-launch-dialogs.spec.ts opens the named refinement modal from Start refinement |
 | P07 | The ad-hoc dialog names the project. [E1] | slice 1 | observed: ad-hoc-start-session.spec.ts: the opened modal has accessible name Start a session in Open Dough in Claude Code |
-| P08 | The execution and refinement dialogs name the story. [E1] | slice 3 | |
-| P09 | Each of the three opened dialogs names the host. [E1] | slice 3 | |
-| P10 | Each of the three opened dialogs initially focuses the instruction field. [E1] | slice 3 | |
-| P11 | Escape and Cancel each send nothing when closing any of the three opened dialogs. [E1] | slice 3 | |
-| P12 | Escape and Cancel each return keyboard focus to the initiating offer in the three opening journeys. [E1] | slice 3 | |
+| P08 | The execution and refinement dialogs name the story. [E1] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts observe the selected title and exact command identity |
+| P09 | Each of the three opened dialogs names the host. [E1] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts and ad-hoc-start-session.spec.ts select dialogs by their accessible name including Claude Code |
+| P10 | Each of the three opened dialogs initially focuses the instruction field. [E1] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts and the ad-hoc dialog case observe initial instruction focus |
+| P11 | Escape and Cancel each send nothing when closing any of the three opened dialogs. [E1] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts and the ad-hoc dialog case close unsent drafts by Escape and Cancel and record zero Start calls |
+| P12 | Escape and Cancel each return keyboard focus to the initiating offer in the three opening journeys. [E1] | slice 3 | observed: both workflow cases in story-card-launch-dialogs.spec.ts and the ad-hoc dialog case observe focus on the actual initiating offer after Escape and Cancel |
 | P13 | Start carries the intended instruction draft. [G] | slice 7 | |
 | P14 | The existing host catalog choices are available through the launch UI. [S] | slice 5 | |
 | P15 | The existing model choices are available under the applicable host and provider conditions. [S, E2] | slice 5 | |

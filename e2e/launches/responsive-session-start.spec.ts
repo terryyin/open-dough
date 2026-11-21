@@ -14,7 +14,7 @@
 // the same cutoff and handoff, with progress beside its own action and no
 // card. A lost acknowledgment, and Cancel or Escape before Start, are
 // ../../dashboard/frontend-tests/launches/agent-launch-story-card-uncertain.spec.ts
-// and ../../dashboard/frontend-tests/launches/agent-launch-story-card.spec.ts.
+// and ../../dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts.
 // Once settled, the story's actions
 // return where the published read places it
 // (./responsive-session-reconciliation.spec.ts tells how). Only the delivery

@@ -132,7 +132,7 @@ reopens empty.
 ### 3. Story-card Starts offer the right dialogs and noted appearance
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `agent-launch-story-card`, `agent-launch-story-card-dialogs`, and
 `agent-launch-story-card-noted-start` (8). Mount `StartLaunch` and

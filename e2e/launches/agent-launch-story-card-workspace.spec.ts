@@ -3,7 +3,7 @@
 // folder as the server projects it, never the home directory, on the
 // committed origin from ../../dashboard/test-support/launchJourney.ts. What the
 // launch dialogs and pending cards say of a start is
-// ../../dashboard/frontend-tests/launches/agent-launch-story-card-dialogs.spec.ts
+// ../../dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts
 // and ../../dashboard/frontend-tests/launches/agent-launch-story-card-answers.spec.ts.
 
 import path from "node:path";

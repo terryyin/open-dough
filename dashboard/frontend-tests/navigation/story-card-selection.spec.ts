@@ -21,7 +21,12 @@ import {
   expectSelected,
   storyDetail,
 } from "../../test-support/storyCardSelection.ts";
-import { hideDetail, storyCard } from "../../test-support/storyCardControls.ts";
+import {
+  expectActionGlyph,
+  hideDetail,
+  inspectionToggle,
+  storyCard,
+} from "../../test-support/storyCardControls.ts";
 
 test("empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async ({
   page,
@@ -39,6 +44,8 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
   const active = storyCard(backlog, queuedTitle);
   const done = storyCard(recent, executed.title);
   const activeEmptyArea = emptyArea(active);
+  const inspect = inspectionToggle(active);
+  const chevron = inspect.locator("svg.lucide-chevron-right");
 
   await test.step("empty-area click selects and clears an active card without opening detail", async () => {
     await activeEmptyArea.click();
@@ -49,20 +56,49 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
     await expectInspected(active, false);
   });
 
-  await test.step("Inspect story opens and closes only detail; selection toggles without closing it", async () => {
-    await active.getByRole("button", { name: "Inspect story" }).click();
+  await test.step("Given Inspect story points right on the closed detail", async () => {
+    await expectActionGlyph(inspect, "Inspect story", "chevron-right");
+    await expect(chevron).toHaveCSS("transform", "none");
+  });
+
+  await test.step("When Inspect story opens detail without selecting the card", async () => {
+    await inspect.click();
     await expectInspected(active, true);
     await expectSelected(active, false);
+  });
+
+  await test.step("Then Hide detail points down on the open detail", async () => {
+    await expectActionGlyph(inspect, "Hide detail", "chevron-right");
+    await expect(chevron).toHaveCSS(
+      "transform",
+      /^matrix\((?:-?0|[\d.]+e-\d+), 1, -1, /,
+    );
+  });
+
+  await test.step("When clicking the open detail leaves the card unselected", async () => {
     await storyDetail(active).click();
     await expectSelected(active, false);
+  });
+
+  await test.step("When selecting the card leaves its detail open", async () => {
     await activeEmptyArea.click();
     await expectSelected(active, true);
     await expectInspected(active, true);
+  });
+
+  await test.step("When clearing selection leaves the detail open", async () => {
     await activeEmptyArea.click();
     await expectSelected(active, false);
     await expectInspected(active, true);
+  });
+
+  await test.step("When Hide detail closes the detail and turns Inspect story right", async () => {
     await hideDetail(active);
+    await expect(chevron).toHaveCSS("transform", "none");
     await expectInspected(active, false);
+  });
+
+  await test.step("Then the card remains unselected", async () => {
     await expectSelected(active, false);
   });
 

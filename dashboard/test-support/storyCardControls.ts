@@ -164,22 +164,3 @@ export async function expectActionGlyph(
   expect(placed, `${name} ${at} ${glyph}`).toBe(true);
   if (await action.isEnabled()) await expectReadableContrast(icon, 3);
 }
-
-// Inspect story's chevron: decorative, pointing right while the detail is
-// closed and turned down while it is open, as `aria-expanded` says.
-export async function expectChevronTurns(card: Locator) {
-  const toggle = inspectionToggle(card);
-  const turn = () =>
-    toggle.locator("svg").evaluate((svg) => getComputedStyle(svg).transform);
-  await expectActionGlyph(toggle, "Inspect story", "chevron-right");
-  await expect(toggle).toHaveAttribute("aria-expanded", "false");
-  expect(await turn()).toBe("none");
-  await toggle.click();
-  await expect(toggle).toHaveAttribute("aria-expanded", "true");
-  await expectActionGlyph(toggle, "Hide detail", "chevron-right");
-  // rotate(90deg): cosine 0, sine 1.
-  expect(await turn()).toMatch(/^matrix\((?:-?0|[\d.]+e-\d+), 1, -1, /);
-  await toggle.click();
-  await expect(toggle).toHaveAttribute("aria-expanded", "false");
-  expect(await turn()).toBe("none");
-}
