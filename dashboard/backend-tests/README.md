@@ -89,6 +89,12 @@ records straight to its typed handler with `makeMe.aSessionReviewRead`, as
 [`kept-session-commits-review.spec.ts`](review/kept-session-commits-review.spec.ts)
 shows.
 
+Delivery observation cases compose Done records over real Git and pass them
+to [`observedSessionDeliveries`](../server/observedSessionDeliveries.ts). The
+[adapter cases](review/ad-hoc-manual-landing-observation-lifecycle.spec.ts) use
+an explicit `ObservedLandingStore` and the production pin and retention
+operations to observe what survives a write or removal.
+
 Older cases still prove the boundary the server mounts on Playwright, as
 below. They are not a pattern for new cases: each moves to a unit case or, if
 essential, to an end-to-end journey when its family is renovated.

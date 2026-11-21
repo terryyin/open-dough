@@ -4,8 +4,8 @@
 // (../../test-support/support/frontendIntentComparison.ts); acquiring and counting
 // them is ../../backend-tests/intent/ci-comparison-*.spec.ts's and
 // ../../../e2e/intent/intent-ci-comparison*.spec.ts's. Endpoint/unit rule
-// variants are intent-ci-comparison-mounted-gaps.spec.ts's and
-// intent-summary-story-comparison-mounted-gaps.spec.ts's.
+// variants are intent-ci-comparison-gaps.spec.ts's and
+// intent-summary-story-comparison-gaps.spec.ts's.
 import { fileProofTable } from "../../test-support/intentFileProofPage.ts";
 import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
 import { expect, test } from "../../test-support/support/frontendApp.ts";

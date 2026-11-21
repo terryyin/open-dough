@@ -9,11 +9,11 @@ import {
   sourceIdentityFacts,
   expectNoRunOrAttemptIds,
 } from "../../test-support/support/expectCiComparisonSourceCue.ts";
-import "./mountedComparisonGapCases.ts";
-import "./mountedComparisonEndpointCases.ts";
-import "./mountedComparisonAdapterCases.ts";
-import "./mountedComparisonTakenCases.ts";
-import "./mountedComparisonCancelledCases.ts";
+import "./comparisonGapCases.ts";
+import "./comparisonEndpointCases.ts";
+import "./comparisonAdapterCases.ts";
+import "./comparisonTakenCases.ts";
+import "./comparisonCancelledCases.ts";
 
 for (const unavailable of [false, true]) {
   test(`overall metrics preserve observed counts, whole seconds and ${unavailable ? "unavailable" : "measured"} execution time`, async ({

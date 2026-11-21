@@ -5,8 +5,8 @@ import {
   greetText,
 } from "../../test-support/support/diffSyntaxFixtures.ts";
 import { greetingDiffHunkLines } from "./greetingDiffExpectations.ts";
-import { styledDiffReading } from "./mountedFileDiff.ts";
-import { mountedReviewDiff } from "./mountedReviewDiffPage.ts";
+import { styledDiffReading } from "./styledDiffReading.ts";
+import { reviewDiffPage } from "./reviewDiffPage.ts";
 import { printedDiff } from "./styledDiffCases.ts";
 import { limit } from "./wordEmphasisCases.ts";
 
@@ -15,9 +15,7 @@ const readingViewport = {
   fillsViewport: true,
 };
 
-async function expectPlainAndComplete(
-  diff: ReturnType<typeof mountedReviewDiff>,
-) {
+async function expectPlainAndComplete(diff: ReturnType<typeof reviewDiffPage>) {
   await expect
     .element(diff.newLine(31).line)
     .toHaveTextContent(" export default greeting;", {
@@ -33,7 +31,7 @@ test("a diff shown before its text is read stays plain and complete until the te
   const path = "greet.ts";
   const input = { path, printed: greetDiff(path).printed };
   const { rerender } = await mountComponent(styledDiffReading(input));
-  const diff = mountedReviewDiff();
+  const diff = reviewDiffPage();
   await expectPlainAndComplete(diff);
 
   rerender(styledDiffReading({ ...input, text: greetText }));
@@ -56,7 +54,7 @@ test("styling that arrives after the diff keeps the reading position, revealed c
     styledDiffReading(input),
     readingViewport,
   );
-  const diff = mountedReviewDiff();
+  const diff = reviewDiffPage();
   await expectPlainAndComplete(diff);
 
   await diff.showPrecedingLines();
@@ -104,7 +102,7 @@ test("emphasis is present before tokens arrive and stays on the same words after
     styledDiffReading(input),
     readingViewport,
   );
-  const diff = mountedReviewDiff();
+  const diff = reviewDiffPage();
   const added = diff.newLine(25);
   const removed = diff.removedLine(25);
   await expect.poll(added.insertedWords).toEqual(["25"]);

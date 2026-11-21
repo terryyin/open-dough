@@ -408,7 +408,20 @@ held worker to exit. Both scenarios passed without changing the recovery
 assertions, the test timeout, or runtime code. The focused correction leaves
 the product review's advice intact. [Diagnosis](diagnosis-lost-start-recovery.md)
 retains the proof and the single hosted confirmation intended for the
-repair. The retained observer owns that confirmation.
+repair. Story Branch CI passed the repaired revision `972ab444a` in
+`44855206517/1`, and the observer confirmed shutdown.
+
+Plan 742 landed at `be03d5643`. The reconciled handler uses its typed
+admission and source lookup together with this correction's guarded
+context save. The HTTP adapter forwards Fetch Metadata into typed
+admission, preserving the metadata-only same-origin request form.
+The combined branch handoff, entry, Done ordering, and observation
+lifecycle selection passed 24 cases, including 736's revised deletion
+case. Dashboard typecheck passed. See
+`closure-handoff-reconciliation.json` in the worktree Git evidence.
+The independently reviewed saved-file case additionally exercised the
+HTTP adapter with no Origin and passed all four handoff cases in
+`closure-handoff-http-refactor.json`.
 
 ## Local gates
 

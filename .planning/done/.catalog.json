@@ -2,6 +2,24 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-ad-hoc-review-handoffs-with-typed-handlers.json",
+      "identity": "SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers",
+      "completedAt": "2026-11-21T02:11:38.054Z",
+      "blob": "6def42020ef4abfff2f2680044ee8f82e570aecf"
+    },
+    {
+      "fileName": "SEED-413_reduce-review-diff-reading-to-logic-cases.json",
+      "identity": "SEED-413#reduce-review-diff-reading-to-logic-cases",
+      "completedAt": "2026-11-21T02:00:15.378Z",
+      "blob": "b805347a0e49f186b3bbb3596ac9e0099fc08248"
+    },
+    {
+      "fileName": "SEED-413_observe-done-deliveries-over-typed-records.json",
+      "identity": "SEED-413#observe-done-deliveries-over-typed-records",
+      "completedAt": "2026-11-21T01:35:21.380Z",
+      "blob": "f304c5dff72ab4398402dccf93cd4209c1a28318"
+    },
+    {
       "fileName": "SEED-413_decide-landings-over-typed-attempts-and-records.json",
       "identity": "SEED-413#decide-landings-over-typed-attempts-and-records",
       "completedAt": "2026-11-20T18:30:16.325Z",
@@ -2718,24 +2736,6 @@
       "identity": "SEED-010#trace-changed-behavior-to-existing-consumers",
       "completedAt": "2026-10-22T02:43:24.515Z",
       "blob": "a09db1b722802da4c734bb5a2c751cf9bd90d074"
-    },
-    {
-      "fileName": "SEED-010_correct-feedback-maintenance-session-status.json",
-      "identity": "SEED-010#correct-feedback-maintenance-session-status",
-      "completedAt": "2026-10-22T01:58:35.175Z",
-      "blob": "7ecc7c147792e0ef0378290b604388c89b5badb8"
-    },
-    {
-      "fileName": "SEED-010_skip-feedback-from-projects-without-process-retrospective.json",
-      "identity": "SEED-010#skip-feedback-from-projects-without-process-retrospective",
-      "completedAt": "2026-10-22T01:37:52.365Z",
-      "blob": "95b70dfa75f8721bf52d6c921a15e0df5ea89ad7"
-    },
-    {
-      "fileName": "SEED-010_run-due-feedback-maintenance.json",
-      "identity": "SEED-010#run-due-feedback-maintenance",
-      "completedAt": "2026-10-22T00:34:43.781Z",
-      "blob": "7e6de83baebb8b4873d7104a34d38d239e32ad0c"
     }
   ],
   "unreadable": []

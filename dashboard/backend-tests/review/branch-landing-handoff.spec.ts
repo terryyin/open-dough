@@ -1,4 +1,6 @@
 import { readFile } from "node:fs/promises";
+import { IncomingMessage } from "node:http";
+import { Socket } from "node:net";
 import path from "node:path";
 import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -12,7 +14,11 @@ import {
 } from "../../server/launchRecordStore.ts";
 import { reportingSupport } from "../../server/launchWorkspaceReporting.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
-import { handleSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
+import {
+  handleSessionBranchEntry,
+  submitSessionBranchEntry,
+} from "../../server/sessionBranchEntry.ts";
+import { sessionBranchEntryEndpoint } from "../../src/sessionBranchResult.ts";
 import {
   keptLaunchRecords,
   keepLaunchStore,
@@ -98,10 +104,25 @@ function afterPreparingContext(
   };
 }
 
-test("a branch handoff answers with the publisher file it saves", async () => {
-  const { record, request } = await aKeptBranchHandoff();
+test("a same-origin branch handoff without Origin answers with the publisher file it saves", async () => {
+  const { record, request: submission } = await aKeptBranchHandoff();
+  const origin = new URL(dashboardOrigin);
+  const socket = new Socket();
+  Object.defineProperty(socket, "remoteAddress", {
+    value: origin.hostname,
+  });
+  const request = new IncomingMessage(socket);
+  request.url = sessionBranchEntryEndpoint;
+  request.method = "POST";
+  request.headers = {
+    host: origin.host,
+    "content-type": "application/json",
+    "sec-fetch-site": "same-origin",
+  };
+  request.push(Buffer.from(JSON.stringify(submission)));
+  request.push(null);
 
-  const answer = await handleSessionBranchEntry(request, dashboardOrigin);
+  const answer = await submitSessionBranchEntry(request);
 
   const kept = await keptSession(source, record.session);
   const context = kept?.landingReporting?.branchContext;
@@ -120,6 +141,7 @@ test("a branch handoff saves its context alongside newer record evidence", async
   const answer = await handleSessionBranchEntry(
     request,
     dashboardOrigin,
+    undefined,
     afterPreparingContext(() =>
       setRecordStopUnconfirmed(source, record.session, explanation),
     ),
@@ -142,6 +164,7 @@ test("a branch handoff keeps a concurrent Done and leaves its context out of the
   const answer = await handleSessionBranchEntry(
     request,
     dashboardOrigin,
+    undefined,
     afterPreparingContext(() =>
       setRecordDoneAt(source, record.session, doneAt),
     ),
@@ -159,6 +182,7 @@ test("a branch handoff declines context for an entry that changed while preparin
   const answer = await handleSessionBranchEntry(
     request,
     dashboardOrigin,
+    undefined,
     afterPreparingContext(() =>
       changeSessionRecord(source, record.session, (current) => {
         if (current.branchEntry === undefined)

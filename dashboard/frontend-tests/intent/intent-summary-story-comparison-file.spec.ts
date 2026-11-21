@@ -7,7 +7,7 @@
 // Backend's explicit review answer; its Git judgment is
 // ../../../e2e/intent/intent-summary-story-comparison-{source,renamed}.spec.ts's.
 // Row counts, times and cue rules are
-// intent-summary-story-comparison-mounted-file.spec.ts's.
+// intent-summary-story-comparison-file-proof-counts.spec.ts's.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { timeMarks } from "../../test-support/support/relativeTimingMarks.ts";
 import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
