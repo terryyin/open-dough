@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_fold-done-capture-launches-into-makeme.json",
+      "identity": "SEED-413#fold-done-capture-launches-into-makeme",
+      "completedAt": "2026-11-21T08:55:30.866Z",
+      "blob": "20d1c9a841539f644cdebedb5683387c05406d8d"
+    },
+    {
       "fileName": "SEED-413_correct-landing-record-writes-and-tests.json",
       "identity": "SEED-413#correct-landing-record-writes-and-tests",
       "completedAt": "2026-11-21T03:21:12.691Z",
@@ -2724,24 +2730,6 @@
       "identity": "SEED-008#normalize-delivery-commit-identities",
       "completedAt": "2026-10-22T08:57:47.449Z",
       "blob": "ed0b0319b3bd6d04796beabb7c1e867ce766983c"
-    },
-    {
-      "fileName": "SEED-010_prioritize-responses-with-delegated-authority.json",
-      "identity": "SEED-010#prioritize-responses-with-delegated-authority",
-      "completedAt": "2026-10-22T08:41:10.044Z",
-      "blob": "58061d8737eff9cf53c6a5aa909ef62ff630528c"
-    },
-    {
-      "fileName": "SEED-010_reuse-native-proof-after-attribution.json",
-      "identity": "SEED-010#reuse-native-proof-after-attribution",
-      "completedAt": "2026-10-22T07:44:27.371Z",
-      "blob": "07ff12a611ea580c7223a158badf46eb6f2a643c"
-    },
-    {
-      "fileName": "SEED-010_name-required-passages-in-boundary-rows.json",
-      "identity": "SEED-010#name-required-passages-in-boundary-rows",
-      "completedAt": "2026-10-22T07:04:09.391Z",
-      "blob": "42940d138386de837d84b46ab1d286c552078e86"
     }
   ],
   "unreadable": []

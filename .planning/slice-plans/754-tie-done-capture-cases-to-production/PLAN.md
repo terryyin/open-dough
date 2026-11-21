@@ -6,8 +6,9 @@
 ## Correction input
 
 **Provenance.** Retrospective of
-[SEED-413#fold-done-capture-launches-into-makeme](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme)
-(plan 737), reviewed over `01b7cc602..2bed7f34c` (commits `249908e2`,
+SEED-413#fold-done-capture-launches-into-makeme
+(story and plan 737 recoverable at `47af39ca6:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md` and
+`47af39ca6:.planning/slice-plans/737-build-done-capture-cases-from-makeme/PLAN.md`), reviewed over `01b7cc602..2bed7f34c` (commits `249908e2`,
 `20e7cb7a`, `72f85adc`, `9f89a8eb`, `b3cd1acf`, `c0544ae4`, `fa777c74`,
 `503b1c54`, `2bed7f34`). Its source promised one case value with the checkout,
 records and timeline, "every assertion preserved", "Keep any remaining effect
