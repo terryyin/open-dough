@@ -376,6 +376,14 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 **Accepted proof.** The planned backend selection passed 29 cases. It observes zero fetches for a present UUID, one fetch for an absent UUID, and the expected review refusal from the last fetched trunk after a hung fetch. With the same 500 ms bounds started together the regression instead returned the old “has not fetched” refusal. Restoring deferred fallback creation passed the test. The original story-subject filter resolves to no standalone file. The `review/ad-hoc-review-request` and `review/story-review-file-text-admission` selections supplied direct proof for the affected kept and story adapters.
 The selected published-session and story file-text E2E journeys also passed. Typecheck and the planned spy, elapsed and cast greps passed. No changed test imports Playwright. The correction removes 64 net Dashboard support lines, with nine net lines added only to the MakeMe builder. The two support roots together have 13 fewer lines than before the previous correction. The local gate arguments and sleep guard apply.
 
+## Execution complete
+
+Product advice: no change. The corrected published-session review and one shared record path support the existing SEED-418 follow-ups. The story that extends publication to more workflows keeps its existing scope and priority.
+
+The reviewed implementation starts after Take `ff70603c5`: `b363f2c43` restores direct component mounts, `5f8fb4456` gives published gaps their own comparison, `ef85cb050` replaces the Recently done proof and removes its service substitute, `62d5f4189` tests the pinned listing through typed reads, `62d528d70` shares the path and validator, and `d5f6ab4c4` gives the fallback a fresh deadline. The later Intent and styling work on trunk is outside this execution.
+
+The local proof and source review cover all 37 commitments. Existing E2E journeys exercised real publication and cross-machine review, while the gap regressions were driven by the backend and mounted tests that own their outcomes. The producer and Dashboard use the same record rule, consistent with ADR 0008. The local and hosted checks have separate evidence. The final story-branch CI verdict was pending when the outcome review ran. The process review retained the Ready-status mismatch in DearDough.
+
 ## Local gates
 
 - Apply the

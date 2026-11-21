@@ -987,3 +987,14 @@ Source freshness absorbed a trunk amendment that marked plan 746 slice 2 done fr
   - Evidence: absorb commit `126fabd26` (plan/source-review only); `git merge-base --is-ancestor eed84c8c4 576150249` exits 1; HEAD `publish-reviewed-checkout.md` still routes native starts with retained `sessionId` and `workflow: "standalone"`; trunk `eed84c8c4` holds the session-close row and `"ad-hoc"`. Coordinator transcript `2ff6a8ec-6e50-4132-a4b1-1cb8e01cbacc` records the absorb and later tip-gap confirmation.
   - Observed effect: plan and source-review treat Land routing as done while the story-branch tip still carries the original Land defect until main is integrated; landing without that integration would revert trunk's Land fix.
   - Inference: absorbing plan-done status and observing commitments from a trunk Behavior delivery does not place that product on the story-branch tip; related to DD-597 (commitment observation vs tip result) but the observation here came from real trunk proof, not an unasserting case.
+
+## ODF-456 — Ready plan used an unsupported slice status
+
+### Occurrences
+
+- Execution: SEED-418#name-unavailable-published-session-review (plan 750; first implementation `b363f2c43`)
+  - Timestamp: unknown (2026-11-21, before slice 1 delegation)
+  - Tool: Codex
+  - Open Dough release: 0.3.109 (checkout-bound installation at `ff70603c5`)
+  - Evidence: Take `ff70603c5` carried a Ready assessment and six `Status: pending` lines. The first `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice`. Recovered heading from `07320772fc74549087575a338c113725c7bad0af:DearDough.md`. [Prior evidence](docs/maintainer/findings/ODF-456.md).
+  - Observed effect: one refusal before delegation. Changing the six statuses to `planned` let the same command accept the unchanged slices and proof.
