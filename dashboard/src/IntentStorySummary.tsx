@@ -53,7 +53,7 @@ export function publishedDoneEndpointOf(
 ) {
   const review =
     storySummary?.comparison.state === "compared"
-      ? storySummary.comparison.review
+      ? storySummary.comparison.defaultReview
       : undefined;
   return storySummary?.story.completed !== true
     ? undefined
@@ -83,7 +83,7 @@ export function publishedDoneEndpointReasonOf(
       comparison.explanation ??
       "The selected Done result’s published landing is unavailable."
     );
-  const review = comparison.review;
+  const review = comparison.defaultReview;
   return review?.kind === "unavailable" ||
     review?.kind === "landing-unavailable"
     ? review.explanation

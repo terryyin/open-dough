@@ -1,5 +1,6 @@
-// A story's default comparison follows the server's opening answer. Review
-// owns explicit run choices; Intent does not keep one over a newer default.
+// A story's default comparison follows the server's opening answer. The
+// chosen comparison is read through Review changes' selection, keyed by the
+// story, so it equals the default until a choice is made.
 // An active workspace shows all changes, including uncommitted work. Done
 // Intent reads the completed result even while that workspace remains.
 
@@ -9,8 +10,8 @@ import {
 } from "./storyComparisonShown.ts";
 import type { RequestedComparison } from "./pageStoryReviews.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
-import { useDefaultStoryReview } from "./useDefaultStoryReview.ts";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
+import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
 
 // The comparison such a view reads of a workspace: all changes, with its
@@ -36,25 +37,24 @@ export function useStoryComparison({
   // A disabled comparison reads nothing and shows none.
   readonly enabled: boolean;
 }): {
-  // The review read, which explains a comparison it cannot show.
+  // The chosen review read, which explains a comparison it cannot show.
   readonly review: StoryReview | undefined;
+  // The default review read, which owns the story's completed result.
+  readonly defaultReview: StoryReview | undefined;
   readonly reading: boolean;
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
 } {
   const subject: ReviewedStorySubject = { source, identity };
-  const {
-    answer: review,
-    reading,
-    problem,
-  } = useDefaultStoryReview({
-    subject,
-    round,
-    completed,
-    enabled,
-    historical: completed,
-  });
-  const snapshot = review?.kind === "snapshot" ? review : undefined;
+  const { defaultReview, review, snapshot, reading, problem } =
+    useStoryReviewSelection({
+      subject,
+      round,
+      completed,
+      enabled,
+      historical: completed,
+      keyedBy: identity,
+    });
   const { comparison, tree } = useStoryReviewComparison({
     subject,
     snapshot,
@@ -64,12 +64,14 @@ export function useStoryComparison({
   if (!enabled)
     return {
       review: undefined,
+      defaultReview: undefined,
       reading: false,
       problem: undefined,
       shown: undefined,
     };
   return {
     review,
+    defaultReview,
     reading,
     problem,
     shown: storyComparisonShown({ subject, review, comparison, tree }),

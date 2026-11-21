@@ -1,6 +1,7 @@
 // The page's selected story as Intent's lens reads it (`./IntentPerspective.tsx`,
 // `./IntentStorySummary.tsx`): the story by its published entry, and what is
-// known of its default Review changes comparison (`./useStoryComparison.ts`).
+// known of its Review changes comparison (`./useStoryComparison.ts`): the
+// default, and the chosen one that equals it until a choice is made.
 // Whether the story has a comparison is decided as Review changes offers it
 // (`storyComparisonOffered`), unknown while an active story's records are
 // unread; a story with none reads nothing. A completed story is named by its
@@ -123,13 +124,15 @@ export function useIntentStoryLens({
           )
         : undefined;
   const [round, setRound] = useState(0);
-  const { review, reading, problem, shown } = useStoryComparison({
-    source: source.id,
-    identity: story?.identity ?? "",
-    completed: story?.completed ?? false,
-    round,
-    enabled: offered === true,
-  });
+  const { review, defaultReview, reading, problem, shown } = useStoryComparison(
+    {
+      source: source.id,
+      identity: story?.identity ?? "",
+      completed: story?.completed ?? false,
+      round,
+      enabled: offered === true,
+    },
+  );
   const comparison: LensComparison =
     offered === undefined
       ? { state: "reading" }
@@ -138,7 +141,7 @@ export function useIntentStoryLens({
         : reading
           ? { state: "reading" }
           : shown !== undefined
-            ? { state: "compared", shown, review }
+            ? { state: "compared", shown, review, defaultReview }
             : problem !== undefined
               ? { state: "failed", problem }
               : review !== undefined &&

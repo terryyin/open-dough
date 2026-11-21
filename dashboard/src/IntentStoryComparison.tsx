@@ -16,7 +16,10 @@ export type LensComparison =
   | {
       readonly state: "compared";
       readonly shown: ShownStoryComparison;
+      // The chosen comparison's review read.
       readonly review: StoryReview | undefined;
+      // The default review read: the completed result's owner.
+      readonly defaultReview: StoryReview | undefined;
     };
 
 // The two sides the comparison runs between, as Review changes names them.

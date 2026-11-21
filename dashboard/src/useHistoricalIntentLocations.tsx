@@ -16,7 +16,7 @@ export function useHistoricalIntentLocations(
 ): ShownIntentLocations {
   const comparison = summary.comparison;
   const review =
-    comparison.state === "compared" ? comparison.review : undefined;
+    comparison.state === "compared" ? comparison.defaultReview : undefined;
   const revision =
     review?.kind === "published"
       ? review.completion

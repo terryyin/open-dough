@@ -1,10 +1,10 @@
-// One active comparison. Refresh reconciles retained run identities; returning
-// to the workspace keeps its comparison and Commits endpoints.
+// One active comparison over the server's opening answer for a story, its
+// default. Refresh reconciles retained run identities; returning to the
+// workspace keeps its comparison and Commits endpoints.
 import { useState } from "react";
 import { type StoryReview } from "./storyReviewContract.ts";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
-import { useDefaultStoryReview } from "./useDefaultStoryReview.ts";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
 import {
   answeredRunKey,
@@ -21,6 +21,7 @@ export function useStoryReviewSelection({
   enabled = true,
   initial = "all",
   historical: historicalComparison = false,
+  keyedBy,
 }: {
   readonly subject: ReviewedWorkSubject;
   readonly round: number;
@@ -31,25 +32,33 @@ export function useStoryReviewSelection({
   readonly initial?: ShownComparison | undefined;
   // Historical Review asks for a completed result rather than a retained workspace.
   readonly historical?: boolean | undefined;
+  // A changed key drops the choice, so the selection opens on its default.
+  readonly keyedBy?: string | undefined;
 }) {
-  const defaultRead = useDefaultStoryReview({
-    subject,
-    round,
-    completed,
-    historical: historicalComparison,
-    enabled,
-  });
+  const defaultRead = useReviewRead(
+    "review",
+    storyReviewQuery({
+      subject,
+      completed,
+      historical: historicalComparison,
+    }),
+    { round, enabled },
+  );
   const [selection, setSelection] = useState<{
     of: StoryReview | undefined;
     run?: string;
     workspace: ShownComparison;
-  }>({ of: undefined, workspace: initial });
+    keyedBy?: string | undefined;
+  }>({ of: undefined, workspace: initial, keyedBy });
+  const keyed = selection.keyedBy === keyedBy;
+  if (!keyed) setSelection({ of: undefined, workspace: initial, keyedBy });
   const answer = defaultRead.answer;
   const runs = answer?.runs ?? [];
   // A session's kept runs are chosen by position; landed runs by their key.
   const keys = [...runs.map((run) => run.key), ...sessionRunKeys(answer)];
   const answered = answeredRunKey(answer);
   if (
+    keyed &&
     !defaultRead.reading &&
     defaultRead.problem !== undefined &&
     selection.run !== undefined
@@ -57,8 +66,14 @@ export function useStoryReviewSelection({
     setSelection({
       of: undefined,
       workspace: selection.workspace,
+      keyedBy,
     });
-  if (answer !== undefined && answer !== selection.of && !defaultRead.reading) {
+  if (
+    keyed &&
+    answer !== undefined &&
+    answer !== selection.of &&
+    !defaultRead.reading
+  ) {
     const fallback = preferredReviewRun(runs, (run) => run.comparison);
     // A first answer, or a workspace choice whose workspace is gone, follows
     // the run the answer opened on.
@@ -71,6 +86,7 @@ export function useStoryReviewSelection({
     setSelection({
       of: answer,
       workspace: selection.workspace,
+      keyedBy,
       ...(run === undefined ? {} : { run }),
     });
   }
@@ -91,6 +107,8 @@ export function useStoryReviewSelection({
       ? runRead.answer
       : undefined;
   return {
+    // The default answer, whatever run is chosen.
+    defaultReview: answer,
     review,
     runs,
     selectedRun,
@@ -109,12 +127,13 @@ export function useStoryReviewSelection({
         ? undefined
         : runRead.problem,
     onWorkspace: (workspace: ShownComparison) => {
-      setSelection({ of: answer, workspace });
+      setSelection({ of: answer, workspace, keyedBy });
     },
     onRun: (run: string) => {
       setSelection({
         of: answer,
         workspace: selection.workspace,
+        keyedBy,
         run,
       });
     },

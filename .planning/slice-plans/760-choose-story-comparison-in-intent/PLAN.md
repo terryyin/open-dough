@@ -2,6 +2,7 @@
 
 **Identity:** SEED-420#choose-story-comparison-in-intent
 **Source:** [Choose what a story's review compares in Intent](../../seeds/SEED-420-unified-intent-review.md#choose-story-comparison-in-intent)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -91,7 +92,7 @@ No premise remains open.
 ### 1. Intent's lens reads the story through the review's selection owners
 
 Type: Structure
-Status: planned
+Status: done
 
 Internal change: `useStoryComparison` reads through `useStoryReviewSelection`
 and returns the default review beside a chosen comparison that, with no
@@ -102,6 +103,17 @@ External behavior is unchanged. Enables slice 2.
 
 **Proof.** The 13 specs in the premise row stay green with the same
 command, plus `npm run typecheck:dashboard`.
+
+**Accepted.** The 13 specs (32 tests), all of `dashboard/frontend-tests/review`
+(109, since `useStoryReviewSelection` gained `keyedBy` and returns the
+default `answer`), and the retained CI follow-up Intent page's
+`e2e/intent/intent-ci-follow-up{,-return,-proof}.spec.ts` (4) passed;
+typecheck and lint clean. The lens result carries `review` (chosen) and
+`defaultReview`; `useStoryComparison` does not yet pass the selection's
+`onRun`/`onWorkspace` on, which slice 2 adds. No spec yet proves the reset
+on another story; slice 2 owns it. The refactor pass folded
+`useDefaultStoryReview` into `useStoryReviewSelection`, whose result names
+the default `defaultReview`; the same proof reran green.
 
 ### 2. Choosing a commit range changes the story's files, diffs and header
 
