@@ -133,7 +133,7 @@ builder includes the frontend group in its consumer proof.
 ### 2. Dated Done and record removal use the same Default main case
 
 Type: Behavior
-Status: planned
+Status: done
 
 Arrange kept and pending captures from the case's records and timing. Call
 the real capture, deletion or expiry where it owns the outcome, with its
@@ -142,6 +142,14 @@ fixture-local store. Keep the intervening Git work and removal observable.
 **Proof.** Run `done-kept-session-commits`, `done-kept-commit-refs-release`,
 `kept-commits-release` and `ad-hoc-session-commits-pending-done`. Verify the
 tip cutoff, refusal, survivor and ref assertions.
+
+**Accepted.** `aDoneCaptureCase().withWork(...)` performs the case's dated
+work in `please()` and returns its commits as `work`; launch steps take an
+optional refinement `(launch, { checkout, work })` for record facts naming those
+commits. `done-kept-commit-refs-release` keeps one hand-built case whose
+separate Git directory has no repository-builder fact. Putting pulled trunk
+work into the history would make it the launch's start, so the G1 case keeps
+its pull; its cost belongs to the optimization story.
 
 ### 3. A declaring launch names its worktrees in MakeMe
 
@@ -279,7 +287,7 @@ import and line comparison.
 ### G1. Long one-worker roster runs time out `done-kept-session-commits` at 5 s
 Reported: slice 1 — "s1-backend-consumers2: four 5 s timeouts while a Distribution run was going at the same time (ad-hoc-branch-entry-attribution, ad-hoc-branch-worktree-result, ad-hoc-session-comparisons, done-kept-session-commits); all four pass alone in 2.1–3.9 s."
 Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: evidence/ci-repair1-backend.log ran the 35-spec roster at one worker with no concurrent suite, 121/121 (done-kept-session-commits included); slice2-r1/r2 measure the trunk-advance case at 776–861 ms (load 5–6), under a fifth of the default limit; the reported timeouts occurred only while a Distribution suite ran concurrently with the roster
 
 ### G2. Long one-worker roster runs time out `ad-hoc-branch-entry-attribution` at 5 s
 Reported: slice 1 — "s1-backend-consumers2: 5 s timeout in ad-hoc-branch-entry-attribution under concurrent load; passes alone."

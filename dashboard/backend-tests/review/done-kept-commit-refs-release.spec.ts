@@ -11,7 +11,6 @@ import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   aCheckout,
   aDefaultLaunch,
-  type Checkout,
   keep,
   markDone,
   minutesAgo,
@@ -19,6 +18,7 @@ import {
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 const prefix = "refs/open-dough/session-commits/claude/default-launch/";
 const pairRefs = (base: string, revision: string) => [
@@ -37,14 +37,16 @@ async function refs(repository: string, under = "refs/") {
 }
 
 // A default launch kept with one commit at 40 minutes ago.
-async function keptWithCommit(checkout: Checkout, gitDirectory?: string) {
-  const record = aDefaultLaunch(checkout, { gitDirectory }).please();
-  const home = keep(record);
-  const { notes } = await work(
+async function keptWithCommit() {
+  const {
     checkout,
-    makeMe.aCheckoutWork.committing("notes", { at: minutesAgo(40) }),
-  );
-  return { home, record, notes };
+    work: { notes },
+    records: { "default-launch": record },
+  } = await aDoneCaptureCase()
+    .withWork(makeMe.aCheckoutWork.committing("notes", { at: minutesAgo(40) }))
+    .withDefaultMainLaunch("default-launch", { launched: 60 })
+    .please();
+  return { checkout, home: keep(record), record, notes };
 }
 
 // Done at 30 minutes ago, read then, and later undone.
@@ -58,8 +60,7 @@ async function doneAndUndone(record: LaunchRecord) {
 }
 
 test("Done pins only the comparison pair and deleting the record releases it", async () => {
-  const checkout = await aCheckout();
-  const { record, notes } = await keptWithCommit(checkout);
+  const { checkout, record, notes } = await keptWithCommit();
   const beforeDone = await refs(checkout.integration);
 
   await markDone(record);
@@ -72,8 +73,7 @@ test("Done pins only the comparison pair and deleting the record releases it", a
 });
 
 test("a later Done with an unreadable log releases the earlier capture", async () => {
-  const checkout = await aCheckout();
-  const { record } = await keptWithCommit(checkout);
+  const { checkout, record } = await keptWithCommit();
   await doneAndUndone(record);
   // Git still reads and mutates the refs even though its logs are gone.
   rmSync(path.join(checkout.integration, ".git", "logs"), { recursive: true });
@@ -91,7 +91,14 @@ test("a later Done keeps its pair when the repository is also reachable through 
   const previous = path.join(checkout.fixture, "original-git-directory");
   const moved = path.join(checkout.fixture, "moved-git-directory");
   await git(checkout.integration, "init", "--separate-git-dir", previous);
-  const { record } = await keptWithCommit(checkout, previous);
+  // The separate Git directory is no repository-builder fact, so this case
+  // keeps its launch by hand.
+  const record = aDefaultLaunch(checkout, { gitDirectory: previous }).please();
+  keep(record);
+  await work(
+    checkout,
+    makeMe.aCheckoutWork.committing("notes", { at: minutesAgo(40) }),
+  );
   await doneAndUndone(record);
   renameSync(previous, moved);
   symlinkSync(moved, previous);
@@ -108,8 +115,7 @@ test("a later Done keeps its pair when the repository is also reachable through 
 });
 
 test("deleting a record from an older failed capture releases refs its earlier Done created", async () => {
-  const checkout = await aCheckout();
-  const { home, record, notes } = await keptWithCommit(checkout);
+  const { checkout, home, record, notes } = await keptWithCommit();
   await markDone(record);
   // An older reader left Done without a comparison and kept its Git refs.
   keepLaunchStore(home, { [source]: [{ ...record, doneAt: minutesAgo(10) }] });

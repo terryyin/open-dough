@@ -21,7 +21,7 @@ as one move.
 | 4 | The real checkout fixture materializes named worktrees. (Scope 1; Key example 2) | slice 3 | |
 | 5 | The real checkout fixture materializes an origin where the case publishes; only cases that publish. (Scope 1) | slice 6 | |
 | 6 | Launch and Done times are stated at the call site; a Default main case names its launch and Done times in MakeMe. (Scope 1; Key example 1) | slice 1 | observed: slice-1 specs state { launched, done } in aDoneCaptureCase().withDefaultMainLaunch/withEstablishedSession or .launchedAt/.markedDoneAt at each call site (e.g. done-kept-session-shared-checkout.spec.ts earlier 70/15 vs this 60/10) |
-| 7 | The distinction between case work and the action under test is kept. (Scope 1) | slice 2 | |
+| 7 | The distinction between case work and the action under test is kept. (Scope 1) | slice 2 | observed: aDoneCaptureCase().withWork(...) arranges dated work and records (refinements name its commits); capture/Done/deletion/expiry/refusals stay in test bodies of done-kept-session-commits, done-kept-commit-refs-release, kept-commits-release, ad-hoc-session-commits-pending-done; slice2-r2 33/33 |
 | 8 | The declared publisher branch is composed from those same builders. (Scope 2) | slice 6 | |
 | 9 | The reported isolated branch is composed from those same builders. (Scope 2) | slice 6 | |
 | 10 | The delivered Done, branch-entry and landing-report values are reused. (Scope 2) | slice 6 | |

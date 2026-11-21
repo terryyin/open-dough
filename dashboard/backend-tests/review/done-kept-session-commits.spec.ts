@@ -8,15 +8,13 @@ import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import {
-  aCheckout,
-  aDefaultLaunch,
-  aKeptSession,
   keep,
   markDone,
   minutesAgo,
   source,
   work,
 } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
 // Leaves `commit` on no branch, with no reflog or loose object reaching it.
 async function forgetInCheckout(
@@ -34,8 +32,14 @@ async function forgetInCheckout(
 }
 
 test("a Default main launch's commit kept at Done remains reviewable after trunk advances and every branch leaves it", async () => {
-  const checkout = await aCheckout({ withOrigin: true });
-  const record = aDefaultLaunch(checkout).please();
+  const {
+    checkout,
+    records: { launch: record },
+    timeline: { launch },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withDefaultMainLaunch("launch", { launched: 60 })
+    .please();
   keep(record);
   const { pulled, typo } = await work(
     checkout,
@@ -49,7 +53,7 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
 
   const kept = {
     kind: "session-commits",
-    session: { launchedAt: minutesAgo(60), doneAt: minutesAgo(10) },
+    session: { launchedAt: launch.launchedAt, doneAt: minutesAgo(10) },
     commitRun: 0,
     commitRuns: [
       {
@@ -96,7 +100,13 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
 });
 
 test("Done stores and pins the commit of an established Default main session", async () => {
-  const { checkout, record } = await aKeptSession();
+  const {
+    checkout,
+    records: { "established-default-main": record },
+  } = await aDoneCaptureCase()
+    .withEstablishedSession("established-default-main", { launched: 60 })
+    .please();
+  keep(record);
   const { base, integration } = checkout;
   const { typo } = await work(
     checkout,

@@ -179,14 +179,6 @@ export const keptRecordOf = async (sessionId: string) =>
     (kept) => kept.session.sessionId === sessionId,
   );
 
-// A kept session established in a checkout at its base: the family's usual start.
-export async function aKeptSession(options: { withOrigin?: boolean } = {}) {
-  const checkout = await aCheckout(options);
-  const record = anEstablishedSession(checkout).please();
-  keep(record);
-  return { checkout, record };
-}
-
 export const work = <Name extends string>(
   checkout: Checkout,
   steps: CheckoutWorkBuilder<Name>,
