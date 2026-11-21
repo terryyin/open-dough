@@ -2,7 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-timing-history-proof
 **Source:** [Get fast proof of Intent timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof)
-**Split from:** SEED-413#speed-intent-proof-and-timing (plan `752`, Slices 4–6) on 2026-11-21 at its delivered Slice 3 boundary
+**Split from:** SEED-413#speed-intent-proof-and-timing (recoverable at `3acae5160:.planning/slice-plans/752-speed-intent-proof-and-timing/PLAN.md`, former Slices 4–6) on 2026-11-21 at its delivered Slice 3 boundary
 
 ## Goal and scope
 

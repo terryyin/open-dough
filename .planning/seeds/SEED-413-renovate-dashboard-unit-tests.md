@@ -490,7 +490,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | Order | Story | Legacy cases | Listed sources |
 | --- | --- | ---: | ---: |
 | 1 | Get fast proof of a story's Intent CI comparison (completed; recoverable at `28e16d406:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-comparison-proof`) | 69 | 24 |
-| 2a | [Get fast proof of Intent CI status and cue contrast](#speed-intent-proof-and-timing) | 15 | 7 |
+| 2a | Get fast proof of Intent CI status and cue contrast (completed; recoverable at `3acae5160:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing`) | 15 | 7 |
 | 2b | [Get fast proof of Intent timing history](#speed-intent-timing-history-proof) | 31 | 19 |
 | 2c | [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof) | 49 | 18 |
 | 3 | [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading) | 71 | 37 |
@@ -558,62 +558,13 @@ Continuing one component at a time would extend the life of both runners.
   legacy cases. Keep this campaign's test work coordinated with
   [SEED-341](SEED-341-simplify-session-tests.md).
 
-<a id="speed-intent-proof-and-timing"></a>
-
-### Get fast proof of Intent CI status and cue contrast
-
-**Identity:** SEED-413#speed-intent-proof-and-timing
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/752-speed-intent-proof-and-timing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aaeffa55337b8674c90d67fda117ff19311c09079bb2def5fb5a6df17f7d9f0d","plan":"bf073f6e5324b6776e0823eb3bb0ee4a52c558f89c79bf0c700d0b833f20cf3c"}}
-```
-
-- **Goal.** A dashboard maintainer can quickly check what current CI status
-  says at Intent's homepage, perspective tabs, and side-panel story selection,
-  including freshness, execution timing, Proof table sorting, and readable
-  dark-appearance cues.
-- **Scope.** Own the 7 legacy CI status and cue-contrast specs
-  (`intent-ci-status-freshness`, `intent-ci-status-execution-time`,
-  `intent-ci-status-sort`, `intent-ci-status-homepage`,
-  `intent-ci-status-kept`, `intent-ci-status-side-panel`, and
-  `intent-ci-cues-dark-contrast` — 15 legacy cases), plus wiring
-  `IntentCiReadSourceOnPage` across status, kept-status, proof, history, and
-  comparison reads and exposing Node-free `aCiProofEntry`, `aCiProofEvidence`,
-  and `aComparedStory` on `pageMakeMe.mjs`. Keep status and proof reads on
-  their real reader boundary with typed collaborators. Collected timing
-  history and Project CI history `act` retirement belong to
-  [Get fast proof of Intent timing history](#speed-intent-timing-history-proof);
-  homepage attempt proof, Summary proof, compared Summary rows, and
-  cohort-end shared `test-support` retirement belong to
-  [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof);
-  the story-source and location views belong to
-  [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading).
-- **Key examples.** Warm kept CI status shows as previously retrieved with a
-  spinner until the fresh read replaces it; a failed cold refresh keeps the
-  usable reading; a late trunk answer never overwrites a switched story
-  branch's kept status. Activating CI status by click, Enter, or Space returns
-  home from a selected entry, folder, or file with the tree open; locations
-  loading, failing, or recovering never rereads CI; a new trunk head asks
-  again while time-only or other-branch movement asks for none. Opening a
-  Taken story's final report or toggling its card judges that branch, while an
-  ad hoc session clears selection to `main`. Execution timing and missing or
-  untimed shard words stay specific, Proof sorts by click, Enter, or Space
-  without summing units, and composed CI cues meet dark-surface contrast.
-- **Evaluation.** All 15 legacy cases across the 7 owned files have a
-  traceable disposition and the unit proof runs on Vitest. Apply the
-  applicable [shared acceptance](#acceptance-shared-by-the-eight-stories)
-  timing, case-count, and coverage checks for this status cohort (`act`
-  retirement in Project CI history specs and removal of shared `test-support`
-  modules still consumed by E2E or later specs belong to their owning
-  stories). Status proof gives faster feedback than its settled `13,532 ms`
-  two-worker legacy baseline.
-
 <a id="speed-intent-timing-history-proof"></a>
 
 ### Get fast proof of Intent timing history
 
 **Identity:** SEED-413#speed-intent-timing-history-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/759-speed-intent-timing-history-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"26eb4ccf945f09722b4f02a1d9b454251034f1e6d3af30d4597da5e6bd6176b5","plan":"0090fce98123dbe488d8154e340a6112c18b48107a406b45b81cd2148077e247"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/759-speed-intent-timing-history-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"26eb4ccf945f09722b4f02a1d9b454251034f1e6d3af30d4597da5e6bd6176b5","plan":"bee063270af32669136aef22b2e489a3630a02efa0ec00e948d6a06f6ae69a0b"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-413#speed-intent-timing-history-proof","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-proof-and-timing","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing"},"implementation":"Wires IntentCiReadSourceOnPage (including optional readHistory) across status, kept-status, proof, history, and comparison reads, exposes Node-free CI proof builders on pageMakeMe.mjs, and lands the narrowed 7-file status split on main.","rationale":"Timing-history slices extend IntentCiReadSourceOnPage with readDoneWallTimeHistory and readScopeHistory and depend on the narrowed SEED-413 split and reconciled IntentCiReadSource contract already being integrated on main rather than diverging on a duplicate seam.","condition":"SEED-413#speed-intent-proof-and-timing has landed its reconciled IntentCiReadSourceOnPage contract, pageMakeMe.mjs CI proof builders, and narrowed story split on main.","state":"waiting"}]}
@@ -661,7 +612,7 @@ and `pageMakeMe.mjs` CI proof builders.
 
 **Identity:** SEED-413#speed-intent-attempt-and-summary-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment."],"basis":{"document":"7949e50cb804f5375068912025af0845815a4ab85a051906ea48d4dab5f70fe5","plan":"c237af2ebb6403a981f8f90dc4e60c87a30657e0ca24c2cf12971efc9e85da44"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment."],"basis":{"document":"7949e50cb804f5375068912025af0845815a4ab85a051906ea48d4dab5f70fe5","plan":"4912fd1c4a6a0d9ed26d486ae735bd41d2fa9278c39806370e133bb72fcd4f73"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-413#speed-intent-attempt-and-summary-proof","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-proof-and-timing","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing"},"implementation":"Wires IntentCiReadSourceOnPage (including readProof, readComparison, and endpoint proof readers) and exposes Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on pageMakeMe.mjs.","rationale":"Attempt-proof and Summary slices mount IntentCiProof, IntentScopeProofView, and IntentFileProofView directly over the pageMakeMe.mjs builders and IntentCiReadSourceOnPage contract delivered by SEED-413#speed-intent-proof-and-timing.","condition":"SEED-413#speed-intent-proof-and-timing has landed its IntentCiReadSourceOnPage contract, Node-free pageMakeMe.mjs CI proof builders, and narrowed story split on main.","state":"waiting"}]}
