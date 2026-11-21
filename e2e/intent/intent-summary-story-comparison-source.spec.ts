@@ -22,7 +22,7 @@ import {
   intentFile,
   intentDiffReading,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
-import { selectDoneStoryForChangedTests } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
+import { selectDoneStoryForChanges } from "../../dashboard/test-support/support/selectDoneStoryForSummaryComparison.ts";
 import { unchangedFileRow } from "../../dashboard/test-support/support/summaryComparisonFileExpectedRows.ts";
 
 for (const variant of [undefined, "own-conflict-extra"] as const) {
@@ -42,7 +42,7 @@ for (const variant of [undefined, "own-conflict-extra"] as const) {
       )
         unchangedReads.push(url.searchParams.get("revision") ?? "");
     });
-    const { intent } = await selectDoneStoryForChangedTests(page);
+    const { intent } = await selectDoneStoryForChanges(page);
     await intentFile(intent, "dashboard/tests/root.spec.ts").click();
     await expect(fileReadingTab(intent, "Purpose")).toHaveAttribute(
       "aria-selected",

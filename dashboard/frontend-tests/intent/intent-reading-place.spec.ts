@@ -6,7 +6,7 @@ import { filesColumn } from "../../test-support/intentModePage.ts";
 // deep, that file selected, "Selected story only" on, a folder collapsed by
 // hand and Purpose scrolled show the same after the story's other views
 // (../../src/intentStoryTabs.tsx), and after Development and back on the same
-// Changed tests view, and the return reads neither the locations nor the
+// Changes view, and the return reads neither the locations nor the
 // file's diff or text again (../../src/answerMemo.ts). Another project shows
 // none of it, and choosing the project again starts its reading afresh, at
 // the story's CI comparison.
@@ -90,14 +90,14 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
   for (const view of ["CI comparison", "Intent coverage"] as const) {
     await chooseStoryTab(intent, view);
     await expect(intentReadingPane(intent)).toBeHidden();
-    await chooseStoryTab(intent, "Changed tests");
+    await chooseStoryTab(intent, "Changes");
     await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
   }
   const { development, intentChoice } = parts(page);
   await development.click();
   await expect(intent).toHaveCount(0);
   await intentChoice.click();
-  await expectStoryTab(intent, "Changed tests");
+  await expectStoryTab(intent, "Changes");
   await expectStoryComparisonRead(intent);
 
   await expect(storyOnly(intent)).toBeChecked();
@@ -138,11 +138,11 @@ test("another project shows none of the reading place, and choosing the project 
 
   // The story stays selected and opens at its CI comparison; its tree is
   // expanded as when first compared, with the toggle off and nothing
-  // selected, so Changed tests asks for a choice.
+  // selected, so Changes asks for a choice.
   await chooseProject(page, "Open Dough");
   await expectStoryTab(intent, "CI comparison");
   await expect(ciPanel(intent)).toBeVisible();
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expect(intentReadingPane(intent)).toContainText(
     "Choose a test, folder or location to read its Purpose and Proof.",
   );

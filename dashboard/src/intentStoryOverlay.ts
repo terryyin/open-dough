@@ -3,12 +3,12 @@
 // revision, plus the story's changed files as Review changes compares them
 // (`./useStoryComparison.ts`), give each location's tree files with their
 // change kind, the changed files a location's selection admits inserted at
-// their paths, whether each location contains changes, and how many changed
-// files lie outside every location. A location admits a path by the one
-// location-selection rule (`./intentLocationSelection.ts`). A changed file
-// sits at its path where a location admits it; a rename no location admits
-// at its new path sits at its old path where one admits that, so a rename
-// across a location's boundary stays reviewable. Either way a renamed file
+// their paths, whether each location contains changes, and the changed files
+// outside every location at their repository paths. A location admits a path
+// by the one location-selection rule (`./intentLocationSelection.ts`). A
+// changed file sits at its path where a location admits it; a rename no
+// location admits at its new path sits at its old path where one admits that,
+// so a rename across a location's boundary stays reviewable. Either way a renamed file
 // is one entry: its old path's published entry gives way to it. A deleted
 // file stays, whether or not the published tree still lists it. Without a
 // story, the trees are the published files alone. "Selected story only" is
@@ -32,6 +32,8 @@ export type IntentTreeFile = {
   readonly change?: ReviewedFile;
   // Whether the published revision lists this file in the location.
   readonly published: boolean;
+  // A changed file no location admits, which CI evidence holds no unit of.
+  readonly outside?: true;
 };
 
 // Path whose baseline CI figures a rename reads; otherwise `path`.
@@ -51,8 +53,9 @@ export type LocationOverlay = {
 export type StoryOverlay = {
   // One per configured location, in configured order.
   readonly locations: readonly LocationOverlay[];
-  // The story's changed files no location admits by either path.
-  readonly outside: number;
+  // The story's changed files no location admits by either path, each at its
+  // repository path; the published Intent tree lists none of them.
+  readonly outside: readonly IntentTreeFile[];
 };
 
 // Where the comparison's changed file sits in Intent: its path where a
@@ -76,11 +79,17 @@ export function intentStoryOverlay(
   const placed = new Map<string, ReviewedFile>();
   // Old paths whose published entry a rename replaces.
   const movedAway = new Set<string>();
-  let outside = 0;
+  const outside: IntentTreeFile[] = [];
   for (const change of changed ?? []) {
     const at = placementOf(locations, change);
     if (at === undefined) {
-      outside += 1;
+      outside.push({
+        path: change.path,
+        published: false,
+        outside: true,
+        kind: change.kind,
+        change,
+      });
       continue;
     }
     placed.set(at, change);
@@ -133,19 +142,20 @@ export function storyChangesOnly(overlay: StoryOverlay): StoryOverlay {
   };
 }
 
-// Each overlaid tree file by its repository path.
+// Each overlaid tree file by its repository path, outside files included.
 export function overlayFilesByPath(
   locations: readonly IntentLocation[],
   overlay: StoryOverlay,
 ): ReadonlyMap<string, IntentTreeFile> {
-  return new Map(
-    overlay.locations.flatMap(({ files }, index) =>
-      files.map((file) => [
-        `${locations[index]?.path ?? ""}/${file.path}`,
-        file,
-      ]),
+  return new Map([
+    ...overlay.locations.flatMap(({ files }, index) =>
+      files.map(
+        (file) =>
+          [`${locations[index]?.path ?? ""}/${file.path}`, file] as const,
+      ),
     ),
-  );
+    ...overlay.outside.map((file) => [file.path, file] as const),
+  ]);
 }
 
 // Which tree the story opens: the first location, in configured order, that
@@ -159,6 +169,8 @@ export type StoryOverlayExpansion = {
   // Per location, in configured order, its folders to open by path relative
   // to the location, as its tree names them (`./reviewFileTree.ts`).
   readonly folders: readonly (readonly string[])[];
+  // The outside files' folders to open, by repository path.
+  readonly outsideFolders: readonly string[];
 };
 
 export function storyOverlayExpansion(
@@ -172,6 +184,9 @@ export function storyOverlayExpansion(
     location: first < 0 ? undefined : locations[first]?.path,
     folders: overlay.locations.map((location) =>
       reviewFoldersContainingChanges(reviewFileTree(location.files)),
+    ),
+    outsideFolders: reviewFoldersContainingChanges(
+      reviewFileTree(overlay.outside),
     ),
   };
 }

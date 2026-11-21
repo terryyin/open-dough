@@ -10,7 +10,7 @@ This provisional plan is **awaiting story refinement — not ready for slice-pla
 **Review changes** on a Story card opens Intent on that story's changes, so
 a story has one review destination. The seed holds the scope and examples.
 They were split from
-[Read every file a story changed in Intent](../../seeds/SEED-420-unified-intent-review.md#open-review-in-intent)
+the completed SEED-420#open-review-in-intent
 at `7634d96a0`. No original executable plan existed. These slices provisionally
 receive that story's entry and rollout scope. Refinement must confirm the
 examples, the journey cohorts and proof operations before this plan becomes

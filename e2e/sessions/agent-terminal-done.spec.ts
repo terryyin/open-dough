@@ -40,6 +40,7 @@ import {
   colourOf,
   tokenColour,
 } from "../../dashboard/test-support/pageColours.ts";
+import { untilDoneMarkAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
 import { holdDoneRequests } from "../../dashboard/test-support/support/holdDoneRequest.ts";
@@ -115,6 +116,7 @@ test.describe("marking a session done from its terminal", () => {
     await expect(marking).toBeVisible();
     expect(await colourOf(marking)).toBe(await tokenColour(page, "--quiet"));
     release();
+    await untilDoneMarkAnswered(page);
     await expect(panel).toHaveCount(0);
     // The panel the mark closed keeps the story selected.
     await expectSelected(story, true);
