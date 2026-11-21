@@ -21,6 +21,7 @@ import {
   SessionStateBuilder,
 } from "./launchObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
+import { optionsDefinitionMakeMeProperties } from "./optionsDefinitionTestData.mjs";
 import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
 import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTestData.mjs";
 
@@ -30,6 +31,7 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./ciProofTestData.mjs").CiProofMakeMe &
  *   import("./comparedStoryTestData.mjs").ComparedStoryMakeMe &
  *   import("./comparisonViewTestData.mjs").ComparisonViewMakeMe &
+ *   import("./optionsDefinitionTestData.mjs").OptionsDefinitionMakeMe &
  *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe &
  *   import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe &
  *   import("./sessionRecordTestData.mjs").SessionRecordMakeMe &
@@ -66,6 +68,7 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...ciProofMakeMeProperties(),
   ...comparedStoryMakeMeProperties(),
   ...comparisonViewMakeMeProperties(),
+  ...optionsDefinitionMakeMeProperties(),
   ...publishedReadingMakeMeProperties(),
   ...terminalThemeSettingMakeMeProperties(),
   ...sessionRecordMakeMeProperties(),

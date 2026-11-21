@@ -181,7 +181,7 @@ model changes; incompatible selection stays invalid and can block Start.
 ### 6. Refinement options and recorded model or option lines stay accurate
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `agent-launch-options`, `agent-launch-options-entries`, and
 `agent-launch-model-entries` (13). Mount `LaunchDialog` / `LaunchOptions` for

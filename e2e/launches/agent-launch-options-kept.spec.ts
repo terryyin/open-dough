@@ -3,7 +3,7 @@
 // launch says "Launch failed:" naming the option and keeps the selection for
 // the next opening, naming in one quiet line the kept flags the project no
 // longer offers, which are not sent. That Cancel drops it is
-// ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts. The
+// ../../dashboard/frontend-tests/launches/launch-refinement-options.spec.ts. The
 // synthetic `claude` (../../dashboard/test-support/fixtures/fake-claude) stands in for
 // the real one; the boundary's own rules are
 // ../../dashboard/backend-tests/launches/agent-launch-options-boundary.spec.ts.

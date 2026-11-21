@@ -140,6 +140,9 @@ test.describe(`agent launch boundary, chosen model`, () => {
       `/dough-execute-plan ${identity}\n\ngo`,
     ]);
     expect(record.request).toEqual(request);
+    expect(await machineSessions(server)).toContainEqual(
+      expect.objectContaining({ request: record.request }),
+    );
   });
 
   test("passes Open Dough's default effort when none is chosen, and its record keeps it", async () => {

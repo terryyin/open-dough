@@ -2,6 +2,7 @@ import { createElement, type ComponentProps } from "react";
 import { vi } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import { StoryCardLaunches } from "../../src/StoryCardLaunches.tsx";
 import { launchOffers } from "../../src/launchOffers.ts";
 import type { WorkEntry } from "../../src/publishedWork.ts";
@@ -14,6 +15,11 @@ export async function mountStoryLaunches(
   {
     establishesExecution = false,
     viewport = { width: 1440, height: 900 },
+    offerRead,
+  }: {
+    establishesExecution?: boolean;
+    viewport?: { width: number; height: number };
+    offerRead?: { answer: MachineAnswer; held: boolean };
   } = {},
 ) {
   const source = makeMe.aPublishedSource.openDough.please();
@@ -26,12 +32,18 @@ export async function mountStoryLaunches(
       })
     : machine;
   const start = vi.fn<StoryLaunches["start"]>().mockResolvedValue(true);
+  const answer = offerRead?.answer ?? read.please();
   const launches: StoryLaunches = {
-    ...launchOffers(read.please(), true),
+    ...launchOffers(answer, true),
     attemptEvidence: "read",
     launched: [],
     creations: [],
-    rereadOffers: () => undefined,
+    rereadOffers: () => {
+      if (offerRead !== undefined)
+        rerender(
+          view(entry, true, { ...launches, ...launchOffers(answer, false) }),
+        );
+    },
     keptStartOf: () => undefined,
     runningStartOf: () => undefined,
     storyStartupOf: () => undefined,
@@ -47,7 +59,15 @@ export async function mountStoryLaunches(
       dependencyProblem: undefined,
       statusId: "story-startup",
     });
-  const { rerender } = await mountComponent(view(entry, true), { viewport });
+  const held = {
+    ...launches,
+    ...launchOffers(answer, false),
+    attemptEvidence: "unread",
+  } satisfies StoryLaunches;
+  const { rerender } = await mountComponent(
+    view(entry, true, offerRead?.held ? held : launches),
+    { viewport },
+  );
   const group = page.getByRole("group", { name: "Launch actions" });
   return {
     group,

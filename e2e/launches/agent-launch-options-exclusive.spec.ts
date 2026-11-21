@@ -5,7 +5,7 @@
 // group's other, launching in definition order; a project without a usable
 // definition says why in one quiet line and Start launches default
 // refinement. Clearing a group and a definition still being read are
-// ../../dashboard/frontend-tests/launches/agent-launch-options.spec.ts; a
+// ../../dashboard/frontend-tests/launches/launch-refinement-options.spec.ts; a
 // refused launch's kept selection is ./agent-launch-options-kept.spec.ts. The
 // synthetic `claude` (../../dashboard/test-support/fixtures/fake-claude) stands in for
 // the real one; the boundary's own rules are
