@@ -114,6 +114,12 @@ typecheck and lint clean. The lens result carries `review` (chosen) and
 on another story; slice 2 owns it. The refactor pass folded
 `useDefaultStoryReview` into `useStoryReviewSelection`, whose result names
 the default `defaultReview`; the same proof reran green.
+CI repair (run 44923917751, `e2e/intent/intent-story-becomes-done.spec.ts`):
+the selection kept an automatic run when the story became Done, so its
+unavailable read hid the published default. The selection is now keyed by
+identity and Done state; the spec reproduced and now passes, with the 13
+intent specs, the review folder and 19 done-related Intent e2e tests. G1
+holds the remaining automatic-run retention.
 
 ### 2. Choosing a commit range changes the story's files, diffs and header
 
@@ -219,3 +225,10 @@ answers and `holdNextRange` for a failed read.
   concern. Slice 2 is the widest, adding the Compare part and the commit
   list together; if it overruns, split the view-switch and reselection
   examples into their own slice.
+
+## Story obligations
+
+### G1. Intent keeps an earlier automatic run over a newer default (first reported in slice 1)
+Reported: slice 1 — "If a later answer for the same read (same story and Done state) names a different selectedRun while the old run is still listed, Intent keeps the old one. Before slice 1 it always followed the newer default."
+Story clause: "Intent offers the choices the Side panel review offers a story, with their present defaults and availability"
+Disposition: receiving slice 2

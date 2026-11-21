@@ -1,6 +1,7 @@
 // A story's default comparison follows the server's opening answer. The
 // chosen comparison is read through Review changes' selection, keyed by the
-// story, so it equals the default until a choice is made.
+// story and whether it is Done, so it equals the default until a choice is
+// made, and a story becoming Done opens on its completed result.
 // An active workspace shows all changes, including uncommitted work. Done
 // Intent reads the completed result even while that workspace remains.
 
@@ -53,7 +54,7 @@ export function useStoryComparison({
       completed,
       enabled,
       historical: completed,
-      keyedBy: identity,
+      keyedBy: `${identity}${completed ? " done" : ""}`,
     });
   const { comparison, tree } = useStoryReviewComparison({
     subject,
