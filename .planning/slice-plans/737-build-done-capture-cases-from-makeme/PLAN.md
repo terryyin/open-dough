@@ -29,10 +29,9 @@ supplier evidence that still covers the same boundary and assertion.
 | Default main declares a dirty worktree | Entry observes the recorded tip, tree, distinct Default main tip and retry. Review answers both comparisons. Foreign, wrong-branch and second-place requests retain their refusals and Cursor replacement retains entry ownership. Slice 3. |
 | Isolated branch work, retirement and supersession | Saved commit and dirty tree remain independently reviewable. Missing and empty results differ. Held, newer and deleted Done operations retain their assertions on the actual pin set. Slice 4. |
 | Manual merge before and after publication | Compare the saved dirty branch with the actual trunk resolution. Other-branch acceptance, unrelated changes, unobserved parents and squash leave their existing results and explanations. Slice 5. |
-| Two dated Done branches land on one observed trunk | Restart, same-revision retry, skip and subsequent observations distinguish the delivered branches. Deletion or expiry while held removes the entry and its pins while the survivor lands. Slice 6. |
-| Publisher has a declared or reported isolated branch | The installed entry prepares the exact pair that is accepted, records after Done, retries with the original launch and retains the correct file pair after retirement. Real cleanup still owns pin removal. Slice 7. |
-| A quiet completion arrives while native Done is pending | Actual receipt and native rename ordering choose the kept commit run, with the existing resume, retry and previous-run assertions. Slice 8. |
-| Setup is readable and imports are narrower | Review the launch and Done time at each meaningful call site, the one case value, the branch-entry spec's helper/import boundary, and the support import and lines comparison. Each slice retires its migrated setup, and slice 8 closes the comparison. |
+| Publisher has a declared or reported isolated branch | The installed entry prepares the exact pair that is accepted, records after Done, retries with the original launch and retains the correct file pair after retirement. Real cleanup still owns pin removal. Slice 6. |
+| A quiet completion arrives while native Done is pending | Actual receipt and native rename ordering choose the kept commit run, with the existing resume, retry and previous-run assertions. Slice 7. |
+| Setup is readable and imports are narrower | Review the launch and Done time at each meaningful call site, the one case value, the branch-entry spec's helper/import boundary, and the support import and lines comparison. Each slice retires its migrated setup, and slice 7 closes the comparison. |
 
 ## Decisions and existing owners
 
@@ -78,10 +77,9 @@ The slice rows supply the literal selector basenames (append `.spec.ts`).
 
 | Consuming operation | Observation and result | Limit and consequence |
 | --- | --- | --- |
-| Current launch, Git and review inputs reach each family boundary | Ran the 28 paths listed by slices 1–8. At one worker all 75 cases passed in 136.18 s, including both timing cases below. At two workers 73 of 75 passed. | The one-worker profile reaches all current outcomes. Supplier evidence and the post-supplier rerun own changes to their input shape. |
+| Current launch, Git and review inputs reach each family boundary | Ran the 28 paths listed by slices 1–7. At one worker all 75 cases passed in 136.18 s, including both timing cases below. At two workers 73 of 75 passed. | The one-worker profile reaches all current outcomes. Supplier evidence and the post-supplier rerun own changes to their input shape. |
 | Initial dirty entry and Cursor expiry observe real pin effects (slice 3) | Branch-entry preparation at `9784452bd:.planning/slice-plans/735-propose-branch-entry-from-typed-inputs/PLAN.md` recorded the expected ref assertion failures with entry pinning or expiry cleanup bypassed, then both checks passed after restoration. The current branch-entry and Cursor specs also passed in this preparation. | Preserve those real actions and pin assertions in their delivered owners. |
-| Removing a held observation's target must exclude its pins (slice 6) | [Observation intent proof](../../done/SEED-413_arrange-done-ad-hoc-observation-and-publication.json) at `fd378d808` reached both removal paths with one worker. Both pin assertions caught a stale write and passed after restoration. Current lifecycle and retry specs passed. | Preserve the held inspection, explicit survivor and complete pin set in the adapter cases. |
-| Manual merge and reported comparison both finish with native Git and the installed/typed entries (slices 5 and 7) | At two workers the first `ad-hoc-manual-landing` case and the `ad-hoc-session-comparisons` case hit 5 s. The one-worker diagnostic ran `npm run --silent test:dashboard:backend -- ad-hoc-manual-landing.spec.ts ad-hoc-session-comparisons.spec.ts --workers=1` with `GIT_TRACE2_EVENT` set. All 7 cases passed at load 17–18. The two cases took 3.68 s and 3.14 s. Git traced 425 top-level calls across the seven cases, with none exceeding 127 ms. | The passing serial run reaches the final text and rejection assertions. Parallel timeout margin remains a defect. At the post-supplier baseline, identify which timeout persists, then diagnose and repair it in the owning slice using the failure policy. Preserve assertions and the default timeout. |
+| Manual merge and reported comparison both finish with native Git and the installed/typed entries (slices 5 and 6) | At two workers the first `ad-hoc-manual-landing` case and the `ad-hoc-session-comparisons` case hit 5 s. The one-worker diagnostic ran `npm run --silent test:dashboard:backend -- ad-hoc-manual-landing.spec.ts ad-hoc-session-comparisons.spec.ts --workers=1` with `GIT_TRACE2_EVENT` set. All 7 cases passed at load 17–18. The two cases took 3.68 s and 3.14 s. Git traced 425 top-level calls across the seven cases, with none exceeding 127 ms. | The passing serial run reaches the final text and rejection assertions. Parallel timeout margin remains a defect. At the post-supplier baseline, identify which timeout persists, then diagnose and repair it in the owning slice using the failure policy. Preserve assertions and the default timeout. |
 
 ## Slices
 
@@ -157,26 +155,7 @@ timeout with the post-supplier timing evidence before accepting this slice.
 **Proof.** Run `ad-hoc-manual-landing`. Keep both distinct text comparisons,
 the remote/ref restriction and all negative delivery cases.
 
-### 6. Two Done branches share one published-trunk arrangement
-
-Type: Behavior
-Status: planned
-
-Use MakeMe to arrange both Done records, their named worktrees, actual branch
-tips and trunk merge order. Derive the observed source/ref from the case.
-Compose the delivered observation input and leave the hold, inspection and
-removal operations visible in the tests. Remove the old observation presets.
-
-**Proof.** Run `ad-hoc-manual-landing-observation`,
-`ad-hoc-manual-landing-observation-lifecycle`,
-`ad-hoc-manual-landing-observation-retry` and
-`ad-hoc-manual-landing-revision-observation`, plus the supplier's delivered
-typed decision cases (planned as `observed-session-deliveries.spec.ts` in
-`fe23c9c21:.planning/slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md`).
-Check kept results and refs across repeat, attempted delivery loss and
-survivor settlement, including removal of pins on post-pin write loss.
-
-### 7. Publisher cases share the launch and its reporting context
+### 6. Publisher cases share the launch and its reporting context
 
 Type: Behavior
 Status: planned
@@ -192,7 +171,7 @@ any remaining comparison timeout in the post-supplier profile in this slice.
 `ad-hoc-session-comparisons`. Observe the publisher's accepted pair,
 exact retry, distinct file comparisons and pin release.
 
-### 8. Quiet completion cases show the launch, receipt and Done sequence
+### 7. Quiet completion cases show the launch, receipt and Done sequence
 
 Type: Behavior
 Status: planned
@@ -233,4 +212,4 @@ import and line comparison.
 - Slice-plan refinement was unnecessary after separating manual delivery,
   observation, publication and native completion proof. The same checkout,
   launch records and timeline drive each slice. The observed timeout margin
-  belongs to slices 5 and 7 and is tracked in their proof.
+  belongs to slices 5 and 6 and is tracked in their proof.

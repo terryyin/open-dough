@@ -1,192 +1,125 @@
-// A revision observation discovers the hand-made trunk delivery of a Done
-// branch: after a restart, a later advance and branch retirement it keeps
-// the comparison fixed at Done beside the delivered one, and a check at an
-// unchanged revision still finds a session that became Done since.
-import path from "node:path";
+// The store adapter keeps an observed delivery on the live launch with its
+// landing pins, and holds no pins for a delivery the launch did not keep.
 import { expect, test } from "vitest";
-import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keepBranchResultRefs } from "../../server/launchRecordPins.ts";
-import { observedSessionDeliveries } from "../../server/observedSessionDeliveries.ts";
+import { heldLandingPins } from "../../server/launchLandingGit.ts";
+import {
+  sessionLandingObservations,
+  type ObservedLandingStore,
+} from "../../server/observedSessionLandings.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { branchResultAtDone } from "../../src/sessionBranchResult.ts";
-import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
-import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
-import {
-  aCheckoutWithWorktree,
-  anIsolatedLaunch,
-  inWorktree,
-  minutesAgo,
-  work,
-} from "../support/doneCaptureCase.ts";
-import {
-  aDoneBranch,
-  fileDiff,
-  fileText,
-  review,
-} from "../support/doneCaptureReview.ts";
-import { observedTrunk } from "../support/doneBranchObservation.ts";
+import { aCheckout, source } from "../support/doneCaptureCase.ts";
 
-const branch = "draft";
-const head = async (checkout: string) =>
-  (await git(checkout, "rev-parse", "HEAD")).stdout.trim();
+const observedTrunk = { id: source, ref: "main" };
+const observed = "c".repeat(40);
+const trunk = { remote: "origin", target: "refs/heads/main" };
 
-test("the first observation after restart discovers a delivery while preserving the fixed branch comparison", async () => {
-  const { checkout, workspace } = await aCheckoutWithWorktree(branch, {
-    "draft.txt": "Original draft\n",
-  });
-  const { integration, base: baseline } = checkout;
-  await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork
-      .committing("committed", {
-        at: minutesAgo(30),
-        files: { "draft.txt": "Committed draft\n" },
-      })
-      .editing("working", {
-        at: minutesAgo(20),
-        files: { "draft.txt": "Working draft\n" },
-      }),
-  );
-  const done = minutesAgo(10);
-  const record = await aDoneBranch(
-    anIsolatedLaunch(checkout, { workspace, branch }),
-    { doneAt: done },
-  );
-  const branchResult = branchResultAtDone(record);
-  if (branchResult === undefined)
-    throw new Error("Missing the Done branch result.");
-  await keepBranchResultRefs(record.session, branchResult);
-  const branchAtDone = await review([record], record);
-  expect(branchAtDone).toMatchObject({
-    kind: "branch-result",
-    baseline,
-    files: [{ path: "draft.txt" }],
-  });
+// A Done branch awaiting delivery whose inspection finds `pair`, a revision
+// of a real repository so the adapter can pin it.
+async function aDeliveredDoneBranch() {
+  const { integration: repository, base } = await aCheckout();
+  const record = makeMe.aLaunchRecord
+    .adHoc({ title: "draft" })
+    .awaitingManualDelivery({ repository, base, revision: base })
+    .please();
+  const pair = { repository, ...trunk, base, revision: base };
+  const observe = (store: ObservedLandingStore) =>
+    sessionLandingObservations({
+      store,
+      readTrunkHead: () => Promise.resolve(observed),
+      inspect: () => Promise.resolve(pair),
+    }).observe(observedTrunk, observed);
+  return { repository, record, pair, observe };
+}
 
-  const { trunk: trunkParent } = await work(
-    checkout,
-    makeMe.aCheckoutWork.committing("trunk", {
-      at: minutesAgo(5),
-      files: { "draft.txt": "Trunk draft\n" },
+// A store holding `kept`, whose session write saves its change to `live`.
+function aStore(kept: LaunchRecord, live = kept) {
+  const store = {
+    saved: undefined as LaunchRecord | undefined,
+    keptRecords: () => Promise.resolve([kept]),
+    async changeSessionRecord(
+      ...[, , change]: Parameters<ObservedLandingStore["changeSessionRecord"]>
+    ) {
+      store.saved = await change(live);
+      return store.saved;
+    },
+  };
+  return store;
+}
+
+test("an observed delivery is kept on the live launch with its pins", async () => {
+  const { repository, record, pair, observe } = await aDeliveredDoneBranch();
+  const store = aStore(record);
+
+  await observe(store);
+
+  const landing = store.saved?.landing;
+  expect(landing).toMatchObject(pair);
+  const pinned = `refs/open-dough/one-shot/${landing?.reference}/${landing?.delivery}`;
+  expect(await heldLandingPins(repository)).toEqual([
+    { ref: `${pinned}/base`, objectId: pair.base },
+    { ref: `${pinned}/revision`, objectId: pair.revision },
+  ]);
+});
+
+test.each([
+  {
+    field: "launch time",
+    update: (record: LaunchRecord): LaunchRecord => ({
+      ...record,
+      launchedAt: new Date(Date.parse(record.launchedAt) + 1_000).toISOString(),
     }),
-  );
-  resolveStoryConflict(
-    integration,
-    ["merge", "--no-ff", "--no-edit", branch],
-    "draft.txt",
-    "Resolution on trunk\n",
-    "Resolve the draft",
-  );
-  const merge = await head(integration);
-  const { later: latest } = await work(
-    checkout,
-    makeMe.aCheckoutWork
-      .committing("later", { at: minutesAgo(3) })
-      .pushingToTrunk("later-push", { at: minutesAgo(3) }),
-  );
-  retireAdHocBranch(integration, workspace, branch, {
-    discardWorkingChanges: true,
-  });
+  },
+  {
+    field: "branch pin owner",
+    update: (record: LaunchRecord): LaunchRecord => ({
+      ...record,
+      branchEvidenceOwner: { ...record.session, sessionId: "recovered-branch" },
+    }),
+  },
+  {
+    field: "Done branch result",
+    update: (record: LaunchRecord): LaunchRecord => {
+      const result = branchResultAtDone(record);
+      if (result === undefined)
+        throw new Error("Missing the Done branch result.");
+      return { ...record, branchResult: { ...result, revision: observed } };
+    },
+  },
+])(
+  "a launch whose $field changed during inspection keeps no delivery",
+  async ({ update }) => {
+    const { repository, record, observe } = await aDeliveredDoneBranch();
+    const live = update(record);
+    const store = aStore(record, live);
 
-  const restarted = observedSessionDeliveries();
-  expect(await review([record], record)).toEqual(branchAtDone);
-  const [delivery] = await restarted.observe(observedTrunk, latest, [record]);
-  if (delivery === undefined)
-    throw new Error("Missing the delivery after restart.");
-  const { pair } = delivery;
-  const kept = {
-    ...delivery.record,
-    landing: makeMe.aLaunchLanding.capturedFrom(pair).comparing(pair).please(),
-  };
-  const delivered = await review([kept], record);
-  expect(delivered).toMatchObject({
-    kind: "landed",
-    baseline: trunkParent,
-    tree: merge,
-    sessionComparisonKeys: ["delivered", "branch-result"],
-    files: [{ path: "draft.txt" }],
-  });
-  const savedBranch = await review([kept], record, "branch-result");
-  expect(savedBranch).toMatchObject({
-    kind: "branch-result",
-    baseline,
-    files: [{ path: "draft.txt" }],
-  });
-  if (delivered.kind !== "landed" || savedBranch.kind !== "branch-result")
-    throw new Error("Missing the saved branch and delivered comparisons.");
-  expect(branchAtDone).toMatchObject({ tree: savedBranch.tree });
-  expect(kept.doneAt).toBe(done);
+    await observe(store);
 
-  await git(
-    integration,
-    "remote",
-    "set-url",
-    "origin",
-    path.join(path.dirname(integration), "offline"),
-  );
-  expect(await review([kept], record)).toEqual(delivered);
-  expect(await review([kept], record, "branch-result")).toEqual(savedBranch);
-  for (const [comparison, before, after, reference] of [
-    [
-      delivered,
-      "Trunk draft",
-      "Resolution on trunk",
-      delivered.landing.reference,
-    ],
-    [savedBranch, "Original draft", "Working draft", undefined],
-  ] as const) {
-    const file = {
-      baseline: comparison.baseline,
-      tree: comparison.tree,
-      path: "draft.txt",
-      ...(reference === undefined ? {} : { reference }),
+    expect(store.saved).toBe(live);
+    expect(await heldLandingPins(repository)).toEqual([]);
+  },
+);
+
+test.each([
+  { outcome: "an unsaved", saved: false, pins: 0 },
+  { outcome: "a saved", saved: true, pins: 2 },
+])(
+  "a write that fails after pinning keeps pins only for $outcome delivery",
+  async ({ saved, pins }) => {
+    const { repository, record, observe } = await aDeliveredDoneBranch();
+    let kept = record;
+    const store: ObservedLandingStore = {
+      keptRecords: () => Promise.resolve([kept]),
+      async changeSessionRecord(...[, , change]) {
+        const changed = await change(kept);
+        if (saved) kept = changed;
+        throw new Error("Could not save the launch.");
+      },
     };
-    const diff = await fileDiff([kept], record, file);
-    expect(diff.kind).toBe("diff");
-    expect(diff.kind === "diff" && diff.printed).toContain(
-      `-${before}\n+${after}`,
-    );
-    expect(await fileText([kept], record, file)).toEqual({
-      kind: "text",
-      baseline: `${before}\n`,
-      tree: `${after}\n`,
-    });
-  }
-});
 
-test("an unchanged revision check discovers delivery for a newly Done session", async () => {
-  const { checkout, workspace } = await aCheckoutWithWorktree(branch);
-  const launch = anIsolatedLaunch(checkout, { workspace, branch });
-  const { "newly-done": tip } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("newly-done", { at: minutesAgo(30) }),
-  );
-  const { merge } = await work(
-    checkout,
-    makeMe.aCheckoutWork
-      .mergingTipByHand("merge", { tip, at: minutesAgo(5) })
-      .pushingToTrunk("pushed", { at: minutesAgo(5) }),
-  );
-  const observations = observedSessionDeliveries();
-  expect(
-    await observations.observe(observedTrunk, merge, [launch.please()]),
-  ).toEqual([]);
+    await observe(store);
 
-  const done = await aDoneBranch(launch);
-  expect(done.branchResult?.manualDeliveryChecked).toBe(true);
-  expect(done.landing).toBeUndefined();
-  const [delivery] = await observations.observe(observedTrunk, merge, [done]);
-  if (delivery === undefined)
-    throw new Error("Missing the newly Done delivery.");
-  const { pair } = delivery;
-  const kept = {
-    ...delivery.record,
-    landing: makeMe.aLaunchLanding.capturedFrom(pair).comparing(pair).please(),
-  };
-  expect(await review([kept], done)).toMatchObject({
-    kind: "landed",
-    baseline: checkout.base,
-    tree: merge,
-    files: [{ path: "newly-done.txt" }],
-  });
-});
+    expect(await heldLandingPins(repository)).toHaveLength(pins);
+  },
+);

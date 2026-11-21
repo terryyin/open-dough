@@ -375,14 +375,13 @@ arrangements after the four preceding renovations.
     fixture to materialize named worktrees, with an origin where the case
     publishes. State launch and Done times at the call site and retain the
     distinction between case work and the action under test.
-  - Compose the two manually merged Done branches, the declared publisher
-    branch and the reported isolated branch from those same builders. Derive
-    the observed trunk from the case's source and ref. Reuse the delivered
-    Done, branch-entry, observation and landing-report values. Cases that
+  - Compose the declared publisher branch and the reported isolated branch
+    from those same builders. Reuse the delivered Done, branch-entry and
+    landing-report values. Cases that
     exercise persistence, a race, or the installed publisher keep the real
     operation and its independent observations.
   - Remove arrangements and redundant verbs from `doneCaptureCase.ts`,
-    `doneBranchObservation.ts`, `declaredPublisherBranch.ts`,
+    `declaredPublisherBranch.ts`,
     `reportedIsolatedBranch.ts`, `reportedDoneCase.ts` and the specs. Retire
     modules once their last caller moves. Keep any remaining effect in its
     existing owner and add no support wrappers. The four supplier stories
@@ -396,9 +395,7 @@ arrangements after the four preceding renovations.
     still reads the separate comparisons, and foreign or conflicting places
     are still refused. The spec has no local setup helpers, and any remaining
     import from `doneCaptureCase.ts` is limited to one case builder.
-  - A two-branch observation case starts from dated Done records and a real
-    manually merged trunk; it keeps the existing delivery, retry and removal
-    assertions. A publisher case starts from the matching launch, attempt
+  - A publisher case starts from the matching launch, attempt
     and context and keeps the distinct branch and delivered comparisons,
     including across retirement and exact retry.
 - **Evaluation.** Compare support imports and named bindings per affected
@@ -470,7 +467,7 @@ does not depend on them.
     production seams that start more than their answer needs. The family is
     the Git-heavy Done capture cases under `dashboard/backend-tests/review/`
     and `dashboard/backend-tests/launches/`, with their shared support:
-    `doneCaptureCase.ts`, `doneCaptureReview.ts`, `doneBranchObservation.ts`,
+    `doneCaptureCase.ts`, `doneCaptureReview.ts`,
     `declaredPublisherBranch.ts`, `installedPublisher.ts`,
     `reportedIsolatedBranch.ts` and `adHocBranchRefs.ts`, as the five
     import-list stories leave them. Profile per case first: checkout creation,

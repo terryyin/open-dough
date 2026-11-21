@@ -2,10 +2,7 @@ import path from "node:path";
 import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { heldLandingPins } from "../../server/launchLandingGit.ts";
-import {
-  decideObservedDeliveries,
-  observedSessionDeliveries,
-} from "../../server/observedSessionDeliveries.ts";
+import { observedSessionDeliveries } from "../../server/observedSessionDeliveries.ts";
 import {
   aCheckout,
   anIsolatedLaunch,
@@ -100,90 +97,55 @@ const branch = {
   tree: base,
   trunk,
 };
-const result = {
-  repository: branch.repository,
-  base,
-  revision,
-};
+const result = { repository: branch.repository, base, revision };
 const checkedResult = { ...result, manualDeliveryChecked: true } as const;
-type LaunchBuilder = typeof makeMe.aLaunchRecord;
+const aDraft = (title: string) =>
+  makeMe.aLaunchRecord
+    .adHoc({ title })
+    .inClaudeSession({ sessionId: title })
+    .enteredBranch(branch);
+const awaitingDelivery = (title: string) =>
+  makeMe.aLaunchRecord
+    .adHoc({ title })
+    .inClaudeSession({ sessionId: title })
+    .awaitingManualDelivery(result);
 
-const ineligible: [string, (launch: LaunchBuilder) => LaunchBuilder][] = [
-  ["an open launch", (launch) => launch.branchResultFrom(checkedResult)],
-  [
-    "a Done launch with a delivery",
-    (launch) =>
-      launch
-        .markedDone()
-        .branchResultFrom(checkedResult)
-        .withLanding(makeMe.aLaunchLanding.comparing({ base, revision })),
-  ],
-  ["a Done launch without a result", (launch) => launch.markedDone()],
-  [
-    "a result captured for an earlier Done mark",
-    (launch) =>
-      launch.markedDone().branchResultFrom({
-        ...checkedResult,
-        doneAt: minutesAgo(20),
-      }),
-  ],
-  [
-    "a result without a manual-delivery check",
-    (launch) => launch.markedDone().branchResultFrom(result),
-  ],
-  [
-    "a branch without a witnessed trunk revision",
-    (launch) =>
-      launch
-        .markedDone()
-        .branchResultFrom(checkedResult)
-        .enteredBranch({
-          ...branch,
-          trunk: originTrunk,
-        }),
-  ],
-  [
-    "a branch that already witnessed the observed revision",
-    (launch) =>
-      launch
-        .markedDone()
-        .branchResultFrom(checkedResult)
-        .enteredBranch({
-          ...branch,
-          trunk: { ...trunk, revision: observed },
-        }),
-  ],
-  [
-    "a branch targeting another trunk ref",
-    (launch) =>
-      launch
-        .markedDone()
-        .branchResultFrom(checkedResult)
-        .enteredBranch({
-          ...branch,
-          trunk: { ...trunk, target: "refs/heads/elsewhere" },
-        }),
-  ],
-];
+test("inspects only Done branch results awaiting delivery, including one Done since the last check", async () => {
+  const readTrunkHead = vi.fn(() => Promise.resolve(observed));
+  const inspect = vi.fn(() => Promise.resolve({ ...originTrunk, ...result }));
+  const observations = observedSessionDeliveries({ readTrunkHead, inspect });
+  const notAwaiting = [
+    aDraft("newly Done").branchResultFrom(checkedResult),
+    awaitingDelivery("delivered").withLanding(
+      makeMe.aLaunchLanding.comparing({ base, revision }),
+    ),
+    aDraft("without a result").markedDone(),
+    aDraft("captured earlier")
+      .markedDone()
+      .branchResultFrom({ ...checkedResult, doneAt: minutesAgo(20) }),
+    aDraft("unchecked").markedDone().branchResultFrom(result),
+    awaitingDelivery("unwitnessed").enteredBranch({
+      ...branch,
+      trunk: originTrunk,
+    }),
+    awaitingDelivery("witnessed").enteredBranch({
+      ...branch,
+      trunk: { ...trunk, revision: observed },
+    }),
+    awaitingDelivery("elsewhere").enteredBranch({
+      ...branch,
+      trunk: { ...trunk, target: "refs/heads/elsewhere" },
+    }),
+  ].map((launch) => launch.please());
 
-test.each(ineligible)(
-  "skips %s before reading the authorized head",
-  async (title, arrange) => {
-    const record = arrange(
-      makeMe.aLaunchRecord.adHoc({ title }).enteredBranch(branch),
-    ).please();
-    const readTrunkHead = vi.fn(() => Promise.resolve(observed));
+  expect(
+    await observations.observe(sourceTrunk, observed, notAwaiting),
+  ).toEqual([]);
+  expect(readTrunkHead).not.toHaveBeenCalled();
 
-    const decision = decideObservedDeliveries(
-      [record],
-      sourceTrunk.ref,
-      observed,
-      {
-        readTrunkHead,
-      },
-    );
-
-    expect(await decision.next()).toMatchObject({ done: true });
-    expect(readTrunkHead).not.toHaveBeenCalled();
-  },
-);
+  const newlyDone = awaitingDelivery("newly Done").please();
+  const delivered = await observations.observe(sourceTrunk, observed, [
+    newlyDone,
+  ]);
+  expect(delivered.map(({ record }) => record)).toEqual([newlyDone]);
+});

@@ -1,6 +1,7 @@
 // Done checks whether an isolated ad hoc branch reached trunk without the
 // installed publisher: it keeps a verified manual delivery beside the branch
 // result, and otherwise says why delivery is unverified.
+import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -88,6 +89,13 @@ test("a verified manual merge retains its trunk parent and actual resolution", a
   retireAdHocBranch(integration, workspace, branch, {
     discardWorkingChanges: true,
   });
+  await git(
+    integration,
+    "remote",
+    "set-url",
+    "origin",
+    path.join(path.dirname(integration), "offline"),
+  );
 
   const delivered = await review(await keptRecords(source), record);
   expect(delivered).toMatchObject({
