@@ -3,7 +3,10 @@
 // recorded pair is read from that project's Git objects alone. No launch
 // history is needed. A record is read as valid only at its own UUID's path,
 // here and in the published-session listing (`./publishedSessionsRead.ts`).
-import { sessionRecordPath } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
+import {
+  isSessionId,
+  sessionRecordFileName,
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import {
   publishedSessionRecordSchema,
   type PublishedSessionRecord,
@@ -11,6 +14,7 @@ import {
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { sessionRecordDirectoryOf } from "./recordsBesideBacklog.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 import {
   admissionBound,
@@ -19,10 +23,7 @@ import {
   type AdmittedReviewedFile,
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import {
-  runChoice,
-  unavailableSessionCommitsReview,
-} from "./storyReviewSessionCommits.ts";
+import { unavailableSessionCommitsReview } from "./storyReviewSessionCommits.ts";
 
 // What the published read needs: the configured checkout, the published
 // revision it reads records from, and the configured backlog path.
@@ -32,8 +33,33 @@ export interface PublishedSessionSource {
   readonly backlogPath: string;
 }
 
+const sessionRecordPathOf = (
+  source: { readonly backlogPath: string },
+  sessionId: string,
+) => `${sessionRecordDirectoryOf(source)}/${sessionRecordFileName(sessionId)}`;
+
 const unknownSession = () =>
   new RefusedRequest(404, "This project published no such session.");
+
+// The record a published file's text holds, undefined unless it is valid and
+// sits at its own UUID's path. Shared by the local git-show review read and
+// the pinned listing (`./publishedSessionsRead.ts`).
+export function publishedRecordFromText(
+  source: { readonly backlogPath: string },
+  path: string,
+  text: string,
+): PublishedSessionRecord | undefined {
+  let parsed: ReturnType<typeof publishedSessionRecordSchema.safeParse>;
+  try {
+    parsed = publishedSessionRecordSchema.safeParse(JSON.parse(text));
+  } catch {
+    return undefined;
+  }
+  return parsed.success &&
+    sessionRecordPathOf(source, parsed.data.sessionId) === path
+    ? parsed.data
+    : undefined;
+}
 
 // The record a published file holds, undefined unless it is valid and sits at
 // its own UUID's path.
@@ -47,16 +73,7 @@ export async function publishedRecordAt(
     signal,
     maxBuffer: defaultGitOutputLimit,
   });
-  let parsed: ReturnType<typeof publishedSessionRecordSchema.safeParse>;
-  try {
-    parsed = publishedSessionRecordSchema.safeParse(JSON.parse(stdout));
-  } catch {
-    return undefined;
-  }
-  return parsed.success &&
-    sessionRecordPath(parsed.data.sessionId, source.backlogPath) === path
-    ? parsed.data
-    : undefined;
+  return publishedRecordFromText(source, path, stdout);
 }
 
 export async function publishedSessionRecord(
@@ -64,12 +81,10 @@ export async function publishedSessionRecord(
   session: string,
   signal: AbortSignal,
 ): Promise<PublishedSessionRecord> {
-  let file: string;
-  try {
-    file = sessionRecordPath(session, source.backlogPath);
-  } catch {
+  if (!isSessionId(session)) {
     throw new RefusedRequest(400, "The review session is malformed.");
   }
+  const file = sessionRecordPathOf(source, session);
   let record: PublishedSessionRecord | undefined;
   try {
     record = await publishedRecordAt(source, file, signal);
@@ -80,10 +95,11 @@ export async function publishedSessionRecord(
   return record;
 }
 
-// The files of one recorded pair, read from the configured checkout's objects.
+// The files of the one recorded pair, read from the configured checkout's
+// objects.
 const recordedPairFiles = (
   source: PublishedSessionSource,
-  { base, candidate }: PublishedSessionRecord["ranges"][number],
+  { base, candidate }: PublishedSessionRecord["ranges"][0],
   signal: AbortSignal,
 ) =>
   retainedCommitPairFiles(
@@ -98,7 +114,6 @@ export async function publishedSessionReview(
 ): Promise<StoryReview> {
   const record = await publishedSessionRecord(source, session, signal);
   const [range] = record.ranges;
-  if (range === undefined) throw unknownSession();
   const read = await recordedPairFiles(source, range, signal);
   if ("missing" in read)
     return unavailableSessionCommitsReview(
@@ -111,21 +126,15 @@ export async function publishedSessionReview(
       }[read.missing],
     );
   return {
-    kind: "session-commits",
-    session: { launchedAt: record.closedAt, doneAt: record.closedAt },
-    commitRuns: await Promise.all(
-      record.ranges.map(({ base, candidate }) =>
-        runChoice(source.repository, { base, revision: candidate }, signal),
-      ),
-    ),
-    commitRun: 0,
+    kind: "published-session",
+    session: { closedAt: record.closedAt },
     baseline: range.base,
     tree: range.candidate,
     files: read.files,
   };
 }
 
-// A file read admits only the literal path of a recorded pair of this session.
+// A file read admits only the literal path of this session's recorded pair.
 export async function admitPublishedSessionFile(
   source: PublishedSessionSource,
   session: string,
@@ -133,11 +142,10 @@ export async function admitPublishedSessionFile(
   signal: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
   const record = await publishedSessionRecord(source, session, signal);
-  const range = record.ranges.find(
-    ({ base, candidate }) => base === file.baseline && candidate === file.tree,
-  );
+  const [range] = record.ranges;
+  const onPair = range.base === file.baseline && range.candidate === file.tree;
   const read =
-    range && (await recordedPairFiles(source, range, admissionBound(signal)));
+    onPair && (await recordedPairFiles(source, range, admissionBound(signal)));
   throwIfRequestAborted(signal);
   if (!read || "missing" in read || !belongsOnRetainedPair(read.files, file))
     throw new RefusedRequest(

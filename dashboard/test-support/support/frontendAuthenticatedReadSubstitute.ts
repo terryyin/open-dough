@@ -22,6 +22,7 @@ export function answerAuthenticatedRead(
     | "locations"
     | "candidates"
     | "doneBySource"
+    | "publishedSessionsBySource"
     | "files"
     | "backlog"
   >,
@@ -99,11 +100,23 @@ export function answerAuthenticatedRead(
       },
     };
   }
-  // No project publishes session records here.
   if (
     params.get(publishedSessionsRead.parameter) === publishedSessionsRead.value
   ) {
-    return { status: 200, body: { revision, sessions: [] } };
+    const arranged = state.publishedSessionsBySource[sourceId];
+    if (arranged !== undefined && "error" in arranged) {
+      return {
+        status: arranged.status,
+        body: { error: arranged.error },
+      };
+    }
+    return {
+      status: 200,
+      body: {
+        revision,
+        sessions: arranged?.sessions ?? [],
+      },
+    };
   }
   // Which commit an arranged watched branch names now.
   const branch = params.get("branch");

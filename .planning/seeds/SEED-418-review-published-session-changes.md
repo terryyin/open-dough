@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-20
 planted_during: Terry's review of cross-machine session attribution and follow-up context
 trigger_when: selected from the product backlog
-scope: five stories
+scope: six stories
 ---
 
 # SEED-418 — Review published changes by session
@@ -123,30 +123,26 @@ A skipped session or an unrelated trunk change can fall between two selections. 
 
 After the 30-day window removes a published session file from the current snapshot, a developer can find that session and review its contribution using the record in published Git history. Recover its original UUID, story association when present, and recorded comparison. Check from a second machine with no local launch history. This covers sessions for which the workflow previously published a record.
 
-<a id="correct-published-session-review"></a>
+<a id="name-unavailable-published-session-review"></a>
 
-### Correct the published session review after its outcome review
+### Name an unavailable published-session review as published changes
 
-**Identity:** SEED-418#correct-published-session-review
+**Identity:** SEED-418#name-unavailable-published-session-review
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/746-correct-published-session-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"85990e95804439b8c18efea78392f748cb09c101e9d2c9365aa84d339a64cccc","plan":"677c67eecc70175290515941927e282e37ab967338f990e89cca62f44fe28a54"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/750-name-unavailable-published-session-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c11c970164f752d18735e71e651adf80e6aa9af9045fcc5d4f82701c781f7a6a","plan":"c3f2188e5ec3f5575b7be298beb381a6bd05a928353c0371bc5a42daecf0a700"}}
 ```
 
 Correction from the outcome review of
-Review a session’s published changes from another machine (`2d82175d5:.planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes`)
-(range `953a8a123..9d33efde9`). Its promises stay as written.
+SEED-418#correct-published-session-review
+(`6302d70889f6b798df1fd8d8a5381e71d729f3ae:.planning/slice-plans/746-correct-published-session-review/PLAN.md`,
+range `126fabd26..576150249`). Plan 746's promises stay as written.
 
-**Goal.** A developer who lands a session through Dough Land, or reviews one
-on any machine, gets a faithful published-session review. Landing without a
-session UUID publishes the work. The review names published changes and their
-close time. The originating machine lists each session once. Gaps show as
-gaps, and opening a review costs no repeated fetch.
+**Goal.** A developer who opens a published session whose recorded commits
+this machine lacks still sees a published-session gap: the review chrome
+names published changes, not kept session commits.
 
-**Scope.** This story covers Land's routing for a session record, the
-published review's own description, suppression by any kept launch, and one
-shared record contract. It also covers bounded published reads, the exact
-opening-read budget and residue from the delivered slices. The rule that a
-missing or conflicting identity stops before any push stays unchanged.
-Multiple ranges remain with
-[Attribute every workflow session’s published changes](#attribute-every-workflow-session-record).
-Plan: [746](../slice-plans/746-correct-published-session-review/PLAN.md).
+**Scope.** Replace the published review's reuse of
+`unavailableSessionCommitsReview` so an unavailable published answer carries
+a published-session comparison and the page's published-session naming.
+Kept-session unavailable gaps stay unchanged. Plan:
+[750](../slice-plans/750-name-unavailable-published-session-review/PLAN.md).

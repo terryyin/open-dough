@@ -2,7 +2,9 @@
 // authenticated read boundary may read at a pinned revision, decided only
 // from that revision's own listing of their directory. Agent profiles are
 // reachable only as the profile files the listing names, and a profile's Take
-// (`./ghProfileAddition.ts`) is asked only for a listed profile. Done records
+// (`./ghProfileAddition.ts`) is asked only for a listed profile. Session
+// close records are listed the same way (`listedSessionRecords`) for the
+// published-session listing (`./publishedSessionsRead.ts`). Done records
 // are read only as the record files the done catalog agreeing with their
 // directory's listing names (`./doneCatalogRead.ts`). The one project
 // setting file the shared profile module names is reachable only as part of
@@ -23,10 +25,14 @@ import {
 } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { doneRecordDirectory } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { doneCatalogPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { sessionRecordDirectory } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 
 // Where a directory of published records named by the shared backlog
 // modules lives for this source: beside its backlog.
-function besideBacklog(source: PublishedSource, name: string): string {
+function besideBacklog(
+  source: { readonly backlogPath: string },
+  name: string,
+): string {
   const directory = resolveBesideFile(source.backlogPath, name);
   if (directory === undefined) {
     throw new Error(`No ${name} directory beside ${source.backlogPath}`);
@@ -42,6 +48,13 @@ export function agentProfileDirectoryOf(source: PublishedSource): string {
 // Where done records live for this source: beside its backlog.
 export function doneRecordDirectoryOf(source: PublishedSource): string {
   return besideBacklog(source, doneRecordDirectory);
+}
+
+// Where session close records live for this source: beside its backlog.
+export function sessionRecordDirectoryOf(source: {
+  readonly backlogPath: string;
+}): string {
+  return besideBacklog(source, sessionRecordDirectory);
 }
 
 // Where the done catalog lives for this source: among its done records.
@@ -75,6 +88,20 @@ export function listedAgentProfiles(
   return listedBesideBacklog(
     agentProfileDirectoryOf(source),
     (name) => profileAgentName(name) !== undefined,
+    listPinned,
+  );
+}
+
+// The session close records listed beside the backlog at a pinned revision;
+// only `.json` names are candidates, and the published-session listing
+// (`./publishedSessionsRead.ts`) keeps those that validate at their UUID path.
+export function listedSessionRecords(
+  source: { readonly backlogPath: string },
+  listPinned: PinnedLister,
+): Promise<ListedPath[]> {
+  return listedBesideBacklog(
+    sessionRecordDirectoryOf(source),
+    (name) => name.endsWith(".json"),
     listPinned,
   );
 }

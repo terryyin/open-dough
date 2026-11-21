@@ -88,6 +88,7 @@ export function useRecentlyDone({
   work,
   creations,
   records,
+  keptLaunches,
   noneKept,
   sessionsSettled,
   // A selected Done story this list must still place, even outside the
@@ -99,6 +100,9 @@ export function useRecentlyDone({
   readonly work: PublishedWork;
   readonly creations: readonly CreationView[];
   readonly records: readonly LaunchWithState[] | undefined;
+  // The machine's kept launches (Done or live). A launch whose reporting
+  // reference equals a published record UUID stands for that record.
+  readonly keptLaunches: readonly LaunchWithState[];
   readonly noneKept: boolean;
   // Whether a read of the machine's sessions asked after the latest change
   // of the project list has ended, answered or not.
@@ -132,10 +136,13 @@ export function useRecentlyDone({
           ),
         ];
   const { publishedSessions } = work;
+  // Only a listed answer contributes sessions; an unavailable listing is a
+  // gap in `problems`, never an empty set of published entries.
   const listed = newestFirst(
     included,
     records ?? [],
     sourceId,
+    keptLaunches,
     publishedSessions?.status === "listed" ? publishedSessions.sessions : [],
   );
   // The entry holding the keyboard stays shown wherever it now stands.
@@ -195,7 +202,12 @@ export function useRecentlyDone({
     none: noneKept
       ? "No sessions launched from this dashboard are kept."
       : "No sessions are listed in Recently done.",
-    problem: done?.status === "unavailable" ? done.problem : undefined,
+    problems: [
+      ...(done?.status === "unavailable" ? [done.problem] : []),
+      ...(publishedSessions?.status === "unavailable"
+        ? [publishedSessions.problem]
+        : []),
+    ],
     unreadable: unreadable.map((record) => ({
       file: record.fileName,
       detail: details.detailOf(record),

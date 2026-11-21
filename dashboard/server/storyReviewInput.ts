@@ -9,7 +9,6 @@ import type {
 import {
   isReviewedPublishedSessionSubject,
   isReviewedSessionSubject,
-  isReviewedStorySubject,
   type ReviewedSessionSubject,
   type ReviewedStorySubject,
   type ReviewedWorkSubject,
@@ -76,8 +75,12 @@ async function admitReviewSession(
   return record;
 }
 
-// Admit one local session or fetch a published session's project source under
-// the request's signal. Story reads keep their ordinary path.
+// The adapters read a session's kept launch records, or a published session's
+// project source under the request's signal, on every request (fetching only
+// when the last fetched trunk lacks the ref or UUID); an unknown source is
+// refused here, before any record or Git is read. Session reads are narrowed
+// to SessionReviewRead / SessionFileRead so story-only fields cannot reach the
+// session handlers.
 export async function reviewInput(
   read: StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead,
   signal: AbortSignal,
@@ -96,14 +99,21 @@ export async function reviewInput(
     | PublishedSessionFileRead,
   signal: AbortSignal,
 ): Promise<StoryReviewInput | ReviewedFileInput> {
-  if (isPublishedRead(read))
+  if (isPublishedRead(read)) {
+    const source = knownSource(read.subject.source);
     return {
       read,
       published: await fetchedPublishedSessionSource(
-        knownSource(read.subject.source),
-        admissionBound(signal),
+        source,
+        read.subject.published,
+        {
+          // Separate deadline instances: a hung fetch must not spend rev-parse.
+          admission: admissionBound(signal),
+          fetch: admissionBound(signal),
+        },
       ),
     };
+  }
   const { subject } = read;
   if (isReviewedSessionSubject(subject)) {
     const record = await admitReviewSession(subject);
@@ -128,10 +138,8 @@ export async function reviewInput(
       record,
     };
   }
-  // A published subject was answered above; only a story remains.
-  if (!isReviewedStorySubject(subject))
-    throw new RefusedRequest(400, "The review request is malformed.");
-  return { read: { ...read, subject } };
+  // Published and session subjects were answered above; only a story remains.
+  return { read: { ...read, subject: subject as ReviewedStorySubject } };
 }
 
 const isPublishedRead = (read: {

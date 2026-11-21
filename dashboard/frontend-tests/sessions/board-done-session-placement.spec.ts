@@ -91,12 +91,14 @@ const placedOnBoard = (records: readonly LaunchWithState[]) =>
   columnSessionsOf(sourceId, records, [unfinished.identity]);
 
 // Recently done, fed only the Done sessions the rule leaves to it, beside
-// a historical done card for the unfinished identity.
+// a historical done card for the unfinished identity; suppression uses every
+// kept launch on the board (Done or live).
 const recentlyDone = (records: readonly LaunchWithState[]) =>
   newestFirst(
     [catalogued(unfinished.identity, 4), catalogued(completed.identity, 3)],
     placedOnBoard(records).done ?? [],
     sourceId,
+    records,
   );
 
 const nestedOn = (listed: ReturnType<typeof newestFirst>, identity: string) =>

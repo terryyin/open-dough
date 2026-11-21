@@ -40,6 +40,7 @@ export function ReviewFeedback({
     review?.kind === "snapshot" ||
     review?.kind === "landed" ||
     review?.kind === "session-commits" ||
+    review?.kind === "published-session" ||
     review?.kind === "branch-result" ||
     review?.kind === "published";
   return (
@@ -79,6 +80,12 @@ export function ReviewFeedback({
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the kept
           session commits.
+        </p>
+      )}
+      {!reading && round > 0 && review?.kind === "published-session" && (
+        <p>
+          Review refreshed: {changedFiles(review.files.length)} in the published
+          changes.
         </p>
       )}
       {!reading && round > 0 && review?.kind === "published" && (

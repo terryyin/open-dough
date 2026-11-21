@@ -63,6 +63,10 @@ export function Board({
     creations: launches.creations,
     // Unread until a sessions read for the current project list has ended.
     records: launches.sessionsSettled ? sessions.done : undefined,
+    // Every kept launch on this machine, so a live one stands for its
+    // published record the same way a Done one does. Empty until the
+    // sessions read for this project list has ended.
+    keptLaunches: launches.sessionsSettled ? launches.launched : [],
     noneKept: sessions.noneKept,
     sessionsSettled: launches.sessionsSettled,
     includeIdentity: selectedIdentity,

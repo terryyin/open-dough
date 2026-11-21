@@ -11,17 +11,19 @@ import { publishExecutionIncrement } from "./execution-increment-publication.mjs
 import { defaultBacklogPath } from "./owned-suffix-reconciliation.mjs";
 import { git } from "./publication-git.mjs";
 import { resolvePublicationLandingContext } from "./resolve-publication-landing-context.mjs";
-
-export const sessionRecordVersion = 1;
+import {
+  isSessionId,
+  sessionRecordRelativePath,
+  sessionRecordVersion,
+} from "./session-record.mjs";
 
 export function sessionRecordPath(sessionId, backlogPath = defaultBacklogPath) {
-  if (!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(sessionId ?? "")) {
+  if (!isSessionId(sessionId)) {
     throw new Error(`session id ${JSON.stringify(sessionId)} is not a UUID`);
   }
   return posix.join(
     posix.dirname(backlogPath),
-    "sessions",
-    `${sessionId}.json`,
+    sessionRecordRelativePath(sessionId),
   );
 }
 

@@ -1,6 +1,7 @@
 // A session named by its published close record's UUID is reviewed as a
 // session, never a story, and the page lists published sessions at its
-// revision or says why it cannot.
+// revision or says why it cannot. Its review names published changes and
+// the session's close time, never kept-session launch wording.
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { expect, onTestFinished, test, vi } from "vitest";
@@ -12,7 +13,13 @@ import {
   type PublishedSessionsListing,
 } from "../../src/publishedSessions.ts";
 import { ReadProblem } from "../../src/readProblem.ts";
+import {
+  ReviewContext,
+  reviewDescription,
+} from "../../src/StoryReviewContext.tsx";
+import { ReviewFeedback } from "../../src/StoryReviewFeedback.tsx";
 import { StoryReviewHeading } from "../../src/StoryReviewHeading.tsx";
+import type { StoryReview } from "../../src/storyReviewContract.ts";
 import {
   reviewedStoryIdentity,
   reviewedWorkKey,
@@ -59,6 +66,68 @@ test("a published session's review heading names its UUID", () => {
     );
   });
   expect(host.textContent).toContain(`Session review ${uuid}`);
+});
+
+const closedAt = "2026-11-20T10:00:00.000Z";
+const publishedSessionReview = (): StoryReview => ({
+  kind: "published-session",
+  session: { closedAt },
+  baseline: "a".repeat(40),
+  tree: "b".repeat(40),
+  files: [
+    { kind: "modified", path: "notes.md", lines: { added: 1, removed: 0 } },
+  ],
+});
+
+test("a published-session review names published changes and the close time", () => {
+  const review = publishedSessionReview();
+  const host = document.body.appendChild(document.createElement("div"));
+  const root = createRoot(host);
+  onTestFinished(() => {
+    act(() => {
+      root.unmount();
+    });
+    host.remove();
+  });
+  act(() => {
+    root.render(createElement(ReviewContext, { review }));
+  });
+  expect(host.textContent).toContain(
+    "Published changes of this session, closed",
+  );
+  expect(host.textContent).toContain(new Date(closedAt).toLocaleString());
+  expect(host.textContent).not.toMatch(/launched|done|Default main/i);
+  expect(reviewDescription(review)).toMatch(/published changes/i);
+  expect(reviewDescription(review)).not.toMatch(/launched|kept|Default main/i);
+});
+
+test("a published-session refresh names published changes", () => {
+  const review = publishedSessionReview();
+  const host = document.body.appendChild(document.createElement("div"));
+  const root = createRoot(host);
+  onTestFinished(() => {
+    act(() => {
+      root.unmount();
+    });
+    host.remove();
+  });
+  act(() => {
+    root.render(
+      createElement(ReviewFeedback, {
+        review,
+        reading: false,
+        problem: undefined,
+        range: { reading: false },
+        shown: "all",
+        comparison: undefined,
+        round: 1,
+      }),
+    );
+  });
+  expect(host.textContent).toContain(
+    "Review refreshed: 1 changed file in the published changes.",
+  );
+  expect(host.textContent).not.toMatch(/kept session commits/i);
 });
 
 // The record as the page receives it: parsed at the read boundary.

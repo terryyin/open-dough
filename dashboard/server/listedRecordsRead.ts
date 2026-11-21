@@ -87,7 +87,8 @@ export function readingListedRecordsOf(
 }
 
 // How many listed records are read from GitHub at once.
-const listedReadConcurrency = 4;
+// Shared with published-session listing (`./publishedSessionsRead.ts`).
+export const listedReadConcurrency = 4;
 
 // Reads each listed file's text at the pinned revision, a few at once, each
 // only while no earlier read has kept the blob its listing names, naming the

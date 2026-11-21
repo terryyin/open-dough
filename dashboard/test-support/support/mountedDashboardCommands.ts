@@ -31,6 +31,7 @@ function serviceAnswers(state: FrontendServiceState) {
     machine,
     hostStatus,
     doneBySource,
+    publishedSessionsBySource,
   } = state;
   return {
     projects,
@@ -42,6 +43,7 @@ function serviceAnswers(state: FrontendServiceState) {
     machine,
     hostStatus,
     doneBySource,
+    publishedSessionsBySource,
   };
 }
 

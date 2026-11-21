@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-418#correct-published-session-review",
+  "title": "Correct the published session review",
+  "completedAt": "2026-11-21T06:51:24.270Z",
+  "developer": "Terry Yin",
+  "agent": "Yua-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "## Intent coverage report\n\nVerdict: Caught\nStory: SEED-418#correct-published-session-review\nRevision: 85cdf9d643880f9f94a8be5cee65ee0c5c364d59\nPromise: A pinned published-session listing answers listed valid session records, and an empty listing when the sessions directory is missing (GitHub 404), not an unavailable gap.\nFault: throw when listedSessionRecords returns no paths.\nProof: npm run test:dashboard:backend -- review/published-session-listing\nCatching assertion: expect(response.status).toBe(200) at published-session-listing.spec.ts:143 (received 502 under fault).\nRestore verified.\n\n## Wrap-up disposition\n\nChecked revision 85cdf9d643880f9f94a8be5cee65ee0c5c364d59; verdict Caught; no follow-up.\n"
+  }
+}
