@@ -23,7 +23,7 @@ assert_all_roots() {
       assert_payload_bytes_match "${source_dir}/Distribution/src/skills" "$(dirname -- "${dest}")"
       [[ $(cat "${dest}/VERSION") == "${version}" ]]
     fi
-    for script in dashboard-completion.mjs dashboard-landing.mjs first-landing-expectation.mjs ci-direct-entry.mjs publication-comparison.mjs execution-increment-reconciliation.mjs; do
+    for script in dashboard-completion.mjs dashboard-landing.mjs first-landing-expectation.mjs ci-direct-entry.mjs publication-comparison.mjs execution-increment-reconciliation.mjs session-record-publication.mjs session-record.mjs; do
       cmp "${source_dir}/Distribution/src/skills/dough-execute-plan/scripts/${script}" \
         "$(dirname -- "${dest}")/dough-execute-plan/scripts/${script}"
     done
