@@ -33,12 +33,6 @@ export function storyNotesPage(page: Page) {
   };
   return {
     ...diffNoteActions(page, dialog),
-    expectComposerAlone: async () => {
-      await expect(field).toBeVisible();
-      await expect(
-        dialog.getByRole("list", { name: n.savedNotes }),
-      ).toHaveCount(0);
-    },
     expectDiffSaved: async () => {
       await expect(dialog).toHaveCount(0);
       await expect(

@@ -7,17 +7,13 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { reviewChanges } from "../storyCardControls.ts";
-import { doneCard } from "../doneStoryReviewPage.ts";
 import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
 import {
   expect,
   openFrontendTakenBacklog,
   takenStoryCard,
 } from "./frontendApp.ts";
-import {
-  putFrontendDoneRecords,
-  type FrontendServiceState,
-} from "./frontendServiceState.ts";
+import type { FrontendServiceState } from "./frontendServiceState.ts";
 import { keepTakenReviewLaunch } from "./frontendStoryReviewOpen.ts";
 import {
   frontendReviewSnapshot,
@@ -26,8 +22,6 @@ import {
 import { expectSettledPage } from "../dashboardPage.ts";
 import { showColumn } from "../boardPage.ts";
 import { panelDivider, split, wideWindow } from "../sidePanelWidthPage.ts";
-import { closeSidePanel } from "../sidePanelFrame.ts";
-import { boardReviewDoneRecords, storyA } from "../recentlyDoneReviewState.ts";
 
 export const widthKey = "open-dough.sidePanel.width";
 
@@ -55,23 +49,6 @@ export async function openReview(page: Page): Promise<Locator> {
   const review = reviewRegion(page, { exact: true });
   await expect(review.getByRole("heading", { level: 2 })).toBeVisible();
   return showReviewDetails(review);
-}
-
-// Another story, done elsewhere, also offers Review changes from Recently done.
-export function anotherStoryWithReview(services: FrontendServiceState) {
-  putFrontendDoneRecords(services, "open-dough", boardReviewDoneRecords());
-}
-
-// Closes the open review and opens the other story's.
-export async function openAnotherStoryReview(
-  page: Page,
-  review: Locator,
-): Promise<Locator> {
-  await closeSidePanel(review);
-  await expect(review).toBeHidden();
-  await showColumn(page, "Recently done");
-  await reviewChanges(doneCard(page, storyA.title)).click();
-  return reviewRegion(page);
 }
 
 export async function reloadAndOpenReview(page: Page): Promise<Locator> {

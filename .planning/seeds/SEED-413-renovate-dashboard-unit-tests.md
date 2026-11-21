@@ -1212,6 +1212,19 @@ proving `pageUsageSource`'s refusal wording and abort forwarding.
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:61` (`"a refused Refresh shows Usage could not be refreshed. or the endpoint's own message"`) | `440, 465, 477` | `465` |
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:99` (`"leaving a pending read aborts the page source's request"`) | `104, 111, 106` | `106` |
 
+##### Review changes panel reading after migration
+
+The eleven Review changes panel specs (23 cases) ran by file with
+`--workers=2` on AC power under the macOS sleep guard. Built-app at
+`17fe6c2c4` (load 6–9): 30.8, 34.5 and 29.7 s elapsed. Mounted on the
+slice 7 working tree at `5a6b3f667` (load 8.3 → 10.5, 10.5 → 17.6,
+17.6 → 16.0): 16.7, 16.6 and 11.0 s. The median fell 46%, from 30.8 s to
+16.6 s, under a higher load than the baseline, so the baseline was not
+rerun. Mounted cases took a median of 488–693 ms and 593–787 ms on average
+per run (58 ms to 2.9 s; the divider drag and the first details mount
+are slowest). Retiring the support the moved cases left behind took
+`dashboard/test-support/` from 79,355 to 79,143 lines (753 modules).
+
 #### Frontend campaign baseline
 
 At `267a27502` there are 304 frontend spec files, including nine

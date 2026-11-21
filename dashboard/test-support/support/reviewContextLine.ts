@@ -19,35 +19,10 @@ export const contextLine = (review: Locator) =>
 export const reviewBody = (review: Locator) =>
   review.locator(".story-review-body");
 
-// The context of the comparison currently displayed, in the review details.
-export const shownComparisonDescription = (review: Locator) =>
-  review.locator(".story-review-details > div").first();
-
 // The review's feedback, announced from its top above the work area: reading,
 // refreshing, refreshed, and problem messages. A file's diff has its own.
 export const reviewFeedback = (review: Locator) =>
   review.locator(".story-review-top").getByRole("status");
-
-// Visible height from the toolbar's bottom to the work area's top, and the
-// panel-derived touch budget those two share (30% of panel height, at least
-// the control size plus 1 rem).
-export async function aboveBodyTouchBudget(review: Locator) {
-  return review.evaluate((root) => {
-    const toolbar = root.querySelector(".story-review-toolbar");
-    const body = root.querySelector(".story-review-body");
-    const above = root.querySelector(".story-review-above");
-    if (toolbar === null || body === null || above === null)
-      throw new Error("The review's toolbar, above region or body is missing.");
-    const budget = parseFloat(getComputedStyle(above).maxHeight);
-    const bar = toolbar.getBoundingClientRect();
-    const work = body.getBoundingClientRect();
-    return {
-      visible: work.top - bar.bottom,
-      budget,
-      aboveHeight: above.getBoundingClientRect().height,
-    };
-  });
-}
 
 // What the context line's values read aloud in either state: every value in
 // full, the baseline less the story's published commits when it says how

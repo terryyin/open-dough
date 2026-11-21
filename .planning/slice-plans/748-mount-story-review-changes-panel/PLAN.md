@@ -256,7 +256,7 @@ stays proved end to end (G1). `story-review-notes-view.ts` operates Notes;
 ### 7. The moved cases leave their support and show their cost
 
 Type: Behavior
-Status: planned
+Status: done
 
 Remove each `dashboard/test-support/` export or module left with no
 consumer, keeping what `story-review-action`, `-files-divider-room`, the
@@ -269,6 +269,15 @@ story's
 **Proof.** The recorded comparison, the support line count before and after,
 and a list pairing every removed built-app title with its mounted case or
 the E2E journey that owns it.
+
+**Accepted.** 24 orphaned exports and methods left 13 `dashboard/test-support/`
+modules (79,355 → 79,143 lines); `openFrontendStoryReviewAsOpened` folded
+into `openFrontendStoryReview`. All 23 built-app titles pair with mounted
+cases in the same spec files (two `-files-divider-kept` titles shortened in
+slice 5); none was removed for an E2E journey. The eleven specs fell from a
+30.8 s to a 16.6 s median under higher load, recorded in the seed. Reached
+built-app (35), mounted (159) and E2E (`review/` plus 20) consumers passed.
+Built-app per-case JSON needs `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
 
 ## Local gates and review
 
