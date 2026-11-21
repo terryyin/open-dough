@@ -87,7 +87,7 @@ explicitly.
 ### 1. Unreadable, malformed and failed Intent location reads explain their cause and retry on demand
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-gherkin-settings-problems` (2). Reshape zero-caller
 `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`)
@@ -277,6 +277,18 @@ recovery proof loop; remaining slices retain their boundaries.
 - **Workspace:** `/Users/terryyin/git/open-dough/.worktrees/get-fast-proof-of-intent-source-and-story-readin` on branch `cursor/get-fast-proof-of-intent-source-and-story-readin` (default/integration checkout: `/Users/terryyin/git/open-dough`)
 - **Target:** `origin` / `main`
 - **Publisher ID:** `dashboard-territory.local-open-dough` (agent `Nana-chan`)
-- **Published revisions:** claim `c346263b78d91b9d8cabb18ee418360f56ce0462` on `origin/main` (startingRevision `0648ff017ce13c60a489a5442c1bad3e2f2f41a6`, candidateSha `c346263b78d91b9d8cabb18ee418360f56ce0462`; claim `pendingCi: unobserved`)
+- **Published revisions:** claim `c346263b78d91b9d8cabb18ee418360f56ce0462` on `origin/main` (startingRevision `0648ff017ce13c60a489a5442c1bad3e2f2f41a6`, candidateSha `c346263b78d91b9d8cabb18ee418360f56ce0462`; claim `pendingCi: unobserved`); plan-refinement increment `cd05ef9b75ba42c388af72e491affb22a9b6f00a` on `origin/cursor/get-fast-proof-of-intent-source-and-story-readin`
 - **CI observer:** GitHub Actions, workflow `ci.yml` (`CI`), watching `terryyin/open-dough` branch `cursor/get-fast-proof-of-intent-source-and-story-readin`, mailbox `/tmp/dough-ci-501/watch-dqoYbt`
-- **Baseline `dashboard/test-support/` surface at `c346263b7`:** 792 files, 82,277 lines
+- **Baseline `dashboard/test-support/` surface at `c346263b7`:** 792 files, 82,277 lines (after Slice 1: 792 files, 82,271 lines; `-6` lines)
+
+## Proof mapping and measurements
+
+### Slice 1 (`intent-gherkin-settings-problems` — 2 legacy Playwright → 3 `mounted-chromium` Vitest, 0 E2E)
+
+- **Accepted proof:**
+  - `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts --workers=2` (`pass`, `4.91 s` elapsed incl. preparation; cases `240 ms`, `438 ms`, `666 ms`): mounts `ProjectIntentReading` + `IntentReadSourceOnPage` + `requestIntentLocationsAt` over `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs:131-171`), observing unreadable vs. malformed vs. not-configured explanations (`:137-156`) and failed locations read cause/revision + manual Retry to absent (`:170-177`) and configured Gherkin source (`:205-216`).
+  - `caffeinate -s -i npm run typecheck:dashboard` (`pass`), `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-revision-update-failures.spec.ts dashboard/frontend-tests/intent/intent-read-recovery.spec.ts --workers=2` (`pass`), `caffeinate -s -i npm run test:e2e -- e2e/intent/intent-gherkin-unusable.spec.ts e2e/intent/intent-read-boundary-recovery.spec.ts --workers=2` (`pass`), and Distribution `intent-candidates-location-match.test.mjs` + `test-entry-rules.test.mjs` (`pass`).
+- **Retired legacy case mapping (`dashboard/frontend-tests/intent/intent-gherkin-settings-problems.spec.ts`):**
+  - `"unreadable and malformed Intent settings stay distinct from not-configured"` → same title (`:105-156`, preserves Doughnut unreadable + Pygardon malformed + competing-text exclusions and adds Doughnut not-configured check).
+  - `"an Intent locations read that fails names its cause, and Retry reads it again"` → same title (`:158-178`, preserves exact `.planning/open-dough.json` + revision alert, Retry alert removal, and `No intent locations are configured for Doughnut.`), paired with `"retrying a failed Intent locations read opens the configured source at its revision"` (`:180-217`, proves commitment `3b` configured source & revision recovery).
+- **Support retired:** `locationsRequest` (`dashboard/test-support/intentReadRecoveryPage.ts`), `pygardon` (`dashboard/test-support/intentGherkinUnusableFixtures.ts`).

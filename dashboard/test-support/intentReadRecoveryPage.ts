@@ -36,7 +36,6 @@ export const showLatestRevision = (scope: Locator) =>
   scope.getByRole("button", { name: "Show latest", exact: true });
 
 export const opened = new Date("2026-11-05T08:00:00.000Z");
-export const locationsRequest = /[?&]intent=locations(&|$)/;
 export const candidatesRequest = /[?&]intent=test-optimization-candidates(&|$)/;
 export const settingsPath = ".planning/open-dough.json";
 export const locationFiles = { "scripts/example.test.mjs": nodeTest };
