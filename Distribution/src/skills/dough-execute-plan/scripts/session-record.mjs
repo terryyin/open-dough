@@ -32,3 +32,25 @@ export function sessionRecordFileName(sessionId) {
 export function sessionRecordRelativePath(sessionId) {
   return `${sessionRecordDirectory}/${sessionRecordFileName(sessionId)}`;
 }
+
+// Keep the producer's POSIX path normalization without requiring Node.
+function pathBesideBacklog(backlogPath, relativePath) {
+  const absolute = backlogPath.startsWith("/");
+  const directory = backlogPath.replace(/\/+$/, "").split("/").slice(0, -1);
+  const parts = [];
+  for (const part of directory) {
+    if (part === "" || part === ".") continue;
+    if (part !== "..") parts.push(part);
+    else if (parts.length > 0 && parts.at(-1) !== "..") parts.pop();
+    else if (!absolute) parts.push(part);
+  }
+  return `${absolute ? "/" : ""}${[...parts, relativePath].join("/")}`;
+}
+
+export function sessionRecordDirectoryBeside(backlogPath) {
+  return pathBesideBacklog(backlogPath, sessionRecordDirectory);
+}
+
+export function sessionRecordPathBeside(backlogPath, sessionId) {
+  return pathBesideBacklog(backlogPath, sessionRecordRelativePath(sessionId));
+}

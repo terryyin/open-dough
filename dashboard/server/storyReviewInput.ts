@@ -9,6 +9,7 @@ import type {
 import {
   isReviewedPublishedSessionSubject,
   isReviewedSessionSubject,
+  isReviewedStorySubject,
   type ReviewedSessionSubject,
   type ReviewedStorySubject,
   type ReviewedWorkSubject,
@@ -20,6 +21,7 @@ import type {
 } from "../src/storyReviewRead.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { projectFolder } from "./projectFolders.ts";
 import type { PublishedSessionSource } from "./publishedSessionReview.ts";
 import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
 import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
@@ -104,12 +106,12 @@ export async function reviewInput(
     return {
       read,
       published: await fetchedPublishedSessionSource(
+        projectFolder(source).path,
         source,
         read.subject.published,
         {
-          // Separate deadline instances: a hung fetch must not spend rev-parse.
-          admission: admissionBound(signal),
-          fetch: admissionBound(signal),
+          admission: () => admissionBound(signal),
+          fetch: () => admissionBound(signal),
         },
       ),
     };
@@ -139,7 +141,9 @@ export async function reviewInput(
     };
   }
   // Published and session subjects were answered above; only a story remains.
-  return { read: { ...read, subject: subject as ReviewedStorySubject } };
+  if (!isReviewedStorySubject(subject))
+    throw new RefusedRequest(400, "The review request is malformed.");
+  return { read: { ...read, subject } };
 }
 
 const isPublishedRead = (read: {

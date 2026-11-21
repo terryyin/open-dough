@@ -5,16 +5,13 @@
 // here and in the published-session listing (`./publishedSessionsRead.ts`).
 import {
   isSessionId,
-  sessionRecordFileName,
+  sessionRecordPathBeside,
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
-import {
-  publishedSessionRecordSchema,
-  type PublishedSessionRecord,
-} from "../src/publishedSessionRecord.ts";
+import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { sessionRecordDirectoryOf } from "./recordsBesideBacklog.ts";
+import { publishedRecordFromText } from "./publishedSessionRecordText.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 import {
   admissionBound,
@@ -23,7 +20,6 @@ import {
   type AdmittedReviewedFile,
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import { unavailableSessionCommitsReview } from "./storyReviewSessionCommits.ts";
 
 // What the published read needs: the configured checkout, the published
 // revision it reads records from, and the configured backlog path.
@@ -33,33 +29,8 @@ export interface PublishedSessionSource {
   readonly backlogPath: string;
 }
 
-const sessionRecordPathOf = (
-  source: { readonly backlogPath: string },
-  sessionId: string,
-) => `${sessionRecordDirectoryOf(source)}/${sessionRecordFileName(sessionId)}`;
-
 const unknownSession = () =>
   new RefusedRequest(404, "This project published no such session.");
-
-// The record a published file's text holds, undefined unless it is valid and
-// sits at its own UUID's path. Shared by the local git-show review read and
-// the pinned listing (`./publishedSessionsRead.ts`).
-export function publishedRecordFromText(
-  source: { readonly backlogPath: string },
-  path: string,
-  text: string,
-): PublishedSessionRecord | undefined {
-  let parsed: ReturnType<typeof publishedSessionRecordSchema.safeParse>;
-  try {
-    parsed = publishedSessionRecordSchema.safeParse(JSON.parse(text));
-  } catch {
-    return undefined;
-  }
-  return parsed.success &&
-    sessionRecordPathOf(source, parsed.data.sessionId) === path
-    ? parsed.data
-    : undefined;
-}
 
 // The record a published file holds, undefined unless it is valid and sits at
 // its own UUID's path.
@@ -73,7 +44,7 @@ export async function publishedRecordAt(
     signal,
     maxBuffer: defaultGitOutputLimit,
   });
-  return publishedRecordFromText(source, path, stdout);
+  return publishedRecordFromText(source.backlogPath, path, stdout);
 }
 
 export async function publishedSessionRecord(
@@ -84,7 +55,7 @@ export async function publishedSessionRecord(
   if (!isSessionId(session)) {
     throw new RefusedRequest(400, "The review session is malformed.");
   }
-  const file = sessionRecordPathOf(source, session);
+  const file = sessionRecordPathBeside(source.backlogPath, session);
   let record: PublishedSessionRecord | undefined;
   try {
     record = await publishedRecordAt(source, file, signal);
@@ -116,15 +87,17 @@ export async function publishedSessionReview(
   const [range] = record.ranges;
   const read = await recordedPairFiles(source, range, signal);
   if ("missing" in read)
-    return unavailableSessionCommitsReview(
-      {
+    return {
+      kind: "landing-unavailable",
+      comparison: "published-session",
+      explanation: {
         repository:
           "This project's configured checkout is missing or unreadable.",
         objects:
           "This session's published commits are not in this machine's Git. Fetch the project to review them.",
         changes: "This session's published changes could not be read.",
       }[read.missing],
-    );
+    };
   return {
     kind: "published-session",
     session: { closedAt: record.closedAt },

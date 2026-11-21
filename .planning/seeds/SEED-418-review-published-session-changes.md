@@ -122,35 +122,3 @@ A skipped session or an unrelated trunk change can fall between two selections. 
 ```
 
 After the 30-day window removes a published session file from the current snapshot, a developer can find that session and review its contribution using the record in published Git history. Recover its original UUID, story association when present, and recorded comparison. Check from a second machine with no local launch history. This covers sessions for which the workflow previously published a record.
-
-<a id="name-unavailable-published-session-review"></a>
-
-### Correct the published-session review’s gap naming and tests
-
-**Identity:** SEED-418#name-unavailable-published-session-review
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/750-name-unavailable-published-session-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"da19fe99d64abd19c793afe53986dc5f6734f44223628440c44321de5a4e507e","plan":"ce030dd4105600686b083274732ae3cdb91be7847776ab68fe1cc61f8f739bb9"}}
-```
-
-Correction from the outcome reviews of
-SEED-418#correct-published-session-review
-(`6302d70889f6b798df1fd8d8a5381e71d729f3ae:.planning/slice-plans/746-correct-published-session-review/PLAN.md`,
-commits `126fabd26..85cdf9d64` on its branch, landed through `cb341cec7`).
-Plan 746's promises stay as written.
-
-**Goal.** A developer who opens a published session whose recorded commits
-this machine lacks still sees a published-session gap, and a hung fetch still
-answers from the last fetched trunk. The published-session review and listing
-are proved by tests that exercise production code directly, with test support
-smaller than before plan 746's execution, as the
-[North Star](../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
-requires.
-
-**Scope.** Name the unavailable published answer as published changes. Return
-the listing-gap proof, the listing handler spec and the review subject cases
-to mounted or plain-Vitest cases over typed inputs, removing the frontend-app
-substitute additions, the server-and-HTTP Playwright listing spec and the
-hand-rolled `act` mounting. Restore one record-path rule and give the
-published source's fallback its own budget. Kept-session gaps, Land routing,
-listing suppression and the pinned listing path stay unchanged. Plan:
-[750](../slice-plans/750-name-unavailable-published-session-review/PLAN.md).
