@@ -88,6 +88,7 @@ export function useRecentlyDone({
   work,
   creations,
   records,
+  keptLaunches,
   noneKept,
   sessionsSettled,
   // A selected Done story this list must still place, even outside the
@@ -99,6 +100,9 @@ export function useRecentlyDone({
   readonly work: PublishedWork;
   readonly creations: readonly CreationView[];
   readonly records: readonly LaunchWithState[] | undefined;
+  // The machine's kept launches (Done or live). A launch whose reporting
+  // reference equals a published record UUID stands for that record.
+  readonly keptLaunches: readonly LaunchWithState[];
   readonly noneKept: boolean;
   // Whether a read of the machine's sessions asked after the latest change
   // of the project list has ended, answered or not.
@@ -136,6 +140,7 @@ export function useRecentlyDone({
     included,
     records ?? [],
     sourceId,
+    keptLaunches,
     publishedSessions?.status === "listed" ? publishedSessions.sessions : [],
   );
   // The entry holding the keyboard stays shown wherever it now stands.

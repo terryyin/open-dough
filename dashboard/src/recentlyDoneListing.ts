@@ -25,9 +25,9 @@ export type Listed =
       readonly followUps: readonly LaunchWithState[];
     }
   | { readonly at: number; readonly session: LaunchWithState }
-  // A session the project published a close record for, with no local launch
-  // on this machine: a launch whose reporting reference is the record's UUID
-  // stands for it with its native controls.
+  // A session the project published a close record for, with no kept launch
+  // on this machine whose reporting reference is the record's UUID: such a
+  // launch (Done or live) stands for it with its native controls.
   | { readonly at: number; readonly published: PublishedSessionRecord };
 
 // Closed ad hoc launches whose saved follow-up names this project story.
@@ -57,11 +57,13 @@ const holdingsOf = (
 // Done stories by completion, each holding its sessions and closed follow-ups,
 // and the sessions of no listed done story by launch, newest first; sessions
 // launched at one moment keep their newest-first order. Published session
-// records of no Done launch here stand by their close time.
+// records whose UUID matches any kept launch's reporting reference (Done or
+// still live) are omitted; the rest stand by their close time.
 export function newestFirst(
   records: readonly CataloguedDoneRecord[],
   doneSessions: readonly LaunchWithState[],
   sourceId: string,
+  keptLaunches: readonly LaunchWithState[],
   published: readonly PublishedSessionRecord[] = [],
 ): readonly Listed[] {
   const cards = records.map((record) => ({
@@ -70,7 +72,7 @@ export function newestFirst(
     sessions: storySessionsOf(doneSessions, sourceId, record.identity),
     followUps: closedStoryFollowUpsOf(doneSessions, sourceId, record.identity),
   }));
-  const launched = new Set(doneSessions.map(reportingReferenceOf));
+  const stoodFor = new Set(keptLaunches.map(reportingReferenceOf));
   const held = new Set(
     cards.flatMap((card) => holdingsOf(card.sessions, card.followUps)),
   );
@@ -81,7 +83,7 @@ export function newestFirst(
       .toReversed()
       .map((session) => ({ at: Date.parse(session.launchedAt), session })),
     ...published
-      .filter((record) => !launched.has(record.sessionId))
+      .filter((record) => !stoodFor.has(record.sessionId))
       .map((record) => ({
         at: Date.parse(record.closedAt),
         published: record,

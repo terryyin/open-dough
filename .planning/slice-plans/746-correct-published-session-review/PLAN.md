@@ -308,7 +308,7 @@ Accepted: evidence `s3-slice3-return-report.md` (s3-frontend-2/s3-backend/s3-e2e
 ### 4. A live launch stands for its published record
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.**
 - **Pre-condition:** a kept, non-Done launch whose reporting reference
@@ -331,6 +331,9 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run test:
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
+
+
+Accepted: evidence `s4-slice4-return-report.md`. Commitments 4 and 5 observed. Refactor: required keptLaunches end-to-end.
 
 ### 5. Published reviews fetch only when the record is missing
 
