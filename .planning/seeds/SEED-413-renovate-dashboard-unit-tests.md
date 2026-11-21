@@ -212,6 +212,9 @@ SEED-413#reduce-review-diff-reading-to-logic-cases at its slice 5.
 ### Prove a renamed file's Review diff reads its grammar from the new path
 
 **Identity:** SEED-413#prove-renamed-diff-grammar-from-new-path
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/746-prove-renamed-diff-grammar-from-new-path/PLAN.md"}
+```
 
 Correction from the Intent Coverage check of
 SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
@@ -221,7 +224,6 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
 - **Scope.** One maintained case for the choice of path given to diff styling.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
-- **Plan:** [plan](../slice-plans/746-prove-renamed-diff-grammar-from-new-path/PLAN.md)
 
 <a id="correct-landing-record-writes-and-tests"></a>
 
