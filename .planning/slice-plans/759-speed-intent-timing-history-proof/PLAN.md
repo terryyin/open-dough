@@ -205,3 +205,22 @@ Reported: slice 2 — "slice 2 — "After merging c64549aac, board-frame-mount.t
 Story clause: "Cases supply reads through `pageReadsSupplying`, which rejects unsupplied reads"
 Disposition: proved by slice 2: dashboard/frontend-tests/navigation/board-frame-mount.ts and board-mount.ts now pass pageReadsSupplying with only their supplied reads plus explicit authenticatedSessionServices; the 28 specs that use them pass (evidence retro-board-mounts-2, 62 tests), and no test mount except the legacy comparison-mount entry and the whole-App mount supplies authenticated reads
 Commitment: N6
+
+## Execution complete
+
+Product advice: no change to direction or priorities. The split remainder,
+SEED-413#speed-intent-ci-status-frame-and-timing-history (plan 764), is ready
+and queued first, waiting on this story's landing. Two follow-up notes for
+wrap-up:
+
+- `dashboard/frontend-tests/sessions/sessions-sidebar-open-mount.ts` still
+  renders `usePageSidePanel`/`SessionsSidebarOpenList` itself, and no story
+  owns it. Recommend giving it to
+  SEED-413#speed-dashboard-live-session-and-terminal-proof, which owns the
+  Sessions sidebar cases.
+- SEED-413#speed-intent-source-browsing-and-detours keeps its ready
+  assessment but changed since review, because the split added its
+  dependency on the remainder. It needs a readiness review before it starts.
+
+Process review is deferred into wrap-up with the Intent Coverage check; this
+work rewrote the test providers of many cases.
