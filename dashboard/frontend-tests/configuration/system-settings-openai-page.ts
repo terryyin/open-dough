@@ -6,15 +6,15 @@ import type { OpenAIConfigurationSource } from "../../src/openAIConfigurationSou
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
   readSettingText,
+  resizeSettingsViewport,
   tapSettingWhereShown,
+  type SettingsViewport,
 } from "./system-settings-browser.ts";
 import "../../src/project-configuration.css";
 
-type Viewport = { readonly width: number; readonly height: number };
-
 export async function mountOpenAISettings(
   source: OpenAIConfigurationSource,
-  viewport?: Viewport,
+  viewport?: SettingsViewport,
 ) {
   await mountComponent(
     createElement(
@@ -71,11 +71,6 @@ export async function mountOpenAISettings(
       const field = input.element() as HTMLInputElement;
       return { start: field.selectionStart ?? 0, end: field.selectionEnd ?? 0 };
     },
-    async useViewport(view: Viewport) {
-      await page.viewport(view.width, view.height);
-      await expect
-        .poll(() => ({ width: innerWidth, height: innerHeight }))
-        .toEqual(view);
-    },
+    useViewport: resizeSettingsViewport,
   };
 }

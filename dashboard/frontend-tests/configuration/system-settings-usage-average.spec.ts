@@ -1,10 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
-import {
-  doubleUsageDeviceScale,
-  usageColourScheme,
-} from "./system-settings-usage-browser.ts";
+import { settingsColourScheme } from "./system-settings-browser.ts";
+import { doubleUsageDeviceScale } from "./system-settings-usage-browser.ts";
 import { mountUsage } from "./system-settings-usage-page.ts";
 
 const million = 1_000_000;
@@ -63,7 +61,7 @@ test("the rolling median is distinct above dots and never enlarges ordinary geom
     .please();
   await usage.chooseDays("30");
   await usage.showsPointCount(10);
-  const appearance = usageColourScheme();
+  const appearance = settingsColourScheme();
   for (const colour of ["light", "dark"] as const) {
     await appearance(colour);
     await chart.showsDistinctMedianAboveDots();

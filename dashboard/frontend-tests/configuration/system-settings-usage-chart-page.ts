@@ -1,11 +1,10 @@
 // Rendered readings from the Usage plot and the marks that open its tasks.
 import { expect } from "vitest";
 import type { Locator } from "vitest/browser";
+import { paintContrast, tokenColour } from "./system-settings-reading.ts";
 import {
   centreOf,
-  markContrast,
   paintOf,
-  tokenColour,
   type TraceMarks,
 } from "./system-settings-usage-chart-mark.ts";
 import { usageComparedChartView } from "./system-settings-usage-compared-chart-page.ts";
@@ -78,7 +77,7 @@ export function usageChartView(
       for (const label of drawn(`${aboveScaleMedian} text`)) {
         expect(label).toBeVisible();
         expect(
-          markContrast(label, [paintOf(label).fill]),
+          paintContrast(label, [paintOf(label).fill]),
         ).toBeGreaterThanOrEqual(4.5);
       }
     },
@@ -110,7 +109,7 @@ export function usageChartView(
         ),
       );
       expect(aboveDots).toBe(true);
-      expect(markContrast(line, [stroke, fill])).toBeGreaterThanOrEqual(3);
+      expect(paintContrast(line, [stroke, fill])).toBeGreaterThanOrEqual(3);
     },
     async showsSeparatedMedianLevels() {
       await expect

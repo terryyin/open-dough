@@ -1,12 +1,11 @@
 // Observe the geometry, trace styles and selected mark of a compared plot.
 import { expect } from "vitest";
 import type { Locator } from "vitest/browser";
+import { paintContrast, tokenColour } from "./system-settings-reading.ts";
 import {
   centreOf,
-  markContrast,
   paintOf,
   shapeOf,
-  tokenColour,
   type TraceMarks,
 } from "./system-settings-usage-chart-mark.ts";
 import type { UsageToolName } from "./system-settings-usage-tools-page.ts";
@@ -83,7 +82,7 @@ export function usageComparedChartView(
       ]) {
         const { fill, stroke } = paintOf(element);
         expect(
-          markContrast(element, [fill, stroke]),
+          paintContrast(element, [fill, stroke]),
           "chart mark contrast",
         ).toBeGreaterThanOrEqual(3);
       }

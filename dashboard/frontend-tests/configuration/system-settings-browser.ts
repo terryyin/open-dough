@@ -1,11 +1,42 @@
 import { expect, onTestFinished } from "vitest";
-import { cdp, type Locator } from "vitest/browser";
+import { cdp, page, type Locator } from "vitest/browser";
 import { clippedSettingContent } from "./system-settings-reading.ts";
 
 export const chromium = () =>
   cdp() as {
     send(method: string, params?: Record<string, unknown>): Promise<unknown>;
   };
+
+export type SettingsViewport = {
+  readonly width: number;
+  readonly height: number;
+};
+
+const phonePortrait = { width: 390, height: 844 } as const;
+
+export const settingsPhoneViewports = {
+  portrait: phonePortrait,
+  landscape: { width: phonePortrait.height, height: phonePortrait.width },
+  reduced: { width: phonePortrait.width, height: 320 },
+} as const;
+
+export async function resizeSettingsViewport(view: SettingsViewport) {
+  await page.viewport(view.width, view.height);
+  await expect
+    .poll(() => ({ width: innerWidth, height: innerHeight }))
+    .toEqual(view);
+}
+
+export function settingsColourScheme() {
+  const browser = chromium();
+  const set = (features: readonly { name: string; value: string }[]) =>
+    browser.send("Emulation.setEmulatedMedia", { features });
+  onTestFinished(async () => {
+    await set([]);
+  });
+  return (value: "light" | "dark") =>
+    set([{ name: "prefers-color-scheme", value }]);
+}
 
 export async function enableSettingsTouch() {
   const browser = chromium();

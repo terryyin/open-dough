@@ -4,7 +4,7 @@
 // restores each time position.
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { usageColourScheme } from "./system-settings-usage-browser.ts";
+import { settingsColourScheme } from "./system-settings-browser.ts";
 import { mountUsage } from "./system-settings-usage-page.ts";
 
 const at = (date: number, hour = 12) =>
@@ -167,7 +167,7 @@ for (const [name, viewport] of [
 ] as const) {
   describe(name, () => {
     test("equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll", async () => {
-      const appearance = usageColourScheme();
+      const appearance = settingsColourScheme();
       const usage = await comparing({ viewport });
       const { chart } = usage;
       const { spacing } = chart;

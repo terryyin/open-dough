@@ -1,3 +1,9 @@
+import {
+  composeBackgrounds,
+  contrastRatio,
+  painted,
+} from "../../test-support/composedColours.ts";
+
 // Playwright evaluates this probe in the page. Mounted cases call it directly.
 export function clippedSettingContent(
   element: Element,
@@ -45,4 +51,32 @@ export function clippedSettingContent(
     }
   }
   return cut;
+}
+
+function backgroundBehind(element: Element) {
+  const backgrounds: string[] = [];
+  for (
+    let ancestor = element.parentElement;
+    ancestor;
+    ancestor = ancestor.parentElement
+  )
+    backgrounds.push(getComputedStyle(ancestor).backgroundColor);
+  return composeBackgrounds(backgrounds);
+}
+
+export function paintContrast(element: Element, colours: readonly string[]) {
+  const background = backgroundBehind(element);
+  return Math.max(
+    ...colours
+      .filter(painted)
+      .map((colour) => contrastRatio(colour, background)),
+  );
+}
+
+export function tokenColour(root: Element, token: string) {
+  const probe = root.appendChild(document.createElement("span"));
+  probe.style.color = `var(${token})`;
+  const colour = getComputedStyle(probe).color;
+  probe.remove();
+  return colour;
 }

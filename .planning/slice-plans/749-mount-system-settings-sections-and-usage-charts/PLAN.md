@@ -191,7 +191,7 @@ answer arriving after a change fails the held-status cases and is reverted.
 ### 6. Terminal theme and project changes recover from refusals
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `-terminal-theme` (2 cases), `-project-management-touch` (1) and
 `project-add-dialog` (2), each refusing or holding its own reply. Remove the

@@ -16,6 +16,7 @@ import {
 } from "./launchObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
 import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
+import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTestData.mjs";
 
 /**
  * @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe &
@@ -23,6 +24,7 @@ import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
  *   import("./ciProofTestData.mjs").CiProofMakeMe &
  *   import("./comparisonViewTestData.mjs").IntentCiStatusMakeMe &
  *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe &
+ *   import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe &
  *   import("./sessionRecordTestData.mjs").SessionRecordMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
@@ -30,6 +32,9 @@ import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
  *     readonly anObservedLaunch: ObservedLaunchBuilder;
  *     readonly aMachineAnswer: MachineAnswerBuilder;
  *     readonly aTokenIndexAnswer: TokenIndexAnswerBuilder;
+ *     readonly aProjectSettings: import("./factBuilder.mjs").FactBuilder<
+ *       import("../../../dashboard/src/projectConfiguration.ts").ProjectSettings
+ *     >;
  *     readonly anOpenAIConfigurationStatus: import("./factBuilder.mjs").FactBuilder<
  *       import("../../../dashboard/src/openAIConfiguration.ts").OpenAIConfigurationStatus
  *     >;
@@ -46,6 +51,7 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...ciProofMakeMeProperties(),
   ...intentCiStatusMakeMeProperties(),
   ...publishedReadingMakeMeProperties(),
+  ...terminalThemeSettingMakeMeProperties(),
   ...sessionRecordMakeMeProperties(),
   aTestOptimizationCandidatesRecord: {
     enumerable: true,
@@ -82,6 +88,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new TokenIndexAnswerBuilder();
+    },
+  },
+  aProjectSettings: {
+    enumerable: true,
+    get() {
+      return { with: copyFacts };
     },
   },
   aHostStatus: {

@@ -1,7 +1,7 @@
 // The key and tool summaries draw the marks of the traces they describe.
 import { afterEach, beforeEach, describe, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { usageColourScheme } from "./system-settings-usage-browser.ts";
+import { settingsColourScheme } from "./system-settings-browser.ts";
 import { mountUsage } from "./system-settings-usage-page.ts";
 
 const at = (date: number) =>
@@ -63,7 +63,7 @@ for (const [name, viewport] of [
     test("the compared key fits without sideways scroll in light and dark", async () => {
       const usage = await comparing(viewport);
       await usage.showTool("Claude Code", true);
-      const appearance = usageColourScheme();
+      const appearance = settingsColourScheme();
       for (const colour of ["light", "dark"] as const) {
         await appearance(colour);
         await usage.chart.showsKeyFor(["Codex", "Claude Code"]);

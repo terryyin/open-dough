@@ -4,7 +4,10 @@ import { describe, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { OpenAIConfigurationStatus } from "../../src/openAIConfiguration.ts";
 import type { OpenAIConfigurationSource } from "../../src/openAIConfigurationSource.ts";
-import { enableSettingsTouch } from "./system-settings-browser.ts";
+import {
+  enableSettingsTouch,
+  settingsPhoneViewports,
+} from "./system-settings-browser.ts";
 import { mountOpenAISettings } from "./system-settings-openai-page.ts";
 
 const key = "sk-synthetic-held-status-084";
@@ -133,9 +136,7 @@ test("a held status response cannot overwrite successful save after read error",
 
 const original = "sk-synthetic-original-084";
 const replacement = "sk-synthetic-replacement-084";
-const portrait = { width: 390, height: 844 };
-const landscape = { width: 844, height: 390 };
-const reduced = { width: portrait.width, height: 320 };
+const { portrait, landscape, reduced } = settingsPhoneViewports;
 
 describe("phone OpenAI settings recovery", () => {
   test("touch keeps the password draft and the configured key through reduced height, rotation, a refused save and explicit recovery", async () => {
