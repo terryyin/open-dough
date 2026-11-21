@@ -5,6 +5,10 @@ import {
   type MachineSessions,
 } from "../../src/agentLaunches.ts";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
+import {
+  IntentReadSourceOnPage,
+  type IntentReadSource,
+} from "../../src/intentReadSource.ts";
 import { useObservedRevisionDelivery } from "../../src/observedRevisionDelivery.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
@@ -29,6 +33,15 @@ export async function mountBoardFrame(
   viewport: { width: number; height: number },
   view: "stories" | "roster" = "stories",
   sessions: MachineSessions = noSessions,
+  {
+    otherWork = [],
+    initialReadError,
+    intentReads,
+  }: {
+    otherWork?: readonly PublishedWork[];
+    initialReadError?: Error;
+    intentReads?: IntentReadSource;
+  } = {},
 ) {
   const originalUrl = location.href;
   const originalState: unknown = history.state;
@@ -41,7 +54,17 @@ export async function mountBoardFrame(
   onTestFinished(() => {
     history.replaceState(originalState, "", originalUrl);
   });
-  workRead.mockReset().mockResolvedValue(work);
+  const snapshots = [work, ...otherWork];
+  workRead.mockReset().mockImplementation((source) => {
+    const snapshot = snapshots.find(
+      ({ source: each }) => each.id === source.id,
+    );
+    return snapshot === undefined
+      ? Promise.reject(new Error(`No published work fixture for ${source.id}.`))
+      : Promise.resolve(snapshot);
+  });
+  if (initialReadError !== undefined)
+    workRead.mockRejectedValueOnce(initialReadError);
   vi.mocked(useAgentLaunches).mockReturnValue(sessions);
   let revisionAnswers:
     Parameters<typeof useObservedRevisionDelivery>[0] | undefined;
@@ -49,16 +72,22 @@ export async function mountBoardFrame(
     revisionAnswers = answers;
     return "connected";
   });
-  await mountComponent(
-    createElement(ProjectsOnPage, {
-      projects: [work.source],
-      replaceProjects: () => {},
-      children: createElement(ConfiguredDashboard, {
-        settingsOpen: false,
-        onOpenSettings: () => {},
-        onDashboardReady: () => {},
-      }),
+  const dashboard = createElement(ProjectsOnPage, {
+    projects: snapshots.map(({ source }) => source),
+    replaceProjects: () => {},
+    children: createElement(ConfiguredDashboard, {
+      settingsOpen: false,
+      onOpenSettings: () => {},
+      onDashboardReady: () => {},
     }),
+  });
+  await mountComponent(
+    intentReads === undefined
+      ? dashboard
+      : createElement(IntentReadSourceOnPage, {
+          value: intentReads,
+          children: dashboard,
+        }),
     { viewport, fillsViewport: true },
   );
   const delivery = () => {

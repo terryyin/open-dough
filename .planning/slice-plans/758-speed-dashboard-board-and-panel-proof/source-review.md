@@ -58,17 +58,17 @@ with SEED-341.
 | P35 | A sidebar session reveal pages to the card when it is off the current Board page, including the hidden or tall case as applicable. | slice 6 | observed: board-paging-sessions-sidebar.spec.ts, clicking a real sidebar session pages to its initially hidden Backlog card |
 | P36 | A sidebar session reveal brings the hidden card top into view. | slice 6 | observed: board-paging-sessions-sidebar.spec.ts, the hidden card becomes whole and reachable in its own Board scroll region |
 | P37 | A sidebar session reveal brings the tall card top into view. | slice 6 | observed: board-session-reading.spec.ts, sidebar choice reveals the tall card below the sticky heading beside terminal and after Close at 700×800 and 700×900 |
-| P38 | Perspective switching preserves the intended project on the relevant path. | slice 7 | |
-| P39 | Perspective switching preserves the panel attachment on the relevant path. | slice 7 | |
-| P40 | Perspective switching preserves the selected story on the relevant path. | slice 7 | |
-| P41 | Browser history preserves the intended project on the relevant path. | slice 7 | |
-| P42 | Browser history preserves the panel attachment on the relevant path. | slice 7 | |
-| P43 | Browser history preserves the selected story on the relevant path. | slice 7 | |
+| P38 | Perspective switching preserves the intended project on the relevant path. | slice 7 | observed: development-intent-frame.spec.ts and frame-keyboard case, actual perspective keeps project and compact project selection keeps Intent |
+| P39 | Perspective switching preserves the panel attachment on the relevant path. | slice 7 | observed: e2e/navigation/development-intent-terminal-history.spec.ts, deliberate perspective switches keep the same native attachment and existing output |
+| P40 | Perspective switching preserves the selected story on the relevant path. | slice 7 | observed: e2e/navigation/development-intent-terminal-history.spec.ts and mounted sessions case, real switches into Intent retain the exact selected story identity |
+| P41 | Browser history preserves the intended project on the relevant path. | slice 7 | observed: e2e/navigation/development-intent-history.spec.ts, Back and Forward select the addressed project and corresponding perspective, reload reads that project |
+| P42 | Browser history preserves the panel attachment on the relevant path. | slice 7 | observed: e2e/navigation/development-intent-terminal-history.spec.ts, Back/Forward/back under the cover retain the same native Terminal and its recorded input/output |
+| P43 | Browser history preserves the selected story on the relevant path. | slice 7 | observed: e2e/navigation/development-intent-terminal-history.spec.ts, Intent still names the same story beneath covered history and after Close |
 | S01 | Apply shared campaign acceptance to legacy `accessible-board*` navigation specs. | slice 3 | observed: All seven migrated Board reading specs and the earlier phone Vitest cases ran in the 36-case selection; true popup/reload proof ran in E2E |
 | S02 | Apply shared campaign acceptance to legacy `board-*` navigation specs. | slice 6 | observed: The earlier and current named board-* cases run in mounted Chromium, with true page/scrollbar actions in focused E2E |
 | S03 | Apply shared campaign acceptance to legacy `story-card*` navigation specs. | slice 4 | observed: story-card-selection.spec.ts and story-card-dependency-selection.spec.ts exercise actual Board selection, Inspect and dependency disclosure in mounted Chromium; E2E retains supplier-link navigation |
 | S04 | Apply shared campaign acceptance to legacy `side-panel-width*` navigation specs. | slice 5 | observed: Four same-path width specs run mounted Chromium; e2e/navigation/side-panel-kept-width.spec.ts and side-panel-terminal-width.spec.ts cover real storage and terminal attach |
-| S05 | Apply shared campaign acceptance to legacy `development-intent-frame*` navigation specs. | slice 7 | |
+| S05 | Apply shared campaign acceptance to legacy `development-intent-frame*` navigation specs. | slice 7 | observed: The three original frame files exercise five mounted cases and the new real E2E path exercises three composed journeys, with the seven legacy outcomes mapped |
 | S06 | Apply shared campaign acceptance to legacy `frame-*` navigation specs. | slice 8 | |
 | S07 | Narrow the existing `board-swipe` Vitest spec from its whole-dashboard mount. | slice 2 | observed: board-swipe.spec.ts mounts Board in production PageFrame over typed published work |
 | S08 | Narrow the existing `board-indicators` Vitest spec from its whole-dashboard mount. | slice 2 | observed: board-indicators.spec.ts mounts Board in production PageFrame and observes native taps and keyboard focus |
@@ -76,7 +76,7 @@ with SEED-341.
 | S10 | Retain representative real page loads in E2E. | slice 2 | observed: e2e/navigation/phone-board.spec.ts, published work appears after the built dashboard loads and the Board accepts composed touch input |
 | S11 | Retain representative reloads in E2E. | slice 1 | observed: e2e/navigation/board-kept-position.spec.ts, durable position through wide and narrow reloads and fallback after storage refusal |
 | S12 | Retain representative URL destinations in E2E. | slice 6 | observed: e2e/navigation/board-session-destination.spec.ts, real project/story URL focuses the tall card at its reading edge at both viewports |
-| S13 | Retain representative cross-destination history in E2E. | slice 7 | |
+| S13 | Retain representative cross-destination history in E2E. | slice 7 | observed: e2e/navigation/development-intent-history.spec.ts and development-intent-terminal-history.spec.ts, real project/perspective visits, Settings return and Back/Forward under an attached terminal |
 | A01 | Scoped frontend unit checks use plain Vitest. | slice 8 | |
 | A02 | Retire `actSettled` as its test families move. | slice 8 | |
 | A03 | Retire React `act` wrapping as its test families move. | slice 8 | |

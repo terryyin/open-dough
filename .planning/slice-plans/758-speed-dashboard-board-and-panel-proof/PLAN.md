@@ -227,7 +227,7 @@ split and covering layouts and preserve tall-card reveal at distinct heights.
 ### 7. Perspective changes keep the project, focus, and active panel
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `development-intent-frame` and `development-intent-frame-{keyboard,sessions}`
 (7). Use the banner/perspective controls, `useDashboardNavigation`,
@@ -548,4 +548,33 @@ the difference. The repair compares the rendered Board to its original
 split width and still checks all three whole columns, exact control labels
 and the same open Terminal before and after narrowing. Both focused cases
 passed with the controlled gutter and again with ordinary browser settings.
-The evidence is `slice-6-ci-board-gutter-repair-return.md`.
+The evidence is `slice-6-ci-board-gutter-repair-return.md`. The repair was
+published as `3880060c0dbc8004765060b32cc0a7e740976842`.
+
+### Slice 7
+
+Five mounted Chromium cases and three real E2E journeys preserve seven
+legacy cases. The eleven-path mounted fixture run passed 19/19 in 33.34 s,
+with the five current cases taking 6.76 summed case-seconds. The three
+new E2E cases passed in 33.88 s, covering actual project and perspective
+history, Settings focus and reload, and a native terminal attachment through
+perspective changes and Back/Forward beneath the covering panel. The
+corrected typed Pygardon fixture passed its focused session case and final
+dashboard typecheck. Exact commands and terminal observations are retained
+in `slice-7-return.md`.
+
+| Original case | Current proof |
+| --- | --- |
+| `development-intent-frame.spec.ts` — Intent keeps the selected project and says no intent locations are configured; project changes, history and reload keep it, and Development resumes the stories | Mounted “Development and Intent keep their names, marks and selected project's published work” confirms initial Development membership and direction, precisely two named radio choices and distinct decorative, hidden marks without labels in the visible spans, no Structure, exact no-locations explanation naming the setting/file, one Intent main without Board/Direction/Start, one added history entry on perspective change, project and route preservation, pinned Doughnut publication revision and its Development stories, direction and Start session. Built “browser history and reload keep the selected project's perspective and Board” proves actual Back/Forward entries, both project states and real reloads on both perspectives, including exclusion of Open Dough's story after the final Doughnut reload. |
+| `development-intent-frame.spec.ts` — System settings from Intent returns to the project and Intent with the keyboard on System settings, and Development returns to the roster | Built “Settings and its reload return to Intent and leave Development's roster available.” The addressed Doughnut roster yields to Intent with the retained roster address, the real Settings heading receives focus, and returning by Back focuses System settings and preserves the project/perspective/roster route. Repeat across reload in Settings. The Development choice visibly reopens the roster. |
+| `development-intent-frame.spec.ts` — at a phone width the perspective stays reachable under the compact title, and choosing a project there keeps Intent | Same mounted title. At 390×844 the compact button begins with Open Dough, real perspective control stays in the pinned banner, choosing Doughnut's listbox option returns focus to the compact title and keeps Intent and the expected address. The Intent explanation is below the short banner, fits its text, and the document does not overflow sideways. |
+| `development-intent-frame.spec.ts` — with the published read failed, Intent still says only that no intent locations are configured, and Development keeps the read problem | Same mounted title. Typed 404 rejects the first publication read; the real alert gives the missing path, absent snapshot and reload guidance and shows no false empty result. Intent describes its own unconfigured locations exactly while the distinct publication alert remains; return to Development still shows the publication problem and no snapshot. |
+| `development-intent-frame-keyboard.spec.ts` — perspective keys choose a perspective without choosing another project, and the keyboard never stays in content the change hid | Same mounted title. Native Tab from Sessions reaches Development with painted focus. Right and Left navigate the radios and keep Open Dough checked, Intent text and route are observed. Back from a focused Inspect moves the keyboard to the shown Intent choice. An unmodified page-wide Right from Intent content changes project to Doughnut, focuses its project control and keeps Intent. |
+| `development-intent-frame-sessions.spec.ts` — a Sessions sidebar entry from Intent goes to its project's Development stories and session, and the terminal stays attached across perspectives | Same mounted title. Open Dough Intent has both real sidebar entries. Clicking Pygardon moves to that project's Development with one history entry, exposes the matching card and active mark, and focuses Terminal. Switching to Intent keeps that selection, no-locations explanation and same Terminal node. Selecting the current Pygardon entry again from Intent adds one Development history entry, re-reveals its card, keeps it in the reading room, and marks the same entry without replacing the Terminal. The new actual-host E2E records native input/output before and during Intent and retains one host attachment. |
+| `development-intent-frame-sessions.spec.ts` — a covering terminal at a phone width stays shown and attached while Back and Forward change the perspective beneath it, and Close shows the perspective the address names on the story it keeps selected | Built “perspective and covering history keep the same terminal attachment and selected story.” After deliberate perspective switches, the real narrow viewport covers the page; browser Back/Forward/Back returns the addressed perspective beneath the still-open terminal. Actual output, the same attachment and selected story survive; Close exposes the addressed Intent, selection and Open Dough project. |
+
+The refactor named the real history actions and moved the same-terminal case
+into `e2e/navigation/development-intent-terminal-history.spec.ts`. The two
+project and Settings journeys remain in `development-intent-history.spec.ts`.
+All three passed across both paths in 37.10 s including preparation. The
+retained report is `slice-7-refactor-return.md`.
