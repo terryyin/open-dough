@@ -95,33 +95,40 @@ export function ciReadsOf(story: ComparedStory) {
 }
 
 // The selected story's evidence owner in its production reading place, under
-// the one Show % preference, reading CI through READS.
+// the one Show % preference, reading CI through READS; or, while the reader
+// visits Project Intent, that same reading place's project scope.
 export function StoryCiEvidence({
   story,
   reads,
   children,
+  visitingProject = false,
 }: {
   readonly story: ComparedStory;
   readonly reads: IntentCiReadSource;
   readonly children: ReactNode;
+  readonly visitingProject?: boolean;
 }) {
   return (
     <IntentReadingProvider project={story.source.id}>
       <IntentReadingPlace project={story.source.id} story={story.identity}>
-        <IntentReadingScope name="story">
-          <IntentCiComparisonPreference>
-            <IntentCiReadSourceOnPage value={reads}>
-              <IntentCiEvidenceProvider
-                source={story.source}
-                work={story.work}
-                selectedIdentity={story.identity}
-                active
-              >
-                {children}
-              </IntentCiEvidenceProvider>
-            </IntentCiReadSourceOnPage>
-          </IntentCiComparisonPreference>
-        </IntentReadingScope>
+        {visitingProject ? (
+          <IntentReadingScope name="project">Project Intent</IntentReadingScope>
+        ) : (
+          <IntentReadingScope name="story">
+            <IntentCiComparisonPreference>
+              <IntentCiReadSourceOnPage value={reads}>
+                <IntentCiEvidenceProvider
+                  source={story.source}
+                  work={story.work}
+                  selectedIdentity={story.identity}
+                  active
+                >
+                  {children}
+                </IntentCiEvidenceProvider>
+              </IntentCiReadSourceOnPage>
+            </IntentCiComparisonPreference>
+          </IntentReadingScope>
+        )}
       </IntentReadingPlace>
     </IntentReadingProvider>
   );

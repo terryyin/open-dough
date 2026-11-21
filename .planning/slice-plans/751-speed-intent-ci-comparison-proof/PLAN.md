@@ -257,7 +257,7 @@ rules stay in the existing Distribution sort tests.
 ### 8. Show % retains geometry and all comparison proof runs faster
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move comparison `-relative` and `-relative-scale` using the real preference,
 centering and scale logic. Keep a combined representative mounted example
@@ -270,6 +270,16 @@ any preserved E2E proof cost.
 centering, undefined marks stay absent, and activating Show % leaves
 geometry and sorting intact. Verify equivalent proof ownership, Vitest
 listing, elapsed time and counts by destination for the whole story.
+
+**Accepted.** The relative cases became four Vitest cases through the real
+preference and evidence owner, including Show % surviving a Project Intent
+visit and no mark or percentage for an unavailable figure;
+`relativelyTimedStory.ts` was retired. The family went from 69 Playwright to
+48 Vitest cases, every legacy title mapped to a new owner. Paired two-worker
+runs including preparation under load 12–24 took 68.1 s and 50.9 s before and
+15.1 s and 16.4 s after (low-load baseline 19.64 s); the four unchanged E2E
+comparison specs took 47.05 s. The slowest remaining case is the drill-down
+relative reading at about 1–1.4 s.
 
 ## Plan review
 

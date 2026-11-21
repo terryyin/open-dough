@@ -70,6 +70,39 @@ export const rowTextsOf = (table: Locator) =>
 export const textsIn = (region: Locator) => (selector: string) =>
   [...region.element().querySelectorAll(selector)].map(visibleText);
 
+// FIGURE's words, its relative mark's measured layout (null when it draws
+// none) and any shown percentage: the bar's direction, its reach as a fraction
+// of one side, and how far its zero tick and the bar's zero edge sit from the
+// mark's centre, with the mark's and bar's widths, in pixels.
+export function relativeOf(figure: Element) {
+  const mark = figure.querySelector(".intent-ci-time-mark");
+  const zero = mark?.querySelector(".intent-ci-time-zero");
+  const bar = mark?.querySelector(".intent-ci-time-bar");
+  const percentages = [
+    ...figure.querySelectorAll(".intent-ci-time-percent"),
+  ].map(visibleText);
+  if (mark === null || !zero || !bar)
+    return { words: visibleText(figure), mark: null, percentages };
+  const box = mark.getBoundingClientRect();
+  const centre = box.left + box.width / 2;
+  const zeroBox = zero.getBoundingClientRect();
+  const barBox = bar.getBoundingClientRect();
+  const direction = mark.getAttribute("data-direction");
+  return {
+    words: visibleText(figure),
+    percentages,
+    mark: {
+      direction,
+      reach: barBox.width / (box.width / 2),
+      zeroOffset: zeroBox.left + zeroBox.width / 2 - centre,
+      barStartOffset:
+        direction === "faster" ? barBox.right - centre : barBox.left - centre,
+      markWidth: box.width,
+      barWidth: barBox.width,
+    },
+  };
+}
+
 // Which endpoints a shown comparison compares, and why it fell back.
 export function activeComparisonIn(region: Locator) {
   const texts = textsIn(region);
@@ -124,6 +157,9 @@ export async function shownComparison() {
       })),
     wallTimes: () => texts(".intent-ci-comparison-wall"),
     timesWithoutWaits: () => texts(".intent-ci-comparison-without-waits"),
+    // Each endpoint's time without runner waits, read relatively.
+    timesWithoutWaitsRelative: () =>
+      all(".intent-ci-comparison-without-waits").map(relativeOf),
     ...activeComparisonIn(region),
     overallCounts: () => texts(".intent-ci-comparison-overall-counts"),
     overallCountsCues: () => cues(".intent-ci-comparison-overall-counts"),
@@ -134,6 +170,18 @@ export async function shownComparison() {
     entryEvidence: () => texts(".intent-ci-comparison-entries").join(" "),
     // Each entry row's header and cells, in column order.
     entryRows: () => rowTextsOf(entryTable),
+    // ROW's figure in COLUMN (1 Counts … 4 Landed), read relatively.
+    relative: (row: string, column: number) => {
+      const shown = bodyRowsOf(entryTable).find(
+        (tr) => visibleText(tr.children[0] as Element) === row,
+      );
+      if (shown === undefined) throw new Error(`No entry row ${row}.`);
+      return relativeOf(shown.children[column] as Element);
+    },
+    overallRelative: () =>
+      relativeOf(all(".intent-ci-comparison-overall-wall")[0] as Element),
+    percentages: () => texts(".intent-ci-time-percent"),
+    showPercent: region.getByRole("checkbox", { name: "Show %", exact: true }),
     // Each entry row's count and duration cues.
     entryRowCues: () => bodyRowsOf(entryTable).map(cueOf),
     headings: () =>

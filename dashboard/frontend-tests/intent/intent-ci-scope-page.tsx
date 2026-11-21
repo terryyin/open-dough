@@ -17,6 +17,7 @@ import { ComparisonMountScope } from "../../test-support/comparison-mount/scope.
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
   activeComparisonIn,
+  relativeOf,
   rowTextsOf,
   textsIn,
   visibleText,
@@ -64,15 +65,9 @@ function textReads() {
 
 // Where a relative mark's bar extends, and how far as a fraction of one side.
 export function markOf(figure: Locator) {
-  const mark = figure.element().querySelector(".intent-ci-time-mark");
+  const { mark } = relativeOf(figure.element());
   if (mark === null) throw new Error("Mark not drawn.");
-  const box = mark.getBoundingClientRect();
-  const bar = mark.querySelector(".intent-ci-time-bar");
-  if (bar === null) throw new Error("Mark not drawn.");
-  return {
-    direction: mark.getAttribute("data-direction"),
-    reach: bar.getBoundingClientRect().width / (box.width / 2),
-  };
+  return { direction: mark.direction, reach: mark.reach };
 }
 
 // One shown region's comparison readings and controls.
