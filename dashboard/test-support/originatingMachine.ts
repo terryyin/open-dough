@@ -4,20 +4,32 @@
 // adds a file and trunk later moves on without it.
 import path from "node:path";
 import type { StartOrigin } from "./support/startOrigin.ts";
+import { dashboardDeveloper } from "./support/startOriginPreparation.ts";
 import { commitAll, git, writeAt } from "./support/storyReviewWorktree.ts";
 
 const workspaceOf = (origin: StartOrigin) =>
   path.join(origin.machine, "originating-machine");
 
-// The originating clone on `branch` off trunk, with `file` added; answers the
-// clone and the trunk commit the branch left.
+// The originating clone, with the project checkout's identity, on `branch` off
+// trunk with `file` added; answers the clone and the trunk commit the branch
+// left.
 export function addedOnBranch(
   origin: StartOrigin,
   branch: string,
   file: string,
 ) {
   const workspace = workspaceOf(origin);
-  git(origin.machine, "clone", "--quiet", origin.origin, workspace);
+  git(
+    origin.machine,
+    "clone",
+    "--quiet",
+    "-c",
+    `user.name=${dashboardDeveloper.name}`,
+    "-c",
+    `user.email=${dashboardDeveloper.email}`,
+    origin.origin,
+    workspace,
+  );
   const trunk = git(workspace, "rev-parse", "HEAD");
   git(workspace, "switch", "--quiet", "-c", branch);
   writeAt(workspace, file, "published by another machine\n");

@@ -289,6 +289,13 @@ it, seven git-heavy branch-attribution cases time out at the 5 s default at load
 ~21 on both the original and refactored attribution code, so they are left to
 the branch CI verdict and recorded as a load-sensitivity finding.
 
+**CI repair (run 44848204679).** The originating clone committed without its
+own Git identity; CI runners have no global identity. `addedOnBranch` now
+clones with the dashboard developer identity, reproduced failing with
+`user.useConfigOnly` and no global identity and passing after the fix.
+Refactor disposition: already traced by slice 7's accepted refactor return,
+which owns `dashboard/test-support/originatingMachine.ts`.
+
 ### 8. Show one entry for a published session on its originating machine
 
 Type: Behavior
