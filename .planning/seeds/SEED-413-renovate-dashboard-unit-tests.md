@@ -265,7 +265,7 @@ SEED-413#mount-story-review-diff-reading landed (`2d1e73020`).
 
 **Identity:** SEED-413#correct-landing-record-writes-and-tests
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/745-correct-landing-record-writes-and-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"64260086789f76c49b4a4a6a390fe138db4ff1e4067e67a89fceea245bc42594","plan":"937fc19fdc243a92b45e6c6fd7b5fa553d074d77fd666c29f2ef9552cfd3af89"}}
 ```
 
 Correction from the critical review of
@@ -315,11 +315,25 @@ SEED-413#decide-landings-over-typed-attempts-and-records (landed at
     `aComposedDeclaredLanding`. Drop assertions that restate inputs. Record
     deletion in `declared-blank-launch-publication` acts on the record that
     holds the landing.
+- **Key examples.**
+  - A project keeps a declared-landing launch and an unresolved creation
+    record. One `prepare` for that launch → both records stay; only the
+    landing launch gains its preparation.
+  - An attempt-path landing is decided while another session in the same
+    project is marked Done → after the record write, that session keeps its
+    Done time and nothing moves to history as `removed`.
+  - A branch handoff copies the landing context while the same session is
+    marked Done → the saved record keeps `doneAt`, gains no landing
+    reporting, and the answer carries no `landingContext`; without the
+    concurrent change it answers the saved file.
+  - A same-origin landing request that `verifyLocalOrigin` admits through
+    `Sec-Fetch-Site: same-origin` without an `Origin` header is accepted; a
+    GET with a non-JSON content type answers 405, not 415.
 - **Acceptance.** A landing or branch handoff leaves every other kept record,
   including creation records and concurrent changes, as it was, proved at
-  `handleLanding` and `submitSessionBranchEntry`; reverting either write fix
-  in a scratch edit fails its case. No backend-test support writes Done.
-  The decision specs import no data helper from support beyond MakeMe.
+  `handleLanding` and the branch handoff's typed entry; reverting either
+  write fix in a scratch edit fails its case. No backend-test support writes
+  Done. The decision specs import no data helper from support beyond MakeMe.
 
 <a id="restore-done-capture-proof-after-composed-reviews"></a>
 
