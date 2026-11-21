@@ -519,95 +519,321 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
 
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
-### Renovate the later dashboard frontend unit-test families
+### Remaining dashboard frontend renovation
 
-**Identity:** SEED-413#renovate-later-dashboard-frontend-unit-test-families
+The former catch-all backlog entry is superseded by the eight stories below.
+The split covers every legacy frontend case listed at `42a660a17` on
+21 November 2026. The normal command
+`caffeinate -s -i npm run --silent test:dashboard:frontend -- --list --reporter=line`
+listed 594 Playwright cases across 249 reported source files, including five
+Intent files that register cases from other specs. These counts estimate the
+starting workload. New or moved tests follow the behavior they prove.
+The [most recent completed proof inspected](https://github.com/terryyin/open-dough/actions/runs/44877128434/artifacts/14697265341)
+is from `0f9a585684` and records 825 passing cases across both engines and
+1,036 summed case-seconds. Local listing and CI execution count different
+things, and the CI revision predates current changes to Sessions and Review.
+
+| Order | Story | Legacy cases | Listed sources |
+| --- | --- | ---: | ---: |
+| 1 | [Get fast proof of a story's Intent CI comparison](#speed-intent-ci-comparison-proof) | 69 | 24 |
+| 2 | [Get fast proof of Intent evidence and timing history](#speed-intent-proof-and-timing) | 95 | 44 |
+| 3 | [Get fast proof of Intent source and story reading](#speed-intent-source-and-story-reading) | 71 | 37 |
+| 4 | [Get fast proof of board and side-panel interactions](#speed-dashboard-board-and-panel-proof) | 63 | 28 |
+| 5 | [Get fast proof of composing and starting a launch](#speed-dashboard-launch-proof) | 81 | 29 |
+| 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
+| 7 | [Get fast proof of live sessions and terminal work](#speed-dashboard-live-session-and-terminal-proof) | 77 | 31 |
+| 8 | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | 61 | 22 |
+| | **Total** | **594** | **249** |
+
+The first two cover the evidence maintainers use to review a story's intent.
+They reuse production owners already accepting typed evidence and exercise
+the highest-leverage distinction early: presentation can consume held
+evidence, while refresh and stale-answer protection must exercise the real
+reader. The next five each deliver faster proof for a complete workflow and
+can be used independently. The last includes the remaining frame and
+navigation integration, the harness audit, and complete frontend runner
+retirement, which accounts for its smaller case inventory. The effort
+hypotheses are large relative to the recent 23- and 29-case stories.
+Confidence is highest for owners that take typed props. Full-page history,
+live terminal behavior, and runner integration carry more uncertainty.
+Moving only the engine would leave whole-app setup and repetitive cases.
+Continuing one component at a time would extend the life of both runners.
+
+#### Acceptance shared by the eight stories
+
+- Use plain Vitest for all frontend unit checks. Use production logic for
+  pure rules and the smallest production owner in headless Chromium for
+  rendering, layout, accessibility and native input. Exercise the actual
+  reader and its typed collaborator for retry, abort, caching and stale
+  answers. Real page loads, URL history and other behavior that requires a
+  built dashboard belong in representative E2E journeys. Keep the runner
+  and coverage of the backend and E2E groups with their respective owners.
+- Follow the [frontend test guidance](../../dashboard/frontend-tests/README.md#which-entry-a-case-uses),
+  [Architectural North Star](../NORTH-STAR.md), and
+  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
+  Use page-loadable MakeMe inputs and colocated page objects where they
+  clarify the journey. Render and act directly and wait on the observed
+  result. Retire `actSettled`, React `act` wrapping and
+  `IS_REACT_ACT_ENVIRONMENT` as their families move. Remove spent support as
+  its last consumer moves. Keep the shared test-support surface shrinking.
+- Aim for fewer maintained cases as well as faster feedback in every story.
+  Audit loop-generated and table-driven cases first. Use representative
+  cases for equivalent paths, observe several independent results of one
+  action in the same setup, or move a distinct rule to a direct logic case.
+  Keep distinct risks separately named when they need separate setup or
+  failure diagnosis. Preserve exact wording, accessibility, viewport and
+  input distinctions, races, and error/retry boundaries wherever they are
+  the proof. Avoid long unrelated assertion chains and hidden case
+  registration. Map each retired case's distinct assertions to their
+  new owner or a named existing equivalent before deletion. Report why
+  repeated cases were consolidated or kept. Case count and runtime are
+  measures of the benefit. Coverage quality decides which reductions to keep.
+- Compare comparable before/after selections with two workers and record
+  elapsed time including preparation, counts by engine and destination,
+  and slow cases that remain. Run each engine's selection explicitly while
+  the legacy runner exists. Include the runtime of proof promoted to E2E.
+  Use paired runs under comparable load for noisy results. The final story
+  measures the complete group including preparation against the recorded
+  baseline, with roughly one minute at two workers as the campaign target.
+  Report the actual time and any remaining cost.
+- The existing recovery/late-styling timing follow-up and renamed-diff
+  proof correction have separate owners. Preserve their commitments and
+  use their results when available. The migrations own the remaining
+  legacy cases. Keep this campaign's test work coordinated with
+  [SEED-341](SEED-341-simplify-session-tests.md).
+
+<a id="speed-intent-ci-comparison-proof"></a>
+
+### Get fast proof of a story's Intent CI comparison
+
+**Identity:** SEED-413#speed-intent-ci-comparison-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/751-speed-intent-ci-comparison-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6f6c414e043b1c80e828981706837c8ef8b8fd3806cb12e551af8afc6c06fbbd","plan":"17312de0ce18a770603bed88ec9bcbf74e9e310c429edce39c4e73e7abe7d184"}}
+```
+
+- **Goal.** A dashboard maintainer gets fast, readable feedback that the
+  selected story's comparison names the right builds, timing, test results and
+  limits, and recovers correctly when its evidence changes.
+- **Scope.** Own `intent-ci-comparison-*.spec.ts` and the five comparison
+  case registration modules in `dashboard/frontend-tests/intent/`. This
+  includes cross-scope observations that start from the comparison and prove
+  the same preference, fallback or held evidence is reused. The Summary's
+  own evidence rules and collected timing history belong to the next story.
+  Use direct logic proof for presentation rules that need no DOM. Preserve
+  representative authenticated and real composition boundaries in E2E.
+- **Key examples.** Landed proof unavailable → a reader sees the Branch
+  fallback with the real reason and measured figures → Check again recovers
+  Landed, and a previous selection's held result cannot replace it.
+  With legacy, case and file units and partially missing evidence, the
+  comparison and drill-down preserve the available figures, separate units
+  and disclose why a difference cannot be claimed. Sorting uses the signed
+  changes with gaps last and native headers work by keyboard. Show % keeps
+  the geometry and order and follows the reader between relevant scopes.
+- **Evaluation.** All 69 legacy cases have a traceable disposition and the
+  unit proof runs on Vitest. Apply the shared timing, case-count and coverage
+  checks. Each completed slice lets maintainers use its faster proof before
+  the next slice lands.
+
+<a id="speed-intent-proof-and-timing"></a>
+
+### Get fast proof of Intent evidence and timing history
+
+**Identity:** SEED-413#speed-intent-proof-and-timing
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/752-speed-intent-proof-and-timing/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"86ddfc09ad3e8efed29d5fdbc15d186361546db40acdebfa6dbea3cfc0868006","plan":"d68704a827df3419022a324baa1dcbb08c246fa8a90a4616fc8d1307851c8ab7"}}
+```
+
+- **Goal.** A dashboard maintainer can quickly check what current proof and
+  collected history say at the homepage, location, folder and file, including
+  timing and count gaps, source identity and independently recoverable reads.
+- **Scope.** Own the remaining legacy `intent-ci-*` cases outside the CI
+  comparison story, plus `intent-project-ci-history-*`, `intent-project-scope-*`,
+  `intent-scope-*` and `intent-summary-*`. Refresh existing Project CI
+  history mounts when their owner changes. Project and Done timing reads keep
+  separate boundaries from live Proof. The story-source and location views
+  themselves belong to the next story.
+- **Key examples.** The chosen attempt lacks some proof → the homepage and
+  Summary identify which evidence survived → sorting, drilling and returning
+  preserve the reading and its units without rereading CI. A collected
+  history read fails → the selected scope keeps its last history and live
+  proof, offers Retry and recovers without borrowing history from a different
+  project or endpoint. A scope with one renamed or unlisted file assigns its
+  evidence once and explains gaps. Keyboard and narrow/zoomed reading still
+  expose the same controls, words and cues.
+- **Evaluation.** All 95 legacy cases have a traceable disposition and
+  the unit proof runs on Vitest. Apply the shared timing, case-count and
+  coverage checks. The status, history and Summary proof each give faster
+  feedback as soon as their slices land.
+
+<a id="speed-intent-source-and-story-reading"></a>
+
+### Get fast proof of Intent source and story reading
+
+**Identity:** SEED-413#speed-intent-source-and-story-reading
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-Split from `SEED-413#renovate-remaining-dashboard-frontend-unit-tests`, which
-moved the Project Intent apply-and-retry cases. The two Optimization
-Candidates revision cases already run as mounted cases in
-[`intent-candidates-revision.spec.ts`](../../dashboard/frontend-tests/intent/intent-candidates-revision.spec.ts).
-[Story Review diff reading](#review-diff-reading-after-migration) and
-[Usage Token index reading](#usage-token-index-reading-after-migration) now run
-in mounted Chromium.
-[The Review changes panel](#review-changes-panel-reading-after-migration) and
-[System settings' sections and the Usage charts](#system-settings-sections-and-usage-charts-after-migration)
-now run in mounted Chromium.
+- **Outcome.** Developers get fast proof of project and story reading,
+  source selection and recovery, Purpose, Gherkin, Changed tests, notes,
+  progress, completion detail, and return to the same reading place.
+  Evaluate a missing or stale file read through Retry and a return from
+  Review, with the exact location, status and focus observed.
+- **Boundary.** Own the legacy Intent specs remaining after the two evidence
+  stories, navigation's `source-navigation*` and `story-reference-done*`,
+  and Stories' `taken-slice-progress` and `plan-execution-complete-detail`.
+  Carry SEED-301's MakeMe work using the typed Intent reading inputs, including
+  `anIntentLocationsAnswer` in `intent-read-recovery` and
+  `intent-gherkin-settings-problems`. Remove the unused `locationsRequest`
+  export if still unused, and use the production `IntentPageProviders`
+  where the Candidates publication fixture is reused. Narrow the mounted
+  Story Notes control's typed project state and remove its legacy settle
+  path, keeping refresh and late-read-after-save proof for the real subscription.
+- **Effort and stopping point.** Large, medium confidence. The existing
+  `ProjectIntentReading` and revision family cover a usable typed seam.
+  Retain named E2E proof for real reload or navigation where needed.
 
-**Goal.** Give dashboard developers readable UI unit tests and feedback from
-the complete frontend group in roughly a minute at the usual two workers,
-including preparation. This carries the suite-wide commitments, including
-SEED-404's timing goal and SEED-301's Intent MakeMe work.
+<a id="speed-dashboard-board-and-panel-proof"></a>
 
-**Scope and order.** Select families by feature folder and the interaction
-each view owns. The Optimization Candidates and open Sessions sidebar
-families have landed as mounted Vitest Chromium proof.
-Split the next piece by the rendered owner whose cases it moves, sized by the
-[experience below](#experience-from-the-completed-frontend-families), and
-choose it by the seconds it removes for the production change it needs, read
-from the [current state](#frontend-group-state-after-seven-families). Prefer
-an owner that already takes typed inputs, then one small extraction or one
-typed source behind a hook. Size a piece at about two dozen to thirty cases
-over one owner, or a few small owners sharing one pattern, as the Review
-changes panel and System settings pieces are. Continue with Intent,
-Sessions, Launches, Terminals and Stories. Leave Navigation's frame, board and URL cases
-until an audit has separated what a mounted board owner can prove from what
-needs a real page load or belongs in E2E. Use
-the completed
-[Project Intent revision family](#project-intent-revision-family-example)
-as the reference for the remaining migrations. Keep each legacy case until
-its replacement exercises its actual boundary.
-Use shared typed Intent inputs in place of `putFrontend*` project arrangements;
-coordinate session proof with [SEED-341](SEED-341-simplify-session-tests.md).
-The family map includes Navigation, Launches, Review, Configuration, Terminals,
-the Stories cases left by the pilot, and the audit of the four test-harness
-specs. The root contains no product specs. Reassess the order by measured
-cost and which shared contracts are available as families finish.
+### Get fast proof of board and side-panel interactions
 
-- Mount the smallest rendered owner with typed inputs. Keep an enclosing view
-  when its children coordinate. Its unit test suite should be able to
-  [render that view](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
-  without preparing answers for unrelated dashboard features. Use the
-  backend's existing shared contract where coupled. Preserve distinct assertions and remove a duplicate only
-  after locating its equivalent proof. For example, reloading an encoded story
-  URL and traversing Back and Forward needs a real E2E browser journey.
-  Account for the cost of any checks moved there.
-- Render and act in each moved case as soon as the page allows, under
-  [Which entry a case uses](../../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
-  and the [North Star](../NORTH-STAR.md#act-as-soon-as-the-page-allows-retire-actsettled).
-  Remove `actSettled`, React `act` wrapping and `IS_REACT_ACT_ENVIRONMENT`
-  from the mounted families already moved (Story Notes, Project CI history,
-  the phone board) when the family is next touched. Retire
-  `mountedActSettled.ts` and its harness case with `mountedDashboard.ts`.
-  When migrating the built-app `intent-read-recovery` and
-  `intent-gherkin-settings-problems` specs, replace handwritten locations
-  responses with `makeMe.anIntentLocationsAnswer`, and retire the unread
-  `locationsRequest` export in `intentReadRecoveryPage.ts`.
-- When an Intent family reuses
-  [`intent-candidates-publication.ts`](../../dashboard/frontend-tests/intent/intent-candidates-publication.ts),
-  mount the production `IntentPageProviders` there instead of re-composing
-  the mode and reading providers.
-- Retire a feature's app mount, route substitutes and page-object scaffolding
-  when their last consumers move. For example, `frontendIntentCi.ts` still
-  uses `serveFrontendCiHistory` after Project CI history migrates. Add zero
-  new wrappers. Audit harness cases against the product behavior they protect
-  before retiring machinery whose only checks exercise the harness itself.
-- At the last frontend migration retire `frontend.playwright.config.ts`,
-  frontend dual-engine dispatch and its
-  dedicated selection/output glue, `frontendApp.ts`, `mountedDashboard.ts`,
-  `frontendServiceSubstitutes.ts` and spent `frontend*Rule.ts` modules.
-  Preserve shared runner behavior still used by the backend, the frontend npm
-  command, filtering, listing, worker budget, shards, timings and CI proof.
-  `@playwright/test` remains the E2E runner. The frontend group runs entirely
-  on plain Vitest with headless Chromium.
-- Finish by comparing a full two-worker run against the baseline below and
-  checking the surviving behavior and support surface. A fast filtered run
-  already helps one developer on one family. It cannot measure the cost of
-  the full group. Each completed family delivers usable feedback on its own.
-  Effort L across families, to be refined as each one is reached.
+**Identity:** SEED-413#speed-dashboard-board-and-panel-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** Developers get fast proof of a usable board and adjacent
+  panels across keyboard, touch and constrained layouts. Evaluate a board
+  page turn with a panel open, plus scroll, focus, kept position and
+  announcement behavior on the relevant surfaces.
+- **Boundary.** Own navigation's `accessible-board*`, `board-*`,
+  `story-card*`, `side-panel-width*`, `development-intent-frame*` and
+  `frame-*` legacy specs. Narrow both mounted phone-board suites and the
+  Stories scan-emphasis case that still uses the whole-app mount. Keep the
+  distinct production layout, pointer and state interactions. A real load,
+  reload or cross-destination history belongs to the applicable E2E journey.
+- **Effort and stopping point.** Large, medium confidence. Mounted component
+  proof gives usable layout and interaction feedback as soon as it replaces
+  the equivalent built-app cases.
+
+<a id="speed-dashboard-launch-proof"></a>
+
+### Get fast proof of composing and starting a launch
+
+**Identity:** SEED-413#speed-dashboard-launch-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** Developers get fast proof of a launch's choices and action.
+  When an attachment or startup is refused, the reader can see whether the
+  correct draft, options and recovery path survive.
+- **Boundary.** Own all legacy `launches/` specs, including workflow, host,
+  model, effort, instructions, attachments, dictation, creation gates, note
+  handoff, startup answers and responsive session access. Keep distinct
+  provider constraints and handoff routes. E2E owns journeys that need
+  actual installation, native launch or cross-service startup.
+- **Effort and stopping point.** Large, medium confidence. Retain one
+  maintained proof owner for each launch behavior while other families still
+  use their legacy runner.
+
+<a id="speed-dashboard-done-session-review-proof"></a>
+
+### Get fast proof of finding and reviewing Done sessions
+
+**Identity:** SEED-413#speed-dashboard-done-session-review-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** Developers get fast proof that a Done session appears for
+  the right project or story, opens the right review, and carries truthful
+  evidence and navigation through Review. Evaluate selected versus stale
+  results, published versus local evidence, and exact comparison and diff
+  provenance through the rendered owner.
+- **Boundary.** Own `sessions/recently-done*`, `sessions/follow-up-source-navigation*`,
+  `stories/recently-done*` and all remaining legacy `review/` cases.
+  These include Review actions, sidebar width and retained diff text,
+  grammar, retry and appearance interactions. Preserve production selection
+  and update ownership, existing mounted review proof, and the separately
+  queued renamed-path regression assertion.
+- **Effort and stopping point.** Large, medium confidence. Start from
+  `StoryReview`'s typed reading source and the existing page owners for
+  Done and Review. Distinct real publication, Git and install behavior
+  keeps its existing service or E2E owner.
+
+<a id="speed-dashboard-live-session-and-terminal-proof"></a>
+
+### Get fast proof of live sessions and terminal work
+
+**Identity:** SEED-413#speed-dashboard-live-session-and-terminal-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** Developers get fast feedback on live session discovery,
+  actions and reporting, and terminal operation. Evaluate a held terminal
+  or session update while the reader interacts, including the right
+  selection, input, completion or recovery result.
+- **Boundary.** Own the remaining legacy `sessions/` specs outside Done
+  review, all `terminals/`, and Stories' `story-note-voice*`. Cover live
+  listings, card actions, Mark Done interactions, final reports, terminal
+  layout and input, touch selection, prompts and transcription recovery.
+  Retain native keyboard, touch, clipboard or terminal behavior at the
+  boundary where each is observable. Real processes and transports belong
+  in existing backend or E2E owners.
+- **Effort and stopping point.** Large, medium confidence. A replacement
+  must observe the delivered input or update and any recovery it claims
+  before the legacy setup retires.
+
+<a id="retire-legacy-dashboard-frontend-runner"></a>
+
+### Run the entire dashboard frontend unit suite on Vitest
+
+**Identity:** SEED-413#retire-legacy-dashboard-frontend-runner
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** A maintainer can list, filter, run and review CI proof for
+  the complete dashboard frontend unit suite using Vitest. The final
+  checkout has no frontend unit path to `@playwright/test`, or frontend
+  legacy config, setup, output, fixture or built-app substitute infrastructure.
+- **Boundary.** Own the last frame/header, project switching, recent
+  stories and direct URL/reference navigation cases in `navigation/`
+  outside the earlier stories, all remaining legacy `configuration/`,
+  Stories' `agent-roster-collection`, and all `test-harness/` cases.
+  Prove real deep links, reload and Back/Forward through a named E2E journey
+  when required. Audit harness specs for genuine measurement, touch and
+  reachability assertions before retiring checks for deleted scaffolding.
+- **Cutover.** After the other seven migration outcomes, retire
+  `frontend.playwright.config.ts`, its registration and frontend-specific
+  Playwright selection and output branches, `frontendGlobalSetup.ts`,
+  `frontendApp.ts`, the comparison bundle/mount and `pageTest.ts` paths
+  with no surviving consumers, the whole-app `mounted-dashboard/` harness,
+  `mountedDashboardCommands.ts`, `mountedActSettled.ts`,
+  `frontendServiceSubstitutes.ts`, `frontendSubstituteAnswers.ts` and
+  spent `frontend*Rule.ts`/route state. Trace their transitive imports,
+  documentation, package commands, CI and generated-output settings.
+  Where E2E or backend owns a shared utility, preserve that use and remove
+  its frontend legacy path. Preserve the npm command, filter and list
+  behavior, worker admission and deadline, frontend shards, timings, CI
+  proof label and publication. Vitest's Chromium browser provider remains
+  the driver for mounted unit tests. Keep Playwright Test with E2E and
+  the separately scheduled backend migration.
+- **Proof and effort.** Large, lower confidence because it retires shared
+  entry points. Verify a complete two-worker run including preparation,
+  focused file/title and empty selections, the full roster partitioned
+  across both CI shards without omissions or duplicates, and timings and
+  CI proof consumption. Verify the absence of legacy frontend execution
+  and configuration through imports and runner selection, the continued
+  E2E/backend entry points, and the behavior and case-count ledger for all
+  eight stories. Every intermediate migration is usable on its own while
+  the legacy entry still has a consumer.
+
+<a id="frontend-renovation-evidence"></a>
+
+### Frontend renovation evidence
 
 #### Project Intent revision family example
 
