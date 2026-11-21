@@ -206,34 +206,46 @@ and the default comparison already exist in Intent.
 
 **Identity:** SEED-420#choose-story-comparison-in-intent
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/760-choose-story-comparison-in-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"a3b58c95cb3489f4d68489e15849ae8aac2bc8a72cd9c134046c2e408c0e56e5","plan":"20c4e9c13174fa34094872bf05497dbb88309424b16822476ffe5c7e624f7c99"}}
 ```
 
-Split from [Read every file a story changed in Intent](#open-review-in-intent)
-with a [provisional plan](../slice-plans/760-choose-story-comparison-in-intent/PLAN.md).
+Split from [Read every file a story changed in Intent](#open-review-in-intent).
+[Plan](../slice-plans/760-choose-story-comparison-in-intent/PLAN.md).
 
 **Goal.** A developer reviewing a story in Intent chooses what is compared
-without leaving it. The Side panel review no longer holds choices that
-Intent lacks.
+without leaving it. The Side panel review no longer holds a choice of a
+story's comparison that Intent lacks, so
+[Review changes can send a story to Intent](#route-review-changes-to-intent)
+without losing one.
 
 **Scope.**
 
-- The story review's comparison choices are offered in Intent with their
-  present defaults: the worktree and its refresh, all changes or chosen
-  commits, uncommitted changes, and for landed work its captured runs and
-  published completion.
-- A choice changes the tree, the change markers and every diff together,
-  and the header names the revisions compared.
-- CI comparison, Proof and Intent coverage keep reading the story's
-  existing evidence and keep naming the build measured. While a comparison
-  other than the story's default is chosen, they say that they describe the
-  whole story.
-- A comparison Intent cannot show is explained in **Changes** with what is
-  missing: no workspace on this machine, several worktrees holding the
-  story's claim, or an unavailable landing. A failed read offers Retry.
-  Neither reads as a story without changes.
+- Intent offers the choices the Side panel review offers a story, with their
+  present defaults and availability: **All changes** of the worktree, with
+  **Include uncommitted changes** while it holds some; **Commits**, a
+  contiguous range of the story's commits and its uncommitted changes chosen
+  by its two ends; **Published completion**; and **Landed runs** with the
+  choice among captured runs. **Refresh** reads the worktree again and keeps
+  the choice.
+- A choice changes the listed changed files, their change markers and every
+  diff together. The header names what is compared: its two revisions, or
+  for a commit range its count and its two ends, as the Side panel review
+  names them. A selected file that is still changed stays selected and shows
+  its new diff. Unchanged files keep the source Intent reads today.
+- CI comparison, Proof and Intent coverage keep reading the story's default
+  comparison and keep naming the build measured. While another comparison is
+  chosen, each says that it describes the whole story. A Done story's
+  locations stay at its landed revision.
+- Switching among the story's views keeps the choice. Selecting a story,
+  including the same story again later, opens on its default comparison.
+- A chosen comparison that cannot be read, such as a commit range or a
+  landed run whose objects are missing, is explained where Intent explains
+  the story's comparison, with Retry for a failed read and the other choices
+  still offered. It never reads as a story without changes. The default
+  comparison's gaps (no workspace on this machine, several worktrees holding
+  the claim, a failed read) keep today's explanations.
 
-Out of scope: the Sessions picker
+Out of scope: the Sessions picker and session runs of a standalone session
 ([SEED-418](SEED-418-review-published-session-changes.md#select-a-story-session-for-review)),
 [including merged changes](#compare-story-contributions) and
 [proof for the chosen comparison](#read-proof-for-the-comparison). The chosen
@@ -241,28 +253,48 @@ comparison stays presentation state and is not part of a link.
 
 **Key examples.**
 
-- The developer chooses the story's last two commits. The tree lists only
-  the files those commits changed, each diff starts from the commit before
-  them, and the header names the range. CI comparison says that it describes
-  the whole story.
-- Leaving uncommitted changes out removes a file that was only edited and
-  not committed.
+- A Taken story's worktree has three commits and an uncommitted edit to
+  `landing.ts`. Intent opens on all changes with uncommitted changes
+  included, as today. The developer chooses **Commits** and picks the two
+  oldest commits. Only the files those commits changed are listed, each diff
+  starts from the commit before them, and the header says two commits from
+  the oldest to the second. CI comparison says that it describes the whole
+  story.
+- Back on **All changes**, clearing **Include uncommitted changes** removes
+  `landing.ts`, which only the uncommitted edit changed. A new commit made
+  in the worktree appears after **Refresh**, and the check stays cleared.
 - A Done story whose worktree is retired opens on its published completion,
-  with the completion revision named. A captured landed run can be chosen in
-  its place.
-- Two worktrees on this machine hold a Taken story's claim. **Changes**
-  names both and says that it cannot choose one.
+  with the completion revision named. Choosing a captured landed run lists
+  that run's changes and names its tree. Its locations and CI views stay on
+  the story's landed result.
+- The developer reads `landing.spec.ts` within a two-commit range, switches
+  to CI comparison and back, and finds the same range and file. After
+  selecting another story and returning, the story opens on all changes.
+- A chosen landed run's objects are missing. Intent explains that its
+  changes cannot be read and still offers **Published completion**.
 
-**UI.** The choices sit with the story's compared revisions in the Intent
-header, behind the disclosure that names those revisions today.
+**UI.** A visible **Compare** choice sits beside the compared-revisions line
+in the Intent header, as the [design direction](../../docs/dashboard-ux-ui-north-star.md#review-in-intent)
+places Compare in the review's toolbar. The header stays uncollapsible, as
+it has been since the story disclosure was removed. The controls a choice
+needs appear only with it: the uncommitted check with **All changes**, the
+story's commits to pick the range's ends with **Commits**, and the run
+choice with **Landed runs**.
 
-**Architecture.** Intent's story scope owns the one chosen comparison that
-its tree, diffs and header read. Today Intent reads only the default
-comparison and the Side panel review owns every other choice. The choice is
-presentation state kept with the story's reading place.
+**Architecture.** Intent's story scope gains one chosen comparison, read
+through the Side panel review's selection and comparison owners rather than
+a second selection model. The lens keeps two reads apart: the story's
+default comparison, which CI comparison, Proof, Intent coverage and a Done
+story's landed revision read today, and the chosen comparison, which the
+file view, its diffs and the header read. The choice is presentation state
+under [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#spatial-presentation-remains-derived),
+and Intent remains the comparison's shared reading context as the ADR's
+[domain concepts](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
+define. No Accepted decision conflicts.
 
 **Effort hypothesis:** M, low confidence. The choices and their reads exist
-in the Side panel review. Hosting them in Intent's header is new.
+in the Side panel review. Separating the default from the chosen comparison
+in Intent's lens is new.
 
 <a id="route-review-changes-to-intent"></a>
 
