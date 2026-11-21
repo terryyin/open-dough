@@ -9,6 +9,34 @@ import { shortRevision } from "../../src/publishedWork.ts";
 export const withoutBreakingHints = (text: string | null | undefined) =>
   (text ?? "").replace(/[\u200B\u00AD]/g, "");
 
+function isInView(line: HTMLElement) {
+  const lineBounds = line.getBoundingClientRect();
+  let left = Math.max(lineBounds.left, 0);
+  let right = Math.min(lineBounds.right, window.innerWidth);
+  let top = Math.max(lineBounds.top, 0);
+  let bottom = Math.min(lineBounds.bottom, window.innerHeight);
+  for (
+    let ancestor = line.parentElement;
+    ancestor;
+    ancestor = ancestor.parentElement
+  ) {
+    const { overflowX, overflowY } = getComputedStyle(ancestor);
+    if (overflowX === "visible" && overflowY === "visible") continue;
+    const bounds = ancestor.getBoundingClientRect();
+    if (overflowX !== "visible") {
+      const clipLeft = bounds.left + ancestor.clientLeft;
+      left = Math.max(left, clipLeft);
+      right = Math.min(right, clipLeft + ancestor.clientWidth);
+    }
+    if (overflowY !== "visible") {
+      const clipTop = bounds.top + ancestor.clientTop;
+      top = Math.max(top, clipTop);
+      bottom = Math.min(bottom, clipTop + ancestor.clientHeight);
+    }
+  }
+  return left < right && top < bottom;
+}
+
 export function intentFileReading(path: string) {
   const file = page.getByRole("button", { name: path, exact: true });
   const source = page.getByLabelText(`${path} source`, { exact: true });
@@ -22,7 +50,7 @@ export function intentFileReading(path: string) {
     if (shown === undefined) throw new Error(`${path} shows no line ${line}`);
     const located = page.elementLocator(shown);
     await expect.element(located).toHaveAttribute("data-line", String(line));
-    await expect.element(located).toBeInViewport();
+    await expect.poll(() => isInView(shown)).toBe(true);
     return located;
   }
 

@@ -183,7 +183,7 @@ Slice 4 owns final timing for both. See checkout Git evidence `s3-report.md`.
 ### 4. The targeted line's in-view check compares positions
 
 Type: Structure
-Status: planned
+Status: done
 
 `intent-file-reading-page.ts` `showsLine` checks that the line intersects
 the window and every clipping ancestor. It polls positions instead of waiting
@@ -194,6 +194,23 @@ slice 2, and all three cases are recorded together once more. A scratch edit
 scrolls the reading pane away from the targeted line before `targets(44)`.
 Both the new check and the original `toBeInViewport()` fail on it. Every spec
 that imports `intent-file-reading-page` passes.
+
+**Observed at `a99d89ace` with Slice 4 changes.** All 30 cases passed across
+three same-run Chromium pairs under one-minute load 8.67, 9.75 and 13.47.
+Durations below are in ms, original → final. All three medians are under
+500 ms. The originals used the published claim's pages and fixtures.
+
+| Case | Pair 1 | Pair 2 | Pair 3 | Median | Final / original |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Held then released | 806.5 → 314.9 | 995.0 → 469.4 | 597.0 → 408.4 | 806.5 → 408.4 | 0.506× |
+| Failed then retried | 1,059.2 → 275.6 | 814.3 → 394.1 | 972.2 → 354.8 | 972.2 → 354.8 | 0.365× |
+| Styling arrival | 741.1 → 272.1 | 631.0 → 311.5 | 558.1 → 401.6 | 631.0 → 311.5 | 0.494× |
+
+The old source, targeted line 44, selected file focus and pane offset were
+observed before release. Both viewport assertions rejected the targeted line
+4.23 px above the reading pane while still in the window. All five tests in
+the four affected Intent specs passed. The two measured specs are unchanged.
+See checkout Git evidence `s4-report.md` and `s4-pair-{1,2,3}.json`.
 
 ## Concern evidence
 
@@ -218,5 +235,5 @@ no other slice-specific concern.
 ### G1. Failed then retried still exceeds the timing bar after activation
 Reported: slice 3 — "Activation alone missed the planned failed-retry timing gate."
 Story clause: "For each of the three cases, take the median of three attempts."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: final paired timing table and s4-pair-{1,2,3}.json, 354.8 ms median
 Commitment: P05
