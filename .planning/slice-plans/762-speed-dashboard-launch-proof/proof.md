@@ -132,3 +132,23 @@ manual touch-coordinate failure. A fresh desktop context isolates the
 three appearance cases, and Playwright supplies native actionability inside
 the mounted iframe. Eight focused cases passed on Linux arm64 and macOS.
 The normal runner collected each affected title once. [Diagnosis and proof](diagnosis-launch-browser-input.md).
+
+The landed Board sibling at `fbb074217` changed the frame, selection and
+runner owners. Local merge `e4c8b1724` retains its mounted frame tests
+and the chevron observation in its mounted selection case. The shared
+WorkEntry builder preserves supplied canonical links and fills the
+incidental default only when omitted. The old long-title helper lost
+its last executable caller and was removed.
+
+Seven explicit Vitest files passed all 14 overlapping launch and Board
+cases at two workers, and dashboard typecheck passed. Run records in the
+checkout Git evidence directory are `board-reconcile-vitest.log.run.json`
+and `board-reconcile-typecheck.log.run.json`.
+
+A hosted screenshot and a failing locked Linux probe established that
+programmatic Model selection had left its native picker open. The
+refinement touch case still probes the real Host and Model hit targets
+and supplies named values. It now keeps the browser-owned picker closed
+during this setup and retains the subsequent native gestures. The
+focused case passed on macOS and Linux arm64.
+[Diagnosis and proof](diagnosis-refinement-touch-picker.md).

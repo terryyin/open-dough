@@ -15,20 +15,37 @@ function labelOf(input: Locator) {
   return page.elementLocator(label);
 }
 
+async function setChoiceAfterTap(control: Locator, value: string) {
+  // Verify the native touch hit without opening a picker that selectOptions leaves open.
+  const select = control.element();
+  const keepPickerClosed = (event: Event) => {
+    event.preventDefault();
+  };
+  select.addEventListener("mousedown", keepPickerClosed);
+  try {
+    await tap(control);
+  } finally {
+    select.removeEventListener("mousedown", keepPickerClosed);
+  }
+  await control.selectOptions(value);
+  expect(
+    control.element().matches(":open"),
+    "native select menu closed before continuing the dialog",
+  ).toBe(false);
+}
+
 test("touch rotation and restricted height preserve the refinement draft and choices, and Cancel sends nothing", async () => {
   const { form, launcher, start } = await openRefinement(phone.portrait, true);
   const { instruction, host, model, dialog, options, cancel } = form;
   let draft =
     "Keep the selected story.\n\nExplain the next step 日本語.\nPreserve this final line.";
   await instruction.fill(draft);
-  await tap(host);
-  await host.selectOptions("codex");
+  await setChoiceAfterTap(host, "codex");
   await expect
     .element(dialog)
     .toHaveAccessibleName("Start refinement in Codex");
   await host.selectOptions("claude");
-  await tap(model);
-  await model.selectOptions("sonnet");
+  await setChoiceAfterTap(model, "sonnet");
   await tap(
     labelOf(dialog.getByRole("radio", { name: "Standard", exact: true })),
   );
