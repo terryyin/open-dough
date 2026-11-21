@@ -1,0 +1,249 @@
+# Get fast proof of Intent source and story reading
+
+**Identity:** SEED-413#speed-intent-source-and-story-reading
+**Source:** [Get fast proof of Intent source and story reading](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading)
+
+## Goal and scope
+
+Dashboard maintainers get quicker feedback on how developers find, recover,
+and resume a project's or story's Intent reading. Move the 71 legacy
+Playwright cases across 37 files identified below. Each slice preserves the
+observable results and retires the legacy proof it replaces. The comparison
+and timing stories own independent CI evidence rules. This story owns the
+evidence that the selected source and reading place survive changes to the
+view. The last campaign story owns the dual runner's retirement.
+
+## Current decisions
+
+- Apply the [campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories),
+  [North Star](../../NORTH-STAR.md) and
+  [ADR 0010, Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+  Use the [frontend entry guidance](../../../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
+  and project-selected MakeMe and page-object conventions. Use existing
+  page-loadable data and `mountComponent` with direct actions and retrying
+  observations. Do not add shared test wrappers or retain settle waits in
+  migrated cases.
+- Reuse `ProjectIntentReading` and `IntentPerspective` for their respective
+  reading scopes, `IntentPageProviders` for page-owned reading and mode,
+  and `IntentReadSource` for typed locations, file and Candidates replies.
+  The production owners keep the keys, caches, recovery and cancellation.
+  Compare the requested source, revision and path where those select the
+  answer. Supply held data only for proofs of presentation. Use the shared
+  recovery clock for timing cases, and preserve the real page for cases that
+  depend on authenticated adapters, native navigation or whole-page focus.
+- Follow [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+  Published source, Done records and Taken progress retain their actual
+  provenance; Story Notes stay on the existing machine-local project
+  subscription. Keep the notes source and its ordering rules in
+  `storyNotesState` and `localSettingState`. Resolve the shared project state
+  at the control's production entry so existing card and Review callers can
+  use it while the mounted control takes the state directly.
+- Before deleting a legacy title, record its distinct assertions and their
+  new or existing proof owner. Preserve named native focus, layout, wording,
+  failure and stale-reply risks. Consolidate equivalent setup only when the
+  observations survive. Report case counts by engine and destination, whole
+  selection elapsed including preparation, any E2E time, and the slowest
+  remaining cases. Keep the proof mapping and measurements with this plan
+  during execution. Clean up support when its last consumer moves.
+
+## Local gate
+
+On macOS run from an awake machine on AC with `caffeinate -s -i`, the
+maintained [sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Use the default test timeouts and two workers for comparable runs. Apply the
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+Run explicit affected frontend paths through each relevant engine, list the
+final selections, and run the named E2E paths when a slice moves or changes
+their proof or reaches a shared composed boundary. Run
+`npm run typecheck:dashboard` for changed production inputs or callers.
+
+## Decisive premises and proof
+
+Observations below are from this preparation's owned checkout at
+`f981fc912` on 2026-11-21, macOS on AC with Node 24.21.0 and the locked
+install.
+
+| Premise and consuming operation | Observation and consequence |
+| --- | --- |
+| The normal frontend runner selects the legacy roster used to compare feedback. | `caffeinate -s -i npm run --silent test:dashboard:frontend -- --list --reporter=line` listed 71 legacy cases in the 37 scoped specs. The comparison registration modules and mounted Vitest specs were excluded from that legacy count. |
+| The typed production reader can retain the pinned file and switch after Retry. | The normal runner at two workers, selecting `intent-source-target-recovery.spec.ts` and `intent-revision-update-failures.spec.ts`, passed five Chromium cases. A failed locations update kept the old tree usable until Retry applied the new revision. A held or failed file reply kept line 44 until release or Retry. The typed source and actual reader are the route for slices 1–3. |
+| Production Candidates and Notes readers can expose recovery and save ordering through typed replies. | The same run also selected `intent-candidates-read-recovery.spec.ts` and `story-notes-control.spec.ts` and passed their ten cases. Candidates recovery distinguished a standing limit from manual Retry, absence and mismatched content. Notes refresh updated the open list and a late read left the saved note visible. Slices 3 and 7 verify those same outcomes when changing their mount inputs. |
+| The Candidates publication mount works through the page's providers. | With the fixture's separate Intent mode and reading providers replaced by `IntentPageProviders` in scratch, the normal runner at two workers passed all 12 cases in its eight consuming specs. They observed opening and returning with focus, exact source line and revision, and the same record recovery. The edit was reverted. |
+
+The normal runner with the 37 explicit legacy paths, `--workers=2` and
+`OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` passed all 71 Playwright cases
+in 209.26 s elapsed including preparation (376.66 summed case-seconds).
+The slowest cases were pinned source navigation, invalid source targets,
+and Done dark appearance (each about 14 s). Repeat at the execution
+baseline if the checkout or load differs materially.
+
+## Slices
+
+Names below omit `.spec.ts`. Intent names are relative to
+`dashboard/frontend-tests/intent/`; navigation and stories paths are named
+explicitly.
+
+### 1. Failed Intent locations recover on the correct schedule
+
+Type: Behavior
+Status: planned
+
+Move `intent-read-recovery` and `intent-gherkin-settings-problems` (7).
+Use `anIntentLocationsAnswer` and observe `ProjectIntentReading` over
+typed replies. Use the real `IntentReadRecovery` and shared transient
+schedule for automatic retry. For the shared-wait case exercise both
+published detail and locations where their waits interact. Retain the
+authenticated boundary in `e2e/intent/intent-read-boundary-recovery.spec.ts`.
+Check callers and remove the unused `locationsRequest` export.
+
+**Proof.** Preserve the 15/30/60/60 schedule, visibility and rate-limit
+rules, independent recovery of published detail, exact failure wording,
+and manual Retry for malformed settings with no spontaneous retry.
+
+### 2. Source opens at the location and revision the reader chose
+
+Type: Behavior
+Status: planned
+
+Move `intent-code-browse-java`, both `intent-entry-folder-summaries*`,
+`intent-gherkin-groups`, `intent-gherkin-layout`, `intent-purpose-case`
+and `navigation/source-navigation*` (10). Use the tree and file reading
+owners for scopes, expansion, line anchors and plain-text fallback. Use
+`sourceLink` for distinct path and link decisions and `WorkSourceLinks`
+for the actual pinned links. Keep the real navigation observation where
+activation must leave the page. Retain `e2e/intent/intent-code-browse-sources.spec.ts`,
+`intent-gherkin-browse.spec.ts` and `intent-gherkin-unusable.spec.ts`
+in the same E2E folder for published settings and source reads.
+
+**Proof.** Clicking names and toggles selects or expands the intended
+item, Gherkin panes keep independent scrolling, and selecting a case keeps
+its exact source and line. A missing Java grammar keeps readable text.
+Canonical and plan links use the inspected revision. External, invalid
+and unsafe targets retain their distinct results.
+
+### 3. A detour returns the developer to the same reading
+
+Type: Behavior
+Status: planned
+
+Move `intent-home-activation`, `intent-project-visit*`,
+`intent-read-reuse`, `intent-reading-place`, `intent-recent-stories`,
+`intent-selection-reads`, and `intent-story-review-return` (13).
+Use production `IntentPageProviders` in the reused Candidates publication
+fixture and check its existing recovery and revision consumers before
+moving dependent cases. Use the real selection and reading-place owners,
+including Review's open/close and focus wiring. Retain
+`e2e/intent/intent-project-visit-ci.spec.ts` for the composed visit. Carry
+the keyboard Review-return case to E2E if only the full page can observe
+its focus handoff, keeping one focus proof for that journey.
+
+**Proof.** Selecting a story opens its own view while a Project Intent
+visit uses the published file. On return, restore the nested path, tab,
+scroll and focus without extra reads. A late selection answer cannot
+replace the current text. A project switch resets the place, and keyboard
+activation and an unread-revision notice keep their existing meaning.
+
+### 4. Changed tests stays usable with the selected story's context
+
+Type: Behavior
+Status: planned
+
+Move `intent-read-reuse-story`, `intent-sidebar-toggle`,
+`intent-story-changes-*`, `intent-story-ci-cues`,
+`intent-story-dark-appearance`, `intent-story-summary-title`, and
+`intent-story-views-narrow` (16). Share the story-reading arrangement
+when examining multiple views of the same selection. Exercise the actual
+story lens for overlay changes or a held comparison, and direct production
+rules for value-only membership. Keep `e2e/intent/intent-story-changes.spec.ts`
+for composed diff and source proof.
+
+**Proof.** Selected story only follows the current revision. An empty or
+failed comparison names its cause, permits recovery where offered, and
+keeps the tree usable. An opened changed file uses its diff without
+rereading published text. Preserve exact title, accessible CI cues,
+dark appearance, keyboard activation, narrow layout and independent
+sidebar state through story and project visits.
+
+### 5. Done Intent and ordinary Review use the selected historical or live source
+
+Type: Behavior
+Status: planned
+
+Move the four `intent-done-*` legacy specs that cover source selection,
+project refresh and Review modes. Hold the actual comparison, locations
+or review reply at its existing boundary. Retain
+`e2e/intent/intent-done-project-refresh.spec.ts` and
+`e2e/intent/intent-story-completed-source.spec.ts` for real historical source.
+
+**Proof.** A new Done story replaces the old source only with its own
+historical answer. Refresh leaves Done Purpose and its place readable.
+Switching Review modes in the open panel waits for each mode's actual
+answer, and ordinary Review clears the captured-run selection.
+
+### 6. Done references lead to the intended story or explain what stopped them
+
+Type: Behavior
+Status: planned
+
+Move the three `navigation/story-reference-done*` files (11).
+Reuse `useStoryReferenceJourney` and its production notice and
+destination. Supply the catalog and story answer through the real owner
+when recovery or cancellation is the observation. Keep a representative
+composed reveal in E2E if reaching and focusing the actual destination
+requires the built app.
+
+**Proof.** Pending, unavailable, expired and failed answers remain
+distinct; Retry reaches the recovered answer without reading older stories.
+The destination retains the required range and focus, including at the
+narrow reduced-motion viewport. Navigation, pointer input and Tab can
+supersede a held reveal, and disclosure waits for opening before reading
+the replaced dependency.
+
+### 7. Story notes update in place and keep the reader's context
+
+Type: Behavior
+Status: planned
+
+Move `intent-story-notes` (4) and narrow the existing
+`stories/story-notes-control` mount to the real subscribed project state.
+Mount directly without `act` or `IS_REACT_ACT_ENVIRONMENT`, keeping the
+actual state and typed source for refresh and save ordering. Where line
+notes depend on the Review subject, exercise production
+`StoryDiffNote` with the selected Intent view. Use
+`e2e/terminals/agent-terminal-lifetime.spec.ts` for notes beside the terminal
+when shared project wiring changes.
+
+**Proof.** The icons and unreadable warning fit beside the title; opening
+and closing Notes keeps the file and restores focus. A line note records
+the Intent subject. Refresh updates the subscribed control and a held
+older read leaves the saved note visible.
+
+### 8. Recorded slice progress and completion expose their actual evidence
+
+Type: Behavior
+Status: planned
+
+Move `stories/taken-slice-progress`, `stories/plan-execution-complete-detail`
+and `intent-story-coverage` (6). Use the production card, `SliceProgress`,
+`StoryDetail`, and `IntentStoryCoverage` with the read evidence they own.
+Keep the real Done read for pending, failure and Retry. Retain
+`e2e/stories/branch-slice-progress.spec.ts` and
+`e2e/stories/taken-execution-complete.spec.ts` for publication-to-page proof.
+Reconcile the whole roster and compare it with the focused legacy
+selection using its normal proof reporter before claiming the speed gain.
+
+**Proof.** Show recorded completed slices, plan gaps and product advice
+without reading on disclosure or inferring past evidence from prospective
+proof. Distinguish absent, unavailable, failed and insufficient coverage
+records. Every retired test has an observed owner and the end-of-story
+measurements cover all selected destinations.
+
+## Plan review
+
+The eight slices follow distinct reading transitions and use the same
+source, revision and reading-place model. The Changed tests cases share
+the selected-story setup, with product read lifecycle and native layout
+assertions kept where each is observed. Refinement was unnecessary after
+checking the roster against the slice boundaries and identifying the
+existing render and read owners. No remaining slice-specific concern was
+identified.

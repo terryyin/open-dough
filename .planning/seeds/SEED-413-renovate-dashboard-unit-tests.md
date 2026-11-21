@@ -635,27 +635,43 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#speed-intent-source-and-story-reading
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/755-speed-intent-source-and-story-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"267f93e9f3eec14c6b8216b8668840a38f9d5f75edb807146ea4caf057f3566a","plan":"c970a8394e49e22a3422b90f73d9f5b0bdec4b3022eaf3521acec27a479a6042"}}
 ```
 
-- **Outcome.** Developers get fast proof of project and story reading,
-  source selection and recovery, Purpose, Gherkin, Changed tests, notes,
-  progress, completion detail, and return to the same reading place.
-  Evaluate a missing or stale file read through Retry and a return from
-  Review, with the exact location, status and focus observed.
-- **Boundary.** Own the legacy Intent specs remaining after the two evidence
-  stories, navigation's `source-navigation*` and `story-reference-done*`,
-  and Stories' `taken-slice-progress` and `plan-execution-complete-detail`.
-  Carry SEED-301's MakeMe work using the typed Intent reading inputs, including
-  `anIntentLocationsAnswer` in `intent-read-recovery` and
-  `intent-gherkin-settings-problems`. Remove the unused `locationsRequest`
-  export if still unused, and use the production `IntentPageProviders`
-  where the Candidates publication fixture is reused. Narrow the mounted
-  Story Notes control's typed project state and remove its legacy settle
-  path, keeping refresh and late-read-after-save proof for the real subscription.
-- **Effort and stopping point.** Large, medium confidence. The existing
-  `ProjectIntentReading` and revision family cover a usable typed seam.
-  Retain named E2E proof for real reload or navigation where needed.
+- **Goal.** Dashboard maintainers get faster feedback that a developer can
+  open the intended project, story and source, recover a failed read, and
+  resume the same reading after a detour. The proof also covers what the
+  developer sees about the story's changes, notes and recorded progress.
+- **Scope.** Move the 71 legacy cases in the remaining Intent specs,
+  Navigation's `source-navigation*` and `story-reference-done*`, and Stories'
+  `taken-slice-progress` and `plan-execution-complete-detail`. Own the proof
+  of selecting and returning across Project Intent, a selected story and
+  Review. The two preceding stories own independent CI comparison, live
+  proof and history rules. Retain real navigation and composed service
+  journeys in representative E2E coverage. The final campaign story owns
+  frontend runner retirement.
+- **Scope includes the related setup cleanup.** Use SEED-301's typed reading
+  data, including `anIntentLocationsAnswer` for read recovery and Gherkin
+  settings problems. Retire the unused `locationsRequest` export after
+  checking callers. Use production `IntentPageProviders` in the Candidates
+  publication fixture. Give the mounted Story Notes control the subscribed
+  state for its project, remove its legacy settle path, and preserve proof
+  that refresh updates the control and a late read cannot overwrite a save.
+- **Key examples.** A location or pinned file read fails → the reader sees
+  the specific cause and can Retry → the correct revision and source appear.
+  While a later revision or another selection is pending, Purpose keeps the
+  applicable source and never displays the other selection's text.
+  With a nested Changed tests file selected, a keyboard visit to Review and
+  return restores the story, file, reading position and focus. A held Done
+  reference can be superseded by another action, and an expired or failed
+  reference reports its actual state. A note saved before an older read
+  answers remains visible. Taken progress and execution completion present
+  their recorded facts, with distinct gaps and without treating future plan
+  proof as a completed result.
+- **Evaluation.** Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories)
+  to the whole roster. Record each retired case's proof owner, the two-worker
+  elapsed comparison including preparation and any E2E cost, and the
+  remaining case count and slow cases.
 
 <a id="speed-dashboard-board-and-panel-proof"></a>
 
