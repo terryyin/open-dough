@@ -1,24 +1,47 @@
 // The explicit handoff gives the installed publisher a context for this launch.
 import { randomUUID } from "node:crypto";
+import type { LandingReporting } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
+import type { SessionBranchEntry } from "../src/sessionBranchResult.ts";
 import {
   acceptsStoryless,
   copyReportingFiles,
   writeLandingContext,
 } from "./launchReportingFiles.ts";
 
-// The kept record after taking `answered` when the session still matches and
-// does not already report; otherwise `current`.
+function sameBranchEntry(
+  current: SessionBranchEntry | undefined,
+  answered: SessionBranchEntry | undefined,
+): boolean {
+  return (
+    current !== undefined &&
+    answered !== undefined &&
+    current.repository === answered.repository &&
+    current.workspace === answered.workspace &&
+    current.branch === answered.branch &&
+    current.committedTip === answered.committedTip &&
+    current.tree === answered.tree &&
+    current.defaultTip === answered.defaultTip &&
+    current.trunk?.remote === answered.trunk?.remote &&
+    current.trunk?.target === answered.trunk?.target &&
+    current.trunk?.revision === answered.trunk?.revision
+  );
+}
+
+// Keep only the prepared context on the same open launch and branch entry.
 export function acceptBranchLandingAnswer(
   current: LaunchRecord,
   answered: LaunchRecord,
 ): LaunchRecord {
   if (
     current.launchedAt !== answered.launchedAt ||
-    current.landingReporting !== undefined
+    current.doneAt !== undefined ||
+    current.landingReporting !== undefined ||
+    answered.landingReporting === undefined ||
+    !sameBranchEntry(current.branchEntry, answered.branchEntry)
   )
     return current;
-  return answered;
+  return { ...current, landingReporting: answered.landingReporting };
 }
 
 // Answers the next record and context file for `directory`, or undefined when
@@ -35,7 +58,13 @@ export async function branchLandingContext(
     readonly source: string;
     readonly reference?: string;
   },
-): Promise<{ record: LaunchRecord; file: string } | undefined> {
+): Promise<
+  | {
+      record: LaunchRecord & { landingReporting: LandingReporting };
+      file: string;
+    }
+  | undefined
+> {
   if (record.landingReporting !== undefined) return undefined;
   const entry = record.branchEntry;
   if (entry?.trunk === undefined || record.doneAt !== undefined)

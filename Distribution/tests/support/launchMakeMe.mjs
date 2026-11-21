@@ -3,7 +3,7 @@
 import { LaunchReviewedSessionBuilder } from "./launchReviewedSessionTestData.mjs";
 import { CreationRecordBuilder } from "./launchCreationTestData.mjs";
 import { LaunchRequestBuilder } from "./launchRequestTestData.mjs";
-import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
+import { ReportingAttemptBuilder } from "./launchReportingAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
 import {
@@ -57,7 +57,7 @@ import { SessionReviewReadBuilder } from "./sessionReviewTestData.mjs";
  * @property {import("./cursorCliConfigTestData.mjs").CursorCliConfigBuilder} aCursorCliConfig
  * @property {import("./launchObservationTestData.mjs").SessionStateBuilder} aSessionState
  * @property {import("./launchObservationTestData.mjs").ObservedLaunchBuilder} anObservedLaunch
- * @property {import("./launchAttemptTestData.mjs").AcceptedAttemptBuilder} anAcceptedAttempt
+ * @property {import("./launchReportingAttemptTestData.mjs").ReportingAttemptBuilder} anAcceptedAttempt
  * @property {import("./launchAttemptObservationTestData.mjs").AttemptObservationBuilder} anAttemptObservation
  * @property {import("./machineAnswerTestData.mjs").MachineAnswerBuilder} aMachineAnswer
  * @property {import("./sessionReviewTestData.mjs").SessionReviewReadBuilder} aSessionReviewRead
@@ -179,7 +179,7 @@ export function launchMakeMeProperties() {
     anAcceptedAttempt: {
       enumerable: true,
       get() {
-        return new AcceptedAttemptBuilder();
+        return new ReportingAttemptBuilder();
       },
     },
     anAttemptObservation: {

@@ -77,6 +77,23 @@ export function onRecordsDroppedByRetention(
   recordsDroppedByRetention = listener;
 }
 
+export function recordRetention(stored: StoredRecords, now: number) {
+  const kept: StoredRecords = {};
+  const agedOut: LeavingRecord[] = [];
+  for (const [id, records] of Object.entries(stored)) {
+    const retained = withinRetention(records, now);
+    for (const record of records) {
+      if ("session" in record && !retained.includes(record)) {
+        agedOut.push({ project: id, record });
+      }
+    }
+    if (retained.length > 0) {
+      kept[id] = retained;
+    }
+  }
+  return { kept, agedOut };
+}
+
 function sessionEntries(stored: StoredRecords): LeavingRecord[] {
   const entries: LeavingRecord[] = [];
   for (const [project, records] of Object.entries(stored)) {
@@ -152,19 +169,7 @@ export async function replaceRecords(
     const leftAt = new Date(now).toISOString();
     outcome.dropped = [];
     outcome.delivered = [];
-    const kept: StoredRecords = {};
-    const agedOut: LeavingRecord[] = [];
-    for (const [id, records] of Object.entries(stored)) {
-      const retained = withinRetention(records, now);
-      for (const record of records) {
-        if ("session" in record && !retained.includes(record)) {
-          agedOut.push({ project: id, record });
-        }
-      }
-      if (retained.length > 0) {
-        kept[id] = retained;
-      }
-    }
+    const { kept, agedOut } = recordRetention(stored, now);
     const next = await change(kept);
     outcome.leftAsIs = next === leaveMachineJson;
     if (next === leaveMachineJson) return leaveMachineJson;

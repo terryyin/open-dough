@@ -5,8 +5,6 @@ import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import { observedSessionDeliveries } from "../../server/observedSessionDeliveries.ts";
 import {
   aCheckout,
-  anIsolatedLaunch,
-  canonicalGitDirectory,
   historyBeforeTheCase,
   inWorktree,
   minutesAgo,
@@ -39,9 +37,10 @@ test("decides each hand-merged Done branch's exact delivery without writing pins
     inWorktree(checkout, secondWorkspace),
     makeMe.aCheckoutWork.committing("second", { at: minutesAgo(30) }),
   );
-  const repository = canonicalGitDirectory(checkout);
+  const repository = checkout.gitDirectory;
   const doneBranch = (branch: string, workspace: string, revision: string) =>
-    anIsolatedLaunch(checkout, { branch, workspace })
+    makeMe.aLaunchRecord
+      .isolatedIn(checkout, { workspace, branch })
       .branchResultFrom({
         repository,
         base: checkout.base,

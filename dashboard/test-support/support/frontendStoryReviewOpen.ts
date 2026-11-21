@@ -54,9 +54,8 @@ export function keepTakenReviewLaunch(services: FrontendServiceState): void {
   );
 }
 
-// The Taken story's review as the reader first meets it, before any step of
-// theirs: its details wait behind the eye.
-export async function openFrontendStoryReviewAsOpened(
+// The Taken story's review with its details readable.
+export async function openFrontendStoryReview(
   page: Page,
   frontendServices: FrontendServiceState,
   reviewAnswer?: StoryReview,
@@ -96,21 +95,13 @@ export async function openFrontendStoryReviewAsOpened(
   }
   const review = reviewRegion(page);
   await expect(review).toBeVisible();
+  await showReviewDetails(review);
   return {
     card,
     review,
     reviewChanges: await assumeReviewChanges(page),
     answers,
   };
-}
-
-// The same opening with the review's details readable.
-export async function openFrontendStoryReview(
-  ...opening: Parameters<typeof openFrontendStoryReviewAsOpened>
-) {
-  const opened = await openFrontendStoryReviewAsOpened(...opening);
-  await showReviewDetails(opened.review);
-  return opened;
 }
 
 // Opens Review changes on a Recently done story (whose line numbers offer

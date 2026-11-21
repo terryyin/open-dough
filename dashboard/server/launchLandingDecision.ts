@@ -6,59 +6,38 @@ import {
   type LaunchLanding,
 } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
-import type { LandingSubmission } from "./launchLandingAdmission.ts";
+import type {
+  LandingOperation,
+  LandingSubmission,
+} from "./launchLandingAdmission.ts";
+import type { LandingRecordChange } from "./launchLandingRecord.ts";
 import { decideAttemptLanding } from "./attemptLandingDecision.ts";
-import {
-  declaredLandingRecord,
-  decideRetainedLanding,
-  expiredAttemptRecord,
-} from "./retainedLandingDecision.ts";
+import { decideRetainedLanding } from "./retainedLandingDecision.ts";
+
+export type LandingDecisionInput = {
+  readonly report: LandingSubmission;
+  readonly origin: string;
+  readonly operation: LandingOperation;
+  readonly attempts: readonly LaunchAttemptRecord[];
+  readonly records: readonly LaunchRecord[];
+  readonly receiptId: string;
+  readonly receivedAt: string;
+};
 
 export type LandingDecision = {
   readonly landing: LaunchLanding;
   readonly isNew: boolean;
   readonly state: LandingReceipt["state"];
-  readonly path: "attempt" | "retained";
-  readonly nextAttempts: readonly LaunchAttemptRecord[];
-  readonly nextRecords: readonly LaunchRecord[];
+  readonly nextAttempts?: readonly LaunchAttemptRecord[] | undefined;
+  readonly changeRecords?: LandingRecordChange | undefined;
 };
-
-export { decideAttemptLanding, declaredLandingRecord, expiredAttemptRecord };
 
 // Decides one prepare or record over the source's kept attempts and records.
 // Runs `verifyLanding` for a new landing; writes no store or ref.
 export async function decideLanding(
-  report: LandingSubmission,
-  origin: string,
-  operation: "prepare" | "record",
-  attempts: readonly LaunchAttemptRecord[],
-  records: readonly LaunchRecord[],
-  receiptId: string,
-  receivedAt: string,
+  input: LandingDecisionInput,
 ): Promise<LandingDecision> {
-  const prepare = operation === "prepare";
-  const retained =
-    declaredLandingRecord(records, report, origin) ??
-    expiredAttemptRecord(attempts, records, report, origin);
-  if (retained !== undefined)
-    return decideRetainedLanding(
-      retained,
-      report,
-      prepare,
-      attempts,
-      records,
-      receiptId,
-      receivedAt,
-    );
-  return decideAttemptLanding(
-    report,
-    origin,
-    operation,
-    attempts,
-    records,
-    receiptId,
-    receivedAt,
-  );
+  return (await decideRetainedLanding(input)) ?? decideAttemptLanding(input);
 }
 
 export function landingDecisionReceipt(

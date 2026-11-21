@@ -41,14 +41,4 @@ export class ReviewToolbar extends PageObject {
       },
     );
   }
-
-  // No eye and no details group: the details hold nothing to reveal.
-  expectNoDetails() {
-    return this.cueHere(
-      "Review toolbar: offers no review details",
-      async () => {
-        await (await this.#review()).details.expectNone();
-      },
-    );
-  }
 }

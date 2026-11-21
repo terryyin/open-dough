@@ -1,7 +1,8 @@
-// The machine a published session came from, as the second-machine journey
-// (../../e2e/sessions/recently-done-published-session-second-machine.spec.ts)
-// prepares it: its own clone of the bare origin, where the session's branch
-// adds a file and trunk later moves on without it.
+// The machine published sessions came from, as the published-session journey
+// (../../e2e/sessions/recently-done-published-sessions.spec.ts) prepares it:
+// its own clone of the bare origin, where each session's branch adds a file
+// and trunk later moves on without it.
+import { existsSync } from "node:fs";
 import path from "node:path";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { dashboardDeveloper } from "./support/startOriginPreparation.ts";
@@ -11,27 +12,29 @@ const workspaceOf = (origin: StartOrigin) =>
   path.join(origin.machine, "originating-machine");
 
 // The originating clone, with the project checkout's identity, on `branch` off
-// trunk with `file` added; answers the clone and the trunk commit the branch
-// left.
+// the origin's current trunk with `file` added; answers the clone and the
+// trunk commit the branch left.
 export function addedOnBranch(
   origin: StartOrigin,
   branch: string,
   file: string,
 ) {
   const workspace = workspaceOf(origin);
-  git(
-    origin.machine,
-    "clone",
-    "--quiet",
-    "-c",
-    `user.name=${dashboardDeveloper.name}`,
-    "-c",
-    `user.email=${dashboardDeveloper.email}`,
-    origin.origin,
-    workspace,
-  );
-  const trunk = git(workspace, "rev-parse", "HEAD");
-  git(workspace, "switch", "--quiet", "-c", branch);
+  if (existsSync(workspace)) git(workspace, "fetch", "--quiet", "origin");
+  else
+    git(
+      origin.machine,
+      "clone",
+      "--quiet",
+      "-c",
+      `user.name=${dashboardDeveloper.name}`,
+      "-c",
+      `user.email=${dashboardDeveloper.email}`,
+      origin.origin,
+      workspace,
+    );
+  const trunk = git(workspace, "rev-parse", "origin/main");
+  git(workspace, "switch", "--quiet", "-c", branch, trunk);
   writeAt(workspace, file, "published by another machine\n");
   commitAll(workspace, "Edit on the originating machine");
   return { workspace, trunk };

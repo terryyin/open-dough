@@ -1,5 +1,5 @@
 // Reporting recovery and native binding share the original attempt's fixed fact.
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 import { test, expect, stored } from "../../test-support/support/codexStart.ts";
@@ -30,7 +30,7 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-test("early accepted landing survives a real record EIO and lost receipt before native binding, then binds once", async ({
+test("a landing reports pending without rewriting records before native binding and survives a lost receipt", async ({
   dashboard,
   origin,
   codexProtocol,
@@ -121,7 +121,10 @@ test("early accepted landing survives a real record EIO and lost receipt before 
       ok: true,
       publication: "accepted",
       receipt: { sha: revision },
-      landing: { state: "unacknowledged" },
+      landing: {
+        state: "recorded",
+        receipt: { state: "pending-native-session", base, revision },
+      },
     });
     const reserved = keptAttempts(receiver).find(
       (entry) => entry.id === answer.attempt.id,
@@ -134,6 +137,8 @@ test("early accepted landing survives a real record EIO and lost receipt before 
     expect(
       stored(receiver.home).filter((entry) => "session" in entry),
     ).toHaveLength(0);
+    expect(existsSync(fault.marker)).toBe(true);
+    unlinkSync(fault.marker);
     const current = JSON.parse(
       readFileSync(
         path.join(

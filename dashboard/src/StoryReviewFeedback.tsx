@@ -11,9 +11,9 @@ import {
   type ReviewRange,
   type StoryReview,
 } from "./storyReviewContract.ts";
-import type { useReviewRead } from "./useReviewRead.ts";
+import type { ReviewReadState } from "./useReviewRead.ts";
 
-type RangeRead = ReturnType<typeof useReviewRead<ReviewRange>>;
+type RangeRead = ReviewReadState<ReviewRange>;
 
 export function ReviewFeedback({
   review,

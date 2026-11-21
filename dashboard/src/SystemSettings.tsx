@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { FeedbackMaintenanceSettings } from "./FeedbackMaintenanceSettings.tsx";
 import { Icon } from "./Icon.tsx";
+import { pageOpenAIConfigurationSource } from "./openAIConfigurationSource.ts";
 import { OpenAISettings } from "./OpenAISettings.tsx";
 import { ProductMark } from "./ProductMark.tsx";
 import { ProjectsSettings } from "./ProjectsSettings.tsx";
+import { pageProjectSettingsSource } from "./projectSettingsSource.ts";
 import { SystemSettingsUsage } from "./SystemSettingsUsage.tsx";
 import { TerminalThemeSettings } from "./TerminalThemeSettings.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -64,8 +66,12 @@ export function SystemSettings({
       </nav>
       {view === "general" ? (
         <>
-          <ProjectsSettings selectedId={selectedId} onSelect={onSelect} />
-          <OpenAISettings />
+          <ProjectsSettings
+            source={pageProjectSettingsSource}
+            selectedId={selectedId}
+            onSelect={onSelect}
+          />
+          <OpenAISettings source={pageOpenAIConfigurationSource} />
           <TerminalThemeSettings />
           <FeedbackMaintenanceSettings />
         </>

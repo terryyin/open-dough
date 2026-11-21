@@ -57,6 +57,7 @@ export type BranchEntryRequestAdmission = {
   readonly route: string;
   readonly method: string | undefined;
   readonly origin: string | null | undefined;
+  readonly fetchSite?: string | string[] | null | undefined;
   readonly host: string | undefined;
   readonly bodyText: string;
 };
@@ -73,7 +74,7 @@ export type SessionBranchEntryReceipt = {
 };
 
 // Admits a branch-entry request from its wire values: the branch-entry route,
-// POST, same-origin Origin against Host, and a body matching the submission.
+// POST, local origin metadata, and a body matching the submission.
 export function admitSessionBranchEntryRequest(
   request: BranchEntryRequestAdmission,
 ): AdmittedBranchEntryRequest {
@@ -83,7 +84,7 @@ export function admitSessionBranchEntryRequest(
   if (request.method !== "POST") {
     throw new RefusedRequest(405, "Only POST is accepted here.");
   }
-  verifySameOrigin(request.origin, request.host);
+  verifySameOrigin(request.origin, request.host, request.fetchSite);
   let parsed: unknown;
   try {
     parsed = JSON.parse(request.bodyText);
@@ -164,22 +165,26 @@ export async function handleSessionBranchEntry(
   request: BranchEntrySubmission,
   origin: string,
   sourceOf: (id: string) => PublishedSource = knownSource,
+  prepareLanding = branchLandingContext,
 ): Promise<SessionBranchEntryReceipt> {
   const source = sourceOf(request.source);
   const record = await namedLaunch(source, request, origin);
   const entry = await recordSessionBranchEntry(source, record, request);
   const reference = record.request.reporting?.reference ?? randomUUID();
-  const answered = await branchLandingContext(
+  const answered = await prepareLanding(
     machineDashboardPath("reporting", reference, "branch-landing"),
     { ...record, branchEntry: entry },
     { origin, source: source.id, reference },
   );
   let landingContext: string | undefined;
   if (answered !== undefined) {
-    await changeSessionRecord(source.id, record.session, (current) =>
-      acceptBranchLandingAnswer(current, answered.record),
+    const saved = await changeSessionRecord(
+      source.id,
+      record.session,
+      (current) => acceptBranchLandingAnswer(current, answered.record),
     );
-    landingContext = answered.file;
+    if (saved?.landingReporting === answered.record.landingReporting)
+      landingContext = answered.file;
   }
   return {
     session: record.session.sessionId,
@@ -197,6 +202,7 @@ export async function submitSessionBranchEntry(
     route: new URL(req.url ?? "", `http://${host ?? "local"}`).pathname,
     method: req.method,
     origin: req.headers.origin,
+    fetchSite: req.headers["sec-fetch-site"],
     host,
     bodyText: req.method === "POST" ? await textBody(req) : "",
   });

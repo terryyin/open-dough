@@ -14,34 +14,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  terminalThemeEndpoint,
-  terminalThemeSaveEndpoint,
-} from "./terminalThemeSetting.ts";
-import { isTerminalThemeId, type TerminalThemeId } from "./terminalThemes.ts";
-import { localSettingRequest } from "./localSettingRequest.ts";
-
-async function terminalThemeRequest(
-  theme?: TerminalThemeId,
-): Promise<TerminalThemeId> {
-  const answer = await localSettingRequest(
-    theme === undefined ? terminalThemeEndpoint : terminalThemeSaveEndpoint,
-    theme === undefined ? undefined : { theme },
-    theme === undefined
-      ? "The saved terminal theme could not be read. Retry the operation."
-      : "The terminal theme could not be saved. Retry the operation; the previous theme was kept.",
-  );
-  if (
-    typeof answer !== "object" ||
-    answer === null ||
-    !("theme" in answer) ||
-    !isTerminalThemeId(answer.theme)
-  )
-    throw new Error(
-      "The saved terminal theme could not be read. Retry the operation.",
-    );
-  return answer.theme;
-}
+import type { TerminalThemeSource } from "./terminalThemeSource.ts";
+import type { TerminalThemeId } from "./terminalThemes.ts";
 
 export type SavedTerminalTheme = {
   // Undefined until the first read answers, or while it cannot be read.
@@ -52,7 +26,9 @@ export type SavedTerminalTheme = {
   readonly save: (theme: TerminalThemeId) => Promise<void>;
 };
 
-function useTerminalThemeReading(): SavedTerminalTheme {
+function useTerminalThemeReading(
+  source: TerminalThemeSource,
+): SavedTerminalTheme {
   const [saved, setSaved] = useState<TerminalThemeId>();
   const [readProblem, setReadProblem] = useState<string>();
   const [reads, setReads] = useState(0);
@@ -61,8 +37,8 @@ function useTerminalThemeReading(): SavedTerminalTheme {
     let current = true;
     const revision = ++readRevision.current;
     setReadProblem(undefined);
-    void terminalThemeRequest().then(
-      (theme) => {
+    void source.read().then(
+      ({ theme }) => {
         if (current && revision === readRevision.current) setSaved(theme);
       },
       (error: unknown) => {
@@ -77,16 +53,19 @@ function useTerminalThemeReading(): SavedTerminalTheme {
     return () => {
       current = false;
     };
-  }, [reads]);
+  }, [reads, source]);
   const reread = useCallback(() => {
     setReads((count) => count + 1);
   }, []);
-  const save = useCallback(async (theme: TerminalThemeId) => {
-    // The save owns what follows; an older read is only a snapshot.
-    readRevision.current += 1;
-    setSaved(await terminalThemeRequest(theme));
-    setReadProblem(undefined);
-  }, []);
+  const save = useCallback(
+    async (theme: TerminalThemeId) => {
+      // The save owns what follows; an older read is only a snapshot.
+      readRevision.current += 1;
+      setSaved((await source.save(theme)).theme);
+      setReadProblem(undefined);
+    },
+    [source],
+  );
   return useMemo(
     () => ({ saved, readProblem, reread, save }),
     [saved, readProblem, reread, save],
@@ -105,12 +84,14 @@ const sharedReading = createContext<SavedTerminalTheme>({
 
 export function SavedTerminalThemeProvider({
   children,
+  source,
 }: {
   readonly children: ReactNode;
+  readonly source: TerminalThemeSource;
 }) {
   return createElement(
     sharedReading.Provider,
-    { value: useTerminalThemeReading() },
+    { value: useTerminalThemeReading(source) },
     children,
   );
 }

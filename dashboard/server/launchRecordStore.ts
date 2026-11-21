@@ -46,12 +46,23 @@ export async function keptRecords(
   return (await keptRecordsByProject()).get(sourceId) ?? [];
 }
 
+export type LaunchRecordStore = {
+  keptRecords: typeof keptRecords;
+  replaceRecords: typeof replaceRecords;
+};
+
+export const machineRecordStore: LaunchRecordStore = {
+  keptRecords,
+  replaceRecords,
+};
+
 // One retained host-qualified conversation for a catalog project.
 export async function keptSession(
   sourceId: string,
   session: SessionReference,
+  store: Pick<LaunchRecordStore, "keptRecords"> = machineRecordStore,
 ): Promise<LaunchRecord | undefined> {
-  return sessionRecord(await keptRecords(sourceId), session);
+  return sessionRecord(await store.keptRecords(sourceId), session);
 }
 
 // One host-qualified conversation among a project's kept records.
@@ -98,9 +109,10 @@ export async function changeSessionRecord(
   session: SessionReference,
   change: (record: LaunchRecord) => LaunchRecord | Promise<LaunchRecord>,
   droppedByRetention?: RecordsDroppedByRetention,
+  store: Pick<LaunchRecordStore, "replaceRecords"> = machineRecordStore,
 ): Promise<LaunchRecord | undefined> {
   let changed: LaunchRecord | undefined;
-  await replaceRecords(async (kept) => {
+  await store.replaceRecords(async (kept) => {
     const records = kept[sourceId];
     if (records === undefined) return kept;
     return {

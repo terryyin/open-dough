@@ -1,14 +1,14 @@
 // Done keeps the work a Default main session made, with Git references that
 // let the typed review read it after the checkout's branches move away.
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { keptRecords } from "../../server/launchRecordStore.ts";
+import { keptSession } from "../../server/launchRecordStore.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
   aKeptSession,
   keep,
   markDone,
@@ -16,7 +16,6 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { review } from "../support/doneCaptureReview.ts";
 
 // Leaves `commit` on no branch, with no reflog or loose object reaching it.
 async function forgetInCheckout(
@@ -35,7 +34,7 @@ async function forgetInCheckout(
 
 test("a Default main launch's commit kept at Done remains reviewable after trunk advances and every branch leaves it", async () => {
   const checkout = await aCheckout({ withOrigin: true });
-  const record = aDefaultLaunch(checkout).please();
+  const record = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
   keep(record);
   const { pulled, typo } = await work(
     checkout,
@@ -64,9 +63,11 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
     tree: typo,
     files: [expect.objectContaining({ path: "typo.txt", kind: "added" })],
   };
+  const saved = await keptSession(source, record.session);
+  if (saved === undefined) throw new Error("Missing the kept launch.");
   // The first read uses the fixed pair while trunk advances past it.
   const [whileOnTrunk] = await Promise.all([
-    review(await keptRecords(source), record),
+    storyReview({ record: saved, read: {} }, new AbortController().signal),
     work(
       checkout,
       makeMe.aCheckoutWork
@@ -79,14 +80,21 @@ test("a Default main launch's commit kept at Done remains reviewable after trunk
   const indexPath = path.join(checkout.integration, ".git", "index");
   const index = readFileSync(indexPath);
 
-  expect(await review(await keptRecords(source), record)).toEqual(kept);
+  const retained = await keptSession(source, record.session);
+  if (retained === undefined) throw new Error("Missing the retained launch.");
+  expect(
+    await storyReview(
+      { record: retained, read: {} },
+      new AbortController().signal,
+    ),
+  ).toEqual(kept);
   expect(
     (await git(checkout.integration, "rev-parse", "HEAD")).stdout.trim(),
   ).toBe(checkout.base);
   expect(readFileSync(indexPath)).toEqual(index);
 });
 
-test("Done stores and pins the commit of an established Default main session and its review answers the kept run", async () => {
+test("Done stores and pins the commit of an established Default main session", async () => {
   const { checkout, record } = await aKeptSession();
   const { base, integration } = checkout;
   const { typo } = await work(
@@ -94,11 +102,13 @@ test("Done stores and pins the commit of an established Default main session and
     makeMe.aCheckoutWork.committing("typo", { at: minutesAgo(30) }),
   );
 
-  await markDone(record);
+  const doneAt = minutesAgo(10);
+  await markDone(record, doneAt);
 
-  expect(await keptRecords(source)).toMatchObject([
-    { sessionCommits: { runs: [{ base, revision: typo }] } },
-  ]);
+  expect(await keptSession(source, record.session)).toMatchObject({
+    doneAt,
+    sessionCommits: { runs: [{ base, revision: typo }] },
+  });
   const refs =
     "refs/open-dough/session-commits/claude/established-default-main/0";
   expect(
@@ -111,9 +121,4 @@ test("Done stores and pins the commit of an established Default main session and
       )
     ).stdout,
   ).toBe(`${refs}/base ${base}\n${refs}/revision ${typo}\n`);
-  expect(await review(await keptRecords(source), record)).toMatchObject({
-    commitRuns: [
-      { commits: 1, subject: "Add typo.txt", baseline: base, tree: typo },
-    ],
-  });
 });

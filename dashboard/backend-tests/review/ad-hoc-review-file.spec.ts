@@ -1,6 +1,6 @@
 // The typed file diff and file text handlers in-process admit an ad hoc
 // session's file read by its captured reference, comparison and listed
-// rename, or by its kept run's pair, given the session's typed kept state: no
+// rename, or by its kept run's pair, given the admitted launch record: no
 // server, no machine stores. Each refusal carries its HTTP status.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -19,18 +19,17 @@ const renamedFile = { path: "new.txt", oldPath: "old.txt" };
 const reference = "11111111-1111-4111-8111-111111111111";
 const otherReference = "22222222-2222-4222-8222-222222222222";
 
+const renameHistory = () =>
+  makeMe.aRepository
+    .withRevision("base", { backlog: null, files: { "old.txt": kept } })
+    .withRevision("result", {
+      backlog: null,
+      remove: ["old.txt"],
+      files: { "new.txt": `${kept}renamed\n` },
+    });
+
 async function renameRevisionRepo() {
-  return materializeLocalCheckout(
-    undefined,
-    makeMe.aRepository
-      .withRevision("base", { backlog: null, files: { "old.txt": kept } })
-      .withRevision("result", {
-        backlog: null,
-        remove: ["old.txt"],
-        files: { "new.txt": `${kept}renamed\n` },
-      })
-      .please(),
-  );
+  return materializeLocalCheckout(undefined, renameHistory().please());
 }
 
 test("Given a kept landed session whose comparison renames a file, when the diff and text of the rename are read, then both answer", async () => {
@@ -82,7 +81,7 @@ for (const [subject, handler, mismatch] of [
     () => ({ reference: otherReference }),
   ],
 ] as const) {
-  test(`Given a kept landed session beside another, when a file read names ${subject}, then it is refused as not on the captured run`, async () => {
+  test(`Given a kept landed session, when a file read names ${subject}, then it is refused as not on the captured run`, async () => {
     const repository = await renameRevisionRepo();
     try {
       const { base, result } = repository.revisions;
@@ -91,9 +90,6 @@ for (const [subject, handler, mismatch] of [
         comparing: { base, revision: result },
         reference: owned,
       });
-      const other = makeMe.aLaunchRecord
-        .ofLandedAdHocSession("other-session", landing(otherReference))
-        .please();
       const named = {
         reference,
         baseline: base,
@@ -103,7 +99,6 @@ for (const [subject, handler, mismatch] of [
       };
       const read = makeMe.aSessionReviewRead
         .ofLandedAdHocSession("ad-hoc-file-refuse", landing(reference))
-        .alsoKeeping([other])
         .readingFile(named)
         .please();
 
@@ -116,26 +111,57 @@ for (const [subject, handler, mismatch] of [
   });
 }
 
-test("Given a kept landed session, when a file diff names its baseline and file at a foreign tree, then it is refused as not on the captured run", async () => {
-  const repository = await renameRevisionRepo();
-  try {
-    const { base, result } = repository.revisions;
-    const read = makeMe.aSessionReviewRead
-      .ofLandedAdHocSession("ad-hoc-foreign-tree", {
-        repository: repository.integration,
-        comparing: { base, revision: result },
-        reference,
-      })
-      .readingFile({ reference, baseline: base, tree: base, ...renamedFile })
-      .please();
+for (const [subject, handler, fileFields, message] of [
+  [
+    "a delivered file at the separately retained branch tree",
+    reviewedFileDiff,
+    { reference },
+    "The file or comparison does not belong to this captured run.",
+  ],
+  [
+    "a retained branch rename with the wrong old path",
+    reviewedFileText,
+    { oldPath: "other.txt" },
+    "The file or comparison does not belong to this session's branch result.",
+  ],
+] as const) {
+  test(`a mixed Done session refuses ${subject}`, async () => {
+    const repository = await materializeLocalCheckout(
+      undefined,
+      renameHistory()
+        .withRevision("branch", { files: { "new.txt": `${kept}working\n` } })
+        .please(),
+    );
+    try {
+      const { base, result, branch } = repository.revisions;
+      const workspace = repository.integration;
+      const record = makeMe.aLaunchRecord
+        .ofLandedAdHocSession("mixed-done", {
+          repository: workspace,
+          comparing: { base, revision: result },
+          reference,
+        })
+        .branchResultFrom({ repository: workspace, base, revision: branch })
+        .please();
+      const read = makeMe.aSessionReviewRead
+        .ofRecord(record)
+        .readingFile({
+          baseline: base,
+          tree: branch,
+          ...renamedFile,
+          ...fileFields,
+        })
+        .please();
 
-    const refused = reviewedFileDiff(read, signal());
-
-    await expectRefusedAsNotOnCapturedRun(refused);
-  } finally {
-    await repository.cleanup();
-  }
-});
+      await expect(handler(read, signal())).rejects.toMatchObject({
+        status: 409,
+        message,
+      });
+    } finally {
+      await repository.cleanup();
+    }
+  });
+}
 
 // Reads, in a session with one kept run, the file diff of the named pair
 // and file, and hands the answer to `observe`.

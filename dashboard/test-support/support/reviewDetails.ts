@@ -36,15 +36,6 @@ export async function expectDetailsCollapsed(review: Locator) {
   ).toHaveCount(0);
 }
 
-// No comparison name and no eye: before an answer or after a cleared failure.
-export async function expectNoToolbarComparisonOrDetails(review: Locator) {
-  await expect(toolbarComparison(review)).toHaveCount(0);
-  await expect(detailsToggle(review)).toHaveCount(0);
-  await expect(
-    review.getByRole("group", { name: "Review details" }),
-  ).toHaveCount(0);
-}
-
 // The details are revealed in one section between the toolbar and the work
 // area, and the eye says so. On touch that section may share a scrollable
 // height with the status above the body, so the section's layout box can be
@@ -102,14 +93,4 @@ export async function expectEyeBesideComparison(
   expect(
     Math.abs(eyeAt.y + eyeAt.height / 2 - nameAt.y - nameAt.height / 2),
   ).toBeLessThan(eyeAt.height / 2);
-}
-
-// Escape, pressed with the keyboard inside the details, hides them and
-// returns the keyboard to the eye.
-export async function escapeDetailsFrom(review: Locator, inside: Locator) {
-  await inside.focus();
-  await expect(inside).toBeFocused();
-  await review.page().keyboard.press("Escape");
-  await expectDetailsCollapsed(review);
-  await expect(detailsToggle(review)).toBeFocused();
 }

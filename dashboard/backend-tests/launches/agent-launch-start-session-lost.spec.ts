@@ -8,7 +8,6 @@
 // changes unasked. A start that outlasts its wait and Continue on the page:
 // ../../../e2e/launches/agent-launch-start-session-recovery.spec.ts.
 
-import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 import type { LaunchWithState } from "../../src/launchRecord.ts";
 import {
@@ -67,11 +66,11 @@ for (const when of ["before", "after"] as const) {
     });
     await expect.poll(hold.reached, { timeout: 30_000 }).toBe(true);
     expect(worktrees(origin.project)).toEqual(made ? ["session"] : []);
-    // The server ends and the held start dies with it, unanswered.
-    const closing = dashboard.close();
-    execFileSync("pkill", ["-f", origin.machine]);
+    // Crash the server while the worker is still held. Teardown then reaps
+    // the worker before it can give the old server a result.
+    process.kill(dashboard.pid, "SIGKILL");
+    await dashboard.close();
     hold.release();
-    await closing;
     const restarted = await startDashboardServer({
       mode: "preview",
       prebuilt: sharedDashboardBuild,

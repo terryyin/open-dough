@@ -1,6 +1,5 @@
 // Shared review-read adapter: turns a typed wire or page read into the
-// handler's ReviewInput, reading kept launch records for a session subject.
-// Only this module reaches keptRecords / knownSource for those session paths.
+// handler's ReviewInput, admitting the named kept launch for a session read.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type {
   PublishedSessionFileRead,
@@ -20,30 +19,22 @@ import type {
   StoryReviewRead,
 } from "../src/storyReviewRead.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
-import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import type { PublishedSessionSource } from "./publishedSessionReview.ts";
 import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
+import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
 import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
-import { knownSource, namedSessionRecord } from "./sessionAdmission.ts";
 
-// What a session review reads: the launch records kept for the subject's
-// project. Only the adapter reads the store for them.
-export interface KeptSessionState {
-  readonly records: readonly LaunchRecord[];
-}
-
-// A review handler's typed input: a story read on today's admission path, or a
-// session read whose shape holds only what that session read uses, with the
-// kept session state the adapter read.
+// The story path keeps its read. A session read carries the admitted record
+// and the comparison or file fields its handler needs.
 export type ReviewInput<
   StoryR extends { readonly subject: ReviewedStorySubject },
   SessionR extends { readonly subject: ReviewedSessionSubject },
 > =
   | { readonly read: StoryR }
   | {
-      readonly read: SessionR;
-      readonly kept: KeptSessionState;
+      readonly read: Omit<SessionR, "subject">;
+      readonly record: LaunchRecord;
     };
 
 // A published session read with the configured project source it reads from.
@@ -68,14 +59,11 @@ export type ReviewedFileInput =
     >
   | PublishedSessionInput<PublishedSessionFileRead>;
 
-// The kept launch record for a session subject among already-read kept state.
-// Story-launch sessions are refused here so session review and file admission
-// share one refusal.
-export function keptSessionOf(
-  kept: KeptSessionState,
+// Resolve the session once at the shared comparison and file boundary.
+async function admitReviewSession(
   subject: ReviewedSessionSubject,
-): LaunchRecord {
-  const record = namedSessionRecord(kept.records, {
+): Promise<LaunchRecord> {
+  const record = await namedKeptSession(knownSource(subject.source), {
     host: subject.host,
     sessionId: subject.session,
   });
@@ -128,13 +116,10 @@ export async function reviewInput(
   }
   const { subject } = read;
   if (isReviewedSessionSubject(subject)) {
-    const kept = {
-      records: await keptRecords(knownSource(subject.source).id),
-    };
+    const record = await admitReviewSession(subject);
     if ("baseline" in read) {
       return {
         read: {
-          subject,
           ...(read.reference === undefined
             ? {}
             : { reference: read.reference }),
@@ -143,15 +128,14 @@ export async function reviewInput(
           path: read.path,
           ...(read.oldPath === undefined ? {} : { oldPath: read.oldPath }),
         },
-        kept,
+        record,
       };
     }
     return {
       read: {
-        subject,
         ...(read.run === undefined ? {} : { run: read.run }),
       },
-      kept,
+      record,
     };
   }
   // Published and session subjects were answered above; only a story remains.

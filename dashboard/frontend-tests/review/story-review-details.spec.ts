@@ -1,177 +1,128 @@
 // Review changes opens on the diff: the comparison choices, the context of
 // the comparison shown and the uncommitted check wait behind the toolbar's
-// eye, while reading progress, problems and Commits' own work stay in view.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+// eye, while the reading place and Commits' own work stay in view.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
 import {
-  frontendFileDiff,
-  frontendReviewIds,
-  frontendReviewSnapshot,
-  installFrontendStoryReview,
-} from "../../test-support/support/frontendStoryReview.ts";
-import {
-  openFrontendBoardReview,
-  storyA,
-  storyB,
-} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
-import { doneCard } from "../../test-support/doneStoryReviewPage.ts";
-import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
-import { openReviewChanges } from "../../test-support/reviewChangesPage.ts";
+  doneStory,
+  mountReviewChanges,
+  reviewSourceAnswering,
+} from "./story-review-panel-page.ts";
 
-const added = (path: string) => ({
-  kind: "added" as const,
-  path,
-  lines: { added: 1, removed: 0 },
+const threeFiles = makeMe.aStoryReview
+  .adding("first.txt")
+  .adding("second.txt")
+  .adding("third.txt");
+// A workspace snapshot whose committed part can be told from its
+// uncommitted changes, so the uncommitted check is offered.
+const workspace = threeFiles.committedAs(threeFiles).please();
+const linesOf: Record<string, string[]> = {
+  "first.txt": ["alpha"],
+  "second.txt": Array.from({ length: 300 }, (...[, at]) => `second ${at}`),
+  "third.txt": ["gamma"],
+};
+const workspaceSource = reviewSourceAnswering({
+  review: () => Promise.resolve(workspace),
+  range: () => Promise.resolve(threeFiles.pleaseRange()),
+  fileDiff: ({ path = "" }) =>
+    Promise.resolve(
+      makeMe.aReviewedFileDiff.adding(path, ...(linesOf[path] ?? [])).please(),
+    ),
 });
-const threeFiles = [
-  added("first.txt"),
-  added("second.txt"),
-  added("third.txt"),
+const otherStory: ReviewedWorkSubject = {
+  ...doneStory,
+  identity: "SEED-2#other-story",
+};
+const [first, second, third] = [
+  "Added first.txt",
+  "Added second.txt",
+  "Added third.txt",
 ];
-const longSecond = frontendFileDiff(
-  "second.txt",
-  Array.from({ length: 300 }, (...[, line]) => `+second ${String(line)}`),
-);
 
-// A workspace snapshot of three files whose committed part can be told from
-// its uncommitted changes, so the uncommitted check is offered.
-const workspaceSnapshot = () =>
-  frontendReviewSnapshot({
-    files: threeFiles,
-    uncommitted: {
-      kind: "uncommitted",
-      tree: frontendReviewIds.tree,
-      baseline: frontendReviewIds.baseline,
-      fromTree: frontendReviewIds.baseline,
-      fromBaseline: frontendReviewIds.baseline,
-    },
-    committed: {
-      from: frontendReviewIds.baseline,
-      tree: frontendReviewIds.head,
-      files: threeFiles,
-    },
-  });
-
-const openWorkspaceReview = (
-  page: Parameters<typeof openFrontendStoryReviewAsOpened>[0],
-  frontendServices: Parameters<typeof openFrontendStoryReviewAsOpened>[1],
-) =>
-  openFrontendStoryReviewAsOpened(
-    page,
-    frontendServices,
-    workspaceSnapshot(),
-    (initial) => {
-      initial.answerFile(frontendFileDiff("first.txt", ["+alpha"]));
-      initial.answerFile(longSecond, "second.txt");
-    },
-  );
-
-test("a workspace review opens on the diff and keeps its place while the eye reveals and hides its details", async ({
-  page,
-  frontendServices,
-}) => {
-  const { reviewChanges: review } = await openWorkspaceReview(
-    page,
-    frontendServices,
-  );
-  const { files, details, code, diffs } = review;
+test("a workspace review opens on the diff and keeps its place while the eye reveals and hides its details", async () => {
+  const review = await mountReviewChanges(workspaceSource, doneStory);
   // Compact opening: toggle, name, eye; files and the first diff readable.
-  await files.expectListed("3 changed files");
-  await diffs.expectShows("Added first.txt", "+alpha");
-  await review.details.expectCollapsed();
+  await review.expectListed("3 changed files");
+  await review.expectDiffShows(first, "+alpha");
+  await review.expectDetailsCollapsed();
   await review.expectFilesToggleLeads("All changes");
-  await details.expectEyeBesideComparison("Show review details");
+  await review.expectEyeBesideComparison();
 
   // The second file, its diff scrolled.
-  await files.chooseShown("Added second.txt");
-  await code.expectShows("Added second.txt", "+second 0");
-  const readingAt = await code.scrollTo("Added second.txt", 120);
+  await review.chooseFile(second);
+  await review.expectDiffShows(second, "+second 0");
+  const readingAt = review.scrollCodeTo(second, 120);
   expect(readingAt).toBeGreaterThan(0);
 
-  await details.reveal();
-  await details.expectEyeBesideComparison("Hide review details");
-  await review.comparison.expectChosen("All changes");
-  await review.context.expectSays("claude/taken");
-  await details.expectText("claude/taken");
-  await review.comparison.expectUncommittedIncluded(true);
-  await files.expectSelected("Added second.txt");
-  expect(await code.scrollTop("Added second.txt")).toBe(readingAt);
+  await review.revealDetails();
+  await review.expectEyeBesideComparison("Hide review details");
+  await review.expectComparisonChosen("All changes");
+  await review.expectDetailsSay("claude/taken");
+  await review.expectUncommittedIncluded(true);
+  await review.expectSelected(second);
+  expect(review.codeScrollTop(second)).toBe(readingAt);
 
-  await review.details.hide();
+  await review.hideDetails();
   await review.expectComparisonNamed("All changes");
-  await files.expectSelected("Added second.txt");
-  expect(await code.scrollTop("Added second.txt")).toBe(readingAt);
+  await review.expectSelected(second);
+  expect(review.codeScrollTop(second)).toBe(readingAt);
 
   // The sidebar toggle works with the details revealed too.
-  await details.reveal();
+  await review.revealDetails();
   await review.hideFiles();
   await review.expectFilesShown(false);
-  await review.details.expectRevealed();
+  await review.expectDetailsRevealed();
   await review.showFiles();
-  await files.expectSelected("Added second.txt");
+  await review.expectSelected(second);
 
   // Leaving uncommitted changes out keeps the details revealed.
-  await review.comparison.includeUncommitted(false);
-  await review.comparison.expectUncommittedIncluded(false);
-  await review.details.expectRevealed();
+  await review.includeUncommitted(false);
+  await review.expectUncommittedIncluded(false);
+  await review.expectDetailsRevealed();
 });
 
-test("choosing Commits in the details renames the toolbar, and the range and commit list stay when the details hide", async ({
-  page,
-  frontendServices,
-}) => {
-  const { reviewChanges: review } = await openWorkspaceReview(
-    page,
-    frontendServices,
-  );
-  const { commits, details } = review;
-  await details.reveal();
-  await review.comparison.choose("Commits");
+test("choosing Commits in the details renames the toolbar, and the range and commit list stay when the details hide", async () => {
+  const review = await mountReviewChanges(workspaceSource, doneStory);
+  await review.revealDetails();
+  await review.chooseComparison("Commits");
   await review.expectComparisonNamed("Commits");
-  await review.comparison.expectChosen("Commits");
-  await review.details.expectRevealed();
-  await commits.expectListAndRangeShown();
+  await review.expectComparisonChosen("Commits");
+  await review.expectDetailsRevealed();
+  await review.expectCommitsAndRangeShown();
 
   // The revealed state lasts across Refresh.
-  await review.status.refreshAndRead();
-  await review.details.expectRevealed();
+  await review.refresh();
+  await review.expectFeedbackSays("Review refreshed");
+  await review.expectDetailsRevealed();
   await review.expectComparisonNamed("Commits");
 
-  await details.escapeFromComparison("Commits");
-  await commits.expectListAndRangeShown();
+  await review.escapeFromComparison("Commits");
+  await review.expectCommitsAndRangeShown();
   await review.expectComparisonNamed("Commits");
 });
 
-test("another story's review opens collapsed with the files shown, whatever the last one left", async ({
-  page,
-  frontendServices,
-}) => {
-  const answers = await installFrontendStoryReview(page, workspaceSnapshot());
-  answers.answerFile(frontendFileDiff("first.txt", ["+alpha"]));
-  await openFrontendBoardReview(page, frontendServices);
-  const review = await openReviewChanges(page, doneCard(page, storyA.title));
-  const { files, diffs } = review;
-  await review.expectText(storyA.title);
+test("another story's review opens collapsed with the files shown, whatever the last one left", async () => {
+  const review = await mountReviewChanges(workspaceSource, doneStory);
   // Details collapsed, third file selected: the sidebar toggle works.
-  await files.chooseShown("Added third.txt");
-  await files.expectSelected("Added third.txt");
-  await review.details.expectCollapsed();
+  await review.chooseFile(third);
+  await review.expectSelected(third);
+  await review.expectDetailsCollapsed();
   await review.hideFiles();
   await review.expectFilesShown(false);
-  await diffs.expectShows("Added third.txt");
+  await review.expectDiffShows(third, "+gamma");
   await review.showFiles();
-  await files.expectSelected("Added third.txt");
+  await review.expectSelected(third);
 
   // Left with the details revealed and the files hidden.
-  await review.details.reveal();
+  await review.revealDetails();
   await review.hideFiles();
   await review.expectFilesShown(false);
-  await review.close();
 
-  const next = await openReviewChanges(page, doneCard(page, storyB.title));
-  await next.expectText(storyB.title);
-  await next.files.expectListed("3 changed files");
-  await next.details.expectCollapsed();
+  const next = review.openAnother(otherStory);
+  await next.expectListed("3 changed files");
+  await next.expectDetailsCollapsed();
   await next.expectFilesShown(true);
   await next.expectFilesToggleNamed("Hide files");
-  await next.diffs.expectShows("Added first.txt");
+  await next.expectDiffShows(first, "+alpha");
 });

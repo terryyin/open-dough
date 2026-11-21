@@ -9,12 +9,7 @@ import {
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
-import {
-  aCheckout,
-  aDefaultLaunch,
-  minutesAgo,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
 import { notCaptured } from "../support/doneCaptureReview.ts";
 
 test("a pending Done refuses the previous review and its files", async () => {
@@ -25,7 +20,8 @@ test("a pending Done refuses the previous review and its files", async () => {
       .committing("first", { at: minutesAgo(40) })
       .committing("second", { at: minutesAgo(20) }),
   );
-  const record = aDefaultLaunch(checkout)
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
     .markedDoneAt(minutesAgo(10))
     .keptSessionCommits({
       repository: path.join(checkout.integration, ".git"),
@@ -33,9 +29,7 @@ test("a pending Done refuses the previous review and its files", async () => {
       readAt: minutesAgo(30),
     })
     .please();
-  const read = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record]);
+  const read = makeMe.aSessionReviewRead.ofRecord(record);
   const review = read.please();
   const file = read
     .readingFile({ baseline: checkout.base, tree: first, path: "first.txt" })
@@ -63,7 +57,8 @@ test("a pending Done cannot inherit the previous no-commit finding", async () =>
     checkout,
     makeMe.aCheckoutWork.committing("first", { at: minutesAgo(20) }),
   );
-  const record = aDefaultLaunch(checkout)
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
     .markedDoneAt(minutesAgo(10))
     .keptSessionCommits({
       repository: path.join(checkout.integration, ".git"),
@@ -71,10 +66,7 @@ test("a pending Done cannot inherit the previous no-commit finding", async () =>
       readAt: minutesAgo(30),
     })
     .please();
-  const read = makeMe.aSessionReviewRead
-    .ofSession(record.session.sessionId)
-    .keeping([record])
-    .please();
+  const read = makeMe.aSessionReviewRead.ofRecord(record).please();
 
   expect(await storyReview(read, new AbortController().signal)).toEqual(
     notCaptured,
@@ -89,7 +81,9 @@ test("capture excludes a commit that arrives after Done's tip was read", async (
       .committing("first", { at: minutesAgo(40) })
       .committing("second", { at: minutesAgo(20) }),
   );
-  const { launchedAt } = aDefaultLaunch(checkout).please();
+  const { launchedAt } = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .please();
 
   await work(
     checkout,

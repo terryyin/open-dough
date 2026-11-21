@@ -1,25 +1,18 @@
-// Done saves a declared branch's own changes apart from what the branch held
+// Capture separates a declared branch's own changes from what the branch held
 // when the session identified it and from the trunk history it took in, or
 // explains why it cannot.
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
-import { RefusedRequest } from "../../server/localOrigin.ts";
+import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import {
   aCheckoutWithWorktree,
-  aDefaultLaunch,
   inWorktree,
   minutesAgo,
   type Checkout,
   work,
 } from "../support/doneCaptureCase.ts";
-import {
-  aDoneBranch,
-  fileDiff,
-  fileText,
-  review,
-} from "../support/doneCaptureReview.ts";
 
 const branch = "topic";
 
@@ -32,7 +25,7 @@ const aTopicWorktree = () =>
 // its branch, entering it with whatever the worktree already held and the
 // trunk it observed then.
 async function aDeclaredTopic(checkout: Checkout, workspace: string) {
-  const launch = aDefaultLaunch(checkout);
+  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout);
   const { entry } = await proposeBranchEntry(
     "refs/heads/main",
     launch.please(),
@@ -41,7 +34,7 @@ async function aDeclaredTopic(checkout: Checkout, workspace: string) {
   return { launch: launch.enteredBranch(entry), entry };
 }
 
-test("a declared branch's saved comparison shows only its new work and its edit to imported text", async () => {
+test("capture separates declared branch work from its entry and its trunk import", async () => {
   const { checkout, workspace } = await aTopicWorktree();
   await work(
     inWorktree(checkout, workspace),
@@ -49,8 +42,8 @@ test("a declared branch's saved comparison shows only its new work and its edit 
       .committing("earlier-commit", { at: minutesAgo(70) })
       .editing("earlier-draft", { at: minutesAgo(65) }),
   );
-  const { launch } = await aDeclaredTopic(checkout, workspace);
-  await work(
+  const { launch, entry } = await aDeclaredTopic(checkout, workspace);
+  const { "session-only": committedTip } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork
       .mergingTrunkWork("imported", {
@@ -67,36 +60,31 @@ test("a declared branch's saved comparison shows only its new work and its edit 
       }),
   );
 
-  const record = await aDoneBranch(launch);
-
-  const answer = await review([record], record);
-  if (answer.kind !== "branch-result") throw new Error(JSON.stringify(answer));
-  expect(answer.files.map(({ path }) => path)).toEqual([
-    "session-only.txt",
-    "shared.txt",
-  ]);
-  const shared = {
-    baseline: answer.baseline,
-    tree: answer.tree,
-    path: "shared.txt",
-  };
-  expect(await fileDiff([record], record, shared)).toMatchObject({
-    kind: "diff",
-    printed: expect.stringContaining(
-      "-imported line\n+session edit of imported line",
-    ) as string,
-  });
-  expect(await fileText([record], record, shared)).toEqual({
-    kind: "text",
-    baseline: "imported line\n",
-    tree: "session edit of imported line\n",
-  });
-  await expect(
-    fileDiff([record], record, {
-      ...shared,
-      path: "import-only.txt",
-    }),
-  ).rejects.toMatchObject({ status: 409 });
+  const { result } = await captureBranchResult(launch.please(), minutesAgo(10));
+  const { integration } = checkout;
+  expect(result.attributionGap).toBeUndefined();
+  expect(result.committedTip).toBe(committedTip);
+  expect(
+    (await git(integration, "diff", "--name-only", entry.tree, result.base))
+      .stdout,
+  ).toBe("import-only.txt\nshared.txt\n");
+  expect(
+    (
+      await git(
+        integration,
+        "diff",
+        "--name-only",
+        result.base,
+        result.revision,
+      )
+    ).stdout,
+  ).toBe("session-only.txt\nshared.txt\n");
+  expect(
+    (await git(integration, "show", `${result.base}:shared.txt`)).stdout,
+  ).toBe("imported line\n");
+  expect(
+    (await git(integration, "show", `${result.revision}:shared.txt`)).stdout,
+  ).toBe("session edit of imported line\n");
 });
 
 test("conflicting baseline evidence explains why the branch changes cannot be attributed", async () => {
@@ -125,19 +113,12 @@ test("conflicting baseline evidence explains why the branch changes cannot be at
     makeMe.aCheckoutWork.committing("tip", { at: minutesAgo(30) }),
   );
 
-  const record = await aDoneBranch(launch);
+  const { result } = await captureBranchResult(launch.please(), minutesAgo(10));
 
-  expect(await review([record], record)).toMatchObject({
-    kind: "unavailable",
-    explanation: expect.stringContaining(
-      "Earlier branch changes conflict with imported trunk",
-    ) as string,
+  expect(result).toMatchObject({
+    base: entry.tree,
+    revision: tip,
+    attributionGap:
+      "Earlier branch changes conflict with imported trunk changes, so the saved branch changes could not be separated.",
   });
-  const refused = fileDiff([record], record, {
-    baseline: entry.tree,
-    tree: tip,
-    path: "tip.txt",
-  });
-  await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
-  await expect(refused).rejects.toMatchObject({ status: 409 });
 });

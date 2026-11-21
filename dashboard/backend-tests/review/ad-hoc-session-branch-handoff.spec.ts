@@ -22,8 +22,6 @@ import { unattachedInput } from "../../server/unattachedInput.ts";
 import { sessionBranchEntryEndpoint } from "../../src/sessionBranchResult.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
-  canonicalGitDirectory,
   keep,
   keptRecordOf,
   minutesAgo,
@@ -122,7 +120,7 @@ test("the launch command binds the original checkout's own branch", async () => 
     .startingInDefaultCheckout({
       workspace: checkout.integration,
       startingRevision: checkout.base,
-      repository: canonicalGitDirectory(checkout),
+      repository: checkout.gitDirectory,
       branch: "refs/heads/main",
     })
     .inClaudeSession({ sessionId: "default-launch" })
@@ -169,7 +167,10 @@ test("the launch command binds the original checkout's own branch", async () => 
 
 test("a session-addressed handoff binds the named session to its checkout", async () => {
   const { checkout, workspace, entered } = await aDraftCheckout();
-  const record = aDefaultLaunch(checkout, { sessionId: "by-session" }).please();
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "by-session" })
+    .please();
   keep(record);
 
   const bodyText = JSON.stringify({
@@ -224,7 +225,9 @@ test("a reporting reference from another origin is refused", async () => {
 test("a handoff while still on the project's trunk is refused", async () => {
   const checkout = await aCheckout();
   const workspace = fs.realpathSync(checkout.integration);
-  const record = aDefaultLaunch(checkout, { sessionId: "trunk-launch" })
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "trunk-launch" })
     .reportingThrough(reporting)
     .please();
   keep(record);

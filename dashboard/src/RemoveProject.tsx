@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
-import { projectRemoveEndpoint } from "./projectConfiguration.ts";
+import type { ProjectSettingsSource } from "./projectSettingsSource.ts";
 import {
   selectionAfterProjectChange,
   useVisibleProjects,
@@ -10,10 +10,12 @@ import "./frame-controls.css";
 
 export function RemoveProject({
   source,
+  remove,
   selectedId,
   onSelect,
 }: {
   readonly source: PublishedSource;
+  readonly remove: ProjectSettingsSource["remove"];
   readonly selectedId: string | undefined;
   readonly onSelect: (source: PublishedSource | undefined) => void;
 }) {
@@ -39,6 +41,7 @@ export function RemoveProject({
       {open && (
         <RemoveProjectDialog
           source={source}
+          remove={remove}
           onClose={() => {
             setOpen(false);
             launcher.current?.focus();
@@ -68,10 +71,12 @@ export function RemoveProject({
 
 function RemoveProjectDialog({
   source,
+  remove,
   onClose,
   onRemoved,
 }: {
   readonly source: PublishedSource;
+  readonly remove: ProjectSettingsSource["remove"];
   readonly onClose: () => void;
   readonly onRemoved: (projects: readonly PublishedSource[]) => void;
 }) {
@@ -98,26 +103,12 @@ function RemoveProjectDialog({
     setSubmitting(true);
     setProblem(undefined);
     try {
-      const response = await fetch(projectRemoveEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: source.id }),
-      });
-      const answer = (await response.json()) as {
-        projects: readonly PublishedSource[];
-        error?: string;
-      };
-      if (!response.ok) {
-        setProblem(answer.error ?? "The project could not be removed.");
-        return;
-      }
+      const projects = await remove(source.id);
       removed.current = true;
       dialog.current?.close();
-      onRemoved(answer.projects);
-    } catch {
-      setProblem(
-        "The project could not be removed. Check the local dashboard server and try again.",
-      );
+      onRemoved(projects);
+    } catch (error) {
+      setProblem(error instanceof Error ? error.message : String(error));
     } finally {
       setSubmitting(false);
     }

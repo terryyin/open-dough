@@ -2,22 +2,21 @@
 // configures on this machine, with its checkout, its Client configuration,
 // and its visibility and removal.
 import { useEffect, useState } from "react";
-import { refusalMessage } from "./refusalMessage.ts";
 import { AddProject } from "./AddProject.tsx";
 import { ProjectClientConfiguration } from "./ProjectClientConfiguration.tsx";
 import { ProjectVisibility } from "./ProjectVisibility.tsx";
 import { RemoveProject } from "./RemoveProject.tsx";
 import { useProjects } from "./projectList.tsx";
-import {
-  projectSettingsEndpoint,
-  type ProjectSettings,
-} from "./projectConfiguration.ts";
+import type { ProjectSettings } from "./projectConfiguration.ts";
+import type { ProjectSettingsSource } from "./projectSettingsSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export function ProjectsSettings({
+  source: settings,
   selectedId,
   onSelect,
 }: {
+  readonly source: ProjectSettingsSource;
   readonly selectedId: string | undefined;
   readonly onSelect: (source: PublishedSource | undefined) => void;
 }) {
@@ -29,23 +28,14 @@ export function ProjectsSettings({
   useEffect(() => {
     const controller = new AbortController();
     setProblem(undefined);
-    void fetch(projectSettingsEndpoint, { signal: controller.signal })
-      .then(async (response) => {
-        const answer: unknown = await response.json();
-        if (!response.ok)
-          throw new Error(
-            refusalMessage(answer, "Project settings could not be read."),
-          );
-        return answer as readonly ProjectSettings[];
-      })
-      .then(setFacts, (error: unknown) => {
-        if (!controller.signal.aborted)
-          setProblem(error instanceof Error ? error.message : String(error));
-      });
+    void settings.read(controller.signal).then(setFacts, (error: unknown) => {
+      if (!controller.signal.aborted)
+        setProblem(error instanceof Error ? error.message : String(error));
+    });
     return () => {
       controller.abort();
     };
-  }, [projects, retry]);
+  }, [projects, retry, settings]);
   return (
     <section
       className="settings-section"
@@ -53,7 +43,7 @@ export function ProjectsSettings({
     >
       <div className="settings-section-heading">
         <h2 id="settings-projects-heading">Projects</h2>
-        <AddProject onSelect={onSelect} />
+        <AddProject add={settings.add} onSelect={onSelect} />
       </div>
       <p className="settings-note">
         Configure projects for this dashboard on this machine.
@@ -112,12 +102,14 @@ export function ProjectsSettings({
                 <div className="settings-project-actions">
                   <ProjectVisibility
                     source={source}
+                    setHidden={settings.setHidden}
                     selectedId={selectedId}
                     onSelect={onSelect}
                     onProblem={setVisibilityProblem}
                   />
                   <RemoveProject
                     source={source}
+                    remove={settings.remove}
                     selectedId={selectedId}
                     onSelect={onSelect}
                   />

@@ -115,13 +115,6 @@ export class ReviewCommits {
     return this;
   }
 
-  // The Story commits list and the chosen range's heading are both shown.
-  async expectListAndRangeShown() {
-    await expect(this.#rows().first()).toBeVisible();
-    await expect(commitRangeHeading(this.#review)).toBeVisible();
-    return this;
-  }
-
   // The row names no commit time, as Uncommitted changes does.
   async expectNoTime(at: number | "last") {
     await expect(this.#row(at).locator("time")).toHaveCount(0);

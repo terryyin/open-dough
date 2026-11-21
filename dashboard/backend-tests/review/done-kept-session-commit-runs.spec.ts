@@ -1,31 +1,14 @@
-// The typed review reads a Done session's ordered runs around changes brought
-// in from trunk.
 import { expect, test } from "vitest";
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  aCheckout,
-  type Checkout,
-  minutesAgo,
-  work,
-} from "../support/doneCaptureCase.ts";
-import {
-  aDoneSession,
-  fileDiff,
-  review,
-} from "../support/doneCaptureReview.ts";
+import { readSessionCommits } from "../../server/sessionCommitsCapture.ts";
+import { aCheckout, minutesAgo, work } from "../support/doneCaptureCase.ts";
+import { aDoneSession } from "../support/doneCaptureReview.ts";
 
 const notes = (first: string, last: string) =>
   [first, "two", "three", "four", "five", "six", "seven", last, ""].join("\n");
-
-// A Done session whose two runs sit either side of `between`.
-const twoRuns = (
-  checkout: Checkout,
-  { first, between, second }: Record<"first" | "between" | "second", string>,
-) =>
-  aDoneSession(checkout, [
-    { base: checkout.base, revision: first },
-    { base: between, revision: second },
-  ]);
 
 test("commits either side of a pulled story landing are two runs, oldest first, each without the story's changes to a file the session also changed", async () => {
   const checkout = await aCheckout({ withOrigin: true });
@@ -46,29 +29,63 @@ test("commits either side of a pulled story landing are two runs, oldest first, 
         files: { "notes.txt": notes("session's one", "story's eight") },
       }),
   );
-  const record = twoRuns(checkout, { first, between: pulled, second });
+  const record = aDoneSession(checkout, [
+    { base: checkout.base, revision: first },
+    { base: pulled, revision: second },
+  ]);
 
-  expect(await review([record], record)).toMatchObject({
+  expect(
+    await storyReview({ record, read: {} }, new AbortController().signal),
+  ).toMatchObject({
     commitRuns: [
-      { baseline: checkout.base, tree: first, committedAt: minutesAgo(45) },
-      { baseline: pulled, tree: second, committedAt: minutesAgo(25) },
+      {
+        commits: 1,
+        subject: "Add first.txt",
+        baseline: checkout.base,
+        tree: first,
+        committedAt: minutesAgo(45),
+      },
+      {
+        commits: 1,
+        subject: "Add second.txt",
+        baseline: pulled,
+        tree: second,
+        committedAt: minutesAgo(25),
+      },
     ],
     files: [{ path: "notes.txt", kind: "added" }],
   });
-  expect(await review([record], record, 1)).toMatchObject({
+  expect(
+    await storyReview(
+      { record, read: { run: "1" } },
+      new AbortController().signal,
+    ),
+  ).toMatchObject({
     commitRun: 1,
     files: [{ path: "notes.txt", kind: "modified" }],
   });
-  const firstDiff = await fileDiff([record], record, {
-    baseline: checkout.base,
-    tree: first,
-    path: "notes.txt",
-  });
-  const secondDiff = await fileDiff([record], record, {
-    baseline: pulled,
-    tree: second,
-    path: "notes.txt",
-  });
+  const firstDiff = await reviewedFileDiff(
+    {
+      record,
+      read: {
+        baseline: checkout.base,
+        tree: first,
+        path: "notes.txt",
+      },
+    },
+    new AbortController().signal,
+  );
+  const secondDiff = await reviewedFileDiff(
+    {
+      record,
+      read: {
+        baseline: pulled,
+        tree: second,
+        path: "notes.txt",
+      },
+    },
+    new AbortController().signal,
+  );
   expect(JSON.stringify(secondDiff)).toContain("+session's one");
   expect(JSON.stringify(secondDiff)).not.toContain("story's eight");
   expect(JSON.stringify(firstDiff)).not.toContain("story's");
@@ -76,6 +93,8 @@ test("commits either side of a pulled story landing are two runs, oldest first, 
 
 test("commits either side of merged trunk work are two runs without the merge or its work", async () => {
   const checkout = await aCheckout({ withOrigin: true });
+  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
+  const { base, integration } = checkout;
   const { first, merge, second } = await work(
     checkout,
     makeMe.aCheckoutWork
@@ -83,22 +102,23 @@ test("commits either side of merged trunk work are two runs without the merge or
       .mergingTrunkWork("merge", { at: minutesAgo(35) })
       .committing("second", { at: minutesAgo(25) }),
   );
-  const record = twoRuns(checkout, { first, between: merge, second });
-
-  expect(await review([record], record)).toMatchObject({
-    commitRuns: [
-      { commits: 1, baseline: checkout.base, tree: first },
-      { commits: 1, baseline: merge, tree: second },
-    ],
-    files: [{ path: "first.txt" }],
-  });
-  expect(await review([record], record, 1)).toMatchObject({
-    files: [{ path: "second.txt" }],
-  });
+  const { runs } = await readSessionCommits(launch, { workspace: integration });
+  expect(runs).toEqual([
+    { base, revision: first },
+    { base: merge, revision: second },
+  ]);
+  expect(
+    (await git(integration, "diff", "--name-only", base, first)).stdout,
+  ).toBe("first.txt\n");
+  expect(
+    (await git(integration, "diff", "--name-only", merge, second)).stdout,
+  ).toBe("second.txt\n");
 });
 
 test("commits either side of an amended merge stay separate without the merge's files", async () => {
   const checkout = await aCheckout({ withOrigin: true });
+  const launch = makeMe.aLaunchRecord.startedOnMainOf(checkout).please();
+  const { base, integration } = checkout;
   const { first, amended, second } = await work(
     checkout,
     makeMe.aCheckoutWork
@@ -107,16 +127,15 @@ test("commits either side of an amended merge stay separate without the merge's 
       .amending("amended", { at: minutesAgo(35) })
       .committing("second", { at: minutesAgo(25) }),
   );
-  const record = twoRuns(checkout, { first, between: amended, second });
-
-  expect(await review([record], record)).toMatchObject({
-    commitRuns: [
-      { commits: 1, baseline: checkout.base, tree: first },
-      { commits: 1, baseline: amended, tree: second },
-    ],
-    files: [{ path: "first.txt" }],
-  });
-  expect(await review([record], record, 1)).toMatchObject({
-    files: [{ path: "second.txt" }],
-  });
+  const { runs } = await readSessionCommits(launch, { workspace: integration });
+  expect(runs).toEqual([
+    { base, revision: first },
+    { base: amended, revision: second },
+  ]);
+  expect(
+    (await git(integration, "diff", "--name-only", base, first)).stdout,
+  ).toBe("first.txt\n");
+  expect(
+    (await git(integration, "diff", "--name-only", amended, second)).stdout,
+  ).toBe("second.txt\n");
 });

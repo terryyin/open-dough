@@ -1,19 +1,21 @@
 // A Default main launch identifies its own branch: the entry keeps the state
-// and Default main tip it found, and Done reviews the branch apart from the
-// captured Default main commits.
+// and Default main tip it found, and Done keeps separate captured pairs.
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { retainedBranchPairFiles } from "../../server/retainedReviewPair.ts";
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
+import {
+  keptSession,
+  setRecordDoneAt,
+} from "../../server/launchRecordStore.ts";
 import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
 import {
   aCheckout,
   aCheckoutWithCanonicalWorktree,
-  aDefaultLaunch,
-  canonicalGitDirectory,
   type Checkout,
   historyBeforeTheCase,
   inWorktree,
@@ -23,8 +25,7 @@ import {
   source,
   work,
 } from "../support/doneCaptureCase.ts";
-import { aDoneBranch, fileText, review } from "../support/doneCaptureReview.ts";
-import { keptRecords } from "../../server/launchRecordStore.ts";
+import { aDoneBranch } from "../support/doneCaptureReview.ts";
 
 const branch = "draft";
 const published = { id: source, ref: "refs/heads/main" };
@@ -35,7 +36,9 @@ const aDraftWorktree = () => aCheckoutWithCanonicalWorktree(branch);
 // an uncommitted edit of its own.
 async function aDraftBeforeEntry() {
   const { checkout, workspace } = await aDraftWorktree();
-  const launch = aDefaultLaunch(checkout, { sessionId: "declared" });
+  const launch = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "declared" });
   const { onMain } = await work(
     checkout,
     makeMe.aCheckoutWork.committing("onMain", {
@@ -94,13 +97,8 @@ test("a declared branch keeps its entry state and Default main tip after main mo
   expect(await sessionBranchPins(workspace, record.session)).toEqual(pins);
 });
 
-test("Done reviews a declared branch apart from the Default main commits before its entry", async () => {
-  const { checkout, workspace, launch, onMain } = await aDraftBeforeEntry();
-  const { entry } = await proposeBranchEntry(
-    "refs/heads/main",
-    launch.please(),
-    { workspace, branch },
-  );
+test("Done saves the entry-time Default main run and the declared branch's own pair", async () => {
+  const { checkout, workspace, record, entry } = await aDeclaredDraft();
   const { result } = await work(
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("result", {
@@ -109,38 +107,20 @@ test("Done reviews a declared branch apart from the Default main commits before 
     }),
   );
   await mainMoves(checkout);
-  const record = await aDoneBranch(
-    launch.enteredBranch(entry).keptSessionCommits({
-      repository: checkout.integration,
-      runs: [{ base: checkout.base, revision: onMain }],
-    }),
-  );
 
-  expect(await review([record], record)).toMatchObject({
-    kind: "branch-result",
-    selectedRun: "branch-result",
-    sessionComparisonKeys: ["branch-result", "0"],
-    baseline: entry.tree,
-    tree: result,
-    files: [{ kind: "added", path: "session.txt" }],
-  });
-  expect(
-    await fileText([record], record, {
-      baseline: entry.tree,
-      tree: result,
-      path: "session.txt",
-    }),
-  ).toEqual({ kind: "text", baseline: null, tree: "session.txt\n" });
-  expect(await review([record], record, 0)).toMatchObject({
-    kind: "session-commits",
-    selectedRun: "0",
-    sessionComparisonKeys: ["branch-result", "0"],
-    tree: onMain,
-    files: [{ kind: "added", path: "main-work.txt" }],
+  await setRecordDoneAt(source, record.session, minutesAgo(10));
+
+  const saved = await keptSession(source, record.session);
+  expect(saved?.sessionCommits?.runs).toEqual([
+    { base: checkout.base, revision: entry.defaultTip },
+  ]);
+  expect(saved?.branchResult).toMatchObject({
+    base: entry.tree,
+    revision: result,
   });
 });
 
-test("two declared sessions each review their own branch", async () => {
+test("two declared sessions each capture their own branch", async () => {
   const checkout = await aCheckout({
     history: historyBeforeTheCase()
       .withWorkspace(branch, { from: "base" })
@@ -154,19 +134,23 @@ test("two declared sessions each review their own branch", async () => {
   const { base } = checkout;
   const { stdout } = await git(workspace, "rev-parse", `${base}^{tree}`);
   const atBase = {
-    repository: canonicalGitDirectory(checkout),
+    repository: checkout.gitDirectory,
     committedTip: base,
     tree: stdout.trim(),
     trunk: { remote: "origin", target: "refs/heads/main", revision: base },
   };
-  const first = aDefaultLaunch(checkout, { sessionId: "first" }).enteredBranch({
-    ...atBase,
-    workspace,
-    branch,
-  });
-  const second = aDefaultLaunch(checkout, {
-    sessionId: "second",
-  }).enteredBranch({ ...atBase, workspace: other, branch: "other" });
+  const first = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "first" })
+    .enteredBranch({
+      ...atBase,
+      workspace,
+      branch,
+    });
+  const second = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "second" })
+    .enteredBranch({ ...atBase, workspace: other, branch: "other" });
   const [{ ours }, { theirs }] = await Promise.all([
     work(
       inWorktree(checkout, workspace),
@@ -178,18 +162,26 @@ test("two declared sessions each review their own branch", async () => {
     ),
   ]);
   const done = await Promise.all([aDoneBranch(first), aDoneBranch(second)]);
+  const [ownBranch, otherBranch] = done.map(({ branchResult }) => branchResult);
+  if (ownBranch === undefined || otherBranch === undefined)
+    throw new Error("Missing the captured comparisons.");
+  const signal = new AbortController().signal;
 
-  expect(
-    await Promise.all(done.map((launch) => review(done, launch))),
-  ).toMatchObject([
-    { kind: "branch-result", tree: ours, files: [{ path: "ours.txt" }] },
-    { kind: "branch-result", tree: theirs, files: [{ path: "theirs.txt" }] },
-  ]);
+  expect([ownBranch.revision, otherBranch.revision]).toEqual([ours, theirs]);
+  expect(await retainedBranchPairFiles(ownBranch, signal)).toMatchObject({
+    files: [{ path: "ours.txt" }],
+  });
+  expect(await retainedBranchPairFiles(otherBranch, signal)).toMatchObject({
+    files: [{ path: "theirs.txt" }],
+  });
 });
 
 test("an undeclared checkout move explains the missing branch association", async () => {
   const checkout = await aCheckout();
-  const record = aDefaultLaunch(checkout, { sessionId: "undeclared" }).please();
+  const record = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inClaudeSession({ sessionId: "undeclared" })
+    .please();
   keep(record);
   await git(checkout.integration, "switch", "--quiet", "-c", "not-identified");
   await work(
@@ -198,7 +190,14 @@ test("an undeclared checkout move explains the missing branch association", asyn
   );
   await markDone(record);
 
-  expect(await review(await keptRecords(source), record)).toMatchObject({
+  const saved = await keptSession(source, record.session);
+  if (saved === undefined) throw new Error("Missing the kept launch.");
+  expect(
+    await storyReview(
+      { record: saved, read: {} },
+      new AbortController().signal,
+    ),
+  ).toMatchObject({
     kind: "landing-unavailable",
     explanation:
       "No branch was identified for this session, and no Default main commits were captured.",

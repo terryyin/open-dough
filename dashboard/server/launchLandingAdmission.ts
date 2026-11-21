@@ -31,28 +31,41 @@ export type LandingRequestAdmission = {
   readonly method: string | undefined;
   readonly origin: string | null | undefined;
   readonly host: string | undefined;
+  readonly fetchSite?: string | null;
   readonly bodyText: string;
 };
 
 // Admits a landing request from its wire values: the prepare or record route,
-// POST, same-origin Origin against Host, and a body matching the submission.
+// POST, local origin metadata, and a body matching the submission.
 export function admitLandingRequest(
   request: LandingRequestAdmission,
 ): AdmittedLandingRequest {
-  const operation = landingOperations.get(request.route);
+  const operation = landingRequestOperation(request.route, request.method);
+  verifySameOrigin(request.origin, request.host, request.fetchSite);
+  return { operation, submission: parseLandingSubmission(request.bodyText) };
+}
+
+export function landingRequestOperation(
+  route: string,
+  method: string | undefined,
+): LandingOperation {
+  const operation = landingOperations.get(route);
   if (operation === undefined)
     throw new RefusedRequest(404, "This is not a landing route.");
-  if (request.method !== "POST")
+  if (method !== "POST")
     throw new RefusedRequest(405, "Only POST is accepted here.");
-  verifySameOrigin(request.origin, request.host);
+  return operation;
+}
+
+export function parseLandingSubmission(bodyText: string): LandingSubmission {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(request.bodyText);
+    parsed = JSON.parse(bodyText);
   } catch {
     throw new RefusedRequest(400, "The landing request is malformed.");
   }
   const submission = landingSubmissionSchema.safeParse(parsed);
   if (!submission.success)
     throw new RefusedRequest(400, "The landing request is malformed.");
-  return { operation, submission: submission.data };
+  return submission.data;
 }

@@ -1,8 +1,8 @@
-// One read of the launch boundary's story review endpoints
-// (`./storyReviewContract.ts`), kept until the reader leaves or reads again: the
-// answer, or why it could not be read. A new query or `round` reads again;
-// the last answer stays until the new one arrives, and `reading` says it is
-// not yet the answer to what was last asked.
+// One read of the story review's source (`./reviewSource.ts`: the page's
+// endpoints unless a `ReviewSourceOnPage` provider gives another), kept until
+// the reader leaves or reads again: the answer, or why it could not be read.
+// A new query or `round` reads again; the last answer stays until the new one
+// arrives, and `reading` says it is not yet the answer to what was last asked.
 // A disabled read sends no request; enabling it reads the query then shown.
 // A read whose answers are fixed by its query (`fixed`, as a story file's
 // diff and texts between two trees) is asked once per page for each
@@ -10,30 +10,28 @@
 // anything else, and every failure, is asked again. A kept answer shows as
 // the reader renders, without a reading moment.
 
-import { useEffect, useState } from "react";
-import type { z } from "zod";
+import { useContext, useEffect, useState } from "react";
 import { keptAnswer, memoizedAnswer } from "./answerMemo.ts";
+import {
+  ReviewSourceOnPage,
+  type ReviewQuery,
+  type ReviewRead,
+  type ReviewSource,
+} from "./reviewSource.ts";
 
-async function askReview<Answer>(
-  url: string,
-  schema: z.ZodType<Answer>,
-  signal: AbortSignal,
-): Promise<Answer> {
-  const response = await fetch(url, { signal, cache: "no-store" });
-  const answer: unknown = await response.json();
-  if (!response.ok) {
-    const said = (answer as { error?: unknown }).error;
-    throw new Error(
-      typeof said === "string" ? said : "The review was refused.",
-    );
-  }
-  return schema.parse(answer);
-}
+type AnswerOf<Read extends keyof ReviewSource> = Awaited<
+  ReturnType<ReviewSource[Read]>
+>;
 
-export function useReviewRead<Answer>(
-  endpoint: string,
-  query: Readonly<Record<string, string>>,
-  schema: z.ZodType<Answer>,
+export type ReviewReadState<Answer> = {
+  readonly answer?: Answer;
+  readonly problem?: string;
+  readonly reading: boolean;
+};
+
+export function useReviewRead<Read extends keyof ReviewSource>(
+  endpoint: Read,
+  query: ReviewQuery,
   {
     round = 0,
     enabled = true,
@@ -41,13 +39,11 @@ export function useReviewRead<Answer>(
   }: {
     readonly round?: number;
     readonly enabled?: boolean;
-    readonly fixed?: (answer: Answer) => boolean;
+    readonly fixed?: (answer: AnswerOf<Read>) => boolean;
   } = {},
-): {
-  readonly answer?: Answer;
-  readonly problem?: string;
-  readonly reading: boolean;
-} {
+): ReviewReadState<AnswerOf<Read>> {
+  type Answer = AnswerOf<Read>;
+  const source = useContext(ReviewSourceOnPage);
   const [read, setRead] = useState<{
     answer?: Answer;
     problem?: string;
@@ -55,15 +51,17 @@ export function useReviewRead<Answer>(
   }>({});
   const search = new URLSearchParams(query).toString();
   const of = `${search}#${String(round)}`;
-  const url = `${endpoint}?${search}`;
+  const key = `${endpoint}?${search}`;
   useEffect(() => {
     if (!enabled) return;
     const controller = new AbortController();
-    const ask = (signal: AbortSignal) => askReview(url, schema, signal);
+    const asked = Object.fromEntries(new URLSearchParams(search));
+    const ask = (signal: AbortSignal) =>
+      (source[endpoint] as ReviewRead<Answer>)(asked, signal);
     void (
       fixed === undefined
         ? ask(controller.signal)
-        : memoizedAnswer(url, ask, controller.signal, fixed)
+        : memoizedAnswer(key, ask, controller.signal, fixed)
     ).then(
       (answer) => {
         if (!controller.signal.aborted) setRead({ answer, of });
@@ -79,10 +77,10 @@ export function useReviewRead<Answer>(
     return () => {
       controller.abort();
     };
-  }, [url, schema, of, enabled, fixed]);
+  }, [source, endpoint, key, search, of, enabled, fixed]);
   const kept =
     enabled && fixed !== undefined
-      ? (keptAnswer(url) as Answer | undefined)
+      ? (keptAnswer(key) as Answer | undefined)
       : undefined;
   if (kept !== undefined) return { answer: kept, reading: false };
   return {

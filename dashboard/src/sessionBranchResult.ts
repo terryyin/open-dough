@@ -69,6 +69,13 @@ export function branchPinOwner(
   return { host, sessionId };
 }
 
+export function hasBranchReview(record: BranchEvidence): boolean {
+  return (
+    record.branchEntry !== undefined ||
+    record.branchReviewRepository !== undefined
+  );
+}
+
 export function branchResultAtDone({
   branchResult,
   doneAt,

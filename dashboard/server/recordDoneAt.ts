@@ -6,7 +6,12 @@ import {
   type DoneTransitionOptions,
   doneTransition,
 } from "./doneTransition.ts";
-import { changeSessionRecord, keptSession } from "./launchRecordStore.ts";
+import {
+  changeSessionRecord,
+  keptSession,
+  machineRecordStore,
+  type LaunchRecordStore,
+} from "./launchRecordStore.ts";
 import {
   type BranchCapture,
   withBranchResultAtDone,
@@ -24,29 +29,41 @@ export async function setRecordDoneAt(
     // Reads the branch result before the record write; production's
     // Git-only capture by default.
     readonly capture?: BranchCapture;
+    readonly store?: LaunchRecordStore;
   } = {},
 ): Promise<LaunchRecord | undefined> {
-  const { capture, ...transition } = options;
+  const { capture, store = machineRecordStore, ...transition } = options;
   // A write that keeps the Done time it expects finishes that Done.
   const finishing = transition.expectedDoneAt === doneAt;
   const candidate =
     doneAt !== undefined && !finishing
-      ? await keptSession(sourceId, session)
+      ? await keptSession(sourceId, session, store)
       : undefined;
   const marked = await withBranchResultAtDone(
     candidate,
     finishing ? undefined : doneAt,
     (settle) =>
-      changeSessionRecord(sourceId, session, (record) => {
-        const next = doneTransition(record, doneAt, new Date().toISOString(), {
-          ...transition,
-          candidate,
-        });
-        return next === record || doneAt === undefined ? next : settle(next);
-      }),
+      changeSessionRecord(
+        sourceId,
+        session,
+        (record) => {
+          const next = doneTransition(
+            record,
+            doneAt,
+            new Date().toISOString(),
+            {
+              ...transition,
+              candidate,
+            },
+          );
+          return next === record || doneAt === undefined ? next : settle(next);
+        },
+        undefined,
+        store,
+      ),
     capture,
   );
   if (doneAt === undefined || marked?.doneAt !== doneAt || finishing)
     return marked;
-  return keptWithDoneCapture(sourceId, marked);
+  return keptWithDoneCapture(sourceId, marked, store);
 }

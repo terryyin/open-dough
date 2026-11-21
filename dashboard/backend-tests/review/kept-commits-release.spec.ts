@@ -18,7 +18,6 @@ import {
 import { daysAgo } from "../../test-support/machineLaunchRecords.ts";
 import {
   aCheckout,
-  anEstablishedSession,
   type Checkout,
   keep,
   minutesAgo,
@@ -48,10 +47,10 @@ function keepingRun(
   revision: string,
   doneAt: string,
 ) {
-  return anEstablishedSession(checkout, {
-    sessionId,
-    launchedAt: daysAgo(launchRetentionDays + 3),
-  })
+  return makeMe.aLaunchRecord
+    .establishedOnMainOf(checkout)
+    .inClaudeSession({ sessionId })
+    .launchedAt(daysAgo(launchRetentionDays + 3))
     .keptSessionCommits({
       repository,
       runs: [{ base: checkout.base, revision }],

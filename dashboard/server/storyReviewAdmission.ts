@@ -18,8 +18,8 @@ import { admitSessionReviewedFile } from "./storyReviewSessionFileAdmission.ts";
 import { storyWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 
 // Admit the read file against its subject's comparison: a story's workspace,
-// Published completion or landed run through today's admission path, or a
-// session's kept launch records the adapter read.
+// Published completion or landed run, a local session's admitted launch
+// record, or a published session's fetched project source.
 export async function admitReviewedFile(
   input: ReviewedFileInput,
   signal: AbortSignal,
@@ -33,15 +33,9 @@ export async function admitReviewedFile(
       signal,
     );
   }
-  if ("kept" in input) {
-    const { subject, reference, ...file } = input.read;
-    return admitSessionReviewedFile(
-      subject,
-      reference,
-      file,
-      input.kept,
-      signal,
-    );
+  if ("record" in input) {
+    const { reference, ...file } = input.read;
+    return admitSessionReviewedFile(input.record, reference, file, signal);
   }
   const { subject, reference, completion, ...file } = input.read;
   const { identity } = subject;

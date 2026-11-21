@@ -1,6 +1,8 @@
 // When Cursor replaces a chat that cannot load, the branch evidence its Done
 // pinned stays owned by the original chat, and only the replacement's removal
 // releases it.
+import { retainedBranchPairFiles } from "../../server/retainedReviewPair.ts";
+import { branchResultAtDone } from "../../src/sessionBranchResult.ts";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -11,7 +13,6 @@ import {
   bindRecord,
   changeSessionRecord,
   deleteRecord,
-  keptRecords,
   keptSession,
   replaceKeptSession,
 } from "../../server/launchRecordStore.ts";
@@ -24,8 +25,6 @@ import {
 } from "../../src/launchRecord.ts";
 import {
   aCheckout,
-  aDefaultLaunch,
-  anIsolatedLaunch,
   type Checkout,
   historyBeforeTheCase,
   inWorktree,
@@ -36,7 +35,6 @@ import {
   undoDone,
   work,
 } from "../support/doneCaptureCase.ts";
-import { review } from "../support/doneCaptureReview.ts";
 
 const trunkRef = "refs/heads/main";
 const originalId = "0a1b2c3d-e5f6-4789-abcd-ef0123456789";
@@ -64,7 +62,8 @@ const anIsolatedCursorLaunch = (
   if (workspace === undefined) throw new Error("Missing the worktree.");
   return {
     workspace,
-    record: anIsolatedLaunch(checkout, { workspace, branch })
+    record: makeMe.aLaunchRecord
+      .isolatedIn(checkout, { workspace, branch })
       .inCursorSession(inCursor(sessionId, workspace))
       .please(),
   };
@@ -104,7 +103,8 @@ for (const [reason, remove] of Object.entries(removals)) {
       "topic",
       originalId,
     );
-    const other = aDefaultLaunch(checkout)
+    const other = makeMe.aLaunchRecord
+      .startedOnMainOf(checkout)
       .inCursorSession(inCursor(otherId, checkout.integration))
       .please();
     keep(topic.record, other);
@@ -148,12 +148,14 @@ for (const [reason, remove] of Object.entries(removals)) {
       makeMe.aCheckoutWork.committing("latest", { at: minutesAgo(30) }),
     );
     await markDone(replacement);
-    expect(await review(await keptRecords(source), replacement)).toMatchObject({
-      kind: "branch-result",
-      baseline: checkout.base,
-      tree: latest,
-      files: [{ path: "latest.txt" }, { path: "prior.txt" }],
-    });
+    const saved = await keptSession(source, replacement.session);
+    const branch = saved && branchResultAtDone(saved);
+    if (branch === undefined)
+      throw new Error("Missing the kept branch result.");
+    expect(branch).toMatchObject({ base: checkout.base, revision: latest });
+    expect(
+      await retainedBranchPairFiles(branch, new AbortController().signal),
+    ).toMatchObject({ files: [{ path: "latest.txt" }, { path: "prior.txt" }] });
     expect(
       await sessionBranchPins(checkout.integration, topic.record.session),
     ).toContainEqual(expect.objectContaining({ objectId: latest }));
@@ -184,9 +186,9 @@ test("a stale native replacement retains a branch identified while it was pendin
     inWorktree(checkout, workspace),
     makeMe.aCheckoutWork.committing("present", { at: minutesAgo(70) }),
   );
-  const launch = aDefaultLaunch(checkout).inCursorSession(
-    inCursor(originalId, checkout.integration),
-  );
+  const launch = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .inCursorSession(inCursor(originalId, checkout.integration));
   const { entry } = await proposeBranchEntry(trunkRef, launch.please(), {
     workspace,
     branch,
@@ -211,9 +213,12 @@ test("a stale native replacement retains a branch identified while it was pendin
       branch,
     }),
   ).toMatchObject({ committedTip: present });
-  expect(await review(await keptRecords(source), replacement)).toMatchObject({
-    kind: "branch-result",
-    tree: entered,
-    files: [{ path: "entered.txt" }],
-  });
+  const saved = await keptSession(source, replacement.session);
+  const branchResult = saved && branchResultAtDone(saved);
+  if (branchResult === undefined)
+    throw new Error("Missing the kept branch result.");
+  expect(branchResult.revision).toBe(entered);
+  expect(
+    await retainedBranchPairFiles(branchResult, new AbortController().signal),
+  ).toMatchObject({ files: [{ path: "entered.txt" }] });
 });

@@ -33,7 +33,6 @@ import {
   toolbarComparison,
 } from "./support/reviewControls.ts";
 import { fileBrowser } from "./support/reviewContextLine.ts";
-import { expectNoToolbarComparisonOrDetails } from "./support/reviewDetails.ts";
 import { expectReviewRead } from "./support/reviewRead.ts";
 import { tapWhereShown } from "./pageLayout.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
@@ -116,12 +115,6 @@ class ReviewChanges {
   // The toolbar names the comparison shown, and nothing else.
   async expectComparisonNamed(name: string) {
     await expect(toolbarComparison(this.#region)).toHaveText(name);
-    return this;
-  }
-
-  // No comparison name and no eye: before an answer or after a cleared failure.
-  async expectNoComparisonNameOrDetails() {
-    await expectNoToolbarComparisonOrDetails(this.#region);
     return this;
   }
 

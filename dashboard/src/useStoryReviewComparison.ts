@@ -5,13 +5,7 @@
 // to the head's tree, which came with the snapshot.
 import { useState } from "react";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
-import {
-  storyReviewRangeEndpoint,
-  reviewRangeSchema,
-  reviewItemId,
-  type ReviewRange,
-  type TakenStoryReview,
-} from "./storyReviewContract.ts";
+import { reviewItemId, type TakenStoryReview } from "./storyReviewContract.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 import {
   reviewedWorkQuery,
@@ -76,8 +70,8 @@ export function useStoryReviewComparison({
   // whole snapshot.
   const committed = shown === "all" ? snapshot?.committed : undefined;
   const committedShown = includeUncommitted ? undefined : committed;
-  const range = useReviewRead<ReviewRange>(
-    storyReviewRangeEndpoint,
+  const range = useReviewRead(
+    "range",
     {
       ...reviewedWorkQuery(subject),
       fromTree: oldest?.fromTree ?? "",
@@ -94,7 +88,6 @@ export function useStoryReviewComparison({
           })),
       ),
     },
-    reviewRangeSchema,
     { enabled: active && shown === "commits" },
   );
   const rangeComparison =

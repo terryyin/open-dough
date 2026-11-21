@@ -225,129 +225,6 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
 
-<a id="correct-landing-record-writes-and-tests"></a>
-
-### Keep kept records intact through landings and prove it at the landing adapter
-
-**Identity:** SEED-413#correct-landing-record-writes-and-tests
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/745-correct-landing-record-writes-and-tests/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"64260086789f76c49b4a4a6a390fe138db4ff1e4067e67a89fceea245bc42594","plan":"937fc19fdc243a92b45e6c6fd7b5fa553d074d77fd666c29f2ef9552cfd3af89"}}
-```
-
-Correction from the critical review of
-SEED-413#decide-landings-over-typed-attempts-and-records (landed at
-`4a5ceb24a`; its plan 738 is recoverable at
-`086faa5a2:.planning/slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md`).
-
-- **Goal.** Developers keep every launch record a landing or branch handoff
-  does not own, and dashboard maintainers prove landing persistence at the
-  landing adapter over the real record-store semantics, with MakeMe-built
-  cases.
-- **Review evidence.**
-  - `persistSourceRecords` (`dashboard/server/launchLandingReporting.ts`)
-    writes `[source]: nextRecords` built from `keptRecords()`, which keeps
-    only session records. A scratch case with a declared landing and an
-    unresolved creation record in the same project ended with one record
-    after one `prepare`: the creation record was deleted.
-  - The attempt path writes that snapshot after `pinLanding` and
-    `registerFollowUpReceipt`, so record changes in between (Done marks,
-    deletions, new sessions) are overwritten or moved to history as
-    `removed`. Not reproduced.
-  - `submitSessionBranchEntry` saves `acceptBranchLandingAnswer`, which
-    replaces the current record with one built from the pre-entry snapshot
-    (it can clear a concurrent Done mark), and answers `landingContext` even
-    when the save kept another context.
-- **Scope.**
-  - Production: the landing decision answers record changes that the
-    adapter applies inside `replaceRecords`; the branch-context save merges
-    only `landingReporting` into the current record, rechecks `doneAt` and
-    `branchEntry`, and answers the file only when saved. Retire the
-    test-only re-export of `decideAttemptLanding`, the duplicate retained
-    lookup in `handleLanding`, and the unused `LandingDecision.path`. The
-    decision takes "now" from `receivedAt` instead of `Date.now()`, and
-    takes a typed input in place of seven positional arguments. Landing
-    admission accepts what `verifyLocalOrigin` accepts and answers 405
-    before 415, as before.
-  - Tests: `composedLandingStores` applies writes the way the record store
-    does (session records only through `keptRecords`, retention, creation
-    records kept); Done in composed cases goes through production
-    `setRecordDoneAt` in place of the test's own `markDone`; persistence
-    cases run through `handleLanding` with composed stores, including a
-    creation record and a record changed between deciding and saving.
-    Decision cases keep only refusals, through `decideLanding`, as
-    `test.each` tables; admission refusals the same. The helpers in
-    `attemptLandingDecisionCase.ts` become MakeMe steps or named examples,
-    with one declared-landing example in place of `aDeclaredRecord` and
-    `aComposedDeclaredLanding`. Drop assertions that restate inputs. Record
-    deletion in `declared-blank-launch-publication` acts on the record that
-    holds the landing.
-- **Key examples.**
-  - A project keeps a declared-landing launch and an unresolved creation
-    record. One `prepare` for that launch → both records stay; only the
-    landing launch gains its preparation.
-  - An attempt-path landing is decided while another session in the same
-    project is marked Done → after the record write, that session keeps its
-    Done time and nothing moves to history as `removed`.
-  - A branch handoff copies the landing context while the same session is
-    marked Done → the saved record keeps `doneAt`, gains no landing
-    reporting, and the answer carries no `landingContext`; without the
-    concurrent change it answers the saved file.
-  - A same-origin landing request that `verifyLocalOrigin` admits through
-    `Sec-Fetch-Site: same-origin` without an `Origin` header is accepted; a
-    GET with a non-JSON content type answers 405, not 415.
-- **Acceptance.** A landing or branch handoff leaves every other kept record,
-  including creation records and concurrent changes, as it was, proved at
-  `handleLanding` and the branch handoff's typed entry; reverting either
-  write fix in a scratch edit fails its case. No backend-test support writes
-  Done. The decision specs import no data helper from support beyond MakeMe.
-
-<a id="restore-done-capture-proof-after-composed-reviews"></a>
-
-### Restore Done capture proof and focus session Review tests
-
-**Identity:** SEED-413#restore-done-capture-proof-after-composed-reviews
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4a86e7b26b66316ea4d7db66b392daf011d218c52ed55dc44eed64fe47830c50","plan":"5dbeeac03d5719bf3be3522198cbe46a7e41bd2e3bec5a331e439f08f5b7bce2"}}
-```
-
-Correction from the execution retrospective of
-SEED-413#split-done-mark-decision-from-store (story at
-`6250b7399:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md`).
-
-- **Goal.** Dashboard maintainers can change Done capture, persistence, or
-  session Review rules by updating the proof of that behavior. Restore proof
-  of real Git reflogs, shared checkouts, capture through branch entry,
-  prepared receipts, and retention of both branch and delivery evidence.
-  Reduce the number of cases and full Review reads while preserving distinct
-  regression protection.
-- **Scope.** Prove capture and attribution from their own results, writes and
-  races from the saved session and Git pins, and comparison selection and
-  file admission from composed retained evidence. Keep representative reads
-  that establish evidence actually survives retirement or pruning. Resolve
-  the requested session at the production Review boundary and give the
-  comparison and file handlers that session's record. Retire the procedures
-  that imitate Done or route unrelated tests through Review. Branch entry,
-  observation and landing store reads, and the launch preset fold stay with
-  their stories.
-- **Key examples.**
-  - A Default main launch amends work and rebases it onto a pulled trunk
-    commit. The real Git reflog yields the surviving session run. If the
-    launch enters a branch before Default main advances again, its saved
-    Default main capture ends at the recorded entry tip.
-  - Two launches overlap in one Default main checkout. Marking one Done
-    stores its captured run with the shared-checkout flag.
-  - An accepted branch tip has a prepared receipt when the session is marked
-    Done. The saved branch result and prepared receipt remain together,
-    and recording uses that receipt. With a verified manual merge and no
-    prepared receipt, Done saves and pins both the branch and delivery pairs.
-  - A working file changes after Done snapshots it and before Done settles.
-    The earlier bytes are still readable after the worktree is retired.
-  - Two hosts have the same native session ID. Review comparison and file
-    reads select the record for the requested host and use its retained
-    run and literal file pair. Admission preserves the existing refusals
-    for unknown sources, missing sessions, and story launches.
-- **Plan.** [743](../slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md)
-
 <a id="fold-done-capture-launches-into-makeme"></a>
 
 ### Build Done capture cases from MakeMe launch steps
@@ -357,7 +234,7 @@ SEED-413#split-done-mark-decision-from-store (story at
 {"schemaVersion":1,"identity":"SEED-413#fold-done-capture-launches-into-makeme","dependencies":[{"supplier":{"identity":"SEED-413#split-done-mark-decision-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store"},"implementation":"Composed typed Done state for the Done capture family.","rationale":"The case preset must supply the delivered review input and timeline. Folding the present keep-and-mark setup would embed the store replay this story is meant to remove.","condition":"MakeMe can compose a Done record with captured branch or commit evidence, and the review-topic Done capture cases accept composed records.","state":"satisfied","resolution":{"revision":"6250b73992afc1df2fd9b12bb502008527e568d6","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store","summary":"Satisfied at integration 2a7260d6d: MakeMe composes Done records with captured evidence (keptSessionCommits, sessionCommitsFailedAt, branchResultFrom, branchResultFailedAt with markedDone/markedDoneAt), and review-topic Done capture cases take composed records through doneCaptureReview.ts (plan 734 slices 4–7). Restoring the adapter proof those moves dropped is queued first as SEED-413#restore-done-capture-proof-after-composed-reviews.\nCondition satisfied: MakeMe can compose a Done record with captured branch or commit evidence, and the review-topic Done capture cases accept composed records.\nAccepted integration: 2a7260d6d2596365b432d11731b6b57d01dc0f0f on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#split-branch-entry-proposal-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store"},"implementation":"Typed branch-entry proposal and composed branch-entry preconditions.","rationale":"The declaring-launch recipe needs the delivered branch-entry value and a separate operation for cases that prove keeping it. Folding the old helper would hide the operation that the handoff cases observe.","condition":"The branch-entry proposal is callable separately from persistence, and review and publisher preconditions can be composed with a typed branch entry.","state":"satisfied","resolution":{"revision":"9969388902eb48c56588d9a1d30f45d8be6ac4b3","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store","summary":"Directly satisfied. proposeBranchEntry (dashboard/server/branchEntryProposal.ts) proposes from the trunk ref, typed LaunchRecord and place with no store, and recordSessionBranchEntry alone keeps the entry and its pins; makeMe.aLaunchRecord(...).enteredBranch(entry) composes the entry, used by the review, attribution and declared publisher preconditions (ad-hoc-session-branch-entry, ad-hoc-branch-entry-attribution, support/declaredPublisherBranch.ts). Proved by branch-entry-proposal.spec.ts and hosted CI run 44783274270 on e8b7e417.\nCondition satisfied: The branch-entry proposal is callable separately from persistence, and review and publisher preconditions can be composed with a typed branch entry.\nAccepted integration: e8b7e4170c63f978270efba32e2396989fd555a1 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#observe-done-deliveries-over-typed-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records"},"implementation":"Delivery observation over typed Done records with a separate store adapter.","rationale":"The two-branch preset supplies the delivered decision input. Reusing the ambient-store preset first would encode the store effects in the shared builder and require rebuilding it around the typed boundary.","condition":"Observation decides delivery from typed kept records with real Git inspection, and the store adapter separately owns persistence and lifecycle races.","state":"satisfied","resolution":{"revision":"24864be6360f87cc9fec3dc4333de5361de165eb","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records","summary":"Directly satisfied. observedSessionDeliveries.ts decides exact hand-merged comparisons from composed Done records and real Git; observedSessionLandings.ts applies the discoveries through ObservedLandingStore and owns persistence, live-record guards and pin cleanup. Plan 736 slices 1–4 verify exact pairs, adapter deletion, expiry, failed and lost writes, and repeated pin retention. Intent Coverage Caught a missing Done branch-result pin.\nCondition satisfied: Observation decides delivery from typed kept records with real Git inspection, and the store adapter separately owns persistence and lifecycle races.\nAccepted integration: 0747fb0a2558f72b185b4299a3ecbb28cd9f3327 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#decide-landings-over-typed-attempts-and-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records"},"implementation":"Composable landing attempts and launch records with production request admission for the installed publisher.","rationale":"Both publisher recipes must share the delivered reporting values. Composing the current machine-store setup would put staging effects or the duplicate receiver behind a new builder API.","condition":"Landing preparation and recording take typed attempts and records, MakeMe can compose their shared reporting context, and the publisher bridge uses production request admission.","state":"satisfied","resolution":{"revision":"086faa5a284a7030a101032405772eff1cf69077","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records","summary":"Directly satisfied. SEED-413#decide-landings-over-typed-attempts-and-records delivered decideLanding over composed attempts/records, LandingStores on handleLanding, caller-directed branchLandingContext, admitLandingRequest, and the installed-publisher bridge on production admission with composed stores. Key examples and Intent Coverage Caught at 233d31e6c (ad-hoc-prepared-landing-done). Approved remainders (HOME for blank/worktree machine deletion; 29 server specs; local LandingStores until ObservedLandingStore) do not block this condition. Recoverable story/plan at 086faa5a; accepted on origin/main at 4a5ceb24.\nCondition satisfied: Landing preparation and recording take typed attempts and records, MakeMe can compose their shared reporting context, and the publisher bridge uses production request admission.\nAccepted integration: 4a5ceb24a2d50569dfe181e16a1a6a6b1efa9798 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/737-build-done-capture-cases-from-makeme/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b3b1c66d77ad4ac0d8c2fabeb17e8db63c72660ba88abe160c729ea62aeefe46","plan":"c1abc4a8a650d6c785a986242adbd16c19a629505b1120cfd5dba973c596bcd6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/737-build-done-capture-cases-from-makeme/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"465bddcd78c2560549b0f3fcfc169175f7a6568b0e5bc08f81ad0d3547c3937a","plan":"c27d9acd0ea2b26216e1a7baecd0a853ef41faaa436c9008f985ce49ab88dad7"}}
 ```
 
 Fifth of the [Done capture import-list stories](#done-capture-import-list-analysis);
@@ -404,7 +281,7 @@ arrangements after the four preceding renovations.
   Fewer support verbs and visible scenario facts with every assertion preserved
   are the gain, with any added lines counted in the trade-off.
   [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-- **Effort hypothesis.** S–M, one plan.
+- **Effort hypothesis.** M, one plan of eight slices. The suppliers moved twelve more specs onto the presets, so the roster grew from 28 to 35.
 
 <a id="optimize-done-capture-family-cases"></a>
 
@@ -640,193 +517,6 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
 
-<a id="mount-story-review-changes-panel"></a>
-
-### Read the Review changes panel's toolbar, details, files and notes in mounted cases
-
-**Identity:** SEED-413#mount-story-review-changes-panel
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/748-mount-story-review-changes-panel/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d654a316edcdfcc36863ffb2d0e1676031ed0ac1420bc7ea56dbc8d5d52d8c6b","plan":"66ea707bf6056b282ef3b055b692359fedbb065a5ab8bb61a8d6350a95dc1310"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on 2026-11-21 as the second Review piece, queued ahead of the remaining
-families. At Terry's request it is larger than the earlier pieces, about two
-dozen cases over one owner. It follows the
-[experience from the completed frontend families](#experience-from-the-completed-frontend-families).
-
-- **Goal.** Dashboard developers read the proof of what the Review changes
-  panel names, reveals, lists and keeps as plain Vitest cases on mounted
-  Chromium, with each review read answered as a typed reply. Today 23
-  built-app cases in eleven `story-review-*` specs load `<App />`, publish a
-  story, open its review from the board and answer the review endpoints
-  through page routes (45.9 summed seconds in CI run 44855532096). After the
-  diff reading moved, Review is still the second-costliest folder per case.
-- **Scope.** Move the specs whose behavior the panel owns:
-  `story-review-toolbar-truthful`, `-toolbar-truthful-gaps`, `-details`,
-  `-details-published`, `-details-runs`, `-uncommitted-check`,
-  `-files-divider`, `-files-divider-kept`, `-touch-height`, `-notes` and
-  `-note-context`.
-  - The owner is [`StoryReview`](../../dashboard/src/StoryReview.tsx). It
-    already takes a typed `request`. Its reads go through
-    [`useReviewRead`](../../dashboard/src/useReviewRead.ts), which calls
-    `fetch` on the four review endpoints. Give it a typed review source
-    behind that hook: one read per endpoint with its query and abort signal,
-    answering the shared
-    [`storyReviewContract.ts`](../../dashboard/src/storyReviewContract.ts)
-    shapes or rejecting with the refusal's words. The page supplies the
-    source that speaks to the endpoints. The kept-answer memo, rounds and
-    the last answer kept while reading stay where they are.
-  - The panel sits inside the page frame. A mounted case supplies the
-    frame's typed state it reads: the projects list, the Sessions sidebar
-    state behind the header's Sessions button, the page's launches behind
-    Follow up, and story notes through `storyNotesState(source)`. These are
-    existing production contexts given typed values, not new wrappers.
-  - Build review answers with page-loadable MakeMe steps (a snapshot, a
-    published review, landed runs, session commits, a range and a file diff)
-    from Node-free builders on `pageMakeMe.mjs`. They replace the
-    `frontendStoryReviewFixtures.ts` shapes for the moved cases.
-  - Operate the panel through small page objects beside the specs. The
-    Playwright `reviewChangesPage.ts` and `reviewControls.ts` stay for the
-    remaining built-app cases and E2E.
-  - Preserve each distinct assertion, including the toolbar's name before
-    and after a published answer, a refused first read and its retry, focus
-    return to the eye, the kept file sidebar width across reviews and where
-    storage is refused, and the shared height budget on a phone. Name each
-    retired built-app case and the mounted case that carries its assertions.
-    Remove a case only where an E2E journey proves the same thing, and name
-    that journey.
-  - Retire each `dashboard/test-support/` export or module whose last
-    consumer moves, and keep what the remaining review specs and E2E use.
-  - **Scope limits.** These stay built-app cases in the parent story,
-    because their behavior belongs to an owner above the panel:
-    `story-review-action` (the story card's inspection group),
-    `-files-divider-room` (the Side panel's width and Maximize, which the
-    page frame owns) and the three `story-review-diff-syntax-*` specs, which
-    read Intent settings or fail a grammar module load. The full-group
-    timing comparison and the `frontendApp.ts` retirement also stay there.
-    This story compares the focused selection before and after.
-- **Key examples.**
-  - *A pending published answer.* A Done story's review opens before its
-    published answer arrives. The toolbar holds progress with no comparison
-    name and no eye. Once the answer arrives it names the comparison and
-    offers the eye.
-  - *A refused first read.* The first read is refused with `refused for
-    proof`. The panel keeps the problem and Refresh. Refresh reads
-    again, the answer arrives and the problem is gone.
-  - *Refresh keeps what is shown.* While a readable comparison is read
-    again the panel keeps its name, eye and diff and shows progress.
-  - *Details behind the eye.* A workspace review opens on the diff with its
-    details hidden. The eye reveals and hides them without moving the
-    reading place. Choosing Commits in the details renames the toolbar, and
-    the range and commit list stay when the details hide. Another story's
-    review opens collapsed with the files shown.
-  - *Landed runs.* A Done story with two captured runs opens on the newer
-    one. Escape from the run picker returns focus to the eye. A selected
-    landed gap offers Landed runs and the eye; a bare landing gap names
-    Landed runs without an eye.
-  - *Uncommitted changes.* The check leaves uncommitted changes out of All
-    changes and back without reading the snapshot again.
-  - *The file sidebar width.* Dragging the Files divider resizes the file
-    sidebar within both minimums. The chosen width serves another story's
-    review. An unusable kept width gives 16rem, and where storage is
-    refused the sidebar is 16rem and resizes without error.
-  - *Notes from a review.* The Notes icon sits with Refresh. A file's note
-    from a Taken workspace keeps the comparison's words and endpoints, and
-    its line menu offers Add note alone. A landed run's note keeps the
-    renamed path and exact endpoints. Closing Notes keeps the diff and
-    returns focus.
-- **Effort hypothesis.** M, at the upper end: 23 cases over one owner, one
-  typed source behind one hook, new page MakeMe steps and page objects,
-  seven slices.
-- **Plan.** [748](../slice-plans/748-mount-story-review-changes-panel/PLAN.md)
-
-<a id="mount-system-settings-sections-and-usage-charts"></a>
-
-### Read System settings' sections and the Usage charts in mounted cases
-
-**Identity:** SEED-413#mount-system-settings-sections-and-usage-charts
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/749-mount-system-settings-sections-and-usage-charts/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3be348768249b536691e29ae85b3426489cf2d8c6718aade28a74dd5b46db90d","plan":"187e00eede15816bed6b81142113f16027b2e46ab8e7e0ea68ba96e4e3f52bdd"}}
-```
-
-Split from `SEED-413#renovate-later-dashboard-frontend-unit-test-families`
-on 2026-11-21 as the second Configuration piece, queued ahead of the
-remaining families. At Terry's request it is larger than the earlier pieces.
-It reuses what
-[the Usage Token index story](#usage-token-index-reading-after-migration)
-left for the chart cases.
-
-- **Goal.** Dashboard developers read the proof of the Usage charts and of
-  the OpenAI, terminal theme and Projects settings as plain Vitest cases on
-  mounted Chromium, with each setting and Token index answer given as a
-  typed reply. Today these 29 cases in nine Configuration specs load
-  `<App />` on the settings view (48.3 summed seconds in CI run
-  44855532096). Afterwards the Configuration folder keeps only the cases
-  that need the page frame.
-- **Scope.** Move these specs:
-  - The five Usage chart specs `system-settings-usage-average`, `-compare`,
-    `-legend`, `-overflow` and `-spacing` (20 cases) onto the mounted
-    [`SystemSettingsUsage`](../../dashboard/src/SystemSettingsUsage.tsx)
-    over the existing typed `UsageSource`, `makeMe.aTokenIndexAnswer` and
-    the mounted Usage page objects, extended for the chart's marks, axis,
-    legend, readouts and spacing. Pointer, touch and keyboard selection,
-    light and dark, narrow windows and zoom keep their proof.
-  - `system-settings-openai` (4 cases), `-terminal-theme` (2),
-    `-project-management-touch` (1) and `project-add-dialog` (2), each on
-    its own section: [`OpenAISettings`](../../dashboard/src/OpenAISettings.tsx),
-    [`TerminalThemeSettings`](../../dashboard/src/TerminalThemeSettings.tsx)
-    and [`ProjectsSettings`](../../dashboard/src/ProjectsSettings.tsx). Each
-    section reads and changes its setting through a typed source behind its
-    reading hook, as Story Notes and Usage do. The page supplies the sources
-    that speak to the endpoints and keep their refusal wording. A case
-    supplies replies of the shared setting contracts and holds its own
-    deferred reply where it observes a pending read or save.
-  - A touch case reaches its control by a CDP touch, and rotation and
-    reduced height by the mounted viewport.
-  - Build setting answers with page-loadable MakeMe steps, and operate each
-    section through small page objects beside the specs. The Playwright
-    settings page objects stay for the remaining built-app cases and E2E.
-  - Preserve each distinct assertion and name each retired built-app case
-    with its mounted case. Remove a case only where an E2E journey proves
-    the same thing, and name that journey.
-  - Retire each `dashboard/test-support/` export or module whose last
-    consumer moves, and keep what E2E and the remaining specs use.
-  - **Scope limits.** `dashboard-system-appearance`,
-    `project-hide-selection`, `system-settings-navigation` and
-    `system-settings-look` stay in the parent story. They prove the frame,
-    the board, deep links and history, or the whole settings page with its
-    product mark and project choice, and join the Navigation audit. The
-    full-group timing comparison and the `frontendApp.ts` retirement also
-    stay there. This story compares the focused selection before and after.
-- **Key examples.**
-  - *Coincident large tasks.* Codex answers two tasks of 65,000,000 and
-    70,000,000 on the same day, one partial. The chart shows both as large
-    marks above the axis `0`, `25M`, `50M`, with the note that every priced
-    task is above 50 million. Pointer, touch and keyboard each select either
-    mark, its detail names its value and partial coverage, and Close returns
-    focus to the mark.
-  - *Two tools compared.* Codex and Claude Code share one time axis and
-    scale, each with its own median, unit and note, and a selected task
-    keeps its tool. An empty tool says so and a failed read names its tool.
-  - *A held OpenAI status.* A status read that answers what the machine
-    held before is held while the reader saves a key. The save answers
-    first, the held read is released afterwards, and the section still reads
-    `API key: Configured`. The same holds for Remove (`API key: Not
-    configured`) and for a save after a refused read.
-  - *A refused terminal theme save.* On touch the reader chooses Solarized
-    Dark and the save is refused. The saved theme stays shown with the refusal, and Retry
-    is reachable after rotation.
-  - *A refused project change.* At reduced height on touch, the reader edits
-    a project and the save is refused. Retry sends the exact draft again.
-  - *Adding a project.* An origin that does not match the path stays linked
-    to the path field, keeps both inputs and saves nothing. Cancel and
-    Escape save nothing and return focus.
-- **Effort hypothesis.** M, at the upper end: 29 cases over four owners
-  whose chart owner and source exist, three small typed setting sources,
-  seven slices.
-- **Plan.** [749](../slice-plans/749-mount-system-settings-sections-and-usage-charts/PLAN.md)
-
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
 ### Renovate the later dashboard frontend unit-test families
@@ -843,9 +533,9 @@ Candidates revision cases already run as mounted cases in
 [Story Review diff reading](#review-diff-reading-after-migration) and
 [Usage Token index reading](#usage-token-index-reading-after-migration) now run
 in mounted Chromium.
-Two pieces are split out and queued ahead of this story:
-[the Review changes panel](#mount-story-review-changes-panel) and
-[System settings' sections and the Usage charts](#mount-system-settings-sections-and-usage-charts).
+[The Review changes panel](#review-changes-panel-reading-after-migration) and
+[System settings' sections and the Usage charts](#system-settings-sections-and-usage-charts-after-migration)
+now run in mounted Chromium.
 
 **Goal.** Give dashboard developers readable UI unit tests and feedback from
 the complete frontend group in roughly a minute at the usual two workers,
@@ -1012,6 +702,19 @@ sidebar plan).
   cases (focus after delete, no reread after 70 s) and restored it in a
   later slice. Name each retired case and the mounted case that carries
   each of its assertions before deleting it.
+- **The Review changes panel (plan 748, 2026-11-21).** 23 cases over one
+  owner took seven slices; a typed `ReviewSourceOnPage` behind
+  `useReviewRead` was the only production change. Four of six moving slices
+  were returned at acceptance for a dropped or self-supplied check (the
+  problem gone after a retry, the eye's tooltip and centring, a
+  test-chosen remount key instead of `storyReviewPanelKey`, the comparison
+  description after Notes). The panel still needs an inert
+  `MachineSessions` of about 30 members for `LaunchesOnPage`, though Follow
+  up reads only `records`, and a Done record's body is read over HTTP, so a
+  mounted case reaches Add note only through a Taken story. Mounted cases
+  took about 0.6 s each; the divider drag and the first details mount cost
+  most. Built-app per-case results need
+  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
 - **Support.** Each story retired the support whose last consumer moved,
   and none could retire a module that E2E or another family still used.
   Steps already owned by an E2E journey (the revision check pace, host
@@ -1211,6 +914,91 @@ proving `pageUsageSource`'s refusal wording and abort forwarding.
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:30` (`"a refused read shows Usage could not be read. or the endpoint's own message"`) | `58, 81, 91` | `81` |
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:61` (`"a refused Refresh shows Usage could not be refreshed. or the endpoint's own message"`) | `440, 465, 477` | `465` |
 | `system-settings-usage-source.spec.ts` | — *(added for `pageUsageSource`)* | `system-settings-usage-source.spec.ts:99` (`"leaving a pending read aborts the page source's request"`) | `104, 111, 106` | `106` |
+
+##### System settings sections and Usage charts after migration
+
+The nine Configuration specs in the table below moved all 29 original cases
+to mounted Chromium. Each built-app title, including its viewport context,
+matches one mounted title at the same spec path. No whole case was omitted.
+The retained built-app appearance and Settings Look cases still observe the
+real outer Settings heading and sticky header.
+
+The local comparison ran the same nine explicit spec paths with two workers
+on the AC-powered arm64 Mac under `caffeinate -s -i` and Node 24.21.0.
+Three runs in a detached checkout of `0759aff061` with its own locked
+`npm ci` install interleaved with three runs from `75ba18360` and the
+support cleanup in the working tree. Each run passed 29 cases with no retry.
+The elapsed time includes runner startup. The parenthesized values are
+one-minute load before and after each run.
+
+| Pair | Built app | Mounted |
+| --- | ---: | ---: |
+| 1 | 34.864 s (15.76 → 17.23) | 14.090 s (17.23 → 17.02) |
+| 2 | 27.731 s (17.02 → 18.30) | 17.645 s (18.30 → 15.75) |
+| 3 | 22.312 s (15.75 → 13.07) | 14.366 s (13.07 → 11.94) |
+
+Median focused elapsed time fell from **27.731 s to 14.366 s**
+(**48.2% less**). The earlier clean baseline took 25.624, 26.558
+and 36.570 s at one-minute starting loads of 5.53, 7.47 and 12.23. The
+interleaved comparison reflects this machine and selection at the observed
+load.
+
+Tracked Dashboard Test Support fell from 83,084 lines in 797 files at the
+published baseline to 82,626 lines in 796 files. The earlier reading move
+removed 40 lines from `settingsTouchPage.ts`. The final cleanup removed 418
+more across `frontendSettingsSubstitutes.ts` (63), `systemSettingsUsagePage.ts`
+(17), `usageChartPage.ts` (200), `usageLegendPage.ts` (74),
+`usageSpacingPage.ts` (32), and `usageToolsPage.ts` (32).
+
+The times below are milliseconds from each runner's completed case record.
+The mounted attempts are shown in run order, rounded to the nearest
+millisecond. Each median is computed from the original three durations
+before rounding.
+
+| Configuration spec | Original and mounted case title | Built-app median | Mounted attempts | Mounted median |
+| --- | --- | ---: | ---: | ---: |
+| `project-add-dialog.spec.ts` | Cancel and Escape save nothing, return focus and keep project arrows inside the modal | 1110 | 425, 932, 720 | 720 |
+| `project-add-dialog.spec.ts` | origin mismatch stays linked to the path, retains both inputs and saves nothing | 1374 | 284, 689, 737 | 689 |
+| `system-settings-openai.spec.ts` | a held status response cannot overwrite successful remove | 1338 | 610, 981, 709 | 709 |
+| `system-settings-openai.spec.ts` | a held status response cannot overwrite successful save | 889 | 212, 467, 340 | 340 |
+| `system-settings-openai.spec.ts` | a held status response cannot overwrite successful save after read error | 811 | 306, 683, 601 | 601 |
+| `system-settings-openai.spec.ts` | phone OpenAI settings recovery › touch keeps the password draft and the configured key through reduced height, rotation, a refused save and explicit recovery | 2755 | 2347, 3180, 2829 | 2829 |
+| `system-settings-project-management-touch.spec.ts` | phone project settings editing › touch edits at reduced height and retries a refused save with the exact draft | 2486 | 2116, 2889, 2088 | 2116 |
+| `system-settings-terminal-theme.spec.ts` | phone terminal theme recovery › touch reads the theme, keeps the saved theme shown after a refused save, and reaches Retry after rotation | 3151 | 1496, 1768, 1855 | 1768 |
+| `system-settings-terminal-theme.spec.ts` | terminal Light and Solarized samples keep their palette while settings chrome follows the system appearance | 741 | 102, 162, 95 | 102 |
+| `system-settings-usage-average.spec.ts` | 200% zoom › day control, task actions and true overflow values remain readable without hovering | 1283 | 483, 688, 373 | 483 |
+| `system-settings-usage-average.spec.ts` | an in-scale median breaks across above-scale observations and all-large medians stay explicit | 663 | 98, 69, 77 | 77 |
+| `system-settings-usage-average.spec.ts` | narrow touch › day control, task actions and true overflow values remain readable without hovering | 986 | 341, 585, 529 | 529 |
+| `system-settings-usage-average.spec.ts` | the chart shows a one-million median and the sixty-five-million task separately | 752 | 53, 63, 100 | 63 |
+| `system-settings-usage-average.spec.ts` | the rolling median is distinct above dots and never enlarges ordinary geometry | 889 | 125, 143, 140 | 140 |
+| `system-settings-usage-compare.spec.ts` | an empty tool says so, a failed read names its tool, and neither tool asks for one | 1589 | 448, 879, 528 | 528 |
+| `system-settings-usage-compare.spec.ts` | both tools share one time axis and scale with their own medians, units and notes, keeping each task's tool through inspection | 1393 | 881, 1056, 514 | 881 |
+| `system-settings-usage-compare.spec.ts` | each tool's marks differ by shape, partial ones keep the caution stroke, and either tool's selected task is the one larger diamond | 1345 | 364, 730, 596 | 596 |
+| `system-settings-usage-compare.spec.ts` | narrowest reading window › tool choices work by keyboard and a compared point opens by touch, in light and dark, without sideways scroll | 2024 | 969, 996, 1125 | 996 |
+| `system-settings-usage-compare.spec.ts` | phone › tool choices work by keyboard and a compared point opens by touch, in light and dark, without sideways scroll | 1742 | 880, 1550, 1360 | 1360 |
+| `system-settings-usage-legend.spec.ts` | narrowest reading window › the compared key fits without sideways scroll in light and dark | 1373 | 90, 220, 193 | 193 |
+| `system-settings-usage-legend.spec.ts` | phone › the compared key fits without sideways scroll in light and dark | 1228 | 113, 262, 263 | 262 |
+| `system-settings-usage-legend.spec.ts` | the key and summary swatches show each shown tool's marks, and a hidden tool leaves the key | 1663 | 323, 602, 371 | 371 |
+| `system-settings-usage-overflow.spec.ts` | coincident large tasks remain separate by pointer touch and keyboard with partial details and focus return | 2374 | 1446, 2440, 2452 | 2440 |
+| `system-settings-usage-overflow.spec.ts` | exactly fifty million remains ordinary and measured zero keeps an honest scale | 846 | 129, 90, 70 | 90 |
+| `system-settings-usage-overflow.spec.ts` | large tasks keep actual values and dates without flattening ordinary points | 1106 | 186, 338, 231 | 231 |
+| `system-settings-usage-spacing.spec.ts` | an above-scale median stands at its own large task's slot under equal spacing | 984 | 203, 605, 392 | 392 |
+| `system-settings-usage-spacing.spec.ts` | equal spacing gives each shown task one slot in completion order across tools, keeps medians on their tasks and actual times, and restores time positions | 2333 | 1377, 2366, 1327 | 1377 |
+| `system-settings-usage-spacing.spec.ts` | narrowest reading window › equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll | 1935 | 1011, 1366, 1266 | 1266 |
+| `system-settings-usage-spacing.spec.ts` | phone › equal spacing works by keyboard and its points open by touch, in light and dark, without sideways scroll | 1946 | 996, 1778, 1385 | 1385 |
+
+##### Review changes panel reading after migration
+
+The eleven Review changes panel specs (23 cases) ran by file with
+`--workers=2` on AC power under the macOS sleep guard. Built-app at
+`17fe6c2c4` (load 6–9): 30.8, 34.5 and 29.7 s elapsed. Mounted on the
+slice 7 working tree at `5a6b3f667` (load 8.3 → 10.5, 10.5 → 17.6,
+17.6 → 16.0): 16.7, 16.6 and 11.0 s. The median fell 46%, from 30.8 s to
+16.6 s, under a higher load than the baseline, so the baseline was not
+rerun. Mounted cases took a median of 488–693 ms and 593–787 ms on average
+per run (58 ms to 2.9 s; the divider drag and the first details mount
+are slowest). Retiring the support the moved cases left behind took
+`dashboard/test-support/` from 79,355 to 79,143 lines (753 modules).
 
 #### Frontend campaign baseline
 
