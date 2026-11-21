@@ -180,7 +180,7 @@ isolated launches.
 ### 4. Isolated launch cases show the recorded and working branch state
 
 Type: Behavior
-Status: planned
+Status: done
 
 Reuse the case timeline with isolated launches and real branch commits and
 working trees. Keep capture and retention operations in the cases that
@@ -192,6 +192,13 @@ premise table before accepting this slice.
 `ad-hoc-branch-result-supersession`, `ad-hoc-branch-result-race` and
 `ad-hoc-branch-worktree-result`. Keep ambiguity, empty/missing, retirement,
 supersession, quiet-Done precedence and pin observations.
+
+**Accepted.** `withIsolatedLaunch(session, times, worktree, refine?)` builds
+through `makeMe.aLaunchRecord.ofIsolatedLaunch`; refinements also receive
+`worktrees`. The builder keeps the fact-stating steps (169 lines) and
+`doneCaptureCaseMaterialization.ts` holds the types and `materialize()`.
+`anIsolatedBranch` is retired. The race diagnosis found Git-process cost, not
+a race (G6), so its repair stays with the optimization story.
 
 ### 5. A manual delivery case shows the merge and both Done times
 
@@ -303,10 +310,10 @@ Reported: slice 1 — "s1-backend-consumers2: 5 s timeout in ad-hoc-branch-entry
 Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
 Disposition: proved by slice 3: evidence/s3-consumers.log and s3-final.log, run with no concurrent suite, measured the two attribution cases at 1601–1764 ms (load 10–12.5, 16 cores), about a third of the default limit, across two samples; the reported timeout occurred only while a Distribution suite ran concurrently
 
-### G3. Long one-worker roster runs time out `ad-hoc-branch-result` and `ad-hoc-branch-worktree-result` at 5 s
+### G3. Long one-worker roster runs time out `ad-hoc-branch-result` and `ad-hoc-branch-worktree-result` at 5 s (slice 4: Git-process cost under load, no race; 0.33–1.36 s at load 6.5)
 Reported: slice 1 — "s1-backend-consumers3, run alone at load 12–17: 119/121 passed; the two timeouts were ad-hoc-branch-result.spec.ts:87 and :194; ad-hoc-branch-worktree-result also timed out in s1-backend-consumers2."
 Story clause: "Fewer support verbs and visible scenario facts with every assertion preserved are the gain"
-Disposition: receiving slice 4
+Disposition: excluded "Runtime optimization has its own story."
 
 ### G4. Long one-worker roster runs time out `ad-hoc-session-comparisons` at 5 s
 Reported: slice 1 — "s1-backend-consumers2: 5 s timeout in ad-hoc-session-comparisons under concurrent load; passes alone."
@@ -316,4 +323,9 @@ Disposition: receiving slice 6
 ### G5. `ad-hoc-branch-cursor-recovery` still arranges its own isolated Cursor launches (first reported in slice 3)
 Reported: slice 3 — "ad-hoc-branch-cursor-recovery.spec.ts (224 lines): not moved; the builder needs an isolated Cursor launch on a named worktree and a Cursor-session refinement of the Default main launch first."
 Story clause: "Remove arrangements and redundant verbs from `doneCaptureCase.ts`, `declaredPublisherBranch.ts`, `reportedIsolatedBranch.ts`, `reportedDoneCase.ts` and the specs."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: ad-hoc-branch-cursor-recovery.spec.ts builds its isolated Cursor launch on the named worktree `topic` and a Cursor-refined Default main launch through aDoneCaptureCase; deletion/expiry removals and pin assertions stay in the body (:74); evidence/s4-consumers.log 58/58
+
+### G6. `ad-hoc-branch-result-race` can exceed 5 s under heavy machine load (first reported in plan preparation)
+Reported: slice 4 — "Every phase grows with load; there is no timer, no wait on another case's effect, and no stuck promise. The time goes to sequential git processes: checkout with origin, two branch captures (captureBranchResult makes about 10 git calls one after another) and pin writes; 1.3–2.3 s at load 8.6, 5 s at load 27–30."
+Story clause: "Runtime optimization has its own story."
+Disposition: excluded "Runtime optimization has its own story."

@@ -152,6 +152,29 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   }
 
   /**
+   * A blank ad hoc launch in the `claude` session `session` whose start
+   * established the worktree `workspace` of the checkout on `branch` at
+   * `startingRevision` (the checkout's `base` by default), for review.
+   * @param {string} session
+   * @param {{ base: string, gitDirectory: string }} checkout
+   * @param {{ workspace: string, branch: string, startingRevision?: string | undefined, title?: string | undefined }} worktree
+   */
+  ofIsolatedLaunch(
+    session,
+    { base, gitDirectory },
+    { workspace, branch, startingRevision = base, title = "Keep a draft" },
+  ) {
+    return this.adHoc({ title })
+      .inIsolatedWorkspace({
+        workspace,
+        branch,
+        startingRevision,
+        repository: gitDirectory,
+      })
+      .inClaudeSession({ sessionId: session });
+  }
+
+  /**
    * An ad hoc session in the `claude` session `session` established in the
    * Default main checkout at `revision` (its `base` by default), for review.
    * @param {string} session

@@ -99,9 +99,9 @@ export const anIsolatedLaunch = (
   {
     workspace,
     branch,
-    startingRevision = checkout.base,
+    startingRevision,
     sessionId = `isolated-${branch}`,
-    title = "Keep a draft",
+    title,
     launchedAt = minutesAgo(60),
   }: LaunchFacts & {
     workspace: string;
@@ -110,14 +110,12 @@ export const anIsolatedLaunch = (
   },
 ) =>
   makeMe.aLaunchRecord
-    .adHoc({ title })
-    .inIsolatedWorkspace({
+    .ofIsolatedLaunch(sessionId, checkout, {
       workspace,
       branch,
       startingRevision,
-      repository: canonicalGitDirectory(checkout),
+      title,
     })
-    .inClaudeSession({ sessionId })
     .launchedAt(launchedAt);
 
 // The project's checkout with an origin, holding `files` at its base, and its
@@ -145,17 +143,6 @@ export async function aCheckoutWithCanonicalWorktree(
 ) {
   const { checkout, workspace } = await aCheckoutWithWorktree(branch, files);
   return { checkout, workspace: realpathSync(workspace) };
-}
-
-// That checkout and the kept isolated launch whose start created the worktree.
-export async function anIsolatedBranch(
-  branch: string,
-  files: Readonly<Record<string, string>> = {},
-) {
-  const { checkout, workspace } = await aCheckoutWithWorktree(branch, files);
-  const record = anIsolatedLaunch(checkout, { workspace, branch }).please();
-  keep(record);
-  return { checkout, workspace, record };
 }
 
 // Keeps these records as the project's whole store in a private machine

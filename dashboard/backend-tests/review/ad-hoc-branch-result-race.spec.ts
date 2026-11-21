@@ -12,41 +12,37 @@ import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/projectFolders.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
-import {
-  aCheckoutWithWorktree,
-  canonicalGitDirectory,
-  inWorktree,
-  keep,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 test("a newer quiet Done takes precedence over a manual mark still capturing its branch", async () => {
-  const { checkout, workspace } = await aCheckoutWithWorktree("draft");
-  const baseline = checkout.base;
   const reporting = {
     origin: dashboardOrigin,
     reference: reportingReference,
     command: "dashboard-completion",
   };
-  const record = makeMe.aLaunchRecord
-    .adHoc({
-      title: "Save the latest update",
-      instruction: "Save the latest update",
-    })
-    .inIsolatedWorkspace({
-      workspace,
-      branch: "draft",
-      startingRevision: baseline,
-      repository: canonicalGitDirectory(checkout),
-    })
-    .inClaudeSession({ sessionId: "isolated-draft" })
-    .launchedAt(minutesAgo(60))
-    .reportingThrough(reporting)
+  const {
+    checkout,
+    records: { "isolated-draft": record },
+    work: { earlier },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace("draft")
+    .withIsolatedLaunch("isolated-draft", { launched: 60 }, "draft", (launch) =>
+      launch.reportingThrough(reporting),
+    )
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("earlier", { at: at(40) }),
+      {
+        in: "draft",
+      },
+    )
+    .kept()
     .please();
-  keep(record);
+  const baseline = checkout.base;
   await keepAttempt(
     makeMe.anAcceptedAttempt
       .withId(reporting.reference)
@@ -67,10 +63,6 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
       reference: reporting.reference,
     })
     .please();
-  const { earlier } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("earlier", { at: minutesAgo(40) }),
-  );
 
   const folder = localFolder(checkout.integration);
   const publishedSource = makeMe.aPublishedSource
@@ -118,17 +110,17 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
   });
   const reported = vi.spyOn(marks, "reported");
 
-  vi.setSystemTime(minutesAgo(20));
+  vi.setSystemTime(at(20));
   const marking = marks.markDone(publishedSource, record, folder, launches);
   let later: string;
   try {
     await reading;
     expect(heldRevision).toBe(earlier);
-    ({ later } = await work(
-      inWorktree(checkout, workspace),
-      makeMe.aCheckoutWork.committing("later", { at: minutesAgo(15) }),
+    ({ later } = await performWork(
+      makeMe.aCheckoutWork.committing("later", { at: at(15) }),
+      { in: "draft" },
     ));
-    vi.setSystemTime(minutesAgo(10));
+    vi.setSystemTime(at(10));
     await deliverCompletion(submission, reporting.origin, marks);
     await reported.mock.results[0]?.value;
   } finally {

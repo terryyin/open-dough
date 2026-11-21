@@ -24,76 +24,32 @@ import {
   type LaunchRecord,
 } from "../../src/launchRecord.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
-import {
-  aCheckout,
-  anIsolatedLaunch,
-  historyBeforeTheCase,
-  inWorktree,
-  keep,
-  markDone,
-  minutesAgo,
-  source,
-  work,
-} from "../support/doneCaptureCase.ts";
+import { markDone, minutesAgo, source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { aDoneBranch } from "../support/doneCaptureReview.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
 
-// A checkout whose isolated launches each started a worktree at its base,
-// answered by branch.
-async function aCheckoutWithWorktreeLaunches<Branch extends string>(
-  first: Branch,
-  ...others: Branch[]
-) {
-  const history = others.reduce(
-    (described, branch) => described.withWorkspace(branch, { from: "base" }),
-    historyBeforeTheCase().withWorkspace(first, { from: "base" }),
-  );
-  const checkout = await aCheckout({ history, withOrigin: true });
-  const worktrees = {} as Record<
-    Branch,
-    {
-      workspace: string;
-      branch: Branch;
-      launch: ReturnType<typeof anIsolatedLaunch>;
-      record: LaunchRecord;
-    }
-  >;
-  for (const branch of [first, ...others]) {
-    const workspace =
-      branch === first
-        ? checkout.execution
-        : path.join(checkout.integration, ".worktrees", branch);
-    if (workspace === undefined) throw new Error("Missing the worktree.");
-    const launch = anIsolatedLaunch(checkout, { workspace, branch });
-    worktrees[branch] = { workspace, branch, launch, record: launch.please() };
-  }
-  return { checkout, worktrees };
-}
-
-// That checkout with its launches kept.
-async function aCheckoutWithWorktrees<Branch extends string>(
-  first: Branch,
-  ...others: Branch[]
-) {
-  const launched = await aCheckoutWithWorktreeLaunches(first, ...others);
-  keep(
-    ...Object.values<{ record: LaunchRecord }>(launched.worktrees).map(
-      ({ record }) => record,
-    ),
-  );
-  return launched;
-}
-
 test("the branch comparison at Done and its files survive worktree and branch removal and pruning", async () => {
-  const { checkout, worktrees } = await aCheckoutWithWorktrees("draft");
-  const { workspace, branch, record } = worktrees.draft;
-  const { draft: tree } = await work(
-    inWorktree(checkout, workspace),
-    makeMe.aCheckoutWork.committing("draft", { at: minutesAgo(30) }),
-  );
+  const {
+    checkout,
+    worktrees: { draft: workspace },
+    records: { draft: record },
+    work: { draft: tree },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace("draft")
+    .withIsolatedLaunch("draft", { launched: 60 }, "draft")
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("draft", { at: at(30) }),
+      {
+        in: "draft",
+      },
+    )
+    .kept()
+    .please();
 
   await markDone(record);
-  retireAdHocBranch(checkout.integration, workspace, branch);
+  retireAdHocBranch(checkout.integration, workspace, "draft");
 
   const baseline = checkout.base;
   const saved = await keptSession(source, record.session);
@@ -124,32 +80,52 @@ test("the branch comparison at Done and its files survive worktree and branch re
 test("Done's capture reads an empty branch and refuses a missing checkout", async () => {
   const {
     checkout,
-    worktrees: { empty, missing },
-  } = await aCheckoutWithWorktreeLaunches("empty", "missing");
-  await git(checkout.integration, "worktree", "remove", missing.workspace);
+    worktrees,
+    records: { empty, missing },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace("empty")
+    .withWorkspace("missing")
+    .withIsolatedLaunch("empty", { launched: 60 }, "empty")
+    .withIsolatedLaunch("missing", { launched: 60 }, "missing")
+    .please();
+  await git(checkout.integration, "worktree", "remove", worktrees.missing);
   const doneAt = minutesAgo(10);
 
-  expect(
-    (await captureBranchResult(empty.record, doneAt)).result,
-  ).toMatchObject({
+  expect((await captureBranchResult(empty, doneAt)).result).toMatchObject({
     base: checkout.base,
     revision: checkout.base,
     committedTip: checkout.base,
   });
-  await expect(captureBranchResult(missing.record, doneAt)).rejects.toThrow();
+  await expect(captureBranchResult(missing, doneAt)).rejects.toThrow();
 });
 
 test("Done reviews an empty branch result apart from a missing checkout", async () => {
+  const doneAt = minutesAgo(10);
   const {
     checkout,
-    worktrees: { empty, missing },
-  } = await aCheckoutWithWorktreeLaunches("empty", "missing");
-  const doneAt = minutesAgo(10);
-  const emptyDone = await aDoneBranch(empty.launch, { doneAt });
-  const missingDone = missing.launch
-    .branchResultFailedAt(doneAt)
-    .markedDoneAt(doneAt)
+    worktrees,
+    records: { missing: missingDone },
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace("empty")
+    .withWorkspace("missing")
+    .withIsolatedLaunch(
+      "missing",
+      { launched: 60, done: 10 },
+      "missing",
+      (launch) => launch.branchResultFailedAt(doneAt),
+    )
     .please();
+  const emptyDone = await aDoneBranch(
+    makeMe.aLaunchRecord
+      .ofIsolatedLaunch("empty", checkout, {
+        workspace: worktrees.empty,
+        branch: "empty",
+      })
+      .launchedAt(minutesAgo(60)),
+    { doneAt },
+  );
 
   const signal = new AbortController().signal;
   expect(
@@ -194,24 +170,37 @@ for (const [reason, remove] of Object.entries(removals)) {
   test(`${reason} releases only that launch's retained branch evidence`, async () => {
     const {
       checkout,
-      worktrees: { leaving, staying },
-    } = await aCheckoutWithWorktrees("leaving", "staying");
-    const { first } = await work(
-      inWorktree(checkout, leaving.workspace),
-      makeMe.aCheckoutWork.committing("first", { at: minutesAgo(30) }),
-    );
+      worktrees,
+      records: { leaving, staying },
+      work: { first, second },
+    } = await aDoneCaptureCase()
+      .withOrigin()
+      .withWorkspace("leaving")
+      .withWorkspace("staying")
+      .withIsolatedLaunch("leaving", { launched: 60 }, "leaving")
+      .withIsolatedLaunch("staying", { launched: 60 }, "staying")
+      .withWork(
+        (at) => makeMe.aCheckoutWork.committing("first", { at: at(30) }),
+        {
+          in: "leaving",
+        },
+      )
+      .withWork(
+        (at) => makeMe.aCheckoutWork.committing("second", { at: at(30) }),
+        {
+          in: "staying",
+        },
+      )
+      .kept()
+      .please();
     writeFileSync(
-      path.join(leaving.workspace, "draft.txt"),
+      path.join(worktrees.leaving, "draft.txt"),
       "A draft to keep.\n",
     );
-    const { second } = await work(
-      inWorktree(checkout, staying.workspace),
-      makeMe.aCheckoutWork.committing("second", { at: minutesAgo(30) }),
-    );
-    await markDone(leaving.record);
-    await markDone(staying.record);
-    const pins = (launch: typeof leaving) =>
-      sessionBranchPins(checkout.integration, launch.record.session);
+    await markDone(leaving);
+    await markDone(staying);
+    const pins = (record: LaunchRecord) =>
+      sessionBranchPins(checkout.integration, record.session);
     expect(await pins(leaving)).toContainEqual(
       expect.objectContaining({ objectId: first }),
     );
@@ -221,7 +210,7 @@ for (const [reason, remove] of Object.entries(removals)) {
       expect.objectContaining({ objectId: second }),
     );
 
-    await remove(leaving.record);
+    await remove(leaving);
 
     expect(await pins(leaving)).toEqual([]);
     expect(await pins(staying)).toEqual(stayingPins);
