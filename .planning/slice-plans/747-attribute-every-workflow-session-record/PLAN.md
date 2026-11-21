@@ -17,14 +17,16 @@ are removed by a later authorized record publication.
 Story-card session selection, cross-session comparisons, recovery of expired
 records, and conveying a selected UUID to a follow-up stay with the linked
 stories. The [recorded supplier agreement](../../seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record)
-owns the standalone Land prerequisite. Keep plan 746's standalone review and
-record-contract corrections as the starting point where they have landed.
+owns the standalone Land prerequisite. Start from the delivered corrections of
+SEED-418#correct-published-session-review (closed at `e115dcdd4`): Land's
+session-close route, one shared record contract and one record path.
 
 ## Current decisions
 
 - Reuse the versioned record at `.planning/sessions/<uuid>.json`, or beside the
   project's configured backlog, and the [session-close publisher](../../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs).
-  Keep single-range records readable, and extend that contract for a story
+  Keep single-range records readable, and extend the [shared record contract](../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs),
+  which the producer and the Dashboard both read, for a story
   identity, multiple ordered pairs and optional per-range uncertainty.
   [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
   keeps the durable association in Git and the originating launch and recovery
@@ -83,6 +85,9 @@ Git repositories. The five Distribution specs below, under
 | Accepted rerun evidence, slice 3 | `dough-execute-plan/execution-increment-comparison.test.mjs` observes candidate/base together after retry rewrites the suffix. `dough-story-wrap-up/trunk-closure-rebased-rerun.test.mjs` observes closure from the retained original request after a rebase and retirement without another push. |
 | Story-branch reachability, slice 4 | `dough-execute-plan/history-preserving-landing-expectation.test.mjs` proves branch publication takes no first-trunk landing context and accepted integration takes it once. At `9efbd70c1`, the retained plan 739 Git probe pushed a branch, integrated both histories, retired the branch, and diffed the original pair from a default-branch-only clone. The wider merge pair included `unrelated.txt`. Slice 4 proves the same reachability and exclusion through the record and close. |
 | Preparation release, slice 5 | `dough-story-refinement/preparation-assignment-land.test.mjs` reads the prepared facts and removal of only the closed assignment from the same accepted snapshot. Its simulated Land drives the release rule. The new proof must drive the installed publisher and observe the second snapshot carrying the session record. |
+
+At `107ac15cb`, after the shared record contract and path refactor, the
+Land publisher spec passed its four cases again under `node --test`.
 
 The Chromium run of `npm run --silent test:e2e -- e2e/sessions/recently-done-published-sessions.spec.ts --reporter=line` passed. The other machine’s UUID opened its recorded diff after trunk advanced, and the originating machine listed its own session once with native controls.
 
