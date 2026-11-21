@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 - [Restore Done capture proof and focus session Review tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#restore-done-capture-proof-after-composed-reviews) — SEED-413#restore-done-capture-proof-after-composed-reviews ([plan](slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md))
 - [Keep kept records intact through landings and prove it at the landing adapter](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-landing-record-writes-and-tests) — SEED-413#correct-landing-record-writes-and-tests ([plan](slice-plans/745-correct-landing-record-writes-and-tests/PLAN.md))
 - [Read the Review changes panel's toolbar, details, files and notes in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-changes-panel) — SEED-413#mount-story-review-changes-panel ([plan](slice-plans/748-mount-story-review-changes-panel/PLAN.md))
+- [Read System settings' sections and the Usage charts in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-system-settings-sections-and-usage-charts) — SEED-413#mount-system-settings-sections-and-usage-charts ([plan](slice-plans/749-mount-system-settings-sections-and-usage-charts/PLAN.md))
 
 ## Backlog list
 
@@ -41,7 +42,6 @@ intent introduced or affected by a newly developed story.
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
-- [Read System settings' sections and the Usage charts in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-system-settings-sections-and-usage-charts) — SEED-413#mount-system-settings-sections-and-usage-charts
 - [Renovate the later dashboard frontend unit-test families](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-frontend-unit-test-families) — SEED-413#renovate-later-dashboard-frontend-unit-test-families
 - [Bring Intent source recovery and late styling cases under 500 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-recovery-and-late-styling-cases) — SEED-413#speed-intent-source-recovery-and-late-styling-cases
 - [Prove a renamed file's Review diff reads its grammar from the new path](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-renamed-diff-grammar-from-new-path) — SEED-413#prove-renamed-diff-grammar-from-new-path
