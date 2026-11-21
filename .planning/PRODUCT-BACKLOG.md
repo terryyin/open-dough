@@ -37,6 +37,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep kept records intact through landings and prove it at the landing adapter](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-landing-record-writes-and-tests) — SEED-413#correct-landing-record-writes-and-tests
 - [Restore Done capture proof and focus session Review tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#restore-done-capture-proof-after-composed-reviews) — SEED-413#restore-done-capture-proof-after-composed-reviews
 - [Build Done capture cases from MakeMe launch steps](seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme) — SEED-413#fold-done-capture-launches-into-makeme
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases

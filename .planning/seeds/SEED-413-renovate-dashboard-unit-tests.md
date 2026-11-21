@@ -259,6 +259,68 @@ SEED-413#mount-story-review-diff-reading landed (`2d1e73020`).
   median of three attempts under 500 ms, recorded per case as in the
   baseline table.
 
+<a id="correct-landing-record-writes-and-tests"></a>
+
+### Keep kept records intact through landings and prove it at the landing adapter
+
+**Identity:** SEED-413#correct-landing-record-writes-and-tests
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+Correction from the critical review of
+SEED-413#decide-landings-over-typed-attempts-and-records (landed at
+`4a5ceb24a`; its plan 738 is recoverable at
+`086faa5a2:.planning/slice-plans/738-decide-landings-over-typed-attempts-and-records/PLAN.md`).
+
+- **Goal.** Developers keep every launch record a landing or branch handoff
+  does not own, and dashboard maintainers prove landing persistence at the
+  landing adapter over the real record-store semantics, with MakeMe-built
+  cases.
+- **Review evidence.**
+  - `persistSourceRecords` (`dashboard/server/launchLandingReporting.ts`)
+    writes `[source]: nextRecords` built from `keptRecords()`, which keeps
+    only session records. A scratch case with a declared landing and an
+    unresolved creation record in the same project ended with one record
+    after one `prepare`: the creation record was deleted.
+  - The attempt path writes that snapshot after `pinLanding` and
+    `registerFollowUpReceipt`, so record changes in between (Done marks,
+    deletions, new sessions) are overwritten or moved to history as
+    `removed`. Not reproduced.
+  - `submitSessionBranchEntry` saves `acceptBranchLandingAnswer`, which
+    replaces the current record with one built from the pre-entry snapshot
+    (it can clear a concurrent Done mark), and answers `landingContext` even
+    when the save kept another context.
+- **Scope.**
+  - Production: the landing decision answers record changes that the
+    adapter applies inside `replaceRecords`; the branch-context save merges
+    only `landingReporting` into the current record, rechecks `doneAt` and
+    `branchEntry`, and answers the file only when saved. Retire the
+    test-only re-export of `decideAttemptLanding`, the duplicate retained
+    lookup in `handleLanding`, and the unused `LandingDecision.path`. The
+    decision takes "now" from `receivedAt` instead of `Date.now()`, and
+    takes a typed input in place of seven positional arguments. Landing
+    admission accepts what `verifyLocalOrigin` accepts and answers 405
+    before 415, as before.
+  - Tests: `composedLandingStores` applies writes the way the record store
+    does (session records only through `keptRecords`, retention, creation
+    records kept); Done in composed cases goes through production
+    `setRecordDoneAt` in place of the test's own `markDone`; persistence
+    cases run through `handleLanding` with composed stores, including a
+    creation record and a record changed between deciding and saving.
+    Decision cases keep only refusals, through `decideLanding`, as
+    `test.each` tables; admission refusals the same. The helpers in
+    `attemptLandingDecisionCase.ts` become MakeMe steps or named examples,
+    with one declared-landing example in place of `aDeclaredRecord` and
+    `aComposedDeclaredLanding`. Drop assertions that restate inputs. Record
+    deletion in `declared-blank-launch-publication` acts on the record that
+    holds the landing.
+- **Acceptance.** A landing or branch handoff leaves every other kept record,
+  including creation records and concurrent changes, as it was, proved at
+  `handleLanding` and `submitSessionBranchEntry`; reverting either write fix
+  in a scratch edit fails its case. No backend-test support writes Done.
+  The decision specs import no data helper from support beyond MakeMe.
+
 <a id="restore-done-capture-proof-after-composed-reviews"></a>
 
 ### Restore Done capture proof and focus session Review tests
