@@ -5,6 +5,7 @@ import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaredPublisherBranch,
@@ -164,7 +165,9 @@ test("the declared worktree's installed landing and exact retry stay with the or
   expect(stores.recordOf(record.session.sessionId)?.doneAt).toBeUndefined();
 
   retireAdHocBranch(checkout.integration, workspace, branch);
-  await stores.markDone(record.session.sessionId, minutesAgo(10));
+  await setRecordDoneAt(source, record.session, minutesAgo(10), {
+    store: stores,
+  });
   expect(await retryInstalledLanding(context, stores)).toEqual(landing.receipt);
   expect(await trunk()).toBe(candidate);
   const kept = await stores.keptRecords(source);

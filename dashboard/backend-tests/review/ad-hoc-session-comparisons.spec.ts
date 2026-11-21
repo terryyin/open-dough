@@ -5,6 +5,7 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { minutesAgo, source } from "../support/doneCaptureCase.ts";
 import { fileText, review } from "../support/doneCaptureReview.ts";
@@ -30,7 +31,9 @@ test("the same Done session opens its delivery and keeps its different branch re
   await git(workspace, "add", renamed.path);
   await git(workspace, "commit", "--quiet", "-m", "Rename the draft");
   write(working);
-  await stores.markDone(record.session.sessionId, minutesAgo(10));
+  await setRecordDoneAt(source, record.session, minutesAgo(10), {
+    store: stores,
+  });
 
   write(committed);
   const { landing, beforePush: before } = await publishInstalled(

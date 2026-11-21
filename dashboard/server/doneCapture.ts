@@ -6,12 +6,15 @@ import {
   type SessionCommits,
 } from "../src/sessionCommits.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import { replaceRecords } from "./launchRecordDocument.ts";
 import {
   keepSessionCommitRefs,
   releaseSessionCommitRefs,
 } from "./launchRecordPins.ts";
-import { keptSession } from "./launchRecordStore.ts";
+import {
+  keptSession,
+  machineRecordStore,
+  type LaunchRecordStore,
+} from "./launchRecordStore.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import { acquireWriteLock, releaseWriteLock } from "./machineJsonLock.ts";
 import { leaveMachineJson } from "./machineJsonStore.ts";
@@ -45,13 +48,16 @@ const sessionCaptures = new Map<string, Promise<LaunchRecord | undefined>>();
 export async function keptWithDoneCapture(
   sourceId: string,
   marked: LaunchRecord,
+  store: LaunchRecordStore = machineRecordStore,
 ): Promise<LaunchRecord | undefined> {
   const doneAt = marked.doneAt;
   if (doneAt === undefined || !doneCapturePending(marked)) return marked;
   const key = sessionKey(marked.session);
   const capture = (sessionCaptures.get(key) ?? Promise.resolve())
     .catch(() => undefined)
-    .then(() => captureCurrentDone(sourceId, marked.session, key, doneAt));
+    .then(() =>
+      captureCurrentDone(sourceId, marked.session, key, doneAt, store),
+    );
   sessionCaptures.set(key, capture);
   try {
     return await capture;
@@ -67,19 +73,27 @@ async function captureCurrentDone(
   session: SessionReference,
   key: string,
   doneAt: string,
+  store: LaunchRecordStore,
 ): Promise<LaunchRecord | undefined> {
   const lockKey = createHash("sha256").update(key).digest("hex");
   const lock = machineDashboardPath(`session-commits-${lockKey}.lock`);
   await acquireWriteLock(lock);
   try {
-    const current = await keptSession(sourceId, session);
+    const current = await keptSession(sourceId, session, store);
     if (current?.doneAt !== doneAt) return current;
     const start = sessionCommitsStartForDone(current);
     if (start === undefined) return current;
     const read = await readSessionCommits(current, start).catch(
       () => undefined,
     );
-    return await keepCurrentSessionCommits(sourceId, key, doneAt, start, read);
+    return await keepCurrentSessionCommits(
+      sourceId,
+      key,
+      doneAt,
+      start,
+      read,
+      store,
+    );
   } finally {
     releaseWriteLock(lock);
   }
@@ -93,9 +107,10 @@ async function keepCurrentSessionCommits(
   doneAt: string,
   start: NonNullable<ReturnType<typeof defaultMainStart>>,
   read: SessionCommits | undefined,
+  store: Pick<LaunchRecordStore, "replaceRecords">,
 ): Promise<LaunchRecord | undefined> {
   let current: LaunchRecord | undefined;
-  await replaceRecords(async (kept) => {
+  await store.replaceRecords(async (kept) => {
     const records = kept[sourceId] ?? [];
     const sessions = records.filter((entry) => "session" in entry);
     const record = sessions.find((entry) => sessionKey(entry.session) === key);

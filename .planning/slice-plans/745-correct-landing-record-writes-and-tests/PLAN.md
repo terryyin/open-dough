@@ -22,6 +22,8 @@
   replanning was requested.
 - Slice 1 accepted on the Story Branch at
   `e4554c51f7d03ca34bc1f89270ead1244c71b5dd`, attached to the same observer.
+- Slice 2 accepted on the same branch and observer at
+  `a58d03eacfcce654007a9c7e9467918c411eb186`.
 
 ## Correction input
 
@@ -207,7 +209,7 @@ with that owner and rechecking the final integrated proof. See
 ### 3. Composed cases mark Done through the production Done write
 
 Type: Structure
-Status: planned
+Status: done
 
 Give `setRecordDoneAt` and its Done capture write the optional record-store
 collaborator, pass composed stores in the four specs, and delete
@@ -218,6 +220,22 @@ no support writes Done.
 `rg "doneAt" dashboard/backend-tests/support` shows no Done write; the Done
 specs that use the machine default (`sessions/agent-launch-done*`,
 `review/done-kept-*`) still pass.
+
+**Observed.** The four composed cases passed on their initial serial run
+using the production Done write, with existing assertions preserved. The
+landing adapter race now calls the same production write on its composed
+store and passed all four adapter cases. The selected machine-default Done
+and kept Review families passed, as did six Chromium cases. The capture
+reads and writes the same collaborator as the initial Done transition.
+
+The composed helper is gone. The two remaining direct Done writes in
+`doneCaptureReview.ts` are removed by active plan 743's `00870a500`;
+the full support scan must be confirmed after integration. The expanded or
+later grouped runs hit the mixed comparison timeout under plan 743
+(`c16c24200`) and the manual observation deletion timeout under plan 736
+(`1bb48cd6f`). Both remain with their active owners. See
+`slice-3-report.md` in the worktree Git evidence for the exact proof
+selections, terminal results and separate timeout evidence.
 
 ### 4. Decide landings over one typed input and its own clock
 

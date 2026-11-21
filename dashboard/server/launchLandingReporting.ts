@@ -22,8 +22,10 @@ import {
 import { registerFollowUpReceipt } from "./ciFollowUpAdmission.ts";
 import { pinLanding } from "./launchLandingGit.ts";
 import { replaceAttempts, withKeptAttempts } from "./launchAttemptStore.ts";
-import { keptRecords } from "./launchRecordStore.ts";
-import { replaceRecords } from "./launchRecordDocument.ts";
+import {
+  machineRecordStore,
+  type LaunchRecordStore,
+} from "./launchRecordStore.ts";
 import type { LandingRecordChange } from "./launchLandingRecord.ts";
 import { leaveMachineJson } from "./machineJsonStore.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
@@ -32,18 +34,15 @@ import { knownSource } from "./sessionAdmission.ts";
 
 // Attempt read/replace and record read/replace the adapter persists through.
 // Optional on `handleLanding`; defaults to this machine's stores.
-export type LandingStores = {
+export type LandingStores = LaunchRecordStore & {
   withKeptAttempts: typeof withKeptAttempts;
   replaceAttempts: typeof replaceAttempts;
-  keptRecords: typeof keptRecords;
-  replaceRecords: typeof replaceRecords;
 };
 
 export const machineLandingStores: LandingStores = {
+  ...machineRecordStore,
   withKeptAttempts,
   replaceAttempts,
-  keptRecords,
-  replaceRecords,
 };
 
 async function saveLandingRecordChange(

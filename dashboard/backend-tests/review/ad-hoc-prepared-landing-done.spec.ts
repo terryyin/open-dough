@@ -4,11 +4,13 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { handleLanding } from "../../server/launchLandingReporting.ts";
+import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
 import { aComposedDeclaredLanding } from "../support/composedLandingStores.ts";
 import { dashboardOrigin } from "../support/declaredPublisherBranch.ts";
 import {
   aCheckoutWithCanonicalWorktree,
   inWorktree,
+  keep,
   minutesAgo,
   source,
   work,
@@ -16,6 +18,7 @@ import {
 import { review } from "../support/doneCaptureReview.ts";
 
 test("Done leaves the prepared receipt recordable after acceptance", async () => {
+  keep();
   const branch = "prepared-draft";
   const { checkout, workspace } = await aCheckoutWithCanonicalWorktree(branch);
   const { record, reference, stores } = aComposedDeclaredLanding(checkout, {
@@ -42,7 +45,9 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
   expect(receipt.state).toBe("prepared");
   await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
 
-  await stores.markDone(record.session.sessionId, minutesAgo(10));
+  await setRecordDoneAt(source, record.session, minutesAgo(10), {
+    store: stores,
+  });
   const kept = stores.recordOf(record.session.sessionId);
   expect(kept?.doneAt).toBeDefined();
   expect(kept?.landingReporting?.preparations).toMatchObject([

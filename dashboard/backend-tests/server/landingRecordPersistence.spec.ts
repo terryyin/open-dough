@@ -1,11 +1,12 @@
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { doneTransition } from "../../server/doneTransition.ts";
 import {
   handleLanding,
   type LandingStores,
 } from "../../server/launchLandingReporting.ts";
+import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   aComposedDeclaredLanding,
   composedLandingStores,
@@ -78,14 +79,11 @@ test.each(["retained", "attempt"] as const)(
       .adHoc({ title: "A new kept session" })
       .inClaudeSession({ sessionId: "arrived" })
       .please();
-    const agedOut = doneTransition(
-      makeMe.aLaunchRecord
-        .adHoc({ title: "Session past retention" })
-        .inClaudeSession({ sessionId: "past-retention" })
-        .please(),
-      "2020-01-01T00:00:00.000Z",
-      "2020-01-01T00:00:00.000Z",
-    );
+    const agedOut = makeMe.aLaunchRecord
+      .adHoc({ title: "Session past retention" })
+      .inClaudeSession({ sessionId: "past-retention" })
+      .markedDoneAt("2020-01-01T00:00:00.000Z")
+      .please();
     keep();
     const stores = composedLandingStores({
       attempts: { [source]: attempts },
@@ -110,21 +108,16 @@ test.each(["retained", "attempt"] as const)(
     const prepared = stores.recordOf(record.session.sessionId);
     await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
     const doneAt = minutesAgo(10);
-    const done = doneTransition(other, doneAt, doneAt);
+    let done: LaunchRecord | undefined;
     const recordingStores: LandingStores = {
       ...stores,
       replaceRecords: async (change) => {
+        done = await setRecordDoneAt(source, other.session, doneAt, {
+          store: stores,
+        });
         await stores.replaceRecords((kept) => ({
           ...kept,
-          [source]: [
-            ...(kept[source] ?? []).map((entry) =>
-              "session" in entry &&
-              entry.session.sessionId === other.session.sessionId
-                ? done
-                : entry,
-            ),
-            arrived,
-          ],
+          [source]: [...(kept[source] ?? []), arrived],
         }));
         await stores.replaceRecords(change);
       },
@@ -144,6 +137,7 @@ test.each(["retained", "attempt"] as const)(
     const { state, ...landed } = recorded;
     expect(state).toBe("recorded");
     expect(recorded).toEqual({ ...receipt, state });
+    expect(done?.doneAt).toBe(doneAt);
     expect(stores.records()[source]).toEqual([
       {
         ...prepared,

@@ -5,7 +5,10 @@ import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { heldLandingPins } from "../../server/launchLandingGit.ts";
-import { deleteRecord } from "../../server/launchRecordStore.ts";
+import {
+  deleteRecord,
+  setRecordDoneAt,
+} from "../../server/launchRecordStore.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import {
   aDeclaredPublisherBranch,
@@ -66,7 +69,9 @@ test("a blank Default main launch keeps its declared landing until record deleti
   expect(await trunk()).toBe(candidate);
   retireAdHocBranch(checkout.integration, workspace, branch);
 
-  await stores.markDone(session, minutesAgo(10));
+  await setRecordDoneAt(source, record.session, minutesAgo(10), {
+    store: stores,
+  });
   const kept = await stores.keptRecords(source);
   expect(await retryInstalledLanding(context, stores)).toEqual(landing.receipt);
   expect(stores.recordOf(session)?.request.reporting).toBeUndefined();

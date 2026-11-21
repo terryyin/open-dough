@@ -8,7 +8,6 @@ import {
   withinRetention,
 } from "../../server/launchRecordDocument.ts";
 import { leaveMachineJson } from "../../server/machineJsonStore.ts";
-import { withBranchResultAtDone } from "../../server/sessionBranchCapture.ts";
 import {
   aDefaultLaunch,
   canonicalGitDirectory,
@@ -37,7 +36,6 @@ export function composedLandingStores(initial?: {
   attempts: () => AttemptDocument;
   records: () => RecordDocument;
   recordOf: (sessionId: string) => LaunchRecord | undefined;
-  markDone: (sessionId: string, at: string) => Promise<void>;
 } {
   let attempts: AttemptDocument = structuredClone(initial?.attempts ?? {});
   let records: RecordDocument = structuredClone(initial?.records ?? {});
@@ -54,34 +52,6 @@ export function composedLandingStores(initial?: {
     attempts: () => attempts,
     records: () => records,
     recordOf,
-    markDone: async (sessionId, at) => {
-      const candidate = recordOf(sessionId);
-      if (candidate === undefined) return;
-      await withBranchResultAtDone(candidate, at, async (settle) => {
-        let saved: LaunchRecord | undefined;
-        await replaceRecords(async (kept) => {
-          const list = kept[source] ?? [];
-          const next = [];
-          for (const entry of list) {
-            if (
-              !("session" in entry) ||
-              entry.session.sessionId !== sessionId
-            ) {
-              next.push(entry);
-              continue;
-            }
-            saved = await settle({
-              ...entry,
-              dispositionChangedAt: new Date().toISOString(),
-              doneAt: at,
-            });
-            next.push(saved);
-          }
-          return { ...kept, [source]: next };
-        });
-        return saved;
-      });
-    },
     withKeptAttempts: (observe) => observe(Object.values(attempts).flat()),
     replaceAttempts: async (change) => {
       const next = await change(attempts);
