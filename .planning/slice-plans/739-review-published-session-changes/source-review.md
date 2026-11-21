@@ -4,7 +4,7 @@ Launch: a fresh general-purpose subagent on 2026-11-21 with no inherited
 conversation. It received only the narrowed story's Goal, Scope, Key examples
 and Architecture text after the authorized 2026-11-21 resplit. It was told to
 read no project files, change nothing and number independently observable
-promises. It replaces the pre-split review, which now sits beside plan 744 as
+promises. It replaces the pre-split review, which now sits beside plan 747 as
 provisional input.
 
 Unnumbered context returned:

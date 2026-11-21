@@ -60,7 +60,7 @@ readable Git endpoints must remain sufficient after workspace retirement.
 {"schemaVersion":1,"identity":"SEED-418#attribute-every-workflow-session-record","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session record contract and Dashboard reader","rationale":"Every workflow's record extends the published record format, its publication path and the Dashboard reader that the standalone story establishes; defining them twice would split one contract.","condition":"A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/744-attribute-every-workflow-session-record/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement after the 2026-11-21 resplit from SEED-418#review-published-session-changes; plan 744 holds provisional slices only."],"basis":{"document":"11d676856e1669611abb2cac1d8ccf56bee8ff1e000537359b8fed7f7597e5f2","plan":"3a25c8e126548175674560106fc4964ce3912928262bee13f7f32ba749d0ed01"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/747-attribute-every-workflow-session-record/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement after the 2026-11-21 resplit from SEED-418#review-published-session-changes; plan 747 holds provisional slices only."],"basis":{"document":"11d676856e1669611abb2cac1d8ccf56bee8ff1e000537359b8fed7f7597e5f2","plan":"3a25c8e126548175674560106fc4964ce3912928262bee13f7f32ba749d0ed01"}}
 ```
 
 Split on 2026-11-21 from `SEED-418#review-published-session-changes` at its
@@ -152,3 +152,31 @@ A skipped session or an unrelated trunk change can fall between two selections. 
 ```
 
 After the 30-day window removes a published session file from the current snapshot, a developer can find that session and review its contribution using the record in published Git history. Recover its original UUID, story association when present, and recorded comparison. Check from a second machine with no local launch history. This covers sessions for which the workflow previously published a record.
+
+<a id="correct-published-session-review"></a>
+
+### Correct the published session review after its outcome review
+
+**Identity:** SEED-418#correct-published-session-review
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/746-correct-published-session-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"85990e95804439b8c18efea78392f748cb09c101e9d2c9365aa84d339a64cccc","plan":"70aac4b6f11f1c3d1d6408d046571b6c7fefc7d1c1e7457c6975709b02354f3a"}}
+```
+
+Correction from the outcome review of
+[Review a session’s published changes from another machine](#review-published-session-changes)
+(range `953a8a123..9d33efde9`). Its promises stay as written.
+
+**Goal.** A developer who lands a session through Dough Land, or reviews one
+on any machine, gets a faithful published-session review. Landing without a
+session UUID publishes the work. The review names published changes and their
+close time. The originating machine lists each session once. Gaps show as
+gaps, and opening a review costs no repeated fetch.
+
+**Scope.** This story covers Land's routing for a session record, the
+published review's own description, suppression by any kept launch, and one
+shared record contract. It also covers bounded published reads, the exact
+opening-read budget and residue from the delivered slices. The rule that a
+missing or conflicting identity stops before any push stays unchanged.
+Multiple ranges remain with
+[Attribute every workflow session’s published changes](#attribute-every-workflow-session-record).
+Plan: [746](../slice-plans/746-correct-published-session-review/PLAN.md).

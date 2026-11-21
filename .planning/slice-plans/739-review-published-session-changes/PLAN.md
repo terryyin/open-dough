@@ -14,7 +14,7 @@ out, and launch state stays local. Other workflow closes, earlier
 publications, multiple ranges, shared-checkout uncertainty, retry, story
 association and the 30-day window moved to
 [Attribute every workflow session’s published changes](../../seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record)
-([plan 744](../744-attribute-every-workflow-session-record/PLAN.md)) on
+([plan 747](../747-attribute-every-workflow-session-record/PLAN.md)) on
 2026-11-21. Story-session selection, combining comparisons, historical
 recovery and adding follow-up message context are separate stories.
 
@@ -58,7 +58,7 @@ recovery and adding follow-up message context are separate stories.
 Observed in the preparation workspace on 2026-11-20 at `9efbd70c1`. The
 advance to `b216770db` adds another story's preparation and leaves the
 relevant implementation paths untouched. Rows for the moved slices went to
-[plan 744](../744-attribute-every-workflow-session-record/PLAN.md#decisive-premises).
+[plan 747](../747-attribute-every-workflow-session-record/PLAN.md#decisive-premises).
 
 | Consuming operation | Observation |
 | --- | --- |
@@ -342,8 +342,28 @@ and unchanged. The old slice 3 split into slices 3–5 following its
 implementer's recommendation: one structural move with existing proof, one
 backend listing read with its own real-Git specs, and the listing merge and
 page subject proved by the second-machine journey. Old slices 4–9 became
-slices 1–6 of [plan 744](../744-attribute-every-workflow-session-record/PLAN.md).
+slices 1–6 of [plan 747](../747-attribute-every-workflow-session-record/PLAN.md).
 On 2026-11-21 slice 5 split again in place into slices 5–7 (builder, second
 machine discovery and review, originating-machine merge) after its attempt
 found four independent outcomes. Slice 6 split again into slices 6–7 on
 Terry's authorization, so the plan holds eight slices, its maximum.
+
+## Execution complete
+
+Product advice: Queue the correction
+[SEED-418#correct-published-session-review](../../seeds/SEED-418-review-published-session-changes.md#correct-published-session-review)
+([plan 746](../746-correct-published-session-review/PLAN.md)) ahead of
+[SEED-418#attribute-every-workflow-session-record](../../seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record).
+Until its Land routing slice ships in a release, no real Land publishes a
+session record, so the second-machine review has no data outside tests; the
+remainder story would also build on the record contract the correction
+consolidates. The outcome review found the Land route unusable for native
+starts and absent from the Dashboard-launch path, the published review
+describing itself as Default main checkout commits, a duplicate entry while
+the originating launch is not yet Done, the record contract duplicated across
+producer, Dashboard and builder, an unconditional origin fetch on every review
+read, the header journeys' lost opening-read budget, and residue. Route the
+seven git-heavy branch-attribution backend cases that time out at 5 s under
+load to SEED-367 or test optimization rather than this correction. Process
+review is deferred into wrap-up with the Intent Coverage check on the header
+journeys' loosened assertions.
