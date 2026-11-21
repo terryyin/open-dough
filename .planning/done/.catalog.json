@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-ad-hoc-review-handoffs-with-typed-handlers.json",
+      "identity": "SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers",
+      "completedAt": "2026-11-21T02:11:38.054Z",
+      "blob": "6def42020ef4abfff2f2680044ee8f82e570aecf"
+    },
+    {
       "fileName": "SEED-413_reduce-review-diff-reading-to-logic-cases.json",
       "identity": "SEED-413#reduce-review-diff-reading-to-logic-cases",
       "completedAt": "2026-11-21T02:00:15.378Z",
