@@ -563,48 +563,6 @@ does not depend on them.
   for shell checks, and the Playwright and Vitest configurations of the
   dashboard groups.
 
-<a id="prove-ad-hoc-review-handoffs-with-typed-handlers"></a>
-
-### Prove ad hoc review handoffs with typed handlers
-
-**Identity:** SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/742-prove-ad-hoc-review-handoffs/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"97821c79edf2387333c0d8d176cc14424a4c429d507dd08f895b188ec71ce511","plan":"7e87a9d0dd023c0f7b768a7e96925836aabd7f43cedde347b2fb202ef091dd5d"}}
-```
-
-**Goal.** Give dashboard maintainers direct Node Vitest feedback on the three
-ad hoc review handoffs still exercised through Playwright. Keep the actual
-Git comparisons and native Done observations, and retire the ad hoc review
-HTTP test helper and its branch-validation fixture.
-
-**Scope.** Move the quiet Done race, the early report and native binding
-case, and the Default main branch-entry command case to typed production
-entries. Compose the named launch, reporting attempt, and checkout in
-MakeMe. Exercise real Git and file persistence where they decide what the
-dashboard keeps. Retain a native stop observer in the race and run the
-emitted branch-entry command from the real branch in its wiring case.
-Keep the test timeout at its default. Delete the helpers when their final
-users move and add no test-support wrappers. Preserve existing product
-behavior and the shared request contracts. Landed CI, Story Notes storage,
-other launch and session cases, and retiring the backend Playwright runner
-remain part of the [backend campaign](#renovate-later-dashboard-backend-unit-test-families).
-
-**Key examples.**
-
-- A manual Done has read an earlier commit and is held in ancestry
-  validation. When a quiet completion captures a later commit and the
-  manual mark resumes, Review changes shows the later tree, only the
-  baseline and later revision stay pinned, and no native stop runs.
-- An isolated launch pushes a commit to the target and reports quiet Done
-  before its native session binds. The receipt is pending. When the session
-  binds, its review shows the verified landed baseline and new tree.
-- A Default main launch sends a branch-entry command with its reporting
-  reference. When run from the original checkout after the developer moves
-  to a draft branch and commits, its receipt names that session, workspace,
-  branch, and commit.
-
-**Plan.** [742](../slice-plans/742-prove-ad-hoc-review-handoffs/PLAN.md)
-
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Renovate the later dashboard backend unit-test families around typed server handlers
@@ -658,8 +616,9 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   while both gauges run. The count of specs still on `@playwright/test` is
   the campaign's progress, and the two-engine group run is its carrying cost
   until that count is zero.
-  1. [Ad hoc review handoffs](#prove-ad-hoc-review-handoffs-with-typed-handlers)
-     owns the last two users of `adHocReview.ts` and the branch-entry
+  1. Ad hoc review handoffs (completed; recoverable at
+     `09a9cdc2:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-ad-hoc-review-handoffs-with-typed-handlers`)
+     retired the last two users of `adHocReview.ts` and moved the branch-entry
      command case. The other converted cases already use typed entry points.
      Remaining native Done cases belong to `sessions/`.
   2. `intent/` landed CI, resolving the load sensitivity of `SEED-324` and

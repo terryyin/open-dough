@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Review a session’s published changes from another machine](seeds/SEED-418-review-published-session-changes.md#review-published-session-changes) — SEED-418#review-published-session-changes ([plan](slice-plans/739-review-published-session-changes/PLAN.md))
 - [Test Review diff reading's data logic directly and drop "mounted" from frontend test names](seeds/SEED-413-renovate-dashboard-unit-tests.md#reduce-review-diff-reading-to-logic-cases) — SEED-413#reduce-review-diff-reading-to-logic-cases ([plan](slice-plans/744-reduce-review-diff-reading-to-logic-cases/PLAN.md))
 - [Observe Done deliveries over typed kept records](seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records) — SEED-413#observe-done-deliveries-over-typed-records ([plan](slice-plans/736-observe-done-deliveries-over-typed-records/PLAN.md))
-- [Prove ad hoc review handoffs with typed handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-ad-hoc-review-handoffs-with-typed-handlers) — SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers ([plan](slice-plans/742-prove-ad-hoc-review-handoffs/PLAN.md))
 
 ## Backlog list
 
