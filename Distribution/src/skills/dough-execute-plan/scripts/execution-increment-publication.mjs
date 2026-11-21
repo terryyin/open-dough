@@ -146,22 +146,27 @@ export async function publishExecutionIncrement({
     return accept(attempt.remoteTip, "already-published");
   }
 
+  const checkedCandidates = new Set();
   const invalidCandidate = async () => {
+    const { candidate } = attempt;
+    if (checkedCandidates.has(candidate)) return null;
     const invalid = await doneRecordsStop({
       workspace,
-      candidate: attempt.candidate,
+      candidate,
       backlogPath,
     });
-    return invalid
-      ? stopped(invalid.status, {
-          preRebaseSha,
-          remoteTip: attempt.remoteTip,
-          previouslyPublishedBase: attempt.previouslyPublishedBase,
-          suffixBase: attempt.suffixBase,
-          reconciliations: attempt.reconciliations,
-          ...invalid.fields,
-        })
-      : null;
+    if (!invalid) {
+      checkedCandidates.add(candidate);
+      return null;
+    }
+    return stopped(invalid.status, {
+      preRebaseSha,
+      remoteTip: attempt.remoteTip,
+      previouslyPublishedBase: attempt.previouslyPublishedBase,
+      suffixBase: attempt.suffixBase,
+      reconciliations: attempt.reconciliations,
+      ...invalid.fields,
+    });
   };
   const invalid = await invalidCandidate();
   if (invalid) return invalid;

@@ -4,6 +4,8 @@
 
 **Source:** [Stop repeating Git work in shared publication](../../seeds/SEED-421-stop-repeating-git-work-in-shared-publication.md#stop-repeating-git-work-in-shared-publication)
 
+**Source review:** [Source-only review](source-review.md)
+
 ## Goal and scope
 
 Bring the existing declared blank Default main launch case within its 5 s
@@ -63,12 +65,52 @@ The prior estimate of roughly ten fewer starts is a sizing hypothesis.
 Deterministic process savings and passing timings answer different parts
 of the example.
 
-## Ordered slices and outside-in proof
+### Execution baseline
+
+On the established Take revision `78de2f1d3`, with Node 24.21.0, Apple
+Git 2.50.1 and AC power, the same traced single case ran in 1,773 ms with
+61 root starts and 89 including nested Git. The two candidate tree reads
+were starts 28 and 29.
+
+The grouped run used six requested workers under the AC guard and no
+artificial load. The runner selected eight Chromium launch and capture
+cases followed by the two installed-publisher Node cases. Three samples
+of the blank launch case took 2,378, 3,335 and
+3,741 ms. Their one-minute host loads before and after were 13.32–25.47,
+25.47–27.88 and 27.88–26.65. Use the last two as the representative
+baseline and retain the first sample with its lower starting load.
+The literal commands and outputs are in `s1-baseline-single.log.run.json`
+and `s1-baseline-group.log.run.json` in the checkout's Git evidence
+directory. Repeat that selection and capture the same host readings for
+the final comparison.
+
+The publisher spec imports this repository's installed Claude payload.
+For after-change measurements, the repository installer copies the
+candidate payload into an independent disposable checkout of the baseline
+with its own locked dependencies. The payload comparison verifies the
+installation before proof. The two observed complete baseline payloads
+were byte-equivalent on the relevant scripts. A disposable baseline run at
+host load above 35 replayed the 5 s timeout in 5,181 ms during pre-push
+preparation. Its partial trace is retained as `s1-installed-baseline.trace`.
+
+## Execution context
+
+- Identity and publisher: SEED-421#stop-repeating-git-work-in-shared-publication,
+  `dashboard-territory.local-open-dough`, Yua-chan.
+- Story Branch Mode in the Dashboard-established owned worktree
+  `stop-repeating-git-work-in-shared-publication`, branch
+  `codex/stop-repeating-git-work-in-shared-publication`, with `origin/main`
+  as the authorized integration target.
+- Starting revision `3105c0727f6a7ba3a080b9300b0faec45dc60e32`.
+  Published Take and initial story branch revision
+  `78de2f1d3d8085605f07ac8707929562ffb4629c`.
+
+## Ordered slices
 
 ### 1. Validate each immutable publication candidate once
 Type: Behavior
 
-Status: planned
+Status: done
 
 With a validated owned suffix, publish through the shared increment entry
 point. The unchanged candidate avoids a repeated done-record check between
@@ -80,6 +122,19 @@ racing-suffix cases, including `publication-completed-identity.test.mjs` and
 `publication-misplaced-agent-profile.test.mjs`.
 If a test misses an invalid rewritten candidate, extend the existing shared
 publisher boundary to prove the changed check.
+
+The candidate-installed blank launch passed in 3,526 ms at one-minute
+host load 23.17–25.32. Trace2 counted 60 root starts and 88 including
+nested Git. The same immutable candidate had one backlog tree read.
+The original and rewritten refusal checks observed no publication receipt
+and an unchanged authorized remote tip. The two rewrite cases distinguish
+trunk advancement before fetch and during the first push attempt.
+`s1-return.md` in the checkout's Git evidence directory maps the assertions,
+28 passing Distribution jobs and six passing installed Dashboard cases
+to the literal commands, run results, and consumer boundaries.
+The independent refactor made the two race triggers explicit in the test
+cases. Only that test file needed renewed proof and it passed, as recorded
+in `s1-refactor-verified.log.run.json`.
 
 ### 2. Confirm the target once after each successful push
 Type: Behavior
