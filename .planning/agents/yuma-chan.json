@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-413#mount-story-review-changes-panel",
+  "mode": "story-branch",
+  "branch": "claude/read-the-review-changes-panel-s-toolbar-details",
+  "host": "claude"
+}

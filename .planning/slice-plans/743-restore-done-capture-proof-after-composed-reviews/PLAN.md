@@ -490,6 +490,22 @@ Chromium historical journey passed on the combined candidate. See
 `slice9-baseline-native-8be1d198.json`, `slice9-read-audit-8be1d198.json`,
 `slice9-reconciled-backend.json` and `slice9-reconciled-historical-browser.json`.
 
+## Concurrent delivery-observation proof
+
+The delivery-observation consolidation at `a2a767f12` replaces the
+observation roster on both sides of the comparison. Retain its typed Git
+decision, retry and coalescing cases and its focused store and pin checks.
+The manual-landing spec still proves the exact merge parent and resolution,
+witnessed fast-forward, acceptance on a different remote branch and squash. The offline
+check now uses the existing real Done write and saved manual delivery in
+`ad-hoc-branch-attribution.spec.ts`. The selected file response verifies both
+versions after branch retirement with an unreachable origin.
+
+On the updated `0759aff06` basis the live-collected backend cohort goes
+from 157 cases in 41 specs to 155 cases in 39 specs. All 155 pass on the
+reconciled candidate. Full Review entries go from 126 to 64. See
+`wrap-up-main-vitest.json`, `wrap-up-backend.log` and `wrap-up-read-audit.json`.
+
 ## Execution complete
 
 Product advice: Keep the direct Done capture and persistence proof, and

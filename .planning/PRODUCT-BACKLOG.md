@@ -32,6 +32,8 @@ intent introduced or affected by a newly developed story.
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Restore Done capture proof and focus session Review tests](seeds/SEED-413-renovate-dashboard-unit-tests.md#restore-done-capture-proof-after-composed-reviews) — SEED-413#restore-done-capture-proof-after-composed-reviews ([plan](slice-plans/743-restore-done-capture-proof-after-composed-reviews/PLAN.md))
 - [Keep kept records intact through landings and prove it at the landing adapter](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-landing-record-writes-and-tests) — SEED-413#correct-landing-record-writes-and-tests ([plan](slice-plans/745-correct-landing-record-writes-and-tests/PLAN.md))
+- [Read the Review changes panel's toolbar, details, files and notes in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-story-review-changes-panel) — SEED-413#mount-story-review-changes-panel ([plan](slice-plans/748-mount-story-review-changes-panel/PLAN.md))
+- [Read System settings' sections and the Usage charts in mounted cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#mount-system-settings-sections-and-usage-charts) — SEED-413#mount-system-settings-sections-and-usage-charts ([plan](slice-plans/749-mount-system-settings-sections-and-usage-charts/PLAN.md))
 
 ## Backlog list
 

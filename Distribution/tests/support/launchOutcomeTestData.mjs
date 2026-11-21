@@ -136,6 +136,36 @@ export class LaunchOutcomeBuilder extends LaunchDoneCaptureBuilder {
     return this;
   }
 
+  /**
+   * A Done branch whose delivery to trunk is still to be observed: it entered
+   * `branch` in `repository` witnessing trunk at `base`, and its Done kept a
+   * delivery-checked result from `base` to `revision`.
+   * @param {{ repository: string, base: string, revision: string, branch?: string, remote?: string }} facts
+   */
+  awaitingManualDelivery({
+    repository,
+    base,
+    revision,
+    branch = "draft",
+    remote = "origin",
+  }) {
+    return this.enteredBranch({
+      repository,
+      workspace: branch,
+      branch,
+      committedTip: base,
+      tree: base,
+      trunk: { remote, target: "refs/heads/main", revision: base },
+    })
+      .markedDone()
+      .branchResultFrom({
+        repository,
+        base,
+        revision,
+        manualDeliveryChecked: true,
+      });
+  }
+
   // The dashboard closed the launch on its final report finding the story
   // back in the queue, keeping that outcome under the report's receipt.
   returnedToBacklog() {
