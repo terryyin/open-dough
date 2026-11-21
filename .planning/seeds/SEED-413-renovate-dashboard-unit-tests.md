@@ -374,6 +374,15 @@ does not depend on them.
   - Load moved between runs and the same arrangement varied twofold, so a
     duration at a named load does not reproduce. The count of Git processes
     per case does.
+- **Observed during the fold (2026-11-21, plan 737 at `b3cd1acfe`).**
+  `ad-hoc-branch-result-race` took 1.3–2.3 s at load 8.6 and timed out once at
+  5 s at load 27–30: case setup 421–762 ms, the held first capture about
+  300–500 ms, the quiet-Done delivery 410–810 ms, review and pins about 100 ms.
+  Every phase grew with load; no timer, wait or race was involved.
+  `captureBranchResult` (`dashboard/server/sessionBranchCapture.ts`) runs
+  about ten Git calls one after another, and the origin cannot be dropped
+  because the review then reads `unavailable`. `ad-hoc-branch-result` cases
+  also timed out twice in a long one-worker roster run at load 12–17.
 - **Scope.**
   - On macOS the family's cases run the Git binary directly, resolved once
     per run. Where `git` is already another binary, and on Linux, nothing
@@ -382,10 +391,10 @@ does not depend on them.
     production seams that start more than their answer needs. The family is
     the Git-heavy Done capture cases under `dashboard/backend-tests/review/`
     and `dashboard/backend-tests/launches/`, with their shared support:
-    `doneCaptureCase.ts`, `doneCaptureReview.ts`,
-    `declaredPublisherBranch.ts`, `installedPublisher.ts`,
-    `reportedIsolatedBranch.ts` and `adHocBranchRefs.ts`, as the five
-    import-list stories leave them. Profile per case first: checkout creation,
+    the case builder `doneCaptureCaseBuilder.ts` with
+    `doneCaptureCaseMaterialization.ts` and `doneCaptureCasePlaces.ts`,
+    `doneCaptureCase.ts`, `doneCaptureReview.ts`, `installedPublisher.ts`
+    and `adHocBranchRefs.ts`, as the five import-list stories leave them. Profile per case first: checkout creation,
     checkout work, production Done capture, observation and review reads.
     After the branch-entry story, entry setup is gone; the Done review,
     attribution, declared publication and lifecycle deletion cases still take
