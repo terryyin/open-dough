@@ -70,6 +70,7 @@ export async function loadRepositoryTexts(
   problem: string,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
+  readFile: typeof readRepositoryFileAt = readRepositoryFileAt,
 ): Promise<{
   readonly text: Map<string, string>;
   readonly problems: Map<string, GapCause>;
@@ -96,7 +97,10 @@ export async function loadRepositoryTexts(
       }
     }
     try {
-      text.set(path, await readCachedFile(source, revision, path, signal));
+      text.set(
+        path,
+        await readCachedFile(source, revision, path, signal, readFile),
+      );
       settleAnswered(outcomes, question);
     } catch (error) {
       // A read that failed, or was ended when the owned bound passed, leaves

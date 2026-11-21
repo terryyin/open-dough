@@ -9,7 +9,8 @@
 /** @typedef {import("../../../dashboard/server/intentLocationsSettings.ts").DeclaredLocation} DeclaredLocation */
 /** @typedef {import("../../../dashboard/server/intentLocationsSettings.ts").IntentLocation} IntentLocation */
 /** @typedef {import("../../../dashboard/src/intentLocationSelection.ts").SourceDeclaration} SourceDeclaration */
-/** @typedef {import("../../../dashboard/server/intentLocationsRead.ts").IntentLocationsAnswer} IntentLocationsAnswer */
+/** @typedef {import("../../../dashboard/src/authenticatedIntentRead.ts").IntentLocation} AnsweredIntentLocation */
+/** @typedef {import("../../../dashboard/src/authenticatedIntentRead.ts").IntentLocations} IntentLocations */
 /** @typedef {{ intent: { locations: DeclaredLocation[] } }} IntentSettings */
 
 export class IntentLocationBuilder {
@@ -128,50 +129,43 @@ export class IntentSettingsBuilder {
 }
 
 export class IntentLocationsAnswerBuilder {
-  /** @type {string | undefined} */
-  #revision;
-  /** @type {IntentLocation[]} */
-  #locations = [];
-  /** @type {Pick<IntentLocationsAnswer, "settingsProblem" | "recovery">} */
-  #settingsProblem = {};
+  /** @type {IntentLocations} */
+  #answer = { status: "not-configured" };
 
-  /** @param {string} revision the pinned revision the read answers at */
-  at(revision) {
-    this.#revision = revision;
+  /** @param {readonly AnsweredIntentLocation[]} locations answered locations in declaration order */
+  locating(...locations) {
+    this.#answer = { status: "configured", locations: [...locations] };
     return this;
   }
 
-  /** @param {readonly IntentLocation[]} locations answered locations in declaration order */
-  locating(...locations) {
-    this.#locations = [...locations];
+  notConfigured() {
+    this.#answer = { status: "not-configured" };
     return this;
   }
 
   // The settings could not be read through a transient failure.
   withUnreadableSettings() {
-    this.#settingsProblem = {
-      settingsProblem: "unreadable",
+    this.#answer = {
+      status: "settings-problem",
+      problem: "unreadable",
       recovery: "transient",
     };
     return this;
   }
 
   withMalformedSettings() {
-    this.#settingsProblem = { settingsProblem: "malformed" };
+    this.#answer = {
+      status: "settings-problem",
+      problem: "malformed",
+      recovery: undefined,
+    };
     return this;
   }
 
-  /** @returns {IntentLocationsAnswer} */
+  /** @returns {IntentLocations} */
   please() {
-    if (this.#revision === undefined)
-      throw new Error("choose .at(revision) first");
-    if (this.#settingsProblem.settingsProblem !== undefined) {
-      return {
-        revision: this.#revision,
-        locations: null,
-        ...this.#settingsProblem,
-      };
-    }
-    return { revision: this.#revision, locations: [...this.#locations] };
+    return this.#answer.status === "configured"
+      ? { status: "configured", locations: [...this.#answer.locations] }
+      : { ...this.#answer };
   }
 }

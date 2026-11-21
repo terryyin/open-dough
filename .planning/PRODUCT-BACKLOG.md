@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)](seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) — SEED-401#assess-new-retrospective-findings-pilot ([plan](slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md))
 - [Attribute every workflow session’s published changes](seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record) — SEED-418#attribute-every-workflow-session-record ([plan](slice-plans/747-attribute-every-workflow-session-record/PLAN.md))
-- [Get fast proof of Intent source and story reading](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading) — SEED-413#speed-intent-source-and-story-reading ([plan](slice-plans/755-speed-intent-source-and-story-reading/PLAN.md))
 - [Get fast proof of board and side-panel interactions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-board-and-panel-proof) — SEED-413#speed-dashboard-board-and-panel-proof ([plan](slice-plans/758-speed-dashboard-board-and-panel-proof/PLAN.md))
 - [Read every file a story changed in Intent](seeds/SEED-420-unified-intent-review.md#open-review-in-intent) — SEED-420#open-review-in-intent ([plan](slice-plans/759-read-every-changed-file-in-intent/PLAN.md))
 - [Get fast proof of Intent timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof) — SEED-413#speed-intent-timing-history-proof ([plan](slice-plans/759-speed-intent-timing-history-proof/PLAN.md))
@@ -39,6 +38,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Get fast proof of Intent source browsing, pinned links and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours) — SEED-413#speed-intent-source-browsing-and-detours
+- [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading
 - [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
 - [Choose what a story's review compares in Intent](seeds/SEED-420-unified-intent-review.md#choose-story-comparison-in-intent) — SEED-420#choose-story-comparison-in-intent
