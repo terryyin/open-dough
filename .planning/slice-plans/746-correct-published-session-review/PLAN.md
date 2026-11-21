@@ -391,7 +391,12 @@ comparison that walking reads nothing again. This restores the protection
 that correction 687 added (finding 6).
 
 **Proof.** The journeys pass, and fail with a scratch extra opening read,
-which is then reverted.
+which is then reverted. Use the Intent Coverage fault from the SEED-418
+wrap-up at `68c2371449bf`: `readPublishedDetails` in
+`dashboard/src/publishedWorkDetails.ts` asking `readPublishedSessions` twice
+per snapshot. At that revision it raised project selection's opening reads
+from 6 to 7 per project while all five header journeys passed (verdict
+Assertion gap). The settled project-selection budget measured there is 6.
 ```
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --silent test:dashboard:frontend -- navigation/dashboard-header
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint

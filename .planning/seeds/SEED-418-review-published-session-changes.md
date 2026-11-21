@@ -159,7 +159,7 @@ After the 30-day window removes a published session file from the current snapsh
 
 **Identity:** SEED-418#correct-published-session-review
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/746-correct-published-session-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"85990e95804439b8c18efea78392f748cb09c101e9d2c9365aa84d339a64cccc","plan":"70aac4b6f11f1c3d1d6408d046571b6c7fefc7d1c1e7457c6975709b02354f3a"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/746-correct-published-session-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"85990e95804439b8c18efea78392f748cb09c101e9d2c9365aa84d339a64cccc","plan":"677c67eecc70175290515941927e282e37ab967338f990e89cca62f44fe28a54"}}
 ```
 
 Correction from the outcome review of
