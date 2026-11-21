@@ -173,6 +173,10 @@ complete 7-file / 15-case status + dark-contrast Vitest selection passed in
 `8,315 ms` (`8.32 s`) elapsed including preparation vs `13,532 ms` (`13.53 s`)
 settled legacy baseline (`-5,217 ms` / `-38.6%`).
 
+## Execution complete
+
+Product advice: no change — the remaining 80 legacy Intent timing-history and Summary/attempt-proof cases are already split and queued first as `SEED-413#speed-intent-timing-history-proof` (ready) and `SEED-413#speed-intent-attempt-and-summary-proof` (awaiting story refinement), preserving near-future direction and campaign priorities.
+
 ## Plan review
 
 Narrowed at delivered Slice 3 on Terry's authorization (`dough-resplit-story`
