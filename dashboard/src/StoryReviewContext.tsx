@@ -2,6 +2,7 @@
 // evidence keeps its own description and completion facts.
 import {
   reviewsLanding,
+  reviewsPublishedSession,
   reviewsSessionCommits,
   type StoryReview,
 } from "./storyReviewContract.ts";
@@ -19,7 +20,7 @@ import {
 export function reviewDescription(review: StoryReview | undefined) {
   if (review?.kind === "published")
     return "Read-only: this completed story's fixed changes from published completion and execution history.";
-  if (review?.kind === "published-session") return publishedSessionDescription;
+  if (reviewsPublishedSession(review)) return publishedSessionDescription;
   if (review?.kind === "session-commits") return sessionCommitsDescription;
   if (review?.kind === "branch-result")
     return "Read-only: the branch and working files at Done, compared with the launch's starting revision.";

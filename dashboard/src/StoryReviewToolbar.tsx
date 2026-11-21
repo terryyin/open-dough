@@ -55,8 +55,7 @@ export const toolbarComparisonName = (
   const name = sessionComparisonName(sessionComparison);
   if (name !== undefined) return name;
   // An opening request alone supplies no name; an unavailable read that
-  // never answered likewise. A returned landing or session-commits gap
-  // still names the comparison it describes.
+  // never answered likewise. A returned gap still names its comparison.
   if (review === undefined || review.kind === "unavailable") return "";
   if (review.kind === "branch-result") return branchResultName;
   if (reviewsPublishedSession(review)) return publishedSessionName;

@@ -216,7 +216,7 @@ locator passed with the same localized timestamp expectation.
 ### 2. Unavailable published review names published changes
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.**
 - **Pre-condition:** a published session record whose recorded pair this
@@ -241,6 +241,10 @@ env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run --sil
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run typecheck:dashboard
 env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR npm run lint
 ```
+
+**Accepted proof.** The backend `review/published-session-review review/ad-hoc-review-kept-unavailable` selection passed 20 cases. It checks the real decoded answer for a close record whose recorded pair is absent and the successful answer at later trunk.
+The frontend `review/published-session-subject` selection passed eight cases, including the actual review region’s accessible description, toolbar and feedback. The `review/story-review-toolbar-truthful-gaps` and `sessions/recently-done-ad-hoc-review-gaps --reporter=list` selections passed another eight kept and landed cases.
+The backend and mounted regression tests both failed on the old product. The Dashboard typecheck passed. Commands used the local gate environment and sleep guard.
 
 ### 3. Prove Recently done's read gaps without the frontend app
 

@@ -12,6 +12,7 @@ import { sessionRecordRelativePath } from "../../../Distribution/src/skills/doug
 import { RefusedRequest } from "../../server/localOrigin.ts";
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { storyReviewSchema } from "../../src/storyReviewContract.ts";
 import { aCheckout } from "../support/doneCaptureCase.ts";
 
 const recordPath = (sessionId: string) =>
@@ -96,10 +97,13 @@ test("Given a record whose commits this machine's Git lacks, when it is reviewed
 
   const review = await read(published);
 
-  expect(review.kind).toBe("landing-unavailable");
-  expect("explanation" in review && review.explanation).toMatch(
-    "not in this machine's Git",
-  );
+  expect(storyReviewSchema.parse(review)).toMatchObject({
+    kind: "landing-unavailable",
+    comparison: "published-session",
+    explanation: expect.stringContaining(
+      "This session's published commits are not in this machine's Git.",
+    ) as unknown,
+  });
 });
 
 // A file read of the published session, on its recorded pair unless named.

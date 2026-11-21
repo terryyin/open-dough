@@ -1,10 +1,11 @@
 // @ts-check
 // Builders of the story review's answers (dashboard/src/storyReviewContract.ts):
 // a taken story's snapshot (./storyReviewSnapshotTestData.mjs), a completed
-// comparison (./storyReviewCompletedTestData.mjs), a landing gap, a commit
+// comparison (./storyReviewCompletedTestData.mjs), a review gap, a commit
 // range, a captured run and a file's printed diff. Node-free, so
 // pageMakeMe.mjs exposes them to mounted cases.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").StoryReview} StoryReview */
+/** @typedef {Pick<Extract<StoryReview, { kind: "landing-unavailable" }>, "explanation" | "comparison">} ReviewGap */
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
 /** @typedef {TakenStoryReview["files"][number]} ReviewedFile */
 /** @typedef {import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice} ReviewRunChoice */
@@ -26,7 +27,8 @@ export class StoryReviewBuilder {
   #files = [];
   /** @type {"snapshot" | "published" | "landed" | "session-commits" | "landing-unavailable"} */
   #kind = "snapshot";
-  #explanation = "";
+  /** @type {ReviewGap} */
+  #gap = { explanation: "" };
   /** @type {ReviewRunChoice[] | undefined} */
   #runs;
   /** @type {ReviewRunChoice | undefined} */
@@ -111,10 +113,17 @@ export class StoryReviewBuilder {
     return this;
   }
 
-  /** @param {string} explanation a landing gap's words, with no comparison */
+  /** @param {string} explanation why the landed run cannot be reviewed */
   landingGap(explanation) {
     this.#kind = "landing-unavailable";
-    this.#explanation = explanation;
+    this.#gap = { explanation };
+    return this;
+  }
+
+  /** @param {string} explanation why the published session cannot be reviewed */
+  publishedSessionGap(explanation) {
+    this.#kind = "landing-unavailable";
+    this.#gap = { explanation, comparison: "published-session" };
     return this;
   }
 
@@ -155,7 +164,7 @@ export class StoryReviewBuilder {
     const tree = run?.comparison?.revision ?? storyReviewIds.tree;
     const files = structuredClone(this.#files);
     if (this.#kind === "landing-unavailable")
-      return { kind: "landing-unavailable", explanation: this.#explanation };
+      return { kind: "landing-unavailable", ...this.#gap };
     if (this.#kind === "session-commits")
       return sessionCommits({ baseline, tree, files });
     if (this.#kind === "published")

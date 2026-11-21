@@ -27,6 +27,10 @@ import {
   sameReviewedWorkSubject,
 } from "../../src/reviewedWorkSubject.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import {
+  mountReviewChanges,
+  reviewSourceAnswering,
+} from "./story-review-panel-page.ts";
 
 const source = "review-project";
 const uuid = "6b1f0c2e-8d4a-4c1e-9f3b-2a7d5e0c9b11";
@@ -101,6 +105,24 @@ test("a published-session refresh names published changes", async () => {
       "Review refreshed: 1 changed file in the published changes.",
     );
   expect(feedback.element().textContent).not.toMatch(/kept session commits/i);
+});
+
+test("an unavailable published-session review names published changes", async () => {
+  const explanation =
+    "This session's published commits are not in this machine's Git.";
+  const gap = makeMe.aStoryReview.publishedSessionGap(explanation).please();
+  const review = await mountReviewChanges(
+    reviewSourceAnswering({ review: () => Promise.resolve(gap) }),
+    published,
+  );
+
+  await review.expectFeedback(explanation);
+  await review.expectComparisonNamed("Published changes");
+  await expect
+    .element(page.getByRole("region", { name: "Session review" }))
+    .toHaveAccessibleDescription(
+      /^Read-only: this session's published changes/,
+    );
 });
 
 // The record as the page receives it: parsed at the read boundary.

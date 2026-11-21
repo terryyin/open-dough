@@ -23,7 +23,6 @@ import {
   type AdmittedReviewedFile,
   type HistoricalReviewedFileFields,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import { unavailableSessionCommitsReview } from "./storyReviewSessionCommits.ts";
 
 // What the published read needs: the configured checkout, the published
 // revision it reads records from, and the configured backlog path.
@@ -116,15 +115,17 @@ export async function publishedSessionReview(
   const [range] = record.ranges;
   const read = await recordedPairFiles(source, range, signal);
   if ("missing" in read)
-    return unavailableSessionCommitsReview(
-      {
+    return {
+      kind: "landing-unavailable",
+      comparison: "published-session",
+      explanation: {
         repository:
           "This project's configured checkout is missing or unreadable.",
         objects:
           "This session's published commits are not in this machine's Git. Fetch the project to review them.",
         changes: "This session's published changes could not be read.",
       }[read.missing],
-    );
+    };
   return {
     kind: "published-session",
     session: { closedAt: record.closedAt },

@@ -15,15 +15,15 @@ construction, cast, duplicate case, and test scaffolding.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| P01 | Opening a published review when local Git lacks the recorded pair still yields a published-session gap (goal, finding 1; unavailable path currently returns `landing-unavailable`). | slice 2 | |
-| P02 | That unavailable answer has a published-changes comparison identity (scope, finding 1). | slice 2 | |
-| P03 | Its read-only description names published changes (finding 1 contrasts kept commits). | slice 2 | |
-| P04 | Its toolbar names published changes (finding 1 contrasts Session commits). | slice 2 | |
-| P05 | Successful review returns kind `published-session`. | slice 2 | |
+| P01 | Opening a published review when local Git lacks the recorded pair still yields a published-session gap (goal, finding 1; unavailable path currently returns `landing-unavailable`). | slice 2 | observed: published-session-review.spec.ts commits a close record with missing objects and checks landing-unavailable and its published explanation |
+| P02 | That unavailable answer has a published-changes comparison identity (scope, finding 1). | slice 2 | observed: published-session-review.spec.ts decodes the actual missing-pair answer and asserts comparison published-session |
+| P03 | Its read-only description names published changes (finding 1 contrasts kept commits). | slice 2 | observed: published-session-subject.spec.ts mounts StoryReview and checks the region’s published read-only accessible description |
+| P04 | Its toolbar names published changes (finding 1 contrasts Session commits). | slice 2 | observed: published-session-subject.spec.ts awaits Published changes in the mounted review toolbar |
+| P05 | Successful review returns kind `published-session`. | slice 2 | observed: published-session-review.spec.ts opens the recorded pair at later trunk and checks kind published-session and the changed file |
 | P06 | Success uses published-changes wording. | slice 1 | observed: published-session-subject.spec.ts checks the rendered published paragraph and refresh status without kept wording |
 | P07 | Success includes close time. | slice 1 | observed: published-session-subject.spec.ts checks the localized timestamp inside the published paragraph |
-| P08 | Existing session-commits cases retain kept-session wording. | slice 2 | |
-| P09 | That wording is exclusive to session-commits. | slice 2 | |
+| P08 | Existing session-commits cases retain kept-session wording. | slice 2 | observed: kept-unavailable backend and mounted toolbar gap checks confirm the kept tag, explanation and Session commits |
+| P09 | That wording is exclusive to session-commits. | slice 2 | observed: mounted published, kept and landing toolbar cases observe distinct descriptions or names from their typed answers |
 | P10 | Machine with no launch history can open the published review with both recorded commits in Git. | slice 4 | |
 | P11 | Live kept launch stands for its publication. | slice 3 | |
 | P12 | Done kept launch stands for its publication. | slice 3 | |
