@@ -100,11 +100,11 @@ and the existing project, campaign and follow-up owners govern delivery.
 | S16 | The existing effort choices are available under the applicable host and provider conditions. [S, E2] | slice 5 |  |
 | S17 | UI-owned provider constraints remain observable on the paths where they apply. The source leaves the individual constraints unspecified. [S] | slice 5 |  |
 | S18 | The existing refinement options are available in the refinement flow. [S, E2] | slice 6 |  |
-| S27 | Existing creation gates continue to enforce their conditions. The source names the in-flight and unresolved conditions in E5 and leaves any other gates unspecified. [S, E5] | slice 4 |  |
+| S27 | Existing creation gates continue to enforce their conditions. The source names the in-flight and unresolved conditions in E5 and leaves any other gates unspecified. [S, E5] | slice 4 | observed: story-card-startup.spec.ts and startup-recovery.spec.ts observe held, accepted and unresolved launch gates, and responsive-session-start.spec.ts protects the actual Backlog card without making a Taken assignment |
 | S28 | The instruction layout preserves its existing observable behavior at the covered viewports. [S, A4] | slice 1 | observed: ad-hoc-start-session-layout.spec.ts and ad-hoc-launch-dialog.spec.ts: keyboard order, 320 CSS px and 200% conditions, reachability and footer |
 | S29 | Touch can operate the instruction area on the existing covered paths. [S, A4] | slice 1 | observed: ad-hoc-refinement-touch.spec.ts and ad-hoc-start-session-answer.spec.ts: native touch, edit, rotate, close and direction disclosure |
-| S53 | Existing startup answer behavior remains observable at the launch boundary. The source leaves any expected answers beyond its examples unspecified. [S] | slice 4 |  |
-| S54 | Existing host wording is preserved where it is part of the launch proof. [S, A4] | slice 4 |  |
+| S53 | Existing startup answer behavior remains observable at the launch boundary. The source leaves any expected answers beyond its examples unspecified. [S] | slice 4 | observed: the nine mounted startup and recovery cases exercise the real attempt path through accepted, refused, lost and later machine-read answers, with composed held and native recovery proof listed in proof.md |
+| S54 | Existing host wording is preserved where it is part of the launch proof. [S, A4] | slice 4 | observed: story-card-startup.spec.ts observes exact host/workflow/capability phrases, and startup-recovery.spec.ts observes Claude code-marked advice and its absence for Cursor |
 | M01 | The coverage disposition accounts for every legacy `launches/` spec in the stated inventory of 29 sources and 81 cases. These counts describe the starting inventory. [S, A4] | slice 8 |  |
 | M02 | Frontend unit proof in scope runs in plain Vitest. [S, A1] | slice 8 |  |
 | M03 | Journeys requiring actual installation remain covered in `e2e/launches/`. [S] | slice 8 |  |

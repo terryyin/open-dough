@@ -148,7 +148,7 @@ clickable appearance in light and dark schemes.
 ### 4. Startup answers, uncertain recovery, and host words stay truthful
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `agent-launch-story-card-answers`, `agent-launch-story-card-uncertain`, and
 `startup-host-words` (9). Mount `StoryCardLaunches`, `StartupStatus`, and

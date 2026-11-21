@@ -13,6 +13,8 @@ import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandi
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
+import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { CreationRecordBuilder } from "./launchCreationTestData.mjs";
 import {
   ObservedLaunchBuilder,
@@ -34,6 +36,8 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./storyReviewTestData.mjs").StoryReviewMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
+ *     readonly anAcceptedAttempt: AcceptedAttemptBuilder;
+ *     readonly anAttemptObservation: AttemptObservationBuilder;
  *     readonly aCreationRecord: CreationRecordBuilder;
  *     readonly aDoneRecord: DoneRecordBuilder;
  *     readonly aSessionState: SessionStateBuilder;
@@ -86,6 +90,18 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new CreationRecordBuilder();
+    },
+  },
+  anAcceptedAttempt: {
+    enumerable: true,
+    get() {
+      return new AcceptedAttemptBuilder();
+    },
+  },
+  anAttemptObservation: {
+    enumerable: true,
+    get() {
+      return new AttemptObservationBuilder();
     },
   },
   aSessionState: {

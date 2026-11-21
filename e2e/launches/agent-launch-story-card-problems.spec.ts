@@ -4,8 +4,8 @@
 // not answer within the launch wait reports uncertainty under Startup
 // recovery, and only the explicit recovery choice starts its kept instruction
 // again. What the card and Startup recovery say about failed and uncertain
-// answers is ../../dashboard/frontend-tests/launches/agent-launch-story-card-answers.spec.ts
-// and ../../dashboard/frontend-tests/launches/agent-launch-story-card-uncertain.spec.ts.
+// answers is covered by ../../dashboard/frontend-tests/launches/story-card-startup.spec.ts
+// and ../../dashboard/frontend-tests/launches/startup-recovery.spec.ts.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
