@@ -112,5 +112,10 @@ decision recorded then:
 
 #### Open for refinement
 
-- Whether any of these is still wanted: each was set aside for the stated
-  reason, and none has a way forward or an example yet.
+- In the unified reader, Default main keeps exact recorded runs and its
+  shared-checkout warning. The branch-only merge choice requires branch
+  evidence. [Combined session review](SEED-418-review-published-session-changes.md#review-selected-sessions-together)
+  owns net changes across selected sessions where the evidence supports
+  them. This deferred story covers only the remaining Default main cases
+  above. Retain the earlier decisions until refinement finds a recoverable
+  comparison for a case.

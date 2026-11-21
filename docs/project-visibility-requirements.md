@@ -8,8 +8,9 @@ implemented yet.
 ## Three perspectives
 
 Development, Product intent, and Structure are independent related perspectives.
-The dashboard presents Development. Product intent and Structure remain design
-work.
+The dashboard presents Development and a test-focused Intent reader. The
+unified review design extends Intent to repository files. Structure remains
+a separate future perspective.
 
 <a id="product-intent-perspective-the-current-product"></a>
 
@@ -20,6 +21,15 @@ current product is meant to do and why. Each Product intent contains Purpose
 and Proof. How Purpose and Proof are represented beyond the current Intent
 reading, and how relationships among stories, product intents, and structure
 are recorded or derived, remain open.
+
+With no selected story, a developer can read the whole project at one named
+revision and see CI changes on trunk. Selecting a story supplies a comparison
+and optional session selection. Its cumulative review includes production code,
+tests and other repository files. A Done story opens at its historical result.
+Proof identifies the builds actually observed, including ancestor or later
+builds used for context. If no comparable pair isolates the contribution, show
+the available observations and the gap. The [review design](dashboard-ux-ui-north-star.md#review-in-intent)
+describes navigation and file filters.
 
 ## Questions retained for later design
 

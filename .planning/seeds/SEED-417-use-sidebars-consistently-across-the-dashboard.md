@@ -19,7 +19,7 @@ scope: one story
 ```
 
 **Goal.** A developer can show, hide, and reopen a Dashboard sidebar the same
-way when browsing Sessions, reviewing changed files, or browsing Intent entries.
+way when browsing Sessions or using the shared Intent and Review changes file browser.
 
 **Examples.**
 
@@ -31,7 +31,12 @@ way when browsing Sessions, reviewing changed files, or browsing Intent entries.
   stays inactive until the developer clicks or taps it again.
 - On a wide screen, the open sidebar sits alongside the main content. The
   developer can interact with that content while the sidebar stays open.
+- The Files toggle stays reachable with the sidebar closed. In the file
+  sidebar's top row a Home icon precedes Intent only and Changes only. All
+  three fit on a phone in one row. Home opens the current scope's overview
+  while preserving the story, sessions and comparison.
 
-**Scope.** The Sessions sidebar, the Review changes file browser, and the Intent
-entry browser share one implementation for toggling, responsive layout, and
-outside-click dismissal.
+**Scope.** The Sessions sidebar and the shared file browser use one
+implementation for toggling, responsive layout and outside-click dismissal.
+The [file filtering story](SEED-420-unified-intent-review.md#filter-review-files)
+owns the effect of the two filters on inventory and summaries.

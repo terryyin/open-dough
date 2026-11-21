@@ -11,6 +11,10 @@ scope: six stories
 
 A developer should be able to find what a session contributed from any machine with the project repository. Today a completed story can be reconstructed from published history, while session comparisons depend on local launch records. [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state) places the published association in the repository.
 
+The [unified Intent review seed](SEED-420-unified-intent-review.md) owns
+the review destination, the Recent stories regression and the identity of
+standalone Done work. This seed owns session attribution and selection.
+
 <a id="attribute-every-workflow-session-record"></a>
 
 ### Attribute every workflow session’s published changes
@@ -89,7 +93,14 @@ repository are sufficient to review the comparisons.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-In a story’s **Review changes**, a developer can choose one completed session and inspect its contribution. Offer refinements, execution, and linked ad hoc follow-ups, including follow-ups published after story completion. Identify repeated refinements individually and explain a missing comparison for the selected session.
+In the shared Intent review, **Sessions** defaults to the whole story.
+A developer can choose one completed session from the story's refinements,
+execution and linked follow-ups, including follow-ups after story completion.
+Name repeated refinements individually. With **All changes**, inspect the
+chosen session's contribution. With **Landed runs**, show its recorded runs
+under the same session and allow selection when it has several. A session
+without a landing stays selected with an explanation. Source, diff and Proof
+use that selection.
 
 Given two refinements, execution, and a follow-up on another machine, selecting the second refinement shows the changes attributed to that refinement. The whole-story comparison remains available.
 
@@ -108,6 +119,11 @@ Given two refinements, execution, and a follow-up on another machine, selecting 
 A developer can select several sessions in the story review and see their net effect. For example, selecting execution and a subsequent fix shows the final version of the corrected line once. Preserve each session’s identity so the reviewer can inspect its contribution.
 
 A skipped session or an unrelated trunk change can fall between two selections. Exclude that work from the combined result. Where a selected edit depends on an excluded change and the net result cannot be separated faithfully, explain the gap and offer the selected comparisons individually.
+
+Use the same Sessions picker for one or several sessions and their runs.
+Switching between All changes and Landed runs preserves the chosen sessions.
+Proof names the measured revisions for that selection and offers per-range
+evidence when the combined changes have no corresponding build.
 
 <a id="recover-expired-session-reviews"></a>
 

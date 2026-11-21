@@ -70,3 +70,4 @@ or a superseding ADR. Agents must not silently override a decision.
 | [0008](./0008-project-dashboard-domain-and-architecture-accepted.md) | Accepted | Project dashboard domain and architecture |
 | [0009](./0009-git-branching-and-integration.md) | Proposed | Git branching and integration |
 | [0010](./0010-definition-of-improvement-accepted.md) | Accepted | Definition of improvement |
+| [0011](./0011-review-scope-in-product-intent.md) | Proposed | Review scope in Product intent |

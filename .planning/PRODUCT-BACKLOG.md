@@ -35,8 +35,12 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
-- [Tie Done capture cases to the real branch entry and retire the fold’s residue](seeds/SEED-413-renovate-dashboard-unit-tests.md#tie-done-capture-cases-to-production) — SEED-413#tie-done-capture-cases-to-production
 - [Attribute every workflow session’s published changes](seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record) — SEED-418#attribute-every-workflow-session-record
+- [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
+- [Tie Done capture cases to the real branch entry and retire the fold’s residue](seeds/SEED-413-renovate-dashboard-unit-tests.md#tie-done-capture-cases-to-production) — SEED-413#tie-done-capture-cases-to-production
+- [Open a story's change review in Intent](seeds/SEED-420-unified-intent-review.md#open-review-in-intent) — SEED-420#open-review-in-intent
+- [Compare a story branch with and without incoming trunk changes](seeds/SEED-420-unified-intent-review.md#compare-story-contributions) — SEED-420#compare-story-contributions
+- [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Get fast proof of Intent source and story reading](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading) — SEED-413#speed-intent-source-and-story-reading
@@ -53,10 +57,13 @@ intent introduced or affected by a newly developed story.
 - [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream
 - [Continue a ready split story automatically after wrap-up](seeds/SEED-366-continue-split-stories-automatically.md#continue-a-ready-split-story-automatically) — SEED-366#continue-a-ready-split-story-automatically
 - [Put story actions in the comment toolbar](seeds/SEED-416-put-story-actions-in-the-comment-toolbar.md#put-story-actions-in-the-comment-toolbar) — SEED-416#put-story-actions-in-the-comment-toolbar
+- [Choose the whole project or a recent story from the bookmark](seeds/SEED-420-unified-intent-review.md#choose-review-scope) — SEED-420#choose-review-scope
 - [Review the combined changes of selected sessions](seeds/SEED-418-review-published-session-changes.md#review-selected-sessions-together) — SEED-418#review-selected-sessions-together
 - [Start Claude Code implementers from a role-sized tool set](seeds/SEED-345-session-token-efficiency.md#start-implementers-from-a-role-sized-tool-set) — SEED-345#start-implementers-from-a-role-sized-tool-set
 - [Close the landed CI repeat checks’ coverage gaps](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps) — SEED-324#close-landed-ci-repeat-check-gaps ([plan](slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md))
 - [Use sidebars consistently across the Dashboard](seeds/SEED-417-use-sidebars-consistently-across-the-dashboard.md#use-sidebars-consistently-across-the-dashboard) — SEED-417#use-sidebars-consistently-across-the-dashboard
+- [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files
+- [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision
 - [Load execution guidance for the current phase](seeds/SEED-345-session-token-efficiency.md#load-execution-guidance-for-the-current-phase) — SEED-345#load-execution-guidance-for-the-current-phase
 - [Verify the silent supplier wait in Codex](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use) — SEED-389#verify-silent-supplier-wait-in-use ([plan](slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md))
 - [Verify the silent supplier wait in Claude Code](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-claude-code) — SEED-389#verify-silent-supplier-wait-in-claude-code

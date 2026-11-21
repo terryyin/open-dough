@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Open Dough · Unified Intent review</title>
+</head>
+<body>
+<section id="dough-review-sessions" aria-label="Unified Intent and change review">
+<style>
+#dough-review-sessions{--canvas:light-dark(#fafbfe,#151b27);--ink:light-dark(#192239,#e9edf7);--sub:light-dark(#536078,#aab7cd);--rule:light-dark(#d5dce8,#354054);--bar:light-dark(#edf1f8,#202938);--chosen:light-dark(#dde6fb,#354664);--good:light-dark(#236557,#92d2bc);--edge:light-dark(#a2aec2,#65748c);background:var(--canvas);color:var(--ink);border:1px solid var(--rule);border-radius:10px;font:14px/1.45 system-ui,sans-serif;container-type:inline-size}
+#dough-review-sessions *{box-sizing:border-box}
+#dough-review-sessions :is(header,.toolbar,.tabs,.inline,.poprow){display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#dough-review-sessions header{padding:11px 16px;background:var(--bar);border-radius:10px 10px 0 0;border-bottom:1px solid var(--rule)}
+#dough-review-sessions h2,#dough-review-sessions h3{font:600 17px/1.4 system-ui,sans-serif;margin:0;color:var(--ink);overflow-wrap:anywhere}
+#dough-review-sessions small,#dough-review-sessions .quiet{color:var(--sub);font-size:12px}
+#dough-review-sessions header .project{margin-inline-start:auto}
+#dough-review-sessions .toolbar{padding:9px 12px;border-bottom:1px solid var(--rule)}
+#dough-review-sessions :is(button,select,summary){font:inherit;color:var(--ink);cursor:pointer}
+#dough-review-sessions :is(button,select,summary){background:var(--canvas);border:1px solid var(--rule);border-radius:5px;padding:5px 8px}
+#dough-review-sessions :is(button,summary):hover{background:var(--chosen)}
+#dough-review-sessions [aria-pressed=true]{background:var(--chosen)}
+#dough-review-sessions header [data-key=mark]{display:inline-flex;align-items:center}
+#dough-review-sessions [data-active=true] svg{fill:currentColor}
+#dough-review-sessions svg{width:16px;height:16px}
+#dough-review-sessions .iconbtn{display:inline-grid;place-items:center;min-width:32px;min-height:32px}
+#dough-review-sessions details{position:relative}
+#dough-review-sessions summary{list-style:none;display:flex;gap:6px;align-items:center}
+#dough-review-sessions summary::-webkit-details-marker{display:none}
+#dough-review-sessions .menu{position:absolute;z-index:4;inset-block-start:calc(100% + 4px);inset-inline-start:0;width:max-content;max-width:min(85cqw,320px);padding:8px;background:var(--canvas);border:1px solid var(--edge);border-radius:6px;box-shadow:0 8px 20px light-dark(#19223926,#090e195c)}
+#dough-review-sessions .menu button{display:block;text-align:left;width:100%;border:0}
+#dough-review-sessions .poprow{padding:4px;flex-wrap:nowrap}
+#dough-review-sessions label{cursor:pointer}
+#dough-review-sessions .layout{display:grid;grid-template-columns:minmax(220px,33%) minmax(0,1fr)}
+#dough-review-sessions .layout.closed{grid-template-columns:minmax(0,1fr)}
+#dough-review-sessions nav{background:var(--bar);border-inline-end:1px solid var(--rule);padding:10px}
+#dough-review-sessions nav .filters{border-bottom:1px solid var(--rule);margin-bottom:8px;padding-bottom:8px;display:flex;align-items:center;gap:3px;font-size:12px}
+#dough-review-sessions .filters label{display:inline-flex;align-items:center;white-space:nowrap}
+#dough-review-sessions nav .filters .iconbtn{width:auto;flex:none}
+#dough-review-sessions nav small{display:block;margin:10px 5px 3px}
+#dough-review-sessions nav button{width:100%;text-align:left;border:0;font:12px/1.5 ui-monospace,monospace;overflow-wrap:anywhere;background:transparent}
+#dough-review-sessions main{padding:17px;min-height:240px}
+#dough-review-sessions .tabs{margin:12px 0}
+#dough-review-sessions p{margin:8px 0;overflow-wrap:anywhere}
+#dough-review-sessions .value{color:var(--good);font-size:16px}
+#dough-review-sessions .rev{font:12px/1.55 ui-monospace,monospace;color:var(--sub)}
+#dough-review-sessions footer{border-top:1px solid var(--rule);padding:6px 12px}
+#dough-review-sessions [hidden]{display:none}
+@container(max-width:570px){#dough-review-sessions .layout{display:block}#dough-review-sessions .toolbar{gap:6px}#dough-review-sessions .menu{position:static;width:100%;max-width:100%;box-shadow:none;margin-top:4px}#dough-review-sessions details[open]{flex-basis:100%}#dough-review-sessions nav{border-inline-end:0;border-bottom:1px solid var(--rule)}}
+@container(max-width:570px){#dough-review-sessions [data-key=recent] summary{width:44px;height:44px;justify-content:center}#dough-review-sessions [data-key=recent] :is([data-key=scope-name],.caret){display:none}#dough-review-sessions .filters :is(button,label){min-height:44px}#dough-review-sessions nav .filters .iconbtn{min-width:44px}}
+</style>
+<header><strong>Intent</strong>
+<details data-key="recent"><summary aria-label="Recent stories"><span data-key="mark" aria-hidden="true"><i data-lucide="bookmark"></i><span data-key="bookmark-fallback" data-fallback>🔖</span></span><span data-key="scope-name">Landing records</span><span class="caret" aria-hidden="true">▾</span></summary>
+<div class="menu"><small>Recent stories</small><button type="button" data-scope="project">Whole project · clear story</button><button type="button" data-scope="landing">Keep kept records intact through landings</button><button type="button" data-scope="handoff">Prove ad hoc review handoffs</button></div></details>
+<small class="project">Open Dough</small></header>
+<div class="toolbar" aria-label="Review toolbar">
+<button class="iconbtn" type="button" data-key="files" aria-label="Hide files" data-tooltip="Files"><i data-lucide="panel-left" aria-hidden="true"></i><span data-fallback>☰</span></button>
+<details data-key="sessions"><summary data-key="session-title">Sessions · All ▾</summary><div class="menu" data-key="session-list"></div></details>
+<label class="inline" data-key="source-wrap">Compare <select data-key="source"><option value="all">All changes</option><option value="landed">Landed runs</option></select></label>
+<label class="inline" data-key="merges-wrap"><input type="checkbox" data-key="merges">Include merged changes</label>
+</div>
+<div class="layout" data-key="layout"><nav data-key="sidebar" aria-label="Files">
+<div class="filters"><button class="iconbtn" type="button" data-key="home" aria-label="Overview" data-tooltip="Overview"><i data-lucide="house" aria-hidden="true"></i><span data-fallback>⌂</span></button><label><input data-key="intent" type="checkbox"> Intent only</label><label><input data-key="changes" type="checkbox" checked> Changes only</label></div>
+<div data-key="tree"></div>
+</nav><main aria-live="polite"><small data-key="context"></small><h3 data-key="title"></h3><div class="tabs"><button type="button" data-key="source-tab"></button><button type="button" data-key="proof-tab">Proof</button></div><p data-key="intro"></p><p class="value" data-key="result"></p><p class="rev" data-key="basis"></p></main></div>
+<footer><small>Design example · session and run selections are illustrative.</small></footer>
+</section>
+<script>
+(() => {
+const root = document.getElementById("dough-review-sessions");
+const el = key => root.querySelector('[data-key="'+key+'"]');
+const labels = {landing:"Landing records",handoff:"Ad hoc review handoffs",project:"Whole project"};
+const files = {
+ plan:[".planning","PLAN.md",false,"Refinement records the landing behavior to verify."],
+ code:["dashboard/server","branchLandingContext.ts",false,"Preserve newer launch evidence when saving a landing context."],
+ test:["dashboard/backend-tests/review","branch-landing-handoff.spec.ts",true,"Verify the saved landing context alongside newer record evidence."],
+ other:["dashboard/backend-tests/review","ad-hoc-session-branch-handoff.spec.ts",true,"Check branch-entry admission and session lookup."],
+ entry:["dashboard/backend-tests/review","ad-hoc-session-branch-entry.spec.ts",true,"Verify the branch recorded for a session."]
+};
+const histories = {
+ landing:[["r1","Refinement · first pass",["plan"],[]],["r2","Refinement · revised plan",["plan"],["Plan landing"]],["ex","Execution",["code","test"],["Record write","Landing handoff"]],["fu","Follow-up",["test"],[]]],
+ handoff:[["r1","Refinement",["plan"],["Plan landing"]],["ex","Execution",["other"],["Handoff landing"]]]
+};
+let scope="landing", mode="all", selected=null, chosenRuns={}, merged=false, showFiles=true, intent=false, changes=true, place="home", read="proof";
+const history=()=>histories[scope]??[];
+const hasRun=s=>s[3].length>0;
+const eligible=()=>history().filter(s=>mode==="all"||hasRun(s));
+const picked=()=>eligible().filter(s=>selected===null||selected.includes(s[0]));
+const isProject=()=>scope==="project";
+const runKeys=s=>s[3].map((_,i)=>i);
+const runsOf=s=>chosenRuns[s[0]]??runKeys(s);
+function put(key,txt){const n=el(key);n.textContent=txt;n.hidden=!txt;}
+function activeFiles() {
+ const out=new Set();
+ for(const s of picked()){
+   const paths=mode==="landed"&&scope==="landing"&&s[0]==="ex" ? runsOf(s).flatMap(i=>i===0?["code"]:["test"]):s[2];
+   paths.forEach(p=>out.add(p));
+ }
+ if(merged&&scope==="landing"&&picked().some(s=>s[0]==="ex"))out.add("other");
+ return out;
+}
+function check(parent,label,checked,disabled,fn,indent=false){
+ const row=document.createElement("label");row.className="poprow";if(indent)row.style.paddingInlineStart="24px";
+ const box=document.createElement("input");box.type="checkbox";box.checked=checked;box.disabled=disabled;
+ box.setAttribute("aria-label",label);row.append(box,document.createTextNode(label));parent.append(row);box.addEventListener("change",()=>{fn(box.checked);const match=Array.from(parent.querySelectorAll("input")).find(input=>input.getAttribute("aria-label")===label&&!input.disabled);(match??el("session-title")).focus();});
+}
+function sessions(){
+ const box=el("session-list");box.replaceChildren();
+ check(box,mode==="all"?"Whole story":"All landed runs",selected===null&&!Object.keys(chosenRuns).length,false,()=>{selected=null;chosenRuns={};update();});
+ for(const s of history()){
+  const usable=mode==="all"||hasRun(s), on=selected?.includes(s[0])??false;
+  check(box,s[1]+(usable?"":" · no landed run"),on,!usable&&!on,value=>{
+    const ids=new Set(selected??[]);if(value)ids.add(s[0]);else ids.delete(s[0]);selected=ids.size?[...ids]:null;delete chosenRuns[s[0]];update();
+  });
+  if(on&&mode==="landed"&&s[3].length>1){
+   s[3].forEach((name,i)=>check(box,name,runsOf(s).includes(i),runsOf(s).length===1&&runsOf(s).includes(i),value=>{
+    const ids=new Set(runsOf(s));if(value)ids.add(i);else ids.delete(i);chosenRuns[s[0]]=[...ids];update();
+   },true));
+  }
+ }
+}
+function tree(inScope){
+ const holder=el("tree");holder.replaceChildren();let last="";
+ const visible=Object.keys(files).filter(id=>(scope!=="handoff"||id!=="test")&&(!intent||files[id][2])&&(isProject()||!changes||inScope.has(id)));
+ if(place!=="home"&&!visible.includes(place))place="home";
+ for(const id of visible){
+   const [folder,name]=files[id];if(folder!==last){const group=document.createElement("small");group.textContent=folder;holder.append(group);last=folder;}
+   const b=document.createElement("button");b.type="button";b.textContent=name;b.setAttribute("aria-pressed",String(place===id));holder.append(b);
+   b.onclick=()=>{place=id;update();};
+ }
+ if(!visible.length)holder.textContent="No files match both filters.";
+}
+function render(){
+ const project=isProject(), chosen=picked(), inScope=activeFiles();
+ el("scope-name").textContent=labels[scope];el("mark").dataset.active=String(!project);
+ el("bookmark-fallback").textContent=project?"⚐":"🔖";
+ el("recent").querySelector("summary").setAttribute("aria-label","Recent stories, "+labels[scope]);
+ for(const b of root.querySelectorAll("[data-scope]"))b.setAttribute("aria-pressed",String(b.dataset.scope===scope));
+ el("source-wrap").hidden=el("sessions").hidden=el("merges-wrap").hidden=project;
+ el("source").value=mode;el("merges").checked=merged;
+ el("session-title").textContent="Sessions · "+(selected===null?"All":selected.length===1?history().find(s=>s[0]===selected[0])?.[1]:selected.length+" selected")+" ▾";
+ el("intent").checked=intent;el("changes").checked=!project&&changes;el("changes").disabled=project;
+ el("sidebar").hidden=!showFiles;el("layout").classList.toggle("closed",!showFiles);el("files").setAttribute("aria-expanded",String(showFiles));el("files").setAttribute("aria-label",showFiles?"Hide files":"Show files");
+ sessions();tree(inScope);
+ const storyEnd=scope==="handoff"?"be03d56":"daf6997";
+ const storyWhole=!project&&selected===null&&mode==="all";
+ const focused=!project&&(!storyWhole||Object.keys(chosenRuns).length>0);
+ const home=place==="home", proof=read==="proof";
+ put("context",project?"Project snapshot · main at daf6997":labels[scope]+" · "+(mode==="landed"?"Landed runs":"All changes")+" · "+(merged?"Includes merges":"Selected contribution"));
+ put("title",home?(project?"Project overview":"Story overview"):files[place][1]);
+ el("source-tab").textContent=home?(project?"Project":"Changes"):(project||!inScope.has(place)?"Source":"Diff");
+ el("source-tab").setAttribute("aria-pressed",String(!proof));el("proof-tab").setAttribute("aria-pressed",String(proof));
+ let intro="",result="",basis="";
+ if(home&&proof){
+  if(project){intro="CI changes on main";result="Branch handoff tests · 1 → 9 cases";basis="Observed builds · 8ecbf43 → daf6997";}
+  else if(focused){intro=chosen.map(s=>s[1]+(mode==="landed"?" · "+runsOf(s).map(i=>s[3][i]).join(", "):"")).join(" / ");result=chosen.length?"No matching CI pair for this selection":"No landed run for the selected sessions";basis="A session choice can cover several separate comparisons.";}
+  else{intro="CI comparison";result=merged?"Observed builds include other work landed during the story.":"Completion proof is available. The story-only baseline has no measured run.";basis=(merged?"Observed baseline 8ecbf43 → ":"Completion build · ")+storyEnd;}
+ } else if(home){intro=project?"Browse the project at the displayed revision.":chosen.map(s=>s[1]).join(" / ");result=project?"Purpose and supporting tests":[...inScope].length+" changed files in this excerpt";basis=mode==="landed"?chosen.flatMap(s=>runsOf(s).map(i=>s[3][i])).join(" · "):"";}
+ else if(!proof){intro=files[place][3];result=project?"Source at the project snapshot":inScope.has(place)?"Changed in the selected comparison":"Source at the selected revision";basis=focused?"Illustrative session selection":storyEnd;}
+ else if(!files[place][2]){intro="CI reports outcomes by test file.";result="No direct file result";}
+ else if(focused){intro="Selected sessions · "+chosen.map(s=>s[1]).join(" / ");result="No matching CI pair for this selection";}
+ else if(place==="other"&&merged&&!project){result="1 → 9 test cases (+8)";basis="Observed builds · 8ecbf43 → "+storyEnd;}
+ else{const n=place==="other"?9:4;result=n+" cases passed";basis="Observed build · "+storyEnd;if(!project)intro="Results measured at completion.";}
+ put("intro",intro);put("result",result);put("basis",basis);
+}
+function update(){render();window.openai?.setWidgetState?.({modelContent:{scope,mode,selected,chosenRuns,merged,intent,changes,place,read},privateContent:{showFiles}})?.catch(()=>{});}
+function restore(state){
+ const s=state?.modelContent;
+ if(s&&Object.hasOwn(labels,s.scope)){
+  scope=s.scope;mode=s.mode==="landed"?"landed":"all";selected=Array.isArray(s.selected)?s.selected.filter(id=>history().some(a=>a[0]===id)):null;
+  if(!selected?.length)selected=null;chosenRuns={};
+  for(const item of eligible()){const saved=s.chosenRuns?.[item[0]];if(Array.isArray(saved)){const valid=runKeys(item).filter(i=>saved.includes(i));if(valid.length)chosenRuns[item[0]]=valid;}}
+  merged=s.merged===true;intent=s.intent===true;changes=s.changes!==false;place=Object.hasOwn(files,s.place)?s.place:"home";read=s.read==="source"?"source":"proof";showFiles=state.privateContent?.showFiles!==false;
+ }
+ render();
+}
+for(const b of root.querySelectorAll("[data-scope]"))b.onclick=()=>{scope=b.dataset.scope;selected=null;chosenRuns={};mode="all";merged=false;place="home";read="proof";el("recent").open=el("sessions").open=false;update();};
+el("source").onchange=e=>{mode=e.target.value;chosenRuns={};update();};
+el("files").onclick=()=>{showFiles=!showFiles;update();};
+el("home").onclick=()=>{place="home";read="proof";update();};
+for(const [key,fn] of [["merges",v=>merged=v],["intent",v=>intent=v],["changes",v=>changes=v]])el(key).onchange=e=>{fn(e.target.checked);update();};
+el("proof-tab").onclick=()=>{read="proof";update();};el("source-tab").onclick=()=>{read="source";update();};
+for(const d of root.querySelectorAll("details"))d.addEventListener("toggle",()=>{if(d.open)for(const peer of root.querySelectorAll("details"))if(peer!==d)peer.open=false;});
+document.addEventListener("click",e=>{for(const d of root.querySelectorAll("details[open]"))if(!e.composedPath().includes(d))d.open=false;});
+root.addEventListener("keydown",e=>{if(e.key==="Escape"){const d=root.querySelector("details[open]");if(d){d.open=false;d.querySelector("summary").focus();}}});
+if(globalThis.lucide){globalThis.lucide.createIcons();for(const fallback of root.querySelectorAll("[data-fallback]"))fallback.hidden=true;}
+window.addEventListener("openai:set_globals",e=>{if(e.detail?.globals?.widgetState)restore(e.detail.globals.widgetState);});
+restore(window.openai?.widgetState);
+})();
+</script>
+</body>
+</html>

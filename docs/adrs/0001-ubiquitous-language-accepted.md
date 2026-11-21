@@ -106,9 +106,7 @@ The dashboard relates changing work to the product it changes:
 Development, Product intent, and Structure are independent related perspectives.
 Development creates, changes, and maintains product intents and structure;
 learning informs further attempts. Relationships can be many-to-many, with
-stories connecting development work to the product it affects. The current
-dashboard presents Development through stories, recorded progress, and local
-sessions; the Product intent and Structure perspectives remain design work.
+stories connecting development work to the product it affects.
 [ADR 0008](./0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
 owns their cross-task relationships and state boundaries. Open design choices
 stay in the

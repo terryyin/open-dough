@@ -18,6 +18,9 @@ The [Dashboard UX/UI North Star](../dashboard-ux-ui-north-star.md) holds
 temporary interface direction that is not implemented yet. It is not accepted
 architecture.
 
+[Proposed ADR 0011](0011-review-scope-in-product-intent.md) revisits where
+story review opens and how it shares a selection with Proof.
+
 ## Decision
 
 ### Domain concepts and relationships
@@ -204,11 +207,9 @@ machine without becoming the authority for project state. Current capabilities
 are documented by the dashboard's code, automated tests, and configuration
 ([ADR 0000](./0000-use-adrs-accepted.md)).
 
-The Product intent and Structure perspectives remain design direction.
-Their meaning constrains how we understand the product without requiring their
-machinery in advance. Their UX/UI, proof information, and architectural North
-Star placement remain open. Presentation and storage choices belong to that
-design work.
+Intent already reads test source and CI observations. Its proposed role as
+the shared change reader is described in [ADR 0011](0011-review-scope-in-product-intent.md).
+Structure remains a separate design direction.
 
 ## Consequences
 

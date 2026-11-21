@@ -31,6 +31,12 @@ The selected story's card is highlighted with an inset accent ring and pale blue
 
 The pinned banner places a **Recent stories** icon button in its own group immediately after the Development/Intent Perspective choice and before the project control. That button shows whether a Selected story is set and opens the Recent stories list. Clicking it reveals the Selected story in the current perspective when its start is out of view, and otherwise opens the list. Choosing a Recent stories row sets the Selected story, closes the list, and reveals that story in the current perspective: in Development through the same story-reference journey a dependency link uses (switching project when needed, leaving Roster for Columns, focusing and cueing the card, or reporting an unavailable story); in Intent by showing the story's view from its start (leaving Project Intent when it was chosen), selecting with nothing new added when the story is no longer on the Board.
 
+Under the [unified review design](dashboard-ux-ui-north-star.md#review-in-intent),
+**Review changes** opens Intent with the card's story selected. The bookmark
+offers **Whole project** alongside recent stories. Choosing it clears the
+selection and preserves the recent list. On mobile the bookmark presents an
+icon-only target with the selected story or project scope in its accessible name.
+
 Use one navigable Board containing connected Columns. Initially,
 show **Backlog → Taken**, with Story cards placed inside their recorded region.
 The connector means “work can be taken from the backlog,” not a dependency
