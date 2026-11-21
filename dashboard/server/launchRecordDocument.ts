@@ -13,12 +13,8 @@
 // when unreadable as `./machineJsonStore.ts` describes.
 
 import { z } from "zod";
-import { creationSchema, type CreationRecord } from "../src/launchCreation.ts";
-import {
-  launchRecordSchema,
-  launchRetentionDays,
-  type LaunchRecord,
-} from "../src/agentLaunch.ts";
+import { creationSchema } from "../src/launchCreation.ts";
+import { launchRecordSchema, type LaunchRecord } from "../src/agentLaunch.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import {
   appendLaunchHistory,
@@ -35,8 +31,7 @@ import {
   newlyDeliveredEntries,
   notifyRecordsDelivered,
 } from "./launchRecordDelivery.ts";
-
-const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
+import { withinRetention } from "./launchRecordRetention.ts";
 
 const storeSchema = z.record(
   z.string(),
@@ -56,18 +51,6 @@ function launchStore(): MachineJsonStore<StoredRecords> {
     schema: storeSchema,
     empty: {},
   };
-}
-
-export function withinRetention(
-  records: readonly (LaunchRecord | CreationRecord)[],
-  now: number,
-): (LaunchRecord | CreationRecord)[] {
-  return records.filter(
-    (record) =>
-      !("session" in record) ||
-      record.doneAt === undefined ||
-      now - Date.parse(record.doneAt) <= retentionMs,
-  );
 }
 
 // Reads the single shared document without changing retained evidence.
