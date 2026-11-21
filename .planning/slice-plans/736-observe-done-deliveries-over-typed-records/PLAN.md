@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#observe-done-deliveries-over-typed-records
 **Source:** [Observe Done deliveries over typed kept records](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records)
+**Source review:** [Independent source review](source-review.md)
 
 ## Goal and scope
 
@@ -107,12 +108,31 @@ No other premise is left unobserved. Composed `LaunchRecord` branch-result
 builders and composed-record `doneCaptureReview.ts` are supplied by the
 recorded blocking dependency on `SEED-413#split-done-mark-decision-from-store`.
 
+## Execution context
+
+Story Branch Mode in the dashboard-established owned worktree
+`/Users/terryyin/git/open-dough/.worktrees/observe-done-deliveries-over-typed-kept-records`
+on `codex/observe-done-deliveries-over-typed-kept-records`. Default and
+integration checkout `/Users/terryyin/git/open-dough`; authorized remote
+`origin`, trunk `main`. Publisher `dashboard-territory.local-open-dough`,
+agent Honoka-chan. Starting revision
+`1946c3db2264257afb7d578591fe096d495ba250`; claim and previously published
+base `e6cd3a3200b7a8b4f9a2092799efcdd5e6e81b5d`. The recorded Ready assessment
+was marked Changed since readiness review. The selected story and plan still
+align; production pin queries from the landed branch-entry sibling are available.
+Existing planning authority applies.
+
+Story-branch CI observes GitHub workflow `ci.yml` (CI), with coordinator
+`honoka-observe-736-76f2889f` and yielded Codex cell `g61:13` (shell session
+`22870`, PID `27702`, mailbox `/tmp/dough-ci-501/watch-jEMfCL`).
+
+
 ## Ordered slices
 
 ### 1. Decide observed deliveries from composed Done records and real Git
 
 Type: Behavior
-Status: planned
+Status: done
 
 Record the [evaluation baseline](#local-gates) at the execution base first.
 Extract `decideObservedDeliveries` and `observedSessionDeliveries` into
@@ -132,6 +152,16 @@ ref, or matching `trunk.revision === revision` are skipped.
 the `manualDeliveryChecked` or `trunk.revision === revision` guard fails
 `observed-session-deliveries.spec.ts`. `npm run typecheck:dashboard` and
 `npm run lint` pass.
+
+**Accepted proof.** The five focused specs selected 15 cases and all passed
+with one worker. The exact-pair case composes two real hand-merged Done
+branches and checks both comparisons and empty delivery pins. Eight cases
+check eligibility at the authorized-head boundary. In a disposable checkout,
+inverting the manual-delivery guard failed the exact-pair case and the guard's
+head-read assertion. Dashboard typecheck passed. The reached authenticated
+revision check, backlog, revision reuse, stream and shared listing cases
+passed (53). The typed decision yields each discovery before the next
+inspection, so the live adapter still applies deliveries in inspection order.
 
 ### 2. Prove witness skipping, newly-Done discovery, and inspection retry over composed records
 
@@ -171,10 +201,13 @@ composed Done records over real Git with no machine home. Move
 `ad-hoc-manual-landing-observation-lifecycle.spec.ts` onto
 `sessionLandingObservations({ store, inspect })` over an explicit in-memory
 record store (using production `withinRetention` and `releaseExpiredRecordPins`
-for expiry), keeping the survivor delivery and pin assertions for deletion and
-expiry during a held inspection and adding proof that a store write failing
-after `keepManualLanding` releases unkept delivery pins and a live record
-whose Done branch result changed during inspection is left untouched. Remove
+for expiry). Move the pure `withinRetention` rule out of the machine record
+document into `launchRecordRetention.ts`, where production readers and
+writers and these cases can share it. Keep the survivor delivery and pin
+assertions for deletion and expiry during a held inspection. Prove that a
+store write failing after `keepManualLanding` releases unkept delivery pins
+and that a change to the live launch time, pin owner, or Done branch result
+prevents the adapter from saving the inspection's result. Remove
 `HOME` stubs, `changeLaunchStore`, `deleteRecord`/`keptRecords`/`replaceRecords`,
 and `installRecordRemovalDispatch` from the spec.
 
@@ -237,6 +270,30 @@ comparison under [Local gates](#local-gates).
   imports, `HOME` stubs (`keep`), and summed and median per-case time over
   three interleaved runs at comparable `uptime` load. Every assertion is
   preserved.
+
+### Execution-base evaluation
+
+At `e6cd3a320` on this AC-powered 16-core macOS host (48 GiB, 45% memory
+free before the run), the six existing observation cases passed each of
+three one-worker trials. One preceding default two-worker run at load 18.12
+timed out in the restart case (5,020 ms); its focused store-backed setup is
+replaced in slice 4. Retain the default case timeout. Use one worker in
+paired measurements to reduce contention and use the same commands and test
+selection on each side.
+
+| Trial | One-minute load | Sum | Median per case |
+| --- | ---: | ---: | ---: |
+| 1 | 19.66 | 10.195 s | 1.757 s |
+| 2 | 19.29 | 11.518 s | 2.017 s |
+| 3 | 16.47 | 10.428 s | 1.580 s |
+
+Across the four specs and helper: five `doneCaptureCase.ts` imports, seven
+direct store-module imports, four `doneBranchObservation.ts` imports.
+Machine-home setup comes from four call sites reaching `keep` (two direct
+and two through `anIsolatedBranch`) and four direct `markDone` calls. The
+baseline records in the checkout's Git evidence directory retain the case
+times and exact selection. Expand the final check to all new cases and
+compare the original six separately for timing.
 
 ## Plan review
 
