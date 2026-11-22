@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-341_keep-attention-completion-journey-within-timeout.json",
+      "identity": "SEED-341#keep-attention-completion-journey-within-timeout",
+      "completedAt": "2026-11-22T23:38:24.674Z",
+      "blob": "9e1598fb6fc4d2991f71074a10612024682de8d6"
+    },
+    {
       "fileName": "SEED-341_split-quiet-completion-journey.json",
       "identity": "SEED-341#split-quiet-completion-journey",
       "completedAt": "2026-11-22T10:32:44.125Z",
@@ -2862,12 +2868,6 @@
       "identity": "SEED-010#assess-client-product-improvement-in-use",
       "completedAt": "2026-10-24T00:01:59.400Z",
       "blob": "7af96d159f16f067db24c7ff29e4ba1dffb2bb9d"
-    },
-    {
-      "fileName": "SEED-149_native-ci-workflow.json",
-      "identity": "SEED-149#native-ci-workflow",
-      "completedAt": "2026-10-23T12:20:36.369Z",
-      "blob": "e8a825c697046409df279ead8d52faa7407c9da9"
     }
   ],
   "unreadable": []
