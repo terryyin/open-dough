@@ -273,7 +273,13 @@ passes; representative E2E journeys that read story notes, CI follow-up
 (`recently-done-review-state-persistence`) pass, proving production supplies
 the authenticated reads. `grep` finds no fetch of the three endpoints in
 `dashboard/src` outside `authenticatedPageReads` and no fallback in their
-hooks.
+hooks. A focused Vitest case proves the missing path that Intent Coverage
+confirmed at `341f133da` (SEED-413#speed-intent-timing-history-proof
+wrap-up): for each `PageReads` member, the new ones included, a
+`pageReadsSupplying` case that leaves it unsupplied rejects with "Unexpected
+… read" and makes no `fetch`. Under the probe's fault, which filled
+unsupplied members with `authenticatedPageReads`, 275 maintained cases still
+passed while a witness saw four real requests.
 
 ### 2. Homepage, kept and Side panel CI status cases render the production page frame
 

@@ -16,8 +16,8 @@ remaining page reads and the standalone production Intent body.
 Dashboard maintainers get fast Vitest feedback that a developer can browse
 Gherkin and code sources at the chosen scope, line and revision, follow
 canonical and plan links safely, open Project Intent or a selected story, and
-resume the exact reading place and focus after a detour through Review or
-another view. Move the 23 legacy Playwright cases across 16 files:
+resume the exact reading place after a detour through another view. Move the
+22 legacy Playwright cases across 15 files:
 - `dashboard/frontend-tests/navigation/`: `source-navigation` and
   `source-navigation-refused` (2 files, 3 legacy cases)
 - `dashboard/frontend-tests/intent/`: `intent-entry-folder-summaries`,
@@ -25,14 +25,19 @@ another view. Move the 23 legacy Playwright cases across 16 files:
   `intent-gherkin-layout`, `intent-code-browse-java`, `intent-purpose-case`,
   `intent-home-activation`, `intent-project-visit`,
   `intent-project-visit-selection`, `intent-read-reuse`,
-  `intent-reading-place`, `intent-recent-stories`, `intent-selection-reads`,
-  and `intent-story-review-return` (14 files, 20 legacy cases)
+  `intent-reading-place`, `intent-recent-stories` and
+  `intent-selection-reads` (13 files, 19 legacy cases)
+
+`intent-story-review-return` was deleted at `ffb4ef63d` with the Intent
+header's control that opened Review (Slice 2 of
+`759-read-every-changed-file-in-intent`), so no Review detour from Intent
+remains to prove.
 Replace the test composition in
 `dashboard/frontend-tests/intent/intent-candidates-publication.ts` with the
 production Intent body, and retire spent `dashboard/test-support/` modules
-whose last consumer moves (`frontendSourceNavigation.ts`,
+whose last consumer moves (`support/frontendSourceNavigation.ts`,
 `intentEntryFolderSummariesFixtures.ts`, and `putFrontendFolderSources` on
-`frontendRepositorySources.ts`).
+`support/frontendIntentSources.ts`).
 
 ## Correction of the locations recovery test entry
 
@@ -113,11 +118,14 @@ visibility, which is the real input `usePageVisibility` observes, and stays.
   objects under `dashboard/frontend-tests/intent/` and
   `dashboard/frontend-tests/navigation/` without `actSettled`, React `act`, or
   `IS_REACT_ACT_ENVIRONMENT`.
-- Supply every read through the required typed page entry from plan 759,
-  which `ConfiguredDashboard` supplies with the authenticated
-  readers. Render the production Intent body that plan 764 Slice 2 makes
-  stand alone (`BoardOrIntent`: `IntentReadRecovery` + `IntentPerspective`), or production
-  `ConfiguredDashboard` when the page observation is part of the proof. No
+- Supply every read through the required typed page entry from plan 759
+  (`PageReads` in `dashboard/src/pageReads.tsx`), which `App` passes to
+  `ConfiguredDashboard` as `authenticatedPageReads` through its required
+  `reads` prop and cases build with `pageReadsSupplying`. Render the
+  production Intent body that plan 764 Slice 2 makes stand alone inside
+  `BoardOrIntent` (`IntentReadRecovery` → `IntentPerspective` or
+  `RetainedFollowUpPerspective`), or production `ConfiguredDashboard` when
+  the page observation is part of the proof. No
   test file renders `IntentPageProviders`, `IntentReadingProvider`,
   `StorySelectionProvider`, `useLimitRecovery` or `IntentReadRecovery`
   itself, and no case mounts `ProjectIntentReading` with hand-supplied mode
@@ -147,9 +155,9 @@ visibility, which is the real input `usePageVisibility` observes, and stays.
   18-path multi-seam bundle that overran former Slice 3 in `plan 755`; note
   that any spec file containing JSX mount wrappers must use `.tsx` or move JSX
   into a `.tsx` colocated page helper so `tsc --noEmit` passes). Capture the
-  16-file / 23-case two-worker legacy baseline with
+  15-file / 22-case two-worker legacy baseline with
   `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` in Slice 3 before replacing the
-  first legacy spec, and compare the completed 16-file cohort in Slice 8.
+  first legacy spec, and compare the completed 15-file cohort in Slice 8.
 
 ## Local gate
 
@@ -163,8 +171,8 @@ E2E companions when shared contracts or popup/focus boundaries change.
 ## Decisive premises and proof
 
 - At `f981fc912` on 2026-11-21 (macOS on AC, `--workers=2`), `intent-source-target-recovery.spec.ts` and `intent-revision-update-failures.spec.ts` passed 5 cases proving the typed production reader retains a pinned file and switches after Retry.
-- At `c7c1a5b38` on 2026-11-21, `caffeinate -s -i npm run --silent test:dashboard:frontend -- <16 scoped files> --list --reporter=line` listed exactly `23` legacy `chromium` cases across the `16` scoped files.
-- At `94a895f50` on 2026-11-21: `usePublishedObservation` (`dashboard/src/publishedObservation.ts`) reads published work and detail without a typed read the page supplies; its only caller is `ConfiguredDashboard`. `loadRepositoryTexts` has two production callers (`preparationEnrichment.ts`), neither passing `readFile`. `noteLimit` is called only by the transports `authenticatedGet.ts` and `revisionCheckRead.ts`. `IntentReadSourceOnPage` is provided only by 8 test files under `dashboard/frontend-tests/`; production relies on its default.
+- At `341f133da` on 2026-11-22, `npm run --silent test:dashboard:frontend -- <15 scoped files> --list --reporter=line` listed exactly `22` legacy `chromium` cases across the `15` scoped files: `intent-code-browse-java`, `intent-home-activation` 3, `intent-read-reuse`, `intent-reading-place`, `intent-selection-reads` and `source-navigation-refused` 2 each; every other file 1.
+- At `341f133da` on 2026-11-22, after plan 759 Slices 1–2: `usePublishedObservation` (`dashboard/src/publishedObservation.ts`) still reads published work and detail (`carryOutRead` → `readPublishedWork`) without a typed read the page supplies; its only caller is `ConfiguredDashboard`, which now receives the required `reads: PageReads` prop and calls the hook before rendering `PageReadsOnPage`. `loadRepositoryTexts` and `readCachedFile` (`repositoryFileReads.ts`) take a required `readFile`; the two `loadRepositoryTexts` callers in `preparationEnrichment.ts` pass the imported `readRepositoryFileAt` rather than a page read. `noteLimit` is called only by the transports `authenticatedGet.ts` and `revisionCheckRead.ts`. The default-valued `IntentReadSourceOnPage` is gone; `intent-read-recovery-page.tsx`, `intent-gherkin-settings-problems.spec.ts` and `intent-candidates-publication.ts` supply `pageReadsSupplying({ intent })` through `PageReadsOnPage`.
 
 | Promise | Owning proof |
 | --- | --- |
@@ -175,7 +183,7 @@ E2E companions when shared contracts or popup/focus boundaries change.
 | Gherkin groups select scenarios and outlines while tree and feature panes scroll independently | Slice 5 (`intent-gherkin-groups`, `intent-gherkin-layout`). |
 | Missing Java grammar falls back to readable plain text and Candidates cases open at their exact source line | Slice 6 (required source highlighter read + `intent-code-browse-java`, `intent-purpose-case`). |
 | Project Intent activation, project visits, cached reads, and pending revisions/selections keep the applicable source over the production Intent body | Slice 7 (production Intent body in place of `intent-candidates-publication.ts`'s composition + `intent-home-activation`, `intent-project-visit*`, `intent-read-reuse`, `intent-selection-reads`). |
-| Reading place, recent stories, and keyboard Review detours restore the story, nested file, reading position, and focus | Slice 8 (`intent-reading-place`, `intent-recent-stories`, `intent-story-review-return` + 16-file two-worker before/after comparison). |
+| Reading place and recent stories restore the story, nested file and reading position after a detour, and another project starts its reading afresh | Slice 8 (`intent-reading-place`, `intent-recent-stories` + 15-file two-worker before/after comparison). |
 
 ## Slices
 
@@ -187,9 +195,10 @@ Status: planned
 Add the published observation's reads (`usePublishedObservation`: published
 work and membership, preparation detail through `loadRepositoryTexts`, and
 the revision check) as required members of plan 759's typed page entry.
-`ConfiguredDashboard` supplies the authenticated readers. Remove the
-defaulted `readFile` parameter from `loadRepositoryTexts` and
-`readCachedFile`; each caller passes the reader it was given. Record the
+`authenticatedPageReads` supplies the authenticated readers, and
+`ConfiguredDashboard` hands the observation its members from its `reads`
+prop. `enrichPreparation` passes `loadRepositoryTexts` the detail reader it
+is given instead of importing `readRepositoryFileAt`. Record the
 standing rate limit where the read's owner receives a rate-limited
 `ReadProblem`, so that a typed reply drives it without the transport; if that
 move reaches beyond the two transports and the limit owner, stop and split.
@@ -200,8 +209,8 @@ assertion, so the next slice replaces it with production.
 settings-problem files and the preparation Vitest files pass unchanged in
 their assertions. One representative E2E journey that reads published detail
 passes, proving that production supplies the readers. `grep` finds no
-defaulted reader parameter in `dashboard/src/repositoryFileReads.ts` and no
-direct published read in `publishedObservation.ts`.
+`readRepositoryFileAt` import in `dashboard/src/preparationEnrichment.ts` and
+no direct published read in `publishedObservation.ts`.
 
 ### 2. Locations recovery and settings-problem cases render the production observation and Intent body
 
@@ -223,21 +232,21 @@ and their helper. Keep role-based colocated page objects.
 pass at `--workers=2` within paired noise of their delivered run. No test file
 renders `useLimitRecovery`, `IntentReadRecovery`, `PublishedReadStatus` or
 `ProjectIntentReading` itself. Record each spec's and helper's production
-import count before (11, 6 and 5) and after.
+import count before (12, 6 and 6 at `341f133da`) and after.
 
 ### 3. Pinned and refused source navigation links use the inspected revision and keep external, unsafe and invalid targets distinct
 
 Type: Behavior
 Status: planned
 
-Capture the 16-file / 23-case legacy Playwright baseline at `--workers=2` with
+Capture the 15-file / 22-case legacy Playwright baseline at `--workers=2` with
 `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` before replacing the first legacy
 file. Move `dashboard/frontend-tests/navigation/source-navigation` (1) and
 `source-navigation-refused` (2) to plain Vitest over `sourceLink` /
 `resolveRepositoryBaseUrl` and the production story card fed by typed
 published replies through the page entry. Add a representative popup journey
 in `e2e/navigation/source-navigation.spec.ts`, check callers, and delete
-`dashboard/test-support/frontendSourceNavigation.ts`.
+`dashboard/test-support/support/frontendSourceNavigation.ts`.
 
 **Proof.** Canonical and plan links point at the inspected revision URL and
 open in a popup in E2E; external links stay separate from snapshot files; and
@@ -249,12 +258,12 @@ text. No case calls `enrichPreparation`.
 Type: Behavior
 Status: planned
 
-Move `intent-entry-folder-summaries` (2) and
+Move `intent-entry-folder-summaries` (1) and
 `intent-entry-folder-summaries-folders` (1) over the production Intent body,
 the page entry and `makeMe.anIntentLocationsAnswer`. Check callers across
 `dashboard/frontend-tests/` and `e2e/` and retire
 `dashboard/test-support/intentEntryFolderSummariesFixtures.ts` and unused
-`putFrontendFolderSources` on `dashboard/test-support/frontendRepositorySources.ts`.
+`putFrontendFolderSources` on `dashboard/test-support/support/frontendIntentSources.ts`.
 Retain `e2e/intent/intent-gherkin-browse.spec.ts` and
 `e2e/intent/intent-code-browse-sources.spec.ts`.
 
@@ -279,11 +288,12 @@ positions inside a constrained viewport height.
 Type: Behavior
 Status: planned
 
-Add the source highlighter (`highlightSourceLines`, consumed by
-`dashboard/src/SourceCodeReading.tsx`) as a required member of the page
-entry, supplied by `ConfiguredDashboard`, so a case supplies a failing
+Add the source highlighter (`highlightSourceLines` in
+`dashboard/src/sourceHighlight.ts`, consumed through `useSourceHighlight.ts`)
+as a required member of the page
+entry, supplied by `authenticatedPageReads`, so a case supplies a failing
 highlighter without module-request interception. Move
-`intent-code-browse-java` (1) and `intent-purpose-case` (1) over the
+`intent-code-browse-java` (2) and `intent-purpose-case` (1) over the
 production Intent body.
 
 **Proof.** A failing Java syntax highlighter leaves the `.java` source plain
@@ -300,32 +310,31 @@ Replace the provider and recovery composition in
 production Intent body through the page entry, and verify its existing Vitest
 consumers (`intent-candidates-read-recovery.spec.ts`,
 `intent-revision-*.spec.ts`, `intent-source-target-recovery-mounted.spec.ts`).
-Move `intent-home-activation` (1), `intent-project-visit` (2),
+Move `intent-home-activation` (3), `intent-project-visit` (1),
 `intent-project-visit-selection` (1), `intent-read-reuse` (2), and
-`intent-selection-reads` (1), retaining
+`intent-selection-reads` (2), retaining
 `e2e/intent/intent-project-visit-ci.spec.ts`.
 
 **Proof.** Selecting a story opens its own view while Project Intent reads the
 published source, cached files avoid duplicate reads, pinned-file failures
 name their cause and Retry to the right revision/source, and while a later
 revision or selection is pending Purpose keeps the applicable source.
-`intent-candidates-publication.ts`'s production import count drops from 10.
+`intent-candidates-publication.ts`'s production import count drops from 11
+(at `341f133da`).
 
-### 8. Reading place, recent stories and Review detours restore the nested file, reading position and focus
+### 8. Reading place and recent stories restore the nested file and reading position after a detour
 
 Type: Behavior
 Status: planned
 
-Move `intent-reading-place` (2), `intent-recent-stories` (2), and
-`intent-story-review-return` (2) over the production Intent body and Review's
-open/close and focus wiring (carrying the keyboard header-count Review-return
-focus handoff to `e2e/intent/` only if the full page is required to observe
-that header trigger, keeping a single owner). Audit remaining
-`dashboard/test-support/` consumers across the 16 files and record the
-two-worker before/after comparison including preparation and E2E runtime.
+Move `intent-reading-place` (2) and `intent-recent-stories` (1) over the
+production Intent body. Audit remaining `dashboard/test-support/` consumers
+across the 15 files and record the two-worker before/after comparison
+including preparation and E2E runtime.
 
-**Proof.** With a nested Changed tests file selected, visiting Review by
-keyboard and returning restores the selected story, file, scroll position, and
-focus without extra reads; switching projects resets the reading place; and
-the 16-file Vitest suite runs faster at two workers than its recorded legacy
-baseline.
+**Proof.** With a file selected two folders deep in a story's Changes, visiting
+Development and returning restores the selected story, file and scroll
+position without extra reads; choosing a Recent stories row reveals the story
+view and keeps the perspective; switching projects resets the reading place;
+and the 15-file Vitest suite runs faster at two workers than its recorded
+legacy baseline.
