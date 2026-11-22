@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Tsubomi-chan",
-  "email": "tsubomi-chan@example.org",
-  "identity": "SEED-413#speed-intent-scope-timing-history",
-  "mode": "story-branch",
-  "branch": "claude/get-fast-proof-of-intent-scope-timing-history",
-  "host": "claude"
-}
