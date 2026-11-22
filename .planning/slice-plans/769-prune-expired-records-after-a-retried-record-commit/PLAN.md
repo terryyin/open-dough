@@ -76,6 +76,12 @@ suites pass through `scripts/test.sh`. Selection reads `HEAD:./<path>` so a
 project below the Git toplevel resolves paths as `ls-tree` lists them
 (scratch probe).
 
+## Execution complete
+
+Product advice: no change. The retried record commit now matches a first
+attempt, which completes plan 767's pruning promise; the queued
+SEED-418#recover-expired-session-reviews keeps its current priority.
+
 ## Concern evidence
 
 Slice-plan refinement was not needed: one Behavior with one proof loop within
