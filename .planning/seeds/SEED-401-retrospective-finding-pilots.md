@@ -54,6 +54,12 @@ Doughnut and Pygardon developers write findings, and project and Open Dough main
 - **Evaluation.** Write the comparison and the keep and revise criteria before any run, using the [shared comparison](#pilot-comparison). Replay the three case groups below once with each wording, each by a fresh reader shown only what was knowable at that execution. Then judge the next five ordinary executions in each project after the trial rule lands, chosen from story, Git or CI history before opening the findings files, including executions that reported nothing. Record the result with the [existing evaluations](../../docs/maintainer/empirical-process-control-research.md).
 - **Decision and close.** Keep if fewer repeat narratives reach triage and total effort falls while material changes, frequency and post-response counterexamples stay discoverable. Revise if a compact line hides an escalation, the wrong mechanism is merged or split, or the maintainer has to reconstruct what a row would have said. A sample with no repeat leaves effectiveness open. An unverified execution release leaves the failed-fix judgment open. On keep, queue promotion into the distributed rule; that story removes the trial paragraphs when its release is installed. Otherwise this story removes them.
 
+**Owner decision, 22 November 2026.** Terry approved closing the trial as
+inconclusive after both clients disabled process retrospectives. Use the
+exposure already observable at the decision as the final ordinary-work
+evidence. Retain the replay results. Remove both installed trial paragraphs
+and leave process retrospectives disabled.
+
 **Observed on 18 November 2026.** Since 1 October, commits that only added to `DearDough.md` recorded about 215 rows in Doughnut and 472 in Pygardon, with 111 and 186 new headings. Roughly half of the rows therefore went to existing findings, each in the seven-line form. After collection a client entry is a short summary with a count and a link to the shared record, such as “One 0.3.60 execution”: 76 of Doughnut's 92 entries and 145 of Pygardon's 162 hold no row. The reviewer therefore judges “new” against that summary, and the collector, which already connects executions to open response observations by project, execution and release, judges recurrence after a released response from the compact line. These counts are approximate; merge commits and maintenance edits were excluded by diff shape only.
 
 **Key examples**

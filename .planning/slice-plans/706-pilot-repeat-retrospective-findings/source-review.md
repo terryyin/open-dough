@@ -38,25 +38,32 @@ to ODF-208. ODF-264 had 75 rows.
 | 15 | Write the comparison in advance. “Write the comparison and the keep and revise criteria before any run, using the shared comparison.” For each pilot, state it “before observing fresh runs.” | slice 1 | observed: docs/maintainer/empirical-process-control-research.md#repeat-finding-recording-pilot-2026-11-18, Decision basis and pinned replay inputs before any replay |
 | 16 | Write the keep and revise criteria in advance. The criteria share the same “before any run” condition and use the shared comparison. | slice 1 | observed: docs/maintainer/empirical-process-control-research.md#repeat-finding-recording-pilot-2026-11-18, Keep and Revise criteria recorded before any replay |
 | 17 | Complete the historical replay. “Replay the three case groups below once with each wording, each by a fresh reader shown only what was knowable at that execution.” Use “the same historical inputs for current and candidate wording, varying only the selected recording decision.” “Reveal later corrections, retirements and rejected remedies only when judging the decisions.” | slice 2 | observed: evaluation section, earlier case projections proved at 98f22f24, matched rule and inputs, separated answer note, disclosed whole-packet read order |
-| 18 | Judge the fresh ordinary-work sample. Judge “the next five ordinary executions in each project after the trial rule lands,” “chosen from story, Git or CI history before opening the findings files,” and include “executions that reported nothing.” | slice 4 | |
-| 19 | Record provenance for each fresh observation. “Record the project, guidance revision and actual route used for each fresh observation.” | slice 4 | |
-| 20 | Check for missed first incidents. The shared comparison expressly says to “Check for missed first incidents.” | slice 4 | |
-| 21 | Check for accumulating costs. The shared comparison expressly includes “accumulating costs.” | slice 4 | |
-| 22 | Check for evidence about an earlier response. The shared comparison calls for “evidence for or against an earlier response.” | slice 4 | |
-| 23 | Count decisions changed. | slice 4 | |
-| 24 | Count consequential misses. | slice 4 | |
-| 25 | Count duplicate narratives reaching triage. | slice 4 | |
-| 26 | Compare writer effort. Use “available time, tool or token evidence.” “Keep active time, elapsed time and token counts distinct.” | slice 4 | |
-| 27 | Compare downstream reviewer effort. Include “checking skipped cases” and apply the same evidence and measurement conditions. | slice 4 | |
-| 28 | Record sample counts. | slice 4 | |
-| 29 | Record exposure. | slice 4 | |
-| 30 | Record missing evidence. | slice 4 | |
-| 31 | Record the result “with the existing evaluations.” “Use existing execution records and each pilot's assessment to avoid maintaining a ledger of rejected observations.” | slice 4 | |
-| 32 | Give Terry a keep or revise decision. Judge “that recording choice” “against current practice under ADR 0010.” | slice 4 | |
-| 33 | Apply the keep conditions. “Keep if fewer repeat narratives reach triage and total effort falls while material changes, frequency and post-response counterexamples stay discoverable.” | slice 4 | |
-| 34 | Apply the revise conditions. “Revise if a compact line hides an escalation, the wrong mechanism is merged or split, or the maintainer has to reconstruct what a row would have said.” | slice 4 | |
-| 35 | Leave effectiveness open when there is no repeat. “A sample with no repeat leaves effectiveness open.” | slice 4 | |
-| 36 | Leave the failed-fix judgment open without a verified release. “An unverified execution release leaves the failed-fix judgment open.” | slice 4 | |
-| 37 | On keep, queue promotion. “On keep, queue promotion into the distributed rule.” | slice 5 | |
-| 38 | On keep, remove the trial paragraphs at installation of the promotion release. “That story removes the trial paragraphs when its release is installed.” | slice 5 | |
+| 18 | Judge the fresh ordinary-work sample. Judge “the next five ordinary executions in each project after the trial rule lands,” “chosen from story, Git or CI history before opening the findings files,” and include “executions that reported nothing.” |  | G1 |
+| 19 | Record provenance for each fresh observation. “Record the project, guidance revision and actual route used for each fresh observation.” |  | G1 |
+| 20 | Check for missed first incidents. The shared comparison expressly says to “Check for missed first incidents.” |  | G1 |
+| 21 | Check for accumulating costs. The shared comparison expressly includes “accumulating costs.” |  | G1 |
+| 22 | Check for evidence about an earlier response. The shared comparison calls for “evidence for or against an earlier response.” |  | G1 |
+| 23 | Count decisions changed. |  | G1 |
+| 24 | Count consequential misses. |  | G1 |
+| 25 | Count duplicate narratives reaching triage. |  | G1 |
+| 26 | Compare writer effort. Use “available time, tool or token evidence.” “Keep active time, elapsed time and token counts distinct.” |  | G1 |
+| 27 | Compare downstream reviewer effort. Include “checking skipped cases” and apply the same evidence and measurement conditions. |  | G1 |
+| 28 | Record sample counts. | slice 4 | observed: Evaluation ordinary-work decision table, Doughnut 0/5 and Pygardon 3/5 |
+| 29 | Record exposure. | slice 4 | observed: Evaluation ordinary-work decision, zero verified uses and dated client review settings |
+| 30 | Record missing evidence. | slice 4 | observed: Evaluation ordinary-work decision, unknown recording effects and effort with no verified use |
+| 31 | Record the result “with the existing evaluations.” “Use existing execution records and each pilot's assessment to avoid maintaining a ledger of rejected observations.” | slice 4 | observed: docs/maintainer/empirical-process-control-research.md#ordinary-work-decision-on-22-november-2026 |
+| 32 | Give Terry a keep or revise decision. Judge “that recording choice” “against current practice under ADR 0010.” |  | G1 |
+| 33 | Apply the keep conditions. “Keep if fewer repeat narratives reach triage and total effort falls while material changes, frequency and post-response counterexamples stay discoverable.” |  | G1 |
+| 34 | Apply the revise conditions. “Revise if a compact line hides an escalation, the wrong mechanism is merged or split, or the maintainer has to reconstruct what a row would have said.” |  | G1 |
+| 35 | Leave effectiveness open when there is no repeat. “A sample with no repeat leaves effectiveness open.” |  | G1 |
+| 36 | Leave the failed-fix judgment open without a verified release. “An unverified execution release leaves the failed-fix judgment open.” |  | G1 |
+| 37 | On keep, queue promotion. “On keep, queue promotion into the distributed rule.” |  | G2 |
+| 38 | On keep, remove the trial paragraphs at installation of the promotion release. “That story removes the trial paragraphs when its release is installed.” |  | G2 |
 | 39 | Otherwise, remove the trial paragraphs in this story. “Otherwise this story removes them.” | slice 5 | |
+| 40 | Close the pilot as inconclusive on the exposure available under the current settings. | slice 4 | observed: Evaluation records Terry's inconclusive decision and its ordinary exposure limit |
+| 41 | Remove the two installed trial paragraphs, one from each client. | slice 5 | |
+| 42 | Retain the replay results. | slice 4 | observed: Evaluation preserves the existing historical replay byte-for-byte |
+| 43 | Leave process retrospectives disabled. | slice 5 | |
+
+The independent `close_source_review` reader received only the preceding scope,
+the recommendation and Terry's approval. It returned commitments 40–43.

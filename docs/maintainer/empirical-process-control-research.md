@@ -1752,3 +1752,37 @@ provenance. Active writing time and equivalent downstream review effort
 for the two arms are unknown. The scratch projections cannot establish
 historical whole-file size or retention under pressure. The comparison
 leaves total effort and ordinary effectiveness open.
+
+### Ordinary-work decision on 22 November 2026
+
+Terry approved closing the pilot as **inconclusive**. The snapshot cohort
+came from first-parent trunk history and story completion records before any
+findings files were consulted. It covered ordinary executions that started
+after the trial reached each trunk. Both projects disabled process
+retrospectives at 06:55 Singapore time on 21 November, so the default review
+route stopped supplying observations of the rule. [Doughnut setting](https://github.com/nerds-odd-e/doughnut/commit/03d34cc353) · [Pygardon setting](https://github.com/terryyin/pygardon/commit/374bc9a32)
+
+| Project | Ordinary completions in scope | Verified trial uses |
+| --- | ---: | ---: |
+| [Doughnut](https://github.com/nerds-odd-e/doughnut/tree/8959ee44291be65e7b7170580ec23f2ad37f58de) | 0 of 5 | 0 |
+| [Pygardon](https://github.com/terryyin/pygardon/tree/7bf34ffd34e0f57e61933d8236dff63a3f05a63a) | 3 of 5 | 0 |
+
+Doughnut's one story completion in the window began at 23:31 Singapore time
+on 18 November, before the trial reached trunk at 00:09 on 19 November.
+Other maintainer commits lack an identifiable review. [Doughnut start](https://github.com/nerds-odd-e/doughnut/commit/1d5aace35c) · [Doughnut completion](https://github.com/nerds-odd-e/doughnut/commit/d3db25bda0)
+
+Pygardon's three completed ordinary executions started after the setting
+changed. They covered iPhone and iPad clip playback, the early WebKit seek,
+and leaner playback verification. The service re-adoption story was still
+Taken in the pinned snapshot. The separate first-report pilot's setup and
+cleanup are outside this cohort. [Clip playback start](https://github.com/terryyin/pygardon/commit/f60352e5a) · [Clip playback completion](https://github.com/terryyin/pygardon/commit/5557e25a9) · [WebKit seek start](https://github.com/terryyin/pygardon/commit/90409dfb7) · [WebKit seek completion](https://github.com/terryyin/pygardon/commit/fe431c5c9) · [Leaner verification start](https://github.com/terryyin/pygardon/commit/392970b7f) · [Leaner verification completion](https://github.com/terryyin/pygardon/commit/b579e2b18)
+
+With no verified ordinary use, changes in recording decisions, consequential
+misses, repeat narratives reaching triage, and effort savings in ordinary
+work remain unknown. The revised replay reduced matched-repeat narratives
+from nine to seven and recovered the recurring high-cost evidence the first
+wording had lost. Whole-packet visibility keeps that result exploratory.
+
+A landing quota can wait indefinitely when work is slow and fill without
+useful observations once reviews are off. A future pilot needs verified
+exposure, a time cutoff, and an exit condition if the review route closes.

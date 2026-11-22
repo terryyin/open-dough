@@ -114,27 +114,25 @@ ordinary repeat a full row and was likewise byte-identical on rereview. The
 copies were discarded after the observation. This walk used Codex subagents
 with explicit guidance, and ordinary exposure remains to be observed.
 
-### 4. Five ordinary executions in each project are judged against the basis
+### 4. Close the ordinary assessment with the exposure available
 
 Type: Behavior
-Status: planned
+Status: done
 
-Execution waits here until each project's trunk holds five ordinary executions that started after its trial revision. Select them from story, Git or CI history before opening the findings files, including executions that reported nothing. For each, read what happened, then what was recorded. Report the counts named in slice 1, the project, guidance revision and route for each observation, and missing evidence. Give Terry the keep or revise recommendation with the reasons. The decision is Terry's.
+On 22 November Terry approved an inconclusive outcome. Record the history
+available at the decision, the loss of exposure, and the limits of the
+ordinary comparison in the existing evaluation. Retain the earlier replay.
 
-**Proof.** The evaluation section lists the ten executions with their selection source, what each recorded, and the counts with sample sizes. Terry's decision is recorded beside them.
+**Proof.** Identify the client trunk snapshots at the decision, the ordinary
+completions, the configured review route and the missing observation. The
+evaluation records Terry's inconclusive decision and the lesson for a future
+pilot's stop condition.
 
-Use each published trial revision above as its project's exposure boundary.
-Select from first-parent trunk integrations and their execution history,
-using the execution's starting revision or known start time to verify it
-started after the trial reached trunk. Use story-completion records when
-available and ordinary Git or CI history for other eligible executions.
-Retain the selected identities before consulting findings and include quiet
-executions. The controlled walks and the pilot changes are outside that sample.
-
-On the history check at 2026-11-18T16:23:12Z, both client trunks were still
-at their trial revisions. The ordinary sample has zero of five executions
-in each project. Resume this slice when both client trunks have five
-eligible executions. Terry owns the decision after their assessment.
+**Accepted proof.** The [ordinary-work decision](../../../docs/maintainer/empirical-process-control-research.md#ordinary-work-decision-on-22-november-2026)
+records zero of five ordinary completions in Doughnut, three of five in
+Pygardon after both projects disabled process review, and zero verified
+ordinary uses. Git confirmed the cited starts, completions and settings at the
+pinned client revisions. The historical replay remains byte-identical.
 
 ### 5. The trial ends as decided
 
@@ -150,7 +148,7 @@ On keep, add a promotion story to the seed and queue it. It changes the distribu
 - Terry chose the local trial rule, the one-line trace and the small replay with the next five executions on 18 November 2026.
 - Slices 1, 2 and 5 edit maintainer documents and planning records here. Use the [maintainer behavior review](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review) for the trial paragraph. Fresh readers are ordinary subagents; no native host run is part of this plan.
 - Client writes in slices 3 and 5 follow each project's instructions, hooks and trunk, as the [collector](../../../.agents/skills/collect-client-feedback/SKILL.md#resolve-the-maintained-set-and-destinations) resolves them.
-- Slice 4's wait is expected. Check exposure with each project's history after its trial revision. The story stays in progress meanwhile.
+- The 22 November decision settles the sample shortfall. The approved closure uses the open-result path in slice 5.
 - [SEED-402](../../seeds/SEED-402-stable-client-finding-records.md#keep-client-finding-evidence-and-ids-stable) edits numbering and collection-time shortening in the same references. This plan changes neither file.
 - Local gates for each slice are its walk, inspection of the resulting log or record, and `git diff --check`. Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md). If a long full run becomes necessary, start fully awake on AC with `caffeinate -s -i`. On battery, plug in or keep the lid open under `caffeinate -i` and check the sleep log afterwards. [Machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 - Each slice is sized for 15 active minutes. Slice 1 is bounded by the cap of six occurrences per group. Slice-plan refinement was not needed: each slice has one outcome and its own observation. No remaining slice-specific concerns were identified.
@@ -162,3 +160,16 @@ On keep, add a promotion story to the seed and queue it. It changes the distribu
 - Checkout readiness: pinned Node 24.21.0, checkout-local `npm ci` and passing `npm run typecheck:dashboard`.
 - Codex observer for story-branch increments: `terryyin/open-dough`, `ci.yml` (CI), coordinator `kaoru-401`, directory `/tmp/dough-ci-501/watch-UtsGvk`, PID 89550, session 77670, cell `g101:9`. Paths-only `.planning/` and `docs/` changes are excluded by the push workflow.
 - On trunk `720c2d5d5`, the first-report pilot integration `211360795` moved ordinary assessment to the linked successor. Its one-review instruction applies to first reports. SEED-402 integration `10074f37e` changes unreleased missing-log recovery and collector step 5. The two clients' installed 0.3.106 recording text still matches the pinned rule, and collector step 3 still uses project plus execution.
+- Resumed on 22 November with the previous observer stopped and a new story-branch stream at `/tmp/dough-ci-501/watch-tHuYfk`, coordinator `kaoru-401`, PID 40901, session 64585, cell `g229:6`.
+
+## Story obligations
+
+### G1. The owner closes the ordinary assessment with available exposure
+Reported: slice 4 — "Both clients disabled process retrospectives and the ordinary assessment has no verified trial use."
+Story clause: "Use the exposure already observable at the decision as the final ordinary-work evidence."
+Disposition: owner changed "Use the exposure already observable at the decision as the final ordinary-work evidence."
+
+### G2. The owner selects the inconclusive outcome
+Reported: slice 4 — "Terry approved closing the pilot as inconclusive."
+Story clause: "Remove both installed trial paragraphs and leave process retrospectives disabled."
+Disposition: owner changed "Remove both installed trial paragraphs and leave process retrospectives disabled."
