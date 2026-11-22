@@ -2,7 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-scope-timing-history
 **Source:** [Get fast proof of Intent scope timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history)
-**Split from:** SEED-413#speed-intent-timing-history-on-vitest ([plan 772](../772-speed-intent-timing-history-on-vitest/PLAN.md), former Slices 4–6) before readiness on 2026-11-22, when its 19 legacy files exceeded one plan.
+**Split from:** SEED-413#speed-intent-timing-history-on-vitest (plan 772, recoverable at `dc8d21846:.planning/slice-plans/772-speed-intent-timing-history-on-vitest/PLAN.md`, former Slices 4–6) before readiness on 2026-11-22, when its 19 legacy files exceeded one plan.
 **Status:** awaiting story refinement — not ready for slice-plan refinement or execution
 
 ## Provisional input
