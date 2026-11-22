@@ -267,6 +267,10 @@ with MakeMe inputs, 2.54–2.77 s including preparation at load ~5.
 `mountIntentCiPage` takes an optional viewport. Learning: on the page mount
 the history region and heading appear before the history answers; cases wait
 on answered content.
+CI repair (run 45015905953, shard 1/2): the Sessions sidebar's stored open
+state leaked from the freshness and side-panel specs into the phone case in
+the same Vitest worker; `mountIntentCiPage` now mounts through
+`withClosedSessionsSidebar()` as the Board mounts do.
 
 ### 6. History chart marks keep labels, links, keyboard and narrow fit, and the story's proof runs faster
 

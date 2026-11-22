@@ -19,6 +19,7 @@ import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { StoryReferenceNavigation } from "../../src/storyNavigation.tsx";
+import { withClosedSessionsSidebar } from "../../test-support/component-mount/framePreferences.ts";
 import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
@@ -66,8 +67,10 @@ function CommittedView({
   return null;
 }
 
-// The page's reads are bound once: each project's notes and review states are
-// created from the reads current at their first use, as production mounts
+// The Sessions sidebar starts closed, whatever an earlier case in this browser
+// kept, and the case's end restores what was kept. The page's reads are bound
+// once: each project's notes and review states are created from the reads
+// current at their first use, as production mounts
 // PageReadsOnPage once with constant reads, so a case supplies every reply in
 // `reads` at mount and never changes them afterwards.
 export async function mountIntentCiPage({
@@ -85,6 +88,7 @@ export async function mountIntentCiPage({
   // Review changes' reads default to a machine without a review workspace.
   readonly reads: Pick<PageReads, "intent" | "ci"> & Partial<PageReads>;
 }) {
+  withClosedSessionsSidebar();
   const launches = machineSessionsAnswering(machine);
   const pageReads = pageReadsSupplying({
     review: unavailableReviewSource,
