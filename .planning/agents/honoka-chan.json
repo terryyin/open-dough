@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Honoka-chan",
+  "email": "honoka-chan@example.org",
+  "identity": "SEED-413#speed-intent-timing-history-on-vitest",
+  "mode": "story-branch",
+  "branch": "claude/get-fast-proof-of-intent-ci-wall-time-history",
+  "host": "claude"
+}
