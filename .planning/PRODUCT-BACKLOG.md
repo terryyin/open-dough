@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Disclose shared-checkout overlap in published session records](seeds/SEED-418-review-published-session-changes.md#disclose-shared-checkout-overlap) — SEED-418#disclose-shared-checkout-overlap ([plan](slice-plans/766-disclose-shared-checkout-overlap/PLAN.md))
 - [Get fast proof of Intent CI status on the real page and of timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history) — SEED-413#speed-intent-ci-status-frame-and-timing-history ([plan](slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md))
 - [Expire published session records after 30 days](seeds/SEED-418-review-published-session-changes.md#expire-published-session-records) — SEED-418#expire-published-session-records ([plan](slice-plans/767-expire-published-session-records/PLAN.md))
-- [Prove launch dialogs, dictation and startup recovery at their own owners](seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal) — SEED-413#make-launch-proof-orthogonal ([plan](slice-plans/768-make-launch-proof-orthogonal/PLAN.md))
 
 ## Backlog list
 

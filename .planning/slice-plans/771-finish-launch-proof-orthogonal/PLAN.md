@@ -10,7 +10,8 @@ at its delivered Slice 6 boundary, by developer decision, because its
 Slice 7 did not fit one slice and that plan was at its eight-slice limit.
 The slices below are plan 768's Slices 7 and 8 as provisional input; they
 resume through story refinement and plan realignment. Plan 768's mappings
-and paired timings are recoverable from its history after its wrap-up.
+and paired timings are at
+`265d6750b:.planning/slice-plans/768-make-launch-proof-orthogonal/PLAN.md`.
 
 ## Carried timing evidence
 

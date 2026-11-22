@@ -776,71 +776,6 @@ Slice 2 boundary alongside
   [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
   case-count, spent-support, and coverage checks.
 
-<a id="make-launch-proof-orthogonal"></a>
-
-### Prove launch dialogs, dictation and startup recovery at their own owners
-
-**Identity:** SEED-413#make-launch-proof-orthogonal
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#make-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-launch-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof"},"implementation":"All 29 legacy launch files retire with a mapped mounted Vitest baseline and existing composed ownership.","rationale":"The redesign must compare equivalent behavior against the integrated all-Vitest selection. The retained Playwright families exercise different setup costs and make pre-integration timing unsuitable.","condition":"The launch proof migration is integrated with its all-Vitest launch selection and behavior map.","state":"satisfied","resolution":{"revision":"9099d16787c4d0961075c841d3da2987712f508a","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof","summary":"The integrated migration retires all 29 legacy launch specs and maps their 81 cases to 72 mounted Vitest cases and retained composed and backend proof. The plan and remaining-proof.md preserve the test map, existing owners, and 32.04 s two-worker baseline including preparation for equivalent timing comparisons.\nCondition satisfied: The launch proof migration is integrated with its all-Vitest launch selection and behavior map.\nAccepted integration: bdabc77c85894ae2d23f7a58ab55013e54e98bb4 on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/768-make-launch-proof-orthogonal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5ec2c8491b1bcf5b75f8d38314281f307e5407aaf6070ed9febc82be1c167de7","plan":"e61e6a1fd95e94235a330f8a240137265f1e96055cad28064a0cb73af43d8f37"}}
-```
-
-- **Goal.** Dashboard maintainers get faster launch unit feedback for the
-  dense launch layout, model and effort reset, transcript review, native
-  recording races, story card startup status and startup recovery. Each of
-  those cases depends only on what can change its asserted result, so a
-  failure names one cause. Distinct launch behavior and the existing
-  composed journeys stay covered. This story delivers the first part of
-  the launch family's eight-second target; the rest moves to
-  [Get launch unit proof in about eight seconds](#finish-launch-proof-orthogonal).
-- **Scope.** Own `ad-hoc-launch-dialog`, `ad-hoc-start-session-layout`,
-  `ad-hoc-refinement-touch`, `launch-refinement-options`,
-  `launch-model-effort`, `launch-native-effort`, `launch-host-catalog`,
-  the three `mounted-instruction-voice` specs, the new
-  `transcript-review` spec, `story-card-startup`,
-  `story-card-launch-offers`, `story-card-launch-dialogs`,
-  `responsive-story-startup`, `startup-recovery` and
-  `startup-recovery-reads` under `dashboard/frontend-tests/launches/`, with
-  their page helpers. Each case is arranged at the smallest production
-  owner through typed inputs. Exercise independent dimensions separately
-  and keep combinations where they can change the result. Production code
-  may narrow an owner so it stands alone in production; tests never copy a
-  production composition. Before removing an observation, name the
-  retained case that would fail for the same regression. Preserve genuine
-  browser conditions (viewport, zoom, touch, pointer, native input and
-  focus), capture and recovery races, and the existing native, install
-  and backend journeys at their current owners. Add no E2E case. Compare
-  each reshaped family with a paired run of its starting files under
-  similar load. Note attachment, unattached startup, attachments and
-  record details, the whole-selection eight-second measurement, and the
-  hand-built launches composites that spread production `launchOffers`
-  move to the eight-second story. Apply the
-  [shared acceptance](#acceptance-shared-by-the-eight-stories) mapping and
-  spent-support checks.
-- **Key examples.**
-  - Dense layout: a refinement or Start session dialog with every option
-    selected is checked at each viewport where layout differs from one
-    selection, instead of every geometry case reselecting options. One
-    case proves option-to-command mapping and one proves native tab order.
-  - Shared reset: selecting model and effort and then dismissing resets the
-    shared dialog model, proved once at the dialog. Each launcher keeps
-    only its own launch and focus handoff, and host-specific effort rules
-    are checked without reopening three launchers.
-  - Transcript editing: an over-limit or exactly 4,000-character
-    transcript is fed as text to the owner of overflow, editing and
-    discard. Native recording stays only for a held reply, late
-    permission, track loss and capture failures.
-  - Startup: presentation receives its typed status and recovery its typed
-    attempt and read. One representative keyboard launch-to-focus journey
-    remains mounted.
-- **Baseline.** The integrated 72-case selection passed in 32.04 s wall at
-  load about 4; on 22 November 2026 at `0a6217aeb`, at load about 20, the
-  same command took 56.25 s. Recover the case map from
-  `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
-
 <a id="finish-launch-proof-orthogonal"></a>
 
 ### Get launch unit proof in about eight seconds
@@ -891,8 +826,9 @@ Slice 2 boundary alongside
     reports about 7–8 s wall including preparation, compared under similar
     machine load with a paired run of the starting selection.
 - **Baseline and learning.** Split from
-  SEED-413#make-launch-proof-orthogonal on 22 November 2026, whose plan
-  768 records each reshaped family's mapping and paired timing. Its Slice 7
+  SEED-413#make-launch-proof-orthogonal on 22 November 2026; its plan
+  `265d6750b:.planning/slice-plans/768-make-launch-proof-orthogonal/PLAN.md`
+  records each reshaped family's mapping and paired timing. Its Slice 7
   return found the seven files at 1,054 lines and no typed owner for the
   unattached startup answer. The smallest deliverable first part is note
   attachment: an `AttachStoryNotesChoice` owner with a required `answer`
