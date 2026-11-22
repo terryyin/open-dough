@@ -296,6 +296,23 @@ states.
 Proof: the seven files pass with paired timing and a mapping; composed E2E
 owners named in the source map still pass.
 
+Sizing finding (return at `840788d00`, 2.5 active minutes, no edits): the
+seven specs are 1,054 lines, and startup from its typed answer has no typed
+owner yet, so it needs production narrowing first. The smallest deliverable
+subset is note attachment: export an `AttachStoryNotesChoice` owner with a
+required `answer` that the reading wrapper renders, prove waiting, no
+waiting and unreadable from typed notes, keep one composed Start session
+Follow-up request case, and rerun `e2e/stories/recently-done-follow-up`.
+The startup-answer files (`ad-hoc-start-session`,
+`ad-hoc-start-session-answer`, `responsive-unattached-startup`, E2E owners
+`agent-launch-ad-hoc-terminal` and `agent-launch-ad-hoc-instructed`) plus
+`launch-attachments` and `launch-record-details` remain. The plan is at its
+eight-slice limit, so the remainder needs a story split. The source map is
+at `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
+The same `launchOffers` spread into hand-built launches also appears in
+`follow-up-note-handoff.spec.ts`, `story-startup-page.ts` and one
+unattached-startup spec, alongside the story card helper of G5.
+
 ### 8. The whole launch selection runs in about eight seconds
 
 Type: Behavior
