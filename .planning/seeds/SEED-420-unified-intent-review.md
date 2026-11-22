@@ -108,7 +108,7 @@ already decides that Done creates a story only for a session with none.
 It also decides that follow-ups keep their own session IDs under that story.
 The durable story is a done record beside the backlog, published with the
 session record that SEED-418's
-[workflow session records](SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record)
+workflow session records (SEED-418#attribute-every-workflow-session-record, done)
 define. This story adds the session-derived identity and the attachment,
 generalizing the current split into linked and standalone Done rows. It does
 not add a third kind of Done row.

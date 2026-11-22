@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-20
 planted_during: Terry's review of cross-machine session attribution and follow-up context
 trigger_when: selected from the product backlog
-scope: eight stories
+scope: seven stories
 ---
 
 # SEED-418 — Review published changes by session
@@ -14,68 +14,6 @@ A developer should be able to find what a session contributed from any machine w
 The [unified Intent review seed](SEED-420-unified-intent-review.md) owns
 the review destination, the Recent stories regression and the identity of
 standalone Done work. This seed owns session attribution and selection.
-
-<a id="attribute-every-workflow-session-record"></a>
-
-### Attribute every workflow session’s published changes
-
-**Identity:** SEED-418#attribute-every-workflow-session-record
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-418#attribute-every-workflow-session-record","dependencies":[{"supplier":{"identity":"SEED-418#review-published-session-changes","href":"seeds/SEED-418-review-published-session-changes.md#review-published-session-changes"},"implementation":"Published session record contract and Dashboard reader","rationale":"Every workflow's record extends the published record format, its publication path and the Dashboard reader that the standalone story establishes; defining them twice would split one contract.","condition":"A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.","state":"satisfied","resolution":{"revision":"2d82175d5ba4b7cdaba48cfa8312cfa261de4816","path":".planning/seeds/SEED-418-review-published-session-changes.md#review-published-session-changes","summary":"Satisfied. The earlier wait named the missing route: no real Land reached publishSessionClose. SEED-418#correct-published-session-review delivered it in eed84c8c4 (plan 746 slice 2): Dough Land's publisher choice sends ordinary reviewed work with the launch's Dashboard landing context to publishSessionClose under the launch reference, and 48b697b58 installed that guidance and its modules. At 107ac15cb, Distribution/tests/skills/dough-land/session-record-publication.test.mjs passed 4 cases, including a Dashboard-launched Land publishing the record of its accepted comparison to the remote under the launch reference, and e2e/sessions/recently-done-published-sessions.spec.ts reviews another machine's record through the Dashboard's published-record reader after trunk advances.\nCondition satisfied: A standalone Land publishes the versioned session record on trunk and a second machine reviews it through the Dashboard's published-record reader.\nAccepted integration: 8be1d19835f1448ceb5a70342bf35fe122739408 on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/747-attribute-every-workflow-session-record/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"202fbe7cdf80f60d830b0eab3cae1ec68435616f2313c3cec7dff28cf952c17f","plan":"a4f6077a3247dcc8c3bf4544dc348dc0d8fc0e80252dd5e73dd685215eb2db46"}}
-```
-
-Split on 2026-11-21 from `SEED-418#review-published-session-changes` at its
-delivered slice boundary. That story keeps the standalone outcome and supplies
-the published record contract and its Dashboard reader.
-
-Split again on 2026-11-22 at its delivered slice 7. Shared-checkout
-disclosure moved to
-[Disclose shared-checkout overlap in published session records](#disclose-shared-checkout-overlap),
-and 30-day expiry and pruning moved to
-[Expire published session records after 30 days](#expire-published-session-records).
-
-**Goal.** A developer on another machine can review what an individual
-publishing session contributed. Its UUID identifies the same contribution
-across repeated refinements, execution increments, and later story follow-ups.
-
-**Scope.** Extend the standalone Land record to publishing sessions closed
-through Land or Story Wrap-up, including refinement, execution in Trunk and
-Story Branch Mode, standalone ad hoc work, and ad hoc story follow-ups. Use
-the launch UUID when supplied and retain a session UUID for native starts.
-Publish one record with the workflow, original close time, story identity
-when associated, and ordered comparisons for that session's accepted work.
-Include earlier accepted trunk and story-branch work when its comparison
-becomes reachable from trunk. Exclude intervening contributions, unsuccessful
-push attempts, unpublished edits, and the record's own publication. A close
-retry keeps the original record and resumes its first unfinished step.
-
-Use the existing published-session review to open and inspect each range for
-a UUID. Shared-checkout disclosure, 30-day expiry and pruning, story-card
-session selection, combined comparisons across sessions, historical recovery,
-and passing a selected UUID into a follow-up remain with their linked stories.
-
-**Key examples.**
-
-- An execution publishes two increments with a different writer's change in
-  between, then wraps up. A developer using only another clone opens its
-  UUID and can inspect both contributions. Neither comparison includes the
-  intervening change. In Story Branch Mode, the developer can still read the
-  original branch hashes after integration and retirement without reviewing
-  the same contribution twice.
-- A refinement lands, then an ad hoc follow-up to that story lands. Each
-  UUID resolves its own changes and carries the same story identity.
-- Work reaches trunk but the record push fails or loses its response. A
-  retry keeps the UUID, close time and accepted comparisons. The repository
-  ends with one record and one publication of the work.
-
-**Architecture.** [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
-places durable attribution in the repository. Assemble records from accepted
-publication evidence. Keep launch state, conversations, workspace paths and
-native controls on the originating machine. The UUID and the published
-repository are sufficient to review the comparisons.
 
 <a id="disclose-shared-checkout-overlap"></a>
 

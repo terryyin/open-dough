@@ -11,7 +11,7 @@ machine and, once Land publishes, on any clone. The seed holds the full scope,
 exclusions and key examples. This plan carries them without enlarging them.
 
 **Supplier.** The recorded dependency on
-[SEED-418#attribute-every-workflow-session-record](../../seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record)
+SEED-418#attribute-every-workflow-session-record (done)
 supplies published ad hoc and follow-up session records. Each record carries
 its UUID, sealed close time, comparisons and story identity. That story also
 delivers retry recovery. Slices 1 and 5 extend that contract. They do not
