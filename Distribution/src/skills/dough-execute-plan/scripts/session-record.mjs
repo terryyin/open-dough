@@ -11,9 +11,11 @@ export const sessionRecordDirectory = "sessions";
 export const sessionRecordVersion = 1;
 
 // The workflow values a close record may carry: a standalone (Dashboard
-// ad-hoc) session, or a plan execution.
+// ad-hoc) session, including a story follow-up, a plan execution, or a story
+// refinement's landed preparation.
 export const standaloneSessionWorkflow = "ad-hoc";
 export const executionSessionWorkflow = "dough-execute-plan";
+export const refinementSessionWorkflow = "dough-story-refinement";
 
 // Whether `value` is a session UUID as records spell it.
 export function isSessionId(value) {

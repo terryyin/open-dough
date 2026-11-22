@@ -66,6 +66,12 @@ export class LandingContextBuilder {
     return this;
   }
 
+  /** @param {string} reference the launch's reporting reference (its session UUID) */
+  referencing(reference) {
+    this.#context = { ...this.#context, reference };
+    return this;
+  }
+
   /** @param {string} target the trunk branch ref, such as `refs/heads/master` */
   landingOn(target) {
     this.#context = { ...this.#context, target };

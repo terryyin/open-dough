@@ -1,11 +1,11 @@
-// An execution's local session evidence: one per-worktree file at the Git
+// A workflow session's local evidence: one per-worktree file at the Git
 // path `open-dough/session-record` holding the session UUID, workflow, story
-// and the ordered accepted increment pairs. A fresh native claim or admission
-// starts a new UUID; a resumed start keeps the file. A Dashboard launch's
-// landing-context reference names the session, and a different reference
-// replaces an unclosed earlier session's evidence, except where Story Branch
-// integration adopts the launch reference. Only accepted pairs are
-// appended, so refused or rewritten candidates never enter.
+// and the ordered accepted increment pairs. A fresh native claim, admission or
+// preparation announcement starts a new UUID; a resumed start keeps the file.
+// A Dashboard launch's landing-context reference names the session, and a
+// different reference replaces an unclosed earlier session's evidence, except
+// where Story Branch integration adopts the launch reference. Only accepted
+// pairs are appended, so refused or rewritten candidates never enter.
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -37,18 +37,22 @@ function writeSessionEvidence(workspace, evidence) {
   return evidence;
 }
 
-function freshSession(sessionId, story) {
+function freshSession(sessionId, story, workflow = executionSessionWorkflow) {
   return {
     sessionId,
-    workflow: executionSessionWorkflow,
+    workflow,
     ...(story ? { story } : {}),
     ranges: [],
   };
 }
 
-// A fresh native claim or admission: a new UUID with no ranges yet.
-export function beginNativeSession(workspace, { story } = {}) {
-  return writeSessionEvidence(workspace, freshSession(randomUUID(), story));
+// A fresh native claim, admission or preparation announcement: a new UUID
+// with no ranges yet, under the starting workflow.
+export function beginNativeSession(workspace, { story, workflow } = {}) {
+  return writeSessionEvidence(
+    workspace,
+    freshSession(randomUUID(), story, workflow),
+  );
 }
 
 /**
@@ -70,6 +74,14 @@ export function recordAcceptedIncrement(
   if (last?.base !== base || last?.candidate !== candidate)
     evidence.ranges.push({ base, candidate });
   return writeSessionEvidence(workspace, evidence);
+}
+
+// Closes the native session `sessionId` at the close time its sealed record
+// carries, so a later close in this workspace cannot reuse its identity.
+export function closeNativeSession(workspace, { sessionId, closedAt }) {
+  const kept = readSessionEvidence(workspace);
+  if (kept?.sessionId !== sessionId || kept.closedAt) return kept;
+  return writeSessionEvidence(workspace, { ...kept, closedAt });
 }
 
 // A Story Branch session's branch publications carry no landing context, so

@@ -255,7 +255,7 @@ the continuation's edits, and absence of duplicate and intervening work.
 ### 7. Record refinement and follow-up through Land
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.** A refinement and a later ad hoc story follow-up use the same
 Land close path with their own workflow and session identity. The story
@@ -267,6 +267,8 @@ then land it through the installed publishers. Land the later follow-up
 with the same story context. Read both records and the earlier preparation
 snapshot from the origin. Verify distinct UUIDs, workflow values and
 comparisons, the common story identity, and release of only that assignment.
+
+**Accepted.** Refinement records use the workflow `dough-story-refinement`. A Land close takes its story from the session, then from the launch's landing context. A native preparation start retains its own UUID, which Land's close reads and then marks closed. An ad hoc follow-up passes its done story as `session.story`. Proof: `Distribution/tests/skills/dough-story-refinement/preparation-session-record-land.test.mjs` and `Distribution/tests/skills/dough-story-refinement/preparation-native-session-record-land.test.mjs`.
 
 ### 8. Disclose ambiguity in a shared checkout
 
@@ -374,3 +376,13 @@ Disposition: proved by slice 3: Distribution/tests/skills/dough-execute-plan/exe
 Reported: slice 6 — "Branch pairs are recorded by pushing and calling recordAcceptedIncrement directly, not through deliverManagedExecutionIncrement to a branch target. Retirement is just deleting the remote branch ref, not Dough Land retire. The tests call the library function, so the CLI's argument parsing is not exercised."
 Story clause: "Include earlier accepted trunk and story-branch work when its comparison becomes reachable from trunk."
 Disposition: proved by slice 6: Distribution/tests/skills/dough-story-wrap-up/story-branch-session-record.test.mjs (branch increments through deliverManagedExecutionIncrement story-branch mode, record stage through the installed story-branch-session-record.mjs CLI, Dough Land worktree-retirement.mjs retire holding on an unpublished record and succeeding with the published record.sha)
+
+### G8. A native refinement Land writes no session record
+Reported: slice 7 — "A native (not Dashboard-launched) refinement Land still writes no session record, because it has neither a launch reference nor a retained native UUID."
+Story clause: "Use the launch UUID when supplied and retain a session UUID for native starts."
+Disposition: proved by slice 7: Distribution/tests/skills/dough-story-refinement/preparation-native-session-record-land.test.mjs (preparation start retains a native UUID, resume keeps it; a Land with no landing context publishes the refinement record under it with the story identity)
+
+### G9. A Land close leaves the native session open for the next Land
+Reported: slice 7 — "An ad hoc Land in a worktree that still holds an unclosed native session file would publish under that file's UUID; acceptance found Land's close never marks that native session closed, so a later native Land there reuses the landed UUID and conflicts."
+Story clause: "Each UUID resolves its own changes"
+Disposition: proved by slice 7: Distribution/tests/skills/dough-story-refinement/preparation-native-session-record-land.test.mjs (after record A, a later close with only the closed session reports session-identity-missing; a new announcement lands record B under a different UUID; resuming A settles with pushCount 0)

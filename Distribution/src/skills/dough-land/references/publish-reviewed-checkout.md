@@ -6,7 +6,7 @@ Choose the publisher by the first row that fits the checkout:
 | --- | --- |
 | Completed selected work | Its [visit forms](#land-completed-selected-work) |
 | Published prefix | [Preserve published history](../../dough-execute-plan/references/preserve-published-history.md) |
-| Ordinary reviewed work with the launch's Dashboard landing context | [Session close](#publish-a-session-close) |
+| Ordinary reviewed work with the launch's Dashboard landing context, or a story preparation | [Session close](#publish-a-session-close) |
 | Any other wholly unpublished suffix | [Publish the candidate](../../dough-execute-plan/references/publish-the-candidate.md) for that suffix and target |
 
 For a published prefix, establish that the recorded published tip is an
@@ -62,9 +62,15 @@ loop.
 Call the installed `publishSessionClose` API from
 `dough-execute-plan/scripts/session-record-publication.mjs` with the
 `publishExecutionIncrement` request, the project's backlog path as
-`backlogPath`, and `session: { workflow: "ad-hoc" }`. It publishes the work,
-then, once accepted, the session record under the landing context's
-`reference`, along the same route.
+`backlogPath`, and `session: { workflow, story }`. `workflow` is
+`dough-story-refinement` for a story preparation's landing and `ad-hoc`
+otherwise. `story` is the story identity the session's own context names,
+such as the done story a follow-up's context names; omit it when the context
+names none, and the landing context's story, if any, applies. It publishes the
+work, then, once accepted, the session record under the landing context's
+`reference`, along the same route. Without a landing context, the native
+session the preparation's start retained in the workspace names the record
+and its story.
 Report `work` as the publication result and `record.status`; a `stopped`
 record leaves the accepted work in place. Other publishers write no session
 record; for ordinary reviewed work, report that none was written.
