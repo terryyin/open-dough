@@ -438,6 +438,16 @@ covers both new members; the `intent-story-compare-*` cases pass with
 E2E journey reading Done wall-time history and one reading Project scope
 history pass.
 
+## Execution complete
+
+Product advice: no change to priorities. The continuation story
+SEED-413#speed-intent-timing-history-on-vitest stays queued first; its plan
+772 now opens with a correction-first slice from this execution's outcome
+review (production layout ancestors for the CI status page mount, the page
+entry's import cycle, and duplicated test support), and its history slices
+need resizing to one or two legacy files each at refinement. The process
+review is deferred into wrap-up behind the intent coverage check.
+
 ## Plan review
 
 Split on 22 November 2026 after Slice 4, on Terry's authorization: the

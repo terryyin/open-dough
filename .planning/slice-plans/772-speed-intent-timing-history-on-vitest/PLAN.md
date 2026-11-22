@@ -61,16 +61,74 @@ Slice 4's structure delivered in plan 764.
   changing or retrying the Done reference updates or preserves history without
   perturbing live Proof; 0 legacy cases remain on the 3 files.
 
+## Correction of the delivered CI status entry
+
+Execution retrospective of SEED-413#speed-intent-ci-status-frame-and-timing-history
+(plan 764; commits `ed26bbd04`, `d7cd56e6a`, `136d221a8`, `d14d182ad`,
+`d55997e20` on its story branch), 22 November 2026, a read-only outcome
+review of `git diff 5a434844e d55997e20`. No product bug was found. Every
+history slice below mounts through the same entry, so these come first:
+
+- **The page mount omits production layout ancestors.**
+  `configuredDashboardContent.tsx` places `BoardOrIntent` inside
+  `<div class="board-scroll|intent-scroll"><div class="scroll-content">`;
+  `board.css` makes `.board-scroll > .scroll-content` the `board` container
+  that drives Column fit, and `intent-perspective.css` gives
+  `.intent-scroll > .scroll-content` the flex-column height that lets the
+  panes scroll on their own. `intent/intent-ci-page-mount.ts` renders
+  `BoardOrIntent` without them, so layout-sensitive cases (dark contrast,
+  narrow-viewport history marks) run against a non-production layout. Move
+  the perspective scroll container into one production component that
+  `ConfiguredDashboardContent` and the mount both render; no class names in
+  test code.
+- **Circular imports at the page entry.** `pageReads.tsx` imports
+  `StoryNotesOnPage`/`StoryReviewStatesOnPage` and their map types from
+  `storyNotes.ts`/`storyReviewStates.ts`, which import their read hooks back
+  from `pageReads.tsx`. Keep the per-project maps and their hooks in modules
+  that depend on the entry, not the reverse.
+- **A parallel `MachineSessions` copy remains.**
+  `navigation/board-mount.ts` `noSessions` hand-builds what
+  `test-support/component-mount/machineSessionsAnswering.ts` adapts from a
+  MakeMe answer (its actions throw where the adapter's stay pending); give
+  the adapter a step for the throwing variant or justify both.
+- **Duplicated test data and helpers.** `aPublishedWork…taking()`
+  (`comparisonViewTestData.mjs`) restates the Taken `WorkEntry` that
+  `takenListing` (`comparedStoryWorkTestData.mjs`) builds; never-settling
+  promise helpers are written separately in `intent-ci-status-fixtures.ts`,
+  `intent-story-compare-stories.ts`, `review/story-review-panel-page.ts`,
+  `machineSessionsAnswering.ts` and `fakeGitHub.ts`.
+- **Relocated `act` scaffolding.** `stories/story-notes-dialog-page.ts`
+  moved the dialog spec's `createRoot`/`act` mount and a module-scope
+  `IS_REACT_ACT_ENVIRONMENT` stub out of the spec instead of retiring them.
+- **Latent test-only trap.** `PageReadsOnPage` binds each project's notes and
+  review-state store to the reads current at creation; a case that rerenders
+  with different replies keeps the old ones. Production mounts it once with
+  constant reads.
+
 ## Slices
 
-### 1. Done wall-time history keeps its compact readout, glance and reference lifecycle
+### 1. CI status page mount renders production layout ancestors and the entry has no cycle
+
+Type: Structure
+Status: provisional
+
+The correction above: the perspective scroll container becomes production
+code rendered by the mount, the page entry's import cycle is removed, the
+`noSessions` copy and duplicated Taken-entry and never-settling helpers are
+consolidated, and `story-notes-dialog-page.ts` retires `act` and
+`IS_REACT_ACT_ENVIRONMENT`. Proof: typecheck; the 7 CI status files,
+`intent-story-compare-*`, board-mount consumers and the story-notes dialog
+spec pass with unchanged titles and assertions; full frontend group;
+representative `intent-ci-status` E2E.
+
+### 2. Done wall-time history keeps its compact readout, glance and reference lifecycle
 
 Type: Behavior
 Status: provisional
 
 The former Slice 4 history port above.
 
-### 2. Project CI wall-time mounts drop `act` wrapping and chart marks keep keyboard and narrow layout
+### 3. Project CI wall-time mounts drop `act` wrapping and chart marks keep keyboard and narrow layout
 
 Type: Behavior
 Status: provisional
@@ -89,7 +147,7 @@ onto `mountComponent` (retiring `createRoot`, React `act`, and
 history chart marks preserve build/date labels, accessible descriptions,
 run links, and narrow-viewport fit.
 
-### 3. Scope glances and project/source history keys stay isolated to their source
+### 4. Scope glances and project/source history keys stay isolated to their source
 
 Type: Behavior
 Status: provisional
@@ -105,7 +163,7 @@ and `AbortSignal`.
 switching source identity or project issues the right request and aborts/ignores
 other projects' or sources' answers without leaking history across projects.
 
-### 4. Project scope history isolates scope keys, retains live proof on failure, and recovers on Retry
+### 5. Project scope history isolates scope keys, retains live proof on failure, and recovers on Retry
 
 Type: Behavior
 Status: provisional
@@ -121,7 +179,7 @@ across remounts; a failed or empty history read preserves both the last kept
 history and live Scope Proof, offers `Retry`, and recovers or refreshes
 without borrowing history from another endpoint or scope.
 
-### 5. Collected scope timing preserves units, provenance, segments, and gaps and runs faster on Vitest
+### 6. Collected scope timing preserves units, provenance, segments, and gaps and runs faster on Vitest
 
 Type: Behavior
 Status: provisional

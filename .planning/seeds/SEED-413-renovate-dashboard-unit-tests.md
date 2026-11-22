@@ -603,6 +603,11 @@ authorization. Its provisional plan is
 [plan 772](../slice-plans/772-speed-intent-timing-history-on-vitest/PLAN.md),
 awaiting story refinement.
 
+- **Correction first.** Slice 1 of
+  [plan 772](../slice-plans/772-speed-intent-timing-history-on-vitest/PLAN.md#correction-of-the-delivered-ci-status-entry)
+  corrects the delivered CI status page mount before any history move: the
+  mount renders the production layout ancestors, the page entry has no
+  import cycle, and duplicated test support is consolidated.
 - **Goal.** A dashboard maintainer can quickly check what collected Project
   and Done timing history say across the homepage, location, folder, and
   file, including timing gaps, units, provenance, source identity, and
