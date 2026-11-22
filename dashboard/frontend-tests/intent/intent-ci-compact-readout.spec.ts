@@ -2,8 +2,7 @@
 // brief status where the landing's history is missing, pending, outside
 // retention or insufficient; the prior average without a change when the
 // selected timing is unusable; a change without a percentage over a zero
-// average; and the build that stands in for the landing. A held history
-// read resolves beside the live comparison proof without rereading it.
+// average; and the build that stands in for the landing.
 import { expect, test } from "vitest";
 import type { DoneWallTimeHistoryBuilder } from "../../../Distribution/tests/support/doneWallTimeHistoryTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
@@ -18,8 +17,8 @@ import {
 type History = DoneWallTimeHistoryBuilder;
 
 // The Done story's comparison, each history read at the published landing
-// answered from `answer()`: the history view, the landing's words, the
-// history reads and the comparison and proof reads.
+// answered from `answer()`: the history view, the landing's words and the
+// history reads.
 async function openDoneHistory(
   answer: () => History | Error | Promise<History>,
 ) {
@@ -34,7 +33,7 @@ async function openDoneHistory(
     if (shown instanceof Error) throw shown;
     return shown.through(endpoint.revision).please();
   };
-  const opened = await openDoneStoryComparison(
+  await openDoneStoryComparison(
     { review: () => Promise.resolve(publishedCompletion()) },
     read,
   );
@@ -43,9 +42,6 @@ async function openDoneHistory(
     history,
     landing: () => landing,
     reads: () => reads,
-    proofReads: () =>
-      opened.comparisonReads.comparisons.length +
-      opened.comparisonReads.proofs.length,
   };
 }
 
@@ -53,31 +49,6 @@ const done = () => makeMe.aDoneWallTimeHistory;
 const usableAverage = "Prior-build average · 1 min 43 s · 5 prior builds used";
 const noAverage = (builds: number) =>
   `Prior-build average · Insufficient history · ${String(builds)} prior builds used`;
-
-test("a held history read resolves beside the live comparison proof without rereading it", async () => {
-  let release: () => void = () => undefined;
-  const held = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  let answer = async () => {
-    await held;
-    return done().measured(120000);
-  };
-  const shown = await openDoneHistory(() => answer());
-  const { history } = shown;
-  await expect.poll(shown.reads).toBe(1);
-  await expect.poll(shown.proofReads).toBeGreaterThan(0);
-  const proofReads = shown.proofReads();
-  expect(history.selected()).toBeUndefined();
-  release();
-  await expect.poll(history.change).toBe("vs. prior average · +17 s (+17%)");
-  answer = () => Promise.resolve(done().pending());
-  await history.refresh.click();
-  await expect
-    .poll(history.selected)
-    .toBe(`${shown.landing()} · No timing · Pending · CI queued or running`);
-  expect(shown.proofReads()).toBe(proofReads);
-});
 
 test("brief statuses name a pending, missing, out-of-retention or insufficient history and keep any usable prior average without a change", async () => {
   const steps: readonly {

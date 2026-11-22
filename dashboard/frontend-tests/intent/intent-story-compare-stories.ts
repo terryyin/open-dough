@@ -103,6 +103,8 @@ const doneStory = makeMe.aComparedStory.inSummaryScope().please();
 const doneTitle = "Story A";
 export const doneCompletion = doneStory.work.revision;
 export const doneIdentity = doneStory.identity;
+// The Done story's own CI comparison answer.
+export const doneComparison = doneStory.answer;
 // The published completion Review changes answers by default.
 export const publishedCompletion = () =>
   makeMe.aStoryReview
@@ -112,15 +114,18 @@ export const publishedCompletion = () =>
 
 // Intent with the Done story selected, its review read from `review` and its
 // collected CI wall time from `readDoneWallTimeHistory` (pending unless
+// given) and its CI comparison from `readComparison` (the story's own unless
 // given): the revision each Intent locations read names, in order, the
 // comparison and proof reads the CI comparison asked, and the global fetch
 // and WebSocket calls made from the mount on.
 export async function openDoneStoryComparison(
   review: ReviewAnswers,
   readDoneWallTimeHistory: IntentCiReadSource["readDoneWallTimeHistory"] = unanswered,
+  readComparison?: ReturnType<typeof scopeReadsOf>["answers"]["comparison"],
 ) {
   const opened = recordOutsideCalls();
   const ci = scopeReadsOf(doneStory);
+  if (readComparison !== undefined) ci.answers.comparison = readComparison;
   const locationRevisions: string[] = [];
   let selected = false;
   const { done, doneReads } = makeMe.aDoneCatalog

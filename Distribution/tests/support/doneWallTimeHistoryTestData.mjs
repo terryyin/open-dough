@@ -21,7 +21,7 @@ const wholeSeconds = (/** @type {number} */ ms) =>
 export class DoneWallTimeHistoryBuilder {
   /** @type {DoneWallTimeHistory["availability"]} */
   #availability = "uncollected";
-  /** @type {readonly number[]} */
+  /** @type {readonly (number | "failed" | "missing")[]} */
   #priors = [103000, 103000, 103000, 103000, 103000];
   /** @type {((endpoint: string) => { selected: SelectedTiming; entry: MeasuredEntry; ms?: number }) | undefined} */
   #selected = undefined;
@@ -39,7 +39,9 @@ export class DoneWallTimeHistoryBuilder {
     return this;
   }
 
-  /** @param {readonly number[]} durations each prior build's wall time, oldest first */
+  // Each prior build, oldest first: its wall time, a failed build, or a
+  // landing whose build published no CI proof summary.
+  /** @param {readonly (number | "failed" | "missing")[]} durations */
   priors(durations) {
     this.#priors = durations;
     return this;
@@ -156,6 +158,13 @@ export class DoneWallTimeHistoryBuilder {
     const entries = priors.map((ms, index) => {
       const start = selectedStart - (priors.length - index) * day;
       const revision = String(index + 1).repeat(40);
+      if (typeof ms !== "number")
+        return {
+          kind: "gap",
+          reason: ms === "failed" ? "failed" : "no-proof",
+          revision,
+          receivedAt: isoAt(start),
+        };
       return {
         kind: "point",
         revision,
@@ -165,9 +174,10 @@ export class DoneWallTimeHistoryBuilder {
         landings: [{ revision, receivedAt: isoAt(start), provenance: "exact" }],
       };
     });
+    const measured = priors.filter((ms) => typeof ms === "number");
     const averageMs =
-      priors.length >= 5
-        ? priors.reduce((sum, ms) => sum + ms, 0) / priors.length
+      measured.length >= 5
+        ? measured.reduce((sum, ms) => sum + ms, 0) / measured.length
         : undefined;
     const selected = this.#selected?.(endpoint);
     if (selected !== undefined) entries.push(selected.entry);
@@ -182,7 +192,7 @@ export class DoneWallTimeHistoryBuilder {
       entries,
       reference: {
         endpoint,
-        sampleCount: priors.length,
+        sampleCount: measured.length,
         ...(selected === undefined ? {} : { selected: selected.selected }),
         ...(averageMs === undefined ? {} : { averageMs }),
         ...(changeMs === undefined || averageMs === undefined

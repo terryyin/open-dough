@@ -223,7 +223,7 @@ it would load dashboard source into the shared makeMe builders.
 ### 4. Done glance and reference lifecycle keep history beside live proof
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-ci-done-glance` (1) and `intent-ci-done-reference-lifecycle` (2).
 
@@ -232,6 +232,19 @@ changing or retrying the Done reference updates or keeps history without
 perturbing live proof.
 
 Proof: the moved Vitest specs; 0 legacy cases remain on the 2 files.
+
+Accepted: both specs run on Vitest at their paths through
+`openDoneStoryComparison(review, readDoneWallTimeHistory, readComparison)`;
+lifecycle case 2 absorbed the compact-readout held-read case (compact readout
+keeps its 3 legacy cases); `mountedDoneWallTime.ts` was deleted and
+`doneWallReferenceHistory.ts` keeps only what the two e2e prior-build specs
+use. Moved specs: 4.53 s including preparation. The glance's "later landings
+stay out" and column-header checks belong to the server projection
+(`ci-done-wall-reference`, `ci-history-reader-compatibility`) and
+`intent-ci-comparison-endpoints`. Learning: a successful Check again rereads
+the Done history (`checkedAgain` keys the read); the legacy "asks the provider
+nothing" was the server cache. `.intent-ci-gap` is still read by the
+sibling-owned `intent-ci-evidence-page.tsx` and by `intent-ci-done-history-page.ts`.
 
 ### 5. Project CI wall-time history refreshes without `act` wrapping
 
