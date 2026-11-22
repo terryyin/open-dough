@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#make-launch-proof-orthogonal
 **Source:** [Get launch unit proof in about eight seconds](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -53,7 +54,7 @@ Observations ran in the preparation checkout at `d33ded4f9` on
 | Whole-selection measurement | `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2` passed 72/72 in 23 files: 36.7 s wall, Vitest 33.66 s, 51.3 summed case-seconds, load 14.4 → 13.7. Most costly files (summed s): `ad-hoc-launch-dialog` 6.62, `launch-model-effort` 4.00, `story-card-launch-offers` 3.65, `ad-hoc-start-session-layout` 3.33, the three dictation files 8.38, `launch-refinement-options` 3.14, `ad-hoc-refinement-touch` 2.89. | Taken under high load; Slice 1 retakes the paired baseline. |
 | Fixed cost per run | One browser file (`ad-hoc-start-session.spec.ts`, 2 cases, 1.45 s of cases) took 3.9 s wall; a non-browser file took 2.3–2.6 s. About 2.5 s is fixed, leaving roughly 11 case-seconds across two workers. Wall exceeds half the summed case time by about 11 s, so per-file import, mount and imbalance count. | Per-file cost is not yet broken down; Slice 6 measures it. |
 | Runner isolation | `dashboard/frontend.vitest.config.mts` sets `isolate: true` and adds a `chromium-desktop` instance for `story-card-launch-offers` and `story-card-startup` (fine pointer). | Changing either is shared group configuration. |
-| Dense selection input | `LaunchDialog` accepts `kept` (the selection to start from) from `StartLaunch`, which sets it only after a refused Start. `StartSession` renders the same dialog. | Not yet observed that a production entry arranges every option selected without clicking; Slice 1 opens with that probe. |
+| Dense selection input | `LaunchDialog` accepts `kept` (the selection to start from) from `StartLaunch`, which sets it only after a refused Start. `StartSession` renders the same dialog. | False (Slice 1 probe at `0a6217aeb`): `kept` starts empty in `StartLaunch.tsx:139` and only a refused Start sets it from clicked choices; `StartSession` passes neither `options` nor `kept`, and its workspace and landing radios change only by clicking. Selection is arranged by clicking once per case. |
 | Transcript text entry | Overflow review lives inside `useLaunchInstruction` (`LaunchInstruction.tsx`) and is fed only by `useInstructionRecording`'s transcript callback. No production owner takes transcript text directly. | Slice 3 must narrow production first. |
 
 ## Slices
@@ -61,20 +62,39 @@ Observations ran in the preparation checkout at `d33ded4f9` on
 ### 1. Dense launch layout is arranged through a production selection input
 
 Type: Behavior
-Status: planned
+Status: done
 
-Retake the paired whole-selection baseline first. Early probe: arrange every
-refinement option selected at the production entry without clicking each
-option (through `kept` at the owner that supplies it in production, or a
-refused Start once). If no such entry exists without a test copy, keep one
-clicked selection case and record the false premise before reshaping. Then
-reshape `ad-hoc-launch-dialog`, `ad-hoc-start-session-layout`,
-`ad-hoc-refinement-touch` and `launch-refinement-options`: geometry cases
-start selected, one case maps options to command flags, one proves tab
-order, one touch-resize case keeps the draft at constrained height.
+Baseline retaken at `0a6217aeb`: whole selection 56.25 s wall at load
+21.6 → 18.4 (evidence `baseline-whole-selection-1.log`). The dense-selection
+premise is false (see the premise row), so each dialog keeps one clicked
+selection case. That case selects every option once and observes layout at
+each viewport where it differs by resizing and re-zooming in the same setup
+(`page.viewport` and the device-metrics override), instead of separate
+geometry cases that each reselect. Reshape `ad-hoc-launch-dialog`,
+`ad-hoc-start-session-layout`, `ad-hoc-refinement-touch` and
+`launch-refinement-options` that way: one case maps options to command
+flags, one proves tab order, one touch-resize case keeps the draft at
+constrained height.
 
 Proof: the four files pass; paired before/after timing of those files;
 mapping of every retired observation.
+
+Mapping (13 → 10 cases; four files 19.17 s at load 11.2 → 17.1 before,
+16.07 s at load 12.8 → 13.9 after):
+
+- Refinement 320 px and 200% geometry cases → the dense refinement case,
+  which also owns the all-flags command mapping. The 200% half now waits
+  for `devicePixelRatio` 2, because zooming before a resize resets to 100%.
+- First refinement case's `--explore --ux-ui` command text → the dense
+  case's all-flags check; it keeps tab order and the "(2)" summary.
+- Start session offered 320 px and 200% pair → one offered case;
+  unavailable pair → one unavailable case, both at both sizes.
+- No Approach `--c` preview text → the dense case's flag check plus the
+  same case's submitted `options: ["--c"]`.
+
+Learning: `zoomToTwoHundredPercent()` in `launch-layout-page.ts` resizes,
+then zooms and waits for `devicePixelRatio` 2. Later slices reuse it for
+200% cases (G1 in Slice 4).
 
 ### 2. Shared model and effort reset is proved once at the dialog
 
@@ -172,3 +192,10 @@ slice. This review found no remaining slice-specific concern.
   [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
   Run dashboard typecheck after production edits. Run the whole frontend
   group only if Slice 6 changes shared runner configuration.
+
+## Story obligations
+
+### G1. Story card 200% zoom case may run at 100%
+Reported: slice 1 — "Applying the 200% zoom and then resizing the window resets zoom to 100%; story-card-launch-offers.spec.ts:131-132 zooms before resizing."
+Story clause: "Preserve genuine browser conditions (viewport, zoom, touch, pointer, native input and focus)"
+Disposition: receiving slice 4

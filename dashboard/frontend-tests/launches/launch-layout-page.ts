@@ -41,6 +41,16 @@ export async function useTwiceZoomedDevice() {
   });
 }
 
+export async function zoomToTwoHundredPercent() {
+  await resizeLaunchViewport(twiceZoomedDialog);
+  await useTwiceZoomedDevice();
+  await expect.poll(() => devicePixelRatio).toBe(2);
+  expect([innerWidth, innerHeight]).toEqual([
+    twiceZoomedDialog.width,
+    twiceZoomedDialog.height,
+  ]);
+}
+
 export function box(control: Locator) {
   return control.element().getBoundingClientRect().toJSON() as DOMRectReadOnly;
 }

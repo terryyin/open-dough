@@ -1,4 +1,5 @@
 import { expect, test } from "vitest";
+import type { Locator } from "vitest/browser";
 import { followsTabOrder } from "./ad-hoc-launch-page.ts";
 import {
   box,
@@ -6,14 +7,14 @@ import {
   narrowDialog,
   noSidewaysScroll,
   twiceZoomedDialog,
-  useTwiceZoomedDevice,
+  zoomToTwoHundredPercent,
 } from "./launch-layout-page.ts";
 import { openRefinement, refinementChoices } from "./refinement-launch-page.ts";
 
 const effect = "The session runs in this project's folder.";
 const preview = (identity: string) => `/dough-story-refinement ${identity}`;
 
-test("the instruction comes first, disclosures summarize selection, and Command details list the selected flags", async () => {
+test("the instruction comes first, tabs in order, and the options disclosure keeps its summarized selection", async () => {
   const { form, launcher, work, start } =
     await openRefinement(twiceZoomedDialog);
   const { dialog, host, model, effort, options, command, cancel } = form;
@@ -67,11 +68,6 @@ test("the instruction comes first, disclosures summarize selection, and Command 
   await expect
     .element(dialog.getByRole("group", { name: "Options" }))
     .toBeVisible();
-  await command.click();
-  await expect.element(code).toBeVisible();
-  await expect
-    .element(code)
-    .toHaveTextContent(`${preview(work.identity)} --explore --ux-ui`);
 
   await cancel.click();
   await expect.element(dialog).not.toBeInTheDocument();
@@ -79,12 +75,25 @@ test("the instruction comes first, disclosures summarize selection, and Command 
   expect(start).not.toHaveBeenCalled();
 });
 
-async function everyChoiceFits(view: typeof narrowDialog, stacked: boolean) {
-  const { form, work } = await openRefinement(view);
-  const { host, model, options, command, dialog, cancel, start } = form;
-  if (stacked) expect(box(host).top).toBeLessThan(box(model).top);
-  else expect(box(host).top).toBe(box(model).top);
+function fitsWithActionsInView(form: {
+  cancel: Locator;
+  start: Locator;
+  dialog: Locator;
+}) {
+  noSidewaysScroll(form.dialog);
+  controlsAreReachable(form.dialog);
+  return Promise.all(
+    [
+      form.cancel,
+      form.start,
+      form.dialog.getByText(effect, { exact: true }),
+    ].map((control) => expect.element(control).toBeInViewport({ ratio: 1 })),
+  );
+}
 
+test("with every option selected, Command details list every flag; Host stacks above Model at 320 pixels and sits beside it at 200% zoom, with every option and action reachable", async () => {
+  const { form, work } = await openRefinement(narrowDialog);
+  const { host, model, options, command, dialog } = form;
   await options.click();
   for (const { label } of refinementChoices)
     await dialog.getByRole("checkbox", { name: label, exact: true }).click();
@@ -96,21 +105,11 @@ async function everyChoiceFits(view: typeof narrowDialog, stacked: boolean) {
   await expect
     .element(dialog.getByRole("code", { includeHidden: true }))
     .toHaveTextContent(`${preview(work.identity)} ${flags}`);
-  noSidewaysScroll(dialog);
-  controlsAreReachable(dialog);
-  for (const control of [
-    cancel,
-    start,
-    dialog.getByText(effect, { exact: true }),
-  ])
-    await expect.element(control).toBeInViewport({ ratio: 1 });
-}
+  expect(box(host).top).toBeLessThan(box(model).top);
+  await fitsWithActionsInView(form);
 
-test("refinement stacks Host above Model at 320 pixels and keeps every option and action reachable", async () => {
-  await everyChoiceFits(narrowDialog, true);
-});
-
-test("refinement keeps every option and action reachable at 200% zoom", async () => {
-  await useTwiceZoomedDevice();
-  await everyChoiceFits(twiceZoomedDialog, false);
+  await zoomToTwoHundredPercent();
+  await expect.poll(() => box(model).top).toBe(box(host).top);
+  expect(box(host).left).toBeLessThan(box(model).left);
+  await fitsWithActionsInView(form);
 });
