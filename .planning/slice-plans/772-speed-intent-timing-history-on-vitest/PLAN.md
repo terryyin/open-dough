@@ -100,6 +100,15 @@ history slice below mounts through the same entry, so these come first:
 - **Relocated `act` scaffolding.** `stories/story-notes-dialog-page.ts`
   moved the dialog spec's `createRoot`/`act` mount and a module-scope
   `IS_REACT_ACT_ENVIRONMENT` stub out of the spec instead of retiring them.
+- **Assertion gap in the freshness race (Intent Coverage, wrap-up of plan
+  764 at `62bb2da73`).** With the abort in `useIntentCiJudgment.ts`'s effect
+  cleanup removed, `intent-ci-status-freshness.spec.ts` case 3 still passed
+  3/3 while a stale `codex/example-story` answer replaced the running story's
+  status (a scratch witness `await ci.answers("Running at 70a0001 (Start the
+  story)")` failed with `expected ''`). After `lateFailing.resolve(...)` the
+  case waits one microtask and asserts only absences. Add a positive wait for
+  the current story's answer after each late resolve; the late-trunk half is
+  protected by the separate project-scope provider, not the abort guard.
 - **Latent test-only trap.** `PageReadsOnPage` binds each project's notes and
   review-state store to the reads current at creation; a case that rerenders
   with different replies keeps the old ones. Production mounts it once with
@@ -116,7 +125,9 @@ The correction above: the perspective scroll container becomes production
 code rendered by the mount, the page entry's import cycle is removed, the
 `noSessions` copy and duplicated Taken-entry and never-settling helpers are
 consolidated, and `story-notes-dialog-page.ts` retires `act` and
-`IS_REACT_ACT_ENVIRONMENT`. Proof: typecheck; the 7 CI status files,
+`IS_REACT_ACT_ENVIRONMENT`, and the freshness case 3 asserts the current
+story's answer survives each late resolve. Proof: removing the abort in
+`useIntentCiJudgment.ts` fails that case; typecheck; the 7 CI status files,
 `intent-story-compare-*`, board-mount consumers and the story-notes dialog
 spec pass with unchanged titles and assertions; full frontend group;
 representative `intent-ci-status` E2E.
