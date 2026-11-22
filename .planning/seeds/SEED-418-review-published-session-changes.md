@@ -40,27 +40,6 @@ close state store and its removal after publication; and which module owns the
 published uncertainty value. Plan:
 [771](../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md).
 
-<a id="prune-expired-records-after-a-retried-record-commit"></a>
-
-### Keep the expired-record prune when a record commit is retried
-
-**Identity:** SEED-418#prune-expired-records-after-a-retried-record-commit
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/769-prune-expired-records-after-a-retried-record-commit/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"34e9dc1e71b75b410ff6acac243d8d51f2f6b494d0fa7bce9faa03c22df3d43b","plan":"6ebb4d90d3f8a49990ab46c5c2273b82ce3dbb679069ee1a55a85948f0d04743"}}
-```
-
-Correction found by the execution retrospective of
-Expire published session records after 30 days (`16cebb43ec9588615183f7286427a62a3ee85a55:.planning/seeds/SEED-418-review-published-session-changes.md#expire-published-session-records`).
-
-**Goal.** A developer whose session close resumes after its record commit
-failed gets the same record commit a first attempt would have made: its own
-record plus the removal of the expired records, with no deletion left staged
-in the workspace.
-
-**Scope.** The record commit's selection and commit of expired record files in
-the shared sealed-record publisher, when that commit is retried after a
-failure. Plan: [769](../slice-plans/769-prune-expired-records-after-a-retried-record-commit/PLAN.md).
-
 <a id="select-a-story-session-for-review"></a>
 
 ### Choose a session in a story’s change review
