@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Install only scripts that guidance, hooks or the Dashboard reach](seeds/SEED-423-shrink-the-installed-distribution.md#remove-unreached-distribution-code) — SEED-423#remove-unreached-distribution-code
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#open-review-changes-from-a-story-card) — SEED-420#open-review-changes-from-a-story-card
 - [Get fast proof of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading) — SEED-413#speed-intent-scope-timing-reading
 - [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading
@@ -42,6 +43,10 @@ intent introduced or affected by a newly developed story.
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
 - [Compare a story branch with and without incoming trunk changes](seeds/SEED-420-unified-intent-review.md#compare-story-contributions) — SEED-420#compare-story-contributions
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
+- [Install without the CI reuse recipes](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-ci-reuse-recipes) — SEED-423#install-without-ci-reuse-recipes
+- [Install without the custom CI adapter](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter
+- [Read only current record formats and release layouts](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats
+- [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof
@@ -53,6 +58,10 @@ intent introduced or affected by a newly developed story.
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context
 - [Use proportionate refactoring for small test edits](seeds/SEED-345-session-token-efficiency.md#use-proportionate-refactoring-for-small-test-edits) — SEED-345#use-proportionate-refactoring-for-small-test-edits
 - [Wait for Codex workers with fewer model wakeups](seeds/SEED-345-session-token-efficiency.md#wait-for-codex-workers-with-fewer-model-wakeups) — SEED-345#wait-for-codex-workers-with-fewer-model-wakeups
+- [Notify Claude Code of CI results through one path](seeds/SEED-423-shrink-the-installed-distribution.md#notify-claude-code-of-ci-through-one-path) — SEED-423#notify-claude-code-of-ci-through-one-path
+- [Trim the product backlog command to guided operations](seeds/SEED-423-shrink-the-installed-distribution.md#trim-the-product-backlog-command-to-guided-operations) — SEED-423#trim-the-product-backlog-command-to-guided-operations
+- [Reconcile the backlog through one Git adapter](seeds/SEED-423-shrink-the-installed-distribution.md#reconcile-the-backlog-through-one-git-adapter) — SEED-423#reconcile-the-backlog-through-one-git-adapter
+- [Publish to trunk through one loop](seeds/SEED-423-shrink-the-installed-distribution.md#publish-to-trunk-through-one-loop) — SEED-423#publish-to-trunk-through-one-loop
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream
 - [Continue a ready split story automatically after wrap-up](seeds/SEED-366-continue-split-stories-automatically.md#continue-a-ready-split-story-automatically) — SEED-366#continue-a-ready-split-story-automatically
@@ -78,6 +87,9 @@ intent introduced or affected by a newly developed story.
 - [See host status while the sidebar is open](seeds/SEED-336-live-dashboard-status.md#stream-host-status) — SEED-336#stream-host-status
 - [Read only the history the dashboard needs](seeds/SEED-337-dashboard-history-reads.md#read-only-the-history-the-dashboard-needs) — SEED-337#read-only-the-history-the-dashboard-needs
 - [Observe dashboard traffic after optimization](seeds/SEED-338-observe-dashboard-traffic.md#observe-dashboard-traffic-after-optimization) — SEED-338#observe-dashboard-traffic-after-optimization
+- [Read test optimization leads from a smaller reader](seeds/SEED-423-shrink-the-installed-distribution.md#read-test-leads-from-a-smaller-reader) — SEED-423#read-test-leads-from-a-smaller-reader
+- [Decide whether GitHub requests need a shared owner process](seeds/SEED-423-shrink-the-installed-distribution.md#ask-github-without-a-shared-request-owner) — SEED-423#ask-github-without-a-shared-request-owner
+- [Report a missing exact run without inferring coverage](seeds/SEED-423-shrink-the-installed-distribution.md#report-a-missing-exact-run-without-inferring-coverage) — SEED-423#report-a-missing-exact-run-without-inferring-coverage
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
 - [Declare retained landing and recovery state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-retained-landing-recovery-state) — SEED-353#declare-retained-landing-recovery-state
 - [Declare launch and session repository state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-launch-session-repository-state) — SEED-353#declare-launch-session-repository-state
