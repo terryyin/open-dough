@@ -12,7 +12,12 @@ import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
 
 // What Intent knows of the selected story's comparison.
 export type LensComparison =
-  | { readonly state: "reading" }
+  | {
+      readonly state: "reading";
+      // Kept while the first comparison, or a later one, is still in flight.
+      readonly defaultReview?: StoryReview | undefined;
+      readonly compare?: StoryCompare | undefined;
+    }
   | { readonly state: "unavailable"; readonly explanation?: string }
   | { readonly state: "failed"; readonly problem: string }
   | {
@@ -24,6 +29,8 @@ export type LensComparison =
       readonly defaultReview: StoryReview | undefined;
       // The choice of what is compared, while the story has a workspace.
       readonly compare?: StoryCompare | undefined;
+      // The last comparison stays while a newer read is in flight.
+      readonly reading?: boolean;
     }
   // A chosen comparison that cannot be read, with the choice still offered.
   | {
@@ -35,13 +42,17 @@ export type LensComparison =
 
 // The default review read, while a comparison is chosen.
 export const defaultReviewOf = (comparison: LensComparison) =>
-  comparison.state === "compared" || comparison.state === "unreadable"
+  comparison.state === "compared" ||
+  comparison.state === "unreadable" ||
+  comparison.state === "reading"
     ? comparison.defaultReview
     : undefined;
 
 // The choice of what is compared, while one is offered.
 export const compareOf = (comparison: LensComparison) =>
-  comparison.state === "compared" || comparison.state === "unreadable"
+  comparison.state === "compared" ||
+  comparison.state === "unreadable" ||
+  comparison.state === "reading"
     ? comparison.compare
     : undefined;
 
@@ -123,7 +134,10 @@ export function CompactComparisonState({
   readonly comparison: LensComparison;
   readonly onRetry: () => void;
 }) {
-  if (comparison.state === "reading")
+  if (
+    comparison.state === "reading" ||
+    (comparison.state === "compared" && comparison.reading === true)
+  )
     return (
       <p className="intent-story-state quiet" role="status">
         Reading the story&apos;s changes…

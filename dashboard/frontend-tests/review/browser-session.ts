@@ -1,4 +1,4 @@
-// The case's DevTools session on the browser that renders the review, the
+// The case's DevTools session on the browser that renders its page, the
 // media features it emulates for the rest of the case, and its touch screen.
 import { expect, onTestFinished } from "vitest";
 import { cdp } from "vitest/browser";

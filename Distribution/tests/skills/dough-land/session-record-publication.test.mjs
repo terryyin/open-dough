@@ -10,6 +10,7 @@ import {
   lsRemoteSha,
 } from "../dough-execute-plan/publication-test-fixtures.mjs";
 import { reportingReference } from "../../support/launchLandingTestData.mjs";
+import { sharedCheckoutNotePathBeside } from "../../../src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 import {
   aLaunchLandingContext,
   closedAt,
@@ -104,6 +105,25 @@ test("a close noted as sharing its checkout only after its acceptance publishes 
     { base: fixture.trunkSha, candidate: closed.work.receipt.sha },
   ]);
 });
+
+for (const [note, text] of [
+  ["is torn", '{"since":'],
+  ["names no valid start", '{"since":"soon"}'],
+]) {
+  test(`a close whose shared-checkout note ${note} publishes its range marked`, async (t) => {
+    const landingContext = await aLaunchLandingContext(t);
+    await writeFile(sharedCheckoutNotePathBeside(landingContext), text);
+    const { fixture, closed } = await landed(t, {}, { landingContext });
+    assert.equal(closed.record.status, "published", JSON.stringify(closed));
+    assert.deepEqual((await publishedRecordOf(fixture)).ranges, [
+      {
+        base: fixture.trunkSha,
+        candidate: closed.work.receipt.sha,
+        uncertainty: "shared-checkout",
+      },
+    ]);
+  });
+}
 
 test("a retained session id that conflicts with the launch reference publishes nothing", async (t) => {
   const { fixture, closed } = await landed(

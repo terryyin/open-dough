@@ -6,9 +6,9 @@
 
 import {
   sessionRecordVersion,
+  sharedCheckoutUncertainty,
   standaloneSessionWorkflow,
 } from "../../src/skills/dough-execute-plan/scripts/session-record.mjs";
-import { sharedCheckoutUncertainty } from "../../src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 
 /**
  * @typedef {{

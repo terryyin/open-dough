@@ -53,7 +53,7 @@ test("planting writes the expectation beside the management context and names th
   assert.deepEqual(JSON.parse(await readFile(file, "utf8")), {
     workspace,
     branch,
-    landingContext,
+    launches: [{ landingContext }],
   });
   assert.deepEqual(
     await openFirstLandingExpectation({ repository, workspace, branch }),
@@ -107,4 +107,39 @@ test("a workspace with no prepared expectation stays clear", async (t) => {
   );
   await clearFirstLandingExpectationForContext(landingContext);
   assert.deepEqual(await readdir(repository), []);
+});
+
+test("launches sharing a workspace and branch each keep their own open expectation", async (t) => {
+  const { repository, workspace, branch, landingContext } = await fixture(t);
+  const otherReporting = path.join(path.dirname(repository), "reporting-b");
+  await mkdir(otherReporting, { recursive: true });
+  const otherContext = path.join(otherReporting, "landing-context.json");
+  const keys = { repository, workspace, branch };
+  await plantFirstLandingExpectation({ ...keys, landingContext });
+  await plantFirstLandingExpectation({ ...keys, landingContext: otherContext });
+  const file = firstLandingExpectationPath(repository, workspace, branch);
+  assert.deepEqual(JSON.parse(await readFile(file, "utf8")).launches, [
+    { landingContext },
+    { landingContext: otherContext },
+  ]);
+  assert.equal(await openFirstLandingExpectation(keys), undefined);
+  await clearFirstLandingExpectationForContext(landingContext);
+  assert.deepEqual(await openFirstLandingExpectation(keys), {
+    workspace,
+    branch,
+    landingContext: otherContext,
+  });
+  await clearFirstLandingExpectationForContext(otherContext);
+  await assert.rejects(access(file), { code: "ENOENT" });
+});
+
+test("a legacy single-record expectation still names its launch", async (t) => {
+  const { repository, workspace, branch, landingContext } = await fixture(t);
+  const file = firstLandingExpectationPath(repository, workspace, branch);
+  await mkdir(path.dirname(file), { recursive: true });
+  await writeFile(file, JSON.stringify({ workspace, branch, landingContext }));
+  assert.deepEqual(
+    await openFirstLandingExpectation({ repository, workspace, branch }),
+    { workspace, branch, landingContext },
+  );
 });

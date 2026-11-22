@@ -15,31 +15,6 @@ The [unified Intent review seed](SEED-420-unified-intent-review.md) owns
 the review destination, the Recent stories regression and the identity of
 standalone Done work. This seed owns session attribution and selection.
 
-<a id="resume-shared-checkout-closes-as-their-own-session"></a>
-
-### Resume each shared-checkout close as its own session and keep notes advisory
-
-**Identity:** SEED-418#resume-shared-checkout-closes-as-their-own-session
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"189cde8d80839331ab666d43f45c49f483de88d9eb9ff9b39379dd636b67581a","plan":"1b0a7ea8d552ce84ab53a8b0f76e8392cc5ca5115e74277415a9e4415946916f"}}
-```
-
-Correction found by the execution retrospective of
-SEED-418#disclose-shared-checkout-overlap, recoverable as
-`7667fc3a8:.planning/seeds/SEED-418-review-published-session-changes.md`.
-
-**Goal.** A developer or agent who resumes or closes a Land session in a
-shared checkout gets that session's own record. A shared-checkout note that
-cannot be written or read neither reports a kept launch as unrecorded nor
-blocks a later launch or close. Each session's local close state has one owner
-and is removed once its record is published.
-
-**Scope.** Session close identity on resume and the Land resume guidance; how
-the Dashboard writes notes and how the publisher reads them; the local Land
-close state store and its removal after publication; and which module owns the
-published uncertainty value. Plan:
-[771](../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md).
-
 <a id="select-a-story-session-for-review"></a>
 
 ### Choose a session in a story’s change review

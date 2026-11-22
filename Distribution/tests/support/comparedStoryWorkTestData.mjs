@@ -51,6 +51,43 @@ function listed(identity, title, url) {
   };
 }
 
+/** @typedef {import("../../../dashboard/src/publishedWork.ts").WorkEntry} WorkEntry */
+/** @typedef {import("../../../dashboard/src/agentAssignments.ts").AgentHost} AgentHost */
+
+/**
+ * `identity`, titled `title`, Taken by `agent` (default `engineer`) in `mode`
+ * on `branch`, in `host` when the profile names one.
+ * @param {{ readonly identity: string; readonly title: string; readonly mode: "trunk" | "story-branch"; readonly branch: string; readonly agent?: string; readonly host?: AgentHost }} taken
+ * @returns {WorkEntry}
+ */
+export function takenEntry({
+  identity,
+  title,
+  mode,
+  branch,
+  agent = "engineer",
+  host,
+}) {
+  return {
+    ...listed(identity, title, "https://example.test/story"),
+    owner: {
+      status: "recorded",
+      assignments: [
+        {
+          profilePath: `.planning/agents/${agent}.json`,
+          name: agent,
+          agent,
+          mode,
+          branch,
+          host,
+          model: undefined,
+          human: { status: "no-addition" },
+        },
+      ],
+    },
+  };
+}
+
 /**
  * `identity` Taken by the engineer in `mode` on `branch`.
  * @param {string} identity
@@ -59,26 +96,7 @@ function listed(identity, title, url) {
  * @returns {PublishedWork["taken"]}
  */
 export function takenListing(identity, mode, branch) {
-  return [
-    {
-      ...listed(identity, "Story A", "https://example.test/story"),
-      owner: {
-        status: "recorded",
-        assignments: [
-          {
-            profilePath: ".planning/agents/engineer.json",
-            name: "engineer",
-            agent: "engineer",
-            mode,
-            branch,
-            host: undefined,
-            model: undefined,
-            human: { status: "no-addition" },
-          },
-        ],
-      },
-    },
-  ];
+  return [takenEntry({ identity, title: "Story A", mode, branch })];
 }
 
 /**

@@ -2,6 +2,30 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_speed-intent-scope-timing-history.json",
+      "identity": "SEED-413#speed-intent-scope-timing-history",
+      "completedAt": "2026-11-22T15:16:09.710Z",
+      "blob": "c878e046e05e5a73c9b946091425e526c4b047f9"
+    },
+    {
+      "fileName": "SEED-420_route-review-changes-to-intent.json",
+      "identity": "SEED-420#route-review-changes-to-intent",
+      "completedAt": "2026-11-22T14:21:36.352Z",
+      "blob": "674b8148b01bfa8e4c16d647a5e9fc5dd9388aa2"
+    },
+    {
+      "fileName": "SEED-418_resume-shared-checkout-closes-as-their-own-session.json",
+      "identity": "SEED-418#resume-shared-checkout-closes-as-their-own-session",
+      "completedAt": "2026-11-22T14:02:22.022Z",
+      "blob": "30cffd22cfa95e38f576d422cf6ee6e5715f28d5"
+    },
+    {
+      "fileName": "SEED-413_speed-intent-timing-history-on-vitest.json",
+      "identity": "SEED-413#speed-intent-timing-history-on-vitest",
+      "completedAt": "2026-11-22T12:03:54.913Z",
+      "blob": "69e0f65580cdf83e08fc439c1878901bded431dd"
+    },
+    {
       "fileName": "SEED-418_prune-expired-records-after-a-retried-record-commit.json",
       "identity": "SEED-418#prune-expired-records-after-a-retried-record-commit",
       "completedAt": "2026-11-22T11:21:14.783Z",
@@ -2868,12 +2892,6 @@
       "identity": "SEED-010#assess-client-product-improvement-in-use",
       "completedAt": "2026-10-24T00:01:59.400Z",
       "blob": "7af96d159f16f067db24c7ff29e4ba1dffb2bb9d"
-    },
-    {
-      "fileName": "SEED-149_native-ci-workflow.json",
-      "identity": "SEED-149#native-ci-workflow",
-      "completedAt": "2026-10-23T12:20:36.369Z",
-      "blob": "e8a825c697046409df279ead8d52faa7407c9da9"
     }
   ],
   "unreadable": []

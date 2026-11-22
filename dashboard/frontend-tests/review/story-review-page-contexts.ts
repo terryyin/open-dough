@@ -52,7 +52,9 @@ const sidebar: SessionsSidebarState = {
 };
 
 // No session is started, kept or running on the machine.
-const launches = machineSessionsAnswering(makeMe.aMachineAnswer.please());
+const launches = machineSessionsAnswering({
+  answer: makeMe.aMachineAnswer.please(),
+});
 
 // Doughnut's published work, the reviewed story among its Taken stories, so
 // its notes can be added from a diff.

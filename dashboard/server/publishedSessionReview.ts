@@ -7,8 +7,8 @@ import {
   isCurrentSessionRecord,
   isSessionId,
   sessionRecordPathBeside,
+  sharedCheckoutUncertainty,
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
-import { sharedCheckoutUncertainty } from "../../Distribution/src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";

@@ -5,6 +5,7 @@
 // An active workspace shows all changes, including uncommitted work. Done
 // Intent reads the completed result even while that workspace remains.
 
+import { useRef } from "react";
 import {
   storyComparisonShown,
   type ShownStoryComparison,
@@ -60,6 +61,15 @@ export function useStoryComparison({
   const subject: ReviewedStorySubject = { source, identity };
   // The choice is the story's, and a story becoming Done opens on its result.
   const keyedBy = `${identity}${completed ? " done" : ""}`;
+  // The last comparison this story showed, kept while a newer read is in flight.
+  const shownMemory = useRef<
+    | {
+        readonly key: string;
+        readonly shown: ShownStoryComparison;
+        readonly review: StoryReview | undefined;
+      }
+    | undefined
+  >(undefined);
   const {
     defaultReview,
     review,
@@ -118,23 +128,48 @@ export function useStoryComparison({
     comparison,
     tree,
   });
+  // A selection read keeps the previous answer until the new one arrives.
+  // That answer belongs to this story only when this story already showed a
+  // comparison; another story's answer must not become this story's.
+  const sameStory = shownMemory.current?.key === keyedBy;
+  const carry = !reading || sameStory;
+  if (storyShown !== undefined && !reading)
+    shownMemory.current = { key: keyedBy, shown: storyShown, review };
+  const remembered =
+    sameStory && (reading || range.reading) ? shownMemory.current : undefined;
+  const shownKept = !carry
+    ? undefined
+    : reading
+      ? remembered?.shown
+      : (storyShown ?? remembered?.shown);
+  // The review that produced the comparison still on screen. A chosen run
+  // leaves the live review unset until its answer matches.
+  const reviewKept = !carry
+    ? undefined
+    : reading
+      ? remembered?.review
+      : storyShown !== undefined
+        ? review
+        : (remembered?.review ?? review);
+  const readingNow = reading || (carry && range.reading);
   // A chosen run other than the answer's own, or a chosen commit range, read
   // as the Side panel review explains them.
   const unreadable =
-    reading || storyShown !== undefined
+    readingNow || shownKept !== undefined
       ? undefined
       : (runUnread ?? (shown === "commits" ? unreadRange(range) : undefined));
   return {
-    review,
-    defaultReview,
-    reading,
+    review: reviewKept,
+    defaultReview: carry ? defaultReview : undefined,
+    reading: readingNow,
     problem,
     unreadable,
-    shown: storyShown,
+    shown: shownKept,
     compare:
-      (snapshot === undefined || review?.kind !== "snapshot") &&
-      published === undefined &&
-      runs.length === 0
+      !carry ||
+      ((snapshot === undefined || review?.kind !== "snapshot") &&
+        published === undefined &&
+        runs.length === 0)
         ? undefined
         : {
             shown: shownChoice(shown, review, selectedRun),
@@ -158,6 +193,7 @@ export function useStoryComparison({
                 : includeUncommitted,
             onIncludeUncommitted: setIncludeUncommitted,
             onRefresh,
+            reading: readingNow,
           },
   };
 }

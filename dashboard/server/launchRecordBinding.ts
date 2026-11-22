@@ -23,6 +23,12 @@ export async function keepRecord(
   const earlyReport = await bindRecord(sourceId, record);
   try {
     await noteSharedCheckouts(sourceId, record);
+  } catch (error) {
+    // A note is local evidence; its failure leaves the kept launch recorded.
+    const reason = error instanceof Error ? error.message : String(error);
+    console.warn(
+      `A shared-checkout note could not be written; the kept launch stays recorded. ${reason}`,
+    );
   } finally {
     if (earlyReport !== undefined)
       void doneMarks.reported(sourceId, earlyReport);

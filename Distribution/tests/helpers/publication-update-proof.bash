@@ -40,7 +40,6 @@ assert_installed_publication_modules() {
       "dough-execute-plan/scripts/owned-suffix-reconciliation.mjs",
       "dough-execute-plan/scripts/publication-resume.mjs",
       "dough-execute-plan/scripts/publication-git.mjs",
-      "dough-bug-fixing/scripts/retained-artifacts.mjs",
       "dough-land/scripts/retirement-checks.mjs",
       "dough-land/scripts/worktree-retirement.mjs",
       "dough-land/scripts/queued-closure-check.mjs",

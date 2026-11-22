@@ -1,109 +1,60 @@
-import {
-  scopeHistory,
-  scopeHistoryReading,
-} from "../../test-support/intentScopeHistoryPage.ts";
-// Real evidence provider updates retain observation identity and reject late replies.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+// A scope's kept history is keyed by its endpoint revision: a newer snapshot
+// at the same head reads no history again, and a late answer for the old head
+// cannot replace the new head's history.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { ScopeHistoryGlance } from "../../src/ciScopeHistory.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
+import { workOf } from "./intent-ci-homepage-page.ts";
+import { heldRead, openDoughSource } from "./intent-ci-status-fixtures.ts";
 import {
-  expect,
-  test,
-  mountComparison,
-  updateComparison,
-} from "../../test-support/support/comparisonMountPage.ts";
+  caseTimingHistory,
+  mountUnprovenScopeHistory,
+} from "./intent-project-scope-history-fixtures.ts";
 import {
-  givePageItsTurns,
-  untilPageReadsAnswered,
-} from "../../test-support/pageRequestNotes.ts";
-import {
-  scopeHistoryPoint,
-  serveUnreadProjectCi,
-} from "../../test-support/support/projectScopeHistoryFacts.ts";
+  openScopeSummary,
+  scopeHistoryIn,
+} from "./intent-scope-history-page.ts";
 
-test("a newer timestamp at the same head issues no history read, and a late old endpoint reply cannot replace the new one", async ({
-  page,
-  comparisonServer,
-}) => {
-  const first = "a".repeat(40);
-  const next = "b".repeat(40);
-  const story = makeMe.aComparedStory
-    .inSummaryScope()
-    .withWork({
-      revision: first,
-      retrievedAt: new Date("2026-11-11T07:00:00Z"),
-    })
-    .please();
-  const initial = story.work;
-  await serveUnreadProjectCi(page, "c".repeat(40));
-  let release: (() => void) | undefined;
-  const held = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  let answered: (() => void) | undefined;
-  const oldAnswered = new Promise<void>((resolve) => {
-    answered = resolve;
-  });
+const first = makeMe.aPublishedWork
+  .with({
+    ...workOf(openDoughSource, "a1a1a1a"),
+    retrievedAt: new Date("2026-11-11T07:00:00Z"),
+  })
+  .please();
+
+test("a newer timestamp at the same head issues no history read, and a late old endpoint reply cannot replace the new one", async () => {
+  const next = workOf(openDoughSource, "b2b2b2b").revision;
   const requests: string[] = [];
-  await page.route(/intent=ci-history/, async (route) => {
-    const params = new URL(route.request().url()).searchParams;
-    if (!params.has("scope")) {
-      await route.fulfill({
-        status: 502,
-        json: { error: "No wall history arranged" },
-      });
-      return;
-    }
-    const revision = params.get("revision") ?? "";
-    requests.push(revision);
-    if (revision === first) await held;
-    await route.fulfill({
-      json: scopeHistoryPoint(
-        revision,
-        params.get("scope") ?? "",
-        revision === first ? 8000 : 11000,
-      ),
-    });
-    if (revision === first) answered?.();
+  const old = heldRead<ScopeHistoryGlance>();
+  const page = await mountUnprovenScopeHistory({
+    work: first,
+    readScopeHistory: (...[, path, endpoint]) => {
+      requests.push(endpoint.revision);
+      return endpoint.revision === first.revision
+        ? old.ask()
+        : Promise.resolve(caseTimingHistory(path, 11000, endpoint.revision));
+    },
   });
-  const project = { ...story, identity: undefined };
-  try {
-    await mountComparison(page, comparisonServer, project);
-    const history = scopeHistory(page);
-    await expect.poll(() => requests).toEqual([first]);
-    await updateComparison(page, {
-      ...project,
-      work: makeMe.aPublishedWork
-        .with({ ...initial, retrievedAt: new Date("2026-11-11T07:02:00Z") })
-        .please(),
-    });
-    await givePageItsTurns(page);
-    await expect(scopeHistoryReading(history).endpointTime).toHaveAttribute(
-      "datetime",
-      "2026-11-11T07:00:00.000Z",
-    );
-    expect(requests).toEqual([first]);
-    await updateComparison(page, {
-      ...project,
-      work: makeMe.aPublishedWork
-        .with({
-          ...initial,
-          revision: next,
-          retrievedAt: new Date("2026-11-11T07:03:00Z"),
-        })
-        .please(),
-    });
-    const shown = scopeHistoryReading(history).selected;
-    await expect(shown).toHaveText(
-      `Observed trunk endpoint ${shortSha(next)} · 11.0 s`,
-    );
-    release?.();
-    await oldAnswered;
-    await untilPageReadsAnswered(page);
-    await expect(shown).toHaveText(
-      `Observed trunk endpoint ${shortSha(next)} · 11.0 s`,
-    );
-    expect(requests).toEqual([first, next]);
-  } finally {
-    release?.();
-  }
+  const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  await expect.poll(() => requests).toEqual([first.revision]);
+
+  await page.showWork({
+    ...first,
+    retrievedAt: new Date("2026-11-11T07:02:00Z"),
+  });
+  await expect.poll(history.endpointTime).toBe("2026-11-11T07:00:00.000Z");
+  expect(requests).toEqual([first.revision]);
+
+  await page.showWork({
+    ...first,
+    revision: next,
+    retrievedAt: new Date("2026-11-11T07:03:00Z"),
+  });
+  const shown = `Observed trunk endpoint ${shortSha(next)} · 11.0 s`;
+  await expect.poll(() => history.readout().selected).toBe(shown);
+  old.resolve(caseTimingHistory("dashboard/tests", 8000, first.revision));
+  await old.ask();
+  await expect.poll(() => history.readout().selected).toBe(shown);
+  expect(requests).toEqual([first.revision, next]);
 });

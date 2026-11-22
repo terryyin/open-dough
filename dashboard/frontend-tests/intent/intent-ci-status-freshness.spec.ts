@@ -36,6 +36,16 @@ const trunkWork = makeMe.aPublishedWork
   .at(fullSha("4774f60"))
   .please();
 
+// Lets a held read's late answer reach the page: the read settles and the
+// page paints twice, so any update the answer causes has rendered before the
+// case looks again.
+async function afterArriving(late: { ask: () => Promise<unknown> }) {
+  await late.ask();
+  const painted = () => new Promise((done) => requestAnimationFrame(done));
+  await painted();
+  await painted();
+}
+
 const mainAt = (state: "pass" | "failed", checkedAt: string) =>
   judgedStatus("main", state, "a1b2c3d", "Add login", { checkedAt });
 
@@ -192,7 +202,7 @@ test("a late trunk answer never appears after switching to a story branch that h
   });
 
   lateTrunk.resolve(mainPassed);
-  await Promise.resolve();
+  await afterArriving(lateTrunk);
   await ci.judges(failingStory.branch);
   await ci.showsKept({
     state: "Failed at fa11ed0 (Break the login)",
@@ -225,8 +235,9 @@ test("a late trunk answer never appears after switching to a story branch that h
   await ci.answers("Running at 70a0001 (Start the story)");
 
   lateFailing.resolve(failingFailed);
-  await Promise.resolve();
+  await afterArriving(lateFailing);
   await ci.judges(runningStory.branch);
+  await ci.answers("Running at 70a0001 (Start the story)");
   expect(ci.panel.element().textContent).not.toContain("Failed");
   expect(ci.panel.element().textContent).not.toContain(failingStory.branch);
 });

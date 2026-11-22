@@ -79,7 +79,7 @@ const groupedEntries = () => [
 ];
 
 test("Proof sorts by Test execution time and Counts by click, Enter and Space, unmeasured last", async () => {
-  await mountJudgedRunProof(exampleEntries());
+  await mountJudgedRunProof({ entries: exampleEntries() });
   const proof = intentCiProof();
   // Declaration order, no header sorted, and no totals row.
   await proof.showsUnsorted(["tests/a", "tests/b", "tests/c"]);
@@ -127,7 +127,10 @@ test("Proof sorts by Test execution time and Counts by click, Enter and Space, u
 });
 
 test("a multi-unit location sorts as one row by each unit's figures without summing types", async () => {
-  await mountJudgedRunProof(groupedEntries(), { state: "failed" });
+  await mountJudgedRunProof({
+    entries: groupedEntries(),
+    judgment: { state: "failed" },
+  });
   const proof = intentCiProof();
   await proof.showsUnsorted(["grouped/slow", "grouped/fast", "grouped/gap"]);
   expect(proof.table.getByRole("row").elements()).toHaveLength(4);
