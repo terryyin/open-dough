@@ -177,7 +177,7 @@ review through one page object that moves with it. Their number is the cost.
 
 **Identity:** SEED-420#test-compare-on-mounted-intent
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/765-test-compare-on-mounted-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6c927c72dd0ce219b37352dc476cf7dd846850be7ac7bdc6b60b7d276c0f3390","plan":"53bcc6044b94402475aeb11a11d2fff3503b7a364eaa41e7fa85671f59866e81"}}
 ```
 
 **Goal:** A maintainer changing Intent's Compare gets fast unit feedback from
