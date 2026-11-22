@@ -1,10 +1,10 @@
 // One selected tool's part of System settings → Usage's trend
 // (`./TokenIndexTrend.tsx`): its name beside its trace's task mark, how many
-// tasks it finished in the period with the partial and unpriced ones, its own
-// latest rolling median, and the tariff whose reference unit its values are
-// in, with the work its usage leaves out, and once per model of its shown
-// tasks that its rate card does not list, the substitute that estimated it
-// until the card is updated. A tool with no priced task says so.
+// tasks it finished in the period with the partial, provisional and unpriced
+// ones, its own latest rolling median, and the tariff whose reference unit its
+// values are in, with the work its usage leaves out, and once per model of its
+// shown tasks that its rate card does not list, the substitute that estimated
+// it until the card is updated. A tool with no priced task says so.
 import { countWords } from "./chartValueAxis.ts";
 import { HistoryChartKey } from "./historyChartShapes.tsx";
 import { usageToolName, usageToolSlot } from "./usageComparison.ts";
@@ -23,16 +23,18 @@ const excludedWork: Partial<Record<UsageTool, string>> = {
     "Not included: background agent-view row summaries, recaps and idle compaction",
 };
 
-// How many tasks the cohort finished, then how many of them are partial and
-// how many unpriced, when any are.
+// How many tasks the cohort finished, then how many of them are partial,
+// provisional and unpriced, when any are.
 function cohortNote({ tasks, unpriced }: TokenIndexAnswer): string {
   const total = tasks.length + unpriced;
-  const partial = tasks.filter(
-    (task) => task.coverage.kind === "partial",
-  ).length;
+  const counted = (kind: "partial" | "provisional") => {
+    const count = tasks.filter((task) => task.coverage.kind === kind).length;
+    return count === 0 ? undefined : `${String(count)} ${kind}`;
+  };
   return [
     `${String(total)} task${total === 1 ? "" : "s"}`,
-    partial === 0 ? undefined : `${String(partial)} partial`,
+    counted("partial"),
+    counted("provisional"),
     unpriced === 0 ? undefined : `${String(unpriced)} unpriced`,
   ]
     .filter((each) => each !== undefined)

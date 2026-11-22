@@ -35,7 +35,7 @@ export function usageLegendView(
         .toEqual(
           names.flatMap((name) => [
             `${name} task`,
-            `${name} partial`,
+            `${name} partial or provisional`,
             `${name} rolling median (↑ above scale)`,
           ]),
         );

@@ -15,9 +15,9 @@ export type HistoryChartPoint = {
   readonly overflow?: string;
   readonly segment?: string;
   readonly selected?: boolean;
-  // Words for a point whose value is known to be incomplete, such as a Usage
-  // task with missing usage ("Partial"); it is drawn hollow and its readout
-  // ends with them.
+  // Words for a point whose value is or may be incomplete, such as a Usage
+  // task with missing usage ("Partial") or one finished after the last usage
+  // check ("Provisional"); it is drawn hollow and its readout ends with them.
   readonly partial?: string;
   // Words for a point whose value is partly or wholly estimated, such as a
   // Usage task weighed at substitute rates ("Estimated rate"); it is drawn

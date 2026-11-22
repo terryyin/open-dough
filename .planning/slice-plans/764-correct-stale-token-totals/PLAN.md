@@ -160,7 +160,7 @@ check stays measured. A task with gaps stays partial, which takes precedence.
 ### 4. The Usage view shows provisional tasks
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `system-settings-usage-legend.spec.ts` and
 `system-settings-usage-selection.spec.ts` (or the nearest Usage spec by its
 page objects) with a provisional task in the answer.
@@ -170,6 +170,11 @@ hollow mark and describes "Provisional". The cohort note counts "1
 provisional". The selected task's detail reads "Provisional · finished after
 the last usage check". The legend's hollow key reads "partial or
 provisional".
+
+Delivered: the point description, cohort note, detail and key use the fixed
+words; the large-task overflow note reads "Partial and provisional coverage
+remain marked." The shared chart keeps its `partial` field name for the
+hollow mark.
 
 ### 5. Production usage history matches retained native evidence
 
@@ -209,7 +214,7 @@ Commitment: 5
 ### G3. Provisional points read as measured in the Usage view (first reported in slice 3)
 Reported: slice 3 — "Until Slice 4 changes them, three frontend reads treat provisional exactly like measured"
 Story clause: "shows that state on its point"
-Disposition: interim until slices 4
+Disposition: proved by slice 4: dashboard/frontend-tests/configuration/system-settings-usage-legend.spec.ts provisional case observes the hollow mark and "Provisional" point text (TokenIndexTrend), "1 provisional" cohort note (UsageToolSummary) and the detail words (UsageTaskDetail)
 
 ## Plan review
 
