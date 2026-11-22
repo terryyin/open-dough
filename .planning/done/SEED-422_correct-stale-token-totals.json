@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-422#correct-stale-token-totals",
+  "title": "Correct stale token totals for completed Dashboard tasks",
+  "completedAt": "2026-11-22T08:33:32.780Z",
+  "developer": "Terry Yin",
+  "agent": "Mihiro-chan",
+  "host": "claude",
+  "intentCoverage": {
+    "report": "## Intent Coverage report (checked revision 1d7daa0b6e8d4934e9d36263e0eb3dfcbe4fa876)\n\nVerdict: Caught (on the Claude Code Refresh-after-reply path).\n\nPromise: SEED-422#correct-stale-token-totals key example — Refresh samples a running Claude Code task, the developer replies `Resume`, the session goes on, a later check has passed the earlier read → the next Refresh shows all responses and two further Refreshes leave the total unchanged.\n\nFault: in `dashboard/server/usageRefresh.ts` `claudeReading`, `claudeAssociation(observation, claimed, lineage)` → `claudeAssociation(observation, tasks, lineage)` (Refresh ignores the known-task claims). Fixtures and assertions untouched. The suggested import-side \"Resume\" vs \"1\" fault was not run: the readers classify no reply by its text, so it has no plausible real shape.\n\nCommand: `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run --silent test:dashboard:backend -- dashboard/backend-tests/usage-history/token-index-refresh-developer-reply.spec.ts dashboard/backend-tests/usage-history/token-index-developer-reply.spec.ts --workers=2` (fresh proof record per run).\n\nObservations: baseline 8/8 pass; faulted exit 1 — all 3 Refresh cases fail on their index assertions (token-index-refresh-developer-reply.spec.ts:62 expected 6,850 measured on each of 3 Refreshes, received 1,950; :78 expected 4,900, received 1,950; :99 expected {4,900, 10,900}, received {1,950, 4,950}); the 5 import cases still pass as expected; restored 8/8 pass, scratch worktree clean and removed.\n\nLimits: covers how Refresh assigns reply-claimed Claude Code turns; not probed: dropping `claims` from the write merge, the Codex counterpart, the import-side reply-text rewrite (baseline pass only).\n\nNext proof action: none required for this promise on the probed path.\n\nCosts: test runtime baseline 8 s, faulted 5 s, restored 7 s; invocation-to-report 88 s.\n\n## Wrap-up disposition\n\n1d7daa0b6e8d4934e9d36263e0eb3dfcbe4fa876 — Caught — no follow-up.\n"
+  }
+}
