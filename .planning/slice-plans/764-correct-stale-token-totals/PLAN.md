@@ -179,7 +179,7 @@ hollow mark.
 ### 5. Production usage history matches retained native evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: recorded reconciliation in this plan: per-host changed tasks, the
 SEED-404 total and the opening Claude Code median before and after, the
 backup path, and a second run's unchanged store digest.
@@ -197,12 +197,39 @@ the totals match the rehearsal. Sessions without retained evidence keep their
 stored contribution, and their gaps show. A second run leaves the store
 digest unchanged.
 
+Reconciliation (2026-11-22): rehearsal on a copy under the job's tmp,
+then production. The full import ran only once this session's shell had
+`~/Documents` access; `!` commands hung like the background shell.
+
+- SEED-404 execution: 0.38M → 12.64M measured, served by the production
+  Usage answer after the repair.
+- Claude Code: 25 finished tasks changed, for example SEED-384 review focus
+  7.84M → 12.87M and SEED-413 backend unit tests 2.43M → 11.87M. Codex: 11 changed:
+  SEED-073 renew question 12.64M → 30.3M, SEED-20261111 service root
+  15.51M → 25.29M, SEED-345 compare effort 12.77M → 14.66M, SEED-345 recover
+  evidence 3.12M → 8.3M, SEED-389 silent wait 0.92M → 1.35M, SEED-391 effort
+  redo 0.51M → 18.04M, SEED-393 unrelated launches 1.09M → 2.32M, SEED-401
+  repeat findings 4.9M → 10.4M, SEED-403 mounted boundary 14.05M → 15.72M,
+  SEED-404 Doughnut speed 14.21M → 19.7M, SEED-413 launch proof
+  24.38M → 31.15M. Four provisional tasks became measured.
+- Medians (execution, last 30 days): Claude Code ends 8.90M → 9.67M; at
+  SEED-404's end 5.39M → 6.57M. Codex ends 10.45M → 13.61M. The story's
+  3.28M → 4.09M was in neither series; Terry chose to record the actual.
+- Backup: `~/.open-dough/dashboard/launch-history/backups/before-SEED-422-20261122160034`.
+- Second run: every finished task unchanged in the rehearsal and in
+  production; only tasks of sessions live during the run gained new
+  responses, so the store digest still moves while sessions write.
+- Partial tasks keep their gaps (SEED-101#story-1, SEED-281 CI proof).
+- Clock: 15.2 active minutes, an overrun from waiting on the detached
+  imports outside the clock's `run`; the remaining work was verification of
+  an authorized production operation, so it continued instead of reverting.
+
 ## Story obligations
 
 ### G1. Refresh rereads only sessions changed since the check
 Reported: slice 1 — "Refresh only rereads sessions with a file modified since the check. A stale session that never changes again is only repaired by the offline import (Slice 5)."
 Story clause: "whether written before or after the previous check"
-Disposition: receiving slice 5
+Disposition: proved by slice 5: PLAN.md Slice 5 reconciliation — the offline import reread every retained session and SEED-404 went from 0.38M to 12.64M
 Commitment: 2
 
 ### G2. Rolling median after a correcting Refresh not observed

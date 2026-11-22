@@ -27,12 +27,12 @@ missing" read as partial per the key example.
 | 6b | It is left out of the rolling median while provisional | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-provisional.spec.ts launch-reported and marked-done-after-check cases: coverage.kind provisional, average [] |
 | 7 | The Refresh that reads the task's evidence through its end clears provisional; the point becomes measured and is in the median | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-provisional.spec.ts same cases after refresh(): measured, average [1950] |
 | 8 | A finished task whose transcript lacks a cited file shows partial with that gap and stays out of the median, as today | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-provisional.spec.ts partial case: worker cited without transcript, check before end → partial, average [] |
-| 9 | Production SEED-404 execution shows 12.64M from 860 responses after the repair (0.38M / 28 before) | slice 5 | |
-| 10 | Production opening Claude Code median moves from 3.28M to 4.09M, matching the manual recount | slice 5 | |
-| 11 | Production earlier short Codex totals match their retained native responses after the repair | slice 5 | |
-| 12 | Corrected totals are consistent across `usage.json`, its check record and the derived task summary | slice 5 | |
-| 13a | A recoverable backup of the production files exists before the repair is applied | slice 5 | |
-| 13b | The repair is rehearsed on a copy before it touches production | slice 5 | |
-| 14 | Usage history the retained evidence cannot rebuild is kept, not dropped or overwritten | slice 5 | |
-| 15 | Tasks with history that cannot be rebuilt show their evidence gaps, as partial | slice 5 | |
-| 16 | Running the repair again changes nothing | slice 5 | |
+| 9 | Production SEED-404 execution shows 12.64M from 860 responses after the repair (0.38M / 28 before) | slice 5 | observed: PLAN.md Slice 5 reconciliation: production Usage answer (headless page fetch, 08:15Z) shows SEED-404#run-the-remaining… 12.64M measured; before 0.38M |
+| 10 | Production opening Claude Code median moves from 3.28M to 4.09M, matching the manual recount | slice 5 | observed: PLAN.md Slice 5 reconciliation: medians before/after recorded as observed (30-day execution median 8.90M → 9.67M; at SEED-404 end 5.39M → 6.57M); the story's 3.28M figure was not present in either series, settled by the developer's decision to report the actual |
+| 11 | Production earlier short Codex totals match their retained native responses after the repair | slice 5 | observed: PLAN.md Slice 5 reconciliation: 11 Codex tasks gain retained responses, listed |
+| 12 | Corrected totals are consistent across `usage.json`, its check record and the derived task summary | slice 5 | observed: PLAN.md Slice 5 reconciliation: import rewrote usage.json and usage-check.json (checkedAt 08:15Z) and the served answer rederived the task summary with the repaired totals |
+| 13a | A recoverable backup of the production files exists before the repair is applied | slice 5 | observed: PLAN.md Slice 5 reconciliation: backup ~/.open-dough/dashboard/launch-history/backups/before-SEED-422-20261122160034 (usage.json, usage-check.json, usage-task-summary.json) taken before the production import |
+| 13b | The repair is rehearsed on a copy before it touches production | slice 5 | observed: PLAN.md Slice 5 reconciliation: rehearsal on a copy (two imports) before production |
+| 14 | Usage history the retained evidence cannot rebuild is kept, not dropped or overwritten | slice 5 | observed: PLAN.md Slice 5 reconciliation: no task present before the repair is missing after it (diff shows only additions and increases) |
+| 15 | Tasks with history that cannot be rebuilt show their evidence gaps, as partial | slice 5 | observed: PLAN.md Slice 5 reconciliation: tasks whose evidence cannot be rebuilt keep partial coverage with gaps (Claude SEED-101#story-1, SEED-281#distinguish-test-cases-and-files-in-ci-proof) |
+| 16 | Running the repair again changes nothing | slice 5 | observed: PLAN.md Slice 5 reconciliation: second production run leaves every finished task unchanged; only four tasks live during the run gained newly written responses |
