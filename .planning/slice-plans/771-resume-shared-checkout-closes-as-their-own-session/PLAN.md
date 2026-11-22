@@ -217,6 +217,9 @@ session's Done still ran; a pre-existing race, repaired in `doneMarks.ts`.
 CI repair after slice 4 (run 45024335359, Distribution Tests 3/3 run
 deadline on a slow runner): `dough-story-refinement/**` moved to shard 1 in
 `ci.yml` by `scripts/ci-shard-balance.mjs`; job count unchanged.
+CI repair after slice 6 (run 45026371561, lint): `retireCloseState` returned
+its untyped argument, typing `publishSessionClose` as `any`; it now only
+removes state. Refactor disposition: within slice 6's accepted refactor return.
 
 ### 4. A note failure leaves the kept launch recorded
 

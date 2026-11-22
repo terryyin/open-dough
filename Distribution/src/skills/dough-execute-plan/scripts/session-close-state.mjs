@@ -30,8 +30,7 @@ export function saveCloseState(workspace, sessionId, facts) {
 
 // Removes the session's saved close state once its record is published; any
 // other record status keeps it for the next resume.
-export function retireCloseState(workspace, sessionId, record) {
-  if (record.status === "published")
+export function retireCloseState(workspace, sessionId, status) {
+  if (status === "published")
     removeGitPathJson(workspace, closeStatePath(sessionId));
-  return record;
 }

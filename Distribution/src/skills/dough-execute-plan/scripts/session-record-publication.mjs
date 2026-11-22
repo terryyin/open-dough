@@ -64,7 +64,8 @@ function publishRetained(record, request) {
 // published.
 async function publishRecord(record, request) {
   const result = await publishSealedRecord({ ...request, record });
-  return retireCloseState(request.workspace, record.sessionId, result);
+  retireCloseState(request.workspace, record.sessionId, result.status);
+  return result;
 }
 
 export async function publishSessionClose({
