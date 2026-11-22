@@ -1,218 +1,78 @@
-// Story-review diffs emphasize changed words in removed-then-added blocks as
-// deletions/insertions on plain lines; pure adds, unchanged and revealed
-// context do not. Styled composition and appearance live in the companion
-// composition spec.
+// Which words a changed review-diff block emphasizes, read as ranges from the
+// emphasis rule over each parsed hunk: one word stream per removed-then-added
+// block, nothing for pure additions, low-similarity rewrites or large blocks.
 
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { frontendReviewSnapshot } from "../../test-support/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
-import {
-  fileDiff,
-  fileRow,
-} from "../../test-support/support/reviewTreeRows.ts";
+import { expect, test } from "vitest";
+import { emphasizedRangesByLine } from "../../src/diffWordEmphasis.ts";
+import { parsedUnifiedDiff } from "../../src/unifiedDiff.ts";
 import {
   largeWithSmall,
   limit,
   pureAddition,
   reindent,
-  rewrite,
   rewrap,
+  rewrite,
   splitCall,
-} from "../../test-support/support/diffWordEmphasisFixtures.ts";
-import { openPlainWordEmphasisDiff } from "../../test-support/support/diffWordEmphasisOpen.ts";
-import { storyReviewDiff } from "../../test-support/support/reviewDiffSyntax.ts";
-import { diffHunk } from "../../test-support/support/reviewPanes.ts";
+} from "./wordEmphasisCases.ts";
 
-test("changed words in a block are deletions and insertions; copy stays plain", async ({
-  page,
-  frontendServices,
-}) => {
-  const path = "limit.txt";
-  const diff = await openPlainWordEmphasisDiff(
-    page,
-    frontendServices,
-    path,
-    limit.diff(path),
-    limit.text,
-    { added: 1, removed: 1 },
-  );
+const markers = { added: "+", removed: "-", unchanged: " " } as const;
 
-  const removed = diff.removedLine(25);
-  const added = diff.newLine(25);
-  const unchanged = diff.newLine(26);
-  await expect(removed.deletions()).toHaveText(["20"]);
-  await expect(added.insertions()).toHaveText(["25"]);
-  await expect(unchanged.deletions()).toHaveCount(0);
-  await expect(unchanged.insertions()).toHaveCount(0);
-  await expect(removed.deletions()).toHaveCSS(
-    "text-decoration-line",
-    "underline",
-  );
-  expect(
-    await removed
-      .deletions()
-      .evaluate((node) => getComputedStyle(node).textDecorationLine),
-  ).not.toContain("line-through");
+// Each hunk's emphasized text, keyed by the line as Git printed it.
+function emphasizedWordsByHunk(printed: string) {
+  return parsedUnifiedDiff(printed).hunks.map(({ lines }) => {
+    const ranges = emphasizedRangesByLine(lines);
+    return Object.fromEntries(
+      lines.flatMap((line, at) => {
+        const lineRanges = ranges.get(at);
+        return lineRanges === undefined
+          ? []
+          : [
+              [
+                `${markers[line.kind]}${line.text}`,
+                lineRanges.map(({ start, end }) => line.text.slice(start, end)),
+              ],
+            ];
+      }),
+    );
+  });
+}
 
-  const copy = await diff.selectedText(removed, added);
-  expect(copy).toBe("-const limit = 20;\n+const limit = 25;\n");
-});
-
-test("a three-line rewrap gaining a word emphasizes only that word", async ({
-  page,
-  frontendServices,
-}) => {
-  const path = "wrap.txt";
-  const diff = await openPlainWordEmphasisDiff(
-    page,
-    frontendServices,
-    path,
-    rewrap.diff(path),
-    rewrap.text,
-    { added: 4, removed: 3 },
-  );
-
-  await expect(diff.insertions()).toHaveText(["WORD"]);
-  await expect(diff.deletions()).toHaveCount(0);
-  await expect(diff.newLine(1).insertions()).toHaveText(["WORD"]);
-  await expect(diff.newLine(2).insertions()).toHaveCount(0);
-  await expect(diff.newLine(3).insertions()).toHaveCount(0);
-  await expect(diff.newLine(4).insertions()).toHaveCount(0);
-});
-
-test("splitting a call across lines emphasizes the added comma, indent and argument", async ({
-  page,
-  frontendServices,
-}) => {
-  const path = "call.txt";
-  const diff = await openPlainWordEmphasisDiff(
-    page,
-    frontendServices,
-    path,
-    splitCall.diff(path),
-    splitCall.text,
-    { added: 2, removed: 1 },
-  );
-
-  await expect(diff.newLine(1).insertions()).toHaveText([","]);
-  await expect(diff.newLine(2).insertions()).toHaveText(["  c"]);
-  await expect(diff.deletions()).toHaveCount(0);
-});
-
-test("re-indent emphasizes the changed whitespace on both lines", async ({
-  page,
-  frontendServices,
-}) => {
-  const path = "indent.txt";
-  const diff = await openPlainWordEmphasisDiff(
-    page,
-    frontendServices,
-    path,
-    reindent.diff(path),
-    reindent.text,
-    { added: 1, removed: 1 },
-  );
-
-  await expect(diff.removedLine(1).deletions()).toHaveText(["  "]);
-  await expect(diff.newLine(1).insertions()).toHaveText(["    "]);
-});
-
-test("a pure addition and revealed context have no word emphasis", async ({
-  page,
-  frontendServices,
-}) => {
-  const additionPath = "added.txt";
-  const contextPath = "limit.txt";
-  const { review } = await openFrontendStoryReview(
-    page,
-    frontendServices,
-    frontendReviewSnapshot({
-      files: [
-        {
-          kind: "modified" as const,
-          path: additionPath,
-          lines: { added: 1, removed: 0 },
-        },
-        {
-          kind: "modified" as const,
-          path: contextPath,
-          lines: { added: 1, removed: 1 },
-        },
-      ],
-    }),
-    (answers) => {
-      answers.answerFile(pureAddition.diff(additionPath), additionPath);
-      answers.answerFileText(pureAddition.text, additionPath);
-      answers.answerFile(limit.diff(contextPath), contextPath);
-      answers.answerFileText(limit.text, contextPath);
-    },
-  );
-
-  await fileRow(review, `Modified ${additionPath}`).click();
-  const addition = storyReviewDiff(
-    fileDiff(review, `Modified ${additionPath}`),
-  );
-  await expect(addition.newLine(2).line).toHaveText("+only new;");
-  await expect(addition.insertions()).toHaveCount(0);
-  await expect(addition.deletions()).toHaveCount(0);
-
-  await fileRow(review, `Modified ${contextPath}`).click();
-  const context = storyReviewDiff(fileDiff(review, `Modified ${contextPath}`));
-  await context.showPrecedingLines().click();
-  const revealed = context.firstRevealedLine();
-  await expect(revealed.line).toBeVisible();
-  await expect(revealed.insertions()).toHaveCount(0);
-  await expect(revealed.deletions()).toHaveCount(0);
-  await expect(context.insertions()).toHaveText(["25"]);
-});
-
-test("a low-similarity rewrite stays line-level with no word emphasis", async ({
-  page,
-  frontendServices,
-}) => {
-  const path = "rewrite.txt";
-  const diff = await openPlainWordEmphasisDiff(
-    page,
-    frontendServices,
-    path,
-    rewrite.diff(path),
-    rewrite.text,
-    { added: 1, removed: 1 },
-  );
-
-  await expect(diff.insertions()).toHaveCount(0);
-  await expect(diff.deletions()).toHaveCount(0);
-});
-
-test("a several-hundred-line block stays line-level while a small block is emphasized", async ({
-  page,
-  frontendServices,
-}) => {
-  const path = "generated.txt";
-  const diff = await openPlainWordEmphasisDiff(
-    page,
-    frontendServices,
-    path,
-    largeWithSmall.diff(path),
-    largeWithSmall.text,
-    {
-      added: largeWithSmall.lineCount + 1,
-      removed: largeWithSmall.lineCount + 1,
-    },
-  );
-
-  const largeHunk = storyReviewDiff(
-    diffHunk(
-      diff.locator,
-      `@@ -1,${String(largeWithSmall.lineCount)} +1,${String(largeWithSmall.lineCount)} @@`,
-    ),
-  );
-  await expect(diff.removedLine(1).line).toBeVisible();
-  await expect(largeHunk.insertions()).toHaveCount(0);
-  await expect(largeHunk.deletions()).toHaveCount(0);
-
-  const smallRemoved = diff.removedLine(largeWithSmall.lineCount + 2);
-  const smallAdded = diff.newLine(largeWithSmall.lineCount + 2);
-  await expect(smallRemoved.deletions()).toHaveText(["20"]);
-  await expect(smallAdded.insertions()).toHaveText(["25"]);
+test.each([
+  {
+    name: "a one-word change emphasizes the deleted and inserted word",
+    printed: limit.printed,
+    hunks: [{ "-const limit = 20;": ["20"], "+const limit = 25;": ["25"] }],
+  },
+  {
+    name: "a three-line rewrap gaining a word emphasizes only that word",
+    printed: rewrap,
+    hunks: [{ "+alpha bravo WORD charlie delta": ["WORD"] }],
+  },
+  {
+    name: "splitting a call emphasizes the added comma, indent and argument",
+    printed: splitCall,
+    hunks: [{ "+run(a, b,": [","], "+  c);": ["  c"] }],
+  },
+  {
+    name: "a re-indent emphasizes the changed whitespace on both lines",
+    printed: reindent,
+    hunks: [{ "-  run();": ["  "], "+    run();": ["    "] }],
+  },
+  {
+    name: "a pure addition emphasizes nothing",
+    printed: pureAddition,
+    hunks: [{}],
+  },
+  {
+    name: "a low-similarity rewrite emphasizes nothing",
+    printed: rewrite,
+    hunks: [{}],
+  },
+  {
+    name: "a several-hundred-line block emphasizes nothing while a small block is emphasized",
+    printed: largeWithSmall,
+    hunks: [{}, { "-const limit = 20;": ["20"], "+const limit = 25;": ["25"] }],
+  },
+])("$name", ({ printed, hunks }) => {
+  expect(emphasizedWordsByHunk(printed)).toEqual(hunks);
 });

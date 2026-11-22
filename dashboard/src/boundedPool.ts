@@ -1,7 +1,8 @@
 // Maps items through an asynchronous read with at most `limit` reads under
 // way at once, answering the results in the items' order. Shared by the
 // browser's file reads (`./repositoryFileReads.ts`) and the local
-// authenticated read boundary's listed records (`../server/listedRecordsRead.ts`).
+// authenticated read boundary's listed records and published-session listing
+// (`../server/listedRecordsRead.ts`, `../server/publishedSessionsRead.ts`).
 // When one read fails the pool fails with it and starts no further item.
 
 export async function mapPool<T, R>(

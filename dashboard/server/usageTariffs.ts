@@ -66,6 +66,29 @@ export const codexTariff2026_11_15: UsageTariff = {
   },
 };
 
+const codexTariff2026_11_19: UsageTariff = {
+  ...codexTariff2026_11_15,
+  version: "codex-2026-11-19",
+  label:
+    "Codex rate card read 2026-11-19 · standard speed · GPT-6.1 Sol input-token equivalents",
+  readOn: "2026-11-19",
+  models: {
+    ...codexTariff2026_11_15.models,
+    "gpt-6.2-sol": {
+      name: "GPT-6.2 Sol",
+      input: 50,
+      cachedInput: 2.5,
+      output: 250,
+    },
+    "gpt-6.2-astra": {
+      name: "GPT-6.2 Astra",
+      input: 200,
+      cachedInput: 10,
+      output: 1_000,
+    },
+  },
+};
+
 // Anthropic API list prices in USD per 1M tokens at standard speed, as the
 // pricing page read on 2026-11-15 gives them; fast mode costs more and has no
 // rate here. Haiku 5.5 is priced at its tier for prompts up to 100,000 tokens:
@@ -134,7 +157,7 @@ export const claudeTariff2026_11_15: UsageTariff = {
 };
 
 // The version each tool's chart plots.
-export const codexTariff = codexTariff2026_11_15;
+export const codexTariff = codexTariff2026_11_19;
 export const usageTariffs: Readonly<Record<UsageTool, UsageTariff>> = {
   codex: codexTariff,
   claude: claudeTariff2026_11_15,

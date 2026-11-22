@@ -72,7 +72,7 @@ export const treeFolder = (review: Locator, name: string | RegExp) =>
 
 // A file's control in the review's file browser, by its accessible name: its
 // kind and name, as in “Added story.txt”.
-export const fileRow = (review: Locator, name: string) =>
+export const fileRow = (review: Locator, name: string | RegExp) =>
   listedFile(fileBrowser(review), name, { exact: true });
 
 // The file's line counts as its row shows them, as in “+1 −0”.

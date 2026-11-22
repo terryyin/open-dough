@@ -1,235 +1,246 @@
-// CI status is Intent's homepage (../../src/IntentCiStatus.tsx): with no
-// selected story Project Intent is Intent's landing, and opening it with
-// nothing selected fills the reading pane with the judged branch's status;
-// its strip offers CI status and Optimization Candidates only; with a
-// location, nested folder or file selected there is no return button, and
-// directly activating the already chosen CI status tab by click, Enter or
-// Space clears that selection and shows it again, keeping the tree open;
-// not-configured locations still show CI status beside the explanation
+// CI status is Intent's homepage (../../src/IntentCiStatus.tsx,
+// ../../src/IntentPage.tsx, ../../src/IntentPerspective.tsx): with no selected
+// story Project Intent is Intent's landing, and opening it with nothing
+// selected fills the reading pane with the judged branch's status; its strip
+// offers CI status and Optimization Candidates only; with a location, nested
+// folder or file selected there is no return button, and directly activating
+// the already chosen CI status tab by click, Enter or Space clears that
+// selection and shows it again, keeping the tree open; not-configured
+// locations still show CI status beside the explanation
 // (SEED-239#show-ci-status-on-intent-home example 1). Project CI stays
 // readable while locations load, fail and recover, without another CI read.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { intentViews, intentViewTab } from "./intent-candidates-page.ts";
 import {
-  activateIntentHome,
-  chooseCiStatus,
-  ciPanel,
-  ciStatusReading,
-  expectChecked,
-  expectCiAnswer,
-  expectCiScope,
-} from "../../test-support/intentCiStatusPage.ts";
-import { browseSpec } from "../../test-support/intentCodeBrowseFixtures.ts";
+  activateChosenCiTab,
+  doughnutSource,
+  expandLocationAndFolders,
+  filesColumnVisible,
+  folderNameControl,
+  locationNameControl,
+  mountIntentPerspective,
+  presentElement,
+  workOf,
+} from "./intent-ci-perspective-mount.ts";
 import {
-  filesColumn,
-  intentModeTab,
-  intentModeViews,
-  intentPageFrame,
-} from "../../test-support/intentModePage.ts";
-import {
-  expandIntentFolders,
-  expandIntentGroup,
-  intentFolderName,
-  intentGroupToggle,
-  intentLocationName,
-} from "../../test-support/intentPerspectivePage.ts";
-import {
-  openUntilRead,
-  untilPageReadsAnswered,
-} from "../../test-support/pageRequestNotes.ts";
-import {
-  judgedCiStatus,
-  serveFrontendCiStatus,
-} from "../../test-support/support/frontendCiStatusAnswers.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  publishUnconfiguredDoughnut,
-  type FrontendServiceState,
-} from "../../test-support/support/frontendServiceState.ts";
+  inertCiReads,
+  judgedStatus,
+  openDoughSource,
+} from "./intent-ci-status-fixtures.ts";
+import { intentCiStatus } from "./intent-ci-status-page.ts";
 
-const login = judgedCiStatus("main", "pass", "a1b2c3d", "Add login");
-
+const login = judgedStatus("main", "pass", "a1b2c3d", "Add login");
 const browsed = "dashboard/tests/browse.spec.ts";
 const deep = "dashboard/tests/nested/deep.spec.ts";
+const browseSpecText = `import { test } from "vitest";\ntest("browses", () => {});\n`;
 
-// Open Dough's one location publishes a test file and a nested folder's.
-function publishBrowsedTests(services: FrontendServiceState) {
-  Object.assign(services, {
-    files: { ...services.files, [browsed]: browseSpec, [deep]: browseSpec },
-    locations: {
-      ...services.locations,
-      locations: [
-        makeMe.anIntentLocation
-          .at("dashboard/tests")
-          .ofKind("typescript", ["**/*.spec.ts"])
-          .selecting(browsed, deep)
-          .please(),
-      ],
+const configuredLocations: IntentLocations = {
+  status: "configured",
+  locations: [
+    makeMe.anIntentLocation
+      .at("dashboard/tests")
+      .ofKind("typescript", ["**/*.spec.ts"])
+      .selecting(browsed, deep)
+      .please(),
+  ],
+};
+
+const openDoughWork = workOf(openDoughSource, "b2b2b2b");
+const doughnutWork = workOf(doughnutSource, "c3c3c3c");
+
+test("CI status fills Intent's reading with nothing selected; the strip has no CI status mode; activating Intent again returns home from an entry, folder or file; not-configured shows it beside the explanation", async () => {
+  const readSource: IntentReadSource = {
+    readLocations: (source) =>
+      Promise.resolve(
+        source.id === doughnutSource.id
+          ? { status: "not-configured" }
+          : configuredLocations,
+      ),
+    readFile: () => Promise.resolve(browseSpecText),
+    readCandidates: () => Promise.resolve({ status: "absent" }),
+  };
+  const mounted = await mountIntentPerspective({
+    work: openDoughWork,
+    readSource,
+    ciReads: inertCiReads({
+      readStatus: () => Promise.resolve(login),
+    }),
+  });
+  const ci = intentCiStatus();
+  const intentMain = page.getByRole("main", { name: "Intent", exact: true });
+
+  // Nothing selected: Project Intent is the landing, CI status filling the reading pane.
+  await expect
+    .poll(() =>
+      intentViews
+        .getByRole("tab")
+        .elements()
+        .map((tab) => tab.textContent),
+    )
+    .toEqual(["CI status", "Optimization Candidates"]);
+  await expect
+    .element(intentViewTab("CI status"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect
+    .element(page.getByRole("button", { name: "Back to selected story" }))
+    .not.toBeInTheDocument();
+  await expect
+    .element(
+      page.getByRole("heading", { name: "No story selected", exact: true }),
+    )
+    .toBeVisible();
+  const frames = document.querySelectorAll<HTMLElement>(".intent-page-frame");
+  expect(frames).toHaveLength(1);
+  const frame = presentElement(frames.item(0));
+  expect(frame.getAttribute("data-intent-context")).toBe("project");
+  expect(frame.firstElementChild?.className).toBe("intent-header");
+  await expect.element(ci.panel).toBeVisible();
+  await expect.poll(filesColumnVisible).toBe(true);
+  await ci.judges("main");
+  await ci.answers("Passed at a1b2c3d (Add login)");
+  await ci.showsChecked();
+  await expect
+    .element(page.getByRole("region", { name: "Purpose", exact: true }))
+    .not.toBeInTheDocument();
+
+  // Entry, nested folder or file selected: no return button; activating CI status returns home with tree open.
+  const locationToggle = await expandLocationAndFolders("dashboard/tests");
+  const summaryRegion = page.getByRole("region", {
+    name: "Summary",
+    exact: true,
+  });
+  const selections = [
+    {
+      select: () => locationNameControl("dashboard/tests"),
+      reading: summaryRegion,
+      how: "click" as const,
     },
-  });
-}
+    {
+      select: () => folderNameControl("nested"),
+      reading: summaryRegion,
+      how: "Enter" as const,
+    },
+    {
+      select: () => page.getByRole("button", { name: browsed, exact: true }),
+      reading: page.getByRole("region", { name: "Purpose", exact: true }),
+      how: "Space" as const,
+    },
+  ];
+  for (const { select, reading, how } of selections) {
+    const control = select();
+    await userEvent.click(control);
+    await expect.element(control).toHaveAttribute("aria-pressed", "true");
+    await ci.isAbsent();
+    await expect.element(reading).toBeVisible();
+    await expect
+      .element(page.getByRole("button", { name: /Return to CI status/ }))
+      .not.toBeInTheDocument();
+    await expect
+      .element(intentViewTab("CI status"))
+      .toHaveAttribute("aria-selected", "true");
+    await activateChosenCiTab(how);
+    await expect.element(ci.panel).toBeVisible();
+    await ci.answers("Passed at a1b2c3d (Add login)");
+    await expect.element(reading).not.toBeInTheDocument();
+    expect(
+      document.querySelectorAll('.intent-locations [aria-pressed="true"]'),
+    ).toHaveLength(0);
+    expect(locationToggle()?.getAttribute("aria-expanded")).toBe("true");
+    await expect
+      .element(page.getByRole("button", { name: deep, exact: true }))
+      .toBeVisible();
+  }
 
-const releases: (() => void)[] = [];
-test.afterEach(() => {
-  for (const release of releases.splice(0)) release();
+  // Development and back shows the CI homepage again.
+  mounted.showDevelopment();
+  await expect.element(intentMain).not.toBeInTheDocument();
+  mounted.showIntent();
+  await ci.answers("Passed at a1b2c3d (Add login)");
+
+  // Not-configured: CI status beside the explanation.
+  await mounted.showWork(doughnutWork);
+  await expect
+    .element(intentViewTab("CI status"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect
+    .element(
+      page.getByText("No Intent locations are configured for Doughnut.", {
+        exact: false,
+      }),
+    )
+    .toBeVisible();
+  await expect.element(ci.panel).toBeVisible();
+  await ci.judges("main");
+  await ci.answers("Passed at a1b2c3d (Add login)");
 });
 
-test("CI status fills Intent's reading with nothing selected; the strip has no CI status mode; activating Intent again returns home from an entry, folder or file; not-configured shows it beside the explanation", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  publishBrowsedTests(frontendServices);
-  await publishUnconfiguredDoughnut(page, frontendServices);
-  await serveFrontendCiStatus(page, { main: login });
-  await openUntilRead(page, "/?project=open-dough");
-  const { intent, intentChoice, development } = parts(page);
-  await intentChoice.click();
-
-  await test.step("nothing selected: Project Intent is the landing, CI status filling the reading pane; its strip is CI status and Optimization Candidates only", async () => {
-    await expect(intentModeViews(intent).getByRole("tab")).toHaveText([
-      "CI status",
-      "Optimization Candidates",
-    ]);
-    await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
-    // The shared persistent header names the empty story context.
-    await expect(
-      intent.getByRole("button", { name: "Back to selected story" }),
-    ).toHaveCount(0);
-    await expect(
-      intent.getByRole("heading", { name: "No story selected", exact: true }),
-    ).toBeVisible();
-    const frame = intentPageFrame(intent);
-    await expect(frame).toHaveCount(1);
-    await expect(frame).toHaveAttribute("data-intent-context", "project");
-    await expect(frame.locator(":scope > *").first()).toHaveClass(
-      "intent-header",
-    );
-    const panel = await chooseCiStatus(intent);
-    await expect(filesColumn(intent)).toBeVisible();
-    await expectCiScope(panel, "main");
-    await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
-    await expectChecked(panel);
-    await expect(intent.getByRole("region", { name: "Purpose" })).toHaveCount(
-      0,
-    );
+test("project CI remains readable while locations load, fail and recover without another CI read", async () => {
+  const coldWork = workOf(openDoughSource, "d4d4d4d");
+  const reads = { fresh: 0, kept: 0 };
+  let rejectInitialLocations: (reason: Error) => void = () => {};
+  let initialAsked = false;
+  const initialLocations = new Promise<IntentLocations>((...[, reject]) => {
+    rejectInitialLocations = reject;
   });
+  let firstAttempt = true;
 
-  await test.step("entry, nested folder or file selected: no return button; activating the chosen Intent tab by click, Enter or Space returns home with the tree still open", async () => {
-    await expandIntentGroup(intent, "dashboard/tests");
-    await expandIntentFolders(intent, "dashboard/tests");
-    const intentTab = intentModeTab(intent, "CI status");
-    const selections = [
-      {
-        name: "the entry",
-        select: intentLocationName(intent, "dashboard/tests"),
-        reading: intent.getByRole("region", { name: "Summary", exact: true }),
-        how: "click",
+  await mountIntentPerspective({
+    work: coldWork,
+    readSource: {
+      readLocations: () => {
+        if (firstAttempt) {
+          firstAttempt = false;
+          initialAsked = true;
+          return initialLocations;
+        }
+        return Promise.resolve(configuredLocations);
       },
-      {
-        name: "a nested folder",
-        select: intentFolderName(intent, "nested"),
-        reading: intent.getByRole("region", { name: "Summary", exact: true }),
-        how: "Enter",
+      readFile: () => Promise.resolve(browseSpecText),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    },
+    ciReads: inertCiReads({
+      readKeptStatus: () => {
+        reads.kept += 1;
+        return Promise.resolve({ none: true });
       },
-      {
-        name: "a test file",
-        select: intent.getByRole("button", { name: browsed, exact: true }),
-        reading: intent.getByRole("region", { name: "Purpose" }),
-        how: "Space",
+      readStatus: () => {
+        reads.fresh += 1;
+        return Promise.resolve(login);
       },
-    ] as const;
-    for (const { name, select, reading, how } of selections) {
-      await select.click();
-      await expect(select, name).toHaveAttribute("aria-pressed", "true");
-      await expect(ciPanel(intent), name).toHaveCount(0);
-      await expect(reading, name).toBeVisible();
-      await expect(
-        intent.getByRole("button", { name: /Return to CI status/ }),
-        name,
-      ).toHaveCount(0);
-      await expect(intentTab, name).toHaveAttribute("aria-selected", "true");
-      const panel = await activateIntentHome(intent, how);
-      await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)", name);
-      await expect(reading, name).toHaveCount(0);
-      await expect(
-        filesColumn(intent).locator('[aria-pressed="true"]'),
-        name,
-      ).toHaveCount(0);
-      await expect(
-        intentGroupToggle(intent, "dashboard/tests"),
-        name,
-      ).toHaveAttribute("aria-expanded", "true");
-      await expect(
-        intent.getByRole("button", { name: deep, exact: true }),
-        name,
-      ).toBeVisible();
-    }
+    }),
   });
+  const ci = intentCiStatus();
+  await expect
+    .element(
+      page.getByRole("heading", { name: "No story selected", exact: true }),
+    )
+    .toBeVisible();
+  await expect
+    .element(page.getByText("Reading Intent locations…", { exact: true }))
+    .toBeVisible();
+  await ci.answers("Passed at a1b2c3d (Add login)");
+  expect(initialAsked).toBe(true);
+  expect(reads).toEqual({ fresh: 1, kept: 1 });
 
-  await test.step("Development and back shows the CI homepage again", async () => {
-    await development.click();
-    await expect(intent).toHaveCount(0);
-    await intentChoice.click();
-    await expectCiAnswer(ciPanel(intent), "Passed at a1b2c3d (Add login)");
-  });
-
-  await test.step("not-configured: CI status beside the explanation", async () => {
-    await page.goto("/?project=doughnut");
-    await openUntilRead(page, "/?project=doughnut");
-    await intentChoice.click();
-    await expect(intent).toContainText(
-      "No intent locations are configured for Doughnut.",
+  rejectInitialLocations(new Error("Read refused"));
+  const failure = page.getByRole("alert");
+  await expect
+    .element(failure)
+    .toHaveTextContent(
+      "Intent locations for Open Dough could not be read. Retry",
     );
-    const panel = await chooseCiStatus(intent);
-    await expect(
-      intent.getByText("No intent locations are configured for Doughnut."),
-    ).toBeVisible();
-    await expectCiScope(panel, "main");
-    await expectCiAnswer(panel, "Passed at a1b2c3d (Add login)");
-  });
-});
+  await ci.answers("Passed at a1b2c3d (Add login)");
 
-test("project CI remains readable while locations load, fail and recover without another CI read", async ({
-  page,
-  frontendServices,
-}) => {
-  publishBrowsedTests(frontendServices);
-  const ci = await serveFrontendCiStatus(page, { main: login });
-  const locations = await holdAuthenticatedReadsWhere(
-    page,
-    (params) => params.get("intent") === "locations",
-    releases,
+  await userEvent.click(
+    failure.getByRole("button", { name: "Retry", exact: true }),
   );
-  await openUntilRead(page, "/?project=open-dough");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  await expect(
-    intent.getByRole("heading", { name: "No story selected", exact: true }),
-  ).toBeVisible();
-  await expect(
-    intent.getByText("Reading Intent locations…", { exact: true }),
-  ).toBeVisible();
-  const status = ciStatusReading(ciPanel(intent)).state;
-  await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
-  expect(locations.held()).toBeGreaterThan(0);
-  expect(ci.reads()).toEqual({ fresh: 1, kept: 1 });
-
-  locations.fail();
-  const failure = intent.getByRole("alert");
-  await expect(failure).toContainText(
-    "Intent locations for Open Dough could not be read",
-  );
-  await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
-  await failure.getByRole("button", { name: "Retry", exact: true }).click();
-  await expect(filesColumn(intent)).toBeVisible();
-  await expect(failure).toHaveCount(0);
-  await expect(status).toHaveText("Passed at a1b2c3d (Add login)");
-  await untilPageReadsAnswered(page);
-  expect(ci.reads()).toEqual({ fresh: 1, kept: 1 });
+  await expect.poll(filesColumnVisible).toBe(true);
+  await expect.element(failure).not.toBeInTheDocument();
+  await ci.answers("Passed at a1b2c3d (Add login)");
+  expect(reads).toEqual({ fresh: 1, kept: 1 });
 });

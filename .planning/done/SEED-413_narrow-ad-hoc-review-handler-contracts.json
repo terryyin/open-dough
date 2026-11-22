@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#narrow-ad-hoc-review-handler-contracts",
+  "title": "Narrow the ad hoc review handlers' contracts to what they read",
+  "completedAt": "2026-11-20T05:44:56.426Z",
+  "developer": "Terry Yin",
+  "agent": "Yumi-chan",
+  "host": "cursor",
+  "model": "auto"
+}

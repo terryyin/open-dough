@@ -1,0 +1,93 @@
+// Story A's committed history as its review finds it: trunk files, Story A's
+// worktree renaming, adding, deleting and redrawing files, another
+// developer's trunk revision merged into it, and a later trunk revision the
+// checkout has not fetched. Revision `merged` is the review's baseline.
+// Its worktree's uncommitted state is declared too. `test` starts every
+// origin from it.
+
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import type { RepositoryRevision } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
+import { test as base } from "./preparationPage.ts";
+import type { StartRepository } from "./startOriginPreparation.ts";
+import { branch, lines, wideLine } from "./storyReviewWorktree.ts";
+
+// PNG bytes whose last byte tells one drawing from another.
+const image = (last: number) =>
+  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, last]);
+
+const anotherDeveloper = {
+  name: "Another Developer",
+  email: "another@example.test",
+};
+
+const storyAHistory = queuedReadyRepository()
+  .withRevision("trunk files", {
+    files: {
+      "old.txt": lines("old"),
+      "staged.txt": lines("staged"),
+      "unstaged.txt": lines("unstaged"),
+      "gone.txt": lines("gone", 3),
+      "image.png": image(1),
+    },
+  })
+  .withRevision("merged", {
+    message: "another story",
+    author: anotherDeveloper,
+    committer: anotherDeveloper,
+    files: { "other.txt": "other story\n" },
+  })
+  .withRevision("later", {
+    message: "later trunk",
+    fetched: false,
+    author: anotherDeveloper,
+    committer: anotherDeveloper,
+    files: { "other2.txt": "later trunk\n" },
+  })
+  .withWorkspace(branch, { from: "trunk files" })
+  .withUnpublishedRevision("renamed", {
+    message: "rename with a small edit",
+    remove: ["old.txt"],
+    files: { "new.txt": `${lines("old")}renamed\n` },
+  })
+  .withUnpublishedRevision("story file", { files: { "story.txt": "story\n" } })
+  .withUnpublishedRevision("redrawn", {
+    message: "delete a file and redraw the image",
+    remove: ["gone.txt"],
+    files: { "image.png": image(2) },
+  })
+  .withUnpublishedRevision("merge trunk", {
+    parents: ["redrawn", "merged"],
+    files: { "other.txt": "other story\n" },
+  });
+
+// Uncommitted: one file staged, one edited with the wide line, a nested
+// untracked file and a file ignored through info/exclude.
+const uncommitted = {
+  staged: { "staged.txt": `${lines("staged")}more\n` },
+  unstaged: {
+    "unstaged.txt": `${lines("unstaged").replace("unstaged 5\n", "unstaged five\n")}${wideLine}\n`,
+  },
+  untracked: { "fresh/new.txt": "untracked\n" },
+  ignored: { "ignored.log": "ignored\n" },
+};
+
+export const storyARepository: StartRepository = withLocalState(
+  storyAHistory.please(),
+  uncommitted,
+);
+
+// Story A with a `newest` plain story commit after its trunk merge, committed
+// before the same uncommitted state.
+export const storyAWithNewestRepository = (
+  newest: RepositoryRevision,
+): StartRepository =>
+  withLocalState(
+    storyAHistory.withUnpublishedRevision(newest.name, newest).please(),
+    uncommitted,
+  );
+
+export { expect } from "./preparationPage.ts";
+export const test = base.extend({
+  originRepository: storyARepository,
+});

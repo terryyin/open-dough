@@ -34,6 +34,32 @@ Edit only after its scope and subsystem gates permit the candidates.
   when their responsibilities still encode delivery groupings; check whether
   independent domain reasons justify the structure.
 
+## Direct domain mapping
+
+- Map persistence, implementation, APIs, UI, and tests directly to the domain's
+  concepts and meanings, with the minimum necessary translation. When a system
+  boundary requires a transfer shape carrying a subset of domain data, preserve
+  domain concepts and share or generate one typed contract across internal
+  callers rather than translating by hand on each side.
+- When grouping operations behind a production boundary, use
+  [what the unit test suite needs to construct it](#design-production-code-for-testability)
+  to check whether those operations belong together.
+- **Action:** collapse unnecessary mapping layers, parallel handwritten payload
+  shapes, and domain rules trapped inside untyped transport or command adapters
+  behind the typed boundary that owns the concept.
+
+## Design production code for testability
+
+Give handlers, controllers, and UI components strongly typed contracts.
+Each variant accepts only the data and services it uses. A unit case builds
+those inputs and calls or renders the same entry point production uses.
+You may restructure production code for testability while preserving its
+observable behavior. Never add behavior to production code solely for tests.
+
+For request handlers, the adapter resolves request context and supplies the
+process-wide state the handler needs. Pass the request signal through every
+cancellable read, including admission, and keep local deadlines.
+
 ## Shotgun surgery
 
 - Shotgun surgery: **one logical concept** (e.g. a version string) forces edits
@@ -74,17 +100,25 @@ and unit. Use this project's test conventions for the tests in scope.
 - **E2E.** Keep a few representative workflows. Start at a supported product
   entry point and use the real services whose interaction is needed to prove
   the observable outcome.
-- **Unit.** Put cases that one service can prove in unit tests. Start
-  at that service's highest practical entry point for the behavior, such as its
-  UI, API, or command, and exercise its real lower-level code. Use a lower-level
-  entry point only when it exposes a stable, domain-meaningful contract that
-  can prove the behavior, such as a pricing rule. Keep private helpers behind
-  their production callers.
+- **Unit.** Put cases that one service can prove in unit tests, exercising its
+  real collaborators and persistence:
+  - **Backend / API:** Start at the highest typed handler or controller
+    behind a thin wire adapter. Test the wire directly only for wire behavior.
+  - **UI:** Start at the smallest rendered component or view that owns the
+    interaction under test, keeping hooks and state behind rendered UI.
+  - **CLI / scripts:** Keep untyped command surfaces thin over typed or domain
+    modules where practical; otherwise start at the command or exported module
+    contract.
+  - Use a lower-level function only when it exposes a stable, domain-meaningful
+    contract that alone proves the behavior, such as a pricing rule. Keep
+    private helpers behind their production callers.
+
+  If setup at the chosen entry point requires unrelated data or services,
+  [review the production contract](#design-production-code-for-testability).
 - **Mocks.** Keep unit tests independent of other live services. Substitute an
-  external dependency only when needed and only at its service boundary, such
-  as a backend response consumed by the frontend. Use real collaborators within
-  the service, including persistence or rendering when the behavior depends on
-  them. Limit proof claims to what the real code in the test establishes.
+  external dependency only when needed and only at its service boundary,
+  through a shared or generated typed contract rather than handwritten URLs or
+  payloads. Limit proof claims to what the real code in the test establishes.
 
 ### Write observable cases
 
@@ -120,13 +154,13 @@ Use this project's test style and assert observable behavior.
   separate tests: write each one, sharing setup through a builder or helper.
   Keep distinct behaviors visible; do not turn unrelated tests into a
   branching scenario or one long journey to reduce the test count.
-- Use the project's builders and meaningful defaults for concise fixtures,
-  and give shared test entry points the same defaults. Specify only data
-  affecting the behavior or observation. Prefer builder
-  operations to post-construction mutation and domain-shaped helpers to repeated
-  field lists. Extend an existing builder for recurring setup rather than
-  introducing a parallel fixture framework. Share construction, not mutable
-  state that makes tests depend on order.
+- Compose test inputs from the project's domain builders. Use their defaults
+  for details that do not affect the case. If setup needs data or services
+  beyond the entry's contract,
+  [revisit the subject's contract](#design-production-code-for-testability).
+  Extend existing builders with domain-named operations for recurring setup.
+  Use them in place of repeated field lists and post-construction mutation.
+  Give each case its own mutable state.
 - Preserve fixture completeness for destructive operations: exercise every
   relevant relationship in the deletion or cascade path. For relational data,
   include rows throughout the affected foreign-key/cascade closure. A bare
@@ -138,6 +172,17 @@ preconditions and let the product establish the outcome. Consolidate cases only
 when meaningful behavior and integration proof survive at lower cost. Identify
 the surviving proof and establish replacement unit coverage before narrowing or
 removing detailed E2E cases. Follow the invoking workflow's scope and authority.
+
+In Cucumber scenarios and Playwright step titles, express one domain intent
+per step. `Given` declares the starting state, `When` names the action in active
+voice, `Then` asserts an observable result, and `And` continues the preceding
+keyword's role. A Playwright test body contains only named `test.step(...)`
+calls. Put all setup, actions, and assertions inside them.
+
+Prefer one statement per Cucumber step definition or Playwright step callback.
+Each body has at most three statements and ten nonblank lines of code, excluding
+the step declaration and closing delimiter. Count a fluent chain as one
+statement even when wrapped or split by `await` to use the returned object.
 
 ## File size
 

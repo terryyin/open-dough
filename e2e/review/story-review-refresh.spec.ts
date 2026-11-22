@@ -1,10 +1,3 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-import {
-  reviewRefresh,
-  reviewRegion,
-  filesToggle,
-  showReviewDetails,
-} from "../../dashboard/test-support/support/reviewControls.ts";
 // A story's review stays the snapshot taken when it opened, of Story A's
 // worktree (../../dashboard/test-support/support/storyReviewWorktree.ts), while the worktree moves on:
 // a further commit to the open file and a new file change neither the file
@@ -19,28 +12,15 @@ import {
 // the first file.
 
 import { diffLines } from "../../dashboard/test-support/support/reviewPanes.ts";
-
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import {
   expect,
   test,
-} from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  contextLine,
-  expectFixedWhileScrolled,
-  fileBrowser,
-  reviewBody,
-  reviewFeedback,
-} from "../../dashboard/test-support/support/reviewContextLine.ts";
-import { expectReviewRead } from "../../dashboard/test-support/support/reviewRead.ts";
-import {
-  expectTreeRows,
-  changedFilesList,
-  fileDiff,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+} from "../../dashboard/test-support/support/storyAReviewRepository.ts";
+import { expectFixedWhileScrolled } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   git,
@@ -57,8 +37,9 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   const action = reviewChanges(card);
-  await action.click();
-  const review = await showReviewDetails(reviewRegion(page));
+  let review = await openReviewChanges(page, card);
+  // The review's details are shown, so its context line is in the top.
+  await review.details.show();
   const listed = [
     "fresh",
     "  new.txt",
@@ -69,15 +50,14 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
     "story.txt",
     "unstaged.txt",
   ];
-  const opened = changedFilesList(review, "7 changed files");
-  await expectTreeRows(opened, listed);
-  const select = (name: string) =>
-    listedFile(review, name, { exact: true }).press("Enter");
-  const diff = fileDiff(review, "Modified unstaged.txt");
-  const codeLines = () => diffLines(diff);
+  let list = "7 changed files";
+  await review.files.expectRows(list, listed);
+  const select = (name: string) => review.files.choose(list, name, "keyboard");
+  const unstagedDiff = "Modified unstaged.txt";
+  const codeLines = () => diffLines(review.diffs.toRead(unstagedDiff));
   const printedLines = () => codeLines().allTextContents();
   const edit = "+edited after the review opened";
-  await select("Modified unstaged.txt");
+  await select(unstagedDiff);
   await expect(codeLines()).toHaveCount(12);
   const openedLines = await printedLines();
   expect(openedLines).toContain("-unstaged 5");
@@ -91,28 +71,24 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
   writeFileSync(path.join(workspace, "later.txt"), "later\n");
 
   await test.step("the list and the open diff stay as the review took them", async () => {
-    await expectTreeRows(opened, listed);
+    await review.files.expectRows(list, listed);
     expect(await printedLines()).toEqual(openedLines);
   });
 
   await test.step("selecting another file and reopening the first shows the same diff", async () => {
     await select("Modified staged.txt");
-    await expect(fileDiff(review, "Modified staged.txt")).toContainText(
-      "+more",
-    );
-    await select("Modified unstaged.txt");
+    await review.diffs.expectShows("Modified staged.txt", "+more");
+    await select(unstagedDiff);
     await expect(codeLines()).toHaveCount(12);
     expect(await printedLines()).toEqual(openedLines);
     expect(await printedLines()).not.toContain(edit);
-    await expectTreeRows(opened, listed);
+    await review.files.expectRows(list, listed);
   });
 
   await test.step("Refresh lists the new file and shows the edit, keeps focus, and announces it", async () => {
-    const refresh = reviewRefresh(review);
-    await refresh.focus();
-    await refresh.press("Enter");
-    const refreshed = changedFilesList(review, "8 changed files");
-    await expectTreeRows(refreshed, [
+    await review.refreshAndAnswer("keyboard");
+    list = "8 changed files";
+    await review.files.expectRows(list, [
       "fresh",
       "  new.txt",
       "gone.txt",
@@ -123,76 +99,57 @@ test("a story's review stays fixed while its worktree changes until Refresh", as
       "story.txt",
       "unstaged.txt",
     ]);
-    const status = reviewFeedback(review);
-    await expect(status).toHaveText(
+    await review.status.expectFeedback(
       /^Review refreshed: 8 changed files against baseline [0-9a-f]{7}\.$/,
     );
     // The open file stays selected, its diff read from the new snapshot.
-    await expect(
-      listedFile(refreshed, "Modified unstaged.txt"),
-    ).toHaveAttribute("aria-pressed", "true");
-    await expect(diff.getByText(edit, { exact: true })).toBeVisible();
+    await review.files.expectChosen(list, unstagedDiff);
+    await review.diffs.expectLine(unstagedDiff, edit);
     expect(await printedLines()).toEqual(
       expect.arrayContaining(["-unstaged 5", edit]),
     );
-    await expect(refresh).toBeFocused();
-    await expect(filesToggle(review)).toBeVisible();
+    await review.status.expectRefreshFocused();
+    await review.expectFilesToggleNamed("Hide files");
     // The message sits beneath the context line, above the body, and both
     // stay in place while the file browser scrolls.
-    const statusBox = await status.boundingBox();
-    const lineBox = await contextLine(review).boundingBox();
-    const bodyBox = await reviewBody(review).boundingBox();
+    const { feedback, contextLine, body, fileBrowser } =
+      review.frame.partsToMeasure();
+    const statusBox = await feedback.boundingBox();
+    const lineBox = await contextLine.boundingBox();
+    const bodyBox = await body.boundingBox();
     expect(statusBox?.y).toBeGreaterThanOrEqual(
       (lineBox?.y ?? 0) + (lineBox?.height ?? 0),
     );
     expect(bodyBox?.y).toBeGreaterThanOrEqual(
       (statusBox?.y ?? 0) + (statusBox?.height ?? 0),
     );
-    await expectFixedWhileScrolled(page, fileBrowser(review), [
-      contextLine(review),
-      status,
-    ]);
+    await expectFixedWhileScrolled(page, fileBrowser, [contextLine, feedback]);
   });
 
   await test.step("an edit made while the review is closed is in the snapshot the reopened review reads", async () => {
-    await closeSidePanel(review);
-    await expect(review).toHaveCount(0);
+    await review.close();
     await expect(action).toBeFocused();
     writeFileSync(path.join(workspace, "while-closed.txt"), "closed\n");
-    await action.click();
-    await expectReviewRead(review);
-    const reopened = changedFilesList(review, "9 changed files");
-    await expect(listedFile(reopened, "Added while-closed.txt")).toBeVisible();
+    review = await openReviewChanges(page, card);
+    await review.expectRead();
+    list = "9 changed files";
+    await review.files.expectListed(list, ["Added while-closed.txt"]);
     // A fresh opening: the first file selected, not the one selected before
     // Close, and no refresh announced.
-    await expect(listedFile(reopened, "Added fresh/new.txt")).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    await expect(listedFile(reopened, "Modified unstaged.txt")).toHaveAttribute(
-      "aria-pressed",
-      "false",
-    );
-    await expect(fileDiff(review, "Added fresh/new.txt")).toContainText(
-      "+untracked",
-    );
-    await expect(reviewFeedback(review)).toHaveText("");
+    await review.files.expectChosen(list, "Added fresh/new.txt");
+    await review.files.expectChosen(list, unstagedDiff, false);
+    await review.diffs.expectShows("Added fresh/new.txt", "+untracked");
+    await review.status.expectFeedback("");
   });
 
   await test.step("Refresh selects the first file once the selected file is reverted", async () => {
-    await select("Modified unstaged.txt");
-    await expect(diff.getByText(edit, { exact: true })).toBeVisible();
+    await select(unstagedDiff);
+    await review.diffs.expectLine(unstagedDiff, edit);
     git(workspace, "checkout", merged, "--", "unstaged.txt");
-    await reviewRefresh(review).press("Enter");
-    await expectReviewRead(review);
-    const refreshed = changedFilesList(review, "8 changed files");
-    await expect(listedFile(refreshed, "Added fresh/new.txt")).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    await expect(listedFile(refreshed, "Modified unstaged.txt")).toHaveCount(0);
-    await expect(fileDiff(review, "Added fresh/new.txt")).toContainText(
-      "+untracked",
-    );
+    await review.status.refreshByKeyboard();
+    list = "8 changed files";
+    await review.files.expectChosen(list, "Added fresh/new.txt");
+    await review.files.expectNotShown(unstagedDiff);
+    await review.diffs.expectShows("Added fresh/new.txt", "+untracked");
   });
 });

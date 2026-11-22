@@ -122,6 +122,7 @@ test("a non-owner with nothing new to tell consumes the configured change bound"
     await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
     observer = await startDashboardServer({
       mode: "boundary",
+      liveServer: "separate process",
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 60_000,
@@ -165,6 +166,7 @@ test("an unsettled attempt this server's own process works on is answered withou
   const nonOwnerBoundMs = 20_000;
   const server = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     projectFolders: ["open-dough"],
     extraEnv: { DOUGH_CHANGE_WAIT_MS: String(nonOwnerBoundMs) },
   });

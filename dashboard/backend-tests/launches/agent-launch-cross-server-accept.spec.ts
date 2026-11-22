@@ -43,11 +43,13 @@ test.describe("cross-server accept of one story", () => {
 
   async function serverOn(
     environment: ProjectEnvironment,
+    liveServer?: string,
     extraEnv: Readonly<Record<string, string>> = {},
   ): Promise<DashboardServer> {
     const server = await startDashboardServer({
       mode: "boundary",
       environment,
+      liveServer,
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: 30_000,
@@ -100,6 +102,7 @@ test.describe("cross-server accept of one story", () => {
     const waited = path.join(origin.machine, "lock-waited");
     const production = await serverOn(
       "production",
+      "separate process",
       lockWait(attemptsLock(), waited),
     );
     production.claudeScenario("held");
@@ -141,7 +144,7 @@ test.describe("cross-server accept of one story", () => {
 
   test("simultaneous accepts from two servers start one story once", async () => {
     const development = await serverOn("development");
-    const production = await serverOn("production");
+    const production = await serverOn("production", "separate process");
     development.claudeScenario("held");
     production.claudeScenario("held");
 
@@ -167,7 +170,7 @@ test.describe("cross-server accept of one story", () => {
 
   test("simultaneous accepts for different stories from two servers are both accepted", async () => {
     const development = await serverOn("development");
-    const production = await serverOn("production");
+    const production = await serverOn("production", "separate process");
     development.claudeScenario("held");
     production.claudeScenario("held");
 

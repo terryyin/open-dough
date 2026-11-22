@@ -38,7 +38,15 @@ scope: story
   `d21a0ebc5ee0426f9898d10725c9e7765f49bc8e` from
   `.planning/seeds/SEED-334-product-wide-end-to-end-tests.md` and
   `.planning/slice-plans/608-product-wide-end-to-end-tests/PLAN.md`.
-- **Boundary.** No new release, native agent acceptance or speed work.
+- **Boundary.** No new release, native agent acceptance or speed work. Keep
+  only the representative tagged-install workflow in `e2e/` (`@playwright/test`);
+  prove single-service Intent, history, and absent/changed-scope reading rules
+  in plain Node Vitest on strongly typed backend handlers and plain Vitest +
+  embedded headless Chromium on narrow owning Intent UI components, adding no
+  wrappers to `test-support` ([Architectural North Star](../NORTH-STAR.md)).
+  The [Intent reading contract](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+  should let the unit test suite render a changed scope from its typed proof
+  data without arranging an installed workflow or agent launch.
 - **Value / learning.** Completes the product-wide E2E goal's installed and
   Intent-reading promises on the runners SEED-334 delivered.
 - **Safe stopping point.** The tagged journey alone, or the Intent naming and
@@ -50,7 +58,7 @@ scope: story
 
 **Identity:** SEED-334#keep-one-browser-test-group-roster
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"336ccf3ea5faf948d4e9fd9f8c23622341080fdf457b55e6503fd07ad10e44a2","plan":"52f1257a33e40e7007d41363e4da8ecdf55252473b4ca9c27cc5f3f074ea84e6"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md","assessment":"not-ready","reasons":["Realign plan 617 after SEED-413 moves frontend-tests and backend-tests to plain Vitest, leaving e2e/ as the sole Playwright suite and adding zero wrappers to test-support."],"basis":{"document":"5198aca92522fae45d523c976cfa8c3e154b40aa21d6344478d5c714c75e93e8","plan":"dc206c39c926524881b89f375f08c92d806852b72598afc26e240ac0e4ad0900"}}
 ```
 
 #### Goal
@@ -64,17 +72,23 @@ placement guidance that matches the independent groups.
 
 #### Scope
 
-Bounded retrospective correction of that execution's residue. Give the set of
-browser test groups one authoritative home that proof-subprocess isolation,
-the repeat helper, the container diagnostic and their tests derive from, with
-a consistency check against `ci.yml` and `package.json`. Name the repeat
-helper, the container option and shared selection helpers for browser test
-groups rather than the dashboard. Check each workflow's Node, npm and browser
-acquisition bounds separately. Correct the umbrella and placement wording in
-`dashboard/tests/README.md`. Preserve every group's selection, settings,
-outputs, shards, CI proof and the interim group; historical records keep their
-recorded names. No new group, removal of the interim group, runner, CI job or
-speed claim.
+Bounded retrospective correction of that execution's residue, updated on
+2026-11-19 after `cfa20d7a6` delivered `browserTestGroups.mjs` and
+[`SEED-413`](SEED-413-renovate-dashboard-unit-tests.md) set both
+`dashboard/frontend-tests/` (plain Vitest + embedded Chromium) and
+`dashboard/backend-tests/` (plain Node Vitest) moving off `@playwright/test`,
+leaving **`e2e/` as the sole Playwright suite**. Sequence after `SEED-413`
+retires `frontend.playwright.config.ts` and `backend.playwright.config.ts`:
+retire obsolete multi-Playwright-group wrappers from `dashboard/test-support/`
+(adding no new wrappers to `test-support` under the
+[Architectural North Star](../NORTH-STAR.md)), check each CI workflow's Node,
+npm and browser acquisition bounds per file, and align live placement wording
+(`Distribution/tests/test-environment.md`, `Distribution/tests/ci/ci-container.md`).
+Historical records keep their recorded names.
 
-**Plan:** [Keep one browser test group roster](../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md)
+Use the [Project Intent revision family](SEED-413-renovate-dashboard-unit-tests.md#project-intent-revision-family-example)
+as a concrete placement example. Its browser component cases use frontend
+Vitest, and the composed revision-apply journey belongs to the E2E group.
+
+**Plan:** [Keep one browser test group roster](../slice-plans/617-keep-one-browser-test-group-roster/PLAN.md) (realign during refinement after `cfa20d7a6` and backend runner renovation)
 

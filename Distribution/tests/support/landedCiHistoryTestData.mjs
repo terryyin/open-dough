@@ -21,8 +21,8 @@ import {
 /** @typedef {Extract<KeptLanding["observed"], { kind: "pending" }>["waitsFor"]} PendingWait */
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").Provenance} Provenance */
 
-// Canonical wire data, independent of dashboard runtime modules as required by
-// tests/test-data-architecture.md. Native evidence hashes this builder's closure.
+// Native evidence hashes this builder and its runtime imports. Keep dashboard
+// dependencies limited to JSDoc types.
 
 /**
  * A push run's first attempt, linked under ci.invalid by its run.

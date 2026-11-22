@@ -1,8 +1,13 @@
 // Real touch comparisons retain the file and reading position as panes and controls change room.
 import { test } from "../../dashboard/test-support/support/preparationPage.ts";
 import { keepReviewContextThroughTouch } from "../../dashboard/test-support/support/storyReviewTouchContext.ts";
-import { chooseComparisonAndReadByTouch } from "../../dashboard/test-support/support/storyReviewTouchJourney.ts";
+import {
+  chooseComparisonAndReadByTouch,
+  touchReviewRepository,
+} from "../../dashboard/test-support/support/storyReviewTouchJourney.ts";
 import { launchTouchViewports } from "../../dashboard/test-support/touchLaunchPage.ts";
+
+test.use({ originRepository: touchReviewRepository });
 
 for (const { name, portrait, landscape } of launchTouchViewports) {
   test.describe(`${name} review by touch`, () => {

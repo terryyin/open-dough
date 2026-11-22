@@ -1,11 +1,12 @@
 // One work item's card in its column (`./Columns.tsx`), read at two levels.
-// Its scan view leads with the title, then its priority in the Backlog, the
-// assigned or preparing developer, preparation badges with the story's
-// start eligibility (`./startEligibility.ts`), dependencies, slice progress
-// on Taken work with a brief source
-// qualification, its launches (`./StoryCardLaunches.tsx`), and its inspection
-// group. Inspect story opens and closes secondary detail (`./StoryDetail.tsx`,
-// inspection in `./pageStoryInspection.tsx`), and Review changes
+// Its scan view leads with the title, then a quiet meta line of Backlog
+// priority, the assigned or preparing developer, and compact slice progress
+// on Taken work (with a brief source qualification). Preparation badges and
+// the story's start eligibility (`./startEligibility.ts`), dependencies, then
+// launches (`./StoryCardLaunches.tsx`) and Done history follow; the current
+// session and its primary action carry the strongest emphasis. The inspection
+// group stays secondary: Inspect story opens and closes detail
+// (`./StoryDetail.tsx`, `./pageStoryInspection.tsx`), and Review changes
 // (`./StoryReviewAction.tsx`) is shown when offered. Clicking an empty area of
 // the card toggles the page's selected story (`./pageStorySelection.tsx`).
 // While its story starts on this machine (`./storyStartup.ts`), the card's
@@ -32,13 +33,16 @@ import {
 import { storyCardMarks } from "./storyCardFocus.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { StoryCardLaunches } from "./StoryCardLaunches.tsx";
+import { StoryCardDoneSessions } from "./StoryCardDoneSessions.tsx";
+import { SessionFollowUp } from "./FollowUp.tsx";
 import {
   dependencyStartReason,
   startEligibilityOf,
 } from "./startEligibility.ts";
 import { StoryNotes } from "./StoryNotesControl.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
-import { storyCardSessionsOf } from "./agentLaunch.ts";
+import { storyCardSessionsOf, type LaunchWithState } from "./agentLaunch.ts";
+import { storyCardAssignmentsOf } from "./agentAssignments.ts";
 import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
 import { ProtectedFrameReason } from "./protectedFrame.ts";
 
@@ -48,6 +52,7 @@ export function StoryCard({
   priority,
   showsSliceProgress,
   launches,
+  doneSessions,
   offersStart,
   selected,
   onSelect,
@@ -62,6 +67,8 @@ export function StoryCard({
   // Taken cards only: queued work shows no progress.
   showsSliceProgress: boolean;
   launches: MachineSessions;
+  // This story's own Done sessions, oldest first (`./columnSessions.ts`).
+  doneSessions: readonly LaunchWithState[];
   // Backlog cards only: Taken work offers no launch.
   offersStart: boolean;
   // Whether this card is the page's selected story, which highlights it.
@@ -109,6 +116,13 @@ export function StoryCard({
             preparing={entry.preparing}
             onOpenRoster={onOpenRoster}
           />
+          {showsSliceProgress && (
+            <SliceProgress
+              planSlices={entry.planSlices}
+              progressSource={entry.progressSource}
+              sliceClock={entry.sliceClock}
+            />
+          )}
         </div>
         <StoryCardPreparationFacts
           preparation={entry.preparation}
@@ -120,13 +134,6 @@ export function StoryCard({
           ).some((record) => record.request.workflow === "execution")}
         />
         <StoryCardDependencies work={work} dependencies={entry.dependencies} />
-        {showsSliceProgress && (
-          <SliceProgress
-            planSlices={entry.planSlices}
-            progressSource={entry.progressSource}
-            sliceClock={entry.sliceClock}
-          />
-        )}
         <StoryCardLaunches
           sourceId={sourceId}
           entry={entry}
@@ -134,6 +141,18 @@ export function StoryCard({
           offersStart={offersStart}
           dependencyProblem={dependencyStartReason(eligibility)}
           statusId={statusId}
+        />
+        <StoryCardDoneSessions
+          sessions={doneSessions}
+          storyCardAssignments={storyCardAssignmentsOf(entry)}
+          followUpOf={(record) => (
+            <SessionFollowUp
+              record={record}
+              project={work.source.label}
+              sourceId={sourceId}
+              launches={launches}
+            />
+          )}
         />
       </StartupFrame>
       <div

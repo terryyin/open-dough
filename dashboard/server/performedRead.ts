@@ -2,8 +2,7 @@
 // (`./authenticatedRead.ts`), once the request is accepted and its catalog
 // source and requested read (`./requestedRead.ts`) are known: its `gh` calls
 // are tracked for the request's lifetime, and any failure is worded for this
-// source and what was being read when it failed. Each kind of read is
-// performed by the module its case below calls; failure naming is in
+// source and what was being read when it failed. Failure naming is in
 // `./readingRequestedRead.ts`, and what a read comes to is `./readOutcome.ts`.
 
 import type { IncomingMessage } from "node:http";
@@ -15,6 +14,7 @@ import {
   performOnBranch,
 } from "./performedBranchRead.ts";
 import { performRevisionCheck } from "./performedRevisionCheck.ts";
+import { observeProjectRevision } from "./observedSessionLandings.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import type { RevisionChecks } from "./revisionChecks.ts";
 import { withTrackedGh } from "./trackedGh.ts";
@@ -25,6 +25,8 @@ import {
 import { performContainmentRead } from "./containmentRead.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import { performListedRecordsRead } from "./listedRecordsRead.ts";
+import { performAdditionRead } from "./additionRead.ts";
+import { performPublishedSessionsRead } from "./publishedSessionsRead.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
 import {
   pathSelectedByIntentLocations,
@@ -38,7 +40,6 @@ import { performIntentCiStatusRead } from "./intentCiStatusRead.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { answered, unreachable, type Outcome } from "./readOutcome.ts";
 import { pathReachableFromRevision } from "./reachablePaths.ts";
-import { listedProfileAddition } from "./recordsBesideBacklog.ts";
 import { readingOf } from "./readingRequestedRead.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -152,29 +153,15 @@ export async function perform(
                 signal,
                 projectFolder(source).path,
               );
-            case "addition-at": {
-              const added = await listedProfileAddition(
-                pinned,
+            case "published-sessions-at":
+              return await performPublishedSessionsRead(
                 source,
                 read,
-                signal,
+                pinned.lister(source, read.revision, signal),
+                pinned.blobReader(source, read.revision, signal),
               );
-              if (added === undefined) {
-                return unreachable;
-              }
-              // The avatar source stays here: the page asks for the image
-              // through `./avatarRead.ts`, never from GitHub itself.
-              return answered({
-                revision: read.revision,
-                path: read.path,
-                added: added && {
-                  commit: added.commit,
-                  committerName: added.committerName,
-                  committedAt: added.committedAt,
-                  login: added.login,
-                },
-              });
-            }
+            case "addition-at":
+              return await performAdditionRead(pinned, source, read, signal);
             case "containment-at":
               return await performContainmentRead(source, read, signal);
             case "branch-head-at":
@@ -229,7 +216,7 @@ export async function perform(
                 source.ref,
                 signal,
               );
-              pinned.namedByRef(source, revision);
+              observeProjectRevision(pinned, source, revision);
               reading = readingPathAt(source.backlogPath, revision);
               // Only which commit the ref names can have changed.
               return answered({

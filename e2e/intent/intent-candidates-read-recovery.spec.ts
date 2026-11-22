@@ -1,7 +1,7 @@
 // Candidates recover from classified GitHub and local transport failures,
 // honoring standing limits and retaining manual Retry for terminal answers.
 // Synthetic rate-limit / malformed UI cases live in
-// dashboard/frontend-tests/intent-candidates-read-recovery.spec.ts.
+// dashboard/frontend-tests/intent/intent-candidates-read-recovery.spec.ts.
 
 import {
   expect,

@@ -4,8 +4,6 @@
 // same, and Follow up opens the existing dialog with the line and side.
 // Intent blank start on old line 85: ../../../e2e/intent/intent-story-follow-up.spec.ts.
 
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   copyDiffLine,
@@ -15,7 +13,7 @@ import {
   lineNumberControl,
   openLineMenu,
 } from "../../dashboard/test-support/support/diffLineFollowUpPage.ts";
-import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { expandContextLineFollowUpHistory } from "../../dashboard/test-support/support/completedFollowUpHistory.ts";
 import { contextExpansion } from "../../dashboard/test-support/support/expandContextDiff.ts";
 import {
   expect,
@@ -32,12 +30,7 @@ import {
   listedFile,
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
-import {
-  commitAll,
-  expandContextFile,
-  expandContextLines,
-  git,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { expandContextFile } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
@@ -51,26 +44,11 @@ test.describe("diff line Follow up menu", () => {
   test.use({
     hasTouch: true,
     permissions: ["clipboard-read", "clipboard-write"],
+    originRepository: expandContextLineFollowUpHistory(),
   });
 
   async function openLineFollowDiff(page: Page, origin: StartOrigin) {
-    writeFileSync(
-      path.join(origin.project, expandContextFile),
-      expandContextLines("line", 160),
-    );
-    commitAll(origin.project, "expand context trunk");
-    git(origin.project, "push", "--quiet", "origin", "main");
-    const { completion } = await completedPublishedStory(
-      origin,
-      "trunk",
-      undefined,
-      (storyWorkspace) => {
-        const edited = expandContextLines("line", 160)
-          .replace("line 54\n", "changed fifty-four\n")
-          .replace("line 127\n", "changed one-twenty-seven\n");
-        writeFileSync(path.join(storyWorkspace, expandContextFile), edited);
-      },
-    );
+    const completion = origin.revision("completion");
     await publishCommittedOrigin(page, {
       repoDir: origin.origin,
       revision: completion,

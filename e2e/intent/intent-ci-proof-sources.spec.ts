@@ -109,7 +109,7 @@ test("a published CI summary for a sources location shows its group and file res
   const intent = parts(page).intent;
 
   await test.step("the location's Summary counts both files, each under its folder", async () => {
-    await chooseStoryTab(intent, "Changed tests");
+    await chooseStoryTab(intent, "Changes");
     await intentLocationName(intent, "scripts").click();
     const scripts = summaryRegion(intent);
     await expectScopeRows(scripts, "scripts", [

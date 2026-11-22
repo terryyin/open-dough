@@ -66,6 +66,33 @@ export default defineConfig(
     },
   },
   {
+    // Use the leaf configs directly. The project service repeatedly
+    // searches the solution's project references during a full lint.
+    files: ["{dashboard,e2e}/**/*.{ts,mts,tsx}"],
+    languageOptions: {
+      parserOptions: {
+        projectService: false,
+        project: "./dashboard/tsconfig.node.json",
+      },
+    },
+  },
+  {
+    // Keep the app's own sources and mounts in the DOM-enabled project.
+    files: [
+      "dashboard/src/**/*.{ts,mts,tsx}",
+      "dashboard/test-support/{comparison-mount,component-mount,mounted-dashboard,phone-board-mount}/**/*.{ts,mts,tsx}",
+    ],
+    languageOptions: {
+      parserOptions: { project: "./dashboard/tsconfig.app.json" },
+    },
+  },
+  {
+    files: ["dashboard/frontend-tests/**/*.{ts,mts,tsx}"],
+    languageOptions: {
+      parserOptions: { project: "./dashboard/tsconfig.frontend-tests.json" },
+    },
+  },
+  {
     // Dashboard and E2E specs run under the shared page-test base, whose
     // `page` finishes its intercepted reads before teardown.
     files: [

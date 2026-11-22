@@ -1,5 +1,5 @@
 // The Intent locations of Intent's reading revision
-// (`./IntentPerspective.tsx`), read through the authenticated read boundary
+// (`./ProjectIntentReading.tsx`), read through the authenticated read boundary
 // (`./authenticatedIntentRead.ts`): reading, failed with the read problem
 // that says why, or the answer, with manual or scheduled Retry. Locations
 // are read per revision and only when the reading revision changes, never
@@ -13,7 +13,7 @@
 // beside the reading revision, so Development → Intent restores it when the
 // reading revision has no kept answer yet.
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { agentSettingsPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import {
   keptIntentLocationsAt,
@@ -24,6 +24,7 @@ import {
   intentRecoveryOf,
   useIntentReadRecovery,
 } from "./intentReadRecovery.tsx";
+import { IntentReadSourceOnPage } from "./intentReadSource.ts";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { ReadProblem } from "./readProblem.ts";
@@ -99,6 +100,7 @@ export function useIntentLocations(
   // never lend another story's source while their own revision is read.
   keepPrevious = true,
 ) {
+  const { readLocations } = useContext(IntentReadSourceOnPage);
   const [keptShownRevision, setKeptShownRevision] = useKeptReading<
     string | undefined
   >("shown-revision", () => undefined);
@@ -121,7 +123,12 @@ export function useIntentLocations(
       shown:
         keepPrevious && keptWhileReading(shown, revision) ? shown : undefined,
     }));
-    void readIntentLocationsAt(source, revision, controller.signal)
+    void readIntentLocationsAt(
+      source,
+      revision,
+      controller.signal,
+      readLocations,
+    )
       .then((locations) => {
         if (controller.signal.aborted) return;
         // An unreadable settings answer is a failed update, not a replacing
@@ -174,6 +181,7 @@ export function useIntentLocations(
   }, [
     source,
     revision,
+    readLocations,
     retry,
     recordSettled,
     setKeptShownRevision,

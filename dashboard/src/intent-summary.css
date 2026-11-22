@@ -1,0 +1,42 @@
+/* A Summary (./IntentSummaryView.tsx) and its lines around its CI proof
+   table (./IntentScopeProofView.tsx, ./IntentFileProofView.tsx); its
+   evidence labels keep their own spacing (./ci-evidence-labels.css). */
+
+.intent-summary {
+  min-width: 0;
+}
+
+.intent-summary-path,
+.intent-summary-files,
+.intent-summary-evidence-absent {
+  margin: 0 0 var(--space-2);
+}
+
+/* The selected scope's own figures above its table
+   (./IntentScopeFigures.tsx): each figure's column name over its words,
+   wrapping as a whole figure when the pane is narrow; a comparison's change
+   cues mark the group as they mark a row (./intent-ci-cues.css). */
+.intent-scope-figures {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.intent-scope-figures dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+
+.intent-scope-figure {
+  min-width: 0;
+}
+
+.intent-scope-figure dt {
+  color: var(--quiet);
+}
+
+.intent-scope-figure dd {
+  margin: 0;
+}

@@ -6,21 +6,24 @@
 // outcomes are served by ./storyCiComparisonLandedOutcome.ts; shared helpers
 // come from ./storyCiComparisonFixture.ts.
 
-import { execFileSync } from "node:child_process";
-import path from "node:path";
-import { rmSync } from "node:fs";
 import type { Page } from "@playwright/test";
-import {
-  storyA,
-  storyB,
-} from "../../../Distribution/tests/support/queued-repository.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import { advanceCompletedTrunk } from "./completedPublishedStory.ts";
+import {
+  advanceAfterCompletion,
+  author,
+  claimant,
+  freshYuiCompletion,
+  implemented,
+  otherStory,
+  storyBranch,
+  trunkWriterShared,
+  yuiClaim,
+} from "./completedStoryThroughInterleaving.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
-import { pull, push } from "./storyReviewTrunkCommits.ts";
-import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
+import { git, lines } from "./storyReviewWorktree.ts";
+import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
 import {
   comparisonWorkflowPath,
   precedeClaimWithPlanning,
@@ -29,114 +32,86 @@ import {
   type StoryCiComparisonSetup,
 } from "./storyCiComparisonFixture.ts";
 
+function earlierLandingCompletionOntoTip(
+  workflowRemovedBeforeLanding: boolean,
+) {
+  const completion = freshYuiCompletion();
+  return makeMe.aRepository
+    .withRevision("shared", { files: { "shared.txt": lines("line") } })
+    .withRevision("claim", yuiClaim(storyBranch))
+    .withRevision("implementation", {
+      message: "story implementation",
+      author,
+      files: implemented,
+    })
+    .withRevision("branch wrap", {
+      message: "planning tip before landing",
+      author,
+      files: { ".planning/branch-wrap.md": "wrap on branch\n" },
+    })
+    .withRevision("interleaving", {
+      parents: ["claim"],
+      message: "another writer interleaves",
+      files: {
+        "shared.txt": trunkWriterShared,
+        ...otherStory,
+      },
+      ...(workflowRemovedBeforeLanding
+        ? { remove: [comparisonWorkflowPath] }
+        : {}),
+    })
+    .withRevision("landing merge", {
+      parents: ["interleaving", "branch wrap"],
+      message: "Merge branch into trunk",
+      author,
+      committer: author,
+      files: {
+        ...implemented,
+        "shared.txt": trunkWriterShared,
+        ...otherStory,
+        ".planning/branch-wrap.md": "wrap on branch\n",
+      },
+    })
+    .withRevision("completion", {
+      ...completion,
+      parents: ["landing merge"],
+      author,
+    })
+    .withRevision("advance after completion", advanceAfterCompletion)
+    .withRevision("later trunk build", {
+      message: "later trunk build after completion",
+      files: { "later-ci.txt": "later built trunk\n" },
+    });
+}
+
 export async function publishCodeLandedBeforeCompletion(
   page: Page,
   origin: StartOrigin,
   workflowRemovedBeforeLanding = false,
-): Promise<StoryCiComparisonSetup> {
+): Promise<
+  StoryCiComparisonSetup &
+    Required<
+      Pick<
+        StoryCiComparisonSetup,
+        "landingMerge" | "trunkSide" | "branchAncestor"
+      >
+    > & {
+      // The trunk advance after completion, parent of the later trunk build.
+      readonly advanced: string;
+    }
+> {
   const baseline = await precedeClaimWithPlanning(origin);
-  writeAt(origin.project, "shared.txt", lines("line"));
-  commitAll(origin.project, "initial shared file");
-  push(origin.project);
-  const claimant = "Yui";
-  const identity = agentIdentity(claimant);
-  const { agent, workspace, branch } = await origin.publishTake({
-    agent: claimant,
-    story: storyA,
-    queued: [storyB],
-    mode: "story-branch",
-  });
-
-  writeAt(
-    workspace,
-    "shared.txt",
-    lines("line").replace("line 0\n", "story first\n"),
+  const commits = await publishDeclaredTrunk(
+    origin,
+    earlierLandingCompletionOntoTip(workflowRemovedBeforeLanding),
   );
-  writeAt(workspace, "[literal]*.txt", "delivered on another machine\n");
-  commitAll(workspace, "story implementation");
-  const branchAncestor = git(workspace, "rev-parse", "HEAD");
-  // Planning-only tip: CI ignores .planning/**, so the merge's branch side
-  // has no build.
-  writeAt(workspace, ".planning/branch-wrap.md", "wrap on branch\n");
-  commitAll(workspace, "planning tip before landing");
-  const branchSide = git(workspace, "rev-parse", "HEAD");
-  git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
-
-  pull(origin.project);
-  writeAt(origin.project, "other-story.txt", "another story\n");
-  if (workflowRemovedBeforeLanding) {
-    rmSync(path.join(origin.project, comparisonWorkflowPath));
-  }
-  commitAll(origin.project, "another writer interleaves");
-  push(origin.project);
-
-  // Take already published the claim on trunk. An agent-authored landing
-  // merge whose first parent still claims is recovered as owning.
-  git(origin.project, "fetch", "--quiet", "origin", branch);
-  git(origin.project, "config", "user.name", identity.agent);
-  git(origin.project, "config", "user.email", identity.email);
-  const trunkSide = git(origin.project, "rev-parse", "HEAD");
-  git(
-    origin.project,
-    "merge",
-    "--quiet",
-    "--no-ff",
-    "--no-edit",
-    `origin/${branch}`,
-  );
-  const landingMerge = git(origin.project, "rev-parse", "HEAD");
-  push(origin.project);
-
-  // Later single-parent completion on trunk (done record only).
-  execFileSync(
-    process.execPath,
-    [
-      path.join(
-        origin.project,
-        ".claude/skills/dough-product-backlog/scripts/product-backlog.mjs",
-      ),
-      "complete",
-      "--file",
-      ".planning/PRODUCT-BACKLOG.md",
-      "--identity",
-      queuedIdentity,
-    ],
-    { cwd: origin.project },
-  );
-  try {
-    rmSync(path.join(origin.project, ".planning", identity.path));
-  } catch {
-    // Profile may already be gone after complete.
-  }
-  commitAll(origin.project, "complete the story through CLI");
-  const completion = git(origin.project, "rev-parse", "HEAD");
-  push(origin.project);
-  git(origin.project, "push", "--quiet", "--delete", "origin", branch);
-  git(origin.project, "worktree", "remove", "--force", workspace);
-  git(origin.project, "branch", "--delete", "--force", branch);
-
-  const parents = git(
-    origin.project,
-    "rev-list",
-    "--parents",
-    "-1",
-    landingMerge,
-  )
-    .trim()
-    .split(" ");
-  expectBranchSide(parents[2] ?? "", branchSide);
-  if ((parents[1] ?? "") !== trunkSide) {
-    throw new Error(
-      `landing trunk side ${parents[1] ?? ""} does not match ${trunkSide}`,
-    );
-  }
-
-  advanceCompletedTrunk(origin);
-  // A later trunk build that must not stand in for Branch or Landed.
-  writeAt(origin.project, "later-ci.txt", "later built trunk\n");
-  commitAll(origin.project, "later trunk build after completion");
-  const laterTrunk = git(origin.project, "rev-parse", "HEAD");
-  push(origin.project);
+  const branchAncestor = commits.implementation;
+  const branchSide = commits["branch wrap"];
+  const trunkSide = commits.interleaving;
+  const landingMerge = commits["landing merge"];
+  const completion = commits.completion;
+  const advanced = commits["advance after completion"];
+  const laterTrunk = commits["later trunk build"];
 
   const published = git(origin.origin, "rev-parse", "main");
   const committed = await publishCommittedOrigin(page, {
@@ -154,14 +129,12 @@ export async function publishCodeLandedBeforeCompletion(
       wall(branchAncestor, 302, "2026-11-05T13:00:00Z", "2026-11-05T13:03:20Z"),
     ],
     [branchSide]: [],
-    // Trunk-side parent of M: a tempting build that must never become C.
     [trunkSide]: [
       wall(trunkSide, 398, "2026-11-05T13:30:00Z", "2026-11-05T13:40:00Z"),
     ],
     [landingMerge]: [
       wall(landingMerge, 303, "2026-11-05T14:00:00Z", "2026-11-05T14:04:00Z"),
     ],
-    // Completion D and later trunk must not replace M as Landed.
     [completion]: [
       wall(completion, 304, "2026-11-05T14:30:00Z", "2026-11-05T14:08:00Z"),
     ],
@@ -177,17 +150,10 @@ export async function publishCodeLandedBeforeCompletion(
     baseline,
     branchSide,
     branchAncestor,
+    advanced,
     laterWithoutBuild: 1,
-    agent,
-    branch,
+    agent: claimant.agent,
+    branch: storyBranch,
     ...actions,
   };
-}
-
-function expectBranchSide(actual: string, expected: string) {
-  if (actual !== expected) {
-    throw new Error(
-      `landing branch side ${actual} does not match tip ${expected}`,
-    );
-  }
 }

@@ -1,110 +1,119 @@
-// Sessions sidebar Session entry state edge against controlled machine
-// answers: border style, thickness and colour per state, plus hidden AT label.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  doughnutSource,
-  openDoughSource,
-} from "../../test-support/support/frontendServiceState.ts";
-import { expectProjectChoice } from "../../test-support/dashboardPage.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import {
-  expectSessionsSidebarSessionEntryShown,
-  sessionsSidebarSessionEntryEdges,
-  sessionsSidebarParts,
-} from "../../test-support/sessionsSidebarPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+// Open Sessions row state edges and hidden labels from typed observations:
+// border style, thickness and colour per state, plus the assistive label.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { SessionState } from "../../src/launchRecord.ts";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import {
+  entries,
+  entryOf,
+  observe,
+  openControlOf,
+  openReading,
+  present,
+} from "./sessions-sidebar-open-mount.ts";
 
-test("each state has its own border style, thickness, and colour, and its hidden label", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, new Date());
-  Object.assign(frontendServices, {
-    projects: [openDoughSource, doughnutSource],
-  });
-  const states = [
-    ["Working", "working", makeMe.aSessionState.loaded("working").please()],
-    [
-      "Needs input",
-      "needs-input",
-      makeMe.aSessionState.loaded("waiting").please(),
-    ],
-    [
-      "Ready for review",
-      "ready",
-      makeMe.aSessionState.loaded("review").please(),
-    ],
-    [
-      "Session failed",
-      "halted",
-      makeMe.aSessionState.loaded("failed").please(),
-    ],
-    [
-      "Session stopped",
-      "halted",
-      makeMe.aSessionState.loaded("interrupted").please(),
-    ],
-    [
-      "Session unavailable",
-      "unsettled",
-      makeMe.aSessionState.unavailable().please(),
-    ],
-    [
-      "State not recognized: Claude Code lists it as napping",
-      "unsettled",
-      {
-        kind: "available",
-        availability: "loaded",
-        activity: "unknown",
-        description: "Claude Code lists it as napping",
-        unknownReason: "unrecognized",
-      } satisfies SessionState,
-    ],
-  ] as const satisfies readonly (readonly [
-    string,
-    keyof typeof sessionsSidebarSessionEntryEdges,
-    SessionState,
-  ])[];
-  const titles: string[] = [];
-  const observed = states.map(([, , state], index) => {
-    const title = `Edge story ${index}`;
-    titles.push(title);
-    const record = makeMe.aLaunchRecord
-      .executing({
-        identity: `SEED-901#edge-${String(index)}`,
-        title,
-        source: "doughnut",
-      })
-      .inClaudeSession({ sessionId: `edge-${String(index)}` })
-      .please();
-    return makeMe.anObservedLaunch.of(record).withSessionState(state).please();
-  });
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer.observing(...observed).please(),
+// Independent edge expectations: style, thickness and colour each distinguish
+// the state; rgb matches the page's light --problem/--ready/--accent/--edge.
+const edges = {
+  "needs-input": { style: "solid", width: "5px", color: "rgb(155, 28, 28)" },
+  ready: { style: "solid", width: "5px", color: "rgb(27, 110, 60)" },
+  halted: { style: "dashed", width: "3px", color: "rgb(155, 28, 28)" },
+  working: { style: "solid", width: "2px", color: "rgb(27, 95, 168)" },
+  unsettled: { style: "dotted", width: "3px", color: "rgb(111, 111, 104)" },
+} as const;
+
+type Tone = keyof typeof edges;
+
+const states = [
+  ["Working", "working", makeMe.aSessionState.loaded("working").please()],
+  [
+    "Needs input",
+    "needs-input",
+    makeMe.aSessionState.loaded("waiting").please(),
+  ],
+  ["Ready for review", "ready", makeMe.aSessionState.loaded("review").please()],
+  ["Session failed", "halted", makeMe.aSessionState.loaded("failed").please()],
+  [
+    "Session stopped",
+    "halted",
+    makeMe.aSessionState.loaded("interrupted").please(),
+  ],
+  [
+    "Session unavailable",
+    "unsettled",
+    makeMe.aSessionState.unavailable().please(),
+  ],
+  [
+    "State not recognized: Claude Code lists it as napping",
+    "unsettled",
+    makeMe.aSessionState
+      .loaded("unknown")
+      .describedAs("Claude Code lists it as napping")
+      .please(),
+  ],
+] as const satisfies readonly (readonly [string, Tone, SessionState])[];
+
+function edgeOf(entry: HTMLElement) {
+  const style = getComputedStyle(entry);
+  return {
+    style: style.borderLeftStyle,
+    width: style.borderLeftWidth,
+    color: style.borderLeftColor,
+  };
+}
+
+function hiddenLabelOf(entry: HTMLElement) {
+  return present(
+    entry.querySelector<HTMLElement>(":scope > .visually-hidden"),
+    "hidden state label",
   );
-  await page.goto("/?project=doughnut");
-  await expectProjectChoice(page, "Doughnut");
-  const {
-    button,
-    entries,
-    entry: entryControl,
-    row,
-  } = sessionsSidebarParts(page);
-  await button.click();
-  await expect(entries).toHaveCount(states.length);
+}
+
+test("each state has its own border style, thickness, and colour, and its hidden label", async () => {
+  const titles: string[] = [];
+  for (let index = 0; index < states.length; index += 1) {
+    titles.push(`Edge story ${String(index)}`);
+  }
+  const observed = observe(
+    states.map(([, , state], index) => {
+      const title = titles[index] ?? "?";
+      return {
+        record: makeMe.aLaunchRecord
+          .executing({
+            identity: `SEED-901#edge-${String(index)}`,
+            title,
+            source: "doughnut",
+          })
+          .inClaudeSession({ sessionId: `edge-${String(index)}` })
+          .please(),
+        state,
+      };
+    }),
+  );
+  await mountComponent(openReading(observed, { sidebarWidth: "18rem" }), {
+    viewport: { width: 1280, height: 800 },
+  });
+
+  await expect.poll(() => entries().length).toBe(states.length);
 
   for (const [index, [words, tone]] of states.entries()) {
     const title = titles[index] ?? "?";
-    await expectSessionsSidebarSessionEntryShown(row(title), words, tone);
-    await expect(entryControl(title)).toHaveCount(1);
+    const entry = present(entryOf(title), `row ${title}`);
+    const expected = edges[tone];
+    const tooltip = openControlOf(entry).getAttribute("title") ?? "";
+    expect(tooltip.split("\n")).toContain(words);
+    expect(edgeOf(entry)).toEqual(expected);
+    const hidden = hiddenLabelOf(entry);
+    expect(hidden.textContent).toBe(words.split(":")[0] ?? "");
+    const box = hidden.getBoundingClientRect();
+    expect(box.width).toBeLessThanOrEqual(1);
+    expect(box.height).toBeLessThanOrEqual(1);
   }
 
   const widthOf = (title: string) =>
-    row(title).evaluate((shown) =>
-      parseFloat(getComputedStyle(shown).borderLeftWidth),
-    );
-  const thick = await widthOf(titles[1] ?? "?");
-  expect(await widthOf(titles[2] ?? "?")).toBe(thick);
-  expect(thick).toBeGreaterThan(await widthOf(titles[0] ?? "?"));
+    parseFloat(edgeOf(present(entryOf(title), `row ${title}`)).width);
+  const thick = widthOf(titles[1] ?? "?");
+  expect(widthOf(titles[2] ?? "?")).toBe(thick);
+  expect(thick).toBeGreaterThan(widthOf(titles[0] ?? "?"));
 });

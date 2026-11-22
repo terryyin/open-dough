@@ -1,13 +1,4 @@
 // Older actual review/file responses cannot answer a later retained choice.
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-import { fileBrowser } from "../../dashboard/test-support/support/reviewContextLine.ts";
-import { changedFilesList } from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import {
-  reviewRegion,
-  comparisonChoice,
-  landedRunChoice,
-  filesToggle,
-} from "../../dashboard/test-support/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   test as base,
@@ -27,6 +18,7 @@ import {
   pressDividerKey,
   resizeUntilArranged,
 } from "../../dashboard/test-support/sidePanelWidthPage.ts";
+import { sidePanelContents } from "../../dashboard/test-support/support/sidePanelContents.ts";
 
 // Prepare immutable installed Codex and preview inputs before the case's
 // private origin and its real native launches begin.
@@ -52,31 +44,25 @@ test("delayed run and file responses leave the later run selected through narrow
     origin,
     codexProtocol,
   );
-  const { card } = await openCapturedReview(page, origin);
-  const review = reviewRegion(page);
-  const radio = comparisonChoice(review, "Landed runs");
-  const select = landedRunChoice(review);
+  const { card, review } = await openCapturedReview(page, origin);
+  const { files, diffs } = review;
   const heldRun = await holdNextReviewResponse(
     page,
     dashboard.origin,
     storyReviewEndpoint,
   );
   try {
-    await radio.check();
+    await review.comparison.choose("Landed runs");
     expect(await (await heldRun.ready).json()).toMatchObject({
       selectedRun: second.key,
       tree: second.receipt.revision,
     });
-    await select.selectOption(first.key);
-    await expect(review.locator(".story-review-added")).toHaveText([
-      "+first.txt",
-    ]);
+    await review.landedRun.choose(first.key);
+    await diffs.expectLines("added", ["+first.txt"]);
     heldRun.release();
     await heldRun.delivery;
-    await expect(select).toHaveValue(first.key);
-    await expect(review.locator(".story-review-added")).toHaveText([
-      "+first.txt",
-    ]);
+    await review.landedRun.expectChosen(first.key);
+    await diffs.expectLines("added", ["+first.txt"]);
   } finally {
     heldRun.release();
     await heldRun.delivery;
@@ -87,55 +73,43 @@ test("delayed run and file responses leave the later run selected through narrow
     storyReviewFileEndpoint,
   );
   try {
-    await select.selectOption(second.key);
+    await review.landedRun.choose(second.key);
     expect(await (await heldFile.ready).json()).toMatchObject({
       kind: "diff",
       printed: expect.stringContaining("+second.txt"),
     });
-    await select.selectOption(first.key);
-    await expect(review.locator(".story-review-added")).toHaveText([
-      "+first.txt",
-    ]);
+    await review.landedRun.choose(first.key);
+    await diffs.expectLines("added", ["+first.txt"]);
     heldFile.release();
     await heldFile.delivery;
-    await expect(select).toHaveValue(first.key);
-    await expect(review.locator(".story-review-added")).toHaveText([
-      "+first.txt",
-    ]);
+    await review.landedRun.expectChosen(first.key);
+    await diffs.expectLines("added", ["+first.txt"]);
   } finally {
     heldFile.release();
     await heldFile.delivery;
   }
-  const divider = panelDivider(review, { exact: false });
+  const panel = sidePanelContents(page);
+  const divider = panelDivider(panel, { exact: false });
   await expect(divider).toBeVisible();
   const width = Number(await divider.getAttribute("aria-valuenow"));
-  await focusDivider(review, { exact: false });
+  await focusDivider(panel, { exact: false });
   await pressDividerKey(page, "ArrowLeft");
   await expect(divider).toHaveAttribute("aria-valuenow", String(width + 32));
-  await expect(select).toHaveValue(first.key);
-  await expect(review.locator(".story-review-added")).toHaveText([
-    "+first.txt",
-  ]);
-  await resizeUntilArranged(review, { width: 420, height: 900 });
-  await expect(select).toHaveValue(first.key);
-  await expectCovering(review);
-  const files = changedFilesList(review, "1 changed file", { exact: true });
-  await filesToggle(review).click();
-  await expect(files).toBeHidden();
-  await filesToggle(review, "Show files").click();
-  await expect(files).toBeVisible();
-  const browser = await fileBrowser(review).boundingBox();
-  const diff = await review.locator(".story-review-diff").boundingBox();
-  expect(browser).not.toBeNull();
-  expect(diff).not.toBeNull();
-  expect(diff?.y).toBeGreaterThan((browser?.y ?? 0) + (browser?.height ?? 0));
+  await review.landedRun.expectChosen(first.key);
+  await diffs.expectLines("added", ["+first.txt"]);
+  await resizeUntilArranged(panel, { width: 420, height: 900 });
+  await review.landedRun.expectChosen(first.key);
+  await expectCovering(panel);
+  await review.hideFiles();
+  await review.expectFilesShown(false);
+  await review.showFiles();
+  await files.expectListed("1 changed file");
+  await files.expectBrowserAboveDiff();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(420);
-  await expect(select).toHaveValue(first.key);
-  await expect(review.locator(".story-review-added")).toHaveText([
-    "+first.txt",
-  ]);
-  await closeSidePanel(review);
+  await review.landedRun.expectChosen(first.key);
+  await diffs.expectLines("added", ["+first.txt"]);
+  await review.close();
   await expect(reviewChanges(card)).toBeFocused();
 });

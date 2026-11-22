@@ -58,6 +58,7 @@ export const test = base.extend<
       pathPrefix,
       startTimeoutMs,
       serverMode,
+      liveServer,
     },
     use,
   ) => {
@@ -69,6 +70,7 @@ export const test = base.extend<
       machine: origin.machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: launchWaitMs,
+      liveServer,
       codexProtocol,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
       extraEnv: fixtureExtraEnv(extraEnv, startTimeoutMs),

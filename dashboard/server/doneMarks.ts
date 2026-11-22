@@ -1,44 +1,47 @@
 // Local done intent is durable independently of native rename/interruption.
-// Each host owns its native operations; closing attachments only detaches clients.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
+import {
+  completedWithoutAttention,
+  type CompletionReport,
+} from "../src/completionReport.ts";
+import type { HostIdentity } from "../src/hostDescription.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type { AgentLaunches } from "./agentLaunches.ts";
-import type { AgentTerminals } from "./agentTerminals.ts";
-import { HostOperationFailure } from "./hostLaunch.ts";
-import { launchHost } from "./launchHosts.ts";
-import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
-import { keptWithSessionCommits } from "./recordDoneAt.ts";
-import { completedWithoutAttention } from "../src/completionReport.ts";
-import { localFolder, machineFolder } from "./projectFolders.ts";
-import { configuredProject } from "./projectConfiguration.ts";
-import type { CompletionReport } from "../src/completionReport.ts";
-import type { ProjectFolder } from "./projectFolders.ts";
+import { sessionKey } from "../src/sessionReference.ts";
+import { keptWithDoneCapture } from "./doneCapture.ts";
 import {
   acknowledgeDoneLocally,
   doneSessionRecord,
   reportedDoneNeedsContinuation,
   reportedNativeDonePending,
 } from "./doneSessionRecord.ts";
-import { sessionKey } from "../src/sessionReference.ts";
+import {
+  finishNativeDone,
+  type DoneHost,
+  type DoneLaunches,
+  type DoneTerminals,
+} from "./finishNativeDone.ts";
+import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
+import type { ProjectFolder } from "./projectFolders.ts";
+import type { BranchCapture } from "./sessionBranchCapture.ts";
 
 export { doneSessionRecord } from "./doneSessionRecord.ts";
+export type {
+  DoneHost,
+  DoneLaunches,
+  DoneTerminals,
+} from "./finishNativeDone.ts";
 
-// The wait before Done reports a native stop or removal unconfirmed.
-const nativeWaitMs = 10_000;
+export type DoneCollaborators = {
+  readonly terminals: DoneTerminals;
+  readonly hostFor: (host: HostIdentity) => DoneHost | undefined;
+  readonly reportingFolder: (sourceId: string) => ProjectFolder;
+  // Reads the branch result before a manual mark's record write;
+  // production's Git-only capture by default.
+  readonly capture?: BranchCapture;
+};
 
-// The native Done of one mark: the developer's, which also stops the session,
-// or a quiet report's, which a closing server abandons.
-type NativeDone = { readonly stopped: AbortSignal } & (
-  | {
-      readonly intent: "manual";
-      readonly launches: AgentLaunches;
-      readonly source: PublishedSource;
-    }
-  | { readonly intent: "reporting" }
-);
-
-// Quiet reports capture after receipt, outside reporting locks. One native
-// Done runs per session. The developer's Done takes over a reported rename.
+// Quiet reports continue native Done and default checkout capture outside
+// reporting locks. The developer's Done takes over a reported rename.
 export class NativeDoneMarks {
   private readonly running = new Map<
     string,
@@ -47,14 +50,15 @@ export class NativeDoneMarks {
   private readonly reporting = new Set<Promise<void>>();
   private closed = false;
 
-  constructor(private readonly terminals: AgentTerminals) {}
+  constructor(private readonly collaborators: DoneCollaborators) {}
 
   // Continue the latest report's capture and any pending native Done.
-  reported(sourceId: string, receipt: CompletionReport): void {
+  reported(sourceId: string, receipt: CompletionReport) {
     if (this.closed || !completedWithoutAttention(receipt)) return;
     const continued = this.continueReported(sourceId, receipt).catch(() => {});
     this.reporting.add(continued);
     void continued.then(() => this.reporting.delete(continued));
+    return continued;
   }
 
   private async captureReportedDone(
@@ -66,7 +70,7 @@ export class NativeDoneMarks {
     );
     if (this.closed || !reportedDoneNeedsContinuation(current, receipt))
       return undefined;
-    return keptWithSessionCommits(sourceId, current);
+    return keptWithDoneCapture(sourceId, current);
   }
 
   private async continueReported(
@@ -81,8 +85,9 @@ export class NativeDoneMarks {
       finishNativeDone(
         sourceId,
         marked,
-        reportingFolder(sourceId),
-        this.terminals,
+        this.collaborators.reportingFolder(sourceId),
+        this.collaborators.terminals,
+        this.collaborators.hostFor(marked.session.host),
         { intent: "reporting", stopped },
       ),
     );
@@ -94,7 +99,7 @@ export class NativeDoneMarks {
     source: PublishedSource,
     record: LaunchRecord,
     folder: ProjectFolder,
-    launches: AgentLaunches,
+    launches: DoneLaunches,
   ): Promise<LaunchRecord> {
     const key = sessionKey(record.session);
     const running = this.running.get(key);
@@ -106,7 +111,7 @@ export class NativeDoneMarks {
         record,
         folder,
         launches,
-        this.terminals,
+        this.collaborators,
         stopped,
       ),
     );
@@ -137,93 +142,15 @@ export class NativeDoneMarks {
   }
 }
 
-// A reported Done renames from the reporting project's folder, as the
-// developer's would.
-function reportingFolder(sourceId: string): ProjectFolder {
-  const project = configuredProject(sourceId);
-  return project === undefined
-    ? machineFolder()
-    : localFolder(project.localPath);
-}
-
-async function finishNativeDone(
-  sourceId: string,
-  record: LaunchRecord,
-  folder: ProjectFolder,
-  terminals: AgentTerminals,
-  done: NativeDone,
-): Promise<LaunchRecord> {
-  const { intent } = done;
-  const host = launchHost(record.session.host);
-  const problems: string[] = [];
-  const attempt = async (operation: string, run: () => Promise<void>) => {
-    try {
-      await run();
-    } catch (error) {
-      problems.push(
-        `${host?.name ?? record.session.host} ${operation} failed: ${error instanceof HostOperationFailure ? error.message : "The native operation could not be confirmed."}`,
-      );
-    }
-  };
-  const sessionState =
-    done.intent === "manual"
-      ? (await done.launches.stateOf(done.source, record)).sessionState
-      : undefined;
-  // An exited session has no process to stop, and its removed job no name left
-  // to show, so neither rename nor stop runs.
-  const removal =
-    sessionState?.kind === "available" &&
-    sessionState.availability === "retained"
-      ? host?.remove?.bind(host)
-      : undefined;
-  if (removal === undefined && host?.rename !== undefined) {
-    await attempt("rename", async () => {
-      await host.rename?.(
-        record,
-        folder,
-        (session, at, use, signal, ready) =>
-          terminals.withAttachment(session, at, use, signal, ready),
-        intent,
-        done.stopped,
-      );
-    });
-  }
-  // An abandoned wait leaves the mark as it was.
-  if (done.intent === "reporting" && done.stopped.aborted) return record;
-  if (done.intent === "manual") {
-    terminals.endAttachments(record.session);
-    const stop = host?.doneStop?.bind(host);
-    if (removal !== undefined)
-      await attempt("removal", () =>
-        removal(record.session, folder, AbortSignal.timeout(nativeWaitMs)),
-      );
-    else if (sessionState?.kind !== "unavailable" && stop !== undefined)
-      await attempt("stop", () =>
-        stop(record.session, folder, AbortSignal.timeout(nativeWaitMs)),
-      );
-  }
-  const doneProblem =
-    problems.length === 0
-      ? undefined
-      : `Local done mark retained. ${problems.join(" ")}`;
-  return (
-    (await setRecordDoneAt(sourceId, record.session, record.doneAt, {
-      ...(doneProblem === undefined ? {} : { doneProblem }),
-      ...(record.doneAt === undefined ? {} : { expectedDoneAt: record.doneAt }),
-      automatic: intent === "reporting",
-    })) ?? record
-  );
-}
-
 async function markSessionDone(
   source: PublishedSource,
   record: LaunchRecord,
   folder: ProjectFolder,
-  launches: AgentLaunches,
-  terminals: AgentTerminals,
+  launches: DoneLaunches,
+  { terminals, hostFor, capture }: DoneCollaborators,
   stopped: AbortSignal,
 ): Promise<LaunchRecord> {
-  const host = launchHost(record.session.host);
+  const host = hostFor(record.session.host);
   const stop = host?.doneStop?.bind(host);
   // A local-Done host's mark, like a reported mark on a host without a
   // Done stop, is acknowledged locally only.
@@ -235,10 +162,15 @@ async function markSessionDone(
   if (host === undefined || stop === undefined)
     throw new Error("This host cannot mark a session done.");
   const doneAt = new Date().toISOString();
-  const marked =
-    (await setRecordDoneAt(source.id, record.session, doneAt)) ??
-    doneSessionRecord(record, doneAt);
-  return finishNativeDone(source.id, marked, folder, terminals, {
+  const marked = await setRecordDoneAt(
+    source.id,
+    record.session,
+    doneAt,
+    capture === undefined ? undefined : { capture },
+  );
+  if (marked?.doneAt !== doneAt)
+    return marked ?? doneSessionRecord(record, doneAt);
+  return finishNativeDone(source.id, marked, folder, terminals, host, {
     intent: "manual",
     launches,
     source,

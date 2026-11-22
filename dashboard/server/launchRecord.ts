@@ -33,7 +33,11 @@ export function launchStartContext(
 // default launch, which establishes none, started.
 export type LaunchStartFacts = Pick<
   LaunchRecord,
-  "start" | "preparation" | "establishedSession" | "defaultStart"
+  | "start"
+  | "preparation"
+  | "establishedSession"
+  | "defaultStart"
+  | "branchReviewRepository"
 >;
 
 // The story what a launch's start established names: a story's start or
@@ -67,6 +71,9 @@ export function launchRecord(
     ...(facts.defaultStart === undefined
       ? {}
       : { defaultStart: facts.defaultStart }),
+    ...(facts.branchReviewRepository === undefined
+      ? {}
+      : { branchReviewRepository: facts.branchReviewRepository }),
     launchedAt,
   };
 }

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-379#keep-own-branch-session-results-for-review",
+  "title": "Keep own-branch ad hoc session results for review",
+  "completedAt": "2026-11-18T19:34:40.654Z",
+  "developer": "Terry Yin",
+  "agent": "Mana-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Verdict. Caught.** At `02dea4989bc67f3e37e62233788e3e23e1de121b`, the Cursor recovery and deletion test catches leaked Git pins for the original chat when the replacement chat is deleted. This checks the deletion promise from `SEED-379#keep-own-branch-session-results-for-review` and slice 4 of plan 705.\n\nIn a detached scratch worktree, I changed only `releaseSessionBranchRefs` in `dashboard/server/launchRecordPins.ts:99` to use `record.session` in place of `branchPinOwner(record)`. The real Dashboard and Git fixture reached Cursor replacement and then returned `{ kind: \"deleted\" }` for the replacement chat. At `dashboard/backend-tests/review/ad-hoc-branch-cursor-recovery.spec.ts:158`, `expect(cursorBranchPins(origin.project, oldId)).toEqual([])` failed with five refs.\n\nA separate read-only observer watched the fixture's launch record and loose Git refs. After the replacement record disappeared and before fixture teardown, all five original refs still pointed at the same objects in the faulted run. The separate launch retained both refs in every run. The original refs fell from five to zero in both the passing baseline and the restored pass. The same guarded Playwright command selected one test in each run. The restored checkout matched its clean starting revision and was retired. A preliminary Git tracing run stopped during fixture setup. The three recorded runs used external observation with tracing disabled.\n\n**Next proof action.** Keep the existing deletion assertion. No additional proof is needed for this fault on the exercised path. This confirms the coverage already assigned to slice 4 and creates no new repair.\n\n- **Test runtime.** Measured by the Playwright proof records. The selected test ran in 2.172 s at baseline, 2.240 s with the fault, and 2.841 s restored. The corresponding full runner durations were 4.113 s, 4.488 s, and 5.510 s.\n- **Human effort.** Unavailable. No human interaction was requested and no human time was measured.\n- **Agent effort.** Unavailable. No separate active-agent time was measured.\n\n\n- **Invocation-to-report elapsed.** 216651 ms (measured), from 1795030162199 to 1795030378850 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition — `02dea4989bc67f3e37e62233788e3e23e1de121b`, Caught. No follow-up.\n"
+  }
+}

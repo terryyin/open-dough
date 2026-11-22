@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-14
 planted_during: Terry Yin requested Codex, Cursor and Claude Code token-efficiency audits and retention of their reconciled findings
 trigger_when: Terry selects an efficiency story for refinement
-scope: eight stories
+scope: ten stories
 ---
 
 # SEED-345 — Improve session token efficiency across Open Dough projects
@@ -36,10 +36,27 @@ Effort bands are relative. Small means one scoped host workflow. Medium means
 a shared workflow with a representative host comparison. They carry no time
 commitment.
 
+### November 18–19 Codex execution baseline
+
+Using the November 19 Usage snapshot at 08:42 Singapore time, the audit
+compared the last ten eligible Codex Plan Execution tasks at November 18
+17:52 with the last ten at November 19 07:54. Four tasks appear in both
+windows. The rolling median rose from 2.51M to 13.42M and the mean from 5.60M
+to 10.68M index units per task. In the preceding week, 22 of 63 GPT-6.1 Sol
+`xhigh` executions had already exceeded 13M. Task mix matters when choosing
+a comparison.
+
+GPT-6.1 Sol and GPT-6.2 Sol at standard speed weight a cached input token at
+0.05, fresh input at 1 and output at 5. Use the same versioned rate card for
+both arms of each comparison. The largest execution in the later window was
+Open Dough `SEED-379#keep-own-branch-session-results-for-review`, Codex session
+`01a1ef2f-03bc-7f72-b131-aa967975fa9f`. Its retained coordinator and worker
+traces supply the examples below. Token figures come from
+`dashboard/server/compareAgentEffort.ts`.
+
 ## Proposed stories in initial priority order
 
-Each trial is judged with the
-[retained effort command](../../dashboard/AGENT-EFFORT.md).
+Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
 <a id="start-implementers-from-a-role-sized-tool-set"></a>
 
@@ -90,7 +107,26 @@ Each trial is judged with the
   continuing from recorded execution state at a slice boundary. Outcomes,
   proof, judgment and interventions match the baseline; peak context and
   total effort fall. A loss of needed judgment rejects the variant.
-- **Priority.** Second, after the role-sized tool set. Smaller stories remain
+- **Priority, November 19.** Queue this trial after the real-execution
+  evaluation of recoverable proof evidence. The potential saving spans many
+  worker requests. A shorter handoff can also omit a decision or trigger
+  expensive fresh reads, so the trial needs the same review and proof.
+- **Codex evidence.** Across the two ten-task windows, mean cached-input
+  contribution rose from 3.46M to 8.15M index units per execution, accounting
+  for 92% of the increase in the mean total. In the 23.26M execution, 20 of
+  22 workers inherited the full conversation. Their first requests had a
+  median of 309k input tokens. The trace establishes the size of the handoff.
+  A matched trial must establish how much of it workers need.
+- **Codex handoff trial.** On comparable well-defined slices, compare full
+  history with a brief containing the original requirements, current decisions,
+  relevant files and required checks. Give the worker access to supporting
+  context on demand. Hold model, effort, independent review and tests
+  constant. Count coordinator and worker usage through rereads, repairs and
+  acceptance. At Sol rates, 15k fresh tokens cost the same as 300k cached.
+  Adopt the brief only if combined index falls and the trial preserves
+  required behavior, acceptance evidence and material review findings.
+  [Earlier compact-handoff trial](../../docs/maintainer/findings/ODF-150.md).
+- **Earlier evidence.** Smaller stories remain
   the preferred policy; use a current baseline under that policy on each host.
   The 8-slice cap and `medium` effort reduced Claude Code's observed exposure;
   that does not establish the remaining Codex exposure. It was the largest
@@ -113,48 +149,7 @@ Each trial is judged with the
   handling ([ODF-206](../../docs/maintainer/findings/ODF-206.md),
   [ODF-260](../../docs/maintainer/findings/ODF-260.md)). Host mechanisms such
   as compaction settings are trial variants, not defaults.
-  Compact Codex worker handoffs are another variant within this story, judged
-  on coordinator plus worker effort, uncached input and cached input as well
-  as quality. A fresh worker that processes fewer tokens can still cost more.
   [Context growth](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
-
-<a id="get-long-verification-results-without-empty-wakes"></a>
-
-### Get long verification results without empty wakes
-
-**Identity:** SEED-345#get-long-verification-results-without-empty-wakes
-```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
-```
-
-- **Scope and beneficiary.** Shared, with Codex evidence leading and a Claude
-  Code cache-lifetime adaptation. A developer gets the terminal result of a
-  genuinely running verification at less cost while it runs.
-- **Evaluation.** While a selected proof command or delegated run is still
-  running, its owner obtains the exact terminal result and failure evidence
-  without model requests that only observe “still running”. A wait expected
-  to outlast the host's cache lifetime is owned where waking or the host's
-  completion notification costs least. Keep the overdue, cancellation and
-  CI completion behavior. Compare idle-wake requests, rebuilds and total
-  effort on matched runs, with the same proof decisions.
-- **Priority.** Fourth, after the proof decision; measure residual exposure
-  under each host's currently installed guidance. Codex recorded 2,303 requests
-  (446.5M tokens, 7.6%) after empty subprocess output or agent-wait timeouts.
-  Claude Code paid about $96 of list-price worker rebuilds after five-to-sixty-minute waits.
-  In Claude Code's later cohort, shell `sleep` calls fell from 18.4 per
-  execution (Nov 13–15) to 3.4 after the waiting changes; the tasks also changed.
-  This is neither a measured Codex saving nor proof that most removable wait
-  cost is gone. Codex's rebaseline counts empty subprocess returns and
-  agent-wait timeouts, not only shell sleeps, and records the installed
-  guidance version. Measure what remains against those host-specific baselines
-  ([waiting](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#waiting)).
-- **Effort and boundary.** Medium, medium confidence. Distinct from a paused
-  supplier, which the first story owns. Keep the five-minute Claude Code
-  subagent cache; a longer lifetime cost more than it saved. Starts from the
-  per-host [wait for proof](../../Distribution/src/skills/dough-execute-plan/references/wait-for-proof.md)
-  guidance and measures what it leaves.
-  [Waiting](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#1-wake-the-coordinator-for-results-changes-and-bounded-deadlines)
-  and [cache](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#cc2-cache-lifetime-avoid-the-rebuild-keep-the-five-minute-default) evidence
 
 <a id="load-execution-guidance-for-the-current-phase"></a>
 
@@ -205,6 +200,64 @@ Each trial is judged with the
 - **Effort and boundary.** Small, medium confidence. Independent review and
   role-specific reads keep their purpose.
   [Cursor handoff evidence](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#c1-avoid-paying-twice-for-large-task-prompts-and-skill-re-reads)
+
+## Follow-ups from the November 20–22 execution audit
+
+<a id="use-proportionate-refactoring-for-small-test-edits"></a>
+
+### Use proportionate refactoring for small test edits
+
+**Identity:** SEED-345#use-proportionate-refactoring-for-small-test-edits
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** A developer gets the same independent judgment on a small
+  slice confined to its own specs with less repeated model work. Trial a
+  focused refactor review using the accepted consumer trace and proof.
+  Retain full independent refactoring when a change reaches shared test
+  support, production behavior, or consumers outside the slice.
+- **Evaluation.** Compare comparable isolated test edits under the current
+  fresh-agent pass and a focused review. Count coordinator and worker usage
+  through any rereads, escalation, and acceptance. Keep the focused path
+  only if it lowers combined usage and preserves meaningful findings and
+  proof. Include a shared-support case to check the escalation boundary.
+- **Evidence and effort.** Six passes on edits of 4–37 lines returned no
+  changes and used about 320k reported subagent tokens in one Claude Code
+  execution. The shared-support pass in that execution made useful edits.
+  The earlier ODF-141 response covered records-only changes and already-traced
+  repairs. Small to medium, medium confidence. Trial the narrow case first
+  while Dashboard test migrations still provide representative examples.
+  [DD-610](../../DearDough.md#dd-610) · [ODF-141](../../docs/maintainer/findings/ODF-141.md)
+
+<a id="wait-for-codex-workers-with-fewer-model-wakeups"></a>
+
+### Wait for Codex workers with fewer model wakeups
+
+**Identity:** SEED-345#wait-for-codex-workers-with-fewer-model-wakeups
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** A Codex coordinator can wait for a delegated implementation,
+  refactor or repair to return without repeatedly restarting model work
+  on timeouts that bring no new result. It still acts on the worker's
+  handback, an overdue verification, or a deadline in time.
+- **Evaluation.** Compare representative long worker waits with the retained
+  `wait_agent` baseline at matched model, effort, and worker responsibilities.
+  Count timeout wakeups, coordinator and worker usage through acceptance,
+  handback latency, missed outcomes, and human interventions. Adopt a
+  candidate only if combined usage falls and completion and recovery
+  remain reliable. The prior delegation experiment reduced wakes in one
+  wait but increased combined effort.
+- **Evidence and effort.** The November 21–22 Board and Side panel proof and
+  launch proof executions recorded 126 and 111 timed-out `wait_agent`
+  calls. An earlier execution on 0.3.106 recorded 166. Medium, low confidence
+  until a viable host mechanism is demonstrated. This trial concerns
+  delegated worker completion. The released shell and CI wait and the
+  queued supplier-watch evaluation have separate scopes.
+  [Foreground-wait release](../../CHANGELOG.md#03107---2026-11-19) ·
+  [Supplier-watch evaluation](SEED-389-verify-silent-supplier-wait.md)
 
 ## Ordering and scope reduction
 

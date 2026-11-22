@@ -2,7 +2,7 @@
 // Yui's declared Take, its worktree changing the tests Intent publishes, or
 // as `change` changes it; its Taken card selected by an empty-area click, and
 // Intent shown. Intent opens the story at its CI comparison; this then
-// chooses Changed tests, which the journeys read. The baseline is the claim,
+// chooses Changes, which the journeys read. The baseline is the claim,
 // where the worktree meets trunk; the head is the worktree's last commit.
 // What those journeys then read of Intent: ./intentStoryPage.ts.
 
@@ -47,7 +47,7 @@ export async function selectTakenStoryInIntent(
   await intentChoice.click();
   await expect(intent).toBeVisible();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expectStoryComparisonRead(intent);
   return {
     card,

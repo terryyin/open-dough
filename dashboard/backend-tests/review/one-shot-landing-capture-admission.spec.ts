@@ -14,6 +14,7 @@ import {
   recordOperation,
 } from "../../test-support/support/completionRecovery.ts";
 import { landingReceiptSchema } from "../../src/launchLanding.ts";
+import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
   checkout,
@@ -22,7 +23,10 @@ import {
 } from "../../test-support/support/oneShotLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 test("capture refuses unaccepted, foreign, malformed and changed launch comparisons; deleting one launch removes only its pins", async ({
   dashboard,
   origin,
@@ -110,34 +114,18 @@ test("capture refuses unaccepted, foreign, malformed and changed launch comparis
     (await post({ ...body, delivery: randomUUID(), base: revision, revision }))
       .status,
   ).toBe(409);
-  const firstPins = `refs/open-dough/one-shot/${reporting.reference}/`;
-  const secondPins = `refs/open-dough/one-shot/${secondContext.reporting.reference}/`;
+  const firstPins = { reference: reporting.reference };
+  const secondPins = { reference: secondContext.reporting.reference };
   const repository = stored(dashboard.home)[0]?.landing?.repository;
   if (repository === undefined) throw new Error("No retained repository");
-  const otherPins = git(
-    repository,
-    "for-each-ref",
-    "--format=%(refname) %(objectname)",
-    secondPins,
-  );
-  expect(
-    git(repository, "for-each-ref", "--format=%(refname)", firstPins),
-  ).not.toBe("");
+  const otherPins = await heldLandingPins(repository, secondPins);
+  expect(await heldLandingPins(repository, firstPins)).not.toEqual([]);
   await recordOperation(dashboard, "deleteRecord", [
     "open-dough",
     first.session,
   ]);
-  expect(
-    git(repository, "for-each-ref", "--format=%(refname)", firstPins),
-  ).toBe("");
-  expect(
-    git(
-      repository,
-      "for-each-ref",
-      "--format=%(refname) %(objectname)",
-      secondPins,
-    ),
-  ).toBe(otherPins);
+  expect(await heldLandingPins(repository, firstPins)).toEqual([]);
+  expect(await heldLandingPins(repository, secondPins)).toEqual(otherPins);
   expect(stored(dashboard.home)).toHaveLength(1);
   expect(stored(dashboard.home)[0]?.landing?.receipt).toBe(
     secondDelivered.result.landing.receipt.receipt,

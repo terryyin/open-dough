@@ -19,7 +19,6 @@ import {
 } from "../../test-support/support/landedCiHistoryTest.ts";
 import { landedTrunk } from "../../test-support/support/landedCiTrunk.ts";
 import { commonGitDir } from "../../test-support/support/launchLanding.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
 let reader: DashboardServer | undefined;
@@ -45,7 +44,7 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
   const old = makeMe.aLaunchLanding
     .capturedFrom({ repository })
     .comparing({
-      base: git(origin.project, "rev-parse", `${trunk.revision("legacy-v1")}^`),
+      base: trunk.parent("legacy-v1"),
       revision: trunk.revision("legacy-v1"),
     })
     .deliveredAs({
@@ -57,11 +56,7 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
   const good = makeMe.aLaunchLanding
     .capturedFrom({ repository })
     .comparing({
-      base: git(
-        origin.project,
-        "rev-parse",
-        `${trunk.revision("legacy-good")}^`,
-      ),
+      base: trunk.parent("legacy-good"),
       revision: trunk.revision("legacy-good"),
     })
     .deliveredAs({

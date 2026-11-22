@@ -28,6 +28,13 @@ export const authenticatedAvatarEndpoint = "/__authenticated-avatar";
 export const authenticatedReadDiagnosticsEndpoint =
   "/__authenticated-read-diagnostics";
 
+// The published-session listing (`../server/publishedSessionsRead.ts`) is
+// asked as `sessions=published` with a pinned revision.
+export const publishedSessionsRead = {
+  parameter: "sessions",
+  value: "published",
+} as const;
+
 // The longest wait, in whole seconds, the boundary ever passes on from a
 // GitHub rate limit's direction: the installed GitHub request source's own
 // rule (`github-request-rules.mjs`), which every Open Dough consumer shares.

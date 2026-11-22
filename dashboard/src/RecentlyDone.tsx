@@ -28,11 +28,21 @@ import { useStoryReviewStates } from "./storyReviewStates.ts";
 import "./agent-launch.css";
 import "./recently-done.css";
 
-function DoneReadGaps({ view }: { readonly view: RecentlyDoneView }) {
-  const { problem, unreadable, details } = view;
+// Catalog, published-listing, and unreadable-record gaps Recently done shows.
+export function RecentlyDoneReadGaps({
+  problems,
+  unreadable,
+  details,
+}: Pick<RecentlyDoneView, "problems" | "unreadable"> & {
+  readonly details: Pick<RecentlyDoneView["details"], "failed" | "retry">;
+}) {
   return (
     <>
-      {problem !== undefined && <p className="assignment-gap">{problem}</p>}
+      {problems.map((problem) => (
+        <p key={problem} className="assignment-gap">
+          {problem}
+        </p>
+      ))}
       {unreadable.length > 0 && (
         <ul aria-label="Unreadable done records">
           {unreadable.map(({ file, detail }) => (
@@ -104,7 +114,11 @@ export function RecentlyDone({
         Recently done stories and sessions launched from this dashboard for this
         project, newest first. Sessions are kept on this machine.
       </p>
-      <DoneReadGaps view={view} />
+      <RecentlyDoneReadGaps
+        problems={view.problems}
+        unreadable={view.unreadable}
+        details={details}
+      />
       {listedCreations.map((record) => (
         <CreationEntry key={record.launchedAt} record={record} />
       ))}
@@ -123,7 +137,9 @@ export function RecentlyDone({
               key={
                 "record" in each
                   ? `done ${each.record.identity}`
-                  : sessionKey(each.session.session)
+                  : "published" in each
+                    ? `published ${each.published.sessionId}`
+                    : sessionKey(each.session.session)
               }
             >
               <ListedEntry

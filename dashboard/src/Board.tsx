@@ -37,11 +37,24 @@ export function Board({
   launches: MachineSessions;
   onOpenRoster: OpenRoster;
 }) {
-  const sessions = columnSessionsOf(
-    sourceId,
-    launches.records,
-    [...work.backlog, ...work.taken].map(({ identity }) => identity),
+  const unfinishedIdentities = [...work.backlog, ...work.taken].map(
+    ({ identity }) => identity,
   );
+  // One placement over the retained sessions, so cards show their own Done
+  // history as they show their open sessions; the column and Recently done
+  // readings wait for the machine's sessions read to answer.
+  const placed = columnSessionsOf(
+    sourceId,
+    launches.launched,
+    unfinishedIdentities,
+  );
+  const read = launches.records !== undefined;
+  const sessions = {
+    ...placed,
+    taken: read ? placed.taken : undefined,
+    done: read ? placed.done : undefined,
+    noneKept: read && placed.noneKept,
+  };
   const columns = columnsOf(work, sessions.taken);
   const { selectedIdentity } = useStorySelection(sourceId);
   const recent = useRecentlyDone({
@@ -50,6 +63,10 @@ export function Board({
     creations: launches.creations,
     // Unread until a sessions read for the current project list has ended.
     records: launches.sessionsSettled ? sessions.done : undefined,
+    // Every kept launch on this machine, so a live one stands for its
+    // published record the same way a Done one does. Empty until the
+    // sessions read for this project list has ended.
+    keptLaunches: launches.sessionsSettled ? launches.launched : [],
     noneKept: sessions.noneKept,
     sessionsSettled: launches.sessionsSettled,
     includeIdentity: selectedIdentity,
@@ -118,6 +135,7 @@ export function Board({
             work={work}
             columns={columns}
             launches={launches}
+            doneOnCard={sessions.doneOnCard}
             onOpenRoster={onOpenRoster}
           />
           <RecentlyDone

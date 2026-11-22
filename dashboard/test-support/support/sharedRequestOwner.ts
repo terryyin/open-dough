@@ -1,8 +1,7 @@
-// Two dashboard servers and the installed CI diagnostic entry
-// (ci-github-diagnostic.mjs) as separate processes of one user on one
-// machine: one HOME, one synthetic `gh` and one fake GitHub, so all three ask
-// GitHub through one request owner (github-request-owner.mjs) at an endpoint
-// of this fixture's own.
+// Two dashboards and a CI diagnostic process share one machine, synthetic
+// `gh`, fake GitHub and request owner. The first dashboard follows the
+// fixture default unless its proof needs a live server. The second uses a
+// live process so it can serve the machine alongside a mount.
 
 import { execFile } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -55,20 +54,21 @@ export type CiRead = {
   readonly stderr: string;
 };
 
-export async function dashboardsOnOneOwner() {
+export async function dashboardsOnOneOwner(firstServerLiveReason?: string) {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-one-owner-"));
   const github = await startFakeGitHub();
   const gh = installFakeGh(machine);
-  const start = () =>
+  const start = (liveServer?: string) =>
     startDashboardServer({
       ...developmentBoundary,
+      liveServer,
       github,
       machine,
       pathPrefix: [gh.binDir],
       requestOwnerRoot: gh.requestOwnerRoot,
     });
-  const first = await start();
-  const second = await start();
+  const first = await start(firstServerLiveReason);
+  const second = await start("separate process");
   const open = new Set<DashboardServer>([first, second]);
   const close = async (server: DashboardServer) => {
     if (open.delete(server)) await server.close();

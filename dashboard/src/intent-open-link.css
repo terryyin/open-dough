@@ -1,0 +1,18 @@
+/* A link-styled button that opens a target inside Intent: the page's way
+   back and forth between a story and Project Intent (`./IntentPage.tsx`),
+   a file's return to CI (`./IntentFileReading.tsx`), candidate-record
+   locations (`./IntentCandidatesLocationsText.tsx`,
+   `./RecordedMarkdownText.tsx`), CI entries (`./IntentCiEntryLink.tsx`) and
+   summary drill-down (`./IntentScopeProofChild.tsx`). */
+.intent-open-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link, inherit);
+  font: inherit;
+  text-align: start;
+  text-decoration: underline;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}

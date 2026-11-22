@@ -27,7 +27,7 @@ test("a cancelled landing merge uses the next trunk push's passing build as a la
   origin,
 }) => {
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
-  const landing = setup.landingMerge ?? setup.completion;
+  const landing = setup.landingMerge;
   const later = laterTrunkRevisions(origin.origin, landing);
   expect(later[0]).toBe(setup.completion);
   serveEarlierLandingWithLandedOutcome(setup, "cancelled", {

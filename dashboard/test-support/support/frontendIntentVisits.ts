@@ -36,7 +36,7 @@ export async function selectTakenStoryInIntent(
   await publishUnconfiguredDoughnut(page, services);
   const selected = await openStoryIntent(page, "Story A");
   await expect(selected.intent).toBeVisible();
-  await chooseStoryTab(selected.intent, "Changed tests");
+  await chooseStoryTab(selected.intent, "Changes");
   await expectStoryComparisonRead(selected.intent);
   return selected;
 }

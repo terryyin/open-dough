@@ -4,6 +4,7 @@
 // only acquisition differs from the Git-backed comparison history reader.
 import { renderRevisionFiles } from "./repository-revision-files.mjs";
 import { integrationDeveloper } from "./repository-revision-commit.mjs";
+import { describedWorkspaces } from "./repository-workspace.mjs";
 
 /** @param {import("./repositoryTestData.mjs").RepositoryDescription} description */
 export function repositoryHistoryReads(description) {
@@ -35,11 +36,11 @@ export function repositoryHistoryReads(description) {
   }
   const checkoutIdentity = description.checkoutIdentity ?? integrationDeveloper;
   add(description.revisions, undefined, checkoutIdentity);
-  if (description.workspace)
+  for (const workspace of describedWorkspaces(description))
     add(
-      description.workspace.revisions,
-      description.workspace.from,
-      description.workspace.checkoutIdentity ?? checkoutIdentity,
+      workspace.revisions,
+      workspace.from,
+      workspace.checkoutIdentity ?? checkoutIdentity,
     );
   /** @param {string} revision */
   function at(revision) {

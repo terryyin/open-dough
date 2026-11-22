@@ -20,6 +20,7 @@ test("repeating a follow-up active on another server answers with the running at
 }) => {
   const other = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     projectFolders: ["open-dough"],
   });

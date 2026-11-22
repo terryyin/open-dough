@@ -15,6 +15,7 @@ import {
   snapshotRepositoryPath,
   type SourceLink,
 } from "./sourceLink.ts";
+import "./intent-open-link.css";
 
 const markdownLink = /\[([^\]]+)\]\(([^)\s]+)\)/g;
 

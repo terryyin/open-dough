@@ -2,32 +2,39 @@
 // (../intent-summary-story-comparison*.spec.ts): Intent locations with nested
 // test files, story changes (modified / added / removed / renamed), and three
 // endpoint proofs with file breakdowns so entry and folder Summaries compare
-// precise durations. Builds on ./storyCiComparisonDoneFixture.ts. Proof
-// summaries live in ./intentSummaryStoryComparisonProofs.ts; Trunk Mode and
-// Taken publishers in ./intentSummaryStoryComparisonVariantPublishers.ts.
+// precise durations. Builds on ./storyCiComparisonFixture.ts. Proof
+// summaries live in ./intentSummaryStoryComparisonProofs.ts.
 
 import type { Page } from "@playwright/test";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import {
-  advanceCompletedTrunk,
-  completedPublishedStory,
-} from "./completedPublishedStory.ts";
+  advanceAfterCompletion,
+  author,
+  claimant,
+  implemented,
+  otherStory,
+  storyBranch,
+  trunkInterleaved,
+  trunkWriterShared,
+  yuiClaim,
+} from "./completedStoryThroughInterleaving.ts";
+import { landStoryBranchOntoTip } from "./completedOwnMergeHistory.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { commitAll, lines, writeAt } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 import {
-  claimOf,
+  laterWithoutBuildBeforeClaim,
   precedeClaimWithPlanning,
-  revList,
   type ComparisonProofServe,
   type StoryCiComparisonSetup,
 } from "./storyCiComparisonFixture.ts";
+import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
 import { serveSummaryComparisonStory } from "./intentSummaryStoryComparisonServing.ts";
 import {
-  changeSummaryComparisonTests,
-  editSummaryComparisonTestInMerge,
   publishSummaryComparisonTrunk,
+  summaryComparisonChangeRevision,
   summaryComparisonChanges,
 } from "./intentSummaryStoryComparisonShared.ts";
 
@@ -37,10 +44,114 @@ export {
   outsideLandedProofs,
 } from "./intentSummaryStoryComparisonProofs.ts";
 export { summaryComparisonChanges };
-export {
-  publishSummaryComparisonTrunkStory,
-  publishTakenSummaryComparisonStory,
-} from "./intentSummaryStoryComparisonVariantPublishers.ts";
+
+const agentOnly = '{"agent":"only"}\n';
+const otherProfile = '{"agent":"other"}\n';
+const checksBefore = lines("check");
+const checksAfter = `${lines("check")}renamed\n`;
+const resolvedShared = lines("line")
+  .replace("line 0\n", "resolved story and trunk\n")
+  .replace("line 11\n", "other last\n");
+const trunkFirstShared = lines("line")
+  .replace("line 0\n", "trunk first\n")
+  .replace("line 11\n", "other last\n");
+const changeFiles = {
+  ...(summaryComparisonChangeRevision.files as Record<string, string>),
+};
+const changeRemove = [...(summaryComparisonChangeRevision.remove ?? [])];
+
+function summaryComparisonCompletionOntoTip(variant?: "own-conflict-extra") {
+  const storyFiles = { ...implemented, ...changeFiles };
+  if (variant === "own-conflict-extra") {
+    const tip = {
+      ...storyFiles,
+      "shared.txt": resolvedShared,
+      ...otherStory,
+      "profiles/only.json": agentOnly,
+      "agents/other.json": otherProfile,
+      "checks/after.test.mjs": checksAfter,
+      "merge-resolution.txt": "integration edit\n",
+      "dashboard/tests/folder/nested/c.spec.ts": `${lines("c")}merge edit\n`,
+    };
+    return landStoryBranchOntoTip(
+      makeMe.aRepository
+        .withRevision("shared", {
+          files: {
+            "shared.txt": lines("line"),
+            "agents/only.json": agentOnly,
+            "checks/before.test.mjs": checksBefore,
+          },
+        })
+        .withRevision("claim", yuiClaim(storyBranch))
+        .withRevision("implementation", {
+          message: "story implementation",
+          author,
+          files: { ...storyFiles, "profiles/only.json": agentOnly },
+          remove: ["agents/only.json", ...changeRemove],
+        })
+        .withRevision("interleaving", {
+          parents: ["claim"],
+          message: "another writer interleaves",
+          files: {
+            "shared.txt": trunkFirstShared,
+            ...otherStory,
+            "agents/other.json": otherProfile,
+          },
+        })
+        .withRevision("integration", {
+          parents: ["implementation", "interleaving"],
+          message: "resolve story integration conflict",
+          author,
+          files: tip,
+          remove: ["checks/before.test.mjs", ...changeRemove],
+        }),
+      "interleaving",
+      {
+        "shared.txt": trunkFirstShared,
+        ...otherStory,
+        "agents/only.json": agentOnly,
+        "agents/other.json": otherProfile,
+        "checks/before.test.mjs": checksBefore,
+      },
+      tip,
+      changeRemove,
+    );
+  }
+  const tip = {
+    ...storyFiles,
+    "shared.txt": lines("line")
+      .replace("line 0\n", "story first\n")
+      .replace("line 11\n", "other last\n"),
+    ...otherStory,
+  };
+  return landStoryBranchOntoTip(
+    makeMe.aRepository
+      .withRevision("shared", { files: { "shared.txt": lines("line") } })
+      .withRevision("claim", yuiClaim(storyBranch))
+      .withRevision("implementation", {
+        message: "story implementation",
+        author,
+        files: storyFiles,
+        remove: changeRemove,
+      })
+      .withRevision("interleaving", {
+        parents: ["claim"],
+        message: "another writer interleaves",
+        files: trunkInterleaved,
+      })
+      .withRevision("integration", {
+        parents: ["implementation", "interleaving"],
+        message: "merge trunk into the story",
+        author,
+        files: tip,
+        remove: changeRemove,
+      }),
+    "interleaving",
+    { "shared.txt": trunkWriterShared, ...otherStory },
+    tip,
+    changeRemove,
+  );
+}
 
 export async function publishSummaryComparisonStory(
   page: Page,
@@ -50,37 +161,17 @@ export async function publishSummaryComparisonStory(
     later,
     proofs,
   }: {
-    // Owning merge-resolution edits, with an Intent test file edited by the
-    // story's integration merge.
     variant?: "own-conflict-extra" | undefined;
-    // Later published facts never become the Done story's source or diff.
     later?: RevisionFacts | undefined;
-    // Collectors replacing these proofs pass `{}` to omit unused summaries.
     proofs?: Record<number, ComparisonProofServe> | undefined;
   } = {},
 ): Promise<StoryCiComparisonSetup> {
-  publishSummaryComparisonTrunk(origin.project);
+  await publishSummaryComparisonTrunk(origin);
   const baseline = await precedeClaimWithPlanning(origin);
-  const story = await completedPublishedStory(
+  const commits = await publishDeclaredTrunk(
     origin,
-    "story-branch",
-    variant,
-    changeSummaryComparisonTests,
-    variant === undefined ? undefined : editSummaryComparisonTestInMerge,
+    summaryComparisonCompletionOntoTip(variant),
   );
-  const { completion, agent, branch } = story;
-  const claim = claimOf(origin.project, agent);
-  const storyStart = git(origin.project, "rev-parse", `${claim}^`);
-  const parents = git(origin.project, "rev-list", "--parents", "-1", completion)
-    .trim()
-    .split(" ");
-  const branchSide = parents[2] ?? completion;
-  const fromStart = revList(origin.project, storyStart, 20);
-  const baselineIndex = fromStart.indexOf(baseline);
-  const laterWithoutBuild = baselineIndex < 0 ? 0 : baselineIndex;
-
-  // A file added to trunk after the story: absent from the Done browser
-  // and from the compared builds' proofs.
   writeAt(
     origin.project,
     "dashboard/tests/later.spec.ts",
@@ -89,19 +180,24 @@ export async function publishSummaryComparisonStory(
   if (later !== undefined) writeRevisionFiles(origin.project, later);
   commitAll(origin.project, "later trunk file after the story");
   push(origin.project);
-
-  advanceCompletedTrunk(origin);
+  await publishDeclaredTrunk(
+    origin,
+    makeMe.aRepository.withRevision(
+      "advance after completion",
+      advanceAfterCompletion,
+    ),
+  );
 
   return serveSummaryComparisonStory(
     page,
     origin,
     {
-      completion,
+      completion: commits.completion,
       baseline,
-      branchSide,
-      laterWithoutBuild,
-      agent,
-      branch,
+      branchSide: commits["branch completion"],
+      laterWithoutBuild: laterWithoutBuildBeforeClaim,
+      agent: claimant.agent,
+      branch: storyBranch,
     },
     proofs,
   );

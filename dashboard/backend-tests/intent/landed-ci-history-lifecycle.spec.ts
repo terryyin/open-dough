@@ -1,12 +1,6 @@
-// Landed CI wall-time history collection (../../server/landedCiCollection.ts)
-// across the dashboard's own lifecycle, with no page open, a real bare origin
-// (../../test-support/support/startOrigin.ts) and synthetic `claude`. The first
-// pass collects prior landings. After a restart and launch-record expiry, the
-// previously running landing is measured once from the history reference. A
-// second collector adds no observation; the dev server reads without asking CI
-// (SEED-285#see-landed-ci-wall-time-history examples 2 and 3). Points and gaps
-// follow trunk order. See ./landed-ci-history-pending.spec.ts for pending CI
-// and ./landed-ci-history-collection.spec.ts for initial collection and shape.
+// Landed CI history across a dashboard restart and launch-record expiry.
+// Two collectors measure the pending landing once from its saved reference,
+// and the development server reads the history without asking CI.
 
 import path from "node:path";
 import type { CiRunAnswer } from "../../test-support/support/baseCiActions.ts";
@@ -177,8 +171,8 @@ test("landings recorded before collection starts are collected by its first pass
 
   await test.step("two collecting processes start after CI completes: the pending landing is measured once, from the history's own reference, after the gap that falls between the two points", async () => {
     const [restarted, second] = await Promise.all([
-      startServer(),
-      startServer(),
+      startServer({ liveServer: "separate process" }),
+      startServer({ liveServer: "separate process" }),
     ]);
     const measuredHistory = publicHistoryAnswer([
       measuredPoint,
@@ -233,7 +227,12 @@ test("landings recorded before collection starts are collected by its first pass
     ).toEqual([]);
 
     await second.close();
-    const reader = await restartAsLandedCiReader(restarted, origin, "boundary");
+    const reader = await restartAsLandedCiReader(
+      restarted,
+      origin,
+      "boundary",
+      "separate process",
+    );
     try {
       const asked = github.calls.length;
       await expectCollectedScopePoints(

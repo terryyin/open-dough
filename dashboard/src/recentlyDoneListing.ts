@@ -1,7 +1,8 @@
 // Recently done's listed entries: published done cards holding their own
 // closed sessions and closed story follow-ups, plus standalone Done sessions
-// of no listed card. Membership is derived from the retained launch request
-// and the published done catalog (`./recentlyDoneView.ts` reads the range).
+// of no listed card, from the Done sessions the Board's placement leaves to
+// Recently done (`./columnSessions.ts`). Membership is derived from the retained launch request and the
+// published done catalog (`./recentlyDoneView.ts` reads the range).
 
 import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import {
@@ -9,7 +10,9 @@ import {
   storySessionsOf,
   type LaunchWithState,
 } from "./agentLaunch.ts";
+import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import type { HeldEntry } from "./recentlyDoneRange.ts";
+import { reportingReferenceOf } from "./sessionListing.ts";
 import { sessionKey } from "./sessionReference.ts";
 
 export type Listed =
@@ -21,7 +24,11 @@ export type Listed =
       // Closed ad hoc follow-ups of this story, oldest first — display only.
       readonly followUps: readonly LaunchWithState[];
     }
-  | { readonly at: number; readonly session: LaunchWithState };
+  | { readonly at: number; readonly session: LaunchWithState }
+  // A session the project published a close record for, with no kept launch
+  // on this machine whose reporting reference is the record's UUID: such a
+  // launch (Done or live) stands for it with its native controls.
+  | { readonly at: number; readonly published: PublishedSessionRecord };
 
 // Closed ad hoc launches whose saved follow-up names this project story.
 function closedStoryFollowUpsOf(
@@ -49,11 +56,15 @@ const holdingsOf = (
 
 // Done stories by completion, each holding its sessions and closed follow-ups,
 // and the sessions of no listed done story by launch, newest first; sessions
-// launched at one moment keep their newest-first order.
+// launched at one moment keep their newest-first order. Published session
+// records whose UUID matches any kept launch's reporting reference (Done or
+// still live) are omitted; the rest stand by their close time.
 export function newestFirst(
   records: readonly CataloguedDoneRecord[],
   doneSessions: readonly LaunchWithState[],
   sourceId: string,
+  keptLaunches: readonly LaunchWithState[],
+  published: readonly PublishedSessionRecord[] = [],
 ): readonly Listed[] {
   const cards = records.map((record) => ({
     at: Date.parse(record.completedAt),
@@ -61,6 +72,7 @@ export function newestFirst(
     sessions: storySessionsOf(doneSessions, sourceId, record.identity),
     followUps: closedStoryFollowUpsOf(doneSessions, sourceId, record.identity),
   }));
+  const stoodFor = new Set(keptLaunches.map(reportingReferenceOf));
   const held = new Set(
     cards.flatMap((card) => holdingsOf(card.sessions, card.followUps)),
   );
@@ -70,6 +82,12 @@ export function newestFirst(
       .filter((session) => !held.has(session))
       .toReversed()
       .map((session) => ({ at: Date.parse(session.launchedAt), session })),
+    ...published
+      .filter((record) => !stoodFor.has(record.sessionId))
+      .map((record) => ({
+        at: Date.parse(record.closedAt),
+        published: record,
+      })),
   ].sort((one, other) => other.at - one.at);
 }
 
@@ -78,7 +96,7 @@ const holds = (each: Listed, session: string) =>
     ? holdingsOf(each.sessions, each.followUps).some(
         (held) => sessionKey(held.session) === session,
       )
-    : sessionKey(each.session.session) === session;
+    : "session" in each && sessionKey(each.session.session) === session;
 
 // Whether `each` is, or holds, the entry holding the keyboard.
 export const holdsEntry = (each: Listed, held: HeldEntry) =>

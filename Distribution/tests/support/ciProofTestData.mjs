@@ -1,5 +1,7 @@
 // @ts-check
 // Canonical validated CI proof, shared by comparison and retained landing facts.
+import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
+import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
 import { CiProofSummaryBuilder } from "./ciProofSummaryTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/ciProof.ts").CiProof} CiProof */
@@ -117,4 +119,30 @@ export class CiProofBuilder {
       }),
     };
   }
+}
+
+/** @typedef {{ aCiProof: CiProofBuilder, aCiProofEntry: CiProofEntryBuilder, aCiProofEvidence: CiProofEvidenceBuilder }} CiProofMakeMe */
+
+/** @returns {PropertyDescriptorMap} */
+export function ciProofMakeMeProperties() {
+  return {
+    aCiProof: {
+      enumerable: true,
+      get() {
+        return new CiProofBuilder();
+      },
+    },
+    aCiProofEntry: {
+      enumerable: true,
+      get() {
+        return new CiProofEntryBuilder();
+      },
+    },
+    aCiProofEvidence: {
+      enumerable: true,
+      get() {
+        return new CiProofEvidenceBuilder();
+      },
+    },
+  };
 }

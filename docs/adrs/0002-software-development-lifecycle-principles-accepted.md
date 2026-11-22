@@ -2,14 +2,6 @@
 
 **Status:** Accepted
 
-**Accepted:** 2026-09-11, by Terry Yin.
-
-**Date:** 2026-09-06
-
-**Decision makers:** Terry Yin
-
-**Consulted:** Terry Yin supplied the goals, principles, and clarifications.
-
 ## Context
 
 Open Dough's products are agent rules and skills that help AI agents participate
@@ -186,10 +178,13 @@ current needs justify it, not as a target that must increase with each story.
 Do not narrow a naturally simple solution or build structure solely for future benefit.
 
 Internally, a North Star is a disposable decision cache for consequential,
-evidenced direction in relevant upcoming work. Keep uncertainty explicit rather
-than treating possibilities as constraints.
-Retire it when substantially realized or no longer useful, preserving lasting
-rules under the document ownership in [ADR 0000](./0000-use-adrs-accepted.md).
+evidenced direction in upcoming work: current code and upcoming stories or
+requirements constrain choices that matter, and unconstrained choices do not
+depend on preserving it. Keep uncertainty explicit rather than treating
+possibilities as constraints. Retire it completely when substantially realized
+or no longer useful, leaving enduring behavior in automated tests, enduring
+architecture in code (with human-controlled architectural preferences in ADRs),
+and setup in configuration ([ADR 0000](./0000-use-adrs-accepted.md)).
 The cache and effort/token rationale is maintainer-only; public guidance describes
 behavior and lifecycle. Permissions and update procedures remain workflow choices.
 

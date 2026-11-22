@@ -5,7 +5,10 @@
 // deletion, image, and edit whose text each read returns.
 import { execFileSync } from "node:child_process";
 import { getReview } from "../../test-support/support/completedReviewRequests.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
+import {
+  expect,
+  test,
+} from "../../test-support/support/storyAReviewRepository.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import {
   observed,

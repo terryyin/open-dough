@@ -16,7 +16,7 @@ import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   shortRevision,
-  controlsBesideSessions,
+  snapshotDependentControls,
   expectMembership,
   expectProblemAndNoSnapshot,
   openDirection,
@@ -229,7 +229,7 @@ test.describe("project read recovery", () => {
       await expect(problem).toContainText(
         "This page reads the published work at",
       );
-      await expect(controlsBesideSessions(page)).toHaveCount(0);
+      await expect(snapshotDependentControls(page)).toHaveCount(0);
       await expect(page.getByRole("article")).toHaveCount(0);
 
       releaseRef();

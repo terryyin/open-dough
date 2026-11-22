@@ -108,6 +108,10 @@ test("interruption after durable spend and before submission never resends", asy
     ...facts,
     action: "crash-before-send",
   });
+  t.after(async () => {
+    if (interrupted.child.connected) interrupted.child.disconnect();
+    await interrupted.terminal;
+  });
   assert.equal((await interrupted.message).answer, true);
   assert.equal(
     Object.values(JSON.parse(readFileSync(machine.file, "utf8")).landings)[0]

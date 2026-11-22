@@ -3,15 +3,113 @@
 // (`./launchLandingGit.ts`) and its session's kept commit runs
 // (`./sessionCommitsCapture.ts`). Done, explicit deletion and retention expiry
 // share the same session prefix.
+import { landingReportingReference } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type { SessionCommits } from "../src/sessionCommits.ts";
+import {
+  branchPinOwner,
+  type SessionBranchEntry,
+  type SessionBranchResult,
+} from "../src/sessionBranchResult.ts";
+import type { SessionReference } from "../src/sessionReference.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
-import { defaultGitOutputLimit } from "./gitRunner.ts";
-import { pinPair, removeLandingPins, removePins } from "./launchLandingGit.ts";
+import { defaultGitOutputLimit, runGitUntilClosed } from "./gitRunner.ts";
+import {
+  heldPins,
+  pinPair,
+  removeLandingPins,
+  removePins,
+} from "./launchLandingGit.ts";
 import { defaultMainStart, resolvedCheckout } from "./sessionCommitsCapture.ts";
 
 const sessionCommitsRefPrefix = (session: LaunchRecord["session"]) =>
   `refs/open-dough/session-commits/${session.host}/${session.sessionId}/`;
+
+const sessionBranchRefPrefix = (session: SessionReference) =>
+  `refs/open-dough/session-branch/${session.host}/${session.sessionId}/`;
+
+// The branch pins `repository` holds for `session`, ordered by ref name.
+export const sessionBranchPins = (
+  repository: string,
+  session: SessionReference,
+) => heldPins(repository, sessionBranchRefPrefix(session));
+
+const branchResultRefPrefix = (
+  session: SessionReference,
+  result: SessionBranchResult,
+) =>
+  `${sessionBranchRefPrefix(session)}${result.doneAt.replace(/[.:]/g, "-")}/`;
+
+const branchEntryRefPrefix = (session: SessionReference) =>
+  `${sessionBranchRefPrefix(session)}entry/`;
+
+async function keepTipRef(
+  repository: string,
+  ref: string,
+  tip: string,
+): Promise<void> {
+  await runGitUntilClosed(["update-ref", ref, tip], {
+    cwd: repository,
+    maxBuffer: defaultGitOutputLimit,
+    signal: AbortSignal.timeout(30_000),
+  });
+}
+
+export async function keepBranchEntryRefs(
+  session: SessionReference,
+  entry: SessionBranchEntry,
+): Promise<void> {
+  const prefix = branchEntryRefPrefix(session);
+  await pinPair(entry.repository, prefix, {
+    base: entry.committedTip,
+    revision: entry.tree,
+  });
+  if (entry.defaultTip !== undefined && entry.defaultTip !== entry.committedTip)
+    await keepTipRef(
+      entry.repository,
+      `${prefix}default-tip`,
+      entry.defaultTip,
+    );
+}
+
+export function releaseBranchEntryRefs(
+  session: SessionReference,
+  entry: SessionBranchEntry,
+): Promise<void> {
+  return removePins(entry.repository, branchEntryRefPrefix(session));
+}
+
+export async function keepBranchResultRefs(
+  session: SessionReference,
+  result: SessionBranchResult,
+): Promise<void> {
+  const prefix = branchResultRefPrefix(session, result);
+  await pinPair(result.repository, prefix, result);
+  if (result.committedTip !== result.revision)
+    await keepTipRef(result.repository, `${prefix}tip`, result.committedTip);
+}
+
+export async function releaseBranchResultRefs(
+  session: SessionReference,
+  result: SessionBranchResult | undefined,
+): Promise<void> {
+  if (result !== undefined)
+    await removePins(
+      result.repository,
+      branchResultRefPrefix(session, result),
+    ).catch(() => undefined);
+}
+
+export async function releaseSessionBranchRefs(
+  record: LaunchRecord,
+): Promise<void> {
+  const result = record.branchEntry ?? record.branchResult;
+  if (result !== undefined)
+    await removePins(
+      result.repository,
+      sessionBranchRefPrefix(branchPinOwner(record)),
+    ).catch(() => undefined);
+}
 
 const canonicalRepository = (cwd: string) =>
   commonGitDirectory({
@@ -66,7 +164,7 @@ export function recordLanding(
   if (record === undefined) return undefined;
   if (record.landing !== undefined) return record.landing;
   const repository = record.landingReporting?.authority.repository;
-  const reference = record.request.reporting?.reference;
+  const reference = landingReportingReference(record);
   return repository === undefined || reference === undefined
     ? undefined
     : { repository, reference };
@@ -77,6 +175,7 @@ export async function releaseExpiredRecordPins(
   record: LaunchRecord,
 ): Promise<void> {
   await releaseSessionCommitRefs(record);
+  await releaseSessionBranchRefs(record);
   const landing = recordLanding(record);
   if (landing !== undefined)
     await removeLandingPins(landing.repository, landing.reference).catch(

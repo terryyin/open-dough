@@ -10,6 +10,8 @@ import { z } from "zod";
 export const defaultLaunchStartSchema = z.object({
   workspace: z.string().min(1),
   startingRevision: z.string().min(1),
+  repository: z.string().min(1).optional(),
+  branch: z.string().min(1).optional(),
 });
 
 export type DefaultLaunchStart = z.infer<typeof defaultLaunchStartSchema>;

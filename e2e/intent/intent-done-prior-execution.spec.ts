@@ -1,7 +1,5 @@
 // A launch's fixed first publication may precede its story's CLI completion.
 // Done Intent must read that completion, not the earlier retained increment.
-import { execFileSync } from "node:child_process";
-import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
@@ -22,16 +20,11 @@ import {
 import {
   chooseStoryTab,
   intentDiff,
-  openReviewFromIntent,
-  reviewDiff,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
-import {
-  capturedPublicationSchema,
-  scripts,
-} from "../../dashboard/test-support/support/launchLanding.ts";
+import { commitBacklogCompletion } from "../../dashboard/test-support/support/completedStoryPublication.ts";
+import { capturedPublicationSchema } from "../../dashboard/test-support/support/launchLanding.ts";
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
-import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
@@ -84,21 +77,10 @@ test("a Done story's later completion outranks its execution launch's first capt
   const captured = capturedPublicationSchema.parse(await story.integrated())
     .landing.receipt;
   writeRevisionFiles(story.workspace, completed);
-  execFileSync(
-    process.execPath,
-    [
-      path.join(
-        scripts(story.workspace, "dough-product-backlog"),
-        "product-backlog.mjs",
-      ),
-      "complete",
-      "--identity",
-      queuedIdentity,
-    ],
-    { cwd: story.workspace, stdio: "pipe" },
+  const completion = commitBacklogCompletion(
+    story.workspace,
+    "complete after the first captured increment",
   );
-  commitAll(story.workspace, "complete after the first captured increment");
-  const completion = git(story.workspace, "rev-parse", "HEAD");
   const later = story.laterTrunkPublication("after-completion.txt");
   const published = await later.withoutContext();
   expect(published.ok, published.stderr).toBe(true);
@@ -133,15 +115,13 @@ test("a Done story's later completion outranks its execution launch's first capt
     kind: "published",
     completion,
   });
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   const original = await intentDiff(intent, modified);
   expect(original).toContain("the final completed execution");
   expect(original).not.toContain("earlier captured increment");
   expect(locations).toContain(completion);
   expect(locations).not.toContain(captured.revision);
-  await openReviewFromIntent(page, intent);
-  expect(await reviewDiff(page, modified)).toBe(original);
   // If published history later becomes unavailable, the still-readable first
   // increment remains a pre-completion run, not the completed story's result.
   git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");

@@ -12,7 +12,8 @@ import { tmpdir } from "node:os";
 import { join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { finishFrontendGroup } from "../../../dashboard/test-support/support/frontendOutputs.mjs";
+import { frontendGroup } from "../../../dashboard/test-support/support/browserTestGroups.mjs";
+import { finishGroupRun } from "../../../dashboard/test-support/support/groupOutputs.mjs";
 import {
   browserWorkflow,
   locations,
@@ -24,12 +25,10 @@ import { makeMe } from "./makeMe.mjs";
 test("each browser group's job names its own command, settings, root and shards", () => {
   for (const group of browserGroupConfigs) {
     const { inputs, directory, root, shards, prefix } = group;
+    // Its job runs the command its runner declares.
+    assert.equal(group.command, inputs.command, group.job);
     // Its times file labels specs relative to its configuration's directory.
-    if (!group.frontend) {
-      assert.equal(group.timesRelativeToDirectory, true, group.config);
-    }
-    // Its configuration selects the shards its own job declares.
-    assert.equal(group.configuredJob, group.job, group.config);
+    assert.match(group.configText, /\n {2}testDir: "\.",\n/, group.config);
     // Job settings agree with the configuration's prefix.
     assert.equal(inputs.settings, prefix, group.config);
     // Its root, holding its outputs and naming its proof entry, is its
@@ -49,18 +48,17 @@ test("each browser group's job names its own command, settings, root and shards"
     );
 });
 
-test("the frontend times report records mounted durations under runner-relative spec labels", (t) => {
-  const frontend = browserGroupConfigs.find((group) => group.frontend);
-  assert.ok(frontend, "the frontend npm runner is configured");
-  const directory = fileURLToPath(new URL(`${frontend.directory}/`, root));
-  const specLabel = posix.join(frontend.root, "timed.mounted.spec.ts");
+test("the frontend times report records Vitest durations under runner-relative spec labels", (t) => {
+  const directory = fileURLToPath(frontendGroup.directory);
+  const specLabel = posix.join(frontendGroup.root, "timed.spec.ts");
   const temp = mkdtempSync(join(tmpdir(), "frontend-ci-times-"));
   t.after(() => rmSync(temp, { recursive: true, force: true }));
   const times = join(temp, "times.txt");
   const { run } = makeMe.aDashboardProofRecord
     .from(fileURLToPath(root))
     .please();
-  const status = finishFrontendGroup({
+  const status = finishGroupRun({
+    engine: "mounted-chromium",
     run: {
       ...run,
       rootDir: directory,
@@ -69,7 +67,7 @@ test("the frontend times report records mounted durations under runner-relative 
     },
     nativeTimes: join(temp, "retained-times.txt"),
     times,
-    mounted: {
+    vitestRun: {
       status: 0,
       report: {
         testResults: [

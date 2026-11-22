@@ -15,10 +15,9 @@ import {
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
   expectMembership,
-  parts,
   sessionNamedBy,
-  standaloneSessionName,
   storyCardSessionOf,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTakenBacklog,
@@ -159,11 +158,9 @@ test("attention stays through the terminal, and once marked done no host change 
   });
 
   await test.step("Mark as done clears it at once; working again wakes it, and a later block does not", async () => {
-    const retained = parts(page).recentlyDone.getByRole("article", {
-      name: standaloneSessionName("Execution", readyStory),
-    });
     await markDoneAnyway(entry);
     await expect(entry).toHaveCount(0);
+    const retained = await shownDoneSessionEntriesOf(page, readyStory);
     await expectSessionShown(retained, "Done", false);
     dashboard.claudeSessionBecomes(session, "working");
     await passOnePace();

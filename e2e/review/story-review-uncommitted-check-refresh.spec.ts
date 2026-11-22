@@ -16,27 +16,10 @@ import { storyReviewFileEndpoint } from "../../dashboard/src/storyReviewContract
 import {
   expect,
   test,
-} from "../../dashboard/test-support/support/preparationPage.ts";
-import { reviewFeedback } from "../../dashboard/test-support/support/reviewContextLine.ts";
-import {
-  expectFileSelected,
-  expectTreeRows,
-  fileRow,
-  changedFilesList,
-  fileDiff,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+} from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
-import {
-  comparisonChoice,
-  reviewRegion,
-  uncommittedCheck as check,
-} from "../../dashboard/test-support/support/reviewControls.ts";
-import {
-  refreshReview,
-  openStoryReview,
-  reopenStoryReview,
-} from "../../dashboard/test-support/support/reviewRead.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   commitAll,
   git,
@@ -58,33 +41,31 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
 }) => {
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
-  await openStoryReview(page, await openBacklog(page, origin));
-  const review = reviewRegion(page);
-  const list = (files: number) =>
-    changedFilesList(review, `${String(files)} changed files`);
-  await check(review).uncheck();
-  await expectTreeRows(list(4), committedFiles);
+  const review = await openReviewChanges(page, await openBacklog(page, origin));
+  const list = (files: number) => `${String(files)} changed files`;
+  await review.comparison.includeUncommitted(false);
+  await review.files.expectRows(list(4), committedFiles);
 
   // The agent commits the staged file and keeps editing another.
   git(workspace, "commit", "--quiet", "-m", "staged edit");
   writeFileSync(path.join(workspace, "unstaged.txt"), "on\n", { flag: "a" });
-  const partly = await refreshReview(review, { exact: true });
+  const partly = (await review.refreshAndAnswer()).snapshot;
   expect(partly.files).toHaveLength(7);
-  await expectTreeRows(list(5), [
+  await review.files.expectRows(list(5), [
     "gone.txt",
     "image.png",
     "new.txt",
     "staged.txt",
     "story.txt",
   ]);
-  await expect(check(review)).not.toBeChecked();
-  await expect(reviewFeedback(review)).toHaveText(refreshed(5));
+  await review.comparison.expectUncommittedIncluded(false);
+  await review.status.expectFeedback(refreshed(5));
 
   // The agent commits everything: no check, the whole snapshot.
   commitAll(workspace, "the rest");
-  const committed = await refreshReview(review, { exact: true });
+  const committed = (await review.refreshAndAnswer()).snapshot;
   expect(committed.committed).toBeUndefined();
-  await expectTreeRows(list(7), [
+  await review.files.expectRows(list(7), [
     "fresh",
     "  new.txt",
     "gone.txt",
@@ -94,16 +75,16 @@ test("Refresh keeps the check off while uncommitted changes remain, drops it whe
     "story.txt",
     "unstaged.txt",
   ]);
-  await expect(review.getByRole("checkbox")).toHaveCount(0);
-  await expect(reviewFeedback(review)).toHaveText(refreshed(7));
+  await review.comparison.expectUncommittedIncluded("not offered");
+  await review.status.expectFeedback(refreshed(7));
 
   // Uncommitted work again: the check is back, on.
   writeAt(workspace, "again.txt", "again\n");
-  const again = await refreshReview(review, { exact: true });
+  const again = (await review.refreshAndAnswer()).snapshot;
   expect(again.committed?.files).toHaveLength(7);
-  await expect(list(8)).toBeVisible();
-  await expect(check(review)).toBeChecked();
-  await expect(reviewFeedback(review)).toHaveText(refreshed(8));
+  await review.files.expectListed(list(8));
+  await review.comparison.expectUncommittedIncluded(true);
+  await review.status.expectFeedback(refreshed(8));
 });
 
 test("Commits offers no check, and All changes finds it as it was left", async ({
@@ -113,25 +94,20 @@ test("Commits offers no check, and All changes finds it as it was left", async (
 }) => {
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
-  await openStoryReview(page, await openBacklog(page, origin));
-  const review = reviewRegion(page);
-  const choose = (name: string) =>
-    comparisonChoice(review, name, { exact: true }).check();
-  const committed = changedFilesList(review, "4 changed files");
+  const review = await openReviewChanges(page, await openBacklog(page, origin));
+  const committed = "4 changed files";
 
-  await expect(check(review)).toBeChecked();
-  await check(review).uncheck();
-  await expectTreeRows(committed, committedFiles);
+  await review.comparison.expectUncommittedIncluded(true);
+  await review.comparison.includeUncommitted(false);
+  await review.files.expectRows(committed, committedFiles);
 
-  await choose("Commits");
-  await expect(
-    review.getByRole("list", { name: "Story commits", exact: true }),
-  ).toBeVisible();
-  await expect(review.getByRole("checkbox")).toHaveCount(0);
+  await review.comparison.choose("Commits");
+  await review.commits.expectRowText(0, /^Uncommitted changes$/);
+  await review.comparison.expectUncommittedIncluded("not offered");
 
-  await choose("All changes");
-  await expect(check(review)).not.toBeChecked();
-  await expectTreeRows(committed, committedFiles);
+  await review.comparison.choose("All changes");
+  await review.comparison.expectUncommittedIncluded(false);
+  await review.files.expectRows(committed, committedFiles);
 });
 
 test("with the check off the file moves stay within the committed files and a binary file reads to the head's tree; reopening starts with the check on", async ({
@@ -142,12 +118,12 @@ test("with the check off the file moves stay within the committed files and a bi
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const shown = await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  const binary = fileDiff(review, "Modified image.png");
+  const review = await openReviewChanges(page, card);
+  const { snapshot: shown, files, diffs } = review;
+  const image = "Modified image.png";
   const noDiff = "This file has no textual diff: Git reads it as binary.";
-  await fileRow(review, "Modified image.png").press("Enter");
-  await expect(binary).toContainText(noDiff);
+  await files.chooseShown(image, "keyboard");
+  await diffs.expectShows(image, noDiff);
 
   // Off: the same answer for the committed image, read to the head's tree.
   const read = page.waitForRequest((request) => {
@@ -157,32 +133,27 @@ test("with the check off the file moves stay within the committed files and a bi
       searchParams.get("path") === "image.png"
     );
   });
-  await check(review).uncheck();
+  await review.comparison.includeUncommitted(false);
   const asked = new URL((await read).url()).searchParams;
   expect(shown.committed?.tree).not.toBe(shown.tree);
   expect(asked.get("tree")).toBe(shown.committed?.tree);
   expect(asked.get("baseline")).toBe(shown.baseline);
-  await expectFileSelected(review, "Modified image.png");
-  await expect(binary).toContainText(noDiff);
-  await expect(binary.getByRole("listitem")).toHaveCount(0);
+  await files.expectSelected(image);
+  await diffs.expectShows(image, noDiff);
+  await diffs.expectNoLines(image);
 
   // The moves end at the first and last committed file.
-  const previous = review.getByRole("button", { name: "Previous file" });
-  const next = review.getByRole("button", { name: "Next file" });
-  await previous.click();
-  await expectFileSelected(review, "Deleted gone.txt");
-  await expect(previous).toHaveAttribute("aria-disabled", "true");
-  for (const name of [
-    "Modified image.png",
-    "Renamed old.txt → new.txt",
-    "Added story.txt",
-  ]) {
-    await next.click();
-    await expectFileSelected(review, name);
+  await files.move("Previous file");
+  await files.expectSelected("Deleted gone.txt");
+  await files.expectMoveAtEnd("Previous file");
+  for (const name of [image, "Renamed old.txt → new.txt", "Added story.txt"]) {
+    await files.move("Next file");
+    await files.expectSelected(name);
   }
-  await expect(next).toHaveAttribute("aria-disabled", "true");
+  await files.expectMoveAtEnd("Next file");
 
-  await reopenStoryReview(page, card);
-  await expect(check(review)).toBeChecked();
-  await expect(changedFilesList(review, "7 changed files")).toBeVisible();
+  await review.close();
+  const reopened = await openReviewChanges(page, card);
+  await reopened.comparison.expectUncommittedIncluded(true);
+  await reopened.files.expectListed("7 changed files");
 });

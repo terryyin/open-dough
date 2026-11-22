@@ -7,7 +7,7 @@ import {
   statSync,
   writeFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
+import { availableParallelism, tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -79,10 +79,16 @@ function readOnlyCheck(command, args, files) {
 
 async function readOnlyShellCheck(files) {
   // ShellCheck may follow sources named in the same invocation, even without
-  // -x. Keep each input's original dependency context and bound concurrency.
-  for (const file of files) {
-    await readOnlyCheck("shellcheck", [], [file]);
-  }
+  // -x. Give each file its own process so its source context stays the same.
+  const pending = files.values();
+  const workers = Math.min(8, availableParallelism(), files.length);
+  await Promise.all(
+    Array.from({ length: workers }, async () => {
+      for (const file of pending) {
+        await readOnlyCheck("shellcheck", [], [file]);
+      }
+    }),
+  );
 }
 
 // NUL-separated listings preserve spaces. Formatting selects changes against

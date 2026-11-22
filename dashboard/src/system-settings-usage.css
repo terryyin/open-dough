@@ -148,7 +148,8 @@
   background: var(--history-chart-mark);
 }
 
-.usage-partial {
+.usage-partial,
+.usage-rate-warning {
   color: var(--caution);
 }
 

@@ -53,3 +53,33 @@
   starting state, which changes the case basis so saved native baselines must
   be recaptured, or to change the share's run budget or shard split; CI share-2
   times on slow runners after the merges show how much margin remains.
+
+### done-capture-family-timeout-margin
+
+- **Affected test or fixture:** `dashboard/backend-tests/support/doneCaptureCase.ts`
+  (`aCheckout`, `work`, `markDone`), shared by the Done capture family under
+  `dashboard/backend-tests/review/`, including `ad-hoc-branch-result.spec.ts`,
+  `ad-hoc-branch-entry-attribution.spec.ts:55`,
+  `ad-hoc-manual-landing.spec.ts:57` and `ad-hoc-branch-cursor-recovery.spec.ts`.
+- **Observed cost and conditions:** cases run 2 to 4 s against Vitest's 5 s
+  default timeout at load 9 to 10. The slowest was entry attribution at
+  3.3 s, and manual landing ran 3.9 s at load 5 to 9. At load 16 to 18 from
+  other processes, several cases timed out at 5 s. Local, `--workers=2`,
+  2026-11-20, plan 732 (SEED-413#ad-hoc-branch-result-handoff) at
+  `c1e18bff8`. Hosted CI passed.
+- **Later evidence:** plan 730 (SEED-413#arrange-done-ad-hoc-observation-and-publication)
+  moved ten more Playwright cases into this family. With `--workers=2` the
+  ten cases took a median 24.1 s summed at load 6–12, against 51.3 s as
+  Playwright cases. At load 14–16, three of five runs timed out two or three
+  of them at the 5 s default. The Playwright versions had a 30 s limit and
+  passed. Each case takes about 1–2 s at low load. The
+  [follow-up story](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases)
+  targets 100–200 ms per case.
+- **Unique protection:** Done capture of isolated and declared branches,
+  manual landing and pin ownership, against real Git with kept records.
+- **Alternatives tried:** none measured. Raising timeouts is ruled out by
+  AGENTS.md. One case committed and reviewed its two sessions concurrently,
+  which brought it from 5.0 s (timed out) to 2.2–3.8 s.
+- **Decision or evidence needed:** a profile of where `aCheckout`, `work` and
+  Done capture spend their time per case, to choose a shared setup saving
+  that brings the family well under the limit at load 16+.

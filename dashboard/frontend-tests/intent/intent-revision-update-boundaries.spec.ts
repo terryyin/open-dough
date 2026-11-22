@@ -1,132 +1,76 @@
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openWithFeatureSelected } from "../../test-support/support/frontendIntentRevisionJourney.ts";
-// An applied update that replaces the reading or must not cross projects:
-// an unusable latest settings file takes the reading's focus into its
-// explanation, and a held update of a project left behind never shows in
-// another's reading (../../src/useIntentLocations.ts,
-// ../../src/IntentRevisionNotice.tsx). Failed and unreadable updates that keep
-// the shown reading: ./intent-revision-update-outcomes.spec.ts.
+// A pending locations read is abandoned when the page switches projects.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
+import { intentBrowser } from "./intent-browser-page.ts";
+import {
+  featuresOpening,
+  mountProjectIntent,
+  publishedFeatures,
+} from "./intent-revision-fixtures.ts";
+import { intentRevisionNotice } from "./intent-revision-notice-page.ts";
 
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { chooseProject } from "../../test-support/dashboardPage.ts";
-import { shortRevision } from "../../test-support/dashboardParts.ts";
-import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
-import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
-import {
-  browserRevision,
-  intentGroupToggle,
-  purposeRegion,
-  revisionNotice,
-} from "../../test-support/intentPerspectivePage.ts";
-import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
-import {
-  doughnut,
-  pygardon,
-} from "../../test-support/intentCodeBrowseFixtures.ts";
-import {
-  locationFiles,
-  showLatestRevision,
-} from "../../test-support/intentReadRecoveryPage.ts";
-import {
-  featurePath,
-  publishedFeature,
-} from "../../test-support/intentJobsFeatureFixtures.ts";
-import {
-  jobsFeatures,
-  publishedFiles,
-} from "../../test-support/intentRevisionJourney.ts";
-
-// Holds still released after a journey, so a failed one does not hang.
-const releases: (() => void)[] = [];
-test.afterEach(() => {
-  for (const release of releases.splice(0)) release();
-});
-
-test("an unusable settings file at the latest revision takes the reading's focus into its explanation", async ({
-  page,
-  frontendServices,
-}) => {
-  const files = publishedFiles(jobsFeatures);
-  const { moveTrunk, intent } = await openWithFeatureSelected(
-    page,
-    frontendServices,
-    files,
-  );
-  await moveTrunk(
-    "ec".repeat(20),
-    {
-      ...files,
-      ".planning/open-dough.json": "{\n",
-    },
-    {
-      revision: "ec".repeat(20),
-      locations: null,
-      settingsProblem: "malformed",
-    },
-  );
-  await showLatestRevision(revisionNotice(intent)).click();
-  const explanation = intent.locator(
-    '[role="tabpanel"]:has(.intent-settings-problem)',
-  );
-  await expect(explanation).toContainText("is not valid JSON");
-  await expect(explanation).toBeFocused();
-  await expect(browserRevision(intent)).toContainText(
-    shortRevision("ec".repeat(20)),
-  );
-});
-
-test("choosing another project while an update is held shows only that project's reading when it is answered", async ({
-  page,
-  frontendServices,
-}) => {
-  const files = publishedFiles(jobsFeatures);
-  const { moveTrunk, intent } = await openWithFeatureSelected(
-    page,
-    frontendServices,
-    files,
-    {
-      project: doughnut,
-      locations: [
-        makeMe.anIntentLocation
-          .at("scripts")
-          .ofKind("javascript", ["**/*.test.mjs"])
-          .selecting(...Object.keys(locationFiles))
-          .please(),
-      ],
-      files: locationFiles,
-    },
-  );
-  const c = "ed".repeat(20);
-  await moveTrunk(c, {
-    ...files,
-    [featurePath]: publishedFeature.replace("Archive a job", "Purge a job"),
+test("switching projects during an update abandons the pending read and keeps the new project's reading", async () => {
+  const [before, latest, otherRevision] = [
+    "ed".repeat(20),
+    "ee".repeat(20),
+    "ef".repeat(20),
+  ];
+  const oldUpdate = featuresOpening("Purge a job");
+  let release!: () => void;
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
   });
-  const latest = await holdAuthenticatedReadsWhere(
-    page,
-    (params) =>
-      params.get("source") === "pygardon" &&
-      params.get("intent") === "locations" &&
-      params.get("revision") === c,
-    releases,
-  );
-  await showLatestRevision(revisionNotice(intent)).click();
-  await expect.poll(latest.held).toBe(1);
-  await expect(browserRevision(intent)).toContainText(
-    shortRevision(pygardon.revision),
-  );
+  onTestFinished(release);
+  const readLatest = vi.fn(async (signal: AbortSignal) => {
+    await pending;
+    return oldUpdate.readLocations(signal);
+  });
+  const other = makeMe.aPublishedWork
+    .with({
+      ...makeMe.aPublishedWork.ofPygardon.at(otherRevision).please(),
+      source: makeMe.aPublishedSource
+        .with({
+          id: "doughnut",
+          label: "Doughnut",
+          repository: "odde/doughnut",
+        })
+        .please(),
+    })
+    .please();
+  const otherFolder = "acceptance";
+  const otherFile = `${otherFolder}/notes.feature`;
+  const intent = await mountProjectIntent(before, {
+    [before]: featuresOpening("Archive a job"),
+    [latest]: { ...oldUpdate, readLocations: readLatest },
+    [otherRevision]: publishedFeatures(
+      {
+        [otherFile]:
+          "Feature: Notes\n  Scenario: Review a note\n    Then it is visible\n",
+      },
+      otherFolder,
+    ),
+  });
+  const browser = intentBrowser();
+  const file = await browser.open(pygardonFeatures.jobs);
+  await file.shows("Scenario: Archive a job");
 
-  await chooseProject(page, "Doughnut");
-  await expect(intentGroupToggle(intent, "scripts")).toBeVisible();
-  latest.release();
-  await untilPageReadsAnswered(page);
-  await expect(intentGroupToggle(intent, "scripts")).toBeVisible();
-  await expect(intentGroupToggle(intent, "e2e_test/features")).toHaveCount(0);
-  await expect(intent.getByText(featurePath)).toHaveCount(0);
-  await expect(intent).not.toContainText("Purge a job");
-  await expect(revisionNotice(intent)).toHaveCount(0);
-  await expect(ciPanel(intent)).toBeVisible();
-  await expect(purposeRegion(intent)).toHaveCount(0);
-  await expect(browserRevision(intent)).toContainText(
-    shortRevision(doughnut.revision),
-  );
+  intent.offerRevision(latest);
+  const notice = intentRevisionNotice();
+  await notice.showLatest();
+  await notice.reads("Updating…");
+  await browser.isAt(before);
+  await expect.poll(() => readLatest.mock.calls.length).toBe(1);
+  intent.showProject(other);
+  await browser.isAt(otherRevision);
+  await expect.poll(() => readLatest.mock.calls[0]?.[0].aborted).toBe(true);
+  release();
+  await readLatest.mock.results[0]?.value;
+
+  await notice.isGone();
+  await browser.showsNoFolder(pygardonFeatures.folder);
+  await browser.showsNoSource();
+  const otherReading = await browser.open(otherFile);
+  await otherReading.shows("Scenario: Review a note");
+  await browser.isAt(otherRevision);
 });

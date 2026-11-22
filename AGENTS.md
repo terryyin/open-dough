@@ -19,20 +19,23 @@ capture the decision, baseline, and limits in the seed until a plan exists.
 Keep any working evidence the execution still needs with that plan. For
 evidence shared across stories, link to one recoverable source and carry only
 the relevant excerpt into each plan. Remove spent evidence at wrap-up and use
-Git for recovery. Use `docs/` and `docs/maintainer/` for maintained guidance,
-decisions, and findings with an ongoing owner.
+Git for recovery. Use `docs/adrs/` for human-controlled ADRs (with
+human-permitted area-specific extensions in `docs/`) and `docs/maintainer/` for
+maintainer findings; shipped guidance under `Distribution/src/` is product code,
+while enduring behavior, architecture, and setup live in automated tests, code,
+and configuration.
 
 ## Test automation
 
 - Before authoring or changing a test, apply the installed
   [`dough-makeme`](.agents/skills/dough-makeme/SKILL.md) and, for browser
   tests, [`dough-page-objects`](.agents/skills/dough-page-objects/SKILL.md)
-  selection. [Test data architecture](Distribution/tests/README.md#test-data-architecture)
-  names this project's MakeMe builders, and
-  [`dashboardPage.ts`](dashboard/test-support/dashboardPage.ts) is the Dashboard Test Support page-object
-  entry. The
+  selection. The Dashboard Test Support page-object entry is
+  [`dashboardPage.ts`](dashboard/test-support/dashboardPage.ts). The
   [fluent side-panel page objects](dashboard/test-support/sidePanelPages.ts) show
-  the phase-and-cue form of the Side panel journeys.
+  the phase-and-cue form of the Side panel journeys. Review changes journeys
+  operate the review through [`reviewChangesPage.ts`](dashboard/test-support/reviewChangesPage.ts),
+  which alone knows where each review control lives.
 - Never use `test.slow()`.
 - Keep the default test timeout. Override it only when essential, inside the
   individual test. Suite, file, group, and hook overrides are forbidden.

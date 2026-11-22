@@ -8,7 +8,7 @@ import {
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { withResponseSignal } from "./responseSignal.ts";
-import type { AdmittedStoryReviewRange } from "./storyReviewAdmission.ts";
+import type { AdmittedStoryReviewRange } from "./storyReviewRangeRequest.ts";
 import { compareReviewPoints } from "./storyReviewComparison.ts";
 import { reviewPointObjects } from "./storyReviewPoints.ts";
 

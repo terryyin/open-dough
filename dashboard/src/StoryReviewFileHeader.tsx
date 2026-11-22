@@ -6,7 +6,7 @@ import { useDiffStoryNote } from "./StoryDiffNote.tsx";
 import type { ReactNode } from "react";
 import { StoryFileFollowUp } from "./StoryAnchoredFollowUp.tsx";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
-import type { ReviewedWork } from "./StoryReviewFileDiff.tsx";
+import type { ReviewedWork } from "./reviewedFileRead.ts";
 import { includesTrunkWords, kindWords } from "./StoryReviewFileTree.tsx";
 
 export function ReviewedFileName({ file }: { readonly file: ReviewedFile }) {

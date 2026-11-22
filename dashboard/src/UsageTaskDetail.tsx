@@ -4,7 +4,8 @@
 // tool and launch workflow, its Token index, primary observed model and
 // effort, the model and effort its launch requested when known, its end time
 // with its outcome or "Outcome unknown", and its coverage: "No known gaps",
-// or "Partial" with the recorded gaps that show usage missing. Close hands
+// or "Partial" with the recorded gaps that show usage missing, and each model
+// weighed at a substitute's rates. Close hands
 // focus back to the task's point.
 import type { ReactNode } from "react";
 import { countWords } from "./chartValueAxis.ts";
@@ -20,6 +21,7 @@ import type {
   TokenIndexTask,
   UsageCoverageGap,
   UsageSetting,
+  UsageSubstitution,
   UsageTaskCoverage,
   UsageTaskOutcome,
 } from "./usageTokenIndex.ts";
@@ -52,6 +54,14 @@ function requestedWords({ model, effort }: UsageSetting): string | undefined {
 }
 
 export const partialWords = "Partial";
+export const estimatedWords = "Estimated rate";
+
+// Each actual model with the substitute whose rates weighed it.
+function substitutionWords(substitutions: readonly UsageSubstitution[]) {
+  return substitutions
+    .map(({ model, substitute }) => `${model.name} at ${substitute.name} rates`)
+    .join(", ");
+}
 
 const gapWords: Record<UsageCoverageGap, string> = {
   "missing-worker-evidence": "Worker usage missing",
@@ -114,6 +124,11 @@ export function UsageTaskDetail({
       </div>
       <dl>
         <Fact term="Token index">{countWords(task.index)}</Fact>
+        {task.substitutions !== undefined && (
+          <Fact term={estimatedWords}>
+            {substitutionWords(task.substitutions)}
+          </Fact>
+        )}
         <Fact term="Observed model">{observedWords(task.observed)}</Fact>
         {requested !== undefined && (
           <Fact term="Requested model">{requested}</Fact>

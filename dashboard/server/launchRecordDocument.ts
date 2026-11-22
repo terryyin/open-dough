@@ -13,12 +13,8 @@
 // when unreadable as `./machineJsonStore.ts` describes.
 
 import { z } from "zod";
-import { creationSchema, type CreationRecord } from "../src/launchCreation.ts";
-import {
-  launchRecordSchema,
-  launchRetentionDays,
-  type LaunchRecord,
-} from "../src/agentLaunch.ts";
+import { creationSchema } from "../src/launchCreation.ts";
+import { launchRecordSchema, type LaunchRecord } from "../src/agentLaunch.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import {
   appendLaunchHistory,
@@ -35,8 +31,7 @@ import {
   newlyDeliveredEntries,
   notifyRecordsDelivered,
 } from "./launchRecordDelivery.ts";
-
-const retentionMs = launchRetentionDays * 24 * 60 * 60 * 1000;
+import { withinRetention } from "./launchRecordRetention.ts";
 
 const storeSchema = z.record(
   z.string(),
@@ -56,18 +51,6 @@ function launchStore(): MachineJsonStore<StoredRecords> {
     schema: storeSchema,
     empty: {},
   };
-}
-
-export function withinRetention(
-  records: readonly (LaunchRecord | CreationRecord)[],
-  now: number,
-): (LaunchRecord | CreationRecord)[] {
-  return records.filter(
-    (record) =>
-      !("session" in record) ||
-      record.doneAt === undefined ||
-      now - Date.parse(record.doneAt) <= retentionMs,
-  );
 }
 
 // Reads the single shared document without changing retained evidence.
@@ -92,6 +75,23 @@ export function onRecordsDroppedByRetention(
   listener: RecordsDroppedByRetention,
 ): void {
   recordsDroppedByRetention = listener;
+}
+
+export function recordRetention(stored: StoredRecords, now: number) {
+  const kept: StoredRecords = {};
+  const agedOut: LeavingRecord[] = [];
+  for (const [id, records] of Object.entries(stored)) {
+    const retained = withinRetention(records, now);
+    for (const record of records) {
+      if ("session" in record && !retained.includes(record)) {
+        agedOut.push({ project: id, record });
+      }
+    }
+    if (retained.length > 0) {
+      kept[id] = retained;
+    }
+  }
+  return { kept, agedOut };
 }
 
 function sessionEntries(stored: StoredRecords): LeavingRecord[] {
@@ -143,7 +143,8 @@ function historyEntries(
 // document replaces; when retention history cannot be written, aged-out
 // records stay in the document (still hidden on read) and the write's own
 // change still applies. When a removal cannot be recorded in history, the
-// write fails and the record stays.
+// write fails and the record stays. Records the rewrite drops by retention
+// go to `droppedByRetention`, by default the listener the boundary installed.
 export async function replaceRecords(
   change: (
     kept: StoredRecords,
@@ -151,6 +152,8 @@ export async function replaceRecords(
     | StoredRecords
     | typeof leaveMachineJson
     | Promise<StoredRecords | typeof leaveMachineJson>,
+  droppedByRetention:
+    RecordsDroppedByRetention | undefined = recordsDroppedByRetention,
 ): Promise<void> {
   const outcome: {
     dropped: LaunchRecord[];
@@ -166,19 +169,7 @@ export async function replaceRecords(
     const leftAt = new Date(now).toISOString();
     outcome.dropped = [];
     outcome.delivered = [];
-    const kept: StoredRecords = {};
-    const agedOut: LeavingRecord[] = [];
-    for (const [id, records] of Object.entries(stored)) {
-      const retained = withinRetention(records, now);
-      for (const record of records) {
-        if ("session" in record && !retained.includes(record)) {
-          agedOut.push({ project: id, record });
-        }
-      }
-      if (retained.length > 0) {
-        kept[id] = retained;
-      }
-    }
+    const { kept, agedOut } = recordRetention(stored, now);
     const next = await change(kept);
     outcome.leftAsIs = next === leaveMachineJson;
     if (next === leaveMachineJson) return leaveMachineJson;
@@ -214,7 +205,7 @@ export async function replaceRecords(
     return next;
   });
   if (!outcome.leftAsIs && outcome.dropped.length > 0) {
-    await recordsDroppedByRetention?.(outcome.dropped);
+    await droppedByRetention?.(outcome.dropped);
   }
   await notifyRecordsDelivered(outcome.leftAsIs, outcome.delivered);
 }

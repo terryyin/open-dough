@@ -2,14 +2,21 @@ import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
-import { phoneBoardCommands } from "./test-support/support/mountedPhoneBoardCommands.ts";
+import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
+import { isVitestFile } from "./test-support/support/groupSelection.mjs";
+import { dashboardSpecFiles } from "./test-support/support/testFiles.mjs";
+import { useDisposableTestHome } from "./test-support/support/runnerConfig.mjs";
+
+useDisposableTestHome();
 
 export default defineConfig({
   plugins: [react()],
   test: {
-    include: [
-      "dashboard/frontend-tests/**/*.mounted.{spec,test}.?(c|m)[jt]s?(x)",
-    ],
+    // The frontend specs that import Vitest, beside the group's Playwright
+    // specs (../scripts/test-frontend.mjs).
+    include: dashboardSpecFiles(import.meta.dirname, [frontendGroup.root])
+      .filter(isVitestFile)
+      .map((file) => `dashboard/${file}`),
     includeTaskLocation: true,
     isolate: true,
     browser: {
@@ -20,7 +27,6 @@ export default defineConfig({
         launchOptions: { args: dashboardBrowserArgs },
         contextOptions: { hasTouch: true },
       }),
-      commands: phoneBoardCommands,
       instances: [{ browser: "chromium" }],
     },
   },

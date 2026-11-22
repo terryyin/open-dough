@@ -2,7 +2,9 @@
 // project checkout of it. A copy of a shared prepared origin receives the
 // description's later revisions from the project checkout, each on the
 // parents it names, as a materialized history has them. Answers the commit
-// each named revision became.
+// each named revision became. The project checkout then fetches only what
+// the description says it has, and holds the description's workspace
+// (./startOriginWorkspace.ts); neither reaches the prepared origin.
 
 import { execFile } from "node:child_process";
 import { cpSync, mkdirSync, rmSync } from "node:fs";
@@ -21,6 +23,11 @@ import {
   type StartRepository,
   type StartRevisions,
 } from "./startOriginPreparation.ts";
+import { describedWorkspaces } from "../../../Distribution/tests/support/repository-workspace.mjs";
+import {
+  leaveTrunkUnfetched,
+  materializeStartWorkspace,
+} from "./startOriginWorkspace.ts";
 
 const exec = promisify(execFile);
 
@@ -90,6 +97,9 @@ export async function initializeStartOrigin(
         );
       await exec("git", ["-C", project, "push", "--quiet", "origin", "main"]);
     }
+    await leaveTrunkUnfetched(project, description.revisions, commits);
+    for (const workspace of describedWorkspaces(description))
+      await materializeStartWorkspace(project, workspace, commits);
     return Object.fromEntries(commits);
   } finally {
     if (prepared === undefined)

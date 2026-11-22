@@ -33,6 +33,8 @@ export const sessionCommitsSchema = z.object({
   runs: z.array(sessionCommitRunSchema),
   // Whether another session worked in the same checkout meanwhile.
   shared: z.boolean().optional(),
+  // The original checkout switched branches without identifying its new branch.
+  branchEntryMissing: z.literal(true).optional(),
   readAt: z.iso.datetime(),
 });
 export type SessionCommits = z.infer<typeof sessionCommitsSchema>;

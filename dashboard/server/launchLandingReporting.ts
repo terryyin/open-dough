@@ -1,145 +1,167 @@
 // One launch, write-ahead acceptance, then its record, under the shared lock order.
+import { randomUUID } from "node:crypto";
 import type { IncomingMessage } from "node:http";
+import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
 import {
-  landingReceiptSchema,
-  type LaunchLanding,
+  landingReportingReference,
   type LandingReceipt,
 } from "../src/launchLanding.ts";
+import type { LaunchRecord } from "../src/launchRecord.ts";
 import {
-  landingSubmissionSchema,
-  expiredAttemptRecord,
+  landingRequestOperation,
+  parseLandingSubmission,
+  type LandingOperation,
+  type LandingSubmission,
 } from "./launchLandingAdmission.ts";
 import {
-  authorizedLanding,
-  reserveLandingComparison,
-  sameComparison,
-} from "./launchLandingReservation.ts";
-import { submitRetainedLanding } from "./launchLandingRetained.ts";
-import { boundLandingReporting } from "./launchLandingRecord.ts";
-import { storyOf } from "../src/launchWorkflow.ts";
-import { reportingAttempt } from "./completionAdmission.ts";
+  decideLanding,
+  landingDecisionReceipt,
+  type LandingDecision,
+} from "./launchLandingDecision.ts";
+import { decideRetainedLanding } from "./retainedLandingDecision.ts";
+import { registerFollowUpReceipt } from "./ciFollowUpAdmission.ts";
+import { writePins } from "./launchLandingGit.ts";
 import { replaceAttempts, withKeptAttempts } from "./launchAttemptStore.ts";
-import { keptRecords } from "./launchRecordStore.ts";
-import { replaceRecords } from "./launchRecordDocument.ts";
+import {
+  machineRecordStore,
+  type LaunchRecordStore,
+} from "./launchRecordStore.ts";
+import type { LandingRecordChange } from "./launchLandingRecord.ts";
+import { leaveMachineJson } from "./machineJsonStore.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import { jsonBody } from "./jsonRequestBody.ts";
+import { textBody } from "./jsonRequestBody.ts";
 import { knownSource } from "./sessionAdmission.ts";
-export const landingEndpoint = "/__agent-launch/landing";
-export const landingPrepareEndpoint = `${landingEndpoint}/prepare`;
+
+// Attempt read/replace and record read/replace the adapter persists through.
+// Optional on `handleLanding`; defaults to this machine's stores.
+export type LandingStores = LaunchRecordStore & {
+  withKeptAttempts: typeof withKeptAttempts;
+  replaceAttempts: typeof replaceAttempts;
+};
+
+export const machineLandingStores: LandingStores = {
+  ...machineRecordStore,
+  withKeptAttempts,
+  replaceAttempts,
+};
+
+async function saveLandingRecordChange(
+  stores: LandingStores,
+  sourceId: string,
+  change: LandingRecordChange | undefined,
+): Promise<void> {
+  if (change === undefined) return;
+  await stores.replaceRecords((document) => {
+    const current = document[sourceId] ?? [];
+    const next = change(current);
+    return current === next
+      ? leaveMachineJson
+      : { ...document, [sourceId]: next };
+  });
+}
+
 export async function submitLanding(
   req: IncomingMessage,
-  prepare = false,
 ): Promise<LandingReceipt> {
   verifyLocalOrigin(req);
-  if (req.method !== "POST")
-    throw new RefusedRequest(405, "Only POST is accepted here.");
-  const parsed = landingSubmissionSchema.safeParse(
-    await jsonBody(req, undefined, 128 * 1024),
-  );
-  if (!parsed.success)
-    throw new RefusedRequest(400, "The landing request is malformed.");
-  const report = parsed.data;
-  knownSource(report.source);
   const origin = `http://${req.headers.host}`;
+  const route = new URL(req.url ?? "", origin).pathname;
+  const operation = landingRequestOperation(route, req.method);
+  const submission = parseLandingSubmission(
+    await textBody(req, undefined, 128 * 1024),
+  );
+  knownSource(submission.source);
+  return handleLanding(submission, origin, operation);
+}
+
+async function pinNewLanding(
+  report: LandingSubmission,
+  attempts: readonly LaunchAttemptRecord[],
+  records: readonly LaunchRecord[],
+  answered: LandingDecision,
+): Promise<void> {
+  if (!answered.isNew) return;
+  await writePins(answered.landing.repository, answered.pinWrites);
+  const preparations =
+    attempts.find((entry) => entry.id === report.reference)
+      ?.landingPreparations ??
+    records.find(
+      (entry) => landingReportingReference(entry) === report.reference,
+    )?.landingReporting?.preparations ??
+    [];
+  if (!preparations.some((entry) => entry.delivery === report.delivery))
+    await registerFollowUpReceipt(report.source, answered.landing);
+}
+
+// Prepares or records one admitted submission for the dashboard at `origin`.
+export async function handleLanding(
+  report: LandingSubmission,
+  origin: string,
+  operation: LandingOperation,
+  stores: LandingStores = machineLandingStores,
+): Promise<LandingReceipt> {
   try {
-    const retained = await withKeptAttempts(async (attempts) => {
-      const record = await expiredAttemptRecord(attempts, report, origin);
-      return record === undefined
-        ? undefined
-        : submitRetainedLanding(record, report, prepare);
+    const delivery = {
+      report,
+      origin,
+      operation,
+      receiptId: randomUUID(),
+      receivedAt: new Date().toISOString(),
+    };
+    // Retained landings keep the attempt store untouched (including an
+    // unreadable attempts file) under the shared read lock, as before.
+    const retained = await stores.withKeptAttempts(async (kept) => {
+      const attempts = (kept ?? []).filter(
+        (entry) => entry.request.source === report.source,
+      );
+      const records = await stores.keptRecords(report.source);
+      const answered = await decideRetainedLanding({
+        ...delivery,
+        attempts,
+        records,
+      });
+      if (answered === undefined) return undefined;
+      await pinNewLanding(report, attempts, records, answered);
+      await saveLandingRecordChange(
+        stores,
+        report.source,
+        answered.changeRecords,
+      );
+      return answered;
     });
-    if (retained !== undefined) return retained;
-    let saved: LaunchLanding | undefined;
-    await replaceAttempts(async (kept) => {
-      const attempt = reportingAttempt(
-        Object.values(kept).flat(),
-        report,
-        origin,
-      );
-      const authority = authorizedLanding(attempt.landingRepository, report);
-      // A launch with no story names none, and neither does its landing.
-      if (storyOf(attempt.request) !== report.identity)
-        throw new RefusedRequest(
-          409,
-          "This is not the established launch's authorized landing.",
+    if (retained !== undefined) return landingDecisionReceipt(retained);
+
+    let decided: LandingDecision | undefined;
+    await stores.replaceAttempts(async (kept) => {
+      const attempts = kept[report.source] ?? [];
+      const records = await stores.keptRecords(report.source);
+      const answered = await decideLanding({ ...delivery, attempts, records });
+      await pinNewLanding(report, attempts, records, answered);
+      decided = answered;
+      if (answered.nextAttempts === undefined) {
+        // The landing can become retained between locking attempts for read and write.
+        await saveLandingRecordChange(
+          stores,
+          report.source,
+          answered.changeRecords,
         );
-      const bound = (await keptRecords(report.source)).find(
-        (record) => record.request.reporting?.reference === report.reference,
-      );
-      if (bound?.landingReporting?.deletedAt !== undefined)
-        throw new RefusedRequest(409, "The reporting session was deleted.");
-      if (bound === undefined && attempt.outcome !== undefined)
-        throw new RefusedRequest(
-          409,
-          "This launch has no retained reporting session.",
-        );
-      const { landing, needsSave } = await reserveLandingComparison(
-        authority,
-        report,
-        prepare,
-        attempt.landing,
-        attempt.landingPreparations,
-      );
-      saved = landing;
-      if (!needsSave) return kept;
+        return leaveMachineJson;
+      }
+      if (!answered.isNew) return kept;
       return {
         ...kept,
-        [report.source]: (kept[report.source] ?? []).map((entry) =>
-          entry.id === report.reference
-            ? prepare
-              ? {
-                  ...entry,
-                  landingPreparations: [
-                    ...(entry.landingPreparations ?? []),
-                    landing,
-                  ],
-                }
-              : { ...entry, landing }
-            : entry,
-        ),
+        [report.source]: [...answered.nextAttempts],
       };
     });
-    if (saved === undefined) throw new Error("No stored landing receipt.");
-    const landing = saved;
-    const receipt = landingReceiptSchema.omit({ state: true }).parse(landing);
-    const state = await withKeptAttempts(async (attempts) => {
-      const attempt = reportingAttempt(attempts, report, origin);
-      if (!prepare && attempt.landing === undefined)
-        throw new Error("Landing reservation is missing.");
-      if (attempt.landing !== undefined)
-        sameComparison(attempt.landing, report);
-      const binding = { found: false };
-      await replaceRecords((kept) => ({
-        ...kept,
-        [report.source]: (kept[report.source] ?? []).map((entry) => {
-          if (
-            !("session" in entry) ||
-            entry.request.reporting?.reference !== report.reference
-          )
-            return entry;
-          binding.found = true;
-          const reporting = boundLandingReporting(attempt, entry);
-          return {
-            ...entry,
-            ...(prepare ? {} : { landing }),
-            landingReporting:
-              reporting === undefined
-                ? undefined
-                : {
-                    ...reporting,
-                    preparations:
-                      attempt.landingPreparations ?? reporting.preparations,
-                  },
-          };
-        }),
-      }));
-      if (!binding.found && attempt.outcome !== undefined)
-        throw new RefusedRequest(409, "The reporting session was deleted.");
-      return binding.found
-        ? ("recorded" as const)
-        : ("pending-native-session" as const);
-    });
-    return { ...receipt, state: prepare ? "prepared" : state };
+    if (decided === undefined) throw new Error("No stored landing receipt.");
+    const answered = decided;
+    const change = answered.changeRecords;
+    if (answered.nextAttempts !== undefined && change !== undefined) {
+      await stores.withKeptAttempts(() =>
+        saveLandingRecordChange(stores, report.source, change),
+      );
+    }
+    return landingDecisionReceipt(answered);
   } catch (error) {
     if (error instanceof RefusedRequest) throw error;
     throw new RefusedRequest(

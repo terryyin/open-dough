@@ -1,172 +1,107 @@
-// Where no usable split fits (../../src/sidePanelWidth.ts,
-// ../../src/side-panel.css) the side panel covers the page column with no
-// resize divider or Maximize/Restore; a wide window recovers the chosen width
-// and Maximize choice. A narrow desktop window is that side of the query with
-// the least room. The split beside the page, on the wide side, is
-// ./side-panel-width.spec.ts.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { focusedAndVisible, readsWhole } from "./board-accessibility.ts";
 import {
-  narrowWindow,
-  expectFocusedAndIndicated,
-} from "../../test-support/accessibleReading.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import {
-  box,
-  expectEveryControlReachable,
-  expectNoSidewaysScrollAndWholeText,
-} from "../../test-support/pageLayout.ts";
-import {
-  expectSessionsSidebar,
-  sessionsSidebarParts,
-  sessionsSidebarTitleCut,
-} from "../../test-support/sessionsSidebarPage.ts";
-import {
-  scrollsOnItsOwn,
-  sidePanelWidthPage,
-} from "../../test-support/sidePanelWidthPage.ts";
-import {
-  closeSidePanel,
-  maximizeSidePanel,
-  restoreSidePanel,
-} from "../../test-support/sidePanelFrame.ts";
-import {
+  banner,
+  button,
+  covering,
+  divider,
+  drag,
+  measured,
+  minimum,
+  mountWidthReview,
+  narrow,
   openReview,
-  takenStoryWithReview,
-} from "../../test-support/support/frontendSidePanelWidth.ts";
-import { takenStoryWorkingSession } from "../../test-support/support/frontendCardSessions.ts";
-import { terminalScreenParts } from "../../test-support/terminalScreenPage.ts";
+  panel,
+  sessions,
+  sidebar,
+  wide,
+  widthIs,
+  withWidthStorage,
+} from "./side-panel-width-view.ts";
 
-test("at a narrow window the panel covers the page with no Maximize, and a wide window recovers the chosen width and Maximize choice", async ({
-  page,
-  frontendServices,
-}) => {
-  const width = sidePanelWidthPage(page);
-  await takenStoryWithReview(page, frontendServices);
-  const { banner, board } = parts(page);
-  const sidebar = sessionsSidebarParts(page);
-  const review = await openReview(page);
-  const room = await width.split(review);
-  const chosen = Math.floor(
-    room.pageColumn + room.sidePanel - width.usableMinimum,
+test("a narrow window covers the page and widening restores width and Maximize choice", async () => {
+  withWidthStorage();
+  await mountWidthReview();
+  const start = measured();
+  const chosen = Math.floor(start.page.width + start.panel.width - minimum);
+  await drag(-2000);
+  await widthIs(chosen);
+  await page.viewport(narrow.width, narrow.height);
+  await covering();
+  expect(measured().panel.width).toBeCloseTo(
+    document.documentElement.clientWidth,
+    0,
   );
-  await width.dragDivider(-2000);
-  await width.expectWidth(review, chosen);
-  await expect(width.control(review, "Maximize")).toBeVisible();
+  expect(measured().panel.height).toBeCloseTo(innerHeight, 0);
+  await sessions.click();
+  await expect.element(sidebar).toBeVisible();
+  await sessions.click();
+  await expect.element(sidebar).not.toBeInTheDocument();
 
-  await test.step("a narrow window covers the page, every control reachable", async () => {
-    await width.resizeUntilArranged(review, narrowWindow);
-    await width.expectCoveringFillsWindow(review, { banner, board });
-    await sidebar.button.click();
-    await expectSessionsSidebar(page, "open");
-    await sidebar.button.click();
-    await expectSessionsSidebar(page, "closed");
-    await expectNoSidewaysScrollAndWholeText(page, [
-      ...scrollsOnItsOwn,
-      // The sidebar's entries are cut by design, read whole by their tooltip.
-      sessionsSidebarTitleCut,
-      // The panel header title truncates by design with disclosure.
-      ".side-panel-title-toggle",
-      // The review's context line is shortened by design.
-      ".story-review-context-values",
-      // Board behind the covering panel is not the reading surface.
-      ".page-column",
-    ]);
-    await expectEveryControlReachable(review);
-    await expect(review.getByRole("heading", { level: 2 })).toBeInViewport();
-    const close = width.control(review, "Close");
-    await close.focus();
-    await page.keyboard.press("Shift+Tab");
-    await page.keyboard.press("Tab");
-    await expectFocusedAndIndicated(page, close);
-  });
+  expect(document.documentElement.scrollWidth).toBe(
+    document.documentElement.clientWidth,
+  );
+  const heading = panel.getByRole("heading", { level: 2 }).element();
+  const bounds = heading.getBoundingClientRect();
+  expect(bounds.top).toBeGreaterThanOrEqual(0);
+  expect(bounds.bottom).toBeLessThanOrEqual(innerHeight);
+  expect(readsWhole(heading, panel.element())).toBe(true);
+  for (const control of panel.getByRole("button").elements()) {
+    control.scrollIntoView({ block: "nearest", inline: "nearest" });
+    const { top, bottom, left, right } = control.getBoundingClientRect();
+    expect(top).toBeGreaterThanOrEqual(0);
+    expect(bottom).toBeLessThanOrEqual(innerHeight);
+    expect(left).toBeGreaterThanOrEqual(0);
+    expect(right).toBeLessThanOrEqual(document.documentElement.clientWidth);
+  }
+  const close = button("Close").element();
+  if (!(close instanceof HTMLElement))
+    throw new Error("The Close control cannot be focused.");
+  close.focus();
+  await userEvent.tab({ shift: true });
+  await userEvent.tab();
+  focusedAndVisible(close);
 
-  await test.step("a wide window recovers the chosen width, divider and Maximize", async () => {
-    await width.resizeUntilArranged(review, width.wideWindow);
-    await width.expectWidth(review, chosen);
-    await expect(width.divider).toBeVisible();
-    await expect(width.control(review, "Maximize")).toBeVisible();
-    await expect(banner).toBeVisible();
-  });
+  await page.viewport(wide.width, wide.height);
+  await widthIs(chosen);
+  await expect.element(button("Maximize")).toBeVisible();
+  await expect.element(banner).toBeVisible();
+  await button("Close").click();
+  await expect.element(panel).not.toBeInTheDocument();
+  await openReview();
+  await widthIs(chosen);
 
-  await test.step("Maximize before narrowing stays maximized with Restore after widening", async () => {
-    await closeSidePanel(review, { using: "pointer" });
-    await expect(review).toHaveCount(0);
-    const reopened = await openReview(page);
-    await width.expectWidth(reopened, chosen);
-    await maximizeSidePanel(reopened);
-    await expect(width.control(reopened, "Restore")).toBeVisible();
-    await page.setViewportSize(narrowWindow);
-    await width.expectCovering(reopened);
-    await page.setViewportSize(width.wideWindow);
-    await expect(width.control(reopened, "Restore")).toBeVisible();
-    await expect(width.control(reopened, "Maximize")).toHaveCount(0);
-    await expect(banner).toBeHidden();
-    await restoreSidePanel(reopened);
-    await width.expectWidth(reopened, chosen);
-    await expect(width.control(reopened, "Maximize")).toBeVisible();
-    await expect(banner).toBeVisible();
-  });
+  await button("Maximize").click();
+  await expect.element(button("Restore")).toBeVisible();
+  await page.viewport(narrow.width, narrow.height);
+  await covering();
+  await page.viewport(wide.width, wide.height);
+  await expect.element(button("Restore")).toBeVisible();
+  await expect.element(button("Maximize")).not.toBeInTheDocument();
+  await expect.element(divider).not.toBeInTheDocument();
+  await expect.element(banner).not.toBeInTheDocument();
+  await button("Restore").click();
+  await widthIs(chosen);
+  await expect.element(button("Maximize")).toBeVisible();
+  await expect.element(banner).toBeVisible();
 });
 
-test("beside the open sidebar with too little room, the panel covers the page column without Maximize", async ({
-  page,
-  frontendServices,
-}) => {
-  const width = sidePanelWidthPage(page);
-  await takenStoryWithReview(page, frontendServices);
-  const sidebar = sessionsSidebarParts(page);
-  const { banner } = parts(page);
-  const review = await openReview(page);
-  await sidebar.button.click();
-  await expect(sidebar.sidebar).toBeVisible();
-  // 880 − 288px sidebar = 592px < two 320px minimums.
-  await page.setViewportSize({ width: 880, height: 900 });
-  await width.expectCovering(review);
-  const side = await box(sidebar.sidebar);
-  const room = await page.evaluate(() => ({
-    width: document.documentElement.clientWidth,
-    height: window.innerHeight,
-  }));
-  const panelBox = await box(review);
-  expect(panelBox.x).toBeCloseTo(side.x + side.width, 0);
-  expect(panelBox.width).toBeCloseTo(room.width - side.x - side.width, 0);
-  expect(panelBox.height).toBeCloseTo(room.height, 0);
-  await expect(banner).toBeHidden();
-  await closeSidePanel(review, { using: "pointer" });
-  await expect(banner).toBeVisible();
-});
-
-test("at a narrow window the terminal covers the page with no Maximize, still attached, and a wide window recovers the chosen width", async ({
-  page,
-  frontendServices,
-}) => {
-  const width = sidePanelWidthPage(page);
-  const { openTerminal } = await takenStoryWorkingSession(
-    page,
-    frontendServices,
+test("the open sidebar leaves too little room and the panel fills the remaining column", async () => {
+  withWidthStorage();
+  await mountWidthReview();
+  await sessions.click();
+  await expect.element(sidebar).toBeVisible();
+  await page.viewport(880, 900);
+  await covering();
+  const side = sidebar.element().getBoundingClientRect();
+  const shown = measured().panel;
+  expect(shown.left).toBeCloseTo(side.right, 0);
+  expect(shown.width).toBeCloseTo(
+    document.documentElement.clientWidth - side.right,
+    0,
   );
-  await page.setViewportSize(width.wideWindow);
-  await page.goto("/");
-  const { banner, board } = parts(page);
-  const terminal = await openTerminal();
-  const rows = terminalScreenParts(terminal).rows;
-  const room = await width.split(terminal);
-  const chosen = Math.floor(
-    room.pageColumn + room.sidePanel - width.usableMinimum,
-  );
-  await width.dragDivider(-2000);
-  await width.expectWidth(terminal, chosen);
-
-  await width.resizeUntilArranged(terminal, narrowWindow);
-  await width.expectCoveringFillsWindow(terminal, { banner, board });
-  await expect(rows).toContainText("attached");
-  await expectEveryControlReachable(terminal);
-  await expect(terminal.getByRole("heading", { level: 2 })).toBeInViewport();
-
-  await width.resizeUntilArranged(terminal, width.wideWindow);
-  await width.expectWidth(terminal, chosen);
-  await expect(width.divider).toBeVisible();
-  await expect(width.control(terminal, "Maximize")).toBeVisible();
-  await expect(banner).toBeVisible();
+  expect(shown.height).toBeCloseTo(innerHeight, 0);
+  await button("Close").click();
+  await expect.element(banner).toBeVisible();
 });

@@ -18,16 +18,11 @@
 // closes every boundary before it exits on SIGTERM or SIGINT, as Vite's
 // close hooks do (`./localBoundaryPlugin.ts`).
 
-import {
-  createServer,
-  type IncomingMessage,
-  type ServerResponse,
-} from "node:http";
-import type { Connect } from "vite";
+import { createServer } from "node:http";
 import { localBoundaries } from "./localBoundaries.ts";
 import {
   installBoundary,
-  type BoundaryMiddlewares,
+  boundaryMiddlewareChain,
   type BoundaryReady,
 } from "./localBoundary.ts";
 import {
@@ -36,42 +31,6 @@ import {
 } from "./projectConfiguration.ts";
 
 const loopbackOnly = "127.0.0.1";
-
-// The chain the boundaries mount on: each handler answers its own paths and
-// passes the rest on; a request that reaches the end is unknown here, and a
-// handler's error is answered as the failure it is.
-function middlewareChain(): BoundaryMiddlewares & {
-  handle(req: IncomingMessage, res: ServerResponse): void;
-} {
-  const handlers: Connect.NextHandleFunction[] = [];
-  return {
-    use(handler) {
-      handlers.push(handler);
-      return this;
-    },
-    handle(req, res) {
-      const next = (index: number): Connect.NextFunction => {
-        return (error?: unknown) => {
-          const handler = handlers[index];
-          if (error !== undefined) {
-            res.writeHead(500, { "Content-Type": "text/plain" });
-            res.end(
-              error instanceof Error ? error.message : "The request failed.",
-            );
-            return;
-          }
-          if (handler === undefined) {
-            res.writeHead(404, { "Content-Type": "text/plain" });
-            res.end("Not found");
-            return;
-          }
-          handler(req, res, next(index + 1));
-        };
-      };
-      next(0)();
-    },
-  };
-}
 
 function listenPort(argv: readonly string[]): number {
   const at = argv.indexOf("--port");
@@ -99,7 +58,7 @@ async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const port = listenPort(argv);
   const environment = projectEnvironment(argv);
-  const chain = middlewareChain();
+  const chain = boundaryMiddlewareChain();
   const server = createServer((req, res) => {
     chain.handle(req, res);
   });

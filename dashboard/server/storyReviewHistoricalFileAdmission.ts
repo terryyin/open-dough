@@ -1,51 +1,40 @@
-// One field-based rule for a historical review file: a Published completion,
-// or the retained pair and literal file list of a landed run or of a done
-// session's kept commits. URL adapters and follow-up admission share this
-// check; callers name source, a reviewed-work subject (story identity or
-// session) and a completion, a reference or a session's kept pair — never a
-// repository path.
-import { z } from "zod";
+// One field-based rule for a story's historical review file: a Published
+// completion, or the retained pair and literal file list of a landed run.
+// URL adapters and follow-up admission share this check; callers name source,
+// story identity and a completion or a reference — never a repository path.
+// A done session's kept result follows the same pair rule in
+// `./storyReviewSessionFileAdmission.ts`.
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { establishedPlace } from "../src/establishedPlace.ts";
-import type {
-  ReviewedSessionSubject,
-  ReviewedStorySubject,
-} from "../src/reviewedWorkSubject.ts";
+import type { ReviewedPairFile } from "../src/reviewedFileRead.ts";
+import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { namedKeptSession } from "./sessionAdmission.ts";
 import { projectFolder } from "./projectFolders.ts";
 import {
   reviewedLandedRunByReference,
   reviewedLandedRuns,
 } from "./storyReviewRunAdmission.ts";
-import { landedStoryReview, retainedPairFiles } from "./storyReviewLanded.ts";
-import { keptSessionPair } from "./storyReviewSessionCommits.ts";
+import {
+  landedStoryReview,
+  type LandingReviewSource,
+} from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
-import type { ReviewLandedRun } from "../src/storyReviewLandedRun.ts";
 
-export interface HistoricalReviewedFileFields {
-  readonly baseline: string;
-  readonly tree: string;
-  readonly path: string;
-  readonly oldPath?: string;
-}
+export type HistoricalReviewedFileFields = ReviewedPairFile;
 
-export interface AdmittedHistoricalReviewedFile extends HistoricalReviewedFileFields {
+// One admitted comparison identity for printed diff or revision file text,
+// covering workspace, historical, and kept-session file reads.
+export interface AdmittedReviewedFile extends HistoricalReviewedFileFields {
   readonly repository: string;
 }
 
-type PublishedReviewedSubject<T extends { source: string }> = Omit<
-  T,
+// Story subject with a resolved project source for historical file reads.
+export type HistoricalReviewedFileSubject = Omit<
+  ReviewedStorySubject,
   "source"
 > & {
   readonly source: PublishedSource;
 };
-
-// Reviewed-work subject with a resolved project source for historical file reads.
-export type HistoricalReviewedFileSubject =
-  | PublishedReviewedSubject<ReviewedStorySubject>
-  | PublishedReviewedSubject<ReviewedSessionSubject>;
 
 export type NamedHistoricalReviewedFile = HistoricalReviewedFileSubject &
   HistoricalReviewedFileFields &
@@ -76,31 +65,47 @@ function belongsOnPublished(
   );
 }
 
-function belongsOnRetainedPair(
+export function belongsOnRetainedPair(
   files: readonly ReviewedFile[],
   fields: HistoricalReviewedFileFields,
 ): boolean {
   return files.some((file) => matchesHistoricalPath(file, fields));
 }
 
-const notOnCapturedRun = () =>
+export const notOnCapturedRun = () =>
   new RefusedRequest(
     409,
     "The file or comparison does not belong to this captured run.",
   );
+
+// Combine an optional caller signal with the existing 30-second admission
+// deadline. Follow-up callers omit the request and keep timeout alone.
+export function admissionBound(request?: AbortSignal): AbortSignal {
+  const deadline = AbortSignal.timeout(30_000);
+  return request === undefined
+    ? deadline
+    : AbortSignal.any([request, deadline]);
+}
+
+// Prefer request cancellation over a deadline-shaped refusal.
+export function throwIfRequestAborted(request?: AbortSignal): void {
+  if (request?.aborted) throw request.reason;
+}
 
 async function admitPublishedCompletion(
   source: PublishedSource,
   identity: string,
   completion: string,
   file: HistoricalReviewedFileFields,
-): Promise<AdmittedHistoricalReviewedFile> {
+  signal?: AbortSignal,
+): Promise<AdmittedReviewedFile> {
   const review = await publishedStoryReview(
     source,
     identity,
-    AbortSignal.timeout(30_000),
+    admissionBound(signal),
     completion,
   );
+  throwIfRequestAborted(signal);
   if (review?.kind !== "published")
     throw new RefusedRequest(
       409,
@@ -120,41 +125,16 @@ async function admitPublishedCompletion(
   return { repository: projectFolder(source).path, ...file };
 }
 
-async function landedRunForSubject(
-  subject: HistoricalReviewedFileSubject,
-  reference: string,
-): Promise<ReviewLandedRun> {
-  if (!("session" in subject)) {
-    const { runs } = await reviewedLandedRuns(subject.source, subject.identity);
-    return reviewedLandedRunByReference(runs, reference);
-  }
-  if (!z.uuid().safeParse(reference).success)
-    throw new RefusedRequest(400, "The review launch reference is malformed.");
-  const record = await namedKeptSession(subject.source, {
-    host: subject.host,
-    sessionId: subject.session,
-  });
-  const established = establishedPlace(record);
-  if (established === undefined)
-    throw new RefusedRequest(
-      404,
-      "This session has no launch workspace to review.",
-    );
-  const owned =
-    record.request.reporting?.reference === reference ||
-    record.landing?.reference === reference;
-  if (!owned) throw notOnCapturedRun();
-  return { record, established };
-}
-
-async function admitLandedRun(
-  subject: HistoricalReviewedFileSubject,
-  reference: string,
+// Admit a file against a landed run's exact retained pair and file list.
+export async function admitLandedRun(
+  run: LandingReviewSource,
   file: HistoricalReviewedFileFields,
-): Promise<AdmittedHistoricalReviewedFile> {
-  const run = await landedRunForSubject(subject, reference);
-  const review = await landedStoryReview(run, AbortSignal.timeout(30_000));
-  if (review.kind !== "landed")
+  signal?: AbortSignal,
+): Promise<AdmittedReviewedFile> {
+  const review = await landedStoryReview(run, admissionBound(signal));
+  throwIfRequestAborted(signal);
+  const landing = run.record.landing;
+  if (review.kind !== "landed" || landing === undefined)
     throw new RefusedRequest(
       409,
       review.kind === "landing-unavailable"
@@ -168,41 +148,16 @@ async function admitLandedRun(
   )
     throw notOnCapturedRun();
   return {
-    repository: run.record.landing?.repository ?? run.established.workspace,
+    repository: landing.repository,
     ...file,
   };
-}
-
-// Admit a file against the kept run of a done session's commits its
-// comparison names (`../src/sessionCommits.ts`).
-export async function admitSessionRunFile(
-  subject: PublishedReviewedSubject<ReviewedSessionSubject>,
-  file: HistoricalReviewedFileFields,
-): Promise<AdmittedHistoricalReviewedFile> {
-  const record = await namedKeptSession(subject.source, {
-    host: subject.host,
-    sessionId: subject.session,
-  });
-  const pair = keptSessionPair(record, file);
-  const read =
-    pair && (await retainedPairFiles(pair, AbortSignal.timeout(30_000)));
-  if (
-    !pair ||
-    !read ||
-    "missing" in read ||
-    !belongsOnRetainedPair(read.files, file)
-  )
-    throw new RefusedRequest(
-      409,
-      "The file or comparison does not belong to this session's kept commits.",
-    );
-  return { repository: pair.repository, ...file };
 }
 
 // Admit a historical file against a Published completion or landed run.
 export async function admitHistoricalReviewedFile(
   named: NamedHistoricalReviewedFile,
-): Promise<AdmittedHistoricalReviewedFile> {
+  signal?: AbortSignal,
+): Promise<AdmittedReviewedFile> {
   const { source, baseline, tree, path, oldPath } = named;
   const file: HistoricalReviewedFileFields = {
     baseline,
@@ -210,18 +165,18 @@ export async function admitHistoricalReviewedFile(
     path,
     ...(oldPath === undefined ? {} : { oldPath }),
   };
-  if (named.completion !== undefined) {
-    if ("session" in named)
-      throw new RefusedRequest(
-        400,
-        "The published comparison identity is malformed.",
-      );
+  if (named.completion !== undefined)
     return admitPublishedCompletion(
       source,
       named.identity,
       named.completion,
       file,
+      signal,
     );
-  }
-  return admitLandedRun(named, named.reference, file);
+  const { runs } = await reviewedLandedRuns(source, named.identity);
+  return admitLandedRun(
+    reviewedLandedRunByReference(runs, named.reference),
+    file,
+    signal,
+  );
 }

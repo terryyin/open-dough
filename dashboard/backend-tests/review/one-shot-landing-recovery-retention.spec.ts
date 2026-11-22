@@ -40,6 +40,7 @@ test("an original kept bound launch first captures and retries after its actual 
   const clock = landingRetentionClock(origin.machine);
   const receiver = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,

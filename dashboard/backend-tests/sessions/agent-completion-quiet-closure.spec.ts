@@ -35,7 +35,10 @@ import {
 } from "../../test-support/support/completionRecoveryFaults.ts";
 import { observeLaterCompletionIntent } from "../../test-support/support/completionRecoveryIntent.ts";
 
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "the test temporarily switches to the server HOME",
+});
 
 test("quiet Done needs landing and readable closure; unacked completion recovers reporting-only; unfinished stays open", async ({
   dashboard,
@@ -179,6 +182,7 @@ test("quiet Done needs landing and readable closure; unacked completion recovers
   const fault = completionWriteFault(origin.machine);
   let restarted = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     github: dashboard.github,
     codexProtocol: native,
@@ -212,6 +216,7 @@ test("quiet Done needs landing and readable closure; unacked completion recovers
         await restarted.close();
         restarted = await startDashboardServer({
           mode: "boundary",
+          liveServer: "separate process",
           machine: origin.machine,
           github: dashboard.github,
           codexProtocol: native,

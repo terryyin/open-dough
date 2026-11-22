@@ -35,10 +35,6 @@ epic when it comes up for refinement.
   local files, and completion and landing reports use a loopback HTTP
   endpoint with matching receipts. A vendor VM cannot read those local
   paths or reach the dashboard through that loopback address.
-  [Agent launch](../../dashboard/AGENT-LAUNCH.md) ·
-  [Launch start](../../dashboard/LAUNCH-START.md) ·
-  [Terminals](../../dashboard/AGENT-LAUNCH-TERMINALS.md) ·
-  [Completion reporting](../../dashboard/AGENT-LAUNCH-COMPLETION.md) ·
   [Reporting client](../../Distribution/src/skills/dough-execute-plan/scripts/dashboard-completion.mjs)
 - Determine how a hosted launch identifies the intended published repository
   and revision, receives the released Dough skill and project tools, and

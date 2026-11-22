@@ -1,24 +1,13 @@
 // A review's Files divider between its file sidebar and its diff
 // (../src/StoryReviewWorkarea.tsx), and the two panes' widths as shown.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Locator } from "@playwright/test";
 import { box } from "./pageLayout.ts";
 import { expect } from "./support/frontendApp.ts";
-import { filesToggle } from "./support/reviewControls.ts";
 
 // CSS px at the dashboard's 16px root size.
 export const rem = 16;
 const preferredWidthKey = "open-dough.storyReview.filesWidth";
-
-// Keeps `value` as this browser's preferred width, as a reviewer's earlier
-// choice or a damaged one would have left it.
-export const keepFilesWidth = (page: Page, value: string) =>
-  page.evaluate(
-    ([key, kept]) => {
-      window.localStorage.setItem(key, kept);
-    },
-    [preferredWidthKey, value] as const,
-  );
 
 export function filesDividerOf(review: Locator) {
   const divider = review.getByRole("separator", {
@@ -73,15 +62,6 @@ export function filesDividerOf(review: Locator) {
       );
       return files;
     },
-    // While the sidebar is hidden: the diff's and the work area's widths.
-    async hiddenSidebarWidths() {
-      await expect(sidebar).toBeHidden();
-      const [shownDiff, shownWorkarea] = await Promise.all([
-        box(diff),
-        box(workarea),
-      ]);
-      return { diff: shownDiff.width, workarea: shownWorkarea.width };
-    },
     // Drags the divider sideways by `by` px and releases it there.
     async drag(by: number) {
       const { x, y, width, height } = await box(divider);
@@ -99,12 +79,6 @@ export function filesDividerOf(review: Locator) {
       await files.drag(bound - current);
       return bound;
     },
-    async press(key: "ArrowLeft" | "ArrowRight", count = 1) {
-      await divider.focus();
-      for (let press = 0; press < count; press += 1)
-        await page.keyboard.press(key);
-      return files;
-    },
     async showsSidebarWidth(width: number) {
       await expect
         .poll(async () => Math.round((await box(sidebar)).width))
@@ -114,17 +88,6 @@ export function filesDividerOf(review: Locator) {
         "aria-valuetext",
         `${String(width)} pixels wide`,
       );
-      return files;
-    },
-    // The review offers this one Files divider.
-    async isTheOnlyFilesDivider() {
-      await expect(
-        page.getByRole("separator", { name: "Files divider" }),
-      ).toHaveCount(1);
-      return files;
-    },
-    async setFilesShown(shown: boolean) {
-      await filesToggle(review, shown ? "Show files" : "Hide files").click();
       return files;
     },
     keptWidth: () =>

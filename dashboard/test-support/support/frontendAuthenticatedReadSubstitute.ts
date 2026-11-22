@@ -1,7 +1,11 @@
 // Authenticated-read answers for frontend-only journeys: backlog, files,
-// Intent, agents, done catalog/bodies, and revision-move checks.
+// Intent, agents, done catalog/bodies, published sessions, and revision-move
+// checks.
 
-import { revisionStreamAtParameter } from "../../src/authenticatedReadRules.ts";
+import {
+  publishedSessionsRead,
+  revisionStreamAtParameter,
+} from "../../src/authenticatedReadRules.ts";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 
 const emptyCatalog = JSON.stringify({
@@ -94,6 +98,12 @@ export function answerAuthenticatedRead(
         })),
       },
     };
+  }
+  // No project publishes session records here.
+  if (
+    params.get(publishedSessionsRead.parameter) === publishedSessionsRead.value
+  ) {
+    return { status: 200, body: { revision, sessions: [] } };
   }
   // Which commit an arranged watched branch names now.
   const branch = params.get("branch");

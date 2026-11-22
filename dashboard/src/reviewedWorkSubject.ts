@@ -1,6 +1,7 @@
-// Reviewed work is one subject: a story of a project, or an ad hoc session.
-// Query spelling matches other dashboard session requests: source with
-// identity, or source with host and session. No repository or workspace path.
+// Reviewed work is one subject: a story of a project, an ad hoc session, or
+// a session named by its published close record's UUID. Query spelling
+// matches other dashboard session requests: source with identity, source with
+// host and session, or source with the published UUID. No repository or workspace path.
 
 import { z } from "zod";
 import { workIdentitySchema } from "./launchRequest.ts";
@@ -21,7 +22,20 @@ export type ReviewedSessionSubject = z.infer<
   typeof reviewedSessionSubjectSchema
 >;
 
-export type ReviewedWorkSubject = ReviewedStorySubject | ReviewedSessionSubject;
+// A closed session named by its published close record's UUID, read through
+// the configured project without local launch history.
+export const reviewedPublishedSessionSubjectSchema = z.object({
+  source: z.string().min(1),
+  published: z.uuid(),
+});
+export type ReviewedPublishedSessionSubject = z.infer<
+  typeof reviewedPublishedSessionSubjectSchema
+>;
+
+export type ReviewedWorkSubject =
+  | ReviewedStorySubject
+  | ReviewedSessionSubject
+  | ReviewedPublishedSessionSubject;
 
 export const isReviewedSessionSubject = (
   subject: ReviewedWorkSubject,
@@ -29,16 +43,29 @@ export const isReviewedSessionSubject = (
 
 export const isReviewedStorySubject = (
   subject: ReviewedWorkSubject,
-): subject is ReviewedStorySubject => !isReviewedSessionSubject(subject);
+): subject is ReviewedStorySubject => "identity" in subject;
 
-// The story subject when this names a story; undefined for an ad hoc session.
+export const isReviewedPublishedSessionSubject = (
+  subject: ReviewedWorkSubject,
+): subject is ReviewedPublishedSessionSubject => "published" in subject;
+
+// The session a session review names: its local session id or published UUID.
+export function reviewedSessionName(
+  subject: ReviewedWorkSubject,
+): string | undefined {
+  if (isReviewedSessionSubject(subject)) return subject.session;
+  if (isReviewedPublishedSessionSubject(subject)) return subject.published;
+  return undefined;
+}
+
+// The story subject when this names a story; undefined for a session.
 export function reviewedStorySubject(
   subject: ReviewedWorkSubject,
 ): ReviewedStorySubject | undefined {
   return isReviewedStorySubject(subject) ? subject : undefined;
 }
 
-// The story identity when this names a story; undefined for an ad hoc session.
+// The story identity when this names a story; undefined for a session.
 export function reviewedStoryIdentity(
   subject: ReviewedWorkSubject,
 ): string | undefined {
@@ -58,8 +85,15 @@ export function sameReviewedWorkSubject(
       one.session === other.session
     );
   }
+  if (isReviewedPublishedSessionSubject(one)) {
+    return (
+      isReviewedPublishedSessionSubject(other) &&
+      one.source === other.source &&
+      one.published === other.published
+    );
+  }
   return (
-    !isReviewedSessionSubject(other) &&
+    isReviewedStorySubject(other) &&
     one.source === other.source &&
     one.identity === other.identity
   );
@@ -69,6 +103,8 @@ export function sameReviewedWorkSubject(
 export function reviewedWorkKey(subject: ReviewedWorkSubject): string {
   if (isReviewedSessionSubject(subject))
     return `${subject.source}\n${subject.host}\n${subject.session}`;
+  if (isReviewedPublishedSessionSubject(subject))
+    return `${subject.source}\npublished\n${subject.published}`;
   return `${subject.source}\n${subject.identity}`;
 }
 
@@ -82,5 +118,7 @@ export function reviewedWorkQuery(
       host: subject.host,
       session: subject.session,
     };
+  if (isReviewedPublishedSessionSubject(subject))
+    return { source: subject.source, published: subject.published };
   return { source: subject.source, identity: subject.identity };
 }

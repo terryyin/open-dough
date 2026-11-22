@@ -2,10 +2,11 @@
 // verification, recovery and session actions.
 
 import { sessionAttachmentEndpoint } from "../src/agentTerminal.ts";
+import { sessionBranchEntryEndpoint } from "../src/sessionBranchResult.ts";
 import {
   landingEndpoint,
   landingPrepareEndpoint,
-} from "./launchLandingReporting.ts";
+} from "./launchLandingAdmission.ts";
 import { completionEndpoint } from "./completionReporting.ts";
 import {
   admitLaunchSettings,
@@ -181,6 +182,7 @@ const postRequests = new Map<
 // Every path whose requests this boundary admits or refuses.
 export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   completionEndpoint,
+  sessionBranchEntryEndpoint,
   sessionAttachmentEndpoint,
   landingEndpoint,
   landingPrepareEndpoint,

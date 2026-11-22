@@ -15,7 +15,11 @@ import {
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({
+  serverMode: "boundary",
+  extraEnv: collectingLandedCi,
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
   await Promise.all(readers.splice(0).map((reader) => reader.close()));
@@ -89,8 +93,7 @@ test("different adapter runs reusing an opaque attempt ID retain their own colle
     },
   ]);
 
-  // The fixture answers the second subject only after the first was acquired.
-  // Its same opaque attempt ID names another valid run at another revision.
+  // A second run and revision reuse the attempt ID after the first is acquired.
   const second = await resultToLand(dashboard, "second-adapter-identity.txt");
   const secondAttempt = makeMe.aCiAdapterAttempt
     .passed({
@@ -178,7 +181,12 @@ test("different adapter runs reusing an opaque attempt ID retain their own colle
       ]),
     );
   expect(Object.values(retained(dashboard.home)?.builds ?? {})).toHaveLength(2);
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  const reader = await restartAsLandedCiReader(
+    dashboard,
+    origin,
+    "boundary",
+    "the preceding live server retains the machine's Cursor runner",
+  );
   readers.push(reader);
 
   const proofRequests = adapter.proofRequests();

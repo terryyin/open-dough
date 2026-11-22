@@ -1,8 +1,7 @@
 // A Done story with a Published completion comparison for file-anchored
 // follow-up boundary specs: real Git publication plus the done catalog the
-// fake GitHub serves at the trunk revision the page would show.
-import { mkdirSync } from "node:fs";
-import path from "node:path";
+// fake GitHub serves at the trunk revision the page would show. Rename and
+// journey histories: ./completedFollowUpHistory.ts.
 import { describedFiles } from "../describedRevisions.ts";
 import { doneRecordOf, type DoneStory } from "../../src/doneRecord.ts";
 import type { FollowUpFileFacts } from "../../src/followUpContext.ts";
@@ -18,13 +17,11 @@ import {
 } from "../../src/storyReviewContract.ts";
 import { doneRecordPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { completedPublishedStory } from "./completedPublishedStory.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { publishes } from "./publishedRepository.ts";
 import { originMain } from "./sessionDialog.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
-import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
-import { push } from "./storyReviewTrunkCommits.ts";
+import { git, lines } from "./storyReviewWorktree.ts";
 
 const repository = "terryyin/open-dough";
 
@@ -82,27 +79,6 @@ export async function serveDoneAtTrunk(
     }),
   );
   return { revision, story: read.story };
-}
-
-// Ordinary interleaved completion with a rename from old/a.ts to new/a.ts
-// whose new side has line 12. The rename source is on trunk before the Take.
-export async function completedRenamedFileStory(origin: StartOrigin) {
-  writeAt(origin.project, "shared.txt", lines("line"));
-  writeAt(origin.project, renamedOldPath, renamedBaselineText);
-  commitAll(origin.project, "shared and rename source");
-  push(origin.project);
-  return completedPublishedStory(
-    origin,
-    "trunk",
-    undefined,
-    (workspace) => {
-      mkdirSync(path.join(workspace, "new"), { recursive: true });
-      git(workspace, "mv", renamedOldPath, renamedNewPath);
-      writeAt(workspace, renamedNewPath, renamedTreeText);
-    },
-    undefined,
-    { sharedAlreadyReady: true },
-  );
 }
 
 export async function publishedReviewOf(

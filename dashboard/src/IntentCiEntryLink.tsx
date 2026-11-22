@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { ScopePath } from "./CiProofTable.tsx";
+import "./intent-open-link.css";
 
 const EntryNavigation = createContext<
   | {

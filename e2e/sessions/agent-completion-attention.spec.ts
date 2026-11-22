@@ -19,6 +19,8 @@ import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
+  shownDoneSessionEntriesOf,
+  storyCardSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { expectInstalledReportingScript } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
@@ -203,23 +205,27 @@ test("installed attention report stays open, durable and readable through column
     expect(await buttonsAddedSince(panel)).toEqual([]);
     await markDoneAnyway(panel);
     await expect(panel).toHaveCount(0);
-    await expect(claimed.locator(".session-attention-message")).toHaveCount(0);
+    await expect(
+      storyCardSessions(claimed).locator(".session-attention-message"),
+    ).toHaveCount(0);
     expect(stored(restarted.home)[0]?.doneAt).toBeDefined();
     expect(stored(restarted.home)[0]?.doneProblem).toBeUndefined();
     const doneName = `done-${stored(restarted.home)[0]?.session.name ?? ""}`;
     await machineSessions(restarted);
     await reloadUntilRead(page);
-    const recent = parts(page)
-      .recentlyDone.getByRole("article")
-      .filter({ hasText: native.threadId });
-    await expect(sessionStateOf(recent)).toHaveText("Done");
-    await expect(recent).toContainText(`Named ${doneName}`);
+    const doneEntry = await shownDoneSessionEntriesOf(
+      page,
+      "Story A",
+      native.threadId,
+    );
+    await expect(sessionStateOf(doneEntry)).toHaveText("Done");
+    await expect(doneEntry).toContainText(`Named ${doneName}`);
     // Done, the message is collapsed under its label until expanded.
-    const heading = recent.getByRole("button", { name: "Unfinished work" });
+    const heading = doneEntry.getByRole("button", { name: "Unfinished work" });
     await expect(heading).toHaveAttribute("aria-expanded", "false");
     await heading.click();
-    await expect(messagePartOf(recent).text).toHaveText(text);
-    await readFinalReport(recent);
+    await expect(messagePartOf(doneEntry).text).toHaveText(text);
+    await readFinalReport(doneEntry);
     await expect(reportText).toHaveText(nativeReport);
     expect(
       nativeSince(nativeBeforeDone, [...steering, "thread/resume"]),

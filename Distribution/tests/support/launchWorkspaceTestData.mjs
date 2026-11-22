@@ -76,7 +76,7 @@ export function storyBranchFacts({ workflow, identity }, storyBranch) {
  * Where an ad hoc start established its session: an isolated workspace of the
  * project on its own branch, waiting for review, or the project's default
  * checkout on `main` at a revision, landing as the developer chose.
- * @typedef {{ role: "isolated", workspace: string, branch: string } | { role: "default-checkout", workspace: string, landing: "auto-land" | "review", revision: string }} AdHocWorkspace
+ * @typedef {{ role: "isolated", workspace: string, branch: string, startingRevision?: string, repository?: string } | { role: "default-checkout", workspace: string, landing: "auto-land" | "review", revision: string }} AdHocWorkspace
  */
 
 /**
@@ -117,7 +117,13 @@ export function establishedSessionFacts(established) {
         remote: "origin",
         target: "main",
         landing: /** @type {const} */ ("review"),
+        ...(established.startingRevision !== undefined && {
+          startingRevision: established.startingRevision,
+        }),
       },
+      ...(established.repository !== undefined && {
+        branchReviewRepository: established.repository,
+      }),
     };
   return {
     establishedSession: {

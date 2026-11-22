@@ -3,34 +3,29 @@
 // diffs; cases remain in ../review/story-review*.spec.ts.
 
 import { execFileSync } from "node:child_process";
-import {
-  chmodSync,
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { RepositoryRevision } from "../../../Distribution/tests/support/repositoryTestData.mjs";
-import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
+import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
+import type { StartRepository } from "./startOriginPreparation.ts";
 
 export const branch = "claude/story-a";
 
 export const git = (cwd: string, ...args: string[]) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 
+// Commits every change and answers the commit it made.
 export function commitAll(cwd: string, message: string) {
   git(cwd, "add", "--all");
   git(cwd, "commit", "--quiet", "-m", message);
+  return git(cwd, "rev-parse", "HEAD");
 }
 
 // Lines enough for a small edit to stay a rename.
 export const lines = (word: string, count = 12) =>
   [...Array(count).keys()].map((line) => `${word} ${String(line)}\n`).join("");
-
-const image = (last: number) =>
-  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, last]);
 
 // The unstaged edit's added line, too long for the review to show unscrolled.
 export const wideLine = `more ${"wide ".repeat(80)}`;
@@ -40,169 +35,98 @@ export function writeAt(root: string, file: string, text: string) {
   writeFileSync(path.join(root, file), text);
 }
 
-export function addStoryWorktree(project: string) {
-  const workspace = path.join(project, ".worktrees", "story-a");
-  git(project, "worktree", "add", "--quiet", "-b", branch, workspace, "main");
-  return workspace;
-}
+// Where Story A's linked worktree is checked out, on `branch`.
+const storyWorkspace = (project: string) =>
+  path.join(project, ".worktrees", "story-a");
 
-// Story A's worktree as the review should find it, and the trunk commit the
-// story merged, which is the review's baseline.
+// Story A's worktree as the review finds it, from an origin started with a
+// declared Story A workspace, and the queued trunk's revision `base`; with
+// ./storyAReviewRepository.ts or `admissionRepository`, also the trunk commit
+// the story merged, the review's baseline, and the later one.
 export function storyWorktree(origin: StartOrigin) {
-  const project = origin.project;
-  writeFileSync(path.join(project, "old.txt"), lines("old"));
-  writeFileSync(path.join(project, "staged.txt"), lines("staged"));
-  writeFileSync(path.join(project, "unstaged.txt"), lines("unstaged"));
-  writeFileSync(path.join(project, "gone.txt"), lines("gone", 3));
-  writeFileSync(path.join(project, "image.png"), image(1));
-  commitAll(project, "trunk files");
-  git(project, "push", "--quiet", "origin", "main");
-
-  const workspace = addStoryWorktree(project);
-  git(workspace, "mv", "old.txt", "new.txt");
-  writeFileSync(path.join(workspace, "new.txt"), `${lines("old")}renamed\n`);
-  commitAll(workspace, "rename with a small edit");
-  writeFileSync(path.join(workspace, "story.txt"), "story\n");
-  commitAll(workspace, "story file");
-  rmSync(path.join(workspace, "gone.txt"));
-  writeFileSync(path.join(workspace, "image.png"), image(2));
-  commitAll(workspace, "delete a file and redraw the image");
-
-  const elsewhere = mkdtempSync(path.join(origin.machine, "elsewhere-"));
-  git(elsewhere, "clone", "--quiet", origin.origin, ".");
-  git(elsewhere, "config", "user.name", "Another Developer");
-  git(elsewhere, "config", "user.email", "another@example.test");
-  writeFileSync(path.join(elsewhere, "other.txt"), "other story\n");
-  commitAll(elsewhere, "another story");
-  git(elsewhere, "push", "--quiet", "origin", "main");
-  const merged = git(elsewhere, "rev-parse", "HEAD");
-  git(workspace, "fetch", "--quiet", "origin", "main");
-  git(workspace, "merge", "--quiet", "--no-ff", "-m", "merge trunk", merged);
-
-  // Trunk moves on after the merge; nothing here fetches it.
-  writeFileSync(path.join(elsewhere, "other2.txt"), "later trunk\n");
-  commitAll(elsewhere, "later trunk");
-  git(elsewhere, "push", "--quiet", "origin", "main");
-  const later = git(elsewhere, "rev-parse", "HEAD");
-  rmSync(elsewhere, { recursive: true, force: true });
-
-  writeFileSync(path.join(workspace, "staged.txt"), `${lines("staged")}more\n`);
-  git(workspace, "add", "staged.txt");
-  writeFileSync(
-    path.join(workspace, "unstaged.txt"),
-    `${lines("unstaged").replace("unstaged 5\n", "unstaged five\n")}${wideLine}\n`,
-  );
-  mkdirSync(path.join(workspace, "fresh"));
-  writeFileSync(path.join(workspace, "fresh", "new.txt"), "untracked\n");
-  const exclude = path.join(
-    git(workspace, "rev-parse", "--git-common-dir"),
-    "info",
-    "exclude",
-  );
-  writeFileSync(exclude, "ignored.log\n", { flag: "a" });
-  writeFileSync(path.join(workspace, "ignored.log"), "ignored\n");
-  return { workspace, merged, later };
+  return {
+    workspace: storyWorkspace(origin.project),
+    get base() {
+      return origin.revision("base");
+    },
+    get merged() {
+      return origin.revision("merged");
+    },
+    get later() {
+      return origin.revision("later");
+    },
+  };
 }
 
-// Admission: one story commit, a merged baseline and an edit, with trunk later unfetched.
-export function admissionWorktree(origin: StartOrigin) {
-  const project = origin.project;
-  const workspace = addStoryWorktree(project);
-  writeFileSync(path.join(workspace, "story.txt"), "story\n");
-  commitAll(workspace, "story file");
-  git(project, "commit", "--quiet", "--allow-empty", "-m", "another story");
-  git(project, "push", "--quiet", "origin", "main");
-  const merged = git(project, "rev-parse", "origin/main");
-  git(workspace, "merge", "--quiet", "--no-ff", "-m", "merge trunk", merged);
-  writeFileSync(path.join(workspace, "story.txt"), "story\nedited\n");
-  const later = git(
-    origin.origin,
-    "-c",
-    "user.name=Another Developer",
-    "-c",
-    "user.email=another@example.test",
-    "commit-tree",
-    "-p",
-    merged,
-    "-m",
-    "later trunk",
-    `${merged}^{tree}`,
-  );
-  git(origin.origin, "update-ref", "refs/heads/main", later, merged);
-  return { workspace, merged };
-}
+// Story A's worktree declared straight off the queued trunk's revision
+// `base`; consumers add the story's revisions.
+export const storyFromBase = () =>
+  queuedReadyRepository().withWorkspace(branch, { from: "base" });
 
-// A merged trunk file changes mode alone against the baseline.
-export function changeModeOnly(workspace: string) {
-  chmodSync(path.join(workspace, "other.txt"), 0o755);
-}
+// Story A's worktree declared off the queued trunk, which first gains
+// `files` as revision `trunk files`; consumers add the story's revisions.
+const offTrunk = (files: Record<string, string>) =>
+  queuedReadyRepository()
+    .withRevision("trunk files", { files })
+    .withWorkspace(branch, { from: "trunk files" });
 
 // Story A's worktree straight off trunk, with nothing the story changed.
-export function unchangedWorktree(origin: StartOrigin) {
-  const workspace = addStoryWorktree(origin.project);
-  return { workspace, trunk: git(origin.project, "rev-parse", "main") };
-}
+export const unchangedRepository: StartRepository = storyFromBase().please();
 
-// The first story commit landed; trunk lacks its later commit and edit.
-export function landedWorktree(origin: StartOrigin) {
-  const project = origin.project;
-  writeFileSync(path.join(project, "edited.txt"), lines("edited"));
-  commitAll(project, "trunk file");
-  git(project, "push", "--quiet", "origin", "main");
+// Admission: one story commit merged with trunk revision `merged`, the
+// review's baseline, and an edit, while trunk's `later` stays unfetched.
+export const admissionRepository: StartRepository = withLocalState(
+  storyFromBase()
+    .withRevision("merged")
+    .withRevision("later", { fetched: false })
+    .withUnpublishedRevision("story file", {
+      files: { "story.txt": "story\n" },
+    })
+    .withUnpublishedRevision("merge trunk", {
+      parents: ["story file", "merged"],
+    })
+    .please(),
+  { unstaged: { "story.txt": "story\nedited\n" } },
+);
 
-  const workspace = addStoryWorktree(project);
-  writeFileSync(path.join(workspace, "landed.txt"), "landed slice\n");
-  commitAll(workspace, "landed slice");
-  git(workspace, "push", "--quiet", "origin", "HEAD:main");
-  const landed = git(workspace, "rev-parse", "HEAD");
-  writeFileSync(path.join(workspace, "later.txt"), "later slice\n");
-  commitAll(workspace, "later slice");
-  writeFileSync(path.join(workspace, "edited.txt"), `${lines("edited")}more\n`);
-  return { workspace, landed };
-}
+// Revision `landed`, the story's first slice, is on trunk; the story's
+// later commit and edit are not.
+export const landedRepository: StartRepository = withLocalState(
+  queuedReadyRepository()
+    .withRevision("trunk file", { files: { "edited.txt": lines("edited") } })
+    .withRevision("landed", { files: { "landed.txt": "landed slice\n" } })
+    .withWorkspace(branch, { from: "landed" })
+    .withUnpublishedRevision("later slice", {
+      files: { "later.txt": "later slice\n" },
+    })
+    .please(),
+  { unstaged: { "edited.txt": `${lines("edited")}more\n` } },
+);
 
 // Nested changes include a cross-folder rename leaving a sibling unchanged.
-export function nestedWorktree(origin: StartOrigin) {
-  const project = origin.project;
-  const trunkFiles = {
-    "dashboard/src/b.ts": lines("b"),
-    "dashboard/server/c.ts": lines("c"),
-    "README.md": lines("readme"),
-    "old/a.ts": lines("a"),
-    "old/kept.ts": lines("kept"),
-  };
-  for (const [file, text] of Object.entries(trunkFiles)) {
-    writeAt(project, file, text);
-  }
-  commitAll(project, "trunk files");
-  git(project, "push", "--quiet", "origin", "main");
-
-  const workspace = addStoryWorktree(project);
-  const write = (file: string, text: string) => {
-    writeAt(workspace, file, text);
-  };
-  write("dashboard/src/a.tsx", "added\n");
-  write("dashboard/src/b.ts", `${lines("b")}more\n`);
-  rmSync(path.join(workspace, "dashboard/server/c.ts"));
-  write("README.md", `${lines("readme")}more\n`);
-  write("docs/adrs/drafts/0009-tree.md", "tree\n");
-  mkdirSync(path.join(workspace, "new"));
-  git(workspace, "mv", "old/a.ts", "new/a.ts");
-  commitAll(workspace, "nested changes");
-  return { workspace };
-}
+export const nestedRepository: StartRepository = offTrunk({
+  "dashboard/src/b.ts": lines("b"),
+  "dashboard/server/c.ts": lines("c"),
+  "README.md": lines("readme"),
+  "old/a.ts": lines("a"),
+  "old/kept.ts": lines("kept"),
+})
+  .withUnpublishedRevision("nested changes", {
+    remove: ["dashboard/server/c.ts", "old/a.ts"],
+    files: {
+      "dashboard/src/a.tsx": "added\n",
+      "dashboard/src/b.ts": `${lines("b")}more\n`,
+      "README.md": `${lines("readme")}more\n`,
+      "docs/adrs/drafts/0009-tree.md": "tree\n",
+      "new/a.ts": lines("a"),
+    },
+  })
+  .please();
 
 // Story A's worktree with one commit of the comparison a consumer describes
 // (./largeReviewFiles.ts).
-export function largeWorktree(
-  origin: StartOrigin,
-  revision: RepositoryRevision,
-) {
-  const workspace = addStoryWorktree(origin.project);
-  writeRevisionFiles(workspace, revision);
-  commitAll(workspace, revision.name);
-  return { workspace };
-}
+export const largeRepository = (revision: RepositoryRevision) =>
+  storyFromBase().withUnpublishedRevision(revision.name, revision).please();
 
 // What Git says of the worktree's own index and files.
 export const observed = (workspace: string) => ({
@@ -220,20 +144,14 @@ export function expandContextLines(word: string, count: number) {
 }
 
 // One modified file has separated hunks and omitted trailing context.
-export function expandContextWorktree(origin: StartOrigin) {
-  const project = origin.project;
-  writeFileSync(
-    path.join(project, expandContextFile),
-    expandContextLines("line", 160),
-  );
-  commitAll(project, "expand context trunk");
-  git(project, "push", "--quiet", "origin", "main");
-
-  const workspace = addStoryWorktree(project);
-  const edited = expandContextLines("line", 160)
-    .replace("line 54\n", "changed fifty-four\n")
-    .replace("line 127\n", "changed one-twenty-seven\n");
-  writeFileSync(path.join(workspace, expandContextFile), edited);
-  commitAll(workspace, "two distant edits");
-  return { workspace };
-}
+export const expandContextRepository: StartRepository = offTrunk({
+  [expandContextFile]: expandContextLines("line", 160),
+})
+  .withUnpublishedRevision("two distant edits", {
+    files: {
+      [expandContextFile]: expandContextLines("line", 160)
+        .replace("line 54\n", "changed fifty-four\n")
+        .replace("line 127\n", "changed one-twenty-seven\n"),
+    },
+  })
+  .please();

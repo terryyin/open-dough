@@ -17,6 +17,7 @@ import {
 } from "./unattachedSession.ts";
 import { defaultLaunchStartSchema } from "./defaultLaunchStart.ts";
 import { sessionCommitsSchema } from "./sessionCommits.ts";
+import { sessionBranchEvidenceSchema } from "./sessionBranchResult.ts";
 import { hostSessionSchema } from "./hostSession.ts";
 export {
   hostSessionSchema,
@@ -136,10 +137,6 @@ export function isEstablishedOneShot(
   return "tracking" in established;
 }
 
-// A native conversation with first-input evidence, kept until `launchRetentionDays` after
-// the developer marked its session done (`./doneMark.ts`), if they ever do,
-// with when they did: local evidence only, never a story fact.
-
 export const launchRecordSchema = z.object({
   request: recordedLaunchRequestSchema,
   session: hostSessionSchema,
@@ -160,6 +157,7 @@ export const launchRecordSchema = z.object({
   landingReporting: landingReportingSchema.optional(),
   sessionCommits: sessionCommitsSchema.optional(),
   sessionCommitsFailedAt: z.iso.datetime().optional(),
+  ...sessionBranchEvidenceSchema.shape,
   // The receipt of the report the developer marked read (`./readMark.ts`);
   // a report with any other receipt is unread while the session is not done.
   reportRead: z.uuid().optional(),
@@ -245,6 +243,8 @@ export const launchWithStateSchema = launchRecordSchema.extend({
   workspaceState: workspaceStateSchema.optional(),
   shownWorkspace: z.string().min(1).optional(),
   sessionState: sessionStateSchema,
+  // A Done listing's reporting reference; the history keeps its handoff.
+  reportingReference: z.uuid().optional(),
 });
 
 export type LaunchWithState = z.infer<typeof launchWithStateSchema>;

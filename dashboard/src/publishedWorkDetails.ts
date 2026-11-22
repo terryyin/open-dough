@@ -12,6 +12,11 @@ import { withAssignments } from "./assignmentPlacement.ts";
 import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 import { readDoneStories, type DoneStories } from "./doneStories.ts";
+import {
+  boundaryPublishedSessions,
+  readPublishedSessions,
+  type PublishedSessions,
+} from "./publishedSessions.ts";
 import type { ObservationOutcomes } from "./observationOutcomes.ts";
 import {
   awaitingProgressSources,
@@ -42,6 +47,12 @@ export async function readPublishedDetails(
     sameRevision && work.done !== undefined && work.done.status !== "loading"
       ? work.done
       : { status: "loading" };
+  let publishedSessions: PublishedSessions =
+    sameRevision &&
+    work.publishedSessions !== undefined &&
+    work.publishedSessions.status === "listed"
+      ? work.publishedSessions
+      : { status: "loading" };
   const answered = (): PublishedWork => {
     // Trunk's plan facts do not establish a Taken entry's progress until
     // its profiles can say where that progress is published.
@@ -57,7 +68,11 @@ export async function readPublishedDetails(
       credited === undefined ? current : withAssignments(current, credited);
     // Owners from `credited` can heal before `progress` is rewritten; keep
     // trunk-copy labels aligned (or cleared) with the owners now shown.
-    return { ...withKnownProgressSources(withOwners), done };
+    return {
+      ...withKnownProgressSources(withOwners),
+      done,
+      publishedSessions,
+    };
   };
   const shownWith = (read: PublishedWork) => {
     onPartial?.(withCarriedFacts(read, carriedFrom), read);
@@ -79,6 +94,16 @@ export async function readPublishedDetails(
     bound,
   ).then((read) => {
     done = read;
+    show();
+  });
+  // Published sessions, like done stories, are their own gap.
+  const sessionsRead = readPublishedSessions(
+    boundaryPublishedSessions(work.source),
+    work.revision,
+    untilEither,
+    bound,
+  ).then((read) => {
+    publishedSessions = read;
     show();
   });
   // Owners and preparers come from the agent profiles at the same
@@ -176,6 +201,7 @@ export async function readPublishedDetails(
     progressed,
     attributed,
     doneRead,
+    sessionsRead,
   ] as const;
   try {
     const [, , snapshotUnread] = await Promise.all(details);

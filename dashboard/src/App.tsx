@@ -9,6 +9,7 @@ import { ProductMark } from "./ProductMark.tsx";
 import { SystemSettings } from "./SystemSettings.tsx";
 import { SettingsNavigation } from "./settingsNavigation.ts";
 import { SavedTerminalThemeProvider } from "./savedTerminalTheme.ts";
+import { pageTerminalThemeSource } from "./terminalThemeSource.ts";
 
 import { StoryNotesOnPage, usePageStoryNotes } from "./storyNotes.ts";
 
@@ -91,7 +92,7 @@ export function App() {
     );
   return (
     <StoryNotesOnPage.Provider value={storyNotes}>
-      <SavedTerminalThemeProvider>
+      <SavedTerminalThemeProvider source={pageTerminalThemeSource}>
         <ProjectsOnPage projects={projects} replaceProjects={replaceProjects}>
           <SettingsNavigation.Provider
             value={(onReturn) => {

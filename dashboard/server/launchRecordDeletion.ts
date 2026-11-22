@@ -1,25 +1,32 @@
 // Deletion records launch-local intent even before native launch settlement.
+import { landingReportingReference } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { removeLandingPins } from "./launchLandingGit.ts";
-import { recordLanding, releaseSessionCommitRefs } from "./launchRecordPins.ts";
+import {
+  recordLanding,
+  releaseSessionBranchRefs,
+  releaseSessionCommitRefs,
+} from "./launchRecordPins.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import { keptRecords } from "./launchRecordStore.ts";
+import {
+  keptSession,
+  machineRecordStore,
+  type LaunchRecordStore,
+} from "./launchRecordStore.ts";
 import {
   keptAttempts,
   replaceAttempts,
   withKeptAttempts,
 } from "./launchAttemptStore.ts";
-import { replaceRecords } from "./launchRecordDocument.ts";
 
 // Removes one kept session's record, leaving the project's other records as
 // they are. Answers whether such a record was kept.
 export async function deleteRecord(
   sourceId: string,
   session: SessionReference,
+  store: LaunchRecordStore = machineRecordStore,
 ): Promise<boolean> {
-  const record = (await keptRecords(sourceId)).find(
-    (entry) => sessionKey(entry.session) === sessionKey(session),
-  );
+  const record = await keptSession(sourceId, session, store);
   const deletedAttempt = (await keptAttempts())?.find(
     (entry) =>
       entry.request.source === sourceId &&
@@ -62,11 +69,12 @@ export async function deleteRecord(
     if (retainedCleanup) {
       // Retain intent and repository in this same record until pin cleanup
       // succeeds, even if the startup attempt expires before retry.
-      await replaceRecords((kept) => ({
+      await store.replaceRecords((kept) => ({
         ...kept,
         [sourceId]: (kept[sourceId] ?? []).map((entry) =>
           "session" in entry &&
-          entry.request.reporting?.reference === reference &&
+          sessionKey(entry.session) === sessionKey(session) &&
+          landingReportingReference(entry) === landing?.reference &&
           entry.landingReporting !== undefined
             ? {
                 ...entry,
@@ -84,7 +92,7 @@ export async function deleteRecord(
         await removeLandingPins(landing.repository, landing.reference);
     }
     let deleted: LaunchRecord | undefined;
-    await replaceRecords((kept) => {
+    await store.replaceRecords((kept) => {
       const records = kept[sourceId];
       if (records === undefined) {
         return kept;
@@ -101,10 +109,19 @@ export async function deleteRecord(
       return { ...kept, [sourceId]: remaining };
     });
     // Any capture that won the record lock first has settled in `deleted`.
-    if (deleted !== undefined) await releaseSessionCommitRefs(deleted);
+    if (deleted !== undefined) {
+      await releaseSessionCommitRefs(deleted);
+      await releaseSessionBranchRefs(deleted);
+    }
     // Older records recover their repository through the retained attempt.
-    if (!retainedCleanup && landing !== undefined)
-      await removeLandingPins(landing.repository, landing.reference);
+    if (!retainedCleanup) {
+      const latestLanding = recordLanding(deleted) ?? landing;
+      if (latestLanding !== undefined)
+        await removeLandingPins(
+          latestLanding.repository,
+          latestLanding.reference,
+        );
+    }
     return deleted !== undefined;
   });
 }

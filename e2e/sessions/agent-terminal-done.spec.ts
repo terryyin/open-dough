@@ -5,9 +5,9 @@
 // Keep open or Escape leaves the panel open, attached, and the session
 // running, with the keyboard back on Mark as done. While it marks, the panel
 // says so quietly; then the panel closes, keeping its story selected (ADR
-// 0008), the session leaves its card, and Recently done shows the entry Done
-// under its `done-` name, still openable, through a reload. How the boundary
-// renames and stops the session is
+// 0008), the session leaves current work, and the unfinished card's Done
+// history shows the entry Done under its `done-` name, still openable,
+// through a reload. How the boundary renames and stops the session is
 // ../../dashboard/backend-tests/sessions/agent-launch-done.spec.ts, how the
 // page reopens it is ./agent-terminal-done-reopen.spec.ts, a card entry's own
 // Mark as done is ./agent-launch-story-card-done.spec.ts, and a refused or
@@ -23,11 +23,10 @@ import {
   terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
+  shownDoneSessionEntriesOf,
   storyCardSessionName,
   storyCardSessions,
   expectMembership,
-  parts,
-  standaloneSessionName,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
@@ -41,6 +40,7 @@ import {
   colourOf,
   tokenColour,
 } from "../../dashboard/test-support/pageColours.ts";
+import { untilDoneMarkAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
 import { holdDoneRequests } from "../../dashboard/test-support/support/holdDoneRequest.ts";
@@ -64,7 +64,7 @@ test.describe("marking a session done from its terminal", () => {
     (columnsJourney as StoryColumnsJourney | undefined)?.cleanup(),
   );
 
-  test("Mark as done closes the panel, the session leaves its card, and Recently done shows it Done until its terminal opens again", async ({
+  test("Mark as done closes the panel, the session leaves current work, and the card's Done history shows it Done until its terminal opens again", async ({
     page,
     dashboard,
   }) => {
@@ -73,12 +73,9 @@ test.describe("marking a session done from its terminal", () => {
       page,
       columnsJourney,
     );
-    const { recentlyDone: recent } = parts(page);
+    const story = card(readyStory);
     const panel = terminalPanel(page);
-    const listed = storyCardSessions(card(readyStory));
-    const entry = recent.getByRole("article", {
-      name: standaloneSessionName("Execution", readyStory),
-    });
+    const listed = storyCardSessions(story);
     const queued = {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
@@ -91,7 +88,7 @@ test.describe("marking a session done from its terminal", () => {
     );
     await openTerminalControl(listed).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
-    await expectSelected(card(readyStory), true);
+    await expectSelected(story, true);
     const [session] = dashboard.claudeListing();
     const doneName = `done-${String(session?.["name"])}`;
     const { rows } = terminalScreenParts(panel);
@@ -119,11 +116,13 @@ test.describe("marking a session done from its terminal", () => {
     await expect(marking).toBeVisible();
     expect(await colourOf(marking)).toBe(await tokenColour(page, "--quiet"));
     release();
+    await untilDoneMarkAnswered(page);
     await expect(panel).toHaveCount(0);
     // The panel the mark closed keeps the story selected.
-    await expectSelected(card(readyStory), true);
+    await expectSelected(story, true);
 
     await expect(listed).toHaveCount(0);
+    const entry = await shownDoneSessionEntriesOf(page, readyStory);
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toContainText(`Named ${doneName}`);
     // Claude Code keeps the conversation, so the entry still opens it.
@@ -132,8 +131,9 @@ test.describe("marking a session done from its terminal", () => {
 
     await page.reload();
     await settled();
-    await expect(sessionStateOf(entry)).toHaveText("Done");
-    await expect(entry).toContainText(`Named ${doneName}`);
+    const retained = await shownDoneSessionEntriesOf(page, readyStory);
+    await expect(sessionStateOf(retained)).toHaveText("Done");
+    await expect(retained).toContainText(`Named ${doneName}`);
     await expect(listed).toHaveCount(0);
     await expectMembership(page, queued);
   });

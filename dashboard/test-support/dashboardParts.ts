@@ -3,6 +3,7 @@
 // in one place.
 
 import type { Locator, Page } from "@playwright/test";
+import { storyCardDoneClass } from "../src/storyCardDone.ts";
 
 export function parts(page: Page) {
   const board = page.getByRole("region", { name: "Board" });
@@ -17,6 +18,8 @@ export function parts(page: Page) {
     project: page.getByRole("radiogroup", { name: "Project" }),
     // The banner's Development and Intent choices of the selected project.
     perspective: page.getByRole("radiogroup", { name: "Perspective" }),
+    // Recent stories bookmark; its accessible name includes selected state.
+    recentStories: banner.getByRole("button", { name: /^Recent stories/ }),
     development: page.getByRole("radio", { name: "Development", exact: true }),
     intentChoice: page.getByRole("radio", { name: "Intent", exact: true }),
     // The Intent perspective's content, in place of Development's.
@@ -82,6 +85,71 @@ export const standaloneSessionName = (workflow: string, title: string) =>
 export const storyCardSessions = (card: Locator) =>
   card.getByRole("list", { name: "Sessions" }).getByRole("article");
 
+// An unfinished card's Done history disclosure (`./StoryCardDoneSessions.tsx`).
+export const storyCardDoneDisclosure = (card: Locator) =>
+  card.locator(`details.${storyCardDoneClass}`);
+
+// Opens the card's Done history so nested Session entries can be observed.
+// Idempotent: leaves an already-open disclosure open.
+export async function expandStoryCardDoneHistory(card: Locator) {
+  const disclosure = storyCardDoneDisclosure(card);
+  if (
+    !(await disclosure.evaluate(
+      (element) => (element as HTMLDetailsElement).open,
+    ))
+  )
+    await disclosure.locator("summary").click();
+  return disclosure;
+}
+
+const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// A story's Done session entries wherever the Board places them: in its
+// unfinished card's Done history, or in Recently done, standalone or inside
+// its done card. Optionally narrowed by visible text such as a session id.
+// Placement is proved by the Board rule's own tests (`../src/columnSessions.ts`);
+// journeys read Done sessions here, so a placement change edits only this
+// reading. An entry in a collapsed Done history counts but is not shown; use
+// `shownDoneSessionEntriesOf` to observe it.
+export const doneSessionEntriesOf = (
+  page: Page,
+  story: string,
+  hasText?: string | RegExp,
+) => {
+  const { backlog, taken, recentlyDone } = parts(page);
+  const named = { name: story, exact: true };
+  const all = storyCardDoneDisclosure(
+    backlog.getByRole("article", named).or(taken.getByRole("article", named)),
+  )
+    .getByRole("list", { name: "Done history", includeHidden: true })
+    .getByRole("article", { includeHidden: true })
+    .or(
+      recentlyDone.getByRole("article", {
+        name: new RegExp(`${escaped(standaloneSessionName("", story))}$`),
+      }),
+    );
+  return hasText === undefined ? all : all.filter({ hasText });
+};
+
+// Those entries once present, opening a collapsed Done history that holds
+// them so they are shown.
+export async function shownDoneSessionEntriesOf(
+  page: Page,
+  story: string,
+  hasText?: string | RegExp,
+) {
+  const entries = doneSessionEntriesOf(page, story, hasText);
+  await entries.first().waitFor({ state: "attached" });
+  const { board } = parts(page);
+  const collapsed = storyCardDoneDisclosure(
+    board.getByRole("article", { name: story, exact: true }),
+  ).and(page.locator("details:not([open])"));
+  const holding =
+    hasText === undefined ? collapsed : collapsed.filter({ hasText });
+  if ((await holding.count()) > 0) await holding.locator("summary").click();
+  return entries;
+}
+
 // What a card says of how many of its sessions need attention, when any do.
 export const storyCardAttentionOf = (card: Locator) =>
   card.getByText(/^\d+ sessions? needs? attention$/);
@@ -111,7 +179,8 @@ export const sessionEntriesIn = (scope: Locator) =>
 export const sessionEntryShowing = (scope: Locator, key: string) =>
   scope.locator(`[data-shows-session="${key}"]`);
 
-// The state words a session entry shows, on a card or in Recently done.
+// The state words a session entry shows, on a card, in Done history, or in
+// Recently done.
 export const sessionStateOf = (entry: Locator) =>
   entry.locator(".session-state");
 

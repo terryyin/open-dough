@@ -29,7 +29,7 @@ export type CompletionSubmission = z.infer<typeof submissionSchema>;
 // The caller selects this project's records before matching the launch identity.
 export function isReportingRecord(
   record: LaunchRecord | CreationRecord,
-  report: CompletionSubmission,
+  report: Pick<CompletionSubmission, "reference" | "host">,
 ): record is LaunchRecord {
   return (
     "session" in record &&

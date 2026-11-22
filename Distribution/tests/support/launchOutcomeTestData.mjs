@@ -5,9 +5,11 @@
 // (`./launchTestData.mjs`). A final report can also be arranged on its own
 // (`./completionReportTestData.mjs`), as can the submission a session reports
 // it with (`./completionSubmissionTestData.mjs`). The landing is the evidence
-// `./launchLandingEvidenceTestData.mjs` describes.
+// `./launchLandingEvidenceTestData.mjs` describes. What its Done captured comes
+// from `LaunchDoneCaptureBuilder`.
 
 import { finalReport } from "./completionReportTestData.mjs";
+import { LaunchDoneCaptureBuilder } from "./launchDoneCaptureTestData.mjs";
 import { LaunchLandingBuilder } from "./launchLandingEvidenceTestData.mjs";
 import { landingDelivery } from "./launchLandingTestData.mjs";
 
@@ -36,7 +38,7 @@ export { CompletionSubmissionBuilder } from "./completionSubmissionTestData.mjs"
  *   doneAt?: string,
  *   doneProblem?: string,
  *   returnedToBacklog?: boolean,
- *   sessionCommits?: { repository: string, runs: { base: string, revision: string }[], shared?: true },
+ *   branchEntry?: import("../../../dashboard/src/sessionBranchResult.ts").SessionBranchEntry,
  * }} LaunchOutcome
  */
 
@@ -60,7 +62,7 @@ function received(landing, receipt, identity) {
 // What a launch's builder states about the launch after it started
 // (`LaunchRecordBuilder`): its final report, whether the developer read it,
 // its landing and its Done mark.
-export class LaunchOutcomeBuilder {
+export class LaunchOutcomeBuilder extends LaunchDoneCaptureBuilder {
   /** @type {LaunchOutcome} */
   #outcome = {};
 
@@ -125,15 +127,43 @@ export class LaunchOutcomeBuilder {
   }
 
   /**
-   * The commits the session made in its Default main checkout, kept at Done:
-   * each run's pair in the checkout's common repository, oldest first, and
-   * `shared` when another session was open in that checkout meanwhile.
-   * @param {{ repository: string, runs: { base: string, revision: string }[], shared?: true }} kept
+   * The session identified this checkout as its own branch, entering it in
+   * the state and with the Default main tip the entry states.
+   * @param {NonNullable<LaunchOutcome["branchEntry"]>} entry
    */
-  keptSessionCommits({ repository, runs, shared }) {
-    const sessionCommits = { repository, runs, ...(shared && { shared }) };
-    this.#outcome = { ...this.#outcome, sessionCommits };
+  enteredBranch(entry) {
+    this.#outcome = { ...this.#outcome, branchEntry: structuredClone(entry) };
     return this;
+  }
+
+  /**
+   * A Done branch whose delivery to trunk is still to be observed: it entered
+   * `branch` in `repository` witnessing trunk at `base`, and its Done kept a
+   * delivery-checked result from `base` to `revision`.
+   * @param {{ repository: string, base: string, revision: string, branch?: string, remote?: string }} facts
+   */
+  awaitingManualDelivery({
+    repository,
+    base,
+    revision,
+    branch = "draft",
+    remote = "origin",
+  }) {
+    return this.enteredBranch({
+      repository,
+      workspace: branch,
+      branch,
+      committedTip: base,
+      tree: base,
+      trunk: { remote, target: "refs/heads/main", revision: base },
+    })
+      .markedDone()
+      .branchResultFrom({
+        repository,
+        base,
+        revision,
+        manualDeliveryChecked: true,
+      });
   }
 
   // The dashboard closed the launch on its final report finding the story
@@ -180,7 +210,7 @@ export class LaunchOutcomeBuilder {
       doneAt,
       doneProblem,
       returnedToBacklog,
-      sessionCommits,
+      branchEntry,
     } = this.#outcome;
     const report = completion && finalReport(completion, at);
     const landing =
@@ -208,12 +238,8 @@ export class LaunchOutcomeBuilder {
       }),
       ...(doneAt !== undefined && { doneAt }),
       ...(doneProblem !== undefined && { doneProblem }),
-      ...(sessionCommits && {
-        sessionCommits: {
-          ...structuredClone(sessionCommits),
-          readAt: doneAt ?? at,
-        },
-      }),
+      ...(branchEntry && { branchEntry: structuredClone(branchEntry) }),
+      ...this.doneCaptureFacts(doneAt ?? at),
     };
   }
 }

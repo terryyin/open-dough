@@ -1,13 +1,10 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-import { listedFile } from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   filesColumn,
   intentModeViews,
 } from "../../dashboard/test-support/intentModePage.ts";
 // A Taken card's empty area selects its story: one header above the views
 // names it, its revisions and outside count, and offers Project Intent and
-// Review changes. Changed tests starts with "Selected story only"; the whole
+// Review changes. Changes starts with "Selected story only"; the whole
 // tree shows change styling, auto-opened containing folders and the first
 // changed location. The location's change mark differs from a folder's row
 // background and stays visible after selection. Changed Purpose matches Review
@@ -74,9 +71,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     ).toHaveCount(1);
     await expect(story.title).toHaveText("Story A");
     await expect(intent.getByText("Story A", { exact: true })).toHaveCount(1);
-    await expect(story.views).toHaveText(
-      "CI comparisonChanged testsIntent coverage",
-    );
+    await expect(story.views).toHaveText("CI comparisonChangesIntent coverage");
     await expect(
       column.locator(":scope > :not(.visually-hidden)").first(),
     ).toHaveClass("intent-story-scope");
@@ -99,10 +94,9 @@ test("Intent highlights a selected Taken story's test changes over the published
     );
   });
 
-  await test.step("the changed files outside every location are counted once each, pointing to Review changes", async () => {
-    await story.expectOutsideCount(2);
-    await expect(intent.getByText("App.tsx")).toHaveCount(0);
-    await expect(intent.getByText(/notes\.md/)).toHaveCount(0);
+  await test.step("the changed files outside every location are listed once each after the locations", async () => {
+    await expect(story.outside.getByText("App.tsx")).toHaveCount(1);
+    await expect(story.outside.getByText(/notes\.md/)).toHaveCount(1);
   });
 
   await test.step("the first changed location and its folders containing changes are open; the rest stay collapsed", async () => {
@@ -181,17 +175,8 @@ test("Intent highlights a selected Taken story's test changes over the published
     });
   });
 
-  await test.step("a changed file's Purpose is Review changes' diff", async () => {
-    const inIntent = await story.diff(changed.modified);
-    expect(inIntent).toContain("more");
-    const review = await story.openReview();
-    await expect(
-      listedFile(review, "Modified dashboard/src/App.tsx", { exact: true }),
-    ).toBeVisible();
-    expect(await story.reviewDiff(changed.modified)).toBe(inIntent);
-    expect(await story.diff(changed.added)).toBe(
-      await story.reviewDiff(changed.added),
-    );
+  await test.step("a changed file's Purpose is its diff", async () => {
+    expect(await story.diff(changed.modified)).toContain("more");
   });
 
   await test.step("an unchanged file shows its published source", async () => {
@@ -200,13 +185,8 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(story.diffReading.code).toHaveCount(0);
   });
 
-  await test.step("closing the story's review keeps the selected story; deselecting its card removes the header", async () => {
+  await test.step("deselecting its card removes the header", async () => {
     const { development, intentChoice } = parts(page);
-    const review = reviewRegion(page);
-    await closeSidePanel(review);
-    await expect(review).toHaveCount(0);
-    await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
-    await expect(story.title).toHaveText("Story A");
     await development.click();
     await expectSelected(card, true);
     await emptyArea(card).click();
@@ -214,7 +194,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(header.region).toHaveCount(0);
-    await expect(story.outsideCount).toHaveCount(0);
+    await expect(story.outside).toHaveCount(0);
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
     const unchanged = await locationHeaderLookAt(intent, "tests");

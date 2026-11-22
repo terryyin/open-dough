@@ -39,12 +39,6 @@
   font-size: var(--text-xs);
 }
 
-.intent-story-crumb-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
 .intent-story-title-line {
   display: flex;
   align-items: center;
@@ -97,33 +91,9 @@
   margin-left: var(--space-1);
 }
 
-/* The count outside every location: a quiet icon and number that opens
-   Review changes. */
-.intent-story-outside {
-  display: inline-flex;
-  box-sizing: border-box;
-  flex: none;
-  align-items: center;
-  min-height: var(--control-size);
-  gap: 0.2rem;
-  padding: 0 var(--space-1);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--quiet);
-  font: inherit;
-  font-size: var(--text-sm);
-  cursor: pointer;
-}
-
-.intent-story-outside:hover {
-  color: var(--text);
-  background: var(--hover);
-}
-
 .intent-story-title-line:has(> .story-notes-problem) {
   display: grid;
-  grid-template-columns: minmax(0, max-content) repeat(2, max-content);
+  grid-template-columns: minmax(0, max-content) max-content;
 }
 
 .intent-story-title-line > .story-notes-problem {
@@ -171,7 +141,10 @@
   }
 }
 
+/* Positioned, it keeps screen-reader labels inside the pane that scrolls
+   them. */
 .intent-page-panel {
+  position: relative;
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -213,7 +186,7 @@
   overflow-wrap: anywhere;
 }
 
-/* "Selected story only" heading the Changed tests tree. */
+/* "Selected story only" heading the Changes tree. */
 .intent-story-scope {
   flex: none;
   padding: var(--space-2) var(--space-3);
@@ -232,13 +205,6 @@
 
 .intent-story-diff > .story-review-diff-heading {
   margin: 0 0 var(--space-2);
-}
-
-.intent-story-ci-return {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: var(--space-2);
 }
 
 /* An explanation in place of the locations keeps the panel's inset. */

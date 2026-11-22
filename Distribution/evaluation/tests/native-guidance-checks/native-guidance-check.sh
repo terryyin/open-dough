@@ -24,10 +24,14 @@ for family in "${source_dir}"/Distribution/evaluation/cases/*/; do
 done
 selection_case() {
   mkdir -p -- "${root}/Distribution/evaluation/cases/guidance-checks/$1"
-  printf '# %s\n\n## Selection\n\n- workflow: %s\n- hosts: %s\n' \
-    "$1" "$2" "$3" > "${root}/Distribution/evaluation/cases/guidance-checks/$1/case.md"
+  {
+    printf '# %s\n\n## Selection\n\n- workflow: %s\n- hosts: %s\n' "$1" "$2" "$3"
+    if [[ -n ${4-} ]]; then
+      printf -- '- unqualified hosts: %s\n' "$4"
+    fi
+  } > "${root}/Distribution/evaluation/cases/guidance-checks/$1/case.md"
 }
-selection_case alpha 'blocked execution' 'codex (qualified); claude: not qualified'
+selection_case alpha 'blocked execution' 'codex (qualified)' 'claude (no native observations)'
 selection_case beta 'release review' 'codex'
 catalog() {
   bash "${root}/Distribution/evaluation/src/native-guidance-check.sh" --list "$@"
@@ -43,6 +47,11 @@ case_names() {
 [[ $(case_names --where hosts=CODEX --where workflow=BLOCK) == alpha ]]
 # Each listed case is followed by its indented selection traits.
 [[ $(catalog --where workflow=release) == $'beta\n  workflow: release review\n  hosts: codex' ]]
+catalog --where workflow=BLOCK | grep -Fx '  unqualified-hosts: claude (no native observations)' > /dev/null
+if catalog --where hosts=claude > "${work}/unqualified-match" || [[ -s ${work}/unqualified-match ]]; then
+  echo 'FAIL: the hosts filter matched an unqualified host' >&2
+  exit 1
+fi
 if catalog --where workflow=absent > /dev/null; then
   echo 'FAIL: a catalog filter that matches no case succeeded' >&2
   exit 1

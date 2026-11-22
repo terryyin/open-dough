@@ -1,195 +1,161 @@
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { putFrontendBacklog } from "../../test-support/support/frontendServiceState.ts";
-import { answerBoardOnPausedPageTime } from "../../test-support/support/frontendBoardPageTime.ts";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { ReadProblem } from "../../src/readProblem.ts";
+import type { PublishedWork } from "../../src/publishedWork.ts";
 import {
-  controlFrontendAuthenticatedRead,
-  countAuthenticatedReads,
-} from "../../test-support/support/frontendAuthenticatedReadControl.ts";
-import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
-import { politeRegionsOfferedThenMarked } from "../../test-support/accessibleReading.ts";
-import {
-  expectMembership,
-  parts,
-  shortRevision,
-} from "../../test-support/dashboardPage.ts";
-import { passTimeUntilChecked } from "../../test-support/autoRefreshJourney.ts";
-import { longBacklog, revision } from "../../test-support/accessibleBoard.ts";
-import { zoomedWindow } from "../../test-support/accessibleReading.ts";
-import {
-  box,
-  compactProjectSelectCut,
-  expectNoSidewaysScrollAndWholeText,
-  expectStackedInOrder,
-} from "../../test-support/pageLayout.ts";
-import {
-  backlogA,
-  backlogB,
-  revisionA,
-  revisionB,
-  titlesOfA,
-  titlesOfB,
-} from "../../test-support/refreshJourney.ts";
+  expectDocumentStill,
+  readsWhole,
+  tabTo,
+  zoomedViewport,
+} from "./board-accessibility.ts";
+import { mountBoardFrame, workRead } from "./board-frame-mount.ts";
+import { withBoardStorage } from "./board-mount.ts";
+import { boardReading as board } from "./board-reading-page.ts";
+import { boardWork, story } from "./board-work.ts";
 
-test("accessible Board announces reading, the read result, and a failure while focus stays where it is", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendBacklog(frontendServices, {
-    revision: revisionA,
-    backlog: backlogA,
+const earlierStory = story("Read the earlier work", 10);
+const updatedStory = story("Read the updated work", 11);
+const before = boardWork([earlierStory], {
+  retrievedAt: new Date("2026-11-21T10:00:00Z"),
+});
+const after = boardWork([updatedStory], {
+  revision: "b".repeat(40),
+  retrievedAt: new Date("2026-11-21T11:00:00Z"),
+});
+const limited =
+  "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403).";
+const missing =
+  "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).";
+const currentStatus = () =>
+  page.getByRole("status").filter({
+    has: page.getByText(
+      /Published work read at revision|Reading published work/,
+    ),
   });
-  const pathReads = countAuthenticatedReads(page, (params) =>
-    params.has("path"),
+const settings = () =>
+  page.getByRole("button", { name: "System settings", exact: true });
+const card = (title: string) =>
+  board.column("Backlog").getByRole("article", { name: title, exact: true });
+
+test("accessible Board announces reading, the read result, and a failure while focus stays where it is", async () => {
+  withBoardStorage("0");
+  const mounted = await mountBoardFrame(before, { width: 1440, height: 900 });
+  await expect.element(card(earlierStory.title)).toBeVisible();
+  await expect
+    .poll(() => currentStatus().element().textContent.trim())
+    .toMatch(/^Published work read at revision aaaaaaa, retrieved .+\.$/);
+  const status = currentStatus().element();
+  const notice = status.parentElement?.querySelector(
+    ".announcement[aria-live='polite']",
   );
-  const check = await controlFrontendAuthenticatedRead(page, (params) =>
-    params.has("since"),
-  );
-  await answerBoardOnPausedPageTime(page, frontendServices);
-  await page.goto("/");
-  await expectMembership(page, titlesOfA);
-  const { status, notice, problem, retrievedAt } = parts(page);
-  const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
+  for (const region of [status, notice]) {
+    if (region === null || region === undefined)
+      throw new Error("An announcement region is missing.");
+    expect(region.isConnected).toBe(true);
+    for (
+      let element: Element | null = region;
+      element !== null;
+      element = element.parentElement
+    ) {
+      const style = getComputedStyle(element);
+      expect(style.display).not.toBe("none");
+      expect(style.visibility).toBe("visible");
+      expect(element.getAttribute("aria-hidden")).not.toBe("true");
+    }
+  }
+  expect(notice).toBeEmptyDOMElement();
+  const firstRetrieved = status.querySelector("time")?.getAttribute("datetime");
+  expect(firstRetrieved).toBe(before.retrievedAt.toISOString());
+  expect(
+    status.querySelector(".visually-hidden")?.getBoundingClientRect(),
+  ).toMatchObject({ width: 1, height: 1 });
+  await tabTo(settings().element());
+  await expect.element(settings()).toHaveFocus();
 
-  await test.step("both polite regions are offered before they have anything new to say", async () => {
-    await expect(status).toContainText(
-      `Published work read at revision ${shortRevision(revisionA)}, retrieved `,
-    );
-    await expect(notice).toBeEmpty();
-    expect(await page.evaluate(politeRegionsOfferedThenMarked)).toEqual([
-      true,
-      true,
-    ]);
-    // The successful result stays spoken, not shown twice in the chrome.
-    expect(
-      await box(status.getByText(/^Published work read at revision /)),
-    ).toMatchObject({ width: 1, height: 1 });
+  let answer: (work: PublishedWork) => void = () => {
+    throw new Error("The refresh was not prepared.");
+  };
+  const next = new Promise<PublishedWork>((resolve) => {
+    answer = resolve;
   });
-
-  // Sessions, the perspective, the project, then System settings.
-  const settings = page.getByRole("button", {
-    name: "System settings",
-    exact: true,
-  });
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await page.keyboard.press("Tab");
-  await expect(settings).toBeFocused();
-
-  await test.step("a check that finds B starts a read, which the known status region reports as under way", async () => {
-    const { release: releaseFileAtB } = await holdAuthenticatedReadsWhere(
-      page,
-      (params) =>
-        params.get("revision") === revisionB &&
-        [...params.keys()].join() === "source,revision",
-      [],
-    );
-    putFrontendBacklog(frontendServices, {
-      revision: revisionB,
-      backlog: backlogB,
-    });
-    await passTimeUntilChecked(page);
-    await expect(status).toHaveText(
+  workRead.mockReturnValueOnce(next);
+  mounted.revisionChanged(after.revision);
+  await expect
+    .poll(() => currentStatus().element().textContent.trim())
+    .toBe(
       "Reading published work… What is shown is still the snapshot retrieved earlier.",
     );
-    await expect(status).toHaveAttribute("data-known", "[role='status']");
-    // A read under way is said nowhere else, so it is said in sight.
-    await expect(status).toBeInViewport({ ratio: 1 });
-    expect((await box(status)).height).toBeGreaterThanOrEqual(16);
-    await expect(settings).toBeFocused();
-    releaseFileAtB();
-  });
+  expect(currentStatus().element()).toBe(status);
+  expect(status.getBoundingClientRect().height).toBeGreaterThanOrEqual(16);
+  await expect.element(card(earlierStory.title)).toBeVisible();
+  await expect.element(settings()).toHaveFocus();
+  expect(workRead.mock.lastCall?.[4]).toBe(after.revision);
+  expect(workRead.mock.lastCall?.[5]).toBe(before);
 
-  await test.step("the result names the revision read and when, and claims nothing more", async () => {
-    await expectMembership(page, titlesOfB);
-    await expect(status).toHaveText(
-      new RegExp(
-        `^Published work read at revision ${shortRevision(revisionB)}, retrieved [^.]+\\.$`,
-      ),
-    );
-    const retrievedB = await retrievedAt.getAttribute("datetime");
-    expect(retrievedB).not.toBe(retrievedA);
-    await expect(retrievedAt).toHaveAttribute("datetime", retrievedB ?? "");
-    await expect(status).toHaveAttribute("data-known", "[role='status']");
-    await expect(notice).toHaveAttribute("data-known", "[aria-live='polite']");
-    await expect(notice).toBeEmpty();
-    expect(
-      await box(status.getByText(/^Published work read at revision /)),
-    ).toMatchObject({ width: 1, height: 1 });
-    expect(await page.evaluate(politeRegionsOfferedThenMarked)).toEqual([
-      true,
-      true,
-    ]);
-    await expect(settings).toBeFocused();
-  });
+  answer(after);
+  await expect.element(card(updatedStory.title)).toBeVisible();
+  await expect.element(card(earlierStory.title)).not.toBeInTheDocument();
+  await expect
+    .poll(() => currentStatus().element().textContent.trim())
+    .toMatch(/^Published work read at revision bbbbbbb, retrieved .+\.$/);
+  expect(currentStatus().element()).toBe(status);
+  expect(
+    status.parentElement?.querySelector(".announcement[aria-live='polite']"),
+  ).toBe(notice);
+  expect(notice).toBeEmptyDOMElement();
+  expect(status.querySelector("time")?.getAttribute("datetime")).toBe(
+    after.retrievedAt.toISOString(),
+  );
+  expect(
+    status.querySelector(".visually-hidden")?.getBoundingClientRect(),
+  ).toMatchObject({ width: 1, height: 1 });
+  await expect.element(settings()).toHaveFocus();
 
-  await test.step("a failed check is an alert, and focus stays where it is", async () => {
-    const readsBefore = pathReads();
-    // Backend authenticated-read specs prove the boundary's wording.
-    check.respond(
-      {
-        error:
-          "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403).",
-        recovery: "transient",
-      },
-      502,
-    );
-    await passTimeUntilChecked(page, 502);
-    await expect(problem).toContainText(
-      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 403)",
-    );
-    expect(pathReads()).toBe(readsBefore);
-    await expect(status).toBeEmpty();
-    await expect(status).toHaveAttribute("data-known", "[role='status']");
-    await expect(status).toHaveCount(1);
-    await expect(settings).toBeFocused();
-    check.pass();
-  });
+  const asks = workRead.mock.calls.length;
+  mounted.revisionCheckFailed(new ReadProblem(limited, undefined, "transient"));
+  await expect
+    .element(page.getByRole("alert").getByText(limited, { exact: true }))
+    .toBeVisible();
+  expect(workRead).toHaveBeenCalledTimes(asks);
+  expect(status).toBeEmptyDOMElement();
+  expect(status.isConnected).toBe(true);
+  await expect.element(settings()).toHaveFocus();
 });
 
-test("accessible Board keeps a read problem and the retained work reachable in a narrow window", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize(zoomedWindow);
-  putFrontendBacklog(frontendServices, { revision, backlog: longBacklog });
-  await answerBoardOnPausedPageTime(page, frontendServices);
-  await page.goto("/");
-  const { board, problem } = parts(page);
-  await expect(board.getByRole("article")).toHaveCount(5);
-
-  const missing = "f".repeat(40);
-  // The boundary's 404 wording is the E2E read-failure journey's to prove.
-  const backlogAtMissing = await controlFrontendAuthenticatedRead(
-    page,
-    (params) =>
-      params.get("revision") === missing &&
-      [...params.keys()].join() === "source,revision",
+test("accessible Board keeps a read problem and the retained work reachable in a narrow window", async () => {
+  withBoardStorage("0");
+  const mounted = await mountBoardFrame(before, zoomedViewport);
+  await expect.element(card(earlierStory.title)).toBeVisible();
+  await tabTo(settings().element());
+  workRead.mockRejectedValueOnce(new ReadProblem(missing));
+  mounted.revisionChanged("f".repeat(40));
+  const problem = page.getByRole("alert");
+  await expect
+    .element(problem.getByText(missing, { exact: true }))
+    .toBeVisible();
+  await expect
+    .element(
+      problem.getByText(/What is shown is the earlier snapshot, retrieved at/),
+    )
+    .toBeVisible();
+  expect(problem.element().querySelectorAll("time")).toHaveLength(2);
+  const region = problem.element();
+  const retained = card(earlierStory.title).element();
+  expect(region.getBoundingClientRect().bottom).toBeLessThan(
+    retained.getBoundingClientRect().top,
   );
-  backlogAtMissing.respond(
-    {
-      error:
-        "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
-    },
-    404,
-  );
-  putFrontendBacklog(frontendServices, {
-    revision: missing,
-    backlog: longBacklog,
-  });
-  await passTimeUntilChecked(page);
-
-  // The concise problem still names the backlog path at narrow widths.
-  await expect(problem).toContainText(
-    "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
-  );
-  await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
-  await expectStackedInOrder([problem, board]);
-  await expect(problem.locator("time")).toHaveCount(2);
-  await expect(problem).toContainText(
-    "What is shown is the earlier snapshot, retrieved at",
-  );
-  await expect(board.getByRole("article")).toHaveCount(5);
-  await problem.scrollIntoViewIfNeeded();
-  await expect(problem).toBeInViewport();
+  expect(
+    readsWhole(problem.getByText(missing, { exact: true }).element(), region),
+  ).toBe(true);
+  expectDocumentStill();
+  const problemText = problem.getByText(missing, { exact: true }).element();
+  problemText.scrollIntoView({ block: "nearest" });
+  await expect.poll(() => board.inReadingRoom(problemText)).toBe(true);
+  const inspect = card(earlierStory.title)
+    .getByRole("button", { name: "Inspect story" })
+    .element();
+  inspect.scrollIntoView({ block: "nearest" });
+  await expect.poll(() => board.inReadingRoom(inspect)).toBe(true);
+  expectDocumentStill();
+  await expect.element(settings()).toHaveFocus();
 });

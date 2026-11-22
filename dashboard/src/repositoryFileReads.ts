@@ -32,6 +32,7 @@ export async function readCachedFile(
   revision: string,
   repositoryPath: string,
   signal: AbortSignal,
+  readFile: typeof readRepositoryFileAt = readRepositoryFileAt,
 ): Promise<string> {
   const hit = cachedFile(source.repository, revision, repositoryPath);
   if (hit !== undefined) {
@@ -40,12 +41,7 @@ export async function readCachedFile(
   return joinRead(
     `file\0${source.id}\0${source.repository}\0${revision}\0${repositoryPath}`,
     async (shared) => {
-      const text = await readRepositoryFileAt(
-        source,
-        repositoryPath,
-        revision,
-        shared,
-      );
+      const text = await readFile(source, repositoryPath, revision, shared);
       rememberFile(source.repository, revision, repositoryPath, text);
       return text;
     },
@@ -74,6 +70,7 @@ export async function loadRepositoryTexts(
   problem: string,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
+  readFile: typeof readRepositoryFileAt = readRepositoryFileAt,
 ): Promise<{
   readonly text: Map<string, string>;
   readonly problems: Map<string, GapCause>;
@@ -100,7 +97,10 @@ export async function loadRepositoryTexts(
       }
     }
     try {
-      text.set(path, await readCachedFile(source, revision, path, signal));
+      text.set(
+        path,
+        await readCachedFile(source, revision, path, signal, readFile),
+      );
       settleAnswered(outcomes, question);
     } catch (error) {
       // A read that failed, or was ended when the owned bound passed, leaves

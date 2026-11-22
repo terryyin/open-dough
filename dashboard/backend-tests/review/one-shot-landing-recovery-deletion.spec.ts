@@ -3,8 +3,9 @@ import { test, expect, stored } from "../../test-support/support/codexStart.ts";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
 import { requestFor } from "../../test-support/support/launchDashboard.ts";
-import { commit, git } from "../../test-support/support/launchLanding.ts";
-import { landingGitFault } from "../../test-support/support/launchLandingFault.ts";
+import { commit } from "../../test-support/support/launchLanding.ts";
+import { mkdirSync, unlinkSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { context } from "../../test-support/support/oneShotLanding.ts";
 import {
   captureReviewRun,
@@ -22,6 +23,7 @@ import {
 } from "../../test-support/support/landingRetentionClock.ts";
 import { otherQueuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+import { heldLandingPins } from "../../server/launchLandingGit.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
@@ -37,13 +39,13 @@ test("deletion after attempt expiry retains refusal and repository through a rea
   const clock = landingRetentionClock(origin.machine);
   const receiver = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,
     extraEnv: clock.env,
   });
-  const fault = landingGitFault(origin.machine);
-  const env = { ...fault.env, ...clock.env };
+  const env = clock.env;
   try {
     await launch(receiver, {
       ...requestFor("execution", oneShot("isolated", "auto-land")),
@@ -54,6 +56,7 @@ test("deletion after attempt expiry retains refusal and repository through a rea
     const run = { record: original, ...context(original) };
     commit(run.established.workspace, "cleanup.txt");
     const receipt = captureReviewRun(run, origin);
+    const ownPins = { reference: receipt.reference };
     const input = retainedLanding(original);
     const repository = retireReviewRun(run, origin, receipt.revision);
     native.threadId = "another-retained-launch";
@@ -70,31 +73,31 @@ test("deletion after attempt expiry retains refusal and repository through a rea
     const otherRun = { record: other, ...context(other) };
     commit(otherRun.established.workspace, "another-retained-comparison.txt");
     const otherReceipt = captureReviewRun(otherRun, origin);
-    const otherPins = git(
-      repository,
-      "for-each-ref",
-      `refs/open-dough/one-shot/${otherReceipt.reference}`,
-    );
+    const othersPins = { reference: otherReceipt.reference };
+    const otherPins = await heldLandingPins(repository, othersPins);
     clock.advanceDays(31);
     await dropExpiredAttempts(receiver.home, env);
     expect(keptAttempts(receiver)).toHaveLength(0);
-    fault.failCleanup();
-    await expect(
-      recordOperation(
-        receiver,
-        "deleteRecord",
-        ["open-dough", original.session],
-        env,
-      ),
-    ).rejects.toThrow("Injected pin cleanup EIO");
+    const pinsBefore = await heldLandingPins(repository, ownPins);
+    const revisionPin = pinsBefore.find(({ ref }) => ref.endsWith("/revision"));
+    if (revisionPin === undefined) throw new Error("No retained revision pin");
+    const lock = path.join(repository, `${revisionPin.ref}.lock`);
+    mkdirSync(path.dirname(lock), { recursive: true });
+    writeFileSync(lock, "", { flag: "wx" });
+    try {
+      await expect(
+        recordOperation(
+          receiver,
+          "deleteRecord",
+          ["open-dough", original.session],
+          env,
+        ),
+      ).rejects.toThrow("cannot lock ref");
+    } finally {
+      unlinkSync(lock);
+    }
     expect(stored(receiver.home)[0]?.landingReporting?.deletedAt).toBeDefined();
-    expect(
-      git(
-        repository,
-        "for-each-ref",
-        `refs/open-dough/one-shot/${receipt.reference}`,
-      ),
-    ).not.toBe("");
+    expect(await heldLandingPins(repository, ownPins)).toEqual(pinsBefore);
     const refused = await reportingChild(input.retry, origin.machine);
     expect(refused.ok).toBe(false);
     expect(refused.stderr).toContain("deleted");
@@ -119,24 +122,12 @@ test("deletion after attempt expiry retains refusal and repository through a rea
         )
       ).stdout.trim(),
     ).toBe("true");
-    expect(
-      git(
-        repository,
-        "for-each-ref",
-        `refs/open-dough/one-shot/${receipt.reference}`,
-      ),
-    ).toBe("");
+    expect(await heldLandingPins(repository, ownPins)).toEqual([]);
     expect(stored(receiver.home)).toHaveLength(1);
     expect(stored(receiver.home)[0]?.landing?.receipt).toBe(
       otherReceipt.receipt,
     );
-    expect(
-      git(
-        repository,
-        "for-each-ref",
-        `refs/open-dough/one-shot/${otherReceipt.reference}`,
-      ),
-    ).toBe(otherPins);
+    expect(await heldLandingPins(repository, othersPins)).toEqual(otherPins);
     expect((await reportingChild(input.retry, origin.machine)).ok).toBe(false);
     expect(
       (

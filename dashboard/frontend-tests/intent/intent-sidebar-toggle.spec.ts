@@ -1,7 +1,7 @@
 import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
 // Hide files / Show files (../../src/FileBrowserToggle.tsx) in Project
 // Intent's strip on CI status (../../src/IntentPage.tsx), or ending a
-// selected story's view row on Changed tests
+// selected story's view row on Changes
 // (../../src/intentStoryTabs.tsx): hiding the locations column gives the
 // reading pane the content width (narrow, the height under the strip), with
 // the story's header still above it; showing it returns the tree as it was,
@@ -110,7 +110,7 @@ test("Hide files gives the reading pane the width under the story's header; afte
     await story.chooseTab(view);
     await expect(filesToggle(intent)).toHaveCount(0);
     await expect(intentReadingPane(intent)).toBeHidden();
-    await story.chooseTab("Changed tests");
+    await story.chooseTab("Changes");
     await expectFilesShown(intent, false);
     await expect(proofRegion(intent)).toBeVisible();
   }
@@ -140,7 +140,7 @@ test("the hidden column stays hidden through a Project Intent visit, which keeps
   await chooseOptimizationCandidates(intent);
   await expect(filesToggle(intent)).toHaveCount(0);
   await returnToStory(intent);
-  await story.expectTab("Changed tests");
+  await story.expectTab("Changes");
   await expectFilesShown(intent, false);
 
   const { development, intentChoice } = parts(page);
@@ -152,13 +152,13 @@ test("the hidden column stays hidden through a Project Intent visit, which keeps
   // Without locations, the explanation in their place offers no toggle.
   await chooseProject(page, "Doughnut");
   await expect(intent).toContainText(
-    "No intent locations are configured for Doughnut.",
+    "No Intent locations are configured for Doughnut.",
   );
   await expect(filesToggle(intent)).toHaveCount(0);
   await chooseProject(page, "Open Dough");
   // The restored story replaces the temporary header while its work is read.
   await expect(story.title).toHaveText(storyA.title);
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
   await expectFilesShown(intent, true);
 });
 

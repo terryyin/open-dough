@@ -38,6 +38,7 @@ for (const capture of ["unreadable launch", "unreadable history"] as const) {
     const server = await startServer({
       environment: "development",
       observationClock: true,
+      liveServer: "separate process",
     });
     server.setObservationClock(
       new Date(Date.now() + 3 * 3_600_000).toISOString(),

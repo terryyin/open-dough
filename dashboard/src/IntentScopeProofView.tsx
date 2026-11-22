@@ -14,6 +14,7 @@ import { SingleProofTable } from "./IntentScopeSingleProofTable.tsx";
 import { childRowsOf } from "./IntentScopeSummaryRows.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
+import "./intent-summary.css";
 
 export function IntentScopeProofView({
   path,

@@ -15,6 +15,7 @@ import { useStoryInspection } from "./pageStoryInspection.tsx";
 import { useStoryNavigation } from "./storyNavigation.tsx";
 import { columnMark } from "./columnPaging.ts";
 import type { MachineSessions } from "./agentLaunches.ts";
+import type { DoneOnCard } from "./columnSessions.ts";
 import { StoryCard } from "./StoryCard.tsx";
 import { entryCount, type ColumnSummary } from "./columnSummary.ts";
 
@@ -57,6 +58,7 @@ function Column({
   prioritized,
   showsSliceProgress,
   launches,
+  doneOnCard,
   offersStart,
   selectedIdentity,
   onSelect,
@@ -70,6 +72,7 @@ function Column({
   prioritized: boolean;
   showsSliceProgress: boolean;
   launches: MachineSessions;
+  doneOnCard: DoneOnCard;
   offersStart: boolean;
   selectedIdentity: string | undefined;
   onSelect: (identity: string) => void;
@@ -111,6 +114,7 @@ function Column({
                 priority={prioritized ? index + 1 : undefined}
                 showsSliceProgress={showsSliceProgress}
                 launches={launches}
+                doneSessions={doneOnCard(entry.identity)}
                 offersStart={offersStart}
                 selected={selectedIdentity === entry.identity}
                 onSelect={onSelect}
@@ -145,11 +149,14 @@ export function Columns({
   work,
   columns,
   launches,
+  doneOnCard,
   onOpenRoster,
 }: {
   work: PublishedWork;
   columns: ReturnType<typeof columnsOf>;
   launches: MachineSessions;
+  // Each unfinished card's own Done sessions (`./columnSessions.ts`).
+  doneOnCard: DoneOnCard;
   onOpenRoster: OpenRoster;
 }) {
   const [backlog, taken] = columns;
@@ -180,6 +187,7 @@ export function Columns({
           prioritized
           showsSliceProgress={false}
           launches={launches}
+          doneOnCard={doneOnCard}
           offersStart
           selectedIdentity={selectedIdentity}
           onSelect={toggle}
@@ -193,6 +201,7 @@ export function Columns({
           prioritized={false}
           showsSliceProgress
           launches={launches}
+          doneOnCard={doneOnCard}
           offersStart={false}
           selectedIdentity={selectedIdentity}
           onSelect={toggle}

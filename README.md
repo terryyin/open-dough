@@ -149,12 +149,9 @@ or supplied repository. A known older installation that lacks `SOURCE` needs
 one explicit supplied-source `--force` bootstrap; afterward ordinary updates
 use that recorded `SOURCE` without repeating the URL.
 
-The locally launched [story dashboard](dashboard/README.md) shows Open Dough's
-own published backlog. It lives in this repository only and is not installed
-into client projects.
+The local [story dashboard](dashboard/README.md) lives in this repository only
+and is not installed into client projects.
 
 ## License
 
 Open Dough is open source under the [MIT License](LICENSE).
-
-[Story notes](dashboard/STORY-NOTES.md) keep observations with their story in the dashboard.

@@ -20,6 +20,7 @@ import { publishCommittedOrigin } from "../../dashboard/test-support/committedOr
 import {
   parts,
   sessionUnreadReportOf,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { markDone } from "../../dashboard/test-support/support/markDone.ts";
 import {
@@ -87,8 +88,10 @@ test("execution completion keeps its Taken terminal available until wrap-up, thr
   await markDone(card);
   await expect(terminal).toHaveCount(0);
   expect(cursor.calls()).toHaveLength(before);
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: cursor.sessionId });
-  await expect(recent).toContainText("Done");
+  const doneEntry = await shownDoneSessionEntriesOf(
+    page,
+    "Story A",
+    cursor.sessionId,
+  );
+  await expect(doneEntry).toContainText("Done");
 });

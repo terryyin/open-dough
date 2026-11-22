@@ -16,10 +16,17 @@ export type MissingReportingSupport = {
   readonly path: string;
 };
 
+type ReportingFiles = {
+  readonly completion: string;
+  readonly entry: string;
+  readonly landing: string;
+  readonly expectation: string;
+};
+
 export type ReportingSupport =
   | { readonly kind: "absent" }
   | { readonly kind: "incomplete"; readonly missing: MissingReportingSupport }
-  | { readonly kind: "ready" };
+  | { readonly kind: "ready"; readonly files: ReportingFiles };
 
 // Thrown when reporting preparation finds a launch workspace whose installed
 // helpers are incomplete for the path it would copy. Callers must settle this
@@ -76,20 +83,19 @@ export async function reportingSupport(
   if (!(await present(completion))) return { kind: "absent" };
   const scripts = path.dirname(completion);
   const entry = path.join(scripts, "ci-direct-entry.mjs");
+  const landing = path.join(scripts, "dashboard-landing.mjs");
+  const expectation = path.join(scripts, "first-landing-expectation.mjs");
   if (!(await present(entry)))
     return {
       kind: "incomplete",
-      missing: { helper: "ci-direct-entry.mjs", path: entry },
+      missing: { helper: path.basename(entry), path: entry },
     };
-  const landing = path.join(scripts, "dashboard-landing.mjs");
-  if (!(await present(landing))) return { kind: "ready" };
-  const expectation = path.join(scripts, "first-landing-expectation.mjs");
-  if (!(await present(expectation)))
+  if ((await present(landing)) && !(await present(expectation)))
     return {
       kind: "incomplete",
-      missing: { helper: "first-landing-expectation.mjs", path: expectation },
+      missing: { helper: path.basename(expectation), path: expectation },
     };
-  return { kind: "ready" };
+  return { kind: "ready", files: { completion, entry, landing, expectation } };
 }
 
 export async function missingReportingSupport(

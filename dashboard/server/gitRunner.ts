@@ -113,9 +113,9 @@ async function gitOutput(
   return { stdout, stderr };
 }
 
-// Whether `ancestor` is reachable from `descendant`; any failure, including an
-// unknown revision, reads as not an ancestor.
-export async function isAncestor(
+// Exit 1 is an ordinary negative. An unreadable history or an interrupted
+// command still rejects so a caller can retry the check.
+export async function checkAncestry(
   ancestor: string,
   descendant: string,
   call: GitCall,
@@ -124,7 +124,19 @@ export async function isAncestor(
   try {
     await read(["merge-base", "--is-ancestor", ancestor, descendant], call);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (gitExitedOne(error)) return false;
+    throw error;
   }
+}
+
+// Whether `ancestor` is reachable from `descendant`; any failure, including an
+// unknown revision, reads as not an ancestor.
+export function isAncestor(
+  ancestor: string,
+  descendant: string,
+  call: GitCall,
+  read = runGit,
+): Promise<boolean> {
+  return checkAncestry(ancestor, descendant, call, read).catch(() => false);
 }

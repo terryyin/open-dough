@@ -7,7 +7,7 @@ import {
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 import { expect, test } from "../../test-support/support/codexStart.ts";
-import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import { ordinaryTrunkModeCompletionOntoTip } from "../../test-support/support/completedStoryHistory.ts";
 import {
   completedReviewQuery,
   getReview,
@@ -17,12 +17,16 @@ import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { retainedIntentLanding } from "../../test-support/support/retainedIntentLanding.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { claimedRecord } from "../../test-support/support/storyBranchIntegration.ts";
+import { publishDeclaredTrunk } from "../../test-support/support/storyCiComparisonBaseline.ts";
 import {
   commitAll,
   git,
 } from "../../test-support/support/storyReviewWorktree.ts";
 
-test.use({ serverMode: "boundary" });
+test.use({
+  serverMode: "boundary",
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 const historical = { ...completedReviewQuery, historical: "true" };
 
 for (const invalid of [
@@ -146,14 +150,7 @@ test("an earlier refinement remains an explicit choice but cannot replace unavai
     "earlier-refinement",
   );
   git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
-  await completedPublishedStory(
-    origin,
-    "trunk",
-    undefined,
-    undefined,
-    undefined,
-    { skillsDirectory: ".agents/skills" },
-  );
+  await publishDeclaredTrunk(origin, ordinaryTrunkModeCompletionOntoTip());
   git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
   const later = makeMe.aRepository
     .withRevision("later", {

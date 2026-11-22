@@ -5,9 +5,11 @@ import { type CompletionReport } from "../src/completionReport.ts";
 import { withKeptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
 import { sessionKey } from "../src/sessionReference.ts";
+import { keptBranchEvidence } from "../src/sessionBranchResult.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
 import { boundLandingReporting } from "./launchLandingRecord.ts";
+import { withBranchResultAtDone } from "./sessionBranchCapture.ts";
 
 // Binds one known conversation, then starts any early reported Done after
 // releasing the persistence locks.
@@ -17,7 +19,7 @@ export async function keepRecord(
   doneMarks: NativeDoneMarks,
 ): Promise<void> {
   const earlyReport = await bindRecord(sourceId, record);
-  if (earlyReport !== undefined) doneMarks.reported(sourceId, earlyReport);
+  if (earlyReport !== undefined) void doneMarks.reported(sourceId, earlyReport);
 }
 
 // Keeps one known conversation and its first-input evidence, replacing any
@@ -45,67 +47,77 @@ export async function bindRecord(
       );
     }
     const completion = attempt?.completion ?? record.completion;
+    const accepted = { ...record, landing: attempt?.landing ?? record.landing };
     const closure =
       completion === undefined
         ? "open"
-        : await completionClosure(
-            { ...record, landing: attempt?.landing ?? record.landing },
-            completion,
+        : await completionClosure(accepted, completion);
+    await withBranchResultAtDone(
+      accepted,
+      closure === "open" ? undefined : completion?.receivedAt,
+      (settle) =>
+        replaceRecords(async (kept) => {
+          const existing = (kept[sourceId] ?? []).find(
+            (entry): entry is LaunchRecord =>
+              "session" in entry &&
+              sessionKey(entry.session) === sessionKey(record.session),
           );
-    await replaceRecords((kept) => {
-      const existing = (kept[sourceId] ?? []).find(
-        (entry): entry is LaunchRecord =>
-          "session" in entry &&
-          sessionKey(entry.session) === sessionKey(record.session),
-      );
-      // A settled native launch cannot be recreated by a late writer after deletion.
-      if (existing === undefined && attempt?.outcome?.kind === "launched") {
-        throw new Error(
-          "The reporting session was deleted; a late native binding was not saved.",
-        );
-      }
-      // A bound record imports only its durable completion. Reserved deliveries
-      // belong to the sender's record commit; a late native writer cannot apply them.
-      const reported =
-        existing === undefined
-          ? completion
-          : (existing.completion ?? record.completion);
-      const landing = existing?.landing ?? attempt?.landing ?? record.landing;
-      const bound =
-        existing === undefined
-          ? reported !== undefined && closure !== "open"
-            ? doneSessionRecord(record, reported.receivedAt)
-            : record
-          : {
-              ...record,
-              doneAt: existing.doneAt,
-              doneProblem: existing.doneProblem,
-            };
-      return {
-        ...kept,
-        [sourceId]: [
-          ...(kept[sourceId] ?? []).filter((entry) =>
-            !("session" in entry)
-              ? !sameLaunch(entry.request, record.request)
-              : sessionKey(entry.session) !== sessionKey(record.session),
-          ),
-          {
-            ...bound,
-            completion: reported,
-            // A bound record keeps its outcome; an early report gains its own.
-            returnedToBacklog:
-              existing === undefined
-                ? returnedOutcome(closure, reported?.receipt)
-                : existing.returnedToBacklog,
-            landing,
-            landingReporting: boundLandingReporting(attempt, existing),
-            dispositionChangedAt:
-              existing?.dispositionChangedAt ?? record.dispositionChangedAt,
-            reportRead: existing?.reportRead ?? record.reportRead,
-          },
-        ],
-      };
-    });
+          // A settled native launch cannot be recreated by a late writer after deletion.
+          if (existing === undefined && attempt?.outcome?.kind === "launched") {
+            throw new Error(
+              "The reporting session was deleted; a late native binding was not saved.",
+            );
+          }
+          // A bound record imports only its durable completion. Reserved deliveries
+          // belong to the sender's record commit; a late native writer cannot apply them.
+          const reported =
+            existing === undefined
+              ? completion
+              : (existing.completion ?? record.completion);
+          const landing = existing?.landing ?? accepted.landing;
+          const landingReporting = boundLandingReporting(attempt, existing);
+          const bound =
+            existing === undefined
+              ? reported !== undefined && closure !== "open"
+                ? await settle(
+                    doneSessionRecord(
+                      { ...accepted, landingReporting },
+                      reported.receivedAt,
+                    ),
+                  )
+                : record
+              : {
+                  ...record,
+                  doneAt: existing.doneAt,
+                  doneProblem: existing.doneProblem,
+                  ...keptBranchEvidence(existing),
+                };
+          return {
+            ...kept,
+            [sourceId]: [
+              ...(kept[sourceId] ?? []).filter((entry) =>
+                !("session" in entry)
+                  ? !sameLaunch(entry.request, record.request)
+                  : sessionKey(entry.session) !== sessionKey(record.session),
+              ),
+              {
+                ...bound,
+                completion: reported,
+                // A bound record keeps its outcome; an early report gains its own.
+                returnedToBacklog:
+                  existing === undefined
+                    ? returnedOutcome(closure, reported?.receipt)
+                    : existing.returnedToBacklog,
+                landing: landing ?? bound.landing,
+                landingReporting,
+                dispositionChangedAt:
+                  existing?.dispositionChangedAt ?? record.dispositionChangedAt,
+                reportRead: existing?.reportRead ?? record.reportRead,
+              },
+            ],
+          };
+        }),
+    );
     return completion;
   });
 }

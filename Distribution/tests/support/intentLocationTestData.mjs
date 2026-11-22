@@ -3,11 +3,14 @@
 // them (`intent.locations`): a location at a folder, declared by a kind with
 // optional include patterns or by source entries with optional syntax hints;
 // and its answer at a revision, as the Intent locations read gives it: the
-// declaration with the files it selects there.
+// declaration with the files it selects there. The read's whole answer at a
+// revision gives those locations or the settings' problem.
 
 /** @typedef {import("../../../dashboard/server/intentLocationsSettings.ts").DeclaredLocation} DeclaredLocation */
 /** @typedef {import("../../../dashboard/server/intentLocationsSettings.ts").IntentLocation} IntentLocation */
 /** @typedef {import("../../../dashboard/src/intentLocationSelection.ts").SourceDeclaration} SourceDeclaration */
+/** @typedef {import("../../../dashboard/src/authenticatedIntentRead.ts").IntentLocation} AnsweredIntentLocation */
+/** @typedef {import("../../../dashboard/src/authenticatedIntentRead.ts").IntentLocations} IntentLocations */
 /** @typedef {{ intent: { locations: DeclaredLocation[] } }} IntentSettings */
 
 export class IntentLocationBuilder {
@@ -122,5 +125,47 @@ export class IntentSettingsBuilder {
   /** @returns {IntentSettings} */
   please() {
     return { intent: { locations: [...this.#locations] } };
+  }
+}
+
+export class IntentLocationsAnswerBuilder {
+  /** @type {IntentLocations} */
+  #answer = { status: "not-configured" };
+
+  /** @param {readonly AnsweredIntentLocation[]} locations answered locations in declaration order */
+  locating(...locations) {
+    this.#answer = { status: "configured", locations: [...locations] };
+    return this;
+  }
+
+  notConfigured() {
+    this.#answer = { status: "not-configured" };
+    return this;
+  }
+
+  // The settings could not be read through a transient failure.
+  withUnreadableSettings() {
+    this.#answer = {
+      status: "settings-problem",
+      problem: "unreadable",
+      recovery: "transient",
+    };
+    return this;
+  }
+
+  withMalformedSettings() {
+    this.#answer = {
+      status: "settings-problem",
+      problem: "malformed",
+      recovery: undefined,
+    };
+    return this;
+  }
+
+  /** @returns {IntentLocations} */
+  please() {
+    return this.#answer.status === "configured"
+      ? { status: "configured", locations: [...this.#answer.locations] }
+      : { ...this.#answer };
   }
 }

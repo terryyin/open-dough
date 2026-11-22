@@ -20,6 +20,7 @@ import {
   productionActivation,
   productionDeployments,
   productionReplacement,
+  realDeploymentTimeout,
   startProductionWatcher,
   type ProductionActivation,
 } from "../../dashboard/test-support/support/productionWatcher.ts";
@@ -55,6 +56,8 @@ test.afterAll(async () => {
 });
 
 test("npm watcher activates published main and starts the Cursor runner", async () => {
+  // Awaits a real deployment: npm ci, Vite build and preview start.
+  test.setTimeout(realDeploymentTimeout);
   const watcher = machine.running();
   ({ served, runner } = await machine.activated(pinned));
   expect(watcher.output()).toContain(
@@ -130,6 +133,8 @@ test("the production command starts one Cursor runner outside the preview's proc
 });
 
 test("the next published main replaces production at the same URL and leaves the runner and its client in place", async () => {
+  // Awaits a real deployment: npm ci, Vite build and preview start.
+  test.setTimeout(realDeploymentTimeout);
   const watcher = machine.running();
   const { fixture, productionPage } = started();
   next = await fixture.publish(fixture.markerChanges("NEXT MAIN"), "Next main");
@@ -174,6 +179,8 @@ test("SIGHUP quietly ends production and its checkouts and leaves development, t
 test("a restart serves current main as its baseline with the same runner, and SIGINT ends it", async ({
   request,
 }) => {
+  // Awaits a real deployment: npm ci, Vite build and preview start.
+  test.setTimeout(realDeploymentTimeout);
   const { fixture, productionPage } = started();
   const deployments = productionDeployments(fixture.home);
   const current = await fixture.publish(

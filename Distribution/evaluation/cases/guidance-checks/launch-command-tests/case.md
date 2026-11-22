@@ -10,7 +10,8 @@ consumer itself.
 
 - workflow: test refactoring after a product change (launch-command tests, Open Dough dashboard)
 - behavior: refactor the launch-command boundary specs and their E2E consumer without changing product behavior
-- hosts: codex (qualified natively); claude, cursor: not qualified
+- hosts: codex (qualified natively)
+- unqualified hosts: claude, cursor (no native observations yet)
 - qualification: one frozen Codex baseline on 2026-11-17 (assessment pass, with review residue); rejected outcomes covered by the reference qualification
 - environment: whole Open Dough checkout at a pinned revision with a tracked overlay; no external services
 - prerequisites: Bash 5, Git, Node 24, jq, npm registry or cache access, Playwright Chromium; a logged-in Codex CLI for explicit native capture

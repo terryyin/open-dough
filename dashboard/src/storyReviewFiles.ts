@@ -41,3 +41,24 @@ export const reviewedFileSchema = z.discriminatedUnion("kind", [
   }),
 ]);
 export type ReviewedFile = z.infer<typeof reviewedFileSchema>;
+
+// Git's unified diff of one file of a snapshot, as printed
+// (`./unifiedDiff.ts` reads it), or why it could not be read.
+export const reviewedFileDiffSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("diff"), printed: z.string() }),
+  z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
+]);
+export type ReviewedFileDiff = z.infer<typeof reviewedFileDiffSchema>;
+
+// File text at the same comparison trees the printed diff uses: `baseline` at
+// the *from* path (`oldPath` when renamed), `tree` at `path`; null when that
+// side has no file. Unavailable when the text cannot be read as text.
+export const reviewedFileTextSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("text"),
+    baseline: z.string().nullable(),
+    tree: z.string().nullable(),
+  }),
+  z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
+]);
+export type ReviewedFileText = z.infer<typeof reviewedFileTextSchema>;

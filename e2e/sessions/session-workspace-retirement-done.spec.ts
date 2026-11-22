@@ -8,8 +8,8 @@ import {
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 import { machineSessions } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
-  parts,
   storyCardSessions,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -79,11 +79,13 @@ test("lookup error and result refusal stay uncertain; retry uses the same identi
   await machineSessions(dashboard);
   await reloadUntilRead(page);
   await settled();
-  const recent = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: native.threadId });
-  await expect(recent).toContainText("Done");
-  await readFinalReport(recent);
+  const doneEntry = await shownDoneSessionEntriesOf(
+    page,
+    notRefinedStory,
+    native.threadId,
+  );
+  await expect(doneEntry).toContainText("Done");
+  await readFinalReport(doneEntry);
   await expect(reportText).toHaveText(report);
   expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
   expect(

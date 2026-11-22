@@ -1,9 +1,10 @@
 // Reopening a session marked done from the page, on the committed
 // story-columns origin (../../dashboard/test-support/launchJourney.ts): a session already marked done,
-// through the boundary, shows Done in Recently done with no card entry;
-// opening its terminal there reopens it: once the terminal attaches, it is
-// back on its card and no longer Done, through a reload, until it is marked
-// done again from its card. How the boundary reopens it is
+// through the boundary, shows Done in the unfinished card's Done history
+// with no current-work entry; opening its terminal there reopens it: once
+// the terminal attaches, it is back on its card and no longer Done, through
+// a reload, until it is marked done again from its card. How the boundary
+// reopens it is
 // ../../dashboard/backend-tests/sessions/agent-terminal-reopen.spec.ts, and how the page marks a session done is
 // ./agent-terminal-done.spec.ts. The page's own dashboard server drives the
 // synthetic `claude` (./fixtures/fake-claude); the real one is never reached.
@@ -16,10 +17,10 @@ import {
   terminalScreenParts,
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
+  doneSessionEntriesOf,
+  shownDoneSessionEntriesOf,
   storyCardSessions,
   expectMembership,
-  parts,
-  standaloneSessionName,
   sessionNamedBy,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
@@ -38,7 +39,7 @@ import {
 
 test.use({ projectFolders: ["open-dough"] });
 
-test.describe("reopening a session marked done from its Recently done entry", () => {
+test.describe("reopening a session marked done from its card's Done history", () => {
   let columnsJourney: StoryColumnsJourney;
   test.beforeAll(async () => {
     columnsJourney = await publishStoryColumnsJourney();
@@ -56,12 +57,10 @@ test.describe("reopening a session marked done from its Recently done entry", ()
       page,
       columnsJourney,
     );
-    const { recentlyDone: recent } = parts(page);
+    const story = card(readyStory);
     const panel = terminalPanel(page);
-    const listed = storyCardSessions(card(readyStory));
-    const entry = recent.getByRole("article", {
-      name: standaloneSessionName("Execution", readyStory),
-    });
+    const listed = storyCardSessions(story);
+    const doneOnCard = doneSessionEntriesOf(page, readyStory);
     const queued = {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
@@ -80,6 +79,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     await page.reload();
     await settled();
     await expect(listed).toHaveCount(0);
+    const entry = await shownDoneSessionEntriesOf(page, readyStory);
     await expect(sessionStateOf(entry)).toHaveText("Done");
     await expect(entry).toHaveAttribute("data-shows-session", key ?? "?");
     await expect(entry).toContainText(`Named ${doneName}`);
@@ -102,7 +102,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     await expect(listed).toHaveCount(1);
     await expect(listed).toHaveAttribute("data-shows-session", key ?? "?");
     await expect(sessionStateOf(listed)).not.toHaveText("Done");
-    await expect(entry).toHaveCount(0);
+    await expect(doneOnCard).toHaveCount(0);
     await expectMembership(page, queued);
 
     await page.reload();
@@ -110,7 +110,7 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     await expect(listed).toHaveCount(1);
     await expect(listed).toHaveAttribute("data-shows-session", key ?? "?");
     await expect(sessionStateOf(listed)).not.toHaveText("Done");
-    await expect(entry).toHaveCount(0);
+    await expect(doneOnCard).toHaveCount(0);
 
     // Reload closed the attachment. With a terminal open again, this mark
     // types the rename into it rather than opening another.
@@ -121,9 +121,10 @@ test.describe("reopening a session marked done from its Recently done entry", ()
     idleBetweenSteps(dashboard, session);
     await markDoneAnyway(listed);
     await expect(listed).toHaveCount(0);
-    await expect(sessionStateOf(entry)).toHaveText("Done");
-    await expect(entry).toContainText(`Named ${doneName}`);
-    await expect(entry).not.toContainText("rename failed");
+    const markedAgain = await shownDoneSessionEntriesOf(page, readyStory);
+    await expect(sessionStateOf(markedAgain)).toHaveText("Done");
+    await expect(markedAgain).toContainText(`Named ${doneName}`);
+    await expect(markedAgain).not.toContainText("rename failed");
     expect(dashboard.claudeAttaches()).toHaveLength(opened);
     expect(dashboard.claudeAttaches().at(-1)?.lines).toEqual([
       `/rename ${doneName}`,

@@ -19,7 +19,7 @@ import {
   type CompletedStoryAssociationAnswer,
 } from "../../src/completedStoryAssociation.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
-import { advanceCompletedTrunk } from "./completedPublishedStory.ts";
+import { advanceCompletedTrunk } from "./completedStoryVisibleActions.ts";
 import { publishCompletedStory } from "./completedStoryPublication.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { keepLaunchRecords } from "./launchStore.ts";

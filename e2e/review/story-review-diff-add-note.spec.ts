@@ -2,12 +2,10 @@
 // the displayed facts through the shared machine-local notes boundary. What
 // Review changes keeps around Story notes is
 // ../../dashboard/frontend-tests/review/story-review-notes.spec.ts.
-import { writeFileSync } from "node:fs";
-import path from "node:path";
 import type { Page } from "@playwright/test";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
-import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { expandContextAddNoteHistory } from "../../dashboard/test-support/support/completedFollowUpHistory.ts";
 import { contextExpansion } from "../../dashboard/test-support/support/expandContextDiff.ts";
 import {
   expect,
@@ -18,39 +16,17 @@ import {
   fileDiff,
   listedFile,
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import {
-  commitAll,
-  expandContextFile,
-  expandContextLines,
-  git,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { expandContextFile } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 import { storyNotesPage } from "../../dashboard/test-support/support/storyNotesPage.ts";
 
+test.use({ originRepository: expandContextAddNoteHistory() });
+
 async function openNotesReview(page: Page, origin: StartOrigin) {
-  writeFileSync(
-    path.join(origin.project, expandContextFile),
-    expandContextLines("line", 160),
-  );
-  commitAll(origin.project, "context trunk");
-  git(origin.project, "push", "--quiet", "origin", "main");
-  const { completion } = await completedPublishedStory(
-    origin,
-    "trunk",
-    undefined,
-    (workspace) => {
-      writeFileSync(
-        path.join(workspace, expandContextFile),
-        expandContextLines("line", 160).replace(
-          "line 54\n",
-          "changed fifty-four\n",
-        ),
-      );
-    },
-  );
+  const completion = origin.revision("completion");
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: completion,

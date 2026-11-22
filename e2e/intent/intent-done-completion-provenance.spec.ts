@@ -2,7 +2,6 @@
 // Both the refinement capture and the execution completion use real installed
 // publication; the Done reader chooses their meaning, not a fabricated answer.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   storyReviewEndpoint,
@@ -17,18 +16,17 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import {
   chooseStoryTab,
   folderToggle,
   intentDiff,
   intentFile,
-  openReviewFromIntent,
-  reviewDiff,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import { capturedChoice } from "../../dashboard/test-support/support/oneShotReviewChoices.ts";
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
+import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
 import {
   git,
   lines,
@@ -64,15 +62,9 @@ test("a Done story reads its published execution instead of an earlier refinemen
     "earlier-refinement",
   );
   git(origin.project, "pull", "--quiet", "--ff-only", "origin", "main");
-  const { completion } = await completedPublishedStory(
+  const { completion } = await publishDeclaredTrunk(
     origin,
-    "trunk",
-    undefined,
-    (workspace) => {
-      writeRevisionFiles(workspace, implementation);
-    },
-    undefined,
-    { skillsDirectory: ".agents/skills" },
+    intentTrunkCompletionOntoTip({ implementation }),
   );
   const locations: string[] = [];
   const sourceReads: string[] = [];
@@ -100,7 +92,7 @@ test("a Done story reads its published execution instead of an earlier refinemen
   const answer = storyReviewSchema.parse(await (await received).json());
   expect(answer).toMatchObject({ kind: "published", completion });
   expect(answer.selectedRun).toBeUndefined();
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   const original = await intentDiff(intent, modified);
   expect(original).toContain("the completed execution test");
@@ -110,6 +102,4 @@ test("a Done story reads its published execution instead of an earlier refinemen
   await intentFile(intent, unchanged).click();
   await expect(purposeRegion(intent)).toContainText("kept 11");
   expect(sourceReads).toEqual([completion]);
-  await openReviewFromIntent(page, intent);
-  expect(await reviewDiff(page, modified)).toBe(original);
 });

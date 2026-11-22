@@ -1,9 +1,7 @@
 // One immutable comparison is prepared before publication and accepted afterward.
-import { registerFollowUpReceipt } from "./ciFollowUpAdmission.ts";
-import { randomUUID } from "node:crypto";
 import type { LandingRepository, LaunchLanding } from "../src/launchLanding.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
-import { verifyLanding, pinLanding } from "./launchLandingGit.ts";
+import { verifyLanding, type HeldPin } from "./launchLandingGit.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 export function sameComparison(
@@ -43,13 +41,21 @@ export function authorizedLanding(
   return authority;
 }
 
-export async function reserveLandingComparison(
+export type LandingReservation = { readonly landing: LaunchLanding } & (
+  | { readonly isNew: false }
+  | { readonly isNew: true; readonly pinWrites: readonly HeldPin[] }
+);
+
+// Resolves the comparison and verifies a new landing. Writes no store or ref.
+export async function resolveLandingComparison(
   authority: LandingRepository,
   report: LandingSubmission,
   prepare: boolean,
   accepted: LaunchLanding | undefined,
   preparations: readonly LaunchLanding[] = [],
-): Promise<{ landing: LaunchLanding; needsSave: boolean }> {
+  receiptId: string,
+  receivedAt: string,
+): Promise<LandingReservation> {
   const prepared = preparations.find(
     (entry) => entry.delivery === report.delivery,
   );
@@ -57,12 +63,12 @@ export async function reserveLandingComparison(
     sameComparison(accepted, report);
     return {
       landing: prepare ? (prepared ?? accepted) : accepted,
-      needsSave: false,
+      isNew: false,
     };
   }
   if (prepared !== undefined) {
     sameComparison(prepared, report);
-    if (prepare) return { landing: prepared, needsSave: false };
+    if (prepare) return { landing: prepared, isNew: false };
   }
   if (!prepare && prepared === undefined)
     throw new RefusedRequest(
@@ -78,12 +84,12 @@ export async function reserveLandingComparison(
     delivery: report.delivery,
     base: report.base,
     revision: report.revision,
-    receipt: randomUUID(),
-    receivedAt: new Date().toISOString(),
+    receipt: receiptId,
+    receivedAt,
   };
-  await verifyLanding(landing, prepare ? authority : undefined);
-  await pinLanding(landing); // Both ends survive before any metadata is saved.
-  if (prepared === undefined)
-    await registerFollowUpReceipt(report.source, landing);
-  return { landing, needsSave: true };
+  const pinWrites = await verifyLanding(
+    landing,
+    prepare ? authority : undefined,
+  );
+  return { landing, isNew: true, pinWrites };
 }

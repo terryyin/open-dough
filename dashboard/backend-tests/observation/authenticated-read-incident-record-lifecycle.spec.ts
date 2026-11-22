@@ -27,6 +27,7 @@ test("the next diagnostics read shows a two-second stall with its delay, load, r
   try {
     const server = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
       extraEnv: { DOUGH_TEST_EVENT_LOOP_BLOCK: "allow" },
     });
@@ -83,6 +84,7 @@ test("a clean close ends the record after its queued failure, and a successor re
   try {
     const closed = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
     });
     try {
@@ -106,6 +108,7 @@ test("a clean close ends the record after its queued failure, and a successor re
 
     const killed = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
     });
     try {
@@ -124,6 +127,7 @@ test("a clean close ends the record after its queued failure, and a successor re
 
     const successor = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
     });
     try {

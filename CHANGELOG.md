@@ -1,3 +1,56 @@
+## 0.3.110 - 2026-11-21
+
+- Dough Land publishes an accepted comparison as a session record when ordinary reviewed work has a Dashboard landing context. Other landing routes keep their existing publisher. The shared record identifies the accepted Git range and close time so another machine can review the published changes.
+- Recently done lists published sessions from the selected project revision and keeps a single entry when the originating machine already has that session. A failed listing appears as a read gap. Open story cards can expand their own Done sessions while keeping the current work visible.
+- Dashboard tests exercise delivery and landing decisions through typed inputs and use mounted components for Review, Intent and Settings. Distribution CI redistributes delivery-evidence checks across its existing jobs.
+
+The Promoted payload contains 385 files. It adds the two session-record modules, revises three Dough Land guidance files and retires no paths. Dashboard and CI changes are in the source repository.
+
+The self-installation baseline, focused install, update and publication checks, and Dashboard type-check passed locally. Scratch installation verified byte equality and a successful import in both skill roots. Representative review covered a Dashboard-launched landing, a native start without launch context, and work the remote refuses. [Hosted CI passed at `6cbaf1e24`](https://github.com/terryyin/open-dough/actions/runs/44891425962). The later promotion changes the payload declaration and extends the all-tools installation check.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), the existing discovery, installation and host-hook integrations reuse their native evidence. The shared session-record publication uses the existing Dashboard landing context and publisher and has deterministic Git proof. No fresh native acceptance was run for this release. Previously pending supplier-watch, freshness-ordering and oversized-file observations remain open.
+
+## 0.3.109 - 2026-11-20
+
+- MakeMe gives recurring test data a named builder example. Tests can refine the example before completion and read the identities they need from the result.
+- Refactoring and proof planning use typed production entry points whose variants accept only the inputs and collaborators they need. Restructuring for testability preserves observable behavior. The proof guidance connects final-state promises to slice observations, traces affected consumers, and records the conditions for reusing evidence or running expensive checks.
+- Dashboard Story Notes and ad hoc review tests exercise typed backend handlers in-process. Project Intent revision and CI history tests mount the relevant UI in Chromium. Dashboard groups combine Vitest and Playwright results, and test runs use disposable homes.
+- Local lint runs ESLint with explicit TypeScript projects and checks independent ShellCheck files in parallel. CI still reports the dashboard type-check when lint fails.
+
+The Promoted payload contains 383 files. Three guidance files changed, with no additions or retirements. Dashboard and lint changes stay in the source repository.
+
+The self-installation baseline, ten focused Distribution checks, 18 Dashboard backend cases, and dashboard type-check passed locally. Representative guidance review covered refining shared test data, narrowing a review handler's inputs, and tracing typed revision replies to the mounted Intent tests. [Hosted CI for source candidate `f74789aea`](https://github.com/terryyin/open-dough/actions/runs/44666217990) passed.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), this release reuses native evidence for the unchanged installation, discovery, and host-hook integrations. No native exception was needed. Natural supplier-watch sampling and the previously pending native observations for freshness ordering and oversized-file reorganization remain open.
+
+## 0.3.108 - 2026-11-19
+
+- The Dashboard banner can return to the selected story or open a list of the ten most recent selections. Choosing a row follows the story across projects and preserves the Board or Intent perspective. History persists in the current browser when storage is available.
+- Execute Plan gives Codex a shorter foreground-wait procedure. It starts the command once, resumes the same wait against the original deadline, and distinguishes caller deadlines from deadlines enforced by the command.
+- Slice planning and refactoring map domain concepts directly across code, APIs, UI, persistence, and tests. Unit tests start at typed backend handlers, the smallest rendered UI that owns the behavior, or a CLI contract. External service substitutes use shared typed contracts.
+- Planning and wrap-up keep enduring behavior in automated tests, architecture in code, operational setup in configuration, and architectural preferences in human-controlled ADRs. Wrap-up deletes realized North Star topics.
+- Source tests share one declaration for browser group selection and CI checks. The runner fixtures include that declaration, completed-story review tests declare their Git histories, and Review changes journeys use a shared page object.
+
+The Promoted payload contains 383 files. Nine guidance files changed, with no additions or retirements. Dashboard and test-runner changes are source-only.
+
+The self-installation baseline, nine focused installation and browser-configuration checks, four runner fixture checks, dashboard type-check, and focused Recent stories browser tests passed locally. Representative guidance review covered resuming a yielded wait, choosing typed test boundaries, and retiring a realized North Star topic while preserving unfinished direction. [Hosted trunk CI passed at `5eb9dfddc`](https://github.com/terryyin/open-dough/actions/runs/44492475233). The source candidate `e300eb9c8` adds backlog and planning changes.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), this release reuses native evidence for the unchanged installation, discovery, and host-hook integrations. The [accepted Codex foreground-wait evidence](https://github.com/terryyin/open-dough/blob/5ecc84b8c26b6352370f5dc0ba790cbb963ab264/.planning/slice-plans/698-let-a-long-codex-wait-run-without-model-requests/PLAN.md#slice-2-accepted-verification) covers the same wait mechanism. Natural supplier-watch sampling and the existing native observations for freshness ordering and oversized-file reorganization remain pending.
+
+## 0.3.107 - 2026-11-19
+
+- Execute Plan keeps proof and CI waits inside the Codex host call where supported. If the host returns a live cell, resume that cell with its original deadline. The separate coordinator delegation experiment found a quiet wake and higher combined effort, so its overlay stayed out of the release.
+- Source freshness finds the shared Git base that holds the Taken entry after a sibling or contributor merge. It reports an ambiguous base when eligible bases disagree on a compared story or plan record. It still cannot distinguish a story retaken by a different publisher.
+- A recreated retrospective log recovers earlier finding IDs, aliases, and the allocation floor from Git history. Incomplete history that prevents safe numbering leaves the log absent.
+- Cucumber and Playwright scenarios express one domain intent per step. Playwright setup, actions, and assertions go inside named steps. Shared guidance defines the step body limits and groups UI interactions in page-object calls.
+- The Dashboard keeps an ad hoc session's own commits at Done and can discover a later manual delivery from an identified branch. Review details move behind a toolbar control and the Files sidebar remembers its width. The Token Index estimates rates for unrated models, marks the estimates, and excludes them from the median until rated. CI moves the retired Integrated UI group's coverage into the maintained suites and rebalances shards.
+
+The Promoted payload contains 383 files. It adds two source-freshness modules, revises twelve paths, and retires none. Dashboard, CI, and maintainer tooling changes are source-only.
+
+The self-installation baseline, eleven focused Distribution checks, and dashboard type-check passed locally. Representative review traced the Taken-base cases, recreated-log numbering, and the Cucumber and Playwright step boundaries. [Hosted CI passed for `fd6c41c43`](https://github.com/terryyin/open-dough/actions/runs/44464298941). The subsequent source candidate `d6159c217` adds a planning record.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), the unchanged installation, discovery, and host-hook integrations reuse their native evidence. The [accepted Codex foreground-wait evidence](https://github.com/terryyin/open-dough/blob/5ecc84b8c26b6352370f5dc0ba790cbb963ab264/.planning/slice-plans/698-let-a-long-codex-wait-run-without-model-requests/PLAN.md#slice-2-accepted-verification) covers controlled proof, CI, and supplier waits on the tested host profile. Natural supplier-watch sampling and the previously pending native freshness-ordering and oversized-file observations remain open.
+
 ## 0.3.106 - 2026-11-18
 
 - Page-object guidance starts scenarios from one root and continues through the objects returned by actions. A disconnected step can resume from an explicitly assumed state. Inputs and expected outcomes stay visible in the scenario.

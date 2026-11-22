@@ -8,8 +8,8 @@ import { type AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import {
   landingEndpoint,
   landingPrepareEndpoint,
-  submitLanding,
-} from "./launchLandingReporting.ts";
+} from "./launchLandingAdmission.ts";
+import { submitLanding } from "./launchLandingReporting.ts";
 import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 import type { LandedCiCollection } from "./landedCiCollection.ts";
@@ -38,6 +38,8 @@ import {
 } from "../src/agentTerminal.ts";
 import { submitSessionAttachment } from "./sessionAttachments.ts";
 import { configuredLimit } from "./configuredLimit.ts";
+import { sessionBranchEntryEndpoint } from "../src/sessionBranchResult.ts";
+import { submitSessionBranchEntry } from "./sessionBranchEntry.ts";
 
 // How long a wait for an attempt observation to change lasts. A test may
 // shorten it through `DOUGH_CHANGE_WAIT_MS`; production stays at 30 seconds.
@@ -109,12 +111,13 @@ export async function answer(
   landedCi: Pick<LandedCiCollection, "nudge">,
 ): Promise<AgentLaunchAnswer> {
   try {
-    if (url.pathname === landingPrepareEndpoint)
-      return { status: 200, body: await submitLanding(req, true) };
-    if (url.pathname === landingEndpoint) {
+    if (
+      url.pathname === landingPrepareEndpoint ||
+      url.pathname === landingEndpoint
+    ) {
       const receipt = await submitLanding(req);
       // The recorded landing's CI is collected whether or not a page is open.
-      landedCi.nudge();
+      if (url.pathname === landingEndpoint) landedCi.nudge();
       return { status: 200, body: receipt };
     }
     if (url.pathname === sessionAttachmentEndpoint) {
@@ -125,6 +128,8 @@ export async function answer(
     }
     if (url.pathname === completionEndpoint)
       return { status: 200, body: await submitCompletion(req, doneMarks) };
+    if (url.pathname === sessionBranchEntryEndpoint)
+      return { status: 200, body: await submitSessionBranchEntry(req) };
     const request = await admitted(req, url, launches);
     switch (request.kind) {
       case "drain":

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-410#remove-redundant-dashboard-navigation-doc",
+  "title": "Remove redundant dashboard navigation doc",
+  "completedAt": "2026-11-19T05:37:32.206Z",
+  "developer": "Terry Yin",
+  "agent": "Julia-chan",
+  "host": "cursor",
+  "model": "composer"
+}

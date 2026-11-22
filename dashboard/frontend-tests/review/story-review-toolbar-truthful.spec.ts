@@ -1,214 +1,138 @@
 // The toolbar names only a comparison the review can show, and offers the eye
 // only when details hold something — including while a held Refresh keeps a
 // prior answer, and not before the first answer or after a cleared failure.
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { reviewChanges } from "../../test-support/storyCardControls.ts";
-import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
-import { doneCard } from "../../test-support/doneStoryReviewPage.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { ReviewRead } from "../../src/reviewSource.ts";
+import type {
+  ReviewedFileDiff,
+  StoryReview,
+} from "../../src/storyReviewContract.ts";
 import {
-  frontendFileDiff,
-  frontendPublishedReview,
-  frontendReviewIds,
-  frontendReviewSnapshot,
-  installFrontendStoryReview,
-} from "../../test-support/support/frontendStoryReview.ts";
-import {
-  openFrontendBoardReview,
-  storyA,
-} from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
-import { openFrontendStoryReviewAsOpened } from "../../test-support/support/frontendStoryReviewOpen.ts";
-import { reviewFeedback } from "../../test-support/support/reviewContextLine.ts";
-import {
-  filesToggle,
-  reviewRefresh,
-  reviewRegion,
-  toolbarComparison,
-} from "../../test-support/support/reviewControls.ts";
-import {
-  expectDetailsCollapsed,
-  expectEyeBesideComparison,
-  expectNoToolbarComparisonOrDetails,
-} from "../../test-support/support/reviewDetails.ts";
-import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { landedReviewContextSchema } from "../../src/storyReviewLandedRun.ts";
-import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
+  adHocSession,
+  doneStory,
+  mountReviewChanges,
+  reviewSourceAnswering,
+} from "./story-review-panel-page.ts";
 
-const added = (path: string) => ({
-  kind: "added" as const,
-  path,
-  lines: { added: 1, removed: 0 },
-});
+// A source whose review read is `review`, answering every file with `diff`.
+function sourceOf(review: ReviewRead<StoryReview>, diff: ReviewedFileDiff) {
+  return reviewSourceAnswering({
+    review,
+    fileDiff: () => Promise.resolve(diff),
+  });
+}
 
-test("a Done card holds progress with no name or eye until a published answer arrives", async ({
-  page,
-  frontendServices,
-}) => {
-  const published = frontendPublishedReview([added("done.txt")]);
-  const answers = await installFrontendStoryReview(page, published);
-  answers.answerFile(frontendFileDiff("done.txt", ["+done"]));
-  const held = answers.holdNextSnapshot();
-  await openFrontendBoardReview(page, frontendServices);
-  await reviewChanges(doneCard(page, storyA.title)).click();
-  const review = reviewRegion(page);
-  await held.received;
-  await expect(reviewFeedback(review)).toContainText(
-    "Reading the story's changes…",
+// A review read that waits until the case answers it.
+function heldRead() {
+  let answer: (review: StoryReview) => void = () => undefined;
+  return {
+    read: () =>
+      new Promise<StoryReview>((resolve) => {
+        answer = resolve;
+      }),
+    answer: (review: StoryReview) => {
+      answer(review);
+    },
+  };
+}
+
+test("a Done card holds progress with no name or eye until a published answer arrives", async () => {
+  const published = makeMe.aStoryReview.published().adding("done.txt").please();
+  const held = heldRead();
+  const source = sourceOf(
+    held.read,
+    makeMe.aReviewedFileDiff.adding("done.txt", "done").please(),
   );
-  await expectNoToolbarComparisonOrDetails(review);
-  held.release();
-  await held.delivered;
-  await expect(toolbarComparison(review)).toHaveText("Published completion");
-  await expectEyeBesideComparison(review, "Show review details");
-  await expect(fileDiff(review, "Added done.txt")).toContainText("+done");
+  const review = await mountReviewChanges(source, doneStory, {
+    completed: true,
+  });
+  await review.expectPending();
+  held.answer(published);
+  await review.expectComparisonNamed("Published completion");
+  await review.expectEyeBesideComparison();
+  await review.expectDiffShows("Added done.txt", "+done");
 });
 
-test("an ad hoc landing holds the same pending toolbar, then names Landed runs", async ({
-  page,
-  frontendServices,
-}) => {
-  const title = "Open Dough session";
-  const launchedAt = "2026-01-02T12:00:00.000Z";
-  const { baseline: base, tree: revision } = frontendReviewIds;
-  const path = "delivered.txt";
-  const session = makeMe.aLaunchRecord
-    .adHoc({ title })
-    .inIsolatedWorkspace({
-      workspace: "/tmp/toolbar-truthful-ad-hoc",
-      branch: "ad-hoc/landed",
-    })
-    .withLanding(makeMe.aLaunchLanding.comparing({ base, revision }).please())
-    .launchedAt(launchedAt)
-    .markedDone()
+test("an ad hoc landing holds the same pending toolbar, then names Landed runs", async () => {
+  const landed = makeMe.aStoryReview
+    .landed()
+    .modifying("delivered.txt")
     .please();
-  const answers = await installFrontendStoryReview(page, {
-    kind: "landed",
-    baseline: base,
-    tree: revision,
-    files: [
-      {
-        kind: "modified",
-        path,
-        lines: { added: 1, removed: 1 },
-      },
-    ],
-    landing: landedReviewContextSchema.parse({
-      ...session.landing,
-      workflow: "ad-hoc",
-      launchedAt,
-    }),
-  });
-  answers.answerFile(frontendFileDiff(path, ["+after"]), path);
-  const held = answers.holdNextSnapshot();
-  const { recent } = await openFrontendBoardReview(page, frontendServices, {
-    doneSessions: [session],
-  });
-  await sessionReviewChanges(recent, title).click();
-  const review = reviewRegion(page);
-  await held.received;
-  await expect(reviewFeedback(review)).toContainText(
-    "Reading the story's changes…",
+  const held = heldRead();
+  const source = sourceOf(
+    held.read,
+    makeMe.aReviewedFileDiff.adding("delivered.txt", "after").please(),
   );
-  await expectNoToolbarComparisonOrDetails(review);
-  held.release();
-  await held.delivered;
-  await expect(toolbarComparison(review)).toHaveText("Landed runs");
-  await expectDetailsCollapsed(review);
-  await expect(fileDiff(review, `Modified ${path}`)).toContainText("after");
+  const review = await mountReviewChanges(source, adHocSession, {
+    completed: true,
+  });
+  await review.expectPending();
+  held.answer(landed);
+  await review.expectComparisonNamed("Landed runs");
+  await review.expectDetailsCollapsed();
+  await review.expectDiffShows("Modified delivered.txt", "after");
 });
 
-test("a refused first read keeps the problem and Refresh; retry reveals the answer", async ({
-  page,
-  frontendServices,
-}) => {
-  const published = frontendPublishedReview([added("retry.txt")]);
-  const answers = await installFrontendStoryReview(page, published);
-  answers.answerFile(frontendFileDiff("retry.txt", ["+retry"]));
+test("a refused first read keeps the problem and Refresh; retry reveals the answer", async () => {
+  const published = makeMe.aStoryReview
+    .published()
+    .adding("retry.txt")
+    .please();
   let refuse = true;
-  await page.route(
-    (url) => url.pathname === storyReviewEndpoint,
-    async (route) => {
-      if (!refuse) {
-        await route.fallback();
-        return;
-      }
-      refuse = false;
-      await fulfillJson(route, { error: "refused for proof" }, 500);
-    },
-  );
-  await openFrontendBoardReview(page, frontendServices);
-  await reviewChanges(doneCard(page, storyA.title)).click();
-  const review = reviewRegion(page);
-  await expect(reviewFeedback(review)).toContainText(
-    "The review could not be read:",
-  );
-  await expectNoToolbarComparisonOrDetails(review);
-  await expect(reviewRefresh(review, { exact: true })).toBeVisible();
-  await reviewRefresh(review, { exact: true }).click();
-  await expect(toolbarComparison(review)).toHaveText("Published completion");
-  await expectEyeBesideComparison(review, "Show review details");
-  await expect(fileDiff(review, "Added retry.txt")).toContainText("+retry");
+  const source = sourceOf(() => {
+    if (!refuse) return Promise.resolve(published);
+    refuse = false;
+    return Promise.reject(new Error("refused for proof"));
+  }, makeMe.aReviewedFileDiff.adding("retry.txt", "retry").please());
+  const review = await mountReviewChanges(source, doneStory, {
+    completed: true,
+  });
+  await review.expectRefused();
+  await review.expectFeedbackSays("refused for proof");
+  await review.refresh();
+  await review.expectComparisonNamed("Published completion");
+  await review.expectEyeBesideComparison();
+  await review.expectDiffShows("Added retry.txt", "+retry");
+  await review.expectNoProblem("refused for proof");
 });
 
-test("Refresh of a readable comparison keeps its name, eye and diff while progress shows", async ({
-  page,
-  frontendServices,
-}) => {
-  const { review, answers } = await openFrontendStoryReviewAsOpened(
-    page,
-    frontendServices,
-    frontendReviewSnapshot({ files: [added("keep.txt")] }),
-    (initial) => {
-      initial.answerFile(frontendFileDiff("keep.txt", ["+keep"]));
-    },
+test("Refresh of a readable comparison keeps its name, eye and diff while progress shows", async () => {
+  const snapshot = makeMe.aStoryReview.adding("keep.txt").please();
+  let read: () => Promise<StoryReview> = () => Promise.resolve(snapshot);
+  const source = sourceOf(
+    () => read(),
+    makeMe.aReviewedFileDiff.adding("keep.txt", "keep").please(),
   );
-  await expect(toolbarComparison(review)).toHaveText("All changes");
-  await expectDetailsCollapsed(review);
-  await expect(fileDiff(review, "Added keep.txt")).toContainText("+keep");
-  const held = answers.holdNextSnapshot();
-  try {
-    await reviewRefresh(review, { exact: true }).click();
-    await held.received;
-    await expect(reviewFeedback(review)).toContainText(
-      "Refreshing the review…",
-    );
-    await expect(toolbarComparison(review)).toHaveText("All changes");
-    await expectDetailsCollapsed(review);
-    await expect(fileDiff(review, "Added keep.txt")).toContainText("+keep");
-  } finally {
-    held.release();
-  }
-  await expect(reviewFeedback(review)).toContainText("Review refreshed");
-  await page.route(
-    (url) => url.pathname === storyReviewEndpoint,
-    (route) => fulfillJson(route, { error: "unreadable" }, 500),
-  );
-  await reviewRefresh(review, { exact: true }).click();
-  await expect(reviewFeedback(review)).toContainText(
-    "The review could not be read:",
-  );
-  await expectNoToolbarComparisonOrDetails(review);
-  await expect(reviewRefresh(review, { exact: true })).toBeVisible();
+  const review = await mountReviewChanges(source, doneStory);
+  await review.expectComparisonNamed("All changes");
+  await review.expectDetailsCollapsed();
+  await review.expectDiffShows("Added keep.txt", "+keep");
+  const held = heldRead();
+  read = held.read;
+  await review.refresh();
+  await review.expectFeedbackSays("Refreshing the review…");
+  await review.expectComparisonNamed("All changes");
+  await review.expectDetailsCollapsed();
+  await review.expectDiffShows("Added keep.txt", "+keep");
+  held.answer(snapshot);
+  await review.expectFeedbackSays("Review refreshed");
+  read = () => Promise.reject(new Error("unreadable"));
+  await review.refresh();
+  await review.expectRefused();
 });
 
-test("the files toggle stays independent of whether details are offered", async ({
-  page,
-  frontendServices,
-}) => {
-  const { review } = await openFrontendStoryReviewAsOpened(
-    page,
-    frontendServices,
-    frontendReviewSnapshot({ files: [added("toggle.txt")] }),
-    (initial) => {
-      initial.answerFile(frontendFileDiff("toggle.txt", ["+toggle"]));
-    },
+test("the files toggle stays independent of whether details are offered", async () => {
+  const source = sourceOf(
+    () => Promise.resolve(makeMe.aStoryReview.adding("toggle.txt").please()),
+    makeMe.aReviewedFileDiff.adding("toggle.txt", "toggle").please(),
   );
-  await expect(filesToggle(review)).toBeVisible();
-  await expectDetailsCollapsed(review);
-  await filesToggle(review).click();
-  await expect(filesToggle(review, "Show files")).toBeVisible();
-  await expectDetailsCollapsed(review);
-  await filesToggle(review, "Show files").click();
-  await expect(filesToggle(review)).toBeVisible();
+  const review = await mountReviewChanges(source, doneStory);
+  await review.expectFilesToggleNamed("Hide files");
+  await review.expectDetailsCollapsed();
+  await review.hideFiles();
+  await review.expectFilesToggleNamed("Show files");
+  await review.expectDetailsCollapsed();
+  await review.showFiles();
+  await review.expectFilesToggleNamed("Hide files");
 });

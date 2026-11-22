@@ -19,14 +19,17 @@ import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { land } from "../../test-support/support/startSessionLandingContext.ts";
 import { commonGitDir } from "../../test-support/support/launchLanding.ts";
 import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { publishCodeLandedBeforeCompletion } from "../../test-support/support/storyCiComparisonEarlierLanding.ts";
 import {
   laterTrunkRevisions,
   serveEarlierLandingWithLandedOutcome,
 } from "../../test-support/support/storyCiComparisonLandedOutcome.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({
+  serverMode: "boundary",
+  extraEnv: collectingLandedCi,
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
   await Promise.all(readers.splice(0).map((reader) => reader.close()));
@@ -48,7 +51,7 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
   github,
 }) => {
   const setup = await publishCodeLandedBeforeCompletion(page, origin);
-  const landing = setup.landingMerge ?? setup.completion;
+  const landing = setup.landingMerge;
   const later = laterTrunkRevisions(origin.origin, landing);
   const unrelated = later.at(-1);
   expect(later[0]).toBe(setup.completion);
@@ -57,18 +60,20 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
   const recorded = [
     {
       revision: landing,
+      base: setup.trunkSide,
       receipt: "30000000-0000-4000-8000-000000000001",
       at: "2026-11-05T14:00:00.000Z",
     },
     {
       revision: unrelated,
+      base: setup.advanced,
       receipt: "30000000-0000-4000-8000-000000000002",
       at: "2026-11-05T15:00:00.000Z",
     },
   ];
   keepMoreLaunchRecords(
     dashboard,
-    recorded.map(({ revision, receipt, at }) =>
+    recorded.map(({ revision, base, receipt, at }) =>
       makeMe.aLaunchRecord
         .executing({ identity: setup.identity, title: "Story A" })
         .inClaudeSession({ sessionId: receipt })
@@ -84,7 +89,7 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
             .forLaunch(receipt)
             .deliveredAs({ delivery: receipt, receipt })
             .comparing({
-              base: git(origin.project, "rev-parse", `${revision}^`),
+              base,
               revision,
             })
             .receivedAt(at)
@@ -216,7 +221,12 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
         ],
       },
     });
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  const reader = await restartAsLandedCiReader(
+    dashboard,
+    origin,
+    "boundary",
+    "the preceding live server retains the machine's Cursor runner",
+  );
   readers.push(reader);
   const answer = await scopedHistory(reader.origin, landing);
   expect((answer.body as { entries: unknown[] }).entries).toHaveLength(1);

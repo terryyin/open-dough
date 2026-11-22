@@ -4,7 +4,41 @@
 import { OutstandingReads } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 import { storyReviewWaitMs } from "../src/storyReviewContract.ts";
 import { commonGitDirectory } from "./gitCommonDirectory.ts";
-import { runGitUntilClosed, type GitCall } from "./gitRunner.ts";
+import { commitIdSchema } from "../src/launchLanding.ts";
+import {
+  GitFailure,
+  runGit,
+  runGitUntilClosed,
+  type GitCall,
+} from "./gitRunner.ts";
+
+// Read the exact named remote branch directly from its remote.
+export async function remoteBranchHead(
+  remote: string,
+  ref: string,
+  call: GitCall,
+): Promise<string | undefined> {
+  try {
+    const { stdout } = await runGit(
+      ["ls-remote", "--exit-code", "--refs", "--", remote, ref],
+      call,
+    );
+    const exact = stdout
+      .split("\n")
+      .map((line) => line.split("\t"))
+      .find(([, name]) => name === ref);
+    return exact === undefined ? undefined : commitIdSchema.parse(exact[0]);
+  } catch (error) {
+    if (
+      error instanceof GitFailure &&
+      error.cause instanceof Error &&
+      "code" in error.cause &&
+      error.cause.code === 2
+    )
+      return undefined;
+    throw error;
+  }
+}
 
 export class GitTargetFetches {
   private readonly outstanding = new OutstandingReads<void>(storyReviewWaitMs);
@@ -61,4 +95,21 @@ export async function fetchGitTarget(
       });
     },
   );
+}
+
+// Ensures the repository holds `revision`, first fetching the trunk `target`
+// from `remote` when it lacks the commit, as a machine that has not fetched
+// since another one published would. Rejects while the commit stays missing.
+export async function fetchUnlessCommitPresent(
+  revision: string,
+  { remote, target }: { readonly remote: string; readonly target: string },
+  call: GitCall & { readonly signal: AbortSignal },
+): Promise<void> {
+  const commit = ["cat-file", "-e", `${revision}^{commit}`];
+  try {
+    await runGit(commit, call);
+  } catch {
+    await fetchGitTarget(remote, target, call);
+    await runGit(commit, call);
+  }
 }

@@ -49,6 +49,11 @@ integrating its outcome and proving this correction remain consumer work.
 
 ## Scope and execution limits
 
+When realigning slices 3–8, [call each typed handler](../../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+with the state and services its stage uses. For example, the ancestry case
+requires real Git history and the origin under examination. It should run
+without an HTTP server or a rerun-request fixture.
+
 Keep all prior seven-case promises and faults F1–F11/F14–F24.
 The product-code exception is Terry's bounded immutable-history optimization;
 it authorizes no cross-request cache, transport redesign or weakened test bound.

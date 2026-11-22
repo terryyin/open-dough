@@ -2,9 +2,16 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
-import type { RecordedLaunchRequest } from "../../src/launchRequest.ts";
+import {
+  unattachedPolicyOf,
+  type RecordedLaunchRequest,
+} from "../../src/launchRequest.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { repoRoot } from "./repositoryRoot.ts";
+
+function branchEntryCommand(input: string | undefined): string | undefined {
+  return /^- branch entry command: (.+)$/m.exec(input ?? "")?.[1];
+}
 
 export function expectReportingBlock(
   block: string | undefined,
@@ -48,7 +55,14 @@ export function expectReportingBlock(
     `- launch reference: ${context.reference}`,
     `- reporting command: ${context.command}`,
   ]);
-  expect(lines).toHaveLength(6);
+  if (
+    request.workflow === "ad-hoc" &&
+    unattachedPolicyOf(request).workspace === "default-checkout"
+  ) {
+    expect(lines).toHaveLength(8);
+    expect(lines[6]).toContain("run this command from that checkout on entry");
+    expect(branchEntryCommand(lines[7])).toContain(quote(context.reference));
+  } else expect(lines).toHaveLength(6);
   if (context.landingContext !== undefined) {
     expect(context.landingContext).toBe(
       path.join(

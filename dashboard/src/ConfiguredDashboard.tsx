@@ -3,27 +3,18 @@ import { useVisibleProjects } from "./projectList.tsx";
 import { DashboardBanner } from "./DashboardBanner.tsx";
 import { usePublishedObservation } from "./publishedObservation.ts";
 import { useBoardScrolling } from "./boardScroll.ts";
-import { Board } from "./Board.tsx";
-import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { useAgentLaunches } from "./agentLaunches.ts";
 import { PageFrame } from "./PageFrame.tsx";
-import { ProjectActions } from "./ProjectActions.tsx";
-import { StartupRecovery } from "./StartupRecovery.tsx";
-import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
-import { StoryDestination } from "./StoryDestination.tsx";
-import { AgentRoster } from "./AgentRoster.tsx";
 import {
   FollowUpNavigationOnPage,
   FollowUpSelection,
 } from "./ciFollowUpNavigation.tsx";
-import { RetainedFollowUpPerspective } from "./RetainedFollowUpPerspective.tsx";
-import { IntentPerspective } from "./IntentPerspective.tsx";
-import { IntentReadRecovery } from "./intentReadRecovery.tsx";
 import { parseRoute } from "./dashboardRouteUrl.ts";
 import { useDashboardNavigation } from "./dashboardNavigation.ts";
 import { LaunchesOnPage } from "./pageLaunches.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { StoryReferenceNavigation } from "./storyNavigation.tsx";
+import { ConfiguredDashboardContent } from "./configuredDashboardContent.tsx";
 
 export type DashboardSelection = {
   readonly source: PublishedSource | undefined;
@@ -94,6 +85,18 @@ export function ConfiguredDashboard({
   const showsRoster =
     source !== undefined && !showsIntent && route.view === "roster";
   const showsBoard = source !== undefined && !showsIntent && !showsRoster;
+
+  const banner = (
+    <DashboardBanner
+      connection={connection}
+      source={source}
+      perspective={route.perspective}
+      onOpenSettings={onOpenSettings}
+      onSelect={selectProject}
+      onSelectPerspective={selectPerspective}
+    />
+  );
+
   return (
     <LaunchesOnPage value={launches}>
       <FollowUpNavigationOnPage value={openFollowUp}>
@@ -113,22 +116,17 @@ export function ConfiguredDashboard({
             destination={route.followUp}
             navigate={openFollowUp}
           />
-          <DashboardBanner
-            connection={connection}
-            source={source}
-            perspective={route.perspective}
-            onOpenSettings={onOpenSettings}
-            onSelect={selectProject}
-            onSelectPerspective={selectPerspective}
-          />
           {source === undefined ? (
-            <main className="frame-state">
-              <h1>All projects are hidden</h1>
-              <p>
-                Open System settings → Projects to show a project on this
-                dashboard.
-              </p>
-            </main>
+            <>
+              {banner}
+              <main className="frame-state">
+                <h1>All projects are hidden</h1>
+                <p>
+                  Open System settings → Projects to show a project on this
+                  dashboard.
+                </p>
+              </main>
+            </>
           ) : (
             <StoryReferenceNavigation
               projects={projects}
@@ -141,105 +139,36 @@ export function ConfiguredDashboard({
               suspended={settingsOpen || !showsBoard}
             >
               {(storyNotice) => (
-                <div
-                  className={
-                    showsIntent
-                      ? "intent-scroll"
-                      : showsRoster
-                        ? "roster-scroll"
-                        : "board-scroll"
-                  }
-                >
-                  <div className="scroll-content">
-                    <div className="page-header">
-                      <StoryDestination
-                        route={route}
-                        status={destination}
-                        retry={() => {
-                          window.location.reload();
-                        }}
-                        showStories={() => {
-                          showStories(source);
-                        }}
-                      />
-                      <PublishedReadStatus
-                        attempt={attempt}
-                        reading={reading}
-                        work={work}
-                        withheld={withheld}
-                        recoversAt={recoversAt}
-                        limitedUntil={limitedUntil}
-                        notice={notice}
-                      />
-                      {storyNotice}
-                      <ProjectActions
-                        source={source}
-                        work={work}
-                        launches={launches}
-                        hidden={!showsBoard}
-                      />
-                      {showsBoard && (
-                        <StartupRecovery
-                          sourceId={source.id}
-                          recoveries={launches}
-                        />
-                      )}
-                      <StartupAnnouncer
-                        sourceId={source.id}
-                        startups={launches.storyStartupsOf(source.id)}
-                      />
-                    </div>
-                    {work && (
-                      <main hidden={!showsBoard}>
-                        <Board
-                          sourceId={source.id}
-                          project={source.label}
-                          work={work}
-                          launches={launches}
-                          onOpenRoster={openRoster}
-                        />
-                      </main>
-                    )}
-                    {showsIntent && (
-                      <IntentReadRecovery
-                        visibility={visibility}
-                        limitStands={limitedUntil !== undefined}
-                      >
-                        {route.followUp !== undefined ? (
-                          <RetainedFollowUpPerspective
-                            source={source}
-                            work={work}
-                            records={launches.records}
-                            workspaces={launches.workspaces}
-                            destination={route.followUp}
-                          />
-                        ) : (
-                          <IntentPerspective
-                            source={source}
-                            work={work}
-                            records={launches.records}
-                            workspaces={launches.workspaces}
-                          />
-                        )}
-                      </IntentReadRecovery>
-                    )}
-                    {showsRoster && (
-                      <main>
-                        <AgentRoster
-                          source={source}
-                          work={work}
-                          problem={readFailure}
-                          agent={
-                            opening?.sourceId === source.id
-                              ? opening.agent
-                              : undefined
-                          }
-                          onBack={onBack}
-                        />
-                      </main>
-                    )}
-                  </div>
-                </div>
+                <>
+                  {banner}
+                  <ConfiguredDashboardContent
+                    source={source}
+                    work={work}
+                    route={route}
+                    destination={destination}
+                    showsIntent={showsIntent}
+                    showsRoster={showsRoster}
+                    showsBoard={showsBoard}
+                    storyNotice={storyNotice}
+                    attempt={attempt}
+                    reading={reading}
+                    withheld={withheld}
+                    recoversAt={recoversAt}
+                    limitedUntil={limitedUntil}
+                    notice={notice}
+                    launches={launches}
+                    visibility={visibility}
+                    readFailure={readFailure}
+                    openRoster={openRoster}
+                    rosterAgent={
+                      opening?.sourceId === source.id
+                        ? opening.agent
+                        : undefined
+                    }
+                    onBack={onBack}
+                    showStories={showStories}
+                  />
+                </>
               )}
             </StoryReferenceNavigation>
           )}

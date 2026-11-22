@@ -10,7 +10,7 @@ import type { FollowUpFile } from "./followUpRequest.ts";
 import { StoryFollowUpSession } from "./FollowUp.tsx";
 import { usePageLaunches } from "./pageLaunches.ts";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
-import type { ReviewedWork } from "./StoryReviewFileDiff.tsx";
+import type { ReviewedWork } from "./reviewedFileRead.ts";
 import { reviewedStoryIdentity } from "./reviewedWorkSubject.ts";
 import {
   reviewedComparison,

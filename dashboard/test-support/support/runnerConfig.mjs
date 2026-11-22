@@ -2,26 +2,50 @@
 // before Playwright starts it, and the run options they share. Each
 // configuration (../../frontend.playwright.config.ts,
 // ../../backend.playwright.config.ts, ../../../e2e/playwright.config.ts)
-// names its own settings prefix, root,
-// CI job and output directory and keeps its own global setup, so no
+// runs its own group (./browserTestGroups.mjs) with its own settings prefix,
+// root, CI job and output directory and keeps its own global setup, so no
 // run reads another runner's split, times, proof record, deadline or output
 // directory, and each selects only its own root's specs (prepareFocusedRun).
-import { availableParallelism } from "node:os";
-import { mkdirSync } from "node:fs";
+import { availableParallelism, homedir, tmpdir } from "node:os";
+import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { dashboardBrowserArgs } from "./browserArgs.ts";
 import { acquireLocalSuite } from "../../../scripts/local-test-suite.mjs";
 import { fullDashboardSuite } from "./fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "./suiteDeadline.mjs";
+import { browserGroupSelection } from "./browserTestGroups.mjs";
 import {
-  ciGroupSelection,
   dashboardTestMatch,
   dashboardTestProjects,
   runOutputs,
 } from "./testFiles.mjs";
 
 const repository = fileURLToPath(new URL("../../../", import.meta.url));
+
+export function useDisposableTestHome() {
+  // Keep Playwright's browser registry outside the temporary home, including
+  // when a mixed frontend run starts Playwright from Vitest's disposable HOME.
+  const browserPath =
+    process.env["PLAYWRIGHT_BROWSERS_PATH"] ??
+    process.env["npm_config_playwright_browsers_path"] ??
+    process.env["npm_package_config_playwright_browsers_path"];
+  if (!browserPath) {
+    const home = homedir();
+    const cache =
+      process.platform === "darwin"
+        ? path.join(home, "Library", "Caches")
+        : process.platform === "win32"
+          ? process.env["LOCALAPPDATA"] || path.join(home, "AppData", "Local")
+          : process.env["XDG_CACHE_HOME"] || path.join(home, ".cache");
+    process.env["PLAYWRIGHT_BROWSERS_PATH"] = path.join(cache, "ms-playwright");
+  }
+
+  const home = mkdtempSync(path.join(tmpdir(), "dough-dashboard-test-home-"));
+  process.env["HOME"] = home;
+  if (process.platform === "win32") process.env["USERPROFILE"] = home;
+  process.once("exit", () => rmSync(home, { recursive: true, force: true }));
+}
 
 /**
  * `<prefix>_SPLIT`, `_TIMES`, `_PROOF_RECORD`, `_DEADLINE_MS` and
@@ -67,6 +91,7 @@ async function prepareGroupRun(variables, outputs) {
   // Workers reload it, but only the runner admits a full local run before
   // global setup.
   const runner = process.env["TEST_WORKER_INDEX"] === undefined;
+  if (runner) useDisposableTestHome();
   if (
     runner &&
     !process.env["CI"] &&
@@ -169,18 +194,16 @@ async function prepareGroupRun(variables, outputs) {
 }
 
 /**
- * Prepares one group's run: it reads only `<prefix>_*` settings, keeps its
- * run directories under its own `root` of `directory` (the configuration's
- * testDir; `.` is the directory itself), and selects only that root's specs:
- * shard i of `<prefix>_SPLIT=<i>/<n>` as its CI `job` in
- * .github/workflows/ci.yml declares it, or every spec without a split. Spec
- * labels are relative to `directory`, as its times file names them.
- * `projects` partitions the selection into the `chromium-deployments`
- * production chains and the `chromium` rest (./testFiles.mjs).
- * @param {string} prefix
- * @param {URL} directory
- * @param {string} root
- * @param {string} job
+ * Prepares `group`'s run (./browserTestGroups.mjs): it reads only
+ * `<prefix>_*` settings, keeps its run directories under its own `root` of
+ * `directory` (the configuration's testDir; `.` is the directory itself),
+ * and selects only that root's specs `include` accepts: shard i of
+ * `<prefix>_SPLIT=<i>/<n>` as its CI `job` in .github/workflows/ci.yml
+ * declares it, or every spec without a split. Spec labels are relative to
+ * `directory`, as its times file names them. `projects` partitions the
+ * selection into the `chromium-deployments` production chains and the
+ * `chromium` rest (./testFiles.mjs).
+ * @param {import("./browserTestGroups.mjs").BrowserTestGroup} group
  * @param {(file: string) => boolean} [include]
  * @returns {Promise<{
  *   options: import("@playwright/test").PlaywrightTestConfig,
@@ -188,16 +211,14 @@ async function prepareGroupRun(variables, outputs) {
  *   projects: { name: string, testMatch: RegExp[] }[],
  * }>}
  */
-export async function prepareFocusedRun(prefix, directory, root, job, include) {
+export async function prepareFocusedRun(group, include) {
+  const { prefix, directory, root } = group;
   const variables = runnerVariables(prefix);
   const run = await prepareGroupRun(
     variables,
     fileURLToPath(new URL(`${root}/`, directory)),
   );
-  const selection = {
-    ...ciGroupSelection(root, variables.split, job),
-    include,
-  };
+  const selection = { ...browserGroupSelection(group), include };
   return {
     options: run.options,
     testMatch: dashboardTestMatch(directory, run.split, selection),

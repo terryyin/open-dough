@@ -1,26 +1,27 @@
 // Range admission accepts object points and exact optional integration evidence,
 // while preserving the review's read-only story-workspace boundary, against
-// Story A's admission worktree (../../test-support/support/storyReviewWorktree.ts).
+// Story A's admission repository (../../test-support/support/storyReviewWorktree.ts).
 import { storyReviewRangeEndpoint } from "../../src/storyReviewContract.ts";
 import { getReview } from "../../test-support/support/completedReviewRequests.ts";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { keepLaunchRecord } from "../../test-support/support/storyLaunchRecord.ts";
 import {
-  admissionWorktree,
+  admissionRepository,
   git,
   observed,
+  storyWorktree,
 } from "../../test-support/support/storyReviewWorktree.ts";
 
 // No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+test.use({ serverMode: "boundary", originRepository: admissionRepository });
 
 test("a range admits only exact story and object IDs and confirms the repository holds them", async ({
   request,
   dashboard,
   origin,
 }) => {
-  const { workspace, merged } = admissionWorktree(origin);
+  const { workspace, merged } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   const query = {
@@ -65,7 +66,7 @@ test("integration evidence requires an exact array of object points whose object
   dashboard,
   origin,
 }) => {
-  const { workspace, merged } = admissionWorktree(origin);
+  const { workspace, merged } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const tree = git(workspace, "rev-parse", "HEAD^{tree}");
   const integration = {

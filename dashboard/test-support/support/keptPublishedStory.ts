@@ -1,15 +1,13 @@
-// Story A published as completed on a start origin's trunk, and kept: the
-// history ./completedPublishedStory.ts leaves through the installed CLI in
-// ordinary Trunk Mode with no other writer, declared instead as Yui's Take,
-// her implementation and her completion with its done record. The product
-// reads a completion from Git alone (../../server/completedCiFollowUps.ts),
-// so the kept form is those commits. A worker prepares it once, before its
-// first case (./pageTest.ts), and the origin of each case that starts from it
-// is a copy that already holds it: such a case publishes no story itself.
-// Nothing is kept between runs; the done record's completion time is the
-// worker's. What only a real completion shows stays with the specs of
-// ./completedPublishedStory.ts. The summary comparison story is the same
-// kind of history, declared in ./intentSummaryStoryComparisonRepository.ts.
+// Story A published as completed on a start origin's trunk, and kept: ordinary
+// Trunk Mode with no other writer, declared as Yui's Take, her implementation
+// and her completion with its done record. The product reads a completion from
+// Git alone (../../server/completedCiFollowUps.ts), so the kept form is those
+// commits. A worker prepares it once, before its first case (./pageTest.ts),
+// and the origin of each case that starts from it is a copy that already holds
+// it: such a case publishes no story itself. Nothing is kept between runs; the
+// done record's completion time is the worker's. Named completed histories live
+// in ./completedStoryHistory.ts. The summary comparison story is the same kind
+// of history, declared in ./intentSummaryStoryComparisonRepository.ts.
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";

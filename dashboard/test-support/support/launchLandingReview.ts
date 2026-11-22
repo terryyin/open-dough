@@ -1,8 +1,4 @@
-import {
-  reviewRefresh,
-  reviewRegion,
-  showReviewDetails,
-} from "./reviewControls.ts";
+import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
 // The review the server answers for any launch's story, read as the page
 // receives it.
 import { reviewChanges } from "../storyCardControls.ts";
@@ -27,7 +23,3 @@ export async function readReview(page: Page, card: Locator) {
   await showReviewDetails(reviewRegion(page));
   return answer;
 }
-
-// The review an open review's Refresh reads again.
-export const refreshReview = (page: Page, review: Locator) =>
-  reviewAfter(page, reviewRefresh(review));

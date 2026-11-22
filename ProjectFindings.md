@@ -440,3 +440,39 @@ separate checks. The [repository proof guide](Distribution/tests/README.md#waits
 documents the focused typecheck, and the commit hook caught both errors before
 publication. Retain the two occurrences as project evidence. No new story is
 queued.
+
+<a id="dd-579"></a>
+
+## DD-579 — A guidance walk scripted by the guidance's author confirms its own reading
+
+The behavior review asks for one representative walk of a changed skill. An implementer who writes the guidance and then encodes it in a fixture script observes only their own interpretation. A reader who did not write it can expose ambiguities that this script cannot.
+
+### Occurrences
+
+- Execution: SEED-402#keep-client-finding-evidence-and-ids-stable (plan 704; first implementation `5cc62ffe53ea21452e60f22d3448322e773c7a4b`)
+  - Timestamp: unknown (2026-11-18, slice 1 acceptance before `5cc62ffe5` at 2026-11-18T23:01:47+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.106 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1 implementer proof was its own `walk.py` applying the new collector section; the coordinator then sent a fresh agent only the guidance and rebuilt fixtures. That agent reached the same six outcomes and raised two wording gaps, both fixed before commit. The slice 2 brief required an independent walker from the start. That walker raised five open questions about how a recreated log represents recovered content (`bdcf715a2e826926a00b551498596e7a3ca6279c:.planning/slice-plans/704-stable-client-finding-records/PLAN.md` slice 2 accepted proof).
+  - Observed effect: one extra walker run (~76 s) in slice 1; no rework of accepted behavior.
+  - Inference: `.agents/skills/author-open-dough-skills/SKILL.md#behavior-review` could ask that the walk be performed by an agent that did not write the change, given only the guidance and the situation.
+
+<a id="dd-593"></a>
+
+## DD-593 — A mixed frontend selection silently ran only its Vitest specs
+
+`npm run test:dashboard:frontend -- <selections>` given both mounted Vitest
+specs and retained Playwright specs ran only the Vitest ones. A passing
+Playwright run printed nothing, so a green command did not show whether the
+Playwright selection ran.
+
+### Occurrences
+- Execution: SEED-413#optimization-candidates-revision-cases (plan 729-optimization-candidates-revision-cases; first related implementation commit `69932767d6ac27534e57e336e7d466c546df48b5`)
+  - Timestamp: unknown (2026-11-20, slice 1 and slice 2 proof, before `69932767d` at 2026-11-20T16:12:29+08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.109 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 1's combined selection of the new mounted spec, the built-app spec and `intent-source-target-recovery-mounted` reported 3 Vitest tests and no Playwright case. The built-app spec had to be run alone with `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` to confirm it passed. In slice 2 the first before/after timing set for the built-app spec was discarded because its silent output could not show the cases ran, and the set was rerun with proof records.
+  - Observed effect: one discarded three-run timing set and extra solo runs; no wrong result was accepted.
+  - Inference: `scripts/test-frontend.mjs` could report the Playwright selection's case count, or refuse a mixed selection, until the North Star's Playwright removal from `dashboard/frontend-tests/` retires the dual runner.

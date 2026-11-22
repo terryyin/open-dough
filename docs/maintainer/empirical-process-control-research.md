@@ -917,9 +917,9 @@ review selectively.** It added outcome coverage here without demonstrating a
 new defect. Before adopting routine review, use a separately selected unresolved
 or stopped completion journey to test whether its final receipts change a
 consequential decision, recording retrieval effort as well as the outcome.
-This is advice, not adopted or queued work. The current
-[launch direction](../../.planning/NORTH-STAR.md#agent-launch-as-a-requested-assignment)
-also distinguishes session completion from published story state; the matched
+This is advice, not adopted or queued work.
+[ADR 0008](../adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+distinguishes session completion from published story state; the matched
 completion receipt here does not complete or re-execute the queued story.
 
 <a id="later-product-consequences-follow-up"></a>

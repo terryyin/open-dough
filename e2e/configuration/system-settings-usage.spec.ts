@@ -14,6 +14,7 @@ import {
   usageHistoryFile,
   writeUsageHistory,
 } from "../../dashboard/server/usageHistory.ts";
+import { codexTariff } from "../../dashboard/server/usageTariffs.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import { test } from "../../dashboard/test-support/support/pageTest.ts";
 import { systemSettingsMachine } from "../../dashboard/test-support/support/systemSettingsMachine.ts";
@@ -75,9 +76,7 @@ test("Usage shows the finished-task trend and opens a task from the chosen cohor
     ),
   );
   await usage.showsMedian("1,950");
-  await usage.showsTariff(
-    "Codex rate card read 2026-11-15 · standard speed · GPT-6.1 Sol input-token equivalents",
-  );
+  await usage.showsTariff(codexTariff.label);
   await usage.showsCheckedAt(statSync(store).mtime.toISOString());
   await usage.offers("Launch workflow", ["Execution", "Refinement", "Ad hoc"]);
   await usage.offers("Model", ["All models", "GPT-6.1 Sol", "GPT-6 Astra"]);

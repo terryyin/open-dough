@@ -15,6 +15,7 @@ import {
   expectStillServing,
   productionDeployments,
   productionInspections,
+  realDeploymentTimeout,
   settledSkip,
 } from "../../dashboard/test-support/support/productionWatcher.ts";
 import {
@@ -43,6 +44,8 @@ const journey = productionUpdateJourney();
 test("repeated checks of unchanged main stay quiet and keep the same preview and build, which reads the shared launch record beside development", async ({
   request,
 }) => {
+  // Awaits a real deployment: npm ci, Vite build and preview start.
+  test.setTimeout(realDeploymentTimeout);
   const state = await journey.activated();
   const { fixture, watcher } = state;
   expect(await journey.builds()).toEqual([
@@ -69,6 +72,8 @@ let c: string;
 test("a commit held in its build is served exactly at the same URL while the next commit reaches main, completing an accepted start and keeping shared records", async ({
   request,
 }) => {
+  // Awaits a real deployment: npm ci, Vite build and preview start.
+  test.setTimeout(realDeploymentTimeout);
   c = await replaceWhileStartDrains(journey, request);
 });
 
@@ -91,6 +96,8 @@ test("a later check prepares the next commit while the held commit stays served"
 test("the next commit, released from its build, replaces the held commit at the same URL, keeping shared records and configuration", async ({
   request,
 }) => {
+  // Awaits a real deployment: npm ci, Vite build and preview start.
+  test.setTimeout(realDeploymentTimeout);
   const state = journey.started();
   const { fixture, page } = state;
   const switched = state.served;
@@ -205,6 +212,8 @@ test("npm watcher keeps its baseline through an unsupported published policy, re
 test("SIGTERM while a commit is in its real build ends that build, the served preview and every deployment checkout, and leaves shared records and configuration untouched", async ({
   request,
 }) => {
+  // Awaits a real deployment's fetch and npm ci until its build starts.
+  test.setTimeout(realDeploymentTimeout);
   const state = journey.started();
   const { fixture, watcher: running } = state;
   const store = launchStoreFile(fixture.home);

@@ -62,6 +62,9 @@ import { admittedAttach, launchBoundaryPaths } from "./agentLaunchAdmission.ts";
 import { AgentLaunches } from "./agentLaunches.ts";
 import { AgentTerminals } from "./agentTerminals.ts";
 import { NativeDoneMarks } from "./doneMarks.ts";
+import { launchHost } from "./launchHosts.ts";
+import { configuredProject } from "./projectConfiguration.ts";
+import { localFolder, machineFolder } from "./projectFolders.ts";
 import { respondToLaunch } from "./agentLaunchResponse.ts";
 import {
   ensureCursorRunner,
@@ -90,7 +93,16 @@ export function installAgentLaunchMiddleware(
   const terminals: AgentTerminals = new AgentTerminals(httpServer, (req, url) =>
     admittedAttach(req, url, launches),
   );
-  const doneMarks = new NativeDoneMarks(terminals);
+  const doneMarks = new NativeDoneMarks({
+    terminals,
+    hostFor: launchHost,
+    reportingFolder: (sourceId) => {
+      const project = configuredProject(sourceId);
+      return project === undefined
+        ? machineFolder()
+        : localFolder(project.localPath);
+    },
+  });
   const launches: AgentLaunches = new AgentLaunches(doneMarks);
   const maintenance = new FeedbackMaintenanceCheck(launches, () =>
     dashboardOrigin(httpServer),

@@ -1,0 +1,77 @@
+/* The Intent locations browser (./IntentBrowser.tsx): the locations column
+   beside the reading pane, running the full height its column gives it
+   against the page's left edge; each scrolls on its own, both ways. */
+
+.intent-browser {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(14rem, 22rem) minmax(0, 1fr);
+  border-top: 1px solid var(--line);
+}
+
+.intent-browser[hidden] {
+  display: none;
+}
+
+/* Hide files (./IntentPage.tsx) hides the locations column, still
+   mounted so its scroll, open folders and summary return, and gives the
+   reading pane the whole width (narrow, the whole height). */
+.intent-browser.intent-files-hidden {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.intent-locations[hidden] {
+  display: none;
+}
+
+/* Each pane scrolls on its own and keeps positioned screen-reader labels
+   inside the pane that scrolls them. */
+.intent-locations,
+.intent-reading {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+/* Async Proof content must not move the kept reading place through scroll
+   anchoring once the developer has scrolled. */
+.intent-reading {
+  overflow-anchor: none;
+}
+
+/* The browser pane scrolls as one; its locations are sections within it, not
+   boxes that scroll themselves. */
+.intent-locations {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--line);
+}
+
+.intent-reading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-3) clamp(0.75rem, 4vw, 1.5rem) var(--space-4);
+}
+
+.intent-reading:focus-visible {
+  outline-offset: -3px;
+}
+
+/* Narrow, the browser sits above the reading pane and keeps part of the
+   height; each still scrolls on its own. */
+@media (max-width: 52rem) {
+  .intent-browser {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 40%) minmax(0, 1fr);
+  }
+
+  .intent-locations {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}

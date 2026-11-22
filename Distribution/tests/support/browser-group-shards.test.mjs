@@ -17,7 +17,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, posix } from "node:path";
 import { pathToFileURL } from "node:url";
-import { frontendFiles } from "../../../dashboard/test-support/support/frontendSelection.mjs";
+import { browserGroupSelection } from "../../../dashboard/test-support/support/browserTestGroups.mjs";
 import {
   dashboardSpecFiles,
   dashboardTestMatch,
@@ -35,12 +35,7 @@ const matched = (patterns, path) =>
 // Each group's own selection as its configuration makes it, and its shards.
 const groups = browserGroupConfigs.map((group) => ({
   ...group,
-  selection: {
-    roots: [group.root],
-    splitVariable: `${group.prefix}_SPLIT`,
-    workflow: new URL(workflowFile, repository),
-    job: group.job,
-  },
+  selection: browserGroupSelection(group),
   indices: Array.from({ length: group.shards }, (...[, index]) => index + 1),
 }));
 const groupOf = (job) => groups.find((group) => group.job === job);
@@ -51,15 +46,6 @@ for (const group of groups)
     const testDir = new URL(`${group.directory}/`, repository);
     const files = dashboardSpecFiles(testDir.pathname, selection.roots);
     assert.ok(files.length > 0);
-    if (group.frontend) {
-      const labels = (split) => frontendFiles(split).map(({ label }) => label);
-      assert.deepEqual(
-        indices.flatMap((index) => labels(`${index}/${shards}`)).sort(),
-        files,
-      );
-      assert.deepEqual(labels(undefined).sort(), files);
-      return;
-    }
     const matches = indices.flatMap((index) =>
       dashboardTestMatch(testDir, `${index}/${shards}`, selection),
     );

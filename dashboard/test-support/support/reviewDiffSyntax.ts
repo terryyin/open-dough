@@ -15,10 +15,6 @@ const newLine = (diff: Locator, number: number) =>
 const removedLine = (diff: Locator, number: number) =>
   diff.locator(`li.story-review-removed[data-old="${String(number)}"]`);
 
-// Emphasized words on a line (or in a diff) as deletions or insertions.
-const deletions = (scope: Locator) => scope.getByRole("deletion");
-const insertions = (scope: Locator) => scope.getByRole("insertion");
-
 // The syntax tokens of a line's (or a whole diff's) code.
 const codeTokens = (scope: Locator) =>
   scope.locator(".story-review-line-code span");
@@ -26,10 +22,6 @@ const codeTokens = (scope: Locator) =>
 // The first token of the scope's code whose text matches `text`.
 const codeToken = (scope: Locator, text: RegExp) =>
   codeTokens(scope).filter({ hasText: text }).first();
-
-// Syntax tokens inside an insertion or deletion (descendant `.source-token`
-// spans; the mark itself sits inside `.story-review-line-code`).
-const tokensInMark = (mark: Locator) => mark.locator(".source-token");
 
 // The revealed context lines of the omitted range before the first change.
 const revealedBefore = (diff: Locator) =>
@@ -52,32 +44,6 @@ export const tokenAppearance = (token: Locator) =>
     };
   });
 
-// Each line's text, numbers, kind and background, as the diff shows them.
-const lineFacts = (diff: Locator) =>
-  diff.locator("li.story-review-line").evaluateAll((lines) =>
-    lines.map((line) => ({
-      text: line.textContent,
-      old: line.getAttribute("data-old"),
-      new: line.getAttribute("data-new"),
-      kind: line.getAttribute("class"),
-      background: getComputedStyle(line).backgroundColor,
-    })),
-  );
-
-// The text the page selects from the start of `first` to the end of `last`.
-async function selectedText(first: Locator, last: Locator) {
-  const end = await last.elementHandle();
-  return first.evaluate((start, until) => {
-    const range = document.createRange();
-    range.setStartBefore(start);
-    range.setEndAfter(until);
-    const selection = window.getSelection();
-    selection?.removeAllRanges();
-    selection?.addRange(range);
-    return selection?.toString() ?? "";
-  }, end);
-}
-
 // The paths of every file diff and file text read the page asks for from now.
 export function fileReads(page: Page) {
   const asked: string[] = [];
@@ -91,10 +57,6 @@ export function fileReads(page: Page) {
   });
   return () => [...asked];
 }
-
-// Where a line sits in the window, as the reader sees it.
-const placeOf = async (line: Locator) =>
-  (await line.boundingBox())?.y ?? Number.NaN;
 
 // Everything a diff says, with its file's path written as `<path>`, so two
 // files' diffs compare word for word.
@@ -123,14 +85,6 @@ export class StoryReviewDiff {
     return codeTokens(this.locator);
   }
 
-  deletions() {
-    return deletions(this.locator);
-  }
-
-  insertions() {
-    return insertions(this.locator);
-  }
-
   showPrecedingLines() {
     return showPrecedingLines(this.locator);
   }
@@ -139,31 +93,17 @@ export class StoryReviewDiff {
     return revealedBefore(this.locator);
   }
 
-  firstRevealedLine() {
-    return new StoryReviewDiffLine(revealedBefore(this.locator).first());
-  }
-
-  async revealedLines() {
-    return (await revealedBefore(this.locator).all()).map(
-      (line) => new StoryReviewDiffLine(line),
-    );
-  }
-
-  lineFacts() {
-    return lineFacts(this.locator);
+  lineTexts() {
+    return this.locator.locator("li.story-review-line").allTextContents();
   }
 
   words(path: string) {
     return diffWords(this.locator, path);
   }
-
-  selectedText(first: StoryReviewDiffLine, last: StoryReviewDiffLine) {
-    return selectedText(first.line, last.line);
-  }
 }
 
-// One diff line: its emphasized words, the tokens inside them, and where it sits.
-export class StoryReviewDiffLine {
+// A rendered line and its syntax tokens.
+class StoryReviewDiffLine {
   readonly line: Locator;
 
   constructor(line: Locator) {
@@ -176,29 +116,5 @@ export class StoryReviewDiffLine {
 
   codeTokens() {
     return codeTokens(this.line);
-  }
-
-  deletions() {
-    return deletions(this.line);
-  }
-
-  insertions() {
-    return insertions(this.line);
-  }
-
-  tokenInDeletion(text: RegExp) {
-    return tokensInMark(deletions(this.line)).filter({ hasText: text });
-  }
-
-  tokenInInsertion(text: RegExp) {
-    return tokensInMark(insertions(this.line)).filter({ hasText: text });
-  }
-
-  place() {
-    return placeOf(this.line);
-  }
-
-  scrollIntoView() {
-    return this.line.scrollIntoViewIfNeeded();
   }
 }

@@ -12,9 +12,10 @@
 // replaces it in place; if the new read fails, that text still stays, with the
 // failed revision (`failedRevision`) and Retry.
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { cachedFile } from "./fileContentCache.ts";
 import type { FileRead } from "./IntentFileReading.tsx";
+import { IntentReadSourceOnPage } from "./intentReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { readCachedFile } from "./repositoryFileReads.ts";
 
@@ -47,6 +48,7 @@ export function useIntentFileRead({
   readonly failedRevision: string | undefined;
   readonly retry: () => void;
 } {
+  const { readFile } = useContext(IntentReadSourceOnPage);
   const [fileRead, setFileRead] = useState<RevisionRead | undefined>(undefined);
   const [fileRetry, setFileRetry] = useState(0);
   useEffect(() => {
@@ -62,7 +64,7 @@ export function useIntentFileRead({
         ? { path, state: "ready", text: was.text, revision: was.revision }
         : undefined,
     );
-    void readCachedFile(source, revision, path, controller.signal)
+    void readCachedFile(source, revision, path, controller.signal, readFile)
       .then((text) => {
         if (!controller.signal.aborted) {
           setFileRead({ path, state: "ready", text, revision });
@@ -80,7 +82,7 @@ export function useIntentFileRead({
     return () => {
       controller.abort();
     };
-  }, [source, revision, path, file, fileRetry, unread]);
+  }, [source, revision, path, file, fileRetry, unread, readFile]);
 
   const text =
     file && path !== "" && !unread

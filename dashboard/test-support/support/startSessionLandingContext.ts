@@ -61,27 +61,64 @@ export function land(
   host: Host = "claude",
 ) {
   const { session, reporting, file } = landingHandoff(record);
+  return publishSessionLanding(
+    {
+      workspace: session.workspace,
+      branch: session.branch,
+      previouslyPublishedBase: session.startingRevision,
+      remote: session.remote,
+      targetRef: `refs/heads/${session.target}`,
+      landingContext: file,
+    },
+    reporting.reference,
+    origin,
+    home,
+    { host },
+  );
+}
+
+function publishSessionLanding(
+  publication: {
+    readonly workspace: string;
+    readonly branch: string;
+    readonly previouslyPublishedBase: string | undefined;
+    readonly remote: string;
+    readonly targetRef: string;
+    readonly landingContext: string;
+  },
+  reference: string,
+  origin: StartOrigin,
+  home: string,
+  {
+    host = "claude",
+    declared = false,
+  }: { host?: Host; declared?: boolean } = {},
+) {
   const module = pathToFileURL(
     path.join(
-      scripts(session.workspace, host),
+      scripts(publication.workspace, host),
       "execution-increment-publication.mjs",
     ),
   ).href;
-  const attempts = path.join(
+  const records = path.join(
     home,
-    ".open-dough/dashboard/launch-attempts.json",
+    ".open-dough/dashboard",
+    declared ? "agent-launches.json" : "launch-attempts.json",
   );
-  const observed = path.join(origin.machine, `before-${reporting.reference}`);
+  const observed = path.join(origin.machine, `before-${reference}`);
+  const preparations = declared
+    ? `kept.find((entry) => entry.landingReporting?.branchContext?.reference === ${JSON.stringify(reference)})?.landingReporting?.preparations`
+    : `kept.find((entry) => entry.id === ${JSON.stringify(reference)})?.landingPreparations`;
   const code = [
     `import { publishExecutionIncrement } from ${JSON.stringify(module)};`,
     'import { execFileSync } from "node:child_process";',
     'import { readFileSync, writeFileSync } from "node:fs";',
     "const request = JSON.parse(process.argv[1]);",
     "const result = await publishExecutionIncrement({ ...request, beforePush: async () => {",
-    `  const kept = Object.values(JSON.parse(readFileSync(${JSON.stringify(attempts)}, "utf8"))).flat();`,
+    `  const kept = Object.values(JSON.parse(readFileSync(${JSON.stringify(records)}, "utf8"))).flat();`,
     `  writeFileSync(${JSON.stringify(observed)}, JSON.stringify({`,
     '    trunk: execFileSync("git", ["-C", request.workspace, "ls-remote", request.remote, request.targetRef], { encoding: "utf8" }).split("\t")[0],',
-    `    preparations: kept.find((entry) => entry.id === ${JSON.stringify(reporting.reference)})?.landingPreparations ?? [],`,
+    `    preparations: ${preparations} ?? [],`,
     "  }));",
     "} });",
     "console.log(JSON.stringify(result));",
@@ -90,19 +127,7 @@ export function land(
     JSON.parse(
       execFileSync(
         process.execPath,
-        [
-          "--input-type=module",
-          "-e",
-          code,
-          JSON.stringify({
-            workspace: session.workspace,
-            branch: session.branch,
-            previouslyPublishedBase: session.startingRevision,
-            remote: session.remote,
-            targetRef: `refs/heads/${session.target}`,
-            landingContext: file,
-          }),
-        ],
+        ["--input-type=module", "-e", code, JSON.stringify(publication)],
         { cwd: origin.machine, encoding: "utf8" },
       ),
     ),

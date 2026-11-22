@@ -1,7 +1,9 @@
-// All changes comes with the workspace snapshot; Commits reads the selected
-// points. Native radios also offer available historical comparisons.
+// All changes comes with the workspace snapshot, its uncommitted changes
+// included or left out; Commits reads the selected points. Native radios also
+// offer available historical comparisons.
 
 import { useId, type ReactNode } from "react";
+import type { StoryReview } from "./storyReviewContract.ts";
 
 export type ShownComparison = "all" | "commits";
 
@@ -15,6 +17,7 @@ export function ComparisonChoices<Key extends string>({
   choices,
   shown,
   onChoose,
+  label = "Comparison",
 }: {
   readonly choices: readonly {
     readonly key: Key;
@@ -22,13 +25,14 @@ export function ComparisonChoices<Key extends string>({
   }[];
   readonly shown: Key | undefined;
   readonly onChoose: (key: Key) => void;
+  readonly label?: string;
 }) {
   const name = useId();
   return (
     <div
       className="story-review-comparison"
       role="radiogroup"
-      aria-label="Comparison"
+      aria-label={label}
     >
       {choices.map(({ key, label }) => (
         <label key={key}>
@@ -51,6 +55,19 @@ export function ComparisonChoices<Key extends string>({
 // A comparison the switch offers: of the workspace, or a fixed historical one.
 export type ComparisonChoice = ShownComparison | "landed" | "published";
 
+// The choice a review shows: a chosen landed run, the published completion
+// read, or the workspace's comparison.
+export const shownChoice = (
+  shown: ShownComparison,
+  review: StoryReview | undefined,
+  selectedRun: unknown,
+): ComparisonChoice =>
+  selectedRun !== undefined
+    ? "landed"
+    : review?.kind === "published"
+      ? "published"
+      : shown;
+
 // A comparison's name, in the switch and in the review's toolbar.
 export const comparisonName = (shown: ComparisonChoice) =>
   shown === "landed"
@@ -69,6 +86,7 @@ export function ComparisonSwitch({
 }: {
   readonly shown: ComparisonChoice;
   readonly onSwitch: (shown: ComparisonChoice) => void;
+  // Whether the workspace holds commits to choose among.
   readonly commits: boolean;
   readonly landed?: boolean;
   readonly published?: boolean;
@@ -76,7 +94,7 @@ export function ComparisonSwitch({
 }) {
   const offered: readonly ComparisonChoice[] = [
     ...(workspace ? ["all" as const] : []),
-    ...(commits ? ["commits" as const] : []),
+    ...(workspace && commits ? ["commits" as const] : []),
     ...(published ? ["published" as const] : []),
     ...(landed ? ["landed" as const] : []),
   ];
@@ -89,5 +107,30 @@ export function ComparisonSwitch({
       shown={shown}
       onChoose={onSwitch}
     />
+  );
+}
+
+// Whether all changes include the workspace's uncommitted changes, offered
+// while it holds some.
+export function UncommittedCheck({
+  included,
+  onInclude,
+}: {
+  readonly included: boolean;
+  readonly onInclude: (include: boolean) => void;
+}) {
+  return (
+    <div className="story-review-uncommitted">
+      <label>
+        <input
+          type="checkbox"
+          checked={included}
+          onChange={(event) => {
+            onInclude(event.target.checked);
+          }}
+        />{" "}
+        Include uncommitted changes
+      </label>
+    </div>
   );
 }

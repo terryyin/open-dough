@@ -39,7 +39,10 @@ test.describe.configure({ mode: "serial" });
 
 test("keeps only the newest 100 failures and filters by configured source", async () => {
   // Fresh process so eviction is not confounded by earlier cases.
-  const isolated = await startDashboardServer(developmentBoundary);
+  const isolated = await startDashboardServer({
+    ...developmentBoundary,
+    liveServer: "separate process",
+  });
   try {
     for (let at = 0; at < 101; at += 1) {
       isolated.github.serve(everyRepository, () =>
@@ -74,7 +77,10 @@ test("keeps only the newest 100 failures and filters by configured source", asyn
 });
 
 test("omits optional, malformed, and oversized metadata and never retains secret-like markers", async () => {
-  const isolated = await startDashboardServer(developmentBoundary);
+  const isolated = await startDashboardServer({
+    ...developmentBoundary,
+    liveServer: "separate process",
+  });
   try {
     // CLI failure first: a following rate-limit refusal would hold later
     // reads back without another upstream call.
@@ -136,6 +142,7 @@ test("ordinary waiter departure does not record a diagnostic failure", async () 
   const isolated = await startDashboardServer({
     ...developmentBoundary,
     readTimeoutMs: 5_000,
+    liveServer: "separate process",
   });
   try {
     isolated.github.serve(everyRepository, hangs);

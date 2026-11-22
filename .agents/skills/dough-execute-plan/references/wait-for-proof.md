@@ -3,8 +3,9 @@
 A running test, build, measurement, or CI run spends no model tokens, and its
 time does not count toward the
 [slice's active time](oversized-slice.md#track-active-time). Checking on it
-does both. Wait so that no model turn runs until the command finishes or
-reaches its deadline.
+does both. Start the command once. If the host returns control early,
+resume the same wait against the original deadline. Act on the command's
+output, exit status, and any workflow receipt as soon as it finishes.
 
 - Before launch, set the deadline from the
   [expensive-proof decision](../../dough-story-refinement/references/executable-proof.md#choose-expensive-proof-before-launch)
@@ -13,25 +14,27 @@ reaches its deadline.
   [slice clock's `run`](oversized-slice.md#track-active-time), which writes
   the command's output to the log and, when it ends, its exit status to the
   exit file. Keep those outputs and the [run record](proof-evidence.md) in the
-  evidence location. Wait on that exit file, never on a process listing: `pgrep -f`
-  can match the wait itself.
+  evidence location. Read the exit file for the recorded proof result. Use
+  it for the blocking fallback below; a process listing can match the wait
+  itself.
 - While it runs, make no `sleep`, log, or status calls, and do no other
   checks.
-- At the deadline, apply
-  [overdue delegated verification](overdue-delegated-verification.md).
+- If the caller owns the deadline, bound each wait by the time left and
+  follow the workflow's deadline procedure at expiry (for delegated proof,
+  [overdue delegated verification](overdue-delegated-verification.md)).
+  If the command owns the deadline, await its terminal receipt.
 
 ## By host
 
 - **Claude Code:** start the command with `run_in_background`, then continue
   independent work or end the turn without a handback. The completion
   notification resumes the agent.
-- **Codex:** start the command with `exec_command`. While it runs, continue the
-  session with `write_stdin`, sending no input and using the longest
-  `yield_time_ms` the tool accepts.
+- **Codex:** use the [foreground wait](#codex-foreground-waits).
 - **Cursor:** no notification arrives. Run the command in the foreground when
   it fits the terminal tool's time limit. Otherwise start it in the background
   and wait in one blocking command that ends at the exit file or the deadline;
-  repeat that wait only when the tool ends the call first:
+  repeat that wait only when the tool ends the call first. Set
+  `DEADLINE_SECONDS` to the time left before each call:
 
   ```sh
   end=$(( $(date +%s) + DEADLINE_SECONDS ))
@@ -40,6 +43,21 @@ reaches its deadline.
   ```
 
 Use the blocking wait on any host whose own facility is unavailable.
+
+### Codex foreground waits
+
+1. Start the `functions.exec` cell with `// @exec: {"yield_time_ms": 300000}`.
+   Inside it, launch with `tools.exec_command`. While the result carries a
+   shell session ID, await `tools.write_stdin` on that ID with empty input
+   inside the cell. Use the longest supported shell yield within any remaining
+   caller deadline. Return the accumulated output and final exit status.
+2. Whenever Codex returns a running cell ID, resume it with `functions.wait`
+   and `yield_time_ms: 300000`. Shorten either outer wait for a nearer
+   caller deadline. If a duration is rejected, use a shorter supported wait
+   on the same handle. Retry launch only on confirmation it never started.
+
+With direct shell tools, use the same `exec_command` and empty `write_stdin`
+loop. If unavailable, use the [blocking exit-file wait](#by-host).
 
 ## Watch a paused supplier
 

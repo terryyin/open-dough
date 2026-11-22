@@ -20,9 +20,7 @@ import {
   trunkLess,
   type ReviewedStory,
 } from "./storyPublishedCommits.ts";
-import { mkdtemp, realpath, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import path from "node:path";
+import { realpath } from "node:fs/promises";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
@@ -30,6 +28,7 @@ import { fetchGitTarget } from "./gitTargetFetch.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { storyCommits } from "./storyReviewCommits.ts";
 import { listedFrom } from "./storyReviewComparison.ts";
+import { writeWorkingTree } from "./workingTreeSnapshot.ts";
 
 const outputLimit = 64 * 1024 * 1024;
 
@@ -42,13 +41,8 @@ export async function storyReviewSnapshot(
 ): Promise<StoryReview> {
   const { workspace, branch, remote, target } = reviewed;
   const call: GitCall = { cwd: workspace, signal, maxBuffer: outputLimit };
-  const git = async (
-    args: readonly string[],
-    env?: Readonly<Record<string, string>>,
-  ) =>
-    (
-      await runGit(args, env === undefined ? call : { ...call, env })
-    ).stdout.trim();
+  const git = async (args: readonly string[]) =>
+    (await runGit(args, call)).stdout.trim();
   const unavailable = (explanation: string): StoryReview => ({
     kind: "unavailable",
     workspace: shown,
@@ -76,10 +70,9 @@ export async function storyReviewSnapshot(
       `Trunk could not be fetched (target ${target} from remote ${remote}), so there is no baseline to compare with: ${gitProblem(error)}`,
     );
   }
-  const index = await mkdtemp(path.join(tmpdir(), "dough-review-"));
   try {
     const head = await git(["rev-parse", "--verify", "HEAD"]);
-    const trunk = await git(["merge-base", "HEAD", `${remote}/${target}`]);
+    const trunk = await git(["merge-base", head, `${remote}/${target}`]);
     // Trunk less the story's published commits, when it has some and this
     // machine's Git can take them out; else they stay in the baseline.
     const published = await publishedStoryCommits(story, trunk, call);
@@ -92,10 +85,7 @@ export async function storyReviewSnapshot(
     // changes is listed from where the story first changed it.
     const changed = (to: string) =>
       listedFrom(baseline, to, less?.inseparable ?? new Map(), trunk, call);
-    const temporaryIndex = { GIT_INDEX_FILE: path.join(index, "index") };
-    await git(["read-tree", "HEAD"], temporaryIndex);
-    await git(["add", "--all"], temporaryIndex);
-    const tree = await git(["write-tree"], temporaryIndex);
+    const tree = await writeWorkingTree(head, call);
     // The worktree's own commits and uncommitted changes keep trunk's
     // revision as their points.
     const commits = await storyCommits(
@@ -140,7 +130,5 @@ export async function storyReviewSnapshot(
     return unavailable(
       `The workspace's changes could not be read: ${gitProblem(error)}`,
     );
-  } finally {
-    await rm(index, { recursive: true, force: true });
   }
 }

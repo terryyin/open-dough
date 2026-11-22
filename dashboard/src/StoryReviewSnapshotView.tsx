@@ -22,7 +22,8 @@ import {
 } from "./storyReviewContract.ts";
 import { diffStartOf } from "./storyComparisonShown.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
-import { FileDiff, type ReviewedWork } from "./StoryReviewFileDiff.tsx";
+import type { ReviewedWork } from "./reviewedFileRead.ts";
+import { FileDiff } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
 import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
 import {
@@ -31,7 +32,7 @@ import {
   FileRow,
   FileTree,
 } from "./StoryReviewFileTree.tsx";
-import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
+import { isReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import { useProjects } from "./projectList.tsx";
 import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
 import { StoryReviewWorkarea } from "./StoryReviewWorkarea.tsx";
@@ -45,6 +46,7 @@ function NoChanges({
   published,
   sessionSubject,
   sessionCommits,
+  branchResult,
 }: {
   readonly snapshot?: TakenStoryReview;
   readonly commitsReview: boolean;
@@ -53,11 +55,14 @@ function NoChanges({
   readonly sessionSubject: boolean;
   // A session's kept commits rather than its landing, which names a launch.
   readonly sessionCommits: boolean;
+  readonly branchResult: boolean;
 }) {
   if (snapshot === undefined) {
     let words =
       "No changes: this landed run has an empty delivered comparison.";
-    if (published)
+    if (branchResult)
+      words = "No changes: the branch at Done matches its starting revision.";
+    else if (published)
       words =
         "No changes: this completed story has an empty published comparison.";
     else if (sessionSubject)
@@ -90,6 +95,7 @@ export function SnapshotView({
   tree: comparedTree,
   commitsReview = false,
   committedOnly = false,
+  branchResult = false,
   settingsRevision,
 }: {
   readonly reviewed: ReviewedWork;
@@ -101,6 +107,7 @@ export function SnapshotView({
   readonly commitsReview?: boolean;
   // Whether all changes leave the snapshot's uncommitted changes out.
   readonly committedOnly?: boolean;
+  readonly branchResult?: boolean;
   // Intent locations revision for path-grammar fallback (`./reviewDiffSyntaxHint.ts`).
   readonly settingsRevision?: string;
 }) {
@@ -160,8 +167,9 @@ export function SnapshotView({
       commitsReview={commitsReview}
       committedOnly={committedOnly}
       published={reviewed.completion !== undefined}
-      sessionSubject={isReviewedSessionSubject(reviewed.subject)}
+      sessionSubject={!isReviewedStorySubject(reviewed.subject)}
       sessionCommits={reviewed.reference === undefined}
+      branchResult={branchResult}
     />
   ) : (
     <StoryReviewWorkarea

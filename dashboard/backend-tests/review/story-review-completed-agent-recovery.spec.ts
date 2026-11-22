@@ -7,7 +7,10 @@ import {
   completedReviewQuery,
   completedStoryQuery,
 } from "../../test-support/support/completedReviewRequests.ts";
-import { completedPublishedStory } from "../../test-support/support/completedPublishedStory.ts";
+import {
+  returnedCompletedHistory,
+  returnedThenTakeoverCompletedHistory,
+} from "../../test-support/support/completedStoryHistory.ts";
 import { agentWorktree } from "../../test-support/support/agentAuthoredWorktree.ts";
 import {
   commitAll,
@@ -32,89 +35,131 @@ import {
 
 test.use({ serverMode: "boundary" });
 
-test("a returned story recovers its unique published execution agent and keeps its fixed file review", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  const story = await completedPublishedStory(origin, "trunk", "returned");
-  const record = `.planning/done/${doneRecordFileName(queuedIdentity)}`;
-  expect(
-    JSON.parse(git(origin.project, "show", `${story.completion}:${record}`)),
-  ).not.toHaveProperty("agent");
-  const read = async () =>
-    storyReviewSchema.parse(
-      await (
-        await getReview(
-          request,
-          dashboard,
-          storyReviewEndpoint,
-          completedReviewQuery,
-        )
-      ).json(),
-    );
-  const review = await read();
-  expect(review).toMatchObject({
-    kind: "published",
-    completion: story.completion,
-    agent: story.agent,
-  });
-  if (review.kind !== "published") throw new Error("No recovered review");
-  const future = await agentWorktree(
-    origin,
-    "Airi-chan",
-    "later-claim",
-    story.completion,
-  );
-  writeAt(
-    future,
-    ".planning/agents/airi-chan.json",
-    renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name: "Airi",
-          identity: queuedIdentity,
-          mode: "trunk",
-          branch: "exec/later-claim",
-        })
-        .please(),
-    ),
-  );
-  commitAll(future, "later claim must not change the historical review");
-  push(future);
-  git(origin.project, "worktree", "remove", future);
-  expect(await read()).toEqual(review);
-  const file = await getReview(request, dashboard, storyReviewFileEndpoint, {
-    ...completedStoryQuery,
-    completion: review.completion,
-    baseline: review.baseline,
-    tree: review.tree,
-    path: "[literal]*.txt",
-  });
-  expect(await file.json()).toMatchObject({
-    kind: "diff",
-    printed: expect.stringContaining("+delivered on another machine"),
-  });
-  expect(
-    JSON.parse(git(origin.project, "show", `${story.completion}:${record}`)),
-  ).not.toHaveProperty("agent");
-});
+const yui = agentIdentity("Yui").agent;
+const doneRecord = `.planning/done/${doneRecordFileName(queuedIdentity)}`;
 
-test("an agentless completion refuses conflicting published execution owners", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  await completedPublishedStory(origin, "trunk", "returned-takeover");
-  const response = await getReview(
+function publishedDoneRecord(
+  project: string,
+  completion: string,
+): Record<string, unknown> {
+  return JSON.parse(
+    git(project, "show", `${completion}:${doneRecord}`),
+  ) as Record<string, unknown>;
+}
+
+test.describe("returned", () => {
+  test.use({ originRepository: returnedCompletedHistory() });
+
+  test("a returned story recovers its unique published execution agent and keeps its fixed file review", async ({
     request,
     dashboard,
-    storyReviewEndpoint,
-    completedReviewQuery,
-  );
-  expect(await response.json()).toMatchObject({
-    kind: "unavailable",
-    explanation: expect.stringContaining("multiple execution agents"),
+    origin,
+  }) => {
+    const completion = origin.revision("completion");
+    expect(publishedDoneRecord(origin.project, completion)).not.toHaveProperty(
+      "agent",
+    );
+    const read = async () =>
+      storyReviewSchema.parse(
+        await (
+          await getReview(
+            request,
+            dashboard,
+            storyReviewEndpoint,
+            completedReviewQuery,
+          )
+        ).json(),
+      );
+    const review = await read();
+    expect(review).toMatchObject({
+      kind: "published",
+      completion,
+      agent: yui,
+    });
+    if (review.kind !== "published") throw new Error("No recovered review");
+    const future = await agentWorktree(
+      origin,
+      "Airi-chan",
+      "later-claim",
+      completion,
+    );
+    writeAt(
+      future,
+      ".planning/agents/airi-chan.json",
+      renderAgentProfile(
+        makeMe.anAgentProfile
+          .executing({
+            name: "Airi",
+            identity: queuedIdentity,
+            mode: "trunk",
+            branch: "exec/later-claim",
+          })
+          .please(),
+      ),
+    );
+    commitAll(future, "later claim must not change the historical review");
+    push(future);
+    git(origin.project, "worktree", "remove", future);
+    expect(await read()).toEqual(review);
+    const file = await getReview(request, dashboard, storyReviewFileEndpoint, {
+      ...completedStoryQuery,
+      completion: review.completion,
+      baseline: review.baseline,
+      tree: review.tree,
+      path: "[literal]*.txt",
+    });
+    expect(await file.json()).toMatchObject({
+      kind: "diff",
+      printed: expect.stringContaining("+delivered on another machine"),
+    });
+    expect(publishedDoneRecord(origin.project, completion)).not.toHaveProperty(
+      "agent",
+    );
+  });
+
+  test("an agentless completion refuses shallow claim history", async ({
+    request,
+    dashboard,
+    origin,
+  }) => {
+    expect(
+      publishedDoneRecord(origin.project, origin.revision("completion")),
+    ).not.toHaveProperty("agent");
+    git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+    const response = await getReview(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      completedReviewQuery,
+    );
+    expect(await response.json()).toMatchObject({
+      kind: "unavailable",
+      explanation: expect.stringContaining("shallow"),
+    });
+  });
+});
+
+test.describe("returned-takeover", () => {
+  test.use({ originRepository: returnedThenTakeoverCompletedHistory() });
+
+  test("an agentless completion refuses conflicting published execution owners", async ({
+    request,
+    dashboard,
+    origin,
+  }) => {
+    expect(
+      publishedDoneRecord(origin.project, origin.revision("completion")),
+    ).not.toHaveProperty("agent");
+    const response = await getReview(
+      request,
+      dashboard,
+      storyReviewEndpoint,
+      completedReviewQuery,
+    );
+    expect(await response.json()).toMatchObject({
+      kind: "unavailable",
+      explanation: expect.stringContaining("multiple execution agents"),
+    });
   });
 });
 
@@ -171,22 +216,3 @@ for (const preparation of [false, true]) {
     });
   });
 }
-
-test("an agentless completion refuses shallow claim history", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  await completedPublishedStory(origin, "trunk", "returned");
-  git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
-  const response = await getReview(
-    request,
-    dashboard,
-    storyReviewEndpoint,
-    completedReviewQuery,
-  );
-  expect(await response.json()).toMatchObject({
-    kind: "unavailable",
-    explanation: expect.stringContaining("shallow"),
-  });
-});

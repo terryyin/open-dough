@@ -2,8 +2,7 @@
   "schemaVersion": 1,
   "agent": "Yumi-chan",
   "email": "yumi-chan@example.org",
-  "identity": "SEED-401#pilot-new-retrospective-findings",
-  "mode": "story-branch",
-  "branch": "claude/pilot-which-new-retrospective-findings-to-record",
+  "activity": "preparation",
+  "identity": "SEED-422#correct-stale-token-totals",
   "host": "claude"
 }

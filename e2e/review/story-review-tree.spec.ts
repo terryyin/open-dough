@@ -34,15 +34,20 @@ import {
   fileDiff,
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
-import { nestedWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import {
+  nestedRepository,
+  storyWorktree,
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
+
+test.use({ originRepository: nestedRepository });
 
 test("a story's changed files show by name under their folders", async ({
   page,
   dashboard,
   origin,
 }) => {
-  const { workspace } = nestedWorktree(origin);
+  const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
   await reviewChanges(card).click();

@@ -66,6 +66,7 @@ export function ReviewBody({
           tree={shownComparison.tree}
           headingId={headingId}
           browser={browser}
+          branchResult={review?.kind === "branch-result"}
           {...(settingsRevision === undefined ? {} : { settingsRevision })}
         />
       )}

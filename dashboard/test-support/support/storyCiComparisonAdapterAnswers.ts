@@ -1,9 +1,9 @@
-// Custom-adapter facts for comparisons of a published merged or fast-forward story.
+// Custom-adapter facts for comparisons of a story published by an owning
+// landing merge before its completion.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { Answers } from "../intentCiAdapterProofProject.ts";
 import { proofSummaryForEntries } from "./ciProofArtifacts.ts";
 import type { publishCodeLandedBeforeCompletion } from "./storyCiComparisonEarlierLanding.ts";
-import type { publishFastForwardLandedStory } from "./storyCiComparisonFastForward.ts";
 
 const proofOf = (
   repository: string,
@@ -27,20 +27,12 @@ const proofOf = (
   ),
 });
 
-type Landing = Awaited<
-  ReturnType<
-    | typeof publishCodeLandedBeforeCompletion
-    | typeof publishFastForwardLandedStory
-  >
->;
-
 export function landedAdapterComparisonAnswers(
   repository: string,
-  setup: Landing,
-  { merged, landedHasProof }: { merged: boolean; landedHasProof: boolean },
+  setup: Awaited<ReturnType<typeof publishCodeLandedBeforeCompletion>>,
 ) {
-  const branch = setup.branchAncestor ?? setup.branchSide;
-  const landed = setup.landingMerge ?? setup.branchSide;
+  const branch = setup.branchAncestor;
+  const landed = setup.landingMerge;
   const startedAt = "2026-11-05T10:00:00Z";
   const baselineAttempt = makeMe.aCiAdapterAttempt
     .passed({
@@ -73,81 +65,46 @@ export function landedAdapterComparisonAnswers(
       completedAt: "2026-11-05T10:03:20Z",
     })
     .please();
-  const landedAttempt = merged
-    ? makeMe.aCiAdapterAttempt
-        .passed({
-          sha: landed,
-          runId: "merged",
-          attemptId: "a-landed",
-          branch: "main",
-          startedAt,
-          completedAt: "2026-11-05T10:04:00Z",
-        })
-        .please()
-    : branchAttempt;
+  const landedAttempt = makeMe.aCiAdapterAttempt
+    .passed({
+      sha: landed,
+      runId: "merged",
+      attemptId: "a-landed",
+      branch: "main",
+      startedAt,
+      completedAt: "2026-11-05T10:04:00Z",
+    })
+    .please();
   const answers = {
     discover: {
-      main: merged
-        ? [
-            baselineAttempt,
-            olderBaselineAttempt,
-            landedAttempt,
-            makeMe.aCiAdapterAttempt
-              .passed({
-                sha: setup.completion,
-                runId: "completed",
-                attemptId: "later",
-                branch: "main",
-                startedAt,
-                completedAt: "2026-11-05T10:09:00Z",
-              })
-              .please(),
-          ]
-        : [baselineAttempt],
-      [setup.branch]: merged
-        ? [branchAttempt]
-        : [
-            branchAttempt,
-            // The older attempt makes the selected attempt ambiguous.
-            makeMe.aCiAdapterAttempt
-              .passed({
-                sha: branch,
-                runId: "older",
-                attemptId: "2",
-                branch: setup.branch,
-                startedAt,
-                completedAt: "2026-11-05T10:01:00Z",
-              })
-              .please(),
-          ],
+      main: [
+        baselineAttempt,
+        olderBaselineAttempt,
+        landedAttempt,
+        makeMe.aCiAdapterAttempt
+          .passed({
+            sha: setup.completion,
+            runId: "completed",
+            attemptId: "later",
+            branch: "main",
+            startedAt,
+            completedAt: "2026-11-05T10:09:00Z",
+          })
+          .please(),
+      ],
+      [setup.branch]: [branchAttempt],
     },
     proof: { unavailable: "no summary retained for this attempt" },
-    proofByAttemptId: merged
-      ? {
-          [baselineAttempt.attemptId]: proofOf(
-            repository,
-            baselineAttempt,
-            5,
-            3_000,
-          ),
-          [branchAttempt.attemptId]: proofOf(
-            repository,
-            branchAttempt,
-            8,
-            5_000,
-          ),
-          ...(landedHasProof
-            ? {
-                [landedAttempt.attemptId]: proofOf(
-                  repository,
-                  landedAttempt,
-                  7,
-                  4_000,
-                ),
-              }
-            : {}),
-        }
-      : { [baselineAttempt.attemptId]: { summary: { schemaVersion: 0 } } },
+    proofByAttemptId: {
+      [baselineAttempt.attemptId]: proofOf(
+        repository,
+        baselineAttempt,
+        5,
+        3_000,
+      ),
+      [branchAttempt.attemptId]: proofOf(repository, branchAttempt, 8, 5_000),
+      [landedAttempt.attemptId]: proofOf(repository, landedAttempt, 7, 4_000),
+    },
     jobsByAttemptId: {
       [baselineAttempt.attemptId]: {
         jobs: [
@@ -176,17 +133,13 @@ export function landedAdapterComparisonAnswers(
             .please(),
         ],
       },
-      ...(merged
-        ? {
-            [landedAttempt.attemptId]: {
-              jobs: [
-                makeMe.aCiTimingJob
-                  .withTiming({ id: "tests", durationMs: 75_000 })
-                  .please(),
-              ],
-            },
-          }
-        : {}),
+      [landedAttempt.attemptId]: {
+        jobs: [
+          makeMe.aCiTimingJob
+            .withTiming({ id: "tests", durationMs: 75_000 })
+            .please(),
+        ],
+      },
     },
   } satisfies Answers;
   return {

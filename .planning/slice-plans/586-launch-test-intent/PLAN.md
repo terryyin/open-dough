@@ -72,7 +72,7 @@ the case keeps exact payload, provider fault and focus expectations. Preserve
 frontend/integrated setup separation. Illustrative:
 `npm run test:e2e -- 'e2e/launches/agent-launch-ad-hoc-attachments'`,
 `npm run test:dashboard:integrated -- 'tests/launches/agent-launch-ad-hoc-attachments'` and
-`npm run test:dashboard:frontend -- 'frontend-tests/agent-launch-ad-hoc-attachments-refusal.spec.ts'`.
+`npm run test:dashboard:frontend -- 'frontend-tests/launches/agent-launch-ad-hoc-attachments-refusal.spec.ts'`.
 
 Behavior: A developer reads a launch attachment case → follows named dialog
 input operations with explicit payloads → the source explains the retained,
@@ -113,7 +113,7 @@ exact verification/refusal wording and release order explicit. Illustrative:
 `npm run test:e2e -- 'e2e/launches/agent-launch-preparation' 'e2e/launches/responsive-session-recovery'`,
 `npm run test:dashboard:integrated -- 'tests/launches/responsive-session-access'`,
 `npm run test:dashboard:backend -- 'backend-tests/launches/agent-launch-preparation'` and
-`npm run test:dashboard:frontend -- 'frontend-tests/startup-host-words.spec.ts' 'frontend-tests/launches/agent-launch-story-card-(answers|uncertain)' 'frontend-tests/launches/responsive-session-recovery-reads'`.
+`npm run test:dashboard:frontend -- 'frontend-tests/launches/startup-host-words.spec.ts' 'frontend-tests/launches/agent-launch-story-card-(answers|uncertain)' 'frontend-tests/launches/responsive-session-recovery-reads'`.
 
 Behavior: A developer reads a pending or refused startup case → follows named
 answer observations and the explicit chosen recovery → the source states what

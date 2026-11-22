@@ -1,6 +1,6 @@
 // Directional gutter controls in Side panel story review reveal omitted
 // unchanged lines around a change (../../dashboard/test-support/support/storyReviewWorktree.ts
-// expandContextWorktree) in 20-line steps from the comparison's file text,
+// expandContextRepository) in 20-line steps from the comparison's file text,
 // without whole-gap/whole-file shortcuts, keeping markers, numbers, scroll
 // place, and a readable printed diff when the text read fails until Retry.
 
@@ -25,10 +25,14 @@ import {
 import { shownLineNumbers } from "../../dashboard/test-support/support/reviewLineNumbers.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { storyReviewFileTextEndpoint } from "../../dashboard/src/storyReviewContract.ts";
-import { expandContextWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import {
+  expandContextRepository,
+  storyWorktree,
+} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test.describe("diff context expansion", () => {
+  test.use({ originRepository: expandContextRepository });
   // Touch activation needs a touch-capable page; pointer and keyboard still apply.
   test.use({ hasTouch: true });
 
@@ -37,7 +41,7 @@ test.describe("diff context expansion", () => {
     dashboard,
     origin,
   }) => {
-    const { workspace } = expandContextWorktree(origin);
+    const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
     const {

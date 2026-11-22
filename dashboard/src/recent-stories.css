@@ -1,0 +1,67 @@
+/* Recent stories in the banner: bookmark control and its popover. */
+.banner .recent-stories-control {
+  grid-column: 3;
+  grid-row: 1;
+  position: relative;
+}
+
+.banner .recent-stories-popover {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  min-width: 16rem;
+  max-width: min(24rem, 90vw);
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
+  box-shadow: var(--shadow-1);
+  color: var(--text);
+}
+
+.banner .recent-stories-empty {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  color: var(--quiet);
+}
+
+.banner .recent-stories-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.banner .recent-stories-row {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, auto) minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: baseline;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.banner .recent-stories-row:hover {
+  background: var(--hover);
+}
+
+.banner .recent-stories-row[data-checked="true"] {
+  font-weight: var(--weight-strong);
+}
+
+.banner .recent-stories-check {
+  text-align: center;
+}
+
+.banner .recent-stories-project {
+  color: var(--quiet);
+  white-space: nowrap;
+}
+
+.banner .recent-stories-identity {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

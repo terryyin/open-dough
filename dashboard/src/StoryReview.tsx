@@ -12,6 +12,7 @@ import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import type { StoryReviewRequest } from "./pageStoryReviews.ts";
 import { useStoryReviewRequest } from "./useStoryReviewRequest.ts";
 import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
+import { shownChoice } from "./StoryReviewComparison.tsx";
 import {
   ReviewToolbar,
   reviewListsFiles,
@@ -27,7 +28,7 @@ import {
   storyReviewPanelLabel,
 } from "./StoryReviewHeading.tsx";
 import { StoryNotes } from "./StoryNotesControl.tsx";
-import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
+import { isReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
@@ -74,16 +75,16 @@ export function StoryReview({
     runs,
     selectedRun,
     sessionRuns,
+    sessionComparisonKeys,
     runKey,
     snapshot: workspace,
     published: availablePublished,
     chosen,
-    onWorkspace,
+    onChoose,
     onRun,
     includeUncommitted,
     setIncludeUncommitted,
   } = useStoryReviewRequest(request, round);
-  const published = review?.kind === "published" ? review : undefined;
   const {
     items,
     selectedItems,
@@ -102,17 +103,13 @@ export function StoryReview({
     includeUncommitted,
     active: selectedRun === undefined,
   });
-  const shownComparison =
-    selectedRun !== undefined
-      ? "landed"
-      : published === undefined
-        ? shown
-        : "published";
+  const shownComparison = shownChoice(shown, review, selectedRun);
   const holdsDetails = reviewHoldsDetails({
     review,
     runs,
     workspaceChoices: items.length > 0,
     sessionRuns,
+    sessionComparisonKeys,
     selectedRun,
   });
   useEffect(() => {
@@ -132,7 +129,7 @@ export function StoryReview({
           headingId={headingId}
         />
         <div className="side-panel-actions">
-          {!isReviewedSessionSubject(subject) && (
+          {isReviewedStorySubject(subject) && (
             <StoryNotes
               sourceId={subject.source}
               identity={subject.identity}
@@ -161,7 +158,11 @@ export function StoryReview({
         {reviewDescription(review)}
       </p>
       <ReviewToolbar
-        name={toolbarComparisonName(review, shownComparison)}
+        name={toolbarComparisonName(
+          review,
+          shownComparison,
+          sessionComparisonKeys === undefined ? undefined : runKey,
+        )}
         browser={reviewListsFiles(review, comparison) ? browser : undefined}
         onShowBrowser={setBrowserShown}
         details={holdsDetails ? details : undefined}
@@ -173,6 +174,7 @@ export function StoryReview({
           runs={runs}
           items={items}
           sessionRuns={sessionRuns}
+          sessionComparisonKeys={sessionComparisonKeys}
           selectedRun={selectedRun}
           runKey={runKey}
           shownComparison={shownComparison}
@@ -180,7 +182,7 @@ export function StoryReview({
           availablePublished={availablePublished}
           committed={committed}
           includeUncommitted={includeUncommitted}
-          onWorkspace={onWorkspace}
+          onChoose={onChoose}
           onRun={onRun}
           setIncludeUncommitted={setIncludeUncommitted}
         />

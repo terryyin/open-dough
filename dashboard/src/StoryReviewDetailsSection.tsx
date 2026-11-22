@@ -3,22 +3,23 @@
 import type { ReactNode } from "react";
 import {
   ComparisonSwitch,
+  UncommittedCheck,
   type ComparisonChoice,
-  type ShownComparison,
 } from "./StoryReviewComparison.tsx";
 import { ReviewContext } from "./StoryReviewContext.tsx";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
-import { SessionRunSwitch } from "./StoryReviewSessionRuns.tsx";
+import {
+  SessionComparisonSwitch,
+  SessionRunSwitch,
+} from "./StoryReviewSessionRuns.tsx";
+import type { SessionComparisonKey } from "./sessionReviewComparisons.ts";
 import type { SessionRunChoice } from "./sessionCommits.ts";
 import type {
   ReviewItem,
   StoryReview,
   TakenStoryReview,
 } from "./storyReviewContract.ts";
-import {
-  preferredReviewRun,
-  type ReviewRunChoice,
-} from "./storyReviewLandedRun.ts";
+import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
 import type { ReviewDetailsPlace } from "./StoryReviewToolbar.tsx";
 
 export function reviewHoldsDetails({
@@ -26,20 +27,25 @@ export function reviewHoldsDetails({
   runs,
   workspaceChoices,
   sessionRuns,
+  sessionComparisonKeys,
   selectedRun,
 }: {
   readonly review: StoryReview | undefined;
   readonly runs: readonly ReviewRunChoice[];
   readonly workspaceChoices: boolean;
   readonly sessionRuns: readonly SessionRunChoice[];
+  readonly sessionComparisonKeys: readonly SessionComparisonKey[] | undefined;
   readonly selectedRun: ReviewRunChoice | undefined;
 }) {
   if (runs.length > 0 || workspaceChoices) return true;
-  if (sessionRuns.length > 1) return true;
+  if (sessionRuns.length > 1 || sessionComparisonKeys !== undefined)
+    return true;
   if (selectedRun !== undefined) return true;
   return (
     review?.kind === "landed" ||
     review?.kind === "session-commits" ||
+    review?.kind === "published-session" ||
+    review?.kind === "branch-result" ||
     review?.kind === "snapshot" ||
     review?.kind === "published"
   );
@@ -80,6 +86,7 @@ export function StoryReviewDetailsSection({
   runs,
   items,
   sessionRuns,
+  sessionComparisonKeys,
   selectedRun,
   runKey,
   shownComparison,
@@ -87,7 +94,7 @@ export function StoryReviewDetailsSection({
   availablePublished,
   committed,
   includeUncommitted,
-  onWorkspace,
+  onChoose,
   onRun,
   setIncludeUncommitted,
 }: {
@@ -96,6 +103,7 @@ export function StoryReviewDetailsSection({
   readonly runs: readonly ReviewRunChoice[];
   readonly items: readonly ReviewItem[];
   readonly sessionRuns: readonly SessionRunChoice[];
+  readonly sessionComparisonKeys: readonly SessionComparisonKey[] | undefined;
   readonly selectedRun: ReviewRunChoice | undefined;
   readonly runKey: string | undefined;
   readonly shownComparison: ComparisonChoice;
@@ -103,7 +111,7 @@ export function StoryReviewDetailsSection({
   readonly availablePublished: StoryReview | undefined;
   readonly committed: TakenStoryReview["committed"];
   readonly includeUncommitted: boolean;
-  readonly onWorkspace: (choice: ShownComparison) => void;
+  readonly onChoose: (choice: ComparisonChoice) => void;
   readonly onRun: (run: string) => void;
   readonly setIncludeUncommitted: (include: boolean) => void;
 }) {
@@ -113,6 +121,7 @@ export function StoryReviewDetailsSection({
       runs,
       workspaceChoices: items.length > 0,
       sessionRuns,
+      sessionComparisonKeys,
       selectedRun,
     })
   )
@@ -122,44 +131,43 @@ export function StoryReviewDetailsSection({
       {(runs.length > 0 || items.length > 0) && (
         <ComparisonSwitch
           shown={shownComparison}
-          onSwitch={(choice) => {
-            if (choice === "published") onWorkspace("all");
-            else if (choice !== "landed") onWorkspace(choice);
-            else {
-              const newest = preferredReviewRun(runs, (run) => run.comparison);
-              if (newest !== undefined) onRun(newest.key);
-            }
-          }}
+          onSwitch={onChoose}
           workspace={workspace !== undefined}
-          commits={workspace !== undefined && items.length > 0}
+          commits={items.length > 0}
           landed={runs.length > 0}
           published={availablePublished !== undefined}
         />
       )}
-      {sessionRuns.length > 1 && (
-        <SessionRunSwitch
-          runs={sessionRuns}
+      {sessionComparisonKeys !== undefined && (
+        <SessionComparisonSwitch
+          keys={sessionComparisonKeys}
           selected={runKey}
           onSelect={onRun}
         />
       )}
+      {sessionRuns.length > 1 &&
+        (sessionComparisonKeys === undefined ||
+          review?.kind === "session-commits") && (
+          <SessionRunSwitch
+            label={
+              sessionComparisonKeys === undefined
+                ? undefined
+                : "Default main runs"
+            }
+            runs={sessionRuns}
+            selected={runKey}
+            onSelect={onRun}
+          />
+        )}
       {selectedRun !== undefined && (
         <RunChoice runs={runs} selected={selectedRun} onSelect={onRun} />
       )}
       <ReviewContext review={review} />
       {review?.kind === "snapshot" && committed !== undefined && (
-        <div className="story-review-uncommitted">
-          <label>
-            <input
-              type="checkbox"
-              checked={includeUncommitted}
-              onChange={(event) => {
-                setIncludeUncommitted(event.target.checked);
-              }}
-            />{" "}
-            Include uncommitted changes
-          </label>
-        </div>
+        <UncommittedCheck
+          included={includeUncommitted}
+          onInclude={setIncludeUncommitted}
+        />
       )}
     </ReviewDetails>
   );

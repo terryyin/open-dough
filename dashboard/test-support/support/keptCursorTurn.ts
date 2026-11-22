@@ -175,6 +175,7 @@ export async function startCursorDashboard(
 ): Promise<DashboardServer> {
   return startDashboardServer({
     ...boundary,
+    liveServer: "separate process",
     machine,
     projectFolders: ["open-dough"],
     pathPrefix: [cursor.binDir],

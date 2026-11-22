@@ -23,9 +23,8 @@ scope: story
 
 A developer reviewing a Done story's Recently done card can see that
 follow-ups of that story are still open in Taken, can recognize a
-standalone Done follow-up's source when no source card is listed, and can
-start a new follow-up whose context includes that story's earlier
-follow-ups when that helps continue the work.
+Done follow-up's source when no source card is listed, and can find the
+story's earlier follow-ups when continuing the work.
 
 #### Scope
 
@@ -35,7 +34,9 @@ prevented):
 
 - the source card saying that follow-ups are still open in Taken;
 - a standalone Done follow-up naming its source;
-- a new follow-up's context including the story's earlier follow-ups.
+- the card's route to earlier follow-ups. The [follow-up context
+  story](SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context)
+  owns the receiving message and its optional session selection.
 
 Keep the one-home Board rule and source-versus-completion distinction
 already delivered for story follow-ups unless a later human decision
@@ -48,6 +49,6 @@ changes them.
   second Board home.
 - Given a Done story follow-up whose source card is not listed → its
   standalone Recently done entry names its source.
-- Given a Done story that already has closed follow-ups → starting a new
-  Follow up includes those earlier follow-ups in the context the launch
-  receives when that is the intended composition.
+- Given a Done story with closed follow-ups, the reviewer can identify
+  those sessions on the card and open the same story and sessions in Intent.
+  Launching a follow-up uses that story as its source.

@@ -18,7 +18,10 @@ import {
 } from "../../test-support/support/cursorRunnerJourney.ts";
 
 test("a boundary-mode server is the Node entry alone, naming no Vite and serving no page", async () => {
-  const server = await startDashboardServer({ mode: "boundary" });
+  const server = await startDashboardServer({
+    mode: "boundary",
+    liveServer: "server program",
+  });
   try {
     const bundle = server.serverBundle ?? "";
     expect(path.basename(bundle)).toMatch(/^\.dough-server-bundle-/);
@@ -60,6 +63,7 @@ test("each project environment answers the project list from its own configurati
   const listed = async (environment: "development" | "production") => {
     const server = await startDashboardServer({
       mode: "boundary",
+      liveServer: "server program",
       environment,
       configureDevelopmentProjects: false,
     });

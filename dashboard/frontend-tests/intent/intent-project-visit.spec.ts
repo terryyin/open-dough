@@ -84,7 +84,7 @@ test("a candidate's test the story changes reads as published in Project Intent,
     await expect(ciPanel(intent)).toContainText("CI status of main");
     await expect(filesColumn(intent)).toBeVisible();
     await returnToStory(intent);
-    await expectStoryTab(intent, "Changed tests");
+    await expectStoryTab(intent, "Changes");
     await expect(intentFile(intent, deepSpec)).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -141,7 +141,7 @@ test("a candidate's test the story changes reads as published in Project Intent,
 
   await test.step("then the story shows its file's Proof as it was", async () => {
     await returnToStory(intent);
-    await expectStoryTab(intent, "Changed tests");
+    await expectStoryTab(intent, "Changes");
     await expect(intentFile(intent, changed.modified)).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -170,7 +170,7 @@ test("a candidate's test the story changes reads as published in Project Intent,
     await expect(ciPanel(intent)).toContainText("CI status of main");
     await expect(fileReadingTab(intent, "Proof")).toHaveCount(0);
     await backToStory(intent).press("Enter");
-    await expectStoryTab(intent, "Changed tests");
+    await expectStoryTab(intent, "Changes");
     await expect(intentFile(intent, changed.modified)).toHaveAttribute(
       "aria-pressed",
       "true",

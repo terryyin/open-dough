@@ -1,12 +1,17 @@
 // Public launch/creation record operations use one machine document and retention rule.
 import { sameLaunch } from "../src/launchRequest.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
+import {
+  branchPinOwner,
+  keptBranchEvidence,
+} from "../src/sessionBranchResult.ts";
 import type { AgentLaunchRequest, LaunchRecord } from "../src/agentLaunch.ts";
 import {
   readStoredRecords,
   replaceRecords,
-  withinRetention,
+  type RecordsDroppedByRetention,
 } from "./launchRecordDocument.ts";
+import { withinRetention } from "./launchRecordRetention.ts";
 
 // Every project's records still kept, by project id, each oldest first.
 export async function keptRecordsByProject(): Promise<
@@ -41,12 +46,31 @@ export async function keptRecords(
   return (await keptRecordsByProject()).get(sourceId) ?? [];
 }
 
+export type LaunchRecordStore = {
+  keptRecords: typeof keptRecords;
+  replaceRecords: typeof replaceRecords;
+};
+
+export const machineRecordStore: LaunchRecordStore = {
+  keptRecords,
+  replaceRecords,
+};
+
 // One retained host-qualified conversation for a catalog project.
 export async function keptSession(
   sourceId: string,
   session: SessionReference,
+  store: Pick<LaunchRecordStore, "keptRecords"> = machineRecordStore,
 ): Promise<LaunchRecord | undefined> {
-  return (await keptRecords(sourceId)).find(
+  return sessionRecord(await store.keptRecords(sourceId), session);
+}
+
+// One host-qualified conversation among a project's kept records.
+export function sessionRecord(
+  records: readonly LaunchRecord[],
+  session: SessionReference,
+): LaunchRecord | undefined {
+  return records.find(
     (record) => sessionKey(record.session) === sessionKey(session),
   );
 }
@@ -78,30 +102,35 @@ export { bindRecord, keepRecord } from "./launchRecordBinding.ts";
 export { setRecordDoneAt } from "./recordDoneAt.ts";
 
 // Changes one kept session's record by `change`, answering the record as it
-// now is, or undefined when no such record is kept any more.
+// now is, or undefined when no such record is kept any more. Records the
+// write drops by retention go to `droppedByRetention` (`replaceRecords`).
 export async function changeSessionRecord(
   sourceId: string,
   session: SessionReference,
-  change: (record: LaunchRecord) => LaunchRecord,
+  change: (record: LaunchRecord) => LaunchRecord | Promise<LaunchRecord>,
+  droppedByRetention?: RecordsDroppedByRetention,
+  store: Pick<LaunchRecordStore, "replaceRecords"> = machineRecordStore,
 ): Promise<LaunchRecord | undefined> {
   let changed: LaunchRecord | undefined;
-  await replaceRecords((kept) => {
+  await store.replaceRecords(async (kept) => {
     const records = kept[sourceId];
     if (records === undefined) return kept;
     return {
       ...kept,
-      [sourceId]: records.map((record) => {
-        if (
-          !("session" in record) ||
-          sessionKey(record.session) !== sessionKey(session)
-        ) {
-          return record;
-        }
-        changed = change(record);
-        return changed;
-      }),
+      [sourceId]: await Promise.all(
+        records.map(async (record) => {
+          if (
+            !("session" in record) ||
+            sessionKey(record.session) !== sessionKey(session)
+          ) {
+            return record;
+          }
+          changed = await change(record);
+          return changed;
+        }),
+      ),
     };
-  });
+  }, droppedByRetention);
   return changed;
 }
 
@@ -161,8 +190,15 @@ export async function replaceKeptSession(
 ): Promise<LaunchRecord | undefined> {
   return changeSessionRecord(sourceId, previous, (record) => ({
     ...next,
+    ...keptBranchEvidence(record),
+    ...(record.branchEntry !== undefined || record.branchResult !== undefined
+      ? { branchEvidenceOwner: branchPinOwner(record) }
+      : {}),
     landing: record.landing ?? next.landing,
     landingReporting: record.landingReporting ?? next.landingReporting,
+    dispositionChangedAt: record.dispositionChangedAt,
+    doneAt: record.doneAt,
+    doneProblem: record.doneProblem,
   }));
 }
 
@@ -191,6 +227,7 @@ export async function updateRecord(
         dispositionChangedAt: entry.dispositionChangedAt,
         doneAt: entry.doneAt,
         doneProblem: entry.doneProblem,
+        ...keptBranchEvidence(entry),
         stopUnconfirmed: entry.stopUnconfirmed,
         reportRead: entry.reportRead,
       };

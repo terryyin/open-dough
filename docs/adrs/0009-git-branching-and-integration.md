@@ -205,7 +205,7 @@ own the implemented contract for callers, recovery, and proof.
 The former [installed Story Branch integration candidate](https://github.com/terryyin/open-dough/blob/db75dac39cc8a1aae33e7e881d5c3363730f93c9/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md#installed-story-branch-integration)
 was deferred when Terry repurposed it to dashboard completion reporting on
 2026-10-02. The
-[visibility requirements](../project-visibility-requirements.md) distinguish
+[ADR 0008](./0008-project-dashboard-domain-and-architecture-accepted.md) distinguishes
 published progress from local operational evidence. These records express the
 selected planning direction; execution follows its own authorization.
 

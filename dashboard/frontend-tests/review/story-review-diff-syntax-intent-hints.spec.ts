@@ -1,7 +1,5 @@
-// When a story-review diff's path names no grammar, Intent locations at the
-// review's pinned settings revision may supply a known `syntax` hint; path
-// grammar still wins, renames follow the new path, and outside Intent or
-// unfamiliar hints stay plain.
+// Live and published Done reviews supply their pinned Intent settings to a
+// diff's path-silent files. The mounted reader covers choosing the grammar.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -21,6 +19,7 @@ import {
 } from "../../test-support/support/reviewTreeRows.ts";
 import { codePane } from "../../test-support/support/reviewPanes.ts";
 import { storyReviewDiff } from "../../test-support/support/reviewDiffSyntax.ts";
+import { recordIntentLocations } from "../../test-support/support/intentDoneProjectRefresh.ts";
 import type { Locator } from "@playwright/test";
 
 const shellCode = "if true; then echo x; fi";
@@ -28,9 +27,7 @@ const typescriptCode = "const shown: number = 1;";
 const lines = { added: 1, removed: 0 };
 const hintedPath = "scripts/setup.test";
 const renamedPath = "scripts/setup-renamed.test";
-const pathWinsPath = "lib/app.ts";
 const plainOutsidePath = "notes.txt";
-const plainUnfamiliarPath = "scripts/odd.check";
 
 async function shownFile(review: Locator, name: string) {
   await fileRow(review, name).click();
@@ -41,30 +38,21 @@ async function shownFile(review: Locator, name: string) {
   return line;
 }
 
-test("Intent syntax hints style path-silent diffs; path grammar, outside Intent and unfamiliar hints stay as today", async ({
+test("a live review supplies a diff's hint from Intent settings at the snapshot tree", async ({
   page,
   frontendServices,
 }) => {
   const tree = frontendReviewIds.tree;
+  const intentReads = recordIntentLocations(page);
   Object.assign(frontendServices, {
+    revision: frontendReviewIds.head,
     locations: {
       revision: tree,
       locations: [
         makeMe.anIntentLocation
           .at("scripts")
-          .withSources(
-            { include: ["**/*.test"], syntax: "shell" },
-            {
-              include: ["**/*.check"],
-              syntax: "unfamiliar-language",
-            },
-          )
-          .selecting(hintedPath, renamedPath, plainUnfamiliarPath)
-          .please(),
-        makeMe.anIntentLocation
-          .at("lib")
-          .withSources({ include: ["**/*.ts"], syntax: "shell" })
-          .selecting(pathWinsPath)
+          .withSources({ include: ["**/*.test"], syntax: "shell" })
+          .selecting(hintedPath, renamedPath)
           .please(),
       ],
       recovery: undefined,
@@ -73,9 +61,7 @@ test("Intent syntax hints style path-silent diffs; path grammar, outside Intent 
 
   const cases = [
     { path: hintedPath, code: shellCode },
-    { path: pathWinsPath, code: typescriptCode },
     { path: plainOutsidePath, code: typescriptCode },
-    { path: plainUnfamiliarPath, code: shellCode },
     { path: renamedPath, code: shellCode, oldPath: "legacy/run" },
   ] as const;
 
@@ -84,14 +70,13 @@ test("Intent syntax hints style path-silent diffs; path grammar, outside Intent 
     frontendServices,
     frontendReviewSnapshot({
       files: cases.map(({ path, ...rest }) =>
-        "oldPath" in rest
-          ? {
-              kind: "renamed" as const,
-              path,
-              oldPath: rest.oldPath,
-              lines,
-            }
-          : { kind: "modified" as const, path, lines },
+        makeMe.aReviewedFile
+          .with(
+            "oldPath" in rest
+              ? { kind: "renamed", path, oldPath: rest.oldPath, lines }
+              : { kind: "modified", path, lines },
+          )
+          .please(),
       ),
     }),
     (answers) => {
@@ -108,18 +93,11 @@ test("Intent syntax hints style path-silent diffs; path grammar, outside Intent 
   const shellLine = await shownFile(review, `Modified ${hintedPath}`);
   await expect(shellLine.token(/^if$/)).toHaveText("if");
   await expect(shellLine.line).toHaveText(`+${shellCode}`);
+  expect(intentReads.locations).toContain(tree);
 
-  const tsLine = await shownFile(review, `Modified ${pathWinsPath}`);
-  await expect(tsLine.token(/^const$/)).toHaveText("const");
-
-  for (const { name, code } of [
-    { name: `Modified ${plainOutsidePath}`, code: typescriptCode },
-    { name: `Modified ${plainUnfamiliarPath}`, code: shellCode },
-  ]) {
-    const line = await shownFile(review, name);
-    await expect(line.line).toHaveText(`+${code}`);
-    await expect(line.codeTokens(), name).toHaveCount(0);
-  }
+  const outside = await shownFile(review, `Modified ${plainOutsidePath}`);
+  await expect(outside.line).toHaveText(`+${typescriptCode}`);
+  await expect(outside.codeTokens()).toHaveCount(0);
 
   const renamedLine = await shownFile(
     review,
