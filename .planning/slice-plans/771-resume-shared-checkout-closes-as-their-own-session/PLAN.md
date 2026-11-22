@@ -245,7 +245,7 @@ the duplicated store (finding 3) and enables slice 6's removal.
 ### 6. A published close removes its saved close state
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the slice-2 sibling test asserts that, after both resumes publish, neither session's `open-dough/session-close/<id>.json` remains (red before), and a case there whose first close publishes directly leaves none. A stopped record keeps its state (the existing resume suites still resume from it).
 
 Behavior: a close whose record publishes → publication → its local close state

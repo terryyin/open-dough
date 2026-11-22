@@ -1,6 +1,7 @@
 // Two Dashboard launches open in one shared checkout: each interrupted close
-// resumes as its own session given its landing context, and a close naming
-// neither launch is refused rather than guessed.
+// resumes as its own session given its landing context, a published close
+// leaves no saved close state, and a close naming neither launch is refused
+// rather than guessed.
 import assert from "node:assert/strict";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -11,6 +12,7 @@ import {
   publishSessionClose,
   resumeSessionClose,
 } from "../../../src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
+import { readCloseState } from "../../../src/skills/dough-execute-plan/scripts/session-close-state.mjs";
 import { beginNativeSession } from "../../../src/skills/dough-execute-plan/scripts/execution-session-evidence.mjs";
 import { managementContext } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import {
@@ -121,6 +123,28 @@ test("two launches' closes interrupted in one checkout each resume as their own 
     { base: fixture.trunkSha, candidate: workA },
   ]);
   assert.deepEqual(await ranges(launchB), [{ base: workA, candidate: workB }]);
+  for (const sessionId of [launchA, launchB])
+    assert.equal(
+      readCloseState(fixture.execution, sessionId),
+      undefined,
+      sessionId,
+    );
+});
+
+test("a launch's close that publishes directly leaves no saved close state", async (t) => {
+  const fixture = await materializeRepository(oneUnpublishedEdit);
+  t.after(fixture.cleanup);
+  const launches = await twoOpenLaunches(t, fixture);
+
+  const closed = await publishSessionClose({
+    ...identity(fixture, launches.a),
+    ...makeMe.anIncrementPublication
+      .with({ branch, targetRef, previouslyPublishedBase: fixture.trunkSha })
+      .please(),
+  });
+
+  assert.equal(closed.record.status, "published", JSON.stringify(closed));
+  assert.equal(readCloseState(fixture.execution, launchA), undefined);
 });
 
 test("a close naming neither open launch is refused even with an unclosed native session", async (t) => {

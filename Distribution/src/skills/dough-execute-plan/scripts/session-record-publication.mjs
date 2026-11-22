@@ -9,7 +9,7 @@
 // original bytes even after trunk advances. Each close saves its exact
 // comparison before every work push and its sealed record before publishing
 // it, locally per session (session-close-state.mjs), so a resume needs only
-// the session's identity.
+// the session's identity; a published record retires that state.
 import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { closeNativeSession } from "./execution-session-evidence.mjs";
@@ -21,7 +21,11 @@ import {
   sessionRecordPath,
 } from "./sealed-session-record.mjs";
 import { closeTarget } from "./session-close-identity.mjs";
-import { readCloseState, saveCloseState } from "./session-close-state.mjs";
+import {
+  readCloseState,
+  retireCloseState,
+  saveCloseState,
+} from "./session-close-state.mjs";
 
 export { sessionRecord, sessionRecordPath };
 
@@ -45,16 +49,22 @@ function sealClose(target, close, accepted, publication) {
     accepted,
   );
   saveCloseState(publication.workspace, target.sessionId, { record });
-  return publishSealedRecord({
+  return publishRecord(record, {
     ...publication,
-    record,
     validatedCandidate: undefined,
   });
 }
 
 // Publishes a record sealed by an earlier close attempt, keeping its bytes.
 function publishRetained(record, request) {
-  return publishSealedRecord({ ...request, record: sessionRecord(record) });
+  return publishRecord(sessionRecord(record), request);
+}
+
+// Publishes a sealed record and retires its session's saved close state once
+// published.
+async function publishRecord(record, request) {
+  const result = await publishSealedRecord({ ...request, record });
+  return retireCloseState(request.workspace, record.sessionId, result);
 }
 
 export async function publishSessionClose({

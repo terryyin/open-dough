@@ -3,8 +3,12 @@
 // checkout each keep their own. It holds the exact `candidate` and
 // `suffixBase` saved before each work push and, once sealed, the `record`
 // saved before it is published. The state stays local; only the record is
-// published.
-import { readGitPathJson, replaceGitPathJson } from "./git-path-json-store.mjs";
+// published, and the state retires once the record is.
+import {
+  readGitPathJson,
+  removeGitPathJson,
+  replaceGitPathJson,
+} from "./git-path-json-store.mjs";
 
 function closeStatePath(sessionId) {
   return `open-dough/session-close/${sessionId}.json`;
@@ -22,4 +26,12 @@ export function saveCloseState(workspace, sessionId, facts) {
     ...readCloseState(workspace, sessionId),
     ...facts,
   });
+}
+
+// Removes the session's saved close state once its record is published; any
+// other record status keeps it for the next resume.
+export function retireCloseState(workspace, sessionId, record) {
+  if (record.status === "published")
+    removeGitPathJson(workspace, closeStatePath(sessionId));
+  return record;
 }
