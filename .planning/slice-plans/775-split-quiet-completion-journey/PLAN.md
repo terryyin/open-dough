@@ -154,3 +154,16 @@ the relative cut and on no browser launching. Hosted CI and later loaded
 local runs remain the ongoing check under the failure policy.
 
 ## Story obligations
+
+## Execution complete
+
+Product advice: no change to priorities. The queued
+SEED-341#keep-attention-completion-journey-within-timeout can reuse this
+split: a page spec composed through `retained()` plus a browserless
+closure spec, measured relatively under burners and checked with
+`DEBUG=pw:browser`. Here that cut each quiet case by 27% at load 40–71.
+Wrap-up follow-ups:
+- (pre-existing) `agent-completion-quiet.spec.ts` keeps its branching inline
+  journey rather than named `test.step` calls.
+- (pre-existing) The `thread/read` with turns check is repeated in about
+  seven specs.
