@@ -12,7 +12,7 @@ import { reconcileAndRequireProof } from "./execution-increment-reconciliation.m
 import { retainLandingComparison } from "./dashboard-landing.mjs";
 import { executionIncrementRemoteOps } from "./execution-increment-publication-support.mjs";
 import { resolvePublicationLandingContext } from "./resolve-publication-landing-context.mjs";
-import { defaultBacklogPath } from "./owned-suffix-reconciliation.mjs";
+import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { resolveCommitId, remoteHolds, revParse } from "./publication-git.mjs";
 import { isAncestor } from "./workspace-publication-ownership.mjs";
 import { doneRecordsStop } from "./publication-backlog-validation.mjs";

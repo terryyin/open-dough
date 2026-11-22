@@ -6,9 +6,10 @@
 // conflict, and otherwise sends one record commit the authorized route.
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
-import { defaultBacklogPath } from "./owned-suffix-reconciliation.mjs";
 import { git, originTrackingRef } from "./publication-git.mjs";
+import { expiredSessionRecordPaths } from "./session-record-pruning.mjs";
 import {
   isSessionId,
   sessionRecordPathBeside,
@@ -48,7 +49,7 @@ export function sessionRecord({
 export async function sealAndPublishRecord(
   { sessionId, workflow, story, closedAt },
   { suffixBase, sha },
-  publication,
+  { now, ...publication },
 ) {
   const record = sessionRecord({
     sessionId,
@@ -59,6 +60,7 @@ export async function sealAndPublishRecord(
   });
   return publishSealedRecord({
     ...publication,
+    now,
     record,
     validatedCandidate: undefined,
   });
@@ -81,8 +83,9 @@ async function publishedBytes({ workspace, remote, targetRef }, path) {
   }
 }
 
-// Commits the record once; a rerun finds it already committed.
-async function commitRecord(workspace, path, record) {
+// Commits the record once; a rerun finds it already committed. The same commit,
+// and only it, removes the expired records beside it at `now`.
+async function commitRecord({ workspace, backlogPath, now }, path, record) {
   const file = join(workspace, path);
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, recordBytes(record));
@@ -92,6 +95,12 @@ async function commitRecord(workspace, path, record) {
   const pending = (await git(workspace, "status", "--porcelain", "--", path))
     .stdout;
   if (!pending.trim()) return;
+  const expired = await expiredSessionRecordPaths(
+    workspace,
+    backlogPath,
+    now(),
+  );
+  if (expired.length) await git(workspace, "rm", "--quiet", "--", ...expired);
   await git(
     workspace,
     "commit",
@@ -99,14 +108,16 @@ async function commitRecord(workspace, path, record) {
     `Record session ${record.sessionId}`,
     "--",
     path,
+    ...expired,
   );
 }
 
 // Publishes a sealed record after its work was accepted. A commit or
 // publication that throws stops the record stage with the sealed record kept,
-// so the close can resume.
+// so the close can resume. `now` dates the expiry of the records it prunes.
 export async function publishSealedRecord({
   record,
+  now = () => new Date(),
   remote = "origin",
   backlogPath = defaultBacklogPath,
   ...request
@@ -114,7 +125,7 @@ export async function publishSealedRecord({
   const path = sessionRecordPath(record.sessionId, backlogPath);
   const publication = { ...request, remote, backlogPath };
   try {
-    return await sendRecord(publication, path, record);
+    return await sendRecord(publication, path, record, now);
   } catch (error) {
     return {
       status: "stopped",
@@ -126,7 +137,7 @@ export async function publishSealedRecord({
   }
 }
 
-async function sendRecord(publication, path, record) {
+async function sendRecord(publication, path, record, now) {
   const accepted = await publishedBytes(publication, path);
   if (accepted !== undefined) {
     const identical = accepted === recordBytes(record);
@@ -137,7 +148,7 @@ async function sendRecord(publication, path, record) {
       publication: { ok: identical, pushCount: 0 },
     };
   }
-  await commitRecord(publication.workspace, path, record);
+  await commitRecord({ ...publication, now }, path, record);
   // The record commit's parent is the accepted tip it was committed or
   // last rebased onto: the session's last range, or the integrated trunk.
   const recordBase = (

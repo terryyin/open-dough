@@ -13,10 +13,10 @@ import {
   readSessionEvidence,
   sealSessionEvidence,
 } from "../../dough-execute-plan/scripts/execution-session-evidence.mjs";
-import { defaultBacklogPath } from "../../dough-execute-plan/scripts/owned-suffix-reconciliation.mjs";
 import { git } from "../../dough-execute-plan/scripts/publication-git.mjs";
 import { resumeSessionClose } from "../../dough-execute-plan/scripts/session-record-publication.mjs";
 import { sessionRecordDirectoryBeside } from "../../dough-execute-plan/scripts/session-record.mjs";
+import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 
 const holdsClosure = (ranges, sha) =>
   ranges?.find((range) => range.candidate === sha);

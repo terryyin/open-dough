@@ -44,6 +44,12 @@ reads already hide it).
   done records do. `publishSealedRecord` gains the `now` that
   `publishSessionClose` and `resumeSessionClose` already accept, so the
   Trunk Mode wrap-up and Land closes share it.
+- A suffix that changes only session-record files replays without rename
+  detection (`reconcileOwnedSuffix` in
+  [`owned-suffix-reconciliation.mjs`](../../../Distribution/src/skills/dough-execute-plan/scripts/owned-suffix-reconciliation.mjs)):
+  each record is its own UUID's file and is never renamed, so a concurrent
+  writer's prune plus new record replays as a delete and an add. Every other
+  suffix replays exactly as before, so renames in story work still follow.
 - [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
   holds: published history on origin still carries every record; no conflict
   with an Accepted decision was found.
@@ -54,7 +60,7 @@ reads already hide it).
 | --- | --- | --- |
 | Slice 1: UUID review and file reads go through one record read | Read at `ff7c92ff2`: `publishedSessionReview` and `admitPublishedSessionFile` both call `publishedSessionRecord` (`dashboard/server/publishedSessionReview.ts`). Baseline `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend -- review/published-session-review review/published-session-listing` at `ff7c92ff2`, 2026-11-22. | 3 files, 29 tests passed; the route reads a recorded pair after trunk advances. No expiry boundary exists yet. |
 | Slice 2: Recently done shows published sessions only through `newestFirst` | Read at `ff7c92ff2`: `useRecentlyDone` is the only place that passes listed sessions on for display (`dashboard/src/recentlyDoneView.ts:150-159`); `recently-done-published-session-launch.spec.ts` already unit-tests `newestFirst` with built records. | The filter point and a pure-function proof route exist. |
-| Slice 3: a pruning record commit rebased onto an advanced trunk keeps a concurrent live record and tolerates the same file already pruned | Plain `git rebase` in a scratch repository (job tmp), 2026-11-22: case A trunk added a live record; case B trunk added one and deleted the same expired file. Proxy for the product's `product-backlog-git-rebase.mjs rebase --onto`: that adapter runs the same `git rebase` and gates only the backlog file (`acceptCleanRebase(repoRoot, file, …)`), which session files never are, so the difference cannot change this outcome. | A: live, mine and other's records kept. B: both live records kept, expired file absent, no conflict; the replayed commit only added its own record. |
+| Slice 3: a pruning record commit rebased onto an advanced trunk keeps a concurrent live record and tolerates the same file already pruned | Superseded during slice 3 (2026-11-22): the slice's Distribution test on a real origin with near-identical record JSON. The earlier scratch probe used dissimilar contents. | False for B: Git pairs the other writer's delete of the expired file with its added record as a rename, so replaying the record commit's delete stops with `CONFLICT (rename/delete)`. A (live record added only) still holds. Decision below: replay session-record-only suffixes without rename detection. |
 | Slice 3 proof route: real temporary origin, advanced trunk, `needs-validation` rerun | `node --test --test-reporter=tap Distribution/tests/skills/dough-land/session-close-resume.test.mjs` at `ff7c92ff2`, 2026-11-22 (includes "a refused record push resumes after trunk advances…"); `bash scripts/test.sh` on it and `session-record-publication.test.mjs` exited 0. | 6/6 pass; the fixture reaches the rebase-and-validate path the slice extends. |
 
 ## Outside-in proof
@@ -107,12 +113,19 @@ review, intent and story consumers, and
 ### 3. Session-record commits prune expired records
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a Distribution test beside `session-close-resume.test.mjs` on a real temporary origin with a controlled `now`: trunk holds one expired, one live and one malformed record file; after the close, the accepted tree has the new and live records and the malformed file, not the expired one, and the previous commit still has it. A second case advances trunk with another writer's live record and its own prune of the same file before the record push, then reruns with `validatedCandidate`; trunk keeps both live records. A rerun after the record commit leaves the working tree clean.
 
 Behavior: a close with expired records on trunk → its session record is
 committed and published → the same commit removes the expired files, and
 nothing live is lost.
+
+Accepted proof: `Distribution/tests/skills/dough-land/session-record-pruning.test.mjs`
+(red without pruning, and red for the concurrent case with renames on), the
+61-file caller and publication suite from the consumer trace, the execution
+payload installation tests and dashboard typecheck. Pruning selects records in
+`session-record-pruning.mjs`; the new module ships through
+`src/install/open-dough-execution-payload.sh`.
 
 ## Concern evidence
 
