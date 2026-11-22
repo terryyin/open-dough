@@ -5,6 +5,48 @@
 **Split from:** SEED-413#speed-intent-scope-timing-history (plan 774) before readiness on 2026-11-22, when the 16-file remainder plus entry correction exceeded eight slices at one or two legacy files per slice.
 **Status:** awaiting story refinement — not ready for slice-plan refinement or execution
 
+## Correction of the delivered scope timing history entry
+
+Execution retrospective of SEED-413#speed-intent-scope-timing-history (plan
+774; commits `e19c1a4c0`..`a1bf9f379` on its story branch), 22 November 2026,
+a read-only outcome review of `git diff 0ca3d0028 a1bf9f379`. No product bug
+was found. These moved checks and support are the entry this story builds on,
+so correct them before the first move:
+
+- **Key-isolation late answer cannot fail.**
+  `intent/intent-project-scope-history-key-isolation.spec.ts` resolves the old
+  endpoint's held read and polls the shown time at once; `expect.poll` can pass
+  before React commits the late answer (the legacy spec waited for the page's
+  reads first). Force a commit after the late answer (as
+  `-project-isolation.spec.ts` does with `page.showIntent()`), assert
+  synchronously, and break-check `useIntentCiEndpointHistory`'s key filter
+  once.
+- **Scope history sideways-scroll check is weaker than legacy.**
+  `intent/intent-scope-history-page.ts` `fitsWidth()` compares only the region's
+  own widths; legacy `expectNoSidewaysScrollIn`
+  (`dashboard/test-support/pageLayout.ts`) also scanned the page and every
+  descendant, as `scrollingSideways()` in
+  `intent/intent-ci-wall-time-history-page.ts` still does. Give both page
+  objects one shared full check (used by the recovery spec and the Done glance
+  at 390 px).
+- **Failed-build × lost its vertical check.** `failedUnder` in
+  `intent-scope-history-page.ts` compares x only; legacy `expectMarkOver`
+  (`historyChartPage.ts`) compared x and y. Add y.
+- **Builder defaults diverge.** `ScopeHistoryGlanceBuilder` defaults to too
+  few to average and its `tooFewToAverage` has no caller; the Done builder
+  defaults to stated figures that `priors()` keeps even when priors change;
+  `through()` takes failed builds from the first unit only (another unit's
+  `"failed"` becomes NaN). Settle one default rule beside this story's planned
+  gap and empty-history steps, and reject mismatched failed positions.
+- **Page-object residue.** `scopeHistoryIn(...).shown` has no caller;
+  `openScopeSummary` repeats `locationNameControl`
+  (`intent/intent-ci-homepage-page.ts`); `openFileProof` repeats
+  `intentStoryCompare().chooseProof`; `navigation/board-mount.ts` re-exports
+  `positionKey`/`formerPositionKey` (one importer, `board-scroll.spec.ts`).
+- **Moves lose helper checks.** For each legacy helper a move replaces, list
+  what it checked and each check's new owner, and break-check every race or
+  late-answer case.
+
 ## Provisional input
 
 Resize at refinement: plan 764's three-file history port overran, so one or

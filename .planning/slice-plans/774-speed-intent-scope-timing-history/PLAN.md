@@ -400,3 +400,18 @@ limit. This review found no remaining slice-specific concern.
   force three-file slices against the plan-764 overrun learning.
 - Capture after-timing under load comparable to P3, or record the load
   difference beside the pair.
+
+## Execution complete
+
+Product advice: the cohort's moves work — 11 legacy cases became same-named
+Vitest cases through `mountIntentCiPage` and `openDoneStoryComparison` for
+about 29% less wall time (median 11.23 s → 7.95 s at load 5–9). The coverage
+risk is subtle: a legacy Playwright helper rewritten as a hand-made DOM reader
+tends to lose part of what it checked (page-wide sideways scan, the failed
+mark's vertical alignment, a forced commit after a late answer). Plan 777 and
+the attempt-proof story should list each replaced helper's checks with their
+new owners, break-check every race or late-answer case, and build on
+`scopeHistoryIn`/`priorReferenceIn` rather than adding readers. The outcome
+review's corrections are folded into
+[plan 777](../777-speed-intent-scope-timing-reading/PLAN.md#correction-of-the-delivered-scope-timing-history-entry).
+Process review is deferred into wrap-up with the Intent Coverage check.
