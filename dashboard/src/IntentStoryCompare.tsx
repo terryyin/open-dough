@@ -38,6 +38,8 @@ export type StoryCompare = {
   readonly includeUncommitted: boolean | undefined;
   readonly onIncludeUncommitted: (include: boolean) => void;
   readonly onRefresh: () => void;
+  // A range, run, or refresh still in flight. Refresh stays focusable.
+  readonly reading: boolean;
 };
 
 // The chosen commit range's name in place of the compared revisions.
@@ -67,10 +69,15 @@ export function IntentStoryCompare({
         landed={compare.runs.length > 0}
         published={compare.published}
       />
+      {/* Unavailable while reading, yet still focusable, so the
+          keyboard stays on it. */}
       <IconButton
         label="Refresh"
         icon={RefreshCw}
-        onClick={compare.onRefresh}
+        aria-disabled={compare.reading}
+        onClick={() => {
+          if (!compare.reading) compare.onRefresh();
+        }}
       />
       {compare.selectedRun !== undefined && (
         <RunChoice
