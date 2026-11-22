@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Nana-chan",
+  "email": "nana-chan@example.org",
+  "identity": "SEED-422#build-claude-reply-fixtures-with-makeme",
+  "mode": "story-branch",
+  "branch": "claude/build-claude-code-reply-fixtures-with-makeme-ste",
+  "host": "claude"
+}
