@@ -785,37 +785,67 @@ Slice 2 boundary alongside
 {"schemaVersion":1,"identity":"SEED-413#make-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-launch-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof"},"implementation":"All 29 legacy launch files retire with a mapped mounted Vitest baseline and existing composed ownership.","rationale":"The redesign must compare equivalent behavior against the integrated all-Vitest selection. The retained Playwright families exercise different setup costs and make pre-integration timing unsuitable.","condition":"The launch proof migration is integrated with its all-Vitest launch selection and behavior map.","state":"satisfied","resolution":{"revision":"9099d16787c4d0961075c841d3da2987712f508a","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof","summary":"The integrated migration retires all 29 legacy launch specs and maps their 81 cases to 72 mounted Vitest cases and retained composed and backend proof. The plan and remaining-proof.md preserve the test map, existing owners, and 32.04 s two-worker baseline including preparation for equivalent timing comparisons.\nCondition satisfied: The launch proof migration is integrated with its all-Vitest launch selection and behavior map.\nAccepted integration: bdabc77c85894ae2d23f7a58ab55013e54e98bb4 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/768-make-launch-proof-orthogonal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5ec2c8491b1bcf5b75f8d38314281f307e5407aaf6070ed9febc82be1c167de7","plan":"e61e6a1fd95e94235a330f8a240137265f1e96055cad28064a0cb73af43d8f37"}}
 ```
 
-**Outcome.** Dashboard maintainers get the local launch unit selection in
-about 7–8 seconds at two workers, including preparation, with distinct
-behavior and the existing composed journeys still covered.
-
-**Boundary.** Start from the all-Vitest launch selection and the migration's
-coverage map. Each unit case depends only on production code and data that
-can affect its asserted behavior. Arrange preconditions at the smallest
-production owner through typed inputs. Exercise independent dimensions
-separately and keep combinations where they can change the result. The
-case count may change. Preserve genuine browser conditions, capture and
-recovery races, and the existing real native and backend journeys.
-
-**Baseline.** The 72-case mounted selection passed in 32.04 s wall and
-57.57 summed case-seconds. The legacy selection took 46.48 s wall.
-Both used `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
-on AC power with Node 24.21.0 and the same lockfile. Recover the case map,
-slow-case breakdown, and retained family leads from
-`cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
-
-**First experiments.** Arrange dense layout directly through production
-inputs, then uncouple viewport geometry from choice and command mapping.
-Test shared model reset at the dialog and retain the launchers' distinct
-handoffs. Feed transcript text into the owner of overflow and editing,
-leaving capture and cleanup at the recording boundary. Cut repeated
-startup presentation setup around typed attempt and notes inputs.
-A single file cannot close the timing gap. Compare each family before and
-after and keep a named equivalent for every retired observation. Recheck
-whole-selection wall time before accepting the result.
+- **Goal.** Dashboard maintainers get the local launch unit selection in
+  about 7–8 seconds at two workers, including preparation, so launch
+  changes get feedback within one short wait. Distinct launch behavior and
+  the existing composed journeys stay covered. This story contributes the
+  launch family's share of the campaign's one-minute frontend target.
+- **Scope.** Own the 23 Vitest specs and their page helpers under
+  `dashboard/frontend-tests/launches/`. Each case depends only on production
+  code and data that can affect its asserted behavior, arranged at the
+  smallest production owner through typed inputs. Exercise independent
+  dimensions separately and keep combinations where they can change the
+  result. Production code may narrow an owner so it stands alone in
+  production; tests never copy a production composition. Case and file
+  counts may change. Before removing an observation, name the retained
+  case that would fail for the same regression. Preserve genuine browser
+  conditions (viewport, zoom, touch, pointer, native input and focus),
+  capture and recovery races, and the existing native, install and backend
+  journeys at their current owners. Add no E2E case; any composed
+  observation added to an existing case counts its added time. A change to
+  the shared frontend runner configuration is allowed only with whole
+  frontend group proof. Apply the
+  [shared acceptance](#acceptance-shared-by-the-eight-stories) mapping,
+  spent-support and timing checks. If the remaining time cannot reach the
+  target without losing a distinct observation, stop with the measured
+  remainder and its cause for the maintainer to decide.
+- **Key examples.**
+  - Dense layout: a refinement or Start session dialog with every option
+    selected is arranged directly through production inputs at each
+    viewport where layout differs. One case proves option-to-command
+    mapping and one proves native tab order, instead of every geometry case
+    reselecting options and checking command text.
+  - Shared reset: selecting model and effort and then dismissing resets the
+    shared dialog model, proved once at the dialog. Each launcher keeps only
+    its own launch and focus handoff, and host-specific effort rules are
+    checked without reopening three launchers.
+  - Transcript editing: an over-limit or exactly 4,000-character transcript
+    is fed as text to the owner of overflow, editing and discard. Native
+    recording stays only for a held reply, late permission, track loss and
+    capture failures.
+  - Startup: presentation receives its typed status, recovery its typed
+    attempt and read, and note attachment its typed notes. One
+    representative keyboard launch-to-focus journey remains mounted.
+  - Measurement: the whole selection run with
+    `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
+    reports about 7–8 s wall including preparation, compared under similar
+    machine load with a paired run of the starting selection.
+- **Baseline.** The integrated 72-case selection passed in 32.04 s wall and
+  57.57 summed case-seconds at load about 4; the legacy selection took
+  46.48 s. Both ran on AC power with Node 24.21.0 and the same lockfile.
+  Recover the case map, slow-case breakdown and family leads from
+  `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
+  On 22 November 2026 at `d33ded4f9`, at load about 14, the same command
+  took 36.7 s wall (Vitest 33.7 s) and 51.3 summed case-seconds in 23
+  files. A one-file browser run took 3.9 s for 1.45 s of cases, so about
+  2.5 s is fixed startup. The eight-second target leaves roughly 11
+  case-seconds across two workers, and per-file import and mount cost
+  (about 11 s above half the summed case time) counts against it.
+  `frontend.vitest.config.mts` isolates each file and starts a second
+  Chromium instance for the two desktop-pointer launch files.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 
@@ -913,6 +943,47 @@ whole-selection wall time before accepting the result.
   E2E/backend entry points, and the behavior and case-count ledger for all
   eight stories. Every intermediate migration is usable on its own while
   the legacy entry still has a consumer.
+
+<a id="repair-refinement-touch-tap-hang"></a>
+
+### Repair the intermittent tap hang in the refinement touch proof
+
+**Identity:** SEED-413#repair-refinement-touch-tap-hang
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** A developer's frontend CI stops failing intermittently on
+`dashboard/frontend-tests/launches/ad-hoc-refinement-touch.spec.ts:37`
+("touch rotation and restricted height preserve the refinement draft and
+choices, and Cancel sends nothing"), so a red dashboard-frontend shard means a
+real defect.
+
+**Scope.** Find and repair the cause of the hosted hang; keep the spec's
+touch-rotation and restricted-height promises. Related Taken work:
+[Get launch unit proof in about eight seconds](#make-launch-proof-orthogonal)
+changes launch proof; check its state before planning.
+
+**Evidence so far** (from the SEED-418 expire-records execution; full record
+at `eccd7868a18f7ba8a7440e3353258b871d6fcbe8:.planning/slice-plans/767-expire-published-session-records/diagnosis-refinement-touch-hang.md`):
+
+- Signature: the test reaches its 15 s timeout; its trace ends right after
+  `selectOptions Model`, so the hang is in the next `tapMountedControl` tap
+  (Standard label or Refinement options). The failure screenshot shows the
+  dialog intact with no native menu open. Runs 44986821554 (`c86dd3425`) and
+  44985422719 (`841aa3594`); about 2 failures in 15 hosted runs since the
+  earlier repair `341de8f4a`; hosted amd64 only.
+- Ruled out locally (no reproduction): an open Model menu blocking the next
+  tap, a tap while the menu opens, a late compat mousedown (macOS; Linux arm64
+  with CPU throttle ×1–×20), and Playwright retrying the tap forever
+  (playwright-core 1.65.0 source).
+- Leading hypothesis: a stage inside Playwright `locator.tap()` never resolves
+  on hosted amd64.
+- Instrument in place: `e2747f65e` bounds `tapMountedControl` at 5 s
+  (`dashboard/frontend.vitest.config.mts`), so the next hosted occurrence
+  fails with Playwright's call log naming the stuck stage. Next experiment:
+  read that call log, or repeat the spec on hosted amd64 in a separate probe
+  workflow file.
 
 <a id="frontend-renovation-evidence"></a>
 

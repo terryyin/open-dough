@@ -4,6 +4,7 @@
 // Recently done (`./columnSessions.ts`). Membership is derived from the retained launch request and the
 // published done catalog (`./recentlyDoneView.ts` reads the range).
 
+import { isCurrentSessionRecord } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 import {
   projectSessionsOf,
@@ -11,6 +12,7 @@ import {
   type LaunchWithState,
 } from "./agentLaunch.ts";
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
+import type { PublishedSessions } from "./publishedSessions.ts";
 import type { HeldEntry } from "./recentlyDoneRange.ts";
 import { reportingReferenceOf } from "./sessionListing.ts";
 import { sessionKey } from "./sessionReference.ts";
@@ -53,6 +55,19 @@ const holdingsOf = (
   sessions: readonly LaunchWithState[],
   followUps: readonly LaunchWithState[],
 ) => [...sessions, ...followUps];
+
+// The published sessions Recently done lists: those of a listed answer still
+// current at `now`. An unavailable listing is a gap in the column's problems,
+// never an empty set; an expired record is simply absent.
+export const currentPublishedSessions = (
+  publishedSessions: PublishedSessions | undefined,
+  now: Date,
+) =>
+  publishedSessions?.status === "listed"
+    ? publishedSessions.sessions.filter((record) =>
+        isCurrentSessionRecord(record, now),
+      )
+    : [];
 
 // Done stories by completion, each holding its sessions and closed follow-ups,
 // and the sessions of no listed done story by launch, newest first; sessions

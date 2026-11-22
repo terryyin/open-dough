@@ -113,8 +113,6 @@ async function recordThroughCli(s) {
     "record",
     "--workspace",
     s.execution,
-    "--inspection",
-    s.execution,
     "--published-tip",
     s.continuation,
     "--integrated-sha",

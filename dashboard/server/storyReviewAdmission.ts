@@ -30,6 +30,7 @@ export async function admitReviewedFile(
       input.published,
       subject.published,
       file,
+      input.now,
       signal,
     );
   }

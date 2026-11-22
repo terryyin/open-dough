@@ -73,6 +73,7 @@ export const read = (
         ...(run === undefined ? {} : { run }),
       },
       published: published.source,
+      now: new Date(),
     },
     new AbortController().signal,
   );
@@ -92,6 +93,7 @@ export const readFile = (
         ...file,
       },
       published: published.source,
+      now: new Date(),
     },
     new AbortController().signal,
   );

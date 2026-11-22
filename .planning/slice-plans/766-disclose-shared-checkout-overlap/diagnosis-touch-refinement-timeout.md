@@ -128,3 +128,11 @@ No test timeout changed, no retries.
 - Next discriminating experiment: the next hosted failure of this spec; its
   `TimeoutError: locator.tap: Timeout 10000ms exceeded` call log names the target and the
   actionability wait (e.g. "intercepts pointer events", "element is not stable", "not visible").
+
+## Owner after trunk merge
+
+Trunk queued the repair as
+[SEED-413#repair-refinement-touch-tap-hang](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#repair-refinement-touch-tap-hang)
+(`16cebb43e`) and bounded the tap at 5000 ms itself (`e2747f65e`); the merge
+keeps trunk's bound. That story owns the remaining repair; this execution
+stops its rounds here at round 2.

@@ -30,8 +30,8 @@ import { keepLaunchStore } from "../../dashboard/test-support/support/launchStor
 import { sessionDetailsControl } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import { publishSessionClose } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
-import { defaultBacklogPath } from "../../Distribution/src/skills/dough-execute-plan/scripts/owned-suffix-reconciliation.mjs";
 import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { defaultBacklogPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-store.mjs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });

@@ -29,13 +29,14 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Disclose shared-checkout overlap in published session records](seeds/SEED-418-review-published-session-changes.md#disclose-shared-checkout-overlap) — SEED-418#disclose-shared-checkout-overlap ([plan](slice-plans/766-disclose-shared-checkout-overlap/PLAN.md))
+- [Get fast proof of Intent CI status on the real page and of timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history) — SEED-413#speed-intent-ci-status-frame-and-timing-history ([plan](slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md))
+- [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal) — SEED-413#make-launch-proof-orthogonal ([plan](slice-plans/768-make-launch-proof-orthogonal/PLAN.md))
+- [Correct stale token totals for completed Dashboard tasks](seeds/SEED-422-correct-stale-dashboard-token-totals.md#correct-stale-token-totals) — SEED-422#correct-stale-token-totals ([plan](slice-plans/764-correct-stale-token-totals/PLAN.md))
 
 ## Backlog list
 
-- [Expire published session records after 30 days](seeds/SEED-418-review-published-session-changes.md#expire-published-session-records) — SEED-418#expire-published-session-records
-- [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal) — SEED-413#make-launch-proof-orthogonal
-- [Correct stale token totals for completed Dashboard tasks](seeds/SEED-422-correct-stale-dashboard-token-totals.md#correct-stale-token-totals) — SEED-422#correct-stale-token-totals
-- [Get fast proof of Intent CI status on the real page and of timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history) — SEED-413#speed-intent-ci-status-frame-and-timing-history
+- [Keep the expired-record prune when a record commit is retried](seeds/SEED-418-review-published-session-changes.md#prune-expired-records-after-a-retried-record-commit) — SEED-418#prune-expired-records-after-a-retried-record-commit
+- [Repair the intermittent tap hang in the refinement touch proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#repair-refinement-touch-tap-hang) — SEED-413#repair-refinement-touch-tap-hang
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#route-review-changes-to-intent) — SEED-420#route-review-changes-to-intent
 - [Get fast proof of Intent source browsing, pinned links and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours) — SEED-413#speed-intent-source-browsing-and-detours
 - [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading

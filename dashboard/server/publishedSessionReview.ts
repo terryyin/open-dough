@@ -4,6 +4,7 @@
 // history is needed. A record is read as valid only at its own UUID's path,
 // here and in the published-session listing (`./publishedSessionsRead.ts`).
 import {
+  isCurrentSessionRecord,
   isSessionId,
   sessionRecordPathBeside,
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
@@ -48,9 +49,12 @@ export async function publishedRecordAt(
   return publishedRecordFromText(source.backlogPath, path, stdout);
 }
 
+// The record a UUID names, answered as unpublished once past its window at
+// `now`.
 export async function publishedSessionRecord(
   source: PublishedSessionSource,
   session: string,
+  now: Date,
   signal: AbortSignal,
 ): Promise<PublishedSessionRecord> {
   if (!isSessionId(session)) {
@@ -63,7 +67,8 @@ export async function publishedSessionRecord(
   } catch {
     throw unknownSession();
   }
-  if (record === undefined) throw unknownSession();
+  if (record === undefined || !isCurrentSessionRecord(record, now))
+    throw unknownSession();
   return record;
 }
 
@@ -97,9 +102,10 @@ export async function publishedSessionReview(
   source: PublishedSessionSource,
   session: string,
   run: string | undefined,
+  now: Date,
   signal: AbortSignal,
 ): Promise<StoryReview> {
-  const record = await publishedSessionRecord(source, session, signal);
+  const record = await publishedSessionRecord(source, session, now, signal);
   const range = selectedRange(record, run);
   const read = await recordedPairFiles(source, range, signal);
   if ("missing" in read)
@@ -138,9 +144,10 @@ export async function admitPublishedSessionFile(
   source: PublishedSessionSource,
   session: string,
   file: HistoricalReviewedFileFields,
+  now: Date,
   signal: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
-  const record = await publishedSessionRecord(source, session, signal);
+  const record = await publishedSessionRecord(source, session, now, signal);
   const range = record.ranges.find(
     ({ base, candidate }) => base === file.baseline && candidate === file.tree,
   );

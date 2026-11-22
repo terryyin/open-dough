@@ -19,7 +19,7 @@ import { originTrackingRef } from "../../dough-execute-plan/scripts/publication-
 import { publishClosureRecord } from "./trunk-closure-session-record.mjs";
 
 const usage =
-  "usage: story-branch-session-record.mjs record --workspace PATH --inspection PATH --published-tip SHA --integrated-sha SHA --branch NAME [--target-ref refs/heads/<branch>] [--remote NAME] [--backlog-path PATH] [--landing-context PATH]";
+  "usage: story-branch-session-record.mjs record --workspace PATH [--inspection PATH] --published-tip SHA --integrated-sha SHA --branch NAME [--target-ref refs/heads/<branch>] [--remote NAME] [--backlog-path PATH] [--landing-context PATH]";
 
 export async function publishStoryBranchRecord({
   workspace,
@@ -66,7 +66,6 @@ function argumentsOf(argv) {
   const known = /^(targetRef|remote|backlogPath|landingContext)$/;
   if (
     !workspace ||
-    !inspection ||
     !publishedTip ||
     !integratedSha ||
     !branch ||
@@ -75,7 +74,7 @@ function argumentsOf(argv) {
     throw new Error(usage);
   return {
     workspace: resolve(workspace),
-    inspection: resolve(inspection),
+    inspection: resolve(inspection ?? workspace),
     publishedTip,
     integratedSha,
     branch,

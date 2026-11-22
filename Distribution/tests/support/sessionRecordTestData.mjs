@@ -28,6 +28,14 @@ import { sharedCheckoutUncertainty } from "../../src/skills/dough-execute-plan/s
 export class SessionRecordBuilder {
   /** @type {SessionRange[]} */
   #ranges = [{ base: "a".repeat(40), candidate: "b".repeat(40) }];
+  /** @type {string | undefined} */
+  #closedAt;
+
+  /** @param {string} closedAt the ISO time the session closed; now unless set */
+  closedAt(closedAt) {
+    this.#closedAt = closedAt;
+    return this;
+  }
 
   /** @param {SessionRange} range */
   closing(range) {
@@ -59,7 +67,7 @@ export class SessionRecordBuilder {
       version: sessionRecordVersion,
       sessionId: globalThis.crypto.randomUUID(),
       workflow: standaloneSessionWorkflow,
-      closedAt: "2026-11-20T10:00:00.000Z",
+      closedAt: this.#closedAt ?? new Date().toISOString(),
       ranges: this.#ranges,
     };
   }

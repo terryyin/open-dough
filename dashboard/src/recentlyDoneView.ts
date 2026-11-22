@@ -27,7 +27,12 @@ import { useDoneDetails } from "./doneDetails.ts";
 import { recentDoneRecords } from "./doneStories.ts";
 import type { CreationView } from "./launchCreation.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { holdsEntry, newestFirst, type Listed } from "./recentlyDoneListing.ts";
+import {
+  currentPublishedSessions,
+  holdsEntry,
+  newestFirst,
+  type Listed,
+} from "./recentlyDoneListing.ts";
 import {
   shownPrefix,
   usePageRange,
@@ -128,7 +133,8 @@ export function useRecentlyDone({
   // Records are read at the revision whose catalog lists them.
   const revision =
     done?.status === "catalogued" ? done.revision : work.revision;
-  const recent = recentDoneRecords(done, new Date());
+  const now = new Date();
+  const recent = recentDoneRecords(done, now);
   const extras = [
     ...new Set(
       [includeIdentity, range.includedStory(sourceId)].filter(
@@ -148,14 +154,12 @@ export function useRecentlyDone({
           ),
         ];
   const { publishedSessions } = work;
-  // Only a listed answer contributes sessions; an unavailable listing is a
-  // gap in `problems`, never an empty set of published entries.
   const listed = newestFirst(
     included,
     records ?? [],
     sourceId,
     keptLaunches,
-    publishedSessions?.status === "listed" ? publishedSessions.sessions : [],
+    currentPublishedSessions(publishedSessions, now),
   );
   // The entry holding the keyboard stays shown wherever it now stands.
   const held = range.heldIn(sourceId);

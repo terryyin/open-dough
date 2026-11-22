@@ -10,12 +10,12 @@
 // unfinished step, so the work is published once and the record keeps its
 // original bytes even after trunk advances.
 import { readFile } from "node:fs/promises";
+import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import {
   closeNativeSession,
   readSessionEvidence,
 } from "./execution-session-evidence.mjs";
-import { defaultBacklogPath } from "./owned-suffix-reconciliation.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
 import { resolvePublicationLandingContext } from "./resolve-publication-landing-context.mjs";
 import {
@@ -149,7 +149,7 @@ export async function publishSessionClose({
       target,
       { workflow, closedAt: now().toISOString() },
       { suffixBase: work.suffixBase, sha: work.receipt.sha },
-      publication,
+      { ...publication, now },
     ),
   };
 }
@@ -176,6 +176,7 @@ export async function resumeSessionClose({
     return {
       record: await publishSealedRecord({
         ...request,
+        now,
         record: sessionRecord(record),
       }),
     };
@@ -207,7 +208,7 @@ export async function resumeSessionClose({
       target,
       { workflow: session.workflow, closedAt: now().toISOString() },
       { suffixBase: work.suffixBase, sha: work.acceptedSha },
-      { ...request, remote, backlogPath, landingContext },
+      { ...request, remote, backlogPath, landingContext, now },
     ),
   };
 }

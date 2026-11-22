@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Mihiro-chan",
+  "email": "mihiro-chan@example.org",
+  "identity": "SEED-422#correct-stale-token-totals",
+  "mode": "story-branch",
+  "branch": "claude/correct-stale-token-totals-for-completed-dashboa",
+  "host": "claude"
+}

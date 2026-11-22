@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "ebda0c29-0d23-4fe9-a0f2-650e7dc4a552",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-22T04:19:31.732Z",
+  "story": "SEED-418#attribute-every-workflow-session-record",
+  "ranges": [
+    {
+      "base": "8b035d0b6de5b45d2c9a3a49f8e9ad08b95c067c",
+      "candidate": "4d66988a1d18e531b3656352e520e89a427e7ce7"
+    }
+  ]
+}
