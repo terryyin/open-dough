@@ -9,6 +9,7 @@ import { comparisonViewMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
 import { storyReviewMakeMeProperties } from "./storyReviewTestData.mjs";
+import { reviewCommitMakeMeProperties } from "./reviewCommitTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
@@ -30,7 +31,8 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe &
  *   import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe &
  *   import("./sessionRecordTestData.mjs").SessionRecordMakeMe &
- *   import("./storyReviewTestData.mjs").StoryReviewMakeMe & {
+ *   import("./storyReviewTestData.mjs").StoryReviewMakeMe &
+ *   import("./reviewCommitTestData.mjs").ReviewCommitMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
  *     readonly aDoneRecord: DoneRecordBuilder;
@@ -64,6 +66,7 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...terminalThemeSettingMakeMeProperties(),
   ...sessionRecordMakeMeProperties(),
   ...storyReviewMakeMeProperties(),
+  ...reviewCommitMakeMeProperties(),
   aTestOptimizationCandidatesRecord: {
     enumerable: true,
     get() {

@@ -2,6 +2,7 @@
 
 **Identity:** SEED-420#test-compare-on-mounted-intent
 **Source:** [Prove Intent's Compare on the mounted Intent view](../../seeds/SEED-420-unified-intent-review.md#test-compare-on-mounted-intent)
+**Source review:** [source-review.md](source-review.md)
 
 ## Correction source and findings
 
@@ -108,7 +109,7 @@ removes shared test support.
 ### 1. A Taken story's commit range and uncommitted check on the mounted Intent view
 
 Type: Structure
-Status: planned
+Status: done
 Move `intent-story-compare-commits.spec.ts` (1 case) and
 `intent-story-compare-uncommitted.spec.ts` (1 case) to Vitest Browser Mode.
 Add the review source and story selection to the shared perspective mount,
@@ -120,6 +121,15 @@ the header names the range, the choice survives a view switch, selecting
 another story and coming back opens on All changes, the uncommitted check
 appears and clears, and Refresh keeps the choice. Neither spec imports
 `@playwright/test` or anything from `dashboard/test-support/support/`.
+Accepted (22 November 2026, `9012e94fe` plus this slice, load about 12–14,
+`--workers=2`): both cases pass on Vitest. The commits case ran in 2.54 s
+(3.9 s on Playwright) and the uncommitted case in 1.87 s (2.1 s). The mount's
+existing consumers (`intent-ci-status-{homepage,kept,side-panel}`) and
+`review/` pass, 24 files and 107 tests. `npm run typecheck:dashboard` passes.
+Every observation from the Playwright cases has its assertion in
+`intent-story-compare-{commits,uncommitted}.spec.ts`. Evidence is in the
+worktree's `open-dough/evidence/s1-report.md`. The refactor pass covers this
+slice together with slice 3, which removes the support these cases replaced.
 
 ### 2. A Done story's choices and a chosen comparison's gaps on the mounted Intent view
 

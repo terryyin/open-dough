@@ -15,12 +15,15 @@ import {
   publishedComparison,
   sessionCommits,
 } from "./storyReviewCompletedTestData.mjs";
+import { UncommittedReviewItemBuilder } from "./reviewCommitTestData.mjs";
 import { ReviewRunBuilder } from "./storyReviewRunTestData.mjs";
 import {
   commitRange,
   storyReviewIds,
   takenSnapshot,
 } from "./storyReviewSnapshotTestData.mjs";
+
+/** @typedef {import("./reviewCommitTestData.mjs").ReviewCommit} ReviewCommit */
 
 export class StoryReviewBuilder {
   /** @type {ReviewedFile[]} */
@@ -37,6 +40,9 @@ export class StoryReviewBuilder {
   #committed;
   /** @type {number | undefined} */
   #publishedKept;
+  /** @type {import("./reviewCommitTestData.mjs").ReviewCommit[] | undefined} */
+  #commits;
+  #uncommitted = false;
 
   /**
    * @param {string} path a file the comparison adds
@@ -68,6 +74,34 @@ export class StoryReviewBuilder {
    */
   keepingPublishedCommits(commits) {
     this.#publishedKept = commits;
+    return this;
+  }
+
+  /** @param {string} path a file the comparison deletes */
+  deleting(path) {
+    this.#files.push({
+      kind: "deleted",
+      path,
+      lines: { added: 0, removed: 1 },
+    });
+    return this;
+  }
+
+  /**
+   * A snapshot of a worktree holding `commits`, newest first
+   * (`makeMe.aReviewCommit`); with `committedAs`, its committed part runs
+   * from the oldest's parent tree to the newest's tree.
+   * @param {...import("./reviewCommitTestData.mjs").ReviewCommit} commits
+   */
+  onCommits(...commits) {
+    this.#commits = commits;
+    return this;
+  }
+
+  // Uncommitted changes over the snapshot's newest commit, whose committed
+  // part cannot be told apart, so no uncommitted check is offered.
+  withUncommittedChanges() {
+    this.#uncommitted = true;
     return this;
   }
 
@@ -157,6 +191,35 @@ export class StoryReviewBuilder {
     };
   }
 
+  /**
+   * @param {TakenStoryReview} snapshot
+   * @returns {TakenStoryReview}
+   */
+  #withCommits(snapshot) {
+    const commits = this.#commits;
+    if (commits === undefined) return snapshot;
+    const [newest] = commits;
+    const oldest = commits.at(-1);
+    if (newest === undefined || oldest === undefined) return snapshot;
+    const uncommitted =
+      this.#uncommitted || this.#committed !== undefined
+        ? new UncommittedReviewItemBuilder().after(newest).please()
+        : undefined;
+    return {
+      ...snapshot,
+      commits: structuredClone(commits),
+      uncommitted,
+      committed:
+        this.#committed === undefined
+          ? undefined
+          : {
+              from: oldest.fromTree,
+              tree: newest.tree,
+              files: structuredClone(this.#committed),
+            },
+    };
+  }
+
   /** @returns {StoryReview} */
   #comparison() {
     const run = this.#selected;
@@ -177,9 +240,10 @@ export class StoryReviewBuilder {
       files,
       committed: this.#committed,
     });
-    if (this.#publishedKept === undefined) return snapshot;
+    const withCommits = this.#withCommits(snapshot);
+    if (this.#publishedKept === undefined) return withCommits;
     return {
-      ...snapshot,
+      ...withCommits,
       published: {
         trunk: baseline,
         commits: this.#publishedKept,

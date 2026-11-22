@@ -1,4 +1,6 @@
-// Minimal production IntentPerspective mount and homepage page helpers.
+// Minimal production IntentPerspective mount and homepage page helpers. A
+// case may answer Review changes' reads through its own review source and
+// select one of the work's stories, as the page's story selection does.
 import { createElement, useEffect } from "react";
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
@@ -9,6 +11,8 @@ import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import { IntentPageProviders } from "../../src/intentPageProviders.tsx";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import type { LocalWorkspace } from "../../src/localWorkspace.ts";
+import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import {
   StorySelectionProvider,
@@ -19,6 +23,7 @@ import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+import { launches } from "../review/story-review-page-contexts.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { fullSha } from "./intent-ci-status-fixtures.ts";
 
@@ -48,35 +53,47 @@ export const unavailableReviewSource: ReviewSource = {
   fileText: () => Promise.reject(new Error("Unexpected review file text read")),
 };
 
+type StorySelectionApi = ReturnType<typeof usePageStorySelection>["api"];
+
 function PerspectiveScene({
   work,
   showsIntent,
+  workspaces,
   onCommit,
+  onSelection,
 }: {
   readonly work: PublishedWork;
   readonly showsIntent: boolean;
+  readonly workspaces: readonly LocalWorkspace[];
   readonly onCommit: (committed: PublishedWork) => void;
+  readonly onSelection: (api: StorySelectionApi) => void;
 }) {
   const selection = usePageStorySelection();
   useEffect(() => {
     onCommit(work);
   }, [onCommit, work]);
+  useEffect(() => {
+    onSelection(selection.api);
+  }, [onSelection, selection.api]);
   return createElement(StorySelectionProvider, {
     selection,
-    children: createElement(IntentPageProviders, {
-      project: work.source.id,
-      children:
-        showsIntent &&
-        createElement(IntentReadRecovery, {
-          visibility: "visible",
-          limitStands: false,
-          children: createElement(IntentPerspective, {
-            source: work.source,
-            work,
-            records: [],
-            workspaces: [],
+    children: createElement(LaunchesOnPage, {
+      value: launches,
+      children: createElement(IntentPageProviders, {
+        project: work.source.id,
+        children:
+          showsIntent &&
+          createElement(IntentReadRecovery, {
+            visibility: "visible",
+            limitStands: false,
+            children: createElement(IntentPerspective, {
+              source: work.source,
+              work,
+              records: [],
+              workspaces,
+            }),
           }),
-        }),
+      }),
     }),
   });
 }
@@ -85,16 +102,26 @@ export async function mountIntentPerspective({
   work,
   readSource,
   ciReads,
+  reviewSource = unavailableReviewSource,
+  workspaces = [],
 }: {
   readonly work: PublishedWork;
   readonly readSource: IntentReadSource;
   readonly ciReads: IntentCiReadSource;
+  // Review changes' reads, and this machine's worktrees holding a story's
+  // claim, which offer that story a comparison.
+  readonly reviewSource?: ReviewSource;
+  readonly workspaces?: readonly LocalWorkspace[];
 }) {
   let currentWork = work;
   let committedWork: PublishedWork | undefined;
   let currentShown = true;
+  let selectionApi: StorySelectionApi | undefined;
   const onCommit = (committed: PublishedWork) => {
     committedWork = committed;
+  };
+  const onSelection = (api: StorySelectionApi) => {
+    selectionApi = api;
   };
   const render = () =>
     createElement(
@@ -103,13 +130,15 @@ export async function mountIntentPerspective({
         reads: pageReadsSupplying({
           intent: readSource,
           ci: ciReads,
-          review: unavailableReviewSource,
+          review: reviewSource,
         }),
       },
       createElement(PerspectiveScene, {
         work: currentWork,
         showsIntent: currentShown,
+        workspaces,
         onCommit,
+        onSelection,
       }),
     );
   const mounted = await mountComponent(render(), {
@@ -117,6 +146,15 @@ export async function mountIntentPerspective({
     fillsViewport: true,
   });
   return {
+    // The page selects the work's story `identity`, as a card's click does,
+    // and Intent reads it.
+    async selectStory(identity: string) {
+      await expect.poll(() => selectionApi).toBeDefined();
+      selectionApi?.select({ project: currentWork.source.id, identity });
+      await expect
+        .element(page.getByRole("main", { name: "Intent", exact: true }))
+        .toHaveAttribute("data-selected-story", identity);
+    },
     showDevelopment() {
       currentShown = false;
       mounted.rerender(render());
