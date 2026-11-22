@@ -2,6 +2,7 @@
 
 **Identity:** SEED-418#resume-shared-checkout-closes-as-their-own-session
 **Source:** [Resume each shared-checkout close as its own session and keep notes advisory](../../seeds/SEED-418-review-published-session-changes.md#resume-shared-checkout-closes-as-their-own-session)
+**Source review:** [source-review.md](source-review.md)
 **Provenance:** execution retrospective of
 SEED-418#disclose-shared-checkout-overlap (plan 766, recoverable as
 `7667fc3a8:.planning/slice-plans/766-disclose-shared-checkout-overlap/PLAN.md`),
@@ -170,12 +171,18 @@ their store only).
 ### 1. Each launch sharing a checkout keeps its own open expectation
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new cases, red before: planting launches A and B for one workspace and branch leaves both open; `resolvePublicationLandingContext` without `landingContext` resolves none; after A's context clears, it resolves B; a legacy single-record file still resolves its launch. Existing cases in both files pass.
 
 Behavior: two launches planted under one `(workspace, branch)` → a
 publication omits its landing context → it names no launch while both are
 open, and the remaining one once the other's capture clears.
+
+Accepted: the cases live in `Distribution/tests/skills/dough-execute-plan/`
+(first-landing-expectation, resolve-publication-landing-context); consumer
+suites and the 19 landing backend specs passed. `clearFirstLandingExpectation`
+is now private; the native-stream fixtures' recorded hash of the module is left
+as recorded evidence.
 
 ### 2. Two Dashboard closes sharing a checkout each resume as their own session
 
