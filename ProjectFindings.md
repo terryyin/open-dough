@@ -476,3 +476,31 @@ Playwright selection ran.
   - Evidence: slice 1's combined selection of the new mounted spec, the built-app spec and `intent-source-target-recovery-mounted` reported 3 Vitest tests and no Playwright case. The built-app spec had to be run alone with `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` to confirm it passed. In slice 2 the first before/after timing set for the built-app spec was discarded because its silent output could not show the cases ran, and the set was rerun with proof records.
   - Observed effect: one discarded three-run timing set and extra solo runs; no wrong result was accepted.
   - Inference: `scripts/test-frontend.mjs` could report the Playwright selection's case count, or refuse a mixed selection, until the North Star's Playwright removal from `dashboard/frontend-tests/` retires the dual runner.
+
+<a id="dd-612"></a>
+
+## DD-612 — One implementer's concurrent Distribution and backend suites pushed two untouched backend cases past Vitest's 5 s default
+
+### Occurrences
+- Execution: SEED-418#attribute-every-workflow-session-record (plan 747; first implementation `e8231e9af`)
+  - Timestamp: 2026-11-22T08:43:17+08:00 (both runs' start)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.110 (installed `.claude/skills/dough-update/VERSION` at Take `0648ff017`)
+  - Evidence: worktree evidence `s7-dist.log.run.json` and `s7-backend.log.run.json` both start at 08:43:17. Load was 6.99 at start and rose to about 18 (`slice-7-report.md`). `review/ad-hoc-session-comparisons.spec.ts:31` (5059 ms) and `review/ad-hoc-branch-result-race.spec.ts:18` (5288 ms) timed out, and alone at load 17 they passed in 1.3–1.7 s (`s7-backend-rerun`). Earlier, the slice 3 CI repair saw `launches/declared-blank-launch-publication.spec.ts:23` at 5088 ms at load about 25 (515 ms in CI). That case was queued as SEED-421#stop-repeating-git-work-in-shared-publication, which closed at `762265fce`.
+  - Observed effect: two false failures, a rerun and a flake disposition question to the developer.
+  - Inference: plan 747's local gates name the runners but not serial runs. This is related to ODF-209 (concurrent proof load), but here the concurrency was inside one agent. Whether SEED-421's fix gives these cases margin is unchecked.
+
+<a id="dd-613"></a>
+
+## DD-613 — A failed Trunk closure in the owned-context evaluation surfaces only as the 180 s job deadline
+
+### Occurrences
+- Execution: SEED-418#attribute-every-workflow-session-record (plan 747; first implementation `e8231e9af`)
+  - Timestamp: unknown (CI run 44962527796 on `59918676c`; coordinator notice at about 2026-11-22 07:40 +08:00)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.110 (installed `.claude/skills/dough-update/VERSION` at Take `0648ff017`)
+  - Evidence: worktree evidence `ci-repair-44962527796.md`: `finish` returned `step: "git"` ("Author identity unknown") at once, but the controller's `wait_for cleanup` (360 s bound) and the fixture's cleanup watcher kept polling until the 180 s safety deadline. Diagnosis needed a live capture of the substitute claude stream. The fixture's `repository.git` had no commit identity, which a direct run masks with the developer's global identity (base passed directly in 42.3 s). Repair `534819515`.
+  - Observed effect: an opaque timeout instead of the failing step, plus the diagnosis time.
+  - Inference: a controller wait that ends on an observed `finish` failure, or one bounded below the job deadline, would name the step at once.
