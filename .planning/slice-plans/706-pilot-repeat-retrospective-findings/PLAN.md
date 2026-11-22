@@ -151,6 +151,16 @@ published revisions, and `skipProcessRetrospective` is still true. Doughnut's
 concurrent first-report withdrawal was already on trunk and was preserved.
 Both formatters, commit hooks and focused whitespace checks passed.
 
+## Execution complete
+
+Product advice: Retain the inconclusive evaluation and the exploratory replay.
+The available ordinary exposure supports closing the pilot. The removal proof
+covers both clients' guidance and disabled settings. Maintained test coverage
+and shared recording behavior are outside these changes.
+
+Process review was skipped for this closure to honor Terry's token-saving
+preference.
+
 ## Current decisions and gates
 
 - Terry chose the local trial rule, the one-line trace and the small replay with the next five executions on 18 November 2026.
