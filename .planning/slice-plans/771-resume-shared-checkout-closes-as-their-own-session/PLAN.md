@@ -211,6 +211,9 @@ publish, every range marked.
 Accepted: `parseSharedCheckoutNote` never throws; it returns `{ since }` or
 the frozen `sharedCheckoutOfUnknownStart`, which `rangeUncertainty` marks.
 `scripts/test.sh` needs file paths, not a directory.
+CI repair after slice 3 (run 45019512468, e2e agent-completion-quiet Trunk
+Wrap Up): `NativeDoneMarks` dropped a quiet report arriving while that
+session's Done still ran; a pre-existing race, repaired in `doneMarks.ts`.
 
 ### 4. A note failure leaves the kept launch recorded
 

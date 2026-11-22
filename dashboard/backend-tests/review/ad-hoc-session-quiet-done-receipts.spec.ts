@@ -6,6 +6,7 @@ import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { HostOperationFailure } from "../../server/hostLaunch.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import type { LaunchHost } from "../../server/launchHosts.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
@@ -152,4 +153,60 @@ test("retrying the same quiet delivery resumes native Done without repeating its
   expect(kept).toMatchObject({ doneAt, sessionCommitsFailedAt: doneAt });
   expect(kept?.doneProblem).toBeUndefined();
   expect(kept?.sessionCommits).toBeUndefined();
+});
+
+test("a retry during a failing native Done resumes it once that Done settles", async () => {
+  const times = { launched: 60, done: 10 };
+  const doneAt = minutesAgo(times.done);
+  const completion = aReceivedCompletion(doneAt);
+  const {
+    checkout,
+    records: { "default-launch": record },
+  } = await aDoneCaptureCase()
+    .withDefaultMainLaunch("default-launch", times, (launch) =>
+      launch
+        .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
+        .reportingThrough(dashboardReporting)
+        .completedWith(completion),
+    )
+    .kept()
+    .please();
+  await keepRecordedAttempt(record, completion);
+  let refuse!: (failure: Error) => void;
+  let renamed!: () => void;
+  const renaming = new Promise<void>((resolve) => {
+    renamed = resolve;
+  });
+  const rename = vi
+    .fn<NonNullable<LaunchHost["rename"]>>(async () => {})
+    .mockImplementationOnce(() => {
+      renamed();
+      return new Promise<void>((...[, reject]) => {
+        refuse = reject;
+      });
+    });
+  const marks = marksRenamingWith(localFolder(checkout.integration), rename);
+  onTestFinished(() => marks.close());
+  const reported = vi.spyOn(marks, "reported");
+  const retry = () =>
+    deliverCompletion(
+      submissionFor(record).retrying(delivery).please(),
+      dashboardReporting.origin,
+      marks,
+    );
+
+  await retry();
+  await renaming;
+  await retry();
+  refuse(new HostOperationFailure("Native rename refused."));
+  await vi.waitFor(() => {
+    expect(rename).toHaveBeenCalledTimes(2);
+  });
+  await Promise.all(
+    reported.mock.results.map((result): unknown => result.value),
+  );
+
+  expect(
+    (await keptSession(source, record.session))?.doneProblem,
+  ).toBeUndefined();
 });
