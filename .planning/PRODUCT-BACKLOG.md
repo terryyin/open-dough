@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Get fast proof of Intent CI status on the real page and of timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history) — SEED-413#speed-intent-ci-status-frame-and-timing-history ([plan](slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md))
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal) — SEED-413#make-launch-proof-orthogonal ([plan](slice-plans/768-make-launch-proof-orthogonal/PLAN.md))
 - [Correct stale token totals for completed Dashboard tasks](seeds/SEED-422-correct-stale-dashboard-token-totals.md#correct-stale-token-totals) — SEED-422#correct-stale-token-totals ([plan](slice-plans/764-correct-stale-token-totals/PLAN.md))
-- [Prove launch touch reach deterministically, without dispatched taps](seeds/SEED-413-renovate-dashboard-unit-tests.md#repair-refinement-touch-tap-hang) — SEED-413#repair-refinement-touch-tap-hang ([plan](slice-plans/770-prove-launch-touch-reach-deterministically/PLAN.md))
 
 ## Backlog list
 
