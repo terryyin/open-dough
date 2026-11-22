@@ -120,6 +120,10 @@ pass. The sentence's one owner is `sharedCheckoutWarning` in
 needs a reachable landing receiver; tests write the note through
 `noteSharedCheckout` in
 `Distribution/tests/skills/dough-execute-plan/dashboard-landing-test-fixtures.mjs`.
+CI run 44985422719 on this slice timed out the unrelated refinement touch
+spec; its diagnosis is
+[diagnosis-touch-refinement-timeout.md](diagnosis-touch-refinement-timeout.md),
+with the touch tap bounded so the next hosted failure names its wait.
 
 ### 3. Note shared-checkout overlap when launches share a checkout
 
