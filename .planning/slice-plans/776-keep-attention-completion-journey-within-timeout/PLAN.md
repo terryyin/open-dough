@@ -207,12 +207,14 @@ installed closure, and no installed reporting.
 ### 7. Installed attention reporting runs without a browser
 
 Type: Behavior
-Status: planned
-Proof: the gate's attention spec passes with no `page` fixture. Then run the
-paired load comparison from the proof table and record its loads, durations,
-and ratio here. This slice is the early probe for the timing premise. A
-closure case at or over 30 s, or no visible cut, stops the slice and changes
-this plan.
+Status: done
+Proof: the gate's attention spec passes with no `page` fixture. Then the
+paired load comparison, on 16 cores with 46 nice-0 `yes` burners. One-minute
+load was 49.30 at the first run, then 60.64, 70.55, 69.59, 67.37, 65.32,
+67.04 and 68.03. Origin/main scratch cases passed at 17.7, 18.0 and 20.0 s.
+Closure cases passed at 7.5, 10.2 and 11.9 s, a mean ratio of 0.53. Page
+cases passed at 2.9–6.5 s. The closure worker launched no browser. No
+closure case reached 30 s, and the cut is visible.
 
 Behavior: the real HTTP launch's installed command reports
 completed-with-attention → the receipt carries the message and the Codex
@@ -279,5 +281,13 @@ comparison. The story boundary is unchanged. Continuing is justified
 because the page observations are proved and Slice 7 is a separate
 closure result. Do not refine Slice 7 unless it fails to finish its own
 proof.
+
+Slice 7's first attempt paused past the limit with the closure spec edited
+and the load comparison unstarted, so `storyOverruns` is 5. The retry
+finished that comparison: closure cases passed inside 30 s and took about
+half the origin/main case. Delivered value is the installed attention
+report without a browser page. No slice remains. The story boundary is
+unchanged. Continuing was justified because the page observations were
+already proved and this retry finished Slice 7's own proof.
 
 ## Story obligations
