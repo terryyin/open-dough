@@ -11,7 +11,12 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { emulateMedia } from "../review/browser-session.ts";
 import { workOf } from "./intent-ci-homepage-page.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
-import { inertCiReads, openDoughSource } from "./intent-ci-status-fixtures.ts";
+import {
+  configuredIntentReads,
+  inertCiReads,
+  openDoughSource,
+  unreadLiveProof,
+} from "./intent-ci-status-fixtures.ts";
 import {
   openFileProof,
   openScopeChild,
@@ -20,45 +25,24 @@ import {
 } from "./intent-scope-history-page.ts";
 
 const work = workOf(openDoughSource, "b2b2b2b");
-const unreadStatus = makeMe.anIntentCiStatus
-  .with({
-    branch: "main",
-    revision: "a".repeat(40),
-    subject: "Older CI observation",
-    state: "unread",
-    reason: "Live proof unavailable",
-    laterWithoutResult: 1,
-    runBranch: "main",
-    checkedAt: "2026-11-11T07:00:00Z",
-    freshness: "fresh",
-  })
-  .please();
 
 test("Project Intent reads each scope's test execution time history before its table and switches a file's timing unit", async () => {
   const scopes: string[] = [];
   await mountIntentCiPage({
     work,
     reads: {
-      intent: {
-        readLocations: () =>
-          Promise.resolve({
-            status: "configured",
-            locations: [
-              makeMe.anIntentLocation
-                .at("dashboard/tests")
-                .ofKind("typescript", ["**/*.spec.ts"])
-                .selecting(
-                  "dashboard/tests/folder/a.spec.ts",
-                  "dashboard/tests/root.spec.ts",
-                )
-                .please(),
-            ],
-          }),
-        readFile: (...[, , path]) => Promise.resolve(`${path}\n`),
-        readCandidates: () => Promise.resolve({ status: "absent" }),
-      },
+      intent: configuredIntentReads(
+        makeMe.anIntentLocation
+          .at("dashboard/tests")
+          .ofKind("typescript", ["**/*.spec.ts"])
+          .selecting(
+            "dashboard/tests/folder/a.spec.ts",
+            "dashboard/tests/root.spec.ts",
+          )
+          .please(),
+      ),
       ci: inertCiReads({
-        readStatus: () => Promise.resolve(unreadStatus),
+        readStatus: () => Promise.resolve(unreadLiveProof),
         readScopeHistory: (...[, path, endpoint]) => {
           scopes.push(path);
           return Promise.resolve(

@@ -2,6 +2,7 @@
 // status specs.
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCiStatus as Judgment } from "../../src/authenticatedIntentCiStatusRead.ts";
+import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
 import type { CiProofEntry } from "../../src/ciProof.ts";
 import "../../src/intent-ci-status.css";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
@@ -126,6 +127,33 @@ export const unconfiguredIntentReads: IntentReadSource = {
   readFile: () => Promise.resolve(""),
   readCandidates: () => Promise.resolve({ status: "absent" }),
 };
+
+// Intent reads of a project configured with LOCATION, each selected file
+// reading as its own path.
+export const configuredIntentReads = (
+  location: IntentLocation,
+): IntentReadSource => ({
+  readLocations: () =>
+    Promise.resolve({ status: "configured", locations: [location] }),
+  readFile: (...[, path]) => Promise.resolve(`${path}\n`),
+  readCandidates: () => Promise.resolve({ status: "absent" }),
+});
+
+// An older main observation whose live Proof is unavailable, so scope
+// histories stand without live Proof.
+export const unreadLiveProof: Judgment = makeMe.anIntentCiStatus
+  .with({
+    branch: "main",
+    revision: "a".repeat(40),
+    subject: "Older CI observation",
+    state: "unread",
+    reason: "Live proof unavailable",
+    laterWithoutResult: 1,
+    runBranch: "main",
+    checkedAt: "2026-11-11T07:00:00Z",
+    freshness: "fresh",
+  })
+  .please();
 
 // Main's run 41 at a1b2c3d, the run `mountJudgedRunProof` judges.
 export const judgedRun = {

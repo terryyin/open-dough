@@ -140,6 +140,14 @@ reads change. Run long local suites under the maintained macOS sleep guard
 Failures follow the
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 
+## Story obligations
+
+### G1. Done scope history isolation has no moved case (first reported in slice 4)
+Reported: slice 4 — "The Done half of the promise has no coverage, because neither legacy file had a Done case."
+Story clause: "Project and Done scope timing glances and kept histories stay isolated by project, source and scope key"
+Disposition: receiving slice 5
+Commitment: 11
+
 ## Slices
 
 ### 1. Page mounts reset the preferences they change and test entries take one options object
@@ -231,7 +239,7 @@ child → file Proof. `scopeTimingHistory.ts` is removed. Slice 7 candidate:
 ### 4. Scope history stays isolated to the requested source and project
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-project-scope-history-source-identity` (2) and
 `-project-isolation` (2). Typed `readScopeHistory` replies record requested
@@ -242,6 +250,22 @@ projects, issues the right request and aborts or ignores other sources' and
 projects' answers.
 
 Proof: the moved Vitest specs; 0 legacy cases remain on the 2 files.
+
+Accepted proof (2026-11-22, load ~35): typecheck; both moved Vitest specs
+4/4 (8.7 s including preparation). Dispositions: all four legacy cases keep
+their file names, titles and distinct assertions (wording, request lists,
+abort, late answer, failure without "Previously retrieved history").
+
+Learning: a break check that let `useIntentCiEndpointHistory.ts` show aborted
+answers and dropped its key filter left these cases green, as the legacy
+journeys were shaped: the late answer targets an unmounted, per-project kept
+reading. The abort is asserted directly (`signals[0].aborted`); a journey
+that keeps one history mounted across a held read would break-check the
+guard itself.
+
+Refactor: `configuredIntentReads(location)` and `unreadLiveProof` in
+`intent/intent-ci-status-fixtures.ts` replace the setup copied into the
+glance and Slice 4 specs; Slices 5–6 build from them (3 specs, 5 tests green).
 
 ### 5. Scope keys keep distinct histories across remounts
 

@@ -1,79 +1,82 @@
+// A project whose configuration supplies another repository or ref under the
+// same project ID reads that source's test execution time history afresh: the
+// page and its reading place stay mounted, and the earlier source's answer at
+// the same endpoint and scope never stands as the new source's history.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { shortSha } from "../../src/baseCiWording.ts";
+import { workOf } from "./intent-ci-homepage-page.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
-  scopeHistory,
-  scopeHistoryReading,
-} from "../../test-support/intentScopeHistoryPage.ts";
-// Same-ID source configuration changes cannot inherit a different source's answer.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  configuredIntentReads,
+  inertCiReads,
+  openDoughSource,
+  unreadLiveProof,
+} from "./intent-ci-status-fixtures.ts";
 import {
-  expect,
-  test,
-  mountComparison,
-} from "../../test-support/support/comparisonMountPage.ts";
-import {
-  scopeHistoryPoint,
-  serveUnreadProjectCi,
-} from "../../test-support/support/projectScopeHistoryFacts.ts";
+  openScopeSummary,
+  scopeHistoryIn,
+} from "./intent-scope-history-page.ts";
+
+const work = workOf(openDoughSource, "b2b2b2b");
 
 for (const changed of ["repository", "ref"] as const) {
-  test(`a changed ${changed} with the same project ID and endpoint does not keep another source's history`, async ({
-    page,
-    comparisonServer,
-  }) => {
-    const story = makeMe.aComparedStory
-      .inSummaryScope()
-      .withWork({ retrievedAt: new Date("2026-11-11T07:00:00Z") })
-      .please();
-    const { work } = story;
-    const project = { ...story, identity: undefined };
-    await serveUnreadProjectCi(page, "a".repeat(40));
-    let reads = 0;
-    await page.route(/intent=ci-history/, async (route) => {
-      const params = new URL(route.request().url()).searchParams;
-      if (!params.has("scope")) {
-        await route.fulfill({
-          status: 502,
-          json: { error: "No wall history arranged" },
-        });
-        return;
-      }
-      reads += 1;
-      await route.fulfill(
-        reads === 1
-          ? {
-              json: scopeHistoryPoint(
-                work.revision,
-                params.get("scope") ?? "",
-                8000,
-              ),
-            }
-          : { status: 502, json: { error: "New source history unavailable" } },
-      );
+  test(`a changed ${changed} with the same project ID and endpoint does not keep another source's history`, async () => {
+    const requests: string[] = [];
+    const signals: AbortSignal[] = [];
+    const page = await mountIntentCiPage({
+      work,
+      reads: {
+        intent: configuredIntentReads(
+          makeMe.anIntentLocation
+            .at("dashboard/tests")
+            .ofKind("typescript", ["**/*.spec.ts"])
+            .selecting("dashboard/tests/example.spec.ts")
+            .please(),
+        ),
+        ci: inertCiReads({
+          readStatus: () => Promise.resolve(unreadLiveProof),
+          readScopeHistory: (source, path, endpoint, signal) => {
+            requests.push(
+              `${source.id} ${source.repository}@${source.ref} ${path} ${endpoint.revision}`,
+            );
+            signals.push(signal);
+            return requests.length === 1
+              ? Promise.resolve(
+                  makeMe.aScopeHistoryGlance
+                    .at(path)
+                    .timing("case", [], 8000)
+                    .through(endpoint.revision)
+                    .please(),
+                )
+              : Promise.reject(new Error("New source history unavailable"));
+          },
+        }),
+      },
     });
-    await mountComparison(page, comparisonServer, project);
-    const history = scopeHistory(page);
-    const evidence = scopeHistoryReading(history).readout;
-    await expect(evidence).toContainText("8.0 s");
+    const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+    const endpoint = `Observed trunk endpoint ${shortSha(work.revision)}`;
+    await expect
+      .poll(() => history.readout().selected)
+      .toBe(`${endpoint} · 8.0 s`);
+
     const source = makeMe.aPublishedSource
       .with({
-        ...story.source,
+        ...openDoughSource,
         ...(changed === "repository"
           ? { repository: "example/another-repository" }
           : { ref: "trunk" }),
       })
       .please();
-    // Keep the page and disposable reading place mounted while configuration
-    // supplies another source under the same ID; this is a provider boundary.
-    await page.evaluate(
-      (value) => {
-        window.mountCiComparison(value);
-      },
-      { source, work, identity: undefined, scope: project.scope },
-    );
-    await expect(scopeHistoryReading(history).failure).toContainText(
-      "New source history unavailable",
-    );
-    await expect(evidence).toHaveCount(0);
-    await expect(history).not.toContainText("Previously retrieved history");
-    expect(reads).toBe(2);
+    await page.showWork({ ...work, source });
+    await expect.poll(history.text).toContain("New source history unavailable");
+    expect(history.readout().selected).toBeUndefined();
+    expect(history.text()).not.toContain("Previously retrieved history");
+    expect(requests).toEqual([
+      `open-dough terryyin/open-dough@main dashboard/tests ${work.revision}`,
+      `open-dough ${source.repository}@${source.ref} dashboard/tests ${work.revision}`,
+    ]);
+    // The earlier source's reading is given up with its source.
+    expect(signals.map(({ aborted }) => aborted)).toEqual([true, false]);
   });
 }
