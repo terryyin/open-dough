@@ -44,8 +44,8 @@ intent introduced or affected by a newly developed story.
 - [Compare a story branch with and without incoming trunk changes](seeds/SEED-420-unified-intent-review.md#compare-story-contributions) — SEED-420#compare-story-contributions
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
 - [Install without the CI reuse recipes](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-ci-reuse-recipes) — SEED-423#install-without-ci-reuse-recipes
-- [Install without the custom CI adapter](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter
-- [Read only current record formats and release layouts](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats
+- [Call custom CI through a minimal adapter interface](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter
+- [Update from the previous release without legacy readers](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats
 - [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
@@ -60,7 +60,7 @@ intent introduced or affected by a newly developed story.
 - [Wait for Codex workers with fewer model wakeups](seeds/SEED-345-session-token-efficiency.md#wait-for-codex-workers-with-fewer-model-wakeups) — SEED-345#wait-for-codex-workers-with-fewer-model-wakeups
 - [Notify Claude Code of CI results through one path](seeds/SEED-423-shrink-the-installed-distribution.md#notify-claude-code-of-ci-through-one-path) — SEED-423#notify-claude-code-of-ci-through-one-path
 - [Trim the product backlog command to guided operations](seeds/SEED-423-shrink-the-installed-distribution.md#trim-the-product-backlog-command-to-guided-operations) — SEED-423#trim-the-product-backlog-command-to-guided-operations
-- [Reconcile the backlog through one Git adapter](seeds/SEED-423-shrink-the-installed-distribution.md#reconcile-the-backlog-through-one-git-adapter) — SEED-423#reconcile-the-backlog-through-one-git-adapter
+- [Reconcile backlog merges and rebases through one Git adapter](seeds/SEED-423-shrink-the-installed-distribution.md#reconcile-the-backlog-through-one-git-adapter) — SEED-423#reconcile-the-backlog-through-one-git-adapter
 - [Publish to trunk through one loop](seeds/SEED-423-shrink-the-installed-distribution.md#publish-to-trunk-through-one-loop) — SEED-423#publish-to-trunk-through-one-loop
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream

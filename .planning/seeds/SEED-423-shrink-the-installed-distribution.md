@@ -128,16 +128,19 @@ Dashboard and installed scripts share.
   `ci-reuse-policy.mjs`, `ci-reuse-github-command.mjs`, `ci-reuse-gate.mjs`
   and the manuals `reuse-ci.md` and `custom-reuse-ci.md` are gone, about 850
   lines, and no guidance links to them.
-- **Value / learning.** The only callers are the two manuals; this
-  repository's workflows use none of them and the example is a toy provider.
-- **Effort hypothesis.** S, high confidence once the decision is made.
-- **Depends on.** The open decision on whether any project adopted CI reuse.
+- **Evidence.** The six production Dashboard projects (Open Dough, Doughnut,
+  Pygardon, Terry Talks, Lizard and Clipboard) had no tracked caller of the
+  recipes in their workflows, scripts or configuration on 2026-11-22.
+  Pygardon uses its own CI adapter. This story removes the reuse recipes and
+  their examples.
+- **Effort hypothesis.** S, high confidence.
+- **Depends on.** None.
 - **Safe stopping point.** Removing only the custom example and its manual
   keeps GitHub reuse and still drops about 345 lines.
 
 <a id="install-without-the-custom-ci-adapter"></a>
 
-### Install without the custom CI adapter
+### Call custom CI through a minimal adapter interface
 
 **Identity:** SEED-423#install-without-the-custom-ci-adapter
 
@@ -145,21 +148,33 @@ Dashboard and installed scripts share.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **For / why.** A developer whose project uses GitHub Actions installs CI
-  observation without a second provider path that nothing configures.
-- **Evaluation.** The `ciAdapter` and `ciRebuild` settings, the four
-  `ci-command-*` scripts, their branches in `watch-ci-execution.mjs` and
-  `ci-project-configuration.mjs`, the `custom-ci*.md` manuals and the
-  Dashboard's seven adapter files are gone, about 1,700 lines across the
-  distribution and Dashboard. GitHub Actions observation is unchanged.
-- **Effort hypothesis.** M, medium confidence.
-- **Depends on.** The open decision on whether any project runs non-GitHub
-  CI.
-- **Safe stopping point.** Independent of the reuse story.
+- **For / why.** A developer using Pygardon CI can observe and act on its
+  results through Open Dough while maintaining provider behavior in Pygardon.
+- **Scope.** Pygardon owns provider access, interpretation and operations.
+  Open Dough defines the smallest interface its workflow and Dashboard need,
+  invokes the configured adapter, and uses its normalized results in shared
+  CI behavior. Compare the custom path with the GitHub Actions path for the
+  same outcomes. The custom path should be simpler because it delegates
+  provider behavior. Follow [ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md)
+  for project-owned configuration.
+- **Evaluation.** The watcher and Dashboard use the same documented contract
+  and invocation code. Check the candidate with Pygardon's adapter for CI
+  status and failure diagnosis, attempt proof and job timing, and rebuild
+  where enabled. Existing GitHub Actions workflows retain their behavior.
+  Publish the contract and adoption instructions, and keep Pygardon's live
+  integration on a compatible release and adapter throughout the handoff.
+- **Effort hypothesis.** M, medium confidence. Start from the roughly 1,700
+  lines identified across the Distribution and Dashboard and measure how much
+  provider-specific code the simpler boundary removes.
+- **Depends on.** None. The
+  [Pygardon adoption story](https://github.com/terryyin/pygardon/blob/main/.planning/seeds/SEED-20261119-adopt-the-simplified-open-dough-ci-adapter.md#adopt-the-simplified-open-dough-ci-adapter)
+  follows delivery of this contract.
+- **Safe stopping point.** Share one invocation boundary while preserving
+  Pygardon's current command contract.
 
 <a id="retire-finished-migrations-and-legacy-formats"></a>
 
-### Read only current record formats and release layouts
+### Update from the previous release without legacy readers
 
 **Identity:** SEED-423#retire-finished-migrations-and-legacy-formats
 
@@ -167,20 +182,32 @@ Dashboard and installed scripts share.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **For / why.** A developer on a current release installs no code whose only
-  job is reading records or layouts that earlier releases wrote.
-- **Evaluation.** With the oldest supported release named, these are gone:
-  `adopt --all` and `recordIdentity`; `legacyBasesFor`, `waitingBody` and
+- **For / why.** A developer who keeps Open Dough current can update one
+  release at a time while the installer and runtime carry less compatibility
+  code.
+- **Update policy.** All six maintained installations were on `0.3.110`
+  on 2026-11-22. Use that as the initial floor. After rollout, the supported
+  update baseline moves with each release. The immediately previous numeric
+  release can update directly to the latest, the latest is a no-op, and an
+  older installation gets a clear stop before writes. Preserve the tagged
+  baseline check and project configuration under
+  [ADR 0003, Release lifecycle and versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
+  and [ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md).
+- **Evaluation.** Prove a previous-to-latest update, a latest-to-latest no-op,
+  and rejection of an older installation before any managed files change.
+  Retire old layout and record readers once the supported baseline and live
+  project records no longer need them. Candidates include `adopt --all` and
+  `recordIdentity`; `legacyBasesFor`, `waitingBody` and
   `earlierBases`; `legacyDocumentHistory`; the unit-less CI proof entries and
   summary schema 1 across twelve `ci-proof-*` scripts and the Dashboard
   readers; the request owner's `supportsWorkflowRerun` and `archive-as-text`
   fallbacks; `acceptsLandingWithoutIdentity`; the optional `suffixBase`; the
   slice clock's timestamp scan; and the pre-0.3.99 forwarders under
   `src/install/` with `update-from-pre-distribution.sh`. About 700 lines.
+  Check persisted project records separately from installed versions and
+  migrate any still needed before retiring their readers.
 - **Effort hypothesis.** M, medium confidence. Each format is independent.
-- **Depends on.** The open decision on the oldest release a project may
-  update from. Baseline verification reads the tag a project's `VERSION`
-  records, so that release bounds the installer part.
+- **Depends on.** None.
 - **Safe stopping point.** Any single format.
 
 <a id="derive-the-install-payload-from-the-shipped-directory"></a>
@@ -258,7 +285,7 @@ Dashboard and installed scripts share.
 
 <a id="reconcile-the-backlog-through-one-git-adapter"></a>
 
-### Reconcile the backlog through one Git adapter
+### Reconcile backlog merges and rebases through one Git adapter
 
 **Identity:** SEED-423#reconcile-the-backlog-through-one-git-adapter
 
@@ -268,14 +295,14 @@ Dashboard and installed scripts share.
 
 - **For / why.** A developer whose branches both changed the backlog gets the
   same reconciliation from a merge or a rebase, maintained once.
-- **Evaluation.** Ten adapter files of about 1,410 lines become one adapter
-  with a table per operation and thin entry files where scripts spawn them.
-  The cherry-pick adapter, about 460 lines that no workflow uses, is removed
-  with its section of `merge-conflicts.md` unless a use is named. The unused
-  `--pre-rebase-tip` and `--destination-at-start` overrides go.
-- **Effort hypothesis.** M, medium confidence; 250 lines, or 650 with
-  cherry-pick. Git stops differ per operation, such as an empty pick and a
-  fast-forward merge.
+- **Evaluation.** Merge and rebase share one reconciliation implementation
+  with thin entry files where scripts spawn them. Retire the backlog
+  cherry-pick adapter (about 460 lines), its installed guidance and its
+  payload entries. Preserve the merge and rebase results, including clean
+  merges that still need reconciliation, and remove the unused
+  `--pre-rebase-tip` and `--destination-at-start` overrides.
+- **Effort hypothesis.** M, medium confidence. Merge and rebase stops still
+  need operation-specific handling.
 - **Depends on.** None.
 - **Safe stopping point.** Removing cherry-pick alone.
 
@@ -380,9 +407,8 @@ Dashboard and installed scripts share.
 
 ## Ordering and scope reduction
 
-The first story needs no decision and is first. The two CI option stories,
-the legacy formats and the payload derivation follow: the largest removals at
-the highest confidence, three of them waiting only on a decision. The
+The dead-code story comes first. CI reuse removal, the smaller custom CI
+interface, retirement of legacy formats, and payload derivation follow. The
 notification, backlog command, Git adapter and publication stories change
 mechanisms agents use daily and carry medium confidence. The leads reader,
 request owner and coverage inference are last: largest uncertainty, and the
@@ -391,16 +417,6 @@ last two could cost reliability. They are the first to drop.
 Not proposed: merging files that the 250-line limit split. It removes no code.
 `execution-start*` is ten files for one command and is the clearest case for
 a redesign by responsibility when that area is next changed.
-
-## Open decisions
-
-- Has any project adopted CI reuse or a custom CI adapter? Recommendation:
-  check the projects that run the production Dashboard; if none has, remove
-  both.
-- What is the oldest release a project may update from? Recommendation: the
-  oldest `VERSION` recorded in those projects.
-- Does any workflow cherry-pick the backlog? Recommendation: remove the
-  adapter; none of the installed workflows does.
 
 ## When to surface
 
