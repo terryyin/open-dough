@@ -169,6 +169,8 @@ ordinary completion, outside this project's fixed two-case sample.
   main. The repeat guidance and process-review default were verified unchanged.
   [Pygardon withdrawal](https://github.com/terryyin/pygardon/commit/4d9470aef6e07fbd82a2869cbaad2dcdc780b732)
 
+The Pygardon administration story is [closed on main](https://github.com/terryyin/pygardon/commit/5bb7ff7373c6f0813959a72b97293b3ce362bc0b). Its proof and temporary records are recoverable from the parent of that closure.
+
 ## Basis for the trial
 
 | What execution needs | Preparation observation on 18 November 2026 |
@@ -192,7 +194,7 @@ Use the ordinary-work protocol below in Doughnut. Follow the actual review throu
 ### 2. A Pygardon maintainer can assess what first reports reached triage
 
 Type: Behavior
-Status: planned
+Status: done
 
 Apply the same protocol in Pygardon. Preserve this project’s starting log, guidance, execution identity and route. Each project supplies its own result even when it yields no eligible first observation. The two project samples can be enrolled together once the frozen wording is on trunk.
 
