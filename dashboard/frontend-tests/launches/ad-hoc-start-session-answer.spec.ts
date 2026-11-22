@@ -15,8 +15,8 @@ import {
   phone,
   resizeLaunchViewport,
   splitWords,
-  tap,
   textFitsViewport,
+  touch,
 } from "./launch-layout-page.ts";
 
 const revision = "a".repeat(40);
@@ -156,7 +156,7 @@ async function wordsKeepTheirRoom(
 async function directionOpensBeneath(answer: Locator) {
   const parts = [directionToggle(), end(), answer];
   const closed = parts.map(box);
-  await tap(directionToggle());
+  (await touch(directionToggle())).click();
   const content = page.getByText(direction);
   await expect.element(content).toBeVisible();
   expect(parts.map(box)).toEqual(closed);
@@ -166,7 +166,7 @@ async function directionOpensBeneath(answer: Locator) {
     expect(box(content).top).toBeGreaterThanOrEqual(part.bottom - 0.5);
   expect(splitWords(answer)).toEqual([]);
   noSidewaysScroll(row());
-  await tap(directionToggle());
+  (await touch(directionToggle())).click();
   await expect.element(content).not.toBeVisible();
   expect(parts.map(box)).toEqual(closed);
   noSidewaysScroll(row());

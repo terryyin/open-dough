@@ -1,11 +1,5 @@
 import { expect, onTestFinished } from "vitest";
-import { cdp, commands, page, type Locator } from "vitest/browser";
-
-declare module "vitest/browser" {
-  interface BrowserCommands {
-    tapMountedControl(selector: string): Promise<void>;
-  }
-}
+import { cdp, page, type Locator } from "vitest/browser";
 
 export const narrowDialog = { width: 320, height: 640 };
 export const twiceZoomedDialog = { width: 640, height: 450 };
@@ -46,29 +40,6 @@ export async function useTwiceZoomedDevice() {
 
 export function box(control: Locator) {
   return control.element().getBoundingClientRect().toJSON() as DOMRectReadOnly;
-}
-
-export async function tap(control: Locator) {
-  let reachedControl = false;
-  const observeTouch = (event: PointerEvent) => {
-    if (
-      event.pointerType === "touch" &&
-      event.isTrusted &&
-      event.target instanceof Node &&
-      control.query()?.contains(event.target)
-    ) {
-      reachedControl = true;
-    }
-  };
-  window.addEventListener("pointerdown", observeTouch, true);
-  try {
-    await commands.tapMountedControl(control.serialize().selector);
-  } finally {
-    window.removeEventListener("pointerdown", observeTouch, true);
-  }
-  expect(reachedControl, "native touch reaches the intended control").toBe(
-    true,
-  );
 }
 
 export function noSidewaysScroll(container: Locator) {

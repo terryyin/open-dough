@@ -121,6 +121,14 @@ temporary probe workflow in a separate file (not `ci.yml`) runs both specs
 Record its run ID and per-case times here. Delete the probe file before the
 slice's final publication.
 
+Local proof accepted (2026-11-22, load 12–16): the launches selection passed
+at two workers (23 files, 72 tests), the whole frontend group passed under
+bash 5 (159 files, 453 tests, 110.8 s), and typecheck passed. Touch case
+times: Start session 313–556 ms, refinement 516–969 ms. The probe is
+`.github/workflows/touch-probe.yml`: 5 jobs, each running both specs 10
+times. The group runner accepts no `--retry`, and the frontend config sets
+none, so each case runs once.
+
 ## Concern evidence
 
 Slice-plan refinement was not needed: two small Behaviors, each one touch
