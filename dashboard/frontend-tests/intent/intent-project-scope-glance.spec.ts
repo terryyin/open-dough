@@ -92,7 +92,10 @@ test("Project Intent reads each scope's test execution time history before its t
       fileHistory.standsAbove(file.getByText("Live proof unavailable")),
     )
     .toBe(true);
-  const caseChart = fileHistory.chart("test cases", "observed trunk endpoint");
+  const caseChart = await fileHistory.chart(
+    "test cases",
+    "observed trunk endpoint",
+  );
   expect(caseChart.readout()).toBe("Nov 6 · Endpoint · 120 ms");
   // Each unit's own scale around its own timings.
   expect(caseChart.axisLabels()).toEqual([
@@ -108,7 +111,10 @@ test("Project Intent reads each scope's test execution time history before its t
     average: "Prior-build average · 10 ms · 5 prior builds used",
     change: "vs. prior average · +2 ms (+17%)",
   });
-  const fileChart = fileHistory.chart("test files", "observed trunk endpoint");
+  const fileChart = await fileHistory.chart(
+    "test files",
+    "observed trunk endpoint",
+  );
   expect(fileChart.readout()).toBe("Nov 6 · Endpoint · 12 ms");
   expect(caseChart.drawn()).toBe(false);
   expect(fileChart.axisLabels()).toEqual(["5 ms", "10 ms", "15 ms", "20 ms"]);

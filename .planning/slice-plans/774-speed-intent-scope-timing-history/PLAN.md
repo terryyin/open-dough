@@ -325,7 +325,7 @@ case) state domain steps instead of entries.
 ### 7. The story's isolation and recovery proof runs faster with fewer maintained cases and no spent support
 
 Type: Structure
-Status: planned
+Status: done
 
 Remove any history `test-support` module or export whose last consumer across
 `e2e/`, `dashboard/frontend-tests/`, `dashboard/backend-tests/` and
@@ -340,6 +340,45 @@ load.
 Proof: 0 legacy cases remain across the 8 owned files; consumers of removed
 support pass; full frontend group when the shared mount or page reads
 changed; representative `e2e/intent/intent-ci-status.spec.ts`.
+
+Accepted proof (2026-11-22, load 5–9): typecheck; full dashboard frontend
+group (Vitest 173 files / 494 tests; Playwright 839/839); e2e
+`intent/intent-ci-status.spec.ts`; both glance specs 10× green after the
+repair below.
+
+Case dispositions (11 legacy Playwright cases → 11 Vitest cases, same file
+names, through `mountIntentCiPage` or `openDoneStoryComparison`; 0 Playwright
+cases remain): every case keeps its title and distinct assertions. Retired
+assertions with named owners: refresh's time-only same-head check →
+`intent-project-scope-history-key-isolation.spec.ts`; the failed mark's paint
+colour → plan 777's `intent-project-ci-history-chart-marks.spec.ts`
+(`expectMarksPainted`). Kept, not merged: each remaining case needs its own
+setup (source change, project switch, key/head change, remount, failure and
+retry walk) and fails for a separate reason; source-identity was already one
+body over repository and ref. Case bodies 10 → 10; spec source 1047 → 824
+lines; all in the dashboard frontend group.
+
+| Run (alternating) | Engine | Elapsed incl. preparation (s) | Load 1-min |
+|---|---|---|---|
+| before ×5 (`0ca3d0028`, legacy files identical to P3's) | Playwright 11 | 12.28, 10.06, 11.23, 11.03, 11.40 — median 11.23 | 5.1–9.0 |
+| after ×5 (this branch) | Vitest 11 | 7.95, 7.53, 8.66 (flake), 7.42, 9.22 — median 7.95 | 5.0–8.4 |
+
+About 29% less wall time at load 5–9 (P3's 44.9 s was at load 33, not
+comparable). Slow cases remaining: Done drill 1.7–2.5 s (was 3.3–4.9 s);
+refresh 1.8–2.1 s (unchanged; five reads through Check again, Retry and a new
+head). No further spent support: every export the legacy files used has
+another consumer. No `act`/`IS_REACT_ACT_ENVIRONMENT`; specs import only types
+from `dashboard/src` plus `shortSha` for expected wording.
+
+Repair: an after run failed once reading a chart synchronously after the
+readout settled (`intent-scope-glance.spec.ts`, then
+`intent-project-scope-glance.spec.ts` in an 8× repeat); the first read of each
+newly chosen chart now waits. Refactor moved that wait into
+`scopeHistoryIn(...).chart()` (async; `drawn()` means the chart readout is
+shown, since `HistoryChart` draws only after measuring a width), also fixing
+the same race in the recovery spec; glance and recovery specs 8× green. Follow-up for wrap-up: plan 772's
+`intent-ci-done-glance.spec.ts:66` reads `history.averageLabel()` the same
+synchronous way.
 
 ## Concern evidence
 

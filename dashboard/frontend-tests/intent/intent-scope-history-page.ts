@@ -13,7 +13,9 @@ import { priorReferenceIn } from "./intent-ci-prior-reference-page.ts";
 
 const textsOf = (nodes: Iterable<Element>) => [...nodes].map(visibleText);
 
-// The chart drawn for UNIT ("test cases", "test files") through ENDPOINT.
+// The chart for UNIT ("test cases", "test files") through ENDPOINT. Its
+// drawing is laid out only once its plot is measured, after the history's
+// readout settles; it is drawn when its marks and readout are shown.
 function chartIn(
   history: Locator,
   unit: string,
@@ -38,12 +40,14 @@ function chartIn(
     [...(box()?.querySelectorAll("button") ?? [])].find(
       (mark) => mark.getAttribute("aria-label") === readout,
     );
+  const readoutElement = () =>
+    box()?.querySelector(".history-chart-readout") ?? null;
   return {
-    drawn: () => drawing() !== null,
+    drawn: () => readoutElement() !== null,
     marks: () => box()?.querySelectorAll("button").length ?? 0,
     readout: () => {
-      const node = box()?.querySelector(".history-chart-readout");
-      return node === null || node === undefined ? "" : visibleText(node);
+      const node = readoutElement();
+      return node === null ? "" : visibleText(node);
     },
     axisLabels: () => textsOf(within("g:has(> .history-chart-grid) > text")),
     averageLabel: () =>
@@ -66,7 +70,7 @@ function chartIn(
       mark.scrollIntoView({ block: "center" });
       await tapWhereShown(mark);
     },
-    readoutElement: () => box()?.querySelector(".history-chart-readout"),
+    readoutElement,
   };
 }
 
@@ -135,10 +139,15 @@ export function scopeHistoryIn(scope: Locator) {
       }
       await expect.element(button).toHaveAttribute("aria-pressed", "true");
     },
-    chart: (
+    // The chart UNIT draws through ENDPOINT, once it is drawn.
+    async chart(
       unitName: string,
       endpoint: "selected landing" | "observed trunk endpoint",
-    ) => chartIn(history, unitName, endpoint),
+    ) {
+      const chart = chartIn(history, unitName, endpoint);
+      await expect.poll(chart.drawn).toBe(true);
+      return chart;
+    },
     // The unit choices, selected timing and chart readout read in contrast.
     readable: (choices: readonly string[], chartUnit: string) =>
       [

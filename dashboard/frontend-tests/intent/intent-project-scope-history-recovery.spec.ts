@@ -94,8 +94,7 @@ test("project endpoint words mark a measured zero and explain partial-unit gaps 
       ),
   });
   const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
-  const chart = history.chart("test cases", "observed trunk endpoint");
-  await expect.poll(chart.drawn).toBe(true);
+  const chart = await history.chart("test cases", "observed trunk endpoint");
   expect(chart.readout()).toBe("Nov 7 · Endpoint · 0 ms");
   expect(history.pointTitle("test cases")).toBe(
     "Nov 7 · 0 ms · test cases · Exact build · Observed trunk endpoint",

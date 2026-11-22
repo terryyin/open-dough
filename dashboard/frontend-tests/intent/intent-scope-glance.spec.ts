@@ -107,7 +107,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
     .poll(() => history.standsAbove(table("dashboard/tests")))
     .toBe(true);
   // Six prior builds and the selected landing, which the readout names.
-  const entryChart = history.chart("test cases", "selected landing");
+  const entryChart = await history.chart("test cases", "selected landing");
   expect(entryChart.marks()).toBe(7);
   expect(entryChart.readout()).toBe("Nov 7 · Selected landing · 1.4 s");
   // The failed build is its × under its mark.
@@ -150,7 +150,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
       (path) => `${doneSource.id} ${path} ${doneCompletion}`,
     ),
   );
-  const cases = fileHistory.chart("test cases", "selected landing");
+  const cases = await fileHistory.chart("test cases", "selected landing");
   // The dashed 103 ms average lies between its Nov 1/100 ms and Nov 5/115 ms marks.
   expect(cases.averageLabel()).toEqual(["Prior-build average 103 ms"]);
   const low = cases.markY("Nov 1 · 100 ms");
@@ -172,7 +172,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
     average: `Prior-build average · 10 ms · ${priors}`,
     change: "vs. prior average · +2 ms (+17%)",
   });
-  const files = fileHistory.chart("test files", "selected landing");
+  const files = await fileHistory.chart("test files", "selected landing");
   expect(cases.drawn()).toBe(false);
   expect(files.averageLabel()).toHaveLength(1);
   expect(files.axisLabels()).toEqual(["5 ms", "10 ms", "15 ms", "20 ms"]);
