@@ -14,6 +14,7 @@ import {
   controlContrast,
   decorativeIcon,
   expectDocumentStill,
+  focusStops,
   narrowViewport,
   textContrast,
   visibleParts,
@@ -184,13 +185,14 @@ async function startSessionReadsAt(viewport: {
   await expect.element(launcher).toHaveFocus();
   await userEvent.keyboard("{Enter}");
   await expect.element(prompt).toHaveFocus();
-  const reached = new Set<Element>();
-  for (let step = 0; step <= controls.length; step += 1) {
-    if (document.activeElement !== null) reached.add(document.activeElement);
-    await userEvent.tab();
-  }
+  const reached = [
+    document.activeElement,
+    ...(await focusStops("{Tab}".repeat(controls.length))).map(
+      ({ element }) => element,
+    ),
+  ];
   for (const action of [prompt, cancel, start])
-    expect(reached.has(action.element())).toBe(true);
+    expect(reached).toContain(action.element());
 }
 
 test("at a narrow window Start session keeps every control reachable and readable without sideways scrolling", async () => {

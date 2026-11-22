@@ -35,12 +35,54 @@ export function expectDocumentStill() {
   );
 }
 
+function showsFocus(element: Element) {
+  const style = getComputedStyle(element);
+  return (
+    element.matches(":focus-visible") &&
+    style.outlineStyle !== "none" &&
+    parseFloat(style.outlineWidth) >= 2
+  );
+}
+
 export function focusedAndVisible(element: Element) {
   expect(document.activeElement).toBe(element);
   expect(element.matches(":focus-visible")).toBe(true);
   const style = getComputedStyle(element);
   expect(style.outlineStyle).not.toBe("none");
   expect(parseFloat(style.outlineWidth)).toBeGreaterThanOrEqual(2);
+}
+
+// Each element that takes focus while `keys` go in one keyboard command, and
+// whether it showed its focus as it was reached. Each separate command waits
+// for a rendered frame, so a sequence of stops is pressed at once.
+export async function focusStops(keys: string) {
+  const reached: { element: Element; marked: boolean }[] = [];
+  const record = ({ target }: FocusEvent) => {
+    if (target instanceof Element)
+      reached.push({ element: target, marked: showsFocus(target) });
+  };
+  document.addEventListener("focusin", record);
+  try {
+    await userEvent.keyboard(keys);
+  } finally {
+    document.removeEventListener("focusin", record);
+  }
+  return reached;
+}
+
+// Tab (or Shift+Tab) reaches exactly `stops` in order, each showing its focus.
+export async function expectTabOrder(
+  stops: readonly Element[],
+  { shift = false } = {},
+) {
+  const keys = "{Tab}".repeat(stops.length);
+  const reached = await focusStops(shift ? `{Shift>}${keys}{/Shift}` : keys);
+  expect(reached).toHaveLength(stops.length);
+  reached.forEach(({ element }, index) => {
+    expect(element).toBe(stops[index]);
+  });
+  expect(reached.filter(({ marked }) => !marked)).toEqual([]);
+  focusedAndVisible(stops.at(-1) ?? document.body);
 }
 
 export async function tabTo(element: Element) {

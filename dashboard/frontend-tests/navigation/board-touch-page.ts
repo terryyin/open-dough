@@ -16,11 +16,14 @@ export async function useTouchScreen() {
   await emulateTouch();
 }
 
+// A stroke from `from` by `dx`, `dy`, moving through each fraction of the
+// distance. Every touch event waits for a rendered frame, so a stroke the
+// Board recognizes from its first move takes one.
 async function drag(
   from: { x: number; y: number },
   dx: number,
   dy: number,
-  cancel = false,
+  { cancel = false, moves = [1] }: { cancel?: boolean; moves?: number[] } = {},
 ) {
   const session = browserSession();
   // Space the input timestamps so a stroke reads a bounded distance.
@@ -30,7 +33,7 @@ async function drag(
     touchPoints: [pointInBrowser(from)],
     timestamp,
   });
-  for (const fraction of [0.25, 0.5, 0.75, 1]) {
+  for (const fraction of moves) {
     await session.send("Input.dispatchTouchEvent", {
       type: "touchMove",
       touchPoints: [
@@ -53,7 +56,7 @@ export async function swipe(
   direction: "left" | "right",
   options: { distance?: number; cancel?: boolean; target?: Element } = {},
 ) {
-  const { distance = 160, cancel, target } = options;
+  const { distance = 160, cancel = false, target } = options;
   const room = boardReading.room();
   const from =
     target === undefined
@@ -69,13 +72,15 @@ export async function swipe(
     from,
     (direction === "left" ? -1 : 1) * Math.min(distance, available - 2),
     0,
-    cancel,
+    { cancel },
   );
 }
 
 export function readByTouch() {
   const room = boardReading.room();
-  return drag({ x: room.left + room.width / 2, y: room.top + 370 }, 0, -240);
+  return drag({ x: room.left + room.width / 2, y: room.top + 370 }, 0, -240, {
+    moves: [0.25, 0.5, 0.75, 1],
+  });
 }
 
 export async function tapWhereShown(element: Element) {

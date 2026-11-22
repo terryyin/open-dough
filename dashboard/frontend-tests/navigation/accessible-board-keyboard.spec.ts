@@ -1,7 +1,11 @@
 import { expect, onTestFinished, test } from "vitest";
 import type { WorkDependencies } from "../../src/storyDependencies.ts";
 import { page, userEvent } from "vitest/browser";
-import { focusedAndVisible, tabTo } from "./board-accessibility.ts";
+import {
+  expectTabOrder,
+  focusedAndVisible,
+  tabTo,
+} from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
 import { withBoardStorage } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
@@ -87,20 +91,14 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     }
   }
   expect(stops).toHaveLength(18);
-  for (const stop of stops) {
-    await userEvent.tab();
-    focusedAndVisible(stop);
-  }
+  await expectTabOrder(stops);
   expect(
     document.querySelectorAll(".board[tabindex='-1'], .board [tabindex='-1']"),
   ).toHaveLength(8);
   expect(document.querySelectorAll(".board [tabindex='0']")).toHaveLength(0);
   await userEvent.tab();
   expect(stops).not.toContain(document.activeElement);
-  for (const stop of stops.toReversed()) {
-    await userEvent.tab({ shift: true });
-    focusedAndVisible(stop);
-  }
+  await expectTabOrder(stops.toReversed(), { shift: true });
 
   const card = board
     .column("Backlog")
@@ -115,10 +113,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     name: `Canonical record ${record}`,
     exact: true,
   });
-  for (const stop of [notes, canonical]) {
-    await userEvent.tab();
-    focusedAndVisible(stop.element());
-  }
+  await expectTabOrder([notes.element(), canonical.element()]);
   const opened: string[] = [];
   const capture = (event: MouseEvent) => {
     if (!(event.target instanceof HTMLAnchorElement)) return;
@@ -132,10 +127,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   await userEvent.keyboard("{Enter}");
   expect(opened).toEqual([recordUrl]);
   await expect.element(canonical).toHaveAttribute("target", "_blank");
-  for (const stop of [notes, hide]) {
-    await userEvent.tab({ shift: true });
-    focusedAndVisible(stop.element());
-  }
+  await expectTabOrder([notes.element(), hide.element()], { shift: true });
   await userEvent.keyboard("{Enter}");
   focusedAndVisible(card.element());
   expect(card.getByRole("link").elements()).toHaveLength(0);
