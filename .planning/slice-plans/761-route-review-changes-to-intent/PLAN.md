@@ -2,6 +2,7 @@
 
 **Identity:** SEED-420#route-review-changes-to-intent
 **Source:** [Open Review changes on a Story card in Intent](../../seeds/SEED-420-unified-intent-review.md#route-review-changes-to-intent)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -22,15 +23,15 @@ keep the Side panel review.
 | Promise | Owner | Observable signal |
 | --- | --- | --- |
 | Intent keeps its comparison and Compare while a chosen read is in flight | Slice 1 | Vitest Browser Mode on the mounted Intent view with pending reads |
-| The story review journeys hold in Intent with unchanged scenarios | Slices 3–5 | Each moved `e2e/review` spec green through `reviewChangesPage.ts` opened in Intent |
-| Terminal stays; Intent shows Changes with the first changed file's diff; keyboard on the Changes tab; Back shows the Board with the story selected | Slice 6 | New `e2e/review` journey from a Taken card, plus `frontend-tests/review/story-review-action.spec.ts` |
-| Pressing again keeps a selected file, also after a Project Intent visit or another tab | Slice 6 | Same journey, second press |
-| Entering Intent from the banner opens CI comparison; Changes lists the same files | Slice 6 | Existing Intent story specs stay green; journey asserts the same list |
-| A Done card with a retained, later-edited workspace shows the published completion | Slice 6 | `e2e/intent/intent-done-retained-workspace.spec.ts`, its Side panel half replaced by the card press |
-| Intent names the branch, the baseline and what it leaves out, the worktree, a landed run's facts, and the kept-in-baseline notice | Slice 2 | Vitest Browser Mode on the mounted Intent view; `story-review-context-line`, `-trunk-own-changes`, `-landed` once moved |
-| Several worktrees holding the claim are explained in Intent | Slice 4 | `story-review-trunk-worktree-ambiguity.spec.ts` in Intent |
-| No workspace on this machine: no Review changes | Slice 6 | Existing card offer cases stay green |
-| Ad hoc and published session entries open the Side panel review | Slice 8 | `recently-done-published-sessions.spec.ts`, `frontend-tests/sessions/recently-done-ad-hoc-review.spec.ts` |
+| The story review journeys hold in Intent with unchanged scenarios | Slices 4–6 | Each moved `e2e/review` spec green through `reviewChangesPage.ts` opened in Intent |
+| Terminal stays; Intent shows Changes with the first changed file's diff; keyboard on the Changes tab; Back shows the Board with the story selected | Slice 7 | New `e2e/review` journey from a Taken card, plus `frontend-tests/review/story-review-action.spec.ts` |
+| Pressing again keeps a selected file, also after a Project Intent visit or another tab | Slice 7 | Same journey, second press |
+| Entering Intent from the banner opens CI comparison; Changes lists the same files | Slice 7 | Existing Intent story specs stay green; journey asserts the same list |
+| A Done card with a retained, later-edited workspace shows the published completion | Slice 7 | `e2e/intent/intent-done-retained-workspace.spec.ts`, its Side panel half replaced by the card press |
+| Intent names the branch, the baseline and what it leaves out, the worktree, a landed run's facts, and the kept-in-baseline notice | Slice 3 | Vitest Browser Mode on the mounted Intent view; `story-review-context-line`, `-trunk-own-changes`, `-landed` once moved |
+| Several worktrees holding the claim are explained in Intent | Slice 5 | `story-review-trunk-worktree-ambiguity.spec.ts` in Intent |
+| No workspace on this machine: no Review changes | Slice 7 | Existing card offer cases stay green |
+| Ad hoc and published session entries open the Side panel review | Slice 9 | `recently-done-published-sessions.spec.ts`, `frontend-tests/sessions/recently-done-ad-hoc-review.spec.ts` |
 
 ## Architecture and existing owners
 
@@ -69,15 +70,15 @@ which alone knows where each control lives.
   Compare lives in Intent's header, so `details` reveals nothing there;
   `frame` (Maximize, Close) has no Intent counterpart. A journey that proves
   only Side panel frame mechanics moves to a session entry subject in
-  slice 8; a journey whose only Side panel assertion is the frame drops it.
-- **Interim root.** Slices 3–5 open the review in Intent through a root that
+  slice 9; a journey whose only Side panel assertion is the frame drops it.
+- **Interim root.** Slices 4–6 open the review in Intent through a root that
   selects the card and chooses Intent and **Changes** from the banner.
-  Slice 6 replaces it with the card press and removes it.
+  Slice 7 replaces it with the card press and removes it.
 - **No retired-only retention.** The Side panel half of
-  `intent-done-retained-workspace.spec.ts` goes in slice 6, as decided.
+  `intent-done-retained-workspace.spec.ts` goes in slice 7, as decided.
 - [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts):
   opening a review in Intent sets the Selected story; the Selected story and
-  Intent's view stay disposable page state. No ADR change. Slice 6 updates
+  Intent's view stay disposable page state. No ADR change. Slice 7 updates
   the Side panel review sentence in
   [Board interaction](../../../docs/dashboard-board-interaction.md) and drops
   the "Under the unified review design" qualifier there; the North Star's
@@ -88,11 +89,11 @@ which alone knows where each control lives.
 
 | Consuming operation | Observation (form, profile, when) | Result | Remainder |
 | --- | --- | --- | --- |
-| Slices 3–6 reach a story's Changes in Intent from the Board and run review journeys | `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR caffeinate -s -i npm run --silent test:e2e -- --workers=2 e2e/intent/intent-done-retained-workspace.spec.ts e2e/review/story-review-commits.spec.ts` at `442c4b6ed`, 2026-11-22 | Exit 0 in 56 s: selecting a Done story and choosing Intent then **Changes** reads its files and diffs; the commit cohort's root journey is green before the move | None |
-| Slices 3–5 find every comparison control the journeys use in Intent | Accepted proof of SEED-420#choose-story-comparison-in-intent at `c64549aac` (`intent-story-compare-commits.spec.ts`, `-uncommitted`, `-done`) and SEED-420#open-review-in-intent at `f7964681` (`intent-story-outside-locations.spec.ts`, `intent-story-changes-no-locations.spec.ts`) | Commits, uncommitted changes, landed runs, published completion, outside files and diffs operate in Intent | None for controls; the context wording is the next row |
-| Slices 3–5 assert the context line and kept-in-baseline feedback unchanged | Read at `442c4b6ed`: [`IntentStoryComparison.tsx`](../../../dashboard/src/IntentStoryComparison.tsx) `ComparedRevisions` says only "Compared <rev> with worktree <path> at <rev>"; no Intent module renders [`StoryReviewContext.tsx`](../../../dashboard/src/StoryReviewContext.tsx) or the kept-in note of [`StoryReviewFeedback.tsx`](../../../dashboard/src/StoryReviewFeedback.tsx); `story-review-context-line`, `-trunk-own-changes`, `-trunk-own-older-git` and `-landed` assert the branch, "less the story's 2 published commits" and the kept-in feedback | False as Intent stands: slice 2 adds that context before the journeys move | None |
-| Slice 6's Done example | Same run: `intent-done-retained-workspace.spec.ts` | The Side panel reads the retained workspace's later edit; Intent reads the immutable completion | None |
-| Slice 8 keeps session reviews | `grep` of story subjects in `dashboard/frontend-tests/review/*.spec.ts` at `442c4b6ed` | 11 specs mount the panel with `doneStory`; `adHocSession` exists in `story-review-page-contexts.ts` | Which of them prove story-only behavior Intent already covers is decided per spec in slice 7 |
+| Slices 4–7 reach a story's Changes in Intent from the Board and run review journeys | `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR caffeinate -s -i npm run --silent test:e2e -- --workers=2 e2e/intent/intent-done-retained-workspace.spec.ts e2e/review/story-review-commits.spec.ts` at `442c4b6ed`, 2026-11-22 | Exit 0 in 56 s: selecting a Done story and choosing Intent then **Changes** reads its files and diffs; the commit cohort's root journey is green before the move | None |
+| Slices 4–6 find every comparison control the journeys use in Intent | Accepted proof of SEED-420#choose-story-comparison-in-intent at `c64549aac` (`intent-story-compare-commits.spec.ts`, `-uncommitted`, `-done`) and SEED-420#open-review-in-intent at `f7964681` (`intent-story-outside-locations.spec.ts`, `intent-story-changes-no-locations.spec.ts`) | Commits, uncommitted changes, landed runs, published completion, outside files and diffs operate in Intent | None for controls; the context wording is the next row |
+| Slices 4–6 assert the context line and kept-in-baseline feedback unchanged | Read at `442c4b6ed`: [`IntentStoryComparison.tsx`](../../../dashboard/src/IntentStoryComparison.tsx) `ComparedRevisions` says only "Compared <rev> with worktree <path> at <rev>"; no Intent module renders [`StoryReviewContext.tsx`](../../../dashboard/src/StoryReviewContext.tsx) or the kept-in note of [`StoryReviewFeedback.tsx`](../../../dashboard/src/StoryReviewFeedback.tsx); `story-review-context-line`, `-trunk-own-changes`, `-trunk-own-older-git` and `-landed` assert the branch, "less the story's 2 published commits" and the kept-in feedback | False as Intent stands: slice 3 adds that context before the journeys move | None |
+| Slice 7's Done example | Same run: `intent-done-retained-workspace.spec.ts` | The Side panel reads the retained workspace's later edit; Intent reads the immutable completion | None |
+| Slice 9 keeps session reviews | `grep` of story subjects in `dashboard/frontend-tests/review/*.spec.ts` at `442c4b6ed` | 11 specs mount the panel with `doneStory`; `adHocSession` exists in `story-review-page-contexts.ts` | Which of them prove story-only behavior Intent already covers is decided per spec in slice 8 |
 
 ## Slices
 
@@ -110,12 +111,10 @@ focusable but unavailable, as the Side panel does
 the comparison to `reading`, so `compareOf` and `defaultReviewOf` drop
 Compare and the default. A Done story's locations and CI Done endpoint keep
 reading the default throughout: the lens exposes `defaultReview` whatever
-the chosen read's state. `isDefault` moves into `useStoryReviewSelection`
-beside the defaults it compares, `defaultStoryComparison` goes, and
-`wholeStory` gets one derivation (today `useIntentStoryLens` and
-`IntentPage`).
+the chosen read's state. This slice does not move `isDefault`, remove
+`defaultStoryComparison`, or unify `wholeStory`; slice 2 does.
 Proof: Vitest Browser Mode cases on the mounted Intent view
-([`intent-ci-perspective-mount.ts`](../../../dashboard/frontend-tests/intent/intent-ci-perspective-mount.ts),
+([`intent-ci-page-mount.ts`](../../../dashboard/frontend-tests/intent/intent-ci-page-mount.ts),
 [`intent-story-compare-stories.ts`](../../../dashboard/frontend-tests/intent/intent-story-compare-stories.ts),
 [`intent-story-compare-page.ts`](../../../dashboard/frontend-tests/intent/intent-story-compare-page.ts)),
 where the case's own `ReviewSource` returns a pending promise for the range
@@ -123,10 +122,27 @@ read and for the Refresh snapshot read, show the Compare group staying,
 focus on the pressed control and the header saying it reads; a Done case
 whose `ReviewSource` leaves the chosen run read pending keeps the locations
 browser and the CI endpoint text. The five `intent-story-compare-*` specs
-and `dashboard/frontend-tests/review` stay green. Ordered first: slice 6
+and `dashboard/frontend-tests/review` stay green. Ordered first: slice 7
 makes Intent the only story review.
 
-### 2. Intent names what the story's comparison runs between, as Review changes does
+### 2. isDefault sits beside the defaults it compares, and wholeStory has one derivation
+
+Type: Structure (preserves slice 1; correction of
+SEED-420#choose-story-comparison-in-intent)
+Status: planned
+Change: `isDefault` moves into
+[`useStoryReviewSelection`](../../../dashboard/src/useStoryReviewSelection.ts)
+beside the defaults it compares, `defaultStoryComparison` goes, and
+`wholeStory` has one derivation. Today
+[`useIntentStoryLens`](../../../dashboard/src/useIntentStoryLens.ts) and
+[`IntentPage`](../../../dashboard/src/IntentPage.tsx) each derive it.
+[`IntentFileReading.tsx`](../../../dashboard/src/IntentFileReading.tsx) is
+already 249 lines; do not add a prop there. External behavior stays as
+slice 1 left it.
+Proof: the five `intent-story-compare-*` specs stay green;
+`npm run typecheck:dashboard`.
+
+### 3. Intent names what the story's comparison runs between, as Review changes does
 
 Type: Behavior
 Status: planned
@@ -144,9 +160,9 @@ Proof: Vitest Browser Mode cases on the mounted Intent view
 commits kept in the baseline, a landed run and a published completion;
 the `intent-story-compare-*` specs stay green.
 
-### 3. Commit and trunk review journeys run in Intent
+### 4. Commit and trunk review journeys run in Intent
 
-Type: Structure (enables slice 6)
+Type: Structure (enables slice 7)
 Status: planned
 Change: `reviewChangesPage.ts` gains the interim Intent root and Intent
 placements for `comparison`, `commits` and `status`. These journeys open
@@ -157,9 +173,9 @@ through it with unchanged scenarios: `story-review-commits`,
 Proof: those 11 specs green in Intent; the Side panel story review still
 opens from the card (no product change).
 
-### 4. Uncommitted, refresh and explanation journeys run in Intent
+### 5. Uncommitted, refresh and explanation journeys run in Intent
 
-Type: Structure (enables slice 6)
+Type: Structure (enables slice 7)
 Status: planned
 Change: Intent placements for `context`, `files` and the remaining `status`
 reads. Journeys: `story-review-uncommitted-check`,
@@ -168,18 +184,18 @@ reads. Journeys: `story-review-uncommitted-check`,
 assertions follow the journey-placement decision.
 Proof: those 7 specs green in Intent.
 
-### 5. Landed, completed and follow-up journeys run in Intent
+### 6. Landed, completed and follow-up journeys run in Intent
 
-Type: Structure (enables slice 6)
+Type: Structure (enables slice 7)
 Status: planned
 Change: Intent placements for `landedRun`, `diffs` and `code`. Journeys:
 `story-review-landed`, `-story-branch-landed`, `-completed`, `-follow-up`,
 `-one-shot`, `-panes`, and `e2e/intent/intent-story-completed.spec.ts`.
 `story-review-panes` keeps only what Intent's Changes shows; its Side panel
-pane mechanics move with slice 8 if no other session journey proves them.
+pane mechanics move with slice 9 if no other session journey proves them.
 Proof: those 7 specs green in Intent.
 
-### 6. Review changes on a Story card opens the story's Changes in Intent
+### 7. Review changes on a Story card opens the story's Changes in Intent
 
 Type: Behavior
 Status: planned
@@ -196,12 +212,12 @@ Proof: a new `e2e/review` journey for the terminal and second-press
 examples; `frontend-tests/review/story-review-action.spec.ts` for the
 card's offer and keyboard order; `intent-done-retained-workspace.spec.ts`
 pressing the Done card and asserting the completion without the later
-edit; slices 3–5's journeys green through the card root;
+edit; slices 4–6's journeys green through the card root;
 `npm run typecheck:dashboard`.
 
-### 7. Side panel review cases use a session subject
+### 8. Side panel review cases use a session subject
 
-Type: Structure (enables slice 8)
+Type: Structure (enables slice 9)
 Status: planned
 Change: each `dashboard/frontend-tests/review` spec that mounts the panel
 with `doneStory` either moves to `adHocSession` when it proves shared Side
@@ -212,7 +228,7 @@ spec in the commit message.
 Proof: the moved specs green with a session subject; each retirement names
 its covering Intent spec.
 
-### 8. Session entries keep the Side panel review, which serves only sessions
+### 9. Session entries keep the Side panel review, which serves only sessions
 
 Type: Behavior
 Status: planned
@@ -233,16 +249,46 @@ maintained [sleep guard](../../../Distribution/tests/local-test-resources.md#mac
 Use two workers, the default test timeouts, explicit path selections, and the
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 Run `npm run typecheck:dashboard` for changed production code and types.
-Run the whole `e2e/review` directory at slices 6 and 8, since every story
+Run the whole `e2e/review` directory at slices 7 and 9, since every story
 review journey reaches the changed opening.
+
+
+## Learnings
+
+- Slice 1 overran on 2026-11-22 at 17.8 active minutes, with no edit and no
+  proof. `storyOverruns` is 1. Failed sizing assumption: one fresh delegation
+  could find why Compare disappears and also move `isDefault`, remove
+  `defaultStoryComparison`, and give `wholeStory` one derivation, then prove
+  that, within 15 active minutes. Reading alone used the budget. The visible
+  behavior does not need those moves, so they are slice 2. A second overrun
+  reassesses the story boundary before another slice-only refinement.
+- Slice 1 mechanism, so the next attempt does not re-read it.
+  `useIntentStoryLens` returns `{ state: "reading" }` while a comparison can
+  still be shown. Refresh keeps the previous snapshot through `useReviewRead`.
+  A range read clears the range comparison while `range.reading`, and a chosen
+  run leaves `review` unset until `answeredRunKey` matches. `compare` and
+  `defaultReview` are still computed; `compareOf` and `defaultReviewOf` only
+  read `compared` and `unreadable`. Side panel Refresh is `aria-disabled`
+  while reading and does not advance the round. The mount helper is
+  `intent-ci-page-mount.ts`. `intent-story-compare-stories.ts` already has
+  `unanswered` as a promise that never settles. Restart slice 1 with
+  `--split-from 1` so its clock starts at zero.
+
+## Execution context
+
+- Ai-chan, Story Branch Mode, `cursor/open-review-changes-on-a-story-card-in-intent`.
+  Workspace `/Users/terryyin/git/open-dough/.worktrees/open-review-changes-on-a-story-card-in-intent`.
+  Take `0337d549f628c7a5524e464e41ee688833657e27` was accepted on `origin/main`.
+  Starting revision `3c3b7c2e30395c30cbd862a2fba8c9b7ee558891`.
+- Replanning permission: existing planning authority preserved.
 
 ## Planning review
 
 Refinement: not needed. The slices follow the page object's parts, each
 with one proof loop, and the cohorts were sized from each spec's part usage
-at `442c4b6ed` (7–11 specs per Structure slice). Slice 2 was added after reading Intent's
+at `442c4b6ed` (7–11 specs per Structure slice). Slice 3 was added after reading Intent's
 comparison line against the context the journeys assert.
 
-Remaining concern: none identified in this review. Slices 3–5 retain the
-Side panel opening from the card until slice 6; that interim root is named
-and slice 6 removes it.
+Remaining concern: none identified in this review. Slices 4–6 retain the
+Side panel opening from the card until slice 7; that interim root is named
+and slice 7 removes it.
