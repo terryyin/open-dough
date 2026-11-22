@@ -163,12 +163,21 @@ overlap examples.
 ### 4. Resume Land closes from per-session state
 
 Type: Behavior
-Status: planned
+Status: done
 
 Save the candidate and suffix base before each push, and save the sealed
 record before publishing it. Keep the state local and keyed by session. Resume
 with the session identity and landing context already available to the caller.
 Preserve explicit-input recovery when saved state is absent.
+
+**Accepted proof.** `Distribution/tests/skills/dough-land/session-close-shared-checkout-resume.test.mjs`
+interrupts a Dashboard close and a native close in one workspace and resumes
+each from `session-close-state.mjs` (Git path
+`open-dough/session-close/<sessionId>.json`); with every `dough-land` test,
+the publication-resume, wrap-up and refinement session-record tests and the
+payload installation tests, it passes on the branch merged with trunk's
+record expiry (`0b1578c55`). Explicit inputs still take precedence. Saved
+state is not deleted after publication.
 
 **Proof.** Extend `session-close-resume.test.mjs` through the Land close API.
 Interrupt two closes in one checkout and resume each in a fresh invocation.

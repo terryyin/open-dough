@@ -51,27 +51,23 @@ export function sessionRecord({
 }
 
 // Seals the record from the accepted work, marking its range when a
-// shared-checkout note's overlap started at or before the acceptance, then
-// publishes it. A record-stage failure still returns the sealed record so the
-// close can resume.
-export async function sealAndPublishRecord(
+// shared-checkout note's overlap started at or before the acceptance.
+export function sealRecord(
   { sessionId, workflow, story, closedAt, sharedCheckout },
   { suffixBase, sha },
-  { now, ...publication },
 ) {
-  const uncertainty = rangeUncertainty(sharedCheckout, closedAt);
-  const record = sessionRecord({
+  return sessionRecord({
     sessionId,
     workflow,
     closedAt,
     story,
-    ranges: [{ base: suffixBase, candidate: sha, uncertainty }],
-  });
-  return publishSealedRecord({
-    ...publication,
-    now,
-    record,
-    validatedCandidate: undefined,
+    ranges: [
+      {
+        base: suffixBase,
+        candidate: sha,
+        uncertainty: rangeUncertainty(sharedCheckout, closedAt),
+      },
+    ],
   });
 }
 
