@@ -4,6 +4,8 @@
 // one owner here. No filesystem, Git, or Node-only imports, so every
 // reader of published session records shares it.
 
+import { isWithinDoneWindow } from "../../dough-product-backlog/scripts/product-backlog-done-record.mjs";
+
 // Session records live beside the backlog, one file per session UUID.
 export const sessionRecordDirectory = "sessions";
 
@@ -16,6 +18,12 @@ export const sessionRecordVersion = 1;
 export const standaloneSessionWorkflow = "ad-hoc";
 export const executionSessionWorkflow = "dough-execute-plan";
 export const refinementSessionWorkflow = "dough-story-refinement";
+
+// Whether a record closed at `closedAt` is still current at `now` (a Date):
+// the done-record retention window, counted from the close, not the commit.
+export function isCurrentSessionRecord({ closedAt }, now) {
+  return isWithinDoneWindow(closedAt, now);
+}
 
 // Whether `value` is a session UUID as records spell it.
 export function isSessionId(value) {

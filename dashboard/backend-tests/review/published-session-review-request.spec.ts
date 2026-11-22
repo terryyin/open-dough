@@ -199,7 +199,13 @@ test("a hung fetch lets the review answer from the last fetched trunk", async ()
       },
     );
     expect(resolved.revision).toBe(recordedAt);
-    return publishedSessionReview(resolved, missing, undefined, newSignal());
+    return publishedSessionReview(
+      resolved,
+      missing,
+      undefined,
+      new Date(),
+      newSignal(),
+    );
   };
 
   await expect(review()).rejects.toMatchObject({

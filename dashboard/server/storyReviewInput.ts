@@ -39,12 +39,14 @@ export type ReviewInput<
       readonly record: LaunchRecord;
     };
 
-// A published session read with the configured project source it reads from.
+// A published session read with the configured project source it reads from
+// and the time its record's window is judged at.
 export interface PublishedSessionInput<
   R extends PublishedSessionReviewRead | PublishedSessionFileRead,
 > {
   readonly read: R;
   readonly published: PublishedSessionSource;
+  readonly now: Date;
 }
 
 export type KeptStoryReviewInput = ReviewInput<
@@ -114,6 +116,7 @@ export async function reviewInput(
           fetch: () => admissionBound(signal),
         },
       ),
+      now: new Date(),
     };
   }
   const { subject } = read;

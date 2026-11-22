@@ -2,6 +2,7 @@
 
 **Identity:** SEED-418#expire-published-session-records
 **Source:** [Expire published session records after 30 days](../../seeds/SEED-418-review-published-session-changes.md#expire-published-session-records)
+**Source review:** [source-review.md](source-review.md)
 **Split from:** SEED-418#attribute-every-workflow-session-record (plan 747) at delivered slice 7 on 2026-11-22
 
 ## Goal and scope
@@ -70,12 +71,22 @@ reads already hide it).
 ### 1. Expired published sessions are not reviewable by UUID
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `dashboard/backend-tests/review/published-session-review.spec.ts` gains cases at `closedAt + 30 days` (reviewable) and just past it (refused 404 for review and file read), with the record's commit dated later than `closedAt`; fails without the window check.
 
 Behavior: a published record whose file exists at the fetched revision →
 review or file read by its UUID at a given `now` → reviewable while within the
 window, answered as an unpublished session once past it.
+
+Accepted proof: `dashboard/backend-tests/review/published-session-expiry.spec.ts`
+(new sibling; the review spec stays under the file-size limit), red without the
+check, then green with the `review/` backend group, dashboard typecheck, the
+three frontend `aSessionRecord` specs and
+`e2e/sessions/recently-done-published-sessions.spec.ts`.
+
+Learning for slices 2–3: `makeMe.aSessionRecord` now closes at the current time
+unless `.closedAt(iso)` is given, so real-clock readers keep fixtures current;
+`isCurrentSessionRecord(record, now)` in `session-record.mjs` is the shared rule.
 
 ### 2. Recently done omits expired published sessions
 
