@@ -2,13 +2,12 @@
 // `undefined` (plain text) at once and whenever `text` or `language` changes,
 // then the token lines once Shiki has tokenized that whole text. A result for
 // text or a language that is no longer current is dropped, and a failed
-// grammar load leaves the reader plain.
+// grammar load leaves the reader plain. The highlighter is the page's
+// (`./pageReads.tsx`).
 
 import { useEffect, useState } from "react";
-import {
-  highlightSourceLines,
-  type SourceTokenLine,
-} from "./sourceHighlight.ts";
+import { useSourceHighlighter } from "./pageReads.tsx";
+import type { SourceTokenLine } from "./sourceHighlight.ts";
 
 export function useSourceHighlight(
   text: string,
@@ -17,18 +16,19 @@ export function useSourceHighlight(
   const [tokenLines, setTokenLines] = useState<
     readonly SourceTokenLine[] | undefined
   >(undefined);
+  const highlight = useSourceHighlighter();
 
   useEffect(() => {
     setTokenLines(undefined);
     if (language === undefined) return;
     let cancelled = false;
-    void highlightSourceLines(text, language).then((tokens) => {
+    void highlight(text, language).then((tokens) => {
       if (!cancelled && tokens !== undefined) setTokenLines(tokens);
     });
     return () => {
       cancelled = true;
     };
-  }, [text, language]);
+  }, [highlight, text, language]);
 
   return tokenLines;
 }

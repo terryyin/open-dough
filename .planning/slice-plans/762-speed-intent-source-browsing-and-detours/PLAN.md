@@ -468,7 +468,7 @@ the composed page. No support module became spent. Both specs read through
 ### 8. Java source fallback keeps readable plain text on grammar failure and Candidates cases open at their exact source line
 
 Type: Behavior
-Status: planned
+Status: done
 
 Add the source highlighter (`highlightSourceLines` in
 `dashboard/src/sourceHighlight.ts`, consumed through `useSourceHighlight.ts`)
@@ -481,6 +481,17 @@ production Intent body.
 **Proof.** A failing Java syntax highlighter leaves the `.java` source plain
 and readable without erroring, and activating an Optimization Candidates case
 opens its exact repository file and line anchor.
+
+**Learnings.** `PageReads.highlight` (`SourceHighlighter`, authenticated
+`highlightSourceLines`) is read through `useSourceHighlighter()`;
+`pageReadsSupplying` defaults it to the real local highlighter so existing
+mounts stayed green, and the one mount with no page entry
+(`review/styledDiffReading.ts`) now wraps `PageReadsOnPage`. The Java spec
+went from 2 legacy cases to 1, the purpose case stays 1; `holdGrammar` is
+retired. Proof: typecheck; both specs; the consumer sweep over `intent/`,
+`review/`, `configuration/` (274 cases) and the 39 `launches/`,
+`navigation/` and `stories/` specs reaching the highlighter (92 cases); 5
+Intent code and Gherkin E2E journeys.
 
 ### 9. Project Intent activation, project visits, cached reads and pending selections keep the applicable source
 

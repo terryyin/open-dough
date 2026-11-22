@@ -1,5 +1,7 @@
 // Page reads a case does not exercise: each one rejects, so a case that
 // reaches a read it did not supply fails instead of reaching the real reader.
+// The source highlighter is local and reads nothing, so an unsupplied one
+// highlights for real and cases that show source keep their styling.
 
 import type { CiFollowUpReadSource } from "../../src/ciFollowUpReadSource.ts";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
@@ -8,6 +10,7 @@ import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
 import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
+import { highlightSourceLines } from "../../src/sourceHighlight.ts";
 import type { SessionServices } from "../../src/sessionServices.ts";
 import type { StoryNotesReadSource } from "../../src/storyNotesReadSource.ts";
 import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
@@ -80,5 +83,6 @@ export const pageReadsSupplying = (
   ciFollowUp: unreadCiFollowUp,
   reviewStates: unreadReviewStates,
   observation: unreadObservation,
+  highlight: highlightSourceLines,
   ...supplied,
 });
