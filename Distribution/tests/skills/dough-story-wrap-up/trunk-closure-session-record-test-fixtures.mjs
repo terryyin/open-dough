@@ -9,12 +9,17 @@ import { countPushes } from "../dough-execute-plan/execution-increment-managed-d
 import { git } from "../dough-execute-plan/execution-increment-managed-delivery-test-fixtures.mjs";
 import { lsRemoteSha } from "../dough-execute-plan/publication-test-fixtures.mjs";
 
+// The Git pathspec of every session record file, wherever the backlog sits.
+export const sessionRecordFiles = `:(glob)**/${sessionRecordDirectory}/*.json`;
+
 // The session record commits `origin` holds on any ref: each adds a record.
 export function sessionRecordCommits(origin) {
-  const records = `:(glob)**/${sessionRecordDirectory}/*.json`;
   const log = execFileSync(
     "git",
-    ["log", "--all", "--format=%H", "--diff-filter=A", "--", records],
+    ["log", "--all", "--format=%H", "--diff-filter=A"].concat(
+      "--",
+      sessionRecordFiles,
+    ),
     { cwd: origin, encoding: "utf8" },
   );
   return new Set(log.split("\n").filter(Boolean));

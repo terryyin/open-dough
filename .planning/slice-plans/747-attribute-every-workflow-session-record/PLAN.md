@@ -211,7 +211,7 @@ CI repair (run 44962527796): the owned-context closure evaluation now gives its 
 ### 5. Read every trunk contribution of a wrapped-up session
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.** A Trunk Mode session publishes two increments, with another
 writer's change between them, and a retried increment, then wraps up. Its
@@ -224,6 +224,8 @@ temporary origin and close through `finish`. From a fresh default-branch-only
 clone, read the record, check every range's commits are present and its file
 diffs are exact, and confirm the other writer's change, refused candidates and
 the record commit are absent.
+
+**Accepted.** `trunk-closure-session-record-contributions.test.mjs` reads a native session's record from a default-branch-only clone. Every range's commits are present there, so G3 is harmless for Trunk Mode records.
 
 ### 6. Keep story-branch comparisons after integration
 
