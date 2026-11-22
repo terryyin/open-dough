@@ -305,6 +305,20 @@ Full frontend group and both E2E journeys passed. Learning: a run spanning
 both engines keeps only the Vitest phase in the proof record; time each
 engine separately.
 
+## Execution complete
+
+Product advice: no change to the product or to priorities. The CI wall-time
+history proof now runs on Vitest through the production Intent page (11
+cases, 5.34 s against 8.83 s at the story base, warm, two workers). Before
+the scope timing history story moves more cases through `mountIntentCiPage`,
+do its correction first
+([plan 774](../774-speed-intent-scope-timing-history/PLAN.md#correction-of-the-delivered-ci-wall-time-history-entry)):
+page mounts must reset the page preferences they change (the Board position
+leaks the way the Sessions sidebar did in CI), and the entries should take an
+options object before gaining `readScopeHistory`. The attempt-proof story
+(plan 760) mounts through the same entry and benefits from the same reset.
+Process review is deferred into wrap-up with the Intent Coverage check.
+
 ## Concern evidence
 
 Slice-plan refinement was not needed: each slice holds one outcome sized to

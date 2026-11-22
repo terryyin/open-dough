@@ -630,7 +630,13 @@ awaiting story refinement.
   `intent-scope-glance`, `intent-scope-timing-history-*` (6 files), and the
   shared history chart-marks specs `intent-ci-history-chart-marks` and
   `intent-project-ci-history-chart-marks`, moved here from the CI wall-time
-  story on 22 November 2026. Scope
+  story on 22 November 2026. Correct the delivered CI wall-time history
+  entry first, as
+  [plan 774](../slice-plans/774-speed-intent-scope-timing-history/PLAN.md#correction-of-the-delivered-ci-wall-time-history-entry)
+  lists: page mounts reset the page preferences they change, the Done
+  history builder takes its reference figures, test entries take one
+  options object, `HeldKind` becomes typed, and the Project history page
+  object owns its journeys. Scope
   history reads keep a separate boundary from live Scope Proof. Cases mount
   through the page entry corrected by
   [Get fast proof of Intent CI wall-time history](#speed-intent-timing-history-on-vitest).
