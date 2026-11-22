@@ -34,6 +34,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep the expired-record prune when a record commit is retried](seeds/SEED-418-review-published-session-changes.md#prune-expired-records-after-a-retried-record-commit) — SEED-418#prune-expired-records-after-a-retried-record-commit
+- [Repair the intermittent tap hang in the refinement touch proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#repair-refinement-touch-tap-hang) — SEED-413#repair-refinement-touch-tap-hang
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal) — SEED-413#make-launch-proof-orthogonal
 - [Correct stale token totals for completed Dashboard tasks](seeds/SEED-422-correct-stale-dashboard-token-totals.md#correct-stale-token-totals) — SEED-422#correct-stale-token-totals
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#route-review-changes-to-intent) — SEED-420#route-review-changes-to-intent
