@@ -46,64 +46,75 @@ Dashboard and installed scripts share.
 **Identity:** SEED-423#remove-unreached-distribution-code
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/779-remove-unreached-distribution-code/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c5f1cb320f1b9abd9eae7615626589c4e55e3516a03470b356ac94da8ac24353","plan":"53aae2aa18dcaffb7aec6e60e440998f733348584421d219883c022edb2f624c"}}
 ```
 
-- **For / why.** A developer installing Open Dough receives no script,
-  command, flag or export that only tests exercise, and maintainers stop
-  paying to keep such code passing.
-- **Evaluation.** Each item below is gone or moved beside the tests that use
-  it, the payload lists name no removed file, and the repository suites pass.
-  Rerunning the reachability and unused-export scan finds no installed module
-  or export whose only users are tests.
-- **Completed cleanup.** Worktree preparation and queued one-shot fixtures now
-  live in `Distribution/tests/support/`. The installer dropped the test-only
-  readiness gate. Native fixture identity follows the moved one-shot fixture.
-- **Findings to remove or move.**
-  - `watch-ci.mjs`: a command wrapper no guidance invokes. Production calls
-    `watchCiExecution` directly. Twelve tests import or spawn the wrapper.
-  - Exports only tests use: `deliverCiEvents`, `deliverHostBoundary`,
-    `standaloneSessionWorkflow`, `configureDeclaredAgentAuthorship`, the
-    seven re-exports of the `ci-mailbox.mjs` barrel, the re-export blocks of
-    `ci-background-handoff.mjs`, `ci-background-hook.mjs` and the three
-    backlog Git adapter commands, and about fifty `export` keywords on
-    symbols used only in their own file.
-  - `dough-makeme/scripts/select-makeme.mjs` and `changed-makeme.mjs` with
-    `selectMakeMeEntries`: `test-entry-rules.mjs --source` and `--changed`
-    replaced them, and no guidance names them. Their tests and the MakeMe
-    evaluation cases still assert the old commands. Keep the matcher and
-    location modules in the payload because the active test-entry selector
-    imports them.
-  - The `merge` verb of `product-backlog.mjs` with `reportMerge`; only the
-    merge test fixture runs it. `mergeBacklogs` then takes text instead of
-    paths, which removes the temporary files in `git-candidate.mjs` and
-    `git-aggregate.mjs`.
-  - Flags and parameters no guidance or caller passes: `--preferred-alias`,
-    `--max-duration-ms` on `deliver` and `complete`, `consumer-trace.mjs
-    --path`, `story-obligations record --commitment-field`, `slice-clock.mjs
-    status --identity`, the `[BUDGET_MS]` positional and the single-valued
-    `--execution` mode with its `request.mode` checks, `wait-for-publication
-    --interval-seconds`, `ci-proof-leads.mjs --repository`, and the
-    `register` and `beforeRetryPush` hooks only tests set.
-  - The published-identity obligation in `publication-resume.mjs` and
-    `publication-resume-support.mjs`: every caller passes a throwaway list,
-    so the `register` branch is unreachable and
-    `execution-increment-resume.mjs` registers the SHA itself. Trim the
-    matching sentence in `publish-the-candidate.md`.
-  - Installer commands only tests call: `open-dough-release.sh compare`,
-    `destination`, `resolve-url`, `fetch-release`, `pin-latest`, and the
-    `copy` mode of `open-dough-payload-bytes.mjs`.
-  - Repeated helpers: the kebab-to-camel argument loop written seven times
-    beside `flagValues`; `isAncestor` three times; `stopped` twice;
-    `argumentsOf` in `ci-repair-stash.mjs`; `processInfo` in
-    `ci-background-session.mjs`. Three `ci-reuse-*` scripts test direct entry
-    with the raw `import.meta.url` comparison that `isDirectCliEntry` exists
-    to replace, which fails through a symlinked skill directory.
-- **Effort hypothesis.** M, high confidence: about 1,500 lines, many small
-  removals whose tests move or go with them.
-- **Depends on.** None.
-- **Safe stopping point.** Each group is independent; any subset leaves a
-  working, smaller installation.
+**Goal.** Developers get a smaller Open Dough installation that still runs
+the workflows they use. Maintainers can exercise those workflows without
+keeping extra commands and exports solely to drive tests.
+
+**Scope.** Recheck the audit candidates against current guidance, hooks,
+installer paths, Dashboard calls, repository tooling and transitive consumers.
+Remove candidates reached only by tests. Move fixture behavior to test support
+where a test still needs it and direct workflow proof through the surviving
+entry points. Remove retired paths from both payload declarations. Recheck the
+candidate inventory and the full supported caller paths after the changes.
+
+- Retire the standalone `watch-ci.mjs` wrapper and its test-only invocation
+  inputs. Preserve the guided mailbox commands, the `--execution` argument and
+  the observer lifetime and persisted request compatibility.
+- Retire `select-makeme.mjs`, `changed-makeme.mjs` and the former selector
+  export. Keep the shared matcher and location rules. Update the MakeMe
+  evaluation cases to recognize the current CLI.
+- Retire the separately callable `product-backlog.mjs merge` verb and its
+  report. Give the existing merge policy text directly while retaining the
+  real Git driver and merge, rebase and cherry-pick adapters.
+- Remove test-only delivery, completion, resume and execution-tool inputs:
+  `--preferred-alias`, the delivery/completion `--max-duration-ms`, the
+  mailbox `[BUDGET_MS]`, `consumer-trace --path`, `story-obligations record
+  --commitment-field`, `slice-clock status --identity`, and `wait-for-publication
+  --interval-seconds`. Preserve the underlying behaviors and exercise them
+  through existing command, clock, transport or observer boundaries. Remove
+  the publication callbacks used only to arrange tests where those boundaries
+  can still prove the same race and receipt behavior.
+- Simplify the resume layer's published-identity bookkeeping. Ordinary
+  execution resume already owns its registration. Trunk closure resume
+  supplies the accepted revision and can still reach the registration branch
+  when its live observer lacks a receipt. Preserve that recovery effect.
+- Remove the installer test commands `compare`, `destination`, `fetch-release`
+  and `pin-latest`, and the standalone payload `copy` mode. Preserve the
+  documented `resolve-url` recheck and the `ci-proof-leads --repository`
+  fallback advertised when origin supplies no repository identity.
+- Privatize audit-listed helpers and re-exports after tracing their consumers,
+  including the CI host and mailbox modules, session/authorship helpers and
+  Git adapter entry points. Reuse existing helpers when a changed path has
+  the same contract. General deduplication, CI reuse recipe changes, custom
+  adapter changes, legacy migration changes, and installer redesign remain
+  separate from this cleanup.
+
+**Key examples.**
+
+- A clean install from the new source and an update from a tag that declared
+  the retired wrappers both leave them absent from the installed roots.
+  The update advances the recorded version and preserves project guidance
+  and configuration.
+- From the smaller installation, a developer starts or completes the guided
+  observer against an exact revision and receives its outcome. If trunk
+  already accepted a closure whose live observer lacks its receipt, resuming
+  records that closure on the observer and issues no second push.
+- In a project with mixed MakeMe and page-object rules, selecting a named test
+  and selecting changed tests still report the matching rules through
+  `test-entry-rules.mjs`. The old MakeMe wrappers are absent.
+- Git still reconciles concurrent backlog changes through the installed
+  adapters, including clean merges that need reconciliation and conflicts
+  that must be preserved. The standalone `merge` verb is no longer offered.
+- An inspected checkout still rechecks its selected release via `resolve-url`
+  before applying it. Release mismatch still stops before managed writes.
+
+Worktree preparation and one-shot fixtures already moved into
+`Distribution/tests/support/` and the test-only readiness gate already left
+the payload in `c08a72a36`. Each remaining group can leave a working, smaller
+installation on its own.
 
 <a id="install-without-ci-reuse-recipes"></a>
 
