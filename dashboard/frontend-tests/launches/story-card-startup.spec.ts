@@ -1,11 +1,15 @@
+import { createElement } from "react";
 import { expect, test } from "vitest";
-import type { Locator } from "vitest/browser";
+import { page, type Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type {
   AgentLaunchRequest,
   LaunchAttemptRecord,
   LaunchWorkflow,
 } from "../../src/agentLaunch.ts";
+import { StartupStatus } from "../../src/StartupStatus.tsx";
+import type { StoryStartup } from "../../src/storyStartup.ts";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { launchDialog } from "./ad-hoc-launch-page.ts";
 import { box } from "./launch-layout-page.ts";
 import { mountStoryStartup } from "./story-startup-page.ts";
@@ -163,70 +167,37 @@ test("a refinement refusal describes Start refinement alone and sits below both 
   expect(box(answer).bottom).toBeLessThanOrEqual(box(actions).bottom);
 });
 
-test("a running observation with no worker phase uses its host, workflow, and installed start capability", async () => {
-  const entry = story();
-  const { card, execution, refinement, read } = await mountStoryStartup(entry);
+test("a progressing startup with no worker phase names its host and workflow, and Preparing when the installed skill establishes the start", async () => {
+  const { identity, title } = story();
+  const progressing = (
+    host: AgentLaunchRequest["host"],
+    workflow: LaunchWorkflow,
+  ): StoryStartup => ({
+    request: { source: "open-dough", identity, title, workflow, host },
+    workflow,
+    host,
+    state: "progressing",
+  });
   const samples = [
-    [
-      "claude",
-      "execution",
-      "Starting execution in Claude Code…",
-      "Preparing execution…",
-    ],
-    [
-      "claude",
-      "refinement",
-      "Starting refinement in Claude Code…",
-      "Preparing refinement…",
-    ],
-    [
-      "codex",
-      "execution",
-      "Starting execution in Codex…",
-      "Preparing execution…",
-    ],
-    [
-      "codex",
-      "refinement",
-      "Starting refinement in Codex…",
-      "Preparing refinement…",
-    ],
-  ] as const satisfies ReadonlyArray<
-    readonly [AgentLaunchRequest["host"], LaunchWorkflow, string, string]
-  >;
-
-  async function showsProgress(words: string) {
-    await expect.element(card.getByText(words, { exact: true })).toBeVisible();
-    await expect
-      .element(
-        card.getByText(
-          "Local startup in progress; this story's actions are unavailable until it settles.",
-        ),
-      )
-      .toBeVisible();
-    await expect.element(execution).toBeDisabled();
-    await expect.element(refinement).toBeDisabled();
-    await expect
-      .element(
-        card.getByText(
-          /^Startup needs reconciliation|^Waiting for published story state/,
-        ),
-      )
-      .not.toBeInTheDocument();
-  }
-
-  for (const [host, workflow, starting, preparing] of samples) {
-    const builder = makeMe.anAcceptedAttempt;
-    const attempt = (
-      workflow === "execution"
-        ? builder.executing({ ...entry, host })
-        : builder.refining({ ...entry, host })
-    ).please();
-    const machine = makeMe.aMachineAnswer.answeringAttempts(running(attempt));
-    read(machine.please());
-    await showsProgress(starting);
-    machine.establishing({ source: attempt.request.source, workflow, host });
-    read(machine.please());
-    await showsProgress(preparing);
+    ["claude", "execution", false, "Starting execution in Claude Code…"],
+    ["claude", "execution", true, "Preparing execution…"],
+    ["claude", "refinement", false, "Starting refinement in Claude Code…"],
+    ["claude", "refinement", true, "Preparing refinement…"],
+    ["codex", "execution", false, "Starting execution in Codex…"],
+    ["codex", "execution", true, "Preparing execution…"],
+    ["codex", "refinement", false, "Starting refinement in Codex…"],
+    ["codex", "refinement", true, "Preparing refinement…"],
+  ] as const;
+  const { rerender } = await mountComponent(createElement("div"));
+  for (const [host, workflow, establishesStart, words] of samples) {
+    const startup = progressing(host, workflow);
+    rerender(
+      createElement(StartupStatus, {
+        startup,
+        running: undefined,
+        establishesStart,
+      }),
+    );
+    await expect.element(page.getByText(words, { exact: true })).toBeVisible();
   }
 });

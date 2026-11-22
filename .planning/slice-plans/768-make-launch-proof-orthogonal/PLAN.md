@@ -28,8 +28,8 @@ frontend group proof. Apply the
 | A refinement or Start session dialog with every option selected, at each viewport where layout differs. | Layout cases arrange the selection through a production input and assert reach, stacking and no sideways scroll. One case proves option-to-command mapping, one proves native tab order, one touch-resize case keeps the draft. | 1 |
 | Model and effort are chosen and the dialog is dismissed. | Reset is proved once at the shared dialog. Each launcher keeps one case for its own launch and focus handoff; host effort rules are checked without reopening three launchers. | 2 |
 | A transcript at, one over, or well over 4,000 combined characters. | The overflow, edit and discard rules run on transcript text at their production owner. Held reply, late permission, track loss and capture failures still record through the real recorder. | 3, 4 |
-| A story card starts, recovers or attaches notes. | Presentation, recovery and note attachment run from typed status, attempt and read, and notes. One representative keyboard launch-to-focus journey stays. | 5, 6 |
-| The whole selection runs at two workers. | About 7–8 s wall including preparation, paired with the starting selection under similar load. Every retired observation names its replacement. | 7 |
+| A story card starts, recovers or attaches notes. | Presentation, recovery and note attachment run from typed status, attempt and read, and notes. One representative keyboard launch-to-focus journey stays. | 5, 6, 7 |
+| The whole selection runs at two workers. | About 7–8 s wall including preparation, paired with the starting selection under similar load. Every retired observation names its replacement. | 8 |
 
 ## Current decisions
 
@@ -41,7 +41,7 @@ frontend group proof. Apply the
 - Compare timing as paired runs under similar load (one-minute load
   recorded at start and end), never against the 32.04 s figure alone.
 - If the target cannot be reached without losing a distinct observation,
-  stop at Slice 7 with the measured remainder and its cause for Terry.
+  stop at Slice 8 with the measured remainder and its cause for Terry.
 
 ## Decisive premises observed
 
@@ -52,7 +52,7 @@ Observations ran in the preparation checkout at `d33ded4f9` on
 | Consuming operation | Observed form and result | Limit |
 | --- | --- | --- |
 | Whole-selection measurement | `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2` passed 72/72 in 23 files: 36.7 s wall, Vitest 33.66 s, 51.3 summed case-seconds, load 14.4 → 13.7. Most costly files (summed s): `ad-hoc-launch-dialog` 6.62, `launch-model-effort` 4.00, `story-card-launch-offers` 3.65, `ad-hoc-start-session-layout` 3.33, the three dictation files 8.38, `launch-refinement-options` 3.14, `ad-hoc-refinement-touch` 2.89. | Taken under high load; Slice 1 retakes the paired baseline. |
-| Fixed cost per run | One browser file (`ad-hoc-start-session.spec.ts`, 2 cases, 1.45 s of cases) took 3.9 s wall; a non-browser file took 2.3–2.6 s. About 2.5 s is fixed, leaving roughly 11 case-seconds across two workers. Wall exceeds half the summed case time by about 11 s, so per-file import, mount and imbalance count. | Per-file cost is not yet broken down; Slice 7 measures it. |
+| Fixed cost per run | One browser file (`ad-hoc-start-session.spec.ts`, 2 cases, 1.45 s of cases) took 3.9 s wall; a non-browser file took 2.3–2.6 s. About 2.5 s is fixed, leaving roughly 11 case-seconds across two workers. Wall exceeds half the summed case time by about 11 s, so per-file import, mount and imbalance count. | Per-file cost is not yet broken down; Slice 8 measures it. |
 | Runner isolation | `dashboard/frontend.vitest.config.mts` sets `isolate: true` and adds a `chromium-desktop` instance for `story-card-launch-offers` and `story-card-startup` (fine pointer). | Changing either is shared group configuration. |
 | Dense selection input | `LaunchDialog` accepts `kept` (the selection to start from) from `StartLaunch`, which sets it only after a refused Start. `StartSession` renders the same dialog. | False (Slice 1 probe at `0a6217aeb`): `kept` starts empty in `StartLaunch.tsx:139` and only a refused Start sets it from clicked choices; `StartSession` passes neither `options` nor `kept`, and its workspace and landing radios change only by clicking. Selection is arranged by clicking once per case. |
 | Transcript text entry | Overflow review lives inside `useLaunchInstruction` (`LaunchInstruction.tsx`) and is fed only by `useInstructionRecording`'s transcript callback. No production owner takes transcript text directly. | Slice 3 must narrow production first. The Slice 3 return at `73d028a52` found Start, the read-only field and the disabled Start and Record during review are `LaunchDialog` composition, and the fit check receives each transcript as an arrival; a standalone owner has no Start. |
@@ -199,21 +199,61 @@ and 8.05 s, after 6.52 s and 6.83 s):
 - Late permission and track loss are unchanged. No helper lost its last
   consumer.
 
-### 5. Story card startup and recovery run from typed status and attempts
+### 5. Story card presentation runs from typed status and offers
+
+Type: Behavior
+Status: done
+
+Reshape `story-card-launch-offers`, `story-card-launch-dialogs`,
+`story-card-startup` and `responsive-story-startup`. Presentation takes the
+typed `StoryStartup` status (`storyStartup.ts`, `StartupStatus.tsx`) at the
+owner production renders it through, instead of the hand-built `launches`
+composite in `story-card-launch-page.ts` where a typed owner exists. Keep
+the keyboard start in `responsive-story-startup` as the one mounted
+launch-to-focus journey, with announcements observed through the real
+`StartupAnnouncer`. Make the 200% case use `zoomToTwoHundredPercent()`
+(G1). Report which cases need the `chromium-desktop` fine-pointer instance:
+the hover-tooltip cases in `story-card-launch-offers` do; the
+`story-card-startup` layout check looks viewport-driven and is unverified.
+
+Proof: the four files pass with interleaved paired timing and a mapping.
+
+Mapping (story-card-startup 1 case replaced; four files 14/14):
+
+- The composed host × workflow × establishing sample → a `StartupStatus`
+  case rendered from typed `StoryStartup` for the same 8 combinations;
+  the "Local startup in progress" note stays in the keyboard journey;
+  disabled Starts during progress stay in the accepted-start cases and the
+  keyboard journey; host and workflow derivation stays composed for
+  Claude (G4).
+- Both fine-pointer files still need `chromium-desktop`: the hover
+  tooltips in `story-card-launch-offers`, and the refinement refusal
+  layout in `story-card-startup`, whose two Starts stack under the default
+  instance even at 1440 px (observed twice on a scratch copy).
+- Timing: no measurable file-level change; the replaced case fell from
+  122–158 ms to 40–71 ms. The interleaved pair is not comparable because
+  the scratch before-copy ran on the default instance.
+- The remaining offers, dialogs and responsive cases stay mounted through
+  `mountStoryLaunches`, which builds `MachineSessions` from production
+  `launchOffers` (G5).
+
+### 6. Startup recovery runs from its typed attempt and read
 
 Type: Behavior
 Status: planned
 
-Reshape `story-card-startup`, `story-card-launch-offers`,
-`story-card-launch-dialogs`, `responsive-story-startup`, `startup-recovery`
-and `startup-recovery-reads`. Presentation takes typed status; recovery
-takes its typed attempt and read. Keep one keyboard launch-to-focus journey
-and check announcements through the real announcer. Revisit whether the two
-desktop-pointer files still need their own Chromium instance.
+Reshape `startup-recovery` and `startup-recovery-reads`. Recovery runs from
+a typed `StartupRecoveryItem` and `AttemptEvidence` at `StartupRecovery`
+(`startupRecoveries.ts`). Keep one composed race per distinct recovery
+path: uncertain after acceptance; lost acknowledgment, unsuccessful recheck
+and confirming read; the unanswered evidence read with Recheck; Cursor
+without native-check advice; and the protected-card focus. Remove
+`mounted-launch-attempts.ts` and `story-startup-page.ts` code whose last
+consumer goes.
 
-Proof: the six files pass with paired timing and a mapping.
+Proof: the two files pass with interleaved paired timing and a mapping.
 
-### 6. Unattached start, attachments and note handoff run from typed inputs
+### 7. Unattached start, attachments and note handoff run from typed inputs
 
 Type: Behavior
 Status: planned
@@ -228,7 +268,7 @@ states.
 Proof: the seven files pass with paired timing and a mapping; composed E2E
 owners named in the source map still pass.
 
-### 7. The whole launch selection runs in about eight seconds
+### 8. The whole launch selection runs in about eight seconds
 
 Type: Behavior
 Status: planned
@@ -250,9 +290,12 @@ Slice-plan refinement was not needed at planning: six Behaviors, each one
 launch family with its own proof loop, within the eight-slice limit. At
 Slice 3 the transcript-entry premise proved incomplete (see its row): the
 production narrowing and the recording trim were split into Slices 3 and 4,
-moving later slices down one, seven within the limit. Slice 1
-bounds the dense-selection premise with its early probe. Slices 5 and 6
-touch six and seven files, but most are one- to three-case files under
+moving later slices down one. At Slice 5 two composition helpers
+(`story-card-launch-page.ts` and `story-startup-page.ts` with
+`mounted-launch-attempts.ts`) and about 1,400 test lines split
+presentation and recovery into Slices 5 and 6: eight, at the limit. Slice 1
+bounds the dense-selection premise with its early probe. Slices 5 to 7
+touch four, two and seven files, but most are one- to three-case files under
 1 summed second each and share one typed-input change, so each fits one
 slice. This review found no remaining slice-specific concern.
 
@@ -267,14 +310,14 @@ slice. This review found no remaining slice-specific concern.
   on AC power under
   [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
   Run dashboard typecheck after production edits. Run the whole frontend
-  group only if Slice 7 changes shared runner configuration.
+  group only if Slice 8 changes shared runner configuration.
 
 ## Story obligations
 
 ### G1. Story card 200% zoom case may run at 100%
 Reported: slice 1 — "Applying the 200% zoom and then resizing the window resets zoom to 100%; story-card-launch-offers.spec.ts:131-132 zooms before resizing."
 Story clause: "Preserve genuine browser conditions (viewport, zoom, touch, pointer, native input and focus)"
-Disposition: receiving slice 5
+Disposition: proved by slice 5: story-card-launch-offers.spec.ts "story Starts keep their reading order and visible keyboard focus at narrow and zoomed widths" calls zoomToTwoHundredPercent(), which polls devicePixelRatio to 2 and asserts the 640x450 window before the zoomed focus checks; evidence s5-final-1.log
 
 ### G2. Shared reset case remounts the dialog itself
 Reported: slice 2 — "The shared reset case remounts LaunchDialog through a new key, so it would not catch a launcher that keeps its dialog mounted, or passes kept, after dismissal."
@@ -285,3 +328,13 @@ Disposition: proved by slice 2: launch-model-effort.spec.ts per-launcher dismiss
 Reported: slice 3 — "In the launch dialog unit specs, no case now covers Discard, Cancel or Escape while the review is open (draft kept, focus back on the field, review cleared)."
 Story clause: "Distinct launch behavior and the existing composed journeys stay covered"
 Disposition: proved by slice 3: mounted-instruction-voice-overflow.spec.ts "Discard in review keeps the draft focused, and Escape in review leaves the reopened dialog empty" (two over-limit recordings through the real recorder; Discard keeps draft and field focus; Escape closes, reopen shows empty field and no candidate; send never called); evidence s3-g3-2.log
+
+### G4. Codex host derivation no longer composed
+Reported: slice 5 — "Codex-specific derivation is no longer composed, but host passes through storyStartup() unchanged and the Codex wording is in the typed case."
+Story clause: "Distinct launch behavior and the existing composed journeys stay covered"
+Disposition: proved by slice 5: storyStartup.ts copies request.host for every host with no host branch, so the composed Claude accepted-start cases in story-card-startup.spec.ts observe the one derivation path, and the typed StartupStatus case observes the Codex wording
+
+### G5. Story card helper copies the MachineSessions composition
+Reported: slice 5 — "story-card-launch-page.ts hand-builds the whole launches composite with launchOffers and inert attemptOf/storyStartupOf/keptStartOf stubs; no production owner takes those cases without copying the composition."
+Story clause: "tests never copy a production composition"
+Disposition: receiving slice 8
