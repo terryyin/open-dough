@@ -43,7 +43,7 @@ function unreachableFirstLocationsRead(
   afterRetry: IntentLocations,
   files: Readonly<Record<string, string>> = {},
 ) {
-  const unreachable = makeMe.anUnreachableIntentReply
+  const unreachable = makeMe.anUnreachableAuthenticatedRead
     .at(work.revision)
     .please();
   let attempts = 0;

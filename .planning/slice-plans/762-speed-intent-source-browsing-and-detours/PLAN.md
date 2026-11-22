@@ -89,14 +89,13 @@ rule.
   `readCandidates` members (four times across the two specs) and its own
   transient `ReadProblem`.
 
-**Correction outcome.** Dashboard maintainers get locations recovery and
-settings-problem proof that renders the production Intent body
-(`BoardOrIntent`, whose `IntentReadRecovery` owns the Intent schedule,
-visibility and limit rereads) through the required typed page entry, with
-typed replies built by MakeMe, and E2E proof on the composed page that
-published detail and Intent locations share a wait that healing detail does
-not clear. Each spec's and helper's production imports shrink to that entry,
-its typed inputs and stylesheets.
+**Correction outcome.** Dashboard maintainers get settings-problem and
+malformed-settings proof that renders the production Intent body
+(`BoardOrIntent`) through the required typed page entry, with typed replies
+built by MakeMe. Each moved spec's production imports shrink to that entry,
+its typed inputs and stylesheets. The recovery cases the published
+observation drives stay on the `PageIntentRecovery` copy as a recorded
+interim (G1).
 
 **Amended 2026-11-22 (Terry).** Rendering the published observation itself
 (`ConfiguredDashboard`) also reaches reads outside the page entry: the
@@ -105,7 +104,17 @@ revision stream's `EventSource`, the detail reads in
 stories, slice clocks, moved progress), machine sessions from
 `useAgentLaunches`, and module-level transient-failure state that
 production clears only on a project change. Bringing them into the entry is
-queued as SEED-413#drive-published-observation-through-page-entry; until then the shared wait is proved in E2E.
+queued as SEED-413#drive-published-observation-through-page-entry.
+
+**Amended again 2026-11-22 (Terry).** Slice 4 found that `BoardOrIntent`
+alone cannot drive Intent's automatic recovery: the published observation
+mounts the shared transient timer (`useStandingTransientRecovery` through
+`useLimitRecovery`) and feeds `BoardOrIntent` its `visibility` and
+`limitStands`. The 15/30/60/60-second schedule, the read on reveal and the
+reread when a standing limit ends failed on `BoardOrIntent` (`s4-try`). Those
+three cases and the shared detail/locations wait stay on
+`PageIntentRecovery` until that story moves them onto `ConfiguredDashboard`
+and deletes the copy; no E2E stand-in is written now.
 
 **Preserved promises.** Every observation in the 5 recovery cases and the
 settings-problem cases keeps its title and distinguishing assertion: the
@@ -192,13 +201,20 @@ E2E companions when shared contracts or popup/focus boundaries change.
 | Production supplies the page observation's reads through the required typed page entry, with no defaulted reader parameter | Slice 1 (`npm run typecheck:dashboard`, the recovery and preparation Vitest files, one representative published-read E2E journey, `grep`). |
 | A typed rate-limited reply sets the page's standing limit without the transport | Slice 2 (`npm run typecheck:dashboard`, a focused typed-reply limit case, the existing limit Vitest cases and one rate-limit E2E journey). |
 | Settings-problem cases render the production Intent body with MakeMe replies, not a `fetch` spy or transport calls | Slice 3 (`intent-gherkin-settings-problems`, import counts). |
-| Locations recovery cases render the production Intent body with MakeMe replies, not a test copy, and the shared detail/locations wait is proved on the composed page | Slice 4 (`intent-read-recovery`, one E2E journey, delete `PageIntentRecovery`, import counts, paired timing). |
+| Malformed settings recover on the production Intent body; observation-driven recovery cases stay on the interim copy (G1) | Slice 4 (`intent-read-recovery`, import counts, paired timing). |
 | Canonical and plan links use the inspected revision, external/unsafe/invalid targets stay distinct, and popup activation is proved in E2E | Slice 5 (`navigation/source-navigation*` + `e2e/navigation/source-navigation.spec.ts` + retire `frontendSourceNavigation.ts`). |
 | Entry and folder summaries aggregate nested test counts and expand or select cleanly | Slice 6 (`intent-entry-folder-summaries*` + retire `intentEntryFolderSummariesFixtures.ts` and `putFrontendFolderSources`). |
 | Gherkin groups select scenarios and outlines while tree and feature panes scroll independently | Slice 7 (`intent-gherkin-groups`, `intent-gherkin-layout`). |
 | Missing Java grammar falls back to readable plain text and Candidates cases open at their exact source line | Slice 8 (required source highlighter read + `intent-code-browse-java`, `intent-purpose-case`). |
 | Project Intent activation, project visits, cached reads, and pending revisions/selections keep the applicable source over the production Intent body | Slice 9 (production Intent body in place of `intent-candidates-publication.ts`'s composition + `intent-home-activation`, `intent-project-visit*`, `intent-read-reuse`, `intent-selection-reads`). |
 | Reading place and recent stories restore the story, nested file and reading position after a detour, and another project starts its reading afresh | Slice 10 (`intent-reading-place`, `intent-recent-stories` + 15-file two-worker before/after comparison). |
+
+## Story obligations
+
+### G1. Observation-driven recovery cases keep the test copy
+Reported: slice 4 — "Rendering `BoardOrIntent` alone (through `mountIntentCiPage`) cannot prove C9, C10 or C12."
+Story clause: "keep the `PageIntentRecovery` copy as an interim until"
+Disposition: owner changed "keep the `PageIntentRecovery` copy as an interim until"
 
 ## Slices
 
@@ -322,37 +338,39 @@ count before (6 at `5f28e1a94`) and after.
 **Learnings.** `mountIntentCiPage`
 (`dashboard/frontend-tests/intent/intent-ci-page-mount.ts`) serves any case
 that needs the production Intent body under the real `PageFrame`.
-`makeMe.anUnreachableIntentReply` (`unreachableIntentReplyTestData.mjs`,
+`makeMe.anUnreachableAuthenticatedRead` (`unreachableAuthenticatedReadTestData.mjs`,
 registered on `pageMakeMe.mjs` only) builds the transport's transient
 problem. The spec's production imports fell from 6 to 3, all type-only.
 Proof: typecheck; the spec 3/3 at `--workers=2` (10.3 s alone at load
 28–34); the native identity checks; `intent-read-recovery.spec.ts` 5/5 as the
 other `pageMakeMe` consumer.
 
-### 4. Locations recovery cases render the production Intent body and the shared wait is proved on the composed page
+### 4. Malformed settings recover on the production Intent body while observation-driven recovery stays on its interim copy
 
 Type: Structure
-Status: planned
+Status: done
 
-Render `intent-read-recovery` through `BoardOrIntent` with typed replies
-through the page entry and delete `PageIntentRecovery` from
-`intent-read-recovery-page.tsx`. Remove `clearAllTransientFailures` and the
-remaining `ReadProblem` construction; if cases leak module-level transient
-state without the reset, return the evidence for
-SEED-413#drive-published-observation-through-page-entry instead of a test-side reset.
-Prove "published detail and Intent locations share a wait" in one E2E
-journey on the composed page (reuse an existing `e2e/observation/` or
-`e2e/intent/` recovery journey when one already observes it), and map the
-retired Vitest case to it.
+Move "malformed Intent settings stay visible until manual Retry" onto
+`BoardOrIntent` (through `mountIntentCiPage`) with MakeMe replies. Keep the
+four observation-driven cases in `intent-read-recovery.spec.ts` on
+`PageIntentRecovery` unchanged in title and assertion as the G1 interim;
+replace any remaining hand-built `ReadProblem` there with MakeMe replies
+where the copy allows.
 
-**Proof.** The 15/30/60/60-second schedule, no request while hidden and one
-on reveal, malformed settings shown until manual Retry, and the reread when
-a standing limit ends keep their titles and
-distinguishing assertions at `--workers=2`; the E2E journey fails when the
-shared wait is broken in production. Production import counts before (5 and
-12 at `5f28e1a94`) and after. The 2-file selection's elapsed time stays
-within paired noise of its baseline (12.2 s at load 28.65,
+**Proof.** The malformed-settings case keeps its title and distinguishing
+assertion on `BoardOrIntent`; the four interim cases still pass unchanged at
+`--workers=2`. Production import counts for the touched spec and helper
+before (5 and 12 at `5f28e1a94`) and after. The 2-file selection's elapsed
+time stays within paired noise of its baseline (12.2 s at load 28.65,
 `s3-baseline-proof.json`) or the regression is recorded with its reason.
+
+**Learnings.** The malformed-settings case runs on `BoardOrIntent`; the
+schedule, reveal, shared-wait and limit-end cases need the published
+observation's `useStandingTransientRecovery` and `useLimitRecovery`, so they
+stay on the G1 copy. `makeMe.anUnreachableAuthenticatedRead` gained `.reading(path)`
+for the detail read. Proof: typecheck; the 2-file selection 8/8 twice
+(7.8 s at load 22.1, 6.9 s at load 19.6); consumer trace; native identity
+checks.
 
 ### 5. Pinned and refused source navigation links use the inspected revision and keep external, unsafe and invalid targets distinct
 

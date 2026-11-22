@@ -714,10 +714,12 @@ and typed `makeMe.anIntentLocationsAnswer`.
   add the page observation's reads to the required typed page entry, record
   the standing rate limit where a typed reply is received, and render both
   files through the production Intent body before any source-browsing move.
-  The wait that published detail and Intent locations share is proved in an
-  E2E journey on the composed page until
+  The recovery cases that the published observation drives (the transient
+  schedule, a hidden then revealed page, the end of a standing limit and the
+  wait shared with published detail) keep the `PageIntentRecovery` copy as
+  an interim until
   [the published observation runs through the page entry](#drive-published-observation-through-page-entry)
-  (Terry's amendment, 22 November 2026).
+  (Terry's amendments, 22 November 2026).
 
 - **Goal.** Dashboard maintainers get fast Vitest feedback that a developer
   can browse Gherkin and code sources at the chosen scope, line and revision,
@@ -787,17 +789,21 @@ on 22 November 2026, when its correction found that rendering production
   profile additions, assignments, done stories, slice clocks, moved branch
   progress), and machine sessions and agent acceptance in `useAgentLaunches`.
   Module-level transient-failure state becomes owned per page mount, so cases
-  need no test-side reset. `navigation/board-frame-mount.ts` stops mocking
+  need no test-side reset. The four observation-driven cases in
+  `intent-read-recovery.spec.ts` (transient schedule, hidden then revealed
+  page, standing-limit end, the wait shared with published detail) move onto
+  `ConfiguredDashboard`, and the `PageIntentRecovery` copy is deleted.
+  `navigation/board-frame-mount.ts` stops mocking
   production modules and supplies typed replies, letting `readPublishedWork`
   take its reads first.
 - **Key examples.** A case renders `ConfiguredDashboard` with
   `pageReadsSupplying` and makes no `fetch`, `EventSource` or module mock;
-  "published detail and Intent locations share a wait" runs in Vitest again
-  and fails when production breaks the shared wait; two cases in one file
+  "published detail and Intent locations share a wait" runs on the
+  production observation and fails when production breaks the shared wait; two cases in one file
   start with no transient failure left by the other.
 - **Evaluation.** Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories);
-  every added read is a required member of the typed page entry, and the
-  E2E stand-in for the shared wait keeps or retires by its own value.
+  every added read is a required member of the typed page entry, and no test
+  file copies the published observation.
 
 <a id="speed-story-changes-notes-and-progress-reading"></a>
 
@@ -805,7 +811,7 @@ on 22 November 2026, when its correction found that rendering production
 
 **Identity:** SEED-413#speed-story-changes-notes-and-progress-reading
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#speed-story-changes-notes-and-progress-reading","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-and-story-reading","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading"},"implementation":"Reshapes makeMe.anIntentLocationsAnswer to build typed IntentLocations, forwards optional readFile on loadRepositoryTexts, and lands the narrowed SEED-413 story split on main.","rationale":"Story-changes, Done-Intent, Done-reference, notes, and progress slices share the typed IntentLocations builder and narrowed SEED-413 story split landed by SEED-413#speed-intent-source-and-story-reading.","condition":"SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"e0f7d6a6a52e3ecec7c4556171c6e7a95ddd303f","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading","summary":"Delivered Slices 1-2 (done) reshaped makeMe.anIntentLocationsAnswer in Distribution/tests/support/intentLocationTestData.mjs to build typed IntentLocations, forwarded optional readFile on loadRepositoryTexts in dashboard/src/repositoryFileReads.ts, proved the 2-file locations cohort on Vitest, and integrated the narrowed SEED-413 story split on main.\nCondition satisfied: SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.\nAccepted integration: 6fa6ef623823d329f9e466994ff0b6500cda9a15 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-intent-source-browsing-and-detours","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours"},"implementation":"Slices 1–4 of plan 762 add the page observation's reads to the required typed page entry, have Intent reading record the standing rate limit when it receives a typed limited reply, render the locations recovery and settings-problem cases through the production Intent body with MakeMe replies, and prove the shared detail and locations wait in E2E.","rationale":"Story changes, Done Intent and Done-reference cases read published detail and Intent sources through the page observation. Starting before that correction would extend the test-only reader and the test copy of the page observation, or duplicate the correction inside this story.","condition":"SEED-413#speed-intent-source-browsing-and-detours has landed its Slices 1–4 test-entry correction on main.","state":"waiting"}]}
+{"schemaVersion":1,"identity":"SEED-413#speed-story-changes-notes-and-progress-reading","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-and-story-reading","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading"},"implementation":"Reshapes makeMe.anIntentLocationsAnswer to build typed IntentLocations, forwards optional readFile on loadRepositoryTexts, and lands the narrowed SEED-413 story split on main.","rationale":"Story-changes, Done-Intent, Done-reference, notes, and progress slices share the typed IntentLocations builder and narrowed SEED-413 story split landed by SEED-413#speed-intent-source-and-story-reading.","condition":"SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"e0f7d6a6a52e3ecec7c4556171c6e7a95ddd303f","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading","summary":"Delivered Slices 1-2 (done) reshaped makeMe.anIntentLocationsAnswer in Distribution/tests/support/intentLocationTestData.mjs to build typed IntentLocations, forwarded optional readFile on loadRepositoryTexts in dashboard/src/repositoryFileReads.ts, proved the 2-file locations cohort on Vitest, and integrated the narrowed SEED-413 story split on main.\nCondition satisfied: SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.\nAccepted integration: 6fa6ef623823d329f9e466994ff0b6500cda9a15 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-intent-source-browsing-and-detours","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours"},"implementation":"Slices 1–4 of plan 762 add the page observation's reads to the required typed page entry, have Intent reading record the standing rate limit when it receives a typed limited reply, and render the settings-problem and malformed-settings cases through the production Intent body with MakeMe replies, keeping the observation-driven recovery cases on an interim copy until SEED-413#drive-published-observation-through-page-entry.","rationale":"Story changes, Done Intent and Done-reference cases read published detail and Intent sources through the page observation. Starting before that correction would extend the test-only reader and the test copy of the page observation, or duplicate the correction inside this story.","condition":"SEED-413#speed-intent-source-browsing-and-detours has landed its Slices 1–4 test-entry correction on main.","state":"waiting"}]}
 ```
 ```json dough-story-state
 {"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/763-speed-story-changes-notes-and-progress-reading/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment onto the corrected typed page entry."],"basis":{"document":"cec7aec641bc24baf9cf1905b1a1fa2a57d9f0f70631392dd69e17b26e221f25","plan":"33839dd0ea8524f56a18b1ae1bbcdd79460eeade24a92ce2c7f72ebef45bd0b8"}}
