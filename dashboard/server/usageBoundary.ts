@@ -56,6 +56,7 @@ async function tokenIndex(req: IncomingMessage): Promise<TokenIndexAnswer> {
         ),
         launches,
         tariff: usageTariffs[cohort.tool],
+        checkedAt,
       },
       cohort,
       period,

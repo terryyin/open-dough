@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-422_correct-stale-token-totals.json",
+      "identity": "SEED-422#correct-stale-token-totals",
+      "completedAt": "2026-11-22T08:33:32.780Z",
+      "blob": "d7f77550ad50ce04bc6a2e403cb6b970ac29603c"
+    },
+    {
       "fileName": "SEED-413_speed-intent-ci-status-frame-and-timing-history.json",
       "identity": "SEED-413#speed-intent-ci-status-frame-and-timing-history",
       "completedAt": "2026-11-22T08:03:28.169Z",

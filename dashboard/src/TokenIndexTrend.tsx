@@ -1,10 +1,10 @@
 // System settings → Usage's Token index trend for each selected tool's answer
 // (`./usageTokenIndex.ts`): one point per task over its end time on the
 // shared history chart (`./HistoryChart.tsx`), every tool a named trace on
-// one numeric scale and one time axis, partial ones hollow, estimated ones
-// with ≈ beside them, each tool's own
-// rolling median above dots, independent of their scale; ↑ labels and dated
-// values identify median overflow. Each tool's summary
+// one numeric scale and one time axis, partial and provisional ones hollow,
+// estimated ones with ≈ beside them, each tool's own rolling median above
+// dots, independent of their scale; ↑ labels and dated values identify median
+// overflow. Each tool's summary
 // (`./UsageToolSummary.tsx`) counts its tasks and names the reference unit
 // its values are in; the values stay tool-relative, never one cost unit. The
 // key (`./UsageLegend.tsx`) shows each shown tool's marks under its name.
@@ -27,6 +27,7 @@ import { UsageLegend } from "./UsageLegend.tsx";
 import {
   estimatedWords,
   partialWords,
+  provisionalWords,
   UsageTaskDetail,
 } from "./UsageTaskDetail.tsx";
 import { rollingMedianWords, UsageToolSummary } from "./UsageToolSummary.tsx";
@@ -48,7 +49,13 @@ function point(
   task: TokenIndexTask,
   selected: string | undefined,
 ): HistoryChartPoint {
-  const partial = task.coverage.kind === "partial";
+  // Partial and provisional tasks share the hollow mark under their own word.
+  const hollow =
+    task.coverage.kind === "partial"
+      ? partialWords
+      : task.coverage.kind === "provisional"
+        ? provisionalWords
+        : undefined;
   const estimated = task.substitutions !== undefined;
   const key = markKey(tool, task);
   return {
@@ -62,11 +69,11 @@ function point(
       usageToolName(tool),
       task.title ?? task.identity ?? "Untitled task",
       countWords(task.index),
-      ...(partial ? [partialWords] : []),
+      ...(hollow === undefined ? [] : [hollow]),
       ...(estimated ? [estimatedWords] : []),
     ].join(" · "),
     selected: key === selected,
-    ...(partial ? { partial: partialWords } : {}),
+    ...(hollow === undefined ? {} : { partial: hollow }),
     ...(estimated ? { estimate: estimatedWords } : {}),
   };
 }
@@ -186,8 +193,8 @@ export function TokenIndexTrend({
             </p>
           )}
         <p className="settings-note">
-          × {largeTaskWords}; labels show actual values. Partial coverage
-          remains marked.
+          × {largeTaskWords}; labels show actual values. Partial and provisional
+          coverage remain marked.
           {tasks.some((task) => task.substitutions !== undefined) &&
             " ≈ marks an estimated rate."}
         </p>

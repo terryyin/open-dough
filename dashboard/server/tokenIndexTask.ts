@@ -8,7 +8,8 @@
 // shows when it is selected: its story, project, launch workflow, outcome,
 // end time, requested and primary observed model and effort, its index under
 // one tariff version (./tokenIndex.ts) and its coverage, with the recorded
-// gaps that make it partial, and any model weighed at a substitute's rates.
+// gaps that make it partial or its end after the last usage check that makes
+// it provisional, and any model weighed at a substitute's rates.
 import { launchWorkflowNames, launchWorkflows } from "../src/launchWorkflow.ts";
 import {
   usageWorkflowOf,
@@ -24,11 +25,14 @@ import type { UsageTariff } from "./usageTariffs.ts";
 
 // What a cohort is read against: the projects configured now, hidden ones
 // included, by id with their labels; each retained launch's end as its record
-// says now, by task id; and the tariff version that weighs the tasks.
+// says now, by task id; the tariff version that weighs the tasks; and the
+// last usage check (./usageCheck.ts), when the usage was last read, or null
+// before the first.
 export type UsageReading = {
   readonly projects: ReadonlyMap<string, string>;
   readonly launches: ReadonlyMap<string, RetainedLaunchEnd>;
   readonly tariff: UsageTariff;
+  readonly checkedAt: string | null;
 };
 
 // A launch records its workflow when known, otherwise the recovered skill;
@@ -93,13 +97,33 @@ function setting(
 export const taskEndedAt = (task: SummaryTask): string | null =>
   task.outcome?.at ?? task.lastActivityAt;
 
+// Whether the finished task ended after the last usage check, so its usage
+// may not yet be read through its end: its end is the reported outcome time,
+// else its launch's done time, else its last activity.
+function endedAfterCheck(
+  task: SummaryTask,
+  { launches, checkedAt }: UsageReading,
+): boolean {
+  const end =
+    task.outcome?.at ??
+    (task.kind === "launch" ? launches.get(task.id)?.doneAt : null) ??
+    task.lastActivityAt;
+  return (
+    checkedAt !== null &&
+    end !== null &&
+    Date.parse(end) > Date.parse(checkedAt)
+  );
+}
+
 // The finished task's point and detail, partial when its recorded gaps show
-// usage missing; "unpriced" when a response has no rate under the tariff;
-// undefined when it cannot be placed.
+// usage missing, else provisional when it ended after the last usage check;
+// "unpriced" when a response has no rate under the tariff; undefined when it
+// cannot be placed.
 export function tokenIndexTask(
   task: SummaryTask,
-  { projects, tariff }: UsageReading,
+  reading: UsageReading,
 ): TokenIndexTask | "unpriced" | undefined {
+  const { projects, tariff } = reading;
   const weighed = tokenIndex(task.usage, tariff);
   if (weighed === undefined) return "unpriced";
   const { index, substitutes } = weighed;
@@ -145,8 +169,10 @@ export function tokenIndexTask(
           })),
         }),
     coverage:
-      task.gaps.length === 0
-        ? { kind: "measured" }
-        : { kind: "partial", gaps: task.gaps },
+      task.gaps.length > 0
+        ? { kind: "partial", gaps: task.gaps }
+        : endedAfterCheck(task, reading)
+          ? { kind: "provisional" }
+          : { kind: "measured" },
   };
 }

@@ -55,6 +55,37 @@ test("the key and summary swatches show each shown tool's marks, and a hidden to
   await usage.chart.showsSummarySwatches(["Claude Code"]);
 });
 
+test("a task finished after the last usage check reads provisional on its hollow point, cohort note, detail and key", async () => {
+  const usage = await mountUsage({
+    read: (cohort) =>
+      Promise.resolve(
+        makeMe.aTokenIndexAnswer
+          .with({ indexes: [1_000, 2_000] })
+          .withTask(0, { endedAt: at(2) })
+          .withTask(1, { endedAt: at(3), coverage: { kind: "provisional" } })
+          .withTrend([{ at: at(3), value: 1_500 }])
+          .forCohort(cohort)
+          .please(),
+      ),
+    refresh: async () => {},
+  });
+  await usage.showsPoints([
+    "Nov 2 · Codex · 1,000",
+    "Nov 3 · Codex · 2,000 · Provisional",
+  ]);
+  await usage.showsPartialPoints(1);
+  await usage.showsCohortNote(
+    "2 tasks · 1 provisional · Last 30 days",
+    "Codex",
+  );
+  await usage.chart.showsKeyFor(["Codex"]);
+  await usage.selectPoint("Nov 3 · Codex · 2,000 · Provisional", "pointer");
+  await usage.showsFact(
+    "Coverage",
+    "Provisional · finished after the last usage check",
+  );
+});
+
 for (const [name, viewport] of [
   ["phone", { width: 390, height: 844 }],
   ["narrowest reading window", { width: 420, height: 900 }],

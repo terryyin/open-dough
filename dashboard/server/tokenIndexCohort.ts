@@ -4,11 +4,11 @@
 // chosen launch workflow and, when chosen, with that primary observed model
 // and effort, weighed under one tariff version and placed at its reported
 // outcome time, or else its last recorded activity, with the rolling median
-// of the eligible ones: priced at listed rates, with no recorded gap, each
-// observation anchored on the eligible task it ends with. An unpriced
-// task has no point and is only counted. The Model and Effort options are the
-// primary settings the tool's finished tasks show in any launch workflow, so
-// switching workflow keeps every choice on offer.
+// of the eligible ones: priced at listed rates, measured with no recorded gap
+// and read through their end, each observation anchored on the eligible task
+// it ends with. An unpriced task has no point and is only counted. The Model
+// and Effort options are the primary settings the tool's finished tasks show
+// in any launch workflow, so switching workflow keeps every choice on offer.
 import {
   rollingMedianTasks,
   type TokenIndexAnswer,
@@ -72,8 +72,8 @@ export function tokenIndexCohort(
         Date.parse(a.endedAt) - Date.parse(b.endedAt) ||
         a.id.localeCompare(b.id),
     );
-  // Partial tasks' missing usage would pull the trend down; an estimated
-  // rate is not the tariff's.
+  // Partial or provisional tasks' missing usage would pull the trend down; an
+  // estimated rate is not the tariff's.
   const eligible = tasks.filter(
     (task) =>
       task.coverage.kind === "measured" && task.substitutions === undefined,

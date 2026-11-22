@@ -43,7 +43,7 @@ test("large tasks keep actual values and dates without flattening ordinary point
   );
   await chart.sameDateAsLastOrdinary();
   await chart.showsNote(
-    "× Large task above 50 million; labels show actual values. Partial coverage remains marked.",
+    "× Large task above 50 million; labels show actual values. Partial and provisional coverage remain marked.",
   );
   await usage.selectPoint(
     "Nov 2 · Codex · 65,000,000 · Large task above 50 million",

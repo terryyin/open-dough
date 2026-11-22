@@ -28,10 +28,10 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Correct stale token totals for completed Dashboard tasks](seeds/SEED-422-correct-stale-dashboard-token-totals.md#correct-stale-token-totals) — SEED-422#correct-stale-token-totals ([plan](slice-plans/764-correct-stale-token-totals/PLAN.md))
 
 ## Backlog list
 
+- [Build Claude Code reply fixtures with MakeMe steps](seeds/SEED-422-correct-stale-dashboard-token-totals.md#build-claude-reply-fixtures-with-makeme) — SEED-422#build-claude-reply-fixtures-with-makeme
 - [Get fast proof of Intent timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest) — SEED-413#speed-intent-timing-history-on-vitest
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal
 - [Keep the quiet completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#split-quiet-completion-journey) — SEED-341#split-quiet-completion-journey

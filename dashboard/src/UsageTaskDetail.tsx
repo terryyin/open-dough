@@ -54,6 +54,7 @@ function requestedWords({ model, effort }: UsageSetting): string | undefined {
 }
 
 export const partialWords = "Partial";
+export const provisionalWords = "Provisional";
 export const estimatedWords = "Estimated rate";
 
 // Each actual model with the substitute whose rates weighed it.
@@ -74,11 +75,18 @@ const gapWords: Record<UsageCoverageGap, string> = {
   "no-attributable-response-usage": "No attributed response",
 };
 
-// "No known gaps", or "Partial" with the gaps that show usage missing.
-const coverageWords = (coverage: UsageTaskCoverage) =>
-  coverage.kind === "measured"
-    ? "No known gaps"
-    : `${partialWords} · ${coverage.gaps.map((gap) => gapWords[gap]).join(", ")}`;
+// "No known gaps", "Partial" with the gaps that show usage missing, or
+// "Provisional" when the task finished after the last usage check.
+function coverageWords(coverage: UsageTaskCoverage) {
+  switch (coverage.kind) {
+    case "partial":
+      return `${partialWords} · ${coverage.gaps.map((gap) => gapWords[gap]).join(", ")}`;
+    case "provisional":
+      return `${provisionalWords} · finished after the last usage check`;
+    case "measured":
+      return "No known gaps";
+  }
+}
 
 function Fact({
   term,
@@ -139,7 +147,7 @@ export function UsageTaskDetail({
         <Fact term="Coverage">
           <span
             className={
-              task.coverage.kind === "partial" ? "usage-partial" : undefined
+              task.coverage.kind === "measured" ? undefined : "usage-partial"
             }
           >
             {coverageWords(task.coverage)}
