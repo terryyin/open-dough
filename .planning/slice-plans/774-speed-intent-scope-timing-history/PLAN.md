@@ -2,19 +2,56 @@
 
 **Identity:** SEED-413#speed-intent-scope-timing-history
 **Source:** [Get fast proof of Intent scope timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history)
-**Split from:** SEED-413#speed-intent-timing-history-on-vitest (plan 772, recoverable at `dc8d21846:.planning/slice-plans/772-speed-intent-timing-history-on-vitest/PLAN.md`, former Slices 4–6) before readiness on 2026-11-22, when its 19 legacy files exceeded one plan.
-**Status:** awaiting story refinement — not ready for slice-plan refinement or execution
+**Split from:** SEED-413#speed-intent-timing-history-on-vitest (plan 772, recoverable at `dc8d21846:.planning/slice-plans/772-speed-intent-timing-history-on-vitest/PLAN.md`, former Slices 4–6) before readiness on 2026-11-22, when its 19 legacy files exceeded one plan. Resplit before readiness on 2026-11-22: collected timing reading and chart marks (former groups C–D) moved to [plan 777](../777-speed-intent-scope-timing-reading/PLAN.md) for SEED-413#speed-intent-scope-timing-reading.
 
-## Provisional input
+## Goal and scope
 
-Resize at refinement: plan 764's three-file history port overran, so one or
-two legacy files fit a slice. Mount through the page entry that plan 772
-Slice 1 corrects; apply the carried decisions of plan 772 and the
-[campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories).
-`readScopeHistory` is already a required member of `IntentCiReadSource`.
-Capture this story's own 16-file legacy baseline at two workers before the
-first move (the 19-file baseline was 31 cases in 184.99 s, load 33–41,
-22 November 2026).
+A dashboard maintainer can quickly check that Project and Done scope timing
+glances and kept histories stay isolated by project, source and scope key, and
+that a failed or empty read recovers beside live Scope Proof without borrowing
+another answer. The seed story holds the full goal, scope and key examples.
+
+- **Included.** The delivered CI wall-time history entry correction below; the
+  8 legacy specs (11 cases): `intent-project-scope-glance`,
+  `intent-scope-glance`, `intent-project-scope-history-source-identity`,
+  `-project-isolation`, `-key-isolation`, `-recovery`, `-refresh`,
+  `-remount`.
+- **Excluded.** Collected timing units/gaps/provenance/segments/reading and
+  the shared history chart-marks specs (plan 777); CI wall-time history
+  (completed plan 772); attempt proof and Summary (plan 760). Sibling-owned
+  page objects (`intent-ci-evidence-page.tsx`, `intent-ci-scope-page.tsx`,
+  `intent-done-story-page.tsx`, `intent-browser-page.ts`,
+  `intent-candidates-page.ts`, `intent-file-reading-page.ts`) are not modified
+  except as the gap() scoping and wall-time journey consolidation require.
+- **Assumption.** One or two legacy files fit a 15-minute slice (plan 764's
+  three-file port stopped at 8.1 active minutes with work outstanding).
+
+## Carried decisions and learnings
+
+- Apply the [campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories),
+  [frontend guidance](../../../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
+  and [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+  Render the production owner of each history view at its typed entry; no
+  test copies of compositions, restated provider stacks, ancestor class
+  wrappers, private pipeline calls, hand-written domain records or production
+  transforms to make inputs.
+- Reuse the page entry plan 772 delivered: required `readScopeHistory` on
+  `IntentCiReadSource` (`dashboard/src/intentCiReadSource.ts`);
+  `mountIntentCiPage` (`dashboard/frontend-tests/intent/intent-ci-page-mount.ts`)
+  with production `PageFrame`, `StoryReferenceNavigation`, `BoardOrIntent` and
+  `PerspectiveScroll`; `makeMe.aScopeHistoryGlance` on
+  `publishedReadingMakeMe.mjs`. Production owners stay
+  `IntentScopeTimingHistory` / `useIntentCiScopeHistory` beside live Scope
+  Proof.
+- Plan 772 product advice: correct page-mount preference reset and options-
+  object test entries before moving more cases through `mountIntentCiPage`;
+  the attempt-proof story (plan 760) mounts through the same entry and
+  benefits from the same reset.
+- Done wall-time history builder still averages measured priors in
+  `through()` without `priorBuildReferenceOf`'s window and outlier rule;
+  decide the same domain-named reference steps for any scope-history builder
+  before writing it (`ciScopeHistoryReference.ts` also uses
+  `priorBuildReferenceOf`).
 
 ## Correction of the delivered CI wall-time history entry
 
@@ -44,8 +81,7 @@ entries, so these come first:
   (`dashboard/src/ciPriorBuildReference.ts`), against the carried decision
   "no production transforms to make inputs". Give the reference figures
   domain-named steps (e.g. `.averaging(ms, used)`) instead of deriving them,
-  and decide the same for the scope history builder before writing it
-  (`ciScopeHistoryReference.ts` also uses `priorBuildReferenceOf`).
+  and decide the same for the scope history builder before writing it.
 - **Test entries accrete positional optional parameters.**
   `openDoneStoryComparison(review, readDoneWallTimeHistory = unanswered,
   readComparison?)` hard-codes `readScopeHistory: unanswered`;
@@ -69,53 +105,158 @@ entries, so these come first:
   `document.querySelector(".intent-ci-gap")` unscoped, while CI status and
   judgment render the same class; scope it to the CI comparison region.
 
-Compact readout case 1's trailing chart-mark assertions repeat what the Done
-glance owns; review them beside group D.
+## Decisive premises
 
-### A. Scope glances and project/source history keys stay isolated to their source
+| # | Premise | Consuming operation | Observation | Result |
+|---|---|---|---|---|
+| P1 | `mountIntentCiPage` resets only the Sessions sidebar, not Board position | Slice 1 | Read `intent-ci-page-mount.ts` (calls `withClosedSessionsSidebar` only) and `columnPaging.ts` `keptPosition` key `open-dough.board.position` at `a1f0e6e51`, 2026-11-22 | True; preference reset is structural |
+| P2 | `openDoneStoryComparison` hard-codes `readScopeHistory: unanswered` with positional optional parameters | Slice 1 | Read `intent-story-compare-stories.ts:121–170` at `a1f0e6e51` | True; options-object reshape is structural |
+| P3 | The 8 owned legacy files pass on the legacy engine and give the before measure | Slices 3–7 timing comparison | `caffeinate -s -i npm run --silent test:dashboard:frontend -- --workers 2` with the 8 owned files at `a1f0e6e51`, 2026-11-22 20:28, load 33.33/27.84/22.90 | 11 passed; 44.9 s including preparation |
 
-Move `intent-project-scope-glance` (1), `intent-scope-glance` (1),
-`intent-project-scope-history-source-identity` (2) and
-`intent-project-scope-history-project-isolation` (2) over
+No premise remains open. P3 was measured under high load; pair the after run under comparable load or note the load difference.
+
+## Proof map
+
+| Promise | Owner | Observable proof |
+|---|---|---|
+| Page mounts restore preferences they change | Slice 1 | Paging case leaves `open-dough.board.position` restored; Intent compare + `board-paging` green in one `--workers 1` run |
+| Test entries take one options object with a `ci` bag | Slice 1 | `openDoneStoryComparison` / `mountJudgedRunProof` / `machineSessionsRefusing` signatures; existing wall-time and status consumers green |
+| History builders take reference figures; HeldKind typed; journeys and gap scoped | Slice 2 | Builder has no `priorBuildReferenceOf` restatement; typed HeldKind; wall-time specs call page-object journeys; Done `gap()` scoped; consumers green |
+| Project and Done scope glances | Slice 3 | Accurate summary cues on Vitest through the page mount |
+| Source and project isolation | Slice 4 | Right request; abort/ignore other sources and projects |
+| Scope-key isolation across remounts | Slice 5 | Distinct kept histories per entry/folder/file/revision key |
+| Failure keeps live proof and recovers on Retry | Slice 6 | Last history + live Scope Proof; Retry without borrowing |
+| Faster cohort with fewer maintained cases; spent support removed | Slice 7 | Paired two-worker before/after of the 8 files; case disposition table; 0 legacy cases remain |
+
+Local gate per slice: typecheck and the focused frontend selection through
+`npm run --silent test:dashboard:frontend -- --workers 2 <paths>`; Slice 1
+also runs the preference-leak proof under `--workers 1`, and Slice 7 also
+runs the full dashboard frontend group and the representative
+`e2e/intent/intent-ci-status.spec.ts` journey when the shared mount or page
+reads change. Run long local suites under the maintained macOS sleep guard
+(`caffeinate -s -i`, on AC power) per
+[machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Failures follow the
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+
+## Slices
+
+### 1. Page mounts reset the preferences they change and test entries take one options object
+
+Type: Structure
+Status: planned
+
+Give every page mount (Board, frame, Intent) one shared reset and restore of
+the page preferences it can change, including Board column position beside
+the Sessions sidebar. Reshape `openDoneStoryComparison`,
+`mountJudgedRunProof` and `machineSessionsAnswering` to one options object
+with a `ci: Partial<IntentCiReadSource>` bag and a named
+`machineSessionsRefusing`, without yet wiring answered `readScopeHistory` into
+moved cases. Enables Slices 3–7 and plan 777.
+
+Proof: a paging case leaves the stored Board position restored; Intent
+compare + `board-paging.spec.ts` pass in one `--workers 1` invocation;
+existing wall-time and CI status consumers of the reshaped entries stay
+green; typecheck.
+
+### 2. History builders take reference figures, HeldKind is typed, and wall-time page objects own their journeys
+
+Type: Structure
+Status: planned
+
+Give the Done history builder domain-named reference-figure steps instead of
+deriving averages; replace opaque `HeldKind` with a typed per-kind factory and
+keyless per-page variant; move the duplicated Project wall-time keyboard and
+overflow walks into `openTrunkHistory`; scope Done history `gap()` to the CI
+comparison region. Directly owned retrospective correction.
+
+Proof: builder callers supply figures; HeldKind consumers typecheck; wall-time
+specs call the page-object journeys; Done gap assertions stay green with the
+scoped query; typecheck.
+
+### 3. Project and Done scope glances show accurate summary cues
+
+Type: Behavior
+Status: planned
+
+Move `intent-project-scope-glance` (1) and `intent-scope-glance` (1) over
 `IntentScopeTimingHistory` / `useIntentCiScopeHistory` within its production
-owner and typed `readScopeHistory` replies recording requested source,
-endpoint, scope and `AbortSignal`.
+owner and typed `readScopeHistory` replies.
 
-Proof: Project and Done scope glances show accurate summary cues; switching
-source identity or project issues the right request and aborts or ignores
-other projects' or sources' answers.
+Behavior: Project and Done scope glances show accurate summary cues before
+each scope's table through the production Intent page entry.
 
-### B. Project scope history isolates scope keys, keeps live proof on failure, and recovers on Retry
+Proof: both moved Vitest specs; 0 legacy cases remain on the 2 files.
 
-Move `intent-project-scope-history-key-isolation` (1),
-`-recovery` (2), `-refresh` (1) and `-remount` (1) beside live Scope Proof.
+### 4. Scope history stays isolated to the requested source and project
 
-Proof: entry, folder, file and revision keys keep distinct kept histories
-across remounts; a failed or empty read keeps the last history and live Scope
-Proof, offers `Retry`, and recovers without borrowing another endpoint's or
-scope's history.
+Type: Behavior
+Status: planned
 
-### C. Collected scope timing preserves units, provenance, segments and gaps
+Move `intent-project-scope-history-source-identity` (2) and
+`-project-isolation` (2). Typed `readScopeHistory` replies record requested
+source, endpoint, scope and `AbortSignal`.
 
-Move `intent-scope-timing-history-absent` (2), `-gaps` (3), `-provenance`
-(1), `-reading` (1), `-segments` (1) and `-units` (2), with direct pure timing
-checks only where DOM rendering is not the proof. Remove spent history
-support and record the two-worker before/after timing and case disposition.
+Behavior: switching repository or ref with the same project ID, or switching
+projects, issues the right request and aborts or ignores other sources' and
+projects' answers.
 
-Proof: absent, partial and unavailable reasons, separate case and file
-units, interrupted segments, build dates and provenance stay readable and
-accessible; 0 legacy cases remain across the 16 files.
+Proof: the moved Vitest specs; 0 legacy cases remain on the 2 files.
 
-### D. The shared history chart marks keep labels, links, input and narrow fit
+### 5. Scope keys keep distinct histories across remounts
 
-Move `intent-ci-history-chart-marks` (2, Done) and
-`intent-project-ci-history-chart-marks` (2, Project), received from plan 772
-on 2026-11-22: they drive the shared history chart on the Summary's scope
-timing history (`readScopeHistory`, `makeMe.aScopeHistoryGlance`,
-`historyChartPage.ts`), not CI wall-time history. A faithful Vitest port
-needs a typed `readScopeHistory` answer in `openDoneStoryComparison` and
-`mountJudgedRunProof`, a Summary scope-history page object, and touch input.
+Type: Behavior
+Status: planned
 
-Proof: zero-ms and incompatible-segment marks, the Tab walk across marks,
-touch taps at 390×844, marks painted with focus in light and dark, and whole
-"0 ms" axis labels at the narrowest width.
+Move `intent-project-scope-history-key-isolation` (1) and `-remount` (1)
+beside live Scope Proof.
+
+Behavior: entry, folder, file and revision keys keep distinct kept histories
+across remounts and same-head snapshot refreshes.
+
+Proof: the moved Vitest specs; 0 legacy cases remain on the 2 files.
+
+### 6. Failed and empty reads keep live Scope Proof and recover on Retry
+
+Type: Behavior
+Status: planned
+
+Move `intent-project-scope-history-recovery` (2) and `-refresh` (1).
+
+Behavior: a failed or empty read keeps the last history and live Scope Proof,
+offers `Retry`, and recovers without borrowing another endpoint's or scope's
+history; Check again refreshes the same observed head with its own freshness.
+
+Proof: the moved Vitest specs; 0 legacy cases remain on the 2 files.
+
+### 7. The story's isolation and recovery proof runs faster with fewer maintained cases and no spent support
+
+Type: Structure
+Status: planned
+
+Remove any history `test-support` module or export whose last consumer across
+`e2e/`, `dashboard/frontend-tests/`, `dashboard/backend-tests/` and
+`Distribution/tests/` moved with this cohort (candidates:
+`projectScopeHistoryFacts.ts`, exports of `scopeTimingHistory.ts` used only
+here). Record the case-disposition table for the 11 legacy cases from
+Slices 3–6, and the paired two-worker before/after timing including
+preparation of the 8 owned files: before at P3 (`a1f0e6e51`, 44.9 s under
+load 33/28/23), after at the delivered head, alternating under comparable
+load.
+
+Proof: 0 legacy cases remain across the 8 owned files; consumers of removed
+support pass; full frontend group when the shared mount or page reads
+changed; representative `e2e/intent/intent-ci-status.spec.ts`.
+
+## Concern evidence
+
+Slice-plan refinement was not needed: each slice holds one outcome sized to
+one or two legacy files or one correction concern, below the eight-slice
+limit. This review found no remaining slice-specific concern.
+
+## Current decisions
+
+- Resplit collected timing reading and chart marks to plan 777 rather than
+  force three-file slices against the plan-764 overrun learning.
+- Capture after-timing under load comparable to P3, or record the load
+  difference beside the pair.
