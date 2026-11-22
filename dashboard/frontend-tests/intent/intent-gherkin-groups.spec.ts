@@ -1,56 +1,46 @@
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
-import { storySummary } from "../../test-support/intentModePage.ts";
-import {
-  fileSource,
-  sourceFile,
-} from "../../test-support/intentCodeBrowsePage.ts";
-// Intent location groups expand exclusively
-// (../../src/IntentPerspective.tsx): start collapsed, one open body at a time,
-// all-closed reachable, Purpose survives toggle collapse, empty/unsupported
-// bodies participate, and nested folder toggle disclosure stays local to the
-// open group. With no story selected, every location header is a section
-// header spanning the locations column edge to edge with a bold label and its
-// own background apart from folder and file rows; a selected header takes the
-// selected background across that width, while an expanded one shows only
-// its open toggle.
+// Intent location groups expand exclusively on the page's Intent body
+// (./intent-ci-page-mount.ts, ../../src/IntentPerspective.tsx,
+// ../../src/IntentLocationGroup.tsx): they start collapsed, one body opens at
+// a time, all can close, Purpose survives collapsing its group, empty and
+// unsupported bodies take part, nested folder toggles stay local, and with no
+// story selected each header spans the column apart from its rows.
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { unreadCiReads } from "../../test-support/component-mount/unreadPageReads.ts";
+import { fileName, scopeToggle } from "./intent-browser-page.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
+import { intentReadsPublishing } from "./intent-revision-fixtures.ts";
+import { intentScopeTree } from "./intent-scope-tree-page.ts";
 
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import {
-  collapseIntentGroup,
-  expandIntentFolders,
-  expandIntentGroup,
-  expectIntentGroupsCollapsed,
-  intentGroupToggle,
-  intentLocationName,
-} from "../../test-support/intentPerspectivePage.ts";
-import { locationHeaderLookAt } from "../../test-support/intentLocationHeaderLook.ts";
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
-import {
-  doughnut,
-  packagedFeature,
-  recallFeature,
-} from "../../test-support/intentGherkinBrowseFixtures.ts";
+const featuresPath = "e2e_test/features";
+const packagedPath = "e2e_test/packaged/features";
+const recallPath = `${featuresPath}/recall/recall_note.feature`;
+const packagedFile = `${packagedPath}/packaged.feature`;
+const emptyNotice =
+  "No gherkin files are published at empty_features for this revision.";
 
-test("Intent group sections start collapsed, expand exclusively, keep Purpose across collapse, leave nested folders local, and stand apart from their rows", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 900 });
-  putFrontendIntentSources(
-    frontendServices,
-    doughnut,
-    [
+const files: Readonly<Record<string, string>> = {
+  [recallPath]: "Feature: Recall a note\n  Scenario: Recall\n",
+  [packagedFile]: "Feature: Packaged\n",
+};
+
+async function mountGroups() {
+  const work = makeMe.aPublishedWork
+    .of(makeMe.aPublishedSource.pygardon.please())
+    .at("e7".repeat(20))
+    .please();
+  const locations = makeMe.anIntentLocationsAnswer
+    .locating(
       makeMe.anIntentLocation
-        .at("e2e_test/features")
+        .at(featuresPath)
         .ofKind("gherkin")
-        .selecting("e2e_test/features/recall/recall_note.feature")
+        .selecting(recallPath)
         .please(),
       makeMe.anIntentLocation
-        .at("e2e_test/packaged/features")
+        .at(packagedPath)
         .ofKind("gherkin")
-        .selecting("e2e_test/packaged/features/packaged.feature")
+        .selecting(packagedFile)
         .please(),
       {
         ...makeMe.anIntentLocation
@@ -68,180 +58,127 @@ test("Intent group sections start collapsed, expand exclusively, keep Purpose ac
           .please(),
         problem: "unsupported-kind",
       },
-    ],
-    {
-      "e2e_test/features/recall/recall_note.feature": recallFeature,
-      "e2e_test/packaged/features/packaged.feature": packagedFeature,
-      "empty_features/README.md": "# no features here\n",
-      "frontend/src/app.ts": "export {}\n",
-    },
+    )
+    .please();
+  const intent = intentReadsPublishing(locations, files);
+  await mountIntentCiPage({ work, reads: { intent, ci: unreadCiReads } });
+  return intentScopeTree();
+}
+
+const bodyText = () =>
+  page.getByRole("main", { name: "Intent", exact: true }).query()
+    ?.textContent ?? "";
+
+// How the header of the location at PATH reads against its column.
+function headerLook(path: string) {
+  const header = scopeToggle(path).element().parentElement as HTMLElement;
+  const column = header.closest(".intent-locations") ?? header;
+  const box = header.getBoundingClientRect();
+  const columnLeft = column.getBoundingClientRect().left + column.clientLeft;
+  const label = header.querySelector(".intent-location-name > *") ?? header;
+  return {
+    background: getComputedStyle(header).backgroundColor,
+    mark: getComputedStyle(header).boxShadow,
+    controlsShowHeader: [...header.children].every(
+      (child) => getComputedStyle(child).backgroundColor === "rgba(0, 0, 0, 0)",
+    ),
+    fullWidth:
+      Math.abs(box.left - columnLeft) < 1 &&
+      Math.abs(box.width - column.clientWidth) < 1,
+    labelWeight: Number(getComputedStyle(label).fontWeight),
+  };
+}
+
+test("location groups start collapsed and expand exclusively, keeping Purpose across collapse and nested folders local", async () => {
+  const tree = await mountGroups();
+  const features = tree.toggle(featuresPath);
+  const packaged = tree.toggle(packagedPath);
+  const empty = tree.toggle("empty_features");
+  for (const path of [featuresPath, packagedPath, "empty_features"])
+    await tree.toggle(path).isExpanded(false);
+  await tree.toggle("frontend/src").isExpanded(false);
+
+  await features.click();
+  await tree.toggle("recall").click();
+  const recall = await tree.openFile(recallPath);
+  await packaged.click();
+  await features.isExpanded(false);
+  await packaged.isExpanded(true);
+  await tree.hidesFile(recallPath);
+  await packaged.click();
+  await packaged.isExpanded(false);
+
+  // Purpose keeps the selected file while its group collapses.
+  await features.click();
+  await recall.shows("Feature: Recall a note");
+  await features.click();
+  await features.isExpanded(false);
+  await recall.shows("Feature: Recall a note");
+  await features.click();
+  await expect
+    .element(fileName(recallPath))
+    .toHaveAttribute("aria-pressed", "true");
+
+  // Empty and unsupported bodies take part in exclusive expansion.
+  await empty.click();
+  await features.isExpanded(false);
+  await expect.poll(bodyText).toContain(emptyNotice);
+  await tree.toggle("frontend/src").click();
+  await empty.isExpanded(false);
+  await expect.poll(bodyText).not.toContain(emptyNotice);
+  await expect
+    .poll(bodyText)
+    .toContain("Kind unfamiliar-language is not yet supported.");
+
+  // A nested folder toggle leaves its group open.
+  await features.click();
+  const folder = tree.toggle("recall");
+  await folder.isExpanded(true);
+  await folder.click();
+  await folder.isExpanded(false);
+  await features.isExpanded(true);
+  await tree.hidesFile(recallPath);
+  await folder.click();
+  await folder.isExpanded(true);
+});
+
+test("with no story selected, full-width bold location headers stand apart from their rows; selection fills one header and expansion shows only in its toggle", async () => {
+  const tree = await mountGroups();
+  await tree.toggle(featuresPath).click();
+  await tree.toggle("recall").click();
+  await tree.name(packagedPath).click();
+  await tree.name(packagedPath).isSelected(true);
+  await tree.toggle(featuresPath).isExpanded(true);
+  await tree.toggle(packagedPath).isExpanded(false);
+
+  const transparent = "rgba(0, 0, 0, 0)";
+  const fileRow = fileName(recallPath).element();
+  const folderRow = document.querySelector(".story-review-folder-row");
+  expect(folderRow).not.toBeNull();
+  const rowBackgrounds = [folderRow as Element, fileRow].map(
+    (row) => getComputedStyle(row).backgroundColor,
   );
+  expect(rowBackgrounds).toEqual([transparent, transparent]);
 
-  await openUntilRead(page, "/?project=doughnut");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-
-  await test.step("on Intent open, group headers are visible and every file list is hidden", async () => {
-    await expect(intentGroupToggle(intent, "e2e_test/features")).toBeVisible();
-    await expect(intentLocationName(intent, "e2e_test/features")).toBeVisible();
-    await expect(
-      intentGroupToggle(intent, "e2e_test/packaged/features"),
-    ).toBeVisible();
-    await expect(intentGroupToggle(intent, "empty_features")).toBeVisible();
-    await expect(intentGroupToggle(intent, "frontend/src")).toBeVisible();
-    await expectIntentGroupsCollapsed(intent);
-    await expect(
-      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
-    ).toHaveCount(0);
-    await expect(
-      sourceFile(intent, "e2e_test/packaged/features/packaged.feature"),
-    ).toHaveCount(0);
-  });
-
-  await test.step("expanding B while A is open closes A; collapsing leaves all closed", async () => {
-    await expandIntentGroup(intent, "e2e_test/features");
-    await expandIntentFolders(intent, "e2e_test/features");
-    await expect(
-      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
-    ).toBeVisible();
-    await expandIntentGroup(intent, "e2e_test/packaged/features");
-    await expect(
-      intentGroupToggle(intent, "e2e_test/features"),
-    ).toHaveAttribute("aria-expanded", "false");
-    await expect(
-      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
-    ).toHaveCount(0);
-    await expect(
-      sourceFile(intent, "e2e_test/packaged/features/packaged.feature"),
-    ).toBeVisible();
-    await collapseIntentGroup(intent, "e2e_test/packaged/features");
-    await expectIntentGroupsCollapsed(intent);
-  });
-
-  await test.step("select file, collapse its group: Purpose keeps it; re-expand restores the selected row", async () => {
-    await expandIntentGroup(intent, "e2e_test/features");
-    const feature = sourceFile(
-      intent,
-      "e2e_test/features/recall/recall_note.feature",
-    );
-    await feature.click();
-    const source = fileSource(
-      intent,
-      "e2e_test/features/recall/recall_note.feature",
-    );
-    await expect(source).toContainText("Feature: Recall a note");
-    await expect(feature).toHaveAttribute("aria-pressed", "true");
-    await collapseIntentGroup(intent, "e2e_test/features");
-    await expect(source).toContainText("Feature: Recall a note");
-    await expect(
-      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
-    ).toHaveCount(0);
-    await expandIntentGroup(intent, "e2e_test/features");
-    await expect(
-      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
-    ).toHaveAttribute("aria-pressed", "true");
-  });
-
-  await test.step("empty and unsupported group bodies participate in exclusive expansion", async () => {
-    await expandIntentGroup(intent, "empty_features");
-    await expect(
-      intentGroupToggle(intent, "e2e_test/features"),
-    ).toHaveAttribute("aria-expanded", "false");
-    await expect(intent).toContainText(
-      "No gherkin files are published at empty_features for this revision.",
-    );
-    await expandIntentGroup(intent, "frontend/src");
-    await expect(intentGroupToggle(intent, "empty_features")).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
-    await expect(intent).not.toContainText(
-      "No gherkin files are published at empty_features for this revision.",
-    );
-    await expect(intent).toContainText(
-      "Kind unfamiliar-language is not yet supported.",
-    );
-  });
-
-  await test.step("nested folder toggle opens or closes without collapsing the Intent group", async () => {
-    await expandIntentGroup(intent, "e2e_test/features");
-    const toggle = intent.getByRole("button", { name: "Collapse recall" });
-    await expect(toggle).toHaveAttribute("aria-expanded", "true");
-    await toggle.click();
-    await expect(
-      intent.getByRole("button", { name: "Expand recall" }),
-    ).toHaveAttribute("aria-expanded", "false");
-    await expect(
-      intentGroupToggle(intent, "e2e_test/features"),
-    ).toHaveAttribute("aria-expanded", "true");
-    await expect(
-      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
-    ).toHaveCount(0);
-    await intent.getByRole("button", { name: "Expand recall" }).click();
-    await expect(
-      intent.getByRole("button", { name: "Collapse recall" }),
-    ).toHaveAttribute("aria-expanded", "true");
-    await expect(
-      sourceFile(intent, "e2e_test/features/recall/recall_note.feature"),
-    ).toBeVisible();
-  });
-
-  await test.step("with no story selected, full-width bold headers stand apart from rows; selection fills one header, expansion shows only in the toggle", async () => {
-    await expect(storySummary(intent)).toHaveCount(0);
-    const expandedPath = "e2e_test/features";
-    const selectedPath = "e2e_test/packaged/features";
-    const transparent = "rgba(0, 0, 0, 0)";
-    const folderRow = intent.locator(".story-review-folder-row").first();
-    const fileRow = sourceFile(
-      intent,
-      "e2e_test/features/recall/recall_note.feature",
-    );
-    await intentLocationName(intent, selectedPath).click();
-    await expect(intentLocationName(intent, selectedPath)).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    await expect(fileRow).toHaveAttribute("aria-pressed", "false");
-    const rowBackgrounds = [
-      await folderRow.evaluate((row) => getComputedStyle(row).backgroundColor),
-      await fileRow.evaluate((row) => getComputedStyle(row).backgroundColor),
-    ];
-    expect(rowBackgrounds).toEqual([transparent, transparent]);
-
-    const looks = new Map<
-      string,
-      Awaited<ReturnType<typeof locationHeaderLookAt>>
-    >();
-    for (const location of [
-      expandedPath,
-      selectedPath,
-      "empty_features",
-      "frontend/src",
-    ])
-      looks.set(location, await locationHeaderLookAt(intent, location));
-    const expanded = looks.get(expandedPath);
-    const selected = looks.get(selectedPath);
-    await expect(intentGroupToggle(intent, expandedPath)).toHaveAttribute(
-      "aria-expanded",
-      "true",
-    );
-    await expect(intentGroupToggle(intent, selectedPath)).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
-    expect(expanded?.background).not.toBe(transparent);
-    expect(rowBackgrounds).not.toContain(expanded?.background);
-    for (const location of ["empty_features", "frontend/src"])
-      expect(looks.get(location)?.background).toBe(expanded?.background);
-    expect(selected?.background).not.toBe(expanded?.background);
-    expect(rowBackgrounds).not.toContain(selected?.background);
-    for (const look of looks.values()) {
-      expect(look).toMatchObject({
-        mark: "none",
-        controlsShowHeader: true,
-        fullWidth: true,
-      });
-      expect(look.labelWeight).toBeGreaterThanOrEqual(600);
-    }
-  });
+  const expanded = headerLook(featuresPath);
+  const selected = headerLook(packagedPath);
+  expect(expanded.background).not.toBe(transparent);
+  for (const path of ["empty_features", "frontend/src"])
+    expect(headerLook(path).background).toBe(expanded.background);
+  expect(selected.background).not.toBe(expanded.background);
+  expect(selected.background).not.toBe(transparent);
+  for (const path of [
+    featuresPath,
+    packagedPath,
+    "empty_features",
+    "frontend/src",
+  ]) {
+    const look = headerLook(path);
+    expect(look).toMatchObject({
+      mark: "none",
+      controlsShowHeader: true,
+      fullWidth: true,
+    });
+    expect(look.labelWeight).toBeGreaterThanOrEqual(600);
+  }
 });

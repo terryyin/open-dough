@@ -25,7 +25,7 @@ import {
   reactToRevisionCheckFailure,
   type RevisionAnswerHandlers,
 } from "./revisionAnswer.ts";
-import { checkPublishedRevision } from "./revisionCheckRead.ts";
+import type { checkPublishedRevision } from "./revisionCheckRead.ts";
 import type { RevisionDelivery } from "./revisionStreamSlot.ts";
 
 // How long a shown snapshot waits before asking whether the selected
@@ -41,6 +41,8 @@ export const checkReuseMs = checkIntervalMs - 1_000;
 
 // Shared inputs for check and stream delivery (`./revisionStreamSchedule.ts`).
 export type RevisionDeliveryAnswers = RevisionAnswerHandlers & {
+  // The observation's check of the shown revision.
+  readonly checkRevision: typeof checkPublishedRevision;
   readonly source: PublishedSource | undefined;
   readonly shownRevision: string | undefined;
   // The story branches the shown progress is read from, with the heads shown.
@@ -56,6 +58,7 @@ export type RevisionDeliveryAnswers = RevisionAnswerHandlers & {
 };
 
 export function useRevisionCheckSchedule({
+  checkRevision,
   source,
   shownRevision,
   watchedHeads,
@@ -96,7 +99,7 @@ export function useRevisionCheckSchedule({
     const waiting = setTimeout(
       () => {
         setAskedUnder(checksResumeAt);
-        checkPublishedRevision(
+        checkRevision(
           source,
           shownRevision,
           [...watchedHeads.keys()],

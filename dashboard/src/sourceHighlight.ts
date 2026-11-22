@@ -21,6 +21,13 @@ export type SourceTokenColors = {
 
 export type SourceTokenLine = readonly SourceTokenColors[];
 
+// The page's source highlighter: token lines for a text in a Shiki language
+// id, or `undefined` (plain text) when it cannot highlight; it never rejects.
+export type SourceHighlighter = (
+  text: string,
+  language: string,
+) => Promise<readonly SourceTokenLine[] | undefined>;
+
 const languageLoaders = {
   gherkin: () => import("@shikijs/langs/gherkin"),
   typescript: () => import("@shikijs/langs/typescript"),
@@ -135,10 +142,10 @@ async function ensureLanguage(
 // Token lines for `text` in a Shiki language id from `sourceLanguage` or
 // `pathLanguage`, or `undefined` when the language is unsupported or
 // loading/tokenization fails.
-export async function highlightSourceLines(
-  text: string,
-  language: string,
-): Promise<readonly SourceTokenLine[] | undefined> {
+export const highlightSourceLines: SourceHighlighter = async (
+  text,
+  language,
+) => {
   if (grammarModuleFor(language) === undefined) return undefined;
   try {
     const core = await loadHighlighter();
@@ -164,4 +171,4 @@ export async function highlightSourceLines(
   } catch {
     return undefined;
   }
-}
+};

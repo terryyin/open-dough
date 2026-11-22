@@ -14,7 +14,7 @@ import {
   purposeFor,
   recordedPlanPathFor,
 } from "./workEntryFacts.ts";
-import { readRepositoryFileAt } from "./authenticatedRead.ts";
+import type { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { loadRepositoryTexts } from "./repositoryFileReads.ts";
 import {
   resolveSourceLink,
@@ -128,6 +128,7 @@ function peekEntries(
 // ends the reads, carries its problem, so the enriched snapshot never keeps a
 // loading fact.
 export async function enrichPreparation(
+  readFile: typeof readRepositoryFileAt,
   work: PublishedWork,
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
@@ -152,7 +153,7 @@ export async function enrichPreparation(
       "The canonical record could not be read for preparation facts.",
       outcomes,
       bound,
-      readRepositoryFileAt,
+      readFile,
     );
 
   const peeks = peekEntries(
@@ -185,7 +186,7 @@ export async function enrichPreparation(
     "The associated plan could not be read for readiness facts.",
     outcomes,
     bound,
-    readRepositoryFileAt,
+    readFile,
   );
 
   const byIdentity = new Map<string, EntryFacts>();

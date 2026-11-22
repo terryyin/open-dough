@@ -83,7 +83,7 @@ test("each unavailable record keeps its own explanation, and the project's locat
   );
   await browsesLocations(absent);
 
-  intent.showProject(empty.work);
+  await intent.showWork(empty.work);
   await chooseRecordOf(empty.work);
   await recordReads(
     "This record has no pending candidates or accepted necessary costs.",
@@ -95,7 +95,7 @@ test("each unavailable record keeps its own explanation, and the project's locat
   await candidates.showsNoFailure();
   await browsesLocations(empty);
 
-  intent.showProject(mismatched.work);
+  await intent.showWork(mismatched.work);
   await chooseRecordOf(mismatched.work);
   await recordReads(
     `${recordPath} is not a Test Optimization Candidates record, so Intent shows none of its contents.`,
@@ -103,7 +103,7 @@ test("each unavailable record keeps its own explanation, and the project's locat
   expect(textAsRead(record)).not.toContain("Body that Intent must not");
   await browsesLocations(mismatched);
 
-  intent.showProject(unreadable.work);
+  await intent.showWork(unreadable.work);
   await chooseRecordOf(unreadable.work);
   await recordReads(`${recordPath} could not be read at this revision.`);
   await expect

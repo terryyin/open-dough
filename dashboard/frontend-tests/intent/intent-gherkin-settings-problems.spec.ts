@@ -1,25 +1,19 @@
 // Unreadable and malformed Intent settings stay distinct from not-configured,
 // and a failed Intent locations read names its specific cause and revision so
-// manual Retry shows either the absent explanation or the configured source
-// (../../src/ProjectIntentReading.tsx, ../../src/IntentLocationsUnavailable.tsx).
+// manual Retry shows either the absent explanation or the configured source,
+// on the page's Intent body (./intent-ci-page-mount.ts,
+// ../../src/IntentLocationsUnavailable.tsx).
 // Companion to ../../../e2e/intent/intent-gherkin-unusable.spec.ts location-body
 // explanations.
-import { createElement } from "react";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
-import {
-  requestIntentLocationsAt,
-  type IntentLocations,
-} from "../../src/authenticatedIntentRead.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
-import { PageReadsOnPage } from "../../src/pageReads.tsx";
-import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
-import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+import { unreadCiReads } from "../../test-support/component-mount/unreadPageReads.ts";
 import { intentBrowser } from "./intent-browser-page.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import { fixtureFor } from "./intent-revision-fixtures.ts";
 import { intentSettingsExplanation } from "./intent-settings-explanation-page.ts";
 
@@ -32,66 +26,33 @@ const doughnut = makeMe.aPublishedSource
   .please();
 const pygardon = makeMe.aPublishedSource.pygardon.please();
 
-async function mountReading(
-  readSource: IntentReadSource,
-  initial: PublishedWork,
-) {
-  const render = (work: PublishedWork) =>
-    createElement(
-      PageReadsOnPage,
-      { reads: pageReadsSupplying({ intent: readSource }) },
-      createElement(ProjectIntentReading, {
-        source: work.source,
-        work,
-        project: {
-          mode: "ci",
-          modeIdPrefix: "project-intent",
-          onModeChange: () => undefined,
-        },
-        projectShown: true,
-      }),
-    );
-  const mounted = await mountComponent(render(initial), {
-    viewport: { width: 1280, height: 600 },
-    fillsViewport: true,
+// The page's Intent body showing WORK, reading Intent through READSOURCE.
+async function mountReading(readSource: IntentReadSource, work: PublishedWork) {
+  const page = await mountIntentCiPage({
+    work,
+    projects: [doughnut, pygardon],
+    reads: { intent: readSource, ci: unreadCiReads },
   });
-  return {
-    showProject(work: PublishedWork) {
-      mounted.rerender(render(work));
-    },
-  };
+  return { showProject: page.showWork };
 }
 
+// Intent locations whose first read is unreachable, failing with CAUSE, and
+// whose next answers AFTERRETRY.
 function unreachableFirstLocationsRead(
   work: PublishedWork,
   afterRetry: IntentLocations,
   files: Readonly<Record<string, string>> = {},
 ) {
-  const realFetch = globalThis.fetch.bind(globalThis);
-  vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
-    const url =
-      typeof input === "string"
-        ? input
-        : input instanceof URL
-          ? input.href
-          : input.url;
-    if (url.includes(authenticatedReadEndpoint)) {
-      return Promise.reject(new TypeError("Failed to fetch"));
-    }
-    return realFetch(input, init);
-  });
-  onTestFinished(() => {
-    vi.restoreAllMocks();
-  });
+  const unreachable = makeMe.anUnreachableAuthenticatedRead
+    .at(work.revision)
+    .please();
   let attempts = 0;
   const readSource: IntentReadSource = {
-    readLocations(source, revision, signal) {
+    readLocations(source, revision) {
       expect(source.id).toBe(work.source.id);
       expect(revision).toBe(work.revision);
       attempts += 1;
-      if (attempts === 1) {
-        return requestIntentLocationsAt(source, revision, signal);
-      }
+      if (attempts === 1) return Promise.reject(unreachable);
       return Promise.resolve(afterRetry);
     },
     readFile(source, path, revision) {
@@ -101,7 +62,7 @@ function unreachableFirstLocationsRead(
     },
     readCandidates: () => Promise.resolve({ status: "absent" }),
   };
-  return { readSource, attempts: () => attempts };
+  return { readSource, cause: unreachable.message, attempts: () => attempts };
 }
 
 test("unreadable and malformed Intent settings stay distinct from not-configured", async () => {
@@ -141,7 +102,7 @@ test("unreadable and malformed Intent settings stay distinct from not-configured
   await explanation.panelExcludes("No Intent locations are configured");
   await explanation.panelExcludes("is not valid JSON");
 
-  intent.showProject(malformed);
+  await intent.showProject(malformed);
   await explanation.reads(
     ".planning/open-dough.json is not valid JSON, so Intent locations for Pygardon could not be read.",
   );
@@ -150,7 +111,7 @@ test("unreadable and malformed Intent settings stay distinct from not-configured
     "could not be read, so Intent locations for Pygardon are unavailable.",
   );
 
-  intent.showProject(unconfigured);
+  await intent.showProject(unconfigured);
   await explanation.isAbsent();
   await explanation.panelReads(
     "No Intent locations are configured for Doughnut.",
@@ -164,7 +125,7 @@ test("an Intent locations read that fails names its cause, and Retry reads it ag
     .of(doughnut)
     .at("c2".repeat(20))
     .please();
-  const { readSource, attempts } = unreachableFirstLocationsRead(
+  const { readSource, cause, attempts } = unreachableFirstLocationsRead(
     published,
     makeMe.anIntentLocationsAnswer.notConfigured().please(),
   );
@@ -172,7 +133,7 @@ test("an Intent locations read that fails names its cause, and Retry reads it ag
   await mountReading(readSource, published);
   const explanation = intentSettingsExplanation();
   await explanation.says(
-    `Intent locations for Doughnut could not be read: The local authenticated read could not be reached while reading .planning/open-dough.json at ${published.revision}. Retry`,
+    `Intent locations for Doughnut could not be read: ${cause} Retry`,
   );
 
   await explanation.retry();
@@ -200,7 +161,7 @@ test("retrying a failed Intent locations read opens the configured source at its
         .please(),
     )
     .please();
-  const { readSource, attempts } = unreachableFirstLocationsRead(
+  const { readSource, cause, attempts } = unreachableFirstLocationsRead(
     published,
     configured,
     files,
@@ -209,7 +170,7 @@ test("retrying a failed Intent locations read opens the configured source at its
   await mountReading(readSource, published);
   const explanation = intentSettingsExplanation();
   await explanation.says(
-    `Intent locations for Pygardon could not be read: The local authenticated read could not be reached while reading .planning/open-dough.json at ${published.revision}. Retry`,
+    `Intent locations for Pygardon could not be read: ${cause} Retry`,
   );
 
   await explanation.retry();

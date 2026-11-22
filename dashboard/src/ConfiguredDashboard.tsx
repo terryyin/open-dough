@@ -52,7 +52,7 @@ export function ConfiguredDashboard({
     reading,
     readAfresh,
     selectSource,
-  } = usePublishedObservation(initialSource.current);
+  } = usePublishedObservation(initialSource.current, reads.observation);
   const readFailure = attempt.status === "failed" ? attempt.problem : undefined;
   const launches = useAgentLaunches({
     shown,

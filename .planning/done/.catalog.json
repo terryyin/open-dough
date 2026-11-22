@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_speed-intent-source-browsing-and-detours.json",
+      "identity": "SEED-413#speed-intent-source-browsing-and-detours",
+      "completedAt": "2026-11-22T23:39:27.186Z",
+      "blob": "0c3f4a39845bf52616be55d1ca71e8346f6d23e4"
+    },
+    {
       "fileName": "SEED-413_speed-intent-scope-timing-history.json",
       "identity": "SEED-413#speed-intent-scope-timing-history",
       "completedAt": "2026-11-22T15:16:09.710Z",

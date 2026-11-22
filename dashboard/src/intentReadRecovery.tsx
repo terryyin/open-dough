@@ -17,7 +17,7 @@ import {
 import { usePageVisibility, type Visibility } from "./pageVisibility.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { ReadProblem } from "./readProblem.ts";
-import { standingLimit } from "./readingLimit.ts";
+import { noteLimitUntil, standingLimit } from "./readingLimit.ts";
 import {
   clearTransientFailure,
   noteTransientFailure,
@@ -27,8 +27,15 @@ import {
 
 type Recovery = "limited" | "transient" | undefined;
 
-export function intentRecoveryOf(problem: ReadProblem | undefined): Recovery {
-  return problem?.limited === undefined ? problem?.recovery : "limited";
+// Notes an Intent reader's failed read and answers how it recovers: a limited
+// answer also holds the page's standing limit until it resumes, which Intent's
+// limited reread waits on.
+export function noteFailedIntentRead(
+  problem: ReadProblem | undefined,
+): Recovery {
+  if (problem?.limited === undefined) return problem?.recovery;
+  noteLimitUntil(problem.limited.resumesAt);
+  return "limited";
 }
 
 const intentRecovery = createContext<{

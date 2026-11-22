@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Kirara-chan",
-  "email": "kirara-chan@example.org",
-  "identity": "SEED-413#speed-intent-source-browsing-and-detours",
-  "mode": "story-branch",
-  "branch": "claude/get-fast-proof-of-intent-source-browsing-pinned",
-  "host": "claude"
-}

@@ -10,6 +10,7 @@
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import { readMovedProgress } from "./movedBranchProgress.ts";
 import type { ObservationOutcomes } from "./observationOutcomes.ts";
+import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { readPublishedWork } from "./publishedWorkRead.ts";
@@ -35,6 +36,7 @@ export type ReadReports = {
 // Returns what letting go of the read before it lands asks: showing what it
 // answered itself, once its signal is aborted.
 export function carryOutRead(
+  reads: PublishedObservationReadSource,
   { revision, movedBranches }: ReadRequest,
   source: PublishedSource,
   shown: PublishedWork | undefined,
@@ -88,6 +90,7 @@ export function carryOutRead(
     acceptProgress,
     revision,
     shown,
+    reads,
   ).then(
     (read) => {
       landed(true, () => {

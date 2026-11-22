@@ -62,18 +62,6 @@ export async function expandIntentGroup(intent: Locator, locationPath: string) {
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
 }
 
-// Collapse the open Intent group when it is expanded.
-export async function collapseIntentGroup(
-  intent: Locator,
-  locationPath: string,
-) {
-  const toggle = intentGroupToggle(intent, locationPath);
-  if ((await toggle.getAttribute("aria-expanded")) === "true") {
-    await toggle.click();
-  }
-  await expect(toggle).toHaveAttribute("aria-expanded", "false");
-}
-
 // The folder toggles inside one expanded Intent location's body.
 function intentFolderToggles(intent: Locator, locationPath: string) {
   return intent

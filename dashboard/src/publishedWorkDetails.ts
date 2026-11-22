@@ -6,6 +6,7 @@
 // not answered yet (`./carriedFacts.ts`).
 
 import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
+import type { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { enrichPreparation } from "./preparationEnrichment.ts";
 import { readAssignments, type ProfilesRead } from "./agentAssignments.ts";
 import { withAssignments } from "./assignmentPlacement.ts";
@@ -31,6 +32,7 @@ import { withCarriedFacts } from "./carriedFacts.ts";
 // `carriedFrom`, the shown snapshot of an earlier revision, lends its facts to
 // every part not yet answered.
 export async function readPublishedDetails(
+  readDetailFile: typeof readRepositoryFileAt,
   work: PublishedWork,
   sameRevision: boolean,
   carriedFrom: PublishedWork | undefined,
@@ -109,6 +111,7 @@ export async function readPublishedDetails(
   // Owners and preparers come from the agent profiles at the same
   // revision, read beside the preparation facts.
   const preparationRead = enrichPreparation(
+    readDetailFile,
     work,
     untilEither,
     outcomes,

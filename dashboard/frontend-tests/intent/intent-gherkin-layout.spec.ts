@@ -1,84 +1,66 @@
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
-import { filesColumn } from "../../test-support/intentModePage.ts";
-import {
-  fileSource,
-  sourceFile,
-} from "../../test-support/intentCodeBrowsePage.ts";
-// Intent Gherkin layout: the height below the banner, left-edge location
-// browser, and independent pane scrolling
-// (`../../test-support/intentGherkinBrowseFixtures.ts`, ../../src/IntentBrowser.tsx).
+// Intent's location browser meets the page column's left edge, and it and the
+// reading pane reach the viewport's bottom and scroll on their own, on the
+// page's Intent body (./intent-ci-page-mount.ts, ../../src/IntentBrowser.tsx).
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { unreadCiReads } from "../../test-support/component-mount/unreadPageReads.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
+import { intentReadsPublishing } from "./intent-revision-fixtures.ts";
+import { intentScopeTree } from "./intent-scope-tree-page.ts";
 
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { box } from "../../test-support/partArrangement.ts";
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
-import { doughnut } from "../../test-support/intentGherkinBrowseFixtures.ts";
-import {
-  expandIntentFolders,
-  expandIntentGroup,
-} from "../../test-support/intentPerspectivePage.ts";
-import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
+const featuresPath = "e2e_test/features";
+const longPath = `${featuresPath}/area/case_00.feature`;
 
-test("Intent fills the height below the banner; the location browser meets the left edge and it and the reading pane scroll on their own", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 600 });
-  const cases = Object.fromEntries(
-    [...Array(40).keys()].map((n) => [
-      `e2e_test/features/area/case_${String(n).padStart(2, "0")}.feature`,
-      n === 0
-        ? `Feature: Long\n${"  Scenario: A step\n    Given a step\n".repeat(60)}`
-        : `Feature: Case ${n}\n`,
-    ]),
-  );
-  putFrontendIntentSources(
-    frontendServices,
-    doughnut,
-    [
+// Forty features, the first long enough to scroll the reading pane.
+const files: Readonly<Record<string, string>> = Object.fromEntries(
+  [...Array(40).keys()].map((n) => [
+    `${featuresPath}/area/case_${String(n).padStart(2, "0")}.feature`,
+    n === 0
+      ? `Feature: Long\n${"  Scenario: A step\n    Given a step\n".repeat(60)}`
+      : `Feature: Case ${n}\n`,
+  ]),
+);
+
+const element = (selector: string) => {
+  const found = document.querySelector<HTMLElement>(selector);
+  if (found === null) throw new Error(`Intent shows no ${selector}`);
+  return found;
+};
+
+test("the location browser meets the column's left edge, and it and the reading pane fill the height below the banner and scroll on their own", async () => {
+  const work = makeMe.aPublishedWork
+    .of(makeMe.aPublishedSource.pygardon.please())
+    .at("f8".repeat(20))
+    .please();
+  const locations = makeMe.anIntentLocationsAnswer
+    .locating(
       makeMe.anIntentLocation
-        .at("e2e_test/features")
+        .at(featuresPath)
         .ofKind("gherkin")
-        .selecting(...Object.keys(cases))
+        .selecting(...Object.keys(files))
         .please(),
-    ],
-    cases,
-  );
+    )
+    .please();
+  const intent = intentReadsPublishing(locations, files);
+  await mountIntentCiPage({ work, reads: { intent, ci: unreadCiReads } });
+  const tree = intentScopeTree();
+  await tree.toggle(featuresPath).click();
+  await tree.toggle("area").click();
+  await (await tree.openFile(longPath)).shows("Feature: Long");
 
-  await openUntilRead(page, "/?project=doughnut");
-  const { intent, intentChoice } = parts(page);
-  await intentChoice.click();
-  await expandIntentGroup(intent, "e2e_test/features");
-  await expandIntentFolders(intent, "e2e_test/features");
-  await sourceFile(intent, "e2e_test/features/area/case_00.feature").click();
-  await expect(
-    fileSource(intent, "e2e_test/features/area/case_00.feature"),
-  ).toContainText("Feature: Long");
-
-  const region = page.locator(".intent-scroll");
-  const browser = filesColumn(intent);
-  const reading = intentReadingPane(intent);
-  expect(
-    await region.evaluate((el) => el.scrollHeight > el.clientHeight),
-    "the page below the banner does not scroll",
-  ).toBe(false);
-  const [column, browserBox, readingBox] = await Promise.all([
-    box(page.locator(".page-column")),
-    box(browser),
-    box(reading),
-  ]);
+  // The location browser and the reading pane, as the page styles them.
+  const browser = element(".intent-locations");
+  const reading = element(".intent-reading");
+  const column = element(".page-column").getBoundingClientRect();
+  const browserBox = browser.getBoundingClientRect();
+  const readingBox = reading.getBoundingClientRect();
   expect(browserBox.x).toBe(column.x);
-  expect(browserBox.y + browserBox.height).toBe(600);
-  expect(readingBox.y + readingBox.height).toBe(600);
+  expect(browserBox.bottom).toBe(window.innerHeight);
+  expect(readingBox.bottom).toBe(window.innerHeight);
 
-  const scrolledTo = (pane: typeof browser, top: number) =>
-    pane.evaluate((el, to) => {
-      el.scrollTo({ top: to });
-    }, top);
-  const topOf = (pane: typeof browser) => pane.evaluate((el) => el.scrollTop);
-  await scrolledTo(browser, 200);
-  expect([await topOf(browser), await topOf(reading)]).toEqual([200, 0]);
-  await scrolledTo(reading, 300);
-  expect([await topOf(browser), await topOf(reading)]).toEqual([200, 300]);
+  const tops = () => [browser.scrollTop, reading.scrollTop];
+  browser.scrollTo({ top: 200 });
+  await expect.poll(tops).toEqual([200, 0]);
+  reading.scrollTo({ top: 300 });
+  await expect.poll(tops).toEqual([200, 300]);
 });

@@ -42,7 +42,7 @@ cohort.
   read through the required typed page entry (plan 759 Slice 1, with the page
   observation's reads added by plan 762 Slice 1) and render the production
   Intent body or `ConfiguredDashboard`, as
-  [plan 762's correction](../762-speed-intent-source-browsing-and-detours/PLAN.md#correction-of-the-locations-recovery-test-entry)
+  plan 762's correction (recoverable at `8fb7691cc:.planning/slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md#correction-of-the-locations-recovery-test-entry`)
   establishes. `loadRepositoryTexts`'s former optional `readFile` and the
   provider composition in `intent-candidates-publication.ts` were the
   test-entry defects that correction removes; do not reuse either.
@@ -83,6 +83,11 @@ replacing the first legacy file, and move `intent-read-reuse-story`,
 `intent-story-dark-appearance`, `intent-story-summary-title`, and
 `intent-story-views-narrow` (8 files, 16 legacy cases), retaining
 `e2e/intent/intent-story-changes.spec.ts`.
+When `intent-story-ci-cues` moves, give the Intent location header look one
+Vitest home: `intent-gherkin-groups.spec.ts`'s `headerLook` (plan 762 Slice 7)
+repeats the rule in `dashboard/test-support/intentLocationHeaderLook.ts`;
+retire the Playwright copy once its last consumer moves (plan 762
+retrospective, 2026-11-23).
 
 **Proof.** Selected story only follows the current revision, empty or failed
 comparisons name their cause while keeping the tree usable, opened changed
