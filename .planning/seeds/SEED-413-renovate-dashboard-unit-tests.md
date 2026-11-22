@@ -456,7 +456,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 3b | [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours) | 23 | 16 |
 | 3c | [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading) | 41 | 19 |
 | 4 | Get fast proof of board and side-panel interactions (completed) | 63 | 28 |
-| 5 | [Get fast proof of composing and starting a launch](#speed-dashboard-launch-proof) | 81 | 29 |
+| 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
 | 7 | [Get fast proof of live sessions and terminal work](#speed-dashboard-live-session-and-terminal-proof) | 77 | 31 |
 | 8 | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | 61 | 22 |
@@ -760,68 +760,6 @@ Slice 2 boundary alongside
   disposition and run on Vitest without `act` wrapping. Apply the
   [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
   case-count, spent-support, and coverage checks.
-
-<a id="speed-dashboard-launch-proof"></a>
-
-### Get fast proof of composing and starting a launch
-
-**Identity:** SEED-413#speed-dashboard-launch-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/762-speed-dashboard-launch-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"31a4bd56b0029f6e09371a9c4c4d8edd8351232e62f54a6630e82cfc32069219","plan":"f9ec2735525b40433886d9eb017076b6852677c16f63e572860c131ffef254d5"}}
-```
-
-**Goal.** Dashboard maintainers get faster feedback that composing and
-starting a launch keeps the intended draft, host, model, effort, options,
-attachments, dictation, and note handoff, and that a refused or uncertain
-start leaves a truthful recovery path.
-
-**Scope.** Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)
-to every legacy `launches/` spec (29 sources, 81 cases): ad-hoc Start
-session placement and dialogs, story-card Start execution and Start
-refinement offers and dialogs, host catalog and model or effort choices,
-refinement options, creation gates, instruction layout and touch,
-attachments (paste, refusal, cancel), instruction voice capture and
-overflow, Follow up note attach, startup answers and host words, and
-responsive session access including unattached starts and recovery reads.
-Keep distinct provider constraints and handoff routes observable where the
-UI owns them. Retain journeys that need actual installation, a native host
-launch, or cross-service startup in existing `e2e/launches/` coverage.
-[Board and frame launch-opening checks](../../dashboard/frontend-tests/navigation/frame-launch-look.spec.ts)
-cover opening the dialog.
-[Done session review](#speed-dashboard-done-session-review-proof) and
-[live sessions and terminal](#speed-dashboard-live-session-and-terminal-proof)
-own post-start session and review proof. The final campaign story owns
-frontend runner retirement. Backend launch-boundary and attachment specs
-keep their existing owners.
-
-The [launch unit proof follow-up](#make-launch-proof-orthogonal) owns the
-7–8 second target and the redesign needed to reach it.
-
-**Key examples**
-
-- Opening Start session or a story's Start execution / Start refinement
-  names the project or story and host, focuses the instruction field, and
-  Escape or Cancel sends nothing and returns the keyboard to the offer.
-- Choosing host, model, effort, or refinement options updates what Start
-  asks for; changing host resets incompatible effort; a late catalog reply
-  cannot replace another host's current options; Cancel after a refusal
-  drops the kept selection.
-- Pasting text into the instruction still inserts it; refused PDF,
-  oversized, or excess images keep the draft with reasons; Cancel or Escape
-  after Attach uploads nothing and reopens empty.
-- Dictation that overflows 4,000 characters retains both drafts for edit;
-  Cancel or Escape abandons a held transcription and a late grant or reply
-  cannot populate the next dialog.
-- While a start is known to be running, the action that started it is disabled
-  and the dashboard shows progress. Recovery controls appear when evidence
-  needs reconciliation. A lost or uncertain story start keeps the story
-  protected and offers Recheck, with Continue only for a retained attempt
-  that can be resumed. Standalone Start session can open again after an
-  uncertain answer while recovery remains available separately. Settlement
-  leaves the keyboard on a task begun meanwhile.
-- Follow up offers Attach when notes wait and Start names the choice; with
-  no waiting notes Attach is unavailable and Start still works; a Taken
-  card shows notes waiting and offers no Follow up.
 
 <a id="make-launch-proof-orthogonal"></a>
 
