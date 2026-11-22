@@ -91,12 +91,18 @@ unless `.closedAt(iso)` is given, so real-clock readers keep fixtures current;
 ### 2. Recently done omits expired published sessions
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a frontend unit spec beside `recently-done-published-session-launch.spec.ts` lists a current and an expired published record through the Recently done selection at a fixed `now`; only the current one is listed. Fails without the filter.
 
 Behavior: a listing that holds an expired and a current record → Recently
 done builds its entries → only the current record is placed; a kept launch
 standing for a UUID keeps its own lifecycle.
+
+Accepted proof: `dashboard/frontend-tests/sessions/recently-done-expired-published-sessions.spec.ts`
+(red without the filter), with dashboard typecheck, the frontend sessions,
+review, intent and story consumers, and
+`e2e/sessions/recently-done-published-sessions.spec.ts`. The filter is
+`currentPublishedSessions(listing, now)` in `dashboard/src/recentlyDoneListing.ts`.
 
 ### 3. Session-record commits prune expired records
 
