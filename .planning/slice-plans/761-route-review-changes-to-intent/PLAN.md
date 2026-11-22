@@ -101,7 +101,7 @@ which alone knows where each control lives.
 
 Type: Behavior (correction of SEED-420#choose-story-comparison-in-intent,
 provenance `29cd279`..`97eecc1`; found by its execution retrospective)
-Status: planned
+Status: done
 Behavior: while a commit range, a chosen landed run or a Refresh reads,
 Intent keeps the last shown comparison and the Compare group, says that it
 is reading, keeps focus on the pressed control, and leaves Refresh
@@ -283,28 +283,35 @@ review journey reaches the changed opening.
   continuing: the second attempt confirmed the edit and the three cases below
   and did not write them. The next attempt writes that edit and does not
   survey the comparison modules again.
-- Confirmed edit, not yet written. In `useStoryComparison`, remember the last
-  `storyComparisonShown` for the story key and keep showing it while the
-  selection read or the commit-range read is in flight. Treat range reading
-  as reading and put `reading` on `StoryCompare`. In the lens, prefer
-  `compared` when a comparison is still shown, with `reading: true`, and
-  still attach `defaultReview` and `compare` on a bare `reading` state.
-  `compareOf` and `defaultReviewOf` also read that `reading` state.
-  `CompactComparisonState` says "Reading the story's changes…" while a
-  compared story is reading. Intent Refresh uses `aria-disabled` and does
-  not advance the round while reading. New spec
-  `intent-story-compare-reading.spec.ts` (`makeMe: true`, `pageObjects:
-  false`): a pending range read, a pending Refresh whose second click does
-  not start another round, and a pending Done run read that keeps the
-  locations browser and the CI Done endpoint on the default. Do not move
-  `isDefault`, remove `defaultStoryComparison`, or unify `wholeStory`.
+- Confirmed edit, written in this session. `useStoryComparison` remembers
+  the last shown comparison and the review that produced it for the story
+  key, and keeps both while the selection read or the commit-range read is
+  in flight. Range reading counts as reading, and `StoryCompare` carries
+  `reading`. The lens prefers `compared` with `reading: true` when a
+  comparison is still shown, and a bare `reading` state still carries
+  `defaultReview` and `compare`. `compareOf` and `defaultReviewOf` read
+  that state. `CompactComparisonState` says "Reading the story's changes…"
+  while a compared story is reading. Intent Refresh is `aria-disabled`
+  while reading, stays focusable, and does not advance the round.
+  `intent-story-compare-reading.spec.ts` covers a pending range, a pending
+  Refresh whose second press does not read again, and a pending Done run
+  that keeps the locations browser and the CI Done endpoint on the default.
+  `isDefault`, `defaultStoryComparison`, and `wholeStory` stay for slice 2.
 - Third overrun, 2026-11-22, paused at 17.1 active minutes. The return
   reported 15.3. No edit and no proof. `storyOverruns` is 3. Failed
   assumption: a write-first brief that named the four edits and the three
   tests would be written inside 15 active minutes. The attempt still only
   read. The story boundary from the second overrun stands: one story, nine
   slices, no further split. Another fresh delegation repeats this failure.
-  Slice 1 stays planned and paused.
+  Slice 1 stays planned until this session's proof is published.
+- The developer chose to write the edit in this session. Active time paused
+  at 12.6 minutes, under the limit. Proof is the mounted Intent cases in
+  `intent-story-compare-reading.spec.ts`, the other five
+  `intent-story-compare-*` specs, `dashboard/frontend-tests/review` before
+  the kept-review adjustment (that adjustment is Intent-only;
+  `useStoryComparison` has no Side panel caller), and
+  `npm run --silent typecheck:dashboard` after the final production edit.
+  Refactor pass: none — already clean. Files stay under 250 lines.
 
 ## Execution context
 

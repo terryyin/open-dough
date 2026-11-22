@@ -5,6 +5,7 @@
 // An active workspace shows all changes, including uncommitted work. Done
 // Intent reads the completed result even while that workspace remains.
 
+import { useRef } from "react";
 import {
   storyComparisonShown,
   type ShownStoryComparison,
@@ -60,6 +61,15 @@ export function useStoryComparison({
   const subject: ReviewedStorySubject = { source, identity };
   // The choice is the story's, and a story becoming Done opens on its result.
   const keyedBy = `${identity}${completed ? " done" : ""}`;
+  // The last comparison this story showed, kept while a newer read is in flight.
+  const shownMemory = useRef<
+    | {
+        readonly key: string;
+        readonly shown: ShownStoryComparison;
+        readonly review: StoryReview | undefined;
+      }
+    | undefined
+  >(undefined);
   const {
     defaultReview,
     review,
@@ -118,19 +128,33 @@ export function useStoryComparison({
     comparison,
     tree,
   });
+  // The selection read and the commit-range read. A range read leaves the
+  // snapshot review in place while its comparison is still arriving.
+  const readingNow = reading || range.reading;
+  if (storyShown !== undefined)
+    shownMemory.current = { key: keyedBy, shown: storyShown, review };
+  const remembered =
+    readingNow && shownMemory.current?.key === keyedBy
+      ? shownMemory.current
+      : undefined;
+  const shownKept = storyShown ?? remembered?.shown;
+  // The review that produced the comparison still on screen. A chosen run
+  // leaves the live review unset until its answer matches.
+  const reviewKept =
+    storyShown !== undefined ? review : (remembered?.review ?? review);
   // A chosen run other than the answer's own, or a chosen commit range, read
   // as the Side panel review explains them.
   const unreadable =
-    reading || storyShown !== undefined
+    readingNow || shownKept !== undefined
       ? undefined
       : (runUnread ?? (shown === "commits" ? unreadRange(range) : undefined));
   return {
-    review,
+    review: reviewKept,
     defaultReview,
-    reading,
+    reading: readingNow,
     problem,
     unreadable,
-    shown: storyShown,
+    shown: shownKept,
     compare:
       (snapshot === undefined || review?.kind !== "snapshot") &&
       published === undefined &&
@@ -158,6 +182,7 @@ export function useStoryComparison({
                 : includeUncommitted,
             onIncludeUncommitted: setIncludeUncommitted,
             onRefresh,
+            reading: readingNow,
           },
   };
 }

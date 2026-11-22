@@ -99,6 +99,7 @@ export function intentStoryCompare() {
     includeUncommitted: compare.getByRole("checkbox", {
       name: "Include uncommitted changes",
     }),
+    refreshButton: compare.getByRole("button", { name: "Refresh" }),
     refresh: () =>
       userEvent.click(compare.getByRole("button", { name: "Refresh" })),
     commits,
