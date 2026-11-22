@@ -1,14 +1,14 @@
 // @ts-check
-import { makeMe } from "../../../../tests/support/makeMe.mjs";
-import { direction } from "../../../../tests/support/product-backlog-fixture.mjs";
+import { makeMe } from "./makeMe.mjs";
+import { direction } from "./product-backlog-fixture.mjs";
 import {
   queuedReadyRepository,
   readyStoryState,
   storyA,
   storyB,
   storySeed,
-} from "../../../../tests/support/queued-repository.mjs";
-import { splitHref } from "../../dough-product-backlog/scripts/product-backlog-identity.mjs";
+} from "./queued-repository.mjs";
+import { splitHref } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
 
 export const storyB2 = makeMe.aBacklogEntry
   .with({ identity: "SEED-B#b2", href: "seeds/B.md#b2", title: "Story B2" })

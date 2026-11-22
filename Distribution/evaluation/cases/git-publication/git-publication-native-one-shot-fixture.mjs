@@ -54,7 +54,7 @@ import {
   queuedRepositoryWithSiblingB2,
   seedWithSiblingB2,
   storyB2,
-} from "../../../src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs";
+} from "../../../tests/support/one-shot-queued-repository.mjs";
 
 const [, journey, parent] = process.argv.slice(2);
 const git = (cwd, ...args) =>

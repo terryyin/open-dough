@@ -56,15 +56,10 @@ Dashboard and installed scripts share.
   it, the payload lists name no removed file, and the repository suites pass.
   Rerunning the reachability and unused-export scan finds no installed module
   or export whose only users are tests.
+- **Completed cleanup.** Worktree preparation and queued one-shot fixtures now
+  live in `Distribution/tests/support/`. The installer dropped the test-only
+  readiness gate. Native fixture identity follows the moved one-shot fixture.
 - **Findings to remove or move.**
-  - Test and evaluation support living under `dough-execute-plan/scripts/`:
-    `execution-worktree-preparation-assessor.mjs`,
-    `execution-worktree-preparation-project.mjs` and
-    `one-shot-queued-repository.mjs` (506 lines, not shipped), and the
-    shipped `execution-worktree-preparation-readiness-gate.mjs`, which no
-    guidance or script calls. The one-shot fixture's bytes feed
-    `git-publication-fixture-identity.sh`, so moving it changes that recorded
-    fixture identity.
   - `watch-ci.mjs`: a command wrapper no guidance invokes. Production calls
     `watchCiExecution` directly. Twelve tests import or spawn the wrapper.
   - Exports only tests use: `deliverCiEvents`, `deliverHostBoundary`,
@@ -76,11 +71,9 @@ Dashboard and installed scripts share.
   - `dough-makeme/scripts/select-makeme.mjs` and `changed-makeme.mjs` with
     `selectMakeMeEntries`: `test-entry-rules.mjs --source` and `--changed`
     replaced them, and no guidance names them. Their tests and the MakeMe
-    evaluation cases still assert the old commands. Once they go, no
-    installed file imports `intent-location-selection.mjs`,
-    `intent-location-settings.mjs`, `repository-path.mjs`,
-    `minimatch.bundle.mjs` or `minimatch.LICENSE.md`; the Dashboard and the
-    bundle build still use them, so they move out of the installed skill.
+    evaluation cases still assert the old commands. Keep the matcher and
+    location modules in the payload because the active test-entry selector
+    imports them.
   - The `merge` verb of `product-backlog.mjs` with `reportMerge`; only the
     merge test fixture runs it. `mergeBacklogs` then takes text instead of
     paths, which removes the temporary files in `git-candidate.mjs` and
@@ -230,8 +223,8 @@ Dashboard and installed scripts share.
   their payload by list still verify.
 - **Effort hypothesis.** M, medium confidence. The reader for historical
   declarations stays.
-- **Depends on.** The first story, which moves the four unshipped files out
-  of the directory.
+- **Prerequisite met.** The four test fixtures have moved out of the
+  distribution source.
 - **Safe stopping point.** A check that the list equals the directory
   already removes the drift risk.
 

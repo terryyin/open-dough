@@ -33,7 +33,7 @@ import {
   remoteHeads,
   revParse,
 } from "./publication-test-fixtures.mjs";
-import { queuedRepositoryWithUnrefinedB2 } from "../../../src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs";
+import { queuedRepositoryWithUnrefinedB2 } from "../../support/one-shot-queued-repository.mjs";
 import { configureDeveloper } from "./workspace-publication-startup-test-fixtures.mjs";
 
 const changedPaths = async (origin, sha) =>

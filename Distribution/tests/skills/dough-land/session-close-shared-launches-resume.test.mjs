@@ -12,7 +12,7 @@ import {
   publishSessionClose,
   resumeSessionClose,
 } from "../../../src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
-import { readCloseState } from "../../../src/skills/dough-execute-plan/scripts/session-close-state.mjs";
+import { readGitPathJson } from "../../../src/skills/dough-execute-plan/scripts/git-path-json-store.mjs";
 import { beginNativeSession } from "../../../src/skills/dough-execute-plan/scripts/execution-session-evidence.mjs";
 import { managementContext } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import {
@@ -35,6 +35,13 @@ import { acceptedPushes, recordingPushes } from "./session-close-faults.mjs";
 const branch = "land/ad-hoc";
 const launchA = "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa";
 const launchB = "bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb";
+
+function readCloseState(workspace, sessionId) {
+  return readGitPathJson(
+    workspace,
+    `open-dough/session-close/${sessionId}.json`,
+  );
+}
 
 // Both launches' landing contexts, planted as open for the one checkout.
 async function twoOpenLaunches(t, fixture) {

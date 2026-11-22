@@ -16,7 +16,7 @@ import {
 } from "./workspace-publication-fixtures.mjs";
 import { takenIdentities } from "../../../src/skills/dough-execute-plan/scripts/workspace-publication-ownership.mjs";
 import { exec } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { runReadinessGate } from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs";
+import { runReadinessGate } from "../../support/execution-worktree-preparation-readiness-gate.mjs";
 import { agentModes } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 for (const mode of agentModes) {

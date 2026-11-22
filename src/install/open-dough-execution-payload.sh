@@ -156,7 +156,6 @@ managed_files+=(
   dough-execute-plan/scripts/session-record-publication.mjs
   dough-execute-plan/scripts/session-close-identity.mjs
   dough-execute-plan/scripts/git-path-json-store.mjs
-  dough-execute-plan/scripts/session-close-state.mjs
   dough-execute-plan/scripts/sealed-session-record.mjs
   dough-execute-plan/scripts/shared-checkout-note.mjs
   dough-execute-plan/scripts/session-record-pruning.mjs
@@ -184,7 +183,6 @@ managed_files+=(
   dough-execute-plan/scripts/execution-start-carry.mjs
   dough-execute-plan/scripts/execution-session-evidence.mjs
   dough-execute-plan/scripts/one-shot-ownership.mjs
-  dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-candidate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs
   dough-execute-plan/scripts/supplier-integration.mjs

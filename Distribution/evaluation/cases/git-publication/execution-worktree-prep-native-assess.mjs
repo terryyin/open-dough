@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { assessWorktreePreparation } from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-assessor.mjs";
+import { assessWorktreePreparation } from "../../../tests/support/execution-worktree-preparation-assessor.mjs";
 import { readHostStream } from "../../src/native-host-stream.mjs";
 import {
   nativeEvidence,

@@ -6,7 +6,7 @@
 // omitted (resolve-publication-landing-context.mjs). This module stays free of Git
 // helpers so the reporting-dir copy used by accepted capture can clear alone.
 import { createHash } from "node:crypto";
-import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const sidecarName = "first-landing-expectation.json";
@@ -29,16 +29,19 @@ function sidecarPath(landingContext) {
   return path.join(path.dirname(path.resolve(landingContext)), sidecarName);
 }
 
-// Open launches' prepared context paths in the expectation file, oldest
-// first. A legacy single-record file reads as one open launch.
-async function readOpenLaunches(file, workspace, branch) {
-  let record;
+async function readOptionalJson(file) {
   try {
-    record = JSON.parse(await readFile(file, "utf8"));
+    return JSON.parse(await readFile(file, "utf8"));
   } catch (error) {
-    if (error.code === "ENOENT") return [];
+    if (error.code === "ENOENT") return undefined;
     throw error;
   }
+}
+
+// A legacy single-record file reads as one open launch.
+async function readOpenLaunches(file, workspace, branch) {
+  const record = await readOptionalJson(file);
+  if (record === undefined) return [];
   if (record.workspace !== workspace || record.branch !== branch) return [];
   const launches = Array.isArray(record.launches)
     ? record.launches
@@ -50,11 +53,7 @@ async function readOpenLaunches(file, workspace, branch) {
 
 async function writeOpenLaunches(file, workspace, branch, contexts) {
   if (contexts.length === 0) {
-    try {
-      await unlink(file);
-    } catch (error) {
-      if (error.code !== "ENOENT") throw error;
-    }
+    await rm(file, { force: true });
     return;
   }
   await mkdir(path.dirname(file), { recursive: true });
@@ -93,42 +92,23 @@ export async function plantFirstLandingExpectation({
   return file;
 }
 
-// Remove one launch's open expectation; removing the last removes the file.
-async function clearFirstLandingExpectation({
-  repository,
-  workspace,
-  branch,
-  landingContext,
-}) {
+// Clear one launch after accepted capture using its prepared sidecar.
+export async function clearFirstLandingExpectationForContext(landingContext) {
   const absoluteContext = path.resolve(landingContext);
+  const sidecar = sidecarPath(absoluteContext);
+  const keys = await readOptionalJson(sidecar);
+  if (keys === undefined) return;
+  const { repository, workspace, branch } = keys;
   const file = firstLandingExpectationPath(repository, workspace, branch);
   const open = await readOpenLaunches(file, workspace, branch);
-  if (!open.includes(absoluteContext)) return;
-  await writeOpenLaunches(
-    file,
-    workspace,
-    branch,
-    open.filter((context) => context !== absoluteContext),
-  );
-}
-
-// Clear from the prepared context path after accepted capture. No-op when no
-// expectation was planted for that context.
-export async function clearFirstLandingExpectationForContext(landingContext) {
-  const sidecar = sidecarPath(landingContext);
-  let keys;
-  try {
-    keys = JSON.parse(await readFile(sidecar, "utf8"));
-  } catch (error) {
-    if (error.code === "ENOENT") return;
-    throw error;
-  }
-  await clearFirstLandingExpectation({ ...keys, landingContext });
-  try {
-    await unlink(sidecar);
-  } catch (error) {
-    if (error.code !== "ENOENT") throw error;
-  }
+  if (open.includes(absoluteContext))
+    await writeOpenLaunches(
+      file,
+      workspace,
+      branch,
+      open.filter((context) => context !== absoluteContext),
+    );
+  await rm(sidecar, { force: true });
 }
 
 // Open launches' prepared context paths for this workspace/branch, oldest

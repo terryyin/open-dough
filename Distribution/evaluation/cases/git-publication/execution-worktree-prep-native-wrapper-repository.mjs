@@ -19,7 +19,7 @@ import {
   git,
   originOnly,
   wrapperProject,
-} from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
+} from "../../../tests/support/execution-worktree-preparation-project.mjs";
 
 // Disposable wrapper-driven fixture: sibling worktree, CONTRIBUTING names
 // `./wrapper prepare` / `./wrapper prove`, machine-level artifact cache

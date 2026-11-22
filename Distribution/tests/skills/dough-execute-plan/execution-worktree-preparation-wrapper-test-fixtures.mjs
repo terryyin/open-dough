@@ -19,7 +19,7 @@ import {
   readTraces,
   usesNpmOrNix,
   wrapperProject,
-} from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
+} from "../../support/execution-worktree-preparation-project.mjs";
 
 export function observeWrapperPreparation(fixture, result) {
   const generated = join(fixture.execution, "target", "built");

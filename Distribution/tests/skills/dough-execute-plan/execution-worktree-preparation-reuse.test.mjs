@@ -4,13 +4,13 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { promisify } from "node:util";
-import { assessWorktreePreparation } from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-assessor.mjs";
-import { runReadinessGate } from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs";
+import { assessWorktreePreparation } from "../../support/execution-worktree-preparation-assessor.mjs";
+import { runReadinessGate } from "../../support/execution-worktree-preparation-readiness-gate.mjs";
 import {
   integritySnapshot,
   lockfileDigest,
   setupTraceCount,
-} from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
+} from "../../support/execution-worktree-preparation-project.mjs";
 import {
   createLockedNodeFixture,
   observePreparation,

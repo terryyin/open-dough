@@ -9,7 +9,7 @@ import {
   readTraces,
   setupCountRel,
   usesNpmOrNix,
-} from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
+} from "../../../tests/support/execution-worktree-preparation-project.mjs";
 
 const setupPattern = /(?:^|[\s;&|])(?:npm\s+ci\b|(?:\.\/)?wrapper\s+prepare\b)/;
 const commandPattern =

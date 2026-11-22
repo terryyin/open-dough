@@ -23,6 +23,9 @@ git -C "${release_source}" checkout --quiet --detach "${older_tag}"
 git -C "${release_source}" worktree add --quiet --detach "${old_release}" "${older_tag}"
 prepare_target "${target}"
 bash "${old_release}/install.sh" --source "${release_source}" --target "${target}" > /dev/null
+readiness_gate=dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
+[[ -f "${target}/.agents/skills/${readiness_gate}" ]]
+[[ -f "${target}/.claude/skills/${readiness_gate}" ]]
 
 git -C "${release_source}" rm --quiet -r -- src
 mkdir -p -- "${release_source}/Distribution/src" "${release_source}/src"
@@ -39,13 +42,14 @@ git -C "${release_source}" tag -a "v${candidate_version}" -m 'Candidate with rel
 old_helper="${old_release}/src/install/open-dough-release.sh"
 output=$(bash "${old_helper}" apply --target "${target}")
 [[ "${output}" == *"Open Dough guidance in"*"version ${candidate_version}"* ]]
-# Relocation alone removes nothing: every reported removal is a file the
-# candidate no longer ships.
+# The tagged updater removes retired paths from both layouts.
 removed_files=$(sed -n 's/^  \(dough-.*\)$/\1/p' <<< "${output}")
+[[ $'\n'"${removed_files}"$'\n' == *$'\n'"${readiness_gate}"$'\n'* ]]
 while IFS= read -r removed; do
   [[ -z "${removed}" || ! -e "${release_source}/Distribution/src/skills/${removed}" ]]
 done <<< "${removed_files}"
 for root in .agents .claude; do
+  [[ ! -e "${target}/${root}/skills/${readiness_gate}" ]]
   destination="${target}/${root}/skills/dough-update"
   installed=$(cat "${destination}/VERSION")
   [[ "${installed}" == "${candidate_version}" ]]

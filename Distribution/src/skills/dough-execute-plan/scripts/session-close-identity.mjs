@@ -1,8 +1,5 @@
-// A session close's identity: the session a close names, its story, record
-// path and shared-checkout note, or the refusal before any push when that
-// identity is absent or conflicting. With several Dashboard launches open in
-// one checkout, a close naming neither its landing context nor a session id
-// is refused rather than guessed as any launch or native session.
+// Resolve the close's session before any push. Native evidence is a fallback
+// only when the checkout has no competing Dashboard launches.
 import { readFile } from "node:fs/promises";
 import { readSessionEvidence } from "./execution-session-evidence.mjs";
 import {
@@ -28,10 +25,6 @@ async function sharedCheckoutNote(landingContext) {
   }
 }
 
-// The session a close names, with the story it carries and any
-// shared-checkout note beside it: a Dashboard launch's landing context, else,
-// with no explicitly retained id and no other launch open in the checkout,
-// the workspace's unclosed native session evidence.
 async function namedSession(retained, landingContext, checkout) {
   if (landingContext) {
     const launch = JSON.parse(await readFile(landingContext, "utf8"));
@@ -48,11 +41,8 @@ async function namedSession(retained, landingContext, checkout) {
     : {};
 }
 
-// The close's identity, story and record path, refused before any push when
-// the identity is absent or conflicting.
 export async function closeTarget({
-  retained,
-  story,
+  session: { sessionId: retained, story },
   backlogPath,
   ...request
 }) {

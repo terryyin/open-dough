@@ -22,7 +22,7 @@ import { readRevisionCoverage } from "../../../src/skills/dough-execute-plan/scr
 import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { exec, git, revParse } from "./publication-test-fixtures.mjs";
-import { storyB2 } from "../../../src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs";
+import { storyB2 } from "../../support/one-shot-queued-repository.mjs";
 import { listed } from "./workspace-publication-admission-fixtures.mjs";
 import {
   identityB,

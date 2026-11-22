@@ -2,28 +2,12 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
-import { assessWorktreePreparation } from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-assessor.mjs";
-import { runReadinessGate } from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs";
+import { assessWorktreePreparation } from "../../support/execution-worktree-preparation-assessor.mjs";
+import { runReadinessGate } from "../../support/execution-worktree-preparation-readiness-gate.mjs";
 import {
   createWrapperDrivenFixture,
   observeWrapperPreparation,
 } from "./execution-worktree-preparation-wrapper-test-fixtures.mjs";
-
-const skill = fileURLToPath(
-  new URL("../../../src/skills/dough-execute-plan/", import.meta.url),
-);
-
-function readSkill(name) {
-  return readFileSync(join(skill, name), "utf8");
-}
-
-test("the readiness gate does not name an ecosystem command", () => {
-  const gate = readSkill(
-    "scripts/execution-worktree-preparation-readiness-gate.mjs",
-  );
-  assert.doesNotMatch(gate, /\b(?:npm|nix|maven|gradle|pom\.xml)\b/i);
-});
 
 test("a fresh wrapper-driven worktree follows the project convention", async (t) => {
   const fixture = await createWrapperDrivenFixture();

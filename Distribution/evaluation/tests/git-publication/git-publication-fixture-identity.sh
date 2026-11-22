@@ -83,7 +83,7 @@ family_inputs=(
   Distribution/tests/support/repository-fixture.mjs
   Distribution/tests/support/queued-repository.mjs
   Distribution/tests/support/startup-command-files.mjs
-  Distribution/src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs
+  Distribution/tests/support/one-shot-queued-repository.mjs
   ${escalation}"
   "owned-context|${installer_inputs} ${fixture_helper}
   Distribution/evaluation/cases/git-publication/git-publication-native-owned-context-fixture.mjs
