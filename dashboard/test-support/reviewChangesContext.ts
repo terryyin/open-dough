@@ -4,6 +4,7 @@
 // operation reveals the details first; the scenario supplies the words.
 
 import { expect, type Locator } from "@playwright/test";
+import { expectSharedCheckoutNote } from "./support/reviewComparisonContext.ts";
 import { contextLine, contextValues } from "./support/reviewContextLine.ts";
 
 export class ReviewContext {
@@ -23,6 +24,14 @@ export class ReviewContext {
   async expectSays(text: string | RegExp) {
     await this.#reveal();
     await expect(contextLine(this.#review)).toContainText(text);
+    return this;
+  }
+
+  // The shared-checkout warning beside the comparison's revisions, or its
+  // absence.
+  async expectSharedCheckoutWarning(shown: boolean) {
+    await this.#reveal();
+    await expectSharedCheckoutNote(this.#review, shown);
     return this;
   }
 

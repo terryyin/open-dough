@@ -2,7 +2,8 @@
 // the workflow's one record contract
 // (../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs).
 // Only the fields the review reads are typed; the UUID names the session.
-// `workflow` stays an open string so later plans can add values.
+// `workflow` stays an open string so later plans can add values; a range's
+// `uncertainty` stays open too, and older records carry none.
 import { z } from "zod";
 import {
   isSessionId,
@@ -18,7 +19,13 @@ export const publishedSessionRecordSchema = z.object({
   closedAt: z.iso.datetime(),
   // The session's ordered recorded pairs; the review selects one by position.
   ranges: z
-    .array(z.object({ base: commitSchema, candidate: commitSchema }))
+    .array(
+      z.object({
+        base: commitSchema,
+        candidate: commitSchema,
+        uncertainty: z.string().min(1).optional(),
+      }),
+    )
     .min(1),
 });
 

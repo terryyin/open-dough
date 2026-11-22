@@ -2,8 +2,14 @@
 // (../../e2e/sessions/recently-done-published-sessions.spec.ts) prepares it:
 // its own clone of the bare origin, where each session's branch adds a file
 // and trunk later moves on without it.
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import type { Page } from "@playwright/test";
+import {
+  landingReceiver,
+  noteSharedCheckout,
+} from "../../Distribution/tests/skills/dough-execute-plan/dashboard-landing-test-fixtures.mjs";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { dashboardDeveloper } from "./support/startOriginPreparation.ts";
 import { commitAll, git, writeAt } from "./support/storyReviewWorktree.ts";
@@ -65,4 +71,34 @@ export function trunkAdvancedWith(
 export function publishedPairAdding(origin: StartOrigin, file: string) {
   const base = git(originatingClone(origin), "rev-parse", "origin/main");
   return { base, candidate: trunkAdvancedWith(origin, file) };
+}
+
+// The originating machine's Dashboard launch of `sessionId`, receiving its
+// landing reports on loopback until `page`'s context closes, with that
+// Dashboard's shared-checkout note beside its landing context: another
+// session was open in its checkout since `since`. Answers the landing
+// context's path.
+export async function launchSharingCheckout(
+  origin: StartOrigin,
+  page: Page,
+  sessionId: string,
+  since: Date,
+) {
+  const receiver = await landingReceiver({
+    after: (close: () => void) => page.context().on("close", close),
+  });
+  const reporting = path.join(origin.machine, "reporting", sessionId);
+  mkdirSync(reporting, { recursive: true });
+  const landingContext = path.join(reporting, "landing-context.json");
+  writeFileSync(
+    landingContext,
+    JSON.stringify(
+      makeMe.aLandingContext
+        .reportingTo(receiver.origin)
+        .referencing(sessionId)
+        .please(),
+    ),
+  );
+  await noteSharedCheckout(landingContext, since);
+  return landingContext;
 }

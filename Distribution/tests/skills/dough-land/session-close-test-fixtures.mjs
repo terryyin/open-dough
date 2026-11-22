@@ -1,14 +1,13 @@
 // Shared setup for session close publication and resume proofs: one
 // unpublished edit in a Land workspace, closed through publishSessionClose.
-import { writeFile } from "node:fs/promises";
 import { makeMe } from "../../support/makeMe.mjs";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
 import { publishSessionClose } from "../../../src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
-import { sharedCheckoutNotePathBeside } from "../../../src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 import { git } from "../dough-execute-plan/publication-test-fixtures.mjs";
 import {
   landingContextFile,
   landingReceiver,
+  noteSharedCheckout,
 } from "../dough-execute-plan/dashboard-landing-test-fixtures.mjs";
 
 export const nativeSession = "0b5c2f1e-6a3d-4c8e-9f21-7d4e5a6b8c90";
@@ -38,11 +37,7 @@ export async function aLaunchLandingContext(t, sharedSince) {
     t,
     makeMe.aLandingContext.reportingTo(receiver.origin).please(),
   );
-  if (sharedSince !== undefined)
-    await writeFile(
-      sharedCheckoutNotePathBeside(file),
-      JSON.stringify({ since: sharedSince.toISOString() }),
-    );
+  if (sharedSince !== undefined) await noteSharedCheckout(file, sharedSince);
   return file;
 }
 

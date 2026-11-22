@@ -98,7 +98,7 @@ payload and evidence-identity tests until it was.
 ### 2. Show the shared-checkout warning in the published-session review
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Add a marked and an unmarked published close to
 `e2e/sessions/recently-done-published-sessions.spec.ts` (published through
 `publishSessionClose` with a note, as slice 1 delivers) and assert through
@@ -109,6 +109,17 @@ the `shared` flag per selected range.
 **Behavior.** From a machine with no launch history, opening a published
 session's marked range shows the shared Done warning; an unmarked range, or
 another unmarked range of the same record, shows none.
+
+**Accepted proof.** `npm run --silent test:e2e -- e2e/sessions/recently-done-published-sessions.spec.ts`
+(run with `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES`;
+`scripts/test.sh` does not route e2e specs), the backend
+`review/published-session-review`, `review/published-session-ranges` and
+`review/done-kept-session-shared-checkout` specs, and `typecheck:dashboard`
+pass. The sentence's one owner is `sharedCheckoutWarning` in
+`StoryReviewSessionCommitsContext.tsx`. A close through a landing context
+needs a reachable landing receiver; tests write the note through
+`noteSharedCheckout` in
+`Distribution/tests/skills/dough-execute-plan/dashboard-landing-test-fixtures.mjs`.
 
 ### 3. Note shared-checkout overlap when launches share a checkout
 
@@ -125,7 +136,8 @@ with a landing context is open, both reporting directories hold a note whose
 before the other opened, gets no note. With slices 1 and 2 this completes the
 story's examples.
 Slice 3 adds the note writer and the keep-earliest `since` rule to
-`shared-checkout-note.mjs` with their Dashboard caller.
+`shared-checkout-note.mjs` with their Dashboard caller; the test helper
+`noteSharedCheckout` then writes through that writer.
 
 ## Concern evidence
 
