@@ -172,7 +172,7 @@ reporting.
 ### 4. Mark as read keeps the session open
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the page spec's Mark-as-read test passes.
 
 Behavior: Mark as read clears the button, sets `reportRead` to the completion

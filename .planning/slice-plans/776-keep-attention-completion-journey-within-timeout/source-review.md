@@ -43,10 +43,10 @@ The coordinator launched a fresh general-purpose reviewer (agent `72170936-0723-
 | C26 | The final report panel shows the native report. Composed attention completion journey, page owner. Retention sentence applies. | slice 3 | observed: e2e/sessions/agent-completion-attention-page.spec.ts Then the final report panel shows the native report, toHaveText "The saved conversation's final report."; slice3-page.log.run.json exit 0 |
 | C27 | The final report panel does not show the reminder. Page owner. Retention sentence applies. | slice 3 | observed: same spec And the final report panel does not show the reminder; slice3-page.log.run.json exit 0 |
 | C28 | The final report panel offers no Mark as read. Page owner. Retention sentence applies. | slice 3 | observed: same spec And the final report panel offers no Mark as read, button count 0; slice3-page.log.run.json exit 0 |
-| C29 | Mark as read clears the button. Page owner. Retention sentence applies. | slice 4 |  |
-| C30 | Mark as read records `reportRead`. Page owner. Retention sentence applies. | slice 4 |  |
-| C31 | Mark as read leaves `doneAt` unset. Page owner. Retention sentence applies. | slice 4 |  |
-| C32 | Mark as read adds no panel control. Page owner. Retention sentence applies. | slice 4 |  |
+| C29 | Mark as read clears the button. Page owner. Retention sentence applies. | slice 4 | observed: e2e/sessions/agent-completion-attention-page.spec.ts Then Mark as read clears the button, markRead count 0; slice4-page.log.run.json exit 0 |
+| C30 | Mark as read records `reportRead`. Page owner. Retention sentence applies. | slice 4 | observed: same spec And the stored record's reportRead is that completion receipt; slice4-page.log.run.json exit 0 |
+| C31 | Mark as read leaves `doneAt` unset. Page owner. Retention sentence applies. | slice 4 | observed: same spec And the stored record leaves doneAt unset; slice4-page.log.run.json exit 0 |
+| C32 | Mark as read adds no panel control. Page owner. Retention sentence applies. | slice 4 | observed: same spec And Mark as read adds no panel button, buttonsAddedSince []; slice4-page.log.run.json exit 0 |
 | C33 | Mark as done closes the panel. Page owner. Retention sentence applies. | slice 5 |  |
 | C34 | Mark as done removes the message from the story card. Page owner. Retention sentence applies. | slice 5 |  |
 | C35 | Mark as done sets `doneAt`. Page owner. Retention sentence applies. | slice 5 |  |
