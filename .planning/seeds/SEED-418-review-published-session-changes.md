@@ -21,7 +21,7 @@ standalone Done work. This seed owns session attribution and selection.
 
 **Identity:** SEED-418#disclose-shared-checkout-overlap
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/766-disclose-shared-checkout-overlap/PLAN.md","assessment":"not-ready","reasons":["Split from SEED-418#attribute-every-workflow-session-record at delivered slice 7; awaiting story refinement of goal, scope and examples and realignment of provisional plan 766, including the cross-component overlap design (the publisher cannot read the Dashboard's local launch records) and its split into at least two slices."],"basis":{"document":"410f52a8c710b872317557a39e771fd03036ab190f10f141951062af3ab7b621","plan":"ea3d1335d7c7fa5c3072f733684e53ef965e736f6503064f27aeff250335becc"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/766-disclose-shared-checkout-overlap/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"16be72e6ae6de64400ee0e3c0e6cbc5be6d2703cce5a68943159c38229c2ffe6","plan":"0c18218af54953b2fa56675b0a2986046fe11780f43494650d4679e620670311"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-418#disclose-shared-checkout-overlap","dependencies":[{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Published session records with ordered accepted comparisons for every publishing workflow","rationale":"Overlap disclosure marks ranges in the records that every workflow's close publishes; until those records and their shared publisher are on trunk there are no ranges to mark.","condition":"Every publishing workflow publishes one session record with its ordered accepted comparisons on trunk, and another machine reviews each range in the published-session review.","state":"satisfied","resolution":{"revision":"c546ff771b47b42f549a153cbbef4604bb89560d","path":".planning/seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record","summary":"Satisfied: every publishing workflow (refinement, Trunk and Story Branch execution, Dashboard-launched ad hoc Land and ad hoc story follow-ups) publishes one record with ordered accepted comparisons through the shared sealed-session-record publisher, and another clone reviews each range. A native ad hoc Land without a retained session identity still writes no record (recorded product advice). Delivered at before-cleanup c546ff771 and integrated on main at 3dbaff36c. Proof: Land closes (Distribution/tests/skills/dough-land/session-record-publication.test.mjs, session-close-resume.test.mjs), Trunk Mode wrap-up (dough-story-wrap-up/trunk-closure-session-record*.test.mjs read from a default-branch-only clone), Story Branch wrap-up (story-branch-session-record.test.mjs), refinement and ad hoc follow-up Lands (dough-story-refinement/preparation-*session-record-land.test.mjs), and another machine reviewing each range (e2e/sessions/recently-done-published-sessions.spec.ts).\nCondition satisfied: Every publishing workflow publishes one session record with its ordered accepted comparisons on trunk, and another machine reviews each range in the published-session review.\nAccepted integration: 3dbaff36c0b21730ff23ba5948b5199522b0f103 on origin/refs/heads/main."}}]}
@@ -33,31 +33,45 @@ record and its accepted comparisons.
 
 **Goal.** A developer reviewing a published session from another machine can
 see when one of its comparisons may include another session's work from the
-same checkout.
+same checkout, so they do not attribute that work to the wrong session.
 
-**Scope.** When shared-checkout evidence cannot distinguish individual
-contributions, mark the affected ranges in the published record and show the
-uncertainty in the published-session review. Changes received only by pull
-and unpublished edits stay outside the record. A session in an isolated
-checkout, or one that did not overlap another, shows no warning.
+**Scope.**
+
+- The Dashboard already knows when two of its launched sessions are open in
+  the same checkout ([`checkoutSharedMeanwhile`](../../dashboard/server/sessionCheckoutShared.ts),
+  which Done capture uses). Overlap can begin after a session launches, when
+  another session later opens in its checkout. Whenever that happens, the
+  Dashboard keeps, beside each affected open session's landing context, when
+  the overlap began. The publisher cannot read local launch records, so this
+  note is its only overlap evidence.
+- At close, the publisher marks each published range accepted at or after the
+  overlap start with an optional `uncertainty: "shared-checkout"`. Records and
+  ranges without it stay readable and show no warning.
+- The published-session review shows the marked range with the existing Done
+  warning: "Another session was open in the same checkout during that time, so
+  the comparison may include that session's work."
+- Only that uncertainty is published; launch records stay local under
+  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
+- A published range is the accepted pair from the trunk the session built on
+  to its landed commit, so changes received only by pull and unpublished edits
+  already stay outside it; this story keeps that and adds nothing for it.
+- Scope limits: a close without a Dashboard landing context (a native
+  session, or a Default main launch that establishes no session) has no
+  overlap evidence and publishes no mark; installations that predate the note
+  publish unmarked records. Identifying which session made which change in a shared checkout is
+  not attempted.
 
 **Key examples.**
 
-- An ad hoc story follow-up lands while another session was writing in its
-  checkout. Its published comparison discloses the overlap and omits changes
-  received only by pull. A follow-up in its own worktree shows no warning.
-
-**Design finding.** Execution of the original story found that the
-Dashboard's overlap rule `checkoutSharedMeanwhile`
-([`sessionCheckoutShared.ts`](../../dashboard/server/sessionCheckoutShared.ts)),
-which Done capture uses, reads local launch records that the Distribution
-publisher cannot see. Recommended for refinement: the Dashboard evaluates
-overlap at launch and writes a shared-checkout note beside each open
-session's landing context. The publisher marks ranges accepted at or after the
-overlap start with an optional per-range `uncertainty: "shared-checkout"`. The
-published review reuses the Done shared-checkout warning wording. This is too
-large for one slice; split it into the note and range marking, then the review
-display end to end.
+- Two Dashboard sessions work in the Default main checkout at the same time;
+  one lands a story follow-up. From another clone, its published range shows
+  the shared-checkout warning, and a commit the checkout received only by pull
+  before the work is absent from the comparison.
+- A session launches alone in the Default main checkout; a second session
+  opens there later, before the first lands. The first session's landed range
+  still shows the warning.
+- A follow-up in its own worktree, or a Default main session that closed
+  before another one opened there, shows no warning.
 
 <a id="expire-published-session-records"></a>
 
