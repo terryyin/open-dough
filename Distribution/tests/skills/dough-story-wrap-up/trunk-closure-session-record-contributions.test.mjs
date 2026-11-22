@@ -1,11 +1,11 @@
 // A wrapped-up Trunk Mode session's published record, read from a fresh
 // default-branch-only clone, holds every accepted trunk contribution of the
 // session in order: its increments and its closure, each range readable with
-// its exact files. Another writer's changes, refused candidates and the record
-// commit itself are no session work.
+// its exact files. Another writer's changes, refused candidates, edits never
+// published and the record commit itself are no session work.
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -51,8 +51,9 @@ async function defaultBranchOnlyClone(t, origin) {
 
 // Delivers two increments in process, with another writer's change between
 // them and the second refused once by a racing writer, then the before-cleanup
-// increment through the installed `deliver`, and closes through `finish`,
-// which retires the execution worktree.
+// increment through the installed `deliver`, and closes through `finish`
+// with an uncommitted edit left in the execution worktree: the record is
+// published and retirement preserves the dirty checkout.
 async function wrapUpSessionWithTwoIncrements(t) {
   const fixture = await createTrunkClosureFixture(t);
   const { sessionId } = beginNativeSession(fixture.execution);
@@ -93,13 +94,19 @@ async function wrapUpSessionWithTwoIncrements(t) {
     await deliverBeforeCleanupThroughCli(fixture, { base: second.receipt.sha })
   ).receipt.sha;
   const final = await commitFinalClosure(fixture);
+  writeFileSync(join(fixture.execution, "uncommitted.txt"), "uncommitted\n");
   releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
   const closed = await finishThroughCli(fixture, {
     beforeCleanup,
     final,
     extra: ["--created-for-work"],
   });
-  assert.equal(closed.code, 0, JSON.stringify(closed));
+  assert.equal(
+    closed.result.record?.status,
+    "published",
+    JSON.stringify(closed),
+  );
+  assert.equal(closed.result.cleanup.reason, "dirty checkout");
   return {
     fixture,
     sessionId,
@@ -108,7 +115,7 @@ async function wrapUpSessionWithTwoIncrements(t) {
   };
 }
 
-test("a wrapped-up session's record read from a default-branch-only clone holds every accepted contribution in order and no other writer's, refused or record work", async (t) => {
+test("a wrapped-up session's record read from a default-branch-only clone holds every accepted contribution in order and no other writer's, refused, unpublished or record work", async (t) => {
   const { fixture, sessionId, increments, racing } =
     await wrapUpSessionWithTwoIncrements(t);
   const clone = await defaultBranchOnlyClone(t, fixture.origin);
@@ -151,4 +158,8 @@ test("a wrapped-up session's record read from a default-branch-only clone holds 
       rangeCommits.add(sha);
   }
   assert.deepEqual([...rangeCommits].sort(), [...increments].sort());
+  assert.deepEqual(
+    await clone.lines("log", "--all", "--format=%H", "--", "uncommitted.txt"),
+    [],
+  );
 });

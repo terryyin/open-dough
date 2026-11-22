@@ -35,6 +35,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Disclose shared-checkout overlap in published session records](seeds/SEED-418-review-published-session-changes.md#disclose-shared-checkout-overlap) — SEED-418#disclose-shared-checkout-overlap
+- [Expire published session records after 30 days](seeds/SEED-418-review-published-session-changes.md#expire-published-session-records) — SEED-418#expire-published-session-records
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
 - [Tie Done capture cases to the real branch entry and retire the fold’s residue](seeds/SEED-413-renovate-dashboard-unit-tests.md#tie-done-capture-cases-to-production) — SEED-413#tie-done-capture-cases-to-production
 - [Open a story's change review in Intent](seeds/SEED-420-unified-intent-review.md#open-review-in-intent) — SEED-420#open-review-in-intent
