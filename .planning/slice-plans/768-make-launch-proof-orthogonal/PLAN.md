@@ -1,24 +1,27 @@
-# Get launch unit proof in about eight seconds
+# Prove launch dialogs, dictation and startup recovery at their own owners
 
 **Identity:** SEED-413#make-launch-proof-orthogonal
-**Source:** [Get launch unit proof in about eight seconds](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal)
+**Source:** [Prove launch dialogs, dictation and startup recovery at their own owners](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal)
 **Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
-Dashboard maintainers get the launch unit selection
-(`npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`)
-in about 7–8 s wall including preparation. Each case arranges its
+Dashboard maintainers get faster launch unit feedback for the dense launch
+layout, model and effort reset, transcript review, native recording races,
+story card startup status and startup recovery. Each case arranges its
 preconditions at the smallest production owner through typed inputs and
 depends only on what can change its asserted result. Independent dimensions
 are proved separately; combinations stay where they change the result.
 
-Included: the 23 Vitest specs and page helpers under
-`dashboard/frontend-tests/launches/`, production narrowing that lets an owner
-stand alone in production, and spent launch test support. Excluded: new E2E
-cases, the native, install and backend journeys (they keep their owners), and
-other frontend families. A shared runner configuration change needs whole
-frontend group proof. Apply the
+Included: the launch specs and page helpers Slices 1–6 reshape, production
+narrowing that lets an owner stand alone in production, and spent launch
+test support. Excluded: new E2E cases, the native, install and backend
+journeys (they keep their owners), and other frontend families. On
+2026-11-22 the developer split note attachment, unattached startup,
+attachments, record details, the hand-built launches composites (G5) and
+the whole-selection eight-second measurement into
+[SEED-413#finish-launch-proof-orthogonal](../771-finish-launch-proof-orthogonal/PLAN.md).
+Apply the
 [shared acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories).
 
 ## Key examples and proof
@@ -28,8 +31,7 @@ frontend group proof. Apply the
 | A refinement or Start session dialog with every option selected, at each viewport where layout differs. | Layout cases arrange the selection through a production input and assert reach, stacking and no sideways scroll. One case proves option-to-command mapping, one proves native tab order, one touch-resize case keeps the draft. | 1 |
 | Model and effort are chosen and the dialog is dismissed. | Reset is proved once at the shared dialog. Each launcher keeps one case for its own launch and focus handoff; host effort rules are checked without reopening three launchers. | 2 |
 | A transcript at, one over, or well over 4,000 combined characters. | The overflow, edit and discard rules run on transcript text at their production owner. Held reply, late permission, track loss and capture failures still record through the real recorder. | 3, 4 |
-| A story card starts, recovers or attaches notes. | Presentation, recovery and note attachment run from typed status, attempt and read, and notes. One representative keyboard launch-to-focus journey stays. | 5, 6, 7 |
-| The whole selection runs at two workers. | About 7–8 s wall including preparation, paired with the starting selection under similar load. Every retired observation names its replacement. | 8 |
+| A story card starts or recovers. | Presentation and recovery run from typed status, attempt and read. One representative keyboard launch-to-focus journey stays. | 5, 6 |
 
 ## Current decisions
 
@@ -40,8 +42,6 @@ frontend group proof. Apply the
   parameter to make a test arrangement possible.
 - Compare timing as paired runs under similar load (one-minute load
   recorded at start and end), never against the 32.04 s figure alone.
-- If the target cannot be reached without losing a distinct observation,
-  stop at Slice 8 with the measured remainder and its cause for Terry.
 
 ## Decisive premises observed
 
@@ -52,7 +52,7 @@ Observations ran in the preparation checkout at `d33ded4f9` on
 | Consuming operation | Observed form and result | Limit |
 | --- | --- | --- |
 | Whole-selection measurement | `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2` passed 72/72 in 23 files: 36.7 s wall, Vitest 33.66 s, 51.3 summed case-seconds, load 14.4 → 13.7. Most costly files (summed s): `ad-hoc-launch-dialog` 6.62, `launch-model-effort` 4.00, `story-card-launch-offers` 3.65, `ad-hoc-start-session-layout` 3.33, the three dictation files 8.38, `launch-refinement-options` 3.14, `ad-hoc-refinement-touch` 2.89. | Taken under high load; Slice 1 retakes the paired baseline. |
-| Fixed cost per run | One browser file (`ad-hoc-start-session.spec.ts`, 2 cases, 1.45 s of cases) took 3.9 s wall; a non-browser file took 2.3–2.6 s. About 2.5 s is fixed, leaving roughly 11 case-seconds across two workers. Wall exceeds half the summed case time by about 11 s, so per-file import, mount and imbalance count. | Per-file cost is not yet broken down; Slice 8 measures it. |
+| Fixed cost per run | One browser file (`ad-hoc-start-session.spec.ts`, 2 cases, 1.45 s of cases) took 3.9 s wall; a non-browser file took 2.3–2.6 s. About 2.5 s is fixed, leaving roughly 11 case-seconds across two workers. Wall exceeds half the summed case time by about 11 s, so per-file import, mount and imbalance count. | Per-file cost is not yet broken down; the eight-second story measures it. |
 | Runner isolation | `dashboard/frontend.vitest.config.mts` sets `isolate: true` and adds a `chromium-desktop` instance for `story-card-launch-offers` and `story-card-startup` (fine pointer). | Changing either is shared group configuration. |
 | Dense selection input | `LaunchDialog` accepts `kept` (the selection to start from) from `StartLaunch`, which sets it only after a refused Start. `StartSession` renders the same dialog. | False (Slice 1 probe at `0a6217aeb`): `kept` starts empty in `StartLaunch.tsx:139` and only a refused Start sets it from clicked choices; `StartSession` passes neither `options` nor `kept`, and its workspace and landing radios change only by clicking. Selection is arranged by clicking once per case. |
 | Transcript text entry | Overflow review lives inside `useLaunchInstruction` (`LaunchInstruction.tsx`) and is fed only by `useInstructionRecording`'s transcript callback. No production owner takes transcript text directly. | Slice 3 must narrow production first. The Slice 3 return at `73d028a52` found Start, the read-only field and the disabled Start and Record during review are `LaunchDialog` composition, and the fit check receives each transcript as an arrival; a standalone owner has no Start. |
@@ -281,54 +281,6 @@ Mapping (5 → 6 cases; interleaved at load 50 → 37: before 19.13 s and
   absent) passed; the load timeout is an open test defect owned by this
   execution under the failure policy, repaired before completion.
 
-### 7. Unattached start, attachments and note handoff run from typed inputs
-
-Type: Behavior
-Status: planned
-
-Reshape `ad-hoc-start-session`, `ad-hoc-start-session-answer`,
-`ad-hoc-creation-entry`, `responsive-unattached-startup`,
-`launch-attachments`, `launch-record-details` and
-`follow-up-note-handoff`. Note attachment takes its typed notes; startup
-takes its typed answer. Keep the distinct no-waiting and unreadable notes
-states.
-
-Proof: the seven files pass with paired timing and a mapping; composed E2E
-owners named in the source map still pass.
-
-Sizing finding (return at `840788d00`, 2.5 active minutes, no edits): the
-seven specs are 1,054 lines, and startup from its typed answer has no typed
-owner yet, so it needs production narrowing first. The smallest deliverable
-subset is note attachment: export an `AttachStoryNotesChoice` owner with a
-required `answer` that the reading wrapper renders, prove waiting, no
-waiting and unreadable from typed notes, keep one composed Start session
-Follow-up request case, and rerun `e2e/stories/recently-done-follow-up`.
-The startup-answer files (`ad-hoc-start-session`,
-`ad-hoc-start-session-answer`, `responsive-unattached-startup`, E2E owners
-`agent-launch-ad-hoc-terminal` and `agent-launch-ad-hoc-instructed`) plus
-`launch-attachments` and `launch-record-details` remain. The plan is at its
-eight-slice limit, so the remainder needs a story split. The source map is
-at `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
-The same `launchOffers` spread into hand-built launches also appears in
-`follow-up-note-handoff.spec.ts`, `story-startup-page.ts` and one
-unattached-startup spec, alongside the story card helper of G5.
-
-### 8. The whole launch selection runs in about eight seconds
-
-Type: Behavior
-Status: planned
-
-Measure per-file overhead and worker balance on the reshaped selection.
-Merge files that share one owner and setup where that cuts import and
-mount cost; remove spent page helpers and test support. A shared runner
-setting changes only with whole frontend group proof. Then run the paired
-whole-selection comparison.
-
-Proof: paired whole-selection wall including preparation at two workers,
-counts by file, the slow cases that remain, and the complete case map. If
-the target is missed without a remaining safe reduction, stop with the
-measured remainder for Terry.
-
 ## Concern evidence
 
 Slice-plan refinement was not needed at planning: six Behaviors, each one
@@ -338,9 +290,10 @@ production narrowing and the recording trim were split into Slices 3 and 4,
 moving later slices down one. At Slice 5 two composition helpers
 (`story-card-launch-page.ts` and `story-startup-page.ts` with
 `mounted-launch-attempts.ts`) and about 1,400 test lines split
-presentation and recovery into Slices 5 and 6: eight, at the limit. Slice 1
-bounds the dense-selection premise with its early probe. Slices 5 to 7
-touch four, two and seven files, but most are one- to three-case files under
+presentation and recovery into Slices 5 and 6: eight, at the limit. At
+Slice 7 the developer split the story at the delivered Slice 6 boundary. Slice 1
+bounds the dense-selection premise with its early probe. Slices 5 and 6
+touch four and two files, but most are one- to three-case files under
 1 summed second each and share one typed-input change, so each fits one
 slice. This review found no remaining slice-specific concern.
 
@@ -355,7 +308,7 @@ slice. This review found no remaining slice-specific concern.
   on AC power under
   [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
   Run dashboard typecheck after production edits. Run the whole frontend
-  group only if Slice 8 changes shared runner configuration.
+  group only if a slice changes shared runner configuration.
 
 ## Story obligations
 
@@ -382,4 +335,11 @@ Disposition: proved by slice 5: storyStartup.ts copies request.host for every ho
 ### G5. Story card helper copies the MachineSessions composition
 Reported: slice 5 — "story-card-launch-page.ts hand-builds the whole launches composite with launchOffers and inert attemptOf/storyStartupOf/keptStartOf stubs; no production owner takes those cases without copying the composition."
 Story clause: "tests never copy a production composition"
-Disposition: receiving slice 8
+Disposition: owner changed "Note attachment, unattached startup, attachments and record details, the whole-selection eight-second measurement, and the hand-built launches composites that spread production"
+
+
+### G6. Shared test support gains one MakeMe builder
+Reported: slice 6 — "Slice 6 refactor added Distribution/tests/support/startupRecoveryItemTestData.mjs and makeMe.aStartupRecoveryItem; spent launch helpers were removed (instruction-voice-page members, the useTwiceZoomedDevice export)."
+Story clause: "Dashboard maintainers get faster launch unit feedback"
+Disposition: no user cost "Dashboard maintainers get faster launch unit feedback": the one added shared file is a MakeMe builder replacing hand-built typed StartupRecoveryItem data in startup-recovery.spec.ts, as the acceptance asks for page-loadable MakeMe inputs; it adds no helper, provider or composition, and spent launch support was removed
+Commitment: R11
