@@ -60,12 +60,21 @@ without rename detection.
 ### 1. A retried record commit still prunes expired records
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a Distribution test on a real temporary origin: trunk holds an expired and a live record; the close's record commit is refused once and the close resumed; the accepted record commit removes the expired file, keeps the live one, and `git status --porcelain` in the workspace is empty. Fails on the current selection. The plan-767 pruning test and the session-record caller suites still pass.
 
 Behavior: a close whose record commit failed after staging the prune → resume
 → the published record commit removes the expired records and leaves no staged
 change.
+
+Accepted proof (2026-11-22): the new test in
+`Distribution/tests/skills/dough-land/session-record-pruning.test.mjs` failed
+before the fix (the expired file stayed on origin) and passes after it; the
+pruning, `session-close-resume`, `session-close-shared-checkout-resume`,
+`session-record-publication` and `preparation-native-session-record-land`
+suites pass through `scripts/test.sh`. Selection reads `HEAD:./<path>` so a
+project below the Git toplevel resolves paths as `ls-tree` lists them
+(scratch probe).
 
 ## Concern evidence
 

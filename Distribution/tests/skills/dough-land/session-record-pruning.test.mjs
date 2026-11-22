@@ -1,6 +1,7 @@
 // A session close's record commit removes the expired session records beside
-// the backlog, keeps every live or unreadable one, leaves earlier snapshots
-// intact, and keeps a concurrent writer's live record through a rebase.
+// the backlog, also when resumed after a refused commit, keeps every live or
+// unreadable one, leaves earlier snapshots intact, and keeps a concurrent
+// writer's live record through a rebase.
 import assert from "node:assert/strict";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -22,6 +23,7 @@ import {
   nativeSession,
   targetRef,
 } from "./session-close-test-fixtures.mjs";
+import { refusingCommits } from "./session-close-faults.mjs";
 
 const sessions = ".planning/sessions";
 const recordFile = (record) => [
@@ -114,6 +116,33 @@ test("the record commit removes expired records, keeps live and unreadable ones,
     "",
   );
   assert.deepEqual(await sessionFiles(fixture.origin), keptFiles());
+});
+
+test("a record commit refused once and resumed still removes the expired record and leaves a clean workspace", async (t) => {
+  let allowCommits;
+  const { fixture, closed } = await closing(t, async (fixture) => {
+    allowCommits = await refusingCommits(t, fixture);
+  });
+  assert.equal(closed.record.status, "stopped", JSON.stringify(closed));
+  await allowCommits();
+
+  const resumed = await resumeSessionClose({
+    ...publication,
+    workspace: fixture.execution,
+    now: () => closedAt,
+    record: closed.record.record,
+  });
+
+  assert.equal(resumed.record.status, "published", JSON.stringify(resumed));
+  assert.ok(
+    !(await sessionFiles(fixture.origin)).includes(
+      `${sessions}/${expired.sessionId}.json`,
+    ),
+  );
+  assert.equal(
+    (await git(fixture.execution, "status", "--porcelain")).stdout,
+    "",
+  );
 });
 
 const theirs = makeMe.aSessionRecord
