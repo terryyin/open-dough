@@ -10,7 +10,8 @@
 // service accepted the launch, while its work is still held; from submission
 // until the startup settles, every action button on the story's card is
 // unavailable while its facts and source links stay readable, and other
-// stories, Refresh, and project navigation work. An unattached session gets
+// stories, Refresh, and project navigation work. An execution's story stays
+// protected as its Take moves it to Taken. An unattached session gets
 // the same cutoff and handoff, with progress beside its own action and no
 // card. A lost acknowledgment, and Cancel or Escape before Start, are
 // ../../dashboard/frontend-tests/launches/startup-recovery.spec.ts
@@ -39,110 +40,122 @@ import {
   holdAcceptanceAnswers,
   instruction,
   openStories,
+  openStory,
   test,
 } from "../../dashboard/test-support/responsiveStart.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"], launchTimeoutMs: 60_000 });
 
-for (const start of [
-  {
-    workflow: "execution",
-    action: "Start execution",
-    phase: "Preparing execution…",
-  },
-  {
-    workflow: "refinement",
-    action: "Start refinement",
-    phase: "Preparing refinement…",
-  },
-] as const) {
-  test(`${start.action} in Claude Code closes at acceptance while its start is held, protecting only that story`, async ({
-    page,
-    dashboard,
-    origin,
-  }) => {
-    const push = origin.holdPushes();
-    dashboard.claudeScenario("held");
-    if (start.workflow === "execution")
-      await pausePageClockAt(page, new Date());
-    const { story, takenStory, other } = await openStories(page, origin);
-    const answers = await holdAcceptanceAnswers(page);
+test("Start refinement in Claude Code commits at Start and closes at acceptance while its start is held, protecting only that story", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  const push = origin.holdPushes();
+  dashboard.claudeScenario("held");
+  const { story, other } = await openStories(page, origin);
+  const answers = await holdAcceptanceAnswers(page);
 
-    await story.getByRole("button", { name: start.action }).click();
-    const dialog = page.getByRole("dialog", {
-      name: `${start.action} in Claude Code`,
-    });
-    await dialog
-      .getByRole("textbox", { name: "Instruction (optional)" })
-      .fill(instruction);
-    await dialog.getByRole("button", { name: "Start", exact: true }).click();
-
-    // Committed at once, before any answer reaches the page.
-    await expectSubmitted(page, dialog);
-    await expect(
-      dialog.getByRole("textbox", { name: "Instruction (optional)" }),
-    ).toHaveValue(instruction);
-    await answers.reached;
-    await expectSubmitted(page, dialog);
-
-    // Accepted: the dialog closes while the published assignment is held.
-    answers.release();
-    await expect(dialog).toBeHidden();
-    await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
-    expect(await origin.takenProfiles()).toEqual([]);
-    expect(dashboard.claudeCalls()).toEqual([]);
-    expect(await attempts(dashboard)).toEqual([
-      expect.objectContaining({
-        request: expect.objectContaining({
-          workflow: start.workflow,
-          identity: queuedIdentity,
-          instruction,
-        }),
-        owned: true,
-      }),
-    ]);
-    await expect(story).toContainText(start.phase);
-    await expect(story).toContainText("Local startup in progress");
-    await expectProtected(story);
-    await expectOthersWork(page, other, story);
-    await expectProtected(story);
-
-    // The native launch is held next; the story stays protected.
-    push.release();
-    await expect
-      .poll(async () => (await attempts(dashboard))[0]?.publication.kind, {
-        timeout: 30_000,
-      })
-      .toBe("published");
-    await expect(story).toContainText(
-      `Starting ${start.workflow} in Claude Code…`,
-    );
-    await expectProtected(story);
-
-    if (start.workflow === "execution") {
-      await passCheckPace(page);
-      await test.step("the story stays protected as its Take appears", async () => {
-        await expect(takenStory).toContainText("Local startup in progress");
-        await expectProtected(takenStory);
-        await expect(story).toHaveCount(0);
-      });
-    }
-
-    // Settled: the session is listed and the card's actions return where
-    // the published read places the story.
-    dashboard.releaseHeldClaude();
-    const settled = start.workflow === "execution" ? takenStory : story;
-    await expect(storyCardSessions(settled)).toHaveCount(1, {
-      timeout: 30_000,
-    });
-    await expect(settled).not.toContainText("Local startup in progress");
-    await expect(
-      settled.getByRole("button", { name: "Inspect story" }),
-    ).toBeEnabled();
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await story.getByRole("button", { name: "Start refinement" }).click();
+  const dialog = page.getByRole("dialog", {
+    name: "Start refinement in Claude Code",
   });
-}
+  await dialog
+    .getByRole("textbox", { name: "Instruction (optional)" })
+    .fill(instruction);
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+
+  // Committed at once, before any answer reaches the page.
+  await expectSubmitted(page, dialog);
+  await expect(
+    dialog.getByRole("textbox", { name: "Instruction (optional)" }),
+  ).toHaveValue(instruction);
+  await answers.reached;
+  await expectSubmitted(page, dialog);
+
+  // Accepted: the dialog closes while the published assignment is held.
+  answers.release();
+  await expect(dialog).toBeHidden();
+  await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
+  expect(await origin.takenProfiles()).toEqual([]);
+  expect(dashboard.claudeCalls()).toEqual([]);
+  expect(await attempts(dashboard)).toEqual([
+    expect.objectContaining({
+      request: expect.objectContaining({
+        workflow: "refinement",
+        identity: queuedIdentity,
+        instruction,
+      }),
+      owned: true,
+    }),
+  ]);
+  await expect(story).toContainText("Preparing refinement…");
+  await expect(story).toContainText("Local startup in progress");
+  await expectProtected(story);
+  await expectOthersWork(page, other, story);
+  await expectProtected(story);
+
+  // The native launch is held next; the story stays protected.
+  push.release();
+  await expect
+    .poll(async () => (await attempts(dashboard))[0]?.publication.kind, {
+      timeout: 30_000,
+    })
+    .toBe("published");
+  await expect(story).toContainText("Starting refinement in Claude Code…");
+  await expectProtected(story);
+
+  // Settled: the session is listed and the card's actions return.
+  dashboard.releaseHeldClaude();
+  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
+  await expect(story).not.toContainText("Local startup in progress");
+  await expect(
+    story.getByRole("button", { name: "Inspect story" }),
+  ).toBeEnabled();
+  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+});
+
+test("Start execution in Claude Code keeps its story protected as its Take moves it to Taken, until its session settles", async ({
+  page,
+  dashboard,
+  origin,
+}) => {
+  dashboard.claudeScenario("held");
+  await pausePageClockAt(page, new Date());
+  const { story, takenStory } = await openStory(page, origin);
+
+  await story.getByRole("button", { name: "Start execution" }).click();
+  const dialog = page.getByRole("dialog", {
+    name: "Start execution in Claude Code",
+  });
+  await dialog.getByRole("button", { name: "Start", exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect
+    .poll(async () => (await attempts(dashboard))[0]?.publication.kind, {
+      timeout: 30_000,
+    })
+    .toBe("published");
+  await expect(story).toContainText("Starting execution in Claude Code…");
+  await expectProtected(story);
+
+  // The next check reads the published Take: the card moves, still protected.
+  await passCheckPace(page);
+  await expect(takenStory).toContainText("Local startup in progress");
+  await expectProtected(takenStory);
+  await expect(story).toHaveCount(0);
+
+  // Settled: the session is listed and the Taken card's actions return.
+  dashboard.releaseHeldClaude();
+  await expect(storyCardSessions(takenStory)).toHaveCount(1, {
+    timeout: 30_000,
+  });
+  await expect(takenStory).not.toContainText("Local startup in progress");
+  await expect(
+    takenStory.getByRole("button", { name: "Inspect story" }),
+  ).toBeEnabled();
+  expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
+});
 
 test("Start session in Claude Code closes at acceptance while its launch is held, with its progress beside the action and no card", async ({
   page,
