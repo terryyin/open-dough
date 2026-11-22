@@ -90,6 +90,16 @@ const taskSessions = (tasks: readonly UsageTask[], host: UsageTask["host"]) =>
     tasks.filter((task) => task.host === host).map((task) => task.sessionId),
   );
 
+// The turns known tasks claim in the facts read, and the tasks merged with
+// them that the reading's responses are assigned against.
+function claimedTasks(
+  facts: readonly NativeTaskFact[],
+  tasks: readonly UsageTask[],
+) {
+  const claims = knownTaskClaims(facts, tasks);
+  return { claims, claimed: canonicalUsageTasks([...tasks, ...claims]) };
+}
+
 // The sessions the lineage names, as a parent or a spawned worker, without
 // having read them.
 function namedSessions(lineage: CodexLineage): string[] {
@@ -114,11 +124,12 @@ async function codexReading(
   const lineage = codexLineage();
   const observations = new Map<string, UsageObservation>();
   const read = new Set<string>();
+  const facts: NativeTaskFact[] = [];
   for (let pending = changed; pending.length > 0;) {
     for (const file of pending) {
       read.add(file);
       await collectResponses(
-        codexUsage(file, since, gaps, lineage),
+        codexUsage(file, since, gaps, lineage, (fact) => facts.push(fact)),
         observations,
       );
     }
@@ -126,6 +137,7 @@ async function codexReading(
       .flatMap((id) => sessions.get(id) ?? [])
       .filter((file) => !read.has(file));
   }
+  const { claims, claimed } = claimedTasks(facts, tasks);
   const launched = taskSessions(tasks, "codex");
   const known = (sessionId: string | undefined) =>
     sessionId !== undefined &&
@@ -138,10 +150,10 @@ async function codexReading(
     workers: lineage.workers.filter((worker) => worker.sessionId !== undefined),
   });
   return {
-    claims: [],
+    claims,
     observations: responses,
     associations: responses.map((observation) =>
-      codexAssociation(observation, tasks, lineage),
+      codexAssociation(observation, claimed, lineage),
     ),
     gaps: knownGaps([...gaps, ...coverage], known, containingCodexThread),
   };
@@ -169,8 +181,7 @@ async function claudeReading(
       claudeUsage(file, since, gaps, lineage, (fact) => facts.push(fact)),
       observations,
     );
-  const claims = knownTaskClaims(facts, tasks);
-  const claimed = canonicalUsageTasks([...tasks, ...claims]);
+  const { claims, claimed } = claimedTasks(facts, tasks);
   const launched = taskSessions(tasks, "claude");
   const known = (sessionId: string | undefined) =>
     sessionId !== undefined && launched.has(sessionId);

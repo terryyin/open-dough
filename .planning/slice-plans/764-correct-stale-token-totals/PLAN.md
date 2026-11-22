@@ -125,9 +125,13 @@ launch's.
 ### 2. Refresh counts a Codex launch's turns after a developer reply
 
 Type: Behavior
-Status: planned
-Proof: matching cases in `token-index-developer-reply-codex.spec.ts`, failing
-first.
+Status: done
+Proof: matching cases in `token-index-refresh-developer-reply-codex.spec.ts`,
+failing first.
+
+Delivered: `codexReading` passes a fact sink to `codexUsage`; both readings
+share `usageRefresh.ts` `claimedTasks(facts, tasks)` for the claims and the
+tasks to associate against.
 
 Behavior: a Codex launch imported with only its launch turn → a reply turn in
 the same thread, with a spawned worker, writes more responses → Refresh counts
