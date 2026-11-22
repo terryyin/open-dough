@@ -9,7 +9,6 @@
 // clearing the card message, and steering the native session for a Codex
 // attention completion.
 import { rmSync } from "node:fs";
-import type { Page } from "@playwright/test";
 import {
   test,
   expect,
@@ -20,6 +19,7 @@ import {
   parts,
   sessionStateOf,
   sessionUnreadReportOf,
+  shownDoneSessionEntriesOf,
   storyCardSessions,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
@@ -33,14 +33,20 @@ import { readFinalReport } from "../../dashboard/test-support/finalReportPages.t
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import {
   buttonsAddedSince,
+  expectCollapsed,
+  expectExpanded,
   messagePartOf,
   rememberButtons,
 } from "../../dashboard/test-support/support/sessionMessagePart.ts";
 import { keepComposedAttentionCompletion } from "../../dashboard/test-support/support/composedAttentionRecord.ts";
-import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import {
+  attentionMessage,
+  markObservedAttentionDone,
+  nativeReport,
+  openQueuedNativeReport,
+  storedDoneName,
+} from "../../dashboard/test-support/support/composedAttentionPage.ts";
 import type { FakeCodex } from "../../dashboard/test-support/support/fakeCodex.ts";
-import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
-import { keepFinalReport } from "../../dashboard/test-support/support/retainedReport.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -49,30 +55,7 @@ test.beforeAll(async () => {
 });
 test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
-const attentionMessage =
-  "Publication finished. Reminder: inspect the migration before release.\n<script>must remain text</script>";
-const nativeReport = "The saved conversation's final report.";
 const doneSteering = ["turn/interrupt", "thread/name/set", "turn/start"];
-
-// Story B's queued card with the saved native report already open. The
-// workspace path is gone first, or the card offers Open terminal instead.
-async function openQueuedNativeReport(
-  page: Page,
-  dashboard: DashboardServer,
-  native: FakeCodex | undefined,
-) {
-  const workspace = keepComposedAttentionCompletion(
-    dashboard,
-    native,
-    attentionMessage,
-  );
-  if (native === undefined) throw new Error("Missing native fixture");
-  keepFinalReport(native, workspace, nativeReport);
-  rmSync(workspace, { recursive: true, force: true });
-  const opened = await openStoryColumnsJourney(page, journey);
-  const card = opened.card(readyStory);
-  return { native, card, report: await readFinalReport(card) };
-}
 
 function steeringSince(native: FakeCodex, from: number) {
   return native.calls
@@ -162,7 +145,7 @@ test("the final report panel shows the native report", async ({
 }) => {
   const { report } =
     await test.step("Given Story B's queued card shows the saved native final report", () =>
-      openQueuedNativeReport(page, dashboard, codexProtocol));
+      openQueuedNativeReport(page, dashboard, codexProtocol, journey));
   await test.step("Then the final report panel shows the native report", () =>
     expect(report.reportText).toHaveText(nativeReport));
   await test.step("And the final report panel does not show the reminder", () =>
@@ -180,7 +163,7 @@ test("Mark as read keeps the session open", async ({
 }) => {
   const { card, report } =
     await test.step("Given Story B's queued card shows the saved native final report", () =>
-      openQueuedNativeReport(page, dashboard, codexProtocol));
+      openQueuedNativeReport(page, dashboard, codexProtocol, journey));
   const receipt =
     await test.step("And the stored launch record keeps its completion receipt", () => {
       const kept = stored(dashboard.home)[0]?.completion?.receipt;
@@ -208,21 +191,9 @@ test("Mark as done renames and interrupts the native session", async ({
   dashboard,
   codexProtocol,
 }) => {
-  const { card, report, native } =
-    await test.step("Given Story B's queued card shows the saved native final report", () =>
-      openQueuedNativeReport(page, dashboard, codexProtocol));
-  await test.step("And the native session is observing an in-progress turn", () => {
-    native.observations.set(native.threadId, {
-      status: { type: "active", activeFlags: [] },
-      turns: [{ id: "observed-turn", status: "inProgress" }],
-    });
-  });
-  const before =
-    await test.step("When Mark as done is chosen on that final report", async () => {
-      const marked = native.calls.length;
-      await markDoneAnyway(report.panel);
-      return marked;
-    });
+  const { card, report, native, before } =
+    await test.step("When Mark as done is chosen on the observed in-progress report", () =>
+      markObservedAttentionDone(page, dashboard, codexProtocol, journey));
   await test.step("Then Mark as done closes the panel", () =>
     expect(report.panel).toHaveCount(0));
   await test.step("And Mark as done removes the message from the story card", () =>
@@ -234,7 +205,7 @@ test("Mark as done renames and interrupts the native session", async ({
     expect(stored(dashboard.home)[0]?.doneProblem).toBeUndefined();
   });
   await test.step("And the native calls since the mark rename the session and interrupt its turn", () => {
-    const doneName = `done-${stored(dashboard.home)[0]?.session.name ?? ""}`;
+    const doneName = storedDoneName(dashboard);
     expect(steeringSince(native, before)).toEqual([
       {
         method: "thread/name/set",
@@ -245,5 +216,31 @@ test("Mark as done renames and interrupts the native session", async ({
         params: { threadId: native.threadId, turnId: "observed-turn" },
       },
     ]);
+  });
+});
+
+test("the Done entry collapses the unfinished message", async ({
+  page,
+  dashboard,
+  codexProtocol,
+}) => {
+  const marked =
+    await test.step("Given Mark as done has renamed the observed in-progress session", () =>
+      markObservedAttentionDone(page, dashboard, codexProtocol, journey));
+  const entry = await test.step("When that session's Done entry is shown", () =>
+    shownDoneSessionEntriesOf(page, readyStory, marked.native.threadId));
+  await test.step("Then the Done entry shows Done", () =>
+    expect(sessionStateOf(entry)).toHaveText("Done"));
+  await test.step("And the Done entry shows the new name", () =>
+    expect(entry).toContainText(`Named ${storedDoneName(dashboard)}`));
+  await test.step('And "Unfinished work" stays collapsed', () =>
+    expectCollapsed(messagePartOf(entry), "Unfinished work"));
+  await test.step('When "Unfinished work" is expanded', () =>
+    messagePartOf(entry).heading.click());
+  await test.step("Then the expanded message is the attention message", () =>
+    expectExpanded(messagePartOf(entry), "Unfinished work", attentionMessage));
+  await test.step("And the final report is still the native report", async () => {
+    const report = await readFinalReport(entry);
+    await expect(report.reportText).toHaveText(nativeReport);
   });
 });

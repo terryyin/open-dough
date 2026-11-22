@@ -195,7 +195,7 @@ not assert the Done entry.
 ### 6. The Done entry collapses the unfinished message
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the page spec's Done-entry test passes.
 
 Behavior: after Mark as done, the Done entry shows Done and `Named` that
@@ -270,5 +270,14 @@ slice finished its own proof, and splitting one Mark-as-done action would
 separate assertions of the same result. The story boundary is unchanged.
 Do not refine the remaining slices unless Slice 6 or Slice 7 fails to
 finish its own proof.
+
+Slice 6's first attempt paused at 16.8 active minutes with the Done-entry
+test written and unrun, so `storyOverruns` is 4. The retry proved that
+entry: the page spec exited 0. Delivered value is the composed page
+journey through the Done entry. Remaining scope is the installed closure
+comparison. The story boundary is unchanged. Continuing is justified
+because the page observations are proved and Slice 7 is a separate
+closure result. Do not refine Slice 7 unless it fails to finish its own
+proof.
 
 ## Story obligations

@@ -53,7 +53,7 @@ The coordinator launched a fresh general-purpose reviewer (agent `72170936-0723-
 | C36 | Mark as done sets that with no done problem. Page owner. Retention sentence applies. | slice 5 | observed: same spec And Mark as done sets that with no done problem, doneProblem undefined; slice5-page.log.run.json exit 0 |
 | C37 | Mark as done renames the native session. Page owner. Retention sentence applies. | slice 5 | observed: same spec steeringSince expects thread/name/set to done- plus the stored session name; slice5-page.log.run.json exit 0 |
 | C38 | Mark as done interrupts the native session's in-progress turn. Page owner. Retention sentence applies. | slice 5 | observed: same spec steeringSince expects turn/interrupt of observed-turn; slice5-page.log.run.json exit 0 |
-| C39 | The Done entry shows Done. After Mark as done, page owner. Retention sentence applies. | slice 6 |  |
-| C40 | The Done entry shows the new name. After Mark as done, page owner. Retention sentence applies. | slice 6 |  |
-| C41 | The message stays collapsed under "Unfinished work" until expanded. After Mark as done, page owner. Retention sentence applies. | slice 6 |  |
-| C42 | The final report is still the native report. After Mark as done, page owner. Retention sentence applies. | slice 6 |  |
+| C39 | The Done entry shows Done. After Mark as done, page owner. Retention sentence applies. | slice 6 | observed: e2e/sessions/agent-completion-attention-page.spec.ts Then the Done entry shows Done, toHaveText Done; slice6-page.log.run.json exit 0 |
+| C40 | The Done entry shows the new name. After Mark as done, page owner. Retention sentence applies. | slice 6 | observed: same spec And the Done entry shows the new name, Named done- plus the stored session name; slice6-page.log.run.json exit 0 |
+| C41 | The message stays collapsed under "Unfinished work" until expanded. After Mark as done, page owner. Retention sentence applies. | slice 6 | observed: same spec Unfinished work aria-expanded false, then the attention message after expand; slice6-page.log.run.json exit 0 |
+| C42 | The final report is still the native report. After Mark as done, page owner. Retention sentence applies. | slice 6 | observed: same spec And the final report is still the native report, toHaveText The saved conversation's final report.; slice6-page.log.run.json exit 0 |
