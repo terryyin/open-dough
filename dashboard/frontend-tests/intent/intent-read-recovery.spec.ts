@@ -10,7 +10,6 @@ import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { readRepositoryFileAt } from "../../src/authenticatedRead.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import { noteLimit, standingLimit } from "../../src/readingLimit.ts";
 import { ReadProblem } from "../../src/readProblem.ts";
 import { intentBrowser } from "./intent-browser-page.ts";
 import {
@@ -189,26 +188,18 @@ test("rate-limited Intent locations reread when the standing limit ends", async 
   onRecoveryClock();
   const work = makeMe.aPublishedWork.ofPygardon.at("d5".repeat(20)).please();
   const locations = controlledLocations(work);
-  const directedSeconds = 15;
-  let resumesAt = 0;
-  locations.answerWith(() => {
-    noteLimit(directedSeconds);
-    const standing = standingLimit() ?? new Date(0);
-    resumesAt = standing.getTime();
-    return Promise.reject(
-      new ReadProblem("GitHub limited the rate", {
-        reading: "locations",
-        resumesAt: standing,
-      }),
-    );
-  });
+  const limited = makeMe.aRateLimitedIntentReply
+    .saying("GitHub limited the rate")
+    .resumingIn(15)
+    .please();
+  locations.answerWith(() => Promise.reject(limited));
 
   await mountIntentRecovery(locations.readSource, work);
   const explanation = intentSettingsExplanation();
   const status = publishedReadStatus();
   await explanation.reads("GitHub limited the rate");
   const noticedUntil = await status.noticedLimitUntil();
-  expect(noticedUntil).toBe(resumesAt);
+  expect(noticedUntil).toBe(limited.limited?.resumesAt.getTime());
   locations.pass();
 
   await vi.advanceTimersByTimeAsync(noticedUntil - Date.now() - 1);

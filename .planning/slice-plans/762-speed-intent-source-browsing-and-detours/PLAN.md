@@ -243,7 +243,7 @@ into share 1 (691/635/682 s); the next runs check it.
 ### 2. A typed rate-limited reply sets the page's standing limit without the transport
 
 Type: Structure
-Status: planned
+Status: done
 
 Split from Slice 1 on 2026-11-22: `noteLimit`'s callers are only
 `authenticatedGet.ts` and `revisionCheckRead.ts`, but `authenticatedGet` is
@@ -268,6 +268,18 @@ standing limit and Intent rereads once it ends, without calling
 `noteLimit`/`standingLimit` or constructing `ReadProblem` in the spec. The
 existing rate-limit Vitest cases and one E2E journey that meets a
 rate-limited read pass unchanged in their assertions.
+
+**Learnings.** `readingLimit.ts`'s `noteLimitUntil` holds the standing
+limit until a received limited answer's `resumesAt` without counting it;
+`noteFailedIntentRead` (`intentReadRecovery.tsx`, called from
+`useIntentLocations.ts` and `IntentCandidatesRecord.tsx`) records it.
+`makeMe.aRateLimitedIntentReply` builds the typed reply, and
+`intent-read-recovery.spec.ts`'s rate-limit case already uses it; that
+spec's only remaining `ReadProblem` is the unreachable reply. Proof:
+typecheck; the 4 Intent recovery, candidates and settings Vitest files
+(14 cases); the trace-selected Intent specs; the rate-limited E2E journeys
+`intent-read-boundary-recovery` and `intent-candidates-read-recovery`; a
+break check with the recorder call removed failing the rate-limit case.
 
 ### 3. Locations recovery and settings-problem cases render the production observation and Intent body
 

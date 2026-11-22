@@ -19,7 +19,7 @@ import {
 import { IntentCandidatesSections } from "./IntentCandidatesSections.tsx";
 import type { IntentMode } from "./intentProjectTabs.ts";
 import {
-  intentRecoveryOf,
+  noteFailedIntentRead,
   useIntentReadRecovery,
 } from "./intentReadRecovery.tsx";
 import { useIntentReads } from "./pageReads.tsx";
@@ -80,7 +80,9 @@ export function IntentCandidatesRecord({
       .catch((error: unknown) => {
         if (!controller.signal.aborted && readId === activeRead.current) {
           recordSettled(
-            intentRecoveryOf(error instanceof ReadProblem ? error : undefined),
+            noteFailedIntentRead(
+              error instanceof ReadProblem ? error : undefined,
+            ),
           );
           setResult("failed");
         }
