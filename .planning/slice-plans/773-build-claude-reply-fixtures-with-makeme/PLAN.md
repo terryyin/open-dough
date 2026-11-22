@@ -119,6 +119,12 @@ Opus response, developer-reply turn, and worker-result row; rewrite
 `claudeReplyLaunch.ts` and the three specs to use them. Owns the
 correction outcome directly.
 
+## Execution complete
+
+Product advice: no change. The reply fixtures now read as builder steps and
+the neighbouring Claude refresh and coverage specs share them; no product
+learning alters current priorities.
+
 ## Concern evidence
 
 Slice-plan refinement was not needed: two Structure slices under the limit,
