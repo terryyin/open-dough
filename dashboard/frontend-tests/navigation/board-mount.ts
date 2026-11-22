@@ -14,10 +14,12 @@ import type { ReviewSource } from "../../src/reviewSource.ts";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import { StoryNavigationOnPage } from "../../src/storyNavigation.tsx";
 import {
-  withClosedSessionsSidebar,
+  formerPositionKey,
+  positionKey,
   withFramePreference,
+  withPagePreferences,
 } from "../../test-support/component-mount/framePreferences.ts";
-import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
+import { machineSessionsRefusing } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { emulateMedia } from "../review/browser-session.ts";
@@ -28,7 +30,10 @@ const unexpected = () => {
 };
 
 export const noSessions: MachineSessions = {
-  ...machineSessionsAnswering(makeMe.aMachineAnswer.please(), refusal),
+  ...machineSessionsRefusing({
+    answer: makeMe.aMachineAnswer.please(),
+    refusal,
+  }),
   alerts: { available: true },
 };
 
@@ -111,7 +116,7 @@ export async function mountBoard(
     done?: DoneRecordReadSource;
   } = {},
 ) {
-  if (sessionsSidebar === "closed") withClosedSessionsSidebar();
+  withPagePreferences({ sessionsSidebar });
   let sessions = { ...noSessions, ...observed };
   let work = projects;
   const reading = (next: readonly PublishedWork[], key = 0) => {
@@ -155,8 +160,7 @@ export async function mountBoard(
   };
 }
 
-export const positionKey = "open-dough.board.position";
-export const formerPositionKey = "open-dough.dashboardColumns.position";
+export { formerPositionKey, positionKey };
 
 export function withBoardStorage(initial?: string) {
   withFramePreference(positionKey, initial ?? null);

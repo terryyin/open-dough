@@ -102,6 +102,7 @@ export async function openStoryAComparison(review: ReviewAnswers) {
 const doneStory = makeMe.aComparedStory.inSummaryScope().please();
 const doneTitle = "Story A";
 export const doneCompletion = doneStory.work.revision;
+export const doneSource = doneStory.source;
 export const doneIdentity = doneStory.identity;
 // The Done story's own CI comparison answer.
 export const doneComparison = doneStory.answer;
@@ -113,19 +114,16 @@ export const publishedCompletion = () =>
     .please();
 
 // Intent with the Done story selected, its review read from `review` and its
-// collected CI wall time from `readDoneWallTimeHistory` (pending unless
-// given) and its CI comparison from `readComparison` (the story's own unless
-// given): the revision each Intent locations read names, in order, the
-// comparison and proof reads the CI comparison asked, and the global fetch
-// and WebSocket calls made from the mount on.
-export async function openDoneStoryComparison(
-  review: ReviewAnswers,
-  readDoneWallTimeHistory: IntentCiReadSource["readDoneWallTimeHistory"] = unanswered,
-  readComparison?: ReturnType<typeof scopeReadsOf>["answers"]["comparison"],
-) {
+// CI reads from `ci` (its own comparison and proof unless given, every other
+// collected read pending): the revision each Intent locations read names, in
+// order, the proof reads the CI comparison asked, and the global fetch and
+// WebSocket calls made from the mount on.
+export async function openDoneStoryComparison({
+  ci = {},
+  ...review
+}: ReviewAnswers & { readonly ci?: Partial<IntentCiReadSource> }) {
   const opened = recordOutsideCalls();
-  const ci = scopeReadsOf(doneStory);
-  if (readComparison !== undefined) ci.answers.comparison = readComparison;
+  const scope = scopeReadsOf(doneStory);
   const locationRevisions: string[] = [];
   let selected = false;
   const { done, doneReads } = makeMe.aDoneCatalog
@@ -164,9 +162,10 @@ export async function openDoneStoryComparison(
         readCandidates: () => Promise.resolve({ status: "absent" }),
       },
       ci: {
-        ...ci.source,
-        readDoneWallTimeHistory,
+        ...scope.source,
+        readDoneWallTimeHistory: unanswered,
         readScopeHistory: unanswered,
+        ...ci,
       },
       review: answering(review),
       done: doneReads,
@@ -181,7 +180,7 @@ export async function openDoneStoryComparison(
   await mounted.selectStory(doneStory.identity, doneTitle);
   return {
     locationRevisions,
-    comparisonReads: ci.asked,
+    proofReads: scope.asked.proofs,
     outsideCalls: () => opened,
   };
 }

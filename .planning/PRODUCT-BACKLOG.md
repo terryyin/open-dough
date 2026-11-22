@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/771-finish-launch-proof-orthogonal/PLAN.md))
 - [Keep the attention completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout) — SEED-341#keep-attention-completion-journey-within-timeout ([plan](slice-plans/776-keep-attention-completion-journey-within-timeout/PLAN.md))
 - [Get fast proof of Intent source browsing, pinned links and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours) — SEED-413#speed-intent-source-browsing-and-detours ([plan](slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md))
-- [Get fast proof of Intent scope timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history) — SEED-413#speed-intent-scope-timing-history ([plan](slice-plans/774-speed-intent-scope-timing-history/PLAN.md))
 
 ## Backlog list
 
@@ -111,4 +110,3 @@ intent introduced or affected by a newly developed story.
 - [Introduce Cucumber to E2E Test](seeds/SEED-405-introduce-cucumber-to-e2e-test.md#introduce-cucumber-to-e2e-test) — SEED-405#introduce-cucumber-to-e2e-test
 - [Review what Default main session reviews left deferred](seeds/SEED-379-review-changes-from-completed-ad-hoc-sessions.md#review-deferred-default-main-session-changes) — SEED-379#review-deferred-default-main-session-changes
 - [Recover expired session reviews from Git history](seeds/SEED-418-review-published-session-changes.md#recover-expired-session-reviews) — SEED-418#recover-expired-session-reviews
-

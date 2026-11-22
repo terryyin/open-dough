@@ -15,28 +15,31 @@ import {
 
 test("a Done landing's CI wall time reads against its recent builds between the endpoints and the entry table", async () => {
   let landing = "";
-  await openDoneStoryComparison(
-    { review: () => Promise.resolve(publishedCompletion()) },
-    (...[, endpoint]) => {
-      landing = endpoint.revision.slice(0, 7);
-      return Promise.resolve(
-        makeMe.aDoneWallTimeHistory
-          .priors([
-            500000,
-            "failed",
-            502000,
-            "missing",
-            504000,
-            506000,
-            508000,
-            504000,
-          ])
-          .measured(484000)
-          .through(endpoint.revision)
-          .please(),
-      );
+  await openDoneStoryComparison({
+    review: () => Promise.resolve(publishedCompletion()),
+    ci: {
+      readDoneWallTimeHistory: (...[, endpoint]) => {
+        landing = endpoint.revision.slice(0, 7);
+        return Promise.resolve(
+          makeMe.aDoneWallTimeHistory
+            .priors([
+              500000,
+              "failed",
+              502000,
+              "missing",
+              504000,
+              506000,
+              508000,
+              504000,
+            ])
+            .averaging(504000, 6)
+            .measured(484000)
+            .through(endpoint.revision)
+            .please(),
+        );
+      },
     },
-  );
+  });
   const history = await doneWallTimeHistory();
   await expect
     .poll(history.selected)

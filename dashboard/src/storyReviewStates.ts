@@ -5,7 +5,7 @@
 // answer to a request started before the latest one shown is not shown.
 import { useSyncExternalStore } from "react";
 import { localSettingState } from "./localSettingState.ts";
-import { useHeldOnPage, type HeldKind } from "./pageReads.tsx";
+import { heldOnPagePerKey } from "./pageReads.tsx";
 import type { StoryReviewStateChange } from "./storyReviewState.ts";
 
 export type StoryReviewStates = {
@@ -19,9 +19,9 @@ const projectReviewStates = (
   source: (change?: StoryReviewStateChange) => Promise<ReadonlySet<string>>,
 ) => localSettingState<ReadonlySet<string>, StoryReviewStateChange>(source);
 
-const reviewStatesOnPage: HeldKind<ReturnType<typeof projectReviewStates>> = {
-  name: "story review states",
-};
+const useProjectReviewStates = heldOnPagePerKey((reads, project) =>
+  projectReviewStates((change) => reads.reviewStates(project, change)),
+);
 
 const unknown = () => undefined;
 const unsubscribed = () => () => undefined;
@@ -29,9 +29,7 @@ export function useStoryReviewStates(
   project: string,
   enabled: boolean,
 ): StoryReviewStates {
-  const state = useHeldOnPage(reviewStatesOnPage, project, (reads) =>
-    projectReviewStates((change) => reads.reviewStates(project, change)),
-  );
+  const state = useProjectReviewStates(project);
   const reviewed = useSyncExternalStore(
     enabled ? state.subscribe : unsubscribed,
     enabled ? state.snapshot : unknown,

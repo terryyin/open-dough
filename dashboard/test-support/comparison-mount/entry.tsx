@@ -12,80 +12,51 @@ import {
   PageReadsOnPage,
 } from "../../src/pageReads.tsx";
 import { ComparisonMountScope } from "./scope.tsx";
-import type {
-  ComparisonMount,
-  ComparisonSelection,
-} from "../support/comparisonMountTypes.ts";
+import type { ComparisonMount } from "../support/comparisonMountTypes.ts";
 import "../../src/intent-page.css";
 
 let root: Root | undefined;
-let update: ((selection: ComparisonSelection) => void) | undefined;
 window.mountCiComparison = ({
   source,
   work,
   identity,
   scope,
   doneEndpoint,
-  shown,
 }: ComparisonMount) => {
   const container = document.getElementById("root");
   if (container === null) {
     throw new Error("No comparison mount container");
   }
   root ??= createRoot(container);
-  const mountedRoot = root;
-  update = (selection) => {
-    mountedRoot.render(
-      <PageReadsOnPage reads={authenticatedPageReads}>
-        <IntentReadingProvider project={source.id}>
-          <IntentReadingPlace project={source.id} story={selection.identity}>
-            <IntentReadingScope
-              name={selection.identity === undefined ? "project" : "story"}
-            >
-              <IntentCiComparisonPreference>
-                {selection.shown !== false && (
-                  <IntentCiEvidenceProvider
-                    source={source}
-                    work={selection.work}
-                    selectedIdentity={selection.identity}
-                    active
-                    {...(selection.doneEndpoint === undefined
-                      ? {}
-                      : { doneEndpoint: selection.doneEndpoint })}
-                  >
-                    {selection.scope === undefined ? (
-                      <IntentCiStatus />
-                    ) : (
-                      <ComparisonMountScope
-                        key={selection.identity}
-                        facts={selection.scope}
-                      />
-                    )}
-                  </IntentCiEvidenceProvider>
+  root.render(
+    <PageReadsOnPage reads={authenticatedPageReads}>
+      <IntentReadingProvider project={source.id}>
+        <IntentReadingPlace project={source.id} story={identity}>
+          <IntentReadingScope
+            name={identity === undefined ? "project" : "story"}
+          >
+            <IntentCiComparisonPreference>
+              <IntentCiEvidenceProvider
+                source={source}
+                work={work}
+                selectedIdentity={identity}
+                active
+                {...(doneEndpoint === undefined ? {} : { doneEndpoint })}
+              >
+                {scope === undefined ? (
+                  <IntentCiStatus />
+                ) : (
+                  <ComparisonMountScope key={identity} facts={scope} />
                 )}
-              </IntentCiComparisonPreference>
-            </IntentReadingScope>
-          </IntentReadingPlace>
-        </IntentReadingProvider>
-      </PageReadsOnPage>,
-    );
-  };
-  update({
-    work,
-    identity,
-    scope,
-    ...(shown === undefined ? {} : { shown }),
-    ...(doneEndpoint === undefined ? {} : { doneEndpoint }),
-  });
-};
-window.updateCiComparison = (selection) => {
-  if (update === undefined) {
-    throw new Error("No comparison is mounted");
-  }
-  update(selection);
+              </IntentCiEvidenceProvider>
+            </IntentCiComparisonPreference>
+          </IntentReadingScope>
+        </IntentReadingPlace>
+      </IntentReadingProvider>
+    </PageReadsOnPage>,
+  );
 };
 window.unmountCiComparison = () => {
   root?.unmount();
   root = undefined;
-  update = undefined;
 };

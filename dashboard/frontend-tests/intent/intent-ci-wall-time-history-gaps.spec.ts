@@ -46,8 +46,8 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
     .pendingLanding({ ...landingOf(6), waitsFor: "proof", runId: 305 })
     .pendingLanding({ ...landingOf(7), waitsFor: "run" })
     .pleaseMeasured();
-  const { ci, history, headingText } = await openTrunkHistory(answer);
-  const { panel } = ci;
+  const opened = await openTrunkHistory(answer);
+  const { history, headingText } = opened;
 
   expect([window.innerWidth, window.innerHeight]).toEqual([390, 844]);
   await expect.poll(headingText).toBe(historyName);
@@ -63,23 +63,7 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
     history.getByRole("img", { includeHidden: true }).elements(),
   ).toHaveLength(0);
 
-  const checkAgain = panel.getByRole("button", {
-    name: "Check again",
-    exact: true,
-  });
-  await expect.element(checkAgain).toBeEnabled();
-  (checkAgain.element() as HTMLElement).focus();
-  await expect.element(checkAgain).toHaveFocus();
-  const summary = history.getByText("Builds and evidence", { exact: true });
-  const evidence = history.getByRole("list", {
-    name: "Builds and evidence",
-    exact: true,
-  });
-  expect(evidence.elements()).toHaveLength(0);
-  await userEvent.tab({ shift: true });
-  await expect.element(summary).toHaveFocus();
-  await userEvent.keyboard("{Enter}");
-  await expect.element(evidence).toBeVisible();
+  const evidence = await opened.openEvidenceByKeyboard();
   expect(
     evidence
       .getByRole("listitem")
@@ -106,13 +90,5 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
     );
   }
 
-  const phone = document.documentElement;
-  expect(phone.scrollWidth, "page scroll width").toBeLessThanOrEqual(
-    phone.clientWidth,
-  );
-  const area = history.element();
-  const overflowing = [area, ...area.querySelectorAll("*")]
-    .filter((element) => element.scrollWidth > element.clientWidth + 1)
-    .map((element) => element.tagName);
-  expect(overflowing, "history elements scrolling sideways").toEqual([]);
+  expect(opened.scrollingSideways(), "scrolling sideways").toEqual([]);
 });

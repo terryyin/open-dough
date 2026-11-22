@@ -453,7 +453,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 2b | Read Intent, CI, review and side-panel sessions through one required page entry (completed; recoverable at `756f67d70:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof`) | 0 | 0 |
 | 2c | Get fast proof of Intent CI status on the real page (completed; recoverable at `7b9e64961:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history`) | 0 | 0 |
 | 2d | Get fast proof of Intent CI wall-time history (completed; recoverable at `dc8d21846:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest`) | 6 | 3 |
-| 2d′ | [Get fast proof of Intent scope timing history](#speed-intent-scope-timing-history) | 11 | 8 |
+| 2d′ | Get fast proof of Intent scope timing history (completed; recoverable at `1b8a80724:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history`) | 11 | 8 |
 | 2d″ | [Get fast proof of Intent collected scope timing and chart marks](#speed-intent-scope-timing-reading) | 14 | 8 |
 | 2e | [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof) | 49 | 18 |
 | 3a | Get fast proof of Intent locations read recovery and settings problems (completed; recoverable at `e0f7d6a6a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading`) | 7 | 2 |
@@ -533,79 +533,6 @@ Continuing one component at a time would extend the life of both runners.
   legacy cases. Keep this campaign's test work coordinated with
   [SEED-341](SEED-341-simplify-session-tests.md).
 
-<a id="speed-intent-scope-timing-history"></a>
-
-### Get fast proof of Intent scope timing history
-
-**Identity:** SEED-413#speed-intent-scope-timing-history
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#speed-intent-scope-timing-history","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-timing-history-on-vitest","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest"},"implementation":"Slice 1 of plan 772 moves the Intent perspective scroll container into one production component that ConfiguredDashboardContent and mountIntentCiPage (dashboard/frontend-tests/intent/intent-ci-page-mount.ts) both render, and removes the import cycle between pageReads.tsx and storyNotes.ts/storyReviewStates.ts.","rationale":"Every scope timing history case mounts the production Intent composition through that page mount, and its narrow-viewport and segment cases depend on the production layout ancestors. Starting before the correction lands would either run those cases against a non-production layout or duplicate the correction inside this story.","condition":"SEED-413#speed-intent-timing-history-on-vitest has landed plan 772 Slice 1's corrected CI status page mount on main.","state":"satisfied","resolution":{"revision":"dc8d21846ebcaaa088814a9589b58e037cd790e8","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest","summary":"Plan 772 Slice 1 (commit 4e4e753a2) moved the Intent perspective scroll container into dashboard/src/perspectiveScroll.tsx (PerspectiveScroll), rendered by ConfiguredDashboardContent, mountIntentCiPage (dashboard/frontend-tests/intent/intent-ci-page-mount.ts) and the Board mount; intent-ci-status-layout.spec.ts fails with the container removed and passes with it. pageReads.tsx no longer imports storyNotes.ts or storyReviewStates.ts (they hold per-project values through useHeldOnPage). Proof: typecheck, full dashboard frontend group, e2e intent-ci-status, branch CI success; integrated on main at a5e428f60. Note: the delivered entry carries the correction-first items now listed in plan 774.\nCondition satisfied: SEED-413#speed-intent-timing-history-on-vitest has landed plan 772 Slice 1's corrected CI status page mount on main.\nAccepted integration: a5e428f604913381e8a135cc3b864352455beac6 on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/774-speed-intent-scope-timing-history/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fd4fbec68be386fb0d8fcb2a018a6fed27e557300f5ef3e2bc1beeebaa0d9957","plan":"caf9203591a992047054d7722d9601bdef4d45ba857decb111c652f71bfc2268"}}
-```
-
-**Split from** SEED-413#speed-intent-timing-history-on-vitest before
-readiness on 22 November 2026, when its 19 legacy files exceeded one plan.
-Resplit before readiness on 22 November 2026 when the 16-file remainder plus
-entry correction exceeded eight slices at one or two legacy files per slice;
-collected timing reading and chart marks moved to
-[Get fast proof of Intent collected scope timing and chart marks](#speed-intent-scope-timing-reading).
-Plan:
-[plan 774](../slice-plans/774-speed-intent-scope-timing-history/PLAN.md).
-
-- **Correction first.** Execution advice from the CI wall-time history story
-  (completed; recoverable at
-  `dc8d21846:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest`)
-  requires correcting the shared page mount and test entries before any
-  scope-history move, as
-  [plan 774](../slice-plans/774-speed-intent-scope-timing-history/PLAN.md#correction-of-the-delivered-ci-wall-time-history-entry)
-  lists: every page mount resets and restores the page preferences it can
-  change (Board column position included); test entries take one options
-  object with a `ci: Partial<IntentCiReadSource>` bag before gaining
-  `readScopeHistory`; the Done history builder takes domain-named reference
-  figures instead of restating `priorBuildReferenceOf`; `HeldKind` becomes a
-  typed per-kind factory; the Project wall-time page object owns its
-  duplicated keyboard and overflow journeys; and the Done history `gap()`
-  scopes to the CI comparison region. The same corrected entry unblocks
-  [Get fast proof of Intent collected scope timing and chart marks](#speed-intent-scope-timing-reading)
-  and benefits attempt-proof mounts through the same page entry.
-- **Goal.** A dashboard maintainer can quickly check that Project and Done
-  scope timing glances and kept histories stay isolated by project, source
-  and scope key, and that a failed or empty read recovers beside live Scope
-  Proof without borrowing another answer — with every case on Vitest through
-  the production Intent page entry.
-- **Scope.** Own 8 legacy specs (11 legacy cases):
-  `intent-project-scope-glance`, `intent-scope-glance`,
-  `intent-project-scope-history-source-identity`,
-  `intent-project-scope-history-project-isolation`,
-  `intent-project-scope-history-key-isolation`,
-  `intent-project-scope-history-recovery`,
-  `intent-project-scope-history-refresh`, and
-  `intent-project-scope-history-remount`. Cases mount through the page entry
-  the CI wall-time history story corrected. Scope history reads stay a
-  separate boundary from live Scope Proof. Collected timing units, gaps,
-  provenance, segments and chart marks belong to
-  [Get fast proof of Intent collected scope timing and chart marks](#speed-intent-scope-timing-reading);
-  CI wall-time history belongs to that completed story; attempt proof and
-  Summary rows belong to
-  [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof).
-  Plan sizing assumes one or two legacy files per 15-minute slice (plan 764's
-  three-file history port overran).
-- **Key examples.** Changing repository or ref with the same project ID, or
-  switching projects, issues the right scope-history request and aborts or
-  ignores other sources' and projects' answers; Project and Done scope
-  glances show accurate summary cues. Entry, folder, file and revision keys
-  keep distinct kept histories across remounts. A failed or empty collected
-  history read keeps the last history and live Scope Proof, offers Retry, and
-  recovers without borrowing another endpoint's or scope's history.
-- **Evaluation.** All 11 legacy cases across the 8 owned files have a
-  traceable disposition and run on Vitest. Apply the
-  [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
-  case-count, spent-support and coverage checks for this cohort, removing any
-  history `test-support` module whose last consumer among these files moves,
-  and recording the two-worker before/after elapsed comparison.
-
 <a id="speed-intent-scope-timing-reading"></a>
 
 ### Get fast proof of Intent collected scope timing and chart marks
@@ -636,7 +563,8 @@ awaiting story refinement.
   the CI wall-time story on 22 November 2026 when they proved the scope
   timing history chart). Scope glances, project/source/key isolation and
   recovery belong to
-  [Get fast proof of Intent scope timing history](#speed-intent-scope-timing-history);
+  Get fast proof of Intent scope timing history (completed; recoverable at
+  `1b8a80724:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history`);
   that story also lands the shared page-entry corrections this cohort mounts
   through. Attempt proof and Summary rows belong to
   [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof).
@@ -681,7 +609,8 @@ boundary alongside Read Intent, CI, review and side-panel sessions through one r
   Get fast proof of Intent CI wall-time history (completed; recoverable at
   `dc8d21846:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest`);
   scope history isolation and recovery to
-  [Get fast proof of Intent scope timing history](#speed-intent-scope-timing-history);
+  Get fast proof of Intent scope timing history (completed; recoverable at
+  `1b8a80724:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history`);
   collected timing reading and chart marks to
   [Get fast proof of Intent collected scope timing and chart marks](#speed-intent-scope-timing-reading);
   the story-source and location views belong to
@@ -1034,6 +963,18 @@ command elapsed times of 6.20 s and 3.49 s. The failed-update case took 519 ms
 and 361 ms. The simpler Show latest case had overlapping timing ranges. The
 focused selection measures the benefit of removing the last built-app cases
 from that command. The full-group goal still needs a full-group measurement.
+
+#### Intent scope timing history example
+
+The 11 cases of the eight Project and Done scope history specs
+(`intent-project-scope-glance`, `intent-scope-glance`,
+`intent-project-scope-history-*`) moved from Playwright to Vitest under the
+same file names, mounted through `mountIntentCiPage` and
+`openDoneStoryComparison` with typed `readScopeHistory` replies (closed
+2026-11-22; plan 774 in Git history at `112ade772`). Five alternating
+two-worker runs of the eight files including preparation, at load 5–9, gave
+medians of 11.23 s before (`0ca3d0028`) and 7.95 s after. The Done drill-down
+(1.7–2.5 s) and the refresh walk (1.8–2.1 s) remain the slowest cases.
 
 #### Rework from the completed frontend families
 

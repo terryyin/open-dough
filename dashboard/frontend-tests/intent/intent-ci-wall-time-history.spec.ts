@@ -44,8 +44,8 @@ test("a measured build is a point of CI time without runner waits beside the tru
   const answer = makeMe.aCiHistoryAnswer
     .measuredBuild({ ...trunkBuild, timeMs: 365_000 })
     .pleaseMeasured();
-  const { ci, history, headingText, mark, historyReads } =
-    await openTrunkHistory(answer);
+  const opened = await openTrunkHistory(answer);
+  const { ci, history, headingText, mark, historyReads } = opened;
   const { panel } = ci;
   await expectTrunkJudgmentAndProof(panel);
 
@@ -73,23 +73,7 @@ test("a measured build is a point of CI time without runner waits beside the tru
   await expect.element(mark("Nov 5 · 6 min 5 s")).toBeVisible();
 
   expect([window.innerWidth, window.innerHeight]).toEqual([390, 844]);
-  const checkAgain = panel.getByRole("button", {
-    name: "Check again",
-    exact: true,
-  });
-  await expect.element(checkAgain).toBeEnabled();
-  (checkAgain.element() as HTMLElement).focus();
-  await expect.element(checkAgain).toHaveFocus();
-  const summary = history.getByText("Builds and evidence", { exact: true });
-  const evidence = history.getByRole("list", {
-    name: "Builds and evidence",
-    exact: true,
-  });
-  expect(evidence.elements()).toHaveLength(0);
-  await userEvent.tab({ shift: true });
-  await expect.element(summary).toHaveFocus();
-  await userEvent.keyboard("{Enter}");
-  await expect.element(evidence).toBeVisible();
+  const evidence = await opened.openEvidenceByKeyboard();
   expect(
     evidence
       .getByRole("listitem")
@@ -108,15 +92,7 @@ test("a measured build is a point of CI time without runner waits beside the tru
     "https://ci.invalid/runs/41",
   );
 
-  const phone = document.documentElement;
-  expect(phone.scrollWidth, "page scroll width").toBeLessThanOrEqual(
-    phone.clientWidth,
-  );
-  const area = history.element();
-  const overflowing = [area, ...area.querySelectorAll("*")]
-    .filter((element) => element.scrollWidth > element.clientWidth + 1)
-    .map((element) => element.tagName);
-  expect(overflowing, "history elements scrolling sideways").toEqual([]);
+  expect(opened.scrollingSideways(), "scrolling sideways").toEqual([]);
 
   // Check again starts a new refresh round, which reads the history again.
   expect(historyReads).toEqual(["open-dough"]);

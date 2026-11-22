@@ -12,6 +12,7 @@ import {
 } from "./intentLocationTestData.mjs";
 import { PublishedFilesBuilder } from "./publishedFilesTestData.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
+import { ScopeHistoryGlanceBuilder } from "./scopeHistoryGlanceTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/publishedWork.ts").WorkEntry} WorkEntry */
 
@@ -23,7 +24,7 @@ import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
  * @property {PublishedFilesBuilder} somePublishedFiles
  * @property {IntentLocationBuilder} anIntentLocation
  * @property {IntentLocationsAnswerBuilder} anIntentLocationsAnswer
- * @property {import("./factBuilder.mjs").FactBuilder<import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance>} aScopeHistoryGlance
+ * @property {ScopeHistoryGlanceBuilder} aScopeHistoryGlance
  * @property {DoneWallTimeHistoryBuilder} aDoneWallTimeHistory
  */
 
@@ -86,7 +87,7 @@ export function publishedReadingMakeMeProperties() {
     aScopeHistoryGlance: {
       enumerable: true,
       get() {
-        return { with: copyFacts };
+        return new ScopeHistoryGlanceBuilder();
       },
     },
     aDoneWallTimeHistory: {

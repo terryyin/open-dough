@@ -1,126 +1,93 @@
-import {
-  scopeHistory,
-  scopeHistoryReading,
-} from "../../test-support/intentScopeHistoryPage.ts";
-// Changing scope/project cannot relabel an earlier local read as current proof.
-import { parts } from "../../test-support/dashboardPage.ts";
-import { chooseProject } from "../../test-support/projectChoice.ts";
-import {
-  fileReadingTab,
-  proofRegion,
-} from "../../test-support/intentPerspectivePage.ts";
-import { openSummary } from "../../test-support/intentSummaryCiProofFixtures.ts";
-import {
-  openUntilRead,
-  untilPageReadsAnswered,
-} from "../../test-support/pageRequestNotes.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { doughnutSource } from "../../test-support/support/frontendServiceState.ts";
-import {
-  scopeHistoryPoint,
-  serveUnreadProjectCi,
-} from "../../test-support/support/projectScopeHistoryFacts.ts";
-import { childName } from "../../test-support/intentScopeProofPage.ts";
+// Changing scope or project cannot relabel an earlier local history read as
+// the current scope's proof while live Proof is absent: a late entry answer
+// from another project is aborted and ignored, and a failed file read never
+// keeps its entry's answer at the same project endpoint.
+import { expect, test } from "vitest";
+import type { ScopeHistoryGlance } from "../../src/ciScopeHistory.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
+import { doughnutSource, workOf } from "./intent-ci-homepage-page.ts";
+import { heldRead, openDoughSource } from "./intent-ci-status-fixtures.ts";
+import {
+  caseTimingHistory,
+  mountUnprovenScopeHistory,
+} from "./intent-project-scope-history-fixtures.ts";
+import {
+  openFileProof,
+  openScopeChild,
+  openScopeSummary,
+  scopeHistoryIn,
+} from "./intent-scope-history-page.ts";
 
-test("late entry history cannot replace another file or project's history while live Proof is absent", async ({
-  page,
-  frontendServices,
-}) => {
-  Object.assign(frontendServices, {
-    projects: [...frontendServices.projects, doughnutSource],
-  });
-  const revision = frontendServices.revision;
-  await serveUnreadProjectCi(page, "a".repeat(40));
-  let release: (() => void) | undefined;
-  let answered: (() => void) | undefined;
-  const held = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  const oldAnswered = new Promise<void>((resolve) => {
-    answered = resolve;
-  });
+const work = workOf(openDoughSource, "b2b2b2b");
+const endpoint = `Observed trunk endpoint ${shortSha(work.revision)}`;
+const projects = [openDoughSource, doughnutSource];
+
+test("late entry history cannot replace another file or project's history while live Proof is absent", async () => {
   const requests: string[] = [];
-  await page.route(/intent=ci-history.*scope=/, async (route) => {
-    const params = new URL(route.request().url()).searchParams;
-    const source = params.get("source") ?? "";
-    const path = params.get("scope") ?? "";
-    requests.push(`${source}:${path}`);
-    const old = source === "open-dough" && path === "dashboard/tests";
-    if (old) await held;
-    const duration = old ? 8000 : source === "open-dough" ? 11000 : 9000;
-    await route.fulfill({ json: scopeHistoryPoint(revision, path, duration) });
-    if (old) answered?.();
+  const signals: AbortSignal[] = [];
+  const old = heldRead<ScopeHistoryGlance>();
+  const page = await mountUnprovenScopeHistory({
+    work,
+    projects,
+    readScopeHistory: (source, path, at, signal) => {
+      requests.push(`${source.id}:${path}`);
+      signals.push(signal);
+      if (source.id === "open-dough" && path === "dashboard/tests")
+        return old.ask();
+      const ms = source.id === "open-dough" ? 11000 : 9000;
+      return Promise.resolve(caseTimingHistory(path, ms, at.revision));
+    },
   });
-  try {
-    await openUntilRead(page, "/?project=open-dough&perspective=intent");
-    const { intent } = parts(page);
-    const entry = await openSummary(intent, "dashboard/tests");
-    await expect.poll(() => requests).toEqual(["open-dough:dashboard/tests"]);
-    const path = "dashboard/tests/example.spec.ts";
-    await childName(entry, "example.spec.ts").first().click();
-    await fileReadingTab(intent, "Proof").click();
-    const file = proofRegion(intent);
-    const history = scopeHistory(file);
-    const endpoint = `Observed trunk endpoint ${shortSha(revision)}`;
-    await expect(scopeHistoryReading(history).selected).toHaveText(
-      `${endpoint} · 11.0 s`,
-    );
-    await expect(file).toContainText("Live proof unavailable");
-    await chooseProject(page, "Doughnut");
-    await parts(page).intentChoice.click();
-    const summary = await openSummary(parts(page).intent, "dashboard/tests");
-    const current = scopeHistory(summary);
-    const shown = scopeHistoryReading(current).selected;
-    await expect(shown).toHaveText(`${endpoint} · 9.0 s`);
-    release?.();
-    await oldAnswered;
-    await untilPageReadsAnswered(page);
-    await expect(shown).toHaveText(`${endpoint} · 9.0 s`);
-    expect(requests).toEqual([
-      "open-dough:dashboard/tests",
-      `open-dough:${path}`,
-      "doughnut:dashboard/tests",
-    ]);
-  } finally {
-    release?.();
-  }
+  await openScopeSummary("dashboard/tests");
+  await expect.poll(() => requests).toEqual(["open-dough:dashboard/tests"]);
+  await openScopeChild("example.spec.ts");
+  const file = await openFileProof();
+  const fileHistory = scopeHistoryIn(file);
+  await expect
+    .poll(() => fileHistory.readout().selected)
+    .toBe(`${endpoint} · 11.0 s`);
+  await expect.element(file.getByText("Live proof unavailable")).toBeVisible();
+
+  await page.showWork(workOf(doughnutSource, "b2b2b2b"));
+  const current = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  await expect
+    .poll(() => current.readout().selected)
+    .toBe(`${endpoint} · 9.0 s`);
+  // The other project's entry read was given up before it answered late.
+  expect(signals[0]?.aborted).toBe(true);
+  old.resolve(caseTimingHistory("dashboard/tests", 8000, work.revision));
+  // The page commits a render after the late answer was handled.
+  await old.ask();
+  await page.showIntent();
+  expect(current.readout().selected).toBe(`${endpoint} · 9.0 s`);
+  expect(requests).toEqual([
+    "open-dough:dashboard/tests",
+    "open-dough:dashboard/tests/example.spec.ts",
+    "doughnut:dashboard/tests",
+  ]);
 });
 
-test("a failed new file read cannot retain the entry's answer at the same project endpoint", async ({
-  page,
-  frontendServices,
-}) => {
-  const revision = frontendServices.revision;
-  await serveUnreadProjectCi(page, "a".repeat(40));
+test("a failed new file read cannot retain the entry's answer at the same project endpoint", async () => {
   const requests: string[] = [];
-  await page.route(/intent=ci-history.*scope=/, async (route) => {
-    const path = new URL(route.request().url()).searchParams.get("scope") ?? "";
-    requests.push(path);
-    await route.fulfill(
-      path === "dashboard/tests"
-        ? {
-            json: scopeHistoryPoint(revision, path, 8000),
-          }
-        : { status: 502, json: { error: "File local history unavailable" } },
-    );
+  await mountUnprovenScopeHistory({
+    work,
+    projects,
+    readScopeHistory: (...[, path, at]) => {
+      requests.push(path);
+      return path === "dashboard/tests"
+        ? Promise.resolve(caseTimingHistory(path, 8000, at.revision))
+        : Promise.reject(new Error("File local history unavailable"));
+    },
   });
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const { intent } = parts(page);
-  const entry = await openSummary(intent, "dashboard/tests");
-  await expect(scopeHistoryReading(scopeHistory(entry)).selected).toHaveText(
-    `Observed trunk endpoint ${shortSha(revision)} · 8.0 s`,
-  );
-  await childName(entry, "example.spec.ts").first().click();
-  await fileReadingTab(intent, "Proof").click();
-  const file = proofRegion(intent);
-  const history = scopeHistory(file);
-  await expect(scopeHistoryReading(history).failure).toContainText(
-    "File local history unavailable",
-  );
-  await expect(scopeHistoryReading(history).readout).toHaveCount(0);
-  await expect(history).not.toContainText("Previously retrieved history");
-  await expect(file).toContainText("Live proof unavailable");
+  const entry = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  await expect.poll(() => entry.readout().selected).toBe(`${endpoint} · 8.0 s`);
+  await openScopeChild("example.spec.ts");
+  const file = await openFileProof();
+  const history = scopeHistoryIn(file);
+  await expect.poll(history.text).toContain("File local history unavailable");
+  expect(history.readout().selected).toBeUndefined();
+  expect(history.text()).not.toContain("Previously retrieved history");
+  await expect.element(file.getByText("Live proof unavailable")).toBeVisible();
   expect(requests).toEqual([
     "dashboard/tests",
     "dashboard/tests/example.spec.ts",

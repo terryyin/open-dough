@@ -5,49 +5,33 @@
 // and readout, and where the history sits beside the live comparison proof.
 import { expect } from "vitest";
 import { page } from "vitest/browser";
-import { tokenColour } from "../configuration/system-settings-reading.ts";
 import { visibleText } from "./intent-ci-comparison-page.ts";
+import { priorReferenceIn } from "./intent-ci-prior-reference-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 export async function doneWallTimeHistory() {
   await intentStoryCompare().chooseTab("CI comparison");
-  const region = page
+  const comparison = page
     .getByRole("main", { name: "Intent", exact: true })
-    .getByRole("region", { name: "CI wall time history", exact: true });
+    .getByRole("tabpanel", { name: "CI comparison", exact: true });
+  const region = comparison.getByRole("region", {
+    name: "CI wall time history",
+    exact: true,
+  });
   await expect.element(region).toBeVisible();
   const textOf = (selector: string) => () => {
     const node = region.element().querySelector(selector);
     return node === null ? undefined : visibleText(node);
   };
-  const gapElement = () => document.querySelector(".intent-ci-gap");
-  const line = (index: number) => () => {
-    const node = Array.from(
-      region.element().querySelectorAll(".intent-ci-prior-reference > p"),
-    ).at(index);
-    return node === undefined ? undefined : visibleText(node);
-  };
+  // The live CI comparison's gap; CI status and judgment show their own.
+  const gapElement = () => comparison.element().querySelector(".intent-ci-gap");
   return {
     // The brief status, undefined where the history is retained there.
     status: textOf(".intent-ci-history-status"),
-    selected: line(0),
-    average: line(1),
-    // The change line, undefined without a usable timing and average.
-    change: textOf(".intent-ci-prior-change"),
+    // The compact readout's selected, average and change lines, the change
+    // undefined without a usable timing and average, and its cue colour.
+    ...priorReferenceIn(region),
     alert: textOf("[role=alert]"),
-    // Which cue colour paints the change figure.
-    changeCue: () => {
-      const figure = region
-        .element()
-        .querySelector(".intent-ci-prior-change strong");
-      if (figure === null) return undefined;
-      const { color } = getComputedStyle(figure);
-      return (
-        (["slower", "faster"] as const).find(
-          (direction) =>
-            color === tokenColour(region.element(), `--ci-cue-${direction}`),
-        ) ?? "uncued"
-      );
-    },
     chartMarks: () =>
       region.element().querySelectorAll(".history-chart-chart button").length,
     chartReadout: textOf(".history-chart-chart .history-chart-readout"),
