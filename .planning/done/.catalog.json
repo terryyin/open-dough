@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-418_resume-shared-checkout-closes-as-their-own-session.json",
+      "identity": "SEED-418#resume-shared-checkout-closes-as-their-own-session",
+      "completedAt": "2026-11-22T14:02:22.022Z",
+      "blob": "30cffd22cfa95e38f576d422cf6ee6e5715f28d5"
+    },
+    {
       "fileName": "SEED-341_split-quiet-completion-journey.json",
       "identity": "SEED-341#split-quiet-completion-journey",
       "completedAt": "2026-11-22T10:32:44.125Z",
@@ -2862,12 +2868,6 @@
       "identity": "SEED-010#assess-client-product-improvement-in-use",
       "completedAt": "2026-10-24T00:01:59.400Z",
       "blob": "7af96d159f16f067db24c7ff29e4ba1dffb2bb9d"
-    },
-    {
-      "fileName": "SEED-149_native-ci-workflow.json",
-      "identity": "SEED-149#native-ci-workflow",
-      "completedAt": "2026-10-23T12:20:36.369Z",
-      "blob": "e8a825c697046409df279ead8d52faa7407c9da9"
     }
   ],
   "unreadable": []

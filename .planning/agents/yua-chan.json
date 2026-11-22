@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yua-chan",
-  "email": "yua-chan@example.org",
-  "identity": "SEED-418#resume-shared-checkout-closes-as-their-own-session",
-  "mode": "story-branch",
-  "branch": "claude/resume-shared-checkout-land-closes-as-their-own",
-  "host": "claude"
-}

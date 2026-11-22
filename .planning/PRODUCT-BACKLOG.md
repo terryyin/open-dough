@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/771-finish-launch-proof-orthogonal/PLAN.md))
 - [Keep the attention completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout) — SEED-341#keep-attention-completion-journey-within-timeout ([plan](slice-plans/776-keep-attention-completion-journey-within-timeout/PLAN.md))
 - [Keep the expired-record prune when a record commit is retried](seeds/SEED-418-review-published-session-changes.md#prune-expired-records-after-a-retried-record-commit) — SEED-418#prune-expired-records-after-a-retried-record-commit ([plan](slice-plans/769-prune-expired-records-after-a-retried-record-commit/PLAN.md))
-- [Resume shared-checkout Land closes as their own session](seeds/SEED-418-review-published-session-changes.md#resume-shared-checkout-closes-as-their-own-session) — SEED-418#resume-shared-checkout-closes-as-their-own-session ([plan](slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md))
 
 ## Backlog list
 
