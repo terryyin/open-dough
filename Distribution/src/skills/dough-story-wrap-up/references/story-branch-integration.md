@@ -45,12 +45,26 @@ context. Finish the visit, or explicitly retain unresolved dependency work,
 evidence and gaps in existing active context, before the final completion and
 retirement that procedure orders; report gaps.
 
+## Publish the session record
+
+After the final accepted SHA's completion receipt and the finished visit, run
+the installed `story-branch-session-record.mjs record` from the owned
+workspace with `--workspace` and `--inspection` set to it,
+`--published-tip <saved final-closure tip>`, `--integrated-sha <integrated SHA>`,
+`--branch <execution branch>`, and the integration's `--landing-context` when
+the launch supplied one. It seals the session record from its accepted branch
+increments, keeps it in the worktree, and publishes it as one separate record
+commit on trunk; the integration merge adds no range. A printed
+`stopped: "record"` blocks retirement: follow its `recovery` to publish the kept
+record without another integration.
+
 ## Retire Story Branch resources
 
 Retire the worktree and branch under Dough Land's
 [Retire the worktree](../../dough-land/SKILL.md#retire-the-worktree) with
 `--remote-branch <execution branch>` and `--contained <integrated SHA>`, adding
-`--contained` for each accepted consumer publication, with wrap-up's gate: a
+`--contained` for each accepted consumer publication and for the printed
+`record.sha`, with wrap-up's gate: a
 `success` completion receipt for the final accepted SHA whose shutdown is
 confirmed, and no active checkout-bound observer still hosting the worktree
 under [preserve pending local work](../../dough-execute-plan/references/maintain-default-checkout.md#preserve-pending-local-work).

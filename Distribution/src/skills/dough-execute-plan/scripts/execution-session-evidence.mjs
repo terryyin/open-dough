@@ -3,7 +3,8 @@
 // and the ordered accepted increment pairs. A fresh native claim or admission
 // starts a new UUID; a resumed start keeps the file. A Dashboard launch's
 // landing-context reference names the session, and a different reference
-// replaces an unclosed earlier session's evidence. Only accepted pairs are
+// replaces an unclosed earlier session's evidence, except where Story Branch
+// integration adopts the launch reference. Only accepted pairs are
 // appended, so refused or rewritten candidates never enter.
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
@@ -69,6 +70,16 @@ export function recordAcceptedIncrement(
   if (last?.base !== base || last?.candidate !== candidate)
     evidence.ranges.push({ base, candidate });
   return writeSessionEvidence(workspace, evidence);
+}
+
+// A Story Branch session's branch publications carry no landing context, so
+// its evidence starts native; the integration's launch reference then names
+// the same session, keeping its recorded ranges and story. A closed session
+// keeps its sealed identity.
+export function adoptLaunchReference(workspace, reference) {
+  const kept = readSessionEvidence(workspace);
+  if (!kept || kept.closedAt || kept.sessionId === reference) return kept;
+  return writeSessionEvidence(workspace, { ...kept, sessionId: reference });
 }
 
 /**

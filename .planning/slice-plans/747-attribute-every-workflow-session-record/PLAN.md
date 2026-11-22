@@ -90,6 +90,14 @@ session-close route, one shared record contract and one record path.
   It stops before retirement until the record publication is accepted, and retirement treats the record commit as
   contained. A `finish` rerun resumes the record stage through
   `resumeSessionClose`.
+- Story Branch integration has one script boundary, `history-preserving-publication.mjs
+  integrate`, which runs before the integrated SHA's completion receipt and the
+  consumer visit. Its record stage is therefore a separate wrap-up adapter
+  (`story-branch-session-record.mjs record`), run after the final completion
+  receipt and consumer visit and before retirement, mirroring Trunk Mode. Its
+  ranges are the original branch pairs and the continuation's pairs. The
+  integration merge pair is acceptance evidence only. The integration's launch
+  reference renames an unclosed native session and keeps its ranges.
 
 ## Decisive premises
 
@@ -230,7 +238,7 @@ the record commit are absent.
 ### 6. Keep story-branch comparisons after integration
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Behavior.** Story Branch Mode preserves its attributable branch comparisons
 and separately evidenced later work when integration makes them reachable from
@@ -241,6 +249,8 @@ retirement against a temporary origin, with an intervening trunk change and a
 separate accepted continuation. Read exact pairs and file diffs from a fresh
 default-branch-only clone after retirement. Assert original branch hashes,
 the continuation's edits, and absence of duplicate and intervening work.
+
+**Accepted.** `story-branch-session-record.mjs record` shares Trunk Mode's record stage and runs after the final completion receipt and visit, before retirement. The record push now bases on the record commit's parent, which a Story Branch rerun needs. Proof: `Distribution/tests/skills/dough-story-wrap-up/story-branch-session-record.test.mjs`; the integrated SHA's completion receipt keeps its existing proof.
 
 ### 7. Record refinement and follow-up through Land
 
@@ -343,7 +353,7 @@ Disposition: proved by slice 1: Distribution/tests/skills/dough-land/session-clo
 ### G3. One unreadable range hides every range of the record
 Reported: slice 2 — "If one range's commits aren't in this machine's Git, the whole review shows unavailable with no range switch, so the other ranges can't be reached from the UI."
 Story clause: "Include earlier accepted trunk and story-branch work when its comparison becomes reachable from trunk."
-Disposition: interim until slices 3, 4, 5, 6
+Disposition: proved by slice 6: Distribution/tests/skills/dough-story-wrap-up/story-branch-session-record.test.mjs (git cat-file -e succeeds for every range commit in a default-branch-only clone after Dough Land retirement deleted the branch) and Distribution/tests/skills/dough-story-wrap-up/trunk-closure-session-record-contributions.test.mjs for Trunk Mode
 
 ### G4. The range switch disappears while another range loads
 Reported: slice 2 — "The switch disappears briefly while another range loads."
@@ -353,9 +363,14 @@ Disposition: no user cost "A developer on another machine can review what an ind
 ### G5. A Dashboard-launched story-branch execution keeps its native UUID
 Reported: slice 3 — "A story-branch first publication carries no landing context, so its evidence keeps the native UUID; that is left for slice 5."
 Story clause: "Use the launch UUID when supplied"
-Disposition: receiving slice 6
+Disposition: proved by slice 6: Distribution/tests/skills/dough-story-wrap-up/story-branch-session-record.test.mjs launch-reference case (record UUID is the integration launch reference and keeps the earlier branch ranges via adoptLaunchReference)
 
 ### G6. A resumed interrupted increment adds no pair
 Reported: slice 3 — "resumeManagedExecutionIncrement never calls recordAcceptedIncrement. If an interrupted publication is resumed and then accepted, its pair is not added to the session evidence."
 Story clause: "ordered comparisons for that session's accepted work"
 Disposition: proved by slice 3: Distribution/tests/skills/dough-execute-plan/execution-session-evidence-delivery.test.mjs "an increment whose push response was lost joins the session evidence once, in order, when resumed and accepted" (production resumeManagedExecutionIncrement accepts with pushCount 0; ranges deep-equal [trunk→first, first→interrupted] after a second resume)
+
+### G7. Story Branch record proof bypasses its production entries
+Reported: slice 6 — "Branch pairs are recorded by pushing and calling recordAcceptedIncrement directly, not through deliverManagedExecutionIncrement to a branch target. Retirement is just deleting the remote branch ref, not Dough Land retire. The tests call the library function, so the CLI's argument parsing is not exercised."
+Story clause: "Include earlier accepted trunk and story-branch work when its comparison becomes reachable from trunk."
+Disposition: proved by slice 6: Distribution/tests/skills/dough-story-wrap-up/story-branch-session-record.test.mjs (branch increments through deliverManagedExecutionIncrement story-branch mode, record stage through the installed story-branch-session-record.mjs CLI, Dough Land worktree-retirement.mjs retire holding on an unpublished record and succeeding with the published record.sha)

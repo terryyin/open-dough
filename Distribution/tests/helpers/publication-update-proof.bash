@@ -48,6 +48,7 @@ assert_installed_publication_modules() {
       "dough-story-wrap-up/scripts/trunk-closure-arguments.mjs",
       "dough-story-wrap-up/scripts/trunk-closure-observer.mjs",
       "dough-story-wrap-up/scripts/trunk-closure-session-record.mjs",
+      "dough-story-wrap-up/scripts/story-branch-session-record.mjs",
       "dough-story-wrap-up/scripts/trunk-closure-settlement.mjs",
       "dough-story-wrap-up/scripts/trunk-closure-visit.mjs",
       "dough-story-wrap-up/scripts/trunk-closure.mjs",

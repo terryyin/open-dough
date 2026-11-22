@@ -138,9 +138,14 @@ async function sendRecord(publication, path, record) {
     };
   }
   await commitRecord(publication.workspace, path, record);
+  // The record commit's parent is the accepted tip it was committed or
+  // last rebased onto: the session's last range, or the integrated trunk.
+  const recordBase = (
+    await git(publication.workspace, "rev-parse", "HEAD^")
+  ).stdout.trim();
   const published = await publishExecutionIncrement({
     ...publication,
-    previouslyPublishedBase: record.ranges.at(-1).candidate,
+    previouslyPublishedBase: recordBase,
     // A record commit is never the launch's landing, even while its landing
     // expectation is still open.
     landingContext: null,

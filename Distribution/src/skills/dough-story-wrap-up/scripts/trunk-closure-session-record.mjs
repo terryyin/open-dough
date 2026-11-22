@@ -6,7 +6,8 @@
 // commit is never one of its own ranges and no observer covers it. A rerun
 // resumes from the sealed evidence without repeating the closure push or the
 // completion. Without the worktree, a record the target already holds for the
-// closure settles the stage; otherwise the stage stops.
+// closure settles the stage; otherwise the stage stops. Story Branch
+// wrap-up's record stage shares `publishClosureRecord`.
 import { existsSync } from "node:fs";
 import {
   readSessionEvidence,
@@ -37,8 +38,15 @@ async function closurePair(workspace, acceptedSha) {
   return { base, candidate: acceptedSha };
 }
 
-// A record commit after `acceptedSha` on `tracking` whose ranges hold it.
-async function recordOnTarget(inspection, tracking, acceptedSha, backlogPath) {
+// A record commit after `acceptedSha` on `tracking` whose ranges hold
+// `closedSha`.
+async function recordOnTarget(
+  inspection,
+  tracking,
+  acceptedSha,
+  backlogPath,
+  closedSha,
+) {
   const directory = sessionRecordDirectoryBeside(backlogPath);
   const range = `${acceptedSha}..${tracking}`;
   const log = await git(
@@ -56,7 +64,7 @@ async function recordOnTarget(inspection, tracking, acceptedSha, backlogPath) {
     if (line.startsWith("@")) sha = line.slice(1);
     else {
       const shown = await git(inspection, "show", `${sha}:${line}`);
-      if (holdsClosure(JSON.parse(shown.stdout).ranges, acceptedSha))
+      if (holdsClosure(JSON.parse(shown.stdout).ranges, closedSha))
         return { status: "published", path: line, sha };
     }
   }
@@ -64,6 +72,8 @@ async function recordOnTarget(inspection, tracking, acceptedSha, backlogPath) {
 }
 
 // Seals `closing`, the settled completion, with the record and publishes it.
+// `closedSha` is the session's last own commit, `acceptedSha` unless Story
+// Branch integration accepted it inside a merge, which adds no range.
 // Returns `{ record }` once published, else `{ stopped, record, recovery }`.
 export async function publishClosureRecord(
   {
@@ -72,9 +82,11 @@ export async function publishClosureRecord(
     tracking,
     branch,
     acceptedSha,
+    closedSha = acceptedSha,
     targetRef,
     remote,
     backlogPath = defaultBacklogPath,
+    recovery = "rerun finish",
   },
   closing,
 ) {
@@ -84,6 +96,7 @@ export async function publishClosureRecord(
       tracking,
       acceptedSha,
       backlogPath,
+      closedSha,
     );
     if (found) return { record: found };
     return {
@@ -95,7 +108,7 @@ export async function publishClosureRecord(
   }
   const sealed = sealSessionEvidence(
     workspace,
-    await closurePair(workspace, acceptedSha),
+    await closurePair(workspace, closedSha),
     closing,
   );
   const { record } = await resumeSessionClose({
@@ -122,7 +135,6 @@ export async function publishClosureRecord(
       path: record.path,
       error: record.error ?? record.publication?.status ?? null,
     },
-    recovery:
-      "follow record.error, then rerun finish; it publishes the sealed session record kept in the worktree without another closure push or completion",
+    recovery: `follow record.error, then ${recovery}; it publishes the sealed session record kept in the worktree without another closure push or completion`,
   };
 }
