@@ -5,12 +5,6 @@ import type { IntentLocation } from "../../server/intentLocationsRead.ts";
 import type { IntentSettings } from "../../../Distribution/tests/support/intentLocationTestData.mjs";
 import type { FrontendServiceState } from "./frontendServiceState.ts";
 import { putFrontendPublished } from "./frontendServiceState.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  pygardonFeatureSources,
-  featuresPath,
-  packagedPath,
-} from "../intentEntryFolderSummariesFixtures.ts";
 
 export function putFrontendIntentSources(
   services: FrontendServiceState,
@@ -38,30 +32,3 @@ export const locationsSelectingUnder = (
     ...location,
     files: paths.filter((path) => path.startsWith(`${location.path}/`)),
   }));
-
-export function putFrontendFolderSources(
-  services: FrontendServiceState,
-  project: CatalogPublication,
-): void {
-  putFrontendIntentSources(
-    services,
-    project,
-    [
-      makeMe.anIntentLocation
-        .at(featuresPath)
-        .ofKind("gherkin")
-        .selecting(
-          ...Object.keys(pygardonFeatureSources).filter((path) =>
-            path.startsWith(`${featuresPath}/`),
-          ),
-        )
-        .please(),
-      makeMe.anIntentLocation
-        .at(packagedPath)
-        .ofKind("gherkin")
-        .selecting(`${packagedPath}/packaged.feature`)
-        .please(),
-    ],
-    pygardonFeatureSources,
-  );
-}

@@ -413,7 +413,7 @@ proof record refuses an existing path.
 ### 6. Intent entry and folder summaries aggregate nested test counts and select or expand cleanly
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-entry-folder-summaries` (1) and
 `intent-entry-folder-summaries-folders` (1) over the production Intent body,
@@ -426,6 +426,18 @@ Retain `e2e/intent/intent-gherkin-browse.spec.ts` and
 
 **Proof.** Entry and nested folder rows aggregate test counts accurately, and
 clicking names vs disclosure toggles selects or expands the intended scope.
+
+**Learnings.** The two legacy cases became 4 Vitest cases on
+`mountIntentCiPage`, one per risk (location names vs toggles, folders,
+keyboard, Purpose kept vs replaced), 6.9 s at load about 6; splitting into
+11 one-behavior cases cost about 2 s and was folded back. The shared tree
+locators (`scopeToggle`, `scopeName`, `fileName`) live in
+`intent-browser-page.ts`; nested files open through
+`intentScopeTree().openFile`, since nested folder toggles are named by
+folder. `intentEntryFolderSummariesFixtures.ts` and
+`putFrontendFolderSources` are retired. The five feature texts stay inline
+as asserted bytes; add a nested-folder `somePublishedFiles` example only when
+another slice needs the same tree.
 
 ### 7. Gherkin groups select scenarios and outlines while tree and feature panes scroll independently
 
