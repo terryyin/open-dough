@@ -107,7 +107,7 @@ sits below the top layer.
 ### 2. Start session touch uses the same check and the native tap retires
 
 Type: Behavior
-Status: planned
+Status: done
 
 Replace both `tap(directionToggle())` calls with the helper. Delete `tap`,
 the `BrowserCommands` declaration, and the `tapMountedControl` command and
@@ -128,6 +128,12 @@ times: Start session 313–556 ms, refinement 516–969 ms. The probe is
 `.github/workflows/touch-probe.yml`: 5 jobs, each running both specs 10
 times. The group runner accepts no `--retry`, and the frontend config sets
 none, so each case runs once.
+
+Hosted proof: Touch probe run 44998661869 on `6bbed190`, with CI run
+44998661783 green on the same revision. 50 of 50 runs passed, and all 250
+case results passed. Refinement touch case: avg 365 ms, max 441 ms. Start
+session touch case: avg 202 ms, max 242 ms. The probe workflow was deleted
+in the slice's final publication.
 
 ## Concern evidence
 
@@ -154,5 +160,5 @@ This review found no remaining slice-specific concern.
 ### G1. Refinement case still above the expected local time (found at slice 1 acceptance)
 Reported: slice 1 — "Paired local timing at load 32–39 (evidence paired-timing.log): before 3.9–5.1 s, after 1.4–1.8 s as a single-case file; scratch repeats (scratch-repeat.log) 0.93 s cold then 0.55–0.66 s warm, not about 0.3 s."
 Story clause: "in well under a second per case"
-Disposition: receiving slice 2
+Disposition: proved by slice 2: Touch probe run 44998661869 job summaries — refinement case avg 365 ms, max 441 ms; Start session touch case avg 202 ms, max 242 ms over 50 hosted runs; local whole-group refinement 516 ms
 Commitment: C20
