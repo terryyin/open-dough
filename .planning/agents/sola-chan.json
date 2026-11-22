@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Sola-chan",
+  "email": "sola-chan@example.org",
+  "identity": "SEED-418#prune-expired-records-after-a-retried-record-commit",
+  "mode": "story-branch",
+  "branch": "claude/keep-the-expired-record-prune-when-a-record-comm",
+  "host": "claude"
+}
