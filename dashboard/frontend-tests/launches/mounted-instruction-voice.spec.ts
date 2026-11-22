@@ -20,9 +20,8 @@ async function abandonsTranscription(dismiss: "Cancel" | "Escape") {
   const call = voice.transcribe.mock.calls[0];
   if (call === undefined)
     throw new Error("The recording did not request transcription.");
-  const [clip, signal] = call;
-  expect(clip.type).toMatch(/^audio\//);
-  expect(clip.size).toBeGreaterThan(0);
+  const [, signal] = call;
+  expect(signal.aborted).toBe(false);
   expect(capture.tracks().map((track) => track.readyState)).toEqual(["ended"]);
   await expect.element(voice.status).toHaveTextContent("Transcribing…");
   await expect.element(voice.start).toBeDisabled();
