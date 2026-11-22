@@ -130,7 +130,7 @@ restore the parked draft as one test.
 ### 1. The backlog card shows a composed attention completion
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new page spec's backlog-card test passes. Discrimination, then
 reverted: a scratch edit that drops the composed message makes the message
 assertion fail.
@@ -241,15 +241,24 @@ No other slice-specific concern remains.
 
 ## Learnings
 
-Slice 1 of the previous boundary overran on 2026-11-22. The clock paused at
-17.7 active minutes (`storyOverruns` 1). No focused spec, typecheck,
-discrimination probe, or consumer trace ran. Completed proof: none. The
-failed sizing assumption was that the backlog card, unfinished label, Taken
-move, workspace removal, final report, Mark as read, Mark as done, and Done
-entry fit one slice and one spec at or under 250 lines. The failure point
-was the clock expiring while the spec was still being written. The parked
-draft is `slice1-draft.spec.ts` in this checkout's evidence directory. It is
-evidence only. Its native-call step callback has eleven nonblank lines, over
-the ten-line step limit. Do not restore it as the spec.
+The first attempt at the whole page journey overran on 2026-11-22. The clock
+paused at 17.7 active minutes. No focused spec, typecheck, discrimination
+probe, or consumer trace ran. The failed sizing assumption was that the
+backlog card, unfinished label, Taken move, workspace removal, final report,
+Mark as read, Mark as done, and Done entry fit one slice and one spec at or
+under 250 lines. The parked draft is `slice1-draft.spec.ts` in this
+checkout's evidence directory. It is evidence only. Do not restore it as the
+spec.
+
+The replacement Slice 1 finished its backlog-card proof: the focused spec and
+typecheck exited 0, and dropping the composed message made `toHaveText` fail
+before that scratch was reverted. The implementer reported 14.4 active
+minutes with overrun false. The coordinator pause then measured 15.1 active
+minutes, so `storyOverruns` is 2. That completed proof stays. This remains
+one story. Delivered value is the composed backlog card. Remaining scope is
+Slices 2–7. Continuing is justified because this one-result slice finished
+its proof, and the second overrun is the handoff crossing the limit after
+that proof. Do not refine the remaining slices again unless a later slice
+fails to finish its own proof.
 
 ## Story obligations

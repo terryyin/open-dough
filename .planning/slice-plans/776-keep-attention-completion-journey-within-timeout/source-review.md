@@ -18,9 +18,9 @@ The coordinator launched a fresh general-purpose reviewer (agent `72170936-0723-
 | C1 | Each case finishes inside the default 30 s test timeout. At load about 50 on 16 cores, each case in both owners passes inside 30 s. | slice 7 |  |
 | C2 | Keep the default timeout. Add no timeout override. The goal names that default the default 30 s test timeout. Applies to the attention completion journey after the split. | slice 7 |  |
 | C3 | Closure and reporting proves, without a browser page, that the real launch's installed attention report records a completion and leaves the session open. | slice 7 |  |
-| C4 | Page proves, from a composed Codex record that already carries the attention completion, what the story card shows. It runs no launch. | slice 1 |  |
-| C5 | The page owner runs no installed closure, proving from a composed Codex record that already carries the attention completion. | slice 1 |  |
-| C6 | The page owner runs no installed reporting, proving from a composed Codex record that already carries the attention completion. | slice 1 |  |
+| C4 | Page proves, from a composed Codex record that already carries the attention completion, what the story card shows. It runs no launch. | slice 1 | observed: e2e/sessions/agent-completion-attention-page.spec.ts backlog-card test and dashboard/test-support/support/composedAttentionRecord.ts keepComposedAttentionCompletion; slice1-card.log.run.json exit 0 |
+| C5 | The page owner runs no installed closure, proving from a composed Codex record that already carries the attention completion. | slice 1 | observed: e2e/sessions/agent-completion-attention-page.spec.ts has no installed closure call; slice1-card.log.run.json exit 0 |
+| C6 | The page owner runs no installed reporting, proving from a composed Codex record that already carries the attention completion. | slice 1 | observed: e2e/sessions/agent-completion-attention-page.spec.ts has no installed reporting call; slice1-card.log.run.json exit 0 |
 | C7 | Installed completed-with-attention: the receipt records the message (the receipt and stored completion). Real launch's installed attention report, closure-and-reporting owner. Retention sentence applies. | slice 7 |  |
 | C8 | Installed completed-with-attention: the receipt records the Codex session. Real launch's installed attention report, closure-and-reporting owner. Retention sentence applies. | slice 7 |  |
 | C9 | Installed completed-with-attention: the store keeps that completion. Real launch's installed attention report, closure-and-reporting owner. Retention sentence applies. | slice 7 |  |
@@ -33,10 +33,10 @@ The coordinator launched a fresh general-purpose reviewer (agent `72170936-0723-
 | C16 | After that later installed unfinished report, `doneAt` is still absent. Closure-and-reporting owner. Retention sentence applies. | slice 7 |  |
 | C17 | After the workspace directory is removed, the installed command still returns a receipt. Closure-and-reporting owner, on the installed path. Retention sentence applies. | slice 7 |  |
 | C18 | After the dashboard process restarts, the stored receipt is that retained receipt. Closure-and-reporting owner. Retention sentence applies. | slice 7 |  |
-| C19 | A composed attention completion's story card shows the message as text (the script tag is not an element). The record already carries that completion, page owner. Retention sentence applies. | slice 1 |  |
-| C20 | That story card shows Working. Composed attention completion, page owner. Retention sentence applies. | slice 1 |  |
-| C21 | That story card shows "Unread report: Completed with attention". Composed attention completion, page owner. Retention sentence applies. | slice 1 |  |
-| C22 | That story card shows Mark as read. Composed attention completion, page owner. Retention sentence applies. | slice 1 |  |
+| C19 | A composed attention completion's story card shows the message as text (the script tag is not an element). The record already carries that completion, page owner. Retention sentence applies. | slice 1 | observed: spec Then step toHaveText of the attention message and script count 0; discrimination log toHaveText failed when the message was dropped |
+| C20 | That story card shows Working. Composed attention completion, page owner. Retention sentence applies. | slice 1 | observed: spec step And it shows Working; slice1-card.log.run.json exit 0 |
+| C21 | That story card shows "Unread report: Completed with attention". Composed attention completion, page owner. Retention sentence applies. | slice 1 | observed: spec step Unread report: Completed with attention; slice1-card.log.run.json exit 0 |
+| C22 | That story card shows Mark as read. Composed attention completion, page owner. Retention sentence applies. | slice 1 | observed: spec step And it shows Mark as read; slice1-card.log.run.json exit 0 |
 | C23 | After the stored completion is unfinished, the open card shows "Unfinished work". Page owner. Retention sentence applies. | slice 2 |  |
 | C24 | When the published backlog moves that story from Backlog to Taken, the message is on the Taken card. Page owner. Retention sentence applies. | slice 2 |  |
 | C25 | Removing the workspace path does not clear that message on the Taken card. Page owner. Retention sentence applies. | slice 2 |  |
