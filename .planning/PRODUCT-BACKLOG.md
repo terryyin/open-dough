@@ -40,6 +40,7 @@ intent introduced or affected by a newly developed story.
 - [Get fast proof of Intent scope timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history) — SEED-413#speed-intent-scope-timing-history
 - [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading
 - [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof
+- [Drive the published observation through the typed page entry](seeds/SEED-413-renovate-dashboard-unit-tests.md#drive-published-observation-through-page-entry) — SEED-413#drive-published-observation-through-page-entry
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
 - [Compare a story branch with and without incoming trunk changes](seeds/SEED-420-unified-intent-review.md#compare-story-contributions) — SEED-420#compare-story-contributions
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison

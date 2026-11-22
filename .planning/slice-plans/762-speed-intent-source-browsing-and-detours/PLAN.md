@@ -7,7 +7,7 @@
 
 ## Goal and scope
 
-**Correction first.** Slices 1–3 correct the locations read-recovery and
+**Correction first.** Slices 1–4 correct the locations read-recovery and
 settings-problem entry delivered by SEED-413#speed-intent-source-and-story-reading
 (see [Correction of the locations recovery test entry](#correction-of-the-locations-recovery-test-entry))
 before any source-browsing move builds on it. They start after plan 759
@@ -90,10 +90,22 @@ rule.
   transient `ReadProblem`.
 
 **Correction outcome.** Dashboard maintainers get locations recovery and
-settings-problem proof that renders the production page observation and
-Intent body through the required typed page entry, with typed replies built
-by MakeMe. Each spec's and helper's production imports shrink to that entry,
+settings-problem proof that renders the production Intent body
+(`BoardOrIntent`, whose `IntentReadRecovery` owns the Intent schedule,
+visibility and limit rereads) through the required typed page entry, with
+typed replies built by MakeMe, and E2E proof on the composed page that
+published detail and Intent locations share a wait that healing detail does
+not clear. Each spec's and helper's production imports shrink to that entry,
 its typed inputs and stylesheets.
+
+**Amended 2026-11-22 (Terry).** Rendering the published observation itself
+(`ConfiguredDashboard`) also reaches reads outside the page entry: the
+revision stream's `EventSource`, the detail reads in
+`publishedWorkDetails.ts` (sessions, agent profiles, assignments, done
+stories, slice clocks, moved progress), machine sessions from
+`useAgentLaunches`, and module-level transient-failure state that
+production clears only on a project change. Bringing them into the entry is
+queued as SEED-413#drive-published-observation-through-page-entry; until then the shared wait is proved in E2E.
 
 **Preserved promises.** Every observation in the 5 recovery cases and the
 settings-problem cases keeps its title and distinguishing assertion: the
@@ -126,8 +138,7 @@ visibility, which is the real input `usePageVisibility` observes, and stays.
   `reads` prop and cases build with `pageReadsSupplying`. Render the
   production Intent body that plan 764 Slice 2 makes stand alone inside
   `BoardOrIntent` (`IntentReadRecovery` → `IntentPerspective` or
-  `RetainedFollowUpPerspective`), or production `ConfiguredDashboard` when
-  the page observation is part of the proof. No
+  `RetainedFollowUpPerspective`). No
   test file renders `IntentPageProviders`, `IntentReadingProvider`,
   `StorySelectionProvider`, `useLimitRecovery` or `IntentReadRecovery`
   itself, and no case mounts `ProjectIntentReading` with hand-supplied mode
@@ -135,7 +146,7 @@ visibility, which is the real input `usePageVisibility` observes, and stays.
 - Add each read a case needs as a **required** member of the typed page
   entry, never as an optional member, context default, separate
   default-valued context or defaulted parameter. This covers the published
-  observation's reads (Slice 1) and the source highlighter (Slice 7).
+  observation's reads (Slice 1) and the source highlighter (Slice 8).
 - Build every read reply and recurring input with page-loadable MakeMe
   builder steps: configured, absent, unusable, unreachable and rate-limited
   locations answers, file replies, and a page-reads value whose unused reads
@@ -158,8 +169,8 @@ visibility, which is the real input `usePageVisibility` observes, and stays.
   that any spec file containing JSX mount wrappers must use `.tsx` or move JSX
   into a `.tsx` colocated page helper so `tsc --noEmit` passes). Capture the
   15-file / 22-case two-worker legacy baseline with
-  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` in Slice 4 before replacing the
-  first legacy spec, and compare the completed 15-file cohort in Slice 9.
+  `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` in Slice 5 before replacing the
+  first legacy spec, and compare the completed 15-file cohort in Slice 10.
 
 ## Local gate
 
@@ -180,13 +191,14 @@ E2E companions when shared contracts or popup/focus boundaries change.
 | --- | --- |
 | Production supplies the page observation's reads through the required typed page entry, with no defaulted reader parameter | Slice 1 (`npm run typecheck:dashboard`, the recovery and preparation Vitest files, one representative published-read E2E journey, `grep`). |
 | A typed rate-limited reply sets the page's standing limit without the transport | Slice 2 (`npm run typecheck:dashboard`, a focused typed-reply limit case, the existing limit Vitest cases and one rate-limit E2E journey). |
-| Locations recovery and settings-problem cases render the production observation and Intent body with MakeMe replies, not a test copy | Slice 3 (`intent-read-recovery`, `intent-gherkin-settings-problems`, delete `intent-read-recovery-page.tsx`'s composition, import counts). |
-| Canonical and plan links use the inspected revision, external/unsafe/invalid targets stay distinct, and popup activation is proved in E2E | Slice 4 (`navigation/source-navigation*` + `e2e/navigation/source-navigation.spec.ts` + retire `frontendSourceNavigation.ts`). |
-| Entry and folder summaries aggregate nested test counts and expand or select cleanly | Slice 5 (`intent-entry-folder-summaries*` + retire `intentEntryFolderSummariesFixtures.ts` and `putFrontendFolderSources`). |
-| Gherkin groups select scenarios and outlines while tree and feature panes scroll independently | Slice 6 (`intent-gherkin-groups`, `intent-gherkin-layout`). |
-| Missing Java grammar falls back to readable plain text and Candidates cases open at their exact source line | Slice 7 (required source highlighter read + `intent-code-browse-java`, `intent-purpose-case`). |
-| Project Intent activation, project visits, cached reads, and pending revisions/selections keep the applicable source over the production Intent body | Slice 8 (production Intent body in place of `intent-candidates-publication.ts`'s composition + `intent-home-activation`, `intent-project-visit*`, `intent-read-reuse`, `intent-selection-reads`). |
-| Reading place and recent stories restore the story, nested file and reading position after a detour, and another project starts its reading afresh | Slice 9 (`intent-reading-place`, `intent-recent-stories` + 15-file two-worker before/after comparison). |
+| Settings-problem cases render the production Intent body with MakeMe replies, not a `fetch` spy or transport calls | Slice 3 (`intent-gherkin-settings-problems`, import counts). |
+| Locations recovery cases render the production Intent body with MakeMe replies, not a test copy, and the shared detail/locations wait is proved on the composed page | Slice 4 (`intent-read-recovery`, one E2E journey, delete `PageIntentRecovery`, import counts, paired timing). |
+| Canonical and plan links use the inspected revision, external/unsafe/invalid targets stay distinct, and popup activation is proved in E2E | Slice 5 (`navigation/source-navigation*` + `e2e/navigation/source-navigation.spec.ts` + retire `frontendSourceNavigation.ts`). |
+| Entry and folder summaries aggregate nested test counts and expand or select cleanly | Slice 6 (`intent-entry-folder-summaries*` + retire `intentEntryFolderSummariesFixtures.ts` and `putFrontendFolderSources`). |
+| Gherkin groups select scenarios and outlines while tree and feature panes scroll independently | Slice 7 (`intent-gherkin-groups`, `intent-gherkin-layout`). |
+| Missing Java grammar falls back to readable plain text and Candidates cases open at their exact source line | Slice 8 (required source highlighter read + `intent-code-browse-java`, `intent-purpose-case`). |
+| Project Intent activation, project visits, cached reads, and pending revisions/selections keep the applicable source over the production Intent body | Slice 9 (production Intent body in place of `intent-candidates-publication.ts`'s composition + `intent-home-activation`, `intent-project-visit*`, `intent-read-reuse`, `intent-selection-reads`). |
+| Reading place and recent stories restore the story, nested file and reading position after a detour, and another project starts its reading afresh | Slice 10 (`intent-reading-place`, `intent-recent-stories` + 15-file two-worker before/after comparison). |
 
 ## Slices
 
@@ -206,7 +218,7 @@ prop down the chain `carryOutRead` → `readPublishedWork` →
 `enrichPreparation` passes `loadRepositoryTexts` the detail reader it is
 given instead of importing `readRepositoryFileAt`. Limit recording stays in
 the transports; Slice 2 adds Intent's own recorder. Point the existing test composition at the
-new members without changing any assertion, so Slice 3 replaces it with
+new members without changing any assertion, so Slices 3–4 replace it with
 production.
 
 **Proof.** `npm run typecheck:dashboard` passes. The 2 recovery and
@@ -227,8 +239,8 @@ frame and its 13 consumers could instead supply typed replies through
 `pageReadsSupplying` (named follow-up for the SEED-413 campaign, outside this
 plan). `readPublishedDetails` still reads agent profiles and moved branch
 progress (`readMovedProgress`) through their authenticated readers directly;
-Slice 3 must supply them through the entry before it drives the whole
-observation. Proof: `npm run typecheck:dashboard`; the consumer-traced
+Rendering the whole observation in a case is queued as
+SEED-413#drive-published-observation-through-page-entry (amendment above). Proof: `npm run typecheck:dashboard`; the consumer-traced
 frontend selection (57 cases, including the recovery, settings-problem and
 board announcement files) with unchanged assertions; 41 E2E specs including
 every `e2e/observation/*` journey and 12 backend specs. Three E2E and one
@@ -259,7 +271,7 @@ so a typed reply must set it.
 reading, on receiving a limited `ReadProblem`, also records the standing
 limit until that problem's `resumesAt` through a new recorder in
 `readingLimit.ts` (for example `noteLimitUntil`), so a MakeMe-built
-rate-limited Intent reply drives Slice 3's case. Recording is idempotent for
+rate-limited Intent reply drives Slice 4's case. Recording is idempotent for
 live reads: a further limited answer only moves the limit later.
 
 **Proof.** `npm run typecheck:dashboard` passes. A focused case shows a
@@ -280,30 +292,57 @@ typecheck; the 4 Intent recovery, candidates and settings Vitest files
 (14 cases); the trace-selected Intent specs; the rate-limited E2E journeys
 `intent-read-boundary-recovery` and `intent-candidates-read-recovery`; a
 break check with the recorder call removed failing the rate-limit case.
+CI repair: branch run 45026419659 at `5f28e1a94` failed the native evidence
+identity checks because the builder's `ReadProblem` import pulled a dashboard
+file into `makeMe.mjs`'s import closure. The builder now lives in
+`Distribution/tests/support/rateLimitedIntentReplyTestData.mjs`, registered
+only on `pageMakeMe.mjs`; page-loadable builders that construct production
+values belong there, outside `makeMe.mjs`'s closure.
 
-### 3. Locations recovery and settings-problem cases render the production observation and Intent body
+### 3. Settings-problem cases render the production Intent body
 
 Type: Structure
 Status: planned
 
-Render `intent-read-recovery` through production `ConfiguredDashboard` (or
-the smallest production owner that holds both the published observation and
-the Intent body, extracted in production so `ConfiguredDashboard` renders the
-same component) with typed replies through the page entry, and delete
-`PageIntentRecovery`. Render `intent-gherkin-settings-problems` through the
-production Intent body. Add MakeMe steps for the page-reads value, the
-unreachable and rate-limited locations answers and the detail file replies;
-remove the `fetch` spy, `requestIntentLocationsAt`, `ReadProblem`,
-`noteLimit`, `standingLimit` and `clearAllTransientFailures` from both specs
-and their helper. Keep role-based colocated page objects.
+Split from the former Slice 3 on 2026-11-22 (Terry's amendment above).
+Render `intent-gherkin-settings-problems` through the production Intent body
+(`BoardOrIntent` under the real `PageFrame`, as
+`dashboard/frontend-tests/intent/intent-ci-page-mount.ts` does) with typed
+replies through the page entry. Add a MakeMe step for the unreachable
+locations answer and remove the `fetch` spy, `requestIntentLocationsAt` and
+`ReadProblem` from the spec. Keep role-based colocated page objects.
 
-**Proof.** Both files keep their titles and distinguishing observations and
-pass at `--workers=2` within paired noise of their delivered run. No test file
-renders `useLimitRecovery`, `IntentReadRecovery`, `PublishedReadStatus` or
-`ProjectIntentReading` itself. Record each spec's and helper's production
-import count before (12, 6 and 6 at `341f133da`) and after.
+**Proof.** The file keeps its titles and distinguishing observations
+(malformed settings stay shown until manual Retry) and passes at
+`--workers=2`. No test file renders `IntentReadRecovery`,
+`PublishedReadStatus` or `ProjectIntentReading` itself. Production import
+count before (6 at `5f28e1a94`) and after.
 
-### 4. Pinned and refused source navigation links use the inspected revision and keep external, unsafe and invalid targets distinct
+### 4. Locations recovery cases render the production Intent body and the shared wait is proved on the composed page
+
+Type: Structure
+Status: planned
+
+Render `intent-read-recovery` through `BoardOrIntent` with typed replies
+through the page entry and delete `PageIntentRecovery` from
+`intent-read-recovery-page.tsx`. Remove `clearAllTransientFailures` and the
+remaining `ReadProblem` construction; if cases leak module-level transient
+state without the reset, return the evidence for
+SEED-413#drive-published-observation-through-page-entry instead of a test-side reset.
+Prove "published detail and Intent locations share a wait" in one E2E
+journey on the composed page (reuse an existing `e2e/observation/` or
+`e2e/intent/` recovery journey when one already observes it), and map the
+retired Vitest case to it.
+
+**Proof.** The 15/30/60/60-second schedule, no request while hidden and one
+on reveal, and the reread when a standing limit ends keep their titles and
+distinguishing assertions at `--workers=2`; the E2E journey fails when the
+shared wait is broken in production. Production import counts before (5 and
+12 at `5f28e1a94`) and after. The 2-file selection's elapsed time stays
+within paired noise of its baseline (12.2 s at load 28.65,
+`s3-baseline-proof.json`) or the regression is recorded with its reason.
+
+### 5. Pinned and refused source navigation links use the inspected revision and keep external, unsafe and invalid targets distinct
 
 Type: Behavior
 Status: planned
@@ -322,7 +361,7 @@ open in a popup in E2E; external links stay separate from snapshot files; and
 unsafe (`javascript:`, traversal) or missing targets render as non-clickable
 text. No case calls `enrichPreparation`.
 
-### 5. Intent entry and folder summaries aggregate nested test counts and select or expand cleanly
+### 6. Intent entry and folder summaries aggregate nested test counts and select or expand cleanly
 
 Type: Behavior
 Status: planned
@@ -339,7 +378,7 @@ Retain `e2e/intent/intent-gherkin-browse.spec.ts` and
 **Proof.** Entry and nested folder rows aggregate test counts accurately, and
 clicking names vs disclosure toggles selects or expands the intended scope.
 
-### 6. Gherkin groups select scenarios and outlines while tree and feature panes scroll independently
+### 7. Gherkin groups select scenarios and outlines while tree and feature panes scroll independently
 
 Type: Behavior
 Status: planned
@@ -352,7 +391,7 @@ page entry.
 and the Intent browser tree and Gherkin feature pane keep independent scroll
 positions inside a constrained viewport height.
 
-### 7. Java source fallback keeps readable plain text on grammar failure and Candidates cases open at their exact source line
+### 8. Java source fallback keeps readable plain text on grammar failure and Candidates cases open at their exact source line
 
 Type: Behavior
 Status: planned
@@ -369,7 +408,7 @@ production Intent body.
 and readable without erroring, and activating an Optimization Candidates case
 opens its exact repository file and line anchor.
 
-### 8. Project Intent activation, project visits, cached reads and pending selections keep the applicable source
+### 9. Project Intent activation, project visits, cached reads and pending selections keep the applicable source
 
 Type: Behavior
 Status: planned
@@ -391,7 +430,7 @@ revision or selection is pending Purpose keeps the applicable source.
 `intent-candidates-publication.ts`'s production import count drops from 11
 (at `341f133da`).
 
-### 9. Reading place and recent stories restore the nested file and reading position after a detour
+### 10. Reading place and recent stories restore the nested file and reading position after a detour
 
 Type: Behavior
 Status: planned

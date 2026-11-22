@@ -7,6 +7,7 @@ import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
 import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 import { comparisonViewMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
+import { RateLimitedIntentReplyBuilder } from "./rateLimitedIntentReplyTestData.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
 import { storyReviewMakeMeProperties } from "./storyReviewMakeMe.mjs";
 import { reviewCommitMakeMeProperties } from "./reviewCommitTestData.mjs";
@@ -41,6 +42,7 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./storyReviewMakeMe.mjs").StoryReviewMakeMe &
  *   import("./reviewCommitTestData.mjs").ReviewCommitMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
+ *     readonly aRateLimitedIntentReply: RateLimitedIntentReplyBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
  *     readonly aDoneCatalog: DoneCatalogBuilder;
  *     readonly aLaunchHostOptions: import("./factBuilder.mjs").FactBuilder<
@@ -80,6 +82,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...sessionRecordMakeMeProperties(),
   ...storyReviewMakeMeProperties(),
   ...reviewCommitMakeMeProperties(),
+  aRateLimitedIntentReply: {
+    enumerable: true,
+    get() {
+      return new RateLimitedIntentReplyBuilder();
+    },
+  },
   aTestOptimizationCandidatesRecord: {
     enumerable: true,
     get() {

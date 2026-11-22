@@ -8,7 +8,6 @@ import { copyFacts } from "./factBuilder.mjs";
 import {
   IntentLocationBuilder,
   IntentLocationsAnswerBuilder,
-  RateLimitedIntentReplyBuilder,
 } from "./intentLocationTestData.mjs";
 import { PublishedFilesBuilder } from "./publishedFilesTestData.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
@@ -22,7 +21,6 @@ import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
  * @property {WorkEntryBuilder} aWorkEntry
  * @property {PublishedFilesBuilder} somePublishedFiles
  * @property {IntentLocationBuilder} anIntentLocation
- * @property {RateLimitedIntentReplyBuilder} aRateLimitedIntentReply
  * @property {IntentLocationsAnswerBuilder} anIntentLocationsAnswer
  * @property {import("./factBuilder.mjs").FactBuilder<import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance>} aScopeHistoryGlance
  */
@@ -75,12 +73,6 @@ export function publishedReadingMakeMeProperties() {
       enumerable: true,
       get() {
         return new IntentLocationBuilder();
-      },
-    },
-    aRateLimitedIntentReply: {
-      enumerable: true,
-      get() {
-        return new RateLimitedIntentReplyBuilder();
       },
     },
     anIntentLocationsAnswer: {
