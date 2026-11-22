@@ -30,11 +30,6 @@ import {
   authenticatedStoryNotesReads,
   type StoryNotesReadSource,
 } from "./storyNotesReadSource.ts";
-import { StoryNotesOnPage, type ProjectNotes } from "./storyNotes.ts";
-import {
-  StoryReviewStatesOnPage,
-  type ProjectReviewStates,
-} from "./storyReviewStates.ts";
 import {
   authenticatedStoryReviewStatesReads,
   type StoryReviewStatesReadSource,
@@ -62,7 +57,16 @@ export const authenticatedPageReads: PageReads = {
   reviewStates: authenticatedStoryReviewStatesReads,
 };
 
-const PageReadsContext = createContext<PageReads | undefined>(undefined);
+// One kind of value the page holds per key, such as each project's story
+// notes; its owning module names it once.
+export type HeldKind<T> = { readonly name: string; readonly held?: T };
+
+type OnPage = {
+  readonly reads: PageReads;
+  readonly held: Map<HeldKind<unknown>, Map<string, unknown>>;
+};
+
+const PageReadsContext = createContext<OnPage | undefined>(undefined);
 
 export function PageReadsOnPage({
   reads,
@@ -71,30 +75,42 @@ export function PageReadsOnPage({
   readonly reads: PageReads;
   readonly children?: ReactNode;
 }) {
-  // The page holds each project's notes and review states, created from
-  // these reads on first use.
-  const notes = useMemo(() => new Map<string, ProjectNotes>(), []);
-  const reviewStates = useMemo(
-    () => new Map<string, ProjectReviewStates>(),
-    [],
-  );
+  // The page holds each project's values (notes, review states), created
+  // from these reads on first use.
+  const held = useMemo(() => new Map(), []);
+  const onPage = useMemo(() => ({ reads, held }), [reads, held]);
   return (
-    <PageReadsContext.Provider value={reads}>
-      <StoryNotesOnPage value={notes}>
-        <StoryReviewStatesOnPage value={reviewStates}>
-          {children}
-        </StoryReviewStatesOnPage>
-      </StoryNotesOnPage>
+    <PageReadsContext.Provider value={onPage}>
+      {children}
     </PageReadsContext.Provider>
   );
 }
 
-function usePageReads(): PageReads {
-  const reads = useContext(PageReadsContext);
-  if (reads === undefined) {
+function useOnPage(): OnPage {
+  const onPage = useContext(PageReadsContext);
+  if (onPage === undefined) {
     throw new Error("The page's reads are outside its PageReadsOnPage.");
   }
-  return reads;
+  return onPage;
+}
+
+const usePageReads = (): PageReads => useOnPage().reads;
+
+// The page's one value of `kind` for `key`, created from the page's reads on
+// first use and kept for the page's life.
+export function useHeldOnPage<T>(
+  kind: HeldKind<T>,
+  key: string,
+  create: (reads: PageReads) => T,
+): T {
+  const { reads, held } = useOnPage();
+  const byKey = held.get(kind) ?? new Map<string, unknown>();
+  held.set(kind, byKey);
+  const existing = byKey.get(key) as T | undefined;
+  if (existing !== undefined) return existing;
+  const created = create(reads);
+  byKey.set(key, created);
+  return created;
 }
 
 export const useIntentReads = (): IntentReadSource => usePageReads().intent;
@@ -104,9 +120,5 @@ export const useSessionServices = (): SessionServices =>
   usePageReads().sessions;
 export const useDoneRecordReads = (): DoneRecordReadSource =>
   usePageReads().done;
-export const useStoryNotesReads = (): StoryNotesReadSource =>
-  usePageReads().storyNotes;
 export const useCiFollowUpReads = (): CiFollowUpReadSource =>
   usePageReads().ciFollowUp;
-export const useStoryReviewStatesReads = (): StoryReviewStatesReadSource =>
-  usePageReads().reviewStates;

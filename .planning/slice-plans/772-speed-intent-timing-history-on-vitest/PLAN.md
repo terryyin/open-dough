@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-timing-history-on-vitest
 **Source:** [Get fast proof of Intent CI wall-time history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest)
+**Source review:** [source-only review](source-review.md)
 **Split from:** SEED-413#speed-intent-ci-status-frame-and-timing-history (plan 764, recoverable at `7b9e64961:.planning/slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md`; former Slice 4's history port and Slices 5–8) on 2026-11-22 at its delivered Slice 4 boundary. Resplit before readiness on 2026-11-22: former Slices 4–6 (collected scope timing history) moved to [plan 774](../774-speed-intent-scope-timing-history/PLAN.md) for SEED-413#speed-intent-scope-timing-history.
 
 ## Goal and scope
@@ -143,7 +144,7 @@ Failures follow the
 ### 1. The CI status page mount renders the production Intent layout and the page entry has no import cycle
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the perspective scroll container out of `configuredDashboardContent.tsx`
 into one production component that `ConfiguredDashboardContent` and
@@ -156,6 +157,15 @@ Proof: typecheck; the 7 CI status files, `intent-story-compare-*`,
 board-mount consumers and the story-notes dialog spec pass with unchanged
 titles and assertions; full frontend group; representative
 `e2e/intent/intent-ci-status.spec.ts` E2E.
+
+Accepted: `PerspectiveScroll` (`dashboard/src/perspectiveScroll.tsx`) is
+rendered by `ConfiguredDashboardContent`, `mountIntentCiPage` and
+`board-mount.ts`; `pageReads.tsx` holds per-project values through
+`useHeldOnPage` and imports nothing that imports it back. The new
+`intent-ci-status-layout.spec.ts` case fails with the container removed.
+Learning for Slices 3–6: with production layout, the Board fits its columns
+at 1280px and pages later columns out of view, so the development-card page
+object pages to the card's column (`showColumnOf`) before clicking.
 
 ### 2. CI status test support has one owner per concern and the freshness race discriminates its abort guard
 

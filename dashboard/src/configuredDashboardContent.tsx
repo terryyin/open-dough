@@ -8,6 +8,7 @@ import { AgentRoster } from "./AgentRoster.tsx";
 import { ProjectActions } from "./ProjectActions.tsx";
 import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { usePageSessions } from "./pageSessions.ts";
+import { PerspectiveScroll } from "./perspectiveScroll.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
@@ -64,79 +65,71 @@ export function ConfiguredDashboardContent({
 }) {
   const { presentTerminal } = usePageSessions();
   return (
-    <div
-      className={
-        showsIntent
-          ? "intent-scroll"
-          : showsRoster
-            ? "roster-scroll"
-            : "board-scroll"
-      }
+    <PerspectiveScroll
+      perspective={showsIntent ? "intent" : showsRoster ? "roster" : "board"}
     >
-      <div className="scroll-content">
-        <div className="page-header">
-          <StoryDestination
-            route={route}
-            status={destination}
-            retry={() => {
-              window.location.reload();
-            }}
-            showStories={() => {
-              showStories(source);
-            }}
-          />
-          <PublishedReadStatus
-            attempt={attempt}
-            reading={reading}
-            work={work}
-            withheld={withheld}
-            recoversAt={recoversAt}
-            limitedUntil={limitedUntil}
-            notice={notice}
-          />
-          {storyNotice}
-          <ProjectActions
-            source={source}
-            work={work}
-            launches={launches}
-            presentTerminal={presentTerminal}
-            hidden={!showsBoard}
-          />
-          {showsBoard && (
-            <StartupRecovery
-              items={launches.recoveriesOf(source.id)}
-              evidence={launches.attemptEvidence}
-              actions={launches}
-            />
-          )}
-          <StartupAnnouncer
-            sourceId={source.id}
-            startups={launches.storyStartupsOf(source.id)}
-          />
-        </div>
-        <BoardOrIntent
+      <div className="page-header">
+        <StoryDestination
+          route={route}
+          status={destination}
+          retry={() => {
+            window.location.reload();
+          }}
+          showStories={() => {
+            showStories(source);
+          }}
+        />
+        <PublishedReadStatus
+          attempt={attempt}
+          reading={reading}
+          work={work}
+          withheld={withheld}
+          recoversAt={recoversAt}
+          limitedUntil={limitedUntil}
+          notice={notice}
+        />
+        {storyNotice}
+        <ProjectActions
           source={source}
           work={work}
           launches={launches}
-          showsBoard={showsBoard}
-          showsIntent={showsIntent}
-          followUp={route.followUp}
-          visibility={visibility}
-          limitStands={limitedUntil !== undefined}
-          openRoster={openRoster}
+          presentTerminal={presentTerminal}
+          hidden={!showsBoard}
         />
-        {showsRoster && (
-          <main>
-            <AgentRoster
-              source={source}
-              work={work}
-              problem={readFailure}
-              agent={rosterAgent}
-              onBack={onBack}
-            />
-          </main>
+        {showsBoard && (
+          <StartupRecovery
+            items={launches.recoveriesOf(source.id)}
+            evidence={launches.attemptEvidence}
+            actions={launches}
+          />
         )}
+        <StartupAnnouncer
+          sourceId={source.id}
+          startups={launches.storyStartupsOf(source.id)}
+        />
       </div>
-    </div>
+      <BoardOrIntent
+        source={source}
+        work={work}
+        launches={launches}
+        showsBoard={showsBoard}
+        showsIntent={showsIntent}
+        followUp={route.followUp}
+        visibility={visibility}
+        limitStands={limitedUntil !== undefined}
+        openRoster={openRoster}
+      />
+      {showsRoster && (
+        <main>
+          <AgentRoster
+            source={source}
+            work={work}
+            problem={readFailure}
+            agent={rosterAgent}
+            onBack={onBack}
+          />
+        </main>
+      )}
+    </PerspectiveScroll>
   );
 }

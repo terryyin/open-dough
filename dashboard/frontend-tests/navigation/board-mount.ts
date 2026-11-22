@@ -8,6 +8,7 @@ import { PageFrame } from "../../src/PageFrame.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { PerspectiveScroll } from "../../src/perspectiveScroll.tsx";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
@@ -103,25 +104,18 @@ function ReadingBoard({
             onSelectPerspective: unexpected,
           }),
           createElement(
-            "div",
-            {
-              key: "board",
-              className: "board-scroll",
-            },
+            PerspectiveScroll,
+            { key: "board", perspective: "board" },
             createElement(
-              "div",
-              { className: "scroll-content" },
-              createElement(
-                "main",
-                null,
-                createElement(Board, {
-                  sourceId: work.source.id,
-                  project: work.source.label,
-                  work,
-                  launches: sessions,
-                  onOpenRoster: unexpected,
-                }),
-              ),
+              "main",
+              null,
+              createElement(Board, {
+                sourceId: work.source.id,
+                project: work.source.label,
+                work,
+                launches: sessions,
+                onOpenRoster: unexpected,
+              }),
             ),
           ),
         ],
