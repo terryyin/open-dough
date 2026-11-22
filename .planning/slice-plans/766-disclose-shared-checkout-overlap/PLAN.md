@@ -91,6 +91,9 @@ path. The note module is
 (file `shared-checkout.json`); it holds only what the publisher reads.
 Push and commit faults for the close tests live in
 `Distribution/tests/skills/dough-land/session-close-faults.mjs`.
+A new execution script must be listed in
+`src/install/open-dough-execution-payload.sh`; CI run 44983901805 failed the
+payload and evidence-identity tests until it was.
 
 ### 2. Show the shared-checkout warning in the published-session review
 
