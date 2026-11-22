@@ -4,12 +4,16 @@
 // story's commits, the uncommitted check, Refresh and the range read), the
 // story's views, the Changes file list and the selected file's diff. Story A
 // is Taken in a worktree on this machine, so Review changes offers its
-// comparison; Story B has none.
+// comparison; Story B has none. The Done story's worktree is retired: its
+// review is its published completion or a captured landed run.
+import { expect, onTestFinished } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
+import { cataloguedDone } from "../navigation/board-work.ts";
 import { mountIntentPerspective } from "./intent-ci-perspective-mount.ts";
+import { scopeReadsOf } from "./intent-ci-scope-page.tsx";
 import {
   fullSha,
   inertCiReads,
@@ -85,6 +89,116 @@ export async function openStoryAComparison(review: ReviewSource) {
   };
 }
 
+// A completed story in the Summary scope, catalogued in the work's done
+// records, whose CI comparison measures its landed result.
+const doneStory = makeMe.aComparedStory.inSummaryScope().please();
+export const doneCompletion = doneStory.work.revision;
+// The published completion Review changes answers by default.
+export const publishedCompletion = () =>
+  makeMe.aStoryReview
+    .published(doneCompletion)
+    .adding("dashboard/tests/folder/a.spec.ts")
+    .please();
+
+// Intent with the Done story selected, its review read from `review`; the
+// revision each Intent locations read names, in order.
+export async function openDoneStoryComparison(review: ReviewSource) {
+  const locationRevisions: string[] = [];
+  let selected = false;
+  const { done, doneReads } = cataloguedDone([
+    makeMe.aDoneRecord
+      .completed({
+        identity: doneStory.identity,
+        title: "Story A",
+        completedAt: "2026-11-01T00:00:00.000Z",
+      })
+      .please(),
+  ]);
+  const mounted = await mountIntentPerspective({
+    work: makeMe.aPublishedWork
+      .with({
+        source: doneStory.source,
+        revision: fullSha("a1a1a1a"),
+        retrievedAt: new Date("2026-11-02T00:00:00Z"),
+        direction: "",
+        taken: [],
+        backlog: [],
+        done,
+      })
+      .please(),
+    readSource: {
+      readLocations: (...[, revision]) => {
+        if (selected) locationRevisions.push(revision);
+        return Promise.resolve({
+          status: "configured",
+          locations: [...(doneStory.scope?.locations ?? [])],
+        });
+      },
+      readFile: (...[, , path]) => Promise.resolve(`${path}\n`),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    },
+    ciReads: scopeReadsOf(doneStory).source,
+    reviewSource: review,
+    done: doneReads,
+  });
+  // Intent shows trunk's locations before any story is selected; only the
+  // selected Done story's reads are recorded.
+  await expect
+    .poll(() => document.querySelector("button.intent-location-name"))
+    .not.toBeNull();
+  selected = true;
+  await mounted.selectStory(doneStory.identity);
+  return { locationRevisions };
+}
+
+// Every global fetch and WebSocket opened while the case runs, recorded only.
+export function recordOutsideReads() {
+  const opened: string[] = [];
+  const { fetch, WebSocket } = globalThis;
+  globalThis.fetch = (input, init) => {
+    opened.push(
+      `fetch ${input instanceof Request ? input.url : input.toString()}`,
+    );
+    return fetch(input, init);
+  };
+  globalThis.WebSocket = class extends WebSocket {
+    constructor(url: string | URL, protocols?: string | string[]) {
+      opened.push(`WebSocket ${String(url)}`);
+      super(url, protocols);
+    }
+  };
+  onTestFinished(() => {
+    globalThis.fetch = fetch;
+    globalThis.WebSocket = WebSocket;
+  });
+  return opened;
+}
+
+// The distinct kinds of OPENED calls: story notes, CI history glance, or the
+// call as recorded.
+export const outsideKinds = (opened: readonly string[]) =>
+  new Set(
+    opened.map((call) => {
+      const [how = "", address = ""] = call.split(" ");
+      const url = new URL(address, "http://page.test");
+      if (
+        how === "fetch" &&
+        url.pathname === "/__project-configuration/story-notes"
+      )
+        return "story notes";
+      if (
+        how === "fetch" &&
+        url.searchParams.get("intent") === "ci-history" &&
+        url.searchParams.get("history") === "glance"
+      )
+        return "CI history glance";
+      return call;
+    }),
+  );
+
+// The outside reads a Done story's Intent still makes.
+export const doneOutsideKinds = new Set(["story notes", "CI history glance"]);
+
 const escaped = (name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const textOf = (element: Element | null | undefined) =>
@@ -101,8 +215,43 @@ export function intentStoryCompare() {
   const commit = (subject: string) =>
     commits.getByRole("button").filter({ hasText: subject });
   const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
+  const run = compare.getByRole("listbox", { name: "Landed run" });
+  type View = "Changes" | "CI comparison" | "Intent coverage";
+  const view = (name: View) =>
+    intent.getByRole("tabpanel", { name, exact: true });
   return {
     header,
+    headerText: () => textOf(header.element()),
+    // A chosen comparison that cannot be read, with Retry after a failed read.
+    alert: header.getByRole("alert"),
+    alertText: () => header.getByRole("alert").query()?.textContent.trim(),
+    retry: () =>
+      userEvent.click(
+        header.getByRole("alert").getByRole("button", { name: "Retry" }),
+      ),
+    retryControl: header.getByRole("alert").getByRole("button", {
+      name: "Retry",
+    }),
+    // The captured landed run chosen, offered with Landed runs.
+    run,
+    chooseRun: (key: string) => userEvent.selectOptions(run, key),
+    // The story's changed files outside every location.
+    outside: () =>
+      textOf(
+        intent
+          .getByRole("region", { name: "Outside Intent locations" })
+          .query(),
+      ),
+    // What a CI view says while another comparison than the default is chosen.
+    wholeStoryNote: (name: View) =>
+      view(name).getByRole("note").filter({ hasText: "whole story" }),
+    // The CI comparison's landed endpoint, its third measured build.
+    landedEndpoint: () =>
+      textOf(
+        view("CI comparison")
+          .element()
+          .querySelectorAll(".intent-ci-comparison-identity")[2],
+      ),
     // The header's leading control, which a collapsible header would offer.
     collapsedControl: header.getByRole("button", { expanded: false }),
     revisions: () =>
@@ -124,7 +273,7 @@ export function intentStoryCompare() {
     },
     range: () =>
       textOf(header.element().querySelector(".story-review-range-heading")),
-    chooseTab: (name: "Changes" | "CI comparison") =>
+    chooseTab: (name: View) =>
       userEvent.click(
         intent
           .getByRole("tablist", { name: "Selected story views" })

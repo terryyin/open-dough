@@ -178,7 +178,7 @@ Evidence is in `s2b-report.md` in the worktree's evidence location.
 ### 3. A Done story's choices and a chosen comparison's gaps on the mounted Intent view
 
 Type: Structure
-Status: planned
+Status: done
 Move `intent-story-compare-done.spec.ts` (2 cases) and
 `intent-story-compare-gaps.spec.ts` (4 cases). Failed and held reads are the
 cases' own `ReviewSource` answers, and the Done cases supply their done
@@ -193,6 +193,20 @@ intact:
 
 Recording `fetch` and `WebSocket` shows no call outside the typed reads. Run
 `npm run typecheck:dashboard`.
+
+Accepted (22 November 2026, on top of `0b12cc4`, load about 7):
+- All 6 cases pass on Vitest at `--workers=2`, beside slice 1's cases and the
+  mount's `intent-ci-status-*` consumers: 24 selected, all passing
+  (`s3-proof-2.json`). `npm run typecheck:dashboard` passes.
+- Case times: done 1.73 s and 0.64 s; gaps 1.59 s, 0.63 s, 1.47 s and
+  0.60 s.
+- The Done cases still make two outside reads that plan 764 moves behind the
+  typed entry: story notes (764 slice 1) and the CI Done wall-time history
+  glance (764 slice 4). Each Done case asserts that its outside calls are
+  exactly those two kinds (`outsideKinds`/`doneOutsideKinds` in
+  `intent-story-compare-page.ts`), so plan 764 turns that check into `[]`.
+
+Evidence is in `s3-report.md`.
 
 ### 4. Whole-story notes on the mounted view, and Test Support cleanup
 

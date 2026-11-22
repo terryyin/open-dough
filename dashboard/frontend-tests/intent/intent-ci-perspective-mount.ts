@@ -7,6 +7,7 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { IntentPerspective } from "../../src/IntentPerspective.tsx";
+import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import { IntentPageProviders } from "../../src/intentPageProviders.tsx";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
@@ -104,6 +105,7 @@ export async function mountIntentPerspective({
   ciReads,
   reviewSource = unavailableReviewSource,
   workspaces = [],
+  done,
 }: {
   readonly work: PublishedWork;
   readonly readSource: IntentReadSource;
@@ -112,6 +114,8 @@ export async function mountIntentPerspective({
   // claim, which offer that story a comparison.
   readonly reviewSource?: ReviewSource;
   readonly workspaces?: readonly LocalWorkspace[];
+  // The reads of the done records the work's done catalog names.
+  readonly done?: DoneRecordReadSource;
 }) {
   let currentWork = work;
   let committedWork: PublishedWork | undefined;
@@ -131,6 +135,7 @@ export async function mountIntentPerspective({
           intent: readSource,
           ci: ciReads,
           review: reviewSource,
+          ...(done === undefined ? {} : { done }),
         }),
       },
       createElement(PerspectiveScene, {

@@ -1,19 +1,20 @@
 // A Done story whose worktree is retired chooses in Intent's Compare, through
 // Review changes' own selection, between its published completion and one of
 // its captured landed runs. Its Intent locations and the CI comparison's
-// landed endpoint stay on the story's landed result whatever is chosen.
-// Explicit service answers own the Git judgment.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
-import { selectDoneStoryForCiComparison } from "../../test-support/support/selectDoneStoryForCiComparison.ts";
+// landed endpoint stay on the story's landed result whatever is chosen. The
+// case's review answers own the Git judgment.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { StoryReview } from "../../src/storyReviewContract.ts";
 import {
-  chooseStoryTab,
-  intentStory,
-} from "../../test-support/support/intentStoryPage.ts";
-import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  doneCompletion,
+  intentStoryCompare,
+  openDoneStoryComparison,
+  publishedCompletion,
+  doneOutsideKinds,
+  outsideKinds,
+  recordOutsideReads,
+} from "./intent-story-compare-page.ts";
 
 const oid = (digit: string) => digit.repeat(40);
 const older = makeMe.aReviewRun
@@ -29,105 +30,99 @@ const newer = makeMe.aReviewRun
 const runs = [newer, older];
 const landedOn = (run: typeof older, name: string) =>
   makeMe.aStoryReview.landed().adding(`${name}.txt`).onRun(run, runs).please();
+const landedRuns: Readonly<Record<string, StoryReview>> = {
+  [older.key]: landedOn(older, "older"),
+  [newer.key]: landedOn(newer, "newer"),
+};
+const unread = () => new Promise<never>(() => undefined);
 
-test("a Done story opens on its published completion, chooses a captured landed run and returns, while its locations and landed CI endpoint stay put", async ({
-  page,
-  frontendServices,
-}) => {
-  const setup = await prepareFrontendDoneIntent(page, frontendServices);
-  setup.review.answerHistoricalSnapshot(setup.identity, {
-    ...setup.review.snapshot(),
-    runs,
+test("a Done story opens on its published completion, chooses a captured landed run and returns, while its locations and landed CI endpoint stay put", async () => {
+  const outside = recordOutsideReads();
+  const { locationRevisions } = await openDoneStoryComparison({
+    review: (query) =>
+      Promise.resolve(
+        query.historical === "true"
+          ? { ...publishedCompletion(), runs }
+          : (landedRuns[query.run ?? ""] ?? publishedCompletion()),
+      ),
+    range: unread,
+    fileDiff: unread,
+    fileText: unread,
   });
-  setup.review.answerRunSnapshot(older.key, landedOn(older, "older"));
-  setup.review.answerRunSnapshot(newer.key, landedOn(newer, "newer"));
-  const locationRevisions: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("intent") === "locations"
-    )
-      locationRevisions.push(url.searchParams.get("revision") ?? "");
-  });
-  const { intent, panel } = await selectDoneStoryForCiComparison(page);
-  const landedEndpoint = comparisonReading(panel).identities.nth(2);
-  const landedText = await landedEndpoint.textContent();
-  const story = intentStory(intent);
-  const compare = story.compare();
-  await chooseStoryTab(intent, "Changes");
+  const story = intentStoryCompare();
+  await story.chooseTab("CI comparison");
+  await expect.poll(story.landedEndpoint).not.toBe("");
+  const landedText = story.landedEndpoint();
+  await story.chooseTab("Changes");
 
-  await test.step("it opens on Published completion, naming the completion revision, without a run choice", async () => {
-    await expect(compare.choice("Published completion")).toBeChecked();
-    await expect(compare.choice("All changes")).toHaveCount(0);
-    await expect(compare.choice("Commits")).toHaveCount(0);
-    await expect(compare.run).toHaveCount(0);
-    await story.headerDetail();
-    await expect(story.header.revisions).toContainText(
-      setup.completion.slice(0, 7),
-    );
-  });
+  // It opens on Published completion, naming the completion revision,
+  // without a run choice.
+  await expect.element(story.choice("Published completion")).toBeChecked();
+  await expect.element(story.choice("All changes")).not.toBeInTheDocument();
+  await expect.element(story.choice("Commits")).not.toBeInTheDocument();
+  await expect.element(story.run).not.toBeInTheDocument();
+  await expect.element(story.collapsedControl).not.toBeInTheDocument();
+  await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
 
-  await test.step("Landed runs and the older run list its changes and name its tree", async () => {
-    await compare.choose("Landed runs");
-    await expect(compare.run).toHaveValue(newer.key);
-    await expect(story.outside).toContainText("newer.txt");
-    await compare.chooseRun(older.key);
-    await expect(compare.run).toHaveValue(older.key);
-    await expect(story.outside).toContainText("older.txt");
-    await expect(story.header.revisions).toContainText(oid("2").slice(0, 7));
-  });
+  // Landed runs and the older run list its changes and name its tree.
+  await story.choose("Landed runs");
+  await expect.element(story.run).toHaveValue(newer.key);
+  await expect.poll(story.outside).toContain("newer.txt");
+  await story.chooseRun(older.key);
+  await expect.element(story.run).toHaveValue(older.key);
+  await expect.poll(story.outside).toContain("older.txt");
+  await expect.poll(story.revisions).toContain(oid("2").slice(0, 7));
 
-  await test.step("its locations and the CI comparison's landed endpoint stay at the landed result", async () => {
-    expect(new Set(locationRevisions)).toEqual(new Set([setup.completion]));
-    await chooseStoryTab(intent, "CI comparison");
-    await expect(landedEndpoint).toHaveText(landedText ?? "");
-    await chooseStoryTab(intent, "Changes");
-  });
+  // Its locations and the CI comparison's landed endpoint stay at the landed
+  // result.
+  expect(new Set(locationRevisions)).toEqual(new Set([doneCompletion]));
+  await story.chooseTab("CI comparison");
+  await expect.poll(story.landedEndpoint).toBe(landedText);
+  await story.chooseTab("Changes");
 
-  await test.step("Published completion again returns to it", async () => {
-    await compare.choose("Published completion");
-    await expect(compare.run).toHaveCount(0);
-    await expect(story.header.revisions).toContainText(
-      setup.completion.slice(0, 7),
-    );
-  });
+  // Published completion again returns to it.
+  await story.choose("Published completion");
+  await expect.element(story.run).not.toBeInTheDocument();
+  await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
+  // Plan 764 slices 1 (story notes) and 4 (done wall-time history) make this [].
+  expect(outsideKinds(outside)).toEqual(doneOutsideKinds);
 });
 
-test("a newer default run moves an unchosen run but not a chosen one while the old run is still listed", async ({
-  page,
-  frontendServices,
-}) => {
-  const setup = await prepareFrontendDoneIntent(page, frontendServices);
-  setup.review.answerHistoricalSnapshot(
-    setup.identity,
-    landedOn(older, "older"),
-  );
-  setup.review.answerRunSnapshot(older.key, landedOn(older, "older"));
-  setup.review.answerRunSnapshot(newer.key, landedOn(newer, "newer"));
-  const { intent } = await selectDoneStoryForCiComparison(page);
+test("a newer default run moves an unchosen run but not a chosen one while the old run is still listed", async () => {
+  const outside = recordOutsideReads();
+  let landedDefault = landedOn(older, "older");
+  let defaultsAsked = 0;
+  await openDoneStoryComparison({
+    review: (query) => {
+      if (query.historical !== "true")
+        return Promise.resolve(landedRuns[query.run ?? ""] ?? landedDefault);
+      defaultsAsked += 1;
+      return Promise.resolve(landedDefault);
+    },
+    range: unread,
+    fileDiff: unread,
+    fileText: unread,
+  });
   // Each default answer's landed tree is its own, so only the run chosen is
   // observed here.
-  const compare = intentStory(intent).compare();
-  await chooseStoryTab(intent, "Changes");
-  await expect(compare.choice("Landed runs")).toBeChecked();
-  await expect(compare.run).toHaveValue(older.key);
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  await expect.element(story.choice("Landed runs")).toBeChecked();
+  await expect.element(story.run).toHaveValue(older.key);
 
-  await test.step("a later default naming the newer run moves Intent to it when no run was chosen", async () => {
-    setup.review.answerHistoricalSnapshot(
-      setup.identity,
-      landedOn(newer, "newer"),
-    );
-    await compare.refresh();
-    await expect(compare.run).toHaveValue(newer.key);
-  });
+  // A later default naming the newer run moves Intent to it when no run was
+  // chosen.
+  landedDefault = landedOn(newer, "newer");
+  await story.refresh();
+  await expect.element(story.run).toHaveValue(newer.key);
 
-  await test.step("after choosing the older run, a newer default keeps it", async () => {
-    await compare.chooseRun(older.key);
-    await expect(compare.run).toHaveValue(older.key);
-    const asked = setup.review.asked().length;
-    await compare.refresh();
-    await expect.poll(() => setup.review.asked().length).toBeGreaterThan(asked);
-    await expect(compare.run).toHaveValue(older.key);
-  });
+  // After choosing the older run, a newer default keeps it.
+  await story.chooseRun(older.key);
+  await expect.element(story.run).toHaveValue(older.key);
+  const asked = defaultsAsked;
+  await story.refresh();
+  await expect.poll(() => defaultsAsked).toBeGreaterThan(asked);
+  await expect.element(story.run).toHaveValue(older.key);
+  // Plan 764 slices 1 (story notes) and 4 (done wall-time history) make this [].
+  expect(outsideKinds(outside)).toEqual(doneOutsideKinds);
 });

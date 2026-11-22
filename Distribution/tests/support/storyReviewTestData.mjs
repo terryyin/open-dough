@@ -28,7 +28,7 @@ import {
 export class StoryReviewBuilder {
   /** @type {ReviewedFile[]} */
   #files = [];
-  /** @type {"snapshot" | "published" | "landed" | "session-commits" | "landing-unavailable"} */
+  /** @type {"snapshot" | "published" | "landed" | "session-commits" | "landing-unavailable" | "unavailable"} */
   #kind = "snapshot";
   /** @type {ReviewGap} */
   #gap = { explanation: "" };
@@ -40,6 +40,8 @@ export class StoryReviewBuilder {
   #committed;
   /** @type {number | undefined} */
   #publishedKept;
+  /** @type {string | undefined} */
+  #completion;
   /** @type {import("./reviewCommitTestData.mjs").ReviewCommit[] | undefined} */
   #commits;
   #uncommitted = false;
@@ -129,9 +131,12 @@ export class StoryReviewBuilder {
     return this;
   }
 
-  // A completed story's published comparison.
-  published() {
+  // A completed story's published comparison; given its `completion`, the
+  // trunk revision that completion landed.
+  /** @param {string} [completion] */
+  published(completion) {
     this.#kind = "published";
+    this.#completion = completion;
     return this;
   }
 
@@ -150,6 +155,13 @@ export class StoryReviewBuilder {
   /** @param {string} explanation why the landed run cannot be reviewed */
   landingGap(explanation) {
     this.#kind = "landing-unavailable";
+    this.#gap = { explanation };
+    return this;
+  }
+
+  /** @param {string} explanation why this machine cannot read the review */
+  unavailable(explanation) {
+    this.#kind = "unavailable";
     this.#gap = { explanation };
     return this;
   }
@@ -228,10 +240,17 @@ export class StoryReviewBuilder {
     const files = structuredClone(this.#files);
     if (this.#kind === "landing-unavailable")
       return { kind: "landing-unavailable", ...this.#gap };
+    if (this.#kind === "unavailable")
+      return { kind: "unavailable", explanation: this.#gap.explanation };
     if (this.#kind === "session-commits")
       return sessionCommits({ baseline, tree, files });
     if (this.#kind === "published")
-      return publishedComparison({ baseline, tree, files });
+      return publishedComparison({
+        baseline,
+        tree,
+        files,
+        completion: this.#completion,
+      });
     if (this.#kind === "landed")
       return landedComparison({ baseline, tree, files, run });
     const snapshot = takenSnapshot({
