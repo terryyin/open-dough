@@ -48,15 +48,12 @@ retirement that procedure orders; report gaps.
 ## Publish the session record
 
 After the final accepted SHA's completion receipt and the finished visit, run
-the installed `story-branch-session-record.mjs record` from the owned
-workspace with `--workspace` and `--inspection` set to it,
-`--published-tip <saved final-closure tip>`, `--integrated-sha <integrated SHA>`,
-`--branch <execution branch>`, and the integration's `--landing-context` when
-the launch supplied one. It seals the session record from its accepted branch
-increments, keeps it in the worktree, and publishes it as one separate record
-commit on trunk; the integration merge adds no range. A printed
-`stopped: "record"` blocks retirement: follow its `recovery` to publish the kept
-record without another integration.
+the installed `story-branch-session-record.mjs record` with
+`--workspace <owned workspace>`, `--published-tip <saved final-closure tip>`,
+`--integrated-sha <integrated SHA>`, `--branch <execution branch>`, and the
+integration's `--landing-context` when the launch supplied one. It publishes
+the session's record as a separate commit on trunk. A printed
+`stopped: "record"` blocks retirement: follow its `recovery`.
 
 ## Retire Story Branch resources
 
