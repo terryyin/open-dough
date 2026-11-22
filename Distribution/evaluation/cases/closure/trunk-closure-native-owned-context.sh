@@ -24,6 +24,11 @@ trunk_closure_owned_context_worktree() {
   git init -q --bare "${trunk_closure_repository}"
   # As Git lists it, so its own entry is recognized in the worktree list.
   trunk_closure_repository=$(cd -- "${trunk_closure_repository}" && pwd -P)
+  # Its own commit identity, as for the default checkout's repository: the
+  # installed `finish` commits the session record in the worktree.
+  git -C "${trunk_closure_repository}" config user.name 'Trunk Closure Fixture'
+  git -C "${trunk_closure_repository}" config user.email \
+    'trunk-closure@example.invalid'
   git -C "${trunk_closure_repository}" remote add origin "${trunk_closure_origin}"
   git -C "${trunk_closure_repository}" fetch -q origin
   git -C "${trunk_closure_repository}" worktree add -q -b exec/trunk \

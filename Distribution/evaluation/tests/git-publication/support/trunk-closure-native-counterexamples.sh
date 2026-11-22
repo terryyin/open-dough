@@ -7,7 +7,8 @@ trunk_closure_write_assessor_observation() {
   local path=$1 scenario=$2 state=$3 basis=$4 provider_calls=$5
   local order=${6-normal}
   {
-    printf 'scenario: %s\nremote-sha: abc\ncandidate-sha: abc\n' "${scenario}"
+    printf 'scenario: %s\ncandidate-sha: abc\n' "${scenario}"
+    printf 'record-parent: abc\nrecord-closure: true\n'
     printf 'mailbox-target: main\n'
     printf 'coverage-state: %s\nbasis-state: %s\n' "${state}" "${basis}"
     printf 'observer-terminal: stopped\nfinish-count: 1\n'
@@ -46,12 +47,15 @@ run_trunk_closure_assessor_counterexamples() {
     "${work}/source.txt" source success none 1
   trunk_closure_counterexamples source "${work}/source.txt"
   # A missing or second `finish`, the agent's own completion call, a forced
-  # stop, no registration, cleanup before the receipt's shutdown, and a
-  # surviving worktree or branch.
+  # stop, no registration, cleanup before the receipt's shutdown, a
+  # surviving worktree or branch, and trunk left at the closure or at a commit
+  # other than its session record.
   native_assessor_rejects_field_rows << 'EOF'
 missing-finish finish finish-count: 0
 second-finish finish finish-count: 2
 agent-complete complete-revision complete-revision-count: 1
+no-record record record-parent: 0bc
+other-record record record-closure: false
 forced-stop forced-stop forced-stop: true
 failed-ci ci coverage-state: failed
 unconfirmed-shutdown shutdown product-shutdown: false
@@ -68,6 +72,7 @@ ci coverage-state
 shutdown product-shutdown
 retirement cleanup-complete
 worktree checkout-present-after
+record record-closure
 EOF
   trunk_closure_write_assessor_observation \
     "${work}/early-shutdown.txt" source success none 1 early

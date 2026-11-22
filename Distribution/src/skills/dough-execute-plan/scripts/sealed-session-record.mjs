@@ -57,21 +57,11 @@ export async function sealAndPublishRecord(
     story,
     ranges: [{ base: suffixBase, candidate: sha }],
   });
-  try {
-    return await publishSealedRecord({
-      ...publication,
-      record,
-      validatedCandidate: undefined,
-    });
-  } catch (error) {
-    return {
-      status: "stopped",
-      path: sessionRecordPath(sessionId, publication.backlogPath),
-      record,
-      error: error.message,
-      ...(error.code ? { code: error.code, stage: error.stage } : {}),
-    };
-  }
+  return publishSealedRecord({
+    ...publication,
+    record,
+    validatedCandidate: undefined,
+  });
 }
 
 const recordBytes = (record) => `${JSON.stringify(record, null, 2)}\n`;
@@ -112,7 +102,9 @@ async function commitRecord(workspace, path, record) {
   );
 }
 
-// Publishes a sealed record after its work was accepted.
+// Publishes a sealed record after its work was accepted. A commit or
+// publication that throws stops the record stage with the sealed record kept,
+// so the close can resume.
 export async function publishSealedRecord({
   record,
   remote = "origin",
@@ -121,6 +113,20 @@ export async function publishSealedRecord({
 }) {
   const path = sessionRecordPath(record.sessionId, backlogPath);
   const publication = { ...request, remote, backlogPath };
+  try {
+    return await sendRecord(publication, path, record);
+  } catch (error) {
+    return {
+      status: "stopped",
+      path,
+      record,
+      error: error.message,
+      ...(error.code ? { code: error.code, stage: error.stage } : {}),
+    };
+  }
+}
+
+async function sendRecord(publication, path, record) {
   const accepted = await publishedBytes(publication, path);
   if (accepted !== undefined) {
     const identical = accepted === recordBytes(record);

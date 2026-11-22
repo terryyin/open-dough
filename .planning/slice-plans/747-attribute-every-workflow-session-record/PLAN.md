@@ -206,6 +206,7 @@ and the closure is pushed once. Keep every existing `trunk-closure*` test
 passing with the new tip.
 
 **Accepted.** `trunk-closure-session-record.mjs` seals and publishes the records-only record commit after the closure's completion receipt. The default-checkout refresh follows the record, and retirement treats the record commit as contained. The record push passes `landingContext: null`, which the resolver reads as "not a landing", so a Dashboard launch's open landing expectation stays with the closure. Proof: `Distribution/tests/skills/dough-story-wrap-up/trunk-closure-session-record.test.mjs`, every `trunk-closure*` suite, and `e2e/sessions/agent-completion-quiet.spec.ts`. Trunk since `0648ff017` changed publication validation and confirmation (`6d6cbebcf`, `9b3e40a36`), so integration needs merged-state proof of these suites.
+CI repair (run 44962527796): the owned-context closure evaluation now gives its fixture repository a commit identity and requires the record commit directly on the closure. A record commit or publication failure after completion stops `finish` at `step: "record"` with rerun recovery. Proof: `Distribution/evaluation/tests/git-publication/git-publication-native-owned-context.sh` and `trunk-closure-session-record.test.mjs`.
 
 ### 5. Read every trunk contribution of a wrapped-up session
 

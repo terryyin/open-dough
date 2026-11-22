@@ -15,6 +15,28 @@ trunk_closure_finish_count() {
     trunk-closure.mjs finish "${sha}"
 }
 
+# Whether the tip of main on bare remote $1 is a records-only commit adding
+# one session record whose ranges hold final closure $2 on its parent.
+trunk_closure_record_closure() {
+  local remote=$1 candidate=$2 base added
+  base=$(git --git-dir="${remote}" rev-parse "${candidate}^" 2> /dev/null) \
+    || {
+      echo false
+      return
+    }
+  added=$(git --git-dir="${remote}" diff-tree --no-commit-id -r --name-status \
+    main 2> /dev/null)
+  [[ ${added} =~ ^A[[:space:]]+(\.planning/sessions/[^/[:space:]]+\.json)$ ]] \
+    || {
+      echo false
+      return
+    }
+  git --git-dir="${remote}" show "main:${BASH_REMATCH[1]}" | jq -r \
+    --arg base "${base}" --arg candidate "${candidate}" \
+    'any(.ranges[]; .base == $base and .candidate == $candidate)' \
+    2> /dev/null || echo false
+}
+
 # shellcheck source=Distribution/evaluation/src/closure-native-response.sh
 # shellcheck disable=SC1091
 source "${trunk_closure_observe_runtime_dir}/closure-native-response.sh"
@@ -45,8 +67,11 @@ trunk_closure_observe() {
   fi
   {
     printf 'scenario: %s\n' "${scenario}"
-    printf 'remote-sha: %s\n' "$(git ls-remote "${trunk_closure_origin}" refs/heads/main | awk '{print $1}')"
     printf 'candidate-sha: %s\n' "${trunk_closure_candidate_sha}"
+    printf 'record-parent: %s\n' "$(git --git-dir="${trunk_closure_origin}" \
+      rev-parse main^ 2> /dev/null)"
+    printf 'record-closure: %s\n' "$(trunk_closure_record_closure \
+      "${trunk_closure_origin}" "${trunk_closure_candidate_sha}")"
     printf 'mailbox-target: %s\n' \
       "$(jq -r '.branch' "${trunk_closure_mailbox}/request.json" 2> /dev/null)"
     printf 'coverage-state: %s\n' "${state}"

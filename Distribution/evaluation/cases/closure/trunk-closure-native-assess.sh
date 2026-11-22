@@ -11,6 +11,7 @@ trunk_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/t
 # context's (trunk-closure-native-owned-context.sh).
 # assessor-signal: finish finish-count
 # assessor-signal: complete-revision complete-revision-count
+# assessor-signal: record record-parent record-closure
 # assessor-signal: control-order control-order
 # assessor-signal: registration registered
 # assessor-signal: forced-stop forced-stop
@@ -28,9 +29,10 @@ trunk_closure_assess_file="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/t
 trunk_closure_assess() {
   local scenario=$1
   local observations=$2
-  local remote candidate state basis terminal finishes completes awaits registered stops
+  local parent record candidate state basis terminal finishes completes awaits registered stops
   local cleanup harness product_shutdown forced_stop mailbox_target
-  remote=$(native_observation_field "${observations}" remote-sha)
+  parent=$(native_observation_field "${observations}" record-parent)
+  record=$(native_observation_field "${observations}" record-closure)
   candidate=$(native_observation_field "${observations}" candidate-sha)
   state=$(native_observation_field "${observations}" coverage-state)
   basis=$(native_observation_field "${observations}" basis-state)
@@ -48,11 +50,12 @@ trunk_closure_assess() {
   # Fixture fallback stop must never turn a missing product shutdown into a pass.
   [[ ${forced_stop} == false && ${product_shutdown} == true ]] || return 1
   # One installed `finish` owns completion; the worktree and its branch are
-  # gone, and the observer had shut down when the worktree disappeared.
+  # gone, and the observer had shut down when the worktree disappeared. Trunk
+  # ends at the records-only commit of the session record holding the closure.
   grep -Eq '^cleanup-observer-state: (stopped|finished)$' "${observations}" \
     && grep -Fxq 'checkout-present-after: false' "${observations}" \
     && grep -Fxq 'branch-present: false' "${observations}" || return 1
-  [[ ${remote} == "${candidate}" && ${finishes} == 1 && ${completes} == 0 &&
+  [[ ${parent} == "${candidate}" && ${record} == true && ${finishes} == 1 && ${completes} == 0 &&
     ${awaits} == 0 &&
     ${registered} == true && ${stops} == 0 && ${cleanup} == true &&
     ${mailbox_target} == main &&

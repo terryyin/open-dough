@@ -69,9 +69,10 @@ trunk_closure_complete_seen() {
 
 trunk_closure_controller() {
   local scenario=$1 host=$2
-  local remote_sha coverage
+  local coverage
+  # Trunk holds the closure; the session record may already follow it.
   wait_for publication "${trunk_closure_wait_limit}" \
-    "[[ \$(git ls-remote '${trunk_closure_origin}' refs/heads/main | awk '{print \$1}') == '${trunk_closure_candidate_sha}' ]]" || return
+    "git --git-dir='${trunk_closure_origin}' merge-base --is-ancestor '${trunk_closure_candidate_sha}' main 2> /dev/null" || return
   printf 'publication\n' >> "${trunk_closure_control_log}"
   # The product's registration names the observer the later steps follow.
   wait_for registration "${trunk_closure_wait_limit}" \
@@ -98,8 +99,8 @@ trunk_closure_controller() {
   printf 'shutdown\n' >> "${trunk_closure_control_log}"
   wait_for cleanup "${trunk_closure_wait_limit}" "test -f '${trunk_closure_cleanup_marker}'" || return
   printf 'cleanup-complete\n' >> "${trunk_closure_control_log}"
-  remote_sha=$(git ls-remote "${trunk_closure_origin}" refs/heads/main | awk '{print $1}')
-  [[ ${remote_sha} == "${trunk_closure_candidate_sha}" ]]
+  # The session record's commit is the last on trunk, right after the closure.
+  [[ $(git --git-dir="${trunk_closure_origin}" rev-parse main^) == "${trunk_closure_candidate_sha}" ]]
 }
 
 trunk_closure_prompt_for() {
