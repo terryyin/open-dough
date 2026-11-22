@@ -135,6 +135,17 @@ case results passed. Refinement touch case: avg 365 ms, max 441 ms. Start
 session touch case: avg 202 ms, max 242 ms. The probe workflow was deleted
 in the slice's final publication.
 
+## Execution complete
+
+Product advice: no change to queue order. Hypothesis for wrap-up, not yet
+evidenced: other frontend tests still dispatch native touch:
+`locator.tap` in `recently-done-review-state-offer.spec.ts`,
+`historyChartPage.ts` and `intentScopeHistoryPage.ts`; `touchscreen.tap` in
+`controlReachability.ts`; CDP touch in `system-settings-browser.ts`. They
+may carry the same hosted hang risk. Queue a follow-up only when a hosted
+failure in one of them gives evidence. Process review is deferred into
+wrap-up's intent coverage check.
+
 ## Concern evidence
 
 Slice-plan refinement was not needed: two small Behaviors, each one touch
