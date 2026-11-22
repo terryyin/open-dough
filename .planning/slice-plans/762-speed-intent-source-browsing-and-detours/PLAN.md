@@ -442,15 +442,28 @@ another slice needs the same tree.
 ### 7. Gherkin groups select scenarios and outlines while tree and feature panes scroll independently
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-gherkin-groups` (1) and `intent-gherkin-layout` (1, keeping any
 JSX container helper in a `.tsx` file) over the production Intent body and the
 page entry.
 
-**Proof.** Scenario and Scenario Outline items select and highlight their block,
-and the Intent browser tree and Gherkin feature pane keep independent scroll
-positions inside a constrained viewport height.
+**Proof.** Intent location groups start collapsed, open one at a time and
+keep a selected file's Purpose when collapsed, with their header look; the
+Intent browser tree and Gherkin feature pane reach the viewport bottom and
+keep independent scroll positions inside a constrained viewport height.
+(Corrected 2026-11-22: the legacy case covers location groups; no product
+code selects Scenario or Scenario Outline items.)
+
+**Learnings.** Three Vitest cases on `mountIntentCiPage` (4.7 s), reusing the
+Slice 6 scope-tree locators. The legacy check that the region below the page
+banner never scrolls needs `ConfiguredDashboardContent`'s `.intent-scroll`,
+so it moved to SEED-413#drive-published-observation-through-page-entry with
+the composed page. No support module became spent. Both specs read through
+`intentReadsPublishing` in `intent-revision-fixtures.ts`; the dead
+`collapseIntentGroup` is gone. Follow-up: `headerLook` repeats
+`intentLocationHeaderLook.ts`'s Playwright rule; give it one Vitest home when
+`intent-story-ci-cues` moves.
 
 ### 8. Java source fallback keeps readable plain text on grammar failure and Candidates cases open at their exact source line
 

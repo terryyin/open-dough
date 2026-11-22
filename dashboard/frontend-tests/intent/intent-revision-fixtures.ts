@@ -67,6 +67,16 @@ export function fixtureFor<T>(
   return fixture;
 }
 
+// Intent reads answering LOCATIONS and each of FILES, with no Candidates record.
+export const intentReadsPublishing = (
+  locations: IntentLocations,
+  files: Readonly<Record<string, string>>,
+): IntentReadSource => ({
+  readLocations: () => Promise.resolve(locations),
+  readFile: (...[, path]) => Promise.resolve(fixtureFor(files, path)),
+  readCandidates: () => Promise.resolve({ status: "absent" }),
+});
+
 export async function mountProjectIntent(
   revision: string,
   publications: Readonly<Record<string, FeaturePublication>>,
