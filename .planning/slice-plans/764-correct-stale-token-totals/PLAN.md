@@ -224,6 +224,13 @@ then production. The full import ran only once this session's shell had
   imports outside the clock's `run`; the remaining work was verification of
   an authorized production operation, so it continued instead of reverting.
 
+## Execution complete
+
+Product advice: no backlog change beyond the retrospective correction
+[SEED-422#build-claude-reply-fixtures-with-makeme](../773-build-claude-reply-fixtures-with-makeme/PLAN.md),
+which moves the reply fixtures' transcript data into MakeMe steps. Process
+review is deferred into wrap-up behind the Intent Coverage check.
+
 ## Story obligations
 
 ### G1. Refresh rereads only sessions changed since the check

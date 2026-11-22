@@ -92,3 +92,22 @@ median. The [task point](../../dashboard/server/tokenIndexTask.ts),
 
 **Effort.** Medium, low confidence until the stale ingestion path is traced.
 A manual recount validates the repair.
+
+<a id="build-claude-reply-fixtures-with-makeme"></a>
+
+### Build Claude Code reply fixtures with MakeMe steps
+
+**Identity:** SEED-422#build-claude-reply-fixtures-with-makeme
+
+**Goal:** A maintainer writing a Usage test about a Claude Code launch and its
+developer replies describes the transcript through MakeMe builder steps,
+rather than importing hand-written response, reply and worker-result data
+helpers.
+
+**Scope:** Replace the transcript data helpers in
+`dashboard/test-support/usage-history/claudeReplyLaunch.ts` with
+`ClaudeTranscriptBuilder` steps, after reorganizing that builder by
+responsibility below the file-size limit. Its three consuming specs keep their
+cases and expectations. No product change.
+
+**Plan:** [Build Claude Code reply fixtures with MakeMe steps](../slice-plans/773-build-claude-reply-fixtures-with-makeme/PLAN.md)
