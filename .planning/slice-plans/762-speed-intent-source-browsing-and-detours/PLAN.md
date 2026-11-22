@@ -179,7 +179,7 @@ E2E companions when shared contracts or popup/focus boundaries change.
 | Promise | Owning proof |
 | --- | --- |
 | Production supplies the page observation's reads through the required typed page entry, with no defaulted reader parameter | Slice 1 (`npm run typecheck:dashboard`, the recovery and preparation Vitest files, one representative published-read E2E journey, `grep`). |
-| A typed rate-limited reply sets the page's standing limit without the transport | Slice 2 (`npm run typecheck:dashboard`, the existing limit Vitest cases and one rate-limit E2E journey, `grep`). |
+| A typed rate-limited reply sets the page's standing limit without the transport | Slice 2 (`npm run typecheck:dashboard`, a focused typed-reply limit case, the existing limit Vitest cases and one rate-limit E2E journey). |
 | Locations recovery and settings-problem cases render the production observation and Intent body with MakeMe replies, not a test copy | Slice 3 (`intent-read-recovery`, `intent-gherkin-settings-problems`, delete `intent-read-recovery-page.tsx`'s composition, import counts). |
 | Canonical and plan links use the inspected revision, external/unsafe/invalid targets stay distinct, and popup activation is proved in E2E | Slice 4 (`navigation/source-navigation*` + `e2e/navigation/source-navigation.spec.ts` + retire `frontendSourceNavigation.ts`). |
 | Entry and folder summaries aggregate nested test counts and expand or select cleanly | Slice 5 (`intent-entry-folder-summaries*` + retire `intentEntryFolderSummariesFixtures.ts` and `putFrontendFolderSources`). |
@@ -205,7 +205,7 @@ prop down the chain `carryOutRead` → `readPublishedWork` →
 `useObservedRevisionDelivery` → the revision check schedules.
 `enrichPreparation` passes `loadRepositoryTexts` the detail reader it is
 given instead of importing `readRepositoryFileAt`. Limit recording stays in
-the transports; Slice 2 moves it. Point the existing test composition at the
+the transports; Slice 2 adds Intent's own recorder. Point the existing test composition at the
 new members without changing any assertion, so Slice 3 replaces it with
 production.
 
@@ -234,6 +234,11 @@ board announcement files) with unchanged assertions; 41 E2E specs including
 every `e2e/observation/*` journey and 12 backend specs. Three E2E and one
 backend timeout at load 48 in untouched journeys passed on isolated rerun at
 load 29–32; CI's verdict settles them.
+CI repair: branch run 45022526204 at `14f70e8a9` failed Distribution Tests
+3/3 on its 320 s test deadline (306 s, slow runners, no failing test; shard 3
+held 336 files, 737 s median against 635 s). Terry accepted
+`rebalance-ci-shards`' move of `Distribution/tests/skills/dough-story-refinement/**`
+into share 1 (691/635/682 s); the next runs check it.
 
 ### 2. A typed rate-limited reply sets the page's standing limit without the transport
 
@@ -242,21 +247,27 @@ Status: planned
 
 Split from Slice 1 on 2026-11-22: `noteLimit`'s callers are only
 `authenticatedGet.ts` and `revisionCheckRead.ts`, but `authenticatedGet` is
-the shared transport of 12 read modules, so recording the limit where a
-read's owner receives a rate-limited `ReadProblem` is a cross-read change.
-Record it once for every read the page entry supplies (for example where
-`PageReadsOnPage` hands supplied reads to the page, or another single
-receiving owner), so a typed rate-limited reply sets the standing limit and
-the transports stop calling `noteLimit`. The standing limit's withholding of
-upstream reads, `readingLimit.ts`'s record and its readers keep their
-behavior. If no single receiving owner covers the 12 reads and the revision
-check, stop and return the evidence rather than editing each read module.
+the shared transport of 12 read modules. A first attempt found no single
+receiving owner: profile, session and containment reads and the revision
+stream bypass `PageReads`, the transport derives `resumesAt` from the limit
+it has just recorded, `limitsMetSince` counts limits met during a read, and
+the transport skips recording for an aborted read. Intent's limited reread
+waits on the page's standing limit (`IntentReadRecovery`'s `limitStands`),
+so a typed reply must set it.
 
-**Proof.** `npm run typecheck:dashboard` passes. The existing Vitest cases
-that observe a rate limit (including `intent-gherkin-settings-problems`'
-rereading when a standing limit ends) and one E2E journey that meets a
-rate-limited read pass unchanged in their assertions. `grep` finds no
-`noteLimit` call in `authenticatedGet.ts` or `revisionCheckRead.ts`.
+**Decision (Terry, 2026-11-22):** the transports keep recording. Intent
+reading, on receiving a limited `ReadProblem`, also records the standing
+limit until that problem's `resumesAt` through a new recorder in
+`readingLimit.ts` (for example `noteLimitUntil`), so a MakeMe-built
+rate-limited Intent reply drives Slice 3's case. Recording is idempotent for
+live reads: a further limited answer only moves the limit later.
+
+**Proof.** `npm run typecheck:dashboard` passes. A focused case shows a
+typed rate-limited Intent reply, supplied through the page entry, sets the
+standing limit and Intent rereads once it ends, without calling
+`noteLimit`/`standingLimit` or constructing `ReadProblem` in the spec. The
+existing rate-limit Vitest cases and one E2E journey that meets a
+rate-limited read pass unchanged in their assertions.
 
 ### 3. Locations recovery and settings-problem cases render the production observation and Intent body
 
