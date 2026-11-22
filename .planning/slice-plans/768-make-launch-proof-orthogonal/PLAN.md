@@ -244,7 +244,7 @@ Mapping (story-card-startup 1 case replaced; four files 14/14):
 ### 6. Startup recovery runs from its typed attempt and read
 
 Type: Behavior
-Status: planned
+Status: done
 
 Reshape `startup-recovery` and `startup-recovery-reads`. Recovery runs from
 a typed `StartupRecoveryItem` and `AttemptEvidence` at `StartupRecovery`
@@ -256,6 +256,30 @@ without native-check advice; and the protected-card focus. Remove
 consumer goes.
 
 Proof: the two files pass with interleaved paired timing and a mapping.
+
+Mapping (5 → 6 cases; interleaved at load 50 → 37: before 19.13 s and
+14.66 s, after 15.90 s and 13.59 s):
+
+- `StartupRecovery` now takes required `items`, `evidence` and `actions`;
+  `configuredDashboardContent.tsx` passes `recoveriesOf(source.id)`,
+  `attemptEvidence` and the launches actions. Three direct cases build
+  typed items from MakeMe attempts: uncertain attempt with native-check
+  advice and its codes; Cursor without that advice; lost acknowledgment
+  offering only Recheck plus unanswered evidence with Recheck.
+- Composed races kept: uncertain after acceptance with protected-card
+  focus (moved into `startup-recovery` to balance workers); in
+  `startup-recovery-reads` the unanswered evidence read with Recheck, and
+  lost acknowledgment through an unsuccessful recheck to a confirming
+  read, which absorbed the separate lost-acknowledgment read case and its
+  "Launch uncertain" card text.
+- Consumers: the four other `story-startup-page` specs 15/15; the six
+  built-app `StartupRecovery` consumer specs passed except
+  `e2e/sessions/agent-completion-quiet.spec.ts`, whose three cases timed
+  out together at load about 45 waiting for the completion mailbox
+  `result.json` (`installedCompletionClosure.ts:238`) and passed 3/3
+  alone at load 44 → 37. Its recovery observation (Startup recovery
+  absent) passed; the load timeout is an open test defect owned by this
+  execution under the failure policy, repaired before completion.
 
 ### 7. Unattached start, attachments and note handoff run from typed inputs
 

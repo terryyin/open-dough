@@ -106,7 +106,11 @@ export function ConfiguredDashboardContent({
             hidden={!showsBoard}
           />
           {showsBoard && (
-            <StartupRecovery sourceId={source.id} recoveries={launches} />
+            <StartupRecovery
+              items={launches.recoveriesOf(source.id)}
+              evidence={launches.attemptEvidence}
+              actions={launches}
+            />
           )}
           <StartupAnnouncer
             sourceId={source.id}

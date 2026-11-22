@@ -41,12 +41,16 @@ export type StartupRecoveryItem = {
 
 export type AttemptEvidence = "unread" | "unanswered" | "unreadable" | "read";
 
-export type StartupRecoveries = {
-  recoveriesOf(sourceId: string): readonly StartupRecoveryItem[];
-  readonly attemptEvidence: AttemptEvidence;
+// What the developer can do from Startup recovery.
+export type RecoveryActions = {
   readonly continueStartup: (attempt: AttemptObservation) => void;
   readonly updateWorktreeAndRetry: (attempt: AttemptObservation) => void;
   readonly recheckStartups: (attempt?: AttemptObservation) => void;
+};
+
+export type StartupRecoveries = RecoveryActions & {
+  recoveriesOf(sourceId: string): readonly StartupRecoveryItem[];
+  readonly attemptEvidence: AttemptEvidence;
 };
 
 type Continuation =
