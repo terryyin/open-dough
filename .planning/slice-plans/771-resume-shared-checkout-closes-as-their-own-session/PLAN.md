@@ -264,6 +264,17 @@ Structure: move the `"shared-checkout"` value into `session-record.mjs`;
 `shared-checkout-note.mjs` and `publishedSessionReview.ts` import it from the
 record contract (finding 5).
 
+## Execution complete
+
+Product advice: no change. The correction delivered its goal: each
+shared-checkout close resumes as its own session, an unwritable or torn note
+neither fails a keep nor blocks a close, close state shares one Git-path store
+and retires on publication, and the record contract owns its mark. A native
+close in Default main beside several open Dashboard launches was checked and is
+not reachable: native session evidence starts only in owned linked worktrees.
+The optional single open-launch query (expectation read twice per close) is
+not worth its test churn. Conclusions hold pending branch CI on `18b84d427`.
+
 ## Story obligations
 
 ### G1. A torn note beside an open launch is rewritten with the new launch's start
