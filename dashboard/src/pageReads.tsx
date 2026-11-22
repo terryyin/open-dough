@@ -57,13 +57,10 @@ export const authenticatedPageReads: PageReads = {
   reviewStates: authenticatedStoryReviewStatesReads,
 };
 
-// One kind of value the page holds per key, such as each project's story
-// notes; its owning module names it once.
-export type HeldKind<T> = { readonly name: string; readonly held?: T };
-
 type OnPage = {
   readonly reads: PageReads;
-  readonly held: Map<HeldKind<unknown>, Map<string, unknown>>;
+  // The page's identity for the values it holds, kept for the page's life.
+  readonly page: object;
 };
 
 const PageReadsContext = createContext<OnPage | undefined>(undefined);
@@ -77,8 +74,8 @@ export function PageReadsOnPage({
 }) {
   // The page holds each project's values (notes, review states), created
   // from these reads on first use.
-  const held = useMemo(() => new Map(), []);
-  const onPage = useMemo(() => ({ reads, held }), [reads, held]);
+  const page = useMemo(() => ({}), []);
+  const onPage = useMemo(() => ({ reads, page }), [reads, page]);
   return (
     <PageReadsContext.Provider value={onPage}>
       {children}
@@ -96,21 +93,35 @@ function useOnPage(): OnPage {
 
 const usePageReads = (): PageReads => useOnPage().reads;
 
-// The page's one value of `kind` for `key`, created from the page's reads on
-// first use and kept for the page's life.
-export function useHeldOnPage<T>(
-  kind: HeldKind<T>,
-  key: string,
-  create: (reads: PageReads) => T,
-): T {
-  const { reads, held } = useOnPage();
-  const byKey = held.get(kind) ?? new Map<string, unknown>();
-  held.set(kind, byKey);
-  const existing = byKey.get(key) as T | undefined;
-  if (existing !== undefined) return existing;
-  const created = create(reads);
-  byKey.set(key, created);
-  return created;
+// One kind of value the page holds per key, such as each project's story
+// notes: the returned hook gives the page's value for a key, created from the
+// page's reads on first use and kept for the page's life.
+export function heldOnPagePerKey<T>(
+  create: (reads: PageReads, key: string) => T,
+): (key: string) => T {
+  const byPage = new WeakMap<object, Map<string, T>>();
+  return function useHeldOnPage(key) {
+    const { reads, page } = useOnPage();
+    const byKey = byPage.get(page) ?? new Map<string, T>();
+    byPage.set(page, byKey);
+    if (byKey.has(key)) return byKey.get(key) as T;
+    const created = create(reads, key);
+    byKey.set(key, created);
+    return created;
+  };
+}
+
+// One value the page holds once, created from the page's reads on first use
+// and kept for the page's life.
+export function heldOnPage<T>(create: (reads: PageReads) => T): () => T {
+  const byPage = new WeakMap<object, T>();
+  return function useHeldOnPage() {
+    const { reads, page } = useOnPage();
+    if (byPage.has(page)) return byPage.get(page) as T;
+    const created = create(reads);
+    byPage.set(page, created);
+    return created;
+  };
 }
 
 export const useIntentReads = (): IntentReadSource => usePageReads().intent;

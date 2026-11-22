@@ -32,6 +32,7 @@ test("a Done landing's CI wall time reads against its recent builds between the 
               508000,
               504000,
             ])
+            .averaging(504000, 6)
             .measured(484000)
             .through(endpoint.revision)
             .please(),

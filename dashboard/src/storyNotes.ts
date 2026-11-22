@@ -2,7 +2,7 @@
 // check interval. Older reads never replace a newer successful save answer.
 import { useSyncExternalStore } from "react";
 import { localSettingState } from "./localSettingState.ts";
-import { useHeldOnPage, type HeldKind } from "./pageReads.tsx";
+import { heldOnPagePerKey } from "./pageReads.tsx";
 import type { StoryNotesAnswer, StoryNoteChange } from "./storyNote.ts";
 
 export type StoryNotes = {
@@ -15,14 +15,12 @@ const storyNotesState = (
   source: (change?: StoryNoteChange) => Promise<StoryNotesAnswer>,
 ) => localSettingState<StoryNotesAnswer, StoryNoteChange>(source);
 
-const projectNotes: HeldKind<ReturnType<typeof storyNotesState>> = {
-  name: "story notes",
-};
+const useProjectNotes = heldOnPagePerKey((reads, project) =>
+  storyNotesState((change) => reads.storyNotes(project, change)),
+);
 
 export function useStoryNotes(project: string): StoryNotes {
-  const state = useHeldOnPage(projectNotes, project, (reads) =>
-    storyNotesState((change) => reads.storyNotes(project, change)),
-  );
+  const state = useProjectNotes(project);
   const answer = useSyncExternalStore(state.subscribe, state.snapshot);
   return { answer, change: state.change };
 }

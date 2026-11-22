@@ -11,15 +11,20 @@ import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 export async function doneWallTimeHistory() {
   await intentStoryCompare().chooseTab("CI comparison");
-  const region = page
+  const comparison = page
     .getByRole("main", { name: "Intent", exact: true })
-    .getByRole("region", { name: "CI wall time history", exact: true });
+    .getByRole("tabpanel", { name: "CI comparison", exact: true });
+  const region = comparison.getByRole("region", {
+    name: "CI wall time history",
+    exact: true,
+  });
   await expect.element(region).toBeVisible();
   const textOf = (selector: string) => () => {
     const node = region.element().querySelector(selector);
     return node === null ? undefined : visibleText(node);
   };
-  const gapElement = () => document.querySelector(".intent-ci-gap");
+  // The live CI comparison's gap; CI status and judgment show their own.
+  const gapElement = () => comparison.element().querySelector(".intent-ci-gap");
   const line = (index: number) => () => {
     const node = Array.from(
       region.element().querySelectorAll(".intent-ci-prior-reference > p"),

@@ -16,13 +16,16 @@ const wholeSeconds = (/** @type {number} */ ms) =>
 
 // A Done story's collected CI wall time through its published landing:
 // whether the history is retained there, the prior builds before it, and
-// how the landing itself was measured. Five priors of 1 min 43 s and an
-// uncollected landing unless a step says otherwise.
+// how the landing itself was measured, and the reference figures the read
+// states for those priors. Five priors of 1 min 43 s averaging 1 min 43 s
+// and an uncollected landing unless a step says otherwise.
 export class DoneWallTimeHistoryBuilder {
   /** @type {DoneWallTimeHistory["availability"]} */
   #availability = "uncollected";
   /** @type {readonly (number | "failed" | "missing")[]} */
   #priors = [103000, 103000, 103000, 103000, 103000];
+  /** @type {{ sampleCount: number; averageMs?: number }} */
+  #reference = { sampleCount: 5, averageMs: 103000 };
   /** @type {((endpoint: string) => { selected: SelectedTiming; entry: MeasuredEntry; ms?: number }) | undefined} */
   #selected = undefined;
 
@@ -31,11 +34,13 @@ export class DoneWallTimeHistoryBuilder {
   noCollectedHistory() {
     this.#availability = "empty";
     this.#priors = [];
+    this.#reference = { sampleCount: 0 };
     return this;
   }
   outsideRetention() {
     this.#availability = "outside-retention";
     this.#priors = [];
+    this.#reference = { sampleCount: 0 };
     return this;
   }
 
@@ -44,6 +49,23 @@ export class DoneWallTimeHistoryBuilder {
   /** @param {readonly (number | "failed" | "missing")[]} durations */
   priors(durations) {
     this.#priors = durations;
+    return this;
+  }
+
+  // The prior-build average the read states, over the builds it used.
+  /**
+   * @param {number} ms the prior-build average
+   * @param {number} used how many prior builds it used
+   */
+  averaging(ms, used) {
+    this.#reference = { sampleCount: used, averageMs: ms };
+    return this;
+  }
+
+  // Too few prior builds were used for an average.
+  /** @param {number} used how many prior builds were usable */
+  tooFewToAverage(used) {
+    this.#reference = { sampleCount: used };
     return this;
   }
 
@@ -174,11 +196,7 @@ export class DoneWallTimeHistoryBuilder {
         landings: [{ revision, receivedAt: isoAt(start), provenance: "exact" }],
       };
     });
-    const measured = priors.filter((ms) => typeof ms === "number");
-    const averageMs =
-      measured.length >= 5
-        ? measured.reduce((sum, ms) => sum + ms, 0) / measured.length
-        : undefined;
+    const { sampleCount, averageMs } = this.#reference;
     const selected = this.#selected?.(endpoint);
     if (selected !== undefined) entries.push(selected.entry);
     const changeMs =
@@ -192,7 +210,7 @@ export class DoneWallTimeHistoryBuilder {
       entries,
       reference: {
         endpoint,
-        sampleCount: measured.length,
+        sampleCount,
         ...(selected === undefined ? {} : { selected: selected.selected }),
         ...(averageMs === undefined ? {} : { averageMs }),
         ...(changeMs === undefined || averageMs === undefined

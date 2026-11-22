@@ -79,7 +79,10 @@ test("brief statuses name a pending, missing, out-of-retention or insufficient h
       average: usableAverage,
     },
     {
-      history: done().priors([100000, 100000, 100000, 100000]).measured(120000),
+      history: done()
+        .priors([100000, 100000, 100000, 100000])
+        .tooFewToAverage(4)
+        .measured(120000),
       selected: "2 min",
       average: noAverage(4),
     },
@@ -121,7 +124,10 @@ test("brief statuses name a pending, missing, out-of-retention or insufficient h
 });
 
 test("a zero prior average keeps the elapsed change without a percentage, and a stand-in build names how it stands for the landing", async () => {
-  let shown: History = done().priors([0, 0, 0, 0, 0]).measured(1000);
+  let shown: History = done()
+    .priors([0, 0, 0, 0, 0])
+    .averaging(0, 5)
+    .measured(1000);
   const opened = await openDoneHistory(() => shown);
   const { history } = opened;
   await expect

@@ -178,7 +178,7 @@ default (keep `board-kept-position.spec.ts`'s precondition).
 ### 2. History builders take reference figures, HeldKind is typed, and wall-time page objects own their journeys
 
 Type: Structure
-Status: planned
+Status: done
 
 Give the Done history builder domain-named reference-figure steps instead of
 deriving averages; replace opaque `HeldKind` with a typed per-kind factory and
@@ -189,6 +189,15 @@ comparison region. Directly owned retrospective correction.
 Proof: builder callers supply figures; HeldKind consumers typecheck; wall-time
 specs call the page-object journeys; Done gap assertions stay green with the
 scoped query; typecheck.
+
+Accepted proof (2026-11-22, load ~24): typecheck; 43 consumer-trace frontend
+specs (30 Vitest files / 106 tests; 13 Playwright files / 23 tests through the
+proof record); e2e `story-review-diff-add-note`, `recently-done-follow-up`,
+`story-review-follow-up`, `intent-ci-status-story`, `intent-ci-done-prior-build`
+green after the production page-held change.
+
+Learning: a frontend-group run's log omits the Playwright specs' results; read
+them through `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
 
 ### 3. Project and Done scope glances show accurate summary cues
 
@@ -271,6 +280,14 @@ one or two legacy files or one correction concern, below the eight-slice
 limit. This review found no remaining slice-specific concern.
 
 ## Current decisions
+
+- Scope history builder (Slice 2 decision for Slices 3–6): callers state its
+  reference figures with the Done builder's steps — `averaging(ms, used)`,
+  `tooFewToAverage(used)`, a stated default, and a zero sample count for
+  empty or outside-retention history. It neither calls nor restates
+  `priorBuildReferenceOf` or `ciScopeHistoryReference.ts`. When both builders
+  need the steps, they share one small reference-figures helper in
+  `Distribution/tests/support`.
 
 - Resplit collected timing reading and chart marks to plan 777 rather than
   force three-file slices against the plan-764 overrun learning.
