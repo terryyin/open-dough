@@ -143,3 +143,30 @@ journey split over moving fixture cost or overriding the timeout.
 Diagnosis record and parked patch:
 `3a1ba5ca6:.planning/slice-plans/768-make-launch-proof-orthogonal/diagnosis-agent-completion-quiet-load-timeout.md`
 and `diagnosis-agent-completion-quiet-observer-stop.patch` beside it.
+
+<a id="keep-attention-completion-journey-within-timeout"></a>
+
+### Keep the attention completion journey within its timeout under load
+
+**Identity:** SEED-341#keep-attention-completion-journey-within-timeout
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal:** Developers get the same `agent-completion-attention` result locally
+and in CI whatever the machine load, so a red run names a real regression.
+Its case finishes inside the default 30 s test timeout.
+
+**Scope:** The single journey in `e2e/sessions/agent-completion-attention.spec.ts`
+("installed attention report stays open, durable and readable through column
+change, retirement, restart, Mark as read and Mark as done"). It has the same
+shape of serial work as the quiet completion journey: a real launch, an
+installed closure and reporting, then page phases. Keep every observation at
+some owner, keep the default timeout and add no override. No dashboard
+behavior changes. Refinement decides the split, reusing whatever the
+[quiet completion split](#split-quiet-completion-journey) establishes.
+
+**Starting evidence:** On 22 November 2026, during the preparation
+observations for the quiet completion split, the case timed out at 30 s once
+under 86 CPU burners plus the four sibling completion specs on
+`--workers 4` (load 52 → 59).
