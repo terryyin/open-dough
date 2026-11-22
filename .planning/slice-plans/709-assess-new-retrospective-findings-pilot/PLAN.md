@@ -203,11 +203,36 @@ Apply the same protocol in Pygardon. Preserve this project’s starting log, gui
 ### 3. The maintainer can decide whether the trial wording is worth keeping
 
 Type: Behavior
-Status: planned
+Status: done
 
 Apply the seed’s predeclared decision to both project results. Give counts per project and arm for sampled executions, eligible reviews, consequential opportunities and misses, routine or duplicate narratives reaching triage, and decisions a reader could change. Identify which decisions actually changed and which remain prospective. Compare writer and downstream effort in like units, including recovery, checking skipped cases and pilot overhead. Keep active time, elapsed time, tool use and tokens distinct. Separate one-time evaluation cost from recurring work.
 
 **Proof.** Cite the smallest recoverable evidence for each difference. Keep the candidate when the consequential reports survive, routine entries fall and the combined work falls. Revise on a consequential miss, including a useful practice or supported question lost because cost or remedy was unknown. If quality is equivalent but the candidate costs more, retain current practice. Mixed evidence, missing material costs, absent eligible events or unobserved use leave the corresponding claim open. Report the next ordinary observation that would settle it. End with the disposition, its limits and project-specific evidence in the pilot assessment.
+
+## Final assessment, 22 November 2026
+
+The [maintainer assessment](../../../docs/maintainer/first-report-pilot-assessment.md) records the
+disposition. Evidence from three ordinary completions includes one baseline
+review, two skipped reviews and zero live candidate uses. Neither arm missed
+the strongest known Doughnut lesson in the recovered comparison. Population
+misses, savings and actual downstream decision changes are unobserved. The
+baseline recorded one new item and no duplicate. The replay proposed four
+first reports including that item, plus one matched repeat. No replay
+proposal was sent to ordinary triage. Pygardon has no eligible arm result.
+The nine historical pairs showed the same observed admission decisions in
+both arms, including the later-pruned break-check example.
+
+The independent Doughnut omission check used one directory listing and four
+reads. The cohort scans, transcript recovery for both Pygardon skips, paired
+historical replays, notice deployment and withdrawals were one-time pilot
+work. Attributable active writer time, ordinary downstream time, routine
+omission-check work and total cost are unavailable. No cost reduction follows
+from the recorded wall times or tool counts.
+
+Keep current practice. No keep or revise criterion for the candidate was
+established. Close the first-report pilot without a further backlog item.
+A later comparison would need an ordinary, verified candidate review and an
+independent baseline with like inputs and chargeable downstream proof.
 
 ## Ordinary-work protocol
 
@@ -228,4 +253,12 @@ Apply the seed’s predeclared decision to both project results. Give counts per
 ### G1. Candidate admitted the break checks (first reported in slice 1 of plan 706)
 Reported: slice 1 — "For DD-443, arm B named a distinct future use (evidence on the ODF-147 response) and admitted the entry, which later triage pruned. The routine entry was not avoided."
 Story clause: "Keep the candidate if consequential first reports survive, fewer routine entries reach triage and combined effort falls."
-Disposition: receiving slice 3
+Disposition: proved by slice 3: Both historical arms admitted the break-check entry. The candidate named a possible use for ODF-147, so the later-pruned entry would still reach triage. This gives no evidence of reduced routine entries.
+
+## Execution complete
+
+- The two client cohort proofs and published withdrawal revisions are linked
+  in the final assessment. Reviewed the decision against the seed criteria
+  and the execution evidence, including the independent Doughnut omission
+  check and the Pygardon skip observations. The pilot closes inconclusive.
+- Product advice: no change.
