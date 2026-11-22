@@ -77,7 +77,11 @@ behavior changes.
   `authenticatedDoneRead.ts`, which uses a global `fetch` outside the typed
   entry. When a Done case reaches that read, move the done-record read behind
   `PageReads`, as plan 764 slice 1 does for story notes, so the case supplies
-  it. No case makes a global `fetch` or opens a `WebSocket`.
+  it. No case makes a global `fetch` or opens a `WebSocket`, with one
+  exception Terry approved on 22 November 2026. The Done cases still fetch
+  story notes and the CI Done wall-time history glance, and assert that those
+  are exactly their outside calls. Plan 764 slices 1 and 4 move both reads
+  behind the typed entry and then make that check empty.
 - **Data.** Load `aReviewCommit` from `pageMakeMe.mjs`. The snapshot builder
   makes the uncommitted item itself, so `anUncommittedReviewItem` is dropped
   (no case uses it). Add domain-named builder steps for setup that repeats.
@@ -259,3 +263,10 @@ Accepted (22 November 2026, on top of `4ae07ec`):
   twice at load up to 19, and the full group passed 822 of 822
   (`full-frontend-proof-2.json`).
 Evidence: `s4-report.md` and `refactor-report.md`.
+
+## Execution complete
+
+Product advice: keep the backlog order. SEED-413#speed-intent-ci-status-frame-and-timing-history
+(plan 764) follows as queued. Its slices 1 and 4 empty `doneOutsideKinds`,
+and its slice 2 replaces the mount these specs use. SEED-420#route-review-changes-to-intent
+(plan 761) can take its restated slice 1 proof on this mount.
