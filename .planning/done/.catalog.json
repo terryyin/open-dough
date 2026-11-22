@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-341_split-quiet-completion-journey.json",
+      "identity": "SEED-341#split-quiet-completion-journey",
+      "completedAt": "2026-11-22T10:32:44.125Z",
+      "blob": "22c71342792639a2c76e267a0162753c1a7f793e"
+    },
+    {
       "fileName": "SEED-422_correct-stale-token-totals.json",
       "identity": "SEED-422#correct-stale-token-totals",
       "completedAt": "2026-11-22T08:33:32.780Z",
