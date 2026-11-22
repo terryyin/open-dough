@@ -11,12 +11,11 @@ import { shortSha } from "../../src/baseCiWording.ts";
 import { emulateMedia } from "../review/browser-session.ts";
 import { workOf } from "./intent-ci-homepage-page.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
+import { inertCiReads, openDoughSource } from "./intent-ci-status-fixtures.ts";
 import {
   configuredIntentReads,
-  inertCiReads,
-  openDoughSource,
   unreadLiveProof,
-} from "./intent-ci-status-fixtures.ts";
+} from "./intent-project-scope-history-fixtures.ts";
 import {
   openFileProof,
   openScopeChild,

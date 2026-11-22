@@ -6,12 +6,11 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ScopeHistoryGlance } from "../../src/ciScopeHistory.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { workOf } from "./intent-ci-homepage-page.ts";
+import { heldRead, openDoughSource } from "./intent-ci-status-fixtures.ts";
 import {
   caseTimingHistory,
-  heldRead,
   mountUnprovenScopeHistory,
-  openDoughSource,
-} from "./intent-ci-status-fixtures.ts";
+} from "./intent-project-scope-history-fixtures.ts";
 import {
   openScopeSummary,
   scopeHistoryIn,

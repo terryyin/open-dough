@@ -106,6 +106,24 @@ export function scopeHistoryIn(scope: Locator) {
     // When the observed endpoint the history reads through was retrieved.
     endpointTime: () =>
       history.element().querySelector("time")?.getAttribute("datetime"),
+    // When this history was last answered.
+    answeredAt: () =>
+      [...history.element().querySelectorAll("p")]
+        .find((line) => line.textContent.startsWith("History read"))
+        ?.querySelector("time")
+        ?.getAttribute("datetime"),
+    status: () =>
+      history.element().querySelector(".intent-ci-history-status")?.textContent,
+    failure: history.getByRole("alert"),
+    retry: history.getByRole("button", { name: "Retry history", exact: true }),
+    charts: () => history.element().querySelectorAll("[role=img]").length,
+    // The title of the chart point UNIT draws through the observed endpoint.
+    pointTitle: (unitName: string) =>
+      history
+        .element()
+        .querySelector(
+          `[aria-label^="Test execution time for ${unitName} "] path.history-chart-point title`,
+        )?.textContent,
     unit,
     // Choose a unit by touch or keyboard focus and Enter; it is then pressed.
     async choose(choice: string, by: "touch" | "keyboard") {

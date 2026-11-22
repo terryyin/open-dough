@@ -296,7 +296,7 @@ the `shown` option are removed from the comparison mount.
 ### 6. Failed and empty reads keep live Scope Proof and recover on Retry
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-project-scope-history-recovery` (2) and `-refresh` (1).
 
@@ -305,6 +305,22 @@ offers `Retry`, and recovers without borrowing another endpoint's or scope's
 history; Check again refreshes the same observed head with its own freshness.
 
 Proof: the moved Vitest specs; 0 legacy cases remain on the 2 files.
+
+Accepted proof (2026-11-22, load ~20): typecheck; moved recovery (0.4 s,
+0.3 s) and refresh (2.3 s) Vitest specs; all 67 `frontend-tests/intent/`
+files / 132 tests green in 51 s. A break that keeps the previous key's
+history when a new read starts fails the refresh case's new-head step
+(`s6-break-3`). `projectScopeHistoryFacts.ts` removed. The legacy "time-only
+check reads nothing" assertion maps to `intent-project-scope-history-key-isolation.spec.ts`.
+Slice 7 candidate: the measured-zero case builds its glance with `.with({...})`
+for want of a gap-reading builder step.
+
+Refactor: Project scope-history fixtures moved to
+`intent/intent-project-scope-history-fixtures.ts`; `expectFailedMarkPainted`
+no longer exported. Follow-up for plan 777: `ScopeHistoryGlanceBuilder` steps
+for a unit's gap at a build and an empty or out-of-order history, so the ~8
+`.with({...entries})` timing-history specs (and the measured-zero recovery
+case) state domain steps instead of entries.
 
 ### 7. The story's isolation and recovery proof runs faster with fewer maintained cases and no spent support
 

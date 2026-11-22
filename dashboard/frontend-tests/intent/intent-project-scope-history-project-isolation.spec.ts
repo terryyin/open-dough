@@ -6,12 +6,11 @@ import { expect, test } from "vitest";
 import type { ScopeHistoryGlance } from "../../src/ciScopeHistory.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { doughnutSource, workOf } from "./intent-ci-homepage-page.ts";
+import { heldRead, openDoughSource } from "./intent-ci-status-fixtures.ts";
 import {
   caseTimingHistory,
-  heldRead,
   mountUnprovenScopeHistory,
-  openDoughSource,
-} from "./intent-ci-status-fixtures.ts";
+} from "./intent-project-scope-history-fixtures.ts";
 import {
   openFileProof,
   openScopeChild,

@@ -1,162 +1,110 @@
+// Project Intent's scope history beside live Scope Proof: a failed or empty
+// history read keeps the Proof usable, offers Retry and recovers on the same
+// observed endpoint; endpoint words mark a measured zero and explain a unit's
+// partial gap. The integrated journey owns real collection.
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { workOf } from "./intent-ci-homepage-page.ts";
+import { openDoughSource } from "./intent-ci-status-fixtures.ts";
+import { mountUnprovenScopeHistory } from "./intent-project-scope-history-fixtures.ts";
 import {
-  chooseTimingUnit,
-  scopeHistory,
-  scopeHistoryReading,
-  scopeHistoryChart,
-} from "../../test-support/intentScopeHistoryPage.ts";
-// Cheap Project Intent refusal/absence and configured-trunk variants. The
-// integrated journey owns real collection; these routes exercise only the UI.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { openSummary } from "../../test-support/intentSummaryCiProofFixtures.ts";
-import { expectNoSidewaysScrollIn } from "../../test-support/pageLayout.ts";
-import {
-  openUntilRead,
-  untilPageReadsAnswered,
-} from "../../test-support/pageRequestNotes.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { frontendRevision } from "../../test-support/support/frontendServiceState.ts";
+  openScopeSummary,
+  scopeHistoryIn,
+} from "./intent-scope-history-page.ts";
 
-test("configured trunk keeps its observed endpoint through failed and empty local reads while scope Proof stays usable", async ({
-  page,
-  frontendServices,
-}) => {
-  Object.assign(frontendServices, {
-    projects: [
-      makeMe.aPublishedSource
-        .with({
-          id: "open-dough",
-          label: "Open Dough",
-          repository: "terryyin/open-dough",
-          ref: "trunk",
-        })
-        .please(),
-    ],
-  });
-  const empty = makeMe.aScopeHistoryGlance
-    .with({
-      path: "dashboard/tests",
-      selectedRevision: frontendRevision,
-      availability: "empty",
-      entries: [],
-    })
-    .please();
-  const status = makeMe.anIntentCiStatus
-    .with({
-      branch: "trunk",
-      revision: "a".repeat(40),
-      subject: "Older CI observation",
-      state: "unread",
-      reason: "Live proof unavailable",
-      laterWithoutResult: 1,
-      runBranch: "trunk",
-      checkedAt: "2026-11-11T07:00:00Z",
-      freshness: "fresh",
-    })
-    .please();
-  await page.route(/intent=ci-status/, (route) =>
-    route.fulfill({
-      json: new URL(route.request().url()).searchParams.has("kept")
-        ? { none: true }
-        : status,
-    }),
-  );
+const trunkSource = makeMe.aPublishedSource
+  .with({ ...openDoughSource, ref: "trunk" })
+  .please();
+
+test("configured trunk keeps its observed endpoint through failed and empty reads while scope Proof stays usable", async () => {
+  const work = workOf(trunkSource, "a1a1a1a");
   let failed = true;
   const endpoints: string[] = [];
-  await page.route(/intent=ci-history.*scope=/, async (route) => {
-    endpoints.push(
-      new URL(route.request().url()).searchParams.get("revision") ?? "",
-    );
-    await route.fulfill(
-      failed
-        ? { status: 502, json: { error: "Local history unavailable" } }
-        : { json: empty },
-    );
+  await mountUnprovenScopeHistory({
+    work,
+    viewport: { width: 390, height: 844 },
+    readScopeHistory: (...[, path, endpoint]) => {
+      endpoints.push(endpoint.revision);
+      return failed
+        ? Promise.reject(new Error("Local history unavailable"))
+        : Promise.resolve(
+            makeMe.aScopeHistoryGlance
+              .with({
+                path,
+                selectedRevision: endpoint.revision,
+                availability: "empty",
+                entries: [],
+              })
+              .please(),
+          );
+    },
   });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const { intent } = parts(page);
-  const summary = await openSummary(intent, "dashboard/tests");
-  const history = scopeHistory(summary);
-  await expect(scopeHistoryReading(history).failure).toContainText(
-    "Local history unavailable",
-  );
-  await expect(scopeHistoryReading(history).measure).toContainText(
-    "Trunk trunk observed",
-  );
-  await expect(summary.getByRole("table")).toBeVisible();
+  const summary = await openScopeSummary("dashboard/tests");
+  const history = scopeHistoryIn(summary);
+  await expect
+    .element(history.failure)
+    .toHaveTextContent("Local history unavailable");
+  expect(
+    history.measures().find((note) => note.includes("Cumulative")),
+  ).toContain("Trunk trunk observed");
+  await expect.element(summary.getByRole("table")).toBeVisible();
+
   failed = false;
-  await scopeHistoryReading(history).retry.click();
-  await untilPageReadsAnswered(page);
-  await expect(scopeHistoryReading(history).failure).toHaveCount(0);
-  await expect(scopeHistoryReading(history).status).toHaveText(
-    "No collected history",
-  );
-  await expect(scopeHistoryReading(history).charts).toHaveCount(0);
-  expect(endpoints).toEqual([frontendRevision, frontendRevision]);
-  await expect(summary.getByRole("table")).toBeVisible();
-  await expectNoSidewaysScrollIn(page, history);
+  await userEvent.click(history.retry);
+  await expect.poll(history.status).toBe("No collected history");
+  expect(history.failure.query()).toBeNull();
+  expect(history.charts()).toBe(0);
+  expect(endpoints).toEqual([work.revision, work.revision]);
+  await expect.element(summary.getByRole("table")).toBeVisible();
+  expect(history.fitsWidth()).toBe(true);
 });
 
-test("project endpoint words mark a measured zero and explain partial-unit gaps without joining them", async ({
-  page,
-  frontendServices,
-}) => {
-  const revision = frontendServices.revision;
-  const history = makeMe.aScopeHistoryGlance
-    .with({
-      path: "dashboard/tests",
-      selectedRevision: revision,
-      availability: "retained",
-      entries: [
-        {
-          key: "run/31/1",
-          kind: "point",
-          date: "2026-11-07T10:00:00Z",
-          selected: true,
-          landings: [{ selected: true, provenance: "exact" }],
-          readings: [
-            {
-              kind: "point",
-              unit: "case",
-              ms: 0,
-              segment: "case/0",
-            },
-            {
-              kind: "gap",
-              unit: "file",
-              status: "unavailable",
-              reason: "Partial · missing part 2",
-            },
-          ],
-        },
-      ],
-    })
-    .please();
-  await page.route(/intent=ci-status/, (route) =>
-    route.fulfill({ status: 502, json: { error: "Live proof unavailable" } }),
-  );
-  await page.route(/intent=ci-history.*scope=/, (route) =>
-    route.fulfill({ json: history }),
-  );
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const summary = await openSummary(parts(page).intent, "dashboard/tests");
-  const shown = scopeHistory(summary);
-  const chart = scopeHistoryChart(
-    shown,
-    "test cases",
-    "observed trunk endpoint",
-  );
-  await expect(chart.drawing).toBeVisible();
-  await expect(chart.readout).toHaveText("Nov 7 · Endpoint · 0 ms");
-  await expect(
-    chart.drawing.locator("path.history-chart-point title"),
-  ).toHaveText(
+test("project endpoint words mark a measured zero and explain partial-unit gaps without joining them", async () => {
+  const work = workOf(openDoughSource, "a1a1a1a");
+  await mountUnprovenScopeHistory({
+    work,
+    readScopeHistory: (...[, path, endpoint]) =>
+      Promise.resolve(
+        makeMe.aScopeHistoryGlance
+          .with({
+            path,
+            selectedRevision: endpoint.revision,
+            availability: "retained",
+            entries: [
+              {
+                key: "run/31/1",
+                kind: "point",
+                date: "2026-11-07T10:00:00Z",
+                selected: true,
+                landings: [{ selected: true, provenance: "exact" }],
+                readings: [
+                  { kind: "point", unit: "case", ms: 0, segment: "case/0" },
+                  {
+                    kind: "gap",
+                    unit: "file",
+                    status: "unavailable",
+                    reason: "Partial · missing part 2",
+                  },
+                ],
+              },
+            ],
+          })
+          .please(),
+      ),
+  });
+  const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  const chart = history.chart("test cases", "observed trunk endpoint");
+  await expect.poll(chart.drawn).toBe(true);
+  expect(chart.readout()).toBe("Nov 7 · Endpoint · 0 ms");
+  expect(history.pointTitle("test cases")).toBe(
     "Nov 7 · 0 ms · test cases · Exact build · Observed trunk endpoint",
   );
-  await chooseTimingUnit(shown, "Test files", "keyboard");
-  await expect(shown).toContainText(
-    "No complete test execution times are available for test files.",
-  );
-  await expect(scopeHistoryReading(shown).charts).toHaveCount(0);
+  await history.choose("Test files", "keyboard");
+  await expect
+    .poll(history.text)
+    .toContain(
+      "No complete test execution times are available for test files.",
+    );
+  expect(history.charts()).toBe(0);
 });

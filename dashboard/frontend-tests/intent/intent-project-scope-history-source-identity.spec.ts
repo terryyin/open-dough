@@ -6,11 +6,11 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { workOf } from "./intent-ci-homepage-page.ts";
+import { openDoughSource } from "./intent-ci-status-fixtures.ts";
 import {
   caseTimingHistory,
   mountUnprovenScopeHistory,
-  openDoughSource,
-} from "./intent-ci-status-fixtures.ts";
+} from "./intent-project-scope-history-fixtures.ts";
 import {
   openScopeSummary,
   scopeHistoryIn,
