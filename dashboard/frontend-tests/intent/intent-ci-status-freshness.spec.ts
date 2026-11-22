@@ -18,7 +18,6 @@ import {
   mountIntentCiEvidence,
   openDoughSource,
   runningStory,
-  takenStoryEntry,
 } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 
@@ -113,17 +112,11 @@ test("a cold load shows only a spinner until CI answers; a later failed refresh 
 
 test("a late trunk answer never appears after switching to a story branch that has a kept answer", async () => {
   const work = makeMe.aPublishedWork
-    .with({
-      source: openDoughSource,
-      revision: fullSha("4774f60"),
-      retrievedAt: new Date("2026-11-05T12:00:00.000Z"),
-      direction: "",
-      taken: [
-        takenStoryEntry({ ...failingStory, agent: "Akiho" }),
-        takenStoryEntry({ ...runningStory, agent: "Sola" }),
-      ],
-      backlog: [],
-    })
+    .of(openDoughSource)
+    .at(fullSha("4774f60"))
+    .retrievedAt(new Date("2026-11-05T12:00:00.000Z"))
+    .taking({ ...failingStory, agent: "Akiho" })
+    .taking({ ...runningStory, agent: "Sola" })
     .please();
 
   const mainPassed = judgedStatus("main", "pass", "4774f60", "Add login");

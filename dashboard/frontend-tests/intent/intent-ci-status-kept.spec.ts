@@ -11,22 +11,20 @@ import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
-import { watchedBranchHeads } from "../../src/progressSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { intentCandidates, intentViewTab } from "./intent-candidates-page.ts";
 import {
   doughnutSource,
   filesColumnVisible,
-  mountIntentPerspective,
   workOf,
-} from "./intent-ci-perspective-mount.ts";
+} from "./intent-ci-homepage-page.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
   failingStory,
   fullSha,
   inertCiReads,
   judgedStatus,
   openDoughSource,
-  takenStoryEntry,
 } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 
@@ -59,8 +57,9 @@ test("CI homepage shows again across Development and back; Optimization Candidat
       Promise.resolve({ status: "present", text: candidatesMarkdown }),
   };
 
-  const mounted = await mountIntentPerspective({
+  const mounted = await mountIntentCiPage({
     work: openDoughWork,
+    projects: [openDoughSource, doughnutSource],
     reads: {
       intent: readSource,
       ci: inertCiReads({
@@ -77,9 +76,9 @@ test("CI homepage shows again across Development and back; Optimization Candidat
     .element(intentViewTab("CI status"))
     .toHaveAttribute("aria-selected", "true");
   await ci.answers("Passed at a1b2c3d (Add login)");
-  mounted.showDevelopment();
+  await mounted.showDevelopment();
   await expect.element(intentMain).not.toBeInTheDocument();
-  mounted.showIntent();
+  await mounted.showIntent();
   await expect
     .element(intentViewTab("CI status"))
     .toHaveAttribute("aria-selected", "true");
@@ -89,9 +88,9 @@ test("CI homepage shows again across Development and back; Optimization Candidat
   // Optimization Candidates is kept across Development and back.
   await candidates.choose();
   await expect.poll(filesColumnVisible).toBe(false);
-  mounted.showDevelopment();
+  await mounted.showDevelopment();
   await expect.element(intentMain).not.toBeInTheDocument();
-  mounted.showIntent();
+  await mounted.showIntent();
   await candidates.isChosen();
   await candidates.isRecordedAt(openDoughWork.revision);
   expect(
@@ -135,36 +134,32 @@ test("a new trunk revision asks for the homepage judgment again at the new head;
     storyBranchHead: string,
   ): PublishedWork =>
     makeMe.aPublishedWork
-      .with({
-        source: openDoughSource,
-        revision,
-        retrievedAt: new Date(retrievedAt),
-        direction: "",
-        taken: [
-          {
-            ...takenStoryEntry({ ...failingStory, agent: "Akiho" }),
-            planPath: ".planning/slice-plans/example/PLAN.md",
-            planSlices: {
-              status: "interpreted",
-              slices: [
-                {
-                  index: 1,
-                  name: "Slice 1",
-                  type: "Behavior",
-                  status: "planned",
-                },
-              ],
-            },
-            progressSource: {
-              kind: "branch",
-              branch: failingStory.branch,
-              head: storyBranchHead,
-              profilePath: ".planning/agents/Akiho.json",
-            },
+      .of(openDoughSource)
+      .at(revision)
+      .retrievedAt(new Date(retrievedAt))
+      .taking(
+        { ...failingStory, agent: "Akiho" },
+        {
+          planPath: ".planning/slice-plans/example/PLAN.md",
+          planSlices: {
+            status: "interpreted",
+            slices: [
+              {
+                index: 1,
+                name: "Slice 1",
+                type: "Behavior",
+                status: "planned",
+              },
+            ],
           },
-        ],
-        backlog: [],
-      })
+          progressSource: {
+            kind: "branch",
+            branch: failingStory.branch,
+            head: storyBranchHead,
+            profilePath: ".planning/agents/Akiho.json",
+          },
+        },
+      )
       .please();
 
   const reads = { fresh: 0, kept: 0 };
@@ -177,11 +172,8 @@ test("a new trunk revision asks for the homepage judgment again at the new head;
     "2026-11-05T12:00:00.000Z",
     initialBranchHead,
   );
-  expect(watchedBranchHeads(initialWork).get(failingStory.branch)).toBe(
-    initialBranchHead,
-  );
 
-  const mounted = await mountIntentPerspective({
+  const mounted = await mountIntentCiPage({
     work: initialWork,
     reads: {
       intent: {
@@ -216,9 +208,6 @@ test("a new trunk revision asks for the homepage judgment again at the new head;
   const movedBranchWork = workAt(
     initialTrunk,
     "2026-11-05T12:02:30.000Z",
-    movedBranchHead,
-  );
-  expect(watchedBranchHeads(movedBranchWork).get(failingStory.branch)).toBe(
     movedBranchHead,
   );
   await mounted.showWork(movedBranchWork);

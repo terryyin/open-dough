@@ -23,10 +23,10 @@ import {
   filesColumnVisible,
   folderNameControl,
   locationNameControl,
-  mountIntentPerspective,
   presentElement,
   workOf,
-} from "./intent-ci-perspective-mount.ts";
+} from "./intent-ci-homepage-page.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
   inertCiReads,
   judgedStatus,
@@ -64,13 +64,12 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
     readFile: () => Promise.resolve(browseSpecText),
     readCandidates: () => Promise.resolve({ status: "absent" }),
   };
-  const mounted = await mountIntentPerspective({
+  const mounted = await mountIntentCiPage({
     work: openDoughWork,
+    projects: [openDoughSource, doughnutSource],
     reads: {
       intent: readSource,
-      ci: inertCiReads({
-        readStatus: () => Promise.resolve(login),
-      }),
+      ci: inertCiReads({ readStatus: () => Promise.resolve(login) }),
     },
   });
   const ci = intentCiStatus();
@@ -159,9 +158,9 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
   }
 
   // Development and back shows the CI homepage again.
-  mounted.showDevelopment();
+  await mounted.showDevelopment();
   await expect.element(intentMain).not.toBeInTheDocument();
-  mounted.showIntent();
+  await mounted.showIntent();
   await ci.answers("Passed at a1b2c3d (Add login)");
 
   // Not-configured: CI status beside the explanation.
@@ -191,7 +190,7 @@ test("project CI remains readable while locations load, fail and recover without
   });
   let firstAttempt = true;
 
-  await mountIntentPerspective({
+  await mountIntentCiPage({
     work: coldWork,
     reads: {
       intent: {

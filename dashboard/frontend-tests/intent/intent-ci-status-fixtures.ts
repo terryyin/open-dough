@@ -16,7 +16,8 @@ import {
   IntentReadingProvider,
 } from "../../src/pageIntentReading.tsx";
 import type { PublishedSource } from "../../src/publishedSource.ts";
-import type { PublishedWork, WorkEntry } from "../../src/publishedWork.ts";
+import type { PublishedWork } from "../../src/publishedWork.ts";
+import type { ReviewSource } from "../../src/reviewSource.ts";
 import { shownRunOf } from "../../src/shownCiProofRun.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 
@@ -80,38 +81,17 @@ export const runningStory = {
   branch: "codex/running-story",
 };
 
-export function takenStoryEntry(story: {
-  readonly identity: string;
-  readonly title: string;
-  readonly branch: string;
-  readonly agent?: string;
-}): WorkEntry {
-  const profilePath = `.planning/agents/${story.agent ?? "engineer"}.json`;
-  return {
-    identity: story.identity,
-    title: story.title,
-    canonical: {
-      kind: "external",
-      recorded: "https://example.test/story",
-      url: "https://example.test/story",
-    },
-    owner: {
-      status: "recorded",
-      assignments: [
-        {
-          profilePath,
-          name: story.agent ?? "engineer",
-          agent: story.agent ?? "engineer",
-          mode: "story-branch",
-          branch: story.branch,
-          host: "claude",
-          model: undefined,
-          human: { status: "no-addition" },
-        },
-      ],
-    },
-  };
-}
+// The review a case leaves unavailable, as with no local review workspace.
+export const unavailableReviewSource: ReviewSource = {
+  review: () =>
+    Promise.resolve({
+      kind: "unavailable",
+      explanation: "No local review workspace is available.",
+    }),
+  range: () => Promise.reject(new Error("Unexpected review range read")),
+  fileDiff: () => Promise.reject(new Error("Unexpected review file diff read")),
+  fileText: () => Promise.reject(new Error("Unexpected review file text read")),
+};
 
 export function inertCiReads(
   overrides: Partial<IntentCiReadSource> = {},

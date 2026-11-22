@@ -266,6 +266,18 @@ representative E2E history consumers when shared contracts change.
   every `PageReads` member, so later required members are covered without
   naming them. Focused E2E paths are relative to `e2e/`; set
   `OPEN_DOUGH_E2E_PROOF_RECORD` to see the selected count.
+- **Slice 2 delivered (22 November 2026, 8.2 active minutes).** Cases mount
+  through `intent/intent-ci-page-mount.ts` (`mountIntentCiPage`: production
+  `PageFrame`, `StoryReferenceNavigation` and `BoardOrIntent`, no wrapper
+  divs), with typed defaults for review ("unavailable") and an unmeasured host
+  status (`unmeasuredHostSessions`); any case mounting `PageFrame` must
+  answer the banner's host status read. `recordOutsideCalls`
+  (`test-support/component-mount/outsideCalls.ts`) is the shared outside-call
+  recorder; `intent-ci-development-card-page.ts` operates Development cards.
+  Import counts: side-panel mount 21 and perspective mount 11 removed;
+  `intent-ci-page-mount.ts` 9, `intent-ci-homepage-page.ts` 3,
+  `machineSessionsAnswering.ts` 2. `intent-ci-status-fixtures.ts` is 13
+  (gained `ReviewSource`) for Slice 3.
 - **Plan 759 Slice 2 timing.** Under load 15–20 the full frontend group took
   about 24 minutes wall time.
 
@@ -337,7 +349,7 @@ passed while a witness saw four real requests.
 ### 2. Homepage, kept and Side panel CI status cases render the production page frame
 
 Type: Structure
-Status: planned
+Status: done
 
 Start from [frame-mount-attempt.patch](frame-mount-attempt.patch) and its
 learnings above. Replace `intent-ci-side-panel-mount.ts` and

@@ -1,12 +1,6 @@
 // One note operation speaks at a time across collection and diff owners.
 // Each owner keeps its status mounted for the lifetime of its own surface.
-import {
-  useContext,
-  useId,
-  useMemo,
-  useRef,
-  useSyncExternalStore,
-} from "react";
+import { useContext, useId, useMemo, useSyncExternalStore } from "react";
 import { StoryNotesOnPage } from "./storyNotes.ts";
 function channel() {
   let current = { owner: "", message: "" };
@@ -28,14 +22,16 @@ function channel() {
 const channels = new WeakMap<object, ReturnType<typeof channel>>();
 export function useStoryNoteAnnouncement() {
   const page = useContext(StoryNotesOnPage);
-  const fallback = useRef({});
+  if (page === undefined)
+    throw new Error(
+      "A story note's announcement is outside the page's story notes.",
+    );
   const owner = useId();
   const shared = useMemo(() => {
-    const key = page ?? fallback.current;
-    let value = channels.get(key);
+    let value = channels.get(page);
     if (value === undefined) {
       value = channel();
-      channels.set(key, value);
+      channels.set(page, value);
     }
     return value;
   }, [page]);
