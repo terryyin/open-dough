@@ -20,7 +20,10 @@ so correct them before the first move:
   reads first). Force a commit after the late answer (as
   `-project-isolation.spec.ts` does with `page.showIntent()`), assert
   synchronously, and break-check `useIntentCiEndpointHistory`'s key filter
-  once.
+  once. Intent Coverage at `112ade772` confirmed the gap: with the success
+  branch's abort guard removed, the late old-key answer erased the newer
+  revision's shown history while this assertion still passed (assertion gap,
+  recorded in SEED-413#speed-intent-scope-timing-history's Done record).
 - **Scope history sideways-scroll check is weaker than legacy.**
   `intent/intent-scope-history-page.ts` `fitsWidth()` compares only the region's
   own widths; legacy `expectNoSidewaysScrollIn`
@@ -43,6 +46,13 @@ so correct them before the first move:
   (`intent/intent-ci-homepage-page.ts`); `openFileProof` repeats
   `intentStoryCompare().chooseProof`; `navigation/board-mount.ts` re-exports
   `positionKey`/`formerPositionKey` (one importer, `board-scroll.spec.ts`).
+- **Synchronous history reads elsewhere.** Plan 772's
+  `intent/intent-ci-done-glance.spec.ts` reads `history.averageLabel()` right
+  after the readout settles — the race plan 774 repaired in the scope glances
+  by waiting for the drawn chart.
+- **Board specs repeat the mount default.** 33 `withBoardStorage("0")` calls
+  in about 22 `navigation/` specs repeat what `withPagePreferences` now does
+  (keep `board-kept-position.spec.ts`'s precondition).
 - **Moves lose helper checks.** For each legacy helper a move replaces, list
   what it checked and each check's new owner, and break-check every race or
   late-answer case.

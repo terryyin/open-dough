@@ -1035,6 +1035,18 @@ and 361 ms. The simpler Show latest case had overlapping timing ranges. The
 focused selection measures the benefit of removing the last built-app cases
 from that command. The full-group goal still needs a full-group measurement.
 
+#### Intent scope timing history example
+
+The 11 cases of the eight Project and Done scope history specs
+(`intent-project-scope-glance`, `intent-scope-glance`,
+`intent-project-scope-history-*`) moved from Playwright to Vitest under the
+same file names, mounted through `mountIntentCiPage` and
+`openDoneStoryComparison` with typed `readScopeHistory` replies (closed
+2026-11-22; plan 774 in Git history at `112ade772`). Five alternating
+two-worker runs of the eight files including preparation, at load 5–9, gave
+medians of 11.23 s before (`0ca3d0028`) and 7.95 s after. The Done drill-down
+(1.7–2.5 s) and the refresh walk (1.8–2.1 s) remain the slowest cases.
+
 #### Rework from the completed frontend families
 
 - **Story Notes control.** The [mounted control suite](../../dashboard/frontend-tests/stories/story-notes-control.spec.ts)
