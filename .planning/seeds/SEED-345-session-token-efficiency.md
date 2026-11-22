@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-14
 planted_during: Terry Yin requested Codex, Cursor and Claude Code token-efficiency audits and retention of their reconciled findings
 trigger_when: Terry selects an efficiency story for refinement
-scope: eight stories
+scope: ten stories
 ---
 
 # SEED-345 — Improve session token efficiency across Open Dough projects
@@ -200,6 +200,64 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 - **Effort and boundary.** Small, medium confidence. Independent review and
   role-specific reads keep their purpose.
   [Cursor handoff evidence](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#c1-avoid-paying-twice-for-large-task-prompts-and-skill-re-reads)
+
+## Follow-ups from the November 20–22 execution audit
+
+<a id="use-proportionate-refactoring-for-small-test-edits"></a>
+
+### Use proportionate refactoring for small test edits
+
+**Identity:** SEED-345#use-proportionate-refactoring-for-small-test-edits
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** A developer gets the same independent judgment on a small
+  slice confined to its own specs with less repeated model work. Trial a
+  focused refactor review using the accepted consumer trace and proof.
+  Retain full independent refactoring when a change reaches shared test
+  support, production behavior, or consumers outside the slice.
+- **Evaluation.** Compare comparable isolated test edits under the current
+  fresh-agent pass and a focused review. Count coordinator and worker usage
+  through any rereads, escalation, and acceptance. Keep the focused path
+  only if it lowers combined usage and preserves meaningful findings and
+  proof. Include a shared-support case to check the escalation boundary.
+- **Evidence and effort.** Six passes on edits of 4–37 lines returned no
+  changes and used about 320k reported subagent tokens in one Claude Code
+  execution. The shared-support pass in that execution made useful edits.
+  The earlier ODF-141 response covered records-only changes and already-traced
+  repairs. Small to medium, medium confidence. Trial the narrow case first
+  while Dashboard test migrations still provide representative examples.
+  [DD-610](../../DearDough.md#dd-610) · [ODF-141](../../docs/maintainer/findings/ODF-141.md)
+
+<a id="wait-for-codex-workers-with-fewer-model-wakeups"></a>
+
+### Wait for Codex workers with fewer model wakeups
+
+**Identity:** SEED-345#wait-for-codex-workers-with-fewer-model-wakeups
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** A Codex coordinator can wait for a delegated implementation,
+  refactor or repair to return without repeatedly restarting model work
+  on timeouts that bring no new result. It still acts on the worker's
+  handback, an overdue verification, or a deadline in time.
+- **Evaluation.** Compare representative long worker waits with the retained
+  `wait_agent` baseline at matched model, effort, and worker responsibilities.
+  Count timeout wakeups, coordinator and worker usage through acceptance,
+  handback latency, missed outcomes, and human interventions. Adopt a
+  candidate only if combined usage falls and completion and recovery
+  remain reliable. The prior delegation experiment reduced wakes in one
+  wait but increased combined effort.
+- **Evidence and effort.** The November 21–22 Board and Side panel proof and
+  launch proof executions recorded 126 and 111 timed-out `wait_agent`
+  calls. An earlier execution on 0.3.106 recorded 166. Medium, low confidence
+  until a viable host mechanism is demonstrated. This trial concerns
+  delegated worker completion. The released shell and CI wait and the
+  queued supplier-watch evaluation have separate scopes.
+  [Foreground-wait release](../../CHANGELOG.md#03107---2026-11-19) ·
+  [Supplier-watch evaluation](SEED-389-verify-silent-supplier-wait.md)
 
 ## Ordering and scope reduction
 
