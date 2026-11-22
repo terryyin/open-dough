@@ -104,6 +104,10 @@ export function inertCiReads(
       Promise.resolve(makeMe.aCiProof.unavailable("none").please()),
     readHistory: () =>
       Promise.resolve(makeMe.aCiHistoryAnswer.pleaseMeasured()),
+    // Collected Done wall-time and scope history stay pending unless a case
+    // answers them.
+    readDoneWallTimeHistory: () => new Promise<never>(() => undefined),
+    readScopeHistory: () => new Promise<never>(() => undefined),
     readComparison: (source, identity) =>
       Promise.resolve({
         kind: "unavailable",

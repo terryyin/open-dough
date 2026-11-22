@@ -12,7 +12,7 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { intentViewTab } from "./intent-candidates-page.ts";
-import { recordOutsideCalls } from "../../test-support/component-mount/outsideCalls.ts";
+import { recordOutsideCalls } from "./intent-outside-calls.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
   adHocTitle,

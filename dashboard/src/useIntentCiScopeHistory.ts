@@ -3,7 +3,6 @@
 // reading place; explicit CI judgment rounds and retry can refresh local evidence.
 
 import { useCallback } from "react";
-import { readIntentCiScopeHistory } from "./authenticatedIntentCiHistoryRead.ts";
 import type { ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import {
@@ -12,6 +11,7 @@ import {
 } from "./useIntentCiEndpointHistory.ts";
 import type { ScopeHistoryGlance } from "./ciScopeHistory.ts";
 import { useKeptReading } from "./pageIntentReading.tsx";
+import { useIntentCiReads } from "./pageReads.tsx";
 
 export function useIntentCiScopeHistory(
   source: PublishedSource | undefined,
@@ -22,14 +22,14 @@ export function useIntentCiScopeHistory(
   const [kept, remember] = useKeptReading<
     EndpointHistoryAnswer<ScopeHistoryGlance> | undefined
   >("ciScopeHistory", () => undefined);
+  const { readScopeHistory } = useIntentCiReads();
   const read = useCallback(
     (
       selectedSource: PublishedSource,
       selectedEndpoint: ScopeHistoryEndpoint,
       signal: AbortSignal,
-    ) =>
-      readIntentCiScopeHistory(selectedSource, path, selectedEndpoint, signal),
-    [path],
+    ) => readScopeHistory(selectedSource, path, selectedEndpoint, signal),
+    [path, readScopeHistory],
   );
   return useIntentCiEndpointHistory({
     source,

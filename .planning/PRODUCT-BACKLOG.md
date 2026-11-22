@@ -29,10 +29,11 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Disclose shared-checkout overlap in published session records](seeds/SEED-418-review-published-session-changes.md#disclose-shared-checkout-overlap) — SEED-418#disclose-shared-checkout-overlap ([plan](slice-plans/766-disclose-shared-checkout-overlap/PLAN.md))
-- [Get fast proof of Intent CI status on the real page and of timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history) — SEED-413#speed-intent-ci-status-frame-and-timing-history ([plan](slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md))
+- [Get fast proof of Intent CI status on the real page](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history) — SEED-413#speed-intent-ci-status-frame-and-timing-history ([plan](slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md))
 
 ## Backlog list
 
+- [Get fast proof of Intent timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest) — SEED-413#speed-intent-timing-history-on-vitest
 - [Expire published session records after 30 days](seeds/SEED-418-review-published-session-changes.md#expire-published-session-records) — SEED-418#expire-published-session-records
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal) — SEED-413#make-launch-proof-orthogonal
 - [Correct stale token totals for completed Dashboard tasks](seeds/SEED-422-correct-stale-dashboard-token-totals.md#correct-stale-token-totals) — SEED-422#correct-stale-token-totals

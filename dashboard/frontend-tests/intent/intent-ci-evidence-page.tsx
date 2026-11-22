@@ -94,6 +94,8 @@ export function ciReadsOf(story: ComparedStory) {
     },
     readKeptStatus: () => Promise.resolve({ none: true } as const),
     readHistory: unreadCiReads.readHistory,
+    readDoneWallTimeHistory: unreadCiReads.readDoneWallTimeHistory,
+    readScopeHistory: unreadCiReads.readScopeHistory,
   };
   return { source, asked, answers };
 }

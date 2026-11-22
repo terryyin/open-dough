@@ -9,7 +9,7 @@ import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
-import { recordOutsideCalls } from "../../test-support/component-mount/outsideCalls.ts";
+import { recordOutsideCalls } from "./intent-outside-calls.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import { scopeReadsOf } from "./intent-ci-scope-page.tsx";
 import {
@@ -109,14 +109,9 @@ export const publishedCompletion = () =>
     .adding("dashboard/tests/folder/a.spec.ts")
     .please();
 
-// The outside reads a Done story's Intent still makes. Plan 764 slice 4
-// (done wall-time history) moves it behind the page's typed reads, leaving
-// none.
-export const doneOutsideKinds = new Set(["CI history glance"]);
-
 // Intent with the Done story selected, its review read from `review`: the
-// revision each Intent locations read names, in order, and the kinds of
-// global fetch and WebSocket calls made from the mount on.
+// revision each Intent locations read names, in order, and the global fetch
+// and WebSocket calls made from the mount on.
 export async function openDoneStoryComparison(review: ReviewAnswers) {
   const opened = recordOutsideCalls();
   const locationRevisions: string[] = [];
@@ -156,7 +151,11 @@ export async function openDoneStoryComparison(review: ReviewAnswers) {
         readFile: (...[, , path]) => Promise.resolve(`${path}\n`),
         readCandidates: () => Promise.resolve({ status: "absent" }),
       },
-      ci: scopeReadsOf(doneStory).source,
+      ci: {
+        ...scopeReadsOf(doneStory).source,
+        readDoneWallTimeHistory: unanswered,
+        readScopeHistory: unanswered,
+      },
       review: answering(review),
       done: doneReads,
     },
@@ -168,22 +167,5 @@ export async function openDoneStoryComparison(review: ReviewAnswers) {
     .not.toBeNull();
   selected = true;
   await mounted.selectStory(doneStory.identity, doneTitle);
-  return { locationRevisions, outsideKinds: () => outsideKinds(opened) };
+  return { locationRevisions, outsideCalls: () => opened };
 }
-
-// The distinct kinds of OPENED calls: CI history glance, or the call as
-// recorded.
-const outsideKinds = (opened: readonly string[]) =>
-  new Set(
-    opened.map((call) => {
-      const [how = "", address = ""] = call.split(" ");
-      const url = new URL(address, "http://page.test");
-      if (
-        how === "fetch" &&
-        url.searchParams.get("intent") === "ci-history" &&
-        url.searchParams.get("history") === "glance"
-      )
-        return "CI history glance";
-      return call;
-    }),
-  );

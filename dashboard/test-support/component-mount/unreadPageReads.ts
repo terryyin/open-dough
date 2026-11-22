@@ -26,6 +26,8 @@ export const unreadCiReads: IntentCiReadSource = {
   readStatus: unread("CI status"),
   readKeptStatus: unread("kept CI status"),
   readHistory: unread("CI history"),
+  readDoneWallTimeHistory: unread("Done wall-time history"),
+  readScopeHistory: unread("CI scope history"),
 };
 
 const unreadReviewReads: ReviewSource = {

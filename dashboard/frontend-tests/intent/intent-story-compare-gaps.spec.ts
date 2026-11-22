@@ -8,7 +8,6 @@ import type { StoryReview } from "../../src/storyReviewContract.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
-  doneOutsideKinds,
   openDoneStoryComparison,
   openStoryAComparison,
   publishedCompletion,
@@ -103,7 +102,7 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
   const runGap: StoryReview = makeMe.aStoryReview
     .unavailable("The landed run's objects are missing from this machine.")
     .please();
-  const { outsideKinds } = await openDoneStoryComparison({
+  const { outsideCalls } = await openDoneStoryComparison({
     review: (query) =>
       Promise.resolve(query.run === run.key ? runGap : offeringRun()),
   });
@@ -136,12 +135,12 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
   await story.choose("Published completion");
   await expect.element(story.alert).not.toBeInTheDocument();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
-  expect(outsideKinds()).toEqual(doneOutsideKinds);
+  expect(outsideCalls()).toEqual([]);
 });
 
 test("a failed read of a chosen landed run offers Retry, which reads that run again", async () => {
   let runAsks = 0;
-  const { outsideKinds } = await openDoneStoryComparison({
+  const { outsideCalls } = await openDoneStoryComparison({
     review: (query) => {
       if (query.run !== run.key) return Promise.resolve(offeringRun());
       runAsks += 1;
@@ -173,5 +172,5 @@ test("a failed read of a chosen landed run offers Retry, which reads that run ag
   await expect.poll(story.outside).toContain("chosen.txt");
   await expect.element(story.alert).not.toBeInTheDocument();
   expect(runAsks).toBeGreaterThan(asked);
-  expect(outsideKinds()).toEqual(doneOutsideKinds);
+  expect(outsideCalls()).toEqual([]);
 });

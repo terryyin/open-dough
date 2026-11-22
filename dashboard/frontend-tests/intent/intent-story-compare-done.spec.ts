@@ -9,7 +9,6 @@ import type { StoryReview } from "../../src/storyReviewContract.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
-  doneOutsideKinds,
   openDoneStoryComparison,
   publishedCompletion,
 } from "./intent-story-compare-stories.ts";
@@ -34,7 +33,7 @@ const landedRuns: Readonly<Record<string, StoryReview>> = {
 };
 
 test("a Done story opens on its published completion, chooses a captured landed run and returns, while its locations and landed CI endpoint stay put", async () => {
-  const { locationRevisions, outsideKinds } = await openDoneStoryComparison({
+  const { locationRevisions, outsideCalls } = await openDoneStoryComparison({
     review: (query) =>
       Promise.resolve(
         query.historical === "true"
@@ -77,13 +76,13 @@ test("a Done story opens on its published completion, chooses a captured landed 
   await story.choose("Published completion");
   await expect.element(story.run).not.toBeInTheDocument();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
-  expect(outsideKinds()).toEqual(doneOutsideKinds);
+  expect(outsideCalls()).toEqual([]);
 });
 
 test("a newer default run moves an unchosen run but not a chosen one while the old run is still listed", async () => {
   let landedDefault = landedOn(older, "older");
   let defaultsAsked = 0;
-  const { outsideKinds } = await openDoneStoryComparison({
+  const { outsideCalls } = await openDoneStoryComparison({
     review: (query) => {
       if (query.historical !== "true")
         return Promise.resolve(landedRuns[query.run ?? ""] ?? landedDefault);
@@ -111,5 +110,5 @@ test("a newer default run moves an unchosen run but not a chosen one while the o
   await story.refresh();
   await expect.poll(() => defaultsAsked).toBeGreaterThan(asked);
   await expect.element(story.run).toHaveValue(older.key);
-  expect(outsideKinds()).toEqual(doneOutsideKinds);
+  expect(outsideCalls()).toEqual([]);
 });
