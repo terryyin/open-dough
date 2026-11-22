@@ -131,10 +131,12 @@ export const isUsageCoverageGap = (code: string): code is UsageCoverageGap =>
   (usageCoverageGaps as readonly string[]).includes(code);
 
 // How completely the task's usage was measured: with no known gap, or
-// partially, with the gaps that show missing usage.
+// partially, with the gaps that show missing usage, or provisionally, when the
+// task ended after the last usage check read its usage.
 export type UsageTaskCoverage =
   | { readonly kind: "measured" }
-  | { readonly kind: "partial"; readonly gaps: readonly UsageCoverageGap[] };
+  | { readonly kind: "partial"; readonly gaps: readonly UsageCoverageGap[] }
+  | { readonly kind: "provisional" };
 
 // A model the tariff does not list, weighed at the substitute's rates until
 // the rate card is updated.

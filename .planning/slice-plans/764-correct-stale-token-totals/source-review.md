@@ -23,10 +23,10 @@ missing" read as partial per the key example.
 | 3b | A spawned Codex worker's responses count exactly once toward the task | slice 2 | observed: same case: the worker row [false,1,70] appears once across three Refreshes |
 | 4 | Repeated Refresh adds nothing: each response counted once; two further Refreshes leave the total unchanged | slice 1 | observed: token-index-refresh-developer-reply.spec.ts same case: three Refreshes each give [["SEED-7#claude", 6850, "measured"]] |
 | 5 | After the correcting Refresh the task's point and the Usage trend, including the rolling median, reflect the corrected total ("the point and trend update") |  | G2 |
-| 6a | A finished task whose evidence has not yet been read (done after the last Usage check) shows a provisional state on its existing point | slice 4 | |
-| 6b | It is left out of the rolling median while provisional | slice 3 | |
-| 7 | The Refresh that reads the task's evidence through its end clears provisional; the point becomes measured and is in the median | slice 3 | |
-| 8 | A finished task whose transcript lacks a cited file shows partial with that gap and stays out of the median, as today | slice 3 | |
+| 6a | A finished task whose evidence has not yet been read (done after the last Usage check) shows a provisional state on its existing point | slice 4 |  |
+| 6b | It is left out of the rolling median while provisional | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-provisional.spec.ts launch-reported and marked-done-after-check cases: coverage.kind provisional, average [] |
+| 7 | The Refresh that reads the task's evidence through its end clears provisional; the point becomes measured and is in the median | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-provisional.spec.ts same cases after refresh(): measured, average [1950] |
+| 8 | A finished task whose transcript lacks a cited file shows partial with that gap and stays out of the median, as today | slice 3 | observed: dashboard/backend-tests/usage-history/token-index-provisional.spec.ts partial case: worker cited without transcript, check before end → partial, average [] |
 | 9 | Production SEED-404 execution shows 12.64M from 860 responses after the repair (0.38M / 28 before) | slice 5 | |
 | 10 | Production opening Claude Code median moves from 3.28M to 4.09M, matching the manual recount | slice 5 | |
 | 11 | Production earlier short Codex totals match their retained native responses after the repair | slice 5 | |

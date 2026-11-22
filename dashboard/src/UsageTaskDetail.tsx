@@ -76,9 +76,9 @@ const gapWords: Record<UsageCoverageGap, string> = {
 
 // "No known gaps", or "Partial" with the gaps that show usage missing.
 const coverageWords = (coverage: UsageTaskCoverage) =>
-  coverage.kind === "measured"
-    ? "No known gaps"
-    : `${partialWords} · ${coverage.gaps.map((gap) => gapWords[gap]).join(", ")}`;
+  coverage.kind === "partial"
+    ? `${partialWords} · ${coverage.gaps.map((gap) => gapWords[gap]).join(", ")}`
+    : "No known gaps";
 
 function Fact({
   term,

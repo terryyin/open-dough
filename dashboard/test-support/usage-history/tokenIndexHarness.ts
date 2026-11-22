@@ -92,6 +92,7 @@ export async function readCohort(
         projects: new Map([["open-dough", "Open Dough"]]),
         launches: new Map(),
         tariff: tariff ?? usageTariffs[cohort.tool],
+        checkedAt: null,
       },
       cohort,
     );

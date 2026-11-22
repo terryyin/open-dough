@@ -141,9 +141,16 @@ typed workflow turn takes no responses into the launch.
 ### 3. A finished task read before it ended is provisional and out of the median
 
 Type: Behavior
-Status: planned
-Proof: backend cases in `token-index-eligibility.spec.ts` (or
-`token-index-refresh.spec.ts`) through `usageServer().chart()`.
+Status: done
+Proof: backend cases in `token-index-provisional.spec.ts` through
+`usageServer().chart()`.
+
+Delivered: `tokenIndexTask.ts` `UsageReading.checkedAt` (null before the first
+check) and `endedAfterCheck`; coverage is partial, else provisional, else
+measured. `UsageTaskCoverage` gains `provisional`. Slice 4 inherits three
+frontend reads that still treat provisional as measured (G3):
+`TokenIndexTrend.tsx` mark choice, `UsageToolSummary.tsx` cohort note count,
+and `UsageTaskDetail.tsx` `coverageWords` ("No known gaps").
 
 Behavior: a launch is marked done after the last usage check → its point has
 `coverage.kind === "provisional"` and the median skips it. After a Refresh
@@ -193,12 +200,17 @@ Story clause: "whether written before or after the previous check"
 Disposition: receiving slice 5
 Commitment: 2
 
-
 ### G2. Rolling median after a correcting Refresh not observed
 Reported: slice 1 — "The rolling median is a gap. It only starts at the 10th eligible task."
 Story clause: "the point and trend update"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: dashboard/backend-tests/usage-history/token-index-provisional.spec.ts G2 case — ten-launch Claude cohort, a developer reply read by Refresh moves the median from [1950] to [3425]
 Commitment: 5
+
+### G3. Provisional points read as measured in the Usage view (first reported in slice 3)
+Reported: slice 3 — "Until Slice 4 changes them, three frontend reads treat provisional exactly like measured"
+Story clause: "shows that state on its point"
+Disposition: interim until slices 4
+
 ## Plan review
 
 Slice-plan refinement was not needed. Five slices follow distinct outcomes:
