@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "a5400314-d980-4197-9b5c-91a0e30c4930",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-22T23:56:01.280Z",
+  "story": "SEED-423#remove-unreached-distribution-code",
+  "ranges": [
+    {
+      "base": "3873dff3c93b4c530ea9be7291d9d798ff0872d6",
+      "candidate": "8122b1e921b02bca5a7c977ca19e8079df34e677"
+    }
+  ]
+}
