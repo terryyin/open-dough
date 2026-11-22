@@ -1,9 +1,7 @@
 // Claude Code coverage from imported transcripts: its own gaps that show usage
 // missing make a task partial, while the background work no transcript
-// records is no task's gap. Each root response runs Claude Opus 5.5 (Anthropic
-// API list prices read 2026-11-15: input $4, cache read $0.20, output $20 per
-// 1M tokens), so 1,000 uncached, 9,000 read and O output tokens weigh
-// (1,000×4 + 9,000×0.20 + O×20) / 4 = 1,450 + 5×O Opus 5.5 input tokens.
+// records is no task's gap. Each root response is the transcript builder's
+// counted Opus response, weighing 1,450 + 5×O input tokens for O output tokens.
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
@@ -19,13 +17,6 @@ import {
   usageServer,
 } from "../../test-support/usage-history/tokenIndexHarness.ts";
 
-const usage = (output: number) => ({
-  input_tokens: 1_000,
-  cache_read_input_tokens: 9_000,
-  cache_creation_input_tokens: 0,
-  output_tokens: output,
-  speed: "standard",
-});
 const reference = (at: number) =>
   `ca7430bd-0d52-499d-a1bd-${String(at).padStart(12, "0")}`;
 // Launch `at` of a Claude story in session `claude-<at>`.
@@ -39,12 +30,10 @@ const launch = (at: number) =>
       command: "report",
     });
 // The session's response that ends it on hour `10 + at` of 2026-11-14.
-const response = (at: number, output: number) => ({
+const response = (at: number, outputTokens: number) => ({
   uuid: `response-${at}`,
-  messageId: `msg-${at}`,
-  model: "claude-opus-5-5",
+  outputTokens,
   timestamp: `2026-11-14T${String(10 + at).padStart(2, "0")}:00:00.000Z`,
-  usage: usage(output),
 });
 
 test("Claude launches whose root or worker transcript is gone are partial with that gap and out of the rolling median, while launches with only the background-work limit stay measured", async ({
@@ -70,7 +59,7 @@ test("Claude launches whose root or worker transcript is gone are partial with t
       makeMe.aClaudeTranscript
         .forSession(`claude-${at}`)
         .withLaunchInput({ reference: reference(at), command: "report" })
-        .withAssistant(response(at, 100 * at))
+        .withCountedOpusResponse(response(at, 100 * at))
         .please(),
     );
   // `claude-11`'s root spawned a worker whose transcript is gone.
@@ -79,12 +68,8 @@ test("Claude launches whose root or worker transcript is gone are partial with t
     makeMe.aClaudeTranscript
       .forSession("claude-11")
       .withLaunchInput({ reference: reference(11), command: "report" })
-      .withUser({
-        uuid: "worker-result",
-        toolUseResult: { agentId: "lost" },
-        content: [{ type: "tool_result", tool_use_id: "tool-1", content: "" }],
-      })
-      .withAssistant(response(11, 100))
+      .withWorkerResult({ agentId: "lost" })
+      .withCountedOpusResponse(response(11, 100))
       .please(),
   );
   // Only the worker's transcript of `claude-12` remains, under `subagents/`.
@@ -93,7 +78,7 @@ test("Claude launches whose root or worker transcript is gone are partial with t
       .forSession("claude-12")
       .asSidechain({ agentId: "worker" })
       .withUser({ uuid: "worker-input", parentUuid: null, content: "work" })
-      .withAssistant(response(12, 1_000_000))
+      .withCountedOpusResponse(response(12, 1_000_000))
       .please(),
   ]);
   runImport(machine.home, path.join(machine.home, "codex"), [

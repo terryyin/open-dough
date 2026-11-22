@@ -10,8 +10,6 @@ import {
   claudeLaunch,
   importClaude,
   reference,
-  response,
-  workerResult,
   writeLaunchSession,
 } from "../../test-support/usage-history/claudeReplyLaunch.ts";
 import {
@@ -46,10 +44,13 @@ function session() {
   for (const { at, reference: launchReference, output } of earlier)
     rows = rows
       .withLaunchInput({ uuid: `launch-${at}`, reference: launchReference })
-      .withAssistant(response(`earlier-${at}`, output));
+      .withCountedOpusResponse({
+        uuid: `earlier-${at}`,
+        outputTokens: output,
+      });
   return rows
     .withLaunchInput({ uuid: "launch", reference, command: "report" })
-    .withAssistant(response("first", 100));
+    .withCountedOpusResponse({ uuid: "first", outputTokens: 100 });
 }
 const lastLaunch = (ended: "reported" | "marked done") =>
   ended === "reported"
@@ -118,7 +119,11 @@ test("a launch after the last check whose transcript lacks a cited worker stays 
   machine,
 }) => {
   const chart = await chartOf(
-    await checkedOn(machine, 14, session().withUser(workerResult).please()),
+    await checkedOn(
+      machine,
+      14,
+      session().withWorkerResult({ agentId: "worker" }).please(),
+    ),
   );
   expect(chart.coverage["SEED-7#claude"]).toBe("partial");
   expect(chart.median).toEqual([]);
@@ -129,13 +134,7 @@ test("the rolling median reflects a launch's total corrected by a Refresh that r
 }) => {
   const usage = await checkedOn(machine, 16);
   const before = await chartOf(usage);
-  writeLaunchSession(
-    machine.home,
-    session()
-      .withUser({ uuid: "reply", content: "Resume" })
-      .withAssistant(response("after-reply", 300))
-      .please(),
-  );
+  writeLaunchSession(machine.home, session().withDeveloperReply().please());
   await usage.refresh();
   const after = await chartOf(usage);
 

@@ -1,8 +1,6 @@
 // A finished dashboard launch in Claude Code session `claude` that the
-// developer goes on replying to. Responses run Claude Opus 5.5 (list prices
-// read 2026-11-15: input $4, cache read $0.20, output $20 per 1M tokens), so
-// 1,000 uncached, 9,000 read and O output tokens weigh
-// (1,000×4 + 9,000×0.20 + O×20) / 4 = 1,450 + 5×O input tokens.
+// developer goes on replying to. Its responses are the transcript builder's
+// counted Opus responses, weighing 1,450 + 5×O input tokens for O output tokens.
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchStore } from "../support/launchStore.ts";
@@ -34,42 +32,19 @@ export const launchIn = (
     .completedWith({ message: "", receivedAt: day(15) })
     .please();
 export const claudeLaunch = launchIn("SEED-7#claude", reference);
-export const response = (uuid: string, output: number) => ({
-  uuid,
-  messageId: `msg-${uuid}`,
-  model: "claude-opus-5-5",
-  usage: {
-    input_tokens: 1_000,
-    cache_read_input_tokens: 9_000,
-    cache_creation_input_tokens: 0,
-    output_tokens: output,
-    speed: "standard",
-  },
-});
 // The launch's session: its launch input answered with 100 output tokens.
 export const claudeSession = () =>
   makeMe.aClaudeTranscript
     .forSession("claude")
     .withLaunchInput({ reference, command: "report" })
-    .withAssistant(response("first", 100));
-// The launch's session after a developer reply answered with 300 output tokens.
-export const repliedSession = () =>
-  claudeSession()
-    .withUser({ uuid: "reply", content: "Resume" })
-    .withAssistant(response("after-reply", 300));
-// The session's input returning the worker `writeWorker` writes.
-export const workerResult = {
-  uuid: "worker-result",
-  toolUseResult: { agentId: "worker" },
-  content: [{ type: "tool_result", tool_use_id: "tool-1", content: "" }],
-};
+    .withCountedOpusResponse({ uuid: "first", outputTokens: 100 });
 
 const transcripts = (home: string) =>
   path.join(home, ".claude/projects/open-dough");
 // Writes the session `rows` over the launch's session transcript.
 export const writeLaunchSession = (home: string, rows: object[]) =>
   writeClaudeSession(transcripts(home), rows);
-// The launch's worker transcript, answered with 100 output tokens.
+// The launch's worker `worker` transcript, answered with 100 output tokens.
 export function writeWorker(home: string) {
   nativeFile(
     path.join(transcripts(home), "claude", "subagents"),
@@ -78,7 +53,7 @@ export function writeWorker(home: string) {
       .forSession("claude")
       .asSidechain({ agentId: "worker" })
       .withUser({ uuid: "worker-input", parentUuid: null, content: "work" })
-      .withAssistant(response("worker", 100))
+      .withCountedOpusResponse({ uuid: "worker", outputTokens: 100 })
       .please(),
   );
 }

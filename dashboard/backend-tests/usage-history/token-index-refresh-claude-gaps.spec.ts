@@ -1,10 +1,8 @@
 // Refresh keeps a launch's coverage gaps current: a session read again
 // replaces the gaps it recorded, so usage missing at one Refresh stops marking
-// the launch partial once a later one finds it. Each Claude response runs
-// Claude Opus 5.5 (Anthropic API list prices read 2026-11-15: input $4, cache
-// read $0.20, output $20 per 1M tokens), so 1,000 uncached, 9,000 read and 100
-// output tokens weigh (1,000×4 + 9,000×0.20 + 100×20) / 4 = 1,950 Opus 5.5
-// input tokens.
+// the launch partial once a later one finds it. Each Claude response is the
+// transcript builder's counted Opus response with 100 output tokens, weighing
+// 1,950 input tokens.
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
@@ -41,33 +39,13 @@ const finished = (at: number) =>
   launch(at)
     .completedWith({ message: "", receivedAt: day(at) })
     .please();
-const response = (uuid: string) => ({
-  uuid,
-  messageId: `msg-${uuid}`,
-  model: "claude-opus-5-5",
-  usage: {
-    input_tokens: 1_000,
-    cache_read_input_tokens: 9_000,
-    cache_creation_input_tokens: 0,
-    output_tokens: 100,
-    speed: "standard",
-  },
-});
 const rootTranscript = (at: number) =>
   makeMe.aClaudeTranscript
     .forSession(`claude-${at}`)
     .withLaunchInput({ reference: reference(at), command: "report" });
-// The user row returning worker `agentId`'s result to the transcript.
-const workerResult = (agentId: string) => ({
-  uuid: `${agentId}-result`,
-  toolUseResult: { agentId },
-  content: [
-    { type: "tool_result", tool_use_id: `${agentId}-tool`, content: "" },
-  ],
-});
 const answered = (at: number) =>
   rootTranscript(at)
-    .withAssistant(response(`root-${at}`))
+    .withCountedOpusResponse({ uuid: `root-${at}`, outputTokens: 100 })
     .please();
 
 // The home's Claude projects root, imported with launches `1…count`, each
@@ -149,8 +127,8 @@ test("a Claude worker that answers after a Refresh clears its gap, while a worke
   writeClaudeSession(
     transcripts,
     rootTranscript(2)
-      .withAssistant(response("root-2"))
-      .withUser(workerResult("worker"))
+      .withCountedOpusResponse({ uuid: "root-2", outputTokens: 100 })
+      .withWorkerResult({ agentId: "worker" })
       .please(),
   );
   const workerTranscript = makeMe.aClaudeTranscript
@@ -171,8 +149,8 @@ test("a Claude worker that answers after a Refresh clears its gap, while a worke
     subagents,
     "agent-worker",
     workerTranscript
-      .withAssistant(response("worker"))
-      .withUser(workerResult("nested"))
+      .withCountedOpusResponse({ uuid: "worker", outputTokens: 100 })
+      .withWorkerResult({ agentId: "nested" })
       .please(),
   );
   await usage.refresh();
@@ -189,7 +167,7 @@ test("a Claude worker that answers after a Refresh clears its gap, while a worke
       .forSession("claude-2")
       .asSidechain({ agentId: "nested" })
       .withUser({ uuid: "nested-input", parentUuid: null, content: "work" })
-      .withAssistant(response("nested"))
+      .withCountedOpusResponse({ uuid: "nested", outputTokens: 100 })
       .please(),
   );
   await usage.refresh();

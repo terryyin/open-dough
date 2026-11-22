@@ -47,6 +47,10 @@ const shapeWriters = new Map([
     "builds retained Cursor transcript tool calls and results for usage-history proof",
   ],
   [
+    "Distribution/tests/support/claudeTranscriptRows.mjs",
+    "builds retained Claude transcript worker tool results for usage-history proof",
+  ],
+  [
     "Distribution/evaluation/tests/native-harness/guidance-native-entries.sh",
     "substitute Codex writes skill-use acknowledgment and completion for installed rejection proof",
   ],
