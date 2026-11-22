@@ -251,6 +251,8 @@ CI repair: branch run 45022526204 at `14f70e8a9` failed Distribution Tests
 held 336 files, 737 s median against 635 s). Terry accepted
 `rebalance-ci-shards`' move of `Distribution/tests/skills/dough-story-refinement/**`
 into share 1 (691/635/682 s); the next runs check it.
+Trunk landed the same move at `7ff45deab`; the branch's line now matches
+trunk's pattern order so integration merges cleanly.
 
 ### 2. A typed rate-limited reply sets the page's standing limit without the transport
 
@@ -302,7 +304,7 @@ values belong there, outside `makeMe.mjs`'s closure.
 ### 3. Settings-problem cases render the production Intent body
 
 Type: Structure
-Status: planned
+Status: done
 
 Split from the former Slice 3 on 2026-11-22 (Terry's amendment above).
 Render `intent-gherkin-settings-problems` through the production Intent body
@@ -312,11 +314,20 @@ replies through the page entry. Add a MakeMe step for the unreachable
 locations answer and remove the `fetch` spy, `requestIntentLocationsAt` and
 `ReadProblem` from the spec. Keep role-based colocated page objects.
 
-**Proof.** The file keeps its titles and distinguishing observations
-(malformed settings stay shown until manual Retry) and passes at
-`--workers=2`. No test file renders `IntentReadRecovery`,
+**Proof.** The file keeps its three titles and distinguishing observations
+and passes at `--workers=2`. No test file renders `IntentReadRecovery`,
 `PublishedReadStatus` or `ProjectIntentReading` itself. Production import
 count before (6 at `5f28e1a94`) and after.
+
+**Learnings.** `mountIntentCiPage`
+(`dashboard/frontend-tests/intent/intent-ci-page-mount.ts`) serves any case
+that needs the production Intent body under the real `PageFrame`.
+`makeMe.anUnreachableIntentReply` (`unreachableIntentReplyTestData.mjs`,
+registered on `pageMakeMe.mjs` only) builds the transport's transient
+problem. The spec's production imports fell from 6 to 3, all type-only.
+Proof: typecheck; the spec 3/3 at `--workers=2` (10.3 s alone at load
+28–34); the native identity checks; `intent-read-recovery.spec.ts` 5/5 as the
+other `pageMakeMe` consumer.
 
 ### 4. Locations recovery cases render the production Intent body and the shared wait is proved on the composed page
 
@@ -335,7 +346,8 @@ journey on the composed page (reuse an existing `e2e/observation/` or
 retired Vitest case to it.
 
 **Proof.** The 15/30/60/60-second schedule, no request while hidden and one
-on reveal, and the reread when a standing limit ends keep their titles and
+on reveal, malformed settings shown until manual Retry, and the reread when
+a standing limit ends keep their titles and
 distinguishing assertions at `--workers=2`; the E2E journey fails when the
 shared wait is broken in production. Production import counts before (5 and
 12 at `5f28e1a94`) and after. The 2-file selection's elapsed time stays

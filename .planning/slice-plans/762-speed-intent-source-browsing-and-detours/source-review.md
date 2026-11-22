@@ -35,7 +35,7 @@ story's group measurement.
 | C8 | Each spec's and helper's production imports shrink to the entry, its typed inputs and stylesheets | slice 4 |  |
 | C9 | The recovery cases keep their title and distinguishing assertion for the 15/30/60/60-second transient schedule | slice 4 |  |
 | C10 | The recovery cases keep their title and distinguishing assertion for no request while hidden and one on reveal | slice 4 |  |
-| C11 | The settings-problem cases keep their title and distinguishing assertion for malformed settings until manual Retry | slice 3 |  |
+| C11 | The settings-problem cases keep their title and distinguishing assertion for malformed settings until manual Retry (the case lives in `intent-read-recovery.spec.ts`) | slice 4 |  |
 | C12 | Rereading when a standing rate limit ends keeps its title and distinguishing assertion | slice 4 |  |
 | C13 | Product behavior is unchanged by the correction | slice 1 | observed: consumer-traced frontend selection 57/57 passed including `intent-read-recovery.spec.ts`, `intent-gherkin-settings-problems.spec.ts`, `accessible-board-announcements.spec.ts` with unchanged assertions (s1a-frontend); 41 E2E specs including every `e2e/observation/*` published-detail journey passed, the 3 load-48 timeouts in untouched journeys passing on isolated rerun (s1a-e2e, s1a-e2e-rerun); 12 backend specs passed with one load timeout passing on rerun (s1a-backend, s1a-backend-rerun) |
 | C14 | The 2-file selection's elapsed time stays within paired noise of its delivered run, or the regression is recorded with its reason | slice 4 |  |

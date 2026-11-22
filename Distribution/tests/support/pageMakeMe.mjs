@@ -8,6 +8,7 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 import { comparisonViewMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { RateLimitedIntentReplyBuilder } from "./rateLimitedIntentReplyTestData.mjs";
+import { UnreachableIntentReplyBuilder } from "./unreachableIntentReplyTestData.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
 import { storyReviewMakeMeProperties } from "./storyReviewMakeMe.mjs";
 import { reviewCommitMakeMeProperties } from "./reviewCommitTestData.mjs";
@@ -43,6 +44,7 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./reviewCommitTestData.mjs").ReviewCommitMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aRateLimitedIntentReply: RateLimitedIntentReplyBuilder;
+ *     readonly anUnreachableIntentReply: UnreachableIntentReplyBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
  *     readonly aDoneCatalog: DoneCatalogBuilder;
  *     readonly aLaunchHostOptions: import("./factBuilder.mjs").FactBuilder<
@@ -86,6 +88,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new RateLimitedIntentReplyBuilder();
+    },
+  },
+  anUnreachableIntentReply: {
+    enumerable: true,
+    get() {
+      return new UnreachableIntentReplyBuilder();
     },
   },
   aTestOptimizationCandidatesRecord: {
