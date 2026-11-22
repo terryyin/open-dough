@@ -103,6 +103,9 @@ export function scopeHistoryIn(scope: Locator) {
         .querySelectorAll('[aria-label="Prior-build reference evidence"]')
         .length,
     text: () => visibleText(history.element()),
+    // When the observed endpoint the history reads through was retrieved.
+    endpointTime: () =>
+      history.element().querySelector("time")?.getAttribute("datetime"),
     unit,
     // Choose a unit by touch or keyboard focus and Enter; it is then pressed.
     async choose(choice: string, by: "touch" | "keyboard") {

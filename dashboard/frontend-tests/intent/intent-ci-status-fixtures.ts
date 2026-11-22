@@ -8,6 +8,7 @@ import "../../src/intent-ci-status.css";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
+import type { PublishedWork } from "../../src/publishedWork.ts";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 
@@ -154,6 +155,44 @@ export const unreadLiveProof: Judgment = makeMe.anIntentCiStatus
     freshness: "fresh",
   })
   .please();
+
+// A scope's history through REVISION, its endpoint taking MS per test case.
+export const caseTimingHistory = (path: string, ms: number, revision: string) =>
+  makeMe.aScopeHistoryGlance
+    .at(path)
+    .timing("case", [], ms)
+    .through(revision)
+    .please();
+
+// Project Intent of WORK over dashboard/tests and its example.spec.ts, live
+// Proof absent in every one of PROJECTS, each scope's history answered by
+// READSCOPEHISTORY.
+export const mountUnprovenScopeHistory = ({
+  work,
+  projects = [work.source],
+  readScopeHistory,
+}: {
+  readonly work: PublishedWork;
+  readonly projects?: readonly PublishedSource[];
+  readonly readScopeHistory: IntentCiReadSource["readScopeHistory"];
+}) =>
+  mountIntentCiPage({
+    work,
+    projects,
+    reads: {
+      intent: configuredIntentReads(
+        makeMe.anIntentLocation
+          .at("dashboard/tests")
+          .ofKind("typescript", ["**/*.spec.ts"])
+          .selecting("dashboard/tests/example.spec.ts")
+          .please(),
+      ),
+      ci: inertCiReads({
+        readStatus: () => Promise.resolve(unreadLiveProof),
+        readScopeHistory,
+      }),
+    },
+  });
 
 // Main's run 41 at a1b2c3d, the run `mountJudgedRunProof` judges.
 export const judgedRun = {

@@ -145,7 +145,7 @@ Failures follow the
 ### G1. Done scope history isolation has no moved case (first reported in slice 4)
 Reported: slice 4 — "The Done half of the promise has no coverage, because neither legacy file had a Done case."
 Story clause: "Project and Done scope timing glances and kept histories stay isolated by project, source and scope key"
-Disposition: receiving slice 5
+Disposition: proved by slice 5: `intent-scope-glance.spec.ts` asserts Done Intent requests entry, folder and file each once with the Done story's own source and landing revision and shows each scope's own figures (1.4 s / 720 ms / 120 ms); Project half in Slice 4's moved specs
 Commitment: 11
 
 ## Slices
@@ -270,7 +270,7 @@ glance and Slice 4 specs; Slices 5–6 build from them (3 specs, 5 tests green).
 ### 5. Scope keys keep distinct histories across remounts
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-project-scope-history-key-isolation` (1) and `-remount` (1)
 beside live Scope Proof.
@@ -279,6 +279,19 @@ Behavior: entry, folder, file and revision keys keep distinct kept histories
 across remounts and same-head snapshot refreshes.
 
 Proof: the moved Vitest specs; 0 legacy cases remain on the 2 files.
+
+Accepted proof (2026-11-22, load ~22–25): typecheck; moved key-isolation
+(0.4 s) and remount (0.8 s) Vitest specs plus the G1 Done assertion green;
+21 consumer specs of changed support green (23 files, 38 tests, 44.1 s).
+`comparisonMountPage.ts` `updateComparison` removed; Slice 7 candidates:
+`window.updateCiComparison` in `comparison-mount/entry.tsx` and
+`comparisonMountTypes.ts` has no test caller.
+
+Refactor: `mountUnprovenScopeHistory({ work, projects?, readScopeHistory })`
+and `caseTimingHistory(path, ms, revision)` in `intent-ci-status-fixtures.ts`
+(241 lines) replace the Project scope-history mount copied into four specs;
+`window.updateCiComparison`, its `update` closure, `ComparisonSelection` and
+the `shown` option are removed from the comparison mount.
 
 ### 6. Failed and empty reads keep live Scope Proof and recover on Retry
 

@@ -6,12 +6,10 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { workOf } from "./intent-ci-homepage-page.ts";
-import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
-  configuredIntentReads,
-  inertCiReads,
+  caseTimingHistory,
+  mountUnprovenScopeHistory,
   openDoughSource,
-  unreadLiveProof,
 } from "./intent-ci-status-fixtures.ts";
 import {
   openScopeSummary,
@@ -24,34 +22,16 @@ for (const changed of ["repository", "ref"] as const) {
   test(`a changed ${changed} with the same project ID and endpoint does not keep another source's history`, async () => {
     const requests: string[] = [];
     const signals: AbortSignal[] = [];
-    const page = await mountIntentCiPage({
+    const page = await mountUnprovenScopeHistory({
       work,
-      reads: {
-        intent: configuredIntentReads(
-          makeMe.anIntentLocation
-            .at("dashboard/tests")
-            .ofKind("typescript", ["**/*.spec.ts"])
-            .selecting("dashboard/tests/example.spec.ts")
-            .please(),
-        ),
-        ci: inertCiReads({
-          readStatus: () => Promise.resolve(unreadLiveProof),
-          readScopeHistory: (source, path, endpoint, signal) => {
-            requests.push(
-              `${source.id} ${source.repository}@${source.ref} ${path} ${endpoint.revision}`,
-            );
-            signals.push(signal);
-            return requests.length === 1
-              ? Promise.resolve(
-                  makeMe.aScopeHistoryGlance
-                    .at(path)
-                    .timing("case", [], 8000)
-                    .through(endpoint.revision)
-                    .please(),
-                )
-              : Promise.reject(new Error("New source history unavailable"));
-          },
-        }),
+      readScopeHistory: (source, path, endpoint, signal) => {
+        requests.push(
+          `${source.id} ${source.repository}@${source.ref} ${path} ${endpoint.revision}`,
+        );
+        signals.push(signal);
+        return requests.length === 1
+          ? Promise.resolve(caseTimingHistory(path, 8000, endpoint.revision))
+          : Promise.reject(new Error("New source history unavailable"));
       },
     });
     const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));

@@ -162,7 +162,6 @@ export async function mountComparison(
       work: facts.work,
       identity: facts.identity,
       scope: facts.scope,
-      ...(facts.shown === undefined ? {} : { shown: facts.shown }),
       ...(facts.doneEndpoint === undefined
         ? {}
         : { doneEndpoint: facts.doneEndpoint }),
@@ -172,21 +171,4 @@ export async function mountComparison(
     name: "CI timing comparison",
     exact: true,
   });
-}
-
-export async function updateComparison(page: Page, facts: ComparisonMount) {
-  await page.evaluate(
-    (value) => {
-      window.updateCiComparison(value);
-    },
-    {
-      work: facts.work,
-      identity: facts.identity,
-      scope: facts.scope,
-      ...(facts.shown === undefined ? {} : { shown: facts.shown }),
-      ...(facts.doneEndpoint === undefined
-        ? {}
-        : { doneEndpoint: facts.doneEndpoint }),
-    },
-  );
 }

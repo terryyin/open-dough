@@ -102,6 +102,7 @@ export async function openStoryAComparison(review: ReviewAnswers) {
 const doneStory = makeMe.aComparedStory.inSummaryScope().please();
 const doneTitle = "Story A";
 export const doneCompletion = doneStory.work.revision;
+export const doneSource = doneStory.source;
 export const doneIdentity = doneStory.identity;
 // The Done story's own CI comparison answer.
 export const doneComparison = doneStory.answer;

@@ -23,6 +23,7 @@ import {
 } from "./intent-scope-history-page.ts";
 import {
   doneCompletion,
+  doneSource,
   openDoneStoryComparison,
   publishedCompletion,
 } from "./intent-story-compare-stories.ts";
@@ -44,10 +45,12 @@ const priorsOf = (ms: readonly number[], times: number) => [
 
 test("drilling from a Done story's test entry to a folder and a test file reads each scope's execution time history before its table", async () => {
   await useTouchScreen();
+  const requests: string[] = [];
   await openDoneStoryComparison({
     review: () => Promise.resolve(publishedCompletion()),
     ci: {
-      readScopeHistory: (...[, path, endpoint]) => {
+      readScopeHistory: (source, path, endpoint) => {
+        requests.push(`${source.id} ${path} ${endpoint.revision}`);
         const scope = scopes[path];
         if (scope === undefined)
           return Promise.reject(new Error(`Unarranged scope ${path}`));
@@ -141,6 +144,12 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
     average: `Prior-build average · 103 ms · ${priors}`,
     change: "vs. prior average · +17 ms (+17%)",
   });
+  // Each scope's own history, read at the Done story's landing.
+  expect(requests).toEqual(
+    Object.keys(scopes).map(
+      (path) => `${doneSource.id} ${path} ${doneCompletion}`,
+    ),
+  );
   const cases = fileHistory.chart("test cases", "selected landing");
   // The dashed 103 ms average lies between its Nov 1/100 ms and Nov 5/115 ms marks.
   expect(cases.averageLabel()).toEqual(["Prior-build average 103 ms"]);

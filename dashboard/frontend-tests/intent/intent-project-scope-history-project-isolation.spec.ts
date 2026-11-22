@@ -3,18 +3,14 @@
 // from another project is aborted and ignored, and a failed file read never
 // keeps its entry's answer at the same project endpoint.
 import { expect, test } from "vitest";
-import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ScopeHistoryGlance } from "../../src/ciScopeHistory.ts";
-import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
 import { doughnutSource, workOf } from "./intent-ci-homepage-page.ts";
-import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
-  configuredIntentReads,
+  caseTimingHistory,
   heldRead,
-  inertCiReads,
+  mountUnprovenScopeHistory,
   openDoughSource,
-  unreadLiveProof,
 } from "./intent-ci-status-fixtures.ts";
 import {
   openFileProof,
@@ -25,48 +21,23 @@ import {
 
 const work = workOf(openDoughSource, "b2b2b2b");
 const endpoint = `Observed trunk endpoint ${shortSha(work.revision)}`;
-
-const glance = (path: string, ms: number, revision: string) =>
-  makeMe.aScopeHistoryGlance
-    .at(path)
-    .timing("case", [], ms)
-    .through(revision)
-    .please();
-
-// Project Intent over dashboard/tests and its example.spec.ts, every
-// project's live Proof absent, its scope histories read by READSCOPEHISTORY.
-const mountProjects = (
-  readScopeHistory: IntentCiReadSource["readScopeHistory"],
-) =>
-  mountIntentCiPage({
-    work,
-    projects: [openDoughSource, doughnutSource],
-    reads: {
-      intent: configuredIntentReads(
-        makeMe.anIntentLocation
-          .at("dashboard/tests")
-          .ofKind("typescript", ["**/*.spec.ts"])
-          .selecting("dashboard/tests/example.spec.ts")
-          .please(),
-      ),
-      ci: inertCiReads({
-        readStatus: () => Promise.resolve(unreadLiveProof),
-        readScopeHistory,
-      }),
-    },
-  });
+const projects = [openDoughSource, doughnutSource];
 
 test("late entry history cannot replace another file or project's history while live Proof is absent", async () => {
   const requests: string[] = [];
   const signals: AbortSignal[] = [];
   const old = heldRead<ScopeHistoryGlance>();
-  const page = await mountProjects((source, path, at, signal) => {
-    requests.push(`${source.id}:${path}`);
-    signals.push(signal);
-    if (source.id === "open-dough" && path === "dashboard/tests")
-      return old.ask();
-    const ms = source.id === "open-dough" ? 11000 : 9000;
-    return Promise.resolve(glance(path, ms, at.revision));
+  const page = await mountUnprovenScopeHistory({
+    work,
+    projects,
+    readScopeHistory: (source, path, at, signal) => {
+      requests.push(`${source.id}:${path}`);
+      signals.push(signal);
+      if (source.id === "open-dough" && path === "dashboard/tests")
+        return old.ask();
+      const ms = source.id === "open-dough" ? 11000 : 9000;
+      return Promise.resolve(caseTimingHistory(path, ms, at.revision));
+    },
   });
   await openScopeSummary("dashboard/tests");
   await expect.poll(() => requests).toEqual(["open-dough:dashboard/tests"]);
@@ -85,7 +56,7 @@ test("late entry history cannot replace another file or project's history while 
     .toBe(`${endpoint} · 9.0 s`);
   // The other project's entry read was given up before it answered late.
   expect(signals[0]?.aborted).toBe(true);
-  old.resolve(glance("dashboard/tests", 8000, work.revision));
+  old.resolve(caseTimingHistory("dashboard/tests", 8000, work.revision));
   // The page commits a render after the late answer was handled.
   await old.ask();
   await page.showIntent();
@@ -99,11 +70,15 @@ test("late entry history cannot replace another file or project's history while 
 
 test("a failed new file read cannot retain the entry's answer at the same project endpoint", async () => {
   const requests: string[] = [];
-  await mountProjects((...[, path, at]) => {
-    requests.push(path);
-    return path === "dashboard/tests"
-      ? Promise.resolve(glance(path, 8000, at.revision))
-      : Promise.reject(new Error("File local history unavailable"));
+  await mountUnprovenScopeHistory({
+    work,
+    projects,
+    readScopeHistory: (...[, path, at]) => {
+      requests.push(path);
+      return path === "dashboard/tests"
+        ? Promise.resolve(caseTimingHistory(path, 8000, at.revision))
+        : Promise.reject(new Error("File local history unavailable"));
+    },
   });
   const entry = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
   await expect.poll(() => entry.readout().selected).toBe(`${endpoint} · 8.0 s`);

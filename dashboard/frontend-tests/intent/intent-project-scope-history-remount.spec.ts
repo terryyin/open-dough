@@ -1,78 +1,54 @@
+// Leaving Intent and reentering it after a same-head snapshot refresh keeps
+// the scope's kept history: the observed endpoint and prior answer stand
+// beside the failure of the reread.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { workOf } from "./intent-ci-homepage-page.ts";
 import {
-  scopeHistory,
-  scopeHistoryReading,
-} from "../../test-support/intentScopeHistoryPage.ts";
-// The page keeps disposable reading state when the Intent provider unmounts.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  caseTimingHistory,
+  mountUnprovenScopeHistory,
+  openDoughSource,
+} from "./intent-ci-status-fixtures.ts";
 import {
-  expect,
-  test,
-  mountComparison,
-  updateComparison,
-} from "../../test-support/support/comparisonMountPage.ts";
-import {
-  scopeHistoryPoint,
-  serveUnreadProjectCi,
-} from "../../test-support/support/projectScopeHistoryFacts.ts";
+  openScopeSummary,
+  scopeHistoryIn,
+} from "./intent-scope-history-page.ts";
 
-test("reentering Intent after a same-head snapshot refresh keeps the observed endpoint and prior answer when local history fails", async ({
-  page,
-  comparisonServer,
-}) => {
-  const story = makeMe.aComparedStory
-    .inSummaryScope()
-    .withWork({ retrievedAt: new Date("2026-11-11T07:00:00Z") })
-    .please();
-  const { work } = story;
-  const project = { ...story, identity: undefined };
-  await serveUnreadProjectCi(page, "a".repeat(40));
-  let reads = 0;
+const work = makeMe.aPublishedWork
+  .with({
+    ...workOf(openDoughSource, "a1a1a1a"),
+    retrievedAt: new Date("2026-11-11T07:00:00Z"),
+  })
+  .please();
+
+test("reentering Intent after a same-head snapshot refresh keeps the observed endpoint and prior answer when local history fails", async () => {
   const through: string[] = [];
-  await page.route(/intent=ci-history/, async (route) => {
-    const params = new URL(route.request().url()).searchParams;
-    if (!params.has("scope")) {
-      await route.fulfill({
-        status: 502,
-        json: { error: "No wall history arranged" },
-      });
-      return;
-    }
-    reads += 1;
-    through.push(params.get("through") ?? "");
-    await route.fulfill(
-      reads === 1
-        ? {
-            json: scopeHistoryPoint(
-              work.revision,
-              params.get("scope") ?? "",
-              8000,
-            ),
-          }
-        : {
-            status: 502,
-            json: { error: "Local history failed after reentry" },
-          },
-    );
+  const page = await mountUnprovenScopeHistory({
+    work,
+    readScopeHistory: (...[, path, endpoint]) => {
+      through.push(endpoint.at);
+      return through.length === 1
+        ? Promise.resolve(caseTimingHistory(path, 8000, endpoint.revision))
+        : Promise.reject(new Error("Local history failed after reentry"));
+    },
   });
-  await mountComparison(page, comparisonServer, project);
-  const history = scopeHistory(page);
-  await expect(scopeHistoryReading(history).selected).toContainText("8.0 s");
-  await updateComparison(page, { ...project, shown: false });
-  await expect(history).toHaveCount(0);
-  const refreshed = makeMe.aPublishedWork
-    .with({ ...work, retrievedAt: new Date("2026-11-11T07:03:00Z") })
-    .please();
-  await updateComparison(page, { ...project, shown: false, work: refreshed });
-  await updateComparison(page, { ...project, work: refreshed });
-  await expect(scopeHistoryReading(history).failure).toContainText(
-    "Local history failed after reentry",
-  );
-  await expect(scopeHistoryReading(history).endpointTime).toHaveAttribute(
-    "datetime",
-    "2026-11-11T07:00:00.000Z",
-  );
-  await expect(scopeHistoryReading(history).selected).toContainText("8.0 s");
-  await expect(history).toContainText("Previously retrieved history");
+  const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  await expect.poll(() => history.readout().selected).toContain("8.0 s");
+
+  await page.showDevelopment();
+  await expect.element(history.region).not.toBeInTheDocument();
+  await page.showWork({
+    ...work,
+    retrievedAt: new Date("2026-11-11T07:03:00Z"),
+  });
+  await page.showIntent();
+  const reentered = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  await expect
+    .poll(reentered.text)
+    .toContain("Local history failed after reentry");
+  expect(reentered.endpointTime()).toBe("2026-11-11T07:00:00.000Z");
+  expect(reentered.readout().selected).toContain("8.0 s");
+  expect(reentered.text()).toContain("Previously retrieved history");
   expect(through).toEqual([
     "2026-11-11T07:00:00.000Z",
     "2026-11-11T07:00:00.000Z",
