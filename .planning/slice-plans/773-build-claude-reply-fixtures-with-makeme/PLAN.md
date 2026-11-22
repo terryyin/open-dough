@@ -110,7 +110,7 @@ steps without growing past the limit.
 ### 2. Reply fixtures use builder steps
 
 Type: Structure
-Status: planned
+Status: done
 Proof: the three Usage specs pass with the same expectations, and
 `claudeReplyLaunch.ts` exports no transcript row data.
 

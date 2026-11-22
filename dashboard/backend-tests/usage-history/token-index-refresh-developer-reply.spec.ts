@@ -9,9 +9,6 @@ import {
   importClaude,
   launchIn,
   refreshedClaudeIndex,
-  repliedSession,
-  response,
-  workerResult,
   writeLaunchSession,
   writeWorker,
 } from "../../test-support/usage-history/claudeReplyLaunch.ts";
@@ -38,12 +35,18 @@ test("Refresh counts a reply read late, the worker it starts after the last chec
 }) => {
   const { home } = machine;
   importClaude(home, claudeSession().please());
-  writeLaunchSession(home, repliedSession().please());
+  writeLaunchSession(home, claudeSession().withDeveloperReply().please());
   // A check past the reply, as a Refresh that read the launch before it
   // finished leaves it.
   await recordUsageCheck(usageHistoryFile(home), new Date().toISOString());
   writeWorker(home);
-  writeLaunchSession(home, repliedSession().withUser(workerResult).please());
+  writeLaunchSession(
+    home,
+    claudeSession()
+      .withDeveloperReply()
+      .withWorkerResult({ agentId: "worker" })
+      .please(),
+  );
   const usage = await usageServer(machine);
   const points = [];
   for (let check = 0; check < 3; check++) {
@@ -67,11 +70,12 @@ test("Refresh leaves a typed landing after a reply and its later replies out of 
 }) => {
   const index = await refreshedIndex(
     machine,
-    repliedSession()
+    claudeSession()
+      .withDeveloperReply()
       .withUser({ uuid: "land", content: "/dough-land" })
-      .withAssistant(response("landing", 700))
+      .withCountedOpusResponse({ uuid: "landing", outputTokens: 700 })
       .withUser({ uuid: "ok", content: "ok" })
-      .withAssistant(response("after-ok", 900))
+      .withCountedOpusResponse({ uuid: "after-ok", outputTokens: 900 })
       .please(),
   );
   // Launch response 1,950 and reply response 2,950.
@@ -84,11 +88,12 @@ test("Refresh gives another launch's reporting context after a reply its own tur
   const second = "ca7430bd-0d52-499d-a1bd-000000000002";
   const index = await refreshedIndex(
     machine,
-    repliedSession()
+    claudeSession()
+      .withDeveloperReply()
       .withLaunchInput({ uuid: "second-launch", reference: second })
-      .withAssistant(response("second-first", 700))
+      .withCountedOpusResponse({ uuid: "second-first", outputTokens: 700 })
       .withUser({ uuid: "ok", content: "ok" })
-      .withAssistant(response("after-ok", 900))
+      .withCountedOpusResponse({ uuid: "after-ok", outputTokens: 900 })
       .please(),
     [
       claudeLaunch,

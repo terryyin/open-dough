@@ -110,6 +110,45 @@ export class ClaudeTranscriptBuilder {
   }
 
   /**
+   * Countable Claude Opus 5.5 response reading 1,000 uncached and 9,000
+   * cached input tokens. At list prices (input $4, cache read $0.20, output
+   * $20 per 1M tokens) it weighs 1,450 + 5×`outputTokens` input tokens.
+   * @param {{ uuid: string, outputTokens: number } & Pick<ClaudeAssistantOptions, "messageId" | "timestamp" | "parentUuid">} facts
+   */
+  withCountedOpusResponse({ outputTokens, ...placement }) {
+    return this.withCountedAssistant({
+      ...placement,
+      model: "claude-opus-5-5",
+      usage: {
+        input_tokens: 1_000,
+        cache_read_input_tokens: 9_000,
+        cache_creation_input_tokens: 0,
+        output_tokens: outputTokens,
+        speed: "standard",
+      },
+    });
+  }
+
+  /** Developer reply "Resume" (`reply`) answered with 300 output tokens (`after-reply`). */
+  withDeveloperReply() {
+    return this.withUser({
+      uuid: "reply",
+      content: "Resume",
+    }).withCountedOpusResponse({ uuid: "after-reply", outputTokens: 300 });
+  }
+
+  /** @param {{ agentId: string }} facts input (`<agentId>-result`) returning worker `agentId`'s tool result */
+  withWorkerResult({ agentId }) {
+    return this.withUser({
+      uuid: `${agentId}-result`,
+      toolUseResult: { agentId },
+      content: [
+        { type: "tool_result", tool_use_id: `${agentId}-tool`, content: "" },
+      ],
+    });
+  }
+
+  /**
    * Countable assistant row whose text embeds raw U+2028 and U+2029 inside
    * one JSONL row.
    * @param {ClaudeAssistantOptions} [options]

@@ -1,8 +1,6 @@
 // Refresh at its HTTP boundary over Claude Code transcripts under
-// `<home>/.claude/projects`. Each response runs Claude Opus 5.5 (Anthropic API
-// list prices read 2026-11-15: input $4, cache read $0.20, output $20 per 1M
-// tokens), so 1,000 uncached, 9,000 read and O output tokens weigh
-// (1,000×4 + 9,000×0.20 + O×20) / 4 = 1,450 + 5×O Opus 5.5 input tokens.
+// `<home>/.claude/projects`. Each response is the transcript builder's counted
+// Opus response, weighing 1,450 + 5×O input tokens for O output tokens.
 import { appendFileSync, cpSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -39,18 +37,6 @@ const finished = (at: number) =>
   launch(at)
     .completedWith({ message: "", receivedAt: day(at) })
     .please();
-const response = (uuid: string, output: number) => ({
-  uuid,
-  messageId: `msg-${uuid}`,
-  model: "claude-opus-5-5",
-  usage: {
-    input_tokens: 1_000,
-    cache_read_input_tokens: 9_000,
-    cache_creation_input_tokens: 0,
-    output_tokens: output,
-    speed: "standard",
-  },
-});
 // Session `claude-<at>`'s root transcript from its launch input.
 const rootTranscript = (at: number) =>
   makeMe.aClaudeTranscript
@@ -64,7 +50,9 @@ function importedOnce(home: string) {
   keepLaunchStore(home, { "open-dough": [finished(1)] });
   writeClaudeSession(
     transcripts,
-    rootTranscript(1).withAssistant(response("first", 100)).please(),
+    rootTranscript(1)
+      .withCountedOpusResponse({ uuid: "first", outputTokens: 100 })
+      .please(),
   );
   runImport(home, path.join(home, ".codex/sessions"), [
     "--claude-root",
@@ -85,14 +73,14 @@ test("Refresh brings in a Claude launch finished since the last check with its w
   writeClaudeSession(
     transcripts,
     rootTranscript(2)
-      .withAssistant(response("root", 100))
+      .withCountedOpusResponse({ uuid: "root", outputTokens: 100 })
       // The same API message written again in its transcript.
-      .withAssistant({ ...response("root", 100), uuid: "root-again" })
-      .withUser({
-        uuid: "worker-result",
-        toolUseResult: { agentId: "worker" },
-        content: [{ type: "tool_result", tool_use_id: "tool-1", content: "" }],
+      .withCountedOpusResponse({
+        uuid: "root-again",
+        messageId: "msg-root",
+        outputTokens: 100,
       })
+      .withWorkerResult({ agentId: "worker" })
       .please(),
   );
   // Worker path under `subagents/` is layout under proof.
@@ -101,7 +89,7 @@ test("Refresh brings in a Claude launch finished since the last check with its w
       .forSession("claude-2")
       .asSidechain({ agentId: "worker" })
       .withUser({ uuid: "worker-input", parentUuid: null, content: "work" })
-      .withAssistant(response("worker", 300))
+      .withCountedOpusResponse({ uuid: "worker", outputTokens: 300 })
       .please(),
   ]);
   writeClaudeSession(
@@ -109,7 +97,7 @@ test("Refresh brings in a Claude launch finished since the last check with its w
     makeMe.aClaudeTranscript
       .forSession("elsewhere")
       .withUser({ uuid: "own-input", parentUuid: null, content: "other work" })
-      .withAssistant(response("elsewhere", 900))
+      .withCountedOpusResponse({ uuid: "elsewhere", outputTokens: 900 })
       .please(),
   );
   await usage.refresh();
@@ -180,7 +168,9 @@ test("a Refresh while a Claude task runs brings in what its transcript holds so 
   });
   const transcript = writeClaudeSession(
     transcripts,
-    rootTranscript(2).withAssistant(response("early", 100)).please(),
+    rootTranscript(2)
+      .withCountedOpusResponse({ uuid: "early", outputTokens: 100 })
+      .please(),
   );
   await usage.refresh();
   expect((await storedUsage(home)).get("SEED-7#claude-2")).toMatchObject([
@@ -189,7 +179,11 @@ test("a Refresh while a Claude task runs brings in what its transcript holds so 
 
   const [late] = makeMe.aClaudeTranscript
     .forSession("claude-2")
-    .withAssistant({ ...response("late", 50), parentUuid: "early" })
+    .withCountedOpusResponse({
+      uuid: "late",
+      outputTokens: 50,
+      parentUuid: "early",
+    })
     .please();
   appendFileSync(transcript, `${JSON.stringify(late)}\n`);
   await usage.refresh();
