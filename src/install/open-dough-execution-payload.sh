@@ -156,6 +156,7 @@ managed_files+=(
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/session-record-publication.mjs
   dough-execute-plan/scripts/session-close-identity.mjs
+  dough-execute-plan/scripts/git-path-json-store.mjs
   dough-execute-plan/scripts/session-close-state.mjs
   dough-execute-plan/scripts/sealed-session-record.mjs
   dough-execute-plan/scripts/shared-checkout-note.mjs

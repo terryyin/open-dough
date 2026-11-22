@@ -6,35 +6,18 @@
 // different reference replaces an unclosed earlier session's evidence, except
 // where Story Branch integration adopts the launch reference. Only accepted
 // pairs are appended, so refused or rewritten candidates never enter.
-import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { readGitPathJson, replaceGitPathJson } from "./git-path-json-store.mjs";
 import { executionSessionWorkflow } from "./session-record.mjs";
 
-function sessionEvidencePath(workspace) {
-  const found = execFileSync(
-    "git",
-    ["rev-parse", "--git-path", "open-dough/session-record"],
-    { cwd: workspace, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
-  );
-  return resolve(workspace, found.trim());
-}
+const sessionEvidencePath = "open-dough/session-record";
 
 export function readSessionEvidence(workspace) {
-  try {
-    return JSON.parse(readFileSync(sessionEvidencePath(workspace), "utf8"));
-  } catch (error) {
-    if (error.code === "ENOENT") return undefined;
-    throw error;
-  }
+  return readGitPathJson(workspace, sessionEvidencePath);
 }
 
 function writeSessionEvidence(workspace, evidence) {
-  const file = sessionEvidencePath(workspace);
-  mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, `${JSON.stringify(evidence, null, 2)}\n`);
-  return evidence;
+  return replaceGitPathJson(workspace, sessionEvidencePath, evidence);
 }
 
 function freshSession(sessionId, story, workflow = executionSessionWorkflow) {

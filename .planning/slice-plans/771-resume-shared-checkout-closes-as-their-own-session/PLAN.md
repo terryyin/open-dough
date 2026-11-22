@@ -232,7 +232,7 @@ once at load ~15–18 and passed 3/3 alone.
 ### 5. One local Git-path store holds session evidence and close state
 
 Type: Structure
-Status: planned
+Status: done
 Proof: unchanged `Distribution/tests/skills/dough-land/` suites, `preparation-native-session-record-land.test.mjs`, the `dough-story-wrap-up` session-record tests and the `dough-execute-plan` session-evidence tests; the new module is listed in the execution payload and `Distribution/tests/installation/install-public-payload.sh` and `execution-payload-update.sh` pass (CI run 44983901805 failed the payload install when a module was missing).
 
 Structure: extract the shared Git-path JSON read/replace/remove module and use
