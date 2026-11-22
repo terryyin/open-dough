@@ -12,13 +12,16 @@ history say beside live CI proof, with every history case running against the
 production Intent page layout. The seed story holds the full goal, scope and
 key examples.
 
-- **Included.** The delivered CI status entry correction below; the 5 legacy
-  wall-time history specs (10 cases): `intent-ci-compact-readout` (3),
-  `intent-ci-done-glance` (1), `intent-ci-done-reference-lifecycle` (2),
-  `intent-ci-history-chart-marks` (2), `intent-project-ci-history-chart-marks`
-  (2); refreshing the 3 Project CI wall-time Vitest specs
+- **Included.** The delivered CI status entry correction below; the 3 legacy
+  wall-time history specs (6 cases): `intent-ci-compact-readout` (3),
+  `intent-ci-done-glance` (1), `intent-ci-done-reference-lifecycle` (2);
+  refreshing the 3 Project CI wall-time Vitest specs
   (`intent-ci-wall-time-history{,-gaps,-evidence}`, 5 cases).
-- **Excluded.** Collected scope timing history (14 legacy files, plan 774);
+- **Excluded.** Collected scope timing history (16 legacy files, plan 774),
+  including the shared history chart-marks specs
+  (`intent-ci-history-chart-marks`, `intent-project-ci-history-chart-marks`)
+  Terry moved there on 2026-11-22 when Slice 6 found they test the scope
+  timing history chart;
   attempt proof and Summary (plan 760); sibling-owned page objects
   (`intent-ci-evidence-page.tsx`, `intent-ci-scope-page.tsx`,
   `intent-done-story-page.tsx`, `intent-browser-page.ts`,
@@ -108,7 +111,7 @@ history slice mounts through the same entry, so these come first:
 |---|---|---|---|---|
 | P1 | The freshness case does not discriminate the abort guard | Slice 2 proof | Scratch edit `// controller.abort();` at `dashboard/src/useIntentCiJudgment.ts:187`, then `npm run --silent test:dashboard:frontend -- --workers 2 dashboard/frontend-tests/intent/intent-ci-status-freshness.spec.ts` in this worktree at `1ec99e51a`, 2026-11-22; reverted | 3 passed with the guard removed: premise true, Slice 2 adds the discriminating wait |
 | P2 | The page mount renders `BoardOrIntent` without the production scroll ancestors | Slice 1 | Read `intent/intent-ci-page-mount.ts` (no scroll container) and `configuredDashboardContent.tsx:70–76` at `1ec99e51a` | True; the move is structural |
-| P3 | The 5 owned legacy files pass on the legacy engine and give the before measure | Slices 3–6 timing comparison | `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD=… caffeinate -s -i npm run --silent test:dashboard:frontend -- --workers 2 <5 files>` at `1ec99e51a`, 2026-11-22 17:19 | 10 passed; 31.91 s including preparation; runner 28,744 ms; load 40–57 |
+| P3 | The 5 then-owned legacy files pass on the legacy engine and give the before measure | Slices 3–6 timing comparison | `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD=… caffeinate -s -i npm run --silent test:dashboard:frontend -- --workers 2 <5 files>` at `1ec99e51a`, 2026-11-22 17:19 | 10 passed; 31.91 s including preparation; runner 28,744 ms; load 40–57 |
 | P4 | The 3 Project CI wall-time Vitest specs pass before refresh | Slice 5 | Same command with the 3 `intent-ci-wall-time-history*` files at `1ec99e51a` | 5 passed; 12.09 s including preparation; Vitest 8.67 s; load ~61 |
 
 No premise remains open. The legacy proof record from plan 764 is not
@@ -126,8 +129,7 @@ selection.
 | Done compact readout baselines | Slice 3 | Exact words and cues per baseline state, stand-in named |
 | Done glance and reference lifecycle | Slice 4 | Glance marks and hover/focus details; reference change/retry keeps live proof |
 | Project CI wall-time mounts without `act` | Slice 5 | 5 refreshed cases green with no `createRoot`/`act`/`IS_REACT_ACT_ENVIRONMENT` |
-| Chart marks keep labels, links, keyboard and narrow fit | Slice 6 | Light/dark narrow viewport, run links, keyboard order |
-| Faster, fewer maintained cases; spent support removed | Slice 6 | Two-worker before/after against P3 and P4; case disposition table |
+| Faster, fewer maintained cases; spent support removed | Slice 6 | Paired two-worker before/after of the 3 owned files and 3 refreshed specs; case disposition table |
 
 Local gate per slice: typecheck and the focused frontend selection through
 `npm run --silent test:dashboard:frontend -- --workers 2 <paths>`; Slice 1
@@ -272,28 +274,48 @@ state leaked from the freshness and side-panel specs into the phone case in
 the same Vitest worker; `mountIntentCiPage` now mounts through
 `withClosedSessionsSidebar()` as the Board mounts do.
 
-### 6. History chart marks keep labels, links, keyboard and narrow fit, and the story's proof runs faster
+### 6. The story's CI wall-time proof runs faster with fewer maintained cases and no spent support
 
-Type: Behavior
-Status: planned
+Type: Structure
+Status: done
 
-Move `intent-ci-history-chart-marks` (2) and
-`intent-project-ci-history-chart-marks` (2). Remove any history
-`test-support` module whose last consumer across `e2e/` and
-`dashboard/frontend-tests/` moved. Record the case-disposition table and the
-two-worker before/after timing including preparation against P3 + P4, under
-comparable load.
+Remove any wall-time history `test-support` module or export whose last
+consumer across `e2e/`, `dashboard/frontend-tests/`, `dashboard/backend-tests/`
+and `Distribution/tests/` moved (candidates: `priorBuildReferencePage.ts`,
+`doneWallReferenceHistory.ts`). Record the case-disposition table for the 6
+legacy and 5 refreshed cases from Slices 3–5, and the paired two-worker
+before/after timing including preparation of the 3 owned files and the 3
+refreshed specs: before at the story base `20719a2ae` in a temporary
+checkout, after at the delivered head, alternating under comparable load.
+P3 and P4 measured a different selection under load 40–61 and stay context
+only.
 
-Behavior: Project and Done chart marks keep build/date labels, accessible
-descriptions and run links, and fit a narrow viewport in light and dark.
-
-Proof: the moved Vitest specs; 0 legacy cases remain across the 5 owned
-files; no `act`/`IS_REACT_ACT_ENVIRONMENT` in owned specs; full frontend
-group; `e2e/intent/intent-ci-done-prior-build.spec.ts` and
+Proof: 0 legacy cases remain across the 3 owned files; no
+`createRoot`/`act`/`IS_REACT_ACT_ENVIRONMENT` in the 6 specs; consumers of
+removed support pass; full frontend group;
+`e2e/intent/intent-ci-done-prior-build.spec.ts` and
 `e2e/intent/intent-ci-wall-time-history-provenance.spec.ts` E2E.
+
+Accepted: no support module lost its last consumer (G1); the 6 legacy and 5
+refreshed cases all run on Vitest through the page mount with dispositions
+recorded; a Project chart point's accessible name is now asserted. Paired
+timing at load 4.7–6.3: story base 8.83 s warm (Playwright alone 7.33 s,
+Vitest alone 1.91 s) against 5.34 s warm at head; 11 cases, all Vitest.
+Full frontend group and both E2E journeys passed. Learning: a run spanning
+both engines keeps only the Vitest phase in the proof record; time each
+engine separately.
 
 ## Concern evidence
 
 Slice-plan refinement was not needed: each slice holds one outcome sized to
 one or two legacy files or one correction concern, below the eight-slice
 limit. This review found no remaining slice-specific concern.
+
+
+## Story obligations
+
+### G1. Shared test support grew by the Done history builder and page objects
+Reported: slice 6 — "Shared test support grew: support files +370/−276 lines; with two new page objects the net is +255 lines and +2 files, mostly doneWallTimeHistoryTestData.mjs (211 lines); no legacy history support module lost its last consumer."
+Story clause: "Remove any history `test-support` module whose last consumer moves."
+Disposition: no user cost "A dashboard maintainer can quickly check what Project and Done CI wall-time history say beside live CI proof": no history support module lost its last consumer (priorBuildReferencePage.ts and doneWallReferenceHistory.ts serve 7 E2E journeys and the scope-history specs of SEED-413#speed-intent-scope-timing-history), the spent mountedDoneWallTime.ts was removed and doneWallReferenceHistory.ts cut to what remains used; the growth is the page-loadable MakeMe builder and colocated page objects the shared acceptance asks for, so maintainers lose no proof or speed.
+Commitment: 20

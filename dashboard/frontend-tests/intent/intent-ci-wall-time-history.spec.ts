@@ -44,7 +44,7 @@ test("a measured build is a point of CI time without runner waits beside the tru
   const answer = makeMe.aCiHistoryAnswer
     .measuredBuild({ ...trunkBuild, timeMs: 365_000 })
     .pleaseMeasured();
-  const { ci, history, headingText, historyReads } =
+  const { ci, history, headingText, mark, historyReads } =
     await openTrunkHistory(answer);
   const { panel } = ci;
   await expectTrunkJudgmentAndProof(panel);
@@ -70,6 +70,7 @@ test("a measured build is a point of CI time without runner waits beside the tru
     exact: true,
   });
   await expect.element(chart).toBeVisible();
+  await expect.element(mark("Nov 5 · 6 min 5 s")).toBeVisible();
 
   expect([window.innerWidth, window.innerHeight]).toEqual([390, 844]);
   const checkAgain = panel.getByRole("button", {

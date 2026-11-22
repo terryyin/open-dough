@@ -12,7 +12,7 @@ two legacy files fit a slice. Mount through the page entry that plan 772
 Slice 1 corrects; apply the carried decisions of plan 772 and the
 [campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories).
 `readScopeHistory` is already a required member of `IntentCiReadSource`.
-Capture this story's own 14-file legacy baseline at two workers before the
+Capture this story's own 16-file legacy baseline at two workers before the
 first move (the 19-file baseline was 31 cases in 184.99 s, load 33–41,
 22 November 2026).
 
@@ -48,4 +48,18 @@ support and record the two-worker before/after timing and case disposition.
 
 Proof: absent, partial and unavailable reasons, separate case and file
 units, interrupted segments, build dates and provenance stay readable and
-accessible; 0 legacy cases remain across the 14 files.
+accessible; 0 legacy cases remain across the 16 files.
+
+### D. The shared history chart marks keep labels, links, input and narrow fit
+
+Move `intent-ci-history-chart-marks` (2, Done) and
+`intent-project-ci-history-chart-marks` (2, Project), received from plan 772
+on 2026-11-22: they drive the shared history chart on the Summary's scope
+timing history (`readScopeHistory`, `makeMe.aScopeHistoryGlance`,
+`historyChartPage.ts`), not CI wall-time history. A faithful Vitest port
+needs a typed `readScopeHistory` answer in `openDoneStoryComparison` and
+`mountJudgedRunProof`, a Summary scope-history page object, and touch input.
+
+Proof: zero-ms and incompatible-segment marks, the Tab walk across marks,
+touch taps at 390×844, marks painted with focus in light and dark, and whole
+"0 ms" axis labels at the narrowest width.

@@ -1,7 +1,8 @@
 // Intent's CI status homepage on a phone judging main's run 41 passed at
 // a1b2c3d with its Proof, main's CI time without runner waits history
 // answered by `answer`: the CI status page object, that history's region, its
-// heading's text once shown and each history read the page asked, in order.
+// heading's text once shown, a chart mark by its accessible name and each
+// history read the page asked, in order.
 import type { MeasuredHistory } from "../../src/landedCiHistory.ts";
 import { judgedRun, mountJudgedRunProof } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
@@ -41,5 +42,7 @@ export async function openTrunkHistory(answer: MeasuredHistory) {
     exact: true,
   });
   const headingText = () => history.getByRole("heading").query()?.textContent;
-  return { ci, history, headingText, historyReads };
+  const mark = (readout: string) =>
+    history.getByRole("button", { name: readout, exact: true });
+  return { ci, history, headingText, mark, historyReads };
 }

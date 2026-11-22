@@ -566,18 +566,20 @@ Its plan is
     ancestors through one production component, the page entry has no import
     cycle, duplicated test support has one owner, the story-notes dialog page
     drops `act`, and the freshness race asserts the current story's answer.
-  - Own 5 legacy wall-time history specs (10 legacy cases):
-    `intent-ci-compact-readout`, `intent-ci-done-glance`,
-    `intent-ci-done-reference-lifecycle`, `intent-ci-history-chart-marks`
-    and `intent-project-ci-history-chart-marks`.
+  - Own 3 legacy wall-time history specs (6 legacy cases):
+    `intent-ci-compact-readout`, `intent-ci-done-glance` and
+    `intent-ci-done-reference-lifecycle`.
   - Refresh the Project CI wall-time Vitest specs
     (`intent-ci-wall-time-history{,-gaps,-evidence}`, 5 cases) onto the
     shared mount, retiring their `createRoot`, React `act` and
     `IS_REACT_ACT_ENVIRONMENT` wrapping.
   - Done wall-time history reads stay a separate boundary from live
     comparison proof. A history read never rereads or perturbs proof.
-  - Scope limit: collected scope timing history and its 14 legacy files
-    belong to the sibling story below.
+  - Scope limit: collected scope timing history and its legacy files
+    belong to the sibling story below. On 22 November 2026, during plan
+    772's last slice, Terry moved the shared history chart-marks specs
+    (`intent-ci-history-chart-marks`, `intent-project-ci-history-chart-marks`)
+    there too: they test the scope timing history chart.
 - **Key examples.**
   - The freshness race: with the abort in the CI judgment cleanup removed,
     a late stale answer replacing the running story's status fails the case.
@@ -588,17 +590,18 @@ Its plan is
     exact words and cue, and a stand-in landing build is named as such.
   - Changing or retrying the Done reference → history updates or keeps its
     last answer while live comparison proof stays unchanged.
-  - Project and Done history chart marks keep build/date labels, accessible
-    descriptions and run links, fit a narrow viewport in light and dark
-    schemes, and `Check again` → `Builds and evidence` keeps keyboard order.
-- **Evaluation.** All 10 legacy cases across the 5 owned files and the 5
+  - Project and Done CI wall-time history chart marks keep build/date
+    labels and accessible descriptions, the Project history's builds keep
+    their run links, and `Check again` → `Builds and evidence` keeps
+    keyboard order.
+- **Evaluation.** All 6 legacy cases across the 3 owned files and the 5
   refreshed Project CI wall-time cases have a traceable disposition and run
   on Vitest without `act` wrapping. Apply the
   [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
   case-count, and coverage checks. Remove any history `test-support` module
   whose last consumer moves. The legacy baseline for all 19 former files is
   31 passing cases in 184.99 s including preparation at two workers (load
-  33–41, 22 November 2026). This story compares its own 5-file selection.
+  33–41, 22 November 2026). This story compares its own 3 owned files with the 3 refreshed specs.
 
 <a id="speed-intent-scope-timing-history"></a>
 
@@ -622,9 +625,12 @@ awaiting story refinement.
   and Done scope timing history say at the homepage, location, folder and
   file, including timing gaps, units, provenance, source identity, and
   independently recoverable reads.
-- **Scope.** Own 14 legacy scope timing history specs (21 legacy cases):
+- **Scope.** Own 16 legacy scope timing history specs (25 legacy cases):
   `intent-project-scope-glance`, `intent-project-scope-history-*` (6 files),
-  `intent-scope-glance` and `intent-scope-timing-history-*` (6 files). Scope
+  `intent-scope-glance`, `intent-scope-timing-history-*` (6 files), and the
+  shared history chart-marks specs `intent-ci-history-chart-marks` and
+  `intent-project-ci-history-chart-marks`, moved here from the CI wall-time
+  story on 22 November 2026. Scope
   history reads keep a separate boundary from live Scope Proof. Cases mount
   through the page entry corrected by
   [Get fast proof of Intent CI wall-time history](#speed-intent-timing-history-on-vitest).
@@ -633,8 +639,10 @@ awaiting story refinement.
   borrowing history from a different project, source, endpoint, or scope
   key. Collected scope timing keeps case and file units distinct, explains
   absent, partial, and interrupted segments, and keeps build dates and
-  provenance readable.
-- **Evaluation.** All 21 legacy cases across the 14 owned files have a
+  provenance readable. Project and Done history chart marks keep build/date
+  labels, accessible descriptions and run links, read by pointer, keyboard
+  and touch, and fit the narrowest viewport in light and dark schemes.
+- **Evaluation.** All 25 legacy cases across the 16 owned files have a
   traceable disposition and run on Vitest. Apply the
   [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
   case-count, and coverage checks, removing any history `test-support`
