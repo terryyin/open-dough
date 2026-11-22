@@ -1786,3 +1786,6 @@ wording had lost. Whole-packet visibility keeps that result exploratory.
 A landing quota can wait indefinitely when work is slow and fill without
 useful observations once reviews are off. A future pilot needs verified
 exposure, a time cutoff, and an exit condition if the review route closes.
+
+Both projects withdrew the repeat-recording paragraph and kept process
+retrospectives disabled. [Doughnut withdrawal](https://github.com/nerds-odd-e/doughnut/commit/b3b05efe687c942d9bd01430c8d2a07f9b2e8bd6) · [Pygardon withdrawal](https://github.com/terryyin/pygardon/commit/346c3dc12b8b6b4e66bd0d809786cd1765e65d09)

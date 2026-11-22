@@ -59,11 +59,11 @@ to ODF-208. ODF-264 had 75 rows.
 | 36 | Leave the failed-fix judgment open without a verified release. “An unverified execution release leaves the failed-fix judgment open.” |  | G1 |
 | 37 | On keep, queue promotion. “On keep, queue promotion into the distributed rule.” |  | G2 |
 | 38 | On keep, remove the trial paragraphs at installation of the promotion release. “That story removes the trial paragraphs when its release is installed.” |  | G2 |
-| 39 | Otherwise, remove the trial paragraphs in this story. “Otherwise this story removes them.” | slice 5 | |
+| 39 | Otherwise, remove the trial paragraphs in this story. “Otherwise this story removes them.” | slice 5 | observed: Slice 5 proof, repeat heading absent at accepted Doughnut and Pygardon revisions |
 | 40 | Close the pilot as inconclusive on the exposure available under the current settings. | slice 4 | observed: Evaluation records Terry's inconclusive decision and its ordinary exposure limit |
-| 41 | Remove the two installed trial paragraphs, one from each client. | slice 5 | |
+| 41 | Remove the two installed trial paragraphs, one from each client. | slice 5 | observed: Slice 5 proof, both AGENTS.md withdrawals reproduce the installed addition byte-for-byte |
 | 42 | Retain the replay results. | slice 4 | observed: Evaluation preserves the existing historical replay byte-for-byte |
-| 43 | Leave process retrospectives disabled. | slice 5 | |
+| 43 | Leave process retrospectives disabled. | slice 5 | observed: Slice 5 proof, skipProcessRetrospective stays true in both accepted client trees |
 
 The independent `close_source_review` reader received only the preceding scope,
 the recommendation and Terry's approval. It returned commitments 40–43.

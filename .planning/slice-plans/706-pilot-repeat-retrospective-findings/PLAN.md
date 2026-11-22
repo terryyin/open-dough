@@ -6,7 +6,7 @@
 
 ## Goal and scope
 
-Terry gets a keep or revise decision on one recording choice in Doughnut and Pygardon: a repeat that teaches something gets a full row, and any other repeat leaves one line naming its execution. The trial lives in one removable paragraph of each project's `AGENTS.md`. The distributed recording rule, the collector and the other clients stay as they are and provide the baseline. The [sibling pilot](../../seeds/SEED-401-retrospective-finding-pilots.md#assess-new-retrospective-findings-pilot) owns first reports. Promotion into the distributed rule is a later story, queued only on keep.
+Terry gets a keep or revise decision on one recording choice in Doughnut and Pygardon: a repeat that teaches something gets a full row, and any other repeat leaves one line naming its execution. The trial lives in one removable paragraph of each project's `AGENTS.md`. The distributed recording rule, the collector and the other clients stay as they are and provide the baseline. The [first-report pilot assessment](../../../docs/maintainer/first-report-pilot-assessment.md) records the sibling trial’s result. Promotion into the distributed rule is a later story, queued only on keep.
 
 ## Trial paragraph
 
@@ -137,11 +137,19 @@ pinned client revisions. The historical replay remains byte-identical.
 ### 5. The trial ends as decided
 
 Type: Behavior
-Status: planned
+Status: done
 
 On keep, add a promotion story to the seed and queue it. It changes the distributed recording rule and removes both trial paragraphs when its release is installed. On revise or an open result, remove both paragraphs through each project's delivery conventions and record the revised question in the seed if Terry wants another try.
 
 **Proof.** On keep, the backlog links the promotion story and both projects still carry the paragraph. Otherwise `grep -n "Trial: record what a repeat teaches" AGENTS.md` finds nothing on either trunk.
+
+**Accepted proof.** Doughnut `b3b05efe687c942d9bd01430c8d2a07f9b2e8bd6`
+and Pygardon `346c3dc12b8b6b4e66bd0d809786cd1765e65d09` were accepted on
+their configured trunks. Their only changed file is `AGENTS.md`. The removed
+bytes match the original additions, the repeat heading is absent at both
+published revisions, and `skipProcessRetrospective` is still true. Doughnut's
+concurrent first-report withdrawal was already on trunk and was preserved.
+Both formatters, commit hooks and focused whitespace checks passed.
 
 ## Current decisions and gates
 
