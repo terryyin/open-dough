@@ -80,6 +80,30 @@ state and follow concise guidance for publication and recovery.
 - Two closes share a checkout. After an unanswered push, each resumes its own
   close without reconstructing the range or pushing accepted work again.
 
+<a id="resume-shared-checkout-closes-as-their-own-session"></a>
+
+### Resume each shared-checkout close as its own session and keep notes advisory
+
+**Identity:** SEED-418#resume-shared-checkout-closes-as-their-own-session
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md","assessment":"not-ready","reasons":["Slice 1 premise open: consumers of the first-landing expectation file (story-branch-landing-*, agent-launch-* and worktree-release-apply backend specs, publication-landing-target, publication-resume-story-branch and dashboard-landing tests, execution-payload-update.sh, install-all-tools.sh) were not run against the per-launch layout; unreached operation: those suites on a scratch application of slice 1.","Slice 2 premise open: that no caller relies on implicit close identity is traced, not observed; unreached operation: the dough-land, preparation-native-session-record-land and dough-story-wrap-up session-record suites on a scratch application of the ambiguity refusal."],"basis":{"document":"8fadce3a5bebabd78ecb27bffea265ef640bfceca6c525e94b579d7aeb50de30","plan":"c645d10fd28d14d771894e12fcd98864a0bacf4a07ee79db997aadcd92168fef"}}
+```
+
+Correction found by the execution retrospective of
+[Disclose shared-checkout overlap in published session records](#disclose-shared-checkout-overlap).
+
+**Goal.** A developer or agent who resumes or closes a Land session in a
+shared checkout gets that session's own record. A shared-checkout note that
+cannot be written or read neither reports a kept launch as unrecorded nor
+blocks a later launch or close. Each session's local close state has one owner
+and is removed once its record is published.
+
+**Scope.** Session close identity on resume and the Land resume guidance; how
+the Dashboard writes notes and how the publisher reads them; the local Land
+close state store and its removal after publication; and which module owns the
+published uncertainty value. Plan:
+[771](../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md).
+
 <a id="prune-expired-records-after-a-retried-record-commit"></a>
 
 ### Keep the expired-record prune when a record commit is retried

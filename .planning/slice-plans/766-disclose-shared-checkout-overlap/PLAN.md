@@ -226,3 +226,18 @@ native launch remains outside the plan's E2E proof.
 - Run focused proof with `bash scripts/test.sh <paths>`; use `caffeinate -s -i`
   on AC power for long local runs under
   [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+
+## Execution complete
+
+Product advice: Correct shared-checkout Land resume before building more
+per-session review on it: an agent resuming a Dashboard close in a shared
+Default main checkout without its landing context can publish under the other
+session's UUID, and a note write failure misreports a kept launch. The
+correction is
+[SEED-418#resume-shared-checkout-closes-as-their-own-session](../771-resume-shared-checkout-closes-as-their-own-session/PLAN.md);
+take it before SEED-418#select-a-story-session-for-review and
+#review-selected-sessions-together. A landed Default main session counts as
+open until it is marked Done, so it marks later sessions in that checkout;
+before adding more disclosures, check how often real published records carry
+the `shared-checkout` mark, and if most do, prefer closing Default main
+sessions at Land.
