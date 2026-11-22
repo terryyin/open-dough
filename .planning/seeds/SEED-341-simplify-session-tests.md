@@ -94,7 +94,7 @@ homes before work starts.
 
 **Identity:** SEED-341#keep-attention-completion-journey-within-timeout
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/776-keep-attention-completion-journey-within-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ffcba45c6828b3d024db7c285a0b2009a27e364eec0aa5ad04bf009f3965720a","plan":"700f5ee20d1364bf669cb03755b4b19823c0b01350fec15087e518605d0588b7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/776-keep-attention-completion-journey-within-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1d0004b3632f0279b783a948f7ef9293495baa90e649d65c7b47a92381391190","plan":"36c1ecc2726c18b0d54b34e9e256e73ef5fd514e3ffb13bc9610bf077e5e16a8"}}
 ```
 
 **Goal:** Developers get the same `agent-completion-attention` result locally
