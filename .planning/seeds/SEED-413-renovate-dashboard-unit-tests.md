@@ -914,6 +914,33 @@ whole-selection wall time before accepting the result.
   eight stories. Every intermediate migration is usable on its own while
   the legacy entry still has a consumer.
 
+<a id="separate-launch-start-e2e-journeys"></a>
+
+### Keep each responsive launch start E2E journey on its own aspect
+
+**Identity:** SEED-413#separate-launch-start-e2e-journeys
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+```
+
+**Goal:** Developers read one E2E journey per responsive start promise,
+without workflow branches inside a shared body, and get that proof faster.
+
+- **Scope.** `e2e/launches/responsive-session-start.spec.ts` runs Start
+  execution and Start refinement through one parameterised body whose two
+  `if (start.workflow === "execution")` branches show speculative
+  generality. Split it into two tests on different aspects: refinement
+  proves the submitted dialog closing at acceptance while the start is
+  held, protecting only its story; execution proves the story stays
+  protected as its Take moves it to Taken until its session settles,
+  without repeating the dialog and other-story checks. Apply the same
+  split to its close sibling
+  `e2e/launches/responsive-session-recovery-verification.spec.ts`, whose
+  standard/one-shot loop branches on the tracking choice.
+- **Key examples.** Each test reads straight through with no workflow or
+  tracking condition; no promise either proved is lost; the execution
+  journey no longer repeats the dialog, other-story, and navigation checks.
+
 <a id="frontend-renovation-evidence"></a>
 
 ### Frontend renovation evidence

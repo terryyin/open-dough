@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Attribute every workflow session’s published changes](seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record) — SEED-418#attribute-every-workflow-session-record ([plan](slice-plans/747-attribute-every-workflow-session-record/PLAN.md))
 - [Prove Intent's Compare on the mounted Intent view](seeds/SEED-420-unified-intent-review.md#test-compare-on-mounted-intent) — SEED-420#test-compare-on-mounted-intent ([plan](slice-plans/765-test-compare-on-mounted-intent/PLAN.md))
+- [Keep each responsive launch start E2E journey on its own aspect](seeds/SEED-413-renovate-dashboard-unit-tests.md#separate-launch-start-e2e-journeys) — SEED-413#separate-launch-start-e2e-journeys
 
 ## Backlog list
 
