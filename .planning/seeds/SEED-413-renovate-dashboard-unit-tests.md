@@ -944,6 +944,47 @@ Slice 2 boundary alongside
   eight stories. Every intermediate migration is usable on its own while
   the legacy entry still has a consumer.
 
+<a id="repair-refinement-touch-tap-hang"></a>
+
+### Repair the intermittent tap hang in the refinement touch proof
+
+**Identity:** SEED-413#repair-refinement-touch-tap-hang
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** A developer's frontend CI stops failing intermittently on
+`dashboard/frontend-tests/launches/ad-hoc-refinement-touch.spec.ts:37`
+("touch rotation and restricted height preserve the refinement draft and
+choices, and Cancel sends nothing"), so a red dashboard-frontend shard means a
+real defect.
+
+**Scope.** Find and repair the cause of the hosted hang; keep the spec's
+touch-rotation and restricted-height promises. Related Taken work:
+[Get launch unit proof in about eight seconds](#make-launch-proof-orthogonal)
+changes launch proof; check its state before planning.
+
+**Evidence so far** (from the SEED-418 expire-records execution; full record
+at `eccd7868a18f7ba8a7440e3353258b871d6fcbe8:.planning/slice-plans/767-expire-published-session-records/diagnosis-refinement-touch-hang.md`):
+
+- Signature: the test reaches its 15 s timeout; its trace ends right after
+  `selectOptions Model`, so the hang is in the next `tapMountedControl` tap
+  (Standard label or Refinement options). The failure screenshot shows the
+  dialog intact with no native menu open. Runs 44986821554 (`c86dd3425`) and
+  44985422719 (`841aa3594`); about 2 failures in 15 hosted runs since the
+  earlier repair `341de8f4a`; hosted amd64 only.
+- Ruled out locally (no reproduction): an open Model menu blocking the next
+  tap, a tap while the menu opens, a late compat mousedown (macOS; Linux arm64
+  with CPU throttle ×1–×20), and Playwright retrying the tap forever
+  (playwright-core 1.65.0 source).
+- Leading hypothesis: a stage inside Playwright `locator.tap()` never resolves
+  on hosted amd64.
+- Instrument in place: `e2747f65e` bounds `tapMountedControl` at 5 s
+  (`dashboard/frontend.vitest.config.mts`), so the next hosted occurrence
+  fails with Playwright's call log naming the stuck stage. Next experiment:
+  read that call log, or repeat the spec on hosted amd64 in a separate probe
+  workflow file.
+
 <a id="frontend-renovation-evidence"></a>
 
 ### Frontend renovation evidence

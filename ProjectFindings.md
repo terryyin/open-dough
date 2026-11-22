@@ -504,3 +504,17 @@ Playwright selection ran.
   - Evidence: worktree evidence `ci-repair-44962527796.md`: `finish` returned `step: "git"` ("Author identity unknown") at once, but the controller's `wait_for cleanup` (360 s bound) and the fixture's cleanup watcher kept polling until the 180 s safety deadline. Diagnosis needed a live capture of the substitute claude stream. The fixture's `repository.git` had no commit identity, which a direct run masks with the developer's global identity (base passed directly in 42.3 s). Repair `534819515`.
   - Observed effect: an opaque timeout instead of the failing step, plus the diagnosis time.
   - Inference: a controller wait that ends on an observed `finish` failure, or one bounded below the job deadline, would name the step at once.
+
+<a id="dd-621"></a>
+
+## DD-621 — A new Distribution script module ships without its execution-payload entry until a refactor pass runs the install test
+
+### Occurrences
+- Execution: SEED-418#expire-published-session-records (plan 767; first implementation `c86dd3425`)
+  - Timestamp: 2026-11-22T05:34:38Z (refactor run `s3-refactor-install`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.110 (installed `.claude/skills/dough-update/VERSION`)
+  - Evidence: slice 3 added `dough-execute-plan/scripts/session-record-pruning.mjs`; its consumer trace (`s3-consumer-trace.json`, terms on the changed functions) and 61-file suite passed without `src/install/open-dough-execution-payload.sh`. The refactor pass ran `Distribution/tests/installation/execution-payload-update.sh`, which failed `ERR_MODULE_NOT_FOUND ... session-record-pruning.mjs`; the payload line was added before delivery.
+  - Observed effect: caught before publication; the refactor pass took about 25 active minutes, part of it this repair.
+  - Inference: a trace keyed on changed symbols cannot reach the payload list that names files; a brief that adds a Distribution script file could name the payload declaration and `execution-payload-update.sh` as proof.

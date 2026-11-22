@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-418_expire-published-session-records.json",
+      "identity": "SEED-418#expire-published-session-records",
+      "completedAt": "2026-11-22T06:19:28.119Z",
+      "blob": "2fa0fb15d7f105b0ef691ff39d7d87c727905a6c"
+    },
+    {
       "fileName": "SEED-420_test-compare-on-mounted-intent.json",
       "identity": "SEED-420#test-compare-on-mounted-intent",
       "completedAt": "2026-11-22T02:34:58.950Z",

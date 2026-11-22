@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-418#expire-published-session-records",
+  "title": "Expire published session records after 30 days",
+  "completedAt": "2026-11-22T06:19:28.119Z",
+  "developer": "Terry Yin",
+  "agent": "Kaoru-chan",
+  "host": "claude"
+}

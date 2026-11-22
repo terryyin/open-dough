@@ -80,70 +80,26 @@ state and follow concise guidance for publication and recovery.
 - Two closes share a checkout. After an unanswered push, each resumes its own
   close without reconstructing the range or pushing accepted work again.
 
-<a id="expire-published-session-records"></a>
+<a id="prune-expired-records-after-a-retried-record-commit"></a>
 
-### Expire published session records after 30 days
+### Keep the expired-record prune when a record commit is retried
 
-**Identity:** SEED-418#expire-published-session-records
+**Identity:** SEED-418#prune-expired-records-after-a-retried-record-commit
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/767-expire-published-session-records/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6ab505405c5e8465be4511782850690697acfbbb66c422f62bde04dcb81e0119","plan":"5de146b248407cb419cb13839f8e01870daa6de2f790913f5325ba9e57afca81"}}
-```
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-418#expire-published-session-records","dependencies":[{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Published session records with original close time and their shared record publication","rationale":"Expiry reads each record's original close time, and pruning runs in the session-record publication every workflow's close shares; both arrive with that story's integrated outcome.","condition":"Every publishing workflow publishes one session record with its original close time on trunk through the shared session-record publication.","state":"satisfied","resolution":{"revision":"c546ff771b47b42f549a153cbbef4604bb89560d","path":".planning/seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record","summary":"Satisfied: each record carries its sealed original closedAt, kept across retries, and every workflow publishes through the shared session-record publication (sealed-session-record.mjs). Delivered at before-cleanup c546ff771 and integrated on main at 3dbaff36c. Proof: Land closes (Distribution/tests/skills/dough-land/session-record-publication.test.mjs, session-close-resume.test.mjs), Trunk Mode wrap-up (dough-story-wrap-up/trunk-closure-session-record*.test.mjs read from a default-branch-only clone), Story Branch wrap-up (story-branch-session-record.test.mjs), refinement and ad hoc follow-up Lands (dough-story-refinement/preparation-*session-record-land.test.mjs), and another machine reviewing each range (e2e/sessions/recently-done-published-sessions.spec.ts).\nCondition satisfied: Every publishing workflow publishes one session record with its original close time on trunk through the shared session-record publication.\nAccepted integration: 3dbaff36c0b21730ff23ba5948b5199522b0f103 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/769-prune-expired-records-after-a-retried-record-commit/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"34e9dc1e71b75b410ff6acac243d8d51f2f6b494d0fa7bce9faa03c22df3d43b","plan":"6ebb4d90d3f8a49990ab46c5c2273b82ce3dbb679069ee1a55a85948f0d04743"}}
 ```
 
-Split on 2026-11-22 from `SEED-418#attribute-every-workflow-session-record`
-at its delivered slice 7. That story publishes every workflow session's
-record with its original close time.
+Correction found by the execution retrospective of
+Expire published session records after 30 days (`16cebb43ec9588615183f7286427a62a3ee85a55:.planning/seeds/SEED-418-review-published-session-changes.md#expire-published-session-records`).
 
-**Goal.** A developer's Recently done and published-session review offer
-only sessions closed within the same 30-day window as done stories and kept
-launches, and the repository's current snapshot stops accumulating session
-files. Every published record is read on each snapshot's listing, so without
-expiry that read grows with the project's whole history. Git history keeps
-the older records.
+**Goal.** A developer whose session close resumes after its record commit
+failed gets the same record commit a first attempt would have made: its own
+record plus the removal of the expired records, with no deletion left staged
+in the workspace.
 
-**Scope.**
-
-- Expiry uses the done records' window rule
-  ([`isWithinDoneWindow`](../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs)):
-  a record is current while no more than 30 days have passed since its sealed
-  `closedAt`, whatever its commit time.
-- An expired record leaves the published-session listing in Recently done,
-  and its UUID review route and file reads answer as for a session the
-  project did not publish, even while the file still exists at the fetched
-  revision. A kept local launch standing for that UUID keeps its own
-  lifecycle.
-- Every session-record commit (each workflow's close through the shared
-  [sealed-record publisher](../../Distribution/src/skills/dough-execute-plan/scripts/sealed-session-record.mjs))
-  also removes the expired record files it finds beside the backlog, as
-  `complete` prunes expired done records. A record file whose close time
-  cannot be read stays for a person to inspect. Records that expire after the
-  commit wait for a later close; reads already hide them.
-- Pruning never removes a live record, including one a concurrent writer
-  publishes while the record commit is rebased onto the advanced trunk.
-  Earlier Git snapshots keep pruned records at their original paths, so
-  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
-  published history still holds every session's identity and comparisons.
-- Scope limits: finding or reviewing an expired session from history, and
-  explaining why an expired UUID is unavailable, belong to
-  [Recover expired session reviews from Git history](#recover-expired-session-reviews).
-  Publications that write no session record, and a resumed close whose
-  identical record is already published, prune nothing.
-
-**Key examples.**
-
-- A record closed 29 days and 23 hours ago is listed and reviewable; once
-  more than 30 days have passed since its `closedAt`, it leaves Recently done
-  and its UUID route answers unavailable, though no close has run since.
-- A record committed 10 days after its `closedAt` (a resumed close) still
-  expires 30 days after `closedAt`.
-- A new close finds one expired and one live record; its record commit adds
-  its own record and deletes only the expired file. The commit before it
-  still holds the expired record.
-- While that close is publishing, another machine publishes a live record
-  and also prunes the same expired file. After the rebase, trunk holds both
-  live records and neither expired file, with no conflict.
+**Scope.** The record commit's selection and commit of expired record files in
+the shared sealed-record publisher, when that commit is retried after a
+failure. Plan: [769](../slice-plans/769-prune-expired-records-after-a-retried-record-commit/PLAN.md).
 
 <a id="select-a-story-session-for-review"></a>
 
