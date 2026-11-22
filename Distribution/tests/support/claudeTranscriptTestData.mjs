@@ -1,55 +1,21 @@
 // @ts-check
 // Claude transcript JSONL for usage-history import cases. Cases name the
 // launch, usage, workers, completion or outcome they assert; this builder
-// supplies reporting context, attachment and role rows with uuid/parentUuid
-// chaining and in-window timestamps. Malformed bytes, asserted times and
+// supplies session fields and uuid/parentUuid chaining over the row shapes
+// in claudeTranscriptRows.mjs. Malformed bytes, asserted times and
 // subagents/ layout stay in the case. No dashboard runtime import.
 
-import { testDataTimestamp } from "./testDataDefaults.mjs";
-import { claudeReportingContext } from "./claudeReportingContext.mjs";
+import {
+  assistantRow,
+  attachmentRow,
+  launchInputRow,
+  userRow,
+} from "./claudeTranscriptRows.mjs";
 
-/**
- * @typedef {object} ClaudeLaunchInputOptions
- * @property {string} reference
- * @property {string} [project]
- * @property {string} [command]
- * @property {string} [uuid]
- * @property {string} [prefix]
- * @property {string} [suffix]
- * @property {string} [timestamp]
- * @property {{ kind: string } | undefined} [origin]
- * @property {boolean} [role] when true, set message.role to "user"
- */
-
-/**
- * @typedef {object} ClaudeUserOptions
- * @property {string} uuid
- * @property {string | object} [content]
- * @property {string | null} [parentUuid]
- * @property {boolean} [chain] when false, omit parentUuid (default chains)
- * @property {string} [timestamp]
- * @property {{ kind: string }} [origin]
- * @property {object} [toolUseResult]
- * @property {object} [message]
- */
-
-/**
- * @typedef {object} ClaudeAssistantOptions
- * @property {string} [uuid]
- * @property {string} [messageId]
- * @property {object} [usage]
- * @property {string} [model]
- * @property {string} [effort]
- * @property {string} [requestId]
- * @property {string} [timestamp]
- * @property {string | null} [parentUuid]
- * @property {boolean} [chain] when false, omit parentUuid (default chains)
- * @property {unknown} [stopReason]
- * @property {unknown} [content]
- * @property {object} [message]
- */
-
-/** @typedef {Record<string, unknown>} ClaudeTranscriptRow */
+/** @typedef {import("./claudeTranscriptRows.mjs").ClaudeLaunchInputOptions} ClaudeLaunchInputOptions */
+/** @typedef {import("./claudeTranscriptRows.mjs").ClaudeUserOptions} ClaudeUserOptions */
+/** @typedef {import("./claudeTranscriptRows.mjs").ClaudeAssistantOptions} ClaudeAssistantOptions */
+/** @typedef {import("./claudeTranscriptRows.mjs").ClaudeTranscriptRow} ClaudeTranscriptRow */
 
 /**
  * A Claude session transcript: launch-input, attachment, user/assistant role
@@ -91,24 +57,7 @@ export class ClaudeTranscriptBuilder {
   /** @param {ClaudeLaunchInputOptions} options launch-input user row */
   withLaunchInput(options) {
     const uuid = options.uuid ?? "launch-input";
-    /** @type {Record<string, unknown>} */
-    const message = {
-      content: claudeReportingContext(options),
-    };
-    if (options.role) {
-      message.role = "user";
-    }
-    /** @type {ClaudeTranscriptRow} */
-    const row = {
-      ...this.#base(),
-      type: "user",
-      uuid,
-      parentUuid: null,
-      timestamp: options.timestamp ?? testDataTimestamp,
-      origin: options.origin ?? { kind: "human" },
-      message,
-    };
-    return this.#push(row, uuid);
+    return this.#push(launchInputRow(this.#base(), uuid, options), uuid);
   }
 
   /** @param {{ uuid?: string, parentUuid?: string | null }} [options] */
@@ -116,37 +65,13 @@ export class ClaudeTranscriptBuilder {
     const uuid = options.uuid ?? "context";
     const parentUuid =
       "parentUuid" in options ? options.parentUuid : this.#lastUuid;
-    /** @type {ClaudeTranscriptRow} */
-    const row = {
-      ...this.#base(),
-      type: "attachment",
-      uuid,
-    };
-    if (parentUuid !== undefined) {
-      row.parentUuid = parentUuid;
-    }
-    return this.#push(row, uuid);
+    return this.#push(attachmentRow(this.#base(), uuid, parentUuid), uuid);
   }
 
   /** @param {ClaudeUserOptions} options parentUuid defaults to the previous uuid */
   withUser(options) {
     const parentUuid = this.#resolveParent(options);
-    /** @type {ClaudeTranscriptRow} */
-    const row = {
-      ...this.#base(),
-      type: "user",
-      uuid: options.uuid,
-      ...(parentUuid !== undefined ? { parentUuid } : {}),
-      timestamp: options.timestamp ?? testDataTimestamp,
-      ...(options.origin !== undefined ? { origin: options.origin } : {}),
-      ...(options.toolUseResult !== undefined
-        ? { toolUseResult: options.toolUseResult }
-        : {}),
-      message:
-        options.message ??
-        (options.content !== undefined ? { content: options.content } : {}),
-    };
-    return this.#push(row, options.uuid);
+    return this.#push(userRow(this.#base(), options, parentUuid), options.uuid);
   }
 
   /** @param {{ uuid: string, name: string }} options slash workflow typed without arguments */
@@ -164,29 +89,10 @@ export class ClaudeTranscriptBuilder {
   withAssistant(options = {}) {
     const uuid = options.uuid ?? `assistant-${this.#rows.length + 1}`;
     const parentUuid = this.#resolveParent(options);
-    /** @type {Record<string, unknown>} */
-    const message = { ...(options.message ?? {}) };
-    if (options.messageId !== undefined) message.id = options.messageId;
-    if (options.model !== undefined) message.model = options.model;
-    if (options.usage !== undefined) message.usage = options.usage;
-    if (options.content !== undefined) message.content = options.content;
-    if ("stopReason" in options) {
-      message.stop_reason = options.stopReason;
-    }
-    /** @type {ClaudeTranscriptRow} */
-    const row = {
-      ...this.#base(),
-      type: "assistant",
+    return this.#push(
+      assistantRow(this.#base(), uuid, options, parentUuid),
       uuid,
-      ...(parentUuid !== undefined ? { parentUuid } : {}),
-      timestamp: options.timestamp ?? testDataTimestamp,
-      ...(options.requestId !== undefined
-        ? { requestId: options.requestId }
-        : {}),
-      ...(options.effort !== undefined ? { effort: options.effort } : {}),
-      message,
-    };
-    return this.#push(row, uuid);
+    );
   }
 
   /**

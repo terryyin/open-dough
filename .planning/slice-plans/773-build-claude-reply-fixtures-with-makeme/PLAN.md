@@ -2,6 +2,7 @@
 
 **Identity:** SEED-422#build-claude-reply-fixtures-with-makeme
 **Source:** [Build Claude Code reply fixtures with MakeMe steps](../../seeds/SEED-422-correct-stale-dashboard-token-totals.md#build-claude-reply-fixtures-with-makeme)
+**Source review:** [source-review.md](source-review.md)
 
 ## Provenance and findings
 
@@ -97,7 +98,7 @@ default test timeouts and follow the
 ### 1. Reorganize the Claude transcript builder below the size limit
 
 Type: Structure
-Status: planned
+Status: done
 Proof: every consumer the trace finds for `claudeTranscriptTestData` /
 `makeMe.aClaudeTranscript` passes unchanged, and the files are each under
 250 lines.
