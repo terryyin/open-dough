@@ -9,44 +9,41 @@ import {
 
 const escape = () => userEvent.keyboard("{Escape}");
 
-async function abandonsTranscription(dismiss: "Cancel" | "Escape") {
+test("Cancel and Escape each abandon a held transcription and a late reply leaves the next dialog empty", async () => {
   const capture = audioInput();
   const voice = await mountInstructionVoice();
-  const held = hold<{ text: string }>();
-  voice.transcribe.mockReturnValueOnce(held.answer);
-  await voice.field.fill("Discard this draft");
-  await voice.recordClip();
-  await expect.poll(() => voice.transcribe.mock.calls).toHaveLength(1);
-  const call = voice.transcribe.mock.calls[0];
-  if (call === undefined)
-    throw new Error("The recording did not request transcription.");
-  const [, signal] = call;
-  expect(signal.aborted).toBe(false);
-  expect(capture.tracks().map((track) => track.readyState)).toEqual(["ended"]);
-  await expect.element(voice.status).toHaveTextContent("Transcribing…");
-  await expect.element(voice.start).toBeDisabled();
-  await expect.element(voice.field).toHaveAttribute("readonly");
-  await expect.element(voice.cancel).toBeEnabled();
-  if (dismiss === "Cancel") await voice.cancel.click();
-  else await escape();
-  await expect.element(voice.dialog).not.toBeInTheDocument();
-  expect(signal.aborted).toBe(true);
-  await voice.action.click();
-  await expect.element(voice.field).toHaveValue("");
-  held.resolve({ text: "Do not carry this into the new dialog" });
-  await held.answer;
-  await expect.element(voice.field).toHaveValue("");
-  await voice.ready();
-  expect(voice.transcribe).toHaveBeenCalledTimes(1);
+  const dismissals = [() => voice.cancel.click(), escape];
+  for (const [round, dismiss] of dismissals.entries()) {
+    const held = hold<{ text: string }>();
+    voice.transcribe.mockReturnValueOnce(held.answer);
+    await voice.field.fill("Discard this draft");
+    await voice.recordClip();
+    await expect
+      .poll(() => voice.transcribe.mock.calls)
+      .toHaveLength(round + 1);
+    const call = voice.transcribe.mock.calls[round];
+    if (call === undefined)
+      throw new Error("The recording did not request transcription.");
+    const [, signal] = call;
+    expect(signal.aborted).toBe(false);
+    expect(capture.tracks().map((track) => track.readyState)).toEqual(
+      Array(round + 1).fill("ended"),
+    );
+    await expect.element(voice.status).toHaveTextContent("Transcribing…");
+    await expect.element(voice.start).toBeDisabled();
+    await expect.element(voice.field).toHaveAttribute("readonly");
+    await dismiss();
+    await expect.element(voice.dialog).not.toBeInTheDocument();
+    expect(signal.aborted).toBe(true);
+    await voice.action.click();
+    await expect.element(voice.field).toHaveValue("");
+    held.resolve({ text: "Do not carry this into the new dialog" });
+    await held.answer;
+    await expect.element(voice.field).toHaveValue("");
+    await voice.ready();
+  }
+  expect(voice.transcribe).toHaveBeenCalledTimes(2);
   expect(voice.send).not.toHaveBeenCalled();
-}
-
-test("Cancel abandons a held transcription and a late reply leaves the next dialog empty", async () => {
-  await abandonsTranscription("Cancel");
-});
-
-test("Escape abandons a held transcription and a late reply leaves the next dialog empty", async () => {
-  await abandonsTranscription("Escape");
 });
 
 test("Escape stops active recording and late permission after either dismissal cannot populate the next dialog", async () => {

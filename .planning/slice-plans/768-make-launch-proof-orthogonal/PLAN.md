@@ -174,7 +174,7 @@ equal or higher load):
 ### 4. Native recording proof keeps only its distinct races and failures
 
 Type: Behavior
-Status: planned
+Status: done
 
 Trim `mounted-instruction-voice` and
 `mounted-instruction-voice-capture-failures` to the held reply, late
@@ -184,6 +184,20 @@ share it. Remove `instruction-voice-page.ts` and `hold` code whose last
 consumer goes.
 
 Proof: the two files pass with paired timing and a mapping.
+
+Mapping (7 → 5 cases; interleaved pairs at load 29 → 19: before 8.47 s
+and 8.05 s, after 6.52 s and 6.83 s):
+
+- Cancel and Escape held-transcription cases → one case running both
+  rounds in one setup with every assertion per round; both reach
+  `dictation.cancel()` in production, and both stay because the abort of
+  in-flight work is the race. "Cancel is enabled" → the Cancel click.
+- Unavailable-device and unsupported-format cases → one case observing
+  each failure's wording, kept draft, hidden diagnostic and no tracks in
+  turn, then typed Start; permission refusal keeps its own case because
+  its recovery is an explicit retry that transcribes.
+- Late permission and track loss are unchanged. No helper lost its last
+  consumer.
 
 ### 5. Story card startup and recovery run from typed status and attempts
 
