@@ -8,7 +8,12 @@ import { cpSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "./committedOrigin.ts";
-import { expectSettledPage, parts, sessionEntriesIn } from "./dashboardPage.ts";
+import {
+  expectSettledPage,
+  parts,
+  sessionEntriesIn,
+  storyCardSessions,
+} from "./dashboardPage.ts";
 import {
   notRefinedStory,
   readyStory,
@@ -18,6 +23,7 @@ import {
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { optionsDefinitionSchema } from "../src/commandOptions.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
+import { sessionDetails } from "./support/sessionEntryDisclosure.ts";
 import { repoRoot } from "./support/repositoryRoot.ts";
 
 // Installs the real refinement skill's references, its options definition
@@ -68,29 +74,8 @@ export function shippedRefinementDefinition() {
   };
 }
 
-const groupedEntry = (flag: string) =>
-  makeMe.anOptionsEntry
-    .with({
-      flag,
-      label: flag.slice(2).toUpperCase(),
-    })
-    .please();
-// A refinement options definition with A and B in the exclusive group
-// "Approach", and C outside any group.
 export const groupedOptions = makeMe.anOptionsDefinition
-  .with({
-    command: "dough-story-refinement",
-    options: [groupedEntry("--a"), groupedEntry("--b"), groupedEntry("--c")],
-    groups: [
-      makeMe.anExclusiveOptionGroup
-        .with({
-          id: "approach",
-          label: "Approach",
-          flags: ["--a", "--b"],
-        })
-        .please(),
-    ],
-  })
+  .withExclusiveApproachExample()
   .please();
 
 // Where origin places the launch journey's stories; session state never
@@ -129,6 +114,12 @@ export function backlogLaunchers(page: Page) {
     refinementDialog: page.getByRole("dialog", {
       name: "Start refinement in Claude Code",
     }),
+    async showsRecordedRefinementOptions(title: string, expected: string) {
+      const entry = storyCardSessions(card(title));
+      await expect(entry).toHaveCount(1);
+      await sessionDetails(entry);
+      await expect(entry.getByText(expected, { exact: true })).toBeVisible();
+    },
   };
 }
 

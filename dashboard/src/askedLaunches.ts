@@ -15,7 +15,7 @@ import type {
   AttemptObservation,
   LaunchWithState,
 } from "./agentLaunch.ts";
-import { requestAgentAcceptance } from "./agentLaunchClient.ts";
+import type { requestAgentAcceptance } from "./agentLaunchClient.ts";
 import { withAttachmentClaims } from "./launchAttachmentClient.ts";
 import { useKeyedState } from "./keyedState.ts";
 import type { StartAnswer } from "./useLaunchConfirmation.tsx";
@@ -28,6 +28,7 @@ import {
 import { sessionKey } from "./sessionReference.ts";
 
 export function useAskedLaunches({
+  accept,
   observed,
   resolved,
   readHistory,
@@ -36,6 +37,7 @@ export function useAskedLaunches({
   asksSoFar,
   reread,
 }: {
+  readonly accept: typeof requestAgentAcceptance;
   readonly observed: readonly AttemptObservation[];
   // The attempts the history read so far says no longer need attention, and
   // how to ask it.
@@ -109,7 +111,7 @@ export function useAskedLaunches({
         });
         return false;
       }
-      const answer = await requestAgentAcceptance(accepted, attachTerminal);
+      const answer = await accept(accepted, attachTerminal);
       // Nothing started: the dialog asks the developer to confirm.
       if (
         answer.kind === "existing-changes" ||
@@ -123,7 +125,7 @@ export function useAskedLaunches({
       setPage(key, answeredAttempt(answer, accepted, onLaunched, asksSoFar()));
       return answer.kind === "accepted";
     },
-    [setPage, reread, asksSoFar],
+    [accept, setPage, reread, asksSoFar],
   );
 
   return { pages, latest, launch };

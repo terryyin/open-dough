@@ -13,11 +13,15 @@ import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandi
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
+import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
+import { CreationRecordBuilder } from "./launchCreationTestData.mjs";
 import {
   ObservedLaunchBuilder,
   SessionStateBuilder,
 } from "./launchObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
+import { optionsDefinitionMakeMeProperties } from "./optionsDefinitionTestData.mjs";
 import { TokenIndexAnswerBuilder } from "./usageAnswerTestData.mjs";
 import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTestData.mjs";
 
@@ -27,16 +31,20 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./ciProofTestData.mjs").CiProofMakeMe &
  *   import("./comparedStoryTestData.mjs").ComparedStoryMakeMe &
  *   import("./comparisonViewTestData.mjs").ComparisonViewMakeMe &
+ *   import("./optionsDefinitionTestData.mjs").OptionsDefinitionMakeMe &
  *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe &
  *   import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe &
  *   import("./sessionRecordTestData.mjs").SessionRecordMakeMe &
  *   import("./storyReviewTestData.mjs").StoryReviewMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
- *     readonly aDoneRecord: DoneRecordBuilder;
- *     readonly aWorkEntry: import("./factBuilder.mjs").FactBuilder<
- *       import("../../../dashboard/src/publishedWork.ts").WorkEntry
+ *     readonly aLaunchHostOptions: import("./factBuilder.mjs").FactBuilder<
+ *       import("../../../dashboard/src/launchHostOptions.ts").LaunchHostOptions
  *     >;
+ *     readonly anAcceptedAttempt: AcceptedAttemptBuilder;
+ *     readonly anAttemptObservation: AttemptObservationBuilder;
+ *     readonly aCreationRecord: CreationRecordBuilder;
+ *     readonly aDoneRecord: DoneRecordBuilder;
  *     readonly aSessionState: SessionStateBuilder;
  *     readonly anObservedLaunch: ObservedLaunchBuilder;
  *     readonly aMachineAnswer: MachineAnswerBuilder;
@@ -60,6 +68,7 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...ciProofMakeMeProperties(),
   ...comparedStoryMakeMeProperties(),
   ...comparisonViewMakeMeProperties(),
+  ...optionsDefinitionMakeMeProperties(),
   ...publishedReadingMakeMeProperties(),
   ...terminalThemeSettingMakeMeProperties(),
   ...sessionRecordMakeMeProperties(),
@@ -76,17 +85,35 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
       return new DoneRecordBuilder();
     },
   },
-  aWorkEntry: {
-    enumerable: true,
-    get() {
-      return { with: copyFacts };
-    },
-  },
   // Node-free launch record; Node-only reviewed-session examples stay on makeMe.mjs.
   aLaunchRecord: {
     enumerable: true,
     get() {
       return new LaunchRecordBuilder();
+    },
+  },
+  aLaunchHostOptions: {
+    enumerable: true,
+    get() {
+      return { with: copyFacts };
+    },
+  },
+  aCreationRecord: {
+    enumerable: true,
+    get() {
+      return new CreationRecordBuilder();
+    },
+  },
+  anAcceptedAttempt: {
+    enumerable: true,
+    get() {
+      return new AcceptedAttemptBuilder();
+    },
+  },
+  anAttemptObservation: {
+    enumerable: true,
+    get() {
+      return new AttemptObservationBuilder();
     },
   },
   aSessionState: {

@@ -10,7 +10,7 @@
 // request kinds is
 // ../../dashboard/backend-tests/launches/agent-launch-model-boundary.spec.ts;
 // the host switch, dismissal and keyboard order of the dialog are
-// ../../dashboard/frontend-tests/launches/agent-launch-model.spec.ts.
+// ../../dashboard/frontend-tests/launches/launch-model-effort.spec.ts.
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";

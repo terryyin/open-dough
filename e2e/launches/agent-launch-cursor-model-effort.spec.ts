@@ -3,7 +3,7 @@
 // composed listed id on the prompted run and keeps model and effort apart in
 // the record. The fixture records native argv. Retaining an unsupported
 // effort as invalid is
-// ../../dashboard/frontend-tests/launches/agent-launch-native-effort.spec.ts.
+// ../../dashboard/frontend-tests/launches/launch-native-effort.spec.ts.
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,

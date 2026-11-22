@@ -20,7 +20,11 @@ import type {
   KeptStart,
 } from "./agentLaunch.ts";
 import { useAskedLaunches } from "./askedLaunches.ts";
-import { useAttemptChangeWaits } from "./attemptChangeWaits.ts";
+import {
+  useAttemptChangeWaits,
+  type awaitAttemptChange,
+} from "./attemptChangeWaits.ts";
+import type { requestAgentAcceptance } from "./agentLaunchClient.ts";
 import type { StartAnswer } from "./useLaunchConfirmation.tsx";
 import type { FollowUpSource } from "./followUpRequest.ts";
 import {
@@ -48,6 +52,11 @@ import {
 } from "./startupRecoveries.ts";
 
 export type { LaunchAttempt, OnLaunched } from "./pageAttempt.ts";
+
+export type LaunchAttemptSource = {
+  readonly accept: typeof requestAgentAcceptance;
+  readonly waitForChange: typeof awaitAttemptChange;
+};
 
 export type LaunchAttempts = StartupRecoveries & {
   attemptOf(
@@ -93,6 +102,7 @@ export type LaunchAttempts = StartupRecoveries & {
 // `reread` asks for a prompt read of them, which every attempt the server
 // runs gets once it changes. `reads` counts the reads answered so far.
 export function useLaunchAttempts({
+  source,
   observed,
   resolved,
   readHistory,
@@ -106,6 +116,7 @@ export function useLaunchAttempts({
   reread,
   published,
 }: {
+  readonly source: LaunchAttemptSource;
   readonly observed: readonly AttemptObservation[];
   // The attempts the history read so far says no longer need attention, and
   // how to ask it (`./retainedHistory.ts`).
@@ -128,6 +139,7 @@ export function useLaunchAttempts({
     latest,
     launch,
   } = useAskedLaunches({
+    accept: source.accept,
     observed,
     resolved,
     readHistory,
@@ -160,6 +172,7 @@ export function useLaunchAttempts({
     known.filter((attempt) => attempt.running && attempt.outcome === undefined),
     reads,
     reread,
+    source.waitForChange,
   );
 
   const asked = askedRequests([...attempts.values()]);

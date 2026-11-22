@@ -3,14 +3,7 @@
 
 import type { IntentCandidatesAnswer } from "../../server/intentCandidatesRead.ts";
 import type { IntentLocationsAnswer } from "../../server/intentLocationsRead.ts";
-import type {
-  MachineAnswer,
-  OfferedDefinition,
-} from "../../src/agentLaunch.ts";
-import {
-  offeredShape,
-  type OptionsDefinition,
-} from "../../src/commandOptions.ts";
+import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { Page } from "@playwright/test";
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
@@ -157,18 +150,6 @@ export function putFrontendDoneRecords(
     bodies[fileName] = body;
   }
   putFrontendDonePublication(services, sourceId, { catalog, bodies });
-}
-
-// The machine's sessions read when Open Dough's installed skill offers its
-// refinement launches in Claude Code the options of `definition`.
-export function machineOffering(definition: OptionsDefinition): MachineAnswer {
-  const offered: OfferedDefinition = {
-    source: "open-dough",
-    workflow: "refinement",
-    host: "claude",
-    ...offeredShape(definition),
-  };
-  return makeMe.aMachineAnswer.offering(offered).please();
 }
 
 export function putFrontendCandidates(

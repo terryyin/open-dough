@@ -457,7 +457,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 3b | [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours) | 23 | 16 |
 | 3c | [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading) | 41 | 19 |
 | 4 | Get fast proof of board and side-panel interactions (completed) | 63 | 28 |
-| 5 | [Get fast proof of composing and starting a launch](#speed-dashboard-launch-proof) | 81 | 29 |
+| 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
 | 7 | [Get fast proof of live sessions and terminal work](#speed-dashboard-live-session-and-terminal-proof) | 77 | 31 |
 | 8 | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | 61 | 22 |
@@ -776,60 +776,46 @@ Slice 2 boundary alongside
   [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
   case-count, spent-support, and coverage checks.
 
-<a id="speed-dashboard-launch-proof"></a>
+<a id="make-launch-proof-orthogonal"></a>
 
-### Get fast proof of composing and starting a launch
+### Get launch unit proof in about eight seconds
 
-**Identity:** SEED-413#speed-dashboard-launch-proof
+**Identity:** SEED-413#make-launch-proof-orthogonal
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#make-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-launch-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof"},"implementation":"All 29 legacy launch files retire with a mapped mounted Vitest baseline and existing composed ownership.","rationale":"The redesign must compare equivalent behavior against the integrated all-Vitest selection. The retained Playwright families exercise different setup costs and make pre-integration timing unsuitable.","condition":"The launch proof migration is integrated with its all-Vitest launch selection and behavior map.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/762-speed-dashboard-launch-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"31a4bd56b0029f6e09371a9c4c4d8edd8351232e62f54a6630e82cfc32069219","plan":"f9ec2735525b40433886d9eb017076b6852677c16f63e572860c131ffef254d5"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-**Goal.** Dashboard maintainers get faster feedback that composing and
-starting a launch keeps the intended draft, host, model, effort, options,
-attachments, dictation, and note handoff, and that a refused or uncertain
-start leaves a truthful recovery path.
+**Outcome.** Dashboard maintainers get the local launch unit selection in
+about 7–8 seconds at two workers, including preparation, with distinct
+behavior and the existing composed journeys still covered.
 
-**Scope.** Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)
-to every legacy `launches/` spec (29 sources, 81 cases): ad-hoc Start
-session placement and dialogs, story-card Start execution and Start
-refinement offers and dialogs, host catalog and model or effort choices,
-refinement options, creation gates, instruction layout and touch,
-attachments (paste, refusal, cancel), instruction voice capture and
-overflow, Follow up note attach, startup answers and host words, and
-responsive session access including unattached starts and recovery reads.
-Keep distinct provider constraints and handoff routes observable where the
-UI owns them. Retain journeys that need actual installation, a native host
-launch, or cross-service startup in existing `e2e/launches/` coverage.
-[Board and frame launch-opening checks](../../dashboard/frontend-tests/navigation/frame-launch-look.spec.ts)
-cover opening the dialog.
-[Done session review](#speed-dashboard-done-session-review-proof) and
-[live sessions and terminal](#speed-dashboard-live-session-and-terminal-proof)
-own post-start session and review proof. The final campaign story owns
-frontend runner retirement. Backend launch-boundary and attachment specs
-keep their existing owners.
+**Boundary.** Start from the all-Vitest launch selection and the migration's
+coverage map. Each unit case depends only on production code and data that
+can affect its asserted behavior. Arrange preconditions at the smallest
+production owner through typed inputs. Exercise independent dimensions
+separately and keep combinations where they can change the result. The
+case count may change. Preserve genuine browser conditions, capture and
+recovery races, and the existing real native and backend journeys.
 
-**Key examples**
+**Baseline.** The 72-case mounted selection passed in 32.04 s wall and
+57.57 summed case-seconds. The legacy selection took 46.48 s wall.
+Both used `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
+on AC power with Node 24.21.0 and the same lockfile. Recover the case map,
+slow-case breakdown, and retained family leads from
+`cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
 
-- Opening Start session or a story's Start execution / Start refinement
-  names the project or story and host, focuses the instruction field, and
-  Escape or Cancel sends nothing and returns the keyboard to the offer.
-- Choosing host, model, effort, or refinement options updates what Start
-  asks for; changing host resets incompatible effort; a late catalog reply
-  cannot replace another host's current options; Cancel after a refusal
-  drops the kept selection.
-- Pasting text into the instruction still inserts it; refused PDF,
-  oversized, or excess images keep the draft with reasons; Cancel or Escape
-  after Attach uploads nothing and reopens empty.
-- Dictation that overflows 4,000 characters retains both drafts for edit;
-  Cancel or Escape abandons a held transcription and a late grant or reply
-  cannot populate the next dialog.
-- While a start runs or an answer is lost or uncertain, Start is disabled,
-  the story or Start session stays protected with reachable recovery, and
-  settling does not steal the keyboard from a task begun meanwhile.
-- Follow up offers Attach when notes wait and Start names the choice; with
-  no waiting notes Attach is unavailable and Start still works; a Taken
-  card shows notes waiting and offers no Follow up.
+**First experiments.** Arrange dense layout directly through production
+inputs, then uncouple viewport geometry from choice and command mapping.
+Test shared model reset at the dialog and retain the launchers' distinct
+handoffs. Feed transcript text into the owner of overflow and editing,
+leaving capture and cleanup at the recording boundary. Cut repeated
+startup presentation setup around typed attempt and notes inputs.
+A single file cannot close the timing gap. Compare each family before and
+after and keep a named equivalent for every retired observation. Recheck
+whole-selection wall time before accepting the result.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 

@@ -3,8 +3,9 @@
 // for execution and one not refined, and one Taken. The page's own dashboard
 // server launches the synthetic `claude`
 // (../../dashboard/test-support/fixtures/fake-claude), which records what it was
-// asked; the real one is never reached. Each card's Starts, readiness notes
-// and dialogs are ../../dashboard/frontend-tests/launches/agent-launch-story-card.spec.ts;
+// asked; the real one is never reached. Starts and readiness notes are in
+// ../../dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts.
+// Dialogs are in ../../dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts.
 // a launch that did not start is ./agent-launch-story-card-problems.spec.ts;
 // how a card's sessions stay listed is
 // ../sessions/agent-launch-story-card-sessions.spec.ts. On a phone, only an

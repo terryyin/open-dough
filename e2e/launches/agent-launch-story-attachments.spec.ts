@@ -2,7 +2,7 @@
 // Claude's prompt is the skill line, the established preparation handoff,
 // reporting context, then the Attached images list under the test HOME's
 // launch-attachments folder. That both story dialogs offer Attach images is
-// ../../dashboard/frontend-tests/launches/agent-launch-story-card-dialogs.spec.ts.
+// ../../dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts.
 
 import path from "node:path";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";

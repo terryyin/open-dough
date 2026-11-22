@@ -12,15 +12,35 @@ import {
 import { PublishedFilesBuilder } from "./publishedFilesTestData.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 
+/** @typedef {import("../../../dashboard/src/publishedWork.ts").WorkEntry} WorkEntry */
+
 /**
  * @typedef {object} PublishedReadingMakeMe
  * @property {PublishedSourceBuilder} aPublishedSource
  * @property {PublishedWorkBuilder} aPublishedWork
+ * @property {WorkEntryBuilder} aWorkEntry
  * @property {PublishedFilesBuilder} somePublishedFiles
  * @property {IntentLocationBuilder} anIntentLocation
  * @property {IntentLocationsAnswerBuilder} anIntentLocationsAnswer
  * @property {import("./factBuilder.mjs").FactBuilder<import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance>} aScopeHistoryGlance
  */
+
+class WorkEntryBuilder {
+  /** @param {Omit<WorkEntry, "canonical"> & { canonical?: WorkEntry["canonical"] }} facts */
+  with(facts) {
+    return copyFacts({
+      ...facts,
+      canonical:
+        facts.canonical ??
+        /** @type {const} */ ({
+          kind: "snapshot",
+          recorded: "seeds/SEED-1.md",
+          url: "https://example.test/seeds/SEED-1.md",
+          revision: "a".repeat(40),
+        }),
+    });
+  }
+}
 
 /** @returns {PropertyDescriptorMap} */
 export function publishedReadingMakeMeProperties() {
@@ -35,6 +55,12 @@ export function publishedReadingMakeMeProperties() {
       enumerable: true,
       get() {
         return new PublishedWorkBuilder();
+      },
+    },
+    aWorkEntry: {
+      enumerable: true,
+      get() {
+        return new WorkEntryBuilder();
       },
     },
     somePublishedFiles: {

@@ -25,6 +25,8 @@ import "./launch-session.css";
 // was not accepted hands its selection back (`onRefused`) for the next
 // opening to start from (`kept`), so the developer can change it.
 export function LaunchDialog({
+  readOptions,
+  transcription,
   sourceId,
   projectContext = false,
   heading,
@@ -55,7 +57,7 @@ export function LaunchDialog({
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const instruction = useRef<HTMLTextAreaElement>(null);
-  const dictation = useLaunchInstruction(instruction, dialog);
+  const dictation = useLaunchInstruction(instruction, dialog, transcription);
   const headingId = `${id}-heading`;
   const hintId = `${id}-instruction-hint`;
   const accepted = useRef(false);
@@ -67,7 +69,7 @@ export function LaunchDialog({
   );
   const { selected, flags } = selection;
   const { model, setModel, effort, setEffort, catalog, settingsBlocked } =
-    useLaunchSettings(sourceId, host, projectContext);
+    useLaunchSettings(readOptions, sourceId, host, projectContext);
   const attachments = useLaunchAttachments();
   // Unless a launch found existing changes to confirm, closes with its answer.
   const confirmation = useLaunchConfirmation({

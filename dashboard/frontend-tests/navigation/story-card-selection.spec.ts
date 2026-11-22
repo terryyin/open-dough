@@ -2,6 +2,8 @@ import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { readDoneRecordBodiesAt } from "../../src/authenticatedDoneRead.ts";
+import { contrastRatio } from "../../test-support/composedColours.ts";
+import { decorativeIcon, paintedBackground } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
 import { noSessions, withBoardStorage } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
@@ -30,6 +32,19 @@ async function inspected(card: Card, open: boolean) {
     .toHaveAttribute("aria-expanded", String(open));
   if (open) await expect.element(detail(card)).toBeVisible();
   else await expect.element(detail(card)).not.toBeInTheDocument();
+}
+
+async function inspectionChevronPoints(control: Card, transform: RegExp) {
+  await expect.element(control).toBeVisible();
+  const button = control.element();
+  decorativeIcon(button);
+  const icon = button.querySelector("svg.lucide-chevron-right");
+  if (!icon) throw new Error("Inspect story has no chevron.");
+  expect(button.firstChild).toBe(icon);
+  expect(
+    contrastRatio(getComputedStyle(icon).color, paintedBackground(button)),
+  ).toBeGreaterThanOrEqual(3);
+  await expect.poll(() => getComputedStyle(icon).transform).toMatch(transform);
 }
 
 test("empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async () => {
@@ -92,8 +107,12 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
   await board.expectStorySelection(active, false);
   await inspected(active, false);
 
-  await active.getByRole("button", { name: "Inspect story" }).click();
+  const inspect = active.getByRole("button", { name: "Inspect story" });
+  const hide = active.getByRole("button", { name: "Hide detail" });
+  await inspectionChevronPoints(inspect, /^none$/);
+  await inspect.click();
   await inspected(active, true);
+  await inspectionChevronPoints(hide, /^matrix\((?:-?0|[\d.]+e-\d+), 1, -1, /);
   await board.expectStorySelection(active, false);
   await detail(active).click();
   await board.expectStorySelection(active, false);
@@ -103,8 +122,9 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
   await activeArea.click();
   await board.expectStorySelection(active, false);
   await inspected(active, true);
-  await active.getByRole("button", { name: "Hide detail" }).click();
+  await hide.click();
   await inspected(active, false);
+  await inspectionChevronPoints(inspect, /^none$/);
   await board.expectStorySelection(active, false);
 
   await activeArea.click();
