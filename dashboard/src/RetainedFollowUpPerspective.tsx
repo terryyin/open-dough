@@ -1,12 +1,11 @@
 // A route-known local reader: no live CI owner mounts, including bootstrap.
 import { useContext, useEffect, useState } from "react";
-import { ciFollowUpEndpoint } from "./ciFollowUp.ts";
-import {
-  ciFollowUpReadingSchema,
-  type CiFollowUpReading,
-  type FollowUpDestination,
+import type {
+  CiFollowUpReading,
+  FollowUpDestination,
 } from "./ciFollowUpReading.ts";
-import { localSettingRequest } from "./localSettingRequest.ts";
+import { retainedFollowUpUnreadable } from "./ciFollowUpReadSource.ts";
+import { useCiFollowUpReads } from "./pageReads.tsx";
 import { IntentCiRetainedProvider } from "./IntentCiEvidence.tsx";
 import { IntentPage } from "./IntentPage.tsx";
 import { useStorySummary, type StorySummary } from "./IntentStorySummary.tsx";
@@ -58,6 +57,7 @@ function RetainedStory({
   const { selection } = useStorySelection(source.id);
   const { chooseScope } = useIntentScope(selection);
   const navigate = useContext(FollowUpNavigationOnPage);
+  const reads = useCiFollowUpReads();
   const project = useIntentModeChoice(source.id);
   const lens = useIntentStoryLens({
     source,
@@ -74,30 +74,27 @@ function RetainedStory({
 
   useEffect(() => {
     let current = true;
-    const params = new URLSearchParams({ id: source.id, ...destination });
-    void localSettingRequest(
-      `${ciFollowUpEndpoint}?${params}`,
-      undefined,
-      "Retained CI follow-up evidence could not be read.",
-    )
+    void reads
+      .readRetained(source.id, {
+        identity: destination.identity,
+        revision: destination.revision,
+      })
       .then((value) => {
         if (current) {
-          setReading(ciFollowUpReadingSchema.parse(value));
+          setReading(value);
           setProblem(undefined);
         }
       })
       .catch((error: unknown) => {
         if (current)
           setProblem(
-            error instanceof Error
-              ? error.message
-              : "Retained CI follow-up evidence could not be read.",
+            error instanceof Error ? error.message : retainedFollowUpUnreadable,
           );
       });
     return () => {
       current = false;
     };
-  }, [source.id, destination.identity, destination.revision, round]);
+  }, [source.id, destination.identity, destination.revision, round, reads]);
   return (
     <IntentCiRetainedProvider
       source={source}

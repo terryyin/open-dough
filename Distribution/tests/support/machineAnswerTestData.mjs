@@ -17,6 +17,7 @@ import {
 /** @typedef {import("../../../dashboard/src/launchOutcome.ts").AttemptObservation} AttemptObservation */
 /** @typedef {MachineAnswer["establishingHosts"][number]} EstablishingStart */
 /** @typedef {MachineAnswer["creations"][number]} CreationView */
+/** @typedef {MachineAnswer["workspaces"][number]} HeldWorkspace */
 /** @typedef {MachineAnswer["definitions"][number]} OfferedDefinition */
 /** @typedef {MachineAnswer["keptStarts"][number]} KeptStart */
 
@@ -37,6 +38,17 @@ export class MachineAnswerBuilder {
   #definitions = [];
   /** @type {KeptStart[]} */
   #keptStarts = [];
+  /** @type {HeldWorkspace[]} */
+  #workspaces = [];
+
+  /**
+   * This machine's worktrees holding a story's claim.
+   * @param {...HeldWorkspace} workspaces
+   */
+  holdingWorkspaces(...workspaces) {
+    this.#workspaces.push(...workspaces.map((held) => structuredClone(held)));
+    return this;
+  }
 
   /**
    * Starts the machine keeps for a story's Start to resume.
@@ -190,7 +202,7 @@ export class MachineAnswerBuilder {
       definitions: structuredClone(this.#definitions),
       establishingHosts: this.#establishing.map((start) => ({ ...start })),
       sessionPolicies: [],
-      workspaces: [],
+      workspaces: structuredClone(this.#workspaces),
     };
   }
 }

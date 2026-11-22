@@ -6,7 +6,10 @@ import {
   type StoryNoteChange,
   type StoryNoteContext as NoteContext,
 } from "./storyNote.ts";
-import { storyNoteNotSaved, storyNotesUnreadable } from "./storyNotes.ts";
+import {
+  storyNoteNotSaved,
+  storyNotesUnreadable,
+} from "./storyNotesReadSource.ts";
 import { useStoryNoteAnnouncement } from "./storyNoteAnnouncement.ts";
 import { StoryNoteContext } from "./StoryNoteContext.tsx";
 import { StoryNoteEntry } from "./StoryNoteEntry.tsx";

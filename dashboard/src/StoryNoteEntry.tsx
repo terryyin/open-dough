@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
 import { StoryNoteContext } from "./StoryNoteContext.tsx";
-import { storyNoteNotDeleted } from "./storyNotes.ts";
+import { storyNoteNotDeleted } from "./storyNotesReadSource.ts";
 import { storyNoteDeliveryLabel, type StoryNote } from "./storyNote.ts";
 export function StoryNoteEntry({
   note,

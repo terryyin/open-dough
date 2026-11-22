@@ -12,7 +12,7 @@ import {
 } from "../../src/pageStoryReviews.ts";
 import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
-import type { StoryNotesSource } from "../../src/storyNotes.ts";
+import type { StoryNotesReadSource } from "../../src/storyNotesReadSource.ts";
 import { StoryReview } from "../../src/StoryReview.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
@@ -58,7 +58,7 @@ export async function mountReviewChanges(
     notes,
   }: {
     completed?: boolean;
-    notes?: StoryNotesSource;
+    notes?: StoryNotesReadSource;
     viewport?: { readonly width: number; readonly height: number };
   } = {},
 ) {

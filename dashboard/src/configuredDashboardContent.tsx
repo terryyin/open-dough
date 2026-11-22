@@ -1,9 +1,7 @@
 import type { ReactNode } from "react";
-import { Board } from "./Board.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
+import { BoardOrIntent } from "./boardOrIntent.tsx";
 import type { DashboardRoute } from "./dashboardRouteUrl.ts";
-import { IntentPerspective } from "./IntentPerspective.tsx";
-import { IntentReadRecovery } from "./intentReadRecovery.tsx";
 import type { useObservationAttempt } from "./observationAttempt.ts";
 import type { Visibility } from "./pageVisibility.ts";
 import { AgentRoster } from "./AgentRoster.tsx";
@@ -12,7 +10,6 @@ import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
 import { usePageSessions } from "./pageSessions.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { RetainedFollowUpPerspective } from "./RetainedFollowUpPerspective.tsx";
 import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
 import { StartupRecovery } from "./StartupRecovery.tsx";
 import { StoryDestination, useStoryDestination } from "./StoryDestination.tsx";
@@ -117,40 +114,17 @@ export function ConfiguredDashboardContent({
             startups={launches.storyStartupsOf(source.id)}
           />
         </div>
-        {work && (
-          <main hidden={!showsBoard}>
-            <Board
-              sourceId={source.id}
-              project={source.label}
-              work={work}
-              launches={launches}
-              onOpenRoster={openRoster}
-            />
-          </main>
-        )}
-        {showsIntent && (
-          <IntentReadRecovery
-            visibility={visibility}
-            limitStands={limitedUntil !== undefined}
-          >
-            {route.followUp !== undefined ? (
-              <RetainedFollowUpPerspective
-                source={source}
-                work={work}
-                records={launches.records}
-                workspaces={launches.workspaces}
-                destination={route.followUp}
-              />
-            ) : (
-              <IntentPerspective
-                source={source}
-                work={work}
-                records={launches.records}
-                workspaces={launches.workspaces}
-              />
-            )}
-          </IntentReadRecovery>
-        )}
+        <BoardOrIntent
+          source={source}
+          work={work}
+          launches={launches}
+          showsBoard={showsBoard}
+          showsIntent={showsIntent}
+          followUp={route.followUp}
+          visibility={visibility}
+          limitStands={limitedUntil !== undefined}
+          openRoster={openRoster}
+        />
         {showsRoster && (
           <main>
             <AgentRoster

@@ -1,23 +1,22 @@
 // StoryNotesDialog mounted alone: changes go to the case, input stays in-page.
-import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { StoryNotesDialog } from "../../src/StoryNotesDialog.tsx";
 import {
   storyNoteSentToFollowUp,
   storyNoteWaitingForFollowUp,
-  type StoryNote,
-  type StoryNoteChange,
 } from "../../src/storyNote.ts";
 import {
   storyNoteNotDeleted,
   storyNoteNotSaved,
   storyNotesUnreadable,
-} from "../../src/storyNotes.ts";
+} from "../../src/storyNotesReadSource.ts";
+import {
+  identity,
+  openDialog,
+  title,
+  type Answer,
+} from "./story-notes-dialog-page.ts";
 
-const title = "Keep notes beside a story";
-const identity = "SEED-001#keep-notes";
 const storyContext = `${title} · ${identity}`;
 const lineContext = {
   view: "Intent → Changes",
@@ -34,80 +33,6 @@ const lineContextWords = [
   "Line 7 · new",
   "return result;",
 ];
-
-const answers = {
-  accept: () => Promise.resolve(),
-  refuse: () => Promise.reject(new Error("422 refused")),
-  unreachable: () => Promise.reject(new TypeError("Failed to fetch")),
-};
-type Answer = keyof typeof answers;
-
-function present<T>(found: T | null | undefined, what: string): T {
-  if (found === null || found === undefined) throw new Error(`No ${what}`);
-  return found;
-}
-
-vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
-function openDialog(notes: readonly StoryNote[], { unreadable = false } = {}) {
-  const changes: StoryNoteChange[] = [];
-  const next: Answer[] = [];
-  const host = document.body.appendChild(document.createElement("div"));
-  const root = createRoot(host);
-  onTestFinished(() => {
-    act(() => {
-      root.unmount();
-    });
-    host.remove();
-  });
-  const onChange = (change: StoryNoteChange) => {
-    changes.push(change);
-    return answers[next.shift() ?? "accept"]();
-  };
-  const props = { identity, title, unreadable, onChange, onClose: vi.fn() };
-  const showNotes = (shown: readonly StoryNote[]) => {
-    act(() => {
-      root.render(createElement(StoryNotesDialog, { ...props, notes: shown }));
-    });
-  };
-  showNotes(notes);
-  const dialog = present(host.querySelector("dialog"), "dialog");
-  const button = (name: string, within: Element) =>
-    present(
-      [...within.querySelectorAll("button")].find(
-        (candidate) => candidate.textContent === name && !candidate.hidden,
-      ),
-      `"${name}" button`,
-    );
-  const click = (control: HTMLButtonElement) =>
-    act(() => {
-      control.click();
-      return Promise.resolve();
-    });
-  const savedNote = () =>
-    present(dialog.querySelector('[aria-label="Saved notes"] > li'), "note");
-  const field = () => dialog.querySelector("textarea");
-  const texts = (selector: string) =>
-    [...dialog.querySelectorAll(selector)].map((found) => found.textContent);
-  return {
-    dialog,
-    changes,
-    answerNext: (answer: Answer) => next.push(answer),
-    showNotes,
-    button: (name: string) => button(name, dialog),
-    press: (name: string) => click(button(name, dialog)),
-    savedNote,
-    noteButton: (name: string) => button(name, savedNote()),
-    pressOnNote: (name: string) => click(button(name, savedNote())),
-    composer: () => present(dialog.querySelector("form"), "composer"),
-    field,
-    type: (text: string) => {
-      present(field(), "note text").value = text;
-    },
-    alerts: () => texts('[role="alert"]'),
-    announcement: () => texts('[role="status"]').join(""),
-    noteTexts: () => texts(".story-note-text"),
-  };
-}
 
 test("the dialog, a saved note and the add composer name the story", async () => {
   const notes = openDialog([makeMe.aStoryNote.please()]);

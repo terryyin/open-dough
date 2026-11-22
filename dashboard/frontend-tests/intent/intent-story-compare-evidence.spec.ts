@@ -11,7 +11,6 @@ import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
   doneIdentity,
-  doneOutsideKinds,
   openDoneStoryComparison,
   openStoryAComparison,
 } from "./intent-story-compare-stories.ts";
@@ -106,7 +105,7 @@ test("with a Done story's landed run chosen, CI comparison, Proof and Intent cov
     .published(doneCompletion)
     .modifying(landing)
     .please();
-  const { outsideKinds } = await openDoneStoryComparison({
+  const { outsideCalls } = await openDoneStoryComparison({
     review: (query) =>
       Promise.resolve(
         query.historical === "true"
@@ -154,5 +153,5 @@ test("with a Done story's landed run chosen, CI comparison, Proof and Intent cov
   await expect.poll(story.landedEndpoint).toBe(measured);
   await open(story, "Proof", added);
   await expect.poll(() => story.proofLabels(doneIdentity)).toEqual(proofLabels);
-  expect(outsideKinds()).toEqual(doneOutsideKinds);
+  expect(outsideCalls()).toEqual([]);
 });

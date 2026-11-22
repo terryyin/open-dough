@@ -4,7 +4,6 @@
 // case's notes source answering Doughnut's story notes.
 import { createElement, type ReactElement } from "react";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import type { MachineSessions } from "../../src/agentLaunches.ts";
 import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import { RecentlyDoneLinkSources } from "../../src/recentlyDoneShownLinks.ts";
@@ -14,16 +13,13 @@ import type {
 } from "../../src/reviewedWorkSubject.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import {
   SessionsSidebarOnPage,
   type SessionsSidebarState,
 } from "../../src/SessionsSidebar.tsx";
-import {
-  StoryNotesOnPage,
-  storyNotesState,
-  type StoryNotesSource,
-} from "../../src/storyNotes.ts";
+import type { StoryNotesReadSource } from "../../src/storyNotesReadSource.ts";
 import type { StoryNote, StoryNoteChange } from "../../src/storyNote.ts";
 
 const doughnut = makeMe.aPublishedSource
@@ -55,45 +51,8 @@ const sidebar: SessionsSidebarState = {
   alerts: { available: true },
 };
 
-const never = <T>() => new Promise<T>(() => undefined);
-const answer = makeMe.aMachineAnswer.please();
-
 // No session is started, kept or running on the machine.
-export const launches: MachineSessions = {
-  rereadOffers: () => undefined,
-  rereadSessions: () => undefined,
-  creations: answer.creations,
-  hostOperations: answer.hostOperations,
-  readHistory: () => undefined,
-  records: [],
-  workspaces: answer.workspaces,
-  sessionsSettled: true,
-  alerts: { available: true },
-  feedbackMaintenance: answer.feedbackMaintenance,
-  keptStartOf: () => undefined,
-  runningStartOf: () => undefined,
-  launched: [],
-  establishesStart: () => false,
-  sessionPolicyOffer: () => "reading",
-  optionsOffer: () => undefined,
-  recoveriesOf: () => [],
-  attemptEvidence: "read",
-  continueStartup: () => undefined,
-  updateWorktreeAndRetry: () => undefined,
-  recheckStartups: () => undefined,
-  attemptOf: () => undefined,
-  storyStartupOf: () => undefined,
-  storyStartupsOf: () => [],
-  start: never,
-  startAdHoc: never,
-  adHocAttemptOf: () => undefined,
-  markDone: never,
-  markRead: never,
-  deleteRecord: never,
-  recoverSession: never,
-  stopSession: never,
-  readSession: never,
-};
+const launches = machineSessionsAnswering(makeMe.aMachineAnswer.please());
 
 // Doughnut's published work, the reviewed story among its Taken stories, so
 // its notes can be added from a diff.
@@ -114,7 +73,7 @@ const work = {
 export function notesKept() {
   const changes: StoryNoteChange[] = [];
   const kept: Record<string, StoryNote[]> = {};
-  const source: StoryNotesSource = (change) => {
+  const source: StoryNotesReadSource = (...[, change]) => {
     if (change) changes.push(structuredClone(change));
     if (change?.action === "add") {
       const note = makeMe.aStoryNote
@@ -136,17 +95,14 @@ export function notesKept() {
 export function onReviewPage(
   source: ReviewSource,
   panel: ReactElement,
-  notes?: StoryNotesSource,
+  notes?: StoryNotesReadSource,
 ) {
   const withNotes =
     notes === undefined
       ? panel
       : createElement(RecentlyDoneLinkSources, {
           value: { projects: [doughnut], selected: doughnut.id, work },
-          children: createElement(StoryNotesOnPage, {
-            value: new Map([[doughnut.id, storyNotesState(notes)]]),
-            children: panel,
-          }),
+          children: panel,
         });
   return createElement(ProjectsOnPage, {
     projects: [doughnut],
@@ -156,7 +112,11 @@ export function onReviewPage(
       children: createElement(LaunchesOnPage, {
         value: launches,
         children: createElement(PageReadsOnPage, {
-          reads: pageReadsSupplying({ review: source }),
+          reads: pageReadsSupplying(
+            notes === undefined
+              ? { review: source }
+              : { review: source, storyNotes: notes },
+          ),
           children: withNotes,
         }),
       }),

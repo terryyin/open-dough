@@ -9,13 +9,9 @@ import {
   useMemo,
   useSyncExternalStore,
 } from "react";
-import { localSettingRequest } from "./localSettingRequest.ts";
 import { localSettingState } from "./localSettingState.ts";
-import {
-  storyReviewStateEndpoint,
-  storyReviewStatesAnswerSchema,
-  type StoryReviewStateChange,
-} from "./storyReviewState.ts";
+import { useStoryReviewStatesReads } from "./pageReads.tsx";
+import type { StoryReviewStateChange } from "./storyReviewState.ts";
 
 export type StoryReviewStates = {
   // The reviewed story identities, until the first read answers.
@@ -24,53 +20,34 @@ export type StoryReviewStates = {
   readonly change: (change: StoryReviewStateChange) => Promise<void>;
 };
 
-const notRead = "The review state could not be read.";
+const projectReviewStates = (
+  source: (change?: StoryReviewStateChange) => Promise<ReadonlySet<string>>,
+) => localSettingState<ReadonlySet<string>, StoryReviewStateChange>(source);
 
-// What a card says when a review state change could not be saved (the
-// machine could not write its local records or the dashboard was not reached),
-// and a rejected change's message when the dashboard gives none.
-export const reviewStateNotSaved = "The review state could not be saved.";
-
-async function request(project: string, change?: StoryReviewStateChange) {
-  return new Set(
-    storyReviewStatesAnswerSchema.parse(
-      await localSettingRequest(
-        `${storyReviewStateEndpoint}?id=${encodeURIComponent(project)}`,
-        change,
-        change === undefined ? notRead : reviewStateNotSaved,
-      ),
-    ).reviewed,
-  );
-}
-
-function projectReviewStates(project: string) {
-  return localSettingState<ReadonlySet<string>, StoryReviewStateChange>(
-    (change) => request(project, change),
-  );
-}
-
-type ProjectReviewStates = ReturnType<typeof projectReviewStates>;
+export type ProjectReviewStates = ReturnType<typeof projectReviewStates>;
 export const StoryReviewStatesOnPage = createContext<
   Map<string, ProjectReviewStates> | undefined
 >(undefined);
-export function usePageStoryReviewStates() {
-  return useMemo(() => new Map<string, ProjectReviewStates>(), []);
-}
 
 const unknown = () => undefined;
 const unsubscribed = () => () => undefined;
 export function useStoryReviewStates(
   project: string,
-  enabled = true,
+  enabled: boolean,
 ): StoryReviewStates {
   const page = useContext(StoryReviewStatesOnPage);
+  if (page === undefined)
+    throw new Error(
+      "The page's story review states are outside StoryReviewStatesOnPage.",
+    );
+  const reads = useStoryReviewStatesReads();
   const state = useMemo(() => {
-    const existing = page?.get(project);
+    const existing = page.get(project);
     if (existing !== undefined) return existing;
-    const created = projectReviewStates(project);
-    page?.set(project, created);
+    const created = projectReviewStates((change) => reads(project, change));
+    page.set(project, created);
     return created;
-  }, [page, project]);
+  }, [page, project, reads]);
   const reviewed = useSyncExternalStore(
     enabled ? state.subscribe : unsubscribed,
     enabled ? state.snapshot : unknown,

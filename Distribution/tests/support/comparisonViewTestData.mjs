@@ -64,21 +64,84 @@ export class PublishedWorkBuilder {
   of(source) {
     return {
       /** @param {string} revision the published revision read */
-      at: (revision) =>
-        this.with({
-          source,
-          revision,
-          retrievedAt: new Date("2026-11-05T08:00:00.000Z"),
-          direction: "",
-          taken: [],
-          backlog: [],
-        }),
+      at: (revision) => new PublishedWorkAtBuilder(source, revision),
     };
   }
 
   // The named example: Pygardon's work.
   get ofPygardon() {
     return this.of(new PublishedSourceBuilder().pygardon.please());
+  }
+}
+
+/** @typedef {import("../../../dashboard/src/publishedWork.ts").WorkEntry} WorkEntry */
+
+// A project's work read at a revision, with the stories it has Taken.
+class PublishedWorkAtBuilder {
+  /** @type {WorkEntry[]} */
+  #taken = [];
+  #retrievedAt = new Date("2026-11-05T08:00:00.000Z");
+
+  /**
+   * @param {import("../../../dashboard/src/publishedSource.ts").PublishedSource} source
+   * @param {string} revision
+   */
+  constructor(source, revision) {
+    this.source = source;
+    this.revision = revision;
+  }
+
+  /** @param {Date} when the read's time */
+  retrievedAt(when) {
+    this.#retrievedAt = when;
+    return this;
+  }
+
+  /**
+   * A Taken story assigned to `agent` (default `engineer`) on its story
+   * branch in Claude, with `facts` the entry adds.
+   * @param {{ readonly identity: string; readonly title: string; readonly branch: string; readonly agent?: string }} story
+   * @param {Partial<WorkEntry>} [facts]
+   */
+  taking({ identity, title, branch, agent = "engineer" }, facts = {}) {
+    this.#taken.push({
+      identity,
+      title,
+      canonical: {
+        kind: "external",
+        recorded: "https://example.test/story",
+        url: "https://example.test/story",
+      },
+      owner: {
+        status: "recorded",
+        assignments: [
+          {
+            profilePath: `.planning/agents/${agent}.json`,
+            name: agent,
+            agent,
+            mode: "story-branch",
+            branch,
+            host: "claude",
+            model: undefined,
+            human: { status: "no-addition" },
+          },
+        ],
+      },
+      ...facts,
+    });
+    return this;
+  }
+
+  /** @returns {import("../../../dashboard/src/publishedWork.ts").PublishedWork} */
+  please() {
+    return {
+      source: this.source,
+      revision: this.revision,
+      retrievedAt: this.#retrievedAt,
+      direction: "",
+      taken: this.#taken.map((entry) => structuredClone(entry)),
+      backlog: [],
+    };
   }
 }
 

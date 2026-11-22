@@ -1,12 +1,15 @@
 // Page reads a case does not exercise: each one rejects, so a case that
 // reaches a read it did not supply fails instead of reaching the real reader.
 
+import type { CiFollowUpReadSource } from "../../src/ciFollowUpReadSource.ts";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import type { SessionServices } from "../../src/sessionServices.ts";
+import type { StoryNotesReadSource } from "../../src/storyNotesReadSource.ts";
+import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
 
 const unread = (name: string) => () =>
   Promise.reject(new Error(`Unexpected ${name} read`));
@@ -23,6 +26,8 @@ export const unreadCiReads: IntentCiReadSource = {
   readStatus: unread("CI status"),
   readKeptStatus: unread("kept CI status"),
   readHistory: unread("CI history"),
+  readDoneWallTimeHistory: unread("Done wall-time history"),
+  readScopeHistory: unread("CI scope history"),
 };
 
 const unreadReviewReads: ReviewSource = {
@@ -44,6 +49,17 @@ const unreadDoneRecordReads: DoneRecordReadSource = {
   readBodies: unread("done records"),
 };
 
+const unreadStoryNotes: StoryNotesReadSource = unread("story notes");
+
+const unreadCiFollowUp: CiFollowUpReadSource = {
+  readCards: unread("CI follow-up"),
+  readRetained: unread("retained CI follow-up"),
+};
+
+const unreadReviewStates: StoryReviewStatesReadSource = unread(
+  "story review states",
+);
+
 // The page's reads with only SUPPLIED answering; every other read rejects.
 export const pageReadsSupplying = (
   supplied: Partial<PageReads>,
@@ -53,5 +69,8 @@ export const pageReadsSupplying = (
   review: unreadReviewReads,
   sessions: unreadSessionServices,
   done: unreadDoneRecordReads,
+  storyNotes: unreadStoryNotes,
+  ciFollowUp: unreadCiFollowUp,
+  reviewStates: unreadReviewStates,
   ...supplied,
 });

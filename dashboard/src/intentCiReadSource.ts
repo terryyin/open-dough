@@ -1,5 +1,9 @@
 import { readIntentCiComparison } from "./authenticatedIntentCiComparisonRead.ts";
-import { readIntentCiHistory } from "./authenticatedIntentCiHistoryRead.ts";
+import {
+  readIntentCiDoneWallTimeHistory,
+  readIntentCiHistory,
+  readIntentCiScopeHistory,
+} from "./authenticatedIntentCiHistoryRead.ts";
 import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
 import {
   readIntentCiStatus,
@@ -14,6 +18,8 @@ export type IntentCiReadSource = {
   readonly readStatus: typeof readIntentCiStatus;
   readonly readKeptStatus: typeof readKeptIntentCiStatus;
   readonly readHistory: typeof readIntentCiHistory;
+  readonly readDoneWallTimeHistory: typeof readIntentCiDoneWallTimeHistory;
+  readonly readScopeHistory: typeof readIntentCiScopeHistory;
 };
 
 export const authenticatedIntentCiReads: IntentCiReadSource = {
@@ -22,4 +28,6 @@ export const authenticatedIntentCiReads: IntentCiReadSource = {
   readStatus: readIntentCiStatus,
   readKeptStatus: readKeptIntentCiStatus,
   readHistory: readIntentCiHistory,
+  readDoneWallTimeHistory: readIntentCiDoneWallTimeHistory,
+  readScopeHistory: readIntentCiScopeHistory,
 };

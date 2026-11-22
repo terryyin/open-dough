@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_speed-intent-ci-status-frame-and-timing-history.json",
+      "identity": "SEED-413#speed-intent-ci-status-frame-and-timing-history",
+      "completedAt": "2026-11-22T08:03:28.169Z",
+      "blob": "6688f84a6d534b37e076f28c66992fdfb13438d3"
+    },
+    {
       "fileName": "SEED-413_repair-refinement-touch-tap-hang.json",
       "identity": "SEED-413#repair-refinement-touch-tap-hang",
       "completedAt": "2026-11-22T07:51:13.777Z",

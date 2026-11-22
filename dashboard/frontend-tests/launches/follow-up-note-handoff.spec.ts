@@ -7,8 +7,9 @@ import { launchOffers } from "../../src/launchOffers.ts";
 import { StartSession } from "../../src/StartSession.tsx";
 import { storyContext } from "../../src/followUpContext.ts";
 import type { StoryNote, StoryNotesAnswer } from "../../src/storyNote.ts";
-import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { launchDialog } from "./ad-hoc-launch-page.ts";
 import { useMountedLaunchAttempts } from "./mounted-launch-attempts.ts";
 import { mountStoryStartup } from "./story-startup-page.ts";
@@ -69,10 +70,8 @@ async function mountFollowUp(read: StoryNotesAnswer) {
       .mockResolvedValue(undefined),
   };
   await mountComponent(
-    createElement(StoryNotesOnPage, {
-      value: new Map([
-        [project.id, storyNotesState(() => Promise.resolve(read))],
-      ]),
+    createElement(PageReadsOnPage, {
+      reads: pageReadsSupplying({ storyNotes: () => Promise.resolve(read) }),
       children: createElement(FollowUpOnPage, { source }),
     }),
   );

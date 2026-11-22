@@ -6,63 +6,37 @@ import {
   useMemo,
   useSyncExternalStore,
 } from "react";
-import { localSettingRequest } from "./localSettingRequest.ts";
 import { localSettingState } from "./localSettingState.ts";
-import {
-  storyNotesEndpoint,
-  storyNotesAnswerSchema,
-  type StoryNotesAnswer,
-  type StoryNoteChange,
-} from "./storyNote.ts";
+import { useStoryNotesReads } from "./pageReads.tsx";
+import type { StoryNotesAnswer, StoryNoteChange } from "./storyNote.ts";
 
 export type StoryNotes = {
   readonly answer: StoryNotesAnswer | undefined;
   readonly change: (change: StoryNoteChange) => Promise<void>;
 };
-export const storyNoteNotSaved = "The note could not be saved.";
-export const storyNoteNotDeleted = "The note could not be deleted.";
-export const storyNotesUnreadable = "The notes could not be read.";
-async function request(project: string, change?: StoryNoteChange) {
-  return storyNotesAnswerSchema.parse(
-    await localSettingRequest(
-      `${storyNotesEndpoint}?id=${encodeURIComponent(project)}`,
-      change,
-      change === undefined
-        ? storyNotesUnreadable
-        : change.action === "delete"
-          ? storyNoteNotDeleted
-          : storyNoteNotSaved,
-    ),
-  );
-}
 
-/** Reads one project's notes, or changes them and answers with the result. */
-export type StoryNotesSource = (
-  change?: StoryNoteChange,
-) => Promise<StoryNotesAnswer>;
+/** One project's subscribed notes over its read from the page's reads. */
+const storyNotesState = (
+  source: (change?: StoryNoteChange) => Promise<StoryNotesAnswer>,
+) => localSettingState<StoryNotesAnswer, StoryNoteChange>(source);
 
-/** One project's subscribed notes over a source; production binds the endpoint. */
-export function storyNotesState(source: StoryNotesSource) {
-  return localSettingState<StoryNotesAnswer, StoryNoteChange>(source);
-}
-
-type ProjectNotes = ReturnType<typeof storyNotesState>;
+export type ProjectNotes = ReturnType<typeof storyNotesState>;
 export const StoryNotesOnPage = createContext<
   Map<string, ProjectNotes> | undefined
 >(undefined);
-export function usePageStoryNotes() {
-  return useMemo(() => new Map<string, ProjectNotes>(), []);
-}
 
 export function useStoryNotes(project: string): StoryNotes {
   const page = useContext(StoryNotesOnPage);
+  if (page === undefined)
+    throw new Error("The page's story notes are outside StoryNotesOnPage.");
+  const reads = useStoryNotesReads();
   const state = useMemo(() => {
-    const existing = page?.get(project);
+    const existing = page.get(project);
     if (existing !== undefined) return existing;
-    const created = storyNotesState((change) => request(project, change));
-    page?.set(project, created);
+    const created = storyNotesState((change) => reads(project, change));
+    page.set(project, created);
     return created;
-  }, [page, project]);
+  }, [page, project, reads]);
   const answer = useSyncExternalStore(state.subscribe, state.snapshot);
   return { answer, change: state.change };
 }
