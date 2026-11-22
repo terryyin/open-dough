@@ -202,7 +202,7 @@ them through `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`.
 ### 3. Project and Done scope glances show accurate summary cues
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-project-scope-glance` (1) and `intent-scope-glance` (1) over
 `IntentScopeTimingHistory` / `useIntentCiScopeHistory` within its production
@@ -212,6 +212,21 @@ Behavior: Project and Done scope glances show accurate summary cues before
 each scope's table through the production Intent page entry.
 
 Proof: both moved Vitest specs; 0 legacy cases remain on the 2 files.
+
+Accepted proof (2026-11-22, load ~26–52): typecheck; both moved Vitest specs
+plus the six remaining `intent-project-scope-history-*` legacy specs green;
+every glance-builder consumer green; `dashboard-ci-scope-history-read.test.mjs`
+4 pass. Dispositions: both legacy cases moved with every distinct assertion;
+the failed mark's paint colour stays with plan 777's
+`intent-project-ci-history-chart-marks.spec.ts` (`expectMarksPainted`).
+Moved specs: Project 1.3 s, Done 3.0 s test time.
+
+Learnings: `makeMe.aScopeHistoryGlance` now returns
+`ScopeHistoryGlanceBuilder` (`Distribution/tests/support/scopeHistoryGlanceTestData.mjs`)
+with `timing`, `averaging(unit, ms, used)`, `tooFewToAverage(unit, used)`;
+Vitest page object `intent/intent-scope-history-page.ts` drills Summary →
+child → file Proof. `scopeTimingHistory.ts` is removed. Slice 7 candidate:
+`expectFailedMarkPainted` export is now used only inside `historyChartPage.ts`.
 
 ### 4. Scope history stays isolated to the requested source and project
 

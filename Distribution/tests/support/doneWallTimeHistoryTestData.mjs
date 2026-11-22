@@ -3,6 +3,8 @@
 // the Done comparison's history read answers it
 // (dashboard/src/ciDoneWallTimeHistory.ts). Node-free.
 
+import { referenceFiguresOf } from "./priorBuildReferenceFiguresTestData.mjs";
+
 /** @typedef {import("../../../dashboard/src/ciDoneWallTimeHistory.ts").DoneWallTimeHistory} DoneWallTimeHistory */
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").MeasuredEntry} MeasuredEntry */
 /** @typedef {NonNullable<DoneWallTimeHistory["reference"]["selected"]>} SelectedTiming */
@@ -24,7 +26,7 @@ export class DoneWallTimeHistoryBuilder {
   #availability = "uncollected";
   /** @type {readonly (number | "failed" | "missing")[]} */
   #priors = [103000, 103000, 103000, 103000, 103000];
-  /** @type {{ sampleCount: number; averageMs?: number }} */
+  /** @type {import("./priorBuildReferenceFiguresTestData.mjs").StatedReference} */
   #reference = { sampleCount: 5, averageMs: 103000 };
   /** @type {((endpoint: string) => { selected: SelectedTiming; entry: MeasuredEntry; ms?: number }) | undefined} */
   #selected = undefined;
@@ -196,13 +198,8 @@ export class DoneWallTimeHistoryBuilder {
         landings: [{ revision, receivedAt: isoAt(start), provenance: "exact" }],
       };
     });
-    const { sampleCount, averageMs } = this.#reference;
     const selected = this.#selected?.(endpoint);
     if (selected !== undefined) entries.push(selected.entry);
-    const changeMs =
-      selected?.ms === undefined || averageMs === undefined
-        ? undefined
-        : selected.ms - averageMs;
     /** @type {DoneWallTimeHistory} */
     const history = {
       selectedRevision: endpoint,
@@ -210,18 +207,8 @@ export class DoneWallTimeHistoryBuilder {
       entries,
       reference: {
         endpoint,
-        sampleCount,
         ...(selected === undefined ? {} : { selected: selected.selected }),
-        ...(averageMs === undefined ? {} : { averageMs }),
-        ...(changeMs === undefined || averageMs === undefined
-          ? {}
-          : {
-              difference: {
-                text: wholeSeconds(changeMs),
-                changeMs,
-                ...(averageMs === 0 ? {} : { relative: changeMs / averageMs }),
-              },
-            }),
+        ...referenceFiguresOf(this.#reference, selected?.ms, wholeSeconds),
       },
     };
     return { please: () => history };

@@ -3,173 +3,152 @@
 // before the child table, and file Proof's Test cases / Test file choice
 // changes the selected value, average and chart scale together, by keyboard
 // and touch, in light and dark appearance. Each scope's retained history is
-// the glance read's explicit answer (../../test-support/support/scopeTimingHistory.ts);
-// reading it without upstream CI requests is
-// ../../backend-tests/intent/landed-ci-scope-proof-completion.spec.ts's, and
-// collecting it is ../../../e2e/intent/intent-scope-collected-file-timing-history.spec.ts's.
+// the typed scope history read's answer; reading it without upstream CI
+// requests is ../../backend-tests/intent/landed-ci-scope-proof-completion.spec.ts's,
+// and collecting it is
+// ../../../e2e/intent/intent-scope-collected-file-timing-history.spec.ts's.
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { expectReadableContrast } from "../../test-support/accessibleReading.ts";
+import { portrait, useTouchScreen } from "../navigation/board-touch-page.ts";
+import { emulateMedia } from "../review/browser-session.ts";
+import { visibleText } from "./intent-ci-comparison-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
-  centreOf,
-  expectFailedMarkPainted,
-  expectMarkOver,
-  inspectMark,
-} from "../../test-support/historyChartPage.ts";
-import { fileProofTable } from "../../test-support/intentFileProofPage.ts";
+  openFileProof,
+  openScopeChild,
+  openScopeSummary,
+  scopeHistoryIn,
+} from "./intent-scope-history-page.ts";
 import {
-  fileReadingTab,
-  proofRegion,
-  purposeRegion,
-} from "../../test-support/intentPerspectivePage.ts";
-import {
-  chooseTimingUnit,
-  expectScopeReadout,
-  scopeHistory,
-  scopeHistoryChart,
-  scopeHistoryReading,
-} from "../../test-support/intentScopeHistoryPage.ts";
-import {
-  childName,
-  scopeTable,
-} from "../../test-support/intentScopeProofPage.ts";
-import { expectNoSidewaysScrollIn } from "../../test-support/pageLayout.ts";
-import { expectStackedInOrder } from "../../test-support/partArrangement.ts";
-import {
-  expectChangeCue,
-  priorBuildReferenceReading,
-} from "../../test-support/priorBuildReferencePage.ts";
-import {
-  scopeTimingHistory,
-  serveDoneScopeHistories,
-} from "../../test-support/support/scopeTimingHistory.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
-import {
-  openSummaryComparison,
-  selectDoneStoryForSummaryComparison,
-} from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
+  doneCompletion,
+  openDoneStoryComparison,
+  publishedCompletion,
+} from "./intent-story-compare-stories.ts";
 
-test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+// Five measured priors and a failed sixth before the selected landing. The
+// entry holds a.spec.ts's cases six times over, the folder three times; each
+// test file outcome takes a tenth of its cases. Each scope's selected landing
+// takes its cases' measured time.
+const scopes: Readonly<Record<string, { times: number; selectedMs: number }>> =
+  {
+    "dashboard/tests": { times: 6, selectedMs: 1440 },
+    "dashboard/tests/folder": { times: 3, selectedMs: 720 },
+    "dashboard/tests/folder/a.spec.ts": { times: 1, selectedMs: 120 },
+  };
+const priorsOf = (ms: readonly number[], times: number) => [
+  ...ms.map((each) => each * times),
+  "failed" as const,
+];
 
-test("drilling from a Done story's test entry to a folder and a test file reads each scope's execution time history before its table", async ({
-  page,
-  frontendServices,
-}) => {
-  const setup = await prepareFrontendDoneIntent(page, frontendServices);
-  // Five measured priors and a failed sixth before the selected landing. The
-  // entry holds a.spec.ts's cases six times over, the folder three times; each
-  // test file outcome takes a tenth of its cases.
-  const scope = (
-    path: string,
-    times: number,
-    selectedMs: number,
-    averageMs: number,
-    differences: readonly [string, string],
-  ) =>
-    scopeTimingHistory(setup.completion, path, {
-      case: {
-        priors: [
-          ...[100, 100, 100, 100, 115].map((ms) => ms * times),
-          "failed",
-        ],
-        selectedMs,
-        averageMs,
-        difference: differences[0],
+test("drilling from a Done story's test entry to a folder and a test file reads each scope's execution time history before its table", async () => {
+  await useTouchScreen();
+  await openDoneStoryComparison({
+    review: () => Promise.resolve(publishedCompletion()),
+    ci: {
+      readScopeHistory: (...[, path, endpoint]) => {
+        const scope = scopes[path];
+        if (scope === undefined)
+          return Promise.reject(new Error(`Unarranged scope ${path}`));
+        const { times, selectedMs } = scope;
+        return Promise.resolve(
+          makeMe.aScopeHistoryGlance
+            .at(path)
+            .timing(
+              "case",
+              priorsOf([100, 100, 100, 100, 115], times),
+              selectedMs,
+            )
+            .averaging("case", 103 * times, 5)
+            .timing(
+              "file",
+              priorsOf([10, 10, 10, 10, 11.5], times),
+              selectedMs / 10,
+            )
+            .averaging("file", 10.3 * times, 5)
+            .through(endpoint.revision)
+            .please(),
+        );
       },
-      file: {
-        priors: [...[10, 10, 10, 10, 11.5].map((ms) => ms * times), "failed"],
-        selectedMs: selectedMs / 10,
-        averageMs: averageMs / 10,
-        difference: differences[1],
-      },
-    });
-  await serveDoneScopeHistories(page, [
-    scope("dashboard/tests", 6, 1440, 618, ["+822 ms", "+82 ms"]),
-    scope("dashboard/tests/folder", 3, 720, 309, ["+411 ms", "+41 ms"]),
-    scope("dashboard/tests/folder/a.spec.ts", 1, 120, 103, ["+17 ms", "+2 ms"]),
-  ]);
-  const { intent } = await selectDoneStoryForSummaryComparison(page);
-  const landing = `Selected landing ${shortSha(setup.completion)}`;
+    },
+  });
+  await page.viewport(portrait.width, portrait.height);
+  await intentStoryCompare().chooseTab("Changes");
+  const landing = `Selected landing ${shortSha(doneCompletion)}`;
   const priors = "5 prior builds used";
 
-  const summary = await openSummaryComparison(intent, "dashboard/tests");
-  const history = scopeHistory(summary);
-  await expectScopeReadout(history, {
+  const summary = await openScopeSummary("dashboard/tests");
+  const history = scopeHistoryIn(summary);
+  await expect.poll(history.readout).toEqual({
     selected: `${landing} · 1.4 s`,
     average: `Prior-build average · 618 ms · ${priors}`,
     change: "vs. prior average · +822 ms (+133%)",
   });
-  await expectChangeCue(page, history, "slower");
-  await expect(scopeHistoryReading(history).measure).toBeVisible();
+  expect(history.changeCue()).toBe("slower");
+  expect(history.measures()).toContainEqual(
+    expect.stringContaining("Cumulative test execution time"),
+  );
   // No build list, membership or methodology; the chart and readout read it.
-  await expect(history.getByRole("list")).toHaveCount(0);
-  await expect(priorBuildReferenceReading(history).evidence).toHaveCount(0);
-  for (const removed of [
-    "Builds and evidence",
-    "Median",
-    "calibration",
-    "Represents",
-    "Observed scope at each build",
-  ])
-    await expect(history).not.toContainText(removed);
-  await expectStackedInOrder([history, scopeTable(summary, "dashboard/tests")]);
+  expect(history.lists()).toBe(0);
+  expect(history.evidence()).toBe(0);
+  expect(history.text()).not.toMatch(
+    /Builds and evidence|Median|calibration|Represents|Observed scope at each build/,
+  );
+  const table = (path: string) =>
+    summary.getByRole("table", {
+      name: `CI proof of the immediate folders and files of ${path}`,
+      exact: true,
+    });
+  await expect
+    .poll(() => history.standsAbove(table("dashboard/tests")))
+    .toBe(true);
   // Six prior builds and the selected landing, which the readout names.
-  const entryChart = scopeHistoryChart(history, "test cases");
-  await expect(entryChart.marks).toHaveCount(7);
-  await expect(entryChart.readout).toHaveText(
-    "Nov 7 · Selected landing · 1.4 s",
-  );
-  // The failed build is its red × below the axis, under its mark.
-  await expectMarkOver(entryChart, "Nov 6 · Failed build", entryChart.failed);
-  await expectFailedMarkPainted(page, entryChart);
-  await expect(entryChart.averageLabel).toHaveText(
-    "Prior-build average 618 ms",
-  );
+  const entryChart = history.chart("test cases", "selected landing");
+  expect(entryChart.marks()).toBe(7);
+  expect(entryChart.readout()).toBe("Nov 7 · Selected landing · 1.4 s");
+  // The failed build is its × under its mark.
+  expect(entryChart.failedUnder("Nov 6 · Failed build")).toBe(true);
+  expect(entryChart.averageLabel()).toEqual(["Prior-build average 618 ms"]);
 
-  await childName(summary, "folder/").first().click();
-  await expect(summary.locator(".intent-summary-path")).toHaveText(
-    "dashboard/tests/folder",
-  );
-  await expectScopeReadout(history, {
+  await openScopeChild("folder/", "dashboard/tests/folder");
+  await expect.poll(history.readout).toEqual({
     selected: `${landing} · 720 ms`,
     average: `Prior-build average · 309 ms · ${priors}`,
     change: "vs. prior average · +411 ms (+133%)",
   });
-  await expectStackedInOrder([
-    history,
-    scopeTable(summary, "dashboard/tests/folder"),
-  ]);
+  await expect
+    .poll(() => history.standsAbove(table("dashboard/tests/folder")))
+    .toBe(true);
 
   // The file's Proof: history above its comparison, Test cases first.
-  await childName(summary, "a.spec.ts").first().click();
-  await expect(purposeRegion(intent)).toBeVisible();
-  await fileReadingTab(intent, "Proof").click();
-  const file = proofRegion(intent);
-  const fileHistory = scopeHistory(file);
-  const path = "dashboard/tests/folder/a.spec.ts";
-  await expectStackedInOrder([fileHistory, fileProofTable(file, path)]);
-  await expect(fileProofTable(file, path)).toContainText("Baseline");
-  const cases = scopeHistoryChart(fileHistory, "test cases");
-  await expectScopeReadout(fileHistory, {
+  await openScopeChild("a.spec.ts");
+  const intent = page.getByRole("main", { name: "Intent", exact: true });
+  await expect
+    .element(intent.getByRole("region", { name: "Purpose", exact: true }))
+    .toBeVisible();
+  const file = await openFileProof();
+  const fileHistory = scopeHistoryIn(file);
+  const proofTable = file.getByRole("table", {
+    name: "CI proof of dashboard/tests/folder/a.spec.ts",
+    exact: true,
+  });
+  await expect.element(proofTable).toBeVisible();
+  expect(visibleText(proofTable.element())).toContain("Baseline");
+  await expect.poll(() => fileHistory.standsAbove(proofTable)).toBe(true);
+  await expect.poll(fileHistory.readout).toEqual({
     selected: `${landing} · 120 ms`,
     average: `Prior-build average · 103 ms · ${priors}`,
     change: "vs. prior average · +17 ms (+17%)",
   });
+  const cases = fileHistory.chart("test cases", "selected landing");
   // The dashed 103 ms average lies between its Nov 1/100 ms and Nov 5/115 ms marks.
-  await expect(cases.averageLabel).toHaveText("Prior-build average 103 ms");
-  const [low, high, average] = await Promise.all(
-    [
-      cases.mark("Nov 1 · 100 ms"),
-      cases.mark("Nov 5 · 115 ms"),
-      cases.average,
-    ].map(async (mark) => (await centreOf(mark)).y),
-  );
-  expect(average).toBeCloseTo(
-    (low ?? 0) + (((high ?? 0) - (low ?? 0)) * (103 - 100)) / 15,
-    0,
-  );
+  expect(cases.averageLabel()).toEqual(["Prior-build average 103 ms"]);
+  const low = cases.markY("Nov 1 · 100 ms");
+  const high = cases.markY("Nov 5 · 115 ms");
+  expect(cases.averageY()).toBeCloseTo(low + ((high - low) * 3) / 15, 0);
   // Each unit's own scale around its own timings.
-  await expect(cases.axisLabels).toHaveText([
+  expect(cases.axisLabels()).toEqual([
     "90 ms",
     "100 ms",
     "110 ms",
@@ -178,40 +157,42 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
   ]);
 
   // A tap chooses the file's own outcome: its value, average and scale.
-  await chooseTimingUnit(fileHistory, "Test file", "touch");
-  await expectScopeReadout(fileHistory, {
+  await fileHistory.choose("Test file", "touch");
+  await expect.poll(fileHistory.readout).toEqual({
     selected: `${landing} · 12 ms`,
     average: `Prior-build average · 10 ms · ${priors}`,
     change: "vs. prior average · +2 ms (+17%)",
   });
-  const files = scopeHistoryChart(fileHistory, "test files");
-  await expect(cases.drawing).toHaveCount(0);
-  await expect(files.average).toHaveCount(1);
-  await expect(files.axisLabels).toHaveText([
-    "5 ms",
-    "10 ms",
-    "15 ms",
-    "20 ms",
-  ]);
-  await inspectMark(files, "Nov 1 · 10 ms", "touch");
+  const files = fileHistory.chart("test files", "selected landing");
+  expect(cases.drawn()).toBe(false);
+  expect(files.averageLabel()).toHaveLength(1);
+  expect(files.axisLabels()).toEqual(["5 ms", "10 ms", "15 ms", "20 ms"]);
+  await files.tapMark("Nov 1 · 10 ms");
+  await expect.poll(files.readout).toBe("Nov 1 · 10 ms");
 
   // The keyboard returns to Test cases; Purpose and the return stay offered.
-  await chooseTimingUnit(fileHistory, "Test cases", "keyboard");
-  await expect(cases.readout).toHaveText("Nov 7 · Selected landing · 120 ms");
-  await expect(
-    file.getByRole("button", { name: "View story CI comparison", exact: true }),
-  ).toBeVisible();
-  await expect(fileReadingTab(intent, "Purpose")).toBeVisible();
-  await expectNoSidewaysScrollIn(page, fileHistory);
+  await fileHistory.choose("Test cases", "keyboard");
+  await expect.poll(cases.readout).toBe("Nov 7 · Selected landing · 120 ms");
+  await expect
+    .element(
+      file.getByRole("button", {
+        name: "View story CI comparison",
+        exact: true,
+      }),
+    )
+    .toBeVisible();
+  await expect
+    .element(
+      intent
+        .getByRole("tablist", { name: "Purpose and Proof", exact: true })
+        .getByRole("tab", { name: "Purpose", exact: true }),
+    )
+    .toBeVisible();
+  expect(fileHistory.fitsWidth()).toBe(true);
 
-  await page.emulateMedia({ colorScheme: "dark" });
-  await expectChangeCue(page, fileHistory, "slower");
-  await expectReadableContrast(
-    scopeHistoryReading(fileHistory).unit("Test cases"),
+  await emulateMedia([{ name: "prefers-color-scheme", value: "dark" }]);
+  await expect.poll(fileHistory.changeCue).toBe("slower");
+  expect(fileHistory.readable(["Test cases", "Test file"], "test cases")).toBe(
+    true,
   );
-  await expectReadableContrast(
-    scopeHistoryReading(fileHistory).unit("Test file"),
-  );
-  await expectReadableContrast(scopeHistoryReading(fileHistory).selected);
-  await expectReadableContrast(cases.readout);
 });

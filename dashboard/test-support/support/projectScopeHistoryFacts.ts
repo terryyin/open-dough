@@ -1,7 +1,6 @@
 // Canonical local-history and judgment answers for frontend lifecycle scenarios.
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { scopeTimingHistory } from "./scopeTimingHistory.ts";
 
 // One measured selected build of `ms` test-case time, with its unit's
 // reference, as the glance read answers it: the compact readout names the
@@ -34,27 +33,6 @@ export function scopeHistoryPoint(revision: string, path: string, ms: number) {
       ],
     })
     .please();
-}
-
-// Five prior trunk builds and the endpoint's, each measured in test cases
-// and in test files at a tenth, with each unit's reference as the glance read
-// answers it: test cases 120 ms against 103 ms, test files 12 ms against
-// 10.3 ms, both 17% slower.
-export function scopeUnitsHistory(revision: string, path: string) {
-  return scopeTimingHistory(revision, path, {
-    case: {
-      priors: [100, 100, 100, 100, 115],
-      selectedMs: 120,
-      averageMs: 103,
-      difference: "+17 ms",
-    },
-    file: {
-      priors: [10, 10, 10, 10, 11.5],
-      selectedMs: 12,
-      averageMs: 10.3,
-      difference: "+2 ms",
-    },
-  });
 }
 
 export async function serveUnreadProjectCi(page: Page, revision: string) {
