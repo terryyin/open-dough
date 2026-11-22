@@ -2,6 +2,7 @@
 
 **Identity:** SEED-418#disclose-shared-checkout-overlap
 **Source:** [Disclose shared-checkout overlap in published session records](../../seeds/SEED-418-review-published-session-changes.md#disclose-shared-checkout-overlap)
+**Source review:** [Independent source review](source-review.md)
 **Split from:** SEED-418#attribute-every-workflow-session-record (plan 747) at delivered slice 7 on 2026-11-22
 
 ## Goal and scope
@@ -71,7 +72,7 @@ for them; slice 1's proof keeps them observed.
 ### 1. Publish a shared-checkout mark on a closed range
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend `Distribution/tests/skills/dough-land/session-record-publication.test.mjs`
 and `session-close-resume.test.mjs` through their MakeMe builders: a landing
 context with a note, a pulled trunk commit before the work, and a control
@@ -81,6 +82,15 @@ without a note; read the record from the published trunk.
 publishes its range with `uncertainty: "shared-checkout"`; the pulled commit
 stays below the range's base. Without a note the range is unmarked. A resumed
 close republishes identical bytes with the mark.
+
+**Accepted proof.** `bash scripts/test.sh Distribution/tests/skills/dough-land/session-record-publication.test.mjs Distribution/tests/skills/dough-land/session-close-resume.test.mjs`
+passes after refactoring; the wrap-up, Story Branch and refinement
+session-record suites and `install-all-tools.sh` passed on the same publish
+path. The note module is
+[`shared-checkout-note.mjs`](../../../Distribution/src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs)
+(file `shared-checkout.json`); it holds only what the publisher reads.
+Push and commit faults for the close tests live in
+`Distribution/tests/skills/dough-land/session-close-faults.mjs`.
 
 ### 2. Show the shared-checkout warning in the published-session review
 
@@ -111,6 +121,8 @@ with a landing context is open, both reporting directories hold a note whose
 `since` is the overlap's start, kept earliest. An isolated launch, or one done
 before the other opened, gets no note. With slices 1 and 2 this completes the
 story's examples.
+Slice 3 adds the note writer and the keep-earliest `since` rule to
+`shared-checkout-note.mjs` with their Dashboard caller.
 
 ## Concern evidence
 

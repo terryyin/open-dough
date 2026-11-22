@@ -24,16 +24,34 @@ import {
   sessionRecord,
   sessionRecordPath,
 } from "./sealed-session-record.mjs";
+import {
+  parseSharedCheckoutNote,
+  sharedCheckoutNotePathBeside,
+} from "./shared-checkout-note.mjs";
 
 export { sessionRecord, sessionRecordPath };
 
-// The session a close names, with the story it carries: a Dashboard launch's
-// landing context, else, with no explicitly retained id, the workspace's
-// unclosed native session evidence.
+// The Dashboard's shared-checkout note beside the landing context, if any.
+async function sharedCheckoutNote(landingContext) {
+  const text = await readFile(
+    sharedCheckoutNotePathBeside(landingContext),
+    "utf8",
+  ).catch(() => undefined);
+  return text === undefined ? undefined : parseSharedCheckoutNote(text);
+}
+
+// The session a close names, with the story it carries and any
+// shared-checkout note beside it: a Dashboard launch's landing context, else,
+// with no explicitly retained id, the workspace's unclosed native session
+// evidence.
 async function namedSession(retained, landingContext, workspace) {
   if (landingContext) {
     const launch = JSON.parse(await readFile(landingContext, "utf8"));
-    return { sessionId: launch.reference, story: launch.identity };
+    return {
+      sessionId: launch.reference,
+      story: launch.identity,
+      sharedCheckout: await sharedCheckoutNote(landingContext),
+    };
   }
   const kept = retained ? undefined : readSessionEvidence(workspace);
   return kept && !kept.closedAt
@@ -66,6 +84,7 @@ async function closeTarget({ retained, story, backlogPath, ...request }) {
     story: story ?? named.story,
     native: named.native === true,
     landingContext,
+    sharedCheckout: named.sharedCheckout,
   };
 }
 
@@ -96,7 +115,12 @@ function sealClose(target, close, accepted, publication) {
       closedAt: close.closedAt,
     });
   return sealAndPublishRecord(
-    { sessionId: target.sessionId, ...close, story: target.story },
+    {
+      sessionId: target.sessionId,
+      ...close,
+      story: target.story,
+      sharedCheckout: target.sharedCheckout,
+    },
     accepted,
     publication,
   );

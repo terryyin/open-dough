@@ -2,10 +2,10 @@
 // acknowledgement was lost, resumes from its first unfinished step: the work is
 // published once and the record keeps its original bytes under the same UUID.
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { test } from "node:test";
+import { reportingReference } from "../../support/launchLandingTestData.mjs";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
 import { resumeSessionClose } from "../../../src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import {
@@ -15,36 +15,19 @@ import {
   revParse,
 } from "../dough-execute-plan/publication-test-fixtures.mjs";
 import {
+  aLaunchLandingContext,
   closedAt,
   landed,
   nativeSession,
   oneUnpublishedEdit,
+  publishedRecord,
   targetRef,
 } from "./session-close-test-fixtures.mjs";
-
-// The origin logs each accepted push and refuses record pushes while the
-// `refuse-records` marker exists.
-async function recordingPushes({ origin }) {
-  const hook = (name, body) =>
-    writeFile(join(origin, "hooks", name), `#!/bin/sh\n${body}`, {
-      mode: 0o755,
-    });
-  await hook(
-    "pre-receive",
-    `while read old new ref; do
-  if [ -e "$GIT_DIR/refuse-records" ] && git diff --name-only "$old" "$new" | grep -q '^.planning/sessions/'; then
-    echo record refused >&2; exit 1
-  fi
-done
-`,
-  );
-  await hook("post-receive", `cut -d' ' -f2 >> "$GIT_DIR/pushes.log"\n`);
-}
-
-const acceptedPushes = async ({ origin }) =>
-  (await readFile(join(origin, "pushes.log"), "utf8").catch(() => ""))
-    .split("\n")
-    .filter(Boolean);
+import {
+  acceptedPushes,
+  recordingPushes,
+  refusingCommits,
+} from "./session-close-faults.mjs";
 
 const sessionFiles = async ({ origin }) =>
   (await git(origin, "ls-tree", "--name-only", "main", ".planning/sessions/"))
@@ -66,22 +49,6 @@ const isOnTrunk = ({ origin }, sha) =>
     () => true,
     () => false,
   );
-
-const publishedRecord = async ({ origin }) =>
-  (await git(origin, "show", `main:.planning/sessions/${nativeSession}.json`))
-    .stdout;
-
-// The workspace refuses its next commit, so the record stage throws after the
-// work is accepted.
-async function refusingCommits(t, { execution }) {
-  const hooks = await mkdtemp(join(tmpdir(), "refusing-hooks-"));
-  t.after(() => rm(hooks, { recursive: true, force: true }));
-  await writeFile(join(hooks, "pre-commit"), "#!/bin/sh\nexit 1\n", {
-    mode: 0o755,
-  });
-  await git(execution, "config", "core.hooksPath", hooks);
-  return () => git(execution, "config", "--unset", "core.hooksPath");
-}
 
 test("a record stage that throws after work acceptance returns the sealed record, and resuming it publishes the work once", async (t) => {
   let allowCommits;
@@ -114,6 +81,27 @@ test("a record stage that throws after work acceptance returns the sealed record
     await sessionFiles(fixture),
     `.planning/sessions/${nativeSession}.json\n`,
   );
+});
+
+test("a noted close whose record stage threw resumes with its shared-checkout mark in identical bytes", async (t) => {
+  let allowCommits;
+  const { fixture, closed } = await landed(
+    t,
+    {},
+    { landingContext: await aLaunchLandingContext(t, closedAt) },
+    async (fixture) => {
+      allowCommits = await refusingCommits(t, fixture);
+    },
+  );
+  assert.equal(closed.record.status, "stopped", JSON.stringify(closed));
+  await allowCommits();
+  const retained = JSON.parse(JSON.stringify(closed.record.record));
+
+  const resumed = await resumeFor(fixture, retained);
+  assert.equal(resumed.status, "published", JSON.stringify(resumed));
+  const published = await publishedRecord(fixture, reportingReference);
+  assert.equal(published, `${JSON.stringify(closed.record.record, null, 2)}\n`);
+  assert.equal(JSON.parse(published).ranges[0].uncertainty, "shared-checkout");
 });
 
 test("a close whose accepted work push lost its result resumes from the retained work and publishes the record once", async (t) => {

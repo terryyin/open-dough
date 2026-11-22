@@ -9,6 +9,7 @@ import { dirname, join } from "node:path";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
 import { defaultBacklogPath } from "./owned-suffix-reconciliation.mjs";
 import { git, originTrackingRef } from "./publication-git.mjs";
+import { rangeUncertainty } from "./shared-checkout-note.mjs";
 import {
   isSessionId,
   sessionRecordPathBeside,
@@ -23,8 +24,9 @@ export function sessionRecordPath(sessionId, backlogPath = defaultBacklogPath) {
 }
 
 /**
- * Ranges are ordered `{ base, candidate }` full commit pairs.
- * @param {{ sessionId: string, workflow: string, closedAt: string, story?: unknown, ranges: { base: string, candidate: string }[] }} close
+ * Ranges are ordered `{ base, candidate }` full commit pairs, each with an
+ * optional `uncertainty` mark.
+ * @param {{ sessionId: string, workflow: string, closedAt: string, story?: unknown, ranges: { base: string, candidate: string, uncertainty?: string }[] }} close
  */
 export function sessionRecord({
   sessionId,
@@ -39,23 +41,30 @@ export function sessionRecord({
     workflow,
     closedAt,
     ...(story ? { story } : {}),
-    ranges: ranges.map(({ base, candidate }) => ({ base, candidate })),
+    ranges: ranges.map(({ base, candidate, uncertainty }) => ({
+      base,
+      candidate,
+      ...(uncertainty ? { uncertainty } : {}),
+    })),
   };
 }
 
-// Seals the record from the accepted work, then publishes it. A record-stage
-// failure still returns the sealed record so the close can resume.
+// Seals the record from the accepted work, marking its range when a
+// shared-checkout note's overlap started at or before the acceptance, then
+// publishes it. A record-stage failure still returns the sealed record so the
+// close can resume.
 export async function sealAndPublishRecord(
-  { sessionId, workflow, story, closedAt },
+  { sessionId, workflow, story, closedAt, sharedCheckout },
   { suffixBase, sha },
   publication,
 ) {
+  const uncertainty = rangeUncertainty(sharedCheckout, closedAt);
   const record = sessionRecord({
     sessionId,
     workflow,
     closedAt,
     story,
-    ranges: [{ base: suffixBase, candidate: sha }],
+    ranges: [{ base: suffixBase, candidate: sha, uncertainty }],
   });
   return publishSealedRecord({
     ...publication,
