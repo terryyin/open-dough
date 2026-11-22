@@ -773,7 +773,7 @@ Slice 2 boundary alongside
 {"schemaVersion":1,"identity":"SEED-413#finish-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#make-launch-proof-orthogonal","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal"},"implementation":"Slices 1–6 reshape the launch dialog, dictation, story card status and startup recovery specs, narrow TranscriptReview and StartupRecovery in production, and change shared launch page helpers.","rationale":"This story reshapes the same launch page helpers (story-card-launch-page.ts, story-startup-page.ts) and measures the whole launch selection; starting from the unintegrated branch would conflict on those helpers and measure against a selection trunk does not hold. Reconciliation cannot help because the supplier's changes are not yet on trunk.","condition":"SEED-413#make-launch-proof-orthogonal is integrated on trunk with its reshaped launch selection.","state":"satisfied","resolution":{"revision":"265d6750b2aff5f953fee6e6684dbfd28d507b89","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal","summary":"Slices 1–6 integrated: dense launch layout, model and effort reset, TranscriptReview, native recording races, typed StartupStatus and StartupRecovery, with plan 768's mappings and paired timing (reshaped families 21.4–21.7 s against 26.0–29.0 s at load about 13) at 265d6750b:.planning/slice-plans/768-make-launch-proof-orthogonal/PLAN.md. The merged launch selection passed 71/71 and the whole frontend group 452/452 before integration.\nCondition satisfied: SEED-413#make-launch-proof-orthogonal is integrated on trunk with its reshaped launch selection.\nAccepted integration: ac398c66a245cca4b63758b5b742e31df369492b on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/771-finish-launch-proof-orthogonal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"84224af1d862c0e2510b7a8d343f962513980e96d33606d99c82f5d4d2ce79c3","plan":"e03d8d9c6951494e14123e4e3c2c93f4419c0a261a68d06f9a33117f4b73a73d"}}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
 - **Goal.** Dashboard maintainers get the local launch unit selection in
@@ -838,6 +838,23 @@ Slice 2 boundary alongside
   21.68 s against 29.02 s and 26.01 s for their 16 starting files. Its
   Slice 7 return found these seven files at 1,054 lines. The source map is
   `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
+- **Learning.** The first try failed by Cursor on 23 November 2026 and was
+  not landed. It made the launch tests and the production launches code
+  longer and more complicated, and the whole
+  `dashboard/frontend-tests/launches` selection did not get faster. On AC
+  power, load about 5 on 16 CPUs (lighter than plan 768's load 13–16), two
+  runs at two workers took 21.878 s and 21.809 s (24 files, 78 passed). The
+  same command at the starting revision `d06ea52e` took 24.302 s and
+  21.925 s (24 files, 71 passed), so the selection was already about 22–24
+  seconds before the try. The long cases, about 1–3 seconds each, were the
+  same titles at both revisions: noted execution and preparing refinement
+  in both schemes, a refused selection that stays checked until Cancel,
+  refinement options, the 320 px and 200% layouts, held transcription, and
+  the keyboard start. Cutting one would drop the observation its title
+  names. The notes-answer and recorded-word cases the try added were a few
+  milliseconds inside that wall. Sharing one production launches mapping
+  and pointing the launch helpers at it did not move the wall time. Plan
+  771 was removed with the try.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 
