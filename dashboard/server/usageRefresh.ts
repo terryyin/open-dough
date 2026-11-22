@@ -7,16 +7,18 @@
 // lineage resolves as an import's would; a Claude session's root transcript
 // and its workers' under `subagents/`. It assigns their responses against the
 // store's tasks merged with the current launch records
-// (./usageImport.ts `launchCatalog`), and writes tasks, responses,
-// assignments and coverage gaps through the importer's write path, under the
-// store's document lock (./usageHistory.ts), which replaces the contribution
-// of each session read, so a response read again counts once, and leaves the
-// document as it is when nothing in it changes. It keeps only the responses
-// and gaps of known tasks' sessions and their workers: recovering tasks from
-// native evidence alone, and deciding unrelated projects, stay with the
-// offline import. So does a Codex spawn that names only its worker's agent
-// path, which only the whole corpus can match. Once the store holds the
-// evidence, the check time is the time the Refresh began.
+// (./usageImport.ts `launchCatalog`), each with the native turns the sessions
+// read show it claims, as the import derives them, such as a developer
+// reply's (./nativeTaskActivity.ts `knownTaskClaims`), and writes tasks,
+// responses, assignments and coverage gaps through the importer's write path,
+// under the store's document lock (./usageHistory.ts), which replaces the
+// contribution of each session read, so a response read again counts once,
+// and leaves the document as it is when nothing in it changes. It keeps only
+// the responses and gaps of known tasks' sessions and their workers:
+// recovering tasks from native evidence alone, and deciding unrelated
+// projects, stay with the offline import. So does a Codex spawn that names
+// only its worker's agent path, which only the whole corpus can match. Once
+// the store holds the evidence, the check time is the time the Refresh began.
 import { claudeUsage } from "./claudeUsage.ts";
 import { containingClaudeSession } from "./claudeUsageKeys.ts";
 import {
@@ -33,6 +35,8 @@ import {
   containingCodexThread,
   type CodexLineage,
 } from "./codexUsageLineage.ts";
+import { knownTaskClaims } from "./nativeTaskActivity.ts";
+import type { NativeTaskFact } from "./nativeTaskFacts.ts";
 import { recordUsageCheck, refreshCutoff } from "./usageCheck.ts";
 import { writeUsageHistory } from "./usageHistory.ts";
 import { changedSessions } from "./usageRefreshFiles.ts";
@@ -60,6 +64,8 @@ export type UsageRefreshOptions = {
 
 // What one host's reading adds to the Refresh's batch.
 type HostReading = {
+  // The turns known tasks claim in the sessions read (./nativeTaskActivity.ts).
+  readonly claims: UsageTask[];
   readonly observations: UsageObservation[];
   readonly associations: UsageAssociation[];
   readonly gaps: UsageGap[];
@@ -132,6 +138,7 @@ async function codexReading(
     workers: lineage.workers.filter((worker) => worker.sessionId !== undefined),
   });
   return {
+    claims: [],
     observations: responses,
     associations: responses.map((observation) =>
       codexAssociation(observation, tasks, lineage),
@@ -156,18 +163,22 @@ async function claudeReading(
   );
   const lineage = claudeLineage();
   const observations = new Map<string, UsageObservation>();
+  const facts: NativeTaskFact[] = [];
   for (const file of changed)
     await collectResponses(
-      claudeUsage(file, since, gaps, lineage),
+      claudeUsage(file, since, gaps, lineage, (fact) => facts.push(fact)),
       observations,
     );
+  const claims = knownTaskClaims(facts, tasks);
+  const claimed = canonicalUsageTasks([...tasks, ...claims]);
   const launched = taskSessions(tasks, "claude");
   const known = (sessionId: string | undefined) =>
     sessionId !== undefined && launched.has(sessionId);
   const resolved = [...observations.values()]
     .filter((observation) => known(observation.sessionId))
-    .map((observation) => claudeAssociation(observation, tasks, lineage));
+    .map((observation) => claudeAssociation(observation, claimed, lineage));
   return {
+    claims,
     observations: resolved.map(({ observation }) => observation),
     associations: resolved.map(({ association }) => association),
     gaps: knownGaps(
@@ -199,7 +210,10 @@ export async function refreshUsageHistory({
   ];
   await writeUsageHistory(
     {
-      tasks,
+      tasks: canonicalUsageTasks([
+        ...tasks,
+        ...readings.flatMap((reading) => reading.claims),
+      ]),
       observations: readings.flatMap((reading) => reading.observations),
       associations: readings.flatMap((reading) => reading.associations),
       gaps: readings.flatMap((reading) => reading.gaps),

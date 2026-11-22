@@ -2,6 +2,7 @@
 
 **Identity:** SEED-422#correct-stale-token-totals
 **Source:** [Correct stale token totals for completed Dashboard tasks](../../seeds/SEED-422-correct-stale-dashboard-token-totals.md#correct-stale-token-totals)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -96,9 +97,22 @@ Run the consumer-trace script per slice with terms `nativeTurns`,
 ### 1. Refresh counts a Claude Code launch's turns after a developer reply
 
 Type: Behavior
-Status: planned
-Proof: new cases in `token-index-developer-reply.spec.ts`, failing first as
+Status: done
+Proof: new cases in `token-index-refresh-developer-reply.spec.ts` (split from
+`token-index-developer-reply.spec.ts` by the refactor pass; shared fixtures in
+`dashboard/test-support/usage-history/claudeReplyLaunch.ts`), failing first as
 observed above.
+
+Delivered: `nativeTaskActivity.ts` `knownTaskClaims(facts, known)` keeps only
+native units matching exactly one known task; `usageRefresh.ts`
+`claudeReading` passes a fact sink to `claudeUsage`, associates against
+`canonicalUsageTasks([...tasks, ...claims])`, and the write merges every
+reading's `claims`. `codexReading` returns `claims: []` for Slice 2, which
+wires it the same way. A matched task also takes the fact's source.
+Follow-up for wrap-up: `claudeReplyLaunch.ts` exports about ten data helpers
+that belong as MakeMe steps on `ClaudeTranscriptBuilder`
+(`Distribution/tests/support/claudeTranscriptTestData.mjs`, already over the
+size limit).
 
 Behavior: a launch imported with only its launch turn → the developer
 replies (`Resume`) and the session writes more responses and a worker →
@@ -169,8 +183,18 @@ digest unchanged.
 
 ## Story obligations
 
-None recorded.
+### G1. Refresh rereads only sessions changed since the check
+Reported: slice 1 — "Refresh only rereads sessions with a file modified since the check. A stale session that never changes again is only repaired by the offline import (Slice 5)."
+Story clause: "whether written before or after the previous check"
+Disposition: receiving slice 5
+Commitment: 2
 
+
+### G2. Rolling median after a correcting Refresh not observed
+Reported: slice 1 — "The rolling median is a gap. It only starts at the 10th eligible task."
+Story clause: "the point and trend update"
+Disposition: receiving slice 3
+Commitment: 5
 ## Plan review
 
 Slice-plan refinement was not needed. Five slices follow distinct outcomes:
