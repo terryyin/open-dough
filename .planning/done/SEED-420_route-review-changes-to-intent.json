@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-420#route-review-changes-to-intent",
+  "title": "Keep a story's comparison while its review is still reading",
+  "completedAt": "2026-11-22T14:21:36.352Z",
+  "developer": "Terry Yin",
+  "agent": "Ai-chan",
+  "host": "cursor",
+  "model": "grok-4.7"
+}

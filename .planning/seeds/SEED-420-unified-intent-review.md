@@ -41,7 +41,7 @@ usable change, independently of the later polish.
 any machine once the work is published. Each ad hoc session marked Done
 with no story gets a new Done story, and the session is attached to it.
 Later follow-ups join that story, so the Board, Recent stories and the
-[shared Intent review](#route-review-changes-to-intent) treat the work like any
+[shared Intent review](#open-review-changes-from-a-story-card) treat the work like any
 other Done story.
 
 **Scope.**
@@ -115,64 +115,6 @@ not add a third kind of Done row.
 
 **Effort hypothesis:** L, medium confidence. The critical uncertainty is
 reconciling workflow publication and local Done across machines.
-
-<a id="route-review-changes-to-intent"></a>
-
-### Keep a story's comparison while its review is still reading
-
-**Identity:** SEED-420#route-review-changes-to-intent
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-420#route-review-changes-to-intent","dependencies":[{"supplier":{"identity":"SEED-420#open-review-in-intent","href":"seeds/SEED-420-unified-intent-review.md#open-review-in-intent"},"implementation":"Intent's Changes view listing every file a story's comparison changed","rationale":"Sending Review changes to Intent before it lists production code would remove the only review of those files. Shared direction cannot avoid that, since the card has one destination.","condition":"A selected story's Changes view in Intent lists every changed file, inside and outside Intent locations, each with its diff.","state":"satisfied","resolution":{"revision":"5a98723474a8a3fb83e1d3263ec06d5afd849040","path":".planning/seeds/SEED-420-unified-intent-review.md#open-review-in-intent","summary":"Intent Changes lists changed files in Intent locations and under Outside Intent locations, with a diff when a file is selected. Plan 759 slices 1 and 5 record accepted proof in intent-story-outside-locations.spec.ts and intent-story-changes-no-locations.spec.ts, including a Done story's published completion and a project with no configured locations.\nCondition satisfied: A selected story's Changes view in Intent lists every changed file, inside and outside Intent locations, each with its diff.\nAccepted integration: f7964681321d5914abbf1060e4ac9ed724780e32 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-420#choose-story-comparison-in-intent","href":"seeds/SEED-420-unified-intent-review.md#choose-story-comparison-in-intent"},"implementation":"The story review's comparison choices offered in Intent","rationale":"Sending Review changes to Intent before it offers commits, uncommitted changes and landed runs would remove those choices for a story. The card has one destination, so both cannot stay reachable.","condition":"In Intent a developer chooses a story's worktree commits, uncommitted changes, landed run or published completion, and the tree and diffs follow the choice.","state":"satisfied","resolution":{"revision":"beb2e240890f812d99e23dab4ba289789bf5e53a","path":".planning/seeds/SEED-420-unified-intent-review.md#choose-story-comparison-in-intent","summary":"Intent Compare offers worktree commits, inclusion of uncommitted changes, landed runs and published completion. Plan 760 slices 2 to 4 record accepted proof in intent-story-compare-commits.spec.ts, intent-story-compare-uncommitted.spec.ts and intent-story-compare-done.spec.ts that the file list and diffs follow the chosen comparison.\nCondition satisfied: In Intent a developer chooses a story's worktree commits, uncommitted changes, landed run or published completion, and the tree and diffs follow the choice.\nAccepted integration: c64549aac9232c2accc70e8d8fd170efcc64cfac on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/761-route-review-changes-to-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2dc9e34f86ea1cc2be4b420594d223469eaea48f922cb98f801c759a3c865e0a","plan":"f8a5a5f5becc7e83b92dfcb98b9d97d7f9e4f43a0ac2d5d07b825acfff101465"}}
-```
-
-Split from the completed SEED-420#open-review-in-intent.
-The card opening that this story originally included continues as
-[Open Review changes on a Story card in Intent](#open-review-changes-from-a-story-card).
-Delivered from
-[plan 761](../slice-plans/761-route-review-changes-to-intent/PLAN.md) slice 1.
-
-**Goal.** While a developer is reading one story in Intent, a commit range, a
-chosen landed run, or Refresh keeps that story's last comparison and Compare
-on screen, says the story is being read, and leaves Refresh focusable without
-starting another read. Selecting a different story does not show the previous
-story's files or source while the new story's review is still being read. A
-Done story's locations and CI endpoint stay on its default review.
-
-**Scope.**
-
-- The same story's in-flight commit range, chosen landed run, and Refresh.
-- A newly selected story shows none of the previous story's comparison until
-  its own review arrives.
-- Out of scope: **Review changes** on a Story card opening Intent, the
-  comparison context line, and moving the Side panel's story-only paths.
-  Those continue in
-  [Open Review changes on a Story card in Intent](#open-review-changes-from-a-story-card).
-
-The Selected story and Intent's view stay disposable page state under ADR 0008.
-
-**Key examples.**
-
-- A Taken story is open on all changes. Choosing **Commits** while that range
-  is still unread keeps Compare, keeps the pressed **Commits** choice focused,
-  keeps the last file list, and says the story's changes are being read.
-  Refresh can take focus and does not start another read.
-- Pressing Refresh while the next read is unread keeps the same comparison.
-  A second press does not read again.
-- A Done story's chosen landed run is still unread. Its locations and the CI
-  comparison's landed endpoint stay on the published completion.
-- Story B is selected while story A's review was on screen and story B's
-  review and locations are still unread. Story B shows none of story A's
-  files or source.
-
-**Architecture.** The comparison Intent shows belongs to the selected story.
-A read of that same story can keep the last comparison; a different story
-cannot. The Selected story and Intent's view stay disposable page state under
-[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts).
-
-**Effort hypothesis:** Delivered. The in-flight comparison is one slice.
 
 <a id="open-review-changes-from-a-story-card"></a>
 
