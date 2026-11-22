@@ -271,8 +271,33 @@ review journey reaches the changed opening.
   read `compared` and `unreadable`. Side panel Refresh is `aria-disabled`
   while reading and does not advance the round. The mount helper is
   `intent-ci-page-mount.ts`. `intent-story-compare-stories.ts` already has
-  `unanswered` as a promise that never settles. Restart slice 1 with
-  `--split-from 1` so its clock starts at zero.
+  `unanswered` as a promise that never settles.
+- Second overrun, 2026-11-22, paused at 17.5 active minutes. The return
+  reported 15.7. No edit and no proof. `storyOverruns` is 2. Story-boundary
+  reassessment: delivered product value is none; the plan split and source
+  review are published at `d6822a76`. Remaining scope is slices 1–9. Goal,
+  examples, and scope are unchanged. The story stays one story. Both overruns
+  were this slice's reading before an edit, not a second outcome and not a
+  wrong story cut. No story resplit and no further slice split: the behavior
+  is one proof loop, and the plan is already at 9 slices. Sizing reason for
+  continuing: the second attempt confirmed the edit and the three cases below
+  and did not write them. The next attempt writes that edit and does not
+  survey the comparison modules again.
+- Confirmed edit, not yet written. In `useStoryComparison`, remember the last
+  `storyComparisonShown` for the story key and keep showing it while the
+  selection read or the commit-range read is in flight. Treat range reading
+  as reading and put `reading` on `StoryCompare`. In the lens, prefer
+  `compared` when a comparison is still shown, with `reading: true`, and
+  still attach `defaultReview` and `compare` on a bare `reading` state.
+  `compareOf` and `defaultReviewOf` also read that `reading` state.
+  `CompactComparisonState` says "Reading the story's changes…" while a
+  compared story is reading. Intent Refresh uses `aria-disabled` and does
+  not advance the round while reading. New spec
+  `intent-story-compare-reading.spec.ts` (`makeMe: true`, `pageObjects:
+  false`): a pending range read, a pending Refresh whose second click does
+  not start another round, and a pending Done run read that keeps the
+  locations browser and the CI Done endpoint on the default. Do not move
+  `isDefault`, remove `defaultStoryComparison`, or unify `wholeStory`.
 
 ## Execution context
 
