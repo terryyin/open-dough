@@ -249,7 +249,7 @@ sibling-owned `intent-ci-evidence-page.tsx` and by `intent-ci-done-history-page.
 ### 5. Project CI wall-time history refreshes without `act` wrapping
 
 Type: Behavior
-Status: planned
+Status: done
 
 Narrow `JudgedBranch` to `Omit<JudgedReading, "round">` and refresh
 `intent-ci-wall-time-history{,-gaps,-evidence}.spec.ts` onto the shared
@@ -259,6 +259,14 @@ Behavior: Project CI wall-time history refreshes through `Check again` →
 `Builds and evidence` in keyboard order and keeps its refresh round.
 
 Proof: the 5 refreshed cases pass with no `act` helper; typecheck.
+
+Accepted: `JudgedBranch` and `previouslyRetrievedAt` take
+`Omit<JudgedReading, "round">`; the 3 specs mount through
+`mountJudgedRunProof` (`openTrunkHistory`, intent-ci-wall-time-history-page.ts)
+with MakeMe inputs, 2.54–2.77 s including preparation at load ~5.
+`mountIntentCiPage` takes an optional viewport. Learning: on the page mount
+the history region and heading appear before the history answers; cases wait
+on answered content.
 
 ### 6. History chart marks keep labels, links, keyboard and narrow fit, and the story's proof runs faster
 

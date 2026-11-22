@@ -74,12 +74,14 @@ export async function mountIntentCiPage({
   work,
   projects = [work.source],
   machine = makeMe.aMachineAnswer.please(),
+  viewport = { width: 1280, height: 800 },
   reads,
 }: {
   readonly work: PublishedWork;
   readonly projects?: readonly PublishedWork["source"][];
   // The machine's sessions and the worktrees holding a story's claim.
   readonly machine?: MachineAnswer;
+  readonly viewport?: { readonly width: number; readonly height: number };
   // Review changes' reads default to a machine without a review workspace.
   readonly reads: Pick<PageReads, "intent" | "ci"> & Partial<PageReads>;
 }) {
@@ -156,7 +158,7 @@ export async function mountIntentCiPage({
     );
   };
   const mounted = await mountComponent(render(), {
-    viewport: { width: 1280, height: 800 },
+    viewport,
     fillsViewport: true,
   });
   // Each view change returns once the page committed it.

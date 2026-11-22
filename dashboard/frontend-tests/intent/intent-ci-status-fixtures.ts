@@ -127,31 +127,44 @@ export const unconfiguredIntentReads: IntentReadSource = {
   readCandidates: () => Promise.resolve({ status: "absent" }),
 };
 
+// Main's run 41 at a1b2c3d, the run `mountJudgedRunProof` judges.
+export const judgedRun = {
+  revision: fullSha("a1b2c3d"),
+  runId: 41,
+  runAttempt: 1,
+};
+
 // Intent's CI status homepage judging main's run 41 passed at a1b2c3d, its
-// proof answered with `entries`.
+// proof answered with `entries`; `page` sizes the viewport and answers the
+// page's other CI reads.
 export async function mountJudgedRunProof(
   entries: readonly CiProofEntry[],
   extra: Partial<Judgment> = {},
+  page: {
+    readonly viewport?: { readonly width: number; readonly height: number };
+    readonly ci?: Partial<IntentCiReadSource>;
+  } = {},
 ) {
-  const revision = fullSha("a1b2c3d");
-  const run = { revision, runId: 41, runAttempt: 1 };
+  const { revision } = judgedRun;
   const judged = judgedStatus("main", "pass", revision, "Add login", {
-    ...run,
+    ...judgedRun,
     runBranch: "main",
     runUrl: "https://ci.invalid/runs/41",
     ...extra,
   });
   const proof = makeMe.aCiProof
-    .forRun({ repository: openDoughSource.repository, ...run })
+    .forRun({ repository: openDoughSource.repository, ...judgedRun })
     .entries([...entries])
     .please();
   await mountIntentCiPage({
     work: makeMe.aPublishedWork.of(openDoughSource).at(revision).please(),
+    ...(page.viewport && { viewport: page.viewport }),
     reads: {
       intent: unconfiguredIntentReads,
       ci: inertCiReads({
         readStatus: () => Promise.resolve(judged),
         readProof: () => Promise.resolve(proof),
+        ...page.ci,
       }),
     },
   });
