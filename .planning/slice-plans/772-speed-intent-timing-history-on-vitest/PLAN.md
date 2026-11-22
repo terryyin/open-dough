@@ -194,7 +194,7 @@ two animation frames.
 ### 3. Done wall-time history keeps its compact readout words and cues
 
 Type: Behavior
-Status: planned
+Status: done
 
 Add `aDoneWallTimeHistory` to `publishedReadingMakeMe.mjs`. First observe one
 held Done wall-time history read resolving beside live comparison proof
@@ -206,6 +206,19 @@ insufficient, unusable-selected or zero-average, or a stand-in landing → the
 compact readout shows its exact words and cue.
 
 Proof: the moved Vitest spec; 0 legacy cases remain on the file.
+
+Accepted: `intent-ci-compact-readout.spec.ts` runs on Vitest through
+`openDoneStoryComparison` → `mountIntentCiPage` (4 cases: the 3 legacy titles
+plus "a held history read resolves beside the live comparison proof without
+rereading it"); `aDoneWallTimeHistory` lives in
+`Distribution/tests/support/doneWallTimeHistoryTestData.mjs`; page object
+`intent-ci-done-history-page.ts`. 3 passed in 6.27 s including preparation
+before the refactor added the held-read case. Learning for Slice 4:
+`openDoneStoryComparison(review, readDoneWallTimeHistory)` is the entry; the
+held-read case may fold into the moved reference-lifecycle spec when it
+observes the same no-reread signal. The builder computes the prior average
+and change the read answers with, restating `priorBuildReferenceOf`; reusing
+it would load dashboard source into the shared makeMe builders.
 
 ### 4. Done glance and reference lifecycle keep history beside live proof
 

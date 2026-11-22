@@ -1,9 +1,10 @@
 // @ts-check
 // Builders of a published revision as Intent reads it: its source, work,
-// published files, Intent locations and their answer, and CI scope history
-// glance. Node-free, so makeMe.mjs and pageMakeMe.mjs expose them from these
-// definitions.
+// published files, Intent locations and their answer, CI scope history
+// glance, and a Done story's collected CI wall-time history. Node-free, so
+// makeMe.mjs and pageMakeMe.mjs expose them from these definitions.
 import { PublishedWorkBuilder } from "./comparisonViewTestData.mjs";
+import { DoneWallTimeHistoryBuilder } from "./doneWallTimeHistoryTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import {
   IntentLocationBuilder,
@@ -23,6 +24,7 @@ import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
  * @property {IntentLocationBuilder} anIntentLocation
  * @property {IntentLocationsAnswerBuilder} anIntentLocationsAnswer
  * @property {import("./factBuilder.mjs").FactBuilder<import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance>} aScopeHistoryGlance
+ * @property {DoneWallTimeHistoryBuilder} aDoneWallTimeHistory
  */
 
 class WorkEntryBuilder {
@@ -85,6 +87,12 @@ export function publishedReadingMakeMeProperties() {
       enumerable: true,
       get() {
         return { with: copyFacts };
+      },
+    },
+    aDoneWallTimeHistory: {
+      enumerable: true,
+      get() {
+        return new DoneWallTimeHistoryBuilder();
       },
     },
   };

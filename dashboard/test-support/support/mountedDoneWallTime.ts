@@ -2,8 +2,9 @@
 // time history read answers from retained landings as the server projects
 // them at its published landing (../../server/intentCiHistoryRead.ts), in
 // the glance shape the Done view asks for (../../server/ciHistoryGlance.ts),
-// for the compact readout's states
-// (../../frontend-tests/intent/intent-ci-compact-readout.spec.ts).
+// for the Done glance and reference lifecycle
+// (../../frontend-tests/intent/intent-ci-done-glance.spec.ts,
+// ../../frontend-tests/intent/intent-ci-done-reference-lifecycle.spec.ts).
 import type { Page } from "@playwright/test";
 import { doneWallTimeGlanceOf } from "../../server/ciHistoryGlance.ts";
 import { doneWallTimeHistoryOf } from "../../server/intentCiHistoryRead.ts";
@@ -30,16 +31,6 @@ export const mountedDoneTrunk: DoneTrunk = {
   repository: "/projects/example/.git",
   base: story.answer.storyStart,
 };
-
-export const laterTrunkRevision = "e".repeat(40);
-
-// The prepared Done comparison, published at its Landed revision.
-export function preparedDoneComparison() {
-  return {
-    ...makeMe.aComparedStory.please(),
-    doneEndpoint: { revision: landed, at: story.answer.checkedAt },
-  };
-}
 
 // Each Done history read answers what `answer` holds when it is read:
 // retained landings as the glance read projects them at the Landed revision,

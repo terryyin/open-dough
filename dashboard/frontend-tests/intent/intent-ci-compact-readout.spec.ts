@@ -2,236 +2,195 @@
 // brief status where the landing's history is missing, pending, outside
 // retention or insufficient; the prior average without a change when the
 // selected timing is unusable; a change without a percentage over a zero
-// average; and the build that stands in for the landing. Retained landings
-// are projected by the server's own read; the integrated journeys collect.
-import type { Page } from "@playwright/test";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { ProjectHistory } from "../../server/landedCiHistoryStore.ts";
+// average; and the build that stands in for the landing. A held history
+// read resolves beside the live comparison proof without rereading it.
+import { expect, test } from "vitest";
+import type { DoneWallTimeHistoryBuilder } from "../../../Distribution/tests/support/doneWallTimeHistoryTestData.mjs";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { DoneWallTimeHistory } from "../../src/ciDoneWallTimeHistory.ts";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
+import { doneWallTimeHistory } from "./intent-ci-done-history-page.ts";
 import {
-  doneWallTimeHistory,
-  expectChangeCue,
-} from "../../test-support/priorBuildReferencePage.ts";
-import {
-  expect,
-  mountComparison,
-  test,
-  type ComparisonReply,
-  type ComparisonServices,
-} from "../../test-support/support/comparisonMountPage.ts";
-import { doneHistoryBuilder } from "../../test-support/support/doneWallReferenceHistory.ts";
-import type { FrontendAppServer } from "../../test-support/support/frontendAppServer.ts";
-import {
-  laterTrunkRevision,
-  mountedDoneTrunk,
-  preparedDoneComparison,
-  serveDoneWallTimeHistory,
-} from "../../test-support/support/mountedDoneWallTime.ts";
+  openDoneStoryComparison,
+  publishedCompletion,
+} from "./intent-story-compare-stories.ts";
 
-const landing = "Selected landing ccccccc";
-const { endpoint } = mountedDoneTrunk;
+type History = DoneWallTimeHistoryBuilder;
 
+// The Done story's comparison, each history read at the published landing
+// answered from `answer()`: the history view, the landing's words, the
+// history reads and the comparison and proof reads.
 async function openDoneHistory(
-  page: Page,
-  server: FrontendAppServer,
-  services: ComparisonServices,
-  answer: () => ProjectHistory | ComparisonReply,
+  answer: () => History | Error | Promise<History>,
 ) {
-  const facts = preparedDoneComparison();
-  Object.assign(services, {
-    comparison: () => ({ json: facts.answer }),
-    proof: (params: URLSearchParams) => ({
-      json: facts.proof(Number(params.get("run"))),
-    }),
-  });
-  const reads = await serveDoneWallTimeHistory(page, answer);
-  const panel = await mountComparison(page, server, facts);
-  return { history: doneWallTimeHistory(panel), reads };
+  let landing = "";
+  let reads = 0;
+  const read: IntentCiReadSource["readDoneWallTimeHistory"] = async (
+    ...[, endpoint]
+  ): Promise<DoneWallTimeHistory> => {
+    reads += 1;
+    landing = `Selected landing ${endpoint.revision.slice(0, 7)}`;
+    const shown = await answer();
+    if (shown instanceof Error) throw shown;
+    return shown.through(endpoint.revision).please();
+  };
+  const opened = await openDoneStoryComparison(
+    { review: () => Promise.resolve(publishedCompletion()) },
+    read,
+  );
+  const history = await doneWallTimeHistory();
+  return {
+    history,
+    landing: () => landing,
+    reads: () => reads,
+    proofReads: () =>
+      opened.comparisonReads.comparisons.length +
+      opened.comparisonReads.proofs.length,
+  };
 }
 
-const keptBuild = (state: "pass" | "failed") =>
-  makeMe.aKeptBuild
-    .with({
-      revision: endpoint,
-      state,
-      runId: 103,
-      runAttempt: 1,
-      startedAt: "2026-11-07T10:00:00Z",
-      completedAt: "2026-11-07T10:02:00Z",
-    })
-    .please();
+const done = () => makeMe.aDoneWallTimeHistory;
+const usableAverage = "Prior-build average · 1 min 43 s · 5 prior builds used";
+const noAverage = (builds: number) =>
+  `Prior-build average · Insufficient history · ${String(builds)} prior builds used`;
 
-test("brief statuses name a pending, missing, out-of-retention or insufficient history and keep any usable prior average without a change", async ({
-  page,
-  comparisonServer,
-  comparisonServices,
-}) => {
-  const pending = doneHistoryBuilder(mountedDoneTrunk)
-    .pendingLanding({
-      receipt: "selected",
-      revision: endpoint,
-      receivedAt: "2026-11-07T10:10:00Z",
-      waitsFor: "build",
-      runId: 103,
-    })
-    .please();
+test("a held history read resolves beside the live comparison proof without rereading it", async () => {
+  let release: () => void = () => undefined;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let answer = async () => {
+    await held;
+    return done().measured(120000);
+  };
+  const shown = await openDoneHistory(() => answer());
+  const { history } = shown;
+  await expect.poll(shown.reads).toBe(1);
+  await expect.poll(shown.proofReads).toBeGreaterThan(0);
+  const proofReads = shown.proofReads();
+  expect(history.selected()).toBeUndefined();
+  release();
+  await expect.poll(history.change).toBe("vs. prior average · +17 s (+17%)");
+  answer = () => Promise.resolve(done().pending());
+  await history.refresh.click();
+  await expect
+    .poll(history.selected)
+    .toBe(`${shown.landing()} · No timing · Pending · CI queued or running`);
+  expect(shown.proofReads()).toBe(proofReads);
+});
+
+test("brief statuses name a pending, missing, out-of-retention or insufficient history and keep any usable prior average without a change", async () => {
   const steps: readonly {
-    readonly history: ProjectHistory;
+    readonly history: History;
     readonly status?: string;
     readonly selected: string;
     readonly average: string;
   }[] = [
     {
-      history: pending,
-      selected: `${landing} · No timing · Pending · CI queued or running`,
-      average: "Prior-build average · 1 min 43 s · 5 prior builds used",
+      history: done().pending(),
+      selected: "No timing · Pending · CI queued or running",
+      average: usableAverage,
     },
     {
-      history: doneHistoryBuilder(mountedDoneTrunk, {
-        selected: keptBuild("failed"),
-      }).please(),
-      selected: `${landing} · Failed build`,
-      average: "Prior-build average · 1 min 43 s · 5 prior builds used",
+      history: done().failed(),
+      selected: "Failed build",
+      average: usableAverage,
     },
     {
-      history: doneHistoryBuilder(mountedDoneTrunk, {
-        selected: keptBuild("pass"),
-      }).please(),
-      selected: `${landing} · No timing · Validated CI proof summary is not retained`,
-      average: "Prior-build average · 1 min 43 s · 5 prior builds used",
+      history: done().proofNotRetained(),
+      selected: "No timing · Validated CI proof summary is not retained",
+      average: usableAverage,
     },
     {
-      history: doneHistoryBuilder(mountedDoneTrunk).please(),
+      history: done(),
       status: "Selected landing not collected",
-      selected: `${landing} · No timing`,
-      average: "Prior-build average · 1 min 43 s · 5 prior builds used",
+      selected: "No timing",
+      average: usableAverage,
     },
     {
-      history: doneHistoryBuilder(mountedDoneTrunk, {
-        priors: [100000, 100000, 100000, 100000],
-        selectedMs: 120000,
-      }).please(),
-      selected: `${landing} · 2 min`,
-      average:
-        "Prior-build average · Insufficient history · 4 prior builds used",
+      history: done().priors([100000, 100000, 100000, 100000]).measured(120000),
+      selected: "2 min",
+      average: noAverage(4),
     },
     {
-      history: doneHistoryBuilder(mountedDoneTrunk, {
-        priors: [],
-        later: true,
-      }).please(),
+      history: done().outsideRetention(),
       status: "Outside retained history",
-      selected: `${landing} · No timing`,
-      average:
-        "Prior-build average · Insufficient history · 0 prior builds used",
+      selected: "No timing",
+      average: noAverage(0),
     },
     {
-      history: makeMe.aLandedCiHistory
-        .inTrunkOrder([...mountedDoneTrunk.order])
-        .please(),
+      history: done().noCollectedHistory(),
       status: "No collected history",
-      selected: `${landing} · No timing`,
-      average:
-        "Prior-build average · Insufficient history · 0 prior builds used",
+      selected: "No timing",
+      average: noAverage(0),
     },
   ];
-  let step = 0;
-  const { history, reads } = await openDoneHistory(
-    page,
-    comparisonServer,
-    comparisonServices,
-    () => steps[step]?.history ?? pending,
-  );
+  let shown = done();
+  const opened = await openDoneHistory(() => shown);
+  const { history } = opened;
+  await expect.poll(history.status).toBe("Selected landing not collected");
   for (const [index, expected] of steps.entries()) {
-    if (index > 0) {
-      step = index;
-      await history.refresh.click();
-      await expect.poll(() => reads.count).toBe(index + 1);
-    }
-    await expect(history.selected).toHaveText(expected.selected);
-    await expect(history.average).toHaveText(expected.average);
-    await expect(history.change).toHaveCount(0);
-    if (expected.status === undefined)
-      await expect(history.status).toHaveCount(0);
-    else await expect(history.status).toHaveText(expected.status);
+    shown = expected.history;
+    await history.refresh.click();
+    await expect.poll(opened.reads).toBe(index + 2);
+    await expect
+      .poll(history.selected)
+      .toBe(`${opened.landing()} · ${expected.selected}`);
+    expect(history.average()).toBe(expected.average);
+    expect(history.change()).toBeUndefined();
+    expect(history.status()).toBe(expected.status);
   }
   // Without a measured build there is no chart.
-  await expect(history.chart.box).toHaveCount(0);
+  expect(history.chartMarks()).toBe(0);
   // Four comparable observations and the selected landing stay charted.
-  step = 4;
+  shown = steps[4]?.history ?? done();
   await history.refresh.click();
-  await expect(history.chart.marks).toHaveCount(5);
-  await expect(history.chart.readout).toHaveText(
-    "Nov 5 · Selected landing · 2 min",
-  );
+  await expect.poll(history.chartMarks).toBe(5);
+  expect(history.chartReadout()).toBe("Nov 5 · Selected landing · 2 min");
 });
 
-test("a zero prior average keeps the elapsed change without a percentage, and a stand-in build names how it stands for the landing", async ({
-  page,
-  comparisonServer,
-  comparisonServices,
-}) => {
-  let shown = doneHistoryBuilder(mountedDoneTrunk, {
-    priors: [0, 0, 0, 0, 0],
-    selectedMs: 1000,
-  }).please();
-  const { history } = await openDoneHistory(
-    page,
-    comparisonServer,
-    comparisonServices,
-    () => shown,
-  );
-  await expect(history.average).toHaveText(
-    "Prior-build average · 0 s · 5 prior builds used",
-  );
-  await expect(history.change).toHaveText(
+test("a zero prior average keeps the elapsed change without a percentage, and a stand-in build names how it stands for the landing", async () => {
+  let shown: History = done().priors([0, 0, 0, 0, 0]).measured(1000);
+  const opened = await openDoneHistory(() => shown);
+  const { history } = opened;
+  await expect
+    .poll(history.average)
+    .toBe("Prior-build average · 0 s · 5 prior builds used");
+  expect(history.change()).toBe(
     "vs. prior average · +1 s (percentage unavailable: average is zero)",
   );
-  await expectChangeCue(page, history.region, "slower");
-  for (const [provenance, revision, words] of [
-    ["later", laterTrunkRevision, "Later trunk build, includes later changes"],
+  expect(history.changeCue()).toBe("slower");
+  for (const [standIn, revision, words] of [
+    ["later", "9".repeat(40), "Later trunk build, includes later changes"],
     ["equivalent", "8".repeat(40), "Reused equivalent first-parent build"],
   ] as const) {
-    shown = doneHistoryBuilder(mountedDoneTrunk, {
-      selectedMs: 120000,
-      standIn: { provenance, revision },
-    }).please();
+    shown = done().standIn(standIn, revision, 120000);
     await history.refresh.click();
-    await expect(history.selected).toHaveText(`${landing} · 2 min · ${words}`);
-    await expect(history.change).toHaveText("vs. prior average · +17 s (+17%)");
-    await expectChangeCue(page, history.region, "slower");
+    await expect
+      .poll(history.selected)
+      .toBe(`${opened.landing()} · 2 min · ${words}`);
+    expect(history.change()).toBe("vs. prior average · +17 s (+17%)");
+    expect(history.changeCue()).toBe("slower");
   }
 });
 
-test("a failed history read keeps the last history beside its alert, and its short retry reads again", async ({
-  page,
-  comparisonServer,
-  comparisonServices,
-}) => {
-  const retained = doneHistoryBuilder(mountedDoneTrunk, {
-    selectedMs: 120000,
-  }).please();
-  let reply: ProjectHistory | ComparisonReply = retained;
-  const { history, reads } = await openDoneHistory(
-    page,
-    comparisonServer,
-    comparisonServices,
-    () => reply,
-  );
-  await expect(history.change).toHaveText("vs. prior average · +17 s (+17%)");
-  await expect(history.retry).toHaveCount(0);
-  reply = {
-    status: 503,
-    json: { error: "The collected CI history could not be read." },
-  };
+test("a failed history read keeps the last history beside its alert, and its short retry reads again", async () => {
+  const retained = done().measured(120000);
+  let reply: History | Error = retained;
+  const opened = await openDoneHistory(() => reply);
+  const { history } = opened;
+  await expect.poll(history.change).toBe("vs. prior average · +17 s (+17%)");
+  await expect.element(history.retry).not.toBeInTheDocument();
+  reply = new Error("The collected CI history could not be read.");
   await history.refresh.click();
-  await expect(history.alert).toHaveText(
-    "The collected CI history could not be read.",
-  );
-  await expect(history.change).toHaveText("vs. prior average · +17 s (+17%)");
-  await expect(history.refresh).toBeVisible();
+  await expect
+    .poll(history.alert)
+    .toBe("The collected CI history could not be read.");
+  expect(history.change()).toBe("vs. prior average · +17 s (+17%)");
+  await expect.element(history.refresh).toBeVisible();
   reply = retained;
   await history.retry.click();
-  await expect(history.alert).toHaveCount(0);
-  await expect(history.retry).toHaveCount(0);
-  expect(reads.count).toBe(3);
+  await expect.poll(history.alert).toBeUndefined();
+  await expect.element(history.retry).not.toBeInTheDocument();
+  expect(opened.reads()).toBe(3);
 });

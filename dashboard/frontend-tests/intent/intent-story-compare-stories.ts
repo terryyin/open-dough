@@ -7,6 +7,7 @@
 // landed run.
 import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
@@ -109,11 +110,17 @@ export const publishedCompletion = () =>
     .adding("dashboard/tests/folder/a.spec.ts")
     .please();
 
-// Intent with the Done story selected, its review read from `review`: the
-// revision each Intent locations read names, in order, and the global fetch
+// Intent with the Done story selected, its review read from `review` and its
+// collected CI wall time from `readDoneWallTimeHistory` (pending unless
+// given): the revision each Intent locations read names, in order, the
+// comparison and proof reads the CI comparison asked, and the global fetch
 // and WebSocket calls made from the mount on.
-export async function openDoneStoryComparison(review: ReviewAnswers) {
+export async function openDoneStoryComparison(
+  review: ReviewAnswers,
+  readDoneWallTimeHistory: IntentCiReadSource["readDoneWallTimeHistory"] = unanswered,
+) {
   const opened = recordOutsideCalls();
+  const ci = scopeReadsOf(doneStory);
   const locationRevisions: string[] = [];
   let selected = false;
   const { done, doneReads } = makeMe.aDoneCatalog
@@ -152,8 +159,8 @@ export async function openDoneStoryComparison(review: ReviewAnswers) {
         readCandidates: () => Promise.resolve({ status: "absent" }),
       },
       ci: {
-        ...scopeReadsOf(doneStory).source,
-        readDoneWallTimeHistory: unanswered,
+        ...ci.source,
+        readDoneWallTimeHistory,
         readScopeHistory: unanswered,
       },
       review: answering(review),
@@ -167,5 +174,9 @@ export async function openDoneStoryComparison(review: ReviewAnswers) {
     .not.toBeNull();
   selected = true;
   await mounted.selectStory(doneStory.identity, doneTitle);
-  return { locationRevisions, outsideCalls: () => opened };
+  return {
+    locationRevisions,
+    comparisonReads: ci.asked,
+    outsideCalls: () => opened,
+  };
 }
