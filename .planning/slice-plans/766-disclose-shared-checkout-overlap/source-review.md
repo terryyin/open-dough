@@ -1,26 +1,31 @@
 # Source review for SEED-418#disclose-shared-checkout-overlap
 
-The coordinator launched a fresh general-purpose reviewer on 2026-11-22 with
-no conversation inheritance. Its only input was the story's Goal, Scope and
-Key examples from the seed; it was told to read no files and change nothing.
-The launch input and returned commitments are in this execution's Claude Code
-conversation (the source-only review agent launch and its final report).
+The coordinator launched a fresh general-purpose reviewer on 2026-11-22, after
+the developer's story amendment on trunk (`6da9c6ca1`), with no conversation
+inheritance. Its only input was the amended story's Goal, Scope and Key
+examples; it was told to read no files and change nothing. The launch input
+and returned commitments are in this execution's Claude Code conversation (the
+second source-only review agent launch and its final report). Ids 1–7 match
+the first review's promises, so their observations carry over; the first
+review's pull-only promise is now settled context (Scope 5).
 
 Unnumbered context: the Goal's reason (no misattribution); the existing
-`checkoutSharedMeanwhile` baseline; the field being optional; ADR 0008 as the
-reason launch records stay local; unpublished edits already outside the range
-(settled, nothing added); no per-session attribution inside a shared checkout;
-no landing context means no overlap evidence.
+`checkoutSharedMeanwhile` baseline; the publisher reading only the note; the
+reused Done wording; ADR 0008; Scope 5's settled range baseline (Example 1's
+pulled commit illustrates it); no per-session attribution inside a shared
+checkout; an unanswered push as Example 4's trigger.
 
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1 | When another session opens in a session's checkout, the Dashboard records when the overlap began next to that open session's landing context, also when the overlap starts after the session launched. (Scope 1; Example 2) | slice 3 | |
-| 2 | At close, the publisher marks each published range accepted at or after the overlap start with `uncertainty: "shared-checkout"`, taking the overlap start only from the Dashboard's note; ranges accepted before it stay unmarked. (Scope 2; Scope 1) | slice 1 | observed: Distribution/tests/skills/dough-land/session-record-publication.test.mjs "a close noted as sharing its checkout publishes its range marked…" (since 60s before close → marked, read from origin main) and "…only after its acceptance publishes its range unmarked" (since after → unmarked); session-close-resume.test.mjs resumed case marks a range accepted exactly at since; run s1-focused-3 |
-| 3 | On another machine, the published-session review shows a marked range with the existing Done warning: "Another session was open in the same checkout during that time, so the comparison may include that session's work." (Scope 3; Goal; Examples 1 and 2) | slice 2 | observed: e2e/sessions/recently-done-published-sessions.spec.ts "Recently done warns that another machine's published session may include a shared checkout's work": a record published through publishSessionClose with a shared-checkout note, opened on a machine with no launch, shows the shared Done sentence (owner sharedCheckoutWarning); published-session-ranges.spec.ts marked range returns session.shared; runs refactor2-3, refactor2-4 |
-| 4 | Records and ranges without the mark, including those from installations that predate the note, stay readable in the review and show no warning. (Scope 2; Scope 6) | slice 2 | observed: e2e/sessions/recently-done-published-sessions.spec.ts shared-checkout test: an unmarked close without a landing context (as an older installation publishes) shows its file and no warning; dashboard/backend-tests/review/published-session-ranges.spec.ts unmarked first range of a record with a marked second range has no session.shared; runs refactor2-3, refactor2-4 |
-| 5 | A session that never shared its checkout (a follow-up in its own worktree, or a Default main session that closed before another opened there) publishes no mark and shows no warning. (Example 3) | slice 3 | |
-| 6 | A close without a Dashboard landing context publishes no mark. (Scope 6) | slice 1 | observed: Distribution/tests/skills/dough-land/session-close-resume.test.mjs native-session lost-work-result case compares the whole published record bytes with no mark; run s1-focused-3 |
-| 7 | Only the uncertainty mark is published; launch records stay local. (Scope 4) | slice 1 | observed: session-record-publication.test.mjs marked case asserts the whole published record equals version, sessionId, workflow, closedAt and the marked range only (no since or launch data); the note stays in the reporting directory; run coord-1 |
-| 8 | The published comparison still leaves out commits the checkout received only by pull. (Scope 5; Example 1) | slice 1 | observed: session-record-publication.test.mjs marked case with pulledBeforeOneUnpublishedEdit: published range diff lists only edited.txt and pulled.txt exists at the range base; run s1-focused-3 |
+| 1 | The Dashboard records when an overlap begins beside each affected open session's landing context, including overlap that starts after a session launched when another later opens in its checkout. (Scope 1; Examples 1 and 2) | slice 3 | observed: dashboard/backend-tests/review/shared-checkout-note.spec.ts later-launch case (first launched alone, a second opens later in Default main → both reporting directories note the second launch time) and further-launch case (earlier notes keep their earliest since); run refactor3-1 |
+| 2 | At close, the publisher marks each published range accepted at or after the overlap start with `uncertainty: "shared-checkout"`. (Scope 2; Examples 1 and 2) | slice 1 | observed: Distribution/tests/skills/dough-land/session-record-publication.test.mjs "a close noted as sharing its checkout publishes its range marked…" (since 60s before close → marked, read from origin main) and "…only after its acceptance publishes its range unmarked" (since after → unmarked); session-close-resume.test.mjs resumed case marks a range accepted exactly at since; run s1-focused-3 |
+| 3 | The published-session review, seen from another machine or clone, shows a marked range with the existing Done warning: "Another session was open in the same checkout during that time, so the comparison may include that session's work." (Scope 3; Goal; Examples 1 and 2) | slice 2 | observed: e2e/sessions/recently-done-published-sessions.spec.ts "Recently done warns that another machine's published session may include a shared checkout's work": a record published through publishSessionClose with a shared-checkout note, opened on a machine with no launch, shows the shared Done sentence (owner sharedCheckoutWarning); published-session-ranges.spec.ts marked range returns session.shared; runs refactor2-3, refactor2-4 |
+| 4 | Records and ranges without the mark, including those installations that predate the note publish, stay readable in the review and show no warning. (Scope 2; Scope 6) | slice 2 | observed: e2e/sessions/recently-done-published-sessions.spec.ts shared-checkout test: an unmarked close without a landing context (as an older installation publishes) shows its file and no warning; dashboard/backend-tests/review/published-session-ranges.spec.ts unmarked first range of a record with a marked second range has no session.shared; runs refactor2-3, refactor2-4 |
+| 5 | No shared-checkout overlap means no mark and no warning: a follow-up in its own worktree, or a Default main session that closed before another opened there. (Example 3; Scope 2) | slice 3 | observed: shared-checkout-note.spec.ts isolated-worktree and done-before-another-opened cases: no note in either reporting directory; no note → unmarked range (slice 1 control) → no warning (slice 2 unmarked case); run refactor3-1 |
+| 6 | A close without a Dashboard landing context (a native session, or a Default main launch that establishes no session) publishes no mark. (Scope 6) | slice 1 | observed: Distribution/tests/skills/dough-land/session-close-resume.test.mjs native-session lost-work-result case compares the whole published record bytes with no mark; run s1-focused-3 |
+| 7 | Only the uncertainty is published; launch records stay local and no launch-record content appears in the published record. (Scope 4) | slice 1 | observed: session-record-publication.test.mjs marked case asserts the whole published record equals version, sessionId, workflow, closedAt and the marked range only (no since or launch data); the note stays in the reporting directory; run coord-1 |
+| 8 | Land keeps each close's recovery state locally per session, even when several sessions share one checkout, and each close resumes its own state. (Scope 7; Goal; Example 4) | slice 4 |  |
+| 9 | Resuming an interrupted close after an unanswered push does not rebuild the range or push accepted work again. (Example 4) | slice 4 |  |
+| 10 | The affected Land and wrap-up references are simplified into concise publication and recovery guidance, including older passages that describe script internals. (Scope 7; Goal) | slice 5 |  |

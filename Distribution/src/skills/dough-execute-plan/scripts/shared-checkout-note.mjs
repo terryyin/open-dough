@@ -35,3 +35,17 @@ export function rangeUncertainty(note, acceptedAt) {
     ? sharedCheckoutUncertainty
     : undefined;
 }
+
+// The note's text for an overlap that began at `since` (an ISO time), keeping
+// the earlier start of the note already recorded as `recordedText`, if any.
+export function sharedCheckoutNoteText(since, recordedText) {
+  const recorded =
+    recordedText === undefined
+      ? undefined
+      : parseSharedCheckoutNote(recordedText);
+  const earliest =
+    recorded !== undefined && Date.parse(recorded.since) <= Date.parse(since)
+      ? recorded.since
+      : since;
+  return JSON.stringify({ since: earliest });
+}

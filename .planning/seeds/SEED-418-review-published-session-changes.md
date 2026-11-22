@@ -21,7 +21,7 @@ standalone Done work. This seed owns session attribution and selection.
 
 **Identity:** SEED-418#disclose-shared-checkout-overlap
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/766-disclose-shared-checkout-overlap/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"16be72e6ae6de64400ee0e3c0e6cbc5be6d2703cce5a68943159c38229c2ffe6","plan":"0c18218af54953b2fa56675b0a2986046fe11780f43494650d4679e620670311"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/766-disclose-shared-checkout-overlap/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"46001d5a4d830442936680a8332eb85ac4ed0a6519ff941810b044f9612a8205","plan":"332fd5f1a16345250d2a85cf84703f7294c66daabf6794a04226314d8d0808f3"}}
 ```
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-418#disclose-shared-checkout-overlap","dependencies":[{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Published session records with ordered accepted comparisons for every publishing workflow","rationale":"Overlap disclosure marks ranges in the records that every workflow's close publishes; until those records and their shared publisher are on trunk there are no ranges to mark.","condition":"Every publishing workflow publishes one session record with its ordered accepted comparisons on trunk, and another machine reviews each range in the published-session review.","state":"satisfied","resolution":{"revision":"c546ff771b47b42f549a153cbbef4604bb89560d","path":".planning/seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record","summary":"Satisfied: every publishing workflow (refinement, Trunk and Story Branch execution, Dashboard-launched ad hoc Land and ad hoc story follow-ups) publishes one record with ordered accepted comparisons through the shared sealed-session-record publisher, and another clone reviews each range. A native ad hoc Land without a retained session identity still writes no record (recorded product advice). Delivered at before-cleanup c546ff771 and integrated on main at 3dbaff36c. Proof: Land closes (Distribution/tests/skills/dough-land/session-record-publication.test.mjs, session-close-resume.test.mjs), Trunk Mode wrap-up (dough-story-wrap-up/trunk-closure-session-record*.test.mjs read from a default-branch-only clone), Story Branch wrap-up (story-branch-session-record.test.mjs), refinement and ad hoc follow-up Lands (dough-story-refinement/preparation-*session-record-land.test.mjs), and another machine reviewing each range (e2e/sessions/recently-done-published-sessions.spec.ts).\nCondition satisfied: Every publishing workflow publishes one session record with its ordered accepted comparisons on trunk, and another machine reviews each range in the published-session review.\nAccepted integration: 3dbaff36c0b21730ff23ba5948b5199522b0f103 on origin/refs/heads/main."}}]}
@@ -34,6 +34,8 @@ record and its accepted comparisons.
 **Goal.** A developer reviewing a published session from another machine can
 see when one of its comparisons may include another session's work from the
 same checkout, so they do not attribute that work to the wrong session.
+An agent can also resume an interrupted Land close from local per-session
+state and follow concise guidance for publication and recovery.
 
 **Scope.**
 
@@ -60,6 +62,9 @@ same checkout, so they do not attribute that work to the wrong session.
   overlap evidence and publishes no mark; installations that predate the note
   publish unmarked records. Identifying which session made which change in a shared checkout is
   not attempted.
+- Land keeps the close's recovery state locally by session, even when several
+  sessions share a checkout. Simplify the affected Land and wrap-up references,
+  including older passages that describe script internals.
 
 **Key examples.**
 
@@ -72,6 +77,8 @@ same checkout, so they do not attribute that work to the wrong session.
   still shows the warning.
 - A follow-up in its own worktree, or a Default main session that closed
   before another one opened there, shows no warning.
+- Two closes share a checkout. After an unanswered push, each resumes its own
+  close without reconstructing the range or pushing accepted work again.
 
 <a id="expire-published-session-records"></a>
 

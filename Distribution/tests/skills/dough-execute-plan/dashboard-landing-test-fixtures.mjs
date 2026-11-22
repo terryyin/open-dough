@@ -7,7 +7,10 @@ import os from "node:os";
 import path from "node:path";
 import { makeMe } from "../../support/makeMe.mjs";
 import { plantFirstLandingExpectation } from "../../../src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
-import { sharedCheckoutNotePathBeside } from "../../../src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
+import {
+  sharedCheckoutNotePathBeside,
+  sharedCheckoutNoteText,
+} from "../../../src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 
 // A receiver that keeps each request and answers its comparison as received,
 // under a receipt of its own for each request: `prepared` for a preparation
@@ -66,5 +69,5 @@ export async function landingContextFile(t, context, expectation) {
 export const noteSharedCheckout = (landingContext, since) =>
   writeFile(
     sharedCheckoutNotePathBeside(landingContext),
-    JSON.stringify({ since: since.toISOString() }),
+    sharedCheckoutNoteText(since.toISOString()),
   );
