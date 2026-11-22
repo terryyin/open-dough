@@ -312,6 +312,11 @@ review journey reaches the changed opening.
   `useStoryComparison` has no Side panel caller), and
   `npm run --silent typecheck:dashboard` after the final production edit.
   Refactor pass: none — already clean. Files stay under 250 lines.
+- A newly selected story was still showing the previous story's comparison
+  while its own review was in flight, which failed
+  `intent-done-source-selection.spec.ts`. The kept comparison now stays only
+  for the story that already showed it. That spec passes, the three reading
+  cases pass, and `npm run --silent typecheck:dashboard` passes.
 
 ## Execution context
 

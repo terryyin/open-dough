@@ -128,20 +128,30 @@ export function useStoryComparison({
     comparison,
     tree,
   });
-  // The selection read and the commit-range read. A range read leaves the
-  // snapshot review in place while its comparison is still arriving.
-  const readingNow = reading || range.reading;
-  if (storyShown !== undefined)
+  // A selection read keeps the previous answer until the new one arrives.
+  // That answer belongs to this story only when this story already showed a
+  // comparison; another story's answer must not become this story's.
+  const sameStory = shownMemory.current?.key === keyedBy;
+  const carry = !reading || sameStory;
+  if (storyShown !== undefined && !reading)
     shownMemory.current = { key: keyedBy, shown: storyShown, review };
   const remembered =
-    readingNow && shownMemory.current?.key === keyedBy
-      ? shownMemory.current
-      : undefined;
-  const shownKept = storyShown ?? remembered?.shown;
+    sameStory && (reading || range.reading) ? shownMemory.current : undefined;
+  const shownKept = !carry
+    ? undefined
+    : reading
+      ? remembered?.shown
+      : (storyShown ?? remembered?.shown);
   // The review that produced the comparison still on screen. A chosen run
   // leaves the live review unset until its answer matches.
-  const reviewKept =
-    storyShown !== undefined ? review : (remembered?.review ?? review);
+  const reviewKept = !carry
+    ? undefined
+    : reading
+      ? remembered?.review
+      : storyShown !== undefined
+        ? review
+        : (remembered?.review ?? review);
+  const readingNow = reading || (carry && range.reading);
   // A chosen run other than the answer's own, or a chosen commit range, read
   // as the Side panel review explains them.
   const unreadable =
@@ -150,15 +160,16 @@ export function useStoryComparison({
       : (runUnread ?? (shown === "commits" ? unreadRange(range) : undefined));
   return {
     review: reviewKept,
-    defaultReview,
+    defaultReview: carry ? defaultReview : undefined,
     reading: readingNow,
     problem,
     unreadable,
     shown: shownKept,
     compare:
-      (snapshot === undefined || review?.kind !== "snapshot") &&
-      published === undefined &&
-      runs.length === 0
+      !carry ||
+      ((snapshot === undefined || review?.kind !== "snapshot") &&
+        published === undefined &&
+        runs.length === 0)
         ? undefined
         : {
             shown: shownChoice(shown, review, selectedRun),
