@@ -129,6 +129,16 @@ pair and keep history recovery and numbering identical across its two arms.
   cannot isolate the wording's effect or establish a combined cost change.
   This execution used the ordinary rule and supplies no live candidate use.
 
+### Doughnut cohort closed early on 22 November
+
+Terry closed enrollment after the first ordinary completion and asked for
+immediate notice removal. Before withdrawal, the first-parent scan through
+Doughnut main `8959ee44291be65e7b7170580ec23f2ad37f58de` returned just
+`d3db25bda0f0e3ff52c920b2655c8efc8a418e3e`. The one actual process review
+used current wording. The second sample position was relinquished. Candidate
+exposure was zero, and later triage, candidate misses in ordinary work and
+attributable combined effort are unobserved.
+
 ### Pygardon cohort closed on 21 November
 
 Both ordinary completions were selected from first-parent done-record additions
@@ -173,7 +183,7 @@ ordinary completion, outside this project's fixed two-case sample.
 ### 1. A Doughnut maintainer can assess what first reports reached triage
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use the ordinary-work protocol below in Doughnut. Follow the actual review through its first-report decisions to the first downstream read. Start with the execution records selected independently of the findings log. Include quiet and unavailable reviews in the accounting.
 

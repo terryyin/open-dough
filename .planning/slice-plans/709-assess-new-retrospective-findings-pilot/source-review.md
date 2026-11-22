@@ -4,6 +4,12 @@ Fresh isolated reviewer `/root/assessment_source_review` received the selected s
 
 Current practice is the baseline. The quiet-log risk explains why the sample checks misses and reconstruction cost. Current matching, repeat recording, allocation, retention and triage authority apply to both arms. Release and wider adoption are separate decisions.
 
+A fresh source-only review by `/root/assessment_early_close_source_review`
+used the selected source and Terry’s 22 November direction. It confirmed
+the original decision criteria and limits, plus early closure after the
+first Doughnut completion and immediate notice removal. Original exposure
+and effort objectives are assessed against the observed sample and gaps.
+
 ## Commitments
 
 | Id | Source commitment | Slice | Observation or obligation |
@@ -31,3 +37,4 @@ Current practice is the baseline. The quiet-log risk explains why the sample che
 | P21 | Missing exposure or incomparable effort leaves the affected part of effectiveness open. Decision, “leaves that part of effectiveness open.” | slice 3 | |
 | P22 | Pilot work is recorded in its repository’s product backlog with clear ownership. Terry’s delegation. | slice 1 | observed: Open Dough origin/main e2fc81fd4 places the assessment in Taken and records the Codex execution profile for codex/seed-401-first-report-assessment |
 | P23 | Any generated story is recorded in its own repository’s product backlog with clear ownership. Terry’s delegation. | slice 3 | |
+| P24 | Close the pilot early after the first Doughnut completion and remove the notice now. Terry’s 22 November direction. | slice 3 | |
