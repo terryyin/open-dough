@@ -108,7 +108,10 @@ export async function mountInstructionVoice(
         : null,
     ];
   }
-  await mountComponent(createElement(Launcher));
+  // Vitest skips the outer browser resize if the viewport matches its default.
+  await mountComponent(createElement(Launcher), {
+    viewport: { width: 390, height: 760 },
+  });
   const action = page.getByRole("button", { name: "Open launch" });
   await action.click();
   const form = launchDialog();
