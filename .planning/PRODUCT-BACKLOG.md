@@ -31,11 +31,11 @@ intent introduced or affected by a newly developed story.
 - [Build Claude Code reply fixtures with MakeMe steps](seeds/SEED-422-correct-stale-dashboard-token-totals.md#build-claude-reply-fixtures-with-makeme) — SEED-422#build-claude-reply-fixtures-with-makeme ([plan](slice-plans/773-build-claude-reply-fixtures-with-makeme/PLAN.md))
 - [Get fast proof of Intent CI wall-time history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest) — SEED-413#speed-intent-timing-history-on-vitest ([plan](slice-plans/772-speed-intent-timing-history-on-vitest/PLAN.md))
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/771-finish-launch-proof-orthogonal/PLAN.md))
+- [Keep the quiet completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#split-quiet-completion-journey) — SEED-341#split-quiet-completion-journey ([plan](slice-plans/775-split-quiet-completion-journey/PLAN.md))
 
 ## Backlog list
 
 - [Get fast proof of Intent scope timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history) — SEED-413#speed-intent-scope-timing-history
-- [Keep the quiet completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#split-quiet-completion-journey) — SEED-341#split-quiet-completion-journey
 - [Keep the attention completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout) — SEED-341#keep-attention-completion-journey-within-timeout
 - [Resume shared-checkout Land closes as their own session](seeds/SEED-418-review-published-session-changes.md#resume-shared-checkout-closes-as-their-own-session) — SEED-418#resume-shared-checkout-closes-as-their-own-session
 - [Keep the expired-record prune when a record commit is retried](seeds/SEED-418-review-published-session-changes.md#prune-expired-records-after-a-retried-record-commit) — SEED-418#prune-expired-records-after-a-retried-record-commit

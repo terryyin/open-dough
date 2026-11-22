@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rina-chan",
+  "email": "rina-chan@example.org",
+  "identity": "SEED-341#split-quiet-completion-journey",
+  "mode": "story-branch",
+  "branch": "claude/keep-the-quiet-completion-journey-within-its-tim",
+  "host": "claude"
+}
