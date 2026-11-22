@@ -20,7 +20,7 @@ export async function withInstalledCompletionClosure(
   origin: StartOrigin,
   workspace: string,
   closure: CompletionClosure,
-  observe: (final: string) => Promise<void>,
+  observe: () => Promise<void>,
   proofEnv = process.env,
   landingContext?: string,
   observeKept?: () => Promise<void>,
@@ -220,28 +220,27 @@ export async function withInstalledCompletionClosure(
       expect(retired.ok).toBe(true);
     }
     expect(existsSync(workspace)).toBe(false);
-    await observe(final);
+    if (mailbox !== undefined)
+      expect(
+        (
+          JSON.parse(
+            readFileSync(path.join(mailbox, "result.json"), "utf8"),
+          ) as {
+            status: string;
+          }
+        ).status,
+      ).toMatch(/^(finished|stopped)$/);
+    await observe();
   } finally {
-    // Own every real observer to shutdown, even when an assertion fails.
-    if (mailbox !== undefined) {
-      if (existsSync(workspace))
-        await run(
-          "dough-execute-plan",
-          "ci-mailbox.mjs",
-          ["stop", mailbox],
-          ci?.env,
-        );
-      else
-        expect(
-          (
-            JSON.parse(
-              readFileSync(path.join(mailbox, "result.json"), "utf8"),
-            ) as {
-              status: string;
-            }
-          ).status,
-        ).toMatch(/^(finished|stopped)$/);
-    }
+    // Own every real observer to shutdown, even when an assertion fails or
+    // the test times out before the closure ended it.
+    if (mailbox !== undefined && !existsSync(path.join(mailbox, "result.json")))
+      await run(
+        "dough-execute-plan",
+        "ci-mailbox.mjs",
+        ["stop", mailbox],
+        ci?.env,
+      );
     await ci?.endRequests();
   }
 }

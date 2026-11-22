@@ -1,8 +1,11 @@
-import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
-import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
 import { launchResultSchema } from "../../dashboard/src/launchOutcome.ts";
 import type { submitCompletion } from "../../dashboard/server/completionReporting.ts";
-// Real installed closure/retirement, Git, receiver, storage and browser. Native and CI provider transports are synthetic.
+// Real installed closure/retirement, Git, receiver and storage; no browser.
+// Native and CI provider transports are synthetic. The Recently done
+// observations of a quiet completion (Done, "Native session is still working",
+// no Startup recovery or attention message, the final report, Done after a
+// reload, the refusal text and Mark as done) are owned by
+// agent-completion-quiet-done.spec.ts.
 import { execFile } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { promisify } from "node:util";
@@ -16,16 +19,9 @@ import {
   queuedIdentity,
   queuedTitle,
 } from "../../dashboard/test-support/support/startOrigin.ts";
-import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
-import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectInstalledCompletionGuidance } from "../../dashboard/test-support/support/installedCompletionGuidance.ts";
 import { withInstalledCompletionClosure } from "../../dashboard/test-support/support/installedCompletionClosure.ts";
-import {
-  openUntilRead,
-  reloadUntilRead,
-} from "../../dashboard/test-support/pageRequestNotes.ts";
-import { keepFinalReport } from "../../dashboard/test-support/support/retainedReport.ts";
 import {
   completionWriteFault,
   countedGit,
@@ -46,7 +42,6 @@ for (const closure of [
   "Trunk Wrap Up",
 ] as const)
   test(`${closure} retires real accepted work before installed quiet reporting; no native interruption`, async ({
-    page,
     dashboard,
     origin,
     codexProtocol: native,
@@ -95,7 +90,7 @@ for (const closure of [
       origin,
       workspace,
       closure,
-      async (final) => {
+      async () => {
         expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined(); // Even actual retirement is not success reporting.
         const before = native.calls.length;
         const gitBefore = readFileSync(git.log, "utf8");
@@ -157,28 +152,12 @@ for (const closure of [
           ).toEqual([]);
           expect(readFileSync(git.log, "utf8")).toBe(gitBefore);
         }
-        await publishCommittedOrigin(page, {
-          repoDir: origin.origin,
-          revision: final,
-          repository: "terryyin/open-dough",
-        });
-        await openUntilRead(page);
-        const recent = parts(page)
-          .recentlyDone.getByRole("article")
-          .filter({ hasText: native.threadId });
-        await expect(recent).toContainText("Done");
-        await expect(recent).toContainText("Native session is still working");
-        // The settled start reconciles once the page's snapshot is fully read;
-        // its Startup recovery leaves then, moving the entry under a press.
-        await expect(parts(page).startupRecovery).toHaveCount(0);
         if (closure === "Trunk Wrap Up") {
-          await expect(recent).toContainText("Native rename refused.");
-          expect(stored(dashboard.home)[0]?.doneProblem).toContain(
-            "Native rename refused.",
-          );
-          await expect(
-            await sessionAction(recent, "Mark as done"),
-          ).toBeVisible();
+          // The refusal follows the rename call; the entry text and Mark as
+          // done are proved by agent-completion-quiet-done.spec.ts.
+          await expect
+            .poll(() => stored(dashboard.home)[0]?.doneProblem)
+            .toContain("Native rename refused.");
           nativeSession.renameError = undefined;
           const { delivery } = receipt;
           if (delivery === undefined) throw new Error("No delivery receipt");
@@ -199,25 +178,10 @@ for (const closure of [
           expect(callsSince(afterRetry, "thread/name/set")).toEqual([]);
           expect(callsSince(before, "turn/interrupt")).toEqual([]);
         }
+        expect(stored(dashboard.home)[0]?.doneAt).toBe(receipt.receivedAt);
         expect(native.names.get(native.threadId)).toBe(
           `done-${record.session.name}`,
         );
-        await expect(recent.locator(".session-attention-message")).toHaveCount(
-          0,
-        );
-        // Quiet completion has no explicit text; the native final report remains independently readable.
-        keepFinalReport(nativeSession, workspace, "Done.");
-        const beforeRead = native.calls.length;
-        const { reportText } = await readFinalReport(recent);
-        await expect(reportText).toHaveText("Done.");
-        expect(
-          callsSince(beforeRead, "thread/read").some(
-            (call) => call.params["includeTurns"] === true,
-          ),
-        ).toBe(true);
-        expect(stored(dashboard.home)[0]?.doneAt).toBe(receipt.receivedAt);
-        await reloadUntilRead(page);
-        await expect(recent).toContainText("Done");
       },
       git.env,
       context.landingContext,

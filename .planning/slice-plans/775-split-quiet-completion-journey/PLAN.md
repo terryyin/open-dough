@@ -113,7 +113,7 @@ installed launch, closure or reporting.
 ### 2. Installed closure and quiet reporting run without a browser
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the gate's quiet spec passes 3/3 with no `page` fixture. Apply the
 parked observer-stop patch, run the spec once green, and keep the patch, or
 drop it and record the reason here. Then run the paired load comparison from
@@ -126,6 +126,23 @@ and the Trunk rename-refusal retry keep their HTTP assertions. Remove
 `publishCommittedOrigin`, the page reads and the `page` fixture from
 `agent-completion-quiet.spec.ts`. Name the page spec as the owner of the
 Recently done observations.
+
+Slice 2 notes: the gate passed (`s2-gate`, `--repeat-each 3`, quiet 9/9 and
+page spec 6/6), with typecheck and lint at exit 0 (`s2-check`). The parked
+observer-stop patch is kept. It applied cleanly, and `s2-patch` was green
+with all three closures, so Story Branch and Trunk passed its success-path
+`result.json` assertion. The quiet spec is the only consumer of
+`withInstalledCompletionClosure`.
+
+Load comparison: 40 burners over an external load of about 8–14. The
+1-minute load was 40 → 71 across the six alternating runs (`s2-m-*`).
+Baseline (`origin/main` scratch copy): 15.7/17.2/16.4, 15.3/18.5/13.3 and
+15.0/18.0/17.8 s, a mean of 16.2 s. Split quiet spec: 13.5/14.4/12.7,
+9.1/10.1/11.1 and 9.5/12.0/14.0 s, a mean of 11.8 s, a ratio of 0.73 (27%
+less). Page spec cases took 4.6–8.1 s. The slowest split case took 14.4 s.
+No browser launches for the quiet spec: with `DEBUG=pw:browser`, all 9
+quiet cases had no `pw:browser` output. Every baseline and page-spec case
+had it.
 
 ## Concerns
 
