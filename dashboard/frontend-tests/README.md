@@ -40,12 +40,13 @@ Reusable harness helpers and fixtures live in [Dashboard Test Support](../test-s
   from `pageTest.ts`; they render actual components and CSS from prepared
   answers (`intent/`).
 
-The mounted phone-board specs in `navigation/` render the production app with prepared
-service answers in the browser. They deliver touch events directly, control
-the transition and click-suppression clocks, and measure the real layout.
+The mounted phone-board specs in `navigation/` render the production Board
+in its scroll frame with typed published work and session data. They use
+Chromium touch and keyboard input and measure the rendered layout.
 [`e2e/navigation/phone-board.spec.ts`](../../e2e/navigation/phone-board.spec.ts)
-covers the published-project load, board gesture wiring, vertical reading and
-the thin indicator's real hit target through the built app.
+covers the published-project load, board gesture wiring, vertical reading,
+the thin indicator's real hit target and a reload's kept column through the
+built app.
 
 Each backend service family a built-app spec talks to has one substitute
 module beside `frontendServiceSubstitutes.ts` in `../test-support/support/`
@@ -95,36 +96,9 @@ Dashboard Test Support is frozen: new cases add only MakeMe builders to
 `../test-support/`. The retained Playwright specs keep the page objects they
 use until their folders move to this entry.
 
-## Mounted dashboard support
-
-The mounted dashboard specs in `test-harness/` and the phone board in
-`navigation/` mount the production app through
-[`mounted-dashboard/`](../test-support/mounted-dashboard/):
-`mountAnsweredDashboard` answers the board's service requests from prepared
-answers, and `mountDefaultDashboard` mounts the default board. Any unanswered
-`/__` request fails the case by name, so a spec answers every service its
-board reads.
-
-- Arrange data in Node through a command in
-  `../test-support/support/mountedDashboardCommands.ts` (MakeMe and the
-  service state import Node modules), and pass the result to the mount.
-- The notes answers come from `../test-support/support/frontendStoryNotesRule.ts`,
-  which both engines use.
-- `mountAnsweredDashboard` settles its mount through `actSettled` in
-  `mountedActSettled.ts` until both retire with this support. A page still
-  changing after its round cap fails the case with `UnsettledPageError`,
-  which names the cap.
-- The board's revision stream is unreachable, so the banner reads
-  `disconnected` and the board reads project changes through its check
-  schedule.
-- Give every case a literal title. The runner names and selects cases from
-  the titles Vitest reads without running the file, so a title built in a
-  loop or by `test.each` cannot be listed or selected by title; share the
-  steps in a helper and declare each case with its own title.
-- A mount is not a reload: every mount clears `localStorage`, resets the board
-  position and sets history to `/`, and carries from an earlier mount only the
-  services passed in, such as its notes rule. One cleanup tears all mounts
-  down and restores the page.
+Give every case a literal title. The runner names and selects cases from
+the titles Vitest reads without running the file. Share common steps in a
+helper and declare each case with its own title.
 
 A case stays on a built-app page only when its behavior needs the real page:
 a real page load or reload or native input the mount cannot deliver.

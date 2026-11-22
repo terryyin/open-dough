@@ -34,6 +34,9 @@ import {
   openStoryIntent,
 } from "../../test-support/intentModePage.ts";
 
+const app = "Modified dashboard/src/App.tsx";
+const notes = "Renamed docs/notes.md → docs/renamed-notes.md";
+
 const changedInFirstLocation = [
   changed.modified,
   changed.added,
@@ -66,7 +69,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   await answerFrontendIntentChanges(page);
   const { card, intent } = await openStoryIntent(page, "Story A");
   const story = intentStory(intent);
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
   const toggle = story.storyOnly();
   const kept = "dashboard/tests/boundary/kept.spec.ts";
   const other = "dashboard/tests/other/c.spec.ts";
@@ -83,7 +86,8 @@ test("Selected story only shows just the story's changed files, expanded, and of
     for (const name of [kept, other])
       await expect(story.file(name)).toHaveCount(0);
     await expect(story.folderRow("other")).toHaveCount(0);
-    await story.expectOutsideCount(2);
+    for (const name of [app, notes])
+      await expect(story.outsideFile(name)).toBeVisible();
     await expect(intent.locator(".intent-story-none")).toHaveCount(0);
   });
 
@@ -101,7 +105,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await expectKept();
     await story.chooseTab("Intent coverage");
     await expect(file).toBeHidden();
-    await story.chooseTab("Changed tests");
+    await story.chooseTab("Changes");
     await expectKept();
   });
 
@@ -128,7 +132,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-B#b");
     await story.expectTab("CI comparison");
-    await story.chooseTab("Changed tests");
+    await story.chooseTab("Changes");
     await expect(story.header.status).toHaveText("No comparison is available.");
     await expect(toggle).toHaveCount(0);
     await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
@@ -141,7 +145,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
     await intentChoice.click();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await story.expectTab("CI comparison");
-    await story.chooseTab("Changed tests");
+    await story.chooseTab("Changes");
     await story.expectComparisonRead();
     await expect(toggle).not.toBeChecked();
     await expectStoryExpansion(intent);
@@ -150,7 +154,7 @@ test("Selected story only shows just the story's changed files, expanded, and of
   });
 });
 
-test("a story that changed only product code says Selected story only has no test files in Intent locations, with the count outside", async ({
+test("a story that changed only product code says Selected story only has no test files in Intent locations, with its code outside", async ({
   page,
   frontendServices,
 }) => {
@@ -162,15 +166,17 @@ test("a story that changed only product code says Selected story only has no tes
   ]);
   const { intent } = await openStoryIntent(page, "Story A");
   const story = intentStory(intent);
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
   const none = intent.locator(".intent-story-none");
   await story.headerDetail();
   await expect(story.header.revisions).toBeVisible();
   const toggle = story.storyOnly();
   await expect(toggle).not.toBeChecked();
-  await story.expectOutsideCount(1);
+  await expect(story.outsideFile(app)).toBeVisible();
   await expect(none).toHaveCount(0);
-  await expect(intent.locator("[data-kind]")).toHaveCount(0);
+  await expect(
+    intent.locator("section.intent-location [data-kind]"),
+  ).toHaveCount(0);
   await expect(intentGroupToggle(intent, "dashboard/tests")).toHaveAttribute(
     "aria-expanded",
     "false",
@@ -180,7 +186,7 @@ test("a story that changed only product code says Selected story only has no tes
   await expect(none).toHaveText(
     "No test files in Intent locations changed in this story",
   );
-  await story.expectOutsideCount(1);
+  await expect(story.outsideFile(app)).toBeVisible();
   await expect(intent.locator("section.intent-location")).toHaveCount(0);
 
   await toggle.uncheck();
@@ -203,7 +209,7 @@ test("Selected story only stays on through a new trunk revision and refreshing P
   await answerFrontendIntentCi(page, frontendServices.revision);
   const { intent } = await openStoryIntent(page, "Story A");
   const story = intentStory(intent);
-  await story.chooseTab("Changed tests");
+  await story.chooseTab("Changes");
   const toggle = story.storyOnly();
   await toggle.check();
   await expectStoryExpansion(intent);
@@ -228,7 +234,7 @@ test("Selected story only stays on through a new trunk revision and refreshing P
   await showLatestRevision(notice).click();
   await expect(notice).toHaveCount(0);
   await returnToStory(intent);
-  await story.expectTab("Changed tests");
+  await story.expectTab("Changes");
   await expect(toggle).toBeChecked();
   await expectStoryExpansion(intent);
   await expect(story.file("dashboard/tests/other/c.spec.ts")).toHaveCount(0);

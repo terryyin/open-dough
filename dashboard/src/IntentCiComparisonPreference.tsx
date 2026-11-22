@@ -1,4 +1,4 @@
-// One live Show % choice for the story's comparison and Changed tests scopes.
+// One live Show % choice for the story's comparison and Changes scopes.
 // Kept with that story's disposable reading place across project visits.
 import { createContext, useContext, type ReactNode } from "react";
 import { useKeptReading } from "./pageIntentReading.tsx";

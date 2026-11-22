@@ -12,10 +12,13 @@ import {
 import { IntentCiComparisonPreference } from "../../src/IntentCiComparisonPreference.tsx";
 import { IntentCiEvidenceProvider } from "../../src/IntentCiEvidence.tsx";
 import { IntentCiStatus } from "../../src/IntentCiStatus.tsx";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import {
-  IntentCiReadSourceOnPage,
-  type IntentCiReadSource,
-} from "../../src/intentCiReadSource.ts";
+  pageReadsSupplying,
+  unreadCiReads,
+} from "../../test-support/component-mount/unreadPageReads.ts";
 import type { CiProof, CiProofSubject } from "../../src/ciProof.ts";
 import type { IntentCiStatus as Judgment } from "../../src/authenticatedIntentCiStatusRead.ts";
 import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";
@@ -90,33 +93,45 @@ export function ciReadsOf(story: ComparedStory) {
       return Promise.resolve().then(answers.status);
     },
     readKeptStatus: () => Promise.resolve({ none: true } as const),
+    readHistory: unreadCiReads.readHistory,
   };
   return { source, asked, answers };
 }
 
 // The selected story's evidence owner in its production reading place, under
-// the one Show % preference, reading CI through READS; or, while the reader
+// the one Show % preference, reading CI through READS and Intent through
+// INTENT READS when given; or, while the reader
 // visits Project Intent, that same reading place's project scope.
 export function StoryCiEvidence({
   story,
   reads,
+  intentReads,
   children,
   visitingProject = false,
 }: {
   readonly story: ComparedStory;
   readonly reads: IntentCiReadSource;
+  readonly intentReads?: IntentReadSource;
   readonly children: ReactNode;
   readonly visitingProject?: boolean;
 }) {
   return (
-    <IntentReadingProvider project={story.source.id}>
-      <IntentReadingPlace project={story.source.id} story={story.identity}>
-        {visitingProject ? (
-          <IntentReadingScope name="project">Project Intent</IntentReadingScope>
-        ) : (
-          <IntentReadingScope name="story">
-            <IntentCiComparisonPreference>
-              <IntentCiReadSourceOnPage value={reads}>
+    <PageReadsOnPage
+      reads={pageReadsSupplying(
+        intentReads === undefined
+          ? { ci: reads }
+          : { ci: reads, intent: intentReads },
+      )}
+    >
+      <IntentReadingProvider project={story.source.id}>
+        <IntentReadingPlace project={story.source.id} story={story.identity}>
+          {visitingProject ? (
+            <IntentReadingScope name="project">
+              Project Intent
+            </IntentReadingScope>
+          ) : (
+            <IntentReadingScope name="story">
+              <IntentCiComparisonPreference>
                 <IntentCiEvidenceProvider
                   source={story.source}
                   work={story.work}
@@ -125,12 +140,12 @@ export function StoryCiEvidence({
                 >
                   {children}
                 </IntentCiEvidenceProvider>
-              </IntentCiReadSourceOnPage>
-            </IntentCiComparisonPreference>
-          </IntentReadingScope>
-        )}
-      </IntentReadingPlace>
-    </IntentReadingProvider>
+              </IntentCiComparisonPreference>
+            </IntentReadingScope>
+          )}
+        </IntentReadingPlace>
+      </IntentReadingProvider>
+    </PageReadsOnPage>
   );
 }
 

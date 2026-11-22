@@ -8,11 +8,8 @@ import {
   type LaunchWithState,
 } from "./agentLaunch.ts";
 import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
-import {
-  finalReportEndpoint,
-  finalReportSchema,
-  type FinalReportRead,
-} from "./finalReportContract.ts";
+import type { FinalReportRead } from "./finalReportContract.ts";
+import { useSessionServices } from "./pageReads.tsx";
 import { marksRecordDone } from "./sessionCapabilities.ts";
 import {
   productClosureEvidencePresent,
@@ -52,6 +49,7 @@ export function FinalReport({
 }) {
   const { record } = session;
   const { hostOperations } = usePageSessions();
+  const { readFinalReport } = useSessionServices();
   const [finalReport, setFinalReport] = useState<FinalReportRead | undefined>();
   const [attempt, setAttempt] = useState(0);
   const report = useRef<HTMLDivElement>(null);
@@ -62,19 +60,14 @@ export function FinalReport({
     const controller = new AbortController();
     let current = true;
     setFinalReport(undefined);
-    const query = new URLSearchParams({
-      source: record.request.source,
-      host: record.session.host,
-      session: record.session.sessionId,
-    });
-    void fetch(`${finalReportEndpoint}?${query}`, {
-      signal: controller.signal,
-      cache: "no-store",
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Final report read refused");
-        return finalReportSchema.parse(await response.json());
-      })
+    void readFinalReport(
+      {
+        source: record.request.source,
+        host: record.session.host,
+        session: record.session.sessionId,
+      },
+      controller.signal,
+    )
       .then((answer) => {
         if (current) setFinalReport(answer);
       })
@@ -91,6 +84,7 @@ export function FinalReport({
       controller.abort();
     };
   }, [
+    readFinalReport,
     record.request.source,
     record.session.host,
     record.session.sessionId,

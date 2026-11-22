@@ -7,53 +7,37 @@
 // then (ADR 0008), which Intent still judges. Showing a session attached to no
 // story clears it, CI status judges `main` again, and closing that session's
 // terminal leaves Intent at project scope. The stories' saved workspaces are
-// gone, so each card's session offers its final report. The board is
-// ../../test-support/intentCiStoryBoard.ts.
+// gone, so each card's session offers its final report.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
-import { parts, storyCardSessions } from "../../test-support/dashboardPage.ts";
+import { intentViewTab } from "./intent-candidates-page.ts";
+import { mountSidePanelIntentPage } from "./intent-ci-side-panel-mount.ts";
 import {
-  readFinalReportControl,
-  finalReportParts,
-} from "../../test-support/finalReportPages.ts";
-import { failing, running } from "../../test-support/intentCiStoryBoard.ts";
-import { card } from "../../test-support/intentCiStoryRecords.ts";
-import {
-  chooseCiStatus,
-  ciPanel,
-  expectCiAnswer,
-  expectCiScope,
-} from "../../test-support/intentCiStatusPage.ts";
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
-import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
-import { closeSidePanel } from "../../test-support/sidePanelFrame.ts";
-import { expectSelected } from "../../test-support/storyCardSelection.ts";
-import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
-import { installFrontendFinalReport } from "../../test-support/support/frontendFinalReportSubstitutes.ts";
-import {
-  serveFrontendCiStatus,
-  storyBoardCiAnswers,
-} from "../../test-support/support/frontendCiStatusAnswers.ts";
-import { publishCiStoryBoard } from "../../test-support/support/frontendServiceState.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
+  failingStory,
+  fullSha,
+  inertCiReads,
+  judgedStatus,
+  openDoughSource,
+  runningStory,
+  takenStoryEntry,
+} from "./intent-ci-status-fixtures.ts";
+import { intentCiStatus } from "./intent-ci-status-page.ts";
 
 const adHocTitle = "Open Dough session";
 
-// A kept execution of the board's Taken story `anchor`, its saved workspace
-// gone, so its card offers its final report.
-function goneWorkspaceSession({
-  anchor,
-  title,
-  branch,
-}: typeof failing): LaunchWithState {
+function goneWorkspaceSession(
+  story: typeof failingStory,
+  shortId: string,
+): LaunchWithState {
   return makeMe.anObservedLaunch
     .of(
       makeMe.aLaunchRecord
-        .executing({ identity: `SEED-219#${anchor}`, title })
-        .inClaudeSession({ sessionId: `${anchor}-session`, shortId: anchor })
-        .onStoryBranch({ workspace: `/gone/${anchor}`, branch })
+        .executing({ identity: story.identity, title: story.title })
+        .inClaudeSession({ sessionId: `${shortId}-session`, shortId })
+        .onStoryBranch({ workspace: `/gone/${shortId}`, branch: story.branch })
         .please(),
     )
     .withSessionState(makeMe.aSessionState.retained("review").please())
@@ -61,111 +45,204 @@ function goneWorkspaceSession({
     .please();
 }
 
-test("the Side panel's content selects its story for Intent's lens and CI status, closing it keeps the selection at that moment, and an ad hoc session clears it to main", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  publishCiStoryBoard(frontendServices);
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(goneWorkspaceSession(failing), goneWorkspaceSession(running))
-      .observingOpen(
-        makeMe.aLaunchRecord
-          .adHoc({ instruction: adHocTitle, title: adHocTitle })
-          .please(),
-      )
-      .please(),
+const cardOf = (title: string) =>
+  page.getByRole("article", { name: title, exact: true });
+
+async function expectCardSelected(title: string, selected: boolean) {
+  await expect
+    .poll(() =>
+      cardOf(title).element().classList.contains("story-card-selected"),
+    )
+    .toBe(selected);
+  if (selected) {
+    const element = cardOf(title).element();
+    const style = getComputedStyle(element);
+    const probe = document.createElement("span");
+    probe.style.backgroundColor = "var(--accent-soft)";
+    element.append(probe);
+    const accentSoft = getComputedStyle(probe).backgroundColor;
+    probe.remove();
+    expect(style.boxShadow).toMatch(/inset/);
+    expect(style.backgroundColor).toBe(accentSoft);
+  }
+}
+
+test("the Side panel's content selects its story for Intent's lens and CI status, closing it keeps the selection at that moment, and an ad hoc session clears it to main", async () => {
+  const work = makeMe.aPublishedWork
+    .with({
+      source: openDoughSource,
+      revision: fullSha("4774f60"),
+      retrievedAt: new Date("2026-11-05T12:00:00.000Z"),
+      direction: "",
+      taken: [
+        takenStoryEntry({ ...failingStory, agent: "Akiho" }),
+        takenStoryEntry({ ...runningStory, agent: "Sola" }),
+      ],
+      backlog: [],
+    })
+    .please();
+  const machine = makeMe.aMachineAnswer
+    .observing(
+      goneWorkspaceSession(failingStory, "failing"),
+      goneWorkspaceSession(runningStory, "running"),
+    )
+    .observingOpen(
+      makeMe.aLaunchRecord
+        .adHoc({ instruction: adHocTitle, title: adHocTitle })
+        .please(),
+    )
+    .please();
+  const mainPassed = judgedStatus("main", "pass", "4774f60", "Add login");
+  const failingFailed = judgedStatus(
+    failingStory.branch,
+    "failed",
+    "fa11ed0",
+    "Break the login",
   );
-  await installFrontendFinalReport(page);
-  await installAttachedTerminalSubstitute(page);
-  await serveFrontendCiStatus(page, storyBoardCiAnswers());
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const { development, intentChoice, intent } = parts(page);
-  await expectCiScope(await chooseCiStatus(intent), "main");
-  await expect(intent).not.toHaveAttribute("data-selected-story");
-  await development.click();
-  const { panel: report } = finalReportParts(page);
-  // By keyboard: beside the panel, a lower card's control can sit below the
-  // page's fold, where a pointer cannot reach it without scrolling.
+  const runningInProgress = judgedStatus(
+    runningStory.branch,
+    "running",
+    "70a0001",
+    "Start the story",
+  );
+
+  await mountSidePanelIntentPage({
+    work,
+    records: machine.records,
+    hostOperations: machine.hostOperations,
+    readSource: {
+      readLocations: () => Promise.resolve({ status: "not-configured" }),
+      readFile: () => Promise.resolve(""),
+      readCandidates: () => Promise.resolve({ status: "absent" }),
+    },
+    ciReads: inertCiReads({
+      readStatus: (...[, branch]) => {
+        if (branch === failingStory.branch) {
+          return Promise.resolve(failingFailed);
+        }
+        if (branch === runningStory.branch) {
+          return Promise.resolve(runningInProgress);
+        }
+        return Promise.resolve(mainPassed);
+      },
+    }),
+  });
+
+  const ci = intentCiStatus();
+  const intent = page.getByRole("main", { name: "Intent", exact: true });
+  const developmentButton = page.getByRole("button", {
+    name: "Development",
+    exact: true,
+  });
+  const intentButton = page.getByRole("button", {
+    name: "Intent",
+    exact: true,
+  });
+  const report = page.getByRole("region", {
+    name: "Final report",
+    exact: true,
+  });
+  const terminal = page.getByRole("region", { name: "Terminal", exact: true });
   const readReport = async (title: string) => {
-    await readFinalReportControl(storyCardSessions(card(page, title))).focus();
-    await page.keyboard.press("Enter");
+    const button = cardOf(title).getByRole("button", {
+      name: "Read final report",
+      exact: true,
+    });
+    button.element().focus();
+    await userEvent.keyboard("{Enter}");
   };
-  // Intent, still on CI status, as the page now selects.
-  const onIntent = async () => {
-    await intentChoice.click();
-    return ciPanel(intent);
-  };
 
-  await test.step("reading a story's final report selects and highlights it, and Intent judges its branch", async () => {
-    await readReport(failing.title);
-    await expect(report).toBeVisible();
-    await expectSelected(card(page, failing.title), true);
-    const panel = await onIntent();
-    await expect(intent).toHaveAttribute(
-      "data-selected-story",
-      `SEED-219#${failing.anchor}`,
-    );
-    await expectCiScope(panel, failing.branch);
-    await expectCiAnswer(panel, "Failed at fa11ed0 (Break the login)");
-    await development.click();
-  });
+  await expect
+    .element(intentViewTab("CI status"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect.element(ci.panel).toBeVisible();
+  await ci.judges("main");
+  await expect.element(intent).not.toHaveAttribute("data-selected-story");
+  await userEvent.click(developmentButton);
 
-  await test.step("another story's final report moves the selection and Intent's branch there", async () => {
-    await readReport(running.title);
-    await expect(report).toContainText(running.title);
-    await expectSelected(card(page, running.title), true);
-    await expectSelected(card(page, failing.title), false);
-    const panel = await onIntent();
-    await expect(intent).toHaveAttribute(
-      "data-selected-story",
-      `SEED-219#${running.anchor}`,
-    );
-    await expectCiScope(panel, running.branch);
-    await development.click();
-  });
+  // Reading a story's final report selects and highlights it, and Intent judges its branch.
+  await readReport(failingStory.title);
+  await expect.element(report).toBeVisible();
+  await expectCardSelected(failingStory.title, true);
+  await userEvent.click(intentButton);
+  await expect
+    .element(intent)
+    .toHaveAttribute("data-selected-story", failingStory.identity);
+  await ci.judges(failingStory.branch);
+  await ci.answers("Failed at fa11ed0 (Break the login)");
+  await userEvent.click(developmentButton);
 
-  await test.step("a card's toggle selects without changing the panel; closing the panel keeps that selection, which Intent still judges", async () => {
-    await card(page, failing.title).locator("h3").click();
-    await expectSelected(card(page, failing.title), true);
-    await expectSelected(card(page, running.title), false);
-    await expect(report).toContainText(running.title);
-    await closeSidePanel(report);
-    await expect(report).toHaveCount(0);
-    await expectSelected(card(page, failing.title), true);
-    await expectSelected(card(page, running.title), false);
-    const panel = await onIntent();
-    await expect(intent).toHaveAttribute(
-      "data-selected-story",
-      `SEED-219#${failing.anchor}`,
-    );
-    await expectCiScope(panel, failing.branch);
-    await development.click();
-  });
+  // Another story's final report moves the selection and Intent's branch there.
+  await readReport(runningStory.title);
+  await expect
+    .element(
+      report.getByRole("heading", { name: runningStory.title, exact: true }),
+    )
+    .toBeVisible();
+  await expectCardSelected(runningStory.title, true);
+  await expectCardSelected(failingStory.title, false);
+  await userEvent.click(intentButton);
+  await expect
+    .element(intent)
+    .toHaveAttribute("data-selected-story", runningStory.identity);
+  await ci.judges(runningStory.branch);
+  await userEvent.click(developmentButton);
 
-  await test.step("showing a session attached to no story clears the selection, and CI status judges main", async () => {
-    await readReport(failing.title);
-    await expectSelected(card(page, failing.title), true);
-    const sidebar = sessionsSidebarParts(page);
-    await sidebar.button.click();
-    await sidebar.entry(adHocTitle).click();
-    await expect(terminalPanel(page)).toBeVisible();
-    await expectSelected(card(page, failing.title), false);
-    const panel = await onIntent();
-    await expect(intent).not.toHaveAttribute("data-selected-story");
-    await expectCiScope(panel, "main");
-  });
+  // A card's toggle selects without changing the panel; closing the panel keeps that selection.
+  await userEvent.click(
+    cardOf(failingStory.title).getByRole("heading", {
+      name: failingStory.title,
+      exact: true,
+    }),
+  );
+  await expectCardSelected(failingStory.title, true);
+  await expectCardSelected(runningStory.title, false);
+  await expect
+    .element(
+      report.getByRole("heading", { name: runningStory.title, exact: true }),
+    )
+    .toBeVisible();
+  await userEvent.click(
+    report.getByRole("button", { name: "Close", exact: true }),
+  );
+  await expect.element(report).not.toBeInTheDocument();
+  await expectCardSelected(failingStory.title, true);
+  await expectCardSelected(runningStory.title, false);
+  await userEvent.click(intentButton);
+  await expect
+    .element(intent)
+    .toHaveAttribute("data-selected-story", failingStory.identity);
+  await ci.judges(failingStory.branch);
+  await userEvent.click(developmentButton);
 
-  await test.step("closing that session's terminal with no story selected leaves Intent at project scope", async () => {
-    await development.click();
-    const terminal = terminalPanel(page);
-    await closeSidePanel(terminal);
-    await expect(terminal).toHaveCount(0);
-    await expectSelected(card(page, failing.title), false);
-    await expectSelected(card(page, running.title), false);
-    const panel = await onIntent();
-    await expect(intent).not.toHaveAttribute("data-selected-story");
-    await expectCiScope(panel, "main");
+  // Showing a session attached to no story clears the selection, and CI status judges main.
+  await readReport(failingStory.title);
+  await expectCardSelected(failingStory.title, true);
+  await userEvent.click(
+    page.getByRole("button", { name: "Sessions", exact: true }),
+  );
+  const sidebar = page.getByRole("complementary", {
+    name: "Sessions sidebar",
+    exact: true,
   });
+  await userEvent.click(
+    sidebar.getByRole("button", { name: adHocTitle, exact: true }),
+  );
+  await expect.element(terminal).toBeVisible();
+  await expectCardSelected(failingStory.title, false);
+  await userEvent.click(intentButton);
+  await expect.element(intent).not.toHaveAttribute("data-selected-story");
+  await ci.judges("main");
+
+  // Closing that session's terminal with no story selected leaves Intent at project scope.
+  await userEvent.click(developmentButton);
+  await userEvent.click(
+    terminal.getByRole("button", { name: "Close", exact: true }),
+  );
+  await expect.element(terminal).not.toBeInTheDocument();
+  await expectCardSelected(failingStory.title, false);
+  await expectCardSelected(runningStory.title, false);
+  await userEvent.click(intentButton);
+  await expect.element(intent).not.toHaveAttribute("data-selected-story");
+  await ci.judges("main");
 });

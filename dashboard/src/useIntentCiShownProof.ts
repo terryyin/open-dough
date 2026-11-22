@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
 import { createCiProofReading, type ProofRead } from "./ciProofReading.ts";
+import { useIntentCiReads } from "./pageReads.tsx";
 import { shortSha } from "./baseCiWording.ts";
 import {
   ciProofSubjectOf,
@@ -43,6 +44,7 @@ export function useIntentCiShownProof(
   source: PublishedSource,
   judgment: Judgment | undefined,
 ): ShownProof | undefined {
+  const { readProof } = useIntentCiReads();
   const run =
     judgment === undefined || judgment.unpublished === true
       ? undefined
@@ -54,7 +56,7 @@ export function useIntentCiShownProof(
     judgment === undefined || !readable
       ? undefined
       : `${source.id}|${JSON.stringify(ciProofSubjectOf(run))}|${judgment.checkedAt}`;
-  const [owner] = useState(createCiProofReading);
+  const [owner] = useState(() => createCiProofReading(readProof));
   const answer = useSyncExternalStore(
     owner.subscribe,
     owner.getSnapshot,

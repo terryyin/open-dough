@@ -39,16 +39,13 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
   const baseline = checkout.base;
   await keepAttempt(
     makeMe.anAcceptedAttempt
-      .withId(dashboardReporting.reference)
+      .reportingFor(record)
       .requesting(
         makeMe.aLaunchRequest
           .adHoc({ instruction: "Save the latest update" })
           .withPolicy({ workspace: "isolated", landing: "review" })
           .please(),
       )
-      .reportingTo(dashboardReporting.origin)
-      .capturingLanding({ reporting: dashboardReporting })
-      .launched(record.session)
       .please(),
   );
   const submission = makeMe.aCompletionSubmission

@@ -1,111 +1,216 @@
-// The launch dialogs and the agent roster's chrome in the frame's look: a
-// launch dialog's text reads clearly and its fields, disclosures, and footer
-// buttons are recognisable, with Start the one filled action; at a narrow
-// window and at 200% zoom nothing in Start session scrolls sideways and every
-// control is reachable (Start refinement's fit, with every option selected, is
-// ../launches/agent-launch-dialog-layout.spec.ts); the roster's heading and
-// Back read clearly and fit a narrow and a zoomed window.
-
-import type { Locator } from "@playwright/test";
+import { createElement } from "react";
+import { expect, onTestFinished, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import refinementOptions from "../../../Distribution/src/skills/dough-story-refinement/references/refinement-options.json";
 import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { answerCatalogProjects } from "../../test-support/support/frontendCatalogProjects.ts";
+  offeredShape,
+  optionsDefinitionSchema,
+} from "../../src/commandOptions.ts";
+import { StartLaunch } from "../../src/StartLaunch.tsx";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { painted } from "../../test-support/composedColours.ts";
+import { browserSession } from "../review/browser-session.ts";
 import {
-  expectControlContrast,
-  expectReadableAndRecognisable,
-  expectReadableContrast,
-  narrowWindow,
-  twiceZoomedWindow,
-  zoomedWindow,
-} from "../../test-support/accessibleReading.ts";
-import { rosterParts } from "../../test-support/dashboardPage.ts";
-import { expectDecorativeIcon } from "../../test-support/frameIconControl.ts";
-import {
-  showOptions,
-  startSession,
-} from "../../test-support/launchStoryCardPage.ts";
-import { openLongTitleRefinement } from "../../test-support/longTitleLaunch.ts";
-import {
-  compactProjectSelectCut,
-  expectEveryControlReachable,
-  expectNoSidewaysScrollAndWholeText,
-  expectNoSidewaysScrollIn,
-} from "../../test-support/pageLayout.ts";
+  controlContrast,
+  decorativeIcon,
+  expectDocumentStill,
+  focusStops,
+  narrowViewport,
+  textContrast,
+  visibleParts,
+} from "./board-accessibility.ts";
+import { mountBoardFrame } from "./board-frame-mount.ts";
+import { noSessions } from "./board-mount.ts";
+import { boardWork, story } from "./board-work.ts";
 
-// Every piece of text a reader reads in a dialog, and every control.
-const launchDialog = {
-  texts: "h2, p, label, legend, summary",
-  controls: "button, select, textarea",
-  hasControls: false,
-};
+const wideViewport = { width: 1440, height: 900 };
+const sessionZoom = { width: 640, height: 450 };
 
-test("Start refinement's fields, disclosures, and footer read clearly, with Start the filled action", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  const { dialog } = await openLongTitleRefinement(page, frontendServices);
-  await showOptions(dialog);
-  await dialog.locator("summary", { hasText: "Command details" }).click();
-  for (const summary of await dialog.locator("summary").all())
-    await expectDecorativeIcon(summary);
-  await expectReadableAndRecognisable(dialog, launchDialog);
-
-  const start = dialog.getByRole("button", { name: "Start", exact: true });
-  const cancel = dialog.getByRole("button", { name: "Cancel" });
-  const fill = (button: Locator) =>
-    button.evaluate((element) => getComputedStyle(element).backgroundColor);
-  expect(await fill(start)).not.toBe(await fill(cancel));
-});
-
-for (const { name, viewport, deviceScaleFactor } of [
-  { name: "at a narrow window", viewport: narrowWindow, deviceScaleFactor: 1 },
-  { name: "at 200% zoom", viewport: twiceZoomedWindow, deviceScaleFactor: 2 },
-]) {
-  test.describe(name, () => {
-    test.use({ viewport, deviceScaleFactor });
-
-    test("Start session keeps every control reachable and readable without sideways scrolling", async ({
-      page,
-    }) => {
-      await openFrontendTakenBacklog(page);
-      await startSession(page, "Open Dough").click();
-      const session = page.getByRole("dialog", {
-        name: "Start a session in Open Dough in Claude Code",
-      });
-      await expect(session).toBeVisible();
-      await expectNoSidewaysScrollIn(page, session);
-      await expectEveryControlReachable(session);
-      await expectReadableAndRecognisable(session, launchDialog);
-    });
-  });
+function readableLaunchDialog(dialog: Element) {
+  const text = visibleParts(dialog, "h2, p, label, legend, summary");
+  const controls = visibleParts(dialog, "button, select, textarea");
+  expect(text.length).toBeGreaterThan(0);
+  expect(controls.length).toBeGreaterThan(0);
+  for (const words of text) textContrast(words);
+  for (const control of controls) {
+    textContrast(control);
+    if (!control.matches(":disabled")) controlContrast(control);
+  }
 }
 
-test("the agent roster's heading and Back read clearly and fit a narrow and a zoomed window", async ({
-  page,
-  frontendServices,
-}) => {
-  await answerCatalogProjects(page, frontendServices);
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/?project=doughnut&view=roster");
-  const { roster, back, members } = rosterParts(page);
-  const heading = roster.getByRole("heading", { name: "Agent roster" });
-  await expect(heading).toBeFocused();
-  await expect(members.first()).toBeVisible();
+test("Start refinement's fields, disclosures, and footer read clearly, with Start the filled action", async () => {
+  const work = story(
+    "Keep the full title of a long story in its refinement dialog with options and command details open: Supercalifragilisticexpialidocious-session-options-with-an-unbroken-name",
+    413,
+  );
+  await mountComponent(
+    createElement(StartLaunch, {
+      work,
+      sourceId: "open-dough",
+      workflow: "refinement",
+      establishesStart: false,
+      options: {
+        kind: "offered",
+        ...offeredShape(optionsDefinitionSchema.parse(refinementOptions)),
+      },
+      note: undefined,
+      attempt: undefined,
+      onStart: () => Promise.resolve(false),
+    }),
+    { viewport: wideViewport },
+  );
+  await page.getByRole("button", { name: "Start refinement" }).click();
+  const dialog = page.getByRole("dialog", {
+    name: "Start refinement in Claude Code",
+  });
+  await expect.element(dialog.getByText(work.title)).toBeVisible();
+  await expect
+    .element(dialog.getByRole("textbox", { name: "Instruction (optional)" }))
+    .toBeVisible();
+  await dialog
+    .getByText("Refinement options None selected", { exact: true })
+    .click();
+  await dialog.getByText("Command details", { exact: true }).click();
+  await expect.element(dialog.getByText(/Sent after/)).toBeVisible();
+  const disclosures = visibleParts(dialog.element(), "summary");
+  expect(disclosures.length).toBeGreaterThanOrEqual(2);
+  for (const summary of disclosures) decorativeIcon(summary);
+  readableLaunchDialog(dialog.element());
 
-  await expect(back).toHaveText("Back to stories");
-  await expectDecorativeIcon(back);
-  await expectReadableContrast(back);
-  await expectControlContrast(back);
-  await expectReadableContrast(heading);
-  await expectReadableContrast(roster.locator(".roster-source"));
+  const start = dialog.getByRole("button", { name: "Start", exact: true });
+  const cancel = dialog.getByRole("button", { name: "Cancel", exact: true });
+  await expect.element(start).toBeEnabled();
+  const startFill = getComputedStyle(start.element()).backgroundColor;
+  expect(painted(startFill)).toBe(true);
+  expect(startFill).not.toBe(
+    getComputedStyle(cancel.element()).backgroundColor,
+  );
+});
 
-  for (const size of [narrowWindow, zoomedWindow]) {
-    await page.setViewportSize(size);
-    await expect(back).toBeVisible();
-    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
+function fitsClippingAncestors(control: Element) {
+  const bounds = control.getBoundingClientRect();
+  const scrollable = (overflow: string) =>
+    overflow === "auto" || overflow === "scroll";
+  for (
+    let parent = control.parentElement;
+    parent !== null;
+    parent = parent.parentElement
+  ) {
+    const { overflowX, overflowY } = getComputedStyle(parent);
+    const clip = parent.getBoundingClientRect();
+    if (
+      overflowX !== "visible" &&
+      (bounds.left < clip.left - 1 ||
+        bounds.right > clip.right + 1 ||
+        (!scrollable(overflowX) && parent.scrollWidth > parent.clientWidth + 1))
+    )
+      return false;
+    if (
+      overflowY !== "visible" &&
+      (bounds.top < clip.top - 1 ||
+        bounds.bottom > clip.bottom + 1 ||
+        (!scrollable(overflowY) &&
+          parent.scrollHeight > parent.clientHeight + 1))
+    )
+      return false;
+    if (parent.matches(":modal")) break;
   }
+  return (
+    bounds.left >= -1 &&
+    bounds.right <= innerWidth + 1 &&
+    bounds.top >= -1 &&
+    bounds.bottom <= innerHeight + 1 &&
+    control.contains(
+      document.elementFromPoint(
+        (bounds.left + bounds.right) / 2,
+        (bounds.top + bounds.bottom) / 2,
+      ),
+    )
+  );
+}
+
+async function startSessionReadsAt(viewport: {
+  width: number;
+  height: number;
+}) {
+  await mountBoardFrame(boardWork([]), viewport, "stories", {
+    ...noSessions,
+    sessionPolicyOffer: () => "unavailable",
+  });
+  await page
+    .getByRole("button", { name: "Start session in Open Dough" })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Start a session in Open Dough in Claude Code",
+  });
+  await expect.element(dialog).toBeVisible();
+  const prompt = dialog.getByRole("textbox", {
+    name: "What would you like to talk about? (optional)",
+  });
+  await expect.element(prompt).toHaveFocus();
+  await expect
+    .element(
+      dialog.getByText(
+        /the installed skills in this project do not establish a session without a story for this host/,
+      ),
+    )
+    .toBeVisible();
+
+  const shown = dialog.element();
+  expectDocumentStill();
+  expect(shown.scrollWidth).toBeLessThanOrEqual(shown.clientWidth + 1);
+  const controls = visibleParts(
+    shown,
+    "button, input, select, textarea, summary",
+  );
+  expect(controls.length).toBeGreaterThan(0);
+  for (const control of controls) {
+    control.scrollIntoView({ block: "center" });
+    await expect
+      .poll(() => ({
+        control:
+          control.getAttribute("aria-label") ?? control.textContent.trim(),
+        reachable: fitsClippingAncestors(control),
+      }))
+      .toMatchObject({ reachable: true });
+  }
+  expectDocumentStill();
+  readableLaunchDialog(shown);
+  const start = dialog.getByRole("button", { name: "Start", exact: true });
+  const cancel = dialog.getByRole("button", { name: "Cancel", exact: true });
+  await cancel.click();
+  const launcher = page.getByRole("button", {
+    name: "Start session in Open Dough",
+  });
+  await expect.element(launcher).toHaveFocus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(prompt).toHaveFocus();
+  const reached = [
+    document.activeElement,
+    ...(await focusStops("{Tab}".repeat(controls.length))).map(
+      ({ element }) => element,
+    ),
+  ];
+  for (const action of [prompt, cancel, start])
+    expect(reached).toContain(action.element());
+}
+
+test("at a narrow window Start session keeps every control reachable and readable without sideways scrolling", async () => {
+  expect(window.devicePixelRatio).toBe(1);
+  await startSessionReadsAt(narrowViewport);
+});
+
+test("at 200% zoom Start session keeps every control reachable and readable without sideways scrolling", async () => {
+  const browser = browserSession();
+  onTestFinished(async () => {
+    await browser.send("Emulation.clearDeviceMetricsOverride");
+  });
+  await browser.send("Emulation.setDeviceMetricsOverride", {
+    width: 0,
+    height: 0,
+    deviceScaleFactor: 2,
+    mobile: false,
+  });
+  expect(window.devicePixelRatio).toBe(2);
+  await startSessionReadsAt(sessionZoom);
 });

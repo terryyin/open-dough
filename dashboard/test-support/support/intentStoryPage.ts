@@ -1,26 +1,25 @@
-import { fileBrowser } from "./reviewContextLine.ts";
-import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import { codePane, expectContextRead } from "./reviewPanes.ts";
-import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
+import { reviewRefresh, uncommittedCheck } from "./reviewControls.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
   filesColumn,
   storySummary,
+  storyTabPanel,
   storyViews,
 } from "../intentModePage.ts";
 // What the story-scoped Intent journeys (../intent-story-changes*.spec.ts)
 // read of the page: the selected story's header and views, the contains-changes
 // background, the "Selected story only" toggle, and a changed file's diff in
-// Intent's Purpose beside the same file's diff in Review changes. Scenarios
-// that read several of these hold `intentStory`. Arranging the taken story:
-// ./selectTakenStoryInIntent.ts. A row's change-kind style: ./changeKindStyle.ts.
+// Intent's Purpose. Scenarios that read several of these hold `intentStory`.
+// Arranging the taken story: ./selectTakenStoryInIntent.ts. A row's
+// change-kind style: ./changeKindStyle.ts.
 
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator } from "@playwright/test";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
-import { expectReviewRead } from "./reviewRead.ts";
+import { commitRangeHeading } from "./storyReviewCommitChoice.ts";
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -35,6 +34,7 @@ export {
   storySummary,
   storyViews,
   storyTab,
+  storyTabPanel,
   expectStoryTab,
   chooseStoryTab,
 } from "../intentModePage.ts";
@@ -49,6 +49,8 @@ export function storyHeaderReading(intent: Locator) {
     identity: region.locator(".record-identity"),
     revisions: region.locator(".intent-story-revisions"),
     status: region.getByRole("status"),
+    // A chosen comparison that cannot be read, with Retry after a failed read.
+    alert: region.getByRole("alert"),
     done: region.locator(".intent-story-done"),
   };
 }
@@ -56,31 +58,6 @@ export function storyHeaderReading(intent: Locator) {
 // The header's title, which names the story in full.
 export const storyTitle = (intent: Locator) =>
   storySummary(intent).getByRole("heading", { level: 2 });
-
-// The count of changed files outside Intent locations ending the header's
-// title line, and the name and hover text that explain it.
-export const outsideCount = (intent: Locator) =>
-  storySummary(intent)
-    .locator(".intent-story-title-line")
-    .getByRole("button", { name: /outside Intent locations/ });
-export const outsideName = (count: number) =>
-  `${count} changed file${count === 1 ? "" : "s"} outside Intent locations — open Review changes`;
-
-// The count shows only the number, explained by its name and hover text, on
-// the title's line; the sentence it replaced is gone.
-export async function expectOutsideCount(intent: Locator, count: number) {
-  const button = outsideCount(intent);
-  await expect(button).toHaveText(String(count));
-  await expect(button).toHaveAccessibleName(outsideName(count));
-  await expect(button).toHaveAttribute("title", outsideName(count));
-  await expect(intent.getByText(/shown in Review changes/)).toHaveCount(0);
-  const line = await storyTitle(intent).boundingBox();
-  const box = await button.boundingBox();
-  if (line === null || box === null) throw new Error("Not laid out.");
-  const middle = box.y + box.height / 2;
-  expect(middle).toBeGreaterThan(line.y);
-  expect(middle).toBeLessThan(line.y + line.height);
-}
 
 // What the header says beyond the title: the identity, and the revisions or
 // full explanation of the comparison. Nothing collapses it.
@@ -98,9 +75,15 @@ export const storyOnly = (intent: Locator) =>
 // A file's control in Intent's tree, by its accessible name: its full path,
 // or for a changed file its kind and path as Review changes names it. A story
 // comparison may append Proof's Counts and after-side words after a comma.
+const fileName = (name: string) =>
+  new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:,|$)`);
 export const intentFile = (intent: Locator, name: string) =>
-  filesColumn(intent).getByRole("button", {
-    name: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:,|$)`),
+  filesColumn(intent).getByRole("button", { name: fileName(name) });
+
+// The story's changed files outside every location, after the locations.
+export const outsideGroup = (intent: Locator) =>
+  filesColumn(intent).getByRole("region", {
+    name: "Outside Intent locations",
   });
 
 // A folder's toggle in Intent, by the folder's name and whether it is open.
@@ -149,34 +132,48 @@ async function expectDiffReady(code: Locator) {
 export const readIntentDiff = (intent: Locator) =>
   intentDiffReading(intent).code.innerText();
 
-// The selecting operation keeps its original action, then delegates reading.
-export async function intentDiff(intent: Locator, name: string) {
-  await intentFile(intent, name).click();
+// Selects the file's row, then reads its diff once ready.
+async function selectedDiff(intent: Locator, row: Locator, name: string) {
+  await row.click();
   await expect(intentDiffReading(intent).name).toHaveText(name);
   await expectDiffReady(intentDiffReading(intent).code);
   return readIntentDiff(intent);
 }
+export const intentDiff = (intent: Locator, name: string) =>
+  selectedDiff(intent, intentFile(intent, name), name);
 
-// The same file's diff in Review changes, opened from Intent's count of
-// changed files outside its locations.
-export async function reviewDiff(page: Page, name: string) {
-  const review = reviewRegion(page);
-  await listedFile(fileBrowser(review), name, { exact: true }).click();
-  const diff = fileDiff(review, name);
-  const code = codePane(diff);
-  await expectDiffReady(code);
-  return code.innerText();
-}
+const outsideFile = (intent: Locator, name: string) =>
+  outsideGroup(intent).getByRole("button", { name: fileName(name) });
 
-// Opens Review changes from the header's count outside Intent locations,
-// leaving the header in place.
-export async function openReviewFromIntent(page: Page, intent: Locator) {
-  await outsideCount(intent).click();
-  await expect(storyTitle(intent)).toBeVisible();
-  const review = reviewRegion(page);
-  await expectReviewRead(review);
-  await expect(fileBrowser(review)).toBeVisible();
-  return showReviewDetails(review);
+// The Compare choice beside the header's compared revisions: what the story's
+// Intent compares, with All changes the check that leaves uncommitted changes
+// out, Refresh reading the worktree again, and for Commits the story's commits
+// whose two ends choose the range, which the header then names.
+export function storyCompare(intent: Locator) {
+  const region = storySummary(intent).getByRole("group", { name: "Compare" });
+  const commits = region.getByRole("list", { name: "Story commits" });
+  const choice = (name: string) => region.getByRole("radio", { name });
+  const commit = (subject: string) =>
+    commits.getByRole("button").filter({ hasText: subject });
+  const run = region.getByRole("listbox", { name: "Landed run" });
+  return {
+    region,
+    choice,
+    choose: (name: string) => choice(name).check(),
+    // The captured landed run chosen, offered with Landed runs.
+    run,
+    chooseRun: (key: string) => run.selectOption(key),
+    includeUncommitted: uncommittedCheck(region),
+    refresh: () => reviewRefresh(region).click(),
+    commits,
+    commit,
+    // Chooses one commit alone: twice, so it starts and ends its own range.
+    chooseAlone: async (subject: string) => {
+      await commit(subject).click();
+      await commit(subject).click();
+    },
+    range: commitRangeHeading(storySummary(intent)),
+  };
 }
 
 // The selected story in Intent. Diff text comes back for the scenario to
@@ -187,7 +184,6 @@ export function intentStory(intent: Locator) {
     header: storyHeaderReading(intent),
     title: storyTitle(intent),
     views: storyViews(intent),
-    outsideCount: outsideCount(intent),
     diffReading: intentDiffReading(intent),
     storyOnly: (scope?: Locator) => storyOnly(scope ?? intent),
     file: (name: string) => intentFile(intent, name),
@@ -196,15 +192,25 @@ export function intentStory(intent: Locator) {
     folderRow: (name: string) => folderRow(intent, name),
     folderItem: (name: string) => folderItem(intent, name),
     locationGroup: (path: string) => locationGroup(intent, path),
+    outside: outsideGroup(intent),
+    groups: filesColumn(intent).locator(":scope section"),
+    outsideFile: (name: string) => outsideFile(intent, name),
+    // An outside file's row, which carries its change marker.
+    outsideRow: (name: string) => outsideFile(intent, name).locator("xpath=.."),
     headerDetail: () => storyHeaderDetail(intent),
-    expectOutsideCount: (count: number) => expectOutsideCount(intent, count),
+    compare: () => storyCompare(intent),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
       chooseStoryTab(intent, name),
     expectTab: (name: Parameters<typeof expectStoryTab>[1]) =>
       expectStoryTab(intent, name),
+    panel: (name: Parameters<typeof storyTabPanel>[1]) =>
+      storyTabPanel(intent, name),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     diff: (name: string) => intentDiff(intent, name),
-    openReview: () => openReviewFromIntent(intent.page(), intent),
-    reviewDiff: (name: string) => reviewDiff(intent.page(), name),
+    // What a CI view says while another comparison than the default is chosen.
+    wholeStoryNote: (view: Locator) =>
+      view.getByRole("note").filter({ hasText: "whole story" }),
+    outsideDiff: (name: string) =>
+      selectedDiff(intent, outsideFile(intent, name), name),
   };
 }

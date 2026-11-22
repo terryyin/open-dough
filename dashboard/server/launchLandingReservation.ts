@@ -1,7 +1,7 @@
 // One immutable comparison is prepared before publication and accepted afterward.
 import type { LandingRepository, LaunchLanding } from "../src/launchLanding.ts";
 import type { LandingSubmission } from "./launchLandingAdmission.ts";
-import { verifyLanding } from "./launchLandingGit.ts";
+import { verifyLanding, type HeldPin } from "./launchLandingGit.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 
 export function sameComparison(
@@ -41,6 +41,11 @@ export function authorizedLanding(
   return authority;
 }
 
+export type LandingReservation = { readonly landing: LaunchLanding } & (
+  | { readonly isNew: false }
+  | { readonly isNew: true; readonly pinWrites: readonly HeldPin[] }
+);
+
 // Resolves the comparison and verifies a new landing. Writes no store or ref.
 export async function resolveLandingComparison(
   authority: LandingRepository,
@@ -50,7 +55,7 @@ export async function resolveLandingComparison(
   preparations: readonly LaunchLanding[] = [],
   receiptId: string,
   receivedAt: string,
-): Promise<{ landing: LaunchLanding; isNew: boolean }> {
+): Promise<LandingReservation> {
   const prepared = preparations.find(
     (entry) => entry.delivery === report.delivery,
   );
@@ -82,6 +87,9 @@ export async function resolveLandingComparison(
     receipt: receiptId,
     receivedAt,
   };
-  await verifyLanding(landing, prepare ? authority : undefined);
-  return { landing, isNew: true };
+  const pinWrites = await verifyLanding(
+    landing,
+    prepare ? authority : undefined,
+  );
+  return { landing, isNew: true, pinWrites };
 }

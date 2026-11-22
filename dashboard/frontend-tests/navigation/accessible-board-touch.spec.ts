@@ -1,250 +1,244 @@
-import type { Page } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  doughnutSource,
-  openDoughSource,
-  putFrontendDonePublication,
-  putFrontendBacklog,
-  type FrontendServiceState,
-} from "../../test-support/support/frontendServiceState.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
-import {
-  longBacklog,
-  longIdentity,
-  longPlan,
-  longTitle,
-  queuedCount,
-  queuedTitles,
-  publishLargeBacklog,
-  revision,
-} from "../../test-support/accessibleBoard.ts";
-import {
-  chooseProject,
-  expectProjectChoice,
-  expectSettledPage,
-  parts,
-} from "../../test-support/dashboardPage.ts";
-import {
-  tapColumnIndicator,
-  expectView,
-  wheelTo,
-} from "../../test-support/boardPage.ts";
-import { expectReadWholeInCard } from "../../test-support/boardReading.ts";
-import { describedBacklog } from "../../test-support/describedRevisions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  compactProjectSelectCut,
-  expectNoSidewaysScrollAndWholeText,
-  tapWhereShown,
-} from "../../test-support/pageLayout.ts";
-import {
-  doneRecordFiles,
-  executed,
-} from "../../test-support/recentlyDoneRecords.ts";
+import { expect, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
+import type { MachineSessions } from "../../src/agentLaunches.ts";
+import { readDoneRecordBodiesAt } from "../../src/authenticatedDoneRead.ts";
+import {
+  mountBoard,
+  reducedBoardMotion,
+  withBoardStorage,
+} from "./board-mount.ts";
+import { boardReading as board } from "./board-reading-page.ts";
+import {
+  landscape,
+  portrait,
+  tapWhereShown,
+  useTouchScreen,
+} from "./board-touch-page.ts";
+import { boardWork, cataloguedDone, story } from "./board-work.ts";
 
-const phoneWholeTextCut = [".owner-mark", ...compactProjectSelectCut] as const;
-const doneDirectory = ".planning/done/";
+vi.mock(import("../../src/authenticatedDoneRead.ts"), async (original) => ({
+  ...(await original()),
+  readDoneRecordBodiesAt: vi.fn(),
+}));
 
-// Open Dough's done records, published beside its own backlog.
-function publishDoneRecords(services: FrontendServiceState, now: number) {
-  const files = doneRecordFiles(now);
-  const bodies = Object.fromEntries(
-    Object.entries(files)
-      .filter(([path]) => path.startsWith(doneDirectory))
-      .map(([path, text]) => [path.slice(doneDirectory.length), text]),
-  );
-  const catalog = files[`${doneDirectory}.catalog.json`];
-  if (catalog === undefined) throw new Error("Expected a done catalog.");
-  putFrontendDonePublication(services, openDoughSource.id, { catalog, bodies });
+const identity = `SEED-090#${"a-long-anchor-".repeat(6)}end`;
+const title = `Keep a title with ${"Uninterruptedlyconcatenated".repeat(5)} and ordinary words readable across the Board`;
+const plan = `slice-plans/090-${"readable-".repeat(12)}overview/PLAN.md`;
+const longStory = story(title, 90, {
+  identity,
+  plan: {
+    kind: "external",
+    recorded: plan,
+    url: `https://example.test/${plan}`,
+  },
+});
+const otherStories = [
+  story("Read a hosting note", 91),
+  story("Keep a source target readable", 92),
+];
+const blockedStory = story(
+  "Queue trunk integration for agents on the same machine",
+  8,
+  {
+    dependencies: { status: "not-recorded", entries: [], blocking: [] },
+  },
+);
+
+function donePublication() {
+  const newest = makeMe.aDoneRecord
+    .completed({
+      identity: "SEED-038#card-shows-avatar",
+      title: "Card shows avatar",
+      completedAt: new Date(Date.now() - 120_000).toISOString(),
+    })
+    .please();
+  const older = makeMe.aDoneRecord
+    .completed({
+      identity: "SEED-039#done-last-week",
+      title: "Finish something last week",
+      completedAt: new Date(Date.now() - 240_000).toISOString(),
+    })
+    .please();
+  const { done, readBodies } = cataloguedDone([newest, older]);
+  vi.mocked(readDoneRecordBodiesAt).mockImplementation(readBodies);
+  return done;
 }
 
-// Doughnut publishes a backlog with nothing recorded in it.
-async function publishEmptyDoughnut(
-  page: Page,
-  services: FrontendServiceState,
-) {
-  Object.assign(services, { projects: [openDoughSource, doughnutSource] });
-  const empty = describedBacklog(makeMe.aRepository.please());
-  await page.route(
-    (url) =>
-      url.pathname === authenticatedReadEndpoint &&
-      url.searchParams.get("source") === doughnutSource.id &&
-      [...url.searchParams.keys()].every((key) =>
-        ["source", "revision"].includes(key),
-      ),
-    (route) =>
-      route.fulfill({
-        json: {
-          revision: "d7".repeat(20),
-          backlog: empty,
-          askedAt: "2026-11-05T08:00:00.000Z",
-        },
-      }),
+function textFitsInCard(part: Element, card: Element) {
+  const bounds = card.getBoundingClientRect();
+  const range = new Range();
+  range.selectNodeContents(part);
+  const lines = [...range.getClientRects()];
+  return (
+    lines.length > 0 &&
+    lines.every(
+      ({ left, right, height }) =>
+        height > 0 && left >= bounds.left - 0.5 && right <= bounds.right + 0.5,
+    )
   );
 }
 
-test.describe("touch reading", () => {
-  test.use({ hasTouch: true });
+const project = () =>
+  page.getByRole("button", { name: "Project", exact: true });
+async function chooseProject(label: string) {
+  await expect.element(project()).toBeVisible();
+  await tapWhereShown(project().element());
+  const option = page.getByRole("option", { name: label, exact: true });
+  await expect.element(option).toBeVisible();
+  await tapWhereShown(option.element());
+}
 
-  test("project and column navigation keep a long story readable and its detail selected through rotation", async ({
-    page,
-    frontendServices,
-  }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    putFrontendBacklog(frontendServices, { revision, backlog: longBacklog });
-    publishDoneRecords(frontendServices, Date.now());
-    await publishEmptyDoughnut(page, frontendServices);
-    await page.goto("/");
-    await expectSettledPage(page);
-    const { taken, recentlyDone } = parts(page);
-    await chooseProject(page, "Doughnut");
-    await expect(parts(page).backlog).toContainText(
-      "No Backlog entries are recorded.",
-    );
-    await chooseProject(page, "Open Dough");
-    await expect(parts(page).backlog.getByRole("article")).toHaveCount(3);
-    await tapColumnIndicator(page, "Taken");
-    await expectView(
-      page,
-      ["Taken"],
-      ["Backlog 3 entries", "Recently done 2 entries"],
-      phoneWholeTextCut,
-    );
-    const card = taken.getByRole("article", { name: longTitle });
-    const title = card.getByRole("heading", { level: 3 });
-    await expect(title).toHaveText(longTitle);
-    await expectReadWholeInCard(title, card);
-    const inspect = card.getByRole("button", { name: "Inspect story" });
-    await inspect.scrollIntoViewIfNeeded();
-    await tapWhereShown(inspect);
-    const detail = card.getByRole("region", {
-      name: `Detail for ${longTitle}`,
-    });
-    await expect(detail).toBeVisible();
-    await expect(detail).toContainText(longIdentity);
-    await expect(detail).toContainText(longPlan);
-    for (const fullText of [longIdentity, longPlan]) {
-      await expectReadWholeInCard(
-        detail.getByText(fullText, { exact: true }),
-        card,
+test.beforeEach(async () => {
+  withBoardStorage("0");
+  await useTouchScreen();
+  await reducedBoardMotion();
+});
+
+test("project and column navigation keep a long story readable and its detail open through rotation", async () => {
+  const openDough = boardWork([...otherStories, blockedStory], {
+    taken: [longStory, story("Repair the installer's update report", 59)],
+    done: donePublication(),
+  });
+  const doughnut = boardWork([], {
+    id: "doughnut",
+    label: "Doughnut",
+    taken: [],
+  });
+  const another = boardWork([], {
+    id: "read-another",
+    label: "Another configured project",
+    taken: [],
+  });
+  await mountBoard([openDough, doughnut, another], portrait);
+  await board.shows(["Backlog"], ["Taken 2 entries"]);
+  await chooseProject("Doughnut");
+  await expect
+    .element(
+      board
+        .column("Backlog")
+        .getByText("No Backlog entries are recorded.", { exact: true }),
+    )
+    .toBeVisible();
+  await chooseProject("Open Dough");
+  await expect
+    .poll(() => board.column("Backlog").getByRole("article").elements().length)
+    .toBe(3);
+
+  await tapWhereShown(board.control("Taken").element());
+  await board.shows(
+    ["Taken"],
+    ["Backlog 3 entries", "Recently done 2 entries"],
+  );
+  const card = board
+    .column("Taken")
+    .getByRole("article", { name: title, exact: true });
+  const heading = card.getByRole("heading", { name: title, exact: true });
+  await expect.element(heading).toBeVisible();
+  expect(textFitsInCard(heading.element(), card.element())).toBe(true);
+  const inspect = card.getByRole("button", { name: "Inspect story" }).element();
+  inspect.scrollIntoView({ block: "nearest" });
+  await tapWhereShown(inspect);
+  const detail = card.getByRole("region", { name: `Detail for ${title}` });
+  await expect.element(detail).toBeVisible();
+  const parts = [
+    heading,
+    detail.getByText(identity, { exact: true }),
+    detail.getByText(plan, { exact: true }),
+  ];
+  for (const part of parts) {
+    const rendered = part.element();
+    rendered.scrollIntoView({ block: "center" });
+    await expect.poll(() => board.inReadingRoom(rendered)).toBe(true);
+  }
+  const hide = card.getByRole("button", { name: "Hide detail" });
+  const twoColumnWidth =
+    48 * Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+  for (const size of [
+    portrait,
+    landscape,
+    { width: 768, height: 1024 },
+    portrait,
+  ]) {
+    await page.viewport(size.width, size.height);
+    // The Board's scrolling content can be narrower than the viewport.
+    if (board.width() >= twoColumnWidth)
+      await board.shows(["Taken", "Recently done"], ["Backlog 3 entries"]);
+    else
+      await board.shows(
+        ["Taken"],
+        ["Backlog 3 entries", "Recently done 2 entries"],
       );
-    }
-    await expectNoSidewaysScrollAndWholeText(page, phoneWholeTextCut);
-    const hide = card.getByRole("button", { name: "Hide detail" });
-    for (const size of [
-      { width: 844, height: 390 },
-      { width: 768, height: 1024 },
-      { width: 390, height: 844 },
-    ]) {
-      await page.setViewportSize(size);
-      await expect(detail).toBeVisible();
-      await expect(hide).toHaveAttribute("aria-expanded", "true");
-      await expectNoSidewaysScrollAndWholeText(page, phoneWholeTextCut);
-    }
-    await hide.scrollIntoViewIfNeeded();
-    await tapWhereShown(hide);
-    await expect(detail).toHaveCount(0);
-    await expect(card).toBeFocused();
-    await tapColumnIndicator(page, "Recently done");
-    await expect(
-      recentlyDone.getByRole("article", { name: executed.title, exact: true }),
-    ).toBeVisible();
-    await expectNoSidewaysScrollAndWholeText(page, phoneWholeTextCut);
-    await tapColumnIndicator(page, "Taken");
-    await expectView(
-      page,
-      ["Taken"],
-      ["Backlog 3 entries", "Recently done 2 entries"],
-      phoneWholeTextCut,
-    );
-    await expectProjectChoice(page, "Open Dough");
-  });
+    await expect.element(hide).toHaveAttribute("aria-expanded", "true");
+    for (const part of parts)
+      await expect
+        .poll(() => textFitsInCard(part.element(), card.element()))
+        .toBe(true);
+  }
+  const show = hide.element();
+  show.scrollIntoView({ block: "nearest" });
+  await tapWhereShown(show);
+  await expect.element(detail).not.toBeInTheDocument();
+  await expect.element(card).toHaveFocus();
 
-  test("an open session's disabled Start reason is readable without hover and does not start another session", async ({
-    page,
-    frontendServices,
-  }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    const title = "Queue trunk integration for agents on the same machine";
-    frontendServices.answerMachine(
-      makeMe.aMachineAnswer
-        .observingOpen(
-          makeMe.aLaunchRecord
-            .executing({ identity: "SEED-008#same-machine-merge-queue", title })
-            .inClaudeSession({
-              sessionId: "aaaaaaaa-0000-4000-8000-000000000001",
-            })
-            .please(),
-        )
+  await tapWhereShown(board.control("Recently done").element());
+  await board.shows(["Recently done"], ["Taken 2 entries"]);
+  const done = board
+    .column("Recently done")
+    .getByRole("article", { name: "Card shows avatar" });
+  await expect.element(done).toBeVisible();
+  expect(
+    textFitsInCard(done.getByRole("heading").element(), done.element()),
+  ).toBe(true);
+  await tapWhereShown(board.control("Taken").element());
+  await board.shows(
+    ["Taken"],
+    ["Backlog 3 entries", "Recently done 2 entries"],
+  );
+  await expect
+    .poll(() => project().element().textContent.trim())
+    .toBe("Open Dough");
+});
+
+test("an open session's disabled Start reason is readable without hover and does not start another session", async () => {
+  const { records } = makeMe.aMachineAnswer
+    .observingOpen(
+      makeMe.aLaunchRecord
+        .executing({
+          identity: blockedStory.identity,
+          title: blockedStory.title,
+        })
+        .inClaudeSession({ sessionId: "aaaaaaaa-0000-4000-8000-000000000001" })
         .please(),
-    );
-    putFrontendBacklog(frontendServices, { revision, backlog: longBacklog });
-    const launches: string[] = [];
-    page.on("request", (request) => {
-      if (
-        request.method() !== "GET" &&
-        new URL(request.url()).pathname === agentLaunchEndpoint
-      )
-        launches.push(request.url());
-    });
-    // The reason is brought into view where the page lays it out once every
-    // card's preparation is read: until then the cards above it, and its own
-    // dependency facts, are still growing by what those reads answer.
-    await page.goto("/");
-    await expectSettledPage(page);
-    const card = parts(page).backlog.getByRole("article", { name: title });
-    await expectReadWholeInCard(
-      card.getByText(openSessionStartReason, { exact: true }),
-      card,
-    );
-    for (const name of ["Start execution", "Start refinement"]) {
-      await expect(card.getByRole("button", { name })).toBeDisabled();
-      await expect(
-        card.getByRole("button", { name }),
-      ).toHaveAccessibleDescription(new RegExp(openSessionStartReason));
-    }
-    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
-    expect(launches).toEqual([]);
+    )
+    .please();
+  const start = vi.fn<MachineSessions["start"]>();
+  await mountBoard([boardWork([blockedStory])], portrait, {
+    records,
+    launched: records,
+    start,
   });
-
-  test("thin Column indicators show work where the developer is reading on phone and tablet", async ({
-    page,
-    frontendServices,
-  }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    publishLargeBacklog(frontendServices);
-    await page.goto("/");
-    await expectSettledPage(page, {
-      taken: ["Repair the installer's update report"],
-      backlog: queuedTitles,
-    });
-    await wheelTo(page, 1000);
-    await tapColumnIndicator(page, "Taken");
-    await expectView(
-      page,
-      ["Taken"],
-      [`Backlog ${queuedCount} entries`, "Recently done 0 entries"],
-      compactProjectSelectCut,
-    );
-    await page.setViewportSize({ width: 1024, height: 768 });
-    await expectView(
-      page,
-      ["Taken", "Recently done"],
-      [`Backlog ${queuedCount} entries`],
-    );
-    await tapColumnIndicator(page, "Backlog");
-    await expectView(page, ["Backlog", "Taken"], ["Recently done 0 entries"]);
-    await page.setViewportSize({ width: 390, height: 844 });
-    await expectView(
-      page,
-      ["Backlog"],
-      ["Taken 1 entry"],
-      compactProjectSelectCut,
-    );
-    await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
-  });
+  await board.shows(["Backlog"], ["Taken 1 entry"]);
+  const card = board
+    .column("Backlog")
+    .getByRole("article", { name: blockedStory.title, exact: true });
+  const reason = card.getByText(openSessionStartReason, { exact: true });
+  const explanation = reason.element();
+  explanation.scrollIntoView({ block: "nearest" });
+  expect(matchMedia("(hover: none)").matches).toBe(true);
+  await expect.element(reason).toBeVisible();
+  expect(board.inReadingRoom(explanation)).toBe(true);
+  expect(textFitsInCard(explanation, card.element())).toBe(true);
+  for (const name of ["Start execution", "Start refinement"]) {
+    const button = card.getByRole("button", { name });
+    await expect.element(button).toBeDisabled();
+    await expect
+      .element(button)
+      .toHaveAccessibleDescription(new RegExp(openSessionStartReason));
+    button.element().scrollIntoView({ block: "nearest" });
+    await tapWhereShown(button.element());
+  }
+  await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
+  expect(start).not.toHaveBeenCalled();
 });

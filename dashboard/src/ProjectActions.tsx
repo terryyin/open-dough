@@ -1,9 +1,10 @@
 import type { MachineSessions } from "./agentLaunches.ts";
+import type { OpenTerminal } from "./pageSessions.ts";
 import { NearFutureDirection } from "./NearFutureDirection.tsx";
 import { PreparationLegend } from "./PreparationLegend.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { StartSession } from "./StartSession.tsx";
+import { StartSession, type AdHocLaunches } from "./StartSession.tsx";
 import { maintenanceRowText } from "./feedbackMaintenanceState.ts";
 
 // Actions for the selected project's stories, independent of a URL destination.
@@ -13,11 +14,14 @@ export function ProjectActions({
   source,
   work,
   launches,
+  presentTerminal,
   hidden,
 }: {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
-  readonly launches: MachineSessions;
+  readonly launches: AdHocLaunches &
+    Pick<MachineSessions, "feedbackMaintenance">;
+  readonly presentTerminal: OpenTerminal;
   readonly hidden: boolean;
 }) {
   const showsPreparation =
@@ -43,6 +47,7 @@ export function ProjectActions({
           sourceId={source.id}
           project={source.label}
           launches={launches}
+          presentTerminal={presentTerminal}
         />
         {showsPreparation && <PreparationLegend />}
       </div>

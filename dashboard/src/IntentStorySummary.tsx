@@ -2,7 +2,12 @@
 // owners, plus the story-only tree scope choice. The shared persistent
 // header lives in IntentHeader; the page layout lives in IntentPage.
 
-import type { LensComparison } from "./IntentStoryComparison.tsx";
+import {
+  defaultReviewOf,
+  otherThanDefaultChosen,
+  type LensComparison,
+  type WholeStory,
+} from "./IntentStoryComparison.tsx";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 
@@ -20,6 +25,9 @@ export type LensStory = {
 export type ComparedStory = {
   readonly lens: LensStory;
   readonly shown: ShownStoryComparison;
+  // While another comparison than the default is chosen, the CI views'
+  // whole-story note.
+  readonly wholeStory: WholeStory | undefined;
 };
 
 // The "Selected story only" choice over a compared story's tree and whether
@@ -49,12 +57,12 @@ export function useStorySummary(
 // The completed result owns the history endpoint, even when newer publications
 // share its story identity or the measured CI build is a later revision.
 export function publishedDoneEndpointOf(
-  storySummary: StorySummary | undefined,
+  storySummary: Pick<StorySummary, "story" | "comparison"> | undefined,
 ) {
   const review =
-    storySummary?.comparison.state === "compared"
-      ? storySummary.comparison.review
-      : undefined;
+    storySummary === undefined
+      ? undefined
+      : defaultReviewOf(storySummary.comparison);
   return storySummary?.story.completed !== true
     ? undefined
     : review?.kind === "published"
@@ -64,6 +72,17 @@ export function publishedDoneEndpointOf(
       : review?.kind === "landed"
         ? { revision: review.landing.revision, at: review.landing.receivedAt }
         : undefined;
+}
+
+// While another comparison is chosen, what the CI views say describes the
+// whole story: the build its default comparison measured, when known.
+export function wholeStoryOf(
+  summary: Pick<StorySummary, "story" | "comparison"> | undefined,
+): WholeStory | undefined {
+  if (summary === undefined || !otherThanDefaultChosen(summary.comparison))
+    return undefined;
+  const endpoint = publishedDoneEndpointOf(summary);
+  return endpoint === undefined ? {} : { revision: endpoint.revision };
 }
 
 // Absence while reading is pending; a settled owner must explain absence.
@@ -83,14 +102,14 @@ export function publishedDoneEndpointReasonOf(
       comparison.explanation ??
       "The selected Done result’s published landing is unavailable."
     );
-  const review = comparison.review;
+  const review = comparison.defaultReview;
   return review?.kind === "unavailable" ||
     review?.kind === "landing-unavailable"
     ? review.explanation
     : "Published history does not identify this Done result’s represented landing.";
 }
 
-// "Selected story only" heading the Changed tests tree, with its message when
+// "Selected story only" heading the Changes tree, with its message when
 // no location's test file changed.
 export function StoryTreeScopeChoice({
   scope,

@@ -15,7 +15,7 @@ import {
 import { writeLandingContext } from "../../server/launchReportingFiles.ts";
 import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
-import { source } from "../support/doneCaptureCase.ts";
+import { keep, source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { publishInstalled } from "../support/installedPublisher.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
@@ -35,44 +35,36 @@ test("the same Done session opens its delivery and keeps its different branch re
   onTestFinished(() => {
     rmSync(directory, { recursive: true, force: true });
   });
-  const reporting = {
-    origin: dashboardOrigin,
-    reference,
-    command: "report",
-    landingContext: path.join(directory, "landing-context.json"),
-  };
-  const { checkout, worktrees, records, at } = await aDoneCaptureCase()
+  const { checkout, worktrees, at } = await aDoneCaptureCase()
     .withOrigin()
     .withBaseFiles({ [renamed.oldPath]: baseline })
     .withWorkspace(branch)
-    .withIsolatedLaunch(sessionId, { launched: 60 }, branch, (launch) =>
-      launch.reportingThrough(reporting),
-    )
-    .kept()
     .please();
   const workspace = worktrees[branch];
-  const record = records[sessionId];
   const authority = makeMe.aLandingAuthority
     .ofRepository(checkout.gitDirectory)
     .inWorktree({ workspace, branch })
     .please();
   // The installed publisher reads the context the accepted launch reports to.
-  expect(
-    await writeLandingContext(
-      directory,
-      { origin: dashboardOrigin, source, host: "claude", reference },
-      authority,
-    ),
-  ).toBe(reporting.landingContext);
+  const landingContext = await writeLandingContext(
+    directory,
+    { origin: dashboardOrigin, source, host: "claude", reference },
+    authority,
+  );
+  const record = makeMe.aLaunchRecord
+    .isolatedIn(checkout, { workspace, branch })
+    .inClaudeSession({ sessionId })
+    .launchedAt(at(60))
+    .reportingThrough({
+      origin: dashboardOrigin,
+      reference,
+      command: "report",
+      landingContext,
+    })
+    .please();
+  keep(record);
   await keepAttempt(
-    makeMe.anAcceptedAttempt
-      .withId(reference)
-      .adHoc()
-      .acceptedAt(at(60))
-      .reportingTo(dashboardOrigin)
-      .launched({ host: "claude", sessionId })
-      .capturingLanding({ reporting, landingRepository: authority })
-      .please(),
+    makeMe.anAcceptedAttempt.reportingFor(record).landingIn(authority).please(),
   );
   const write = (text: string) => {
     writeFileSync(path.join(workspace, renamed.path), text);
@@ -92,7 +84,7 @@ test("the same Done session opens its delivery and keeps its different branch re
       previouslyPublishedBase: checkout.base,
       remote: "origin",
       targetRef: "refs/heads/main",
-      landingContext: reporting.landingContext,
+      landingContext,
     },
     async () =>
       (await keptAttempts())?.find((attempt) => attempt.id === reference)

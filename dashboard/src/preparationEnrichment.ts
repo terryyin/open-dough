@@ -14,6 +14,7 @@ import {
   purposeFor,
   recordedPlanPathFor,
 } from "./workEntryFacts.ts";
+import { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { loadRepositoryTexts } from "./repositoryFileReads.ts";
 import {
   resolveSourceLink,
@@ -151,6 +152,7 @@ export async function enrichPreparation(
       "The canonical record could not be read for preparation facts.",
       outcomes,
       bound,
+      readRepositoryFileAt,
     );
 
   const peeks = peekEntries(
@@ -183,6 +185,7 @@ export async function enrichPreparation(
     "The associated plan could not be read for readiness facts.",
     outcomes,
     bound,
+    readRepositoryFileAt,
   );
 
   const byIdentity = new Map<string, EntryFacts>();

@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import {
-  launchHostOptionsEndpoint,
-  launchHostOptionsSchema,
-  type LaunchHostOptions,
-} from "./launchHostOptions.ts";
+import type { LaunchHostOptions } from "./launchHostOptions.ts";
+import type { ReadLaunchHostOptions } from "./launchHostOptionsClient.ts";
 import { hostDescription, type HostIdentity } from "./hostDescription.ts";
 export function useLaunchHostOptions(
+  readOptions: ReadLaunchHostOptions,
   source: string,
   host: HostIdentity,
   projectContext = false,
@@ -22,13 +20,13 @@ export function useLaunchHostOptions(
     if (modelCatalog === undefined) return;
     const controller = new AbortController();
     setState({ source, host });
-    void fetch(
-      `${launchHostOptionsEndpoint}?${new URLSearchParams({ source, host, ...(projectContext ? { context: "project" } : {}) })}`,
-      { signal: controller.signal },
-    )
-      .then(async (response) => {
-        if (!response.ok) throw new Error(modelCatalog.unreadable);
-        const options = launchHostOptionsSchema.parse(await response.json());
+    void readOptions({
+      source,
+      host,
+      projectContext,
+      signal: controller.signal,
+    })
+      .then((options) => {
         if (!controller.signal.aborted) setState({ source, host, options });
       })
       .catch(() => {
@@ -38,7 +36,7 @@ export function useLaunchHostOptions(
     return () => {
       controller.abort();
     };
-  }, [source, host, retry, projectContext]);
+  }, [readOptions, source, host, retry, projectContext]);
   const current =
     state.source === source && state.host === host ? state : { source, host };
   return {

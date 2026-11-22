@@ -12,10 +12,10 @@
 // replaces it in place; if the new read fails, that text still stays, with the
 // failed revision (`failedRevision`) and Retry.
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { cachedFile } from "./fileContentCache.ts";
 import type { FileRead } from "./IntentFileReading.tsx";
-import { IntentReadSourceOnPage } from "./intentReadSource.ts";
+import { useIntentReads } from "./pageReads.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { readCachedFile } from "./repositoryFileReads.ts";
 
@@ -48,7 +48,7 @@ export function useIntentFileRead({
   readonly failedRevision: string | undefined;
   readonly retry: () => void;
 } {
-  const { readFile } = useContext(IntentReadSourceOnPage);
+  const { readFile } = useIntentReads();
   const [fileRead, setFileRead] = useState<RevisionRead | undefined>(undefined);
   const [fileRetry, setFileRetry] = useState(0);
   useEffect(() => {

@@ -1,5 +1,7 @@
 // Drives public client owners; only external HTTP is replaced. This helper
 // supplies no domain answer, key, selected subject, or expected result.
+import { readIntentCiComparison } from "../../src/authenticatedIntentCiComparisonRead.ts";
+import { readIntentCiProof } from "../../src/authenticatedIntentCiProofRead.ts";
 import { createCiComparisonReading } from "../../src/ciComparisonReading.ts";
 import { createCiComparisonProofs } from "../../src/ciComparisonProofs.ts";
 import { activeComparisonOf } from "../../src/storyCiComparisonWording.ts";
@@ -15,8 +17,8 @@ export function ciComparisonClient(
   ) => Promise<Response> | Response,
 ) {
   const transport = ciReadingTransport(answer);
-  const comparison = createCiComparisonReading();
-  const proofs = createCiComparisonProofs();
+  const comparison = createCiComparisonReading(readIntentCiComparison);
+  const proofs = createCiComparisonProofs(readIntentCiProof);
   return {
     comparison,
     proofs,

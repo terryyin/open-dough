@@ -18,7 +18,7 @@ type Observed = Pick<AttemptObservation, "id" | "changes">;
 // Waits for an accepted attempt to change after its observation, which
 // answers at once if it already has: whether it changed, or undefined when no
 // trustworthy answer came.
-async function awaitAttemptChange(
+export async function awaitAttemptChange(
   { id, changes }: Observed,
   signal: AbortSignal,
 ): Promise<boolean | undefined> {
@@ -44,6 +44,7 @@ export function useAttemptChangeWaits(
   running: readonly Observed[],
   reads: number,
   reread: () => void,
+  waitForChange: typeof awaitAttemptChange,
 ): void {
   // The same text while what is observed stays the same, whatever array
   // holds it.
@@ -65,11 +66,11 @@ export function useAttemptChangeWaits(
       const { id } = observed;
       if (waiting.current.has(id)) continue;
       waiting.current.add(id);
-      void awaitAttemptChange(observed, ended).then((answer) => {
+      void waitForChange(observed, ended).then((answer) => {
         waiting.current.delete(id);
         // Without an answer, the next read at its own pace waits again.
         if (answer !== undefined && !ended.aborted) reread();
       });
     }
-  }, [runningKey, reads, reread]);
+  }, [runningKey, reads, reread, waitForChange]);
 }

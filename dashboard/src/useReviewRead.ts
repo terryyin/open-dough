@@ -1,5 +1,5 @@
 // One read of the story review's source (`./reviewSource.ts`: the page's
-// endpoints unless a `ReviewSourceOnPage` provider gives another), kept until
+// endpoints, as `./pageReads.tsx` supplies them), kept until
 // the reader leaves or reads again: the answer, or why it could not be read.
 // A new query or `round` reads again; the last answer stays until the new one
 // arrives, and `reading` says it is not yet the answer to what was last asked.
@@ -10,10 +10,10 @@
 // anything else, and every failure, is asked again. A kept answer shows as
 // the reader renders, without a reading moment.
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { keptAnswer, memoizedAnswer } from "./answerMemo.ts";
+import { useReviewReads } from "./pageReads.tsx";
 import {
-  ReviewSourceOnPage,
   type ReviewQuery,
   type ReviewRead,
   type ReviewSource,
@@ -43,7 +43,7 @@ export function useReviewRead<Read extends keyof ReviewSource>(
   } = {},
 ): ReviewReadState<AnswerOf<Read>> {
   type Answer = AnswerOf<Read>;
-  const source = useContext(ReviewSourceOnPage);
+  const source = useReviewReads();
   const [read, setRead] = useState<{
     answer?: Answer;
     problem?: string;

@@ -30,6 +30,7 @@ import {
 import { localSettingRequest } from "./localSettingRequest.ts";
 import { useProjects } from "./projectList.tsx";
 import { useLaunchHostOptions } from "./useLaunchHostOptions.ts";
+import { requestLaunchHostOptions } from "./launchHostOptionsClient.ts";
 import { launchSettingsBlocked } from "./useLaunchSettings.ts";
 import { useLocalSetting } from "./useLocalSetting.ts";
 import "./frame-controls.css";
@@ -127,6 +128,7 @@ export function FeedbackMaintenanceSettings() {
     }
   }, [setting]);
   const catalog = useLaunchHostOptions(
+    requestLaunchHostOptions,
     projects.find(
       (project) => project.repository === feedbackMaintenanceRepository,
     )?.id ?? "",

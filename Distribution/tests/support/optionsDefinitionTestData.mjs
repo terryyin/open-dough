@@ -55,6 +55,24 @@ export class ExclusiveOptionGroupBuilder {
 }
 
 export class OptionsDefinitionBuilder {
+  withExclusiveApproachExample() {
+    const entry = new OptionsEntryBuilder();
+    const group = new ExclusiveOptionGroupBuilder();
+    return this.with({
+      command: "dough-story-refinement",
+      options: ["a", "b", "c"].map((letter) =>
+        entry
+          .with({ flag: `--${letter}`, label: letter.toUpperCase() })
+          .please(),
+      ),
+      groups: [
+        group
+          .with({ id: "approach", label: "Approach", flags: ["--a", "--b"] })
+          .please(),
+      ],
+    });
+  }
+
   /** @param {OptionsDefinitionFacts} facts */
   with({ command, options, focuses, groups }) {
     return {

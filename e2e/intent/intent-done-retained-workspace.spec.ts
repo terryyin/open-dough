@@ -1,5 +1,4 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { assumeReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
 // Done Intent reads the immutable completion even while ordinary Review can
@@ -28,9 +27,7 @@ import {
   chooseStoryTab,
   intentDiff,
   intentFile,
-  openReviewFromIntent,
-  reviewDiff,
-  storySummary,
+  storyTabPanel,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
@@ -110,7 +107,7 @@ test("a readable Done workspace cannot replace published locations, inventory, u
   const { card, intent } = await selectDoneStoryInIntent(page);
   const answer = storyReviewSchema.parse(await (await received).json());
   expect(answer).toMatchObject({ kind: "published", completion });
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   await expect(intentFile(intent, modified)).toBeVisible();
   await expect(
@@ -139,22 +136,12 @@ test("a readable Done workspace cannot replace published locations, inventory, u
   await expandIntentGroup(intent, "tests");
   const originalRename = await intentDiff(intent, renamed);
   expect(originalRename).toContain("renamed at completion");
-  await openReviewFromIntent(page, intent);
-  expect(await reviewDiff(page, modified)).toBe(original);
-  expect(await reviewDiff(page, renamed)).toBe(originalRename);
-  const review = reviewRegion(page);
-  await closeSidePanel(review);
-  await expect(
-    storySummary(intent).getByRole("button", {
-      name: /outside Intent locations/,
-    }),
-  ).toBeFocused();
   await parts(page).development.click();
   await showColumn(page, "Recently done");
   expect((await readReview(page, card)).kind).toBe("snapshot");
-  expect(await reviewDiff(page, modified)).toContain(
-    "local mutable after completion",
-  );
+  const review = await assumeReviewChanges(page);
+  await review.files.chooseShown(modified);
+  await review.diffs.expectShows(modified, "local mutable after completion");
 });
 
 test("unrecoverable history remains unavailable despite a readable Done workspace", async ({
@@ -188,11 +175,9 @@ test("unrecoverable history remains unavailable despite a readable Done workspac
     kind: "unavailable",
     explanation: expect.stringMatching(/claim|history/),
   });
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expect(filesColumn(intent)).toHaveCount(0);
-  await expect(
-    intent.getByRole("tabpanel", { name: "Changed tests" }),
-  ).toContainText(
+  await expect(storyTabPanel(intent, "Changes")).toContainText(
     "The story's historical Intent locations and test source are unavailable",
   );
   await expect(intent).not.toContainText("readable local replacement");

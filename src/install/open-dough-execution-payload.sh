@@ -187,6 +187,7 @@ managed_files+=(
   dough-execute-plan/scripts/maintain-default-checkout.mjs
   dough-execute-plan/scripts/owned-suffix-reconciliation.mjs
   dough-execute-plan/scripts/publication-resume.mjs
+  dough-execute-plan/scripts/publication-git-process.mjs
   dough-execute-plan/scripts/publication-git.mjs
   dough-execute-plan/scripts/watch-ci-execution.mjs
   dough-execute-plan/scripts/watch-ci.mjs

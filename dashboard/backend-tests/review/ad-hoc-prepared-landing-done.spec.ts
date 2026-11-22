@@ -31,20 +31,15 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
         in: branch,
       },
     )
-    .withDefaultMainLaunch(
+    .withDeclaredLandingLaunch(
       "default-launch",
       { launched: 60 },
-      (launch, facts) =>
-        launch.withDeclaredLanding({
-          repository: facts.checkout.gitDirectory,
-          workspace: facts.worktrees[branch] ?? "",
-          branch,
-          committedTip: facts.checkout.base,
-          tree: facts.baseTree,
-          trunkRevision: facts.checkout.base,
-          origin: dashboardOrigin,
-          reference: submissionReference,
-        }),
+      branch,
+      ({ baseTree, checkout }) => ({
+        tree: baseTree,
+        trunkRevision: checkout.base,
+        reference: submissionReference,
+      }),
     )
     .kept()
     .please();

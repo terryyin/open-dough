@@ -83,7 +83,7 @@ test("a revisit from the card reads a settled request's same comparison without 
     "evidence rows opened from the card",
   ).toHaveCount(6);
   const read = (await comparison.textContent()) ?? "";
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await page.goBack();
   await openCiFollowUp(await shownCiFollowUpCard(page, "Story A"), "pointer");
   await expect(comparison, "same on revisit").toHaveText(read);

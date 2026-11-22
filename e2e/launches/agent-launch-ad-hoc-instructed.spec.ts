@@ -2,9 +2,8 @@
 // the launch journey's committed origin (../../dashboard/test-support/launchJourney.ts):
 // a final report open in the Side panel stays, no terminal is requested, and
 // the session is an entry in Taken and the Sessions sidebar whose Open
-// terminal shows it. With the Side panel closed it stays closed and the
-// keyboard returns to Start session:
-// ../../dashboard/frontend-tests/launches/agent-launch-ad-hoc-instructed.spec.ts.
+// terminal shows it. For keyboard return after startup, see
+// ../../dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts.
 // A start with nothing typed:
 // ../terminals/agent-launch-ad-hoc-terminal.spec.ts. Follow
 // up: ./agent-launch-follow-up-session.spec.ts. The synthetic `claude`

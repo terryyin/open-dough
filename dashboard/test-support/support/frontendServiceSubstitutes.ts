@@ -104,8 +104,7 @@ export async function installFrontendServiceSubstitutes(
       await fulfillJson(route, state.hostStatus);
     },
   );
-  // A host offers no model choices unless a case arranges them
-  // (./frontendLaunchSubstitutes.ts).
+  // Built-app fixtures supply an empty discovered-model catalog.
   await page.route(
     (url) => url.pathname === launchHostOptionsEndpoint,
     (route) => fulfillJson(route, { models: [] }),

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-401#pilot-repeat-retrospective-findings",
+  "title": "Pilot when a repeat adds useful retrospective evidence",
+  "completedAt": "2026-11-22T00:39:53.240Z",
+  "developer": "Terry Yin",
+  "agent": "Kaoru-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

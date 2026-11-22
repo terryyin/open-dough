@@ -4,7 +4,7 @@
 // effort-only launches that start installed work resolve their configured
 // model in the actual workspace, and workspace confirmation keeps the chosen
 // model and effort. Effort choices in the dialog alone are
-// ../../dashboard/frontend-tests/launches/agent-launch-native-effort.spec.ts.
+// ../../dashboard/frontend-tests/launches/launch-native-effort.spec.ts.
 import { appendFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import {

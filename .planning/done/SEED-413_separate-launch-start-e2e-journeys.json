@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#separate-launch-start-e2e-journeys",
+  "title": "Keep each responsive launch start E2E journey on its own aspect",
+  "completedAt": "2026-11-22T01:56:12.217Z",
+  "developer": "Terry Yin",
+  "agent": "Tsubomi-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5",
+  "intentCoverage": {
+    "report": "**Verdict: Caught.** Checked revision d1f26bb70a2f197a33f1b201e1ee90b9330d9024, SEED-413#separate-launch-start-e2e-journeys.\n\n**Promise:** while a Claude execution startup is still in progress, its story stays protected after the Take moves the card from Backlog to Taken, until the session settles: every card action disabled, source links readable, \"Local startup in progress\" shown.\n\n**Fault:** `dashboard/src/StoryCard.tsx` — `const starting = offersStart && launches.storyStartupOf(sourceId, entry.identity) !== undefined;` (only Backlog cards get `offersStart`, so protection is lost only once the card is Taken; the startup text stays).\n\n**Caught by:** `expectProtected(takenStory)` at `e2e/launches/responsive-session-start.spec.ts:145`, via `await expect(action).toBeDisabled()` at `dashboard/test-support/responsiveStart.ts:154` — the Taken card's first button (\"Show Yui-chan in the agent roster\") was enabled. Spec line 144 (Taken card shows \"Local startup in progress\") and line 141 (`expectProtected(story)` on Backlog) passed first, confirming the intended path.\n\n**Runs** (`npx playwright test --config e2e/playwright.config.ts launches/responsive-session-start.spec.ts -g \"Start execution\"`, strict reporter, load ~4.5–5.7): baseline exit 0 (4066 ms); faulted exit 1 (8613 ms); restored exit 0 (3788 ms) with a clean scratch tree at d1f26bb70. Scratch worktree removed.\n\n**Next proof action:** none for this promise.\n\nWrap-up disposition: d1f26bb70a2f197a33f1b201e1ee90b9330d9024, Caught, no follow-up.\n"
+  }
+}

@@ -11,6 +11,7 @@ import { useStoryNoteAnnouncement } from "./storyNoteAnnouncement.ts";
 import { StoryNoteContext } from "./StoryNoteContext.tsx";
 import { StoryNoteEntry } from "./StoryNoteEntry.tsx";
 import { useLaunchInstruction } from "./LaunchInstruction.tsx";
+import { instructionTranscription } from "./instructionTranscriptionSource.ts";
 export function StoryNotesDialog({
   identity,
   title,
@@ -34,11 +35,16 @@ export function StoryNotesDialog({
   const dialog = useRef<HTMLDialogElement>(null);
   const add = useRef<HTMLButtonElement>(null);
   const field = useRef<HTMLTextAreaElement>(null);
-  const dictation = useLaunchInstruction(field, dialog, {
-    before: "Save note",
-    subject: "note",
-    recordLabel: "Dictate",
-  });
+  const dictation = useLaunchInstruction(
+    field,
+    dialog,
+    instructionTranscription,
+    {
+      before: "Save note",
+      subject: "note",
+      recordLabel: "Dictate",
+    },
+  );
   const returning = useRef<HTMLButtonElement | null>(null);
   const [composer, setComposer] = useState<"add" | StoryNote | undefined>(
     context === undefined ? undefined : "add",

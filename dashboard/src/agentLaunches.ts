@@ -17,6 +17,8 @@ import { usePageVisibility } from "./pageVisibility.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import type { ReadSessions } from "./readSessions.ts";
 import { useRetainedHistory } from "./retainedHistory.ts";
+import { requestAgentAcceptance } from "./agentLaunchClient.ts";
+import { awaitAttemptChange } from "./attemptChangeWaits.ts";
 
 export type MachineSessions = ReadSessions &
   LaunchOffers &
@@ -103,6 +105,10 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   }, []);
   const retained = useRetainedHistory(known, historyRevision);
   const attempts = useLaunchAttempts({
+    source: {
+      accept: requestAgentAcceptance,
+      waitForChange: awaitAttemptChange,
+    },
     observed,
     resolved: retained.attempts,
     readHistory: retained.readHistory,

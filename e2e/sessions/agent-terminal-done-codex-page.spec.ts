@@ -71,6 +71,9 @@ for (const attached of [false, true]) {
       ],
     });
     const { card, settled } = await openStoryColumnsJourney(page, journey);
+    // The launched story's card refuses input until the page settles on the
+    // published work its start waits for.
+    await settled();
     const story = card(notRefinedStory);
     const listed = storyCardSessions(story);
     const doneOnCard = doneSessionEntriesOf(

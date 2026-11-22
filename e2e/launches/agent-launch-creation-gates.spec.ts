@@ -20,7 +20,8 @@ import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPa
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ projectFolders: ["open-dough"] });
-// Stand-in host inspection-args UI: dashboard/frontend-tests/launches/agent-launch-creation-gates.spec.ts.
+// Stand-in host inspection arguments are covered by
+// ../../dashboard/frontend-tests/launches/ad-hoc-creation-entry.spec.ts.
 
 test("a saved creation whose host lacks recovery stays visible with unavailable advice and no borrowed command", async ({
   dashboard,

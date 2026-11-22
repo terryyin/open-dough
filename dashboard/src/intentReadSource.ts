@@ -1,4 +1,3 @@
-import { createContext } from "react";
 import { readIntentCandidatesAt } from "./authenticatedIntentCandidatesRead.ts";
 import { requestIntentLocationsAt } from "./authenticatedIntentRead.ts";
 import { readRepositoryFileAt } from "./authenticatedRead.ts";
@@ -10,8 +9,8 @@ export type IntentReadSource = {
   readonly readCandidates: typeof readIntentCandidatesAt;
 };
 
-export const IntentReadSourceOnPage = createContext<IntentReadSource>({
+export const authenticatedIntentReads: IntentReadSource = {
   readLocations: requestIntentLocationsAt,
   readFile: readRepositoryFileAt,
   readCandidates: readIntentCandidatesAt,
-});
+};

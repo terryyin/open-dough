@@ -64,20 +64,18 @@ test("a selected story's CI comparison shows under its one header while the Inte
   expect(done.headers.elements()).toHaveLength(1);
   expect(walls).not.toEqual([]);
 
-  await done.tab("Changed tests").click();
-  await expect.element(done.changedTests).toHaveTextContent(readingLocations);
+  await done.tab("Changes").click();
+  await expect.element(done.changes).toHaveTextContent(readingLocations);
   expect(ci.asked.comparisons).toHaveLength(1);
   held.replies[0]?.resolve(locations);
-  await expect
-    .element(done.changedTests)
-    .not.toHaveTextContent(readingLocations);
+  await expect.element(done.changes).not.toHaveTextContent(readingLocations);
   await done.tab("CI comparison").click();
   await expect.poll(() => comparison.activeComparison()).toEqual(landed);
   expect(comparison.wallTimes()).toEqual(walls);
   expect(ci.asked.comparisons).toHaveLength(1);
 });
 
-test("a failed Intent locations read leaves the story's CI comparison shown while Changed tests explains the failure, and Retry reads the completion revision", async () => {
+test("a failed Intent locations read leaves the story's CI comparison shown while Changes explains the failure, and Retry reads the completion revision", async () => {
   const completion = "2".repeat(40);
   const { done, held, comparison, walls } =
     await doneStoryWithHeldLocations(completion);
@@ -85,7 +83,7 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
     new ReadProblem("locations read failed", undefined, "transient"),
   );
 
-  await done.tab("Changed tests").click();
+  await done.tab("Changes").click();
   await expect
     .poll(() => done.failure.element().textContent)
     .toBe(
@@ -97,12 +95,10 @@ test("a failed Intent locations read leaves the story's CI comparison shown whil
   await expect.poll(() => comparison.activeComparison()).toEqual(landed);
   expect(comparison.wallTimes()).toEqual(walls);
 
-  await done.tab("Changed tests").click();
+  await done.tab("Changes").click();
   await done.retry.click();
   await expect.poll(() => held.revisions).toEqual([completion, completion]);
   held.replies[1]?.resolve(locations);
   await expect.element(done.failure).not.toBeInTheDocument();
-  await expect
-    .element(done.changedTests)
-    .not.toHaveTextContent(readingLocations);
+  await expect.element(done.changes).not.toHaveTextContent(readingLocations);
 });

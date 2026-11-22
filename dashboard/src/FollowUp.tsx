@@ -59,6 +59,7 @@ export function StoryFollowUpSession({
   readonly onClosed?: () => void;
 }) {
   const readHistory = useReadRetainedHistory();
+  const { presentTerminal } = usePageSessions();
   const source: FollowUpSource = {
     story: {
       identity: story.identity,
@@ -71,6 +72,7 @@ export function StoryFollowUpSession({
       project={project}
       sourceId={sourceId}
       launches={launches}
+      presentTerminal={presentTerminal}
       onOpen={readHistory}
       autoOpen={autoOpen}
       showTrigger={showTrigger}
@@ -90,7 +92,7 @@ export function SessionFollowUp({
   sourceId,
   launches,
 }: Launching & { readonly record: LaunchWithState }) {
-  const { hostOperations } = usePageSessions();
+  const { hostOperations, presentTerminal } = usePageSessions();
   if (!offersFollowUp([record], hostOperations)) return null;
   const source: FollowUpSource = {
     session: { host: record.session.host, sessionId: record.session.sessionId },
@@ -101,6 +103,7 @@ export function SessionFollowUp({
       project={project}
       sourceId={sourceId}
       launches={launches}
+      presentTerminal={presentTerminal}
       followUp={{
         source,
         name: context.label,

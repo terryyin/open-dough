@@ -4,7 +4,9 @@
 // same, and Follow up opens the existing dialog with the line and side.
 // Intent blank start on old line 85: ../../../e2e/intent/intent-story-follow-up.spec.ts.
 
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { attachStoryNotes } from "../../dashboard/test-support/support/attachStoryNotesPage.ts";
 import {
   copyDiffLine,
   expectLineMenuOpen,
@@ -31,6 +33,7 @@ import {
 } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import { expandContextFile } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { seedStoryNotes } from "../../dashboard/test-support/support/storyNotesStore.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
@@ -87,8 +90,13 @@ test.describe("diff line Follow up menu", () => {
 
   test("line numbers open a Follow up menu by pointer, keyboard, touch, Escape, outside click, and revealed context", async ({
     page,
+    dashboard,
     origin,
   }) => {
+    const waiting = makeMe.aStoryNote
+      .withText("Follow up the changed line")
+      .please();
+    seedStoryNotes(dashboard.home, { [queuedIdentity]: [waiting] });
     const { diff } = await openLineFollowDiff(page, origin);
     const oldFiftyFour = lineNumberControl(diff, "old", 54);
     const newFiftyFour = lineNumberControl(diff, "new", 54);
@@ -145,13 +153,20 @@ test.describe("diff line Follow up menu", () => {
       await expect(revealed).toBeFocused();
     });
 
-    await test.step("Follow up opens the dialog with the line and side", async () => {
-      const dialog = await followUpFromLine(page, diff, "old", 54, storyName, [
-        `Path: ${expandContextFile}`,
-        /Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}/,
-        "Line: 54",
-        "Side: old",
-      ]);
+    const dialog =
+      await test.step("Follow up opens the dialog with the line and side", () =>
+        followUpFromLine(page, diff, "old", 54, storyName, [
+          `Path: ${expandContextFile}`,
+          /Comparison: Published completion [a-f0-9]{40} → [a-f0-9]{40}/,
+          "Line: 54",
+          "Side: old",
+        ]));
+
+    await test.step("the line follow-up offers the waiting story note", async () => {
+      await attachStoryNotes(dialog).expectChecked(1, 1);
+    });
+
+    await test.step("Cancel closes the line follow-up dialog", async () => {
       await dialog.getByRole("button", { name: "Cancel" }).click();
       await expect(dialog).toBeHidden();
     });

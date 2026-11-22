@@ -13,10 +13,9 @@ import {
   StorySelectionProvider,
   usePageStorySelection,
 } from "../../src/pageStorySelection.tsx";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import { IntentReadingProvider } from "../../src/pageIntentReading.tsx";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
@@ -167,8 +166,8 @@ export async function mountPageIntentReading(
 ) {
   const reading = (shown: PublishedWork) =>
     createElement(
-      IntentReadSourceOnPage,
-      { value: readSource },
+      PageReadsOnPage,
+      { reads: pageReadsSupplying({ intent: readSource }) },
       createElement(PageIntent, { work: shown }),
     );
   const intent = await mountComponent(reading(work), {

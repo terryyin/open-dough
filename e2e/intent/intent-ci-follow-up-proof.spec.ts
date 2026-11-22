@@ -1,5 +1,5 @@
 // From a settled automatic CI repeat's comparison
-// (./intent-ci-follow-up.spec.ts), Changed tests navigates the proof of the
+// (./intent-ci-follow-up.spec.ts), Changes navigates the proof of the
 // original attempt, which measured the landing, and offers none of the
 // repeat's: read from what the machine keeps, by a dashboard that collects
 // nothing (../../dashboard/test-support/support/ciFollowUpSettledReading.ts).
@@ -19,7 +19,7 @@ import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin
 
 test.use({ viewport: { width: 390, height: 844 } });
 
-test("the original attempt's proof is navigable from Changed tests of a settled request's comparison and the repeat's is not offered, without acquiring CI", async ({
+test("the original attempt's proof is navigable from Changes of a settled request's comparison and the repeat's is not offered, without acquiring CI", async ({
   page,
   dashboard,
   origin,

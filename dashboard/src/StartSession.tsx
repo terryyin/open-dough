@@ -22,7 +22,6 @@
 // mechanics, including the keyboard's return to the button when nothing was
 // accepted, belong to `LaunchDialog`. A launch that did not start, or may
 // not have, says so beside the button, which stays enabled to start again.
-// Nothing here makes a card or a story.
 //
 // An entry in Recently done that no longer offers Open terminal opens the
 // same dialog from its Follow up (`followUp`), with the same choices and
@@ -46,9 +45,11 @@ import {
   unattachedWhere,
 } from "./sessionPolicyWords.ts";
 import { LaunchDialog } from "./LaunchDialog.tsx";
+import { instructionTranscription } from "./instructionTranscriptionSource.ts";
+import { requestLaunchHostOptions } from "./launchHostOptionsClient.ts";
 import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
-import { usePageSessions } from "./pageSessions.ts";
+import type { OpenTerminal } from "./pageSessions.ts";
 import { keyboardRestsOn } from "./launchHandoff.ts";
 import { MessageSquarePlus, SquareTerminal } from "lucide-react";
 import { FollowUpSubject, type FollowUpShown } from "./FollowUpSubject.tsx";
@@ -57,6 +58,11 @@ import { sessionAttachingStoryNotes } from "./AttachStoryNotes.tsx";
 import { Icon } from "./Icon.tsx";
 import "./agent-launch.css";
 import "./frame-controls.css";
+
+export type AdHocLaunches = Pick<
+  MachineSessions,
+  "adHocAttemptOf" | "rereadOffers" | "sessionPolicyOffer" | "startAdHoc"
+>;
 
 // The selected host's installed skills decide whether a session with no story
 // is established (`sessionPolicyOffer`); without it only the default choices
@@ -69,6 +75,7 @@ export function StartSession({
   project,
   sourceId,
   launches,
+  presentTerminal,
   followUp,
   onOpen,
   autoOpen = false,
@@ -78,7 +85,8 @@ export function StartSession({
   // The selected project's name.
   readonly project: string;
   readonly sourceId: string;
-  readonly launches: MachineSessions;
+  readonly launches: AdHocLaunches;
+  readonly presentTerminal: OpenTerminal;
   // Set where an entry's Follow up opens the dialog.
   readonly followUp?: FollowUpShown | undefined;
   // Called as the dialog opens.
@@ -106,7 +114,6 @@ export function StartSession({
     starting,
     useCallback(() => progress.current, []),
   );
-  const { presentTerminal } = usePageSessions();
   const opened = useRef(false);
   const storyIdentity =
     followUp !== undefined && "story" in followUp.source
@@ -167,6 +174,8 @@ export function StartSession({
       )}
       {open && (
         <LaunchDialog
+          readOptions={requestLaunchHostOptions}
+          transcription={instructionTranscription}
           sourceId={sourceId}
           projectContext
           host={host}

@@ -2,8 +2,9 @@
 // session reads in Taken and the sidebar without a story card. The real
 // boundary launches synthetic Claude (../../dashboard/test-support/fixtures/fake-claude);
 // naming is ../../dashboard/backend-tests/launches/agent-launch-ad-hoc-boundary.spec.ts.
-// Where Start session sits, its availability through read gaps and its dialog
-// are ../../dashboard/frontend-tests/launches/agent-launch-ad-hoc.spec.ts.
+// Start session placement and availability are covered by
+// ../../dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts.
+// Its dialog is covered by ../../dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts.
 
 import type { Page } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";

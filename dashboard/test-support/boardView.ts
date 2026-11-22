@@ -8,14 +8,12 @@ import { expect } from "./dashboardTest.ts";
 import { compactProjectSelectCut } from "./pageLayout.ts";
 import { dispatchBoardTouch } from "./phoneBoardTouch.ts";
 import {
-  boardScroll,
   columnReadingRoom,
   expectColumnReading,
   expectEndsWithShown,
   expectStoryCardsKeepTheirShare,
   expectView,
   recordSlides,
-  scrollYOf,
   slidesOf,
   wheelTo,
 } from "./boardPage.ts";
@@ -64,6 +62,11 @@ export class BoardView {
     return this;
   }
 
+  async reload(): Promise<this> {
+    await this.page.reload();
+    return this;
+  }
+
   pagingControl(column: ColumnName): Locator {
     return columnPagingControl(this.page, column);
   }
@@ -91,14 +94,6 @@ export class BoardView {
   async wheelTo(y: number): Promise<this> {
     await wheelTo(this.page, y);
     return this;
-  }
-
-  scrollY(): Promise<number> {
-    return scrollYOf(this.page);
-  }
-
-  scrollRegion(): Locator {
-    return boardScroll(this.page);
   }
 
   async countSlides(): Promise<this> {

@@ -1,141 +1,134 @@
-import { type Locator } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { putFrontendBacklog } from "../../test-support/support/frontendServiceState.ts";
+import { expect, onTestFinished, test } from "vitest";
+import type { WorkDependencies } from "../../src/storyDependencies.ts";
+import { page, userEvent } from "vitest/browser";
 import {
-  expectFocusedAndIndicated,
   expectTabOrder,
+  focusedAndVisible,
   tabTo,
-} from "../../test-support/accessibleReading.ts";
-import { parts, expectMembership } from "../../test-support/dashboardPage.ts";
-import {
-  canonicalRecord,
-  enabledStoryCardLaunchActions,
-  storyNotesControl,
-} from "../../test-support/storyCardControls.ts";
-import { storyDetail } from "../../test-support/storyCardSelection.ts";
-import {
-  backlogB,
-  revisionB,
-  titlesOfB,
-} from "../../test-support/refreshJourney.ts";
+} from "./board-accessibility.ts";
+import { mountBoardFrame } from "./board-frame-mount.ts";
+import { withBoardStorage } from "./board-mount.ts";
+import { boardReading as board } from "./board-reading-page.ts";
+import { boardWork, story } from "./board-work.ts";
 
-test("accessible Board is read by keyboard in reading order, with visible focus, and Enter follows a link", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendBacklog(frontendServices, {
-    revision: revisionB,
-    backlog: backlogB,
-  });
-  // A record link leaves for the hosting provider, which answers nothing here.
-  await page
-    .context()
-    .route("https://github.com/**", (route) => route.fulfill({ body: "" }));
-  await page.goto("/");
-  await expectMembership(page, titlesOfB);
-  const {
-    project,
-    development,
-    recentStories,
-    directionToggle,
-    preparationHelp,
-    backlog,
-    taken,
-  } = parts(page);
+const revision = "b".repeat(40);
+const record = "seeds/SEED-008-sync.md";
+const recordUrl = `https://github.com/terryyin/open-dough/blob/${revision}/.planning/${record}`;
+const dependencies = {
+  status: "unavailable",
+  problem: "Canonical dependency facts could not be read.",
+} satisfies WorkDependencies;
+const first = story("Keep the synchronization procedure readable", 8, {
+  canonical: { kind: "snapshot", recorded: record, url: recordUrl, revision },
+  preparation: { status: "not-recorded" },
+  dependencies,
+});
+const work = boardWork(
+  [
+    first,
+    story("Read the next queued work", 9, {
+      dependencies,
+    }),
+  ],
+  {
+    revision,
+    taken: [
+      story("Taken work comes after Backlog", 20),
+      story("A second Taken entry", 21),
+    ],
+  },
+);
 
-  // Reading order is the order of the page's source: Sessions, the
-  // perspective, Recent stories, the project selector, System settings, then
-  // direction, Start session and the badge legend, then each card's controls
-  // by column (Backlog, then Taken): a Backlog card's enabled launch actions,
-  // then Inspect story and Notes. A card's recorded links are in its detail,
-  // not its scan view. In a wide window Taken stands beside Backlog's first
-  // card, so position on screen would order them differently.
-  const stopsFor = async (column: Locator) => {
-    const stops: Locator[] = [];
-    for (const card of await column.getByRole("article").all()) {
-      if (column === backlog) {
-        // This Board fixture publishes backlog bytes only: execution stays gated
-        // while canonical dependency facts are unavailable; refinement is a stop.
-        await expect(
-          card.getByRole("button", { name: "Start execution" }),
-        ).toBeDisabled();
-        await expect(
-          card.getByRole("button", { name: "Start execution" }),
-        ).toHaveAccessibleDescription(/dependency facts could not be read/);
-        await expect(
-          card.getByRole("button", { name: "Start refinement" }),
-        ).toBeEnabled();
-        stops.push(...(await enabledStoryCardLaunchActions(card)));
-      }
-      stops.push(card.getByRole("button", { name: "Inspect story" }));
-      stops.push(storyNotesControl(card));
-      await expect(card.getByRole("link")).toHaveCount(0);
-    }
-    return stops;
-  };
-  const selectedProject = project.getByRole("radio", { checked: true });
+test("accessible Board is read by keyboard in reading order, with visible focus, and Enter follows a link", async () => {
+  withBoardStorage("0");
+  await mountBoardFrame(work, { width: 1440, height: 900 });
+  await board.shows(["Backlog", "Taken", "Recently done"], []);
+  const button = (name: string) =>
+    page.getByRole("button", { name, exact: true });
+  const direction = page
+    .getByRole("heading", { name: "Near-future direction" })
+    .element()
+    .closest("summary");
+  if (direction === null) throw new Error("Direction has no disclosure.");
   const stops = [
-    page.getByRole("button", { name: "Sessions", exact: true }),
-    development,
-    recentStories,
-    selectedProject,
-    page.getByRole("button", { name: "System settings", exact: true }),
-    directionToggle,
-    page.getByRole("button", { name: "Start session in Open Dough" }),
-    preparationHelp,
-    ...(await stopsFor(backlog)),
-    ...(await stopsFor(taken)),
+    button("Sessions").element(),
+    page.getByRole("radio", { name: "Development", checked: true }).element(),
+    button("Recent stories, no story selected").element(),
+    page.getByRole("radio", { name: "Open Dough", checked: true }).element(),
+    button("System settings").element(),
+    direction,
+    button("Start session in Open Dough").element(),
+    button("Preparation badge legend").element(),
   ];
-  // Sessions + selected perspective radio + Recent stories + selected project
-  // radio + System settings + Direction + Start session + Legend + two
-  // Backlog cards' enabled launch actions + four pairs of Inspect story and
-  // Notes.
-  expect(stops).toHaveLength(8 + 2 + 4 * 2);
-
-  await test.step("Tab stops at Sessions, the banner's controls, and each card's controls, and nowhere else", async () => {
-    await expectTabOrder(page, stops);
-    // The column container, cards, and all three columns take focus only when it is
-    // returned to them.
-    await expect(page.locator("[tabindex='-1']")).toHaveCount(1 + 4 + 3);
-    await expect(page.locator("[tabindex='0']:visible")).toHaveCount(0);
-  });
-
-  await test.step("the keyboard is not held: Tab leaves the page and Shift+Tab walks back", async () => {
-    await page.keyboard.press("Tab");
-    for (const stop of stops) {
-      await expect(stop).not.toBeFocused();
+  for (const name of ["Backlog", "Taken"] as const) {
+    for (const entry of board.column(name).getByRole("article").elements()) {
+      const title = entry.getAttribute("aria-label");
+      if (title === null) throw new Error("An article has no story title.");
+      const card = board
+        .column(name)
+        .getByRole("article", { name: title, exact: true });
+      if (name === "Backlog") {
+        const execution = card.getByRole("button", {
+          name: "Start execution",
+          exact: true,
+        });
+        await expect.element(execution).toBeDisabled();
+        await expect
+          .element(execution)
+          .toHaveAccessibleDescription(/dependency facts could not be read/);
+        const refinement = card.getByRole("button", {
+          name: "Start refinement",
+          exact: true,
+        });
+        await expect.element(refinement).toBeEnabled();
+        stops.push(refinement.element());
+      }
+      expect(card.getByRole("link").elements()).toHaveLength(0);
+      stops.push(
+        card.getByRole("button", { name: "Inspect story" }).element(),
+        card.getByRole("button", { name: "Notes" }).element(),
+      );
     }
-    await expectTabOrder(page, [...stops].reverse(), "Shift+Tab");
-  });
+  }
+  expect(stops).toHaveLength(18);
+  await expectTabOrder(stops);
+  expect(
+    document.querySelectorAll(".board[tabindex='-1'], .board [tabindex='-1']"),
+  ).toHaveLength(8);
+  expect(document.querySelectorAll(".board [tabindex='0']")).toHaveLength(0);
+  await userEvent.tab();
+  expect(stops).not.toContain(document.activeElement);
+  await expectTabOrder(stops.toReversed(), { shift: true });
 
-  await test.step("Enter on Inspect story reveals the card's recorded links next in reading order, and Enter on one leaves for its record at the inspected revision", async () => {
-    // Sessions holds focus after the reverse walk;
-    // Tab walks on in reading order to the first card's Inspect story.
-    const first = backlog.getByRole("article").first();
-    const inspect = first.getByRole("button", { name: "Inspect story" });
-    await tabTo(page, inspect);
-    await expect(inspect).toBeFocused();
-    await page.keyboard.press("Enter");
-    const hide = first.getByRole("button", { name: "Hide detail" });
-    await expect(hide).toBeFocused();
-    const canonical = canonicalRecord(storyDetail(first));
-    const notes = storyNotesControl(first);
-    await expectTabOrder(page, [notes, canonical]);
-    const [popup, leaving] = await Promise.all([
-      page.waitForEvent("popup"),
-      page
-        .context()
-        .waitForEvent("request", (request) => request.isNavigationRequest()),
-      page.keyboard.press("Enter"),
-    ]);
-    expect(new URL(leaving.url()).pathname).toBe(
-      `/terryyin/open-dough/blob/${revisionB}/.planning/seeds/SEED-008-sync.md`,
-    );
-    await popup.close();
-    // Hide detail returns the keyboard to the same story's card.
-    await expectTabOrder(page, [notes, hide], "Shift+Tab");
-    await page.keyboard.press("Enter");
-    await expectFocusedAndIndicated(page, first);
-    await expect(first.getByRole("link")).toHaveCount(0);
+  const card = board
+    .column("Backlog")
+    .getByRole("article", { name: first.title, exact: true });
+  const inspect = card.getByRole("button", { name: "Inspect story" });
+  await tabTo(inspect.element());
+  await userEvent.keyboard("{Enter}");
+  const hide = card.getByRole("button", { name: "Hide detail" });
+  await expect.element(hide).toHaveFocus();
+  const notes = card.getByRole("button", { name: "Notes" });
+  const canonical = card.getByRole("link", {
+    name: `Canonical record ${record}`,
+    exact: true,
   });
+  await expectTabOrder([notes.element(), canonical.element()]);
+  const opened: string[] = [];
+  const capture = (event: MouseEvent) => {
+    if (!(event.target instanceof HTMLAnchorElement)) return;
+    opened.push(event.target.href);
+    event.preventDefault();
+  };
+  document.addEventListener("click", capture);
+  onTestFinished(() => {
+    document.removeEventListener("click", capture);
+  });
+  await userEvent.keyboard("{Enter}");
+  expect(opened).toEqual([recordUrl]);
+  await expect.element(canonical).toHaveAttribute("target", "_blank");
+  await expectTabOrder([notes.element(), hide.element()], { shift: true });
+  await userEvent.keyboard("{Enter}");
+  focusedAndVisible(card.element());
+  expect(card.getByRole("link").elements()).toHaveLength(0);
 });

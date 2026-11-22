@@ -6,7 +6,7 @@
 // hosts this view on its Optimization Candidates tab (`IntentCandidatesPanel`,
 // drawn by its `./IntentBrowser.tsx`), apart from location browsing.
 
-import { useContext, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import {
   keptIntentCandidatesAt,
@@ -22,7 +22,7 @@ import {
   intentRecoveryOf,
   useIntentReadRecovery,
 } from "./intentReadRecovery.tsx";
-import { IntentReadSourceOnPage } from "./intentReadSource.ts";
+import { useIntentReads } from "./pageReads.tsx";
 import { intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import type { OpenCandidateLocation } from "./intentWorkspaceSelection.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -61,7 +61,7 @@ export function IntentCandidatesRecord({
   const [readCount, setReadCount] = useState(0);
   const titleId = useId();
   const activeRead = useRef(0);
-  const { readCandidates } = useContext(IntentReadSourceOnPage);
+  const { readCandidates } = useIntentReads();
 
   useEffect(() => {
     const controller = new AbortController();

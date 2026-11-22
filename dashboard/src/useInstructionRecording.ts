@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { openAIConfigurationEndpoint } from "./openAIConfiguration.ts";
+import type { InstructionTranscriptionSource } from "./instructionTranscriptionSource.ts";
 import {
   instructionAudioLimitBytes,
   instructionRecordingTypes,
-  instructionTranscriptionEndpoint,
   instructionSetupRequired,
   instructionRecordingTooLarge,
-  instructionTranscriptionFailed,
   instructionProblems,
   safeInstructionProblem,
   microphoneProblem,
@@ -26,7 +24,10 @@ type Operation = {
   explicitlyStopped?: boolean;
 };
 
-export function useInstructionRecording(append: (text: string) => void) {
+export function useInstructionRecording(
+  source: InstructionTranscriptionSource,
+  append: (text: string) => void,
+) {
   const [phase, setPhase] = useState<Phase>("ready");
   const [problem, setProblem] = useState<string>();
   const [setupRequired, setSetupRequired] = useState(false);
@@ -68,24 +69,16 @@ export function useInstructionRecording(append: (text: string) => void) {
       setPhase("ready");
       setProblem(message);
     };
+    const failTranscription = (message: unknown) => {
+      failed(safeInstructionProblem(message, instructionProblems.network));
+    };
     let readingConfiguration = true;
     try {
-      const status = await fetch(openAIConfigurationEndpoint, {
-        signal: own.controller.signal,
-      });
-      const configuration: unknown = await status.json();
+      const configured = await source.configured(own.controller.signal);
       if (!current()) {
         return;
       }
-      if (!status.ok) {
-        throw new Error(instructionProblems.configuration);
-      }
-      if (
-        typeof configuration === "object" &&
-        configuration !== null &&
-        "configured" in configuration &&
-        configuration.configured === false
-      ) {
+      if (!configured) {
         setSetupRequired(true);
         failed(instructionSetupRequired);
         return;
@@ -145,47 +138,24 @@ export function useInstructionRecording(append: (text: string) => void) {
         void (async () => {
           try {
             const audio = new Blob(chunks, { type: recorder.mimeType });
-            const response = await fetch(instructionTranscriptionEndpoint, {
-              method: "POST",
-              body: audio,
-              signal: own.controller.signal,
-            });
-            const answer: unknown = await response.json();
+            const answer = await source.transcribe(
+              audio,
+              own.controller.signal,
+            );
             if (!current()) {
               return;
             }
-            if (typeof answer !== "object" || answer === null) {
-              throw new Error(instructionProblems.empty);
-            }
-            if (!response.ok) {
-              if ("setupRequired" in answer && answer.setupRequired === true) {
-                setSetupRequired(true);
-              }
-              throw new Error(
-                "error" in answer && typeof answer.error === "string"
-                  ? safeInstructionProblem(
-                      answer.error,
-                      instructionTranscriptionFailed,
-                    )
-                  : instructionTranscriptionFailed,
-              );
-            }
-            if (
-              !("text" in answer) ||
-              typeof answer.text !== "string" ||
-              !answer.text.trim()
-            ) {
-              throw new Error(instructionProblems.empty);
+            if ("problem" in answer) {
+              if (answer.setupRequired) setSetupRequired(true);
+              failTranscription(answer.problem);
+              return;
             }
             operation.current = undefined;
             setPhase("ready");
             append(answer.text);
           } catch (error) {
-            failed(
-              safeInstructionProblem(
-                error instanceof Error ? error.message : undefined,
-                instructionProblems.network,
-              ),
+            failTranscription(
+              error instanceof Error ? error.message : undefined,
             );
           }
         })();

@@ -477,9 +477,9 @@ Playwright selection ran.
   - Observed effect: one discarded three-run timing set and extra solo runs; no wrong result was accepted.
   - Inference: `scripts/test-frontend.mjs` could report the Playwright selection's case count, or refuse a mixed selection, until the North Star's Playwright removal from `dashboard/frontend-tests/` retires the dual runner.
 
-<a id="dd-612"></a>
+<a id="dd-617"></a>
 
-## DD-612 — One implementer's concurrent Distribution and backend suites pushed two untouched backend cases past Vitest's 5 s default
+## DD-617 — One implementer's concurrent Distribution and backend suites pushed two untouched backend cases past Vitest's 5 s default
 
 ### Occurrences
 - Execution: SEED-418#attribute-every-workflow-session-record (plan 747; first implementation `e8231e9af`)
@@ -491,9 +491,9 @@ Playwright selection ran.
   - Observed effect: two false failures, a rerun and a flake disposition question to the developer.
   - Inference: plan 747's local gates name the runners but not serial runs. This is related to ODF-209 (concurrent proof load), but here the concurrency was inside one agent. Whether SEED-421's fix gives these cases margin is unchecked.
 
-<a id="dd-613"></a>
+<a id="dd-618"></a>
 
-## DD-613 — A failed Trunk closure in the owned-context evaluation surfaces only as the 180 s job deadline
+## DD-618 — A failed Trunk closure in the owned-context evaluation surfaces only as the 180 s job deadline
 
 ### Occurrences
 - Execution: SEED-418#attribute-every-workflow-session-record (plan 747; first implementation `e8231e9af`)

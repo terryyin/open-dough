@@ -8,8 +8,8 @@
 // beside it.
 
 import { useEffect, useState } from "react";
-import { readIntentCiHistory } from "./authenticatedIntentCiHistoryRead.ts";
 import { unreadMeasureHistoryReason } from "./ciHistoryMeasureCapability.ts";
+import { useIntentCiReads } from "./pageReads.tsx";
 import type { MeasuredHistory } from "./landedCiHistory.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
@@ -24,6 +24,7 @@ export function useIntentCiHistory(
   source: PublishedSource,
   round: string | undefined,
 ): HistoryReading | undefined {
+  const { readHistory } = useIntentCiReads();
   const [shown, setShown] = useState<MeasuredHistory | undefined>(undefined);
   const [failed, setFailed] = useState<string | undefined>(undefined);
   // Another source's history is never shown as this one's.
@@ -37,7 +38,7 @@ export function useIntentCiHistory(
   useEffect(() => {
     if (round === undefined) return;
     const controller = new AbortController();
-    void readIntentCiHistory(source, controller.signal).then(
+    void readHistory(source, controller.signal).then(
       (history) => {
         if (controller.signal.aborted) return;
         setShown(history);
@@ -55,7 +56,7 @@ export function useIntentCiHistory(
     return () => {
       controller.abort();
     };
-  }, [source, round]);
+  }, [source, round, readHistory]);
 
   if (round === undefined) return undefined;
   return readFor === source.id

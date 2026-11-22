@@ -1,96 +1,59 @@
-// A Sessions sidebar choice whose story card lies in a hidden Board
-// Column shows that column, then brings the card into view as it does in a
-// shown one, and the Board reaches the Column's whole length again. That a
-// choice shows a local Taken entry hidden the same way
-// is ../../../e2e/sessions/sessions-sidebar-navigation-cases.spec.ts and
-// ../sessions/agent-launch-ad-hoc-sessions.spec.ts; how focus shows a hidden
-// column is ./board-paging.spec.ts.
+import { expect, test, vi } from "vitest";
+import { mountBoard, withBoardStorage } from "./board-mount.ts";
+import { boardReading as board } from "./board-reading-page.ts";
+import {
+  answerTerminal,
+  backlogCard,
+  machineWorking,
+  openRecord,
+  openSidebarSession,
+  sessions,
+  sidebar,
+} from "./board-session-view.ts";
+import { withWidthStorage } from "./side-panel-width-view.ts";
+import { boardWork, story } from "./board-work.ts";
 
-import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { cardSession } from "../../test-support/support/frontendCardSessions.ts";
-import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
-import {
-  notRefinedStory,
-  readyStory,
-} from "../../test-support/launchJourney.ts";
-import {
-  sessionsSidebarParts,
-  sessionsSidebarTitleCut,
-} from "../../test-support/sessionsSidebarPage.ts";
-import {
-  expectRevealsSince,
-  recordReveals,
-  revealsOf,
-} from "../../test-support/sessionNavigationJourney.ts";
-import {
-  expectEndsWithShown,
-  expectView,
-  showColumn,
-} from "../../test-support/boardPage.ts";
-import {
-  box,
-  expectTopBarsShareHeight,
-} from "../../test-support/pageLayout.ts";
-import { scrollsOnItsOwn } from "../../test-support/sidePanelWidthPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-
-test("a session whose story card is hidden shows its column and brings the card into view", async ({
-  page,
-  frontendServices,
-}) => {
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        cardSession(
-          "Execution",
-          readyStory,
-          makeMe.aSessionState.loaded("working").please(),
-        ),
-      )
-      .please(),
+test("a Session sidebar choice pages to a hidden column and brings its card into the Board's reading room", async () => {
+  withBoardStorage("0");
+  withWidthStorage();
+  answerTerminal();
+  const ready = story("Read the working session", 12);
+  const last = story("Read the last queued story", 13);
+  await mountBoard(
+    [boardWork([ready, last])],
+    { width: 1400, height: 900 },
+    machineWorking(openRecord(ready)),
   );
-  await installAttachedTerminalSubstitute(page);
-  await recordReveals(page);
-  await openFrontendTakenBacklog(page);
-  const card = (title: string) =>
-    parts(page).backlog.getByRole("article", { name: title, exact: true });
-  const { button, entry } = sessionsSidebarParts(page);
-  const panel = terminalPanel(page);
-  await button.click();
+  await sessions.click();
+  await expect.element(sidebar).toBeVisible();
+  await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
+  await board.control("Recently done").click();
+  await board.shows(["Taken", "Recently done"], ["Backlog 2 entries"]);
+  const card = backlogCard(ready.title);
+  expect(board.inReadingRoom(card.element())).toBe(false);
 
-  await test.step("beside the sidebar, the developer shows Recently done, hiding Backlog", async () => {
-    await showColumn(page, "Recently done");
-    await expect(card(readyStory)).not.toBeInViewport();
-  });
-
-  await test.step("choosing the story's session shows Backlog, the one column beside the terminal, with its card in view", async () => {
-    const revealed = (await revealsOf(page)).length;
-    await entry(readyStory).click();
-    await expect(panel.getByRole("heading")).toHaveText(readyStory);
-    await expectTopBarsShareHeight(page, 3);
-    // The sidebar's entries and panel header title truncate by design
-    // (./SidePanelTitle.tsx); read whole by tooltip / disclosure.
-    await expectView(
-      page,
-      ["Backlog"],
-      ["Taken 1 entry"],
-      [...scrollsOnItsOwn, sessionsSidebarTitleCut, ".side-panel-title-toggle"],
-    );
-    await expect(card(readyStory)).toBeInViewport();
-    await expectRevealsSince(page, revealed, readyStory, "smooth");
-    await expect(card(readyStory).getByText("Shown in terminal")).toBeVisible();
-  });
-
-  await test.step("Backlog has its whole length back: read to the page's end, its last card ends the page", async () => {
-    const { x, y, width } = await box(card(readyStory));
-    await page.mouse.move(x + width / 2, y + 1);
-    await expectEndsWithShown(page, ["Backlog"]);
-    await expect(card(notRefinedStory)).toBeInViewport({ ratio: 1 });
-  });
+  const reveal = vi.spyOn(card.element(), "scrollIntoView");
+  await openSidebarSession(ready.title);
+  await board.shows(["Backlog"], ["Taken 1 entry"]);
+  await expect.poll(() => board.inReadingRoom(card.element())).toBe(true);
+  await expect
+    .element(card.getByText("Shown in terminal", { exact: true }))
+    .toBeVisible();
+  await board.expectStorySelection(card, true);
+  expect(reveal).toHaveBeenCalledWith(
+    expect.objectContaining({ behavior: "smooth" }),
+  );
+  const rows = [
+    ...document.querySelectorAll(
+      ".banner, .sessions-sidebar-title-row, .side-panel-header",
+    ),
+  ];
+  const edges = rows
+    .map((row) => row.getBoundingClientRect())
+    .filter(({ height }) => height > 0)
+    .map(({ top, bottom }) => [top, bottom]);
+  expect(edges).toHaveLength(3);
+  expect(edges).toEqual(Array.from({ length: 3 }, () => edges[0]));
+  await board.endsWith(["Backlog"]);
+  expect(board.inReadingRoom(backlogCard(last.title).element())).toBe(true);
 });

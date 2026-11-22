@@ -1,0 +1,1527 @@
+diff --git a/Distribution/tests/support/comparisonViewTestData.mjs b/Distribution/tests/support/comparisonViewTestData.mjs
+index c8d321bec..a3ab4c436 100644
+--- a/Distribution/tests/support/comparisonViewTestData.mjs
++++ b/Distribution/tests/support/comparisonViewTestData.mjs
+@@ -64,15 +64,7 @@ export class PublishedWorkBuilder {
+   of(source) {
+     return {
+       /** @param {string} revision the published revision read */
+-      at: (revision) =>
+-        this.with({
+-          source,
+-          revision,
+-          retrievedAt: new Date("2026-11-05T08:00:00.000Z"),
+-          direction: "",
+-          taken: [],
+-          backlog: [],
+-        }),
++      at: (revision) => new PublishedWorkAtBuilder(source, revision),
+     };
+   }
+ 
+@@ -82,6 +74,77 @@ export class PublishedWorkBuilder {
+   }
+ }
+ 
++/** @typedef {import("../../../dashboard/src/publishedWork.ts").WorkEntry} WorkEntry */
++
++// A project's work read at a revision, with the stories it has Taken.
++class PublishedWorkAtBuilder {
++  /** @type {WorkEntry[]} */
++  #taken = [];
++  #retrievedAt = new Date("2026-11-05T08:00:00.000Z");
++
++  /**
++   * @param {import("../../../dashboard/src/publishedSource.ts").PublishedSource} source
++   * @param {string} revision
++   */
++  constructor(source, revision) {
++    this.source = source;
++    this.revision = revision;
++  }
++
++  /** @param {Date} when the read's time */
++  retrievedAt(when) {
++    this.#retrievedAt = when;
++    return this;
++  }
++
++  /**
++   * A Taken story assigned to `agent` (default `engineer`) on its story
++   * branch in Claude, with `facts` the entry adds.
++   * @param {{ readonly identity: string; readonly title: string; readonly branch: string; readonly agent?: string }} story
++   * @param {Partial<WorkEntry>} [facts]
++   */
++  taking({ identity, title, branch, agent = "engineer" }, facts = {}) {
++    this.#taken.push({
++      identity,
++      title,
++      canonical: {
++        kind: "external",
++        recorded: "https://example.test/story",
++        url: "https://example.test/story",
++      },
++      owner: {
++        status: "recorded",
++        assignments: [
++          {
++            profilePath: `.planning/agents/${agent}.json`,
++            name: agent,
++            agent,
++            mode: "story-branch",
++            branch,
++            host: "claude",
++            model: undefined,
++            human: { status: "no-addition" },
++          },
++        ],
++      },
++      ...facts,
++    });
++    return this;
++  }
++
++  /** @returns {import("../../../dashboard/src/publishedWork.ts").PublishedWork} */
++  please() {
++    return {
++      source: this.source,
++      revision: this.revision,
++      retrievedAt: this.#retrievedAt,
++      direction: "",
++      taken: this.#taken.map((entry) => structuredClone(entry)),
++      backlog: [],
++    };
++  }
++}
++
+ export class StoryCiComparisonBuilder {
+   /** @template {import("../../../dashboard/src/storyCiComparison.ts").StoryCiComparisonAnswer} Facts @param {Facts} facts */
+   with(facts) {
+diff --git a/dashboard/frontend-tests/intent/intent-ci-homepage-page.ts b/dashboard/frontend-tests/intent/intent-ci-homepage-page.ts
+new file mode 100644
+index 000000000..6834a91f2
+--- /dev/null
++++ b/dashboard/frontend-tests/intent/intent-ci-homepage-page.ts
+@@ -0,0 +1,90 @@
++// The CI homepage's projects and the Files column, location and folder
++// controls its cases operate.
++import { expect } from "vitest";
++import { page, userEvent } from "vitest/browser";
++import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
++import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
++import type { PublishedSource } from "../../src/publishedSource.ts";
++import type { PublishedWork } from "../../src/publishedWork.ts";
++import { intentViewTab } from "./intent-candidates-page.ts";
++import { fullSha } from "./intent-ci-status-fixtures.ts";
++
++export const workOf = (
++  source: PublishedSource,
++  shortSha: string,
++): PublishedWork =>
++  makeMe.aPublishedWork.of(source).at(fullSha(shortSha)).please();
++
++export const doughnutSource: PublishedSource = makeMe.aPublishedSource
++  .with({
++    id: "doughnut",
++    label: "Doughnut",
++    repository: "nerds-odd-e/doughnut",
++    ref: "main",
++  })
++  .please();
++
++export const filesColumnVisible = () =>
++  document.querySelector<HTMLElement>(".intent-locations")?.checkVisibility() ??
++  false;
++
++export async function activateChosenCiTab(how: "click" | "Enter" | "Space") {
++  const tab = intentViewTab("CI status");
++  if (how === "click") {
++    await userEvent.click(tab);
++  } else {
++    tab.element().focus();
++    await userEvent.keyboard(how === "Enter" ? "{Enter}" : " ");
++  }
++  await expect.element(tab).toHaveAttribute("aria-selected", "true");
++}
++
++export function presentElement<T>(found: T | null | undefined): T {
++  if (found === null || found === undefined) {
++    throw new Error("Expected element in document");
++  }
++  return found;
++}
++
++export async function expandLocationAndFolders(locationPath: string) {
++  const bodyId = `${intentLocationIdPrefix(locationPath)}-body`;
++  const locationToggle = () =>
++    document.querySelector<HTMLButtonElement>(
++      `button.intent-location-toggle[aria-controls="${bodyId}"]`,
++    );
++  await expect.poll(() => locationToggle() !== null).toBe(true);
++  await userEvent.click(page.elementLocator(presentElement(locationToggle())));
++  await expect
++    .poll(() => locationToggle()?.getAttribute("aria-expanded"))
++    .toBe("true");
++  const nestedToggle = () =>
++    document.querySelector<HTMLButtonElement>(
++      `#${CSS.escape(bodyId)} button.story-review-folder`,
++    );
++  await expect.poll(() => nestedToggle() !== null).toBe(true);
++  await userEvent.click(page.elementLocator(presentElement(nestedToggle())));
++  await expect
++    .poll(() => nestedToggle()?.getAttribute("aria-expanded"))
++    .toBe("true");
++  return locationToggle;
++}
++
++export const locationNameControl = (locationPath: string) =>
++  page.elementLocator(
++    presentElement(
++      document.querySelector<HTMLElement>(
++        `button.intent-location-name[data-location-path="${locationPath}"]`,
++      ),
++    ),
++  );
++
++export const folderNameControl = (folderName: string) =>
++  page.elementLocator(
++    presentElement(
++      [
++        ...document.querySelectorAll<HTMLElement>(
++          "button.story-review-folder-name",
++        ),
++      ].find((button) => button.textContent.includes(folderName)),
++    ),
++  );
+diff --git a/dashboard/frontend-tests/intent/intent-ci-page-mount.ts b/dashboard/frontend-tests/intent/intent-ci-page-mount.ts
+new file mode 100644
+index 000000000..83d567824
+--- /dev/null
++++ b/dashboard/frontend-tests/intent/intent-ci-page-mount.ts
+@@ -0,0 +1,148 @@
++// The production page frame around the project's Board or Intent body
++// (../../src/boardOrIntent.tsx), as ../../src/ConfiguredDashboard.tsx
++// composes them, with the case's work, machine and page reads. The case
++// switches between Development and Intent, and to another project's work,
++// as the route does.
++import { createElement, useEffect } from "react";
++import { expect } from "vitest";
++import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
++import type { MachineAnswer } from "../../src/agentLaunch.ts";
++import { BoardOrIntent } from "../../src/boardOrIntent.tsx";
++import { FollowUpNavigationOnPage } from "../../src/ciFollowUpNavigation.tsx";
++import { LaunchesOnPage } from "../../src/pageLaunches.ts";
++import { PageFrame } from "../../src/PageFrame.tsx";
++import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
++import { ProjectsOnPage } from "../../src/projectList.tsx";
++import type { PublishedWork } from "../../src/publishedWork.ts";
++import { StoryReferenceNavigation } from "../../src/storyNavigation.tsx";
++import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
++import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
++import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
++import { unavailableReviewSource } from "./intent-ci-status-fixtures.ts";
++
++type Shown = { readonly work: PublishedWork; readonly showsIntent: boolean };
++
++// Reports each view of work the page committed.
++function CommittedView({
++  shown,
++  onCommit,
++}: {
++  readonly shown: Shown;
++  readonly onCommit: (committed: Shown) => void;
++}) {
++  useEffect(() => {
++    onCommit(shown);
++  }, [onCommit, shown]);
++  return null;
++}
++
++export async function mountIntentCiPage({
++  work,
++  projects = [work.source],
++  machine = makeMe.aMachineAnswer.please(),
++  readSource,
++  ciReads,
++  sessions,
++}: {
++  readonly work: PublishedWork;
++  readonly projects?: readonly PublishedWork["source"][];
++  readonly machine?: MachineAnswer;
++  readonly readSource: PageReads["intent"];
++  readonly ciReads: PageReads["ci"];
++  readonly sessions?: PageReads["sessions"];
++}) {
++  const launches = machineSessionsAnswering(machine);
++  const pageReads = pageReadsSupplying({
++    intent: readSource,
++    ci: ciReads,
++    review: unavailableReviewSource,
++    ...(sessions && { sessions }),
++  });
++  let shown: Shown = { work, showsIntent: true };
++  let committed: Shown | undefined;
++  const onCommit = (next: Shown) => {
++    committed = next;
++  };
++  const render = () => {
++    const { source } = shown.work;
++    const body = createElement(
++      "div",
++      {
++        className: shown.showsIntent ? "intent-scroll" : "board-scroll",
++      },
++      createElement(
++        "div",
++        { className: "scroll-content" },
++        createElement(BoardOrIntent, {
++          source,
++          work: shown.work,
++          launches,
++          showsBoard: !shown.showsIntent,
++          showsIntent: shown.showsIntent,
++          followUp: undefined,
++          visibility: "visible",
++          limitStands: false,
++          openRoster: () => undefined,
++        }),
++      ),
++    );
++    const frame = createElement(PageFrame, {
++      sessions: launches,
++      stories: {
++        selected: source.id,
++        shown: shown.showsIntent ? undefined : source.id,
++        show: () => undefined,
++        select: () => undefined,
++        development: !shown.showsIntent,
++        work: shown.work,
++      },
++      children: [
++        createElement(CommittedView, { key: "committed", shown, onCommit }),
++        createElement(StoryReferenceNavigation, {
++          key: "body",
++          projects,
++          selected: source.id,
++          work: shown.work,
++          reading: false,
++          failure: undefined,
++          show: () => undefined,
++          retry: () => undefined,
++          suspended: shown.showsIntent,
++          children: () => body,
++        }),
++      ],
++    });
++    return createElement(
++      PageReadsOnPage,
++      { reads: pageReads },
++      createElement(ProjectsOnPage, {
++        projects,
++        replaceProjects: () => undefined,
++        children: createElement(
++          LaunchesOnPage,
++          { value: launches },
++          createElement(
++            FollowUpNavigationOnPage,
++            { value: () => undefined },
++            frame,
++          ),
++        ),
++      }),
++    );
++  };
++  const mounted = await mountComponent(render(), {
++    viewport: { width: 1280, height: 800 },
++    fillsViewport: true,
++  });
++  // Each view change returns once the page committed it.
++  const show = async (next: Shown) => {
++    shown = next;
++    mounted.rerender(render());
++    await expect.poll(() => committed).toBe(next);
++  };
++  return {
++    showDevelopment: () => show({ ...shown, showsIntent: false }),
++    showIntent: () => show({ ...shown, showsIntent: true }),
++    showWork: (next: PublishedWork) => show({ ...shown, work: next }),
++  };
++}
+diff --git a/dashboard/frontend-tests/intent/intent-ci-perspective-mount.ts b/dashboard/frontend-tests/intent/intent-ci-perspective-mount.ts
+deleted file mode 100644
+index 9075bdff0..000000000
+--- a/dashboard/frontend-tests/intent/intent-ci-perspective-mount.ts
++++ /dev/null
+@@ -1,199 +0,0 @@
+-// Minimal production IntentPerspective mount and homepage page helpers.
+-import { createElement, useEffect } from "react";
+-import { expect } from "vitest";
+-import { page, userEvent } from "vitest/browser";
+-import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+-import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
+-import { IntentPerspective } from "../../src/IntentPerspective.tsx";
+-import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
+-import { IntentPageProviders } from "../../src/intentPageProviders.tsx";
+-import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
+-import type { IntentReadSource } from "../../src/intentReadSource.ts";
+-import { PageReadsOnPage } from "../../src/pageReads.tsx";
+-import {
+-  StorySelectionProvider,
+-  usePageStorySelection,
+-} from "../../src/pageStorySelection.tsx";
+-import type { PublishedSource } from "../../src/publishedSource.ts";
+-import type { PublishedWork } from "../../src/publishedWork.ts";
+-import type { ReviewSource } from "../../src/reviewSource.ts";
+-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+-import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+-import { intentViewTab } from "./intent-candidates-page.ts";
+-import { fullSha } from "./intent-ci-status-fixtures.ts";
+-
+-export const workOf = (
+-  source: PublishedSource,
+-  shortSha: string,
+-): PublishedWork =>
+-  makeMe.aPublishedWork.of(source).at(fullSha(shortSha)).please();
+-
+-export const doughnutSource: PublishedSource = makeMe.aPublishedSource
+-  .with({
+-    id: "doughnut",
+-    label: "Doughnut",
+-    repository: "nerds-odd-e/doughnut",
+-    ref: "main",
+-  })
+-  .please();
+-
+-export const unavailableReviewSource: ReviewSource = {
+-  review: () =>
+-    Promise.resolve({
+-      kind: "unavailable",
+-      explanation: "No local review workspace is available.",
+-    }),
+-  range: () => Promise.reject(new Error("Unexpected review range read")),
+-  fileDiff: () => Promise.reject(new Error("Unexpected review file diff read")),
+-  fileText: () => Promise.reject(new Error("Unexpected review file text read")),
+-};
+-
+-function PerspectiveScene({
+-  work,
+-  showsIntent,
+-  onCommit,
+-}: {
+-  readonly work: PublishedWork;
+-  readonly showsIntent: boolean;
+-  readonly onCommit: (committed: PublishedWork) => void;
+-}) {
+-  const selection = usePageStorySelection();
+-  useEffect(() => {
+-    onCommit(work);
+-  }, [onCommit, work]);
+-  return createElement(StorySelectionProvider, {
+-    selection,
+-    children: createElement(IntentPageProviders, {
+-      project: work.source.id,
+-      children:
+-        showsIntent &&
+-        createElement(IntentReadRecovery, {
+-          visibility: "visible",
+-          limitStands: false,
+-          children: createElement(IntentPerspective, {
+-            source: work.source,
+-            work,
+-            records: [],
+-            workspaces: [],
+-          }),
+-        }),
+-    }),
+-  });
+-}
+-
+-export async function mountIntentPerspective({
+-  work,
+-  readSource,
+-  ciReads,
+-}: {
+-  readonly work: PublishedWork;
+-  readonly readSource: IntentReadSource;
+-  readonly ciReads: IntentCiReadSource;
+-}) {
+-  let currentWork = work;
+-  let committedWork: PublishedWork | undefined;
+-  let currentShown = true;
+-  const onCommit = (committed: PublishedWork) => {
+-    committedWork = committed;
+-  };
+-  const render = () =>
+-    createElement(
+-      PageReadsOnPage,
+-      {
+-        reads: pageReadsSupplying({
+-          intent: readSource,
+-          ci: ciReads,
+-          review: unavailableReviewSource,
+-        }),
+-      },
+-      createElement(PerspectiveScene, {
+-        work: currentWork,
+-        showsIntent: currentShown,
+-        onCommit,
+-      }),
+-    );
+-  const mounted = await mountComponent(render(), {
+-    viewport: { width: 1280, height: 800 },
+-    fillsViewport: true,
+-  });
+-  return {
+-    showDevelopment() {
+-      currentShown = false;
+-      mounted.rerender(render());
+-    },
+-    showIntent() {
+-      currentShown = true;
+-      mounted.rerender(render());
+-    },
+-    async showWork(next: PublishedWork) {
+-      currentWork = next;
+-      mounted.rerender(render());
+-      await expect.poll(() => committedWork).toBe(next);
+-    },
+-  };
+-}
+-
+-export const filesColumnVisible = () =>
+-  document.querySelector<HTMLElement>(".intent-locations")?.checkVisibility() ??
+-  false;
+-
+-export async function activateChosenCiTab(how: "click" | "Enter" | "Space") {
+-  const tab = intentViewTab("CI status");
+-  if (how === "click") {
+-    await userEvent.click(tab);
+-  } else {
+-    tab.element().focus();
+-    await userEvent.keyboard(how === "Enter" ? "{Enter}" : " ");
+-  }
+-  await expect.element(tab).toHaveAttribute("aria-selected", "true");
+-}
+-
+-export function presentElement<T>(found: T | null | undefined): T {
+-  if (found === null || found === undefined) {
+-    throw new Error("Expected element in document");
+-  }
+-  return found;
+-}
+-
+-export async function expandLocationAndFolders(locationPath: string) {
+-  const bodyId = `${intentLocationIdPrefix(locationPath)}-body`;
+-  const locationToggle = () =>
+-    document.querySelector<HTMLButtonElement>(
+-      `button.intent-location-toggle[aria-controls="${bodyId}"]`,
+-    );
+-  await expect.poll(() => locationToggle() !== null).toBe(true);
+-  await userEvent.click(page.elementLocator(presentElement(locationToggle())));
+-  await expect
+-    .poll(() => locationToggle()?.getAttribute("aria-expanded"))
+-    .toBe("true");
+-  const nestedToggle = () =>
+-    document.querySelector<HTMLButtonElement>(
+-      `#${CSS.escape(bodyId)} button.story-review-folder`,
+-    );
+-  await expect.poll(() => nestedToggle() !== null).toBe(true);
+-  await userEvent.click(page.elementLocator(presentElement(nestedToggle())));
+-  await expect
+-    .poll(() => nestedToggle()?.getAttribute("aria-expanded"))
+-    .toBe("true");
+-  return locationToggle;
+-}
+-
+-export const locationNameControl = (locationPath: string) =>
+-  page.elementLocator(
+-    presentElement(
+-      document.querySelector<HTMLElement>(
+-        `button.intent-location-name[data-location-path="${locationPath}"]`,
+-      ),
+-    ),
+-  );
+-
+-export const folderNameControl = (folderName: string) =>
+-  page.elementLocator(
+-    presentElement(
+-      [
+-        ...document.querySelectorAll<HTMLElement>(
+-          "button.story-review-folder-name",
+-        ),
+-      ].find((button) => button.textContent.includes(folderName)),
+-    ),
+-  );
+diff --git a/dashboard/frontend-tests/intent/intent-ci-side-panel-mount.ts b/dashboard/frontend-tests/intent/intent-ci-side-panel-mount.ts
+deleted file mode 100644
+index 611f3ac00..000000000
+--- a/dashboard/frontend-tests/intent/intent-ci-side-panel-mount.ts
++++ /dev/null
+@@ -1,241 +0,0 @@
+-// Minimal production side-panel and story-selection mount for CI status specs.
+-import { createElement, useState } from "react";
+-import { storyCardAssignmentsOf } from "../../src/agentAssignments.ts";
+-import {
+-  launchSubject,
+-  storyCardSessionsOf,
+-  type LaunchWithState,
+-} from "../../src/agentLaunch.ts";
+-import type { MachineSessions } from "../../src/agentLaunches.ts";
+-import { IntentPerspective } from "../../src/IntentPerspective.tsx";
+-import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
+-import { IntentPageProviders } from "../../src/intentPageProviders.tsx";
+-import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
+-import type { IntentReadSource } from "../../src/intentReadSource.ts";
+-import { PageReadsOnPage } from "../../src/pageReads.tsx";
+-import { SessionsOnPage } from "../../src/pageSessions.ts";
+-import { usePageSidePanel } from "../../src/pageSidePanel.ts";
+-import {
+-  StorySelectionProvider,
+-  toggleOnEmptyArea,
+-  usePageStorySelection,
+-  useStorySelection,
+-} from "../../src/pageStorySelection.tsx";
+-import { ProjectsOnPage } from "../../src/projectList.tsx";
+-import type { PublishedWork, WorkEntry } from "../../src/publishedWork.ts";
+-import { useRecentlyDoneRange } from "../../src/recentlyDoneRange.ts";
+-import {
+-  SessionsButton,
+-  SessionsSidebarOnPage,
+-  useSessionsSidebar,
+-} from "../../src/SessionsSidebar.tsx";
+-import { sessionsSidebarId } from "../../src/sessionsSidebarElements.ts";
+-import { SessionsSidebarOpenList } from "../../src/SessionsSidebarOpenList.tsx";
+-import { SidePanelTitle } from "../../src/SidePanelTitle.tsx";
+-import { storyCardMarks } from "../../src/storyCardFocus.ts";
+-import { StoryCardSessions } from "../../src/StoryCardSessions.tsx";
+-import "../../src/side-panel.css";
+-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+-import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+-import { unavailableReviewSource } from "./intent-ci-perspective-mount.ts";
+-
+-function TakenSelectionCards({
+-  work,
+-  records,
+-}: {
+-  readonly work: PublishedWork;
+-  readonly records: readonly LaunchWithState[];
+-}) {
+-  const { selectedIdentity, toggle } = useStorySelection(work.source.id);
+-  return createElement(
+-    "main",
+-    { "aria-label": "Development" },
+-    work.taken.map((entry: WorkEntry) =>
+-      createElement(
+-        "article",
+-        {
+-          key: entry.identity,
+-          className: `story-card${selectedIdentity === entry.identity ? " story-card-selected" : ""}`,
+-          "aria-label": entry.title,
+-          onClick: toggleOnEmptyArea(() => {
+-            toggle(entry.identity);
+-          }),
+-          ...storyCardMarks(entry.identity),
+-        },
+-        createElement("h3", null, entry.title),
+-        createElement(StoryCardSessions, {
+-          sessions: storyCardSessionsOf(
+-            records,
+-            work.source.id,
+-            entry.identity,
+-          ),
+-          launchedHere: undefined,
+-          storyCardAssignments: storyCardAssignmentsOf(entry),
+-        }),
+-      ),
+-    ),
+-  );
+-}
+-
+-function SidePanelIntentFrame({
+-  work,
+-  records,
+-  hostOperations,
+-}: {
+-  readonly work: PublishedWork;
+-  readonly records: readonly LaunchWithState[];
+-  readonly hostOperations: MachineSessions["hostOperations"];
+-}) {
+-  const [perspective, setPerspective] = useState<"development" | "intent">(
+-    "intent",
+-  );
+-  const selection = usePageStorySelection();
+-  const range = useRecentlyDoneRange(work.source.id);
+-  const sidebar = useSessionsSidebar(records, { available: true });
+-  const sidePanel = usePageSidePanel({
+-    markDone: () => Promise.resolve("marked" as const),
+-    markRead: () => Promise.resolve(true),
+-    deleteRecord: () => Promise.resolve({ kind: "deleted" as const }),
+-    recoverSession: () => Promise.resolve(undefined),
+-    stopSession: () => Promise.resolve(undefined),
+-    hostOperations,
+-    range,
+-    selection: selection.api,
+-  });
+-  const perspectiveButton = (label: string, next: "development" | "intent") =>
+-    createElement(
+-      "button",
+-      {
+-        type: "button",
+-        onClick: () => {
+-          setPerspective(next);
+-        },
+-      },
+-      label,
+-    );
+-  const shownPanel = (
+-    shown: typeof sidePanel.finalReport,
+-    label: string,
+-    className: string,
+-  ) =>
+-    shown !== undefined &&
+-    createElement(
+-      "section",
+-      { key: label, className, "aria-label": label },
+-      createElement(SidePanelTitle, {
+-        title: launchSubject(shown.record.request).title,
+-      }),
+-      createElement(
+-        "button",
+-        {
+-          type: "button",
+-          onClick: () => {
+-            sidePanel.close(shown);
+-          },
+-        },
+-        "Close",
+-      ),
+-    );
+-  const frameClass = `page-frame${sidebar.open ? " page-with-sessions-sidebar" : ""}${sidePanel.shown !== undefined ? " page-split" : ""}`;
+-  return createElement(ProjectsOnPage, {
+-    projects: [work.source],
+-    replaceProjects: () => undefined,
+-    children: createElement(SessionsOnPage, {
+-      value: sidePanel.sessions,
+-      children: createElement(SessionsSidebarOnPage, {
+-        value: sidebar,
+-        children: createElement(StorySelectionProvider, {
+-          selection,
+-          children: createElement(IntentPageProviders, {
+-            project: work.source.id,
+-            children: createElement(
+-              "div",
+-              { className: frameClass },
+-              createElement(
+-                "aside",
+-                {
+-                  id: sessionsSidebarId,
+-                  className: "sessions-sidebar",
+-                  "aria-label": "Sessions sidebar",
+-                  hidden: !sidebar.open,
+-                },
+-                createElement("h2", null, "Sessions"),
+-                createElement(SessionsSidebarOpenList, {
+-                  records,
+-                  alerts: sidebar.alerts,
+-                  open: sidebar.open,
+-                  onOpen: ({ record, control }) => {
+-                    const returnTo = sidebar.closeOverPage() ?? control;
+-                    sidePanel.openSession({ record, control: returnTo });
+-                  },
+-                }),
+-              ),
+-              createElement(
+-                "div",
+-                { className: "page-column" },
+-                createElement(
+-                  "header",
+-                  { className: "banner" },
+-                  createElement(SessionsButton, null),
+-                  perspectiveButton("Development", "development"),
+-                  perspectiveButton("Intent", "intent"),
+-                ),
+-                perspective === "development"
+-                  ? createElement(TakenSelectionCards, { work, records })
+-                  : createElement(IntentReadRecovery, {
+-                      visibility: "visible",
+-                      limitStands: false,
+-                      children: createElement(IntentPerspective, {
+-                        source: work.source,
+-                        work,
+-                        records,
+-                        workspaces: [],
+-                      }),
+-                    }),
+-              ),
+-              shownPanel(
+-                sidePanel.finalReport,
+-                "Final report",
+-                "side-panel final-report",
+-              ),
+-              shownPanel(sidePanel.terminal, "Terminal", "side-panel"),
+-            ),
+-          }),
+-        }),
+-      }),
+-    }),
+-  });
+-}
+-
+-export async function mountSidePanelIntentPage({
+-  work,
+-  records,
+-  hostOperations,
+-  readSource,
+-  ciReads,
+-}: {
+-  readonly work: PublishedWork;
+-  readonly records: readonly LaunchWithState[];
+-  readonly hostOperations: MachineSessions["hostOperations"];
+-  readonly readSource: IntentReadSource;
+-  readonly ciReads: IntentCiReadSource;
+-}) {
+-  await mountComponent(
+-    createElement(
+-      PageReadsOnPage,
+-      {
+-        reads: pageReadsSupplying({
+-          intent: readSource,
+-          ci: ciReads,
+-          review: unavailableReviewSource,
+-        }),
+-      },
+-      createElement(SidePanelIntentFrame, {
+-        work,
+-        records,
+-        hostOperations,
+-      }),
+-    ),
+-    { viewport: { width: 1280, height: 800 }, fillsViewport: true },
+-  );
+-}
+diff --git a/dashboard/frontend-tests/intent/intent-ci-status-fixtures.ts b/dashboard/frontend-tests/intent/intent-ci-status-fixtures.ts
+index 81bae762d..f6a3ae72a 100644
+--- a/dashboard/frontend-tests/intent/intent-ci-status-fixtures.ts
++++ b/dashboard/frontend-tests/intent/intent-ci-status-fixtures.ts
+@@ -16,7 +16,8 @@ import {
+   IntentReadingProvider,
+ } from "../../src/pageIntentReading.tsx";
+ import type { PublishedSource } from "../../src/publishedSource.ts";
+-import type { PublishedWork, WorkEntry } from "../../src/publishedWork.ts";
++import type { PublishedWork } from "../../src/publishedWork.ts";
++import type { ReviewSource } from "../../src/reviewSource.ts";
+ import { shownRunOf } from "../../src/shownCiProofRun.ts";
+ import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+ 
+@@ -80,38 +81,17 @@ export const runningStory = {
+   branch: "codex/running-story",
+ };
+ 
+-export function takenStoryEntry(story: {
+-  readonly identity: string;
+-  readonly title: string;
+-  readonly branch: string;
+-  readonly agent?: string;
+-}): WorkEntry {
+-  const profilePath = `.planning/agents/${story.agent ?? "engineer"}.json`;
+-  return {
+-    identity: story.identity,
+-    title: story.title,
+-    canonical: {
+-      kind: "external",
+-      recorded: "https://example.test/story",
+-      url: "https://example.test/story",
+-    },
+-    owner: {
+-      status: "recorded",
+-      assignments: [
+-        {
+-          profilePath,
+-          name: story.agent ?? "engineer",
+-          agent: story.agent ?? "engineer",
+-          mode: "story-branch",
+-          branch: story.branch,
+-          host: "claude",
+-          model: undefined,
+-          human: { status: "no-addition" },
+-        },
+-      ],
+-    },
+-  };
+-}
++// The review a case leaves unavailable, as with no local review workspace.
++export const unavailableReviewSource: ReviewSource = {
++  review: () =>
++    Promise.resolve({
++      kind: "unavailable",
++      explanation: "No local review workspace is available.",
++    }),
++  range: () => Promise.reject(new Error("Unexpected review range read")),
++  fileDiff: () => Promise.reject(new Error("Unexpected review file diff read")),
++  fileText: () => Promise.reject(new Error("Unexpected review file text read")),
++};
+ 
+ export function inertCiReads(
+   overrides: Partial<IntentCiReadSource> = {},
+diff --git a/dashboard/frontend-tests/intent/intent-ci-status-freshness.spec.ts b/dashboard/frontend-tests/intent/intent-ci-status-freshness.spec.ts
+index 4a9f2256c..547aff3e9 100644
+--- a/dashboard/frontend-tests/intent/intent-ci-status-freshness.spec.ts
++++ b/dashboard/frontend-tests/intent/intent-ci-status-freshness.spec.ts
+@@ -18,7 +18,6 @@ import {
+   mountIntentCiEvidence,
+   openDoughSource,
+   runningStory,
+-  takenStoryEntry,
+ } from "./intent-ci-status-fixtures.ts";
+ import { intentCiStatus } from "./intent-ci-status-page.ts";
+ 
+@@ -113,17 +112,11 @@ test("a cold load shows only a spinner until CI answers; a later failed refresh
+ 
+ test("a late trunk answer never appears after switching to a story branch that has a kept answer", async () => {
+   const work = makeMe.aPublishedWork
+-    .with({
+-      source: openDoughSource,
+-      revision: fullSha("4774f60"),
+-      retrievedAt: new Date("2026-11-05T12:00:00.000Z"),
+-      direction: "",
+-      taken: [
+-        takenStoryEntry({ ...failingStory, agent: "Akiho" }),
+-        takenStoryEntry({ ...runningStory, agent: "Sola" }),
+-      ],
+-      backlog: [],
+-    })
++    .of(openDoughSource)
++    .at(fullSha("4774f60"))
++    .retrievedAt(new Date("2026-11-05T12:00:00.000Z"))
++    .taking({ ...failingStory, agent: "Akiho" })
++    .taking({ ...runningStory, agent: "Sola" })
+     .please();
+ 
+   const mainPassed = judgedStatus("main", "pass", "4774f60", "Add login");
+diff --git a/dashboard/frontend-tests/intent/intent-ci-status-homepage.spec.ts b/dashboard/frontend-tests/intent/intent-ci-status-homepage.spec.ts
+index 11f5e3b24..7eddb42fb 100644
+--- a/dashboard/frontend-tests/intent/intent-ci-status-homepage.spec.ts
++++ b/dashboard/frontend-tests/intent/intent-ci-status-homepage.spec.ts
+@@ -23,10 +23,10 @@ import {
+   filesColumnVisible,
+   folderNameControl,
+   locationNameControl,
+-  mountIntentPerspective,
+   presentElement,
+   workOf,
+-} from "./intent-ci-perspective-mount.ts";
++} from "./intent-ci-homepage-page.ts";
++import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
+ import {
+   inertCiReads,
+   judgedStatus,
+@@ -64,8 +64,9 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
+     readFile: () => Promise.resolve(browseSpecText),
+     readCandidates: () => Promise.resolve({ status: "absent" }),
+   };
+-  const mounted = await mountIntentPerspective({
++  const mounted = await mountIntentCiPage({
+     work: openDoughWork,
++    projects: [openDoughSource, doughnutSource],
+     readSource,
+     ciReads: inertCiReads({
+       readStatus: () => Promise.resolve(login),
+@@ -157,9 +158,9 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
+   }
+ 
+   // Development and back shows the CI homepage again.
+-  mounted.showDevelopment();
++  await mounted.showDevelopment();
+   await expect.element(intentMain).not.toBeInTheDocument();
+-  mounted.showIntent();
++  await mounted.showIntent();
+   await ci.answers("Passed at a1b2c3d (Add login)");
+ 
+   // Not-configured: CI status beside the explanation.
+@@ -189,7 +190,7 @@ test("project CI remains readable while locations load, fail and recover without
+   });
+   let firstAttempt = true;
+ 
+-  await mountIntentPerspective({
++  await mountIntentCiPage({
+     work: coldWork,
+     readSource: {
+       readLocations: () => {
+diff --git a/dashboard/frontend-tests/intent/intent-ci-status-kept.spec.ts b/dashboard/frontend-tests/intent/intent-ci-status-kept.spec.ts
+index 2dfe5dbb6..f2795a1cc 100644
+--- a/dashboard/frontend-tests/intent/intent-ci-status-kept.spec.ts
++++ b/dashboard/frontend-tests/intent/intent-ci-status-kept.spec.ts
+@@ -11,22 +11,20 @@ import { page } from "vitest/browser";
+ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+ import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
+ import type { IntentReadSource } from "../../src/intentReadSource.ts";
+-import { watchedBranchHeads } from "../../src/progressSource.ts";
+ import type { PublishedWork } from "../../src/publishedWork.ts";
+ import { intentCandidates, intentViewTab } from "./intent-candidates-page.ts";
+ import {
+   doughnutSource,
+   filesColumnVisible,
+-  mountIntentPerspective,
+   workOf,
+-} from "./intent-ci-perspective-mount.ts";
++} from "./intent-ci-homepage-page.ts";
++import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
+ import {
+   failingStory,
+   fullSha,
+   inertCiReads,
+   judgedStatus,
+   openDoughSource,
+-  takenStoryEntry,
+ } from "./intent-ci-status-fixtures.ts";
+ import { intentCiStatus } from "./intent-ci-status-page.ts";
+ 
+@@ -59,8 +57,9 @@ test("CI homepage shows again across Development and back; Optimization Candidat
+       Promise.resolve({ status: "present", text: candidatesMarkdown }),
+   };
+ 
+-  const mounted = await mountIntentPerspective({
++  const mounted = await mountIntentCiPage({
+     work: openDoughWork,
++    projects: [openDoughSource, doughnutSource],
+     readSource,
+     ciReads: inertCiReads({
+       readStatus: () => Promise.resolve(login),
+@@ -75,9 +74,9 @@ test("CI homepage shows again across Development and back; Optimization Candidat
+     .element(intentViewTab("CI status"))
+     .toHaveAttribute("aria-selected", "true");
+   await ci.answers("Passed at a1b2c3d (Add login)");
+-  mounted.showDevelopment();
++  await mounted.showDevelopment();
+   await expect.element(intentMain).not.toBeInTheDocument();
+-  mounted.showIntent();
++  await mounted.showIntent();
+   await expect
+     .element(intentViewTab("CI status"))
+     .toHaveAttribute("aria-selected", "true");
+@@ -87,9 +86,9 @@ test("CI homepage shows again across Development and back; Optimization Candidat
+   // Optimization Candidates is kept across Development and back.
+   await candidates.choose();
+   await expect.poll(filesColumnVisible).toBe(false);
+-  mounted.showDevelopment();
++  await mounted.showDevelopment();
+   await expect.element(intentMain).not.toBeInTheDocument();
+-  mounted.showIntent();
++  await mounted.showIntent();
+   await candidates.isChosen();
+   await candidates.isRecordedAt(openDoughWork.revision);
+   expect(
+@@ -133,36 +132,32 @@ test("a new trunk revision asks for the homepage judgment again at the new head;
+     storyBranchHead: string,
+   ): PublishedWork =>
+     makeMe.aPublishedWork
+-      .with({
+-        source: openDoughSource,
+-        revision,
+-        retrievedAt: new Date(retrievedAt),
+-        direction: "",
+-        taken: [
+-          {
+-            ...takenStoryEntry({ ...failingStory, agent: "Akiho" }),
+-            planPath: ".planning/slice-plans/example/PLAN.md",
+-            planSlices: {
+-              status: "interpreted",
+-              slices: [
+-                {
+-                  index: 1,
+-                  name: "Slice 1",
+-                  type: "Behavior",
+-                  status: "planned",
+-                },
+-              ],
+-            },
+-            progressSource: {
+-              kind: "branch",
+-              branch: failingStory.branch,
+-              head: storyBranchHead,
+-              profilePath: ".planning/agents/Akiho.json",
+-            },
++      .of(openDoughSource)
++      .at(revision)
++      .retrievedAt(new Date(retrievedAt))
++      .taking(
++        { ...failingStory, agent: "Akiho" },
++        {
++          planPath: ".planning/slice-plans/example/PLAN.md",
++          planSlices: {
++            status: "interpreted",
++            slices: [
++              {
++                index: 1,
++                name: "Slice 1",
++                type: "Behavior",
++                status: "planned",
++              },
++            ],
+           },
+-        ],
+-        backlog: [],
+-      })
++          progressSource: {
++            kind: "branch",
++            branch: failingStory.branch,
++            head: storyBranchHead,
++            profilePath: ".planning/agents/Akiho.json",
++          },
++        },
++      )
+       .please();
+ 
+   const reads = { fresh: 0, kept: 0 };
+@@ -175,11 +170,8 @@ test("a new trunk revision asks for the homepage judgment again at the new head;
+     "2026-11-05T12:00:00.000Z",
+     initialBranchHead,
+   );
+-  expect(watchedBranchHeads(initialWork).get(failingStory.branch)).toBe(
+-    initialBranchHead,
+-  );
+ 
+-  const mounted = await mountIntentPerspective({
++  const mounted = await mountIntentCiPage({
+     work: initialWork,
+     readSource: {
+       readLocations: () => Promise.resolve(configuredLocations),
+@@ -214,9 +206,6 @@ test("a new trunk revision asks for the homepage judgment again at the new head;
+     "2026-11-05T12:02:30.000Z",
+     movedBranchHead,
+   );
+-  expect(watchedBranchHeads(movedBranchWork).get(failingStory.branch)).toBe(
+-    movedBranchHead,
+-  );
+   await mounted.showWork(movedBranchWork);
+   expect(reads).toEqual(firstReads);
+   expect(await ci.showsChecked()).toBe(firstCheck);
+diff --git a/dashboard/frontend-tests/intent/intent-ci-status-side-panel.spec.ts b/dashboard/frontend-tests/intent/intent-ci-status-side-panel.spec.ts
+index 44d9cc78d..ea4c12436 100644
+--- a/dashboard/frontend-tests/intent/intent-ci-status-side-panel.spec.ts
++++ b/dashboard/frontend-tests/intent/intent-ci-status-side-panel.spec.ts
+@@ -9,12 +9,13 @@
+ // terminal leaves Intent at project scope. The stories' saved workspaces are
+ // gone, so each card's session offers its final report.
+ 
+-import { expect, test } from "vitest";
++import { afterEach, expect, test, vi } from "vitest";
+ import { page, userEvent } from "vitest/browser";
+ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+ import type { LaunchWithState } from "../../src/agentLaunch.ts";
++import type { SessionServices } from "../../src/sessionServices.ts";
+ import { intentViewTab } from "./intent-candidates-page.ts";
+-import { mountSidePanelIntentPage } from "./intent-ci-side-panel-mount.ts";
++import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
+ import {
+   failingStory,
+   fullSha,
+@@ -22,7 +23,6 @@ import {
+   judgedStatus,
+   openDoughSource,
+   runningStory,
+-  takenStoryEntry,
+ } from "./intent-ci-status-fixtures.ts";
+ import { intentCiStatus } from "./intent-ci-status-page.ts";
+ 
+@@ -45,6 +45,58 @@ function goneWorkspaceSession(
+     .please();
+ }
+ 
++// The page's session services answering as the machine would: each final
++// report reads as available, the host status unread, and a terminal's socket
++// stays connecting.
++const sessionServices: SessionServices = {
++  readFinalReport: ({ session }) =>
++    Promise.resolve({
++      kind: "available",
++      turnId: `${session}-turn`,
++      text: "The story's work is done.",
++    }),
++  readHostStatus: () =>
++    Promise.resolve(
++      makeMe.aHostStatus.with({ cpuPercent: null, freeBytes: null }).please(),
++    ),
++  openTerminal: () => ({
++    binaryType: "arraybuffer",
++    readyState: WebSocket.CONNECTING,
++    send: () => undefined,
++    close: () => undefined,
++    addEventListener: () => undefined,
++  }),
++};
++
++// Every global fetch and WebSocket the page asks for, outside its typed
++// replies.
++function recordOutsideCalls() {
++  const calls: string[] = [];
++  const fetchAsked = globalThis.fetch.bind(globalThis);
++  vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
++    calls.push(
++      `fetch ${input instanceof Request ? input.url : input.toString()}`,
++    );
++    return fetchAsked(input, init);
++  });
++  const Socket = globalThis.WebSocket;
++  vi.stubGlobal(
++    "WebSocket",
++    class extends Socket {
++      constructor(url: string | URL, protocols?: string | string[]) {
++        calls.push(`WebSocket ${String(url)}`);
++        super(url, protocols);
++      }
++    },
++  );
++  return calls;
++}
++
++afterEach(() => {
++  vi.restoreAllMocks();
++  vi.unstubAllGlobals();
++});
++
+ const cardOf = (title: string) =>
+   page.getByRole("article", { name: title, exact: true });
+ 
+@@ -69,17 +121,11 @@ async function expectCardSelected(title: string, selected: boolean) {
+ 
+ test("the Side panel's content selects its story for Intent's lens and CI status, closing it keeps the selection at that moment, and an ad hoc session clears it to main", async () => {
+   const work = makeMe.aPublishedWork
+-    .with({
+-      source: openDoughSource,
+-      revision: fullSha("4774f60"),
+-      retrievedAt: new Date("2026-11-05T12:00:00.000Z"),
+-      direction: "",
+-      taken: [
+-        takenStoryEntry({ ...failingStory, agent: "Akiho" }),
+-        takenStoryEntry({ ...runningStory, agent: "Sola" }),
+-      ],
+-      backlog: [],
+-    })
++    .of(openDoughSource)
++    .at(fullSha("4774f60"))
++    .retrievedAt(new Date("2026-11-05T12:00:00.000Z"))
++    .taking({ ...failingStory, agent: "Akiho" })
++    .taking({ ...runningStory, agent: "Sola" })
+     .please();
+   const machine = makeMe.aMachineAnswer
+     .observing(
+@@ -106,10 +152,11 @@ test("the Side panel's content selects its story for Intent's lens and CI status
+     "Start the story",
+   );
+ 
+-  await mountSidePanelIntentPage({
++  const outsideCalls = recordOutsideCalls();
++  const mounted = await mountIntentCiPage({
+     work,
+-    records: machine.records,
+-    hostOperations: machine.hostOperations,
++    machine,
++    sessions: sessionServices,
+     readSource: {
+       readLocations: () => Promise.resolve({ status: "not-configured" }),
+       readFile: () => Promise.resolve(""),
+@@ -130,14 +177,6 @@ test("the Side panel's content selects its story for Intent's lens and CI status
+ 
+   const ci = intentCiStatus();
+   const intent = page.getByRole("main", { name: "Intent", exact: true });
+-  const developmentButton = page.getByRole("button", {
+-    name: "Development",
+-    exact: true,
+-  });
+-  const intentButton = page.getByRole("button", {
+-    name: "Intent",
+-    exact: true,
+-  });
+   const report = page.getByRole("region", {
+     name: "Final report",
+     exact: true,
+@@ -158,19 +197,19 @@ test("the Side panel's content selects its story for Intent's lens and CI status
+   await expect.element(ci.panel).toBeVisible();
+   await ci.judges("main");
+   await expect.element(intent).not.toHaveAttribute("data-selected-story");
+-  await userEvent.click(developmentButton);
++  await mounted.showDevelopment();
+ 
+   // Reading a story's final report selects and highlights it, and Intent judges its branch.
+   await readReport(failingStory.title);
+   await expect.element(report).toBeVisible();
+   await expectCardSelected(failingStory.title, true);
+-  await userEvent.click(intentButton);
++  await mounted.showIntent();
+   await expect
+     .element(intent)
+     .toHaveAttribute("data-selected-story", failingStory.identity);
+   await ci.judges(failingStory.branch);
+   await ci.answers("Failed at fa11ed0 (Break the login)");
+-  await userEvent.click(developmentButton);
++  await mounted.showDevelopment();
+ 
+   // Another story's final report moves the selection and Intent's branch there.
+   await readReport(runningStory.title);
+@@ -181,12 +220,12 @@ test("the Side panel's content selects its story for Intent's lens and CI status
+     .toBeVisible();
+   await expectCardSelected(runningStory.title, true);
+   await expectCardSelected(failingStory.title, false);
+-  await userEvent.click(intentButton);
++  await mounted.showIntent();
+   await expect
+     .element(intent)
+     .toHaveAttribute("data-selected-story", runningStory.identity);
+   await ci.judges(runningStory.branch);
+-  await userEvent.click(developmentButton);
++  await mounted.showDevelopment();
+ 
+   // A card's toggle selects without changing the panel; closing the panel keeps that selection.
+   await userEvent.click(
+@@ -208,19 +247,18 @@ test("the Side panel's content selects its story for Intent's lens and CI status
+   await expect.element(report).not.toBeInTheDocument();
+   await expectCardSelected(failingStory.title, true);
+   await expectCardSelected(runningStory.title, false);
+-  await userEvent.click(intentButton);
++  await mounted.showIntent();
+   await expect
+     .element(intent)
+     .toHaveAttribute("data-selected-story", failingStory.identity);
+   await ci.judges(failingStory.branch);
+-  await userEvent.click(developmentButton);
++  await mounted.showDevelopment();
+ 
+   // Showing a session attached to no story clears the selection, and CI status judges main.
+   await readReport(failingStory.title);
+   await expectCardSelected(failingStory.title, true);
+-  await userEvent.click(
+-    page.getByRole("button", { name: "Sessions", exact: true }),
+-  );
++  // The Sessions sidebar opens by its page-wide shortcut, as from the banner.
++  await userEvent.keyboard("{ControlOrMeta>}b{/ControlOrMeta}");
+   const sidebar = page.getByRole("complementary", {
+     name: "Sessions sidebar",
+     exact: true,
+@@ -230,19 +268,20 @@ test("the Side panel's content selects its story for Intent's lens and CI status
+   );
+   await expect.element(terminal).toBeVisible();
+   await expectCardSelected(failingStory.title, false);
+-  await userEvent.click(intentButton);
++  await mounted.showIntent();
+   await expect.element(intent).not.toHaveAttribute("data-selected-story");
+   await ci.judges("main");
+ 
+   // Closing that session's terminal with no story selected leaves Intent at project scope.
+-  await userEvent.click(developmentButton);
++  await mounted.showDevelopment();
+   await userEvent.click(
+     terminal.getByRole("button", { name: "Close", exact: true }),
+   );
+   await expect.element(terminal).not.toBeInTheDocument();
+   await expectCardSelected(failingStory.title, false);
+   await expectCardSelected(runningStory.title, false);
+-  await userEvent.click(intentButton);
++  await mounted.showIntent();
+   await expect.element(intent).not.toHaveAttribute("data-selected-story");
+   await ci.judges("main");
++  expect(outsideCalls).toEqual([]);
+ });
+diff --git a/dashboard/src/boardOrIntent.tsx b/dashboard/src/boardOrIntent.tsx
+new file mode 100644
+index 000000000..90bd2524a
+--- /dev/null
++++ b/dashboard/src/boardOrIntent.tsx
+@@ -0,0 +1,69 @@
++import { Board } from "./Board.tsx";
++import type { MachineSessions } from "./agentLaunches.ts";
++import type { DashboardRoute } from "./dashboardRouteUrl.ts";
++import { IntentPerspective } from "./IntentPerspective.tsx";
++import { IntentReadRecovery } from "./intentReadRecovery.tsx";
++import type { Visibility } from "./pageVisibility.ts";
++import type { PublishedSource } from "./publishedSource.ts";
++import type { PublishedWork } from "./publishedWork.ts";
++import { RetainedFollowUpPerspective } from "./RetainedFollowUpPerspective.tsx";
++
++// The project's Board, kept mounted while hidden, and the Intent body that
++// replaces it when the route shows the Intent perspective.
++export function BoardOrIntent({
++  source,
++  work,
++  launches,
++  showsBoard,
++  showsIntent,
++  followUp,
++  visibility,
++  limitStands,
++  openRoster,
++}: {
++  readonly source: PublishedSource;
++  readonly work: PublishedWork | undefined;
++  readonly launches: MachineSessions;
++  readonly showsBoard: boolean;
++  readonly showsIntent: boolean;
++  readonly followUp: DashboardRoute["followUp"];
++  readonly visibility: Visibility;
++  readonly limitStands: boolean;
++  readonly openRoster: (agent: string, element: HTMLElement) => void;
++}) {
++  return (
++    <>
++      {work && (
++        <main hidden={!showsBoard}>
++          <Board
++            sourceId={source.id}
++            project={source.label}
++            work={work}
++            launches={launches}
++            onOpenRoster={openRoster}
++          />
++        </main>
++      )}
++      {showsIntent && (
++        <IntentReadRecovery visibility={visibility} limitStands={limitStands}>
++          {followUp !== undefined ? (
++            <RetainedFollowUpPerspective
++              source={source}
++              work={work}
++              records={launches.records}
++              workspaces={launches.workspaces}
++              destination={followUp}
++            />
++          ) : (
++            <IntentPerspective
++              source={source}
++              work={work}
++              records={launches.records}
++              workspaces={launches.workspaces}
++            />
++          )}
++        </IntentReadRecovery>
++      )}
++    </>
++  );
++}
+diff --git a/dashboard/src/configuredDashboardContent.tsx b/dashboard/src/configuredDashboardContent.tsx
+index 97016509a..ea736a5c8 100644
+--- a/dashboard/src/configuredDashboardContent.tsx
++++ b/dashboard/src/configuredDashboardContent.tsx
+@@ -1,9 +1,7 @@
+ import type { ReactNode } from "react";
+-import { Board } from "./Board.tsx";
+ import type { MachineSessions } from "./agentLaunches.ts";
++import { BoardOrIntent } from "./boardOrIntent.tsx";
+ import type { DashboardRoute } from "./dashboardRouteUrl.ts";
+-import { IntentPerspective } from "./IntentPerspective.tsx";
+-import { IntentReadRecovery } from "./intentReadRecovery.tsx";
+ import type { useObservationAttempt } from "./observationAttempt.ts";
+ import type { Visibility } from "./pageVisibility.ts";
+ import { AgentRoster } from "./AgentRoster.tsx";
+@@ -11,7 +9,6 @@ import { ProjectActions } from "./ProjectActions.tsx";
+ import { PublishedReadStatus } from "./PublishedReadStatus.tsx";
+ import type { PublishedSource } from "./publishedSource.ts";
+ import type { PublishedWork } from "./publishedWork.ts";
+-import { RetainedFollowUpPerspective } from "./RetainedFollowUpPerspective.tsx";
+ import { StartupAnnouncer } from "./StartupAnnouncer.tsx";
+ import { StartupRecovery } from "./StartupRecovery.tsx";
+ import { StoryDestination, useStoryDestination } from "./StoryDestination.tsx";
+@@ -110,40 +107,17 @@ export function ConfiguredDashboardContent({
+             startups={launches.storyStartupsOf(source.id)}
+           />
+         </div>
+-        {work && (
+-          <main hidden={!showsBoard}>
+-            <Board
+-              sourceId={source.id}
+-              project={source.label}
+-              work={work}
+-              launches={launches}
+-              onOpenRoster={openRoster}
+-            />
+-          </main>
+-        )}
+-        {showsIntent && (
+-          <IntentReadRecovery
+-            visibility={visibility}
+-            limitStands={limitedUntil !== undefined}
+-          >
+-            {route.followUp !== undefined ? (
+-              <RetainedFollowUpPerspective
+-                source={source}
+-                work={work}
+-                records={launches.records}
+-                workspaces={launches.workspaces}
+-                destination={route.followUp}
+-              />
+-            ) : (
+-              <IntentPerspective
+-                source={source}
+-                work={work}
+-                records={launches.records}
+-                workspaces={launches.workspaces}
+-              />
+-            )}
+-          </IntentReadRecovery>
+-        )}
++        <BoardOrIntent
++          source={source}
++          work={work}
++          launches={launches}
++          showsBoard={showsBoard}
++          showsIntent={showsIntent}
++          followUp={route.followUp}
++          visibility={visibility}
++          limitStands={limitedUntil !== undefined}
++          openRoster={openRoster}
++        />
+         {showsRoster && (
+           <main>
+             <AgentRoster
+diff --git a/dashboard/test-support/component-mount/machineSessionsAnswering.ts b/dashboard/test-support/component-mount/machineSessionsAnswering.ts
+new file mode 100644
+index 000000000..fe5a0d0b2
+--- /dev/null
++++ b/dashboard/test-support/component-mount/machineSessionsAnswering.ts
+@@ -0,0 +1,47 @@
++// The page's launches (`../../src/agentLaunches.ts`) as a machine that
++// answered ANSWER: its records are listed and shown on cards, its workspaces
++// and host operations known, nothing is starting, kept or offered, and every
++// session action stays unresolved, so a case that reaches one waits instead
++// of reaching the machine.
++import type { MachineSessions } from "../../src/agentLaunches.ts";
++import type { MachineAnswer } from "../../src/agentLaunch.ts";
++
++const never = <T>() => new Promise<T>(() => undefined);
++
++export const machineSessionsAnswering = (
++  answer: MachineAnswer,
++): MachineSessions => ({
++  rereadOffers: () => undefined,
++  rereadSessions: () => undefined,
++  creations: answer.creations,
++  hostOperations: answer.hostOperations,
++  readHistory: () => undefined,
++  records: answer.records,
++  workspaces: answer.workspaces,
++  sessionsSettled: true,
++  alerts: answer.alerts,
++  feedbackMaintenance: answer.feedbackMaintenance,
++  keptStartOf: () => undefined,
++  runningStartOf: () => undefined,
++  launched: answer.records,
++  establishesStart: () => false,
++  sessionPolicyOffer: () => "reading",
++  optionsOffer: () => undefined,
++  recoveriesOf: () => [],
++  attemptEvidence: "read",
++  continueStartup: () => undefined,
++  updateWorktreeAndRetry: () => undefined,
++  recheckStartups: () => undefined,
++  attemptOf: () => undefined,
++  storyStartupOf: () => undefined,
++  storyStartupsOf: () => [],
++  start: never,
++  startAdHoc: never,
++  adHocAttemptOf: () => undefined,
++  markDone: never,
++  markRead: never,
++  deleteRecord: never,
++  recoverSession: never,
++  stopSession: never,
++  readSession: never,
++});

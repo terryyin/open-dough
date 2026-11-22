@@ -20,9 +20,8 @@ export const source = "open-dough";
 
 export { minutesAgo };
 
-import type { Checkout } from "./doneCaptureCaseMaterialization.ts";
-
-export type { Checkout };
+// The checkout shape dated work needs.
+export type WorkCheckout = Parameters<typeof performCheckoutWork>[0];
 
 // Keeps these records as the project's whole store in a private machine
 // home, and answers the home.
@@ -46,7 +45,7 @@ export const keptRecordOf = async (sessionId: string) =>
   );
 
 export const work = <Name extends string>(
-  checkout: Checkout,
+  checkout: WorkCheckout,
   steps: CheckoutWorkBuilder<Name>,
 ) => performCheckoutWork(checkout, steps.please());
 

@@ -1,15 +1,13 @@
 // Disposable state for the proof of one exact attempt and observation round.
 // Callers choose their domain key; the real reader validates the wire answer.
-import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
+import type { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
 import type { CiProof, CiProofSubject } from "./ciProof.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export type ProofRead =
   CiProof | { readonly kind: "unanswered"; readonly detail?: string };
 
-export function createCiProofReading(
-  readProof: typeof readIntentCiProof = readIntentCiProof,
-) {
+export function createCiProofReading(readProof: typeof readIntentCiProof) {
   let selected:
     | { readonly source: PublishedSource; readonly key: string | undefined }
     | undefined;

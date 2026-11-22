@@ -159,10 +159,10 @@ export async function openIntent(
   return { project, ci, intent, home, bodyReads };
 }
 
-// With a selected story, Summaries are read in its Changed tests view.
+// With a selected story, Summaries are read in its Changes view.
 export async function openSummary(intent: Locator, location: string) {
   if ((await storyIntentFrame(intent).count()) > 0)
-    await chooseStoryTab(intent, "Changed tests");
+    await chooseStoryTab(intent, "Changes");
   await intentLocationName(intent, location).click();
   const summary = summaryRegion(intent);
   await expect(summary.locator(".intent-summary-path")).toHaveText(location);

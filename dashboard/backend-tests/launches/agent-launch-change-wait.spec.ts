@@ -9,7 +9,7 @@
 // of waking at once, while an unsettled attempt this server's own process
 // works on is answered without that bound even before the server holds it.
 // What the page says from those answers is
-// ../../frontend-tests/launches/agent-launch-story-card-answers.spec.ts and
+// ../../frontend-tests/launches/story-card-startup.spec.ts and
 // ../../../e2e/launches/agent-launch-second-server.spec.ts.
 
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";

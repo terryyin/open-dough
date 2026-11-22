@@ -8,15 +8,11 @@ import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
 import { IntentCiEvidenceProvider } from "../../src/IntentCiEvidence.tsx";
-import {
-  IntentCiReadSourceOnPage,
-  type IntentCiReadSource,
-} from "../../src/intentCiReadSource.ts";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import { IntentPage, type IntentPageStory } from "../../src/IntentPage.tsx";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import type { StorySummary } from "../../src/IntentStorySummary.tsx";
 import { IntentWorkspaceSelectionProvider } from "../../src/intentWorkspaceSelection.ts";
 import {
@@ -70,7 +66,7 @@ function summaryOf(story: ComparedStory, completion: string): StorySummary {
       completed: true,
       record: { state: "reading" },
     },
-    comparison: { state: "compared", shown, review },
+    comparison: { state: "compared", shown, review, defaultReview: review },
     onRetry() {},
   };
 }
@@ -90,48 +86,46 @@ export async function mountDoneStory(
     onProjectIntent() {},
   };
   await mountComponent(
-    <IntentReadSourceOnPage value={reads}>
-      <IntentCiReadSourceOnPage value={ci}>
-        <IntentReadingProvider project={story.source.id}>
-          <ProjectIntentReadingPlace
-            project={story.source.id}
-            story={story.identity}
-          >
-            <ProjectIntentReading
-              source={story.source}
-              work={undefined}
-              project={project}
-              projectShown={false}
-              storyPages={() => (
-                <IntentCiEvidenceProvider
-                  source={story.source}
-                  work={story.work}
-                  selectedIdentity={story.identity}
-                  active
-                >
-                  <IntentWorkspaceSelectionProvider>
-                    <DoneStory source={story.source} story={storyPage} />
-                  </IntentWorkspaceSelectionProvider>
-                </IntentCiEvidenceProvider>
-              )}
-            />
-          </ProjectIntentReadingPlace>
-        </IntentReadingProvider>
-      </IntentCiReadSourceOnPage>
-    </IntentReadSourceOnPage>,
+    <PageReadsOnPage reads={pageReadsSupplying({ intent: reads, ci })}>
+      <IntentReadingProvider project={story.source.id}>
+        <ProjectIntentReadingPlace
+          project={story.source.id}
+          story={story.identity}
+        >
+          <ProjectIntentReading
+            source={story.source}
+            work={undefined}
+            project={project}
+            projectShown={false}
+            storyPages={() => (
+              <IntentCiEvidenceProvider
+                source={story.source}
+                work={story.work}
+                selectedIdentity={story.identity}
+                active
+              >
+                <IntentWorkspaceSelectionProvider>
+                  <DoneStory source={story.source} story={storyPage} />
+                </IntentWorkspaceSelectionProvider>
+              </IntentCiEvidenceProvider>
+            )}
+          />
+        </ProjectIntentReadingPlace>
+      </IntentReadingProvider>
+    </PageReadsOnPage>,
     { viewport: { width: 1280, height: 600 } },
   );
-  const tab = (name: "CI comparison" | "Changed tests") =>
+  const tab = (name: "CI comparison" | "Changes") =>
     page.getByRole("tab", { name, exact: true });
-  const changedTests = page.getByRole("tabpanel", { name: "Changed tests" });
-  const failure = changedTests.getByRole("alert");
+  const changes = page.getByRole("tabpanel", { name: "Changes", exact: true });
+  const failure = changes.getByRole("alert");
   return {
     tab,
     title: page
       .getByRole("region", { name: "Selected story", exact: true })
       .getByRole("heading", { level: 2 }),
     headers: page.getByRole("region", { name: "Selected story", exact: true }),
-    changedTests,
+    changes,
     failure,
     retry: failure.getByRole("button", { name: "Retry", exact: true }),
   };

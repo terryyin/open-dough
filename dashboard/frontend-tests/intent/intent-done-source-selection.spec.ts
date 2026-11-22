@@ -25,6 +25,7 @@ import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
   chooseStoryTab,
   intentFile,
+  storyTabPanel,
   storyTitle,
 } from "../../test-support/support/intentStoryPage.ts";
 
@@ -51,7 +52,7 @@ test("a newly selected Done story shows only its own historical source after hel
     .getByRole("heading", { level: 3 })
     .click();
   await intentChoice.click();
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   await intentFile(intent, "dashboard/tests/a.spec.ts").click();
   await expect(purposeRegion(intent)).toContainText("a 11");
@@ -89,11 +90,11 @@ test("a newly selected Done story shows only its own historical source after hel
   await expect(intent).toHaveAttribute("data-selected-story", storyB.identity);
   await expect(storyTitle(intent)).toHaveText(storyB.title);
   await expect.poll(() => comparisonHeld).toBeGreaterThan(0);
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expect(filesColumn(intent)).toHaveCount(0);
-  await expect(
-    intent.getByRole("tabpanel", { name: "Changed tests" }),
-  ).toContainText("Reading the story's historical Intent locations…");
+  await expect(storyTabPanel(intent, "Changes")).toContainText(
+    "Reading the story's historical Intent locations…",
+  );
   await expect(purposeRegion(intent)).toHaveCount(0);
 
   releaseComparison();

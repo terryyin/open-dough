@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Mihiro-chan",
-  "email": "mihiro-chan@example.org",
-  "identity": "SEED-401#assess-new-retrospective-findings-pilot",
-  "mode": "story-branch",
-  "branch": "codex/seed-401-first-report-assessment",
-  "host": "codex"
-}

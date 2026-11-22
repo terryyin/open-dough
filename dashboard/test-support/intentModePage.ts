@@ -87,11 +87,15 @@ export const scrollFilesHalfway = (intent: Locator) =>
 export const storyViews = (intent: Locator) =>
   intent.getByRole("tablist", { name: "Selected story views" });
 
-type StoryTabName = "CI comparison" | "Changed tests" | "Intent coverage";
+type StoryTabName = "CI comparison" | "Changes" | "Intent coverage";
 
 // One of the selected story's views, in the row under its header.
 export const storyTab = (intent: Locator, name: StoryTabName) =>
   storyViews(intent).getByRole("tab", { name, exact: true });
+
+// The panel a selected story's view shows, named by its tab.
+export const storyTabPanel = (intent: Locator, name: StoryTabName) =>
+  intent.getByRole("tabpanel", { name, exact: true });
 
 export async function expectStoryTab(intent: Locator, name: StoryTabName) {
   await expect(storyTab(intent, name)).toHaveAttribute("aria-selected", "true");
@@ -152,7 +156,7 @@ export async function returnToStory(intent: Locator) {
 }
 
 // Hide files / Show files for the locations column: in Project Intent's strip
-// on CI status, or ending a selected story's view row on Changed tests.
+// on CI status, or ending a selected story's view row on Changes.
 export const intentModeBar = (intent: Locator) =>
   projectIntentFrame(intent).locator(":scope > .intent-page-tabbar");
 export const storyViewBar = (intent: Locator) =>

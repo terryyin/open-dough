@@ -1,5 +1,5 @@
-import { createContext } from "react";
 import { readIntentCiComparison } from "./authenticatedIntentCiComparisonRead.ts";
+import { readIntentCiHistory } from "./authenticatedIntentCiHistoryRead.ts";
 import { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
 import {
   readIntentCiStatus,
@@ -13,11 +13,13 @@ export type IntentCiReadSource = {
   readonly readProof: typeof readIntentCiProof;
   readonly readStatus: typeof readIntentCiStatus;
   readonly readKeptStatus: typeof readKeptIntentCiStatus;
+  readonly readHistory: typeof readIntentCiHistory;
 };
 
-export const IntentCiReadSourceOnPage = createContext<IntentCiReadSource>({
+export const authenticatedIntentCiReads: IntentCiReadSource = {
   readComparison: readIntentCiComparison,
   readProof: readIntentCiProof,
   readStatus: readIntentCiStatus,
   readKeptStatus: readKeptIntentCiStatus,
-});
+  readHistory: readIntentCiHistory,
+};
