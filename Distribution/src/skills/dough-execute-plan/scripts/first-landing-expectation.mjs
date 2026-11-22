@@ -131,19 +131,19 @@ export async function clearFirstLandingExpectationForContext(landingContext) {
   }
 }
 
+// Open launches' prepared context paths for this workspace/branch, oldest
+// first.
+export async function openLaunches({ repository, workspace, branch }) {
+  const file = firstLandingExpectationPath(repository, workspace, branch);
+  return readOpenLaunches(file, workspace, branch);
+}
+
 // The one open launch's expectation for this workspace/branch, or undefined
 // when none or several are open: publication never guesses between launches.
 // First trunk publication may resolve this when --landing-context is omitted.
-export async function openFirstLandingExpectation({
-  repository,
-  workspace,
-  branch,
-}) {
-  const open = await readOpenLaunches(
-    firstLandingExpectationPath(repository, workspace, branch),
-    workspace,
-    branch,
-  );
+export async function openFirstLandingExpectation(keys) {
+  const open = await openLaunches(keys);
   if (open.length !== 1) return undefined;
+  const { workspace, branch } = keys;
   return { workspace, branch, landingContext: open[0] };
 }

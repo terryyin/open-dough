@@ -1,10 +1,8 @@
 // Session close publication. publishSessionClose publishes the work through
 // the shared publisher first; only an accepted result is sealed into a record
 // (sealed-session-record.mjs), then the record commit follows the same
-// authorized route. The session UUID is the Dashboard launch's landing context
-// `reference`, or for a native start the explicitly retained `sessionId` or
-// the workspace's unclosed native session evidence. The record's story is the
-// session's own, else the one its landing context or native evidence names.
+// authorized route. The session's identity and story come from
+// session-close-identity.mjs.
 // Launch state, conversations, paths and native controls stay local and never
 // enter the record. resumeSessionClose resumes a close from its first
 // unfinished step, so the work is published once and the record keeps its
@@ -12,102 +10,20 @@
 // comparison before every work push and its sealed record before publishing
 // it, locally per session (session-close-state.mjs), so a resume needs only
 // the session's identity.
-import { readFile } from "node:fs/promises";
 import { defaultBacklogPath } from "../../dough-product-backlog/scripts/product-backlog-store.mjs";
 import { publishExecutionIncrement } from "./execution-increment-publication.mjs";
-import {
-  closeNativeSession,
-  readSessionEvidence,
-} from "./execution-session-evidence.mjs";
+import { closeNativeSession } from "./execution-session-evidence.mjs";
 import { resumeInterruptedPublication } from "./publication-resume.mjs";
-import { resolvePublicationLandingContext } from "./resolve-publication-landing-context.mjs";
 import {
   publishSealedRecord,
   sealRecord,
   sessionRecord,
   sessionRecordPath,
 } from "./sealed-session-record.mjs";
+import { closeTarget } from "./session-close-identity.mjs";
 import { readCloseState, saveCloseState } from "./session-close-state.mjs";
-import {
-  parseSharedCheckoutNote,
-  sharedCheckoutNotePathBeside,
-} from "./shared-checkout-note.mjs";
 
 export { sessionRecord, sessionRecordPath };
-
-// The Dashboard's shared-checkout note beside the landing context, if any.
-async function sharedCheckoutNote(landingContext) {
-  const text = await readFile(
-    sharedCheckoutNotePathBeside(landingContext),
-    "utf8",
-  ).catch(() => undefined);
-  return text === undefined ? undefined : parseSharedCheckoutNote(text);
-}
-
-// The session a close names, with the story it carries and any
-// shared-checkout note beside it: a Dashboard launch's landing context, else,
-// with no explicitly retained id, the workspace's unclosed native session
-// evidence.
-async function namedSession(retained, landingContext, workspace) {
-  if (landingContext) {
-    const launch = JSON.parse(await readFile(landingContext, "utf8"));
-    return {
-      sessionId: launch.reference,
-      story: launch.identity,
-      sharedCheckout: await sharedCheckoutNote(landingContext),
-    };
-  }
-  const kept = retained ? undefined : readSessionEvidence(workspace);
-  return kept && !kept.closedAt
-    ? { sessionId: kept.sessionId, story: kept.story, native: true }
-    : {};
-}
-
-// The close's identity, story and record path, refused before any push when
-// the identity is absent or conflicting.
-async function closeTarget({ retained, story, backlogPath, ...request }) {
-  const landingContext = await resolvePublicationLandingContext({
-    remote: "origin",
-    ...request,
-  });
-  const named = await namedSession(retained, landingContext, request.workspace);
-  const refusal = identityRefusal(retained, named.sessionId);
-  if (refusal) {
-    return {
-      refused: {
-        work: { ok: false, ...refusal },
-        record: { status: "not-published" },
-      },
-    };
-  }
-  const sessionId = named.sessionId ?? retained;
-  // An invalid UUID throws here, before the work is pushed.
-  sessionRecordPath(sessionId, backlogPath);
-  return {
-    sessionId,
-    story: story ?? named.story,
-    native: named.native === true,
-    landingContext,
-    sharedCheckout: named.sharedCheckout,
-  };
-}
-
-function identityRefusal(retained, named) {
-  if (named && retained && named !== retained) {
-    return {
-      status: "session-identity-conflict",
-      error: `retained session ${retained} differs from launch reference ${named}`,
-    };
-  }
-  if (!named && !retained) {
-    return {
-      status: "session-identity-missing",
-      error:
-        "no landing context reference or retained session id names this session",
-    };
-  }
-  return undefined;
-}
 
 // Seals the accepted close's record and saves it before publishing, closing
 // the native session it came from before the record stage, so a later close

@@ -187,12 +187,17 @@ as recorded evidence.
 ### 2. Two Dashboard closes sharing a checkout each resume as their own session
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `session-close-shared-launches-resume.test.mjs`: launches A and B planted for one checkout, each close interrupted after an unanswered push; resuming each with `workspace`, `branch`, `targetRef`, `backlogPath`, `session` and its `landingContext` publishes A's and B's records under their own references with each range once and no second push of accepted work; with an unclosed native session also begun in that checkout, a resume with neither `landingContext` nor `session.sessionId` while both launches are open answers `session-identity-missing` with trunk unchanged (red after slice 1: it resumes as the native session). All suites under `Distribution/tests/skills/dough-land/`, `preparation-native-session-record-land.test.mjs` and the `dough-story-wrap-up` session-record tests pass. Includes the guidance paragraph change and the `session-close-identity.mjs` move, listed in the execution payload with `install-public-payload.sh` passing.
 
 Behavior: two Dashboard closes interrupted in one Default main checkout → each
 resumes with the inputs the Land guidance names → each publishes its own
 record; a resume naming no identity while both launches are open is refused.
+
+Accepted: the refusal lives in `namedSession` (no native fallback while
+several launches are open, via `severalLaunchesOpen` in
+`resolve-publication-landing-context.mjs`); `first-landing-expectation.mjs`
+exports `openLaunches`. `session-record-publication.mjs` is 155 lines.
 
 ### 3. A close whose shared-checkout note is unreadable publishes a marked range
 
