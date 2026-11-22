@@ -23,10 +23,7 @@ push after a rejection, run this candidate check from the landing checkout:
 node <installed>/dough-land/scripts/queued-closure-check.mjs check --checkout <checkout> --remote <remote> --target-ref refs/heads/<branch>
 ```
 
-The command fetches the target and checks every queued story the candidate
-closes against that tip. It identifies closures from the candidate's merge
-base with the fetched target: entries in that base's **Backlog list** that
-are in neither list at `HEAD`. It needs no retained one-shot context.
+It checks every queued story the candidate closes against the fetched target.
 
 | Result | Action |
 | --- | --- |
@@ -71,17 +68,22 @@ route. Report `work` as the publication result and `record.status`; accepted
 work stays in place whatever the record's status. Other publishers write no
 session record; for ordinary reviewed work, report that none was written.
 
-A `published` record settles the close. Until then retain `record.record`
-when the result holds one; when the work's push went unanswered instead (for
-example `transport-timeout`), retain the `session` you passed with the stopped
-work's `candidate` and `suffixBase`. Finish the close with `resumeSessionClose`
-from the same module: the same `workspace`, `branch`, `targetRef` and
-`backlogPath`, plus the retained `record`, or else the retained `session`,
-`candidateSha` and `suffixBase`. It never publishes accepted work again.
-Report its `record.status`, and `work` when present. When `record.publication`
-is `needs-validation`, rerun with its `candidate` as `validatedCandidate`.
-Report `session-record-conflict`, a different record already published for
-this session, with the accepted work in place.
+A `published` record settles the close. Otherwise, including after an
+interruption or an unanswered push such as `transport-timeout`, call
+`resumeSessionClose` from the same module with the same `workspace`, `branch`,
+`targetRef`, `backlogPath` and `session`, plus the result's `record.record`
+as `record` when it holds one. Otherwise the close resumes from the state it
+saved in the workspace for the session its landing context or
+`session.sessionId` names; only when that state is absent, pass the stopped
+work's `candidate` as `candidateSha` with its `suffixBase`. It never publishes
+accepted work again. Report its `record.status`, and `work` when present, and
+act on the first row that fits:
+
+| Result | Action |
+| --- | --- |
+| `record.publication.status` is `needs-validation` | Rerun with its `candidate` as `validatedCandidate` |
+| `record.status` is `session-record-conflict` | Report it: another record is already published for this session; the accepted work stays |
+| `record.status` is `stopped`, or `work` is not accepted | Report `work` and the error; resume again once it is resolved |
 
 ## Land completed selected work
 

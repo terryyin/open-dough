@@ -188,7 +188,7 @@ any overlap mark, and no second push of accepted work.
 ### 5. Shorten publication and recovery instructions
 
 Type: Behavior
-Status: planned
+Status: done
 
 Review the full affected references, including older passages, in
 `publish-reviewed-checkout.md`, `wrap-up-closure-publication.md`, and
@@ -201,6 +201,14 @@ its reasons require.
 **Proof.** Walk a Story Branch close, an interrupted Land close, and a Trunk
 observation stop from the revised references. At each stop, follow the
 reported recovery, supply the required inputs, and report the result.
+
+**Accepted proof.** The three references are shorter and match the scripts'
+returned statuses and reasons; the walkthrough of a Story Branch record stop,
+an interrupted Land close and a Trunk observation stop cites
+`story-branch-session-record.test.mjs`,
+`session-close-shared-checkout-resume.test.mjs`, `session-close-resume.test.mjs`
+and `trunk-closure-owner-gaps.test.mjs`, which pass with the payload and
+declaration-link checks.
 
 ## Concern evidence
 
