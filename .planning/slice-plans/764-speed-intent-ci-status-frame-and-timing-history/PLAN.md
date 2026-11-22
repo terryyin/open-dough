@@ -2,7 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-ci-status-frame-and-timing-history
 **Source:** [Get fast proof of Intent CI status on the real page and of timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history)
-**Split from:** SEED-413#speed-intent-timing-history-proof (recoverable at `a48e1eae9:.planning/slice-plans/759-speed-intent-timing-history-proof/PLAN.md`, former Slices 3–9) on 2026-11-22 at its delivered Slice 2 boundary
+**Split from:** SEED-413#speed-intent-timing-history-proof (recoverable at `756f67d70:.planning/slice-plans/759-speed-intent-timing-history-proof/PLAN.md`, former Slices 3–9) on 2026-11-22 at its delivered Slice 2 boundary
 
 ## Goal and scope
 

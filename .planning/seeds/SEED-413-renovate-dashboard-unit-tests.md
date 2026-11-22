@@ -450,7 +450,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | --- | --- | ---: | ---: |
 | 1 | Get fast proof of a story's Intent CI comparison (completed; recoverable at `28e16d406:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-comparison-proof`) | 69 | 24 |
 | 2a | Get fast proof of Intent CI status and cue contrast (completed; recoverable at `3acae5160:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing`) | 15 | 7 |
-| 2b | [Read Intent, CI, review and side-panel sessions through one required page entry](#speed-intent-timing-history-proof) | 0 | 0 |
+| 2b | Read Intent, CI, review and side-panel sessions through one required page entry (completed; recoverable at `756f67d70:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof`) | 0 | 0 |
 | 2c | [Get fast proof of Intent CI status on the real page and of timing history](#speed-intent-ci-status-frame-and-timing-history) | 31 | 19 |
 | 2d | [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof) | 49 | 18 |
 | 3a | Get fast proof of Intent locations read recovery and settings problems (completed; recoverable at `e0f7d6a6a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading`) | 7 | 2 |
@@ -529,67 +529,6 @@ Continuing one component at a time would extend the life of both runners.
   legacy cases. Keep this campaign's test work coordinated with
   [SEED-341](SEED-341-simplify-session-tests.md).
 
-<a id="speed-intent-timing-history-proof"></a>
-
-### Read Intent, CI, review and side-panel sessions through one required page entry
-
-**Identity:** SEED-413#speed-intent-timing-history-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/759-speed-intent-timing-history-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5079b46ca4cada462a8a85e0614e1e56d8eb90f1cd9aef62e3a565142a273ed1","plan":"32fccaf4221ef54599b2e1afe7c9a25726ed8e51822610fb30141a03ae667e41"}}
-```
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#speed-intent-timing-history-proof","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-proof-and-timing","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing"},"implementation":"Wires IntentCiReadSourceOnPage (including optional readHistory) across status, kept-status, proof, history, and comparison reads, exposes Node-free CI proof builders on pageMakeMe.mjs, and lands the narrowed 7-file status split on main.","rationale":"Timing-history slices extend IntentCiReadSourceOnPage with readDoneWallTimeHistory and readScopeHistory and depend on the narrowed SEED-413 split and reconciled IntentCiReadSource contract already being integrated on main rather than diverging on a duplicate seam.","condition":"SEED-413#speed-intent-proof-and-timing has landed its reconciled IntentCiReadSourceOnPage contract, pageMakeMe.mjs CI proof builders, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"3acae51604f0f3960816dc48f093c24688572ed4","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing","summary":"Delivered Slices 1-3 (done) wired IntentCiReadSourceOnPage (including optional readHistory) across status, kept-status, proof, history, and comparison reads in dashboard/src/intentCiReadSource.ts, exposed Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on Distribution/tests/support/pageMakeMe.mjs, and landed the narrowed 7-file status split on main.\nCondition satisfied: SEED-413#speed-intent-proof-and-timing has landed its reconciled IntentCiReadSourceOnPage contract, pageMakeMe.mjs CI proof builders, and narrowed story split on main.\nAccepted integration: 75ab8266d13595ce74344cb9d8c2bf903479d3d9 on origin/refs/heads/main."}}]}
-```
-
-**Split from** SEED-413#speed-intent-proof-and-timing, which delivered the
-7-file CI status and cue-contrast Vitest suite, `IntentCiReadSourceOnPage`,
-and `pageMakeMe.mjs` CI proof builders.
-
-- **Correction first.** The retrospective of the split-from story found that
-  its CI status cases render test copies of the page frame and Intent
-  composition. They read through default-valued contexts that production
-  never provides, and production gained test-only reader parameters. This
-  story delivers the first part of
-  [that correction](../slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry):
-  the required typed page entry.
-- **Goal.** A dashboard maintainer can trust that Intent, CI, review and
-  side-panel session cases exercise the reads production supplies, because
-  production and every case supply them through one required typed page
-  entry, and a case that leaves a read unsupplied fails instead of reaching
-  the real reader.
-- **Scope.** Replace the default-valued `IntentCiReadSourceOnPage`,
-  `IntentReadSourceOnPage` and `ReviewSourceOnPage` contexts with one
-  production entry (`dashboard/src/pageReads.tsx`: `PageReads`,
-  `PageReadsOnPage`, `authenticatedPageReads`) that `ConfiguredDashboard`
-  supplies with the authenticated readers. Make every CI read member required
-  (`readHistory` included). Fix each reading owner's reader at creation
-  (`ciProofReading`, `ciComparisonProofs`, `ciComparisonReading`,
-  `readCachedFile`), removing defaulted reader parameters and the test-only
-  reselection rule. Put the side panel's final-report read, host-status read
-  and terminal attach behind the same entry as its required `sessions` member
-  (`dashboard/src/sessionServices.ts`). Cases supply reads through
-  `pageReadsSupplying`, which rejects unsupplied reads; move every test
-  provider, comparison family included, without changing its assertions. The
-  story notes, CI follow-up and review-state reads, the CI status cases'
-  production page frame and owning composition, and the timing-history moves
-  belong to
-  [Get fast proof of Intent CI status on the real page and of timing history](#speed-intent-ci-status-frame-and-timing-history).
-- **Key examples.** A case that omits a CI read gets a rejection instead of a
-  call to the authenticated reader. Production's Intent CI status still reads
-  through the authenticated readers it now supplies explicitly. Showing a
-  Taken story's final report, the attached terminal and its host status calls
-  the typed session services, which production supplies and a case answers
-  with typed replies. The CI status and comparison cases keep their
-  assertions.
-- **Evaluation.** `npm run typecheck:dashboard` and the full dashboard
-  frontend group pass. Representative E2E journeys (`intent-ci-status`,
-  `story-review-commits`, `agent-terminal-done-report`,
-  `sessions-sidebar-host-status`, `agent-launch-ad-hoc-terminal` and
-  `agent-terminal-keyboard`) pass, proving production supplies the
-  authenticated reads and services. `grep` finds no default-valued read
-  context, optional read member or defaulted reader parameter in
-  `dashboard/src`.
-
 <a id="speed-intent-ci-status-frame-and-timing-history"></a>
 
 ### Get fast proof of Intent CI status on the real page and of timing history
@@ -599,7 +538,7 @@ and `pageMakeMe.mjs` CI proof builders.
 {"schemaVersion":1,"identity":"SEED-413#speed-intent-ci-status-frame-and-timing-history","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-timing-history-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof"},"implementation":"Slices 1–2 of plan 759 replace the default-valued Intent, CI and review read contexts with one required typed page-reads entry (dashboard/src/pageReads.tsx: PageReads, PageReadsOnPage, authenticatedPageReads) that ConfiguredDashboard supplies, fix every reader at creation with no optional member or defaulted reader parameter, add the required sessions member (dashboard/src/sessionServices.ts: readFinalReport, readHostStatus, openTerminal), and make pageReadsSupplying reject unsupplied reads.","rationale":"Slice 1 adds the story notes, CI follow-up and review-state reads to that entry, and every later slice mounts the production page frame and Intent composition through it. The entry exists only on the original story's branch; starting before it lands on main would either rebuild the entry inside this story or diverge from the branch that carries it.","condition":"SEED-413#speed-intent-timing-history-proof has landed its required typed page-reads entry, including the side-panel session services, and its narrowed story split on main.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c9ae4a1eacc83b5be10c58dd43b5d1fb4614b532108af28c97c69ab4367a3d71","plan":"d5905cc9b97bd6f31fe3dc519f91909352b249c0b323d97927886b46cdf2fff2"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c9ae4a1eacc83b5be10c58dd43b5d1fb4614b532108af28c97c69ab4367a3d71","plan":"1c4a7b815aae801a1e885f72ec533c3e98d2a59d15f28d182a01d20c212b8963"}}
 ```
 
 **Split from** SEED-413#speed-intent-timing-history-proof at its delivered
@@ -673,7 +612,7 @@ page entry for Intent, CI, review and side-panel session reads.
 ```
 
 **Split from** SEED-413#speed-intent-proof-and-timing at its delivered Slice 3
-boundary alongside [Read Intent, CI, review and side-panel sessions through one required page entry](#speed-intent-timing-history-proof).
+boundary alongside Read Intent, CI, review and side-panel sessions through one required page entry (completed; recoverable at `756f67d70:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof`).
 
 - **Goal.** A dashboard maintainer can quickly check what current attempt
   proof and compared Summary rows say at the homepage, location, folder, and
@@ -690,7 +629,7 @@ boundary alongside [Read Intent, CI, review and side-panel sessions through one 
   the story-source and location views belong to
   [Get fast proof of Intent source browsing, pinned links and detours](#speed-intent-source-browsing-and-detours).
   Cases render the production Intent composition through the typed page-reads
-  entry that [the page entry story](#speed-intent-timing-history-proof)
+  entry that the page entry story (completed; recoverable at `756f67d70:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof`)
   delivered and [the CI status frame story](#speed-intent-ci-status-frame-and-timing-history)
   completes. They do not hand-assemble Summary or Proof props from private
   evidence pipelines.
