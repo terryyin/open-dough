@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Shunka-chan",
+  "email": "shunka-chan@example.org",
+  "identity": "SEED-413#repair-refinement-touch-tap-hang",
+  "mode": "story-branch",
+  "branch": "claude/prove-launch-touch-reach-deterministically-witho",
+  "host": "claude"
+}
