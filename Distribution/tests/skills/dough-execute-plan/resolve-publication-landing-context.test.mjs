@@ -7,7 +7,10 @@ import path from "node:path";
 import { test } from "node:test";
 import { makeMe } from "../../support/makeMe.mjs";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
-import { plantFirstLandingExpectation } from "../../../src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
+import {
+  clearFirstLandingExpectationForContext,
+  plantFirstLandingExpectation,
+} from "../../../src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 import { managementContext } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { resolvePublicationLandingContext } from "../../../src/skills/dough-execute-plan/scripts/resolve-publication-landing-context.mjs";
 
@@ -114,4 +117,27 @@ test("a publication that names no landing, as a session record commit does, reso
     }),
     undefined,
   );
+});
+
+test("publication omitting its landing context names no launch while two share the checkout, and the remaining one after the other clears", async (t) => {
+  const fixture = await gitWorkspace(t);
+  const { landingContext, otherContext } = fixture;
+  const otherReporting = path.join(path.dirname(otherContext), "launch-b");
+  await mkdir(otherReporting, { recursive: true });
+  const launchB = path.join(otherReporting, "landing-context.json");
+  await writeFile(
+    launchB,
+    JSON.stringify({ remote: "origin", target: "refs/heads/main" }),
+  );
+  const publication = {
+    workspace: fixture.workspace,
+    branch: fixture.branch,
+    remote: "origin",
+    targetRef: "refs/heads/main",
+  };
+  await plantFirstLandingExpectation(fixture);
+  await plantFirstLandingExpectation({ ...fixture, landingContext: launchB });
+  assert.equal(await resolvePublicationLandingContext(publication), undefined);
+  await clearFirstLandingExpectationForContext(landingContext);
+  assert.equal(await resolvePublicationLandingContext(publication), launchB);
 });

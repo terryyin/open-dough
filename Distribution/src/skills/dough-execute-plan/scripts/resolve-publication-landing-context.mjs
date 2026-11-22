@@ -5,8 +5,33 @@
 // from first-landing-expectation.mjs so the reporting-dir clear copy never
 // needs publication-git.
 import { readFile } from "node:fs/promises";
-import { openFirstLandingExpectation } from "./first-landing-expectation.mjs";
+import {
+  openFirstLandingExpectation,
+  openLaunches,
+} from "./first-landing-expectation.mjs";
 import { managementContext } from "./publication-git.mjs";
+
+// The expectation keys for a checkout's launches, or undefined outside a
+// Git checkout, where no launch can be open.
+async function launchKeys(workspace, branch) {
+  try {
+    return {
+      repository: await managementContext(workspace),
+      workspace,
+      branch,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+// Whether several launches are open in this checkout, so an omitted landing
+// context cannot name one of them.
+export async function severalLaunchesOpen({ workspace, branch }) {
+  if (typeof branch !== "string" || branch === "") return false;
+  const keys = await launchKeys(workspace, branch);
+  return keys !== undefined && (await openLaunches(keys)).length > 1;
+}
 
 export async function resolvePublicationLandingContext({
   landingContext,
@@ -31,17 +56,8 @@ export async function resolvePublicationLandingContext({
   ) {
     return undefined;
   }
-  let repository;
-  try {
-    repository = await managementContext(workspace);
-  } catch {
-    return undefined;
-  }
-  const open = await openFirstLandingExpectation({
-    repository,
-    workspace,
-    branch,
-  });
+  const keys = await launchKeys(workspace, branch);
+  const open = keys && (await openFirstLandingExpectation(keys));
   if (!open) return undefined;
   const context = JSON.parse(await readFile(open.landingContext, "utf8"));
   return context.remote === remote && context.target === targetRef

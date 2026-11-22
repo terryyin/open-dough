@@ -3,39 +3,34 @@
 // checkout each keep their own. It holds the exact `candidate` and
 // `suffixBase` saved before each work push and, once sealed, the `record`
 // saved before it is published. The state stays local; only the record is
-// published.
-import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+// published, and the state retires once the record is.
+import {
+  readGitPathJson,
+  removeGitPathJson,
+  replaceGitPathJson,
+} from "./git-path-json-store.mjs";
 
-function closeStatePath(workspace, sessionId) {
-  const found = execFileSync(
-    "git",
-    ["rev-parse", "--git-path", `open-dough/session-close/${sessionId}.json`],
-    { cwd: workspace, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
-  );
-  return resolve(workspace, found.trim());
+function closeStatePath(sessionId) {
+  return `open-dough/session-close/${sessionId}.json`;
 }
 
 // The session's saved close state, or undefined when none was saved here.
 export function readCloseState(workspace, sessionId) {
-  try {
-    return JSON.parse(
-      readFileSync(closeStatePath(workspace, sessionId), "utf8"),
-    );
-  } catch (error) {
-    if (error.code === "ENOENT") return undefined;
-    throw error;
-  }
+  return readGitPathJson(workspace, closeStatePath(sessionId));
 }
 
 // Merges `facts` into the session's saved close state, replacing the file
 // whole so an interruption leaves the previous state intact.
 export function saveCloseState(workspace, sessionId, facts) {
-  const file = closeStatePath(workspace, sessionId);
-  mkdirSync(dirname(file), { recursive: true });
-  const state = { ...readCloseState(workspace, sessionId), ...facts };
-  const temporary = `${file}.${process.pid}.tmp`;
-  writeFileSync(temporary, `${JSON.stringify(state, null, 2)}\n`);
-  renameSync(temporary, file);
+  replaceGitPathJson(workspace, closeStatePath(sessionId), {
+    ...readCloseState(workspace, sessionId),
+    ...facts,
+  });
+}
+
+// Removes the session's saved close state once its record is published; any
+// other record status keeps it for the next resume.
+export function retireCloseState(workspace, sessionId, status) {
+  if (status === "published")
+    removeGitPathJson(workspace, closeStatePath(sessionId));
 }

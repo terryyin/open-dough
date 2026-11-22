@@ -36,7 +36,7 @@ jobs:
         share: [1, 2, 3]
         include:
           - share: 1
-            tests: Distribution/tests/skills/dough-execute-plan/** Distribution/evaluation/tests/delivery-evidence/native-delivery-*.sh Distribution/evaluation/tests/delivery-evidence/proof-scheduling-native.sh
+            tests: Distribution/tests/skills/dough-execute-plan/** Distribution/tests/skills/dough-story-refinement/** Distribution/evaluation/tests/delivery-evidence/native-delivery-*.sh Distribution/evaluation/tests/delivery-evidence/proof-scheduling-native.sh
           - share: 2
             tests: Distribution/evaluation/tests/adr-awareness/** Distribution/evaluation/tests/delivery-evidence/delivery-evidence-*.sh Distribution/evaluation/tests/git-publication/** Distribution/evaluation/tests/makeme/** Distribution/evaluation/tests/native-guidance-checks/** Distribution/evaluation/tests/native-harness/** Distribution/evaluation/tests/page-objects/** Distribution/evaluation/tests/product-backlog/**
     steps:
