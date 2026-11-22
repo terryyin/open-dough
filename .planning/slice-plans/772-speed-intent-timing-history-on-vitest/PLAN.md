@@ -2,7 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-timing-history-on-vitest
 **Source:** [Get fast proof of Intent timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest)
-**Split from:** SEED-413#speed-intent-ci-status-frame-and-timing-history ([plan 764](../764-speed-intent-ci-status-frame-and-timing-history/PLAN.md), former Slice 4's history port and Slices 5–8) on 2026-11-22 at its delivered Slice 4 boundary
+**Split from:** SEED-413#speed-intent-ci-status-frame-and-timing-history (plan 764, recoverable at `7b9e64961:.planning/slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md`; former Slice 4's history port and Slices 5–8) on 2026-11-22 at its delivered Slice 4 boundary
 **Status:** awaiting story refinement — not ready for slice-plan refinement or execution
 
 ## Why this plan is provisional

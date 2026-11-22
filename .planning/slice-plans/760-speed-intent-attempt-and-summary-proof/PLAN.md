@@ -32,7 +32,8 @@ before/after comparison for this 18-file / 49-case cohort (plus the combined
 - Depend on SEED-413#speed-intent-timing-history-proof, whose plan 759
   delivers the required typed page-reads entry, and on
   SEED-413#speed-intent-ci-status-frame-and-timing-history, whose plan 764
-  Slices 1–3 [finish correcting the CI status test entry](../764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry).
+  Slices 1–3 finish correcting the CI status test entry (recoverable at
+  `7b9e64961:.planning/slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry`).
   Read CI through the required typed page-reads entry, never a default-valued
   context or an optional or defaulted reader. Reuse Node-free `aCiProofEntry`,
   `aCiProofEvidence` and `aComparedStory` on

@@ -45,7 +45,8 @@ Review of SEED-413#speed-intent-source-and-story-reading (`plan 755`,
 recoverable at `e0f7d6a6a:.planning/slice-plans/755-speed-intent-source-and-story-reading/PLAN.md`;
 implementation `634838a49`, landed at `6fa6ef623`) on 21 November 2026.
 Terry raised it on reading the new page helper's import list. It repeats the
-[CI status entry correction](../764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry)
+CI status entry correction (recoverable at
+`7b9e64961:.planning/slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry`)
 recorded in plan 759 about an hour after this delivery and now carried by
 plan 764, and breaks the
 same [shared acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories)
