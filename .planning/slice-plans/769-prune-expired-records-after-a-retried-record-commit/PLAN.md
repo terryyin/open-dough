@@ -3,8 +3,8 @@
 **Identity:** SEED-418#prune-expired-records-after-a-retried-record-commit
 **Source:** [Keep the expired-record prune when a record commit is retried](../../seeds/SEED-418-review-published-session-changes.md#prune-expired-records-after-a-retried-record-commit)
 **Provenance:** execution retrospective of
-[SEED-418#expire-published-session-records](../../seeds/SEED-418-review-published-session-changes.md#expire-published-session-records)
-(plan 767), reviewed commits `c86dd3425`, `e2747f65e`, `4f3b8db8a`,
+SEED-418#expire-published-session-records (plan 767, recoverable at
+`16cebb43ec9588615183f7286427a62a3ee85a55:.planning/slice-plans/767-expire-published-session-records/PLAN.md`), reviewed commits `c86dd3425`, `e2747f65e`, `4f3b8db8a`,
 `6c900c8d6` on `claude/expire-published-session-records-after-30-days`.
 
 ## Finding

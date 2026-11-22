@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Kaoru-chan",
-  "email": "kaoru-chan@example.org",
-  "identity": "SEED-418#expire-published-session-records",
-  "mode": "story-branch",
-  "branch": "claude/expire-published-session-records-after-30-days",
-  "host": "claude"
-}
