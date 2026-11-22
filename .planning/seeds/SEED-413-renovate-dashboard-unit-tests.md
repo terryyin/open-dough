@@ -829,7 +829,7 @@ Slice 2 boundary alongside
 {"schemaVersion":1,"identity":"SEED-413#finish-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#make-launch-proof-orthogonal","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal"},"implementation":"Slices 1–6 reshape the launch dialog, dictation, story card status and startup recovery specs, narrow TranscriptReview and StartupRecovery in production, and change shared launch page helpers.","rationale":"This story reshapes the same launch page helpers (story-card-launch-page.ts, story-startup-page.ts) and measures the whole launch selection; starting from the unintegrated branch would conflict on those helpers and measure against a selection trunk does not hold. Reconciliation cannot help because the supplier's changes are not yet on trunk.","condition":"SEED-413#make-launch-proof-orthogonal is integrated on trunk with its reshaped launch selection.","state":"satisfied","resolution":{"revision":"265d6750b2aff5f953fee6e6684dbfd28d507b89","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal","summary":"Slices 1–6 integrated: dense launch layout, model and effort reset, TranscriptReview, native recording races, typed StartupStatus and StartupRecovery, with plan 768's mappings and paired timing (reshaped families 21.4–21.7 s against 26.0–29.0 s at load about 13) at 265d6750b:.planning/slice-plans/768-make-launch-proof-orthogonal/PLAN.md. The merged launch selection passed 71/71 and the whole frontend group 452/452 before integration.\nCondition satisfied: SEED-413#make-launch-proof-orthogonal is integrated on trunk with its reshaped launch selection.\nAccepted integration: ac398c66a245cca4b63758b5b742e31df369492b on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/771-finish-launch-proof-orthogonal/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/771-finish-launch-proof-orthogonal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"84224af1d862c0e2510b7a8d343f962513980e96d33606d99c82f5d4d2ce79c3","plan":"e03d8d9c6951494e14123e4e3c2c93f4419c0a261a68d06f9a33117f4b73a73d"}}
 ```
 
 - **Goal.** Dashboard maintainers get the local launch unit selection in
@@ -848,12 +848,23 @@ Slice 2 boundary alongside
   smallest production owner through typed inputs; production code may
   narrow an owner so it stands alone in production; tests never copy a
   production composition. Before removing an observation, name the
-  retained case that would fail for the same regression. Preserve genuine
-  browser conditions, capture and recovery races, and the existing native,
+  retained case that would fail for the same regression. Note attachment
+  takes a required notes answer, and the reading wrapper renders that
+  choice. Unattached startup already takes its attempt on Start session
+  and the project-actions row; the responsive terminal cases stop
+  spreading `launchOffers`. Image paste, refusal and cancel stay on the
+  dialog and attachment control that own them. Recorded model, effort and
+  option words are read from the launch subject on the session entry and
+  its details. The creation entry already mounts `CreationEntry` with a
+  typed record; keep that case and include the file in the selection
+  timing. Delivered files this story does not own stay as they are,
+  including `launch-refinement-options.spec.ts`. Preserve genuine browser
+  conditions, capture and recovery races, and the existing native,
   install and backend journeys at their current owners. Add no E2E case.
   A change to the shared frontend runner configuration is allowed only
-  with whole frontend group proof; both desktop-pointer files still need
-  the `chromium-desktop` instance. Apply the
+  with whole frontend group proof; `story-card-launch-offers.spec.ts` and
+  `story-card-startup.spec.ts` still need the `chromium-desktop` instance.
+  Apply the
   [shared acceptance](#acceptance-shared-by-the-eight-stories) mapping,
   spent-support and timing checks. If the remaining time cannot reach the
   target without losing a distinct observation, stop with the measured
@@ -862,23 +873,27 @@ Slice 2 boundary alongside
   - Note attachment receives its typed notes, with distinct waiting, no
     waiting and unreadable states; one composed Start session Follow-up
     request remains.
-  - Unattached startup receives its typed answer.
+  - Unattached startup receives its typed attempt: progress and refusal
+    stay on the project-actions row, and a blank keyboard start presents
+    the terminal while an instructed start leaves it closed.
   - Story card launches mount without a hand-built copy of the machine
     sessions composition.
   - Measurement: the whole selection run with
     `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
     reports about 7–8 s wall including preparation, compared under similar
     machine load with a paired run of the starting selection.
-- **Baseline and learning.** Split from
-  SEED-413#make-launch-proof-orthogonal on 22 November 2026; its plan
+- **Evaluation.** The seven owned files have a traceable disposition and
+  the whole launch selection is measured as the key example states. Apply
+  the [shared acceptance](#acceptance-shared-by-the-eight-stories) mapping,
+  spent-support and timing checks.
+- **Carried evidence.** Split from
+  SEED-413#make-launch-proof-orthogonal on 22 November 2026. Plan 768 at
   `265d6750b:.planning/slice-plans/768-make-launch-proof-orthogonal/PLAN.md`
-  records each reshaped family's mapping and paired timing. Its Slice 7
-  return found the seven files at 1,054 lines and no typed owner for the
-  unattached startup answer. The smallest deliverable first part is note
-  attachment: an `AttachStoryNotesChoice` owner with a required `answer`
-  that the reading wrapper renders. Source map:
-  `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`
-  (rows for `follow-up-note-handoff` and `responsive-unattached-startup`).
+  records each reshaped family's mapping. Its paired run at `840788d00`
+  (two workers, load 13 → 16) took the 17 reshaped files to 21.40 s and
+  21.68 s against 29.02 s and 26.01 s for their 16 starting files. Its
+  Slice 7 return found these seven files at 1,054 lines. The source map is
+  `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 
