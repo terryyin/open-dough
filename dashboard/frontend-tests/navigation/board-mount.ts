@@ -8,6 +8,7 @@ import { PageFrame } from "../../src/PageFrame.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
@@ -142,7 +143,12 @@ export async function mountBoard(
   {
     reviews,
     sessionsSidebar = "closed",
-  }: { reviews?: ReviewSource; sessionsSidebar?: "closed" | "kept" } = {},
+    done,
+  }: {
+    reviews?: ReviewSource;
+    sessionsSidebar?: "closed" | "kept";
+    done?: DoneRecordReadSource;
+  } = {},
 ) {
   if (sessionsSidebar === "closed") withClosedSessionsSidebar();
   let sessions = { ...noSessions, ...observed };
@@ -163,16 +169,15 @@ export async function mountBoard(
       value: sessions,
       children: board,
     });
+    const reads = pageReadsSupplying({
+      sessions: authenticatedSessionServices,
+      ...(reviews === undefined ? {} : { review: reviews }),
+      ...(done === undefined ? {} : { done }),
+    });
     if (reviews === undefined)
-      return createElement(PageReadsOnPage, {
-        reads: pageReadsSupplying({ sessions: authenticatedSessionServices }),
-        children: launched,
-      });
+      return createElement(PageReadsOnPage, { reads, children: launched });
     return createElement(PageReadsOnPage, {
-      reads: pageReadsSupplying({
-        review: reviews,
-        sessions: authenticatedSessionServices,
-      }),
+      reads,
       children: createElement(StoryNotesOnPage, {
         value: notes,
         children: launched,

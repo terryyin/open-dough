@@ -5,6 +5,7 @@ import {
   type MachineSessions,
 } from "../../src/agentLaunches.ts";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
+import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { useObservedRevisionDelivery } from "../../src/observedRevisionDelivery.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
@@ -37,10 +38,12 @@ export async function mountBoardFrame(
     otherWork = [],
     initialReadError,
     intentReads,
+    done,
   }: {
     otherWork?: readonly PublishedWork[];
     initialReadError?: Error;
     intentReads?: IntentReadSource;
+    done?: DoneRecordReadSource;
   } = {},
 ) {
   withClosedSessionsSidebar();
@@ -80,6 +83,7 @@ export async function mountBoardFrame(
       reads: pageReadsSupplying({
         sessions: authenticatedSessionServices,
         ...(intentReads === undefined ? {} : { intent: intentReads }),
+        ...(done === undefined ? {} : { done }),
       }),
       settingsOpen: false,
       onOpenSettings: () => {},

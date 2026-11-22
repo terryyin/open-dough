@@ -179,6 +179,7 @@ async function startSessionReadsAt(viewport: {
   const start = dialog.getByRole("button", { name: "Start", exact: true });
   const cancel = dialog.getByRole("button", { name: "Cancel", exact: true });
   await cancel.click();
+  await expect.element(dialog).not.toBeInTheDocument();
   const launcher = page.getByRole("button", {
     name: "Start session in Open Dough",
   });

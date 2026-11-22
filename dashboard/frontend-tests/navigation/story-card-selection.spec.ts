@@ -1,19 +1,13 @@
 import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { readDoneRecordBodiesAt } from "../../src/authenticatedDoneRead.ts";
 import { contrastRatio } from "../../test-support/composedColours.ts";
 import { decorativeIcon, paintedBackground } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
 import { noSessions, withBoardStorage } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
-import { boardWork, cataloguedDone, story } from "./board-work.ts";
+import { boardWork, story } from "./board-work.ts";
 import { tapWhereShown } from "./board-touch-page.ts";
-
-vi.mock(import("../../src/authenticatedDoneRead.ts"), async (original) => ({
-  ...(await original()),
-  readDoneRecordBodiesAt: vi.fn(),
-}));
 
 type Card = ReturnType<typeof page.getByRole>;
 
@@ -75,8 +69,7 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
   const { records } = makeMe.aMachineAnswer
     .observingUnavailable(closed)
     .please();
-  const { done, readBodies } = cataloguedDone([completed]);
-  vi.mocked(readDoneRecordBodiesAt).mockImplementation(readBodies);
+  const { done, doneReads } = makeMe.aDoneCatalog.holding([completed]).please();
   const startLaunch = vi.fn();
   const readHistory = vi.fn();
   await mountBoardFrame(
@@ -90,6 +83,7 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
       start: startLaunch,
       readHistory,
     },
+    { done: doneReads },
   );
 
   const active = board

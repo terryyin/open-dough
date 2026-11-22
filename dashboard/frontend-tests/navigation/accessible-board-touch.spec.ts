@@ -3,7 +3,6 @@ import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
-import { readDoneRecordBodiesAt } from "../../src/authenticatedDoneRead.ts";
 import {
   mountBoard,
   reducedBoardMotion,
@@ -16,12 +15,7 @@ import {
   tapWhereShown,
   useTouchScreen,
 } from "./board-touch-page.ts";
-import { boardWork, cataloguedDone, story } from "./board-work.ts";
-
-vi.mock(import("../../src/authenticatedDoneRead.ts"), async (original) => ({
-  ...(await original()),
-  readDoneRecordBodiesAt: vi.fn(),
-}));
+import { boardWork, story } from "./board-work.ts";
 
 const identity = `SEED-090#${"a-long-anchor-".repeat(6)}end`;
 const title = `Keep a title with ${"Uninterruptedlyconcatenated".repeat(5)} and ordinary words readable across the Board`;
@@ -61,9 +55,7 @@ function donePublication() {
       completedAt: new Date(Date.now() - 240_000).toISOString(),
     })
     .please();
-  const { done, readBodies } = cataloguedDone([newest, older]);
-  vi.mocked(readDoneRecordBodiesAt).mockImplementation(readBodies);
-  return done;
+  return makeMe.aDoneCatalog.holding([newest, older]).please();
 }
 
 function textFitsInCard(part: Element, card: Element) {
@@ -97,9 +89,10 @@ test.beforeEach(async () => {
 });
 
 test("project and column navigation keep a long story readable and its detail open through rotation", async () => {
+  const published = donePublication();
   const openDough = boardWork([...otherStories, blockedStory], {
     taken: [longStory, story("Repair the installer's update report", 59)],
-    done: donePublication(),
+    done: published.done,
   });
   const doughnut = boardWork([], {
     id: "doughnut",
@@ -111,7 +104,14 @@ test("project and column navigation keep a long story readable and its detail op
     label: "Another configured project",
     taken: [],
   });
-  await mountBoard([openDough, doughnut, another], portrait);
+  await mountBoard(
+    [openDough, doughnut, another],
+    portrait,
+    {},
+    {
+      done: published.doneReads,
+    },
+  );
   await board.shows(["Backlog"], ["Taken 2 entries"]);
   await chooseProject("Doughnut");
   await expect

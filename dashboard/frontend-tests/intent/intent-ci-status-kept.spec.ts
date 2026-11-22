@@ -61,10 +61,12 @@ test("CI homepage shows again across Development and back; Optimization Candidat
 
   const mounted = await mountIntentPerspective({
     work: openDoughWork,
-    readSource,
-    ciReads: inertCiReads({
-      readStatus: () => Promise.resolve(login),
-    }),
+    reads: {
+      intent: readSource,
+      ci: inertCiReads({
+        readStatus: () => Promise.resolve(login),
+      }),
+    },
   });
   const ci = intentCiStatus();
   const candidates = intentCandidates();
@@ -181,21 +183,23 @@ test("a new trunk revision asks for the homepage judgment again at the new head;
 
   const mounted = await mountIntentPerspective({
     work: initialWork,
-    readSource: {
-      readLocations: () => Promise.resolve(configuredLocations),
-      readFile: () => Promise.resolve(""),
-      readCandidates: () => Promise.resolve({ status: "absent" }),
+    reads: {
+      intent: {
+        readLocations: () => Promise.resolve(configuredLocations),
+        readFile: () => Promise.resolve(""),
+        readCandidates: () => Promise.resolve({ status: "absent" }),
+      },
+      ci: inertCiReads({
+        readKeptStatus: () => {
+          reads.kept += 1;
+          return Promise.resolve({ none: true });
+        },
+        readStatus: () => {
+          reads.fresh += 1;
+          return Promise.resolve(currentAnswer);
+        },
+      }),
     },
-    ciReads: inertCiReads({
-      readKeptStatus: () => {
-        reads.kept += 1;
-        return Promise.resolve({ none: true });
-      },
-      readStatus: () => {
-        reads.fresh += 1;
-        return Promise.resolve(currentAnswer);
-      },
-    }),
   });
   const ci = intentCiStatus();
   await ci.answers("Passed at a1b2c3d (Add login)");

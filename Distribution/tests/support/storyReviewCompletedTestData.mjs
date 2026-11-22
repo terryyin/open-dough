@@ -11,13 +11,16 @@
 import { storyReviewIds } from "./storyReviewSnapshotTestData.mjs";
 
 /**
- * @param {Compared} compared
+ * A story's published comparison; a given `completion` also names the trunk
+ * landing it represents.
+ * @param {Compared & { completion: string | undefined }} compared
  * @returns {StoryReview}
  */
-export function publishedComparison({ baseline, tree, files }) {
+export function publishedComparison({ baseline, tree, files, completion }) {
   return {
     kind: "published",
-    completion: storyReviewIds.completion,
+    completion: completion ?? storyReviewIds.completion,
+    ...(completion === undefined ? {} : { landingRevision: completion }),
     completedAt: "2026-01-01T00:00:00.000Z",
     agent: "claude",
     remote: "origin",

@@ -66,10 +66,12 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
   };
   const mounted = await mountIntentPerspective({
     work: openDoughWork,
-    readSource,
-    ciReads: inertCiReads({
-      readStatus: () => Promise.resolve(login),
-    }),
+    reads: {
+      intent: readSource,
+      ci: inertCiReads({
+        readStatus: () => Promise.resolve(login),
+      }),
+    },
   });
   const ci = intentCiStatus();
   const intentMain = page.getByRole("main", { name: "Intent", exact: true });
@@ -191,28 +193,30 @@ test("project CI remains readable while locations load, fail and recover without
 
   await mountIntentPerspective({
     work: coldWork,
-    readSource: {
-      readLocations: () => {
-        if (firstAttempt) {
-          firstAttempt = false;
-          initialAsked = true;
-          return initialLocations;
-        }
-        return Promise.resolve(configuredLocations);
+    reads: {
+      intent: {
+        readLocations: () => {
+          if (firstAttempt) {
+            firstAttempt = false;
+            initialAsked = true;
+            return initialLocations;
+          }
+          return Promise.resolve(configuredLocations);
+        },
+        readFile: () => Promise.resolve(browseSpecText),
+        readCandidates: () => Promise.resolve({ status: "absent" }),
       },
-      readFile: () => Promise.resolve(browseSpecText),
-      readCandidates: () => Promise.resolve({ status: "absent" }),
+      ci: inertCiReads({
+        readKeptStatus: () => {
+          reads.kept += 1;
+          return Promise.resolve({ none: true });
+        },
+        readStatus: () => {
+          reads.fresh += 1;
+          return Promise.resolve(login);
+        },
+      }),
     },
-    ciReads: inertCiReads({
-      readKeptStatus: () => {
-        reads.kept += 1;
-        return Promise.resolve({ none: true });
-      },
-      readStatus: () => {
-        reads.fresh += 1;
-        return Promise.resolve(login);
-      },
-    }),
   });
   const ci = intentCiStatus();
   await expect

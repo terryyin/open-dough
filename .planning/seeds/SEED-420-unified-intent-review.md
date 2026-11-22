@@ -171,35 +171,6 @@ defines.
 **Effort hypothesis:** L, low confidence. The review journeys reach the
 review through one page object that moves with it. Their number is the cost.
 
-<a id="test-compare-on-mounted-intent"></a>
-
-### Prove Intent's Compare on the mounted Intent view
-
-**Identity:** SEED-420#test-compare-on-mounted-intent
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/765-test-compare-on-mounted-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6c927c72dd0ce219b37352dc476cf7dd846850be7ac7bdc6b60b7d276c0f3390","plan":"53bcc6044b94402475aeb11a11d2fff3503b7a364eaa41e7fa85671f59866e81"}}
-```
-
-**Goal:** A maintainer changing Intent's Compare gets fast unit feedback from
-plain Vitest Browser Mode cases that mount the production Intent view with a
-typed review source, and Dashboard Test Support loses the wrappers
-SEED-420#choose-story-comparison-in-intent added to it.
-
-**Scope:** Bounded retrospective correction of Choose what a story's review
-compares in Intent
-(`beb2e240:.planning/seeds/SEED-420-unified-intent-review.md#choose-story-comparison-in-intent`,
-provenance `29cd279ec`..`97eecc17a`), under the
-[Architectural North Star](../NORTH-STAR.md). Its five
-`dashboard/frontend-tests/intent/intent-story-compare-*.spec.ts` cases move
-from the Playwright built-app fixture to Vitest Browser Mode mounts with no
-`@playwright/test` import, `page.route`, `test.step` or Dashboard Test Support
-page object. Their behavioral assertions stay. The wrappers the story added to
-`dashboard/test-support/` (`failNextRange`, `failNextRunSnapshot`,
-`failNextReviewRead`, `storyCompare` and the other `intentStoryPage.ts`
-additions) are removed, and its review MakeMe builders load in the page MakeMe
-entry. Plan 761 slice 1's proof is restated on the same mount. No product
-behavior changes.
-
 <a id="compare-story-contributions"></a>
 
 ### Compare a story branch with and without incoming trunk changes

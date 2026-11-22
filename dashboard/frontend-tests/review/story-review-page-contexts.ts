@@ -59,7 +59,7 @@ const never = <T>() => new Promise<T>(() => undefined);
 const answer = makeMe.aMachineAnswer.please();
 
 // No session is started, kept or running on the machine.
-const launches: MachineSessions = {
+export const launches: MachineSessions = {
   rereadOffers: () => undefined,
   rereadSessions: () => undefined,
   creations: answer.creations,

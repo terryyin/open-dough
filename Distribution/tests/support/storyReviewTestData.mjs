@@ -1,31 +1,29 @@
 // @ts-check
-// Builders of the story review's answers (dashboard/src/storyReviewContract.ts):
+// Builder of the story review's answers (dashboard/src/storyReviewContract.ts):
 // a taken story's snapshot (./storyReviewSnapshotTestData.mjs), a completed
-// comparison (./storyReviewCompletedTestData.mjs), a review gap, a commit
-// range, a captured run and a file's printed diff. Node-free, so
-// pageMakeMe.mjs exposes them to mounted cases.
+// comparison (./storyReviewCompletedTestData.mjs), a review gap and a commit
+// range. Node-free; ./storyReviewMakeMe.mjs registers it.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").StoryReview} StoryReview */
 /** @typedef {Pick<Extract<StoryReview, { kind: "landing-unavailable" }>, "explanation" | "comparison">} ReviewGap */
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
 /** @typedef {TakenStoryReview["files"][number]} ReviewedFile */
 /** @typedef {import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice} ReviewRunChoice */
-import { ReviewedFileDiffBuilder } from "./reviewedFileDiffTestData.mjs";
 import {
   landedComparison,
   publishedComparison,
   sessionCommits,
 } from "./storyReviewCompletedTestData.mjs";
-import { ReviewRunBuilder } from "./storyReviewRunTestData.mjs";
 import {
   commitRange,
   storyReviewIds,
   takenSnapshot,
 } from "./storyReviewSnapshotTestData.mjs";
+/** @typedef {import("./reviewCommitTestData.mjs").ReviewCommit} ReviewCommit */
 
 export class StoryReviewBuilder {
   /** @type {ReviewedFile[]} */
   #files = [];
-  /** @type {"snapshot" | "published" | "landed" | "session-commits" | "landing-unavailable"} */
+  /** @type {"snapshot" | "published" | "landed" | "session-commits" | "landing-unavailable" | "unavailable"} */
   #kind = "snapshot";
   /** @type {ReviewGap} */
   #gap = { explanation: "" };
@@ -37,6 +35,11 @@ export class StoryReviewBuilder {
   #committed;
   /** @type {number | undefined} */
   #publishedKept;
+  /** @type {string | undefined} */
+  #completion;
+  /** @type {ReviewCommit[] | undefined} */
+  #commits;
+  #uncommitted = false;
 
   /**
    * @param {string} path a file the comparison adds
@@ -71,6 +74,34 @@ export class StoryReviewBuilder {
     return this;
   }
 
+  /** @param {string} path a file the comparison deletes */
+  deleting(path) {
+    this.#files.push({
+      kind: "deleted",
+      path,
+      lines: { added: 0, removed: 1 },
+    });
+    return this;
+  }
+
+  /**
+   * A snapshot of a worktree holding `commits`, newest first
+   * (`makeMe.aReviewCommit`); with `committedAs`, its committed part runs
+   * from the oldest's parent tree to the newest's tree.
+   * @param {...ReviewCommit} commits
+   */
+  onCommits(...commits) {
+    this.#commits = commits;
+    return this;
+  }
+
+  // Uncommitted changes over the snapshot's newest commit, whose committed
+  // part cannot be told apart, so no uncommitted check is offered.
+  withUncommittedChanges() {
+    this.#uncommitted = true;
+    return this;
+  }
+
   /** @param {string} path a file the comparison changes by one line */
   modifying(path) {
     this.#files.push({
@@ -95,9 +126,12 @@ export class StoryReviewBuilder {
     return this;
   }
 
-  // A completed story's published comparison.
-  published() {
+  // A completed story's published comparison; given its `completion`, the
+  // trunk revision that completion landed.
+  /** @param {string} [completion] */
+  published(completion) {
     this.#kind = "published";
+    this.#completion = completion;
     return this;
   }
 
@@ -116,6 +150,13 @@ export class StoryReviewBuilder {
   /** @param {string} explanation why the landed run cannot be reviewed */
   landingGap(explanation) {
     this.#kind = "landing-unavailable";
+    this.#gap = { explanation };
+    return this;
+  }
+
+  /** @param {string} explanation why this machine cannot read the review */
+  unavailable(explanation) {
+    this.#kind = "unavailable";
     this.#gap = { explanation };
     return this;
   }
@@ -139,11 +180,14 @@ export class StoryReviewBuilder {
   }
 
   /**
-   * The range read of the snapshot's commit, holding this review's files.
+   * The range read holding this review's files: from `oldest`'s parent tree
+   * to `newest`'s tree, or without them, of the snapshot's one commit.
+   * @param {ReviewCommit} [oldest]
+   * @param {ReviewCommit} [newest]
    * @returns {import("../../../dashboard/src/storyReviewContract.ts").ReviewRange}
    */
-  pleaseRange() {
-    return commitRange(this.#files);
+  pleaseRange(oldest, newest = oldest) {
+    return commitRange(this.#files, oldest, newest);
   }
 
   /** @returns {StoryReview} */
@@ -165,57 +209,27 @@ export class StoryReviewBuilder {
     const files = structuredClone(this.#files);
     if (this.#kind === "landing-unavailable")
       return { kind: "landing-unavailable", ...this.#gap };
+    if (this.#kind === "unavailable")
+      return { kind: "unavailable", explanation: this.#gap.explanation };
     if (this.#kind === "session-commits")
       return sessionCommits({ baseline, tree, files });
     if (this.#kind === "published")
-      return publishedComparison({ baseline, tree, files });
+      return publishedComparison({
+        baseline,
+        tree,
+        files,
+        completion: this.#completion,
+      });
     if (this.#kind === "landed")
       return landedComparison({ baseline, tree, files, run });
-    const snapshot = takenSnapshot({
+    return takenSnapshot({
       baseline,
       tree,
       files,
       committed: this.#committed,
+      commits: this.#commits,
+      uncommitted: this.#uncommitted,
+      publishedKept: this.#publishedKept,
     });
-    if (this.#publishedKept === undefined) return snapshot;
-    return {
-      ...snapshot,
-      published: {
-        trunk: baseline,
-        commits: this.#publishedKept,
-        kept: "not-restated",
-      },
-    };
   }
-}
-
-/**
- * @typedef {object} StoryReviewMakeMe
- * @property {StoryReviewBuilder} aStoryReview
- * @property {ReviewedFileDiffBuilder} aReviewedFileDiff
- * @property {ReviewRunBuilder} aReviewRun
- */
-
-/** @returns {PropertyDescriptorMap} */
-export function storyReviewMakeMeProperties() {
-  return {
-    aStoryReview: {
-      enumerable: true,
-      get() {
-        return new StoryReviewBuilder();
-      },
-    },
-    aReviewedFileDiff: {
-      enumerable: true,
-      get() {
-        return new ReviewedFileDiffBuilder();
-      },
-    },
-    aReviewRun: {
-      enumerable: true,
-      get() {
-        return new ReviewRunBuilder();
-      },
-    },
-  };
 }

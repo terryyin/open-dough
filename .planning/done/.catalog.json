@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_test-compare-on-mounted-intent.json",
+      "identity": "SEED-420#test-compare-on-mounted-intent",
+      "completedAt": "2026-11-22T02:34:58.950Z",
+      "blob": "2860640a067d7b0e433a3586fc56be4c43874b73"
+    },
+    {
       "fileName": "SEED-418_attribute-every-workflow-session-record.json",
       "identity": "SEED-418#attribute-every-workflow-session-record",
       "completedAt": "2026-11-22T01:58:08.871Z",
@@ -2814,12 +2820,6 @@
       "identity": "SEED-149#native-ci-workflow",
       "completedAt": "2026-10-23T12:20:36.369Z",
       "blob": "e8a825c697046409df279ead8d52faa7407c9da9"
-    },
-    {
-      "fileName": "SEED-148_allocate-unused-story-identities.json",
-      "identity": "SEED-148#allocate-unused-story-identities",
-      "completedAt": "2026-10-23T02:22:58.848Z",
-      "blob": "ae1753b7d09624144e17e42dc73eb6132732df53"
     }
   ],
   "unreadable": []

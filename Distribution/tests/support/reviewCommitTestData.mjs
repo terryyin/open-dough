@@ -74,7 +74,6 @@ export class UncommittedReviewItemBuilder {
 /**
  * @typedef {object} ReviewCommitMakeMe
  * @property {ReviewCommitBuilder} aReviewCommit
- * @property {UncommittedReviewItemBuilder} anUncommittedReviewItem
  */
 
 /** @returns {PropertyDescriptorMap} */
@@ -84,12 +83,6 @@ export function reviewCommitMakeMeProperties() {
       enumerable: true,
       get() {
         return new ReviewCommitBuilder();
-      },
-    },
-    anUncommittedReviewItem: {
-      enumerable: true,
-      get() {
-        return new UncommittedReviewItemBuilder();
       },
     },
   };

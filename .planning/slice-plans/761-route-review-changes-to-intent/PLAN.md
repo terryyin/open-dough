@@ -50,12 +50,16 @@ the chosen read's state. `isDefault` moves into `useStoryReviewSelection`
 beside the defaults it compares, `defaultStoryComparison` goes, and
 `wholeStory` gets one derivation (today `useIntentStoryLens` and
 `IntentPage`).
-Proof: frontend cases with `holdNextRange` and `holdNextSnapshot` (Refresh)
-show the Compare group staying, focus on the pressed control and the
-header saying it reads; a Done case with a held run read keeps the
-locations browser and the CI endpoint text. The five
-`intent-story-compare-*` specs and `dashboard/frontend-tests/review` stay
-green. Order it first: slice 2 makes Intent the only story review.
+Proof: Vitest Browser Mode cases on the mounted Intent view
+([`intent-ci-perspective-mount.ts`](../../../dashboard/frontend-tests/intent/intent-ci-perspective-mount.ts),
+[`intent-story-compare-stories.ts`](../../../dashboard/frontend-tests/intent/intent-story-compare-stories.ts),
+[`intent-story-compare-page.ts`](../../../dashboard/frontend-tests/intent/intent-story-compare-page.ts)),
+where the case's own `ReviewSource` returns a pending promise for the range
+read and for the Refresh snapshot read, show the Compare group staying,
+focus on the pressed control and the header saying it reads; a Done case
+whose `ReviewSource` leaves the chosen run read pending keeps the locations
+browser and the CI endpoint text. The five `intent-story-compare-*` specs
+and `dashboard/frontend-tests/review` stay green. Order it first: slice 2 makes Intent the only story review.
 
 ### 2. Review changes on a Story card opens the story's Changes in Intent
 Type: Behavior

@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Prove Intent's Compare on the mounted Intent view](seeds/SEED-420-unified-intent-review.md#test-compare-on-mounted-intent) — SEED-420#test-compare-on-mounted-intent ([plan](slice-plans/765-test-compare-on-mounted-intent/PLAN.md))
-
 ## Backlog list
 
 - [Disclose shared-checkout overlap in published session records](seeds/SEED-418-review-published-session-changes.md#disclose-shared-checkout-overlap) — SEED-418#disclose-shared-checkout-overlap

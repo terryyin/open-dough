@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-420#test-compare-on-mounted-intent",
+  "title": "Prove Intent's Compare on the mounted Intent view",
+  "completedAt": "2026-11-22T02:34:58.950Z",
+  "developer": "Terry Yin",
+  "agent": "Kirara-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

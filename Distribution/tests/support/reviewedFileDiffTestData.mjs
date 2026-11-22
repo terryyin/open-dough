@@ -1,7 +1,7 @@
 // @ts-check
 // Builder of a reviewed file's printed diff
 // (dashboard/src/storyReviewContract.ts): one file whose given lines are all
-// added. Node-free, so pageMakeMe.mjs exposes it through storyReviewTestData.mjs.
+// added. Node-free, so pageMakeMe.mjs exposes it through storyReviewMakeMe.mjs.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").ReviewedFileDiff} ReviewedFileDiff */
 
 export class ReviewedFileDiffBuilder {

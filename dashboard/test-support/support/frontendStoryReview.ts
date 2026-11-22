@@ -11,20 +11,13 @@ import type { Page } from "@playwright/test";
 import type {
   ReviewedFileDiff,
   ReviewedFileText,
-  ReviewRange,
   StoryReview,
 } from "../../src/storyReviewContract.ts";
 import { frontendReviewSnapshot } from "./frontendStoryReviewFixtures.ts";
 import {
-  storyReviewEndpoint,
-  storyReviewRangeEndpoint,
-} from "../../src/storyReviewContract.ts";
-import {
-  failNextReviewRead,
   installReviewRoutes,
   reviewedFileDiffSchema,
   reviewedFileTextSchema,
-  reviewRangeSchema,
   storyReviewSchema,
 } from "./frontendStoryReviewRoutes.ts";
 
@@ -57,15 +50,6 @@ export type FrontendStoryReview = {
   readonly holdNextSnapshot: () => ReturnType<
     ReturnType<typeof controls>["holdNext"]
   >;
-  readonly answerRange: (range: ReviewRange) => void;
-  readonly answerNextRange: (range: ReviewRange) => void;
-  readonly holdNextRange: () => ReturnType<
-    ReturnType<typeof controls>["holdNext"]
-  >;
-  // The next range ask fails; later asks are answered as staged.
-  readonly failNextRange: () => Promise<void>;
-  // The next ask naming `run` fails; later asks are answered as staged.
-  readonly failNextRunSnapshot: (run: string) => Promise<void>;
   readonly answerFile: (diff: ReviewedFileDiff, path?: string) => void;
   readonly answerNextFile: (diff: ReviewedFileDiff, path?: string) => void;
   readonly holdNextFile: (
@@ -85,7 +69,6 @@ export async function installFrontendStoryReview(
   const state = createReviewBuckets(storyReviewSchema.parse(initial));
   await installReviewRoutes(page, state);
   const snapshotCtl = controls(page, state.snapshots);
-  const rangeCtl = controls(page, state.ranges);
   const fileCtl = controls(page, state.files);
   const textCtl = controls(page, state.texts);
   return {
@@ -108,21 +91,6 @@ export async function installFrontendStoryReview(
       snapshotCtl.answerNext(storyReviewSchema.parse(review));
     },
     holdNextSnapshot: () => snapshotCtl.holdNext(),
-    answerRange: (range) => {
-      const parsed = reviewRangeSchema.parse(range);
-      Object.assign(state.ranges, { settle: () => parsed });
-    },
-    answerNextRange: (range) => {
-      rangeCtl.answerNext(reviewRangeSchema.parse(range));
-    },
-    holdNextRange: () => rangeCtl.holdNext(),
-    failNextRange: () => failNextReviewRead(page, storyReviewRangeEndpoint),
-    failNextRunSnapshot: (run) =>
-      failNextReviewRead(
-        page,
-        storyReviewEndpoint,
-        (query) => query.get("run") === run,
-      ),
     answerFile: (diff, path) => {
       state.fileByPath.set(keyFor(path), reviewedFileDiffSchema.parse(diff));
     },
