@@ -163,8 +163,14 @@ change, retirement, restart, Mark as read and Mark as done"). It has the same
 shape of serial work as the quiet completion journey: a real launch, an
 installed closure and reporting, then page phases. Keep every observation at
 some owner, keep the default timeout and add no override. No dashboard
-behavior changes. Refinement decides the split, reusing whatever the
-[quiet completion split](#split-quiet-completion-journey) establishes.
+behavior changes. Refinement decides the split. The completed quiet
+completion split is a model to reuse.
+`agent-completion-quiet-done.spec.ts` reads a record composed through
+`retainedReport.ts` `retained()` plus a recent MakeMe completion receipt.
+`agent-completion-quiet.spec.ts` keeps the installed closure and reporting
+without the `page` fixture. Under 40 burners (load 40–71) its cases took
+27% less time than before. `DEBUG=pw:browser` shows whether a worker
+launched a browser.
 
 **Starting evidence:** On 22 November 2026, during the preparation
 observations for the quiet completion split, the case timed out at 30 s once
