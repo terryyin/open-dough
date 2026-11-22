@@ -2,6 +2,7 @@
 
 **Identity:** SEED-341#split-quiet-completion-journey
 **Source:** [Keep the quiet completion journey within its timeout under load](../../seeds/SEED-341-simplify-session-tests.md#split-quiet-completion-journey)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -77,7 +78,7 @@ timeouts, and follow the
 ### 1. Recently done proves a quiet completion from a composed record
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the new page spec passes. Discrimination check: a scratch edit that
 drops the composed `doneAt` makes the Done assertion fail, and a scratch
 `doneProblem` removal makes the Mark as done assertion fail. Revert both.
@@ -95,6 +96,19 @@ writing each case, check `session-workspace-retirement-done.spec.ts` and the
 other Recently done specs. Where one already proves an observation for a
 Codex quiet completion, cite it in the spec's owner comment and do not repeat
 it.
+
+Accepted proof: `e2e/sessions/agent-completion-quiet-done.spec.ts` passes
+(final structure, run `r1-refactor-quiet-done`, exit 0). Discrimination held
+before the refactor's step restructure, which kept setup and assertions:
+without `doneAt` the entry is not found; without `doneProblem` Mark as done
+fails. Learnings: a composed `doneAt` must be recent or the store's retention
+drops the record; a Done session reaches Recently done only once its story is
+completed, so the spec shows `journey.completed` from the story-columns
+journey; the entry is found with `sessionEntryShowing`, because filtering
+articles by thread matches the done-story article too. No existing spec
+already proved these observations for a quiet Codex completion. `retained()`
+still makes one dashboard launch request against the fake Codex; it runs no
+installed launch, closure or reporting.
 
 ### 2. Installed closure and quiet reporting run without a browser
 
