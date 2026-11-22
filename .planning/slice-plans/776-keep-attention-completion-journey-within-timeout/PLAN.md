@@ -291,3 +291,8 @@ unchanged. Continuing was justified because the page observations were
 already proved and this retry finished Slice 7's own proof.
 
 ## Story obligations
+
+## Execution complete
+
+Product advice: no change. The split keeps every attention observation at
+its closure or page owner, and the loaded cases passed inside 30 s.
