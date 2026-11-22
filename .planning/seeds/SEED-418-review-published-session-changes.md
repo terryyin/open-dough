@@ -145,6 +145,27 @@ the older records.
   and also prunes the same expired file. After the rebase, trunk holds both
   live records and neither expired file, with no conflict.
 
+<a id="prune-expired-records-after-a-retried-record-commit"></a>
+
+### Keep the expired-record prune when a record commit is retried
+
+**Identity:** SEED-418#prune-expired-records-after-a-retried-record-commit
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/769-prune-expired-records-after-a-retried-record-commit/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"204d9d26b5c4348d000ba9953220fb2e3712f0dfe56e101ea34864e238c2f7c2","plan":"741771cb00bd7fdd28d65b97225c54bb014e2f8ebb3bb9f3a547049f069cbc02"}}
+```
+
+Correction found by the execution retrospective of
+[Expire published session records after 30 days](#expire-published-session-records).
+
+**Goal.** A developer whose session close resumes after its record commit
+failed gets the same record commit a first attempt would have made: its own
+record plus the removal of the expired records, with no deletion left staged
+in the workspace.
+
+**Scope.** The record commit's selection and commit of expired record files in
+the shared sealed-record publisher, when that commit is retried after a
+failure. Plan: [769](../slice-plans/769-prune-expired-records-after-a-retried-record-commit/PLAN.md).
+
 <a id="select-a-story-session-for-review"></a>
 
 ### Choose a session in a story’s change review

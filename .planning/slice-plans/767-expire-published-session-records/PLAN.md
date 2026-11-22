@@ -127,6 +127,16 @@ payload installation tests and dashboard typecheck. Pruning selects records in
 `session-record-pruning.mjs`; the new module ships through
 `src/install/open-dough-execution-payload.sh`.
 
+## Execution complete
+
+Product advice: no change to priorities. The retrospective found one defect:
+a record commit retried after a failure leaves the expired-record deletion
+staged and unpublished. Correction
+[769](../769-prune-expired-records-after-a-retried-record-commit/PLAN.md)
+(SEED-418#prune-expired-records-after-a-retried-record-commit) is planned and
+Ready for its owner's decision. Expired UUIDs now answer as unpublished; their
+recovery and explanation stay with Recover expired session reviews.
+
 ## Concern evidence
 
 Slice-plan refinement was not needed: three independent Behaviors with
