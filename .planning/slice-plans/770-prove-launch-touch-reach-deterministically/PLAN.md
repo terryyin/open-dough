@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#repair-refinement-touch-tap-hang
 **Source:** [Prove launch touch reach deterministically, without dispatched taps](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#repair-refinement-touch-tap-hang)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -73,7 +74,7 @@ AC, Node 24.21.0, `npm ci`, load 37–48,
 ### 1. The refinement touch case runs deterministically in-page
 
 Type: Behavior
-Status: planned
+Status: done
 
 Add the touch helper to `launch-layout-page.ts` beside
 `controlsAreReachable`. Rewrite the case to arrange the choices through it,
@@ -87,6 +88,21 @@ timing of the spec under similar load. A scratch break check (reverted)
 covers Explore's label with an element and must fail naming it. A second
 (reverted) remounts the dialog on resize and must fail on node identity.
 Record the mapping.
+
+Accepted proof (2026-11-22, load 12–53): the spec passed 5 consecutive
+runs after implementation and again after the refactor. All 8 specs that
+import the changed launch page objects passed (28 tests), and typecheck
+passed. The break checks failed as required: "touch reaches Explore", and
+"the same dialog, instruction and model survive the viewport change". Paired
+interleaved timing at load 32–39, one worker: before 3.9–5.1 s, after
+1.4–1.8 s. Repeating the case in one file took 0.93 s for the first run and
+0.55–0.66 s for later ones (see G1).
+
+Learnings for Slice 2: `touch(control)` in `launch-layout-page.ts` returns
+the element to activate. `resizeLaunchViewport` now waits two animation
+frames so React commits before the synchronous checks. To cover a control
+in a modal dialog, put the overlay inside the dialog; an overlay on `body`
+sits below the top layer.
 
 ### 2. Start session touch uses the same check and the native tap retires
 
@@ -123,3 +139,12 @@ This review found no remaining slice-specific concern.
   `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run --silent test:dashboard:frontend -- <paths> --workers=2`.
   Run the whole frontend group the same way, under Homebrew bash 5, in
   Slice 2 only. Run dashboard typecheck after edits.
+
+
+## Story obligations
+
+### G1. Refinement case still above the expected local time (found at slice 1 acceptance)
+Reported: slice 1 — "Paired local timing at load 32–39 (evidence paired-timing.log): before 3.9–5.1 s, after 1.4–1.8 s as a single-case file; scratch repeats (scratch-repeat.log) 0.93 s cold then 0.55–0.66 s warm, not about 0.3 s."
+Story clause: "in well under a second per case"
+Disposition: receiving slice 2
+Commitment: C20
