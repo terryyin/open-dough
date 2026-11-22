@@ -42,7 +42,7 @@ cohort.
   read through the required typed page entry (plan 759 Slice 1, with the page
   observation's reads added by plan 762 Slice 1) and render the production
   Intent body or `ConfiguredDashboard`, as
-  [plan 762's correction](../762-speed-intent-source-browsing-and-detours/PLAN.md#correction-of-the-locations-recovery-test-entry)
+  plan 762's correction (recoverable at `8fb7691cc:.planning/slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md#correction-of-the-locations-recovery-test-entry`)
   establishes. `loadRepositoryTexts`'s former optional `readFile` and the
   provider composition in `intent-candidates-publication.ts` were the
   test-entry defects that correction removes; do not reuse either.

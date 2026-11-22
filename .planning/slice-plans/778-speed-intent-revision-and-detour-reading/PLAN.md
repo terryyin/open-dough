@@ -8,6 +8,8 @@
 
 ## Provisional input from plan 762
 
+Plan 762 is recoverable at `8fb7691cc:.planning/slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md`.
+
 These slices are mapped from plan 762 and stay provisional until story
 refinement and plan realignment. Plan 762's decisions, local gate and
 learnings carry over; read its Slices 3–9 Learnings before refining.
@@ -28,8 +30,7 @@ learnings carry over; read its Slices 3–9 Learnings before refining.
 
 Legacy baseline for the original 15-file cohort, captured at `6c51cc4eb` on
 2026-11-22 before any of its files changed: 22 Playwright `chromium` cases,
-26.8 s runner time at load 10.0 (plan 762 evidence
-`s5-legacy-baseline.json`, recoverable by rerunning
+26.8 s runner time at load 10.0 (recoverable by rerunning
 `npm run --silent test:dashboard:frontend -- <the 15 files> --workers=2` at
 that revision).
 

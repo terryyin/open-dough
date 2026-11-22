@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/771-finish-launch-proof-orthogonal/PLAN.md))
 - [Keep the attention completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout) — SEED-341#keep-attention-completion-journey-within-timeout ([plan](slice-plans/776-keep-attention-completion-journey-within-timeout/PLAN.md))
-- [Get fast proof of Intent source browsing and pinned links](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours) — SEED-413#speed-intent-source-browsing-and-detours ([plan](slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md))
 
 ## Backlog list
 
