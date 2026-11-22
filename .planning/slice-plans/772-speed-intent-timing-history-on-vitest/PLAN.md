@@ -170,7 +170,7 @@ object pages to the card's column (`showColumnOf`) before clicking.
 ### 2. CI status test support has one owner per concern and the freshness race discriminates its abort guard
 
 Type: Structure
-Status: planned
+Status: done
 
 Consolidate `noSessions` into the `machineSessionsAnswering` adapter (or
 record why both stay), the duplicated Taken `WorkEntry` and never-settling
@@ -182,6 +182,14 @@ retrospective correction.
 Proof: removing the abort in `useIntentCiJudgment.ts` (scratch) fails
 freshness case 3, restoring it passes; consumers of every consolidated helper
 pass with unchanged titles; typecheck.
+
+Accepted: `machineSessionsAnswering(answer, refusal)` owns the throwing
+variant; `takenEntry` owns the Taken `WorkEntry`; `unanswered`
+(`dashboard/test-support/support/waitUntil.ts`) is the one never-settling
+promise; the story-notes dialog mounts through `mountComponent`. Learning:
+a positive wait after a late resolve discriminates only once the late update
+has rendered; the freshness case's `afterArriving` awaits the held read and
+two animation frames.
 
 ### 3. Done wall-time history keeps its compact readout words and cues
 

@@ -14,6 +14,7 @@ import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import type { StoryNotesReadSource } from "../../src/storyNotesReadSource.ts";
 import { StoryReview } from "../../src/StoryReview.tsx";
+import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
   box,
@@ -31,8 +32,6 @@ export {
   doneStory,
   doneStoryTitle,
 } from "./story-review-page-contexts.ts";
-
-const unanswered = () => new Promise<never>(() => undefined);
 
 // A review source answering `reads`; any other read stays unanswered.
 export const reviewSourceAnswering = (

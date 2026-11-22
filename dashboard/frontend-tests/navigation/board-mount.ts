@@ -17,51 +17,19 @@ import {
   withClosedSessionsSidebar,
   withFramePreference,
 } from "../../test-support/component-mount/framePreferences.ts";
+import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { emulateMedia } from "../review/browser-session.ts";
 
-const answer = makeMe.aMachineAnswer.please();
-
-const noOperation = () => undefined;
+const refusal = "This Board reading does not operate a session.";
 const unexpected = () => {
-  throw new Error("This Board reading does not operate a session.");
+  throw new Error(refusal);
 };
 
 export const noSessions: MachineSessions = {
-  records: [],
-  launched: [],
-  sessionsSettled: true,
+  ...machineSessionsAnswering(makeMe.aMachineAnswer.please(), refusal),
   alerts: { available: true },
-  workspaces: answer.workspaces,
-  creations: answer.creations,
-  hostOperations: answer.hostOperations,
-  feedbackMaintenance: answer.feedbackMaintenance,
-  rereadOffers: noOperation,
-  rereadSessions: noOperation,
-  readHistory: noOperation,
-  keptStartOf: noOperation,
-  runningStartOf: noOperation,
-  establishesStart: () => false,
-  sessionPolicyOffer: () => "reading",
-  optionsOffer: noOperation,
-  recoveriesOf: () => [],
-  attemptEvidence: "read",
-  continueStartup: unexpected,
-  updateWorktreeAndRetry: unexpected,
-  recheckStartups: unexpected,
-  attemptOf: noOperation,
-  storyStartupOf: noOperation,
-  storyStartupsOf: () => [],
-  start: unexpected,
-  startAdHoc: unexpected,
-  adHocAttemptOf: noOperation,
-  markDone: unexpected,
-  markRead: unexpected,
-  deleteRecord: unexpected,
-  recoverSession: unexpected,
-  stopSession: unexpected,
-  readSession: unexpected,
 };
 
 function ReadingBoard({

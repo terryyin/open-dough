@@ -7,6 +7,7 @@ import "../../src/intent-ci-status.css";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
+import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 
 export const openDoughSource: PublishedSource = makeMe.aPublishedSource
@@ -106,8 +107,8 @@ export function inertCiReads(
       Promise.resolve(makeMe.aCiHistoryAnswer.pleaseMeasured()),
     // Collected Done wall-time and scope history stay pending unless a case
     // answers them.
-    readDoneWallTimeHistory: () => new Promise<never>(() => undefined),
-    readScopeHistory: () => new Promise<never>(() => undefined),
+    readDoneWallTimeHistory: unanswered,
+    readScopeHistory: unanswered,
     readComparison: (source, identity) =>
       Promise.resolve({
         kind: "unavailable",

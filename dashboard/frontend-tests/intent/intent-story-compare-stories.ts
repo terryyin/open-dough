@@ -9,6 +9,7 @@ import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
+import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { recordOutsideCalls } from "./intent-outside-calls.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import { scopeReadsOf } from "./intent-ci-scope-page.tsx";
@@ -21,7 +22,6 @@ import {
 // The case's Review changes answers; it answers the story's review at least.
 type ReviewAnswers = Pick<ReviewSource, "review"> & Partial<ReviewSource>;
 
-const unanswered = () => new Promise<never>(() => undefined);
 const answering = (answers: ReviewAnswers): ReviewSource => ({
   range: unanswered,
   fileDiff: unanswered,
