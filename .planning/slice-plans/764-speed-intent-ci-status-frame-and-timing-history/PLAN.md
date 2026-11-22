@@ -278,6 +278,10 @@ representative E2E history consumers when shared contracts change.
   `intent-ci-page-mount.ts` 9, `intent-ci-homepage-page.ts` 3,
   `machineSessionsAnswering.ts` 2. `intent-ci-status-fixtures.ts` is 13
   (gained `ReviewSource`) for Slice 3.
+- **Slice 2 CI repair (22 November 2026, run 44992453497).** The page-wide
+  Sessions shortcut is Command+B only (`pageShortcuts.ts`); a case pressing
+  `{ControlOrMeta>}b` sends Control+B on the Linux runners and passes only on
+  macOS. Press `{Meta>}b{/Meta}` and wait for the sidebar before acting in it.
 - **Plan 759 Slice 2 timing.** Under load 15–20 the full frontend group took
   about 24 minutes wall time.
 

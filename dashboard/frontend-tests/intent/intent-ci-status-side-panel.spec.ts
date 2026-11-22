@@ -197,12 +197,13 @@ test("the Side panel's content selects its story for Intent's lens and CI status
   // Showing a session attached to no story clears the selection, and CI status judges main.
   await developmentCard(failingStory.title).readReport();
   await developmentCard(failingStory.title).isSelected(true);
-  // The Sessions sidebar opens by its page-wide shortcut, as from the banner.
-  await userEvent.keyboard("{ControlOrMeta>}b{/ControlOrMeta}");
+  // The Sessions sidebar opens by its page-wide Command+B, as from the banner.
+  await userEvent.keyboard("{Meta>}b{/Meta}");
   const sidebar = page.getByRole("complementary", {
     name: "Sessions sidebar",
     exact: true,
   });
+  await expect.element(sidebar).toBeVisible();
   await userEvent.click(
     sidebar.getByRole("button", { name: adHocTitle, exact: true }),
   );
