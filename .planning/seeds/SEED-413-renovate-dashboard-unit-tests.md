@@ -590,7 +590,9 @@ page entry for Intent, CI, review and side-panel session reads.
   follow-up and review-state reads through the required typed page entry. No
   test file for the 7 CI status and cue-contrast files re-creates the page
   frame, provider stacks or private evidence pipelines, and the corrected
-  7-file status selection keeps its recorded speed. All 31 legacy cases
+  7-file status selection stays within about 2 seconds of its recorded speed
+  at two workers, the cost Terry accepted on 22 November 2026 for rendering
+  the real page frame. All 31 legacy cases
   across the 19 owned files and the 3 refreshed Project CI wall-time Vitest
   specs have a traceable disposition and run on Vitest without `act`
   wrapping. Apply the

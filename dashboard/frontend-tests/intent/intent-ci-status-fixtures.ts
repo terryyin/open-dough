@@ -1,25 +1,13 @@
-// Typed CI read collaborators and minimal mounts for Intent CI status specs.
-import { createElement } from "react";
+// Typed CI read collaborators and the production page mounts of Intent CI
+// status specs.
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCiStatus as Judgment } from "../../src/authenticatedIntentCiStatusRead.ts";
 import type { CiProofEntry } from "../../src/ciProof.ts";
-import { IntentCiEvidenceProvider } from "../../src/IntentCiEvidence.tsx";
-import { JudgedBranch } from "../../src/IntentCiJudgedBranch.tsx";
 import "../../src/intent-ci-status.css";
-import { IntentCiStatus } from "../../src/IntentCiStatus.tsx";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
-import { PageReadsOnPage } from "../../src/pageReads.tsx";
-import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { measuredHistoryOf } from "../../src/landedCiHistory.ts";
-import {
-  IntentReadingPlaceOfItsOwn,
-  IntentReadingProvider,
-} from "../../src/pageIntentReading.tsx";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
-import type { PublishedWork } from "../../src/publishedWork.ts";
-import type { ReviewSource } from "../../src/reviewSource.ts";
-import { shownRunOf } from "../../src/shownCiProofRun.ts";
-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 
 export const openDoughSource: PublishedSource = makeMe.aPublishedSource
   .with({
@@ -81,32 +69,41 @@ export const runningStory = {
   branch: "codex/running-story",
 };
 
-// The review a case leaves unavailable, as with no local review workspace.
-export const unavailableReviewSource: ReviewSource = {
-  review: () =>
-    Promise.resolve({
-      kind: "unavailable",
-      explanation: "No local review workspace is available.",
-    }),
-  range: () => Promise.reject(new Error("Unexpected review range read")),
-  fileDiff: () => Promise.reject(new Error("Unexpected review file diff read")),
-  fileText: () => Promise.reject(new Error("Unexpected review file text read")),
-};
+// Main's work at 4774f60 with the failing and running stories Taken.
+export const storiesTakenWork = makeMe.aPublishedWork
+  .of(openDoughSource)
+  .at(fullSha("4774f60"))
+  .retrievedAt(new Date("2026-11-05T12:00:00.000Z"))
+  .taking({ ...failingStory, agent: "Akiho" })
+  .taking({ ...runningStory, agent: "Sola" })
+  .please();
+
+// Each branch's fresh CI answer in the Taken stories' cases.
+export const mainPassed = judgedStatus("main", "pass", "4774f60", "Add login");
+export const failingFailed = judgedStatus(
+  failingStory.branch,
+  "failed",
+  "fa11ed0",
+  "Break the login",
+);
+export const runningInProgress = judgedStatus(
+  runningStory.branch,
+  "running",
+  "70a0001",
+  "Start the story",
+);
 
 export function inertCiReads(
   overrides: Partial<IntentCiReadSource> = {},
 ): IntentCiReadSource {
-  const emptyHistory = measuredHistoryOf(makeMe.aCiHistoryAnswer.please());
-  if (emptyHistory === undefined) {
-    throw new Error("Expected valid empty CI history");
-  }
   return {
     readStatus: () =>
       Promise.reject(new Error("Unexpected fresh CI status read")),
     readKeptStatus: () => Promise.resolve({ none: true }),
     readProof: () =>
       Promise.resolve(makeMe.aCiProof.unavailable("none").please()),
-    readHistory: () => Promise.resolve(emptyHistory),
+    readHistory: () =>
+      Promise.resolve(makeMe.aCiHistoryAnswer.pleaseMeasured()),
     readComparison: (source, identity) =>
       Promise.resolve({
         kind: "unavailable",
@@ -118,86 +115,39 @@ export function inertCiReads(
   };
 }
 
-export type EvidenceMountState = {
-  readonly source?: PublishedSource | undefined;
-  readonly work?: PublishedWork | undefined;
-  readonly selectedIdentity?: string | undefined;
-  readonly active?: boolean | undefined;
+// Intent reads of a project without configured Intent locations.
+export const unconfiguredIntentReads: IntentReadSource = {
+  readLocations: () => Promise.resolve({ status: "not-configured" }),
+  readFile: () => Promise.resolve(""),
+  readCandidates: () => Promise.resolve({ status: "absent" }),
 };
 
-export async function mountIntentCiEvidence({
-  source = openDoughSource,
-  work = makeMe.aPublishedWork.of(source).at(fullSha("4774f60")).please(),
-  selectedIdentity,
-  active = true,
-  ciReads,
-}: EvidenceMountState & {
-  readonly ciReads: IntentCiReadSource;
-}) {
-  const render = (next: EvidenceMountState) => {
-    const nextSource = next.source ?? source;
-    const nextWork = next.work ?? work;
-    return createElement(
-      PageReadsOnPage,
-      { reads: pageReadsSupplying({ ci: ciReads }) },
-      createElement(IntentReadingProvider, {
-        project: nextSource.id,
-        children: createElement(IntentReadingPlaceOfItsOwn, {
-          project: nextSource.id,
-          children: createElement(IntentCiEvidenceProvider, {
-            source: nextSource,
-            work: nextWork,
-            selectedIdentity: next.selectedIdentity,
-            active: next.active ?? true,
-            children: createElement(IntentCiStatus),
-          }),
-        }),
-      }),
-    );
-  };
-  const mounted = await mountComponent(
-    render({ source, work, selectedIdentity, active }),
-    { viewport: { width: 1280, height: 800 } },
-  );
-  return {
-    update: (next: EvidenceMountState) => {
-      mounted.rerender(render(next));
-    },
-  };
-}
-
+// Intent's CI status homepage judging main's run 41 passed at a1b2c3d, its
+// proof answered with `entries`.
 export async function mountJudgedRunProof(
   entries: readonly CiProofEntry[],
   extra: Partial<Judgment> = {},
 ) {
   const revision = fullSha("a1b2c3d");
   const run = { revision, runId: 41, runAttempt: 1 };
-  const shown = judgedStatus("main", "pass", revision, "Add login", {
+  const judged = judgedStatus("main", "pass", revision, "Add login", {
     ...run,
     runBranch: "main",
     runUrl: "https://ci.invalid/runs/41",
     ...extra,
   });
-  await mountComponent(
-    createElement(JudgedBranch, {
-      branch: "main",
-      story: undefined,
-      judged: {
-        shown,
-        reading: false,
-        previouslyRetrieved: false,
-        refreshFailed: undefined,
-        checkAgain: () => {},
-        round: undefined,
-      },
-      proof: {
-        run: shownRunOf(shown),
-        read: makeMe.aCiProof
-          .forRun({ repository: openDoughSource.repository, ...run })
-          .entries([...entries])
-          .please(),
-      },
-    }),
-    { viewport: { width: 1280, height: 800 } },
-  );
+  const proof = makeMe.aCiProof
+    .forRun({ repository: openDoughSource.repository, ...run })
+    .entries([...entries])
+    .please();
+  await mountIntentCiPage({
+    work: makeMe.aPublishedWork.of(openDoughSource).at(revision).please(),
+    reads: {
+      intent: unconfiguredIntentReads,
+      ci: inertCiReads({
+        readStatus: () => Promise.resolve(judged),
+        readProof: () => Promise.resolve(proof),
+      }),
+    },
+  });
 }

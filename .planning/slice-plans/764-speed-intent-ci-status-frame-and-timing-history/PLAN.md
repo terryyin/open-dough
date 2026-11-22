@@ -282,6 +282,19 @@ representative E2E history consumers when shared contracts change.
   Sessions shortcut is Command+B only (`pageShortcuts.ts`); a case pressing
   `{ControlOrMeta>}b` sends Control+B on the Linux runners and passes only on
   macOS. Press `{Meta>}b{/Meta}` and wait for the sidebar before acting in it.
+- **Slice 3 finished at its limit (22 November 2026, 15.6 active minutes;
+  the story's first overrun).** The failed sizing assumption: the freshness
+  race needed rework after a first attempt moved its selection through
+  Development/Intent round trips; production changes the selection while
+  Intent stays mounted only through the Sessions sidebar
+  (`intent-ci-sessions-sidebar.ts`). A selected story's Summary opens from
+  its CI comparison entry button, because the Files column hides its location
+  button; a Done story's Summary rows come from the review's changed files.
+  `makeMe.aCiHistoryAnswer.pleaseMeasured()` replaces `measuredHistoryOf`.
+  Paired runs at load 15–22 (`s3-pairC-summary.txt` in this checkout's
+  evidence): base 14,898/14,047/14,917 ms, corrected 16,146/15,755/17,792 ms;
+  freshness and dark-contrast each cost about 0.7 s for the real page. Terry
+  accepted up to about 2 seconds and amended the story's Evaluation.
 - **Plan 759 Slice 2 timing.** Under load 15–20 the full frontend group took
   about 24 minutes wall time.
 
@@ -394,7 +407,7 @@ journey) pass.
 ### 3. Status evidence and cue-contrast cases render their owning composition with MakeMe inputs
 
 Type: Structure
-Status: planned
+Status: done
 
 Render `intent-ci-status-freshness`, `-execution-time` and `-sort` through
 the owner of CI status and its proof. That owner stands alone in production,

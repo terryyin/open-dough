@@ -1,32 +1,19 @@
-// Mounted CI comparison cue variants under a dark system preference: count
-// borders, duration tints, and row text stay distinguishable on composed
+// CI comparison cue variants of a Done story's Summary on the production page
+// (./intent-ci-page-mount.ts) under a dark system preference: count borders,
+// duration tints, and row text stay distinguishable on the page's composed
 // backgrounds without expanding the integrated cue journey.
 
-import { createElement } from "react";
 import { expect, onTestFinished, test } from "vitest";
-import { cdp, page } from "vitest/browser";
-import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
+import { cdp, page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { ciTargetOf } from "../../src/intentCiTarget.ts";
-import "../../src/intent-browser.css";
-import "../../src/intent-perspective.css";
-import { scopeEvidenceOf } from "../../src/IntentScopeEvidence.tsx";
-import { IntentScopeProofView } from "../../src/IntentScopeProofView.tsx";
-import {
-  filesOfSelection,
-  owningLocation,
-} from "../../src/intentSelectionCoverage.ts";
-import {
-  intentStoryOverlay,
-  overlayFilesByPath,
-} from "../../src/intentStoryOverlay.ts";
-import { IntentSummaryView } from "../../src/IntentSummaryView.tsx";
-import { comparisonProofOf } from "../../src/storyCiComparisonEntries.ts";
 import {
   composeBackgrounds,
   contrastRatio,
 } from "../../test-support/composedColours.ts";
-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import {
+  doneCompletion,
+  openDoneStoryComparison,
+} from "./intent-story-compare-stories.ts";
 
 const summaryEntryComparisonCues = [
   { count: "more-light", duration: "slower-strong" },
@@ -93,71 +80,23 @@ function expectReadableContrast(element: Element, minimum = 4.5) {
   ).toBeGreaterThanOrEqual(minimum);
 }
 
-async function mountSummaryComparison(facts: ComparedStory) {
-  const { scope, answer, proofs, source, work, identity } = facts;
-  if (scope === undefined || proofs === undefined) {
-    throw new Error("Expected Summary scope and published comparison proofs");
-  }
-  const target = ciTargetOf(source, work, identity);
-  const evidence = scopeEvidenceOf({
-    kind: "comparison",
-    phase: answer.phase,
-    source,
-    story: target.kind === "gap" ? identity : (target.story ?? identity),
-    identity,
-    comparison: {
-      shown: answer,
-      failed: undefined,
-      reading: false,
-      checkedAgain: 0,
-      checkAgain() {},
-    },
-    endpointProofs: {
-      baseline: comparisonProofOf(answer.baseline, proofs[0], false),
-      branch: comparisonProofOf(
-        answer.provisional ?? answer.branch,
-        proofs[1],
-        false,
-      ),
-      landed: comparisonProofOf(answer.landed, proofs[2], false),
-    },
+// The Done story's Summary of its scope location on the production page,
+// opened from its entry in the story's CI comparison, its comparison answered
+// by the case's typed CI reads and its published completion modifying,
+// adding, deleting and renaming the scope's specs.
+async function openSummaryComparison() {
+  const completion = makeMe.aStoryReview
+    .published(doneCompletion)
+    .modifying("dashboard/tests/folder/a.spec.ts")
+    .adding("dashboard/tests/added.spec.ts")
+    .deleting("dashboard/tests/gone.spec.ts")
+    .renaming("tests/old.sh", "dashboard/tests/renamed.spec.ts")
+    .please();
+  await openDoneStoryComparison({
+    review: () => Promise.resolve(completion),
   });
-  const overlay = intentStoryOverlay(scope.locations, scope.changed);
-  const treeFiles = overlayFilesByPath(scope.locations, overlay);
-  const selection = scope.selection;
-  const location = owningLocation(scope.locations, selection);
-  if (location === undefined) {
-    throw new Error(`Expected owning location for ${selection.path}`);
-  }
-  const inventory = filesOfSelection(treeFiles, selection);
-  await mountComponent(
-    createElement(
-      "div",
-      { className: "intent-perspective" },
-      createElement(
-        "div",
-        { className: "intent-browser intent-files-hidden" },
-        createElement(
-          "div",
-          { className: "intent-reading" },
-          createElement(IntentSummaryView, {
-            path: selection.path,
-            files: inventory,
-            location,
-            children: createElement(IntentScopeProofView, {
-              path: selection.path,
-              inventory,
-              revision: scope.revision,
-              treeFiles,
-              evidence,
-              preference: { showPercent: false, onShowPercent() {} },
-              sorting: { sort: undefined, onSort() {} },
-              onOpen() {},
-            }),
-          }),
-        ),
-      ),
-    ),
+  await userEvent.click(
+    page.getByRole("button", { name: "dashboard/tests", exact: true }),
   );
 }
 
@@ -175,7 +114,7 @@ test("composed CI cue variants stay readable on dark surfaces", async () => {
     .poll(() => matchMedia("(prefers-color-scheme: dark)").matches)
     .toBe(true);
 
-  await mountSummaryComparison(makeMe.aComparedStory.inSummaryScope().please());
+  await openSummaryComparison();
 
   const surface = tokenColour("--surface");
   const text = tokenColour("--text");

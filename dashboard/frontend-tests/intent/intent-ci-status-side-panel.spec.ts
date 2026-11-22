@@ -11,109 +11,36 @@
 
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
-import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import type { LaunchWithState } from "../../src/agentLaunch.ts";
-import type { SessionServices } from "../../src/sessionServices.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { recordOutsideCalls } from "../../test-support/component-mount/outsideCalls.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
-  mountIntentCiPage,
-  unmeasuredHostSessions,
-} from "./intent-ci-page-mount.ts";
+  adHocTitle,
+  sessionServices,
+  showSidebarSession,
+  storySessionsMachine,
+} from "./intent-ci-sessions-sidebar.ts";
 import {
+  failingFailed,
   failingStory,
-  fullSha,
   inertCiReads,
-  judgedStatus,
-  openDoughSource,
+  mainPassed,
+  runningInProgress,
   runningStory,
+  storiesTakenWork,
+  unconfiguredIntentReads,
 } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 import { developmentCard } from "./intent-ci-development-card-page.ts";
 
-const adHocTitle = "Open Dough session";
-
-function goneWorkspaceSession(
-  story: typeof failingStory,
-  shortId: string,
-): LaunchWithState {
-  return makeMe.anObservedLaunch
-    .of(
-      makeMe.aLaunchRecord
-        .executing({ identity: story.identity, title: story.title })
-        .inClaudeSession({ sessionId: `${shortId}-session`, shortId })
-        .onStoryBranch({ workspace: `/gone/${shortId}`, branch: story.branch })
-        .please(),
-    )
-    .withSessionState(makeMe.aSessionState.retained("review").please())
-    .withWorkspace("missing")
-    .please();
-}
-
-// The page's session services answering as the machine would: each final
-// report reads as available, the host status unmeasured, and a terminal's
-// socket stays connecting.
-const sessionServices: SessionServices = {
-  ...unmeasuredHostSessions,
-  readFinalReport: ({ session }) =>
-    Promise.resolve({
-      kind: "available",
-      turnId: `${session}-turn`,
-      text: "The story's work is done.",
-    }),
-  openTerminal: () => ({
-    binaryType: "arraybuffer",
-    readyState: WebSocket.CONNECTING,
-    send: () => undefined,
-    close: () => undefined,
-    addEventListener: () => undefined,
-  }),
-};
-
 test("the Side panel's content selects its story for Intent's lens and CI status, closing it keeps the selection at that moment, and an ad hoc session clears it to main", async () => {
-  const work = makeMe.aPublishedWork
-    .of(openDoughSource)
-    .at(fullSha("4774f60"))
-    .retrievedAt(new Date("2026-11-05T12:00:00.000Z"))
-    .taking({ ...failingStory, agent: "Akiho" })
-    .taking({ ...runningStory, agent: "Sola" })
-    .please();
-  const machine = makeMe.aMachineAnswer
-    .observing(
-      goneWorkspaceSession(failingStory, "failing"),
-      goneWorkspaceSession(runningStory, "running"),
-    )
-    .observingOpen(
-      makeMe.aLaunchRecord
-        .adHoc({ instruction: adHocTitle, title: adHocTitle })
-        .please(),
-    )
-    .please();
-  const mainPassed = judgedStatus("main", "pass", "4774f60", "Add login");
-  const failingFailed = judgedStatus(
-    failingStory.branch,
-    "failed",
-    "fa11ed0",
-    "Break the login",
-  );
-  const runningInProgress = judgedStatus(
-    runningStory.branch,
-    "running",
-    "70a0001",
-    "Start the story",
-  );
-
   const outsideCalls = recordOutsideCalls();
   const mounted = await mountIntentCiPage({
-    work,
-    machine,
+    work: storiesTakenWork,
+    machine: storySessionsMachine(),
     reads: {
       sessions: sessionServices,
-      intent: {
-        readLocations: () => Promise.resolve({ status: "not-configured" }),
-        readFile: () => Promise.resolve(""),
-        readCandidates: () => Promise.resolve({ status: "absent" }),
-      },
+      intent: unconfiguredIntentReads,
       ci: inertCiReads({
         readStatus: (...[, branch]) => {
           if (branch === failingStory.branch) {
@@ -197,16 +124,7 @@ test("the Side panel's content selects its story for Intent's lens and CI status
   // Showing a session attached to no story clears the selection, and CI status judges main.
   await developmentCard(failingStory.title).readReport();
   await developmentCard(failingStory.title).isSelected(true);
-  // The Sessions sidebar opens by its page-wide Command+B, as from the banner.
-  await userEvent.keyboard("{Meta>}b{/Meta}");
-  const sidebar = page.getByRole("complementary", {
-    name: "Sessions sidebar",
-    exact: true,
-  });
-  await expect.element(sidebar).toBeVisible();
-  await userEvent.click(
-    sidebar.getByRole("button", { name: adHocTitle, exact: true }),
-  );
+  await showSidebarSession(adHocTitle);
   await expect.element(terminal).toBeVisible();
   await developmentCard(failingStory.title).isSelected(false);
   await mounted.showIntent();

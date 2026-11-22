@@ -9,6 +9,7 @@
 
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").LandedCiHistory} LandedCiHistory */
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").LandedCiEntry} LandedCiEntry */
+/** @typedef {import("../../../dashboard/src/landedCiHistory.ts").MeasuredHistory} MeasuredHistory */
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").FinalGap} FinalGap */
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").PendingGap} PendingGap */
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").Provenance} Provenance */
@@ -89,6 +90,23 @@ export class CiHistoryAnswerBuilder {
   /** @returns {LandedCiHistory} */
   please() {
     return { entries: [...this.#entries] };
+  }
+
+  /**
+   * The history as Project CI status's reader answers it, each build under
+   * the measure the case names for it.
+   * @returns {MeasuredHistory}
+   */
+  pleaseMeasured() {
+    return {
+      entries: this.#entries.map((entry) => {
+        if (entry.kind === "gap") return entry;
+        if (entry.timeMs === undefined) {
+          throw new Error(`Name the measure of ${entry.revision}`);
+        }
+        return { ...entry, timeMs: entry.timeMs };
+      }),
+    };
   }
 }
 

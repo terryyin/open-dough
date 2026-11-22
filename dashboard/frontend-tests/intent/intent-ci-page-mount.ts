@@ -15,12 +15,24 @@ import { PageFrame } from "../../src/PageFrame.tsx";
 import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
+import type { ReviewSource } from "../../src/reviewSource.ts";
 import { StoryReferenceNavigation } from "../../src/storyNavigation.tsx";
 import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { unavailableReviewSource } from "./intent-ci-status-fixtures.ts";
 import { developmentCard } from "./intent-ci-development-card-page.ts";
+
+// The review a case leaves unavailable, as with no local review workspace.
+const unavailableReviewSource: ReviewSource = {
+  review: () =>
+    Promise.resolve({
+      kind: "unavailable",
+      explanation: "No local review workspace is available.",
+    }),
+  range: () => Promise.reject(new Error("Unexpected review range read")),
+  fileDiff: () => Promise.reject(new Error("Unexpected review file diff read")),
+  fileText: () => Promise.reject(new Error("Unexpected review file text read")),
+};
 
 // The banner's host status reads as unmeasured; a case that reads a final
 // report or attaches a terminal answers the page's sessions itself.

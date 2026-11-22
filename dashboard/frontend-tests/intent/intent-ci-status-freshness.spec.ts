@@ -1,25 +1,40 @@
-// Intent keeps a prior CI answer visibly qualified until a fresh answer
-// replaces it (../../src/IntentCiStatus.tsx, ../../src/useIntentCiJudgment.ts):
-// a warm show answers at once with the kept answer, previously retrieved and
-// checking, and a cold one shows only checking; a failed refresh keeps the
-// answer previously retrieved beside the failure; an earlier target's late
-// answer never answers a later selection. The Backend's keeping and
-// acquisition are ../../backend-tests/intent/ and ../../../e2e/intent/intent-ci-status*.spec.ts.
+// On the production page, Intent keeps a prior CI answer qualified until a
+// fresh one replaces it (../../src/useIntentCiJudgment.ts): a warm show answers
+// with the kept answer, previously retrieved and checking; a cold one only
+// checks; a failed refresh keeps the answer beside the failure; an earlier
+// target's late answer never answers a story the Side panel selects later
+// while Intent stays mounted. Backend: ../../../e2e/intent/intent-ci-status*.spec.ts.
 
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCiStatus as Judgment } from "../../src/authenticatedIntentCiStatusRead.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
+  adHocTitle,
+  sessionServices,
+  showSidebarSession,
+  storySessionsMachine,
+} from "./intent-ci-sessions-sidebar.ts";
+import {
+  failingFailed,
   failingStory,
   fullSha,
   heldRead,
   inertCiReads,
   judgedStatus,
-  mountIntentCiEvidence,
+  mainPassed,
   openDoughSource,
+  runningInProgress,
   runningStory,
+  storiesTakenWork,
+  unconfiguredIntentReads,
 } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
+
+const trunkWork = makeMe.aPublishedWork
+  .of(openDoughSource)
+  .at(fullSha("4774f60"))
+  .please();
 
 const mainAt = (state: "pass" | "failed", checkedAt: string) =>
   judgedStatus("main", state, "a1b2c3d", "Add login", { checkedAt });
@@ -33,24 +48,29 @@ test("a warm Intent show returns the kept answer labelled previously retrieved w
   let warm = false;
   const freshOnReopen = heldRead<Judgment>();
 
-  const mounted = await mountIntentCiEvidence({
-    ciReads: inertCiReads({
-      readKeptStatus: () => Promise.resolve(warm ? keptPassed : { none: true }),
-      readStatus: () =>
-        warm
-          ? freshOnReopen.ask()
-          : Promise.resolve(mainAt("pass", firstChecked)),
-    }),
+  const mounted = await mountIntentCiPage({
+    work: trunkWork,
+    reads: {
+      intent: unconfiguredIntentReads,
+      ci: inertCiReads({
+        readKeptStatus: () =>
+          Promise.resolve(warm ? keptPassed : { none: true }),
+        readStatus: () =>
+          warm
+            ? freshOnReopen.ask()
+            : Promise.resolve(mainAt("pass", firstChecked)),
+      }),
+    },
   });
   const ci = intentCiStatus();
   await ci.answers("Passed at a1b2c3d (Add login)");
   expect(await ci.showsChecked()).toBe(firstChecked);
 
   // Leave Intent (unmounting its panel) and reopen twenty minutes later.
-  mounted.update({ active: false });
+  await mounted.showDevelopment();
   await ci.isAbsent();
   warm = true;
-  mounted.update({ active: true });
+  await mounted.showIntent();
 
   await ci.showsKept({
     state: "Passed at a1b2c3d (Add login)",
@@ -70,26 +90,30 @@ test("a cold load shows only a spinner until CI answers; a later failed refresh 
   let settled: Judgment | undefined;
   let failRefresh = false;
 
-  await mountIntentCiEvidence({
-    ciReads: inertCiReads({
-      readKeptStatus: () =>
-        Promise.resolve(
-          settled === undefined
-            ? { none: true }
-            : { ...settled, freshness: "kept" },
-        ),
-      readStatus: () => {
-        if (failRefresh) {
-          return Promise.reject(
-            new Error("GitHub answered 503 Service Unavailable"),
-          );
-        }
-        return cold.ask().then((answer) => {
-          settled = answer;
-          return answer;
-        });
-      },
-    }),
+  await mountIntentCiPage({
+    work: trunkWork,
+    reads: {
+      intent: unconfiguredIntentReads,
+      ci: inertCiReads({
+        readKeptStatus: () =>
+          Promise.resolve(
+            settled === undefined
+              ? { none: true }
+              : { ...settled, freshness: "kept" },
+          ),
+        readStatus: () => {
+          if (failRefresh) {
+            return Promise.reject(
+              new Error("GitHub answered 503 Service Unavailable"),
+            );
+          }
+          return cold.ask().then((answer) => {
+            settled = answer;
+            return answer;
+          });
+        },
+      }),
+    },
   });
   const ci = intentCiStatus();
   await ci.showsOnlyChecking("main");
@@ -111,54 +135,36 @@ test("a cold load shows only a spinner until CI answers; a later failed refresh 
 });
 
 test("a late trunk answer never appears after switching to a story branch that has a kept answer", async () => {
-  const work = makeMe.aPublishedWork
-    .of(openDoughSource)
-    .at(fullSha("4774f60"))
-    .retrievedAt(new Date("2026-11-05T12:00:00.000Z"))
-    .taking({ ...failingStory, agent: "Akiho" })
-    .taking({ ...runningStory, agent: "Sola" })
-    .please();
-
-  const mainPassed = judgedStatus("main", "pass", "4774f60", "Add login");
-  const failingFailed = judgedStatus(
-    failingStory.branch,
-    "failed",
-    "fa11ed0",
-    "Break the login",
-  );
-  const runningInProgress = judgedStatus(
-    runningStory.branch,
-    "running",
-    "70a0001",
-    "Start the story",
-  );
-
   const keptByBranch = new Map<string, Judgment>([
     ["main", { ...mainPassed, freshness: "kept" }],
     [failingStory.branch, { ...failingFailed, freshness: "kept" }],
   ]);
   const nextFreshByBranch = new Map<string, () => Promise<Judgment>>();
-
-  const mounted = await mountIntentCiEvidence({
-    work,
-    ciReads: inertCiReads({
-      readKeptStatus: (...[, branch]) =>
-        Promise.resolve(keptByBranch.get(branch) ?? { none: true }),
-      readStatus: (...[, branch]) => {
-        const custom = nextFreshByBranch.get(branch);
-        if (custom !== undefined) {
-          nextFreshByBranch.delete(branch);
-          return custom();
-        }
-        if (branch === "main") {
-          return Promise.resolve(mainPassed);
-        }
-        if (branch === failingStory.branch) {
-          return Promise.resolve(failingFailed);
-        }
-        return Promise.resolve(runningInProgress);
-      },
-    }),
+  await mountIntentCiPage({
+    work: storiesTakenWork,
+    machine: storySessionsMachine(),
+    reads: {
+      sessions: sessionServices,
+      intent: unconfiguredIntentReads,
+      ci: inertCiReads({
+        readKeptStatus: (...[, branch]) =>
+          Promise.resolve(keptByBranch.get(branch) ?? { none: true }),
+        readStatus: (...[, branch]) => {
+          const custom = nextFreshByBranch.get(branch);
+          if (custom !== undefined) {
+            nextFreshByBranch.delete(branch);
+            return custom();
+          }
+          if (branch === "main") {
+            return Promise.resolve(mainPassed);
+          }
+          if (branch === failingStory.branch) {
+            return Promise.resolve(failingFailed);
+          }
+          return Promise.resolve(runningInProgress);
+        },
+      }),
+    },
   });
   const ci = intentCiStatus();
   await ci.judges("main");
@@ -177,7 +183,7 @@ test("a late trunk answer never appears after switching to a story branch that h
 
   const freshFailing = heldRead<Judgment>();
   nextFreshByBranch.set(failingStory.branch, () => freshFailing.ask());
-  mounted.update({ work, selectedIdentity: failingStory.identity });
+  await showSidebarSession(failingStory.title);
 
   await ci.judges(failingStory.branch);
   await ci.showsKept({
@@ -202,10 +208,11 @@ test("a late trunk answer never appears after switching to a story branch that h
   // Hold prior story answer arriving after switching to another story.
   const lateFailing = heldRead<Judgment>();
   nextFreshByBranch.set(failingStory.branch, () => lateFailing.ask());
-  mounted.update({ work, selectedIdentity: undefined });
+  // An ad hoc session clears the selection to main.
+  await showSidebarSession(adHocTitle);
   await ci.judges("main");
 
-  mounted.update({ work, selectedIdentity: failingStory.identity });
+  await showSidebarSession(failingStory.title);
   await ci.judges(failingStory.branch);
   await ci.showsKept({
     state: "Failed at fa11ed0 (Break the login)",
@@ -213,7 +220,7 @@ test("a late trunk answer never appears after switching to a story branch that h
   });
   await expect.poll(lateFailing.asked).toBe(true);
 
-  mounted.update({ work, selectedIdentity: runningStory.identity });
+  await showSidebarSession(runningStory.title);
   await ci.judges(runningStory.branch);
   await ci.answers("Running at 70a0001 (Start the story)");
 
