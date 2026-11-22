@@ -11,10 +11,11 @@ import type { WorkEntry } from "../../src/publishedWork.ts";
 import { StartupAnnouncer } from "../../src/StartupAnnouncer.tsx";
 import { StartupRecovery } from "../../src/StartupRecovery.tsx";
 import { StoryCard } from "../../src/StoryCard.tsx";
-import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import type { StoryNotesAnswer } from "../../src/storyNote.ts";
 import type { AttemptEvidence } from "../../src/startupRecoveries.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { noSessions } from "../navigation/board-mount.ts";
 import { inertPageSessions } from "../sessions/inert-page-sessions.ts";
 import { useMountedLaunchAttempts } from "./mounted-launch-attempts.ts";
@@ -131,16 +132,16 @@ export async function mountStoryStartup(
       .fn<LaunchAttemptSource["waitForChange"]>()
       .mockResolvedValue(undefined),
   };
-  const notesOnPage = new Map([
-    [project.id, storyNotesState(() => Promise.resolve(notes))],
-  ]);
+  const reads = pageReadsSupplying({
+    storyNotes: () => Promise.resolve(notes),
+  });
   const view = (read: ReadState) =>
     createElement(StoryReviewsOnPage, {
       value: nothing,
       children: createElement(SessionsOnPage, {
         value: inertPageSessions,
-        children: createElement(StoryNotesOnPage, {
-          value: notesOnPage,
+        children: createElement(PageReadsOnPage, {
+          reads,
           children: createElement(StartupOnPage, {
             entry,
             other,

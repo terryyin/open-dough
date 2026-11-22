@@ -14,7 +14,7 @@ import {
   storyNoteNotDeleted,
   storyNoteNotSaved,
   storyNotesUnreadable,
-} from "../../src/storyNotes.ts";
+} from "../../src/storyNotesReadSource.ts";
 
 const title = "Keep notes beside a story";
 const identity = "SEED-001#keep-notes";

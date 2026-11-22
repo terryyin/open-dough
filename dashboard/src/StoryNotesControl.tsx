@@ -9,7 +9,8 @@ import {
   storyNotesFor,
   storyNotesWaitingDescription,
 } from "./storyNote.ts";
-import { storyNotesUnreadable, useStoryNotes } from "./storyNotes.ts";
+import { useStoryNotes } from "./storyNotes.ts";
+import { storyNotesUnreadable } from "./storyNotesReadSource.ts";
 import "./launch-dialog.css";
 import "./story-notes.css";
 

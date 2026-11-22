@@ -6,6 +6,7 @@ import { expect, onTestFinished, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { StoryNotes } from "../../src/StoryNotesControl.tsx";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import {
   storyNotesWaitingDescription,
@@ -13,11 +14,10 @@ import {
   type StoryNotesAnswer,
 } from "../../src/storyNote.ts";
 import {
-  StoryNotesOnPage,
-  storyNotesState,
   storyNotesUnreadable,
-  type StoryNotesSource,
-} from "../../src/storyNotes.ts";
+  type StoryNotesReadSource,
+} from "../../src/storyNotesReadSource.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 
 const project = "keep-notes-project";
 const identity = "SEED-001#keep-notes";
@@ -41,7 +41,7 @@ function present<T>(found: T | null | undefined, what: string): T {
 }
 
 vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
-async function mountControl(source: StoryNotesSource) {
+async function mountControl(source: StoryNotesReadSource) {
   const host = document.body.appendChild(document.createElement("div"));
   const root = createRoot(host);
   onTestFinished(() => {
@@ -50,12 +50,12 @@ async function mountControl(source: StoryNotesSource) {
     });
     host.remove();
   });
-  const page = new Map([[project, storyNotesState(source)]]);
+  const reads = pageReadsSupplying({ storyNotes: source });
   await act(() => {
     root.render(
       createElement(
-        StoryNotesOnPage,
-        { value: page },
+        PageReadsOnPage,
+        { reads },
         createElement(StoryNotes, { sourceId: project, identity, title }),
       ),
     );
@@ -110,7 +110,7 @@ async function mountControl(source: StoryNotesSource) {
 }
 
 const answering =
-  (answer: StoryNotesAnswer): StoryNotesSource =>
+  (answer: StoryNotesAnswer): StoryNotesReadSource =>
   () =>
     Promise.resolve(answer);
 
@@ -146,7 +146,7 @@ test("the next check updates the count and the open list", async () => {
 test("an older read answering after a save keeps the save's notes", async () => {
   const saved = makeMe.aStoryNote.withText("Saved here").please();
   const reads: ((answer: StoryNotesAnswer) => void)[] = [];
-  const control = await mountControl((change) =>
+  const control = await mountControl((...[, change]) =>
     change === undefined
       ? new Promise((resolve) => reads.push(resolve))
       : Promise.resolve(notesAnswer([saved])),

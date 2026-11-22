@@ -10,7 +10,8 @@ import {
   attachStoryNotesNone,
 } from "./attachStoryNotesWords.ts";
 import { storyNoteIsWaiting, storyNotesFor } from "./storyNote.ts";
-import { storyNotesUnreadable, useStoryNotes } from "./storyNotes.ts";
+import { useStoryNotes } from "./storyNotes.ts";
+import { storyNotesUnreadable } from "./storyNotesReadSource.ts";
 import type { DialogSession } from "./LaunchSessionPolicy.tsx";
 import "./follow-up.css";
 

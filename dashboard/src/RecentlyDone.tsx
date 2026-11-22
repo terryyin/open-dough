@@ -83,7 +83,7 @@ export function RecentlyDone({
   readonly launches: MachineSessions;
 }) {
   const ciFollowUps = useCiFollowUps(sourceId);
-  const reviewStates = useStoryReviewStates(sourceId);
+  const reviewStates = useStoryReviewStates(sourceId, true);
   const section = useRef<HTMLElement>(null);
   const { selectedIdentity, toggle } = useStorySelection(sourceId);
   const {

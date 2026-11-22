@@ -60,11 +60,11 @@ stories and machine reads through `frontendServiceState.ts`.
 ## Which entry a case uses
 
 Mount the component that owns the behavior, in a Vitest browser-mode spec,
-with typed inputs. A component that reads a service
-through a hook takes a typed source behind that hook, such as
-`storyNotesState(source)` from `dashboard/src/storyNotes.ts`, which the case
-supplies. Use native keyboard or pointer input only where native input is
-the behavior. Build domain data with the page-loadable MakeMe entry
+with typed inputs. A component that reads a service through a hook reads it
+from the page's typed reads, which the case supplies, such as story notes
+through `pageReadsSupplying({ storyNotes })` from
+`test-support/component-mount/unreadPageReads.ts`. Use native keyboard or
+pointer input only where native input is the behavior. Build domain data with the page-loadable MakeMe entry
 (`Distribution/tests/support/pageMakeMe.mjs`).
 
 Mount the component alone through `mountComponent`

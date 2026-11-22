@@ -12,10 +12,7 @@ import { SettingsNavigation } from "./settingsNavigation.ts";
 import { SavedTerminalThemeProvider } from "./savedTerminalTheme.ts";
 import { pageTerminalThemeSource } from "./terminalThemeSource.ts";
 
-import { StoryNotesOnPage, usePageStoryNotes } from "./storyNotes.ts";
-
 export function App() {
-  const storyNotes = usePageStoryNotes();
   const { projects, problem, replaceProjects } = useProjectConfiguration();
   const [settings, setSettings] = useState(
     () =>
@@ -92,56 +89,54 @@ export function App() {
       </p>
     );
   return (
-    <StoryNotesOnPage.Provider value={storyNotes}>
-      <SavedTerminalThemeProvider source={pageTerminalThemeSource}>
-        <ProjectsOnPage projects={projects} replaceProjects={replaceProjects}>
-          <SettingsNavigation.Provider
-            value={(onReturn) => {
-              returnToLaunch.current = onReturn;
-              openSettings();
-            }}
-          >
-            <div hidden={settings}>
-              {projects.length === 0 ? (
-                <>
-                  <header className="banner">
-                    <ProductMark />
-                    <SettingsGear onOpen={openSettings} />
-                  </header>
-                  <main className="frame-state">
-                    <h1>No projects configured</h1>
-                    <p>
-                      Open System settings → Projects to add a project and see
-                      its published work and start sessions.
-                    </p>
-                  </main>
-                </>
-              ) : (
-                <ConfiguredDashboard
-                  reads={authenticatedPageReads}
-                  settingsOpen={settings}
-                  onOpenSettings={openSettings}
-                  onDashboardReady={(value) => {
-                    if (dashboard.current?.source?.id !== value.source?.id)
-                      setSelected(value.source?.id);
-                    dashboard.current = value;
-                  }}
-                />
-              )}
-            </div>
-            {settings && (
-              <SystemSettings
-                selectedId={selected ?? dashboard.current?.source?.id}
-                onSelect={(source) => {
-                  dashboard.current?.select(source);
-                  setSelected(source?.id);
+    <SavedTerminalThemeProvider source={pageTerminalThemeSource}>
+      <ProjectsOnPage projects={projects} replaceProjects={replaceProjects}>
+        <SettingsNavigation.Provider
+          value={(onReturn) => {
+            returnToLaunch.current = onReturn;
+            openSettings();
+          }}
+        >
+          <div hidden={settings}>
+            {projects.length === 0 ? (
+              <>
+                <header className="banner">
+                  <ProductMark />
+                  <SettingsGear onOpen={openSettings} />
+                </header>
+                <main className="frame-state">
+                  <h1>No projects configured</h1>
+                  <p>
+                    Open System settings → Projects to add a project and see its
+                    published work and start sessions.
+                  </p>
+                </main>
+              </>
+            ) : (
+              <ConfiguredDashboard
+                reads={authenticatedPageReads}
+                settingsOpen={settings}
+                onOpenSettings={openSettings}
+                onDashboardReady={(value) => {
+                  if (dashboard.current?.source?.id !== value.source?.id)
+                    setSelected(value.source?.id);
+                  dashboard.current = value;
                 }}
-                onBack={back}
               />
             )}
-          </SettingsNavigation.Provider>
-        </ProjectsOnPage>
-      </SavedTerminalThemeProvider>
-    </StoryNotesOnPage.Provider>
+          </div>
+          {settings && (
+            <SystemSettings
+              selectedId={selected ?? dashboard.current?.source?.id}
+              onSelect={(source) => {
+                dashboard.current?.select(source);
+                setSelected(source?.id);
+              }}
+              onBack={back}
+            />
+          )}
+        </SettingsNavigation.Provider>
+      </ProjectsOnPage>
+    </SavedTerminalThemeProvider>
   );
 }

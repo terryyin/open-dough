@@ -111,10 +111,10 @@ export const publishedCompletion = () =>
     .adding("dashboard/tests/folder/a.spec.ts")
     .please();
 
-// The outside reads a Done story's Intent still makes. Plan 764 slices 1
-// (story notes) and 4 (done wall-time history) move them behind the page's
-// typed reads, leaving none.
-export const doneOutsideKinds = new Set(["story notes", "CI history glance"]);
+// The outside reads a Done story's Intent still makes. Plan 764 slice 4
+// (done wall-time history) moves it behind the page's typed reads, leaving
+// none.
+export const doneOutsideKinds = new Set(["CI history glance"]);
 
 // Intent with the Done story selected, its review read from `review`: the
 // revision each Intent locations read names, in order, and the kinds of
@@ -196,18 +196,13 @@ function recordOutsideReads() {
   return opened;
 }
 
-// The distinct kinds of OPENED calls: story notes, CI history glance, or the
-// call as recorded.
+// The distinct kinds of OPENED calls: CI history glance, or the call as
+// recorded.
 const outsideKinds = (opened: readonly string[]) =>
   new Set(
     opened.map((call) => {
       const [how = "", address = ""] = call.split(" ");
       const url = new URL(address, "http://page.test");
-      if (
-        how === "fetch" &&
-        url.pathname === "/__project-configuration/story-notes"
-      )
-        return "story notes";
       if (
         how === "fetch" &&
         url.searchParams.get("intent") === "ci-history" &&

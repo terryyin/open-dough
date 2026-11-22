@@ -12,10 +12,8 @@
 // It never selects the story or opens the Side panel.
 import { useRef, useState } from "react";
 import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
-import {
-  reviewStateNotSaved,
-  type StoryReviewStates,
-} from "./storyReviewStates.ts";
+import type { StoryReviewStates } from "./storyReviewStates.ts";
+import { reviewStateNotSaved } from "./storyReviewStatesReadSource.ts";
 import "./story-review-state.css";
 
 export function StoryReviewStateAction({

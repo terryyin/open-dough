@@ -11,7 +11,6 @@ import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
-import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
 import { StoryNavigationOnPage } from "../../src/storyNavigation.tsx";
 import {
   withClosedSessionsSidebar,
@@ -153,12 +152,6 @@ export async function mountBoard(
   if (sessionsSidebar === "closed") withClosedSessionsSidebar();
   let sessions = { ...noSessions, ...observed };
   let work = projects;
-  const notes = new Map(
-    projects.map(({ source }) => [
-      source.id,
-      storyNotesState(() => Promise.resolve({ kind: "notes", notes: {} })),
-    ]),
-  );
   const reading = (next: readonly PublishedWork[], key = 0) => {
     const board = createElement(ReadingBoard, {
       key,
@@ -171,18 +164,15 @@ export async function mountBoard(
     });
     const reads = pageReadsSupplying({
       sessions: authenticatedSessionServices,
-      ...(reviews === undefined ? {} : { review: reviews }),
+      ...(reviews === undefined
+        ? {}
+        : {
+            review: reviews,
+            storyNotes: () => Promise.resolve({ kind: "notes", notes: {} }),
+          }),
       ...(done === undefined ? {} : { done }),
     });
-    if (reviews === undefined)
-      return createElement(PageReadsOnPage, { reads, children: launched });
-    return createElement(PageReadsOnPage, {
-      reads,
-      children: createElement(StoryNotesOnPage, {
-        value: notes,
-        children: launched,
-      }),
-    });
+    return createElement(PageReadsOnPage, { reads, children: launched });
   };
   const { rerender } = await mountComponent(reading(projects), {
     viewport,

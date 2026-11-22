@@ -48,7 +48,7 @@ import {
 } from "./recentlyDoneRange.ts";
 import { PanelDividerOnPage, useSidePanelWidth } from "./sidePanelWidth.ts";
 import { pageFrameLayout } from "./pageFrameLayout.ts";
-import { RecentlyDonePageEvidence } from "./RecentlyDonePageEvidence.tsx";
+import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
 import "./side-panel.css";
 
 export function PageFrame({
@@ -147,10 +147,8 @@ export function PageFrame({
   };
   // Keep the page mounted as the sidebar and panel open and close.
   return (
-    <RecentlyDonePageEvidence
-      projects={projects}
-      selected={stories.selected}
-      work={stories.work}
+    <RecentlyDoneLinkSources
+      value={{ projects, selected: stories.selected, work: stories.work }}
     >
       <SessionsOnPage value={sidePanel.sessions}>
         <RetainedHistoryOnPage value={readHistory}>
@@ -241,6 +239,6 @@ export function PageFrame({
           </StoryReviewsOnPage>
         </RetainedHistoryOnPage>
       </SessionsOnPage>
-    </RecentlyDonePageEvidence>
+    </RecentlyDoneLinkSources>
   );
 }

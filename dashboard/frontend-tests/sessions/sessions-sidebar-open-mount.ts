@@ -5,6 +5,7 @@ import { createElement, type ReactElement } from "react";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { LaunchRecord, SessionState } from "../../src/launchRecord.ts";
 import type { LaunchWithState } from "../../src/agentLaunch.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import { SessionsOnPage, type PageSessions } from "../../src/pageSessions.ts";
 import {
@@ -13,6 +14,7 @@ import {
   type SessionsSidebarState,
 } from "../../src/SessionsSidebar.tsx";
 import { SessionsSidebarOpenList } from "../../src/SessionsSidebarOpenList.tsx";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 
 export const doughnut = makeMe.aPublishedSource
   .with({
@@ -140,7 +142,10 @@ export function openReading(
       value: pageSessions,
       children: createElement(SessionsSidebarOnPage, {
         value: sidebar,
-        children,
+        children: createElement(PageReadsOnPage, {
+          reads: pageReadsSupplying({}),
+          children,
+        }),
       }),
     }),
   });

@@ -1,35 +1,20 @@
 import { useEffect, useState } from "react";
-import {
-  ciFollowUpAnswerSchema,
-  ciFollowUpEndpoint,
-  provisionalRepeatRule,
-  type CiFollowUpAnswer,
-} from "./ciFollowUp.ts";
-import { localSettingRequest } from "./localSettingRequest.ts";
+import { provisionalRepeatRule, type CiFollowUpAnswer } from "./ciFollowUp.ts";
+import { useCiFollowUpReads } from "./pageReads.tsx";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
 import "./ci-follow-up.css";
 import { FollowUpLink } from "./ciFollowUpNavigation.tsx";
 
-const failure = "Automatic CI follow-up evidence could not be read.";
-async function request(project: string): Promise<CiFollowUpAnswer> {
-  return ciFollowUpAnswerSchema.parse(
-    await localSettingRequest(
-      `${ciFollowUpEndpoint}?id=${encodeURIComponent(project)}`,
-      undefined,
-      failure,
-    ),
-  );
-}
-
 // One local read per project/refresh, shared by every visible Done card.
 export function useCiFollowUps(project: string): CiFollowUpAnswer | undefined {
+  const reads = useCiFollowUpReads();
   const [value, setValue] = useState<CiFollowUpAnswer>();
   useEffect(() => {
     let current = true;
     setValue(undefined);
     const read = () => {
-      void request(project).then(
+      void reads.readCards(project).then(
         (answer) => {
           if (current) setValue(answer);
         },
@@ -42,7 +27,7 @@ export function useCiFollowUps(project: string): CiFollowUpAnswer | undefined {
       current = false;
       clearInterval(interval);
     };
-  }, [project]);
+  }, [project, reads]);
   return value;
 }
 

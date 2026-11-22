@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-ci-status-frame-and-timing-history
 **Source:** [Get fast proof of Intent CI status on the real page and of timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history)
+**Source review:** [source-review.md](source-review.md)
 **Split from:** SEED-413#speed-intent-timing-history-proof (recoverable at `756f67d70:.planning/slice-plans/759-speed-intent-timing-history-proof/PLAN.md`, former Slices 3–9) on 2026-11-22 at its delivered Slice 2 boundary
 
 ## Goal and scope
@@ -243,6 +244,28 @@ representative E2E history consumers when shared contracts change.
   attempt: `intent-ci-page-mount.ts` 9, `intent-ci-homepage-page.ts` 3
   (renamed from the perspective mount), `machineSessionsAnswering.ts` 2; specs
   side-panel 2, kept 3, homepage 2.
+- **Slice 1 premise failed at 5.4 of 15 active minutes (22 November
+  2026).** Removing the hooks' fetch fallback failed 93 cases in 49 frontend
+  files (`s1-failed-files.txt` in this checkout's evidence), not the four
+  named test sites (`mountedServices.ts` no longer exists). They reach the
+  notes control and sidebar entries through a few shared mounts
+  (`board-mount.ts` 26 files, `board-frame-mount.ts` 12,
+  `story-review-panel-page.ts` 10) and fetch substitutes. P01 already owes
+  every case, so Slice 1 was refined in place to move those shared mounts
+  and substitutes onto typed replies; the plan stays at 8 slices.
+- **Slice 1 delivered (22 November 2026, 8.3 active minutes).** The new
+  required members are `storyNotes`, `ciFollowUp` (`readCards`,
+  `readRetained`) and `reviewStates`, implemented in
+  `storyNotesReadSource.ts`, `ciFollowUpReadSource.ts` and
+  `storyReviewStatesReadSource.ts`, which also own their failure messages;
+  notes and review states carry their writes through the same members.
+  `PageReadsOnPage` holds both per-project maps, so `RecentlyDonePageEvidence`
+  was removed and `PageFrame` renders `RecentlyDoneLinkSources` itself.
+  `doneOutsideKinds` no longer lists story notes; Slice 4 removes the Done
+  wall-time glance from it. `test-harness/unread-page-reads.spec.ts` walks
+  every `PageReads` member, so later required members are covered without
+  naming them. Focused E2E paths are relative to `e2e/`; set
+  `OPEN_DOUGH_E2E_PROOF_RECORD` to see the selected count.
 - **Plan 759 Slice 2 timing.** Under load 15–20 the full frontend group took
   about 24 minutes wall time.
 
@@ -257,12 +280,19 @@ representative E2E history consumers when shared contracts change.
   `PageReads` already has a required `done` member for done record bodies
   (`dashboard/src/doneRecordReadSource.ts`).
 
+## Story obligations
+
+### G1. Full-app Playwright specs answer notes and review-state reads at the network
+Reported: slice 1 — "Fetch substitutes left as they are (named gap): frontendStoryNotes.ts, frontendStoryReviewState.ts, frontendRecentlyDoneBoardReview.ts, frontendRecentlyDoneReviewCue.ts and the notes part of frontendServiceSubstitutes.ts were not converted."
+Story clause: "Production and every case supply the story notes, CI follow-up and review-state reads through the required typed page entry."
+Disposition: no user cost "A dashboard maintainer can quickly check what CI status says on the real page frame": those legacy Playwright specs serve the built app through `dashboard/test-support/support/frontendApp.ts`, whose production `App.tsx` supplies `authenticatedPageReads` to `ConfiguredDashboard`; the substitutes answer the endpoints that entry's required members call, so the cases already read through the required typed page entry production supplies. They are outside the 7 status, 19 history and 3 wall-time files this story owns and move with their own migrations.
+
 ## Slices
 
 ### 1. Story notes, CI follow-up and review-state reads enter through the typed page entry
 
 Type: Structure
-Status: planned
+Status: done
 
 Follow plan 759 Slice 2's pattern. `PageReads` gains required members for the
 page's story notes, CI follow-up and review-state reads (currently
@@ -275,8 +305,20 @@ entry's reads; remove the hooks' fallback to fetching the endpoint and give
 CI follow-up the same entry. Move every provider and consumer: the
 production sites named in the frame-mount premise and the test sites
 `story-review-page-contexts.ts`, `story-notes-control.spec.ts`,
-`mountedServices.ts` and `ciFollowUpReadingPage.ts`, with no change to their
-assertions; update `dashboard/frontend-tests/README.md` where it names them.
+`ciFollowUpReadingPage.ts`, with no change to their assertions; update
+`dashboard/frontend-tests/README.md` where it names them. `PageReadsOnPage`
+holds the per-project story notes and review-state maps, created from the
+entry's reads, so no separate provider has to be mounted. The shared test
+mounts that relied on the hooks' fallback (`navigation/board-mount.ts`,
+`board-frame-mount.ts`, `board-reading-page.ts`, `story-review-panel-page.ts`,
+and the few other mounts the failing files reach) supply typed story notes,
+review-state and CI follow-up replies through `pageReadsSupplying`, and the
+fetch substitutes that answered those endpoints (`frontendStoryNotes.ts`,
+`frontendStoryReviewState.ts`, `frontendRecentlyDoneBoardReview.ts`,
+`frontendRecentlyDoneReviewCue.ts`, the notes part of
+`frontendServiceSubstitutes.ts`) become typed replies, with no change to the
+cases' assertions. The notes and review-state members carry their writes too,
+because one source reads and changes them.
 
 **Proof.** `npm run typecheck:dashboard` passes; the full frontend group
 passes; representative E2E journeys that read story notes, CI follow-up
@@ -313,7 +355,10 @@ by MakeMe with every member) as `ConfiguredDashboard` does, because
 `Terminal` and `Board` require them.
 
 Add a Taken-story step to `aPublishedWork` in place of `takenStoryEntry`.
-Drop the `watchedBranchHeads` assertions on builder output. Keep role-based
+Drop the `watchedBranchHeads` assertions on builder output. Remove the
+`storyNoteAnnouncement.ts` fallback for a missing page notes map (only
+`story-notes-dialog.spec.ts` relies on it): throw outside the page and mount
+that spec inside `PageReadsOnPage`. Keep role-based
 colocated page objects. Trace the consumers of `BoardOrIntent`,
 `ConfiguredDashboardContent`, `aPublishedWork`, `takenStoryEntry` and
 `unavailableReviewSource`.

@@ -6,7 +6,7 @@ import {
   attachStoryNotesLabel,
   attachStoryNotesNone,
 } from "../../src/attachStoryNotesWords.ts";
-import { storyNotesUnreadable } from "../../src/storyNotes.ts";
+import { storyNotesUnreadable } from "../../src/storyNotesReadSource.ts";
 
 export function attachStoryNotes(dialog: Locator) {
   const control = dialog.getByRole("checkbox", {

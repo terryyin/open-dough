@@ -19,11 +19,7 @@ import {
   SessionsSidebarOnPage,
   type SessionsSidebarState,
 } from "../../src/SessionsSidebar.tsx";
-import {
-  StoryNotesOnPage,
-  storyNotesState,
-  type StoryNotesSource,
-} from "../../src/storyNotes.ts";
+import type { StoryNotesReadSource } from "../../src/storyNotesReadSource.ts";
 import type { StoryNote, StoryNoteChange } from "../../src/storyNote.ts";
 
 const doughnut = makeMe.aPublishedSource
@@ -114,7 +110,7 @@ const work = {
 export function notesKept() {
   const changes: StoryNoteChange[] = [];
   const kept: Record<string, StoryNote[]> = {};
-  const source: StoryNotesSource = (change) => {
+  const source: StoryNotesReadSource = (...[, change]) => {
     if (change) changes.push(structuredClone(change));
     if (change?.action === "add") {
       const note = makeMe.aStoryNote
@@ -136,17 +132,14 @@ export function notesKept() {
 export function onReviewPage(
   source: ReviewSource,
   panel: ReactElement,
-  notes?: StoryNotesSource,
+  notes?: StoryNotesReadSource,
 ) {
   const withNotes =
     notes === undefined
       ? panel
       : createElement(RecentlyDoneLinkSources, {
           value: { projects: [doughnut], selected: doughnut.id, work },
-          children: createElement(StoryNotesOnPage, {
-            value: new Map([[doughnut.id, storyNotesState(notes)]]),
-            children: panel,
-          }),
+          children: panel,
         });
   return createElement(ProjectsOnPage, {
     projects: [doughnut],
@@ -156,7 +149,11 @@ export function onReviewPage(
       children: createElement(LaunchesOnPage, {
         value: launches,
         children: createElement(PageReadsOnPage, {
-          reads: pageReadsSupplying({ review: source }),
+          reads: pageReadsSupplying(
+            notes === undefined
+              ? { review: source }
+              : { review: source, storyNotes: notes },
+          ),
           children: withNotes,
         }),
       }),
