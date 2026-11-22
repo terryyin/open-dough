@@ -218,12 +218,16 @@ session's Done still ran; a pre-existing race, repaired in `doneMarks.ts`.
 ### 4. A note failure leaves the kept launch recorded
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: new `shared-checkout-note.spec.ts` cases through `keepRecord`: with a directory at the open launch's note path, keeping a second launch resolves, both records are kept and the early-reported Done starts; with a torn note beside the open launch, keeping a second launch resolves and that note now names the open launch's `launchedAt`. The four existing cases and `typecheck:dashboard` pass.
 
 Behavior: a launch kept in a checkout whose note cannot be written or read →
 keep → the launch is recorded (verification answers `launched`), the failure is
 logged, and a torn note is replaced by a valid conservative one.
+
+Accepted: `sharedCheckoutNoteText` takes the noted launch's `launchedAt` for a
+recorded note of unknown start; `review/ad-hoc-session-comparisons` timed out
+once at load ~15–18 and passed 3/3 alone.
 
 ### 5. One local Git-path store holds session evidence and close state
 
@@ -259,7 +263,7 @@ record contract (finding 5).
 ### G1. A torn note beside an open launch is rewritten with the new launch's start
 Reported: slice 3 — "a torn recorded note no longer makes `keepRecord` reject; the writer overwrites it with the new `since`"
 Story clause: "A shared-checkout note that cannot be written or read neither reports a kept launch as unrecorded nor blocks a later launch or close."
-Disposition: interim until slices 4
+Disposition: proved by slice 4: dashboard/backend-tests/review/shared-checkout-note.spec.ts "a torn note beside an open launch is replaced with that launch's own start" (the note names the open launch's `launchedAt`)
 
 ## Concern evidence
 

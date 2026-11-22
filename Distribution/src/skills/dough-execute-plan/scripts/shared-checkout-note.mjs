@@ -49,16 +49,18 @@ export function rangeUncertainty(note, acceptedAt) {
 }
 
 // The note's text for an overlap that began at `since` (an ISO time), keeping
-// the earlier start of the note already recorded as `recordedText`, if any.
-export function sharedCheckoutNoteText(since, recordedText) {
-  const recorded =
-    recordedText === undefined
-      ? undefined
-      : parseSharedCheckoutNote(recordedText);
+// the earlier start of the `recorded` note, if any. A recorded note of unknown
+// start yields `notedLaunchedAt`, the noted launch's own start: the earliest
+// the overlap could have begun.
+export function sharedCheckoutNoteText(since, recorded, notedLaunchedAt) {
+  const recordedSince =
+    recorded === sharedCheckoutOfUnknownStart
+      ? notedLaunchedAt
+      : recorded?.since;
   const earliest =
-    recorded?.since !== undefined &&
-    Date.parse(recorded.since) <= Date.parse(since)
-      ? recorded.since
+    recordedSince !== undefined &&
+    Date.parse(recordedSince) <= Date.parse(since)
+      ? recordedSince
       : since;
   return JSON.stringify({ since: earliest });
 }
