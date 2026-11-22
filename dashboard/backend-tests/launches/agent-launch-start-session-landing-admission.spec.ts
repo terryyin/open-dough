@@ -40,89 +40,97 @@ import { sessionBlock } from "../../test-support/support/startSessionLanding.ts"
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
 
-test("a Wait for review session carries the landing context too; a context naming no story is admitted only for the launch that established a session", async ({
-  dashboard,
-  origin,
-}) => {
-  const waiting = await launched(dashboard, {
-    instruction: "Tidy the README wording",
-    policy: { workspace: "isolated", landing: "review" } satisfies Policy,
-  });
-  const [block, reportingBlock, text] = waiting.sent.split("\n\n");
-  expect(text).toBe("Tidy the README wording");
-  const { session, reporting, context } = landingHandoff(waiting.record);
-  expect(block).toBe(sessionBlock(session));
-  expectReportingBlock(reportingBlock, waiting.record.request, dashboard);
-  expect(reportingBlock).toContain("--landing-context");
-  expect(context).not.toHaveProperty("identity");
-
-  // The default choices establish no session: the reporting context names
-  // no landing context and no capture authority is kept.
-  const plain = await launched(dashboard, { instruction: "Say hello" });
-  const plainReporting = plain.record.request.reporting;
-  if (plainReporting === undefined) throw new Error("Missing reporting.");
-  expect(plain.record).not.toHaveProperty("establishedSession");
-  expect(plainReporting).not.toHaveProperty("landingContext");
-  expect(plain.sent).not.toContain("--landing-context");
-  expectReportingBlock(
-    plain.sent.split("\n\n")[1],
-    plain.record.request,
-    dashboard,
-  );
-  expect(
-    keptAttempts(dashboard).find(
-      (entry) => entry.id === plainReporting.reference,
-    ),
-  ).not.toHaveProperty("landingRepository");
-  // No prepared landing context means no first-landing expectation either.
-  const plainReportingDir = path.join(
-    dashboard.home,
-    ".open-dough/dashboard/reporting",
-    plainReporting.reference,
-  );
-  expect(existsSync(path.join(plainReportingDir, "landing-context.json"))).toBe(
-    false,
-  );
-  expect(
-    existsSync(path.join(plainReportingDir, "first-landing-expectation.json")),
-  ).toBe(false);
-
-  const base = await originMain(origin);
-  const revision = commit(session.workspace, "later.txt");
-  // The same comparison, landed for one launch or another.
-  const landingFor = (reference: string) =>
-    makeMe.aLandingSubmission
-      .forLaunch({ reference })
-      .comparing({ base, revision })
-      .please();
-  const waitingLanding = landingFor(reporting.reference);
-  for (const refused of [
-    // A story named for a launch that has none.
-    { ...waitingLanding, identity: "SEED-1#a" },
-    { ...waitingLanding, identity: "" },
-    { ...waitingLanding, remote: "foreign" },
-  ])
-    expect((await post(dashboard, refused)).status).toBeGreaterThanOrEqual(400);
-  // The launch that established no session, whatever it names.
-  expect(
-    (await post(dashboard, landingFor(plainReporting.reference))).status,
-  ).toBe(409);
-  for (const kept of keptAttempts(dashboard))
-    expect(kept).not.toHaveProperty("landingPreparations");
-
-  // The developer later asks the waiting session to land: its own context
-  // captures that landing.
-  expect((await post(dashboard, waitingLanding)).status).toBe(200);
-  const delivered = land(waiting.record, origin, dashboard.home).result;
-  expect(delivered.landing.receipt).toMatchObject({ base, revision });
-  expect(await originMain(origin)).toBe(revision);
-  expect(
-    (await keptRecord(dashboard, reporting.reference))?.landing,
-  ).toMatchObject({ base, revision, reference: reporting.reference });
-  expect(
-    (await keptRecord(dashboard, plainReporting.reference))?.landing,
-  ).toBeUndefined();
+const childPublication = test.extend({
+  liveServer: "synchronous delivery child blocks the mounted receiver",
 });
+
+childPublication(
+  "a Wait for review session carries the landing context too; a context naming no story is admitted only for the launch that established a session",
+  async ({ dashboard, origin }) => {
+    const waiting = await launched(dashboard, {
+      instruction: "Tidy the README wording",
+      policy: { workspace: "isolated", landing: "review" } satisfies Policy,
+    });
+    const [block, reportingBlock, text] = waiting.sent.split("\n\n");
+    expect(text).toBe("Tidy the README wording");
+    const { session, reporting, context } = landingHandoff(waiting.record);
+    expect(block).toBe(sessionBlock(session));
+    expectReportingBlock(reportingBlock, waiting.record.request, dashboard);
+    expect(reportingBlock).toContain("--landing-context");
+    expect(context).not.toHaveProperty("identity");
+
+    // The default choices establish no session: the reporting context names
+    // no landing context and no capture authority is kept.
+    const plain = await launched(dashboard, { instruction: "Say hello" });
+    const plainReporting = plain.record.request.reporting;
+    if (plainReporting === undefined) throw new Error("Missing reporting.");
+    expect(plain.record).not.toHaveProperty("establishedSession");
+    expect(plainReporting).not.toHaveProperty("landingContext");
+    expect(plain.sent).not.toContain("--landing-context");
+    expectReportingBlock(
+      plain.sent.split("\n\n")[1],
+      plain.record.request,
+      dashboard,
+    );
+    expect(
+      keptAttempts(dashboard).find(
+        (entry) => entry.id === plainReporting.reference,
+      ),
+    ).not.toHaveProperty("landingRepository");
+    // No prepared landing context means no first-landing expectation either.
+    const plainReportingDir = path.join(
+      dashboard.home,
+      ".open-dough/dashboard/reporting",
+      plainReporting.reference,
+    );
+    expect(
+      existsSync(path.join(plainReportingDir, "landing-context.json")),
+    ).toBe(false);
+    expect(
+      existsSync(
+        path.join(plainReportingDir, "first-landing-expectation.json"),
+      ),
+    ).toBe(false);
+
+    const base = await originMain(origin);
+    const revision = commit(session.workspace, "later.txt");
+    // The same comparison, landed for one launch or another.
+    const landingFor = (reference: string) =>
+      makeMe.aLandingSubmission
+        .forLaunch({ reference })
+        .comparing({ base, revision })
+        .please();
+    const waitingLanding = landingFor(reporting.reference);
+    for (const refused of [
+      // A story named for a launch that has none.
+      { ...waitingLanding, identity: "SEED-1#a" },
+      { ...waitingLanding, identity: "" },
+      { ...waitingLanding, remote: "foreign" },
+    ])
+      expect((await post(dashboard, refused)).status).toBeGreaterThanOrEqual(
+        400,
+      );
+    // The launch that established no session, whatever it names.
+    expect(
+      (await post(dashboard, landingFor(plainReporting.reference))).status,
+    ).toBe(409);
+    for (const kept of keptAttempts(dashboard))
+      expect(kept).not.toHaveProperty("landingPreparations");
+
+    // The developer later asks the waiting session to land: its own context
+    // captures that landing.
+    expect((await post(dashboard, waitingLanding)).status).toBe(200);
+    const delivered = land(waiting.record, origin, dashboard.home).result;
+    expect(delivered.landing.receipt).toMatchObject({ base, revision });
+    expect(await originMain(origin)).toBe(revision);
+    expect(
+      (await keptRecord(dashboard, reporting.reference))?.landing,
+    ).toMatchObject({ base, revision, reference: reporting.reference });
+    expect(
+      (await keptRecord(dashboard, plainReporting.reference))?.landing,
+    ).toBeUndefined();
+  },
+);
 
 test("an installation whose landing module requires an identity is handed no landing context, so a landing never fails on one it cannot validate", async ({
   dashboard,
@@ -146,7 +154,10 @@ test("an installation whose landing module requires an identity is handed no lan
 });
 
 test.describe("Codex", () => {
-  test.use({ preparationHost: "codex" });
+  test.use({
+    preparationHost: "codex",
+    liveServer: "synchronous delivery child blocks the mounted receiver",
+  });
 
   test("the installed delivery command a one-shot landing runs captures an isolated session's landing with no identity", async ({
     dashboard,

@@ -28,7 +28,11 @@ import { publishes } from "../../test-support/support/publishedRepository.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({
+  serverMode: "boundary",
+  extraEnv: collectingLandedCi,
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
   await Promise.all(readers.splice(0).map((reader) => reader.close()));
@@ -170,6 +174,7 @@ for (const proofState of ["summary", "mismatched", "expired"] as const) {
         dashboard,
         origin,
         "boundary",
+        "the preceding live server retains the machine's Cursor runner",
       );
       readers.push(reader);
       const before = github.calls.length;

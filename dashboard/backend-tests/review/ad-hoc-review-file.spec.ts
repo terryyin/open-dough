@@ -1,236 +1,219 @@
-// File admission uses the captured reference, comparison and listed rename.
-import { randomUUID } from "node:crypto";
-import path from "node:path";
-import { expect, test } from "../../test-support/support/codexStart.ts";
+// The typed file diff and file text handlers in-process admit an ad hoc
+// session's file read by its captured reference, comparison and listed
+// rename, or by its kept run's pair, given the admitted launch record: no
+// server, no machine stores. Each refusal carries its HTTP status.
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import type { ReviewedFileDiff } from "../../src/storyReviewContract.ts";
+import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
-  storyReviewFileEndpoint,
-  storyReviewFileTextEndpoint,
-  reviewedFileDiffSchema,
-  reviewedFileTextSchema,
-} from "../../src/storyReviewContract.ts";
-import { getReview } from "../../test-support/support/completedReviewRequests.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { lines } from "../../test-support/support/storyReviewWorktree.ts";
-import {
-  adHocReview,
-  adHocSessionFileDiff,
-  keepSessionWithKeptRun,
-} from "../../test-support/support/adHocReview.ts";
+  reviewedFileDiff,
+  reviewedFileText,
+} from "../../server/storyReviewFileResponse.ts";
 
-test.use({ serverMode: "boundary" });
+const signal = () => new AbortController().signal;
+// Enough identical lines that a small edit stays a rename under Git -M.
+const kept = [...Array(12).keys()].map((line) => `kept ${line}\n`).join("");
+const renamedFile = { path: "new.txt", oldPath: "old.txt" };
+const reference = "11111111-1111-4111-8111-111111111111";
+const otherReference = "22222222-2222-4222-8222-222222222222";
 
-test("an ad hoc landed answer admits its file diff and text for a rename's old path", async ({
-  request,
-  dashboard,
-}) => {
+const renameHistory = () =>
+  makeMe.aRepository
+    .withRevision("base", { backlog: null, files: { "old.txt": kept } })
+    .withRevision("result", {
+      backlog: null,
+      remove: ["old.txt"],
+      files: { "new.txt": `${kept}renamed\n` },
+    });
+
+async function renameRevisionRepo() {
+  return materializeLocalCheckout(undefined, renameHistory().please());
+}
+
+test("Given a kept landed session whose comparison renames a file, when the diff and text of the rename are read, then both answer", async () => {
   const repository = await renameRevisionRepo();
   try {
-    const sessionId = "ad-hoc-file-admit";
-    keepLaunchRecords(dashboard, [
-      makeMe.aLaunchRecord
-        .adHoc({ title: "File admit" })
-        .inIsolatedWorkspace({
-          workspace: path.join(dashboard.home, "file-admit-retired"),
-          branch: "ad-hoc/landed",
-        })
-        .inClaudeSession({ sessionId })
-        .withLanding(
-          makeMe.aLaunchLanding
-            .capturedFrom({ repository: repository.integration })
-            .comparing({
-              base: repository.revisions.base,
-              revision: repository.revisions.result,
-            }),
-        )
-        .markedDone()
-        .please(),
-    ]);
-    const answer = await adHocReview(request, dashboard, sessionId);
-    expect(answer.kind).toBe("landed");
-    if (answer.kind !== "landed") throw new Error("expected landed");
-    const renamed = answer.files.find((file) => file.kind === "renamed");
-    expect(renamed).toMatchObject({
-      kind: "renamed",
-      path: "new.txt",
-      oldPath: "old.txt",
-    });
-    if (renamed?.kind !== "renamed") throw new Error("expected rename");
-    const query = {
-      source: "open-dough",
-      host: "claude",
-      session: sessionId,
-      reference: answer.landing.reference,
-      baseline: answer.baseline,
-      tree: answer.tree,
-      path: "new.txt",
-      oldPath: "old.txt",
-    };
-    const diff = await getReview(
-      request,
-      dashboard,
-      storyReviewFileEndpoint,
-      query,
-    );
-    expect(diff.status()).toBe(200);
-    expect(reviewedFileDiffSchema.parse(await diff.json())).toEqual({
+    const { base, result } = repository.revisions;
+    const read = makeMe.aSessionReviewRead
+      .ofLandedAdHocSession("ad-hoc-file-admit", {
+        repository: repository.integration,
+        comparing: { base, revision: result },
+        reference,
+      })
+      .readingFile({ reference, baseline: base, tree: result, ...renamedFile })
+      .please();
+
+    expect(await reviewedFileDiff(read, signal())).toEqual({
       kind: "diff",
-      printed: expect.stringContaining("renamed"),
+      printed: expect.stringContaining("renamed") as string,
     });
-    const text = await getReview(
-      request,
-      dashboard,
-      storyReviewFileTextEndpoint,
-      query,
-    );
-    expect(text.status()).toBe(200);
-    expect(reviewedFileTextSchema.parse(await text.json())).toEqual({
+    expect(await reviewedFileText(read, signal())).toEqual({
       kind: "text",
-      baseline: lines("kept"),
-      tree: `${lines("kept")}renamed\n`,
+      baseline: kept,
+      tree: `${kept}renamed\n`,
     });
   } finally {
     await repository.cleanup();
   }
 });
 
-for (const [subject, endpoint, field] of [
-  ["a foreign path", storyReviewFileEndpoint, "path"],
-  ["a foreign comparison", storyReviewFileTextEndpoint, "baseline"],
-  ["another session's reference", storyReviewFileEndpoint, "reference"],
+async function expectRefusedAsNotOnCapturedRun(refused: Promise<unknown>) {
+  await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
+  await expect(refused).rejects.toMatchObject({
+    status: 409,
+    message: "The file or comparison does not belong to this captured run.",
+  });
+}
+
+type Pair = { base: string; result: string };
+for (const [subject, handler, mismatch] of [
+  ["a foreign path", reviewedFileDiff, () => ({ path: "missing.txt" })],
+  [
+    "a foreign comparison",
+    reviewedFileText,
+    ({ result }: Pair) => ({ baseline: result }),
+  ],
+  [
+    "another session's reference",
+    reviewedFileDiff,
+    () => ({ reference: otherReference }),
+  ],
 ] as const) {
-  test(`an ad hoc file read refuses ${subject}`, async ({
-    request,
-    dashboard,
-  }) => {
+  test(`Given a kept landed session, when a file read names ${subject}, then it is refused as not on the captured run`, async () => {
     const repository = await renameRevisionRepo();
     try {
-      const sessionId = "ad-hoc-file-refuse";
-      const otherReference = randomUUID();
-      keepLaunchRecords(dashboard, [
-        makeMe.aLaunchRecord
-          .adHoc({ title: "File refuse" })
-          .inIsolatedWorkspace({
-            workspace: path.join(dashboard.home, "file-refuse-retired"),
-            branch: "ad-hoc/landed",
-          })
-          .inClaudeSession({ sessionId })
-          .withLanding(
-            makeMe.aLaunchLanding
-              .capturedFrom({ repository: repository.integration })
-              .forLaunch(randomUUID())
-              .comparing({
-                base: repository.revisions.base,
-                revision: repository.revisions.result,
-              }),
-          )
-          .markedDone()
-          .please(),
-        makeMe.aLaunchRecord
-          .adHoc({ title: "Other session" })
-          .inIsolatedWorkspace({
-            workspace: path.join(dashboard.home, "other-session-retired"),
-            branch: "ad-hoc/landed",
-          })
-          .withLanding(
-            makeMe.aLaunchLanding
-              .capturedFrom({ repository: repository.integration })
-              .forLaunch(otherReference)
-              .comparing({
-                base: repository.revisions.base,
-                revision: repository.revisions.result,
-              }),
-          )
-          .markedDone()
-          .please(),
-      ]);
-      const answer = await adHocReview(request, dashboard, sessionId);
-      expect(answer.kind).toBe("landed");
-      if (answer.kind !== "landed") throw new Error("expected landed");
-      const file = {
-        source: "open-dough",
-        host: "claude",
-        session: sessionId,
-        reference: answer.landing.reference,
-        baseline: answer.baseline,
-        tree: answer.tree,
-        path: "new.txt",
-        oldPath: "old.txt",
-      };
-      const refused =
-        "The file or comparison does not belong to this captured run.";
-      const mismatches = {
-        path: "missing.txt",
-        baseline: answer.tree,
-        reference: otherReference,
-      };
-      const response = await getReview(request, dashboard, endpoint, {
-        ...file,
-        [field]: mismatches[field],
+      const { base, result } = repository.revisions;
+      const landing = (owned: string) => ({
+        repository: repository.integration,
+        comparing: { base, revision: result },
+        reference: owned,
       });
-      expect(response.status()).toBe(409);
-      expect(await response.json()).toEqual({ error: refused });
+      const named = {
+        reference,
+        baseline: base,
+        tree: result,
+        ...renamedFile,
+        ...mismatch({ base, result }),
+      };
+      const read = makeMe.aSessionReviewRead
+        .ofLandedAdHocSession("ad-hoc-file-refuse", landing(reference))
+        .readingFile(named)
+        .please();
+
+      const refused = handler(read, signal());
+
+      await expectRefusedAsNotOnCapturedRun(refused);
     } finally {
       await repository.cleanup();
     }
   });
 }
 
-test("a file read naming a kept run's pair of a session's commits is answered, and any other pair or path refused", async ({
-  request,
-  dashboard,
-}) => {
+for (const [subject, handler, fileFields, message] of [
+  [
+    "a delivered file at the separately retained branch tree",
+    reviewedFileDiff,
+    { reference },
+    "The file or comparison does not belong to this captured run.",
+  ],
+  [
+    "a retained branch rename with the wrong old path",
+    reviewedFileText,
+    { oldPath: "other.txt" },
+    "The file or comparison does not belong to this session's branch result.",
+  ],
+] as const) {
+  test(`a mixed Done session refuses ${subject}`, async () => {
+    const repository = await materializeLocalCheckout(
+      undefined,
+      renameHistory()
+        .withRevision("branch", { files: { "new.txt": `${kept}working\n` } })
+        .please(),
+    );
+    try {
+      const { base, result, branch } = repository.revisions;
+      const workspace = repository.integration;
+      const record = makeMe.aLaunchRecord
+        .ofLandedAdHocSession("mixed-done", {
+          repository: workspace,
+          comparing: { base, revision: result },
+          reference,
+        })
+        .branchResultFrom({ repository: workspace, base, revision: branch })
+        .please();
+      const read = makeMe.aSessionReviewRead
+        .ofRecord(record)
+        .readingFile({
+          baseline: base,
+          tree: branch,
+          ...renamedFile,
+          ...fileFields,
+        })
+        .please();
+
+      await expect(handler(read, signal())).rejects.toMatchObject({
+        status: 409,
+        message,
+      });
+    } finally {
+      await repository.cleanup();
+    }
+  });
+}
+
+// Reads, in a session with one kept run, the file diff of the named pair
+// and file, and hands the answer to `observe`.
+async function readKeptRunDiff(
+  named: (pair: Pair) => object,
+  observe: (diff: Promise<ReviewedFileDiff>) => Promise<void>,
+) {
   const repository = await renameRevisionRepo();
   try {
     const { base, result } = repository.revisions;
-    const sessionId = keepSessionWithKeptRun(
-      dashboard,
-      repository.integration,
-      { base, revision: result },
-    );
-    const read = (named: object) =>
-      adHocSessionFileDiff(request, dashboard, sessionId, {
+    const read = makeMe.aSessionReviewRead
+      .ofAdHocSessionWithKeptRun("session-with-kept-run", {
+        repository: repository.integration,
+        run: { base, revision: result },
+      })
+      .readingFile({
         baseline: base,
         tree: result,
-        path: "new.txt",
-        oldPath: "old.txt",
-        ...named,
-      });
-    const kept = await read({});
-    expect(kept.status()).toBe(200);
-    expect(reviewedFileDiffSchema.parse(await kept.json())).toEqual({
-      kind: "diff",
-      printed: expect.stringContaining("renamed"),
-    });
-    for (const other of [{ baseline: result }, { path: "missing.txt" }]) {
-      const refused = await read(other);
-      expect(refused.status()).toBe(409);
-      expect(await refused.json()).toEqual({
-        error:
-          "The file or comparison does not belong to this session's kept commits.",
-      });
-    }
+        ...renamedFile,
+        ...named({ base, result }),
+      })
+      .please();
+    await observe(reviewedFileDiff(read, signal()));
   } finally {
     await repository.cleanup();
   }
+}
+
+test("Given a session with one kept run, when a file diff names that run's pair, then it answers", async () => {
+  await readKeptRunDiff(
+    () => ({}),
+    async (diff) => {
+      expect(await diff).toEqual({
+        kind: "diff",
+        printed: expect.stringContaining("renamed") as string,
+      });
+    },
+  );
 });
 
-// Enough identical lines that a small edit stays a rename under Git -M.
-async function renameRevisionRepo() {
-  const body = lines("kept");
-  return materializeLocalCheckout(
-    undefined,
-    makeMe.aRepository
-      .withRevision("base", {
-        backlog: null,
-        files: { "old.txt": body },
-      })
-      .withRevision("result", {
-        backlog: null,
-        remove: ["old.txt"],
-        files: { "new.txt": `${body}renamed\n` },
-      })
-      .please(),
-  );
+for (const [subject, named] of [
+  ["another pair", ({ result }: Pair) => ({ baseline: result })],
+  ["another path", () => ({ path: "missing.txt" })],
+] as const) {
+  test(`Given a session with one kept run, when a file diff names ${subject}, then it is refused as not among its kept commits`, async () => {
+    await readKeptRunDiff(named, async (diff) => {
+      await expect(diff).rejects.toBeInstanceOf(RefusedRequest);
+      await expect(diff).rejects.toMatchObject({
+        status: 409,
+        message:
+          "The file or comparison does not belong to this session's kept commits.",
+      });
+    });
+  });
 }

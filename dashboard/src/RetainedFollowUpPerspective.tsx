@@ -22,6 +22,7 @@ import { useStorySelection } from "./pageStorySelection.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import { FollowUpNavigationOnPage } from "./ciFollowUpNavigation.tsx";
 import type { IntentPerspective } from "./IntentPerspective.tsx";
+import "./intent-perspective.css";
 
 function HistoricalPage({
   source,

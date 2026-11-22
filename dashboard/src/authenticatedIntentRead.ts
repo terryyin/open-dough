@@ -89,24 +89,28 @@ export function readIntentLocationsAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
+  readLocations: typeof requestIntentLocationsAt = requestIntentLocationsAt,
 ): Promise<IntentLocations> {
-  const query = locationsQuery(source, revision);
   return memoizedAnswer(
-    query,
-    (shared) => askIntentLocationsAt(query, revision, shared),
+    locationsQuery(source, revision),
+    (shared) => readLocations(source, revision, shared),
     signal,
     // Settings problems offer Retry, so they are asked again.
     (locations) => locations.status !== "settings-problem",
   );
 }
 
-async function askIntentLocationsAt(
-  query: string,
+export async function requestIntentLocationsAt(
+  source: PublishedSource,
   revision: string,
   signal: AbortSignal,
 ): Promise<IntentLocations> {
   const reading = readingPathAt(agentSettingsPath, revision);
-  const body = await authenticatedGet(query, reading, signal);
+  const body = await authenticatedGet(
+    locationsQuery(source, revision),
+    reading,
+    signal,
+  );
   const parsed = okIntent.safeParse(body);
   if (!parsed.success || parsed.data.revision !== revision) {
     throw unexpectedAnswer(reading);

@@ -1,6 +1,7 @@
 // The page's selected story as Intent's lens reads it (`./IntentPerspective.tsx`,
 // `./IntentStorySummary.tsx`): the story by its published entry, and what is
-// known of its default Review changes comparison (`./useStoryComparison.ts`).
+// known of its Review changes comparison (`./useStoryComparison.ts`): the
+// default, and the chosen one that equals it until a choice is made.
 // Whether the story has a comparison is decided as Review changes offers it
 // (`storyComparisonOffered`), unknown while an active story's records are
 // unread; a story with none reads nothing. A completed story is named by its
@@ -13,7 +14,11 @@ import { useDoneDetails } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
 import type { LensComparison } from "./IntentStoryComparison.tsx";
-import type { ComparedStory, LensStory } from "./IntentStorySummary.tsx";
+import {
+  wholeStoryOf,
+  type ComparedStory,
+  type LensStory,
+} from "./IntentStorySummary.tsx";
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -123,11 +128,22 @@ export function useIntentStoryLens({
           )
         : undefined;
   const [round, setRound] = useState(0);
-  const { review, reading, problem, shown } = useStoryComparison({
+  const {
+    review,
+    defaultReview,
+    reading,
+    problem,
+    shown,
+    compare,
+    unreadable,
+  } = useStoryComparison({
     source: source.id,
     identity: story?.identity ?? "",
     completed: story?.completed ?? false,
     round,
+    onRefresh: () => {
+      setRound((n) => n + 1);
+    },
     enabled: offered === true,
   });
   const comparison: LensComparison =
@@ -138,20 +154,26 @@ export function useIntentStoryLens({
         : reading
           ? { state: "reading" }
           : shown !== undefined
-            ? { state: "compared", shown, review }
-            : problem !== undefined
-              ? { state: "failed", problem }
-              : review !== undefined &&
-                  (review.kind === "unavailable" ||
-                    review.kind === "landing-unavailable")
-                ? { state: "unavailable", explanation: review.explanation }
-                : { state: "reading" };
+            ? { state: "compared", shown, review, defaultReview, compare }
+            : unreadable !== undefined && compare !== undefined
+              ? { state: "unreadable", unreadable, defaultReview, compare }
+              : problem !== undefined
+                ? { state: "failed", problem }
+                : review !== undefined &&
+                    (review.kind === "unavailable" ||
+                      review.kind === "landing-unavailable")
+                  ? { state: "unavailable", explanation: review.explanation }
+                  : { state: "reading" };
   return {
     story,
     comparison,
     compared:
       story !== undefined && comparison.state === "compared"
-        ? { lens: story, shown: comparison.shown }
+        ? {
+            lens: story,
+            shown: comparison.shown,
+            wholeStory: wholeStoryOf({ story, comparison }),
+          }
         : undefined,
     retry: () => {
       setRound((n) => n + 1);

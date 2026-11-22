@@ -83,11 +83,41 @@ test("configured dashboard tasks weigh roots and workers without modifying the s
     ["single", 1_950],
     ["with-worker", 5_750],
   ]);
-  expect(answer.tariff.version).toBe("codex-2026-11-15");
+  expect(answer.tariff.version).toBe(codexTariff.version);
   expect(storeHashes(store)).toEqual(before);
   rmSync(usageTaskSummaryFile(store));
   expect((await usage.chart()).tasks).toEqual(answer.tasks);
   expect(storeHashes(store)).toEqual(before);
+});
+
+test("finished GPT-6.2 Sol and Astra tasks have a priced Token index point", async ({
+  machine,
+}) => {
+  const tokens = { uncachedInput: 1_000, cacheRead: 9_000, output: 100 };
+  await writeTaskUsage(machine.home, [
+    makeMe.aUsageTaskHistory
+      .identifiedAs("sol")
+      .withResponse({ model: "gpt-6.2-sol", serviceTier: "default", tokens })
+      .please(),
+    makeMe.aUsageTaskHistory
+      .identifiedAs("astra")
+      .withResponse({ model: "gpt-6.2-astra", serviceTier: "default", tokens })
+      .please(),
+  ]);
+  const usage = await usageServer(machine);
+
+  const { tasks } = await usage.chart();
+  expect(
+    Object.fromEntries(
+      tasks.map(({ id, index, observed }) => [
+        id,
+        [observed.model?.name, index],
+      ]),
+    ),
+  ).toMatchObject({
+    sol: ["GPT-6.2 Sol", 1_950],
+    astra: ["GPT-6.2 Astra", 7_800],
+  });
 });
 
 test("a new tariff reweighs the same stored counters", async ({ machine }) => {

@@ -8,8 +8,10 @@
 // `./ciProofWording.ts`). For a
 // selected story's comparison, the same baseline, branch and landed figures
 // the Summary uses (`./ciScopeComparison.ts`), one row per compared unit,
-// with change markers and the observed-not-attributed statement. Without
-// usable evidence, the same absence line Summaries use.
+// with change markers and the observed-not-attributed statement. A changed
+// file outside every location names the evidence and says it has no
+// file-level CI evidence. Without usable evidence, the same absence line
+// Summaries use.
 
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";

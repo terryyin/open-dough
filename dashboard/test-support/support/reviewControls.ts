@@ -1,18 +1,19 @@
 // Story review controls, without a read or snapshot wait. The caller owns
 // whether it needs the answer or is deliberately leaving it pending.
 import { expect, type Locator, type Page } from "@playwright/test";
+import { storyReviewNames as n } from "../storyReviewNames.ts";
 
 export const reviewRegion = (
   page: Page,
   { exact = false }: { exact?: boolean } = {},
 ) =>
   page.getByRole("region", {
-    name: exact ? /^(?:Story|Session) review$/ : /(?:Story|Session) review/,
+    name: exact ? n.regionExactly : n.region,
   });
 
 // The review's toolbar under the panel header.
 export const reviewToolbar = (review: Locator) =>
-  review.getByRole("group", { name: "Review toolbar", exact: true });
+  review.getByRole("group", { name: n.toolbar, exact: true });
 
 // The toolbar's name of the comparison shown, and nothing else.
 export const toolbarComparison = (review: Locator) =>
@@ -64,9 +65,7 @@ export async function showReviewDetails(review: Locator) {
 
 // The toolbar's eye, whichever of its two names it has now.
 export const detailsToggle = (review: Locator) =>
-  reviewToolbar(review).getByRole("button", {
-    name: /^(Show|Hide) review details$/,
-  });
+  reviewToolbar(review).getByRole("button", { name: n.detailsToggle });
 
 // The story review's comparison switch.
 export const comparison = (review: Locator) =>
@@ -105,9 +104,6 @@ export const uncommittedCheck = (review: Locator) =>
 // The visible label is the touch tap target for that check.
 export const uncommittedLabel = (review: Locator) =>
   review.locator("label", { hasText: "Include uncommitted changes" });
-
-export const reviewHeaderActions = (review: Locator) =>
-  review.locator(".side-panel-actions");
 
 // Refresh can be pressed without waiting for the read it starts.
 export const reviewRefresh = (

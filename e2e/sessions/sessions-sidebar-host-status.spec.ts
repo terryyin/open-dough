@@ -1,6 +1,6 @@
 // Real host/session reads for the Sessions sidebar title row. Synthetic
 // unread host-figure cases live in
-// dashboard/frontend-tests/sessions-sidebar-host-status.spec.ts.
+// dashboard/frontend-tests/sessions/sessions-sidebar-host-status.spec.ts.
 
 import {
   expect,

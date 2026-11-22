@@ -37,7 +37,7 @@ test("a long story title shows once in full above the story's views, whichever i
   if (snapshot.kind !== "snapshot") throw new Error("Expected Taken snapshot");
   const baseline = snapshot.baseline;
   const { intent } = await openStoryIntent(page, long);
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   const title = storyTitle(intent);
   await expect(title).toHaveText(long);
   await expect(intent.getByText(long, { exact: true })).toHaveCount(1);
@@ -57,11 +57,7 @@ test("a long story title shows once in full above the story's views, whichever i
     `Compared ${shortRevision(baseline)} with worktree `,
   );
 
-  for (const view of [
-    "CI comparison",
-    "Intent coverage",
-    "Changed tests",
-  ] as const) {
+  for (const view of ["CI comparison", "Intent coverage", "Changes"] as const) {
     await chooseStoryTab(intent, view);
     await expectStackedInOrder([title, storyTab(intent, view)]);
   }

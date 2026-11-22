@@ -118,6 +118,7 @@ export const test = base.extend<{
   // `stand-in` when Cursor operations are outside the proof; default `real`.
   // Same boundary as `startDashboardServer`'s `cursorRunner` option.
   cursorRunner: DashboardCursorRunner;
+  liveServer: string | undefined;
   // When true (the default), the context pre-holds both stream slots so
   // existing check journeys keep proving check delivery. Stream journeys set
   // false so pages may take the slots themselves.
@@ -138,6 +139,7 @@ export const test = base.extend<{
   observationClock: [false, { option: true }],
   launchWaitEnd: [false, { option: true }],
   cursorRunner: ["real", { option: true }],
+  liveServer: [undefined, { option: true }],
   preholdRevisionStreamSlots: [true, { option: true }],
   // Playwright's fixture API requires the empty destructuring pattern.
   // eslint-disable-next-line no-empty-pattern
@@ -173,6 +175,7 @@ export const test = base.extend<{
       observationClock,
       launchWaitEnd,
       cursorRunner,
+      liveServer,
       serverMode,
     },
     use,
@@ -191,6 +194,7 @@ export const test = base.extend<{
       observationClock,
       launchWaitEnd,
       cursorRunner,
+      liveServer,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
       extraEnv: fixtureExtraEnv(extraEnv, startTimeoutMs),
     });

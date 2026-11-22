@@ -26,7 +26,11 @@ import { originMain } from "../../test-support/support/sessionDialog.ts";
 import { expectProjectHistoryCohort } from "../../test-support/support/scopeHistoryRetention.ts";
 import { land } from "../../test-support/support/startSessionLandingContext.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({
+  serverMode: "boundary",
+  extraEnv: collectingLandedCi,
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 let reader: DashboardServer | undefined;
 test.afterEach(() => reader?.close());
 const scopedHistory = (origin: string, revision: string, through: string) =>
@@ -39,8 +43,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
 }) => {
   const receiptStart = Date.now() + 24 * 60 * 60_000;
   const buildStart = Date.parse("2026-11-05T10:00:00Z");
-  // Actual ancestor commits, with oldest A's receipt newest; accepted U arrives
-  // last with an earlier receipt than every retained record. No order is injected.
+  // The real ancestors have reversed receipt dates and the last receipt is oldest.
   const previous = retainedTrunkProofs(origin, {
     titles: [...Array<number>(20).keys()].map(
       (index) => `retained-${String(index + 1).padStart(2, "0")}`,
@@ -63,13 +66,11 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
   let history = makeMe.aLandedCiHistory;
   for (const { landing, key, build } of previous)
     history = history.recording(landing, key, build);
+  const sharedId = "51000000-0000-4000-8000-000000000021";
   const shared = makeMe.aLaunchLanding
     .capturedFrom({ repository: lastRetained.landing.repository })
-    .forLaunch("51000000-0000-4000-8000-000000000021")
-    .deliveredAs({
-      delivery: "51000000-0000-4000-8000-000000000021",
-      receipt: "51000000-0000-4000-8000-000000000021",
-    })
+    .forLaunch(sharedId)
+    .deliveredAs({ delivery: sharedId, receipt: sharedId })
     .comparing({
       base: lastRetained.landing.base,
       revision: lastRetained.landing.revision,
@@ -130,16 +131,18 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     shared.receipt,
     accepted.receipt,
   ].sort();
-  // This is the first decisive assertion: a receipt-ordered walk keeps A
-  // and fails to reach U, even though U was accepted after every ancestor.
+  // A receipt-ordered walk would keep the oldest and miss the last acceptance.
   await expect
     .poll(() => Object.keys(retained(dashboard.home)?.landings ?? {}).sort())
     .toEqual(expectedReceipts);
   await expect
     .poll(() => retained(dashboard.home)?.builds[lastKey]?.proof)
     .toEqual({ kind: "summary", summary: JSON.parse(text) as unknown });
-  const expectedOrder = [
-    ...window.map(({ landing }) => landing.revision),
+  const retainedRevisions = window.map(({ landing }) => landing.revision);
+  const expectedOrder = [...retainedRevisions, newest.revision];
+  const representedOrder = [
+    ...retainedRevisions,
+    shared.revision,
     newest.revision,
   ];
   await expect
@@ -173,7 +176,12 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     ),
   ).toHaveLength(1);
 
-  reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  reader = await restartAsLandedCiReader(
+    dashboard,
+    origin,
+    "boundary",
+    "the preceding live server retains the machine's Cursor runner",
+  );
   const asked = github.calls.length;
   const selected = await scopedHistory(
     reader.origin,
@@ -197,11 +205,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
     selected.body.entries.flatMap((entry) =>
       entry.landings.map(({ revision }) => revision),
     ),
-  ).toEqual([
-    ...window.map(({ landing }) => landing.revision),
-    shared.revision,
-    newest.revision,
-  ]);
+  ).toEqual(representedOrder);
   expect(selected.body.entries.filter((entry) => entry.selected)).toEqual([
     expect.objectContaining({
       kind: "point",
@@ -212,11 +216,7 @@ test("the twenty-first accepted landing evicts the oldest trunk measurement desp
       ],
     }),
   ]);
-  await expectProjectHistoryCohort(reader, expectedOrder, [
-    ...window.map(({ landing }) => landing.revision),
-    shared.revision,
-    newest.revision,
-  ]);
+  await expectProjectHistoryCohort(reader, expectedOrder, representedOrder);
   const evicted = await scopedHistory(
     reader.origin,
     oldest.landing.revision,

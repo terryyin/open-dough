@@ -14,11 +14,7 @@ import {
 // places. In a narrow panel the browser sits above the diff with a bounded
 // share of the height, and Hide files gives the diff the whole work area.
 
-import {
-  filesToggle,
-  reviewRefresh,
-} from "../../dashboard/test-support/support/reviewControls.ts";
-import { treeFolder } from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { assumeReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { narrowWindow } from "../../dashboard/test-support/accessibleReading.ts";
 import {
   box,
@@ -34,11 +30,6 @@ import {
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
-  contextLine,
-  reviewBody,
-  reviewFeedback,
-} from "../../dashboard/test-support/support/reviewContextLine.ts";
-import {
   boxes,
   largeReviewRepository,
   openLargeReview,
@@ -48,7 +39,6 @@ import {
   scrollTopOf,
   diffHeading,
 } from "../../dashboard/test-support/support/reviewPanes.ts";
-import { expectReviewRead } from "../../dashboard/test-support/support/reviewRead.ts";
 import {
   longA,
   longB,
@@ -61,24 +51,29 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
   dashboard,
   origin,
 }) => {
-  const { review, browser, diffOf, codeOf, select } = await openLargeReview(
+  const { browser, diffOf, codeOf, select } = await openLargeReview(
     page,
     dashboard,
     origin,
   );
-  const body = reviewBody(review);
-  const top = review.locator(".story-review-top");
-  const header = review.locator(".side-panel-header");
+  const review = await assumeReviewChanges(page);
+  const {
+    panel: shownPanel,
+    header,
+    top,
+    contextLine,
+    body,
+  } = review.frame.partsToMeasure();
   const nameA = `Added ${longA}`;
   const nameB = `Added ${longB}`;
   const headingOf = (name: string) => diffHeading(diffOf(name), { name });
   // What stays in place while either pane scrolls.
-  const fixed = [header, top, contextLine(review), headingOf(nameA)];
+  const fixed = [header, top, contextLine, headingOf(nameA)];
 
   await test.step("the browser and the diff fill the panel beneath its status, and the body does not scroll", async () => {
     const [panel, bodyBox, shownBrowser, shownDiff, shownTop] =
       await Promise.all([
-        box(review),
+        box(shownPanel),
         box(body),
         box(browser),
         box(diffOf(nameA)),
@@ -121,7 +116,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
     expect(await scrollTopOf(browser)).toBe(150);
     expect(await boxes(fixed)).toEqual(before);
     await expect(headingOf(nameA)).toBeInViewport();
-    await expect(contextLine(review)).toBeInViewport();
+    await expect(contextLine).toBeInViewport();
   });
 
   await test.step("selecting another file shows its diff from the top and leaves the browser", async () => {
@@ -134,44 +129,40 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
   });
 
   // Both panes scrolled partway, one folder collapsed.
-  const more = treeFolder(review, /^more\b/);
-  await more.click();
-  await expect(more).toHaveAttribute("aria-expanded", "false");
+  const more = /^more\b/;
+  await review.files.toggleFolder(more);
+  await review.files.expectFolderExpanded(more, false);
   const browserAt = await scrollPane(browser, 120);
   const codeAt = await scrollPane(codeOf(nameB), 1500);
   expect([browserAt, codeAt]).toEqual([120, 1500]);
   const expectPanesKept = async () => {
-    await expect(browser.getByRole("button", { name: nameB })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await review.files.expectChosen("63 changed files", nameB);
     await expect.poll(() => scrollTopOf(browser)).toBe(browserAt);
     await expect.poll(() => scrollTopOf(codeOf(nameB))).toBe(codeAt);
   };
 
   await test.step("Refresh keeps the browser's place, its collapsed folder, and the diff's place", async () => {
-    await reviewRefresh(review, { exact: true }).click();
-    await expectReviewRead(review);
-    await expect(reviewFeedback(review)).toHaveText(
+    await review.status.refreshAndRead();
+    await review.status.expectFeedback(
       /^Review refreshed: 63 changed files against baseline [0-9a-f]{7}\.$/,
     );
-    await expect(more).toHaveAttribute("aria-expanded", "false");
+    await review.files.expectFolderExpanded(more, false);
     await expectPanesKept();
   });
 
   await test.step("Maximize and Restore keep the selection and both panes' places", async () => {
-    await maximizeSidePanel(review);
-    await expect(control(review, "Restore")).toBeVisible();
+    await maximizeSidePanel(shownPanel);
+    await expect(control(shownPanel, "Restore")).toBeVisible();
     await expectPanesKept();
-    await restoreSidePanel(review);
-    await expect(control(review, "Maximize")).toBeVisible();
+    await restoreSidePanel(shownPanel);
+    await expect(control(shownPanel, "Maximize")).toBeVisible();
     await expectPanesKept();
   });
 
   await test.step("using the Panel divider keeps the selection and both panes' places", async () => {
-    const width = (await box(review)).width;
+    const width = (await box(shownPanel)).width;
     await dragDivider(page, -200);
-    await expectWidth(review, Math.round(width + 200));
+    await expectWidth(shownPanel, Math.round(width + 200));
     await expectPanesKept();
   });
 });
@@ -181,14 +172,14 @@ test("in a narrow panel the browser sits above the diff, each scrolling, and Hid
   dashboard,
   origin,
 }) => {
-  const { review, browser, diffOf, codeOf } = await openLargeReview(
+  const { browser, diffOf, codeOf } = await openLargeReview(
     page,
     dashboard,
     origin,
   );
   await page.setViewportSize(narrowWindow);
-  const body = reviewBody(review);
-  const workarea = review.locator(".story-review-workarea");
+  const review = await assumeReviewChanges(page);
+  const { body, workarea } = review.frame.partsToMeasure();
   const nameA = `Added ${longA}`;
   const diff = diffOf(nameA);
   const code = codeOf(nameA);
@@ -227,8 +218,8 @@ test("in a narrow panel the browser sits above the diff, each scrolling, and Hid
 
   await test.step("Hide files gives the diff the whole work area", async () => {
     const shownDiff = await box(diff);
-    await filesToggle(review).click();
-    await expect(browser).toBeHidden();
+    await review.hideFiles();
+    await review.expectFilesShown(false);
     const [area, alone] = await Promise.all([box(workarea), box(diff)]);
     expect(alone.y).toBeCloseTo(area.y, 0);
     expect(alone.height).toBeCloseTo(area.height, 0);

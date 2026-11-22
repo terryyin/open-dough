@@ -23,9 +23,11 @@ catch-up. This plan authorizes no implementation by itself.
 
 Follow Accepted [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them),
 [ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution),
-and [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
-The existing [Dashboard status delivery](../../NORTH-STAR.md#dashboard-status-delivery)
-topic governs this work; no new topic or ADR exception is needed. Status is
+[ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md),
+and the [Architectural North Star](../../NORTH-STAR.md) (plain Vitest for
+backend handler and narrow UI component unit tests, `@playwright/test` only for
+representative `e2e/` journeys, and zero new wrappers or instrumentation added
+to `test-support`). Status is
 machine-local observation evidence, never story state. SSE and HTTP carry
 the same domain meanings, including planned time versus attempt versus success.
 
@@ -97,6 +99,12 @@ credentialed or developer-operated probe is required for this story's proof.
 
 ## Outside-in proof and consumer trace
 
+For the unit proof of waiting, retrying and recovery,
+[render the notice](../../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability) from the typed observation status without
+starting a stream or arranging a GitHub response. Exercise scheduling through
+the observation owner with its clock and request owner. The streaming journey
+still proves delivery to the page.
+
 | Promise | Owning slice | Observable proof |
 | --- | --- | --- |
 | Example 1: same connection, retained A/time, wait → real attempt → success, no browser request at T | 2 | New real-boundary streaming journey plus controlled backend test: pause browser clock/request activity, advance backend/owner clock to T, block and then release fake GitHub so retrying is observable; upstream request starts once, same connection survives until recovery, notice clears only on success. Include unchanged-revision success. |
@@ -137,8 +145,9 @@ single shared listing, cancellation and tracked-controller cleanup unchanged.
 Do not build general event subscriptions for later status migrations.
 
 Before altering retry behavior, capture the comparable two-page wait/recovery
-baseline below using the existing fake-GitHub/HTTP journey and controlled clocks.
-Keep observation instrumentation in test support, not a new benchmark system.
+baseline below using the existing fake-GitHub/HTTP journey and controlled clocks;
+add no instrumentation or wrappers to `test-support`
+([Architectural North Star](../../NORTH-STAR.md)).
 
 ### 2. Keep a streaming page informed while the backend waits and retries
 Type: Behavior
@@ -160,7 +169,7 @@ source/scope observation lifecycle once: demand → observing/waiting → retryi
 and boundary shutdown. An asynchronous failure must be observed by this owner.
 Send transport liveness independently of GitHub progress. Separate browser status
 projection from stream effect dependencies, preserve content catch-up, and align
-the maintained `dashboard/PUBLISHED-OBSERVATION.md` contract and status wording.
+status wording.
 
 Interim boundary: existing HTTP fallback keeps its previous behavior until
 slice 3 joins it to the same lifecycle. Slice 2 must not remove fallback or

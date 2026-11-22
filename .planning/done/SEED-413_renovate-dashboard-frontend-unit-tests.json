@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#renovate-dashboard-frontend-unit-tests",
+  "title": "Prove Project CI history through the components that show it",
+  "completedAt": "2026-11-19T14:03:15.976Z",
+  "developer": "Terry Yin",
+  "agent": "Ai-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** The gap-only history test caught the loss of all seven unmeasured landing rows after the reader opened Builds and evidence on a phone.\n\nThe check used story `SEED-413#renovate-dashboard-frontend-unit-tests` at `2b858d95899f43e92272253e623f146966c6900b` and the maintained gap fixture in `dashboard/frontend-tests/intent/intent-ci-wall-time-history-gaps.mounted.spec.ts`. The single scratch fault in `dashboard/src/IntentCiHistory.tsx:198` filtered the evidence rows to measured builds. The fixture, assertions, disclosure, and chart behavior stayed intact.\n\n`caffeinate -s -i npm run test:dashboard:frontend -- intent/intent-ci-wall-time-history-gaps --workers=2` selected one Chromium case. The baseline passed. In the faulted run, the trace recorded focus on the disclosure and native Enter. Vitest showed the resulting `<ul aria-label=\"Builds and evidence\" />` with zero children. The visibility assertion at line 138 failed before the exact seven-row comparison. The restored run passed, the scratch state matched its clean starting state, and the scratch worktree was removed. [Run evidence](/tmp/dough-intent-coverage-722.4vgtcK) · [Shared failure policy](Distribution/src/skills/dough-execute-plan/references/failure-policy.md)\n\n**Next proof action.** Keep the current check for this failure mode.\n\n- **Test runtime.** 17.863 s total (measured), from Vitest's reported durations of 1.08 s baseline, 15.87 s faulted, and 0.913 s restored.\n- **Human effort.** Unavailable. This scratch run was automated.\n- **Agent effort.** Unavailable. The available clock measures elapsed time including setup and waits.\n\n\n- **Invocation-to-report elapsed.** 84372 ms (measured), from 1795096811000 to 1795096895372 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition — checked revision 2b858d95899f43e92272253e623f146966c6900b, Caught, no follow-up.\n"
+  }
+}

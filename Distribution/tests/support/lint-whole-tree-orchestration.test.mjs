@@ -12,7 +12,38 @@ import { makeMe } from "./makeMe.mjs";
 
 const tools = ["eslint", "prettier", "shellcheck", "shfmt"];
 
-async function wholeTreeRun(t, failTool, missingTool) {
+function shellCheckProcessProbe(bin) {
+  const probe = join(bin, "shellcheck-processes.mjs");
+  write(
+    probe,
+    `import childProcess from "node:child_process";
+import { syncBuiltinESMExports } from "node:module";
+import os from "node:os";
+
+os.availableParallelism = () => 2;
+const spawn = childProcess.spawn;
+let active = 0;
+let peak = 0;
+childProcess.spawn = (command, ...args) => {
+  const child = spawn(command, ...args);
+  if (command === "shellcheck") {
+    active += 1;
+    peak = Math.max(peak, active);
+    child.once("close", () => { active -= 1; });
+  }
+  return child;
+};
+syncBuiltinESMExports();
+process.once("exit", () => console.log("Peak ShellCheck processes: " + peak));
+`,
+  );
+  return probe;
+}
+
+async function wholeTreeRun(
+  t,
+  { failTool, missingTool, observeShellCheck = false } = {},
+) {
   const fixture = await committedLintFixture(
     t,
     makeMe.aRepository
@@ -23,6 +54,7 @@ async function wholeTreeRun(t, failTool, missingTool) {
           "src/second.json": '{ "second": 2 }\n',
           "scripts/first.sh": "#!/bin/sh\nexit 0\n",
           "scripts/second with space.sh": "#!/bin/sh\nexit 0\n",
+          "scripts/third.sh": "#!/bin/sh\nexit 0\n",
         },
       })
       .please(),
@@ -49,7 +81,10 @@ if (process.env.LINT_FAIL_TOOL === tool) {
     );
     chmodSync(executable, 0o755);
   }
-  const result = spawnSync("node", ["scripts/lint.mjs"], {
+  const nodeOptions = observeShellCheck
+    ? ["--import", shellCheckProcessProbe(environment.PATH)]
+    : [];
+  const result = spawnSync("node", [...nodeOptions, "scripts/lint.mjs"], {
     cwd: fixture,
     env: { ...environment, LINT_CALLS: calls, LINT_FAIL_TOOL: failTool ?? "" },
     encoding: "utf8",
@@ -66,24 +101,22 @@ test("whole-tree lint retains file coverage and ShellCheck context without resta
   assert.equal(result.status, 0, result.output);
   for (const tool of tools) {
     const calls = result.calls.filter((call) => call.tool === tool);
-    const files = calls.flatMap(({ args }) =>
-      args.slice(args.indexOf("--") + 1),
-    );
     if (tool === "shellcheck") {
-      assert.deepEqual(
-        calls.map(({ args }) => args),
-        [
-          ["--", "scripts/first.sh"],
-          ["--", "scripts/second with space.sh"],
-        ],
-      );
-    } else {
-      assert.equal(calls.length, 1, `${tool} must not restart for each source`);
+      assert.deepEqual(calls.map(({ args }) => args).sort(), [
+        ["--", "scripts/first.sh"],
+        ["--", "scripts/second with space.sh"],
+        ["--", "scripts/third.sh"],
+      ]);
+      continue;
     }
-    if (tool === "shellcheck" || tool === "shfmt") {
+    assert.equal(calls.length, 1, `${tool} must not restart for each source`);
+    const [{ args }] = calls;
+    const files = args.slice(args.indexOf("--") + 1);
+    if (tool === "shfmt") {
       assert.deepEqual(files, [
         "scripts/first.sh",
         "scripts/second with space.sh",
+        "scripts/third.sh",
       ]);
     } else {
       assert.ok(files.includes("src/first.mjs"), `${tool} checks the script`);
@@ -97,9 +130,15 @@ test("whole-tree lint retains file coverage and ShellCheck context without resta
   }
 });
 
+test("whole-tree lint overlaps ShellCheck processes up to the available parallelism", async (t) => {
+  const result = await wholeTreeRun(t, { observeShellCheck: true });
+  assert.equal(result.status, 0, result.output);
+  assert.match(result.output, /^Peak ShellCheck processes: 2$/m);
+});
+
 for (const tool of tools) {
   test(`whole-tree lint retains a ${tool} failure while completing all checks`, async (t) => {
-    const result = await wholeTreeRun(t, tool);
+    const result = await wholeTreeRun(t, { failTool: tool });
     assert.equal(result.status, 1, result.output);
     assert.match(result.output, new RegExp(`${tool}: deliberate finding`));
     assert.match(result.output, /Lint failed/);
@@ -111,7 +150,7 @@ for (const tool of tools) {
 }
 
 test("a missing full-tree tool fails with its diagnostic after other checks complete", async (t) => {
-  const result = await wholeTreeRun(t, undefined, "eslint");
+  const result = await wholeTreeRun(t, { missingTool: "eslint" });
   assert.equal(result.status, 1, result.output);
   assert.match(result.output, /eslint: not found on PATH[\s\S]*npm ci/);
   assert.deepEqual(

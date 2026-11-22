@@ -10,9 +10,13 @@ import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { FakeGitHub, RepositoryAnswerer } from "./fakeGitHub.ts";
+import {
+  intentTrunkCompletionOntoTip,
+  retainedDeclaredStoryWorkspace,
+} from "./intentCompletedHistory.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
-import { completedPublishedStory } from "./completedPublishedStory.ts";
+import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
 import { trunkActions, usableProofOf } from "./landedCiTrunk.ts";
 import { commonGitDir, git } from "./launchLanding.ts";
 import { keepMoreLaunchRecords } from "./launchStore.ts";
@@ -55,13 +59,14 @@ export async function prepareRepeatScenario(
 ) {
   const priors = prepareRepeatPriors(origin, github, priorSeconds);
   const prior = priors.runs;
-  const story = await completedPublishedStory(
+  const published = await publishDeclaredTrunk(
     origin,
-    "trunk",
-    undefined,
-    undefined,
-    undefined,
-    { interleaved: false, retainWorkspace: true },
+    intentTrunkCompletionOntoTip({ interleaved: false }),
+  );
+  const story = await retainedDeclaredStoryWorkspace(
+    origin,
+    published,
+    "ci-follow-up",
   );
   const provider = storyLandingRun(story.completion, 71, seconds);
   const original = provider.original;

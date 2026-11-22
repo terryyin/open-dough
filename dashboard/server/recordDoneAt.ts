@@ -1,11 +1,19 @@
 // Owns the durable Done mark and starts evidence capture for a new mark.
 import type { LaunchRecord } from "../src/agentLaunch.ts";
-import { doneAutomatically } from "../src/completionReport.ts";
 import type { SessionReference } from "../src/sessionReference.ts";
 import { keptWithDoneCapture } from "./doneCapture.ts";
-import { changeSessionRecord, keptSession } from "./launchRecordStore.ts";
 import {
-  hasBranchReview,
+  type DoneTransitionOptions,
+  doneTransition,
+} from "./doneTransition.ts";
+import {
+  changeSessionRecord,
+  keptSession,
+  machineRecordStore,
+  type LaunchRecordStore,
+} from "./launchRecordStore.ts";
+import {
+  type BranchCapture,
   withBranchResultAtDone,
 } from "./sessionBranchCapture.ts";
 
@@ -17,60 +25,45 @@ export async function setRecordDoneAt(
   sourceId: string,
   session: SessionReference,
   doneAt: string | undefined,
-  options: {
-    readonly doneProblem?: string;
-    readonly expectedDoneAt?: string;
-    readonly automatic?: boolean;
+  options: Omit<DoneTransitionOptions, "candidate"> & {
+    // Reads the branch result before the record write; production's
+    // Git-only capture by default.
+    readonly capture?: BranchCapture;
+    readonly store?: LaunchRecordStore;
   } = {},
 ): Promise<LaunchRecord | undefined> {
+  const { capture, store = machineRecordStore, ...transition } = options;
   // A write that keeps the Done time it expects finishes that Done.
-  const finishing = options.expectedDoneAt === doneAt;
+  const finishing = transition.expectedDoneAt === doneAt;
   const candidate =
     doneAt !== undefined && !finishing
-      ? await keptSession(sourceId, session)
+      ? await keptSession(sourceId, session, store)
       : undefined;
   const marked = await withBranchResultAtDone(
     candidate,
     finishing ? undefined : doneAt,
     (settle) =>
-      changeSessionRecord(sourceId, session, (record) => {
-        if (options.automatic && !doneAutomatically(record)) return record;
-        if (
-          options.expectedDoneAt !== undefined &&
-          record.doneAt !== options.expectedDoneAt
-        ) {
-          return record;
-        }
-        if (
-          candidate !== undefined &&
-          hasBranchReview(record) &&
-          (record.doneAt !== candidate.doneAt ||
-            record.dispositionChangedAt !== candidate.dispositionChangedAt ||
-            record.branchEntry?.committedTip !==
-              candidate.branchEntry?.committedTip)
-        ) {
-          return record;
-        }
-        const next: LaunchRecord = {
-          ...record,
-          dispositionChangedAt: options.automatic
-            ? record.dispositionChangedAt
-            : new Date().toISOString(),
-        };
-        delete next.doneAt;
-        delete next.doneProblem;
-        return doneAt === undefined
-          ? next
-          : settle({
-              ...next,
-              doneAt,
-              ...(options.doneProblem === undefined
-                ? {}
-                : { doneProblem: options.doneProblem }),
-            });
-      }),
+      changeSessionRecord(
+        sourceId,
+        session,
+        (record) => {
+          const next = doneTransition(
+            record,
+            doneAt,
+            new Date().toISOString(),
+            {
+              ...transition,
+              candidate,
+            },
+          );
+          return next === record || doneAt === undefined ? next : settle(next);
+        },
+        undefined,
+        store,
+      ),
+    capture,
   );
   if (doneAt === undefined || marked?.doneAt !== doneAt || finishing)
     return marked;
-  return keptWithDoneCapture(sourceId, marked);
+  return keptWithDoneCapture(sourceId, marked, store);
 }

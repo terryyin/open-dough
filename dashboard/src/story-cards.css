@@ -10,10 +10,10 @@
   gap: 0.6rem;
 }
 
-/* A card's scan view: the title leads, then a quiet line of priority and
-   developer, then badges, warnings, progress, and actions, each a short
-   step below the last. Secondary facts open in its detail (story-detail.css).
-   Its fill and corners follow the frame's raised surfaces. */
+/* A card's scan view: the title leads, then a quiet meta line of priority,
+   developer and compact slice progress, then badges, warnings, current
+   work and quieter secondary actions. Secondary facts open in its detail
+   (story-detail.css). Its fill and corners follow the frame's raised surfaces. */
 .story-card {
   display: grid;
   gap: var(--space-2);
@@ -52,8 +52,8 @@
   box-shadow:
     inset 0 0 0 4px var(--accent-strong),
     0 0 0 4px var(--accent-strong);
-  animation: story-card-destination-cue var(--destination-cue-duration)
-    ease-out forwards;
+  animation: story-card-destination-cue var(--destination-cue-duration) ease-out
+    forwards;
 }
 
 @keyframes story-card-destination-cue {
@@ -82,7 +82,7 @@
   font-weight: var(--weight-strong);
 }
 
-/* Priority and the assigned or preparing developer, on one wrapping line. */
+/* Priority, assigned or preparing developer, and compact Taken progress. */
 .story-card-meta {
   display: flex;
   flex-wrap: wrap;
@@ -102,7 +102,8 @@
 
 /* A card's related actions, its launch group and its inspection group, each
    on one line while the card is wide enough and wrapping in reading order when
-   it is not. */
+   it is not. Scan emphasis for progress, current sessions and quieter
+   inspection lives in ./story-card-scan.css. */
 .story-card-action-group {
   display: flex;
   flex-wrap: wrap;

@@ -208,11 +208,12 @@ case_verdict() {
     | head -n 1 | tr 'A-Z ' 'a-z-' | grep . || echo missing
 }
 
-# Prints the turn-N fields of ROOT after turn N, whose stream is STREAM, and
-# keeps the recorded test runs in SCRATCH/case-evidence; HARNESS is a pattern
-# naming the controller's paths. Turn status and thread come from the runner.
+case_harness_paths='init\.d|test-runs'
+
+# Prints Doughnut project fields after turn N, whose stream is STREAM, and
+# keeps the recorded test runs in SCRATCH/case-evidence.
 case_observe() {
-  local root=$1 turn=$2 stream=$3 scratch=$4 harness=$5 workspace="$1/workspace" checkout=restored
+  local root=$1 turn=$2 stream=$3 scratch=$4 workspace="$1/workspace" checkout=restored
   mkdir -p -- "${scratch}/case-evidence"
   case_test_runs "${root}/gradle" > "${scratch}/case-evidence/test-run-facts-turn-${turn}.txt"
   case_proof_fields "${turn}" < "${scratch}/case-evidence/test-run-facts-turn-${turn}.txt"
@@ -226,9 +227,4 @@ case_observe() {
     || checkout=changed
   printf 'turn-%s-source: %s\n' "${turn}" "${checkout}"
   printf 'turn-%s-verdict: %s\n' "${turn}" "$(case_verdict "${stream}")"
-  printf 'turn-%s-harness-inspected: %s\n' "${turn}" \
-    "$(native_host_stream codex "${stream}" commands \
-      | native_harness_inspected "${harness}|init\.d|test-runs" -)"
-  printf 'turn-%s-commands: %s\n' "${turn}" \
-    "$(native_host_stream codex "${stream}" commands | wc -l | tr -d ' ')"
 }

@@ -5,7 +5,7 @@
 // answers the newest 20 in trunk order with the gaps among and after them,
 // and none from before (SEED-285#see-landed-ci-wall-time-history example 8).
 // How Project Intent shows that window is
-// ../../frontend-tests/intent/intent-ci-wall-time-history-window.spec.ts; the
+// ../../frontend-tests/intent/intent-ci-wall-time-history-evidence.spec.ts; the
 // bound collection keeps is ./landed-ci-history-window.spec.ts.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";

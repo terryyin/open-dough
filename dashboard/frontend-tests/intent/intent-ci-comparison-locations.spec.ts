@@ -1,143 +1,104 @@
-// A selected done story's CI comparison (../../src/IntentPage.tsx) does not
-// wait for the story's historical Intent locations read: it is the story's
-// default view under its one header while that read is held, and stays,
-// without the browser reading the comparison again, once it settles; beside a
-// failed locations read, Changed tests explains the failure with its Retry,
-// which reads the completion revision again. The comparison is the canonical
-// Summary-scope answer (../../test-support/support/frontendIntentComparison.ts); a
-// request log observes the browser's requests only. Real acquisition stays in
-// ../../backend-tests/intent/ci-comparison-memory-*.spec.ts and
-// ../../../e2e/intent/intent-ci-comparison{,-retry}.spec.ts.
-
-import type { Page } from "@playwright/test";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
-import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
-import {
-  readFailure,
-  readRetry,
-} from "../../test-support/intentReadRecoveryPage.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
-import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
-import { selectDoneStoryForCiComparison } from "../../test-support/support/selectDoneStoryForCiComparison.ts";
-import {
-  chooseStoryTab,
-  expectStoryTab,
-  storySummary,
-  storyTitle,
-} from "../../test-support/support/intentStoryPage.ts";
-
-const releases: (() => void)[] = [];
-test.afterEach(() => {
-  for (const release of releases.splice(0)) release();
-});
+// A selected Done story's CI comparison does not wait for the story's
+// historical Intent locations read: it is the story's default view under its
+// one header while that read is held, and stays, without reading the
+// comparison again, once it settles; beside a failed locations read, Changed
+// tests explains the failure with its Retry, which reads the completion
+// revision again.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { ReadProblem } from "../../src/readProblem.ts";
+import { ciReadsOf, heldReply } from "./intent-ci-evidence-page.tsx";
+import { shownComparison } from "./intent-ci-comparison-page.ts";
+import { mountDoneStory } from "./intent-done-story-page.tsx";
 
 const readingLocations = "Reading the story's historical Intent locations…";
+const landed = ["Baseline compared with Landed"];
+const locations: IntentLocations = {
+  status: "configured",
+  locations: [
+    makeMe.anIntentLocation
+      .at("dashboard/tests")
+      .ofKind("typescript")
+      .selecting("dashboard/tests/a.spec.ts")
+      .please(),
+  ],
+};
 
-// Done Story A with its historical Intent locations read held, and the
-// browser's locations revisions and comparison reads logged.
-async function holdLocationsOfComparedStory(
-  page: Page,
-  services: FrontendServiceState,
-) {
-  const { completion } = await prepareFrontendDoneIntent(page, services);
-  const locationRevisions: string[] = [];
-  let comparisonReads = 0;
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname !== authenticatedReadEndpoint) return;
-    const kind = url.searchParams.get("intent");
-    if (kind === "locations")
-      locationRevisions.push(url.searchParams.get("revision") ?? "");
-    if (kind === "ci-comparison") comparisonReads += 1;
-  });
-  const held = await holdAuthenticatedReadsWhere(
-    page,
-    (params) =>
-      params.get("intent") === "locations" &&
-      params.get("revision") === completion,
-    releases,
-  );
-  return {
-    ...held,
-    completion,
-    locationRevisions,
-    comparisonReads: () => comparisonReads,
+// Each locations revision read, every read held until the case answers it.
+function heldLocations() {
+  const revisions: string[] = [];
+  const replies: ReturnType<typeof heldReply<IntentLocations>>[] = [];
+  const reads: IntentReadSource = {
+    readLocations: (...[, revision]) => {
+      revisions.push(revision);
+      const reply = heldReply<IntentLocations>();
+      replies.push(reply);
+      return reply.promise;
+    },
+    readFile: () => Promise.resolve(""),
+    readCandidates: () => Promise.resolve({ status: "absent" }),
   };
+  return { reads, revisions, replies };
 }
 
-test("a selected story's CI comparison shows under its one header while the Intent locations read is held, and stays without reading it again once it settles", async ({
-  page,
-  frontendServices,
-}) => {
-  const locations = await holdLocationsOfComparedStory(page, frontendServices);
-  const { intent, panel } = await selectDoneStoryForCiComparison(page);
-  const reading = comparisonReading(panel);
+async function doneStoryWithHeldLocations(completion: string) {
+  const story = makeMe.aComparedStory.please();
+  const held = heldLocations();
+  const ci = ciReadsOf(story);
+  const done = await mountDoneStory(story, completion, held.reads, ci.source);
+  await expect.poll(() => held.revisions).toEqual([completion]);
+  await expect
+    .element(done.tab("CI comparison"))
+    .toHaveAttribute("aria-selected", "true");
+  const comparison = await shownComparison();
+  await expect.poll(() => comparison.activeComparison()).toEqual(landed);
+  return { done, held, ci, comparison, walls: comparison.wallTimes() };
+}
 
-  await test.step("the comparison is usable under one header while locations are held", async () => {
-    await expect.poll(() => locations.held()).toBeGreaterThan(0);
-    expect(locations.locationRevisions).toContain(locations.completion);
-    await expectStoryTab(intent, "CI comparison");
-    await expect(storyTitle(intent)).toHaveText("Story A");
-    await expect(storySummary(intent)).toHaveCount(1);
-    await expect(reading.activeComparison).toHaveText(
-      "Baseline compared with Landed",
-    );
-    await expect(reading.wallTimes).not.toHaveCount(0);
-  });
-  const walls = await reading.wallTimes.allTextContents();
+test("a selected story's CI comparison shows under its one header while the Intent locations read is held, and stays without reading it again once it settles", async () => {
+  const { done, held, ci, comparison, walls } =
+    await doneStoryWithHeldLocations("1".repeat(40));
+  await expect.element(done.title).toHaveTextContent("Story A");
+  expect(done.headers.elements()).toHaveLength(1);
+  expect(walls).not.toEqual([]);
 
-  await test.step("Changed tests says the locations are read; once settled, the comparison returns unread", async () => {
-    await chooseStoryTab(intent, "Changed tests");
-    const changedTests = intent.getByRole("tabpanel", {
-      name: "Changed tests",
-    });
-    await expect(changedTests).toContainText(readingLocations);
-    const readsBefore = locations.comparisonReads();
-    expect(readsBefore).toBeGreaterThan(0);
-    locations.release();
-    await expect(changedTests).not.toContainText(readingLocations);
-    await chooseStoryTab(intent, "CI comparison");
-    await expect(reading.activeComparison).toHaveText(
-      "Baseline compared with Landed",
-    );
-    await expect(reading.wallTimes).toHaveText(walls);
-    expect(locations.comparisonReads()).toBe(readsBefore);
-  });
+  await done.tab("Changes").click();
+  await expect.element(done.changes).toHaveTextContent(readingLocations);
+  expect(ci.asked.comparisons).toHaveLength(1);
+  held.replies[0]?.resolve(locations);
+  await expect.element(done.changes).not.toHaveTextContent(readingLocations);
+  await done.tab("CI comparison").click();
+  await expect.poll(() => comparison.activeComparison()).toEqual(landed);
+  expect(comparison.wallTimes()).toEqual(walls);
+  expect(ci.asked.comparisons).toHaveLength(1);
 });
 
-test("a failed Intent locations read leaves the story's CI comparison shown while Changed tests explains the failure, and Retry reads the completion revision", async ({
-  page,
-  frontendServices,
-}) => {
-  const locations = await holdLocationsOfComparedStory(page, frontendServices);
-  const { intent, panel } = await selectDoneStoryForCiComparison(page);
-  const reading = comparisonReading(panel);
-  await expect.poll(() => locations.held()).toBeGreaterThan(0);
-  await expect(reading.wallTimes).not.toHaveCount(0);
-  const walls = await reading.wallTimes.allTextContents();
-  locations.fail();
-
-  await chooseStoryTab(intent, "Changed tests");
-  const changedTests = intent.getByRole("tabpanel", { name: "Changed tests" });
-  const failure = readFailure(changedTests);
-  await expect(failure).toContainText("could not be read");
-  const retry = readRetry(failure);
-  await expect(retry).toBeVisible();
-
-  await chooseStoryTab(intent, "CI comparison");
-  await expect(reading.activeComparison).toHaveText(
-    "Baseline compared with Landed",
+test("a failed Intent locations read leaves the story's CI comparison shown while Changes explains the failure, and Retry reads the completion revision", async () => {
+  const completion = "2".repeat(40);
+  const { done, held, comparison, walls } =
+    await doneStoryWithHeldLocations(completion);
+  held.replies[0]?.reject(
+    new ReadProblem("locations read failed", undefined, "transient"),
   );
-  await expect(reading.wallTimes).toHaveText(walls);
 
-  await chooseStoryTab(intent, "Changed tests");
-  const readsBeforeRetry = locations.locationRevisions.length;
-  await retry.click();
-  await expect(failure).toHaveCount(0);
-  await expect(changedTests).not.toContainText(readingLocations);
-  expect(locations.locationRevisions.slice(readsBeforeRetry)).toEqual([
-    locations.completion,
-  ]);
+  await done.tab("Changes").click();
+  await expect
+    .poll(() => done.failure.element().textContent)
+    .toBe(
+      "Intent locations for Example at the story's landed revision 2222222 could not be read: locations read failed Retry",
+    );
+  await expect.element(done.retry).toBeVisible();
+
+  await done.tab("CI comparison").click();
+  await expect.poll(() => comparison.activeComparison()).toEqual(landed);
+  expect(comparison.wallTimes()).toEqual(walls);
+
+  await done.tab("Changes").click();
+  await done.retry.click();
+  await expect.poll(() => held.revisions).toEqual([completion, completion]);
+  held.replies[1]?.resolve(locations);
+  await expect.element(done.failure).not.toBeInTheDocument();
+  await expect.element(done.changes).not.toHaveTextContent(readingLocations);
 });

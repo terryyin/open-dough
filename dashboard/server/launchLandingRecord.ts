@@ -1,10 +1,52 @@
 // Capture authority is established once, then follows the original bound record.
 import type { LaunchAttemptRecord } from "../src/agentLaunch.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
-import type { LandingReporting } from "../src/launchLanding.ts";
 import type { CreationRecord } from "../src/launchCreation.ts";
-import { replaceRecords } from "./launchRecordDocument.ts";
-import { leaveMachineJson } from "./machineJsonStore.ts";
+import type { LaunchRecord } from "../src/launchRecord.ts";
+import type { LandingReporting, LaunchLanding } from "../src/launchLanding.ts";
+import { sessionKey } from "../src/sessionReference.ts";
+
+type StoredRecord = LaunchRecord | CreationRecord;
+export type LandingRecordChange = (records: StoredRecord[]) => StoredRecord[];
+
+// Apply the change to the same launch in the write's own retained records.
+export function changeBoundLandingRecord(
+  bound: LaunchRecord,
+  update: (current: LaunchRecord) => LaunchRecord,
+): LandingRecordChange | undefined {
+  if (update(bound) === bound) return undefined;
+  const key = sessionKey(bound.session);
+  return (records) => {
+    const current = records.find(
+      (entry): entry is LaunchRecord =>
+        "session" in entry &&
+        sessionKey(entry.session) === key &&
+        entry.launchedAt === bound.launchedAt &&
+        entry.request.reporting?.reference ===
+          bound.request.reporting?.reference &&
+        entry.landingReporting?.branchContext?.reference ===
+          bound.landingReporting?.branchContext?.reference &&
+        entry.landingReporting?.deletedAt === undefined,
+    );
+    if (current === undefined) return records;
+    const next = update(current);
+    if (next === current) return records;
+    return records.map((entry) => (entry === current ? next : entry));
+  };
+}
+
+// A late attempt write can add its preparations without dropping a newer one.
+export function withLandingPreparations(
+  reporting: LandingReporting,
+  preparations: readonly LaunchLanding[],
+): LandingReporting {
+  const missing = preparations.filter(
+    ({ delivery }) =>
+      !reporting.preparations.some((entry) => entry.delivery === delivery),
+  );
+  return missing.length === 0
+    ? reporting
+    : { ...reporting, preparations: [...reporting.preparations, ...missing] };
+}
 
 export function boundLandingReporting(
   attempt: LaunchAttemptRecord | undefined,
@@ -25,38 +67,4 @@ export function boundLandingReporting(
       ? {}
       : { settledAt: attempt.settledAt }),
   };
-}
-
-// Called under the attempt lock; never introduces a record or extends retention.
-export async function retainLandingSettlement(
-  attempt: LaunchAttemptRecord,
-): Promise<void> {
-  if (
-    attempt.settledAt === undefined ||
-    attempt.landingRepository === undefined
-  )
-    return;
-  const bound = (entry: LaunchRecord | CreationRecord): entry is LaunchRecord =>
-    "session" in entry && entry.request.reporting?.reference === attempt.id;
-  await replaceRecords((kept) => {
-    const records = kept[attempt.request.source] ?? [];
-    // A settlement no kept record is bound to leaves the records as they are.
-    if (!records.some(bound)) return leaveMachineJson;
-    return {
-      ...kept,
-      [attempt.request.source]: records.map((entry) => {
-        if (!bound(entry)) return entry;
-        const reporting = boundLandingReporting(attempt, entry);
-        return reporting === undefined
-          ? entry
-          : {
-              ...entry,
-              landingReporting: {
-                ...reporting,
-                settledAt: reporting.settledAt ?? attempt.settledAt,
-              },
-            };
-      }),
-    };
-  });
 }

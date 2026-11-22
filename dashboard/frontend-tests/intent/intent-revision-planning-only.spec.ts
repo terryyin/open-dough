@@ -1,100 +1,58 @@
-import { openWithFeatureSelected } from "../../test-support/support/frontendIntentRevisionJourney.ts";
-import { showLatestRevision } from "../../test-support/intentReadRecoveryPage.ts";
-// The Project Intent browser names accepted locations even with no selected
-// file, and a planning-only refresh leaves identical tests at a newer source.
-
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { shortRevision } from "../../test-support/dashboardParts.ts";
-import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+// Accepting a newer revision still advances the browser when its files are
+// unchanged and no file is selected.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
+import { intentBrowser } from "./intent-browser-page.ts";
 import {
-  activateIntentHome,
-  ciPanel,
-} from "../../test-support/intentCiStatusPage.ts";
-import { pygardon } from "../../test-support/intentCodeBrowseFixtures.ts";
-import { featurePath } from "../../test-support/intentJobsFeatureFixtures.ts";
-import {
-  browserRevision,
-  revisionNotice,
-} from "../../test-support/intentPerspectivePage.ts";
-import {
-  intentReads,
-  jobsFeatures,
-  publishedFiles,
-} from "../../test-support/intentRevisionJourney.ts";
-import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
+  featuresOpening,
+  mountProjectIntent,
+} from "./intent-revision-fixtures.ts";
+import { intentRevisionNotice } from "./intent-revision-notice-page.ts";
 
-const releases: (() => void)[] = [];
-test.afterEach(() => {
-  for (const release of releases.splice(0)) release();
-});
+test("a planning-only update advances the browser with no file selected and keeps the new reading on reopen", async () => {
+  const [before, latest] = ["f1".repeat(20), "f0".repeat(20)];
+  const publication = featuresOpening("Archive a job");
+  let release!: () => void;
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  onTestFinished(release);
+  const readLatest = vi.fn(async (signal: AbortSignal) => {
+    await pending;
+    signal.throwIfAborted();
+    return publication.readLocations(signal);
+  });
+  const intent = await mountProjectIntent(before, {
+    [before]: publication,
+    [latest]: { ...publication, readLocations: readLatest },
+  });
+  const browser = intentBrowser();
+  const file = await browser.open(pygardonFeatures.jobs);
+  await file.shows("Scenario: Archive a job");
+  const home = page.getByRole("tab", { name: "CI status", exact: true });
+  await userEvent.click(home);
+  await browser.showsNoSource();
 
-test("a planning-only update keeps a persistent browser revision with no file selected", async ({
-  page,
-  frontendServices,
-}) => {
-  const files = publishedFiles(jobsFeatures);
-  const reads = intentReads(page);
-  const { moveTrunk, intent, feature, source } = await openWithFeatureSelected(
-    page,
-    frontendServices,
-    files,
-  );
-  const originalText = (await source.textContent()) ?? "";
-  await activateIntentHome(intent);
-  await expect(intent.getByLabel(/ source$/)).toHaveCount(0);
-  await expect(browserRevision(intent)).toHaveText(
-    `Test browser at ${shortRevision(pygardon.revision)}`,
-  );
+  intent.offerRevision(latest);
+  const notice = intentRevisionNotice();
+  await notice.showLatest();
+  await notice.reads("Updating…");
+  await browser.isAt(before);
+  await expect.element(home).toHaveAttribute("aria-selected", "true");
+  release();
 
-  const revision = "f0".repeat(20);
-  const planning = makeMe.aRepository
-    .withRevision("planning-only", {
-      backlog: null,
-      files: { ".planning/later.md": "Plan the next story.\n" },
-    })
-    .please().revisions[0];
-  await moveTrunk(revision, { ...files, ...planning.files });
-  await expect(revisionNotice(intent)).toBeVisible();
-  await expect(browserRevision(intent)).toHaveText(
-    `Test browser at ${shortRevision(pygardon.revision)}`,
-  );
-  expect(reads).toHaveLength(2);
+  await browser.isAt(latest);
+  await notice.isGone();
+  await browser.showsNoSource();
+  const updated = await browser.open(pygardonFeatures.jobs);
+  await updated.shows("Scenario: Archive a job");
 
-  const latest = await holdAuthenticatedReadsWhere(
-    page,
-    (params) =>
-      params.get("intent") === "locations" &&
-      params.get("revision") === revision,
-    releases,
-  );
-  await showLatestRevision(revisionNotice(intent)).click();
-  await expect.poll(latest.held).toBe(1);
-  await expect(revisionNotice(intent)).toContainText("Updating…");
-  await expect(browserRevision(intent)).toHaveText(
-    `Test browser at ${shortRevision(pygardon.revision)}`,
-  );
-  await expect(ciPanel(intent)).toBeVisible();
-  latest.release();
-  await expect(browserRevision(intent)).toHaveText(
-    `Test browser at ${shortRevision(revision)}`,
-  );
-  await expect(revisionNotice(intent)).toHaveCount(0);
-  await expect(intent.getByLabel(/ source$/)).toHaveCount(0);
-  await feature.click();
-  await expect(source).toHaveText(originalText);
-  await untilPageReadsAnswered(page);
-  expect(reads.slice(2)).toEqual([
-    `locations@${revision}`,
-    `${featurePath}@${revision}`,
-  ]);
-
-  const { development, intentChoice } = parts(page);
-  await development.click();
-  await intentChoice.click();
-  await expect(browserRevision(intent)).toHaveText(
-    `Test browser at ${shortRevision(revision)}`,
-  );
-  await expect(source).toHaveText(originalText);
+  intent.closeReading(latest);
+  await browser.isClosed();
+  intent.offerRevision(latest);
+  await browser.isAt(latest);
+  await file.shows("Scenario: Archive a job");
+  await file.isSelected();
+  expect(readLatest).toHaveBeenCalledTimes(1);
 });

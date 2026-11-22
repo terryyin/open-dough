@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-409#return-to-recently-selected-stories",
+  "title": "Return to recently selected stories",
+  "completedAt": "2026-11-19T08:45:34.948Z",
+  "developer": "Terry Yin",
+  "agent": "Maria-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "Checked revision: 4a523c5f27fad2f21efba37925dfd1af65837654\nVerdict: Caught\nNext proof action: none — maintained keyboard/announcements proof already catches a System-settings-unreachable banner-order regression after the Recent stories rewrite. No follow-up.\n"
+  }
+}

@@ -6,110 +6,71 @@ import {
   branchResultAtDone,
 } from "../src/sessionBranchResult.ts";
 import { sessionKey } from "../src/sessionReference.ts";
-import { defaultGitOutputLimit } from "./gitRunner.ts";
 import {
   changeSessionRecord,
   keptRecords,
-  keptSession,
+  sessionRecord,
 } from "./launchRecordStore.ts";
 import {
-  inspectManualLanding,
   keepManualLanding,
-  manualLandingTrunk,
   releaseManualLanding,
 } from "./manualSessionLanding.ts";
-import type { PinnedTexts } from "./pinnedTexts.ts";
 import {
-  branchTrunk,
-  readBranchTrunkRevision,
-} from "./sessionBranchAttribution.ts";
+  observedSessionDeliveries,
+  type DeliveryInspection,
+  type ObservedDelivery,
+  type ObservedSource,
+} from "./observedSessionDeliveries.ts";
+import type { PinnedTexts } from "./pinnedTexts.ts";
 
-type ProjectObservation = {
-  readonly revision: string;
-  readonly checked: Set<string>;
-  running: boolean;
+export type ObservedLandingStore = {
+  keptRecords: typeof keptRecords;
+  changeSessionRecord: typeof changeSessionRecord;
 };
 
-const observations = new Map<string, ProjectObservation>();
+// A fresh adapter rediscovers deliveries from the store's currently kept
+// records, as a restarted Dashboard would.
+export function sessionLandingObservations({
+  store = { keptRecords, changeSessionRecord },
+  ...inspection
+}: DeliveryInspection & { store?: ObservedLandingStore } = {}) {
+  const deliveries = observedSessionDeliveries(inspection);
+  return {
+    async observe(source: ObservedSource, revision: string): Promise<void> {
+      await deliveries.run(
+        source,
+        revision,
+        () => store.keptRecords(source.id),
+        (delivery) => keepObservedDelivery(store, source.id, delivery),
+      );
+    },
+  };
+}
 
+const liveObservations = sessionLandingObservations();
+
+// Board reads and revision checks answer without waiting for the pass.
 export function observeProjectRevision(
   pinned: PinnedTexts,
   source: PublishedSource,
   revision: string,
 ): void {
   pinned.namedByRef(source, revision);
-  let observation = observations.get(source.id);
-  if (observation?.revision !== revision) {
-    observation = { revision, checked: new Set(), running: false };
-    observations.set(source.id, observation);
-  }
-  if (observation.running) return;
-  observation.running = true;
-  const settle = () => {
-    observation.running = false;
-  };
-  void captureObservedLandings(source, observation).then(settle, settle);
+  void liveObservations.observe(source, revision);
 }
 
-async function captureObservedLandings(
-  source: PublishedSource,
-  { revision, checked }: ProjectObservation,
+async function keepObservedDelivery(
+  store: ObservedLandingStore,
+  sourceId: string,
+  { record, result, pair }: ObservedDelivery,
 ) {
-  const heads = new Map<string, string | undefined>();
-  for (const record of await keptRecords(source.id)) {
-    const result = branchResultAtDone(record);
-    const trunk = manualLandingTrunk(record);
-    if (
-      record.landing !== undefined ||
-      result?.manualDeliveryChecked !== true ||
-      trunk?.revision === undefined ||
-      trunk.target !== branchTrunk(trunk.remote, source.ref).target ||
-      trunk.revision === revision
-    )
-      continue;
-    const target = JSON.stringify([
-      result.repository,
-      trunk.remote,
-      trunk.target,
-    ]);
-    const witness = JSON.stringify([
-      target,
-      trunk.revision,
-      sessionKey(record.session),
-      record.launchedAt,
-      result.doneAt,
-      result.base,
-      result.revision,
-      result.committedTip,
-    ]);
-    if (checked.has(witness)) continue;
-
-    const call = {
-      cwd: result.repository,
-      signal: AbortSignal.timeout(30_000),
-      maxBuffer: defaultGitOutputLimit,
-    };
-    if (!heads.has(target))
-      heads.set(target, await readBranchTrunkRevision(trunk, call));
-    const authorizedHead = heads.get(target);
-    if (authorizedHead === undefined) continue;
-    let landing: LaunchRecord["landing"];
-    try {
-      // The Board revision triggers the read. The saved launch's remote
-      // target and committed tip establish its delivered pair.
-      const pair = await inspectManualLanding(
-        result.repository,
-        result.committedTip,
-        trunk,
-        authorizedHead,
-        call,
-      );
-      if (pair === undefined) {
-        checked.add(witness);
-        continue;
-      }
-
-      await changeSessionRecord(source.id, record.session, async (current) => {
+  let landing: LaunchRecord["landing"];
+  let saved: LaunchRecord | undefined;
+  try {
+    saved = await store.changeSessionRecord(
+      sourceId,
+      record.session,
+      async (current) => {
         const live = branchResultAtDone(current);
         if (
           current.launchedAt !== record.launchedAt ||
@@ -124,14 +85,14 @@ async function captureObservedLandings(
           return current;
         landing = await keepManualLanding(current, pair);
         return landing === undefined ? current : { ...current, landing };
-      });
-    } catch {
-      if (
-        landing !== undefined &&
-        (await keptSession(source.id, record.session))?.landing?.delivery !==
-          landing.delivery
-      )
-        await releaseManualLanding(landing);
-    }
+      },
+    );
+  } catch {
+    // A write can throw after the record was saved.
   }
+  if (landing === undefined || saved?.landing?.delivery === landing.delivery)
+    return;
+  const kept = sessionRecord(await store.keptRecords(sourceId), record.session);
+  if (kept?.landing?.delivery !== landing.delivery)
+    await releaseManualLanding(landing);
 }

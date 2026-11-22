@@ -13,6 +13,7 @@ import {
   storyCardSessions,
   parts,
   sessionStateOf,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   expectSessionsSidebarSessionEntryShown,
@@ -189,7 +190,9 @@ test("saved Codex states appear on active cards and sidebar while Recently done 
       "6 sessions need attention",
     );
     await expect(
-      sessionStateOf(entry(recent.getByRole("article"), "done")),
+      sessionStateOf(
+        entry(await shownDoneSessionEntriesOf(page, notRefinedStory), "done"),
+      ),
     ).toHaveText("Done");
     await expect(
       sessionStateOf(

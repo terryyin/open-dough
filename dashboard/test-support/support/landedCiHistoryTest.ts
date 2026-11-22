@@ -25,6 +25,7 @@ type ServerFacts = {
   readonly environment?: "development";
   readonly observationClock?: true;
   readonly adapterTimeoutMs?: number;
+  readonly liveServer?: string;
 };
 
 export const test = base.extend<{

@@ -128,7 +128,11 @@ test.describe("authenticated read boundary: every refused read reports the wait 
     kind: ReadKind,
     revision: string,
     refusal: () => OriginAnswer,
-  ) => onServerOfItsOwn((own) => refusedRead(kind, revision, refusal(), own));
+  ) =>
+    onServerOfItsOwn((own) => refusedRead(kind, revision, refusal(), own), {
+      ...developmentBoundary,
+      liveServer: "separate process",
+    });
 
   test("each kind of read refused with Retry-After reports that GitHub asked to wait, and the wait", async () => {
     for (const [index, kind] of readKinds.entries()) {

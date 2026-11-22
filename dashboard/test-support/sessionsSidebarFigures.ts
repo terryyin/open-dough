@@ -1,7 +1,7 @@
 // Where a reader finds the Sessions sidebar title row's figures — the active
 // and waiting counts, CPU usage and free disk — and what one figure shows.
-// Browser-only: synthetic and integrated host-status cases both read through
-// it while keeping their own host and session setup.
+// E2E host-status journeys read through it; mounted frontend cases assert the
+// production figures directly.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { sessionsSidebarParts } from "./sessionsSidebarPage.ts";

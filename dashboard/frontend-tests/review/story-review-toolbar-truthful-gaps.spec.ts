@@ -1,150 +1,64 @@
 // Session commits, a selected landed evidence gap and a bare explanation each
 // name the toolbar only when the review on screen supplies a comparison.
-import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
-import { sidePanelPages } from "../../test-support/sidePanelPages.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { StoryReview } from "../../src/storyReviewContract.ts";
 import {
-  frontendFileDiff,
-  frontendReviewIds,
-  frontendSessionCommitsReview,
-  installFrontendStoryReview,
-} from "../../test-support/support/frontendStoryReview.ts";
-import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
-import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
-import { reviewRegion } from "../../test-support/support/reviewControls.ts";
-import { revealDetails } from "../../test-support/support/reviewDetails.ts";
-import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { Page } from "@playwright/test";
+  adHocSession,
+  mountReviewChanges,
+  reviewSourceAnswering,
+} from "./story-review-panel-page.ts";
 
-const launchedAt = "2026-01-02T12:00:00.000Z";
-const { baseline: base, tree: revision } = frontendReviewIds;
-const commitsTitle = "Default main session";
-const gapTitle = "Selected gap";
-const bareTitle = "Bare gap";
-const gapKey = "gap-run-1";
-
-async function openTruthfulGapsBoard(
-  page: Page,
-  frontendServices: FrontendServiceState,
-) {
-  const commitsSession = makeMe.aLaunchRecord
-    .adHoc({ title: commitsTitle })
-    .launchedAt(launchedAt)
-    .markedDone()
-    .keptSessionCommits({
-      repository: "/tmp/toolbar-truthful-commits/.git",
-      runs: [{ base, revision }],
-    })
-    .please();
-  const gapSession = makeMe.aLaunchRecord
-    .adHoc({ title: gapTitle })
-    .markedDone()
-    .please();
-  const bareSession = makeMe.aLaunchRecord
-    .adHoc({ title: bareTitle })
-    .markedDone()
-    .please();
-  const answers = await installFrontendStoryReview(
-    page,
-    frontendSessionCommitsReview(commitsSession, [
-      {
-        kind: "modified",
-        path: "committed.txt",
-        lines: { added: 1, removed: 0 },
-      },
-    ]),
-  );
-  answers.answerFile(
-    frontendFileDiff("committed.txt", ["+commit"]),
-    "committed.txt",
-  );
-  const { recent } = await openFrontendBoardReview(page, frontendServices, {
-    doneSessions: [commitsSession, gapSession, bareSession],
+// A source answering `review`, with `committed.txt`'s diff.
+const sourceOf = (review: StoryReview) =>
+  reviewSourceAnswering({
+    review: () => Promise.resolve(review),
+    fileDiff: () =>
+      Promise.resolve(
+        makeMe.aReviewedFileDiff.adding("committed.txt", "commit").please(),
+      ),
   });
-  return { answers, recent, journey: sidePanelPages(page) };
-}
 
-test("session commits name the toolbar Session commits", async ({
-  page,
-  frontendServices,
-}) => {
-  const { recent, journey } = await openTruthfulGapsBoard(
-    page,
-    frontendServices,
-  );
-  await sessionReviewChanges(recent, commitsTitle).click();
-  await journey.phase("session commits name the toolbar", (pages) => {
-    pages.reviewToolbar.expectName("Session commits");
-    pages.reviewToolbar.expectDetailsCollapsed();
-    pages.reviewToolbar.expectFilesToggle(true);
+test("session commits name the toolbar Session commits", async () => {
+  const commits = makeMe.aStoryReview
+    .sessionCommits()
+    .modifying("committed.txt")
+    .please();
+  const review = await mountReviewChanges(sourceOf(commits), adHocSession, {
+    completed: true,
   });
-  await expect(
-    fileDiff(reviewRegion(page), "Modified committed.txt"),
-  ).toContainText("+commit");
+  await review.expectComparisonNamed("Session commits");
+  await review.expectDetailsCollapsed();
+  await review.expectFilesToggleNamed("Hide files");
+  await review.expectDiffShows("Modified committed.txt", "+commit");
 });
 
-test("a selected landed gap offers Landed runs and the eye", async ({
-  page,
-  frontendServices,
-}) => {
-  const { answers, recent, journey } = await openTruthfulGapsBoard(
-    page,
-    frontendServices,
-  );
-  answers.answerNextSnapshot({
-    kind: "landing-unavailable",
-    explanation: "Accepted publication has a recoverable review evidence gap.",
-    runs: [
-      {
-        key: gapKey,
-        workflow: "ad-hoc",
-        launchedAt,
-        remote: "origin",
-        target: "refs/heads/main",
-      },
-    ],
-    selectedRun: gapKey,
+test("a selected landed gap offers Landed runs and the eye", async () => {
+  const gap = makeMe.aReviewRun.keyed("gap-run-1").please();
+  const explanation =
+    "Accepted publication has a recoverable review evidence gap.";
+  const gapReview = makeMe.aStoryReview
+    .landingGap(explanation)
+    .onRun(gap)
+    .please();
+  const review = await mountReviewChanges(sourceOf(gapReview), adHocSession, {
+    completed: true,
   });
-  await sessionReviewChanges(recent, gapTitle).click();
-  await journey.phase(
-    "selected landed gap offers Landed runs and the eye",
-    (pages) => {
-      pages.storyReview.expectFeedback(
-        "Accepted publication has a recoverable review evidence gap.",
-      );
-      pages.reviewToolbar.expectName("Landed runs");
-      pages.reviewToolbar.expectDetailsCollapsed();
-      pages.reviewToolbar.expectFilesToggle(false);
-    },
-  );
-  await revealDetails(reviewRegion(page));
-  await expect(
-    reviewRegion(page).getByRole("listbox", { name: "Landed run" }),
-  ).toBeVisible();
+  await review.expectFeedback(explanation);
+  await review.expectComparisonNamed("Landed runs");
+  await review.expectDetailsCollapsed();
+  await review.expectNoFilesToggle();
+  await review.revealDetails();
+  await review.expectLandedRunChosen(gap.key);
 });
 
-test("a bare landing gap names Landed runs without an eye", async ({
-  page,
-  frontendServices,
-}) => {
-  const { answers, recent, journey } = await openTruthfulGapsBoard(
-    page,
-    frontendServices,
-  );
-  answers.answerNextSnapshot({
-    kind: "landing-unavailable",
-    explanation: "This session's changes were not captured.",
+test("a bare landing gap names Landed runs without an eye", async () => {
+  const explanation = "This session's changes were not captured.";
+  const bare = makeMe.aStoryReview.landingGap(explanation).please();
+  const review = await mountReviewChanges(sourceOf(bare), adHocSession, {
+    completed: true,
   });
-  await sessionReviewChanges(recent, bareTitle).click();
-  await journey.phase(
-    "bare landing gap names Landed runs without an eye",
-    (pages) => {
-      pages.storyReview.expectFeedback(
-        "This session's changes were not captured.",
-      );
-      pages.reviewToolbar.expectName("Landed runs");
-      pages.reviewToolbar.expectNoDetails();
-    },
-  );
+  await review.expectFeedback(explanation);
+  await review.expectComparisonNamed("Landed runs");
+  await review.expectNoDetails();
 });

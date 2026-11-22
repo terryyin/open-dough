@@ -41,10 +41,9 @@ that controlled answers can supply belongs in
 variant, failure or test-runtime contract at a stable boundary belongs in
 [Dashboard Backend Test](../dashboard/backend-tests/README.md).
 
-Workflows reuse the dashboard's fixtures, page objects and
-[MakeMe builders](../Distribution/tests/README.md#test-data-architecture) from
-[Dashboard Test Support](../dashboard/test-support/) and `../Distribution/tests/support/`. Waits, clocks and
-fake GitHub answers are the helpers a workflow imports.
+Workflows reuse fixtures and page objects from [Dashboard Test Support](../dashboard/test-support/)
+and the shared MakeMe builders. Waits, clocks and fake GitHub answers are the
+helpers a workflow imports.
 
 ## Running
 

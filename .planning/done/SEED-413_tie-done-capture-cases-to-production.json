@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#tie-done-capture-cases-to-production",
+  "title": "Tie Done capture cases to the real branch entry and retire the fold’s residue",
+  "completedAt": "2026-11-21T14:01:09.473Z",
+  "developer": "Terry Yin",
+  "agent": "Honoka-chan",
+  "host": "claude"
+}

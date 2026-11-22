@@ -14,8 +14,10 @@ import {
   sessionEntryShowing,
   sessionIdLineOf,
   sessionStateOf,
+  expandStoryCardDoneHistory,
+  storyCardDoneDisclosure,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { expectSessionEntrySetOff } from "../../dashboard/test-support/pageColours.ts";
+import { expectSessionEntryInCardText } from "../../dashboard/test-support/pageColours.ts";
 import {
   notRefinedStory,
   publishStoryColumnsJourney,
@@ -77,7 +79,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
     expect(launches()).toHaveLength(3);
 
-    await test.step("a Preparing card keeps its sessions, each set off on the panel in the card's text, and notes Start refinement", async () => {
+    await test.step("a Preparing card keeps its sessions, each in the card's text, and notes Start refinement", async () => {
       await show(columnsJourney.preparing);
       await expectMembership(page, { taken: [], backlog: queued });
       await expect(
@@ -90,7 +92,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       ).toHaveAccessibleDescription(
         new RegExp(`Being prepared.*${describedBy(openSessionNote).source}`),
       );
-      await expectSessionEntrySetOff(storyCardSessions(card(readyStory)));
+      await expectSessionEntryInCardText(storyCardSessions(card(readyStory)));
 
       await page.reload();
       await settled();
@@ -100,7 +102,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     expect(launches()).toHaveLength(3);
   });
 
-  test("the published Take shows the story under Taken, whose card keeps every session, set off on the panel in the card's text, and offers no Start, through reload", async ({
+  test("the published Take shows the story under Taken, whose card keeps every session in the card's text and offers no Start, through reload", async ({
     page,
     dashboard,
   }) => {
@@ -118,7 +120,9 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     await expect(
       takenStoryCard.getByRole("button", { name: /^Start / }),
     ).toHaveCount(0);
-    await expectSessionEntrySetOff(storyCardSessions(takenStoryCard).first());
+    await expectSessionEntryInCardText(
+      storyCardSessions(takenStoryCard).first(),
+    );
     await page.reload();
     await expectMembership(page, { taken: [readyStory], backlog });
     await settled();
@@ -127,7 +131,7 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
     expect(launches()).toHaveLength(3);
   });
 
-  test("a story in no list keeps its open sessions in local Taken, and Mark as done retains one in Recently done while its story stays in Backlog", async ({
+  test("a story in no list keeps its open sessions in local Taken, and Mark as done retains one in the unfinished card's Done history while its story stays in Backlog", async ({
     page,
     dashboard,
   }) => {
@@ -179,13 +183,15 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
     });
 
-    await test.step("Mark as done retains the same session in Recently done while its story stays in Backlog, through reload", async () => {
+    await test.step("Mark as done retains the same session in the unfinished card's Done history while its story stays in Backlog, through reload", async () => {
       const closed = listed.get(takenStory)?.[0];
       if (closed === undefined) throw new Error("No launched refinement");
       idleBetweenSteps(dashboard, closed.session);
       await markDoneAnyway(storyCardSessions(card(takenStory)));
       listed.set(takenStory, []);
-      const retained = sessionEntryShowing(recentlyDone, closed.key);
+      await expect(sessionEntriesIn(recentlyDone)).toHaveCount(0);
+      await expandStoryCardDoneHistory(card(takenStory));
+      const retained = sessionEntryShowing(card(takenStory), closed.key);
       await expect(retained).toHaveCount(1);
       await expect(retained).toContainText(`Session ${closed.session}`);
       await expect(retained).toContainText("Refinement started in Claude Code");
@@ -197,6 +203,10 @@ test.describe("a story's card as origin publishes what its sessions do", () => {
       await settled();
       await expectMembership(page, completed);
       await expectListed([readyStory, takenStory]);
+      await expect(storyCardDoneDisclosure(card(takenStory))).toContainText(
+        "1",
+      );
+      await expandStoryCardDoneHistory(card(takenStory));
       await expect(retained).toContainText(`Session ${closed.session}`);
     });
 

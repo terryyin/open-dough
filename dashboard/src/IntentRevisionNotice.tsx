@@ -1,5 +1,5 @@
 // Intent's reading revision against the page's observed one
-// (`./IntentPerspective.tsx`): Intent reads one published revision, held with
+// (`./ProjectIntentReading.tsx`): Intent reads one published revision, held with
 // the project's reading place (`./pageIntentReading.tsx`) from the first time
 // its Intent opens (`useIntentReadingRevision`). A newer observed revision
 // only offers itself here, as a polite status beside the reading that takes
@@ -45,10 +45,11 @@ export function useIntentReadingRevision(observed: string | undefined) {
   };
 }
 
-// Where the developer's reading takes focus within the Intent perspective
-// holding `notice`.
+// Where the developer's reading takes focus within the Intent page holding
+// `notice`: its frame and browser, which `./IntentPage.tsx` renders side by
+// side in whatever holds the page.
 function focusReading(notice: HTMLElement | null) {
-  const intent = notice?.closest("main");
+  const intent = notice?.closest(".intent-page-frame")?.parentElement;
   if (intent === null || intent === undefined) return;
   const browser = intent.querySelector(".intent-browser:not([hidden])");
   const target =

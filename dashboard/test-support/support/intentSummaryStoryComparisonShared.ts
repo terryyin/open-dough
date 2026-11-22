@@ -1,14 +1,13 @@
-// Shared trunk setup and story file edits for the Intent Summary CI timing
-// comparison publisher (./intentSummaryStoryComparisonFixture.ts) and its
-// declared history (./intentSummaryStoryComparisonRepository.ts).
+// Shared trunk setup and story file facts for the Intent Summary CI timing
+// comparison publisher (./intentSummaryStoryComparisonFixture.ts) and the
+// declared sort history (./intentSummaryStoryComparisonRepository.ts).
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 import { intentSettings } from "./intentStoryWorktree.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
-import { lines, writeAt } from "./storyReviewWorktree.ts";
+import { lines } from "./storyReviewWorktree.ts";
 
 export const summaryComparisonChanges = {
   modified: "Modified dashboard/tests/folder/a.spec.ts",
@@ -55,20 +54,5 @@ export async function publishSummaryComparisonTrunk(origin: StartOrigin) {
       "locations",
       summaryComparisonTrunkRevision,
     ),
-  );
-}
-
-export function changeSummaryComparisonTests(workspace: string) {
-  writeRevisionFiles(workspace, summaryComparisonChangeRevision);
-  // completedPublishedStory commits these with "story implementation".
-}
-
-// The story's integration merge edits an Intent test file neither side of the
-// merge changed.
-export function editSummaryComparisonTestInMerge(workspace: string) {
-  writeAt(
-    workspace,
-    "dashboard/tests/folder/nested/c.spec.ts",
-    `${lines("c")}merge edit\n`,
   );
 }

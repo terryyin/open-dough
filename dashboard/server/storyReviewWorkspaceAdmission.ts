@@ -1,6 +1,5 @@
 // Resolve a workspace from source/story records and local Git under the shared
 // workspace rule.
-import { workIdentitySchema } from "../src/launchRequest.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
@@ -11,6 +10,7 @@ import {
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { localWorkspacesOf } from "./localWorkspaces.ts";
+import { queriedStoryIdentity } from "./reviewedWorkSubjectAdmission.ts";
 import { knownSource } from "./sessionAdmission.ts";
 
 // The workspace the rule resolves for the story from these kept records, or
@@ -58,14 +58,17 @@ export async function resolvedWorkspace(
 // snapshot. Several worktrees holding the story's claim yield an explanation.
 export async function queriedWorkspace(url: URL): Promise<ReviewedWorkspace> {
   const source = knownSource(url.searchParams.get("source"));
-  const identity = workIdentitySchema.safeParse(
-    url.searchParams.get("identity"),
-  );
-  if (!identity.success)
-    throw new RefusedRequest(400, "The review identity is malformed.");
+  return storyWorkspace(source, queriedStoryIdentity(url));
+}
+
+// The story's review workspace from its project's kept records.
+export async function storyWorkspace(
+  source: PublishedSource,
+  identity: string,
+): Promise<ReviewedWorkspace> {
   const resolved = await resolvedWorkspace(
     source,
-    identity.data,
+    identity,
     await keptRecords(source.id),
   );
   if (resolved === undefined)

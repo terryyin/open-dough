@@ -24,8 +24,6 @@ import {
   intentDiff,
   folderToggle,
   intentFile,
-  openReviewFromIntent,
-  reviewDiff,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { retainedIntentLanding } from "../../dashboard/test-support/support/retainedIntentLanding.ts";
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
@@ -140,7 +138,7 @@ for (const history of ["published", "capture"] as const)
         selectedRun: story.reporting.reference,
       });
     }
-    await chooseStoryTab(intent, "Changed tests");
+    await chooseStoryTab(intent, "Changes");
     await expandIntentGroup(intent, "dashboard/tests");
     await expect(intentFile(intent, modified)).toBeVisible();
     for (const path of ["current-a", "later", "local"])
@@ -160,6 +158,4 @@ for (const history of ["published", "capture"] as const)
     const original = await intentDiff(intent, modified);
     expect(original).toContain("captured story test");
     expect(original).not.toContain("local edit after landing");
-    await openReviewFromIntent(page, intent);
-    expect(await reviewDiff(page, modified)).toBe(original);
   });

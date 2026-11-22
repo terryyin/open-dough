@@ -27,14 +27,12 @@ for (const appearance of [
     background: "rgb(155, 28, 28)",
     foreground: "rgb(255, 255, 255)",
     quiet: "rgb(85, 85, 79)",
-    surface: "rgb(255, 255, 255)",
   },
   {
     scheme: "dark",
     background: "rgb(240, 168, 168)",
     foreground: "rgb(42, 16, 16)",
     quiet: "rgb(176, 189, 210)",
-    surface: "rgb(25, 33, 48)",
   },
 ] as const) {
   test(`an outstanding review is a readable red action beside quiet Reviewed in ${appearance.scheme} appearance`, async ({
@@ -46,18 +44,18 @@ for (const appearance of [
     const a = doneCard(page, storyA.title);
     const b = doneCard(page, storyB.title);
     await markAsReviewed(b).click();
-    await expectQuietReviewed(b, appearance.quiet, appearance.surface);
+    await expectQuietReviewed(b, appearance.quiet);
     await expectReviewWarning(a, appearance);
 
     await reviewedButton(b).press("Tab");
     await expectFocusReadable(page, markAsReviewed(a));
     await markAsReviewed(a).press("Enter");
-    await expectQuietReviewed(a, appearance.quiet, appearance.surface);
+    await expectQuietReviewed(a, appearance.quiet);
     await expect(reviewedButton(a)).toBeFocused();
     await unreviewStory(a, "Unreview this story?", "keyboard");
     await expectReviewed(a, false);
     await expectReviewWarning(a, appearance);
     await expect(markAsReviewed(a)).toBeFocused();
-    await expectQuietReviewed(b, appearance.quiet, appearance.surface);
+    await expectQuietReviewed(b, appearance.quiet);
   });
 }

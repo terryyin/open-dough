@@ -1,15 +1,16 @@
 // What Recently done lists for the project shown. It combines published
-// stories by completion time and saved Done sessions by launch time; listed
+// stories by completion time and the saved Done sessions the Board's
+// placement leaves to it (`./columnSessions.ts`) by launch time; listed
 // cards nest their own closed sessions and closed story follow-ups
-// (`./recentlyDoneListing.ts`), and unknown or failed published details leave
-// their standalone access intact. The done catalog places every done story
-// before its record is read, so the combined list, its count, and where each
-// session belongs are known at once. Only the first ten entries show until the
-// developer asks for the next ten, or a journey lands on an entry beyond them,
-// and the developer can return to the latest ten (`./recentlyDoneRange.ts`),
-// and only the records of the stories shown are read (`./doneDetails.ts`); a
-// story shown before its record answers keeps its place, with its sessions,
-// under its identity.
+// (`./recentlyDoneListing.ts`), and unknown or failed published details
+// leave their standalone access intact. The done catalog places every done
+// story before its record is read, so the combined list, its count, and where
+// each session belongs are known at once. Only the first ten entries show
+// until the developer asks for the next ten, or a journey lands on an entry
+// beyond them, and the developer can return to the latest ten
+// (`./recentlyDoneRange.ts`), and only the records of the stories shown are
+// read (`./doneDetails.ts`); a story shown before its record answers keeps its
+// place, with its sessions, under its identity.
 // The saved sessions decide which stories the first entries hold, so no
 // record is read before the page's first read of them ends; a read that ends
 // unanswered lets the stories shown without them be read.
@@ -79,6 +80,18 @@ function useDestinationAnswer(
 
 export const recentlyDoneName = "Recently done";
 
+export function recentlyDoneProblems(
+  done: PublishedWork["done"],
+  publishedSessions: PublishedWork["publishedSessions"],
+) {
+  return [
+    ...(done?.status === "unavailable" ? [done.problem] : []),
+    ...(publishedSessions?.status === "unavailable"
+      ? [publishedSessions.problem]
+      : []),
+  ];
+}
+
 // Done stories and the selected project's closed sessions use one list for
 // rendering and counts, of which the requested first entries show.
 // Unresolved creations remain recovery evidence only.
@@ -87,6 +100,7 @@ export function useRecentlyDone({
   work,
   creations,
   records,
+  keptLaunches,
   noneKept,
   sessionsSettled,
   // A selected Done story this list must still place, even outside the
@@ -98,6 +112,9 @@ export function useRecentlyDone({
   readonly work: PublishedWork;
   readonly creations: readonly CreationView[];
   readonly records: readonly LaunchWithState[] | undefined;
+  // The machine's kept launches (Done or live). A launch whose reporting
+  // reference equals a published record UUID stands for that record.
+  readonly keptLaunches: readonly LaunchWithState[];
   readonly noneKept: boolean;
   // Whether a read of the machine's sessions asked after the latest change
   // of the project list has ended, answered or not.
@@ -130,7 +147,16 @@ export function useRecentlyDone({
               !recent.some((each) => each.identity === record.identity),
           ),
         ];
-  const listed = newestFirst(included, records ?? [], sourceId);
+  const { publishedSessions } = work;
+  // Only a listed answer contributes sessions; an unavailable listing is a
+  // gap in `problems`, never an empty set of published entries.
+  const listed = newestFirst(
+    included,
+    records ?? [],
+    sourceId,
+    keptLaunches,
+    publishedSessions?.status === "listed" ? publishedSessions.sessions : [],
+  );
   // The entry holding the keyboard stays shown wherever it now stands.
   const held = range.heldIn(sourceId);
   const heldAt =
@@ -188,7 +214,7 @@ export function useRecentlyDone({
     none: noneKept
       ? "No sessions launched from this dashboard are kept."
       : "No sessions are listed in Recently done.",
-    problem: done?.status === "unavailable" ? done.problem : undefined,
+    problems: recentlyDoneProblems(done, publishedSessions),
     unreadable: unreadable.map((record) => ({
       file: record.fileName,
       detail: details.detailOf(record),

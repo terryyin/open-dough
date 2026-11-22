@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Sola-chan",
+  "email": "sola-chan@example.org",
+  "identity": "SEED-413#speed-intent-timing-history-proof",
+  "mode": "story-branch",
+  "branch": "claude/get-fast-proof-of-intent-timing-history",
+  "host": "claude"
+}

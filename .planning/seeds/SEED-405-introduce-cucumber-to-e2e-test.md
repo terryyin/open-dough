@@ -27,8 +27,11 @@ local and CI runs of [E2E Test](../../e2e/README.md).
 
 Introduce Cucumber by converting one existing E2E workflow. Keep the real
 product entry point, integration boundaries, and behavioral assertions that
-workflow already exercises. Use the first conversion to see how well the
-feature communicates the workflow and how its results appear in E2E proof.
+workflow already exercises, and keep step definitions thin over production and
+existing E2E boundaries without adding a duplicate `test-support` layer
+([Architectural North Star](../NORTH-STAR.md)). Use the first conversion to see
+how well the feature communicates the workflow and how its results appear in E2E
+proof.
 
 #### Key examples
 

@@ -8,8 +8,8 @@ import { type AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import {
   landingEndpoint,
   landingPrepareEndpoint,
-  submitLanding,
-} from "./launchLandingReporting.ts";
+} from "./launchLandingAdmission.ts";
+import { submitLanding } from "./launchLandingReporting.ts";
 import { submitCompletion, completionEndpoint } from "./completionReporting.ts";
 import type { NativeDoneMarks } from "./doneMarks.ts";
 import type { LandedCiCollection } from "./landedCiCollection.ts";
@@ -111,12 +111,13 @@ export async function answer(
   landedCi: Pick<LandedCiCollection, "nudge">,
 ): Promise<AgentLaunchAnswer> {
   try {
-    if (url.pathname === landingPrepareEndpoint)
-      return { status: 200, body: await submitLanding(req, true) };
-    if (url.pathname === landingEndpoint) {
+    if (
+      url.pathname === landingPrepareEndpoint ||
+      url.pathname === landingEndpoint
+    ) {
       const receipt = await submitLanding(req);
       // The recorded landing's CI is collected whether or not a page is open.
-      landedCi.nudge();
+      if (url.pathname === landingEndpoint) landedCi.nudge();
       return { status: 200, body: receipt };
     }
     if (url.pathname === sessionAttachmentEndpoint) {

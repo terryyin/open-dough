@@ -4,21 +4,20 @@ import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { FileFollowUpBuilder } from "./followUpFileTestData.mjs";
 import { FollowUpBuilder } from "./followUpTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
-import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 import { StoryPreparationBuilder } from "./storyPreparationTestData.mjs";
-import {
-  IntentLocationBuilder,
-  IntentSettingsBuilder,
-} from "./intentLocationTestData.mjs";
+import { IntentSettingsBuilder } from "./intentLocationTestData.mjs";
 import { optionsDefinitionMakeMeProperties } from "./optionsDefinitionTestData.mjs";
 import { ConfiguredProjectBuilder } from "./projectConfigurationTestData.mjs";
 import { projectCiSettingsMakeMeProperties } from "./projectCiSettingsTestData.mjs";
 import { ReleaseBuilder } from "./releaseTestData.mjs";
 import { RepositoryBuilder } from "./repositoryTestData.mjs";
+import { CheckoutWorkBuilder } from "./repositoryCheckoutWorkTestData.mjs";
 import { projectRevisionMakeMeProperties } from "./projectRevisionTestData.mjs";
 import { PlanSliceBuilder, SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { supplierAgreementBuilder } from "./supplierAgreementTestData.mjs";
 import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTestData.mjs";
+import { reviewCommitMakeMeProperties } from "./reviewCommitTestData.mjs";
+import { storyReviewMakeMeProperties } from "./storyReviewTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { NativeEvidenceRecordBuilder } from "./nativeEvidenceTestData.mjs";
 import { PublishedIntegrationBuilder } from "./publicationTestData.mjs";
@@ -27,7 +26,9 @@ import { launchMakeMeProperties } from "./launchMakeMe.mjs";
 import { usageMakeMeProperties } from "./usageMakeMe.mjs";
 import { HostHookSettingsBuilder } from "./hostHookSettingsTestData.mjs";
 import { feedbackMakeMeProperties } from "./feedbackTestData.mjs";
-import { StoryNoteBuilder } from "./storyNoteTestData.mjs";
+import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
+import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
+import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
 /** @typedef {Parameters<typeof import("../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs").renderEntry>[0]} BacklogEntry */
 /** @typedef {import("../../../dashboard/test-support/publishedFiles.ts").PublishedRevision} PublishedRevision */
 /** @typedef {Parameters<typeof import("../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs").publishExecutionIncrement>[0]} IncrementPublication */
@@ -39,6 +40,7 @@ import { StoryNoteBuilder } from "./storyNoteTestData.mjs";
 /** @typedef {import("./launchMakeMe.mjs").LaunchMakeMe} LaunchMakeMe */
 /** @typedef {import("./usageMakeMe.mjs").UsageMakeMe} UsageMakeMe */
 /** @typedef {import("./feedbackTestData.mjs").FeedbackMakeMe} FeedbackMakeMe */
+/** @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe} StoryNoteMakeMe */
 /** @typedef {import("./optionsDefinitionTestData.mjs").OptionsDefinitionMakeMe} OptionsDefinitionMakeMe */
 /** @typedef {import("./projectCiSettingsTestData.mjs").ProjectCiSettingsMakeMe} ProjectCiSettingsMakeMe */
 /** @typedef {import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe} TerminalThemeSettingMakeMe */
@@ -52,9 +54,9 @@ import { StoryNoteBuilder } from "./storyNoteTestData.mjs";
  * @typedef {object} CoreMakeMe
  * @property {NativeEvidenceRecordBuilder} aNativeEvidenceRecord
  * @property {RepositoryBuilder} aRepository
+ * @property {CheckoutWorkBuilder} aCheckoutWork
  * @property {AgentProfileBuilder} anAgentProfile
  * @property {FactBuilder<BacklogEntry>} aBacklogEntry
- * @property {PublishedSourceBuilder} aPublishedSource
  * @property {ConfiguredProjectBuilder} aConfiguredProject
  * @property {FactBuilder<PublishedRevision>} aPublishedRevision
  * @property {StoryPreparationBuilder} aStoryPreparation
@@ -63,7 +65,6 @@ import { StoryNoteBuilder } from "./storyNoteTestData.mjs";
  * @property {DoneRecordBuilder} aDoneRecord
  * @property {FileFollowUpBuilder} aFileFollowUp
  * @property {FollowUpBuilder} aFollowUp
- * @property {IntentLocationBuilder} anIntentLocation
  * @property {IntentSettingsBuilder} intentSettings
  * @property {TestOptimizationCandidatesRecordBuilder} aTestOptimizationCandidatesRecord
  * @property {FactBuilder<import("../../../dashboard/server/storyPublishedEvidence.ts").ReviewedStory>} aReviewedStory
@@ -75,19 +76,12 @@ import { StoryNoteBuilder } from "./storyNoteTestData.mjs";
  * @property {PlanSliceBuilder} aPlanSlice
  * @property {SlicePlanBuilder} aSlicePlan
  * @property {HostHookSettingsBuilder} hostHookSettings
- * @property {StoryNoteBuilder} aStoryNote
  */
 
-/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe} */
+/** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & import("./reviewCommitTestData.mjs").ReviewCommitMakeMe & import("./storyReviewTestData.mjs").StoryReviewMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & import("./sessionRecordTestData.mjs").SessionRecordMakeMe} */
 export const makeMe = Object.defineProperties(
-  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe} */ ({}),
+  /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & import("./reviewCommitTestData.mjs").ReviewCommitMakeMe & import("./storyReviewTestData.mjs").StoryReviewMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & import("./sessionRecordTestData.mjs").SessionRecordMakeMe} */ ({}),
   {
-    aStoryNote: {
-      enumerable: true,
-      get() {
-        return new StoryNoteBuilder();
-      },
-    },
     hostHookSettings: {
       enumerable: true,
       get() {
@@ -106,6 +100,12 @@ export const makeMe = Object.defineProperties(
         return new RepositoryBuilder();
       },
     },
+    aCheckoutWork: {
+      enumerable: true,
+      get() {
+        return new CheckoutWorkBuilder();
+      },
+    },
     anAgentProfile: {
       enumerable: true,
       get() {
@@ -116,12 +116,6 @@ export const makeMe = Object.defineProperties(
       enumerable: true,
       get() {
         return { with: copyFacts };
-      },
-    },
-    aPublishedSource: {
-      enumerable: true,
-      get() {
-        return new PublishedSourceBuilder();
       },
     },
     aConfiguredProject: {
@@ -170,12 +164,6 @@ export const makeMe = Object.defineProperties(
       enumerable: true,
       get() {
         return new FollowUpBuilder();
-      },
-    },
-    anIntentLocation: {
-      enumerable: true,
-      get() {
-        return new IntentLocationBuilder();
       },
     },
     intentSettings: {
@@ -241,10 +229,15 @@ export const makeMe = Object.defineProperties(
     ...optionsDefinitionMakeMeProperties(),
     ...projectCiSettingsMakeMeProperties(),
     ...terminalThemeSettingMakeMeProperties(),
+    ...reviewCommitMakeMeProperties(),
+    ...storyReviewMakeMeProperties(),
     ...ciMakeMeProperties(),
     ...launchMakeMeProperties(),
     ...usageMakeMeProperties(),
     ...feedbackMakeMeProperties(),
+    ...storyNoteMakeMeProperties(),
     ...projectRevisionMakeMeProperties(),
+    ...publishedReadingMakeMeProperties(),
+    ...sessionRecordMakeMeProperties(),
   },
 );

@@ -2,12 +2,15 @@
 // (`./TokenIndexTrend.tsx`): its name beside its trace's task mark, how many
 // tasks it finished in the period with the partial and unpriced ones, its own
 // latest rolling median, and the tariff whose reference unit its values are
-// in, with the work its usage leaves out. A tool with no priced task says so.
+// in, with the work its usage leaves out, and once per model of its shown
+// tasks that its rate card does not list, the substitute that estimated it
+// until the card is updated. A tool with no priced task says so.
 import { countWords } from "./chartValueAxis.ts";
 import { HistoryChartKey } from "./historyChartShapes.tsx";
 import { usageToolName, usageToolSlot } from "./usageComparison.ts";
 import {
   rollingMedianTasks,
+  usageSubstitutions,
   type TokenIndexAnswer,
   type UsageTool,
 } from "./usageTokenIndex.ts";
@@ -47,6 +50,7 @@ export function UsageToolSummary({
   const name = usageToolName(tool);
   const latest = answer.average.at(-1);
   const excluded = excludedWork[tool];
+  const substitutions = usageSubstitutions(answer.tasks);
   return (
     <li className="usage-tool" aria-label={name}>
       <div className="usage-chart-head">
@@ -76,6 +80,13 @@ export function UsageToolSummary({
             : `No priced finished task matches in the last ${periodWords}.`}
         </p>
       )}
+      {substitutions.map(({ model, substitute }) => (
+        <p key={model.id} className="usage-rate-warning" role="note">
+          {name} used {model.name}, which is not on its Token Index rate card;
+          estimated at {substitute.name} rates. The Token Index rate card needs
+          an update.
+        </p>
+      ))}
       <p className="settings-note usage-tool-note">{answer.tariff.label}</p>
       {excluded !== undefined && (
         <p className="settings-note usage-tool-note">{excluded}</p>

@@ -25,7 +25,11 @@ import {
   serveEarlierLandingWithLandedOutcome,
 } from "../../test-support/support/storyCiComparisonLandedOutcome.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({
+  serverMode: "boundary",
+  extraEnv: collectingLandedCi,
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
   await Promise.all(readers.splice(0).map((reader) => reader.close()));
@@ -217,7 +221,12 @@ test("a cancelled landing's collected scope uses its labelled later attempt and 
         ],
       },
     });
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  const reader = await restartAsLandedCiReader(
+    dashboard,
+    origin,
+    "boundary",
+    "the preceding live server retains the machine's Cursor runner",
+  );
   readers.push(reader);
   const answer = await scopedHistory(reader.origin, landing);
   expect((answer.body as { entries: unknown[] }).entries).toHaveLength(1);

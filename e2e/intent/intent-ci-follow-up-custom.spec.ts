@@ -6,7 +6,7 @@ import {
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keepFollowUpEntries } from "../../dashboard/test-support/support/ciFollowUpScenario.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
-import { completedPublishedStory } from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { attemptLink } from "../../dashboard/test-support/ciEvidenceLabelsPage.ts";
@@ -17,6 +17,7 @@ import {
   openCiFollowUp,
   retainedCiFollowUpReading,
 } from "../../dashboard/test-support/support/ciFollowUpReadingPage.ts";
+import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
 
 test("both settled custom outcomes review exact attempts against the saved 100s average", async ({
   page,
@@ -25,13 +26,9 @@ test("both settled custom outcomes review exact attempts against the saved 100s 
   github,
 }) => {
   publishIntentTrunk(origin.project);
-  const story = await completedPublishedStory(
+  const story = await publishDeclaredTrunk(
     origin,
-    "trunk",
-    undefined,
-    undefined,
-    undefined,
-    { interleaved: false },
+    intentTrunkCompletionOntoTip({ interleaved: false }),
   );
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,

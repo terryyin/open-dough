@@ -1,203 +1,87 @@
 // One comparison language while drilling: each displayed scope scales only
-// its own figures and rows, with one live story preference, no source-text
-// read for a Summary and no comparison or proof reread. The comparison and
-// each run's proof are the canonical Summary-scope answers
-// (../../test-support/support/frontendIntentComparison.ts); a request log observes
-// the browser's requests only.
-import type { Locator } from "@playwright/test";
-import { fileComparisonCell } from "../../test-support/intentFileProofPage.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
-import {
-  fileReadingTab,
-  proofRegion,
-} from "../../test-support/intentPerspectivePage.ts";
-import {
-  intentReadingScroll,
-  scrollIntentReadingHalfway,
-  intentReadingPane,
-} from "../../test-support/intentReadingPlacePage.ts";
-import {
-  childName,
-  scopeComparisonFigure,
-  scopeComparisonCell,
-  summaryRegion,
-} from "../../test-support/intentScopeProofPage.ts";
-import { openCiEntry } from "../../test-support/intentCiProofPage.ts";
-import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
-import {
-  openSummaryComparison,
-  selectDoneStoryForSummaryComparison,
-} from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
-import {
-  chooseStoryTab,
-  expectStoryTab,
-} from "../../test-support/support/intentStoryPage.ts";
-import {
-  expectMark,
-  markGeometry,
-  percentages,
-  showPercent,
-} from "../../test-support/support/relativeTimingMarks.ts";
+// its own figures and rows, with one live Show % preference, no source-text
+// read for a Summary and no comparison or proof reread.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { markOf, mountCiScope, scopeReadsOf } from "./intent-ci-scope-page.tsx";
+import type { Locator } from "vitest/browser";
 
-// These journeys change the reading scope, not time. Recurring revision
-// checks would otherwise race the final no-reread observation on a busy host.
-test.beforeEach(async ({ page }) => {
-  await pausePageClockAt(page, new Date());
-});
+const landed = ["Baseline compared with Landed"];
+const file = "dashboard/tests/folder/nested/c.spec.ts";
 
-const compared = (region: Locator) =>
-  region.locator(".intent-ci-comparison-frame");
+// The figure's mark extends slower by REACH of one side.
+async function slowerBy(figure: Locator, reach: number) {
+  await expect.element(figure).toBeVisible();
+  const mark = markOf(figure);
+  expect(mark.direction).toBe("slower");
+  expect(mark.reach).toBeCloseTo(reach, 1);
+}
 
-test("story, location, folder and file share signed words, preference and per-display relative scales without rereading CI", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 600 });
-  await prepareFrontendDoneIntent(page, frontendServices);
-  const ciReads: string[] = [];
-  const textReads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname !== authenticatedReadEndpoint) return;
-    const kind = url.searchParams.get("intent");
-    if (kind === "ci-comparison" || kind === "ci-proof")
-      ciReads.push(`${kind} ${url.search}`);
-    if ((url.searchParams.get("path") ?? "").endsWith(".spec.ts"))
-      textReads.push(url.search);
-  });
-  const { intent } = await selectDoneStoryForSummaryComparison(page);
-  await openSummaryComparison(intent, "dashboard/tests");
-  await scrollIntentReadingHalfway(intent);
-  await chooseStoryTab(intent, "CI comparison");
-  const story = intent.getByRole("tabpanel", { name: "CI comparison" });
-  await expect(
-    compared(story).getByRole("heading", {
-      name: "Baseline compared with Landed",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await expect(showPercent(story)).not.toBeChecked();
-  await expect(percentages(story)).toHaveCount(0);
-  await untilPageRequestsAnswered(page);
-  const initialReads = [...ciReads];
-  expect(
-    initialReads.filter((read) => read.startsWith("ci-comparison ")),
-  ).toHaveLength(1);
-  expect(
-    initialReads.filter((read) => read.startsWith("ci-proof ")),
-  ).toHaveLength(3);
+test("story, location, folder and file share signed words, preference and per-display relative scales without rereading CI", async () => {
+  const story = makeMe.aComparedStory.inSummaryScope().please();
+  const ci = scopeReadsOf(story);
+  const scope = await mountCiScope(story, ci.source);
+  await expect.poll(() => scope.story.activeComparison()).toEqual(landed);
+  await expect.element(scope.story.showPercent).not.toBeChecked();
+  expect(scope.story.percentages()).toEqual([]);
+  await expect.poll(() => ci.asked.proofs).toHaveLength(3);
+  expect(ci.asked.comparisons).toHaveLength(1);
 
-  await openCiEntry(story, "dashboard/tests", "Enter");
-  await expectStoryTab(intent, "Changed tests");
-  const summary = summaryRegion(intent);
-  await expect(summary.locator(".intent-summary-path")).toHaveText(
-    "dashboard/tests",
-  );
-  await expect(intentReadingPane(intent)).toBeFocused();
-  await expect.poll(() => intentReadingScroll(intent)).toBe(0);
-  await expect(
-    summary.getByRole("heading", { name: "Summary", exact: true }),
-  ).toBeInViewport();
-  await expect(
-    compared(summary).getByRole("heading", {
-      name: "Baseline compared with Landed",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await expect(summary.locator(".intent-ci-comparison-framing")).toHaveText(
+  const { summary, proof } = scope;
+  expect(summary.activeComparison()).toEqual(landed);
+  expect(summary.framing()).toEqual([
     "Observed builds; differences are not attributed to the story",
-  );
-  await expect(showPercent(summary)).not.toBeChecked();
-  await expect(
-    scopeComparisonFigure(summary, "dashboard/tests", "Branch"),
-  ).toHaveText("+9.5 s");
-  await expectMark(
-    scopeComparisonFigure(summary, "dashboard/tests", "Branch"),
-    "slower",
-    1,
-  );
+  ]);
+  await expect.element(summary.showPercent).not.toBeChecked();
+  await expect
+    .element(summary.figure("dashboard/tests", "Branch"))
+    .toHaveTextContent("+9.5 s");
+  await slowerBy(summary.figure("dashboard/tests", "Branch"), 1);
   // Entry scale includes its own +9470/12040 and immediate child +7070/10340.
-  await expectMark(
-    scopeComparisonCell(summary, "dashboard/tests", "folder/", "Branch"),
-    "slower",
+  await slowerBy(
+    summary.cell("dashboard/tests", "folder/", "Branch"),
     7070 / 10340 / (9470 / 12040),
   );
-  await showPercent(summary).focus();
-  await page.keyboard.press("Space");
-  await expect(showPercent(summary)).toBeChecked();
-  await expect(
-    scopeComparisonFigure(summary, "dashboard/tests", "Branch"),
-  ).toHaveText("+9.5 s+79%");
+  await summary.showPercent.click();
+  await expect
+    .element(summary.figure("dashboard/tests", "Branch"))
+    .toHaveTextContent("+9.5 s+79%");
+  await expect.element(scope.story.showPercent).toBeChecked();
 
-  await childName(summary, "folder/").click();
-  await expectMark(
-    scopeComparisonFigure(summary, "dashboard/tests/folder", "Branch"),
-    "slower",
+  await summary.open("folder/");
+  await slowerBy(
+    summary.figure("dashboard/tests/folder", "Branch"),
     7070 / 10340 / 0.7,
   );
-  await expectMark(
-    scopeComparisonCell(
-      summary,
-      "dashboard/tests/folder",
-      "a.spec.ts",
-      "Branch",
-    ),
-    "slower",
+  await slowerBy(
+    summary.cell("dashboard/tests/folder", "a.spec.ts", "Branch"),
     1,
   );
-  await expect(showPercent(summary)).toBeChecked();
-  await childName(summary, "nested/").click();
-  await expect(
-    scopeComparisonFigure(summary, "dashboard/tests/folder/nested", "Branch"),
-  ).toHaveText("+70 ms+21%");
-  await expectMark(
-    scopeComparisonFigure(summary, "dashboard/tests/folder/nested", "Branch"),
-    "slower",
-    70 / 340 / 0.5,
-  );
-  await expectMark(
-    scopeComparisonCell(
-      summary,
-      "dashboard/tests/folder/nested",
-      "c.spec.ts",
-      "Branch",
-    ),
-    "slower",
-    70 / 340 / 0.5,
-  );
-  expect(textReads).toEqual([]); // Summaries do not ask for source text.
+  await expect.element(summary.showPercent).toBeChecked();
+  await summary.open("nested/");
+  const nested = "dashboard/tests/folder/nested";
+  await expect
+    .element(summary.figure(nested, "Branch"))
+    .toHaveTextContent("+70 ms+21%");
+  await slowerBy(summary.figure(nested, "Branch"), 70 / 340 / 0.5);
+  await slowerBy(summary.cell(nested, "c.spec.ts", "Branch"), 70 / 340 / 0.5);
+  expect(scope.textReads).toEqual([]); // Summaries do not ask for source text.
 
-  await childName(summary, "c.spec.ts").click();
-  await fileReadingTab(intent, "Proof").click();
-  const proof = proofRegion(intent);
-  const branch = fileComparisonCell(
-    proof,
-    "dashboard/tests/folder/nested/c.spec.ts",
-    "Branch",
-  );
-  await expect(
-    compared(proof).getByRole("heading", {
-      name: "Baseline compared with Landed",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await expect(branch).toHaveText("+70 ms+21%");
-  const before = await expectMark(branch, "slower", 70 / 340 / 0.5);
-  await showPercent(proof).uncheck();
-  await expect(branch).toHaveText("+70 ms");
-  expect(await markGeometry(branch)).toEqual(before);
-  await proof
-    .getByRole("button", { name: "View story CI comparison", exact: true })
-    .click();
-  await expect(showPercent(story)).not.toBeChecked(); // The hidden home panel was still mounted.
-  await showPercent(story).check();
-  await chooseStoryTab(intent, "Changed tests");
-  await expect(showPercent(proof)).toBeChecked();
-  await expect(branch).toHaveText("+70 ms+21%");
+  await summary.open("c.spec.ts");
+  await expect.poll(() => proof.activeComparison()).toEqual(landed);
+  const branch = proof.fileCell(file, "Branch");
+  await expect.element(branch).toHaveTextContent("+70 ms+21%");
+  await slowerBy(branch, 70 / 340 / 0.5);
+  const before = markOf(branch);
+  await proof.showPercent.click();
+  await expect.element(branch).not.toHaveTextContent("%");
+  await expect.element(branch).toHaveTextContent("+70 ms");
+  expect(markOf(branch)).toEqual(before);
+  await expect.element(scope.story.showPercent).not.toBeChecked();
+  await scope.story.showPercent.click();
+  await expect.element(proof.showPercent).toBeChecked();
+  await expect.element(branch).toHaveTextContent("+70 ms+21%");
 
-  await untilPageRequestsAnswered(page);
-  expect(ciReads).toEqual(initialReads);
+  expect(ci.asked.comparisons).toHaveLength(1);
+  expect(ci.asked.proofs).toHaveLength(3);
 });

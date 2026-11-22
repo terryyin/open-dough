@@ -19,7 +19,11 @@ import {
   sessionsHistoryAudience,
   sessionsRevisionHeader,
 } from "../../dashboard/src/machineSessionsRevision.ts";
-import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  expandStoryCardDoneHistory,
+  parts,
+  storyCardDoneDisclosure,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import { sessionDetailsControl } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
 import { givePageItsTurns } from "../../dashboard/test-support/pageRequestNotes.ts";
@@ -33,7 +37,10 @@ import {
 } from "../../dashboard/test-support/support/cursorStart.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import { replayRecords } from "../../dashboard/test-support/support/sessionsReplayRecords.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+
+const backlogStoryTitle = "Story A";
 
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
@@ -122,6 +129,13 @@ async function shownRetained(page: Page) {
   const board = parts(page);
   const recent = board.recentlyDone.getByRole("article");
   await expect(recent.filter({ hasText: "Retained session 5" })).toBeVisible();
+  const backlogCard = storyCard(board.backlog, backlogStoryTitle);
+  await expect(storyCardDoneDisclosure(backlogCard)).toContainText("1");
+  await expect(
+    (await expandStoryCardDoneHistory(backlogCard))
+      .getByRole("article")
+      .filter({ hasText: "Retained session 1" }),
+  ).toBeVisible();
   await expect(board.backlog).not.toContainText("Reading preparation");
   await givePageItsTurns(page);
   const columns = await Promise.all(
@@ -170,6 +184,6 @@ test("retained sessions listed by their listing facts show as the full answer sh
   expect(servedLandings.length).toBeGreaterThan(0);
   expect(servedLandings.every((count) => count === 5)).toBe(true);
   expect(listed).toEqual(full);
-  expect(listed.columns[2]).toContain("Recently done\n\n5 entries");
+  expect(listed.columns[2]).toContain("Recently done\n\n4 entries");
   expect(listed.opened).toContain(message);
 });

@@ -16,9 +16,11 @@ export function startLandedCiReader(
   origin: Pick<StartOrigin, "machine">,
   mode: "boundary" | "preview",
   prebuilt = dashboard.outDir ?? sharedDashboardBuild,
+  liveServer?: string,
 ): Promise<DashboardServer> {
   return startDashboardServer({
     mode,
+    liveServer,
     ...(mode === "preview" ? { prebuilt } : {}),
     github: dashboard.github,
     machine: origin.machine,

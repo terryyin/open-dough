@@ -37,6 +37,7 @@ test("an unattached launch's kept record captures its landing after its startup 
   const clock = landingRetentionClock(origin.machine);
   const receiver = await startDashboardServer({
     mode: "boundary",
+    liveServer: "separate process",
     machine: origin.machine,
     projectFolders: ["open-dough"],
     codexProtocol: native,

@@ -1,7 +1,6 @@
 # CI test data
 
-Use the shared [test data architecture](../test-data-architecture.md) when arranging
-these CI facts. Keep each representation at its actual consuming boundary.
+Keep each CI representation at its actual consuming boundary.
 
 Build CI proof with `makeMe.aCiProof` and entries with
 `makeMe.aCiProofEntry.at(path).holding(...evidence)`. Each

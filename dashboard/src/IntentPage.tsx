@@ -16,11 +16,12 @@ import { IntentCiStatus } from "./IntentCiStatus.tsx";
 import { IntentHeader } from "./IntentHeader.tsx";
 import { backToStoryId, projectTabs } from "./intentProjectTabs.ts";
 import { IntentStoryCoverage } from "./IntentStoryCoverage.tsx";
+import { WholeStoryNote } from "./IntentStoryComparison.tsx";
 import {
   type ComparedStory,
   type StorySummary,
+  wholeStoryOf,
 } from "./IntentStorySummary.tsx";
-import { intentStoryOverlay } from "./intentStoryOverlay.ts";
 import {
   StoryCiReturnProvider,
   storyTabs,
@@ -35,6 +36,7 @@ import type { PublishedSource } from "./publishedSource.ts";
 import { intentHomeMarks } from "./storyCardFocus.ts";
 import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
 import "./intent-page.css";
+import "./intent-open-link.css";
 
 export const toProjectIntentId = (idPrefix: string) => `${idPrefix}-to-project`;
 
@@ -58,8 +60,17 @@ export function IntentPage({
   readonly story?: IntentPageStory;
   readonly onBackToStory?: (() => void) | undefined;
 }) {
-  const { notice, locations, explanation, shownRevision } = shown;
+  const { notice, locations, shownRevision } = shown;
+  // Without configured locations, a compared story's Changes still lists its
+  // changed files, all outside, under the explanation.
+  const browserLocations =
+    locations ?? (shown.unconfigured && story?.compared ? [] : undefined);
+  // The explanation stands in the browser's place, or leads it once it shows.
+  const explanation =
+    browserLocations === undefined ? shown.explanation : undefined;
+  const lead = browserLocations === undefined ? undefined : shown.explanation;
   const { tab, chooseTab } = useStoryTab(story?.selection);
+  const wholeStory = wholeStoryOf(story?.summary);
   const [filesShown, setFilesShown] = useKeptReading("filesShown", () => true);
   const tabsIdPrefix =
     story === undefined
@@ -75,12 +86,7 @@ export function IntentPage({
     );
   }, [entryReturns, tabsIdPrefix]);
   const view = story === undefined ? project.mode : tab;
-  const browserView = story === undefined ? "ci" : "changed";
-  const outside =
-    story?.compared !== undefined && locations !== undefined
-      ? intentStoryOverlay(locations, story.compared.shown.comparison.files)
-          .outside
-      : undefined;
+  const browserView = story === undefined ? "ci" : "changes";
   const panel = (name: string) => ({
     className: "intent-page-panel",
     tabIndex: -1,
@@ -127,7 +133,6 @@ export function IntentPage({
         <IntentHeader
           summary={story?.summary}
           source={source.id}
-          outside={outside}
           navigation={navigation}
           projectVisit={onBackToStory !== undefined}
           browserRevision={shownRevision}
@@ -157,7 +162,7 @@ export function IntentPage({
           <FileBrowserToggle
             icon
             browser={
-              view === browserView && locations !== undefined
+              view === browserView && browserLocations !== undefined
                 ? files
                 : undefined
             }
@@ -167,11 +172,12 @@ export function IntentPage({
         {story === undefined && notice}
         {story !== undefined && (
           <div {...panel("ci")}>
+            <WholeStoryNote whole={wholeStory} />
             <IntentCiStatus />
           </div>
         )}
         {explanation !== undefined && (
-          <div {...panel(story === undefined ? view : "changed")}>
+          <div {...panel(story === undefined ? view : "changes")}>
             {explanation}
             {story === undefined && project.mode === "ci" ? (
               <IntentCiStatus />
@@ -180,15 +186,17 @@ export function IntentPage({
         )}
         {story !== undefined && (
           <div {...panel("coverage")}>
+            <WholeStoryNote whole={wholeStory} />
             <IntentStoryCoverage story={story.summary.story} />
           </div>
         )}
       </div>
-      {locations !== undefined && shownRevision !== undefined && (
+      {browserLocations !== undefined && shownRevision !== undefined && (
         <IntentBrowser
           source={source}
           revision={shownRevision}
-          locations={locations}
+          locations={browserLocations}
+          lead={lead}
           project={story === undefined ? project : undefined}
           storySummary={story?.summary}
           story={story?.compared}
@@ -209,7 +217,7 @@ export function IntentPage({
       onOpen={(path) => {
         setSelection({ path, scope: "location" });
         if (story === undefined) project.onModeChange("ci");
-        else chooseTab("changed");
+        else chooseTab("changes");
       }}
     >
       {page}

@@ -1,6 +1,7 @@
 // The pinned banner in each of its page-column layouts (../../src/banner.css,
 // ../../src/project-select.css): always one row, Sessions (Open Dough mark as
-// its visual), icon-only perspective, project choices, and System settings.
+// its visual), icon-only perspective, Recent stories, project choices, and
+// System settings.
 // The project tabs show while they fit on that row; otherwise the compact
 // title select takes their place, even well above phone width. One journey
 // per layout walks the keyboard back up a long page: the banner stays pinned
@@ -85,8 +86,14 @@ for (const viewport of layouts) {
         content: `.banner { font-family: ${fontFamily}, sans-serif; }`,
       });
     }
-    const { banner, project, projectCompact, backlog, perspective } =
-      parts(page);
+    const {
+      banner,
+      project,
+      projectCompact,
+      backlog,
+      perspective,
+      recentStories,
+    } = parts(page);
     const sessions = sessionsSidebarParts(page).button;
     // The last card's last control.
     const last = backlog
@@ -97,7 +104,8 @@ for (const viewport of layouts) {
     await expectSettledPage(page);
     await untilPageReadsAnswered(page);
     // The settled opening reads of Open Dough's work, every one answered.
-    expect(openDoughReads()).toBe(20);
+    const openingReads = openDoughReads();
+    expect(openingReads).toBe(21);
     await last.scrollIntoViewIfNeeded();
     await expect(last).toBeInViewport({ ratio: 1 });
     const titleControl = viewport.compact ? projectCompact : project;
@@ -138,7 +146,13 @@ for (const viewport of layouts) {
 
     await test.step("the column lays the banner in one row, from Sessions to System settings", async () => {
       const gear = settings(page);
-      await expectBannerRow([sessions, perspective, titleControl, gear]);
+      await expectBannerRow([
+        sessions,
+        perspective,
+        recentStories,
+        titleControl,
+        gear,
+      ]);
       const stops = bannerStops(page);
       await expect(stops.last()).toHaveAccessibleName("System settings");
       // Sessions (mark) leads the banner as the first keyboard stop.
@@ -163,7 +177,7 @@ for (const viewport of layouts) {
     }
     await untilPageReadsAnswered(page);
     // Walking the page reads nothing again.
-    expect(openDoughReads()).toBe(20);
+    expect(openDoughReads()).toBe(openingReads);
   });
 }
 
@@ -180,6 +194,9 @@ test("banner project selection reads the selected project's actual published wor
   const sessions = sessionsSidebarParts(page).button;
   await expectProjectChoice(page, "Open Dough");
   await expectCatalogStories(page, openDoughProject);
+  await untilPageReadsAnswered(page);
+  const openingReads = openDoughReads();
+  expect(openingReads).toBe(6);
   await expect(banner.getByRole("heading", { level: 1 })).toHaveCount(0);
   await expectFrameIconControl(sessions, "Sessions", "Sessions (⌘B)");
   await expect(project.getByRole("radio")).toHaveCount(4);
@@ -193,6 +210,7 @@ test("banner project selection reads the selected project's actual published wor
   await expectProjectChoice(page, "Doughnut");
   await untilPageReadsAnswered(page);
   // Each project's work was read once, settled: switching re-reads neither.
-  expect(openDoughReads()).toBe(5);
-  expect(doughnutReads()).toBe(5);
+  expect(openDoughReads()).toBe(6);
+  expect(doughnutReads()).toBe(6);
+  expect(openDoughReads()).toBe(openingReads);
 });

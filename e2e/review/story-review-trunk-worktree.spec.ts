@@ -19,23 +19,9 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  contextValues,
-  contextWords,
-} from "../../dashboard/test-support/support/reviewContextLine.ts";
-import {
-  expectTreeRows,
-  changedFilesList,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
-import {
-  refreshReview,
-  openStoryReview,
-} from "../../dashboard/test-support/support/reviewRead.ts";
-import {
-  reviewRegion,
-  comparisonChoice,
-} from "../../dashboard/test-support/support/reviewControls.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   commitAll,
   git,
@@ -59,40 +45,36 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
   await openBacklog(page, origin);
   const card = parts(page).taken.getByRole("article", { name: "Story A" });
   await expect(reviewChanges(card)).toBeVisible();
-  const opened = await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  const commits = review
-    .getByRole("list", { name: "Story commits", exact: true })
-    .getByRole("button");
+  const review = await openReviewChanges(page, card);
+  const opened = review.snapshot;
+  const { commits, files } = review;
 
   await test.step("the review reads the worktree: its unpublished commit, its untracked file, and its branch and folder", async () => {
     expect(opened.baseline).toBe(claim);
     expect(opened.commits.map(({ subject }) => subject)).toEqual([
       "first slice",
     ]);
-    await expect(contextValues(review)).toHaveAccessibleName(
+    await review.context.expectWords(
       contextWords({
         branch,
         baseline: claim,
         workspace: "~/git/open-dough/.worktrees/trunk-a",
       }),
     );
-    await expectTreeRows(changedFilesList(review, "2 changed files"), [
-      "notes.md",
-      "slice.txt",
-    ]);
-    await comparisonChoice(review, "Commits", { exact: true }).check();
-    await expect(commits).toHaveCount(2);
-    await expect(commits.first()).toHaveText("Uncommitted changes");
-    await expect(commits.nth(1)).toContainText(
+    await files.expectRows("2 changed files", ["notes.md", "slice.txt"]);
+    await review.comparison.choose("Commits");
+    await commits.expectRowCount(2);
+    await commits.expectRowText(0, /^Uncommitted changes$/);
+    await commits.expectRowText(
+      1,
       `${opened.commits[0]?.shortRevision} first slice`,
     );
-    await comparisonChoice(review, "All changes", { exact: true }).check();
+    await review.comparison.choose("All changes");
   });
 
   await test.step("once the commit is published, Refresh still lists its file as the story's own and Commits offers Uncommitted changes with no commit", async () => {
     git(workspace, "push", "--quiet", "origin", "HEAD:main");
-    const published = await refreshReview(review);
+    const published = (await review.refreshAndAnswer()).snapshot;
     expect(published.published).toEqual({
       trunk: published.head,
       commits: 1,
@@ -100,12 +82,9 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
     expect(published.baseline).not.toBe(published.head);
     expect(published.commits).toEqual([]);
     expect(published.uncommitted).toBeDefined();
-    await expectTreeRows(changedFilesList(review, "2 changed files"), [
-      "notes.md",
-      "slice.txt",
-    ]);
-    await comparisonChoice(review, "Commits", { exact: true }).check();
-    await expect(commits).toHaveText(["Uncommitted changes"]);
-    await comparisonChoice(review, "All changes", { exact: true }).check();
+    await files.expectRows("2 changed files", ["notes.md", "slice.txt"]);
+    await review.comparison.choose("Commits");
+    await commits.expectRows(["Uncommitted changes"]);
+    await review.comparison.choose("All changes");
   });
 });

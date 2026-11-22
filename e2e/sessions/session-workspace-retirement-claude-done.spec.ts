@@ -1,16 +1,18 @@
-// Mark as done on a Recently done entry of a recorded Claude session whose
+// Mark as done on a Done-history entry of a recorded Claude session whose
 // workspace is retired: where a press finds it, and the rename it retries.
 
+import type { Locator } from "@playwright/test";
 import { sessionActions } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { rmSync } from "node:fs";
 import { test, expect } from "../../dashboard/test-support/dashboardTest.ts";
 import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
-  parts,
   sessionProblemOf,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
+  notRefinedStory,
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
@@ -42,7 +44,7 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 // seen reading them, whatever the runner's speed, then lets them through and
 // checks that nothing still on its way moves a control the way a press finds
 // it once the page has settled.
-test("a Recently done entry's Mark as done stays where a settled page shows it", async ({
+test("a Done-history entry's Mark as done stays where a settled page shows it", async ({
   page,
   dashboard,
 }) => {
@@ -59,19 +61,28 @@ test("a Recently done entry's Mark as done stays where a settled page shows it",
       ),
     [],
   );
-  const entry = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: record.session.sessionId });
   let settled: () => Promise<void>;
+  let entry: Locator | undefined;
   try {
     ({ settled } = await openStoryColumnsJourney(page, journey));
     await expect.poll(details.held).toBeGreaterThan(0);
+    entry = await shownDoneSessionEntriesOf(
+      page,
+      notRefinedStory,
+      record.session.sessionId,
+    );
     await sessionActions(entry);
   } finally {
     details.release();
   }
-  const control = markAsDone(entry);
   await settled();
+  entry = await shownDoneSessionEntriesOf(
+    page,
+    notRefinedStory,
+    record.session.sessionId,
+  );
+  await sessionActions(entry);
+  const control = markAsDone(entry);
   await control.scrollIntoViewIfNeeded();
   const place = await control.boundingBox();
   expect(place).not.toBeNull();
@@ -85,7 +96,7 @@ test("a Recently done entry's Mark as done stays where a settled page shows it",
 // retained doneProblem past one default expectation even when rename will
 // succeed. These cases own a wait the runner cannot exhaust; success still
 // returns as soon as the name is listed.
-test.describe("Recently done renames a retired-workspace Claude session", () => {
+test.describe("Done history renames a retired-workspace Claude session", () => {
   test.use({ extraEnv: { DOUGH_DONE_RENAME_WAIT_MS: "30000" } });
 
   for (const [cause, oldProblem] of [
@@ -98,7 +109,7 @@ test.describe("Recently done renames a retired-workspace Claude session", () => 
       "No terminal attachment is available to confirm native rename.",
     ],
   ] as const) {
-    test(`Recently done renames a retired-workspace Claude session with the old ${cause} problem`, async ({
+    test(`Done history renames a retired-workspace Claude session with the old ${cause} problem`, async ({
       page,
       dashboard,
     }) => {
@@ -111,20 +122,22 @@ test.describe("Recently done renames a retired-workspace Claude session", () => 
       const doneName = `done-${record.session.name}`;
       const { settled } = await openStoryColumnsJourney(page, journey);
       await settled();
-      const recent = parts(page)
-        .recentlyDone.getByRole("article")
-        .filter({ hasText: record.session.sessionId });
-      await expect(recent).toContainText(record.doneProblem);
-      await expect(recent).toContainText("saved workspace is missing");
+      const doneEntry = await shownDoneSessionEntriesOf(
+        page,
+        notRefinedStory,
+        record.session.sessionId,
+      );
+      await expect(doneEntry).toContainText(record.doneProblem);
+      await expect(doneEntry).toContainText("saved workspace is missing");
       expect(dashboard.claudeAttaches()).toEqual([]);
 
-      await markDone(recent);
+      await markDone(doneEntry);
 
-      await expect(recent).toContainText(`Named ${doneName}`, {
+      await expect(doneEntry).toContainText(`Named ${doneName}`, {
         timeout: 20_000,
       });
-      await expect(recent).not.toContainText(oldProblem);
-      await expect(sessionProblemOf(recent)).toHaveText("");
+      await expect(doneEntry).not.toContainText(oldProblem);
+      await expect(sessionProblemOf(doneEntry)).toHaveText("");
       expect(stored(dashboard.home)[0]).not.toHaveProperty("doneProblem");
       expect(
         dashboard

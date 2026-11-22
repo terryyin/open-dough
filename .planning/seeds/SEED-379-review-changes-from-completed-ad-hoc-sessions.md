@@ -73,8 +73,7 @@ changed paths, including a rename's old path.
 A launch record's retained comparisons are its change evidence: its landing,
 or the runs of commits a Default main session made in its checkout. A later
 story adds the own-branch result as a further retained comparison of the same
-record, read by the same
-[landed-run](../../dashboard/STORY-REVIEW-LANDED-RUNS.md) reader and shown in
+record, read by the same landed-run reader and shown in
 the same panel; the Comparison switch returns when a session holds more than
 one. Observation only: the review reads the saved common Git repository,
 fetches nothing, and writes no ref, index or checkout content.
@@ -106,12 +105,17 @@ decision recorded then:
   told apart from a person's or another session's edits (Terry, 2026-11-18).
 - A separately captured Dough landing for a default launch. A landing
   published from the checkout is already among the session's commits there
-  (Terry, 2026-11-18). The [own-branch review](../../dashboard/AGENT-LAUNCH-COMPLETION.md#identify-a-branch-taken-up-from-default-main)
-  covers landings from a worktree the session identified.
+  (Terry, 2026-11-18). The session's own-branch review covers landings from a
+  worktree the session identified.
 - One combined view of interrupted runs (Terry, 2026-11-18: one comparison
   per run).
 
 #### Open for refinement
 
-- Whether any of these is still wanted: each was set aside for the stated
-  reason, and none has a way forward or an example yet.
+- In the unified reader, Default main keeps exact recorded runs and its
+  shared-checkout warning. The branch-only merge choice requires branch
+  evidence. [Combined session review](SEED-418-review-published-session-changes.md#review-selected-sessions-together)
+  owns net changes across selected sessions where the evidence supports
+  them. This deferred story covers only the remaining Default main cases
+  above. Retain the earlier decisions until refinement finds a recoverable
+  comparison for a case.

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Tsukasa-chan",
-  "email": "tsukasa-chan@example.org",
-  "identity": "SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed",
-  "mode": "story-branch",
-  "branch": "claude/run-the-story-notes-frontend-checks-at-the-mount",
-  "host": "claude"
-}

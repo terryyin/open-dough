@@ -10,7 +10,7 @@ import { checkAncestry, runGit, type GitCall } from "./gitRunner.ts";
 import { pinLanding, removeLandingDeliveryPins } from "./launchLandingGit.ts";
 import { branchTrunk } from "./sessionBranchAttribution.ts";
 
-type ManualLanding = Pick<
+export type ManualLanding = Pick<
   LaunchLanding,
   "repository" | "remote" | "target" | "base" | "revision"
 >;

@@ -107,6 +107,7 @@ test("a dev server restarted in place lists both instances' failures, reads the 
 
     const successor = await startDashboardServer({
       ...developmentBoundary,
+      liveServer: "separate process",
       machine,
     });
     try {

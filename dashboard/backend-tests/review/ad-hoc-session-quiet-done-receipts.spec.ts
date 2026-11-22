@@ -1,0 +1,155 @@
+// Quiet completions after a recorded receipt: the launch, its accepted
+// reporting attempt and receipt, and the Done sequence from one Done capture
+// case.
+import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { deliverCompletion } from "../../server/completionDelivery.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { keepAttempt } from "../../server/launchAttemptStore.ts";
+import type { LaunchHost } from "../../server/launchHosts.ts";
+import { keptSession } from "../../server/launchRecordStore.ts";
+import { localFolder } from "../../server/projectFolders.ts";
+import type { CompletionReceipt } from "../../src/completionReport.ts";
+import { nativeDoneMarkPending } from "../../src/doneMark.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { minutesAgo, source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
+import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
+
+const delivery = "55555555-5555-4555-8555-555555555555";
+const submissionFor = (record: LaunchRecord) =>
+  makeMe.aCompletionSubmission.reportingFor({
+    host: record.session.host,
+    reference: dashboardReporting.reference,
+  });
+const marksRenamingWith = (
+  folder: ReturnType<typeof localFolder>,
+  rename: NonNullable<LaunchHost["rename"]>,
+) =>
+  new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: (host) =>
+      host === "claude" ? { name: "Claude", rename } : undefined,
+    reportingFolder: () => folder,
+  });
+
+// The completion reported at `doneAt`.
+const aReceivedCompletion = (doneAt: string) =>
+  makeMe.aCompletionReport
+    .reportedFor({ reference: dashboardReporting.reference, delivery })
+    .receivedAt(doneAt)
+    .please();
+
+// Keeps the launch's accepted reporting attempt with the completion's recorded
+// receipt, and answers the receipt.
+async function keepRecordedAttempt(
+  record: LaunchRecord,
+  completion: ReturnType<typeof aReceivedCompletion>,
+) {
+  const { host, sessionId } = record.session;
+  const receipt: CompletionReceipt = {
+    ...completion,
+    state: "recorded",
+    session: { host, sessionId },
+  };
+  await keepAttempt(
+    makeMe.anAcceptedAttempt
+      .reportingFor(record)
+      .withCompletion(completion, [receipt])
+      .please(),
+  );
+  return receipt;
+}
+
+test("a quiet report after confirmed native Done keeps the additional commit", async () => {
+  const times = { launched: 60, done: 30 };
+  const completion = aReceivedCompletion(minutesAgo(times.done));
+  const {
+    checkout,
+    records: { "default-launch": record },
+    work: { second },
+    at,
+  } = await aDoneCaptureCase()
+    .withWork((at) =>
+      makeMe.aCheckoutWork
+        .committing("first", { at: at(40) })
+        .committing("second", { at: at(20) }),
+    )
+    .withDefaultMainLaunch(
+      "default-launch",
+      times,
+      (launch, { checkout, work }) =>
+        launch
+          .keptSessionCommits({
+            repository: path.join(checkout.integration, ".git"),
+            runs: [{ base: checkout.base, revision: work.first }],
+          })
+          .reportingThrough(dashboardReporting)
+          .completedWith(completion),
+    )
+    .kept()
+    .please();
+  await keepRecordedAttempt(record, completion);
+  const rename = vi.fn(async () => {});
+  const marks = marksRenamingWith(localFolder(checkout.integration), rename);
+  onTestFinished(() => marks.close());
+  const reported = vi.spyOn(marks, "reported");
+
+  vi.setSystemTime(at(10));
+  const received = await deliverCompletion(
+    submissionFor(record).please(),
+    dashboardReporting.origin,
+    marks,
+  );
+  await reported.mock.results[0]?.value;
+
+  expect(received.receivedAt).not.toBe(completion.receivedAt);
+  expect(rename).not.toHaveBeenCalled();
+  expect(await keptSession(source, record.session)).toMatchObject({
+    doneAt: received.receivedAt,
+    sessionCommits: { runs: [{ base: checkout.base, revision: second }] },
+  });
+});
+
+test("retrying the same quiet delivery resumes native Done without repeating its failed capture", async () => {
+  const times = { launched: 60, done: 10 };
+  const doneAt = minutesAgo(times.done);
+  const completion = aReceivedCompletion(doneAt);
+  const {
+    checkout,
+    records: { "default-launch": record },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withDefaultMainLaunch("default-launch", times, (launch) =>
+      launch
+        .markedDoneAt(doneAt, { problem: nativeDoneMarkPending })
+        .sessionCommitsFailedAt(doneAt)
+        .reportingThrough(dashboardReporting)
+        .completedWith(completion),
+    )
+    .kept()
+    .please();
+  const receipt = await keepRecordedAttempt(record, completion);
+  await performWork(makeMe.aCheckoutWork.committing("typo", { at: at(30) }));
+  const rename = vi.fn(async () => {});
+  const marks = marksRenamingWith(localFolder(checkout.integration), rename);
+  onTestFinished(() => marks.close());
+  const reported = vi.spyOn(marks, "reported");
+
+  expect(
+    await deliverCompletion(
+      submissionFor(record).retrying(delivery).please(),
+      dashboardReporting.origin,
+      marks,
+    ),
+  ).toEqual(receipt);
+  await reported.mock.results[0]?.value;
+
+  expect(rename).toHaveBeenCalledTimes(1);
+  const kept = await keptSession(source, record.session);
+  expect(kept).toMatchObject({ doneAt, sessionCommitsFailedAt: doneAt });
+  expect(kept?.doneProblem).toBeUndefined();
+  expect(kept?.sessionCommits).toBeUndefined();
+});

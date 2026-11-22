@@ -4,28 +4,15 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  commitRangeHeading,
-  chooseCommit,
-} from "../../dashboard/test-support/support/storyReviewCommitChoice.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
-import { openStoryReview } from "../../dashboard/test-support/support/reviewRead.ts";
-import {
-  reviewRegion,
-  comparisonChoice,
-} from "../../dashboard/test-support/support/reviewControls.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { olderGit } from "../../dashboard/test-support/support/storyReviewOlderGit.ts";
 import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import {
   observed,
   storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import {
-  expectTreeRows,
-  changedFilesList,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
 
 // Both test objects here start from Story A's declared history.
 test.use({ originRepository: storyARepository });
@@ -38,68 +25,35 @@ test("two ends select three commits in either direction, reset to one, and survi
   const { workspace } = storyWorktree(origin);
   const before = observed(workspace);
   keepLaunchRecord(dashboard, workspace);
-  const snapshot = await openStoryReview(page, await openBacklog(page, origin));
-  const review = reviewRegion(page);
-  await comparisonChoice(review, "Commits", { exact: true }).check();
-  const rows = review
-    .getByRole("list", { name: "Story commits", exact: true })
-    .getByRole("button");
-  await chooseCommit(review, rows.last());
-  await chooseCommit(review, rows.last());
-  await rows.nth(2).press("Enter");
-  await expect(
-    review.getByRole("heading", { name: "Changes in 3 commits" }),
-  ).toBeVisible();
-  await expect(commitRangeHeading(review)).toContainText(
+  const review = await openReviewChanges(page, await openBacklog(page, origin));
+  const { snapshot, commits, files, diffs } = review;
+  const fourFiles = ["gone.txt", "image.png", "new.txt", "story.txt"];
+  await review.comparison.choose("Commits");
+  await commits.chooseAlone("last");
+  await commits.choose(2, (row) => row.press("Enter"));
+  await commits.expectRange(
+    "Changes in 3 commits",
     `From ${snapshot.commits[3]?.shortRevision} rename with a small edit to ${snapshot.commits[1]?.shortRevision} delete a file and redraw the image.`,
   );
-  for (const at of [2, 3, 4]) {
-    await expect(rows.nth(at)).toHaveAttribute("aria-pressed", "true");
-  }
-  await expect(rows.first()).toHaveAttribute("aria-pressed", "false");
-  const files = changedFilesList(review, "4 changed files", { exact: true });
-  await expectTreeRows(files, [
-    "gone.txt",
-    "image.png",
-    "new.txt",
-    "story.txt",
-  ]);
-  await listedFile(files, "Renamed old.txt → new.txt", { exact: true }).click();
-  await expect(review.locator(".story-review-added")).toHaveText(["+renamed"]);
-  await expect(review).not.toContainText(
-    "Trunk was integrated within the range",
-  );
+  for (const at of [2, 3, 4]) await commits.expectChosen(at);
+  await commits.expectChosen(0, false);
+  await files.expectRows("4 changed files", fourFiles);
+  await files.choose("4 changed files", "Renamed old.txt → new.txt");
+  await diffs.expectLines("added", ["+renamed"]);
+  await review.expectNoText("Trunk was integrated within the range");
 
   // Starting from the newer end selects the same three commits.
-  await chooseCommit(review, rows.nth(2));
-  await expect(
-    review.getByRole("heading", { name: "Changes in 1 commit" }),
-  ).toBeVisible();
-  await expect(rows.nth(3)).toHaveAttribute("aria-pressed", "false");
-  await chooseCommit(review, rows.last());
-  await expect(
-    review.getByRole("heading", { name: "Changes in 3 commits" }),
-  ).toBeVisible();
-  await expectTreeRows(files, [
-    "gone.txt",
-    "image.png",
-    "new.txt",
-    "story.txt",
-  ]);
-  await comparisonChoice(review, "All changes", { exact: true }).check();
-  await expect(
-    review.getByRole("heading", { name: "Changes in 3 commits" }),
-  ).toHaveCount(0);
-  await comparisonChoice(review, "Commits", { exact: true }).check();
-  await expect(
-    review.getByRole("heading", { name: "Changes in 3 commits" }),
-  ).toBeVisible();
-  await expectTreeRows(files, [
-    "gone.txt",
-    "image.png",
-    "new.txt",
-    "story.txt",
-  ]);
+  await commits.choose(2);
+  await commits.expectRange("Changes in 1 commit");
+  await commits.expectChosen(3, false);
+  await commits.choose("last");
+  await commits.expectRange("Changes in 3 commits");
+  await files.expectRows("4 changed files", fourFiles);
+  await review.comparison.choose("All changes");
+  await commits.expectNoRange("Changes in 3 commits");
+  await review.comparison.choose("Commits");
+  await commits.expectRange("Changes in 3 commits");
+  await files.expectRows("4 changed files", fourFiles);
   expect(observed(workspace)).toEqual(before);
 });
 
@@ -108,36 +62,28 @@ olderGit(
   async ({ page, dashboard, origin }) => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
-    await openStoryReview(page, await openBacklog(page, origin));
-    const review = reviewRegion(page);
-    await comparisonChoice(review, "Commits", { exact: true }).check();
-    const rows = review
-      .getByRole("list", { name: "Story commits", exact: true })
-      .getByRole("button");
-    await chooseCommit(review, rows.nth(1));
-    await chooseCommit(review, rows.nth(1));
-    await chooseCommit(review, rows.last());
-    await expect(
-      review.getByRole("heading", { name: "Changes in 4 commits" }),
-    ).toBeVisible();
-    await expect(review.getByRole("status")).toContainText(
+    const review = await openReviewChanges(
+      page,
+      await openBacklog(page, origin),
+    );
+    const { commits, files } = review;
+    await review.comparison.choose("Commits");
+    await commits.chooseAlone(1);
+    await commits.choose("last");
+    await commits.expectRange("Changes in 4 commits");
+    await review.status.expectFeedbackSays(
       "This machine's Git cannot leave out trunk's changes integrated within the chosen commits, so this range cannot be compared across them.",
     );
-    await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
-    await chooseCommit(review, rows.last());
-    await chooseCommit(review, rows.nth(2));
-    await expect(
-      review.getByRole("heading", { name: "Changes in 3 commits" }),
-    ).toBeVisible();
-    const files = changedFilesList(review, "4 changed files", { exact: true });
-    await expectTreeRows(files, [
+    await files.expectNone();
+    await commits.choose("last");
+    await commits.choose(2);
+    await commits.expectRange("Changes in 3 commits");
+    await files.expectRows("4 changed files", [
       "gone.txt",
       "image.png",
       "new.txt",
       "story.txt",
     ]);
-    await expect(
-      review.locator(".story-review-top").getByRole("status"),
-    ).not.toContainText("cannot be compared");
+    await review.status.expectFeedbackSays("cannot be compared", false);
   },
 );

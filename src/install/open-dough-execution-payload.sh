@@ -154,6 +154,8 @@ managed_files+=(
   dough-execute-plan/scripts/execution-increment-observation-gaps.mjs
   dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
+  dough-execute-plan/scripts/session-record-publication.mjs
+  dough-execute-plan/scripts/session-record.mjs
   dough-execute-plan/scripts/execution-increment-reconciliation.mjs
   dough-execute-plan/scripts/execution-increment-resume.mjs
   dough-execute-plan/scripts/execution-completion-recovery.mjs
@@ -183,6 +185,7 @@ managed_files+=(
   dough-execute-plan/scripts/maintain-default-checkout.mjs
   dough-execute-plan/scripts/owned-suffix-reconciliation.mjs
   dough-execute-plan/scripts/publication-resume.mjs
+  dough-execute-plan/scripts/publication-git-process.mjs
   dough-execute-plan/scripts/publication-git.mjs
   dough-execute-plan/scripts/watch-ci-execution.mjs
   dough-execute-plan/scripts/watch-ci.mjs

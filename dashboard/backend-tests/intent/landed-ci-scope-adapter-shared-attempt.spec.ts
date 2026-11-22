@@ -17,7 +17,11 @@ import { land } from "../../test-support/support/startSessionLandingContext.ts";
 import { commonGitDir } from "../../test-support/support/launchLanding.ts";
 import { keepMoreLaunchRecords } from "../../test-support/support/launchStore.ts";
 
-test.use({ serverMode: "boundary", extraEnv: collectingLandedCi });
+test.use({
+  serverMode: "boundary",
+  extraEnv: collectingLandedCi,
+  liveServer: "synchronous delivery child blocks the mounted receiver",
+});
 const readers: DashboardServer[] = [];
 test.afterEach(async () => {
   await Promise.all(readers.splice(0).map((reader) => reader.close()));
@@ -144,7 +148,12 @@ test("one true adapter attempt shared by two exact landing receipts contributes 
     (represented[1] as { build: string }).build,
   );
   expect(Object.values(retained(dashboard.home)?.builds ?? {})).toHaveLength(1);
-  const reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
+  const reader = await restartAsLandedCiReader(
+    dashboard,
+    origin,
+    "boundary",
+    "the preceding live server retains the machine's Cursor runner",
+  );
   readers.push(reader);
 
   expect(adapter.proofRequests()).toEqual([

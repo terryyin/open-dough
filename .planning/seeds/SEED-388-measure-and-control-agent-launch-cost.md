@@ -15,7 +15,7 @@ developer, and associated an unrequested effort level with roughly three times
 the cost across 11 executions. The index now counts a launch's work after a
 developer reply on both tools, background agents at any depth, and rows whose
 text holds Unicode line separators. The [SEED-345](SEED-345-session-token-efficiency.md)
-efficiency trials use the [retained effort command](../../dashboard/AGENT-EFFORT.md)
+efficiency trials use `dashboard/server/compareAgentEffort.ts`
 on this index at a known effort.
 
 <a id="name-the-effort-a-session-ran-with"></a>

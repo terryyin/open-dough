@@ -12,6 +12,7 @@ import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import type { StoryReviewRequest } from "./pageStoryReviews.ts";
 import { useStoryReviewRequest } from "./useStoryReviewRequest.ts";
 import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
+import { shownChoice } from "./StoryReviewComparison.tsx";
 import {
   ReviewToolbar,
   reviewListsFiles,
@@ -27,7 +28,7 @@ import {
   storyReviewPanelLabel,
 } from "./StoryReviewHeading.tsx";
 import { StoryNotes } from "./StoryNotesControl.tsx";
-import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
+import { isReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
@@ -79,12 +80,11 @@ export function StoryReview({
     snapshot: workspace,
     published: availablePublished,
     chosen,
-    onWorkspace,
+    onChoose,
     onRun,
     includeUncommitted,
     setIncludeUncommitted,
   } = useStoryReviewRequest(request, round);
-  const published = review?.kind === "published" ? review : undefined;
   const {
     items,
     selectedItems,
@@ -103,12 +103,7 @@ export function StoryReview({
     includeUncommitted,
     active: selectedRun === undefined,
   });
-  const shownComparison =
-    selectedRun !== undefined
-      ? "landed"
-      : published === undefined
-        ? shown
-        : "published";
+  const shownComparison = shownChoice(shown, review, selectedRun);
   const holdsDetails = reviewHoldsDetails({
     review,
     runs,
@@ -134,7 +129,7 @@ export function StoryReview({
           headingId={headingId}
         />
         <div className="side-panel-actions">
-          {!isReviewedSessionSubject(subject) && (
+          {isReviewedStorySubject(subject) && (
             <StoryNotes
               sourceId={subject.source}
               identity={subject.identity}
@@ -187,7 +182,7 @@ export function StoryReview({
           availablePublished={availablePublished}
           committed={committed}
           includeUncommitted={includeUncommitted}
-          onWorkspace={onWorkspace}
+          onChoose={onChoose}
           onRun={onRun}
           setIncludeUncommitted={setIncludeUncommitted}
         />

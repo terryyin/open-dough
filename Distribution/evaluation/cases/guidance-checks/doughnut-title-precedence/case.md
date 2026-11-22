@@ -12,7 +12,8 @@ assertion catches the fault on the destination ID; the agent is not told so.
 ## Selection
 
 - workflow: targeted proof calibration (dough-intent-coverage) on a real project's maintained backend proof
-- hosts: codex (qualified natively); claude, cursor: not qualified
+- hosts: codex (qualified natively)
+- unqualified hosts: claude, cursor (no native observations yet)
 - prerequisites: Bash 5, Git, jq, Node 24, Nix, network access to the
   source repository and Gradle/pnpm registries, about 4.5 GB of disk per arm
   outside macOS's per-user temporary directory (set `TMPDIR` elsewhere: Nix

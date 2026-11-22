@@ -8,7 +8,6 @@
 // check time beside the error. The trend is an observation; it claims neither
 // an improvement, a common cost nor a tool's efficiency.
 import { useState } from "react";
-import { localSettingRequest } from "./localSettingRequest.ts";
 import { Moment } from "./Moment.tsx";
 import { TokenIndexTrend } from "./TokenIndexTrend.tsx";
 import { UsageFilters } from "./UsageFilters.tsx";
@@ -19,10 +18,8 @@ import {
   withTool,
   type UsageSelection,
 } from "./usageComparison.ts";
-import {
-  usageRefreshEndpoint,
-  type TokenIndexAnswer,
-} from "./usageTokenIndex.ts";
+import type { UsageSource } from "./usageSource.ts";
+import type { TokenIndexAnswer } from "./usageTokenIndex.ts";
 import { useUsageAnswers } from "./useUsageAnswers.ts";
 import "./system-settings-usage.css";
 
@@ -45,7 +42,11 @@ const CheckedAt = ({ at }: { readonly at: string | null }) =>
     </>
   );
 
-export function SystemSettingsUsage() {
+export function SystemSettingsUsage({
+  source,
+}: {
+  readonly source: UsageSource;
+}) {
   const [selection, setSelection] = useState(defaultSelection);
   const [days, setDays] = useState(30);
   // Equal task spacing stays through Refresh and every cohort or day change.
@@ -55,6 +56,7 @@ export function SystemSettingsUsage() {
   const [refreshed, setRefreshed] = useState(0);
   const [refreshPending, setRefreshPending] = useState(false);
   const read = useUsageAnswers({
+    source,
     selection,
     days,
     refreshed,
@@ -67,11 +69,7 @@ export function SystemSettingsUsage() {
   const refresh = () => {
     setRefreshPending(true);
     setRefreshProblem(undefined);
-    void localSettingRequest(
-      usageRefreshEndpoint,
-      {},
-      "Usage could not be refreshed.",
-    ).then(
+    void source.refresh().then(
       () => {
         setRefreshed((count) => count + 1);
         setRefreshPending(false);

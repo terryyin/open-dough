@@ -27,14 +27,13 @@ function loopbackHostname(hostname: string): boolean {
   );
 }
 
-export function verifyLocalOrigin(req: IncomingMessage): void {
-  if (!loopbackHostname(req.socket.remoteAddress ?? "")) {
-    throw new RefusedRequest(
-      403,
-      "This endpoint only answers loopback connections.",
-    );
-  }
-  const host = req.headers.host;
+// The local Host and origin metadata shared by wire-shaped admission and
+// the HTTP guard after it verifies the socket.
+export function verifySameOrigin(
+  origin: string | null | undefined,
+  host: string | undefined,
+  fetchSite?: string | string[] | null,
+): void {
   const hostname = host?.split(":")[0];
   if (!hostname || !loopbackHostname(hostname)) {
     throw new RefusedRequest(
@@ -42,24 +41,10 @@ export function verifyLocalOrigin(req: IncomingMessage): void {
       "This endpoint only answers on the local loopback host.",
     );
   }
-  // A real browser's own same-origin GET `fetch` (the read boundary's only
-  // intended caller) carries no `Origin` header at all: the Fetch standard
-  // only adds one for a cross-origin request or a non-GET/HEAD method. A
-  // same-origin POST (the launch boundary's) does carry `Origin`, naming this
-  // same host. What every current browser does send on any `fetch` is the
-  // Fetch Metadata `Sec-Fetch-Site` header, which the browser itself computes
-  // and a page's own script cannot set or override, so it is checked first;
-  // `same-origin` is the value a browser gives only when the requesting
-  // page's origin actually is this endpoint's origin. A client that sends no
-  // such header (curl, `node:http`, or an older browser) falls through to the
-  // `Origin`/`Host` comparison below, which admits a same-origin POST and
-  // still refuses a cross-origin browser request: a cross-origin `fetch` of
-  // any method carries both an `Origin` header and `Sec-Fetch-Site:
-  // cross-site`, so it is refused either way.
-  if (req.headers["sec-fetch-site"] === "same-origin") {
-    return;
-  }
-  const origin = req.headers.origin;
+  // A same-origin browser request can omit Origin. Fetch Metadata supplies
+  // the browser's origin decision in that case; other callers fall back to
+  // comparing Origin against Host.
+  if (fetchSite === "same-origin") return;
   if (typeof origin !== "string") {
     throw new RefusedRequest(
       403,
@@ -81,4 +66,18 @@ export function verifyLocalOrigin(req: IncomingMessage): void {
       "This endpoint refuses cross-origin requests.",
     );
   }
+}
+
+export function verifyLocalOrigin(req: IncomingMessage): void {
+  if (!loopbackHostname(req.socket.remoteAddress ?? "")) {
+    throw new RefusedRequest(
+      403,
+      "This endpoint only answers loopback connections.",
+    );
+  }
+  verifySameOrigin(
+    req.headers.origin,
+    req.headers.host,
+    req.headers["sec-fetch-site"],
+  );
 }

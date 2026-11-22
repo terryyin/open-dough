@@ -3,7 +3,7 @@
 // them at its published landing (../../server/intentCiHistoryRead.ts), in
 // the glance shape the Done view asks for (../../server/ciHistoryGlance.ts),
 // for the compact readout's states
-// (../../frontend-tests/intent-ci-compact-readout.spec.ts).
+// (../../frontend-tests/intent/intent-ci-compact-readout.spec.ts).
 import type { Page } from "@playwright/test";
 import { doneWallTimeGlanceOf } from "../../server/ciHistoryGlance.ts";
 import { doneWallTimeHistoryOf } from "../../server/intentCiHistoryRead.ts";

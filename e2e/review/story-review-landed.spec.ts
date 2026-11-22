@@ -2,23 +2,9 @@
 // is the baseline, so its file drops out and only the story's later commit
 // and uncommitted edit remain to review.
 
-import {
-  reviewRegion,
-  showReviewDetails,
-} from "../../dashboard/test-support/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
-import {
-  expect,
-  test,
-} from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  contextValues,
-  contextWords,
-} from "../../dashboard/test-support/support/reviewContextLine.ts";
-import {
-  expectTreeRows,
-  changedFilesList,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { test } from "../../dashboard/test-support/support/preparationPage.ts";
+import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   branch,
@@ -37,16 +23,14 @@ test("a landed slice leaves the review and the unlanded changes remain", async (
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await reviewChanges(card).click();
-  const review = await showReviewDetails(reviewRegion(page));
-  const files = changedFilesList(review, "2 changed files");
-  await expectTreeRows(files, ["edited.txt", "later.txt"]);
-  await expect(contextValues(review)).toHaveAccessibleName(
+  const review = await openReviewChanges(page, card);
+  await review.files.expectRows("2 changed files", ["edited.txt", "later.txt"]);
+  await review.context.expectWords(
     contextWords({
       branch,
       baseline: origin.revision("landed"),
       workspace: "~/git/open-dough/.worktrees/story-a",
     }),
   );
-  await expect(review).not.toContainText("landed.txt");
+  await review.expectNoText("landed.txt");
 });

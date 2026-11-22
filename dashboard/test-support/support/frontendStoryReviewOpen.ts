@@ -29,6 +29,10 @@ import {
   storyA,
 } from "./frontendRecentlyDoneBoardReview.ts";
 import { doneCard } from "../doneStoryReviewPage.ts";
+import {
+  assumeReviewChanges,
+  type ReviewChanges,
+} from "../reviewChangesPage.ts";
 
 // The Taken story's kept story-branch launch, which offers Review changes.
 export function keepTakenReviewLaunch(services: FrontendServiceState): void {
@@ -50,9 +54,8 @@ export function keepTakenReviewLaunch(services: FrontendServiceState): void {
   );
 }
 
-// The Taken story's review as the reader first meets it, before any step of
-// theirs: its details wait behind the eye.
-export async function openFrontendStoryReviewAsOpened(
+// The Taken story's review with its details readable.
+export async function openFrontendStoryReview(
   page: Page,
   frontendServices: FrontendServiceState,
   reviewAnswer?: StoryReview,
@@ -60,6 +63,8 @@ export async function openFrontendStoryReviewAsOpened(
 ): Promise<{
   readonly card: Locator;
   readonly review: Locator;
+  // The same review as the Review changes page object, to continue from.
+  readonly reviewChanges: ReviewChanges;
   readonly answers: FrontendStoryReview;
 }> {
   keepTakenReviewLaunch(frontendServices);
@@ -90,16 +95,13 @@ export async function openFrontendStoryReviewAsOpened(
   }
   const review = reviewRegion(page);
   await expect(review).toBeVisible();
-  return { card, review, answers };
-}
-
-// The same opening with the review's details readable.
-export async function openFrontendStoryReview(
-  ...opening: Parameters<typeof openFrontendStoryReviewAsOpened>
-) {
-  const opened = await openFrontendStoryReviewAsOpened(...opening);
-  await showReviewDetails(opened.review);
-  return opened;
+  await showReviewDetails(review);
+  return {
+    card,
+    review,
+    reviewChanges: await assumeReviewChanges(page),
+    answers,
+  };
 }
 
 // Opens Review changes on a Recently done story (whose line numbers offer

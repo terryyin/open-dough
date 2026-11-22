@@ -9,6 +9,8 @@ import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { locationExplanation } from "./intentLocationExplanation.ts";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import type { ReactNode } from "react";
+import "./intent-explanations.css";
+import "./intent-summary.css";
 
 export function IntentSummaryView({
   path,

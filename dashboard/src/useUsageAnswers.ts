@@ -6,7 +6,6 @@
 // every selected tool answered, a model or effort none of them offers resets
 // the selection before its answers show.
 import { useEffect, useState } from "react";
-import { refusalMessage } from "./refusalMessage.ts";
 import {
   cohortOf,
   offeredSelection,
@@ -16,16 +15,19 @@ import {
   type UsageSelection,
 } from "./usageComparison.ts";
 import { recentUsagePeriod } from "./usagePeriod.ts";
-import { tokenIndexUrl, type TokenIndexAnswer } from "./usageTokenIndex.ts";
+import type { UsageSource } from "./usageSource.ts";
+import type { TokenIndexAnswer } from "./usageTokenIndex.ts";
 
 type Settled<T> = { readonly key: string; readonly value: T };
 
 export function useUsageAnswers({
+  source,
   selection,
   days,
   refreshed,
   onReset,
 }: {
+  readonly source: UsageSource;
   readonly selection: UsageSelection;
   readonly days: number;
   // Each Refresh that brought usage in reads the selection again.
@@ -50,15 +52,8 @@ export function useUsageAnswers({
     const controller = new AbortController();
     const period = recentUsagePeriod(days);
     const read = (tool: UsageSelection["tools"][number]) =>
-      fetch(tokenIndexUrl(cohortOf(selection, tool), period), {
-        signal: controller.signal,
-      })
-        .then(async (response) => {
-          const body: unknown = await response.json();
-          if (!response.ok)
-            throw new Error(refusalMessage(body, "Usage could not be read."));
-          return body as TokenIndexAnswer;
-        })
+      source
+        .read(cohortOf(selection, tool), period, controller.signal)
         .catch((error: unknown) => {
           const words = error instanceof Error ? error.message : String(error);
           throw new Error(`${usageToolName(tool)}: ${words}`);

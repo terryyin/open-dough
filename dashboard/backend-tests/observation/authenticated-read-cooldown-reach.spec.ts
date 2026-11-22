@@ -145,6 +145,7 @@ test.describe("authenticated read boundary: failures that direct no wait hold ba
     server = await startDashboardServer({
       ...developmentBoundary,
       readTimeoutMs: boundMs,
+      liveServer: "the server reads the GitHub request bound once per process",
     });
   });
 

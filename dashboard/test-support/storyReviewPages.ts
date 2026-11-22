@@ -11,10 +11,9 @@ import {
   fileDiff,
 } from "./support/reviewTreeRows.ts";
 import { PageObject } from "./fluentPageObject.ts";
-import { closeSidePanel } from "./sidePanelFrame.ts";
 import { expect } from "./support/preparationPage.ts";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
-import { reviewBody, reviewFeedback } from "./support/reviewContextLine.ts";
+import { reviewBody } from "./support/reviewContextLine.ts";
 import {
   expectLandedContext,
   expectSessionCommitsContext,
@@ -22,12 +21,8 @@ import {
   type LandedContextFacts,
   type SessionCommitsContextFacts,
 } from "./support/reviewComparisonContext.ts";
-import {
-  comparison,
-  reviewRefresh,
-  reviewRegion,
-  showReviewDetails,
-} from "./support/reviewControls.ts";
+import { reviewRegion } from "./support/reviewControls.ts";
+import { assumeReviewChanges } from "./reviewChangesPage.ts";
 
 export class StoryReview extends PageObject {
   get #review() {
@@ -87,8 +82,9 @@ export class StoryReview extends PageObject {
     return this.cueHere(
       "Story review: shows no Comparison switch",
       async () => {
-        await showReviewDetails(this.#review);
-        await expect(comparison(this.#review)).toHaveCount(0);
+        await (
+          await assumeReviewChanges(this.page)
+        ).comparison.expectNoSwitch();
       },
     );
   }
@@ -111,9 +107,9 @@ export class StoryReview extends PageObject {
 
   // What the review's status above the work area says, such as that it is reading.
   expectFeedback(text: string) {
-    return this.cueHere(`Story review: says "${text}"`, () =>
-      expect(reviewFeedback(this.#review)).toHaveText(text),
-    );
+    return this.cueHere(`Story review: says "${text}"`, async () => {
+      await (await assumeReviewChanges(this.page)).status.expectFeedback(text);
+    });
   }
 
   // What the body says in place of the file browser, such as an empty comparison.
@@ -206,15 +202,17 @@ export class StoryReview extends PageObject {
   }
 
   refresh() {
-    return this.cueHere("Story review: Refresh", () =>
-      reviewRefresh(this.#review, { exact: true }).click(),
-    );
+    return this.cueHere("Story review: Refresh", async () => {
+      await (await assumeReviewChanges(this.page)).status.refresh();
+    });
   }
 
   close() {
     return this.cue(
       "Story review: Close",
-      () => closeSidePanel(this.#review),
+      async () => {
+        await (await assumeReviewChanges(this.page)).close();
+      },
       this.sidePanel,
     );
   }

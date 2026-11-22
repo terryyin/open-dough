@@ -1,5 +1,5 @@
 import { comparisonReading } from "../intentCiComparisonPage.ts";
-// Select a Recently done Story A and choose Changed tests. Source journeys
+// Select a Recently done Story A and choose Changes. Source journeys
 // proceed while CI reads in parallel; comparison journeys first wait for
 // their CI timing proofs before opening an entry or folder Summary.
 
@@ -21,13 +21,10 @@ import { anyComparisonLabels } from "../ciEvidenceLabelsPage.ts";
 import { chooseStoryTab, expectStoryTab } from "./intentStoryPage.ts";
 import { selectDoneStoryInIntent } from "./selectDoneStoryInIntent.ts";
 
-export async function selectDoneStoryForChangedTests(
-  page: Page,
-  title = "Story A",
-) {
+export async function selectDoneStoryForChanges(page: Page, title = "Story A") {
   const selected = await selectDoneStoryInIntent(page, title);
   await expectStoryTab(selected.intent, "CI comparison");
-  await chooseStoryTab(selected.intent, "Changed tests");
+  await chooseStoryTab(selected.intent, "Changes");
   return selected;
 }
 
@@ -42,7 +39,7 @@ export async function selectDoneStoryForSummaryComparison(
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
   await expect(comparisonReading(panel).entryTable).toBeVisible();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   return selected;
 }
 
@@ -86,7 +83,7 @@ export async function selectTakenStoryForSummaryComparison(
   await expect(panel.locator(".intent-ci-reading")).toHaveCount(0);
   await expect(panel.locator(".intent-ci-comparison")).toBeVisible();
   await expectStoryTab(intent, "CI comparison");
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   return { intent, panel, card };
 }
 

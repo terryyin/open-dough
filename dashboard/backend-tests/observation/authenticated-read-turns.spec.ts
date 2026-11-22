@@ -173,7 +173,12 @@ test("a request still waiting its turn at its bound is answered as timed out, an
       held.releaseAll();
       await Promise.all(taking);
     },
-    { ...developmentBoundary, ghTransport: "cli", readTimeoutMs: 6_000 },
+    {
+      ...developmentBoundary,
+      ghTransport: "cli",
+      readTimeoutMs: 6_000,
+      liveServer: "the server reads the GitHub request bound once per process",
+    },
   );
 });
 

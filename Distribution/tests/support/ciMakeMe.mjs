@@ -1,8 +1,6 @@
 // @ts-check
 // CI-domain MakeMe builders: defined as accessors so each `makeMe.aThing`
 // access stays a fresh builder while the public entry stays a thin aggregate.
-import { CiProofEntryBuilder } from "./ciProofEntryTestData.mjs";
-import { CiProofEvidenceBuilder } from "./ciProofEvidenceTestData.mjs";
 import {
   PublishedStoryEndpointBuilder,
   TakenStoryEndpointBuilder,
@@ -14,13 +12,10 @@ import {
   CiTimingJobBuilder,
 } from "./ciTimingTestData.mjs";
 import { LandedCiHistoryBuilder } from "./landedCiHistoryTestData.mjs";
-import { CiHistoryAnswerBuilder } from "./ciHistoryAnswerTestData.mjs";
-import { CiProofBuilder } from "./ciProofTestData.mjs";
+import { ciHistoryAnswerMakeMeProperties } from "./ciHistoryAnswerTestData.mjs";
+import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
 import { LandedCiResolutionBuilder } from "./landedCiProofTestData.mjs";
-import {
-  PublishedWorkBuilder,
-  StoryCiComparisonBuilder,
-} from "./comparisonViewTestData.mjs";
+import { comparisonViewMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { CiProofArtifactBuilder } from "./ciProofArtifactTestData.mjs";
 import { DashboardProofRecordBuilder } from "./dashboardProofRecordTestData.mjs";
 import { GitHubJobBuilder } from "./ciJobTestData.mjs";
@@ -32,7 +27,6 @@ import { ciComparisonAnswerMakeMeProperties } from "./ciComparisonAnswerTestData
 import { copyFacts } from "./factBuilder.mjs";
 import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 
-/** @typedef {import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance} ScopeHistoryGlance */
 /** @typedef {import("../../../dashboard/src/storyCiComparisonEntries.ts").ComparisonEndpointProof} ComparisonEndpointProof */
 /**
  * @template {object} Facts
@@ -42,25 +36,19 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 /**
  * CI builders exposed on MakeMe (fresh on each access).
  *
- * @typedef {CiOwnMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
+ * @typedef {CiOwnMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").ComparisonViewMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
  */
 /**
  * @typedef {object} CiOwnMakeMe
  * @property {FactBuilder<import("../../../dashboard/server/ciFollowUpStore.ts").FollowUpLedger["landings"][string] & { at?: string }>} aCiFollowUpEntry
  * @property {FactBuilder<import("../../../dashboard/server/ciFollowUpStore.ts").RepeatRequest>} aCiRepeatRequest
- * @property {import("./ciProofTestData.mjs").CiProofBuilder} aCiProof
  * @property {FactBuilder<ComparisonEndpointProof>} aComparisonEndpointProof
  * @property {import("./landedCiProofTestData.mjs").LandedCiResolutionBuilder} aLandedCiResolution
- * @property {FactBuilder<ScopeHistoryGlance>} aScopeHistoryGlance
- * @property {import("./comparisonViewTestData.mjs").PublishedWorkBuilder} aPublishedWork
- * @property {import("./comparisonViewTestData.mjs").StoryCiComparisonBuilder} aStoryCiComparison
  * @property {import("./ciComparisonTestData.mjs").PublishedStoryEndpointBuilder} aPublishedStoryEndpoint
  * @property {import("./ciComparisonTestData.mjs").TakenStoryEndpointBuilder} aTakenStoryEndpoint
  * @property {import("./ciRunTestData.mjs").RevisionCiRunBuilder} aRevisionCiRun
  * @property {import("./ciProofArtifactTestData.mjs").CiProofArtifactBuilder} aCiProofArtifact
  * @property {import("./ciTimingTestData.mjs").CiTimingJobBuilder} aCiTimingJob
- * @property {import("./ciProofEntryTestData.mjs").CiProofEntryBuilder} aCiProofEntry
- * @property {import("./ciProofEvidenceTestData.mjs").CiProofEvidenceBuilder} aCiProofEvidence
  * @property {import("./ciProofFragmentTestData.mjs").CiProofFragmentBuilder} aCiProofFragment
  * @property {import("./ciProofSummaryTestData.mjs").CiProofSummaryBuilder} aCiProofSummary
  * @property {import("./dashboardProofRecordTestData.mjs").DashboardProofRecordBuilder} aDashboardProofRecord
@@ -68,10 +56,8 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
  * @property {FactBuilder<import("./ciQueueTestData.mjs").CiAdapterQueueEntry>} aCiQueueEntry
  * @property {FactBuilder<import("./ciRevisionCoverageTestData.mjs").RevisionCoverageRecord>} aRevisionCoverage
  * @property {import("./landedCiHistoryTestData.mjs").LandedCiHistoryBuilder} aLandedCiHistory
- * @property {import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerBuilder} aCiHistoryAnswer
  * @property {import("./ciRunTestData.mjs").CiRunBuilder} aCiRun
  * @property {import("./ciJobTestData.mjs").GitHubJobBuilder} aGitHubJob
- * @property {FactBuilder<import("../../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} anIntentCiStatus
  */
 
 /** @returns {PropertyDescriptorMap} */
@@ -89,12 +75,7 @@ export function ciMakeMeProperties() {
         return { with: copyFacts };
       },
     },
-    aCiProof: {
-      enumerable: true,
-      get() {
-        return new CiProofBuilder();
-      },
-    },
+    ...ciProofMakeMeProperties(),
     aComparisonEndpointProof: {
       enumerable: true,
       /** @returns {FactBuilder<ComparisonEndpointProof>} */
@@ -106,25 +87,6 @@ export function ciMakeMeProperties() {
       enumerable: true,
       get() {
         return new LandedCiResolutionBuilder();
-      },
-    },
-    aScopeHistoryGlance: {
-      enumerable: true,
-      /** @returns {FactBuilder<ScopeHistoryGlance>} */
-      get() {
-        return { with: copyFacts };
-      },
-    },
-    aPublishedWork: {
-      enumerable: true,
-      get() {
-        return new PublishedWorkBuilder();
-      },
-    },
-    aStoryCiComparison: {
-      enumerable: true,
-      get() {
-        return new StoryCiComparisonBuilder();
       },
     },
     aPublishedStoryEndpoint: {
@@ -155,18 +117,6 @@ export function ciMakeMeProperties() {
       enumerable: true,
       get() {
         return new CiTimingJobBuilder();
-      },
-    },
-    aCiProofEntry: {
-      enumerable: true,
-      get() {
-        return new CiProofEntryBuilder();
-      },
-    },
-    aCiProofEvidence: {
-      enumerable: true,
-      get() {
-        return new CiProofEvidenceBuilder();
       },
     },
     aCiProofFragment: {
@@ -211,12 +161,7 @@ export function ciMakeMeProperties() {
         return new LandedCiHistoryBuilder();
       },
     },
-    aCiHistoryAnswer: {
-      enumerable: true,
-      get() {
-        return new CiHistoryAnswerBuilder();
-      },
-    },
+    ...ciHistoryAnswerMakeMeProperties(),
     aCiRun: {
       enumerable: true,
       get() {
@@ -232,12 +177,6 @@ export function ciMakeMeProperties() {
     ...ciReusePolicyMakeMeProperties(),
     ...ciComparisonAnswerMakeMeProperties(),
     ...comparedStoryMakeMeProperties(),
-    anIntentCiStatus: {
-      enumerable: true,
-      /** @returns {FactBuilder<import("../../../dashboard/src/authenticatedIntentCiStatusRead.ts").IntentCiStatus>} */
-      get() {
-        return { with: copyFacts };
-      },
-    },
+    ...comparisonViewMakeMeProperties(),
   };
 }

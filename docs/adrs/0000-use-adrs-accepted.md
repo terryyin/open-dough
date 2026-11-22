@@ -2,13 +2,6 @@
 
 **Status:** Accepted
 
-**Date:** 2026-09-06
-
-**Clarified:** 2026-09-23, at Terry Yin's direction, to keep ADRs focused on
-high-level architecture relevant across development tasks.
-
-**Decision makers:** Terry Yin
-
 ## Context
 
 Open Dough is a new project defining a shared software development lifecycle
@@ -21,12 +14,14 @@ guidance but are not imposed on projects using it.
 
 ## Decision
 
-1. Record high-level architectural choices with product-wide impact that agents
-   working across most development tasks need to know, as numbered Markdown
-   files under `docs/adrs/`. Cost of reversal or repeated discussion can justify
-   recording such a choice, but does not make a design for one product intent
-   an ADR. Keep product intent details, command interfaces, and implementation
-   design with that product intent's documentation or planning records.
+1. Record high-level architectural preferences with product-wide impact—what
+   general-purpose problem-solving agents and people across tasks need and code
+   alone cannot express—as human-controlled Markdown files under `docs/adrs/`.
+   Cost of reversal or repeated discussion can justify recording such a choice,
+   but does not make a design for one product intent an ADR. When part of an ADR
+   is specific to one area and not needed by general problem solvers across
+   tasks, keep that extended part in `docs/`, also controlled and changed only
+   with human permission.
 2. Follow the human advice process and naming conventions in the
    [ADR README](./README.md). Decision makers consult affected and interested
    people, make the decision, and communicate the outcome.
@@ -39,12 +34,17 @@ guidance but are not imposed on projects using it.
    and keep delivery prioritization separate from architectural acceptance.
    Remove obsolete process instructions from current guidance rather than
    retaining them as explanatory archive; decision records stay.
-6. Keep temporary North Star direction separate from durable decisions. It
-   cannot override Accepted ADRs. Before removing temporary direction or
-   planning records, preserve any still-needed rules: product-wide
-   architectural decisions in ADRs, and individual product intent details and
-   design in maintained product intent documentation. Follow the existing human
-   decision process when an ADR change is needed.
+6. Automated tests document enduring behavior, code documents enduring
+   architecture, and configuration documents operational setup. Aside from
+   human-controlled ADRs and their human-permitted extensions in `docs/`, any
+   other enduring document is rare and requires human permission. (In Open
+   Dough, shipped guidance under `Distribution/src/` is product code, not
+   documentation.) Unimplemented design or architectural direction may live in a
+   North Star topic, which cannot override Accepted ADRs. The topic is a
+   temporary decision cache: current code and upcoming stories or requirements
+   constrain choices that matter, and unconstrained choices do not depend on
+   preserving it. Once implemented, delete the topic completely and leave no
+   copy.
 
 ## Consequences
 
@@ -52,7 +52,3 @@ guidance but are not imposed on projects using it.
 - Humans retain decision authority while agents help preserve continuity.
 - Contributors maintain statuses, links, and the index when decisions change.
 - Proposed records remain open for discussion without becoming binding guidance.
-
-## Related
-
-- [ADR playbook and index](./README.md)

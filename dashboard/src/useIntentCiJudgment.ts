@@ -8,12 +8,9 @@
 // read on time alone, and nothing without a branch. A judgment of another
 // branch is never given as this one's.
 
-import { useEffect, useRef, useState } from "react";
-import {
-  readIntentCiStatus,
-  readKeptIntentCiStatus,
-  type IntentCiStatus as Judgment,
-} from "./authenticatedIntentCiStatusRead.ts";
+import { useContext, useEffect, useRef, useState } from "react";
+import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
+import { IntentCiReadSourceOnPage } from "./intentCiReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 
 export const unreadReason = "The CI status could not be read";
@@ -64,6 +61,7 @@ export function useIntentCiJudgment(
   branch: string | undefined,
   head: string | undefined,
 ): JudgedReading {
+  const { readStatus, readKeptStatus } = useContext(IntentCiReadSourceOnPage);
   const key = branch === undefined ? undefined : `${source.id}#${branch}`;
   const [judgment, setJudgment] = useState<Judgment | undefined>(undefined);
   const [reading, setReading] = useState(true);
@@ -159,7 +157,7 @@ export function useIntentCiJudgment(
       if (!controller.signal.aborted) setReading(false);
     };
 
-    void readKeptIntentCiStatus(source, branch, controller.signal)
+    void readKeptStatus(source, branch, controller.signal)
       .then((answer) => {
         if (controller.signal.aborted) return;
         kept = answer;
@@ -173,7 +171,7 @@ export function useIntentCiJudgment(
         settleFresh();
       });
 
-    void readIntentCiStatus(source, branch, controller.signal)
+    void readStatus(source, branch, controller.signal)
       .then((answer) => {
         if (controller.signal.aborted) return;
         fresh = { kind: "answer", answer };
@@ -188,7 +186,7 @@ export function useIntentCiJudgment(
     return () => {
       controller.abort();
     };
-  }, [source, branch, check]);
+  }, [source, branch, check, readStatus, readKeptStatus]);
 
   const current = readFor === key;
   return {

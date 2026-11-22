@@ -19,7 +19,7 @@ export async function keepRecord(
   doneMarks: NativeDoneMarks,
 ): Promise<void> {
   const earlyReport = await bindRecord(sourceId, record);
-  if (earlyReport !== undefined) doneMarks.reported(sourceId, earlyReport);
+  if (earlyReport !== undefined) void doneMarks.reported(sourceId, earlyReport);
 }
 
 // Keeps one known conversation and its first-input evidence, replacing any

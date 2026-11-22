@@ -16,7 +16,7 @@ import {
 // (../../src/IntentPage.tsx, ../../src/intentWorkspaceSelection.ts) or the
 // selected story's CI comparison tab (../../src/intentStoryTabs.tsx) returns
 // that scope to its CI view. The story's tab judges the selected story's branch
-// under its header, while Changed tests keeps the file it read, and a visit
+// under its header, while Changes keeps the file it read, and a visit
 // to Project Intent judges main and browses in a selection of its own; arrow
 // keys, Home and End only choose the view, so a file read before Optimization
 // Candidates is still selected and read, until CI status itself is activated;
@@ -24,7 +24,7 @@ import {
 // notice and the shown revision, reading nothing newer.
 // Project Intent's landing journey from an entry, folder and file by click,
 // Enter and Space: ../../frontend-tests/intent/intent-ci-status-homepage.spec.ts. Opening a candidate's
-// file: ./intent-test-optimization-candidates-open.spec.ts.
+// file: ./intent-candidates-open.spec.ts.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { parts } from "../../test-support/dashboardPage.ts";
@@ -92,7 +92,7 @@ async function expectFileRead(intent: Locator) {
   await expect(ciPanel(intent)).toHaveCount(0);
 }
 
-test("with a story selected, activating CI comparison judges that story's branch, keeping its header and Changed tests reading, while Project Intent judges main with its own selection", async ({
+test("with a story selected, activating CI comparison judges that story's branch, keeping its header and Changes reading, while Project Intent judges main with its own selection", async ({
   page,
   frontendServices,
 }) => {
@@ -110,7 +110,7 @@ test("with a story selected, activating CI comparison judges that story's branch
   const summary = storySummary(intent);
   await expect(summary).toBeVisible();
 
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await selectFile(intent);
   const panel = await activateIntentHome(intent);
   await expectStoryTab(intent, "CI comparison");
@@ -121,7 +121,7 @@ test("with a story selected, activating CI comparison judges that story's branch
   await expect(summary).toBeVisible();
   const selected = `SEED-219#${failing.anchor}`;
   await expect(intent).toHaveAttribute("data-selected-story", selected);
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expect(fileName(intent)).toHaveAttribute("aria-pressed", "true");
 
   await test.step("Project Intent judges main and browses the same file in its own selection", async () => {
@@ -137,7 +137,7 @@ test("with a story selected, activating CI comparison judges that story's branch
     const trunk = ciPanel(intent);
     await expectCiScope(trunk, "main");
     await expectCiAnswer(trunk, "Passed at 4774f60 (Add login)");
-    // Nothing the story's Changed tests selected is selected here.
+    // Nothing the story's Changes selected is selected here.
     await expect(
       filesColumn(intent).locator('[aria-pressed="true"]'),
     ).toHaveCount(0);
@@ -168,7 +168,7 @@ test("with a story selected, activating CI comparison judges that story's branch
     ]),
   );
   await returnToStory(intent);
-  await expectStoryTab(intent, "Changed tests");
+  await expectStoryTab(intent, "Changes");
   await expect(fileName(intent)).toHaveAttribute("aria-pressed", "true");
   await expect(intent.getByRole("region", { name: "Purpose" })).toBeVisible();
 });

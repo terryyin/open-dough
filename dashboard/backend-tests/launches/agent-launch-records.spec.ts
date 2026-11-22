@@ -68,10 +68,12 @@ test.describe("launch records kept on this machine", () => {
 
   async function serverOn(
     environment: ProjectEnvironment,
+    liveServer?: string,
   ): Promise<DashboardServer> {
     const server = await startDashboardServer({
       mode: "boundary",
       environment,
+      liveServer,
       machine,
       projectFolders: ["open-dough"],
       launchTimeoutMs: launchWaitMs,
@@ -80,8 +82,6 @@ test.describe("launch records kept on this machine", () => {
     return server;
   }
 
-  // A machine directory each test owns, holding HOME and the fake `claude`'s
-  // state across the servers it starts.
   test.beforeEach(() => {
     machine = mkdtempSync(path.join(tmpdir(), "dough-machine-"));
   });
@@ -99,7 +99,7 @@ test.describe("launch records kept on this machine", () => {
     ) as { record: unknown };
     expect(record).toBeDefined();
 
-    const production = await serverOn("production");
+    const production = await serverOn("production", "separate process");
     expect(await recordsOf(production, "open-dough")).toEqual([record]);
 
     await Promise.all(servers.splice(0).map((server) => server.close()));
@@ -119,7 +119,7 @@ test.describe("launch records kept on this machine", () => {
       ),
     });
     const development = await serverOn("development");
-    const production = await serverOn("production");
+    const production = await serverOn("production", "separate process");
     const replies = await Promise.all(
       sessionIds.map((session, index) =>
         markDone(index % 2 === 0 ? development : production, {

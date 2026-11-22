@@ -130,11 +130,11 @@ test("CI status is shown without Intent locations and with unreadable Intent set
 
   await test.step("no Intent locations: CI status beside the explanation", async () => {
     await expect(intent).toContainText(
-      "No intent locations are configured for Doughnut.",
+      "No Intent locations are configured for Doughnut.",
     );
     const panel = await chooseCiStatus(intent);
     await expect(
-      intent.getByText("No intent locations are configured for Doughnut."),
+      intent.getByText("No Intent locations are configured for Doughnut."),
     ).toBeVisible();
     await expect(
       panel.getByRole("heading", { name: "CI status of main" }),

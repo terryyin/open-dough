@@ -8,7 +8,7 @@ import { putFrontendIntentSources } from "../../test-support/support/frontendInt
 // positioned on its case, and opening it again after reading away from the
 // case starts a fresh reading positioned on it once more
 // (../../src/IntentBrowser.tsx, ../../src/IntentFileReading.tsx). The case targets
-// themselves are `./intent-test-optimization-candidates-case.spec.ts`.
+// themselves are `./intent-candidates-case.spec.ts`.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { parts } from "../../test-support/dashboardPage.ts";

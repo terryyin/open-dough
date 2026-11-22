@@ -8,23 +8,25 @@ import {
   releaseSessionCommitRefs,
 } from "./launchRecordPins.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
-import { keptRecords } from "./launchRecordStore.ts";
+import {
+  keptSession,
+  machineRecordStore,
+  type LaunchRecordStore,
+} from "./launchRecordStore.ts";
 import {
   keptAttempts,
   replaceAttempts,
   withKeptAttempts,
 } from "./launchAttemptStore.ts";
-import { replaceRecords } from "./launchRecordDocument.ts";
 
 // Removes one kept session's record, leaving the project's other records as
 // they are. Answers whether such a record was kept.
 export async function deleteRecord(
   sourceId: string,
   session: SessionReference,
+  store: LaunchRecordStore = machineRecordStore,
 ): Promise<boolean> {
-  const record = (await keptRecords(sourceId)).find(
-    (entry) => sessionKey(entry.session) === sessionKey(session),
-  );
+  const record = await keptSession(sourceId, session, store);
   const deletedAttempt = (await keptAttempts())?.find(
     (entry) =>
       entry.request.source === sourceId &&
@@ -67,7 +69,7 @@ export async function deleteRecord(
     if (retainedCleanup) {
       // Retain intent and repository in this same record until pin cleanup
       // succeeds, even if the startup attempt expires before retry.
-      await replaceRecords((kept) => ({
+      await store.replaceRecords((kept) => ({
         ...kept,
         [sourceId]: (kept[sourceId] ?? []).map((entry) =>
           "session" in entry &&
@@ -90,7 +92,7 @@ export async function deleteRecord(
         await removeLandingPins(landing.repository, landing.reference);
     }
     let deleted: LaunchRecord | undefined;
-    await replaceRecords((kept) => {
+    await store.replaceRecords((kept) => {
       const records = kept[sourceId];
       if (records === undefined) {
         return kept;

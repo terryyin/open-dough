@@ -1,239 +1,221 @@
-// Intent locations recover through the page's shared schedule while the
-// published observation keeps checking its own revision.
+// Failed Intent locations recover on the page's shared transient and rate-limit
+// schedule, wait while hidden, share transient waits with published detail
+// without letting healed detail clear Intent's wait, and keep malformed
+// settings visible until manual Retry (../../src/intentReadRecovery.tsx,
+// ../../src/limitRecovery.ts, ../../src/transientRecovery.ts).
+// Companion to ../../../e2e/intent/intent-read-boundary-recovery.spec.ts.
+import { expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
+import type { readRepositoryFileAt } from "../../src/authenticatedRead.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import type { PublishedWork } from "../../src/publishedWork.ts";
+import { noteLimit, standingLimit } from "../../src/readingLimit.ts";
+import { ReadProblem } from "../../src/readProblem.ts";
+import { intentBrowser } from "./intent-browser-page.ts";
+import {
+  mountIntentRecovery,
+  onRecoveryClock,
+  publishedDetailPath,
+  publishedReadStatus,
+  setDocumentVisibility,
+} from "./intent-read-recovery-page.tsx";
+import { intentSettingsExplanation } from "./intent-settings-explanation-page.ts";
 
-import { setPageVisibility } from "../../test-support/autoRefreshJourney.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import { doughnut } from "../../test-support/intentCodeBrowseFixtures.ts";
-import {
-  countLocationsReads,
-  intentLocationName,
-} from "../../test-support/intentPerspectivePage.ts";
-import {
-  advanceRecoveryClock,
-  locationFiles,
-  openDoughnut,
-  opened,
-  readFailure,
-  readRetry,
-} from "../../test-support/intentReadRecoveryPage.ts";
-import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
-import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
-import {
-  controlFrontendAuthenticatedRead,
-  countAuthenticatedReads,
-} from "../../test-support/support/frontendAuthenticatedReadControl.ts";
-import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { noticedResumeTime } from "../../test-support/limitNotice.ts";
-import {
-  untilPageRequestsAnswered,
-  whileNotingChecks,
-} from "../../test-support/pageRequestNotes.ts";
+const configuredLocations = makeMe.anIntentLocationsAnswer
+  .locating(
+    makeMe.anIntentLocation
+      .at("scripts")
+      .ofKind("javascript", ["**/*.test.mjs"])
+      .selecting("scripts/example.test.mjs")
+      .please(),
+  )
+  .please();
 
-function putScriptIntentSources(services: FrontendServiceState): void {
-  const location = makeMe.anIntentLocation
-    .at("scripts")
-    .ofKind("javascript", ["**/*.test.mjs"])
-    .selecting(...Object.keys(locationFiles))
-    .please();
-  putFrontendIntentSources(services, doughnut, [location], locationFiles);
+const unreachable = () =>
+  new ReadProblem(
+    "The local authenticated read could not be reached",
+    undefined,
+    "transient",
+  );
+
+function controlledLocations(work: PublishedWork) {
+  let current = (): Promise<IntentLocations> => Promise.reject(unreachable());
+  let count = 0;
+  const readSource: IntentReadSource = {
+    readLocations(source, revision) {
+      expect([source.id, revision]).toEqual([work.source.id, work.revision]);
+      count += 1;
+      return current();
+    },
+    readFile: (...[, path]) =>
+      Promise.reject(new Error(`Unexpected file read for ${path}`)),
+    readCandidates: () => Promise.resolve({ status: "absent" }),
+  };
+  return {
+    readSource,
+    reads: () => count,
+    answerWith(next: () => Promise<IntentLocations>) {
+      current = next;
+    },
+    pass() {
+      current = () => Promise.resolve(configuredLocations);
+    },
+  };
 }
 
-test("unreachable Intent locations recover after 15, 30, 60 and 60 seconds while revision checks continue", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, opened);
-  await preholdRevisionStreamSlots(page);
-  putScriptIntentSources(frontendServices);
-  const reads = countLocationsReads(page);
-  let unreachable = true;
-  const locations = await controlFrontendAuthenticatedRead(
-    page,
-    (params) => params.get("intent") === "locations",
-  );
-  locations.unreachable();
+test("unreachable Intent locations recover after 15, 30, 60 and 60 seconds", async () => {
+  onRecoveryClock();
+  const work = makeMe.aPublishedWork.ofPygardon.at("d1".repeat(20)).please();
+  const locations = controlledLocations(work);
+  await mountIntentRecovery(locations.readSource, work);
+  const explanation = intentSettingsExplanation();
+  const browser = intentBrowser();
+  await explanation.reads("The local authenticated read could not be reached");
+  await explanation.offersRetry();
+  await publishedReadStatus().showsNoUnansweredDetail();
+  expect(locations.reads()).toBe(1);
 
-  const intent = await openDoughnut(page);
-  const problem = readFailure(intent);
-  await expect(problem).toContainText(
-    "The local authenticated read could not be reached",
-  );
-  await expect(readRetry(problem)).toBeVisible();
-  expect(reads()).toBe(1);
-
-  await whileNotingChecks(page, async (askedAfter) => {
-    await advanceRecoveryClock(page, 14_999);
-    expect(reads()).toBe(1);
-    expect(await askedAfter()).toEqual([]);
-    await advanceRecoveryClock(page, 251);
-    expect(await askedAfter()).toEqual([15_000]);
-    expect(reads()).toBe(2);
-    await expect(problem).toContainText("could not be reached");
-  });
+  await vi.advanceTimersByTimeAsync(14_999);
+  expect(locations.reads()).toBe(1);
+  await vi.advanceTimersByTimeAsync(251);
+  await expect.poll(() => locations.reads()).toBe(2);
+  await explanation.reads("could not be reached");
 
   for (const [wait, before] of [
     [30_000, 2],
     [60_000, 3],
     [60_000, 4],
   ] as const) {
-    // Leave room for the preceding request to settle during its clock step.
-    await advanceRecoveryClock(page, wait - 1_000);
-    expect(reads()).toBe(before);
-    if (before === 4) {
-      unreachable = false;
-      locations.pass();
-    }
-    await advanceRecoveryClock(page, 1_250);
-    expect(reads()).toBe(before + 1);
-    if (unreachable) {
-      await expect(problem).toContainText("could not be reached");
-    }
+    await vi.advanceTimersByTimeAsync(wait - 1_000);
+    expect(locations.reads()).toBe(before);
+    if (before === 4) locations.pass();
+    await vi.advanceTimersByTimeAsync(1_250);
+    await expect.poll(() => locations.reads()).toBe(before + 1);
+    if (before < 4) await explanation.reads("could not be reached");
   }
 
-  await expect(intentLocationName(intent, "scripts")).toBeVisible();
-  await expect(problem).toHaveCount(0);
-  await advanceRecoveryClock(page, 61_000);
-  expect(reads()).toBe(5);
+  await browser.showsLocation("scripts");
+  await browser.isAt(work.revision);
+  await explanation.isAbsent();
+  await vi.advanceTimersByTimeAsync(61_000);
+  expect(locations.reads()).toBe(5);
 });
 
-test("Intent locations make no recovery request while hidden and ask once on reveal", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, opened);
-  await preholdRevisionStreamSlots(page);
-  putScriptIntentSources(frontendServices);
-  const reads = countLocationsReads(page);
-  const locations = await controlFrontendAuthenticatedRead(
-    page,
-    (params) => params.get("intent") === "locations",
-  );
-  locations.unreachable();
-
-  const intent = await openDoughnut(page);
-  await expect(readFailure(intent)).toContainText("could not be reached");
-  await setPageVisibility(page, "hidden");
-  await advanceRecoveryClock(page, 65_000);
-  expect(reads()).toBe(1);
+test("Intent locations make no recovery request while hidden and ask once on reveal", async () => {
+  onRecoveryClock();
+  const work = makeMe.aPublishedWork.ofPygardon.at("d2".repeat(20)).please();
+  const locations = controlledLocations(work);
+  await mountIntentRecovery(locations.readSource, work);
+  const explanation = intentSettingsExplanation();
+  await explanation.reads("could not be reached");
+  setDocumentVisibility("hidden");
+  await vi.advanceTimersByTimeAsync(65_000);
+  expect(locations.reads()).toBe(1);
 
   locations.pass();
-  await setPageVisibility(page, "visible");
-  await untilPageRequestsAnswered(page);
-  expect(reads()).toBe(2);
-  await expect(intentLocationName(intent, "scripts")).toBeVisible();
-  await advanceRecoveryClock(page, 61_000);
-  expect(reads()).toBe(2);
+  setDocumentVisibility("visible");
+  await expect.poll(() => locations.reads()).toBe(2);
+  await intentBrowser().showsLocation("scripts");
+  await explanation.isAbsent();
+  await vi.advanceTimersByTimeAsync(61_000);
+  expect(locations.reads()).toBe(2);
 });
 
-test("published detail and Intent locations share a wait, and healing detail leaves Intent pending", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, opened);
-  await preholdRevisionStreamSlots(page);
-  putScriptIntentSources(frontendServices);
-  const detailReads = countAuthenticatedReads(
-    page,
-    (params) => params.get("path") === ".planning/seeds/SEED-302-queued.md",
-  );
-  const detail = await controlFrontendAuthenticatedRead(
-    page,
-    (params) => params.get("path") === ".planning/seeds/SEED-302-queued.md",
-  );
-  detail.unreachable();
-  const reads = countLocationsReads(page);
-  const locations = await controlFrontendAuthenticatedRead(
-    page,
-    (params) => params.get("intent") === "locations",
-  );
-  locations.unreachable();
+test("published detail and Intent locations share a wait, and healing detail leaves Intent pending", async () => {
+  onRecoveryClock();
+  const work = makeMe.aPublishedWork.ofPygardon.at("d3".repeat(20)).please();
+  const locations = controlledLocations(work);
+  let detailReads = 0;
+  let detailHealthy = false;
+  const detailRead: typeof readRepositoryFileAt = (source, path, revision) => {
+    expect([source.id, path, revision]).toEqual([
+      work.source.id,
+      publishedDetailPath,
+      work.revision,
+    ]);
+    detailReads += 1;
+    return detailHealthy
+      ? Promise.resolve("# Queued seed\n")
+      : Promise.reject(unreachable());
+  };
 
-  const intent = await openDoughnut(page);
-  const publishedProblem = page.getByRole("alert").filter({
-    hasText: "Reading unanswered detail again",
+  await mountIntentRecovery(locations.readSource, work, detailRead);
+  const status = publishedReadStatus();
+  const explanation = intentSettingsExplanation();
+  await status.showsUnansweredDetail();
+  await explanation.reads("could not be reached");
+  expect([detailReads, locations.reads()]).toEqual([1, 1]);
+
+  detailHealthy = true;
+  await vi.advanceTimersByTimeAsync(14_000);
+  expect([detailReads, locations.reads()]).toEqual([1, 1]);
+  await vi.advanceTimersByTimeAsync(1_250);
+  await expect.poll(() => [detailReads, locations.reads()]).toEqual([2, 2]);
+  await status.showsNoUnansweredDetail();
+  await explanation.reads("could not be reached");
+
+  locations.pass();
+  await vi.advanceTimersByTimeAsync(29_000);
+  expect([detailReads, locations.reads()]).toEqual([2, 2]);
+  await vi.advanceTimersByTimeAsync(1_250);
+  await expect.poll(() => [detailReads, locations.reads()]).toEqual([2, 3]);
+  await intentBrowser().showsLocation("scripts");
+  await explanation.isAbsent();
+});
+
+test("malformed Intent settings stay visible until manual Retry", async () => {
+  onRecoveryClock();
+  const work = makeMe.aPublishedWork.ofPygardon.at("d4".repeat(20)).please();
+  const locations = controlledLocations(work);
+  const malformed = makeMe.anIntentLocationsAnswer
+    .withMalformedSettings()
+    .please();
+  locations.answerWith(() => Promise.resolve(malformed));
+
+  await mountIntentRecovery(locations.readSource, work);
+  const explanation = intentSettingsExplanation();
+  await explanation.reads(".planning/open-dough.json is not valid JSON");
+  await vi.advanceTimersByTimeAsync(70_000);
+  expect(locations.reads()).toBe(1);
+  await explanation.reads(".planning/open-dough.json is not valid JSON");
+
+  await explanation.retry();
+  await expect.poll(() => locations.reads()).toBe(2);
+  await explanation.reads(".planning/open-dough.json is not valid JSON");
+});
+
+test("rate-limited Intent locations reread when the standing limit ends", async () => {
+  onRecoveryClock();
+  const work = makeMe.aPublishedWork.ofPygardon.at("d5".repeat(20)).please();
+  const locations = controlledLocations(work);
+  const directedSeconds = 15;
+  let resumesAt = 0;
+  locations.answerWith(() => {
+    noteLimit(directedSeconds);
+    const standing = standingLimit() ?? new Date(0);
+    resumesAt = standing.getTime();
+    return Promise.reject(
+      new ReadProblem("GitHub limited the rate", {
+        reading: "locations",
+        resumesAt: standing,
+      }),
+    );
   });
-  const intentProblem = readFailure(intent);
-  await expect(publishedProblem).toBeVisible();
-  await expect(intentProblem).toContainText("could not be reached");
-  expect([detailReads(), reads()]).toEqual([1, 1]);
 
-  detail.pass();
-  await advanceRecoveryClock(page, 14_000);
-  expect([detailReads(), reads()]).toEqual([1, 1]);
-  await advanceRecoveryClock(page, 1_250);
-  expect([detailReads(), reads()]).toEqual([2, 2]);
-  await expect(publishedProblem).toHaveCount(0);
-  await expect(intentProblem).toContainText("could not be reached");
-
-  locations.pass();
-  await advanceRecoveryClock(page, 29_000);
-  expect([detailReads(), reads()]).toEqual([2, 2]);
-  await advanceRecoveryClock(page, 1_250);
-  expect([detailReads(), reads()]).toEqual([2, 3]);
-  await expect(intentLocationName(intent, "scripts")).toBeVisible();
-});
-
-test("malformed Intent settings stay visible until manual Retry", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, opened);
-  await preholdRevisionStreamSlots(page);
-  putFrontendIntentSources(frontendServices, doughnut, [], locationFiles);
-  Object.assign(frontendServices, {
-    locations: {
-      revision: doughnut.revision,
-      locations: null,
-      settingsProblem: "malformed",
-    },
-  });
-  const reads = countLocationsReads(page);
-
-  const intent = await openDoughnut(page);
-  const problem = readFailure(intent);
-  await expect(problem).toContainText(
-    ".planning/open-dough.json is not valid JSON",
-  );
-  await advanceRecoveryClock(page, 70_000);
-  expect(reads()).toBe(1);
-  await expect(problem).toBeVisible();
-
-  await readRetry(problem).click();
-  await untilPageRequestsAnswered(page);
-  expect(reads()).toBe(2);
-  await expect(problem).toContainText(
-    ".planning/open-dough.json is not valid JSON",
-  );
-});
-
-test("rate-limited Intent locations reread when the standing limit ends", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, opened);
-  await preholdRevisionStreamSlots(page);
-  putScriptIntentSources(frontendServices);
-  const directedSeconds = 2;
-  const locations = await controlFrontendAuthenticatedRead(
-    page,
-    (params) => params.get("intent") === "locations",
-  );
-  locations.respond(
-    { error: "GitHub limited the rate", retryAfterSeconds: directedSeconds },
-    502,
-  );
-  const reads = countLocationsReads(page);
-
-  const intent = await openDoughnut(page);
-  await expect(readFailure(intent)).toContainText("GitHub limited the rate");
-  const resumesAt = await noticedResumeTime(page);
+  await mountIntentRecovery(locations.readSource, work);
+  const explanation = intentSettingsExplanation();
+  const status = publishedReadStatus();
+  await explanation.reads("GitHub limited the rate");
+  const noticedUntil = await status.noticedLimitUntil();
+  expect(noticedUntil).toBe(resumesAt);
   locations.pass();
 
-  await advanceRecoveryClock(page, resumesAt - opened.getTime() - 1);
-  expect(reads()).toBe(1);
-  await advanceRecoveryClock(page, 251);
-  expect(reads()).toBe(2);
-  await expect(intentLocationName(intent, "scripts")).toBeVisible();
+  await vi.advanceTimersByTimeAsync(noticedUntil - Date.now() - 1);
+  expect(locations.reads()).toBe(1);
+  await vi.advanceTimersByTimeAsync(251);
+  await expect.poll(() => locations.reads()).toBe(2);
+  await intentBrowser().showsLocation("scripts");
+  await explanation.isAbsent();
+  await status.showsNoRateLimit();
 });

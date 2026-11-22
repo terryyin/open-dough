@@ -163,7 +163,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
     native,
   );
   const checkContinuation = (notice?: string) =>
-    expectMixedContinuation(page, card(notRefinedStory), continuation, notice);
+    expectMixedContinuation(page, notRefinedStory, continuation, notice);
   const beforeDisplay = stored(dashboard.home);
   const sinceDisplay = native.calls.length;
   await checkContinuation();
@@ -172,7 +172,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   expect(stored(dashboard.home)).toEqual(beforeDisplay);
   passive(native.calls.slice(sinceDisplay));
   expect(native.sockets.size).toBe(1);
-  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(1);
+  await expect(parts(page).recentlyDone.getByRole("article")).toHaveCount(0);
   const sidebar = sessionsSidebarParts(page);
   await sidebar.button.click();
   await expect(sidebar.entries).toHaveCount(1);

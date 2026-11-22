@@ -18,6 +18,7 @@ export type DiagnosticCategory =
   | "addition"
   | "branch-head"
   | "agents"
+  | "sessions"
   | "done"
   | "intent"
   | "containment"
@@ -88,6 +89,8 @@ function categoryOf(read: RequestedRead): DiagnosticCategory {
       return "branch-head";
     case "agent-profiles-at":
       return "agents";
+    case "published-sessions-at":
+      return "sessions";
     case "done-catalog-at":
     case "done-bodies-at":
       return "done";
@@ -117,6 +120,7 @@ function pinOf(read: RequestedRead): string | undefined {
     case "addition-at":
     case "branch-head-at":
     case "agent-profiles-at":
+    case "published-sessions-at":
     case "done-catalog-at":
     case "done-bodies-at":
     case "intent-locations-at":

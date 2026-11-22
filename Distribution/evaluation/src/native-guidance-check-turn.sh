@@ -7,10 +7,12 @@
 # stream does not show it completing in this session is not completed.
 native_guidance_check_turn() {
   local turn=$1 prompt=$2 start status=completed thread stopped=''
+  local commands command_count=unknown harness_inspected=unknown
   transcript="${native_guidance_check_controller}/events-turn-${turn}.jsonl"
   output_file="${native_guidance_check_controller}/response-turn-${turn}.md"
   : > "${transcript}"
   start=$(native_guidance_check_now)
+  native_run_interrupt_status=0
   native_run_controller_command=()
   if declare -F case_prepare_turn > /dev/null; then
     case_prepare_turn "${root}" "${turn}" "${transcript}" "${native_guidance_check_controller}" "${start}" || return
@@ -26,6 +28,7 @@ native_guidance_check_turn() {
     native_run_owned_or_fail "${transcript}" "${native_stderr}" \
       "${native_guidance_check_workspace}" "${native_codex_command[@]}" || true
   fi
+  ((native_run_interrupt_status == 0)) || return "${native_run_interrupt_status}"
   native_run_classify_stream codex "${transcript}"
   case ${native_run_outcome} in
     timeout) status=timeout stopped="no completion within the ${native_case_deadline:-3600} s deadline; the runner stopped the session" ;;
@@ -43,11 +46,19 @@ native_guidance_check_turn() {
     status=incomplete
     stopped="the stream names thread ${thread}, not the resumed ${native_guidance_check_thread}: it is not this session's evidence"
   fi
+  if [[ ${native_run_stream_status} == complete && -n ${thread} &&
+    (${turn} -eq 1 || ${thread} == "${native_guidance_check_thread}") ]] \
+    && commands=$(native_host_stream codex "${transcript}" commands); then
+    command_count=$(printf '%s' "${commands}" | awk 'END { print NR }')
+    harness_inspected=$(native_harness_inspected "${harness}${case_harness_paths:+|${case_harness_paths}}" <<< "${commands}")
+  fi
   [[ ${turn} -ne 1 ]] || native_guidance_check_thread=${thread}
   printf 'turn-%s-status: %s\n' "${turn}" "${status}"
   printf 'turn-%s-thread: %s\n' "${turn}" "${thread}"
   printf 'turn-%s-seconds: %s\n' "${turn}" \
     "$(native_guidance_check_seconds "${start}" "$(native_guidance_check_now)")"
+  printf 'turn-%s-commands: %s\n' "${turn}" "${command_count}"
+  printf 'turn-%s-harness-inspected: %s\n' "${turn}" "${harness_inspected}"
   [[ -z ${stopped} ]] || printf 'turn-%s-stopped: %s\n' "${turn}" "${stopped}"
   [[ ${status} == completed ]]
 }

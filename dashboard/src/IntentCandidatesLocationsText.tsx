@@ -12,6 +12,7 @@ import type {
 } from "./intentCandidatesLocationMatch.ts";
 import { segmentLocationReferences } from "./intentCandidatesLocationSegments.ts";
 import type { OpenCandidateLocation } from "./intentWorkspaceSelection.ts";
+import "./intent-open-link.css";
 
 function gapReason(match: MatchedLocationTarget): string | undefined {
   switch (match.kind) {

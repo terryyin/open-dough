@@ -50,7 +50,10 @@ test("equivalent proof recovers after a malformed artifact listing, even beyond 
       .landedAt(setup.landingMerge, { identity: setup.identity })
       .please(),
   ]);
-  const server = await startServer({ observationClock: true });
+  const server = await startServer({
+    observationClock: true,
+    liveServer: "separate process",
+  });
   const first = await readLandedComparison(server, setup.identity);
   expect(first.landed).toMatchObject({ kind: "none" });
   expect(first.landed).not.toHaveProperty("timeWithoutRunnerWaits");
@@ -119,6 +122,7 @@ for (const provenance of ["equivalent", "later"] as const) {
       startDashboardServer({
         ...wiring,
         mode: "boundary",
+        liveServer: "separate process",
         machine: origin.machine,
         projectFolders: ["open-dough"],
       }),

@@ -1,230 +1,128 @@
-import path from "node:path";
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+// The store adapter keeps an observed delivery on the live launch with its
+// landing pins, and holds no pins for a delivery the launch did not keep.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { heldLandingPins } from "../../server/launchLandingGit.ts";
 import {
-  reviewedFileDiffSchema,
-  reviewedFileTextSchema,
-  storyReviewFileEndpoint,
-  storyReviewFileTextEndpoint,
-} from "../../src/storyReviewContract.ts";
-import {
-  adHocReview,
-  keptAdHocRecord,
-  launchIsolatedReview,
-  markAdHocDone,
-  retireAdHocBranch,
-} from "../../test-support/support/adHocReview.ts";
-import { getReview } from "../../test-support/support/completedReviewRequests.ts";
-import { resolveStoryConflict } from "../../test-support/support/completedStoryPublication.ts";
-import { restartBoundary } from "../../test-support/support/launchDashboard.ts";
-import { commit, git } from "../../test-support/support/launchLanding.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { serveOriginBaseCi } from "../../test-support/support/serveOriginBaseCi.ts";
-import {
-  commitAll,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
+  sessionLandingObservations,
+  type ObservedLandingStore,
+} from "../../server/observedSessionLandings.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
+import { branchResultAtDone } from "../../src/sessionBranchResult.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
-test.use({
-  serverMode: "boundary",
-  originRepository: queuedReadyRepository()
-    .withRevision("shared-file", { files: { "draft.txt": "Original draft\n" } })
-    .please(),
+const observedTrunk = { id: source, ref: "main" };
+const observed = "c".repeat(40);
+const trunk = { remote: "origin", target: "refs/heads/main" };
+
+// A Done branch awaiting delivery whose inspection finds `pair`, a revision
+// of a real repository so the adapter can pin it.
+async function aDeliveredDoneBranch() {
+  const {
+    checkout: { integration: repository, base },
+  } = await aDoneCaptureCase().please();
+  const record = makeMe.aLaunchRecord
+    .adHoc({ title: "draft" })
+    .awaitingManualDelivery({ repository, base, revision: base })
+    .please();
+  const pair = { repository, ...trunk, base, revision: base };
+  const observe = (store: ObservedLandingStore) =>
+    sessionLandingObservations({
+      store,
+      readTrunkHead: () => Promise.resolve(observed),
+      inspect: () => Promise.resolve(pair),
+    }).observe(observedTrunk, observed);
+  return { repository, record, pair, observe };
+}
+
+// A store holding `kept`, whose session write saves its change to `live`.
+function aStore(kept: LaunchRecord, live = kept) {
+  const store = {
+    saved: undefined as LaunchRecord | undefined,
+    keptRecords: () => Promise.resolve([kept]),
+    async changeSessionRecord(
+      ...[, , change]: Parameters<ObservedLandingStore["changeSessionRecord"]>
+    ) {
+      store.saved = await change(live);
+      return store.saved;
+    },
+  };
+  return store;
+}
+
+test("an observed delivery is kept on the live launch with its pins", async () => {
+  const { repository, record, pair, observe } = await aDeliveredDoneBranch();
+  const store = aStore(record);
+
+  await observe(store);
+
+  const landing = store.saved?.landing;
+  expect(landing).toMatchObject(pair);
+  const pinned = `refs/open-dough/one-shot/${landing?.reference}/${landing?.delivery}`;
+  expect(await heldLandingPins(repository)).toEqual([
+    { ref: `${pinned}/base`, objectId: pair.base },
+    { ref: `${pinned}/revision`, objectId: pair.revision },
+  ]);
 });
 
-test("the first Board read after restart discovers a delivery while preserving the fixed branch comparison", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const { workspace, branch, session, baseline } = await launchIsolatedReview(
-    dashboard,
-    "Keep a working draft for review",
-  );
-  writeAt(workspace, "draft.txt", "Committed draft\n");
-  commitAll(workspace, "Commit the branch draft");
-  writeAt(workspace, "draft.txt", "Working draft\n");
-  await markAdHocDone(dashboard, session);
-  const done = (await keptAdHocRecord(dashboard, session))?.doneAt;
-  const branchAtDone = await adHocReview(request, dashboard, session);
-  expect(branchAtDone.kind).toBe("branch-result");
+test.each([
+  {
+    field: "launch time",
+    update: (record: LaunchRecord): LaunchRecord => ({
+      ...record,
+      launchedAt: new Date(Date.parse(record.launchedAt) + 1_000).toISOString(),
+    }),
+  },
+  {
+    field: "branch pin owner",
+    update: (record: LaunchRecord): LaunchRecord => ({
+      ...record,
+      branchEvidenceOwner: { ...record.session, sessionId: "recovered-branch" },
+    }),
+  },
+  {
+    field: "Done branch result",
+    update: (record: LaunchRecord): LaunchRecord => {
+      const result = branchResultAtDone(record);
+      if (result === undefined)
+        throw new Error("Missing the Done branch result.");
+      return { ...record, branchResult: { ...result, revision: observed } };
+    },
+  },
+])(
+  "a launch whose $field changed during inspection keeps no delivery",
+  async ({ update }) => {
+    const { repository, record, observe } = await aDeliveredDoneBranch();
+    const live = update(record);
+    const store = aStore(record, live);
 
-  await dashboard.close();
-  const trunkParent = await origin.publishRevision({
-    files: { "draft.txt": "Trunk draft\n" },
-  });
-  resolveStoryConflict(
-    origin.project,
-    ["merge", "--no-ff", "--no-edit", branch],
-    "draft.txt",
-    "Resolution on trunk\n",
-    "Resolve the draft manually",
-  );
-  const merge = git(origin.project, "rev-parse", "HEAD");
-  git(origin.project, "push", "--quiet", "origin", "main");
-  const latest = await origin.publishRevision({
-    files: { "later.txt": "Unrelated advance\n" },
-  });
-  retireAdHocBranch(origin.project, workspace, branch, {
-    discardWorkingChanges: true,
-  });
+    await observe(store);
 
-  const restarted = await restartBoundary(origin, dashboard.origin);
-  try {
-    serveOriginBaseCi(restarted.github, origin);
-    expect(await adHocReview(request, restarted, session)).toEqual(
-      branchAtDone,
-    );
-    const board = await getReview(
-      request,
-      restarted,
-      authenticatedReadEndpoint,
-      {
-        source: "open-dough",
+    expect(store.saved).toBe(live);
+    expect(await heldLandingPins(repository)).toEqual([]);
+  },
+);
+
+test.each([
+  { outcome: "an unsaved", saved: false, pins: 0 },
+  { outcome: "a saved", saved: true, pins: 2 },
+])(
+  "a write that fails after pinning keeps pins only for $outcome delivery",
+  async ({ saved, pins }) => {
+    const { repository, record, observe } = await aDeliveredDoneBranch();
+    let kept = record;
+    const store: ObservedLandingStore = {
+      keptRecords: () => Promise.resolve([kept]),
+      async changeSessionRecord(...[, , change]) {
+        const changed = await change(kept);
+        if (saved) kept = changed;
+        throw new Error("Could not save the launch.");
       },
-    );
-    expect(board.status()).toBe(200);
-    expect(await board.json()).toMatchObject({ revision: latest });
+    };
 
-    await expect
-      .poll(() => adHocReview(request, restarted, session))
-      .toMatchObject({
-        kind: "landed",
-        baseline: trunkParent,
-        tree: merge,
-        sessionComparisonKeys: ["delivered", "branch-result"],
-        files: [{ path: "draft.txt" }],
-      });
-    const delivered = await adHocReview(request, restarted, session);
-    const savedBranch = await adHocReview(
-      request,
-      restarted,
-      session,
-      "branch-result",
-    );
-    expect(savedBranch).toMatchObject({
-      kind: "branch-result",
-      baseline,
-      files: [{ path: "draft.txt" }],
-    });
-    if (delivered.kind !== "landed" || savedBranch.kind !== "branch-result")
-      throw new Error("Missing the saved branch and delivered comparisons.");
-    expect(branchAtDone).toMatchObject({ tree: savedBranch.tree });
-    expect((await keptAdHocRecord(restarted, session))?.doneAt).toBe(done);
+    await observe(store);
 
-    git(
-      origin.project,
-      "remote",
-      "set-url",
-      "origin",
-      path.join(origin.machine, "offline"),
-    );
-    expect(await adHocReview(request, restarted, session)).toEqual(delivered);
-    expect(
-      await adHocReview(request, restarted, session, "branch-result"),
-    ).toEqual(savedBranch);
-    for (const [comparison, before, after, reference] of [
-      [
-        delivered,
-        "Trunk draft",
-        "Resolution on trunk",
-        delivered.landing.reference,
-      ],
-      [savedBranch, "Original draft", "Working draft", undefined],
-    ] as const) {
-      const query = {
-        source: "open-dough",
-        host: "claude",
-        session,
-        baseline: comparison.baseline,
-        tree: comparison.tree,
-        path: "draft.txt",
-        ...(reference === undefined ? {} : { reference }),
-      };
-      const diff = await getReview(
-        request,
-        restarted,
-        storyReviewFileEndpoint,
-        query,
-      );
-      expect(diff.status()).toBe(200);
-      const parsed = reviewedFileDiffSchema.parse(await diff.json());
-      expect(parsed).toMatchObject({
-        kind: "diff",
-        printed: expect.stringContaining(`-${before}\n+${after}`),
-      });
-      const file = await getReview(
-        request,
-        restarted,
-        storyReviewFileTextEndpoint,
-        query,
-      );
-      expect(file.status()).toBe(200);
-      expect(reviewedFileTextSchema.parse(await file.json())).toEqual({
-        kind: "text",
-        baseline: `${before}\n`,
-        tree: `${after}\n`,
-      });
-    }
-  } finally {
-    await restarted.close();
-  }
-});
-
-test("an unchanged target can discover delivery for a newly retained Done", async ({
-  request,
-  dashboard,
-  origin,
-}) => {
-  const { workspace, session, baseline } = await launchIsolatedReview(
-    dashboard,
-    "Keep a branch while the Board already sees its delivery",
-  );
-  const tip = commit(workspace, "newly-done.txt");
-  git(origin.project, "merge", "--quiet", "--no-ff", "--no-edit", tip);
-  const merge = git(origin.project, "rev-parse", "HEAD");
-  git(origin.project, "push", "--quiet", "origin", "main");
-  const query = { source: "open-dough", since: baseline };
-  const first = await getReview(
-    request,
-    dashboard,
-    authenticatedReadEndpoint,
-    query,
-  );
-  expect(await first.json()).toMatchObject({ revision: merge });
-
-  const remote = git(origin.project, "remote", "get-url", "origin");
-  git(
-    origin.project,
-    "remote",
-    "set-url",
-    "origin",
-    path.join(origin.machine, "offline"),
-  );
-  try {
-    await markAdHocDone(dashboard, session);
-    const record = await keptAdHocRecord(dashboard, session);
-    expect(record?.branchResult?.manualDeliveryChecked).toBe(true);
-    expect(record?.landing).toBeUndefined();
-  } finally {
-    git(origin.project, "remote", "set-url", "origin", remote);
-  }
-
-  await expect
-    .poll(async () => {
-      const repeated = await getReview(
-        request,
-        dashboard,
-        authenticatedReadEndpoint,
-        query,
-      );
-      expect(await repeated.json()).toMatchObject({ revision: merge });
-      return adHocReview(request, dashboard, session);
-    })
-    .toMatchObject({
-      kind: "landed",
-      baseline,
-      tree: merge,
-      files: [{ path: "newly-done.txt" }],
-    });
-});
+    expect(await heldLandingPins(repository)).toHaveLength(pins);
+  },
+);

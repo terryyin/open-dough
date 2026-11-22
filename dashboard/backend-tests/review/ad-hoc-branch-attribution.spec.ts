@@ -1,241 +1,192 @@
+// Capture separates isolated branch work from imported trunk, and Done
+// keeps the branch result alongside independently verified delivery.
 import path from "node:path";
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { sessionBranchEntrySchema } from "../../src/sessionBranchResult.ts";
+import { expect, test } from "vitest";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { heldLandingPins } from "../../server/launchLandingGit.ts";
+import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
-  adHocReview,
-  adHocSessionFileDiff,
-  adHocSessionFileText,
-  launchIsolatedReview,
-  markAdHocDone,
-  retireAdHocBranch,
-} from "../../test-support/support/adHocReview.ts";
-import { reportingChild } from "../../test-support/support/completionRecovery.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { commit } from "../../test-support/support/launchLanding.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { branchEntryCommand } from "../../test-support/support/reportingInputAssertions.ts";
-import { launched } from "../../test-support/support/startSessionLandingCapture.ts";
-import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
-import {
-  commitAll,
-  git,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
+  keptSession,
+  setRecordDoneAt,
+} from "../../server/launchRecordStore.ts";
+import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
+import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
+import { source } from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
-test.use({
-  serverMode: "boundary",
-  originRepository: queuedReadyRepository()
-    .withRevision("shared-files", { files: { "shared.txt": "original\n" } })
-    .please(),
+const branch = "topic";
+
+// The topic checkout, its base holding the shared file, its worktree, and
+// the launch whose start established it.
+const anIsolatedTopic = () =>
+  aDoneCaptureCase()
+    .withBaseFiles({
+      "shared.txt": "original\n",
+      "session-only.txt": "Original session notes\n",
+    })
+    .withOrigin()
+    .withWorkspace(branch)
+    .withIsolatedLaunch(branch, { launched: 60 }, branch);
+
+test("capture separates an isolated branch's committed and working changes from imported trunk", async () => {
+  const {
+    checkout,
+    records: { [branch]: record },
+    at,
+  } = await anIsolatedTopic()
+    .withWork(
+      (at) =>
+        makeMe.aCheckoutWork
+          .committing("draft", { at: at(50) })
+          .mergingTrunkWork("imported", {
+            at: at(40),
+            files: { "import-only.txt": "trunk addition\n" },
+          })
+          .editing("working", {
+            at: at(30),
+            files: { "draft.txt": "draft work\nworking change\n" },
+          }),
+      { in: branch },
+    )
+    .please();
+
+  const { result } = await captureBranchResult(record, at(10));
+
+  expect(result.attributionGap).toBeUndefined();
+  const { integration } = checkout;
+  expect(
+    (
+      await git(
+        integration,
+        "diff",
+        "--name-only",
+        result.base,
+        result.revision,
+      )
+    ).stdout,
+  ).toBe("draft.txt\n");
+  expect(
+    (await git(integration, "show", `${result.revision}:draft.txt`)).stdout,
+  ).toBe("draft work\nworking change\n");
 });
 
-function topic(origin: StartOrigin, branch: string) {
-  const workspace = path.join(origin.machine, branch);
-  git(origin.project, "worktree", "add", "--quiet", "-b", branch, workspace);
-  return workspace;
-}
+test("Done saves and pins the branch and manual delivery pairs for offline review", async () => {
+  const {
+    checkout,
+    worktrees: { [branch]: workspace },
+    records: { [branch]: record },
+    work: { branchTip },
+    performWork,
+    at,
+  } = await anIsolatedTopic()
+    .withWork(
+      (at) =>
+        makeMe.aCheckoutWork
+          .committing("session-only", { at: at(50) })
+          .mergingTrunkWork("branchTip", {
+            at: at(45),
+            files: { "import-only.txt": "trunk addition\n" },
+          }),
+      { in: branch },
+    )
+    .kept()
+    .please();
+  const { integration } = checkout;
+  await git(integration, "pull", "--quiet", "--ff-only", "origin", "main");
+  const trunkParent = (
+    await git(integration, "rev-parse", "HEAD")
+  ).stdout.trim();
+  const branchBase = (
+    await git(integration, "rev-parse", "HEAD^{tree}")
+  ).stdout.trim();
+  const { merge } = await performWork(
+    makeMe.aCheckoutWork
+      .mergingTipByHand("merge", { tip: branchTip, at: at(40) })
+      .pushingToTrunk("published-merge", { at: at(40) })
+      .committing("later-trunk", { at: at(35) })
+      .pushingToTrunk("pushed", { at: at(35) }),
+  );
 
-async function identifyBranch(dashboard: DashboardServer, workspace: string) {
-  const { record, sent } = await launched(dashboard, {
-    instruction: "Continue the prepared branch",
+  const doneAt = at(10);
+  await setRecordDoneAt(source, record.session, doneAt);
+
+  const saved = await keptSession(source, record.session);
+  expect(saved).toMatchObject({
+    doneAt,
+    branchResult: { base: branchBase, revision: branchTip },
+    landing: { base: trunkParent, revision: merge },
   });
-  const command = branchEntryCommand(sent);
-  if (command === undefined) throw new Error("Missing branch entry command.");
-  const response = await reportingChild(command, workspace);
-  expect(response.ok, response.stderr).toBe(true);
-  const { branchEntry } = JSON.parse(response.stdout) as {
-    branchEntry: unknown;
-  };
-  return {
-    session: record.session.sessionId,
-    entry: sessionBranchEntrySchema.parse(branchEntry),
-  };
-}
-
-test("a declared branch's saved comparison shows only its new work and its edit to imported text", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const branch = "entry-with-earlier-work";
-  const workspace = topic(origin, branch);
-  commit(workspace, "earlier-commit.txt");
-  writeAt(workspace, "earlier-draft.txt", "left here before entry\n");
-  const { session } = await identifyBranch(dashboard, workspace);
-  const imported = await origin.publishRevision({
-    files: {
-      "import-only.txt": "trunk addition\n",
-      "shared.txt": "imported line\n",
-    },
-  });
-  git(workspace, "merge", "--quiet", "--no-edit", imported);
-  commit(workspace, "session-only.txt");
-  writeAt(workspace, "shared.txt", "session edit of imported line\n");
-
-  await markAdHocDone(dashboard, session);
-  retireAdHocBranch(origin.project, workspace, branch, {
-    discardWorkingChanges: true,
-  });
-
-  const review = await adHocReview(request, dashboard, session);
-  if (review.kind !== "branch-result") throw new Error(JSON.stringify(review));
-  expect(review.files.map(({ path }) => path)).toEqual([
-    "session-only.txt",
-    "shared.txt",
+  if (saved?.landing === undefined)
+    throw new Error("Missing the verified landing.");
+  const { landing } = saved;
+  const branchPins = await sessionBranchPins(integration, record.session);
+  const deliveryPins = await heldLandingPins(integration, landing);
+  expect(branchPins.map(({ objectId }) => objectId)).toEqual([
+    branchBase,
+    branchTip,
   ]);
-  const { baseline, tree } = review;
-  const naming = { baseline, tree, path: "shared.txt" };
-  const diff = await adHocSessionFileDiff(request, dashboard, session, naming);
-  expect(await diff.json()).toMatchObject({
-    kind: "diff",
-    printed: expect.stringContaining(
-      "-imported line\n+session edit of imported line",
+  expect(deliveryPins.map(({ objectId }) => objectId)).toEqual([
+    trunkParent,
+    merge,
+  ]);
+  expect(
+    (await git(integration, "diff", "--name-only", branchBase, branchTip))
+      .stdout,
+  ).toBe("session-only.txt\n");
+
+  retireAdHocBranch(integration, workspace, branch);
+  await git(
+    integration,
+    "remote",
+    "set-url",
+    "origin",
+    path.join(path.dirname(integration), "offline"),
+  );
+  expect(
+    await reviewedFileText(
+      {
+        record: saved,
+        read: {
+          reference: landing.reference,
+          baseline: trunkParent,
+          tree: merge,
+          path: "session-only.txt",
+        },
+      },
+      new AbortController().signal,
     ),
-  });
-  const file = await adHocSessionFileText(request, dashboard, session, naming);
-  expect(await file.json()).toEqual({
+  ).toEqual({
     kind: "text",
-    baseline: "imported line\n",
-    tree: "session edit of imported line\n",
+    baseline: "Original session notes\n",
+    tree: "session-only work\n",
   });
-  expect(
-    (
-      await adHocSessionFileDiff(request, dashboard, session, {
-        baseline,
-        tree,
-        path: "import-only.txt",
-      })
-    ).status(),
-  ).toBe(409);
 });
 
-test("an isolated Done retains its committed and working changes across a trunk import", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const { workspace, branch, session } = await launchIsolatedReview(
-    dashboard,
-    "Keep a draft",
+test("new shared first-parent history can leave branch attribution ambiguous", async () => {
+  const {
+    checkout,
+    records: { [branch]: record },
+    work: { direct },
+    performWork,
+    at,
+  } = await anIsolatedTopic()
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("direct", { at: at(50) }),
+      { in: branch },
+    )
+    .please();
+  await git(checkout.integration, "merge", "--quiet", "--ff-only", direct);
+  await git(checkout.integration, "push", "--quiet", "origin", "main");
+  await performWork(
+    makeMe.aCheckoutWork.committing("after-direct", { at: at(40) }),
+    { in: branch },
   );
-  commit(workspace, "draft.txt");
-  const imported = await origin.publishRevision({
-    files: { "import-only.txt": "trunk addition\n" },
-  });
-  git(workspace, "merge", "--quiet", "--no-edit", imported);
-  writeAt(workspace, "draft.txt", "draft.txt\nworking change\n");
 
-  await markAdHocDone(dashboard, session);
-  retireAdHocBranch(origin.project, workspace, branch, {
-    discardWorkingChanges: true,
-  });
+  const { result } = await captureBranchResult(record, at(10));
 
-  const review = await adHocReview(request, dashboard, session);
-  if (review.kind !== "branch-result") throw new Error(JSON.stringify(review));
-  expect(review.files.map(({ path }) => path)).toEqual(["draft.txt"]);
-  const diff = await adHocSessionFileDiff(request, dashboard, session, {
-    baseline: review.baseline,
-    tree: review.tree,
-    path: "draft.txt",
-  });
-  expect(await diff.json()).toMatchObject({
-    kind: "diff",
-    printed: expect.stringContaining("+draft.txt\n+working change"),
-  });
-});
-
-test("conflicting baseline evidence explains why the branch changes cannot be attributed", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const branch = "entry-with-conflict";
-  const workspace = topic(origin, branch);
-  writeAt(workspace, "shared.txt", "branch line from before entry\n");
-  commitAll(workspace, "Earlier topic changes");
-  const { session, entry } = await identifyBranch(dashboard, workspace);
-  const imported = await origin.publishRevision({
-    files: { "shared.txt": "trunk line\n" },
-  });
-  git(workspace, "merge", "--quiet", "--no-edit", "-X", "ours", imported);
-  const tip = commit(workspace, "session-only.txt");
-
-  await markAdHocDone(dashboard, session);
-  retireAdHocBranch(origin.project, workspace, branch);
-
-  expect(await adHocReview(request, dashboard, session)).toMatchObject({
-    kind: "unavailable",
-    explanation: expect.stringContaining(
-      "Earlier branch changes conflict with imported trunk",
-    ),
-  });
-  expect(
-    (
-      await adHocSessionFileDiff(request, dashboard, session, {
-        baseline: entry.tree,
-        tree: tip,
-        path: "session-only.txt",
-      })
-    ).status(),
-  ).toBe(409);
-});
-
-test("a branch merged into trunk still retains its own Done comparison", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const { workspace, branch, session } = await launchIsolatedReview(
-    dashboard,
-    "Keep the branch after delivery",
+  expect(result.attributionGap).toBe(
+    "The saved branch changes could not be separated from trunk history.",
   );
-  commit(workspace, "session-only.txt");
-  const imported = await origin.publishRevision({
-    files: { "import-only.txt": "trunk addition\n" },
-  });
-  git(workspace, "merge", "--quiet", "--no-edit", imported);
-  git(origin.project, "merge", "--quiet", "--no-edit", "--no-ff", branch);
-  git(origin.project, "push", "--quiet", "origin", "main");
-  const later = path.join(origin.machine, "separate-publisher");
-  git(origin.project, "clone", "--quiet", "--local", origin.origin, later);
-  git(later, "config", "user.name", "Separate publisher");
-  git(later, "config", "user.email", "publisher@example.com");
-  git(later, "config", "commit.gpgsign", "false");
-  writeAt(later, "later-trunk.txt", "A later change on trunk\n");
-  commitAll(later, "Advance published trunk");
-  git(later, "push", "--quiet", "origin", "main");
-
-  await markAdHocDone(dashboard, session);
-  retireAdHocBranch(origin.project, workspace, branch);
-
-  expect(
-    await adHocReview(request, dashboard, session, "branch-result"),
-  ).toMatchObject({
-    kind: "branch-result",
-    files: [{ path: "session-only.txt" }],
-  });
-});
-
-test("new shared first-parent history can leave branch attribution ambiguous", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const { workspace, branch, session } = await launchIsolatedReview(
-    dashboard,
-    "Keep a directly delivered branch",
-  );
-  const direct = commit(workspace, "direct.txt");
-  git(origin.project, "merge", "--quiet", "--ff-only", direct);
-  git(origin.project, "push", "--quiet", "origin", "main");
-  commit(workspace, "after-direct.txt");
-
-  await markAdHocDone(dashboard, session);
-  retireAdHocBranch(origin.project, workspace, branch);
-
-  expect(await adHocReview(request, dashboard, session)).toMatchObject({
-    kind: "unavailable",
-    explanation:
-      "The saved branch changes could not be separated from trunk history.",
-  });
 });

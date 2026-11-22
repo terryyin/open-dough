@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maki-chan",
+  "email": "maki-chan@example.org",
+  "identity": "SEED-418#attribute-every-workflow-session-record",
+  "mode": "story-branch",
+  "branch": "claude/attribute-every-workflow-session-s-published-cha-2",
+  "host": "claude"
+}

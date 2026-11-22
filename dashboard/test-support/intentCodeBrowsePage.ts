@@ -3,6 +3,7 @@
 
 import { expect, type Locator } from "@playwright/test";
 import {
+  expandIntentFolders,
   expandIntentGroup,
   intentGroupToggle,
   intentLocationName,
@@ -66,6 +67,7 @@ export async function expectLabelledEntrySource(
   await expect(summary).toContainText(label);
   await expect(summary).toContainText(locationPath);
   await expandIntentGroup(intent, locationPath);
+  await expandIntentFolders(intent, locationPath);
   await expect(
     sourceFile(intent, `${locationPath}/${omittedHelper}`),
   ).toHaveCount(0);

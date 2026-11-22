@@ -1,156 +1,121 @@
-// A story reached by URL or by its Session entry is read from its top within
-// the Board: a card taller than the Board keeps its reading edge, through
-// height-only resizes, beside the terminal, and after Close where the panel
-// covered a narrow Board; one that fits stays wholly in view. The document
-// itself stays still throughout.
-
-import type { Page } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { expectDocumentStill } from "./board-accessibility.ts";
 import {
-  putFrontendPublished,
-  type FrontendServiceState,
-} from "../../test-support/support/frontendServiceState.ts";
+  mountBoard,
+  reducedBoardMotion,
+  withBoardStorage,
+} from "./board-mount.ts";
+import { boardReading as board } from "./board-reading-page.ts";
 import {
-  largeBacklog,
-  queuedTitle,
-  revision,
-} from "../../test-support/accessibleBoard.ts";
-import { boardScroll } from "../../test-support/boardPage.ts";
-import { expectDocumentStill } from "../../test-support/boardReading.ts";
-import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
-import { readyStory } from "../../test-support/launchJourney.ts";
-import { expectReadingTop } from "../../test-support/readingPlace.ts";
-import { expectWhollyInView } from "../../test-support/sessionNavigationJourney.ts";
-import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
-import { expectCovering } from "../../test-support/sidePanelWidthPage.ts";
-import {
+  answerTerminal,
+  backlogCard,
   closeTerminal,
-  terminalPanel,
-  terminalScreenParts,
-} from "../../test-support/terminalScreenPage.ts";
-import { cardSession } from "../../test-support/support/frontendCardSessions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  machineWorking,
+  openRecord,
+  openSidebarSession,
+  readingTop,
+  scroller,
+  sessions,
+  sidebar,
+  terminal,
+} from "./board-session-view.ts";
+import { boardWork, longBacklog, story } from "./board-work.ts";
+import { withWidthStorage } from "./side-panel-width-view.ts";
 
-const working = () => makeMe.aSessionState.loaded("working").please();
+const longRead = story("Read the retained working story", 18, {
+  purpose: {
+    status: "recorded",
+    purpose: "Read the published goal without losing its beginning. ".repeat(
+      67,
+    ),
+  },
+});
 
-// The machine observes an open execution session for `identity`'s story.
-function observeSession(
-  services: FrontendServiceState,
-  identity: string,
-  title: string,
+async function prepareReading(
+  viewport: { width: number; height: number },
+  inspect = true,
 ) {
-  services.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(makeMe.aLaunchRecord.executing({ identity, title }).please())
-          .withSessionState(working())
-          .please(),
-      )
-      .please(),
+  withBoardStorage("0");
+  withWidthStorage();
+  await reducedBoardMotion();
+  answerTerminal();
+  await mountBoard(
+    [
+      boardWork([
+        ...longBacklog.slice(0, 7),
+        longRead,
+        ...longBacklog.slice(7),
+      ]),
+    ],
+    viewport,
+    machineWorking(openRecord(longRead)),
   );
+  const card = backlogCard(longRead.title);
+  await expect.element(card).toBeInTheDocument();
+  if (inspect) {
+    await card.getByRole("button", { name: "Inspect story" }).click();
+    await expect
+      .element(
+        card.getByRole("region", { name: `Detail for ${longRead.title}` }),
+      )
+      .toBeInTheDocument();
+  }
+  await board.wheelTo(0);
+  expect(board.inReadingRoom(card.element())).toBe(false);
+  await sessions.click();
+  await openSidebarSession(longRead.title);
+  return card;
 }
 
-// Opens `title`'s session from the Sessions sidebar until it attaches.
-async function openSessionEntry(page: Page, title: string) {
-  const sidebar = sessionsSidebarParts(page);
-  await sidebar.button.click();
-  await sidebar.entry(title).click();
-  const terminal = terminalPanel(page);
-  await expect(terminalScreenParts(terminal).rows).toContainText("attached");
-  return { sidebar, terminal };
+test("a sidebar session reveals the tall card's sticky reading edge beside a terminal through height changes", async () => {
+  const card = await prepareReading({ width: 1400, height: 360 });
+  await readingTop(card.element());
+  const region = scroller(card.element());
+  expect(card.element().getBoundingClientRect().height).toBeGreaterThan(
+    region.clientHeight,
+  );
+  await page.viewport(1400, 560);
+  await readingTop(card.element());
+  await page.viewport(1400, 360);
+  await readingTop(card.element());
+  await board.expectStorySelection(card, true);
+  expectDocumentStill();
+});
+
+async function readsAfterCover(height: number) {
+  const card = await prepareReading({ width: 700, height });
+  await expect
+    .poll(() => terminal.element().closest(".page-covering"))
+    .not.toBeNull();
+  await expect.element(sidebar).not.toBeInTheDocument();
+  await closeTerminal();
+  await expect.element(sessions).toHaveFocus();
+  await board.expectStorySelection(card, true);
+  expect(card.element().getBoundingClientRect().height).toBeGreaterThan(
+    scroller(card.element()).clientHeight,
+  );
+  await readingTop(card.element());
+  expectDocumentStill();
 }
 
-for (const viewport of [
-  { width: 1400, height: 360 },
-  { width: 700, height: 800 },
-]) {
-  test(`URL and Session entry reveal a tall card's top within the Board at ${viewport.width}×${viewport.height}`, async ({
-    page,
-    frontendServices,
-  }) => {
-    await page.setViewportSize(viewport);
-    const identity = "SEED-18#story";
-    const title = queuedTitle(8);
-    observeSession(frontendServices, identity, title);
-    await installAttachedTerminalSubstitute(page);
-    putFrontendPublished(frontendServices, {
-      revision,
-      backlog: largeBacklog,
-      files: {
-        ".planning/seeds/SEED-18-queued.md": `---\nid: SEED-18\n---\n\n# Seed\n\n<a id="story"></a>\n\n### ${title}\n\n**Identity:** ${identity}\n\n**Goal:** ${"Read a long published goal without losing its beginning. ".repeat(80)}`,
-      },
-    });
-    await page.goto(
-      `/?${new URLSearchParams({ project: "open-dough", story: identity })}`,
-    );
-    await expectSettledPage(page);
-    const card = parts(page).backlog.getByRole("article", {
-      name: title,
-      exact: true,
-    });
-    await expect(card).toBeFocused();
-    await expectReadingTop(card);
-    // A height-only resize can change sticky-heading clearance without
-    // changing the row's content size. The reveal follows its own viewport.
-    await page.setViewportSize({ ...viewport, height: viewport.height + 200 });
-    await expectReadingTop(card);
-    await page.setViewportSize(viewport);
-    await expectReadingTop(card);
-    const { terminal } = await openSessionEntry(page, title);
-    // Covering hides the Board; Close first, then read the revealed card.
-    // Beside, the Board stays readable.
-    if (viewport.width <= 800) {
-      await expectCovering(terminal);
-      await closeTerminal(terminal);
-      await expectReadingTop(card);
-    } else {
-      await expect(terminal.locator("textarea")).toBeFocused();
-      await expectReadingTop(card);
-      // Short beside window: the card still exceeds the Board's room.
-      expect((await card.boundingBox())?.height).toBeGreaterThan(
-        await boardScroll(page).evaluate((region) => region.clientHeight),
-      );
-    }
-    await expectDocumentStill(page);
-  });
-}
+test("closing a covering terminal reveals the same tall story at 700×800", () =>
+  readsAfterCover(800));
+test("closing a covering terminal reveals the same tall story at 700×900", () =>
+  readsAfterCover(900));
 
-for (const height of [800, 900, 1600]) {
-  test(`the Session entry reveals the same story on the Board after Close at 700×${height}`, async ({
-    page,
-    frontendServices,
-  }) => {
-    frontendServices.answerMachine(
-      makeMe.aMachineAnswer
-        .observing(cardSession("Execution", readyStory, working()))
-        .please(),
-    );
-    await installAttachedTerminalSubstitute(page);
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.setViewportSize({ width: 700, height });
-    await page.goto("/");
-    await expectSettledPage(page);
-    const { sidebar, terminal } = await openSessionEntry(page, readyStory);
-    await expect(sidebar.sidebar).toBeHidden();
-    await expect(terminal.locator("textarea")).toBeFocused();
-    await expectCovering(terminal);
-    await closeTerminal(terminal);
-    const card = parts(page).backlog.getByRole("article", {
-      name: readyStory,
-      exact: true,
-    });
-    // Full Board after Close: a card taller than the Board keeps the reading
-    // edge; one that fits stays wholly in view.
-    const room = await boardScroll(page).evaluate(
-      (region) => region.clientHeight,
-    );
-    if (((await card.boundingBox())?.height ?? 0) > room) {
-      await expectReadingTop(card);
-    } else {
-      await expectWhollyInView(page, readyStory);
-    }
-    await expectDocumentStill(page);
-  });
-}
+test("closing a covering terminal reveals the same whole card where it fits at 700×1600", async () => {
+  const card = await prepareReading({ width: 700, height: 1600 }, false);
+  await expect
+    .poll(() => terminal.element().closest(".page-covering"))
+    .not.toBeNull();
+  await expect.element(sidebar).not.toBeInTheDocument();
+  await closeTerminal();
+  await expect.element(sessions).toHaveFocus();
+  await board.expectStorySelection(card, true);
+  expect(card.element().getBoundingClientRect().height).toBeLessThan(
+    scroller(card.element()).clientHeight,
+  );
+  await expect.poll(() => board.inReadingRoom(card.element())).toBe(true);
+  expectDocumentStill();
+});

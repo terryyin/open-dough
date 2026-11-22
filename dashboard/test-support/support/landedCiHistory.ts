@@ -56,10 +56,11 @@ export async function restartAsLandedCiReader(
   dashboard: DashboardServer,
   origin: Pick<StartOrigin, "machine">,
   mode: "boundary" | "preview",
+  liveServer?: string,
 ): Promise<DashboardServer> {
   const prebuilt = dashboard.outDir ?? sharedDashboardBuild;
   await dashboard.close();
-  return startLandedCiReader(dashboard, origin, mode, prebuilt);
+  return startLandedCiReader(dashboard, origin, mode, prebuilt, liveServer);
 }
 
 // An unattached Start session in an isolated workspace that may land, and

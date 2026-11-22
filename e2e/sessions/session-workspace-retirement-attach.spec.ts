@@ -14,8 +14,8 @@ import {
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
-  parts,
   storyCardSessions,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openTerminalControl,
@@ -81,9 +81,11 @@ for (const loss of ["missing", "unknown", "startup"] as const) {
     const entry =
       doneAt === undefined
         ? storyCardSessions(card(notRefinedStory))
-        : parts(page)
-            .recentlyDone.getByRole("article")
-            .filter({ hasText: native.threadId });
+        : await shownDoneSessionEntriesOf(
+            page,
+            notRefinedStory,
+            native.threadId,
+          );
     const open = openTerminalControl(entry);
     await expect(open).toBeVisible();
     await expect(entry).toContainText(

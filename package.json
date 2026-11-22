@@ -15,7 +15,7 @@
     "preview:dashboard": "vite preview --config dashboard/vite.config.mts",
     "setup-notifier:dashboard": "node dashboard/server/notifierSetup.ts",
     "test:dashboard:frontend": "node scripts/test-frontend.mjs",
-    "test:dashboard:backend": "playwright test --config dashboard/backend.playwright.config.ts",
+    "test:dashboard:backend": "node scripts/test-backend.mjs",
     "test:e2e": "playwright test --config e2e/playwright.config.ts"
   },
   "devDependencies": {

@@ -2,7 +2,10 @@
 // the branch actually incorporated. Review reads only the retained result.
 import { commitIdSchema } from "../src/launchLanding.ts";
 import type { BranchTrunk } from "../src/sessionBranchResult.ts";
-import { fetchGitTarget, remoteBranchHead } from "./gitTargetFetch.ts";
+import {
+  fetchUnlessCommitPresent,
+  remoteBranchHead,
+} from "./gitTargetFetch.ts";
 import { isAncestor, runGit, type GitCall } from "./gitRunner.ts";
 import { restatedPoint } from "./storyReviewComparison.ts";
 
@@ -34,13 +37,7 @@ export async function readBranchTrunkRevision(
   try {
     const { revision } = await observeBranchTrunk(trunk, call);
     if (revision === undefined) return undefined;
-    const commit = ["cat-file", "-e", `${revision}^{commit}`];
-    try {
-      await runGit(commit, call);
-    } catch {
-      await fetchGitTarget(trunk.remote, trunk.target, call);
-      await runGit(commit, call);
-    }
+    await fetchUnlessCommitPresent(revision, trunk, call);
     return revision;
   } catch {
     return undefined;

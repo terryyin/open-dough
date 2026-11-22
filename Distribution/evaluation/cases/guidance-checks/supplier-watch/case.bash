@@ -26,7 +26,7 @@ case_prepare_turn() {
   local root=$1 turn=$2 stream=$3 scratch=$4 started=$5 name
   [[ ${turn} -eq 2 ]] || return 0
   mkdir -p "${scratch}/case-evidence"
-  for name in case_basis_consumer case_basis_supplier case_remote_main native_guidance_check_thread harness; do
+  for name in case_basis_consumer case_basis_supplier case_remote_main native_guidance_check_thread; do
     printf '%s=%q\n' "${name}" "${!name}"
   done > "${scratch}/case-evidence/watch-state.bash"
   printf 'turn-2-watch-start-ms: %s\n' "$((started / 1000))" > "${scratch}/case-evidence/watch-observations.txt"

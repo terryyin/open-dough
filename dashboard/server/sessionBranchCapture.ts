@@ -4,6 +4,7 @@ import { sessionKey } from "../src/sessionReference.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
 import {
   branchPinOwner,
+  hasBranchReview,
   type SessionBranchEntry,
   type SessionBranchResult,
 } from "../src/sessionBranchResult.ts";
@@ -24,6 +25,7 @@ import {
 } from "./sessionBranchAttribution.ts";
 import {
   keepManualLanding,
+  type ManualLanding,
   manualLandingComparison,
   manualLandingTrunk,
   releaseManualLanding,
@@ -41,13 +43,6 @@ export async function isolatedBranchReviewRepository(
   if (session.role !== "isolated" || session.landing !== "review")
     return undefined;
   return commonGitDirectory(gitCall(session.workspace)).catch(() => undefined);
-}
-
-export function hasBranchReview(record: LaunchRecord): boolean {
-  return (
-    record.branchEntry !== undefined ||
-    record.branchReviewRepository !== undefined
-  );
 }
 
 function branchCapturePending(record: LaunchRecord, doneAt: string): boolean {
@@ -93,7 +88,17 @@ export async function readBranchWorkspace({
   };
 }
 
-async function readBranchResult(record: LaunchRecord, doneAt: string) {
+// Answers a candidate record's branch result at its Done time, with the
+// manual delivery it proves; production's capture reads Git only.
+export type BranchCapture = (
+  record: LaunchRecord,
+  doneAt: string,
+) => Promise<{
+  readonly result: SessionBranchResult;
+  readonly delivery: ManualLanding | undefined;
+}>;
+
+export const captureBranchResult: BranchCapture = async (record, doneAt) => {
   const entry = record.branchEntry;
   const start = entry ?? record.establishedSession;
   const repository = entry?.repository ?? record.branchReviewRepository;
@@ -149,7 +154,7 @@ async function readBranchResult(record: LaunchRecord, doneAt: string) {
     ...attribution,
   };
   return { result, delivery };
-}
+};
 
 // Read before publishing the mark, then admit and pin the result within the
 // same record write as Done. The write's own ordering guards decide whether
@@ -160,6 +165,7 @@ export async function withBranchResultAtDone<T>(
   write: (
     settle: (marked: LaunchRecord) => Promise<LaunchRecord>,
   ) => Promise<T>,
+  capture: BranchCapture = captureBranchResult,
 ): Promise<T> {
   if (
     candidate === undefined ||
@@ -180,7 +186,7 @@ export async function withBranchResultAtDone<T>(
     });
 
   const owner = branchPinOwner(candidate);
-  const read = await readBranchResult(candidate, doneAt).catch(() => undefined);
+  const read = await capture(candidate, doneAt).catch(() => undefined);
   let previous: SessionBranchResult | undefined;
   let pinned: SessionBranchResult | undefined;
   let landing: LaunchLanding | undefined;

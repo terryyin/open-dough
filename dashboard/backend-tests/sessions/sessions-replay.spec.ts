@@ -1,5 +1,4 @@
-// Opt-in Sessions measurement: DOUGH_SESSIONS_REPLAY=1; see
-// ../AGENT-LAUNCH-OBSERVATION.md#measuring-the-sessions-answer.
+// Opt-in Sessions measurement: DOUGH_SESSIONS_REPLAY=1.
 // Reports full, unchanged, history and concurrent reads over production-scale
 // seeded sessions; asserts record completeness and revision consistency.
 

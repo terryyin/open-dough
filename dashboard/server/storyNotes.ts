@@ -85,6 +85,25 @@ export async function deliverAttachedStoryNotes(
   });
 }
 
+function nextEditTime(note: StoryNote): string {
+  const versions = [
+    note.savedAt,
+    storyNoteVersion(note),
+    note.delivered ?? note.savedAt,
+  ];
+  const latest = Math.max(...versions.map((version) => Date.parse(version)));
+  const next = new Date(Math.max(Date.now(), latest + 1)).toISOString();
+  if (!next.startsWith("+")) return next;
+
+  // The store's ISO schema uses four-digit years. At its last millisecond,
+  // advance the fractional part instead of rolling into an expanded year.
+  const lastInstant = versions.reduce((furthest, version) => {
+    const instant = version.slice(0, -1);
+    return instant > furthest ? instant : furthest;
+  }, "9999-12-31T23:59:59.999");
+  return `${lastInstant}1Z`;
+}
+
 async function changeNotes(
   project: string,
   change: StoryNoteChange,
@@ -113,7 +132,7 @@ async function changeNotes(
                 ? {
                     ...note,
                     text: change.text,
-                    editedAt: new Date().toISOString(),
+                    editedAt: nextEditTime(note),
                   }
                 : note,
             )
@@ -128,24 +147,59 @@ async function changeNotes(
   return answer;
 }
 
+// The typed notes handler: reads (no change) or changes one admitted project's
+// notes and answers them. A change to a note that no longer exists is refused.
+export async function storyNotes(
+  project: string,
+  change?: StoryNoteChange,
+): Promise<StoryNotesAnswer> {
+  if (change !== undefined) return changeNotes(project, change);
+  const read = await readMachineJson(notesStore());
+  return read.kind === "unreadable" ? read : answerOf(read.document, project);
+}
+
+// A notes request as the wire hands it over: its method, its URL and its
+// body, read only for a change.
+export interface StoryNotesRequest {
+  readonly method: string | undefined;
+  readonly url: URL;
+  readonly body: () => Promise<unknown>;
+}
+
+// Admits a notes request: the method, the `?id=` project among the configured
+// ones and the change body parsed against the shared schema.
+export async function admittedStoryNotesRequest(
+  { method, url, body }: StoryNotesRequest,
+  isConfigured: (project: string) => boolean,
+): Promise<{ project: string; change?: StoryNoteChange }> {
+  if (method !== "GET" && method !== "POST")
+    throw new RefusedRequest(405, "Only GET and POST are accepted.");
+  const project = url.searchParams.get("id");
+  if (project === null)
+    throw new RefusedRequest(400, "The notes request names one project.");
+  if (!isConfigured(project))
+    throw new RefusedRequest(404, "The project is not configured.");
+  if (method === "GET") return { project };
+  const change = storyNoteChangeSchema.safeParse(await body());
+  if (!change.success)
+    throw new RefusedRequest(400, "The notes request is malformed.");
+  return { project, change: change.data };
+}
+
+// The wire adapter: admits the request against the configured projects and
+// answers it through the handler.
 export async function answerStoryNotes(
   req: IncomingMessage,
   signal: AbortSignal,
 ): Promise<StoryNotesAnswer> {
-  if (req.method !== "GET" && req.method !== "POST")
-    throw new RefusedRequest(405, "Only GET and POST are accepted.");
-  const project = new URL(req.url ?? "", "http://local").searchParams.get("id");
-  if (project === null)
-    throw new RefusedRequest(400, "The notes request names one project.");
-  if (configuredProject(project) === undefined)
-    throw new RefusedRequest(404, "The project is not configured.");
-  if (req.method === "GET") {
-    const read = await readMachineJson(notesStore());
-    return read.kind === "unreadable" ? read : answerOf(read.document, project);
-  }
-  const change = storyNoteChangeSchema.safeParse(await jsonBody(req, signal));
-  if (!change.success)
-    throw new RefusedRequest(400, "The notes request is malformed.");
+  const { project, change } = await admittedStoryNotesRequest(
+    {
+      method: req.method,
+      url: new URL(req.url ?? "", "http://local"),
+      body: () => jsonBody(req, signal),
+    },
+    (id) => configuredProject(id) !== undefined,
+  );
   signal.throwIfAborted();
-  return changeNotes(project, change.data);
+  return storyNotes(project, change);
 }

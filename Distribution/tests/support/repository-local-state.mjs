@@ -7,6 +7,7 @@
 import { execFileSync } from "node:child_process";
 import { appendFileSync, chmodSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { describedWorkspaces } from "./repository-workspace.mjs";
 
 /**
  * @typedef {{
@@ -24,23 +25,49 @@ import path from "node:path";
  */
 
 /**
- * The description with its workspace's local state extended by `local`;
+ * The description with one workspace's local state extended by `local`;
  * each kind of fact merges file by file over what the description states.
- * @template {{ workspace?: object & { local?: LocalState } }} Description
+ * With several workspaces, `branch` names which one receives the state.
+ * @template {{ workspace?: object & { local?: LocalState }, workspaces?: readonly (object & { local?: LocalState })[] }} Description
  * @param {Description} description
  * @param {LocalState} local
+ * @param {string} [branch]
  * @returns {Description}
  */
-export function withLocalState(description, local) {
-  const { workspace } = description;
-  if (!workspace)
+export function withLocalState(description, local, branch) {
+  const workspaces = describedWorkspaces(description);
+  if (workspaces.length === 0)
     throw new Error("Local state needs a workspace: call withWorkspace first");
-  const merged = { ...workspace.local };
+  const target =
+    branch !== undefined
+      ? workspaces.find((workspace) => workspace.branch === branch)
+      : workspaces.length === 1
+        ? workspaces[0]
+        : undefined;
+  if (target === undefined)
+    throw new Error(
+      branch === undefined
+        ? "Local state needs a workspace branch when several are declared"
+        : `Local state names unknown workspace ${branch}`,
+    );
+  const merged = { .../** @type {WorkspaceWithLocalState} */ (target).local };
   for (const [kind, facts] of Object.entries(local))
     Object.assign(merged, {
       [kind]: { ...merged[/** @type {keyof LocalState} */ (kind)], ...facts },
     });
-  return { ...description, workspace: { ...workspace, local: merged } };
+  const updated = workspaces.map((workspace) =>
+    workspace.branch === target.branch
+      ? { ...workspace, local: merged }
+      : workspace,
+  );
+  const rest = { ...description };
+  delete rest.workspace;
+  delete rest.workspaces;
+  return /** @type {Description} */ (
+    updated.length === 1
+      ? { ...rest, workspace: updated[0] }
+      : { ...rest, workspaces: updated }
+  );
 }
 
 /**

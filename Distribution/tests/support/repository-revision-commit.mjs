@@ -110,3 +110,32 @@ export async function commitDeclaredRevision(
   });
   return revParse(checkout, "HEAD");
 }
+
+/**
+ * Tag a committed revision: a release gets its annotated `v<version>` tag
+ * dated `taggedAt`, and each stated name a lightweight tag. Returns the tag
+ * refs it created.
+ * @param {string} checkout
+ * @param {RevisionFacts & { release?: import("./repositoryTestData.mjs").Release, tags?: readonly string[] }} revision
+ */
+export async function tagRevision(checkout, { release, tags = [] }) {
+  /** @type {string[]} */
+  const created = [];
+  if (release) {
+    const tag = `v${release.version}`;
+    await exec("git", ["tag", "-a", tag, "-m", tag], {
+      cwd: checkout,
+      env: {
+        ...process.env,
+        GIT_AUTHOR_DATE: release.taggedAt,
+        GIT_COMMITTER_DATE: release.taggedAt,
+      },
+    });
+    created.push(`refs/tags/${tag}`);
+  }
+  for (const tag of tags) {
+    await git(checkout, "tag", tag);
+    created.push(`refs/tags/${tag}`);
+  }
+  return created;
+}

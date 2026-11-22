@@ -1,8 +1,8 @@
 // The story's example 5 at its scale: with 1,000 retained done sessions and
 // five open ones, the regular sessions answer holds the open sessions in full
 // and each done session only as its listing facts -- the whole entry except
-// the launch's reporting handoff, the first input's text, and the landing
-// evidence -- while a history ask answers every done session in full
+// the launch's reporting handoff past its reference, the first input's text,
+// and the landing evidence -- while a history ask answers every done session in full
 // (../../src/sessionListing.ts,
 // ../../server/machineSessionsFragments.ts). The machine state is the
 // Sessions replay's (../../test-support/support/sessionsReplaySeed.ts).
@@ -115,6 +115,9 @@ test("the regular answer lists 1,000 done sessions by their listing facts beside
         landing: undefined,
         landingReporting: undefined,
       });
+      expect(entry["reportingReference"]).toBe(
+        record.request.reporting?.reference,
+      );
       const kept = detailOf(record);
       expect(Object.values(kept).every((part) => part !== undefined)).toBe(
         true,

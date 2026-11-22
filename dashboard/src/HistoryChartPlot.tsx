@@ -1,6 +1,7 @@
 // SVG marks for one placed dated series (`./historyChartLayout.ts`): the
 // value grid, the dashed reference level, the line, a filled point per
-// measured entry, a hollow diamond for a partial one, a larger diamond for
+// measured entry, a hollow diamond for a partial one, an ≈ beside an
+// estimated one, a larger diamond for
 // the selected one, and on the row below the axis a red × per failed build
 // or a hollow mark per other build without timing. A selected build without
 // timing is also marked across the plot. A named trace after the first adds
@@ -66,19 +67,33 @@ function Mark({
         )}
       </g>
     );
+  const estimate = entry.estimate !== undefined && (
+    <text
+      className="history-chart-estimate"
+      x={x + 8}
+      y={y - 6}
+      aria-hidden="true"
+    >
+      ≈
+    </text>
+  );
   if (entry.selected !== true)
     return (
-      <PointShape
-        slot={mark.slot}
-        partial={entry.partial !== undefined}
-        x={x}
-        y={y}
-      >
-        <title>{entry.description}</title>
-      </PointShape>
+      <>
+        <PointShape
+          slot={mark.slot}
+          partial={entry.partial !== undefined}
+          x={x}
+          y={y}
+        >
+          <title>{entry.description}</title>
+        </PointShape>
+        {estimate}
+      </>
     );
   return (
     <g>
+      {estimate}
       <path
         className={`history-chart-point${entry.partial === undefined ? "" : " history-chart-partial"}${trace}`}
         d={diamond(x, y, 6)}

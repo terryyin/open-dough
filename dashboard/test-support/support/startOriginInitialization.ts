@@ -23,6 +23,7 @@ import {
   type StartRepository,
   type StartRevisions,
 } from "./startOriginPreparation.ts";
+import { describedWorkspaces } from "../../../Distribution/tests/support/repository-workspace.mjs";
 import {
   leaveTrunkUnfetched,
   materializeStartWorkspace,
@@ -35,7 +36,7 @@ export async function initializeStartOrigin(
   project: string,
   repository: string,
   host: "claude" | "codex" | "cursor",
-  { workspace, ...description }: StartRepository,
+  description: StartRepository,
 ): Promise<StartRevisions> {
   const layout = host === "claude" ? "claude" : "codex";
   const { directory: prepared, shared } = await preparedStartOrigin(
@@ -97,7 +98,8 @@ export async function initializeStartOrigin(
       await exec("git", ["-C", project, "push", "--quiet", "origin", "main"]);
     }
     await leaveTrunkUnfetched(project, description.revisions, commits);
-    if (workspace) await materializeStartWorkspace(project, workspace, commits);
+    for (const workspace of describedWorkspaces(description))
+      await materializeStartWorkspace(project, workspace, commits);
     return Object.fromEntries(commits);
   } finally {
     if (prepared === undefined)

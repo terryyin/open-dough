@@ -1,5 +1,5 @@
 // The selected story's views in Intent (`./IntentPage.tsx`): **CI
-// comparison**, **Changed tests** and **Intent coverage**, in that order,
+// comparison**, **Changes** and **Intent coverage**, in that order,
 // one Intent tablist (`./IntentTabs.tsx`) under the story's header
 // (`./IntentHeader.tsx`). The chosen view is disposable page state
 // (ADR 0008) kept with the project's reading place
@@ -7,7 +7,7 @@
 // (`./pageStorySelection.tsx`), so every new selection, even of a story
 // cleared and selected again while Intent is hidden, opens CI comparison;
 // returning from Development, Project Intent or another view keeps it. Every
-// view stays mounted while another shows, so the Changed tests reader and
+// view stays mounted while another shows, so the Changes reader and
 // tree keep their place. A file's Proof returns directly to CI comparison
 // through `useStoryCiReturn`, which also focuses that tab.
 //
@@ -18,16 +18,66 @@
 // (`./pageIntentReading.tsx`) as they were, and coming back shows them again.
 // Without a selected story Intent shows Project Intent.
 
-import { createContext, useContext, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { intentTabId, type IntentTabOption } from "./IntentTabs.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 
-export type IntentStoryTab = "ci" | "changed" | "coverage";
+export type IntentStoryTab = "ci" | "changes" | "coverage";
+export type IntentScope = "story" | "project";
+
+// Live chooseScope from the mounted Intent body. The banner sits above Intent,
+// so a downward context cannot reach it; PageFrame holds this ref bridge.
+export type IntentScopeChooser = (next: IntentScope) => void;
+
+const IntentScopeChooserRef = createContext<
+  RefObject<IntentScopeChooser | undefined> | undefined
+>(undefined);
+
+export function IntentScopeBridgeProvider({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
+  const chooser = useRef<IntentScopeChooser | undefined>(undefined);
+  return (
+    <IntentScopeChooserRef value={chooser}>{children}</IntentScopeChooserRef>
+  );
+}
+
+export function useIntentScopeChooser(): IntentScopeChooser | undefined {
+  const chooser = useContext(IntentScopeChooserRef);
+  return chooser === undefined
+    ? undefined
+    : (next) => {
+        chooser.current?.(next);
+      };
+}
+
+// Intent registers its chooseScope while mounted so the banner can call it.
+export function useProvideIntentScopeChooser(
+  chooseScope: IntentScopeChooser,
+): void {
+  const chooser = useContext(IntentScopeChooserRef);
+  useLayoutEffect(() => {
+    if (chooser === undefined) return;
+    chooser.current = chooseScope;
+    return () => {
+      if (chooser.current === chooseScope) chooser.current = undefined;
+    };
+  }, [chooser, chooseScope]);
+}
 
 export const storyTabs: readonly IntentTabOption<IntentStoryTab>[] = [
   { value: "ci", label: "CI comparison" },
-  { value: "changed", label: "Changed tests" },
+  { value: "changes", label: "Changes" },
   { value: "coverage", label: "Intent coverage" },
 ];
 
@@ -60,8 +110,6 @@ export function useStoryTab(selection: SelectedStory | undefined) {
   );
   return { tab: choice, chooseTab: choose };
 }
-
-export type IntentScope = "story" | "project";
 
 // What Intent shows for the page's `selection`, and the way to the other.
 // Project Intent shows only when chosen during this selection.

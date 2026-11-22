@@ -22,7 +22,8 @@ import {
 } from "./storyReviewContract.ts";
 import { diffStartOf } from "./storyComparisonShown.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
-import { FileDiff, type ReviewedWork } from "./StoryReviewFileDiff.tsx";
+import type { ReviewedWork } from "./reviewedFileRead.ts";
+import { FileDiff } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
 import { FileMoves, revealRow } from "./StoryReviewFileMoves.tsx";
 import {
@@ -31,7 +32,7 @@ import {
   FileRow,
   FileTree,
 } from "./StoryReviewFileTree.tsx";
-import { isReviewedSessionSubject } from "./reviewedWorkSubject.ts";
+import { isReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import { useProjects } from "./projectList.tsx";
 import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
 import { StoryReviewWorkarea } from "./StoryReviewWorkarea.tsx";
@@ -166,7 +167,7 @@ export function SnapshotView({
       commitsReview={commitsReview}
       committedOnly={committedOnly}
       published={reviewed.completion !== undefined}
-      sessionSubject={isReviewedSessionSubject(reviewed.subject)}
+      sessionSubject={!isReviewedStorySubject(reviewed.subject)}
       sessionCommits={reviewed.reference === undefined}
       branchResult={branchResult}
     />

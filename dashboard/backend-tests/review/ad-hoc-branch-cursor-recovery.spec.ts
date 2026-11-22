@@ -1,248 +1,217 @@
-import path from "node:path";
+// When Cursor replaces a chat that cannot load, the branch evidence its Done
+// pinned stays owned by the original chat, and only the replacement's removal
+// releases it.
+import { retainedBranchPairFiles } from "../../server/retainedReviewPair.ts";
+import { branchResultAtDone } from "../../src/sessionBranchResult.ts";
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  agentRecoverEndpoint,
-  recoverSessionAnswerSchema,
-} from "../../src/sessionRecovery.ts";
-import { storyReviewFileTextEndpoint } from "../../src/storyReviewContract.ts";
-import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
+  keepBranchResultRefs,
+  sessionBranchPins,
+} from "../../server/launchRecordPins.ts";
 import {
+  bindRecord,
+  changeSessionRecord,
   deleteRecord,
+  keptSession,
+  replaceKeptSession,
+} from "../../server/launchRecordStore.ts";
+import { retireExpiredRecords } from "../../server/launchRecordRemoval.ts";
+import { recordSessionBranchEntry } from "../../server/sessionBranchEntry.ts";
+import { proposeBranchEntry } from "../../server/branchEntryProposal.ts";
+import {
+  launchRetentionDays,
+  type LaunchRecord,
+} from "../../src/launchRecord.ts";
+import {
+  keep,
   markDone,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { daysAgo } from "../../test-support/machineLaunchRecords.ts";
-import { getReview } from "../../test-support/support/completedReviewRequests.ts";
-import {
-  postCompletion,
-  recordOperation,
-} from "../../test-support/support/completionRecovery.ts";
-import { expect, test } from "../../test-support/support/cursorStart.ts";
-import { commit } from "../../test-support/support/launchLanding.ts";
-import {
-  keepLaunchRecords,
-  keptLaunchRecords,
-} from "../../test-support/support/launchStore.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
-import {
-  cursorBranchPins,
-  cursorReport,
-  cursorSessionQuery,
-  detachCursor,
-  identifyCursorBranch,
-  launchCursorReview,
-  postCursorSession,
-  readCursorBranch,
-} from "../../test-support/support/cursorBranchRecovery.ts";
+  source,
+  undoDone,
+} from "../support/doneCaptureCase.ts";
+import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 
-test.use({ serverMode: "boundary" });
-
+const trunkRef = "refs/heads/main";
+const originalId = "0a1b2c3d-e5f6-4789-abcd-ef0123456789";
 const replacementId = "a1b2c3d4-e5f6-4789-abcd-ef0123456789";
 const otherId = "f6e5d4c3-b2a1-4789-abcd-ef0123456789";
 
-const recoveryTest = test.extend<{
-  recoveredBranch: {
-    oldId: string;
-    otherPins: string[];
-    otherReference: string;
-  };
-}>({
-  recoveredBranch: async ({ dashboard, cursor, origin, request }, use) => {
-    const original = await launchCursorReview(dashboard, "Review this topic");
-    const oldId = original.session.sessionId;
-    const reference = original.request.reporting?.reference;
-    if (reference === undefined)
-      throw new Error("The launch did not keep a reporting reference.");
-    const workspace = path.join(origin.machine, "topic");
-    git(origin.project, "worktree", "add", "--quiet", "-b", "topic", workspace);
-    commit(workspace, "before-handoff.txt");
-    await identifyCursorBranch(dashboard, oldId, workspace, "topic");
-    commit(workspace, "prior-done.txt");
-    const initialReport = cursorReport(reference, oldId).please();
-    const initialDone = await postCompletion(dashboard.origin, initialReport);
-    expect(initialDone.status, initialDone.body).toBe(200);
-    const first = await readCursorBranch(request, dashboard, oldId);
-    if (first.kind !== "branch-result")
-      throw new Error("The original Done has no branch comparison.");
-    const oldPins = cursorBranchPins(origin.project, oldId);
-    expect(oldPins.some((pin) => pin.endsWith(first.tree))).toBe(true);
-
-    const reopening = cursorReport(reference, oldId)
-      .withOutcome("unfinished")
-      .saying("Continue review")
-      .please();
-    const reopened = await postCompletion(dashboard.origin, reopening);
-    expect(reopened.status, reopened.body).toBe(200);
-    await detachCursor(dashboard, original.session);
-    cursor.setAttachMode("cannot-load");
-    cursor.queueCreateChatId(replacementId);
-    const recovering = await postCursorSession(
-      dashboard,
-      agentRecoverEndpoint,
-      cursorSessionQuery(oldId),
-    );
-    expect(recovering.status, recovering.body).toBe(200);
-    expect(
-      recoverSessionAnswerSchema.parse(JSON.parse(recovering.body)),
-    ).toMatchObject({
-      kind: "recovered",
-      record: {
-        session: { sessionId: replacementId },
-        branchResult: { base: first.baseline, revision: first.tree },
-      },
-    });
-    expect(cursorBranchPins(origin.project, oldId)).toEqual(oldPins);
-
-    const latest = commit(workspace, "after-recovery.txt");
-    const done = await markDone(dashboard, cursorSessionQuery(replacementId));
-    expect(done.status, done.body).toBe(200);
-    expect(
-      await readCursorBranch(request, dashboard, replacementId),
-    ).toMatchObject({
-      kind: "branch-result",
-      baseline: first.baseline,
-      tree: latest,
-      files: [{ path: "after-recovery.txt" }, { path: "prior-done.txt" }],
-    });
-    const text = await getReview(
-      request,
-      dashboard,
-      storyReviewFileTextEndpoint,
-      {
-        ...cursorSessionQuery(replacementId),
-        baseline: first.baseline,
-        tree: latest,
-        path: "after-recovery.txt",
-      },
-    );
-    expect(await text.json()).toEqual({
-      kind: "text",
-      baseline: null,
-      tree: "after-recovery.txt\n",
-    });
-    const pinsAfterRecovery = cursorBranchPins(origin.project, oldId);
-    expect(pinsAfterRecovery.some((pin) => pin.endsWith(latest))).toBe(true);
-    expect(cursorBranchPins(origin.project, replacementId)).toEqual([]);
-
-    cursor.queueCreateChatId(otherId);
-    const other = await launchCursorReview(
-      dashboard,
-      "Keep a separate result",
-      true,
-    );
-    const separate = other.establishedSession?.workspace;
-    const otherReference = other.request.reporting?.reference;
-    if (separate === undefined || otherReference === undefined)
-      throw new Error(
-        "The second launch did not establish a reported workspace.",
-      );
-    const otherTip = commit(separate, "separate.txt");
-    const otherDone = await markDone(dashboard, cursorSessionQuery(otherId));
-    expect(otherDone.status, otherDone.body).toBe(200);
-    const otherPins = cursorBranchPins(origin.project, otherId);
-    expect(otherPins.some((pin) => pin.endsWith(otherTip))).toBe(true);
-
-    await use({ oldId, otherPins, otherReference });
-  },
+const inCursor = (sessionId: string, workspace: string) => ({
+  sessionId,
+  continuation: { workspace },
 });
 
-recoveryTest(
-  "deletion releases the original branch pins after Cursor replaces its chat",
-  async ({ dashboard, origin, recoveredBranch }) => {
-    const { oldId, otherPins } = recoveredBranch;
-    await stopCursorRunner(dashboard.home);
-    const removed = await deleteRecord(
-      dashboard,
-      cursorSessionQuery(replacementId),
-    );
-    expect(JSON.parse(removed.body)).toEqual({ kind: "deleted" });
+// The same launch continued under the chat Cursor created in its place.
+const replacedBy = (record: LaunchRecord, sessionId: string): LaunchRecord => ({
+  ...record,
+  session: { ...record.session, sessionId },
+});
 
-    expect(cursorBranchPins(origin.project, oldId)).toEqual([]);
-    expect(cursorBranchPins(origin.project, otherId)).toEqual(otherPins);
+const retentionAgo = new Date(
+  Date.now() - (launchRetentionDays + 1) * 86_400_000,
+).toISOString();
+
+const removals = {
+  deletion: (record) => deleteRecord(source, record.session),
+  // Retention drops the aged record at the project's next record write,
+  // which retires it through the production cleanup.
+  expiry: async (record) => {
+    await changeSessionRecord(source, record.session, (kept) => ({
+      ...kept,
+      doneAt: retentionAgo,
+    }));
+    await changeSessionRecord(
+      source,
+      record.session,
+      (kept) => kept,
+      retireExpiredRecords,
+    );
   },
-);
+} satisfies Record<string, (record: LaunchRecord) => Promise<unknown>>;
 
-recoveryTest(
-  "expiry releases the original branch pins after Cursor replaces its chat",
-  async ({ dashboard, origin, recoveredBranch }) => {
-    const { oldId, otherPins, otherReference } = recoveredBranch;
-    keepLaunchRecords(
-      dashboard,
-      keptLaunchRecords(dashboard).map((record) =>
-        "session" in record && record.session.sessionId === replacementId
-          ? { ...record, doneAt: daysAgo(31) }
-          : record,
-      ),
-    );
-    const update = cursorReport(otherReference, otherId)
-      .saying("Separate result stays kept")
+for (const [reason, remove] of Object.entries(removals)) {
+  test(`${reason} releases the original branch pins after Cursor replaces its chat`, async () => {
+    const {
+      checkout,
+      records: { topic: original, other },
+      performWork,
+      at,
+    } = await aDoneCaptureCase()
+      .withOrigin()
+      .withWorkspace("topic")
+      .withIsolatedLaunch(
+        "topic",
+        { launched: 60 },
+        "topic",
+        (launch, { worktrees }) =>
+          launch.inCursorSession(inCursor(originalId, worktrees.topic ?? "")),
+      )
+      .withDefaultMainLaunch(
+        "other",
+        { launched: 60 },
+        (launch, { checkout }) =>
+          launch.inCursorSession(inCursor(otherId, checkout.integration)),
+      )
+      .kept()
       .please();
-    const written = await postCompletion(dashboard.origin, update);
-    expect(written.status, written.body).toBe(200);
+    // Another kept session's branch result, pinned by its owner.
+    await keepBranchResultRefs(other.session, {
+      repository: checkout.integration,
+      doneAt: at(30),
+      base: checkout.base,
+      revision: checkout.base,
+      committedTip: checkout.base,
+    });
+    const otherPins = await sessionBranchPins(
+      checkout.integration,
+      other.session,
+    );
+    expect(otherPins).toContainEqual(
+      expect.objectContaining({ objectId: checkout.base }),
+    );
+    const { prior } = await performWork(
+      makeMe.aCheckoutWork.committing("prior", { at: at(40) }),
+      { in: "topic" },
+    );
+    await markDone(original, at(35));
+    const originalPins = await sessionBranchPins(
+      checkout.integration,
+      original.session,
+    );
+    expect(originalPins).toContainEqual(
+      expect.objectContaining({ objectId: prior }),
+    );
 
-    expect(cursorBranchPins(origin.project, oldId)).toEqual([]);
-    expect(cursorBranchPins(origin.project, otherId)).toEqual(otherPins);
-  },
-);
+    await undoDone(original);
+    const replacement = replacedBy(original, replacementId);
+    await replaceKeptSession(source, original.session, replacement);
+    expect(
+      await sessionBranchPins(checkout.integration, original.session),
+    ).toEqual(originalPins);
 
-test("a stale native replacement retains a branch identified while it was pending", async ({
-  dashboard,
-  origin,
-  request,
-}) => {
-  const { session } = await launchCursorReview(
-    dashboard,
-    "Identify my checkout",
-  );
-  const stale = keptLaunchRecords(dashboard).find(
-    (record) =>
-      "session" in record && record.session.sessionId === session.sessionId,
-  );
-  if (stale === undefined || !("session" in stale))
-    throw new Error("The original native snapshot was not available.");
-  const workspace = path.join(origin.machine, "pending-topic");
-  git(
-    origin.project,
-    "worktree",
-    "add",
-    "--quiet",
-    "-b",
-    "pending-topic",
-    workspace,
-  );
-  const before = commit(workspace, "already-present.txt");
-  await identifyCursorBranch(
-    dashboard,
-    session.sessionId,
-    workspace,
-    "pending-topic",
-  );
-  const latest = commit(workspace, "after-entry.txt");
-  const done = await markDone(dashboard, cursorSessionQuery(session.sessionId));
-  expect(done.status, done.body).toBe(200);
+    const { latest } = await performWork(
+      makeMe.aCheckoutWork.committing("latest", { at: at(30) }),
+      { in: "topic" },
+    );
+    await markDone(replacement);
+    const saved = await keptSession(source, replacement.session);
+    const branch = saved && branchResultAtDone(saved);
+    if (branch === undefined)
+      throw new Error("Missing the kept branch result.");
+    expect(branch).toMatchObject({ base: checkout.base, revision: latest });
+    expect(
+      await retainedBranchPairFiles(branch, new AbortController().signal),
+    ).toMatchObject({ files: [{ path: "latest.txt" }, { path: "prior.txt" }] });
+    expect(
+      await sessionBranchPins(checkout.integration, original.session),
+    ).toContainEqual(expect.objectContaining({ objectId: latest }));
+    expect(
+      await sessionBranchPins(checkout.integration, replacement.session),
+    ).toEqual([]);
 
-  const replacement = {
-    ...stale,
-    session: { ...session, sessionId: replacementId },
-  };
-  await recordOperation(dashboard, "replaceKeptSession", [
-    "open-dough",
-    session,
-    replacement,
-  ]);
-  await recordOperation(dashboard, "bindRecord", ["open-dough", replacement]);
-  const confirmed = await identifyCursorBranch(
-    dashboard,
-    replacementId,
-    workspace,
-    "pending-topic",
-  );
-  expect(JSON.parse(confirmed.body)).toMatchObject({
-    branchEntry: { committedTip: before },
+    await remove(replacement);
+
+    expect(
+      await sessionBranchPins(checkout.integration, original.session),
+    ).toEqual([]);
+    expect(
+      await sessionBranchPins(checkout.integration, other.session),
+    ).toEqual(otherPins);
   });
+}
+
+test("a stale native replacement retains a branch identified while it was pending", async () => {
+  const branch = "pending-topic";
+  const {
+    checkout,
+    worktrees: { [branch]: workspace },
+    work: { present },
+    performWork,
+    at,
+  } = await aDoneCaptureCase()
+    .withOrigin()
+    .withWorkspace(branch)
+    .withWork(
+      (at) => makeMe.aCheckoutWork.committing("present", { at: at(70) }),
+      {
+        in: branch,
+      },
+    )
+    .please();
+  const launch = makeMe.aLaunchRecord
+    .startedOnMainOf(checkout)
+    .launchedAt(at(60))
+    .inCursorSession(inCursor(originalId, checkout.integration));
+  const { entry } = await proposeBranchEntry(trunkRef, launch.please(), {
+    workspace,
+    branch,
+  });
+  const stale = launch.enteredBranch(entry).please();
+  keep(stale);
+  const { entered } = await performWork(
+    makeMe.aCheckoutWork.committing("entered", { at: at(30) }),
+    { in: branch },
+  );
+  await markDone(stale);
+
+  const replacement = replacedBy(stale, replacementId);
+  await replaceKeptSession(source, stale.session, replacement);
+  await bindRecord(source, replacement);
+  const kept = await keptSession(source, replacement.session);
+  if (kept === undefined) throw new Error("The replacement was not kept.");
+
   expect(
-    await readCursorBranch(request, dashboard, replacementId),
-  ).toMatchObject({
-    kind: "branch-result",
-    tree: latest,
-    files: [{ path: "after-entry.txt" }],
-  });
+    await recordSessionBranchEntry({ id: source, ref: trunkRef }, kept, {
+      workspace,
+      branch,
+    }),
+  ).toMatchObject({ committedTip: present });
+  const saved = await keptSession(source, replacement.session);
+  const branchResult = saved && branchResultAtDone(saved);
+  if (branchResult === undefined)
+    throw new Error("Missing the kept branch result.");
+  expect(branchResult.revision).toBe(entered);
+  expect(
+    await retainedBranchPairFiles(branchResult, new AbortController().signal),
+  ).toMatchObject({ files: [{ path: "entered.txt" }] });
 });

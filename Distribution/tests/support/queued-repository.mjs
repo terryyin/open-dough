@@ -161,10 +161,8 @@ export function queuedRepositoryWithRoughStory(roughStory) {
 }
 
 /**
- * The revision an agent's start publishes when it takes `story`: the story
- * Taken with its plan, `queued` left in the Backlog list, and the agent's
- * execution profile, authored by the agent and committed by the developer
- * under the claim message. Trunk Mode unless a story `branch` is named.
+ * An agent's Take of `story`: Taken with its plan, `queued` left, and the
+ * agent's profile. Trunk Mode unless `branch` is named.
  * @param {{ story: BacklogEntry, queued: readonly BacklogEntry[], agent: string, committer: import("./repositoryTestData.mjs").GitPerson, branch?: string, host?: string, publisher?: string }} facts
  */
 export function takeRevision({
@@ -178,6 +176,14 @@ export function takeRevision({
 }) {
   const { agent: author, email } = agentIdentity(agent);
   const assignment = { name: agent, identity: story.identity, host };
+  const profile =
+    branch === undefined
+      ? makeMe.anAgentProfile.executing(assignment)
+      : makeMe.anAgentProfile.executing({
+          ...assignment,
+          mode: "story-branch",
+          branch,
+        });
   return {
     message: `${claimCommitMessage(story.identity, publisher)}Co-authored-by: ${committer.name} <${committer.email}>`,
     backlog: {
@@ -192,20 +198,13 @@ export function takeRevision({
       ],
       queued,
     },
-    agentProfiles: [
-      (branch === undefined
-        ? makeMe.anAgentProfile.executing(assignment)
-        : makeMe.anAgentProfile.executing({
-            ...assignment,
-            mode: "story-branch",
-            branch,
-          })
-      ).please(),
-    ],
+    agentProfiles: [profile.please()],
     author: { name: author, email },
     committer,
   };
 }
+
+export { completionRevision } from "./completion-revision.mjs";
 
 /** @param {{ agent: string, committer: import("./repositoryTestData.mjs").GitPerson }} facts */
 export function queuedRepositoryWithTakenStoryA(facts) {

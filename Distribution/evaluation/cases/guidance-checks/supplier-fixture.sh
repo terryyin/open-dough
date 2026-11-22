@@ -192,11 +192,10 @@ case_continuations() {
   printf '%s %s\n' "${integrations}" "${filings}"
 }
 
-# Prints the turn-N fields of ROOT after turn N, whose stream is STREAM, with
-# SCRATCH for the observer's own copies and HARNESS a pattern naming the
-# controller's paths. Turn status and thread come from the runner.
+# Prints supplier project fields for ROOT after turn N, whose stream is
+# STREAM, with SCRATCH for the observer's own copies.
 supplier_case_observe() {
-  local root=$1 turn=$2 stream=$3 scratch=$4 harness=$5
+  local root=$1 turn=$2 stream=$3 scratch=$4
   local workspace="${root}/workspace" file partial=preserved slice3=partial
   local remote=unchanged integrations filings sessions
   sessions=$(native_guidance_check_sessions_root)
@@ -226,10 +225,6 @@ supplier_case_observe() {
   printf 'turn-%s-agent-proof: %s\n' "${turn}" \
     "$(case_agent_proof "${stream}" "${workspace}" "${native_guidance_check_thread:-}" "${sessions}")"
   printf 'turn-%s-remote: %s\n' "${turn}" "${remote}"
-  printf 'turn-%s-harness-inspected: %s\n' "${turn}" \
-    "$(native_host_stream codex "${stream}" commands | native_harness_inspected "${harness}" -)"
-  printf 'turn-%s-commands: %s\n' "${turn}" \
-    "$(native_host_stream codex "${stream}" commands | wc -l | tr -d ' ')"
 }
 
 case_observe() { supplier_case_observe "$@"; }

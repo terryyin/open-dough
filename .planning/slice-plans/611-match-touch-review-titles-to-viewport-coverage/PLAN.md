@@ -44,8 +44,12 @@ viewport's title describes its own. Proposed titles, refinable in wording:
 | phone | chooses a comparison and file and reads within each pane | keeps the chosen file and reading places through rotation and panel controls |
 | tablet | chooses a file and reads within each pane under the opened comparison | keeps the chosen file and reading places through rotation, Maximize and Restore |
 
-No ADR or North Star direction is involved: this is test wording and
-test-support parameter ownership within existing conventions.
+Follow the [Architectural North Star](../../NORTH-STAR.md): test support holds
+only MakeMe builders and page objects, so retire `storyReviewTouchJourney.ts`
+and `storyReviewTouchContext.ts` from `dashboard/test-support/support/` rather
+than adding wrapper parameters, expressing the viewport steps in
+`e2e/review/story-review-touch.spec.ts` over the `ReviewChanges` and Side panel
+page objects.
 
 ## Decisive premises and preparation observations
 

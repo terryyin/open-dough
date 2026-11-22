@@ -1,15 +1,16 @@
-import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 // Reports have separate marks/messages; activity owns state/place. Read keeps open;
 // Done confirms unfinished work. Terminal: ./agent-terminal-done-report.spec.ts;
 // messages: ../../dashboard/frontend-tests/sessions/session-unread-report-message.spec.ts.
 // Real page/server, synthetic hosts/GitHub.
+import { sessionAction } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 
 import {
-  parts,
   sessionStateOf,
   sessionUnreadReportOf,
   storyCardAttentionOf,
+  storyCardSessions,
   storyCardUnreadReportsOf,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
@@ -215,20 +216,18 @@ test("an unread report is its own mark beside the session's native reading", asy
   await markDoneAnyway(entryA);
   await expect(rowA).toHaveCount(0);
   await expect(badge).toHaveCount(0);
-  await expect(sessionStateOf(cardA)).toHaveCount(0);
-  const recentA = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: titleA });
-  await expect(sessionStateOf(recentA)).toHaveText("Done");
-  await expect(sessionUnreadReportOf(recentA)).toHaveCount(0);
-  await expect(recentA).toContainText(`Named ${doneNameA}`);
-  await expect(recentA).not.toContainText("rename failed");
+  await expect(storyCardSessions(cardA)).toHaveCount(0);
+  const doneA = await shownDoneSessionEntriesOf(page, titleA);
+  await expect(sessionStateOf(doneA)).toHaveText("Done");
+  await expect(sessionUnreadReportOf(doneA)).toHaveCount(0);
+  await expect(doneA).toContainText(`Named ${doneNameA}`);
+  await expect(doneA).not.toContainText("rename failed");
   expect((await recordOf(dashboard, sessionA))?.doneProblem).toBeUndefined();
   expect(dashboard.claudeStopCalls().slice(stopsBeforeDone)).toEqual([
     expect.objectContaining({ argv: ["stop", shortIdA] }),
   ]);
-  const recentMessageA = messagePartOf(recentA);
-  await showColumn(page, "Recently done");
+  const recentMessageA = messagePartOf(doneA);
+  await showColumn(page, "Taken");
   await expectCollapsed(recentMessageA, "Unfinished work");
   await recentMessageA.heading.click();
   await expectExpanded(recentMessageA, "Unfinished work", newerMessage);

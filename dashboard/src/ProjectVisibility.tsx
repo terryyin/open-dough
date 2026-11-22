@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
-import { projectVisibilityEndpoint } from "./projectConfiguration.ts";
+import type { ProjectSettingsSource } from "./projectSettingsSource.ts";
 import {
   selectionAfterProjectChange,
   useReplaceProjects,
@@ -10,11 +10,13 @@ import "./frame-controls.css";
 
 export function ProjectVisibility({
   source,
+  setHidden,
   selectedId,
   onSelect,
   onProblem,
 }: {
   readonly source: PublishedSource;
+  readonly setHidden: ProjectSettingsSource["setHidden"];
   readonly selectedId: string | undefined;
   readonly onSelect: (source: PublishedSource | undefined) => void;
   readonly onProblem: (problem: string | undefined) => void;
@@ -29,22 +31,7 @@ export function ProjectVisibility({
     setSubmitting(true);
     onProblem(undefined);
     try {
-      const response = await fetch(projectVisibilityEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: source.id, hidden: !hidden }),
-      });
-      const answer = (await response.json()) as {
-        projects?: readonly PublishedSource[];
-        error?: string;
-      };
-      if (!response.ok || answer.projects === undefined) {
-        onProblem(
-          answer.error ?? "The project visibility could not be updated.",
-        );
-        return;
-      }
-      const saved = answer.projects;
+      const saved = await setHidden(source.id, !hidden);
       const next = selectionAfterProjectChange({
         previousVisible: visibleProjects,
         saved,
@@ -53,10 +40,8 @@ export function ProjectVisibility({
       });
       replaceProjects(saved);
       onSelect(next);
-    } catch {
-      onProblem(
-        "The project visibility could not be updated. Check the local dashboard server and try again.",
-      );
+    } catch (error) {
+      onProblem(error instanceof Error ? error.message : String(error));
     } finally {
       setSubmitting(false);
     }

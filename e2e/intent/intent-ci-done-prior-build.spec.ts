@@ -9,7 +9,7 @@ import {
 // failed history refresh and its retry are the lifecycle journey's
 // (../../dashboard/frontend-tests/intent/intent-ci-done-reference-lifecycle.spec.ts);
 // each history state's readout is the mounted one's
-// (../../dashboard/frontend-tests/intent-ci-compact-readout.spec.ts).
+// (../../dashboard/frontend-tests/intent/intent-ci-compact-readout.spec.ts).
 import { shortSha } from "../../dashboard/src/baseCiWording.ts";
 import {
   expect,

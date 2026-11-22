@@ -23,10 +23,11 @@ export async function remoteBranchHead(
       ["ls-remote", "--exit-code", "--refs", "--", remote, ref],
       call,
     );
-    const [sha, named] = stdout.trimEnd().split("\t");
-    if (named !== ref)
-      throw new Error("The remote returned an invalid branch head.");
-    return commitIdSchema.parse(sha);
+    const exact = stdout
+      .split("\n")
+      .map((line) => line.split("\t"))
+      .find(([, name]) => name === ref);
+    return exact === undefined ? undefined : commitIdSchema.parse(exact[0]);
   } catch (error) {
     if (
       error instanceof GitFailure &&
@@ -94,4 +95,21 @@ export async function fetchGitTarget(
       });
     },
   );
+}
+
+// Ensures the repository holds `revision`, first fetching the trunk `target`
+// from `remote` when it lacks the commit, as a machine that has not fetched
+// since another one published would. Rejects while the commit stays missing.
+export async function fetchUnlessCommitPresent(
+  revision: string,
+  { remote, target }: { readonly remote: string; readonly target: string },
+  call: GitCall & { readonly signal: AbortSignal },
+): Promise<void> {
+  const commit = ["cat-file", "-e", `${revision}^{commit}`];
+  try {
+    await runGit(commit, call);
+  } catch {
+    await fetchGitTarget(remote, target, call);
+    await runGit(commit, call);
+  }
 }

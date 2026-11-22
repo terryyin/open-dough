@@ -10,7 +10,9 @@ import {
   FileProofTable,
 } from "./IntentFileComparisonContent.tsx";
 import type { ComparisonPreference } from "./IntentCiComparisonPreference.tsx";
+import { ComparisonNamed } from "./IntentComparisonNamed.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
+import "./intent-summary.css";
 
 export function IntentFileProofView({
   path,
@@ -35,6 +37,21 @@ export function IntentFileProofView({
           {...(evidence.checking ? { "aria-live": "polite" as const } : {})}
         >
           {evidence.line}
+        </p>
+      </>
+    );
+  }
+
+  if (treeFile?.outside === true) {
+    return (
+      <>
+        {evidence.kind === "comparison" ? (
+          <ComparisonNamed evidence={evidence} />
+        ) : (
+          <EvidenceNamed evidence={evidence} revision={revision} />
+        )}
+        <p className="intent-summary-evidence-absent">
+          No file-level CI evidence for this file.
         </p>
       </>
     );

@@ -1,6 +1,6 @@
 // Clipboard images pass through the real page and session attachment boundary.
 // The oversized-image refusal UI case lives in
-// dashboard/frontend-tests/agent-terminal-touch-paste-image.spec.ts.
+// dashboard/frontend-tests/terminals/agent-terminal-touch-paste-image.spec.ts.
 
 import { readFileSync } from "node:fs";
 import path from "node:path";

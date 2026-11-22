@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-419#keep-done-session-placement-in-one-rule",
+  "title": "Keep Done session placement in one rule and its proof cohesive",
+  "completedAt": "2026-11-20T12:48:48.317Z",
+  "developer": "Terry Yin",
+  "agent": "Yuma-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

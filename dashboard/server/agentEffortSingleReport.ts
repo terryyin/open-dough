@@ -1,4 +1,4 @@
-// Public single-report output (dashboard/AGENT-EFFORT.md). Internal report
+// Public single-report output of compareAgentEffort.ts. Internal report
 // results reach JSON and readable output only through these explicit mappings.
 import type { nativeEffortSummary } from "./agentEffortNativeSummary.ts";
 import type { cursorEffortReport } from "./agentEffortCursor.ts";

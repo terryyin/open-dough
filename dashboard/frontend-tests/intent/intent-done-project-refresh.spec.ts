@@ -83,7 +83,7 @@ test("project refresh returns the same Done historical Purpose file and reading 
   const { intent } = await selectDoneStoryInIntent(page);
   await firstRequested;
   expect(locations).toEqual([completion]);
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expect(filesColumn(intent)).toBeVisible();
   expect(locations).toEqual([completion]);
   await openProjectIntent(intent);
@@ -91,7 +91,7 @@ test("project refresh returns the same Done historical Purpose file and reading 
   expect(locations).toEqual([completion, published]);
   await expect(browserRevision(intent)).toContainText(published.slice(0, 7));
   await returnToStory(intent);
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   await expandIntentFolders(intent, "dashboard/tests");
   const selected = `Added ${longFile}`;
@@ -109,11 +109,7 @@ test("project refresh returns the same Done historical Purpose file and reading 
     page,
     frontendServices,
   );
-  for (const tab of [
-    "CI comparison",
-    "Intent coverage",
-    "Changed tests",
-  ] as const)
+  for (const tab of ["CI comparison", "Intent coverage", "Changes"] as const)
     await chooseStoryTab(intent, tab);
   await openProjectIntent(intent);
   await expect(revisionNotice(intent)).toBeVisible();

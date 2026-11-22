@@ -1,118 +1,160 @@
-// Selection and inspection are separate on active and Recently done cards:
-// empty-area clicks toggle the selected story's highlight without opening or
-// closing detail. Inspect story opens and closes only its card's detail and
-// leaves the selection alone; a disabled Start and a session entry do not
-// select or launch; selection survives Intent without a "Selected story only"
-// toggle. Showing an ad hoc session clears the selection in
-// ../intent/intent-ci-status-side-panel.spec.ts; several open details and
-// dependency references in ../../../e2e/stories/story-card-inspection.spec.ts.
+import { expect, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { readDoneRecordBodiesAt } from "../../src/authenticatedDoneRead.ts";
+import { mountBoardFrame } from "./board-frame-mount.ts";
+import { noSessions, withBoardStorage } from "./board-mount.ts";
+import { boardReading as board } from "./board-reading-page.ts";
+import { boardWork, cataloguedDone, story } from "./board-work.ts";
+import { tapWhereShown } from "./board-touch-page.ts";
 
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import {
-  executed,
-  queuedTitle,
-} from "../../test-support/recentlyDoneRecords.ts";
-import { openFrontendStoryCardSessions } from "../../test-support/support/frontendRecentlyDoneStoryCards.ts";
-import { recordHostRequests } from "../../test-support/support/frontendHostRequests.ts";
-import {
-  emptyArea,
-  expectInspected,
-  expectSelected,
-  storyDetail,
-} from "../../test-support/storyCardSelection.ts";
-import { hideDetail, storyCard } from "../../test-support/storyCardControls.ts";
+vi.mock(import("../../src/authenticatedDoneRead.ts"), async (original) => ({
+  ...(await original()),
+  readDoneRecordBodiesAt: vi.fn(),
+}));
 
-test("empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async ({
-  page,
-  frontendServices,
-}) => {
-  await openFrontendStoryCardSessions(page, frontendServices);
-  const hostRequests = recordHostRequests(page);
-  const {
-    backlog,
-    recentlyDone: recent,
-    development,
-    intentChoice,
-    intent,
-  } = parts(page);
-  const active = storyCard(backlog, queuedTitle);
-  const done = storyCard(recent, executed.title);
-  const activeEmptyArea = emptyArea(active);
+type Card = ReturnType<typeof page.getByRole>;
 
-  await test.step("empty-area click selects and clears an active card without opening detail", async () => {
-    await activeEmptyArea.click();
-    await expectSelected(active, true);
-    await expectInspected(active, false);
-    await activeEmptyArea.click();
-    await expectSelected(active, false);
-    await expectInspected(active, false);
+const detail = (card: Card) =>
+  card.getByRole("region", { name: /^Detail for / });
+const heading = (card: Card, title: string) =>
+  card.getByRole("heading", { name: title, exact: true }).first();
+
+async function inspected(card: Card, open: boolean) {
+  await expect
+    .element(
+      card.getByRole("button", {
+        name: open ? "Hide detail" : "Inspect story",
+      }),
+    )
+    .toHaveAttribute("aria-expanded", String(open));
+  if (open) await expect.element(detail(card)).toBeVisible();
+  else await expect.element(detail(card)).not.toBeInTheDocument();
+}
+
+test("empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async () => {
+  withBoardStorage("0");
+  const activeStory = story(
+    "Prepare stories in a clear developer workspace workflow",
+    8,
+    {
+      dependencies: {
+        status: "unavailable",
+        problem: "The recorded dependency facts could not be read.",
+      },
+    },
+  );
+  const completed = makeMe.aDoneRecord
+    .completed({
+      identity: "SEED-38#card-shows-avatar",
+      title: "Card shows avatar",
+      completedAt: new Date(Date.now() - 30_000).toISOString(),
+    })
+    .please();
+  const closed = makeMe.aLaunchRecord
+    .executing(completed)
+    .inClaudeSession({ sessionId: "done-card-session" })
+    .launchedAt(new Date(Date.now() - 120_000).toISOString())
+    .markedDoneAt(new Date(Date.now() - 60_000).toISOString())
+    .please();
+  const { records } = makeMe.aMachineAnswer
+    .observingUnavailable(closed)
+    .please();
+  const { done, readBodies } = cataloguedDone([completed]);
+  vi.mocked(readDoneRecordBodiesAt).mockImplementation(readBodies);
+  const startLaunch = vi.fn();
+  const readHistory = vi.fn();
+  await mountBoardFrame(
+    boardWork([activeStory], { taken: [], done }),
+    { width: 1280, height: 900 },
+    "stories",
+    {
+      ...noSessions,
+      records,
+      launched: records,
+      start: startLaunch,
+      readHistory,
+    },
+  );
+
+  const active = board
+    .column("Backlog")
+    .getByRole("article", { name: activeStory.title, exact: true });
+  const doneCard = board
+    .column("Recently done")
+    .getByRole("article", { name: completed.title, exact: true });
+  const activeArea = heading(active, activeStory.title);
+  const doneArea = heading(doneCard, completed.title);
+  await activeArea.click();
+  await board.expectStoryHighlight(active);
+  await inspected(active, false);
+  await activeArea.click();
+  await board.expectStorySelection(active, false);
+  await inspected(active, false);
+
+  await active.getByRole("button", { name: "Inspect story" }).click();
+  await inspected(active, true);
+  await board.expectStorySelection(active, false);
+  await detail(active).click();
+  await board.expectStorySelection(active, false);
+  await activeArea.click();
+  await board.expectStoryHighlight(active);
+  await inspected(active, true);
+  await activeArea.click();
+  await board.expectStorySelection(active, false);
+  await inspected(active, true);
+  await active.getByRole("button", { name: "Hide detail" }).click();
+  await inspected(active, false);
+  await board.expectStorySelection(active, false);
+
+  await activeArea.click();
+  await board.expectStoryHighlight(active);
+  const start = active.getByRole("button", { name: "Start execution" });
+  await expect.element(start).toBeDisabled();
+  await tapWhereShown(start.element());
+  await board.expectStoryHighlight(active);
+  await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
+  expect(startLaunch).not.toHaveBeenCalled();
+
+  await doneArea.click();
+  await board.expectStoryHighlight(doneCard);
+  await board.expectStorySelection(active, false);
+  await inspected(active, false);
+  await expect.element(detail(doneCard)).not.toBeInTheDocument();
+  const session = doneCard
+    .getByRole("list", { name: "Sessions" })
+    .getByRole("article");
+  await expect.element(session).toBeVisible();
+  await session
+    .getByRole("heading", { name: completed.title, exact: true })
+    .click();
+  await board.expectStoryHighlight(doneCard);
+  await expect.element(detail(doneCard)).not.toBeInTheDocument();
+  expect(readHistory).toHaveBeenCalled();
+  expect(document.querySelector(".side-panel")).toBeNull();
+
+  const intent = page.getByRole("main", { name: "Intent", exact: true });
+  const intentChoice = page.getByRole("radio", { name: "Intent", exact: true });
+  const development = page.getByRole("radio", {
+    name: "Development",
+    exact: true,
   });
-
-  await test.step("Inspect story opens and closes only detail; selection toggles without closing it", async () => {
-    await active.getByRole("button", { name: "Inspect story" }).click();
-    await expectInspected(active, true);
-    await expectSelected(active, false);
-    await storyDetail(active).click();
-    await expectSelected(active, false);
-    await activeEmptyArea.click();
-    await expectSelected(active, true);
-    await expectInspected(active, true);
-    await activeEmptyArea.click();
-    await expectSelected(active, false);
-    await expectInspected(active, true);
-    await hideDetail(active);
-    await expectInspected(active, false);
-    await expectSelected(active, false);
-  });
-
-  await test.step("disabled Start does not change selection or launch", async () => {
-    await activeEmptyArea.click();
-    await expectSelected(active, true);
-    // Disabled Start must not select via event fall-through.
-    const start = active.getByRole("button", { name: "Start execution" });
-    await expect(start).toBeDisabled();
-    await start.click({ force: true });
-    await expectSelected(active, true);
-    await expect(page.getByRole("dialog")).toHaveCount(0);
-    expect(hostRequests()).toEqual([]);
-  });
-
-  await test.step("a Recently done card takes the one selection without opening detail; its session entry does not toggle or attach", async () => {
-    await emptyArea(done).click();
-    await expectSelected(done, true);
-    await expectSelected(active, false);
-    await expectInspected(active, false);
-    await expect(storyDetail(done)).toHaveCount(0);
-    const session = done
-      .getByRole("list", { name: "Sessions" })
-      .getByRole("article")
-      .first();
-    await expect(session).toBeVisible();
-    await session.click();
-    await expectSelected(done, true);
-    await expect(storyDetail(done)).toHaveCount(0);
-    expect(hostRequests()).toEqual([]);
-  });
-
-  await test.step("selection survives Intent and clears with no Selected story only toggle", async () => {
-    await intentChoice.click();
-    await expect(intent).toBeVisible();
-    await expect(intent).toHaveAttribute(
-      "data-selected-story",
-      executed.identity,
-    );
-    await expect(
-      intent.getByRole("checkbox", { name: "Selected story only" }),
-    ).toHaveCount(0);
-    await expect(intent.getByText("Selected story only")).toHaveCount(0);
-    await development.click();
-    await expectSelected(done, true);
-    await emptyArea(done).click();
-    await expectSelected(done, false);
-    await intentChoice.click();
-    await expect(intent).not.toHaveAttribute("data-selected-story");
-    await expect(intent.getByText("Selected story only")).toHaveCount(0);
-    await development.click();
-  });
+  const only = intent.getByText("Selected story only", { exact: true });
+  await intentChoice.click();
+  await expect
+    .element(intent)
+    .toHaveAttribute("data-selected-story", completed.identity);
+  await expect.element(only).not.toBeInTheDocument();
+  await expect
+    .element(intent.getByRole("checkbox", { name: "Selected story only" }))
+    .not.toBeInTheDocument();
+  await development.click();
+  await board.expectStoryHighlight(doneCard);
+  await doneArea.click();
+  await board.expectStorySelection(doneCard, false);
+  await intentChoice.click();
+  await expect.element(intent).toBeVisible();
+  await expect.element(intent).not.toHaveAttribute("data-selected-story");
+  await expect.element(only).not.toBeInTheDocument();
+  await development.click();
 });

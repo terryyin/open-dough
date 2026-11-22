@@ -1,31 +1,12 @@
 // A snapshot's own first-parent commits, and one commit's comparison in the
 // same file browser and diff as All changes. Trunk merges remain selectable.
 import {
-  changedFilesList,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import { writeFileSync } from "node:fs";
-import path from "node:path";
-import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  commitRangeHeading,
-  chooseCommit,
-} from "../../dashboard/test-support/support/storyReviewCommitChoice.ts";
-import {
-  showCommits,
-  openStoryReview,
-} from "../../dashboard/test-support/support/reviewRead.ts";
+import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
-import {
-  reviewRegion,
-  comparisonChoice,
-  filesToggle,
-  toolbarComparison,
-} from "../../dashboard/test-support/support/reviewControls.ts";
 import {
   git,
   observed,
@@ -33,12 +14,22 @@ import {
   storyWorktree,
   unchangedRepository,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
+import {
+  storyARepository,
+  storyAWithNewestRepository,
+} from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 
 test.use({ originRepository: unchangedRepository });
 
-test.describe("from Story A's declared history", () => {
-  test.use({ originRepository: storyARepository });
+// A new plain head after Story A's merge gives the default one plain
+// commit's changes beside the declared uncommitted state.
+test.describe("from Story A's declared history with a newest plain edit", () => {
+  test.use({
+    originRepository: storyAWithNewestRepository({
+      name: "newest story edit",
+      files: { "story.txt": "story\nnewest story\n" },
+    }),
+  });
 
   test("Commits lists the first-parent line below Uncommitted changes and shows a chosen commit's trees", async ({
     page,
@@ -46,23 +37,11 @@ test.describe("from Story A's declared history", () => {
     origin,
   }) => {
     const { workspace } = storyWorktree(origin);
-    // Leave the fixture's staged/unstaged/untracked files intact; a new plain
-    // head gives the default one plain commit's changes.
-    writeFileSync(path.join(workspace, "story.txt"), "story\nnewest story\n");
-    git(
-      workspace,
-      "commit",
-      "--quiet",
-      "-m",
-      "newest story edit",
-      "--",
-      "story.txt",
-    );
     keepLaunchRecord(dashboard, workspace);
     const before = observed(workspace);
     const card = await openBacklog(page, origin);
-    const snapshot = await openStoryReview(page, card);
-    const review = reviewRegion(page);
+    const review = await openReviewChanges(page, card);
+    const { snapshot } = review;
     const expected = git(
       workspace,
       "log",
@@ -78,59 +57,44 @@ test.describe("from Story A's declared history", () => {
       "story file",
       "rename with a small edit",
     ]);
-    await comparisonChoice(review, "Commits", { exact: true }).check();
-    const rows = review
-      .getByRole("list", { name: "Story commits", exact: true })
-      .getByRole("button");
-    await expect(rows).toHaveCount(6);
+    await review.comparison.choose("Commits");
+    const { commits, files, diffs } = review;
+    await commits.expectRowCount(6);
     for (const [at, commit] of snapshot.commits.entries()) {
-      await expect(rows.nth(at + 1)).toContainText(
+      await commits.expectRowText(
+        at + 1,
         `${commit.shortRevision} ${commit.subject}`,
       );
-      await expect(rows.nth(at + 1).locator("time")).toHaveAttribute(
-        "datetime",
-        new Date(commit.committedAt).toISOString(),
-      );
+      await commits.expectCommittedAt(at + 1, commit.committedAt);
     }
-    await expect(rows.nth(2)).toContainText("Integrated trunk");
-    await expect(rows.nth(2)).toBeEnabled();
-    await expect(rows.first()).toHaveText("Uncommitted changes");
-    await expect(rows.first()).toHaveAttribute("aria-pressed", "true");
-    await chooseCommit(review, rows.nth(1));
-    await chooseCommit(review, rows.nth(1));
-    await expect(
-      review.getByRole("heading", { name: "Changes in 1 commit" }),
-    ).toBeVisible();
-    await expect(commitRangeHeading(review)).toContainText(
+    await commits.expectRowText(2, "Integrated trunk");
+    await commits.expectEnabled(2);
+    await commits.expectRowText(0, /^Uncommitted changes$/);
+    await commits.expectChosen(0);
+    await commits.chooseAlone(1);
+    await commits.expectRange(
+      "Changes in 1 commit",
       `From ${snapshot.commits[0]?.shortRevision} newest story edit to ${snapshot.commits[0]?.shortRevision} newest story edit.`,
     );
-    const files = changedFilesList(review, "1 changed file", { exact: true });
-    await expect(
-      listedFile(files, "Modified story.txt", { exact: true }),
-    ).toBeVisible();
-    await expect(review.locator(".story-review-diff")).toContainText(
-      "newest story",
-    );
-    await expect(review.locator(".story-review-diff")).not.toContainText(
-      "untracked",
-    );
+    await files.expectListed("1 changed file", ["Modified story.txt"]);
+    await diffs.expectText("newest story");
+    await diffs.expectText("untracked", false);
     // Extend to the older commit, then activate again to start its own range.
-    await chooseCommit(review, rows.last());
-    await chooseCommit(review, rows.last());
-    await expect(rows.last()).toHaveAttribute("aria-pressed", "true");
-    await expect(
-      listedFile(files, "Renamed old.txt → new.txt", { exact: true }),
-    ).toBeVisible();
-    await expect(review.locator(".story-review-diff")).toContainText("renamed");
-    await expect(review.locator(".story-review-diff")).not.toContainText(
-      "newest story",
-    );
-    await expect(toolbarComparison(review)).toHaveText("Commits");
-    await filesToggle(review).click();
-    await expect(files).toBeHidden();
-    await expect(review.locator(".story-review-diff")).toBeVisible();
+    await commits.chooseAlone("last");
+    await commits.expectChosen("last");
+    await files.expectListed("1 changed file", ["Renamed old.txt → new.txt"]);
+    await diffs.expectText("renamed");
+    await diffs.expectText("newest story", false);
+    await review.expectComparisonNamed("Commits");
+    await review.hideFiles();
+    await review.expectFilesShown(false);
+    await diffs.expectShown();
     expect(observed(workspace)).toEqual(before);
   });
+});
+
+test.describe("from Story A's declared history", () => {
+  test.use({ originRepository: storyARepository });
 
   test("a clean merge selected alone changed nothing by itself", async ({
     page,
@@ -140,27 +104,17 @@ test.describe("from Story A's declared history", () => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
-    await openStoryReview(page, card);
-    const review = reviewRegion(page);
-    await comparisonChoice(review, "Commits", { exact: true }).check();
-    const rows = review
-      .getByRole("list", { name: "Story commits", exact: true })
-      .getByRole("button");
-    await chooseCommit(review, rows.nth(1));
-    await chooseCommit(review, rows.nth(1));
-    await expect(rows.nth(1)).toHaveAttribute("aria-pressed", "true");
-    await expect(rows.first()).toBeEnabled();
-    await expect(review).toContainText("The chosen commits changed nothing.");
-    await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
-    await expect(filesToggle(review)).toHaveCount(0);
-    await chooseCommit(review, rows.nth(3));
-    await chooseCommit(review, rows.nth(3));
-    await expect(
-      changedFilesList(review, "1 changed file", { exact: true }).getByRole(
-        "button",
-        { name: "Added story.txt" },
-      ),
-    ).toBeVisible();
+    const review = await openReviewChanges(page, card);
+    await review.comparison.choose("Commits");
+    const { commits, files } = review;
+    await commits.chooseAlone(1);
+    await commits.expectChosen(1);
+    await commits.expectEnabled(0);
+    await review.expectText("The chosen commits changed nothing.");
+    await files.expectNone();
+    await review.expectNoFilesToggle();
+    await commits.chooseAlone(3);
+    await files.expectListed("1 changed file", ["Added story.txt"]);
   });
 });
 
@@ -172,15 +126,10 @@ test("no commits and no uncommitted changes offers no Commits", async ({
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const snapshot = await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  expect(snapshot.commits).toEqual([]);
-  await expect(review).toContainText(
-    "No changes: the worktree matches baseline",
-  );
-  await expect(
-    comparisonChoice(review, "Commits", { exact: true }),
-  ).toHaveCount(0);
+  const review = await openReviewChanges(page, card);
+  expect(review.snapshot.commits).toEqual([]);
+  await review.expectText("No changes: the worktree matches baseline");
+  await review.comparison.expectOffered("Commits", false);
 });
 
 test.describe("with one empty story commit", () => {
@@ -197,14 +146,12 @@ test.describe("with one empty story commit", () => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
-    await openStoryReview(page, card);
-    const review = reviewRegion(page);
-    await showCommits(review);
-    await expect(
-      review.getByRole("heading", { name: "Changes in 1 commit" }),
-    ).toBeVisible();
-    await expect(review).toContainText("The chosen commits changed nothing.");
-    await expect(changedFilesList(review, /changed file/)).toHaveCount(0);
-    await expect(filesToggle(review)).toHaveCount(0);
+    const review = await openReviewChanges(page, card);
+    await review.comparison.choose("Commits");
+    await review.expectRead();
+    await review.commits.expectRange("Changes in 1 commit");
+    await review.expectText("The chosen commits changed nothing.");
+    await review.files.expectNone();
+    await review.expectNoFilesToggle();
   });
 });

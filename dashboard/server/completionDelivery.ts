@@ -44,7 +44,7 @@ export async function deliverCompletion(
           ),
         ))
       )
-        doneMarks.reported(report.source, previous.receipt);
+        void doneMarks.reported(report.source, previous.receipt);
       return previous.receipt;
     }
     const saved =
@@ -129,7 +129,7 @@ export async function deliverCompletion(
           };
         }),
     );
-    if (delivered.current) doneMarks.reported(report.source, saved);
+    if (delivered.current) void doneMarks.reported(report.source, saved);
     return delivered.saved;
   } catch (error) {
     if (error instanceof RefusedRequest) throw error;

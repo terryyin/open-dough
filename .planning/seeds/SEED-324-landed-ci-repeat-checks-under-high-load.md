@@ -27,7 +27,7 @@ This seed now holds its correction.
 {"schemaVersion":1,"identity":"SEED-324#close-landed-ci-repeat-check-gaps","dependencies":[{"supplier":{"identity":"SEED-332#answer-fake-gh-reads-in-process","href":"seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process"},"implementation":"SEED-332 owns the shared fake-GitHub read transport and fixture/staging efficiency work. SEED-324 consumes its published interfaces and retains its own coverage/refactoring implementation and acceptance.","rationale":"Slice 3 repeatedly exhausted default budgets in shared fixture/history work. SEED-332 already owns that receiving repair and has composed this correction's offered history and lifetime changes. Parallel edits would duplicate an active repair; common design and reconciliation alone cannot establish the stable published supplier outcome and its proof.","condition":"SEED-332 completes and publishes its reusable fake-GitHub/fixture efficiency outcome with its required stability evidence and real native CLI controls intact. Integrating that outcome and proving this correction's own stage, race, kept-proof, ancestry and load observations remain SEED-324 work.","state":"satisfied","resolution":{"revision":"fe1d1b851247f7d0a5d726e7e575f0b9ab32a036","path":".planning/seeds/SEED-332-answer-fake-gh-in-process.md#answer-fake-gh-reads-in-process","summary":"SEED-332 completed its reusable default in-process fake-GitHub transport and fixture/staging efficiency outcome, with production transport unchanged and real native CLI PID/signal/replacement controls intact. Completed PLAN610 and linked proof at this recoverable revision retain controlled136/136 under measured53.22% totalCPU contention, admitted full2793+one expected opt-in skip, current group/native receiving85/85, repaired stream15/15 and exact CI9e4ace82/run43553974482/1 success; completionfe1d1b85/run43554534505/1 also succeeded. This outcome was accepted on origin/main atc5a700892faf556137e6b48c61f365a8742833a8. The supplier prerequisite is fulfilled. SEED-324 retains its own integration, stage/race/kept-proof/ancestry coverage, three-pass family and natural-load/25-second acceptance; those unfinished consumer promises are not claimed complete. Its distinct not-ready natural-load preparation reason remains unchanged.\nCondition satisfied: SEED-332 completes and publishes its reusable fake-GitHub/fixture efficiency outcome with its required stability evidence and real native CLI controls intact. Integrating that outcome and proving this correction's own stage, race, kept-proof, ancestry and load observations remain SEED-324 work.\nAccepted integration: c5a700892faf556137e6b48c61f365a8742833a8 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md","assessment":"not-ready","reasons":["Establish a bounded way to obtain the required natural CPU-load 30–50 acceptance observation before another long execution; quiet diagnostics and passive monitoring left that host premise unverified."],"basis":{"document":"ad738449170f098cd650270870e8c2cdc3956c365a9fb8aceaf850509fdd56e5","plan":"d897e33f403d5fb4c7828d442d296e220fb5f7c52f86e50b18bdcdf4748ea75b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md","assessment":"not-ready","reasons":["Realign unfinished slices 3–8 to plain Node Vitest over strongly typed landed-ci backend handlers directly, removing HTTP/ciFollowUpScenario test-support wrappers."],"basis":{"document":"3143445923aa0c5ffac1cdae25ed28fda9e5e8295d9062c87f0bfdbcd27cceca","plan":"cd62eb5d92439958b0bcd0b951fafcd259e3c874e40ea3f032fd4677df8c6add"}}
 ```
 
 **Goal.** A maintainer who changes automatic CI follow-up, or the support
@@ -45,12 +45,20 @@ answering, provider layering, the automatic-repeat spec and start-origin
 preparation each get one owner. A later start-origin revision may name the
 first revision as its parent. No product behavior changes, and no new product
 promise. Every check still passes at load 30–50 within the default timeouts.
-**Approved scope extension (Terry, 2026-11-13).** The correction may also
-optimize repeated immutable completion/claim-history reads in the existing
-product history-read path. Functional behavior, mutable-ref observation,
-error/abort handling and every existing test gate remain unchanged. This
-permits the bounded product-code change needed by the retained load failure;
-it does not authorize a transport redesign or a relaxed acceptance bound.
+**Approved scope extension (Terry, 2026-11-13 & 2026-11-19).** The correction
+may optimize repeated immutable completion/claim-history reads in the existing
+product history-read path, and under the
+[Architectural North Star](../NORTH-STAR.md) and installed
+[test boundary rule](../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary),
+unfinished slices 3–8 should prove the missing stage, race, kept-proof and
+ancestry behaviors in plain Node Vitest by exposing and calling strongly typed
+`landed-ci` backend handlers directly (adding zero wrappers to `test-support`
+and removing HTTP/`ciFollowUpScenario` `test-support` wrappers rather than
+tidying them to survive load 30–50 HTTP server runs), while keeping the
+surviving phone E2E journeys from slices 1–2 intact. The
+[handler contract](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability) should let a unit test suite
+exercise a stage with its own inputs and collaborators without arranging
+other stages merely to call it.
 
 Plan:
 [607-close-landed-ci-repeat-check-gaps](../slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md).

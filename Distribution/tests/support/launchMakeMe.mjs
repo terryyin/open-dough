@@ -1,9 +1,9 @@
 // @ts-check
 // Launch/landing MakeMe builders kept as accessors for fresh-builder semantics.
-import { LaunchRecordBuilder } from "./launchTestData.mjs";
+import { LaunchReviewedSessionBuilder } from "./launchReviewedSessionTestData.mjs";
 import { CreationRecordBuilder } from "./launchCreationTestData.mjs";
 import { LaunchRequestBuilder } from "./launchRequestTestData.mjs";
-import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
+import { ReportingAttemptBuilder } from "./launchReportingAttemptTestData.mjs";
 import { AttemptObservationBuilder } from "./launchAttemptObservationTestData.mjs";
 import { MachineAnswerBuilder } from "./machineAnswerTestData.mjs";
 import {
@@ -26,6 +26,7 @@ import { ClaudeListingRowBuilder } from "./claudeListingTestData.mjs";
 import { CursorCliConfigBuilder } from "./cursorCliConfigTestData.mjs";
 import { RunningCursorSessionsBuilder } from "./runningCursorSessionsTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
+import { SessionReviewReadBuilder } from "./sessionReviewTestData.mjs";
 
 /** @typedef {import("../../../dashboard/server/startStore.ts").StartRecord} StartRecord */
 /** @typedef {import("../../../dashboard/src/hostStatus.ts").HostStatus} HostStatus */
@@ -39,7 +40,7 @@ import { copyFacts } from "./factBuilder.mjs";
  *
  * @typedef {object} LaunchMakeMe
  * @property {FactBuilder<StartRecord>} aStartRecord
- * @property {import("./launchTestData.mjs").LaunchRecordBuilder} aLaunchRecord
+ * @property {import("./launchReviewedSessionTestData.mjs").LaunchReviewedSessionBuilder} aLaunchRecord
  * @property {import("./launchRequestTestData.mjs").LaunchRequestBuilder} aLaunchRequest
  * @property {import("./launchCreationTestData.mjs").CreationRecordBuilder} aCreationRecord
  * @property {import("./completionReportTestData.mjs").CompletionReportBuilder} aCompletionReport
@@ -56,9 +57,10 @@ import { copyFacts } from "./factBuilder.mjs";
  * @property {import("./cursorCliConfigTestData.mjs").CursorCliConfigBuilder} aCursorCliConfig
  * @property {import("./launchObservationTestData.mjs").SessionStateBuilder} aSessionState
  * @property {import("./launchObservationTestData.mjs").ObservedLaunchBuilder} anObservedLaunch
- * @property {import("./launchAttemptTestData.mjs").AcceptedAttemptBuilder} anAcceptedAttempt
+ * @property {import("./launchReportingAttemptTestData.mjs").ReportingAttemptBuilder} anAcceptedAttempt
  * @property {import("./launchAttemptObservationTestData.mjs").AttemptObservationBuilder} anAttemptObservation
  * @property {import("./machineAnswerTestData.mjs").MachineAnswerBuilder} aMachineAnswer
+ * @property {import("./sessionReviewTestData.mjs").SessionReviewReadBuilder} aSessionReviewRead
  */
 
 /** @returns {PropertyDescriptorMap} */
@@ -74,7 +76,7 @@ export function launchMakeMeProperties() {
     aLaunchRecord: {
       enumerable: true,
       get() {
-        return new LaunchRecordBuilder();
+        return new LaunchReviewedSessionBuilder();
       },
     },
     aLaunchRequest: {
@@ -177,7 +179,7 @@ export function launchMakeMeProperties() {
     anAcceptedAttempt: {
       enumerable: true,
       get() {
-        return new AcceptedAttemptBuilder();
+        return new ReportingAttemptBuilder();
       },
     },
     anAttemptObservation: {
@@ -190,6 +192,12 @@ export function launchMakeMeProperties() {
       enumerable: true,
       get() {
         return new MachineAnswerBuilder();
+      },
+    },
+    aSessionReviewRead: {
+      enumerable: true,
+      get() {
+        return new SessionReviewReadBuilder();
       },
     },
   };

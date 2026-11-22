@@ -24,6 +24,7 @@ import { holdDoneRequestRoute } from "../../dashboard/test-support/support/holdD
 import {
   headerMarkAsDone,
   idleBetweenSteps,
+  markDoneAnyway,
   sendDoneMarkAnyway,
 } from "../../dashboard/test-support/support/markDone.ts";
 
@@ -79,7 +80,9 @@ test.describe("pending Mark as done from the terminal", () => {
     expect(dashboard.claudeStopCalls()).toEqual([]);
 
     // A late answer after the bound must not look like a refused persisted
-    // intent; recovery reuses the settled mark without a second native stop.
+    // intent; recovery reuses the settled mark without a second native stop,
+    // and is waited for until that answer has come, since the released rename
+    // and stop may outlast one expectation's bound.
     release();
     await expect(unresolved).toBeVisible();
     await expect(
@@ -87,7 +90,7 @@ test.describe("pending Mark as done from the terminal", () => {
         .getByRole("status")
         .getByText("The session could not be marked done."),
     ).toHaveCount(0);
-    await sendDoneMarkAnyway(panel);
+    await markDoneAnyway(panel);
     await expect(panel).toHaveCount(0);
     await expect(listed).toHaveCount(0);
     expect(dashboard.claudeStopCalls()).toHaveLength(1);

@@ -1,218 +1,53 @@
 # Architectural North Star
 
 Temporary direction for current work; revise when evidence changes it and retire
-realized topics after checking affected stories. Accepted ADRs remain authoritative.
+realized topics after checking affected stories. Accepted ADRs remain
+authoritative.
 
-## One backlog interpretation, separate observation and presentation
+## Make production code directly testable instead of growing test support
 
-For the first dashboard, keep the existing pure backlog document, identity, and
-direction readers as the owners of those meanings. Their current import graph
-has no filesystem dependency. A published spelling those readers refuse is a
-read problem, or a bounded compatibility change there, never a second dashboard
-grammar. Within a
-small `dashboard/` application, distinguish reading a GitHub ref and its pinned
-backlog content, projecting the shared reader's result into a typed snapshot
-with source evidence, and rendering that snapshot plus transient retrieval state.
-The connected-stage presentation derives card membership/order from that
-snapshot, keyed by work identity. Start with semantic work cards, simple
-connectors, and ordinary layout/reflow; do not build a viewport or animation
-framework before this reading goal needs one. When useful, keep zoom/pan,
-focused work, and transitions as separate UI state: they neither change
-repository facts nor represent machine-local coordination. Zoom reveals
-already-read facts; animation explains navigation or observed changes. Neither
-requires a new story-state schema or persistence.
-Use ordinary functions and components; these responsibilities do not require
-services, repositories, plugin interfaces, or separate packages. The browser
-must not import filesystem/store/merge orchestration. A snapshot describes
-published membership; loading and refresh failure describe observation, not
-new story lifecycle states. This direction supports the
-[story dashboard](../dashboard/README.md) and its later project and readiness work,
-following [ADR 0001](../docs/adrs/0001-ubiquitous-language-accepted.md) and
-[ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
-Agent assignments are published facts like any other: an execution or
-preparation assignment is the agent profile on trunk, and the page derives
-Taken owners and Preparing from that profile's presence. The agent roster is
-one more view of that snapshot, and a commission's human developer is the
-committer of the commit that added its profile's current allocation; avatar
-images, like every GitHub read, come through the local boundary and never
-become assignment evidence. Keep later product intent,
-structure, and local operational models out until their selected behavior needs
-them.
-UI choices stay in the separate
-[UX/UI North Star](../docs/dashboard-ux-ui-north-star.md).
+Test support (`dashboard/test-support/` at ~790 files beside ~1,145 production
+files, and `Distribution/tests/support/` at ~361 files) may hold **only data
+builders (MakeMe) and page objects**, with the rare exception of minimal seam
+code strictly forced by a framework limitation. **Adding any new wrapper to test
+support is forbidden; every further change outside data builders and page
+objects may only remove code from test support** until tests exercise production
+code directly. Count setup and support when judging the cost of a test. Keep
+the case's inputs and expected outcomes visible.
 
+When a case would need a wrapper or wide helper imports, reshape the production
+seam while preserving behavior. Keep wire and command adapters thin over
+strongly typed handlers. Give UI components narrow typed inputs and shared
+boundary contracts so specs mount the owning component.
 
-For the dashboard, every configured project is read through the
-launching person's local `gh` authentication (Terry's decisions of 2026-09-21
-for Pygardon and 2026-09-23 for Open Dough and Doughnut). Keep
-dashboard origin/project admission in one narrow loopback boundary shared by
-dev and built preview. The shared installed runtime owns authenticated upstream
-request admission, with the dashboard boundary as its validated client. It returns
-published revision and pinned file data for the same browser interpretation;
-no direct browser-to-GitHub path remains. Credentials never enter browser
-assets. Configured project identity bounds the local reader's requests; no arbitrary proxy
-or new state authority is needed. Selection is transient UI state, with one
-project's observation visible at a time. This direction follows
-[Accepted ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-and creates no coordination between the observed projects.
-Terry's decision of 2026-10-02 adds and removes projects through the dashboard,
-using a GitHub URL and local checkout path. The local server saves one ordered
-project configuration per environment on this machine: built production and
-live development. These are machine-local settings; the observed repository
-continues to own project state.
+## Act as soon as the page allows
 
-## Dashboard status delivery
+UI tests act as the reader does: render and deliver input as soon as the page
+allows it, and wait only for what the action changes through retrying
+assertions, as
+[Which entry a case uses](../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
+describes. New cases act directly. Remove the remaining React `act` wrapping
+as its test families move.
 
-Prefer one shared SSE connection per streaming page for live dashboard status,
-including published revision status, story review state, session status,
-CI follow-up status, and host status as each migrates. Reuse the existing
-connection budget and observe only status the visible views need. Send compact
-state changes or revision notifications, share backend observations among pages,
-and give a page a way to catch up after reconnecting or when it has no stream
-slot. Retain each status's source and freshness independently.
+## Plain Vitest for unit tests; Playwright only for E2E
 
-Every event, HTTP response, and chart or list projection maps directly to the
-dashboard's domain concepts and their meanings under
-[ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
-Keep names, identities, units, and distinctions such as unknown versus absent
-consistent across layers. Smaller payloads can carry a subset of domain data
-or a domain-defined summary, with only the translation needed at the boundary.
+Remove `@playwright/test` completely from `dashboard/frontend-tests/` (and
+`dashboard/backend-tests/`), reserving Playwright (`@playwright/test` and its
+`Given / When / Then` step style) exclusively for `e2e/`. Run
+`dashboard/frontend-tests/` on **plain Vitest with embedded headless Chromium**
+(Vitest Browser Mode, as in Doughnut — real Chromium DOM and CSS without
+`@playwright/test` imports, `page.route(...)`, `test.step(...)`, or page
+objects), deleting `dashboard/frontend.playwright.config.ts` and the
+dual-runner glue in `scripts/test-frontend.mjs`,
+`scripts/dashboard-group-run.mjs`, `scripts/retained-playwright.mjs`, `groupVitest.mjs`, `groupOutputs.mjs`, and `groupSelection.mjs`; move
+any true multi-service or full-reload straggler to `e2e/` (or drop duplicates)
+rather than retaining Playwright in `frontend-tests/`. Run
+`dashboard/backend-tests/` on plain Vitest in Node, deleting
+`dashboard/backend.playwright.config.ts`.
 
-The backend owns GitHub backoff and schedules the next attempt. It sends
-waiting, retrying, and recovered status as it observes them. The browser renders
-those states and keeps the dashboard stream open for machine-local updates.
-Track stream health independently of GitHub progress. A source failure keeps
-the last confirmed state available with its own freshness information.
-
-Keep interactive terminal input and output on WebSocket. Let each history or
-chart view determine the domain data it needs for its initial display and fetch
-additional evidence on inspection. Exact payload shapes and windows remain open.
-Evaluate the status delivery preference with request counts, bytes transferred,
-backend observation cost, and time from an observed change to a stable display.
-The [UX/UI North Star](../docs/dashboard-ux-ui-north-star.md#live-status-and-source-freshness)
-describes how these updates should read.
-
-## Agent launch as a requested assignment
-
-Starting agent work from the dashboard adds its first action, as proposed in
-[SEED-052](https://github.com/terryyin/open-dough/blob/7cda80ffebcb3a190d1c71f80aec3e33b7e59f95/.planning/seeds/SEED-052-start-agent-work-from-dashboard.md)
-and delivered in [launch execution](../dashboard/AGENT-LAUNCH.md).
-Model it in the vocabulary the dashboard
-already reads, so later launch stories extend one model instead of adding
-parallel ones:
-
-- An **agent launch** starts one **workflow** on one work item, through one
-  host (`claude`, `codex`, and `cursor`, from `agentHosts`), with an
-  optional developer instruction. A workflow names the skill it runs and the
-  published **activity** (from `agentActivities`) whose assignment it asks
-  for: execution runs `dough-execute-plan` and asks for an execution
-  assignment; refinement runs `dough-story-refinement` and asks for a
-  preparation assignment. One activity can host several workflows (planning
-  also prepares), which is why the launch names the workflow rather than the
-  activity. Workflows are added when a story delivers them, in one table that
-  the boundary, host, and card all read; no per-workflow copy of the action or
-  dialog is built. The agent's ordinary workflow still owns workspaces, Take,
-  preparation, and publication.
-- A **launch record** is machine-local operational evidence (ADR 0008's later
-  local layer): the request, when it was launched, and the host **session** it
-  started. It never settles, moves, or becomes story state: its session stays
-  listed until the developer marks it done or an explicitly reported successful
-  Land/Wrap Up completion without an attention message marks that session done,
-  whatever the story's published stage. Later stories list, persist, and attach to these same records rather
-  than inventing a session registry.
-- Each **host** owns how to start and identify its sessions (for Claude Code:
-  `claude --bg`, which chooses and prints its own session id, confirmed
-  through `claude agents --json`) and how a developer reaches one (`claude attach`).
-  Host-specific code stays in one module per host behind the `LaunchHost`
-  boundary in `dashboard/server/launchHosts.ts`; an operation a host lacks is
-  unavailable, never supplied by another host. Shared code reads host facts
-  (name, skill sigil, offered models, recovery hint and optional native-check
-  advice) from one host description, and offered operations from the host
-  boundary ([native hosts](../dashboard/AGENT-LAUNCH-HOSTS.md)); each host's
-  identity and continuation have their own session record variant; session
-  wording names the session's own host and alerting follows facts the host
-  reports; and shared launch gates apply to every host rather than to one by
-  name.
-- Each configured project's **local folder** is a machine-local fact held by the
-  local server, not by published project state.
-- **Sessions are the machine's, not a project's.** Launch records sit in one
-  store on this machine. Observe the recorded host-qualified conversations;
-  Claude's machine-wide listing can supply that observation, while Codex reads
-  the saved native thread and endpoint. The page reads them once
-  for every configured project and holds one session state, apart from project
-  selection; cards, Recently done, and the Sessions sidebar
-  each derive their view by project and identity from it. Actions on one
-  session (attach, stop, Mark as done) still run in its project's folder.
-  The Board's published work view observes one selected project at a time.
-  Shown Recently done rows' bounded completed-story link observations and
-  shared machine-local review cues now follow the maintained
-  [session history contract](../dashboard/AGENT-LAUNCH-HISTORY.md).
-  Later hosts join the same session read through their own module.
-
-Each host normalizes its native activity; common presentation owns its user
-meaning. Saved conversation existence, current native activity and the
-developer's local done mark are distinct: an unloaded conversation can retain
-resumable history, and a completed turn does not complete its story. Read-only
-monitoring must not resume a conversation or take its interactive control.
-Hosts reuse the shared session observation, alerts and terminal transport; client
-detachment stays distinct from explicit per-conversation interruption. Cursor
-proves its own native boundary rather than inheriting Claude's or Codex's, and
-composable session policy supplies actual context without another registry or
-an assumption that every conversation has an assignment. Follow Accepted ADRs
-[0001](../docs/adrs/0001-ubiquitous-language-accepted.md),
-[0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
-and [0005](../docs/adrs/0005-cross-tool-validation-accepted.md).
-
-Process and filesystem responsibility stays in the existing local loopback
-boundary: the launch endpoint sits beside the read endpoint in the same Vite
-launch, reuses its loopback and same-origin refusal before any process starts,
-passes fixed argument arrays (never a shell string), and keeps launch records
-in the common machine-local store. Native runtime infrastructure stays owned
-by its host. The dashboard adds no database and no daemon for story state.
-Cursor's terminal process is the exception: one machine-local runner owns
-it, as the dashboard terminal and command documentation describe. Claude
-Code and Codex stay with their hosts. The browser holds
-only transient dialog and request state and derives what a card shows from the
-published snapshot plus launch records. This extends, and does not replace,
-the read boundary topic above and ADR 0008's origin authority.
-
-## A start establishes claim and workspace before the session
-
-The delivered execution start and its siblings in
-[the launch contract](../dashboard/AGENT-LAUNCH.md) (refinement's
-preparation start, Codex, Cursor) share one model, so each adds a row to a
-table, never a second flow. Model it in the launch vocabulary above.
-
-| Domain concept | Meaning | Owner (module) |
-| --- | --- | --- |
-| **Workflow** | Gains a `start` kind: what mechanical preparation precedes its session (`execution-start`, `preparation-assignment`, or none for ad hoc). | The one `launchWorkflows` table (`src/agentLaunch.ts`). |
-| **Start** | A workflow's deterministic establishment of a published claim and an owned workspace, run before its session by the project's installed skill script, never reimplemented by the dashboard (PFE: `execution-start.mjs` already fetches, selects the workspace, names the agent, publishes the Take, and reports recovery). | `server/startWorkflows.ts` selects the shared start; `executionStart.ts` and `preparationStart.ts` own their installed command/result boundaries. |
-| **Workspace choice** | Where the start puts its checkout: a path and branch, decided by the dashboard for every host, never by a host's own worktree feature: `<project folder>/.worktrees/<story slug>`. Claude Code uses the folder's trust; Codex resolves a linked worktree's trust to its main repository; Cursor can request trust for a fresh isolated worktree, so its terminal shows the held prompt and waits for the developer's answer. These workspaces stay inside the project folder, and outside `~/.codex/worktrees` and `~/.cursor/worktrees` those tools' automatic cleanup does not reach it. The branch names the selected host, such as `claude/<slug>`, `codex/<slug>`, or `cursor/<slug>`. | The shared pure function `server/launchWorkspace.ts`; host branches and workspace folders share collision checks. |
-| **Established start** | The start's typed result: identity, publisher id, workspace, branch, mode, remote and target, agent, `publishedSha`, `startingRevision`, `candidateSha`, plan. The handoff to the session. | Shared type in `src/agentLaunch.ts`. |
-| **Start record** | Machine-local, write-ahead evidence of one start: written *before* the script runs (publisher id, workspace, branch), updated with the established start, removed when a launch record keeps it. It is what a retry resumes. Never a story fact; origin's Take decides Taken. | `server/startStore.ts`, beside `launchRecordStore.ts` on the same file discipline (one shared JSON-file helper). |
-| **Handoff** | The host spells the skill invocation plus the installed established-start handoff; the skill consumes it as its own start result. | The host's private input builder consumes the selected installed formatter; the invoked skill owns established-start reuse. |
-
-Rules that keep later stories additive:
-
-- **Order.** Admit, then start, then session. The record store and the host see a
-  session only once the start is established; a failed session leaves the start
-  record, so the story's claim never loses its workspace.
-- **Agent.** The claim names host and the chosen model (omitted on Default). A
-  retry after a published claim keeps that claim's model; the session's requested
-  model may differ, and the record says what was requested.
-- **Integration checkout.** The project's folder is the script's `--integration`:
-  it refreshes that checkout only when safe and reports the rest, so a dirty
-  folder never blocks the start.
-- **Host seam.** Host modules own the skill root
-  (`.claude/skills` for Claude Code; `.agents/skills` for Codex and Cursor),
-  native conversation start in the chosen workspace (Codex daemon `thread/start`
-  with CWD; Cursor `--workspace`, never native `--worktree` / `-w`), and listing
-  where the host supplies passive status. Cursor does not. The
-  workspace choice is shared, not a host convention. The start and the record are host-agnostic and take
-  only `host`, `model`, and the workspace choice. The common contract contains only delivered operations; native helpers remain
-  private behind one public module per delivered host.
-- **Failure kinds** stay in the existing `failed` / `uncertain` launch results,
-  with a `start` field when a claim may be published, so cards keep one wording.
-
-Retire this topic when the sibling stories have delivered their rows and the
-code and tests carry it; keep any lasting rule in `dashboard/AGENT-LAUNCH.md`.
+Applies to all upcoming dashboard (`dashboard/server/`, `dashboard/src/`,
+`dashboard/*-tests/`, `dashboard/test-support/`), distribution (`Distribution/`),
+test-optimization, and refactoring work, under
+[ADR 0002](../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+and the installed
+[test boundary rule](../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#choose-the-test-boundary).

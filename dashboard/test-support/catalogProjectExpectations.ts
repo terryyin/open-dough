@@ -100,8 +100,9 @@ export function expectPinnedGhCalls(
     [
       ".planning/PRODUCT-BACKLOG.md",
       ".planning/agents",
-      // The done-record directory is listed for Recently done.
+      // The done-record and session directories are listed for Recently done.
       ".planning/done",
+      ".planning/sessions",
       ".planning/open-dough.json",
       expected.takenPath,
       expected.queuedPath,

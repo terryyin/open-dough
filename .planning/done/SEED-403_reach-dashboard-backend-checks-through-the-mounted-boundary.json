@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary",
+  "title": "Enable opt-in mounting for dashboard backend checks",
+  "completedAt": "2026-11-19T01:45:14.070Z",
+  "developer": "Terry Yin",
+  "agent": "Maria-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

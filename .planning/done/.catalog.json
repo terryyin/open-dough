@@ -2,6 +2,360 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_choose-story-comparison-in-intent.json",
+      "identity": "SEED-420#choose-story-comparison-in-intent",
+      "completedAt": "2026-11-21T18:53:27.577Z",
+      "blob": "e378292b145bb58c0050ae83ae1e69cd696836b7"
+    },
+    {
+      "fileName": "SEED-413_speed-dashboard-board-and-panel-proof.json",
+      "identity": "SEED-413#speed-dashboard-board-and-panel-proof",
+      "completedAt": "2026-11-21T17:16:33.345Z",
+      "blob": "3cff0732dafff1b209f24dfc69a332c2a800b789"
+    },
+    {
+      "fileName": "SEED-420_open-review-in-intent.json",
+      "identity": "SEED-420#open-review-in-intent",
+      "completedAt": "2026-11-21T17:14:05.193Z",
+      "blob": "c9100463ad5bc4f7b92017709d6427013e754261"
+    },
+    {
+      "fileName": "SEED-421_stop-repeating-git-work-in-shared-publication.json",
+      "identity": "SEED-421#stop-repeating-git-work-in-shared-publication",
+      "completedAt": "2026-11-21T16:35:24.823Z",
+      "blob": "e258a47883a07f6323d5f33fa654a6dda73df8e6"
+    },
+    {
+      "fileName": "SEED-413_speed-intent-source-and-story-reading.json",
+      "identity": "SEED-413#speed-intent-source-and-story-reading",
+      "completedAt": "2026-11-21T14:53:17.813Z",
+      "blob": "098ce1f7d03039d9cd5577beb761b99fc355f093"
+    },
+    {
+      "fileName": "SEED-413_tie-done-capture-cases-to-production.json",
+      "identity": "SEED-413#tie-done-capture-cases-to-production",
+      "completedAt": "2026-11-21T14:01:09.473Z",
+      "blob": "def7b6d9bc2447e2dcb397576527e46804d0dda8"
+    },
+    {
+      "fileName": "SEED-413_speed-intent-proof-and-timing.json",
+      "identity": "SEED-413#speed-intent-proof-and-timing",
+      "completedAt": "2026-11-21T13:47:09.994Z",
+      "blob": "a8d920ef5e1edc134b018eeb5c5855aa86987353"
+    },
+    {
+      "fileName": "SEED-413_speed-intent-ci-comparison-proof.json",
+      "identity": "SEED-413#speed-intent-ci-comparison-proof",
+      "completedAt": "2026-11-21T10:49:05.914Z",
+      "blob": "6c1b8a8f47ccff425ae6f1bd1587e4ea4b75b01e"
+    },
+    {
+      "fileName": "SEED-418_name-unavailable-published-session-review.json",
+      "identity": "SEED-418#name-unavailable-published-session-review",
+      "completedAt": "2026-11-21T09:37:40.445Z",
+      "blob": "befef48469263345d074b938f71cb36e9a2448a4"
+    },
+    {
+      "fileName": "SEED-413_speed-intent-source-recovery-and-late-styling-cases.json",
+      "identity": "SEED-413#speed-intent-source-recovery-and-late-styling-cases",
+      "completedAt": "2026-11-21T09:10:58.611Z",
+      "blob": "20ae91405282e9c23e4424866187c124effdb57d"
+    },
+    {
+      "fileName": "SEED-413_fold-done-capture-launches-into-makeme.json",
+      "identity": "SEED-413#fold-done-capture-launches-into-makeme",
+      "completedAt": "2026-11-21T08:55:30.866Z",
+      "blob": "20d1c9a841539f644cdebedb5683387c05406d8d"
+    },
+    {
+      "fileName": "SEED-418_correct-published-session-review.json",
+      "identity": "SEED-418#correct-published-session-review",
+      "completedAt": "2026-11-21T06:51:24.270Z",
+      "blob": "fe3db3ae658c60b8dc6928f076addad073b673dc"
+    },
+    {
+      "fileName": "SEED-413_mount-story-review-changes-panel.json",
+      "identity": "SEED-413#mount-story-review-changes-panel",
+      "completedAt": "2026-11-21T06:03:01.074Z",
+      "blob": "8b50f9161a5a0a35ba62db952ad1738001a58f5d"
+    },
+    {
+      "fileName": "SEED-413_mount-system-settings-sections-and-usage-charts.json",
+      "identity": "SEED-413#mount-system-settings-sections-and-usage-charts",
+      "completedAt": "2026-11-21T05:40:04.045Z",
+      "blob": "27f1a6a2fc5eca521c23470619ea9ab8d0c9efd5"
+    },
+    {
+      "fileName": "SEED-413_correct-landing-record-writes-and-tests.json",
+      "identity": "SEED-413#correct-landing-record-writes-and-tests",
+      "completedAt": "2026-11-21T03:21:12.691Z",
+      "blob": "8fa96b82189e4004223b5b1751ffd195cd03f57a"
+    },
+    {
+      "fileName": "SEED-413_restore-done-capture-proof-after-composed-reviews.json",
+      "identity": "SEED-413#restore-done-capture-proof-after-composed-reviews",
+      "completedAt": "2026-11-21T03:07:13.755Z",
+      "blob": "96000d1bda369f1ba1d3754868447bca725933f2"
+    },
+    {
+      "fileName": "SEED-418_review-published-session-changes.json",
+      "identity": "SEED-418#review-published-session-changes",
+      "completedAt": "2026-11-21T02:25:23.075Z",
+      "blob": "f5745477129bddcaad76809a6c772b5fc4f7d272"
+    },
+    {
+      "fileName": "SEED-413_prove-ad-hoc-review-handoffs-with-typed-handlers.json",
+      "identity": "SEED-413#prove-ad-hoc-review-handoffs-with-typed-handlers",
+      "completedAt": "2026-11-21T02:11:38.054Z",
+      "blob": "6def42020ef4abfff2f2680044ee8f82e570aecf"
+    },
+    {
+      "fileName": "SEED-413_reduce-review-diff-reading-to-logic-cases.json",
+      "identity": "SEED-413#reduce-review-diff-reading-to-logic-cases",
+      "completedAt": "2026-11-21T02:00:15.378Z",
+      "blob": "b805347a0e49f186b3bbb3596ac9e0099fc08248"
+    },
+    {
+      "fileName": "SEED-413_observe-done-deliveries-over-typed-records.json",
+      "identity": "SEED-413#observe-done-deliveries-over-typed-records",
+      "completedAt": "2026-11-21T01:35:21.380Z",
+      "blob": "f304c5dff72ab4398402dccf93cd4209c1a28318"
+    },
+    {
+      "fileName": "SEED-413_decide-landings-over-typed-attempts-and-records.json",
+      "identity": "SEED-413#decide-landings-over-typed-attempts-and-records",
+      "completedAt": "2026-11-20T18:30:16.325Z",
+      "blob": "37d0381a8b6847cb02b95e91df97940173c3f163"
+    },
+    {
+      "fileName": "SEED-413_mount-usage-token-index-reading.json",
+      "identity": "SEED-413#mount-usage-token-index-reading",
+      "completedAt": "2026-11-20T17:31:38.371Z",
+      "blob": "b866bb4e6757bf75b08d8950bb52d5f05b249d4e"
+    },
+    {
+      "fileName": "SEED-413_split-branch-entry-proposal-from-store.json",
+      "identity": "SEED-413#split-branch-entry-proposal-from-store",
+      "completedAt": "2026-11-20T17:07:18.934Z",
+      "blob": "c60cbacc685ccef9fdf91e3e7b0b72b714ec5e1e"
+    },
+    {
+      "fileName": "SEED-413_split-done-mark-decision-from-store.json",
+      "identity": "SEED-413#split-done-mark-decision-from-store",
+      "completedAt": "2026-11-20T16:57:48.628Z",
+      "blob": "085b137b91eded5448afd61620adb73202491b63"
+    },
+    {
+      "fileName": "SEED-413_mount-story-review-diff-reading.json",
+      "identity": "SEED-413#mount-story-review-diff-reading",
+      "completedAt": "2026-11-20T16:27:40.703Z",
+      "blob": "a937373761ab399173cbdde1c9e9b4b4316fdce9"
+    },
+    {
+      "fileName": "SEED-413_mount-optimization-candidates-frontend-proof.json",
+      "identity": "SEED-413#mount-optimization-candidates-frontend-proof",
+      "completedAt": "2026-11-20T13:07:10.165Z",
+      "blob": "a7bf9eafd3744322ee1eee0fee1fa2c01a9b1716"
+    },
+    {
+      "fileName": "SEED-413_mount-open-sessions-sidebar-frontend-proof.json",
+      "identity": "SEED-413#mount-open-sessions-sidebar-frontend-proof",
+      "completedAt": "2026-11-20T13:02:21.366Z",
+      "blob": "a0aa9239a5cf626b45744a46b1a834f9af66e896"
+    },
+    {
+      "fileName": "SEED-419_keep-done-session-placement-in-one-rule.json",
+      "identity": "SEED-419#keep-done-session-placement-in-one-rule",
+      "completedAt": "2026-11-20T12:48:48.317Z",
+      "blob": "0c033964ca81a37eb26ba4f966a38bf4105ab7aa"
+    },
+    {
+      "fileName": "SEED-413_arrange-done-ad-hoc-observation-and-publication.json",
+      "identity": "SEED-413#arrange-done-ad-hoc-observation-and-publication",
+      "completedAt": "2026-11-20T11:48:49.835Z",
+      "blob": "9d8a4ca30af55c4793a14fcff8110c43ffd291da"
+    },
+    {
+      "fileName": "SEED-413_ad-hoc-branch-result-handoff.json",
+      "identity": "SEED-413#ad-hoc-branch-result-handoff",
+      "completedAt": "2026-11-20T10:44:20.373Z",
+      "blob": "2ba277a1e36d66ef5b6e7d46d11fcf0557793544"
+    },
+    {
+      "fileName": "SEED-413_ad-hoc-done-lifecycle.json",
+      "identity": "SEED-413#ad-hoc-done-lifecycle",
+      "completedAt": "2026-11-20T10:31:25.612Z",
+      "blob": "7d7dfb88dc8e214a28ee487771d6c5e7514c6c40"
+    },
+    {
+      "fileName": "SEED-414_review-done-sessions-on-open-story-cards.json",
+      "identity": "SEED-414#review-done-sessions-on-open-story-cards",
+      "completedAt": "2026-11-20T10:28:14.846Z",
+      "blob": "ecca50a94466b9216888fccbe2c26677f36ec9e1"
+    },
+    {
+      "fileName": "SEED-413_optimization-candidates-revision-cases.json",
+      "identity": "SEED-413#optimization-candidates-revision-cases",
+      "completedAt": "2026-11-20T08:41:05.491Z",
+      "blob": "83328de98a00fa55a697b43d2dcd2c6924630918"
+    },
+    {
+      "fileName": "SEED-413_remove-ad-hoc-done-helper.json",
+      "identity": "SEED-413#remove-ad-hoc-done-helper",
+      "completedAt": "2026-11-20T07:27:54.874Z",
+      "blob": "884790bf9aa9d3a537bc7a2a85b741d8f9ce72ec"
+    },
+    {
+      "fileName": "SEED-413_show-latest-source-file-read-cases.json",
+      "identity": "SEED-413#show-latest-source-file-read-cases",
+      "completedAt": "2026-11-20T06:57:43.616Z",
+      "blob": "085c36896009a476b0ec4038c9a4519f27a65b15"
+    },
+    {
+      "fileName": "SEED-413_story-launch-session-review-cases.json",
+      "identity": "SEED-413#story-launch-session-review-cases",
+      "completedAt": "2026-11-20T06:19:55.892Z",
+      "blob": "b079fd8808d287fd894bf8ee9b62f5a6bda5687d"
+    },
+    {
+      "fileName": "SEED-413_narrow-ad-hoc-review-handler-contracts.json",
+      "identity": "SEED-413#narrow-ad-hoc-review-handler-contracts",
+      "completedAt": "2026-11-20T05:44:56.426Z",
+      "blob": "130de9bd682d18cbff5fb70ab04912b848d7ad05"
+    },
+    {
+      "fileName": "SEED-413_renovate-remaining-dashboard-backend-unit-tests.json",
+      "identity": "SEED-413#renovate-remaining-dashboard-backend-unit-tests",
+      "completedAt": "2026-11-20T05:40:42.192Z",
+      "blob": "87497f64509ac7ea0b303e0abcf488950a8cd0c8"
+    },
+    {
+      "fileName": "SEED-413_refuse-story-launch-session-file-reads.json",
+      "identity": "SEED-413#refuse-story-launch-session-file-reads",
+      "completedAt": "2026-11-20T04:51:13.508Z",
+      "blob": "348eba00e75c942803cade67b1ae9fa39d9b6746"
+    },
+    {
+      "fileName": "SEED-413_renovate-dashboard-backend-unit-tests.json",
+      "identity": "SEED-413#renovate-dashboard-backend-unit-tests",
+      "completedAt": "2026-11-19T16:51:33.747Z",
+      "blob": "cccebba0f1aad91f89b586420d62a4e122c3020e"
+    },
+    {
+      "fileName": "SEED-413_renovate-remaining-dashboard-frontend-unit-tests.json",
+      "identity": "SEED-413#renovate-remaining-dashboard-frontend-unit-tests",
+      "completedAt": "2026-11-19T16:19:01.406Z",
+      "blob": "e9418c4c08b4ea489991f7350c1d68e5ecc76a09"
+    },
+    {
+      "fileName": "SEED-413_renovate-dashboard-frontend-unit-tests.json",
+      "identity": "SEED-413#renovate-dashboard-frontend-unit-tests",
+      "completedAt": "2026-11-19T14:03:15.976Z",
+      "blob": "5f7c190ab4ded6f50902bc1931fee9103b8c3c7f"
+    },
+    {
+      "fileName": "SEED-413_pilot-direct-dashboard-unit-tests.json",
+      "identity": "SEED-413#pilot-direct-dashboard-unit-tests",
+      "completedAt": "2026-11-19T12:54:59.417Z",
+      "blob": "12b99a1afef8571fd06f72ad43eb126a710c8458"
+    },
+    {
+      "fileName": "SEED-412_keep-dashboard-tests-off-the-developers-real-cursor-runner.json",
+      "identity": "SEED-412#keep-dashboard-tests-off-the-developers-real-cursor-runner",
+      "completedAt": "2026-11-19T11:07:39.350Z",
+      "blob": "bbf977e930ee229cbe33c5bfe60f531745846fcb"
+    },
+    {
+      "fileName": "SEED-411_express-submit-and-close-test-intent.json",
+      "identity": "SEED-411#express-submit-and-close-test-intent",
+      "completedAt": "2026-11-19T11:07:34.654Z",
+      "blob": "f39c7227025befced5675668ecf01abcad49558b"
+    },
+    {
+      "fileName": "SEED-397_evaluate-recoverable-proof-evidence.json",
+      "identity": "SEED-397#evaluate-recoverable-proof-evidence",
+      "completedAt": "2026-11-19T10:36:30.632Z",
+      "blob": "8e925dd0e2cf2185d7c8f025cf831e536e76e283"
+    },
+    {
+      "fileName": "SEED-382_type-check-reports-after-a-lint-failure.json",
+      "identity": "SEED-382#type-check-reports-after-a-lint-failure",
+      "completedAt": "2026-11-19T09:52:27.206Z",
+      "blob": "471e3820ee92170d498a41c46f6ce7e4becaaccf"
+    },
+    {
+      "fileName": "SEED-409_return-to-recently-selected-stories.json",
+      "identity": "SEED-409#return-to-recently-selected-stories",
+      "completedAt": "2026-11-19T08:45:34.948Z",
+      "blob": "6048bbf92a709cd6c3f005eddf62db871f470142"
+    },
+    {
+      "fileName": "SEED-353_declare-completed-story-review-histories.json",
+      "identity": "SEED-353#declare-completed-story-review-histories",
+      "completedAt": "2026-11-19T07:16:38.022Z",
+      "blob": "185753046db6055492b17bdeae30410ece30117a"
+    },
+    {
+      "fileName": "SEED-410_remove-redundant-dashboard-navigation-doc.json",
+      "identity": "SEED-410#remove-redundant-dashboard-navigation-doc",
+      "completedAt": "2026-11-19T05:37:32.206Z",
+      "blob": "e9b3c7a72f5c81418a73e91393baa2125cc2acbf"
+    },
+    {
+      "fileName": "SEED-345_get-long-verification-results-without-empty-wakes.json",
+      "identity": "SEED-345#get-long-verification-results-without-empty-wakes",
+      "completedAt": "2026-11-19T03:50:45.463Z",
+      "blob": "181b5e42e386c624486ab6a65efe22b633c0deef"
+    },
+    {
+      "fileName": "SEED-404_run-the-story-notes-checks-in-a-third-of-their-time.json",
+      "identity": "SEED-404#run-the-story-notes-checks-in-a-third-of-their-time",
+      "completedAt": "2026-11-19T03:09:39.106Z",
+      "blob": "20835ffeb33e608dd5c36bbfb639e436c038aa24"
+    },
+    {
+      "fileName": "SEED-346_close-native-comparison-harness-gaps.json",
+      "identity": "SEED-346#close-native-comparison-harness-gaps",
+      "completedAt": "2026-11-19T02:29:04.336Z",
+      "blob": "a2b4450def15879c4129e0fd2dc2115c278e8d4b"
+    },
+    {
+      "fileName": "SEED-406_plot-new-models-with-estimated-token-index.json",
+      "identity": "SEED-406#plot-new-models-with-estimated-token-index",
+      "completedAt": "2026-11-19T02:01:07.975Z",
+      "blob": "0e1177d11aff218c7704c521b80e10548a8e249b"
+    },
+    {
+      "fileName": "SEED-353_declare-trunk-review-authorship.json",
+      "identity": "SEED-353#declare-trunk-review-authorship",
+      "completedAt": "2026-11-19T01:58:05.567Z",
+      "blob": "77f7de53426e8bae2dbb92b8053319b2a85eb59c"
+    },
+    {
+      "fileName": "SEED-403_reach-dashboard-backend-checks-through-the-mounted-boundary.json",
+      "identity": "SEED-403#reach-dashboard-backend-checks-through-the-mounted-boundary",
+      "completedAt": "2026-11-19T01:45:14.070Z",
+      "blob": "f302cc394e875c585065e527aca28f2e60af2a31"
+    },
+    {
+      "fileName": "SEED-404_hold-and-settle-mounted-frontend-cases-by-one-rule.json",
+      "identity": "SEED-404#hold-and-settle-mounted-frontend-cases-by-one-rule",
+      "completedAt": "2026-11-19T01:12:25.085Z",
+      "blob": "13dfd45a32b49323f646cf5ba89390138eb89fd8"
+    },
+    {
+      "fileName": "SEED-353_declare-merged-review-histories.json",
+      "identity": "SEED-353#declare-merged-review-histories",
+      "completedAt": "2026-11-19T00:29:20.688Z",
+      "blob": "a4b971db243d976b20a2679026cb0efb523a70d7"
+    },
+    {
+      "fileName": "SEED-404_run-the-remaining-dashboard-frontend-checks-at-doughnut-speed.json",
+      "identity": "SEED-404#run-the-remaining-dashboard-frontend-checks-at-doughnut-speed",
+      "completedAt": "2026-11-19T00:01:50.955Z",
+      "blob": "1c4507d9652e6aedf2bc1e1bbef2553795b3226d"
+    },
+    {
       "fileName": "SEED-379_keep-own-branch-session-results-for-review.json",
       "identity": "SEED-379#keep-own-branch-session-results-for-review",
       "completedAt": "2026-11-18T19:34:40.654Z",
@@ -2448,234 +2802,6 @@
       "identity": "SEED-010#retry-selected-slice-status",
       "completedAt": "2026-10-22T23:03:51.733Z",
       "blob": "053d325ad2c32fb9fc557c9907729ed8c08e672d"
-    },
-    {
-      "fileName": "SEED-008_normalize-delivery-commit-identities.json",
-      "identity": "SEED-008#normalize-delivery-commit-identities",
-      "completedAt": "2026-10-22T08:57:47.449Z",
-      "blob": "ed0b0319b3bd6d04796beabb7c1e867ce766983c"
-    },
-    {
-      "fileName": "SEED-010_prioritize-responses-with-delegated-authority.json",
-      "identity": "SEED-010#prioritize-responses-with-delegated-authority",
-      "completedAt": "2026-10-22T08:41:10.044Z",
-      "blob": "58061d8737eff9cf53c6a5aa909ef62ff630528c"
-    },
-    {
-      "fileName": "SEED-010_reuse-native-proof-after-attribution.json",
-      "identity": "SEED-010#reuse-native-proof-after-attribution",
-      "completedAt": "2026-10-22T07:44:27.371Z",
-      "blob": "07ff12a611ea580c7223a158badf46eb6f2a643c"
-    },
-    {
-      "fileName": "SEED-010_name-required-passages-in-boundary-rows.json",
-      "identity": "SEED-010#name-required-passages-in-boundary-rows",
-      "completedAt": "2026-10-22T07:04:09.391Z",
-      "blob": "42940d138386de837d84b46ab1d286c552078e86"
-    },
-    {
-      "fileName": "SEED-010_bound-startup-guidance-retrieval.json",
-      "identity": "SEED-010#bound-startup-guidance-retrieval",
-      "completedAt": "2026-10-22T02:56:52.530Z",
-      "blob": "862a905d77c0eb0e0c7bd5ac746f0f73e42c8bb6"
-    },
-    {
-      "fileName": "SEED-010_trace-changed-behavior-to-existing-consumers.json",
-      "identity": "SEED-010#trace-changed-behavior-to-existing-consumers",
-      "completedAt": "2026-10-22T02:43:24.515Z",
-      "blob": "a09db1b722802da4c734bb5a2c751cf9bd90d074"
-    },
-    {
-      "fileName": "SEED-010_correct-feedback-maintenance-session-status.json",
-      "identity": "SEED-010#correct-feedback-maintenance-session-status",
-      "completedAt": "2026-10-22T01:58:35.175Z",
-      "blob": "7ecc7c147792e0ef0378290b604388c89b5badb8"
-    },
-    {
-      "fileName": "SEED-010_skip-feedback-from-projects-without-process-retrospective.json",
-      "identity": "SEED-010#skip-feedback-from-projects-without-process-retrospective",
-      "completedAt": "2026-10-22T01:37:52.365Z",
-      "blob": "95b70dfa75f8721bf52d6c921a15e0df5ea89ad7"
-    },
-    {
-      "fileName": "SEED-010_run-due-feedback-maintenance.json",
-      "identity": "SEED-010#run-due-feedback-maintenance",
-      "completedAt": "2026-10-22T00:34:43.781Z",
-      "blob": "7e6de83baebb8b4873d7104a34d38d239e32ad0c"
-    },
-    {
-      "fileName": "SEED-010_evaluate-later-product-consequences.json",
-      "identity": "SEED-010#evaluate-later-product-consequences",
-      "completedAt": "2026-10-21T12:26:03.650Z",
-      "blob": "1e99bfe8dae148f222e4f202db8196d90a28b34f"
-    },
-    {
-      "fileName": "SEED-010_learn-from-unreviewed-execution-paths.json",
-      "identity": "SEED-010#learn-from-unreviewed-execution-paths",
-      "completedAt": "2026-10-21T10:35:26.139Z",
-      "blob": "01820b6ee328ab3fe689a2193176e1152fba9d2d"
-    },
-    {
-      "fileName": "SEED-010_learn-from-preparation-history.json",
-      "identity": "SEED-010#learn-from-preparation-history",
-      "completedAt": "2026-10-21T08:13:38.535Z",
-      "blob": "69041a66fd45c0d43be2d6d57f59039de51bf9be"
-    },
-    {
-      "fileName": "SEED-053_match-historical-replay-inputs.json",
-      "identity": "SEED-053#match-historical-replay-inputs",
-      "completedAt": "2026-10-21T08:08:31.640Z",
-      "blob": "9c5481d14fb92984d6475a0dc82de6a13cf0f2ad"
-    },
-    {
-      "fileName": "SEED-052_remove-orphaned-runner-port-helper.json",
-      "identity": "SEED-052#remove-orphaned-runner-port-helper",
-      "completedAt": "2026-10-21T07:36:26.033Z",
-      "blob": "0b261baf8e86bbf174cfa8cb642f55280d886421"
-    },
-    {
-      "fileName": "SEED-144_branded-alert-click-automation.json",
-      "identity": "SEED-144#branded-alert-click-automation",
-      "completedAt": "2026-10-21T07:26:27.904Z",
-      "blob": "599a69d2b9d62795f8eb845d2be4a6a4bd5c6a6c"
-    },
-    {
-      "fileName": "SEED-010_correct-completed-supplier-agreement.json",
-      "identity": "SEED-010#correct-completed-supplier-agreement",
-      "completedAt": "2026-10-21T06:58:22.408Z",
-      "blob": "6b2d5bbaec3be4dc54a52f08bd06d5ed4edfde3c"
-    },
-    {
-      "fileName": "SEED-010_check-shared-host-proof-headroom.json",
-      "identity": "SEED-010#check-shared-host-proof-headroom",
-      "completedAt": "2026-10-21T06:44:16.904Z",
-      "blob": "5b0ee7a145635425886cc673341eb4bb6c7c14ac"
-    },
-    {
-      "fileName": "SEED-052_cursor-runner-restart-resume.json",
-      "identity": "SEED-052#cursor-runner-restart-resume",
-      "completedAt": "2026-10-21T06:41:00.524Z",
-      "blob": "fa9ddd832d5f6ea10488cd248e284e8f6131b37f"
-    },
-    {
-      "fileName": "SEED-147_running-cursor-session-reads-working.json",
-      "identity": "SEED-147#running-cursor-session-reads-working",
-      "completedAt": "2026-10-21T06:33:23.594Z",
-      "blob": "1d4df194e28e928737d21ab2254d010c77e72bb9"
-    },
-    {
-      "fileName": "SEED-145_continue-execution-into-wrap-up.json",
-      "identity": "SEED-145#continue-execution-into-wrap-up",
-      "completedAt": "2026-10-20T13:39:37.550Z",
-      "blob": "9b106565b9fcb126239e65b7dc70869dca05c5ea"
-    },
-    {
-      "fileName": "SEED-145_quiet-execution-and-retrospective.json",
-      "identity": "SEED-145#quiet-execution-and-retrospective",
-      "completedAt": "2026-10-20T13:00:40.914Z",
-      "blob": "91e5c505d2311c4bf695dc071ed62da0ae4c6c2f"
-    },
-    {
-      "fileName": "SEED-146_gate-local-prerequisites-before-commit-and-delivery.json",
-      "identity": "SEED-146#gate-local-prerequisites-before-commit-and-delivery",
-      "completedAt": "2026-10-20T12:48:19.939Z",
-      "blob": "1d895b22e5e9e5d32050fa9af5d479355b4d42d5"
-    },
-    {
-      "fileName": "SEED-052_cursor-scope-terminal-refusal-explanation.json",
-      "identity": "SEED-052#cursor-scope-terminal-refusal-explanation",
-      "completedAt": "2026-10-20T11:29:50.319Z",
-      "blob": "c20116abfbcd5c008d8b37e969ff2423f62e3b6e"
-    },
-    {
-      "fileName": "SEED-052_cursor-chosen-model-unconfirmed-start.json",
-      "identity": "SEED-052#cursor-chosen-model-unconfirmed-start",
-      "completedAt": "2026-10-20T10:38:06.856Z",
-      "blob": "4269bbc243d2209267ed749c16cb253d4a123060"
-    },
-    {
-      "fileName": "SEED-145_quiet-preparation-chain.json",
-      "identity": "SEED-145#quiet-preparation-chain",
-      "completedAt": "2026-10-20T09:29:31.689Z",
-      "blob": "2d90d9210d8082414970bec6c961fd14e191625e"
-    },
-    {
-      "fileName": "SEED-145_quiet-land-and-wrap-up.json",
-      "identity": "SEED-145#quiet-land-and-wrap-up",
-      "completedAt": "2026-10-20T09:16:13.373Z",
-      "blob": "dda76cb57a9a1df62d3855a0a3169dc18ec88b4a"
-    },
-    {
-      "fileName": "SEED-052_cursor-unconfirmed-stop-after-local-done.json",
-      "identity": "SEED-052#cursor-unconfirmed-stop-after-local-done",
-      "completedAt": "2026-10-20T08:42:06.891Z",
-      "blob": "37f2a7f020d6417871b3fbbb1ae67afc21bc6451"
-    },
-    {
-      "fileName": "SEED-052_cursor-session-model-scope.json",
-      "identity": "SEED-052#cursor-session-model-scope",
-      "completedAt": "2026-10-20T07:55:18.055Z",
-      "blob": "0167e9a9d06cb7829a35ca55d3a28e75d49b763a"
-    },
-    {
-      "fileName": "SEED-144_recognize-opendough-by-its-icon.json",
-      "identity": "SEED-144#recognize-opendough-by-its-icon",
-      "completedAt": "2026-10-20T07:23:13.081Z",
-      "blob": "d30b5982ee2ec1b74161db14e555702edc731791"
-    },
-    {
-      "fileName": "SEED-052_safe-cursor-session-stop.json",
-      "identity": "SEED-052#safe-cursor-session-stop",
-      "completedAt": "2026-10-20T06:26:02.357Z",
-      "blob": "48c28a364f587c0ef2c0067a80425139e5bb178b"
-    },
-    {
-      "fileName": "SEED-010_observe-retrospective-response-effectiveness.json",
-      "identity": "SEED-010#observe-retrospective-response-effectiveness",
-      "completedAt": "2026-10-20T05:55:26.137Z",
-      "blob": "ee6332fb2ddcc8cc4641a8a8245e1288abb2f1c3"
-    },
-    {
-      "fileName": "SEED-052_cursor-attention-and-results.json",
-      "identity": "SEED-052#cursor-attention-and-results",
-      "completedAt": "2026-10-20T04:29:32.305Z",
-      "blob": "182674817d2c4b101a45028271e230cb4a68e939"
-    },
-    {
-      "fileName": "SEED-010_format-owned-changes.json",
-      "identity": "SEED-010#format-owned-changes",
-      "completedAt": "2026-10-20T04:28:10.871Z",
-      "blob": "9eeb29915ff564673cd29292671aa4eb00571e9b"
-    },
-    {
-      "fileName": "SEED-010_schedule-proof-after-refactoring.json",
-      "identity": "SEED-010#schedule-proof-after-refactoring",
-      "completedAt": "2026-10-20T04:25:03.137Z",
-      "blob": "98afeeafcd94bef64ea8ffdf67d548172b3d2d53"
-    },
-    {
-      "fileName": "SEED-010_accept-original-story-promises.json",
-      "identity": "SEED-010#accept-original-story-promises",
-      "completedAt": "2026-10-20T02:23:03.299Z",
-      "blob": "1ee6f0f69b6120a1fec65d595d7f5788bc3dac3a"
-    },
-    {
-      "fileName": "SEED-119_align-story-top.json",
-      "identity": "SEED-119#align-story-top",
-      "completedAt": "2026-10-20T00:57:31.838Z",
-      "blob": "dff37c47be8368277ada1734fb328101b399cde7"
-    },
-    {
-      "fileName": "SEED-010_run-combined-project-and-shared-feedback-cycle.json",
-      "identity": "SEED-010#run-combined-project-and-shared-feedback-cycle",
-      "completedAt": "2026-10-19T22:27:08.171Z",
-      "blob": "0686a95327e390cf3f708d27d5eb1c8465cb4274"
-    },
-    {
-      "fileName": "SEED-141_open-referenced-story-in-dashboard.json",
-      "identity": "SEED-141#open-referenced-story-in-dashboard",
-      "completedAt": "2026-10-19T21:23:15.517Z",
-      "blob": "891dae4dc3548d5d31801bbde2af603d70815693"
     }
   ],
   "unreadable": []

@@ -13,11 +13,10 @@ import {
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
+  shownDoneSessionEntriesOf,
   expectMembership,
-  parts,
   sessionNamedBy,
   sessionStateOf,
-  standaloneSessionName,
   storyCardSessionOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
@@ -53,11 +52,8 @@ test("an action that changes a session clears the held revision so a machine ret
   const { passOnePace, answeredDuring } = await watchRecordReads(page);
   dashboard.claudeScenario("launched");
   const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
-  const { recentlyDone: recent } = parts(page);
-  const onStoryCard = storyCardSessionOf(card(readyStory), "Execution");
-  const inRecent = recent.getByRole("article", {
-    name: standaloneSessionName("Execution", readyStory),
-  });
+  const story = card(readyStory);
+  const onStoryCard = storyCardSessionOf(story, "Execution");
 
   await start(readyStory).click();
   await dialog.getByRole("button", { name: "Start" }).click();
@@ -88,7 +84,8 @@ test("an action that changes a session clears the held revision so a machine ret
   idleBetweenSteps(dashboard, session);
   await markDoneAnyway(onStoryCard);
   await expect(onStoryCard).toHaveCount(0);
-  await expect(sessionStateOf(inRecent)).toHaveText("Done");
+  const inDone = await shownDoneSessionEntriesOf(page, readyStory);
+  await expect(sessionStateOf(inDone)).toHaveText("Done");
 
   // The machine's body returns to A: same store and host reading as before.
   keepLaunchStoreText(dashboard, storeAtA);
@@ -112,7 +109,7 @@ test("an action that changes a session clears the held revision so a machine ret
     unchanged: false,
   });
   await expectSessionShown(onStoryCard, "Working", false);
-  await expect(inRecent).toHaveCount(0);
+  await expect(inDone).toHaveCount(0);
 
   await expectNotReloaded(page);
   await expectMembership(page, takenBacklogStories);

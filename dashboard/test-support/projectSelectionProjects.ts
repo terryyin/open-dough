@@ -19,8 +19,10 @@ export { doughnutSharedTitle, sharedStoryIdentity };
 export const openDoughSharedTitle = "Open Dough's telling of the shared story";
 
 export const openDoughTakenTitle = "Open Dough's own taken story";
+export const openDoughTakenIdentity = "OD-1#story";
 const openDoughQueuedTitle = "Open Dough's own queued story";
 export const doughnutTakenTitle = "Doughnut's own taken story";
+export const doughnutTakenIdentity = "DN-1#story";
 const doughnutQueuedTitle = "Doughnut's own queued story";
 
 const story = (title: string, href: string, identity: string) =>
@@ -48,7 +50,7 @@ export const openDoughPublication: CatalogPublication = {
             story(
               openDoughTakenTitle,
               "slice-plans/900-open-dough-story/PLAN.md",
-              "OD-1#story",
+              openDoughTakenIdentity,
             ),
           ],
           queued: [
@@ -79,7 +81,7 @@ export const doughnutPublication: CatalogPublication = {
             story(
               doughnutTakenTitle,
               "slice-plans/500-doughnut-story/PLAN.md",
-              "DN-1#story",
+              doughnutTakenIdentity,
             ),
           ],
           queued: [

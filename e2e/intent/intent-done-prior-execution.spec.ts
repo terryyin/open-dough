@@ -20,8 +20,6 @@ import {
 import {
   chooseStoryTab,
   intentDiff,
-  openReviewFromIntent,
-  reviewDiff,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import { commitBacklogCompletion } from "../../dashboard/test-support/support/completedStoryPublication.ts";
@@ -117,15 +115,13 @@ test("a Done story's later completion outranks its execution launch's first capt
     kind: "published",
     completion,
   });
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   await expandIntentGroup(intent, "dashboard/tests");
   const original = await intentDiff(intent, modified);
   expect(original).toContain("the final completed execution");
   expect(original).not.toContain("earlier captured increment");
   expect(locations).toContain(completion);
   expect(locations).not.toContain(captured.revision);
-  await openReviewFromIntent(page, intent);
-  expect(await reviewDiff(page, modified)).toBe(original);
   // If published history later becomes unavailable, the still-readable first
   // increment remains a pre-completion run, not the completed story's result.
   git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");

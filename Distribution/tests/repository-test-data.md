@@ -1,7 +1,6 @@
 # Repository test data
 
-Git starting state for tests, declared through the shared `makeMe` entry that
-[Test data architecture](test-data-architecture.md) introduces.
+Git starting state for tests, declared through the shared `makeMe` entry.
 
 Declare the Git state your test starts from with
 `makeMe.aRepository.withRevision(name, facts).please()`. Name the revisions and
@@ -17,8 +16,13 @@ it. Use `materializeRepository` for a bare origin and checkout, or
 Both materializers return commit IDs in `revisions`; a dashboard case reads
 one as `origin.revision(name)` from its start origin, whether prepared, private
 or kept. For merged starting
-history, list earlier `parents` in Git order. Files inherit from the first
-parent, and the revision states the resolved changes.
+history, list earlier `parents` in Git order; a workspace merge may name a
+trunk revision. Files inherit from the first parent, and the revision states
+the full resolved bytes of every file it changes from that parent. The
+materializer does not merge, so a case about a conflict confirms it
+independently, with `git merge-tree --write-tree` of the named parents
+exiting 1.
+[Declared conflicted integration](../../e2e/review/story-review-commit-renames.spec.ts)
 [Builder](support/repositoryTestData.mjs) ·
 [Repository harness](support/repository-fixture.mjs)
 
@@ -31,18 +35,25 @@ the same author, committer and message defaults.
 
 A description can also name its trunk branch (`withTrunkBranch`, default
 `main`), the integration checkout's committer (`withCheckoutIdentity`), and
-one execution workspace: `withWorkspace(branch, { from, checkoutIdentity })`
-with ordered `withUnpublishedRevision` commits. The materializer adds that
-workspace as an `execution` worktree with its own committer and commits its
-revisions without pushing; `candidateSha` names its tip. A start origin
-instead checks it out as the linked worktree `.worktrees/<slug>` on its
-branch, and a case reads it and its named revisions through
-`origin.revision(name)` or `storyWorktree(origin)`. A trunk revision stating
-`fetched: false` is published, but a start origin leaves the checkout's trunk
-and tracking ref on the revision before it.
-`withLocalState(description, { staged, unstaged, untracked, ignored, modes })`
-states what the workspace leaves uncommitted; both write it after its
-revisions. A revision's
+one or more execution workspaces: each
+`withWorkspace(branch, { from, checkoutIdentity, agent })` with ordered
+`withUnpublishedRevision` commits attached to the latest workspace. A
+declared `agent` is materialized through the real `configureAgentAuthorship`
+(per-worktree `author.*`), not as `checkoutIdentity`. The completed
+description keeps a single workspace as `workspace`, or several as
+`workspaces`. The materializer adds the first as an `execution` worktree
+with its own committer and commits its revisions without pushing;
+`candidateSha` names that tip; further workspaces are linked under
+`.worktrees/<branch basename>`. A start origin checks each out as the linked
+worktree `.worktrees/<slug>` on its branch, and a case reads them and their
+named revisions through `origin.revision(name)` or `storyWorktree(origin)`.
+A trunk revision stating `fetched: false` is published, but a start origin
+leaves the checkout's trunk and tracking ref on the revision before it.
+`withLocalState(description, { staged, unstaged, untracked, ignored, modes }, branch?)`
+states what a workspace leaves uncommitted; with several workspaces, `branch`
+names which one. Both materializers write it after that workspace's
+revisions, so a starting commit beside uncommitted state is a declared
+workspace revision, never a commit made after the state is written. A revision's
 `executables` lists files to commit with the executable mode. The first
 revision gets an empty backlog unless it states one, as `backlog` or as bytes
 at `.planning/PRODUCT-BACKLOG.md`; `backlog: null` states a trunk without
@@ -64,12 +75,25 @@ its readiness basis. [Queued repository](support/queued-repository.mjs)
 Intent comparison setups read their endpoints from these named results.
 Publish the built baseline with `precedeClaimWithPlanning`, or compose
 `withPlanningBeforeClaim` into a CI trunk declared with `aComparisonCiTrunk`;
-`publishDeclaredTrunk` pushes it once and answers each SHA by name. `publishTake` answers its `claim`, and
-`completedPublishedStory` its `claim`, `completion` and owning `branchSide`.
-`completeBacklogStory` runs the real backlog completion; `commitAll` and
-`advanceCompletedTrunk` answer the commit they made.
+`publishDeclaredTrunk` pushes it once and answers each SHA by name.
+`publishTake` answers its `claim`. A completed-story review history is declared
+with named revisions — `takeRevision` for the claim, the implementation,
+interleaving and each merge, and `completionRevision` for the done record —
+then published through `test.use({ originRepository })` or mid-test
+`publishDeclaredTrunk`. Named histories such as
+`ordinaryTrunkModeCompletedHistory` and `ordinaryStoryBranchCompletedHistory`
+live in
+[completedStoryHistory.ts](../../dashboard/test-support/support/completedStoryHistory.ts);
+they answer `claim`, `completion` and Story Branch `branchSide` by revision
+name. Mid-test trunk advances, unusable captures and a later developer's merge
+that carries the done record stay as visible actions in
+[completedStoryVisibleActions.ts](../../dashboard/test-support/support/completedStoryVisibleActions.ts)
+(`advanceCompletedTrunk`, `keepUnusableCompletedCapture`,
+`laterDeveloperCarriesDoneRecord`).
+`completeBacklogStory` and `publishCompletedStory` remain for launch and
+retained-landing completions that still run the installed CLI.
 [Baseline and trunk](../../dashboard/test-support/support/storyCiComparisonBaseline.ts) ·
-[Completion](../../dashboard/test-support/support/completedStoryPublication.ts)
+[Completion publication](../../dashboard/test-support/support/completedStoryPublication.ts)
 
 A revision can also carry one `release`, built with
 `makeMe.aRelease.with({ version, taggedAt, marker }).please()` and, where

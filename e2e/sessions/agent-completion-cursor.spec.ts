@@ -25,6 +25,7 @@ import {
   sessionStateOf,
   sessionUnreadReportOf,
   storyCardSessions,
+  shownDoneSessionEntriesOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   markAsDone,
@@ -152,9 +153,9 @@ test("Cursor installed report offers local Done without a native stop capability
   const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   expect(done?.doneAt).toBeDefined();
   expect(done?.doneProblem).toBeUndefined();
-  const recent = parts(page).recentlyDone.getByRole("article");
-  await expect(sessionStateOf(recent)).toContainText("Done");
-  await expect(recent).not.toContainText("Named done-");
+  const doneEntry = await shownDoneSessionEntriesOf(page, "Story A");
+  await expect(sessionStateOf(doneEntry)).toContainText("Done");
+  await expect(doneEntry).not.toContainText("Named done-");
   expect(done?.completion?.receipt).toBe(receipt.receipt);
   expect(
     (
@@ -199,8 +200,8 @@ test("a Cursor session with a read completed report whose runner cannot be reach
     const [done] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
     expect(done?.doneAt).toBeDefined();
     expect(cursor.calls()).toHaveLength(before);
-    const recent = parts(page).recentlyDone.getByRole("article");
-    await expect(sessionStateOf(recent)).toContainText("Done");
+    const doneEntry = await shownDoneSessionEntriesOf(page, "Story A");
+    await expect(sessionStateOf(doneEntry)).toContainText("Done");
   } finally {
     await release();
   }

@@ -1,7 +1,7 @@
 // A retained automatic run from active Intent must yield to the completed
 // result when published work marks the same selected identity Done.
+import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../Distribution/tests/support/repository-revision-files.mjs";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
@@ -12,10 +12,8 @@ import {
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  completedPublishedStory,
-  keepUnusableCompletedCapture,
-} from "../../dashboard/test-support/support/completedPublishedStory.ts";
+import { keepUnusableCompletedCapture } from "../../dashboard/test-support/support/completedStoryVisibleActions.ts";
+import { intentTrunkCompletionOntoTip } from "../../dashboard/test-support/support/intentCompletedHistory.ts";
 import {
   chooseStoryTab,
   intentDiff,
@@ -27,6 +25,7 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
+import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 
@@ -46,15 +45,15 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
       },
     })
     .please().revisions[0];
-  const story = await completedPublishedStory(
+  const story = await publishDeclaredTrunk(
     origin,
-    "trunk",
-    undefined,
-    (workspace) => {
-      writeRevisionFiles(workspace, implementation);
-    },
+    intentTrunkCompletionOntoTip({ implementation }),
   );
-  keepUnusableCompletedCapture(dashboard, origin, story);
+  keepUnusableCompletedCapture(dashboard, origin, {
+    workspace: path.join(origin.machine, "retired-becomes-done"),
+    completion: story.completion,
+    baseline: story.interleaving,
+  });
   // Show the actual earlier claim first, then advance that same publication
   // to its actual completed result without navigating or reselecting.
   const published = await publishCommittedOrigin(page, {
@@ -102,7 +101,7 @@ test("a selected active story's obsolete automatic run cannot mask its recovered
   await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
   await expect(storyHeaderReading(intent).done).toHaveText("Done");
   await expect(storySummary(intent)).toHaveAttribute("data-state", "compared");
-  await chooseStoryTab(intent, "Changed tests");
+  await chooseStoryTab(intent, "Changes");
   expect(await intentDiff(intent, modified)).toContain(
     "published completion after active selection",
   );

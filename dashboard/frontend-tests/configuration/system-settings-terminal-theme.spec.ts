@@ -1,131 +1,107 @@
-// Terminal theme settings against controlled settings answers: the sample
-// keeps its palette while the settings chrome follows the system appearance,
-// and touch reading reaches Retry after a refused save and rotation while the
-// saved theme stays shown. Saving, sharing across servers and the predecessor
-// file are ../../../e2e/configuration/system-settings-terminal-theme.spec.ts.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+// Saving across servers and preserving the predecessor file are covered by
+// ../../../e2e/configuration/system-settings-terminal-theme.spec.ts.
+import { describe, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { TerminalThemeSource } from "../../src/terminalThemeSource.ts";
+import type { TerminalThemeId } from "../../src/terminalThemes.ts";
 import {
-  installFrontendSettingsSubstitutes,
-  productionSeedProjects,
-} from "../../test-support/support/frontendSettingsSubstitutes.ts";
-import {
-  computedPalettes,
-  expectThemeShown,
-  sample,
-  sampleColor,
-  sampleScreen,
-  themeChoice,
-} from "../../test-support/support/terminalThemeSettingsPage.ts";
-import {
-  expectDarkSurface,
-  expectLightSurface,
-  setColorScheme,
-} from "../../test-support/systemAppearanceReading.ts";
-import { expectReadableContrast } from "../../test-support/accessibleReading.ts";
-import { tapWhereShown } from "../../test-support/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
-import { readSetting } from "../../test-support/support/settingsTouchPage.ts";
-import { terminalThemeSaveEndpoint } from "../../src/terminalThemeSetting.ts";
+  enableSettingsTouch,
+  settingsPhoneViewports,
+} from "./system-settings-browser.ts";
+import { mountTerminalThemeSettings } from "./system-settings-terminal-theme-page.ts";
 
-test("terminal Light and Solarized samples keep their palette while settings chrome follows the system appearance", async ({
-  page,
-  frontendServices,
-}) => {
-  await installFrontendSettingsSubstitutes(page, frontendServices, {
-    projects: productionSeedProjects,
+const themeReply = (theme: TerminalThemeId) =>
+  makeMe.aTerminalThemeSetting.with({ theme }).please();
+
+test("terminal Light and Solarized samples keep their palette while settings chrome follows the system appearance", async () => {
+  const preferences = await mountTerminalThemeSettings({
+    read: () => Promise.resolve(themeReply("default")),
+    save: (theme) => Promise.resolve(themeReply(theme)),
   });
-  await page.goto("/?view=settings");
-  const theme = page.getByRole("region", {
-    name: "Terminal theme",
-    exact: true,
-  });
-  await expect(theme).toBeVisible();
-
-  for (const label of ["Light", "Solarized Dark"] as const) {
-    await themeChoice(page).selectOption({ label });
-    await expect(themeChoice(page).locator("option:checked")).toHaveText(label);
-    await expect(sample(page)).toContainText(`Sample: ${label}`);
-    const { background, foreground, red } = computedPalettes[label];
-
-    await setColorScheme(page, "dark");
-    await expectDarkSurface(page);
-    await expect(sampleScreen(page)).toHaveCSS("background-color", background);
-    await expect(sampleScreen(page)).toHaveCSS("color", foreground);
-    await expect(sampleColor(page, "red")).toHaveCSS("color", red);
-    await expectReadableContrast(
-      page.getByRole("heading", { name: "System settings", exact: true }),
-    );
-    await expectReadableContrast(
-      page.getByRole("heading", { name: "Terminal theme", exact: true }),
-    );
-
-    await setColorScheme(page, "light");
-    await expectLightSurface(page);
-    await expect(sampleScreen(page)).toHaveCSS("background-color", background);
-    await expect(sampleScreen(page)).toHaveCSS("color", foreground);
-    await expect(sampleColor(page, "red")).toHaveCSS("color", red);
+  await preferences.showsReady();
+  for (const [theme, label] of [
+    ["light", "Light"],
+    ["solarized-dark", "Solarized Dark"],
+  ] as const) {
+    await preferences.choose(theme);
+    for (const scheme of ["dark", "light"] as const) {
+      await preferences.showsScheme(scheme);
+      await preferences.showsTheme(label);
+    }
   }
 });
 
-const { name, portrait, landscape } = phoneLaunchTouchViewport;
+const { portrait, landscape, reduced } = settingsPhoneViewports;
 
-test.describe(`${name} terminal theme recovery`, () => {
-  test.use({ viewport: portrait, hasTouch: true });
-  test("touch reads the theme, keeps the saved theme shown after a refused save, and reaches Retry after rotation", async ({
-    page,
-    frontendServices,
-  }) => {
-    const answers = await installFrontendSettingsSubstitutes(
-      page,
-      frontendServices,
-      { projects: productionSeedProjects },
-    );
-    await page.goto("/?view=settings");
-    const theme = page.getByRole("region", {
-      name: "Terminal theme",
-      exact: true,
-    });
-    await readSetting(theme.locator(".settings-note:not([role='status'])"));
-    await themeChoice(page).scrollIntoViewIfNeeded();
-    await expectThemeShown(page, "Default");
-    await tapWhereShown(themeChoice(page));
-    // The option is chosen through the browser's native select control;
-    // its change still goes through the local save request.
-    await themeChoice(page).selectOption({ label: "Solarized Dark" });
-    await expect(themeChoice(page)).toBeEnabled();
-    await expectThemeShown(page, "Solarized Dark");
-    await page.setViewportSize({ width: portrait.width, height: 320 });
-    await themeChoice(page).scrollIntoViewIfNeeded();
-    await tapWhereShown(themeChoice(page));
-    answers.refuseNext(
-      terminalThemeSaveEndpoint,
-      503,
+describe("phone terminal theme recovery", () => {
+  test("touch reads the theme, keeps the saved theme shown after a refused save, and reaches Retry after rotation", async () => {
+    const refusal = new Error(
       "The terminal theme could not be saved. Check the dashboard folder permissions and retry; the previous theme was kept.",
     );
-    await themeChoice(page).selectOption({ label: "Light" });
-    await expect(theme.getByRole("alert")).toContainText("could not be saved");
-    await expectThemeShown(page, "Solarized Dark");
-    await page.setViewportSize(landscape);
-    await expectThemeShown(page, "Solarized Dark");
-    await page.setViewportSize({ width: portrait.width, height: 320 });
-    await readSetting(theme.getByRole("alert"));
-    await tapWhereShown(
-      theme.getByRole("button", { name: "Retry", exact: true }),
-    );
-    await expect(theme.getByRole("alert")).toHaveCount(0);
-    await expect(themeChoice(page)).toBeEnabled();
-    await expectThemeShown(page, "Light");
-    await page.setViewportSize(portrait);
-    await readSetting(sample(page).locator("figcaption"));
-    await expect(sample(page)).toContainText("Sample: Light");
-    // Retry saved the refused choice again; nothing else changed.
-    expect(answers.changes).toEqual([
+    let refuseSolarized!: () => void;
+    const pendingSolarized = new Promise<void>((resolve) => {
+      refuseSolarized = resolve;
+    }).then(() => {
+      throw refusal;
+    });
+    const save = vi
+      .fn<TerminalThemeSource["save"]>((theme) =>
+        Promise.resolve(themeReply(theme)),
+      )
+      .mockResolvedValueOnce(themeReply("light"))
+      .mockReturnValueOnce(pendingSolarized)
+      .mockResolvedValueOnce(themeReply("solarized-dark"))
+      .mockRejectedValueOnce(refusal)
+      .mockResolvedValueOnce(themeReply("light"));
+    await enableSettingsTouch();
+    const preferences = await mountTerminalThemeSettings(
       {
-        endpoint: terminalThemeSaveEndpoint,
-        body: { theme: "solarized-dark" },
+        read: () => Promise.resolve(themeReply("default")),
+        save,
       },
-      { endpoint: terminalThemeSaveEndpoint, body: { theme: "light" } },
-      { endpoint: terminalThemeSaveEndpoint, body: { theme: "light" } },
+      portrait,
+    );
+
+    await preferences.readExplanation();
+    await preferences.showsReady();
+    await preferences.showsTheme("Default");
+    await preferences.touchChoice("light");
+    await preferences.showsReady();
+    await preferences.showsTheme("Light");
+    await preferences.useViewport(reduced);
+    await preferences.touchChoice("solarized-dark");
+    await preferences.showsSaving();
+    refuseSolarized();
+    await preferences.showsRefusal(refusal.message);
+    await preferences.showsTheme("Light");
+    await preferences.useViewport(landscape);
+    await preferences.showsTheme("Light");
+    await preferences.readRefusal();
+    await preferences.touchRetry();
+    await preferences.showsNoRefusal();
+    await preferences.showsReady();
+    await preferences.showsTheme("Solarized Dark");
+
+    await preferences.useViewport(reduced);
+    await preferences.touchChoice("light");
+    await preferences.showsRefusal(refusal.message);
+    await preferences.showsTheme("Solarized Dark");
+    await preferences.useViewport(landscape);
+    await preferences.showsTheme("Solarized Dark");
+    await preferences.useViewport(reduced);
+    await preferences.readRefusal();
+    await preferences.touchRetry();
+    await preferences.showsNoRefusal();
+    await preferences.showsReady();
+    await preferences.showsTheme("Light");
+    await preferences.useViewport(portrait);
+    await preferences.readSample();
+    expect(save.mock.calls).toEqual([
+      ["light"],
+      ["solarized-dark"],
+      ["solarized-dark"],
+      ["light"],
+      ["light"],
     ]);
   });
 });

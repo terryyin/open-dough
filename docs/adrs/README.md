@@ -7,10 +7,11 @@ discuss, and approve decisions; agents read, cite, and help maintain the records
 ## When to write an ADR
 
 Apply the scope rule in [ADR 0000](./0000-use-adrs-accepted.md): high-level,
-product-wide architecture that agents need across development tasks. Product
-intent details and implementation design belong with the relevant product
-intent, even when complex or frequently discussed. Keep delivery plans separate
-from ADRs.
+product-wide architectural preferences for general-purpose problem solvers across
+tasks, with any area-specific ADR extensions in `docs/` also requiring human
+permission. Automated tests document enduring behavior, code documents enduring
+architecture, and configuration documents operational setup. Keep delivery plans
+separate from ADRs.
 
 ## Advice process
 

@@ -1,4 +1,3 @@
-import { sessionKey } from "./sessionReference.ts";
 // Sessions sidebar: open local sessions across catalog projects, attention
 // first, then other sessions (openSessionsOf). Entries show title/age, native
 // state, unread-report marks, tooltips and coarse-input details. Unavailable
@@ -37,16 +36,13 @@ import {
 import { IconButton } from "./Icon.tsx";
 import { ProductMark } from "./ProductMark.tsx";
 import type { DashboardConnection } from "./dashboardConnection.ts";
-import { SessionList } from "./SessionLists.tsx";
-import {
-  SessionsSidebarSessionEntry,
-  type OpenSessionsSidebarSessionEntry,
-} from "./SessionsSidebarSessionEntry.tsx";
+import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
 import type { RecentlyDoneRowSelection } from "./recentlyDoneSelection.ts";
 import {
   SessionsSidebarOptionalSections,
   useOptionalSidebarSectionState,
 } from "./SessionsSidebarOptionalSections.tsx";
+import { SessionsSidebarOpenList } from "./SessionsSidebarOpenList.tsx";
 import { SessionsSidebarStatus } from "./SessionsSidebarStatus.tsx";
 import { useHostStatus } from "./hostStatusReads.ts";
 import { keep, readKept } from "./keptPreference.ts";
@@ -217,29 +213,12 @@ export function SessionsSidebar({
         <h2 id="sessions-sidebar-heading">Sessions</h2>
         <SessionsSidebarStatus sessions={sessions} host={host} />
       </div>
-      <div className="sessions-sidebar-sessions">
-        {open && alerts?.available === false && (
-          <p className="quiet">Alerts unavailable: {alerts.reason}</p>
-        )}
-        <SessionList
-          sessions={sessions}
-          {...(records !== undefined && records.length > 0
-            ? { none: "No sessions launched from this dashboard are open." }
-            : {})}
-        >
-          {(listed) => (
-            <ol>
-              {listed.map((record) => (
-                <SessionsSidebarSessionEntry
-                  key={sessionKey(record.session)}
-                  record={record}
-                  onOpen={rows.onOpen}
-                />
-              ))}
-            </ol>
-          )}
-        </SessionList>
-      </div>
+      <SessionsSidebarOpenList
+        records={records}
+        alerts={alerts}
+        open={open}
+        onOpen={rows.onOpen}
+      />
       <SessionsSidebarOptionalSections
         sidebarOpen={open}
         records={records}

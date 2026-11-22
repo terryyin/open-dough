@@ -41,7 +41,8 @@ export function dashboardFixtureLifetime({
     standIn === undefined
       ? endAtExit(() => {
           const pid = readCursorRunnerAddress(home)?.pid ?? failedRunnerStop;
-          if (pid !== undefined) signal(pid, "SIGTERM");
+          // A live neighbor on a caller-owned machine may see this worker's mounted stand-in.
+          if (pid !== undefined && pid !== process.pid) signal(pid, "SIGTERM");
         })
       : // Sync only: never SIGTERM this worker. The listener ends with the process.
         endAtExit(() => {

@@ -1,14 +1,14 @@
 // A selected story's changes placed over Intent's published tree
 // (../../src/intentStoryOverlay.ts), with the locations of the moves journey
-// (../../test-support/support/intentStoryWorktree.ts) behind an unchanged first location: a
-// rename into a location sits at its new path, inserted; one out of a
-// location stays at its old path; one between locations sits at its new path,
-// its old entry gone; one neither location admits is not listed. A deletion
-// the published tree no longer lists stays, unpublished. Each change no
-// location admits counts once outside. "Selected story only" keeps just the
-// changed entries, and the story opens the first changed location in
-// configured order with the folders holding changes, whether or not it is
-// restricted. A location declared by source entries places a story's added
+// (../../test-support/support/intentStoryWorktree.ts) behind an unchanged
+// first location: a rename into a location sits at its new path, inserted;
+// one out of a location stays at its old path; one between locations sits at
+// its new path, its old entry gone. A deletion the published tree no longer
+// lists stays, unpublished. Each change no location admits, a rename by
+// either path, is listed once outside at its repository path. "Selected story
+// only" keeps just the changed entries, and the story opens the first changed
+// location in configured order with the folders holding changes, whether or
+// not it is restricted. A location declared by source entries places a story's added
 // file by the same rule. The integrated journeys: ../../../e2e/intent/intent-story-changes-moves.spec.ts
 // and ../../../e2e/intent/intent-story-completed.spec.ts.
 
@@ -16,6 +16,7 @@ import { expect, test } from "../../test-support/support/pageTest.ts";
 import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
 import {
   intentStoryOverlay,
+  overlayFilesByPath,
   storyChangesOnly,
   storyOverlayExpansion,
   type StoryOverlay,
@@ -86,7 +87,11 @@ const placed = (
     ]),
   );
 
-test("each change sits where a location admits its path, else a rename's old path; the rest count once outside", () => {
+// The changed files outside every location as `path [kind]`.
+const outside = ({ outside: files }: StoryOverlay) =>
+  files.map((file) => `${file.path} [${file.kind ?? ""}]`);
+
+test("each change sits where a location admits its path, else a rename's old path; the rest are listed once outside", () => {
   const overlay = intentStoryOverlay(locations, changes);
   expect(placed(overlay)).toEqual({
     features: ["board/select.feature"],
@@ -103,15 +108,26 @@ test("each change sits where a location admits its path, else a rename's old pat
     "tests (changes)": ["check.sh", "moved.sh [renamed] (unpublished)"],
   });
   // The rename neither path admits and the product change, once each.
-  expect(overlay.outside).toBe(2);
+  expect(outside(overlay)).toEqual([
+    "docs/renamed-notes.md [renamed]",
+    "dashboard/src/app.ts [modified]",
+  ]);
   // Each change keeps the comparison's file for its diff.
+  expect(overlay.outside[1]?.change).toBe(changes[6]);
   const between = overlay.locations[2]?.files[1];
   expect(between?.change).toBe(changes[4]);
 });
 
+test("the tree's files by repository path hold the outside files beside the located ones", () => {
+  const overlay = intentStoryOverlay(locations, changes);
+  const byPath = overlayFilesByPath(locations, overlay);
+  expect(byPath.get("dashboard/src/app.ts")?.change).toBe(changes[6]);
+  expect(byPath.get("dashboard/tests/deep/b.spec.ts")?.kind).toBe("modified");
+});
+
 test("without a story the trees are the published files alone", () => {
   const overlay = intentStoryOverlay(locations, undefined);
-  expect(overlay.outside).toBe(0);
+  expect(outside(overlay)).toEqual([]);
   expect(placed(overlay)).toEqual({
     features: ["board/select.feature"],
     "dashboard/tests": [
@@ -126,7 +142,10 @@ test("without a story the trees are the published files alone", () => {
 
 test("Selected story only keeps the changed entries, deletions and renames included", () => {
   const only = storyChangesOnly(intentStoryOverlay(locations, changes));
-  expect(only.outside).toBe(2);
+  expect(outside(only)).toEqual([
+    "docs/renamed-notes.md [renamed]",
+    "dashboard/src/app.ts [modified]",
+  ]);
   expect(placed(only)).toEqual({
     features: [],
     "dashboard/tests (changes)": [
@@ -144,6 +163,7 @@ test("the story opens the first changed location and the folders holding changes
   const expansion = {
     location: "dashboard/tests",
     folders: [[], ["arriving", "deep"], []],
+    outsideFolders: ["dashboard/src", "docs"],
   };
   expect(storyOverlayExpansion(locations, overlay)).toEqual(expansion);
   expect(storyOverlayExpansion(locations, storyChangesOnly(overlay))).toEqual(
@@ -155,10 +175,14 @@ test("the story opens the first changed location and the folders holding changes
       locations,
       intentStoryOverlay(locations, [changes[6] as ReviewedFile]),
     ),
-  ).toEqual({ location: undefined, folders: [[], [], []] });
+  ).toEqual({
+    location: undefined,
+    folders: [[], [], []],
+    outsideFolders: ["dashboard/src"],
+  });
 });
 
-test("a sources location places a story's added matching file as added, and a non-matching neighbor counts once outside", () => {
+test("a sources location places a story's added matching file as added, and a non-matching neighbor is listed once outside", () => {
   const checks = makeMe.anIntentLocation
     .at("checks")
     .withSources({ include: ["**/*.check"] })
@@ -174,7 +198,7 @@ test("a sources location places a story's added matching file as added, and a no
   expect(placed(overlay, [checks])).toEqual({
     "checks (changes)": ["a.check", "b.check [added] (unpublished)"],
   });
-  expect(overlay.outside).toBe(1);
+  expect(outside(overlay)).toEqual(["checks/notes.md [added]"]);
 });
 
 test("Java changes use configured membership for placement, including unpublished additions and deletions", () => {
@@ -219,5 +243,7 @@ test("Java changes use configured membership for placement, including unpublishe
       "com/example/OldTest.java [deleted] (unpublished)",
     ],
   });
-  expect(overlay.outside).toBe(1);
+  expect(outside(overlay)).toEqual([
+    "backend/src/test/java/com/example/Fixture.java [added]",
+  ]);
 });

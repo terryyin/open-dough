@@ -23,7 +23,10 @@ import {
 const pastBound = 33 * 1024 * 1024;
 
 test("oversized gh output names its cause without retry advice, raw output or an invented upstream status", async () => {
-  const server = await startDashboardServer(developmentBoundary);
+  const server = await startDashboardServer({
+    ...developmentBoundary,
+    liveServer: "separate process",
+  });
   try {
     server.github.serve(everyRepository, () =>
       Promise.resolve({

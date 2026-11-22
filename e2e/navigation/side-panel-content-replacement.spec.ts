@@ -211,7 +211,7 @@ test("a review and a final report stay shown with their selection while the page
       board.storyCard("Story B").readFinalReport().expectText(storyBReport);
       perspective.choose("Intent");
       intent
-        .expectText("No intent locations are configured for Open Dough.")
+        .expectText("No Intent locations are configured for Open Dough.")
         .sidePanel.finalReport.expectText(storyBReport)
         .sidePanel.expectItems(1);
     },

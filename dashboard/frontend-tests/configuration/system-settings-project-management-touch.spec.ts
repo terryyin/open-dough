@@ -1,147 +1,100 @@
-// Touch project editing, against controlled settings answers, retains its
-// draft and explicit recovery while the viewport changes and a save is
-// refused. That a failed write keeps the saved file byte for byte, and an Add
-// saves the repository's default branch, are
+// Machine persistence and the failed write's predecessor file are covered by
 // ../../../e2e/configuration/project-add.spec.ts.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { describe, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { PublishedSource } from "../../src/publishedSource.ts";
 import {
-  installFrontendSettingsSubstitutes,
-  productionSeedProjects,
-} from "../../test-support/support/frontendSettingsSubstitutes.ts";
+  enableSettingsTouch,
+  settingsPhoneViewports,
+} from "./system-settings-browser.ts";
 import {
-  projectAddEndpoint,
-  projectRemoveEndpoint,
-} from "../../src/projectConfiguration.ts";
-import { tapWhereShown } from "../../test-support/pageLayout.ts";
-import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
-import { readSetting } from "../../test-support/support/settingsTouchPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  mountProjectsSettings,
+  projectReplies,
+} from "./system-settings-projects-page.ts";
 
-const { name, portrait, landscape } = phoneLaunchTouchViewport;
+const { portrait, landscape, reduced } = settingsPhoneViewports;
 
-test.describe(`${name} project settings editing`, () => {
-  test.use({ viewport: portrait, hasTouch: true });
-  test("touch edits at reduced height and retries a refused save with the exact draft", async ({
-    page,
-    frontendServices,
-  }) => {
-    const answers = await installFrontendSettingsSubstitutes(
-      page,
-      frontendServices,
-      {
-        projects: productionSeedProjects,
-        adding: makeMe.aPublishedSource
-          .with({
-            id: "sample-app",
-            label: "Sample App",
-            repository: "example/sample-app",
-          })
-          .please(),
-      },
-    );
-    await page.goto("/?view=settings");
-    const addProject = page.getByRole("button", {
-      name: "Add project",
-      exact: true,
-    });
-    const dialog = page.getByRole("dialog", {
-      name: "Add project",
-      exact: true,
-    });
-    const url = dialog.getByRole("textbox", {
-      name: "GitHub URL",
-      exact: true,
-    });
-    const local = dialog.getByRole("textbox", {
-      name: "Local path",
-      exact: true,
-    });
-    const repository = "https://github.com/example/sample-app";
-    const checkout = "~/work/private-checkout";
-    await tapWhereShown(addProject);
-    await expect(url).toBeFocused();
-    await page.setViewportSize({ width: portrait.width, height: 320 });
-    await url.scrollIntoViewIfNeeded();
-    await tapWhereShown(url);
-    await url.pressSequentially(repository);
-    await local.scrollIntoViewIfNeeded();
-    await tapWhereShown(local);
-    await local.fill(checkout);
-    await page.setViewportSize(landscape);
-    await expect(url).toHaveValue(repository);
-    await expect(local).toHaveValue(checkout);
-    await page.setViewportSize({ width: portrait.width, height: 320 });
-    expect(
-      await page.evaluate(
-        () =>
-          document.documentElement.scrollWidth <=
-          document.documentElement.clientWidth,
-      ),
-    ).toBe(true);
-    // A long single-line input scrolls its own value, as on desktop; the
-    // dialog and its ordinary reading body must still fit the page.
-    expect(
-      await dialog.evaluate(
-        (element) => element.scrollWidth <= element.clientWidth,
-      ),
-    ).toBe(true);
-    expect(
-      await dialog
-        .locator(".launch-dialog-body")
-        .evaluate((element) => element.scrollWidth <= element.clientWidth),
-    ).toBe(true);
-    // Cancel and a failed removal: ../../../e2e/configuration/project-remove.spec.ts.
-    await local.scrollIntoViewIfNeeded();
-    await tapWhereShown(local);
-    await expect(local).toBeFocused();
-    expect(answers.changes).toEqual([]);
-    answers.refuseNext(
-      projectAddEndpoint,
-      503,
+describe("phone project settings editing", () => {
+  test("touch edits at reduced height and retries a refused save with the exact draft", async () => {
+    const original = makeMe.aPublishedSource.pygardon.please();
+    const project = makeMe.aPublishedSource
+      .with({
+        id: "sample-app",
+        label: "Sample App",
+        repository: "example/sample-app",
+      })
+      .please();
+    const draft = {
+      githubUrl: "https://github.com/example/sample-app",
+      localPath: "~/work/private-checkout",
+    };
+    const refusal = new Error(
       "EACCES: permission denied, open '~/.open-dough/dashboard/projects-production.json.tmp'",
     );
-    await tapWhereShown(
-      dialog.getByRole("button", { name: "Add", exact: true }),
-    );
-    await expect(dialog.getByRole("alert")).toBeVisible();
-    await readSetting(dialog.getByRole("alert"));
-    await expect(url).toHaveValue(repository);
-    await expect(local).toHaveValue(checkout);
-    await page.setViewportSize(landscape);
-    await expect(url).toHaveValue(repository);
-    await expect(local).toHaveValue(checkout);
-    await page.setViewportSize({ width: portrait.width, height: 320 });
-    await tapWhereShown(
-      dialog.getByRole("button", { name: "Add", exact: true }),
-    );
-    await expect(dialog).toBeHidden();
-    const row = page.getByRole("listitem").filter({
-      has: page.getByRole("heading", { name: "Sample App", exact: true }),
-    });
-    await readSetting(row.locator("dd").last());
-    const removeProject = row.getByRole("button", {
-      name: "Remove project Sample App",
-      exact: true,
-    });
-    const removal = page.getByRole("dialog", {
-      name: "Remove Sample App?",
-      exact: true,
-    });
-    // Project settings continue below the facts; scroll to their actions
-    // before observing and tapping the Remove target at its shown position.
-    await removeProject.scrollIntoViewIfNeeded();
-    await tapWhereShown(removeProject);
-    await tapWhereShown(
-      removal.getByRole("button", { name: "Remove", exact: true }),
-    );
-    await expect(removal).toBeHidden();
-    // The refused and retried Add carried the exact draft; nothing but the
-    // project list changed.
-    const added = { githubUrl: repository, localPath: checkout };
-    expect(answers.changes).toEqual([
-      { endpoint: projectAddEndpoint, body: added },
-      { endpoint: projectAddEndpoint, body: added },
-      { endpoint: projectRemoveEndpoint, body: { id: "sample-app" } },
+    const replies = projectReplies();
+    replies.read.mockResolvedValue([
+      makeMe.aProjectSettings
+        .with({
+          id: original.id,
+          localPath: "~/git/pygardon",
+          clientConfiguration: { status: "absent" },
+        })
+        .please(),
+      makeMe.aProjectSettings
+        .with({
+          id: project.id,
+          localPath: draft.localPath,
+          clientConfiguration: { status: "absent" },
+        })
+        .please(),
     ]);
+    replies.add.mockRejectedValueOnce(refusal).mockResolvedValueOnce({
+      project,
+      projects: [original, project],
+    });
+    replies.remove.mockResolvedValueOnce([original]);
+    const select = vi.fn<(source: PublishedSource | undefined) => void>();
+    await enableSettingsTouch();
+    const settings = await mountProjectsSettings(
+      replies,
+      original,
+      [original],
+      select,
+      portrait,
+    );
+
+    await settings.touchOpenAdd();
+    await settings.showsFocusedUrl();
+    await settings.useViewport(reduced);
+    await settings.touchUrl();
+    await settings.typeUrl(draft.githubUrl);
+    await settings.touchPath();
+    await settings.fillPath(draft.localPath);
+    await settings.useViewport(landscape);
+    await settings.showsDraft(draft.githubUrl, draft.localPath);
+    await settings.useViewport(reduced);
+    await settings.fitsAddWithoutSidewaysScrolling();
+    await settings.touchPath();
+    await settings.showsFocusedPath();
+    expect(replies.add).not.toHaveBeenCalled();
+
+    await settings.touchSubmitAdd();
+    await settings.showsRefusal(refusal.message);
+    await settings.readRefusal();
+    await settings.showsDraft(draft.githubUrl, draft.localPath);
+    expect(select).not.toHaveBeenCalled();
+    await settings.useViewport(landscape);
+    await settings.showsDraft(draft.githubUrl, draft.localPath);
+    await settings.useViewport(reduced);
+    await settings.touchSubmitAdd();
+    await expect.poll(() => replies.add.mock.calls).toEqual([[draft], [draft]]);
+    await settings.showsClosedAdd();
+    await settings.readProject(project.label, draft.localPath);
+    await settings.touchRemoveProject(project.label);
+    await settings.showsNoProject(project.label);
+    await settings.showsProject(original.label);
+    expect(replies.remove.mock.calls).toEqual([[project.id]]);
+    expect(replies.setHidden).not.toHaveBeenCalled();
+    expect(select.mock.calls).toEqual([[project], [original]]);
   });
 });

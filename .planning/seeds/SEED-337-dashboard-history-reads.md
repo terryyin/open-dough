@@ -39,10 +39,19 @@ CI evidence when they need it.
   chart responses belong to
   [Read CI history at a glance in story comparison and test Proof](https://github.com/terryyin/open-dough/blob/33eb3f8cd99cb7e9131d072bf06576ef01cf3eaa/.planning/seeds/SEED-331-read-ci-history-at-a-glance.md#read-ci-history-at-a-glance).
 - Use compact subsets of Session, retained launch, CI build, timing, and
-  evidence concepts. Preserve identities, names, units, and meanings, with the
-  minimum necessary translation under
-  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
-  Keep the underlying retained evidence available for authorized inspection.
+  evidence concepts, sharing one typed contract between `dashboard/server/` and
+  `dashboard/src/` rather than duplicating payload shapes by hand. Preserve
+  identities, names, units, and meanings, with the minimum necessary
+  translation under
+  [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution),
+  and prove the server slicing and progressive UI disclosure in plain Vitest on
+  strongly typed handlers and narrow owning components (embedded Chromium, no
+  `@playwright/test` or new `test-support` wrappers;
+  [Architectural North Star](../NORTH-STAR.md)).
+  The [initial view’s typed inputs](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
+  should let its unit test suite render the list or chart before any report
+  or build-detail answer exists. Keep the underlying retained evidence
+  available for authorized inspection.
 
 #### Key examples to refine
 
@@ -65,7 +74,7 @@ CI evidence when they need it.
 
 [Expanding the sidebar](../../dashboard/src/SessionsSidebarOptionalSections.tsx)
 currently triggers the full retained session-history read. A replay fixture
-measured [9.88 MB decoded and 1.25 MB compressed](../../dashboard/AGENT-LAUNCH-OBSERVATION.md#measuring-the-sessions-answer)
+measured 9.88 MB decoded and 1.25 MB compressed
 for that response. Project Intent's
 [history view](../../dashboard/src/IntentCiHistory.tsx) uses the richer answer
 for both its chart and evidence disclosure. These are separate read paths.

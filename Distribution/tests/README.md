@@ -57,12 +57,6 @@ Native tooling and its checks live in the [evaluation home](../evaluation/README
 The runner combines both check roots under this same Distribution Tests group;
 `npm run test:evaluation` selects only tool checks through that runner.
 
-## Test data architecture
-
-[MakeMe and shared test data](test-data-architecture.md) describes the canonical
-builders and the harness responsibilities around them;
-[repository test data](repository-test-data.md) covers repository descriptions.
-
 ## Check environment
 
 See the [runner environment and CI reproduction guidance](test-environment.md).

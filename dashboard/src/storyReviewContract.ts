@@ -38,10 +38,14 @@ export const reviewTargetName = ({
 
 export {
   objectIdSchema,
+  reviewedFileDiffSchema,
   reviewedFileSchema,
+  reviewedFileTextSchema,
   reviewedPathSchema,
   type LineCounts,
   type ReviewedFile,
+  type ReviewedFileDiff,
+  type ReviewedFileText,
 } from "./storyReviewFiles.ts";
 // A snapshot's changed files from one *from* tree to the snapshot's tree.
 export const reviewComparisonSchema = z.object({
@@ -135,6 +139,16 @@ export const storyReviewSchema = z
       commitRun: z.number().int().nonnegative(),
       ...fixedComparison,
     }),
+    // A standalone session's published close record: one recorded pair and
+    // the session's close time. No kept-run switch; launch history is not
+    // required (`../server/publishedSessionReview.ts`).
+    z.object({
+      kind: z.literal("published-session"),
+      session: z.object({
+        closedAt: z.iso.datetime(),
+      }),
+      ...fixedComparison,
+    }),
     z.object({
       kind: z.literal("branch-result"),
       doneAt: z.iso.datetime(),
@@ -142,7 +156,7 @@ export const storyReviewSchema = z
     }),
     z.object({
       kind: z.literal("landing-unavailable"),
-      comparison: z.literal("session-commits").optional(),
+      comparison: z.enum(["session-commits", "published-session"]).optional(),
       reference: z.uuid().optional(),
       explanation: z.string().min(1),
     }),
@@ -203,14 +217,20 @@ export type StoryReview = z.infer<typeof storyReviewSchema>;
 // A review whose snapshot was taken.
 export type TakenStoryReview = Extract<StoryReview, { kind: "snapshot" }>;
 // A session's kept commits, including when the server could not show them.
+// Published-session reviews are a distinct kind and never match here.
 export const reviewsSessionCommits = (review: StoryReview | undefined) =>
   review?.kind === "session-commits" ||
   (review?.kind === "landing-unavailable" &&
     review.comparison === "session-commits");
+// A published session's recorded comparison and gaps in that comparison.
+export const reviewsPublishedSession = (review: StoryReview | undefined) =>
+  review?.kind === "published-session" ||
+  (review?.kind === "landing-unavailable" &&
+    review.comparison === "published-session");
 // A landed run's review, whether its delivered change could be read or not.
 export const reviewsLanding = (review: StoryReview | undefined) =>
   review?.kind === "landed" ||
-  (review?.kind === "landing-unavailable" && !reviewsSessionCommits(review));
+  (review?.kind === "landing-unavailable" && review.comparison === undefined);
 
 // The revision a snapshot's baseline is named by wherever the review shows
 // it: the trunk revision the story's published commits were taken out of, or
@@ -220,24 +240,3 @@ export const baselineRevision = ({
   published,
 }: Pick<TakenStoryReview, "baseline" | "published">) =>
   published?.trunk ?? baseline;
-
-// Git's unified diff of one file of a snapshot, as printed
-// (`./unifiedDiff.ts` reads it), or why it could not be read.
-export const reviewedFileDiffSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("diff"), printed: z.string() }),
-  z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
-]);
-export type ReviewedFileDiff = z.infer<typeof reviewedFileDiffSchema>;
-
-// File text at the same comparison trees the printed diff uses: `baseline` at
-// the *from* path (`oldPath` when renamed), `tree` at `path`; null when that
-// side has no file. Unavailable when the text cannot be read as text.
-export const reviewedFileTextSchema = z.discriminatedUnion("kind", [
-  z.object({
-    kind: z.literal("text"),
-    baseline: z.string().nullable(),
-    tree: z.string().nullable(),
-  }),
-  z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
-]);
-export type ReviewedFileText = z.infer<typeof reviewedFileTextSchema>;

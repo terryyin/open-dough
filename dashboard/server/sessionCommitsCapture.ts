@@ -6,11 +6,14 @@
 import { realpathSync } from "node:fs";
 import path from "node:path";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
-import type {
-  SessionCommitRun,
-  SessionCommits,
-} from "../src/sessionCommits.ts";
+import type { SessionCommits } from "../src/sessionCommits.ts";
 import { checkAncestry, defaultGitOutputLimit, runGit } from "./gitRunner.ts";
+import {
+  type LogEntry,
+  type MadeCommit,
+  madeSince,
+  runsOf,
+} from "./sessionCommitAttribution.ts";
 
 const gitCall = (cwd: string) => ({
   cwd,
@@ -34,22 +37,6 @@ export function defaultMainStart(
 // The checkout a folder path names, resolved. Throws when it is gone.
 export const resolvedCheckout = (workspace: string) =>
   realpathSync(path.resolve(workspace));
-
-interface LogEntry {
-  readonly commit: string;
-  readonly parents: readonly string[];
-  readonly at: number;
-  readonly action: string;
-  readonly authoredAt: number;
-  readonly subject: string;
-}
-
-const committing =
-  /^(?:commit(?: \((?:amend|cherry-pick)\))?|cherry-pick|revert): /;
-const replaying =
-  /^(?:rebase|pull)\b[^:]* \((?:pick|continue|fixup|squash)\): /;
-const moving =
-  /^(?:checkout: moving from |reset: moving to |(?:merge|pull)\b[^:]*: Fast-forward\b|(?:rebase|pull)\b[^:]* \((?:start|finish|abort)\): )/;
 
 // The checkout's `HEAD` log, newest first: each entry's commit and parents,
 // its time, the action that wrote it, and the commit's author time and subject.
@@ -90,49 +77,6 @@ async function headLog(
   });
 }
 
-// Place each entry as work made here, movement or a merge, or a replay of
-// older work. The log can settle an empty result only if every entry fits.
-function madeSince(log: readonly LogEntry[], since: number): string[] {
-  const made = new Set<string>();
-  const fingerprints = new Set<string>();
-  for (const entry of log.filter(({ at }) => at >= since).reverse()) {
-    const { action, parents, commit, authoredAt, subject } = entry;
-    if (parents.length > 1 || moving.test(action)) continue;
-    const fingerprint = `${String(authoredAt)} ${subject}`;
-    if (parents.length === 1 && committing.test(action)) {
-      fingerprints.add(fingerprint);
-      made.add(commit);
-      continue;
-    }
-    if (parents.length === 1 && replaying.test(action)) {
-      if (fingerprints.has(fingerprint)) {
-        made.add(commit);
-        continue;
-      }
-      if (authoredAt < since) continue;
-    }
-    throw new Error("The checkout's log has a commit that cannot be placed.");
-  }
-  return [...made];
-}
-
-// A run grows while a session commit's first parent is the previous session
-// commit; its pair is the first commit's first parent and its last commit.
-async function runsOf(
-  checkout: string,
-  commits: readonly string[],
-): Promise<SessionCommitRun[]> {
-  const runs: SessionCommitRun[] = [];
-  for (const commit of commits) {
-    const parent = await git(checkout, ["rev-parse", `${commit}^1`]);
-    const last = runs.at(-1);
-    if (last !== undefined && last.revision === parent)
-      runs[runs.length - 1] = { base: last.base, revision: commit };
-    else runs.push({ base: parent, revision: commit });
-  }
-  return runs;
-}
-
 // Settle the Default main tip before reading the reflog. Use the tip saved at
 // branch entry when available. Otherwise a commit made while the log waits can
 // enter a later Done's comparison, after a new tip is settled.
@@ -141,9 +85,6 @@ export async function readSessionCommits(
   start: { readonly workspace: string },
 ): Promise<SessionCommits> {
   const checkout = resolvedCheckout(start.workspace);
-  // The log keeps whole seconds; an entry in the launch's own second is not
-  // the session's.
-  const since = Date.parse(record.launchedAt) / 1000;
   const entry = record.branchEntry;
   const startRef = record.defaultStart?.branch;
   const branchEntryMissing =
@@ -161,14 +102,40 @@ export async function readSessionCommits(
       : entry.defaultTip;
   if (head === undefined)
     throw new Error("There is no saved Default main tip at branch entry.");
+  const capture = await readSessionCommitsAt({
+    checkout,
+    originalRef,
+    head,
+    launchedAt: record.launchedAt,
+  });
+  return branchEntryMissing
+    ? { ...capture, branchEntryMissing: true }
+    : capture;
+}
+
+// The reflog may already include later work. Keep commits reachable from the
+// tip resolved for this capture.
+export async function readSessionCommitsAt({
+  checkout,
+  originalRef,
+  head,
+  launchedAt,
+}: {
+  readonly checkout: string;
+  readonly originalRef: string;
+  readonly head: string;
+  readonly launchedAt: string;
+}): Promise<SessionCommits> {
+  const since = Date.parse(launchedAt) / 1000;
   const log = await headLog(checkout, originalRef);
   // A log without any entry says nothing of what was made there.
   if (log[0]?.commit === undefined)
     throw new Error("The checkout's log has no entries.");
   const candidates = madeSince(log, since);
-  const made: string[] = [];
-  for (const commit of candidates)
-    if (await checkAncestry(commit, head, gitCall(checkout))) made.push(commit);
+  const made: MadeCommit[] = [];
+  for (const candidate of candidates)
+    if (await checkAncestry(candidate.commit, head, gitCall(checkout)))
+      made.push(candidate);
   if (candidates.length > 0 && made.length === 0)
     throw new Error("None of the session's commits is in the checkout's HEAD.");
   const repository = await git(checkout, [
@@ -176,11 +143,10 @@ export async function readSessionCommits(
     "--path-format=absolute",
     "--git-common-dir",
   ]);
-  const runs = await runsOf(checkout, made);
+  const runs = runsOf(made);
   return {
     repository,
     runs,
     readAt: new Date().toISOString(),
-    ...(branchEntryMissing ? { branchEntryMissing: true } : {}),
   };
 }

@@ -14,7 +14,7 @@
   serves a different owner. Reuse its controlled-time pattern if useful and
   trace the installed request owner through real requests. Accepted
   [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
-  and the [North Star](../../NORTH-STAR.md) keep authority in Git and local
+  keeps authority in Git and local
   request admission at the existing boundary. Keep production clocks, routing,
   credential handling, and process ownership on their existing paths. Any
   change to the released owner follows [ADR 0003 — Release lifecycle and versioning](../../../docs/adrs/0003-tagged-release-versioning-accepted.md).

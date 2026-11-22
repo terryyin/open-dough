@@ -19,6 +19,10 @@ export type HistoryChartPoint = {
   // task with missing usage ("Partial"); it is drawn hollow and its readout
   // ends with them.
   readonly partial?: string;
+  // Words for a point whose value is partly or wholly estimated, such as a
+  // Usage task weighed at substitute rates ("Estimated rate"); it is drawn
+  // with an estimate cue and its readout ends with them.
+  readonly estimate?: string;
   // The named trace (`HistoryChartSeries.traces`) the point belongs to.
   readonly trace?: string;
 };
@@ -88,7 +92,9 @@ export function entryValueWords(
 ): string {
   if (!isMeasured(entry)) return entry.words;
   const value = axis.words(entry.value);
-  return entry.partial === undefined ? value : `${value} · ${entry.partial}`;
+  return [value, entry.partial, entry.estimate]
+    .filter((each) => each !== undefined)
+    .join(" · ");
 }
 
 // The trace's position among the series' traces, which selects its style.

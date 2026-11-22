@@ -12,8 +12,9 @@ import {
   expect,
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
-import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { shownDoneSessionEntriesOf } from "../../dashboard/test-support/dashboardPage.ts";
 import {
+  notRefinedStory,
   publishStoryColumnsJourney,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
@@ -181,9 +182,7 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
       expect(await underlying()).toEqual(beforePage);
       expect(existsSync(workspace)).toBe(false);
       await expect(
-        parts(page)
-          .recentlyDone.getByRole("article")
-          .filter({ hasText: sessionId }),
+        await shownDoneSessionEntriesOf(page, notRefinedStory, sessionId),
       ).toContainText("Done");
     });
   });

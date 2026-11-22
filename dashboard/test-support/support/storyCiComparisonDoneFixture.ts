@@ -6,12 +6,15 @@
 import type { Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
-  advanceCompletedTrunk,
-  completedPublishedStory,
-} from "./completedPublishedStory.ts";
+  advanceAfterCompletion,
+  claimant,
+  storyBranch,
+} from "./completedStoryThroughInterleaving.ts";
+import { comparedStoryBranchCompletionOntoTip } from "./intentCompletedHistory.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { queuedIdentity } from "./startOrigin.ts";
 import { git } from "./storyReviewWorktree.ts";
+import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
 import {
   laterWithoutBuildBeforeClaim,
   precedeClaimWithPlanning,
@@ -21,7 +24,7 @@ import {
 } from "./storyCiComparisonFixture.ts";
 import { defaultMixedProofs } from "./storyCiComparisonEntryProofs.ts";
 
-// The real-CLI history a compared Story Branch publishes: planning-only
+// The declared history a compared Story Branch publishes: planning-only
 // predecessors of the claim, the completed story, and later trunk.
 export type ComparedStoryHistory = Pick<
   StoryCiComparisonSetup,
@@ -38,16 +41,20 @@ export async function completeComparedStoryHistory(
   variant?: "own-conflict-extra" | "non-owning-story-file",
 ): Promise<ComparedStoryHistory> {
   const baseline = await precedeClaimWithPlanning(origin);
-  const story = await completedPublishedStory(origin, "story-branch", variant);
-  const { completion, branchSide, agent, branch } = story;
-  advanceCompletedTrunk(origin);
+  const commits = await publishDeclaredTrunk(
+    origin,
+    comparedStoryBranchCompletionOntoTip(variant).withRevision(
+      "advance after completion",
+      advanceAfterCompletion,
+    ),
+  );
   return {
-    completion,
+    completion: commits.completion,
     baseline,
-    branchSide,
+    branchSide: commits["branch completion"],
     laterWithoutBuild: laterWithoutBuildBeforeClaim,
-    agent,
-    branch,
+    agent: claimant.agent,
+    branch: storyBranch,
   };
 }
 

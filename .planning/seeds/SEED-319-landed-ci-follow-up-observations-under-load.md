@@ -50,7 +50,7 @@ verdict specs, and [Make dashboard journeys fit the default timeout under load](
 
 **Identity:** SEED-319#hold-landed-ci-follow-up-observations-under-load
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Queued from SEED-316's report to wait for SEED-287's in-flight predecessor-collection repair; refine after SEED-287 lands. No execution authority is granted."],"basis":{"document":"00b9061fa6c17cdd32428c119e3089c6ebb0bc79935c408ab3e9d2ee66c49f2a"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected","assessment":"not-ready","reasons":["Deferred until after SEED-413 moves landed-ci backend and Intent frontend unit tests to plain Vitest; refine only surviving e2e/ workflows."],"basis":{"document":"6d74400fdbc2d137b95e977d6bd176561eff2273840337c75e786f95812448ef"}}
 ```
 
 #### Goal
@@ -61,9 +61,15 @@ CI, with every 5 s observation and assertion kept.
 
 #### Scope to refine
 
-- Start from `main` after [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout) lands. Rerun the named checks at 2 workers
-  under local load 20–30 and drop any that [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)'s predecessor-collection
-  readiness already settles; record which ones.
+- Sequence after [`SEED-413`](SEED-413-renovate-dashboard-unit-tests.md)
+  renovates `backend-tests/intent/landed-ci-*` onto plain Node Vitest over
+  strongly typed backend handlers and `frontend-tests/intent/` onto plain
+  Vitest + embedded Chromium narrow component mounts, adding zero wrappers to
+  `test-support` ([Architectural North Star](../NORTH-STAR.md)). Rerun only the
+  checks that still exist as `e2e/` workflows at 2 workers under local load
+  20–30, and drop any whose miss disappeared once single-service checks stopped
+  booting HTTP servers and `<App />` mounts or that SEED-287 already settled;
+  record which ones.
 - For each remaining miss, find the causal boundary (for example, prior proof
   not yet collected, or a request still settling) and wait for that observable
   event. Reuse [Make dashboard journeys fit the default timeout under load](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout)'s readiness rather than adding a second one.

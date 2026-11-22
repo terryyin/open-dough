@@ -143,6 +143,7 @@ test.describe("authenticated read boundary: bounded timeout without changing the
       ...developmentBoundary,
       ghTransport: "cli",
       readTimeoutMs: shortTimeoutMs,
+      liveServer: "the server reads the GitHub request bound once per process",
     });
   });
 
@@ -179,6 +180,7 @@ test.describe("authenticated read boundary: subprocess ownership across server s
     test(`ends a held ${label} when the server itself closes`, async () => {
       const server = await startDashboardServer({
         ...developmentBoundary,
+        liveServer: "separate process",
         ghTransport: "cli",
       });
       server.github.serve(everyRepository, hangs);

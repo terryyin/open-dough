@@ -1,111 +1,174 @@
-// Project Intent's CI time without runner waits history in CI status
-// (../../src/IntentCiHistory.tsx) when every landing the history answer
-// holds is a gap: it says none is measured yet and draws no chart, and lists
-// each gap with its reason, as not yet or as never, and the build the CI
-// timing comparison's Landed rule named for its landing -- its own cancelled
-// build, or the equivalent or later trunk build whose CI proof expired, could
-// not be read, was never published or has not been read yet -- linked to its
-// run, which a phone reader reaches by keyboard
-// (SEED-285#see-landed-ci-wall-time-history). Which build collection names
-// for each landing is
-// ../../backend-tests/intent/landed-ci-history-gaps.spec.ts and
-// ../../backend-tests/intent/landed-ci-history-pending-proof.spec.ts.
+// Backend collection: ../../backend-tests/intent/landed-ci-history-gaps.spec.ts
+// Pending proof: ../../backend-tests/intent/landed-ci-history-pending-proof.spec.ts
+import { act, createElement } from "react";
+import { createRoot } from "react-dom/client";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import "../../src/dashboardStyles.ts";
+import { JudgedBranch } from "../../src/IntentCiJudgedBranch.tsx";
+import "../../src/intent-ci-status.css";
+import { measuredHistoryOf } from "../../src/landedCiHistory.ts";
+import { shownRunOf } from "../../src/shownCiProofRun.ts";
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { shortSha } from "../../src/baseCiWording.ts";
-import {
-  buildEvidenceRows,
-  buildHistoryReading,
-  dayWords,
-  evidenceByKeyboard,
-  expectLinksByKeyboard,
-  historyOf,
-  runLink,
-} from "../../test-support/intentCiHistoryPage.ts";
-import { expectNoSidewaysScrollIn } from "../../test-support/pageLayout.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { serveFrontendCiHistory } from "../../test-support/support/frontendCiHistoryAnswers.ts";
-import { openFrontendCiStatus } from "../../test-support/support/frontendCiStatusAnswers.ts";
+vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
 
-// The day `n` days after Oct 1, at noon, when its landing was recorded.
-const day = (n: number) =>
-  Date.parse("2026-10-01T12:00:00Z") + n * 24 * 60 * 60_000;
-const at = (ms: number) => new Date(ms).toISOString();
-
-test("a history whose recorded landings are all gaps says none is measured yet, draws no chart, and lists each gap with its reason and the build it names, each run link reached by keyboard on a phone", async ({
-  page,
-}) => {
-  // One landing a day, oldest first: CI never built it; its own build was
-  // cancelled; a skip whose equivalent build's CI proof expired; a cancelled
-  // landing whose later trunk build's CI proof could not be read; a skip
-  // whose equivalent build published no CI proof; a skip whose equivalent
-  // build's CI proof has not been read yet; and one with no CI run yet.
-  const landingOf = (n: number) => ({
-    revision: `e${String(n)}`.repeat(20),
-    receivedAt: at(day(n)),
+test("a history whose recorded landings are all gaps says none is measured yet, draws no chart, and lists each gap with its reason and the build it names, each run link reached by keyboard on a phone", async () => {
+  const landingOf = (day: number) => ({
+    revision: `e${String(day - 1)}`.repeat(20),
+    receivedAt: new Date(2026, 9, day, 12).toISOString(),
   });
-  await serveFrontendCiHistory(
-    page,
-    makeMe.aCiHistoryAnswer
-      .unmeasuredLanding({ ...landingOf(0), reason: "no-build" })
-      .unmeasuredLanding({
-        ...landingOf(1),
-        reason: "cancelled",
-        build: { revision: "e1".repeat(20), provenance: "exact", runId: 301 },
-      })
-      .unmeasuredLanding({
-        ...landingOf(2),
-        reason: "expired",
-        build: {
-          revision: "b2".repeat(20),
-          provenance: "equivalent",
-          runId: 302,
+  const answer = makeMe.aCiHistoryAnswer
+    .unmeasuredLanding({ ...landingOf(1), reason: "no-build" })
+    .unmeasuredLanding({
+      ...landingOf(2),
+      reason: "cancelled",
+      build: { revision: "e1".repeat(20), provenance: "exact", runId: 301 },
+    })
+    .unmeasuredLanding({
+      ...landingOf(3),
+      reason: "expired",
+      build: {
+        revision: "b2".repeat(20),
+        provenance: "equivalent",
+        runId: 302,
+      },
+    })
+    .unmeasuredLanding({
+      ...landingOf(4),
+      reason: "unreadable",
+      build: { revision: "b3".repeat(20), provenance: "later", runId: 303 },
+    })
+    .unmeasuredLanding({
+      ...landingOf(5),
+      reason: "no-proof",
+      build: {
+        revision: "b4".repeat(20),
+        provenance: "equivalent",
+        runId: 304,
+      },
+    })
+    .pendingLanding({ ...landingOf(6), waitsFor: "proof", runId: 305 })
+    .pendingLanding({ ...landingOf(7), waitsFor: "run" })
+    .please();
+  const run = {
+    revision: `a1b2c3d${"0".repeat(33)}`,
+    runId: 41,
+    runAttempt: 1,
+  };
+  const shown = makeMe.anIntentCiStatus
+    .with({
+      ...run,
+      branch: "main",
+      runBranch: "main",
+      state: "pass",
+      subject: "Result landed.txt",
+      laterWithoutResult: 0,
+      runUrl: "https://ci.invalid/runs/41",
+      startedAt: "2026-11-05T10:00:00Z",
+      completedAt: "2026-11-05T10:06:05Z",
+      checkedAt: "2026-11-05T12:00:00Z",
+      freshness: "fresh",
+    })
+    .please();
+  const host = document.body.appendChild(document.createElement("div"));
+  const root = createRoot(host);
+  onTestFinished(() => {
+    act(() => {
+      root.unmount();
+    });
+    host.remove();
+  });
+  await act(() => {
+    root.render(
+      createElement(JudgedBranch, {
+        branch: "main",
+        story: undefined,
+        judged: {
+          shown,
+          reading: false,
+          previouslyRetrieved: false,
+          refreshFailed: undefined,
+          checkAgain: () => {},
+          round: undefined,
         },
-      })
-      .unmeasuredLanding({
-        ...landingOf(3),
-        reason: "unreadable",
-        build: { revision: "b3".repeat(20), provenance: "later", runId: 303 },
-      })
-      .unmeasuredLanding({
-        ...landingOf(4),
-        reason: "no-proof",
-        build: {
-          revision: "b4".repeat(20),
-          provenance: "equivalent",
-          runId: 304,
+        proof: {
+          run: shownRunOf(shown),
+          read: makeMe.aCiProof.forRun(run).please(),
         },
-      })
-      .pendingLanding({ ...landingOf(5), waitsFor: "proof", runId: 305 })
-      .pendingLanding({ ...landingOf(6), waitsFor: "run" })
-      .please(),
-  );
-  await page.setViewportSize({ width: 390, height: 844 });
-  const panel = await openFrontendCiStatus(page);
-  const shown = historyOf(panel);
+        history: { shown: measuredHistoryOf(answer), failed: undefined },
+      }),
+    );
+    return Promise.resolve();
+  });
 
-  await expect(buildHistoryReading(shown).heading).toHaveText(
-    "CI time without runner waits history",
-  );
-  await expect(shown).toContainText(
-    "No dashboard-recorded landings have been measured yet.",
-  );
-  await expect(buildHistoryReading(shown).charts).toHaveCount(0);
-  const builds = await evidenceByKeyboard(page, panel);
-  const sha = (revision: string) => shortSha(revision.repeat(20));
-  await expect(buildEvidenceRows(builds)).toHaveText([
-    `${dayWords(day(0))} · No build · landed revision ${sha("e0")}`,
-    `${dayWords(day(1))} · Cancelled · exact revision ${sha("e1")} · Run 301 · attempt 1`,
-    `${dayWords(day(2))} · CI proof expired · reused equivalent ${sha("b2")} for ${sha("e2")} · Run 302 · attempt 1`,
-    `${dayWords(day(3))} · CI proof unreadable · later trunk build ${sha("b3")} for ${sha("e3")} · Run 303 · attempt 1`,
-    `${dayWords(day(4))} · No CI proof summary · reused equivalent ${sha("b4")} for ${sha("e4")} · Run 304 · attempt 1`,
-    `${dayWords(day(5))} · Pending · CI proof not read yet · landed revision ${sha("e5")} · Run 305 · attempt 1`,
-    `${dayWords(day(6))} · Pending · no CI run yet · landed revision ${sha("e6")}`,
+  expect([window.innerWidth, window.innerHeight]).toEqual([390, 844]);
+  const panel = page.getByRole("region", { name: "CI status", exact: true });
+  const historyName = "CI time without runner waits history";
+  const history = panel.getByRole("region", { name: historyName, exact: true });
+  expect(history.getByRole("heading").element().textContent).toBe(historyName);
+  await expect
+    .element(
+      history.getByText(
+        "No dashboard-recorded landings have been measured yet.",
+        { exact: true },
+      ),
+    )
+    .toBeVisible();
+  expect(
+    history.getByRole("img", { includeHidden: true }).elements(),
+  ).toHaveLength(0);
+
+  const checkAgain = panel.getByRole("button", {
+    name: "Check again",
+    exact: true,
+  });
+  await expect.element(checkAgain).toBeEnabled();
+  (checkAgain.element() as HTMLElement).focus();
+  await expect.element(checkAgain).toHaveFocus();
+  const summary = history.getByText("Builds and evidence", { exact: true });
+  const evidence = history.getByRole("list", {
+    name: "Builds and evidence",
+    exact: true,
+  });
+  expect(evidence.elements()).toHaveLength(0);
+  await act(() => userEvent.tab({ shift: true }));
+  await expect.element(summary).toHaveFocus();
+  await act(() => userEvent.keyboard("{Enter}"));
+  await expect.element(evidence).toBeVisible();
+  expect(
+    evidence
+      .getByRole("listitem")
+      .elements()
+      .map((row) => row.textContent),
+  ).toEqual([
+    "Oct 1 · No build · landed revision e0e0e0e",
+    "Oct 2 · Cancelled · exact revision e1e1e1e · Run 301 · attempt 1",
+    "Oct 3 · CI proof expired · reused equivalent b2b2b2b for e2e2e2e · Run 302 · attempt 1",
+    "Oct 4 · CI proof unreadable · later trunk build b3b3b3b for e3e3e3e · Run 303 · attempt 1",
+    "Oct 5 · No CI proof summary · reused equivalent b4b4b4b for e4e4e4e · Run 304 · attempt 1",
+    "Oct 6 · Pending · CI proof not read yet · landed revision e5e5e5e · Run 305 · attempt 1",
+    "Oct 7 · Pending · no CI run yet · landed revision e6e6e6e",
   ]);
-  await expectLinksByKeyboard(
-    page,
-    builds,
-    [301, 302, 303, 304, 305].map(runLink),
+  for (const runId of [301, 302, 303, 304, 305]) {
+    await act(() => userEvent.tab());
+    const link = evidence.getByRole("link", {
+      name: `Run ${String(runId)} · attempt 1`,
+      exact: true,
+    });
+    await expect.element(link).toHaveFocus();
+    expect(link.element().getAttribute("href")).toBe(
+      `https://ci.invalid/runs/${String(runId)}`,
+    );
+  }
+
+  const phone = document.documentElement;
+  expect(phone.scrollWidth, "page scroll width").toBeLessThanOrEqual(
+    phone.clientWidth,
   );
-  await expectNoSidewaysScrollIn(page, shown);
+  const area = history.element();
+  const overflowing = [area, ...area.querySelectorAll("*")]
+    .filter((element) => element.scrollWidth > element.clientWidth + 1)
+    .map((element) => element.tagName);
+  expect(overflowing, "history elements scrolling sideways").toEqual([]);
 });

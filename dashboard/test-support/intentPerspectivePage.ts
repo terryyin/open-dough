@@ -152,7 +152,7 @@ export async function expectNotConfiguredIntent(page: Page, label: string) {
     intent.getByRole("heading", { name: "No story selected", exact: true }),
   ).toBeVisible();
   const explanation = intent.getByText(
-    `No intent locations are configured for ${label}.`,
+    `No Intent locations are configured for ${label}.`,
   );
   await expect(explanation).toBeVisible();
   await expect(intent).toContainText("intent.locations");

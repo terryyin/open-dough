@@ -13,41 +13,23 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  contextLine,
-  contextValues,
-  contextWords,
-} from "../../dashboard/test-support/support/reviewContextLine.ts";
-import {
-  expectTreeRows,
-  fileDiff,
-  changedFilesList,
-  fileLineCounts,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import {
-  refreshReview,
-  openStoryReview,
-} from "../../dashboard/test-support/support/reviewRead.ts";
-import {
-  reviewRegion,
-  uncommittedCheck,
-} from "../../dashboard/test-support/support/reviewControls.ts";
+  openReviewChanges,
+  type ReviewChanges,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   openTaken,
   publishRewrittenLine,
   shownWorkspace,
-  trunkModeRepository,
   trunkModeStory,
 } from "../../dashboard/test-support/support/storyReviewTrunkMode.ts";
 import {
   branch,
   git,
+  storyWorktree,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-
-// Trunk up to Yui-chan's claim of Story A in Trunk Mode.
-test.use({ originRepository: trunkModeRepository });
 
 const flagged = "Modified src/c.ts, includes trunk's changes";
 
@@ -80,130 +62,131 @@ const allRows = [
   "notes.md",
 ];
 
-test("a file trunk rewrote where the story changed it is flagged as including trunk's changes", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace, trunk: first } = trunkModeStory(origin, { published: 1 });
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openTaken(page, origin);
-  const snapshot = await openStoryReview(page, card);
-  const review = reviewRegion(page);
-  const values = contextValues(review);
-  const baseline = contextLine(review).locator(
-    ".story-review-context-baseline",
-  );
+// Named tree of `o2`, before the story's first change to `src/c.ts`.
+const treeBeforeStory = (
+  origin: { revision(name: string): string },
+  workspace: string,
+) => git(workspace, "rev-parse", `${origin.revision("o2")}^{tree}`);
 
-  await test.step("the context line counts one published commit", async () => {
-    expect(snapshot.published).toEqual({ trunk: first, commits: 1 });
-    expect(snapshot.files.map(({ path: file }) => file)).toEqual([
-      "notes.md",
-      "src/a.ts",
-    ]);
-    const words = contextWords({
-      branch,
-      baseline: first,
-      published: 1,
-      workspace: shownWorkspace,
+test.describe("rewrite after the review opens", () => {
+  // One published story commit interleaved on trunk; rewrite actions stay below.
+  test.use({ originRepository: trunkModeStory({ published: 1 }) });
+
+  test("a file trunk rewrote where the story changed it is flagged as including trunk's changes", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktree(origin);
+    const first = origin.revision("o2");
+    const beforeStory = treeBeforeStory(origin, workspace);
+    keepLaunchRecord(dashboard, workspace);
+    const card = await openTaken(page, origin);
+    const review = await openReviewChanges(page, card);
+    const { snapshot, context } = review;
+
+    await test.step("the context line counts one published commit", async () => {
+      expect(snapshot.published).toEqual({ trunk: first, commits: 1 });
+      expect(snapshot.files.map(({ path: file }) => file)).toEqual([
+        "notes.md",
+        "src/a.ts",
+      ]);
+      const words = contextWords({
+        branch,
+        baseline: first,
+        published: 1,
+        workspace: shownWorkspace,
+      });
+      await context.expectWords(words);
+      await context.expectBaseline("origin/main less 1 story commit");
+      await context.expectBaselineLacks("commits");
+      await context.showInFull();
+      await context.expectBaseline(
+        `Baseline ${first} where ${branch} meets origin/main, less the story's 1 published commit`,
+        { exact: true },
+      );
+      await context.expectWords(words);
+      await context.showInFull(false);
     });
-    await expect(values).toHaveAccessibleName(words);
-    await expect(baseline).toContainText("origin/main less 1 story commit");
-    await expect(baseline).not.toContainText("commits");
-    await values.press("Enter");
-    await expect(baseline).toHaveText(
-      `Baseline ${first} where ${branch} meets origin/main, less the story's 1 published commit`,
-    );
-    await expect(values).toHaveAccessibleName(words);
-    await values.press("Enter");
-  });
 
-  const { trunk, beforeStory } = publishRewrittenLine(origin, workspace);
-  const later = await refreshReview(review);
-  const expectFlaggedDiff = async () => {
-    const diff = fileDiff(review, flagged);
-    await expect(diff.locator(".story-review-removed")).toHaveText(["-c 3"]);
-    await expect(diff.locator(".story-review-added")).toHaveText(["+c trunk"]);
-    // Neither the story's own line nor Git's conflict markers.
-    await expect(diff).not.toContainText("c story");
-    await expect(diff).not.toContainText("<<<<<<<");
-  };
+    const trunk = publishRewrittenLine(origin, workspace);
+    const refreshed = await review.refreshAndAnswer();
+    const later = refreshed.snapshot;
+    const { files, diffs } = refreshed;
+    const expectFlaggedDiff = async (shown: ReviewChanges) => {
+      await shown.diffs.expectChangedLines(flagged, {
+        removed: ["-c 3"],
+        added: ["+c trunk"],
+      });
+      // Neither the story's own line nor Git's conflict markers.
+      await shown.diffs.expectLacks(flagged, "c story", "<<<<<<<");
+    };
 
-  await test.step("the file is flagged, counted and diffed from trunk before the story changed it", async () => {
-    expect(later.published).toEqual({ trunk, commits: 2 });
-    expect(flags(later.files)).toEqual(allFlaggedFrom(beforeStory));
-    const files = changedFilesList(review, "4 changed files");
-    await expectTreeRows(files, allRows);
-    await expect(fileLineCounts(listedFile(files, flagged))).toHaveText(
-      "+1 −1",
-      { useInnerText: true },
-    );
-    await listedFile(files, flagged).press("Enter");
-    await expectFlaggedDiff();
-  });
+    await test.step("the file is flagged, counted and diffed from trunk before the story changed it", async () => {
+      expect(later.published).toEqual({ trunk, commits: 2 });
+      expect(flags(later.files)).toEqual(allFlaggedFrom(beforeStory));
+      await files.expectRows("4 changed files", allRows);
+      await files.expectLineCounts(flagged, "+1 −1");
+      await files.chooseShown(flagged, "keyboard");
+      await expectFlaggedDiff(refreshed);
+    });
 
-  await test.step("the other files stay as before", async () => {
-    const files = changedFilesList(review, "4 changed files");
-    await listedFile(files, "Modified src/a.ts").press("Enter");
-    const diff = fileDiff(review, "Modified src/a.ts");
-    await expect(diff.locator(".story-review-removed")).toHaveText(["-a 0"]);
-    await expect(diff.locator(".story-review-added")).toHaveText(["+a one"]);
-  });
+    await test.step("the other files stay as before", async () => {
+      await files.chooseShown("Modified src/a.ts", "keyboard");
+      await diffs.expectChangedLines("Modified src/a.ts", {
+        removed: ["-a 0"],
+        added: ["+a one"],
+      });
+    });
 
-  await test.step("the committed work alone keeps the file flagged from the same tree", async () => {
-    expect(flags(later.committed?.files)).toEqual([
-      { file: "d.md", includesTrunkFrom: undefined },
-      { file: "src/a.ts", includesTrunkFrom: undefined },
-      { file: "src/c.ts", includesTrunkFrom: beforeStory },
-    ]);
-    await uncommittedCheck(review).uncheck();
-    const files = changedFilesList(review, "3 changed files");
-    await expectTreeRows(files, [
-      "src",
-      "  a.ts",
-      "  c.ts includes trunk's changes",
-      "d.md",
-    ]);
-    await listedFile(files, flagged).press("Enter");
-    await expectFlaggedDiff();
+    await test.step("the committed work alone keeps the file flagged from the same tree", async () => {
+      expect(flags(later.committed?.files)).toEqual([
+        { file: "d.md", includesTrunkFrom: undefined },
+        { file: "src/a.ts", includesTrunkFrom: undefined },
+        { file: "src/c.ts", includesTrunkFrom: beforeStory },
+      ]);
+      await refreshed.comparison.includeUncommitted(false);
+      await files.expectRows("3 changed files", [
+        "src",
+        "  a.ts",
+        "  c.ts includes trunk's changes",
+        "d.md",
+      ]);
+      await files.chooseShown(flagged, "keyboard");
+      await expectFlaggedDiff(refreshed);
+    });
   });
 });
 
-test("a flagged file two story commits changed is diffed from trunk before the older one", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  const { workspace } = trunkModeStory(origin, { published: 1 });
-  const { trunk, beforeStory } = publishRewrittenLine(origin, workspace, {
-    earlier: true,
-  });
-  // Not the parent of `s2`, the commit whose line trunk rewrote.
-  expect(git(workspace, "log", "-1", "--format=%s", "HEAD~1")).toBe("s2");
-  expect(beforeStory).not.toBe(git(workspace, "rev-parse", "HEAD~2^{tree}"));
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openTaken(page, origin);
-  const snapshot = await openStoryReview(page, card);
-  const review = reviewRegion(page);
+test.describe("declared rewritten-line history", () => {
+  test.use({ originRepository: trunkModeStory({ rewritten: true }) });
 
-  expect(snapshot.published).toEqual({ trunk, commits: 3 });
-  expect(flags(snapshot.files)).toEqual(allFlaggedFrom(beforeStory));
-  const files = changedFilesList(review, "4 changed files");
-  await expectTreeRows(files, allRows);
-  await expect(fileLineCounts(listedFile(files, flagged))).toHaveText("+2 −2", {
-    useInnerText: true,
+  test("a flagged file two story commits changed is diffed from trunk before the older one", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    const { workspace } = storyWorktree(origin);
+    const trunk = origin.revision("o3");
+    const beforeStory = treeBeforeStory(origin, workspace);
+    // Not the parent of `s2`, the commit whose line trunk rewrote.
+    expect(git(workspace, "log", "-1", "--format=%s", "HEAD~1")).toBe("s2");
+    expect(beforeStory).not.toBe(git(workspace, "rev-parse", "HEAD~2^{tree}"));
+    keepLaunchRecord(dashboard, workspace);
+    const card = await openTaken(page, origin);
+    const review = await openReviewChanges(page, card);
+    const { snapshot, files, diffs } = review;
+
+    expect(snapshot.published).toEqual({ trunk, commits: 3 });
+    expect(flags(snapshot.files)).toEqual(allFlaggedFrom(beforeStory));
+    await files.expectRows("4 changed files", allRows);
+    await files.expectLineCounts(flagged, "+2 −2");
+    await files.chooseShown(flagged, "keyboard");
+    // The older story change beside the line trunk rewrote.
+    await diffs.expectChangedLines(flagged, {
+      removed: ["-c 3", "-c 9"],
+      added: ["+c trunk", "+c nine"],
+    });
+    await diffs.expectLacks(flagged, "c story", "<<<<<<<");
   });
-  await listedFile(files, flagged).press("Enter");
-  const diff = fileDiff(review, flagged);
-  // The older story change beside the line trunk rewrote.
-  await expect(diff.locator(".story-review-removed")).toHaveText([
-    "-c 3",
-    "-c 9",
-  ]);
-  await expect(diff.locator(".story-review-added")).toHaveText([
-    "+c trunk",
-    "+c nine",
-  ]);
-  await expect(diff).not.toContainText("c story");
-  await expect(diff).not.toContainText("<<<<<<<");
 });

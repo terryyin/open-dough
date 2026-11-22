@@ -17,7 +17,9 @@ export const comparisonReadingKey = (
   identity: string | undefined,
 ) => (identity === undefined ? undefined : `${source.id}#${identity}`);
 
-export function createCiComparisonReading() {
+export function createCiComparisonReading(
+  readComparison: typeof readIntentCiComparison = readIntentCiComparison,
+) {
   let selected:
     | {
         source: PublishedSource;
@@ -48,11 +50,7 @@ export function createCiComparisonReading() {
     controller = request;
     const round = askedAgain;
     publish({ ...state, reading: true, failed: undefined });
-    return readIntentCiComparison(
-      current.source,
-      current.identity,
-      request.signal,
-    )
+    return readComparison(current.source, current.identity, request.signal)
       .then((shown) => {
         if (request.signal.aborted) return;
         publish({ ...state, shown, checkedAgain: round, reading: false });

@@ -10,14 +10,8 @@ import {
   storyReviewSchema,
   type TakenStoryReview,
 } from "../../src/storyReviewContract.ts";
-import { closeSidePanel } from "../sidePanelFrame.ts";
 import { reviewChanges } from "../storyCardControls.ts";
-import {
-  comparisonChoice,
-  reviewRefresh,
-  reviewRegion,
-  showReviewDetails,
-} from "./reviewControls.ts";
+import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
 import { reviewBody, reviewFeedback } from "./reviewContextLine.ts";
 const reading =
   /Reading the story's changes…|Refreshing the review…|Reading the chosen commits' changes…/;
@@ -55,19 +49,6 @@ export async function openReviewAsOpened(page: Page, card: Locator) {
   return review;
 }
 
-// Shows the review's Commits, once it has read the chosen commits' changes.
-export async function showCommits(review: Locator) {
-  await comparisonChoice(review, "Commits", { exact: true }).check();
-  await expectReviewRead(review);
-}
-
-// Refreshes the review from its Refresh action, once it has read the story's
-// changes again.
-export async function refreshAndRead(review: Locator) {
-  await reviewRefresh(review, { exact: true }).click();
-  await expectReviewRead(review);
-}
-
 // The snapshot the page's next review read answers.
 async function nextSnapshot(page: Page): Promise<TakenStoryReview> {
   const response = await page.waitForResponse(
@@ -96,22 +77,4 @@ async function pressReviewChanges(page: Page, card: Locator) {
   const snapshot = nextSnapshot(page);
   await reviewChanges(card).click();
   return { snapshot };
-}
-
-// Refreshes the review and answers the snapshot it then shows.
-export async function refreshReview(
-  review: Locator,
-  options: { exact?: boolean } = {},
-) {
-  const refreshed = nextSnapshot(review.page());
-  await reviewRefresh(review, options).click();
-  return refreshed;
-}
-
-// Closes the review and opens it again from the card, answering the fresh
-// snapshot it shows.
-export async function reopenStoryReview(page: Page, card: Locator) {
-  await closeSidePanel(reviewRegion(page));
-  await expect(reviewRegion(page)).toHaveCount(0);
-  return openStoryReview(page, card);
 }

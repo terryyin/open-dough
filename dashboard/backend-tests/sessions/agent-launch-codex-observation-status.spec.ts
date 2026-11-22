@@ -25,6 +25,10 @@ import {
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
 
+const isolatedStartupObservation = test.extend({
+  liveServer: "the mounted startup observation races the native test setup",
+});
+
 test("read variants preserve native provenance and require exact missing-target evidence", async ({
   dashboard,
   codexProtocol,
@@ -132,51 +136,51 @@ test("endpoint/read failures preserve healthy hosts, saved identity and independ
   passive(native.calls);
 });
 
-test("deleting an unreadable saved record while another passive read is pending never recreates it", async ({
-  dashboard,
-  codexProtocol: native,
-}) => {
-  if (native === undefined) throw new Error("Missing native fixture");
-  native.observations.set("held", {
-    status: { type: "idle" },
-    turns: [],
-    holdRead: true,
-  });
-  save(dashboard, [record(dashboard, native, "held")]);
-  // Both held HTTP reads share one observation; deletion sees refusal.
-  const pending = Promise.all([states(dashboard), states(dashboard)]);
-  const readCount = () =>
-    native.calls.filter((c) => c.method === "thread/read").length;
-  await expect.poll(readCount).toBeGreaterThanOrEqual(1);
-  native.observations.set("held", {
-    status: { type: "idle" },
-    turns: [],
-    metadataError: { code: -32600, message: "Native read refused" },
-  });
-  expect(
-    (
-      await deleteRecord(dashboard, {
-        source: "open-dough",
-        host: "codex",
-        session: "held",
-      })
-    ).status,
-  ).toBe(200);
-  native.releaseReads();
-  expect((await pending).flat()).toContainEqual(
-    expect.objectContaining({
-      session: expect.objectContaining({ sessionId: "held" }),
-      sessionState: {
-        kind: "available",
-        availability: "loaded",
-        activity: "awaiting-instruction",
-      },
-    }),
-  );
-  expect(stored(dashboard.home)).toEqual([]);
-  expect(await states(dashboard)).toEqual([]);
-  passive(native.calls);
-});
+isolatedStartupObservation(
+  "deleting an unreadable saved record while another passive read is pending never recreates it",
+  async ({ dashboard, codexProtocol: native }) => {
+    if (native === undefined) throw new Error("Missing native fixture");
+    native.observations.set("held", {
+      status: { type: "idle" },
+      turns: [],
+      holdRead: true,
+    });
+    save(dashboard, [record(dashboard, native, "held")]);
+    // Both held HTTP reads share one observation; deletion sees refusal.
+    const pending = Promise.all([states(dashboard), states(dashboard)]);
+    const readCount = () =>
+      native.calls.filter((c) => c.method === "thread/read").length;
+    await expect.poll(readCount).toBeGreaterThanOrEqual(1);
+    native.observations.set("held", {
+      status: { type: "idle" },
+      turns: [],
+      metadataError: { code: -32600, message: "Native read refused" },
+    });
+    expect(
+      (
+        await deleteRecord(dashboard, {
+          source: "open-dough",
+          host: "codex",
+          session: "held",
+        })
+      ).status,
+    ).toBe(200);
+    native.releaseReads();
+    expect((await pending).flat()).toContainEqual(
+      expect.objectContaining({
+        session: expect.objectContaining({ sessionId: "held" }),
+        sessionState: {
+          kind: "available",
+          availability: "loaded",
+          activity: "awaiting-instruction",
+        },
+      }),
+    );
+    expect(stored(dashboard.home)).toEqual([]);
+    expect(await states(dashboard)).toEqual([]);
+    passive(native.calls);
+  },
+);
 
 test("a silent native endpoint reaches its bound without erasing a healthy Codex endpoint", async ({
   dashboard,
