@@ -99,7 +99,7 @@ then zooms and waits for `devicePixelRatio` 2. Later slices reuse it for
 ### 2. Shared model and effort reset is proved once at the dialog
 
 Type: Behavior
-Status: planned
+Status: done
 
 Reshape `launch-model-effort`, `launch-native-effort` and
 `launch-host-catalog`. Prove dismissal reset at the shared dialog once.
@@ -109,6 +109,24 @@ them, without reopening three launchers.
 
 Proof: the three files pass with paired timing and a mapping; the backend
 reread case for requested effort still passes.
+
+Mapping (11 → 12 cases; three files 20.15 s at load 22.5 → 26.7 before,
+15.49 s at load 24.4 → 25.0 after):
+
+- Cancel and Escape cases that reopened all three launchers → one reset
+  case at the shared dialog, plus one launch-and-focus case per launcher
+  (story card execution and refinement together, Start session alone).
+- Host-catalog failed-read reset tail → the shared reset case.
+- Native-effort tab order → the Slice 1 refinement tab-order case; its
+  host-switch effort defaults → "changing hosts resets model and effort
+  to each host's default", which also took over the catalog case's
+  host-switch model reset; its reopen reset → the shared reset case.
+- Mounted Cursor invalid-effort case → a direct `launchSettingsBlocked`
+  case for the Cursor rule; `aria-invalid`, disabled Start and the shared
+  "cannot be verified" feedback stay observed in the Codex case.
+- The backend reread case for requested effort passed, observed through
+  `OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD`; the backend runner prints
+  nothing on a pass.
 
 ### 3. Transcript overflow and editing run on transcript text
 
@@ -199,3 +217,8 @@ slice. This review found no remaining slice-specific concern.
 Reported: slice 1 — "Applying the 200% zoom and then resizing the window resets zoom to 100%; story-card-launch-offers.spec.ts:131-132 zooms before resizing."
 Story clause: "Preserve genuine browser conditions (viewport, zoom, touch, pointer, native input and focus)"
 Disposition: receiving slice 4
+
+### G2. Shared reset case remounts the dialog itself
+Reported: slice 2 — "The shared reset case remounts LaunchDialog through a new key, so it would not catch a launcher that keeps its dialog mounted, or passes kept, after dismissal."
+Story clause: "Distinct launch behavior and the existing composed journeys stay covered"
+Disposition: proved by slice 2: launch-model-effort.spec.ts per-launcher dismissal cases assert the dialog is no longer in the document after Escape or Cancel; launch-refinement-options.spec.ts "a refused selection stays checked until Cancel and is clear when next opened" observes kept clearing through StartLaunch
