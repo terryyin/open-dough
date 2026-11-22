@@ -3,9 +3,9 @@
 **Identity:** SEED-418#resume-shared-checkout-closes-as-their-own-session
 **Source:** [Resume each shared-checkout close as its own session and keep notes advisory](../../seeds/SEED-418-review-published-session-changes.md#resume-shared-checkout-closes-as-their-own-session)
 **Provenance:** execution retrospective of
-SEED-418#disclose-shared-checkout-overlap (plan
-[766](../766-disclose-shared-checkout-overlap/PLAN.md), recoverable at
-`9d6e87903` once wrapped up), reviewed commits `c4b05ec`, `841aa35`,
+SEED-418#disclose-shared-checkout-overlap (plan 766, recoverable as
+`7667fc3a8:.planning/slice-plans/766-disclose-shared-checkout-overlap/PLAN.md`),
+reviewed commits `c4b05ec`, `841aa35`,
 `71efa45`, `304021e`, `9d6e879` on
 `claude/disclose-shared-checkout-overlap-in-published-se`.
 
