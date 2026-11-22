@@ -21,7 +21,7 @@ standalone Done work. This seed owns session attribution and selection.
 
 **Identity:** SEED-418#resume-shared-checkout-closes-as-their-own-session
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md","assessment":"not-ready","reasons":["Slice 1 premise open: consumers of the first-landing expectation file (story-branch-landing-*, agent-launch-* and worktree-release-apply backend specs, publication-landing-target, publication-resume-story-branch and dashboard-landing tests, execution-payload-update.sh, install-all-tools.sh) were not run against the per-launch layout; unreached operation: those suites on a scratch application of slice 1.","Slice 2 premise open: that no caller relies on implicit close identity is traced, not observed; unreached operation: the dough-land, preparation-native-session-record-land and dough-story-wrap-up session-record suites on a scratch application of the ambiguity refusal."],"basis":{"document":"189cde8d80839331ab666d43f45c49f483de88d9eb9ff9b39379dd636b67581a","plan":"28f0e9bbb17fbcaa86c4ac4214a0875c4244be4436e8f6235b377127916d1407"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"189cde8d80839331ab666d43f45c49f483de88d9eb9ff9b39379dd636b67581a","plan":"1b0a7ea8d552ce84ab53a8b0f76e8392cc5ca5115e74277415a9e4415946916f"}}
 ```
 
 Correction found by the execution retrospective of
