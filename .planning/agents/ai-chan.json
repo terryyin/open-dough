@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Ai-chan",
+  "email": "ai-chan@example.org",
+  "identity": "SEED-420#route-review-changes-to-intent",
+  "mode": "story-branch",
+  "branch": "cursor/open-review-changes-on-a-story-card-in-intent",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
