@@ -12,8 +12,8 @@ import {
 import { sessionRecordPath } from "./sealed-session-record.mjs";
 import {
   parseSharedCheckoutNote,
+  sharedCheckoutNoteOnReadFailure,
   sharedCheckoutNotePathBeside,
-  sharedCheckoutOfUnknownStart,
 } from "./shared-checkout-note.mjs";
 
 // The Dashboard's shared-checkout note beside the landing context, if any; a
@@ -24,7 +24,7 @@ async function sharedCheckoutNote(landingContext) {
       await readFile(sharedCheckoutNotePathBeside(landingContext), "utf8"),
     );
   } catch (error) {
-    return error.code === "ENOENT" ? undefined : sharedCheckoutOfUnknownStart;
+    return sharedCheckoutNoteOnReadFailure(error);
   }
 }
 

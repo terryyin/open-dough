@@ -1,7 +1,7 @@
 // What a published session close record is: the short published fact that one
 // session closed with accepted Git comparisons, kept beside the backlog. The
-// directory, file name, version, session-UUID rule, and workflow values have
-// one owner here. No filesystem, Git, or Node-only imports, so every
+// directory, file name, version, session-UUID rule, workflow values and range
+// marks have one owner here. No filesystem, Git, or Node-only imports, so every
 // reader of published session records shares it.
 
 import { isWithinDoneWindow } from "../../dough-product-backlog/scripts/product-backlog-done-record.mjs";
@@ -18,6 +18,10 @@ export const sessionRecordVersion = 1;
 export const standaloneSessionWorkflow = "ad-hoc";
 export const executionSessionWorkflow = "dough-execute-plan";
 export const refinementSessionWorkflow = "dough-story-refinement";
+
+// The mark a published range carries when its comparison may include another
+// session's work from the same checkout.
+export const sharedCheckoutUncertainty = "shared-checkout";
 
 // Whether a record closed at `closedAt` is still current at `now` (a Date):
 // the done-record retention window, counted from the close, not the commit.

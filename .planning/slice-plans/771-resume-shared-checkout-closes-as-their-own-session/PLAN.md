@@ -257,7 +257,7 @@ is gone; a stopped close keeps it for the next resume.
 ### 7. The record contract owns the shared-checkout mark
 
 Type: Structure
-Status: planned
+Status: done
 Proof: `typecheck:dashboard`, `session-record-publication.test.mjs`, `session-close-shared-checkout-resume.test.mjs`, `review/published-session-ranges` and the published-session review specs pass unchanged.
 
 Structure: move the `"shared-checkout"` value into `session-record.mjs`;

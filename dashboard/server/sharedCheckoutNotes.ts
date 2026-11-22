@@ -4,9 +4,9 @@
 import { readFile } from "node:fs/promises";
 import {
   parseSharedCheckoutNote,
+  sharedCheckoutNoteOnReadFailure,
   sharedCheckoutNotePathBeside,
   sharedCheckoutNoteText,
-  sharedCheckoutOfUnknownStart,
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { replaceFile } from "./fileReplacement.ts";
@@ -41,10 +41,7 @@ async function noteBeside(record: LaunchRecord, since: string): Promise<void> {
   const file = sharedCheckoutNotePathBeside(landingContext);
   const recorded = await readFile(file, "utf8").then(
     parseSharedCheckoutNote,
-    (error: unknown) =>
-      (error as NodeJS.ErrnoException).code === "ENOENT"
-        ? undefined
-        : sharedCheckoutOfUnknownStart,
+    sharedCheckoutNoteOnReadFailure,
   );
   replaceFile(file, sharedCheckoutNoteText(since, recorded, record.launchedAt));
 }
