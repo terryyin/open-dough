@@ -298,6 +298,13 @@ review journey reaches the changed opening.
   not start another round, and a pending Done run read that keeps the
   locations browser and the CI Done endpoint on the default. Do not move
   `isDefault`, remove `defaultStoryComparison`, or unify `wholeStory`.
+- Third overrun, 2026-11-22, paused at 17.1 active minutes. The return
+  reported 15.3. No edit and no proof. `storyOverruns` is 3. Failed
+  assumption: a write-first brief that named the four edits and the three
+  tests would be written inside 15 active minutes. The attempt still only
+  read. The story boundary from the second overrun stands: one story, nine
+  slices, no further split. Another fresh delegation repeats this failure.
+  Slice 1 stays planned and paused.
 
 ## Execution context
 
