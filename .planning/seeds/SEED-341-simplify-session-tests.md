@@ -94,29 +94,52 @@ homes before work starts.
 
 **Identity:** SEED-341#split-quiet-completion-journey
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/775-split-quiet-completion-journey/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"879cd64643594ebd1b1469b055fd850dc78232d604e5476f8d2cba5e141dfcf6","plan":"3015701ee7900428c399d1a561efe6e6cb4ebc44383f4380df5e0f9e76a60ada"}}
 ```
 
-- **Goal.** Developers get the same `agent-completion-quiet` result locally
-  and in CI whatever the machine load, so a red run names a real
-  regression. Each case finishes inside the default 30 s test timeout.
-- **Scope.** Split the journey in `e2e/sessions/agent-completion-quiet.spec.ts`
-  (Land, Story Branch Wrap Up and Trunk Wrap Up): prove the installed
-  closure and quiet reporting without the browser, and prove the page
-  phase from a composed, already retired record. Keep the default timeout
-  and every current observation, named to its new owner. Decide whether
-  the parked observer-stop repair beside the diagnosis record is kept,
-  with one green run that reaches its path. Add no timeout override.
-- **Key examples.**
-  - At load about 50 on 16 cores, each case passes inside 30 s.
-  - The page still shows no Startup recovery and no attention for a quiet
-    completion.
-- **Baseline.** On 22 November 2026 at `840788d00` each case did 13–21 s of
-  serial work (prepared origin, dashboard server, browser, a real launch,
-  a real installed closure, three reporting runs, a page phase). Every
-  phase ran 2–3.5 times slower under load; the spec failed 0/3 alone at
-  load 34 → 49 and passed 9/9 at load 22–38. The developer chose the
-  journey split over moving fixture cost or overriding the timeout.
-  Diagnosis record and parked patch:
-  `3a1ba5ca6:.planning/slice-plans/768-make-launch-proof-orthogonal/diagnosis-agent-completion-quiet-load-timeout.md`
-  and `diagnosis-agent-completion-quiet-observer-stop.patch` beside it.
+**Goal:** Developers get the same `agent-completion-quiet` result locally
+and in CI whatever the machine load, so a red run names a real regression.
+Each case finishes inside the default 30 s test timeout.
+
+**Scope:**
+
+- Split the journey in `e2e/sessions/agent-completion-quiet.spec.ts` (Land,
+  Story Branch Wrap Up and Trunk Wrap Up) into two owners:
+  - **Closure and reporting** proves, without a browser page, that the real
+    installed closure retires accepted work before quiet reporting, and that
+    reporting records the completion: the receipt, `doneAt`, no native
+    interruption, the rename after the receipt, the Story Branch failed-write
+    retry and duplicate, the Trunk rename refusal and its retry, and the
+    kept landing that leaves the story Taken.
+  - **Page** proves, from a composed record that is already retired and
+    reported, what Recently done shows for a quiet completion.
+- Keep every current observation, each at the owner named above. Remove no
+  observation unless another test already proves the same rule.
+- Keep the default timeout. Add no timeout override.
+- Decide whether the parked observer-stop repair beside the diagnosis record
+  is kept. Keep it only after one green run that reaches its path.
+- Scope limit: no other completion spec (`-attention`, `-cursor`,
+  `-execution`, `-quiet-claude`) changes; no dashboard behavior changes.
+
+**Key examples:**
+
+- At load about 50 on 16 cores, each case in both owners passes inside 30 s.
+- Story Branch Wrap Up: the first installed report fails to write and its
+  retry records the completion; a duplicate report returns the same receipt
+  with no native call and no Git.
+- Trunk Wrap Up: a refused native rename is recorded as a done problem, the
+  entry offers Mark as done, and a retried submission clears the problem
+  with exactly one rename.
+- A quiet completion's Recently done entry shows Done and "Native session is
+  still working", shows no Startup recovery and no attention message, reads
+  the native final report "Done.", and still shows Done after a reload.
+
+**Baseline:** On 22 November 2026 at `840788d00` each case did 13–21 s of
+serial work (prepared origin, dashboard server, browser, a real launch,
+a real installed closure, three reporting runs, a page phase). Every
+phase ran 2–3.5 times slower under load; the spec failed 0/3 alone at
+load 34 → 49 and passed 9/9 at load 22–38. The developer chose the
+journey split over moving fixture cost or overriding the timeout.
+Diagnosis record and parked patch:
+`3a1ba5ca6:.planning/slice-plans/768-make-launch-proof-orthogonal/diagnosis-agent-completion-quiet-load-timeout.md`
+and `diagnosis-agent-completion-quiet-observer-stop.patch` beside it.
