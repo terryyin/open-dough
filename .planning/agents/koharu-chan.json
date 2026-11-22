@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Koharu-chan",
+  "email": "koharu-chan@example.org",
+  "identity": "SEED-413#finish-launch-proof-orthogonal",
+  "mode": "story-branch",
+  "branch": "cursor/get-launch-unit-proof-in-about-eight-seconds",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
