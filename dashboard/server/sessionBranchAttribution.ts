@@ -97,18 +97,14 @@ export async function attributeBranchResult(
   if (target === undefined) return unavailable;
 
   try {
-    if (
-      observedAtEntry !== undefined &&
-      (await sharedFirstParent(target, observedAtEntry, call)) !==
-        observedAtEntry
-    )
-      return ambiguous;
-    const entryTrunk = await sharedFirstParent(
-      observedAtEntry ?? target,
-      entryTip,
-      call,
-    );
-    const incorporated = await sharedFirstParent(target, committedTip, call);
+    const [observedShared, entryTrunk, incorporated] = await Promise.all([
+      observedAtEntry === undefined
+        ? undefined
+        : sharedFirstParent(target, observedAtEntry, call),
+      sharedFirstParent(observedAtEntry ?? target, entryTip, call),
+      sharedFirstParent(target, committedTip, call),
+    ]);
+    if (observedShared !== observedAtEntry) return ambiguous;
     if (
       entryTrunk === incorporated ||
       (await isAncestor(incorporated, entryTip, call))

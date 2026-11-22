@@ -150,6 +150,9 @@ landing-fixture Distribution tests and the `e2e/launches` specs reaching
 `keepRecord`, it passes. `keepRecord` notes after binding; a failed note write
 still starts an early-reported Done and propagates its error, which callers
 report as a launch-record failure.
+The backend `review/ad-hoc-branch-entry-attribution` cases timed out under
+load in this slice's runs; their repair is recorded in
+[diagnosis-attribution-spec-timeout.md](diagnosis-attribution-spec-timeout.md).
 
 **Behavior.** When a launch is recorded in a checkout where another launch
 with a landing context is open, both reporting directories hold a note whose

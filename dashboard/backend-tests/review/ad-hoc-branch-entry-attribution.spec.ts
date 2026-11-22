@@ -39,15 +39,20 @@ test("capture separates declared branch work from its entry and its trunk import
     workspace,
     branch,
   });
-  const { "session-only": committedTip } = await performWork(
+  const { imported } = await performWork(
     makeMe.aCheckoutWork
-      .mergingTrunkWork("imported", {
+      .committing("imported", {
         at: at(40),
         files: {
           "import-only.txt": "trunk addition\n",
           "shared.txt": "imported line\n",
         },
       })
+      .pushingToTrunk("pushed", { at: at(40) }),
+  );
+  const { "session-only": committedTip } = await performWork(
+    makeMe.aCheckoutWork
+      .mergingTipByHand("merged", { tip: imported, at: at(40) })
       .committing("session-only", { at: at(30) })
       .editing("edit", {
         at: at(20),

@@ -8,7 +8,11 @@ import {
   type SessionBranchEntry,
   type SessionBranchResult,
 } from "../src/sessionBranchResult.ts";
-import { commonGitDirectory } from "./gitCommonDirectory.ts";
+import {
+  canonicalGitDirectory,
+  commonGitDirectory,
+  commonGitDirectoryOptions,
+} from "./gitCommonDirectory.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
 import {
   keepBranchResultRefs,
@@ -61,25 +65,35 @@ export async function readBranchWorkspace({
 }: Pick<SessionBranchEntry, "workspace" | "repository" | "branch">) {
   const checkout = resolvedCheckout(workspace);
   const call = gitCall(checkout);
-  const git = async (args: readonly string[]) =>
-    (await runGit(args, call)).stdout.trim();
+  // One rev-parse per read: each Git process is the capture's main cost.
+  // Revisions precede --symbolic-full-name, which applies to those after it.
+  const lines = async (args: readonly string[]) =>
+    (await runGit(args, call)).stdout.trim().split("\n");
   const ref = `refs/heads/${branch}`;
+  const [toplevel, common, tip, committedTree, head] = await lines([
+    "rev-parse",
+    "--show-toplevel",
+    ...commonGitDirectoryOptions,
+    "HEAD^{commit}",
+    "HEAD^{tree}",
+    "--symbolic-full-name",
+    "HEAD",
+  ]);
   if (
-    resolvedCheckout(await git(["rev-parse", "--show-toplevel"])) !==
-      checkout ||
-    (await commonGitDirectory(call)) !== repository ||
-    (await git(["symbolic-ref", "HEAD"])) !== ref
+    resolvedCheckout(toplevel ?? "") !== checkout ||
+    (await canonicalGitDirectory(common ?? "")) !== repository ||
+    head !== ref
   )
     throw new Error("The checkout no longer holds the launch's branch.");
-  const committedTip = commitIdSchema.parse(
-    await git(["rev-parse", "--verify", "HEAD^{commit}"]),
-  );
+  const committedTip = commitIdSchema.parse(tip);
   const tree = commitIdSchema.parse(await writeWorkingTree(committedTip, call));
-  const committedTree = await git(["rev-parse", `${committedTip}^{tree}`]);
-  if (
-    (await git(["symbolic-ref", "HEAD"])) !== ref ||
-    (await git(["rev-parse", "--verify", "HEAD"])) !== committedTip
-  )
+  const [tipAfter, headAfter] = await lines([
+    "rev-parse",
+    "HEAD",
+    "--symbolic-full-name",
+    "HEAD",
+  ]);
+  if (headAfter !== ref || tipAfter !== committedTip)
     throw new Error("The launch's branch changed during capture.");
   return {
     committedTip,
@@ -108,31 +122,32 @@ export const captureBranchResult: BranchCapture = async (record, doneAt) => {
     entry?.committedTip ?? record.establishedSession?.startingRevision,
   );
   const base = entry?.tree ?? baseTip;
-  const { committedTip, revision } = await readBranchWorkspace({
-    ...start,
-    repository,
-  });
-  await runGit(
-    ["merge-base", "--is-ancestor", baseTip, committedTip],
-    gitCall(start.workspace),
-  );
   const source = configuredProject(record.request.source);
   const witnessedTrunk = manualLandingTrunk(record);
   const trunk =
     witnessedTrunk ??
     (source === undefined ? undefined : branchTrunk("origin", source.ref));
   const call = gitCall(repository);
-  const targetHead = await readBranchTrunkRevision(trunk, call);
-  const delivery =
+  // Independent reads run together: each Git process is the capture's cost.
+  const [{ committedTip, revision }, targetHead] = await Promise.all([
+    readBranchWorkspace({ ...start, repository }),
+    readBranchTrunkRevision(trunk, call),
+  ]);
+  const [, delivery] = await Promise.all([
+    runGit(
+      ["merge-base", "--is-ancestor", baseTip, committedTip],
+      gitCall(start.workspace),
+    ),
     record.landing === undefined
-      ? await manualLandingComparison(
+      ? manualLandingComparison(
           repository,
           committedTip,
           witnessedTrunk,
           targetHead,
           call,
         )
-      : undefined;
+      : undefined,
+  ]);
   // A proved direct delivery establishes that this exact tip is session work.
   // Its prior target is the trunk history imported by the branch.
   const attributionTarget =
