@@ -171,6 +171,10 @@ equal or higher load):
   and the story-notes specs (30/30), and the built-app note-voice specs
   (4/4) in their own run, which a mixed path list skips.
 
+CI repair (run 44993112421 on `cb1ae5ce`): the G3 case pressed Tab before
+`TranscriptReview`'s mount effect focused the candidate; it now waits for
+the candidate's focus first (10 consecutive passes, `ci1-repeat-*`).
+
 ### 4. Native recording proof keeps only its distinct races and failures
 
 Type: Behavior

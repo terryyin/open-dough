@@ -48,6 +48,7 @@ test("Discard in review keeps the draft focused, and Escape in review leaves the
   voice.transcribe.mockResolvedValueOnce({ text: transcript });
   await voice.recordClip();
   await expect.element(voice.candidate).toHaveValue(transcript);
+  await expect.element(voice.candidate).toHaveFocus();
   await expect.element(voice.field).toHaveValue(originalDraft);
   await userEvent.tab();
   await expect
