@@ -12,6 +12,17 @@ The slices below are plan 768's Slices 7 and 8 as provisional input; they
 resume through story refinement and plan realignment. Plan 768's mappings
 and paired timings are recoverable from its history after its wrap-up.
 
+## Carried timing evidence
+
+Plan 768's final paired run (`840788d00`, two workers, load 13 → 16) took
+the 17 reshaped files to 21.40 s and 21.68 s wall against 29.02 s and
+26.01 s for their 16 starting files, 53 → 52 cases. Slowest remaining:
+`story-card-launch-offers.spec.ts:135` 2.4 s, `launch-refinement-options.spec.ts:132`
+2.2 s, `mounted-instruction-voice.spec.ts:12` 2.1 s,
+`ad-hoc-refinement-touch.spec.ts:37` 2.1 s, `ad-hoc-launch-dialog.spec.ts:94`
+2.0 s and `:17` 2.0 s. Both desktop-pointer files still need the
+`chromium-desktop` instance.
+
 ## Carried obligation
 
 ### G5. Launch helpers copy the MachineSessions composition (first reported in plan 768 slice 5)
