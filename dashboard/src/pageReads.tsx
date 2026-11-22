@@ -1,8 +1,9 @@
 // The page's reads of Intent, its CI, the story review, done records, story
-// notes, CI follow-up and story review states, and its calls for a shown
-// session. The app (`./App.tsx`) gives `./ConfiguredDashboard.tsx` the
-// authenticated implementations; every consumer reaches them through this
-// one entry and fails outside it.
+// notes, CI follow-up, story review states and the published observation, and
+// its calls for a shown session. The app (`./App.tsx`) gives
+// `./ConfiguredDashboard.tsx` the authenticated implementations. The
+// dashboard hands the published observation its reads; every other consumer
+// reaches them through this one entry and fails outside it.
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import {
@@ -17,6 +18,10 @@ import {
   authenticatedIntentReads,
   type IntentReadSource,
 } from "./intentReadSource.ts";
+import {
+  authenticatedPublishedObservationReads,
+  type PublishedObservationReadSource,
+} from "./publishedObservationReadSource.ts";
 import {
   authenticatedCiFollowUpReads,
   type CiFollowUpReadSource,
@@ -49,6 +54,7 @@ export type PageReads = {
   readonly storyNotes: StoryNotesReadSource;
   readonly ciFollowUp: CiFollowUpReadSource;
   readonly reviewStates: StoryReviewStatesReadSource;
+  readonly observation: PublishedObservationReadSource;
 };
 
 export const authenticatedPageReads: PageReads = {
@@ -60,6 +66,7 @@ export const authenticatedPageReads: PageReads = {
   storyNotes: authenticatedStoryNotesReads,
   ciFollowUp: authenticatedCiFollowUpReads,
   reviewStates: authenticatedStoryReviewStatesReads,
+  observation: authenticatedPublishedObservationReads,
 };
 
 const PageReadsContext = createContext<PageReads | undefined>(undefined);

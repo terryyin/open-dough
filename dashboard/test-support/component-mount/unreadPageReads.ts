@@ -6,6 +6,7 @@ import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
+import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import type { SessionServices } from "../../src/sessionServices.ts";
 import type { StoryNotesReadSource } from "../../src/storyNotesReadSource.ts";
@@ -60,6 +61,12 @@ const unreadReviewStates: StoryReviewStatesReadSource = unread(
   "story review states",
 );
 
+const unreadObservation: PublishedObservationReadSource = {
+  readSnapshot: unread("published snapshot"),
+  readDetailFile: unread("published detail file"),
+  checkRevision: unread("revision check"),
+};
+
 // The page's reads with only SUPPLIED answering; every other read rejects.
 export const pageReadsSupplying = (
   supplied: Partial<PageReads>,
@@ -72,5 +79,6 @@ export const pageReadsSupplying = (
   storyNotes: unreadStoryNotes,
   ciFollowUp: unreadCiFollowUp,
   reviewStates: unreadReviewStates,
+  observation: unreadObservation,
   ...supplied,
 });

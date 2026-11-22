@@ -6,7 +6,7 @@
 import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
 import { interpretPublishedBacklog } from "./publishedBacklog.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { readPublishedSnapshot } from "./authenticatedRead.ts";
+import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import {
   trackSettledAsk,
   type ObservationOutcomes,
@@ -25,9 +25,10 @@ export async function readPublishedWork(
   source: PublishedSource,
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
-  onPartial?: PublishedWorkProgress,
-  knownRevision?: string,
-  shown?: PublishedWork,
+  onPartial: PublishedWorkProgress | undefined,
+  knownRevision: string | undefined,
+  shown: PublishedWork | undefined,
+  { readSnapshot, readDetailFile }: PublishedObservationReadSource,
 ): Promise<PublishedWork> {
   return withinReadWait(signal, async (untilEither, bound) => {
     try {
@@ -44,7 +45,7 @@ export async function readPublishedWork(
             };
       const snapshot = await trackSettledAsk(
         outcomes,
-        readPublishedSnapshot(source, untilEither, knownRevision),
+        readSnapshot(source, untilEither, knownRevision),
         {
           question: membershipQuestion,
           of: (read) => ({
@@ -92,6 +93,7 @@ export async function readPublishedWork(
       const carriedFrom =
         !sameRevision && shown?.source.id === source.id ? shown : undefined;
       return await readPublishedDetails(
+        readDetailFile,
         work,
         sameRevision,
         carriedFrom,
