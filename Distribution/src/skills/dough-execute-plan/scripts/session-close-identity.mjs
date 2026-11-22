@@ -13,15 +13,19 @@ import { sessionRecordPath } from "./sealed-session-record.mjs";
 import {
   parseSharedCheckoutNote,
   sharedCheckoutNotePathBeside,
+  sharedCheckoutOfUnknownStart,
 } from "./shared-checkout-note.mjs";
 
-// The Dashboard's shared-checkout note beside the landing context, if any.
+// The Dashboard's shared-checkout note beside the landing context, if any; a
+// note that exists but cannot be read is overlap of unknown start.
 async function sharedCheckoutNote(landingContext) {
-  const text = await readFile(
-    sharedCheckoutNotePathBeside(landingContext),
-    "utf8",
-  ).catch(() => undefined);
-  return text === undefined ? undefined : parseSharedCheckoutNote(text);
+  try {
+    return parseSharedCheckoutNote(
+      await readFile(sharedCheckoutNotePathBeside(landingContext), "utf8"),
+    );
+  } catch (error) {
+    return error.code === "ENOENT" ? undefined : sharedCheckoutOfUnknownStart;
+  }
 }
 
 // The session a close names, with the story it carries and any

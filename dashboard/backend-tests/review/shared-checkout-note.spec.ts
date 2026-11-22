@@ -52,7 +52,7 @@ const notedSince = (record: LaunchRecord) => {
   if (landingContext === undefined) throw new Error("No landing context");
   const file = sharedCheckoutNotePathBeside(landingContext);
   return existsSync(file)
-    ? parseSharedCheckoutNote(readFileSync(file, "utf8"))?.since
+    ? parseSharedCheckoutNote(readFileSync(file, "utf8")).since
     : undefined;
 };
 

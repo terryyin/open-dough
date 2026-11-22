@@ -19,19 +19,31 @@ export function sharedCheckoutNotePathBeside(landingContextPath) {
   return `${slash < 0 ? "" : landingContextPath.slice(0, slash + 1)}${sharedCheckoutNoteFileName}`;
 }
 
-// The note's parsed `{ since }` from its text, or undefined when it names no
-// valid time.
+// A note that exists but cannot be read or parsed, or names no valid `since`:
+// overlap of unknown start, so every range is marked.
+export const sharedCheckoutOfUnknownStart = Object.freeze({ since: undefined });
+
+// The overlap a note's text records: `{ since }` when it names a valid time,
+// otherwise overlap of unknown start.
 export function parseSharedCheckoutNote(text) {
-  const since = JSON.parse(text)?.since;
+  let since;
+  try {
+    since = JSON.parse(text)?.since;
+  } catch {
+    return sharedCheckoutOfUnknownStart;
+  }
   return typeof since === "string" && !Number.isNaN(Date.parse(since))
     ? { since }
-    : undefined;
+    : sharedCheckoutOfUnknownStart;
 }
 
 // The mark for a range accepted at `acceptedAt` under `note`: shared-checkout
-// when accepted at or after the note's `since`, otherwise none.
+// when the overlap's start is unknown or at or before the acceptance,
+// otherwise none.
 export function rangeUncertainty(note, acceptedAt) {
-  return note && Date.parse(acceptedAt) >= Date.parse(note.since)
+  if (!note) return undefined;
+  return note.since === undefined ||
+    Date.parse(acceptedAt) >= Date.parse(note.since)
     ? sharedCheckoutUncertainty
     : undefined;
 }
@@ -44,7 +56,8 @@ export function sharedCheckoutNoteText(since, recordedText) {
       ? undefined
       : parseSharedCheckoutNote(recordedText);
   const earliest =
-    recorded !== undefined && Date.parse(recorded.since) <= Date.parse(since)
+    recorded?.since !== undefined &&
+    Date.parse(recorded.since) <= Date.parse(since)
       ? recorded.since
       : since;
   return JSON.stringify({ since: earliest });

@@ -202,11 +202,15 @@ exports `openLaunches`. `session-record-publication.mjs` is 155 lines.
 ### 3. A close whose shared-checkout note is unreadable publishes a marked range
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: a `session-record-publication.test.mjs` case with garbage in `shared-checkout.json` beside the landing context publishes the close with its range marked `"shared-checkout"` (red before: throws before any push). The existing marked, unmarked and native cases pass.
 
 Behavior: a Dashboard close whose note is torn → close → work and record
 publish, every range marked.
+
+Accepted: `parseSharedCheckoutNote` never throws; it returns `{ since }` or
+the frozen `sharedCheckoutOfUnknownStart`, which `rangeUncertainty` marks.
+`scripts/test.sh` needs file paths, not a directory.
 
 ### 4. A note failure leaves the kept launch recorded
 
@@ -246,6 +250,13 @@ Proof: `typecheck:dashboard`, `session-record-publication.test.mjs`, `session-cl
 Structure: move the `"shared-checkout"` value into `session-record.mjs`;
 `shared-checkout-note.mjs` and `publishedSessionReview.ts` import it from the
 record contract (finding 5).
+
+## Story obligations
+
+### G1. A torn note beside an open launch is rewritten with the new launch's start
+Reported: slice 3 — "a torn recorded note no longer makes `keepRecord` reject; the writer overwrites it with the new `since`"
+Story clause: "A shared-checkout note that cannot be written or read neither reports a kept launch as unrecorded nor blocks a later launch or close."
+Disposition: interim until slices 4
 
 ## Concern evidence
 
