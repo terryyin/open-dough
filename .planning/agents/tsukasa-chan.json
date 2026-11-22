@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsukasa-chan",
+  "email": "tsukasa-chan@example.org",
+  "identity": "SEED-413#speed-intent-ci-status-frame-and-timing-history",
+  "mode": "story-branch",
+  "branch": "claude/get-fast-proof-of-intent-ci-status-on-the-real-p",
+  "host": "claude"
+}
