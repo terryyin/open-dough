@@ -1,17 +1,12 @@
 // Backend collection: ../../backend-tests/intent/landed-ci-history-gaps.spec.ts
 // Pending proof: ../../backend-tests/intent/landed-ci-history-pending-proof.spec.ts
-import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
-import { expect, onTestFinished, test, vi } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import "../../src/dashboardStyles.ts";
-import { JudgedBranch } from "../../src/IntentCiJudgedBranch.tsx";
-import "../../src/intent-ci-status.css";
-import { measuredHistoryOf } from "../../src/landedCiHistory.ts";
-import { shownRunOf } from "../../src/shownCiProofRun.ts";
-
-vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+import {
+  historyName,
+  openTrunkHistory,
+} from "./intent-ci-wall-time-history-page.ts";
 
 test("a history whose recorded landings are all gaps says none is measured yet, draws no chart, and lists each gap with its reason and the build it names, each run link reached by keyboard on a phone", async () => {
   const landingOf = (day: number) => ({
@@ -50,63 +45,12 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
     })
     .pendingLanding({ ...landingOf(6), waitsFor: "proof", runId: 305 })
     .pendingLanding({ ...landingOf(7), waitsFor: "run" })
-    .please();
-  const run = {
-    revision: `a1b2c3d${"0".repeat(33)}`,
-    runId: 41,
-    runAttempt: 1,
-  };
-  const shown = makeMe.anIntentCiStatus
-    .with({
-      ...run,
-      branch: "main",
-      runBranch: "main",
-      state: "pass",
-      subject: "Result landed.txt",
-      laterWithoutResult: 0,
-      runUrl: "https://ci.invalid/runs/41",
-      startedAt: "2026-11-05T10:00:00Z",
-      completedAt: "2026-11-05T10:06:05Z",
-      checkedAt: "2026-11-05T12:00:00Z",
-      freshness: "fresh",
-    })
-    .please();
-  const host = document.body.appendChild(document.createElement("div"));
-  const root = createRoot(host);
-  onTestFinished(() => {
-    act(() => {
-      root.unmount();
-    });
-    host.remove();
-  });
-  await act(() => {
-    root.render(
-      createElement(JudgedBranch, {
-        branch: "main",
-        story: undefined,
-        judged: {
-          shown,
-          reading: false,
-          previouslyRetrieved: false,
-          refreshFailed: undefined,
-          checkAgain: () => {},
-          round: undefined,
-        },
-        proof: {
-          run: shownRunOf(shown),
-          read: makeMe.aCiProof.forRun(run).please(),
-        },
-        history: { shown: measuredHistoryOf(answer), failed: undefined },
-      }),
-    );
-    return Promise.resolve();
-  });
+    .pleaseMeasured();
+  const { ci, history, headingText } = await openTrunkHistory(answer);
+  const { panel } = ci;
 
   expect([window.innerWidth, window.innerHeight]).toEqual([390, 844]);
-  const panel = page.getByRole("region", { name: "CI status", exact: true });
-  const historyName = "CI time without runner waits history";
-  const history = panel.getByRole("region", { name: historyName, exact: true });
-  expect(history.getByRole("heading").element().textContent).toBe(historyName);
+  await expect.poll(headingText).toBe(historyName);
   await expect
     .element(
       history.getByText(
@@ -132,9 +76,9 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
     exact: true,
   });
   expect(evidence.elements()).toHaveLength(0);
-  await act(() => userEvent.tab({ shift: true }));
+  await userEvent.tab({ shift: true });
   await expect.element(summary).toHaveFocus();
-  await act(() => userEvent.keyboard("{Enter}"));
+  await userEvent.keyboard("{Enter}");
   await expect.element(evidence).toBeVisible();
   expect(
     evidence
@@ -151,7 +95,7 @@ test("a history whose recorded landings are all gaps says none is measured yet, 
     "Oct 7 · Pending · no CI run yet · landed revision e6e6e6e",
   ]);
   for (const runId of [301, 302, 303, 304, 305]) {
-    await act(() => userEvent.tab());
+    await userEvent.tab();
     const link = evidence.getByRole("link", {
       name: `Run ${String(runId)} · attempt 1`,
       exact: true,

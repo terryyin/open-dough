@@ -7,8 +7,10 @@
 // landed run.
 import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
+import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { recordOutsideCalls } from "./intent-outside-calls.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import { scopeReadsOf } from "./intent-ci-scope-page.tsx";
@@ -21,7 +23,6 @@ import {
 // The case's Review changes answers; it answers the story's review at least.
 type ReviewAnswers = Pick<ReviewSource, "review"> & Partial<ReviewSource>;
 
-const unanswered = () => new Promise<never>(() => undefined);
 const answering = (answers: ReviewAnswers): ReviewSource => ({
   range: unanswered,
   fileDiff: unanswered,
@@ -102,6 +103,8 @@ const doneStory = makeMe.aComparedStory.inSummaryScope().please();
 const doneTitle = "Story A";
 export const doneCompletion = doneStory.work.revision;
 export const doneIdentity = doneStory.identity;
+// The Done story's own CI comparison answer.
+export const doneComparison = doneStory.answer;
 // The published completion Review changes answers by default.
 export const publishedCompletion = () =>
   makeMe.aStoryReview
@@ -109,11 +112,20 @@ export const publishedCompletion = () =>
     .adding("dashboard/tests/folder/a.spec.ts")
     .please();
 
-// Intent with the Done story selected, its review read from `review`: the
-// revision each Intent locations read names, in order, and the global fetch
+// Intent with the Done story selected, its review read from `review` and its
+// collected CI wall time from `readDoneWallTimeHistory` (pending unless
+// given) and its CI comparison from `readComparison` (the story's own unless
+// given): the revision each Intent locations read names, in order, the
+// comparison and proof reads the CI comparison asked, and the global fetch
 // and WebSocket calls made from the mount on.
-export async function openDoneStoryComparison(review: ReviewAnswers) {
+export async function openDoneStoryComparison(
+  review: ReviewAnswers,
+  readDoneWallTimeHistory: IntentCiReadSource["readDoneWallTimeHistory"] = unanswered,
+  readComparison?: ReturnType<typeof scopeReadsOf>["answers"]["comparison"],
+) {
   const opened = recordOutsideCalls();
+  const ci = scopeReadsOf(doneStory);
+  if (readComparison !== undefined) ci.answers.comparison = readComparison;
   const locationRevisions: string[] = [];
   let selected = false;
   const { done, doneReads } = makeMe.aDoneCatalog
@@ -152,8 +164,8 @@ export async function openDoneStoryComparison(review: ReviewAnswers) {
         readCandidates: () => Promise.resolve({ status: "absent" }),
       },
       ci: {
-        ...scopeReadsOf(doneStory).source,
-        readDoneWallTimeHistory: unanswered,
+        ...ci.source,
+        readDoneWallTimeHistory,
         readScopeHistory: unanswered,
       },
       review: answering(review),
@@ -167,5 +179,9 @@ export async function openDoneStoryComparison(review: ReviewAnswers) {
     .not.toBeNull();
   selected = true;
   await mounted.selectStory(doneStory.identity, doneTitle);
-  return { locationRevisions, outsideCalls: () => opened };
+  return {
+    locationRevisions,
+    comparisonReads: ci.asked,
+    outsideCalls: () => opened,
+  };
 }

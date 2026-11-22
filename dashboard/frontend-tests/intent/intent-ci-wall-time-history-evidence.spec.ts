@@ -1,36 +1,16 @@
 // Backend retention: ../../backend-tests/intent/landed-ci-history-read-window.spec.ts
 // Backend ordering: ../../../Distribution/tests/support/landed-ci-history-reading-order.test.mjs
-import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
-import { expect, onTestFinished, test, vi } from "vitest";
-import { page, type Locator } from "vitest/browser";
+import { expect, test } from "vitest";
+import type { Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { IntentCiHistory } from "../../src/IntentCiHistory.tsx";
-import {
-  measuredHistoryOf,
-  type LandedCiHistory,
-} from "../../src/landedCiHistory.ts";
+import type { MeasuredHistory } from "../../src/landedCiHistory.ts";
+import { openTrunkHistory } from "./intent-ci-wall-time-history-page.ts";
 
-vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
-
-async function mountHistory(answer: LandedCiHistory) {
-  const host = document.body.appendChild(document.createElement("div"));
-  const root = createRoot(host);
-  onTestFinished(() => {
-    act(() => {
-      root.unmount();
-    });
-    host.remove();
-  });
-  const history = { shown: measuredHistoryOf(answer), failed: undefined };
-  await act(() => {
-    root.render(createElement(IntentCiHistory, { history }));
-    return Promise.resolve();
-  });
-  return page.getByRole("region", {
-    name: "CI time without runner waits history",
-    exact: true,
-  });
+// The history once its latest measured build is shown.
+async function mountHistory(answer: MeasuredHistory) {
+  const { history } = await openTrunkHistory(answer);
+  await expect.element(history.getByRole("definition")).toBeVisible();
+  return history;
 }
 
 function revealEvidence(history: Locator) {
@@ -102,7 +82,7 @@ test("accepted landing order keeps a middle gap while reversed build dates retai
         receivedAt: "2026-11-01T10:00:00Z",
         timeMs: 180_000,
       })
-      .please(),
+      .pleaseMeasured(),
   );
 
   const heading = history.getByRole("heading").element();
@@ -194,7 +174,7 @@ test("a window of the newest 20 measured builds shows them in trunk order with t
         receivedAt: gapAt(34),
         waitsFor: "build",
       })
-      .please(),
+      .pleaseMeasured(),
   );
 
   expect(history.getByRole("heading").element().textContent).toBe(

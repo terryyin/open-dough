@@ -45,7 +45,6 @@ export function comparisonMarkup(
               reading: false,
               previouslyRetrieved: false,
               refreshFailed: undefined,
-              round: undefined,
               checkAgain() {},
             }}
             proof={{ run: shownRunOf(status), read: undefined }}

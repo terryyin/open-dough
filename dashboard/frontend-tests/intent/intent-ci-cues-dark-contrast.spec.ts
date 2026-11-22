@@ -3,8 +3,8 @@
 // duration tints, and row text stay distinguishable on the page's composed
 // backgrounds without expanding the integrated cue journey.
 
-import { expect, onTestFinished, test } from "vitest";
-import { cdp, page, userEvent } from "vitest/browser";
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   composeBackgrounds,
@@ -14,6 +14,7 @@ import {
   doneCompletion,
   openDoneStoryComparison,
 } from "./intent-story-compare-stories.ts";
+import { emulateMedia } from "../review/browser-session.ts";
 
 const summaryEntryComparisonCues = [
   { count: "more-light", duration: "slower-strong" },
@@ -101,15 +102,7 @@ async function openSummaryComparison() {
 }
 
 test("composed CI cue variants stay readable on dark surfaces", async () => {
-  const session = cdp() as {
-    send(method: string, params?: Record<string, unknown>): Promise<unknown>;
-  };
-  onTestFinished(async () => {
-    await session.send("Emulation.setEmulatedMedia", { features: [] });
-  });
-  await session.send("Emulation.setEmulatedMedia", {
-    features: [{ name: "prefers-color-scheme", value: "dark" }],
-  });
+  await emulateMedia([{ name: "prefers-color-scheme", value: "dark" }]);
   await expect
     .poll(() => matchMedia("(prefers-color-scheme: dark)").matches)
     .toBe(true);

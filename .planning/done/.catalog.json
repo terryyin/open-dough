@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_speed-intent-timing-history-on-vitest.json",
+      "identity": "SEED-413#speed-intent-timing-history-on-vitest",
+      "completedAt": "2026-11-22T12:03:54.913Z",
+      "blob": "69e0f65580cdf83e08fc439c1878901bded431dd"
+    },
+    {
       "fileName": "SEED-418_prune-expired-records-after-a-retried-record-commit.json",
       "identity": "SEED-418#prune-expired-records-after-a-retried-record-commit",
       "completedAt": "2026-11-22T11:21:14.783Z",

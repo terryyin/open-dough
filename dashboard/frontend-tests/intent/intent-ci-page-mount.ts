@@ -1,8 +1,9 @@
 // The production page frame around the project's Board or Intent body
-// (../../src/boardOrIntent.tsx), as ../../src/ConfiguredDashboard.tsx
-// composes them, with the case's work, machine and page reads. The case
-// switches between Development and Intent, to another project's work, and
-// selects a story by its card, as the page does.
+// (../../src/boardOrIntent.tsx) in its perspective's scroll container, as
+// ../../src/ConfiguredDashboard.tsx composes them, with the case's work,
+// machine and page reads. The case switches between Development and Intent,
+// to another project's work, and selects a story by its card, as the page
+// does.
 import { createElement, useEffect } from "react";
 import { expect } from "vitest";
 import { page } from "vitest/browser";
@@ -13,10 +14,12 @@ import { FollowUpNavigationOnPage } from "../../src/ciFollowUpNavigation.tsx";
 import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { PageFrame } from "../../src/PageFrame.tsx";
 import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
+import { PerspectiveScroll } from "../../src/perspectiveScroll.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { StoryReferenceNavigation } from "../../src/storyNavigation.tsx";
+import { withClosedSessionsSidebar } from "../../test-support/component-mount/framePreferences.ts";
 import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
@@ -64,19 +67,28 @@ function CommittedView({
   return null;
 }
 
+// The Sessions sidebar starts closed, whatever an earlier case in this browser
+// kept, and the case's end restores what was kept. The page's reads are bound
+// once: each project's notes and review states are created from the reads
+// current at their first use, as production mounts
+// PageReadsOnPage once with constant reads, so a case supplies every reply in
+// `reads` at mount and never changes them afterwards.
 export async function mountIntentCiPage({
   work,
   projects = [work.source],
   machine = makeMe.aMachineAnswer.please(),
+  viewport = { width: 1280, height: 800 },
   reads,
 }: {
   readonly work: PublishedWork;
   readonly projects?: readonly PublishedWork["source"][];
   // The machine's sessions and the worktrees holding a story's claim.
   readonly machine?: MachineAnswer;
+  readonly viewport?: { readonly width: number; readonly height: number };
   // Review changes' reads default to a machine without a review workspace.
   readonly reads: Pick<PageReads, "intent" | "ci"> & Partial<PageReads>;
 }) {
+  withClosedSessionsSidebar();
   const launches = machineSessionsAnswering(machine);
   const pageReads = pageReadsSupplying({
     review: unavailableReviewSource,
@@ -90,17 +102,21 @@ export async function mountIntentCiPage({
   };
   const render = () => {
     const { source } = shown.work;
-    const body = createElement(BoardOrIntent, {
-      source,
-      work: shown.work,
-      launches,
-      showsBoard: !shown.showsIntent,
-      showsIntent: shown.showsIntent,
-      followUp: undefined,
-      visibility: "visible",
-      limitStands: false,
-      openRoster: () => undefined,
-    });
+    const body = createElement(
+      PerspectiveScroll,
+      { perspective: shown.showsIntent ? "intent" : "board" },
+      createElement(BoardOrIntent, {
+        source,
+        work: shown.work,
+        launches,
+        showsBoard: !shown.showsIntent,
+        showsIntent: shown.showsIntent,
+        followUp: undefined,
+        visibility: "visible",
+        limitStands: false,
+        openRoster: () => undefined,
+      }),
+    );
     const frame = createElement(PageFrame, {
       sessions: launches,
       stories: {
@@ -146,7 +162,7 @@ export async function mountIntentCiPage({
     );
   };
   const mounted = await mountComponent(render(), {
-    viewport: { width: 1280, height: 800 },
+    viewport,
     fillsViewport: true,
   });
   // Each view change returns once the page committed it.
