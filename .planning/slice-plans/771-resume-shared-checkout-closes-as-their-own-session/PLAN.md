@@ -214,6 +214,9 @@ the frozen `sharedCheckoutOfUnknownStart`, which `rangeUncertainty` marks.
 CI repair after slice 3 (run 45019512468, e2e agent-completion-quiet Trunk
 Wrap Up): `NativeDoneMarks` dropped a quiet report arriving while that
 session's Done still ran; a pre-existing race, repaired in `doneMarks.ts`.
+CI repair after slice 4 (run 45024335359, Distribution Tests 3/3 run
+deadline on a slow runner): `dough-story-refinement/**` moved to shard 1 in
+`ci.yml` by `scripts/ci-shard-balance.mjs`; job count unchanged.
 
 ### 4. A note failure leaves the kept launch recorded
 
