@@ -6,10 +6,9 @@ import {
 } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { IntentMode } from "../../src/intentProjectTabs.ts";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import { IntentReadingProvider } from "../../src/pageIntentReading.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
@@ -125,8 +124,8 @@ export async function mountIntentReading(
     onOfferCommitted?: () => void,
   ) =>
     createElement(
-      IntentReadSourceOnPage,
-      { value: readSource },
+      PageReadsOnPage,
+      { reads: pageReadsSupplying({ intent: readSource }) },
       createElement(IntentReadingProvider, {
         project: work.source.id,
         children:

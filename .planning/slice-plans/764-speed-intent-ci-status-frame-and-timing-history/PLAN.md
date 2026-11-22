@@ -1,24 +1,32 @@
-# Get fast proof of Intent timing history
+# Get fast proof of Intent CI status on the real page and of timing history
 
-**Identity:** SEED-413#speed-intent-timing-history-proof
-**Source:** [Get fast proof of Intent timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof)
-**Split from:** SEED-413#speed-intent-proof-and-timing (recoverable at `3acae5160:.planning/slice-plans/752-speed-intent-proof-and-timing/PLAN.md`, former Slices 4–6) on 2026-11-21 at its delivered Slice 3 boundary
+**Identity:** SEED-413#speed-intent-ci-status-frame-and-timing-history
+**Source:** [Get fast proof of Intent CI status on the real page and of timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history)
+**Split from:** SEED-413#speed-intent-timing-history-proof (recoverable at `756f67d70:.planning/slice-plans/759-speed-intent-timing-history-proof/PLAN.md`, former Slices 3–9) on 2026-11-22 at its delivered Slice 2 boundary
 
 ## Goal and scope
 
-**Correction first.** Before any history move, Slices 1–3 correct the test
-entry delivered by SEED-413#speed-intent-proof-and-timing (see
-[Correction of the CI status test entry](#correction-of-the-ci-status-test-entry)),
+**Correction first.** Slices 1–3 finish the correction of the CI status test
+entry (see
+[Correction of the CI status test entry](#correction-of-the-ci-status-test-entry))
+on top of the required typed page entry that SEED-413#speed-intent-timing-history-proof
+delivered (`dashboard/src/pageReads.tsx`, `dashboard/src/sessionServices.ts`),
 so the history slices build on the corrected entry instead of extending it.
 
-Dashboard maintainers get fast Vitest feedback on what collected Project and
-Done timing history say across Intent's homepage, location, folder, and file,
-and on how those history reads recover independently and stay isolated to
-their project, endpoint, and scope key. Move the 31 legacy cases across 19
-timing-history files in `dashboard/frontend-tests/intent/`
-(`intent-ci-compact-readout`, `intent-ci-done-glance`,
-`intent-ci-done-reference-lifecycle`, `intent-ci-history-chart-marks`,
-`intent-project-ci-history-chart-marks`, `intent-project-scope-glance`,
+Dashboard maintainers get CI status proof that renders the production page
+frame and its owning Intent composition, with every page read supplied through
+the typed page entry. They also get fast Vitest feedback on what collected
+Project and Done timing history say across Intent's homepage, location,
+folder, and file, and on how those history reads recover independently and
+stay isolated to their project, endpoint, and scope key. Move the story notes,
+CI follow-up and review-state reads behind the typed page entry; render the 7
+CI status and cue-contrast files (`intent-ci-status-{freshness,execution-time,sort,homepage,kept,side-panel}`
+and `intent-ci-cues-dark-contrast`) through their production owners. Move the
+31 legacy cases across 19 timing-history files in
+`dashboard/frontend-tests/intent/` (`intent-ci-compact-readout`,
+`intent-ci-done-glance`, `intent-ci-done-reference-lifecycle`,
+`intent-ci-history-chart-marks`, `intent-project-ci-history-chart-marks`,
+`intent-project-scope-glance`,
 `intent-project-scope-history-{key-isolation,project-isolation,recovery,refresh,remount,source-identity}`,
 `intent-scope-glance`, and
 `intent-scope-timing-history-{absent,gaps,provenance,reading,segments,units}`),
@@ -39,12 +47,16 @@ React `act`, and `IS_REACT_ACT_ENVIRONMENT` while covering any changed owner.
   `intent-ci-scope-page.tsx`, `intent-done-story-page.tsx`,
   `intent-browser-page.ts`, `intent-candidates-page.ts`,
   `intent-file-reading-page.ts`).
-- Read CI history through the typed page reads that Slice 1 establishes.
-  Add `readDoneWallTimeHistory` (`useIntentCiDoneWallTimeHistory.ts`) and
-  `readScopeHistory` (`useIntentCiScopeHistory.ts`) as **required** members
-  of the CI reads, supplied with their authenticated readers by the
-  production composition root and with typed replies by each case. No
-  optional member, `?? default` fallback, or defaulted parameter.
+- Read every page read through the typed page entry that plan 759
+  established (`PageReads`, `PageReadsOnPage`, `authenticatedPageReads`, and
+  `pageReadsSupplying` in
+  `dashboard/test-support/component-mount/unreadPageReads.ts`). Add story
+  notes, CI follow-up and review states (Slice 1), `readDoneWallTimeHistory`
+  (`useIntentCiDoneWallTimeHistory.ts`, Slice 4) and `readScopeHistory`
+  (`useIntentCiScopeHistory.ts`, Slice 5) as **required** members, supplied
+  with their authenticated readers by `authenticatedPageReads` and with typed
+  replies by each case. No optional member, context default, `?? default`
+  fallback, or defaulted parameter.
 - Render the production composition that owns the history, at its typed
   entry, the way production renders it. Where a history view needs the
   reading place, mount the production owner that provides it; when no owner
@@ -114,26 +126,22 @@ a component that cannot stand alone is made to.
   composed backgrounds resemble the page. `mountJudgedRunProof` passes
   `JudgedBranch` a hand-built `judged` hook state and `shownRunOf(shown)`.
 - **The typed source is not enforced, and production gained test-only
-  behavior.** `IntentCiReadSourceOnPage` (with `IntentReadSourceOnPage` and
-  `ReviewSourceOnPage`) is a context whose default is the authenticated
-  readers, and production never provides it. A case that omits one compiles
-  and silently reaches the real reader. `readHistory` is optional with a
-  fallback in `useIntentCiHistory.ts`, kept so that the merge in
-  `6b1afcd88` would not touch callers. `ciProofReading.select`,
-  `ciComparisonProofs` and `ciComparisonReading.select` gained defaulted
-  reader parameters. `ciComparisonReading` also gained a reselection rule
-  (`selected.readComparison !== readComparison`) that only a test can
-  trigger. Plan 759's own former decisions would have added two more optional
-  defaulted readers (`readDoneWallTimeHistory?`, `readScopeHistory?`).
+  behavior.** Delivered by plan 759 Slices 1–2: the default-valued
+  `IntentCiReadSourceOnPage`, `IntentReadSourceOnPage` and
+  `ReviewSourceOnPage` contexts, the optional `readHistory`, the defaulted
+  reader parameters and the reselection rule are gone, and the side-panel
+  service calls entered the same entry. Still open: the page's story notes,
+  CI follow-up and review-state reads use contexts whose hooks fall back to
+  fetching their endpoint (Slice 1).
 - **Data built outside MakeMe.** `takenStoryEntry` hand-writes a `WorkEntry`
   because `aPublishedWork` has no Taken-story step. `inertCiReads` runs
   production `measuredHistoryOf` to make its empty history. The kept case
   asserts builder output through production `watchedBranchHeads`.
 
 **Correction outcome.** Dashboard maintainers get CI status proof that renders
-the production composition through one required, typed page-reads entry, and
-that production supplies the same entry explicitly. Each helper's production
-imports shrink to that entry, its typed inputs and stylesheets.
+the production composition through the one required, typed page-reads entry
+that production supplies explicitly. Each helper's production imports shrink
+to that entry, its typed inputs and stylesheets.
 
 **Preserved promises.** Every observation in the 15 `plan 752` cases keeps an
 owner: the case titles and distinguishing assertions of the 7 CI status and
@@ -145,6 +153,9 @@ noise needs a recorded reason.
 **Out of scope.** Page-object CSS-class locators (`.intent-ci-state`,
 `.intent-locations`) are a separate concern. The comparison family's own
 mount design changes only as far as the new entry requires.
+`dashboard/frontend-tests/intent/intent-candidates-publication.ts` belongs to
+`plan 762`; `dashboard/frontend-tests/sessions/sessions-sidebar-open-mount.ts`
+belongs to the story that moves the Sessions sidebar cases.
 
 ## Local gate
 
@@ -158,32 +169,43 @@ representative E2E history consumers when shared contracts change.
 ## Decisive premises and proof
 
 - At `58b829487ba83a8a0752eabfeb37391e4169a596` on 21 November 2026 (macOS on AC under `caffeinate -s -i`, `--workers=2`), `intent-project-scope-history-recovery.spec.ts`, `intent-ci-comparison-check-again.spec.ts`, and `intent-ci-comparison-selection.spec.ts` passed 7 cases observing failed and empty history preserving live Scope Proof, measured zero, and partial-unit gaps; the existing 3-file / 5-case Vitest Project CI wall-time history suite (`intent-ci-wall-time-history{,-gaps,-evidence}.spec.ts`) passed in `3,437 ms` (`3.44 s`) elapsed including preparation (`baseline-vitest-wall-time-history.proof.json`); and the pre-split 44-file / 95-case legacy cohort ran in `36,187 ms`.
-- During `plan 752`'s Slice 4 probe on `cursor/get-fast-proof-of-intent-evidence-and-timing-his` (21 November 2026), adding optional `readDoneWallTimeHistory` and `readScopeHistory` on `IntentCiReadSource`, `aDoneWallTimeHistory` on `publishedReadingMakeMe.mjs`, and narrowing `JudgedBranch` to `Omit<JudgedReading, "round">` passed `npm run typecheck:dashboard` with `0` errors and mounted `IntentCiComparisonView`, `IntentCiHistory`, and `IntentScopeTimingHistory` cleanly in Vitest Browser Mode. The optional members are superseded by required ones under Slice 1's entry; the typecheck premise still holds for adding them.
-
-- At `f5237fab7` on 21 November 2026: production `ConfiguredDashboard`
-  provides none of `IntentCiReadSourceOnPage`, `IntentReadSourceOnPage` or
-  `ReviewSourceOnPage`, and their defaults serve production. 8 production
-  modules read them. 9 test files under `dashboard/frontend-tests/` provide
-  them. `PageFrame` takes typed `sessions` (a `MachineSessions` pick) and
-  `stories`. `aPublishedWork` has no step that adds a Taken story.
-  `SessionsSidebar.tsx` already throws when a consumer sits outside its
-  provider ("The Sessions button is outside the page's PageFrame."), the
-  precedent for a required page entry.
+- During `plan 752`'s Slice 4 probe on `cursor/get-fast-proof-of-intent-evidence-and-timing-his` (21 November 2026), adding optional `readDoneWallTimeHistory` and `readScopeHistory` on `IntentCiReadSource`, `aDoneWallTimeHistory` on `publishedReadingMakeMe.mjs`, and narrowing `JudgedBranch` to `Omit<JudgedReading, "round">` passed `npm run typecheck:dashboard` with `0` errors and mounted `IntentCiComparisonView`, `IntentCiHistory`, and `IntentScopeTimingHistory` cleanly in Vitest Browser Mode. The optional members are superseded by required ones under plan 759's entry; the typecheck premise still holds for adding them.
 - Scratch mount at `ebd6cc201` on 21 November 2026 (Vitest Browser Mode,
   `frontend.vitest.config.mts`): real `PageFrame` inside `ProjectsOnPage` and
   `LaunchesOnPage`, with the Side panel case's MakeMe sessions and global
-  `fetch`/`WebSocket` recorded. Mounting made no call. Showing the Taken
-  story's final report fetched `/__agent-launch/result?source=open-dough&host=claude&session=f-session`.
-  Showing the ad hoc session's terminal fetched `/__host-status`, opened
-  `ws://…/__agent-terminal?source=open-dough&session=…&host=claude`, and
-  called `launches.rereadSessions`. Without `LaunchesOnPage`, `Terminal`
-  throws "A launch control is shown outside the page's launches." The
-  scratch spec was deleted.
+  `fetch`/`WebSocket` recorded. Mounting made no call. Without
+  `LaunchesOnPage`, `Terminal` throws "A launch control is shown outside the
+  page's launches." The scratch spec was deleted.
+- Frame-mount attempt on `a48e1eae9` on 22 November 2026 (Vitest Browser
+  Mode, two workers), kept as
+  [frame-mount-attempt.patch](frame-mount-attempt.patch), which applies
+  cleanly on `a48e1eae9`. The extracted production `BoardOrIntent`
+  (`dashboard/src/boardOrIntent.tsx`: hidden `<main><Board/></main>` plus
+  `IntentReadRecovery` → `RetainedFollowUpPerspective`/`IntentPerspective`),
+  rendered by `ConfiguredDashboardContent`, passed `npm run typecheck:dashboard`.
+  Through `mountIntentCiPage` (production `PageFrame`,
+  `StoryReferenceNavigation` and `BoardOrIntent` under `PageReadsOnPage`,
+  `LaunchesOnPage`, `ProjectsOnPage` and `FollowUpNavigationOnPage`), the
+  homepage, kept and freshness cases passed with unchanged titles. The
+  side-panel case passed every journey observation and failed only its final
+  `expect(outsideCalls).toEqual([])`: the production Board made 7 global
+  `fetch` calls to `/__project-configuration/story-notes`,
+  `/__project-configuration/ci-follow-up` and
+  `/__project-configuration/story-review-states`, and opened no WebSocket.
+  Their production sites: `storyNotes.ts` (`StoryNotesOnPage`, whose
+  `useStoryNotes` falls back to fetching the endpoint), `storyReviewStates.ts`
+  (same pattern), `ciFollowUp.ts` (no context), `CiFollowUpViews.tsx`,
+  `RetainedFollowUpPerspective.tsx`, `RecentlyDonePageEvidence.tsx`,
+  `storyNoteAnnouncement.ts` and `App.tsx`. Their test sites:
+  `dashboard/frontend-tests/review/story-review-page-contexts.ts`,
+  `dashboard/frontend-tests/stories/story-notes-control.spec.ts`,
+  `dashboard/test-support/mounted-dashboard/mountedServices.ts` and
+  `dashboard/test-support/support/ciFollowUpReadingPage.ts`.
 
 | Promise | Owning proof |
 | --- | --- |
-| Production and every case supply Intent, CI and review reads through one required typed entry. Readers are fixed at creation, with no optional members, defaulted parameters or test-only reselection. | Slice 1 (`npm run typecheck:dashboard`, the CI status and comparison families, one representative Intent E2E journey). |
-| Homepage, kept-status and Side-panel cases render production `PageFrame` and the production Intent composition, not test copies. | Slice 2 (`intent-ci-status-{homepage,kept,side-panel}`). |
+| Story notes, CI follow-up and review-state reads enter through the required typed page entry that production supplies; unsupplied reads reject in cases. | Slice 1 (`npm run typecheck:dashboard`, full frontend group, representative story notes, CI follow-up and review-state E2E journeys). |
+| Homepage, kept-status and Side-panel cases render production `PageFrame` and the production Board/Intent composition, not test copies, and make no outside `fetch` or `WebSocket` call. | Slice 2 (`intent-ci-status-{homepage,kept,side-panel}`). |
 | Status freshness, execution timing, sort and dark-contrast cases render their owning production composition with MakeMe inputs, with no private pipeline calls or hand-built hook state. | Slice 3 (`intent-ci-status-{freshness,execution-time,sort}`, `intent-ci-cues-dark-contrast`, 7-file timing). |
 | Done wall-time history keeps its separate read boundary from live Proof, states missing/pending/outside-retention/zero-base facts accurately, and follows reference lifecycle changes | Slice 4 (`intent-ci-compact-readout`, `intent-ci-done-glance`, `intent-ci-done-reference-lifecycle`). |
 | Existing Project CI wall-time mounts refresh cleanly without `act` wrapping when `JudgedBranch` narrows, and Done/Project scope chart marks preserve keyboard order, labels, and narrow layout | Slice 5 (`intent-ci-wall-time-history{,-gaps,-evidence}`, `intent-ci-history-chart-marks`, `intent-project-ci-history-chart-marks`). |
@@ -191,68 +213,111 @@ representative E2E history consumers when shared contracts change.
 | Project scope history distinguishes scope keys, preserves kept history and live Proof on failure, and recovers via Retry or refresh across remounts | Slice 7 (`intent-project-scope-history-{key-isolation,recovery,refresh,remount}`). |
 | Collected scope timing keeps case/file units, provenance, segments, and gap explanations distinct, removes spent history support, and runs faster on Vitest | Slice 8 (`intent-scope-timing-history-{absent,gaps,provenance,reading,segments,units}` + two-worker before/after comparison). |
 
+## Learnings
+
+- **Former plan 759 Slice 2 split during execution (22 November 2026).** It
+  stopped at 9 of 15 active minutes because its premise failed: the
+  side-panel case also observes the Taken story cards (`Board`) and the
+  Development/Intent switch, which sit outside `PageFrame` plus the Intent
+  body. It split into the service-call move (delivered as plan 759 Slice 2)
+  and the frame mount (former Slice 3, now Slice 2 here).
+- **Former plan 759 Slice 3 stopped at 10.7 of 15 active minutes (22 November
+  2026) on a failed premise.** The plan assumed the production Board makes no
+  call outside the typed page entry; it fetches story notes, CI follow-up and
+  review states directly (see the frame-mount premise). Moving those reads
+  touches production providers and consumers, so the unfinished attempt was
+  parked as [frame-mount-attempt.patch](frame-mount-attempt.patch) and the
+  move became Slice 1. Terry then split the story at its delivered Slice 2
+  boundary.
+- **From the attempt, for Slice 2.** Production's Sessions button lives in
+  `DashboardBanner`, outside `BoardOrIntent`; the case opens the sidebar with
+  its page-wide `{ControlOrMeta>}b{/ControlOrMeta}` shortcut. The attempt
+  added `aPublishedWork.of(source).at(rev).retrievedAt(date).taking(story, facts?)`
+  in `Distribution/tests/support/comparisonViewTestData.mjs` and removed
+  `takenStoryEntry`, which forced the freshness spec onto the step.
+  `dashboard/test-support/component-mount/machineSessionsAnswering.ts` maps
+  a MakeMe `aMachineAnswer` to a full typed `MachineSessions`; it is a typed
+  adapter over a MakeMe answer, and
+  `dashboard/frontend-tests/review/story-review-page-contexts.ts` keeps its
+  own inline copy (refactor candidate). Production import counts after the
+  attempt: `intent-ci-page-mount.ts` 9, `intent-ci-homepage-page.ts` 3
+  (renamed from the perspective mount), `machineSessionsAnswering.ts` 2; specs
+  side-panel 2, kept 3, homepage 2.
+- **Plan 759 Slice 2 timing.** Under load 15–20 the full frontend group took
+  about 24 minutes wall time.
+
 ## Slices
 
-### 1. Intent, CI and review reads enter through one required typed page entry
+### 1. Story notes, CI follow-up and review-state reads enter through the typed page entry
 
 Type: Structure
 Status: planned
 
-Replace the three default-valued contexts (`IntentCiReadSourceOnPage`,
-`IntentReadSourceOnPage`, `ReviewSourceOnPage`) with one production provider.
-It takes the page's reads as a required typed prop and throws when a consumer
-reads outside it, following the `SessionsSidebar` precedent. `ConfiguredDashboard`
-supplies the authenticated readers explicitly. Make every CI read member
-required (`readHistory` included) and drop its fallback. Each reading owner
-(`ciProofReading`, `ciComparisonProofs`, `ciComparisonReading`) takes its
-reader when created, not per call: remove the defaulted parameters and the
-reader-identity reselection rule. Move every test provider of the three
-contexts to the new entry, comparison family included, with no change to its
-assertions.
+Follow plan 759 Slice 2's pattern. `PageReads` gains required members for the
+page's story notes, CI follow-up and review-state reads (currently
+`/__project-configuration/story-notes`, `/ci-follow-up` and
+`/story-review-states`). `authenticatedPageReads` supplies their endpoint
+implementations, and `pageReadsSupplying` rejects them unless a case supplies
+typed replies. The per-project state that `StoryNotesOnPage` and
+`StoryReviewStatesOnPage` hold stays page-held but is created from the
+entry's reads; remove the hooks' fallback to fetching the endpoint and give
+CI follow-up the same entry. Move every provider and consumer: the
+production sites named in the frame-mount premise and the test sites
+`story-review-page-contexts.ts`, `story-notes-control.spec.ts`,
+`mountedServices.ts` and `ciFollowUpReadingPage.ts`, with no change to their
+assertions; update `dashboard/frontend-tests/README.md` where it names them.
 
-**Proof.** `npm run typecheck:dashboard` passes. The 7 CI status and
-cue-contrast files and the CI comparison family's Vitest files pass unchanged
-in their assertions. One representative Intent CI E2E journey passes,
-proving that production supplies the authenticated readers. `grep` finds no
-default-valued read context, optional read member or defaulted reader
-parameter in `dashboard/src`.
+**Proof.** `npm run typecheck:dashboard` passes; the full frontend group
+passes; representative E2E journeys that read story notes, CI follow-up
+(`intent-ci-follow-up`) and review states
+(`recently-done-review-state-persistence`) pass, proving production supplies
+the authenticated reads. `grep` finds no fetch of the three endpoints in
+`dashboard/src` outside `authenticatedPageReads` and no fallback in their
+hooks. A focused Vitest case proves the missing path that Intent Coverage
+confirmed at `341f133da` (SEED-413#speed-intent-timing-history-proof
+wrap-up): for each `PageReads` member, the new ones included, a
+`pageReadsSupplying` case that leaves it unsupplied rejects with "Unexpected
+… read" and makes no `fetch`. Under the probe's fault, which filled
+unsupplied members with `authenticatedPageReads`, 275 maintained cases still
+passed while a witness saw four real requests.
 
 ### 2. Homepage, kept and Side panel CI status cases render the production page frame
 
 Type: Structure
 Status: planned
 
-Replace `intent-ci-side-panel-mount.ts` and `intent-ci-perspective-mount.ts`.
-The cases mount production `PageFrame` with MakeMe sessions and stories,
-around the production Intent body that `ConfiguredDashboardContent` renders
-(`IntentReadRecovery` + `IntentPerspective`), through the Slice 1 entry. When
-that body cannot stand alone, extract it in production so that
-`ConfiguredDashboardContent` and the cases render the same component. Supply
-the page's launches (`LaunchesOnPage`, typed `MachineSessions`) as
-`ConfiguredDashboard` does, because `Terminal` requires them.
-
-Decided (Terry, 21 November 2026, option (a)): put the panels' three untyped
-service calls behind the Slice 1 typed page entry. `ConfiguredDashboard`
-supplies their authenticated implementations and each case supplies typed
-replies, keeping the real frame:
-- the final-report read (`FinalReport.tsx`, `fetch` of
-  `/__agent-launch/result`);
-- the host-status read (`hostStatusReads.ts`, `/__host-status`, reached when
-  the terminal shows);
-- the terminal attach (`attachTerminal` in `attachedTerminal.ts`, used by
-  `useAttachedTerminal.ts`, a WebSocket to `/__agent-terminal`).
+Start from [frame-mount-attempt.patch](frame-mount-attempt.patch) and its
+learnings above. Replace `intent-ci-side-panel-mount.ts` and
+`intent-ci-perspective-mount.ts`. The cases mount production `PageFrame`
+with MakeMe sessions and stories, through the typed page entry, around one
+production component extracted from `ConfiguredDashboardContent`
+(`BoardOrIntent`): the part that shows either the Board (`<main
+hidden><Board/></main>`, owning the Taken story cards, the "Read final
+report" button and card selection) or the Intent body (`IntentReadRecovery`
+→ `IntentPerspective`/`RetainedFollowUpPerspective`).
+`ConfiguredDashboardContent` and the cases render that same component; a
+case switches view through its typed `showsIntent` input, as the route does.
+Supply the page's launches (`LaunchesOnPage`, typed `MachineSessions` built
+by MakeMe with every member) as `ConfiguredDashboard` does, because
+`Terminal` and `Board` require them.
 
 Add a Taken-story step to `aPublishedWork` in place of `takenStoryEntry`.
 Drop the `watchedBranchHeads` assertions on builder output. Keep role-based
-colocated page objects.
+colocated page objects. Trace the consumers of `BoardOrIntent`,
+`ConfiguredDashboardContent`, `aPublishedWork`, `takenStoryEntry` and
+`unavailableReviewSource`.
 
 **Proof.** `intent-ci-status-homepage`, `intent-ci-status-kept` and
 `intent-ci-status-side-panel` keep their titles and distinguishing
-observations and pass at `--workers=2`. No test file renders `usePageSidePanel`,
-`SessionsSidebarOpenList`, `StorySelectionProvider` or `IntentPageProviders`
-itself. The side-panel case records no `fetch` or `WebSocket` call outside
-its typed replies. Record each replaced helper's production import count
-before and after.
+observations and pass at `--workers=2`. None of these cases or their helpers
+renders `usePageSidePanel`, `SessionsSidebarOpenList`,
+`StorySelectionProvider` or `IntentPageProviders` itself. The side-panel
+case records every `fetch` and `WebSocket` call and shows none outside its
+typed replies (`expect(outsideCalls).toEqual([])`). Record each replaced
+helper's production import count before (side-panel mount 21, perspective
+mount 11 at `40408c07c`) and after. Representative E2E journeys
+(`intent-ci-status`, `agent-terminal-done-report` and one board navigation
+journey) pass.
 
 ### 3. Status evidence and cue-contrast cases render their owning composition with MakeMe inputs
 
@@ -289,7 +354,7 @@ supplied by production and by each case, and add `aDoneWallTimeHistory` to
 `publishedReadingMakeMe.mjs` (`pageMakeMe.mjs`).
 Move `intent-ci-compact-readout`, `intent-ci-done-glance`, and
 `intent-ci-done-reference-lifecycle` (3 files, 6 legacy cases) over
-`IntentCiComparisonView` and the Slice 1 page-reads entry (and direct pure
+`IntentCiComparisonView` and the typed page entry (and direct pure
 reference checks only where no DOM behavior is part of the proof). First
 observe one held Done wall-time history read resolving beside live comparison
 proof without rereading comparison proof.
@@ -375,15 +440,14 @@ preparation improves over the legacy baseline.
 
 ## Plan review
 
-Amended on 21 November 2026 by the execution retrospective of
-SEED-413#speed-intent-proof-and-timing. Slices 1–3 correct its test entry
-ahead of the history moves, the former Slices 1–5 are now 4–8, and their
-decisions no longer extend the corrected seam with optional defaulted
-readers or restated provider stacks. Eight slices is the plan limit.
-Refinement was not needed: each correction slice keeps one boundary (the
-production read entry, the page-frame mount, the evidence mount).
-Slice 2's entry is settled: Terry chose option (a) on 21 November 2026, and
-the scratch mount (see the premises) named the three untyped calls it moves.
-Slice 3 may need a production extraction to make the CI status owner stand
-alone; that extraction is bounded to the slice's own owner. No remaining
-concern blocks readiness.
+Split on 22 November 2026 from SEED-413#speed-intent-timing-history-proof
+(plan 759) at its delivered Slice 2 boundary, on Terry's authorization. Former
+Slices 3–9 map to Slices 2–8 here; Slice 1 is new and moves the three page
+reads the frame-mount attempt found outside the typed entry, the change that
+attempt's stop report recommended. Eight slices is the plan limit. Each
+slice keeps one boundary: the page entry, the page-frame mount, the evidence
+mount, then one history owner per slice. The story starts after plan 759's
+typed page entry lands on main; the parked patch was captured on `a48e1eae9`
+and needs reconciliation at Slice 2: after plan 759 merged `c64549aac`
+(22 November 2026) it no longer applies to `intent-ci-side-panel-mount.ts`,
+and `ConfiguredDashboard` now takes its reads as a required `reads` prop.

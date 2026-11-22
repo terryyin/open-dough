@@ -12,10 +12,9 @@ import type {
   ReviewedStorySubject,
   ReviewedWorkSubject,
 } from "../../src/reviewedWorkSubject.ts";
-import {
-  ReviewSourceOnPage,
-  type ReviewSource,
-} from "../../src/reviewSource.ts";
+import type { ReviewSource } from "../../src/reviewSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import {
   SessionsSidebarOnPage,
   type SessionsSidebarState,
@@ -156,8 +155,8 @@ export function onReviewPage(
       value: sidebar,
       children: createElement(LaunchesOnPage, {
         value: launches,
-        children: createElement(ReviewSourceOnPage, {
-          value: source,
+        children: createElement(PageReadsOnPage, {
+          reads: pageReadsSupplying({ review: source }),
           children: withNotes,
         }),
       }),

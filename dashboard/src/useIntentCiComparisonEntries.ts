@@ -10,9 +10,9 @@
 // (`./IntentScopeProof.tsx`) share them; selecting, drilling and returning
 // home ask CI nothing again.
 
-import { useContext, useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { createCiComparisonProofs } from "./ciComparisonProofs.ts";
-import { IntentCiReadSourceOnPage } from "./intentCiReadSource.ts";
+import { useIntentCiReads } from "./pageReads.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
 import {
@@ -34,7 +34,7 @@ export function useIntentCiComparisonEndpointProofs(
   answer: StoryCiComparisonAnswer | undefined,
   checkedAgain: number,
 ): ComparisonEndpointProofs | undefined {
-  const { readProof } = useContext(IntentCiReadSourceOnPage);
+  const { readProof } = useIntentCiReads();
   const [owner] = useState(() => createCiComparisonProofs(readProof));
   useSyncExternalStore(owner.subscribe, owner.getSnapshot, owner.getSnapshot);
   useEffect(

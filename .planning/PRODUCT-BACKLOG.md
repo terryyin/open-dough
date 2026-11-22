@@ -30,12 +30,12 @@ intent introduced or affected by a newly developed story.
 
 - [Pilot when a repeat adds useful retrospective evidence](seeds/SEED-401-retrospective-finding-pilots.md#pilot-repeat-retrospective-findings) — SEED-401#pilot-repeat-retrospective-findings ([plan](slice-plans/706-pilot-repeat-retrospective-findings/PLAN.md))
 - [Attribute every workflow session’s published changes](seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record) — SEED-418#attribute-every-workflow-session-record ([plan](slice-plans/747-attribute-every-workflow-session-record/PLAN.md))
-- [Get fast proof of Intent timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof) — SEED-413#speed-intent-timing-history-proof ([plan](slice-plans/759-speed-intent-timing-history-proof/PLAN.md))
 - [Get fast proof of composing and starting a launch](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof) — SEED-413#speed-dashboard-launch-proof ([plan](slice-plans/762-speed-dashboard-launch-proof/PLAN.md))
 
 ## Backlog list
 
 - [Correct stale token totals for completed Dashboard tasks](seeds/SEED-422-correct-stale-dashboard-token-totals.md#correct-stale-token-totals) — SEED-422#correct-stale-token-totals
+- [Get fast proof of Intent CI status on the real page and of timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history) — SEED-413#speed-intent-ci-status-frame-and-timing-history
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#route-review-changes-to-intent) — SEED-420#route-review-changes-to-intent
 - [Get fast proof of Intent source browsing, pinned links and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours) — SEED-413#speed-intent-source-browsing-and-detours
 - [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading

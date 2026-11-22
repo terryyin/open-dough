@@ -5,16 +5,15 @@ import {
   type MachineSessions,
 } from "../../src/agentLaunches.ts";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { useObservedRevisionDelivery } from "../../src/observedRevisionDelivery.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { readPublishedWork } from "../../src/publishedWorkRead.ts";
+import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import { withClosedSessionsSidebar } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { noSessions } from "./board-mount.ts";
 
 vi.mock(import("../../src/agentLaunches.ts"), () => ({
@@ -78,20 +77,16 @@ export async function mountBoardFrame(
     projects: snapshots.map(({ source }) => source),
     replaceProjects: () => {},
     children: createElement(ConfiguredDashboard, {
+      reads: pageReadsSupplying({
+        sessions: authenticatedSessionServices,
+        ...(intentReads === undefined ? {} : { intent: intentReads }),
+      }),
       settingsOpen: false,
       onOpenSettings: () => {},
       onDashboardReady: () => {},
     }),
   });
-  await mountComponent(
-    intentReads === undefined
-      ? dashboard
-      : createElement(IntentReadSourceOnPage, {
-          value: intentReads,
-          children: dashboard,
-        }),
-    { viewport, fillsViewport: true },
-  );
+  await mountComponent(dashboard, { viewport, fillsViewport: true });
   const delivery = () => {
     if (revisionAnswers === undefined)
       throw new Error("The Board hasn't bound its revision delivery.");

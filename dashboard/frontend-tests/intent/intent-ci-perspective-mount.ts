@@ -5,27 +5,20 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { IntentPerspective } from "../../src/IntentPerspective.tsx";
-import {
-  IntentCiReadSourceOnPage,
-  type IntentCiReadSource,
-} from "../../src/intentCiReadSource.ts";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import { IntentPageProviders } from "../../src/intentPageProviders.tsx";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import {
   StorySelectionProvider,
   usePageStorySelection,
 } from "../../src/pageStorySelection.tsx";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import {
-  ReviewSourceOnPage,
-  type ReviewSource,
-} from "../../src/reviewSource.ts";
+import type { ReviewSource } from "../../src/reviewSource.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { fullSha } from "./intent-ci-status-fixtures.ts";
 
@@ -105,21 +98,19 @@ export async function mountIntentPerspective({
   };
   const render = () =>
     createElement(
-      ReviewSourceOnPage,
-      { value: unavailableReviewSource },
-      createElement(
-        IntentReadSourceOnPage,
-        { value: readSource },
-        createElement(
-          IntentCiReadSourceOnPage,
-          { value: ciReads },
-          createElement(PerspectiveScene, {
-            work: currentWork,
-            showsIntent: currentShown,
-            onCommit,
-          }),
-        ),
-      ),
+      PageReadsOnPage,
+      {
+        reads: pageReadsSupplying({
+          intent: readSource,
+          ci: ciReads,
+          review: unavailableReviewSource,
+        }),
+      },
+      createElement(PerspectiveScene, {
+        work: currentWork,
+        showsIntent: currentShown,
+        onCommit,
+      }),
     );
   const mounted = await mountComponent(render(), {
     viewport: { width: 1280, height: 800 },

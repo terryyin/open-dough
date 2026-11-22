@@ -9,10 +9,7 @@ import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { IntentCiStatus } from "../../src/IntentCiStatus.tsx";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { ComparisonMountScope } from "../../test-support/comparison-mount/scope.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import {
@@ -36,16 +33,14 @@ function scopeOf(
   reads: IntentReadSource,
 ): ReactElement {
   return (
-    <IntentReadSourceOnPage value={reads}>
-      <StoryCiEvidence story={story} reads={ci}>
-        <section aria-label="CI comparison">
-          <IntentCiStatus />
-        </section>
-        {story.scope !== undefined && (
-          <ComparisonMountScope key={story.identity} facts={story.scope} />
-        )}
-      </StoryCiEvidence>
-    </IntentReadSourceOnPage>
+    <StoryCiEvidence story={story} reads={ci} intentReads={reads}>
+      <section aria-label="CI comparison">
+        <IntentCiStatus />
+      </section>
+      {story.scope !== undefined && (
+        <ComparisonMountScope key={story.identity} facts={story.scope} />
+      )}
+    </StoryCiEvidence>
   );
 }
 

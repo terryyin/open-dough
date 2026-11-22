@@ -6,16 +6,10 @@
 // folder's Summary (`./IntentScopeProof.tsx`) say it in the same words
 // (`./ciProofAbsenceWording.ts`). An ambiguous adapter attempt is never read.
 
-import {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { IntentCiStatus as Judgment } from "./authenticatedIntentCiStatusRead.ts";
 import { createCiProofReading, type ProofRead } from "./ciProofReading.ts";
-import { IntentCiReadSourceOnPage } from "./intentCiReadSource.ts";
+import { useIntentCiReads } from "./pageReads.tsx";
 import { shortSha } from "./baseCiWording.ts";
 import {
   ciProofSubjectOf,
@@ -50,7 +44,7 @@ export function useIntentCiShownProof(
   source: PublishedSource,
   judgment: Judgment | undefined,
 ): ShownProof | undefined {
-  const { readProof } = useContext(IntentCiReadSourceOnPage);
+  const { readProof } = useIntentCiReads();
   const run =
     judgment === undefined || judgment.unpublished === true
       ? undefined

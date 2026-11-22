@@ -3,10 +3,12 @@ import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { PageFrame } from "../../src/PageFrame.tsx";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import { sessionKey } from "../../src/sessionReference.ts";
 import { StoryCard } from "../../src/StoryCard.tsx";
 import { withClosedSessionsSidebar } from "../../test-support/component-mount/framePreferences.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { tabTo } from "../navigation/board-accessibility.ts";
 import { noSessions } from "../navigation/board-mount.ts";
@@ -87,10 +89,13 @@ async function mountScanEmphasisCard(width: number) {
     }),
   });
   await mountComponent(
-    createElement(ProjectsOnPage, {
-      projects: [work.source],
-      replaceProjects: () => {},
-      children: frame,
+    createElement(PageReadsOnPage, {
+      reads: pageReadsSupplying({}),
+      children: createElement(ProjectsOnPage, {
+        projects: [work.source],
+        replaceProjects: () => {},
+        children: frame,
+      }),
     }),
     { viewport: { width, height: 900 }, fillsViewport: true },
   );

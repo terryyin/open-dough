@@ -2,11 +2,8 @@
 import { useCallback, useEffect, useRef, type RefObject } from "react";
 import type { TerminalWorkspaceUnavailable } from "./agentTerminal.ts";
 import type { SessionOperation, SessionRequest } from "./pageSessions.ts";
-import {
-  attachTerminal,
-  terminalUrl,
-  type TerminalEnding,
-} from "./attachedTerminal.ts";
+import { attachTerminal, type TerminalEnding } from "./attachedTerminal.ts";
+import { useSessionServices } from "./pageReads.tsx";
 import { useShownTerminalTheme } from "./savedTerminalTheme.ts";
 import { terminalThemes } from "./terminalThemes.ts";
 import { heldTerminalText } from "./terminalText.ts";
@@ -32,7 +29,7 @@ export function useAttachedTerminal(
   ) => void,
   onAttachRefusal: (explanation: string) => void,
 ) {
-  const url = terminalUrl(session.record);
+  const { openTerminal } = useSessionServices();
   const takesKeyboard = session.takesKeyboard !== false;
   const theme = terminalThemes[useShownTerminalTheme()].theme;
   // Keep theme updates out of attachment dependencies so they never reopen it.
@@ -62,7 +59,7 @@ export function useAttachedTerminal(
     if (screen === null) return;
     const attachment = attachTerminal(
       screen,
-      url,
+      openTerminal(session.record),
       session,
       latestTheme.current,
       takesKeyboard,
@@ -78,7 +75,7 @@ export function useAttachedTerminal(
     };
   }, [
     element,
-    url,
+    openTerminal,
     session,
     attempt,
     onAttached,

@@ -6,10 +6,8 @@ import { expect, onTestFinished, vi } from "vitest";
 import { page } from "vitest/browser";
 import type { readRepositoryFileAt } from "../../src/authenticatedRead.ts";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
-import {
-  IntentReadSourceOnPage,
-  type IntentReadSource,
-} from "../../src/intentReadSource.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import {
   recordSettledOutcomes,
   useLimitRecovery,
@@ -22,6 +20,7 @@ import type { PublishedWork } from "../../src/publishedWork.ts";
 import { loadRepositoryTexts } from "../../src/repositoryFileReads.ts";
 import { clearAllTransientFailures } from "../../src/transientRecovery.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 
 export const publishedDetailPath = ".planning/seeds/SEED-302-queued.md";
 let nextEpoch = Date.parse("2020-01-01T00:00:00.000Z");
@@ -144,12 +143,12 @@ export async function mountIntentRecovery(
   detailRead?: typeof readRepositoryFileAt,
 ) {
   await mountComponent(
-    <IntentReadSourceOnPage value={readSource}>
+    <PageReadsOnPage reads={pageReadsSupplying({ intent: readSource })}>
       <PageIntentRecovery
         work={work}
         {...(detailRead === undefined ? {} : { detailRead })}
       />
-    </IntentReadSourceOnPage>,
+    </PageReadsOnPage>,
     { viewport: { width: 1280, height: 600 }, fillsViewport: true },
   );
 }

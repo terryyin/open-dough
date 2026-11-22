@@ -1,6 +1,7 @@
 // Real wire validation and exact attempt identity; no selected subjects are faked.
 import { test, expect } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { readIntentCiProof } from "../../src/authenticatedIntentCiProofRead.ts";
 import { createCiComparisonProofs } from "../../src/ciComparisonProofs.ts";
 import { ciReadingTransport } from "../support/ciReadingTransport.ts";
 
@@ -30,7 +31,7 @@ test("equal slot subjects stay independent while attempt and source-object chang
         .please(),
     );
   });
-  const owner = createCiComparisonProofs();
+  const owner = createCiComparisonProofs(readIntentCiProof);
   try {
     await owner.select(facts.source, answer, 0);
     expect(transport.requests).toHaveLength(3);

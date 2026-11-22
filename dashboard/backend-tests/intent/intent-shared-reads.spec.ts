@@ -13,6 +13,7 @@ import {
   retainedAnswerBytes,
 } from "../../src/answerMemo.ts";
 import { readIntentLocationsAt } from "../../src/authenticatedIntentRead.ts";
+import { readRepositoryFileAt } from "../../src/authenticatedRead.ts";
 import { forgetCachedFiles } from "../../src/fileContentCache.ts";
 import { readCachedFile } from "../../src/repositoryFileReads.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -27,7 +28,7 @@ const source = makeMe.aPublishedSource
 const revision = "a1".repeat(20);
 const path = "docs/seed.md";
 const readFile = (file = path, signal = new AbortController().signal) =>
-  readCachedFile(source, revision, file, signal);
+  readCachedFile(source, revision, file, signal, readRepositoryFileAt);
 
 type Asked = { readonly url: string; readonly signal: AbortSignal };
 

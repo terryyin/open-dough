@@ -38,7 +38,10 @@ export function settingsColourScheme() {
     set([{ name: "prefers-color-scheme", value }]);
 }
 
+// The page keeps its touch emulation as the case found it: a page that
+// already has touch (the configured context) keeps it for later spec files.
 export async function enableSettingsTouch() {
+  if (matchMedia("(any-pointer: coarse)").matches) return;
   const browser = chromium();
   await browser.send("Emulation.setTouchEmulationEnabled", { enabled: true });
   onTestFinished(async () => {

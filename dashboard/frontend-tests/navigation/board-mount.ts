@@ -7,10 +7,9 @@ import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { PageFrame } from "../../src/PageFrame.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import {
-  ReviewSourceOnPage,
-  type ReviewSource,
-} from "../../src/reviewSource.ts";
+import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import type { ReviewSource } from "../../src/reviewSource.ts";
+import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
 import { StoryNavigationOnPage } from "../../src/storyNavigation.tsx";
 import {
@@ -18,6 +17,7 @@ import {
   withFramePreference,
 } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { emulateMedia } from "../review/browser-session.ts";
 
 const answer = makeMe.aMachineAnswer.please();
@@ -163,9 +163,16 @@ export async function mountBoard(
       value: sessions,
       children: board,
     });
-    if (reviews === undefined) return launched;
-    return createElement(ReviewSourceOnPage, {
-      value: reviews,
+    if (reviews === undefined)
+      return createElement(PageReadsOnPage, {
+        reads: pageReadsSupplying({ sessions: authenticatedSessionServices }),
+        children: launched,
+      });
+    return createElement(PageReadsOnPage, {
+      reads: pageReadsSupplying({
+        review: reviews,
+        sessions: authenticatedSessionServices,
+      }),
       children: createElement(StoryNotesOnPage, {
         value: notes,
         children: launched,

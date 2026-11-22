@@ -1,6 +1,6 @@
 // Disposable reading state for one selected story. The authenticated reader
 // and server still own response validation, comparison rules and final memory.
-import { readIntentCiComparison } from "./authenticatedIntentCiComparisonRead.ts";
+import type { readIntentCiComparison } from "./authenticatedIntentCiComparisonRead.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
 
@@ -18,7 +18,7 @@ export const comparisonReadingKey = (
 ) => (identity === undefined ? undefined : `${source.id}#${identity}`);
 
 export function createCiComparisonReading(
-  readComparison: typeof readIntentCiComparison = readIntentCiComparison,
+  readComparison: typeof readIntentCiComparison,
 ) {
   let selected:
     | {
