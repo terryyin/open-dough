@@ -268,6 +268,23 @@ comparisons, the common story identity, and release of only that assignment.
 
 **Accepted.** Refinement records use the workflow `dough-story-refinement`. A Land close takes its story from the session, then from the launch's landing context. A native preparation start retains its own UUID, which Land's close reads and then marks closed. An ad hoc follow-up passes its done story as `session.story`. Proof: `Distribution/tests/skills/dough-story-refinement/preparation-session-record-land.test.mjs` and `Distribution/tests/skills/dough-story-refinement/preparation-native-session-record-land.test.mjs`.
 
+## Execution complete
+
+Product advice: Published session records now attribute refinement, Trunk and
+Story Branch execution, Dashboard-launched ad hoc Land and ad hoc story
+follow-ups. Each record carries its workflow, original close time, story and
+ordered reachable ranges, and another clone reviews each range through the
+existing published-session review. Keep the queued remainder
+(SEED-418#disclose-shared-checkout-overlap, plan 766;
+SEED-418#expire-published-session-records, plan 767) ahead of story-card
+session selection, because records now accumulate on trunk with every close.
+When refining those stories or a follow-up, decide two boundaries explicitly:
+
+- whether a closure whose worktree vanished before the record stage may
+  retire without its record, which is a permanent `step: "record"` stop today;
+- whether native, non-Dashboard ad hoc Lands and follow-ups should get a
+  session identity.
+
 ## Local gates
 
 - Apply the [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
