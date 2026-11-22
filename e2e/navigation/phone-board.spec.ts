@@ -14,7 +14,7 @@ test.use({
   reducedMotion: "reduce",
 });
 
-test("touch pages a published phone Board and leaves its Backlog vertically readable", async ({
+test("touch pages a published phone Board, a reload keeps the chosen column, and its Backlog stays vertically readable", async ({
   page,
   afterGitHubStops,
 }) => {
@@ -49,6 +49,11 @@ test("touch pages a published phone Board and leaves its Backlog vertically read
     from: { x: 300, y: 250 },
     to: { x: 120, y: 250 },
   });
+  await board.showsPhoneColumn("Taken", [
+    "Backlog 16 entries",
+    "Recently done 0 entries",
+  ]);
+  await board.reload();
   await board.showsPhoneColumn("Taken", [
     "Backlog 16 entries",
     "Recently done 0 entries",

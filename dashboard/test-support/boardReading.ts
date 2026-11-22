@@ -1,5 +1,5 @@
 // Reading down the long Board as a developer does: wheeling its own scroll
-// region by a distance, pressing its scrollbar track or a reading key, and
+// region by a distance or pressing a reading key, and
 // seeing where the reading or another move stops, while the document itself
 // stays still and a column paging control stays in sight. The Board's scroll
 // place and extent, and wheeling to a place or its end, are in ./boardPage.ts;
@@ -15,23 +15,12 @@ import {
   wheelTo,
   type ColumnName,
 } from "./boardPage.ts";
-import { box, expectInside } from "./pageLayout.ts";
+import { expectInside } from "./pageLayout.ts";
 
 // Wheels the Board `distance` further down (up when negative) from where it
 // is read, exactly as `wheelTo` does.
 export async function wheelBy(page: Page, distance: number) {
   await wheelTo(page, (await scrollYOf(page)) + distance);
-}
-
-// Presses the Board's own scrollbar track near its foot with the mouse, as a
-// developer pages down with a classic scrollbar: in the scroll region's last
-// pixel column, below the thumb of a Board read from its top.
-export async function pressScrollbarTrack(page: Page) {
-  const region = await box(boardScroll(page));
-  await page.mouse.click(
-    region.x + region.width - 1,
-    region.y + region.height - 24,
-  );
 }
 
 // Waits until the Board's scroll place reads the same twice in a row: the

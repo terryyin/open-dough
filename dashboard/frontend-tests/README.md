@@ -44,8 +44,9 @@ The mounted phone-board specs in `navigation/` render the production Board
 in its scroll frame with typed published work and session data. They use
 Chromium touch and keyboard input and measure the rendered layout.
 [`e2e/navigation/phone-board.spec.ts`](../../e2e/navigation/phone-board.spec.ts)
-covers the published-project load, board gesture wiring, vertical reading and
-the thin indicator's real hit target through the built app.
+covers the published-project load, board gesture wiring, vertical reading,
+the thin indicator's real hit target and a reload's kept column through the
+built app.
 
 Each backend service family a built-app spec talks to has one substitute
 module beside `frontendServiceSubstitutes.ts` in `../test-support/support/`

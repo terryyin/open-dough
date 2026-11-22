@@ -7,16 +7,13 @@ import type { Locator, Page } from "@playwright/test";
 import { expect } from "./dashboardTest.ts";
 import { compactProjectSelectCut } from "./pageLayout.ts";
 import { dispatchBoardTouch } from "./phoneBoardTouch.ts";
-import { dashboardBrowserArgs } from "./support/browserArgs.ts";
 import {
-  boardScroll,
   columnReadingRoom,
   expectColumnReading,
   expectEndsWithShown,
   expectStoryCardsKeepTheirShare,
   expectView,
   recordSlides,
-  scrollYOf,
   slidesOf,
   wheelTo,
 } from "./boardPage.ts";
@@ -27,11 +24,6 @@ import {
   tapColumnIndicator,
   type ColumnName,
 } from "./boardColumnNavigation.ts";
-
-export const classicBoardScrollbarLaunchOptions = {
-  args: dashboardBrowserArgs,
-  ignoreDefaultArgs: ["--hide-scrollbars"],
-};
 
 export class BoardView {
   constructor(readonly page: Page) {}
@@ -102,36 +94,6 @@ export class BoardView {
   async wheelTo(y: number): Promise<this> {
     await wheelTo(this.page, y);
     return this;
-  }
-
-  scrollY(): Promise<number> {
-    return scrollYOf(this.page);
-  }
-
-  scrollRegion(): Locator {
-    return boardScroll(this.page);
-  }
-
-  async useClassicScrollbar(width: number): Promise<this> {
-    await this.page.addInitScript((trackWidth) => {
-      document.addEventListener(
-        "DOMContentLoaded",
-        () => {
-          const track = document.head.appendChild(
-            document.createElement("style"),
-          );
-          track.textContent = `.board-scroll::-webkit-scrollbar { width: ${trackWidth}px; }`;
-        },
-        { once: true },
-      );
-    }, width);
-    return this;
-  }
-
-  scrollbarWidth(): Promise<number> {
-    return this.scrollRegion().evaluate(
-      (region) => region.getBoundingClientRect().width - region.clientWidth,
-    );
   }
 
   async countSlides(): Promise<this> {
