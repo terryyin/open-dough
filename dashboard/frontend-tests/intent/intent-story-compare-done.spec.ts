@@ -6,15 +6,13 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
-  intentStoryCompare,
+  doneOutsideKinds,
   openDoneStoryComparison,
   publishedCompletion,
-  doneOutsideKinds,
-  outsideKinds,
-  recordOutsideReads,
-} from "./intent-story-compare-page.ts";
+} from "./intent-story-compare-stories.ts";
 
 const oid = (digit: string) => digit.repeat(40);
 const older = makeMe.aReviewRun
@@ -34,20 +32,15 @@ const landedRuns: Readonly<Record<string, StoryReview>> = {
   [older.key]: landedOn(older, "older"),
   [newer.key]: landedOn(newer, "newer"),
 };
-const unread = () => new Promise<never>(() => undefined);
 
 test("a Done story opens on its published completion, chooses a captured landed run and returns, while its locations and landed CI endpoint stay put", async () => {
-  const outside = recordOutsideReads();
-  const { locationRevisions } = await openDoneStoryComparison({
+  const { locationRevisions, outsideKinds } = await openDoneStoryComparison({
     review: (query) =>
       Promise.resolve(
         query.historical === "true"
           ? { ...publishedCompletion(), runs }
           : (landedRuns[query.run ?? ""] ?? publishedCompletion()),
       ),
-    range: unread,
-    fileDiff: unread,
-    fileText: unread,
   });
   const story = intentStoryCompare();
   await story.chooseTab("CI comparison");
@@ -84,24 +77,19 @@ test("a Done story opens on its published completion, chooses a captured landed 
   await story.choose("Published completion");
   await expect.element(story.run).not.toBeInTheDocument();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
-  // Plan 764 slices 1 (story notes) and 4 (done wall-time history) make this [].
-  expect(outsideKinds(outside)).toEqual(doneOutsideKinds);
+  expect(outsideKinds()).toEqual(doneOutsideKinds);
 });
 
 test("a newer default run moves an unchosen run but not a chosen one while the old run is still listed", async () => {
-  const outside = recordOutsideReads();
   let landedDefault = landedOn(older, "older");
   let defaultsAsked = 0;
-  await openDoneStoryComparison({
+  const { outsideKinds } = await openDoneStoryComparison({
     review: (query) => {
       if (query.historical !== "true")
         return Promise.resolve(landedRuns[query.run ?? ""] ?? landedDefault);
       defaultsAsked += 1;
       return Promise.resolve(landedDefault);
     },
-    range: unread,
-    fileDiff: unread,
-    fileText: unread,
   });
   // Each default answer's landed tree is its own, so only the run chosen is
   // observed here.
@@ -123,6 +111,5 @@ test("a newer default run moves an unchosen run but not a chosen one while the o
   await story.refresh();
   await expect.poll(() => defaultsAsked).toBeGreaterThan(asked);
   await expect.element(story.run).toHaveValue(older.key);
-  // Plan 764 slices 1 (story notes) and 4 (done wall-time history) make this [].
-  expect(outsideKinds(outside)).toEqual(doneOutsideKinds);
+  expect(outsideKinds()).toEqual(doneOutsideKinds);
 });

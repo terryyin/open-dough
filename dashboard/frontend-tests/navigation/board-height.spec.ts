@@ -6,7 +6,7 @@ import {
   reducedBoardMotion,
   withBoardStorage,
 } from "./board-mount.ts";
-import { boardWork, cataloguedDone, longBacklog, story } from "./board-work.ts";
+import { boardWork, longBacklog, story } from "./board-work.ts";
 
 function publishedDone(count: number) {
   const now = Date.now();
@@ -19,7 +19,7 @@ function publishedDone(count: number) {
       })
       .please(),
   );
-  return cataloguedDone(stories);
+  return makeMe.aDoneCatalog.holding(stories).please();
 }
 
 const showOlder = () =>

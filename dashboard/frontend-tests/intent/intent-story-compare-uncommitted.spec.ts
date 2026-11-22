@@ -5,10 +5,8 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
-import {
-  intentStoryCompare,
-  openStoryAComparison,
-} from "./intent-story-compare-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { openStoryAComparison } from "./intent-story-compare-stories.ts";
 
 const [first, second, third, fourth] = [
   makeMe.aReviewCommit.numbered(1, "first change").please(),
@@ -49,7 +47,6 @@ test("clearing Include uncommitted changes leaves out landing.spec.ts, and Refre
           .adding("dashboard/tests/a.spec.ts", "change")
           .please(),
       ),
-    fileText: () => new Promise<never>(() => undefined),
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");

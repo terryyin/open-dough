@@ -3,126 +3,93 @@
 // and keep reading what the default comparison read
 // (../../src/IntentStoryComparison.tsx). With the default chosen, none says so.
 // The commit range is chosen as ./intent-story-compare-commits.spec.ts does; a
-// Done story's landed run as ./intent-story-compare-done.spec.ts does.
-
-import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { intentStory } from "../../test-support/support/intentStoryPage.ts";
+// Done story's landed run as ./intent-story-compare-done.spec.ts does. The CI
+// evidence comes from the case's typed CI reads.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
-  putFrontendIntentStory,
-  frontendIntentChanges,
-} from "../../test-support/support/frontendIntentStory.ts";
-import {
-  frontendFileDiff,
-  frontendReviewSnapshot,
-  installFrontendStoryReview,
-} from "../../test-support/support/frontendStoryReview.ts";
-import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openStoryIntent } from "../../test-support/intentModePage.ts";
-import { changed } from "../../test-support/support/intentStoryWorktree.ts";
-import { proofRegion } from "../../test-support/intentPerspectivePage.ts";
-import { chooseReadingTabInPlace } from "../../test-support/intentReadingPlacePage.ts";
-import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
-import { selectDoneStoryForCiComparison } from "../../test-support/support/selectDoneStoryForCiComparison.ts";
-import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
-import { comparisonLabels } from "../../test-support/ciEvidenceLabelsPage.ts";
+  doneCompletion,
+  doneIdentity,
+  doneOutsideKinds,
+  openDoneStoryComparison,
+  openStoryAComparison,
+} from "./intent-story-compare-stories.ts";
 
 const wholeStory = "Describes the whole story, not the chosen comparison.";
+const views = ["CI comparison", "Proof", "Intent coverage"] as const;
+type View = (typeof views)[number];
 
-// Each view that describes the whole story; Proof reads the given Changes file.
-function wholeStoryViews(intent: Locator, file: () => Locator) {
-  const story = intentStory(intent);
-  const tab = (name: "CI comparison" | "Intent coverage") => async () => {
-    await story.chooseTab(name);
-    return story.panel(name);
-  };
-  return {
-    "CI comparison": tab("CI comparison"),
-    "Intent coverage": tab("Intent coverage"),
-    Proof: async () => {
-      await story.chooseTab("Changes");
-      await file().click();
-      await chooseReadingTabInPlace(intent, "Proof");
-      return proofRegion(intent);
-    },
-  };
+// Opens VIEW; Proof is the Proof tab of the file FILE names.
+async function open(
+  story: ReturnType<typeof intentStoryCompare>,
+  view: View,
+  file: () => ReturnType<typeof story.file>,
+) {
+  if (view !== "Proof") {
+    await story.chooseTab(view);
+    return;
+  }
+  await story.chooseTab("Changes");
+  await file().click();
+  await story.chooseProof();
 }
 
 const [first, second] = [
   makeMe.aReviewCommit.numbered(1, "first change").please(),
   makeMe.aReviewCommit.numbered(2, "second change").please(),
 ];
+const modified = "Modified dashboard/tests/a.spec.ts";
 
-async function openStoryWithTwoCommits(
-  page: Page,
-  frontendServices: FrontendServiceState,
-) {
-  putFrontendIntentStory(frontendServices);
-  const review = await installFrontendStoryReview(
-    page,
-    frontendReviewSnapshot({
-      files: frontendIntentChanges,
-      commits: [second, first],
-    }),
-  );
-  review.answerFile(
-    frontendFileDiff("dashboard/tests/a.spec.ts", ["+all changes"]),
-    "dashboard/tests/a.spec.ts",
-  );
-  review.answerRange({
-    kind: "comparison",
-    from: first.fromTree,
-    tree: first.tree,
-    trunkIntegrated: false,
-    files: [
-      makeMe.aReviewedFile
-        .with({ kind: "modified", path: "dashboard/tests/a.spec.ts" })
-        .please(),
-    ],
+test("CI comparison, Proof and Intent coverage say they describe the whole story only while a commit range is chosen, reading the same evidence either way", async () => {
+  await openStoryAComparison({
+    review: () =>
+      Promise.resolve(
+        makeMe.aStoryReview
+          .modifying("dashboard/tests/a.spec.ts")
+          .onCommits(second, first)
+          .please(),
+      ),
+    range: () =>
+      Promise.resolve(
+        makeMe.aStoryReview
+          .modifying("dashboard/tests/a.spec.ts")
+          .pleaseRange(first),
+      ),
+    fileDiff: () =>
+      Promise.resolve(
+        makeMe.aReviewedFileDiff
+          .adding("dashboard/tests/a.spec.ts", "all changes")
+          .please(),
+      ),
   });
-  const { intent } = await openStoryIntent(page, "Story A");
-  return intent;
-}
+  const story = intentStoryCompare();
+  const file = () => story.file(modified);
+  const read: Partial<Record<View, string>> = {};
 
-test("CI comparison, Proof and Intent coverage say they describe the whole story only while a commit range is chosen, reading the same evidence either way", async ({
-  page,
-  frontendServices,
-}) => {
-  const intent = await openStoryWithTwoCommits(page, frontendServices);
-  const story = intentStory(intent);
-  const compare = story.compare();
-  const views = wholeStoryViews(intent, () => story.file(changed.modified));
-  const read: Record<string, string> = {};
+  // With the default comparison chosen, no view says it describes the whole
+  // story.
+  await story.chooseTab("Changes");
+  await expect.element(story.choice("All changes")).toBeChecked();
+  for (const view of views) {
+    await open(story, view, file);
+    await expect.poll(() => story.viewText(view)).not.toBe("");
+    expect(story.noteIn(view), view).toBeNull();
+    read[view] = story.viewText(view);
+  }
 
-  await test.step("with the default comparison chosen, no view says it describes the whole story", async () => {
-    await story.chooseTab("Changes");
-    await expect(compare.choice("All changes")).toBeChecked();
-    for (const [name, open] of Object.entries(views)) {
-      const view = await open();
-      await expect(view).toBeVisible();
-      await expect(story.wholeStoryNote(view), name).toHaveCount(0);
-      read[name] = (await view.textContent()) ?? "";
-    }
-  });
+  // Choosing the first commit alone.
+  await story.chooseTab("Changes");
+  await story.choose("Commits");
+  await story.chooseAlone("first change");
+  await expect.poll(story.range).toContain("first change");
 
-  await test.step("choosing the first commit alone", async () => {
-    await story.chooseTab("Changes");
-    await compare.choose("Commits");
-    await compare.chooseAlone("first change");
-  });
-
-  await test.step("each view says so and still reads the default comparison's evidence", async () => {
-    await expect(compare.range).toContainText("first change");
-    for (const [name, open] of Object.entries(views)) {
-      const view = await open();
-      await expect(story.wholeStoryNote(view), name).toHaveText(wholeStory);
-      // Beside the note, the view reads as it did with the default chosen.
-      await expect
-        .poll(async () => (await view.textContent())?.replace(wholeStory, ""))
-        .toBe(read[name]);
-    }
-  });
+  // Each view says so and, beside the note, reads as it did.
+  for (const view of views) {
+    await open(story, view, file);
+    await expect.poll(() => story.noteIn(view)).toBe(wholeStory);
+    expect(story.viewText(view).replace(wholeStory, ""), view).toBe(read[view]);
+  }
 });
 
 const landing = "dashboard/src/landing.ts";
@@ -132,83 +99,60 @@ const run = makeMe.aReviewRun
   .comparing("1".repeat(40), "2".repeat(40))
   .please();
 
-// A Done story whose published completion modifies landing and whose one
-// captured landed run adds it.
-async function openDoneStoryWithLandedRun(
-  page: Page,
-  frontendServices: FrontendServiceState,
-) {
-  const setup = await prepareFrontendDoneIntent(
-    page,
-    frontendServices,
-    undefined,
-    {
-      comparison: (done) =>
-        done.withChanged(
-          makeMe.aReviewedFile
-            .with({ kind: "modified", path: landing })
-            .please(),
-        ),
-    },
-  );
-  setup.review.answerHistoricalSnapshot(setup.identity, {
-    ...setup.review.snapshot(),
-    runs: [run],
+test("with a Done story's landed run chosen, CI comparison, Proof and Intent coverage each name the build measured beside the whole-story note", async () => {
+  // The published completion modifies landing; its one captured landed run
+  // adds it.
+  const published = makeMe.aStoryReview
+    .published(doneCompletion)
+    .modifying(landing)
+    .please();
+  const { outsideKinds } = await openDoneStoryComparison({
+    review: (query) =>
+      Promise.resolve(
+        query.historical === "true"
+          ? { ...published, runs: [run] }
+          : query.run === run.key
+            ? makeMe.aStoryReview
+                .landed()
+                .adding(landing)
+                .onRun(run, [run])
+                .please()
+            : published,
+      ),
+    fileDiff: () =>
+      Promise.resolve(
+        makeMe.aReviewedFileDiff.adding(landing, "landing").please(),
+      ),
   });
-  setup.review.answerRunSnapshot(
-    run.key,
-    makeMe.aStoryReview.landed().adding(landing).onRun(run, [run]).please(),
-  );
-  setup.review.answerFile(frontendFileDiff(landing, ["+landing"]), landing);
-  const { intent, panel } = await selectDoneStoryForCiComparison(page);
-  return { intent, panel, identity: setup.identity };
-}
+  const story = intentStoryCompare();
+  await story.chooseTab("CI comparison");
+  await expect.poll(story.landedEndpoint).not.toBe("");
+  const measured = story.landedEndpoint();
 
-test("with a Done story's landed run chosen, CI comparison, Proof and Intent coverage each name the build measured beside the whole-story note", async ({
-  page,
-  frontendServices,
-}) => {
-  const { intent, panel, identity } = await openDoneStoryWithLandedRun(
-    page,
-    frontendServices,
-  );
-  const story = intentStory(intent);
-  const measured = comparisonReading(panel).identities.nth(2);
-  const measuredText = (await measured.textContent()) ?? "";
-  const proofLabels = comparisonLabels(proofRegion(intent), identity);
-  const proofText: string[] = [];
-  const viewsOf = (change: "Modified" | "Added") =>
-    wholeStoryViews(intent, () => story.outsideFile(`${change} ${landing}`));
-  // The landed run lists the same file as added.
-  const views = viewsOf("Added");
+  // With the published completion chosen, Proof has no note.
+  await open(story, "Proof", () => story.outsideFile(`Modified ${landing}`));
+  await expect.poll(() => story.proofLabels(doneIdentity)).not.toEqual([]);
+  const proofLabels = story.proofLabels(doneIdentity);
+  expect(story.noteIn("Proof")).toBeNull();
 
-  await test.step("with the published completion chosen, Proof has no note", async () => {
-    await viewsOf("Modified").Proof();
-    proofText.push(...(await proofLabels.allTextContents()));
-    await expect(story.wholeStoryNote(proofRegion(intent))).toHaveCount(0);
-  });
+  // Choosing Landed runs chooses the captured run.
+  await story.choose("Landed runs");
+  await expect.element(story.run).toHaveValue(run.key);
 
-  await test.step("choosing Landed runs", async () => {
-    await story.compare().choose("Landed runs");
-    await expect(story.compare().run).toHaveValue(run.key);
-  });
+  // Each view's note names the build the CI comparison measures; the landed
+  // run lists the same file as added.
+  const added = () => story.outsideFile(`Added ${landing}`);
+  for (const view of views) {
+    await open(story, view, added);
+    await expect.poll(() => story.noteBuild(view)).toMatch(/^[0-9a-f]{7}$/);
+    expect(measured, view).toContain(story.noteBuild(view));
+  }
 
-  await test.step("each view's note names the build the CI comparison measures", async () => {
-    for (const [name, open] of Object.entries(views)) {
-      const note = story.wholeStoryNote(await open());
-      const build = await note.locator("code").textContent();
-      expect(build, name).toMatch(/^[0-9a-f]{7}$/);
-      expect(measuredText, name).toContain(build);
-    }
-  });
-
-  await test.step("the CI comparison still measures the same build", async () => {
-    await views["CI comparison"]();
-    await expect(measured).toHaveText(measuredText);
-  });
-
-  await test.step("Proof still reads the same labels", async () => {
-    await views.Proof();
-    await expect(proofLabels).toHaveText(proofText);
-  });
+  // The CI comparison still measures the same build, and Proof still reads the
+  // same labels.
+  await story.chooseTab("CI comparison");
+  await expect.poll(story.landedEndpoint).toBe(measured);
+  await open(story, "Proof", added);
+  await expect.poll(() => story.proofLabels(doneIdentity)).toEqual(proofLabels);
+  expect(outsideKinds()).toEqual(doneOutsideKinds);
 });

@@ -4,7 +4,7 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { mountBoardFrame } from "./board-frame-mount.ts";
 import { noSessions, withBoardStorage } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
-import { boardWork, cataloguedDone, story } from "./board-work.ts";
+import { boardWork, story } from "./board-work.ts";
 import { tapWhereShown } from "./board-touch-page.ts";
 
 type Card = ReturnType<typeof page.getByRole>;
@@ -54,7 +54,7 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
   const { records } = makeMe.aMachineAnswer
     .observingUnavailable(closed)
     .please();
-  const { done, doneReads } = cataloguedDone([completed]);
+  const { done, doneReads } = makeMe.aDoneCatalog.holding([completed]).please();
   const startLaunch = vi.fn();
   const readHistory = vi.fn();
   await mountBoardFrame(

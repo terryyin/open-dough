@@ -78,8 +78,9 @@ behavior changes.
   entry. When a Done case reaches that read, move the done-record read behind
   `PageReads`, as plan 764 slice 1 does for story notes, so the case supplies
   it. No case makes a global `fetch` or opens a `WebSocket`.
-- **Data.** Load `aReviewCommit` and `anUncommittedReviewItem` from
-  `pageMakeMe.mjs`. Add domain-named builder steps for setup that repeats.
+- **Data.** Load `aReviewCommit` from `pageMakeMe.mjs`. The snapshot builder
+  makes the uncommitted item itself, so `anUncommittedReviewItem` is dropped
+  (no case uses it). Add domain-named builder steps for setup that repeats.
   Do not hand-write review records, and do not run production transforms
   such as `storyComparisonShown` to make inputs.
 - **Speed.** Each case acts as soon as the page allows. It waits only through
@@ -203,15 +204,15 @@ Accepted (22 November 2026, on top of `0b12cc4`, load about 7):
 - The Done cases still make two outside reads that plan 764 moves behind the
   typed entry: story notes (764 slice 1) and the CI Done wall-time history
   glance (764 slice 4). Each Done case asserts that its outside calls are
-  exactly those two kinds (`outsideKinds`/`doneOutsideKinds` in
-  `intent-story-compare-page.ts`), so plan 764 turns that check into `[]`.
+  exactly those two kinds (`doneOutsideKinds` in
+  `intent-story-compare-stories.ts`), so plan 764 turns that check into `[]`.
 
 Evidence is in `s3-report.md`.
 
 ### 4. Whole-story notes on the mounted view, and Test Support cleanup
 
 Type: Structure
-Status: planned
+Status: done
 Move `intent-story-compare-evidence.spec.ts` (2 cases). Remove what the story
 added to Dashboard Test Support once nothing uses it:
 - `failNextRange`, `failNextRunSnapshot` and `failNextReviewRead`;
@@ -228,3 +229,33 @@ Proof: both cases pass on Vitest. `rg` finds no use of the removed names.
 Run the 10-case cohort with `--workers=2` and record its summed time against
 the 20.8 s baseline, noting the load. The full `dashboard-frontend` group
 passes.
+
+Accepted (22 November 2026, on top of `4ae07ec`):
+- The evidence spec runs on Vitest. All 10 cases pass, in 14.3 s summed at
+  load 5–7, against 20.8 s on Playwright at load about 12.
+- The refactor pass kept one mount composition and split the page object
+  (`intent-story-compare-page.ts`) from the stories and their typed reads
+  (`intent-story-compare-stories.ts`). It added MakeMe steps
+  (`aDoneCatalog`, `pleaseRange(oldest, newest)`) in place of the
+  `cataloguedDone` helper and the spread mutations.
+- The story's test-support additions are removed, except two members other
+  specs now use:
+  - `intentStory().panel` (`intent-story-changes-gaps`,
+    `intent-story-changes-no-locations`,
+    `e2e/intent/intent-story-completed-source`);
+  - the `storyTabPanel` re-export, which `0596f54e2` added before this
+    story and which 2 E2E and 2 frontend specs import.
+- Plan 761 slice 1's proof is restated on this mount.
+- Gap: in the Taken evidence case, the before/after text comparison runs over
+  unavailable CI answers. No MakeMe compared story exists for that Taken
+  story. The Done case compares measured evidence.
+
+- Full `dashboard-frontend` group, run under `caffeinate -s -i` at load
+  about 7: the first run failed 1 of 822. `navigation/frame-launch-look`'s
+  200% zoom case pressed Enter on the launcher after Cancel. Native
+  `<dialog>` close had already returned focus there, but React had not yet
+  closed the dialog, so the Enter was lost. The case now waits for the dialog
+  to leave the document first. With that fix, the navigation folder passed
+  twice at load up to 19, and the full group passed 822 of 822
+  (`full-frontend-proof-2.json`).
+Evidence: `s4-report.md` and `refactor-report.md`.

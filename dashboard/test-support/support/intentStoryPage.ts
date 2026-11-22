@@ -1,5 +1,4 @@
 import { codePane, expectContextRead } from "./reviewPanes.ts";
-import { reviewRefresh, uncommittedCheck } from "./reviewControls.ts";
 import {
   chooseStoryTab,
   expectStoryTab,
@@ -19,7 +18,6 @@ import { expect, type Locator } from "@playwright/test";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
-import { commitRangeHeading } from "./storyReviewCommitChoice.ts";
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -49,8 +47,6 @@ export function storyHeaderReading(intent: Locator) {
     identity: region.locator(".record-identity"),
     revisions: region.locator(".intent-story-revisions"),
     status: region.getByRole("status"),
-    // A chosen comparison that cannot be read, with Retry after a failed read.
-    alert: region.getByRole("alert"),
     done: region.locator(".intent-story-done"),
   };
 }
@@ -145,37 +141,6 @@ export const intentDiff = (intent: Locator, name: string) =>
 const outsideFile = (intent: Locator, name: string) =>
   outsideGroup(intent).getByRole("button", { name: fileName(name) });
 
-// The Compare choice beside the header's compared revisions: what the story's
-// Intent compares, with All changes the check that leaves uncommitted changes
-// out, Refresh reading the worktree again, and for Commits the story's commits
-// whose two ends choose the range, which the header then names.
-export function storyCompare(intent: Locator) {
-  const region = storySummary(intent).getByRole("group", { name: "Compare" });
-  const commits = region.getByRole("list", { name: "Story commits" });
-  const choice = (name: string) => region.getByRole("radio", { name });
-  const commit = (subject: string) =>
-    commits.getByRole("button").filter({ hasText: subject });
-  const run = region.getByRole("listbox", { name: "Landed run" });
-  return {
-    region,
-    choice,
-    choose: (name: string) => choice(name).check(),
-    // The captured landed run chosen, offered with Landed runs.
-    run,
-    chooseRun: (key: string) => run.selectOption(key),
-    includeUncommitted: uncommittedCheck(region),
-    refresh: () => reviewRefresh(region).click(),
-    commits,
-    commit,
-    // Chooses one commit alone: twice, so it starts and ends its own range.
-    chooseAlone: async (subject: string) => {
-      await commit(subject).click();
-      await commit(subject).click();
-    },
-    range: commitRangeHeading(storySummary(intent)),
-  };
-}
-
 // The selected story in Intent. Diff text comes back for the scenario to
 // compare; `background` stays a measurement the scenario compares itself.
 export function intentStory(intent: Locator) {
@@ -198,7 +163,6 @@ export function intentStory(intent: Locator) {
     // An outside file's row, which carries its change marker.
     outsideRow: (name: string) => outsideFile(intent, name).locator("xpath=.."),
     headerDetail: () => storyHeaderDetail(intent),
-    compare: () => storyCompare(intent),
     chooseTab: (name: Parameters<typeof chooseStoryTab>[1]) =>
       chooseStoryTab(intent, name),
     expectTab: (name: Parameters<typeof expectStoryTab>[1]) =>
@@ -207,9 +171,6 @@ export function intentStory(intent: Locator) {
       storyTabPanel(intent, name),
     expectComparisonRead: () => expectStoryComparisonRead(intent),
     diff: (name: string) => intentDiff(intent, name),
-    // What a CI view says while another comparison than the default is chosen.
-    wholeStoryNote: (view: Locator) =>
-      view.getByRole("note").filter({ hasText: "whole story" }),
     outsideDiff: (name: string) =>
       selectedDiff(intent, outsideFile(intent, name), name),
   };

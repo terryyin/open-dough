@@ -1,20 +1,18 @@
 // Minimal production IntentPerspective mount and homepage page helpers. A
-// case may answer Review changes' reads through its own review source and
-// select one of the work's stories, as the page's story selection does.
+// case answers the page's reads it exercises, Intent's and its CI's at least,
+// and may select one of the work's stories, as the page's story selection
+// does.
 import { createElement, useEffect } from "react";
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { IntentPerspective } from "../../src/IntentPerspective.tsx";
-import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
-import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import { IntentPageProviders } from "../../src/intentPageProviders.tsx";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
-import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { LocalWorkspace } from "../../src/localWorkspace.ts";
 import { LaunchesOnPage } from "../../src/pageLaunches.ts";
-import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
 import {
   StorySelectionProvider,
   usePageStorySelection,
@@ -101,21 +99,15 @@ function PerspectiveScene({
 
 export async function mountIntentPerspective({
   work,
-  readSource,
-  ciReads,
-  reviewSource = unavailableReviewSource,
+  reads,
   workspaces = [],
-  done,
 }: {
   readonly work: PublishedWork;
-  readonly readSource: IntentReadSource;
-  readonly ciReads: IntentCiReadSource;
-  // Review changes' reads, and this machine's worktrees holding a story's
-  // claim, which offer that story a comparison.
-  readonly reviewSource?: ReviewSource;
+  // Review changes' reads default to a machine without a review workspace.
+  readonly reads: Pick<PageReads, "intent" | "ci"> & Partial<PageReads>;
+  // This machine's worktrees holding a story's claim, which offer that story
+  // a comparison.
   readonly workspaces?: readonly LocalWorkspace[];
-  // The reads of the done records the work's done catalog names.
-  readonly done?: DoneRecordReadSource;
 }) {
   let currentWork = work;
   let committedWork: PublishedWork | undefined;
@@ -132,10 +124,8 @@ export async function mountIntentPerspective({
       PageReadsOnPage,
       {
         reads: pageReadsSupplying({
-          intent: readSource,
-          ci: ciReads,
-          review: reviewSource,
-          ...(done === undefined ? {} : { done }),
+          review: unavailableReviewSource,
+          ...reads,
         }),
       },
       createElement(PerspectiveScene, {

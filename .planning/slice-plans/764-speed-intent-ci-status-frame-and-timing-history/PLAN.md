@@ -248,11 +248,12 @@ representative E2E history consumers when shared contracts change.
 
 - **Consumers from SEED-420#test-compare-on-mounted-intent (22 November
   2026).** `intent/intent-story-compare-*.spec.ts` mount through
-  `intent-ci-perspective-mount.ts` (review source, workspaces, `selectStory`,
-  done reads), so Slice 2's replacement must carry them. Their Done cases
-  assert that their only outside calls are story notes and the CI Done
-  wall-time history glance (`doneOutsideKinds` in
-  `intent/intent-story-compare-page.ts`). Slices 1 and 4 make that check `[]`.
+  `intent-ci-perspective-mount.ts` (typed page reads, workspaces,
+  `selectStory`) from `intent/intent-story-compare-stories.ts`, so Slice 2's
+  replacement must carry them. Their Done cases assert that their only
+  outside calls are story notes and the CI Done wall-time history glance
+  (`doneOutsideKinds` in `intent/intent-story-compare-stories.ts`). Slices 1
+  and 4 make that check `[]`.
   `PageReads` already has a required `done` member for done record bodies
   (`dashboard/src/doneRecordReadSource.ts`).
 

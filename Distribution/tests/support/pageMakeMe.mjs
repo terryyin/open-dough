@@ -1,6 +1,6 @@
 // @ts-check
 // MakeMe entry a browser (page) case can load: Node-free builders only.
-// makeMe.mjs exposes the same builders from the same definitions.
+// makeMe.mjs exposes, from the same definitions, the builders Node cases use.
 import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
 import { ciHistoryAnswerMakeMeProperties } from "./ciHistoryAnswerTestData.mjs";
 import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
@@ -8,10 +8,11 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 import { comparisonViewMakeMeProperties } from "./comparisonViewTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
-import { storyReviewMakeMeProperties } from "./storyReviewTestData.mjs";
+import { storyReviewMakeMeProperties } from "./storyReviewMakeMe.mjs";
 import { reviewCommitMakeMeProperties } from "./reviewCommitTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
+import { DoneCatalogBuilder } from "./doneCatalogTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import {
@@ -31,11 +32,12 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *   import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe &
  *   import("./terminalThemeSettingTestData.mjs").TerminalThemeSettingMakeMe &
  *   import("./sessionRecordTestData.mjs").SessionRecordMakeMe &
- *   import("./storyReviewTestData.mjs").StoryReviewMakeMe &
+ *   import("./storyReviewMakeMe.mjs").StoryReviewMakeMe &
  *   import("./reviewCommitTestData.mjs").ReviewCommitMakeMe & {
  *     readonly aTestOptimizationCandidatesRecord: TestOptimizationCandidatesRecordBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
  *     readonly aDoneRecord: DoneRecordBuilder;
+ *     readonly aDoneCatalog: DoneCatalogBuilder;
  *     readonly aWorkEntry: import("./factBuilder.mjs").FactBuilder<
  *       import("../../../dashboard/src/publishedWork.ts").WorkEntry
  *     >;
@@ -77,6 +79,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new DoneRecordBuilder();
+    },
+  },
+  aDoneCatalog: {
+    enumerable: true,
+    get() {
+      return new DoneCatalogBuilder();
     },
   },
   aWorkEntry: {

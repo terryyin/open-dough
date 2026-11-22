@@ -169,20 +169,15 @@ export async function mountBoard(
       value: sessions,
       children: board,
     });
+    const reads = pageReadsSupplying({
+      sessions: authenticatedSessionServices,
+      ...(reviews === undefined ? {} : { review: reviews }),
+      ...(done === undefined ? {} : { done }),
+    });
     if (reviews === undefined)
-      return createElement(PageReadsOnPage, {
-        reads: pageReadsSupplying({
-          sessions: authenticatedSessionServices,
-          ...(done === undefined ? {} : { done }),
-        }),
-        children: launched,
-      });
+      return createElement(PageReadsOnPage, { reads, children: launched });
     return createElement(PageReadsOnPage, {
-      reads: pageReadsSupplying({
-        review: reviews,
-        sessions: authenticatedSessionServices,
-        ...(done === undefined ? {} : { done }),
-      }),
+      reads,
       children: createElement(StoryNotesOnPage, {
         value: notes,
         children: launched,

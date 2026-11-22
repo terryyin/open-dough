@@ -2,7 +2,7 @@
 // Builder of a story review's captured run choice
 // (dashboard/src/storyReviewLandedRun.ts): a refinement launched on a day,
 // delivered to origin/main, comparing its captured base and accepted revision.
-// Node-free, so pageMakeMe.mjs exposes it through storyReviewTestData.mjs.
+// Node-free, so pageMakeMe.mjs exposes it through storyReviewMakeMe.mjs.
 /** @typedef {import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice} ReviewRunChoice */
 
 export class ReviewRunBuilder {

@@ -6,10 +6,8 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewQuery } from "../../src/reviewSource.ts";
-import {
-  intentStoryCompare,
-  openStoryAComparison,
-} from "./intent-story-compare-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { openStoryAComparison } from "./intent-story-compare-stories.ts";
 
 const [first, second, third] = [
   makeMe.aReviewCommit.numbered(1, "first change").please(),
@@ -36,14 +34,12 @@ test("choosing the two oldest commits lists only their files with diffs from the
       ),
     range: (query) => {
       rangeQueries.push(query);
-      return Promise.resolve({
-        ...makeMe.aStoryReview
+      return Promise.resolve(
+        makeMe.aStoryReview
           .modifying("dashboard/tests/a.spec.ts")
           .adding("dashboard/tests/boundary/b.spec.ts")
-          .pleaseRange(),
-        from: first.fromTree,
-        tree: second.tree,
-      });
+          .pleaseRange(first, second),
+      );
     },
     fileDiff: () =>
       Promise.resolve(
@@ -51,7 +47,6 @@ test("choosing the two oldest commits lists only their files with diffs from the
           .adding("dashboard/tests/a.spec.ts", diffLine)
           .please(),
       ),
-    fileText: () => new Promise<never>(() => undefined),
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");

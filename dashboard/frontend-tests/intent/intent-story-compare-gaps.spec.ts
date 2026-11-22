@@ -5,16 +5,14 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
-  intentStoryCompare,
+  doneOutsideKinds,
   openDoneStoryComparison,
   openStoryAComparison,
   publishedCompletion,
-  doneOutsideKinds,
-  outsideKinds,
-  recordOutsideReads,
-} from "./intent-story-compare-page.ts";
+} from "./intent-story-compare-stories.ts";
 
 const [first, second] = [
   makeMe.aReviewCommit.numbered(1, "first change").please(),
@@ -23,7 +21,6 @@ const [first, second] = [
 const missing = "The story's commit objects are missing from this machine.";
 const unreadable = "The chosen changes could not be read.";
 const wholeStory = "Describes the whole story, not the chosen comparison.";
-const unread = () => new Promise<never>(() => undefined);
 const takenOnCommits = () =>
   Promise.resolve(
     makeMe.aStoryReview
@@ -37,8 +34,6 @@ test("an unavailable commit range is explained in the header, not as a story wit
   await openStoryAComparison({
     review: takenOnCommits,
     range: () => Promise.resolve({ kind: "unavailable", explanation: missing }),
-    fileDiff: unread,
-    fileText: unread,
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
@@ -53,9 +48,7 @@ test("an unavailable commit range is explained in the header, not as a story wit
   // CI comparison and Intent coverage say they describe the whole story.
   for (const name of ["CI comparison", "Intent coverage"] as const) {
     await story.chooseTab(name);
-    await expect
-      .poll(() => story.wholeStoryNote(name).query()?.textContent)
-      .toBe(wholeStory);
+    await expect.poll(() => story.noteIn(name)).toBe(wholeStory);
   }
   await story.chooseTab("Changes");
 
@@ -73,16 +66,12 @@ test("a failed read of a chosen commit range offers Retry, which reads it again"
       rangeAsks += 1;
       return rangeAsks === 1
         ? Promise.reject(new Error("The range read was refused."))
-        : Promise.resolve({
-            ...makeMe.aStoryReview
+        : Promise.resolve(
+            makeMe.aStoryReview
               .modifying("dashboard/tests/a.spec.ts")
-              .pleaseRange(),
-            from: first.fromTree,
-            tree: second.tree,
-          });
+              .pleaseRange(first, second),
+          );
     },
-    fileDiff: unread,
-    fileText: unread,
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
@@ -111,16 +100,12 @@ const run = makeMe.aReviewRun
 const offeringRun = () => ({ ...publishedCompletion(), runs: [run] });
 
 test("a Done story's landed run whose objects are missing is explained, and Published completion stays offered", async () => {
-  const outside = recordOutsideReads();
   const runGap: StoryReview = makeMe.aStoryReview
     .unavailable("The landed run's objects are missing from this machine.")
     .please();
-  await openDoneStoryComparison({
+  const { outsideKinds } = await openDoneStoryComparison({
     review: (query) =>
       Promise.resolve(query.run === run.key ? runGap : offeringRun()),
-    range: unread,
-    fileDiff: unread,
-    fileText: unread,
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
@@ -138,12 +123,11 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
   // the measured build.
   for (const name of ["CI comparison", "Intent coverage"] as const) {
     await story.chooseTab(name);
-    const note = story.wholeStoryNote(name);
     await expect
-      .poll(() => note.query()?.textContent)
+      .poll(() => story.noteIn(name))
       .toContain("Describes the whole story");
     await expect
-      .poll(() => note.query()?.querySelector("code")?.textContent)
+      .poll(() => story.noteBuild(name))
       .toBe(doneCompletion.slice(0, 7));
   }
   await story.chooseTab("Changes");
@@ -152,14 +136,12 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
   await story.choose("Published completion");
   await expect.element(story.alert).not.toBeInTheDocument();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
-  // Plan 764 slices 1 (story notes) and 4 (done wall-time history) make this [].
-  expect(outsideKinds(outside)).toEqual(doneOutsideKinds);
+  expect(outsideKinds()).toEqual(doneOutsideKinds);
 });
 
 test("a failed read of a chosen landed run offers Retry, which reads that run again", async () => {
-  const outside = recordOutsideReads();
   let runAsks = 0;
-  await openDoneStoryComparison({
+  const { outsideKinds } = await openDoneStoryComparison({
     review: (query) => {
       if (query.run !== run.key) return Promise.resolve(offeringRun());
       runAsks += 1;
@@ -173,9 +155,6 @@ test("a failed read of a chosen landed run offers Retry, which reads that run ag
               .please(),
           );
     },
-    range: unread,
-    fileDiff: unread,
-    fileText: unread,
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
@@ -194,6 +173,5 @@ test("a failed read of a chosen landed run offers Retry, which reads that run ag
   await expect.poll(story.outside).toContain("chosen.txt");
   await expect.element(story.alert).not.toBeInTheDocument();
   expect(runAsks).toBeGreaterThan(asked);
-  // Plan 764 slices 1 (story notes) and 4 (done wall-time history) make this [].
-  expect(outsideKinds(outside)).toEqual(doneOutsideKinds);
+  expect(outsideKinds()).toEqual(doneOutsideKinds);
 });

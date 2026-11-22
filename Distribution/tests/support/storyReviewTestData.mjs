@@ -1,28 +1,23 @@
 // @ts-check
-// Builders of the story review's answers (dashboard/src/storyReviewContract.ts):
+// Builder of the story review's answers (dashboard/src/storyReviewContract.ts):
 // a taken story's snapshot (./storyReviewSnapshotTestData.mjs), a completed
-// comparison (./storyReviewCompletedTestData.mjs), a review gap, a commit
-// range, a captured run and a file's printed diff. Node-free, so
-// pageMakeMe.mjs exposes them to mounted cases.
+// comparison (./storyReviewCompletedTestData.mjs), a review gap and a commit
+// range. Node-free; ./storyReviewMakeMe.mjs registers it.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").StoryReview} StoryReview */
 /** @typedef {Pick<Extract<StoryReview, { kind: "landing-unavailable" }>, "explanation" | "comparison">} ReviewGap */
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
 /** @typedef {TakenStoryReview["files"][number]} ReviewedFile */
 /** @typedef {import("../../../dashboard/src/storyReviewLandedRun.ts").ReviewRunChoice} ReviewRunChoice */
-import { ReviewedFileDiffBuilder } from "./reviewedFileDiffTestData.mjs";
 import {
   landedComparison,
   publishedComparison,
   sessionCommits,
 } from "./storyReviewCompletedTestData.mjs";
-import { UncommittedReviewItemBuilder } from "./reviewCommitTestData.mjs";
-import { ReviewRunBuilder } from "./storyReviewRunTestData.mjs";
 import {
   commitRange,
   storyReviewIds,
   takenSnapshot,
 } from "./storyReviewSnapshotTestData.mjs";
-
 /** @typedef {import("./reviewCommitTestData.mjs").ReviewCommit} ReviewCommit */
 
 export class StoryReviewBuilder {
@@ -42,7 +37,7 @@ export class StoryReviewBuilder {
   #publishedKept;
   /** @type {string | undefined} */
   #completion;
-  /** @type {import("./reviewCommitTestData.mjs").ReviewCommit[] | undefined} */
+  /** @type {ReviewCommit[] | undefined} */
   #commits;
   #uncommitted = false;
 
@@ -93,7 +88,7 @@ export class StoryReviewBuilder {
    * A snapshot of a worktree holding `commits`, newest first
    * (`makeMe.aReviewCommit`); with `committedAs`, its committed part runs
    * from the oldest's parent tree to the newest's tree.
-   * @param {...import("./reviewCommitTestData.mjs").ReviewCommit} commits
+   * @param {...ReviewCommit} commits
    */
   onCommits(...commits) {
     this.#commits = commits;
@@ -185,11 +180,14 @@ export class StoryReviewBuilder {
   }
 
   /**
-   * The range read of the snapshot's commit, holding this review's files.
+   * The range read holding this review's files: from `oldest`'s parent tree
+   * to `newest`'s tree, or without them, of the snapshot's one commit.
+   * @param {ReviewCommit} [oldest]
+   * @param {ReviewCommit} [newest]
    * @returns {import("../../../dashboard/src/storyReviewContract.ts").ReviewRange}
    */
-  pleaseRange() {
-    return commitRange(this.#files);
+  pleaseRange(oldest, newest = oldest) {
+    return commitRange(this.#files, oldest, newest);
   }
 
   /** @returns {StoryReview} */
@@ -200,35 +198,6 @@ export class StoryReviewBuilder {
       ...review,
       runs: structuredClone(this.#runs),
       selectedRun: this.#selected.key,
-    };
-  }
-
-  /**
-   * @param {TakenStoryReview} snapshot
-   * @returns {TakenStoryReview}
-   */
-  #withCommits(snapshot) {
-    const commits = this.#commits;
-    if (commits === undefined) return snapshot;
-    const [newest] = commits;
-    const oldest = commits.at(-1);
-    if (newest === undefined || oldest === undefined) return snapshot;
-    const uncommitted =
-      this.#uncommitted || this.#committed !== undefined
-        ? new UncommittedReviewItemBuilder().after(newest).please()
-        : undefined;
-    return {
-      ...snapshot,
-      commits: structuredClone(commits),
-      uncommitted,
-      committed:
-        this.#committed === undefined
-          ? undefined
-          : {
-              from: oldest.fromTree,
-              tree: newest.tree,
-              files: structuredClone(this.#committed),
-            },
     };
   }
 
@@ -253,52 +222,14 @@ export class StoryReviewBuilder {
       });
     if (this.#kind === "landed")
       return landedComparison({ baseline, tree, files, run });
-    const snapshot = takenSnapshot({
+    return takenSnapshot({
       baseline,
       tree,
       files,
       committed: this.#committed,
+      commits: this.#commits,
+      uncommitted: this.#uncommitted,
+      publishedKept: this.#publishedKept,
     });
-    const withCommits = this.#withCommits(snapshot);
-    if (this.#publishedKept === undefined) return withCommits;
-    return {
-      ...withCommits,
-      published: {
-        trunk: baseline,
-        commits: this.#publishedKept,
-        kept: "not-restated",
-      },
-    };
   }
-}
-
-/**
- * @typedef {object} StoryReviewMakeMe
- * @property {StoryReviewBuilder} aStoryReview
- * @property {ReviewedFileDiffBuilder} aReviewedFileDiff
- * @property {ReviewRunBuilder} aReviewRun
- */
-
-/** @returns {PropertyDescriptorMap} */
-export function storyReviewMakeMeProperties() {
-  return {
-    aStoryReview: {
-      enumerable: true,
-      get() {
-        return new StoryReviewBuilder();
-      },
-    },
-    aReviewedFileDiff: {
-      enumerable: true,
-      get() {
-        return new ReviewedFileDiffBuilder();
-      },
-    },
-    aReviewRun: {
-      enumerable: true,
-      get() {
-        return new ReviewRunBuilder();
-      },
-    },
-  };
 }

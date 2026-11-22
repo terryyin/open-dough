@@ -15,7 +15,7 @@ import {
   tapWhereShown,
   useTouchScreen,
 } from "./board-touch-page.ts";
-import { boardWork, cataloguedDone, story } from "./board-work.ts";
+import { boardWork, story } from "./board-work.ts";
 
 const identity = `SEED-090#${"a-long-anchor-".repeat(6)}end`;
 const title = `Keep a title with ${"Uninterruptedlyconcatenated".repeat(5)} and ordinary words readable across the Board`;
@@ -55,7 +55,7 @@ function donePublication() {
       completedAt: new Date(Date.now() - 240_000).toISOString(),
     })
     .please();
-  return cataloguedDone([newest, older]);
+  return makeMe.aDoneCatalog.holding([newest, older]).please();
 }
 
 function textFitsInCard(part: Element, card: Element) {
