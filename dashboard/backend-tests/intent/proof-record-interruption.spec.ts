@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { stoppedBodyMarker } from "../../test-support/fixtures/quiet-reporter/stoppedBody.ts";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   proofDirectory,
@@ -41,7 +43,8 @@ test("graceful interruption records strict failure after one completed assertion
       run,
       (record) =>
         record.tests[0]?.attempts[0]?.status === "passed" &&
-        record.tests[1]?.attempts.length === 1,
+        record.tests[1]?.attempts.length === 1 &&
+        existsSync(stoppedBodyMarker(run.configFile)),
     );
     run.child.kill("SIGINT");
     const result = await run.result;
