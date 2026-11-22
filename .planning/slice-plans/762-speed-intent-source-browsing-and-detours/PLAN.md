@@ -492,6 +492,16 @@ retired. Proof: typecheck; both specs; the consumer sweep over `intent/`,
 `review/`, `configuration/` (274 cases) and the 39 `launches/`,
 `navigation/` and `stories/` specs reaching the highlighter (92 cases); 5
 Intent code and Gherkin E2E journeys.
+CI repair: branch run 45039206344 at `5ca553b95` failed
+`test-harness/unread-page-reads.spec.ts`, which expected every unsupplied
+page-entry member to reject; it now walks every member except the local
+highlighter and proves an unsupplied highlighter highlights without a fetch.
+Trunk was merged at `6436eefa9` (conflict in `pageReads.tsx` with
+`7ca4de45f`'s held page values, resolved by keeping `useSourceHighlighter`
+and trunk's removal of the notes and review-state hooks); on the merged
+state, typecheck passed and 634 frontend cases across `intent/`, `review/`,
+`navigation/`, `stories/`, `launches/` and `test-harness/` ran with only
+that spec failing at load 66.
 
 ### 9. Project Intent activation, project visits, cached reads and pending selections keep the applicable source
 
