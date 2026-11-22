@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "identity": "SEED-418#disclose-shared-checkout-overlap",
+  "mode": "story-branch",
+  "branch": "claude/disclose-shared-checkout-overlap-in-published-se",
+  "host": "claude"
+}
