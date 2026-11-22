@@ -117,7 +117,6 @@ managed_files+=(
   dough-execute-plan/scripts/ci-mailbox.mjs
   dough-execute-plan/scripts/ci-monitor-unavailable.mjs
   dough-execute-plan/scripts/ci-observation-throttle.mjs
-  dough-execute-plan/scripts/ci-observer-stream.mjs
   dough-execute-plan/scripts/ci-path-applicability.mjs
   dough-execute-plan/scripts/ci-revision-applicability-classification.mjs
   dough-execute-plan/scripts/ci-repair-stash-applied.mjs

@@ -39,7 +39,12 @@ git -C "${release_source}" tag -a "v${candidate_version}" -m 'Candidate with rel
 old_helper="${old_release}/src/install/open-dough-release.sh"
 output=$(bash "${old_helper}" apply --target "${target}")
 [[ "${output}" == *"Open Dough guidance in"*"version ${candidate_version}"* ]]
-[[ "${output}" != *'removed files'* ]]
+# Relocation alone removes nothing: every reported removal is a file the
+# candidate no longer ships.
+removed_files=$(sed -n 's/^  \(dough-.*\)$/\1/p' <<< "${output}")
+while IFS= read -r removed; do
+  [[ -z "${removed}" || ! -e "${release_source}/Distribution/src/skills/${removed}" ]]
+done <<< "${removed_files}"
 for root in .agents .claude; do
   destination="${target}/${root}/skills/dough-update"
   installed=$(cat "${destination}/VERSION")

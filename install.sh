@@ -3,7 +3,6 @@
 managed_files=(
   dough-update/SKILL.md
   dough-bug-fixing/SKILL.md
-  dough-bug-fixing/scripts/retained-artifacts.mjs
   dough-adr-awareness/SKILL.md
   dough-product-backlog/SKILL.md
   dough-product-backlog/assets/claude-hooks-guard.json
