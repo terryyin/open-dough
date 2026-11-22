@@ -1,24 +1,31 @@
-# Get fast proof of Intent timing history
+# Get fast proof of Intent CI wall-time history
 
 **Identity:** SEED-413#speed-intent-timing-history-on-vitest
-**Source:** [Get fast proof of Intent timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest)
-**Split from:** SEED-413#speed-intent-ci-status-frame-and-timing-history (plan 764, recoverable at `7b9e64961:.planning/slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md`; former Slice 4's history port and Slices 5–8) on 2026-11-22 at its delivered Slice 4 boundary
-**Status:** awaiting story refinement — not ready for slice-plan refinement or execution
+**Source:** [Get fast proof of Intent CI wall-time history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest)
+**Split from:** SEED-413#speed-intent-ci-status-frame-and-timing-history (plan 764, recoverable at `7b9e64961:.planning/slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md`; former Slice 4's history port and Slices 5–8) on 2026-11-22 at its delivered Slice 4 boundary. Resplit before readiness on 2026-11-22: former Slices 4–6 (collected scope timing history) moved to [plan 774](../774-speed-intent-scope-timing-history/PLAN.md) for SEED-413#speed-intent-scope-timing-history.
 
-## Why this plan is provisional
+## Goal and scope
 
-Plan 764's Slice 4 attempt (22 November 2026) stopped at 8.1 active minutes:
-porting the first 3 legacy files (`intent-ci-compact-readout`,
-`intent-ci-done-glance`, `intent-ci-done-reference-lifecycle`: 6 cases, 484
-lines of chart marks, pointer inspection, dark-mode cue and refresh/retry
-races) through the real page did not fit one slice. The slices below keep
-their former 3–6-file sizing and must be resized at refinement, likely one or
-two legacy files per slice, adding a Node-free `aDoneWallTimeHistory`
-builder on `publishedReadingMakeMe.mjs` with domain-named steps
-(availability, priors, selected, stand-in) rather than raw facts. The former
-Slice 4's structure delivered in plan 764.
+A dashboard maintainer can quickly check what Project and Done CI wall-time
+history say beside live CI proof, with every history case running against the
+production Intent page layout. The seed story holds the full goal, scope and
+key examples.
 
-## Carried decisions, premises and learnings
+- **Included.** The delivered CI status entry correction below; the 5 legacy
+  wall-time history specs (10 cases): `intent-ci-compact-readout` (3),
+  `intent-ci-done-glance` (1), `intent-ci-done-reference-lifecycle` (2),
+  `intent-ci-history-chart-marks` (2), `intent-project-ci-history-chart-marks`
+  (2); refreshing the 3 Project CI wall-time Vitest specs
+  (`intent-ci-wall-time-history{,-gaps,-evidence}`, 5 cases).
+- **Excluded.** Collected scope timing history (14 legacy files, plan 774);
+  attempt proof and Summary (plan 760); sibling-owned page objects
+  (`intent-ci-evidence-page.tsx`, `intent-ci-scope-page.tsx`,
+  `intent-done-story-page.tsx`, `intent-browser-page.ts`,
+  `intent-candidates-page.ts`, `intent-file-reading-page.ts`) are not modified.
+- **Assumption.** One or two legacy files fit a 15-minute slice (plan 764's
+  three-file port stopped at 8.1 active minutes with work outstanding).
+
+## Carried decisions and learnings
 
 - Apply the [campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories),
   [frontend guidance](../../../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
@@ -26,40 +33,23 @@ Slice 4's structure delivered in plan 764.
   Render the production owner of each history view at its typed entry; no
   test copies of compositions, restated provider stacks, ancestor class
   wrappers, private pipeline calls, hand-written domain records or production
-  transforms to make inputs. Do not modify sibling-owned page objects
-  (`intent-ci-evidence-page.tsx`, `intent-ci-scope-page.tsx`,
-  `intent-done-story-page.tsx`, `intent-browser-page.ts`,
-  `intent-candidates-page.ts`, `intent-file-reading-page.ts`).
+  transforms to make inputs.
 - Delivered by plan 764 and available: required `readDoneWallTimeHistory`
-  and `readScopeHistory` on the CI reads (`authenticatedIntentCiReads`,
-  rejected by `unreadCiReads`); `intent/intent-ci-page-mount.ts`
-  (`mountIntentCiPage`: production `PageFrame`, `StoryReferenceNavigation`,
-  `BoardOrIntent`); `recordOutsideCalls`; `intent-ci-sessions-sidebar.ts`;
+  and `readScopeHistory` on `IntentCiReadSource`
+  (`dashboard/src/intentCiReadSource.ts`, supplied by
+  `authenticatedIntentCiReads`, rejected by `unreadCiReads`);
+  `intent/intent-ci-page-mount.ts` (`mountIntentCiPage`: production
+  `PageFrame`, `StoryReferenceNavigation`, `BoardOrIntent`);
+  `recordOutsideCalls`; `intent-ci-sessions-sidebar.ts`;
   `makeMe.aCiHistoryAnswer.pleaseMeasured()`. A Done story's Summary opens
-  from its CI comparison entry button; its rows come from the review's changed
-  files. The page-wide Sessions shortcut is Command+B only.
-- Legacy baseline captured before any move (plan 764 Slice 4, 22 November
-  2026): the 19-file / 31-case selection on the Playwright engine, `--workers
-  2`, 31 passed, 184.99 s including preparation (runner 176,008 ms), load
-  33.3–41.4. Its proof record and the 6 first-file cases' distinct-assertion
-  list were kept in plan 764's execution evidence
-  (`s4-baseline.proof.json`, `slice-4-report.md`); rerun the baseline at
-  refinement if that checkout has been retired.
-- The 3-file / 5-case Vitest Project CI wall-time history suite
-  (`intent-ci-wall-time-history{,-gaps,-evidence}.spec.ts`) passed in 3,437 ms
-  at `58b829487` (21 November 2026). Narrow `JudgedBranch`'s presentation
-  input to `Omit<JudgedReading, "round">` while `IntentCiHistoryPanel` keeps
-  its refresh `round`.
-- Former Slice 4's history port (provisional, Behavior): move
-  `intent-ci-compact-readout`, `intent-ci-done-glance` and
-  `intent-ci-done-reference-lifecycle` over `IntentCiComparisonView` through
-  the typed page entry. First observe one held Done wall-time history read
-  resolving beside live comparison proof without rereading comparison proof.
-  Proof: missing, pending, outside-retention, insufficient, unusable-selected,
-  zero-average and stand-in landing baselines render their exact compact words
-  and cues; Done glance marks and hover/focus details match the landing;
-  changing or retrying the Done reference updates or preserves history without
-  perturbing live Proof; 0 legacy cases remain on the 3 files.
+  from its CI comparison entry button. The page-wide Sessions shortcut is
+  Command+B only.
+- Done wall-time history inputs come from a Node-free `aDoneWallTimeHistory`
+  builder on `publishedReadingMakeMe.mjs` with domain-named steps
+  (availability, priors, selected, stand-in), not raw facts.
+- Narrow `JudgedBranch`'s presentation input
+  (`dashboard/src/IntentCiJudgedBranch.tsx`) to `Omit<JudgedReading, "round">`
+  while `IntentCiHistoryPanel` keeps its refresh `round`.
 
 ## Correction of the delivered CI status entry
 
@@ -67,7 +57,7 @@ Execution retrospective of SEED-413#speed-intent-ci-status-frame-and-timing-hist
 (plan 764; commits `ed26bbd04`, `d7cd56e6a`, `136d221a8`, `d14d182ad`,
 `d55997e20` on its story branch), 22 November 2026, a read-only outcome
 review of `git diff 5a434844e d55997e20`. No product bug was found. Every
-history slice below mounts through the same entry, so these come first:
+history slice mounts through the same entry, so these come first:
 
 - **The page mount omits production layout ancestors.**
   `configuredDashboardContent.tsx` places `BoardOrIntent` inside
@@ -76,11 +66,9 @@ history slice below mounts through the same entry, so these come first:
   that drives Column fit, and `intent-perspective.css` gives
   `.intent-scroll > .scroll-content` the flex-column height that lets the
   panes scroll on their own. `intent/intent-ci-page-mount.ts` renders
-  `BoardOrIntent` without them, so layout-sensitive cases (dark contrast,
-  narrow-viewport history marks) run against a non-production layout. Move
-  the perspective scroll container into one production component that
-  `ConfiguredDashboardContent` and the mount both render; no class names in
-  test code.
+  `BoardOrIntent` without them. Move the perspective scroll container into
+  one production component that `ConfiguredDashboardContent` and the mount
+  both render; no class names in test code.
 - **Circular imports at the page entry.** `pageReads.tsx` imports
   `StoryNotesOnPage`/`StoryReviewStatesOnPage` and their map types from
   `storyNotes.ts`/`storyReviewStates.ts`, which import their read hooks back
@@ -100,114 +88,156 @@ history slice below mounts through the same entry, so these come first:
 - **Relocated `act` scaffolding.** `stories/story-notes-dialog-page.ts`
   moved the dialog spec's `createRoot`/`act` mount and a module-scope
   `IS_REACT_ACT_ENVIRONMENT` stub out of the spec instead of retiring them.
-- **Assertion gap in the freshness race (Intent Coverage, wrap-up of plan
-  764 at `62bb2da73`).** With the abort in `useIntentCiJudgment.ts`'s effect
-  cleanup removed, `intent-ci-status-freshness.spec.ts` case 3 still passed
-  3/3 while a stale `codex/example-story` answer replaced the running story's
-  status (a scratch witness `await ci.answers("Running at 70a0001 (Start the
-  story)")` failed with `expected ''`). After `lateFailing.resolve(...)` the
-  case waits one microtask and asserts only absences. Add a positive wait for
-  the current story's answer after each late resolve; the late-trunk half is
-  protected by the separate project-scope provider, not the abort guard.
+- **Assertion gap in the freshness race.** With the abort in
+  `useIntentCiJudgment.ts`'s effect cleanup removed,
+  `intent-ci-status-freshness.spec.ts` case 3 still passes (premise P1).
+  After `lateFailing.resolve(...)` the case waits one microtask and asserts
+  only absences. Add a positive wait for the current story's answer after
+  each late resolve; the late-trunk half is protected by the separate
+  project-scope provider, not the abort guard.
 - **Latent test-only trap.** `PageReadsOnPage` binds each project's notes and
   review-state store to the reads current at creation; a case that rerenders
   with different replies keeps the old ones. Production mounts it once with
-  constant reads.
+  constant reads. Record it at the mount's contract; no change is needed
+  unless a moved case rerenders with new replies.
+
+## Decisive premises
+
+| # | Premise | Consuming operation | Observation | Result |
+|---|---|---|---|---|
+| P1 | The freshness case does not discriminate the abort guard | Slice 2 proof | Scratch edit `// controller.abort();` at `dashboard/src/useIntentCiJudgment.ts:187`, then `npm run --silent test:dashboard:frontend -- --workers 2 dashboard/frontend-tests/intent/intent-ci-status-freshness.spec.ts` in this worktree at `1ec99e51a`, 2026-11-22; reverted | 3 passed with the guard removed: premise true, Slice 2 adds the discriminating wait |
+| P2 | The page mount renders `BoardOrIntent` without the production scroll ancestors | Slice 1 | Read `intent/intent-ci-page-mount.ts` (no scroll container) and `configuredDashboardContent.tsx:70–76` at `1ec99e51a` | True; the move is structural |
+| P3 | The 5 owned legacy files pass on the legacy engine and give the before measure | Slices 3–6 timing comparison | `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD=… caffeinate -s -i npm run --silent test:dashboard:frontend -- --workers 2 <5 files>` at `1ec99e51a`, 2026-11-22 17:19 | 10 passed; 31.91 s including preparation; runner 28,744 ms; load 40–57 |
+| P4 | The 3 Project CI wall-time Vitest specs pass before refresh | Slice 5 | Same command with the 3 `intent-ci-wall-time-history*` files at `1ec99e51a` | 5 passed; 12.09 s including preparation; Vitest 8.67 s; load ~61 |
+
+No premise remains open. The legacy proof record from plan 764 is not
+retained (its checkout was retired); P3 replaces it for this story's
+selection.
+
+## Proof map
+
+| Promise | Owner | Observable proof |
+|---|---|---|
+| Mount renders the production layout ancestors | Slice 1 | One production scroll container rendered by `ConfiguredDashboardContent` and the mount; CI status cases unchanged and green |
+| Page entry has no import cycle | Slice 1 | No import of `pageReads.tsx` from modules it imports; typecheck |
+| Test support has one owner per concern; story-notes dialog without `act` | Slice 2 | Duplicates removed; dialog spec green without `act`/`IS_REACT_ACT_ENVIRONMENT` |
+| Freshness race discriminates the abort guard | Slice 2 | Case fails with the abort removed (scratch) and passes with it |
+| Done compact readout baselines | Slice 3 | Exact words and cues per baseline state, stand-in named |
+| Done glance and reference lifecycle | Slice 4 | Glance marks and hover/focus details; reference change/retry keeps live proof |
+| Project CI wall-time mounts without `act` | Slice 5 | 5 refreshed cases green with no `createRoot`/`act`/`IS_REACT_ACT_ENVIRONMENT` |
+| Chart marks keep labels, links, keyboard and narrow fit | Slice 6 | Light/dark narrow viewport, run links, keyboard order |
+| Faster, fewer maintained cases; spent support removed | Slice 6 | Two-worker before/after against P3 and P4; case disposition table |
+
+Local gate per slice: typecheck and the focused frontend selection through
+`npm run --silent test:dashboard:frontend -- --workers 2 <paths>`; Slice 1
+and Slice 6 also run the full dashboard frontend group and the representative
+`e2e/intent/intent-ci-status.spec.ts` and `e2e/intent/intent-ci-done-prior-build.spec.ts` E2E journeys, because the
+mount and shared layout change. Run long local suites under the maintained
+macOS sleep guard (`caffeinate -s -i`, on AC power) per
+[machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Failures follow the
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 
 ## Slices
 
-### 1. CI status page mount renders production layout ancestors and the entry has no cycle
+### 1. The CI status page mount renders the production Intent layout and the page entry has no import cycle
 
 Type: Structure
-Status: provisional
+Status: planned
 
-The correction above: the perspective scroll container becomes production
-code rendered by the mount, the page entry's import cycle is removed, the
-`noSessions` copy and duplicated Taken-entry and never-settling helpers are
-consolidated, and `story-notes-dialog-page.ts` retires `act` and
-`IS_REACT_ACT_ENVIRONMENT`, and the freshness case 3 asserts the current
-story's answer survives each late resolve. Proof: removing the abort in
-`useIntentCiJudgment.ts` fails that case; typecheck; the 7 CI status files,
-`intent-story-compare-*`, board-mount consumers and the story-notes dialog
-spec pass with unchanged titles and assertions; full frontend group;
-representative `intent-ci-status` E2E.
+Move the perspective scroll container out of `configuredDashboardContent.tsx`
+into one production component that `ConfiguredDashboardContent` and
+`mountIntentCiPage` both render. Move the per-project notes and review-state
+maps and hooks so `pageReads.tsx` imports nothing that imports it back.
+Enables Slices 3–6, whose narrow-viewport and layout cases need production
+layout.
 
-### 2. Done wall-time history keeps its compact readout, glance and reference lifecycle
+Proof: typecheck; the 7 CI status files, `intent-story-compare-*`,
+board-mount consumers and the story-notes dialog spec pass with unchanged
+titles and assertions; full frontend group; representative
+`e2e/intent/intent-ci-status.spec.ts` E2E.
 
-Type: Behavior
-Status: provisional
+### 2. CI status test support has one owner per concern and the freshness race discriminates its abort guard
 
-The former Slice 4 history port above.
+Type: Structure
+Status: planned
 
-### 3. Project CI wall-time mounts drop `act` wrapping and chart marks keep keyboard and narrow layout
+Consolidate `noSessions` into the `machineSessionsAnswering` adapter (or
+record why both stay), the duplicated Taken `WorkEntry` and never-settling
+helpers; retire `act` and `IS_REACT_ACT_ENVIRONMENT` from
+`story-notes-dialog-page.ts`; add the positive wait for the current story's
+answer after each late resolve in the freshness case. Directly owned
+retrospective correction.
 
-Type: Behavior
-Status: provisional
+Proof: removing the abort in `useIntentCiJudgment.ts` (scratch) fails
+freshness case 3, restoring it passes; consumers of every consolidated helper
+pass with unchanged titles; typecheck.
 
-Add required `readScopeHistory` to the CI reads
-(`useIntentCiScopeHistory.ts`) and narrow `JudgedBranch` to
-`Omit<JudgedReading, "round">` while `IntentCiHistoryPanel` retains its
-refresh `round`. Refresh `intent-ci-wall-time-history{,-gaps,-evidence}.spec.ts`
-onto `mountComponent` (retiring `createRoot`, React `act`, and
-`IS_REACT_ACT_ENVIRONMENT` and verifying refresh round behavior), and move
-`intent-ci-history-chart-marks` and `intent-project-ci-history-chart-marks`
-(2 legacy files / 4 legacy cases + 3 refreshed Vitest files).
-
-**Proof.** Project CI wall-time history refreshes through `Check again` ->
-`Builds and evidence` keyboard order without `act` helpers, and Project/Done
-history chart marks preserve build/date labels, accessible descriptions,
-run links, and narrow-viewport fit.
-
-### 4. Scope glances and project/source history keys stay isolated to their source
+### 3. Done wall-time history keeps its compact readout words and cues
 
 Type: Behavior
-Status: provisional
+Status: planned
 
-Move `intent-project-scope-glance`, `intent-scope-glance`,
-`intent-project-scope-history-source-identity`, and
-`intent-project-scope-history-project-isolation` (4 files, 5 legacy cases)
-over `IntentScopeTimingHistory` / `useIntentCiScopeHistory` within its
-production owner (no restated reading-place stack) and typed `readScopeHistory` replies recording requested source, endpoint, scope,
-and `AbortSignal`.
+Add `aDoneWallTimeHistory` to `publishedReadingMakeMe.mjs`. First observe one
+held Done wall-time history read resolving beside live comparison proof
+through `mountIntentCiPage` without rereading comparison proof, then move
+`intent-ci-compact-readout` (3 cases).
 
-**Proof.** Project and Done scope glances display accurate summary cues, and
-switching source identity or project issues the right request and aborts/ignores
-other projects' or sources' answers without leaking history across projects.
+Behavior: a Done story whose baseline is missing, pending, outside retention,
+insufficient, unusable-selected or zero-average, or a stand-in landing → the
+compact readout shows its exact words and cue.
 
-### 5. Project scope history isolates scope keys, retains live proof on failure, and recovers on Retry
+Proof: the moved Vitest spec; 0 legacy cases remain on the file.
 
-Type: Behavior
-Status: provisional
-
-Move `intent-project-scope-history-key-isolation`,
-`intent-project-scope-history-recovery`,
-`intent-project-scope-history-refresh`, and
-`intent-project-scope-history-remount` (4 files, 6 legacy cases) within the
-production owner of `IntentScopeTimingHistory` beside live Scope Proof.
-
-**Proof.** Entry, folder, file, and revision keys keep distinct kept histories
-across remounts; a failed or empty history read preserves both the last kept
-history and live Scope Proof, offers `Retry`, and recovers or refreshes
-without borrowing history from another endpoint or scope.
-
-### 6. Collected scope timing preserves units, provenance, segments, and gaps and runs faster on Vitest
+### 4. Done glance and reference lifecycle keep history beside live proof
 
 Type: Behavior
-Status: provisional
+Status: planned
 
-Move `intent-scope-timing-history-absent`, `intent-scope-timing-history-gaps`,
-`intent-scope-timing-history-provenance`, `intent-scope-timing-history-reading`,
-`intent-scope-timing-history-segments`, and `intent-scope-timing-history-units`
-(6 files, 10 legacy cases) over `IntentScopeTimingHistory` (plus direct pure
-timing checks only where DOM rendering is not the proof). Remove any
-`dashboard/test-support/` history module whose last consumer across `e2e/` and
-`dashboard/frontend-tests/` has moved, and record the two-worker before/after
-timing and case-disposition comparison against the 19-file legacy
-baseline and the `3,437 ms` Vitest wall-time baseline.
+Move `intent-ci-done-glance` (1) and `intent-ci-done-reference-lifecycle` (2).
 
-**Proof.** Absent, partial, and unavailable timing reasons, separate case vs
-file units, interrupted segments, build dates, and provenance stay readable
-and accessible; zero legacy Playwright cases remain across all 19 owned files;
-no `act`/`IS_REACT_ACT_ENVIRONMENT` remains in the owned history specs; spent
-history support is removed; and two-worker Vitest elapsed time including
-preparation improves over the legacy baseline.
+Behavior: Done glance marks and hover/focus details match the landing;
+changing or retrying the Done reference updates or keeps history without
+perturbing live proof.
+
+Proof: the moved Vitest specs; 0 legacy cases remain on the 2 files.
+
+### 5. Project CI wall-time history refreshes without `act` wrapping
+
+Type: Behavior
+Status: planned
+
+Narrow `JudgedBranch` to `Omit<JudgedReading, "round">` and refresh
+`intent-ci-wall-time-history{,-gaps,-evidence}.spec.ts` onto the shared
+mount, retiring `createRoot`, React `act` and `IS_REACT_ACT_ENVIRONMENT`.
+
+Behavior: Project CI wall-time history refreshes through `Check again` →
+`Builds and evidence` in keyboard order and keeps its refresh round.
+
+Proof: the 5 refreshed cases pass with no `act` helper; typecheck.
+
+### 6. History chart marks keep labels, links, keyboard and narrow fit, and the story's proof runs faster
+
+Type: Behavior
+Status: planned
+
+Move `intent-ci-history-chart-marks` (2) and
+`intent-project-ci-history-chart-marks` (2). Remove any history
+`test-support` module whose last consumer across `e2e/` and
+`dashboard/frontend-tests/` moved. Record the case-disposition table and the
+two-worker before/after timing including preparation against P3 + P4, under
+comparable load.
+
+Behavior: Project and Done chart marks keep build/date labels, accessible
+descriptions and run links, and fit a narrow viewport in light and dark.
+
+Proof: the moved Vitest specs; 0 legacy cases remain across the 5 owned
+files; no `act`/`IS_REACT_ACT_ENVIRONMENT` in owned specs; full frontend
+group; `e2e/intent/intent-ci-done-prior-build.spec.ts` and
+`e2e/intent/intent-ci-wall-time-history-provenance.spec.ts` E2E.
+
+## Concern evidence
+
+Slice-plan refinement was not needed: each slice holds one outcome sized to
+one or two legacy files or one correction concern, below the eight-slice
+limit. This review found no remaining slice-specific concern.
