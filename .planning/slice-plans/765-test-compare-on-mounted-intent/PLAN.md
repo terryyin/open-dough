@@ -95,14 +95,15 @@ Use two workers, the default test timeouts, focused path selection
 (`npm run test:dashboard:frontend -- <paths>`), and the
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 Run `npm run typecheck:dashboard` whenever production code or types change.
-Before landing, run the full `dashboard-frontend` group, because slice 3
+Before landing, run the full `dashboard-frontend` group, because slice 4
 removes shared test support.
 
 | Promise | Owning proof |
 | --- | --- |
 | A Taken story's commit range and uncommitted check are proved on the Vitest mount. | Slice 1 |
-| A Done story's published completion and landed runs, and the gaps for an unreadable or failed choice, are proved on the Vitest mount without an outside call. | Slice 2 |
-| The whole-story notes in the CI views are proved on the Vitest mount; Dashboard Test Support loses the story's additions; the cases run faster. | Slice 3 |
+| A Done story's record is read through the typed page entry; no Done reader fetches it on its own. | Slice 2 |
+| A Done story's published completion and landed runs, and the gaps for an unreadable or failed choice, are proved on the Vitest mount without an outside call. | Slice 3 |
+| The whole-story notes in the CI views are proved on the Vitest mount; Dashboard Test Support loses the story's additions; the cases run faster. | Slice 4 |
 
 ## Slices
 
@@ -129,16 +130,59 @@ existing consumers (`intent-ci-status-{homepage,kept,side-panel}`) and
 Every observation from the Playwright cases has its assertion in
 `intent-story-compare-{commits,uncommitted}.spec.ts`. Evidence is in the
 worktree's `open-dough/evidence/s1-report.md`. The refactor pass covers this
-slice together with slice 3, which removes the support these cases replaced.
+slice together with slice 4, which removes the support these cases replaced.
 
-### 2. A Done story's choices and a chosen comparison's gaps on the mounted Intent view
+### 2. Done records are read through the typed page entry
+
+Type: Structure
+Status: done
+Refined on 22 November 2026, after 2.3 active minutes. The first attempt at
+the former slice 2 found that a Done story selected in the mounted Intent view
+reads its done record through `useDoneDetails` (`dashboard/src/doneDetails.ts`
+→ `readDoneRecordBodiesAt` in `authenticatedDoneRead.ts`). That read uses the
+global `fetch`, outside `PageReads`. The attempt changed nothing; its evidence
+is `s2-report.md` and the consumer traces in the worktree's evidence location.
+
+Move the read into the typed page entry:
+- `doneDetails.ts` reads a new required `done` member of `PageReads`.
+- `authenticatedPageReads.done` uses `readDoneRecordBodiesAt`.
+- `unreadPageReads.ts` gets a rejecting default for it.
+
+The `useDoneDetails` consumers read through the entry:
+`doneStoryFollowUp.ts`, `FollowUpSourceReference.tsx`,
+`recentlyDoneView.ts`, `StoryCardDependencies.tsx` and
+`useIntentStoryLens.ts`. Four tests replace `authenticatedDoneRead.ts` with
+`vi.mock`: `navigation/accessible-board-touch.spec.ts`, `board-height.spec.ts`,
+`story-card-selection.spec.ts` and `board-work.ts`. They switch to supplying
+typed done reads through their board mount.
+Proof: `npm run typecheck:dashboard` passes, and no frontend test mocks
+`authenticatedDoneRead.ts`. These pass at `--workers=2`:
+- the board-mount and board-frame-mount consumers;
+- `recently-done-*`;
+- the Vitest specs that mount `PageReadsOnPage`.
+
+Two representative E2E journeys that read Done records also pass: Recently
+done, and a Done story in Intent.
+Accepted (22 November 2026, on top of `1240413`):
+- `PageReads.done` (`dashboard/src/doneRecordReadSource.ts`) supplies
+  `useDoneDetails`. The board mounts take typed done reads, and no frontend
+  test mocks `authenticatedDoneRead.ts`.
+- `npm run typecheck:dashboard` passes.
+- 81 selected frontend paths pass: 51 Vitest files with 114 tests, and the
+  Playwright `recently-done-*` specs (69 cases, proof record strict pass).
+- Two E2E journeys pass: `sessions/recently-done-published-sessions` and
+  `intent/intent-done-completion-provenance`.
+
+Evidence is in `s2b-report.md` in the worktree's evidence location.
+
+### 3. A Done story's choices and a chosen comparison's gaps on the mounted Intent view
 
 Type: Structure
 Status: planned
 Move `intent-story-compare-done.spec.ts` (2 cases) and
 `intent-story-compare-gaps.spec.ts` (4 cases). Failed and held reads are the
-cases' own `ReviewSource` answers. Put the done-record read behind
-`PageReads` if a Done case reaches it.
+cases' own `ReviewSource` answers, and the Done cases supply their done
+record through slice 2's `done` page read.
 Proof: the 6 cases pass on Vitest at `--workers=2` with their observations
 intact:
 - the locations and the CI landed endpoint stay at the completion;
@@ -150,7 +194,7 @@ intact:
 Recording `fetch` and `WebSocket` shows no call outside the typed reads. Run
 `npm run typecheck:dashboard`.
 
-### 3. Whole-story notes on the mounted view, and Test Support cleanup
+### 4. Whole-story notes on the mounted view, and Test Support cleanup
 
 Type: Structure
 Status: planned

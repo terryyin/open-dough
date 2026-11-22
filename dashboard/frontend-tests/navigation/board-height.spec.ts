@@ -1,6 +1,5 @@
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { readDoneRecordBodiesAt } from "../../src/authenticatedDoneRead.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import {
   mountBoard,
@@ -8,11 +7,6 @@ import {
   withBoardStorage,
 } from "./board-mount.ts";
 import { boardWork, cataloguedDone, longBacklog, story } from "./board-work.ts";
-
-vi.mock(import("../../src/authenticatedDoneRead.ts"), async (original) => ({
-  ...(await original()),
-  readDoneRecordBodiesAt: vi.fn(),
-}));
 
 function publishedDone(count: number) {
   const now = Date.now();
@@ -25,9 +19,7 @@ function publishedDone(count: number) {
       })
       .please(),
   );
-  const { done, readBodies } = cataloguedDone(stories);
-  vi.mocked(readDoneRecordBodiesAt).mockImplementation(readBodies);
-  return done;
+  return cataloguedDone(stories);
 }
 
 const showOlder = () =>
@@ -43,9 +35,12 @@ const doneCard = (index: number) =>
 test("a hidden long Recently done contributes no blank tail and its oldest story is reachable when shown", async () => {
   withBoardStorage("0");
   await reducedBoardMotion();
+  const { done, doneReads } = publishedDone(40);
   await mountBoard(
-    [boardWork([story("Prepare worktrees", 8)], { done: publishedDone(40) })],
+    [boardWork([story("Prepare worktrees", 8)], { done })],
     { width: 864, height: 480 },
+    {},
+    { done: doneReads },
   );
   await board.shows(["Backlog", "Taken"], ["Recently done 40 entries"]);
 
@@ -88,10 +83,13 @@ test("opening an inspection adds its full purpose to the reading room and closin
       purpose: `Keep the purpose readable. ${"The purpose must be proposed clearly, leaving enough room to explain the available work. ".repeat(22)}${end}`,
     },
   });
-  await mountBoard([boardWork([inspected], { done: publishedDone(40) })], {
-    width: 864,
-    height: 480,
-  });
+  const { done, doneReads } = publishedDone(40);
+  await mountBoard(
+    [boardWork([inspected], { done })],
+    { width: 864, height: 480 },
+    {},
+    { done: doneReads },
+  );
   await board.shows(["Backlog", "Taken"], ["Recently done 40 entries"]);
   const card = board
     .column("Backlog")
@@ -132,9 +130,12 @@ test("Done stories arriving in the hidden column leave the shown Board's length 
   await reducedBoardMotion();
   const viewport = { width: 864, height: 600 };
   const backlog = longBacklog.slice(0, 4);
+  const arriving = publishedDone(41);
   const reading = await mountBoard(
     [boardWork(backlog, { done: { status: "loading" } })],
     viewport,
+    {},
+    { done: arriving.doneReads },
   );
   await board.shows(
     ["Backlog", "Taken"],
@@ -144,7 +145,7 @@ test("Done stories arriving in the hidden column leave the shown Board's length 
   const before = board.extent();
   await board.endsWith(["Backlog", "Taken"]);
 
-  reading.supply([boardWork(backlog, { done: publishedDone(41) })]);
+  reading.supply([boardWork(backlog, { done: arriving.done })]);
   await expect.element(doneCard(1)).toBeInTheDocument();
   await expect.element(doneCard(10)).toBeInTheDocument();
   await expect

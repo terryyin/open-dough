@@ -2,8 +2,8 @@
 // story selected in Intent needs (`./useIntentStoryLens.ts`): each record its
 // shown entries need (`./recentlyDoneView.ts`) is read once, by the file
 // name and Git blob its catalog names (`./doneStories.ts`), at the revision
-// that catalog was read at, through the local boundary's catalogued record
-// read (`./authenticatedDoneRead.ts`). Records nobody asked for are never
+// that catalog was read at, through the page's done record read
+// (`./pageReads.tsx`). Records nobody asked for are never
 // read, and needed records wait, still reading, until the caller says they
 // may be read (`readable`).
 //
@@ -22,10 +22,10 @@
 // records still needed.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { readDoneRecordBodiesAt } from "./authenticatedDoneRead.ts";
 import { doneRecordsPerRead } from "./authenticatedReadRules.ts";
 import { doneRecordOf, type DoneRecordRead } from "./doneRecord.ts";
 import { doneRecordsGapProblem, type NamedDoneRecord } from "./doneStories.ts";
+import { useDoneRecordReads } from "./pageReads.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { withinReadWait } from "./readWaitBound.ts";
 
@@ -77,6 +77,7 @@ export function useDoneDetails(
   needed: readonly NamedDoneRecord[],
   readable: boolean,
 ) {
+  const { readBodies } = useDoneRecordReads();
   const [known, setKnown] = useState<Known>({
     sourceId: source.id,
     revision,
@@ -121,7 +122,7 @@ export function useDoneDetails(
       };
       void withinReadWait(batch.abandon.signal, async (untilEither, bound) => {
         try {
-          const texts = await readDoneRecordBodiesAt(
+          const texts = await readBodies(
             source,
             revision,
             records.map(({ fileName }) => fileName),
@@ -143,7 +144,7 @@ export function useDoneDetails(
         }
       });
     }
-  }, [source.id, revision, neededKey, known, readable]);
+  }, [source.id, revision, neededKey, known, readable, readBodies]);
 
   const detailOf = (record: NamedDoneRecord): DoneDetail => {
     const key = keyOf(record);

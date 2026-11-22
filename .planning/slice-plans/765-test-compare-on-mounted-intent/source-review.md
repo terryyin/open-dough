@@ -24,10 +24,10 @@ C3's behaviors are the observations recorded for the corrected story at
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| C1 | The five intent-story-compare specs (commits, uncommitted, done, evidence, gaps) run as plain Vitest Browser Mode cases that mount the production Intent view with a typed review source. | slice 3 | |
-| C2 | Those specs contain no `@playwright/test` import, no `page.route`, no `test.step` and no Dashboard Test Support page object. | slice 3 | |
-| C3 | Every behavior the 10 cases observe stays proved, with the same distinguishing observation. Case titles may stay. | slice 3 | |
-| C4 | Dashboard Test Support no longer contains the story's wrappers: `failNextRange`, `failNextRunSnapshot`, `failNextReviewRead`, `storyCompare`, and the `compare`, `panel` and `wholeStoryNote` members of `intentStory`, `header.alert` and the `storyTabPanel` re-export. | slice 3 | |
+| C1 | The five intent-story-compare specs (commits, uncommitted, done, evidence, gaps) run as plain Vitest Browser Mode cases that mount the production Intent view with a typed review source. | slice 4 | |
+| C2 | Those specs contain no `@playwright/test` import, no `page.route`, no `test.step` and no Dashboard Test Support page object. | slice 4 | |
+| C3 | Every behavior the 10 cases observe stays proved, with the same distinguishing observation. Case titles may stay. | slice 4 | |
+| C4 | Dashboard Test Support no longer contains the story's wrappers: `failNextRange`, `failNextRunSnapshot`, `failNextReviewRead`, `storyCompare`, and the `compare`, `panel` and `wholeStoryNote` members of `intentStory`, `header.alert` and the `storyTabPanel` re-export. | slice 4 | |
 | C5 | The review MakeMe builders `aReviewCommit` and `anUncommittedReviewItem` load in the page MakeMe entry (`pageMakeMe.mjs`). | slice 1 | observed: Distribution/tests/support/pageMakeMe.mjs registers reviewCommitMakeMeProperties; intent-story-compare-commits.spec.ts builds commits with pageMakeMe's aReviewCommit |
-| C6 | Plan 761 slice 1's proof is restated on the same Vitest Browser Mode mount, no longer prescribing `holdNextRange` and `holdNextSnapshot`. | slice 3 | |
-| C7 | No product behavior changes. | slice 3 | |
+| C6 | Plan 761 slice 1's proof is restated on the same Vitest Browser Mode mount, no longer prescribing `holdNextRange` and `holdNextSnapshot`. | slice 4 | |
+| C7 | No product behavior changes. | slice 4 | |

@@ -8,6 +8,7 @@ import { PageFrame } from "../../src/PageFrame.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
@@ -142,7 +143,12 @@ export async function mountBoard(
   {
     reviews,
     sessionsSidebar = "closed",
-  }: { reviews?: ReviewSource; sessionsSidebar?: "closed" | "kept" } = {},
+    done,
+  }: {
+    reviews?: ReviewSource;
+    sessionsSidebar?: "closed" | "kept";
+    done?: DoneRecordReadSource;
+  } = {},
 ) {
   if (sessionsSidebar === "closed") withClosedSessionsSidebar();
   let sessions = { ...noSessions, ...observed };
@@ -165,13 +171,17 @@ export async function mountBoard(
     });
     if (reviews === undefined)
       return createElement(PageReadsOnPage, {
-        reads: pageReadsSupplying({ sessions: authenticatedSessionServices }),
+        reads: pageReadsSupplying({
+          sessions: authenticatedSessionServices,
+          ...(done === undefined ? {} : { done }),
+        }),
         children: launched,
       });
     return createElement(PageReadsOnPage, {
       reads: pageReadsSupplying({
         review: reviews,
         sessions: authenticatedSessionServices,
+        ...(done === undefined ? {} : { done }),
       }),
       children: createElement(StoryNotesOnPage, {
         value: notes,

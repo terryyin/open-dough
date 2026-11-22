@@ -1,6 +1,7 @@
 // Page reads a case does not exercise: each one rejects, so a case that
 // reaches a read it did not supply fails instead of reaching the real reader.
 
+import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
@@ -39,6 +40,10 @@ const unreadSessionServices: SessionServices = {
   },
 };
 
+const unreadDoneRecordReads: DoneRecordReadSource = {
+  readBodies: unread("done records"),
+};
+
 // The page's reads with only SUPPLIED answering; every other read rejects.
 export const pageReadsSupplying = (
   supplied: Partial<PageReads>,
@@ -47,5 +52,6 @@ export const pageReadsSupplying = (
   ci: unreadCiReads,
   review: unreadReviewReads,
   sessions: unreadSessionServices,
+  done: unreadDoneRecordReads,
   ...supplied,
 });

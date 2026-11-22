@@ -3,7 +3,7 @@ import {
   doneRecordFileName,
   renderDoneRecord,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import type { readDoneRecordBodiesAt } from "../../src/authenticatedDoneRead.ts";
+import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { DoneStories } from "../../src/doneStories.ts";
 import type { PublishedWork, WorkEntry } from "../../src/publishedWork.ts";
 
@@ -81,15 +81,18 @@ export function cataloguedDone(
     records,
     unreadable: [],
   } satisfies Extract<DoneStories, { status: "catalogued" }>;
-  const readBodies: typeof readDoneRecordBodiesAt = (...[, , files]) =>
-    Promise.resolve(
-      files.map((path) => {
-        const text = bodies.get(path);
-        if (text === undefined) throw new Error(`No Done record for ${path}.`);
-        return { path, text };
-      }),
-    );
-  return { done, readBodies };
+  const doneReads: DoneRecordReadSource = {
+    readBodies: (...[, , files]) =>
+      Promise.resolve(
+        files.map((path) => {
+          const text = bodies.get(path);
+          if (text === undefined)
+            throw new Error(`No Done record for ${path}.`);
+          return { path, text };
+        }),
+      ),
+  };
+  return { done, doneReads };
 }
 
 export const longBacklog = Array.from(
