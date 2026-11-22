@@ -160,7 +160,7 @@ installed reporting.
 ### 3. The final report panel shows the native report
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the page spec's final-report test passes.
 
 Behavior: the final report panel shows the native report "The saved

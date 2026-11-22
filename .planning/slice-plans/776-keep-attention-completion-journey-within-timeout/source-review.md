@@ -40,9 +40,9 @@ The coordinator launched a fresh general-purpose reviewer (agent `72170936-0723-
 | C23 | After the stored completion is unfinished, the open card shows "Unfinished work". Page owner. Retention sentence applies. | slice 2 | observed: e2e/sessions/agent-completion-attention-page.spec.ts Then the open card shows Unfinished work; slice2-page.log.run.json exit 0 |
 | C24 | When the published backlog moves that story from Backlog to Taken, the message is on the Taken card. Page owner. Retention sentence applies. | slice 2 | observed: same spec Then the message is on the Taken card after show(journey.taken); discrimination log toHaveText failed on the Taken card when the revision stayed queued |
 | C25 | Removing the workspace path does not clear that message on the Taken card. Page owner. Retention sentence applies. | slice 2 | observed: same spec Then removing the workspace path does not clear that message; slice2-page.log.run.json exit 0 |
-| C26 | The final report panel shows the native report. Composed attention completion journey, page owner. Retention sentence applies. | slice 3 |  |
-| C27 | The final report panel does not show the reminder. Page owner. Retention sentence applies. | slice 3 |  |
-| C28 | The final report panel offers no Mark as read. Page owner. Retention sentence applies. | slice 3 |  |
+| C26 | The final report panel shows the native report. Composed attention completion journey, page owner. Retention sentence applies. | slice 3 | observed: e2e/sessions/agent-completion-attention-page.spec.ts Then the final report panel shows the native report, toHaveText "The saved conversation's final report."; slice3-page.log.run.json exit 0 |
+| C27 | The final report panel does not show the reminder. Page owner. Retention sentence applies. | slice 3 | observed: same spec And the final report panel does not show the reminder; slice3-page.log.run.json exit 0 |
+| C28 | The final report panel offers no Mark as read. Page owner. Retention sentence applies. | slice 3 | observed: same spec And the final report panel offers no Mark as read, button count 0; slice3-page.log.run.json exit 0 |
 | C29 | Mark as read clears the button. Page owner. Retention sentence applies. | slice 4 |  |
 | C30 | Mark as read records `reportRead`. Page owner. Retention sentence applies. | slice 4 |  |
 | C31 | Mark as read leaves `doneAt` unset. Page owner. Retention sentence applies. | slice 4 |  |

@@ -4,7 +4,8 @@
 // Overlap: session-unread-report.spec.ts shows "Unfinished work" for a
 // Claude session. session-workspace-retirement*.spec.ts and
 // agent-completion-identity.spec.ts do not prove an unfinished label, a
-// Taken-column move, or workspace removal for a Codex attention completion.
+// Taken-column move, workspace removal, or this final-report panel for a
+// Codex attention completion.
 import { rmSync } from "node:fs";
 import {
   test,
@@ -23,9 +24,11 @@ import {
 } from "../../dashboard/test-support/launchJourney.ts";
 import { watchRecordReads } from "../../dashboard/test-support/sessionStatePace.ts";
 import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
+import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
 import { openStoryColumnsJourney } from "../../dashboard/test-support/storyColumnsPage.ts";
 import { messagePartOf } from "../../dashboard/test-support/support/sessionMessagePart.ts";
 import { keepComposedAttentionCompletion } from "../../dashboard/test-support/support/composedAttentionRecord.ts";
+import { keepFinalReport } from "../../dashboard/test-support/support/retainedReport.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 let journey: StoryColumnsJourney;
@@ -36,6 +39,7 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 
 const attentionMessage =
   "Publication finished. Reminder: inspect the migration before release.\n<script>must remain text</script>";
+const nativeReport = "The saved conversation's final report.";
 
 test("the backlog card shows a composed Codex attention completion", async ({
   page,
@@ -110,4 +114,41 @@ test("the card follows an unfinished completion and the published column", async
   });
   await test.step("Then removing the workspace path does not clear that message", () =>
     expect(messagePartOf(taken).text).toHaveText(attentionMessage));
+});
+
+test("the final report panel shows the native report", async ({
+  page,
+  dashboard,
+  codexProtocol,
+}) => {
+  const workspace =
+    await test.step("Given a Codex record for Story B already carries the completed attention message", () =>
+      keepComposedAttentionCompletion(
+        dashboard,
+        codexProtocol,
+        attentionMessage,
+      ));
+  await test.step("And the saved conversation keeps its native final report", () => {
+    if (codexProtocol === undefined) throw new Error("Missing native fixture");
+    keepFinalReport(codexProtocol, workspace, nativeReport);
+  });
+  await test.step("And the composed workspace path is already gone", () => {
+    rmSync(workspace, { recursive: true, force: true });
+  });
+  const card =
+    await test.step("When the story-columns page opens on the queued revision", async () => {
+      const opened = await openStoryColumnsJourney(page, journey);
+      return opened.card(readyStory);
+    });
+  const report =
+    await test.step("And the final report is read from that Story B card", () =>
+      readFinalReport(card));
+  await test.step("Then the final report panel shows the native report", () =>
+    expect(report.reportText).toHaveText(nativeReport));
+  await test.step("And the final report panel does not show the reminder", () =>
+    expect(report.panel).not.toContainText("Reminder: inspect the migration"));
+  await test.step("And the final report panel offers no Mark as read", () =>
+    expect(
+      report.panel.getByRole("button", { name: "Mark as read" }),
+    ).toHaveCount(0));
 });
