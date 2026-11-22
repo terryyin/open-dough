@@ -8,8 +8,8 @@
 Developers should get the same `e2e/sessions/agent-completion-attention.spec.ts`
 result locally and in CI at any machine load. The work splits that one
 journey into two owners, the split
-[the quiet completion journey](../../seeds/SEED-341-simplify-session-tests.md#split-quiet-completion-journey)
-establishes:
+the completed quiet completion journey established in
+`agent-completion-quiet.spec.ts` and `agent-completion-quiet-done.spec.ts`:
 
 - **Closure and reporting** keeps the installed path in the existing spec
   without the `page` fixture. A worker that runs only this spec launches no
@@ -88,7 +88,7 @@ before any further claim that the case fits in 30 s.
 | --- | --- | --- |
 | A Codex attention completion can be stored without a launch, and the server reads that file (consumed by Slice 1) | `LaunchRecordBuilder.completedWith` stores `outcome` and `message`. `keepLaunchRecords` writes `agent-launches.json`. `readStoredRecords` reads that file on every request. | Not executed. Slice 1's page spec is the probe: a scratch edit that drops the composed message makes the message assertion fail. Revert it. |
 | The story card follows the published column (consumed by Slice 1) | `interpretPublishedBacklog` places a story by the published list. The story-columns taken revision takes Story B. The current spec shows the message on the backlog card, then on the Taken card after `advanceTo` and a reload. | Not executed for a composed Story B record. Slice 1 is the probe: leaving the published revision queued makes the Taken assertion fail. Revert that scratch. |
-| Dropping the browser and the page phase leaves the installed path inside 30 s at load about 50 (consumed by Slice 2) | Proxy, from [plan 775](../775-split-quiet-completion-journey/PLAN.md) at `9a7abeef7` on 2026-11-22. With 46 burners and the four sibling specs on `--workers 4`, load 52 → 59, the quiet spec's no-page scratch took 15.5/17.8/14.6 s and the current quiet spec 17.3/21.4/20.6 s. In that same run this attention spec timed out at 30 s once. The difference can change the outcome: this spec also restarts the dashboard and has a longer page phase, and its own phases were not measured here. | Slice 2 is the early probe. It runs the paired comparison below and records loads, per-case durations, and the ratio. A closure case at or over 30 s, or no visible cut, stops the slice and changes this plan. |
+| Dropping the browser and the page phase leaves the installed path inside 30 s at load about 50 (consumed by Slice 2) | Proxy, from plan 775 (`5d221c5fa:.planning/slice-plans/775-split-quiet-completion-journey/PLAN.md`) at `9a7abeef7` on 2026-11-22. With 46 burners and the four sibling specs on `--workers 4`, load 52 → 59, the quiet spec's no-page scratch took 15.5/17.8/14.6 s and the current quiet spec 17.3/21.4/20.6 s. In that same run this attention spec timed out at 30 s once. The difference can change the outcome: this spec also restarts the dashboard and has a longer page phase, and its own phases were not measured here. | Slice 2 is the early probe. It runs the paired comparison below and records loads, per-case durations, and the ratio. A closure case at or over 30 s, or no visible cut, stops the slice and changes this plan. |
 
 ## Outside-in proof ownership
 
