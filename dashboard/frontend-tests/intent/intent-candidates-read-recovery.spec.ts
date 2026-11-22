@@ -10,6 +10,7 @@ import { noteLimit, standingLimit } from "../../src/readingLimit.ts";
 import { ReadProblem } from "../../src/readProblem.ts";
 import { intentCandidates } from "./intent-candidates-page.ts";
 import {
+  mountIntentOnObservationRecovery,
   mountPageIntentReading,
   publishedWithCandidates,
 } from "./intent-candidates-publication.ts";
@@ -42,9 +43,14 @@ function onSharedClock() {
   });
 }
 
-async function mountRecord(source: IntentReadSource) {
+async function mountRecord(
+  source: IntentReadSource,
+  mount:
+    | typeof mountPageIntentReading
+    | typeof mountIntentOnObservationRecovery = mountPageIntentReading,
+) {
   const work = makeMe.aPublishedWork.ofPygardon.at("c5".repeat(20)).please();
-  await mountPageIntentReading(source, work);
+  await mount(source, work);
   await intentCandidates().choose();
 }
 
@@ -72,7 +78,7 @@ test("candidates wait for the standing GitHub limit after their shorter backoff 
     },
     present,
   );
-  await mountRecord(source);
+  await mountRecord(source, mountIntentOnObservationRecovery);
   await expect.element(retry).toBeVisible();
   expect(reads).toHaveLength(1);
 

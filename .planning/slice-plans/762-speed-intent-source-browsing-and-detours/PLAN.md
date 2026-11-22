@@ -1,7 +1,7 @@
-# Get fast proof of Intent source browsing, pinned links and detours
+# Get fast proof of Intent source browsing and pinned links
 
 **Identity:** SEED-413#speed-intent-source-browsing-and-detours
-**Source:** [Get fast proof of Intent source browsing, pinned links and detours](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours)
+**Source:** [Get fast proof of Intent source browsing and pinned links](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours)
 **Source review:** [source-review.md](source-review.md)
 **Split from:** SEED-413#speed-intent-source-and-story-reading (plan `755`, former Slices 3–4) on 2026-11-21 at its delivered Slice 2 boundary
 
@@ -16,25 +16,23 @@ remaining page reads and the standalone production Intent body.
 
 Dashboard maintainers get fast Vitest feedback that a developer can browse
 Gherkin and code sources at the chosen scope, line and revision, follow
-canonical and plan links safely, open Project Intent or a selected story, and
-resume the exact reading place after a detour through another view. Move the
-22 legacy Playwright cases across 15 files:
-- `dashboard/frontend-tests/navigation/`: `source-navigation` and
-  `source-navigation-refused` (2 files, 3 legacy cases)
-- `dashboard/frontend-tests/intent/`: `intent-entry-folder-summaries`,
-  `intent-entry-folder-summaries-folders`, `intent-gherkin-groups`,
-  `intent-gherkin-layout`, `intent-code-browse-java`, `intent-purpose-case`,
-  `intent-home-activation`, `intent-project-visit`,
-  `intent-project-visit-selection`, `intent-read-reuse`,
-  `intent-reading-place`, `intent-recent-stories` and
-  `intent-selection-reads` (13 files, 19 legacy cases)
+canonical and plan links safely, and reread no file already read when
+returning to it. Narrowed 2026-11-23 (Terry) at the delivered Slice 9
+boundary: this plan moves 12 of the 22 legacy cases (`source-navigation`,
+`source-navigation-refused`, `intent-entry-folder-summaries`,
+`intent-entry-folder-summaries-folders`, `intent-gherkin-groups`,
+`intent-gherkin-layout`, `intent-code-browse-java`, `intent-purpose-case`,
+one `intent-read-reuse` and one `intent-selection-reads` case). The other 10,
+the `intent-revision-fixtures.ts` copies, the Candidates read-once reader
+proof and the 15-file comparison moved to SEED-413#speed-intent-revision-and-detour-reading
+([plan 778](../778-speed-intent-revision-and-detour-reading/PLAN.md)).
 
 `intent-story-review-return` was deleted at `ffb4ef63d` with the Intent
 header's control that opened Review (Slice 2 of
 `759-read-every-changed-file-in-intent`), so no Review detour from Intent
 remains to prove.
-Replace the test composition in
-`dashboard/frontend-tests/intent/intent-candidates-publication.ts` with the
+Move the Candidates consumers of
+`dashboard/frontend-tests/intent/intent-candidates-publication.ts` onto the
 production Intent body, and retire spent `dashboard/test-support/` modules
 whose last consumer moves (`support/frontendSourceNavigation.ts`,
 `intentEntryFolderSummariesFixtures.ts`, and `putFrontendFolderSources` on
@@ -183,7 +181,7 @@ visibility, which is the real input `usePageVisibility` observes, and stays.
   into a `.tsx` colocated page helper so `tsc --noEmit` passes). Capture the
   15-file / 22-case two-worker legacy baseline with
   `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` in Slice 5 before replacing the
-  first legacy spec, and compare the completed 15-file cohort in Slice 10.
+  first legacy spec; the completed 15-file cohort's comparison moved to plan 778.
 
 ## Local gate
 
@@ -210,8 +208,7 @@ E2E companions when shared contracts or popup/focus boundaries change.
 | Entry and folder summaries aggregate nested test counts and expand or select cleanly | Slice 6 (`intent-entry-folder-summaries*` + retire `intentEntryFolderSummariesFixtures.ts` and `putFrontendFolderSources`). |
 | Gherkin groups select scenarios and outlines while tree and feature panes scroll independently | Slice 7 (`intent-gherkin-groups`, `intent-gherkin-layout`). |
 | Missing Java grammar falls back to readable plain text and Candidates cases open at their exact source line | Slice 8 (required source highlighter read + `intent-code-browse-java`, `intent-purpose-case`). |
-| Project Intent activation, project visits, cached reads, and pending revisions/selections keep the applicable source over the production Intent body | Slice 9 (production Intent body in place of `intent-candidates-publication.ts`'s composition + `intent-home-activation`, `intent-project-visit*`, `intent-read-reuse`, `intent-selection-reads`). |
-| Reading place and recent stories restore the story, nested file and reading position after a detour, and another project starts its reading afresh | Slice 10 (`intent-reading-place`, `intent-recent-stories` + 15-file two-worker before/after comparison). |
+| Candidates consumers render the production Intent body and returning to a read file reads nothing again | Slice 9 (the 9 Candidates consumer files, `intent-cached-reads`). |
 
 ## Story obligations
 
@@ -219,6 +216,11 @@ E2E companions when shared contracts or popup/focus boundaries change.
 Reported: slice 4 — "Rendering `BoardOrIntent` alone (through `mountIntentCiPage`) cannot prove C9, C10 or C12."
 Story clause: "keep the `PageIntentRecovery` copy as an interim until"
 Disposition: owner changed "keep the `PageIntentRecovery` copy as an interim until"
+
+### G2. Observation-bound legacy cases move to the observation story (first reported in slice 9)
+Reported: slice 9 — "Item 1 needs the published observation, so I stopped as the brief says."
+Story clause: "keep their current proof until it lands"
+Disposition: owner changed "move to that story and keep their current proof until it lands"
 
 ## Slices
 
@@ -503,41 +505,31 @@ state, typecheck passed and 634 frontend cases across `intent/`, `review/`,
 `navigation/`, `stories/`, `launches/` and `test-harness/` ran with only
 that spec failing at load 66.
 
-### 9. Project Intent activation, project visits, cached reads and pending selections keep the applicable source
+### 9. Candidates consumers render the production Intent body and returning to a read file reads nothing again
 
 Type: Behavior
-Status: planned
+Status: done
 
-Replace the provider and recovery composition in
-`dashboard/frontend-tests/intent/intent-candidates-publication.ts` with the
-production Intent body through the page entry, and verify its existing Vitest
-consumers (`intent-candidates-read-recovery.spec.ts`,
-`intent-revision-*.spec.ts`, `intent-source-target-recovery-mounted.spec.ts`).
-Move `intent-home-activation` (3), `intent-project-visit` (1),
-`intent-project-visit-selection` (1), `intent-read-reuse` (2), and
-`intent-selection-reads` (2), retaining
-`e2e/intent/intent-project-visit-ci.spec.ts`.
+Narrowed 2026-11-23 (Terry) to its delivered work; the former Slice 9's
+home activation, pinned-failure, Retry and pending-revision proof on the
+`intent-revision-fixtures.ts` copies, and the Candidates read-once reader
+proof, and the former Slice 10 (reading place, recent stories, 15-file
+comparison) moved to SEED-413#speed-intent-revision-and-detour-reading (plan 778). `mountPageIntentReading` in
+`intent-candidates-publication.ts` mounts through `mountIntentCiPage`; its 9
+consumer files pass on it. "candidates wait for the standing GitHub limit
+after their shorter backoff is due" keeps the old composition as
+`mountIntentOnObservationRecovery` (G1/G2 interim). The new
+`intent-cached-reads.spec.ts` holds read-reuse's "reopening a feature and
+returning from Development ask nothing more and show without a reading
+moment" and selection-reads' "selecting another feature never shows the
+previous feature's text in Purpose".
 
-**Proof.** Selecting a story opens its own view while Project Intent reads the
-published source, cached files avoid duplicate reads, pinned-file failures
-name their cause and Retry to the right revision/source, and while a later
-revision or selection is pending Purpose keeps the applicable source.
-`intent-candidates-publication.ts`'s production import count drops from 11
-(at `341f133da`).
-
-### 10. Reading place and recent stories restore the nested file and reading position after a detour
-
-Type: Behavior
-Status: planned
-
-Move `intent-reading-place` (2) and `intent-recent-stories` (1) over the
-production Intent body. Audit remaining `dashboard/test-support/` consumers
-across the 15 files and record the two-worker before/after comparison
-including preparation and E2E runtime.
-
-**Proof.** With a file selected two folders deep in a story's Changes, visiting
-Development and returning restores the selected story, file and scroll
-position without extra reads; choosing a Recent stories row reveals the story
-view and keeps the perspective; switching projects resets the reading place;
-and the 15-file Vitest suite runs faster at two workers than its recorded
-legacy baseline.
+**Proof.** The 9 Candidates consumer files 13/13 (`s9-candidates-proof2.json`);
+`intent-cached-reads` with the remaining legacy cases 4/4 (`s9-cached-proof.json`);
+the 57 trace-selected frontend specs 127/127 (`s9-trace-frontend-proof.json`);
+typecheck (`s9-typecheck4`). `intent-candidates-publication.ts` keeps 11
+production imports: its page-entry path uses 4 type-only ones and the other 7
+belong to the interim composition. After the refactor pass,
+`mountPageIntentReading` returns the `mountIntentCiPage` handle and
+`intent-cached-reads` reuses it: typecheck, the 9 consumer files 13/13
+(`r11-candidates`) and `intent-cached-reads` 2/2 (`r11-cached`).
