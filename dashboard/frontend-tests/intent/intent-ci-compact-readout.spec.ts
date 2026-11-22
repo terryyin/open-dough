@@ -33,10 +33,10 @@ async function openDoneHistory(
     if (shown instanceof Error) throw shown;
     return shown.through(endpoint.revision).please();
   };
-  await openDoneStoryComparison(
-    { review: () => Promise.resolve(publishedCompletion()) },
-    read,
-  );
+  await openDoneStoryComparison({
+    review: () => Promise.resolve(publishedCompletion()),
+    ci: { readDoneWallTimeHistory: read },
+  });
   const history = await doneWallTimeHistory();
   return {
     history,

@@ -2,21 +2,36 @@
 // answered ANSWER: its records are listed and shown on cards, its workspaces
 // and host operations known, nothing is starting, kept or offered, and every
 // session action stays unresolved, so a case that reaches one waits instead
-// of reaching the machine. A case that must not operate a session names its
-// REFUSAL instead, and every session action throws it.
+// of reaching the machine. `machineSessionsRefusing` is the machine of a case
+// that must not operate a session: every session action throws its REFUSAL.
 import type { MachineSessions } from "../../src/agentLaunches.ts";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import { unanswered } from "../support/waitUntil.ts";
 
-export const machineSessionsAnswering = (
-  answer: MachineAnswer,
-  refusal?: string,
-): MachineSessions => {
+export const machineSessionsAnswering = ({
+  answer,
+}: {
+  readonly answer: MachineAnswer;
+}): MachineSessions => sessionsOf(answer, unanswered, () => undefined);
+
+export const machineSessionsRefusing = ({
+  answer,
+  refusal,
+}: {
+  readonly answer: MachineAnswer;
+  readonly refusal: string;
+}): MachineSessions => {
   const refused = () => {
     throw new Error(refusal);
   };
-  const sessionAction = refusal === undefined ? unanswered : refused;
-  const startupAction = refusal === undefined ? () => undefined : refused;
+  return sessionsOf(answer, refused, refused);
+};
+
+const sessionsOf = (
+  answer: MachineAnswer,
+  sessionAction: () => never | Promise<never>,
+  startupAction: () => undefined,
+): MachineSessions => {
   return {
     rereadOffers: () => undefined,
     rereadSessions: () => undefined,

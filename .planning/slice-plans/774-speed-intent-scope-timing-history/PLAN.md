@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-scope-timing-history
 **Source:** [Get fast proof of Intent scope timing history](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history)
+**Source review:** [source-review.md](source-review.md)
 **Split from:** SEED-413#speed-intent-timing-history-on-vitest (plan 772, recoverable at `dc8d21846:.planning/slice-plans/772-speed-intent-timing-history-on-vitest/PLAN.md`, former Slices 4–6) before readiness on 2026-11-22, when its 19 legacy files exceeded one plan. Resplit before readiness on 2026-11-22: collected timing reading and chart marks (former groups C–D) moved to [plan 777](../777-speed-intent-scope-timing-reading/PLAN.md) for SEED-413#speed-intent-scope-timing-reading.
 
 ## Goal and scope
@@ -144,7 +145,7 @@ Failures follow the
 ### 1. Page mounts reset the preferences they change and test entries take one options object
 
 Type: Structure
-Status: planned
+Status: done
 
 Give every page mount (Board, frame, Intent) one shared reset and restore of
 the page preferences it can change, including Board column position beside
@@ -158,6 +159,21 @@ Proof: a paging case leaves the stored Board position restored; Intent
 compare + `board-paging.spec.ts` pass in one `--workers 1` invocation;
 existing wall-time and CI status consumers of the reshaped entries stay
 green; typecheck.
+
+Accepted proof (2026-11-22, load ~18–27): typecheck; 70 consumer spec files /
+160 tests at `--workers 2`; `intent-story-compare-done.spec.ts` +
+`navigation/board-paging.spec.ts` in one `--workers 1` run (7/7); a scratch
+spec run after both in one `--workers 1` run read `open-dough.board.position`
+restored (8/8, not kept). Refactor pass: `openDoneStoryComparison` returns
+`proofReads` (a case answering its own `readComparison` records no comparison
+read); its seven consumers green.
+
+Learnings: `withPagePreferences` (`framePreferences.ts`) is the one page-mount
+reset; a key the case chose first wins, and a case that refused storage
+resets nothing. Board position needs no production seam: a stored `"0"` is read
+before `keptPosition`'s module choice. Follow-up for wrap-up: 33
+`withBoardStorage("0")` calls in about 22 Board specs now repeat the mount
+default (keep `board-kept-position.spec.ts`'s precondition).
 
 ### 2. History builders take reference figures, HeldKind is typed, and wall-time page objects own their journeys
 

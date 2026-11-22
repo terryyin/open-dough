@@ -39,19 +39,23 @@ async function openDoneLifecycle(
   comparison: () => StoryCiComparisonAnswer,
 ) {
   let historyReads = 0;
-  const opened = await openDoneStoryComparison(
-    { review: () => Promise.resolve(publishedCompletion()) },
-    (...[, endpoint]) => {
-      historyReads += 1;
-      return answer(endpoint.revision);
+  let comparisonReads = 0;
+  const opened = await openDoneStoryComparison({
+    review: () => Promise.resolve(publishedCompletion()),
+    ci: {
+      readDoneWallTimeHistory: (...[, endpoint]) => {
+        historyReads += 1;
+        return answer(endpoint.revision);
+      },
+      readComparison: () => {
+        comparisonReads += 1;
+        return Promise.resolve().then(comparison);
+      },
     },
-    comparison,
-  );
+  });
   return {
     historyReads: () => historyReads,
-    proofReads: () =>
-      opened.comparisonReads.comparisons.length +
-      opened.comparisonReads.proofs.length,
+    proofReads: () => comparisonReads + opened.proofReads.length,
   };
 }
 

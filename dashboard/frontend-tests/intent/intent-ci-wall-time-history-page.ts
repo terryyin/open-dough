@@ -19,23 +19,21 @@ export const trunkBuild = {
 
 export async function openTrunkHistory(answer: MeasuredHistory) {
   const historyReads: string[] = [];
-  await mountJudgedRunProof(
-    [],
-    {
+  await mountJudgedRunProof({
+    entries: [],
+    judgment: {
       subject: "Result landed.txt",
       startedAt: trunkBuild.startedAt,
       completedAt: trunkBuild.completedAt,
     },
-    {
-      viewport: { width: 390, height: 844 },
-      ci: {
-        readHistory: (source) => {
-          historyReads.push(source.id);
-          return Promise.resolve(answer);
-        },
+    viewport: { width: 390, height: 844 },
+    ci: {
+      readHistory: (source) => {
+        historyReads.push(source.id);
+        return Promise.resolve(answer);
       },
     },
-  );
+  });
   const ci = intentCiStatus();
   const history = ci.panel.getByRole("region", {
     name: historyName,
