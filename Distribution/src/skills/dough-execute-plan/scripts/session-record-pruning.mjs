@@ -1,9 +1,9 @@
-// Which tracked session record files beside the backlog a record commit
-// removes: only readable records at their own UUID's path whose close time is
-// readable and outside the shared retention window at `now`. Anything else in
-// the directory stays for a person to inspect.
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+// Which session record files beside the backlog a record commit removes: only
+// readable records at their own UUID's path whose close time is readable and
+// outside the shared retention window at `now`. Anything else in the directory
+// stays for a person to inspect. Records are read from the committed snapshot
+// the record commit builds on, so a removal a failed attempt already staged is
+// still selected when the commit is retried.
 import { git } from "./publication-git.mjs";
 import {
   isCurrentSessionRecord,
@@ -14,7 +14,9 @@ import {
 
 async function readableRecord(workspace, backlogPath, path) {
   try {
-    const record = JSON.parse(await readFile(join(workspace, path), "utf8"));
+    const record = JSON.parse(
+      (await git(workspace, "cat-file", "blob", `HEAD:./${path}`)).stdout,
+    );
     const atOwnPath =
       isSessionId(record?.sessionId) &&
       sessionRecordPathBeside(backlogPath, record.sessionId) === path;
@@ -29,11 +31,14 @@ async function readableRecord(workspace, backlogPath, path) {
 
 // The workspace-relative paths of expired session records at `now` (a Date).
 export async function expiredSessionRecordPaths(workspace, backlogPath, now) {
-  const tracked = (
+  const committed = (
     await git(
       workspace,
-      "ls-files",
+      "ls-tree",
+      "-r",
       "-z",
+      "--name-only",
+      "HEAD",
       "--",
       `${sessionRecordDirectoryBeside(backlogPath)}/`,
     )
@@ -41,7 +46,7 @@ export async function expiredSessionRecordPaths(workspace, backlogPath, now) {
     .split("\0")
     .filter(Boolean);
   const expired = [];
-  for (const path of tracked) {
+  for (const path of committed) {
     const record = await readableRecord(workspace, backlogPath, path);
     if (record && !isCurrentSessionRecord(record, now)) expired.push(path);
   }

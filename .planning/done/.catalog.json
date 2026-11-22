@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-418_prune-expired-records-after-a-retried-record-commit.json",
+      "identity": "SEED-418#prune-expired-records-after-a-retried-record-commit",
+      "completedAt": "2026-11-22T11:21:14.783Z",
+      "blob": "11023b42747a55fddac285ffb1b8d8c70c38104f"
+    },
+    {
       "fileName": "SEED-341_split-quiet-completion-journey.json",
       "identity": "SEED-341#split-quiet-completion-journey",
       "completedAt": "2026-11-22T10:32:44.125Z",

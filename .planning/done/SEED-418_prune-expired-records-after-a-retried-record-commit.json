@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-418#prune-expired-records-after-a-retried-record-commit",
+  "title": "Keep the expired-record prune when a record commit is retried",
+  "completedAt": "2026-11-22T11:21:14.783Z",
+  "developer": "Terry Yin",
+  "agent": "Sola-chan",
+  "host": "claude"
+}
