@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-422_build-claude-reply-fixtures-with-makeme.json",
+      "identity": "SEED-422#build-claude-reply-fixtures-with-makeme",
+      "completedAt": "2026-11-22T10:14:24.898Z",
+      "blob": "41f452bdd25691326778cb67ef1749748c241ef2"
+    },
+    {
       "fileName": "SEED-422_correct-stale-token-totals.json",
       "identity": "SEED-422#correct-stale-token-totals",
       "completedAt": "2026-11-22T08:33:32.780Z",
