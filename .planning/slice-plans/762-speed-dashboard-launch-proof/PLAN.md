@@ -241,6 +241,15 @@ start.
 
 See the [plan review](remaining-proof.md#plan-review) for the proof boundaries.
 
+## Execution complete
+
+Product advice: Preserve the clarified startup behavior. The migration
+retires all 29 legacy sources and keeps the specific native, installation
+and cross-service journeys in their composed owners. The existing E2E
+proof anchored those boundaries during the migration. Take the launch
+unit proof follow-up through measured experiments against the 32.04 s
+baseline to reach the separate 7–8 s target. No new product correction.
+
 ## Story obligations
 
 ### G1. Standalone Start session re-enables during startup recovery

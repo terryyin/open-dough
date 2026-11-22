@@ -851,8 +851,8 @@ recovery races, and the existing real native and backend journeys.
 57.57 summed case-seconds. The legacy selection took 46.48 s wall.
 Both used `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
 on AC power with Node 24.21.0 and the same lockfile. Recover the case map,
-the slow-case breakdown, and the retained family leads from the migration
-commit's `.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
+slow-case breakdown, and retained family leads from
+`cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
 
 **First experiments.** Arrange dense layout directly through production
 inputs, then uncouple viewport geometry from choice and command mapping.
