@@ -33,8 +33,10 @@ export default defineConfig({
         contextOptions: { hasTouch: true },
       }),
       commands: {
+        // Bounded well inside the test timeout, so a stuck tap fails with
+        // Playwright's call log naming the stage it waited in.
         tapMountedControl: ({ iframe }, selector: string) =>
-          iframe.locator(selector).tap(),
+          iframe.locator(selector).tap({ timeout: 5000 }),
       },
       instances: [
         { browser: "chromium", exclude: desktopLaunchSpecs },
