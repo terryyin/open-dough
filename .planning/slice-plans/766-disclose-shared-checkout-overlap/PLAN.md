@@ -8,6 +8,8 @@
 
 A developer reviewing a published session from another machine sees when one
 of its comparisons may include another session's work from the same checkout.
+Agents can resume an interrupted Land close from per-session local state and
+follow concise publication and recovery instructions.
 
 Included: the Dashboard's shared-checkout note beside each affected open
 session's landing context, the publisher's per-range
@@ -26,6 +28,8 @@ for them; slice 1's proof keeps them observed.
 | A close without a note publishes an unmarked range; a resumed close keeps the mark | Slice 1 | Same test file, unmarked control and resume case |
 | From another clone, a marked range shows the Done shared-checkout warning; an unmarked one shows none | Slice 2 | E2E published-session review from a machine with no launch here |
 | Two launched sessions open in one checkout, including one that opens after the other launched, each get the note; an isolated worktree launch or a session done before the other opened gets none | Slice 3 | Dashboard backend spec reads each launch's reporting directory |
+| Two closes in one checkout resume independently, preserving the accepted range and sealed record | Slice 4 | Distribution close test reads the published records from trunk |
+| Publication guidance tells the agent what to supply, do, and report | Slice 5 | Walk normal and interrupted closes using the edited references |
 
 ## Current decisions
 
@@ -65,6 +69,7 @@ for them; slice 1's proof keeps them observed.
 | Slice 2 reads a marked record through the Dashboard reader | Scratch esbuild bundle of the real [`publishedSessionRecord.ts`](../../../dashboard/src/publishedSessionRecord.ts) under Node 24.21.0 (`.node-version`), parsing a range with `uncertainty`, at `1b35ca1b0` | Parses successfully and strips the field: older readers stay compatible, and slice 2 must add the optional field to show the warning | None |
 | Slices 2 and 3 extend the overlap rule and published review | `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:backend -- review/published-session-review review/published-session-listing review/done-kept-session-shared-checkout` at `1b35ca1b0` | 4 files, 35 tests passed: Done capture distinguishes shared, isolated and nonoverlapping checkouts with the existing warning; published review and listing green | None |
 | Slice 1 closes through a Dashboard landing context | Delivered proof of SEED-418#attribute-every-workflow-session-record at `3dbaff36c` (`Distribution/tests/skills/dough-land/session-record-publication.test.mjs`, `session-close-resume.test.mjs`) | `publishSessionClose` reads `reference` from the landing context and seals one range `{ suffixBase, sha }` | None |
+| Slice 4 keeps the exact resume inputs | `4d66988a1` and the Land resume tests | The publisher supplies `candidate` and `suffixBase` to `beforePush` for each attempt. Trunk closure already keeps sealed evidence. Reconstructing the base after rebase can include another writer's commit. | Keep state per session in Land, including the sealed record once available. |
 
 ## Slices
 
@@ -110,16 +115,47 @@ and one done before the other opened; read each reporting directory's note.
 with a landing context is open, both reporting directories hold a note whose
 `since` is the overlap's start, kept earliest. An isolated launch, or one done
 before the other opened, gets no note. With slices 1 and 2 this completes the
-story's examples.
+overlap examples.
+
+### 4. Resume Land closes from per-session state
+
+Type: Behavior
+Status: planned
+
+Save the candidate and suffix base before each push, and save the sealed
+record before publishing it. Keep the state local and keyed by session. Resume
+with the session identity and landing context already available to the caller.
+Preserve explicit-input recovery when saved state is absent.
+
+**Proof.** Extend `session-close-resume.test.mjs` through the Land close API.
+Interrupt two closes in one checkout and resume each in a fresh invocation.
+Cover an unanswered push accepted after rebase and a stopped record publish.
+Read both records from trunk and verify exact ranges, unchanged sealed bytes,
+any overlap mark, and no second push of accepted work.
+
+### 5. Shorten publication and recovery instructions
+
+Type: Behavior
+Status: planned
+
+Review the full affected references, including older passages, in
+`publish-reviewed-checkout.md`, `wrap-up-closure-publication.md`, and
+`story-branch-integration.md`. Use direct commands and short branches keyed to
+the returned status or reason. Keep required inputs, next actions, and what
+to report. Let script recovery carry the details it returns. Shorten the Land
+resume paragraph using slice 4 and trim the `observation` row to the actions
+its reasons require.
+
+**Proof.** Walk a Story Branch close, an interrupted Land close, and a Trunk
+observation stop from the revised references. At each stop, follow the
+reported recovery, supply the required inputs, and report the result.
 
 ## Concern evidence
 
-Refinement not needed: three slices, each one outcome and proof loop, ordered
-outside-in from the published record toward the Dashboard's evidence. No
-remaining slice-specific concern was identified in this review. The
-composition of slice 3's note with slice 1's reader rests on the shared note
-module, not on an E2E across a real native launch, which stays a paid
-observation outside this plan.
+Refinement keeps the three overlap proof loops in place and adds one loop for
+Land recovery and one for its guidance. Slice 5 uses the recovery entry point
+from slice 4. Slice 3's note and slice 1's reader share the note module. A real
+native launch remains outside the plan's E2E proof.
 
 ## Local gates
 
