@@ -10,6 +10,7 @@ import {
   attachmentRow,
   launchInputRow,
   userRow,
+  workerToolResultContent,
 } from "./claudeTranscriptRows.mjs";
 
 /** @typedef {import("./claudeTranscriptRows.mjs").ClaudeLaunchInputOptions} ClaudeLaunchInputOptions */
@@ -142,9 +143,7 @@ export class ClaudeTranscriptBuilder {
     return this.withUser({
       uuid: `${agentId}-result`,
       toolUseResult: { agentId },
-      content: [
-        { type: "tool_result", tool_use_id: `${agentId}-tool`, content: "" },
-      ],
+      content: workerToolResultContent(agentId),
     });
   }
 

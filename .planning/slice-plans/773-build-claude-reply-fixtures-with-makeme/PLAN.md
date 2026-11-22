@@ -119,6 +119,11 @@ Opus response, developer-reply turn, and worker-result row; rewrite
 `claudeReplyLaunch.ts` and the three specs to use them. Owns the
 correction outcome directly.
 
+CI repair (run 45009209667): the native-stream guard refused the
+`tool_result` literal in `withWorkerResult`; the content moved to
+`claudeTranscriptRows.mjs`, now a listed shape writer. Local proof had not
+run the Distribution native-harness tests that guard Distribution/tests.
+
 ## Execution complete
 
 Product advice: no change. The reply fixtures now read as builder steps and

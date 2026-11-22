@@ -1,9 +1,9 @@
 // @ts-check
 // Claude transcript JSONL row shapes the transcript builder places in a
-// session: launch input, attachment, user and assistant rows. Launch input,
-// user and assistant rows carry the in-window incidental timestamp a case does
-// not assert. The builder supplies the session base fields and uuid/parentUuid
-// chaining.
+// session: launch input, attachment, user and assistant rows, and the worker
+// tool-result content a user row returns. Launch input, user and assistant
+// rows carry the in-window incidental timestamp a case does not assert. The
+// builder supplies the session base fields and uuid/parentUuid chaining.
 
 import { testDataTimestamp } from "./testDataDefaults.mjs";
 import { claudeReportingContext } from "./claudeReportingContext.mjs";
@@ -147,4 +147,13 @@ export function assistantRow(base, uuid, options, parentUuid) {
     ...(options.effort !== undefined ? { effort: options.effort } : {}),
     message,
   };
+}
+
+/**
+ * User-row content returning worker `agentId`'s Agent tool call result.
+ * @param {string} agentId
+ * @returns {object[]}
+ */
+export function workerToolResultContent(agentId) {
+  return [{ type: "tool_result", tool_use_id: `${agentId}-tool`, content: "" }];
 }
