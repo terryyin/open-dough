@@ -87,3 +87,27 @@ Status: provisional
 Audit remaining `dashboard/test-support/` consumers across the 15 files and
 record the two-worker before/after comparison, including preparation and E2E
 runtime (plan 762 Slice 5's popup journey, 7.6 s), against the baseline above.
+
+## Retrospective corrections from plan 762 (2026-11-23)
+
+Provisional, refined with the slices above.
+
+- **Candidates backoff case data.** `intent-candidates-read-recovery.spec.ts`'s
+  "candidates wait for the standing GitHub limit after their shorter backoff
+  is due" still calls `noteLimit(45)` and `standingLimit()` and builds
+  `ReadProblem`s by hand, though Candidates now record the limit from a
+  limited reply (`IntentCandidatesRecord.tsx`). Add `.reading(kind)` to
+  `makeMe.aRateLimitedIntentReply` (it hard-codes `reading: "locations"`) and
+  build the case's replies with it and `makeMe.anUnreachableAuthenticatedRead`,
+  keeping the case on its G2 interim mount, title and timing assertions.
+  Proof: the spec at `--workers=2` and a break check without `noteLimitUntil`.
+  Fits slice 3.
+- **Popup journey redundancy.** `e2e/navigation/source-navigation.spec.ts`
+  (7.6 s) repeats proof held by `e2e/stories/published-work.spec.ts`
+  (canonical popup at the read revision), `e2e/stories/story-readiness.spec.ts`
+  (plan popup), `e2e/stories/direction-disclosure.spec.ts` (direction markup as
+  text) and the Vitest `source-links`/`source-link-rules` specs. Keep only its
+  unique steps (no external-host request when links show, the external link
+  opens at its recorded address, the story detail stays open after following a
+  link), slimmed in place or folded into `published-work.spec.ts`; expected
+  saving 3–8 s of E2E. Fits slice 5's E2E runtime audit.

@@ -83,6 +83,11 @@ replacing the first legacy file, and move `intent-read-reuse-story`,
 `intent-story-dark-appearance`, `intent-story-summary-title`, and
 `intent-story-views-narrow` (8 files, 16 legacy cases), retaining
 `e2e/intent/intent-story-changes.spec.ts`.
+When `intent-story-ci-cues` moves, give the Intent location header look one
+Vitest home: `intent-gherkin-groups.spec.ts`'s `headerLook` (plan 762 Slice 7)
+repeats the rule in `dashboard/test-support/intentLocationHeaderLook.ts`;
+retire the Playwright copy once its last consumer moves (plan 762
+retrospective, 2026-11-23).
 
 **Proof.** Selected story only follows the current revision, empty or failed
 comparisons name their cause while keeping the tree usable, opened changed

@@ -792,7 +792,9 @@ on 22 November 2026, when its correction found that rendering production
   need no test-side reset. The four observation-driven cases in
   `intent-read-recovery.spec.ts` (transient schedule, hidden then revealed
   page, standing-limit end, the wait shared with published detail) move onto
-  `ConfiguredDashboard`, and the `PageIntentRecovery` copy is deleted. The
+  `ConfiguredDashboard`, and the `PageIntentRecovery` copy and
+  `intent-candidates-publication.ts`'s `mountIntentOnObservationRecovery`
+  composition are deleted. The
   retired legacy source-navigation case's check that showing story links
   reads exactly the in-repository canonical files returns here, on the
   observation's preparation reads, and the retired Gherkin layout case's

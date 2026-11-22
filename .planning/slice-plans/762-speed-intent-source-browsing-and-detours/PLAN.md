@@ -533,3 +533,19 @@ belong to the interim composition. After the refactor pass,
 `mountPageIntentReading` returns the `mountIntentCiPage` handle and
 `intent-cached-reads` reuses it: typecheck, the 9 consumer files 13/13
 (`r11-candidates`) and `intent-cached-reads` 2/2 (`r11-cached`).
+
+## Execution complete
+
+Product advice: Prioritize SEED-413#drive-published-observation-through-page-entry
+ahead of SEED-413#speed-intent-revision-and-detour-reading's reading-place and
+home-activation slices. Every stop in this execution (Slices 3, 4, 5 and 9)
+hit the same wall: the published observation (recovery timers, visibility,
+standing limit, board-driven selection, story-card links) cannot yet be
+rendered through the typed page entry, so four recovery cases, the
+Candidates backoff case and three legacy Playwright cases wait on it, and
+plan 778's slices 2 and 4 likely do too. Retrospective corrections (the
+Candidates backoff case's hand-built limit data and the popup journey's
+redundant steps) are folded into plan 778, the duplicate header-look rule
+into plan 763, and the second observation copy's deletion into the
+observation story's scope. Process review is deferred into wrap-up with the
+Intent Coverage check.
