@@ -21,6 +21,9 @@ rolling median and can distort comparisons long after the task finishes.
 ### Build Claude Code reply fixtures with MakeMe steps
 
 **Identity:** SEED-422#build-claude-reply-fixtures-with-makeme
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/773-build-claude-reply-fixtures-with-makeme/PLAN.md"}
+```
 
 **Goal:** A maintainer writing a Usage test about a Claude Code launch and its
 developer replies describes the transcript through MakeMe builder steps,
@@ -32,5 +35,3 @@ helpers.
 `ClaudeTranscriptBuilder` steps, after reorganizing that builder by
 responsibility below the file-size limit. Its three consuming specs keep their
 cases and expectations. No product change.
-
-**Plan:** [Build Claude Code reply fixtures with MakeMe steps](../slice-plans/773-build-claude-reply-fixtures-with-makeme/PLAN.md)
