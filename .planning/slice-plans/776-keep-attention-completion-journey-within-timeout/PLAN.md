@@ -147,7 +147,7 @@ installed closure, and no installed reporting.
 ### 2. The card follows an unfinished completion and the published column
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the page spec's unfinished and Taken tests pass. Discrimination, then
 reverted: leaving the published revision queued makes the Taken assertion fail.
 

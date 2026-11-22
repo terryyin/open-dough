@@ -37,9 +37,9 @@ The coordinator launched a fresh general-purpose reviewer (agent `72170936-0723-
 | C20 | That story card shows Working. Composed attention completion, page owner. Retention sentence applies. | slice 1 | observed: spec step And it shows Working; slice1-card.log.run.json exit 0 |
 | C21 | That story card shows "Unread report: Completed with attention". Composed attention completion, page owner. Retention sentence applies. | slice 1 | observed: spec step Unread report: Completed with attention; slice1-card.log.run.json exit 0 |
 | C22 | That story card shows Mark as read. Composed attention completion, page owner. Retention sentence applies. | slice 1 | observed: spec step And it shows Mark as read; slice1-card.log.run.json exit 0 |
-| C23 | After the stored completion is unfinished, the open card shows "Unfinished work". Page owner. Retention sentence applies. | slice 2 |  |
-| C24 | When the published backlog moves that story from Backlog to Taken, the message is on the Taken card. Page owner. Retention sentence applies. | slice 2 |  |
-| C25 | Removing the workspace path does not clear that message on the Taken card. Page owner. Retention sentence applies. | slice 2 |  |
+| C23 | After the stored completion is unfinished, the open card shows "Unfinished work". Page owner. Retention sentence applies. | slice 2 | observed: e2e/sessions/agent-completion-attention-page.spec.ts Then the open card shows Unfinished work; slice2-page.log.run.json exit 0 |
+| C24 | When the published backlog moves that story from Backlog to Taken, the message is on the Taken card. Page owner. Retention sentence applies. | slice 2 | observed: same spec Then the message is on the Taken card after show(journey.taken); discrimination log toHaveText failed on the Taken card when the revision stayed queued |
+| C25 | Removing the workspace path does not clear that message on the Taken card. Page owner. Retention sentence applies. | slice 2 | observed: same spec Then removing the workspace path does not clear that message; slice2-page.log.run.json exit 0 |
 | C26 | The final report panel shows the native report. Composed attention completion journey, page owner. Retention sentence applies. | slice 3 |  |
 | C27 | The final report panel does not show the reminder. Page owner. Retention sentence applies. | slice 3 |  |
 | C28 | The final report panel offers no Mark as read. Page owner. Retention sentence applies. | slice 3 |  |
