@@ -11,34 +11,6 @@ scope: Two independently evaluable pilots in Doughnut and Pygardon
 
 Doughnut and Pygardon developers write findings, and project and Open Dough maintainers spend time matching, triaging and revisiting them. The two pilots ask different questions of the same execution history. Each can be judged against current practice in both projects.
 
-<a id="assess-new-retrospective-findings-pilot"></a>
-
-### Assess the first-report trial in ordinary Doughnut and Pygardon work (Codex-owned)
-
-**Identity:** SEED-401#assess-new-retrospective-findings-pilot
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-401#assess-new-retrospective-findings-pilot","dependencies":[{"supplier":{"identity":"SEED-401#pilot-new-retrospective-findings","href":"seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings"},"implementation":"The supplier freezes the first-report trial wording, its baseline and criteria after the historical replay, and lands them on trunk.","rationale":"The assessment's seven-day ordinary-work window and its exposure route start from the frozen wording on trunk. Starting earlier would expose unpinned wording or count executions from before the freeze, and shared direction cannot stand in for that landed wording.","condition":"SEED-401#pilot-new-retrospective-findings has landed its frozen trial wording on the authorized trunk.","state":"satisfied","resolution":{"revision":"a6a868a44f3f9f803d3fa5c6428cde11bf66ed78","path":".planning/seeds/SEED-401-retrospective-finding-pilots.md#pilot-new-retrospective-findings","summary":"Directly satisfied. The frozen trial wording is on trunk at .planning/slice-plans/709-assess-new-retrospective-findings-pilot/trial-wording.md, blob e114ab467d71183873dd4217e4ed52565785d781. Plan 709 carries its baseline, criteria and replay evidence. The supplier's done slice 1 and its 14 observed source-review commitments are recoverable at a6a868a44:.planning/slice-plans/706-pilot-new-retrospective-findings/. The seven-day ordinary-work window starts at this integration. This does not start or authorize the assessment's execution.\nCondition satisfied: SEED-401#pilot-new-retrospective-findings has landed its frozen trial wording on the authorized trunk.\nAccepted integration: 211360795b04901fca1eefd95e1b4256d411024c on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/709-assess-new-retrospective-findings-pilot/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1fa0138bffcea35648ab7536398f81836bc693fea6b3eefbf049fb743b106b76","plan":"f2b2106f11d8f335188c34afddec4b692bf64d6620a04dcaa954d874d7f303f8"}}
-```
-
-**Owner.** The Codex thread that took this story owns execution and cleanup. Its
-SEED-401 first-report heartbeat resumes the assessment and any pilot follow-ups.
-
-**Split from** SEED-401#pilot-new-retrospective-findings, which froze the trial wording after an exploratory historical replay.
-
-**Goal.** Help the reviewer of a Doughnut or Pygardon execution decide which first observations deserve a project or Open Dough maintainer’s attention. A consequential first incident, a reusable practice or evidence bearing on an open question should reach the person who can use it. An uneventful review can finish with its ordinary execution proof. The pilot succeeds if that choice reduces the combined work of writing and triage while preserving the consequential reports.
-
-**Scope**
-
-- Expose the frozen wording, unchanged, to the process reviews of a small, independently selected ordinary-work sample in **each** pilot project under the [shared comparison](#pilot-comparison). Start once that wording is on trunk. Look in execution evidence for what either reviewer missed, including runs with no entry. Charge the effort of checking omissions to the comparison. Keep the verdict scoped to the observed route and exposure. Release and adoption beyond the pilot are separate decisions.
-- The first-report question and its admission rule are the frozen ones. Existing matching, repeat recording, allocation, retention and triage authority keep their existing owners.
-
-**Choice to test.** Today the writer can record any supported one-off or practice. The log compares impact, recurrence, actionability and evidence quality under size pressure. Leaving that choice to triage protects breadth but pays for metadata and review even for entries later pruned. Moving those retention criteria earlier would let a writer weigh relative importance, at the cost of comparing a first observation with the backlog before knowing whether either needs attention. Trial the narrower decision question instead. It borrows exception reporting from operations, where routine readings stay in the operating record and an exception reaches someone who can investigate or change a decision. Here the execution proof is the record and the maintainer is the recipient. A successful practice or an observation that narrows uncertainty can also deserve attention, even when operations ran normally. [Recording rule](../../Distribution/src/skills/dough-execution-retrospective/references/process-finding-recording.md) · [Retention rule](../../Distribution/src/skills/dough-execution-retrospective/references/bounded-process-log.md)
-
-**Decision.** Keep the candidate if consequential first reports survive, fewer routine entries reach triage and combined effort falls. Revise if it loses a serious one-off, a transferable practice or a supported question solely because the remedy or cost is unknown. The strongest risk is a quiet log that hides a missed incident and leaves the next reviewer to reconstruct it. Use the independent sample to check both losses and reconstruction effort. Missing exposure or incomparable effort leaves that part of effectiveness open.
-
 <a id="pilot-repeat-retrospective-findings"></a>
 
 ### Pilot when a repeat adds useful retrospective evidence

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-401_assess-new-retrospective-findings-pilot.json",
+      "identity": "SEED-401#assess-new-retrospective-findings-pilot",
+      "completedAt": "2026-11-22T00:21:17.398Z",
+      "blob": "19f4bdf62ce3b12ee55b1eeb2dcf22343c66bcd1"
+    },
+    {
       "fileName": "SEED-420_choose-story-comparison-in-intent.json",
       "identity": "SEED-420#choose-story-comparison-in-intent",
       "completedAt": "2026-11-21T18:53:27.577Z",
@@ -2784,24 +2790,6 @@
       "identity": "SEED-148#allocate-unused-story-identities",
       "completedAt": "2026-10-23T02:22:58.848Z",
       "blob": "ae1753b7d09624144e17e42dc73eb6132732df53"
-    },
-    {
-      "fileName": "SEED-052_completed-startup-recovery.json",
-      "identity": "SEED-052#completed-startup-recovery",
-      "completedAt": "2026-10-22T23:51:44.794Z",
-      "blob": "121aa9e94681a2d3e7f14daadbc02a6c8423bae3"
-    },
-    {
-      "fileName": "SEED-010_connect-collected-evidence-to-response-observations.json",
-      "identity": "SEED-010#connect-collected-evidence-to-response-observations",
-      "completedAt": "2026-10-22T23:04:43.970Z",
-      "blob": "62549d7722320de941d730a9dcecc86a4858a681"
-    },
-    {
-      "fileName": "SEED-010_retry-selected-slice-status.json",
-      "identity": "SEED-010#retry-selected-slice-status",
-      "completedAt": "2026-10-22T23:03:51.733Z",
-      "blob": "053d325ad2c32fb9fc557c9907729ed8c08e672d"
     }
   ],
   "unreadable": []
