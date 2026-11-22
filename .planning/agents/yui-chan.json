@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-341#keep-attention-completion-journey-within-timeout",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
