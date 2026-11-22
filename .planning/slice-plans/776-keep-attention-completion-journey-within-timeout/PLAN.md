@@ -182,7 +182,7 @@ helper. Run no launch, no installed closure, and no installed reporting.
 ### 5. Mark as done renames and interrupts the native session
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the page spec's Mark-as-done test passes.
 
 Behavior: with the native session observing an in-progress turn, Mark as
@@ -260,5 +260,15 @@ Slices 2–7. Continuing is justified because this one-result slice finished
 its proof, and the second overrun is the handoff crossing the limit after
 that proof. Do not refine the remaining slices again unless a later slice
 fails to finish its own proof.
+
+Slice 5 finished its Mark-as-done proof: the page spec exited 0. The
+clock then paused at 15.6 active minutes, so `storyOverruns` is 3. That
+overrun is the return after the proof. Delivered value is the composed
+page journey through Mark as done. Remaining scope is the Done entry and
+the installed closure comparison. Continuing is justified because this
+slice finished its own proof, and splitting one Mark-as-done action would
+separate assertions of the same result. The story boundary is unchanged.
+Do not refine the remaining slices unless Slice 6 or Slice 7 fails to
+finish its own proof.
 
 ## Story obligations

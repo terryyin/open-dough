@@ -47,12 +47,12 @@ The coordinator launched a fresh general-purpose reviewer (agent `72170936-0723-
 | C30 | Mark as read records `reportRead`. Page owner. Retention sentence applies. | slice 4 | observed: same spec And the stored record's reportRead is that completion receipt; slice4-page.log.run.json exit 0 |
 | C31 | Mark as read leaves `doneAt` unset. Page owner. Retention sentence applies. | slice 4 | observed: same spec And the stored record leaves doneAt unset; slice4-page.log.run.json exit 0 |
 | C32 | Mark as read adds no panel control. Page owner. Retention sentence applies. | slice 4 | observed: same spec And Mark as read adds no panel button, buttonsAddedSince []; slice4-page.log.run.json exit 0 |
-| C33 | Mark as done closes the panel. Page owner. Retention sentence applies. | slice 5 |  |
-| C34 | Mark as done removes the message from the story card. Page owner. Retention sentence applies. | slice 5 |  |
-| C35 | Mark as done sets `doneAt`. Page owner. Retention sentence applies. | slice 5 |  |
-| C36 | Mark as done sets that with no done problem. Page owner. Retention sentence applies. | slice 5 |  |
-| C37 | Mark as done renames the native session. Page owner. Retention sentence applies. | slice 5 |  |
-| C38 | Mark as done interrupts the native session's in-progress turn. Page owner. Retention sentence applies. | slice 5 |  |
+| C33 | Mark as done closes the panel. Page owner. Retention sentence applies. | slice 5 | observed: e2e/sessions/agent-completion-attention-page.spec.ts Then Mark as done closes the panel, panel count 0; slice5-page.log.run.json exit 0 |
+| C34 | Mark as done removes the message from the story card. Page owner. Retention sentence applies. | slice 5 | observed: same spec And Mark as done removes the message from the story card, session-attention-message count 0; slice5-page.log.run.json exit 0 |
+| C35 | Mark as done sets `doneAt`. Page owner. Retention sentence applies. | slice 5 | observed: same spec And Mark as done sets doneAt, doneAt defined; slice5-page.log.run.json exit 0 |
+| C36 | Mark as done sets that with no done problem. Page owner. Retention sentence applies. | slice 5 | observed: same spec And Mark as done sets that with no done problem, doneProblem undefined; slice5-page.log.run.json exit 0 |
+| C37 | Mark as done renames the native session. Page owner. Retention sentence applies. | slice 5 | observed: same spec steeringSince expects thread/name/set to done- plus the stored session name; slice5-page.log.run.json exit 0 |
+| C38 | Mark as done interrupts the native session's in-progress turn. Page owner. Retention sentence applies. | slice 5 | observed: same spec steeringSince expects turn/interrupt of observed-turn; slice5-page.log.run.json exit 0 |
 | C39 | The Done entry shows Done. After Mark as done, page owner. Retention sentence applies. | slice 6 |  |
 | C40 | The Done entry shows the new name. After Mark as done, page owner. Retention sentence applies. | slice 6 |  |
 | C41 | The message stays collapsed under "Unfinished work" until expanded. After Mark as done, page owner. Retention sentence applies. | slice 6 |  |
