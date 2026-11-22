@@ -44,8 +44,8 @@ exclusions; campaign aims, guidance and the final story's group target.
 | C20 | Gherkin panes scroll independently | slice 7 |  |
 | C21 | A missing Java grammar keeps readable plain text | slice 8 |  |
 | C22 | Selecting an Optimization Candidates case opens its exact source and line | slice 8 |  |
-| C23 | Canonical and plan links use the inspected revision | slice 5 |  |
-| C24 | External, unsafe and invalid targets keep their distinct results | slice 5 |  |
+| C23 | Canonical and plan links use the inspected revision | slice 5 | observed: `dashboard/frontend-tests/navigation/source-link-rules.spec.ts` case 1 resolves canonical, `./` and bare plan, `../` and root targets to `…/blob/<inspected revision>/…` with anchors; `source-links.spec.ts` case 1 renders those hrefs with `target=_blank`, `rel=noopener noreferrer` and the snapshot-at-revision note; `e2e/navigation/source-navigation.spec.ts` opens each link in a popup at the exact revision URL (s5-vitest-final, s5-e2e-final) |
+| C24 | External, unsafe and invalid targets keep their distinct results | slice 5 | observed: `source-link-rules.spec.ts` cases 2–3 keep external targets separate and give each refused target (`javascript:`, `data:`, traversal, undecodable, anchor-only, `seeds/..`, `https://`) its reason; `source-links.spec.ts` cases 2–3 render external links with the external note and refused targets as text with "Not offered as a link." and the reason; the E2E journey fetches no external URL, opens the external link at its recorded address, keeps hostile title and direction as text and runs nothing on the refused `javascript:` text (s5-vitest-final, s5-e2e-final) |
 | C25 | When a pinned file read fails, the reader sees the specific cause | slice 9 |  |
 | C26 | After a failed pinned read, the reader can Retry to load the right revision and source | slice 9 |  |
 | C27 | While a later revision is pending, Purpose keeps the applicable source | slice 9 |  |

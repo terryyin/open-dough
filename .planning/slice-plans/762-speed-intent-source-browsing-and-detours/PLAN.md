@@ -163,12 +163,16 @@ visibility, which is the real input `usePageVisibility` observes, and stays.
   as `requestIntentLocationsAt`, spy on `fetch`, or call module-state
   functions such as `noteLimit`, `standingLimit` or
   `clearAllTransientFailures` from a spec or helper.
-- For pinned and refused source links, exercise the pure URL and refusal
-  rules (`resolveRepositoryBaseUrl`, `sourceLink`) directly. Observe rendered
-  canonical and plan links on the production story card fed by typed
-  published replies through the page entry, not by calling
-  `enrichPreparation` to make its props. Keep one representative popup
-  navigation check in `e2e/navigation/source-navigation.spec.ts`.
+- For pinned and refused source links, exercise the pure rule
+  (`resolveSourceLink` and `snapshotRepositoryPath` in
+  `dashboard/src/sourceLink.ts`) directly, and render the links through
+  `WorkSourceLinks`/`RecordedLink`, the smallest rendering owner, with
+  `SourceLink` values production `resolveSourceLink` returns, never by
+  calling `enrichPreparation` or `interpretPublishedBacklog`. Every rendered
+  story-card link comes from the published observation, so the story card
+  itself waits for SEED-413#drive-published-observation-through-page-entry
+  (Terry, 2026-11-22). Keep one representative popup navigation check in
+  `e2e/navigation/source-navigation.spec.ts`.
 - Keep each spec's and colocated helper's production imports to the entry,
   its typed inputs and stylesheets. Record the count before and after for
   every file a slice touches; a longer list means the entry exposes too much
@@ -375,21 +379,36 @@ checks.
 ### 5. Pinned and refused source navigation links use the inspected revision and keep external, unsafe and invalid targets distinct
 
 Type: Behavior
-Status: planned
+Status: done
 
 Capture the 15-file / 22-case legacy Playwright baseline at `--workers=2` with
 `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` before replacing the first legacy
 file. Move `dashboard/frontend-tests/navigation/source-navigation` (1) and
-`source-navigation-refused` (2) to plain Vitest over `sourceLink` /
-`resolveRepositoryBaseUrl` and the production story card fed by typed
-published replies through the page entry. Add a representative popup journey
+`source-navigation-refused` (2) to plain Vitest over `resolveSourceLink`
+and `WorkSourceLinks` rendered with its `SourceLink` values (decision
+above). Add a representative popup journey
 in `e2e/navigation/source-navigation.spec.ts`, check callers, and delete
 `dashboard/test-support/support/frontendSourceNavigation.ts`.
+
+**Baseline.** The 15-file legacy selection ran 22 Playwright `chromium`
+cases in 26.8 s at load 10.0 (`s5-legacy-baseline.json`).
 
 **Proof.** Canonical and plan links point at the inspected revision URL and
 open in a popup in E2E; external links stay separate from snapshot files; and
 unsafe (`javascript:`, traversal) or missing targets render as non-clickable
 text. No case calls `enrichPreparation`.
+
+**Learnings.** Pure rules: `source-link-rules.spec.ts` (4 cases); rendering:
+`source-links.spec.ts` (3 cases, `WorkSourceLinks` with `resolveSourceLink`
+values); popup: `e2e/navigation/source-navigation.spec.ts` (1 journey, 7.6 s, e2e shard 6).
+The two legacy specs and `frontendSourceNavigation.ts` are deleted; the
+legacy check that showing links reads exactly the in-repository canonical
+files moved to SEED-413#drive-published-observation-through-page-entry with
+the observation's preparation reads, and the 11-card injected-markup count
+became hostile heading/direction and unchanged-title checks
+(`slice-5-report.md` maps each assertion). In Vitest browser mode a string
+`toHaveTextContent` did not match text spread across siblings; the frontend
+proof record refuses an existing path.
 
 ### 6. Intent entry and folder summaries aggregate nested test counts and select or expand cleanly
 
