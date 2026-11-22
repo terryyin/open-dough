@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Akiho-chan",
+  "email": "akiho-chan@example.org",
+  "identity": "SEED-341#keep-attention-completion-journey-within-timeout",
+  "mode": "story-branch",
+  "branch": "cursor/keep-the-attention-completion-journey-within-its",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
