@@ -13,6 +13,7 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { attachStoryNotes } from "../../dashboard/test-support/support/attachStoryNotesPage.ts";
 import {
   expectFileFollowUpDialog,
   fileFollowUp,
@@ -32,6 +33,7 @@ import {
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { seedStoryNotes } from "../../dashboard/test-support/support/storyNotesStore.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { storyALaunch } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
@@ -47,6 +49,10 @@ test.describe("published file Follow up", () => {
     origin,
   }) => {
     const completion = origin.revision("completion");
+    const waiting = makeMe.aStoryNote
+      .withText("Follow up the changed file")
+      .please();
+    seedStoryNotes(dashboard.home, { [queuedIdentity]: [waiting] });
     await publishCommittedOrigin(page, {
       repoDir: origin.origin,
       revision: completion,
@@ -81,6 +87,12 @@ test.describe("published file Follow up", () => {
       await expect(
         dialog.getByRole("button", { name: "Attach images", exact: true }),
       ).toBeVisible();
+    });
+
+    await test.step("the file follow-up offers the waiting note and lets me leave it out", async () => {
+      const attach = attachStoryNotes(dialog);
+      await attach.expectChecked(1, 1);
+      await attach.uncheck();
     });
 
     await test.step("Start sends the file context and the typed instruction", async () => {

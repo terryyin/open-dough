@@ -27,7 +27,11 @@ import {
   parts,
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { expect } from "../../dashboard/test-support/dashboardTest.ts";
+import {
+  expect,
+  pausePageClockAt,
+} from "../../dashboard/test-support/dashboardTest.ts";
+import { passCheckPace } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   expectOthersWork,
   expectProtected,
@@ -60,6 +64,8 @@ for (const start of [
   }) => {
     const push = origin.holdPushes();
     dashboard.claudeScenario("held");
+    if (start.workflow === "execution")
+      await pausePageClockAt(page, new Date());
     const { story, takenStory, other } = await openStories(page, origin);
     const answers = await holdAcceptanceAnswers(page);
 
@@ -113,6 +119,15 @@ for (const start of [
       `Starting ${start.workflow} in Claude Code…`,
     );
     await expectProtected(story);
+
+    if (start.workflow === "execution") {
+      await passCheckPace(page);
+      await test.step("the story stays protected as its Take appears", async () => {
+        await expect(takenStory).toContainText("Local startup in progress");
+        await expectProtected(takenStory);
+        await expect(story).toHaveCount(0);
+      });
+    }
 
     // Settled: the session is listed and the card's actions return where
     // the published read places the story.

@@ -7,7 +7,11 @@ import { mountStoryStartup } from "./story-startup-page.ts";
 
 const work = () =>
   makeMe.aWorkEntry
-    .with({ identity: "SEED-B#b", title: "Keep an uncertain start protected" })
+    .with({
+      identity: "SEED-B#b",
+      title: "Keep an uncertain start protected",
+      dependencies: { status: "not-recorded", entries: [], blocking: [] },
+    })
     .please();
 
 test("an accepted start hands focus to its protected story and a later uncertain outcome belongs in recovery", async () => {
@@ -99,7 +103,11 @@ test("an accepted start hands focus to its protected story and a later uncertain
 test("a lost acknowledgment says uncertain beside Start when a subsequent read shows the attempt", async () => {
   const entry = work();
   const other = makeMe.aWorkEntry
-    .with({ identity: "SEED-C#c", title: "An independent story" })
+    .with({
+      identity: "SEED-C#c",
+      title: "An independent story",
+      dependencies: { status: "not-recorded", entries: [], blocking: [] },
+    })
     .please();
   const ui = await mountStoryStartup(entry, { other });
   const explanation =

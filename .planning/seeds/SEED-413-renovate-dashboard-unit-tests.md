@@ -794,6 +794,9 @@ own post-start session and review proof. The final campaign story owns
 frontend runner retirement. Backend launch-boundary and attachment specs
 keep their existing owners.
 
+The [launch unit proof follow-up](#make-launch-proof-orthogonal) owns the
+7–8 second target and the redesign needed to reach it.
+
 **Key examples**
 
 - Opening Start session or a story's Start execution / Start refinement
@@ -809,12 +812,57 @@ keep their existing owners.
 - Dictation that overflows 4,000 characters retains both drafts for edit;
   Cancel or Escape abandons a held transcription and a late grant or reply
   cannot populate the next dialog.
-- While a start runs or an answer is lost or uncertain, Start is disabled,
-  the story or Start session stays protected with reachable recovery, and
-  settling does not steal the keyboard from a task begun meanwhile.
+- While a start is known to be running, the action that started it is disabled
+  and the dashboard shows progress. Recovery controls appear when evidence
+  needs reconciliation. A lost or uncertain story start keeps the story
+  protected and offers Recheck, with Continue only for a retained attempt
+  that can be resumed. Standalone Start session can open again after an
+  uncertain answer while recovery remains available separately. Settlement
+  leaves the keyboard on a task begun meanwhile.
 - Follow up offers Attach when notes wait and Start names the choice; with
   no waiting notes Attach is unavailable and Start still works; a Taken
   card shows notes waiting and offers no Follow up.
+
+<a id="make-launch-proof-orthogonal"></a>
+
+### Get launch unit proof in about eight seconds
+
+**Identity:** SEED-413#make-launch-proof-orthogonal
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#make-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-launch-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof"},"implementation":"All 29 legacy launch files retire with a mapped mounted Vitest baseline and existing composed ownership.","rationale":"The redesign must compare equivalent behavior against the integrated all-Vitest selection. The retained Playwright families exercise different setup costs and make pre-integration timing unsuitable.","condition":"The launch proof migration is integrated with its all-Vitest launch selection and behavior map.","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Outcome.** Dashboard maintainers get the local launch unit selection in
+about 7–8 seconds at two workers, including preparation, with distinct
+behavior and the existing composed journeys still covered.
+
+**Boundary.** Start from the all-Vitest launch selection and the migration's
+coverage map. Each unit case depends only on production code and data that
+can affect its asserted behavior. Arrange preconditions at the smallest
+production owner through typed inputs. Exercise independent dimensions
+separately and keep combinations where they can change the result. The
+case count may change. Preserve genuine browser conditions, capture and
+recovery races, and the existing real native and backend journeys.
+
+**Baseline.** The 72-case mounted selection passed in 32.04 s wall and
+57.57 summed case-seconds. The legacy selection took 46.48 s wall.
+Both used `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
+on AC power with Node 24.21.0 and the same lockfile. Recover the case map,
+the slow-case breakdown, and the retained family leads from the migration
+commit's `.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
+
+**First experiments.** Arrange dense layout directly through production
+inputs, then uncouple viewport geometry from choice and command mapping.
+Test shared model reset at the dialog and retain the launchers' distinct
+handoffs. Feed transcript text into the owner of overflow and editing,
+leaving capture and cleanup at the recording boundary. Cut repeated
+startup presentation setup around typed attempt and notes inputs.
+A single file cannot close the timing gap. Compare each family before and
+after and keep a named equivalent for every retired observation. Recheck
+whole-selection wall time before accepting the result.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 

@@ -51,6 +51,9 @@ launch-boundary and attachment specs keep their owners.
   counts by engine and destination, any E2E cost, and the slowest remaining
   cases. Accept consolidation when the proof still distinguishes the preserved
   risks.
+- The separate [launch unit proof follow-up](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal)
+  owns the 7–8 s target and redesign. The migration supplies its 32.04 s
+  baseline and [test family evidence](remaining-proof.md#reassess-launch-proof-timing).
 
 ## Local gate
 
@@ -82,8 +85,8 @@ and preserved observations.
   retained as `legacy-launches-baseline.jsonl` in the checkout's Git evidence
   directory. No launch spec changed between that baseline and the claim.
 - Story-branch CI observes GitHub Actions `ci.yml` (CI), coordinator
-  `launch-proof-762`, mailbox `/tmp/dough-ci-501/watch-8V0V1S`, PID `98694`,
-  Codex session `82053`, cell `g185:13`.
+  `launch-proof-762`, mailbox `/tmp/dough-ci-501/watch-aOHGbh`, PID `79386`,
+  Codex session `12674`, cell `g226:7`.
 - Preserve existing planning authority. The invocation selected neither
   `--replan` nor `--no-replan`.
 
@@ -217,7 +220,7 @@ recover in the same dialog.
 ### 8. Follow-up notes and responsive start access recover correctly
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `follow-up-attach-notes`, `responsive-session-access`,
 `responsive-session-access-unattached`, and
@@ -241,7 +244,12 @@ See the [plan review](remaining-proof.md#plan-review) for the proof boundaries.
 ## Story obligations
 
 ### G1. Standalone Start session re-enables during startup recovery
-Reported: slice 8 — "Slice 8 preflight found StartSession disables the launcher only while its local attempt is starting. The existing responsive ad hoc recovery and ad hoc timeout E2E cases depend on a separate Startup recovery path, and the timeout case explicitly requires the launcher to re-enable while startup remains uncertain."
-Story clause: "the story or Start session stays protected with reachable recovery"
-Disposition: return
-Commitment: P51
+Reported: slice 8 — "Slice 8 preflight found StartSession disables the launcher only while its local attempt is starting. The existing responsive ad hoc recovery and ad hoc timeout E2E cases depend on a separate Startup recovery path, and the timeout case explicitly requires the launcher to re-enable while startup remains uncertain. The production attempt view exposes a lost acceptance as uncertain, which also releases the launcher."
+Story clause: "start leaves a truthful recovery path"
+Disposition: owner changed "Standalone Start session can open again after an uncertain answer while recovery remains available separately."
+
+
+### G2. Startup recovery appears after a known running start needs reconciliation
+Reported: slice 8 — "Slice 8 found StartupRecovery hides the region when a running attempt has not produced a recovery item and launch evidence read successfully. The existing responsive-session-recovery E2E explicitly checks that a slow start remains protected without a recovery region, through reload and until it settles. The migration can prove Recheck for lost or uncertain starts."
+Story clause: "start leaves a truthful recovery path"
+Disposition: owner changed "Recovery controls appear when evidence needs reconciliation."

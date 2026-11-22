@@ -1,99 +1,108 @@
-import { createElement, useId } from "react";
+import { createElement, useState, type ComponentProps } from "react";
 import { vi } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
-import {
-  useLaunchAttempts,
-  type LaunchAttemptSource,
-} from "../../src/launchAttempts.ts";
+import type { LaunchAttemptSource } from "../../src/launchAttempts.ts";
 import { launchOffers } from "../../src/launchOffers.ts";
-import { ProtectedFrameReason } from "../../src/protectedFrame.ts";
+import { SessionsOnPage } from "../../src/pageSessions.ts";
+import { StoryReviewsOnPage } from "../../src/pageStoryReviews.ts";
 import type { WorkEntry } from "../../src/publishedWork.ts";
+import { StartupAnnouncer } from "../../src/StartupAnnouncer.tsx";
 import { StartupRecovery } from "../../src/StartupRecovery.tsx";
-import { storyCardMarks } from "../../src/storyCardFocus.ts";
-import { StoryCardLaunches } from "../../src/StoryCardLaunches.tsx";
+import { StoryCard } from "../../src/StoryCard.tsx";
+import { StoryNotesOnPage, storyNotesState } from "../../src/storyNotes.ts";
+import type { StoryNotesAnswer } from "../../src/storyNote.ts";
+import type { AttemptEvidence } from "../../src/startupRecoveries.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { noSessions } from "../navigation/board-mount.ts";
+import { inertPageSessions } from "../sessions/inert-page-sessions.ts";
+import { useMountedLaunchAttempts } from "./mounted-launch-attempts.ts";
 
 const project = makeMe.aPublishedSource.openDough.please();
+const work = makeMe.aPublishedWork.of(project).at("a".repeat(40)).please();
 const nothing = () => undefined;
 
-function cardLaunches(
-  entry: WorkEntry,
-  machine: MachineAnswer,
-  attempts: ReturnType<typeof useLaunchAttempts>,
-  statusId: string,
-) {
-  const startup = attempts.storyStartupOf(project.id, entry.identity);
-  return createElement(
-    "article",
-    {
-      ...storyCardMarks(entry.identity),
-      "aria-label": entry.title,
-      className: "story-card",
+function CardSituation({
+  entry,
+  launches,
+  taken,
+}: {
+  entry: WorkEntry;
+  launches: ComponentProps<typeof StoryCard>["launches"];
+  taken: boolean;
+}) {
+  const [selected, select] = useState(false);
+  const [inspected, inspect] = useState(false);
+  return createElement(StoryCard, {
+    work,
+    entry,
+    priority: undefined,
+    showsSliceProgress: taken,
+    launches,
+    doneSessions: [],
+    offersStart: !taken,
+    selected,
+    onSelect: () => {
+      select(!selected);
     },
-    createElement(
-      ProtectedFrameReason,
-      { value: startup === undefined ? undefined : statusId },
-      createElement(StoryCardLaunches, {
-        sourceId: project.id,
-        entry,
-        launches: {
-          ...launchOffers(machine, true),
-          ...attempts,
-          launched: machine.records,
-          creations: machine.creations,
-          rereadOffers: nothing,
-          keptStartOf: nothing,
-          runningStartOf: nothing,
-        },
-        offersStart: true,
-        dependencyProblem: undefined,
-        statusId,
-      }),
-    ),
-  );
+    inspected,
+    onInspect: () => {
+      inspect(!inspected);
+    },
+    onOpenRoster: nothing,
+  });
 }
+
+type ReadState = {
+  machine: MachineAnswer;
+  answeredAsk: number;
+  evidence: AttemptEvidence;
+};
 
 function StartupOnPage({
   entry,
   other,
-  machine,
+  read,
   source,
-  answeredAsk,
+  reread,
+  taken,
 }: {
   entry: WorkEntry;
   other: WorkEntry | undefined;
-  machine: MachineAnswer;
+  read: ReadState;
   source: LaunchAttemptSource;
-  answeredAsk: number;
+  reread: () => void;
+  taken: boolean;
 }) {
-  const statusId = useId();
-  const attempts = useLaunchAttempts({
-    source,
-    observed: machine.attempts,
-    resolved: [],
-    readHistory: nothing,
-    keptStarts: machine.keptStarts,
-    hostOperations: machine.hostOperations,
-    attemptEvidence: "read",
-    answeredAsk,
-    asksSoFar: () => answeredAsk,
-    records: machine.records,
-    reads: answeredAsk,
-    reread: nothing,
-    published: { shown: undefined, reading: true, readAfresh: nothing },
+  const { machine, answeredAsk, evidence } = read;
+  const attempts = useMountedLaunchAttempts(machine, source, answeredAsk, {
+    evidence,
+    reread,
   });
+  const launches = {
+    ...noSessions,
+    ...launchOffers(machine, true),
+    ...attempts,
+    records: machine.records,
+    launched: machine.records,
+    creations: machine.creations,
+    workspaces: machine.workspaces,
+  };
   return createElement(
     "main",
     null,
-    cardLaunches(entry, machine, attempts, statusId),
+    createElement(CardSituation, { entry, launches, taken }),
     other === undefined
       ? null
-      : cardLaunches(other, machine, attempts, `${statusId}-other`),
+      : createElement(CardSituation, { entry: other, launches, taken: false }),
     createElement(StartupRecovery, {
       sourceId: project.id,
       recoveries: attempts,
+    }),
+    createElement(StartupAnnouncer, {
+      sourceId: project.id,
+      startups: attempts.storyStartupsOf(project.id),
     }),
   );
 }
@@ -103,36 +112,73 @@ export async function mountStoryStartup(
   {
     other,
     machine = makeMe.aMachineAnswer.please(),
-  }: { other?: WorkEntry; machine?: MachineAnswer } = {},
+    evidence = "read",
+    taken = false,
+    notes = { kind: "notes", notes: {} },
+  }: {
+    other?: WorkEntry;
+    machine?: MachineAnswer;
+    evidence?: AttemptEvidence;
+    taken?: boolean;
+    notes?: StoryNotesAnswer;
+  } = {},
 ) {
   const accept = vi.fn<LaunchAttemptSource["accept"]>();
-  const waitForChange = vi
-    .fn<LaunchAttemptSource["waitForChange"]>()
-    .mockResolvedValue(undefined);
-  const source: LaunchAttemptSource = { accept, waitForChange };
-  const view = (read: MachineAnswer, answeredAsk: number) =>
-    createElement(StartupOnPage, {
-      entry,
-      other,
-      machine: read,
-      source,
-      answeredAsk,
+  const reread = vi.fn();
+  const source = {
+    accept,
+    waitForChange: vi
+      .fn<LaunchAttemptSource["waitForChange"]>()
+      .mockResolvedValue(undefined),
+  };
+  const notesOnPage = new Map([
+    [project.id, storyNotesState(() => Promise.resolve(notes))],
+  ]);
+  const view = (read: ReadState) =>
+    createElement(StoryReviewsOnPage, {
+      value: nothing,
+      children: createElement(SessionsOnPage, {
+        value: inertPageSessions,
+        children: createElement(StoryNotesOnPage, {
+          value: notesOnPage,
+          children: createElement(StartupOnPage, {
+            entry,
+            other,
+            read,
+            source,
+            reread,
+            taken,
+          }),
+        }),
+      }),
     });
-  const { rerender } = await mountComponent(view(machine, 0), {
+  let state: ReadState = { machine, answeredAsk: 0, evidence };
+  const { rerender } = await mountComponent(view(state), {
     viewport: { width: 1440, height: 900 },
   });
-  let answered = 0;
   const card = page.getByRole("article", { name: entry.title, exact: true });
   const actions = card.getByRole("group", { name: "Launch actions" });
   return {
     accept,
+    reread,
     card,
     actions,
     execution: actions.getByRole("button", { name: "Start execution" }),
     refinement: actions.getByRole("button", { name: "Start refinement" }),
     recovery: page.getByRole("region", { name: "Startup recovery" }),
+    announcement: page.getByRole("log", { name: "Startup announcements" }),
     read: (next: MachineAnswer) => {
-      rerender(view(next, ++answered));
+      state = {
+        ...state,
+        machine: next,
+        answeredAsk: state.answeredAsk + 1,
+        evidence: "read",
+      };
+      rerender(view(state));
+    },
+    readDoesNotAnswer: () => {
+      state = { ...state, evidence: "unanswered" };
+      rerender(view(state));
     },
   };
 }

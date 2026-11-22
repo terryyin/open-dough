@@ -15,6 +15,7 @@ const story = () =>
     .with({
       identity: "SEED-B#b",
       title: "Read launch results",
+      dependencies: { status: "not-recorded", entries: [], blocking: [] },
       preparation: {
         status: "recorded",
         refinement: "refined",

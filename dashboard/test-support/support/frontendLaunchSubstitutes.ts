@@ -2,8 +2,7 @@
 // of dashboardServer and the native hosts: the acceptance a dialog's Start
 // asks for (../../server/launchBoundary.ts) and image uploads. Every acceptance
 // the page asked for stays inspectable. An acceptance is refused unless the case
-// answers it, and nothing is ever launched. An acceptance's answer
-// may be lost on the way to the page; the page's waits for an accepted
+// answers it, and nothing is ever launched. The page's waits for an accepted
 // attempt's change stay waiting until the case tells them it changed, and one
 // begun after the case told it is answered at once, as is one for an attempt
 // the machine's read (./frontendServiceSubstitutes.ts) observes settled or
@@ -23,8 +22,6 @@ import { frontendServicesOf } from "./frontendServiceSubstitutes.ts";
 export type FrontendLaunchBoundary = {
   // Every launch the page asked the boundary to accept, in order.
   readonly acceptances: readonly AgentLaunchRequest[];
-  // The next acceptance is answered, but the answer never reaches the page.
-  readonly loseNextAcceptance: () => void;
   // Answers every wait the page has begun for an accepted attempt's change,
   // or else the next it begins: it changed, so the page reads the machine's
   // sessions again.
@@ -44,7 +41,6 @@ export async function installFrontendLaunchBoundary(
   } = {},
 ): Promise<FrontendLaunchBoundary> {
   const acceptances: AgentLaunchRequest[] = [];
-  let loseNext = false;
   const changeWaits: Route[] = [];
   let changedUntold = false;
   // A wait still unanswered when the case ends is cut off.
@@ -57,15 +53,9 @@ export async function installFrontendLaunchBoundary(
     async (route) => {
       const request = route.request().postDataJSON() as AgentLaunchRequest;
       acceptances.push(request);
-      const lost = loseNext;
-      loseNext = false;
       if (accept === undefined)
         await fulfillJson(route, { error: refusal }, 422);
-      else {
-        const answer = accept(request);
-        if (lost) await route.abort("connectionreset");
-        else await fulfillJson(route, answer);
-      }
+      else await fulfillJson(route, accept(request));
     },
   );
   await page.route(
@@ -87,9 +77,6 @@ export async function installFrontendLaunchBoundary(
   );
   return {
     acceptances,
-    loseNextAcceptance: () => {
-      loseNext = true;
-    },
     tellChanged: async () => {
       const waits = changeWaits.splice(0);
       changedUntold = waits.length === 0;
