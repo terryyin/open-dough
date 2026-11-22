@@ -776,76 +776,65 @@ Slice 2 boundary alongside
   [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
   case-count, spent-support, and coverage checks.
 
-<a id="make-launch-proof-orthogonal"></a>
+<a id="finish-launch-proof-orthogonal"></a>
 
 ### Get launch unit proof in about eight seconds
 
-**Identity:** SEED-413#make-launch-proof-orthogonal
+**Identity:** SEED-413#finish-launch-proof-orthogonal
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#make-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-launch-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof"},"implementation":"All 29 legacy launch files retire with a mapped mounted Vitest baseline and existing composed ownership.","rationale":"The redesign must compare equivalent behavior against the integrated all-Vitest selection. The retained Playwright families exercise different setup costs and make pre-integration timing unsuitable.","condition":"The launch proof migration is integrated with its all-Vitest launch selection and behavior map.","state":"satisfied","resolution":{"revision":"9099d16787c4d0961075c841d3da2987712f508a","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof","summary":"The integrated migration retires all 29 legacy launch specs and maps their 81 cases to 72 mounted Vitest cases and retained composed and backend proof. The plan and remaining-proof.md preserve the test map, existing owners, and 32.04 s two-worker baseline including preparation for equivalent timing comparisons.\nCondition satisfied: The launch proof migration is integrated with its all-Vitest launch selection and behavior map.\nAccepted integration: bdabc77c85894ae2d23f7a58ab55013e54e98bb4 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"identity":"SEED-413#finish-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#make-launch-proof-orthogonal","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal"},"implementation":"Slices 1–6 reshape the launch dialog, dictation, story card status and startup recovery specs, narrow TranscriptReview and StartupRecovery in production, and change shared launch page helpers.","rationale":"This story reshapes the same launch page helpers (story-card-launch-page.ts, story-startup-page.ts) and measures the whole launch selection; starting from the unintegrated branch would conflict on those helpers and measure against a selection trunk does not hold. Reconciliation cannot help because the supplier's changes are not yet on trunk.","condition":"SEED-413#make-launch-proof-orthogonal is integrated on trunk with its reshaped launch selection.","state":"waiting"}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/768-make-launch-proof-orthogonal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5ec2c8491b1bcf5b75f8d38314281f307e5407aaf6070ed9febc82be1c167de7","plan":"e61e6a1fd95e94235a330f8a240137265f1e96055cad28064a0cb73af43d8f37"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/771-finish-launch-proof-orthogonal/PLAN.md"}
 ```
 
 - **Goal.** Dashboard maintainers get the local launch unit selection in
   about 7–8 seconds at two workers, including preparation, so launch
   changes get feedback within one short wait. Distinct launch behavior and
-  the existing composed journeys stay covered. This story contributes the
+  the existing composed journeys stay covered. This story completes the
   launch family's share of the campaign's one-minute frontend target.
-- **Scope.** Own the 23 Vitest specs and their page helpers under
-  `dashboard/frontend-tests/launches/`. Each case depends only on production
-  code and data that can affect its asserted behavior, arranged at the
-  smallest production owner through typed inputs. Exercise independent
-  dimensions separately and keep combinations where they can change the
-  result. Production code may narrow an owner so it stands alone in
-  production; tests never copy a production composition. Case and file
-  counts may change. Before removing an observation, name the retained
-  case that would fail for the same regression. Preserve genuine browser
-  conditions (viewport, zoom, touch, pointer, native input and focus),
-  capture and recovery races, and the existing native, install and backend
-  journeys at their current owners. Add no E2E case; any composed
-  observation added to an existing case counts its added time. A change to
-  the shared frontend runner configuration is allowed only with whole
-  frontend group proof. Apply the
+- **Scope.** Own `follow-up-note-handoff`, `ad-hoc-start-session`,
+  `ad-hoc-start-session-answer`, `responsive-unattached-startup`,
+  `ad-hoc-creation-entry`, `launch-attachments` and
+  `launch-record-details` under `dashboard/frontend-tests/launches/`, the
+  launch page helpers that hand-build launches from production
+  `launchOffers` (`story-card-launch-page.ts`, `story-startup-page.ts`,
+  `follow-up-note-handoff.spec.ts` and the unattached startup spec), and
+  the whole launch selection's timing. Each case is arranged at the
+  smallest production owner through typed inputs; production code may
+  narrow an owner so it stands alone in production; tests never copy a
+  production composition. Before removing an observation, name the
+  retained case that would fail for the same regression. Preserve genuine
+  browser conditions, capture and recovery races, and the existing native,
+  install and backend journeys at their current owners. Add no E2E case.
+  A change to the shared frontend runner configuration is allowed only
+  with whole frontend group proof; both desktop-pointer files still need
+  the `chromium-desktop` instance. Apply the
   [shared acceptance](#acceptance-shared-by-the-eight-stories) mapping,
   spent-support and timing checks. If the remaining time cannot reach the
   target without losing a distinct observation, stop with the measured
   remainder and its cause for the maintainer to decide.
 - **Key examples.**
-  - Dense layout: a refinement or Start session dialog with every option
-    selected is arranged directly through production inputs at each
-    viewport where layout differs. One case proves option-to-command
-    mapping and one proves native tab order, instead of every geometry case
-    reselecting options and checking command text.
-  - Shared reset: selecting model and effort and then dismissing resets the
-    shared dialog model, proved once at the dialog. Each launcher keeps only
-    its own launch and focus handoff, and host-specific effort rules are
-    checked without reopening three launchers.
-  - Transcript editing: an over-limit or exactly 4,000-character transcript
-    is fed as text to the owner of overflow, editing and discard. Native
-    recording stays only for a held reply, late permission, track loss and
-    capture failures.
-  - Startup: presentation receives its typed status, recovery its typed
-    attempt and read, and note attachment its typed notes. One
-    representative keyboard launch-to-focus journey remains mounted.
+  - Note attachment receives its typed notes, with distinct waiting, no
+    waiting and unreadable states; one composed Start session Follow-up
+    request remains.
+  - Unattached startup receives its typed answer.
+  - Story card launches mount without a hand-built copy of the machine
+    sessions composition.
   - Measurement: the whole selection run with
     `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
     reports about 7–8 s wall including preparation, compared under similar
     machine load with a paired run of the starting selection.
-- **Baseline.** The integrated 72-case selection passed in 32.04 s wall and
-  57.57 summed case-seconds at load about 4; the legacy selection took
-  46.48 s. Both ran on AC power with Node 24.21.0 and the same lockfile.
-  Recover the case map, slow-case breakdown and family leads from
-  `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
-  On 22 November 2026 at `d33ded4f9`, at load about 14, the same command
-  took 36.7 s wall (Vitest 33.7 s) and 51.3 summed case-seconds in 23
-  files. A one-file browser run took 3.9 s for 1.45 s of cases, so about
-  2.5 s is fixed startup. The eight-second target leaves roughly 11
-  case-seconds across two workers, and per-file import and mount cost
-  (about 11 s above half the summed case time) counts against it.
-  `frontend.vitest.config.mts` isolates each file and starts a second
-  Chromium instance for the two desktop-pointer launch files.
+- **Baseline and learning.** Split from
+  SEED-413#make-launch-proof-orthogonal on 22 November 2026; its plan
+  `265d6750b:.planning/slice-plans/768-make-launch-proof-orthogonal/PLAN.md`
+  records each reshaped family's mapping and paired timing. Its Slice 7
+  return found the seven files at 1,054 lines and no typed owner for the
+  unattached startup answer. The smallest deliverable first part is note
+  attachment: an `AttachStoryNotesChoice` owner with a required `answer`
+  that the reading wrapper renders. Source map:
+  `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`
+  (rows for `follow-up-note-handoff` and `responsive-unattached-startup`).
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 

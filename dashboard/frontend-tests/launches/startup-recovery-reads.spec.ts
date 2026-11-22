@@ -98,17 +98,6 @@ test("a lost acceptance stays static through an unsuccessful recheck and progres
   const independent = page.getByRole("article", { name: other.title });
   for (const action of independent.getByRole("button").all())
     await expect.element(action).toBeEnabled();
-  await expect.element(ui.recovery.getByText(lost)).toBeVisible();
-  await expect
-    .element(
-      ui.recovery.getByText(
-        /The local dashboard server could not be reached, so the launch may or may not have been accepted and its session may or may not have started\. Check claude agents for it\./,
-      ),
-    )
-    .toBeVisible();
-  await expect
-    .element(ui.recovery.getByRole("button", { name: /^Continue/ }))
-    .not.toBeInTheDocument();
 
   const recheck = ui.recovery.getByRole("button", {
     name: `Recheck ${story.title} (${story.identity})`,
@@ -134,6 +123,13 @@ test("a lost acceptance stays static through an unsuccessful recheck and progres
     .running(true)
     .please();
   ui.read(makeMe.aMachineAnswer.answeringAttempts(accepted).please());
+  await expect
+    .element(
+      ui.card.getByText(
+        /^Launch uncertain: The local dashboard server could not be reached, so the launch may or may not have been accepted/,
+      ),
+    )
+    .toBeVisible();
   await expect
     .element(ui.card.getByText(/^Local startup in progress/))
     .toBeVisible();

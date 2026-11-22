@@ -16,7 +16,7 @@ test("a held Codex read keeps Start available and a failed read offers retry wit
     .fn<ReadLaunchHostOptions>()
     .mockReturnValueOnce(first.answer)
     .mockResolvedValue(codexCatalog());
-  const { form, start, close, reopen } = await mountCatalogDialog({
+  const { form } = await mountCatalogDialog({
     readOptions: read,
     initialHost: "codex",
   });
@@ -46,21 +46,6 @@ test("a held Codex read keeps Start available and a failed read offers retry wit
   await expect
     .poll(() => optionLabels(form.model))
     .toEqual(["Use Codex setting", "Native Sol", "Native Luna"]);
-  await form.model.selectOptions("native-sol");
-  await form.effort.selectOptions("ultra");
-  await form.host.selectOptions("claude");
-  await expect.element(form.model).toHaveValue("");
-  await form.host.selectOptions("codex");
-  await expect.element(form.model).toHaveValue("");
-  await form.model.selectOptions("native-sol");
-  await form.cancel.click();
-  await expect.poll(() => close.mock.calls).toEqual([[false]]);
-  reopen("codex");
-  await expect.element(form.model).toHaveValue("");
-  await expect.element(form.effort).toHaveValue("");
-  await userEvent.keyboard("{Escape}");
-  await expect.poll(() => close.mock.calls).toEqual([[false], [false]]);
-  expect(start).not.toHaveBeenCalled();
 });
 
 test("switching host aborts the old catalog and a late Codex answer leaves Claude choices intact", async () => {

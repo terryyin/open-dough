@@ -22,7 +22,8 @@ import {
 } from "./LaunchProblemAnswer.tsx";
 import { reconciliationCause } from "./StartupStatus.tsx";
 import type {
-  StartupRecoveries,
+  AttemptEvidence,
+  RecoveryActions,
   StartupRecoveryItem,
 } from "./startupRecoveries.ts";
 import "./agent-launch.css";
@@ -190,15 +191,15 @@ function RecoveryEntry({
 }
 
 export function StartupRecovery({
-  sourceId,
-  recoveries,
+  items,
+  evidence,
+  actions,
 }: {
-  readonly sourceId: string;
-  readonly recoveries: StartupRecoveries;
+  readonly items: readonly StartupRecoveryItem[];
+  readonly evidence: AttemptEvidence;
+  readonly actions: RecoveryActions;
 }) {
   const headingId = useId();
-  const items = recoveries.recoveriesOf(sourceId);
-  const evidence = recoveries.attemptEvidence;
   if (items.length === 0 && (evidence === "read" || evidence === "unread"))
     return null;
   return (
@@ -215,7 +216,7 @@ export function StartupRecovery({
             <button
               type="button"
               onClick={() => {
-                recoveries.recheckStartups();
+                actions.recheckStartups();
               }}
             >
               Recheck launch evidence
@@ -235,9 +236,9 @@ export function StartupRecovery({
         <RecoveryEntry
           key={item.key}
           item={item}
-          onContinue={recoveries.continueStartup}
-          onUpdateWorktree={recoveries.updateWorktreeAndRetry}
-          onRecheck={recoveries.recheckStartups}
+          onContinue={actions.continueStartup}
+          onUpdateWorktree={actions.updateWorktreeAndRetry}
+          onRecheck={actions.recheckStartups}
         />
       ))}
     </section>

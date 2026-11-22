@@ -87,3 +87,36 @@ retirement story still owns Intent and navigation under the interim runner.
 Refinement should target the FE/E2E/Backend homes above rather than the emptied
 interim folder, and settle overlap with any remaining cheapening of those
 homes before work starts.
+
+<a id="split-quiet-completion-journey"></a>
+
+### Keep the quiet completion journey within its timeout under load
+
+**Identity:** SEED-341#split-quiet-completion-journey
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Goal.** Developers get the same `agent-completion-quiet` result locally
+  and in CI whatever the machine load, so a red run names a real
+  regression. Each case finishes inside the default 30 s test timeout.
+- **Scope.** Split the journey in `e2e/sessions/agent-completion-quiet.spec.ts`
+  (Land, Story Branch Wrap Up and Trunk Wrap Up): prove the installed
+  closure and quiet reporting without the browser, and prove the page
+  phase from a composed, already retired record. Keep the default timeout
+  and every current observation, named to its new owner. Decide whether
+  the parked observer-stop repair beside the diagnosis record is kept,
+  with one green run that reaches its path. Add no timeout override.
+- **Key examples.**
+  - At load about 50 on 16 cores, each case passes inside 30 s.
+  - The page still shows no Startup recovery and no attention for a quiet
+    completion.
+- **Baseline.** On 22 November 2026 at `840788d00` each case did 13–21 s of
+  serial work (prepared origin, dashboard server, browser, a real launch,
+  a real installed closure, three reporting runs, a page phase). Every
+  phase ran 2–3.5 times slower under load; the spec failed 0/3 alone at
+  load 34 → 49 and passed 9/9 at load 22–38. The developer chose the
+  journey split over moving fixture cost or overriding the timeout.
+  Diagnosis record and parked patch:
+  `3a1ba5ca6:.planning/slice-plans/768-make-launch-proof-orthogonal/diagnosis-agent-completion-quiet-load-timeout.md`
+  and `diagnosis-agent-completion-quiet-observer-stop.patch` beside it.

@@ -2,12 +2,8 @@ import { createElement, useState } from "react";
 import { expect, onTestFinished, vi } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import {
-  defaultSessionPolicy,
-  unattachedPolicyOf,
-} from "../../src/agentLaunch.ts";
+import { unattachedPolicyOf } from "../../src/agentLaunch.ts";
 import { LaunchDialog } from "../../src/LaunchDialog.tsx";
-import { storySession } from "../../src/LaunchSessionPolicy.tsx";
 import type { LaunchDialogProps } from "../../src/LaunchDialogProps.ts";
 import type { InstructionTranscriptionSource } from "../../src/instructionTranscriptionSource.ts";
 import { unattachedSession } from "../../src/UnattachedSessionPolicy.tsx";
@@ -46,9 +42,7 @@ export function audioInput() {
   return { getUserMedia, format, tracks, openStream };
 }
 
-export async function mountInstructionVoice(
-  kind: "story" | "session" = "session",
-) {
+export async function mountInstructionVoice() {
   const transcribe = vi
     .fn<InstructionTranscriptionSource["transcribe"]>()
     .mockResolvedValue({ text: "Do not implement yet" });
@@ -59,20 +53,11 @@ export async function mountInstructionVoice(
   const send = vi.fn<LaunchDialogProps["onStart"]>().mockResolvedValue(true);
   const project = makeMe.aPublishedSource.openDough.please();
   const fieldLabel = "Instruction (optional)";
-  const session =
-    kind === "story"
-      ? storySession({
-          policy: defaultSessionPolicy,
-          onPolicy: vi.fn(),
-          offer: "offered",
-          kept: false,
-          workflowName: "execution",
-        })
-      : unattachedSession({
-          policy: unattachedPolicyOf({}),
-          onPolicy: vi.fn(),
-          offer: "offered",
-        });
+  const session = unattachedSession({
+    policy: unattachedPolicyOf({}),
+    onPolicy: vi.fn(),
+    offer: "offered",
+  });
   const hostOptions = makeMe.aLaunchHostOptions.with({ models: [] }).please();
   const readOptions = () => Promise.resolve(hostOptions);
   function Launcher() {
@@ -136,10 +121,6 @@ export async function mountInstructionVoice(
     name: "Add transcript",
     exact: true,
   });
-  const discard = inDialog.getByRole("button", {
-    name: "Discard transcript",
-    exact: true,
-  });
   const problem = inDialog.getByRole("alert");
   const recordClip = async () => {
     await begin();
@@ -164,7 +145,6 @@ export async function mountInstructionVoice(
     begin,
     candidate,
     add,
-    discard,
     problem,
     recordClip,
     ready,

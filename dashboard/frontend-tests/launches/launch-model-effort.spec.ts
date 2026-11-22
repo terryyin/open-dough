@@ -70,11 +70,13 @@ test("Claude names its default and relative effort costs, and Start submits the 
   expect(read).not.toHaveBeenCalled();
 });
 
-test("changing hosts resets effort to each host's default, and Start sends the chosen Codex model and effort", async () => {
+test("changing hosts resets model and effort to each host's default, and Start sends the chosen Codex model and effort", async () => {
   const read = vi.fn<ReadLaunchHostOptions>().mockResolvedValue(codexCatalog());
   const { form, start } = await mountCatalogDialog({ readOptions: read });
+  await form.model.selectOptions("fable");
   await form.effort.selectOptions("low");
   await form.host.selectOptions("codex");
+  await expect.element(form.model).toHaveValue("");
   await expect.element(form.effort).toHaveValue("");
   await expect
     .poll(
@@ -99,9 +101,48 @@ test("changing hosts resets effort to each host's default, and Start sends the c
   ]);
 });
 
-async function reopenLaunches(dismiss: (cancel: Locator) => Promise<void>) {
-  const viewport = { width: 1000, height: 720 };
-  const story = await mountStoryLaunches(work(), { viewport });
+test("dismissing with Cancel or Escape resets the chosen model and effort when the dialog opens again", async () => {
+  const read = vi.fn<ReadLaunchHostOptions>();
+  const { form, close, reopen } = await mountCatalogDialog({
+    readOptions: read,
+  });
+  const dismissals = [
+    () => form.cancel.click(),
+    () => userEvent.keyboard("{Escape}"),
+  ];
+  for (const [dismissed, dismiss] of dismissals.entries()) {
+    await form.model.selectOptions("fable");
+    await form.effort.selectOptions("max");
+    await dismiss();
+    await expect.poll(() => close).toHaveBeenCalledTimes(dismissed + 1);
+    reopen("claude");
+    await expect.element(form.model).toHaveValue("");
+    await expect.element(form.effort).toHaveValue("medium");
+  }
+});
+
+async function dismissesAndReturnsFocus(
+  action: Locator,
+  dismiss: (cancel: Locator) => Promise<void>,
+) {
+  const form = launchDialog();
+  await action.click();
+  await expect.element(form.dialog).toBeInTheDocument();
+  await dismiss(form.cancel);
+  await expect.element(form.dialog).not.toBeInTheDocument();
+  await expect.element(action).toHaveFocus();
+}
+
+test("story card execution and refinement close their dialog on dismissal and return focus without starting", async () => {
+  const story = await mountStoryLaunches(work());
+  await dismissesAndReturnsFocus(story.execution, () =>
+    userEvent.keyboard("{Escape}"),
+  );
+  await dismissesAndReturnsFocus(story.refinement, (cancel) => cancel.click());
+  expect(story.start).not.toHaveBeenCalled();
+});
+
+test("Start session closes its dialog on dismissal and returns focus without starting", async () => {
   const project = makeMe.aPublishedSource.openDough.please();
   const launches = adHocLaunches();
   await mountComponent(
@@ -111,37 +152,11 @@ async function reopenLaunches(dismiss: (cancel: Locator) => Promise<void>) {
       launches,
       presentTerminal: vi.fn(),
     }),
-    { viewport },
   );
-  const form = launchDialog();
-  for (const action of [
-    story.execution,
-    story.refinement,
-    startSession(project.label),
-  ]) {
-    await action.click();
-    await expect.element(form.effort).toHaveValue("medium");
-    await form.model.selectOptions("fable");
-    await form.effort.selectOptions("max");
-    await dismiss(form.cancel);
-    await expect.element(form.dialog).not.toBeInTheDocument();
-    await expect.element(action).toHaveFocus();
-    await action.click();
-    await expect.element(form.model).toHaveValue("");
-    await expect.element(form.effort).toHaveValue("medium");
-    await userEvent.keyboard("{Escape}");
-    await expect.element(form.dialog).not.toBeInTheDocument();
-  }
-  expect(story.start).not.toHaveBeenCalled();
+  await dismissesAndReturnsFocus(startSession(project.label), (cancel) =>
+    cancel.click(),
+  );
   expect(launches.startAdHoc).not.toHaveBeenCalled();
-}
-
-test("Cancel clears chosen model and effort from each launch dialog without starting", async () => {
-  await reopenLaunches((cancel) => cancel.click());
-});
-
-test("Escape clears chosen model and effort from each launch dialog without starting", async () => {
-  await reopenLaunches(() => userEvent.keyboard("{Escape}"));
 });
 
 test("refinement without options tabs from instruction through launch choices to Start", async () => {

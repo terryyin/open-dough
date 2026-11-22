@@ -9,8 +9,7 @@ import {
   noSidewaysScroll,
   resizeLaunchViewport,
   splitWords,
-  twiceZoomedDialog,
-  useTwiceZoomedDevice,
+  zoomToTwoHundredPercent,
 } from "./launch-layout-page.ts";
 import { mountStoryLaunches } from "./story-card-launch-page.ts";
 
@@ -128,8 +127,7 @@ test("story Starts keep their reading order and visible keyboard focus at narrow
   };
   await resizeLaunchViewport({ width: 420, height: 900 });
   await followKeyboard();
-  await useTwiceZoomedDevice();
-  await resizeLaunchViewport(twiceZoomedDialog);
+  await zoomToTwoHundredPercent();
   await followKeyboard();
   expect(start).not.toHaveBeenCalled();
 });

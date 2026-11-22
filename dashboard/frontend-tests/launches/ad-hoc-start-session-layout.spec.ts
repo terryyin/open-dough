@@ -17,7 +17,7 @@ import {
   noSidewaysScroll,
   textFitsViewport,
   twiceZoomedDialog,
-  useTwiceZoomedDevice,
+  zoomToTwoHundredPercent,
 } from "./launch-layout-page.ts";
 
 async function open(offer: SessionPolicyOffer, viewport = twiceZoomedDialog) {
@@ -70,11 +70,11 @@ const effect = {
   "Isolated workspace": `Isolated workspace · Automatically land The session runs in a new workspace under .worktrees/; ${lands}`,
 };
 
-async function offeredChoicesFit(
-  viewport: typeof narrowDialog,
-  wrapped: boolean,
-) {
-  const { dialog, command, start, cancel } = await open("offered", viewport);
+test("Start session with automatic landing wraps both choices at 320 pixels and keeps them side by side at 200% zoom, with each workspace's effects and both actions in view", async () => {
+  const { dialog, command, start, cancel } = await open(
+    "offered",
+    narrowDialog,
+  );
   const workspace = ["Isolated workspace", "Default main"] as const;
   const afterChecks = ["Wait for review", "Automatically land"] as const;
   const radio = (name: string) => dialog.getByRole("radio", { name });
@@ -85,16 +85,13 @@ async function offeredChoicesFit(
       dialog.getByText(/Its first message carries the established session/),
     )
     .toBeVisible();
-  for (const [first, second] of [workspace, afterChecks]) {
-    const one = box(radio(first));
-    const other = box(radio(second));
-    if (wrapped) expect(other.top).toBeGreaterThan(one.top);
-    else expect(other.top).toBe(one.top);
-  }
-  expect(box(radio(afterChecks[0])).top).toBeGreaterThan(
-    box(radio(workspace[1])).top,
-  );
-  for (const chosen of workspace) {
+  const pairsWrap = (wrapped: boolean) =>
+    [workspace, afterChecks].map(([first, second]) =>
+      wrapped
+        ? box(radio(second)).top > box(radio(first)).top
+        : box(radio(second)).top === box(radio(first)).top,
+    );
+  const chosenWorkspaceFits = async (chosen: (typeof workspace)[number]) => {
     await radio(chosen).click();
     await expect.element(start).toHaveAccessibleDescription(effect[chosen]);
     noSidewaysScroll(dialog);
@@ -104,43 +101,41 @@ async function offeredChoicesFit(
     await expect
       .element(dialog.getByText(/Pressing Start authorizes that push/))
       .toBeInViewport({ ratio: 1 });
-  }
-}
+  };
+  const choicesFit = async (wrapped: boolean) => {
+    await expect.poll(() => pairsWrap(wrapped)).toEqual([true, true]);
+    expect(box(radio(afterChecks[0])).top).toBeGreaterThan(
+      box(radio(workspace[1])).top,
+    );
+    for (const chosen of workspace) await chosenWorkspaceFits(chosen);
+  };
+  await choicesFit(true);
 
-test("Start session wraps both choices at 320 pixels, with automatic landing effects and actions in view", async () => {
-  await offeredChoicesFit(narrowDialog, true);
+  await zoomToTwoHundredPercent();
+  await choicesFit(false);
 });
 
-test("Start session fits both workspace choices and automatic landing at 200% zoom", async () => {
-  await useTwiceZoomedDevice();
-  await offeredChoicesFit(twiceZoomedDialog, false);
-});
-
-async function unavailableChoicesFit(viewport: typeof narrowDialog) {
-  const { dialog, start, cancel } = await open("unavailable", viewport);
+test("Start session explains unavailable choices without clipping them and keeps both actions reachable at 320 pixels and at 200% zoom", async () => {
+  const { dialog, start, cancel } = await open("unavailable", narrowDialog);
   const why = dialog.getByText(
     "Isolated workspace and Automatically land are not offered: the installed skills in this project do not establish a session without a story for this host.",
   );
-  await expect.element(why).toBeVisible();
-  why.element().scrollIntoView({ block: "center" });
-  textFitsViewport(why);
-  expect(box(why).left).toBeGreaterThanOrEqual(box(dialog).left);
-  expect(box(why).right).toBeLessThanOrEqual(box(dialog).right);
   for (const name of ["Isolated workspace", "Automatically land"])
     await expect.element(dialog.getByRole("radio", { name })).toBeDisabled();
-  noSidewaysScroll(dialog);
-  controlsAreReachable(dialog);
-  for (const action of [cancel, start]) {
-    await expect.element(action).toBeEnabled();
-    await expect.element(action).toBeInViewport({ ratio: 1 });
-  }
-}
-
-test("Start session explains unavailable choices without clipping them at 320 pixels", async () => {
-  await unavailableChoicesFit(narrowDialog);
-});
-
-test("Start session explains unavailable choices and keeps both actions reachable at 200% zoom", async () => {
-  await useTwiceZoomedDevice();
-  await unavailableChoicesFit(twiceZoomedDialog);
+  const explanationAndActionsFit = async () => {
+    await expect.element(why).toBeVisible();
+    why.element().scrollIntoView({ block: "center" });
+    textFitsViewport(why);
+    expect(box(why).left).toBeGreaterThanOrEqual(box(dialog).left);
+    expect(box(why).right).toBeLessThanOrEqual(box(dialog).right);
+    noSidewaysScroll(dialog);
+    controlsAreReachable(dialog);
+    for (const action of [cancel, start]) {
+      await expect.element(action).toBeEnabled();
+      await expect.element(action).toBeInViewport({ ratio: 1 });
+    }
+  };
+  await explanationAndActionsFit();
+  await zoomToTwoHundredPercent();
+  await explanationAndActionsFit();
 });

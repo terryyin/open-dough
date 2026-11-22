@@ -89,14 +89,6 @@ test("No Approach clears A, keeps C and sends only C on Start", async () => {
   await expect.element(none).toBeChecked();
   await expect.element(a).not.toBeChecked();
   await expect.element(c).toBeChecked();
-  await form.command.click();
-  await expect
-    .element(
-      form.dialog.getByText(`/dough-story-refinement ${entry.identity} --c`, {
-        exact: true,
-      }),
-    )
-    .toBeVisible();
   await form.start.click();
   await expect.element(form.dialog).not.toBeInTheDocument();
   expect(start).toHaveBeenCalledExactlyOnceWith(

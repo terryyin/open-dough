@@ -1,15 +1,8 @@
-import {
-  useContext,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type RefObject,
-} from "react";
-import { launchInstructionLimit } from "./agentLaunch.ts";
+import { useContext, useRef, useState, type RefObject } from "react";
 import { SettingsNavigation } from "./settingsNavigation.ts";
 import type { InstructionTranscriptionSource } from "./instructionTranscriptionSource.ts";
 import { useInstructionRecording } from "./useInstructionRecording.ts";
+import { fitTranscript, TranscriptReview } from "./TranscriptReview.tsx";
 
 export function useLaunchInstruction(
   field: RefObject<HTMLTextAreaElement | null>,
@@ -20,19 +13,13 @@ export function useLaunchInstruction(
   const openSettings = useContext(SettingsNavigation);
   const suspended = useRef(false);
   const [overflow, setOverflow] = useState<string>();
-  const candidate = useRef<HTMLTextAreaElement>(null);
-  const id = useId();
-  const combinedText = (text: string) => {
-    const before = field.current?.value ?? "";
-    return before ? `${before}\n\n${text}` : text;
-  };
   const append = (text: string) => {
     const destination = field.current;
     if (!destination) {
       return false;
     }
-    const combined = combinedText(text);
-    if (combined.length > launchInstructionLimit) {
+    const combined = fitTranscript(destination.value, text);
+    if (combined === undefined) {
       return false;
     }
     destination.value = combined;
@@ -45,16 +32,6 @@ export function useLaunchInstruction(
     }
   });
   const reviewing = overflow !== undefined;
-  useEffect(() => {
-    if (reviewing) {
-      candidate.current?.focus();
-    }
-  }, [reviewing]);
-  const combinedLength = reviewing ? combinedText(overflow).length : 0;
-  const canAdd =
-    reviewing &&
-    Boolean(overflow.trim()) &&
-    combinedLength <= launchInstructionLimit;
   const discard = () => {
     setOverflow(undefined);
     field.current?.focus();
@@ -116,43 +93,17 @@ export function useLaunchInstruction(
           </button>
         )}
         {reviewing && (
-          <div>
-            <p role="alert" id={`${id}-overflow-hint`}>
-              {`This transcript exceeds the ${subject} limit. Your ${subject} was kept. Shorten the complete transcript, then add it or discard it.`}
-            </p>
-            <label htmlFor={`${id}-transcript`}>Transcript to shorten</label>
-            <textarea
-              ref={candidate}
-              className="frame-input"
-              id={`${id}-transcript`}
-              aria-describedby={`${id}-overflow-hint ${id}-overflow-length`}
-              rows={4}
-              value={overflow}
-              onChange={(event) => {
-                setOverflow(event.target.value);
-              }}
-            />
-            <p id={`${id}-overflow-length`} aria-live="polite">
-              {overflow.trim()
-                ? `${combinedLength.toLocaleString()} of ${launchInstructionLimit.toLocaleString()} combined characters, including the separator.`
-                : "Enter transcript text to add, or discard this transcript."}
-            </p>
-            <button
-              type="button"
-              className="frame-button"
-              disabled={!canAdd}
-              onClick={() => {
-                if (canAdd && append(overflow)) {
-                  setOverflow(undefined);
-                }
-              }}
-            >
-              Add transcript
-            </button>{" "}
-            <button type="button" className="frame-button" onClick={discard}>
-              Discard transcript
-            </button>
-          </div>
+          <TranscriptReview
+            transcript={overflow}
+            draft={field.current?.value ?? ""}
+            subject={subject}
+            onAdd={(text) => {
+              if (append(text)) {
+                setOverflow(undefined);
+              }
+            }}
+            onDiscard={discard}
+          />
         )}
       </div>
     ),

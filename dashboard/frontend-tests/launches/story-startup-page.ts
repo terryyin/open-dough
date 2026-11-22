@@ -97,8 +97,9 @@ function StartupOnPage({
       ? null
       : createElement(CardSituation, { entry: other, launches, taken: false }),
     createElement(StartupRecovery, {
-      sourceId: project.id,
-      recoveries: attempts,
+      items: attempts.recoveriesOf(project.id),
+      evidence: attempts.attemptEvidence,
+      actions: attempts,
     }),
     createElement(StartupAnnouncer, {
       sourceId: project.id,

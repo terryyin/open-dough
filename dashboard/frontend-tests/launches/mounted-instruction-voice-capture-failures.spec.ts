@@ -8,19 +8,16 @@ import {
 
 const privateDiagnostic = "private-provider-diagnostic";
 
-async function recoversFrom(failure: "permission" | "device" | "format") {
-  const capture = audioInput();
-  const voice = await mountInstructionVoice();
-  await voice.field.fill(originalDraft);
-  if (failure === "format") capture.format.mockReturnValue(false);
-  else {
-    capture.getUserMedia.mockRejectedValueOnce(
-      new DOMException(
-        privateDiagnostic,
-        failure === "permission" ? "NotAllowedError" : "NotFoundError",
-      ),
-    );
-  }
+const captureError = (name: string) =>
+  new DOMException(privateDiagnostic, name);
+
+type InstructionVoice = Awaited<ReturnType<typeof mountInstructionVoice>>;
+
+async function failsToRecord(
+  voice: InstructionVoice,
+  capture: ReturnType<typeof audioInput>,
+  failure: keyof typeof instructionProblems,
+) {
   await voice.record.click();
   await expect
     .element(voice.problem)
@@ -29,15 +26,9 @@ async function recoversFrom(failure: "permission" | "device" | "format") {
   expect(voice.dialog.element().textContent).not.toContain(privateDiagnostic);
   await voice.ready();
   expect(capture.tracks()).toEqual([]);
-  expect(voice.transcribe).not.toHaveBeenCalled();
+}
 
-  if (failure === "permission") {
-    await voice.recordClip();
-    await expect
-      .element(voice.field)
-      .toHaveValue(`${originalDraft}\n\nDo not implement yet`);
-    await expect.element(voice.problem).not.toBeInTheDocument();
-  }
+async function startsTyped(voice: InstructionVoice) {
   const typed = `${originalDraft}\n\nReview before implementing`;
   await voice.field.fill(typed);
   expect(voice.send).not.toHaveBeenCalled();
@@ -46,19 +37,32 @@ async function recoversFrom(failure: "permission" | "device" | "format") {
   expect(voice.send.mock.calls.map(([request]) => request.instruction)).toEqual(
     [typed],
   );
-  expect(voice.transcribe).toHaveBeenCalledTimes(
-    failure === "permission" ? 1 : 0,
-  );
 }
 
 test("permission refusal makes no transcription request and an explicit retry works in the same dialog", async () => {
-  await recoversFrom("permission");
+  const capture = audioInput();
+  const voice = await mountInstructionVoice();
+  await voice.field.fill(originalDraft);
+  capture.getUserMedia.mockRejectedValueOnce(captureError("NotAllowedError"));
+  await failsToRecord(voice, capture, "permission");
+  expect(voice.transcribe).not.toHaveBeenCalled();
+  await voice.recordClip();
+  await expect
+    .element(voice.field)
+    .toHaveValue(`${originalDraft}\n\nDo not implement yet`);
+  await expect.element(voice.problem).not.toBeInTheDocument();
+  await startsTyped(voice);
+  expect(voice.transcribe).toHaveBeenCalledTimes(1);
 });
 
-test("an unavailable device makes no transcription request and typed Start works in the same dialog", async () => {
-  await recoversFrom("device");
-});
-
-test("an unsupported recording format makes no transcription request and typed Start works in the same dialog", async () => {
-  await recoversFrom("format");
+test("an unavailable device and an unsupported recording format make no transcription request and typed Start works in the same dialog", async () => {
+  const capture = audioInput();
+  const voice = await mountInstructionVoice();
+  await voice.field.fill(originalDraft);
+  capture.getUserMedia.mockRejectedValueOnce(captureError("NotFoundError"));
+  await failsToRecord(voice, capture, "device");
+  capture.format.mockReturnValue(false);
+  await failsToRecord(voice, capture, "format");
+  await startsTyped(voice);
+  expect(voice.transcribe).not.toHaveBeenCalled();
 });

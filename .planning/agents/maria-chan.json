@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Maria-chan",
-  "email": "maria-chan@example.org",
-  "identity": "SEED-413#make-launch-proof-orthogonal",
-  "mode": "story-branch",
-  "branch": "claude/get-launch-unit-proof-in-about-eight-seconds",
-  "host": "claude"
-}

@@ -25,7 +25,7 @@ const chromium = () =>
     send(method: string, params: Record<string, unknown>): Promise<unknown>;
   };
 
-export async function useTwiceZoomedDevice() {
+async function useTwiceZoomedDevice() {
   const session = chromium();
   await session.send("Emulation.setDeviceMetricsOverride", {
     width: 0,
@@ -36,6 +36,16 @@ export async function useTwiceZoomedDevice() {
   onTestFinished(async () => {
     await session.send("Emulation.clearDeviceMetricsOverride", {});
   });
+}
+
+export async function zoomToTwoHundredPercent() {
+  await resizeLaunchViewport(twiceZoomedDialog);
+  await useTwiceZoomedDevice();
+  await expect.poll(() => devicePixelRatio).toBe(2);
+  expect([innerWidth, innerHeight]).toEqual([
+    twiceZoomedDialog.width,
+    twiceZoomedDialog.height,
+  ]);
 }
 
 export function box(control: Locator) {
