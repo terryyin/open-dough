@@ -1,5 +1,6 @@
 // Published-session context names the recorded pair and when the session
 // closed. Kept-session launch/done wording stays on session-commits only.
+import { sharedCheckoutWarning } from "./StoryReviewSessionCommitsContext.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
 
 export type PublishedSessionReview = Extract<
@@ -29,6 +30,7 @@ export function PublishedSessionContext({
       </p>
       <p>
         From <code>{baseline}</code> to <code>{tree}</code>.
+        {session.shared === true && ` ${sharedCheckoutWarning}`}
       </p>
     </div>
   );

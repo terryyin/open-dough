@@ -1,11 +1,16 @@
-// A loopback landing receiver and the context file a dashboard prepares for a
-// launch, shared by tests of the landing handoff.
+// A loopback landing receiver and the context file, with any shared-checkout
+// note beside it, a dashboard prepares for a launch, shared by tests of the
+// landing handoff.
 import { createServer } from "node:http";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { makeMe } from "../../support/makeMe.mjs";
 import { plantFirstLandingExpectation } from "../../../src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
+import {
+  sharedCheckoutNotePathBeside,
+  sharedCheckoutNoteText,
+} from "../../../src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 
 // A receiver that keeps each request and answers its comparison as received,
 // under a receipt of its own for each request: `prepared` for a preparation
@@ -58,3 +63,11 @@ export async function landingContextFile(t, context, expectation) {
   }
   return file;
 }
+
+// The Dashboard's shared-checkout note beside `landingContext`: another
+// session was open in its checkout since `since`.
+export const noteSharedCheckout = (landingContext, since) =>
+  writeFile(
+    sharedCheckoutNotePathBeside(landingContext),
+    sharedCheckoutNoteText(since.toISOString()),
+  );

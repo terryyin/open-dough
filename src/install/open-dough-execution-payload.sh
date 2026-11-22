@@ -155,7 +155,9 @@ managed_files+=(
   dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/session-record-publication.mjs
+  dough-execute-plan/scripts/session-close-state.mjs
   dough-execute-plan/scripts/sealed-session-record.mjs
+  dough-execute-plan/scripts/shared-checkout-note.mjs
   dough-execute-plan/scripts/session-record-pruning.mjs
   dough-execute-plan/scripts/session-record.mjs
   dough-execute-plan/scripts/execution-increment-reconciliation.mjs

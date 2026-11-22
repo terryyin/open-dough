@@ -5,30 +5,23 @@ import assert from "node:assert/strict";
 import { chmod, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { test } from "node:test";
-import { makeMe } from "../../support/makeMe.mjs";
 import {
   git,
   lsRemoteSha,
 } from "../dough-execute-plan/publication-test-fixtures.mjs";
-import {
-  landingContextFile,
-  landingReceiver,
-} from "../dough-execute-plan/dashboard-landing-test-fixtures.mjs";
 import { reportingReference } from "../../support/launchLandingTestData.mjs";
 import {
+  aLaunchLandingContext,
   closedAt,
   landed,
   nativeSession,
+  publishedRecord,
+  pulledBeforeOneUnpublishedEdit,
   targetRef,
 } from "./session-close-test-fixtures.mjs";
 
-async function aLaunchLandingContext(t) {
-  const receiver = await landingReceiver(t);
-  return landingContextFile(
-    t,
-    makeMe.aLandingContext.reportingTo(receiver.origin).please(),
-  );
-}
+const publishedRecordOf = async (fixture) =>
+  JSON.parse(await publishedRecord(fixture, reportingReference));
 
 test("a Dashboard-launched Land publishes the session record of its accepted comparison under the launch reference", async (t) => {
   const { fixture, closed } = await landed(
@@ -39,14 +32,7 @@ test("a Dashboard-launched Land publishes the session record of its accepted com
   assert.equal(closed.record.status, "published", JSON.stringify(closed));
 
   const published = (args) => git(fixture.origin, ...args);
-  const record = JSON.parse(
-    (
-      await published([
-        "show",
-        `main:.planning/sessions/${reportingReference}.json`,
-      ])
-    ).stdout,
-  );
+  const record = await publishedRecordOf(fixture);
   assert.deepEqual(record, {
     version: 1,
     sessionId: reportingReference,
@@ -60,6 +46,63 @@ test("a Dashboard-launched Land publishes the session record of its accepted com
     (await published(["diff", "--name-only", base, candidate])).stdout,
     "edited.txt\n",
   );
+});
+
+test("a close noted as sharing its checkout publishes its range marked, with a commit pulled before the work below its base", async (t) => {
+  const { fixture, closed } = await landed(
+    t,
+    {},
+    {
+      landingContext: await aLaunchLandingContext(
+        t,
+        new Date(closedAt.getTime() - 60_000),
+      ),
+    },
+    async () => {},
+    pulledBeforeOneUnpublishedEdit,
+  );
+  assert.equal(closed.record.status, "published", JSON.stringify(closed));
+
+  const record = await publishedRecordOf(fixture);
+  assert.deepEqual(record, {
+    version: 1,
+    sessionId: reportingReference,
+    workflow: "ad-hoc",
+    closedAt: closedAt.toISOString(),
+    ranges: [
+      {
+        base: fixture.trunkSha,
+        candidate: closed.work.receipt.sha,
+        uncertainty: "shared-checkout",
+      },
+    ],
+  });
+  const [{ base, candidate }] = record.ranges;
+  assert.equal(
+    (await git(fixture.origin, "diff", "--name-only", base, candidate)).stdout,
+    "edited.txt\n",
+  );
+  assert.equal(
+    (await git(fixture.origin, "show", `${base}:pulled.txt`)).stdout,
+    "pulled\n",
+  );
+});
+
+test("a close noted as sharing its checkout only after its acceptance publishes its range unmarked", async (t) => {
+  const { fixture, closed } = await landed(
+    t,
+    {},
+    {
+      landingContext: await aLaunchLandingContext(
+        t,
+        new Date(closedAt.getTime() + 60_000),
+      ),
+    },
+  );
+  assert.equal(closed.record.status, "published", JSON.stringify(closed));
+  assert.deepEqual((await publishedRecordOf(fixture)).ranges, [
+    { base: fixture.trunkSha, candidate: closed.work.receipt.sha },
+  ]);
 });
 
 test("a retained session id that conflicts with the launch reference publishes nothing", async (t) => {

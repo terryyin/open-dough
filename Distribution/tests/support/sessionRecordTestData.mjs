@@ -8,6 +8,7 @@ import {
   sessionRecordVersion,
   standaloneSessionWorkflow,
 } from "../../src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { sharedCheckoutUncertainty } from "../../src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 
 /**
  * @typedef {{
@@ -15,7 +16,7 @@ import {
  *   sessionId: string,
  *   workflow: string,
  *   closedAt: string,
- *   ranges: { base: string, candidate: string }[],
+ *   ranges: { base: string, candidate: string, uncertainty?: string }[],
  * }} SessionRecord
  */
 /** @typedef {SessionRecord["ranges"][number]} SessionRange */
@@ -45,6 +46,18 @@ export class SessionRecordBuilder {
   /** @param {SessionRange} range the next recorded pair, after the others */
   andClosing(range) {
     this.#ranges = [...this.#ranges, range];
+    return this;
+  }
+
+  // The last recorded pair may include another session's work from the same
+  // checkout.
+  sharingCheckout() {
+    const last = this.#ranges.length - 1;
+    this.#ranges = this.#ranges.map((range, at) =>
+      at === last
+        ? { ...range, uncertainty: sharedCheckoutUncertainty }
+        : range,
+    );
     return this;
   }
 

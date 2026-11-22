@@ -10,16 +10,23 @@ import type { LaunchRecord } from "../src/agentLaunch.ts";
 import { replaceRecords } from "./launchRecordDocument.ts";
 import { boundLandingReporting } from "./launchLandingRecord.ts";
 import { withBranchResultAtDone } from "./sessionBranchCapture.ts";
+import { noteSharedCheckouts } from "./sharedCheckoutNotes.ts";
 
-// Binds one known conversation, then starts any early reported Done after
-// releasing the persistence locks.
+// Binds one known conversation, notes any checkout it shares with another open
+// launch, then starts any early reported Done after releasing the persistence
+// locks.
 export async function keepRecord(
   sourceId: string,
   record: LaunchRecord,
   doneMarks: NativeDoneMarks,
 ): Promise<void> {
   const earlyReport = await bindRecord(sourceId, record);
-  if (earlyReport !== undefined) void doneMarks.reported(sourceId, earlyReport);
+  try {
+    await noteSharedCheckouts(sourceId, record);
+  } finally {
+    if (earlyReport !== undefined)
+      void doneMarks.reported(sourceId, earlyReport);
+  }
 }
 
 // Keeps one known conversation and its first-input evidence, replacing any

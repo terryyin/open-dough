@@ -19,24 +19,45 @@ function checkoutOf(record: LaunchRecord): string | undefined {
   }
 }
 
-// Whether one of the project's `kept` records, other than `record`, names
-// the checkout `start` names and was open at some time from `record`'s launch
-// to its Done: launched by that Done, and done no earlier than that launch
-// or still open.
+// Whether `other`, a session other than `record`, names `checkout` and was
+// open at some time from `record`'s launch to its Done: launched by that Done,
+// and done no earlier than that launch or still open.
+function openMeanwhileIn(
+  record: Pick<LaunchRecord, "launchedAt" | "doneAt" | "session">,
+  checkout: string,
+  other: LaunchRecord,
+): boolean {
+  const from = Date.parse(record.launchedAt);
+  const to =
+    record.doneAt === undefined ? Date.now() : Date.parse(record.doneAt);
+  return (
+    sessionKey(other.session) !== sessionKey(record.session) &&
+    Date.parse(other.launchedAt) <= to &&
+    (other.doneAt === undefined || Date.parse(other.doneAt) >= from) &&
+    checkoutOf(other) === checkout
+  );
+}
+
+// Whether one of the project's `kept` records, other than `record`, was open
+// in the checkout `start` names at some time from `record`'s launch to its
+// Done.
 export function checkoutSharedMeanwhile(
   record: Pick<LaunchRecord, "launchedAt" | "doneAt" | "session">,
   start: { readonly workspace: string },
   kept: readonly LaunchRecord[],
 ): boolean {
   const checkout = resolvedCheckout(start.workspace);
-  const from = Date.parse(record.launchedAt);
-  const to =
-    record.doneAt === undefined ? Date.now() : Date.parse(record.doneAt);
-  return kept.some(
-    (other) =>
-      sessionKey(other.session) !== sessionKey(record.session) &&
-      Date.parse(other.launchedAt) <= to &&
-      (other.doneAt === undefined || Date.parse(other.doneAt) >= from) &&
-      checkoutOf(other) === checkout,
-  );
+  return kept.some((other) => openMeanwhileIn(record, checkout, other));
+}
+
+// The project's `kept` records, other than `record`, that were open in the
+// checkout `record` names at some time since its launch. A record in no known
+// checkout shares none.
+export function sessionsSharingCheckout(
+  record: LaunchRecord,
+  kept: readonly LaunchRecord[],
+): readonly LaunchRecord[] {
+  const checkout = checkoutOf(record);
+  if (checkout === undefined) return [];
+  return kept.filter((other) => openMeanwhileIn(record, checkout, other));
 }

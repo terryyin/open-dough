@@ -8,6 +8,7 @@ import {
   isSessionId,
   sessionRecordPathBeside,
 } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { sharedCheckoutUncertainty } from "../../Distribution/src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
@@ -121,7 +122,10 @@ export async function publishedSessionReview(
     };
   return {
     kind: "published-session",
-    session: { closedAt: record.closedAt },
+    session: {
+      closedAt: record.closedAt,
+      ...(range.uncertainty === sharedCheckoutUncertainty && { shared: true }),
+    },
     ...(record.ranges.length === 1
       ? {}
       : {

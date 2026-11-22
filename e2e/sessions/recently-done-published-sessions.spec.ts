@@ -17,6 +17,7 @@ import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPag
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   addedOnBranch,
+  launchSharingCheckout,
   publishedPairAdding,
   trunkAdvancedWith,
 } from "../../dashboard/test-support/originatingMachine.ts";
@@ -44,13 +45,20 @@ const title = "Originating session";
 const ownEntry = standaloneSessionName("Ad hoc", title);
 const minutesAgo = (minutes: number) => Date.now() - minutes * 60_000;
 
-// An ad hoc session closed under `sessionId` whose branch adds `file`.
-async function closed(origin: StartOrigin, sessionId: string, file: string) {
+// An ad hoc session closed under `sessionId` whose branch adds `file`,
+// through its Dashboard launch's `landingContext` when one is given.
+async function closed(
+  origin: StartOrigin,
+  sessionId: string,
+  file: string,
+  landingContext?: string,
+) {
   const branch = `land/${sessionId}`;
   const machine = addedOnBranch(origin, branch, file);
   const close = await publishSessionClose({
     workspace: machine.workspace,
     session: { sessionId, workflow: "ad-hoc", story: undefined },
+    ...(landingContext === undefined ? {} : { landingContext }),
     ...makeMe.anIncrementPublication
       .with({
         branch,
@@ -183,5 +191,58 @@ test("Recently done reviews each published range of another machine's session", 
     await review.files.chooseShown(`Added ${secondRangeFile}`);
     await review.expectNoText(firstRangeFile);
     await review.expectNoText(betweenFile);
+  });
+});
+
+const sharedSession = "8a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d";
+const sharedFile = "shared-checkout-edit.txt";
+
+test("Recently done warns that another machine's published session may include a shared checkout's work", async ({
+  page,
+  origin,
+}) => {
+  await test.step("Given another machine closed a session while another session was open in its checkout", async () =>
+    closed(
+      origin,
+      sharedSession,
+      sharedFile,
+      await launchSharingCheckout(
+        origin,
+        page,
+        sharedSession,
+        new Date(minutesAgo(60)),
+      ),
+    ));
+  await test.step("And it closed another session in a checkout of its own", () =>
+    closed(origin, otherSession, otherFile));
+  await test.step("And trunk moves on after both records", async () => {
+    await publishCommittedOrigin(page, {
+      repoDir: origin.origin,
+      revision: trunkAdvancedWith(origin, laterFile),
+      repository: "terryyin/open-dough",
+      follows: true,
+    });
+  });
+  const recent =
+    await test.step("When this machine, with no launch of either, shows Recently done", async () => {
+      await page.setViewportSize({ width: 1600, height: 900 });
+      await page.goto("/");
+      return parts(page).recentlyDone;
+    });
+  await test.step("Then the shared session's review warns that its comparison may include that session's work", async () => {
+    const review = await openReviewChanges(
+      page,
+      publishedSessionEntry(recent, sharedSession),
+    );
+    await review.context.expectSharedCheckoutWarning(true);
+    await review.close();
+  });
+  await test.step("And the other session's review carries no warning", async () => {
+    const review = await openReviewChanges(
+      page,
+      publishedSessionEntry(recent, otherSession),
+    );
+    await review.expectText(otherFile);
+    await review.context.expectSharedCheckoutWarning(false);
   });
 });

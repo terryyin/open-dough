@@ -105,6 +105,10 @@ const fixedComparison = {
   files: z.array(reviewedFileSchema),
 };
 
+// Another session was open in the same checkout meanwhile, so the comparison
+// may include that session's work.
+const sharedCheckout = { shared: z.literal(true).optional() };
+
 export const storyReviewSchema = z
   .discriminatedUnion("kind", [
     z.object({
@@ -131,9 +135,7 @@ export const storyReviewSchema = z
       session: z.object({
         launchedAt: z.iso.datetime(),
         doneAt: z.iso.datetime(),
-        // Another session was open in the same checkout meanwhile, so the
-        // comparison may include that session's work.
-        shared: z.literal(true).optional(),
+        ...sharedCheckout,
       }),
       commitRuns: z.array(sessionRunChoiceSchema).min(1),
       commitRun: z.number().int().nonnegative(),
@@ -147,6 +149,8 @@ export const storyReviewSchema = z
       kind: z.literal("published-session"),
       session: z.object({
         closedAt: z.iso.datetime(),
+        // Set when the selected range is marked shared-checkout.
+        ...sharedCheckout,
       }),
       ranges: z.number().int().min(2).optional(),
       selectedRun: z.string().regex(/^\d+$/).optional(),

@@ -15,70 +15,30 @@ The [unified Intent review seed](SEED-420-unified-intent-review.md) owns
 the review destination, the Recent stories regression and the identity of
 standalone Done work. This seed owns session attribution and selection.
 
-<a id="disclose-shared-checkout-overlap"></a>
+<a id="resume-shared-checkout-closes-as-their-own-session"></a>
 
-### Disclose shared-checkout overlap in published session records
+### Resume each shared-checkout close as its own session and keep notes advisory
 
-**Identity:** SEED-418#disclose-shared-checkout-overlap
+**Identity:** SEED-418#resume-shared-checkout-closes-as-their-own-session
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/766-disclose-shared-checkout-overlap/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"46001d5a4d830442936680a8332eb85ac4ed0a6519ff941810b044f9612a8205","plan":"332fd5f1a16345250d2a85cf84703f7294c66daabf6794a04226314d8d0808f3"}}
-```
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-418#disclose-shared-checkout-overlap","dependencies":[{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Published session records with ordered accepted comparisons for every publishing workflow","rationale":"Overlap disclosure marks ranges in the records that every workflow's close publishes; until those records and their shared publisher are on trunk there are no ranges to mark.","condition":"Every publishing workflow publishes one session record with its ordered accepted comparisons on trunk, and another machine reviews each range in the published-session review.","state":"satisfied","resolution":{"revision":"c546ff771b47b42f549a153cbbef4604bb89560d","path":".planning/seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record","summary":"Satisfied: every publishing workflow (refinement, Trunk and Story Branch execution, Dashboard-launched ad hoc Land and ad hoc story follow-ups) publishes one record with ordered accepted comparisons through the shared sealed-session-record publisher, and another clone reviews each range. A native ad hoc Land without a retained session identity still writes no record (recorded product advice). Delivered at before-cleanup c546ff771 and integrated on main at 3dbaff36c. Proof: Land closes (Distribution/tests/skills/dough-land/session-record-publication.test.mjs, session-close-resume.test.mjs), Trunk Mode wrap-up (dough-story-wrap-up/trunk-closure-session-record*.test.mjs read from a default-branch-only clone), Story Branch wrap-up (story-branch-session-record.test.mjs), refinement and ad hoc follow-up Lands (dough-story-refinement/preparation-*session-record-land.test.mjs), and another machine reviewing each range (e2e/sessions/recently-done-published-sessions.spec.ts).\nCondition satisfied: Every publishing workflow publishes one session record with its ordered accepted comparisons on trunk, and another machine reviews each range in the published-session review.\nAccepted integration: 3dbaff36c0b21730ff23ba5948b5199522b0f103 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md","assessment":"not-ready","reasons":["Slice 1 premise open: consumers of the first-landing expectation file (story-branch-landing-*, agent-launch-* and worktree-release-apply backend specs, publication-landing-target, publication-resume-story-branch and dashboard-landing tests, execution-payload-update.sh, install-all-tools.sh) were not run against the per-launch layout; unreached operation: those suites on a scratch application of slice 1.","Slice 2 premise open: that no caller relies on implicit close identity is traced, not observed; unreached operation: the dough-land, preparation-native-session-record-land and dough-story-wrap-up session-record suites on a scratch application of the ambiguity refusal."],"basis":{"document":"189cde8d80839331ab666d43f45c49f483de88d9eb9ff9b39379dd636b67581a","plan":"28f0e9bbb17fbcaa86c4ac4214a0875c4244be4436e8f6235b377127916d1407"}}
 ```
 
-Split on 2026-11-22 from `SEED-418#attribute-every-workflow-session-record`
-at its delivered slice 7. That story publishes every workflow session's
-record and its accepted comparisons.
+Correction found by the execution retrospective of
+SEED-418#disclose-shared-checkout-overlap, recoverable as
+`7667fc3a8:.planning/seeds/SEED-418-review-published-session-changes.md`.
 
-**Goal.** A developer reviewing a published session from another machine can
-see when one of its comparisons may include another session's work from the
-same checkout, so they do not attribute that work to the wrong session.
-An agent can also resume an interrupted Land close from local per-session
-state and follow concise guidance for publication and recovery.
+**Goal.** A developer or agent who resumes or closes a Land session in a
+shared checkout gets that session's own record. A shared-checkout note that
+cannot be written or read neither reports a kept launch as unrecorded nor
+blocks a later launch or close. Each session's local close state has one owner
+and is removed once its record is published.
 
-**Scope.**
-
-- The Dashboard already knows when two of its launched sessions are open in
-  the same checkout ([`checkoutSharedMeanwhile`](../../dashboard/server/sessionCheckoutShared.ts),
-  which Done capture uses). Overlap can begin after a session launches, when
-  another session later opens in its checkout. Whenever that happens, the
-  Dashboard keeps, beside each affected open session's landing context, when
-  the overlap began. The publisher cannot read local launch records, so this
-  note is its only overlap evidence.
-- At close, the publisher marks each published range accepted at or after the
-  overlap start with an optional `uncertainty: "shared-checkout"`. Records and
-  ranges without it stay readable and show no warning.
-- The published-session review shows the marked range with the existing Done
-  warning: "Another session was open in the same checkout during that time, so
-  the comparison may include that session's work."
-- Only that uncertainty is published; launch records stay local under
-  [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state).
-- A published range is the accepted pair from the trunk the session built on
-  to its landed commit, so changes received only by pull and unpublished edits
-  already stay outside it; this story keeps that and adds nothing for it.
-- Scope limits: a close without a Dashboard landing context (a native
-  session, or a Default main launch that establishes no session) has no
-  overlap evidence and publishes no mark; installations that predate the note
-  publish unmarked records. Identifying which session made which change in a shared checkout is
-  not attempted.
-- Land keeps the close's recovery state locally by session, even when several
-  sessions share a checkout. Simplify the affected Land and wrap-up references,
-  including older passages that describe script internals.
-
-**Key examples.**
-
-- Two Dashboard sessions work in the Default main checkout at the same time;
-  one lands a story follow-up. From another clone, its published range shows
-  the shared-checkout warning, and a commit the checkout received only by pull
-  before the work is absent from the comparison.
-- A session launches alone in the Default main checkout; a second session
-  opens there later, before the first lands. The first session's landed range
-  still shows the warning.
-- A follow-up in its own worktree, or a Default main session that closed
-  before another one opened there, shows no warning.
-- Two closes share a checkout. After an unanswered push, each resumes its own
-  close without reconstructing the range or pushing accepted work again.
+**Scope.** Session close identity on resume and the Land resume guidance; how
+the Dashboard writes notes and how the publisher reads them; the local Land
+close state store and its removal after publication; and which module owns the
+published uncertainty value. Plan:
+[771](../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md).
 
 <a id="prune-expired-records-after-a-retried-record-commit"></a>
 

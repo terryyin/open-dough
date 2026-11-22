@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-418_disclose-shared-checkout-overlap.json",
+      "identity": "SEED-418#disclose-shared-checkout-overlap",
+      "completedAt": "2026-11-22T07:18:35.397Z",
+      "blob": "e952d16dde0a31953442ab9b2096f1c423e5ee0d"
+    },
+    {
       "fileName": "SEED-418_expire-published-session-records.json",
       "identity": "SEED-418#expire-published-session-records",
       "completedAt": "2026-11-22T06:19:28.119Z",

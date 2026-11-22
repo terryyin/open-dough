@@ -11,6 +11,11 @@ export const sessionCommitsDescription =
 
 export const sessionCommitsName = "Session commits";
 
+// The warning a comparison carries when another session was open in the same
+// checkout meanwhile, here and in a published session's review.
+export const sharedCheckoutWarning =
+  "Another session was open in the same checkout during that time, so the comparison may include that session's work.";
+
 export function SessionCommitsContext({
   review: { session, baseline, tree },
 }: {
@@ -33,8 +38,7 @@ export function SessionCommitsContext({
       </p>
       <p>
         From <code>{baseline}</code> to <code>{tree}</code>.
-        {session.shared === true &&
-          " Another session was open in the same checkout during that time, so the comparison may include that session's work."}
+        {session.shared === true && ` ${sharedCheckoutWarning}`}
       </p>
     </div>
   );
