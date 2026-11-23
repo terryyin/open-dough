@@ -1,22 +1,22 @@
-// Shared typed mount for the open Sessions list: page contexts, observed
-// launches, open-row DOM readers, and the production open-list reading used
-// by the mounted family.
-import { createElement, type ReactElement } from "react";
+import { createElement } from "react";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { MachineAnswer } from "../../src/agentLaunch.ts";
+import { DashboardBanner } from "../../src/DashboardBanner.tsx";
 import type { LaunchRecord, SessionState } from "../../src/launchRecord.ts";
-import type { LaunchWithState } from "../../src/agentLaunch.ts";
+import { PageFrame } from "../../src/PageFrame.tsx";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
-import { SessionsOnPage, type PageSessions } from "../../src/pageSessions.ts";
+import type { SessionServices } from "../../src/sessionServices.ts";
 import {
-  SessionsButton,
-  SessionsSidebarOnPage,
-  type SessionsSidebarState,
-} from "../../src/SessionsSidebar.tsx";
-import { SessionsSidebarOpenList } from "../../src/SessionsSidebarOpenList.tsx";
+  sidebarKey,
+  withFramePreference,
+  withPagePreferences,
+} from "../../test-support/component-mount/framePreferences.ts";
+import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 
-export const doughnut = makeMe.aPublishedSource
+const doughnut = makeMe.aPublishedSource
   .with({
     id: "doughnut",
     label: "Doughnut",
@@ -24,129 +24,71 @@ export const doughnut = makeMe.aPublishedSource
   })
   .please();
 
-const pageSessions: PageSessions = {
-  hostOperations: {
-    claude: {
-      attach: true,
-      stop: false,
-      doneStop: false,
-      localDone: true,
-      launchedSessions: true,
-    },
-  },
-  presentTerminal: () => undefined,
-  openSession: () => undefined,
-  shownSession: undefined,
-  markDone: () => Promise.resolve("marked" as const),
-  markRead: () => Promise.resolve(true),
-  deleteRecord: () => Promise.resolve({ kind: "deleted" as const }),
-  recoverSession: () => Promise.resolve(undefined),
-  stopSession: () => Promise.resolve(undefined),
-};
-
-export function present<T>(found: T | null | undefined, what: string): T {
-  if (found === null || found === undefined) throw new Error(`No ${what}`);
-  return found;
-}
-
-export function entries() {
-  return [
-    ...document.querySelectorAll<HTMLElement>(
-      ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
-    ),
-  ];
-}
-
-export function entryOf(title: string) {
-  return entries().find(
-    (entry) =>
-      entry.querySelector("h3.sessions-sidebar-session-entry-title")
-        ?.textContent === title,
-  );
-}
-
-export function openControlOf(entry: HTMLElement) {
-  return present(
-    entry.querySelector<HTMLButtonElement>(
-      "button.sessions-sidebar-session-entry-open",
-    ),
-    "row open control",
-  );
-}
-
 export function observe(
   records: readonly { record: LaunchRecord; state: SessionState }[],
-): readonly LaunchWithState[] {
+): MachineAnswer {
   return makeMe.aMachineAnswer
     .observing(
       ...records.map(({ record, state }) =>
         makeMe.anObservedLaunch.of(record).withSessionState(state).please(),
       ),
     )
-    .please().records;
+    .please();
 }
 
-export type OpenSessionsReadingOptions = {
-  /** Sessions button in the tree so the attention badge can be observed. */
-  withAttentionBadge?: boolean;
-  /** Sidebar width for compact-row layout; adds the production sidebar class. */
-  sidebarWidth?: string;
-};
-
-export function openReading(
-  records: readonly LaunchWithState[],
-  options: OpenSessionsReadingOptions = {},
-): ReactElement {
-  const sidebar: SessionsSidebarState = {
-    open: true,
-    toggle: () => undefined,
-    closeOverPage: () => undefined,
-    records,
-    alerts: { available: true },
-  };
-  const list = createElement(SessionsSidebarOpenList, {
-    records,
-    alerts: sidebar.alerts,
-    open: true,
-    onOpen: () => undefined,
-  });
-  const aside = createElement(
-    "aside",
-    {
-      key: "sidebar",
-      id: "sessions-sidebar",
-      className:
-        options.sidebarWidth !== undefined ? "sessions-sidebar" : undefined,
-      "aria-label": "Sessions sidebar",
-      style:
-        options.sidebarWidth !== undefined
-          ? { width: options.sidebarWidth }
-          : undefined,
-    },
-    list,
+const projects = [doughnut];
+const unreadAnswer = makeMe.aMachineAnswer.please();
+const doNothing = () => {};
+const readUnavailableHost: SessionServices["readHostStatus"] = () =>
+  Promise.resolve(
+    makeMe.aHostStatus.with({ cpuPercent: null, freeBytes: null }).please(),
   );
-  const children = options.withAttentionBadge
-    ? [
-        createElement(
-          "div",
-          { key: "banner", className: "banner" },
-          createElement(SessionsButton, null),
-        ),
-        aside,
-      ]
-    : aside;
-  return createElement(ProjectsOnPage, {
-    projects: [doughnut],
-    replaceProjects: () => undefined,
-    children: createElement(SessionsOnPage, {
-      value: pageSessions,
-      children: createElement(SessionsSidebarOnPage, {
-        value: sidebar,
-        children: createElement(PageReadsOnPage, {
-          reads: pageReadsSupplying({}),
-          children,
+
+export async function mountOpenSessions(
+  answer: MachineAnswer | undefined,
+  readHostStatus: SessionServices["readHostStatus"] = readUnavailableHost,
+) {
+  withFramePreference(sidebarKey, "true");
+  withPagePreferences({ sessionsSidebar: "kept" });
+  const defaults = pageReadsSupplying({});
+  const reads = pageReadsSupplying({
+    sessions: { ...defaults.sessions, readHostStatus },
+  });
+  const reading = (next: MachineAnswer | undefined) => {
+    const machine = machineSessionsAnswering({ answer: next ?? unreadAnswer });
+    return createElement(PageReadsOnPage, {
+      reads,
+      children: createElement(ProjectsOnPage, {
+        projects,
+        replaceProjects: doNothing,
+        children: createElement(PageFrame, {
+          sessions: { ...machine, records: next?.records },
+          stories: {
+            selected: doughnut.id,
+            shown: undefined,
+            select: doNothing,
+            show: doNothing,
+            development: true,
+            work: undefined,
+          },
+          children: createElement(DashboardBanner, {
+            source: doughnut,
+            perspective: "development",
+            onOpenSettings: doNothing,
+            onSelect: doNothing,
+            onSelectPerspective: doNothing,
+          }),
         }),
       }),
-    }),
+    });
+  };
+  const mounted = await mountComponent(reading(answer), {
+    viewport: { width: 1280, height: 800 },
+    fillsViewport: true,
   });
+  return {
+    supplySessions: (answer: MachineAnswer) => {
+      mounted.rerender(reading(answer));
+    },
+  };
 }

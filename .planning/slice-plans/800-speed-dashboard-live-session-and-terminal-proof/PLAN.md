@@ -3,6 +3,29 @@
 **Identity:** SEED-413#speed-dashboard-live-session-and-terminal-proof
 **Source:** [Get fast proof of live sessions and terminal work](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof)
 
+## Execution context
+
+- Story Branch Mode with publisher `dashboard-territory.local-open-dough`
+  and agent Shunka-chan. The owned worktree is
+  `/Users/terryyin/git/open-dough/.worktrees/get-fast-proof-of-live-sessions-and-terminal-wor`,
+  on `codex/get-fast-proof-of-live-sessions-and-terminal-wor`. The separate
+  default checkout is `/Users/terryyin/git/open-dough`.
+- The established claim `f41e39c2388a36ea678d7e5fa13b4694698e1879`
+  extends `4c0b4a9cb940d533b65f40ab450001d473224e05` and was verified on
+  `origin/main` and the remote story branch. Development dependencies were
+  installed with `npm ci` in the owned worktree, and
+  `npm run typecheck:dashboard` passed.
+- Story-branch GitHub Actions observer for `terryyin/open-dough` and
+  workflow `ci.yml`. Coordinator `shunka-413-1cc9a5a7`,
+  directory `/tmp/dough-ci-501/watch-ISPmje`, PID `47816`,
+  Codex stream session `13832`, cell `g496:14`. The earlier trunk
+  claim is outside this observer's coverage.
+- Compare the scoped frontend selections on this AC-powered 16-core
+  macOS host at two workers. Preparation is included in wall time.
+  The baseline started with 49% free memory and no competing test
+  command observed. Reconsider if another heavy run or memory
+  pressure affects the comparison.
+
 ## Goal and scope
 
 Give dashboard maintainers faster feedback that live sessions appear with the
@@ -21,7 +44,7 @@ clipboard and microphone journeys stay in existing `e2e/sessions/`,
 
 ## Current decisions
 
-- Apply the [campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories),
+- Apply the [campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-frontend-stories),
   [Architectural North Star](../../NORTH-STAR.md)
   (directly testable production; act as soon as the page allows; plain Vitest
   for unit),
@@ -56,12 +79,21 @@ clipboard and microphone journeys stay in existing `e2e/sessions/`,
   counts by engine and destination, any E2E cost, and the slowest remaining
   cases. Accept consolidation when the proof still distinguishes the preserved
   risks.
-- Inventory today: 31 Playwright legacy sources (~77 runtime cases) plus five
-  already-mounted Vitest open-sidebar and Done-disclosure files (12 cases)
-  that this story remounts or keeps. `board-done-session-placement` stays with
-  Done placement / review. Source inspection on this checkout; wall-time
-  baseline for the legacy Playwright selection is recorded after checkout-local
-  `npm ci` restores the Playwright CLI.
+- The pinned `f41e39c23` baseline passed 77 Playwright cases in 31
+  legacy sources at two workers, in 94.855 s with the quiet reporter
+  and 110.911 s with the repository's case proof and timing recorders.
+  Wall time includes preparation. The local evidence is
+  `legacy-baseline.log.run.json`, `legacy-campaign-baseline.log.run.json`,
+  `legacy-campaign-baseline.json` and `legacy-campaign-times.json`.
+  A neighboring worktree also ran a two-worker Playwright selection
+  during the first run. The recorded run overlapped the sidebar's short
+  focused proof. Treat individual timings as approximate.
+  The slowest cases in the recorded run were paused-text scroll and
+  copy (12.648 s), the two report-divider cases (10.951 s and 7.985 s),
+  and report choices through resize and rotation (7.480 s).
+- The five mounted Vitest files in slice 1 also passed all 12 cases at
+  baseline in 3.468 s wall. `board-done-session-placement` stays with
+  Done placement and review.
 
 ## Local gate
 
@@ -92,7 +124,7 @@ Frontend spec names below are relative to `dashboard/frontend-tests/` and omit
 ### 1. Open Sessions sidebar remounts through the production page frame
 
 Type: Structure
-Status: planned
+Status: done
 
 Remount `sessions/sessions-sidebar-order`, `sessions/sessions-sidebar-row`,
 `sessions/sessions-sidebar-state-edge`, `sessions/sessions-sidebar-host-status`,
@@ -109,6 +141,19 @@ host-status observations.
 helper no longer imports or creates `SessionsSidebarOpenList`; host status
 reads through `SessionServices.readHostStatus` rather than a bare
 `SessionsSidebarStatus` tree when the sidebar owns the figures.
+
+**Accepted proof.** The attention-order probe passed through production
+`PageFrame` and `DashboardBanner`. The five-file selection passed all
+12 cases at two workers (5.154 s wall), covering order and badge changes,
+row size, age, tooltip and state cues, host reads and their recovery,
+and Done disclosure. Host-status samples now enter through required
+`SessionServices.readHostStatus`; the failed HTTP adapter case stays
+at its direct adapter boundary. The independent refactor consolidated
+row selectors and repeated its four affected cases and dashboard typecheck.
+The structure-only remount makes no speed claim against the 3.468 s
+baseline. The detailed run and consumer evidence is in
+`slice-1-return.md` and `slice-1-refactor-return.md` in the worktree's Git
+evidence directory.
 
 ### 2. Card and compact session actions keep Mark Done and Delete truthful
 
@@ -255,7 +300,3 @@ text.
   slices 1 and 6; no duplicated domain rule or unmapped key example remains.
 - **Remaining concerns.** None identified beyond the early-probe-bounded
   remount and `openTerminal` premises above.
-
-## Story obligations
-
-(none yet)

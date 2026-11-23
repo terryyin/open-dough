@@ -4,15 +4,14 @@
 import { expect, onTestFinished, test, vi } from "vitest";
 import { cdp } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { mountOpenSessions, observe } from "./sessions-sidebar-open-mount.ts";
 import {
   entries,
   entryOf,
-  observe,
   openControlOf,
-  openReading,
   present,
-} from "./sessions-sidebar-open-mount.ts";
+  titleOf,
+} from "./sessions-sidebar-page.ts";
 
 // Vitest browser contexts start with hasTouch; desktop row CSS hides Session
 // details under `(any-pointer: coarse)` absent. Restore touch when the case ends.
@@ -70,17 +69,7 @@ function shortAndLongOpenRows(launchedAt: Date) {
 }
 
 async function mountShortAndLongOpenRows(launchedAt: Date) {
-  await mountComponent(
-    openReading(shortAndLongOpenRows(launchedAt), { sidebarWidth: "18rem" }),
-    { viewport: { width: 1280, height: 800 } },
-  );
-}
-
-function titleOf(entry: HTMLElement) {
-  return present(
-    entry.querySelector<HTMLElement>("h3.sessions-sidebar-session-entry-title"),
-    "row title",
-  );
+  await mountOpenSessions(shortAndLongOpenRows(launchedAt));
 }
 
 function elapsedOf(entry: HTMLElement) {
@@ -184,11 +173,7 @@ test("the elapsed time is the largest whole unit, and advances on the 30 second 
 
   await mountShortAndLongOpenRows(launchedAt);
 
-  // Fake timers hold React's first paint; poll with a short interval so the
-  // 30s production tick does not fire before the age steps below.
-  await expect
-    .poll(() => entries().length, { interval: 5, timeout: 2_000 })
-    .toBe(2);
+  await expect.poll(() => entries().length).toBe(2);
   const shortEntry = present(entryOf(shortWork.title), "short row");
   const longEntry = present(entryOf(longWork.title), "long row");
   const at = launchedAt.getTime();
