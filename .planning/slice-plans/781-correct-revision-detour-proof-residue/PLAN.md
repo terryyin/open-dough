@@ -227,7 +227,7 @@ slice 6 reuses `backToStory` for the homepage spec's inline locator.
 ### 3. Intent mode keys stay handled before project cycling
 
 Type: Behavior
-Status: planned
+Status: done
 
 With the CI status file open, send Arrow, Home and End navigation keys.
 Observe them on a bubbling window listener with `defaultPrevented` true.
@@ -243,6 +243,13 @@ without `IntentTabs.tsx`'s `preventDefault`. Restore it, remove the redundant
 E2E step and its imports and update the unit spec's header. Run the two E2E
 specs named in the local gate and the eligibility spec through its existing
 unit runner.
+
+**Delivered.** The keyboard and Candidates activation cases moved to
+`intent-home-activation-keys.spec.ts`, sharing the browsed-file setup through
+`intent-browsed-file-page.ts`. A window keydown listener sees all six keys
+prevented; without `IntentTabs`'s `preventDefault` it sees none. The E2E
+arrow-key URL step and its imports are gone; both E2E specs and the
+eligibility spec pass.
 
 ### 4. Recent stories retains only a demonstrated E2E routing check
 
