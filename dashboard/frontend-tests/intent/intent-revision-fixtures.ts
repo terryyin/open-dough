@@ -1,4 +1,3 @@
-import { createElement, useLayoutEffect, useState } from "react";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   pygardonFeatures,
@@ -7,12 +6,10 @@ import {
 import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { IntentMode } from "../../src/intentProjectTabs.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
-import { PageReadsOnPage } from "../../src/pageReads.tsx";
-import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
-import { IntentReadingProvider } from "../../src/pageIntentReading.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { unreadCiReads } from "../../test-support/component-mount/unreadPageReads.ts";
+import { intentCandidates } from "./intent-candidates-page.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 
 type Read<T> = (signal: AbortSignal) => Promise<T>;
 
@@ -94,75 +91,39 @@ export async function mountProjectIntent(
   return mountIntentReading(readSource, revision, "ci");
 }
 
-// Project Intent on the reader's chosen view, which it keeps across
-// rerenders with newly published work.
-function ChosenView({
-  work,
-  initial,
-  onOfferCommitted,
-}: {
-  readonly work: PublishedWork;
-  readonly initial: IntentMode;
-  readonly onOfferCommitted: (() => void) | undefined;
-}) {
-  const [mode, setMode] = useState(initial);
-  useLayoutEffect(() => {
-    onOfferCommitted?.();
-  }, [onOfferCommitted]);
-  return createElement(ProjectIntentReading, {
-    source: work.source,
-    work,
-    project: { mode, modeIdPrefix: "project-intent", onModeChange: setMode },
-    projectShown: true,
-  });
-}
-
-// Mounts Project Intent at `revision`, reading through `readSource` and
-// starting on `mode`. The reader's chosen view survives each newly offered
-// revision, as on the page.
+// Mounts the page's production Intent body on Pygardon's work at `revision`,
+// reading through `readSource`, on CI status or, through its tab, on
+// Optimization Candidates. Each operation returns once the page committed
+// the view it asks for.
 export async function mountIntentReading(
   readSource: IntentReadSource,
   revision: string,
-  mode: IntentMode,
+  view: IntentMode,
 ) {
   const source = makeMe.aPublishedSource.pygardon.please();
   const workAt = (observed: string) =>
     makeMe.aPublishedWork.of(source).at(observed).please();
-  const reading = (
-    work: PublishedWork,
-    shown: boolean,
-    onOfferCommitted?: () => void,
-  ) =>
-    createElement(
-      PageReadsOnPage,
-      { reads: pageReadsSupplying({ intent: readSource }) },
-      createElement(IntentReadingProvider, {
-        project: work.source.id,
-        children:
-          shown &&
-          createElement(ChosenView, {
-            work,
-            initial: mode,
-            onOfferCommitted,
-          }),
-      }),
-    );
-  const intent = await mountComponent(reading(workAt(revision), true), {
+  const intent = await mountIntentCiPage({
+    work: workAt(revision),
     viewport: { width: 1280, height: 600 },
-    fillsViewport: true,
+    reads: { intent: readSource, ci: unreadCiReads },
   });
+  if (view === "candidates") await intentCandidates().choose();
+  let reading = true;
   return {
-    offerRevision: (observed: string) => {
-      const committed = new Promise<void>((resolve) => {
-        intent.rerender(reading(workAt(observed), true, resolve));
-      });
-      return { committed };
+    // The page observes `observed`, and the reader is back on Intent.
+    async offerRevision(observed: string) {
+      await intent.showWork(workAt(observed));
+      if (!reading) await intent.showIntent();
+      reading = true;
     },
-    closeReading: (observed: string) => {
-      intent.rerender(reading(workAt(observed), false));
+    // The reader leaves Intent for Development, where the page then
+    // observes `observed`.
+    async closeReading(observed: string) {
+      await intent.showDevelopment();
+      reading = false;
+      await intent.showWork(workAt(observed));
     },
-    showProject: (work: PublishedWork) => {
-      intent.rerender(reading(work, true));
-    },
+    showProject: (work: PublishedWork) => intent.showWork(work),
   };
 }

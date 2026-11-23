@@ -46,28 +46,34 @@ export function keptIntentCandidatesAt(
 }
 
 // The candidates record published at `revision`, or absent / unreadable when
-// the fixed path is missing or could not be read.
-export function readIntentCandidatesAt(
-  source: PublishedSource,
-  revision: string,
-  signal: AbortSignal,
-): Promise<IntentCandidatesReadResult> {
-  const query = candidatesQuery(source, revision);
-  return memoizedAnswer(
-    query,
-    (shared) => askIntentCandidatesAt(query, revision, shared),
-    signal,
-    (read) => read.status !== "unreadable",
-  );
+// the fixed path is missing or could not be read, asked through `get`.
+export function intentCandidatesReader(get: typeof authenticatedGet) {
+  return (
+    source: PublishedSource,
+    revision: string,
+    signal: AbortSignal,
+  ): Promise<IntentCandidatesReadResult> => {
+    const query = candidatesQuery(source, revision);
+    return memoizedAnswer(
+      query,
+      (shared) => askIntentCandidatesAt(get, query, revision, shared),
+      signal,
+      (read) => read.status !== "unreadable",
+    );
+  };
 }
 
+// The page's candidates reader, asking the local authenticated read boundary.
+export const readIntentCandidatesAt = intentCandidatesReader(authenticatedGet);
+
 async function askIntentCandidatesAt(
+  get: typeof authenticatedGet,
   query: string,
   revision: string,
   signal: AbortSignal,
 ): Promise<IntentCandidatesReadResult> {
   const reading = readingPathAt(testOptimizationCandidatesPath, revision);
-  const body = await authenticatedGet(query, reading, signal);
+  const body = await get(query, reading, signal);
   const parsed = okCandidates.safeParse(body);
   if (!parsed.success || parsed.data.revision !== revision) {
     throw unexpectedAnswer(reading);

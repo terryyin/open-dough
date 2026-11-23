@@ -11,6 +11,8 @@ import {
 // (../../dashboard/src/IntentPerspective.tsx). Switching scopes reuses each reading;
 // an observed hidden trunk or story head refreshes only its own judgment.
 // Reading-place restoration: ../../dashboard/frontend-tests/intent/intent-project-visit.spec.ts.
+// Recent stories returns to the story with the Intent perspective in the URL;
+// its rows in Intent: ../../dashboard/frontend-tests/intent/intent-recent-stories.spec.ts.
 
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
@@ -31,9 +33,12 @@ import {
   untilPageReadsAnswered,
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
+  expectIntentModeChosen,
+  intentModeTab,
   openProjectIntent,
   returnToStory,
 } from "../../dashboard/test-support/intentModePage.ts";
+import { returnFromProjectIntentWithRecentStories } from "../../dashboard/test-support/recentStoriesPage.ts";
 import {
   browserRevision,
   revisionNotice,
@@ -73,6 +78,26 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     await expectCiScope(ciPanel(intent), failing.branch);
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([]);
+  });
+
+  await test.step("arrow keys choosing Project Intent's view keep the page's URL", async () => {
+    await openProjectIntent(intent);
+    const visited = page.url();
+    const ciTab = intentModeTab(intent, "CI status");
+    await ciTab.press("ArrowRight");
+    await expectIntentModeChosen(intent, "Optimization Candidates");
+    await intentModeTab(intent, "Optimization Candidates").press("ArrowLeft");
+    await expectIntentModeChosen(intent, "CI status");
+    await expect(ciTab).toBeFocused();
+    expect(page.url()).toBe(visited);
+    await returnToStory(intent);
+    await untilPageReadsAnswered(page);
+  });
+
+  await test.step("Recent stories returns from Project Intent to the story, keeping the Intent perspective in the URL", async () => {
+    await returnFromProjectIntentWithRecentStories(page, intent);
+    expect(new URL(page.url()).searchParams.get("perspective")).toBe("intent");
+    await untilPageReadsAnswered(page);
   });
 
   await test.step("a trunk advance while the story shows reads exactly the trunk judgment", async () => {

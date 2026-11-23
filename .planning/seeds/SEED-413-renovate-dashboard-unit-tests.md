@@ -458,7 +458,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 2e | [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof) | 49 | 18 |
 | 3a | Get fast proof of Intent locations read recovery and settings problems (completed; recoverable at `e0f7d6a6a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading`) | 7 | 2 |
 | 3b | Get fast proof of Intent source browsing and pinned links (completed; recoverable at `8fb7691cc:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours`) | 12 | 10 |
-| 3b′ | [Get fast proof of Intent revision reading and reading-place detours](#speed-intent-revision-and-detour-reading) | 10 | 7 |
+| 3b′ | Get fast proof of Intent revision reading and reading-place detours (completed; recoverable at `3619577173:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading`) | 10 | 7 |
 | 3c | [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading) | 41 | 19 |
 | 4 | Get fast proof of board and side-panel interactions (completed) | 63 | 28 |
 | 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
@@ -664,62 +664,34 @@ boundary alongside Read Intent, CI, review and side-panel sessions through one r
   case-count, spent-support, and coverage checks. Summary proof gives faster
   feedback as soon as its slices land.
 
-<a id="speed-intent-revision-and-detour-reading"></a>
+<a id="correct-revision-detour-proof-residue"></a>
 
-### Get fast proof of Intent revision reading and reading-place detours
+### Correct the proof residue of Intent revision reading and detours
 
-**Identity:** SEED-413#speed-intent-revision-and-detour-reading
+**Identity:** SEED-413#correct-revision-detour-proof-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/778-speed-intent-revision-and-detour-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"44a13037299576553e23a002191e3853cc64d51c7669ad6cad85c32453e11d09","plan":"4f24dca4166f09716bc6f30149d1c6fb8855fb86133bbb90957ac95b67e3b663"}}
-```
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#speed-intent-revision-and-detour-reading","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-browsing-and-detours","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours"},"implementation":"Plan 762 Slices 1–9 put the page observation's reads and the source highlighter in the required typed page entry, move the settings-problem, Candidates and source-browsing cases onto the production Intent body through mountIntentCiPage, and add the page-loadable MakeMe replies (unreachable authenticated read, rate-limited Intent reply) on pageMakeMe.mjs.","rationale":"The remainder moves the intent-revision-fixtures copies, home activation and reading-place cases onto the same mountIntentCiPage, page-entry members and MakeMe replies. Starting first would rebuild them on the unsplit branch or duplicate them inside this story.","condition":"SEED-413#speed-intent-source-browsing-and-detours has landed its narrowed Slices 1–9 on main.","state":"satisfied","resolution":{"revision":"8fb7691cc258b6141c7e867b8717b39ab51f5c80","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours","summary":"Plan 762 Slices 1–9 are done at the before-cleanup revision: PageReads carries required observation and highlight members supplied by authenticatedPageReads; the settings-problem, malformed-settings, Candidates, source-link, folder-summary, Gherkin and Java/purpose cases run on the production Intent body through mountIntentCiPage; makeMe.anUnreachableAuthenticatedRead and makeMe.aRateLimitedIntentReply live on pageMakeMe.mjs. Branch CI succeeded at 446a972b6 and 75290fae6.\nCondition satisfied: SEED-413#speed-intent-source-browsing-and-detours has landed its narrowed Slices 1–9 on main.\nCondition satisfied: SEED-413#speed-intent-source-browsing-and-detours has landed its narrowed Slices 1–9 on main.\nAccepted integration: 75c1b62dc35352f926d90964e56e3429d1270842 on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/781-correct-revision-detour-proof-residue/PLAN.md","assessment":"not-ready","reasons":["Premise open: a bubbling window keydown listener in intent-home-activation-scope case 2 sees the Intent tab keys defaultPrevented, and not without IntentTabs' preventDefault; unreached scratch Vitest run (scratch runs were refused during planning).","Premise open: the reader cases on one shared revision pass with onTestFinished(forgetAnswers) and fail without it; unreached scratch Vitest run of intent-candidates-reader-reuse."],"basis":{"document":"84545629bd0d3181637b68a60c2e98f684e2c52823f258d7dacb121d23eace61","plan":"5bbcc582e0c7fe526089471642b9fe9f2ec5c90f9c96dc71ae369a2a1144ceab"}}
 ```
 
-Split from Get fast proof of Intent source browsing and pinned links
-(recoverable at `8fb7691cc:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours`)
-on 23 November 2026 at plan 762's delivered Slice 9 boundary.
+Correction from the execution retrospective of
+Get fast proof of Intent revision reading and reading-place detours
+(completed; recoverable at `3619577173:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading`;
+commits `702d1a213..a96f35847`). Its promises stay as written.
 
-- **Goal.** Dashboard maintainers get faster feedback on revision changes,
-  CI home activation, and the reading place a developer returns to in
-  Intent. The proof distinguishes the revision the reader sees from the
-  one being offered or retried.
-- **Scope.** Use the production Intent body and typed page reads for the
-  existing revision and pinned-source cases. Replace six of the ten
-  remaining built-app cases: the first two home-activation cases, Candidates
-  read-once reuse, both reading-place cases, and Recent stories in Intent.
-  Keep browser routing assertions in a representative E2E journey and
-  prove Candidates request reuse at the authenticated reader. Apply the
-  two plan 762 retrospective corrections to the Candidates backoff
-  fixture and source-link popup coverage.
-- **Key examples**
-  - A later revision is offered while a file is open. Show latest keeps
-    the applicable Purpose while the read is pending. If a pinned read
-    fails, the reader sees the cause and can Retry. A selected Candidates
-    case keeps line 44, focus and scroll when the replacement source arrives.
-  - A developer activates CI comparison from a story's Changes. The panel
-    judges the story branch. Project Intent judges trunk in its own scope,
-    and returning restores the story's file.
-  - A developer leaves a nested diff for another story tab or Development.
-    Returning restores the file, tree arrangement, story-only filter and
-    Purpose offset without repeating the locations or file reads. A visit
-    to another project clears that reading place. Recent stories can return
-    to the selected story's start or choose another remembered story while
-    staying in Intent.
-  - Leaving and returning to Candidates displays the record again with
-    one authenticated read for the shown revision. If a retry encounters a
-    standing GitHub limit, it waits until that limit ends.
-- **Deferred proof.** The third home-activation case (a revision discovered
-  by observation), the two project-visit cases, and the selection made
-  while startup detail completes keep their existing checks for
-  [the observation story](#drive-published-observation-through-page-entry).
-  That story also owns moving the Candidates backoff case off its current
-  recovery mount.
-- **Evaluation.** Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories).
-  Record a proof owner for each retired assertion and compare two-worker
-  preparation and runtime for the original 15-file cohort, with the four
-  retained legacy cases and any E2E cost visible. The legacy baseline was
-  22 Playwright cases in 26.8 seconds at load 10.0 on 22 November 2026.
+**Goal.** Dashboard maintainers get Intent proof that fails when its
+behavior breaks and page objects they change in one place. The Intent mode
+tabs' arrow, Home and End keys are proved not to reach page-wide project
+switching, and no E2E step claims routing it cannot detect.
+
+**Scope.** Replace the E2E arrow-key URL step with a Vitest observation that
+the tabs' keys reach the page already handled. Break-check the E2E Recent
+stories step, then keep it under the risk it detects or remove it with its
+helper. Move the duplicated story-tab, Project Intent and folder-opening
+page-object code to one owner each, and reset the Candidates reader's answer
+memo between its cases. The four retained legacy cases and the page shell
+stay with
+[the observation story](#drive-published-observation-through-page-entry).
+Plan: [781](../slice-plans/781-correct-revision-detour-proof-residue/PLAN.md).
 
 <a id="drive-published-observation-through-page-entry"></a>
 
@@ -747,7 +719,9 @@ on 22 November 2026, when its correction found that rendering production
   page, standing-limit end, the wait shared with published detail) move onto
   `ConfiguredDashboard`, and the `PageIntentRecovery` copy and
   `intent-candidates-publication.ts`'s `mountIntentOnObservationRecovery`
-  composition are deleted. The
+  composition are deleted. The page shell `mountIntentCiPage` recomposes
+  from `ConfiguredDashboard` (frame, story navigation, banner and notice
+  around `BoardOrIntent`) becomes a production owner that both render. The
   retired legacy source-navigation case's check that showing story links
   reads exactly the in-repository canonical files returns here, on the
   observation's preparation reads, and the retired Gherkin layout case's

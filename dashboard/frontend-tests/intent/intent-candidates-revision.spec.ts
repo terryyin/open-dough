@@ -75,7 +75,7 @@ async function showLatestAfterOffer(reply: Reply) {
   });
   const intent = await mountIntentReading(readSource, before, "candidates");
   await intentCandidates().shows("launch-records-poll-waits");
-  intent.offerRevision(after);
+  await intent.offerRevision(after);
   await (await intentRevisionNotice().isShownOnce()).showLatest();
   return { reads, candidates: intentCandidates() };
 }
@@ -88,7 +88,7 @@ test("Optimization Candidates shown across a new revision stays chosen and reads
   await candidates.isRecordedAt(before);
   await candidates.shows("launch-records-poll-waits");
 
-  intent.offerRevision(after);
+  await intent.offerRevision(after);
   const notice = await intentRevisionNotice().isShownOnce();
   await candidates.isChosen();
   await candidates.isRecordedAt(before);

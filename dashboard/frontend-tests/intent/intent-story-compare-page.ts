@@ -2,8 +2,13 @@
 // (./intent-story-compare-stories.ts) as a reader meets its comparison: the
 // header's revisions line and its Compare group (the comparison choice, the
 // story's commits, the uncommitted check, Refresh and the range read), the
-// story's views, the Changes file list and the selected file's diff.
+// story's views, the Changes file list, its folders and "Selected story
+// only" filter, and the selected file's diff in the reading pane.
 import { page, userEvent } from "vitest/browser";
+import {
+  intentReadingPane as readingPane,
+  scrollReadingHalfway,
+} from "./intent-browser-page.ts";
 
 const escaped = (name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -132,6 +137,16 @@ export function intentStoryCompare() {
     chooseTab: (name: View) => userEvent.click(viewTab(name)),
     // A listed file's control, named by its kind and path.
     file: (name: string) => intent.getByRole("button", fileNamed(name)),
+    // A location's or folder's toggle, by its name and whether it is open.
+    folderToggle: (name: string, open: boolean) =>
+      intent.getByRole("button", {
+        name: `${open ? "Collapse" : "Expand"} ${name}`,
+        exact: true,
+      }),
+    readingShown: () => readingPane()?.checkVisibility() ?? false,
+    readingText: () => textOf(readingPane()),
+    readingOffset: () => readingPane()?.scrollTop,
+    scrollReadingHalfway,
     purposeText: () => textOf(purpose.element()),
     diffName: () =>
       textOf(

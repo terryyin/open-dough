@@ -1,15 +1,17 @@
 # Near-term watch list
 
 ```json dough-feedback-review
-{ "schemaVersion": 1, "reviewed": "2026-11-18", "reviewAfter": "2026-11-25" }
+{"schemaVersion":1,"reviewed":"2026-11-23","reviewAfter":"2026-11-30"}
 ```
 
-Reviewed 2026-11-18 (Asia/Singapore): Open Dough, Doughnut, Pygardon,
-Lizard and Clipboard supplied logs. Terry Talks has process retrospective off.
-The examined executions contain no verified use meeting the watch condition.
-Doughnut's wrap-up scope note records what remained outside the story. It
-does not record a decision applying a restriction to planned or executed
-work. The watch remains unstarted.
+Reviewed 2026-11-23 (Asia/Singapore): Open Dough, Doughnut, Pygardon,
+Clipboard and Lizard supplied logs. Lizard enabled process retrospectives
+on `origin/master` before publication. Terry Talks enabled process
+retrospectives and has no canonical log. No verified execution met this
+watch’s condition.
+Doughnut DD-500 concerns classifying scope notes at wrap-up. Open Dough DD-619
+concerns approval to relax an independent restriction. The watch remains
+unstarted.
 
 <a id="scope-limits-and-required-restrictions"></a>
 

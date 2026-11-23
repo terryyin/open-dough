@@ -94,70 +94,68 @@ homes before work starts.
 
 **Identity:** SEED-341#keep-attention-completion-journey-within-timeout
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/776-keep-attention-completion-journey-within-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ffcba45c6828b3d024db7c285a0b2009a27e364eec0aa5ad04bf009f3965720a","plan":"700f5ee20d1364bf669cb03755b4b19823c0b01350fec15087e518605d0588b7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/782-keep-attention-completion-journey-within-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"34b563d30c4f1fff6a034381262bce312887f37dc630aa597c119b482a333d37","plan":"cffe317bfab61aa85f6b0b8b26047e97eb7d6a62c8aa6254e196390f2589e626"}}
 ```
 
-**Goal:** Developers get the same `agent-completion-attention` result locally
-and in CI whatever the machine load, so a red run names a real regression.
-Each case finishes inside the default 30 s test timeout.
+**Goal:** Developers can run the attention-completion journey on a busy
+development machine and in CI without exhausting the default 30-second case
+budget. The shorter cases preserve proof that an installed report stays
+available through workspace loss and restart, and that reading the report and
+marking the session done have distinct effects.
 
 **Scope:**
 
-- Split the journey in `e2e/sessions/agent-completion-attention.spec.ts`
-  ("installed attention report stays open, durable and readable through
-  column change, retirement, restart, Mark as read and Mark as done") into
-  two owners, the split the completed quiet completion journey established
-  (`agent-completion-quiet.spec.ts` keeps the installed closure and reporting
-  without the `page` fixture; `agent-completion-quiet-done.spec.ts` reads a
-  record composed through `retainedReport.ts` `retained()` and a recent
-  MakeMe completion receipt; under load 40–71 its cases took 27% less time,
-  and `DEBUG=pw:browser` shows whether a worker launched a browser):
-  - **Closure and reporting** proves, without a browser page, that the real
-    launch's installed attention report records a completion and leaves the
-    session open: the receipt and stored completion, no `doneAt`, no native
-    steering, a later unfinished report that still leaves `doneAt` unset,
-    the installed command still returning a receipt after the workspace is
-    removed, and the stored receipt surviving a dashboard restart.
-  - **Page** proves, from a composed Codex record that already carries the
-    attention completion, what the story card shows. It runs no launch, no
-    installed closure, and no installed reporting.
-- Keep every current observation, each at the owner named above. Remove no
-  observation unless another test already proves the same rule for a Codex
-  attention completion.
-- Keep the default timeout. Add no timeout override.
-- Scope limit: no other completion spec (`-quiet`, `-cursor`, `-execution`,
-  `-quiet-claude`) changes; no dashboard behavior changes. Fixture cost stays
-  inside the test budget, the lever the quiet journey's developer rejected.
-  Refused deliveries stay in
-  `dashboard/backend-tests/sessions/agent-completion-identity.spec.ts`.
+- Split `e2e/sessions/agent-completion-attention.spec.ts` at the retained
+  unfinished report. One case carries the actual installed report through the
+  open Board, the published move to Taken, workspace removal and server
+  restart. The other starts with that kind of retained record and exercises
+  the real Final report, Mark as read and Mark as done.
+- Keep the proof in the existing spec, with less setup and every distinct
+  observation accounted for. Reuse existing builders and page objects.
+  Keep private setup and observations inside the normal test budget.
+- This story edits only the attention spec. The existing backend proof owns
+  refused deliveries. The 30-second default, dashboard behavior, shared test
+  support and CI job configuration are outside the change.
 
 **Key examples:**
 
-- At load about 50 on 16 cores, each case in both owners passes inside 30 s.
-- Installed completed-with-attention: the receipt records the message and
-  the Codex session, the store keeps that completion, `doneAt` is absent, and
-  the native session receives no interrupt, rename, or new turn. A later
+- Under comparable contention to the reported timeout, around load 50 on 16
+  logical CPUs, both cases pass inside 30 seconds. Record per-case times
+  against the unsplit journey under matched conditions.
+- An installed completed-with-attention report returns a receipt with the
+  message and Codex session. The store keeps that completion, `doneAt` is
+  absent, and the native session receives no interrupt, rename, or new turn. A later
   installed unfinished report returns unfinished and the store keeps that
   message, with `doneAt` still absent. After the workspace directory is
   removed, the installed command still returns a receipt. After the
   dashboard process restarts, the stored receipt is that retained receipt.
-- A composed attention completion's story card shows the message as text
-  (the script tag is not an element), Working, "Unread report: Completed
-  with attention", and Mark as read. After the stored completion is
-  unfinished, the open card shows "Unfinished work". When the published
-  backlog moves that story from Backlog to Taken, the message is on the
-  Taken card, and removing the workspace path does not clear it.
-- The final report panel shows the native report and not the reminder, and
-  offers no Mark as read. Mark as read clears the button, records
-  `reportRead`, leaves `doneAt` unset, and adds no panel control. Mark as
-  done closes the panel, removes the message from the story card, sets
-  `doneAt` with no done problem, renames the native session, and interrupts
-  its in-progress turn. The Done entry shows Done and the new name, and the
-  message stays collapsed under "Unfinished work" until expanded; the final
-  report is still the native report.
+- On the next session read, the open Backlog card shows the installed message
+  as text with zero script elements, Working, "Unread report: Completed with
+  attention", and Mark as read. The later unfinished receipt changes the
+  open card to "Unfinished work". A published Take moves the same message to
+  the Taken card. A fresh page read after workspace removal and dashboard
+  restart still shows it there.
+- With an unread unfinished report on a Taken Codex session whose workspace
+  is gone, the Final report panel shows only the native report text. The
+  reminder and the Mark as read control belong to the card. Mark as read
+  clears the button, records `reportRead`, leaves `doneAt` unset, and adds
+  no panel control. Mark as done closes the panel, removes the message from
+  the story card, sets `doneAt` with no done problem, renames the native
+  session, and interrupts its in-progress turn. The Done entry shows Done
+  and the new name. The message stays collapsed under "Unfinished work"
+  until expanded, and the final report still shows the native report.
 
-**Baseline:** On 22 November 2026, during the preparation observations for
-the quiet completion split, the case timed out at 30 s once under 86 CPU
-burners plus the four sibling completion specs on `--workers 4`
-(load 52 → 59). The developer had already chosen the journey split over
-moving fixture cost or overriding the timeout.
+**Baseline and prior attempt**
+
+On 22 November 2026 the original case timed out once at 30 seconds during
+the quiet completion investigation, with shared completion specs at four
+workers and 86 CPU burners (load 52 → 59). The developer chose to split the
+case within its existing test budget.
+
+A separate browser-free closure ran in 7.5–11.9 seconds versus 17.7–20.0
+seconds for the combined case in a later 46-burner comparison. The
+[reverted implementation](https://github.com/terryyin/open-dough/commit/d2c918ddb49aeb962358eb2a30e220e145691047)
+grew 245 lines to about 478 across two specs and two new support modules. The
+first page slice also reached its active-time limit before proof. Keep the
+installed-report handoff to the page in one case and reuse the existing
+record builder for the remaining actions.

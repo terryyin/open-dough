@@ -1,3 +1,5 @@
+// Project Intent has separate request-reuse proof in the Candidates reader
+// and cached-reads cases.
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { scopeName } from "./intent-browser-page.ts";

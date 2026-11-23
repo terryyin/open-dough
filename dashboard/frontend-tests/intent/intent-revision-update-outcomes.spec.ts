@@ -39,14 +39,14 @@ test("reopening Project Intent after a failed update restores the old reading th
   const file = await browser.open(pygardonFeatures.jobs);
   await file.shows("Scenario: Archive a job");
 
-  intent.offerRevision(latest);
+  await intent.offerRevision(latest);
   const notice = await intentRevisionNotice().showLatest();
   const failure = `Revision ${shortRevision(latest)} could not be read: ${problem.message}`;
   await notice.reads(failure);
 
-  intent.closeReading(latest);
+  await intent.closeReading(latest);
   await browser.isClosed();
-  intent.offerRevision(latest);
+  await intent.offerRevision(latest);
 
   await notice.reads("Updating…");
   await browser.isAt(before);

@@ -5,6 +5,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 import { expectRoute } from "./agentRosterRecords.ts";
 import { parts, rosterParts } from "./dashboardParts.ts";
 import { expectDestinationCue } from "./destinationCue.ts";
+import { openProjectIntent, storyIntentFrame } from "./intentModePage.ts";
 import { expectProjectChoice, projectTab } from "./projectChoice.ts";
 import { expectReadingTop } from "./readingPlace.ts";
 import { recentStoriesKey, type RecentStory } from "../src/recentStories.ts";
@@ -69,6 +70,18 @@ export async function openRecentStories(page: Page): Promise<Locator> {
 
 export async function expectRecentStoriesClosed(page: Page) {
   await expect(recentStoriesPopover(page)).toHaveCount(0);
+}
+
+// From Project Intent, the button returns Intent to the selected story's view
+// with the list closed.
+export async function returnFromProjectIntentWithRecentStories(
+  page: Page,
+  intent: Locator,
+) {
+  await openProjectIntent(intent);
+  await recentStoriesButton(page).click();
+  await expect(storyIntentFrame(intent)).toBeVisible();
+  await expectRecentStoriesClosed(page);
 }
 
 export async function dismissRecentStoriesWithEscape(page: Page) {

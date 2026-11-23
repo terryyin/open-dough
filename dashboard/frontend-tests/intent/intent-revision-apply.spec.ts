@@ -47,10 +47,10 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await jobsReading.shows("Scenario: Archive a job");
   const scrolled = await browser.scrollHalfway();
 
-  intent.offerRevision(b);
+  await intent.offerRevision(b);
   await notice.reads(`New revision available — showing ${short(a)}`);
   // The notice already shows the offered action while its revision changes.
-  await intent.offerRevision(c).committed;
+  await intent.offerRevision(c);
   await notice.isShownOnce();
   await notice.offers(["Show latest"]);
   await jobsReading.isFocused();
@@ -84,7 +84,7 @@ test("a selected feature the latest revision deleted is explained, with nothing 
   const browser = intentBrowser();
   const jobsReading = await browser.open(jobs);
   await jobsReading.shows("Scenario: Archive a job");
-  intent.offerRevision(c);
+  await intent.offerRevision(c);
 
   await intentRevisionNotice().showLatest();
   await browser.explains(`${jobs} is not in revision ${short(c)}`);
