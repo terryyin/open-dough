@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 625. Removed numbers are never reused.
+- Highest allocated local number: 627. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
 - Occurrence history is partial.
 
@@ -478,6 +478,17 @@ A test-conversion slice wrote, in its assertion map, that an interim "no call of
 [Account and evidence at ODF-368](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-368.md#evidence-2026-11-23-open-dough-odf-368).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
+### Occurrences
+
+- Execution: SEED-413#speed-intent-revision-and-detour-reading (plan 778; first implementation `ea316f671`)
+  - Timestamp: 2026-11-23T08:40:41+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `702d1a213`; base 0.3.110
+  - Evidence: a Ready plan headed `## Slices and outside-in proof`. The first `story-obligations.mjs list --slice 1` refused `unreadable-slices`; after renaming to `## Slices` in the working plan, guarded fresh delivery refused "slice 7 is done … but not in its committed plan", because the committed heading was still unreadable. Repaired by the separate records commit `f5c5f876c`.
+  - Observed effect: one refused listing, one refused delivery and one extra commit before slice 1 published.
+  - Inference: the working-tree rename alone does not satisfy delivery, which also reads `HEAD`; planning or readiness rejecting the heading would avoid both stops.
+
 ## ODF-528 — A plan puts slices that wait for a week of post-landing ordinary work inside one Story Branch execution <a id="dd-580"></a>
 
 <a id="dd-580--a-plan-puts-slices-that-wait-for-a-week-of-post-landing-ordinary-work-inside-one-story-branch-execution"></a>
@@ -851,3 +862,34 @@ Former local code: DD-625.
 
 [Account and evidence at ODF-547](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-547.md#evidence-2026-11-23-open-dough-dd-625).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
+
+## DD-626 — A plan carried a built-app URL assertion into an E2E step without checking it could fail there <a id="dd-626"></a>
+
+Plan 778 slice 2 told the implementer to carry the legacy case's `project=open-dough` URL assertion to a keyboard step in an E2E journey. The single-project built page omits `project=`, so the implementer asserted that the URL stays unchanged after arrow keys. The step cannot fail, and the coordinator accepted it.
+
+### Occurrences
+
+- Execution: SEED-413#speed-intent-revision-and-detour-reading (plan 778; first implementation `ea316f671`)
+  - Timestamp: 2026-11-23T08:59:02+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `702d1a213`; base 0.3.110
+  - Evidence: slice 2 run `s2-e2e-1` failed the carried assertion; `388cde76a` added "arrow keys choosing Project Intent's view keep the page's URL" to `e2e/intent/intent-project-visit-ci.spec.ts`. The retrospective review found the Intent tab is not in the URL and the only real risk is `preventDefault` in `IntentTabs.tsx`. The correction is SEED-413#correct-revision-detour-proof-residue (plan 781).
+  - Observed effect: an E2E step that cannot fail ran on every CI run until the correction; the same pattern left the slice 5 Recent stories URL step without a break check.
+  - Inference: when a carried assertion fails its premise, acceptance needs a break check of the replacement before accepting it.
+
+## DD-627 — A plan's decision extended a test page composition that its story's shared acceptance forbids <a id="dd-627"></a>
+
+Plan 778's Current decisions and slice 5 directed rendering the production banner and story-reference notice inside the existing `mountIntentCiPage`. That mount recomposes `ConfiguredDashboard`'s shell, which the shared acceptance forbids ("Never build a test copy of a production composition"). The conflict surfaced only at slice 8's measurement and needed a developer decision.
+
+### Occurrences
+
+- Execution: SEED-413#speed-intent-revision-and-detour-reading (plan 778; first implementation `ea316f671`)
+  - Timestamp: 2026-11-23T10:17:41+08:00
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: modified; revision `702d1a213`; base 0.3.110
+  - Evidence: slice 5 commit `9f8184d42` grew the mount to 13 production imports. The slice 8 report flagged source-review commitment 19. The developer moved the page-shell owner to SEED-413#drive-published-observation-through-page-entry, recorded as obligation G1 in `a96f35847`.
+  - Observed effect: one human stop at the last slice and a source-review rerun after the story amendment.
+  - Inference: comparing each Current decision with the shared acceptance during readiness would have raised this before execution.
+
