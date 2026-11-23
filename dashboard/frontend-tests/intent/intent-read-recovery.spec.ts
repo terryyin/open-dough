@@ -40,10 +40,12 @@ function controlledLocations(work: PublishedWork) {
       makeMe.anUnreachableAuthenticatedRead.at(work.revision).please(),
     );
   let count = 0;
+  let lastReadAt = 0;
   const readSource: IntentReadSource = {
     readLocations(source, revision) {
       expect([source.id, revision]).toEqual([work.source.id, work.revision]);
       count += 1;
+      lastReadAt = Date.now();
       return current();
     },
     readFile: (...[, path]) =>
@@ -53,6 +55,7 @@ function controlledLocations(work: PublishedWork) {
   return {
     readSource,
     reads: () => count,
+    lastReadAt: () => lastReadAt,
     answerWith(next: () => Promise<IntentLocations>) {
       current = next;
     },
@@ -74,21 +77,18 @@ test("unreachable Intent locations recover after 15, 30, 60 and 60 seconds", asy
   await publishedReadStatus().showsNoUnansweredDetail();
   expect(locations.reads()).toBe(1);
 
-  await vi.advanceTimersByTimeAsync(14_999);
-  expect(locations.reads()).toBe(1);
-  await vi.advanceTimersByTimeAsync(251);
-  await expect.poll(() => locations.reads()).toBe(2);
-  await explanation.reads("could not be reached");
-
   for (const [wait, before] of [
+    [15_000, 1],
     [30_000, 2],
     [60_000, 3],
     [60_000, 4],
   ] as const) {
-    await vi.advanceTimersByTimeAsync(wait - 1_000);
+    // Browser assertions can advance fake time while polling.
+    const retryAt = locations.lastReadAt() + wait;
+    await vi.advanceTimersByTimeAsync(retryAt - Date.now() - 1);
     expect(locations.reads()).toBe(before);
     if (before === 4) locations.pass();
-    await vi.advanceTimersByTimeAsync(1_250);
+    await vi.advanceTimersByTimeAsync(251);
     await expect.poll(() => locations.reads()).toBe(before + 1);
     if (before < 4) await explanation.reads("could not be reached");
   }
