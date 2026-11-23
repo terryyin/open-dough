@@ -59,10 +59,14 @@ export interface PublishedCommit {
 async function worktreeAgent(history: PublishedStoryHistory) {
   const name = agentNameOf(await history.worktreeConfig("author.name"));
   if (name === undefined) return undefined;
-  const { email, path } = agentIdentity(name);
+  const { agent, email, path } = agentIdentity(name);
   if ((await history.worktreeConfig("author.email")) !== email)
     return undefined;
-  return { email, fileName: path.slice(agentProfileDirectory.length + 1) };
+  return {
+    agent,
+    email,
+    fileName: path.slice(agentProfileDirectory.length + 1),
+  };
 }
 
 // Historical readers supply the recorded agent explicitly. The same walk also
@@ -82,6 +86,7 @@ export async function publishedStoryEvidence(
       : identity === undefined
         ? undefined
         : {
+            agent: identity.agent,
             email: identity.email,
             fileName: identity.path.slice(agentProfileDirectory.length + 1),
           };
@@ -89,6 +94,7 @@ export async function publishedStoryEvidence(
     commits: [] as PublishedCommit[],
     claims: [] as string[],
     merges: [] as string[],
+    agent: undefined,
   };
   if (agent === undefined) return empty;
   const authored = await history.authoredAt(trunk, agent.email);
@@ -129,5 +135,10 @@ export async function publishedStoryEvidence(
       if (historicalAgent === undefined) break;
     }
   }
-  return { commits: published, claims: claimsFound, merges };
+  return {
+    commits: published,
+    claims: claimsFound,
+    merges,
+    agent: agent.agent,
+  };
 }

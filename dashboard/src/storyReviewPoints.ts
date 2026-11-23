@@ -43,6 +43,17 @@ export const reviewIntegrationSchema = z.strictObject({
 });
 export type ReviewIntegration = z.infer<typeof reviewIntegrationSchema>;
 
+export const reviewIntegrations = (
+  items: readonly ReviewItem[],
+): ReviewIntegration[] =>
+  items
+    .filter((item) => item.kind === "commit" && item.merge)
+    .map(({ fromTree, fromBaseline, baseline }) => ({
+      fromTree,
+      fromBaseline,
+      baseline,
+    }));
+
 export const reviewRangeSchema = z.discriminatedUnion("kind", [
   reviewComparisonSchema.extend({
     trunkIntegrated: z.boolean(),

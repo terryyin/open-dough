@@ -99,7 +99,7 @@ focused browser reruns after independent refactoring.
 ### 2. A Taken branch widens with the current worktree choice
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a Taken branch whose admitted history establishes its start, take the
 raw pair from that story start and the same recorded head or temporary
@@ -116,6 +116,13 @@ both choices persist. Read the alternate tree through existing workspace
 admission. Preserve the live source and rename journey in
 `e2e/intent/intent-story-changes.spec.ts` and
 `e2e/intent/intent-story-changes-moves.spec.ts`.
+
+Accepted: Dashboard typecheck, real-Git branch history and file admission,
+and focused Chromium and browser journeys passed. The Taken card showed its
+attributed snapshot before widening to incoming changes. The wider diff and
+note used the recorded story start and committed tree. The mixed resolution
+retained its file-specific start. Both choices and the selected incoming file
+survived Refresh. Done, captured landing, live rename and Trunk Mode cases passed.
 
 ### 3. A selected commit range widens only between its own endpoints
 

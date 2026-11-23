@@ -46,7 +46,17 @@ export function ReviewContext({
     return <PublishedSessionContext review={review} />;
   if (review?.kind === "session-commits")
     return <SessionCommitsContext review={review} />;
-  if (review?.kind === "snapshot") return <ContextLine snapshot={review} />;
+  if (review?.kind === "snapshot")
+    return (
+      <ContextLine
+        snapshot={review}
+        storyStart={
+          shown?.includesMergedChanges === true
+            ? shown.comparison.from
+            : undefined
+        }
+      />
+    );
   if (review?.kind === "branch-result")
     return (
       <p>

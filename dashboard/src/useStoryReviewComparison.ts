@@ -5,6 +5,7 @@
 // to the head's tree, which came with the snapshot.
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import { reviewItemId, type TakenStoryReview } from "./storyReviewContract.ts";
+import { reviewIntegrations } from "./storyReviewPoints.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 import { useStateKeyedBy } from "./stateKeyedBy.ts";
 import {
@@ -86,15 +87,7 @@ export function useStoryReviewComparison({
       fromBaseline: oldest?.fromBaseline ?? "",
       tree: newest?.tree ?? "",
       baseline: newest?.baseline ?? "",
-      integrations: JSON.stringify(
-        selectedItems
-          .filter((item) => item.kind === "commit" && item.merge)
-          .map(({ fromTree, fromBaseline, baseline }) => ({
-            fromTree,
-            fromBaseline,
-            baseline,
-          })),
-      ),
+      integrations: JSON.stringify(reviewIntegrations(selectedItems)),
     },
     { round, enabled: active && shown === "commits" },
   );
@@ -115,6 +108,8 @@ export function useStoryReviewComparison({
     shown === "commits"
       ? rangeComparison?.tree
       : (committedShown?.tree ?? snapshot?.tree);
+  const withMerged =
+    shown !== "all" ? undefined : (committedShown ?? snapshot)?.withMerged;
   return {
     items,
     selectedItems,
@@ -122,6 +117,7 @@ export function useStoryReviewComparison({
     committed,
     range,
     comparison,
+    withMerged,
     tree,
     onSelect,
     trunkIntegrated: rangeComparison?.trunkIntegrated === true,

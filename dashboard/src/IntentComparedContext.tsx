@@ -33,6 +33,9 @@ export function ComparedContext({
             {!uncommittedLeftOut && <>, uncommitted changes included</>}.
           </p>
           <KeptPublishedCommits snapshot={review} />
+          {review.mergedChangesUnavailable !== undefined && (
+            <p>{review.mergedChangesUnavailable}</p>
+          )}
         </>
       )}
       {review?.kind !== "snapshot" &&

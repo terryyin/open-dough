@@ -165,12 +165,17 @@ export const storyReviewSchema = z
       tree: objectIdSchema,
       files: z.array(reviewedFileSchema),
       commits: z.array(reviewCommitSchema),
+      withMerged: reviewComparisonSchema.optional(),
+      mergedChangesUnavailable: z.string().min(1).optional(),
       uncommitted: reviewUncommittedSchema.optional(),
       // With uncommitted changes, the same snapshot's committed work alone:
       // the files from `baseline` to the head's tree, its `tree`, which its
       // file diffs compare `from` with in place of the snapshot's.
       committed: reviewComparisonSchema
-        .extend({ tree: objectIdSchema })
+        .extend({
+          tree: objectIdSchema,
+          withMerged: reviewComparisonSchema.optional(),
+        })
         .optional(),
     }),
     z.object({

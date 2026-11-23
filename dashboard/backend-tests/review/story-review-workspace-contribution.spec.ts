@@ -1,0 +1,91 @@
+import { afterAll, beforeAll, expect, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import {
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
+import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
+import { takenBranchContributionHistory } from "../../test-support/support/takenBranchContributionHistory.ts";
+
+const subject = { source: "open-dough", identity: queuedIdentity };
+const signal = new AbortController().signal;
+let cleanRepository: (() => Promise<void>) | undefined;
+let storyStart: string;
+let endTree: string;
+let integrated: string;
+let unmount: (() => void) | undefined;
+
+beforeAll(async () => {
+  const fixture = await materializeRepository(takenBranchContributionHistory());
+  cleanRepository = fixture.cleanup;
+  vi.stubEnv("HOME", fixture.fixture);
+  unmount = mountProjectConfiguration("development");
+  appendConfiguredProject(
+    makeMe.aConfiguredProject
+      .with({
+        id: subject.source,
+        label: "Open Dough",
+        repository: "terryyin/open-dough",
+        localPath: fixture.integration,
+      })
+      .please(),
+  );
+  storyStart = fixture.revisions["story start"];
+  integrated = fixture.revisions["incoming trunk"];
+  endTree = git(
+    fixture.integration,
+    "rev-parse",
+    `${fixture.revisions["merge trunk"]}^{tree}`,
+  );
+});
+
+afterAll(async () => {
+  unmount?.();
+  vi.unstubAllEnvs();
+  await cleanRepository?.();
+});
+
+test("a Taken branch compares the two bases to the same committed and working trees", async () => {
+  const result = await storyReview({ read: { subject } }, signal);
+  if (result.kind !== "snapshot" || result.committed === undefined)
+    throw new Error("No committed and working comparisons");
+  const { committed } = result;
+  expect(result.baseline).toBe(integrated);
+  expect(
+    result.files.find(({ path }) => path === "guides/mixed.txt"),
+  ).toMatchObject({ includesTrunkFrom: storyStart });
+  expect(result.files.map(({ path }) => path)).toContain("guides/merge.txt");
+  expect(result.files.map(({ path }) => path)).not.toContain(
+    "guides/incoming.txt",
+  );
+  expect(result.withMerged?.from).toBe(storyStart);
+  expect(result.withMerged?.files.map(({ path }) => path)).toContain(
+    "guides/draft.txt",
+  );
+  expect(committed.tree).toBe(endTree);
+  expect(committed.withMerged?.from).toBe(storyStart);
+  expect(committed.withMerged?.files.map(({ path }) => path)).toContain(
+    "guides/incoming.txt",
+  );
+  expect(committed.withMerged?.files.map(({ path }) => path)).not.toContain(
+    "guides/draft.txt",
+  );
+});
+
+test("workspace file admission reads incoming text at the widened pair", async () => {
+  const read = {
+    subject,
+    baseline: storyStart,
+    tree: endTree,
+    path: "guides/incoming.txt",
+  };
+  await expect(reviewedFileText({ read }, signal)).resolves.toEqual({
+    kind: "text",
+    baseline: null,
+    tree: "incoming trunk change\n",
+  });
+});

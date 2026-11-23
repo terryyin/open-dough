@@ -114,6 +114,7 @@ export function useStoryComparison({
   });
   const {
     comparison,
+    withMerged,
     tree,
     committed,
     items,
@@ -146,6 +147,7 @@ export function useStoryComparison({
     subject,
     review,
     comparison,
+    withMerged,
     tree,
     includeMergedChanges: includeMerged,
   });
@@ -175,7 +177,12 @@ export function useStoryComparison({
   const readingNow = reading || (carry && range.reading);
   const includesMerged = shownKept?.includesMergedChanges === true;
   const canIncludeMerged =
-    reviewKept?.kind === "published" && reviewKept.withMerged !== undefined;
+    (reviewKept?.kind === "published" && reviewKept.withMerged !== undefined) ||
+    (reviewKept?.kind === "snapshot" &&
+      shown === "all" &&
+      (readingNow
+        ? reviewKept.withMerged !== undefined
+        : withMerged !== undefined));
   // A chosen run other than the answer's own, or a chosen commit range, read
   // as the Side panel review explains them.
   const unreadable =

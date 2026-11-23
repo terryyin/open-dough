@@ -28,6 +28,7 @@ export function storyComparisonShown({
   subject,
   review,
   comparison,
+  withMerged,
   tree,
   includeMergedChanges = false,
 }: {
@@ -35,20 +36,24 @@ export function storyComparisonShown({
   readonly review: StoryReview | undefined;
   // A snapshot's chosen comparison and the tree it reaches.
   readonly comparison: ReviewComparison | undefined;
+  readonly withMerged?: ReviewComparison | undefined;
   readonly tree: string | undefined;
   readonly includeMergedChanges?: boolean;
 }): ShownStoryComparison | undefined {
-  if (
-    includeMergedChanges &&
-    review?.kind === "published" &&
-    review.withMerged !== undefined
-  )
+  const show = (
+    reviewed: ReviewedWork,
+    comparison: ReviewComparison,
+    tree: string,
+    wider?: ReviewComparison,
+  ): ShownStoryComparison => {
+    const merged = includeMergedChanges ? wider : undefined;
     return {
-      reviewed: { subject, completion: review.completion },
-      comparison: review.withMerged,
-      tree: review.tree,
-      includesMergedChanges: true,
+      reviewed,
+      comparison: merged ?? comparison,
+      tree,
+      ...(merged === undefined ? {} : { includesMergedChanges: true }),
     };
+  };
   if (
     review?.kind === "published" ||
     review?.kind === "landed" ||
@@ -56,17 +61,18 @@ export function storyComparisonShown({
     review?.kind === "published-session" ||
     review?.kind === "branch-result"
   )
-    return {
-      reviewed: { subject, ...fixedComparisonName(review) },
-      comparison: { from: review.baseline, files: review.files },
-      tree: review.tree,
-    };
+    return show(
+      { subject, ...fixedComparisonName(review) },
+      { from: review.baseline, files: review.files },
+      review.tree,
+      review.kind === "published" ? review.withMerged : undefined,
+    );
   if (
     review?.kind === "snapshot" &&
     comparison !== undefined &&
     tree !== undefined
   )
-    return { reviewed: { subject }, comparison, tree };
+    return show({ subject }, comparison, tree, withMerged);
   return undefined;
 }
 
