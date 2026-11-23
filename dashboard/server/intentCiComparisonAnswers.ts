@@ -11,6 +11,7 @@
 // proof summary reopen like pending: Check again and the next same-process
 // read re-resolve them under timed wall-time reuse without proof.
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
+import type { SelectedCiComparisonAnswer } from "../src/selectedCiComparison.ts";
 import { rememberedByKey, type RememberedByKey } from "./rememberedByKey.ts";
 import { finalSlot } from "./revisionBuildSlot.ts";
 
@@ -86,6 +87,8 @@ export function ciComparisonAnswers(
 }
 
 const answers = ciComparisonAnswers();
+export const selectedCiComparisonAnswers =
+  rememberedByKey<SelectedCiComparisonAnswer>();
 
 export function isFinalCiComparisonAnswer(
   answer: StoryCiComparisonAnswer,
@@ -100,4 +103,5 @@ export function isFinalCiComparisonAnswer(
 
 export function clearCiComparisonAnswers(): void {
   answers.clear();
+  selectedCiComparisonAnswers.clear();
 }

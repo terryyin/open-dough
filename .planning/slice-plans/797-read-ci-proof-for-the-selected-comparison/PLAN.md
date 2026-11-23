@@ -75,9 +75,9 @@ Node 24.21.0 on macOS AC power.
 
 | Consuming operation | Observation and consequence |
 | --- | --- |
-| Endpoint lookup with a measured start and an unbuilt result | `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/intent/ci-comparison-selection.spec.ts` selected five cases and passed strictly. The real read with only a start build showed that build as Baseline and no Landed build. A default Baseline also passed a nearer proofless build in favor of an older usable ancestor. A retains both default behaviors and proves the selected-range walk and selection policy separately. |
-| Switching a mounted Intent to a captured run or commit range | `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-story-compare-evidence.spec.ts dashboard/frontend-tests/intent/intent-story-compare-gaps.spec.ts` passed seven Chromium cases. A captured run with its own pair showed the same measured default build and proof labels after switching. A commit range kept the default evidence. Unreadable ranges/runs kept the overview and their retry/return controls. C and E change the selected view expectations while retaining the whole-story coverage and review gaps. |
-| A first-parent range at the actual Git boundary | `caffeinate -s -i node_modules/.bin/vitest run --config dashboard/backend.vitest.config.mts dashboard/backend-tests/review/story-review-range-contribution.spec.ts` passed all three selected cases. Real Git produced the chosen merge's first-parent and end trees and the read preserved the end and widened the expected files. This verifies range reading against a real merge. F adds and proves the first-parent commit ID on the snapshot wire. G proves the CI reader consumes commit IDs rather than the tree pair. |
+| Endpoint lookup with a measured start and an unbuilt result | `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/intent/ci-comparison-selection.spec.ts` selected five cases and passed strictly. The real read with only a start build showed that build as Baseline and no Landed build. A default Baseline also passed a nearer proofless build in favor of an older usable ancestor. Slice 1 retains both default behaviors and proves the selected-range walk and selection policy separately. |
+| Switching a mounted Intent to a captured run or commit range | `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-story-compare-evidence.spec.ts dashboard/frontend-tests/intent/intent-story-compare-gaps.spec.ts` passed seven Chromium cases. A captured run with its own pair showed the same measured default build and proof labels after switching. A commit range kept the default evidence. Unreadable ranges/runs kept the overview and their retry/return controls. Slices 3 and 5 change the selected view expectations while retaining the whole-story coverage and review gaps. |
+| A first-parent range at the actual Git boundary | `caffeinate -s -i node_modules/.bin/vitest run --config dashboard/backend.vitest.config.mts dashboard/backend-tests/review/story-review-range-contribution.spec.ts` passed all three selected cases. Real Git produced the chosen merge's first-parent and end trees and the read preserved the end and widened the expected files. This verifies range reading against a real merge. Slice 6 adds and proves the first-parent commit ID on the snapshot wire. Slice 7 proves the CI reader consumes commit IDs rather than the tree pair. |
 
 ## Proof and local gates
 
@@ -101,24 +101,24 @@ tree, Summary, file Proof and table entry readers reach shared row
 projection. Run the reached count, unit, timing and sort tests under their
 current runners where a changed projection feeds them. Historical records
 are context for earlier versions. Trace each actual diff, including the
-Review snapshot stand-ins for F and G, and record each reached consumer's
+Review snapshot stand-ins for slices 6 and 7, and record each reached consumer's
 disposition under the linked procedure.
 
 | Final promise | Owner and observing boundary |
 | --- | --- |
-| Default endpoints, counts, live judgment, overview, and failed untouched tests retain their current evidence | A–C and E, default authenticated read, mounted default and adjacent CI status, and integrated default journey |
-| A supported choice names measured revisions and runs, with exact/ancestor cues; default restores and stale responses stay off screen | A at the authenticated reader, B at the disposable reading owner, C for a captured run and G for a Taken range in mounted Intent |
-| Both sides use the same measured pair across the selected surfaces, e.g. 1 → 9 comparable cases | C at the endpoint table, D at Changes counts, E at Summary and file Proof, with setup that distinguishes the whole-story and two selected builds |
-| Missing baseline and absence of any build covering selected work have distinct reasons, with one-sided readings and no delta | A at lookup, C at the table, D and E at their count and proof displays |
-| Scope stays accurate for a run without revisions and for Intent coverage | C and E in mounted Intent, including the whole-story build named by coverage |
-| Including uncommitted changes names the committed build and explains the unmeasured portion | H in mounted Intent, with a dirty workspace and inclusion toggled |
+| Default endpoints, counts, live judgment, overview, and failed untouched tests retain their current evidence | Slices 1–3 and 5, default authenticated read, mounted default and adjacent CI status, and integrated default journey |
+| A supported choice names measured revisions and runs, with exact/ancestor cues; default restores and stale responses stay off screen | Slice 1 at the authenticated reader, 2 at the disposable reading owner, 3 for a captured run and 7 for a Taken range in mounted Intent |
+| Both sides use the same measured pair across the selected surfaces, e.g. 1 → 9 comparable cases | Slice 3 at the endpoint table, 4 at Changes counts, 5 at Summary and file Proof, with setup that distinguishes the whole-story and two selected builds |
+| Missing baseline and absence of any build covering selected work have distinct reasons, with one-sided readings and no delta | Slice 1 at lookup, 3 at the table, 4 and 5 at their count and proof displays |
+| Scope stays accurate for a run without revisions and for Intent coverage | Slices 3 and 5 in mounted Intent, including the whole-story build named by coverage |
+| Including uncommitted changes names the committed build and explains the unmeasured portion | Slice 8 in mounted Intent, with a dirty workspace and inclusion toggled |
 
 ## Slices
 
-### A. Resolve the CI endpoints for a requested revision range
+### 1. Resolve the CI endpoints for a requested revision range
 
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 12–15 minutes.
 
 Given a story and a pair of commit IDs, the authenticated read returns the
@@ -138,18 +138,32 @@ reporting an older end, malformed or half pairs without Git/provider calls,
 and a default answer using its established slots. Use the same isolated
 reader to show that a response for one pair cannot satisfy another request.
 
-### B. Bind a CI reading to its comparison
+Accepted proof uses the authenticated parser and real comparison reader
+with typed history, run and artifact inputs. The 130-case backend run
+covers measured and missing endpoints, pending attempts, invalid bounds,
+selected cache isolation and existing comparison behavior.
+The six neighboring landed-history cases, shared lookup and parser
+checks, dashboard typecheck, and integrated default Intent journey also
+passed. The run records and consumer trace are in this checkout's Git
+evidence directory with `slice-a-return.md`.
+
+### 2. Bind a CI reading to its comparison
 
 Type: Structure
 Status: planned
 Estimated active work: 8–12 minutes.
 
-Extend the typed client and reading owner for C. Identify and validate
+Extend the typed client and reading owner for slice 3. Identify and validate
 selected answers against source, identity and pair. Invalidate or abort
 the previous selected read on change, and read endpoint proof for the
 current answer through the same run/attempt owner. Keep the default reading
 independent for whole-story coverage and overview. The mounted page still
 requests the default through its existing entry points.
+
+The authenticated request carries `start` and `end` together.
+`SelectedCiComparisonAnswer` echoes the source ID, story, and range
+and carries Baseline and Selection slots on success. Validation must
+retain the distinction between this reply and default comparison answers.
 
 Proof. Use the client wire-validation spec and a typed delayed-read case at
 `ciComparisonReading`. Change the selection before a response arrives and
@@ -157,7 +171,7 @@ observe that the old result cannot populate the new selection. Exercise
 Check again and returning to default. Keep the current mounted default
 lifecycle and strict-mode checks green.
 
-### C. Name the measured builds for a captured landed run
+### 3. Name the measured builds for a captured landed run
 
 Type: Behavior
 Status: planned
@@ -169,8 +183,10 @@ revision and run and its build-source cue. Present a missing side in place
 and keep the side that ran visible. Restore Published completion's default
 words and endpoints when the reviewer returns to it. A run without revisions follows
 the whole-story fallback, and Intent coverage still names its whole-story
-build. Supply the selected range from the Review selection to B's owner.
-Until D and E, suppress whole-story Counts in selected Changes and scope
+build. Supply the selected range from the Review selection to the reading owner.
+An earlier completed attempt at the same revision keeps the exact-revision
+cue while its rerun is pending.
+Until slices 4 and 5, suppress whole-story Counts in selected Changes and scope
 views where they could be mistaken for selected proof, using an explicit
 whole-story scope marker where the whole-story proof itself is shown.
 
@@ -181,17 +197,17 @@ in the page. Use a separate mounted gap case to name the absent side and
 keep the reviewer on the selected run. Preserve the unreadable review
 controls and the coverage note in `intent-story-compare-gaps.spec.ts`.
 
-### D. Show selected build counts in Changes
+### 4. Show selected build counts in Changes
 
 Type: Behavior
 Status: planned
 Estimated active work: 8–12 minutes.
 
 In a selected captured run, the Changes counts read the same Baseline
-and Selection proof chosen in C. Compare existing declared units, preserve
+and Selection proof chosen in slice 3. Compare existing declared units, preserve
 an observed count with its evidence gap, and explain a missing side where
 a delta would be displayed. Restore selected Changes counts in place of
-C's interim behavior. Share count interpretation with E through the
+the interim behavior. Share count interpretation with slice 5 through the
 existing comparison row model.
 
 Proof. Mount Intent with a captured-run file that has one baseline case
@@ -200,7 +216,7 @@ Choose the run, observe 1 → 9 in Changes, and return to the default. Feed
 the same entry point a one-sided build and check the observed count and
 reason. Keep the unrelated overview and count-unit cases unchanged.
 
-### E. Read the same proof in Summary and file Proof
+### 5. Read the same proof in Summary and file Proof
 
 Type: Behavior
 Status: planned
@@ -208,7 +224,7 @@ Estimated active work: 10–14 minutes.
 
 Open a scope Summary or file Proof from the selected Changes. Show the
 same pair and row interpretation, including gaps and the one-sided count.
-Replace C's remaining interim scope marker with selected proof. Retain the
+Replace the remaining interim scope marker with selected proof. Retain the
 whole-story note for the legacy fallback and keep Intent coverage on its
 own whole-story reading. Home keeps the existing status and overview
 proof. Returning to the diff preserves path and comparison.
@@ -220,7 +236,7 @@ their one-sided observations. Keep the established Summary/file rename,
 proof-unit and proof-gap checks for shared projection, and the existing
 Home/default CI proof checks for the unaffected route.
 
-### F. Carry the first-parent commit through Review
+### 6. Carry the first-parent commit through Review
 
 Type: Structure
 Status: planned
@@ -230,7 +246,7 @@ Expose the first-parent commit ID from the `%P` field already read by
 `storyReviewCommits` on the typed Review commit item. Retain the tree
 and merge-base fields and the behavior of Changes and Review changes.
 Support older inputs through the existing optional/absence path. This
-gives G a commit boundary without guessing from trees.
+gives slice 7 a commit boundary without guessing from trees.
 
 Proof. Read the real snapshot with the existing temporary Git repository
 fixtures. Check that a selected merge's serialized parent is its first
@@ -238,7 +254,7 @@ parent commit and differs from the other parent and from its tree.
 Retain the existing first-parent range diff and mounted commit chooser
 proof.
 
-### G. Follow a Taken story’s commit range
+### 7. Follow a Taken story’s commit range
 
 Type: Behavior
 Status: planned
@@ -259,7 +275,7 @@ Keep the Taken mode and unreadable-range controls in their existing
 journeys. At the backend read, verify the Taken profile still uses its
 own CI source.
 
-### H. Explain which workspace changes CI did not measure
+### 8. Explain which workspace changes CI did not measure
 
 Type: Behavior
 Status: planned
@@ -284,6 +300,20 @@ matching build so prior proof is never described as a build of that head.
 
 A separate slice-plan refinement pass was unnecessary once the read,
 selection lifetime, display and Review commit boundary had independent
-proof loops. D and E replace C's named interim scope behavior. The
+proof loops. Slices 4 and 5 replace the interim scope behavior from slice 3. The
 retained preparation observations supported the chosen read and mount
 routes. The review identified no remaining slice-specific concern.
+
+## Execution context
+
+- Nao-chan, Story Branch Mode, publisher `dashboard-territory.local-open-dough`.
+  The owned checkout is `.worktrees/read-ci-proof-for-the-selected-comparison`
+  on `codex/read-ci-proof-for-the-selected-comparison`. The default checkout
+  is `/Users/terryyin/git/open-dough` on `main`.
+- Starting revision `577b4f02741b4c39a5e7bc6a15a119cfaa0e240d`. Take
+  `4402f50fd76ef8394a948605a293fa05961cf1c2` was accepted on `origin/main`
+  and published to the execution branch. The authorized trunk is
+  `origin/main`. Use the existing authority for in-plan refinement.
+- Codex observer of `ci.yml` on the execution branch, coordinator
+  `nao-9b9c27ea`, directory `/tmp/dough-ci-501/watch-dv7wpQ`, process
+  `33667`, cell `g458:11`, session `61453`. The claim preceded this observer.

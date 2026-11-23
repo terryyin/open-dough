@@ -58,14 +58,21 @@ export function selectRevisionAttempt(
   }
   // Cancelled / timed_out / unjudged latest: prefer the newest completed
   // timed attempt of the same run from the listing or earlier attempts.
+  return latestCompletedAttemptOf(newest, runs, earlierAttempts) ?? newest;
+}
+
+export function latestCompletedAttemptOf(
+  run: ListedRun,
+  runs: readonly ListedRun[],
+  earlierAttempts: readonly ListedRun[],
+): ListedRun | undefined {
   const sameRun = [...runs, ...earlierAttempts].filter(
-    (run) =>
-      run.headSha === sha &&
-      run.databaseId === newest.databaseId &&
-      run.status === "completed" &&
-      isBuildConclusion(run.conclusion),
+    (candidate) =>
+      candidate.headSha === run.headSha &&
+      candidate.databaseId === run.databaseId &&
+      candidate.status === "completed" &&
+      isBuildConclusion(candidate.conclusion),
   );
-  if (sameRun.length === 0) return newest;
   let chosen: ListedRun | undefined;
   let chosenAttempt = Number.NEGATIVE_INFINITY;
   for (const run of sameRun) {

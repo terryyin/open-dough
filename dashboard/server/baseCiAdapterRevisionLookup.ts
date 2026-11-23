@@ -19,6 +19,18 @@ import { timeWithoutAdapterRunnerWaits } from "./ciTimeWithoutRunnerWaits.ts";
 import { unansweredTimeWithoutRunnerWaits } from "./ciTimeWithoutRunnerWaitsAnswer.ts";
 import type { GitCall } from "./gitRunner.ts";
 
+function completedAttemptsFor(
+  attempts: readonly AdapterRun[],
+  latest: AdapterRun,
+): AdapterRun[] {
+  return attempts.filter(
+    (run) =>
+      run.check === latest.check &&
+      run.context === latest.context &&
+      isBuildConclusion(run.conclusion),
+  );
+}
+
 export async function adapterRevisionLookup(
   source: PublishedSource,
   storyBranch: string | undefined,
@@ -49,6 +61,13 @@ export async function adapterRevisionLookup(
     else atRevision.push(normalized);
   }
   return {
+    completedRunsAt(sha) {
+      const atRevision = runsByRevision.get(sha) ?? [];
+      const latest = newestRunFor(atRevision, sha);
+      return Promise.resolve(
+        latest === undefined ? [] : completedAttemptsFor(atRevision, latest),
+      );
+    },
     attemptOf({ revision, adapterAttempt }) {
       if (adapterAttempt === undefined || adapterAttempt.ambiguous === true)
         return Promise.resolve(undefined);
@@ -72,12 +91,7 @@ export async function adapterRevisionLookup(
       if (latest.conclusion !== "cancelled") return Promise.resolve([latest]);
       // Incomplete attempts have no verdict. Only a completed attempt of
       // this same check and context can supply the revision's result.
-      const earlier = atRevision.filter(
-        (run) =>
-          run.check === latest.check &&
-          run.context === latest.context &&
-          isBuildConclusion(run.conclusion),
-      );
+      const earlier = completedAttemptsFor(atRevision, latest);
       return Promise.resolve([newestRunFor(earlier, sha) ?? latest]);
     },
     preferCompletedAncestor: true,

@@ -1,9 +1,35 @@
 // Real wire validation and exact attempt identity; no selected subjects are faked.
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { test, expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { readIntentCiComparison } from "../../src/authenticatedIntentCiComparisonRead.ts";
 import { readIntentCiProof } from "../../src/authenticatedIntentCiProofRead.ts";
+import { parseRequestedRead } from "../../server/requestedRead.ts";
 import { ciReadingTransport } from "../support/ciReadingTransport.ts";
+
+const start = "a".repeat(40);
+const end = "b".repeat(40);
+
+for (const malformed of [
+  `start=${start}`,
+  `end=${end}`,
+  `start=main%5E&end=${end}`,
+  `start=${start}&end=bbbbbbb`,
+  `start=${start}&start=${start}&end=${end}`,
+  `start=${start}&end=${end}&end=${end}`,
+]) {
+  test(`refuses an ambiguous comparison range (${malformed.replace(/\w{40}/g, "sha")}) before read dispatch`, () => {
+    const { identity } = makeMe.aComparedStory.please();
+    const params = new URLSearchParams(
+      `intent=ci-comparison&identity=${encodeURIComponent(identity)}&${malformed}`,
+    );
+    expect(parseRequestedRead(params)).toMatchObject({
+      kind: "refused",
+      status: 400,
+      message:
+        "A selected CI comparison needs one start and one end commit ID.",
+    });
+  });
+}
 
 test("actual authenticated readers preserve encoded numeric and adapter subjects and refuse mismatched answers", async () => {
   const facts = makeMe.aComparedStory.please();

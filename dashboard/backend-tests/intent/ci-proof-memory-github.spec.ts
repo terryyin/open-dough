@@ -1,7 +1,7 @@
 // A valid run attempt is immutable; a reader remembers only its checked proof.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import {
   archiveOf,
   listedArtifact,
@@ -9,6 +9,22 @@ import {
   run,
   signal,
 } from "../support/ciProofMemory.ts";
+
+test("a retained attempt summary cannot answer the same attempt with another measured revision", async () => {
+  const proof = makeMe.aCiProof.summaryFor(run).please();
+  const otherRevision = makeMe.aCiProofRun
+    .with({ ...run, revision: "b".repeat(40) })
+    .please();
+  const reader = ciProofArtifactReader({
+    listing: () => Promise.resolve({ artifacts: [listedArtifact(run)] }),
+    archive: () => Promise.resolve(archiveOf(proof.summary)),
+  });
+  expect(await reader(repository, run, signal())).toEqual(proof);
+  expect(await reader(repository, otherRevision, signal())).toMatchObject({
+    kind: "unavailable",
+    reason: "mismatched",
+  });
+});
 
 test("a valid chosen artifact is extracted once and reused across repository casing", async () => {
   const proof = makeMe.aCiProof

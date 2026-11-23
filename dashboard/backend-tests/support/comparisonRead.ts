@@ -1,6 +1,5 @@
 // Shared driver of the real comparison read; only external acquisition is supplied.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect } from "../../test-support/support/pageTest.ts";
 import { performIntentCiComparisonRead } from "../../server/intentCiComparisonRead.ts";
 import { clearCiComparisonAnswers } from "../../server/intentCiComparisonAnswers.ts";
 import type { StoryCiComparisonAnswer } from "../../src/storyCiComparison.ts";
@@ -37,7 +36,6 @@ export async function answer(
       new AbortController().signal,
       evidence.source,
     );
-    expect(result.kind).toBe("answered");
     if (result.kind !== "answered")
       throw new Error("Comparison did not answer");
     return result.answer as StoryCiComparisonAnswer;
