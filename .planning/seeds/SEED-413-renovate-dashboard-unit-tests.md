@@ -543,43 +543,73 @@ Continuing one component at a time would extend the life of both runners.
 {"schemaVersion":1,"identity":"SEED-413#speed-intent-scope-timing-reading","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-scope-timing-history","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history"},"implementation":"Slices 1–2 of plan 774 reset page-mount preferences including Board position, reshape openDoneStoryComparison and mountJudgedRunProof to one options object with a ci: Partial<IntentCiReadSource> bag ready for readScopeHistory, give the Done history builder domain-named reference figures, type HeldKind, consolidate Project wall-time journeys, and scope Done history gap().","rationale":"Every collected timing and chart-marks case mounts through that corrected page entry and needs a typed readScopeHistory answer in the reshaped Done and Project test entries. Starting before those corrections land would either keep the preference leak and positional entries the correction removes, or duplicate the correction inside this story.","condition":"SEED-413#speed-intent-scope-timing-history has landed plan 774 Slices 1–2 page-mount preference reset and options-object test entries on main.","state":"satisfied","resolution":{"revision":"1b8a80724a15a31d10c3868e0ce74b964ba8d150","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history","summary":"Plan 774 Slices 1–2 delivered and integrated on main at b3d71afec: withPagePreferences (dashboard/test-support/component-mount/framePreferences.ts) resets and restores the Sessions sidebar and Board column position for the Board, frame and Intent mounts (a paging case read open-dough.board.position restored; Intent compare + board-paging green in one --workers 1 run); openDoneStoryComparison({ ci, ...review }) and mountJudgedRunProof({ entries, judgment, viewport, ci }) take one options object with a ci: Partial<IntentCiReadSource> bag, which Slices 3–6 already used for readScopeHistory; the Done wall-time builder states averaging(ms, used)/tooFewToAverage(used); HeldKind became heldOnPagePerKey/heldOnPage; openTrunkHistory owns the keyboard and sideways-overflow journeys; the Done history gap() reads within the CI comparison panel. Proof: typecheck, 70 consumer specs, full dashboard frontend group (Vitest 494 tests, Playwright 839), branch CI success at 394c44370. Condition satisfied: plan 774 Slices 1–2 page-mount preference reset and options-object test entries are on main.\nCondition satisfied: SEED-413#speed-intent-scope-timing-history has landed plan 774 Slices 1–2 page-mount preference reset and options-object test entries on main.\nAccepted integration: b3d71afec011d7aac6594c43f9c2877202fd56e4 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/777-speed-intent-scope-timing-reading/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and slice resizing to one or two legacy files per slice."],"basis":{"document":"f6c94e5daeb0249118deb0aee60b56931e4bd27371667eddfe44490703e597db","plan":"7fc7cc2ecfc081fc645cbcbfbad29f06d45b26c55b021cd7d3497c80b4693d97"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/777-speed-intent-scope-timing-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"462bcefb597924061faac5bc3b817fa9dd079591fab8486420eb368bff9fef48","plan":"a542a3ed93b0b03a3d6cea0a730fef8744afb926060fe8ec31dbc44b367bc41d"}}
 ```
 
 **Split from** SEED-413#speed-intent-scope-timing-history before readiness on
 22 November 2026, when the 16-file remainder plus entry correction exceeded
-eight slices. Its provisional plan is
-[plan 777](../slice-plans/777-speed-intent-scope-timing-reading/PLAN.md),
-awaiting story refinement.
+eight slices. Its plan is
+[plan 777](../slice-plans/777-speed-intent-scope-timing-reading/PLAN.md).
 
-- **Goal.** A dashboard maintainer can quickly check what collected scope
-  timing history says for units, gaps, provenance and segments, and can read
-  Project and Done history chart marks by pointer, keyboard and touch,
-  including narrow viewports and light/dark schemes — with every case on
-  Vitest through the production Intent page entry.
-- **Scope.** Own 8 legacy specs (14 legacy cases):
-  `intent-scope-timing-history-absent`, `-gaps`, `-provenance`, `-reading`,
-  `-segments`, `-units`, `intent-ci-history-chart-marks` and
-  `intent-project-ci-history-chart-marks` (the chart-marks pair moved from
-  the CI wall-time story on 22 November 2026 when they proved the scope
-  timing history chart). Scope glances, project/source/key isolation and
-  recovery belong to
-  Get fast proof of Intent scope timing history (completed; recoverable at
-  `1b8a80724:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history`);
-  that story also lands the shared page-entry corrections this cohort mounts
-  through. Attempt proof and Summary rows belong to
-  [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof).
-- **Key examples.** Absent, partial and unavailable reasons, separate case
-  and file units, interrupted segments, build dates and provenance stay
-  readable. Project and Done history chart marks keep build/date labels,
-  accessible descriptions and run links, respond to pointer, keyboard and
-  touch, and fit the narrowest viewport in light and dark schemes.
+- **Goal.** Dashboard maintainers get fast, trustworthy proof of what a
+  scope's collected test execution time history tells a reader. Absent and
+  partial history, selected gaps and their stand-ins, separate case and file
+  units, interrupted segments and provenance stay covered. Project and Done
+  history chart marks stay readable by pointer, keyboard and touch, at the
+  narrowest width and in both colour schemes. Every case runs on Vitest
+  through the production Intent page entry. The delivered scope history
+  proof this cohort builds on regains the checks it lost in its move.
+- **Scope.**
+  - Move the 8 legacy specs (14 cases) to mounted Vitest cases with
+    typed `readScopeHistory` answers built through
+    `makeMe.aScopeHistoryGlance`:
+    `intent-scope-timing-history-absent`, `-gaps`, `-provenance`,
+    `-reading`, `-segments`, `-units`, `intent-ci-history-chart-marks` and
+    `intent-project-ci-history-chart-marks`. Build each history answer as
+    data. Server glance projections such as the pending landing are already
+    proved by backend specs, so mounted cases do not call them.
+  - Apply the plan 774 retrospective correction recorded in the plan:
+    - wait for the late key-isolation answer and the drawn Done glance
+      chart before asserting;
+    - give the history page objects one full no-sideways-scroll check and
+      check the failed build's vertical position;
+    - settle one builder default rule and reject mismatched failed
+      positions;
+    - remove page-object residue and the Board mounts' redundant
+      `withBoardStorage("0")` calls.
+  - Remove history support whose last consumer moves, and record the
+    two-worker before/after comparison for the 8 files.
+  - Scope glances, project, source and key isolation, and recovery belong to
+    Get fast proof of Intent scope timing history (completed; recoverable at
+    `1b8a80724:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history`).
+    Attempt proof and Summary rows belong to
+    [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof).
+- **Key examples.**
+  - A Done story's selected landing has no build of its own. A later
+    trunk build stands in. At 390 px, the readout names the expired proof
+    and the later build, the average reads Insufficient history, no chart is
+    drawn, and nothing scrolls sideways. A pending selected build reads
+    `Pending · CI queued or running` with no measured time.
+  - One collected attempt has case and file timing. Choosing Test files
+    redraws the chart with the file values and their own selected gap.
+    Legacy-only evidence states that its unit is unknown.
+  - Earlier segments stay readable beside a selected gap, and the line never
+    joins incompatible segments. A later trunk build that supplies the
+    selected timing stays named, and each mark names its build's role.
+  - A failed entry history read keeps the selected Done story and
+    comparison and offers its own Retry.
+  - A Done or Project chart shows failed, unavailable, zero and selected
+    marks. Hover, a Tab walk across the marks, and a tap at 390×844 each
+    show the matching readout. Marks stay painted with focus in light and
+    dark. At the narrowest width, "0 ms" axis labels stay whole.
+  - When a late answer for an older endpoint key arrives after the newer
+    revision's history is shown, it changes nothing. The key-isolation
+    case fails when `useIntentCiEndpointHistory`'s key filter is removed.
 - **Evaluation.** All 14 legacy cases across the 8 owned files have a
   traceable disposition and run on Vitest. Apply the
-  [shared acceptance](#acceptance-shared-by-the-eight-stories) timing,
-  case-count, spent-support and coverage checks, removing any history
-  `test-support` module whose last consumer moves, and recording the
-  two-worker before/after elapsed comparison for this 8-file cohort.
+  [shared acceptance](#acceptance-shared-by-the-eight-stories). The legacy
+  baseline was 14 Playwright cases, 43.0 s elapsed including preparation
+  at two workers, load 26.7 → 25.8, at `2a0c35342` on 23 November 2026.
 
 <a id="speed-intent-attempt-and-summary-proof"></a>
 
