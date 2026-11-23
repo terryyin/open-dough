@@ -6,6 +6,7 @@
 // Selected story, project and reading as they are. Neither changes the Side
 // panel.
 //
+// A newly completed local story can be selected from its retained Done mark.
 // A story launch is linked when the done catalog its project publishes now
 // lists that exact story identity within the recent window Board Recently
 // done uses (`recentDoneRecords`). An ad hoc row may derive a completed-story
@@ -36,7 +37,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
+import type { LaunchRecord } from "./agentLaunch.ts";
 import {
   sameSelectedStory,
   type SelectedStory,
@@ -52,6 +53,10 @@ import {
   type DoneLink,
 } from "./recentlyDoneLink.ts";
 import type { GoToSession } from "./sessionNavigation.ts";
+import {
+  recentLocalDoneStory,
+  retainedStoryOf,
+} from "./retainedStoryMembership.ts";
 import { sessionKey } from "./sessionReference.ts";
 
 // The chosen row, by its session key, and what its choice selected.
@@ -123,7 +128,7 @@ export function useRecentlyDoneSelection(
   const select = (record: LaunchRecord) => {
     abandonCheck();
     const key = sessionKey(record.session);
-    const { identity: requested } = launchSubject(record.request);
+    const membership = retainedStoryOf(record);
     const source = projects.find(({ id }) => id === record.request.source);
     // In Development, shows the session's project's stories and goes to the
     // session, or its done `story`; elsewhere, gives up an earlier going.
@@ -180,8 +185,13 @@ export function useRecentlyDoneSelection(
         },
       );
     };
-    if (requested !== undefined) {
-      checkCatalog(requested, true);
+    if (membership !== undefined) {
+      const localStory = recentLocalDoneStory(membership, new Date());
+      if (localStory !== undefined) {
+        settle("linked", localStory.identity);
+        return;
+      }
+      checkCatalog(membership.identity, membership.kind !== "linked");
       return;
     }
     const controller = new AbortController();

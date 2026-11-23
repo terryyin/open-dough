@@ -1,15 +1,16 @@
 // The Board's one session placement, from saved Done and the current
 // published membership. Native activity and local launch evidence never
-// choose a story's column. An unfinished Backlog or Taken card holds its
-// story's open sessions and its own Done sessions (keyed by identity); the
+// choose a published story's column. An unfinished Backlog or Taken card
+// holds its story's open launches and attached Done sessions; the
 // remaining Done sessions are what Recently done lists, on a published done
 // card or standing alone (`./recentlyDoneListing.ts`).
 import {
   isOpen,
   projectSessionsOf,
-  storySessionsOf,
+  storyOf,
   type LaunchWithState,
 } from "./agentLaunch.ts";
+import { retainedStoryOf } from "./retainedStoryMembership.ts";
 
 // An unfinished card's own Done sessions, oldest first, by its identity.
 export type DoneOnCard = (identity: string) => readonly LaunchWithState[];
@@ -23,7 +24,12 @@ export function columnSessionsOf(
   const onCards = new Map(
     unfinishedIdentities.map((identity) => [
       identity,
-      storySessionsOf(records, sourceId, identity),
+      project?.filter(
+        (record) =>
+          (isOpen(record)
+            ? storyOf(record.request)
+            : retainedStoryOf(record)?.identity) === identity,
+      ) ?? [],
     ]),
   );
   const held = new Set([...onCards.values()].flat());

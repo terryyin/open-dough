@@ -22,8 +22,8 @@ import { useStorySelection } from "./pageStorySelection.tsx";
 import { useHeldEntryFocus } from "./recentlyDoneFocus.ts";
 import { recentlyDoneName, type RecentlyDoneView } from "./recentlyDoneView.ts";
 import { ListedEntry } from "./RecentlyDoneEntry.tsx";
+import { listedEntryKey } from "./recentlyDoneListing.ts";
 import { SessionList } from "./SessionLists.tsx";
-import { sessionKey } from "./sessionReference.ts";
 import { useStoryReviewStates } from "./storyReviewStates.ts";
 import "./agent-launch.css";
 import "./recently-done.css";
@@ -133,15 +133,7 @@ export function RecentlyDone({
       {shown.length > 0 && (
         <ol {...focus}>
           {shown.map((each) => (
-            <li
-              key={
-                "record" in each
-                  ? `done ${each.record.identity}`
-                  : "published" in each
-                    ? `published ${each.published.sessionId}`
-                    : sessionKey(each.session.session)
-              }
-            >
+            <li key={listedEntryKey(each)}>
               <ListedEntry
                 each={each}
                 ciFollowUps={ciFollowUps}

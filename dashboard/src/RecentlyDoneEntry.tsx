@@ -15,6 +15,7 @@ import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { AdHocSessionReviewAction } from "./AdHocSessionReviewAction.tsx";
 import { SessionFollowUp, StoryFollowUp } from "./FollowUp.tsx";
 import { PublishedSessionEntry } from "./PublishedSessionEntry.tsx";
+import { listedStory } from "./recentlyDoneListing.ts";
 import type { Listed } from "./recentlyDoneView.ts";
 import { SessionEntry } from "./SessionEntry.tsx";
 import { StoryReviewStateAction } from "./StoryReviewStateAction.tsx";
@@ -66,7 +67,7 @@ export function ListedEntry({
       <PublishedSessionEntry record={each.published} sourceId={sourceId} />
     );
   }
-  if (!("record" in each)) {
+  if ("session" in each) {
     return (
       <SessionEntry
         record={each.session}
@@ -88,35 +89,44 @@ export function ListedEntry({
       />
     );
   }
-  const { record, sessions, followUps } = each;
-  const detail = detailOf(record);
+  const { sessions, followUps } = each;
+  const published = "record" in each ? each.record : undefined;
+  const detail = published === undefined ? undefined : detailOf(published);
+  const { identity, completedAt } = listedStory(each);
+  const story =
+    "localStory" in each
+      ? each.localStory
+      : detail?.status === "read"
+        ? detail.story
+        : undefined;
   return (
     <DoneStoryCard
-      identity={record.identity}
-      completedAt={record.completedAt}
-      story={detail.status === "read" ? detail.story : undefined}
-      said={unreadWords(detail, record.fileName)}
+      identity={identity}
+      completedAt={completedAt}
+      story={story}
+      said={
+        detail !== undefined && published !== undefined
+          ? unreadWords(detail, published.fileName)
+          : undefined
+      }
       sessions={sessions}
       followUps={followUps}
       sourceId={sourceId}
       launchRecords={launches.records}
-      selected={selectedIdentity === record.identity}
+      selected={selectedIdentity === identity}
       onSelect={onSelect}
       ciFollowUp={
         <CiFollowUpCard
           answer={ciFollowUps}
-          identity={record.identity}
+          identity={identity}
           project={sourceId}
         />
       }
       reviewState={
-        <StoryReviewStateAction
-          identity={record.identity}
-          states={reviewStates}
-        />
+        <StoryReviewStateAction identity={identity} states={reviewStates} />
       }
       followUp={
-        detail.status === "read" && (
+        detail?.status === "read" && (
           <StoryFollowUp
             story={detail.story}
             revision={revision}

@@ -1,52 +1,55 @@
-// Recently done's listed entries: published done cards holding their own
+// Recently done's listed entries: local and published done cards holding their
 // closed sessions and closed story follow-ups, plus standalone Done sessions
 // of no listed card, from the Done sessions the Board's placement leaves to
-// Recently done (`./columnSessions.ts`). Membership is derived from the retained launch request and the
-// published done catalog (`./recentlyDoneView.ts` reads the range).
+// Recently done (`./columnSessions.ts`). Card facts come from the retained
+// Done attachment or the published catalog (`./recentlyDoneView.ts` reads
+// the range).
 
 import { isCurrentSessionRecord } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import {
-  projectSessionsOf,
-  storySessionsOf,
-  type LaunchWithState,
-} from "./agentLaunch.ts";
+import { projectSessionsOf, type LaunchWithState } from "./agentLaunch.ts";
+import type { DoneStory } from "./doneRecord.ts";
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import type { PublishedSessions } from "./publishedSessions.ts";
 import type { HeldEntry } from "./recentlyDoneRange.ts";
+import {
+  recentLocalDoneStory,
+  retainedStoryOf,
+} from "./retainedStoryMembership.ts";
 import { reportingReferenceOf } from "./sessionListing.ts";
 import { sessionKey } from "./sessionReference.ts";
 
+type CardSessions = {
+  readonly at: number;
+  // The story's own sessions, oldest first — Follow up context and offer.
+  readonly sessions: readonly LaunchWithState[];
+  // Closed ad hoc follow-ups of this story, oldest first — display only.
+  readonly followUps: readonly LaunchWithState[];
+};
+
+type ListedCard = CardSessions &
+  (
+    | { readonly record: CataloguedDoneRecord }
+    | { readonly localStory: DoneStory }
+  );
+
 export type Listed =
-  | {
-      readonly at: number;
-      readonly record: CataloguedDoneRecord;
-      // The story's own sessions, oldest first — Follow up context and offer.
-      readonly sessions: readonly LaunchWithState[];
-      // Closed ad hoc follow-ups of this story, oldest first — display only.
-      readonly followUps: readonly LaunchWithState[];
-    }
+  | ListedCard
   | { readonly at: number; readonly session: LaunchWithState }
   // A session the project published a close record for, with no kept launch
   // on this machine whose reporting reference is the record's UUID: such a
   // launch (Done or live) stands for it with its native controls.
   | { readonly at: number; readonly published: PublishedSessionRecord };
 
-// Closed ad hoc launches whose saved follow-up names this project story.
-function closedStoryFollowUpsOf(
-  doneSessions: readonly LaunchWithState[],
-  sourceId: string,
-  identity: string,
-): readonly LaunchWithState[] {
-  return (projectSessionsOf(doneSessions, sourceId) ?? []).filter((record) => {
-    if (record.request.workflow !== "ad-hoc") return false;
-    const followUp = record.request.followUp;
-    return (
-      followUp !== undefined &&
-      "story" in followUp &&
-      followUp.story.identity === identity
-    );
-  });
+function cardSessions(sessions: readonly LaunchWithState[], identity: string) {
+  const own: LaunchWithState[] = [];
+  const followUps: LaunchWithState[] = [];
+  for (const session of sessions) {
+    const story = retainedStoryOf(session);
+    if (story?.identity !== identity) continue;
+    (story.kind === "follow-up" ? followUps : own).push(session);
+  }
+  return { sessions: own, followUps };
 }
 
 // Sessions a listed done card holds: its own closed sessions and its closed
@@ -55,6 +58,27 @@ const holdingsOf = (
   sessions: readonly LaunchWithState[],
   followUps: readonly LaunchWithState[],
 ) => [...sessions, ...followUps];
+
+function localCards(
+  sessions: readonly LaunchWithState[],
+  published: readonly CataloguedDoneRecord[],
+  now: Date,
+): readonly ListedCard[] {
+  const listed = new Set(published.map(({ identity }) => identity));
+  return sessions.flatMap((session) => {
+    const story = recentLocalDoneStory(retainedStoryOf(session), now);
+    if (story === undefined || listed.has(story.identity)) return [];
+    listed.add(story.identity);
+    const { identity, title, completedAt } = story;
+    return [
+      {
+        at: Date.parse(completedAt),
+        localStory: { identity, title, completedAt },
+        ...cardSessions(sessions, identity),
+      },
+    ];
+  });
+}
 
 // The published sessions Recently done lists: those of a listed answer still
 // current at `now`. An unavailable listing is a gap in the column's problems,
@@ -80,20 +104,26 @@ export function newestFirst(
   sourceId: string,
   keptLaunches: readonly LaunchWithState[],
   published: readonly PublishedSessionRecord[] = [],
+  now = new Date(),
 ): readonly Listed[] {
-  const cards = records.map((record) => ({
-    at: Date.parse(record.completedAt),
-    record,
-    sessions: storySessionsOf(doneSessions, sourceId, record.identity),
-    followUps: closedStoryFollowUpsOf(doneSessions, sourceId, record.identity),
-  }));
-  const stoodFor = new Set(keptLaunches.map(reportingReferenceOf));
+  const sessions = projectSessionsOf(doneSessions, sourceId) ?? [];
+  const cards = [
+    ...records.map((record) => ({
+      at: Date.parse(record.completedAt),
+      record,
+      ...cardSessions(sessions, record.identity),
+    })),
+    ...localCards(sessions, records, now),
+  ];
+  const stoodFor = new Set(
+    (projectSessionsOf(keptLaunches, sourceId) ?? []).map(reportingReferenceOf),
+  );
   const held = new Set(
     cards.flatMap((card) => holdingsOf(card.sessions, card.followUps)),
   );
   return [
     ...cards,
-    ...doneSessions
+    ...sessions
       .filter((session) => !held.has(session))
       .toReversed()
       .map((session) => ({ at: Date.parse(session.launchedAt), session })),
@@ -107,14 +137,25 @@ export function newestFirst(
 }
 
 const holds = (each: Listed, session: string) =>
-  "record" in each
+  "sessions" in each
     ? holdingsOf(each.sessions, each.followUps).some(
         (held) => sessionKey(held.session) === session,
       )
     : "session" in each && sessionKey(each.session.session) === session;
 
+export function listedStory(each: ListedCard) {
+  return "record" in each ? each.record : each.localStory;
+}
+
+export function listedEntryKey(each: Listed): string {
+  if ("session" in each) return sessionKey(each.session.session);
+  return "published" in each
+    ? `published ${each.published.sessionId}`
+    : `done ${listedStory(each).identity}`;
+}
+
 // Whether `each` is, or holds, the entry holding the keyboard.
 export const holdsEntry = (each: Listed, held: HeldEntry) =>
   held.story === undefined
     ? holds(each, held.session)
-    : "record" in each && each.record.identity === held.story;
+    : "sessions" in each && listedStory(each).identity === held.story;

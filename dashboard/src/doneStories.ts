@@ -142,14 +142,18 @@ export const doneRecordsGapProblem = (
     "the done records",
   ).problem;
 
-// The catalogued done records still recent at `now`, by the shared window.
+// The catalogued done records still recent by the shared window, plus any
+// older stories a selected or explicitly requested destination needs.
 export function recentDoneRecords(
   done: DoneStories | undefined,
   now: Date,
+  include: readonly (string | undefined)[] = [],
 ): readonly CataloguedDoneRecord[] {
   return done?.status === "catalogued"
-    ? done.records.filter((record) =>
-        isWithinDoneWindow(record.completedAt, now),
+    ? done.records.filter(
+        (record) =>
+          include.includes(record.identity) ||
+          isWithinDoneWindow(record.completedAt, now),
       )
     : [];
 }

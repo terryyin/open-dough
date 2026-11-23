@@ -152,7 +152,7 @@ worktree's Git evidence directory.
 ### 3. Recently done shows and selects the local Done story
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: C marked Done with no published done record → Recently done
 shows C under the session title, and choosing its row selects its Done
@@ -164,6 +164,12 @@ sessions use the same selection, and the Side panel stays as it was.
 done sessions row and the bookmark. Use the typed local launch answer
 and then a published catalog refresh. Slice 6 covers the selected story's
 Intent comparison.
+
+The mounted Done journey observes one story identity across the Board,
+Recently done sessions row and bookmark, with the report still open through
+published card replacement. The placement test keeps a Done follow-up
+under its Taken identity. The commands and observations are in
+`slice-3-implementation.md` in the worktree's Git evidence directory.
 
 ### 4. A follow-up keeps its parent story and gets a session of its own
 
@@ -268,3 +274,5 @@ Until this slice delivers the choice, ambiguous membership stays unresolved.
 - The close-result type repair was accepted at
   `04a44e6ec78a7b80701af755c25946df4e37b5c2` on that branch and observer.
   Its diagnosis is in [the repair record](diagnosis-close-return-type.md).
+- Slice 2 was accepted at `4e6477942e6113092b62cbdfac1ac1ef98a4cfc1`
+  on that branch and observer after full local lint and focused lifecycle proof.
