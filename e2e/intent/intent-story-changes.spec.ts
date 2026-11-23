@@ -6,8 +6,8 @@ import {
 // names it, its revisions and outside count, and offers Project Intent and
 // Review changes. Changes starts with "Selected story only"; the whole
 // tree shows change styling, auto-opened containing folders and the first
-// changed location. The location's change mark differs from a folder's row
-// background and stays visible after selection. Changed Purpose matches Review
+// changed location. Header appearance is proved by the mounted sidebar spec.
+// Changed Purpose matches Review
 // changes; unchanged Purpose shows published source. Closing Review changes
 // preserves selection (ADR 0008); deselecting restores Project Intent.
 // Selected-only, gaps, long titles and keyboard return: related Frontend
@@ -41,10 +41,6 @@ import {
   intentLocationName,
   purposeRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
-import {
-  expectChangedLocationHeader,
-  locationHeaderLookAt,
-} from "../../dashboard/test-support/intentLocationHeaderLook.ts";
 
 test("Intent highlights a selected Taken story's test changes over the published tree, each changed file with Review changes' own diff", async ({
   page,
@@ -130,8 +126,7 @@ test("Intent highlights a selected Taken story's test changes over the published
     }
   });
 
-  let changedHeader: Awaited<ReturnType<typeof locationHeaderLookAt>>;
-  await test.step("changed folders share the contains-changes background; a changed location keeps its own with a change mark, kept when selected", async () => {
+  await test.step("changed folders share the contains-changes background and changed locations remain marked", async () => {
     const marked = await background(story.folderRow("boundary"));
     expect(marked).not.toBe("rgba(0, 0, 0, 0)");
     for (const name of ["arriving", "boundary", "out"]) {
@@ -150,11 +145,6 @@ test("Intent highlights a selected Taken story's test changes over the published
         "data-contains-changes",
         "true",
       );
-      changedHeader = await expectChangedLocationHeader(
-        intent,
-        location,
-        marked,
-      );
     }
     await intentLocationName(intent, "dashboard/tests").click();
     await expect(intentLocationName(intent, "dashboard/tests")).toHaveAttribute(
@@ -165,14 +155,6 @@ test("Intent highlights a selected Taken story's test changes over the published
       "aria-expanded",
       "true",
     );
-    const selected = await locationHeaderLookAt(intent, "dashboard/tests");
-    expect(selected.background).not.toBe(changedHeader.background);
-    expect(selected.background).not.toBe(marked);
-    expect(selected).toMatchObject({
-      mark: changedHeader.mark,
-      controlsShowHeader: true,
-      fullWidth: true,
-    });
   });
 
   await test.step("a changed file's Purpose is its diff", async () => {
@@ -197,9 +179,6 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(story.outside).toHaveCount(0);
     await expect(intent.locator("[data-kind]")).toHaveCount(0);
     await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
-    const unchanged = await locationHeaderLookAt(intent, "tests");
-    expect(unchanged.mark).toBe("none");
-    expect(unchanged.background).toBe(changedHeader.background);
     // Intent now shows Project Intent, whose reading never borrowed the
     // story's file (../../dashboard/src/pageIntentReading.tsx): its CI status
     // homepage.

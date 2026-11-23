@@ -179,6 +179,7 @@ export async function openDoneStoryComparison({
   selected = true;
   await mounted.selectStory(doneStory.identity, doneTitle);
   return {
+    ...mounted,
     locationRevisions,
     proofReads: scope.asked.proofs,
     outsideCalls: () => opened,

@@ -63,27 +63,6 @@ export const storyIntentFrame = (intent: Locator) =>
   intent.locator('.intent-page-frame[data-intent-context="story"]');
 export const intentModeViews = (intent: Locator) =>
   intent.getByRole("tablist", { name: "Project Intent views" });
-export const filesScroll = (intent: Locator) =>
-  filesColumn(intent).evaluate((element) => element.scrollTop);
-
-// Scroll the Files column partway and observe its actual scroll event.
-export const scrollFilesHalfway = (intent: Locator) =>
-  filesColumn(intent).evaluate(
-    (element) =>
-      new Promise<number>((resolve) => {
-        element.addEventListener(
-          "scroll",
-          () => {
-            resolve(element.scrollTop);
-          },
-          { once: true },
-        );
-        element.scrollTo({
-          top: Math.floor((element.scrollHeight - element.clientHeight) / 2),
-        });
-      }),
-  );
-
 export const storyViews = (intent: Locator) =>
   intent.getByRole("tablist", { name: "Selected story views" });
 
@@ -157,10 +136,6 @@ export async function returnToStory(intent: Locator) {
 
 // Hide files / Show files for the locations column: in Project Intent's strip
 // on CI status, or ending a selected story's view row on Changes.
-export const intentModeBar = (intent: Locator) =>
-  projectIntentFrame(intent).locator(":scope > .intent-page-tabbar");
-export const storyViewBar = (intent: Locator) =>
-  storyIntentFrame(intent).locator(":scope > .intent-page-tabbar");
 export const filesToggle = (intent: Locator) =>
   intent
     .locator(".intent-page-tabbar")

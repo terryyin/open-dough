@@ -1,142 +1,102 @@
-import { openStoryIntent } from "../../test-support/intentModePage.ts";
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { emulateMedia } from "../review/browser-session.ts";
+import { openIntentFileLayout } from "./intent-file-layout-fixture.ts";
 import {
-  putFrontendIntentStory,
-  answerFrontendIntentChanges,
-} from "../../test-support/support/frontendIntentStory.ts";
-import { chooseStoryTab } from "../../test-support/support/intentStoryPage.ts";
-import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
-// A selected story's views and Hide files / Show files ending their row
-// (../../src/IntentPage.tsx) at a narrow width: every control stays
-// within the page without widening it, Tab reaches the toggle after the
-// views, Enter and Space work it, and Home and End choose along the views.
-// The toggle's wide layout: ./intent-sidebar-toggle.spec.ts.
+  controlsFit,
+  fileLayout,
+  focus,
+  intentPage,
+  projectView,
+  toggleFilesFromKeyboard,
+} from "./intent-file-layout-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
-import {
-  expectFilesShown,
-  filesToggle,
-  intentModeTab,
-  intentPageFrame,
-} from "../../test-support/intentModePage.ts";
-import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
-import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
-import { box } from "../../test-support/partArrangement.ts";
-import { browserRevision } from "../../test-support/intentPerspectivePage.ts";
-import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
-import {
-  twiceZoomedWindow,
-  zoomedWindow,
-} from "../../test-support/accessibleReading.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  expectStoryTab,
-  storyTab,
-  storyViews,
-} from "../../test-support/support/intentStoryPage.ts";
+test("narrow, a selected story's views and Hide files stay reachable by keyboard without widening the page", async () => {
+  await openIntentFileLayout({ viewport: { width: 390, height: 760 } });
+  const story = intentStoryCompare();
+  const files = fileLayout();
+  await story.chooseTab("Changes");
+  await controlsFit(
+    story.viewTab("CI comparison"),
+    story.viewTab("Changes"),
+    story.viewTab("Intent coverage"),
+    files.toggle,
+  );
 
-test("narrow, a selected story's views and Hide files stay reachable by keyboard without widening the page", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendIntentStory(frontendServices);
-  await answerFrontendIntentChanges(page);
-  const { intent } = await openStoryIntent(page, "Story A");
-  await chooseStoryTab(intent, "Changes");
-  await page.setViewportSize({ width: 390, height: 760 });
-  const width = await page.evaluate(() => document.documentElement.clientWidth);
-  for (const control of [
-    storyTab(intent, "CI comparison"),
-    storyTab(intent, "Changes"),
-    storyTab(intent, "Intent coverage"),
-    filesToggle(intent),
-  ]) {
-    await expect(control).toBeVisible();
-    const at = await box(control);
-    expect(at.x).toBeGreaterThanOrEqual(0);
-    expect(at.x + at.width).toBeLessThanOrEqual(width);
-  }
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
-    ),
-  ).toBe(true);
-
-  await storyTab(intent, "Changes").focus();
-  await page.keyboard.press("Tab");
-  await expect(filesToggle(intent)).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expectFilesShown(intent, false);
-  await page.keyboard.press("Space");
-  await expectFilesShown(intent, true);
-  await storyTab(intent, "Changes").focus();
-  await page.keyboard.press("Home");
-  await expectStoryTab(intent, "CI comparison");
-  await expect(storyTab(intent, "CI comparison")).toBeFocused();
-  await page.keyboard.press("End");
-  await expectStoryTab(intent, "Intent coverage");
-  await expect(filesToggle(intent)).toHaveCount(0);
+  await toggleFilesFromKeyboard(story.viewTab("Changes"));
+  await userEvent.keyboard(" ");
+  await files.showsFiles(true);
+  focus(story.viewTab("Changes"));
+  await userEvent.keyboard("{Home}");
+  await expect
+    .element(story.viewTab("CI comparison"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect.element(story.viewTab("CI comparison")).toHaveFocus();
+  await userEvent.keyboard("{End}");
+  await expect
+    .element(story.viewTab("Intent coverage"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect.element(files.toggle).not.toBeInTheDocument();
 });
 
-test("without a story the shared header, project views and reader fit narrow and short reading with keyboard controls", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendIntentStory(frontendServices);
-  await answerFrontendIntentCi(page, frontendServices.revision);
-  await page.goto("/");
-  await expectSettledPage(page);
-  const { intentChoice, intent } = parts(page);
-  await intentChoice.click();
-  for (const viewport of [
-    { width: 390, height: 560 },
-    { width: 720, height: 460 },
-    twiceZoomedWindow,
-    zoomedWindow,
-  ]) {
-    await page.setViewportSize(viewport);
-    await expect(
-      intent.getByRole("heading", { name: "No story selected", exact: true }),
-    ).toBeVisible();
-    await expect(intentPageFrame(intent)).toHaveAttribute(
-      "data-intent-context",
-      "project",
-    );
-    await expect(storyViews(intent)).toHaveCount(0);
-    const width = await page.evaluate(
-      () => document.documentElement.clientWidth,
-    );
-    for (const control of [
-      browserRevision(intent),
-      intentModeTab(intent, "CI status"),
-      intentModeTab(intent, "Optimization Candidates"),
-      filesToggle(intent),
-    ]) {
-      await expect(control).toBeVisible();
-      const at = await box(control);
-      expect(at.x).toBeGreaterThanOrEqual(0);
-      expect(at.x + at.width).toBeLessThanOrEqual(width);
-    }
+test("without a story the shared header, project views and reader fit narrow and short reading with keyboard controls", async () => {
+  await emulateMedia([{ name: "prefers-color-scheme", value: "dark" }]);
+  await openIntentFileLayout({
+    viewport: { width: 390, height: 560 },
+    selected: false,
+  });
+  const files = fileLayout();
+  const status = projectView("CI status");
+  const candidates = projectView("Optimization Candidates");
+  const ciStatus = intentPage.getByRole("region", {
+    name: "CI status",
+    exact: true,
+  });
+  // A 1280px desktop at 200% and 400% zoom has 640px and 320px of layout width.
+  for (const [width, height] of [
+    [390, 560],
+    [720, 460],
+    [640, 450],
+    [320, 256],
+  ] as const) {
+    await page.viewport(width, height);
+    await expect
+      .element(
+        intentPage.getByRole("heading", {
+          name: "No story selected",
+          exact: true,
+        }),
+      )
+      .toBeVisible();
     expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth,
-      ),
-    ).toBe(true);
-    await intentModeTab(intent, "CI status").focus();
-    await page.keyboard.press("Tab");
-    await expect(filesToggle(intent)).toBeFocused();
-    await page.keyboard.press("Enter");
-    await expectFilesShown(intent, false);
-    await expect(ciPanel(intent)).toBeVisible();
-    const reading = await box(intentReadingPane(intent));
-    expect(reading.height).toBeGreaterThan(viewport.height <= 256 ? 30 : 100);
-    await page.keyboard.press("Space");
-    await expectFilesShown(intent, true);
-    await intentModeTab(intent, "CI status").press("End");
-    await expect(
-      intentModeTab(intent, "Optimization Candidates"),
-    ).toBeFocused();
-    await expect(filesToggle(intent)).toHaveCount(0);
-    await page.keyboard.press("Home");
-    await expect(intentModeTab(intent, "CI status")).toBeFocused();
-    await expect(ciPanel(intent)).toBeVisible();
+      intentPage
+        .element()
+        .querySelector(".intent-page-frame")
+        ?.getAttribute("data-intent-context"),
+    ).toBe("project");
+    await expect
+      .element(
+        intentPage.getByRole("tablist", { name: "Selected story views" }),
+      )
+      .not.toBeInTheDocument();
+    await controlsFit(
+      intentPage.getByLabelText("Test browser revision", { exact: true }),
+      status,
+      candidates,
+      files.toggle,
+    );
+    await toggleFilesFromKeyboard(status);
+    await expect.element(ciStatus).toBeVisible();
+    expect(files.reading().height).toBeGreaterThan(height <= 256 ? 30 : 100);
+    await userEvent.keyboard(" ");
+    await files.showsFiles(true);
+    focus(status);
+    await userEvent.keyboard("{End}");
+    await expect.element(candidates).toHaveFocus();
+    await expect.element(files.toggle).not.toBeInTheDocument();
+    await userEvent.keyboard("{Home}");
+    await expect.element(status).toHaveFocus();
+    await expect.element(ciStatus).toBeVisible();
   }
 });

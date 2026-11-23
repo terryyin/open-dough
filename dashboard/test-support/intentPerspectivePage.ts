@@ -6,8 +6,7 @@
 // project publishes no intent locations, the Purpose of the selected file,
 // and the notice of a newer revision (../src/IntentRevisionNotice.tsx).
 // Reading-mode strip helpers: ./intentModePage.ts. The reading pane's scroll
-// place: ./intentReadingPlacePage.ts. How a location header reads:
-// ./intentLocationHeaderLook.ts.
+// place: ./intentReadingPlacePage.ts.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import { intentLocationIdPrefix } from "../src/intentLocationIds.ts";

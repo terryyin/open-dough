@@ -117,6 +117,15 @@ comparable pair when workload or host load has shifted.
   immutable historical source, Done refresh and reading place, branch/trunk
   progress and awaiting wrap-up. It is the retained E2E selection for Slices
   1, 3 and 8.
+- **Execution baseline repeat.** The original 17 frontend paths and mounted
+  Notes control were strictly green at claim revision `57cd409a3` with
+  two workers on the same AC-powered Node 24.21.0, 16-logical-core Mac.
+  At 11.10 load and 45% free memory, 40 Playwright and six Vitest cases
+  took 49.34 s shell elapsed. The retained built-page selection then
+  passed eight cases in 37.78 s, at 11.70 load and 44% free memory.
+  This lower-load pair gives a second comparison basis. The Git evidence
+  directory holds the revision, exact path list, independent engine
+  inventories, host readings and both strict proof records.
 - **Done reference mount.** The scratch
   `navigation/story-reference-preparation-probe.spec.ts` ran under the
   two-worker frontend command above. It used the Board mount's real
@@ -199,7 +208,7 @@ selection, read reuse, tree behavior and retry.
 ### 2. Keep Intent controls and CI cues usable as the reading space changes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent/intent-sidebar-toggle`, `intent/intent-story-views-narrow`,
 `intent/intent-story-summary-title` and `intent/intent-story-ci-cues` (8 legacy
@@ -219,6 +228,43 @@ the reading pane's width or height, preserved file and proof, project-local
 choice, keyboard order and activation. Check the full title and selected,
 focused and group CI cues in Chromium, including their distinct geometry
 or appearance assertions.
+
+**Accepted proof and case disposition.** All eight legacy cases moved at
+their existing spec paths and titles. The four sidebar cases retain reading
+pane width and height, restored file, Proof, scope, expansion and scroll,
+project-local choice, and keyboard input. The two narrow cases exercise
+phone and short layouts, including zoom-equivalent sizes. The title case
+observes the complete wrapping heading. The CI cue case observes accessible
+names and computed appearances for file, folder, location, focus and
+selection across light and dark layouts. The two existing Gherkin cases
+retain their checks and share the location header measurement. A separate mounted
+case in the sidebar spec now observes marked, selected and unmarked headers.
+The retained E2E still proves real publication, tree markings, selection,
+changed diff and published source. The two consumer-free Playwright helpers
+`intentLocationHeaderLook.ts` and `captureTreeCiCueScreenshots.ts`, and four
+unused file-layout exports in `intentModePage.ts`, were removed.
+
+The two-worker five-spec frontend selection passed ten cases in 10.041 s
+including preparation. The retained E2E passed in 7.924 s and Dashboard
+typecheck passed. The probes first failed all eight migrated cases at their
+layout, title or cue checks, then failed the mounted Taken and Gherkin
+header checks when header width shrank. Restored production files match
+the base. The independent refactor gave the relocated Taken-header proof
+its own mounted case and restored the title's exact text observation.
+Seven cases in the three affected specs then passed in 8.82 s, including
+the added case. The width probe failed that case at its width assertion.
+The unchanged narrow and Gherkin cases, E2E and typecheck proof still
+apply. Source review C08–C10 records the observing cases.
+
+Direct production imports stay zero in the five specs, the scope-tree
+object, the E2E spec and the two new layout helpers. The existing Done
+fixture retains its three type-only production imports.
+`intentPerspectivePage.ts` retains its location ID import and
+`intentModePage.ts` retains zero. The removed helpers had zero.
+`slice-2-return.md` in the worktree's Git evidence directory records each
+migration, the consumer trace and the terminal `s2-final`, `s2-e2e`,
+`s2-typecheck` and two regression runs. The refactor evidence is in
+`slice-2-refactor.md` and `s2-refactor-frontend.json`.
 
 ### 3. Read a Done story's own historical Intent
 

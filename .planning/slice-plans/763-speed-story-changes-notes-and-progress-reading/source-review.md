@@ -25,9 +25,9 @@ outside-locations diff and line-note subject.
 | C05 | Tree usable after empty comparison. | slice 1 | observed: intent-story-changes-only.spec.ts product-only or empty comparison case turns off the filter, opens a published location and reads the selected source after the empty comparison. |
 | C06 | Failed comparison explains gap. | slice 1 | observed: intent-story-changes-gaps.spec.ts failed comparison and retry case observes the exact alert and detailed failure before retry. |
 | C07 | Tree usable after failed comparison. | slice 1 | observed: intent-story-changes-gaps.spec.ts failed comparison and retry case verifies the unmarked published tree remains navigable and reads the file before retry. |
-| C08 | Title stays usable at supported viewports and appearances. | slice 2 | |
-| C09 | File toggle stays usable at supported viewports and appearances. | slice 2 | |
-| C10 | CI cues stay usable at supported viewports and appearances. | slice 2 | |
+| C08 | Title stays usable at supported viewports and appearances. | slice 2 | observed: intent-story-summary-title.spec.ts observes the single full wrapping title and its placement above each story view at desktop width and the same full title at phone width in dark appearance. |
+| C09 | File toggle stays usable at supported viewports and appearances. | slice 2 | observed: intent-sidebar-toggle.spec.ts measures the space after Hide files and the kept Proof, selection, expansion and scroll after Show files. intent-story-views-narrow.spec.ts observes responsive controls, keyboard order and activation, including short, zoom-equivalent and dark layouts. |
+| C10 | CI cues stay usable at supported viewports and appearances. | slice 2 | observed: intent-story-ci-cues.spec.ts distinguishes selected, focused and grouped CI cues and their accessible names at desktop and phone widths in both color schemes. intent-sidebar-toggle.spec.ts and intent-gherkin-groups.spec.ts measure distinct changed, selected and unmarked location headers and visible controls. |
 | C11 | Done Purpose refresh preserves applicable historical file, with comparison and locations held. | slice 3 | |
 | C12 | Done Purpose refresh preserves reading place, with comparison and locations held. | slice 3 | |
 | C13 | Choosing different Done story in held-answer setup waits for new selection's own historical answer. | slice 3 | |

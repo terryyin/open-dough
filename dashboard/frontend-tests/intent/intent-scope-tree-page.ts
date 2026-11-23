@@ -38,6 +38,32 @@ function disclosure(locator: Locator) {
   return control;
 }
 
+// How the header of the location at PATH reads against its column.
+export function locationHeader(path: string) {
+  const header = scopeToggle(path).query()?.parentElement;
+  if (!header) throw new Error(`Intent has no location header at ${path}`);
+  return header;
+}
+
+export function locationHeaderLook(path: string) {
+  const header = locationHeader(path);
+  const column = header.closest(".intent-locations") ?? header;
+  const box = header.getBoundingClientRect();
+  const columnLeft = column.getBoundingClientRect().left + column.clientLeft;
+  const label = header.querySelector(".intent-location-name > *") ?? header;
+  return {
+    background: getComputedStyle(header).backgroundColor,
+    mark: getComputedStyle(header).boxShadow,
+    controlsShowHeader: [...header.children].every(
+      (child) => getComputedStyle(child).backgroundColor === "rgba(0, 0, 0, 0)",
+    ),
+    fullWidth:
+      Math.abs(box.left - columnLeft) < 1 &&
+      Math.abs(box.width - column.clientWidth) < 1,
+    labelWeight: Number(getComputedStyle(label).fontWeight),
+  };
+}
+
 export function intentScopeTree() {
   const summaryRegion = page.getByRole("region", {
     name: "Summary",
