@@ -214,7 +214,7 @@ fragment requirements stay with slice 5.
 
 ### 4. Drop the retired unit from CLI projections
 Type: Structure
-Status: planned
+Status: done
 Estimated active work: 8–11 minutes.
 
 Structure. Change the scope, gaps, table and ranking projections to use
@@ -224,6 +224,13 @@ files, missing parts, partial timing, and attempt refusals after slice 2.
 Proof. Run `ci-proof-{ranking,scope,scope-units,leads-gaps}.test.mjs` around the
 CLI projections. Observe separate ranking groups and labeled scope counts
 and times, including mixed declared units and no timing for an unusable part.
+
+Accepted proof. Scope and ranking cases kept case and file figures separate,
+left missing and ambiguous parts unmeasured, and kept untimed totals out of
+the leads. The CLI and table checks preserved attempt refusals, the lead
+budget, and the 16 KiB output boundary. The 35 selected Distribution cases
+and installed-payload check passed. Commands and observations are in
+`slice-d-return.md` in this checkout's Git evidence directory.
 
 ### 5. Collect only matching declared parts
 Type: Behavior
@@ -297,6 +304,12 @@ type checks and the reached mounted comparison and scope-proof specs.
   `1d78c4b9149e07203ea63bb85d7db38672f50b08`.
 - Slice 2 was accepted on the story branch at
   `b147240973d2d1c625bbb06f7a5a7f1ad051ff1e`.
+- Slice 3 was accepted on the story branch at
+  `cce5ca4466839193eeb42e26e0d1c87f9b450c61`.
+- The Intent retry test repair was accepted on the story branch at
+  `f379ad88f6cc049ff057660d5dd07c814b6d26de`. The exact local failure control
+  and passing regression proof are in [the diagnosis](diagnosis-intent-read-recovery.md).
+  Slice 4 was restored with its implementation and proof inputs intact.
 
 ## Story obligations
 

@@ -134,6 +134,15 @@ test("from inside the checkout it prints the table and exits 0 when a summary ra
   }
 });
 
+test("the lead command help describes separate case and file totals", () => {
+  const help = run(undefined, "--help");
+  assert.equal(help.status, 0);
+  assert.match(
+    help.stdout,
+    /Test cases and test files each have their\s+own totals/,
+  );
+});
+
 test("the lead command refuses a version 1 summary for the selected attempt", async (t) => {
   const { checkout, revision } = await checkoutWithAttempt(t);
   const summary = `{"schemaVersion":1,"repository":"${repository}","attemptId":"${attemptId}","revision":"${revision}","entries":[{"path":"tests","unit":"tests","passed":1,"failed":0,"other":0,"durationMs":4000,"parts":[{"part":1,"status":"present","passed":1,"failed":0,"other":0,"durationMs":4000}]}]}`;
