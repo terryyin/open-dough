@@ -16,6 +16,9 @@
   (CI) observes the execution branch during slice delivery, coordinator
   `codex-fa1b57e7`, directory `/tmp/dough-ci-501/watch-1t2yyr`,
   stream cell `g362:9`, shell session 35327 and observer PID 48150.
+- Slice 1 accepted and registered at `4e31faa0f56b91dccf1c8858106d464fe952387f`
+  on the story branch. The managed delivery receipt retained the matching
+  candidate and initial claim as its suffix base.
 
 ## Goal and scope
 
@@ -134,7 +137,7 @@ result, setup and assertions.
 ### 2. The developer can read or finish a retained unfinished report
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given a published Taken card and a retained unfinished Codex report with its
 workspace gone, open its Final report and surface the Taken card with the
@@ -151,6 +154,42 @@ selection, plus the matched loaded comparison. Keep the spec within the
 existing file-size gate using the existing data and control owners.
 If either case still times out or the split needs new support, retain the
 last green proof and reassess the remaining cost before extending the change.
+
+**Slice 2 proof**
+
+Both cases passed alone and together at one worker with the normal AC
+sleep guard. The installed case took 3.426 s alone and together, and the
+retained case took 3.830 s alone and 3.235 s together. The combined
+runner took 8.791 s. The one-file change preserves installed launch,
+receipt, Board placement and fresh-read proof. The retained case
+observes Read, the actual Done update, exact native calls and Done
+history directly. The Done mark updates history without an extra reload.
+See `slice-2-implementation.md` and its linked proof records.
+
+Matched four-worker comparison on the same 16-logical-CPU AC host, Node,
+Chromium, locked deps, five-spec selection, fresh dashboard builds and
+private fixtures. The split ran first, then the unsplit checkout at
+`497eed2c2`. Both used natural load with zero supplemental burners.
+
+| Candidate or baseline | Natural one-minute load | Attention cases | Neighboring cases | Runner |
+| --- | --- | --- | --- | --- |
+| Split at `4e31faa0f` with the Slice 2 edit | 35.84 → 36.05 | Installed attention survives restart: 25.871 s. Read leaves the session open for Done: 12.236 s. Both passed. | Seven passed, 16.121–25.260 s | 67.81 s, pass |
+| Unsplit at `497eed2c2` | 31.83 → 39.87 | Installed attention report stays open, durable and readable through column change, retirement, restart, Mark as read and Mark as done: timed out at 30 s at Read final report (33.236 s with teardown). | Seven passed, 20.651–27.470 s | 79.61 s, fail |
+
+The natural load reading was below the historical synthetic 52–59.
+The actual neighboring-case durations overlap the initial loaded
+baseline's 17.155–22.954 s, and the original timeout reproduced in the
+matched pair. These observations establish comparable contention and
+a passing split in that context. They do not establish a ceiling
+under all synthetic workloads. The 86-burner candidate and 48-burner
+baseline replay overshot the historical load. At 20 burners the
+candidate's installed case and six unchanged neighbors timed out or
+failed amid system contention, with roughly 30 GB swap in use.
+Those runs remain diagnostic. `natural-load-candidate.json` and
+`natural-load-baseline.json` retain per-case names, durations, selection
+and terminal results; the matching logs record machine load, runner time
+and the baseline assertion. This comparison applies ADR 0010's useful
+outcome and evidenced comparison criteria.
 
 ## Local gates
 
