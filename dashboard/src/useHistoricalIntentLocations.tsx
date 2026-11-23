@@ -22,9 +22,7 @@ export function useHistoricalIntentLocations(
       ? review.completion
       : review?.kind === "landed"
         ? review.landing.revision
-        : review?.kind === "published-session"
-          ? review.tree
-          : undefined;
+        : undefined;
   const { intent, shownRevision, retryLocations } = useIntentLocations(
     source,
     revision,

@@ -112,7 +112,6 @@ export function storyContext(
   story: FollowUpStoryFacts,
   sessions: readonly FollowUpSessionFacts[],
   file?: FollowUpFileFacts,
-  local = false,
 ): FollowUpContext {
   const completed = [
     `${completionTime.format(new Date(story.completedAt))} UTC`,
@@ -126,9 +125,7 @@ export function storyContext(
         { label: "Completed", value: completed },
         {
           label: "Status",
-          value: local
-            ? "Done. This story is kept on this machine."
-            : `Done. Its seed and plan may have been removed; its records remain in the project's history under ${story.identity}.`,
+          value: `Done. Its seed and plan may have been removed; its records remain in the project's history under ${story.identity}.`,
         },
         ...(sessions.length === 0
           ? [{ label: "Sessions", value: noSessionRetained }]

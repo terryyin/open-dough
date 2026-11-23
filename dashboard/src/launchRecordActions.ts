@@ -64,7 +64,6 @@ export function useLaunchRecordActions({
     (answered: LaunchWithState) => {
       setRecords((current) =>
         current.map((record) =>
-          record.request.source === answered.request.source &&
           sessionKey(record.session) === sessionKey(answered.session)
             ? answered
             : record,
@@ -152,9 +151,7 @@ export function useLaunchRecordActions({
       const { records, ...facts } = kept;
       setFacts(facts);
       const answered = records.find(
-        (known) =>
-          known.request.source === record.request.source &&
-          sessionKey(known.session) === sessionKey(record.session),
+        (known) => sessionKey(known.session) === sessionKey(record.session),
       );
       if (answered !== undefined) replaceRecord(answered);
     },

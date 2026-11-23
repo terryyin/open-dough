@@ -128,7 +128,6 @@ async function startedRun(
       folder,
       pending,
       kept,
-      baseRecording.title,
     );
     if (preparedReporting.kind === "failed") return preparedReporting.result;
     const prepared = preparedReporting.prepared;

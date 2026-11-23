@@ -1,6 +1,5 @@
 // Public launch/creation record operations use one machine document and retention rule.
 import { sameLaunch } from "../src/launchRequest.ts";
-import { keptDoneEvidence } from "../src/launchDone.ts";
 import { sessionKey, type SessionReference } from "../src/sessionReference.ts";
 import {
   branchPinOwner,
@@ -198,7 +197,8 @@ export async function replaceKeptSession(
     landing: record.landing ?? next.landing,
     landingReporting: record.landingReporting ?? next.landingReporting,
     dispositionChangedAt: record.dispositionChangedAt,
-    ...keptDoneEvidence(record),
+    doneAt: record.doneAt,
+    doneProblem: record.doneProblem,
   }));
 }
 
@@ -225,7 +225,8 @@ export async function updateRecord(
         landing: entry.landing ?? record.landing,
         landingReporting: entry.landingReporting ?? record.landingReporting,
         dispositionChangedAt: entry.dispositionChangedAt,
-        ...keptDoneEvidence(entry),
+        doneAt: entry.doneAt,
+        doneProblem: entry.doneProblem,
         ...keptBranchEvidence(entry),
         stopUnconfirmed: entry.stopUnconfirmed,
         reportRead: entry.reportRead,

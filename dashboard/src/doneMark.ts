@@ -2,8 +2,8 @@
 // the local launch boundary (`../server/doneMarks.ts`) to rename one recorded
 // session `done-<name>` and stop it. The endpoint, request, answer, and the
 // `done-` name are spelled once here, with no Node import, so the browser and
-// the server read the same shapes. The mark and any originating Done story
-// it creates are machine-local evidence.
+// the server read the same shapes. The mark is local evidence only and never
+// a story fact.
 
 import { z } from "zod";
 import { sessionHostSchema } from "./sessionReference.ts";

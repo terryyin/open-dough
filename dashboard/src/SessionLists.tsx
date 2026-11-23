@@ -2,8 +2,6 @@
 import type { ReactNode } from "react";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import type { AgentAssignment } from "./agentAssignments.ts";
-import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
-import { PublishedSessionEntry } from "./PublishedSessionEntry.tsx";
 import { sessionKey } from "./sessionReference.ts";
 import { SessionEntry } from "./SessionEntry.tsx";
 
@@ -41,8 +39,6 @@ export function StorySessions({
   onStoryCard,
   launchedHere,
   storyCardAssignments,
-  additionalActionsFor,
-  published,
 }: {
   // The story's sessions, oldest first.
   readonly sessions: readonly LaunchWithState[];
@@ -50,46 +46,19 @@ export function StorySessions({
   readonly onStoryCard: boolean;
   readonly launchedHere?: string | undefined;
   readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
-  readonly additionalActionsFor?:
-    ((record: LaunchWithState) => ReactNode) | undefined;
-  readonly published?: {
-    readonly sourceId: string;
-    readonly records: readonly PublishedSessionRecord[];
-  };
 }) {
-  const rows = sessions.toReversed().map((record) => ({
-    at: Date.parse(record.launchedAt),
-    key: sessionKey(record.session),
-    entry: (
-      <SessionEntry
-        record={record}
-        onStoryCard={onStoryCard}
-        takesFocus={launchedHere === sessionKey(record.session)}
-        storyCardAssignments={storyCardAssignments}
-        additionalActions={additionalActionsFor?.(record)}
-      />
-    ),
-  }));
-  if (published !== undefined) {
-    rows.push(
-      ...published.records.map((record) => ({
-        at: Date.parse(record.closedAt),
-        key: record.sessionId,
-        entry: (
-          <PublishedSessionEntry
-            record={record}
-            sourceId={published.sourceId}
-          />
-        ),
-      })),
-    );
-    rows.sort((one, other) => other.at - one.at);
-  }
-  if (rows.length === 0) return null;
+  if (sessions.length === 0) return null;
   return (
     <ol className={className} aria-label="Sessions">
-      {rows.map(({ key, entry }) => (
-        <li key={key}>{entry}</li>
+      {sessions.toReversed().map((record) => (
+        <li key={sessionKey(record.session)}>
+          <SessionEntry
+            record={record}
+            onStoryCard={onStoryCard}
+            takesFocus={launchedHere === sessionKey(record.session)}
+            storyCardAssignments={storyCardAssignments}
+          />
+        </li>
       ))}
     </ol>
   );

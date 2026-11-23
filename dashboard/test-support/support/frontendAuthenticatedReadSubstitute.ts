@@ -22,7 +22,6 @@ export function answerAuthenticatedRead(
     | "locations"
     | "candidates"
     | "doneBySource"
-    | "publishedSessionsBySource"
     | "files"
     | "backlog"
   >,
@@ -100,16 +99,11 @@ export function answerAuthenticatedRead(
       },
     };
   }
+  // No project publishes session records here.
   if (
     params.get(publishedSessionsRead.parameter) === publishedSessionsRead.value
   ) {
-    return {
-      status: 200,
-      body: {
-        revision,
-        sessions: state.publishedSessionsBySource?.[sourceId] ?? [],
-      },
-    };
+    return { status: 200, body: { revision, sessions: [] } };
   }
   // Which commit an arranged watched branch names now.
   const branch = params.get("branch");

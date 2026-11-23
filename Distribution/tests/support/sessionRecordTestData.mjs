@@ -15,8 +15,6 @@ import {
  *   sessionId: string,
  *   workflow: string,
  *   closedAt: string,
- *   story?: string,
- *   title?: string,
  *   ranges: { base: string, candidate: string, uncertainty?: string }[],
  * }} SessionRecord
  */
@@ -31,30 +29,6 @@ export class SessionRecordBuilder {
   #ranges = [{ base: "a".repeat(40), candidate: "b".repeat(40) }];
   /** @type {string | undefined} */
   #closedAt;
-  /** @type {string | undefined} */
-  #sessionId;
-  /** @type {string | undefined} */
-  #story;
-  /** @type {string | undefined} */
-  #title;
-
-  /** @param {string} sessionId the close's own UUID */
-  forSession(sessionId) {
-    this.#sessionId = sessionId;
-    return this;
-  }
-
-  /** @param {string} story the story to which this close belongs */
-  underStory(story) {
-    this.#story = story;
-    return this;
-  }
-
-  /** @param {string} title the title of an originating ad hoc Done story */
-  titled(title) {
-    this.#title = title;
-    return this;
-  }
 
   /** @param {string} closedAt the ISO time the session closed; now unless set */
   closedAt(closedAt) {
@@ -90,11 +64,9 @@ export class SessionRecordBuilder {
   please() {
     return {
       version: sessionRecordVersion,
-      sessionId: this.#sessionId ?? globalThis.crypto.randomUUID(),
+      sessionId: globalThis.crypto.randomUUID(),
       workflow: "ad-hoc",
       closedAt: this.#closedAt ?? new Date().toISOString(),
-      ...(this.#story === undefined ? {} : { story: this.#story }),
-      ...(this.#title === undefined ? {} : { title: this.#title }),
       ranges: this.#ranges,
     };
   }

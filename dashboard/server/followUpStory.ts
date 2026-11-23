@@ -11,12 +11,9 @@
 
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { doneRecordOf, type DoneStory } from "../src/doneRecord.ts";
+import { isOpen, storySessionsOf } from "../src/agentLaunch.ts";
+import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import {
-  ownDoneStorySessions,
-  recentLocalDoneStory,
-  retainedStoryOf,
-} from "../src/retainedStoryMembership.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -39,7 +36,7 @@ const unread = () =>
     "The done story this follows up could not be read at the revision shown.",
   );
 
-async function publishedDoneStory(
+export async function publishedDoneStory(
   source: PublishedSource,
   { identity, revision }: { identity: string; revision: string },
 ): Promise<DoneStory> {
@@ -68,27 +65,14 @@ async function publishedDoneStory(
   return read.story;
 }
 
-export async function doneStoryFollowUp(
+// The sessions this machine keeps for the story and marked done, oldest
+// first, by the rule its card's sessions follow (`storySessionsOf`).
+export async function doneStorySessions(
   source: PublishedSource,
-  { identity, revision }: { identity: string; revision?: string | undefined },
-) {
-  const published =
-    revision === undefined
-      ? undefined
-      : await publishedDoneStory(source, { identity, revision });
-  const sessions = ownDoneStorySessions(
-    await keptRecords(source.id),
-    source.id,
-    identity,
-  );
-  if (published !== undefined) return { story: published, sessions };
-  const now = new Date();
-  for (const record of sessions) {
-    const story = recentLocalDoneStory(retainedStoryOf(record), now);
-    if (story !== undefined) return { story, sessions };
-  }
-  throw new RefusedRequest(
-    404,
-    "The local Done story this follows up is no longer kept on this machine.",
+  identity: string,
+): Promise<readonly LaunchRecord[]> {
+  const kept = await keptRecords(source.id);
+  return storySessionsOf(kept, source.id, identity).filter(
+    (record) => !isOpen(record),
   );
 }

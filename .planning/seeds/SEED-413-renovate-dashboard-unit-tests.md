@@ -532,7 +532,7 @@ it claims before the legacy setup retires.
 
 **Identity:** SEED-413#speed-dashboard-frame-and-navigation-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/802-speed-dashboard-frame-and-navigation-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c46f707d1969d56afaed5686c4bf37d0c24ab225491d86d5f0a3fd42381bfe79","plan":"2378907cf5c79b4519d8d0067bf51b0c3b57f817ca973990991fa453fe6e6a2d"}}
 ```
 
 **Goal:** Developers get fast Vitest proof that the dashboard frame,

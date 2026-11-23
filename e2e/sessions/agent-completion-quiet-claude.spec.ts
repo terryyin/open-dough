@@ -13,7 +13,6 @@ import { sessionAction } from "../../dashboard/test-support/support/sessionEntry
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   parts,
-  sessionEntryShowing,
   sessionProblemOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
@@ -28,7 +27,6 @@ import {
 } from "../../dashboard/test-support/support/startOriginTest.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
-import { sessionKey } from "../../dashboard/src/sessionReference.ts";
 import {
   openUntilRead,
   reloadUntilRead,
@@ -68,10 +66,9 @@ test.describe("within a wait the session outlasts", () => {
     await publishOrigin(page, origin);
     await openUntilRead(page);
     await showColumn(page, "Recently done");
-    const recent = sessionEntryShowing(
-      parts(page).recentlyDone,
-      sessionKey({ host: "claude", sessionId }),
-    );
+    const recent = parts(page)
+      .recentlyDone.getByRole("article")
+      .filter({ hasText: sessionId });
     await expect(recent).toContainText(`Intended name ${doneName}`);
     await expect(recent.getByText(pending)).toBeVisible();
     await expect(sessionProblemOf(recent)).not.toContainText(pending);

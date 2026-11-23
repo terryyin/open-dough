@@ -6,24 +6,17 @@
 // until its record is read, what it says instead.
 
 import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
-import { adHocStorySessionId } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { CiFollowUpCard } from "./CiFollowUpViews.tsx";
-import { ChooseSessionStory } from "./ChooseSessionStory.tsx";
 import type { CiFollowUpAnswer } from "./ciFollowUp.ts";
 import { readingDoneStory, type DoneDetail } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { AdHocSessionReviewAction } from "./AdHocSessionReviewAction.tsx";
 import { SessionFollowUp, StoryFollowUp } from "./FollowUp.tsx";
-import {
-  PublishedSessionEntry,
-  PublishedSessionReviewAction,
-} from "./PublishedSessionEntry.tsx";
-import { listedStory } from "./recentlyDoneListing.ts";
+import { PublishedSessionEntry } from "./PublishedSessionEntry.tsx";
 import type { Listed } from "./recentlyDoneView.ts";
 import { SessionEntry } from "./SessionEntry.tsx";
-import { sessionKey } from "./sessionReference.ts";
 import { StoryReviewStateAction } from "./StoryReviewStateAction.tsx";
 import type { StoryReviewStates } from "./storyReviewStates.ts";
 
@@ -73,100 +66,60 @@ export function ListedEntry({
       <PublishedSessionEntry record={each.published} sourceId={sourceId} />
     );
   }
-  if ("session" in each) {
+  if (!("record" in each)) {
     return (
       <SessionEntry
         record={each.session}
         onStoryCard={false}
-        additionalActions={
+        followUp={
           <>
             <AdHocSessionReviewAction
               record={each.session}
               sourceId={sourceId}
             />
-            {each.conflict === undefined ? (
-              <SessionFollowUp
-                record={each.session}
-                project={project}
-                sourceId={sourceId}
-                launches={launches}
-              />
-            ) : (
-              <ChooseSessionStory
-                record={each.session}
-                candidates={each.conflict}
-                readSession={launches.readSession}
-              />
-            )}
+            <SessionFollowUp
+              record={each.session}
+              project={project}
+              sourceId={sourceId}
+              launches={launches}
+            />
           </>
         }
       />
     );
   }
-  const { sessions, followUps, publishedSessions, publishedForRetained } = each;
-  const published = "record" in each ? each.record : undefined;
-  const detail = published === undefined ? undefined : detailOf(published);
-  const { identity, completedAt } = listedStory(each);
-  const story =
-    "localStory" in each
-      ? each.localStory
-      : detail?.status === "read"
-        ? detail.story
-        : undefined;
+  const { record, sessions, followUps } = each;
+  const detail = detailOf(record);
   return (
     <DoneStoryCard
-      identity={identity}
-      completedAt={completedAt}
-      story={story}
-      said={
-        detail !== undefined && published !== undefined
-          ? unreadWords(detail, published.fileName)
-          : undefined
-      }
+      identity={record.identity}
+      completedAt={record.completedAt}
+      story={detail.status === "read" ? detail.story : undefined}
+      said={unreadWords(detail, record.fileName)}
       sessions={sessions}
       followUps={followUps}
-      publishedSessions={publishedSessions}
       sourceId={sourceId}
       launchRecords={launches.records}
-      selected={selectedIdentity === identity}
+      selected={selectedIdentity === record.identity}
       onSelect={onSelect}
-      sessionActions={(record) => {
-        const close = publishedForRetained.get(sessionKey(record.session));
-        return (
-          <>
-            {close !== undefined && (
-              <PublishedSessionReviewAction
-                record={close}
-                sourceId={sourceId}
-                title={record.request.title}
-              />
-            )}
-            {adHocStorySessionId(identity) !== undefined && (
-              <SessionFollowUp
-                record={record}
-                project={project}
-                sourceId={sourceId}
-                launches={launches}
-              />
-            )}
-          </>
-        );
-      }}
       ciFollowUp={
         <CiFollowUpCard
           answer={ciFollowUps}
-          identity={identity}
+          identity={record.identity}
           project={sourceId}
         />
       }
       reviewState={
-        <StoryReviewStateAction identity={identity} states={reviewStates} />
+        <StoryReviewStateAction
+          identity={record.identity}
+          states={reviewStates}
+        />
       }
       followUp={
-        story !== undefined && (
+        detail.status === "read" && (
           <StoryFollowUp
-            story={story}
-            revision={published === undefined ? undefined : revision}
+            story={detail.story}
+            revision={revision}
             sessions={sessions}
             project={project}
             sourceId={sourceId}

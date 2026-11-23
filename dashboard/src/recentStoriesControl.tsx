@@ -17,7 +17,6 @@ import { Bookmark } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import type { DashboardPerspective } from "./dashboardRouteUrl.ts";
 import { useIntentScopeChooser } from "./intentStoryTabs.tsx";
-import { storyShown } from "./pageEntries.ts";
 import { keepInView, startIsReadable } from "./pageMovement.ts";
 import { projectLabel, useVisibleProjects } from "./projectList.tsx";
 import {
@@ -28,7 +27,7 @@ import {
   type SelectedStory,
 } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
-import { intentStoryViewStart } from "./storyCardFocus.ts";
+import { intentStoryViewStart, storyCard } from "./storyCardFocus.ts";
 import { StoryNavigationOnPage } from "./storyNavigation.tsx";
 import "./recent-stories.css";
 
@@ -107,8 +106,8 @@ export function RecentStories({
       const start = intentStoryViewStart();
       return start === undefined || !startIsReadable(start);
     }
-    const card = storyShown(selected.identity);
-    return card === null || !startIsReadable(card);
+    const card = storyCard(selected.identity);
+    return card === undefined || !startIsReadable(card);
   };
 
   const onButtonClick = () => {

@@ -1,7 +1,6 @@
 // The installed reporting files retained past the worktree's removal.
 import { access, copyFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { sessionTitlePathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/dashboard-landing.mjs";
 import type { LandingRepository } from "../src/launchLanding.ts";
 import type { AgentLaunchRequest } from "../src/launchRequest.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
@@ -50,16 +49,8 @@ export async function writeLandingContext(
     readonly reference: string;
   },
   { identity, remote, target }: LandingRepository,
-  sessionTitle?: string,
 ): Promise<string> {
   const landingContext = path.join(directory, "landing-context.json");
-  if (identity === undefined && sessionTitle !== undefined) {
-    await writeFile(
-      sessionTitlePathBeside(landingContext),
-      `${JSON.stringify(sessionTitle)}\n`,
-      { mode: 0o600 },
-    );
-  }
   await writeFile(
     landingContext,
     `${JSON.stringify({ ...context, identity, remote, target }, null, 2)}\n`,

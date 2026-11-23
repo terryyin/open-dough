@@ -32,7 +32,6 @@ export type FakeCodex = {
   readonly env: Record<string, string>;
   readonly calls: CodexCall[];
   readonly sockets: Set<WebSocket>;
-  turnInputConnection?: WebSocket;
   readonly observations: Map<string, FakeCodexObservation>;
   readonly names: Map<string, string>;
   renameError?: unknown;
