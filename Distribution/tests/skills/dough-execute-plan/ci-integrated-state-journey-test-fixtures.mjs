@@ -17,8 +17,10 @@ import {
   publishFileAsAnotherWriter,
   revParse,
 } from "./publication-test-fixtures.mjs";
-import { ignoreInstalledSkills } from "./ci-reuse-journey-test-fixtures.mjs";
-import { createReuseCheckCommands } from "./ci-reuse-check-command-test-fixtures.mjs";
+import {
+  createCheckCommands,
+  ignoreInstalledSkills,
+} from "./ci-check-command-test-fixtures.mjs";
 import { githubProvider } from "./ci-integrated-state-github-test-fixtures.mjs";
 import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
 import { readRevisionCoverage } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
@@ -49,11 +51,7 @@ export async function createIntegratedStateJourney(
   await ignoreInstalledSkills(fixture);
   const source = await provider(t, fixture, declared);
   if (source.env) fixture.env = source.env;
-  const commands = createReuseCheckCommands(fixture, {
-    unit: "covered",
-    configuration: "checks-v1",
-    context: "inputs-v1",
-  });
+  const commands = createCheckCommands(fixture);
   const publish = () =>
     publishHistoryPreservingCandidate({
       ownedWorkspace: fixture.execution,

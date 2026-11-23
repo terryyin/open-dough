@@ -1,11 +1,11 @@
 // Existing publication/observer fixtures with provider evidence produced by a
 // real covered command. This fixture supplies provider API facts, not verdicts.
 import assert from "node:assert/strict";
-import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { makeMe } from "../../support/makeMe.mjs";
-import { exec, git } from "./publication-test-fixtures.mjs";
+import { exec } from "./publication-test-fixtures.mjs";
 import { publishJson } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
 import { readRevisionCoverage } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import { awaitWorkerState } from "./watch-ci-test-fixtures.mjs";
@@ -211,17 +211,4 @@ export async function startStoryTarget(fixture, sha) {
   return directory;
 }
 
-export async function ignoreInstalledSkills(fixture) {
-  const common = (
-    await git(
-      fixture.execution,
-      "rev-parse",
-      "--path-format=absolute",
-      "--git-common-dir",
-    )
-  ).stdout.trim();
-  appendFileSync(
-    join(common, "info/exclude"),
-    ".agents/\n.claude/\n.planning/open-dough.json\n",
-  );
-}
+export { ignoreInstalledSkills } from "./ci-check-command-test-fixtures.mjs";

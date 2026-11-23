@@ -51,12 +51,12 @@ in this story.
 | No project calls the recipes | `git grep -E 'ci-reuse\|reuse-ci'` in the tracked files of Doughnut, Pygardon, Terry Talks, Lizard and Clipboard at their 2026-11-23 checkouts under `~/git`, excluding installed skill directories: no match. In Open Dough, the only callers outside the recipes are the guidance links, the payload declaration and tests listed above. |
 | Dropped installed files leave client installs on update | Cited retained observation: `27c47b235` deleted the earlier dropped scripts from both installed skill roots through `dough-update`. |
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. Integrated-state journeys run against a test-owned custom adapter
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the integrated-state journeys and wrap-up cases off the recipe: a
 test-owned adapter (the journal, scheduling, `customAdapterResponse` and
@@ -70,6 +70,13 @@ proof.
 **Proof.** The 34 cases named in the first premise pass with
 `bash scripts/test.sh` over the same seven test files. A search shows no
 `ci-reuse` import or path in integrated-state or wrap-up test files.
+
+**Accepted.** The test-owned adapter is `ci-custom-command-adapter.mjs`,
+installed by `ci-integrated-state-custom-provider-test-fixtures.mjs`; covered
+commands come from `ci-check-command-test-fixtures.mjs`. After the refactor,
+the seven files plus the traced `customProvider` consumers
+(`ci-background-{lifecycle,handoff}`, `ci-reuse-{resource,trunk}-journey`)
+passed 56 of 56; the recipe-side consumers passed earlier, 41 of 41.
 
 ### 2. A fresh install and an update carry no CI reuse recipe
 
@@ -91,6 +98,15 @@ Remove the scripts, manuals and their lines in
 paragraph of `Distribution/tests/ci/ci-test-data.md`; and
 `assert_installed_ci_reuse` in `execution-payload-update.sh`. Drop exports in
 shared CI code left without a caller.
+
+Slice 1 left two `ci-reuse-*` re-export shims
+(`ci-reuse-check-command-test-fixtures.mjs`, `ci-reuse-journey-test-fixtures.mjs`)
+for the recipe's own tests; delete them with those tests. Then strip from
+`ci-check-command-test-fixtures.mjs` what only reuse fixtures use: the `labels`
+parameter and its defaults, the covered script's `DOUGH_CI_DIRECT` line,
+`targetOnlyCommand` and `runTargetOnly`. `ci-reuse-resource-journey.test.mjs`
+and `ci-reuse-trunk-retention-cases.mjs` also use `customProvider`; they go
+with the recipe, while `ci-background-test-fixtures.mjs` keeps it.
 
 **Proof.** `execution-payload-update.sh` asserts the updated install lacks the
 recipe scripts and manuals and still passes its other installed-runtime
