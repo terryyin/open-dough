@@ -120,7 +120,7 @@ matched comparison. Linux selection is G1.
 ### 2. The installed publisher uses direct Git for local reads and transport
 
 Type: Behavior
-Status: planned
+Status: done
 
 A declared-worktree publication launched with Apple's Git uses the same
 selector for its own local calls and bounded transport. Keep the generic
@@ -143,6 +143,16 @@ transport cancellation. Check the installer via its public payload proof
 because a missing runtime import would work in source and fail in an installed
 checkout. Apply [the file-size check](../../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#file-size)
 to the edited code.
+
+**Accepted.** `publication-git-process.mjs` resolves the selector once per
+`git()` call for `exec` and the bounded `spawn`; the execution payload declares
+`git-executable.mjs`. `publication-git-executable.test.mjs` observes the local
+call and the push under Apple's launcher and a caller shim. The transport,
+retry and resume tests, the three publication and comparison specs, the public
+payload proof and the Done capture roster (158/158 at load 24–41) passed. This
+repository's installed `.claude` and `.agents` copies are release installs
+pinned by `scripts/check-self-installation.sh`, so the installed publisher that
+the landing specs copy keeps plain `git` until the next release (G2).
 
 ### 3. Case checkouts start fewer Git processes
 
@@ -253,4 +263,9 @@ before execution.
 ### G1. Linux selection awaits a hosted observation
 Reported: slice 1 — "Linux selection still needs a CI observation."
 Story clause: "normal invocation on other platforms"
+Disposition: receiving slice 4
+
+### G2. Installed publisher copies await a release
+Reported: slice 2 — "Gap: the maintained installations were not regenerated."
+Story clause: "On macOS the dashboard server and installed publisher run the Git binary selected by `xcrun -f git` when the effective `PATH` selects Apple’s launcher."
 Disposition: receiving slice 4
