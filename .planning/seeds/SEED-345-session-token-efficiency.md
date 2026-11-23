@@ -203,27 +203,6 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
 ## Follow-ups from the November 20–22 execution audit
 
-<a id="catch-delegated-lint-before-delivery"></a>
-
-### Catch delegated lint failures before guarded delivery
-
-**Identity:** SEED-345#catch-delegated-lint-before-delivery
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/786-catch-delegated-lint-before-delivery/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8036d31754a7d891ee5309af270d9840ded1424992758497e1414403b6754838","plan":"95dc28216b6e9ea3318ad77f37c617b5b89b8a3b4468e1833cd176eb9e1dcdfa"}}
-```
-
-**Goal.** Developers avoid a delivery retry when the project's existing lint can catch an authored-file defect while the worker is still editing. Run the check before affected proof so a mechanical fix can precede the expensive run.
-
-**Scope.** Use a project-supplied, read-only command on the owned paths as part of existing focused proof. Keep the choice of command and paths with the project's proof. Shorten the shipped worker brief by removing its duplicate reference to hook-owned lint. The delivery rule continues to own the staged hook, formatting and guarded publication. This trial adds zero shipped instructions, script branches, configuration or report fields. [ODF-329](../../docs/maintainer/findings/ODF-329.md) supplies the baseline. [ODF-529](../../docs/maintainer/findings/ODF-529.md) owns lint failures in unchanged consumers.
-
-**Key examples.**
-
-- A worker assigns to the injected terminal socket parameter. The project's lint command exits on `no-param-reassign` before the affected proof starts. The corrected edit passes and continues to focused proof and ordinary delivery.
-- Clean authored paths pass the configured scoped check and continue directly to existing proof. A refactor that edits a checked path renews that path's check through the existing proof reuse rule.
-- A project supplies only staged or whole-repository lint. Its focused proof and normal delivery checks run as usual.
-
-**Evaluation.** Compare the extra scoped lint cost on a clean edit with the guard refusal, coordination and proof rerun observed for the defective edit. Keep the change only if the replay catches the failure earlier, reduces rework and leaves the shipped workflow simpler. Carry the evidence and decision in the [slice plan](../slice-plans/786-catch-delegated-lint-before-delivery/PLAN.md).
-
 <a id="use-proportionate-refactoring-for-small-test-edits"></a>
 
 ### Use proportionate refactoring for small test edits
