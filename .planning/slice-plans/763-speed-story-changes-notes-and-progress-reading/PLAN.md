@@ -672,3 +672,31 @@ was unnecessary after that split. The changed-tree and layout slices reuse
 one Intent production entry, the two reference slices reuse one navigation
 and range owner, and the Notes slices preserve the same project state.
 No slice-specific blocking concern remains.
+
+## Retrospective
+
+The original plan at `57cd409a3` and the source section still govern this
+execution. The eight implementation commits through `7384ac78` cover the
+selected outcomes. Merge `b43be89c` reconciles the shared Intent entry with
+the sibling's delivered composition. The sibling's commits retain their
+own provenance. The unchanged backlog direction favors understandable
+behavioral proof with a justified cost, consistent with this migration.
+
+Mounted production proof drove the migrations. The built-page paths check
+publication, historical provenance, actual refetch, reload and terminal
+wiring where those interactions matter. The Notes wrapper selects one
+per-project local state and the control and open dialog share its
+subscription. The double-subscription and stale-answer probes caught the
+two distinct failures. The full case disposition, scratch checks and
+strict paired proof support the retained coverage and measured benefit.
+The eliminated helper surfaces have no source callers. The remaining
+published-observation work and revision-detour correction have existing
+owners. The review found no additional product correction to queue.
+
+Branch CI is pending at review. Process review remains selected and will
+use the wrap-up Intent Coverage report.
+
+## Execution complete
+
+Product advice: keep the faster mounted proof and the representative
+built-page journeys. Keep the current backlog direction and priorities.
