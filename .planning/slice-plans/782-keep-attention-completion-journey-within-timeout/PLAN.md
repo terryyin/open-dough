@@ -19,6 +19,8 @@
 - Slice 1 accepted and registered at `4e31faa0f56b91dccf1c8858106d464fe952387f`
   on the story branch. The managed delivery receipt retained the matching
   candidate and initial claim as its suffix base.
+- Slice 2 accepted and registered at `bdf484822c970f05d8450d5acc580768c19e6cf1`
+  on the story branch, with Slice 1 as its suffix base.
 
 ## Goal and scope
 
@@ -226,5 +228,20 @@ lifecycle to exercise. Both reuse observed seams within one file and fit the
 15-active-minute sizing rule. The loaded comparison begins with the unedited
 baseline and gates acceptance of the final split. Preparation found no
 additional slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. The two journeys retain the integration proof that
+depends on the installed command, the real report store, the Board and the
+native protocol. The maintained Codex card and backend refusal cases still
+own their boundaries. The matched comparison found the split worthwhile
+under the measured contention and stayed within the one-file scope. The
+existing remaining-session-test story retains its priority.
+
+The review found no supported correction. It attributed implementation to
+`4e31faa0f` and `bdf484822`, with the Take as provenance. E2E observations
+drove and checked the proof split. No shared testing or product APIs changed.
+Branch CI is pending here. The selected process review continues in wrap-up
+with the automatic Intent Coverage result.
 
 ## Story obligations
