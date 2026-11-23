@@ -78,7 +78,7 @@ case fixtures to production and resolving named worktrees once per case.
 ### 1. Dashboard Done capture bypasses Apple's Git launcher
 
 Type: Behavior
-Status: planned
+Status: done
 
 With Apple Git first on macOS, a Done capture uses the developer-tool Git
 directly and remains reviewable. Build the execution baseline below before
@@ -104,6 +104,18 @@ the unresolved developer-tool case and a per-call developer directory against
 the runner's existing environment contract. On Linux,
 use the same proof entry points in CI and check that normal Git was selected.
 Repeat the server bundle observation with the shared module.
+
+**Accepted.** `Distribution/src/skills/dough-execute-plan/scripts/git-executable.mjs`
+selects the executable; `dashboard/server/gitRunner.ts` passes it to
+`execFile`. `done-capture-git-executable.spec.ts` observes the child
+executable on a real `captureBranchResult`, a caller shim on `PATH`, the
+inherited `PATH`, per-call `DEVELOPER_DIR`, an unresolved developer tool and
+a relative `PATH` entry. The full Dashboard Backend Test group passed. Baseline
+at `1bea3f555` (Node 24.21.0, Apple Git 2.50.1, AC, load 4.47→11.99): the
+frozen roster is now 41 specs and 158 cases; 158/158 passed, 49 at or below
+200 ms, median 436 ms, p95 2,013 ms, slowest 2,882 ms. An unmatched candidate
+run at load 9.69→8.69 gave 63, 247 ms, 942 ms and 1,514 ms; slice 4 owns the
+matched comparison. Linux selection is G1.
 
 ### 2. The installed publisher uses direct Git for local reads and transport
 
@@ -235,3 +247,10 @@ The close-semantics, fixture isolation and publication transport checks reached
 their expected outcomes. The five loaded Node timeouts are the performance
 defect this plan addresses. No remaining slice concern requires a decision
 before execution.
+
+## Story obligations
+
+### G1. Linux selection awaits a hosted observation
+Reported: slice 1 — "Linux selection still needs a CI observation."
+Story clause: "normal invocation on other platforms"
+Disposition: receiving slice 4
