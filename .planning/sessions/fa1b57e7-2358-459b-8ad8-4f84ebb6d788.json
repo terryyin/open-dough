@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "fa1b57e7-2358-459b-8ad8-4f84ebb6d788",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T07:50:16.570Z",
+  "story": "SEED-341#keep-attention-completion-journey-within-timeout",
+  "ranges": [
+    {
+      "base": "497eed2c20fc57eca705f184765a1d2f70f5d92d",
+      "candidate": "4e31faa0f56b91dccf1c8858106d464fe952387f"
+    },
+    {
+      "base": "4e31faa0f56b91dccf1c8858106d464fe952387f",
+      "candidate": "bdf484822c970f05d8450d5acc580768c19e6cf1"
+    },
+    {
+      "base": "bdf484822c970f05d8450d5acc580768c19e6cf1",
+      "candidate": "a42e93eb0d60b9610a2c278ed6dd4d51fb30c27a"
+    },
+    {
+      "base": "a42e93eb0d60b9610a2c278ed6dd4d51fb30c27a",
+      "candidate": "a613ca66d65a50f7660e6df37ea264207d729caf"
+    }
+  ]
+}
