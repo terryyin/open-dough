@@ -304,7 +304,7 @@ tab-detour scroll was tried.
 ### 6. CI homepage cases state one transition each
 
 Type: Structure
-Status: planned
+Status: done
 
 In `intent-ci-status-homepage.spec.ts`, separate the initial project
 homepage, activation from a reading choice, return from Development, and
@@ -322,6 +322,15 @@ selection, absent return control, checked branch and answer, file column,
 expanded tree, missing-configuration explanation and the recovery read
 counts. Retain one semantic frame/layout observation with the homepage
 owner and compare timing across the focused cases.
+
+**Delivered.** The homepage spec now has a landing case, one `test.for`
+over location click, folder Enter and file Space activation, the Development
+return and missing configuration. The recovery case moved to
+`intent-ci-status-locations-recovery.spec.ts` to keep both files under the
+size limit. `expandLocationAndFolders` opens only closed toggles and replaces
+`openEveryFolder`. Separate mounts per variant raise summed case time by
+about 1–1.5 s; slice 8 weighs that cost. Plan 763 landed meanwhile and renamed
+`viewTab` and `onlyChangedFiles`; merge `656d6d184` reconciles slices 2 and 5.
 
 ### 7. CI home with a pending revision runs in Vitest
 

@@ -6,7 +6,7 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
-import { openEveryFolder } from "./intent-ci-homepage-page.ts";
+import { expandLocationAndFolders } from "./intent-ci-homepage-page.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 
 // Nested in a folder the reader opens under its location.
@@ -47,7 +47,7 @@ export const purpose = intent.getByRole("region", {
 });
 
 export async function selectBrowsedFile() {
-  await openEveryFolder();
+  await expandLocationAndFolders("dashboard/tests");
   await userEvent.click(fileControl());
   await expectFileRead();
 }
