@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "e1df8cfb-f8cf-41a9-9c36-06ceeeb480a0",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T09:10:28.122Z",
+  "story": "SEED-345#wait-for-codex-workers-with-fewer-model-wakeups",
+  "ranges": [
+    {
+      "base": "cf23759735054978384dc4156c2320720e5bcb3f",
+      "candidate": "193776f63ebb3504a6f3a11169d3f687c8cb4067"
+    }
+  ]
+}
