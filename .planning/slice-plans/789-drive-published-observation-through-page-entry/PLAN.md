@@ -215,7 +215,7 @@ after a Candidates visit returns to project CI. Keep the separate
 ### 8. Startup detail settles without displacing the feature being read
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-selection-reads.spec.ts` onto the configured page. Hold the
 canonical source reply through its required typed read while membership is
@@ -272,9 +272,11 @@ remaining slice-specific concern.
   `4daa9c40a0d6acb1530b704fb4281b98bba46644`,
   `98a8be7fda620be498dce3461ebf0f081f52de34`,
   `a1dd7faac41f3ee5ed51e42f14c353ebab921fd1`,
-  `d6475f771fac0d16429b90794d33ffc6792dcec4` on
+  `d6475f771fac0d16429b90794d33ffc6792dcec4`,
+  `808a0cf8a6a05383a47a20b39cd7e47866fe91ea` on
   `refs/heads/cursor/drive-the-published-observation-through-the-type`
-- CI observer: `/tmp/dough-ci-501/watch-VdTqA3` (attached at Slice 5 publish)
+- CI observer: `/tmp/dough-ci-501/watch-bCmBcv` (Slice 7 publish; earlier
+  Slice 5 attach `/tmp/dough-ci-501/watch-VdTqA3`)
 - Replanning permission: preserve existing (allowed)
 
 ## Accepted proof
@@ -475,6 +477,43 @@ remaining slice-specific concern.
   `open-dough/evidence/slice7-typecheck.log`,
   `open-dough/evidence/slice7-timing.md`
 
+### Slice 8 — Startup detail settles without displacing the feature being read
+
+- Promise: move `intent-selection-reads.spec.ts` onto ConfiguredDashboard via
+  `mountIntentRecovery`; hold canonical seed through typed `readDetailFile`
+  while membership shows `Reading preparation…`; typed Intent locations and
+  file replies at the same revision; select feature while detail held; release;
+  Goal settles on Inspect; expanded folder, selected file, Purpose, and a
+  single locations read; retire `holdAuthenticatedReadsOf`,
+  `prepareFrontendReuseJobs` / `frontendIntentReuseAnswers.ts`, and
+  `intentJobsFeatureFixtures.ts`
+- Boundary: ConfiguredDashboard via `mountIntentRecovery` + typed observation
+  detail + Intent locations/files
+- Setup: `workWithPublishedDetail`; held `readDetailFile` for
+  `publishedDetailPath`; MakeMe gherkin location + pygardon jobs feature files
+- Observations:
+  - `intent-selection-reads.spec.ts`: heldCount with Board
+    `Reading preparation…`; open jobs Purpose; `locationsReads` length 1;
+    after release Goal on Inspect; `showsFolderExpanded`; selected file;
+    Purpose retained; `locationsReads` still 1
+  - Playwright collection empty for this file after Vitest move
+  - Timing at workers=2: Playwright BEFORE ~4706ms; Vitest AFTER ~4161–4496ms
+    (post-format confirm ~3.3s focused); engines Playwright 0 / Vitest 1
+- Command (accepted selection settle):
+  `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-selection-reads.spec.ts --workers=2`
+  (pass after implementation, and again after lint repair of non-null
+  feature-file lookup; typecheck
+  `caffeinate -s -i npm run typecheck:dashboard` pass on implementation)
+- Refactor: none — already clean (`refactor-slice8-return.md`)
+- Evidence: `open-dough/evidence/slice8-implementation-return.md`,
+  `open-dough/evidence/refactor-slice8-return.md`,
+  `open-dough/evidence/slice8-vitest-proof-3.log`,
+  `open-dough/evidence/slice8-vitest-after.log`,
+  `open-dough/evidence/slice8-vitest-postformat.log`,
+  `open-dough/evidence/slice8-typecheck.log`,
+  `open-dough/evidence/slice8-timing.md`,
+  `open-dough/evidence/slice8-playwright-list-after.log`
+
 ## Learnings
 
 - Frontend Vitest Chromium cases must use browser-safe `pageMakeMe` and
@@ -490,3 +529,8 @@ remaining slice-specific concern.
   use `expect.poll(...).toMatch`.
 - Typed Intent reads must memoize candidates/file fetches like `answerMemo`
   when asserting one-shot HTTP-style accounting after Project Intent remounts.
+- After membership `acceptMembership`, Board `Reading preparation…` and
+  Inspect Goal are the reliable held-detail settle signals; the reading cue
+  alone can clear while detail remains held.
+- Evidence for this story must use `git rev-parse --git-path open-dough/evidence`;
+  an untracked workspace `open-dough/` pollutes consumer-trace discovery.
