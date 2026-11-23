@@ -5,6 +5,7 @@
 // decides what that failure means to it.
 
 import { execFile, type ExecException } from "node:child_process";
+import { gitExecutable } from "../../Distribution/src/skills/dough-execute-plan/scripts/git-executable.mjs";
 
 export type GitCall = {
   // The folder git runs in; the server's own folder when absent.
@@ -75,6 +76,11 @@ async function gitOutput(
   { cwd, env, signal, input, maxBuffer }: GitCall,
   untilClosed: boolean,
 ): Promise<GitOutput> {
+  const callEnv = env === undefined ? undefined : { ...process.env, ...env };
+  const executable = await gitExecutable({
+    ...(callEnv === undefined ? {} : { env: callEnv }),
+    ...(cwd === undefined ? {} : { cwd }),
+  });
   const { error, stdout, stderr } = await new Promise<
     GitOutput & { readonly error: ExecException | null }
   >((resolve) => {
@@ -85,13 +91,13 @@ async function gitOutput(
       if (result !== undefined && (!untilClosed || closed)) resolve(result);
     };
     const child = execFile(
-      "git",
+      executable,
       [...args],
       {
         encoding: "utf8",
         maxBuffer,
         ...(cwd === undefined ? {} : { cwd }),
-        ...(env === undefined ? {} : { env: { ...process.env, ...env } }),
+        ...(callEnv === undefined ? {} : { env: callEnv }),
         ...(signal === undefined ? {} : { signal }),
       },
       (error, stdout, stderr) => {

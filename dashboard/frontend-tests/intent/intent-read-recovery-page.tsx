@@ -32,6 +32,14 @@ export function onRecoveryClock() {
   });
 }
 
+// Advances the recovery clock to 1 ms before `due`. Each retried Vitest
+// element or poll check also advances fake timers by its 50 ms interval, so a
+// wait is measured from the clock time when its read settled, never from
+// where an earlier check left the clock.
+export async function advanceToJustBefore(due: number) {
+  await vi.advanceTimersByTimeAsync(due - 1 - Date.now());
+}
+
 export function setDocumentVisibility(state: "hidden" | "visible") {
   if (!restoringVisibility) {
     restoringVisibility = true;

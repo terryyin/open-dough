@@ -15,6 +15,7 @@ import { unreadCiReads } from "../../test-support/component-mount/unreadPageRead
 import { intentBrowser } from "./intent-browser-page.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
+  advanceToJustBefore,
   mountIntentRecovery,
   onRecoveryClock,
   publishedDetailPath,
@@ -82,9 +83,7 @@ test("unreachable Intent locations recover after 15, 30, 60 and 60 seconds", asy
     [60_000, 3],
     [60_000, 4],
   ] as const) {
-    // The UI observations can advance fake time after the failure settled.
-    const dueAt = locations.settledAt() + wait;
-    await vi.advanceTimersByTimeAsync(dueAt - Date.now() - 1);
+    await advanceToJustBefore(locations.settledAt() + wait);
     expect(locations.reads()).toBe(before);
     if (before === 4) locations.pass();
     await vi.advanceTimersByTimeAsync(251);
@@ -124,6 +123,7 @@ test("published detail and Intent locations share a wait, and healing detail lea
   const work = workWithPublishedDetail("d3".repeat(20));
   const locations = controlledLocations(work);
   let detailReads = 0;
+  let firstDetailReadAt = Number.NaN;
   let detailHealthy = false;
   const detailRead: typeof readRepositoryFileAt = (source, path, revision) => {
     expect([source.id, path, revision]).toEqual([
@@ -132,6 +132,7 @@ test("published detail and Intent locations share a wait, and healing detail lea
       work.revision,
     ]);
     detailReads += 1;
+    if (detailReads === 1) firstDetailReadAt = Date.now();
     return detailHealthy
       ? Promise.resolve("# Queued seed\n")
       : Promise.reject(
@@ -150,7 +151,10 @@ test("published detail and Intent locations share a wait, and healing detail lea
   expect([detailReads, locations.reads()]).toEqual([1, 1]);
 
   detailHealthy = true;
-  await vi.advanceTimersByTimeAsync(14_000);
+  // The shared wait starts when the first of the two failed reads settles.
+  await advanceToJustBefore(
+    Math.min(firstDetailReadAt, locations.settledAt()) + 15_000,
+  );
   expect([detailReads, locations.reads()]).toEqual([1, 1]);
   await vi.advanceTimersByTimeAsync(1_250);
   await expect.poll(() => [detailReads, locations.reads()]).toEqual([2, 2]);
@@ -158,7 +162,7 @@ test("published detail and Intent locations share a wait, and healing detail lea
   await explanation.reads("could not be reached");
 
   locations.pass();
-  await vi.advanceTimersByTimeAsync(29_000);
+  await advanceToJustBefore(locations.settledAt() + 30_000);
   expect([detailReads, locations.reads()]).toEqual([2, 2]);
   await vi.advanceTimersByTimeAsync(1_250);
   await expect.poll(() => [detailReads, locations.reads()]).toEqual([2, 3]);
@@ -208,7 +212,7 @@ test("rate-limited Intent locations reread when the standing limit ends", async 
   expect(noticedUntil).toBe(limited.limited?.resumesAt.getTime());
   locations.pass();
 
-  await vi.advanceTimersByTimeAsync(noticedUntil - Date.now() - 1);
+  await advanceToJustBefore(noticedUntil);
   expect(locations.reads()).toBe(1);
   await vi.advanceTimersByTimeAsync(251);
   await expect.poll(() => locations.reads()).toBe(2);
