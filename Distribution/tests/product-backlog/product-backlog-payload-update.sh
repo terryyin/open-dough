@@ -200,8 +200,7 @@ run_offline_record_state_and_reader_proof \
   "${claude_target}" \
   "${temporary_dir}"
 
-# The identity declaration reader must work from either installed root after
-# its release source has gone away, including legacy records and context.
+# Both installed roots read numbered history after the release source is gone.
 for runtime in "${agents_scripts_root}" "${scripts_root}"; do
   node --input-type=module - "${runtime}/product-backlog.mjs" "${temporary_dir}" << 'NODE'
 import assert from 'node:assert/strict';
@@ -220,8 +219,8 @@ const git = (...args) => execFileSync('git', ['-c', 'user.name=Installed proof',
 git('init', '--quiet');
 git('add', '-A');
 git('commit', '--quiet', '-m', 'Legacy identity evidence');
-git('rm', '--quiet', '.planning/seeds/legacy.md');
-git('commit', '--quiet', '-m', 'Closed legacy home');
+git('rm', '--quiet', '.planning/seeds/SEED-100-notes.md', '.planning/seeds/legacy.md');
+git('commit', '--quiet', '-m', 'Remove spent seed files');
 const snapshot = () => readdirSync(planning, { recursive: true }).sort().map(name => {
   const file = join(planning, name);
   return [name, name === 'seeds' ? '(directory)' : readFileSync(file, 'utf8')];
@@ -236,9 +235,10 @@ assert.deepEqual(snapshot(), before);
 const report = JSON.parse(execFileSync(process.execPath, [cli, 'identity-evidence', '--identity', 'scheduler-wake#overdue-jobs'], { cwd: root, encoding: 'utf8' }));
 assert.deepEqual(report.gaps, []);
 assert.equal(report.highest.seed, 'SEED-100');
+assert.equal(report.highest.source, 'history');
+assert.equal(report.highest.evidence, 'seeds/SEED-100-notes.md');
 assert.equal(report.next, 'SEED-101');
-assert.equal(report.candidate.status, 'in-history');
-assert.equal(report.candidate.history.story.evidence, 'seeds/legacy.md');
+assert.deepEqual(report.candidate, { identity: 'scheduler-wake#overdue-jobs', status: 'unlisted' });
 assert.deepEqual(snapshot(), before);
 assert.equal(git('rev-parse', 'HEAD'), head);
 NODE

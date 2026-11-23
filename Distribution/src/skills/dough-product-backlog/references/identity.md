@@ -66,14 +66,11 @@ Read that evidence with the
 reading filenames. It reserves nothing; the canonical home records what you
 choose.
 
-The reader preserves numeric reservations from seed metadata and filenames and
-recovers explicit identities from readable legacy homes, including old heading
-layouts and nonnumeric identities. It examines later versions of unnumbered
-historical paths so an earlier context-only version cannot hide an allocation.
-Readable context documents allocate nothing; they are not missing identities.
-Malformed identity records and unreadable evidence remain gaps. A declared
-historical story is reported under `history.story` and is already used, even
-without a done record.
+The active seed directory contributes numeric reservations from seed metadata
+and filenames and explicit identities from readable homes. Context documents
+allocate nothing. Malformed identity records and unreadable evidence appear as
+gaps. Git history contributes the adding commit for numbered seed files and
+done records, including files cleanup has removed.
 
 - Run it from a checkout current with trunk: history covers only what that
   checkout reaches, at the `revision` the history source names.

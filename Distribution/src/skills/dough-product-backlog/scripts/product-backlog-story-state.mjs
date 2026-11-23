@@ -74,21 +74,6 @@ function currentBasisFor(home, approach, options = {}) {
   );
 }
 
-// The bases a record from before agreement digests may carry over one
-// document: its dependency fence digested as written, or returned to the
-// unresolved bytes it was first written as. The waiting basis still matches
-// while the story, plan, and agreement are unchanged, so a supplier's
-// resolution or decision alone does not read as changed. The document is the
-// story-scoped source, or the whole seed for a record from before story
-// scoping.
-function legacyBasesFor(documentSource, approach, options = {}) {
-  return ["as-written", "waiting"].map((dependencyFences) =>
-    computeBasis(documentSource, separatePlanSource(approach, options), {
-      dependencyFences,
-    }),
-  );
-}
-
 // Reads preparation facts and assessment view from already-loaded
 // canonical-home text. Legacy absence and unsupported version stay distinct
 // from recorded facts. Always returns the current content basis.
@@ -130,24 +115,13 @@ export function readStoryState(source, href, options = {}) {
   }
   const recordedAssessment = assessmentFromPayload(payload);
   const basis = currentBasisFor(home, normalized.approach, options);
-  const scopedLegacy = legacyBasesFor(
-    scopedSource(home),
-    normalized.approach,
-    options,
-  );
-  const wholeSeedLegacy = legacyBasesFor(source, normalized.approach, options);
   return {
     ...normalized,
     identity: namedIdentity(home),
     href: home.href,
     key: home.key,
     basis,
-    assessment: normalizeAssessmentView(
-      recordedAssessment,
-      basis,
-      ...scopedLegacy,
-      ...wholeSeedLegacy,
-    ),
+    assessment: normalizeAssessmentView(recordedAssessment, basis),
   };
 }
 

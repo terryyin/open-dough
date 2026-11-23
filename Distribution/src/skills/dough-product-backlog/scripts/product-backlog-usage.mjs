@@ -150,7 +150,7 @@ identity-evidence prints, as JSON, what the project shows about the
 identities it has already used, so a new one can be chosen above all of it.
 Each source — the seed directory (--seeds, by default seeds/ beside the
 backlog), the backlog's two lists, the done records under
-${doneRecordDirectory}/, ${doneCatalogPath}, and history (the seed and
+${doneRecordDirectory}/, ${doneCatalogPath}, and history (numbered seed files and
 ${doneRecordDirectory}/ files Git history reachable from HEAD shows added, at the
 revision it names, including those cleanup has since removed) — reports its
 highest seed number with the file or record behind it, and from history the

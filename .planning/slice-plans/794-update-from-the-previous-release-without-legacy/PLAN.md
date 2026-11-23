@@ -153,7 +153,7 @@ the updated `Distribution/tests/support/product-backlog-*.test.mjs` and
 ### 4. Story state and identity evidence drop legacy basis and unnumbered-seed readers
 
 Type: Structure
-Status: planned
+Status: done
 
 Remove `legacyBasesFor`, `scopedLegacy`, and `wholeSeedLegacy` from
 `product-backlog-story-state.mjs` (bringing it below 250 lines), `waitingBody`
@@ -275,6 +275,16 @@ push.
   three fixture consumers and reaches shared Dashboard support. It is a
   separate test-support cleanup. See `slice-3-return.md` and
   `slice-3-refactor-return.md` in the worktree's Git evidence directory.
+- Slice 4. The readiness checks observe the current digest as the sole
+  comparison and preserve a ready judgment when the change indication is set.
+  The identity report and installed CLI observe numbered history and omit
+  removed unnumbered histories. The installed fixture was updated to cover
+  both outcomes. Named Distribution and workflow suites, eight Dashboard
+  backend tests, nine E2E tests and Dashboard typecheck passed.
+  `product-backlog-story-state.mjs` is 244 lines. The refactor made the
+  live seed-directory helper private and passed the identity and payload checks.
+  See `slice-4-return.md` and `slice-4-refactor-return.md` in the worktree's
+  Git evidence directory for exact selections and observations.
 
 ## Plan review
 
