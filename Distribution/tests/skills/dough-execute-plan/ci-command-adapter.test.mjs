@@ -11,7 +11,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { makeMe } from "../../support/makeMe.mjs";
-import { createCommandAcquisition } from "../../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
+import {
+  createCommandAcquisition,
+  discoverCommandAttempts,
+} from "../../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
+import { latestCommandAttempts } from "../../../src/skills/dough-execute-plan/scripts/ci-command-attempts.mjs";
 import {
   answeredUnitAttempts,
   callsReached,
@@ -149,7 +153,7 @@ test("command acquisition retains opaque run and attempt identities across polls
   );
 });
 
-test("command acquisition keeps every discover answer beside newest-per-check retained candidates", async (t) => {
+test("one-shot discovery keeps every discover answer, which newest-per-check retention narrows", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ci-command-adapter-answered-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const adapter = join(root, "answered-adapter.mjs");
@@ -158,24 +162,22 @@ test("command acquisition keeps every discover answer beside newest-per-check re
     `process.stdout.write(JSON.stringify({ attempts: ${JSON.stringify(answeredUnitAttempts)} }));
 `,
   );
-  const acquisition = createCommandAcquisition({
-    command: [process.execPath, adapter],
-    repo: "owner/project",
-    branch: "main",
-    root,
-  });
-  await acquisition.acquireRuns(new AbortController().signal);
-  assert.deepEqual(
-    (await acquisition.discoverAncestorCandidates()).map(
-      ({ databaseId }) => databaseId,
-    ),
-    ["r2"],
+  const { attempts } = await discoverCommandAttempts(
+    {
+      command: [process.execPath, adapter],
+      repo: "owner/project",
+      branch: "main",
+      root,
+    },
+    new AbortController().signal,
   );
   assert.deepEqual(
-    (await acquisition.discoverAnsweredAttempts()).map(
-      ({ databaseId }) => databaseId,
-    ),
+    attempts.map(({ databaseId }) => databaseId),
     ["r2", "r1"],
+  );
+  assert.deepEqual(
+    latestCommandAttempts(attempts).map(({ databaseId }) => databaseId),
+    ["r2"],
   );
 });
 

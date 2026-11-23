@@ -65,12 +65,12 @@ belong to their separate stories.
 | The focused command checks distinguish all five operations | In the preparation workspace at `d78f19df1`, controlled scratch edits to `ci-command-run.mjs` skipped `discover`, substituted unavailable diagnosis, or stopped `proof`, `jobs` and `rebuild` one operation at a time. `node --test --test-name-pattern` over the Dashboard trunk-discovery case, bounded failure-diagnostics case, documented proof request, selected job-graph request and exact rebuild request each failed its selected case under the corresponding control. The unchanged cases passed in the baseline runs above. Scratch edits reverted. |
 | The install gate reaches the runtime and its contract | In the preparation workspace at `d78f19df1`, `PATH=/opt/homebrew/bin:$PATH /opt/homebrew/bin/bash scripts/test.sh Distribution/tests/installation/{payload-declaration-links,execution-payload-update,install-public-payload}.sh` passed with Bash 5.3.20. The temporary tagged-source update exercised both installed skill roots and preserved project configuration. The shipped manual's example answered discover and diagnose, and installed proof was read through the payload. |
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. Watcher and Dashboard share discovery directly
 
 Type: Structure
-Status: planned
+Status: done
 
 Extract the one-shot command discovery from watcher polling state, reusing its
 normalization. Have Dashboard branch listings and any equivalent read-only
@@ -86,6 +86,22 @@ contract for all readers.
 versus retained attempts, target versus story branch cancellation and listing,
 queue withdrawal, and historical and integrated-state decisions. Use the
 final file names for the consumer trace if the recipes story has landed.
+
+**Delivered.** `discoverCommandAttempts(options, signal)` in
+`ci-command-adapter.mjs` is the shared one-shot discovery: every answered
+attempt plus the branch queue. The watcher's acquisition calls it per poll;
+`baseCiAdapterAttempts.ts` and `ci-proof-attempts.mjs` call it directly and
+apply `latestCommandAttempts` where they retain. The per-listing watcher state
+and the `discoverAnsweredAttempts` read-back are gone. Lines: adapter 210→211,
+`ci-proof-attempts.mjs` 217→219, `baseCiAdapterAttempts.ts` 114→110; no files
+added. Proof at `29b578602` plus the change: the focused node suite (116 cases
+across `ci-command-*`, `ci-integrated-state-*`, GitHub acquisition/diagnostic,
+`ci-proof-{read,leads}-adapter` and the three Dashboard adapter support tests),
+`npm run typecheck:dashboard`, the backend `ci-proof-memory-adapter*`,
+`ci-time-without-adapter-runner-waits` and `landed-ci-*adapter*` specs, and
+`e2e/intent/intent-ci-proof-adapter.spec.ts` (4 cases) passed. No test asserts
+that a failed branch discover cancels the other listing; the behavior is kept
+as written.
 
 ### 2. The watcher reports the configured provider's verdict and failure evidence
 
