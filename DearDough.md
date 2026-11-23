@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 633. Removed numbers are never reused.
-- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
+- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain; `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
 
@@ -38,14 +38,6 @@ A story promising parity with an existing view proved only settled states; every
 
 ### Occurrences
 
-
-## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
-
-Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
-
-## ODF-158 — Disproportionate required reference reads <a id="odf-158"></a>
-
-Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/findings/ODF-158.md).
 
 ## ODF-264 — Broad startup reads lose required context to truncation <a id="odf-264"></a>
 
@@ -998,3 +990,10 @@ Plan 783 recorded that `historyChart().failed` has no reader. `e2e/intent/intent
   - Evidence: run `s2-typecheck` failed with TS2339; `.failed` was kept and recorded as obligation G1 in `50d02ebe7`.
   - Observed effect: one failed typecheck and a narrowed scope commitment; nothing was lost.
   - Inference: a typecheck over the removal settles a "spent member" premise more reliably than a name search.
+
+## ODF-470 — Sequential before/after timings cannot judge a no-slowdown promise
+
+[Meaning and earlier paired-run evidence](docs/maintainer/findings/ODF-470.md).
+
+### Occurrences
+- Execution: SEED-413#speed-intent-attempt-and-summary-proof (plan 760, first implementation `cc4d0b9fa`). Timestamp: 2026-11-23T09:26:05+00:00 (first fresh pair). Tool: Codex. Open Dough release: 0.3.112 (installed guidance at Take `2c9c98322`). Evidence: `bacba5db52673a2d3afa18cdba01c7fe746189a4:.planning/slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md` retains the 37.900 s historical baseline without load, the near-27 s provisional result, and two fresh exact-roster pairs in both run orders that found the candidate slower. Observed effect: four runs accounting for 111.0 s of runner time ruled out the apparent improvement. After reducing repeated fixture activation cost, a load-matched pair measured 23.652 s legacy and 15.386 s mounted. Inference: starting with a fresh paired baseline and inspecting mounted setup cost before the final migration gate would expose smaller or reversed gains sooner.
