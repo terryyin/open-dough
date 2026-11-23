@@ -2,22 +2,21 @@
 // Compare or copy declared payload files in one process.
 // match: exit 0 when every listed file has identical bytes at the destination,
 // exit 1 when any file is missing or differs, exit 2 on usage or unexpected reads.
-// copy: replace files in listed order. An existing destination keeps its mode,
-// matching cp. Exit 1 if a file cannot be written after earlier files were replaced.
-// copy-then-match: copy as above, then match the written files; that match
-// exits 3 on a difference and 4 on an unexpected read.
+// copy-then-match: replace files in listed order, keeping existing destination
+// modes, then verify written bytes. Exit 1 on a write failure, 3 on a byte
+// difference and 4 on an unexpected read.
 import { chmodSync, copyFileSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const [mode, sourceRoot, destRoot] = process.argv.slice(2);
 if (
-  !["match", "copy", "copy-then-match"].includes(mode) ||
+  !["match", "copy-then-match"].includes(mode) ||
   !sourceRoot ||
   !destRoot ||
   process.argv.length !== 5
 ) {
   console.error(
-    "Usage: open-dough-payload-bytes.mjs <match|copy|copy-then-match> <source-skills> <dest-root>",
+    "Usage: open-dough-payload-bytes.mjs <match|copy-then-match> <source-skills> <dest-root>",
   );
   process.exit(2);
 }
@@ -77,7 +76,5 @@ if (mode === "match") {
   matchFiles(1, 2);
 } else {
   copyFiles();
-  if (mode === "copy-then-match") {
-    matchFiles(3, 4);
-  }
+  matchFiles(3, 4);
 }

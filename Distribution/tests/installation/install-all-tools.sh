@@ -14,9 +14,9 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 
 assert_all_roots() {
-  local target=$1 version=$2 marker=$3 source=$4 platform dest script
-  for platform in codex claude; do
-    dest=$(bash "${source_dir}/Distribution/src/install/open-dough-release.sh" destination "${target}" "${platform}")
+  local target=$1 version=$2 marker=$3 source=$4 root dest script
+  for root in .agents .claude; do
+    dest="${target}/${root}/skills/dough-update"
     if [[ -n "${marker}" ]]; then
       assert_payload "${dest}" "${version}" "${marker}"
     else

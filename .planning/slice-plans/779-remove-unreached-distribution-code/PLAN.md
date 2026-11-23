@@ -66,7 +66,7 @@ repository runner with Homebrew Bash 5 and Node 24 passed these focused baseline
 
 Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. Slice 1 was published as `67b66d67ce7b7905d9fb5e780baf3090a47ceb33` on the story branch. The Take has no owned trunk CI observation.
 
-The latest accepted story-branch revision is `e5003308c86a272d4c7a70b80a87b47703670cc8` after Slice 3.
+The latest accepted story-branch revision is `633cf4d2832fbfe9fc41e0f3b859ddef85e9c634` after Slice 4.
 Codex observer for the execution branch uses GitHub Actions `ci.yml` (CI). Coordinator `5f0cec34-e7f0-4f74-8aa2-de18cfa45a2b`, mailbox `/tmp/dough-ci-501/watch-QmFpcm`, PID `84936`, session `52487`, cell `g245:20`. Runtime and owner are bound to the established execution checkout.
 
 ## Local gate
@@ -169,7 +169,7 @@ results, including the clean merge path. All 72 selected checks and real install
 ### 5. Apply releases through the supported installer commands
 
 Type: Behavior
-Status: planned
+Status: done
 
 An inspected same-tag source still goes through `resolve-url`,
 `validate-checkout` and installation. The Dashboard keeps `apply`. Remove
@@ -184,7 +184,7 @@ Preserve release mismatch and byte verification.
 checks. Run the Dashboard worktree release apply checks selected by the trace.
 Check release selection, installed files, project config and refusal before
 writes. Keep comparisons at the shared version function where they need a
-direct unit boundary.
+direct unit boundary. All 38 selected Distribution and evaluation checks and three Dashboard cases passed. Two installer checks passed after the fixture refactor. Checkout evidence uses the `slice5-` prefix.
 
 ### 6. Resume the exact publication and register where the owner needs it
 

@@ -124,7 +124,7 @@ cp -- "${source_dir}/CHANGELOG.md" "${incomplete_source}/CHANGELOG.md"
 cp -R -- "${source_dir}/Distribution/src/install" "${incomplete_source}/Distribution/src/install"
 (
   managed_files=("${managed_files[@]:0:missing_index}")
-  payload_bytes_transfer copy "${source_dir}/Distribution/src/skills" "${incomplete_source}/Distribution/src/skills"
+  copy_declared_payload "${source_dir}/Distribution/src/skills" "${incomplete_source}/Distribution/src/skills"
 )
 
 incomplete_target="${temporary_dir}/incomplete target"

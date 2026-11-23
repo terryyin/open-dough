@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Latest-tag resolution, fetch, pin, and pinned-checkout verification.
+# Latest-tag resolution, fetch, and pinned-checkout verification.
 # Sourced by open-dough-release.sh.
 # Predicate functions are used in if/! conditions by design.
 # shellcheck disable=SC2310,SC2249
@@ -119,38 +119,6 @@ require_checkout_matches_tag() {
   fi
 }
 
-# Detach checkout at the resolved commit and require VERSION to match tag.
-# When cleanup_path is set, remove it before returning a handled failure.
-checkout_resolved_release() {
-  local checkout=$1
-  local url=$2
-  local resolved=$3
-  local head_label=$4
-  local cleanup_path=${5-}
-  local tag commit fetch_url head
-
-  IFS=$'\t' read -r tag commit _ << EOF
-${resolved}
-EOF
-  fetch_url=$(git_url "${url}")
-  if ! git -C "${checkout}" fetch --quiet --depth 1 "${fetch_url}" "${commit}"; then
-    [[ -n "${cleanup_path}" ]] && rm -rf -- "${cleanup_path}"
-    echo "Failed to fetch ${tag} from ${url}" >&2
-    return 1
-  fi
-  git -C "${checkout}" -c advice.detachedHead=false checkout --quiet --detach FETCH_HEAD
-  head=$(git -C "${checkout}" rev-parse HEAD)
-  if [[ "${head}" != "${commit}" ]]; then
-    [[ -n "${cleanup_path}" ]] && rm -rf -- "${cleanup_path}"
-    echo "${head_label} commit ${head} did not match resolved ${commit}" >&2
-    return 1
-  fi
-  if ! require_checkout_matches_tag "${checkout}" "${tag}"; then
-    [[ -n "${cleanup_path}" ]] && rm -rf -- "${cleanup_path}"
-    return 1
-  fi
-}
-
 # Resolve one recorded numeric tag from the source. Prefer a peeled commit.
 resolve_tagged_release() {
   local url=$1
@@ -177,6 +145,7 @@ fetch_resolved_release() {
   local url=$1
   local dest=$2
   local resolved=$3
+  local tag commit fetch_url head
 
   if [[ -e "${dest}" ]]; then
     echo "Fetch destination already exists: ${dest}" >&2
@@ -184,7 +153,26 @@ fetch_resolved_release() {
   fi
   mkdir -p -- "${dest}"
   git -C "${dest}" init --quiet
-  checkout_resolved_release "${dest}" "${url}" "${resolved}" Fetched "${dest}" || return 1
+  IFS=$'\t' read -r tag commit _ << EOF
+${resolved}
+EOF
+  fetch_url=$(git_url "${url}")
+  if ! git -C "${dest}" fetch --quiet --depth 1 "${fetch_url}" "${commit}"; then
+    rm -rf -- "${dest}"
+    echo "Failed to fetch ${tag} from ${url}" >&2
+    return 1
+  fi
+  git -C "${dest}" -c advice.detachedHead=false checkout --quiet --detach FETCH_HEAD
+  head=$(git -C "${dest}" rev-parse HEAD)
+  if [[ "${head}" != "${commit}" ]]; then
+    rm -rf -- "${dest}"
+    echo "Fetched commit ${head} did not match resolved ${commit}" >&2
+    return 1
+  fi
+  if ! require_checkout_matches_tag "${dest}" "${tag}"; then
+    rm -rf -- "${dest}"
+    return 1
+  fi
   printf '%s\n' "${resolved}"
 }
 
@@ -206,19 +194,6 @@ fetch_tagged_release() {
 
   resolved=$(resolve_tagged_release "${url}" "${version}") || return 1
   fetch_resolved_release "${url}" "${dest}" "${resolved}"
-}
-
-pin_latest() {
-  local checkout=$1
-  local url=$2
-  local resolved
-
-  if [[ -z "${url}" ]]; then
-    url=$(git -C "${checkout}" remote get-url origin)
-  fi
-  resolved=$(resolve_url "${url}") || return 1
-  checkout_resolved_release "${checkout}" "${url}" "${resolved}" Pinned || return 1
-  printf '%s\n' "${resolved}"
 }
 
 require_pinned_checkout() {

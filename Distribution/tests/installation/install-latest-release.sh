@@ -28,44 +28,25 @@ ${resolved}
 EOF
 [[ "${tag}" == v0.1.10 ]]
 [[ "${version}" == 0.1.10 ]]
-[[ "${#commit}" -eq 40 ]]
+expected_commit=$(git -C "${fixture}" rev-parse 'v0.1.10^{commit}')
+[[ "${commit}" == "${expected_commit}" ]]
 
 git -C "${fixture}" checkout --quiet main
-printf '%s\n' 'moved-after-resolve' >> "${fixture}/BRANCH_HEAD"
+printf '%s\n' '# Unreleased default-branch guidance' > "${fixture}/Distribution/src/skills/dough-update/SKILL.md"
 commit_all "${fixture}" 'move default branch after resolve'
 
 release_dir="${temporary_dir}/release"
-fetched=$(bash "${helper}" fetch-release "${fixture}" "${release_dir}")
-IFS=$'\t' read -r fetched_tag fetched_commit fetched_version << EOF
-${fetched}
-EOF
-[[ "${fetched_tag}" == "${tag}" ]]
-[[ "${fetched_commit}" == "${commit}" ]]
-[[ "${fetched_version}" == 0.1.10 ]]
-head=$(git -C "${release_dir}" rev-parse HEAD)
-[[ "${head}" == "${commit}" ]]
-[[ ! -e "${release_dir}/BRANCH_HEAD" ]]
-grep -Fq 'open-dough-payload payload-0.1.10' \
-  "${release_dir}/Distribution/src/skills/dough-update/SKILL.md"
+checkout_tagged_release "${fixture}" "${release_dir}" 0.1.10
 
-# The codex and cursor hints select the same .agents entry root, so cursor
-# represents both; its clone is reused below.
-for platform in cursor claude; do
+# Cursor represents the shared Codex and Cursor entry root.
+for layout in cursor:.agents claude:.claude; do
+  platform=${layout%:*}
+  root=${layout#*:}
   platform_target="${temporary_dir}/${platform} project"
   prepare_target "${platform_target}"
-  clone_dir="${temporary_dir}/${platform} clone"
-  git clone --quiet "${fixture}" "${clone_dir}"
-  pin_output=$(bash "${clone_dir}/Distribution/src/install/open-dough-release.sh" \
-    pin-latest "${clone_dir}" "${fixture}")
-  IFS=$'\t' read -r pin_tag pin_commit pin_version << EOF
-${pin_output}
-EOF
-  [[ "${pin_tag}" == v0.1.10 ]]
-  [[ "${pin_commit}" == "${commit}" ]]
-  [[ "${pin_version}" == 0.1.10 ]]
-  bash "${clone_dir}/install.sh" --target "${platform_target}" --source "${fixture}" \
+  bash "${release_dir}/install.sh" --target "${platform_target}" --source "${fixture}" \
     --platform "${platform}" > /dev/null
-  dest=$(bash "${helper}" destination "${platform_target}" "${platform}")
+  dest="${platform_target}/${root}/skills/dough-update"
   assert_payload "${dest}" 0.1.10 payload-0.1.10
   recorded_source=$(cat "${dest}/SOURCE")
   expected_source=$(cd -- "${fixture}" && pwd -P)
@@ -78,9 +59,9 @@ done
 
 relative_target="${temporary_dir}/relative source project"
 prepare_target "${relative_target}"
-bash "${temporary_dir}/cursor clone/install.sh" --target "${relative_target}" \
+bash "${release_dir}/install.sh" --target "${relative_target}" \
   --source fixture.git --platform cursor > /dev/null
-relative_dest=$(bash "${helper}" destination "${relative_target}" cursor)
+relative_dest="${relative_target}/.agents/skills/dough-update"
 assert_payload "${relative_dest}" 0.1.10 payload-0.1.10
 recorded_source=$(cat "${relative_dest}/SOURCE")
 expected_source=$(cd -- "${fixture}" && pwd -P)
@@ -92,7 +73,7 @@ prepare_target "${apply_target}"
 output=$(bash "${helper}" apply --url "${fixture}" --target "${apply_target}" \
   --platform cursor)
 [[ "${output}" == *"Source: ${fixture}"* ]]
-[[ "${output}" == *'Release: v0.1.10 (commit '* ]]
+[[ "${output}" == *"Release: v0.1.10 (commit ${commit})"* ]]
 [[ "${output}" == *"Outcome: installed 0.1.10"* ]]
 assert_payload "${apply_target}/.agents/skills/dough-update" 0.1.10 payload-0.1.10
 recorded_source=$(cat "${apply_target}/.agents/skills/dough-update/SOURCE")
