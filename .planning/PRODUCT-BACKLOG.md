@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Catch delegated lint failures before guarded delivery](seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery) — SEED-345#catch-delegated-lint-before-delivery ([plan](slice-plans/786-catch-delegated-lint-before-delivery/PLAN.md))
 - [Bring launch test feedback to about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#reach-eight-second-launch-feedback) — SEED-413#reach-eight-second-launch-feedback ([plan](slice-plans/787-reach-eight-second-launch-feedback/PLAN.md))
 - [Correct the proof residue of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-scope-timing-chart-proof-residue) — SEED-413#correct-scope-timing-chart-proof-residue ([plan](slice-plans/783-correct-scope-timing-chart-proof-residue/PLAN.md))
-- [Use proportionate refactoring for small test edits](seeds/SEED-345-session-token-efficiency.md#use-proportionate-refactoring-for-small-test-edits) — SEED-345#use-proportionate-refactoring-for-small-test-edits ([plan](slice-plans/788-use-proportionate-refactoring-for-small-test-edits/PLAN.md))
 
 ## Backlog list
 
