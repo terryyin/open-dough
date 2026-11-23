@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_correct-scope-timing-chart-proof-residue.json",
+      "identity": "SEED-413#correct-scope-timing-chart-proof-residue",
+      "completedAt": "2026-11-23T07:41:52.412Z",
+      "blob": "424f7ff225a5fc4621f89c9cdb06939a181bb674"
+    },
+    {
       "fileName": "SEED-341_keep-attention-completion-journey-within-timeout.json",
       "identity": "SEED-341#keep-attention-completion-journey-within-timeout",
       "completedAt": "2026-11-23T07:25:55.467Z",

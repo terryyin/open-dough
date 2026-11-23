@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#correct-scope-timing-chart-proof-residue",
+  "title": "Correct the proof residue of Intent collected scope timing and chart marks",
+  "completedAt": "2026-11-23T07:41:52.412Z",
+  "developer": "Terry Yin",
+  "agent": "Kirara-chan",
+  "host": "claude"
+}

@@ -69,14 +69,31 @@ export async function expandLocationAndFolders(locationPath: string) {
   return locationToggle;
 }
 
-export const locationNameControl = (locationPath: string) =>
-  page.elementLocator(
-    presentElement(
-      document.querySelector<HTMLElement>(
-        `button.intent-location-name[data-location-path="${locationPath}"]`,
-      ),
-    ),
+const locationNameElement = (locationPath: string) =>
+  document.querySelector<HTMLElement>(
+    `button.intent-location-name[data-location-path="${locationPath}"]`,
   );
+
+export const locationNameControl = (locationPath: string) =>
+  page.elementLocator(presentElement(locationNameElement(locationPath)));
+
+// Resolves once the location name control at LOCATIONPATH is drawn, however
+// long the mount takes; the case's own timeout bounds the wait.
+export function locationNameDrawn(locationPath: string) {
+  const drawn = () => locationNameElement(locationPath) !== null;
+  return new Promise<void>((resolve) => {
+    if (drawn()) {
+      resolve();
+      return;
+    }
+    const watch = new MutationObserver(() => {
+      if (!drawn()) return;
+      watch.disconnect();
+      resolve();
+    });
+    watch.observe(document.body, { childList: true, subtree: true });
+  });
+}
 
 export const folderNameControl = (folderName: string) =>
   page.elementLocator(
