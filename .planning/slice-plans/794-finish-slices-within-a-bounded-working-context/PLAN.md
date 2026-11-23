@@ -55,7 +55,7 @@ in every arm, delegation brief and repair handoff.
 
 ### 1. Establish a comparable replay
 Type: Behavior
-Status: planned
+Status: done
 Proof: An arm brief, case pin, allowed writes, command budget and common
 assessor are recorded. The historical three-slice prefix took about 97
 minutes. Use that scale to agree a bound before launch, allow one probe and
@@ -74,6 +74,71 @@ its usage through the same path intended for the pair. Record the first
 unavailable step and stop dependent work if this fails. The execution owner
 obtains the developer's explicit authorization before paid native calls under
 [the evaluation instructions](../../../Distribution/evaluation/README.md).
+
+**Preflight preparation (2026-11-23).** The local execution checkout and remote
+story branch both name the published Take `417150eba820acdbea22917093414ccde4600d92`.
+Locked npm setup and Chromium prerequisite validation passed. A shallow clone
+with only the case pin and a separate bare origin was prepared under
+`/private/tmp/open-dough-345.XMjth1A9`. In that probe clone, the five named
+backend baseline specs in Decisive premises exited 0 with one worker under
+`caffeinate -s -i` on AC power. Codex CLI reported 0.171.0.
+
+The common guidance input is the distribution from
+`417150eba820acdbea22917093414ccde4600d92` (`Distribution/src` tree
+`d2506e51c1aac9c55a699396efc982bb298e75c1`). The evaluation payload installer
+applied it in the probe clone. The clean probe baseline
+`98582de224666644d36a21a423abfe7abeb9b926` is on the local bare origin and
+adds only the `.agents` and `.claude` overlay to the case pin. Verify the same
+overlay in both arms. Both landing admission and landing boundary specs
+passed with the overlay (`345-probe-overlay.log.run.json` in the execution
+checkout's Git evidence directory). Keep the product fixture pinned
+independently at `2280ba9293c87033f094e6eb53358264d13de75b`. Supply the original
+plan through slice 3 and its supporting pre-change sources. Limit writes to
+each run's workspace, bare origin and evidence, plus the native runtime state needed
+for rollouts. Keep later patches and prior execution transcripts out of
+the replay inputs.
+
+Use one common read-only assessment brief for both arms. Check the exact
+retained endpoint, launch, file paths and text after retirement for slices 1
+and 2. For slice 2, check that capture preserves the real index and HEAD and
+excludes the ignored path and later live edit. For slice 3, verify attribution
+after explicit branch handoff, including earlier work, another worktree and
+another launch. Apply the original plan's other proof and review requirements
+and examine each consequential finding and human decision before reading
+effort. Use the shared failure policy and focused commands in each arm.
+
+**Accepted preflight (2026-11-23).** The developer approved one 20-minute
+probe with two roots and one worker per root, then one sequential matched
+pair of up to 120 minutes per arm including retries and repairs, conditional
+on qualification. The probe finished in under three minutes.
+
+The existing native Codex adapter invoked a fresh `codex exec` for each root
+with multi-agent v2 enabled. Both families observed `gpt-6.2-sol`, `xhigh`,
+and the default service tier in both roles. The first worker recovered
+the marker supplied only in inherited history (`fork_turns=all`). After
+that worker finished, its coordinator published
+`7990fe1b207abf3b20f123785be9e33c7a509176` to the fixture bare origin and
+exited. A distinct root verified that local and bare-origin `main` agreed
+and the checkout was clean, then started a worker with `fork_turns=none`.
+The worker independently read the same SHA and retained file, and its
+rollout lacked the coordinator-only marker. Both roots and workers finished.
+
+The first commit hook hit a temporary-directory permission error inside
+the native write sandbox. The same root used a fixture-local temporary
+directory, passed the hook and published the commit. Use an arm-local
+temporary directory from launch for both arms.
+
+The probe evidence is under `/private/tmp/open-dough-345.XMjth1A9/paid-probe`.
+The exact start/end files, `*.jsonl` transcripts, exit records, and
+`*.effort.json` reports bind the known launch inventory to the rollout files.
+The first family was `01a207b3-787a-74c2-8303-a1564a977ab5` with worker
+`01a207b3-9d6a-7512-b02a-f864187f4393` (9 and 1 unique requests). The second
+was `01a207b5-6ca5-7862-b1ef-7278458d103e` with worker
+`01a207b5-b72a-7ac0-9902-1d53ca33e0f3` (6 and 4). The configured reader
+resolved both exact windows with zero unowned responses, complete fresh,
+cached and output counts, and no missing peak inputs. Root totals agreed with
+the CLI completion streams. Idle-wake evidence remained unavailable. The
+probe qualifies this launch and accounting route for the matched pair.
 
 ### 2. Run both arms through independent acceptance
 Type: Behavior
