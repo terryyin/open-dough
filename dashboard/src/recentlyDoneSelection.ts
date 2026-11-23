@@ -48,14 +48,16 @@ import type { PublishedWork } from "./publishedWork.ts";
 import {
   associatedIdentity,
   currentCatalog,
+  currentSessionCloses,
   linkIn,
   readLink,
   type DoneLink,
 } from "./recentlyDoneLink.ts";
 import type { GoToSession } from "./sessionNavigation.ts";
 import {
+  publishedCloseFor,
   recentLocalDoneStory,
-  retainedStoryOf,
+  sessionStoryAssociation,
 } from "./retainedStoryMembership.ts";
 import { sessionKey } from "./sessionReference.ts";
 
@@ -128,7 +130,6 @@ export function useRecentlyDoneSelection(
   const select = (record: LaunchRecord) => {
     abandonCheck();
     const key = sessionKey(record.session);
-    const membership = retainedStoryOf(record);
     const source = projects.find(({ id }) => id === record.request.source);
     // In Development, shows the session's project's stories and goes to the
     // session, or its done `story`; elsewhere, gives up an earlier going.
@@ -146,6 +147,15 @@ export function useRecentlyDoneSelection(
       goThere();
     };
     if (source === undefined) {
+      standalone();
+      return;
+    }
+    const published = currentSessionCloses(now.current.stories.work, source.id);
+    const membership = sessionStoryAssociation(
+      record,
+      publishedCloseFor(record, published),
+    );
+    if (membership?.kind === "conflict") {
       standalone();
       return;
     }

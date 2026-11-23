@@ -8,8 +8,7 @@ import { sessionKey } from "../src/sessionReference.ts";
 import { completedStoryAssociation } from "./completedStoryAssociation.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { configuredProject } from "./projectConfiguration.ts";
-import { projectFolder } from "./projectFolders.ts";
-import { publishedSessionRecord } from "./publishedSessionReview.ts";
+import { publishedLaunchClose } from "./publishedLaunchClose.ts";
 
 type AttachDoneStory = (marked: LaunchRecord) => LaunchRecord;
 
@@ -84,16 +83,7 @@ async function publishedMembership(record: LaunchRecord) {
   if (source === undefined || reference === undefined)
     return { kind: "absent" } as const;
   const signal = AbortSignal.timeout(10_000);
-  const published = await publishedSessionRecord(
-    {
-      repository: projectFolder(source).path,
-      revision: `refs/remotes/origin/${source.ref.replace(/^refs\/heads\//, "")}`,
-      backlogPath: source.backlogPath,
-    },
-    reference,
-    new Date(),
-    signal,
-  ).catch(() => undefined);
+  const published = await publishedLaunchClose(source, record, signal);
   if (published !== undefined)
     return published.story === undefined
       ? ({ kind: "standalone" } as const)

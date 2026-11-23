@@ -21,12 +21,13 @@ import type {
 } from "../src/followUpRequest.ts";
 import { storyNotesContext } from "../src/followUpStoryNotes.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { retainedStoryOf } from "../src/retainedStoryMembership.ts";
+import { sessionStoryAssociation } from "../src/retainedStoryMembership.ts";
 import { storyNoteVersion } from "../src/storyNote.ts";
 import { admitFollowUpFile } from "./followUpFileAdmission.ts";
 import { doneStoryFollowUp } from "./followUpStory.ts";
 import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { publishedLaunchClose } from "./publishedLaunchClose.ts";
 import { waitingStoryNotes } from "./storyNotes.ts";
 
 async function resolveFollowUp(
@@ -71,8 +72,23 @@ async function resolveFollowUp(
       404,
       "The session this follows up is no longer kept on this machine.",
     );
-  const storyIdentity =
-    record.doneAt === undefined ? undefined : retainedStoryOf(record)?.identity;
+  const membership =
+    record.doneAt === undefined
+      ? undefined
+      : sessionStoryAssociation(
+          record,
+          await publishedLaunchClose(
+            source,
+            record,
+            AbortSignal.timeout(10_000),
+          ),
+        );
+  if (membership?.kind === "conflict")
+    throw new RefusedRequest(
+      409,
+      "Choose the session's story before starting a follow-up.",
+    );
+  const storyIdentity = membership?.identity;
   return {
     context: { sessions: [sessionContext(record)] },
     ...(storyIdentity === undefined ? {} : { storyIdentity }),

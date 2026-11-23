@@ -11,6 +11,8 @@ import {
 } from "./doneStories.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import { currentPublishedSessions } from "./recentlyDoneListing.ts";
+import { publishedSessionsById } from "./retainedStoryMembership.ts";
 
 export type DoneLink = "linked" | "absent" | { readonly problem: string };
 
@@ -50,6 +52,17 @@ export function currentCatalog(
     done.revision === work.revision
     ? done
     : undefined;
+}
+
+export function currentSessionCloses(
+  work: PublishedWork | undefined,
+  project: string,
+) {
+  return publishedSessionsById(
+    work?.source.id === project
+      ? currentPublishedSessions(work.publishedSessions, new Date())
+      : [],
+  );
 }
 
 export async function readLink(

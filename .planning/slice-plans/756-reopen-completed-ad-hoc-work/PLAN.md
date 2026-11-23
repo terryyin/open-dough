@@ -75,6 +75,12 @@ publication. Build on that boundary.
   the story selected. Use the existing gap presentation when the comparison
   is unavailable. Follow-up ranges remain available from their existing
   individual review entry points.
+- At trunk `aa05b24377f455e7d8a1c8cfe8b6bb59c39a5787`, the delivered
+  `SEED-420#compare-story-contributions` changes named-story contribution
+  comparisons and their admission. Its changes preserve the published
+  session comparison contract used by slice 5. Keep the ad hoc story's
+  originating pair in that existing contract and verify both paths at
+  integration.
 
 ## Planning observations
 
@@ -196,11 +202,13 @@ real server cases verify the new UUID, parent story, both context forms,
 invalid source refusal and both Land handoffs. Anchored follow-up cases
 preserve their comparison contexts. See `slice-4-implementation.md` in the
 worktree's Git evidence directory.
+The independent review consolidated the follow-up identity reader and reran
+the affected cases in `slice-4-refactor.md`.
 
 ### 5. Recently done groups published sessions on a second machine
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a clone without retained launches fetches a done catalog and the
 published records for A and B → Recently done shows both under the same
@@ -215,6 +223,12 @@ empty local launch store, then with a kept launch for the same UUID. Assert
 the card and its two UUIDs once each, along with a standalone record from
 before the change. Reuse the existing published session row for each
 individual comparison. Slice 6 proves the story review from that card.
+
+The Git case publishes B before A, then observes B's existing record beside
+the single Done catalog row from A. The pinned listing and mounted Board
+prove both UUIDs, one kept native entry per UUID, the independent older
+record and exact per-session review. See `slice-5-implementation.md` in the
+worktree's Git evidence directory.
 
 ### 6. Intent reads the Done story's originating comparison
 
@@ -248,6 +262,8 @@ not change either story's status or the published record.
 and reload. Inspect the retained write and the listing after refresh. A
 candidate from another project or a stale choice cannot attach the session.
 Until this slice delivers the choice, ambiguous membership stays unresolved.
+Read the clicked row's own project's published association when its Board
+snapshot is absent, so the sidebar and Board reach the same decision.
 
 ## Local gates and review
 
@@ -290,3 +306,13 @@ Until this slice delivers the choice, ambiguous membership stays unresolved.
 - The native Done locator repair was accepted at
   `fa1ab88e2f9724a3b4ac186aa4c65fe3f4c07680` on that branch and observer.
   See [the repair record](diagnosis-done-session-locator.md).
+- Slice 4 was accepted at `8fde90438b7359a391fe91a6223e2c8629466bca`
+  on that branch and observer after full local lint and follow-up proof.
+
+## Story obligations
+
+### G1. A sidebar row can precede its project's published snapshot
+
+Reported: slice 5 — "A retained row from another project can fall back to claim history when its own published snapshot is not shown, missing an association named by its published session record."
+Story clause: "In Recently done sessions, choosing a new ad hoc Done row selects its Done story, as a linked row does."
+Disposition: receiving slice 7

@@ -4,6 +4,8 @@ import { isWithinDoneWindow } from "../../Distribution/src/skills/dough-product-
 import { followUpStoryIdentity } from "./followUpRequest.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
 import { storyOf } from "./launchWorkflow.ts";
+import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
+import { reportingReferenceOf } from "./sessionListing.ts";
 
 export function retainedStoryOf(record: LaunchRecord) {
   const { request, doneStory } = record;
@@ -15,6 +17,40 @@ export function retainedStoryOf(record: LaunchRecord) {
     return { kind: "follow-up", identity: parent } as const;
   return doneStory;
 }
+
+// The published lookup belongs to the launch's project.
+export function publishedCloseFor(
+  record: LaunchRecord,
+  published: ReadonlyMap<string, PublishedSessionRecord>,
+) {
+  const reference = reportingReferenceOf(record);
+  return reference === undefined ? undefined : published.get(reference);
+}
+
+// A close's UUID is the reporting reference, independent of the native
+// host's conversation ID. Keep both candidates when their stories disagree.
+export function sessionStoryAssociation(
+  record: LaunchRecord,
+  published: PublishedSessionRecord | undefined,
+) {
+  const retained = retainedStoryOf(record);
+  const identity =
+    published?.sessionId === reportingReferenceOf(record)
+      ? published?.story
+      : undefined;
+  if (identity === undefined) return retained;
+  if (retained === undefined) return { kind: "linked", identity } as const;
+  if (retained.identity === identity) return retained;
+  return {
+    kind: "conflict",
+    retained: retained.identity,
+    published: identity,
+  } as const;
+}
+
+export const publishedSessionsById = (
+  sessions: readonly PublishedSessionRecord[],
+) => new Map(sessions.map((session) => [session.sessionId, session]));
 
 export function ownDoneStorySessions<Session extends LaunchRecord>(
   records: readonly Session[] | undefined,
@@ -33,7 +69,7 @@ export function ownDoneStorySessions<Session extends LaunchRecord>(
 }
 
 export function recentLocalDoneStory(
-  membership: ReturnType<typeof retainedStoryOf>,
+  membership: ReturnType<typeof sessionStoryAssociation>,
   now: Date,
 ) {
   return membership?.kind === "originating" &&

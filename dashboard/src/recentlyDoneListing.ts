@@ -13,8 +13,11 @@ import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import type { PublishedSessions } from "./publishedSessions.ts";
 import type { HeldEntry } from "./recentlyDoneRange.ts";
 import {
+  publishedCloseFor,
+  publishedSessionsById,
   recentLocalDoneStory,
   retainedStoryOf,
+  sessionStoryAssociation,
 } from "./retainedStoryMembership.ts";
 import { reportingReferenceOf } from "./sessionListing.ts";
 import { sessionKey } from "./sessionReference.ts";
@@ -25,6 +28,8 @@ type CardSessions = {
   readonly sessions: readonly LaunchWithState[];
   // Closed ad hoc follow-ups of this story, oldest first — display only.
   readonly followUps: readonly LaunchWithState[];
+  readonly publishedSessions: readonly PublishedSessionRecord[];
+  readonly publishedForRetained: ReadonlyMap<string, PublishedSessionRecord>;
 };
 
 type ListedCard = CardSessions &
@@ -41,15 +46,31 @@ export type Listed =
   // launch (Done or live) stands for it with its native controls.
   | { readonly at: number; readonly published: PublishedSessionRecord };
 
-function cardSessions(sessions: readonly LaunchWithState[], identity: string) {
+function cardSessions(
+  sessions: readonly LaunchWithState[],
+  identity: string,
+  published: ReadonlyMap<string, PublishedSessionRecord>,
+  unrepresented: readonly PublishedSessionRecord[],
+) {
   const own: LaunchWithState[] = [];
   const followUps: LaunchWithState[] = [];
+  const publishedForRetained = new Map<string, PublishedSessionRecord>();
   for (const session of sessions) {
-    const story = retainedStoryOf(session);
-    if (story?.identity !== identity) continue;
+    const close = publishedCloseFor(session, published);
+    const story = sessionStoryAssociation(session, close);
+    if (story?.kind === "conflict" || story?.identity !== identity) continue;
     (story.kind === "follow-up" ? followUps : own).push(session);
+    if (close !== undefined)
+      publishedForRetained.set(sessionKey(session.session), close);
   }
-  return { sessions: own, followUps };
+  return {
+    sessions: own,
+    followUps,
+    publishedSessions: unrepresented.filter(
+      (record) => record.story === identity,
+    ),
+    publishedForRetained,
+  };
 }
 
 // Sessions a listed done card holds: its own closed sessions and its closed
@@ -63,20 +84,14 @@ function localCards(
   sessions: readonly LaunchWithState[],
   published: readonly CataloguedDoneRecord[],
   now: Date,
-): readonly ListedCard[] {
+): readonly DoneStory[] {
   const listed = new Set(published.map(({ identity }) => identity));
   return sessions.flatMap((session) => {
     const story = recentLocalDoneStory(retainedStoryOf(session), now);
     if (story === undefined || listed.has(story.identity)) return [];
     listed.add(story.identity);
     const { identity, title, completedAt } = story;
-    return [
-      {
-        at: Date.parse(completedAt),
-        localStory: { identity, title, completedAt },
-        ...cardSessions(sessions, identity),
-      },
-    ];
+    return [{ identity, title, completedAt }];
   });
 }
 
@@ -107,28 +122,38 @@ export function newestFirst(
   now = new Date(),
 ): readonly Listed[] {
   const sessions = projectSessionsOf(doneSessions, sourceId) ?? [];
+  const stoodFor = new Set(
+    (projectSessionsOf(keptLaunches, sourceId) ?? []).map(reportingReferenceOf),
+  );
+  const byId = publishedSessionsById(published);
+  const unrepresented = published.filter(
+    (record) => !stoodFor.has(record.sessionId),
+  );
+  const local = localCards(sessions, records, now);
   const cards = [
     ...records.map((record) => ({
       at: Date.parse(record.completedAt),
       record,
-      ...cardSessions(sessions, record.identity),
+      ...cardSessions(sessions, record.identity, byId, unrepresented),
     })),
-    ...localCards(sessions, records, now),
+    ...local.map((localStory) => ({
+      at: Date.parse(localStory.completedAt),
+      localStory,
+      ...cardSessions(sessions, localStory.identity, byId, unrepresented),
+    })),
   ];
-  const stoodFor = new Set(
-    (projectSessionsOf(keptLaunches, sourceId) ?? []).map(reportingReferenceOf),
-  );
   const held = new Set(
     cards.flatMap((card) => holdingsOf(card.sessions, card.followUps)),
   );
+  const grouped = new Set(cards.flatMap((card) => card.publishedSessions));
   return [
     ...cards,
     ...sessions
       .filter((session) => !held.has(session))
       .toReversed()
       .map((session) => ({ at: Date.parse(session.launchedAt), session })),
-    ...published
-      .filter((record) => !stoodFor.has(record.sessionId))
+    ...unrepresented
+      .filter((record) => !grouped.has(record))
       .map((record) => ({
         at: Date.parse(record.closedAt),
         published: record,

@@ -11,8 +11,13 @@ import type { PublishedWork } from "./publishedWork.ts";
 import {
   associatedIdentity,
   currentCatalog,
+  currentSessionCloses,
   linkIn,
 } from "./recentlyDoneLink.ts";
+import {
+  publishedCloseFor,
+  sessionStoryAssociation,
+} from "./retainedStoryMembership.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { withinReadWait } from "./readWaitBound.ts";
@@ -49,6 +54,7 @@ export function useShownDoneLinks(
     work?.source.id,
     revision,
     shown,
+    work?.publishedSessions,
   ]);
   useEffect(() => {
     const listed = JSON.parse(rows) as LaunchWithState[];
@@ -70,9 +76,29 @@ export function useShownDoneLinks(
             const relevant = listed.filter(
               (record) => record.request.source === source.id,
             );
-            const launches = relevant.filter(
-              (record) => launchSubject(record.request).identity !== undefined,
-            );
+            const published = currentSessionCloses(work, source.id);
+            const launches: {
+              record: LaunchWithState;
+              identity: string;
+              recentOnly: boolean;
+            }[] = [];
+            const historical: LaunchWithState[] = [];
+            for (const record of relevant) {
+              const close = publishedCloseFor(record, published);
+              if (close?.story !== undefined) {
+                const membership = sessionStoryAssociation(record, close);
+                if (membership !== undefined && membership.kind !== "conflict")
+                  launches.push({
+                    record,
+                    identity: membership.identity,
+                    recentOnly: membership.kind !== "linked",
+                  });
+                continue;
+              }
+              const identity = launchSubject(record.request).identity;
+              if (identity === undefined) historical.push(record);
+              else launches.push({ record, identity, recentOnly: true });
+            }
             const catalog = async (): Promise<DoneStories | undefined> => {
               const current = currentCatalog(work, source.id);
               if (current !== undefined) return current;
@@ -94,33 +120,23 @@ export function useShownDoneLinks(
                 : [
                     catalog().then((done) => {
                       if (done?.status !== "catalogued") return;
-                      for (const record of launches) {
-                        const identity = launchSubject(record.request).identity;
-                        if (
-                          identity !== undefined &&
-                          linkIn(done, identity, { recentOnly: true }) ===
-                            "linked"
-                        )
+                      for (const { record, identity, recentOnly } of launches) {
+                        if (linkIn(done, identity, { recentOnly }) === "linked")
                           links.set(sessionKey(record.session), identity);
                       }
                       publish();
                     }),
                   ]),
-              ...relevant
-                .filter(
-                  (record) =>
-                    launchSubject(record.request).identity === undefined,
-                )
-                .map(async (record) => {
-                  const associated = await associatedIdentity(
-                    source,
-                    record,
-                    signal,
-                  );
-                  if (typeof associated === "object" && "kind" in associated)
-                    links.set(sessionKey(record.session), associated.identity);
-                  publish();
-                }),
+              ...historical.map(async (record) => {
+                const associated = await associatedIdentity(
+                  source,
+                  record,
+                  signal,
+                );
+                if (typeof associated === "object" && "kind" in associated)
+                  links.set(sessionKey(record.session), associated.identity);
+                publish();
+              }),
             ]);
           }),
         ),

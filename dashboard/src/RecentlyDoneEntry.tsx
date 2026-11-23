@@ -15,10 +15,14 @@ import { unreadableDoneRecord } from "./doneRecord.ts";
 import { DoneStoryCard } from "./DoneStoryCard.tsx";
 import { AdHocSessionReviewAction } from "./AdHocSessionReviewAction.tsx";
 import { SessionFollowUp, StoryFollowUp } from "./FollowUp.tsx";
-import { PublishedSessionEntry } from "./PublishedSessionEntry.tsx";
+import {
+  PublishedSessionEntry,
+  PublishedSessionReviewAction,
+} from "./PublishedSessionEntry.tsx";
 import { listedStory } from "./recentlyDoneListing.ts";
 import type { Listed } from "./recentlyDoneView.ts";
 import { SessionEntry } from "./SessionEntry.tsx";
+import { sessionKey } from "./sessionReference.ts";
 import { StoryReviewStateAction } from "./StoryReviewStateAction.tsx";
 import type { StoryReviewStates } from "./storyReviewStates.ts";
 
@@ -73,7 +77,7 @@ export function ListedEntry({
       <SessionEntry
         record={each.session}
         onStoryCard={false}
-        followUp={
+        additionalActions={
           <>
             <AdHocSessionReviewAction
               record={each.session}
@@ -90,7 +94,7 @@ export function ListedEntry({
       />
     );
   }
-  const { sessions, followUps } = each;
+  const { sessions, followUps, publishedSessions, publishedForRetained } = each;
   const published = "record" in each ? each.record : undefined;
   const detail = published === undefined ? undefined : detailOf(published);
   const { identity, completedAt } = listedStory(each);
@@ -112,22 +116,33 @@ export function ListedEntry({
       }
       sessions={sessions}
       followUps={followUps}
+      publishedSessions={publishedSessions}
       sourceId={sourceId}
       launchRecords={launches.records}
       selected={selectedIdentity === identity}
       onSelect={onSelect}
-      sessionFollowUp={
-        adHocStorySessionId(identity) === undefined
-          ? undefined
-          : (record) => (
+      sessionActions={(record) => {
+        const close = publishedForRetained.get(sessionKey(record.session));
+        return (
+          <>
+            {close !== undefined && (
+              <PublishedSessionReviewAction
+                record={close}
+                sourceId={sourceId}
+                title={record.request.title}
+              />
+            )}
+            {adHocStorySessionId(identity) !== undefined && (
               <SessionFollowUp
                 record={record}
                 project={project}
                 sourceId={sourceId}
                 launches={launches}
               />
-            )
-      }
+            )}
+          </>
+        );
+      }}
       ciFollowUp={
         <CiFollowUpCard
           answer={ciFollowUps}

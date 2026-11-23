@@ -10,7 +10,11 @@ import {
   storyOf,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import { retainedStoryOf } from "./retainedStoryMembership.ts";
+import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
+import {
+  publishedCloseFor,
+  sessionStoryAssociation,
+} from "./retainedStoryMembership.ts";
 
 // An unfinished card's own Done sessions, oldest first, by its identity.
 export type DoneOnCard = (identity: string) => readonly LaunchWithState[];
@@ -19,17 +23,22 @@ export function columnSessionsOf(
   sourceId: string,
   records: readonly LaunchWithState[] | undefined,
   unfinishedIdentities: readonly string[],
+  published: ReadonlyMap<string, PublishedSessionRecord> = new Map(),
 ) {
   const project = projectSessionsOf(records, sourceId);
   const onCards = new Map(
     unfinishedIdentities.map((identity) => [
       identity,
-      project?.filter(
-        (record) =>
-          (isOpen(record)
-            ? storyOf(record.request)
-            : retainedStoryOf(record)?.identity) === identity,
-      ) ?? [],
+      project?.filter((record) => {
+        if (isOpen(record)) return storyOf(record.request) === identity;
+        const membership = sessionStoryAssociation(
+          record,
+          publishedCloseFor(record, published),
+        );
+        return (
+          membership?.kind !== "conflict" && membership?.identity === identity
+        );
+      }) ?? [],
     ]),
   );
   const held = new Set([...onCards.values()].flat());

@@ -3,6 +3,7 @@ import path from "node:path";
 import { expect, onTestFinished, test } from "vitest";
 import { sessionRecordPathBeside } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { withFollowUpContext } from "../../server/followUpAdmission.ts";
 import {
   changeSessionRecord,
   keptSession,
@@ -22,6 +23,21 @@ import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
 const published = makeMe.aPublishedSource.openDough.please();
+
+function configureCheckout(home: string, integration: string) {
+  writeFileSync(
+    projectConfigurationFile("production"),
+    JSON.stringify([
+      makeMe.aConfiguredProject
+        .with({
+          ...published,
+          localPath: `~/${path.relative(home, integration)}`,
+        })
+        .please(),
+    ]),
+  );
+  onTestFinished(mountProjectConfiguration("production"));
+}
 
 test.each([
   {
@@ -50,18 +66,7 @@ test.each([
       .reportingThrough(dashboardReporting)
       .please();
     const home = keep(record);
-    writeFileSync(
-      projectConfigurationFile("production"),
-      JSON.stringify([
-        makeMe.aConfiguredProject
-          .with({
-            ...published,
-            localPath: `~/${path.relative(home, checkout.integration)}`,
-          })
-          .please(),
-      ]),
-    );
-    onTestFinished(mountProjectConfiguration("production"));
+    configureCheckout(home, checkout.integration);
     const marked = await setRecordDoneAt(
       source,
       record.session,
@@ -72,6 +77,39 @@ test.each([
     expect(marked?.doneAt).toBeDefined();
   },
 );
+
+test("a follow-up from a retained Done session inherits its published association", async () => {
+  const reference = dashboardReporting.reference;
+  const identity = `ad-hoc#${reference}`;
+  const file = sessionRecordPathBeside(published.backlogPath, reference);
+  const close = makeMe.aSessionRecord
+    .forSession(reference)
+    .underStory(identity)
+    .please();
+  const { checkout } = await aDoneCaptureCase()
+    .withOrigin()
+    .withBaseFiles({ [file]: JSON.stringify(close) })
+    .please();
+  const title = "Work sent for review";
+  const retained = makeMe.aLaunchRecord
+    .adHoc({ title })
+    .withDeclaredLanding({ reference })
+    .markedDoneAt(minutesAgo(10))
+    .please();
+  configureCheckout(keep(retained), checkout.integration);
+  const followUp = makeMe.aFollowUp.ofSession(retained).please();
+  const request = makeMe.aLaunchRequest.adHoc({ followUp }).please();
+
+  const resolved = await withFollowUpContext(request, published);
+  expect(resolved).toMatchObject({
+    followUp: {
+      ...followUp,
+      storyIdentity: identity,
+    },
+  });
+  if (resolved.workflow !== "ad-hoc") throw new Error("Expected a follow-up.");
+  expect(resolved.followUp?.context).toContain(title);
+});
 
 test("a storyless receipt arriving while Done is prepared is observed on retry", async () => {
   const {

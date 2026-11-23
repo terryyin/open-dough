@@ -79,3 +79,19 @@ test.each([
     expect(listed.some((each) => "published" in each)).toBe(false);
   },
 );
+
+test("a retained UUID in another project does not stand for the published session", () => {
+  const elsewhere = makeMe.anObservedLaunch
+    .of(
+      makeMe.aLaunchRecord
+        .adHoc({ title: "Elsewhere", source: "pygardon" })
+        .reportingThrough(reporting)
+        .markedDoneAt(new Date().toISOString())
+        .please(),
+    )
+    .withSessionState(makeMe.aSessionState.retained("working").please())
+    .please();
+  expect(newestFirst([], [], "open-dough", [elsewhere], [published])).toEqual([
+    { at: Date.parse(published.closedAt), published },
+  ]);
+});
