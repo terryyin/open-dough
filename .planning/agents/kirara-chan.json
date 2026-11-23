@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "identity": "SEED-413#correct-scope-timing-chart-proof-residue",
+  "mode": "story-branch",
+  "branch": "claude/correct-the-proof-residue-of-intent-collected-sc",
+  "host": "claude"
+}
