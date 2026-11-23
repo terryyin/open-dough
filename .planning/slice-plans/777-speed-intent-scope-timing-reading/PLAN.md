@@ -170,7 +170,7 @@ Key example 6. `scopeHistoryIn(...).fitsWidth()` is now `scrollingSideways()`.
 ### 2. The delivered page entry support carries no residue
 
 Type: Structure
-Status: planned
+Status: done
 
 Retrospective correction of plan 774. Remove the uncalled
 `scopeHistoryIn(...).shown`. Make `openScopeSummary` use
@@ -185,6 +185,11 @@ and keep `board-kept-position.spec.ts`'s precondition.
 `board-kept-position.spec.ts` and every consumer of
 `development-intent-frame-page.ts` pass. Count support lines before and
 after. The count only falls.
+
+**Accepted proof.** Typecheck passed, and 36 consumer files passed (73
+Vitest tests). The diff removed 32 `withBoardStorage("0")` lines; the only one
+left is `board-kept-position.spec.ts`'s precondition. Test support fell by 79
+lines net.
 
 ### 3. Absent histories and a failed history read explain themselves
 

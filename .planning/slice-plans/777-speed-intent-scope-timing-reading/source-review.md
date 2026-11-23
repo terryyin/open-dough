@@ -42,8 +42,8 @@ final story, and coordination.
 | 7c | The failed build's vertical position is checked | slice 1 | observed: failedUnder in intent-scope-history-page.ts compares vertical centres; slice 1 break check — the failed × moved vertically only failed intent-scope-glance.spec.ts:114 |
 | 7d | The builder has one settled default rule | slice 3 | |
 | 7e | Mismatched failed positions are rejected | slice 3 | |
-| 7f | Page-object residue is removed | slice 2 | |
-| 7g | The Board mounts' redundant `withBoardStorage("0")` calls are removed | slice 2 | |
+| 7f | Page-object residue is removed | slice 2 | observed: dashboard/frontend-tests/intent/intent-scope-history-page.ts: scopeHistoryIn has no shown member; openScopeSummary uses locationNameControl and openFileProof uses intentStoryCompare().chooseProof(); navigation/board-mount.ts exports no positionKey/formerPositionKey (board-scroll and board-kept-position import framePreferences.ts); typecheck and 36 consumer files pass |
+| 7g | The Board mounts' redundant `withBoardStorage("0")` calls are removed | slice 2 | observed: dashboard/frontend-tests/navigation: the only withBoardStorage("0") left is board-kept-position.spec.ts precondition; the 19 Board specs and development-intent-frame-page.ts consumers pass on the default position |
 | 8a | The 8 legacy specs (14 cases) move to mounted Vitest cases with typed `readScopeHistory` answers built as data through `makeMe.aScopeHistoryGlance`; the legacy specs no longer run | slice 8 | |
 | 8b | Mounted cases do not call server glance projections such as the pending landing | slice 8 | |
 | 8c | Every case runs through the production Intent page entry with typed sources production supplies | slice 8 | |

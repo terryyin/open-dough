@@ -1,11 +1,7 @@
 import { expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
-import {
-  mountBoard,
-  reducedBoardMotion,
-  withBoardStorage,
-} from "./board-mount.ts";
+import { mountBoard, reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board, columns } from "./board-reading-page.ts";
 import {
   answerTerminal,
@@ -47,7 +43,6 @@ async function openTaken() {
 }
 
 test("the Side panel leaves two whole columns, hands off paging focus, and restores the wider Board's choice", async () => {
-  withBoardStorage("0");
   withWidthStorage();
   answerTerminal();
   await mountBoard(
@@ -107,7 +102,6 @@ test("the Side panel leaves two whole columns, hands off paging focus, and resto
 });
 
 test("starting a ready Backlog story beside the terminal keeps the view and its session on the card", async () => {
-  withBoardStorage("0");
   withWidthStorage();
   await reducedBoardMotion();
   answerTerminal();

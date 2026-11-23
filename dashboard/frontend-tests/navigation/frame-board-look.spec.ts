@@ -14,7 +14,6 @@ import {
   zoomedViewport,
 } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { withBoardStorage } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 
@@ -50,7 +49,6 @@ function expectPassiveProductMark(mark: Element) {
 }
 
 test("the row below the banner and the Board read clearly in the frame's look", async () => {
-  withBoardStorage("0");
   const purpose = "Make publishing easier to follow.";
   await mountBoardFrame(
     boardWork([story("Read the next work", 60)], { direction: purpose }),
@@ -88,7 +86,6 @@ test("the row below the banner and the Board read clearly in the frame's look", 
 });
 
 test("an empty column and a failed read are said in the frame's look, whole in a narrow window", async () => {
-  withBoardStorage("0");
   const frame = await mountBoardFrame(
     boardWork([], { taken: [] }),
     narrowViewport,

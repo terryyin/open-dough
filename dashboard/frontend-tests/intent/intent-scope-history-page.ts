@@ -10,7 +10,9 @@ import { paintContrast } from "../configuration/system-settings-reading.ts";
 import { centreOf } from "../configuration/system-settings-usage-chart-mark.ts";
 import { tapWhereShown } from "../navigation/board-touch-page.ts";
 import { visibleText } from "./intent-ci-comparison-page.ts";
+import { locationNameControl } from "./intent-ci-homepage-page.ts";
 import { priorReferenceIn } from "./intent-ci-prior-reference-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 const textsOf = (nodes: Iterable<Element>) => [...nodes].map(visibleText);
 
@@ -102,7 +104,6 @@ export function scopeHistoryIn(scope: Locator) {
     paintContrast(node, [getComputedStyle(node).color]) >= 4.5;
   return {
     region: history,
-    shown: () => expect.element(history).toBeVisible(),
     readout: () => ({
       selected: reference.selected(),
       average: reference.average(),
@@ -189,12 +190,8 @@ const summaryPath = () =>
 
 // The Summary of the location at PATH, opened by its name.
 export async function openScopeSummary(path: string) {
-  const name = () =>
-    document.querySelector(
-      `button.intent-location-name[data-location-path="${path}"]`,
-    );
-  await expect.poll(name).not.toBeNull();
-  await userEvent.click(page.elementLocator(name() as Element));
+  await expect.poll(() => locationNameControl(path)).toBeTruthy();
+  await userEvent.click(locationNameControl(path));
   await expect.poll(summaryPath).toBe(path);
   return summary();
 }
@@ -213,10 +210,6 @@ export async function openScopeChild(name: string, path?: string) {
 
 // The open file's Proof, chosen by its tab.
 export async function openFileProof() {
-  const tab = intent()
-    .getByRole("tablist", { name: "Purpose and Proof", exact: true })
-    .getByRole("tab", { name: "Proof", exact: true });
-  await expect.element(tab).toBeVisible();
-  await userEvent.click(tab);
+  await intentStoryCompare().chooseProof();
   return intent().getByRole("region", { name: "Proof", exact: true });
 }

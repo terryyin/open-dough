@@ -7,7 +7,6 @@ import {
   tabTo,
 } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { withBoardStorage } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 
@@ -40,7 +39,6 @@ const work = boardWork(
 );
 
 test("accessible Board is read by keyboard in reading order, with visible focus, and Enter follows a link", async () => {
-  withBoardStorage("0");
   await mountBoardFrame(work, { width: 1440, height: 900 });
   await board.shows(["Backlog", "Taken", "Recently done"], []);
   const button = (name: string) =>

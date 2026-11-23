@@ -3,7 +3,8 @@ import { page, userEvent } from "vitest/browser";
 import { agentNames } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { expectDocumentStill } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { mountBoard, positionKey, withBoardStorage } from "./board-mount.ts";
+import { positionKey } from "../../test-support/component-mount/framePreferences.ts";
+import { mountBoard, withBoardStorage } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, longBacklog } from "./board-work.ts";
 

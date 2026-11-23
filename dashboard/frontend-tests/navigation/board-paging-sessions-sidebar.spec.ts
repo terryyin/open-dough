@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { mountBoard, withBoardStorage } from "./board-mount.ts";
+import { mountBoard } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import {
   answerTerminal,
@@ -14,7 +14,6 @@ import { withWidthStorage } from "./side-panel-width-view.ts";
 import { boardWork, story } from "./board-work.ts";
 
 test("a Session sidebar choice pages to a hidden column and brings its card into the Board's reading room", async () => {
-  withBoardStorage("0");
   withWidthStorage();
   answerTerminal();
   const ready = story("Read the working session", 12);

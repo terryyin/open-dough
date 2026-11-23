@@ -4,7 +4,7 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { contrastRatio } from "../../test-support/composedColours.ts";
 import { decorativeIcon, paintedBackground } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { noSessions, withBoardStorage } from "./board-mount.ts";
+import { noSessions } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 import { tapWhereShown } from "./board-touch-page.ts";
@@ -42,7 +42,6 @@ async function inspectionChevronPoints(control: Card, transform: RegExp) {
 }
 
 test("empty-area clicks toggle the selected story on active and Recently done cards without opening or closing detail, and nested controls do not select", async () => {
-  withBoardStorage("0");
   const activeStory = story(
     "Prepare stories in a clear developer workspace workflow",
     8,
