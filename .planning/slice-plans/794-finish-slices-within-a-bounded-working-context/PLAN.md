@@ -196,7 +196,7 @@ authorized by the trial.
 
 ### 3. Decide what the measured pair supports
 Type: Behavior
-Status: planned
+Status: done
 Proof: A blinded-to-effort assessment is retained before pricing. The
 comparison report makes one recommendation from linked proof and complete
 native counters, or names the evidence gap. A second reader can recompute one
@@ -225,6 +225,52 @@ comparison. Otherwise, with missing comparability, exposure or measurements,
 record inconclusive. Preserve the current workflow pending any independently
 authorized adoption decision. Keep the recommendation and recoverable evidence
 references here for retrospective and wrap-up.
+
+**Recommendation (2026-11-23). Inconclusive.** The control delivered and
+independently accepted all three slices. The candidate preserved its
+independent review and honored the active-slice limit, with no accepted
+slice and no coordinator handoff at the planned boundary. The preflight
+proved the launch route on a small case. It supplies no substitute for
+observing the handoff and recovering proof during the replay. The
+assessment at `2026-11-23T11:49:48.467Z` recorded these facts before measuring
+effort. The trial provides no adoption basis.
+
+| Observed work | Wall time | Requests | Coordinator peak input | Worker peak input | Fresh input | Cached input | Output | Effort index |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Control through three accepted slices | 90m 45s | 560 | 323,023 | 348,898 | 920,514 | 130,553,088 | 226,642 | 8,581,378.4 |
+| Candidate through the first-slice stop | 50m 59s | 339 | 207,421 | 239,909 | 657,134 | 47,574,784 | 135,373 | 3,712,738.2 |
+
+The control met the exposure threshold in both roles. Candidate peaks describe
+only observed requests through the stop. Its lower effort index measures less
+completed work. The experiment cannot establish a savings estimate or whether
+the context policy caused the acceptance gap.
+
+The trial root's `launch-inventory.json` and `comparison-input.json` name
+one root with eight workers for the control and one root with three workers
+for the candidate. All had terminal events. Root tool calls used eight
+full-history forks and three brief-only launches, respectively. The
+prepared measurement checkout ran:
+
+```sh
+node dashboard/server/compareAgentEffort.ts --comparison "$trial/comparison-input.json" \
+  --store "$trial/paired-usage-store.json" --home "$trial/measurement-home" --json
+```
+
+Here `trial=/private/tmp/open-dough-345.XMjth1A9`. The two families in
+`comparison-output.json` account for every launched session, with no unowned
+or duplicate responses and no missing peak or cost inputs. All requests
+observed the pinned model, effort and default tier. `response-reconciliation.json`
+checks each session's result against its last native cumulative counters.
+Idle-wake evidence is unavailable. Recompute the control index from
+`920514 + 0.05 * 130553088 + 5 * 226642`.
+
+The per-arm elapsed time includes local recovery, review and failed attempts.
+Outside the measured families, the paid probe took under three minutes
+and 20 requests. The preparation also included two locked fixture installs,
+the baseline checks and the observer and handoff setup. The blinded assessment
+was recorded about 90 seconds after the candidate exit. Those costs add to
+the work needed to run this trial. No developer intervention was needed in
+either arm after the common authorization.
 
 ## Current decisions
 
