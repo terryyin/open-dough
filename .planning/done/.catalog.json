@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_require-declared-units-in-ci-proof.json",
+      "identity": "SEED-423#require-declared-units-in-ci-proof",
+      "completedAt": "2026-11-23T15:18:25.984Z",
+      "blob": "c8e47c75644d5c69180fa05f7260306c86a97b32"
+    },
+    {
       "fileName": "SEED-413_remove-observation-proof-overlap.json",
       "identity": "SEED-413#remove-observation-proof-overlap",
       "completedAt": "2026-11-23T12:23:07.284Z",
