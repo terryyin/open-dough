@@ -28,7 +28,7 @@ import { withCarriedFacts } from "./carriedFacts.ts";
 
 type DetailReads = Omit<
   PublishedObservationReadSource,
-  "readSnapshot" | "checkRevision"
+  "readSnapshot" | "checkRevision" | "subscribeRevision"
 >;
 
 // Enriches a membership snapshot with independent detail groups. Same-

@@ -112,7 +112,7 @@ shows its own gap. Run the reached observations in
 ### 3. Revision delivery enters through a typed subscription
 
 Type: Behavior
-Status: planned
+Status: done
 
 Bind the existing authenticated SSE adapter to a required subscription beside
 `checkRevision`. Let the production scheduler still own the watch, polling
@@ -267,7 +267,8 @@ remaining slice-specific concern.
   `origin`; target `main`
 - Publisher ID: `dashboard-territory.local-open-dough`; agent: Nao-chan
 - Retained published revisions: claim `8a41b269fa1b1591fb5f1e55a62dde54a2a6b2e2`
-  on `origin/main`; increment `a99bc3797fc4fc1c99dbf1abd4f2783174a1dc18` on
+  on `origin/main`; increments `a99bc3797fc4fc1c99dbf1abd4f2783174a1dc18`,
+  `ec1e99e6139f0653f0990845b0227a2094d36d9f` on
   `refs/heads/cursor/drive-the-published-observation-through-the-type`
 - CI observer: `/tmp/dough-ci-501/watch-dxk8N6` (attached at Slice 1 publish)
 - Replanning permission: preserve existing (allowed)
@@ -314,6 +315,22 @@ remaining slice-specific concern.
   (pass; typecheck pass)
 - Evidence: `open-dough/evidence/slice2-implementation-return.md`,
   `open-dough/evidence/refactor-slice2-return.md`
+
+### Slice 3 — typed revision subscription
+
+- Promise: required `subscribeRevision` beside `checkRevision`; scheduler owns
+  watch/fallback/silence/visibility/close/reopen; EventSource+decode in adapter;
+  changed pin once; loss → pace reopen; close on departure; typed polling;
+  standing rate-limit pause
+- Boundary: `subscribePublishedRevision` → `useRevisionStreamSchedule` /
+  `useRevisionCheckSchedule`
+- Observations: `revision-stream-delivery.spec.ts` five cases; unread
+  `subscribeRevision`
+- Command:
+  `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/observation/revision-stream-delivery.spec.ts dashboard/frontend-tests/test-harness/unread-page-reads.spec.ts --workers=2`
+  (pass; typecheck pass)
+- Evidence: `open-dough/evidence/slice3-implementation-return.md`,
+  `open-dough/evidence/refactor-slice3-return.md`
 
 ## Learnings
 

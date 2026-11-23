@@ -18,6 +18,10 @@ import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesRea
 const unread = (name: string) => () =>
   Promise.reject(new Error(`Unexpected ${name} read`));
 
+const unreadSync = (name: string) => () => {
+  throw new Error(`Unexpected ${name}`);
+};
+
 const unreadIntentReads: IntentReadSource = {
   readLocations: unread("Intent locations"),
   readFile: unread("Intent file"),
@@ -44,9 +48,7 @@ const unreadReviewReads: ReviewSource = {
 const unreadSessionServices: SessionServices = {
   readFinalReport: unread("final report"),
   readHostStatus: unread("host status"),
-  openTerminal: () => {
-    throw new Error("Unexpected terminal attach");
-  },
+  openTerminal: unreadSync("terminal attach"),
 };
 
 const unreadDoneRecordReads: DoneRecordReadSource = {
@@ -68,6 +70,7 @@ const unreadObservation: PublishedObservationReadSource = {
   readSnapshot: unread("published snapshot"),
   readDetailFile: unread("published detail file"),
   checkRevision: unread("revision check"),
+  subscribeRevision: unreadSync("revision subscription read"),
   readProfiles: unread("published profiles"),
   readProfileAddition: unread("published profile addition"),
   readDoneCatalog: unread("published done catalog"),

@@ -180,6 +180,7 @@ export function usePublishedObservation(
 
   const connection = useObservedRevisionDelivery({
     checkRevision: reads.checkRevision,
+    subscribeRevision: reads.subscribeRevision,
     source,
     shownRevision: work?.revision,
     watchedHeads,

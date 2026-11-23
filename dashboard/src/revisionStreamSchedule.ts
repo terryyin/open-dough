@@ -1,31 +1,28 @@
 // Stream delivery of revision answers for the published observation
 // (`./publishedObservation.ts`): while a snapshot is shown, the page is
 // visible, the observation chose `"stream"`, and no read is under way, hold
-// one EventSource to the local boundary's revision stream (`at`, not
-// `since`). Each `data` event is parsed and reacted to the same way as a
-// check answer (`./revisionCheckRead.ts`, `./revisionAnswer.ts`). Closing
-// the page, hiding it, starting a read, losing the slot, waiting out a rate
-// limit, or changing the shown revision or watched branches ends the
-// EventSource; a later settle at a new revision opens again there. Silence
-// longer than the pace plus the read wait bound, counted from the last
-// successful answer or from when this observation began, is reported as a
-// failed check is today — including when every open fails before answering.
-// The page closes any held EventSource itself (so the browser does not retry
-// sooner than the pace) and reopens no more often than the pace. The first
-// answer after a reopen clears the problem.
+// one typed subscription from the observation reads (`./revisionCheckRead.ts`).
+// Each check is reacted to the same way as a polling answer
+// (`./revisionAnswer.ts`). Closing the page, hiding it, starting a read,
+// losing the slot, waiting out a rate limit, or changing the shown revision
+// or watched branches ends the subscription; a later settle at a new revision
+// opens again there. Silence longer than the pace plus the read wait bound,
+// counted from the last successful answer or from when this observation began,
+// is reported as a failed check is today — including when every open fails
+// before answering. The page closes any held subscription itself (so the
+// browser does not retry sooner than the pace) and reopens no more often than
+// the pace. The first answer after a reopen clears the problem. Wire decoding
+// and EventSource stay in the authenticated adapter.
 
 import { useEffect } from "react";
 import { readingRefOf, readWaitLimitMs } from "./authenticatedReadRules.ts";
 import { useLimitedUntil } from "./readingLimit.ts";
 import { ReadProblem } from "./readProblem.ts";
+import type { RevisionStreamSubscription } from "./revisionCheckRead.ts";
 import {
   reactToRevisionCheck,
   reactToRevisionCheckFailure,
 } from "./revisionAnswer.ts";
-import {
-  revisionCheckFromStreamData,
-  revisionStreamUrl,
-} from "./revisionCheckRead.ts";
 import {
   checkIntervalMs,
   type RevisionDeliveryAnswers,
@@ -38,6 +35,7 @@ import {
 export const revisionStreamSilenceMs = checkIntervalMs + readWaitLimitMs;
 
 export function useRevisionStreamSchedule({
+  subscribeRevision,
   source,
   shownRevision,
   watchedHeads,
@@ -67,7 +65,7 @@ export function useRevisionStreamSchedule({
     const reading = readingRefOf(source);
     const handlers = { onChanged, onUnchanged, onBranchesMoved, onFailed };
     let closed = false;
-    let stream: EventSource | undefined;
+    let subscription: RevisionStreamSubscription | undefined;
     let silenceTimer: ReturnType<typeof setTimeout> | undefined;
     let reopenTimer: ReturnType<typeof setTimeout> | undefined;
     // An attempt that never answered: transport errors reopen at the pace
@@ -93,11 +91,9 @@ export function useRevisionStreamSchedule({
     // Closing an attempt must leave the silence deadline armed: failed or
     // hung opens neither restart nor postpone the bound.
     const stopHolding = () => {
-      if (stream !== undefined) {
-        const closing = stream;
-        stream = undefined;
-        closing.onmessage = null;
-        closing.onerror = null;
+      if (subscription !== undefined) {
+        const closing = subscription;
+        subscription = undefined;
         closing.close();
       }
     };
@@ -156,30 +152,16 @@ export function useRevisionStreamSchedule({
     };
 
     const open = () => {
-      if (closed || stream !== undefined) {
+      if (closed || subscription !== undefined) {
         return;
       }
       answered = false;
-      const next = new EventSource(
-        revisionStreamUrl(source, shownRevision, watched),
-      );
-      stream = next;
-      next.onmessage = (event) => {
-        if (closed || stream !== next) {
-          return;
-        }
-        try {
-          const data: unknown = event.data;
-          if (typeof data !== "string") {
+      const next = subscribeRevision(source, shownRevision, watched, {
+        onCheck: (check) => {
+          if (closed || subscription !== next) {
             return;
           }
           onReceived();
-          const check = revisionCheckFromStreamData(
-            data,
-            shownRevision,
-            watched,
-            reading,
-          );
           answered = true;
           armSilence();
           if (
@@ -190,12 +172,17 @@ export function useRevisionStreamSchedule({
             clearSilence();
             stopHolding();
           }
-        } catch (error: unknown) {
+        },
+        onFailure: (error: unknown) => {
+          if (closed || subscription !== next) {
+            return;
+          }
+          onReceived();
           if (error instanceof Error && error.name === "AbortError") {
             return;
           }
           // A limited or failed answer over the stream: same reaction as a
-          // check, and the page closes the EventSource itself. A standing
+          // check, and the page closes the subscription itself. A standing
           // rate limit re-runs this effect to open at T; any other failure
           // reopens at the pace.
           answered = true;
@@ -207,17 +194,18 @@ export function useRevisionStreamSchedule({
             return;
           }
           scheduleOpenAfter(checkIntervalMs);
-        }
-      };
-      next.onerror = () => {
-        if (closed || stream !== next) {
-          return;
-        }
-        // Close ourselves so the browser does not retry sooner than the pace.
-        // Report at once when this attempt had answered; unanswered errors
-        // leave reporting to the silence deadline.
-        loseStream(answered);
-      };
+        },
+        onLost: () => {
+          if (closed || subscription !== next) {
+            return;
+          }
+          // Close ourselves so the browser does not retry sooner than the pace.
+          // Report at once when this attempt had answered; unanswered errors
+          // leave reporting to the silence deadline.
+          loseStream(answered);
+        },
+      });
+      subscription = next;
     };
 
     // While a rate limit stands, wait until T then arm and open (same wait
@@ -243,6 +231,7 @@ export function useRevisionStreamSchedule({
     readSettled,
     shownRevision,
     source,
+    subscribeRevision,
     visibility,
     watchKey,
   ]);

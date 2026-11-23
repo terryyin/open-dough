@@ -18,6 +18,7 @@
 import { useEffect, useState } from "react";
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import type { Visibility } from "./pageVisibility.ts";
+import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useLimitedUntil } from "./readingLimit.ts";
 import {
@@ -25,7 +26,6 @@ import {
   reactToRevisionCheckFailure,
   type RevisionAnswerHandlers,
 } from "./revisionAnswer.ts";
-import type { checkPublishedRevision } from "./revisionCheckRead.ts";
 import type { RevisionDelivery } from "./revisionStreamSlot.ts";
 
 // How long a shown snapshot waits before asking whether the selected
@@ -40,22 +40,25 @@ export const checkIntervalMs = 15_000;
 export const checkReuseMs = checkIntervalMs - 1_000;
 
 // Shared inputs for check and stream delivery (`./revisionStreamSchedule.ts`).
-export type RevisionDeliveryAnswers = RevisionAnswerHandlers & {
-  // The observation's check of the shown revision.
-  readonly checkRevision: typeof checkPublishedRevision;
-  readonly source: PublishedSource | undefined;
-  readonly shownRevision: string | undefined;
-  // The story branches the shown progress is read from, with the heads shown.
-  readonly watchedHeads: StoryBranchHeads;
-  // Whether the latest read, detail included, has finished. Delivery waits
-  // for it, so a check or stream and a read never overlap.
-  readonly readSettled: boolean;
-  readonly visibility: Visibility;
-  // Observation's chosen delivery; only `"check"` asks here.
-  readonly delivery: RevisionDelivery;
-  readonly onReceived: () => void;
-  readonly onDeliveryLost: () => void;
-};
+// Check and subscribe are the same typed observation reads the page supplies.
+export type RevisionDeliveryAnswers = RevisionAnswerHandlers &
+  Pick<
+    PublishedObservationReadSource,
+    "checkRevision" | "subscribeRevision"
+  > & {
+    readonly source: PublishedSource | undefined;
+    readonly shownRevision: string | undefined;
+    // The story branches the shown progress is read from, with the heads shown.
+    readonly watchedHeads: StoryBranchHeads;
+    // Whether the latest read, detail included, has finished. Delivery waits
+    // for it, so a check or stream and a read never overlap.
+    readonly readSettled: boolean;
+    readonly visibility: Visibility;
+    // Observation's chosen delivery; only `"check"` asks here.
+    readonly delivery: RevisionDelivery;
+    readonly onReceived: () => void;
+    readonly onDeliveryLost: () => void;
+  };
 
 export function useRevisionCheckSchedule({
   checkRevision,

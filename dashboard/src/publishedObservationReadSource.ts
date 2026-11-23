@@ -1,7 +1,8 @@
 // The published observation's reads (`./publishedObservation.ts`): the
 // selected project's published snapshot and membership, a file at a revision
 // for preparation detail (`./preparationEnrichment.ts`), the scheduled
-// revision check (`./revisionCheckSchedule.ts`), the detail groups that
+// revision check (`./revisionCheckSchedule.ts`), the typed revision-stream
+// subscription (`./revisionStreamSchedule.ts`), the detail groups that
 // enrich one membership snapshot (`./publishedWorkDetails.ts`): profiles,
 // profile-addition history, published sessions, and the Done catalog, and the
 // branch head, branch-file, and commit-time reads that place Taken progress
@@ -25,12 +26,16 @@ import {
 import { boundaryPublishedSessions } from "./publishedSessions.ts";
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { checkPublishedRevision } from "./revisionCheckRead.ts";
+import {
+  checkPublishedRevision,
+  subscribePublishedRevision,
+} from "./revisionCheckRead.ts";
 
 export type PublishedObservationReadSource = {
   readonly readSnapshot: typeof readPublishedSnapshot;
   readonly readDetailFile: typeof readRepositoryFileAt;
   readonly checkRevision: typeof checkPublishedRevision;
+  readonly subscribeRevision: typeof subscribePublishedRevision;
   readonly readProfiles: typeof readAgentProfilesAt;
   readonly readProfileAddition: typeof readProfileAdditionAt;
   readonly readDoneCatalog: typeof readDoneCatalogAt;
@@ -49,6 +54,7 @@ export const authenticatedPublishedObservationReads: PublishedObservationReadSou
     readSnapshot: readPublishedSnapshot,
     readDetailFile: readRepositoryFileAt,
     checkRevision: checkPublishedRevision,
+    subscribeRevision: subscribePublishedRevision,
     readProfiles: readAgentProfilesAt,
     readProfileAddition: readProfileAdditionAt,
     readDoneCatalog: readDoneCatalogAt,
