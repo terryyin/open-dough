@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "80896e99-0f90-4228-b32b-a95464eba60c",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T08:58:47.323Z",
+  "story": "SEED-423#retire-finished-migrations-and-legacy-formats",
+  "ranges": [
+    {
+      "base": "5dd1778abc82c5caffbd77d52e694ee364cdb149",
+      "candidate": "93b4386a25449dfeb09606ecc2e8cd247028a8c7"
+    }
+  ]
+}
