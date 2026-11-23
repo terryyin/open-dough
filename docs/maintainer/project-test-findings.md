@@ -149,46 +149,9 @@ with load 16 at the start and 65 at the end.
   - Observed effect: the load at the failure stayed an estimate, so the choice between "record and repeat" and "fix" rested on the trace alone. From the third series on, the coordinator logged `uptime` every 30 s beside the script; the third series' failure was then placed at load 33 directly. Another session's work took the load to 141 during the diagnosis repeats.
   - Inference: sixteen burners plus eight workers reach several times the core count on their own, so every loaded full run meets the story's exception as written unless the load is sampled through the run.
 
-## Observer journeys wait on a judgement that can predate the test's provider change (repaired, unqueued)
-
-<a id="dd-302"></a>
-
-### DD-302 — An integrated-state journey's wait accepted a stale judgement and failed only in CI
-
-#### Occurrences
-
-- Execution: `SEED-008#coalesced-ci-validation` / plan 307, first implementation `d1eda2ced0a71b56edb3e6086651ad7403ef45ba`
-  - Timestamp: unknown (2026-10-14; CI run 38567064129 on `d1eda2ce`)
-  - Tool: Claude Code · Model: claude-opus-5-5 · Open Dough release: modified; revision b9a2c783; base 0.3.62
-  - Evidence: CI `test (3/3)`: `ci-integrated-state-journey.test.mjs:130` expected `incomplete`, got `undiscovered`. The wait predicate `revision.integrated?.state === "unresolved"` was already satisfied by a `no_candidate` judgement recorded before the test listed B's cancelled run. The repair at `d4913f71` reproduced it by re-arming the fixture's request hold, and tightened the wait to the asserted state. Later delegations had to state "wait predicates must require the exact state the test then asserts", and later refactors tightened five more waits.
-  - Observed effect: one failed CI run and one repair cycle with a stash/restore of unrelated in-progress work.
-  - Inference: qualified. Observer journeys poll a record that the observer rewrites asynchronously. A wait on any field the observer may already hold passes before the change under test is observed. No shared helper enforces waiting for the asserted state.
-
 <a id="dd-303"></a>
 
 [DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors](project-maintenance-findings.md#dd-303).
-
-<a id="dd-309"></a>
-
-[DD-309 — The per-slice formatter rewrites the whole repository](project-maintenance-findings.md#dd-309).
-
-## Worker fixture populations split hosted workers (repaired)
-
-<a id="dd-312"></a>
-
-### DD-312 — A worker-scoped fixture declared in a subset of specs split the hosted worker population, invisible to local proof
-Adding a worker-scoped fixture to one fixture module while other specs extend only the base made Playwright hash the two populations apart and restart the four workers at every switch on every shard; the slice's local proof and whole runs were green and faster, and the cost showed only in hosted report artifacts.
-
-#### Occurrences
-
-- Execution: `SEED-136#unify-and-streamline-dashboard-e2e` / plan 310, first implementation `789b7ca937586690502ecf3fdbf4e1031a0a59d7`
-  - Timestamp: 2026-10-18T0x:xx+09:00 (slice 7 published 1aec32a1 at about 04:1x+09:00; found by the hosted analysis about 04:3x+09:00; fixed in slice 9)
-  - Tool: Claude Code · Model: claude-fable-5-1 · Open Dough release: 0.3.63 (checkout VERSION at claim `7d4c704d`; installed guidance copies of this repository)
-  - Evidence: plan 310 slice 9 "Worker restarts" and the Learnings entry on hosted measurement: 68 worker starts per hosted run against 21 before (83 s of restart gaps, 134 s of slot imbalance across twelve shards); the fix moved the fixture to `support/pageTest.ts` and gave the voice files one `launchOptions` object (local experiment 13 → 8 workers).
-  - Observed effect: one hosted run's overhead rose while its per-test seconds fell; found only because the coordinator commissioned a per-test comparison of report artifacts.
-  - Inference: qualified. A slice that changes test infrastructure has a hosted cost its local proof cannot see; reading the published run's report artifact (worker count, gaps) as part of the next slice's acceptance would catch it in one revision. Playwright's rule is now in the fixture's comment.
-
-**Responsibility and current assessment (2026-10-20):** The concrete fixture population was repository-owned and repaired in the same execution, with the reported local 13-to-8 worker comparison retained above. This is historical evidence, not a new recurrence or implementation commitment. The general lesson to inspect hosted costs remains qualified; no shared platform defect is established. Recovery: `dae40ae3ed427d6827828b43c4fecc794d60cd85:DearDough.md#dd-312`.
 
 <a id="dd-412"></a>
 
