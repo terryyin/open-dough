@@ -60,6 +60,14 @@ export type CiEvidence =
       readonly selectedComparison?: SelectedComparisonEvidence;
     };
 
+export function selectedComparisonOf(
+  evidence: CiEvidence,
+): SelectedComparisonEvidence | undefined {
+  return evidence.kind === "comparison" || evidence.kind === "judged"
+    ? evidence.selectedComparison
+    : undefined;
+}
+
 export function measuredStoryResult(evidence: CiEvidence): string | undefined {
   const comparison =
     evidence.kind === "comparison" || evidence.kind === "judged"

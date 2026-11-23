@@ -18,8 +18,12 @@
 // nothing again.
 
 import { IntentCiFollowUp } from "./IntentCiFollowUp.tsx";
-import { IntentCiComparison } from "./IntentCiComparison.tsx";
+import {
+  IntentCiComparison,
+  SelectedCiComparison,
+} from "./IntentCiComparison.tsx";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
+import { selectedComparisonOf } from "./intentCiEvidenceModel.ts";
 import { JudgedBranch } from "./IntentCiJudgedBranch.tsx";
 import type { CiTarget } from "./intentCiTarget.ts";
 import { suppressesComparisonBesideJudgment } from "./storyCiComparison.ts";
@@ -75,6 +79,9 @@ export function IntentCiStatus() {
       </>
     );
   if (evidence.kind === "gap") return <StoryGap target={evidence} />;
+  const selected = selectedComparisonOf(evidence);
+  if (selected !== undefined && evidence.kind === "comparison")
+    return <SelectedCiComparison reading={selected.comparison} />;
   if (evidence.kind === "comparison")
     return (
       <IntentCiComparison

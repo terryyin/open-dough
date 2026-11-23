@@ -12,6 +12,7 @@
 
 import type { ReactNode } from "react";
 import type { CiEvidence } from "./IntentCiEvidence.tsx";
+import { selectedComparisonOf } from "./intentCiEvidenceModel.ts";
 import { previouslyRetrievedAt } from "./IntentCiJudgedBranch.tsx";
 import type { ShownCiProofRun } from "./shownCiProofRun.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
@@ -94,6 +95,12 @@ function comparisonFrom(
 }
 
 export function scopeEvidenceOf(evidence: CiEvidence): ScopeEvidence {
+  if (selectedComparisonOf(evidence) !== undefined)
+    return {
+      kind: "none",
+      checking: false,
+      line: "See CI comparison for the selected range.",
+    };
   if (evidence.kind === "inactive")
     return { kind: "none", checking: true, line: "Checking the CI…" };
   if (evidence.kind === "retained") {

@@ -197,7 +197,7 @@ export function IntentPage({
         )}
         {story !== undefined && (
           <div {...panel("coverage")}>
-            <WholeStoryNote whole={wholeStory} />
+            <WholeStoryNote whole={wholeStory} coverage />
             <IntentStoryCoverage story={story.summary.story} />
           </div>
         )}

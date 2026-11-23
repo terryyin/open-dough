@@ -183,7 +183,7 @@ directory. The provider takes an optional `selectedRange` and exposes
 ### 3. Name the measured builds for a captured landed run
 
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 10–14 minutes.
 
 In a Done story, choosing a readable captured run with recorded revisions
@@ -205,6 +205,13 @@ Assert the requested pair and the rendered row labels and run identities
 in the page. Use a separate mounted gap case to name the absent side and
 keep the reviewer on the selected run. Preserve the unreadable review
 controls and the coverage note in `intent-story-compare-gaps.spec.ts`.
+
+Accepted proof observed distinct measured revisions and attempts, exact and
+ancestor cues, a missing selected build with the Baseline still visible,
+Check again, restoration of Published completion, and the whole-story
+marks for coverage and legacy runs. The 144 mounted cases, seven E2E cases,
+19-case focused rerun and typecheck passed. See `slice-c-return.md` and its
+run records in this checkout's Git evidence directory.
 
 ### 4. Show selected build counts in Changes
 
@@ -325,6 +332,28 @@ routes. The review identified no remaining slice-specific concern.
   `origin/main`. Use the existing authority for in-plan refinement.
 - Slice 1 was accepted on the execution branch at
   `29cd3167dc1e598ad77c8669a2f1673dd73c8320`.
+- Slice 2 was accepted on the execution branch at
+  `c215a5a99ab7d4129a70c26c91ecf3bf368d842a`.
 - Codex observer of `ci.yml` on the execution branch, coordinator
   `nao-9b9c27ea`, directory `/tmp/dough-ci-501/watch-dv7wpQ`, process
   `33667`, cell `g458:11`, session `61453`. The claim preceded this observer.
+
+## Story obligations
+
+### G1. Selected Changes counts
+
+Reported: slice 3 — "Changes tree counts are suppressed while the selected comparison is attached."
+Story clause: "For a Taken story's commit range or a Done story's captured landed run with revisions, the endpoint table, Changes counts, the selected scope's Summary and file Proof share one pair of build readings."
+Disposition: interim until slices 4
+
+### G2. Selected Summary and file Proof
+
+Reported: slice 3 — "Summary and file Proof direct the reviewer to CI comparison while the selected comparison is attached."
+Story clause: "For a Taken story's commit range or a Done story's captured landed run with revisions, the endpoint table, Changes counts, the selected scope's Summary and file Proof share one pair of build readings."
+Disposition: interim until slices 5
+
+### G3. Revision formats admitted by Intent
+
+Reported: slice 3 — "Landing capture independently allows 64-hex IDs."
+Story clause: "A reviewer reading a story in Intent can tell what CI measured for the comparison they chose, not only for the whole story."
+Disposition: no user cost "A reviewer reading a story in Intent can tell what CI measured for the comparison they chose, not only for the whole story.": The dashboard's project-addition flow verifies the configured GitHub repository and matching origin. Intent's existing historical location, candidate and attempt-proof entry points require full 40-hex pins for both default and adapter evidence. The selected read uses those same supported pins. A retained record outside that contract keeps the established whole-story scope marker.

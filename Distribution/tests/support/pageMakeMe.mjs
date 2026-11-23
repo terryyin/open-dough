@@ -3,6 +3,7 @@
 // makeMe.mjs exposes, from the same definitions, the builders Node cases use.
 import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
 import { ciHistoryAnswerMakeMeProperties } from "./ciHistoryAnswerTestData.mjs";
+import { ciComparisonAnswerMakeMeProperties } from "./ciComparisonAnswerTestData.mjs";
 import { ciProofMakeMeProperties } from "./ciProofTestData.mjs";
 import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 import { comparisonViewMakeMeProperties } from "./comparisonViewTestData.mjs";
@@ -34,6 +35,7 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
 /**
  * @typedef {import("./storyNoteTestData.mjs").StoryNoteMakeMe &
  *   import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe &
+ *   import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe &
  *   import("./ciProofTestData.mjs").CiProofMakeMe &
  *   import("./comparedStoryTestData.mjs").ComparedStoryMakeMe &
  *   import("./comparisonViewTestData.mjs").ComparisonViewMakeMe &
@@ -77,6 +79,7 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
 export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
   ...storyNoteMakeMeProperties(),
   ...ciHistoryAnswerMakeMeProperties(),
+  ...ciComparisonAnswerMakeMeProperties(),
   ...ciProofMakeMeProperties(),
   ...comparedStoryMakeMeProperties(),
   ...comparisonViewMakeMeProperties(),
