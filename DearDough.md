@@ -7,8 +7,8 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 633. Removed numbers are never reused.
-- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
+- Highest allocated local number: 634. Removed numbers are never reused.
+- Recovery: `4c29182259930f932d6237dd5929172a00bcfff9:DearDough.md` contains the removed DD-608/DD-632/DD-633 bytes and the earlier recovery chain.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
 
@@ -74,6 +74,7 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 ### Occurrences
 
 - Execution: SEED-424#poll-open-codex-sessions (plan 784, first implementation `b5b4a3ed8`). Timestamp: 2026-11-23T13:19:34+08:00 (initial formatting refusal). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION). Evidence: the passing focused test return and independent refactor preceded guarded delivery's errors on require-await and an unused index callback argument in the new Vitest case. The coordinator's first repair also exposed an unsafe spread. An explicit fixture array type cleared it. Observed effect: two preparation refusals before the slice could commit, plus one renewed targeted test. Inference: the existing delegated lint follow-up covers finding the initial errors while the author still has the fixture context.
+- Execution: SEED-413#drive-published-observation-through-page-entry (plan 789, first implementation `a99bc3797`). Timestamp: 2026-11-23T16:18:15+08:00 (first Slice 1 format refusal). Tool: Cursor. Open Dough release: 0.3.112 (installed `.agents/skills/dough-update/VERSION` at Take `8a41b269fa`). Evidence: after focused frontend proof, guarded format failed on `@typescript-eslint/no-unused-expressions` and `no-unnecessary-condition` in the new observation fixtures (`slice1-format-retry.log`); repair then delivered `a99bc3797`. Installed `.claude`/`.agents` delegation still banned independent hook-owned lint while Distribution already had SEED-345's scoped-lint edit. Slice 2 repeated it (`slice2-preflight-format.log`). Observed effect: two coordinator format repairs before Slices 1–2 could commit. Inference: installed 0.3.112 still withheld the SEED-345 remedy from implementers.
 
 [Account and evidence at ODF-329](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-329.md#evidence-2026-11-23-open-dough-odf-329).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
@@ -611,11 +612,6 @@ Slice acceptance recorded source-review commitment 3.1 ("a handler's typed contr
 - Execution: SEED-413#split-branch-entry-proposal-from-store (plan 735, `bdfe9b08d`..`f6cfe454a`). Timestamp: 2026-11-20T22:03:17+08:00 (slice 1 commit) to 22:32:50+08:00 (removal in slice 3). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: unknown (checkout-bound guidance at Take `10ace0630`). Evidence: the slice 1 and slice 2 refactor passes added `addAdHocWorktree` and `sessionBranchPinnedObjects` to `dashboard/test-support/support/adHocBranchRefs.ts` (in `bdfe9b08d` and `040982b70`); their briefs named the plan but not SEED-413's "test support only shrinks" direction. The coordinator noticed while settling slice 3's C13 gap and had slice 3's refactor pass remove both (`4e8cec828`); later briefs carried the direction and added nothing. Observed effect: two delivered commits violated the cited topic; one extra refactor scope and seven spec rewrites. Inference: caught mid-execution rather than at wrap-up because the coordinator reread the seed's direction for an unrelated gap; briefs still do not inherit the cited topic by default.
 - Execution: SEED-413#split-done-mark-decision-from-store (plan 734, `f5e3a956d`..`0d1560004`). Timestamp: 2026-11-21 (slices 4–7 accepted between about 22:55 +08:00 on 11-20 and 00:45 +08:00). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: unknown (checkout-bound guidance at Take `fd05ea2d2`). Evidence: every brief carried the cited topic, yet refactor passes added `aDoneSession`, `aDoneBranch`, `keptAsDone`, `keptAsDoneAfterRetirement` and a `pinned` switch to `doneCaptureReview.ts`/`doneBranchObservation.ts`; the coordinator noted the conflict at slice 4 and accepted it as "a later story folds it". Only the retrospective's independent review tied two of them to lost adapter proof (correction SEED-413#restore-done-capture-proof-after-composed-reviews, plan 743). Inference: carrying the topic in the brief is not enough; acceptance needs a check that new test support composes through MakeMe and writes no production state by hand.
 
-## DD-608 — Implementers return a slice partly done with most of its clock left <a id="dd-608"></a>
-
-### Occurrences
-
-
 ## DD-596 — Moves to composed state are accepted on assertion counts while the setup skips the step they proved <a id="dd-596"></a>
 
 ### Occurrences
@@ -969,32 +965,16 @@ Source-review commitment 1 (each touched Intent test reads at one level) was all
   - Observed effect: one extra implementer round and proof run of about 4 minutes.
   - Inference: a brief carrying a story-wide commitment needs the story-wide edit authority that commitment implies.
 
-## DD-632 — A plan prescribed a restored assertion whose premise proved the defect but not the restored check's failure <a id="dd-632"></a>
+## DD-634 — Workspace `open-dough/` evidence pollutes consumer-trace discovery <a id="dd-634"></a>
 
-Plan 783 slice 1 prescribed restoring the legacy `\b` no-timing regex. Its premise showed the case passing with a scratch "0 ms", but nobody probed the restored regex. The page object's joined text runs "0 ms" into the next word, so `\b` still passed.
-
-### Occurrences
-
-- Execution: SEED-413#correct-scope-timing-chart-proof-residue (plan 783; first implementation `4a3358649`)
-  - Timestamp: unknown (2026-11-23 +08:00, slice 1)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.111
-  - Evidence: break run `s1-break-units-3` passed with `\b`; `s1-break-units-4` failed with `(?![a-z])`. The plan text was amended in `4a3358649`.
-  - Observed effect: one extra break run inside slice 1, caught by the slice's own break check.
-  - Inference: probing the prescribed check against the premise's scratch fault during planning would have settled the exact form, as DD-628 also suggests.
-
-## DD-633 — A plan's "no consumer" premise searched member names and missed a wrapper's reader <a id="dd-633"></a>
-
-Plan 783 recorded that `historyChart().failed` has no reader. `e2e/intent/intent-ci-wall-time-history-later.spec.ts:135` reads `.failed` through `measureHistoryChart`, which wraps `historyChart`. The dashboard typecheck caught the removal.
+Writing evidence under a workspace `open-dough/` tree instead of `git rev-parse --git-path open-dough/evidence` leaves untracked paths that consumer-trace treats as changed files.
 
 ### Occurrences
 
-- Execution: SEED-413#correct-scope-timing-chart-proof-residue (plan 783; first implementation `4a3358649`)
-  - Timestamp: unknown (2026-11-23 +08:00, slice 2)
-  - Tool: Claude Code
-  - Model: claude-opus-5-5
-  - Open Dough release: 0.3.111
-  - Evidence: run `s2-typecheck` failed with TS2339; `.failed` was kept and recorded as obligation G1 in `50d02ebe7`.
-  - Observed effect: one failed typecheck and a narrowed scope commitment; nothing was lost.
-  - Inference: a typecheck over the removal settles a "spent member" premise more reliably than a name search.
+- Execution: SEED-413#drive-published-observation-through-page-entry (plan 789, first implementation `a99bc3797`)
+  - Timestamp: unknown (Slice 8 consumer-trace on 2026-11-23 +08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.112 (installed at Take `8a41b269fa`)
+  - Evidence: `slice8-consumer-trace.txt` lists dozens of `open-dough/evidence/*` changed-path hits; `slice8-implementation-return.md` and `refactor-slice8-return.md` note untracked workspace `open-dough/evidence/*` noise; PLAN learning records the git-path rule.
+  - Observed effect: consumer-trace dispositions had to ignore misplaced evidence noise once.
+  - Inference: agents must resolve the git-path before writing evidence; installed `proof-evidence.md` already names that location.
