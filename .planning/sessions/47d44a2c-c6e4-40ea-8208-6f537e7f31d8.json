@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "47d44a2c-c6e4-40ea-8208-6f537e7f31d8",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T11:30:20.078Z",
+  "story": "SEED-423#require-declared-units-in-ci-proof",
+  "ranges": [
+    {
+      "base": "a0eb4588bdffd7122b4677a0fdd2948e4762920e",
+      "candidate": "4733fbf623b48dcb0ec11c4e203689c92241a8ca"
+    }
+  ]
+}
