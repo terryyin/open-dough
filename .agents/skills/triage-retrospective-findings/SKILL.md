@@ -21,7 +21,10 @@ Rank first. Persistent writes require an explicit developer choice of queued fol
 or a non-queue disposition and that path's supplied destinations. An explicitly
 invoked composing maintenance skill may supply delegated selection authority,
 its actual selected response and those destinations; it does not make ordinary
-recommendation-only triage writable or waive validation. Ranking alone authorizes
+recommendation-only triage writable or waive validation. Apply the
+[story decision rule](../../../Distribution/src/skills/dough-triage-project-findings/SKILL.md#decide-which-findings-can-become-stories)
+when assessing candidates. A delegated selection for **Other** must carry the
+human's decision on that response. Ranking alone authorizes
 no edit. Identity allocation, renaming, reconciliation, and occurrence collection belong to
 [reconcile-retrospective-findings](../reconcile-retrospective-findings/SKILL.md).
 Use only supplied evidence; do not fetch other projects or scan unrelated logs.

@@ -89,7 +89,8 @@ the old list, omit unfinished delivery to a removed project, or pass its watch.
    It owns matching, continuity, uncertainty and allocation. Reconciliation itself
    leaves source bytes unchanged. Retain source timestamps, execution release or
    modified revision, tool, observations and qualified inference before shortening
-   a source; today's installation version is not an old execution's release.
+   a source. Preserve any supplied category and its basis. Today's installation
+   version does not establish an old execution's release.
 3. Use project plus execution as occurrence identity, with locators to distinguish
    genuinely different executions. Old and adopted names, repeated reports and
    rereading one transcript add no occurrence. Preserve distinct observed effects
@@ -113,6 +114,9 @@ their standalone triggers. Merely encountering a finding invokes none of them.
 
 ## Assess the response still needed
 
+Apply the shared [story decision rule](../../../Distribution/src/skills/dough-triage-project-findings/SKILL.md#decide-which-findings-can-become-stories)
+to each candidate. Keep an open human decision on an **Other** finding visible
+through cleanup and in the cycle report.
 Use [retention and watch](references/retention-and-watch.md) for cleanup. In an
 initial cycle retain uncertain candidates conservatively; missing provenance or
 unexercised guidance cannot pass a watch. Before proposing implementation, inspect
@@ -166,10 +170,10 @@ must not outrank demonstrated consequence merely because it is convenient. A
 severe one-off can lead. State the reasons, evidence limits and actual response
 needed; do not turn uncertain attribution into proven recurrence.
 
-This explicit wrapper invocation delegates selection of up to two supported
-leading backlog responses. Pass that selection and explicit writable finding,
-seed and backlog destinations to triage; no repeated selection approval is
-needed. Reuse suitable seeds, keep execution evidence at the finding owner, and
+This explicit wrapper invocation delegates selection of up to two eligible
+leading backlog responses. Pass that selection, the human decision for any
+**Other** response, and explicit writable finding, seed and backlog destinations
+to triage. Reuse suitable seeds, keep execution evidence at the finding owner, and
 create evaluable stories with beneficiary, outcome, bounded scope and evaluation.
 Require completion to record the actual response and containing release at each
 addressed finding. Queueing means queued, not resolved; do not refine, plan or
