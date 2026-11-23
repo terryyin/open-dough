@@ -34,11 +34,13 @@ Accepted: The candidate CLI lists G1–G6 for slice 3 and refuses slice 3, regul
 
 ### 2. Resume a previous-release project through its normal update
 Type: Behavior
-Status: planned
+Status: done
 
 Install v0.3.111 into a disposable client with both supported skill roots and a copy of the pre-conversion plan. Update through the normal released-source installer against a locally tagged candidate. Inspect its output and both managed roots, plus the user's pre-existing plan and evidence. Exercise the transition message, apply the plan-only conversion from slice 1 and resume via the installed CLI. Use existing installer ownership and plan-reading routines. Remove any leftover compatibility code whose removal preserves this previous-release journey. Leave the small transition refusal in place if a supported legacy plan could otherwise appear complete.
 
 **Proof.** Verify all retired modules and guides disappear, neighboring project files and outstanding obligations survive, and a fresh plan needs only its usual proof. Repeat the update and inspect the unchanged plan. Exercise a still-linked plan before claiming it can be accepted. Use the existing dropped-files install fixture and one representative upgrade run. Estimated 8–14 active minutes.
+
+Accepted: A disposable v0.3.112 tag of candidate `9cff32a6a456cc47e143496f108284c28c736ce1` upgraded the genuine v0.3.111 installation. Both roots reported nine removed managed paths and matched the tagged payload. Project planning files and six neighboring unmanaged files kept their bytes and modification times. Both installed CLIs refused a still-linked legacy plan, then listed G1–G6 for the converted plan and refused its completion. An otherwise complete legacy plan with a pending CI owner justified keeping the transition refusal. The repeat update made no writes, and an ordinary fresh plan passed with its accepted slice proof. The dropped-files fixture and five focused execution and closure checks passed, including 29 Node cases. The experiment followed [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md), [ADR 0004](../../../docs/adrs/0004-client-installation-and-update-accepted.md), [ADR 0005](../../../docs/adrs/0005-cross-tool-validation-accepted.md), and [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md). Records-only refactor disposition.
 
 ## Local gate and readiness
 
