@@ -866,8 +866,9 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
     sidebar. Details show the recorded effort and options when present.
   - Story card launches mount without a hand-built copy of the machine
     sessions composition.
-  - In a narrow or zoomed dialog, the offers and actions remain reachable
-    in keyboard order. On desktop, launch notes remain discoverable by
+  - Verify dialog keyboard order in the standard viewport. Responsive
+    layout cases verify that offers and actions remain reachable at the
+    sizes they cover. On desktop, launch notes remain discoverable by
     hover and keyboard, with legible, distinct states in both schemes.
   - Refusing refinement leaves the chosen options checked on reopening.
     Cancel clears them for the next open. A held offer or host reread obeys

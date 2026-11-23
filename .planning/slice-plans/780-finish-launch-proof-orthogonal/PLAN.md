@@ -24,7 +24,7 @@ case's prerequisites, action, and observable result.
 
 | Promise | Slice | Proof |
 | --- | --- | --- |
-| Narrow and zoomed dialogs keep geometry, text, reachable actions and native tab order, including policy descriptions, all selected option flags and the native touch witness where shared helpers reach it | 1 | `ad-hoc-launch-dialog`, `ad-hoc-start-session-layout`, and recipients of any changed viewport or reachability helper |
+| Default-viewport dialogs keep native Tab order. Responsive cases keep geometry, text and reachable actions, including policy descriptions, all selected option flags and the native touch witness where shared helpers reach it. | 1 | `ad-hoc-launch-dialog`, `ad-hoc-start-session-layout`, and recipients of any changed viewport or reachability helper |
 | Launch offers distinguish ready, noted, preparing and unavailable in both schemes, with real hover, keyboard focus and disclosure | 2 | `story-card-launch-offers` in `chromium-desktop`, plus affected callers of the typed story-offer entry |
 | Refinement alone sees its options. Held reads, exclusive choices, submitted flags, refusal retention and Cancel reset each have independent proof | 3 | All four current cases in `launch-refinement-options`, including the production start/refusal path and native keyboard choice |
 | Recording, pending permission and pending transcription have their own dismissal and recovery observations | 4 | `mounted-instruction-voice`; run its overflow and capture-failure siblings if their shared mount changes |
@@ -41,6 +41,7 @@ case's prerequisites, action, and observable result.
 - Starting revision `ddaa7234c4c5c7a0149bb784c9e9f00212c339ef`. Claim and story-branch base confirmed at `9fe334ce9faba806b8417bc8be9ab4f60893534e` on `origin/main` and `origin/codex/get-launch-unit-proof-in-about-eight-seconds`.
 - GitHub Actions `ci.yml`, observer coordinator `mihiro-e0b72832`, directory `/tmp/dough-ci-501/watch-o4eLbf`, process `14663`, Codex shell session `45163`, cell `g253:20`. Shutdown was confirmed at the slice 1 stop with zero unread events. Pending CI is unobserved.
 - Slice 1 delivery rearmed the same coordinator for the story branch in `/tmp/dough-ci-501/watch-gTzJHM`, process `32161`, Codex shell session `96216`, cell `g262:89`. Trunk source freshness was confirmed at `57cd409a`.
+- Slice 1 was published at `41f3948b8` and passed GitHub Actions run `45093545949`. The viewport correction and desktop offer delivery use the same coordinator in `/tmp/dough-ci-501/watch-YI0eJX`, process `95043`, Codex shell session `60942`, cell `g277:39`. Trunk source freshness was confirmed at `9d9736778`.
 
 ## Current decisions
 
@@ -129,6 +130,45 @@ behavior evidence only. The eight-second elapsed proof remains open.
 The paired focused commands, whole proof and independent consumer
 review are under `launch-phases/layout-*` in the evidence location.
 
+**Scope correction.** Keep ordinary keyboard and disclosure cases on
+the runner's default viewport. Use narrow and zoomed viewports for the
+existing geometry cases whose results depend on them. The refinement
+layout case arranges the dense selection after one observable disclosure
+cue and keeps its exact all-flags preview and geometry. Native keyboard
+order and selection retention each get their own case. The existing
+`story-card-launch-dialogs` refinement journey still observes Cancel
+returning focus and sending no request.
+
+The latest profile ranked the paired desktop note and contrast case
+first at 2.48 summed case-seconds. Split it into native note discovery
+and color-scheme comparison. Keep the real hover and focus observations
+for both notes. Use the existing focus to open each dialog with Enter
+and retain the exact explanation and Escape. This removes a second
+pointer round trip per note. Keep the ready, preparing, noted and
+unavailable observations on `chromium-desktop`.
+
+The new Start session layout case visits each workspace at each size
+without resetting the workspace around the resize. Both exact policy
+descriptions, the option geometry and action reachability still run
+under all four combinations. The four affected specs passed 9 cases
+in 11.72 s before and 11 in 10.04 s after. The earlier pairs of the
+whole selection were 23.87/20.86 s and 18.70/24.03 s. The final whole
+run passed 73 cases in 23.93 s before the independent review. The
+review restored the dense selected count after the command preview
+settles and kept the Tab case focused on order. All three related
+cases passed again in `refactor-layout-after-cue.log`. These results
+establish the focused simplification and preserved behavior. A
+whole-selection elapsed saving and the eight-second goal remain open.
+
+Two broad titles each became two focused titles. The refinement title
+split into native keyboard order and disclosure retention. The desktop
+title split into hover and keyboard discovery with named dialog words,
+and note color and border contrast in both schemes. The two renamed
+layout cases still assert dense command flags and hit geometry, and
+the workspace policy effects with wrapping and viewport coverage.
+Exact rosters, host load and run logs are under
+`open-dough/evidence/simple-launch.aZIjH7md` in the execution Git path.
+
 ## Timing evidence and decisions
 
 - The [seed evidence](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
@@ -196,27 +236,22 @@ its callers, including the native touch rotation case.
 Run the whole selection at two workers and preserve its case roster. Use
 the action-profile evidence to distinguish changes in incidental setup
 from the native observations. Reuse the focus recorder from
-`board-accessibility.ts` for dialog Tab sequences. Keep actual Tab on the
-explicit 320-pixel and DPR 2 paths. Record the remaining wall gap and
+`board-accessibility.ts` for dialog Tab sequences. Check native Tab on
+the default viewport. Record the remaining wall gap and
 which measured steps can still close it. Apply this check after every
 result that changes the remaining estimate.
 
 ### 2. Desktop offers keep their hover, keyboard and contrast observations
 
 Type: Behavior
-Status: planned
+Status: done
 
-Measure offer transitions, hover/focus and light/dark changes separately.
-Start with the residual native offer case at 1.94 s in the 13.48 s
-prototype. Try sharing one real pointer transition with adjacent checks
-that consume the same state. Keep both note identities and both
-availability states, real hover and Tab disclosure, dialog wording,
-dismissal/focus, glyph, accessible description and both scheme comparisons.
-Use the typed `StoryCardLaunches` input with production offers and callbacks
-for the few facts it consumes. Prefer narrowing what the production owner
-needs over copying the machine's full launch composition. Prove the whole
-desktop spec and affected `story-card-launch-page` consumers, including
-refinement options and model/effort.
+Keep one small case for the native hover and focus of the two noted
+offers, including their dialog wording and dismissal. Check the two
+schemes in a dedicated case using the existing typed `StoryCardLaunches`
+mount. Keep available and unavailable states, glyph, accessible
+description, and both scheme comparisons. Run the desktop spec and the
+complete launch selection to verify the shared mount's other users.
 
 ### 3. Refinement options keep both submission and refusal behavior
 
@@ -351,11 +386,11 @@ concern.
 
 ### G1. Dialog keyboard order at 320 pixels
 Reported: slice 1 — "The 320px and DPR 2 dialog cases check rendered Host/Model or policy arrangement and hit geometry, and do not run the full Tab sequence at either condition."
-Story clause: "In a narrow or zoomed dialog, the offers and actions remain reachable in keyboard order."
-Disposition: proved by slice 1: ad-hoc-launch-dialog.spec.ts all-flags case enters the 320-pixel production dialog, records each native focus stop and verifies its order before checking flags and geometry
+Story clause: "Verify dialog keyboard order in the standard viewport."
+Disposition: owner changed "Verify dialog keyboard order in the standard viewport."
 Commitment: 27, 28
 ### G2. Dialog keyboard order at DPR 2
 Reported: slice 1 — "The two explicit dialog Tab cases use the 640×450 CSS viewport. They do not apply or verify DPR 2."
-Story clause: "In a narrow or zoomed dialog, the offers and actions remain reachable in keyboard order."
-Disposition: proved by slice 1: the native Tab cases in ad-hoc-launch-dialog.spec.ts and ad-hoc-start-session-layout.spec.ts verify DPR 2 and each focus stop through the production dialog actions
+Story clause: "Verify dialog keyboard order in the standard viewport."
+Disposition: owner changed "Verify dialog keyboard order in the standard viewport."
 Commitment: 29, 30

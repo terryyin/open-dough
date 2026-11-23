@@ -12,7 +12,7 @@ import { openRefinement } from "./refinement-launch-page.ts";
 
 test("touch rotation and restricted height preserve the refinement draft and choices", async () => {
   const { form, start } = await openRefinement(
-    phone.portrait,
+    { viewport: phone.portrait },
     async (launcher) => {
       (await touch(launcher)).click();
     },

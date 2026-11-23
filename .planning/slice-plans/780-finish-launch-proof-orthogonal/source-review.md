@@ -36,12 +36,12 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 28 | In a narrow dialog, the actions remain reachable in keyboard order. (Dialog and desktop-notes example) |  | G1 |
 | 29 | In a zoomed dialog, the offers remain reachable in keyboard order. (Dialog and desktop-notes example) |  | G2 |
 | 30 | In a zoomed dialog, the actions remain reachable in keyboard order. (Dialog and desktop-notes example) |  | G2 |
-| 31 | On desktop, launch notes remain discoverable by hover. (Dialog and desktop-notes example) | slice 2 | |
-| 32 | On desktop, launch notes remain discoverable by keyboard. (Dialog and desktop-notes example) | slice 2 | |
-| 33 | On desktop, launch-note states remain legible in the first of the two schemes. (Dialog and desktop-notes example) | slice 2 | |
-| 34 | On desktop, launch-note states remain legible in the other scheme. (Dialog and desktop-notes example) | slice 2 | |
-| 35 | On desktop, launch-note states remain distinguishable in the first of the two schemes. (Dialog and desktop-notes example) | slice 2 | |
-| 36 | On desktop, launch-note states remain distinguishable in the other scheme. (Dialog and desktop-notes example) | slice 2 | |
+| 31 | On desktop, launch notes remain discoverable by hover. (Dialog and desktop-notes example) | slice 2 | observed: story-card-launch-offers.spec.ts noted Starts discovery case shows each note in response to native hover |
+| 32 | On desktop, launch notes remain discoverable by keyboard. (Dialog and desktop-notes example) | slice 2 | observed: story-card-launch-offers.spec.ts noted Starts discovery case shows each note after native Tab and opens its named dialog with Enter |
+| 33 | On desktop, launch-note states remain legible in the first of the two schemes. (Dialog and desktop-notes example) | slice 2 | observed: story-card-launch-offers.spec.ts dedicated light and dark case checks glyph legibility and compares available and unavailable text and border colors |
+| 34 | On desktop, launch-note states remain legible in the other scheme. (Dialog and desktop-notes example) | slice 2 | observed: story-card-launch-offers.spec.ts dedicated light and dark case checks glyph legibility and compares available and unavailable text and border colors |
+| 35 | On desktop, launch-note states remain distinguishable in the first of the two schemes. (Dialog and desktop-notes example) | slice 2 | observed: story-card-launch-offers.spec.ts dedicated light and dark case checks glyph legibility and compares available and unavailable text and border colors |
+| 36 | On desktop, launch-note states remain distinguishable in the other scheme. (Dialog and desktop-notes example) | slice 2 | observed: story-card-launch-offers.spec.ts dedicated light and dark case checks glyph legibility and compares available and unavailable text and border colors |
 | 37 | After refinement is refused, the chosen options are still checked on reopening. (Refinement example) | slice 3 | |
 | 38 | After refinement is canceled, the chosen options are cleared on the next open. (Refinement example) | slice 3 | |
 | 39 | A held offer follows its applicable availability rule. (Refinement example) | slice 3 | |
@@ -77,7 +77,7 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 69 | The E2E group keeps its runner with its current owner. (Shared acceptance) | slice 8 | |
 | 70 | The change adds zero E2E cases. (Scope) | slice 8 | |
 | 71 | If shared frontend runner configuration changes, whole frontend group proof accompanies the change. (Scope) | slice 8 | |
-| 72 | `story-card-launch-offers.spec.ts` retains its `chromium-desktop` instance. (Scope) | slice 2 | |
+| 72 | `story-card-launch-offers.spec.ts` retains its `chromium-desktop` instance. (Scope) | slice 2 | observed: simple-launch.aZIjH7md candidate-c.log runs all story-card-launch-offers titles on chromium-desktop |
 | 73 | `story-card-startup.spec.ts` retains its `chromium-desktop` instance. (Scope) | slice 6 | |
 | 74 | As a family moves, its React `act` wrapping is retired. (Shared acceptance) | slice 8 | |
 | 75 | As a family moves, its use of `IS_REACT_ACT_ENVIRONMENT` is retired. (Shared acceptance) | slice 8 | |
@@ -95,7 +95,17 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 87 | Each engine’s selection is run explicitly while the legacy runner exists. (Shared acceptance) | slice 8 | |
 | 88 | The timing evidence includes runtime for any proof promoted to E2E. (Shared acceptance) | slice 8 | |
 | 89 | If reaching the target would require losing a distinct observation, the report gives the measured remainder and its cause. (Scope) | slice 1 | observed: PLAN.md Current decisions and s1-layout-return.md Decision supported at the checkpoint |
+| 90 | At the standard viewport, verify the launch dialog’s keyboard order. The amendment moves this check out of the narrow or zoomed setup. | slice 1 | observed: ad-hoc-launch-dialog.spec.ts and ad-hoc-start-session-layout.spec.ts native Tab sequences at the default viewport |
+| 91 | At each size already covered by responsive layout cases, verify that offers remain reachable. | slice 1 | observed: ad-hoc-launch-dialog.spec.ts and ad-hoc-start-session-layout.spec.ts geometry and hit checks under both responsive conditions |
+| 92 | At those same sizes, verify that actions remain reachable. Offers and actions can fail independently, and the amendment does not prescribe separate tests for them. | slice 1 | observed: ad-hoc-launch-dialog.spec.ts and ad-hoc-start-session-layout.spec.ts hit geometry, full Start and Cancel viewport visibility and workspace policy checks |
 
 ## Source context
+
+Codex ran `/root/simpler_source_review` with no conversation inheritance
+after the maintainer asked for small, focused cases and standard viewport
+setup. The input was the changed key example, the preceding wording, the
+developer's instruction and the unchanged goal. Its three changed
+commitments are 90–92 above. The earlier unaffected commitments still
+apply.
 
 The seven original and six reopened specs, the typed unattached startup and creation-entry baselines, and the two-worker feedback target are stated in the story scope. Shared acceptance places each observation at the production boundary that can prove it. Its consolidation criteria preserve exact wording, accessibility, viewport and input distinctions, races and error or retry boundaries wherever they constitute the proof. The source does not specify the scheme names, the precise held-offer and host-reread outcomes, or the announcement text. The maintainer owns the trade-off if preserving a distinct observation prevents reaching the target.
