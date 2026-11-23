@@ -1,85 +1,41 @@
-import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
-// With a selected Taken story (../../test-support/support/frontendIntentVisits.ts), Intent
-// reads no file text or story diff until a file is opened: browsing a
-// location and folders shows their Summaries without a request. A changed
-// file's Purpose is the story's diff alone, with no read of its published
-// text beside it, and opening it again asks for the diff no more
-// (../../src/StoryReviewFileDiff.tsx, ../../src/answerMemo.ts). Without a story:
-// ./intent-read-reuse.spec.ts.
-
-import type { Page } from "@playwright/test";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { scopeName } from "./intent-browser-page.ts";
 import {
-  storyReviewFileEndpoint,
-  storyReviewFileTextEndpoint,
-} from "../../src/storyReviewContract.ts";
-import {
-  intentFolderName,
-  intentLocationName,
-  purposeRegion,
-} from "../../test-support/intentPerspectivePage.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { intentDiff } from "../../test-support/support/intentStoryPage.ts";
-import { changed } from "../../test-support/support/intentStoryWorktree.ts";
+  changed,
+  modifiedPath,
+  openStoryChanges,
+} from "./intent-story-changes-fixtures.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
-const locationPaths = ["dashboard/tests/", "tests/"];
-const modifiedPath = "dashboard/tests/a.spec.ts";
+test("with a selected story, browsing reads nothing and a changed file's diff is read once, without its published text", async () => {
+  const { reads } = await openStoryChanges();
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  const purpose = page.getByRole("region", { name: "Purpose", exact: true });
+  const summary = page.getByRole("region", { name: "Summary", exact: true });
 
-// The page's reads, from now on, of published text in a location, and of a
-// story file's diff and texts, by path.
-function contentReads(page: Page) {
-  const text: string[] = [];
-  const diffs: string[] = [];
-  const texts: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    const path = url.searchParams.get("path") ?? "";
-    if (
-      url.pathname === authenticatedReadEndpoint &&
-      locationPaths.some((location) => path.startsWith(location))
-    )
-      text.push(path);
-    if (url.pathname === storyReviewFileEndpoint) diffs.push(path);
-    if (url.pathname === storyReviewFileTextEndpoint) texts.push(path);
-  });
-  return { text, diffs, texts };
-}
+  for (const scope of ["dashboard/tests", "boundary", "out"]) {
+    const selection = scopeName(scope);
+    await selection.click();
+    await expect.element(selection).toHaveAttribute("aria-pressed", "true");
+    await expect.element(summary).toBeVisible();
+    await expect.element(purpose).not.toBeInTheDocument();
+  }
+  expect(reads).toEqual({ published: [], diffs: [], texts: [] });
 
-test("with a selected story, browsing reads nothing and a changed file's diff is read once, without its published text", async ({
-  page,
-  frontendServices,
-}) => {
-  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
-  const reads = contentReads(page);
-  const purpose = purposeRegion(intent);
+  await story.file(changed.modified).click();
+  await expect.poll(story.diffCode).toContain("more");
+  await expect.poll(() => reads.texts).toEqual([modifiedPath]);
+  const first = story.diffCode();
+  await scopeName("boundary").click();
+  await expect.element(purpose).not.toBeInTheDocument();
 
-  await test.step("a location and two folders show their Summaries without a request", async () => {
-    await intentLocationName(intent, "dashboard/tests").click();
-    await expect(intentLocationName(intent, "dashboard/tests")).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    for (const folder of ["boundary", "out"]) {
-      await intentFolderName(intent, folder).click();
-      await expect(intentFolderName(intent, folder)).toHaveAttribute(
-        "aria-pressed",
-        "true",
-      );
-    }
-    await expect(purpose).toHaveCount(0);
-    expect(reads).toEqual({ text: [], diffs: [], texts: [] });
-  });
-
-  await test.step("a changed file opened twice reads its diff once and never its published text", async () => {
-    const first = await intentDiff(intent, changed.modified);
-    expect(first).toContain("more");
-    await intentFolderName(intent, "boundary").click();
-    await expect(purpose).toHaveCount(0);
-    expect(await intentDiff(intent, changed.modified)).toBe(first);
-    expect(reads).toEqual({
-      text: [],
-      diffs: [modifiedPath],
-      texts: [modifiedPath],
-    });
+  await story.file(changed.modified).click();
+  await expect.poll(story.diffCode).toBe(first);
+  expect(reads).toEqual({
+    published: [],
+    diffs: [modifiedPath],
+    texts: [modifiedPath],
   });
 });

@@ -2,7 +2,27 @@
 
 **Identity:** SEED-413#speed-story-changes-notes-and-progress-reading
 **Source:** [Get fast proof of story changes, Done references, notes and recorded progress](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading)
+**Source review:** [Source-only review](source-review.md)
 **Split from:** Plan 755 at its delivered Slice 2 boundary
+
+## Execution context
+
+Story Branch Mode uses the owned worktree
+`/Users/terryyin/git/open-dough/.worktrees/get-fast-proof-of-story-changes-done-references`
+and branch `codex/get-fast-proof-of-story-changes-done-references`.
+Originating integration checkout: `/Users/terryyin/git/open-dough` on `main`.
+Remote target: `origin/main`. Publisher:
+`dashboard-territory.local-open-dough` (Hitomi-chan).
+Starting revision: `419aeed53f24da7958951adf6fde5caebf963d6e`.
+Established claim and first published branch base:
+`57cd409a3d685bc2cceb50c4338ad8c5c8d9ea48`.
+Checkout setup passed with Node 24.21.0, locked `npm ci`, and
+`npm run typecheck:dashboard`. Existing planning authority applies.
+
+The Codex `hitomi-plan-763-deacc745` observer watches the execution branch
+in `terryyin/open-dough` with GitHub Actions `ci.yml` (CI). Its directory is
+`/tmp/dough-ci-501/watch-nz5hVd`, PID 30941, command session 17212 and cell
+`g266:19`.
 
 ## Goal and scope
 
@@ -128,7 +148,7 @@ corresponding `.spec.ts` unless stated otherwise.
 ### 1. Read the selected story's Changed tests from its comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent/intent-read-reuse-story`, `intent/intent-story-changes-gaps`
 and `intent/intent-story-changes-only` (7 legacy cases). Use the production
@@ -140,6 +160,41 @@ selection and the Review changes diff.
 revision. Open a changed file and observe one diff ask and no published-text
 ask for it. Keep the empty/product-only and missing-location explanations,
 and fail then retry a comparison while the tree remains usable.
+
+**Accepted proof and case disposition.** All seven legacy cases moved to
+Vitest Chromium at the same three spec paths. The names stayed the same
+except for the product-only case, which now also exercises Refresh to an
+empty comparison and reads published source after clearing the filter.
+The other cases retain the location and folder read counts, no-workspace
+and failed comparison details, retry, missing locations across story
+and Project Intent, changed-only inventory and selection, and Show latest
+at a newer published revision. The source review records C01–C07 at their
+assertions. Fixture data enters `mountIntentCiPage` as committed work and
+typed comparison, CI, locations and file reads. Production still owns
+selection, read reuse, tree behavior and retry.
+
+- The three-spec two-worker Vitest selection passed seven cases in 11.415 s
+  including preparation. The retained built-page story-changes E2E case
+  passed in 15.784 s and the Dashboard typecheck passed.
+- The deliberate regression run failed all seven cases at their intended
+  assertions. A second probe suppressed published-tree file reads after
+  unavailable or failed comparisons and failed both source assertions.
+  Restored production files match the base.
+- Spec production imports went from `authenticatedReadRules.ts` and
+  `storyReviewContract.ts` to zero in read reuse, from
+  `storyReviewContract.ts` to zero in comparison gaps, and stayed zero in
+  selected-only. The added Changes fixture imports only the production
+  `ReviewSource` type. No existing shared test support was removed because
+  it still has frontend or E2E callers.
+- The independent refactor shares the story's controls through the existing
+  `intent-story-compare-page.ts` (zero production imports before and after),
+  uses completed MakeMe work entries, and restores the collapsed Other folder's
+  file-absence assertion. All seven focused cases passed on the refactored
+  sources in 17.37 s. The E2E and scratch proof boundaries still apply.
+- The current worktree's Git evidence directory holds `slice-1-refactor.md`,
+  `s1-refactor-final.json`, `slice-1-return.md`,
+  `s1-consumer-trace-final.md` and the `s1-restored`, `s1-e2e`,
+  `s1-typecheck`, `s1-regression` and `s1-gap-tree-regression` run records.
 
 ### 2. Keep Intent controls and CI cues usable as the reading space changes
 

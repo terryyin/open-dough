@@ -1,207 +1,181 @@
-// Example 6 and a failed read: a selected story whose comparison Intent
-// cannot show never reads as a story without changes. The header of an
-// active story with no workspace on this machine says no comparison is
-// available, and of a review read that fails says so with a retry, which
-// then shows the story's changes; each gives its full explanation. Either way
-// the published tree stays usable in Changes, without change marks, an
-// outside count, or a "Selected story only" toggle, which would have no
-// changes to show only; the retried read offers it, off. Without configured
-// locations the header names the story, CI comparison shows its CI status
-// and Changes the explanation; Project Intent shows main's CI status
-// beside the explanation, which Optimization Candidates also shows, and Back
-// to selected story returns to Changes. The highlighted journey:
-// ../../../e2e/intent/intent-story-changes.spec.ts.
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { scopeToggle } from "./intent-browser-page.ts";
+import { intentViewTab } from "./intent-candidates-page.ts";
+import { developmentCard } from "./intent-ci-development-card-page.ts";
+import { intentFileReading } from "./intent-file-reading-page.ts";
+import {
+  changed,
+  keptPath,
+  modifiedPath,
+  openStoryChanges,
+  storyChanges,
+} from "./intent-story-changes-fixtures.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
-import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
-import type { Locator } from "@playwright/test";
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import {
-  expandIntentFolders,
-  expandIntentGroup,
-  purposeRegion,
-} from "../../test-support/intentPerspectivePage.ts";
-import {
-  backToStory,
-  chooseOptimizationCandidates,
-  intentModeTab,
-  openProjectIntent,
-  returnToStory,
-  intentPageFrame,
-  openStoryIntent,
-} from "../../test-support/intentModePage.ts";
-import {
-  emptyArea,
-  expectSelected,
-} from "../../test-support/storyCardSelection.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { intentStory } from "../../test-support/support/intentStoryPage.ts";
-import { changed } from "../../test-support/support/intentStoryWorktree.ts";
-import {
-  putFrontendIntentStory,
-  answerFrontendIntentChanges,
-} from "../../test-support/support/frontendIntentStory.ts";
+const panel = (name: string) =>
+  page.getByRole("tabpanel", { name, exact: true });
 
-// The published tree shows as without a story: no change marks, no outside
-// files, no toggle, no claim that nothing changed, and a file reads its
-// source.
-async function expectPublishedTreeUsable(intent: Locator) {
-  const story = intentStory(intent);
-  await expect(story.storyOnly()).toHaveCount(0);
-  await expect(intent.locator("[data-kind]")).toHaveCount(0);
-  await expect(intent.locator("[data-contains-changes]")).toHaveCount(0);
-  await expect(story.outside).toHaveCount(0);
-  await expect(intent.getByText(/No test files|no changes/i)).toHaveCount(0);
-  await expandIntentGroup(intent, "dashboard/tests");
-  await expandIntentFolders(intent, "dashboard/tests");
-  await expect(
-    story.file("dashboard/tests/boundary/kept.spec.ts"),
-  ).toBeVisible();
-  await story.file("dashboard/tests/a.spec.ts").click();
-  await expect(purposeRegion(intent)).toContainText("a 11");
+async function showsUsablePublishedTree() {
+  const story = intentStoryCompare();
+  await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
+  await expect
+    .element(page.getByRole("region", { name: "Outside Intent locations" }))
+    .not.toBeInTheDocument();
+  await expect
+    .element(panel("Changes").getByText(/No test files|no changes/i))
+    .not.toBeInTheDocument();
+  await scopeToggle("dashboard/tests").click();
+  await scopeToggle("boundary").click();
+  await expect.element(story.file(keptPath)).toBeVisible();
+  await story.file(modifiedPath).click();
+  await intentFileReading(modifiedPath).shows("a 11");
+  expect(
+    panel("Changes")
+      .element()
+      .querySelectorAll("[data-kind], [data-contains-changes]"),
+  ).toHaveLength(0);
 }
 
-test("an active story with no workspace explains that no comparison is available and leaves the tree usable", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendIntentStory(frontendServices, { workspace: false, taken: false });
-  const { intent } = await openStoryIntent(page, "Story A");
-  const story = intentStory(intent);
-  const scoped = story.summary;
-  await expect(story.title).toHaveText("Story A");
-  await expect(scoped.getByRole("status")).toHaveText(
-    "No comparison is available.",
-  );
-  const detail = await story.headerDetail();
-  await expect(detail.locator(".intent-story-problem")).toHaveText(
-    "No comparison is available for this story: no workspace on this machine holds it. Intent shows the published tree without the story's changes.",
-  );
-  await expect(scoped.getByRole("button", { name: "Retry" })).toHaveCount(0);
-  await expect(story.header.revisions).toHaveCount(0);
+test("an active story with no workspace explains that no comparison is available and leaves the tree usable", async () => {
+  await openStoryChanges({ hasWorkspace: false });
+  const story = intentStoryCompare();
+  await expect
+    .element(
+      story.header.getByRole("heading", { name: "Story A", exact: true }),
+    )
+    .toBeVisible();
+  await expect
+    .element(story.header.getByRole("status"))
+    .toHaveTextContent("No comparison is available.");
+  await expect
+    .poll(story.headerText)
+    .toContain(
+      "No comparison is available for this story: no workspace on this machine holds it. Intent shows the published tree without the story's changes.",
+    );
+  await expect
+    .element(story.header.getByRole("button", { name: "Retry" }))
+    .not.toBeInTheDocument();
+  expect(story.revisions()).toBe("");
   await story.chooseTab("Changes");
-  await expectPublishedTreeUsable(intent);
+  await showsUsablePublishedTree();
 });
 
-test("a failed comparison read explains itself with a retry that then shows the story's changes", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendIntentStory(frontendServices);
-  await answerFrontendIntentChanges(page);
-  let failing = true;
-  await page.route(
-    (url) => url.pathname === storyReviewEndpoint,
-    async (route) => {
-      if (!failing) {
-        await route.fallback();
-        return;
-      }
-      await route.fulfill({
-        status: 500,
-        contentType: "application/json",
-        body: JSON.stringify({ error: "The worktree could not be read." }),
-      });
+test("a failed comparison read explains itself with a retry that then shows the story's changes", async () => {
+  let attempts = 0;
+  await openStoryChanges({
+    review: () => {
+      attempts += 1;
+      return attempts === 1
+        ? Promise.reject(new Error("The worktree could not be read."))
+        : Promise.resolve(storyChanges());
     },
-  );
-  const { intent } = await openStoryIntent(page, "Story A");
-  const story = intentStory(intent);
+  });
+  const story = intentStoryCompare();
   await story.chooseTab("Changes");
-  const scoped = story.summary;
-  const problem = scoped.getByRole("alert");
-  await expect(problem).toHaveText(
-    "The story's changes could not be read. Retry",
-  );
-  const detail = await story.headerDetail();
-  await expect(detail.locator(".intent-story-problem")).toHaveText(
-    "The worktree could not be read. Intent shows the published tree without them.",
-  );
-  await expect(story.header.revisions).toHaveCount(0);
-  await expectPublishedTreeUsable(intent);
+  await expect
+    .poll(story.alertText)
+    .toBe("The story's changes could not be read. Retry");
+  await expect
+    .poll(story.headerText)
+    .toContain(
+      "The worktree could not be read. Intent shows the published tree without them.",
+    );
+  expect(story.revisions()).toBe("");
+  await showsUsablePublishedTree();
 
-  failing = false;
-  await problem.getByRole("button", { name: "Retry" }).click();
-  await story.expectComparisonRead();
-  await expect(story.header.revisions).toBeVisible();
-  await expect(problem).toHaveCount(0);
-  await expect(story.storyOnly()).not.toBeChecked();
-  for (const name of [
-    "Modified dashboard/src/App.tsx",
-    "Renamed docs/notes.md → docs/renamed-notes.md",
-  ])
-    await expect(story.outsideFile(name)).toBeVisible();
-  await expect(story.file(changed.modified)).toBeVisible();
-  await expect(story.file(changed.added)).toBeVisible();
+  await story.retry();
+  await expect.poll(story.revisions).toContain("Compared");
+  await expect.element(story.alert).not.toBeInTheDocument();
+  await expect.element(story.onlyChangedFiles).not.toBeChecked();
+  for (const name of [changed.product, changed.notes])
+    await expect.element(story.outsideFile(name)).toBeVisible();
+  for (const name of [changed.modified, changed.added])
+    await expect.element(story.file(name)).toBeVisible();
+  expect(attempts).toBe(2);
 });
 
-test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changes the explanation, and Project Intent main's CI status beside it", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendIntentStory(frontendServices, {
-    workspace: false,
-    locations: false,
-    taken: false,
+test("without configured Intent locations the header names the selected story, CI comparison shows its CI status, Changes the explanation, and Project Intent main's CI status beside it", async () => {
+  const mounted = await openStoryChanges({
+    hasWorkspace: false,
+    hasLocations: false,
   });
-  await answerFrontendIntentCi(page, frontendServices.revision);
-  const { card, intent } = await openStoryIntent(page, "Story A");
-  const story = intentStory(intent);
-  const { intentChoice } = parts(page);
-  await expect(
-    intentPageFrame(intent).locator(":scope > *").first(),
-  ).toHaveAttribute("aria-label", "Selected story");
-  await expect(story.title).toHaveText("Story A");
-  await expect(story.header.status).toHaveText("No comparison is available.");
-  await expect(story.header.identity).toHaveText("SEED-A#a");
-  await expect(story.storyOnly()).toHaveCount(0);
-  await story.expectTab("CI comparison");
-  await expect(
-    story
-      .panel("CI comparison")
-      .getByRole("region", { name: "CI status", exact: true }),
-  ).toBeVisible();
+  const story = intentStoryCompare();
+  const showsExplanation = (view: string) =>
+    expect
+      .poll(() => panel(view).query()?.textContent)
+      .toContain("No Intent locations are configured for Open Dough.");
+
+  await expect
+    .element(
+      story.header.getByRole("heading", { name: "Story A", exact: true }),
+    )
+    .toBeVisible();
+  await expect
+    .element(story.header.getByRole("status"))
+    .toHaveTextContent("No comparison is available.");
+  await expect
+    .element(story.header.getByText("SEED-A#a", { exact: true }))
+    .toBeVisible();
+  expect(story.header.element().parentElement?.firstElementChild).toBe(
+    story.header.element(),
+  );
+  await expect.element(story.onlyChangedFiles).not.toBeInTheDocument();
+  await expect
+    .element(story.viewTab("CI comparison"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect
+    .element(
+      panel("CI comparison").getByRole("region", {
+        name: "CI status",
+        exact: true,
+      }),
+    )
+    .toBeVisible();
+
   await story.chooseTab("Changes");
-  await expect(story.panel("Changes")).toContainText(
-    "No Intent locations are configured",
-  );
-  await expect(
-    intent.getByRole("region", { name: "CI status", exact: true }),
-  ).toHaveCount(0);
+  await showsExplanation("Changes");
+  await expect
+    .element(
+      panel("Changes").getByRole("region", { name: "CI status", exact: true }),
+    )
+    .not.toBeInTheDocument();
 
-  await openProjectIntent(intent);
-  await expect(story.summary).toHaveCount(0);
-  const project = intent.getByRole("tabpanel", { name: "CI status" });
-  await expect(project).toContainText("No Intent locations are configured");
-  await expect(
-    project.getByRole("heading", { name: "CI status of main", exact: true }),
-  ).toBeVisible();
-  await chooseOptimizationCandidates(intent);
-  await expect(
-    intent.getByRole("tabpanel", { name: "Optimization Candidates" }),
-  ).toContainText("No Intent locations are configured");
-  // Back to the story's Changes, as it was left.
-  await returnToStory(intent);
-  await story.expectTab("Changes");
-  await expect(story.summary).toBeVisible();
-  await expect(story.panel("Changes")).toContainText(
-    "No Intent locations are configured",
-  );
+  await story.projectIntent.click();
+  await expect.element(story.header).not.toBeInTheDocument();
+  await showsExplanation("CI status");
+  await expect
+    .element(
+      panel("CI status").getByRole("heading", {
+        name: "CI status of main",
+        exact: true,
+      }),
+    )
+    .toBeVisible();
+  await intentViewTab("Optimization Candidates").click();
+  await showsExplanation("Optimization Candidates");
 
-  // Cleared after a visit that ended on Optimization Candidates, the story
-  // leaves Project Intent's CI status as the landing.
-  await parts(page).development.click();
-  await emptyArea(card).click();
-  await expectSelected(card, false);
-  await intentChoice.click();
-  await expect(story.summary).toHaveCount(0);
-  await expect(backToStory(intent)).toHaveCount(0);
-  await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
-    "aria-selected",
-    "true",
-  );
-  const landing = intent.getByRole("tabpanel", { name: "CI status" });
-  await expect(landing).toContainText("No Intent locations are configured");
-  await expect(
-    landing.getByRole("heading", { name: "CI status of main", exact: true }),
-  ).toBeVisible();
+  await story.backToStory.click();
+  await expect.element(story.header).toBeVisible();
+  await showsExplanation("Changes");
+
+  await mounted.showDevelopment();
+  const card = developmentCard("Story A");
+  await card.toggle();
+  await card.isSelected(false);
+  await mounted.showIntent();
+  await expect.element(story.header).not.toBeInTheDocument();
+  await expect.element(story.backToStory).not.toBeInTheDocument();
+  await expect
+    .element(intentViewTab("CI status"))
+    .toHaveAttribute("aria-selected", "true");
+  await showsExplanation("CI status");
+  await expect
+    .element(
+      panel("CI status").getByRole("heading", {
+        name: "CI status of main",
+        exact: true,
+      }),
+    )
+    .toBeVisible();
 });
