@@ -25,9 +25,9 @@ depends on them.
 | C1 | The complete launch selection with two workers finishes in about 7–8 s elapsed including runner preparation; two paired comparisons substantiate the gain and target (Goal; Key example 1; Evaluation; Scope "Measure case, setup, and runner costs") | slice 8 | |
 | C2 | The launch selection still yields a complete passing roster and the exact case rosters are reported (Goal; Key example 1; Evaluation) | slice 8 | |
 | C3 | Each relocated assertion and synchronization dependency is mapped to a witness for the same regression (Scope) | slice 8 | |
-| C4 | After a refused refinement submission, reopening shows the previous selection, observed through the production owner (Key example 2) | slice 3 |  |
-| C5 | Cancel and reopen clears the selection, observed through the production owner (Key example 2) | slice 3 |  |
-| C6 | Choosing No Approach clears A, retains C and sends only C, observed through the production owner (Key example 2) | slice 3 |  |
+| C4 | After a refused refinement submission, reopening shows the previous selection, observed through the production owner (Key example 2) | slice 3 | observed: dashboard/frontend-tests/launches/launch-refinement-options.spec.ts 'Cancel clears the retained choices from a refused refinement': after refusal and reopen kept.a and kept.c toBeChecked (unchanged; Slice 3 results) |
+| C5 | Cancel and reopen clears the selection, observed through the production owner (Key example 2) | slice 3 | observed: dashboard/frontend-tests/launches/launch-refinement-options.spec.ts 'Cancel clears the retained choices from a refused refinement': after Cancel and reopen a and c unchecked, none checked (unchanged; Slice 3 results) |
+| C6 | Choosing No Approach clears A, retains C and sends only C, observed through the production owner (Key example 2) | slice 3 | observed: dashboard/frontend-tests/launches/launch-refinement-options.spec.ts 'No Approach clears A, keeps C and sends only C on Start': none checked, a unchecked, c checked, start called once with options ["--c"] (unchanged; Slice 3 results) |
 | C7 | On a fine-pointer desktop the Start notes appear on hover, observed by Chromium with native input (Key example 3; Scope) | slice 4 |  |
 | C8 | On a fine-pointer desktop the Start notes appear on keyboard focus, observed by Chromium (Key example 3; Scope) | slice 4 |  |
 | C9 | At 320 CSS px and 200% zoom the relevant launch dialog controls still fit and can be reached, observed by Chromium with real geometry (Key example 3; Scope) | slice 5 |  |

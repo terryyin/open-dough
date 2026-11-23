@@ -107,6 +107,12 @@ Exclude unrelated test families, new E2E cases, and a change in worker count.
   share a mount, it may merge them to remove per-file isolation, keeping
   pointer project assignment and every mapped witness. Slice 8 brings the
   measured gap and a re-target decision to the maintainer.
+- **Hold after Slice 3 (2026-11-23).** The first case slice's premise also
+  failed: merging the No Approach and refusal cases saved nothing, because
+  the case time is the real option and dialog interaction itself. With
+  eight seconds already not credible (Slice 2) and no reproducible case
+  saving, slices 4–8 are held for the maintainer's decision on the target
+  and remaining route, as the story's Evaluation directs.
 
 ## Local gates and timing
 
@@ -243,7 +249,7 @@ and Slice 8 brings the re-target. Report: execution evidence `slice-2-report.md`
 
 ### 3. Shorten the refinement choices and refusal checks
 Type: Behavior
-Status: planned
+Status: done
 
 Use `launch-refinement-options` and `story-card-launch-dialogs` for focused
 proof. Measure incidental opens, disclosure, and repeated option activation.
@@ -255,6 +261,22 @@ collaborator. Speed up setup actions only when they carry no input promise.
 Check the existing exclusive-option composed E2E journey if any shared
 production path changes. Test whether this removes roughly
 2 case-seconds from the historical 3.48 in the refinement-options file.
+
+**Slice 3 results** (at `35aabbb28`, two workers, load 13–37 with external
+stress). Trial: the No Approach case and the refusal/retention/Cancel case
+merged into one case on a typed `StartLaunch` mount (offered shape from the
+exclusive-approach definition, `onStart` refusing once), held read and
+workflow distinction kept at the story card. All three focused passes and
+typecheck were green, but six alternating pairs gave refinement-options
+case sums after 4.2–5.9 s against base 3.5–6.4 s and shells 5.4–10.1 against
+5.1–14.2 s, with no reproducible reduction: the merged case alone takes
+2.5–3.3 s. The trial was reverted; no product or test code changed, and C4–C6
+stay observed by the existing card-mounted cases. Two runs (one per side,
+15:04 and 15:05) hit a browser-wide click stall that timed out cases in both
+lanes at once while another worktree's `yes` stress and concurrent browser
+runs were active. Five focused reruns at load 13–18 after that stress ended
+all passed (`s3-repro-1..5`), so it is classified as extreme-load only,
+outside the maintainer's ~32 load profile. Report: execution evidence `slice-3-report.md`.
 
 ### 4. Shorten the fine-pointer Start offer checks
 Type: Behavior
