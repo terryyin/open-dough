@@ -4,7 +4,8 @@
 // story's commits, the uncommitted check, Refresh and the range read), the
 // story's views, the Changes file list, its folders and "Selected story
 // only" filter, and the selected file's diff in the reading pane.
-import { page, userEvent } from "vitest/browser";
+import { expect } from "vitest";
+import { page, userEvent, type Locator } from "vitest/browser";
 import {
   intentReadingPane as readingPane,
   scrollReadingHalfway,
@@ -19,6 +20,21 @@ const textOf = (element: Element | null | undefined) =>
 const fileNamed = (name: string) => ({
   name: new RegExp(`^${escaped(name)}(?:,|$)`),
 });
+
+// These cases exercise the response to activation. Keyboard and pointer
+// behavior use browser input in the cases that exercise those interactions.
+export async function activateComparisonControl(control: Locator) {
+  await expect
+    .poll(
+      () => control.query()?.matches(":enabled:not([aria-disabled='true'])"),
+      { interval: 5 },
+    )
+    .toBe(true);
+  (control.element() as HTMLElement).click();
+}
+
+export const comparisonRead = <T>(read: () => T) =>
+  expect.poll(read, { interval: 5 });
 
 export function intentStoryCompare() {
   const intent = page.getByRole("main", { name: "Intent", exact: true });
@@ -38,15 +54,20 @@ export function intentStoryCompare() {
   });
   const viewTab = (name: View) =>
     storyViews.getByRole("tab", { name, exact: true });
-  const view = (name: View) =>
-    intent.getByRole("tabpanel", { name, exact: true });
+  const view = (name: View) => {
+    const id = viewTab(name).query()?.getAttribute("aria-controls");
+    return id === undefined || id === null ? null : document.getElementById(id);
+  };
   const proof = intent.getByRole("region", { name: "Proof", exact: true });
   const fileTabs = intent.getByRole("tablist", {
     name: "Purpose and Proof",
     exact: true,
   });
   type CiView = "CI comparison" | "Intent coverage" | "Proof";
-  const ciView = (name: CiView) => (name === "Proof" ? proof : view(name));
+  const ciView = (name: CiView) =>
+    name === "Proof"
+      ? intent.query()?.querySelector(".intent-proof")
+      : view(name);
   const alert = header.getByRole("alert");
   const retryControl = alert.getByRole("button", { name: "Retry" });
   const outsideGroup = intent.getByRole("region", {
@@ -79,22 +100,20 @@ export function intentStoryCompare() {
       exact: true,
     }),
     // A CI view's text, Proof that of the selected file's Proof tab.
-    viewText: (name: CiView) => textOf(ciView(name).element()),
+    viewText: (name: CiView) => textOf(ciView(name)),
     // What a CI view says while another comparison than the default is
     // chosen: the whole-story note, and the build its `code` names.
     noteIn: (name: CiView) =>
-      ciView(name).element().querySelector('[role="note"]')?.textContent ??
-      null,
+      ciView(name)?.querySelector('[role="note"]')?.textContent ?? null,
     noteBuild: (name: CiView) =>
-      ciView(name).element().querySelector('[role="note"] code')?.textContent ??
-      null,
+      ciView(name)?.querySelector('[role="note"] code')?.textContent ?? null,
     // Chooses the selected file's Proof tab.
     chooseProof: () =>
-      userEvent.click(
+      activateComparisonControl(
         fileTabs.getByRole("tab", { name: "Proof", exact: true }),
       ),
     choosePurpose: () =>
-      userEvent.click(
+      activateComparisonControl(
         fileTabs.getByRole("tab", { name: "Purpose", exact: true }),
       ),
     // A changed file outside every location, by its kind and path.
@@ -114,9 +133,9 @@ export function intentStoryCompare() {
     // The CI comparison's landed endpoint, its third measured build.
     landedEndpoint: () =>
       textOf(
-        view("CI comparison")
-          .element()
-          .querySelectorAll(".intent-ci-comparison-identity")[2],
+        view("CI comparison")?.querySelectorAll(
+          ".intent-ci-comparison-identity",
+        )[2],
       ),
     // How many of Intent's controls are pressed, as a selected file is.
     pressedControlCount: () =>
@@ -131,7 +150,7 @@ export function intentStoryCompare() {
       textOf(header.element().querySelector(".intent-story-revisions")),
     choice: (name: string) => compare.getByRole("radio", { name }),
     choose: (name: string) =>
-      userEvent.click(compare.getByRole("radio", { name })),
+      activateComparisonControl(compare.getByRole("radio", { name })),
     includeUncommitted: compare.getByRole("checkbox", {
       name: "Include uncommitted changes",
     }),
@@ -145,13 +164,13 @@ export function intentStoryCompare() {
     commit,
     // Chooses `subject` as both ends of the range.
     async chooseAlone(subject: string) {
-      await userEvent.click(commit(subject));
-      await userEvent.click(commit(subject));
+      await activateComparisonControl(commit(subject));
+      await activateComparisonControl(commit(subject));
     },
     range: () =>
       textOf(header.element().querySelector(".story-review-range-heading")),
     viewTab,
-    chooseTab: (name: View) => userEvent.click(viewTab(name)),
+    chooseTab: (name: View) => activateComparisonControl(viewTab(name)),
     // A listed file's control, named by its kind and path.
     file: (name: string) => intent.getByRole("button", fileNamed(name)),
     // A location's or folder's toggle, by its name and whether it is open.

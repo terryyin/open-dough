@@ -46,7 +46,7 @@ test("a pending commit range keeps Compare, the pressed choice, and a focusable 
   await story.chooseTab("Changes");
   await expect.poll(story.revisions).toContain("uncommitted changes included");
 
-  await story.choose("Commits");
+  await story.choice("Commits").click();
   await expect.poll(story.headerText).toContain(reading);
   await expect
     .element(story.file("Modified dashboard/tests/a.spec.ts"))

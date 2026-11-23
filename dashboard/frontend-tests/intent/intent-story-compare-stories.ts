@@ -5,14 +5,13 @@
 // Review changes offers its comparison; Story B has none. The Done story's
 // worktree is retired: its review is its published completion or a captured
 // landed run.
-import { expect } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { recordOutsideCalls } from "./intent-outside-calls.ts";
-import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
+import { mountStoryIntent } from "./intent-story-perspective.tsx";
 import { scopeReadsOf } from "./intent-ci-scope-page.tsx";
 import {
   fullSha,
@@ -69,7 +68,8 @@ export async function openStoryAComparison(
   review: ReviewAnswers,
   ci: Partial<IntentCiReadSource> = {},
 ) {
-  const mounted = await mountIntentCiPage({
+  const mounted = await mountStoryIntent({
+    identity: storyA.identity,
     work: makeMe.aPublishedWork
       .of(openDoughSource)
       .at(fullSha("a1a1a1a"))
@@ -92,11 +92,10 @@ export async function openStoryAComparison(
       })
       .please(),
   });
-  await mounted.selectStory(storyA.identity, storyA.title);
   return {
     ...mounted,
-    selectStoryB: () => mounted.selectStory(storyB.identity, storyB.title),
-    selectStoryA: () => mounted.selectStory(storyA.identity, storyA.title),
+    selectStoryB: () => mounted.selectStory(storyB.identity),
+    selectStoryA: () => mounted.selectStory(storyA.identity),
   };
 }
 
@@ -149,16 +148,17 @@ export async function openDoneStoryComparison({
   ci = {},
   otherDone,
   readFile = (...[, , revision]) => Promise.resolve(`${revision}\n`),
+  viewport,
   ...review
 }: ReviewAnswers & {
   readonly ci?: Partial<IntentCiReadSource>;
   readonly otherDone?: { readonly identity: string; readonly title: string };
   readonly readFile?: IntentReadSource["readFile"];
+  readonly viewport?: { readonly width: number; readonly height: number };
 }) {
   const opened = recordOutsideCalls();
   const scope = scopeReadsOf(doneStory);
   const locationRevisions: string[] = [];
-  let selected = false;
   const stories = [{ identity: doneStory.identity, title: doneTitle }];
   if (otherDone !== undefined) stories.push(otherDone);
   const records = stories.map((story) =>
@@ -167,7 +167,9 @@ export async function openDoneStoryComparison({
       .please(),
   );
   const { done, doneReads } = makeMe.aDoneCatalog.holding(records).please();
-  const mounted = await mountIntentCiPage({
+  const mounted = await mountStoryIntent({
+    identity: doneStory.identity,
+    ...(viewport === undefined ? {} : { viewport }),
     work: makeMe.aPublishedWork
       .with({
         source: doneStory.source,
@@ -182,7 +184,7 @@ export async function openDoneStoryComparison({
     reads: {
       intent: {
         readLocations: (...[, revision]) => {
-          if (selected) locationRevisions.push(revision);
+          locationRevisions.push(revision);
           return Promise.resolve({
             status: "configured",
             locations: [...(doneStory.scope?.locations ?? [])],
@@ -201,16 +203,9 @@ export async function openDoneStoryComparison({
       done: doneReads,
     },
   });
-  // Intent shows trunk's locations before any story is selected; only the
-  // selected Done story's reads are recorded.
-  await expect
-    .poll(() => document.querySelector("button.intent-location-name"))
-    .not.toBeNull();
-  selected = true;
-  await mounted.selectStory(doneStory.identity, doneTitle);
   return {
     ...mounted,
-    selectDoneStory: () => mounted.selectStory(doneStory.identity, doneTitle),
+    selectDoneStory: () => mounted.selectStory(doneStory.identity),
     locationRevisions,
     proofReads: scope.asked.proofs,
     outsideCalls: () => opened,

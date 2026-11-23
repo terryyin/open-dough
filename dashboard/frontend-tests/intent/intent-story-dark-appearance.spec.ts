@@ -53,6 +53,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
     .through(doneCompletion)
     .please();
   await openDoneStoryComparison({
+    viewport: { width: 1280, height: 800 },
     review: () => Promise.resolve(comparison),
     readFile: () => Promise.resolve("const historical = true;\n"),
     fileDiff: () =>
@@ -84,7 +85,9 @@ test("a Done story's Intent evidence stays readable under the system dark appear
   });
   await expect.element(timing).toBeVisible();
   textContrast(timing.getByRole("heading").first().element());
-  textContrast(timing.element().querySelector("thead th") as Element);
+  const firstColumn = timing.getByRole("columnheader").first();
+  await expect.element(firstColumn).toBeVisible();
+  textContrast(firstColumn.element());
   const switchName =
     /^(dark mode|light mode|appearance|color scheme|dashboard theme)$/i;
   for (const role of ["button", "combobox", "switch"] as const)

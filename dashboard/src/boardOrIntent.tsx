@@ -1,7 +1,7 @@
 import { Board } from "./Board.tsx";
 import type { MachineSessions } from "./agentLaunches.ts";
 import type { DashboardRoute } from "./dashboardRouteUrl.ts";
-import { IntentPerspective } from "./IntentPerspective.tsx";
+import { IntentOnPage } from "./IntentPerspective.tsx";
 import { IntentReadRecovery } from "./intentReadRecovery.tsx";
 import type { Visibility } from "./pageVisibility.ts";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -55,7 +55,7 @@ export function BoardOrIntent({
               destination={followUp}
             />
           ) : (
-            <IntentPerspective
+            <IntentOnPage
               source={source}
               work={work}
               records={launches.records}

@@ -20,7 +20,7 @@ import { useIntentModeChoice } from "./pageIntentMode.tsx";
 import { useStorySelection } from "./pageStorySelection.tsx";
 import { IntentWorkspaceSelectionProvider } from "./intentWorkspaceSelection.ts";
 import { FollowUpNavigationOnPage } from "./ciFollowUpNavigation.tsx";
-import type { IntentPerspective } from "./IntentPerspective.tsx";
+import type { IntentOnPage } from "./IntentPerspective.tsx";
 import "./intent-perspective.css";
 
 function HistoricalPage({
@@ -40,7 +40,7 @@ function HistoricalPage({
   );
 }
 
-type Props = Parameters<typeof IntentPerspective>[0] & {
+type Props = Parameters<typeof IntentOnPage>[0] & {
   readonly destination: FollowUpDestination;
 };
 function RetainedStory({

@@ -186,24 +186,38 @@ function IntentBody({
   );
 }
 
-export function IntentPerspective({
-  source,
-  work,
-  records,
-  workspaces,
-}: {
+type ProjectIntentProps = {
   readonly source: PublishedSource;
   readonly work: PublishedWork | undefined;
   // This machine's kept launch records, unread until supplied, and the
   // worktrees local Git found holding a story's claim.
   readonly records: readonly LaunchRecord[] | undefined;
   readonly workspaces: readonly LocalWorkspace[];
+};
+
+export function IntentOnPage(props: ProjectIntentProps) {
+  const { selection } = useStorySelection(props.source.id);
+  const project = useIntentModeChoice(props.source.id);
+  return (
+    <IntentPerspective {...props} selection={selection} project={project} />
+  );
+}
+
+export function IntentPerspective({
+  source,
+  work,
+  records,
+  workspaces,
+  selection,
+  project,
+}: ProjectIntentProps & {
+  readonly selection: SelectedStory | undefined;
+  readonly project: ModeChoice;
 }) {
   // Intent reads the page's selected story: CI status judges its branch, and
   // the lens reads its comparison for the browser's overlay and the story's
   // header.
-  const { selection, selectedIdentity } = useStorySelection(source.id);
-  const project = useIntentModeChoice(source.id);
+  const selectedIdentity = selection?.identity;
   const { story, comparison, compared, retry } = useIntentStoryLens({
     source,
     work,

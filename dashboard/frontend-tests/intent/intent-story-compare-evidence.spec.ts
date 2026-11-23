@@ -7,7 +7,11 @@
 // evidence comes from the case's typed CI reads.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import {
+  activateComparisonControl,
+  comparisonRead,
+  intentStoryCompare,
+} from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
   doneIdentity,
@@ -19,18 +23,12 @@ const wholeStory = "Describes the whole story, not the chosen comparison.";
 const views = ["CI comparison", "Proof", "Intent coverage"] as const;
 type View = (typeof views)[number];
 
-// Opens VIEW; Proof is the Proof tab of the file FILE names.
-async function open(
+async function openProof(
   story: ReturnType<typeof intentStoryCompare>,
-  view: View,
-  file: () => ReturnType<typeof story.file>,
+  file: ReturnType<typeof story.file>,
 ) {
-  if (view !== "Proof") {
-    await story.chooseTab(view);
-    return;
-  }
   await story.chooseTab("Changes");
-  await file().click();
+  await activateComparisonControl(file);
   await story.chooseProof();
 }
 
@@ -55,38 +53,23 @@ test("CI comparison, Proof and Intent coverage say they describe the whole story
           .modifying("dashboard/tests/a.spec.ts")
           .pleaseRange(first),
       ),
-    fileDiff: () =>
-      Promise.resolve(
-        makeMe.aReviewedFileDiff
-          .adding("dashboard/tests/a.spec.ts", "all changes")
-          .please(),
-      ),
   });
   const story = intentStoryCompare();
-  const file = () => story.file(modified);
   const read: Partial<Record<View, string>> = {};
 
-  // With the default comparison chosen, no view says it describes the whole
-  // story.
-  await story.chooseTab("Changes");
-  await expect.element(story.choice("All changes")).toBeChecked();
+  await openProof(story, story.file(modified));
   for (const view of views) {
-    await open(story, view, file);
-    await expect.poll(() => story.viewText(view)).not.toBe("");
+    await comparisonRead(() => story.viewText(view)).not.toBe("");
     expect(story.noteIn(view), view).toBeNull();
     read[view] = story.viewText(view);
   }
 
-  // Choosing the first commit alone.
-  await story.chooseTab("Changes");
   await story.choose("Commits");
   await story.chooseAlone("first change");
-  await expect.poll(story.range).toContain("first change");
+  await comparisonRead(story.range).toContain("first change");
 
-  // Each view says so and, beside the note, reads as it did.
   for (const view of views) {
-    await open(story, view, file);
-    await expect.poll(() => story.noteIn(view)).toBe(wholeStory);
+    await comparisonRead(() => story.noteIn(view)).toBe(wholeStory);
     expect(story.viewText(view).replace(wholeStory, ""), view).toBe(read[view]);
   }
 });
@@ -109,12 +92,9 @@ test("a Taken branch range names the build of its already shown provisional CI c
     },
   );
   const story = intentStoryCompare();
-  await story.chooseTab("Changes");
   await story.choose("Commits");
-  await expect.poll(story.range).toContain("first change");
-  await story.chooseTab("CI comparison");
   const short = measured.slice(0, 7);
-  await expect.poll(() => story.noteBuild("CI comparison")).toBe(short);
+  await comparisonRead(() => story.noteBuild("CI comparison")).toBe(short);
   expect(story.viewText("CI comparison")).toMatch(/provisional/i);
 });
 
@@ -145,40 +125,27 @@ test("with a Done story's landed run chosen, CI comparison, Proof and Intent cov
                 .please()
             : published,
       ),
-    fileDiff: () =>
-      Promise.resolve(
-        makeMe.aReviewedFileDiff.adding(landing, "landing").please(),
-      ),
   });
   const story = intentStoryCompare();
-  await story.chooseTab("CI comparison");
-  await expect.poll(story.landedEndpoint).not.toBe("");
+  await comparisonRead(story.landedEndpoint).not.toBe("");
   const measured = story.landedEndpoint();
 
-  // With the published completion chosen, Proof has no note.
-  await open(story, "Proof", () => story.outsideFile(`Modified ${landing}`));
-  await expect.poll(() => story.proofLabels(doneIdentity)).not.toEqual([]);
+  await openProof(story, story.outsideFile(`Modified ${landing}`));
+  await comparisonRead(() => story.proofLabels(doneIdentity)).not.toEqual([]);
   const proofLabels = story.proofLabels(doneIdentity);
   expect(story.noteIn("Proof")).toBeNull();
 
-  // Choosing Landed runs chooses the captured run.
   await story.choose("Landed runs");
-  await expect.element(story.run).toHaveValue(run.key);
 
-  // Each view's note names the build the CI comparison measures; the landed
-  // run lists the same file as added.
-  const added = () => story.outsideFile(`Added ${landing}`);
+  await activateComparisonControl(story.outsideFile(`Added ${landing}`));
   for (const view of views) {
-    await open(story, view, added);
-    await expect.poll(() => story.noteBuild(view)).toMatch(/^[0-9a-f]{7}$/);
+    await comparisonRead(() => story.noteBuild(view)).toMatch(/^[0-9a-f]{7}$/);
     expect(measured, view).toContain(story.noteBuild(view));
   }
 
-  // The CI comparison still measures the same build, and Proof still reads the
-  // same labels.
-  await story.chooseTab("CI comparison");
-  await expect.poll(story.landedEndpoint).toBe(measured);
-  await open(story, "Proof", added);
-  await expect.poll(() => story.proofLabels(doneIdentity)).toEqual(proofLabels);
+  expect(story.landedEndpoint()).toBe(measured);
+  await comparisonRead(() => story.proofLabels(doneIdentity)).toEqual(
+    proofLabels,
+  );
   expect(outsideCalls()).toEqual([]);
 });

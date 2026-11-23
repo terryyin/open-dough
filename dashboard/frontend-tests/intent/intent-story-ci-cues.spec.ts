@@ -3,7 +3,6 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { emulateMedia } from "../review/browser-session.ts";
 import { scopeName, scopeToggle } from "./intent-browser-page.ts";
-import { developmentCard } from "./intent-ci-development-card-page.ts";
 import { intentPage } from "./intent-file-layout-page.ts";
 import {
   locationHeader,
@@ -48,6 +47,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
     .renaming("tests/old.sh", "dashboard/tests/renamed.spec.ts")
     .please();
   const mounted = await openDoneStoryComparison({
+    viewport: { width: 1280, height: 800 },
     review: () => Promise.resolve(comparison),
   });
   const story = intentStoryCompare();
@@ -159,9 +159,7 @@ test("tree file rows and location headers show shared CI cues with distinct sele
   }
 
   await page.viewport(1280, 800);
-  await mounted.showDevelopment();
-  await developmentCard("Story A").toggle();
-  await mounted.showIntent();
+  await mounted.selectStory(undefined);
   await expect
     .element(
       intentPage.getByRole("heading", {
