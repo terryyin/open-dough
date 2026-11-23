@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-345#catch-delegated-lint-before-delivery",
+  "title": "Catch delegated lint failures before guarded delivery",
+  "completedAt": "2026-11-23T07:24:41.451Z",
+  "developer": "Terry Yin",
+  "agent": "Yua-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-345_catch-delegated-lint-before-delivery.json",
+      "identity": "SEED-345#catch-delegated-lint-before-delivery",
+      "completedAt": "2026-11-23T07:24:41.451Z",
+      "blob": "f15a61e7423ec77c3dea901d6b3c4ff3e83b137e"
+    },
+    {
       "fileName": "SEED-425_resume-existing-plans-after-upgrade.json",
       "identity": "SEED-425#resume-existing-plans-after-upgrade",
       "completedAt": "2026-11-23T06:34:52.713Z",
