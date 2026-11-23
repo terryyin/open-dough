@@ -1,10 +1,15 @@
-// One done story in Recently done, from its local Done attachment or
-// published done record (`./doneRecord.ts`): its title, identity and time.
-// Like a Taken card, it shows recorded credit, for example
-// "Yui-chan · Terry Yin · Claude Code". Until its record is read, it stays under
+// One done story in Recently done, from its published done record
+// (`./doneRecord.ts`): its title and identity, when it was done, and, as a
+// Taken card's scan line names its developer, the agent with its portrait,
+// the recorded developer's name, and the agent's host beside its mark, for
+// example "Yui-chan · Terry Yin · Claude Code". A record naming no agent shows
+// none. Until its record is read, the card holds its place in the list under
 // the identity and completion time the done catalog names, saying the record
-// is being read, or why it was not. Inside it are the story's retained and
-// published sessions. The card holds the keyboard when the last of them is deleted
+// is being read, or why it was not. It is a story fact, published for every
+// machine. Inside it, read or not, are the marked-done sessions this machine
+// keeps for the story and its closed story follow-ups, newest first, each the
+// entry Recently done shows (`./SessionEntry.tsx`); a machine that keeps none
+// shows none. The card holds the keyboard when the last of them is deleted
 // (`deletedEntryHome`).
 // Review changes is always offered, independently of nested sessions, launch
 // records and whether done details or native state are readable. Published Git
@@ -27,7 +32,6 @@ import { HumanName } from "./HumanCredit.tsx";
 import { Moment } from "./Moment.tsx";
 import { doneStoryMarks } from "./pageEntries.ts";
 import { toggleOnEmptyArea } from "./pageStorySelection.tsx";
-import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import { StorySessions } from "./SessionLists.tsx";
 import { StoryNotes } from "./StoryNotesControl.tsx";
 import { StoryReviewAction } from "./StoryReviewAction.tsx";
@@ -51,12 +55,10 @@ export function DoneStoryCard({
   said,
   sessions,
   followUps,
-  publishedSessions,
   sourceId,
   launchRecords,
   selected,
   onSelect,
-  sessionActions,
   followUp,
   ciFollowUp,
   reviewState,
@@ -72,14 +74,11 @@ export function DoneStoryCard({
   readonly sessions: readonly LaunchWithState[];
   // Closed ad hoc follow-ups of this story, oldest first.
   readonly followUps: readonly LaunchWithState[];
-  readonly publishedSessions: readonly PublishedSessionRecord[];
   // Full retained launches, independently of which sessions are marked done.
   readonly launchRecords: readonly LaunchRecord[] | undefined;
   readonly sourceId: string;
   readonly selected: boolean;
   readonly onSelect: (identity: string) => void;
-  readonly sessionActions?:
-    ((record: LaunchWithState) => ReactNode) | undefined;
   // The story's Follow up, when it offers one.
   readonly followUp?: ReactNode;
   readonly ciFollowUp?: ReactNode;
@@ -141,8 +140,6 @@ export function DoneStoryCard({
         sessions={nested}
         className="done-story-sessions"
         onStoryCard={false}
-        additionalActionsFor={sessionActions}
-        published={{ sourceId, records: publishedSessions }}
       />
       <div
         className="story-card-action-group story-card-inspection-group"

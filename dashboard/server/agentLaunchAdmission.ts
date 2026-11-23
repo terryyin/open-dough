@@ -2,7 +2,6 @@
 // verification, recovery and session actions.
 
 import { sessionAttachmentEndpoint } from "../src/agentTerminal.ts";
-import { storyAssociationChoiceEndpoint } from "../src/storyAssociationChoice.ts";
 import { sessionBranchEntryEndpoint } from "../src/sessionBranchResult.ts";
 import {
   landingEndpoint,
@@ -136,9 +135,6 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
     (request.maintenance !== undefined ||
       request.followUp?.context !== undefined ||
       (request.followUp !== undefined &&
-        "storyIdentity" in request.followUp &&
-        request.followUp.storyIdentity !== undefined) ||
-      (request.followUp !== undefined &&
         "notes" in request.followUp &&
         request.followUp.notes !== undefined))
   ) {
@@ -188,7 +184,6 @@ export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   completionEndpoint,
   sessionBranchEntryEndpoint,
   sessionAttachmentEndpoint,
-  storyAssociationChoiceEndpoint,
   landingEndpoint,
   landingPrepareEndpoint,
   launchHostOptionsEndpoint,

@@ -119,10 +119,6 @@ record linking the session to its changes and, where applicable, its story.
 Published session identities and comparisons survive checkout retirement.
 The dashboard can rebuild its views and caches from their sources.
 
-Marking an ad hoc session Done creates a Done story if the session has no
-story. An existing association and the story's status are preserved. Each
-follow-up has its own session ID under that story.
-
 Project configuration is machine-local operational state, separate from the
 observed repositories' workflow records. There is no application/server
 database; optional browser storage is disposable.

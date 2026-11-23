@@ -46,7 +46,7 @@ export function SessionEntry({
   onStoryCard,
   takesFocus,
   storyCardAssignments,
-  additionalActions,
+  followUp,
 }: {
   readonly record: LaunchWithState;
   // Set where the entry is listed on its story's card, which names the story.
@@ -55,8 +55,9 @@ export function SessionEntry({
   // can land on it; set, it takes the keyboard.
   readonly takesFocus?: boolean;
   readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
-  // Review changes or Follow up beside the entry's native actions.
-  readonly additionalActions?: ReactNode;
+  // Given where the entry offers Follow up beside its primary action
+  // (`./FollowUp.tsx`).
+  readonly followUp?: ReactNode;
 }) {
   const entry = useRef<HTMLElement>(null);
   const { title, identity, name, modelWords } = launchSubject(record.request);
@@ -173,7 +174,7 @@ export function SessionEntry({
       <LaunchSessionNotice record={record} />
       <div className="session-entry-controls">
         <LaunchSession record={record} />
-        {additionalActions}
+        {followUp}
         <RecoverSession record={record} say={say} />
         <button
           type="button"

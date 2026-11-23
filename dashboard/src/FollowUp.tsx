@@ -30,8 +30,8 @@ type Launching = {
 
 type StoryLaunch = Launching & {
   readonly story: DoneStory;
-  // The revision the story's done record was read at, absent for local Done.
-  readonly revision?: string | undefined;
+  // The revision the story's done record was read at.
+  readonly revision: string;
   // The sessions its card holds, oldest first.
   readonly sessions: readonly LaunchWithState[];
 };
@@ -62,7 +62,7 @@ export function StoryFollowUpSession({
   const source: FollowUpSource = {
     story: {
       identity: story.identity,
-      ...(revision === undefined ? {} : { revision }),
+      revision,
       ...(file === undefined ? {} : { file: file.anchor }),
     },
   };
@@ -79,12 +79,7 @@ export function StoryFollowUpSession({
       followUp={{
         source,
         name: storyName(story),
-        context: storyContext(
-          story,
-          sessions,
-          file?.facts,
-          revision === undefined,
-        ),
+        context: storyContext(story, sessions, file?.facts),
       }}
     />
   );

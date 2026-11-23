@@ -13,8 +13,6 @@ export const completedStoryAssociationSchema = z.discriminatedUnion("kind", [
     kind: z.literal("linked"),
     identity: z.string().min(1),
   }),
-  z.object({ kind: z.literal("recorded"), identity: z.string().min(1) }),
-  z.object({ kind: z.literal("conflict") }),
   z.object({ kind: z.literal("absent") }),
   z.object({
     kind: z.literal("unavailable"),

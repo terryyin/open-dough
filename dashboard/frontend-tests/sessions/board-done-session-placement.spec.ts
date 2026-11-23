@@ -115,28 +115,6 @@ test("an unfinished card holds its own Done sessions, oldest first", () => {
   );
 });
 
-test("a Done follow-up stays with its Taken story", () => {
-  const followUp = makeMe.aLaunchRecord
-    .adHoc({
-      title: "Finish the follow-up",
-      followUp: {
-        story: { identity: unfinished.identity, revision: "a".repeat(40) },
-      },
-    })
-    .markedDone()
-    .please();
-  const record = makeMe.anObservedLaunch
-    .of(followUp)
-    .withSessionState(makeMe.aSessionState.retained("review").please())
-    .please();
-  const placed = placedOnBoard([record]);
-
-  expect(keys(placed.doneOnCard(unfinished.identity))).toContain(
-    sessionKey(record.session),
-  );
-  expect(keys(placed.done)).not.toContain(sessionKey(record.session));
-});
-
 test("Recently done receives none of an unfinished card's Done sessions", () => {
   const { records, unfinishedOlder, unfinishedNewer } = boardSessions();
   const left = keys(placedOnBoard(records).done);

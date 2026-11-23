@@ -29,48 +29,6 @@ const reportingAs = (reference: string) => ({
   command: "report",
 });
 
-test("declaring the branch hands Land the admitted follow-up's parent and its own UUID", async () => {
-  const branch = "draft";
-  const identity = `ad-hoc#${otherReference}`;
-  const {
-    checkout,
-    worktrees,
-    records: { followUp },
-  } = await aDoneCaptureCase()
-    .withOrigin()
-    .withWorkspace(branch)
-    .withDeclaringLaunch("followUp", { launched: 60 }, branch, (launch) =>
-      launch
-        .adHoc({
-          title: "Continue the declared work",
-          followUp: makeMe.aFollowUp
-            .ofSession({ host: "claude", sessionId: "original" })
-            .underStory(identity)
-            .please(),
-        })
-        .reportingThrough(reportingAs(reference)),
-    )
-    .please();
-  installPublisher(checkout.integration, worktrees[branch]);
-  const directory = mkdtempSync(
-    path.join(tmpdir(), "dough-follow-up-landing-"),
-  );
-  onTestFinished(() => {
-    rmSync(directory, { recursive: true, force: true });
-  });
-
-  const answered = await branchLandingContext(directory, followUp, {
-    origin: dashboardOrigin,
-    source,
-  });
-  if (answered === undefined) throw new Error("Missing the landing context.");
-  expect(JSON.parse(readFileSync(answered.file, "utf8"))).toMatchObject({
-    identity,
-    reference,
-  });
-  expect(answered.record.landingReporting.authority.identity).toBe(identity);
-});
-
 test("the declared worktree's installed landing and exact retry stay with the original launch", async () => {
   const branch = "draft";
   const {

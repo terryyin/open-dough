@@ -7,7 +7,6 @@ import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { Page } from "@playwright/test";
 import type { HostStatus } from "../../src/hostStatus.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
-import type { PublishedSessionRecord } from "../../src/publishedSessionRecord.ts";
 import { openDoughCandidatesRecord } from "../intentCandidatesFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
@@ -56,7 +55,6 @@ export type FrontendServiceState = {
   hostStatus: HostStatus | undefined;
   // Done catalogs and bodies keyed by published source id.
   doneBySource: Record<string, FrontendDonePublication>;
-  publishedSessionsBySource?: Record<string, readonly PublishedSessionRecord[]>;
   // Heads of the story branches a revision check watches, when a case
   // arranges them; unarranged, a check names no branch heads.
   branchHeads?: Record<string, string>;
@@ -122,19 +120,6 @@ export function putFrontendDonePublication(
 ): void {
   Object.assign(services, {
     doneBySource: { ...services.doneBySource, [sourceId]: done },
-  });
-}
-
-export function putFrontendPublishedSessions(
-  services: FrontendServiceState,
-  sourceId: string,
-  sessions: readonly PublishedSessionRecord[],
-): void {
-  Object.assign(services, {
-    publishedSessionsBySource: {
-      ...services.publishedSessionsBySource,
-      [sourceId]: sessions,
-    },
   });
 }
 

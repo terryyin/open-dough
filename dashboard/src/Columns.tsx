@@ -129,7 +129,7 @@ function Column({
               <SessionEntry
                 record={record}
                 onStoryCard={false}
-                additionalActions={
+                followUp={
                   <FollowUpSourceReference record={record} work={work} />
                 }
               />

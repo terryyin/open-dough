@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Start ad hoc work under a story](seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story) — SEED-426#start-ad-hoc-work-under-a-story
 - [Prove each adapter proof reason below the E2E journey](seeds/SEED-413-renovate-dashboard-unit-tests.md#hold-adapter-proof-reasons-in-default-timeout) — SEED-413#hold-adapter-proof-reasons-in-default-timeout
 - [Observe that a failed listing discover cancels the other branch](seeds/SEED-423-shrink-the-installed-distribution.md#observe-the-cancelled-listing-discover) — SEED-423#observe-the-cancelled-listing-discover
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families

@@ -8,12 +8,7 @@
 // or the copy in its first input text.
 
 import type { FollowUp } from "./followUpRequest.ts";
-import { landingReportingReference } from "./launchLanding.ts";
-import type {
-  FirstInput,
-  LaunchRecord,
-  LaunchWithState,
-} from "./launchRecord.ts";
+import type { FirstInput, LaunchWithState } from "./launchRecord.ts";
 
 // The detail a Done session's listing leaves for the history, by where it
 // sits in the record.
@@ -53,7 +48,6 @@ function definedFields<T extends object, K extends keyof T>(
 
 export function sessionListing(record: LaunchWithState): LaunchWithState {
   const done = record.doneAt !== undefined;
-  const reference = reportingReferenceOf(record);
   let request = done
     ? withoutFields(record.request, historyOnlyFields.request)
     : record.request;
@@ -74,15 +68,17 @@ export function sessionListing(record: LaunchWithState): LaunchWithState {
             historyOnlyFields.firstInput,
           ),
         }),
-    ...(done && reference !== undefined && { reportingReference: reference }),
+    ...(done &&
+      record.request.reporting !== undefined && {
+        reportingReference: record.request.reporting.reference,
+      }),
   };
 }
 
 // The reporting reference of a session as either its listing or a full answer
 // (a mark-done, read, stop, delete or recovery answer) gives it.
-export const reportingReferenceOf = (
-  session: LaunchRecord & { readonly reportingReference?: string | undefined },
-) => landingReportingReference(session) ?? session.reportingReference;
+export const reportingReferenceOf = (session: LaunchWithState) =>
+  session.reportingReference ?? session.request.reporting?.reference;
 
 // A retained session as the history read gives it in full, kept current by
 // the overview's later `listing` of it: the listing's facts stand, and the

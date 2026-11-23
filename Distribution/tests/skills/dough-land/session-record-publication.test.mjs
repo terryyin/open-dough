@@ -24,13 +24,11 @@ import {
 const publishedRecordOf = async (fixture) =>
   JSON.parse(await publishedRecord(fixture, reportingReference));
 
-test("a Dashboard-launched Land publishes the launch's Done story and its originating comparison", async (t) => {
-  const title = "Rework the launch review";
-  const story = `ad-hoc#${reportingReference}`;
+test("a Dashboard-launched Land publishes the session record of its accepted comparison under the launch reference", async (t) => {
   const { fixture, closed } = await landed(
     t,
     {},
-    { landingContext: await aLaunchLandingContext(t, undefined, title) },
+    { landingContext: await aLaunchLandingContext(t) },
   );
   assert.equal(closed.record.status, "published", JSON.stringify(closed));
 
@@ -41,42 +39,8 @@ test("a Dashboard-launched Land publishes the launch's Done story and its origin
     sessionId: reportingReference,
     workflow: "ad-hoc",
     closedAt: closedAt.toISOString(),
-    story,
-    title,
     ranges: [{ base: fixture.trunkSha, candidate: closed.work.receipt.sha }],
   });
-  const donePath = `.planning/done/ad-hoc_${reportingReference}.json`;
-  const catalogPath = ".planning/done/.catalog.json";
-  const changed = await published([
-    "diff-tree",
-    "--no-commit-id",
-    "--name-only",
-    "-r",
-    "main",
-  ]);
-  assert.deepEqual(changed.stdout.trim().split("\n"), [
-    catalogPath,
-    donePath,
-    `.planning/sessions/${reportingReference}.json`,
-  ]);
-  assert.deepEqual(
-    JSON.parse((await published(["show", `main:${donePath}`])).stdout),
-    { schemaVersion: 1, identity: story, title, completedAt: record.closedAt },
-  );
-  assert.deepEqual(
-    JSON.parse((await published(["show", `main:${catalogPath}`])).stdout)
-      .records,
-    [
-      {
-        fileName: `ad-hoc_${reportingReference}.json`,
-        identity: story,
-        completedAt: record.closedAt,
-        blob: (
-          await published(["rev-parse", `main:${donePath}`])
-        ).stdout.trim(),
-      },
-    ],
-  );
   const [{ base, candidate }] = record.ranges;
   assert.match((await published(["diff", base, candidate])).stdout, /\+edit/);
   assert.equal(
@@ -177,25 +141,6 @@ test("a close with no kept session identity publishes nothing", async (t) => {
   assert.equal(closed.work.status, "session-identity-missing");
   assert.equal(closed.record.status, "not-published");
   assert.equal(await lsRemoteSha(fixture.origin, targetRef), fixture.trunkSha);
-});
-
-test("a titled follow-up keeps its existing story and publishes no additional Done record", async (t) => {
-  const story = "SEED-42#review";
-  const { fixture, closed } = await landed(t, {
-    sessionId: nativeSession,
-    story,
-    title: "Review the attachment",
-  });
-  assert.equal(closed.record.status, "published", JSON.stringify(closed));
-  assert.equal(JSON.parse(await publishedRecord(fixture)).story, story);
-  const done = await git(
-    fixture.origin,
-    "ls-tree",
-    "-r",
-    "main",
-    ".planning/done",
-  );
-  assert.equal(done.stdout, "");
 });
 
 async function refusingPushes({ origin }) {

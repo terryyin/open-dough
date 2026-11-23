@@ -11,14 +11,8 @@ import type { PublishedWork } from "./publishedWork.ts";
 import {
   associatedIdentity,
   currentCatalog,
-  currentSessionCloses,
   linkIn,
-  needsSessionClose,
 } from "./recentlyDoneLink.ts";
-import {
-  publishedCloseFor,
-  sessionStoryAssociation,
-} from "./retainedStoryMembership.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import { sessionKey } from "./sessionReference.ts";
 import { withinReadWait } from "./readWaitBound.ts";
@@ -55,7 +49,6 @@ export function useShownDoneLinks(
     work?.source.id,
     revision,
     shown,
-    work?.publishedSessions,
   ]);
   useEffect(() => {
     const listed = JSON.parse(rows) as LaunchWithState[];
@@ -77,31 +70,10 @@ export function useShownDoneLinks(
             const relevant = listed.filter(
               (record) => record.request.source === source.id,
             );
-            const published = currentSessionCloses(work, source.id);
-            const launches: {
-              record: LaunchWithState;
-              identity: string;
-              recentOnly: boolean;
-            }[] = [];
-            const historical: LaunchWithState[] = [];
-            for (const record of relevant) {
-              const close = publishedCloseFor(record, published);
-              if (close?.story !== undefined) {
-                const membership = sessionStoryAssociation(record, close);
-                if (membership !== undefined && membership.kind !== "conflict")
-                  launches.push({
-                    record,
-                    identity: membership.identity,
-                    recentOnly: membership.kind !== "linked",
-                  });
-                continue;
-              }
-              const identity = launchSubject(record.request).identity;
-              if (identity === undefined || needsSessionClose(work, record))
-                historical.push(record);
-              else launches.push({ record, identity, recentOnly: true });
-            }
-            const readCatalog = async (): Promise<DoneStories | undefined> => {
+            const launches = relevant.filter(
+              (record) => launchSubject(record.request).identity !== undefined,
+            );
+            const catalog = async (): Promise<DoneStories | undefined> => {
               const current = currentCatalog(work, source.id);
               if (current !== undefined) return current;
               // The selected project's Board owns its catalog read and recovery.
@@ -116,59 +88,39 @@ export function useShownDoneLinks(
                 return undefined;
               }
             };
-            let requestedCatalog: Promise<DoneStories | undefined> | undefined;
-            const catalog = () => {
-              requestedCatalog ??= readCatalog();
-              return requestedCatalog;
-            };
             await Promise.all([
               ...(launches.length === 0
                 ? []
                 : [
                     catalog().then((done) => {
                       if (done?.status !== "catalogued") return;
-                      for (const { record, identity, recentOnly } of launches) {
-                        if (linkIn(done, identity, { recentOnly }) === "linked")
+                      for (const record of launches) {
+                        const identity = launchSubject(record.request).identity;
+                        if (
+                          identity !== undefined &&
+                          linkIn(done, identity, { recentOnly: true }) ===
+                            "linked"
+                        )
                           links.set(sessionKey(record.session), identity);
                       }
                       publish();
                     }),
                   ]),
-              ...historical.map(async (record) => {
-                const associated = await associatedIdentity(
-                  source,
-                  record,
-                  signal,
-                );
-                if (typeof associated === "object" && "kind" in associated) {
-                  if (associated.kind === "linked")
+              ...relevant
+                .filter(
+                  (record) =>
+                    launchSubject(record.request).identity === undefined,
+                )
+                .map(async (record) => {
+                  const associated = await associatedIdentity(
+                    source,
+                    record,
+                    signal,
+                  );
+                  if (typeof associated === "object" && "kind" in associated)
                     links.set(sessionKey(record.session), associated.identity);
-                  if (associated.kind === "recorded") {
-                    const done = await catalog();
-                    if (
-                      done?.status === "catalogued" &&
-                      linkIn(done, associated.identity, {
-                        recentOnly: false,
-                      }) === "linked"
-                    )
-                      links.set(
-                        sessionKey(record.session),
-                        associated.identity,
-                      );
-                  }
-                } else if (associated === "absent") {
-                  const identity = launchSubject(record.request).identity;
-                  if (identity !== undefined) {
-                    const done = await catalog();
-                    if (
-                      done?.status === "catalogued" &&
-                      linkIn(done, identity, { recentOnly: true }) === "linked"
-                    )
-                      links.set(sessionKey(record.session), identity);
-                  }
-                }
-                publish();
-              }),
+                  publish();
+                }),
             ]);
           }),
         ),

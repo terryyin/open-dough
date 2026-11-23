@@ -1,4 +1,4 @@
-// A Recently done entry for a session the project published a
+// A standalone Recently done entry for a session the project published a
 // close record for (`./publishedSessionRecord.ts`) and this machine never
 // launched: named by its UUID, closed when the record says, and offering
 // Review changes on the record's published comparison in the page's one
@@ -13,29 +13,6 @@ import "./story-review.css";
 
 const publishedSessionTitle = "Published session";
 
-export function PublishedSessionReviewAction({
-  record,
-  sourceId,
-  title = `${publishedSessionTitle} ${record.sessionId}`,
-}: {
-  readonly record: PublishedSessionRecord;
-  readonly sourceId: string;
-  readonly title?: string;
-}) {
-  const openSessionReview = useOpenSessionReview();
-  return (
-    <ReviewChangesButton
-      onClick={(event) => {
-        openSessionReview({
-          subject: { source: sourceId, published: record.sessionId },
-          title,
-          control: event.currentTarget,
-        });
-      }}
-    />
-  );
-}
-
 export function PublishedSessionEntry({
   record,
   sourceId,
@@ -43,6 +20,7 @@ export function PublishedSessionEntry({
   readonly record: PublishedSessionRecord;
   readonly sourceId: string;
 }) {
+  const openSessionReview = useOpenSessionReview();
   const { sessionId, closedAt } = record;
   const name = `${publishedSessionTitle} ${sessionId}`;
   return (
@@ -52,7 +30,15 @@ export function PublishedSessionEntry({
       <p className="quiet">
         Closed <time dateTime={closedAt}>{closedAt}</time>
       </p>
-      <PublishedSessionReviewAction record={record} sourceId={sourceId} />
+      <ReviewChangesButton
+        onClick={(event) => {
+          openSessionReview({
+            subject: { source: sourceId, published: sessionId },
+            title: name,
+            control: event.currentTarget,
+          });
+        }}
+      />
     </article>
   );
 }

@@ -2,14 +2,12 @@
 // configured project. The browser names only source and session identity.
 import type { ServerResponse } from "node:http";
 import { completedStoryAssociationEndpoint } from "../src/completedStoryAssociation.ts";
-import { sessionStoryAssociation } from "../src/retainedStoryMembership.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { completedStoryAssociation } from "./completedStoryAssociation.ts";
 import { keptSession } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { withResponseSignal } from "./responseSignal.ts";
-import { publishedLaunchClose } from "./publishedLaunchClose.ts";
 import {
   knownSource,
   noSuchSession,
@@ -59,17 +57,7 @@ export async function completedStoryAssociationResponse(
     status: 200,
     body: await withResponseSignal(
       res,
-      async (signal) => {
-        const close = await publishedLaunchClose(source, record, signal);
-        if (close?.story !== undefined) {
-          const membership = sessionStoryAssociation(record, close);
-          if (membership?.kind === "conflict")
-            return { kind: "conflict" } as const;
-          if (membership !== undefined)
-            return { kind: "recorded", identity: membership.identity } as const;
-        }
-        return completedStoryAssociation(source, record, signal);
-      },
+      (signal) => completedStoryAssociation(source, record, signal),
       60_000,
     ),
   };

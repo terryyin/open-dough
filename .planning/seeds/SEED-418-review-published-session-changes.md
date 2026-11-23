@@ -12,8 +12,10 @@ scope: seven stories
 A developer should be able to find what a session contributed from any machine with the project repository. Today a completed story can be reconstructed from published history, while session comparisons depend on local launch records. [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state) places the published association in the repository.
 
 The [unified Intent review seed](SEED-420-unified-intent-review.md) owns
-the review destination, the Recent stories regression and the identity of
-standalone Done work. This seed owns session attribution and selection.
+the review destination and the Recent stories regression.
+[Ad hoc story admission](SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
+owns story association at startup. This seed owns session attribution and
+selection.
 
 <a id="select-a-story-session-for-review"></a>
 

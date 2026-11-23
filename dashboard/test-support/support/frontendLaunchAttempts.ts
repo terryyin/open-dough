@@ -9,7 +9,6 @@ import type {
   AgentLaunchRequest,
   AttemptObservation,
   LaunchRecord,
-  LaunchWithState,
   MachineAnswer,
 } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -25,7 +24,6 @@ export type FrontendAttempt = {
 
 export function frontendAttempt(
   services: FrontendServiceState,
-  kept: readonly LaunchWithState[] = [],
 ): FrontendAttempt {
   let request: AgentLaunchRequest | undefined;
   let changes = 0;
@@ -45,7 +43,7 @@ export function frontendAttempt(
     const answer = makeMe.aMachineAnswer.answeringAttempts(attempt);
     if (launched !== undefined) answer.observingOpen(launched);
     const read: MachineAnswer = answer.please();
-    services.answerMachine({ ...read, records: [...kept, ...read.records] });
+    services.answerMachine(read);
     return attempt;
   };
   return {

@@ -153,32 +153,3 @@ test("two closes interrupted in one checkout each resume from their own saved st
     ],
   );
 });
-
-test("resuming a stopped close preserves a later unpublished edit in the shared checkout", async (t) => {
-  const fixture = await materializeRepository(oneUnpublishedEdit);
-  t.after(fixture.cleanup);
-  await recordingPushes(fixture);
-  const refusal = join(fixture.origin, "refuse-records");
-  await writeFile(refusal, "");
-  const stopped = await close(
-    fixture,
-    { sessionId: nativeSession, title: "First session" },
-    { previouslyPublishedBase: fixture.trunkSha },
-  );
-  assert.equal(stopped.record.status, "stopped");
-  const later = await commitAnotherEdit(fixture);
-  await rm(refusal);
-
-  const result = await resume(fixture, { record: stopped.record.record });
-
-  assert.equal(result.record.status, "stopped", JSON.stringify(result));
-  assert.match(
-    result.record.error,
-    /unvalidated commits above the session close/,
-  );
-  assert.equal(await revParse(fixture.execution, "HEAD"), later);
-  assert.equal(
-    await lsRemoteSha(fixture.origin, targetRef),
-    stopped.work.receipt.sha,
-  );
-});

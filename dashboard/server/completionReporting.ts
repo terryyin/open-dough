@@ -1,6 +1,5 @@
 // Explicit reports use an accepted launch's identity, never the newest story session.
 import type { IncomingMessage } from "node:http";
-import { followUpStoryIdentity } from "../src/followUpRequest.ts";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
@@ -38,7 +37,6 @@ export async function reportingContext(
   attempt: LaunchAttemptRecord,
   folder: ProjectFolder,
   established?: EstablishedContext | EstablishedSession,
-  sessionTitle?: string,
 ): Promise<PreparedReporting | undefined> {
   if (!preparesReporting(attempt)) return undefined;
   const files = await copyReportingFiles(
@@ -51,9 +49,8 @@ export async function reportingContext(
   let landingContext: string | undefined;
   let landingRepository: LandingRepository | undefined;
   // Every established start, preparation or unattached session names its
-  // trunk target. An ad hoc follow-up carries the story resolved at admission.
-  const identity =
-    establishedStory(established) ?? followUpStoryIdentity(attempt.request);
+  // trunk target. A story workflow also names its story.
+  const identity = establishedStory(established);
   if (landingModule !== undefined && established !== undefined) {
     const repository = (
       await runGit(
@@ -81,7 +78,6 @@ export async function reportingContext(
         reference: attempt.id,
       },
       landingRepository,
-      sessionTitle,
     );
     // Durable pointer outside the working tree so first trunk publication can
     // resolve this prepared context when the agent omits --landing-context.

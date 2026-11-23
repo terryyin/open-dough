@@ -57,37 +57,6 @@ test("lists two valid published records in path order at the requested revision"
   });
 });
 
-test("the pinned listing preserves two sessions' explicit association and an older standalone close", async () => {
-  const origin = makeMe.aSessionRecord.please();
-  const story = `ad-hoc#${origin.sessionId}`;
-  const original = makeMe.aSessionRecord
-    .forSession(origin.sessionId)
-    .underStory(story)
-    .please();
-  const followUp = makeMe.aSessionRecord.underStory(story).please();
-  const standalone = makeMe.aSessionRecord.please();
-
-  expect(await readListing(atItsPath(followUp))).toEqual({
-    kind: "answered",
-    answer: { revision, sessions: [followUp] },
-  });
-  expect(
-    await readListing({
-      ...atItsPath(original),
-      ...atItsPath(followUp),
-      ...atItsPath(standalone),
-    }),
-  ).toEqual({
-    kind: "answered",
-    answer: {
-      revision,
-      sessions: [original, followUp, standalone].toSorted((left, right) =>
-        left.sessionId.localeCompare(right.sessionId),
-      ),
-    },
-  });
-});
-
 test("skips malformed records and valid records at another UUID's path", async () => {
   const valid = makeMe.aSessionRecord.please();
   const misplaced = makeMe.aSessionRecord.please();

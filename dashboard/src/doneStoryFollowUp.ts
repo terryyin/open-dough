@@ -4,13 +4,12 @@
 // instead of threading the card's props through the diff.
 
 import { useContext } from "react";
-import type { LaunchWithState } from "./agentLaunch.ts";
+import { storySessionsOf, type LaunchWithState } from "./agentLaunch.ts";
 import { useDoneDetails } from "./doneDetails.ts";
 import type { DoneStory } from "./doneRecord.ts";
 import { usePageLaunches } from "./pageLaunches.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { RecentlyDoneLinkSources } from "./recentlyDoneShownLinks.ts";
-import { ownDoneStorySessions } from "./retainedStoryMembership.ts";
 
 export type DoneStoryFollowUpTarget = {
   readonly story: DoneStory;
@@ -65,11 +64,7 @@ export function useDoneStoryFollowUp(
   return {
     story: detail.story,
     revision,
-    sessions: ownDoneStorySessions(
-      launches.records,
-      source.id,
-      record.identity,
-    ),
+    sessions: storySessionsOf(launches.records, source.id, record.identity),
     project: source.label,
     sourceId: source.id,
   };
