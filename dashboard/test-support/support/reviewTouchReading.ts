@@ -1,20 +1,11 @@
 // Observe actual text inside the code pane and reach it with native movement.
-import { listedFile, fileDiff, changedFilesList } from "./reviewTreeRows.ts";
+import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 import type { Locator, Page } from "@playwright/test";
 import { expectDocumentStill } from "../boardReading.ts";
 import { tapWhereShown } from "../pageLayout.ts";
-import { resizeUntilArranged } from "../sidePanelWidthPage.ts";
 import { scrollByTouch } from "../touchGestures.ts";
 import { expect } from "./preparationPage.ts";
-import { contextValues, fileBrowser } from "./reviewContextLine.ts";
-import { chooseCommit } from "./storyReviewCommitChoice.ts";
-import {
-  uncommittedCheck,
-  uncommittedLabel,
-  comparisonChoice,
-  comparisonLabel,
-  filesToggle,
-} from "./reviewControls.ts";
+import { fileBrowser } from "./reviewContextLine.ts";
 
 // Read a particular part of rendered code, including clipping by its pane.
 // Adjacent React text nodes carry the marker and the file's original text.
@@ -94,8 +85,8 @@ export async function readCodePartByTouch(
   }
 }
 
-export async function readContextByTouch(review: Locator, workspace: string) {
-  const values = contextValues(review);
+export async function readContextByTouch(values: Locator, workspace: string) {
+  await values.scrollIntoViewIfNeeded();
   await tapWhereShown(values);
   await expect(values).toHaveAttribute("aria-expanded", "true");
   const workspaceValue = values.locator(
@@ -183,59 +174,4 @@ export async function visibleShortCodeLine(code: Locator) {
       text: shown?.textContent,
     };
   });
-}
-
-// Tap the Commits comparison and confirm it is the chosen one.
-async function chooseCommitsByTouch(review: Locator) {
-  const commits = comparisonLabel(review, "Commits");
-  await reachReviewControl(review, commits);
-  await tapWhereShown(commits);
-  await expect(
-    comparisonChoice(review, "Commits", { exact: true }),
-  ).toBeChecked();
-}
-
-// Choose Commits, then by touch the commit whose range holds every changed
-// file, once the anchored range's answer has moved the list.
-export async function chooseLargeChangesCommitByTouch(
-  review: Locator,
-  browser: Locator,
-  changedFiles: number,
-) {
-  await chooseCommitsByTouch(review);
-  const commits = review.getByRole("region", { name: "Story commits" });
-  await expect(commits).toBeVisible();
-  const commit = commits.getByRole("button", { name: /large changes/ });
-  await chooseCommit(review, commit, async (row) => {
-    await row.scrollIntoViewIfNeeded();
-    await tapWhereShown(row);
-  });
-  await expect(commit).toHaveAttribute("aria-pressed", "true");
-  await expect(
-    changedFilesList(browser, `${String(changedFiles)} changed files`),
-  ).toBeVisible();
-}
-
-// Tap the uncommitted-check label off; that state survives a viewport restore.
-export async function leaveUncommittedOutByTouchLabel(
-  review: Locator,
-  browser: Locator,
-  portrait: { width: number; height: number },
-  committedFiles: number,
-) {
-  const all = comparisonLabel(review, "All changes");
-  const uncommitted = uncommittedCheck(review);
-  const label = uncommittedLabel(review);
-  await tapWhereShown(filesToggle(review, "Show files"));
-  await reachReviewControl(review, all);
-  await tapWhereShown(all);
-  await expect(uncommitted).toBeChecked();
-  await label.scrollIntoViewIfNeeded();
-  await tapWhereShown(label);
-  await expect(uncommitted).not.toBeChecked();
-  await expect(
-    changedFilesList(browser, `${String(committedFiles)} changed files`),
-  ).toBeVisible();
-  await resizeUntilArranged(review, portrait);
-  await expect(uncommitted).not.toBeChecked();
 }

@@ -1,6 +1,6 @@
 // Hold delivery of one real story-review response: the next one, whose
 // payload callers inspect, then release in finally and await delivery before
-// proceeding; or one story's, released and drained between a journey's
+// proceeding; or a published session's, released and drained between a journey's
 // phases.
 import type { APIResponse, Page, Route } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
@@ -42,14 +42,18 @@ export async function holdNextReviewResponse(
   return { ready, release, delivery };
 }
 
-// Holds the answer to the page's first review read of the story `identity`;
+// Holds the answer to the page's first review read of the published `session`;
 // every other read passes. `reached` settles once that read is held, its real
 // answer fetched. `releaseAndDrain` lets the answer through and waits until
 // its delivery ends -- answered, or dropped because the page no longer waits
 // for it -- before removing the hold, whether or not the read ever came: call
 // it in a `finally`, so that a failing test does not leave the page's
 // teardown waiting on a held read.
-export async function holdReviewOf(page: Page, identity: string) {
+export async function holdPublishedReviewOf(
+  page: Page,
+  origin: string,
+  session: string,
+) {
   const reads = `**${storyReviewEndpoint}?**`;
   let reached!: () => void;
   const reachedHold = new Promise<void>((resolve) => {
@@ -65,14 +69,17 @@ export async function holdReviewOf(page: Page, identity: string) {
   });
   let intercepted = false;
   const hold = async (route: Route) => {
-    const read = new URL(route.request().url()).searchParams.get("identity");
-    if (intercepted || read !== identity) {
+    const read = new URL(route.request().url()).searchParams.get("published");
+    if (intercepted || read !== session) {
       await route.continue();
       return;
     }
     intercepted = true;
     try {
-      const response = await route.fetch();
+      const response = await route.fetch({
+        headers: { ...route.request().headers(), Origin: origin },
+      });
+      expect(response.status()).toBe(200);
       reached();
       await held;
       await route.fulfill({ response }).catch(() => undefined);

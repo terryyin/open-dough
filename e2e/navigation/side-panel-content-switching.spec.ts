@@ -1,19 +1,9 @@
-// The page's one side panel switches between a story's review and a
-// session's terminal, of Story A's and Story B's real worktrees
-// (../../dashboard/test-support/support/sidePanelContents.ts) and kept launch records: Story A's session is
-// listed by the synthetic `claude` (./fixtures/fake-claude). Whatever opens,
-// by a card's or the Sessions sidebar's own controls, the panel shows exactly
-// one named item beside a Board that stays usable. A review replaces the
-// terminal, which detaches without ending the session or marking it done, and
-// opening that session again attaches to the same session. Review and
-// terminal share the panel's frame icon controls, maximize into the same
-// room, and any change of content returns the normal split. Each opening
-// selects and highlights its story, which Intent reads; inspecting or
-// selecting another card leaves the panel as it is. The real `claude` is
-// never reached.
-
+// A published session review replaces the active story terminal. The
+// terminal detaches without ending and can reattach to the same session.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectSettledPage } from "../../dashboard/test-support/dashboardPage.ts";
+import { publishedPairAdding } from "../../dashboard/test-support/originatingMachine.ts";
+import { publishReviewSession } from "../../dashboard/test-support/support/publishedReviewSession.ts";
 import {
   type SidePanelPages,
   sidePanelPages,
@@ -30,8 +20,6 @@ import {
 import {
   keptSession,
   listed,
-  storyBBranch,
-  storyBWorktree,
   storyReviewReads,
 } from "../../dashboard/test-support/support/sidePanelContents.ts";
 import {
@@ -56,7 +44,10 @@ test("review and terminal take turns in the one side panel beside a usable Board
   origin,
 }) => {
   const { workspace: workspaceA } = storyWorktree(origin);
-  const workspaceB = storyBWorktree(origin.project);
+  const published = publishReviewSession(
+    origin,
+    publishedPairAdding(origin, "story-b.txt"),
+  );
   const sessionA = dashboard.claudeListsSession({
     name: "Story A",
     cwd: workspaceA,
@@ -68,12 +59,9 @@ test("review and terminal take turns in the one side panel beside a usable Board
       .onStoryBranch({ workspace: workspaceA, branch })
       .inClaudeSession(listed(sessionA))
       .please(),
-    makeMe.aLaunchRecord
-      .executing({ identity: otherQueuedIdentity, title: "Story B" })
-      .onStoryBranch({ workspace: workspaceB, branch: storyBBranch })
-      .please(),
   ]);
   const reviewReads = storyReviewReads(page);
+  await page.setViewportSize({ width: 2400, height: 900 });
   await openBacklog(page, origin);
   await expectSettledPage(page);
   const journey = sidePanelPages(page);
@@ -111,23 +99,19 @@ test("review and terminal take turns in the one side panel beside a usable Board
   );
 
   await journey.phase(
-    "a story's review replaces the terminal, which detaches without ending or marking the session done",
+    "a published review replaces the terminal, which detaches without ending the session",
     ({ board }) => {
       board
-        .storyCard("Story B")
-        .reviewChanges()
-        .expectStory("Story B")
-        .expectIdentity(otherQueuedIdentity)
+        .reviewPublishedSession(published)
+        .expectStory(`Published session ${published}`)
+        .expectSession(published)
         .expectChangedFile("1 changed file", "Added story-b.txt")
         .expectKeyboardInBody()
         .sidePanel.expectItems(1)
         .expectNotShowing("Terminal")
         .expectFills(splitPanel);
-      // A review is no session: no session entry is marked as shown. Story
-      // B's review moves the selection to Story B.
-      board.storyCard("Story A").expectNotShownInTerminal();
-      board.storyCard("Story B").expectSelected();
-      board.storyCard("Story A").expectNotSelected();
+      board.storyCard("Story A").expectNotShownInTerminal().expectNotSelected();
+      board.storyCard("Story B").expectNotSelected();
     },
   );
   // The detached terminal ended its one attachment; the session stays open
@@ -141,20 +125,19 @@ test("review and terminal take turns in the one side panel beside a usable Board
   expect(await keptSession(dashboard, sessionA)).toEqual(keptA);
 
   await journey.phase(
-    "inspecting another card, or opening the shown review again, leaves its story selected",
+    "inspecting a card or reopening the standalone review leaves both stories unselected",
     (pages) => {
       const { board } = pages;
-      intentReads(pages, otherQueuedIdentity);
       board
         .storyCard("Story A")
         .inspect()
         .expectInspected()
         .hideDetail()
         .expectNotInspected();
-      board.storyCard("Story B").expectSelected();
+      board.storyCard("Story B").expectNotSelected();
       board.storyCard("Story A").expectNotSelected();
-      board.storyCard("Story B").reviewChanges();
-      board.storyCard("Story B").expectSelected();
+      board.reviewPublishedSession(published).expectSession(published);
+      board.storyCard("Story B").expectNotSelected();
     },
   );
 
@@ -167,7 +150,7 @@ test("review and terminal take turns in the one side panel beside a usable Board
         .expectToggleFocused()
         .expectShown()
         .expectEntry("Story A")
-        .sidePanel.storyReview.expectStory("Story B")
+        .sidePanel.storyReview.expectStory(`Published session ${published}`)
         .sidePanel.expectItems(1),
   );
 
@@ -185,7 +168,7 @@ test("review and terminal take turns in the one side panel beside a usable Board
           "1 changed file",
           "Added story-b.txt",
         )
-        .expectFileDiff("Added story-b.txt", "+story b");
+        .expectFileDiff("Added story-b.txt", "+trunk moved on");
     },
   );
   const readsBeforeMaximizing = reviewReads.length;
@@ -216,7 +199,7 @@ test("review and terminal take turns in the one side panel beside a usable Board
         .openEntry("Story A")
         .expectText(attachedA)
         .sidePanel.expectItems(1)
-        .expectNotShowing("Story review")
+        .expectNotShowing("Session review")
         .expectInSplit();
       sessionsSidebar.expectEntryCurrent("Story A");
     },

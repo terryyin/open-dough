@@ -2,7 +2,7 @@ import {
   maximizeSidePanel,
   restoreSidePanel,
 } from "../../dashboard/test-support/sidePanelFrame.ts";
-// A large story's review, of Story A's worktree changing more files than the
+// A published session review whose fixed pair changes more files than the
 // file browser holds and files longer than the diff shows
 // (../../dashboard/test-support/support/storyReviewWorktree.ts). Beneath the review's
 // status above the work area the file browser and the selected file's diff
@@ -14,7 +14,8 @@ import {
 // places. In a narrow panel the browser sits above the diff with a bounded
 // share of the height, and Hide files gives the diff the whole work area.
 
-import { assumeReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { sidePanelPages } from "../../dashboard/test-support/sidePanelPages.ts";
+import { expectCovering } from "../../dashboard/test-support/sidePanelFrame.ts";
 import { narrowWindow } from "../../dashboard/test-support/accessibleReading.ts";
 import {
   box,
@@ -22,7 +23,9 @@ import {
 } from "../../dashboard/test-support/pageLayout.ts";
 import {
   control,
-  dragDivider,
+  focusDivider,
+  pressDividerKey,
+  keyStep,
   expectWidth,
 } from "../../dashboard/test-support/sidePanelWidthPage.ts";
 import {
@@ -48,27 +51,45 @@ test.use({ originRepository: largeReviewRepository });
 
 test("a large review's browser and diff fill the panel and each scrolls on its own", async ({
   page,
-  dashboard,
   origin,
 }) => {
-  const { browser, diffOf, codeOf, select } = await openLargeReview(
-    page,
-    dashboard,
-    origin,
-  );
-  const review = await assumeReviewChanges(page);
+  const {
+    browser,
+    diffOf,
+    codeOf,
+    select,
+    opened: review,
+  } = await openLargeReview(page, origin);
   const {
     panel: shownPanel,
     header,
     top,
-    contextLine,
+    details,
+    feedback,
     body,
   } = review.frame.partsToMeasure();
   const nameA = `Added ${longA}`;
   const nameB = `Added ${longB}`;
   const headingOf = (name: string) => diffHeading(diffOf(name), { name });
   // What stays in place while either pane scrolls.
-  const fixed = [header, top, contextLine, headingOf(nameA)];
+  await review.frame.expectDescription(
+    "Read-only: this session's published changes from its close record, from the recorded baseline to its published tree.",
+  );
+  await review.frame.expectUnshown(/^Read-only/);
+  const toolbarAt = await review.expectFilesToggleLeads("Published changes");
+  await review.status.refreshAndRead();
+  await review.status.expectFeedback(
+    "Review refreshed: 63 changed files in the published changes.",
+  );
+  const [contextAt, statusAt, bodyAt] = await Promise.all([
+    box(details),
+    box(feedback),
+    box(body),
+  ]);
+  expect(contextAt.y).toBeGreaterThan(toolbarAt.y);
+  expect(statusAt.y).toBeGreaterThanOrEqual(contextAt.y + contextAt.height);
+  expect(bodyAt.y).toBeGreaterThanOrEqual(statusAt.y + statusAt.height);
+  const fixed = [header, top, details, feedback, headingOf(nameA)];
 
   await test.step("the browser and the diff fill the panel beneath its status, and the body does not scroll", async () => {
     const [panel, bodyBox, shownBrowser, shownDiff, shownTop] =
@@ -116,7 +137,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
     expect(await scrollTopOf(browser)).toBe(150);
     expect(await boxes(fixed)).toEqual(before);
     await expect(headingOf(nameA)).toBeInViewport();
-    await expect(contextLine).toBeInViewport();
+    await expect(feedback).toBeInViewport();
   });
 
   await test.step("selecting another file shows its diff from the top and leaves the browser", async () => {
@@ -144,7 +165,7 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
   await test.step("Refresh keeps the browser's place, its collapsed folder, and the diff's place", async () => {
     await review.status.refreshAndRead();
     await review.status.expectFeedback(
-      /^Review refreshed: 63 changed files against baseline [0-9a-f]{7}\.$/,
+      "Review refreshed: 63 changed files in the published changes.",
     );
     await review.files.expectFolderExpanded(more, false);
     await expectPanesKept();
@@ -161,25 +182,27 @@ test("a large review's browser and diff fill the panel and each scrolls on its o
 
   await test.step("using the Panel divider keeps the selection and both panes' places", async () => {
     const width = (await box(shownPanel)).width;
-    await dragDivider(page, -200);
-    await expectWidth(shownPanel, Math.round(width + 200));
+    await focusDivider(page);
+    await pressDividerKey(page, "ArrowLeft");
+    await expectWidth(shownPanel, Math.round(width + keyStep));
     await expectPanesKept();
   });
 });
 
 test("in a narrow panel the browser sits above the diff, each scrolling, and Hide files gives the diff the work area", async ({
   page,
-  dashboard,
   origin,
 }) => {
-  const { browser, diffOf, codeOf } = await openLargeReview(
-    page,
-    dashboard,
-    origin,
-  );
+  const {
+    browser,
+    diffOf,
+    codeOf,
+    opened: review,
+    session,
+  } = await openLargeReview(page, origin);
   await page.setViewportSize(narrowWindow);
-  const review = await assumeReviewChanges(page);
-  const { body, workarea } = review.frame.partsToMeasure();
+  const { body, workarea, panel } = review.frame.partsToMeasure();
+  await expectCovering(panel);
   const nameA = `Added ${longA}`;
   const diff = diffOf(nameA);
   const code = codeOf(nameA);
@@ -226,4 +249,9 @@ test("in a narrow panel the browser sits above the diff, each scrolling, and Hid
     expect(alone.height).toBeGreaterThan(shownDiff.height);
     expect((await overflows(code)).down).toBe(true);
   });
+  await review.close("keyboard");
+  await sidePanelPages(page).phase(
+    "keyboard Close returns focus to the session entry",
+    ({ board }) => board.expectPublishedReviewFocused(session),
+  );
 });

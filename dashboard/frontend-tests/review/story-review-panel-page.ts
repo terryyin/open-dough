@@ -10,7 +10,10 @@ import {
   storyReviewPanelKey,
   type StoryReviewRequest,
 } from "../../src/pageStoryReviews.ts";
-import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
+import {
+  reviewedStoryIdentity,
+  type ReviewedWorkSubject,
+} from "../../src/reviewedWorkSubject.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import type { StoryNotesReadSource } from "../../src/storyNotesReadSource.ts";
 import { StoryReview } from "../../src/StoryReview.tsx";
@@ -44,7 +47,7 @@ export const reviewSourceAnswering = (
   ...reads,
 });
 
-// Opens the panel on `subject`'s review, read from `source`; another story's
+// Opens the panel on `subject`'s review, read from `source`; another subject's
 // review replaces it, keyed as the page keys each opening. The panel fills
 // the case's viewport, as a maximized panel fills the page. The story's notes
 // are read and saved through `notes`.
@@ -64,9 +67,12 @@ export async function mountReviewChanges(
   const panelOn = (shown: ReviewedWorkSubject) => {
     const request: StoryReviewRequest = {
       subject: shown,
-      title: doneStoryTitle,
+      title:
+        reviewedStoryIdentity(shown) === undefined
+          ? "Done session"
+          : doneStoryTitle,
       control: document.body,
-      completed,
+      ...(completed ? { completed } : {}),
     };
     return onReviewPage(
       source,

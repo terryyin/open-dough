@@ -72,6 +72,7 @@ export class ReviewFrame {
       header: review.locator(".side-panel-header"),
       top: review.locator(".story-review-top"),
       contextLine: contextLine(review),
+      details: review.getByRole("group", { name: "Review details" }),
       feedback: reviewFeedback(review),
       body: reviewBody(review),
       workarea: review.locator(".story-review-workarea"),

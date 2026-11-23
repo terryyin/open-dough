@@ -329,11 +329,14 @@ CI run `45098800346` attempt 1 exposed a signal-registration race in
 native setup. The [diagnosis](diagnosis-native-setup-sigint.md) records the
 deterministic failing launch and the corrected SIGINT/SIGTERM and process
 group termination proof. Slice 6 was paused for the repair.
+The repair published at `be2cb793fa2812669085d800b9f610edf2e23dfc`.
+Its push superseded the earlier CI attempt after its only failed job was
+identified. The installed repair operation restored the slice 6 work.
 
 ### 6. Side panel mechanics are proven with session entries
 
 Type: Structure
-Status: planned
+Status: done
 
 Before slice 7 changes the card action, move the panel-specific consumers
 to actual session review fixtures. The Side panel keeps its frame, divider,
@@ -351,6 +354,27 @@ toolbar, focus and touch cases. Move story-only details, notes and
 uncommitted cases only where slices 1–5 name their receiving Intent proof.
 Re-run the published and retained ad hoc session reviews, including the
 side-panel checks after perspective navigation.
+
+**Observed.** Real published session records exercise the Side panel
+replacement, detachment and reattachment, divider and covering layout,
+keyboard return and persistence across perspective navigation. A session
+with an empty kept comparison explains the result without a Files toggle.
+The phone case uses Intent to preserve the story-only comparison controls
+and exact committed range through rotation. The tests keep the old
+details, status and range observations at their actual owners. The
+remaining StoryReview-only test stand-ins and their matching receiving
+assertions are listed in `s6-implementation.md` and
+`s6-consumer-trace-final.md`.
+
+The final proof includes 13 E2E cases, 17 mounted tests and two browser
+frontend cases. The combined navigation batch passed Browser Back and the
+three published-session journeys. Its switching case timed out under
+contention and passed at the default in 13.6 seconds in the isolated
+check. Dashboard typecheck passed. The combined and isolated receipts and
+diagnostic are retained in Git evidence.
+Independent refactoring shared the exact published-session launcher between
+the Board and touch page objects. The three browser cases and Dashboard
+typecheck passed again. See `s6-refactor.md`.
 
 ### 7. Review changes on a Story card opens that story's Changes
 
@@ -449,7 +473,7 @@ Disposition: proved by slice 5: story-review-trunk-own-flagged.spec.ts reads the
 ### G4. An empty session review has no file toggle
 Reported: slice 2 — "The empty legacy story-panel tests still assert there is no files toggle. Preserve the panel-specific assertion with a session fixture when moving the empty story outcomes to Intent."
 Story clause: "still opens the Side panel review."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: story-review-toolbar-truthful-gaps.spec.ts reads an empty kept session comparison, verifies its exact empty reason and the absence of the Files toggle.
 
 ### G5. Use the real Story card action in the Intent review journeys
 Reported: slice 2 — "The Intent story review page object currently selects the card, enters Intent by the banner, then opens Changes."
@@ -464,7 +488,7 @@ Disposition: proved by slice 5: story-review-uncommitted-check.spec.ts toggles c
 ### G7. Session review retains its persistent panel status and keyboard return
 Reported: slice 3 — "The legacy workspace journeys observed the read-only description, toolbar position, keyboard return and a status area fixed between context and body during browser scroll. These are Side panel observations."
 Story clause: "still opens the Side panel review."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: story-review-panes.spec.ts opens the published session, verifies the description, toolbar/context/status/content ordering and stationary feedback through independent scroll. The narrow case closes by keyboard and verifies return focus.
 
 ### G8. Historical review explains missing captured landing information
 Reported: slice 3 — "Two missing-captured-landing journeys in story-review-nothing.spec.ts still open the story through the legacy review. Carry the available and unavailable comparisons to their historical readers."
@@ -489,4 +513,9 @@ Disposition: proved by slice 5: story-review-one-shot.spec.ts reads the fixed ca
 ### G12. A narrow session review retains divider and covering behavior
 Reported: slice 4 — "The former one-shot race used the Side panel divider, tested the 420px covering layout, a browser above the diff and Close focus. The new story race tests Intent at 420px and the underlying panel assertions still need genuine session fixtures."
 Story clause: "still opens the Side panel review."
-Disposition: receiving slice 6
+Disposition: proved by slice 6: story-review-panes.spec.ts tests the 32px divider movement and the 420px covering panel with its tree above the diff. The keyboard Close restores its session action.
+
+### G13. Replace the remaining story-only panel test requests
+Reported: slice 6 — "The mounted details-runs, details-published, uncommitted-check, notes and note-context wrappers still depend on the story panel request. The launch story-startup wrapper still supplies the former provider."
+Story clause: "The Side panel review's story-only paths have no caller left and go."
+Disposition: receiving slice 7

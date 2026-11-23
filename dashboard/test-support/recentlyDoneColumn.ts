@@ -90,3 +90,8 @@ export const publishedSessionEntry = (recent: Locator, sessionId: string) =>
     name: `Published session ${sessionId}`,
     exact: true,
   });
+
+export const publishedSessionReviewChanges = (
+  recent: Locator,
+  sessionId: string,
+) => reviewChanges(publishedSessionEntry(recent, sessionId));

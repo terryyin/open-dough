@@ -20,7 +20,11 @@ import {
   expectSelected,
 } from "./storyCardSelection.ts";
 import { expect } from "./support/preparationPage.ts";
-import { sessionReviewChanges } from "./recentlyDoneColumn.ts";
+import {
+  publishedSessionReviewChanges,
+  sessionReviewChanges,
+} from "./recentlyDoneColumn.ts";
+import { showColumn } from "./boardPage.ts";
 
 export class Board extends PageObject {
   reviewDoneSession(title: string) {
@@ -38,6 +42,35 @@ export class Board extends PageObject {
         expect(
           sessionReviewChanges(parts(this.page).recentlyDone, title),
         ).toBeFocused(),
+    );
+  }
+
+  #publishedReview(session: string) {
+    return publishedSessionReviewChanges(
+      parts(this.page).recentlyDone,
+      session,
+    );
+  }
+
+  reviewPublishedSession(
+    session: string,
+    using: "mouse" | "keyboard" = "mouse",
+  ) {
+    return this.cue(
+      `Recently done: review the published session ${session}`,
+      async () => {
+        await showColumn(this.page, "Recently done");
+        const action = this.#publishedReview(session);
+        await (using === "keyboard" ? action.press("Enter") : action.click());
+      },
+      this.pages.storyReview,
+    );
+  }
+
+  expectPublishedReviewFocused(session: string) {
+    return this.cueHere(
+      `Recently done: Review changes for ${session} has focus`,
+      () => expect(this.#publishedReview(session)).toBeFocused(),
     );
   }
 

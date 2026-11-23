@@ -1,17 +1,17 @@
-// A large story's review (./storyReviewWorktree.ts) as the developer meets
+// A published session's review as the developer meets
 // its panes: the file browser and the selected file's diff, each measured by
 // where it is scrolled and whether its content overflows it.
 
 import { changedFilesList, fileDiff, listedFile } from "./reviewTreeRows.ts";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { box } from "../pageLayout.ts";
-import type { DashboardServer } from "./dashboardServer.ts";
 import { largeReviewRevision, longA } from "./largeReviewFiles.ts";
-import { fileBrowser } from "./reviewContextLine.ts";
-import { expectOpenedWithKeyboard, openReviewAsOpened } from "./reviewRead.ts";
+import { expectOpenedWithKeyboard, expectReviewRead } from "./reviewRead.ts";
+import { assumeReviewChanges } from "../reviewChangesPage.ts";
+import { sidePanelPages } from "../sidePanelPages.ts";
+import { publishWorktreeReviewSession } from "./publishedReviewSession.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import {
   largeRepository,
   storyWorktree,
@@ -106,20 +106,20 @@ export const largeReviewRepository = largeRepository(
 // The review of an origin started from largeReviewRepository, open on the
 // first long file, selected from the end of the browser's list, which the
 // selection leaves scrolled there.
-export async function openLargeReview(
-  page: Page,
-  dashboard: DashboardServer,
-  origin: StartOrigin,
-) {
-  const { workspace } = storyWorktree(origin);
-  keepLaunchRecord(dashboard, workspace);
-  const card = await openBacklog(page, origin);
-  const review = await openReviewAsOpened(page, card);
-  // The keyboard lands in the review's named content.
-  await expectOpenedWithKeyboard(review);
-  const browser = fileBrowser(review);
+export async function openLargeReview(page: Page, origin: StartOrigin) {
+  const { workspace, base } = storyWorktree(origin);
+  const session = publishWorktreeReviewSession(origin, workspace, base);
+  await openBacklog(page, origin);
+  await sidePanelPages(page).phase(
+    "open the published session review with the keyboard",
+    ({ board }) => board.reviewPublishedSession(session, "keyboard"),
+  );
+  const opened = await assumeReviewChanges(page);
+  const { panel, fileBrowser: browser } = opened.frame.partsToMeasure();
+  await expectOpenedWithKeyboard(panel);
+  await expectReviewRead(panel);
   await expect(changedFilesList(browser, "63 changed files")).toBeVisible();
-  const diffOf = (name: string) => fileDiff(review, name);
+  const diffOf = (name: string) => fileDiff(panel, name);
   const codeOf = (name: string) => codePane(diffOf(name));
   const select = async (name: string) => {
     await listedFile(browser, name).click();
@@ -127,5 +127,5 @@ export async function openLargeReview(
   };
   await scrollPane(browser, 100_000);
   await select(`Added ${longA}`);
-  return { review, browser, diffOf, codeOf, select };
+  return { browser, diffOf, codeOf, select, opened, session };
 }

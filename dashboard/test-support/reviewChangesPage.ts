@@ -184,8 +184,11 @@ class ReviewChanges {
   }
 
   // Closes the review; the Side panel then holds nothing of it.
-  async close() {
-    await closeSidePanel(this.#region);
+  async close(using: "mouse" | "keyboard" = "mouse") {
+    await closeSidePanel(
+      this.#region,
+      using === "keyboard" ? { using, key: "Enter" } : { using },
+    );
     await expect(reviewRegion(this.page)).toHaveCount(0);
   }
 }

@@ -72,8 +72,7 @@ export async function openFrontendStoryReview(
   prepare(answers);
   await openFrontendTakenBacklog(page);
   // A short landscape can show one Board column; Taken then stays
-  // height-clipped until paged into view (same gate as openReview in
-  // frontendSidePanelWidth).
+  // height-clipped until paged into view.
   await showColumn(page, "Taken");
   const card = takenStoryCard(page);
   // A card still reading grows and moves Review changes (same gate as
