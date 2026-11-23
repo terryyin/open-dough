@@ -1,7 +1,3 @@
-import {
-  ciProofReading,
-  expectProofRows,
-} from "../../test-support/intentCiProofPage.ts";
 // One CI status Proof row per declared location with every result type's own
 // counts, times, and genuine gaps labeled in that row (../../src/IntentCiProof.tsx,
 // ../../src/ciProofEntryCells.ts). Decisive published-summary facts — shard
@@ -9,11 +5,13 @@ import {
 // cases — expressed through MakeMe. Units journey across Summary and file:
 // ../../../e2e/intent/intent-ci-proof-units.spec.ts.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openFrontendRunProof } from "../../test-support/support/frontendCiRunProofAnswers.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-
-const failed = { state: "failed" } as const;
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import {
+  mountFailedAttemptProof,
+  proofOfJudgedRun,
+} from "./intent-attempt-proof-fixtures.ts";
+import { intentCiProof } from "./intent-attempt-proof-page.ts";
 
 const groupedLocationSummary = () => [
   makeMe.aCiProofEntry
@@ -88,15 +86,10 @@ const groupedLocationSummary = () => [
     .please(),
 ];
 
-test("one location row keeps each result type's shard totals, empty reports, file failure beside cases, and a typed timing gap", async ({
-  page,
-}) => {
-  const { proof } = await openFrontendRunProof(
-    page,
-    groupedLocationSummary(),
-    failed,
-  );
-  await expectProofRows(proof, [
+test("one location row keeps each result type's shard totals, empty reports, file failure beside cases, and a typed timing gap", async () => {
+  await mountFailedAttemptProof(proofOfJudgedRun(groupedLocationSummary()));
+  const proof = intentCiProof();
+  await proof.showsRows([
     [
       "frontend/tests",
       ["test cases: 2542 passed test cases", "test files: no test files"],
@@ -118,15 +111,12 @@ test("one location row keeps each result type's shard totals, empty reports, fil
       ["test cases: 800 ms", "test files: 12 ms"],
     ],
   ]);
-  const fileGap = ciProofReading(proof).unitLines.filter({
-    hasText: "Part 2 missing",
-  });
-  await expect(fileGap).toHaveAttribute(
-    "title",
-    "Partial: part 2 of 2 missing",
-  );
-  await expect(fileGap).toHaveAccessibleDescription(
-    "Partial: part 2 of 2 missing",
-  );
-  await expect(proof.getByRole("row")).toHaveCount(5);
+  const fileGap = proof.unitLine("test files: Part 2 missing");
+  await expect
+    .element(fileGap)
+    .toHaveAttribute("title", "Partial: part 2 of 2 missing");
+  await expect
+    .element(fileGap)
+    .toHaveAccessibleDescription("Partial: part 2 of 2 missing");
+  expect(proof.table.getByRole("row").elements()).toHaveLength(5);
 });

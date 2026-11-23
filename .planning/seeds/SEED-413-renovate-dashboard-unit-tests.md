@@ -455,7 +455,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 2d | Get fast proof of Intent CI wall-time history (completed; recoverable at `dc8d21846:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest`) | 6 | 3 |
 | 2d′ | Get fast proof of Intent scope timing history (completed; recoverable at `1b8a80724:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history`) | 11 | 8 |
 | 2d″ | Get fast proof of Intent collected scope timing and chart marks (completed; recoverable at `d156695c5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading`) | 14 | 8 |
-| 2e | [Get fast proof of Intent attempt and Summary proof](#speed-intent-attempt-and-summary-proof) | 49 | 18 |
+| 2e | Get fast proof of Intent attempt and Summary proof (completed; recoverable at `4f454b0a29e118c54e7d8eae64ad12f7c2f6c900:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof`) | 49 | 18 |
 | 3a | Get fast proof of Intent locations read recovery and settings problems (completed; recoverable at `e0f7d6a6a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading`) | 7 | 2 |
 | 3b | Get fast proof of Intent source browsing and pinned links (completed; recoverable at `8fb7691cc:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours`) | 12 | 10 |
 | 3b′ | Get fast proof of Intent revision reading and reading-place detours (completed; recoverable at `3619577173:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading`) | 10 | 7 |
@@ -533,92 +533,6 @@ Continuing one component at a time would extend the life of both runners.
   use their results when available. The migrations own the remaining
   legacy cases. Keep this campaign's test work coordinated with
   [SEED-341](SEED-341-simplify-session-tests.md).
-
-<a id="speed-intent-attempt-and-summary-proof"></a>
-
-### Get fast proof of Intent attempt and Summary proof
-
-**Identity:** SEED-413#speed-intent-attempt-and-summary-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d9c5f2c107bb85e5f71021e081e9b806b3191fcefb0cc89696f0b49205cd338e","plan":"bcd747f5af7b55808b6212c4a9e9ffbd48bf264a7e19ced4d16e6308b2560f15"}}
-```
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#speed-intent-attempt-and-summary-proof","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-proof-and-timing","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing"},"implementation":"Wires IntentCiReadSourceOnPage (including readProof, readComparison, and endpoint proof readers) and exposes Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on pageMakeMe.mjs.","rationale":"Attempt-proof and Summary slices mount IntentCiProof, IntentScopeProofView, and IntentFileProofView directly over the pageMakeMe.mjs builders and IntentCiReadSourceOnPage contract delivered by SEED-413#speed-intent-proof-and-timing.","condition":"SEED-413#speed-intent-proof-and-timing has landed its IntentCiReadSourceOnPage contract, Node-free pageMakeMe.mjs CI proof builders, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"3acae51604f0f3960816dc48f093c24688572ed4","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-proof-and-timing","summary":"Delivered Slices 1-3 (done) wired IntentCiReadSourceOnPage (including readProof, readComparison, and endpoint proof readers) in dashboard/src/intentCiReadSource.ts, exposed Node-free aCiProofEntry, aCiProofEvidence, and aComparedStory on Distribution/tests/support/pageMakeMe.mjs, and landed the narrowed 7-file status split on main.\nCondition satisfied: SEED-413#speed-intent-proof-and-timing has landed its IntentCiReadSourceOnPage contract, Node-free pageMakeMe.mjs CI proof builders, and narrowed story split on main.\nAccepted integration: 75ab8266d13595ce74344cb9d8c2bf903479d3d9 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-intent-timing-history-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof"},"implementation":"Slices 1–2 of plan 759 replace the default-valued Intent, CI and review read contexts with one required typed page-reads entry (dashboard/src/pageReads.tsx) that ConfiguredDashboard supplies through authenticatedPageReads, fix every reader at creation with no optional member or defaulted reader parameter, and make pageReadsSupplying reject unsupplied reads.","rationale":"Every attempt-proof and Summary case reads CI through that required entry. Starting before it lands would either extend the default-valued seam and defaulted readers the correction removes, or duplicate the entry inside this story.","condition":"SEED-413#speed-intent-timing-history-proof has landed its required typed page-reads entry and narrowed story split on main.","state":"satisfied","resolution":{"revision":"756f67d70f4b0b7338eb86c5eef2c9fb41774876","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof","summary":"Delivered Slices 1-2 (done): dashboard/src/pageReads.tsx holds the required PageReads entry (intent, ci, review, sessions from sessionServices.ts) with no optional member, context default or defaulted reader parameter; App supplies authenticatedPageReads through ConfiguredDashboard's required reads prop; pageReadsSupplying rejects unsupplied reads. The story was narrowed by Terry's authorized split, with the remainder queued as SEED-413#speed-intent-ci-status-frame-and-timing-history. Proof: typecheck, full dashboard frontend group (822 cases) and the Intent CI status, review, final report, host status and terminal E2E journeys passed; branch CI success at c89c8a5d1.\nCondition satisfied: SEED-413#speed-intent-timing-history-proof has landed its required typed page-reads entry and narrowed story split on main.\nAccepted integration: 07a9bc2ea732a327affc2dfb7d2f2d792f9cd9a4 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-intent-ci-status-frame-and-timing-history","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history"},"implementation":"Slices 1–3 of plan 764 move the story notes, CI follow-up and review-state reads behind the typed page entry, render the CI status homepage, kept and side-panel cases through production PageFrame and the extracted production BoardOrIntent component with no outside fetch or WebSocket call, and render the status evidence and dark-contrast cases through the production Intent Summary fed by typed CI reads, with no private pipeline calls or hand-built hook state.","rationale":"Every attempt-proof and Summary case mounts the production Intent composition, Summary included, fed by typed CI reads. Starting before that corrected mount lands would either keep the hand-assembled Summary props and restated provider stacks the correction removes, or duplicate the correction inside this story.","condition":"SEED-413#speed-intent-ci-status-frame-and-timing-history has landed its Slices 1–3 CI status test-entry correction on main.","state":"satisfied","resolution":{"revision":"7b9e64961d0f26df835995d45878222dd19ae638","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-ci-status-frame-and-timing-history","summary":"Delivered Slices 1-3 (done): the CI status homepage, kept and side-panel cases mount production PageFrame and BoardOrIntent with no outside fetch or WebSocket call; freshness, execution-time, sort and dark-contrast render through the production Intent composition and the Done story Summary fed by typed CI reads, with no private pipeline calls, restated provider stacks or hand-built hook state (intent-ci-status-fixtures.ts keeps no production transform). Proof: the 7-file selection passing within the accepted 2-second allowance, full frontend group, branch CI success at d9f9df7a4. The retrospective's mount correction (production layout ancestors) is queued as plan 772 Slice 1.\nCondition satisfied: SEED-413#speed-intent-ci-status-frame-and-timing-history has landed its Slices 1–3 CI status test-entry correction on main.\nCondition satisfied: SEED-413#speed-intent-ci-status-frame-and-timing-history has landed its Slices 1–3 CI status test-entry correction on main.\nAccepted integration: e04fa9bacdc820011b9784845751124478df78b0 on origin/refs/heads/main."}}]}
-```
-
-**Split from** SEED-413#speed-intent-proof-and-timing at its delivered Slice 3
-boundary alongside Read Intent, CI, review and side-panel sessions through one required page entry (completed; recoverable at `756f67d70:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-proof`).
-Refinement on 23 November 2026 realigns the remainder onto the corrected CI
-status test entry (recoverable at
-`7b9e64961:.planning/slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry`).
-Its plan is
-[plan 760](../slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md).
-
-- **Goal.** Dashboard maintainers get fast, trustworthy Vitest proof of what
-  the chosen CI attempt's Proof and compared Summary rows say at the homepage,
-  location, folder, and file. Surviving shard figures, count and timing gaps,
-  fallback and owning-merge endpoints, renamed and outside files, and retained
-  sorting and Show % presentation across drill-down and return stay covered.
-  Every case runs through the production Intent page entry that production
-  supplies, not a hand-built Summary or Proof composition.
-- **Scope.**
-  - Move the 18 legacy attempt-proof and Summary specs (49 legacy cases) to
-    mounted Vitest cases:
-    `intent-ci-proof`, `intent-ci-proof-accessibility`,
-    `intent-ci-proof-grouped-location`, `intent-summary-ci-proof-{gaps,kept,sort,table}`,
-    and `intent-summary-story-comparison-{fallback,gaps,outside,rows,file,file-proof-counts,presentation-bindings,column-sort,relative,signed-sort,sort}`.
-  - Render through the corrected page entry: production `PageFrame` and
-    `BoardOrIntent` via `mountIntentCiPage` (or the production owner that
-    stands alone for the case's subject), fed by the required typed page-reads
-    entry and Node-free `aCiProofEntry`, `aCiProofEvidence`, and `aComparedStory`
-    on `pageMakeMe.mjs`. Do not call private evidence pipelines
-    (`ciTargetOf`, `scopeEvidenceOf`, `comparisonProofOf`, `intentStoryOverlay`,
-    `overlayFilesByPath`, `owningLocation`, `filesOfSelection`) to build view
-    props, wrap views in hand-written ancestor classes, or keep the legacy
-    comparison-mount / `renderComparison` markup path as the Vitest destination.
-  - Remove spent `dashboard/test-support/` modules whose last consumer across
-    `e2e/` and `dashboard/frontend-tests/` moved with this cohort, and record
-    the two-worker before/after comparison for the 18 files.
-  - CI status belongs to `SEED-413#speed-intent-proof-and-timing`; CI wall-time
-    history to Get fast proof of Intent CI wall-time history (completed;
-    recoverable at `dc8d21846:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest`);
-    scope history isolation and recovery to Get fast proof of Intent scope
-    timing history (completed; recoverable at
-    `1b8a80724:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history`);
-    collected timing reading and chart marks to Get fast proof of Intent
-    collected scope timing and chart marks (completed; recoverable at
-    `d156695c5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading`);
-    story-source and location views to Get fast proof of Intent source browsing
-    and pinned links (completed; recoverable at
-    `8fb7691cc:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours`);
-    reads that still leave `ConfiguredDashboard` outside the page entry to
-    [Drive the published observation through the typed page entry](#drive-published-observation-through-page-entry).
-- **Key examples.**
-  - A failed run's Proof is still held. The homepage shows Failed beside the
-    held Proof, then names the run once with linked attempt and revision and
-    one row per declared entry, including surviving per-part figures. Grouped
-    locations stay named for assistive reading; narrow and zoomed viewports
-    still fit the same controls and words.
-  - A selected entry has a missing shard and a shard without a file breakdown.
-    Summary keeps the entry totals, leaves every child partial with the short
-    gap labels, and explains the gaps in the cell's accessible description.
-    Navigating to a child and back reuses the kept attempt without another CI
-    proof read.
-  - Compared Summary rows distinguish Baseline, Branch, Landed, and Provisional
-    endpoints. Outside files and fallback counts come from their intended
-    endpoint; a Taken Trunk story names Provisional and keeps the unused Landed
-    explanation through entry, folder, and file Proof.
-  - A renamed-across-units or merge-edited file receives its own case and file
-    counts and timing once. Drilling into Proof reuses the chosen attempt;
-    Purpose shows the changed file's diff without comparison framing above it.
-  - Native column sorting and Show % keep signed order, accessible sort
-    direction, and per-scope relative scaling. Returning from a file keeps the
-    reader's sort and Show % preference.
-- **Evaluation.** All 49 legacy cases across the 18 owned files have a
-  traceable disposition and run on Vitest through the corrected page entry.
-  Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories)
-  timing, case-count, spent-support, and coverage checks. Summary proof gives
-  faster feedback as soon as its slices land.
 
 <a id="drive-published-observation-through-page-entry"></a>
 

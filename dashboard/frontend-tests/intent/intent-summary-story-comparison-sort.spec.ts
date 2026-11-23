@@ -1,44 +1,29 @@
-// Cross-story reading preferences: Summary keeps its sort while drilling, uses
-// tree order for a missing column, and restores that sort when its story
-// returns. Story A's comparison is the canonical Summary-scope answer; Story
-// B's Summary is one trunk run's (../../test-support/support/frontendQueuedStoryOneRun.ts).
-// Column ordering and zoom rules live in
-// intent-summary-story-comparison-column-sort.spec.ts.
-
-import type { Locator, Page } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { showColumn } from "../../test-support/boardPage.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { scopeTable } from "../../test-support/intentScopeProofPage.ts";
-import { openSummary } from "../../test-support/intentSummaryCiProofFixtures.ts";
-import {
-  emptyArea,
-  expectSelected,
-} from "../../test-support/storyCardSelection.ts";
-import { expectStoryTab } from "../../test-support/support/intentStoryPage.ts";
-import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
-import { answerQueuedStoryOneRun } from "../../test-support/support/frontendQueuedStoryOneRun.ts";
-import {
-  drillComparisonChild,
-  openSummaryComparison,
-  selectDoneStoryForSummaryComparison,
-} from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
-import {
-  expectSortedBy,
-  expectUnsortedRows,
-  sortButton,
-} from "../../test-support/support/expectSortedColumns.ts";
+// Summary retains the chosen sort while each story supplies a different table.
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { developmentCard } from "./intent-ci-development-card-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
-} from "../../test-support/support/summaryComparisonExpectedRows.ts";
+} from "./intent-summary-comparison-expected.ts";
+import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
+import {
+  expectComparisonRows,
+  openComparedFolder,
+} from "./intent-summary-comparison-page.ts";
+import {
+  expectSortedBy,
+  expectUnsortedRows,
+  openSummary,
+  scopeTable,
+  sortButton,
+} from "./intent-summary-proof-page.ts";
 
 const entry = "dashboard/tests";
-// The entry's children in the tree's order, as the comparison names them.
+const folder = `${entry}/folder`;
 const entryChildren = entryComparisonRows.slice(1).map(([name]) => name);
-// The entry's children by their signed landed change, descending, uncomparable rows after them.
-// renamed.spec.ts, a shell check's test file at Baseline and a Playwright test
-// case after, has no change across units, so it is one of them.
 const landedDescending = [
   "folder/",
   "root.spec.ts",
@@ -46,9 +31,7 @@ const landedDescending = [
   "gone.spec.ts",
   "renamed.spec.ts",
 ];
-// Story B's one-run children in the tree's order: trunk after Story A, so its
-// removed file is gone.
-const storyBChildren = [
+const trunkChildren = [
   "folder/",
   "added.spec.ts",
   "later.spec.ts",
@@ -56,76 +39,123 @@ const storyBChildren = [
   "root.spec.ts",
 ];
 
-// Leave Intent, select the story titled TITLE in COLUMN, and come back.
-async function selectStoryFromDevelopment(
-  page: Page,
-  column: "Backlog" | "Recently done",
+async function selectFromDevelopment(
+  identity: string,
   title: string,
-  previous?: Locator,
+  previous: string,
 ) {
-  const { development, intentChoice, intent } = parts(page);
-  await development.click();
-  await showColumn(page, column);
-  const card = page
-    .getByRole("region", { name: column, exact: true })
-    .getByRole("article", { name: title, exact: true });
-  await emptyArea(card).click();
-  await expectSelected(card, true);
-  if (previous !== undefined) await expectSelected(previous, false);
-  await intentChoice.click();
-  await expect(intent).toBeVisible();
+  await userEvent.click(
+    page.getByRole("radio", { name: "Development", exact: true }),
+  );
+  const card = developmentCard(title);
+  await card.toggle();
+  await card.isSelected(true);
+  await developmentCard(previous).isSelected(false);
+  await userEvent.click(
+    page.getByRole("radio", { name: "Intent", exact: true }),
+  );
+  await expect
+    .element(page.getByRole("main", { name: "Intent", exact: true }))
+    .toHaveAttribute("data-selected-story", identity);
 }
 
-test("Summary keeps its sort through drilling and story selection, falling back for missing columns and restoring it on return", async ({
-  page,
-  frontendServices,
-}) => {
-  await prepareFrontendDoneIntent(page, frontendServices);
-  await answerQueuedStoryOneRun(page, frontendServices);
-  const { intent, card: storyA } =
-    await selectDoneStoryForSummaryComparison(page);
-  const summary = await openSummaryComparison(intent, entry);
+test("Summary keeps its sort through drilling and story selection, falling back for missing columns and restoring it on return", async () => {
+  const queued = makeMe.aComparedStory.ofQueuedStory().please();
+  const facts = makeMe.aComparedStory.inSummaryScope().please();
+  const trunk = "f".repeat(40);
+  const work = makeMe.aPublishedWork
+    .with({
+      ...facts.work,
+      revision: trunk,
+      backlog: queued.work.backlog,
+    })
+    .please();
+  const trunkLocations = makeMe.anIntentLocationsAnswer
+    .locating(
+      makeMe.anIntentLocation
+        .at(entry)
+        .ofKind("typescript", ["**/*.spec.ts"])
+        .selecting(
+          `${folder}/a.spec.ts`,
+          `${folder}/nested/c.spec.ts`,
+          `${entry}/added.spec.ts`,
+          `${entry}/later.spec.ts`,
+          `${entry}/renamed.spec.ts`,
+          `${entry}/root.spec.ts`,
+        )
+        .please(),
+    )
+    .please();
+  const historicalLocations = makeMe.anIntentLocationsAnswer
+    .locating(...(facts.scope?.locations ?? []))
+    .please();
+  await openSummaryComparison(
+    { ...facts, work },
+    {
+      completion: facts.work.revision,
+      readLocations: (...[, revision]) => {
+        if (revision === trunk) {
+          return Promise.resolve(trunkLocations);
+        }
+        if (revision === facts.work.revision) {
+          return Promise.resolve(historicalLocations);
+        }
+        throw new Error(`Unexpected locations revision ${revision}`);
+      },
+    },
+  );
+  const summary = await openSummary(entry);
   const table = scopeTable(summary, entry);
+  const landed = sortButton(table, "Landed");
+  await userEvent.click(landed);
+  await expect
+    .element(table.getByRole("columnheader", { name: "Landed", exact: true }))
+    .toHaveAttribute("aria-sort", "ascending");
+  await userEvent.click(landed);
+  await expectSortedBy(table, "Landed", "descending", landedDescending);
 
-  await test.step("Landed descending orders the children by their signed landed change, uncomparable rows after them, the entry's figures unmoved above", async () => {
-    const landed = sortButton(table, "Landed");
-    await landed.click();
-    await landed.click();
-    await expectSortedBy(table, "Landed", "descending", landedDescending);
-  });
+  await openComparedFolder(summary, folder);
+  const [own, ...children] = folderComparisonRows;
+  const descending = [...children].reverse();
+  await expectComparisonRows(summary, [own, ...descending]);
+  await expectSortedBy(
+    scopeTable(summary, folder),
+    "Landed",
+    "descending",
+    descending.map(([name]) => name),
+  );
 
-  await test.step("a child folder's comparison opens in the same layout, still sorted by Landed descending", async () => {
-    const [own, ...children] = folderComparisonRows;
-    await drillComparisonChild(summary, "folder/", own[0], [
-      own,
-      ...[...children].reverse(),
-    ]);
-    await expectSortedBy(scopeTable(summary, own[0]), "Landed", "descending");
-  });
+  async function selectQueued() {
+    await selectFromDevelopment(queued.identity, "Story B", "Story A");
+    const view = intentStoryCompare();
+    await expect
+      .element(view.viewTab("CI comparison"))
+      .toHaveAttribute("aria-selected", "true");
+    await view.chooseTab("Changes");
+    await openSummary(entry);
+    await expect
+      .element(table.getByRole("columnheader", { name: "Landed", exact: true }))
+      .not.toBeInTheDocument();
+    await expectUnsortedRows(table, trunkChildren);
+  }
 
-  await test.step("one run's Summary lacks Landed, so it shows the tree's order; back in the comparison, the kept sort orders the rows by Landed descending again", async () => {
-    await selectStoryFromDevelopment(page, "Backlog", "Story B", storyA);
-    await expectStoryTab(intent, "CI comparison");
-    await openSummary(intent, entry);
-    await expect(
-      summary.getByRole("columnheader", { name: "Landed" }),
-    ).toHaveCount(0);
-    await expectUnsortedRows(table, storyBChildren);
+  async function returnToDone() {
+    await selectFromDevelopment(facts.identity, "Story A", "Story B");
+    await intentStoryCompare().chooseTab("Changes");
+    await openSummary(entry);
+  }
 
-    await selectStoryFromDevelopment(page, "Recently done", "Story A");
-    await openSummaryComparison(intent, entry);
-    await expectSortedBy(table, "Landed", "descending", landedDescending);
-  });
-
-  await test.step("a Test execution time sort chosen in one run's Summary gives way to the tree's order in the comparison", async () => {
-    await selectStoryFromDevelopment(page, "Backlog", "Story B");
-    await openSummary(intent, entry);
-    await expectUnsortedRows(table, storyBChildren);
-    await sortButton(table, "Test execution time").click();
-    await expectSortedBy(table, "Test execution time", "ascending");
-
-    await selectStoryFromDevelopment(page, "Recently done", "Story A");
-    await openSummaryComparison(intent, entry);
-    await expectUnsortedRows(table, entryChildren);
-  });
+  await selectQueued();
+  await returnToDone();
+  await expectSortedBy(table, "Landed", "descending", landedDescending);
+  await selectQueued();
+  await userEvent.click(sortButton(table, "Test execution time"));
+  await expectSortedBy(
+    table,
+    "Test execution time",
+    "ascending",
+    trunkChildren,
+  );
+  await returnToDone();
+  await expectUnsortedRows(table, entryChildren);
 });

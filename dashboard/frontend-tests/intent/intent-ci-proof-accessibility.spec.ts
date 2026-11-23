@@ -1,39 +1,28 @@
-import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
-import {
-  ciProofReading,
-  ciEntryName,
-  expectProofRows,
-  failedVerdict,
-  proofColumns,
-  proofTable,
-} from "../../test-support/intentCiProofPage.ts";
-import { expectCiAnswer } from "../../test-support/intentCiStatusPage.ts";
 // Proof table accessibility at narrow and zoomed windows: rows stay whole,
 // the reading pane never scrolls sideways, and keyboard navigation passes
 // sortable headers in their visible order. Multi-unit locations keep labeled
 // lines and full gap descriptions readable in that same boundary. Basic proof
 // behavior: ./intent-ci-proof.spec.ts.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openFrontendRunProof } from "../../test-support/support/frontendCiRunProofAnswers.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-
+import { expect, onTestFinished, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { zoomedViewport } from "../navigation/board-accessibility.ts";
 import {
-  twiceZoomedWindow,
-  zoomedWindow,
-} from "../../test-support/accessibleReading.ts";
-import { wordsBrokenApart } from "../../test-support/wholeWords.ts";
+  failedVerdict,
+  mountFailedAttemptProof,
+  proofOfJudgedRun,
+} from "./intent-attempt-proof-fixtures.ts";
 import {
-  attemptLink,
-  evidenceLabels,
-} from "../../test-support/ciEvidenceLabelsPage.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { summaryRegion } from "../../test-support/intentScopeProofPage.ts";
+  intentCiProof,
+  proofTableFit,
+  showsAttemptSummary,
+  wordsBrokenApart,
+} from "./intent-attempt-proof-page.ts";
+import { intentCiStatus } from "./intent-ci-status-page.ts";
 
-const failed = { state: "failed" } as const;
+const twiceZoomedViewport = { width: 640, height: 450 };
 
-test("at 200% zoom and on a narrow window each entry's row reads whole within the reading pane, nothing scrolls sideways and the keyboard passes the table", async ({
-  page,
-}) => {
+test("at 200% zoom and on a narrow window each entry's row reads whole within the reading pane, nothing scrolls sideways and the keyboard passes the table", async () => {
   const longEntry = "src/skills/dough-test-optimization/scripts";
   const summary = [
     makeMe.aCiProofEntry
@@ -88,92 +77,58 @@ test("at 200% zoom and on a narrow window each entry's row reads whole within th
     ],
     ["dashboard/tests", "12 passed test cases", "2 min"],
   ] as const;
-  const { panel, proof } = await openFrontendRunProof(page, summary, failed);
-  await expectProofRows(proof, rows);
-  const fileGap = ciProofReading(proof).unitLines.filter({
-    hasText: "Part 2 missing",
-  });
-  await expect(fileGap).toHaveAttribute("title", gapWhy);
-  await expect(fileGap).toHaveAccessibleDescription(gapWhy);
-  // A wider installed font lays the table out as Linux's fallback font does.
-  await page.addStyleTag({
-    content:
-      ".intent-ci-proof-box, .intent-evidence-labels { font-family: Verdana, sans-serif; }",
-  });
-  const table = proofTable(proof);
-  const box = proof.locator(".intent-proof-table");
-  const again = panel.getByRole("button", { name: "Check again" });
-  const link = attemptLink(proof, "Run 41 · attempt 1");
-  // How far the table's box scrolls sideways, and whether the box lies within
-  // the reading pane and the page does not scroll sideways.
-  const fit = () =>
-    box.evaluate((element) => {
-      const pane = element.closest(".intent-reading");
-      if (pane === null) throw new Error("no reading pane");
-      const shown = element.getBoundingClientRect();
-      const reading = pane.getBoundingClientRect();
-      return {
-        sideways: element.scrollWidth - element.clientWidth,
-        inPane: shown.left >= reading.left && shown.right <= reading.right,
-        pageSideways:
-          document.documentElement.scrollWidth >
-          document.documentElement.clientWidth,
-      };
-    });
+  await mountFailedAttemptProof(proofOfJudgedRun(summary));
+  const ci = intentCiStatus();
+  const proof = intentCiProof();
+  await proof.showsRows(rows);
+  const fileGap = proof.unitLine("test files: Part 2 missing");
+  await expect.element(fileGap).toHaveAttribute("title", gapWhy);
+  await expect.element(fileGap).toHaveAccessibleDescription(gapWhy);
 
-  // Every row reads exactly, every column fits the reading pane with nothing
-  // scrolling sideways, `whole` cells keep their words whole, and between the
-  // run link above it and Check again the keyboard stops at the table's
-  // sortable column headers, then its configured entry link.
+  // A wider installed font lays the table out as Linux's fallback font does.
+  const font = document.head.appendChild(document.createElement("style"));
+  font.textContent =
+    ".intent-ci-proof-box, .intent-evidence-labels { font-family: Verdana, sans-serif; }";
+  onTestFinished(() => {
+    font.remove();
+  });
+
+  const table = proof.table;
+  const link = proof.attemptLink("Run 41 · attempt 1");
+  const entry = proof.entryButton("dashboard/tests");
+  // Use the CSS viewport dimensions of 200% and 400% browser zoom.
   const readsAt = async (
-    window: { width: number; height: number },
+    { width, height }: { width: number; height: number },
     whole: string,
   ) => {
-    await page.setViewportSize(window);
-    await expectCiAnswer(panel, failedVerdict);
-    await expectProofRows(proof, rows);
-    await expect(fileGap).toHaveAccessibleDescription(gapWhy);
-    expect(
-      await page.evaluate(() => document.documentElement.scrollHeight),
-      "the CI proof does not add a document scrollbar",
-    ).toBe(window.height);
-    await table.scrollIntoViewIfNeeded();
-    await expect(table).toBeVisible();
-    expect(await fit()).toEqual({
+    await page.viewport(width, height);
+    await ci.answers(failedVerdict);
+    await proof.showsRows(rows);
+    await expect.element(fileGap).toHaveAccessibleDescription(gapWhy);
+    await expect
+      .poll(() => document.documentElement.scrollHeight, {
+        message: "the CI proof does not add a document scrollbar",
+      })
+      .toBe(height);
+    table.element().scrollIntoView({ block: "nearest", inline: "nearest" });
+    await expect.element(table).toBeVisible();
+    expect(proofTableFit(table.element())).toEqual({
       sideways: 0,
       inPane: true,
       pageSideways: false,
     });
-    expect(await wordsBrokenApart(table, whole)).toEqual([]);
-    expect(await wordsBrokenApart(evidenceLabels(proof), "li")).toEqual([]);
-    await link.focus();
-    for (const header of proofColumns) {
-      await page.keyboard.press("Tab");
-      await expect(
-        table
-          .getByRole("columnheader", { name: header, exact: true })
-          .getByRole("button"),
-      ).toBeFocused();
+    expect(wordsBrokenApart(table.element(), whole)).toEqual([]);
+    expect(wordsBrokenApart(proof.evidenceLabels.element(), "li")).toEqual([]);
+    (link.element() as HTMLElement).focus();
+    for (const next of [...proof.sortButtons(), entry, ci.checkAgainButton]) {
+      await userEvent.tab();
+      await expect.element(next).toHaveFocus();
     }
-    await page.keyboard.press("Tab");
-    await expect(ciEntryName(proof, "dashboard/tests")).toBeFocused();
-    await page.keyboard.press("Tab");
-    await expect(again).toBeFocused();
   };
 
-  await test.step("a window under 200% zoom keeps even path parts whole", async () => {
-    await readsAt(twiceZoomedWindow, "th, td");
-  });
-  await test.step("a narrow window under 400% zoom wraps the long path within its own column", async () => {
-    await readsAt(zoomedWindow, "thead th, tbody td");
-  });
-  await test.step("Space opens the configured entry at the narrow width", async () => {
-    await ciEntryName(proof, "dashboard/tests").focus();
-    await page.keyboard.press("Space");
-    const { intent } = parts(page);
-    await expect(
-      summaryRegion(intent).locator(".intent-summary-path"),
-    ).toHaveText("dashboard/tests");
-    await expect(intentReadingPane(intent)).toBeFocused();
-  });
+  await readsAt(twiceZoomedViewport, "th, td");
+  await readsAt(zoomedViewport, "thead th, tbody td");
+  (entry.element() as HTMLElement).focus();
+  await userEvent.keyboard(" ");
+  await showsAttemptSummary("dashboard/tests");
 });

@@ -35,10 +35,9 @@ Reusable harness helpers and fixtures live in [Dashboard Test Support](../test-s
 - Built-app UI specs import `test` from [frontendApp.ts](../test-support/support/frontendApp.ts),
   which requests the run's shared app build, serves it as static files and installs
   substitutes from `../test-support/support/frontendServiceSubstitutes.ts`.
-- Mounted production-component specs import `test` from
-  [comparisonMountPage.ts](../test-support/support/comparisonMountPage.ts) or take `comparisonRenderer`
-  from `pageTest.ts`; they render actual components and CSS from prepared
-  answers (`intent/`).
+- Mounted Vitest specs render production components and CSS with typed
+  answers. Retained Playwright markup specs take `comparisonRenderer` from
+  `pageTest.ts`.
 
 The mounted phone-board specs in `navigation/` render the production Board
 in its scroll frame with typed published work and session data. They use

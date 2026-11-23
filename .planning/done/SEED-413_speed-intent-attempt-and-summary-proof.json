@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#speed-intent-attempt-and-summary-proof",
+  "title": "Get fast proof of Intent attempt and Summary proof",
+  "completedAt": "2026-11-23T09:50:23.314Z",
+  "developer": "Terry Yin",
+  "agent": "Kaoru-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** The maintained Show % assertion caught loss of the reader's preference after returning from one file's Proof through Summary to another file's Proof.\n\nStory `SEED-413#speed-intent-attempt-and-summary-proof`, plan 760, at `bacba5db52673a2d3afa18cdba01c7fe746189a4`. The mounted comparison fixture selected the published Done story. I temporarily changed `FileComparison` in `dashboard/src/IntentFileComparisonContent.tsx` to keep Show % in local file-pane state, initialized off, in place of the story reading preference. Test and fixture bytes stayed intact.\n\nThe focused check was “added and unchanged historical file Proofs distinguish absence from a measured zero” in `dashboard/frontend-tests/intent/intent-summary-story-comparison-relative.spec.ts`. The faulted trace showed Show % was checked on the added file and that the test reopened Summary, selected `root.spec.ts`, and entered Proof. The failure screenshot showed the Proof tab selected, a `dashboard/tests/root.spec.ts` timing row with `0 ms`, and an unchecked Show % control. The maintained `toBeChecked()` assertion at line 108 failed on that control. The baseline and restored runs passed that same single selected case. After the fault run I restored the source byte-for-byte, checked the unchanged tracked and untracked state again after the restored pass, and removed the clean scratch worktree. [Execution log and screenshot](</tmp/dough-plan760-coverage.Jl5OjE>)\n\n**Next proof action.** Keep the existing checkbox assertion for this transition.\n\n- **Test runtime.** 26.252 s total (measured runner wall time including preparation). The focused Vitest Chromium runs were 5.167 s baseline, 18.283 s faulted, and 2.802 s restored, on AC with two workers and the default timeouts.\n- **Human effort.** Unavailable. No separately timed human effort was recorded.\n- **Agent effort.** Unavailable. No separate active agent effort measurement was recorded.\n\n\n- **Invocation-to-report elapsed.** 126611 ms (measured), from 1795427203655 to 1795427330266 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\nWrap-up disposition — checked `bacba5db52673a2d3afa18cdba01c7fe746189a4`, Caught, no follow-up.\n"
+  }
+}

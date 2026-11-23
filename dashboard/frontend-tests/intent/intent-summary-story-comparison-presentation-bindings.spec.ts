@@ -1,27 +1,21 @@
-// Native Summary header callbacks absent from static rendering.
-import {
-  test,
-  expect,
-  mountComparison,
-} from "../../test-support/support/comparisonMountPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
 import {
   expectSortedBy,
+  openSummary,
+  scopeTable,
   sortButton,
-} from "../../test-support/support/expectSortedColumns.ts";
-import { scopeTable } from "../../test-support/intentScopeProofPage.ts";
-import { entry } from "../../test-support/support/ciComparisonUnitsJourney.ts";
+} from "./intent-summary-proof-page.ts";
 
-test("Summary header bindings route Change, Baseline, Branch and Counts", async ({
-  page,
-  comparisonServer,
-  comparisonServices,
-}) => {
+test("Summary header bindings route Change, Baseline, Branch and Counts", async () => {
   const story = makeMe.aComparedStory.inSummaryScope().please();
-  comparisonServices.serve(story);
-  await mountComparison(page, comparisonServer, story);
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
+  const { comparisonReads, proofReads } = await openSummaryComparison(story);
+  const entry = "dashboard/tests";
+  const summary = await openSummary(entry);
   const table = scopeTable(summary, entry);
+
   await sortButton(table, "Change").click();
   await expectSortedBy(table, "Change", "ascending", [
     "added.spec.ts",
@@ -30,7 +24,9 @@ test("Summary header bindings route Change, Baseline, Branch and Counts", async 
     "folder/",
     "root.spec.ts",
   ]);
-  await sortButton(table, "Baseline").press("Enter");
+  const baseline = sortButton(table, "Baseline");
+  (baseline.element() as HTMLElement).focus();
+  await userEvent.keyboard("{Enter}");
   await expectSortedBy(table, "Baseline", "ascending", [
     "gone.spec.ts",
     "root.spec.ts",
@@ -46,8 +42,9 @@ test("Summary header bindings route Change, Baseline, Branch and Counts", async 
     "gone.spec.ts",
     "renamed.spec.ts",
   ]);
-  await sortButton(table, "Counts").focus();
-  await page.keyboard.press("Space");
+  const counts = sortButton(table, "Counts");
+  (counts.element() as HTMLElement).focus();
+  await userEvent.keyboard(" ");
   await expectSortedBy(table, "Counts", "ascending", [
     "added.spec.ts",
     "renamed.spec.ts",
@@ -55,6 +52,8 @@ test("Summary header bindings route Change, Baseline, Branch and Counts", async 
     "folder/",
     "gone.spec.ts",
   ]);
-  expect(comparisonServices.comparisons).toBe(1);
-  expect(comparisonServices.proofs).toBe(3);
+  expect(comparisonReads.map(({ identity }) => identity)).toEqual([
+    story.identity,
+  ]);
+  expect(proofReads.map(({ subject }) => subject.runId)).toEqual([1, 2, 3]);
 });

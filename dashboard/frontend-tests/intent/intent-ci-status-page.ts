@@ -1,10 +1,12 @@
-// Colocated page objects for Intent's CI status region and Proof table.
+// Colocated page object for Intent's CI status region.
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
-import { withoutBreakingHints } from "./intent-file-reading-page.ts";
+import { ciReadingText } from "./intent-attempt-proof-page.ts";
 
-const cleanText = (text: string | null | undefined) =>
-  withoutBreakingHints(text).trim().replace(/\s+/g, " ");
+export {
+  intentCiProof,
+  type ExpectedProofRow,
+} from "./intent-attempt-proof-page.ts";
 
 // The nearest ancestor of `element` that scrolls its content when it
 // overflows.
@@ -71,20 +73,20 @@ export function intentCiStatus() {
     notes: (expected: string) =>
       expect
         .poll(() =>
-          cleanText(
+          ciReadingText(
             panel.query()?.querySelector(".intent-ci-story")?.textContent,
           ),
         )
         .toBe(expected),
     async answers(expected: string) {
       await expect
-        .poll(() => cleanText(stateElement()?.textContent))
+        .poll(() => ciReadingText(stateElement()?.textContent))
         .toBe(expected);
       return ci;
     },
     async showsChecked(): Promise<string> {
       await expect
-        .poll(() => cleanText(status.query()?.textContent))
+        .poll(() => ciReadingText(status.query()?.textContent))
         .toMatch(/^Checked at /);
       const checkedAt = checkedTimeElement()?.getAttribute("datetime") ?? "";
       expect(checkedAt).toMatch(/^\d{4}-\d\d-\d\dT/);
@@ -92,7 +94,7 @@ export function intentCiStatus() {
     },
     async showsOnlyChecking(branch: string) {
       await expect
-        .poll(() => cleanText(status.query()?.textContent))
+        .poll(() => ciReadingText(status.query()?.textContent))
         .toBe(`Checking the CI of ${branch}…`);
       expect(checkingElement()?.checkVisibility()).toBe(true);
       expect(stateElement()).toBeNull();
@@ -108,7 +110,7 @@ export function intentCiStatus() {
     }) {
       await ci.answers(expected.state);
       await expect
-        .poll(() => cleanText(status.query()?.textContent))
+        .poll(() => ciReadingText(status.query()?.textContent))
         .toContain("Previously retrieved at");
       if (expected.checkedAt !== undefined) {
         await expect
@@ -116,14 +118,14 @@ export function intentCiStatus() {
           .toBe(expected.checkedAt);
       }
       await expect
-        .poll(() => cleanText(checkingElement()?.textContent))
+        .poll(() => ciReadingText(checkingElement()?.textContent))
         .toBe(expected.checking);
       expect(checkingElement()?.checkVisibility()).toBe(true);
       return ci;
     },
     async showsNoPreviousOrSpinner() {
       await expect.poll(() => checkingElement()).toBeNull();
-      expect(cleanText(status.query()?.textContent)).not.toContain(
+      expect(ciReadingText(status.query()?.textContent)).not.toContain(
         "Previously retrieved",
       );
       return ci;
@@ -134,117 +136,4 @@ export function intentCiStatus() {
     },
   };
   return ci;
-}
-
-export type ExpectedProofRow = readonly [
-  entry: string,
-  counts: string,
-  executionTime: string,
-];
-
-export function intentCiProof() {
-  const proof = page.getByRole("region", { name: "Proof", exact: true });
-  const table = proof.getByRole("table", {
-    name: "CI proof by declared entry",
-    exact: true,
-  });
-  const sortHeader = (name: string) =>
-    table.getByRole("columnheader", { name, exact: true });
-  const sortButton = (name: string) =>
-    sortHeader(name).getByRole("button", { name, exact: true });
-
-  return {
-    proof,
-    table,
-    sortButton,
-    executionCells() {
-      return [
-        ...table
-          .element()
-          .querySelectorAll<HTMLTableCellElement>("tbody tr td:nth-of-type(2)"),
-      ].map((cell) => page.elementLocator(cell));
-    },
-    async showsEvidenceLabel(words: string) {
-      const labels = proof.getByRole("list", {
-        name: "CI evidence",
-        exact: true,
-      });
-      await expect
-        .poll(() =>
-          [
-            ...labels
-              .element()
-              .querySelectorAll(".intent-evidence-label-heard"),
-          ].map((node) => cleanText(node.textContent)),
-        )
-        .toContain(words);
-    },
-    async showsRows(rows: readonly ExpectedProofRow[]) {
-      await expect
-        .poll(() =>
-          table
-            .getByRole("columnheader")
-            .elements()
-            .map((header) => cleanText(header.textContent)),
-        )
-        .toEqual(["Entry", "Counts", "Test execution time"]);
-      const bodyRows = [...table.element().querySelectorAll("tbody tr")];
-      expect(bodyRows).toHaveLength(rows.length);
-      for (const [at, [entry, counts, executionTime]] of rows.entries()) {
-        const row = bodyRows[at];
-        expect(cleanText(row?.querySelector("th")?.textContent)).toBe(entry);
-        const cells = [...(row?.querySelectorAll("td") ?? [])];
-        expect(cells).toHaveLength(2);
-        expect(cleanText(cells[0]?.textContent)).toBe(counts);
-        expect(cleanText(cells[1]?.textContent)).toBe(executionTime);
-      }
-    },
-    async showsUnsorted(names: readonly string[]) {
-      await expect
-        .poll(() => ({
-          sorted: table.element().querySelectorAll("th[aria-sort]").length,
-          rows: [...table.element().querySelectorAll("tbody tr th")].map((th) =>
-            cleanText(th.textContent),
-          ),
-        }))
-        .toEqual({ sorted: 0, rows: [...names] });
-    },
-    async showsSortedBy(
-      column: string,
-      direction: "ascending" | "descending",
-      names: readonly string[],
-    ) {
-      const header = sortHeader(column);
-      await expect.element(header).toHaveAttribute("aria-sort", direction);
-      await expect
-        .poll(() => {
-          const th = header.element();
-          const marks = [...th.querySelectorAll(".intent-ci-sort-mark")];
-          const arrows = [...th.querySelectorAll(".intent-ci-sort-mark svg")];
-          return {
-            tag: th.tagName,
-            scope: th.getAttribute("scope"),
-            sortedHeaders: table.element().querySelectorAll("th[aria-sort]")
-              .length,
-            directions: marks.map((mark) =>
-              mark.getAttribute("data-direction"),
-            ),
-            visibleArrows: arrows
-              .filter((svg) => svg.checkVisibility())
-              .map((svg) => svg.getAttribute("aria-hidden")),
-            rows: [...table.element().querySelectorAll("tbody tr th")].map(
-              (row) => cleanText(row.textContent),
-            ),
-          };
-        })
-        .toEqual({
-          tag: "TH",
-          scope: "col",
-          sortedHeaders: 1,
-          directions: [direction],
-          visibleArrows: ["true"],
-          rows: [...names],
-        });
-    },
-  };
 }

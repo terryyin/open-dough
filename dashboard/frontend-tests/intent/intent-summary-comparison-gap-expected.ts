@@ -1,14 +1,12 @@
 // Expected Summary comparison rows for gap variants in
-// ../intent/intent-summary-story-comparison-gaps.spec.ts: baseline without file
+// ./intent-summary-story-comparison-gaps.spec.ts: baseline without file
 // breakdown, running Landed, and Trunk Mode Branch not applicable. Counts
 // show measured differences where both sides measure; a no-breakdown or
 // status endpoint shows its gap, not a difference.
 
-import type { ComparisonScopeRows } from "../intentScopeProofPage.ts";
-
 const parts = "1 of 1 part present";
 
-export const noBreakdownEntryRows: ComparisonScopeRows = [
+export const noBreakdownEntryRows = [
   [
     "dashboard/tests",
     "",
@@ -58,9 +56,9 @@ export const noBreakdownEntryRows: ComparisonScopeRows = [
     "1.2 s",
     "1.2 s",
   ],
-];
+] as const;
 
-export const runningLandedEntryRows: ComparisonScopeRows = [
+export const runningLandedEntryRows = [
   [
     "dashboard/tests",
     "",
@@ -94,7 +92,7 @@ export const runningLandedEntryRows: ComparisonScopeRows = [
     "removed",
     "Build is still running.",
   ],
-  // Renamed across units (./summaryComparisonExpectedRows.ts): no change.
+  // Renamed across units (./intent-summary-comparison-expected.ts): no change.
   [
     "renamed.spec.ts",
     "renamed",
@@ -111,12 +109,12 @@ export const runningLandedEntryRows: ComparisonScopeRows = [
     "0 ms",
     "Build is still running.",
   ],
-];
+] as const;
 
 const trunkBranch =
   "Branch comparison is not applicable for a Trunk Mode story.";
 
-export const trunkEntryRows: ComparisonScopeRows = [
+export const trunkEntryRows = [
   [
     "dashboard/tests",
     "",
@@ -152,4 +150,4 @@ export const trunkEntryRows: ComparisonScopeRows = [
     "2.1 s",
   ],
   ["root.spec.ts", "", "1 test case (no change)", "1.2 s", trunkBranch, "0 ms"],
-];
+] as const;

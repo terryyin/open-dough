@@ -3,15 +3,16 @@
 // ../../src/ciScopeProof.ts): a missing shard and a shard without a file
 // breakdown keep the entry's totals and leave every child partial with short
 // gap labels whose full explanation is the cell's accessible description and
-// hover, an entry-only proof is labelled as having no file breakdown, and a
-// run without a summary keeps the children for drilling down, saying why as
-// the homepage does. The proof answer is controlled
-// (../../test-support/support/frontendSummaryCiProof.ts); reading CI's collected
-// bytes into it: ../../backend-tests/intent/ci-proof-extraction.spec.ts and
-// ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
+// hover, and an absent proof keeps the tree open for drill-down.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { fileSource } from "../../test-support/intentCodeBrowsePage.ts";
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { ciReadingText, intentCiProof } from "./intent-attempt-proof-page.ts";
+import {
+  mountAttemptSummary,
+  summaryEntries,
+} from "./intent-attempt-summary-fixture.ts";
 import {
   evidenceLabel,
   evidenceLabels,
@@ -19,29 +20,22 @@ import {
   expectInFull,
   expectLabelInFull,
   labelWords,
-} from "../../test-support/ciEvidenceLabelsPage.ts";
+} from "./intent-summary-evidence-page.ts";
 import {
   childName,
+  childTime,
+  entryTime,
   expectScopeRows,
-  scopeFigures,
-  scopeTable,
-} from "../../test-support/intentScopeProofPage.ts";
-import { openSummary } from "../../test-support/intentSummaryCiProofFixtures.ts";
-import {
-  bothEntries,
-  openSummaryCiProof,
-} from "../../test-support/support/frontendSummaryCiProof.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+  openSummary,
+  showsSummaryPath,
+} from "./intent-summary-proof-page.ts";
 
 const missing = "part 3 of 3 missing";
 const noBreakdown = "part 2 of 3 has no file breakdown";
 
-test("a missing shard and a shard without a file breakdown keep the entry's totals and leave every child partial", async ({
-  page,
-  frontendServices,
-}) => {
+test("a missing shard and a shard without a file breakdown keep the entry's totals and leave every child partial", async () => {
   // Part 1 broken down by file, part 2 not, part 3 never reported.
-  const { intent } = await openSummaryCiProof(page, frontendServices, [
+  await mountAttemptSummary([
     makeMe.aCiProofEntry
       .at("dashboard/tests")
       .holding(
@@ -57,8 +51,8 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
       )
       .please(),
   ]);
-  const summary = await openSummary(intent, "dashboard/tests");
-  await expectScopeRows(summary, "dashboard/tests", [
+  const summary = await openSummary("dashboard/tests");
+  await expectScopeRows(summary, [
     [
       "dashboard/tests",
       "2 passed test cases",
@@ -69,84 +63,70 @@ test("a missing shard and a shard without a file breakdown keep the entry's tota
     ["added.spec.ts", "no CI result", "no CI result"],
     ["root.spec.ts", "no CI result", "no CI result"],
   ]);
-  const timeCell = (row: number) =>
-    scopeTable(summary, "dashboard/tests")
-      .locator("tbody")
-      .getByRole("row")
-      .nth(row)
-      .getByRole("cell")
-      .nth(1);
   const folderWhy = `Partial: ${missing} and ${noBreakdown}`;
-  // The entry's own time explains its gap as a table cell does.
-  const ownTime = scopeFigures(summary, "dashboard/tests")
-    .getByRole("definition")
-    .nth(1);
-  await expect(ownTime).toHaveText("Part 3 missing");
-  await expect(ownTime).toHaveAccessibleDescription(`Partial: ${missing}`);
-  await expect(ownTime).toHaveAttribute("title", `Partial: ${missing}`);
-  await expect(timeCell(0)).toHaveAccessibleDescription(folderWhy);
-  await expect(timeCell(0)).toHaveAttribute("title", folderWhy);
+  const ownTime = entryTime(summary, "dashboard/tests");
+  expect(ciReadingText(ownTime.element().textContent)).toBe("Part 3 missing");
+  await expect
+    .element(ownTime)
+    .toHaveAccessibleDescription(`Partial: ${missing}`);
+  await expect.element(ownTime).toHaveAttribute("title", `Partial: ${missing}`);
+  const folderTime = await childTime(summary, "dashboard/tests", "folder/");
+  await expect.element(folderTime).toHaveAccessibleDescription(folderWhy);
+  await expect.element(folderTime).toHaveAttribute("title", folderWhy);
   // No CI result is its own word, with no partial explanation.
-  await expect(timeCell(1)).toHaveAccessibleDescription("");
+  await expect
+    .element(await childTime(summary, "dashboard/tests", "added.spec.ts"))
+    .toHaveAccessibleDescription("");
   // What the figures hold beyond the rows, as a short label.
   const outside = evidenceLabels(summary, "Not in the rows above");
   await expectEvidenceLabels(outside, ["Part 2 no breakdown"]);
   await expectLabelInFull(outside, "Part 2 no breakdown", noBreakdown);
 });
 
-test("an entry-only proof keeps entry totals and labels the child breakdown unavailable", async ({
-  page,
-  frontendServices,
-}) => {
-  const { intent } = await openSummaryCiProof(
-    page,
-    frontendServices,
-    bothEntries(false),
-  );
-  const summary = await openSummary(intent, "tests");
-  const absent = evidenceLabel(summary, "No file breakdown");
-  await expect(labelWords(absent)).toHaveText("No file breakdown");
+test("an entry-only proof keeps entry totals and labels the child breakdown unavailable", async () => {
+  await mountAttemptSummary(summaryEntries(false));
+  const summary = await openSummary("tests");
+  const about = evidenceLabels(summary, "About these figures");
+  await expectEvidenceLabels(about, ["No file breakdown"]);
+  const absent = await evidenceLabel(about, "No file breakdown");
+  expect(labelWords(absent)).toBe("No file breakdown");
   await expectInFull(
     absent,
     "This CI proof summary does not break tests down by file",
   );
-  await expect(evidenceLabels(summary, "About these figures"))
-    .toMatchAriaSnapshot(`
+  await expect.element(about).toMatchAriaInlineSnapshot(`
     - list "About these figures":
       - listitem: No file breakdown , This CI proof summary does not break tests down by file
   `);
-  await expectScopeRows(summary, "tests", [
+  await expectScopeRows(summary, [
     ["tests", "2 passed test files", "3.0 s", "1 of 1 part present"],
     ["root.sh", "no file breakdown", "no file breakdown"],
   ]);
-  await childName(summary, "root.sh").click();
-  await expect(fileSource(intent, "tests/root.sh")).toBeVisible();
+  await userEvent.click(childName(summary, "root.sh"));
+  await expect
+    .element(page.getByLabelText("tests/root.sh source", { exact: true }))
+    .toBeVisible();
 });
 
-test("a run without a CI proof summary keeps the Summary's children for drilling down and says why, as the homepage does", async ({
-  page,
-  frontendServices,
-}) => {
-  const { proof, intent } = await openSummaryCiProof(
-    page,
-    frontendServices,
-    [],
-    { kind: "unavailable", reason: "none" },
-  );
-  await expect(proof).toContainText("This run published no CI proof summary.");
-  const summary = await openSummary(intent, "dashboard/tests");
-  await expect(summary.locator(".intent-summary-evidence-absent")).toHaveText(
-    "This run published no CI proof summary.",
-  );
+test("a run without a CI proof summary keeps the Summary's children for drilling down and says why, as the homepage does", async () => {
+  const absent = "This run published no CI proof summary.";
+  await mountAttemptSummary([], {
+    proof: makeMe.aCiProof.unavailable("none").please(),
+  });
+  await expect
+    .element(intentCiProof().proof.getByText(absent, { exact: true }))
+    .toBeVisible();
+  const summary = await openSummary("dashboard/tests");
+  await expect
+    .element(summary.getByText(absent, { exact: true }))
+    .toBeVisible();
   const none = "no CI proof";
-  await expectScopeRows(summary, "dashboard/tests", [
+  await expectScopeRows(summary, [
     ["dashboard/tests", none, none, none],
     ["folder/", none, none],
     ["added.spec.ts", none, none],
     ["root.spec.ts", none, none],
   ]);
-  await childName(summary, "folder/").click();
-  await expect(summary.locator(".intent-summary-path")).toHaveText(
-    "dashboard/tests/folder",
-  );
+  await userEvent.click(childName(summary, "folder/"));
+  await showsSummaryPath(summary, "dashboard/tests/folder");
 });

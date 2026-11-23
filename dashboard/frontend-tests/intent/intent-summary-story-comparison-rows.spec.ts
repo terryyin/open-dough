@@ -1,83 +1,76 @@
-// Actual scope projections; live navigation and full-app acquisition stay separate.
-import { test, expect } from "../../test-support/support/pageTest.ts";
-import { expectComparisonScopeRows } from "../../test-support/intentScopeProofPage.ts";
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { rowTextsOf } from "./intent-ci-comparison-page.ts";
 import {
   entryComparisonRows,
   folderComparisonRows,
-  nestedComparisonRows,
   mergeEditedNestedComparisonRows,
-} from "../../test-support/support/summaryComparisonExpectedRows.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  nestedComparisonRows,
+} from "./intent-summary-comparison-expected.ts";
+import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
 import {
   comparisonLabels,
-  expectEvidenceLabels,
-  expectObservedNotAttributed,
-  expectLabelInFull,
-} from "../../test-support/ciEvidenceLabelsPage.ts";
+  expectComparisonCues,
+  expectComparisonRows,
+  expectObservedBuildFraming,
+  fileProofTable,
+  openComparedFileProof,
+  openComparedFolder,
+} from "./intent-summary-comparison-page.ts";
 import {
-  expectScopeRowCues,
-  summaryEntryComparisonCues,
-  summaryFolderComparisonCues,
-} from "../../test-support/support/expectCiComparisonCues.ts";
+  expectEvidenceLabels,
+  expectLabelInFull,
+} from "./intent-summary-evidence-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 
-test("nested Summary renders precise endpoint rows for unchanged c.spec.ts", async ({
-  page,
-  renderComparison,
-}) => {
-  await renderComparison(
-    makeMe.aComparedStory
-      .inSummaryScope()
-      .selecting("dashboard/tests/folder/nested", "folder")
-      .please(),
-  );
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expect(summary.locator(".intent-summary-path")).toHaveText(
-    "dashboard/tests/folder/nested",
-  );
-  await expectComparisonScopeRows(
-    summary,
-    "dashboard/tests/folder/nested",
-    nestedComparisonRows,
-  );
+const entry = "dashboard/tests";
+const folder = `${entry}/folder`;
+const nested = `${folder}/nested`;
+const nestedFile = `${nested}/c.spec.ts`;
+
+async function openNestedSummary(
+  story = makeMe.aComparedStory.inSummaryScope().please(),
+) {
+  await openSummaryComparison(story);
+  const summary = await openSummary(entry);
+  await openComparedFolder(summary, folder);
+  await openComparedFolder(summary, nested);
+  return summary;
+}
+
+test("nested Summary renders precise endpoint rows for unchanged c.spec.ts", async () => {
+  const summary = await openNestedSummary();
+  await expectComparisonRows(summary, nestedComparisonRows);
 });
 
-test("file Proof renders precise endpoint rows for unchanged c.spec.ts", async ({
-  page,
-  renderComparison,
-}) => {
-  await renderComparison(
-    makeMe.aComparedStory
-      .inSummaryScope()
-      .selecting("dashboard/tests/folder/nested/c.spec.ts", "file")
-      .please(),
-  );
-  const proof = page.getByRole("table", {
-    name: "CI proof of dashboard/tests/folder/nested/c.spec.ts",
-  });
-  await expect(proof.locator("tbody tr")).toHaveText([
-    "dashboard/tests/folder/nested/c.spec.ts1 test case (no change)340 ms+70 ms+70 ms",
-  ]);
+test("file Proof renders precise endpoint rows for unchanged c.spec.ts", async () => {
+  const summary = await openNestedSummary();
+  const proof = await openComparedFileProof(summary, "c.spec.ts");
+  const table = fileProofTable(proof, nestedFile);
+  await expect
+    .poll(() => rowTextsOf(table))
+    .toEqual([
+      [nestedFile, "1 test case (no change)", "340 ms", "+70 ms", "+70 ms"],
+    ]);
 });
 
-test("Summary labels stay audible in browse mode and entry cues keep their independent count and duration meanings", async ({
-  page,
-  renderComparison,
-}) => {
-  const facts = makeMe.aComparedStory.inSummaryScope().please();
-  await renderComparison(facts);
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expectEvidenceLabels(comparisonLabels(summary, facts.identity), [
+test("Summary labels stay audible in browse mode and entry cues keep their independent count and duration meanings", async () => {
+  const story = makeMe.aComparedStory.inSummaryScope().please();
+  await openSummaryComparison(story);
+  const summary = await openSummary(entry);
+  const labels = comparisonLabels(summary, story.identity);
+  await expectEvidenceLabels(labels, [
     "Baseline No build aaaaaaa",
     "Branch bbbbbbb",
     "Landed ccccccc",
   ]);
-  await expectObservedNotAttributed(summary);
-  await expect(comparisonLabels(summary, facts.identity)).toMatchAriaSnapshot(`
+  await expectObservedBuildFraming(summary);
+  await expect.element(labels).toMatchAriaInlineSnapshot(`
     - list "CI timing comparison of SEED-A#a":
       - listitem:
         - text: Baseline No build
         - code: aaaaaaa
-        - text: /, No build at [0-9a-f]{40}:\\sthe workflow at that revision could not be read\\./
+        - text: ", No build at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: the workflow at that revision could not be read."
       - listitem:
         - text: Branch
         - code: bbbbbbb
@@ -85,85 +78,80 @@ test("Summary labels stay audible in browse mode and entry cues keep their indep
         - text: Landed
         - code: ccccccc
   `);
-  await expectComparisonScopeRows(
-    summary,
-    "dashboard/tests",
-    entryComparisonRows,
-  );
-  await expectScopeRowCues(
-    summary,
-    "dashboard/tests",
-    summaryEntryComparisonCues,
-  );
+  await expectComparisonRows(summary, entryComparisonRows);
+  await expectComparisonCues(summary, entry, [
+    { count: "more-light", duration: "slower-strong" },
+    { count: "none", duration: "slower-light", countReason: "unchanged" },
+    {
+      count: "none",
+      duration: "none",
+      countReason: "added",
+      durationReason: "added",
+    },
+    {
+      count: "none",
+      duration: "none",
+      countReason: "removed",
+      durationReason: "removed",
+    },
+    {
+      count: "none",
+      duration: "none",
+      countReason: "units not comparable",
+      durationReason: "units not comparable",
+    },
+    {
+      count: "none",
+      duration: "none",
+      countReason: "unchanged",
+      durationReason: "unchanged",
+    },
+  ]);
 });
 
-test("folder Summary keeps unchanged and below-threshold cue reasons", async ({
-  page,
-  renderComparison,
-}) => {
-  await renderComparison(
+test("folder Summary keeps unchanged and below-threshold cue reasons", async () => {
+  await openSummaryComparison(makeMe.aComparedStory.inSummaryScope().please());
+  const summary = await openSummary(entry);
+  await openComparedFolder(summary, folder);
+  await expectComparisonRows(summary, folderComparisonRows);
+  await expectComparisonCues(summary, folder, [
+    { count: "none", duration: "slower-light", countReason: "unchanged" },
+    {
+      count: "none",
+      duration: "none",
+      countReason: "unchanged",
+      durationReason: "below threshold",
+    },
+    { count: "none", duration: "slower-light", countReason: "unchanged" },
+  ]);
+});
+
+test("a nested Summary marks a file changed only by its owning merge while keeping its precise comparison", async () => {
+  const owningMerge = makeMe.aStoryReview.modifying(nestedFile).pleaseRange();
+  if (owningMerge.kind !== "comparison")
+    throw new Error("Arrange the owning merge");
+  const summary = await openNestedSummary(
     makeMe.aComparedStory
       .inSummaryScope()
-      .selecting("dashboard/tests/folder", "folder")
+      .withChanged(...owningMerge.files)
       .please(),
   );
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expect(summary.locator(".intent-summary-path")).toHaveText(
-    "dashboard/tests/folder",
-  );
-  await expectComparisonScopeRows(
-    summary,
-    "dashboard/tests/folder",
-    folderComparisonRows,
-  );
-  await expectScopeRowCues(
-    summary,
-    "dashboard/tests/folder",
-    summaryFolderComparisonCues,
-  );
+  await expectComparisonRows(summary, mergeEditedNestedComparisonRows);
 });
 
-test("a nested Summary marks a file changed only by its owning merge while keeping its precise comparison", async ({
-  page,
-  renderComparison,
-}) => {
-  await renderComparison(
-    makeMe.aComparedStory
-      .inSummaryScope()
-      .withChanged(
-        makeMe.aReviewedFile
-          .with({
-            kind: "modified",
-            path: "dashboard/tests/folder/nested/c.spec.ts",
-          })
-          .please(),
-      )
-      .selecting("dashboard/tests/folder/nested", "folder")
-      .please(),
-  );
-  await expectComparisonScopeRows(
-    page.getByRole("region", { name: "Summary", exact: true }),
-    "dashboard/tests/folder/nested",
-    mergeEditedNestedComparisonRows,
-  );
-});
-
-test("Summary names a skipped Baseline beside its ancestor and exposes its complete status on hover and to browse reading", async ({
-  page,
-  renderComparison,
-}) => {
+test("Summary names a skipped Baseline beside its ancestor and exposes its complete status on hover and to browse reading", async () => {
   const skippedAt =
     "Skipped at ddddddd because CI ignores every change since its nearest built ancestor aaaaaaa.";
-  const facts = makeMe.aComparedStory
+  const story = makeMe.aComparedStory
     .inSummaryScope()
     .withBaseline({
       requestedStatus: { kind: "skipped", explanation: skippedAt },
     })
     .please();
-  await renderComparison(facts);
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
+  await openSummaryComparison(story);
+  const summary = await openSummary(entry);
   await expectLabelInFull(
-    comparisonLabels(summary, facts.identity),
+    comparisonLabels(summary, story.identity),
     "Baseline Skipped aaaaaaa",
     skippedAt,
   );

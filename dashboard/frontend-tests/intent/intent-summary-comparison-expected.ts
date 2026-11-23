@@ -1,15 +1,6 @@
-// Expected Summary comparison rows for
-// ../intent/intent-summary-story-comparison.spec.ts against
-// ./intentSummaryStoryComparisonFixture.ts's breakdown proofs: precise
-// durations, counted-results differences, each child's Change, added / removed /
-// renamed gaps. Gap variants live in
-// ./summaryComparisonGapExpectedRows.ts.
-
-import type { ComparisonScopeRows } from "../intentScopeProofPage.ts";
-
 const parts = "1 of 1 part present";
 
-export const entryComparisonRows: ComparisonScopeRows = [
+export const entryComparisonRows = [
   [
     "dashboard/tests",
     "",
@@ -55,9 +46,9 @@ export const entryComparisonRows: ComparisonScopeRows = [
     "2.1 s",
   ],
   ["root.spec.ts", "", "1 test case (no change)", "1.2 s", "0 ms", "0 ms"],
-];
+] as const;
 
-export const folderComparisonRows: ComparisonScopeRows = [
+export const folderComparisonRows = [
   [
     "dashboard/tests/folder",
     "",
@@ -76,7 +67,7 @@ export const folderComparisonRows: ComparisonScopeRows = [
     "+7.0 s",
     "+4.0 s",
   ],
-];
+] as const;
 
 export const nestedComparisonRows = [
   [
@@ -89,14 +80,14 @@ export const nestedComparisonRows = [
     parts,
   ],
   ["c.spec.ts", "", "1 test case (no change)", "340 ms", "+70 ms", "+70 ms"],
-] satisfies ComparisonScopeRows;
+] as const;
 
 // After the story's integration merge edits the nested test file
 // (./intentSummaryStoryComparisonShared.ts): the same times, now marked as a
 // story change.
 const [nestedFolderRow, nestedFileRow] = nestedComparisonRows;
 const [nestedFile, , ...nestedFileCells] = nestedFileRow;
-export const mergeEditedNestedComparisonRows: ComparisonScopeRows = [
+export const mergeEditedNestedComparisonRows = [
   nestedFolderRow,
   [nestedFile, "modified", ...nestedFileCells],
-];
+] as const;

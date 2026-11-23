@@ -1,101 +1,139 @@
-import { timeMarks } from "../../test-support/support/relativeTimingMarks.ts";
-import { expectFileComparisonRow } from "../../test-support/intentFileProofPage.ts";
-// File Proof rules use real scope owners; Purpose and tab return stay integrated.
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { cueOf } from "./intent-ci-comparison-page.ts";
 import {
-  modifiedFileRow,
+  addedFile,
   addedFileRow,
-  renamedFileRow,
-  unchangedFileRow,
+  mergeEditedFile,
   mergeEditedFileRow,
-} from "../../test-support/support/summaryComparisonFileExpectedRows.ts";
-import { expectProofRowCues } from "../../test-support/support/expectCiComparisonCues.ts";
+  modifiedFile,
+  modifiedFileRow,
+  renamedFile,
+  renamedFileRow,
+  unchangedFile,
+  unchangedFileRow,
+} from "./intent-compared-file-expected.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
 import {
   comparisonLabels,
-  expectEvidenceLabels,
-  expectObservedNotAttributed,
-} from "../../test-support/ciEvidenceLabelsPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  expectFileComparisonRow,
+  expectNoFileTimingMarks,
+  expectObservedBuildFraming,
+  fileProofTable,
+  type ExpectedCues,
+  type FileComparisonRow,
+} from "./intent-summary-comparison-page.ts";
+import { expectEvidenceLabels } from "./intent-summary-evidence-page.ts";
 
-const examples = [
-  {
-    name: "modified",
-    path: "dashboard/tests/folder/a.spec.ts",
-    row: modifiedFileRow,
-    cues: { count: "none", duration: "slower-light", countReason: "unchanged" },
-  },
-  {
-    name: "added",
-    path: "dashboard/tests/added.spec.ts",
-    row: addedFileRow,
-    cues: {
+async function showsFileEvidence(
+  name: string,
+  path: string,
+  row: FileComparisonRow,
+  cues: ExpectedCues,
+  story = makeMe.aComparedStory.inSummaryScope().please(),
+) {
+  await openSummaryComparison(story);
+  const view = intentStoryCompare();
+  await view.file(name).click();
+  await view.chooseProof();
+  const proof = page.getByRole("region", { name: "Proof", exact: true });
+  await expectEvidenceLabels(comparisonLabels(proof, story.identity), [
+    "Baseline No build aaaaaaa",
+    "Branch bbbbbbb",
+    "Landed ccccccc",
+  ]);
+  await expectObservedBuildFraming(proof);
+  await expectFileComparisonRow(proof, path, row);
+  const table = fileProofTable(proof, path);
+  await expect
+    .poll(() => {
+      const row = table.query()?.querySelector("tbody tr");
+      return row ? cueOf(row) : null;
+    })
+    .toMatchObject(cues);
+  return proof;
+}
+
+test("file Proof keeps modified counts, precise times and source cues", async () => {
+  await showsFileEvidence(
+    `Modified ${modifiedFile}`,
+    modifiedFile,
+    modifiedFileRow,
+    {
       count: "none",
-      duration: "none",
-      countReason: "added",
-      durationReason: "added",
+      duration: "slower-light",
+      countReason: "unchanged",
     },
-  },
-  {
-    name: "renamed across units",
-    path: "dashboard/tests/renamed.spec.ts",
-    row: renamedFileRow,
-    cues: {
+  );
+});
+
+test("file Proof keeps added counts, precise times and source cues", async () => {
+  await showsFileEvidence(`Added ${addedFile}`, addedFile, addedFileRow, {
+    count: "none",
+    duration: "none",
+    countReason: "added",
+    durationReason: "added",
+  });
+});
+
+test("file Proof keeps renamed across units counts, precise times and source cues", async () => {
+  const branchEntry = makeMe.aCiProofEntry
+    .at("dashboard/tests")
+    .holding(
+      makeMe.aCiProofEvidence
+        .inUnit("case")
+        .withFile(renamedFile, { passed: 1, durationMs: 2_100 })
+        .withFile(unchangedFile, { passed: 17, durationMs: 1_200 })
+        .please(),
+    )
+    .please();
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .withEntriesAt("branch", [branchEntry])
+    .please();
+  const proof = await showsFileEvidence(
+    `Renamed tests/old.sh → ${renamedFile}`,
+    renamedFile,
+    renamedFileRow,
+    {
       count: "none",
       duration: "none",
       countReason: "units not comparable",
       durationReason: "units not comparable",
     },
-  },
-  {
-    name: "unchanged",
-    path: "dashboard/tests/root.spec.ts",
-    row: unchangedFileRow,
-    cues: {
-      count: "none",
-      duration: "none",
-      countReason: "unchanged",
-      durationReason: "unchanged",
-    },
-  },
-  {
-    name: "owning merge modified",
-    path: "dashboard/tests/folder/nested/c.spec.ts",
-    row: mergeEditedFileRow,
-    cues: {
+    story,
+  );
+  expectNoFileTimingMarks(proof);
+});
+
+test("file Proof keeps unchanged counts, precise times and source cues", async () => {
+  await showsFileEvidence(unchangedFile, unchangedFile, unchangedFileRow, {
+    count: "none",
+    duration: "none",
+    countReason: "unchanged",
+    durationReason: "unchanged",
+  });
+});
+
+test("file Proof keeps owning merge modified counts, precise times and source cues", async () => {
+  const edit = makeMe.aStoryReview.modifying(mergeEditedFile).pleaseRange();
+  if (edit.kind !== "comparison") throw new Error("Arrange the owning merge");
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .withChanged(...edit.files)
+    .please();
+  await showsFileEvidence(
+    `Modified ${mergeEditedFile}`,
+    mergeEditedFile,
+    mergeEditedFileRow,
+    {
       count: "none",
       duration: "none",
       countReason: "unchanged",
       durationReason: "below threshold",
     },
-  },
-];
-
-for (const example of examples) {
-  test(`file Proof keeps ${example.name} counts, precise times and source cues`, async ({
-    page,
-    renderComparison,
-  }) => {
-    const story = makeMe.aComparedStory
-      .inSummaryScope()
-      .selecting(example.path, "file");
-    if (example.name === "owning merge modified")
-      story.withChanged(
-        makeMe.aReviewedFile
-          .with({ kind: "modified", path: example.path })
-          .please(),
-      );
-    const facts = story.please();
-    await renderComparison(facts);
-    const proof = page.getByRole("region", { name: "Proof", exact: true });
-    await expectEvidenceLabels(comparisonLabels(proof, facts.identity), [
-      "Baseline No build aaaaaaa",
-      "Branch bbbbbbb",
-      "Landed ccccccc",
-    ]);
-    await expectObservedNotAttributed(proof);
-    await expectFileComparisonRow(proof, example.path, example.row);
-    await expectProofRowCues(proof, example.path, example.cues);
-    if (example.name === "renamed across units")
-      await expect(timeMarks(proof)).toHaveCount(0);
-  });
-}
+    story,
+  );
+});
