@@ -2,8 +2,8 @@ import { launchResultSchema } from "../../dashboard/src/launchOutcome.ts";
 import type { submitCompletion } from "../../dashboard/server/completionReporting.ts";
 // Real installed closure/retirement, Git, receiver and storage; no browser.
 // Native and CI provider transports are synthetic. The Recently done
-// observations of a quiet completion (Done, "Native session is still working",
-// no Startup recovery or attention message, the final report, Done after a
+// observations of a quiet completion (Done, no Startup recovery or attention
+// message, the final report, Done after a
 // reload, the refusal text and Mark as done) are owned by
 // agent-completion-quiet-done.spec.ts.
 import { execFile } from "node:child_process";

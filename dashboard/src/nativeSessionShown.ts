@@ -26,8 +26,9 @@ export function nativeSessionShown({
 }: NativeSession): SessionShown {
   const markedDone = doneAt !== undefined;
   switch (sessionState.kind) {
+    case "not-observed":
     case "unknown": {
-      if (sessionState.label !== undefined) {
+      if (sessionState.kind === "unknown" && sessionState.label !== undefined) {
         return {
           label: sessionState.label,
           needsAttention: false,

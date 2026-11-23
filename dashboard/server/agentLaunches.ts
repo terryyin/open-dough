@@ -73,6 +73,7 @@ export class AgentLaunches {
     return withStates(
       machineFolder(),
       configuredProjects().flatMap((source) => kept.get(source.id) ?? []),
+      "recurring",
     );
   }
 

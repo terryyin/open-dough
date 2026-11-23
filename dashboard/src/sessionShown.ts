@@ -22,10 +22,11 @@ import { marksLocalDone, type HostOperations } from "./sessionCapabilities.ts";
 // read nor marked done is the unread report, its completion label: it leaves
 // the native reading as it is without a report, as a read report does. A
 // reported session marked done reads Done, or Returned to backlog when its
-// closure kept that outcome for this report, with native Working as its note.
-// Unreported Done retains native Working precedence. Availability and unknown
-// observations never infer activity. An unknown observation may carry its own
-// words, and those words are the reading.
+// closure kept that outcome for this report. Codex Done reads from its saved
+// record. For other hosts, reported Done can include a native Working note
+// and unreported Done retains native Working precedence. Availability and
+// unknown observations never infer activity. An unknown observation may
+// carry its own words, and those words are the reading.
 // A completed refinement with a confirmed missing preparation workspace uses
 // its completion label instead, even after Mark as read, unless still working.
 export type SessionShown = {
@@ -87,21 +88,23 @@ export type SessionTone =
 
 export function sessionShown(shown: ReadableSession): SessionShown {
   const { sessionState, doneAt, completion, returnedToBacklog } = shown;
-  if (completion === undefined) return nativeSessionShown(shown);
-  if (doneAt !== undefined) {
+  const codex = shown.session?.host === "codex";
+  if (doneAt !== undefined && (codex || completion !== undefined)) {
     return {
       label:
-        returnedToBacklog === completion.receipt
+        completion !== undefined && returnedToBacklog === completion.receipt
           ? returnedToBacklogLabel
           : "Done",
       needsAttention: false,
       tone: "done",
-      ...(sessionState.kind === "available" &&
+      ...(!codex &&
+      sessionState.kind === "available" &&
       sessionState.activity === "working"
         ? { note: "Native session is still working" }
         : {}),
     };
   }
+  if (completion === undefined) return nativeSessionShown(shown);
   const reading: SessionShown = completedRetiredRefinement(shown)
     ? {
         label: completionLabel(completion),
@@ -174,7 +177,11 @@ export function alertUnreadReport(
 // nothing about the session.
 export function alertReading(session: ReadableSession): string | undefined {
   if (session.doneAt !== undefined) return undefined;
-  if (session.sessionState.kind === "unknown") return undefined;
+  if (
+    session.sessionState.kind === "unknown" ||
+    session.sessionState.kind === "not-observed"
+  )
+    return undefined;
   const { label } = sessionShown(session);
   return session.sessionState.kind === "available" &&
     (session.sessionState.activity === "working" ||

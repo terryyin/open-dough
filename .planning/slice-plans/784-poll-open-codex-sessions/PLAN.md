@@ -2,6 +2,7 @@
 
 **Identity:** SEED-424#poll-open-codex-sessions
 **Source:** [Keep open Codex session status current](../../seeds/SEED-424-poll-open-codex-sessions.md#poll-open-codex-sessions)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -66,7 +67,7 @@ measurements kept as evidence rather than a gate.
 ### 1. Live checks follow open Codex work through Done and reopen
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use the recurring selection entering
 [`AgentLaunches.machineSessions`](../../../dashboard/server/agentLaunches.ts)
@@ -109,3 +110,41 @@ handles a retired workspace.
 
 The plan has one cohesive slice, a deterministic native target assertion,
 and an existing reopen journey. The slice plan stands as written.
+
+## Execution context
+
+The Dashboard published the Take on `origin/main` and
+`origin/codex/keep-open-codex-session-status-current` at
+`9d2f47fc7a602a0557ffd6a389f34090923adb5a`. Honoka-chan is executing
+the story in the established linked worktree in Story Branch Mode.
+The publisher is `dashboard-territory.local-open-dough`, and the starting
+revision is `935026bcb96ea7bec6746d299a0f2ce8ac4db92c`. No additional
+replanning permission was supplied.
+
+GitHub Actions `ci.yml` observes the remote story branch for coordinator
+`honoka-784` from the established checkout. Observer evidence is at
+`/tmp/dough-ci-501/watch-0VYhIe` (PID 65941, stream 40549, cell g350:17).
+
+## Accepted proof
+
+The Node Vitest regression on the production `AgentLaunches.machineSessions`
+entry sent 428 targets before the change and exactly `[open]` afterward.
+The 427 saved rows read Done and the open row read Working. The explicit
+read still checked the selected Done thread. The existing terminal journey
+observed failed attach preserving the Done record and successful readiness
+restoring the same history and entry. The next machine observation after
+that persisted transition contained exactly `[saved-0, open]`.
+
+Focused backend proof and `npm run typecheck:dashboard` passed. The terminal
+and quiet-report browser cases passed in the original selection. Two review
+cases timed out at board navigation while the Mac was heavily loaded. The
+review cases, Codex Board/sidebar observation, and independent Claude
+returned-session cases all passed in the follow-up using one browser worker
+and default case timeouts. The matched review traces and terminal results
+are in the execution checkout's Git evidence directory.
+
+The [source review](source-review.md) records the observing test or product
+boundary for each promise. The implementation return and consumer trace in
+the Git evidence directory cover the shared machine read, notifications
+and counts, terminal and report access, and fresh delete admission. The
+independent refactor clarified two comments and reused the same proof.

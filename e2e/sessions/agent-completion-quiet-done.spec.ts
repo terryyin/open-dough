@@ -9,6 +9,7 @@ import {
 import {
   parts,
   sessionEntryShowing,
+  sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   publishStoryColumnsJourney,
@@ -37,9 +38,8 @@ test.afterAll(() => (journey as StoryColumnsJourney | undefined)?.cleanup());
 // What the quiet completion's native history keeps as its final answer.
 const nativeFinalReport = "Done.";
 
-// A retired Codex record quietly reported and marked Done at its receipt,
-// whose native session still works; `problem` is a refused native rename.
-// Returns the native fixture holding that session.
+// A retired Codex record quietly reported and marked Done at its receipt.
+// The optional problem records a refused native rename.
 async function quietlyDone(
   dashboard: DashboardServer,
   native: FakeCodex | undefined,
@@ -60,10 +60,6 @@ async function quietlyDone(
     },
   ]);
   keepFinalReport(native, workspace, nativeFinalReport);
-  native.observations.set(native.threadId, {
-    status: { type: "active", activeFlags: [] },
-    turns: [{ id: "landing-turn", status: "inProgress" }],
-  });
   return native;
 }
 
@@ -95,14 +91,12 @@ test("a quiet Codex completion reads Done in Recently done with its native final
   codexProtocol,
 }) => {
   const native =
-    await test.step("Given a retired Codex record quietly reported Done while its native session still works", () =>
+    await test.step("Given a retired Codex record quietly reported Done", () =>
       quietlyDone(dashboard, codexProtocol));
   const recent = await test.step("When the developer opens Recently done", () =>
     showRecentlyDoneEntry(page, native));
-  await test.step("Then its entry reads Done with the native session still working", async () => {
-    await expect(recent).toContainText("Done");
-    await expect(recent).toContainText("Native session is still working");
-  });
+  await test.step("Then its entry reads Done", () =>
+    expect(sessionStateOf(recent)).toHaveText("Done"));
   await test.step("And neither Startup recovery nor an attention message shows", async () => {
     await expect(parts(page).startupRecovery).toHaveCount(0);
     await expect(recent.locator(".session-attention-message")).toHaveCount(0);
@@ -115,10 +109,11 @@ test("a quiet Codex completion reads Done in Recently done with its native final
   await test.step("Then it shows the native final answer, read with the thread's turns", async () => {
     await expect(reportText).toHaveText(nativeFinalReport);
     expect(readTurnsSince(native, since)).toBe(true);
+    await expect(sessionStateOf(recent)).toHaveText("Done");
   });
   await test.step("When the page reloads", () => reloadUntilRead(page));
   await test.step("Then the entry still reads Done", () =>
-    expect(recent).toContainText("Done"));
+    expect(sessionStateOf(recent)).toHaveText("Done"));
 });
 
 test("a refused native rename shows on the Recently done entry, which offers Mark as done", async ({

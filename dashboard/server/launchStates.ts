@@ -1,5 +1,5 @@
-// Read each recorded host once and join its normalized target observations.
-// Failure or omission is unknown; only the host confirms native absence.
+// Read each selected host once and join its normalized target observations.
+// A missing response is unknown. Only a host can confirm native absence.
 import { configuredProject } from "./projectConfiguration.ts";
 import { projectFolder } from "./projectFolders.ts";
 import { shownLaunchWorkspace } from "./launchWorkspace.ts";
@@ -68,9 +68,14 @@ async function observedStates(
 export async function withStates(
   folder: ProjectFolder,
   records: readonly LaunchRecord[],
+  observation: "recurring" | "on-demand" = "on-demand",
 ): Promise<readonly LaunchWithState[]> {
+  const observes = ({ session, doneAt }: LaunchRecord) =>
+    observation !== "recurring" ||
+    session.host !== "codex" ||
+    doneAt === undefined;
   const [states, workspaceStates] = await Promise.all([
-    observedStates(folder, records),
+    observedStates(folder, records.filter(observes)),
     recordedWorkspaceStates(records),
   ]);
   const folders = new Map<string, ProjectFolder | undefined>();
@@ -88,8 +93,8 @@ export async function withStates(
     ...record,
     ...shownLaunchWorkspace(record, folderOf(record.request.source)),
     workspaceState: workspaceStates[index],
-    sessionState: states.get(sessionKey(record.session)) ?? {
-      kind: "unknown",
-    },
+    sessionState: observes(record)
+      ? (states.get(sessionKey(record.session)) ?? { kind: "unknown" })
+      : { kind: "not-observed" },
   }));
 }

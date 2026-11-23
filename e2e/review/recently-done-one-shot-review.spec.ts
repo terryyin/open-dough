@@ -122,9 +122,7 @@ test("a completed queued one-shot is reviewable from its published done card aft
   );
   await expect(columnCountOf(recent)).toHaveText("1 entry");
   await expect(sessionEntriesIn(card)).toHaveCount(1);
-  await expect(sessionStateOf(card)).toHaveText(
-    "Done: Native session is still working",
-  );
+  await expect(sessionStateOf(card)).toHaveText("Done");
   const review = await inspectDelivered(page, card, receipt, origin.origin);
   await expect(
     review.getByRole("heading", { name: "Story A", exact: true }),
