@@ -196,7 +196,7 @@ from the product reading path. Slice 4 weighs that and the remaining plain
 ### 4. Retained reviews establish the remaining Done capture cost
 
 Type: Behavior
-Status: planned
+Status: done
 
 A valid branch, observed at Done, produces its retained review with a
 measured case time and Git process count. Compare the remaining starts in
@@ -218,6 +218,35 @@ resolution. If the workspace read changes, prove the final identity check
 still rejects a checkout changed during capture. Run the fixed full roster
 using the measurement procedure and retain its endpoint comparison, residual
 costs, and any remaining gap.
+
+**Accepted.** No capture edit: every remaining `captureBranchResult` start
+proves a distinct fact. The workspace `rev-parse` checks the canonical
+checkout, commit and tree. The three temporary-index calls take the snapshot,
+and the post-snapshot `rev-parse` is the second tip check. Trunk takes
+`ls-remote` plus a presence check or fetch; `merge-base --is-ancestor` checks
+descent; manual landing takes 0–3 calls; attribution 4–6 `rev-list`; and each
+pin pair one batched `update-ref --stdin`. That is about 14–18 per capture.
+The five capture specs passed 17/17. The endpoint comparison under ADR 0010,
+at two workers, was 158/158 with no timeouts in every run (≤200 ms count,
+median, p95, slowest):
+
+| Run | Load | ≤200 ms | Median | p95 | Slowest |
+| --- | --- | --- | --- | --- | --- |
+| Baseline 1 | 13.0→13.2 | 50 | 553 | 1,953 | 3,464 |
+| Candidate 1 | 13.2→11.7 | 93 | 155 | 803 | 1,244 |
+| Baseline 2 | 11.7→11.6 | 66 | 288 | 1,115 | 2,136 |
+| Candidate 2 | 11.6→9.9 | 109 | 123 | 577 | 832 |
+
+Three consecutive candidate runs at load 9.9→22.0 passed with no timeouts.
+Their medians were 193, 410 and 525 ms, and their slowest cases 1,328, 2,693 and
+3,410 ms, which leaves 1.59 s of margin at load 15–22. The median meets
+100–200 ms at load 10–13. The tail does not: the multi-checkout, landing and
+retirement cases remain at 0.6–1.3 s. That is the measured floor, about 55
+root starts for a named-worktree case. Hosted CI passed slices 1 and 2. Slice
+3's run failed once in `intent-read-recovery.spec.ts`: Vitest's retried
+element and poll checks advance fake timers by 50 ms, so a fixed 14,999 ms
+advance could reach the 15 s retry. The repair at `b3c347567` measures each
+wait from the time its read settled.
 
 ## Local gates and measurement
 
@@ -278,9 +307,9 @@ before execution.
 ### G1. Linux selection awaits a hosted observation
 Reported: slice 1 — "Linux selection still needs a CI observation."
 Story clause: "normal invocation on other platforms"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: hosted CI run 45188193485 on `e62607b2a`, dashboard-backend shard 2/3 passed `done-capture-git-executable.spec.ts`, whose non-darwin expectations select plain `git`
 
 ### G2. Installed publisher copies await a release
 Reported: slice 2 — "Gap: the maintained installations were not regenerated."
 Story clause: "On macOS the dashboard server and installed publisher run the Git binary selected by `xcrun -f git` when the effective `PATH` selects Apple’s launcher."
-Disposition: receiving slice 4
+Disposition: proved by slice 4: `install-public-payload.sh` (evidence `s2-install-payload.log`) installs `git-executable.mjs` beside `publication-git-process.mjs`, and `publication-git-executable.test.mjs` observes that publisher's local call and push under Apple's launcher and a caller shim; this repository's own release-pinned copies take it at the next release
