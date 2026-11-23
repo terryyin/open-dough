@@ -182,23 +182,75 @@ reviewer chooses a wider comparison.
 
 **Identity:** SEED-420#read-proof-for-the-comparison
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/791-read-ci-proof-for-the-selected-comparison/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"104802e7239241fea950d7813fb778ab0813f7d940ffc9409693464ab8309bd5","plan":"4056545ae782c7851c27dffecf197fbc2a330c6e1066595362786a2bc0f0a228"}}
 ```
 
-A reviewer can tell what ran at the selected revision and whether the available
-CI runs support a delta for the selected work. Display the measured revision
-and run for each side, including an ancestor or a later build. For a combined
-session selection with disjoint ranges, show supported observations per range
-and say when a combined delta is unavailable. This story reads existing proof.
+**Goal.** A reviewer reading a story in Intent can tell what CI measured for
+the comparison they chose, not only for the whole story. For each side of
+the selected comparison they see the measured revision and run, and whether
+those runs support a before-and-after delta for the selected work. They
+can then judge a narrower slice of the story's proof without reading CI by
+hand.
 
-For the handoff spec, the baseline build `8ecbf43` ran one case and the
-completion `daf6997` ran nine. The full-range view can show **1 → 9**. The
-story-only view can show **9 passed at completion** and the missing matching
-baseline. A failure in an untouched test remains visible in the CI overview.
-[Baseline run](https://github.com/terryyin/open-dough/actions/runs/44839032104) · [Completion run](https://github.com/terryyin/open-dough/actions/runs/44861394227)
+**Scope.**
 
-**Effort hypothesis:** M, medium confidence. The meaningful comparison is
-between equivalent proof units on revisions that isolate the contribution.
+- Intent's CI proof follows Intent's **Compare** selection: a Taken
+  story's commit range, a Done story's captured landed run, or the default
+  comparison. The endpoint table, the Changes counts and a selected scope's
+  Summary and file Proof all read the same two measured builds. They no
+  longer say that they describe the whole story. Intent coverage is not CI
+  proof, so it keeps that note. A captured run that recorded no revisions
+  also keeps the note, and its proof stays on the whole story.
+- Each side names its measured revision and run. The start side uses the
+  newest completed build at or before the comparison's start. The end side
+  uses the build at its end or the nearest measured ancestor after the
+  start. Each side states how the build relates to the requested
+  revision, in today's selection words: exact, ancestor with N revisions
+  without a build, equivalent or later trunk build.
+- A delta, such as **1 → 9** cases, appears only when both sides have a
+  build and the end-side build includes some of the selected work.
+  Otherwise the side that ran is still shown, for example **9 passed at
+  completion**. The reason for the missing delta is given in place: no
+  matching baseline, or no build includes the selected changes.
+- Uncommitted workspace changes have no CI. When they are included, the
+  proof says that they were not measured.
+- The default comparison keeps today's Baseline, Branch and Landed rules
+  and wording. Home's project and story CI overview are unchanged, so a
+  failure in an untouched test stays visible there.
+
+Out of scope: proof for several selected sessions with disjoint ranges.
+[SEED-418](SEED-418-review-published-session-changes.md#review-selected-sessions-together)
+already owns per-range evidence for that selection. The story-only view in
+[compare-story-contributions](#compare-story-contributions) is also out of
+scope. Its base tree has no build of its own, so under the rule above it
+shows the completion side with a missing matching baseline. This story
+makes no delivery commitment for that view. Running new or paired CI builds
+is out of scope. This story reads existing runs.
+
+**Key examples.**
+
+- A Done story's default comparison shows the same Baseline, Branch and
+  Landed builds and counts as before this change.
+- In the landing-record story's full comparison, baseline build `8ecbf43`
+  ran one case of the handoff spec and completion `daf6997` ran nine. The
+  proof names both runs and shows **1 → 9**.
+  [Baseline run](https://github.com/terryyin/open-dough/actions/runs/44839032104) ·
+  [Completion run](https://github.com/terryyin/open-dough/actions/runs/44861394227)
+- A Taken story's later commit range is chosen. The range's start has no
+  build of its own. The start side names the nearest earlier build as an
+  ancestor with N revisions without a build. The end side names its exact
+  build, and the delta is shown with both revisions named.
+- A range whose commits were never built, with no later ancestor build after
+  its start, shows the start side's build. It says that no build includes
+  the selected changes, and shows no delta.
+- A captured landed run is chosen. The proof switches to that run's start
+  and end builds. Returning to the default restores the story's comparison.
+- All changes, including uncommitted changes, shows the last commit's build
+  and says that the uncommitted changes were not measured.
+
+**Effort hypothesis:** M, medium confidence. Existing endpoint lookups
+generalize from the story's start and result to the comparison's start and
+end. The comparison read must carry the selection.
 
 <a id="choose-review-scope"></a>
 
