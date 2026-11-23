@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_install-without-the-custom-ci-adapter.json",
+      "identity": "SEED-423#install-without-the-custom-ci-adapter",
+      "completedAt": "2026-11-23T13:57:41.176Z",
+      "blob": "22ff24b4b147a167b52c934536f646cb969b887b"
+    },
+    {
       "fileName": "SEED-345_wait-for-codex-workers-with-fewer-model-wakeups.json",
       "identity": "SEED-345#wait-for-codex-workers-with-fewer-model-wakeups",
       "completedAt": "2026-11-23T10:25:30.042Z",
