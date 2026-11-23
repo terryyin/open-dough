@@ -335,7 +335,7 @@ about 1–1.5 s; slice 8 weighs that cost. Plan 763 landed meanwhile and renamed
 ### 7. CI home with a pending revision runs in Vitest
 
 Type: Structure
-Status: planned
+Status: done
 
 Move `intent-home-activation.spec.ts` from `frontendApp` to the existing
 `mountProjectIntent` typed revision entry. Offer the newer work through
@@ -355,6 +355,15 @@ recording helpers for surviving callers before removing any export. Check
 plan 763 Slice 1's disposition for `intent-read-reuse-story.spec.ts` and
 cite its proof owner for zero reads on scope browsing, one changed-file diff
 and no published text. Its owning execution carries that migration.
+
+**Delivered.** `intent-home-activation.spec.ts` runs in Vitest on
+`mountProjectIntent` with distinct shown and offered revisions. CI activation
+clears the file, keeps one notice with Show latest and the shown revision,
+reads the shown locations once and never the latest; without the selection
+clearing it fails. `intentRevisionJourney.ts` and
+`frontendIntentRevisionJourney.ts` lost their last consumer and are gone. Plan
+763's landed Vitest case in `intent-read-reuse-story.spec.ts` owns zero reads
+on scope browsing, one changed-file diff and no published text.
 
 ### 8. Revision transition cases keep the timing and observations visible
 
