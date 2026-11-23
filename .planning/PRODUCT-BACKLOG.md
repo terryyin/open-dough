@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/780-finish-launch-proof-orthogonal/PLAN.md))
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#open-review-changes-from-a-story-card) — SEED-420#open-review-changes-from-a-story-card ([plan](slice-plans/777-open-review-changes-from-a-story-card/PLAN.md))
 - [Correct the proof residue of Intent revision reading and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-revision-detour-proof-residue) — SEED-413#correct-revision-detour-proof-residue ([plan](slice-plans/781-correct-revision-detour-proof-residue/PLAN.md))
-- [Keep open Codex session status current](seeds/SEED-424-poll-open-codex-sessions.md#poll-open-codex-sessions) — SEED-424#poll-open-codex-sessions ([plan](slice-plans/784-poll-open-codex-sessions/PLAN.md))
 
 ## Backlog list
 

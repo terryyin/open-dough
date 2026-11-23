@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-424#poll-open-codex-sessions",
+  "title": "Keep open Codex session status current",
+  "completedAt": "2026-11-23T05:33:27.697Z",
+  "developer": "Terry Yin",
+  "agent": "Honoka-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol",
+  "intentCoverage": {
+    "report": "**Caught.** In SEED-424#poll-open-codex-sessions at `b5b4a3ed8fce7d915d7a72eaf193c33823947e0d`, the maintained row-label assertion caught a saved Done Codex session displaying “Live observation unavailable” after the recurring read skipped it.\n\nThe scratch fault in `dashboard/src/sessionShown.ts` disqualified the saved Codex disposition when the session state was `not-observed`. An independent call to `sessionShown` with a dashboard-marked Done Codex record and that skipped state showed “Done” at baseline, “Live observation unavailable” under the fault, and “Done” after restoration.\n\nI ran `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/sessions/agent-launch-codex-open-polling.spec.ts` in each state. The run selected one case each time. Under the fault, the earlier assertion still found exactly the open session in the native batch. The following assertion on session IDs and displayed labels, at line 70, failed on the saved row. The fixture contained 427 saved Done Codex records and one open record, and its substituted native boundary reported Working for any conversation it received. Both the baseline and restored run passed. The restored file matched the original bytes and the scratch status matched its clean baseline. The owned scratch checkout was retired. Evidence is in `/tmp/dough-intent-coverage-784.R6sQYD`.\n\n**Next proof action.** Keep the exact saved Done label assertion. This probe requires no added proof or follow-up for the checked path.\n\n- **Test runtime.** 2.42 s total (measured by Vitest), comprising 1.42 s baseline, 565 ms faulted, and 433 ms restored.\n- **Human effort.** Unavailable. No separate human-effort timing was collected.\n- **Agent effort.** Unavailable. No separate active agent-effort timing was collected.\n\n\n- **Invocation-to-report elapsed.** 89409 ms (measured), from 1795411849361 to 1795411938770 in Unix epoch ms. The end clock was sampled after writing the prepared report body.\n\n## Wrap-up disposition\n\nChecked b5b4a3ed8fce7d915d7a72eaf193c33823947e0d. Caught. No follow-up.\n"
+  }
+}
