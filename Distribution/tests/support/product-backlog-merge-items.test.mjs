@@ -1,27 +1,20 @@
-// Runs the real backlog CLI to reconcile three supplied versions of one
-// backlog in a scratch project, observing the whole destination file's bytes:
-// the changes both branches made to the work items combined once, and the
-// removals neither branch undid. Where the two branches change one work item
-// differently the run is handed back to a human instead, which
-// `product-backlog-merge-items-refusals.test.mjs` establishes.
+// Reconciliation combines compatible work-item changes and preserves closures.
 import assert from "node:assert/strict";
+import { mergeBacklogs } from "../../src/skills/dough-product-backlog/scripts/product-backlog-merge.mjs";
 import { test } from "node:test";
 import {
   added,
   addedLine,
   arrangedBacklog,
-  backlog,
   backlogOf,
   direction,
   occurrences,
   queued,
   queuedBacklogEntries,
-  run,
-  scratchProject,
   takenBacklogEntry,
   takenEntry,
 } from "./product-backlog-fixture.mjs";
-import { versions } from "./product-backlog-merge-fixture.mjs";
+import { reportedMergeChanges } from "./product-backlog-merge-fixture.mjs";
 import { renderPublishedBacklog } from "./published-backlog.mjs";
 
 const [trunk, retrospective, review] = queued;
@@ -37,84 +30,61 @@ const afterClosure = renderPublishedBacklog({
   direction,
 });
 
-test("merge items keeps both branches' closures", async (t) => {
+test("merge items keeps both branches' closures", () => {
   // Two items are taken; each branch closes one of them and leaves the other
   // exactly as the ancestor wrote it.
-  const project = scratchProject(t, afterClaim);
-
-  const merged = await run(
-    project,
-    versions(
-      project,
-      afterClaim,
-      renderPublishedBacklog({
-        taken: [trunkWork],
-        queued: [retrospectiveWork, reviewWork],
-        direction,
-      }),
-      renderPublishedBacklog({
-        taken: [takenBacklogEntry],
-        queued: [retrospectiveWork, reviewWork],
-        direction,
-      }),
-    ),
+  const merged = mergeBacklogs(
+    afterClaim,
+    renderPublishedBacklog({
+      taken: [trunkWork],
+      queued: [retrospectiveWork, reviewWork],
+      direction,
+    }),
+    renderPublishedBacklog({
+      taken: [takenBacklogEntry],
+      queued: [retrospectiveWork, reviewWork],
+      direction,
+    }),
   );
 
-  assert.equal(merged.code, 0, merged.stderr);
   // Neither branch's untouched entry brought the other branch's removal back:
   // "## Taken" ends empty, keeping its heading, and the queue is untouched.
-  assert.equal(project.read(), backlogOf([], [retrospective, review]));
+  assert.equal(merged.source, backlogOf([], [retrospective, review]));
+  const changes = reportedMergeChanges(merged);
   assert.match(
-    merged.stdout,
+    changes,
     /removed "SEED-008#script-product-backlog-list-updates" from "## Taken"/,
   );
   assert.match(
-    merged.stdout,
+    changes,
     /removed "SEED-008#same-machine-merge-queue" from "## Taken"/,
   );
 });
 
-test("merge items combines a claim on one branch with a closure on the other", async (t) => {
-  const project = scratchProject(t);
-
-  const merged = await run(
-    project,
-    versions(
-      project,
-      arrangedBacklog,
-      // One branch took the trunk-integration story.
-      afterClaim,
-      // The other closed the architecture story it had nothing to do with.
-      afterClosure,
-    ),
+test("merge items combines a claim on one branch with a closure on the other", () => {
+  const merged = mergeBacklogs(
+    arrangedBacklog,
+    // One branch took the trunk-integration story.
+    afterClaim,
+    // The other closed the architecture story it had nothing to do with.
+    afterClosure,
   );
 
-  assert.equal(merged.code, 0, merged.stderr);
-  assert.equal(project.read(), backlogOf([takenEntry, trunk], [retrospective]));
+  assert.equal(merged.source, backlogOf([takenEntry, trunk], [retrospective]));
   // The claim is listed once, in "## Taken" only.
-  assert.equal(occurrences(project.read(), trunk), 1);
-  assert.equal(occurrences(project.read(), review), 0);
+  assert.equal(occurrences(merged.source, trunk), 1);
+  assert.equal(occurrences(merged.source, review), 0);
 });
 
-test("merge items gives the same result whichever branch is named first", async (t) => {
-  const project = scratchProject(t);
-  const forwards = await run(
-    project,
-    versions(project, arrangedBacklog, afterClaim, afterClosure),
-  );
-  assert.equal(forwards.code, 0, forwards.stderr);
-  const result = project.read();
+test("merge items gives the same result whichever branch is named first", () => {
+  const forwards = mergeBacklogs(arrangedBacklog, afterClaim, afterClosure);
+  const result = forwards.source;
 
-  const backwards = await run(
-    project,
-    versions(project, arrangedBacklog, afterClosure, afterClaim),
-  );
-  assert.equal(backwards.code, 0, backwards.stderr);
-  assert.equal(project.read(), result);
+  const backwards = mergeBacklogs(arrangedBacklog, afterClosure, afterClaim);
+  assert.equal(backwards.source, result);
 });
 
-test("merge items applies an identical change on both branches once", async (t) => {
-  const project = scratchProject(t);
+test("merge items applies an identical change on both branches once", () => {
   // Both branches closed the architecture story and queued the same new work.
   const both = renderPublishedBacklog({
     taken: [takenBacklogEntry],
@@ -122,21 +92,17 @@ test("merge items applies an identical change on both branches once", async (t) 
     direction,
   });
 
-  const merged = await run(
-    project,
-    versions(project, arrangedBacklog, both, both),
-  );
+  const merged = mergeBacklogs(arrangedBacklog, both, both);
 
-  assert.equal(merged.code, 0, merged.stderr);
   assert.equal(
-    project.read(),
+    merged.source,
     backlogOf([takenEntry], [trunk, retrospective, addedLine]),
   );
-  assert.equal(occurrences(project.read(), addedLine), 1);
-  assert.equal(occurrences(project.read(), review), 0);
+  assert.equal(occurrences(merged.source, addedLine), 1);
+  assert.equal(occurrences(merged.source, review), 0);
 });
 
-test("merge items reads one work item through its canonical home", async (t) => {
+test("merge items reads one work item through its canonical home", () => {
   // The ancestor entry carries no identity yet, so its identity is its link.
   // One branch adopts an identity for it; the other renames it. Both are
   // talking about one work item, and the merged entry carries both changes.
@@ -146,21 +112,15 @@ test("merge items reads one work item through its canonical home", async (t) => 
   const adopted = `- [Publish the release notes](${home}) — SEED-002`;
   const renamed = `- [Publish the release notes with the tag](${home})`;
   const ancestor = backlogOf([takenEntry], [before, retrospective]);
-  const project = scratchProject(t, ancestor);
 
-  const merged = await run(
-    project,
-    versions(
-      project,
-      ancestor,
-      backlogOf([takenEntry], [adopted, retrospective]),
-      backlogOf([takenEntry], [renamed, retrospective]),
-    ),
+  const merged = mergeBacklogs(
+    ancestor,
+    backlogOf([takenEntry], [adopted, retrospective]),
+    backlogOf([takenEntry], [renamed, retrospective]),
   );
 
-  assert.equal(merged.code, 0, merged.stderr);
   assert.equal(
-    project.read(),
+    merged.source,
     backlogOf(
       [takenEntry],
       [
@@ -169,26 +129,5 @@ test("merge items reads one work item through its canonical home", async (t) => 
       ],
     ),
   );
-  assert.equal(occurrences(project.read(), home), 1);
-});
-
-test("merge items writes the destination without reading it", async (t) => {
-  // The destination is where an integration left it: conflict markers no
-  // backlog operation could parse. The result comes from the three supplied
-  // versions alone, so it is written over whatever was there.
-  const abandoned = `<<<<<<< HEAD\n${backlog}=======\nnonsense\n>>>>>>> branch\n`;
-  const project = scratchProject(t, abandoned);
-
-  const merged = await run(
-    project,
-    versions(
-      project,
-      backlog,
-      backlogOf([takenEntry], [trunk, retrospective]),
-      backlog,
-    ),
-  );
-
-  assert.equal(merged.code, 0, merged.stderr);
-  assert.equal(project.read(), backlogOf([takenEntry], [trunk, retrospective]));
+  assert.equal(occurrences(merged.source, home), 1);
 });

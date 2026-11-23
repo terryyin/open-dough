@@ -66,7 +66,7 @@ repository runner with Homebrew Bash 5 and Node 24 passed these focused baseline
 
 Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. Slice 1 was published as `67b66d67ce7b7905d9fb5e780baf3090a47ceb33` on the story branch. The Take has no owned trunk CI observation.
 
-The latest accepted story-branch revision is `fa058e69c14f1ed93f629fecf12dad03575e63ca` after Slice 2.
+The latest accepted story-branch revision is `e5003308c86a272d4c7a70b80a87b47703670cc8` after Slice 3.
 Codex observer for the execution branch uses GitHub Actions `ci.yml` (CI). Coordinator `5f0cec34-e7f0-4f74-8aa2-de18cfa45a2b`, mailbox `/tmp/dough-ci-501/watch-QmFpcm`, PID `84936`, session `52487`, cell `g245:20`. Runtime and owner are bound to the established execution checkout.
 
 ## Local gate
@@ -152,7 +152,7 @@ remaining owner only where they still prove a distinct contract. 77 Distribution
 ### 4. Reconcile backlog changes through the Git adapters alone
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given diverging changes to queued or taken work, real Git still reconciles
 them through the driver and adapters. Remove the test-only backlog `merge`
@@ -164,7 +164,7 @@ missing-file meaning and refusal/write boundaries at the adapters.
 driver lifetime, merge hook, clean/conflicted merge, rebase, cherry-pick and
 done-catalog reconciliation journeys through Git. Verify the retired command
 does not dispatch and inspect preserved ordering, ownership and conflict
-results, including the clean merge path.
+results, including the clean merge path. All 72 selected checks and real installed Git replay in both roots passed. Three policy checks passed after the test-only refactor. Checkout evidence uses the `slice4-` prefix.
 
 ### 5. Apply releases through the supported installer commands
 

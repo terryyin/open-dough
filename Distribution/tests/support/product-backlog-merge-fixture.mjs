@@ -1,42 +1,31 @@
-// Shared starting precondition for the reconciliation tests: the three supplied
-// versions of one backlog written as ordinary files beside the destination, and
-// the arguments naming them.
-//
-// The tool being run here is not Git-aware. The three versions are ordinary
-// files, which is the boundary the later Git slices will supply from index
-// stages.
+// Shared inputs and refusal observation for the reconciliation policy tests.
 import assert from "node:assert/strict";
+import { mergeBacklogs } from "../../src/skills/dough-product-backlog/scripts/product-backlog-merge.mjs";
+import { BacklogError } from "../../src/skills/dough-product-backlog/scripts/product-backlog-refusal.mjs";
 import { makeMe } from "./makeMe.mjs";
 import {
   addedHome,
   direction,
-  projectFile,
   run,
   scratchProject,
 } from "./product-backlog-fixture.mjs";
 import { renderPublishedBacklog } from "./published-backlog.mjs";
 
-// Where one of the three versions is named from, so that everything reading
-// them names the same files as the helper that wrote them.
-export const versionPath = (name) => `.planning/versions/${name}.md`;
+export function reportedMergeChanges(outcome) {
+  return outcome.changes.join("\n");
+}
 
-// Supplies only the starting precondition: the three versions as files beside
-// the destination, and the arguments naming them. The destination's own
-// content is supplied separately, because a merge never reads it as input.
-export function versions(project, ancestor, one, other) {
-  const written = { ancestor, one, other };
-  for (const [name, source] of Object.entries(written)) {
-    projectFile(project, `versions/${name}.md`, source);
-  }
-  return [
-    "merge",
-    "--ancestor",
-    versionPath("ancestor"),
-    "--branch",
-    versionPath("one"),
-    "--branch",
-    versionPath("other"),
-  ];
+export function mergeRefusal(ancestor, first, second) {
+  let message;
+  assert.throws(
+    () => mergeBacklogs(ancestor, first, second),
+    (error) => {
+      assert.ok(error instanceof BacklogError);
+      message = error.message;
+      return true;
+    },
+  );
+  return message;
 }
 
 // Entries named by a single letter, so a list's order reads as its letters and
