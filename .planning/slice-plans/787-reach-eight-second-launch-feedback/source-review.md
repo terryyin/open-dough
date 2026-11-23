@@ -33,6 +33,6 @@ depends on them.
 | C9 | At 320 CSS px and 200% zoom the relevant launch dialog controls still fit and can be reached, observed by Chromium with real geometry (Key example 3; Scope) | slice 5 |  |
 | C10 | The existing composed journeys, including the touch and composed startup journeys, stay in place (Key example 3; Scope) | slice 8 | |
 | C11 | The typed creation entry stays in place (Scope) | slice 8 | |
-| C12 | If the shared runner changes, the full frontend group passes and keeps its pointer assignments (Scope) | slice 2 |  |
+| C12 | If the shared runner changes, the full frontend group passes and keeps its pointer assignments (Scope) | slice 2 | observed: not triggered: Slice 2 reverted its only config experiment and changed no runner, config or shared preparation (PLAN.md Slice 2 results; evidence slice-2-report.md) |
 | C13 | This timing work adds no end-to-end cases (Scope) | slice 8 | |
 | C14 | Alternative to C1: if measured savings leave no credible path to about eight seconds, the remaining gap and a decision go to the maintainer (Evaluation) | slice 8 | |

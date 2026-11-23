@@ -95,6 +95,18 @@ Exclude unrelated test families, new E2E cases, and a change in worker count.
   for their measured gains and Slice 8 brings the remaining gap and a
   re-target decision to the maintainer, as the story's Evaluation directs.
   Timing comparisons stay relative until an uncontended series is possible.
+- **Route after Slice 2 (2026-11-23).** Slice 2 found about 1.0–1.3 s of
+  overhead removable within the repository: the preliminary parse and
+  roughly 0.10–0.15 s of per-file isolation per lane for each spec file
+  removed. The cold first file of each project and the 2.6 s single-file
+  minimum belong to Vitest and the browser. The projected end is near
+  9–9.5 s, so eight seconds is not credible on this route. Those numbers
+  come from loaded runs, so Slice 8 rechecks them with an uncontended
+  series when the host allows. The case slices 3–7 continue for their
+  measured gains. Where a slice already owns two cohesive launch files that
+  share a mount, it may merge them to remove per-file isolation, keeping
+  pointer project assignment and every mapped witness. Slice 8 brings the
+  measured gap and a re-target decision to the maintainer.
 
 ## Local gates and timing
 
@@ -190,7 +202,7 @@ execution evidence as `slice-1-report.md`.
 
 ### 2. Reduce shared per-file preparation and import cost
 Type: Structure
-Status: planned
+Status: done
 
 Slice 1 left about 6.3 aggregate seconds of per-file prepare and import,
 including about 1.6 s for each project's first file, and 0.07–0.40 s in
@@ -214,6 +226,20 @@ and the full `npm run test:dashboard:frontend -- --workers=2` with the
 macOS guard, and run affected backend runner consumers. Record the
 measured removable overhead and whether the eight-second route remains
 credible.
+
+**Slice 2 results** (at `575ab48fd`, AC, two workers, load 20–60 with
+external stress). Slice 1 diagnostics show the per-file overhead is the
+first file of each project (offers, refinement-options: ~1.1–1.6 s cold
+transform and page init, overlapping across lanes) plus ~0.10–0.15 s of
+per-file isolation for each other file. A trivial single file costs
+2.58–4.26 s shell; adding the second project costs ~0.5–0.9 s. Warming the
+launch page modules through Vite `server.warmup` gave A/B shells 25.0/22.8,
+26.4/39.2, 51.2/82.2 s and import shares 13–22/9–20 %, inside the variation,
+so it was reverted. Skipping the preliminary parse (≤0.4 s) was not tried.
+No code changed, so C12 was not triggered. Overhead removable within the repo
+is about 1.0–1.3 s: the parse plus file consolidation at ~0.1–0.15 s per file
+per lane. That puts the route near 9–9.5 s, so eight seconds is not credible
+and Slice 8 brings the re-target. Report: execution evidence `slice-2-report.md`.
 
 ### 3. Shorten the refinement choices and refusal checks
 Type: Behavior
