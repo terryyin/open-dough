@@ -28,12 +28,12 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/780-finish-launch-proof-orthogonal/PLAN.md))
 - [Correct the proof residue of Intent revision reading and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-revision-detour-proof-residue) — SEED-413#correct-revision-detour-proof-residue ([plan](slice-plans/781-correct-revision-detour-proof-residue/PLAN.md))
 - [Keep open Codex session status current](seeds/SEED-424-poll-open-codex-sessions.md#poll-open-codex-sessions) — SEED-424#poll-open-codex-sessions ([plan](slice-plans/784-poll-open-codex-sessions/PLAN.md))
 
 ## Backlog list
 
+- [Bring launch test feedback to about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#reach-eight-second-launch-feedback) — SEED-413#reach-eight-second-launch-feedback
 - [Correct the proof residue of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-scope-timing-chart-proof-residue) — SEED-413#correct-scope-timing-chart-proof-residue
 - [Keep the attention completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout) — SEED-341#keep-attention-completion-journey-within-timeout
 - [Catch delegated lint failures before guarded delivery](seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery) — SEED-345#catch-delegated-lint-before-delivery

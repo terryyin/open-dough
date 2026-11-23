@@ -2,15 +2,15 @@ import { createElement } from "react";
 import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { StoryNotesAttachment } from "../../src/AttachStoryNotes.tsx";
 import type { LaunchAttemptSource } from "../../src/launchAttempts.ts";
-import { launchOffers } from "../../src/launchOffers.ts";
 import { StartSession } from "../../src/StartSession.tsx";
 import { storyContext } from "../../src/followUpContext.ts";
 import type { StoryNote, StoryNotesAnswer } from "../../src/storyNote.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { launchDialog } from "./ad-hoc-launch-page.ts";
+import { adHocLaunches, launchDialog } from "./ad-hoc-launch-page.ts";
 import { useMountedLaunchAttempts } from "./mounted-launch-attempts.ts";
 import { mountStoryStartup } from "./story-startup-page.ts";
 
@@ -37,15 +37,16 @@ const answer = (...notes: StoryNote[]): StoryNotesAnswer => ({
 const machine = makeMe.aMachineAnswer.please();
 
 function FollowUpOnPage({ source }: { source: LaunchAttemptSource }) {
-  const attempts = useMountedLaunchAttempts(machine, source, 0);
+  const { adHocAttemptOf, startAdHoc } = useMountedLaunchAttempts(
+    machine,
+    source,
+    0,
+  );
+  const { sessionPolicyOffer, rereadOffers } = adHocLaunches();
   return createElement(StartSession, {
     project: project.label,
     sourceId: project.id,
-    launches: {
-      ...launchOffers(machine, true),
-      ...attempts,
-      rereadOffers: () => undefined,
-    },
+    launches: { adHocAttemptOf, startAdHoc, sessionPolicyOffer, rereadOffers },
     presentTerminal: () => undefined,
     followUp: {
       name,
@@ -88,15 +89,7 @@ test("Follow up defaults to waiting notes, Start sends the selected choice, and 
   const { launcher, form, attach, accept } = await mountFollowUp(
     answer(waiting, sent),
   );
-  const expectChecked = async () => {
-    await expect.element(attach).toBeChecked();
-    await expect.element(attach).toBeEnabled();
-    await expect
-      .element(attach)
-      .toHaveAccessibleDescription("1 waiting of 2 notes");
-  };
-
-  await expectChecked();
+  await expect.element(attach).toBeChecked();
   await form.start.click();
   await expect.element(form.dialog).not.toBeInTheDocument();
   expect(accept).toHaveBeenNthCalledWith(
@@ -109,7 +102,7 @@ test("Follow up defaults to waiting notes, Start sends the selected choice, and 
   );
 
   await launcher.click();
-  await expectChecked();
+  await expect.element(attach).toBeChecked();
   await attach.click();
   await expect.element(attach).not.toBeChecked();
   await form.start.click();
@@ -124,35 +117,59 @@ test("Follow up defaults to waiting notes, Start sends the selected choice, and 
   );
 
   await launcher.click();
-  await expectChecked();
+  await expect.element(attach).toBeChecked();
   await form.cancel.click();
   await expect.element(form.dialog).not.toBeInTheDocument();
   expect(accept).toHaveBeenCalledTimes(2);
 });
 
-async function startsWithoutNotes(read: StoryNotesAnswer, description: string) {
-  const { form, attach, accept } = await mountFollowUp(read);
-  await expect.element(attach).toBeDisabled();
-  await expect.element(attach).not.toBeChecked();
-  await expect.element(attach).toHaveAccessibleDescription(description);
-  await expect.element(form.start).toBeEnabled();
-  await form.start.click();
-  await expect.element(form.dialog).not.toBeInTheDocument();
-  expect(accept).toHaveBeenCalledExactlyOnceWith(
-    expect.objectContaining({
-      workflow: "ad-hoc",
-      followUp: { story: { identity: story.identity, revision } },
+async function mountNotesAttachment(read: StoryNotesAnswer) {
+  const onAttach = vi.fn<(attach: boolean) => void>();
+  await mountComponent(
+    createElement(PageReadsOnPage, {
+      reads: pageReadsSupplying({ storyNotes: () => Promise.resolve(read) }),
+      children: createElement(StoryNotesAttachment, {
+        sourceId: project.id,
+        identity: story.identity,
+        onAttach,
+      }),
     }),
-    false,
   );
+  return {
+    attach: page.getByRole("checkbox", { name: "Attach story notes" }),
+    onAttach,
+  };
 }
 
-test("a follow-up with no waiting notes explains why Attach is unavailable and Start still works", async () => {
-  await startsWithoutNotes(answer(sent), "No waiting notes");
+test("the notes reader selects waiting notes and describes their count", async () => {
+  const { attach, onAttach } = await mountNotesAttachment(
+    answer(waiting, sent),
+  );
+  await expect
+    .element(attach)
+    .toHaveAccessibleDescription("1 waiting of 2 notes");
+  await expect.element(attach).toBeChecked();
+  await expect.element(attach).toBeEnabled();
+  await expect.poll(() => onAttach.mock.lastCall).toEqual([true]);
 });
 
-test("a follow-up with unreadable notes explains why Attach is unavailable and Start still works", async () => {
-  await startsWithoutNotes(
+async function leavesNotesUnattached(
+  read: StoryNotesAnswer,
+  description: string,
+) {
+  const { attach, onAttach } = await mountNotesAttachment(read);
+  await expect.element(attach).toHaveAccessibleDescription(description);
+  await expect.element(attach).toBeDisabled();
+  await expect.element(attach).not.toBeChecked();
+  await expect.poll(() => onAttach.mock.lastCall).toEqual([false]);
+}
+
+test("the notes reader leaves Attach unavailable when no notes wait", async () => {
+  await leavesNotesUnattached(answer(sent), "No waiting notes");
+});
+
+test("the notes reader explains why unreadable notes cannot be attached", async () => {
+  await leavesNotesUnattached(
     { kind: "unreadable" },
     "The notes could not be read.",
   );

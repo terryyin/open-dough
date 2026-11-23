@@ -691,137 +691,37 @@ on 22 November 2026, when its correction found that rendering production
   every added read is a required member of the typed page entry, and no test
   file copies the published observation.
 
-<a id="finish-launch-proof-orthogonal"></a>
+<a id="reach-eight-second-launch-feedback"></a>
 
-### Get launch unit proof in about eight seconds
+### Bring launch test feedback to about eight seconds
 
-**Identity:** SEED-413#finish-launch-proof-orthogonal
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#finish-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#make-launch-proof-orthogonal","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal"},"implementation":"Slices 1–6 reshape the launch dialog, dictation, story card status and startup recovery specs, narrow TranscriptReview and StartupRecovery in production, and change shared launch page helpers.","rationale":"This story reshapes the same launch page helpers (story-card-launch-page.ts, story-startup-page.ts) and measures the whole launch selection; starting from the unintegrated branch would conflict on those helpers and measure against a selection trunk does not hold. Reconciliation cannot help because the supplier's changes are not yet on trunk.","condition":"SEED-413#make-launch-proof-orthogonal is integrated on trunk with its reshaped launch selection.","state":"satisfied","resolution":{"revision":"265d6750b2aff5f953fee6e6684dbfd28d507b89","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal","summary":"Slices 1–6 integrated: dense launch layout, model and effort reset, TranscriptReview, native recording races, typed StartupStatus and StartupRecovery, with plan 768's mappings and paired timing (reshaped families 21.4–21.7 s against 26.0–29.0 s at load about 13) at 265d6750b:.planning/slice-plans/768-make-launch-proof-orthogonal/PLAN.md. The merged launch selection passed 71/71 and the whole frontend group 452/452 before integration.\nCondition satisfied: SEED-413#make-launch-proof-orthogonal is integrated on trunk with its reshaped launch selection.\nAccepted integration: ac398c66a245cca4b63758b5b742e31df369492b on origin/refs/heads/main."}}]}
-```
+**Identity:** SEED-413#reach-eight-second-launch-feedback
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/780-finish-launch-proof-orthogonal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05ff0070c5f0bdddf923af9fd67339e500e8cf7a9faa01b9e67a5d12eeed59e1","plan":"5d38d7b4301097b8428551c1856184f135dbd9877558ed155633a174b14df38d"}}
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-- **Goal.** Dashboard maintainers get the local launch unit selection in
-  about 7–8 seconds at two workers, including runner preparation, so launch
-  changes get feedback within one short wait. Distinct launch behavior and
-  the existing composed journeys stay covered. This story completes the
-  launch family's share of the campaign's one-minute frontend target.
-- **Scope.** Own `follow-up-note-handoff`, `ad-hoc-start-session`,
-  `ad-hoc-start-session-answer`, `responsive-unattached-startup`,
-  `ad-hoc-creation-entry`, `launch-attachments` and
-  `launch-record-details` under `dashboard/frontend-tests/launches/`, the
-  launch page helpers that hand-build launches from production
-  `launchOffers` (`story-card-launch-page.ts`, `story-startup-page.ts`,
-  `follow-up-note-handoff.spec.ts` and the unattached startup spec), and
-  the whole launch selection's timing. Each case is arranged at the
-  smallest production owner through typed inputs; production code may
-  narrow an owner so it stands alone in production; tests never copy a
-  production composition. Before removing an observation, name the
-  retained case that would fail for the same regression. Note attachment
-  takes a required notes answer, and the reading wrapper renders that
-  choice. Unattached startup already takes its attempt on Start session
-  and the project-actions row; the responsive terminal cases stop
-  spreading `launchOffers`. Image paste, refusal and cancel stay on the
-  dialog and attachment control that own them. Recorded model, effort and
-  option words are read from the launch subject on the session entry and
-  its details. The creation entry already mounts `CreationEntry` with a
-  typed record; keep that case and include the file in the selection
-  timing. The maintainer approved reopening the measured slow proof:
-  `ad-hoc-launch-dialog`, `ad-hoc-start-session-layout`,
-  `story-card-launch-offers`, `responsive-story-startup`,
-  `launch-refinement-options` and `mounted-instruction-voice`, including
-  shared launch helpers these cases use. Time the slow steps and simplify
-  setup or synchronization where the step's cost and proof justify it.
-  Preserve genuine browser conditions, capture and recovery races, and the existing native,
-  install and backend journeys at their current owners. Add no E2E case.
-  A change to the shared frontend runner configuration is allowed only
-  with whole frontend group proof; `story-card-launch-offers.spec.ts` and
-  `story-card-startup.spec.ts` still need the `chromium-desktop` instance.
-  Apply the
-  [shared acceptance](#acceptance-shared-by-the-eight-stories) mapping,
-  spent-support and timing checks. If the remaining time cannot reach the
-  target without losing a distinct observation, stop with the measured
-  remainder and its cause for the maintainer to decide.
-- **Key examples.**
-  - Note attachment receives its typed notes, with distinct waiting, no
-    waiting and unreadable states; one composed Start session Follow-up
-    request remains.
-  - Unattached startup receives its typed attempt: progress and refusal
-    stay on the project-actions row, and a blank keyboard start presents
-    the terminal while an instructed start leaves it closed.
-  - Pasting text extends the instruction without attaching an image.
-    Refusal explains why and preserves the accepted images and draft.
-    Cancel and Escape discard the draft and attachments without uploading.
-  - Recorded model labels follow their own session on the card and
-    sidebar. Details show the recorded effort and options when present.
-  - Story card launches mount without a hand-built copy of the machine
-    sessions composition.
-  - In a narrow or zoomed dialog, the offers and actions remain reachable
-    in keyboard order. On desktop, launch notes remain discoverable by
-    hover and keyboard, with legible, distinct states in both schemes.
-  - Refusing refinement leaves the chosen options checked on reopening.
-    Cancel clears them for the next open. A held offer or host reread obeys
-    its own availability and submission rules.
-  - Cancel and Escape each end the applicable recording or transcription
-    work. Late permission and transcription answers leave the new draft
-    empty. Keyboard startup still selects the correct story and announces
-    the transitions once without stealing focus from the next inspection.
-  - Measurement: the whole selection run with
-    `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
-    reports about 7–8 s wall including preparation, compared under similar
-    machine load with a paired run of the starting selection.
-- **Evaluation.** Map the existing observations from the seven original
-  files and the six reopened files to their maintained proof. Measure the
-  whole launch selection as the key example states. Apply
-  the [shared acceptance](#acceptance-shared-by-the-eight-stories) mapping,
-  spent-support and timing checks.
-- **Carried evidence.** Split from
-  SEED-413#make-launch-proof-orthogonal on 22 November 2026. Plan 768 at
-  `265d6750b:.planning/slice-plans/768-make-launch-proof-orthogonal/PLAN.md`
-  records each reshaped family's mapping. Its paired run at `840788d00`
-  (two workers, load 13 → 16) took the 17 reshaped files to 21.40 s and
-  21.68 s against 29.02 s and 26.01 s for their 16 starting files. Its
-  Slice 7 return found these seven files at 1,054 lines. The source map is
-  `cb5c6fea2:.planning/slice-plans/762-speed-dashboard-launch-proof/remaining-proof.md`.
-- **Learning.** The first try failed by Cursor on 23 November 2026 and was
-  not landed. It made the launch tests and the production launches code
-  longer and more complicated, and the whole
-  `dashboard/frontend-tests/launches` selection did not get faster. On AC
-  power, load about 5 on 16 CPUs (lighter than plan 768's load 13–16), two
-  runs at two workers took 21.878 s and 21.809 s (24 files, 78 passed). The
-  same command at the starting revision `d06ea52e` took 24.302 s and
-  21.925 s (24 files, 71 passed), so the selection was already about 22–24
-  seconds before the try. The long cases, about 1–3 seconds each, were the
-  same titles at both revisions: noted execution and preparing refinement
-  in both schemes, a refused selection that stays checked until Cancel,
-  refinement options, the 320 px and 200% layouts, held transcription, and
-  the keyboard start. Cutting one would drop the observation its title
-  names. The notes-answer and recorded-word cases the try added were a few
-  milliseconds inside that wall. Sharing one production launches mapping
-  and pointing the launch helpers at it did not move the wall time. Plan
-  771 was removed with the try.
-- **Refinement evidence, 23 November 2026.** At `1764d8dea`, on AC power
-  with a 16-logical-CPU macOS host and one-minute load 7.27–10.45, the
-  timing command above, under `caffeinate -s -i`, passed 71 cases in 24
-  files. The two runs with the checked-in runner took 28.03 s and 29.64 s.
-  With the single scratch change `isolate: false` in
-  `dashboard/frontend.vitest.config.mts`, the same case roster passed in
-  18.18 s and 19.79 s. Adding Chromium's `--disable-frame-rate-limit`
-  to both browser instances with that setting took 27.03 s. The runner
-  configuration was restored after the probes. Whole frontend group
-  validation of the isolation change remains open.
-
-  In the faster 18.18 s run, the 19 cases in the seven owned specs
-  accounted for 4.87 summed case-seconds. The 52 cases in the other 17
-  files accounted for 26.99. Those 17 files alone passed in 19.14 s
-  using the same command with the 17 explicit paths in place of the
-  folder. This is a diagnostic selection. The slow remaining journeys
-  include narrow and zoomed layout, refused refinement option reset,
-  native transcription dismissal, and story-offer status and contrast.
-  The seven original specs and the runner change tested here account
-  for only part of the saving the two-worker target requires.
+- **Goal.** Dashboard maintainers run the complete launch unit selection in
+  about 7–8 seconds with two workers, including runner preparation. Keep the
+  distinct browser behavior and existing composed journeys covered.
+- **Starting evidence.** The preceding work passed 77 cases in 24 files in
+  14.20 and 14.71 seconds on AC macOS. Paired starting runs took 22.93 and
+  21.00 seconds with 71 cases. The candidate's case bodies total about
+  22.5–22.9 seconds, leaving at least 6.5–6.9 aggregate case-seconds to remove
+  even before accounting for preparation. Refinement refusal and choices,
+  desktop hover and keyboard discovery, and responsive workspace policy are
+  measured leads.
+  The paired measurements and case mapping are recoverable from
+  `107af7aa7d6ff663fcfae55057c22e7641dc6a64:.planning/slice-plans/780-finish-launch-proof-orthogonal/reports/record-details-slice/report.md`.
+- **Scope.** Profile the remaining cost and compare simpler focused tests
+  through existing typed production owners. Keep native input and responsive
+  geometry where the observation depends on them. Map each relocated
+  assertion to a witness that would catch the same regression. Any shared
+  runner change requires the full frontend group and retains its pointer
+  assignments. Add no end-to-end cases for this timing work.
+- **Evaluation.** Compare paired runs of
+  `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
+  on similar host load. Count elapsed preparation, report exact case rosters
+  and retain the typed creation entry.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 

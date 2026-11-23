@@ -15,7 +15,6 @@ import type { StoryNotesAnswer } from "../../src/storyNote.ts";
 import type { AttemptEvidence } from "../../src/startupRecoveries.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { noSessions } from "../navigation/board-mount.ts";
 import { inertPageSessions } from "../sessions/inert-page-sessions.ts";
 import { useMountedLaunchAttempts } from "./mounted-launch-attempts.ts";
 
@@ -81,9 +80,11 @@ function StartupOnPage({
     reread,
   });
   const launches = {
-    ...noSessions,
     ...launchOffers(machine, true),
     ...attempts,
+    rereadOffers: reread,
+    keptStartOf: () => undefined,
+    runningStartOf: () => undefined,
     records: machine.records,
     launched: machine.records,
     creations: machine.creations,
@@ -116,12 +117,14 @@ export async function mountStoryStartup(
     evidence = "read",
     taken = false,
     notes = { kind: "notes", notes: {} },
+    viewport,
   }: {
     other?: WorkEntry;
     machine?: MachineAnswer;
     evidence?: AttemptEvidence;
     taken?: boolean;
     notes?: StoryNotesAnswer;
+    viewport?: { width: number; height: number };
   } = {},
 ) {
   const accept = vi.fn<LaunchAttemptSource["accept"]>();
@@ -151,9 +154,10 @@ export async function mountStoryStartup(
       }),
     });
   let state: ReadState = { machine, answeredAsk: 0, evidence };
-  const { rerender } = await mountComponent(view(state), {
-    viewport: { width: 1440, height: 900 },
-  });
+  const { rerender } = await mountComponent(
+    view(state),
+    viewport === undefined ? undefined : { viewport },
+  );
   const card = page.getByRole("article", { name: entry.title, exact: true });
   const actions = card.getByRole("group", { name: "Launch actions" });
   return {

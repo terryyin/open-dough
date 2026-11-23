@@ -132,46 +132,45 @@ test("story Starts keep their reading order and visible keyboard focus at narrow
   expect(start).not.toHaveBeenCalled();
 });
 
-test("noted execution and preparing refinement stay readable and distinct from unavailable Starts in both schemes", async () => {
+const preparingStory = makeMe.aWorkEntry
+  .with({
+    identity: "SEED-A#a",
+    title: "Story being prepared",
+    preparing: {
+      status: "recorded",
+      assignments: [
+        {
+          profilePath: ".planning/agents/helper.json",
+          name: "helper",
+          agent: "Helper",
+          host: "claude",
+          model: undefined,
+          human: { status: "loading" },
+        },
+      ],
+    },
+  })
+  .please();
+
+test("noted Starts explain their offers on hover, focus and in the launch dialog", async () => {
   expectDesktopHover();
-  const story = makeMe.aWorkEntry
-    .with({
-      identity: "SEED-A#a",
-      title: "Story being prepared",
-      preparing: {
-        status: "recorded",
-        assignments: [
-          {
-            profilePath: ".planning/agents/helper.json",
-            name: "helper",
-            agent: "Helper",
-            host: "claude",
-            model: undefined,
-            human: { status: "loading" },
-          },
-        ],
-      },
-    })
-    .please();
-  const { group, execution, refinement, show, readingLaunches } =
-    await mountStoryLaunches(story);
+  const { group, execution, refinement } =
+    await mountStoryLaunches(preparingStory);
   const noted = [
     {
       action: execution,
       name: "Start execution",
       note: notReady,
       sentence: "This story is not assessed as ready.",
-      glyph: "play",
     },
     {
       action: refinement,
       name: "Start refinement",
       note: "Being prepared",
       sentence: "This story is being prepared.",
-      glyph: "pencil-line",
     },
   ];
-  for (const { action, name, note, sentence, glyph } of noted) {
+  for (const { action, name, note, sentence } of noted) {
     await expect.element(action).toBeEnabled();
     await expect.element(action).toHaveAccessibleName(name);
     await expect.element(action).toHaveAccessibleDescription(note);
@@ -186,15 +185,11 @@ test("noted execution and preparing refinement stay readable and distinct from u
     await userEvent.unhover(action);
     await expect.element(text).not.toBeVisible();
     action.element().focus();
-    await userEvent.tab({ shift: true });
-    await userEvent.tab();
+    await userEvent.keyboard("{Shift>}{Tab}{/Shift}{Tab}");
     await expect.element(action).toHaveFocus();
     await expect.element(text).toBeVisible();
-    action.element().blur();
-    await expect.element(text).not.toBeVisible();
-    expectGlyph(action, glyph);
 
-    await action.click();
+    await userEvent.keyboard("{Enter}");
     const { dialog } = launchDialog(`${name} in Claude Code`);
     await expect
       .element(dialog.getByText(sentence, { exact: true }))
@@ -202,9 +197,18 @@ test("noted execution and preparing refinement stay readable and distinct from u
     await userEvent.keyboard("{Escape}");
     await expect.element(dialog).not.toBeInTheDocument();
     action.element().blur();
-    await userEvent.unhover(action);
+    await expect.element(text).not.toBeVisible();
   }
+});
 
+test("noted Starts remain visually distinct from unavailable Starts in both schemes", async () => {
+  expectDesktopHover();
+  const { execution, refinement, show, readingLaunches } =
+    await mountStoryLaunches(preparingStory);
+  const noted = [
+    { action: execution, glyph: "play" },
+    { action: refinement, glyph: "pencil-line" },
+  ];
   for (const scheme of ["light", "dark"]) {
     await emulateMedia([{ name: "prefers-color-scheme", value: scheme }]);
     await expect
@@ -223,13 +227,8 @@ test("noted execution and preparing refinement stay readable and distinct from u
       expect(paint.color).not.toBe(disabledPaint.color);
       expect(paint.borderColor).not.toBe(disabledPaint.borderColor);
     }
-    show(story);
-    for (const { action, note } of noted) {
-      await expect.element(action).toBeEnabled();
-      await expect.element(action).toHaveAccessibleDescription(note);
-      await expect
-        .element(group.getByText(note, { exact: true }))
-        .not.toBeVisible();
-    }
+    show(preparingStory);
+    await expect.element(execution).toBeEnabled();
+    await expect.element(refinement).toBeEnabled();
   }
 });

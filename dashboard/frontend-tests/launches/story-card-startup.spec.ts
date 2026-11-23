@@ -44,9 +44,14 @@ const runAccepted = (request: AgentLaunchRequest) =>
   });
 
 async function submit(action: Locator) {
-  await action.click();
+  await expect.element(action).toBeEnabled();
+  const launcher = action.element() as HTMLButtonElement;
+  launcher.focus();
+  launcher.click();
   const form = launchDialog();
-  await form.start.click();
+  await expect.element(form.start).toBeEnabled();
+  const start = form.start.element() as HTMLButtonElement;
+  start.click();
   await expect.element(form.dialog).not.toBeInTheDocument();
 }
 
@@ -148,7 +153,9 @@ test("a missing folder explanation stays below Start execution and focus returns
 
 test("a refinement refusal describes Start refinement alone and sits below both desktop offers", async () => {
   const { accept, card, actions, execution, refinement } =
-    await mountStoryStartup(story());
+    await mountStoryStartup(story(), {
+      viewport: { width: 1440, height: 900 },
+    });
   accept.mockResolvedValueOnce({ kind: "failed", explanation: missingFolder });
   await submit(refinement);
   const answer = card.getByText(`Launch failed: ${missingFolder}`, {

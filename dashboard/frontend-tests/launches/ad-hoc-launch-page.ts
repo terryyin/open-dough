@@ -1,7 +1,8 @@
 import { expect, vi } from "vitest";
-import { page, userEvent, type Locator } from "vitest/browser";
+import { page, type Locator } from "vitest/browser";
 import type { AdHocLaunches } from "../../src/StartSession.tsx";
 import type { SessionPolicyOffer } from "../../src/launchOffers.ts";
+import { focusStops } from "../navigation/board-accessibility.ts";
 
 export const startSession = (project: string) =>
   page.getByRole("button", { name: `Start session in ${project}` });
@@ -34,8 +35,12 @@ export function adHocLaunches(offer: SessionPolicyOffer = "unavailable") {
 }
 
 export async function followsTabOrder(controls: readonly Locator[]) {
-  for (const control of controls) {
-    await userEvent.tab();
-    await expect.element(control).toHaveFocus();
-  }
+  const expected = controls.map((control) => control.element());
+  const reached = await focusStops("{Tab}".repeat(expected.length));
+  expect(reached).toHaveLength(expected.length);
+  reached.forEach(({ element }, index) => {
+    expect(element).toBe(expected[index]);
+  });
+  const last = controls.at(-1);
+  if (last !== undefined) await expect.element(last).toHaveFocus();
 }

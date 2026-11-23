@@ -16,11 +16,13 @@ import {
   narrowDialog,
   noSidewaysScroll,
   textFitsViewport,
-  twiceZoomedDialog,
   zoomToTwoHundredPercent,
 } from "./launch-layout-page.ts";
 
-async function open(offer: SessionPolicyOffer, viewport = twiceZoomedDialog) {
+async function open(
+  offer: SessionPolicyOffer,
+  mountOptions?: Parameters<typeof mountComponent>[1],
+) {
   const project = makeMe.aPublishedSource.pygardon.please();
   await mountComponent(
     createElement(StartSession, {
@@ -29,7 +31,7 @@ async function open(offer: SessionPolicyOffer, viewport = twiceZoomedDialog) {
       launches: adHocLaunches(offer),
       presentTerminal: vi.fn(),
     }),
-    { viewport },
+    mountOptions,
   );
   await startSession(project.label).click();
   const form = launchDialog();
@@ -44,6 +46,7 @@ test("Start session tabs from instruction through session choices and closed com
     { exact: true },
   );
   await expect.element(where).not.toBeVisible();
+  await expect.element(form.options).not.toBeInTheDocument();
   await followsTabOrder([
     form.dialog.getByRole("button", { name: "Record", exact: true }),
     form.dialog.getByRole("button", { name: "Attach images" }),
@@ -70,11 +73,10 @@ const effect = {
   "Isolated workspace": `Isolated workspace · Automatically land The session runs in a new workspace under .worktrees/; ${lands}`,
 };
 
-test("Start session with automatic landing wraps both choices at 320 pixels and keeps them side by side at 200% zoom, with each workspace's effects and both actions in view", async () => {
-  const { dialog, command, start, cancel } = await open(
-    "offered",
-    narrowDialog,
-  );
+test("both workspace policies keep the automatic landing actions in view when narrow or zoomed", async () => {
+  const { dialog, command, start, cancel } = await open("offered", {
+    viewport: narrowDialog,
+  });
   const workspace = ["Isolated workspace", "Default main"] as const;
   const afterChecks = ["Wait for review", "Automatically land"] as const;
   const radio = (name: string) => dialog.getByRole("radio", { name });
@@ -91,8 +93,7 @@ test("Start session with automatic landing wraps both choices at 320 pixels and 
         ? box(radio(second)).top > box(radio(first)).top
         : box(radio(second)).top === box(radio(first)).top,
     );
-  const chosenWorkspaceFits = async (chosen: (typeof workspace)[number]) => {
-    await radio(chosen).click();
+  const workspaceFits = async (chosen: (typeof workspace)[number]) => {
     await expect.element(start).toHaveAccessibleDescription(effect[chosen]);
     noSidewaysScroll(dialog);
     controlsAreReachable(dialog);
@@ -107,16 +108,24 @@ test("Start session with automatic landing wraps both choices at 320 pixels and 
     expect(box(radio(afterChecks[0])).top).toBeGreaterThan(
       box(radio(workspace[1])).top,
     );
-    for (const chosen of workspace) await chosenWorkspaceFits(chosen);
   };
+
   await choicesFit(true);
+  await workspaceFits("Default main");
+  await radio("Isolated workspace").click();
+  await workspaceFits("Isolated workspace");
 
   await zoomToTwoHundredPercent();
   await choicesFit(false);
+  await workspaceFits("Isolated workspace");
+  await radio("Default main").click();
+  await workspaceFits("Default main");
 });
 
 test("Start session explains unavailable choices without clipping them and keeps both actions reachable at 320 pixels and at 200% zoom", async () => {
-  const { dialog, start, cancel } = await open("unavailable", narrowDialog);
+  const { dialog, start, cancel } = await open("unavailable", {
+    viewport: narrowDialog,
+  });
   const why = dialog.getByText(
     "Isolated workspace and Automatically land are not offered: the installed skills in this project do not establish a session without a story for this host.",
   );

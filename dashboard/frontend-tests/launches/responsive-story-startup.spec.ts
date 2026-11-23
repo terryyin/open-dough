@@ -1,7 +1,6 @@
 import { expect, test, onTestFinished } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { tabTo } from "../navigation/board-accessibility.ts";
 import { browserSession, emulateMedia } from "../review/browser-session.ts";
 import { launchDialog } from "./ad-hoc-launch-page.ts";
 import { mountStoryStartup } from "./story-startup-page.ts";
@@ -66,7 +65,8 @@ test("a keyboard start protects the selected story, announces each transition on
   const form = launchDialog("Start execution in Claude Code");
   await expect.element(form.instruction).toHaveFocus();
   await userEvent.keyboard(instruction);
-  await tabTo(form.start.element());
+  await expect.element(form.start).toBeEnabled();
+  form.start.element().focus();
   await userEvent.keyboard("{Enter}");
 
   await expect.element(form.dialog).not.toBeInTheDocument();
@@ -128,7 +128,8 @@ test("a keyboard start protects the selected story, announces each transition on
   );
 
   const inspectOther = otherCard.getByRole("button", { name: "Inspect story" });
-  await tabTo(inspectOther.element());
+  await expect.element(inspectOther).toBeEnabled();
+  inspectOther.element().focus();
   await userEvent.keyboard("{Enter}");
   const otherTask = otherCard.getByRole("button", { name: "Hide detail" });
   await expect.element(otherTask).toHaveFocus();

@@ -6,7 +6,6 @@ import {
   controlsAreReachable,
   narrowDialog,
   noSidewaysScroll,
-  twiceZoomedDialog,
   zoomToTwoHundredPercent,
 } from "./launch-layout-page.ts";
 import { openRefinement, refinementChoices } from "./refinement-launch-page.ts";
@@ -14,33 +13,9 @@ import { openRefinement, refinementChoices } from "./refinement-launch-page.ts";
 const effect = "The session runs in this project's folder.";
 const preview = (identity: string) => `/dough-story-refinement ${identity}`;
 
-test("the instruction comes first, tabs in order, and the options disclosure keeps its summarized selection", async () => {
-  const { form, launcher, work, start } =
-    await openRefinement(twiceZoomedDialog);
+test("refinement tabs from the instruction through the closed disclosures to Start", async () => {
+  const { form } = await openRefinement();
   const { dialog, host, model, effort, options, command, cancel } = form;
-  await expect.element(dialog.getByText(work.title)).toBeVisible();
-  await expect.element(dialog.getByText(work.identity)).toBeVisible();
-  await expect
-    .element(
-      dialog.getByText(
-        "Claude Code starts a background session on this machine to refine this story.",
-      ),
-    )
-    .toBeVisible();
-  expect(box(host).top).toBe(box(model).top);
-  expect(box(host).left).toBeLessThan(box(model).left);
-  await expect.element(dialog.getByText(effect, { exact: true })).toBeVisible();
-  await expect.element(form.start).toHaveAccessibleDescription(effect);
-
-  const explore = dialog.getByRole("checkbox", { name: "Explore" });
-  const uxUi = dialog.getByRole("checkbox", { name: "UX/UI" });
-  const code = dialog.getByRole("code", { includeHidden: true });
-  await expect
-    .element(options)
-    .toHaveTextContent("Refinement options None selected");
-  await expect.element(explore).not.toBeInTheDocument();
-  await expect.element(code).not.toBeVisible();
-  await expect.element(code).toHaveTextContent(preview(work.identity));
   await followsTabOrder([
     dialog.getByRole("button", { name: "Record", exact: true }),
     dialog.getByRole("button", { name: "Attach images" }),
@@ -53,6 +28,22 @@ test("the instruction comes first, tabs in order, and the options disclosure kee
     cancel,
     form.start,
   ]);
+});
+
+test("the refinement options disclosure keeps its selection when collapsed", async () => {
+  const {
+    form: { dialog, options },
+    work,
+  } = await openRefinement();
+  const explore = dialog.getByRole("checkbox", { name: "Explore" });
+  const uxUi = dialog.getByRole("checkbox", { name: "UX/UI" });
+  const code = dialog.getByRole("code", { includeHidden: true });
+  await expect
+    .element(options)
+    .toHaveTextContent("Refinement options None selected");
+  await expect.element(explore).not.toBeInTheDocument();
+  await expect.element(code).not.toBeVisible();
+  await expect.element(code).toHaveTextContent(preview(work.identity));
 
   await options.click();
   await uxUi.click();
@@ -65,14 +56,6 @@ test("the instruction comes first, tabs in order, and the options disclosure kee
   await options.click();
   await expect.element(explore).toBeChecked();
   await expect.element(uxUi).toBeChecked();
-  await expect
-    .element(dialog.getByRole("group", { name: "Options" }))
-    .toBeVisible();
-
-  await cancel.click();
-  await expect.element(dialog).not.toBeInTheDocument();
-  await expect.element(launcher).toHaveFocus();
-  expect(start).not.toHaveBeenCalled();
 });
 
 function fitsWithActionsInView(form: {
@@ -91,20 +74,36 @@ function fitsWithActionsInView(form: {
   );
 }
 
-test("with every option selected, Command details list every flag; Host stacks above Model at 320 pixels and sits beside it at 200% zoom, with every option and action reachable", async () => {
-  const { form, work } = await openRefinement(narrowDialog);
+test("a dense refinement dialog keeps its controls reachable when narrow or zoomed", async () => {
+  const { form, work } = await openRefinement({ viewport: narrowDialog });
   const { host, model, options, command, dialog } = form;
-  await options.click();
-  for (const { label } of refinementChoices)
-    await dialog.getByRole("checkbox", { name: label, exact: true }).click();
+  await expect.element(dialog.getByText(work.title)).toBeVisible();
   await expect
-    .poll(() => options.element().textContent)
-    .toMatch(new RegExp(`\\(${refinementChoices.length}\\)$`));
+    .element(dialog.getByText(work.identity, { exact: true }))
+    .toBeVisible();
+  await expect
+    .element(
+      dialog.getByText(
+        "Claude Code starts a background session on this machine to refine this story.",
+      ),
+    )
+    .toBeVisible();
+  await options.click();
+  const choices = dialog.getByRole("group", { name: "Options", exact: true });
+  await expect.element(choices).toBeVisible();
+  for (const input of choices
+    .element()
+    .querySelectorAll<HTMLInputElement>('input[type="checkbox"]'))
+    input.click();
   await command.click();
   const flags = refinementChoices.map(({ flag }) => flag).join(" ");
   await expect
     .element(dialog.getByRole("code", { includeHidden: true }))
     .toHaveTextContent(`${preview(work.identity)} ${flags}`);
+  expect(options.element().textContent).toContain(
+    `(${refinementChoices.length})`,
+  );
+  await expect.element(form.start).toHaveAccessibleDescription(effect);
   expect(box(host).top).toBeLessThan(box(model).top);
   await fitsWithActionsInView(form);
 

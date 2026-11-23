@@ -12,7 +12,7 @@ const shape = optionsDefinitionSchema.parse(shippedDefinition);
 export const refinementChoices = [...shape.options, ...(shape.focuses ?? [])];
 
 export async function openRefinement(
-  viewport: { width: number; height: number },
+  mountOptions?: Parameters<typeof mountComponent>[1],
   open = (launcher: Locator) => launcher.click(),
 ) {
   const source = makeMe.aPublishedSource.pygardon.please();
@@ -42,7 +42,7 @@ export async function openRefinement(
       },
       onStart: start,
     }),
-    { viewport },
+    mountOptions,
   );
   const launcher = page.getByRole("button", { name: "Start refinement" });
   await open(launcher);
