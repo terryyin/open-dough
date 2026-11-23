@@ -3,9 +3,8 @@
 // through the shared CI proof read
 // (`../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`)
 // with the collector contract's summary read limit as `answerBytes`, then
-// validated with the collector's own contract, read in its current version
-// (a version 1 summary's results as legacy evidence) and used only when it
-// names the asked repository, attempt (the text form of its `attemptId`) and
+// checked for version 2 and declared units by the shared validator. The proof
+// must name the asked repository, attempt (the text form of its `attemptId`) and
 // revision (ADR 0008: missing, outdated or conflicting evidence is never a
 // result). Asks no `gh`. This module says why a read shows no summary. A
 // valid summary is immutable per attempt, so it is remembered by repository

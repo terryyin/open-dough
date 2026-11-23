@@ -26,7 +26,7 @@ test.afterEach(() => reader?.close());
 const scopedHistory = (origin: string, revision: string, through: string) =>
   collectedScopeHistory(origin, "dashboard/tests", revision, through);
 
-test("stored version 1 proof and an explanation-only gap stay readable beside version 2 proof through a local store write", async ({
+test("stored version 1 proof and an explanation-only gap keep their recorded builds and gaps beside version 2 proof through a local store write", async ({
   dashboard,
   origin,
   github,
@@ -84,25 +84,6 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
         .please(),
     ])
     .please();
-  const normalizedOldProof = makeMe.aCiProof
-    .forRun({ revision: old.revision, runId: 220 })
-    .entries([
-      makeMe.aCiProofEntry
-        .at("dashboard/tests")
-        .holding(
-          makeMe.aCiProofEvidence
-            .legacy("test cases")
-            .brokenDown({
-              path: "dashboard/tests/legacy.spec.ts",
-              passed: 2,
-              durationMs: 100,
-              untimed: 0,
-            })
-            .please(),
-        )
-        .please(),
-    ])
-    .please();
   const explanation =
     "Earlier collection could not establish this landing's result.";
   const history = makeMe.aLandedCiHistory
@@ -118,7 +99,6 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
           runAttempt: 1,
           startedAt: "2026-11-05T09:00:00Z",
           completedAt: "2026-11-05T09:01:00Z",
-          proof: normalizedOldProof,
         })
         .please(),
     )
@@ -142,7 +122,7 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
   reader = await restartAsLandedCiReader(dashboard, origin, "boundary");
 
   // These are exactly the older wire shapes under test, not builder defaults.
-  // The old "test cases" label declared no unit; its evidence must survive.
+  // The old build keeps its provenance and wall interval.
   const legacy = structuredClone(history);
   const legacyGap = legacy.landings[gap.receipt];
   assert(legacyGap !== undefined, "The arranged history holds the legacy gap.");
@@ -183,12 +163,12 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
       entries: [
         {
           kind: "gap",
-          reason: expect.stringMatching(/legacy.*unit.*unknown/i),
+          reason: "Invalid CI proof summary",
           readings: [
             {
               kind: "gap",
               unit: "case",
-              reason: expect.stringMatching(/legacy.*unit.*unknown/i),
+              reason: "Invalid CI proof summary",
             },
           ],
         },
@@ -205,7 +185,14 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
     status: 200,
     body: {
       entries: [
-        { kind: "point", revision: old.revision },
+        {
+          kind: "point",
+          revision: old.revision,
+          runId: 220,
+          runAttempt: 1,
+          startedAt: "2026-11-05T09:00:00Z",
+          completedAt: "2026-11-05T09:01:00Z",
+        },
         { kind: "point", revision: good.revision },
         {
           kind: "gap",
@@ -217,19 +204,23 @@ test("stored version 1 proof and an explanation-only gap stay readable beside ve
     },
   });
 
-  // The real atomic writer must preserve the isolated machine's legacy evidence.
+  // The real atomic writer keeps the bad proof classified with its build.
   writeCollectedHistoryOrder(dashboard.home, [
     old.revision,
     good.revision,
     gap.revision,
   ]);
   const kept = retained(dashboard.home);
-  assert(kept !== undefined, "The atomic write retained the legacy evidence.");
+  assert(kept !== undefined, "The atomic write retained the history.");
   expect(Object.keys(kept.landings).sort()).toEqual(
     [old.receipt, good.receipt, gap.receipt].sort(),
   );
   expect(Object.keys(kept.builds)).toEqual(["run/220/1", "run/221/1"]);
-  expect(kept.builds["run/220/1"]?.proof).toEqual(normalizedOldProof);
+  expect(kept.builds["run/220/1"]?.proof).toMatchObject({
+    kind: "unavailable",
+    reason: "invalid",
+    detail: expect.stringContaining("schemaVersion is not 2"),
+  });
   expect(kept.builds["run/221/1"]?.proof).toEqual(proof);
   expect(kept.landings[gap.receipt]?.observed).toEqual({
     kind: "gap",

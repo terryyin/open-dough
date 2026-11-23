@@ -43,24 +43,17 @@ const UNIT_NOUNS = {
 // What COUNT results in UNIT are called: "1 test case", "3 test files".
 export const unitNoun = (unit, count) => UNIT_NOUNS[unit][count === 1 ? 0 : 1];
 
-// Why VALUE's `unit` is not one of UNITS, or its `label` not one a legacy
-// unit carries (text, or also null where NULLABLE) or carried by another
-// unit; empty when they are.
-export function unitProblems(value, where, nullable) {
-  if (!UNITS.includes(value.unit)) {
-    return [`${where}unit is not ${UNITS.join(", ")}`];
+// Why VALUE does not use an allowed unit, or its label is invalid.
+export function unitProblems(value, where, units = UNITS) {
+  if (!units.includes(value.unit)) {
+    return [`${where}unit is not ${units.join(", ")}`];
   }
-  if (value.unit !== LEGACY_UNIT) {
-    return value.label === undefined
-      ? []
-      : [`${where}label is given for ${value.unit} results`];
+  if (value.unit === LEGACY_UNIT) {
+    return isText(value.label) ? [] : [`${where}label is not a string`];
   }
-  if (isText(value.label) || (nullable && value.label === null)) return [];
-  return [
-    nullable
-      ? `${where}label is neither a string nor null`
-      : `${where}label is not a string`,
-  ];
+  return value.label === undefined
+    ? []
+    : [`${where}label is given for ${value.unit} results`];
 }
 
 function partProblems(part, index, where) {
@@ -90,9 +83,9 @@ function brokenDownFigures(results) {
     : { ...total, untimed: undefined };
 }
 
-// Why RESULTS, one unit's results at the entry PATH (a version 1 entry's, or
-// a version 2 entry's evidence), do not account for their figures, parts and
-// file breakdown; their breakdown is checked only once PATH is known and
+// Why RESULTS, one unit's evidence at entry PATH, do not account for their
+// figures, parts and file breakdown. The breakdown is checked once PATH is
+// known and
 // nothing else is wrong.
 export function resultsProblems(results, where, path) {
   const problems = figuresProblems(results, where);

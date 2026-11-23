@@ -24,9 +24,8 @@ apart, never as six results. Never split a file's outcome into cases, make a
 file outcome from case results, or count matched paths as test files. Each
 unit keeps its own counts, summed test execution time (`durationMs`),
 untimed results and missing or ambiguous parts, and Intent compares counts
-only within one unit. Outcomes published without `--unit`, and earlier
-collectors' schema version 1 summaries, stay readable as **legacy test
-results**, never read as either unit or compared by count.
+only within one unit. Readers require schema version 2 and declared units
+throughout. A summary with undeclared evidence is invalid.
 
 ## Check the project first
 

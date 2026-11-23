@@ -197,7 +197,9 @@ test("an entry declared without a unit and with no present part says no unit, le
       },
     ],
   });
-  assert.deepEqual(summaryProblems(summary), []);
+  assert.deepEqual(summaryProblems(summary), [
+    "entries[0].evidence[0].unit is not case, file",
+  ]);
 });
 
 test("summary validation names what is wrong", () => {
@@ -225,7 +227,7 @@ test("summary validation names what is wrong", () => {
       ],
     }),
     [
-      "schemaVersion is not 1 or 2",
+      "schemaVersion is not 2",
       "runAttempt is not a positive integer",
       "entries[0].evidence[0].parts[0].status is not present, missing, ambiguous",
     ],

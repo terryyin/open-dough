@@ -49,11 +49,6 @@ test("retains and reads independent case and file timings from one validated ada
   const entry = makeMe.aCiProofEntry
     .at("tests")
     .holding(
-      makeMe.aCiProofEvidence
-        .legacy("test cases")
-        .counting(9)
-        .timed(9100)
-        .please(),
       makeMe.aCiProofEvidence.inUnit("case").counting(3).timed(1200).please(),
       makeMe.aCiProofEvidence.inUnit("file").counting(1).timed(80).please(),
     )
@@ -77,11 +72,6 @@ test("retains and reads independent case and file timings from one validated ada
           {
             path: "tests",
             evidence: [
-              expect.objectContaining({
-                unit: "legacy",
-                label: "test cases",
-                durationMs: 9100,
-              }),
               expect.objectContaining({ unit: "case", durationMs: 1200 }),
               expect.objectContaining({ unit: "file", durationMs: 80 }),
             ],
@@ -128,7 +118,6 @@ test("retains and reads independent case and file timings from one validated ada
             revision,
             adapterAttempt: { runId: "run-a", attemptId: "attempt-a" },
           },
-          legacyReason: expect.stringMatching(/legacy.*unit.*unknown/i),
           readings: [
             { kind: "point", unit: "case", ms: 1200 },
             { kind: "point", unit: "file", ms: 80 },

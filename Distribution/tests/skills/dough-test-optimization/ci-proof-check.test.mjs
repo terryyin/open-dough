@@ -29,6 +29,56 @@ test("a summary that is not valid by the collector contract is refused with its 
   );
 });
 
+for (const [name, change, problem] of [
+  [
+    "version 1",
+    (summary) => ({ ...summary, schemaVersion: 1 }),
+    "schemaVersion is not 2",
+  ],
+  [
+    "missing unit",
+    (summary) => {
+      const withoutUnit = { ...summary.entries[1].evidence[0] };
+      delete withoutUnit.unit;
+      return {
+        ...summary,
+        entries: [
+          summary.entries[0],
+          { path: "scripts", evidence: [withoutUnit] },
+        ],
+      };
+    },
+    "entries[1].evidence[0].unit is not case, file",
+  ],
+  [
+    "retired unit beside a declared unit",
+    (summary) => {
+      const [declared, files] = summary.entries;
+      const legacy = { ...files.evidence[0], unit: "legacy", label: "checks" };
+      return {
+        ...summary,
+        entries: [{ ...declared, evidence: [...declared.evidence, legacy] }],
+      };
+    },
+    "entries[0].evidence[1].unit is not case, file",
+  ],
+]) {
+  test(`a summary with ${name} provides no proof, including valid entries`, () => {
+    const summary = makeMe.aCiProofSummary
+      .inRepository(repository)
+      .ofRun(run)
+      .withEntries(
+        makeMe.aCiProofEntry.at("tests").counting(3, "case").please(),
+        makeMe.aCiProofEntry.at("scripts").counting(2, "file").please(),
+      )
+      .please();
+    assert.deepEqual(checkedSummary(change(summary), { repository, ...run }), {
+      why: "invalid",
+      problems: [problem],
+    });
+  });
+}
+
 test("a valid summary is a run attempt's only when it names its repository in any case, its run, attempt and revision", () => {
   const asked = { repository, ...run };
   const usable = makeMe.aCiProofSummary

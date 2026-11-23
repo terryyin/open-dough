@@ -53,7 +53,11 @@ test("a declaration without a unit takes its entry's fragments in the one unit t
     run,
   });
   assert.deepEqual(notes, []);
-  assert.deepEqual(summaryProblems(summary), []);
+  assert.deepEqual(summaryProblems(summary), [
+    "entries[1].evidence[0].unit is not case, file",
+    "entries[2].evidence[0].unit is not case, file",
+    "entries[3].evidence[0].unit is not case, file",
+  ]);
   assert.deepEqual(
     summary.entries.map(({ path, evidence: [only] }) => [
       path,
@@ -127,7 +131,9 @@ test("a fragment no declaration of its unit takes is excluded with a note, never
     "excluded fragment-2.json: of 2, but tests declares 3 parts for test files",
     "entry Distribution/src/skills declares its 2 parts without a unit, but its fragments report test cases and legacy test results (checks), so none is counted",
   ]);
-  assert.deepEqual(summaryProblems(summary), []);
+  assert.deepEqual(summaryProblems(summary), [
+    "entries[1].evidence[0].unit is not case, file",
+  ]);
   const [[tests], [skills]] = summary.entries.map(({ evidence }) => evidence);
   assert.deepEqual(
     [tests.unit, tests.passed, statuses(tests)],

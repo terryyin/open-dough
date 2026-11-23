@@ -103,7 +103,10 @@ test("the command line writes fragments per entry and one summary from them", (t
     ].join("\n"),
   );
   const written = JSON.parse(readFileSync(out, "utf8"));
-  assert.deepEqual(summaryProblems(written), []);
+  assert.deepEqual(summaryProblems(written), [
+    "entries[1].evidence[0].unit is not case, file",
+    "entries[2].evidence[0].unit is not case, file",
+  ]);
   assert.deepEqual(
     written.entries.map(({ path, evidence: [only] }) => [
       path,
@@ -155,7 +158,9 @@ test("the command line writes an adapter attempt's fragment and summary, excludi
     ].join("\n"),
   );
   const written = JSON.parse(readFileSync(out, "utf8"));
-  assert.deepEqual(summaryProblems(written), []);
+  assert.deepEqual(summaryProblems(written), [
+    "entries[0].evidence[0].unit is not case, file",
+  ]);
   assert.deepEqual(
     [written.repository, written.attemptId, written.revision, written.runId],
     ["O/P", attemptId, revision, undefined],

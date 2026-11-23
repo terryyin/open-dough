@@ -58,7 +58,7 @@ test("an adapter attempt whose adapter answers no proof of it gives one reason u
     ],
     [noSummaryRetainedLine, { proof: { unavailable: "no summary retained" } }],
     [
-      "This attempt's CI proof summary is not a valid summary: schemaVersion is not 1 or 2.",
+      "This attempt's CI proof summary is not a valid summary: schemaVersion is not 2.",
       { proof: { summary: { ...summary, schemaVersion: 3 } } },
     ],
     [

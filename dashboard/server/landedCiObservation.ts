@@ -17,10 +17,7 @@ import { attemptTimingBasis } from "../src/ciAttemptTiming.ts";
 import { buildKeyOf } from "../src/landedCiBuildKey.ts";
 import { runIdentityShape } from "../src/baseCiConfirmation.ts";
 import { ciProofSchema, type CiProofUnavailable } from "../src/ciProof.ts";
-import {
-  currentSummaryOf,
-  summaryProblems,
-} from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
+import { summaryProblems } from "../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 import {
   finalGapReasons,
   historyWallTimeMs,
@@ -59,14 +56,12 @@ const retainedProofSchema = z.unknown().transform((value, context) => {
     value !== null &&
     "kind" in value &&
     value.kind === "summary";
-  let candidate = value;
   if (claimsSummary) {
     const summary = "summary" in value ? value.summary : undefined;
     const problems = summaryProblems(summary) as readonly string[];
     if (problems.length > 0) return invalidSummary(problems.join("; "));
-    candidate = { ...value, summary: currentSummaryOf(summary) as unknown };
   }
-  const parsed = ciProofSchema.safeParse(candidate);
+  const parsed = ciProofSchema.safeParse(value);
   if (parsed.success) return parsed.data;
   if (claimsSummary) return invalidSummary(z.prettifyError(parsed.error));
   for (const issue of parsed.error.issues) context.addIssue({ ...issue });

@@ -75,7 +75,7 @@ test("several present parts keep their breakdown once and keep an unbroken part'
   assert.deepEqual(summary.entries[0].evidence[0], evidence);
 });
 
-test("entirely missing or ambiguous declared units remain unobserved and legacy labels keep their original meaning", () => {
+test("entirely missing or ambiguous declared units remain unobserved and served mixed proof is rejected by the reader", () => {
   for (const status of ["missing", "ambiguous"]) {
     const absent = makeMe.aCiProofEvidence
       .inUnit("file")
@@ -91,12 +91,14 @@ test("entirely missing or ambiguous declared units remain unobserved and legacy 
       branch: [entry],
       landed: [entry],
     })[101];
-    assert.deepEqual(summaryProblems(summary), []);
+    assert.deepEqual(summaryProblems(summary), [
+      "entries[0].evidence[1].unit is not case, file",
+    ]);
     assert.deepEqual(summary.entries[0], entry);
   }
 });
 
-test("legacy units with no present part keep their null provenance at every compared build", () => {
+test("legacy units with no present part are invalid at every compared build", () => {
   for (const status of ["missing", "ambiguous"]) {
     const evidence = makeMe.aCiProofEvidence
       .legacy(null)
@@ -110,7 +112,9 @@ test("legacy units with no present part keep their null provenance at every comp
     });
     for (const run of [101, 102, 103]) {
       const { summary } = served[run];
-      assert.deepEqual(summaryProblems(summary), []);
+      assert.deepEqual(summaryProblems(summary), [
+        "entries[0].evidence[0].unit is not case, file",
+      ]);
       assert.deepEqual(summary.entries[0], entry);
     }
   }

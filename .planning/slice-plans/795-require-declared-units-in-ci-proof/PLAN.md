@@ -70,7 +70,7 @@ from `/opt/homebrew/bin` and the AC sleep guard.
 
 The worktree baseline predates the adapter work in
 [plan 793](../793-call-custom-ci-through-a-minimal-adapter-interface/PLAN.md)
-and the selected comparison work in [plan 791](../791-read-ci-proof-for-the-selected-comparison/PLAN.md).
+and the selected comparison story in [SEED-420](../../seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison).
 Neither supplies a missing capability. Before editing a path those plans also
 change, trace the landed caller and rerun the affected focused proofs if the
 boundary moved. Keep the adapter command, proof acquisition rules and
@@ -145,7 +145,7 @@ Dashboard type checking passed. Commands, selections and trace remain in
 
 ### 2. Refuse retired summaries across CLI, Dashboard and retained history
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 13–15 minutes.
 
 Behavior. Given v1, v2 with a missing unit, or v2 mixing a retired unit with
@@ -170,6 +170,21 @@ Collection can still emit legacy output until slice 5, while maintained jobs
 already use declared units. Run
 `Distribution/tests/installation/execution-payload-update.sh` because both
 installed skill roots exercise the changed custom adapter summary reader.
+
+Accepted proof. The shared validator refuses v1, missing units and mixed
+declared and retired units before using any counts. The real CLI, GitHub
+archive, custom adapter and retained decoder all take that path. The scoped
+history reader kept the old attempt's wall interval and paired valid timing,
+with no additional proof request. The declared browser journey kept distinct
+case and file readings and the visible missing case part. The Distribution,
+installed payload, backend, E2E and Dashboard type checks passed. The
+refactor renewed the CLI and two browser refusal cases. Commands and
+observations are in `slice-b-return.md` and `slice-b-refactor-return.md` in
+this checkout's Git evidence directory.
+
+The comparison sibling returned to the backlog at `18826cc78` and changed
+this plan's source link. Pinned trunk `28785ac04` introduced no product
+changes in that interval. The adapter sibling remained Taken.
 
 ### 3. Require a unit when turning outcomes into fragments
 Type: Behavior
@@ -268,13 +283,25 @@ type checks and the reached mounted comparison and scope-proof specs.
 - The Codex observer covers the story branch using GitHub Actions `ci.yml`.
   Coordinator `seed-423-units-ed1a06d9`, mailbox
   `/tmp/dough-ci-501/watch-sX111F`, PID `72385`, cell `g446:13`, session `51637`.
+- Slice 1 was accepted on the story branch at
+  `1d78c4b9149e07203ea63bb85d7db38672f50b08`.
 
 ## Story obligations
 
 ### G1. Retired summaries remain readable during slice 1
 Reported: slice 1 — "Valid classified proof and readable v1/v2 summaries keep their established behavior during A."
 Story clause: "Read version 2 summaries whose evidence uses declared units throughout."
-Disposition: interim until slices 2
+Disposition: proved by slice 2: the shared reader, CLI, both live providers and retained history refused the retired wire fixtures; see the accepted proof under slice 2.
+
+### G2. The collector has temporary undeclared inputs
+Reported: slice 2 — "Collection still accepts undeclared fragment or expectation input during these intermediate slices."
+Story clause: "Outcomes reports require `--unit case|file`, and summary expectations require a unit for each entry and part count."
+Disposition: interim until slices 3, 5
+
+### G3. Dashboard projections still have legacy unit branches
+Reported: slice 2 — "The Dashboard's remaining typed fixture and projection branches for legacy evidence still have owners in slices 6 and 7."
+Story clause: "A count with an unknown unit cannot be attributed safely, and skipping one unit or entry within an invalid summary would present partial proof as complete."
+Disposition: interim until slices 6, 7
 
 ## Readiness review
 

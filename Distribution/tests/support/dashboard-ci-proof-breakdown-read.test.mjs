@@ -27,7 +27,7 @@ const sha = (digit) => digit.repeat(40);
 // A summary broken down by file, as the collector writes it for FILES test
 // files of `tests`, each name padded to NAME_LENGTH.
 function brokenDownSummaryText(files, nameLength = 20) {
-  const entry = makeMe.aCiProofEntry.at("tests").countingIn("checks");
+  const entry = makeMe.aCiProofEntry.at("tests").counting(1, "file");
   for (let index = 0; index < files; index += 1) {
     entry.withFile(`tests/${String(index).padStart(nameLength, "x")}.sh`, {
       passed: 1,

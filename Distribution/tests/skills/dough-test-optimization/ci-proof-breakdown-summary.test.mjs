@@ -131,7 +131,7 @@ test("a breakdown that does not account for its counts, or names a path outside 
     "passed\ttests/a.sh\npassed\ttests/b.sh\n",
     partIdentity(["tests"]),
     "1\ttests/a.sh\n1\ttests/b.sh\n",
-    byFile,
+    { ...byFile, unit: "file" },
   );
   assert.deepEqual(fragmentProblems(value), []);
   const refused = (change) => fragmentProblems({ ...value, ...change(value) });

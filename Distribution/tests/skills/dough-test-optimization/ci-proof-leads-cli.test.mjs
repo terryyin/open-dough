@@ -37,7 +37,7 @@ const run = (directory, ...args) =>
     encoding: "utf8",
   });
 
-test("from inside the checkout it prints the table and exits 0 when a summary ranked, 1 when none could, and 2 on a usage error", async (t) => {
+async function checkoutWithAttempt(t) {
   const { integration: checkout, revisions } = await materializeLocalCheckout(
     t,
     project,
@@ -67,6 +67,11 @@ test("from inside the checkout it prints the table and exits 0 when a summary ra
       )
       .please(),
   });
+  return { checkout, revision };
+}
+
+test("from inside the checkout it prints the table and exits 0 when a summary ranked, 1 when none could, and 2 on a usage error", async (t) => {
+  const { checkout, revision } = await checkoutWithAttempt(t);
   const tests = join(checkout, "tests");
   writeFileSync(
     join(tests, "full-summary.json"),
@@ -127,4 +132,21 @@ test("from inside the checkout it prints the table and exits 0 when a summary ra
     assert.equal(refused.stdout, "", args.join(" "));
     assert.match(refused.stderr, stderr, args.join(" "));
   }
+});
+
+test("the lead command refuses a version 1 summary for the selected attempt", async (t) => {
+  const { checkout, revision } = await checkoutWithAttempt(t);
+  const summary = `{"schemaVersion":1,"repository":"${repository}","attemptId":"${attemptId}","revision":"${revision}","entries":[{"path":"tests","unit":"tests","passed":1,"failed":0,"other":0,"durationMs":4000,"parts":[{"part":1,"status":"present","passed":1,"failed":0,"other":0,"durationMs":4000}]}]}`;
+  writeFileSync(join(checkout, "retired-summary.json"), summary);
+
+  const refused = run(
+    checkout,
+    "--repository",
+    repository,
+    "--summary",
+    "retired-summary.json",
+  );
+  assert.equal(refused.status, 1);
+  assert.match(refused.stdout, /schemaVersion is not 2/);
+  assert.match(lineOf(refused.stdout, "Leads"), /^Leads {10}none: /);
 });
