@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "623150e9-fa72-4426-8742-8d580fd6b732",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T05:50:10.888Z",
+  "story": "SEED-424#poll-open-codex-sessions",
+  "ranges": [
+    {
+      "base": "9d2f47fc7a602a0557ffd6a389f34090923adb5a",
+      "candidate": "b5b4a3ed8fce7d915d7a72eaf193c33823947e0d"
+    },
+    {
+      "base": "b5b4a3ed8fce7d915d7a72eaf193c33823947e0d",
+      "candidate": "0e4eee29522d1a97f05b9d8462bd97ba74d2d59f"
+    },
+    {
+      "base": "0e4eee29522d1a97f05b9d8462bd97ba74d2d59f",
+      "candidate": "d1f73e57734f91dadef40c169421d2ab9d591fe2"
+    }
+  ]
+}
