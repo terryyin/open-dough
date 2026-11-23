@@ -620,67 +620,6 @@ Its plan is
   timing, case-count, spent-support, and coverage checks. Summary proof gives
   faster feedback as soon as its slices land.
 
-<a id="drive-published-observation-through-page-entry"></a>
-
-### Drive the published observation through the typed page entry
-
-**Identity:** SEED-413#drive-published-observation-through-page-entry
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/789-drive-published-observation-through-page-entry/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"93ce9737a6913d9ff8d50d2ad74e590c804344b5285df38c14c9675d0b82d9e8","plan":"357ab4541f581a105eabf402e0a3f9bbac5a3075da6c270f9daa64ba03fb9c67"}}
-```
-
-Split from Get fast proof of Intent source browsing and pinned links (completed; recoverable at `8fb7691cc:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours`)
-on 22 November 2026, when its correction found that rendering production
-`ConfiguredDashboard` in a case reaches reads outside the page entry.
-
-- **Goal.** Dashboard maintainers can exercise the real published observation
-  and composed page in fast Vitest cases, including races between published
-  detail and Intent, with every service answer supplied through the required
-  typed page entry. A regression in production scheduling, reading, or page
-  composition is visible in those cases.
-- **Scope.** Complete the typed entry for revision streaming, published
-  sessions, profiles and profile additions, assignment attribution, Done
-  stories, slice clocks, moved-branch progress, and the machine sessions and
-  agent acceptance used by the configured page. Keep transport, wire decoding,
-  published and local source authority, and existing navigation and recovery
-  semantics. Give each page mount its own transient recovery state and keep the
-  standing GitHub limit shared at its existing login boundary.
-
-  Exercise `ConfiguredDashboard` in the four observation-driven
-  locations cases and the Candidates standing-limit case. Remove their copied
-  observation compositions and test-side transient reset. Drive the Board
-  frame through typed replies and the real `readPublishedWork` path. Reuse one
-  production shell for the frame, banner, story navigation, notice and
-  Board/Intent content; held-work cases can still render that shell at its typed
-  entry. Move the two legacy project-visit cases and the startup-detail
-  selection race to the production observation. Restore the canonical file
-  request and below-banner scroll assertions deferred by the source-browsing
-  story. Runner retirement, wider test migration, and new page behavior stay
-  outside this story.
-- **Key examples.**
-  - Published membership contains local, external and refused canonical links.
-    Opening their story sources shows the actual links and leaves the pinned
-    detail reads at exactly the distinct in-repository files.
-  - Published detail and Intent locations fail transiently and wait together.
-    At the first due time, detail heals while locations remain pending until
-    the next step. A fresh mount starts at the first step without a test reset.
-    A hidden page waits until reveal and then asks once. A standing limit
-    delays locations and Candidates until its stated end.
-  - A developer selects a story on its Board card and visits Project Intent.
-    Returning preserves the story's reading and the candidate's focus and
-    published source. Clearing and reselecting while Intent is hidden opens
-    the new story's comparison, and leaving it cleared opens Project CI.
-  - When startup membership is visible but detail is still held, a developer
-    selects a feature. Detail settling at that revision retains the expanded
-    location, feature Purpose, and single locations read. In the composed
-    Gherkin page the region below the banner has no overflow while the
-    browser and reading panes scroll independently.
-- **Evaluation.** Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories).
-  Cases use the production owners and required typed replies through
-  `pageReadsSupplying`. Prove the shared wait can catch a break in the
-  production observation and preserve each distinct assertion moved from the
-  older cases.
-
 <a id="reach-eight-second-launch-feedback"></a>
 
 ### Bring launch test feedback to about eight seconds
