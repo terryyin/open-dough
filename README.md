@@ -33,8 +33,8 @@ Open your client project in an AI agent with web and shell access, then ask:
    [Cursor](docs/installation-platforms-and-update-safety.md#cursor), or
    [Claude Code](docs/installation-platforms-and-update-safety.md#claude-code)). Select and pin
    the highest numeric release using Git before any fetched script runs. Inspect
-   that snapshot's installer, helper and dependencies, and every declared client
-   source;
+   that snapshot's installer, helper and dependencies, and every client payload
+   file;
    then revalidate the selection and invoke its installer directly. Keep ownership
    of the temporary checkout through inspection and clean it on success or failure.
    Bash and Git are sufficient; installing package dependencies is unnecessary.

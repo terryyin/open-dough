@@ -25,7 +25,9 @@ async function retain(name, content) {
   }
 }
 const bundle = await rolldown({
-  input: fileURLToPath(new URL("test-entry-rules-selection.mjs", scripts)),
+  input: fileURLToPath(
+    new URL("test-entry-rules-selection.mjs", import.meta.url),
+  ),
   platform: "neutral",
 });
 try {

@@ -206,7 +206,7 @@ hosts only: [Native guidance checks](../evaluation/guidance-checks.md) and
 
 ## Shared installation and update protections
 
-Every declared payload file is protected by the same installer and updater
+Every payload file is protected by the same installer and updater
 walk, so each shared protection has one owning check, and a payload-update
 check proves only what its own payload adds:
 
@@ -216,12 +216,13 @@ check proves only what its own payload adds:
 | Repeat install refuses an edited or removed managed file without writes | `Distribution/tests/installation/install.sh` |
 | `--force` restores an edited or incomplete installation | `Distribution/tests/installation/update-force-restores-latest.sh` |
 | Ordinary update refuses an unrelated file at a newly managed path | `Distribution/tests/installation/story-payload-update.sh` |
-| Linked supporting files are declared | `Distribution/tests/installation/payload-declaration-links.sh` |
+| Linked supporting files ship | `Distribution/tests/installation/payload-declaration-links.sh` |
 
-`Distribution/tests/installation/payload-declaration-links.sh` reads `install.sh`'s `managed_files`
-without running the installer and fails naming each relative link, in a
-declared Markdown file, to an undeclared file. A new payload file needs a
-declaration, not another copy of these proofs.
+`Distribution/tests/installation/payload-declaration-links.sh` reads the shipped
+directory's payload inventory without running the installer and fails naming
+each relative link, in a payload Markdown file, to a file the directory does
+not ship. A new payload file needs only its directory entry, not another copy
+of these proofs.
 
 ## Installation and update coverage gaps
 

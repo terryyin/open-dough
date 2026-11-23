@@ -149,10 +149,6 @@ with load 16 at the start and 65 at the end.
   - Observed effect: the load at the failure stayed an estimate, so the choice between "record and repeat" and "fix" rested on the trace alone. From the third series on, the coordinator logged `uptime` every 30 s beside the script; the third series' failure was then placed at load 33 directly. Another session's work took the load to 141 during the diagnosis repeats.
   - Inference: sixteen burners plus eight workers reach several times the core count on their own, so every loaded full run meets the story's exception as written unless the load is sampled through the run.
 
-<a id="dd-303"></a>
-
-[DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors](project-maintenance-findings.md#dd-303).
-
 <a id="dd-412"></a>
 
 ## DD-412 — The plan's sleep guard let Maintenance Sleep break two whole-suite runs

@@ -20,13 +20,13 @@ for platform in codex; do
 
   destination=$(destination_for "${target}" "${platform}")
   skill_root=$(dirname -- "${destination}")
-  updater="${skill_root}/dough-update/SKILL.md"
-  later_file="${skill_root}/dough-adr-awareness/SKILL.md"
-  printf '%s\n' 'earlier managed file before replacement' > "${updater}"
+  earlier_file="${skill_root}/dough-adr-awareness/SKILL.md"
+  later_file="${skill_root}/dough-update/SKILL.md"
+  printf '%s\n' 'earlier managed file before replacement' > "${earlier_file}"
   printf '%s\n' 'later managed file before replacement' > "${later_file}"
   printf '%s\n' 'last-successful-source' > "${destination}/SOURCE"
   printf '%s\n' 'last-successful-version' > "${destination}/VERSION"
-  # The second declared file is unwritable, so replacement stops after the first.
+  # A file copied after the first is unwritable, so replacement stops after the first.
   second_file="${skill_root}/dough-bug-fixing/SKILL.md"
   chmod a-w "${second_file}"
 
@@ -40,7 +40,7 @@ for platform in codex; do
 
   assert_direct_incomplete_install_report "${output}" \
     'Copy failed after replacement started.'
-  cmp "${source_dir}/Distribution/src/skills/dough-update/SKILL.md" "${updater}"
+  cmp "${source_dir}/Distribution/src/skills/dough-adr-awareness/SKILL.md" "${earlier_file}"
   later_contents=$(cat "${later_file}")
   [[ "${later_contents}" == 'later managed file before replacement' ]]
   assert_preserved_install_records "${destination}" \

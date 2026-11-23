@@ -5,7 +5,7 @@
 # shellcheck disable=SC2310,SC2312
 
 # True when this release still ships the authoritative Cursor and Claude CI fragments.
-# Older tagged fixtures may strip execution assets from managed_files.
+# Older tagged fixtures may strip execution assets from their payload.
 host_hook_fragments_present() {
   local source_root=$1
   local source assets

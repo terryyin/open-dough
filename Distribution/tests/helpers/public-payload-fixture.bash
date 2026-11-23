@@ -11,15 +11,14 @@ internal_skill_names=(
   rebalance-ci-shards
 )
 
-# install.sh's assembled managed_files declaration is the single source of
-# truth for the current client payload; inspect it with the shared reader
-# rather than hand-duplicating the list here.
+# The current source's payload inventory is the single source of truth for
+# the current client payload, whatever its release format.
 fixture_repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 # shellcheck disable=SC1091
 # shellcheck source=Distribution/src/install/open-dough-release-version.sh
 source "${fixture_repo_root}/Distribution/src/install/open-dough-release-version.sh"
-declared_managed_files=$(read_managed_files_declaration "${fixture_repo_root}/install.sh") || return 1
+current_payload=$(read_release_payload "${fixture_repo_root}") || return 1
 managed_files=()
 while IFS= read -r managed_file; do
   managed_files+=("${managed_file}")
-done <<< "${declared_managed_files}"
+done <<< "${current_payload}"

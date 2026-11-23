@@ -1,8 +1,8 @@
 // Pure selection of the two shared testing conventions. The runtime bundles
 // the existing declaration and membership owners; never add another matcher.
-import { declaredLocations } from "../../dough-makeme/scripts/intent-location-settings.mjs";
-import { locationSelectsRepositoryPath } from "../../dough-makeme/scripts/intent-location-selection.mjs";
-import { isSafeRepositoryPath } from "../../dough-makeme/scripts/repository-path.mjs";
+import { declaredLocations } from "../Distribution/src/skills/dough-makeme/scripts/intent-location-settings.mjs";
+import { locationSelectsRepositoryPath } from "../Distribution/src/skills/dough-makeme/scripts/intent-location-selection.mjs";
+import { isSafeRepositoryPath } from "../Distribution/src/skills/dough-makeme/scripts/repository-path.mjs";
 export { isSafeRepositoryPath };
 
 export function selectTestEntryRules(settings, sourcePaths) {

@@ -228,6 +228,7 @@ EOF
     echo "Checkout HEAD ${head} is not the pinned latest ${commit}; not replacing inspected files." >&2
     return 1
   fi
+  refuse_shipped_drift_from_head "${checkout}" || return 1
   require_checkout_matches_tag "${checkout}" "${tag}" || return 1
   printf '%s\n' "${resolved}"
 }

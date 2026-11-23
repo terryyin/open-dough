@@ -74,7 +74,7 @@ node "${source_dir}/Distribution/tests/support/release-source.mjs" "${fixture}" 
   {"name": "release 0.1.1 before-backlog-scripts", "release": {
     "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
     "marker": "before-backlog-scripts",
-    "withheld": ["dough-product-backlog/scripts/",
+    "declaration": "grouped", "withheld": ["dough-product-backlog/scripts/",
       "dough-product-backlog/references/record-preparation.md"],
     "removed": ["dough-product-backlog/scripts",
       "dough-product-backlog/references/record-preparation.md"]}},

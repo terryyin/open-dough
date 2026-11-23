@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Kaoru-chan",
-  "email": "kaoru-chan@example.org",
-  "identity": "SEED-423#derive-the-install-payload-from-the-shipped-directory",
-  "mode": "story-branch",
-  "branch": "claude/derive-the-install-payload-from-the-shipped-dire",
-  "host": "claude"
-}

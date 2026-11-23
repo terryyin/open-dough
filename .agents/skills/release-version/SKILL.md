@@ -10,9 +10,11 @@ or CI jobs. This skill is internal to the Open Dough repository.
 
 Follow [ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)
 for the Proposed → Promoted → Released lifecycle. Release the Promoted client
-payload declared by `install.sh`'s `managed_files`, the one payload declaration
-(`Distribution/src/install/open-dough-release-version.sh` reads it rather than declaring its
-own); check that it includes required runtime dependencies.
+payload: every file under `Distribution/src/skills/`, which `install.sh` marks
+with `open_dough_payload_format=directory` and
+`Distribution/src/install/open-dough-payload-inventory.sh` reads. Maintainer
+review decides what belongs in that directory, and Proposed content stays
+outside it; check that the directory includes required runtime dependencies.
 Confirm the applicable behavior and delivery reviews cover the intended changes.
 Do not add Proposed guidance to the payload as an incidental release step.
 
@@ -40,11 +42,13 @@ Do not add Proposed guidance to the payload as an incidental release step.
    `CHANGELOG.md`, commits, or tags.
 
 4. When the request includes finalization, run
+   `bash scripts/check-release-source.sh` and
    `bash scripts/check-self-installation.sh` from the repository root (or
    with the repository path) before writing `VERSION` or `CHANGELOG.md`,
-   staging, committing, or tagging. If the check fails, stop without
+   staging, committing, or tagging. If either check fails, stop without
    creating, editing, or deleting `VERSION`, `CHANGELOG.md`, commits, or
-   tags. Cite the check failure. Skip this check for preparation-only.
+   tags. Cite the check failure and the paths it names. Skip these checks
+   for preparation-only.
 
 5. For preparation, write `VERSION` containing only the requested version
    followed by a newline. In `CHANGELOG.md`, insert a newest-first heading

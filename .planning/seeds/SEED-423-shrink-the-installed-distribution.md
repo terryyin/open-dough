@@ -37,53 +37,6 @@ Dashboard and installed scripts share.
 
 ## Story decomposition
 
-<a id="derive-the-install-payload-from-the-shipped-directory"></a>
-
-### Derive the install payload from the shipped directory
-
-**Identity:** SEED-423#derive-the-install-payload-from-the-shipped-directory
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/796-derive-the-install-payload-from-the-shipped-directory/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e53ed792abff0fb371a0588d587706d77ecd8879ff563cac89bb02cb31cb9bc4","plan":"74f0a6a55131352b5dac94df0e7174f3429ff37738dc42298fdb2c956929612d"}}
-```
-
-**Goal.** A maintainer adds or removes a released client file by changing
-`Distribution/src/skills/` once. Developers receive the whole tagged payload
-in both native skill roots, including the dependencies used by shipped guidance
-and scripts.
-
-**Scope.** Derive the client payload for new releases from the shipped
-directory. Remove the hand-maintained file lists from `install.sh` and
-`src/install/open-dough-execution-payload.sh`. Keep Proposed additions, test
-fixtures, and maintainer material outside the directory. Use maintainer review
-to confirm intent and make deterministic checks fail for detectable misplaced
-artifacts, unsafe entries, and missing local dependencies the checks can
-resolve. Verify a list-era installation using the declaration at its recorded
-tag and keep the existing update and dropped-file safeguards. Release tags,
-version selection, native layout, and project-owned files follow the existing
-installation contract. Publishing a release and rolling it out are separate
-work.
-
-**Key examples.**
-
-- A maintainer places a reviewed runtime file in the shipped directory and a
-  Proposed skill outside it. Installation from that release includes the new
-  file in the shared Codex/Cursor and Claude Code roots, and the Proposed
-  skill stays outside both.
-- A test fixture is accidentally put in the shipped directory. The payload
-  check identifies its path and fails before it can ship.
-- An unchanged client of a list-based release runs an ordinary update to a
-  directory-based release. The updater verifies the earlier tag's declared
-  files, installs the full new payload, removes obsolete managed files as
-  before, and preserves unrelated project files. If the client changed a file
-  that the ordinary update must verify, it refuses before writing.
-
-**Release policy.** Terry Yin confirmed directory-based promotion with
-maintainer review in
-[ADR 0003, Release lifecycle and versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md).
-The four test fixtures identified during the audit already live outside the
-shipped directory.
-
 <a id="notify-claude-code-of-ci-through-one-path"></a>
 
 ### Notify Claude Code of CI results through one path
