@@ -53,7 +53,7 @@ node "${source_dir}/Distribution/tests/support/release-source.mjs" "${fixture}" 
   {"name": "release 0.1.1 payload-before-added-skills", "release": {
     "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
     "marker": "payload-before-added-skills",
-    "withheld": [${added_skill_paths%, }], "removed": [${added_skill_paths%, }]}},
+    "declaration": "grouped", "withheld": [${added_skill_paths%, }], "removed": [${added_skill_paths%, }]}},
   {"name": "release 0.1.2 payload-with-added-skills", "release": {
     "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
     "marker": "payload-with-added-skills"}}

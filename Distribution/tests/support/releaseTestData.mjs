@@ -25,8 +25,8 @@ import { fileURLToPath } from "node:url";
  */
 
 /**
- * The facts a test states for a release; it declares a grouped list and
- * withholds, removes and adds nothing unless it says so.
+ * The facts a test states for a release; like the current source it ships its
+ * whole directory, and it removes and adds nothing unless it says so.
  * @typedef {Omit<Release, "declaration" | "withheld" | "removed" | "added"> & Partial<Pick<Release, "declaration" | "withheld" | "removed" | "added">>} ReleaseFacts
  */
 
@@ -135,7 +135,7 @@ export function releaseDeclarationFiles({ declaration, withheld, added }) {
  * @returns {Release}
  */
 function release({
-  declaration = "grouped",
+  declaration = "directory",
   withheld = [],
   removed = [],
   added = {},

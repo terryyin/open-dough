@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Verify published updaters that still read the pre-Distribution source paths.
+# A published pre-Distribution updater running its own apply stops before any
+# write at a directory-format candidate, whose install.sh lists no payload.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
@@ -33,29 +34,23 @@ cp -- "${source_dir}/install.sh" "${release_source}/"
 cp -R -- "${source_dir}/Distribution/src/install" "${release_source}/Distribution/src/"
 cp -R -P -- "${source_dir}/src/install" "${source_dir}/src/skills" "${release_source}/src/"
 mkdir -p -- "${release_source}/Distribution/src/skills"
-copy_declared_payload "${source_dir}/Distribution/src/skills" "${release_source}/Distribution/src/skills"
+copy_managed_payload "${source_dir}/Distribution/src/skills" "${release_source}/Distribution/src/skills"
 printf '%s\n' "${candidate_version}" > "${release_source}/VERSION"
 printf '## %s - 2026-11-14\n\nCandidate.\n' "${candidate_version}" > "${release_source}/CHANGELOG.md"
 commit_all "${release_source}" 'Candidate with relocated guidance'
 git -C "${release_source}" tag -a "v${candidate_version}" -m 'Candidate with relocated guidance'
 
 old_helper="${old_release}/src/install/open-dough-release.sh"
-output=$(bash "${old_helper}" apply --target "${target}")
-[[ "${output}" == *"Open Dough guidance in"*"version ${candidate_version}"* ]]
-# The tagged updater removes retired paths from both layouts.
-removed_files=$(sed -n 's/^  \(dough-.*\)$/\1/p' <<< "${output}")
-[[ $'\n'"${removed_files}"$'\n' == *$'\n'"${readiness_gate}"$'\n'* ]]
-while IFS= read -r removed; do
-  [[ -z "${removed}" || ! -e "${release_source}/Distribution/src/skills/${removed}" ]]
-done <<< "${removed_files}"
-for root in .agents .claude; do
-  [[ ! -e "${target}/${root}/skills/${readiness_gate}" ]]
-  destination="${target}/${root}/skills/dough-update"
-  installed=$(cat "${destination}/VERSION")
-  [[ "${installed}" == "${candidate_version}" ]]
-  bash "${release_source}/src/install/open-dough-release.sh" compare-payload "${destination}" "${release_source}"
-done
-
-output=$(bash "${old_helper}" apply --target "${target}")
-[[ "${output}" == *'both physical installations are current; no installer invocation or installed-file writes.'* ]]
+before=$(snapshot_path_state "${target}")
+if output=$(bash "${old_helper}" apply --target "${target}" 2>&1); then
+  echo 'FAIL: the pre-Distribution updater applied a directory-format candidate.' >&2
+  exit 1
+fi
+[[ "${output}" == *'Cannot read managed payload declaration:'* ]]
+after=$(snapshot_path_state "${target}")
+[[ "${after}" == "${before}" ]]
 assert_sentinels "${target}"
+for root in .agents .claude; do
+  installed=$(cat "${target}/${root}/skills/dough-update/VERSION")
+  [[ "${installed}" == "${older_tag#v}" ]]
+done

@@ -67,7 +67,7 @@ NODE
     "remove": ["Distribution/src/skills/${leftover_c%%/*}"]},
   {"name": "release 0.1.1", "release": {
     "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
-    "marker": "payload-0.1.1", "withheld": ["${withheld_w}"], "added": {
+    "marker": "payload-0.1.1", "declaration": "grouped", "withheld": ["${withheld_w}"], "added": {
       "${leftover_b}": "${leftover_b} from 0.1.1\\n",
       "${retired_watcher}": "// Retired observer from 0.1.1\\n",
       "${retired_select}": "// Retired source selector from 0.1.1\\n",
@@ -75,7 +75,7 @@ NODE
     "remove": ["Distribution/src/skills/${leftover_a%%/*}"]},
   {"name": "release 0.1.2", "release": {
     "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
-    "marker": "payload-0.1.2", "withheld": ["${withheld_w}"]},
+    "marker": "payload-0.1.2", "declaration": "grouped", "withheld": ["${withheld_w}"]},
     "remove": ["Distribution/src/skills/${leftover_b%/*}", "Distribution/src/skills/${retired_watcher}",
       "Distribution/src/skills/${retired_select}", "Distribution/src/skills/${retired_changed}"]}
 ]}

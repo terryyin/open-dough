@@ -62,7 +62,7 @@ working-tree helper. The updater:
 3. Records the actual source URL, tag, and exact commit.
 4. Uses the running tool only as an entry-context hint, then verifies every
    existing native root and adds missing roots.
-5. Validates the fetched installer against the release-declared client payload.
+5. Validates the fetched installer against the release's client payload.
 6. Compares every existing updater's `VERSION` record. An ordinary update
    without a supplied URL fetches each tagged baseline as data without
    executing it and compares the complete managed payload before skipping,

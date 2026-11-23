@@ -16,7 +16,7 @@ node "${source_dir}/Distribution/tests/support/release-source.mjs" "${fixture}" 
 {"revisions": [
   {"name": "release 0.1.1 missing-reference", "release": {
     "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
-    "marker": "missing-reference", "withheld": ["${reference}"]}},
+    "marker": "missing-reference", "declaration": "grouped", "withheld": ["${reference}"]}},
   {"name": "release 0.1.2 with-reference", "release": {
     "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
     "marker": "with-reference"}}

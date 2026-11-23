@@ -5,7 +5,7 @@ source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 skill="${source_dir}/Distribution/src/skills/dough-update/SKILL.md"
 guide="${source_dir}/docs/installation-and-updates.md"
 
-# The guide's documented inspection lists the release-declared sources.
+# The guide's documented inspection lists the release's payload sources.
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 inspection="${temporary_dir}/inspect.sh"
@@ -25,16 +25,6 @@ cp -R -- "${source_dir}/Distribution/src/skills" "${source_dir}/Distribution/src
 cp -R -- "${source_dir}/src/install" "${candidate}/src/"
 cp -- "${source_dir}/install.sh" "${candidate}/install.sh"
 extra_path='dough-update/references/inspection-extra.md'
-# A list-format candidate names the added file; a directory-format one ships it.
-# shellcheck disable=SC1091 # The selective check does not follow companion modules.
-# shellcheck source=Distribution/src/install/open-dough-payload-inventory.sh
-source "${source_dir}/Distribution/src/install/open-dough-payload-inventory.sh"
-if ! directory_format_installer "${candidate}/install.sh"; then
-  awk -v extra="${extra_path}" '
-    { print }
-    /^managed_files=\(/ { print "  " extra }
-  ' "${source_dir}/install.sh" > "${candidate}/install.sh"
-fi
 mkdir -p -- "${candidate}/Distribution/src/skills/${extra_path%/*}"
 printf '%s\n' 'Additional release dependency to inspect.' > "${candidate}/Distribution/src/skills/${extra_path}"
 snapshot="${candidate}" release_source="${candidate}/Distribution/src" bash "${inspection}" > "${temporary_dir}/candidate-paths"
@@ -42,12 +32,13 @@ grep -Fxq "${candidate}/Distribution/src/skills/${extra_path}" "${temporary_dir}
 candidate_count=$(wc -l < "${temporary_dir}/candidate-paths")
 current_count=$(wc -l < "${temporary_dir}/current-paths")
 [[ ${candidate_count} -eq $((current_count + 1)) ]]
-rm -- "${candidate}/Distribution/src/skills/${extra_path}"
-if snapshot="${candidate}" release_source="${candidate}/Distribution/src" bash "${inspection}" > "${temporary_dir}/missing-output" 2>&1; then
-  echo 'FAIL: documented inspection accepted a missing declared source.' >&2
+# Test material in the shipped directory stops the documented inspection.
+printf '%s\n' 'test material' > "${candidate}/Distribution/src/skills/dough-update/inspection.test.mjs"
+if snapshot="${candidate}" release_source="${candidate}/Distribution/src" bash "${inspection}" > "${temporary_dir}/invalid-output" 2>&1; then
+  echo 'FAIL: documented inspection accepted test material in the shipped directory.' >&2
   exit 1
 fi
-grep -Fxq "Missing declared payload source: ${candidate}/Distribution/src/skills/${extra_path}" "${temporary_dir}/missing-output"
+grep -Fxq 'Test material in shipped directory: dough-update/inspection.test.mjs' "${temporary_dir}/invalid-output"
 
 # The updater's inspection boundary must permit every managed host-hook file.
 actual_hook_settings=$(sed -n '/managed host-hook settings they register/{n;s/.*(//;s/).*//;s/[`,]//g;s/ and / /g;p;}' "${skill}")

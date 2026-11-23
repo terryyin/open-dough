@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # apply --checkout refuses a pinned checkout whose shipped directory drifted
 # from its tag, by an untracked path or edited managed bytes, before ordinary or
-# forced apply writes, for marked directory-format and list-era tags alike; the
-# clean list-era tag applies.
+# forced apply writes, for marked directory-format and list-era tags alike; each
+# clean tag applies.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
@@ -17,14 +17,16 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 cd -- "${temporary_dir}"
 
-# The shared "latest" list-era release source in release-sources.mjs.
 listed="${temporary_dir}/listed.git"
-node "${source_dir}/Distribution/tests/support/release-source.mjs" "${listed}" latest
+node "${source_dir}/Distribution/tests/support/release-source.mjs" "${listed}" << 'JSON'
+{"revisions": [{"name": "list-era 0.1.10", "release": {"version": "0.1.10",
+  "taggedAt": "2026-10-01T00:00:00", "marker": "payload-0.1.10",
+  "declaration": "grouped"}}]}
+JSON
 marked="${temporary_dir}/marked.git"
 node "${source_dir}/Distribution/tests/support/release-source.mjs" "${marked}" << 'JSON'
 {"revisions": [{"name": "directory 0.3.0", "release": {"version": "0.3.0",
-  "taggedAt": "2026-11-01T00:00:00", "marker": "payload-0.3.0",
-  "declaration": "directory"}}]}
+  "taggedAt": "2026-11-01T00:00:00", "marker": "payload-0.3.0"}}]}
 JSON
 
 case_number=0
@@ -68,13 +70,17 @@ for fixture_version in "${listed}:0.1.10" "${marked}:0.3.0"; do
   git -C "${checkout}" checkout --quiet -- Distribution/src/skills
 done
 
-# The restored list-era checkout is clean and applies its tagged payload.
-clean_target="${temporary_dir}/clean target"
-prepare_target "${clean_target}"
-output=$(bash "${temporary_dir}/checkout 0.1.10/Distribution/src/install/open-dough-release.sh" apply \
-  --url "${listed}" --target "${clean_target}" --platform cursor \
-  --checkout "${temporary_dir}/checkout 0.1.10")
-[[ "${output}" == *'Outcome: installed 0.1.10'* ]]
-assert_payload "${clean_target}/.agents/skills/dough-update" 0.1.10 payload-0.1.10
-assert_payload "${clean_target}/.claude/skills/dough-update" 0.1.10 payload-0.1.10
-assert_sentinels "${clean_target}"
+# Each restored checkout is clean and applies its tagged payload.
+for fixture_version in "${listed}:0.1.10" "${marked}:0.3.0"; do
+  fixture=${fixture_version%:*}
+  version=${fixture_version##*:}
+  clean_target="${temporary_dir}/clean target ${version}"
+  prepare_target "${clean_target}"
+  output=$(bash "${temporary_dir}/checkout ${version}/Distribution/src/install/open-dough-release.sh" apply \
+    --url "${fixture}" --target "${clean_target}" --platform cursor \
+    --checkout "${temporary_dir}/checkout ${version}")
+  [[ "${output}" == *"Outcome: installed ${version}"* ]]
+  assert_payload "${clean_target}/.agents/skills/dough-update" "${version}" "payload-${version}"
+  assert_payload "${clean_target}/.claude/skills/dough-update" "${version}" "payload-${version}"
+  assert_sentinels "${clean_target}"
+done

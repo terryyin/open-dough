@@ -35,8 +35,8 @@ Ordinary Open Dough release updates remain available from the recorded source.
    | Cursor | `cursor` | `.agents/skills/` (shared with Codex) |
    | Claude Code | `claude` | `.claude/skills/` |
 
-   The release payload includes skill entrypoints and supporting files declared by the
-   pinned release's installer and baseline-comparison helper. Treat that
+   The release payload includes skill entrypoints and supporting files that the
+   pinned release delivers. Treat that
    release as authoritative: payload skills may be added between releases, so
    a path absent from the installed release is not by itself a reason to stop.
    The numeric `VERSION` record and the
@@ -71,9 +71,13 @@ Ordinary Open Dough release updates remain available from the recorded source.
    c. Read the pinned snapshot's root `install.sh` to locate its source tree
       (`Distribution/src/` in current releases, `src/` in older ones). Inspect
       `install/open-dough-release.sh`, `install/open-dough-release-apply.sh`,
-      `install/open-dough-install-payload.sh`, and every helper they source or
-      run, including payload-byte and hook-registration helpers when present.
-      Inspect every payload file the snapshot declares under `skills/`.
+      `install/open-dough-install-payload.sh`,
+      `install/open-dough-payload-inventory.sh`, and every helper they source
+      or run, including payload-byte and hook-registration helpers when
+      present. A release whose `install.sh` holds the line
+      `open_dough_payload_format=directory` delivers every file under its
+      `skills/` directory; an older release delivers the files its `install.sh`
+      lists. Inspect every one of those payload files.
    d. Run the inspected helper, quoting paths. Codex may omit `--platform`.
       For an ordinary update of a recorded installation, run
       `bash <source-tree>/install/open-dough-release.sh apply --target
@@ -82,11 +86,12 @@ Ordinary Open Dough release updates remain available from the recorded source.
       pass `--url <source-url>`. Pass `--force` only when the user explicitly
       authorized a forced reinstall. When the invoking root has a usable
       SOURCE, omit `--url`; otherwise include `--url <source-url>`.
-      If apply reports that HEAD is not the pinned latest, stop. Do not fetch
+      If apply reports that HEAD is not the pinned latest, or that files under
+      the snapshot's `skills/` directory differ from its tag, stop. Do not fetch
       or check out replacement files after inspection. Proceed only if the
-      inspected files write solely to the release-declared payload paths
+      inspected files write solely to the release's payload paths
       under both native skill roots, removal there of files at paths an
-      earlier release declared and this release does not, each updater's
+      earlier release delivered and this release does not, each updater's
       `SOURCE` and `VERSION`
       records, and the managed host-hook settings they register
       (`.codex/hooks.json`, `.cursor/hooks.json`, and `.claude/settings.json`) in the captured

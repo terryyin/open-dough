@@ -20,7 +20,7 @@ node "${source_dir}/Distribution/tests/support/release-source.mjs" "${fixture}" 
   {"name": "release 0.1.1 before-stories", "release": {
     "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
     "marker": "before-stories",
-    "withheld": ["dough-story-decomposition/", "dough-story-refinement/"],
+    "declaration": "grouped", "withheld": ["dough-story-decomposition/", "dough-story-refinement/"],
     "removed": ["dough-story-decomposition", "dough-story-refinement"]}},
   {"name": "release 0.1.2 with-stories", "release": {
     "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",

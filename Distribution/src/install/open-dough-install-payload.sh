@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091,SC2154,SC2310,SC2312
-# Read the source checkout's payload inventory into managed_files, check it
-# against the checkout and copy it into each native destination.
+# Read the source checkout's payload inventory into managed_files and copy it
+# into each native destination.
 # Sourced by install.sh, bringing the platform and host-hook helpers.
-# The inventory replaces any managed_files the caller assigned. Caller assigns
-# source_dir, target, recorded_source, force, and replace_verified.
+# Caller assigns source_dir, target, recorded_source, force, and replace_verified.
 # shellcheck source=Distribution/src/install/open-dough-platform.sh
 source "${source_dir}/Distribution/src/install/open-dough-platform.sh"
 # shellcheck source=Distribution/src/install/open-dough-register-hooks.sh
@@ -12,31 +11,25 @@ source "${source_dir}/Distribution/src/install/open-dough-register-hooks.sh"
 # shellcheck source=Distribution/src/install/open-dough-payload-inventory.sh
 source "${source_dir}/Distribution/src/install/open-dough-payload-inventory.sh"
 
-# Compare or copy the declared files between the source skills and one
+# Compare or copy the payload files between the source skills and one
 # native root through the shared payload_bytes_run.
-declared_payload_bytes() {
+source_payload_bytes() {
   local mode=$1 root=$2
   payload_bytes_run "${mode}" "${source_dir}/Distribution/src/skills" "${root}" "${managed_files[@]}"
 }
 
-# Refuses a source checkout that lacks any declared file, after taking
-# managed_files from the source's payload inventory.
-require_declared_payload() {
-  local managed_file declared
-  declared=$(read_release_payload "${source_dir}") || {
+# Takes managed_files from the source's payload inventory, refusing a source
+# whose inventory is unreadable.
+read_source_payload() {
+  local managed_file payload
+  payload=$(read_release_payload "${source_dir}") || {
     echo "Client payload is unreadable: ${source_dir}" >&2
     exit 1
   }
   managed_files=()
   while IFS= read -r managed_file; do
     managed_files+=("${managed_file}")
-  done <<< "${declared}"
-  for managed_file in "${managed_files[@]}"; do
-    [[ -f "${source_dir}/Distribution/src/skills/${managed_file}" ]] || {
-      echo "Client payload is incomplete: missing ${managed_file}" >&2
-      exit 1
-    }
-  done
+  done <<< "${payload}"
 }
 
 create_payload_directories() {
@@ -53,8 +46,8 @@ create_payload_directories() {
   mkdir -p -- "${directories[@]}"
 }
 
-install_declared_payload() {
-  require_declared_payload
+install_payload() {
+  read_source_payload
   [[ -f "${source_dir}/Distribution/src/install/open-dough-release.sh" ]] || { echo "This installer requires Distribution/src/install/open-dough-release.sh in the source checkout." >&2 && exit 1; }
   version=$(bash "${source_dir}/Distribution/src/install/open-dough-release.sh" validate-checkout "${source_dir}")
   if host_hook_fragments_present "${source_dir}"; then
@@ -80,7 +73,7 @@ install_declared_payload() {
       && [[ $(cat "${destination}/SOURCE") == "${recorded_source}" && $(cat "${destination}/VERSION") == "${version}" ]]; then
       current=1
       status=0
-      declared_payload_bytes match "${root}" || status=$?
+      source_payload_bytes match "${root}" || status=$?
       if [[ ${status} -ne 0 ]]; then
         [[ ${status} -eq 1 ]] || exit "${status}"
         current=0
@@ -124,7 +117,7 @@ install_declared_payload() {
     # One process copies, then verifies the written bytes.
     verification_failed=0
     status=0
-    declared_payload_bytes copy-then-match "${root}" || status=$?
+    source_payload_bytes copy-then-match "${root}" || status=$?
     case ${status} in
       0) ;;
       3) verification_failed=1 ;;

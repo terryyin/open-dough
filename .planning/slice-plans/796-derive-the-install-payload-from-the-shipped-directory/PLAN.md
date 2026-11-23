@@ -263,7 +263,7 @@ listed file.
 
 ### 7. Install the payload from the shipped directory
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 11–15 minutes after slices 2–6.
 
 Given the latest tagged directory release, enumerate and validate the shipped
@@ -285,6 +285,25 @@ through pinned `apply --checkout`. Run the maintained installation group
 and reached fixture consumers, including `repository-release.test.mjs`, the
 installed entry check, and release-source evaluation cases whose inputs
 changed.
+
+Delivered: `install.sh` carries `open_dough_payload_format=directory` and no
+list; the installer reads `read_source_payload` through the inventory, which
+refuses invalid shipped entries under `/bin/bash` 3.2. A fresh install matches
+the list-era `1bfd44d3` file set in both roots.
+`update-list-to-directory-release.sh` proves the list-to-directory update at
+`apply`. ADR 0001 still says "one complete declared payload"; the developer
+decides whether to reword it.
+
+Decisions during slice 7 (developer, 2026-11-23):
+- A pre-`0.3.99` updater that runs its own helper against a directory tag
+  cannot read a list. `update-from-pre-distribution.sh` now asserts that it
+  stops before any write. [Plan 794](../794-update-from-the-previous-release-without-legacy/PLAN.md)
+  still owns deleting that test and the root `src/` forwarders. This story
+  deletes `src/install/open-dough-execution-payload.sh` with the lists, so
+  794's move of that fragment becomes unnecessary.
+- `dough-execute-plan/scripts/test-entry-rules-selection.mjs` is a build input
+  for `scripts/build-test-entry-rules.mjs`, not runtime code. Move it out of
+  the shipped directory so the payload stays identical to the list-era one.
 
 ## Learnings
 

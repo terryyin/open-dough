@@ -2,10 +2,11 @@
 
 Open Dough installs one project-local client payload into two physical skill
 roots: `.agents/skills/` (shared by Codex and Cursor) and `.claude/skills/`.
-Each release's [`managed_files` declaration in `install.sh`](../install.sh)
-is the complete payload for each root; every declared path resolves under that
-release's `skills/` directory under the source tree named by its installer.
-Inspect the declaration in the pinned snapshot using
+Each release's shipped `skills/` directory, under the source tree named by its
+installer, is the complete payload for each root. A release whose
+[`install.sh`](../install.sh) holds the line `open_dough_payload_format=directory`
+delivers every file in that directory; an older release delivers the files its
+`install.sh` lists in `managed_files`. Inspect the payload in the pinned snapshot using
 the procedure below, rather than assuming a fixed list of skills or dependencies.
 Installation preserves unrelated project files, home-level guidance, and any
 other tool's separate installation.
@@ -30,7 +31,7 @@ The target project's optional preferences are project-owned and shared by
 Codex, Cursor, and Claude Code in `.planning/open-dough.json`.
 That path is in the project being installed or updated, not in an installed
 skill directory and not in the Open Dough source checkout. The file is not part
-of the release-declared managed payload.
+of the release's managed payload.
 
 A project supplies preferences in this file. The installer does not prompt,
 merge, or create defaults. When the file or its `skipProcessRetrospective` key is
@@ -140,40 +141,36 @@ inspection and execution into an unattended one-shot command.
    `"${snapshot}/Distribution/src"` for the Distribution layout or
    `"${snapshot}/src"` for older releases. Read and inspect
    `install/open-dough-release.sh`, `install/open-dough-install-payload.sh`,
-   and all helpers and declaration fragments that these files or the installer
-   source or run before executing them.
+   `install/open-dough-payload-inventory.sh`, and all helpers that these files
+   or the installer source or run before executing them.
 
-   Then inspect every source named by that snapshot's `managed_files` declaration,
-   including supporting references, scripts, manuals, and hook fragments. After
-   reading the helper above, use its `read_managed_files_declaration` function
-   to list the complete inspection set without executing the installer:
+   Then inspect every payload file of that snapshot, including supporting
+   references, scripts, manuals, and hook fragments. After reading the helper
+   above, use its `read_release_payload` function, which also refuses test
+   material and unsafe entries in the shipped directory, to list the complete
+   inspection set without executing the installer:
 
    ```bash
    (
      set -euo pipefail
-     source "${release_source}/install/open-dough-release-version.sh"
-     declared=$(read_managed_files_declaration "${snapshot}/install.sh")
+     source "${release_source}/install/open-dough-payload-inventory.sh"
+     payload=$(read_release_payload "${snapshot}")
      while IFS= read -r managed_file; do
-       source_path="${release_source}/skills/${managed_file}"
-       if [[ ! -f "${source_path}" ]]; then
-         printf 'Missing declared payload source: %s\n' "${source_path}" >&2
-         exit 1
-       fi
-       printf '%s\n' "${source_path}"
-     done <<< "${declared}"
+       printf '%s\n' "${release_source}/skills/${managed_file}"
+     done <<< "${payload}"
    )
    ```
 
    A failed listing stops inspection and installation. Read every listed file
    before proceeding; listing paths alone is not a review of their contents.
 
-   Check that this executable call chain writes only the declared client
+   Check that this executable call chain writes only the client
    payload files and their `SOURCE` then `VERSION` records under both captured
    target native roots, plus the managed host-hook registrations in
    `.codex/hooks.json`, `.cursor/hooks.json`, and `.claude/settings.json` when
    those fragments ship with the release. Preserve source, unrelated guidance, unrelated settings
-   entries, and home guidance. Stop if the payload is incomplete or the
-   inspected behavior exceeds this scope. Bash, Git, and Node (for hook merge)
+   entries, and home guidance. Stop if the inspected behavior exceeds this
+   scope. Bash, Git, and Node (for hook merge)
    suffice; no package installation is needed.
 
 5. After inspection, run the following in a Bash subshell with the captured

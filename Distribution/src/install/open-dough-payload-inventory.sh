@@ -31,7 +31,7 @@ refuse_invalid_shipped_entries() {
       printf 'Unsafe shipped entry (path name): %q\n' "${relative}" >&2
       failed=1
     elif [[ "${name}" == *.test.* || "${name}" == *.spec.* ||
-      "${relative,,}" == *fixture* ]]; then
+      "${relative}" == *[Ff][Ii][Xx][Tt][Uu][Rr][Ee]* ]]; then
       printf 'Test material in shipped directory: %s\n' "${relative}" >&2
       failed=1
     fi
