@@ -50,7 +50,7 @@ export function mountPerspectiveFrame(
 ) {
   return mountBoardFrame(openDough, viewport, "stories", machine, {
     otherWork: [doughnut, pygardon],
-    ...(failure === undefined ? {} : { initialReadError: failure }),
+    ...(failure === undefined ? {} : { initialSnapshot: failure }),
     intentReads,
   });
 }

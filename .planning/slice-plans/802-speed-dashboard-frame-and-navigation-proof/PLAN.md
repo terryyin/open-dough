@@ -100,7 +100,7 @@ Frontend spec names omit `.spec.ts` unless otherwise specified.
 ### 1. Story URL destinations select, refuse and cue on the page frame
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (9 cases).** `navigation/story-url-destination`,
 `navigation/story-url-destination-unavailable`,
@@ -124,6 +124,34 @@ proof for everything the frame can observe.
 titles) stays green on the production frame. The named E2E journey covers
 reload/history story targeting. Built-app substitutes used only by these cases
 are gone once their last consumer moves.
+
+**Accepted assertion map.** Paths below are in `dashboard/frontend-tests/navigation/`
+except the named E2E journey.
+
+| Retired case | Replacement observation |
+| --- | --- |
+| Cold URL and encoded target | `story-url-arrival` holds Doughnut's typed read while checking the query and sole read, then checks its card's reveal, focus, native Tab, and no scroll back after inspection. |
+| Reload and history | `e2e/navigation/story-url-history.spec.ts` restores the story on Retry, reload and Back, checks cue appearance and expiry, and clears the story on project choice and Forward. |
+| Hidden Taken column | `story-url-arrival` reveals the clipped column at 650 × 750 with reduced motion and card focus. |
+| Roster detour | `story-url-arrival` opens the assigned agent's roster and checks Back restores the story address, visibility and keyboard focus. |
+| Unknown project | `story-url-destination-unavailable` preserves the project and story in the error and clears the target when returning to configured stories. |
+| Missing, failed and recovered | `story-url-destination-unavailable` checks the separate reasons, identity, focus and Retry availability. The E2E history journey performs the real reload after a failed read. |
+| Superseded held destination | `story-url-destination-unavailable` releases the held read after project choice and checks no stale card or reveal. |
+| Project removal in settings | `story-url-destination-unavailable` removes the selected project through System settings, clears the target and returns to the next project. |
+| Repeat cue with inspection | `story-destination-repeat-cue` restores focus and the moving cue on both returns, preserving Highlight and detail after cue expiry. |
+
+**Result.** The cold mounted probe passed. Nine migrated Vitest cases (4.59 s)
+and one history E2E (5.80 s) took 10.39 s with preparation versus 12.17 s for the
+nine legacy cases at the same two-worker limit. The single E2E file used one
+worker. The slowest mount was repeat cue (1.20 s). Separate cold setups keep
+absent and failed reads independently diagnosable. The history journey also
+preserves the product's real reload on Retry. The App return now keeps focus
+already placed within the dashboard. Seven existing settings E2Es, 22 affected
+mounted cases and typecheck passed. The obsolete Story URL substitute was
+removed. The independent refactor expressed the E2E with named steps. That
+journey passed again in 6.37 s with preparation, for 10.96 s combined with the
+unchanged Vitest run. Exact commands and assertions are in Git evidence
+`slice1-return.md` and `slice1-refactor-e2e.log.run.json`.
 
 ### 2. Project selection and keyboard navigation keep focus and eligibility
 
@@ -252,6 +280,16 @@ claiming worktrees keep their review explanation. Real Git overlay stays in
 reads as prior Intent stories did. The three built-app leftovers retire. Shared
 Intent substitutes lose these consumers.
 
+## Execution context
+
+- Hitomi-chan, Story Branch Mode, `codex/get-fast-proof-of-the-dashboard-frame-navigation`.
+  Publisher `dashboard-territory.local-open-dough`. Take `f733216e15155dc251b9617b6726f16e2ee588fa`
+  is on `origin/main` and is the story branch's published starting point.
+- Checkout-bound `npm ci` and `npm run typecheck:dashboard` passed on AC power.
+- GitHub Actions `ci.yml`, observer `frame-navigation-hitomi` on the story branch,
+  directory `/tmp/dough-ci-501/watch-9WUqm2`, PID `73735`, Codex cell `g500:14`.
+  The Take was published before this story-branch observer was armed.
+
 ## Plan review
 
 - **Refinement.** Not needed: seven Behavior slices follow distinct proof loops
@@ -261,7 +299,3 @@ Intent substitutes lose these consumers.
   key examples map to slices 1–3; no duplicated domain rule remains.
 - **Remaining concerns.** None identified beyond the early-probe-bounded
   story-URL mount premise above.
-
-## Story obligations
-
-None yet.

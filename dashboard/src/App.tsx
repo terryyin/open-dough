@@ -4,22 +4,50 @@ import {
   ConfiguredDashboard,
   type DashboardSelection,
 } from "./ConfiguredDashboard.tsx";
-import { authenticatedPageReads } from "./pageReads.tsx";
+import { authenticatedPageReads, type PageReads } from "./pageReads.tsx";
 import { SettingsGear } from "./DashboardBanner.tsx";
 import { ProductMark } from "./ProductMark.tsx";
 import { SystemSettings } from "./SystemSettings.tsx";
+import {
+  pageProjectSettingsSource,
+  type ProjectSettingsSource,
+} from "./projectSettingsSource.ts";
 import { SettingsNavigation } from "./settingsNavigation.ts";
 import { SavedTerminalThemeProvider } from "./savedTerminalTheme.ts";
+import type { PublishedSource } from "./publishedSource.ts";
 import { pageTerminalThemeSource } from "./terminalThemeSource.ts";
 
 export function App() {
-  const { projects, problem, replaceProjects } = useProjectConfiguration();
+  const configuration = useProjectConfiguration();
+  return (
+    <DashboardApplication
+      configuration={configuration}
+      reads={authenticatedPageReads}
+      projectSettings={pageProjectSettingsSource}
+    />
+  );
+}
+
+export function DashboardApplication({
+  configuration: { projects, problem, replaceProjects },
+  reads,
+  projectSettings,
+}: {
+  readonly configuration: {
+    readonly projects: readonly PublishedSource[] | undefined;
+    readonly problem: string | undefined;
+    readonly replaceProjects: (projects: readonly PublishedSource[]) => void;
+  };
+  readonly reads: PageReads;
+  readonly projectSettings: ProjectSettingsSource;
+}) {
   const [settings, setSettings] = useState(
     () =>
       new URLSearchParams(window.location.search).get("view") === "settings",
   );
   const [selected, setSelected] = useState<string>();
   const dashboard = useRef<DashboardSelection | undefined>(undefined);
+  const dashboardView = useRef<HTMLDivElement>(null);
   const opener = useRef<HTMLElement | undefined>(undefined);
   const wasSettings = useRef(settings);
   const returnToLaunch = useRef<(() => void) | undefined>(undefined);
@@ -65,22 +93,23 @@ export function App() {
     };
   }, []);
   useLayoutEffect(() => {
-    if (wasSettings.current && !settings) {
-      if (returnToLaunch.current) {
-        const resume = returnToLaunch.current;
-        returnToLaunch.current = undefined;
-        resume();
-        wasSettings.current = settings;
-        return;
-      }
-      const destination = opener.current?.isConnected
-        ? opener.current
-        : document.querySelector<HTMLElement>(
-            "button[aria-label='System settings']",
-          );
-      destination?.focus();
-    }
+    const returning = wasSettings.current && !settings;
     wasSettings.current = settings;
+    if (!returning) return;
+    if (returnToLaunch.current) {
+      const resume = returnToLaunch.current;
+      returnToLaunch.current = undefined;
+      resume();
+      return;
+    }
+    // A restored story destination may already have placed the keyboard.
+    if (dashboardView.current?.contains(document.activeElement)) return;
+    const destination = opener.current?.isConnected
+      ? opener.current
+      : document.querySelector<HTMLElement>(
+          "button[aria-label='System settings']",
+        );
+    destination?.focus();
   }, [settings]);
   if (projects === undefined)
     return (
@@ -97,7 +126,7 @@ export function App() {
             openSettings();
           }}
         >
-          <div hidden={settings}>
+          <div hidden={settings} ref={dashboardView}>
             {projects.length === 0 ? (
               <>
                 <header className="banner">
@@ -114,7 +143,7 @@ export function App() {
               </>
             ) : (
               <ConfiguredDashboard
-                reads={authenticatedPageReads}
+                reads={reads}
                 settingsOpen={settings}
                 onOpenSettings={openSettings}
                 onDashboardReady={(value) => {
@@ -127,6 +156,7 @@ export function App() {
           </div>
           {settings && (
             <SystemSettings
+              projectSettings={projectSettings}
               selectedId={selected ?? dashboard.current?.source?.id}
               onSelect={(source) => {
                 dashboard.current?.select(source);

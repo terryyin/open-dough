@@ -44,11 +44,11 @@ export type BoardFrameObservation = {
 export function boardFrameObservationSupplying(
   snapshots: readonly PublishedWork[],
   {
-    initialReadError,
+    initialSnapshot,
     machineAnswer = emptyMachineAnswer(),
     accept,
   }: {
-    initialReadError?: Error;
+    initialSnapshot?: Error | Promise<PublishedWork>;
     machineAnswer?: MachineAnswer & { readonly revision?: string };
     accept?: (
       ...args: Parameters<MachineReadSource["requestAcceptance"]>
@@ -57,7 +57,7 @@ export function boardFrameObservationSupplying(
 ): BoardFrameObservation {
   const bySource = new Map(snapshots.map((work) => [work.source.id, work]));
   const queued: (PublishedWork | Promise<PublishedWork> | Error)[] = [];
-  if (initialReadError !== undefined) queued.push(initialReadError);
+  if (initialSnapshot !== undefined) queued.push(initialSnapshot);
   const snapshotAsks: BoardFrameObservation["snapshotAsks"] = [];
   const detailPaths: string[] = [];
   const streamHandlers: RevisionStreamHandlers[] = [];

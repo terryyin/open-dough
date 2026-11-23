@@ -1,17 +1,24 @@
-import { createElement } from "react";
+import { createElement, useState } from "react";
 import { expect, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { AcceptanceAnswer } from "../../src/agentLaunchClient.ts";
+import { DashboardApplication } from "../../src/App.tsx";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import type { PageReads } from "../../src/pageReads.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
+import type { ProjectSettingsSource } from "../../src/projectSettingsSource.ts";
+import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
-import { authenticatedSessionServices } from "../../src/sessionServices.ts";
+import {
+  authenticatedSessionServices,
+  type SessionServices,
+} from "../../src/sessionServices.ts";
 import { withPagePreferences } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
@@ -28,6 +35,23 @@ export type BoardFrameMachine = {
   ) => Promise<AcceptanceAnswer>;
 };
 
+function DashboardWithProjectSettings({
+  projects: initialProjects,
+  reads,
+  projectSettings,
+}: {
+  readonly projects: readonly PublishedSource[];
+  readonly reads: PageReads;
+  readonly projectSettings: ProjectSettingsSource;
+}) {
+  const [projects, replaceProjects] = useState(initialProjects);
+  return createElement(DashboardApplication, {
+    configuration: { projects, problem: undefined, replaceProjects },
+    reads,
+    projectSettings,
+  });
+}
+
 export async function mountBoardFrame(
   work: PublishedWork,
   viewport: { width: number; height: number },
@@ -35,18 +59,22 @@ export async function mountBoardFrame(
   machine: BoardFrameMachine = {},
   {
     otherWork = [],
-    initialReadError,
+    initialSnapshot,
     intentReads,
     done,
     ci,
     review,
+    sessions = authenticatedSessionServices,
+    projectSettings,
   }: {
     otherWork?: readonly PublishedWork[];
-    initialReadError?: Error;
+    initialSnapshot?: Error | Promise<PublishedWork>;
     intentReads?: IntentReadSource;
     done?: DoneRecordReadSource;
     ci?: IntentCiReadSource;
     review?: ReviewSource;
+    sessions?: SessionServices;
+    projectSettings?: ProjectSettingsSource;
   } = {},
 ) {
   withPagePreferences();
@@ -64,28 +92,37 @@ export async function mountBoardFrame(
   });
   const snapshots = [work, ...otherWork];
   const supply = boardFrameObservationSupplying(snapshots, {
-    ...(initialReadError === undefined ? {} : { initialReadError }),
+    ...(initialSnapshot === undefined ? {} : { initialSnapshot }),
     machineAnswer: machine.answer ?? emptyMachineAnswer(),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),
   });
-  const dashboard = createElement(ProjectsOnPage, {
-    projects: snapshots.map(({ source }) => source),
-    replaceProjects: () => {},
-    children: createElement(ConfiguredDashboard, {
-      reads: pageReadsSupplying({
-        sessions: authenticatedSessionServices,
-        observation: supply.observation,
-        machine: supply.machine,
-        ...(intentReads === undefined ? {} : { intent: intentReads }),
-        ...(done === undefined ? {} : { done }),
-        ...(ci === undefined ? {} : { ci }),
-        ...(review === undefined ? {} : { review }),
-      }),
-      settingsOpen: false,
-      onOpenSettings: () => {},
-      onDashboardReady: () => {},
-    }),
+  const projects = snapshots.map(({ source }) => source);
+  const reads = pageReadsSupplying({
+    sessions,
+    observation: supply.observation,
+    machine: supply.machine,
+    ...(intentReads === undefined ? {} : { intent: intentReads }),
+    ...(done === undefined ? {} : { done }),
+    ...(ci === undefined ? {} : { ci }),
+    ...(review === undefined ? {} : { review }),
   });
+  const dashboard =
+    projectSettings === undefined
+      ? createElement(ProjectsOnPage, {
+          projects,
+          replaceProjects: () => {},
+          children: createElement(ConfiguredDashboard, {
+            reads,
+            settingsOpen: false,
+            onOpenSettings: () => {},
+            onDashboardReady: () => {},
+          }),
+        })
+      : createElement(DashboardWithProjectSettings, {
+          projects,
+          reads,
+          projectSettings,
+        });
   await mountComponent(dashboard, { viewport, fillsViewport: true });
   // Production launches settle through typed machine reads; wait out the first
   // answer before cases interact so Cancel→Enter reopen is not racing that

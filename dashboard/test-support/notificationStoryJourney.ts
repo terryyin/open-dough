@@ -25,20 +25,6 @@ export async function expectArrivedAt(card: Locator) {
   await expect(card).toBeInViewport({ ratio: 0.99 });
 }
 
-// The keyboard is on the card or on one of its controls.
-export async function expectKeyboardWithin(card: Locator) {
-  await expect
-    .poll(() =>
-      card.evaluate((element) => element.contains(document.activeElement)),
-    )
-    .toBe(true);
-}
-
-// No story card holds the keyboard.
-export async function expectNoCardFocused(page: Page) {
-  expect(await page.locator("[data-story-card]:focus").count()).toBe(0);
-}
-
 // The notified identity, as each project records it with its own title.
 const sharedIdentity = (title: string) =>
   makeMe.aBacklogEntry

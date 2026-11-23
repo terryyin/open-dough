@@ -6,7 +6,7 @@ import { pageOpenAIConfigurationSource } from "./openAIConfigurationSource.ts";
 import { OpenAISettings } from "./OpenAISettings.tsx";
 import { ProductMark } from "./ProductMark.tsx";
 import { ProjectsSettings } from "./ProjectsSettings.tsx";
-import { pageProjectSettingsSource } from "./projectSettingsSource.ts";
+import type { ProjectSettingsSource } from "./projectSettingsSource.ts";
 import { SystemSettingsUsage } from "./SystemSettingsUsage.tsx";
 import { TerminalThemeSettings } from "./TerminalThemeSettings.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
@@ -23,10 +23,12 @@ const views = [
 type SettingsView = (typeof views)[number][0];
 
 export function SystemSettings({
+  projectSettings,
   selectedId,
   onSelect,
   onBack,
 }: {
+  readonly projectSettings: ProjectSettingsSource;
   readonly selectedId: string | undefined;
   readonly onSelect: (source: PublishedSource | undefined) => void;
   readonly onBack: () => void;
@@ -67,7 +69,7 @@ export function SystemSettings({
       {view === "general" ? (
         <>
           <ProjectsSettings
-            source={pageProjectSettingsSource}
+            source={projectSettings}
             selectedId={selectedId}
             onSelect={onSelect}
           />

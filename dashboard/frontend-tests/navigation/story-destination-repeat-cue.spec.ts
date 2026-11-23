@@ -1,80 +1,138 @@
-// A direct story destination asked for again while its card is already the
-// selected story, in view and inspected after a visit to its Changes:
-// each way the page asks for that same destination again, Back from Intent and
-// Back to dashboard from System settings, shows the destination cue again,
-// while the Highlight and open detail stay as they were.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { page, type Locator } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { destinationCueMs } from "../../src/destinationCue.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+import { reviewSourceAnswering } from "../review/story-review-panel-page.ts";
+import { boardReading } from "./board-reading-page.ts";
+import { boardWork, story } from "./board-work.ts";
+import {
+  coldStoryUrl,
+  mountStoryUrl,
+  storyCard,
+  storyInAddress,
+} from "./story-url-frame.ts";
 
-import {
-  expect,
-  takenStoryCard,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { keepTakenReviewLaunch } from "../../test-support/support/frontendStoryReviewOpen.ts";
-import { installFrontendStoryReview } from "../../test-support/support/frontendStoryReview.ts";
-import { expectStoryTab } from "../../test-support/intentModePage.ts";
-import { pausePageClock } from "../../test-support/autoRefreshJourney.ts";
-import { expectRoute } from "../../test-support/agentRosterRecords.ts";
-import { storyUrl } from "../../test-support/notificationStoryJourney.ts";
-import {
-  inspectionToggle,
-  reviewChanges,
-} from "../../test-support/storyCardControls.ts";
-import { parts } from "../../test-support/dashboardParts.ts";
-import {
-  back,
-  settings,
-} from "../../test-support/support/systemSettingsPage.ts";
-import {
-  expectInspected,
-  expectSelected,
-} from "../../test-support/storyCardSelection.ts";
-import {
-  expectCueEnds,
-  expectDestinationCue,
-} from "../../test-support/destinationCue.ts";
-import { takenIdentity } from "../../test-support/launchJourney.ts";
+async function showsMovingCue(card: Locator) {
+  await expect.element(card).toHaveClass("story-card-destination-cue");
+  expect(document.querySelectorAll(".story-card-destination-cue")).toHaveLength(
+    1,
+  );
+  const mark = getComputedStyle(card.element(), "::after");
+  expect(mark.content).not.toBe("none");
+  expect(mark.boxShadow).not.toBe("none");
+  expect(mark.animationName).toBe("story-card-destination-cue");
+}
 
-test("asking again for the selected and inspected destination cues it again and keeps its Highlight and detail", async ({
-  page,
-  frontendServices,
-}) => {
-  // Wide enough that the open review leaves the Taken card uncovered.
-  await page.setViewportSize({ width: 1920, height: 900 });
-  keepTakenReviewLaunch(frontendServices);
-  await installFrontendStoryReview(page);
-  await pausePageClock(page);
-  await page.goto(storyUrl("open-dough", takenIdentity));
-  const card = takenStoryCard(page);
-  await expect(card).toBeFocused();
-  await expectDestinationCue(page, card, { motion: true });
-  await expectCueEnds(page, card);
-  await reviewChanges(card).click();
-  await expectStoryTab(parts(page).intent, "Changes");
-  await page.goBack();
-  await inspectionToggle(card).click();
-  await expectSelected(card, true);
-  await expectInspected(card, true);
-  await expect(card).toBeInViewport();
+async function finishCue(card: Locator) {
+  vi.advanceTimersByTime(destinationCueMs);
+  await expect.element(card).not.toHaveClass("story-card-destination-cue");
+  expect(document.querySelector(".story-card-destination-cue")).toBeNull();
+  expect(getComputedStyle(card.element(), "::after").content).toBe("none");
+}
 
-  const askedAgain = [
-    async () => {
-      await parts(page).intentChoice.check();
-      await expect(card).toHaveCount(0);
-      await page.goBack();
+test("Back from Intent and System settings cues the same destination without changing its Highlight or detail", async () => {
+  const taken = story("Keep selected review work in view", 807);
+  const work = boardWork([], { taken: [taken] });
+  const record = makeMe.aLaunchRecord
+    .executing(taken)
+    .onStoryBranch({
+      workspace: "/tmp/story-destination-review",
+      branch: "claude/taken",
+    })
+    .please();
+  const answer = makeMe.aMachineAnswer.observingOpen(record).please();
+  const { intent } = pageReadsSupplying({});
+  const comparison = makeMe.aStoryReview
+    .sessionCommits()
+    .adding("story.txt")
+    .please();
+  coldStoryUrl(work.source.id, taken.identity);
+  vi.useFakeTimers({
+    toFake: ["setTimeout", "clearTimeout"],
+    shouldAdvanceTime: true,
+  });
+  onTestFinished(() => {
+    vi.useRealTimers();
+  });
+  const frame = await mountStoryUrl(
+    { width: 1920, height: 900 },
+    {
+      intentReads: {
+        ...intent,
+        readLocations: () => Promise.resolve({ status: "not-configured" }),
+      },
+      review: reviewSourceAnswering({
+        review: () => Promise.resolve(comparison),
+      }),
+      projectSettings: {
+        read: () => Promise.resolve([]),
+        add: () =>
+          Promise.reject(new Error("The case does not add a project.")),
+        setHidden: () =>
+          Promise.reject(new Error("The case does not hide a project.")),
+        remove: () =>
+          Promise.reject(new Error("The case does not remove a project.")),
+      },
     },
-    async () => {
-      await settings(page).click();
-      await back(page).click();
-    },
-  ];
-  for (const askAgain of askedAgain) {
-    await askAgain();
-    expectRoute(page, { story: takenIdentity });
-    await expect(card).toBeFocused();
-    await expectDestinationCue(page, card, { motion: true });
-    await expectSelected(card, true);
-    await expectInspected(card, true);
-    await expectCueEnds(page, card);
-    await expectSelected(card, true);
-  }
+    work,
+    { answer },
+  );
+  const card = storyCard(taken.title);
+  await expect.element(card).toHaveFocus();
+  await showsMovingCue(card);
+  await boardReading.expectStorySelection(card, false);
+  await finishCue(card);
+  await card
+    .getByRole("button", { name: "Review changes", exact: true })
+    .click();
+  await expect
+    .element(page.getByRole("tab", { name: "Changes", exact: true }))
+    .toHaveAttribute("aria-selected", "true");
+  history.back();
+  await card
+    .getByRole("button", { name: "Inspect story", exact: true })
+    .click();
+  await boardReading.expectStoryHighlight(card);
+  const hide = card.getByRole("button", { name: "Hide detail", exact: true });
+  const detail = card.getByRole("region", {
+    name: `Detail for ${taken.title}`,
+  });
+  await expect.element(hide).toHaveAttribute("aria-expanded", "true");
+  await expect.element(detail).toBeVisible();
+  await expect
+    .poll(() => {
+      const shown = card.element().getBoundingClientRect();
+      const room = boardReading.room();
+      return (
+        Math.min(shown.bottom, room.bottom) - Math.max(shown.top, room.top)
+      );
+    })
+    .toBeGreaterThan(0);
+
+  await page.getByRole("radio", { name: "Intent", exact: true }).click();
+  await expect.element(card).not.toBeInTheDocument();
+  history.back();
+  await expect.element(card).toHaveFocus();
+  await showsMovingCue(card);
+  await boardReading.expectStoryHighlight(card);
+  await expect.element(hide).toHaveAttribute("aria-expanded", "true");
+  await expect.element(detail).toBeVisible();
+  expect(storyInAddress()).toBe(taken.identity);
+  await finishCue(card);
+  await boardReading.expectStorySelection(card, true);
+
+  await page
+    .getByRole("button", { name: "System settings", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Back to dashboard" }).click();
+  await expect.element(card).toHaveFocus();
+  await showsMovingCue(card);
+  await boardReading.expectStoryHighlight(card);
+  await expect.element(hide).toHaveAttribute("aria-expanded", "true");
+  await expect.element(detail).toBeVisible();
+  expect(storyInAddress()).toBe(taken.identity);
+  await finishCue(card);
+  await boardReading.expectStorySelection(card, true);
+  frame.expectNoHostAction();
 });
