@@ -1,0 +1,94 @@
+
+> test:dashboard:frontend
+> node scripts/test-frontend.mjs dashboard/frontend-tests/launches --workers=2
+
+
+ RUN  v5.1.0 /Users/terryyin/git/open-dough/.worktrees/get-launch-unit-proof-in-about-eight-seconds
+
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:22 > Backlog offers execution then refinement with an assessment note when needed, and Taken offers neither 498ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:39 > a story's installed refinement options appear on refinement alone 705ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:86 > story Starts keep their reading order and visible keyboard focus at narrow and zoomed widths 766ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:58 > No Approach clears A, keeps C and sends only C on Start 997ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:83 > a held initial read disables refinement and a held host reread submits no options 577ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:155 > noted Starts explain their offers on hover, focus and in the launch dialog 1222ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:204 > noted Starts remain visually distinct from unavailable Starts in both schemes 313ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:58 > accepted execution without an establishing skill says Starting execution in Claude Code 21ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:74 > accepted execution with an establishing skill says Preparing until the attempt settles 75ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:115 > accepted refinement without an establishing skill says Starting refinement in Claude Code 9ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:133 > a missing folder explanation stays below Start execution and focus returns to that offer 109ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:154 > a refinement refusal describes Start refinement alone and sits below both desktop offers 84ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:177 > a progressing startup with no worker phase names its host and workflow, and Preparing when the installed skill establishes the start 38ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:112 > Cancel clears the retained choices from a refused refinement 1287ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-launch-dialog.spec.ts:16 > refinement tabs from the instruction through the closed disclosures to Start 214ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-launch-dialog.spec.ts:33 > the refinement options disclosure keeps its selection when collapsed 473ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:12 > Cancel and Escape each abandon a held transcription and a late reply leaves the next dialog empty 851ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:65 > Cancel stops active recording without transcribing 234ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-launch-dialog.spec.ts:77 > a dense refinement dialog keeps its controls reachable when narrow or zoomed 576ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:69 > Escape stops active recording without transcribing 165ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts:42 > Start session tabs from instruction through session choices and closed command details to Start 269ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:73 > late permission after either dismissal cannot populate the next dialog 592ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:111 > unexpected microphone track end keeps the typed draft editable without requesting transcription 146ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:29 > Claude names its default and relative effort costs, and Start submits the effort shown 308ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts:76 > both workspace policies keep the automatic landing actions in view when narrow or zoomed 1056ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:73 > changing hosts resets model and effort to each host's default, and Start sends the chosen Codex model and effort 120ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:104 > dismissing with Cancel or Escape resets the chosen model and effort when the dialog opens again 265ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts:125 > Start session explains unavailable choices without clipping them and keeps both actions reachable at 320 pixels and at 200% zoom 288ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:136 > story card execution and refinement close their dialog on dismissal and return focus without starting 347ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:145 > Start session closes its dialog on dismissal and returns focus without starting 208ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice-overflow.spec.ts:9 > an over-limit recording blocks Start and Record until its review is added, and Start sends the final edit 426ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:162 > refinement without options tabs from instruction through launch choices to Start 200ms
+ ✓ |chromium| dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:39 > Start execution names the story, host and command, then Escape and Cancel restore the offer without starting 464ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice-overflow.spec.ts:43 > Discard in review keeps the draft focused, and Escape in review leaves the reopened dialog empty 838ms
+ ✓ |chromium| dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:55 > Start refinement names the story, host and command, then Escape and Cancel restore the offer without starting 297ms
+ ✓ |chromium| dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:71 > only execution on a project whose installed skill establishes a start names the Take and workspace 214ms
+ ✓ |chromium| dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:95 > execution without an establishing skill gives no Take or workspace promise 85ms
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:88 > Follow up defaults to waiting notes, Start sends the selected choice, and Cancel sends nothing 701ms
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:144 > the notes reader selects waiting notes and describes their count 61ms
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery-reads.spec.ts:29 > story starts wait for launch evidence while inspection works and an unanswered read can be rechecked 396ms
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:167 > the notes reader leaves Attach unavailable when no notes wait 84ms
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:171 > the notes reader explains why unreadable notes cannot be attached 109ms
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:178 > a Taken card shows notes waiting and offers no story Follow up 7ms
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery-reads.spec.ts:71 > a lost acceptance stays static through an unsuccessful recheck and progresses when a later read confirms it 560ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice-capture-failures.spec.ts:42 > permission refusal makes no transcription request and an explicit retry works in the same dialog 575ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice-capture-failures.spec.ts:58 > an unavailable device and an unsupported recording format make no transcription request and typed Start works in the same dialog 425ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts:13 > Start session names the project and host, focuses an empty instruction, and Escape and Cancel return focus without sending 481ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:76 > Start session is opposite the direction, beside preparation help, named for the selected project and hidden with its roster 64ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:106 > Start session stays enabled with no published work, the input while its initial read is pending or has failed 1ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts:50 > an instructed Start session sends the draft, hands focus to progress, and restores the launcher after startup 277ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:187 > the Start session progress and direction stay readable in whole words on a phone 135ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:202 > the refusal and direction retain their room when opened, closed and rotated by touch 300ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:67 > pasting text into the instruction inserts it without attaching an image 41ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-refinement-touch.spec.ts:13 > touch rotation and restricted height preserve the refinement draft and choices 546ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:82 > refused images explain why, keep the draft, and leave only accepted images for Start 123ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:174 > Cancel after attaching uploads nothing and opens an empty draft next time 221ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:177 > Escape after attaching uploads nothing and opens an empty draft next time 213ms
+ ✓ |chromium| dashboard/frontend-tests/launches/responsive-story-startup.spec.ts:25 > a keyboard start protects the selected story, announces each transition once, and leaves the next inspection focused 615ms
+ ✓ |chromium| dashboard/frontend-tests/launches/responsive-unattached-startup.spec.ts:141 > a blank keyboard start presents its terminal without taking focus from another task 128ms
+ ✓ |chromium| dashboard/frontend-tests/launches/responsive-unattached-startup.spec.ts:150 > an instructed keyboard start leaves the terminal closed and keeps the other task focused 164ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-host-catalog.spec.ts:13 > a held Codex read keeps Start available and a failed read offers retry without moving instruction focus 115ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-host-catalog.spec.ts:51 > switching host aborts the old catalog and a late Codex answer leaves Claude choices intact 66ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-native-effort.spec.ts:13 > Codex model changes preserve compatible effort and keep incompatible effort invalid with linked feedback 35ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-host-catalog.spec.ts:71 > switching project aborts the old catalog and its late answer leaves the current project's models intact 169ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-native-effort.spec.ts:41 > an unknown configured Codex model leaves defaults usable and Start visible at narrow and zoomed widths 209ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-native-effort.spec.ts:73 > Cursor refuses an effort the chosen model does not list until a listed effort is chosen 0ms
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery.spec.ts:40 > an uncertain attempt keeps its last answer and points Continue at the host's native check 4ms
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery.spec.ts:86 > Cursor recovery offers Recheck and Continue without another host's native-check advice 2ms
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery.spec.ts:118 > a lost acknowledgment offers only Recheck, and unanswered evidence offers Recheck launch evidence 1ms
+ ✓ |chromium| dashboard/frontend-tests/launches/transcript-review.spec.ts:12 > a transcript fits when draft, separator and transcript total at most 4,000 characters 1ms
+ ✓ |chromium| dashboard/frontend-tests/launches/transcript-review.spec.ts:44 > a blank edit cannot be added and keyboard shortening adds the edited transcript once 163ms
+ ✓ |chromium| dashboard/frontend-tests/launches/transcript-review.spec.ts:86 > the full well-over transcript stays editable and Discard adds nothing 119ms
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery.spec.ts:164 > an accepted start hands focus to its protected story and a later uncertain outcome belongs in recovery 262ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-creation-entry.spec.ts:9 > an unresolved creation names its stand-in host and displays the supplied inspection arguments 4ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-record-details.spec.ts:125 > refinement entries show exactly the model and options that each launch requested 25ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-record-details.spec.ts:142 > execution and ad hoc entries show the requested model and disclose effort only when recorded 8ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-record-details.spec.ts:163 > the Board lists each launch with its own story or in Taken, and the sidebar names its own requested model 105ms
+
+ Test Files  24 passed (24)
+      Tests  77 passed (77)
+   Start at  12:45:01
+   Duration  13.91s (tests 85%, worker 8%, import 8%)
+
+JSON report written to /Users/terryyin/git/open-dough/.worktrees/get-launch-unit-proof-in-about-eight-seconds/dashboard/frontend-tests/test-results/vitest-2026-11-23T04-45-01.249Z-52903/vitest.json
+real 14.71
+user 12.85
+sys 3.17

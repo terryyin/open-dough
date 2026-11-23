@@ -1,0 +1,31 @@
+diff --git a/dashboard/frontend-tests/launches/launch-attachments.spec.ts b/dashboard/frontend-tests/launches/launch-attachments.spec.ts
+index eba8a3e87..f1464ac6d 100644
+--- a/dashboard/frontend-tests/launches/launch-attachments.spec.ts
++++ b/dashboard/frontend-tests/launches/launch-attachments.spec.ts
+@@ -35,14 +35,12 @@ async function mountStartSession() {
+       sourceId: project.id,
+       launches,
+       presentTerminal: vi.fn(),
++      autoOpen: true,
+     }),
+-    { viewport: { width: 1000, height: 720 } },
+   );
+-  const offer = startSession(project.label);
+-  await offer.click();
+   const form = launchDialog("Start a session in Open Dough in Claude Code");
+   return {
+-    offer,
++    offer: startSession(project.label),
+     form,
+     attached: form.dialog.getByRole("list", { name: "Attached images" }),
+     refused: form.dialog.getByRole("alert", { name: "Refused images" }),
+@@ -138,7 +136,8 @@ test("refused images explain why, keep the draft, and leave only accepted images
+   await expect.element(form.dialog).not.toBeInTheDocument();
+   expect(start).toHaveBeenCalledTimes(1);
+   const choices = start.mock.calls[0]?.[1];
+-  expect(choices?.instruction).toBe(draft);
++  expect(choices).toMatchObject({ host: "claude", instruction: draft });
++  expect(choices?.unattached).toBeUndefined();
+   expect(choices?.images?.map(({ name }) => name)).toEqual([
+     "card.png",
+     "extra-0.png",

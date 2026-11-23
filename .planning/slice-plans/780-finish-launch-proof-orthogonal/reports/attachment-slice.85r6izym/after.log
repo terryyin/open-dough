@@ -1,0 +1,21 @@
+
+> test:dashboard:frontend
+> node scripts/test-frontend.mjs dashboard/frontend-tests/launches/launch-attachments.spec.ts --workers=2
+
+
+ RUN  v5.1.0 /Users/terryyin/git/open-dough/.worktrees/get-launch-unit-proof-in-about-eight-seconds
+
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:67 > pasting text into the instruction inserts it without attaching an image 344ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:82 > refused images explain why, keep the draft, and leave only accepted images for Start 234ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:174 > Cancel after attaching uploads nothing and opens an empty draft next time 512ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:177 > Escape after attaching uploads nothing and opens an empty draft next time 365ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  12:21:45
+   Duration  3.89s (tests 48%, worker 33%, import 19%)
+
+JSON report written to /Users/terryyin/git/open-dough/.worktrees/get-launch-unit-proof-in-about-eight-seconds/dashboard/frontend-tests/test-results/vitest-2026-11-23T04-21-44.463Z-82028/vitest.json
+real 5.27
+user 3.64
+sys 1.13

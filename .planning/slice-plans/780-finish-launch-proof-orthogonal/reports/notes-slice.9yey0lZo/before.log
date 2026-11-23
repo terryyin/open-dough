@@ -1,0 +1,21 @@
+
+> test:dashboard:frontend
+> node scripts/test-frontend.mjs dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts --workers=2
+
+
+ RUN  v5.1.0 /Users/terryyin/git/open-dough/.worktrees/get-launch-unit-proof-in-about-eight-seconds
+
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:87 > Follow up defaults to waiting notes, Start sends the selected choice, and Cancel sends nothing 1884ms
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:150 > a follow-up with no waiting notes explains why Attach is unavailable and Start still works 577ms
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:154 > a follow-up with unreadable notes explains why Attach is unavailable and Start still works 635ms
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:161 > a Taken card shows notes waiting and offers no story Follow up 94ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  10:29:53
+   Duration  4.62s (tests 81%, import 10%, worker 10%)
+
+JSON report written to /Users/terryyin/git/open-dough/.worktrees/get-launch-unit-proof-in-about-eight-seconds/dashboard/frontend-tests/test-results/vitest-2026-11-23T02-29-53.158Z-21501/vitest.json
+real 5.70
+user 2.81
+sys 1.18

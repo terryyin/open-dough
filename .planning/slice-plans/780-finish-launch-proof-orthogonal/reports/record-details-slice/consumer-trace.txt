@@ -1,0 +1,238 @@
+# Consumer trace
+
+## Effect terms searched
+
+| Term | Origin |
+| --- | --- |
+| `dashboard/frontend-tests/launches/launch-record-details.spec.ts` | changed path |
+| `launch-record-details.spec.ts` | basename of `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `launchSubject` | supplied |
+| `Session details` | supplied |
+| `Model: Opus (requested)` | supplied |
+| `Effort: max (requested)` | supplied |
+| `Options: --explore --borrow (requested)` | supplied |
+| `dashboard/frontend-tests/launches/launch-record-details.spec` | import path of `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `launch-record-details.spec` | import path of `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `Locator` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 504 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `viewport` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 323 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `recent` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 466 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `Story` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 3995 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `flags` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 161 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `refinementRecords` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `openBoard` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `stories` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 548 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `records` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 1976 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `launched` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 658 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `executionRecords` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `launch` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 2123 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `adHocTitle` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `adHocRecord` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `observed` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 1454 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `mountEntries` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `projects` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 352 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `replaceProjects` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `children` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 121 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `key` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 1783 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `onStoryCard` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `onCard` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `sessionIdentity` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `openDetails` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `activate` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `entry` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 2210 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `record` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 3906 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `showsWords` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts` |
+| `exact` | declared in `dashboard/frontend-tests/launches/launch-record-details.spec.ts`; in 1687 files, too broad to list consumers by itself; supply it as a `--term` to list them |
+| `../navigation/board-frame-mount.ts` | removed from `dashboard/frontend-tests/launches/launch-record-details.spec.ts`:5 |
+| `refinement cards independently show requested options and model across all four recorded combinations` | removed from `dashboard/frontend-tests/launches/launch-record-details.spec.ts`:56 |
+| `execution and ad hoc model labels appear in their own Board entries and sidebar, with effort only when recorded` | removed from `dashboard/frontend-tests/launches/launch-record-details.spec.ts`:103 |
+
+## Scope
+
+Whole checkout at `d45528326928`, including uncommitted and untracked files: 7578 tracked and untracked non-ignored files searched with fixed-string, case-insensitive matching.
+
+Changed files not searched: `dashboard/frontend-tests/launches/launch-record-details.spec.ts`.
+
+## Located consumers
+
+Kinds are path hints for inspection; each file appears once. Fill every Disposition with `run`, `reused` or `excluded: <reason the effect does not reach its boundary>`.
+
+### Production
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.planning/done/SEED-240_read-session-assignments-on-demand.json` | `Session details` | 4: `"title": "Read session assignment history when Session details opens",` | |
+| `.planning/done/SEED-388_show-the-effort-a-launch-runs-with.json` | `Session details` | 10: `"report": "Dough Intent Coverage: SEED-388#show-the-effort-a-launch-runs-with at c741f265f6f52bb2cb2c5b239bc1733c5e3568b6\n\nVerdict: Caught.\n\nPromise: every…` | |
+| `.planning/evidence/SEED-303-early-handoff/original-baseline-timings.csv` | `activate` | 22: `run5,tests/runtime/production-watcher-updates.spec.ts,npm watcher activates a policy repair that qualifies only through the rejected application's retained pat…` | |
+| `.planning/evidence/SEED-303-early-handoff/preview-experiment-timings.csv` | `activate` | 25: `before,backend-tests/runtime/production-updates.spec.ts,an unactivated candidate is retried and the next docs commit retains its application paths,passed,0,886` | |
+| `.planning/evidence/SEED-303-early-handoff/preview-experiment/productionPreviewLifecycle.mjs.source.txt` | `activate` | 59: `return { kind: "activated" };` | |
+| `.planning/evidence/SEED-303-early-handoff/preview-experiment/seed303CompositionJourney.ts.source.txt` | `activate` | 96: `` // activation through `activated()`, so the shared hook holds only the `` | |
+| `.planning/evidence/SEED-303-early-handoff/preview-experiment/seed303CompositionPreview.ts.source.txt` | `activate` | 40: `expect((await owner.replace(b)).kind).toBe("activated");` | |
+| `.planning/evidence/SEED-303-early-handoff/preview-experiment/watch-dashboard.mjs.source.txt` | `activate` | 51: `// The successfully served commit; replaced only after a candidate activates.` | |
+| `.planning/seeds/SEED-275-story-intent-tabs/intent-story-tabs.html` | `activate` | 296: `function activate(tab) {` | |
+| `dashboard/frontend-tests/configuration/system-settings-projects-page.ts` | `replaceProjects` | 62: `const [configured, replaceProjects] = useState(projects);` | |
+| `dashboard/frontend-tests/intent/intent-browser-page.ts` | `activate` | 7: `import { activateButton } from "../page-objects/activateButton.ts";` | |
+| `dashboard/frontend-tests/intent/intent-candidates-page.ts` | `activate` | 8: `import { activateButton } from "../page-objects/activateButton.ts";` | |
+| `dashboard/frontend-tests/intent/intent-ci-comparison-page.ts` | `activate` | 14: `// (../../src/IntentCiComparison.tsx), unsorted until a header is activated.` | |
+| `dashboard/frontend-tests/intent/intent-ci-homepage-page.ts` | `activate` | 31: `export async function activateChosenCiTab(how: "click" \| "Enter" \| "Space") {` | |
+| `dashboard/frontend-tests/intent/intent-ci-page-mount.ts` | `replaceProjects` | 151: `replaceProjects: () => undefined,` | |
+| `dashboard/frontend-tests/intent/intent-ci-sessions-sidebar.ts` | `adHocTitle` | 13: `export const adHocTitle = "Open Dough session";` | |
+| `dashboard/frontend-tests/intent/intent-revision-notice-page.ts` | `activate` | 5: `import { activateButton } from "../page-objects/activateButton.ts";` | |
+| `dashboard/frontend-tests/navigation/board-frame-mount.ts` | `replaceProjects` | 81: `replaceProjects: () => {},` | |
+| `dashboard/frontend-tests/navigation/board-mount.ts` | `replaceProjects` | 57: `replaceProjects: unexpected,` | |
+| `dashboard/frontend-tests/page-objects/activateButton.ts` | `activate` | 4: `export async function activateButton(button: Locator) {` | |
+| `dashboard/frontend-tests/review/reviewDiffPage.ts` | `activate` | 6: `import { activateButton } from "../page-objects/activateButton.ts";` | |
+| `dashboard/frontend-tests/review/story-review-page-contexts.ts` | `replaceProjects` | 111: `replaceProjects: () => undefined,` | |
+| `dashboard/frontend-tests/sessions/sessions-sidebar-open-mount.ts` | `replaceProjects` | 140: `replaceProjects: () => undefined,` | |
+| `dashboard/server/hosts/claude/launch.ts` | `launchSubject` | 17: `launchSubject,` | |
+| `dashboard/server/hosts/codex/launch.ts` | `launchSubject` | 6: `import { launchSubject } from "../../../src/agentLaunch.ts";` | |
+| `dashboard/server/hosts/cursor/launch.ts` | `launchSubject` | 27: `import { launchSubject } from "../../../src/agentLaunch.ts";` | |
+| `dashboard/server/notificationActivation.ts` | `activate` | 72: `browser.activate();` | |
+| `dashboard/server/productionPreviewLifecycle.mjs` | `activate` | 38: `* @returns {Promise<{kind: "activated"} \| {kind: "kept" \| "restored", error: unknown}>}` | |
+| `dashboard/server/productionUpdates.mjs` | `activate` | 2: `// activated commit. Rejection and failed preparation/start leave that baseline` | |
+| `dashboard/server/retainedUsageTasks.ts` | `launchSubject` | 8: `import { launchSubject } from "../src/launchWorkflow.ts";` | |
+| `dashboard/server/sessionAlerts.ts` | `launchSubject` | 25: `launchSubject,` | |
+| `dashboard/server/storyReviewInput.ts` | `launchSubject` | 22: `import { launchSubject } from "../src/launchWorkflow.ts";` | |
+| `dashboard/src/AddProject.tsx` | `replaceProjects` | 5: `import { useReplaceProjects } from "./projectList.tsx";` | |
+| `dashboard/src/AdHocSessionReviewAction.tsx` | `launchSubject` | 8: `import { launchSubject } from "./launchWorkflow.ts";` | |
+| `dashboard/src/agentLaunch.ts` | `launchSubject` | 22: `launchSubject,` | |
+| `dashboard/src/App.tsx` | `replaceProjects` | 16: `const { projects, problem, replaceProjects } = useProjectConfiguration();` | |
+| `dashboard/src/Board.tsx` | `onCard` | 138: `doneOnCard={sessions.doneOnCard}` | |
+| `dashboard/src/CiProofTable.tsx` | `activate` | 64: `// An in-memory sort choice, unsorted until a header is activated.` | |
+| `dashboard/src/Columns.tsx` | `onStoryCard`, `onCard` | 18: `import type { DoneOnCard } from "./columnSessions.ts";` | |
+| `dashboard/src/columnSessions.ts` | `onCard` | 15: `export type DoneOnCard = (identity: string) => readonly LaunchWithState[];` | |
+| `dashboard/src/DoneStoryCard.tsx` | `onStoryCard` | 142: `onStoryCard={false}` | |
+| `dashboard/src/FinalReport.tsx` | `launchSubject` | 6: `launchSubject,` | |
+| `dashboard/src/followUpContext.ts` | `launchSubject` | 19: `import { launchSubject } from "./launchWorkflow.ts";` | |
+| `dashboard/src/IntentCandidatesSections.tsx` | `activate` | 9: `// and takes the keyboard when the developer activates the tab.` | |
+| `dashboard/src/IntentPage.tsx` | `activate` | 146: `onActivate={(activated) => {` | |
+| `dashboard/src/IntentTabs.tsx` | `activate` | 8: `` // tells `onActivate`; moving by those keys only chooses. `` | |
+| `dashboard/src/launchWorkflow.ts` | `launchSubject` | 150: `export function launchSubject(request: RecordedLaunchRequest) {` | |
+| `dashboard/src/pageSidePanel.ts` | `launchSubject` | 14: `import { launchSubject } from "./agentLaunch.ts";` | |
+| `dashboard/src/projectList.tsx` | `replaceProjects` | 16: `readonly replaceProjects: (projects: readonly PublishedSource[]) => void;` | |
+| `dashboard/src/ProjectVisibility.tsx` | `replaceProjects` | 6: `useReplaceProjects,` | |
+| `dashboard/src/RecentlyDoneEntry.tsx` | `onStoryCard` | 73: `onStoryCard={false}` | |
+| `dashboard/src/recentlyDoneSelection.ts` | `launchSubject` | 39: `import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";` | |
+| `dashboard/src/recentlyDoneShownLinks.ts` | `launchSubject` | 6: `import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";` | |
+| `dashboard/src/RemoveProject.tsx` | `replaceProjects` | 7: `useReplaceProjects,` | |
+| `dashboard/src/SessionDetails.tsx` | `launchSubject`, `Session details` | 5: `launchSubject,` | |
+| `dashboard/src/SessionEntry.tsx` | `launchSubject`, `Session details`, `onStoryCard` | 19: `launchSubject,` | |
+| `dashboard/src/SessionLists.tsx` | `onStoryCard` | 39: `onStoryCard,` | |
+| `dashboard/src/sessionNavigation.ts` | `launchSubject` | 9: `import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";` | |
+| `dashboard/src/SessionsSidebarSessionEntry.tsx` | `launchSubject`, `Session details` | 13: `// completion time are its tooltip. With coarse input, Session details reveals` | |
+| `dashboard/src/sidePanelContent.ts` | `launchSubject` | 4: `launchSubject,` | |
+| `dashboard/src/StoryCardDoneSessions.tsx` | `onStoryCard` | 44: `onStoryCard` | |
+| `dashboard/src/StoryCardSessions.tsx` | `onStoryCard` | 36: `onStoryCard` | |
+| `dashboard/src/storyReviewLandedRun.ts` | `launchSubject` | 12: `import { launchSubject } from "./launchWorkflow.ts";` | |
+| `dashboard/src/storyReviewWorkspace.ts` | `launchSubject` | 7: `import { launchSubject } from "./launchWorkflow.ts";` | |
+| `dashboard/src/Terminal.tsx` | `launchSubject` | 31: `import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";` | |
+| `Distribution/evaluation/cases/guidance-checks/launch-command-tests/overlay/dashboard/server/hosts/claude/launch.ts` | `launchSubject` | 17: `launchSubject,` | |
+| `Distribution/evaluation/cases/guidance-checks/launch-command-tests/overlay/dashboard/src/launchWorkflow.ts` | `launchSubject` | 150: `export function launchSubject(request: RecordedLaunchRequest) {` | |
+| `Distribution/evaluation/cases/guidance-checks/launch-command-tests/overlay/dashboard/src/SessionDetails.tsx` | `launchSubject`, `Session details` | 5: `launchSubject,` | |
+| `Distribution/evaluation/cases/guidance-checks/launch-command-tests/overlay/dashboard/src/SessionsSidebarSessionEntry.tsx` | `launchSubject`, `Session details` | 13: `// completion time are its tooltip. With coarse input, Session details reveals` | |
+| `scripts/watch-dashboard.mjs` | `activate` | 51: `// The successfully served commit; replaced only after a candidate activates.` | |
+
+### Test
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.planning/evidence/SEED-303-early-handoff/preview-experiment/production-preview-lifecycle.spec.ts.source.txt` | `activate` | 144: `expect((await owner.replace({ ...later, directory: b.directory })).kind).toBe("activated");` | |
+| `.planning/evidence/SEED-303-early-handoff/preview-experiment/seed303-preview-composition.spec.ts.source.txt` | `activate` | 48: `const state = await journey.activated();` | |
+| `dashboard/backend-tests/launches/agent-launch-codex-model-boundary.spec.ts` | `launchSubject` | 12: `import { launchSubject, keptStartSchema } from "../../src/agentLaunch.ts";` | |
+| `dashboard/backend-tests/runtime/production-update-selection.spec.ts` | `activate` | 37: `updates.activated(published(e));` | |
+| `dashboard/frontend-tests/configuration/system-settings-page-sources.spec.ts` | `replaceProjects` | 129: `replaceProjects: () => {},` | |
+| `dashboard/frontend-tests/intent/intent-ci-status-freshness.spec.ts` | `adHocTitle` | 13: `adHocTitle,` | |
+| `dashboard/frontend-tests/intent/intent-ci-status-homepage.spec.ts` | `activate` | 20: `activateChosenCiTab,` | |
+| `dashboard/frontend-tests/intent/intent-ci-status-side-panel.spec.ts` | `adHocTitle` | 18: `adHocTitle,` | |
+| `dashboard/frontend-tests/intent/intent-ci-status-sort.spec.ts` | `activate` | 2: `// ../../src/ciProofSort.ts): declaration order until a header is activated;` | |
+| `dashboard/frontend-tests/intent/intent-home-activation.spec.ts` | `activate` | 9: `activateIntentHome,` | |
+| `dashboard/frontend-tests/intent/intent-summary-ci-proof-kept.spec.ts` | `activate` | 24: `activateIntentHome,` | |
+| `dashboard/frontend-tests/intent/intent-summary-ci-proof-sort.spec.ts` | `activate` | 5: `// order until a header is activated, the row for what no child row shows kept` | |
+| `dashboard/frontend-tests/navigation/frame-board-look.spec.ts` | `replaceProjects` | 126: `replaceProjects: () => {},` | |
+| `dashboard/frontend-tests/sessions/board-done-session-placement.spec.ts` | `onCard` | 113: `expect(keys(placedOnBoard(records).doneOnCard(unfinished.identity))).toEqual(` | |
+| `dashboard/frontend-tests/sessions/compact-session-entry-cursor.spec.ts` | `Session details` | 95: `"The resume command could not be copied. Select it in Session details.";` | |
+| `dashboard/frontend-tests/sessions/follow-up-source-navigation.spec.ts` | `openBoard` | 37: `openBoard,` | |
+| `dashboard/frontend-tests/sessions/recently-done-follow-up-grouping.spec.ts` | `openBoard` | 18: `openBoard,` | |
+| `dashboard/frontend-tests/sessions/recently-done-follow-up-membership.spec.ts` | `openBoard` | 22: `openBoard,` | |
+| `dashboard/frontend-tests/sessions/recently-done-sessions-sidebar-touch.spec.ts` | `Session details` | 1: `// Coarse Session details for Done rows in Recently done sessions against a` | |
+| `dashboard/frontend-tests/sessions/sessions-sidebar-row.spec.ts` | `Session details` | 135: `"session details",` | |
+| `dashboard/frontend-tests/stories/story-card-scan-emphasis.spec.ts` | `Session details`, `replaceProjects` | 96: `replaceProjects: () => {},` | |
+| `Distribution/evaluation/cases/guidance-checks/launch-command-tests/overlay/dashboard/frontend-tests/launches/agent-launch-model-entries.spec.ts` | `Session details` | 122: `test.describe("requested Claude Code effort in Session details", () => {` | |
+| `Distribution/evaluation/cases/guidance-checks/launch-command-tests/overlay/dashboard/tests/sessionsSidebarPage.ts` | `Session details` | 101: `// An entry's Session details, the coarse-input disclosure, and the facts it` | |
+
+### Test support or stand-in
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `dashboard/test-support/boardColumnNavigation.ts` | `activate` | 143: `export async function activateColumnIndicator(page: Page, column: ColumnName) {` | |
+| `dashboard/test-support/boardPage.ts` | `activate` | 28: `activateColumnIndicator,` | |
+| `dashboard/test-support/dashboardParts.ts` | `Session details` | 195: `// The line naming an entry's session, shown once Session details is open.` | |
+| `dashboard/test-support/holdAuthenticatedReads.ts` | `Session details` | 11: `// pattern also serves journeys that observe Session details' reads` | |
+| `dashboard/test-support/intentCiStatusPage.ts` | `activate` | 120: `export async function activateIntentHome(` | |
+| `dashboard/test-support/reviewChangesContext.ts` | `activate` | 3: `// the values' accessible name and shortened to one line until activated. Each` | |
+| `dashboard/test-support/reviewChangesPage.ts` | `activate` | 14: `` // changes, `reviewChangesAfter` activates another control that opens or `` | |
+| `dashboard/test-support/sessionsSidebarPage.ts` | `Session details` | 101: `// An entry's Session details, the coarse-input disclosure, and the facts it` | |
+| `dashboard/test-support/support/browserActivation.ts` | `activate` | 139: `activate: () => {` | |
+| `dashboard/test-support/support/frontendRecentlyDoneStoryCards.ts` | `adHocTitle` | 29: `const adHocTitle = "Open Dough session";` | |
+| `dashboard/test-support/support/launchLandingReview.ts` | `activate` | 11: `` // The review the server answers once `control` is activated. `` | |
+| `dashboard/test-support/support/recentlyDoneFollowUpGrouping.ts` | `openBoard` | 93: `export async function openBoard(` | |
+| `dashboard/test-support/support/reviewContextLine.ts` | `activate` | 2: `// context line in the review details, activated by its values and read by` | |
+| `dashboard/test-support/support/reviewDetails.ts` | `activate` | 59: `// Activates the eye to reveal the details.` | |
+| `dashboard/test-support/support/sessionEntryDisclosure.ts` | `Session details` | 11: `scope.getByRole("button", { name: "Session details", exact: true });` | |
+| `dashboard/test-support/support/terminalVoicePage.ts` | `activate` | 17: `activateTerminalControl,` | |
+| `dashboard/test-support/terminalScreenPage.ts` | `activate` | 121: `export async function activateTerminalControl(` | |
+| `dashboard/test-support/touchTerminalPage.ts` | `activate` | 171: `// when the control is activated.` | |
+| `Distribution/evaluation/cases/delivery-evidence/fixtures/drift-narrowed-plan.md` | `activate` | 21: `The owner operating the activated Sharadar live strategy approves entries from` | |
+| `Distribution/evaluation/cases/delivery-evidence/fixtures/drift-original-story.md` | `activate` | 18: `**Goal.** The owner operating the activated Sharadar live strategy approves` | |
+| `Distribution/evaluation/cases/delivery-evidence/fixtures/release-original-story.md` | `activate` | 27: `reference, image ID, revision and version being activated; UTC timestamps for` | |
+| `Distribution/evaluation/cases/guidance-checks/launch-command-tests/overlay/dashboard/tests/support/sessionEntryDisclosure.ts` | `Session details` | 11: `scope.getByRole("button", { name: "Session details", exact: true });` | |
+
+### Journey or feature
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `e2e/intent/intent-ci-proof-ancestor.spec.ts` | `activate` | 12: `activateIntentHome,` | |
+| `e2e/intent/intent-summary-ci-proof.spec.ts` | `activate` | 22: `import { activateIntentHome } from "../../dashboard/test-support/intentCiStatusPage.ts";` | |
+| `e2e/launches/agent-launch-options.spec.ts` | `Options: --explore --borrow (requested)` | 113: `const recorded = "Options: --explore --borrow (requested)";` | |
+| `e2e/review/story-review-commits.spec.ts` | `activate` | 82: `// Extend to the older commit, then activate again to start its own range.` | |
+| `e2e/review/story-review-context-line.spec.ts` | `activate` | 24: `test("a story review's context line keeps to one line until activated and stays in place", async ({` | |
+| `e2e/runtime/production-watcher-updates.spec.ts` | `activate` | 49: `const state = await journey.activated();` | |
+| `e2e/runtime/production-watcher.spec.ts` | `activate` | 58: `test("npm watcher activates published main and starts the Cursor runner", async () => {` | |
+| `e2e/runtime/productionUpdateJourney.ts` | `activate` | 82: `` // activation through `activated()`, so the shared hook holds only the `` | |
+| `e2e/runtime/productionWatcherMachine.ts` | `activate` | 95: `async activated(pinned: string) {` | |
+| `e2e/sessions/agent-launch-held-revision-after-action.spec.ts` | `onStoryCard` | 56: `const onStoryCard = storyCardSessionOf(story, "Execution");` | |
+| `e2e/sessions/agent-launch-story-card-done.spec.ts` | `onStoryCard` | 59: `const onStoryCard = (workflow: "Execution" \| "Refinement") =>` | |
+| `e2e/sessions/agent-terminal-done-codex-page.spec.ts` | `onCard` | 79: `const doneOnCard = doneSessionEntriesOf(` | |
+| `e2e/sessions/agent-terminal-done-reopen.spec.ts` | `onCard` | 63: `const doneOnCard = doneSessionEntriesOf(page, readyStory);` | |
+| `e2e/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts` | `Session details` | 49: `"Ad hoc completed session with a long title that remains readable in session details";` | |
+| `e2e/sessions/session-management-touch.spec.ts` | `Session details` | 96: `// Coarse Session details: sessions-sidebar-touch` | |
+| `e2e/sessions/sessions-sidebar-navigation.spec.ts` | `onStoryCard` | 78: `const pygardonStoryCard = backlog.getByRole("article", {` | |
+| `e2e/sessions/sessions-sidebar-touch.spec.ts` | `Model: Opus (requested)` | 101: `"Model: Opus (requested)",` | |
+| `e2e/stories/nerds-cartoon-portrait.spec.ts` | `openBoard` | 39: `async function openBoard(page: Page) {` | |
+
+### Guidance reader
+
+| File | Terms matched | First matching line | Disposition |
+| --- | --- | --- | --- |
+| `.agents/skills/dough-makeme/SKILL.md` | `activate` | 16: `` Only the source's selected `makeMe` rule activates it, independently of `` | |
+| `.agents/skills/dough-page-objects/SKILL.md` | `activate` | 16: `` Only the source's selected `pageObjects` rule activates it. Recheck when the `` | |
+| `.claude/skills/dough-makeme/SKILL.md` | `activate` | 16: `` Only the source's selected `makeMe` rule activates it, independently of `` | |
+| `.claude/skills/dough-page-objects/SKILL.md` | `activate` | 16: `` Only the source's selected `pageObjects` rule activates it. Recheck when the `` | |
+| `.planning/evidence/SEED-303-dashboard-test-timings.md` | `activate` | 27: `\| [Production update policies](../../dashboard/tests/runtime/productionUpdatePolicies.ts) \| 8 \| 92.748 \| 31.452 \| Three policy cases activate a new deployment …` | |
+| `.planning/evidence/SEED-303-early-handoff/coverage-map.md` | `activate` | 31: `\| 21 \| npm watcher activates a policy repair that qualifies only through the rejected application's retained paths ([productionUpdatePolicies.ts](../../../dash…` | |
+| `.planning/evidence/SEED-303-early-handoff/source-review.md` | `activate` | 48: `\| SC-39 \| Excluded changes follow the correct baseline. \| slice 3 \| observed: watcher-evidence.md: production-update-selection.spec.ts excluded/accumulated cas…` | |
+| `.planning/evidence/SEED-303-early-handoff/test-timing-breakdown.md` | `activate` | 27: `3. unactivated candidates retry until successful activation advances the baseline` | |
+| `.planning/evidence/SEED-303-early-handoff/watcher-evidence.md` | `activate` | 30: `CLI uses select() and reports activated() only after successful preview startup.` | |
+| `.planning/seeds/SEED-388-measure-and-control-agent-launch-cost.md` | `Session details` | 33: `` (default `medium`) and its Session details name it as requested. `` | |
+| `.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md` | `activate` | 670: `- A developer activates CI comparison from a story's Changes. The panel` | |
+| `.planning/slice-plans/777-open-review-changes-from-a-story-card/PLAN.md` | `activate` | 80: `` \| Current card review takes over the Side panel, and ordinary navigation preserves an already-open panel \| `side-panel-content-switching.spec.ts` and `side-pan… `` | |
+| `.planning/slice-plans/778-speed-intent-revision-and-detour-reading/PLAN.md` | `activate` | 132: `Activate Candidates through its real tab. Keep one adapter only while its` | |
+| `.planning/slice-plans/780-finish-launch-proof-orthogonal/PLAN.md` | `launchSubject` | 323: `` and `StartSession` for their respective launch paths, and `launchSubject` `` | |
+| `.planning/slice-plans/780-finish-launch-proof-orthogonal/source-review.md` | `Session details` | 32: `\| 24 \| Session details show the launch subject’s recorded effort when present. (Scope and recorded-launch example) \| slice 8 \| \|` | |
+| `CHANGELOG.md` | `Session details` | 294: `- Dashboard and test suite (source only): remove local proof reading and runners; make CI status the Intent empty-selection homepage with CI wall time, per-ent…` | |
+| `Distribution/evaluation/cases/guidance-checks/launch-command-tests/overlay/dashboard/AGENT-LAUNCH-SESSION-ENTRIES.md` | `Session details` | 12: `**Session details** retains the host and qualified requested model. It starts` | |
+| `Distribution/src/skills/dough-makeme/SKILL.md` | `activate` | 16: `` Only the source's selected `makeMe` rule activates it, independently of `` | |
+| `Distribution/src/skills/dough-page-objects/SKILL.md` | `activate` | 16: `` Only the source's selected `pageObjects` rule activates it. Recheck when the `` | |
+| `docs/dashboard-board-interaction.md` | `activate` | 10: `cancelled gestures do not page, and a swipe does not activate the story or` | |
+| `docs/maintainer/findings/ODF-074-earlier-evidence.md` | `activate` | 234: `- Observed effect: Generated operational helpers assumed launchctl output and Docker top support, matched an idle builder as active CI, and let a resource prob…` | |
+| `docs/maintainer/findings/ODF-139.md` | `onCard` | 165: `\| Open Dough 311 / G1: detail wording \| Original shared-wording promise requires correction. [Accepted G1](https://github.com/terryyin/open-dough/blob/2f56bd2a…` | |
+| `docs/maintainer/findings/ODF-210.md` | `onCard` | 26: `` - Evidence: `e8a1ef8a:dashboard/src/sessionAccess.ts` returned `"result"` for a record with a message when `!attachOpens(record.sessionState)` or no embedded t… `` | |

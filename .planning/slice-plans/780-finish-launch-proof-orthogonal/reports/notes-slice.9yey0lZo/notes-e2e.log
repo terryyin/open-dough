@@ -1,0 +1,7 @@
+
+> test:e2e
+> playwright test --config e2e/playwright.config.ts e2e/stories/recently-done-follow-up.spec.ts e2e/review/story-review-follow-up.spec.ts e2e/review/story-review-diff-line-follow-up.spec.ts --workers=2 --grep a done story whose sessions cannot be reopened|starting a follow-up with attached notes|Published completion offers file Follow up|line numbers open a Follow up menu
+
+real 32.07
+user 18.70
+sys 9.69

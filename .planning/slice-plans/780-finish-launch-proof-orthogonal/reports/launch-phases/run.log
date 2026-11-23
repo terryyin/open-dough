@@ -1,0 +1,243 @@
+
+> test:dashboard:frontend
+> node scripts/test-frontend.mjs dashboard/frontend-tests/launches --workers=2
+
+[launch-phase] group-entry 73.4
+[launch-phase] selection-done 180.1
+[launch-phase] load-vitest 182.4
+[launch-phase] create-vitest 542.8
+[launch-phase] glob-specs 1623.4
+[launch-phase] parse-specs 1644.0
+[launch-phase] parse-done 2334.2
+[launch-phase] preparation-done 2334.7
+[launch-phase] start-browser 2334.8
+
+ RUN  v5.1.0 /Users/terryyin/git/open-dough/.worktrees/get-launch-unit-proof-in-about-eight-seconds
+
+[launch-phase] run-specs 2335.8
+stdout | dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:22 > Backlog offers execution then refinement with an assessment note when needed, and Taken offers neither
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts","name":"Backlog offers execution then refinement with an assessment note when needed, and Taken offers neither","actions":{"hover":{"count":1,"ms":387.2000000476837},"unhover":{"count":1,"ms":826}}}
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:22 > Backlog offers execution then refinement with an assessment note when needed, and Taken offers neither 1706ms
+stdout | dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:86 > story Starts keep their reading order and visible keyboard focus at narrow and zoomed widths
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts","name":"story Starts keep their reading order and visible keyboard focus at narrow and zoomed widths","actions":{"tab":{"count":4,"ms":506.09999990463257},"keyboard":{"count":4,"ms":425.80000019073486}}}
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:86 > story Starts keep their reading order and visible keyboard focus at narrow and zoomed widths 1611ms
+stdout | dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:43 > the project's refinement offer shows options only on Start refinement
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-refinement-options.spec.ts","name":"the project's refinement offer shows options only on Start refinement","actions":{"click":{"count":6,"ms":3103.2999999523163}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:43 > the project's refinement offer shows options only on Start refinement 3165ms
+stdout | dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:78 > No Approach clears A, keeps C and sends only C on Start
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-refinement-options.spec.ts","name":"No Approach clears A, keeps C and sends only C on Start","actions":{"click":{"count":5,"ms":848.400000333786},"keyboard":{"count":1,"ms":16.100000143051147}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:78 > No Approach clears A, keeps C and sends only C on Start 881ms
+stdout | dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:135 > noted execution and preparing refinement stay readable and distinct from unavailable Starts in both schemes
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts","name":"noted execution and preparing refinement stay readable and distinct from unavailable Starts in both schemes","actions":{"hover":{"count":2,"ms":607},"unhover":{"count":4,"ms":1080.2999999523163},"tab":{"count":4,"ms":193.49999976158142},"click":{"count":2,"ms":367.7000000476837},"keyboard":{"count":2,"ms":19.700000047683716}}}
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts:135 > noted execution and preparing refinement stay readable and distinct from unavailable Starts in both schemes 2858ms
+stdout | dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:103 > a held initial read disables refinement and a held host reread submits no options
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-refinement-options.spec.ts","name":"a held initial read disables refinement and a held host reread submits no options","actions":{"click":{"count":3,"ms":324.7000000476837},"selectOptions":{"count":2,"ms":56.90000009536743}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:103 > a held initial read disables refinement and a held host reread submits no options 532ms
+stdout | dashboard/frontend-tests/launches/story-card-startup.spec.ts:53 > accepted execution without an establishing skill says Starting execution in Claude Code
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-startup.spec.ts","name":"accepted execution without an establishing skill says Starting execution in Claude Code","actions":{"click":{"count":2,"ms":694.2000000476837}}}
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:53 > accepted execution without an establishing skill says Starting execution in Claude Code 852ms
+stdout | dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:132 > a refused selection stays checked until Cancel and is clear when next opened
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-refinement-options.spec.ts","name":"a refused selection stays checked until Cancel and is clear when next opened","actions":{"click":{"count":10,"ms":2298.8999996185303}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-refinement-options.spec.ts:132 > a refused selection stays checked until Cancel and is clear when next opened 2316ms
+stdout | dashboard/frontend-tests/launches/story-card-startup.spec.ts:69 > accepted execution with an establishing skill says Preparing until the attempt settles
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-startup.spec.ts","name":"accepted execution with an establishing skill says Preparing until the attempt settles","actions":{"click":{"count":2,"ms":363.60000014305115}}}
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:69 > accepted execution with an establishing skill says Preparing until the attempt settles 464ms
+stdout | dashboard/frontend-tests/launches/story-card-startup.spec.ts:110 > accepted refinement without an establishing skill says Starting refinement in Claude Code
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-startup.spec.ts","name":"accepted refinement without an establishing skill says Starting refinement in Claude Code","actions":{"click":{"count":2,"ms":631.7999999523163}}}
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:110 > accepted refinement without an establishing skill says Starting refinement in Claude Code 656ms
+stdout | dashboard/frontend-tests/launches/story-card-startup.spec.ts:128 > a missing folder explanation stays below Start execution and focus returns to that offer
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-startup.spec.ts","name":"a missing folder explanation stays below Start execution and focus returns to that offer","actions":{"click":{"count":2,"ms":455.7000000476837}}}
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:128 > a missing folder explanation stays below Start execution and focus returns to that offer 472ms
+stdout | dashboard/frontend-tests/launches/story-card-startup.spec.ts:149 > a refinement refusal describes Start refinement alone and sits below both desktop offers
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-startup.spec.ts","name":"a refinement refusal describes Start refinement alone and sits below both desktop offers","actions":{"click":{"count":2,"ms":437.30000019073486}}}
+stdout | dashboard/frontend-tests/launches/story-card-startup.spec.ts:170 > a progressing startup with no worker phase names its host and workflow, and Preparing when the installed skill establishes the start
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-startup.spec.ts","name":"a progressing startup with no worker phase names its host and workflow, and Preparing when the installed skill establishes the start","actions":{}}
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:149 > a refinement refusal describes Start refinement alone and sits below both desktop offers 457ms
+ ✓ |chromium-desktop| dashboard/frontend-tests/launches/story-card-startup.spec.ts:170 > a progressing startup with no worker phase names its host and workflow, and Preparing when the installed skill establishes the start 32ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-launch-dialog.spec.ts:17 > the instruction comes first, tabs in order, and the options disclosure keeps its summarized selection
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-launch-dialog.spec.ts","name":"the instruction comes first, tabs in order, and the options disclosure keeps its summarized selection","actions":{"click":{"count":7,"ms":1862.3000001907349},"tab":{"count":10,"ms":461.4000005722046}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-launch-dialog.spec.ts:17 > the instruction comes first, tabs in order, and the options disclosure keeps its summarized selection 2357ms
+stdout | dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:12 > Cancel and Escape each abandon a held transcription and a late reply leaves the next dialog empty
+[launch-actions] {"file":"dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts","name":"Cancel and Escape each abandon a held transcription and a late reply leaves the next dialog empty","actions":{"click":{"count":8,"ms":1649.5999999046326},"fill":{"count":2,"ms":129.10000014305115},"keyboard":{"count":1,"ms":65.30000019073486}}}
+stdout | dashboard/frontend-tests/launches/ad-hoc-launch-dialog.spec.ts:94 > with every option selected, Command details list every flag; Host stacks above Model at 320 pixels and sits beside it at 200% zoom, with every option and action reachable
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-launch-dialog.spec.ts","name":"with every option selected, Command details list every flag; Host stacks above Model at 320 pixels and sits beside it at 200% zoom, with every option and action reachable","actions":{"click":{"count":13,"ms":3449.0000007152557}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-launch-dialog.spec.ts:94 > with every option selected, Command details list every flag; Host stacks above Model at 320 pixels and sits beside it at 200% zoom, with every option and action reachable 3640ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:12 > Cancel and Escape each abandon a held transcription and a late reply leaves the next dialog empty 2378ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts:40 > Start session tabs from instruction through session choices and closed command details to Start
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts","name":"Start session tabs from instruction through session choices and closed command details to Start","actions":{"click":{"count":2,"ms":500.19999980926514},"tab":{"count":10,"ms":456.59999990463257}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts:40 > Start session tabs from instruction through session choices and closed command details to Start 978ms
+stdout | dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:49 > Escape stops active recording and late permission after either dismissal cannot populate the next dialog
+[launch-actions] {"file":"dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts","name":"Escape stops active recording and late permission after either dismissal cannot populate the next dialog","actions":{"click":{"count":8,"ms":1382.4000000953674},"keyboard":{"count":2,"ms":78.79999995231628},"fill":{"count":2,"ms":15.599999904632568}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:49 > Escape stops active recording and late permission after either dismissal cannot populate the next dialog 1500ms
+stdout | dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:94 > unexpected microphone track end keeps the typed draft editable without requesting transcription
+[launch-actions] {"file":"dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts","name":"unexpected microphone track end keeps the typed draft editable without requesting transcription","actions":{"click":{"count":2,"ms":303.40000009536743},"fill":{"count":1,"ms":18.299999952316284}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice.spec.ts:94 > unexpected microphone track end keeps the typed draft editable without requesting transcription 405ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts:73 > Start session with automatic landing wraps both choices at 320 pixels and keeps them side by side at 200% zoom, with each workspace's effects and both actions in view
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts","name":"Start session with automatic landing wraps both choices at 320 pixels and keeps them side by side at 200% zoom, with each workspace's effects and both actions in view","actions":{"click":{"count":7,"ms":1466.7999997138977}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts:73 > Start session with automatic landing wraps both choices at 320 pixels and keeps them side by side at 200% zoom, with each workspace's effects and both actions in view 2195ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts:118 > Start session explains unavailable choices without clipping them and keeps both actions reachable at 320 pixels and at 200% zoom
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts","name":"Start session explains unavailable choices without clipping them and keeps both actions reachable at 320 pixels and at 200% zoom","actions":{"click":{"count":1,"ms":107.90000009536743}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-layout.spec.ts:118 > Start session explains unavailable choices without clipping them and keeps both actions reachable at 320 pixels and at 200% zoom 338ms
+stdout | dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:87 > Follow up defaults to waiting notes, Start sends the selected choice, and Cancel sends nothing
+[launch-actions] {"file":"dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts","name":"Follow up defaults to waiting notes, Start sends the selected choice, and Cancel sends nothing","actions":{"click":{"count":7,"ms":1126.2999999523163}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:87 > Follow up defaults to waiting notes, Start sends the selected choice, and Cancel sends nothing 1140ms
+stdout | dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:150 > a follow-up with no waiting notes explains why Attach is unavailable and Start still works
+[launch-actions] {"file":"dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts","name":"a follow-up with no waiting notes explains why Attach is unavailable and Start still works","actions":{"click":{"count":2,"ms":482.90000009536743}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:150 > a follow-up with no waiting notes explains why Attach is unavailable and Start still works 488ms
+stdout | dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:154 > a follow-up with unreadable notes explains why Attach is unavailable and Start still works
+[launch-actions] {"file":"dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts","name":"a follow-up with unreadable notes explains why Attach is unavailable and Start still works","actions":{"click":{"count":2,"ms":320.2999999523163}}}
+stdout | dashboard/frontend-tests/launches/launch-model-effort.spec.ts:29 > Claude names its default and relative effort costs, and Start submits the effort shown
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-model-effort.spec.ts","name":"Claude names its default and relative effort costs, and Start submits the effort shown","actions":{"click":{"count":2,"ms":299.2000000476837},"selectOptions":{"count":3,"ms":129.90000009536743}}}
+stdout | dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:161 > a Taken card shows notes waiting and offers no story Follow up
+[launch-actions] {"file":"dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts","name":"a Taken card shows notes waiting and offers no story Follow up","actions":{}}
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:154 > a follow-up with unreadable notes explains why Attach is unavailable and Start still works 325ms
+ ✓ |chromium| dashboard/frontend-tests/launches/follow-up-note-handoff.spec.ts:161 > a Taken card shows notes waiting and offers no story Follow up 84ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:29 > Claude names its default and relative effort costs, and Start submits the effort shown 504ms
+stdout | dashboard/frontend-tests/launches/launch-model-effort.spec.ts:73 > changing hosts resets model and effort to each host's default, and Start sends the chosen Codex model and effort
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-model-effort.spec.ts","name":"changing hosts resets model and effort to each host's default, and Start sends the chosen Codex model and effort","actions":{"selectOptions":{"count":7,"ms":82.20000004768372},"click":{"count":1,"ms":276.2000000476837}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:73 > changing hosts resets model and effort to each host's default, and Start sends the chosen Codex model and effort 432ms
+stdout | dashboard/frontend-tests/launches/launch-model-effort.spec.ts:104 > dismissing with Cancel or Escape resets the chosen model and effort when the dialog opens again
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-model-effort.spec.ts","name":"dismissing with Cancel or Escape resets the chosen model and effort when the dialog opens again","actions":{"selectOptions":{"count":4,"ms":36.40000009536743},"click":{"count":1,"ms":54.59999990463257},"keyboard":{"count":1,"ms":50}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:104 > dismissing with Cancel or Escape resets the chosen model and effort when the dialog opens again 255ms
+stdout | dashboard/frontend-tests/launches/mounted-instruction-voice-overflow.spec.ts:9 > an over-limit recording blocks Start and Record until its review is added, and Start sends the final edit
+[launch-actions] {"file":"dashboard/frontend-tests/launches/mounted-instruction-voice-overflow.spec.ts","name":"an over-limit recording blocks Start and Record until its review is added, and Start sends the final edit","actions":{"click":{"count":5,"ms":639.6999998092651},"fill":{"count":3,"ms":22.90000009536743}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice-overflow.spec.ts:9 > an over-limit recording blocks Start and Record until its review is added, and Start sends the final edit 680ms
+stdout | dashboard/frontend-tests/launches/launch-model-effort.spec.ts:136 > story card execution and refinement close their dialog on dismissal and return focus without starting
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-model-effort.spec.ts","name":"story card execution and refinement close their dialog on dismissal and return focus without starting","actions":{"click":{"count":3,"ms":400.2999999523163},"keyboard":{"count":1,"ms":48.19999980926514}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:136 > story card execution and refinement close their dialog on dismissal and return focus without starting 463ms
+stdout | dashboard/frontend-tests/launches/launch-model-effort.spec.ts:145 > Start session closes its dialog on dismissal and returns focus without starting
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-model-effort.spec.ts","name":"Start session closes its dialog on dismissal and returns focus without starting","actions":{"click":{"count":2,"ms":190.20000004768372}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:145 > Start session closes its dialog on dismissal and returns focus without starting 195ms
+stdout | dashboard/frontend-tests/launches/launch-model-effort.spec.ts:162 > refinement without options tabs from instruction through launch choices to Start
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-model-effort.spec.ts","name":"refinement without options tabs from instruction through launch choices to Start","actions":{"click":{"count":1,"ms":137.90000009536743},"tab":{"count":9,"ms":339.0000002384186}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-model-effort.spec.ts:162 > refinement without options tabs from instruction through launch choices to Start 505ms
+stdout | dashboard/frontend-tests/launches/mounted-instruction-voice-overflow.spec.ts:43 > Discard in review keeps the draft focused, and Escape in review leaves the reopened dialog empty
+[launch-actions] {"file":"dashboard/frontend-tests/launches/mounted-instruction-voice-overflow.spec.ts","name":"Discard in review keeps the draft focused, and Escape in review leaves the reopened dialog empty","actions":{"click":{"count":6,"ms":795.7000002861023},"fill":{"count":1,"ms":6.8999998569488525},"tab":{"count":1,"ms":27.299999952316284},"keyboard":{"count":2,"ms":62.799999952316284}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice-overflow.spec.ts:43 > Discard in review keeps the draft focused, and Escape in review leaves the reopened dialog empty 1004ms
+stdout | dashboard/frontend-tests/launches/launch-attachments.spec.ts:69 > pasting text into the instruction inserts it without attaching an image
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-attachments.spec.ts","name":"pasting text into the instruction inserts it without attaching an image","actions":{"click":{"count":1,"ms":239.20000004768372},"fill":{"count":2,"ms":33.09999966621399},"keyboard":{"count":3,"ms":97.60000038146973}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:69 > pasting text into the instruction inserts it without attaching an image 422ms
+stdout | dashboard/frontend-tests/launches/launch-attachments.spec.ts:84 > refused images explain why, keep the draft, and leave only accepted images for Start
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-attachments.spec.ts","name":"refused images explain why, keep the draft, and leave only accepted images for Start","actions":{"click":{"count":2,"ms":310.2999999523163},"fill":{"count":1,"ms":4}}}
+stdout | dashboard/frontend-tests/launches/mounted-instruction-voice-capture-failures.spec.ts:42 > permission refusal makes no transcription request and an explicit retry works in the same dialog
+[launch-actions] {"file":"dashboard/frontend-tests/launches/mounted-instruction-voice-capture-failures.spec.ts","name":"permission refusal makes no transcription request and an explicit retry works in the same dialog","actions":{"click":{"count":5,"ms":899.8999998569489},"fill":{"count":2,"ms":37.40000009536743}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:84 > refused images explain why, keep the draft, and leave only accepted images for Start 349ms
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice-capture-failures.spec.ts:42 > permission refusal makes no transcription request and an explicit retry works in the same dialog 993ms
+stdout | dashboard/frontend-tests/launches/launch-attachments.spec.ts:175 > Cancel after attaching uploads nothing and opens an empty draft next time
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-attachments.spec.ts","name":"Cancel after attaching uploads nothing and opens an empty draft next time","actions":{"click":{"count":3,"ms":357.7000000476837},"fill":{"count":1,"ms":4.799999952316284}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:175 > Cancel after attaching uploads nothing and opens an empty draft next time 381ms
+stdout | dashboard/frontend-tests/launches/mounted-instruction-voice-capture-failures.spec.ts:58 > an unavailable device and an unsupported recording format make no transcription request and typed Start works in the same dialog
+[launch-actions] {"file":"dashboard/frontend-tests/launches/mounted-instruction-voice-capture-failures.spec.ts","name":"an unavailable device and an unsupported recording format make no transcription request and typed Start works in the same dialog","actions":{"click":{"count":4,"ms":389.0000002384186},"fill":{"count":2,"ms":29}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/mounted-instruction-voice-capture-failures.spec.ts:58 > an unavailable device and an unsupported recording format make no transcription request and typed Start works in the same dialog 450ms
+stdout | dashboard/frontend-tests/launches/launch-attachments.spec.ts:178 > Escape after attaching uploads nothing and opens an empty draft next time
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-attachments.spec.ts","name":"Escape after attaching uploads nothing and opens an empty draft next time","actions":{"click":{"count":2,"ms":433.2999999523163},"fill":{"count":1,"ms":31.899999856948853},"keyboard":{"count":1,"ms":106.70000004768372}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-attachments.spec.ts:178 > Escape after attaching uploads nothing and opens an empty draft next time 598ms
+stdout | dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:39 > Start execution names the story, host and command, then Escape and Cancel restore the offer without starting
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts","name":"Start execution names the story, host and command, then Escape and Cancel restore the offer without starting","actions":{"click":{"count":3,"ms":734.4000000953674},"fill":{"count":2,"ms":500.19999980926514},"keyboard":{"count":1,"ms":62}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:39 > Start execution names the story, host and command, then Escape and Cancel restore the offer without starting 1398ms
+stdout | dashboard/frontend-tests/launches/responsive-unattached-startup.spec.ts:131 > a blank keyboard start presents its terminal without taking focus from another task
+[launch-actions] {"file":"dashboard/frontend-tests/launches/responsive-unattached-startup.spec.ts","name":"a blank keyboard start presents its terminal without taking focus from another task","actions":{"keyboard":{"count":2,"ms":216.5},"tab":{"count":11,"ms":690.8999998569489}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/responsive-unattached-startup.spec.ts:131 > a blank keyboard start presents its terminal without taking focus from another task 1078ms
+stdout | dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:55 > Start refinement names the story, host and command, then Escape and Cancel restore the offer without starting
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts","name":"Start refinement names the story, host and command, then Escape and Cancel restore the offer without starting","actions":{"click":{"count":3,"ms":427.0000002384186},"fill":{"count":2,"ms":14.900000095367432},"keyboard":{"count":1,"ms":64.09999990463257}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:55 > Start refinement names the story, host and command, then Escape and Cancel restore the offer without starting 522ms
+stdout | dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:71 > only execution on a project whose installed skill establishes a start names the Take and workspace
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts","name":"only execution on a project whose installed skill establishes a start names the Take and workspace","actions":{"click":{"count":3,"ms":355.89999985694885}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:71 > only execution on a project whose installed skill establishes a start names the Take and workspace 376ms
+stdout | dashboard/frontend-tests/launches/responsive-unattached-startup.spec.ts:140 > an instructed keyboard start leaves the terminal closed and keeps the other task focused
+[launch-actions] {"file":"dashboard/frontend-tests/launches/responsive-unattached-startup.spec.ts","name":"an instructed keyboard start leaves the terminal closed and keeps the other task focused","actions":{"keyboard":{"count":3,"ms":176.40000009536743},"tab":{"count":11,"ms":452.09999990463257}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/responsive-unattached-startup.spec.ts:140 > an instructed keyboard start leaves the terminal closed and keeps the other task focused 702ms
+stdout | dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:95 > execution without an establishing skill gives no Take or workspace promise
+[launch-actions] {"file":"dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts","name":"execution without an establishing skill gives no Take or workspace promise","actions":{"click":{"count":1,"ms":133.90000009536743}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/story-card-launch-dialogs.spec.ts:95 > execution without an establishing skill gives no Take or workspace promise 140ms
+stdout | dashboard/frontend-tests/launches/startup-recovery-reads.spec.ts:29 > story starts wait for launch evidence while inspection works and an unanswered read can be rechecked
+[launch-actions] {"file":"dashboard/frontend-tests/launches/startup-recovery-reads.spec.ts","name":"story starts wait for launch evidence while inspection works and an unanswered read can be rechecked","actions":{"click":{"count":2,"ms":485.7000000476837}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery-reads.spec.ts:29 > story starts wait for launch evidence while inspection works and an unanswered read can be rechecked 767ms
+stdout | dashboard/frontend-tests/launches/startup-recovery-reads.spec.ts:71 > a lost acceptance stays static through an unsuccessful recheck and progresses when a later read confirms it
+[launch-actions] {"file":"dashboard/frontend-tests/launches/startup-recovery-reads.spec.ts","name":"a lost acceptance stays static through an unsuccessful recheck and progresses when a later read confirms it","actions":{"click":{"count":4,"ms":792.599999666214}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery-reads.spec.ts:71 > a lost acceptance stays static through an unsuccessful recheck and progresses when a later read confirms it 1273ms
+stdout | dashboard/frontend-tests/launches/responsive-story-startup.spec.ts:26 > a keyboard start protects the selected story, announces each transition once, and leaves the next inspection focused
+[launch-actions] {"file":"dashboard/frontend-tests/launches/responsive-story-startup.spec.ts","name":"a keyboard start protects the selected story, announces each transition once, and leaves the next inspection focused","actions":{"keyboard":{"count":5,"ms":868.6999998092651},"click":{"count":1,"ms":288.2999999523163},"tab":{"count":13,"ms":846.3000001907349}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/responsive-story-startup.spec.ts:26 > a keyboard start protects the selected story, announces each transition once, and leaves the next inspection focused 2417ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:76 > Start session is opposite the direction, beside preparation help, named for the selected project and hidden with its roster
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts","name":"Start session is opposite the direction, beside preparation help, named for the selected project and hidden with its roster","actions":{}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:76 > Start session is opposite the direction, beside preparation help, named for the selected project and hidden with its roster 365ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:106 > Start session stays enabled with no published work, the input while its initial read is pending or has failed
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts","name":"Start session stays enabled with no published work, the input while its initial read is pending or has failed","actions":{}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:106 > Start session stays enabled with no published work, the input while its initial read is pending or has failed 11ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:187 > the Start session progress and direction stay readable in whole words on a phone
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts","name":"the Start session progress and direction stay readable in whole words on a phone","actions":{}}
+stdout | dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts:13 > Start session names the project and host, focuses an empty instruction, and Escape and Cancel return focus without sending
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts","name":"Start session names the project and host, focuses an empty instruction, and Escape and Cancel return focus without sending","actions":{"click":{"count":3,"ms":808.4000000953674},"fill":{"count":1,"ms":111.39999985694885},"keyboard":{"count":1,"ms":61.90000009536743}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:187 > the Start session progress and direction stay readable in whole words on a phone 275ms
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts:13 > Start session names the project and host, focuses an empty instruction, and Escape and Cancel return focus without sending 1030ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts:51 > an instructed Start session sends the draft, hands focus to progress, and restores the launcher after startup
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts","name":"an instructed Start session sends the draft, hands focus to progress, and restores the launcher after startup","actions":{"click":{"count":2,"ms":219},"fill":{"count":1,"ms":14.5}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session.spec.ts:51 > an instructed Start session sends the draft, hands focus to progress, and restores the launcher after startup 300ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:202 > the refusal and direction retain their room when opened, closed and rotated by touch
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts","name":"the refusal and direction retain their room when opened, closed and rotated by touch","actions":{}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-start-session-answer.spec.ts:202 > the refusal and direction retain their room when opened, closed and rotated by touch 452ms
+stdout | dashboard/frontend-tests/launches/ad-hoc-refinement-touch.spec.ts:13 > touch rotation and restricted height preserve the refinement draft and choices
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-refinement-touch.spec.ts","name":"touch rotation and restricted height preserve the refinement draft and choices","actions":{"fill":{"count":1,"ms":118.59999990463257}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-refinement-touch.spec.ts:13 > touch rotation and restricted height preserve the refinement draft and choices 1322ms
+stdout | dashboard/frontend-tests/launches/launch-record-details.spec.ts:56 > refinement cards independently show requested options and model across all four recorded combinations
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-record-details.spec.ts","name":"refinement cards independently show requested options and model across all four recorded combinations","actions":{"keyboard":{"count":4,"ms":456.0000002384186}}}
+stdout | dashboard/frontend-tests/launches/transcript-review.spec.ts:12 > a transcript fits when draft, separator and transcript total at most 4,000 characters
+[launch-actions] {"file":"dashboard/frontend-tests/launches/transcript-review.spec.ts","name":"a transcript fits when draft, separator and transcript total at most 4,000 characters","actions":{}}
+ ✓ |chromium| dashboard/frontend-tests/launches/transcript-review.spec.ts:12 > a transcript fits when draft, separator and transcript total at most 4,000 characters 1ms
+stdout | dashboard/frontend-tests/launches/transcript-review.spec.ts:44 > a blank edit cannot be added and keyboard shortening adds the edited transcript once
+[launch-actions] {"file":"dashboard/frontend-tests/launches/transcript-review.spec.ts","name":"a blank edit cannot be added and keyboard shortening adds the edited transcript once","actions":{"fill":{"count":2,"ms":37.39999985694885},"tab":{"count":1,"ms":46.09999990463257},"keyboard":{"count":1,"ms":11.5}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-record-details.spec.ts:56 > refinement cards independently show requested options and model across all four recorded combinations 1166ms
+ ✓ |chromium| dashboard/frontend-tests/launches/transcript-review.spec.ts:44 > a blank edit cannot be added and keyboard shortening adds the edited transcript once 181ms
+stdout | dashboard/frontend-tests/launches/transcript-review.spec.ts:86 > the full well-over transcript stays editable and Discard adds nothing
+[launch-actions] {"file":"dashboard/frontend-tests/launches/transcript-review.spec.ts","name":"the full well-over transcript stays editable and Discard adds nothing","actions":{"tab":{"count":1,"ms":19.600000143051147},"keyboard":{"count":1,"ms":3.700000047683716}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/transcript-review.spec.ts:86 > the full well-over transcript stays editable and Discard adds nothing 94ms
+stdout | dashboard/frontend-tests/launches/launch-record-details.spec.ts:103 > execution and ad hoc model labels appear in their own Board entries and sidebar, with effort only when recorded
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-record-details.spec.ts","name":"execution and ad hoc model labels appear in their own Board entries and sidebar, with effort only when recorded","actions":{"keyboard":{"count":2,"ms":115.40000009536743},"click":{"count":1,"ms":522.5}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-record-details.spec.ts:103 > execution and ad hoc model labels appear in their own Board entries and sidebar, with effort only when recorded 791ms
+stdout | dashboard/frontend-tests/launches/startup-recovery.spec.ts:40 > an uncertain attempt keeps its last answer and points Continue at the host's native check
+[launch-actions] {"file":"dashboard/frontend-tests/launches/startup-recovery.spec.ts","name":"an uncertain attempt keeps its last answer and points Continue at the host's native check","actions":{}}
+stdout | dashboard/frontend-tests/launches/startup-recovery.spec.ts:86 > Cursor recovery offers Recheck and Continue without another host's native-check advice
+[launch-actions] {"file":"dashboard/frontend-tests/launches/startup-recovery.spec.ts","name":"Cursor recovery offers Recheck and Continue without another host's native-check advice","actions":{}}
+stdout | dashboard/frontend-tests/launches/startup-recovery.spec.ts:118 > a lost acknowledgment offers only Recheck, and unanswered evidence offers Recheck launch evidence
+[launch-actions] {"file":"dashboard/frontend-tests/launches/startup-recovery.spec.ts","name":"a lost acknowledgment offers only Recheck, and unanswered evidence offers Recheck launch evidence","actions":{}}
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery.spec.ts:40 > an uncertain attempt keeps its last answer and points Continue at the host's native check 31ms
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery.spec.ts:86 > Cursor recovery offers Recheck and Continue without another host's native-check advice 28ms
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery.spec.ts:118 > a lost acknowledgment offers only Recheck, and unanswered evidence offers Recheck launch evidence 11ms
+stdout | dashboard/frontend-tests/launches/launch-native-effort.spec.ts:13 > Codex model changes preserve compatible effort and keep incompatible effort invalid with linked feedback
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-native-effort.spec.ts","name":"Codex model changes preserve compatible effort and keep incompatible effort invalid with linked feedback","actions":{"selectOptions":{"count":6,"ms":367}}}
+stdout | dashboard/frontend-tests/launches/startup-recovery.spec.ts:164 > an accepted start hands focus to its protected story and a later uncertain outcome belongs in recovery
+[launch-actions] {"file":"dashboard/frontend-tests/launches/startup-recovery.spec.ts","name":"an accepted start hands focus to its protected story and a later uncertain outcome belongs in recovery","actions":{"click":{"count":2,"ms":398.2999997138977}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-native-effort.spec.ts:13 > Codex model changes preserve compatible effort and keep incompatible effort invalid with linked feedback 375ms
+ ✓ |chromium| dashboard/frontend-tests/launches/startup-recovery.spec.ts:164 > an accepted start hands focus to its protected story and a later uncertain outcome belongs in recovery 639ms
+stdout | dashboard/frontend-tests/launches/launch-native-effort.spec.ts:41 > an unknown configured Codex model leaves defaults usable and Start visible at narrow and zoomed widths
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-native-effort.spec.ts","name":"an unknown configured Codex model leaves defaults usable and Start visible at narrow and zoomed widths","actions":{"selectOptions":{"count":2,"ms":248.79999995231628},"keyboard":{"count":1,"ms":14.699999809265137}}}
+stdout | dashboard/frontend-tests/launches/launch-native-effort.spec.ts:73 > Cursor refuses an effort the chosen model does not list until a listed effort is chosen
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-native-effort.spec.ts","name":"Cursor refuses an effort the chosen model does not list until a listed effort is chosen","actions":{}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-native-effort.spec.ts:41 > an unknown configured Codex model leaves defaults usable and Start visible at narrow and zoomed widths 481ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-native-effort.spec.ts:73 > Cursor refuses an effort the chosen model does not list until a listed effort is chosen 0ms
+stdout | dashboard/frontend-tests/launches/launch-host-catalog.spec.ts:13 > a held Codex read keeps Start available and a failed read offers retry without moving instruction focus
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-host-catalog.spec.ts","name":"a held Codex read keeps Start available and a failed read offers retry without moving instruction focus","actions":{"click":{"count":1,"ms":355.2999999523163}}}
+stdout | dashboard/frontend-tests/launches/ad-hoc-creation-entry.spec.ts:9 > an unresolved creation names its stand-in host and displays the supplied inspection arguments
+[launch-actions] {"file":"dashboard/frontend-tests/launches/ad-hoc-creation-entry.spec.ts","name":"an unresolved creation names its stand-in host and displays the supplied inspection arguments","actions":{}}
+ ✓ |chromium| dashboard/frontend-tests/launches/ad-hoc-creation-entry.spec.ts:9 > an unresolved creation names its stand-in host and displays the supplied inspection arguments 4ms
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-host-catalog.spec.ts:13 > a held Codex read keeps Start available and a failed read offers retry without moving instruction focus 522ms
+stdout | dashboard/frontend-tests/launches/launch-host-catalog.spec.ts:51 > switching host aborts the old catalog and a late Codex answer leaves Claude choices intact
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-host-catalog.spec.ts","name":"switching host aborts the old catalog and a late Codex answer leaves Claude choices intact","actions":{"selectOptions":{"count":2,"ms":19.59999966621399},"fill":{"count":1,"ms":4.3999998569488525},"keyboard":{"count":1,"ms":71.70000004768372}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-host-catalog.spec.ts:51 > switching host aborts the old catalog and a late Codex answer leaves Claude choices intact 255ms
+stdout | dashboard/frontend-tests/launches/launch-host-catalog.spec.ts:71 > switching project aborts the old catalog and its late answer leaves the current project's models intact
+[launch-actions] {"file":"dashboard/frontend-tests/launches/launch-host-catalog.spec.ts","name":"switching project aborts the old catalog and its late answer leaves the current project's models intact","actions":{"fill":{"count":1,"ms":189.10000014305115},"keyboard":{"count":1,"ms":108.79999995231628}}}
+ ✓ |chromium| dashboard/frontend-tests/launches/launch-host-catalog.spec.ts:71 > switching project aborts the old catalog and its late answer leaves the current project's models intact 632ms
+
+ Test Files  24 passed (24)
+      Tests  71 passed (71)
+   Start at  08:53:26
+   Duration  42.93s (tests 73%, import 20%, worker 5%, setup 2%)
+
+JSON report written to /Users/terryyin/git/open-dough/.worktrees/get-launch-unit-proof-in-about-eight-seconds/dashboard/frontend-tests/test-results/vitest-2026-11-23T00-53-24.105Z-78512/vitest.json
+[launch-phase] specs-done 45268.0
+[launch-phase] browser-run-done 45268.4
+[launch-phase] report-written 45269.2
+real 46.15
+user 27.04
+sys 7.65
