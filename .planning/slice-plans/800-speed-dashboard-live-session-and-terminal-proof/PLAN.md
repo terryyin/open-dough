@@ -211,7 +211,7 @@ E2E remain at their existing boundary. See `slice-3-mapping.md` and
 ### 4. Final and unread reports stay readable under held or cancelled answers
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `sessions/final-report-touch`, `sessions/final-report-touch-divider`,
 `sessions/session-unread-report-message`, and
@@ -226,6 +226,16 @@ in reach through resize and rotation; Escape restores focus; the divider stays
 after touch. Changing selection cancels a held report so its text never
 appears as the next session. An unread message marks read beside its own Mark
 as done without scrolling either control away.
+
+**Accepted implementation proof.** Eight named cases passed in 7.225 s
+wall at two workers, including the responsive touch and divider
+observations. The held response was aborted and resolved late without
+replacing the current report. Typed refusal and success drove actual
+record replacement for unread messages. The 50 mounted consumer cases,
+26 existing native report and session E2E cases (74.504 s), and dashboard
+typecheck passed. No E2E cases were added. The now-unused legacy
+final-report session wrapper was removed. See `slice-4-mapping.md` and
+`slice-4-return.md` in the worktree's Git evidence.
 
 ### 5. Live listing reads keep sessions through retry, pace, history, and Cursor demand
 

@@ -106,12 +106,18 @@ export async function mountSessionCards({
   reading,
   deleteRecord,
   markDone,
+  markRead,
+  readFinalReport,
   openTerminal,
+  viewport = { width: 1200, height: 840 },
   otherProjects = [],
 }: {
   reading: MachineSessionsRead;
   deleteRecord?: MachineReadSource["deleteRecord"];
   markDone?: MachineReadSource["markDone"];
+  markRead?: MachineReadSource["markRead"];
+  readFinalReport?: SessionServices["readFinalReport"];
+  viewport?: { width: number; height: number };
   openTerminal?: SessionServices["openTerminal"];
   otherProjects?: readonly PublishedWork[];
 }) {
@@ -134,9 +140,11 @@ export async function mountSessionCards({
       readSessionsSince,
       deleteRecord: deleteRecord ?? defaults.machine.deleteRecord,
       markDone: markDone ?? defaults.machine.markDone,
+      markRead: markRead ?? defaults.machine.markRead,
     },
     sessions: {
       ...defaults.sessions,
+      readFinalReport: readFinalReport ?? defaults.sessions.readFinalReport,
       readHostStatus: () =>
         Promise.resolve(
           makeMe.aHostStatus
@@ -157,7 +165,7 @@ export async function mountSessionCards({
         onDashboardReady: () => undefined,
       }),
     }),
-    { viewport: { width: 1200, height: 840 }, fillsViewport: true },
+    { viewport, fillsViewport: true },
   );
   return {
     readSessionsSince,

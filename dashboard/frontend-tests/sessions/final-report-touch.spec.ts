@@ -1,184 +1,147 @@
-// Unfinished retained report UI against controlled result and done answers:
-// touch reading, choice focus, Escape restoration and the panel shortcut.
-// Persistence, native passivity and Done rename stay in
-// ../../../e2e/sessions/final-report-done-native.spec.ts.
-
-import {
-  closeSidePanel,
-  control,
-  expectTitleOnOneCutLine,
-} from "../../test-support/sidePanelFrame.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { useTouchScreen } from "../navigation/board-touch-page.ts";
 import {
   defaultReportText,
-  openFrontendUnfinishedReport,
+  mountUnfinishedReport,
   unfinishedReportTitle,
-} from "../../test-support/support/frontendFinalReportSession.ts";
-import { keepOpen, markAsDone } from "../../test-support/support/markDone.ts";
-import { finalReportParts } from "../../test-support/finalReportPages.ts";
+} from "./final-report-mount.ts";
 import {
-  expectTopBarsShareHeight,
-  tapWhereShown,
-  pressWhereShown,
-} from "../../test-support/pageLayout.ts";
-import {
-  readReportByTouch,
+  close,
+  expectReportSessionName,
+  expectReportText,
+  keep,
+  mark,
+  markAnyway,
+  openReport,
+  panel,
+  pressReport,
+  question,
+  questionText,
+  readByTouch,
   reportGeometry,
-} from "../../test-support/support/reportTouchPage.ts";
-import { resizeUntilArranged } from "../../test-support/sidePanelWidthPage.ts";
-import { sessionStateOf } from "../../test-support/dashboardPage.ts";
+  reportOpener,
+  reportText,
+  showReportAt,
+  touchReport,
+} from "./final-report-page.ts";
 
-const questionWords =
-  "This session reported unfinished work. Mark it done anyway?";
-
-{
-  const height = 320;
-  test.describe(`short phone ${height}`, () => {
-    test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
-    test("reads the question and touches each full choice through resize and rotation", async ({
-      page,
-      frontendServices,
-    }) => {
-      const { open } = await openFrontendUnfinishedReport(
-        page,
-        frontendServices,
-      );
-      const { panel, reportText, names, sessionName, shownSessionId } =
-        finalReportParts(page);
-      await expect(
-        panel.getByRole("heading", { name: unfinishedReportTitle }),
-      ).toHaveAccessibleName(unfinishedReportTitle);
-      await expect(sessionName).toHaveText(/ session$/);
-      await expect(shownSessionId).toHaveCount(0);
-      await resizeUntilArranged(panel, { width: 390, height });
-      const titleToggle = names.getByRole("button", {
-        name: unfinishedReportTitle,
-        exact: true,
-      });
-      await expectTitleOnOneCutLine(titleToggle);
-      const reading = sessionStateOf(page.locator(".page-column"));
-      await expect(reading).toHaveText("Ready for review");
-      await expectTopBarsShareHeight(page, 2);
-      const mark = markAsDone(panel.locator(".side-panel-header"));
-      const question = panel.getByRole("group", {
-        name: questionWords,
-        exact: true,
-      });
-      const markAnyway = markAsDone(question);
-      const keep = keepOpen(question);
-      await readReportByTouch(panel, mark);
-      await tapWhereShown(mark);
-      await expect(question).toBeVisible();
-      await expect(keep).toBeFocused();
-      await readReportByTouch(panel, markAnyway);
-      await readReportByTouch(panel, keep);
-      await readReportByTouch(panel, question.getByRole("paragraph").first());
-      for (const view of [
-        { width: 390, height: 240 },
-        { width: 390, height: 844 },
-        { width: 844, height: 390 },
-        { width: 390, height },
-      ]) {
-        await resizeUntilArranged(panel, view);
-        await expect(question).toHaveCount(1);
-        await expect(
-          panel.getByRole("heading", { name: unfinishedReportTitle }),
-        ).toHaveAccessibleName(unfinishedReportTitle);
-        await expect(shownSessionId).toHaveCount(0);
-        await readReportByTouch(panel, question.getByRole("paragraph").first());
-        for (const answer of [markAnyway, keep]) {
-          await readReportByTouch(panel, answer);
-          expect(await reportGeometry(answer)).toMatchObject({
-            visible: true,
-            hit: true,
-          });
-        }
-        await expect(reading).toHaveText("Ready for review");
-      }
-      await readReportByTouch(panel, keep);
-      await tapWhereShown(keep);
-      await expect(question).toHaveCount(0);
-      await expect(mark).toBeFocused();
-      await expect(reading).toHaveText("Ready for review");
-      await readReportByTouch(
-        panel,
-        reportText,
-        "Landed on main at `a5df85d90a`.",
-      );
-      await readReportByTouch(
-        panel,
-        reportText,
-        "<script>window.reportExecuted=true</script>",
-      );
-      expect(await page.evaluate(() => "reportExecuted" in window)).toBe(false);
-      const close = control(panel, "Close");
-      await readReportByTouch(panel, close);
-      await closeSidePanel(panel, { using: "touch" });
-      await expect(panel).toHaveCount(0);
-      await expect(open).toBeFocused();
-      await page.keyboard.press("Enter");
-      await expect(reportText).toHaveText(defaultReportText);
-      await readReportByTouch(panel, mark);
-      await tapWhereShown(mark);
-      await expect(question).toHaveCount(1);
-      await readReportByTouch(panel, question.getByRole("paragraph").first());
-      await readReportByTouch(panel, markAnyway);
-      await tapWhereShown(markAnyway);
-      await expect(panel).toHaveCount(0);
-    });
-  });
+const heading = panel.getByRole("heading", { name: unfinishedReportTitle });
+function expectReadyForReview() {
+  expect(
+    document.querySelector(".page-column .session-state")?.textContent,
+  ).toBe("Ready for review");
 }
 
-for (const { name, viewport, hasTouch } of [
-  { name: "tablet", viewport: { width: 768, height: 1024 }, hasTouch: true },
-  { name: "desktop", viewport: { width: 1440, height: 900 }, hasTouch: false },
-]) {
-  test.describe(name, () => {
-    test.use({ viewport, hasTouch });
-    test("keeps report reading, choices, Escape restoration and the panel shortcut", async ({
-      page,
-      frontendServices,
-    }) => {
-      const { open } = await openFrontendUnfinishedReport(
-        page,
-        frontendServices,
-      );
-      const { panel, reportText } = finalReportParts(page);
-      const mark = markAsDone(panel.locator(".side-panel-header"));
-      const question = panel.getByRole("group", {
-        name: questionWords,
-        exact: true,
-      });
-      const markAnyway = markAsDone(question);
-      const keep = keepOpen(question);
-      await expect(reportText).toHaveText(defaultReportText);
-      expect(await reportGeometry(reportText)).toMatchObject({
-        visible: true,
-        hit: true,
-      });
-      const press = hasTouch ? tapWhereShown : pressWhereShown;
-      await press(mark);
-      for (const target of [
-        question.getByRole("paragraph").first(),
-        markAnyway,
-        keep,
-      ]) {
-        expect(await reportGeometry(target)).toMatchObject({
-          visible: true,
-          hit: true,
-        });
-      }
-      await press(keep);
-      await expect(question).toHaveCount(0);
-      await expect(mark).toBeFocused();
-      await press(mark);
-      await expect(keep).toBeFocused();
-      await page.keyboard.press("Escape");
-      await expect(question).toHaveCount(0);
-      await expect(mark).toBeFocused();
-      await page.keyboard.press("Meta+Shift+Escape");
-      await expect(panel).toHaveCount(0);
-      await expect(open).toBeFocused();
-    });
-  });
+function expectReportIdentity() {
+  expect(heading.element().textContent).toBe(unfinishedReportTitle);
+  expectReportSessionName();
 }
+
+function expectTopBarsAligned() {
+  const bars = [
+    ...document.querySelectorAll(
+      ".banner, .sessions-sidebar-title-row, .side-panel-header",
+    ),
+  ]
+    .map((bar) => bar.getBoundingClientRect())
+    .filter(({ height }) => height > 0);
+  expect(bars).toHaveLength(2);
+  expect(new Set(bars.map(({ top, bottom }) => `${top}:${bottom}`)).size).toBe(
+    1,
+  );
+}
+
+test("reads the question and touches each full choice through resize and rotation", async () => {
+  await useTouchScreen();
+  await mountUnfinishedReport({ width: 390, height: 844 });
+  await openReport();
+  await expect.element(heading).toHaveAccessibleName(unfinishedReportTitle);
+  expectReportIdentity();
+
+  await showReportAt(390, 320);
+  const title = heading
+    .getByRole("button", { name: unfinishedReportTitle })
+    .element();
+  expect(getComputedStyle(title).whiteSpace).toBe("nowrap");
+  expect(title.scrollWidth).toBeGreaterThan(title.clientWidth);
+  expectTopBarsAligned();
+  expectReadyForReview();
+
+  await touchReport(mark);
+  await expect.element(keep).toHaveFocus();
+  for (const [width, height] of [
+    [390, 320],
+    [390, 240],
+    [390, 844],
+    [844, 390],
+    [390, 320],
+  ] as const) {
+    await showReportAt(width, height);
+    expectReportIdentity();
+    await readByTouch(questionText);
+    await readByTouch(markAnyway);
+    await readByTouch(keep);
+    expectReadyForReview();
+  }
+
+  await touchReport(keep);
+  await expect.element(question).not.toBeInTheDocument();
+  await expect.element(mark).toHaveFocus();
+  expectReadyForReview();
+  await readByTouch(
+    reportText(defaultReportText),
+    "Landed on main at `a5df85d90a`.",
+  );
+  await readByTouch(
+    reportText(defaultReportText),
+    "<script>window.reportExecuted=true</script>",
+  );
+  expect("reportExecuted" in window).toBe(false);
+
+  await touchReport(close);
+  await expect.element(reportOpener).toHaveFocus();
+  await userEvent.keyboard("{Enter}");
+  await expectReportText(defaultReportText);
+  await touchReport(mark);
+  await readByTouch(questionText);
+  await touchReport(markAnyway);
+  await expect.element(panel).not.toBeInTheDocument();
+});
+
+async function restoreReportFocus(press: typeof pressReport) {
+  await openReport();
+  await expectReportText(defaultReportText);
+  expect(reportGeometry(reportText(defaultReportText))).toMatchObject({
+    visible: true,
+    hit: true,
+  });
+
+  await press(mark);
+  await expect.element(question).toBeVisible();
+  for (const target of [questionText, markAnyway, keep]) {
+    expect(reportGeometry(target)).toMatchObject({ visible: true, hit: true });
+  }
+  await press(keep);
+  await expect.element(question).not.toBeInTheDocument();
+  await expect.element(mark).toHaveFocus();
+  await press(mark);
+  await expect.element(keep).toHaveFocus();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(question).not.toBeInTheDocument();
+  await expect.element(mark).toHaveFocus();
+  await userEvent.keyboard("{Meta>}{Shift>}{Escape}{/Shift}{/Meta}");
+  await expect.element(panel).not.toBeInTheDocument();
+  await expect.element(reportOpener).toHaveFocus();
+}
+
+test("a tablet keeps report reading, choices, Escape restoration and the panel shortcut", async () => {
+  await useTouchScreen();
+  await mountUnfinishedReport({ width: 768, height: 1024 });
+  await restoreReportFocus(touchReport);
+});
+
+test("a desktop keeps report reading, choices, Escape restoration and the panel shortcut", async () => {
+  await mountUnfinishedReport({ width: 1440, height: 900 });
+  await restoreReportFocus(pressReport);
+});

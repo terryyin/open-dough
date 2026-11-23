@@ -16,6 +16,7 @@ import type { MachineSessionsRead } from "./machineSessionsRevision.ts";
 import {
   requestDeleteRecord,
   requestMarkDone,
+  requestMarkRead,
 } from "./sessionRecordRequests.ts";
 
 export type MachineReadSource = {
@@ -30,6 +31,7 @@ export type MachineReadSource = {
   ) => Promise<AcceptanceAnswer>;
   readonly deleteRecord: typeof requestDeleteRecord;
   readonly markDone: typeof requestMarkDone;
+  readonly markRead: typeof requestMarkRead;
 };
 
 export const authenticatedMachineReads: MachineReadSource = {
@@ -37,4 +39,5 @@ export const authenticatedMachineReads: MachineReadSource = {
   requestAcceptance: requestAgentAcceptance,
   deleteRecord: requestDeleteRecord,
   markDone: requestMarkDone,
+  markRead: requestMarkRead,
 };

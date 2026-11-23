@@ -13,7 +13,6 @@ import type {
 import { readMachineSessions } from "./machineSessionsReads.ts";
 import type { MachineReadSource } from "./machineReadSource.ts";
 import {
-  requestMarkRead,
   requestRecoverSession,
   requestStopSession,
   type DeleteRecordOutcome,
@@ -52,7 +51,10 @@ export function useLaunchRecordActions({
   setFacts,
   deletedAt,
 }: {
-  readonly requests: Pick<MachineReadSource, "deleteRecord" | "markDone">;
+  readonly requests: Pick<
+    MachineReadSource,
+    "deleteRecord" | "markDone" | "markRead"
+  >;
   readonly setRecords: (
     change: (known: readonly LaunchWithState[]) => readonly LaunchWithState[],
   ) => void;
@@ -89,12 +91,12 @@ export function useLaunchRecordActions({
 
   const markRead = useCallback(
     async (record: LaunchRecord) => {
-      const read = await requestMarkRead(record);
+      const read = await requests.markRead(record);
       if (read === undefined) return false;
       replaceRecord(read);
       return true;
     },
-    [replaceRecord],
+    [replaceRecord, requests],
   );
 
   const deleteRecord = useCallback(

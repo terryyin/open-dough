@@ -1,197 +1,193 @@
-// A card session entry's message part, against a controlled machine read and
-// read boundary (../../test-support/support/frontendSessionActions.ts): expanded with
-// Mark as read while its report is unread, beside the entry's own Mark as
-// done; a refused mark says so in the entry's status line; marked read, the
-// part collapses with the keyboard on its heading and expands again from it.
-// A long message scrolls inside the part, with Mark as read and the entry's
-// Mark as done in view. An ad-hoc session's report read on its Recently done
-// entry and kept read is
-// ../../../e2e/sessions/session-unread-report-message.spec.ts.
+import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import {
+  mountSessionCards,
+  readyStory,
+  revealPage,
+  sessionsReading,
+} from "./session-card-mount.ts";
+import { cardSession } from "./session-card-page.ts";
 
-import type { Page } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
-import {
-  frontendStoryLaunch,
-  type FrontendServiceState,
-} from "../../test-support/support/frontendServiceState.ts";
-import { reportedMessage } from "../../test-support/support/reportedLaunch.ts";
-import { sessionAction } from "../../test-support/support/sessionEntryDisclosure.ts";
-import {
-  buttonsAddedSince,
-  expectCollapsed,
-  expectExpanded,
-  messagePartOf,
-  rememberButtons,
-  scrollOf,
-} from "../../test-support/support/sessionMessagePart.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { takenStory } from "../../test-support/launchJourney.ts";
-import {
-  openUntilRead,
-  reloadUntilRead,
-} from "../../test-support/pageRequestNotes.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-
+const reportedMessage = "Published. Reminder: check the migration.";
 const label = "Completed with attention";
 
-// The machine observes the Taken story's execution session, ready for
-// review, having reported `message` under `receipt`.
-function reported(
-  services: FrontendServiceState,
-  message: string,
-  receipt = "11111111-1111-4111-8111-111111111111",
-) {
-  services.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        makeMe.anObservedLaunch
-          .of(
-            frontendStoryLaunch("executing", takenStory)
-              .completedWith({ message, receipt })
-              .please(),
-          )
-          .withSessionState(makeMe.aSessionState.loaded("review").please())
-          .please(),
-      )
-      .please(),
+function reported(message: string, receipt: string, read = false) {
+  const launch = makeMe.aLaunchRecord
+    .executing(readyStory)
+    .completedWith({ message, receipt });
+  return makeMe.anObservedLaunch
+    .of((read ? launch.withReportRead() : launch).please())
+    .withSessionState(makeMe.aSessionState.loaded("review").please())
+    .please();
+}
+
+const entry = cardSession();
+const heading = entry.entry.getByRole("button", { name: label, exact: true });
+const text = entry.entry.getByRole("region", { name: "Attention message" });
+const markRead = entry.entry.getByRole("button", {
+  name: "Mark as read",
+  exact: true,
+});
+
+async function showsMessage(message: string) {
+  await expect.element(heading).toHaveAccessibleName(label);
+  await expect.element(heading).toHaveAttribute("aria-expanded", "true");
+  await expect.element(text).toBeVisible();
+  await expect.poll(() => text.element().textContent).toBe(message);
+}
+
+async function hidesMessage() {
+  await expect.element(heading).toHaveAccessibleName(label);
+  await expect.element(heading).toHaveAttribute("aria-expanded", "false");
+  await expect.element(text).not.toBeInTheDocument();
+  await expect.element(markRead).not.toBeInTheDocument();
+}
+
+function buttonsByName() {
+  return new Map(
+    [...entry.entry.element().querySelectorAll("button")].map((button) => [
+      button,
+      button.getAttribute("aria-label") ?? button.textContent,
+    ]),
   );
 }
 
-const takenEntry = (page: Page) =>
-  parts(page)
-    .taken.getByRole("article", { name: takenStory, exact: true })
-    .getByRole("article");
+test("a card entry's unread message is marked read in its message part, beside the entry's own Mark as done", async () => {
+  const receipt = "11111111-1111-4111-8111-111111111111";
+  const record = reported(reportedMessage, receipt);
+  const read = vi
+    .fn<MachineReadSource["markRead"]>()
+    .mockResolvedValueOnce(undefined)
+    .mockResolvedValueOnce(reported(reportedMessage, receipt, true));
+  await mountSessionCards({
+    reading: sessionsReading("unread", record),
+    markRead: read,
+  });
+  await showsMessage(reportedMessage);
 
-test("a card entry's unread message is marked read in its message part, beside the entry's own Mark as done", async ({
-  page,
-  frontendServices,
-}) => {
-  reported(frontendServices, reportedMessage);
-  const actions = await installFrontendSessionActions(page, frontendServices);
-  await openUntilRead(page);
-  const entry = takenEntry(page);
-  const message = messagePartOf(entry);
+  await userEvent.click(entry.actions);
+  await expect.element(entry.done).toBeVisible();
+  const part = heading.element().closest(".session-attention-message");
+  expect(part?.contains(markRead.element())).toBe(true);
+  expect(part?.contains(entry.done.element())).toBe(false);
+  expect(markRead.all()).toHaveLength(1);
 
-  // Unread: expanded under its completion label, with Mark as read in the
-  // part and the entry's own Mark as done beside it.
-  await expectExpanded(message, label, reportedMessage);
-  const done = await sessionAction(entry, "Mark as done");
-  await expect(done).toBeVisible();
-  await expect(message.part.locator(done)).toHaveCount(0);
-  await expect(entry.getByRole("button", { name: "Mark as read" })).toHaveCount(
-    1,
-  );
+  await userEvent.click(markRead);
+  await expect
+    .element(entry.status)
+    .toHaveTextContent("The report could not be marked read.");
+  await showsMessage(reportedMessage);
+  await expect.element(markRead).toBeEnabled();
 
-  // A refused read mark leaves the part expanded and says so in the entry's
-  // status line.
-  actions.refuseNext("read", "The record could not be written.", 500);
-  await message.markRead.click();
-  await expect(entry.getByRole("status")).toHaveText(
-    "The report could not be marked read.",
+  const doneBefore = entry.done.element();
+  const buttonsBefore = buttonsByName();
+  await userEvent.click(markRead);
+  await hidesMessage();
+  await expect.element(heading).toHaveFocus();
+  await expect.element(entry.status).toBeEmptyDOMElement();
+  expect(entry.done.element()).toBe(doneBefore);
+  const newNames = [...buttonsByName()].filter(
+    ([button, name]) => buttonsBefore.get(button) !== name,
   );
-  await expectExpanded(message, label, reportedMessage);
-  await expect(message.markRead).toBeEnabled();
-
-  // Marked read: the part collapses to its heading, which has the keyboard;
-  // the status line clears; Mark as done stays the same control, and no
-  // control that marking read brings to the entry marks done or deletes.
-  const doneBefore = await done.elementHandle();
-  await rememberButtons(entry);
-  await message.markRead.click();
-  await expectCollapsed(message, label);
-  await expect(message.heading).toBeFocused();
-  await expect(entry.getByRole("status")).toHaveText("");
-  expect(await done.evaluate((now, before) => now === before, doneBefore)).toBe(
-    true,
-  );
-  await expect(entry.getByRole("button", { name: "Mark as read" })).toHaveCount(
-    0,
-  );
-  expect(await buttonsAddedSince(entry)).not.toContainEqual(
+  expect(newNames.map(([, name]) => name)).not.toContainEqual(
     expect.stringMatching(/Mark as done|Delete record/),
   );
-  expect(actions.asked("read")).toHaveLength(2);
+  expect(read.mock.calls.map(([asked]) => asked.session.sessionId)).toEqual([
+    record.session.sessionId,
+    record.session.sessionId,
+  ]);
 
-  // The read message's heading expands it, with the same text and no Mark
-  // as read, and collapses it again, by pointer and by keyboard.
-  await message.heading.click();
-  await expectExpanded(message, label, reportedMessage);
-  await expect(message.markRead).toHaveCount(0);
-  await message.heading.click();
-  await expectCollapsed(message, label);
-  await message.heading.focus();
-  await page.keyboard.press("Enter");
-  await expectExpanded(message, label, reportedMessage);
-  await expect(message.markRead).toHaveCount(0);
-  await page.keyboard.press("Space");
-  await expectCollapsed(message, label);
+  await userEvent.click(heading);
+  await showsMessage(reportedMessage);
+  await expect.element(markRead).not.toBeInTheDocument();
+  await userEvent.click(heading);
+  await hidesMessage();
+  await userEvent.keyboard("{Enter}");
+  await showsMessage(reportedMessage);
+  await expect.element(markRead).not.toBeInTheDocument();
+  await userEvent.keyboard(" ");
+  await hidesMessage();
 });
 
-test("a long unread message scrolls inside its message part, with Mark as read and the entry's Mark as done in view", async ({
-  page,
-  frontendServices,
-}) => {
-  const lastLine = "Last: confirm the rollback before continuing.";
-  const longMessage = [
-    ...[...Array(60).keys()].map(
-      (at) =>
-        `Finding ${at + 1}: the migration left a table the next step reads.`,
-    ),
-    lastLine,
-  ].join("\n");
-  reported(frontendServices, longMessage);
-  await openUntilRead(page);
-  const entry = takenEntry(page);
-  const message = messagePartOf(entry);
-  const done = await sessionAction(entry, "Mark as done");
-  await expectExpanded(message, label, longMessage);
+function scrollOfMessage() {
+  const element = text.element();
+  return {
+    shown: element.clientHeight,
+    whole: element.scrollHeight,
+    top: element.scrollTop,
+  };
+}
 
-  // The text's box is shorter than the message and scrolls; with the entry
-  // brought into view, Mark as read and the entry's Mark as done are in view
-  // together without scrolling the text.
-  await done.scrollIntoViewIfNeeded();
-  const before = await scrollOf(message);
+function lastMessageLineFits(lastLine: string) {
+  const element = text.element();
+  const line = element.lastChild;
+  const start = line?.textContent?.lastIndexOf(lastLine) ?? -1;
+  if (line === null || start < 0) return false;
+  const range = document.createRange();
+  range.setStart(line, start);
+  range.setEnd(line, start + lastLine.length);
+  const box = element.getBoundingClientRect();
+  const words = range.getBoundingClientRect();
+  return words.top >= box.top && words.bottom <= box.bottom + 1;
+}
+
+async function expectBothActionsInView() {
+  await expect.element(markRead).toBeInViewport({ ratio: 1 });
+  await expect.element(entry.done).toBeInViewport({ ratio: 1 });
+}
+
+test("a long unread message scrolls inside its message part, with Mark as read and the entry's Mark as done in view", async () => {
+  const last = "Last: confirm the rollback before continuing.";
+  const long = [
+    ...Array.from(
+      new Array<undefined>(60).keys(),
+      (index) =>
+        `Finding ${index + 1}: the migration left a table the next step reads.`,
+    ),
+    last,
+  ].join("\n");
+  const machine = await mountSessionCards({
+    reading: sessionsReading(
+      "long report",
+      reported(long, "11111111-1111-4111-8111-111111111111"),
+    ),
+  });
+  await showsMessage(long);
+  await userEvent.click(entry.actions);
+  const done = entry.done.element();
+  done.scrollIntoView({ block: "nearest" });
+  const before = scrollOfMessage();
   expect(before.whole).toBeGreaterThan(before.shown);
   expect(before.top).toBe(0);
-  await expect(message.text).toHaveCSS("overflow-y", "auto");
-  await expect(message.markRead).toBeInViewport({ ratio: 1 });
-  await expect(done).toBeInViewport({ ratio: 1 });
+  expect(getComputedStyle(text.element()).overflowY).toBe("auto");
+  await expectBothActionsInView();
 
-  // The keyboard reaches the named text and scrolls it to its last line;
-  // the controls stay in view.
-  await message.text.focus();
-  await expect(message.text).toBeFocused();
-  // Chromium animates a keyboard scroll and may drop it under load; pressing
-  // End again resumes it.
-  await expect(async () => {
-    await page.keyboard.press("End");
-    const after = await scrollOf(message);
-    expect(after.top + after.shown).toBeGreaterThanOrEqual(after.whole - 1);
-  }).toPass();
-  expect(
-    await message.text.evaluate((text, last) => {
-      const box = text.getBoundingClientRect();
-      const range = document.createRange();
-      const node = text.lastChild;
-      if (node === null) return false;
-      range.setStart(node, (node.textContent ?? "").lastIndexOf(last));
-      range.setEnd(node, (node.textContent ?? "").length);
-      const line = range.getBoundingClientRect();
-      return line.top >= box.top && line.bottom <= box.bottom + 1;
-    }, lastLine),
-  ).toBe(true);
-  await expect(message.markRead).toBeInViewport({ ratio: 1 });
-  await expect(done).toBeInViewport({ ratio: 1 });
+  const body = text.element();
+  if (!(body instanceof HTMLElement))
+    throw new Error("The message cannot take the keyboard.");
+  body.focus();
+  await expect.element(text).toHaveFocus();
+  await userEvent.keyboard("{End}");
+  await expect
+    .poll(() => {
+      const after = scrollOfMessage();
+      return after.top + after.shown >= after.whole - 1;
+    })
+    .toBe(true);
+  expect(lastMessageLineFits(last)).toBe(true);
+  await expectBothActionsInView();
 
-  // A short message, the session's newer report, does not scroll.
-  reported(
-    frontendServices,
-    reportedMessage,
-    "22222222-2222-4222-8222-222222222222",
+  const reveal = revealPage();
+  machine.answerWith(
+    sessionsReading(
+      "short report",
+      reported(reportedMessage, "22222222-2222-4222-8222-222222222222"),
+    ),
   );
-  await reloadUntilRead(page);
-  await expectExpanded(message, label, reportedMessage);
-  const short = await scrollOf(message);
+  reveal();
+  await showsMessage(reportedMessage);
+  const short = scrollOfMessage();
   expect(short.whole).toBeLessThanOrEqual(short.shown);
 });

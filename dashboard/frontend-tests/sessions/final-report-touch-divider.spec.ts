@@ -1,65 +1,63 @@
-// The report scrolls inside its frame; the resize strip and its grab area
-// stay on that frame after touch reading, against a controlled report answer.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { openFrontendUnfinishedReport } from "../../test-support/support/frontendFinalReportSession.ts";
-import { finalReportParts } from "../../test-support/finalReportPages.ts";
-import { readReportByTouch } from "../../test-support/support/reportTouchPage.ts";
-import { box } from "../../test-support/pageLayout.ts";
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { withFramePreference } from "../../test-support/component-mount/framePreferences.ts";
+import { useTouchScreen } from "../navigation/board-touch-page.ts";
+import { mountUnfinishedReport } from "./final-report-mount.ts";
 import {
-  dividerHitTarget,
-  dragDivider,
-  expectWidth,
-  focusDivider,
-  keyStep,
-  panelDivider,
-  pressDividerKey,
-} from "../../test-support/sidePanelWidthPage.ts";
+  divider,
+  dividerHit,
+  expectNoPrivateSessionId,
+  expectReportText,
+  openReport,
+  panel,
+  readByTouch,
+  reportScroll,
+  reportText,
+  widenReport,
+} from "./final-report-page.ts";
 
-test.use({ hasTouch: true });
+async function resizeReportAfterReading(
+  width: number,
+  height: number,
+  lines: number,
+) {
+  withFramePreference("open-dough.sidePanel.width", null);
+  await useTouchScreen();
+  const text = `${Array.from(new Array<undefined>(lines).keys(), (index) => `Read native report line ${index}.`).join("\n")}\nReport ending.`;
+  await mountUnfinishedReport({ width, height }, text);
+  await openReport();
+  await expect.element(divider).toBeVisible();
+  await expectReportText(text);
 
-for (const { name, viewport, lines } of [
-  { name: "landscape", viewport: { width: 844, height: 390 }, lines: 20 },
-  { name: "desktop", viewport: { width: 1440, height: 900 }, lines: 40 },
-]) {
-  test.describe(name, () => {
-    test.use({ viewport });
-    test("keeps the report divider reachable after touch reading and resizes the same report", async ({
-      page,
-      frontendServices,
-    }) => {
-      const text = `${Array.from(
-        Array(lines).keys(),
-        (line) => `Read native report line ${line}.`,
-      ).join("\n")}\nReport ending.`;
-      await openFrontendUnfinishedReport(page, frontendServices, {
-        kind: "available",
-        turnId: "divider-report-turn",
-        text,
-      });
-      const { panel, reportText, reportScroll, shownSessionId } =
-        finalReportParts(page);
-      const divider = panelDivider(panel, { exact: false });
-      const before = await box(divider);
-      const reachesDivider = (fraction: number) =>
-        dividerHitTarget(divider, fraction);
-      const externalHit = await reachesDivider(0.25);
-      expect(await reachesDivider(0.75)).toBe(true);
-      await readReportByTouch(panel, reportText, "Report ending.");
-      expect(await box(divider)).toEqual(before);
-      expect(
-        await reportScroll.evaluate((element) => element.scrollTop),
-      ).toBeGreaterThan(0);
-      expect(await reachesDivider(0.25)).toBe(externalHit);
-      expect(await reachesDivider(0.75)).toBe(true);
-      const width = (await box(panel)).width;
-      await dragDivider(page, -20);
-      await expectWidth(panel, width + 20);
-      await focusDivider(panel, { exact: false });
-      await pressDividerKey(page, "ArrowRight");
-      await expectWidth(panel, width + 20 - keyStep);
-      await expect(shownSessionId).toHaveCount(0);
-      await expect(reportText).toHaveText(text);
-    });
-  });
+  const readDivider = () => {
+    const { x, y, width, height } = divider.element().getBoundingClientRect();
+    return { x, y, width, height };
+  };
+  const before = readDivider();
+  const externalHit = dividerHit(0.25);
+  expect(dividerHit(0.75)).toBe(true);
+  await readByTouch(reportText(text), "Report ending.");
+  expect(readDivider()).toEqual(before);
+  expect(reportScroll().scrollTop).toBeGreaterThan(0);
+  expect(dividerHit(0.25)).toBe(externalHit);
+  expect(dividerHit(0.75)).toBe(true);
+
+  const panelWidth = () => panel.element().getBoundingClientRect().width;
+  const original = panelWidth();
+  await widenReport(20);
+  await expect.poll(panelWidth).toBeCloseTo(original + 20, 0);
+  (divider.element() as HTMLElement).focus();
+  await expect.element(divider).toHaveFocus();
+  await userEvent.keyboard("{ArrowRight}");
+  await expect.poll(panelWidth).toBeCloseTo(original + 20 - 32, 0);
+  expectNoPrivateSessionId();
+  await expectReportText(text);
 }
+
+test("a landscape report keeps its divider reachable after touch reading", async () => {
+  await resizeReportAfterReading(844, 390, 20);
+});
+
+test("a desktop report keeps its divider reachable after touch reading", async () => {
+  await resizeReportAfterReading(1440, 900, 40);
+});
