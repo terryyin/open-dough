@@ -16,6 +16,7 @@ import {
   type EstablishedSession,
 } from "./unattachedSession.ts";
 import { defaultLaunchStartSchema } from "./defaultLaunchStart.ts";
+import { launchDoneSchema } from "./launchDone.ts";
 import { sessionCommitsSchema } from "./sessionCommits.ts";
 import { sessionBranchEvidenceSchema } from "./sessionBranchResult.ts";
 import { hostSessionSchema } from "./hostSession.ts";
@@ -161,10 +162,7 @@ export const launchRecordSchema = z.object({
   // The receipt of the report the developer marked read (`./readMark.ts`);
   // a report with any other receipt is unread while the session is not done.
   reportRead: z.uuid().optional(),
-  doneAt: z.iso.datetime().optional(),
-  dispositionChangedAt: z.iso.datetime().optional(),
-  // Native operations may fail even though local done intent was retained.
-  doneProblem: z.string().max(1_200).optional(),
+  ...launchDoneSchema.shape,
   // A stop the host could not confirm, with the remaining state it named.
   // Retained until a later stop is confirmed; it blocks a replacement
   // writer in the same workspace unless explicitly overridden.

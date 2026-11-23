@@ -20,11 +20,11 @@ import {
   type DoneLaunches,
   type DoneTerminals,
 } from "./finishNativeDone.ts";
-import { keptRecords, setRecordDoneAt } from "./launchRecordStore.ts";
+import { keptRecords } from "./launchRecordStore.ts";
+import { startRecordDone } from "./recordDoneAt.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
 import type { BranchCapture } from "./sessionBranchCapture.ts";
 
-export { doneSessionRecord } from "./doneSessionRecord.ts";
 export type {
   DoneHost,
   DoneLaunches,
@@ -167,15 +167,13 @@ async function markSessionDone(
     return acknowledgeDoneLocally(source.id, record);
   if (host === undefined || stop === undefined)
     throw new Error("This host cannot mark a session done.");
-  const doneAt = new Date().toISOString();
-  const marked = await setRecordDoneAt(
+  const { record: marked, applied } = await startRecordDone(
     source.id,
     record.session,
-    doneAt,
-    capture === undefined ? undefined : { capture },
+    capture,
   );
-  if (marked?.doneAt !== doneAt)
-    return marked ?? doneSessionRecord(record, doneAt);
+  if (marked === undefined || !applied)
+    return marked ?? doneSessionRecord(record, new Date().toISOString());
   return finishNativeDone(source.id, marked, folder, terminals, host, {
     intent: "manual",
     launches,

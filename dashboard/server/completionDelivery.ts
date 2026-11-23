@@ -19,7 +19,8 @@ import {
   reportingAttempt,
   type CompletionSubmission,
 } from "./completionAdmission.ts";
-import { doneSessionRecord, type NativeDoneMarks } from "./doneMarks.ts";
+import type { NativeDoneMarks } from "./doneMarks.ts";
+import { prepareReportedDone } from "./doneSessionRecord.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { withBranchResultAtDone } from "./sessionBranchCapture.ts";
 
@@ -54,6 +55,7 @@ export async function deliverCompletion(
           isReportingRecord(entry, report),
         )
       : undefined;
+    const markReportedDone = await prepareReportedDone(prospectiveBranch);
     // No second attempt write follows disposition; failed writes cannot follow
     // successful disposition and turn it into a failed delivery.
     const delivered = await withBranchResultAtDone(
@@ -106,7 +108,7 @@ export async function deliverCompletion(
                     entry.dispositionChangedAt < saved.receivedAt);
                 const next = {
                   ...(quiet
-                    ? await settle(doneSessionRecord(entry, saved.receivedAt))
+                    ? await settle(markReportedDone(entry, saved.receivedAt))
                     : entry),
                   completion: saved,
                   returnedToBacklog: returnedOutcome(closure, saved.receipt),

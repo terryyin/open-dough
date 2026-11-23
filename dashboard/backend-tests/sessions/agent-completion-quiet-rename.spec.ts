@@ -62,8 +62,11 @@ test.describe("within a wait the session outlasts", () => {
     });
     // The developer's mark is written once the reported rename is abandoned.
     await expect
-      .poll(async () => (await recordOf(dashboard, sessionId))?.doneAt)
-      .not.toBe(reported?.doneAt);
+      .poll(
+        async () =>
+          (await recordOf(dashboard, sessionId))?.dispositionChangedAt,
+      )
+      .not.toBe(reported?.dispositionChangedAt);
     dashboard.claudeSessionBecomes(sessionId, "done-live");
     const marked = await marking;
     expect(marked.status).toBe(200);
@@ -84,9 +87,13 @@ test.describe("within a wait the session outlasts", () => {
       expect.objectContaining({ argv: ["stop", shortId] }),
     ]);
     const record = await recordOf(dashboard, sessionId);
-    expect(record?.doneAt).toBe(
-      (JSON.parse(marked.body) as { record: LaunchRecord }).record.doneAt,
-    );
+    expect(record?.doneAt).toBe(reported?.doneAt);
+    expect(record?.doneStory).toEqual({
+      kind: "originating",
+      identity: `ad-hoc#${reported?.completion?.reference}`,
+      title: reported?.request.title,
+      completedAt: reported?.doneAt,
+    });
     expect(record?.doneProblem).toBeUndefined();
   });
 });

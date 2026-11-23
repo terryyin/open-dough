@@ -127,7 +127,7 @@ retains the local candidate if normal retirement requires it.
 ### 2. Done writes one local attachment for the original session
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a kept ad hoc launch without a story → manual or quiet reported
 Done → both write routes settle the same Done time and `ad-hoc#<uuid>` on
@@ -139,6 +139,15 @@ record with no usable close UUID keeps its existing standalone behavior.
 Assert the saved attachment and original Done time after repeated reporting
 and a manual/report race. Observe the launch's published evidence and native
 Done lifecycle through the existing entry points. Slice 3 reads this write.
+
+The local record stores `doneStory` as an originating story with its first
+completion time and title, or a verified link. Manual and reported Done
+share the attachment rule. A later distinct completion can capture new work
+using a lifecycle mark under the same story. The backend proof observes
+manual repeats, report retries, native takeover, reopen and rebind, and
+preservation of existing published associations and historical standalone
+records. See `slice-2-implementation.md` and `slice-2-refactor.md` in the
+worktree's Git evidence directory.
 
 ### 3. Recently done shows and selects the local Done story
 
@@ -254,3 +263,8 @@ Until this slice delivers the choice, ambiguous membership stays unresolved.
 - Codex observes GitHub Actions `ci.yml` (CI) on the remote execution branch.
   Coordinator `maria-chan-seed-420`, mailbox `/tmp/dough-ci-501/watch-ko8sUU`,
   PID `23782`, stream session `12451`, cell `g375:8`.
+- Slice 1 was accepted at `7a8697b8ab8b7560a601b27af608dff08b695c12`
+  on the remote execution branch and registered on that observer.
+- The close-result type repair was accepted at
+  `04a44e6ec78a7b80701af755c25946df4e37b5c2` on that branch and observer.
+  Its diagnosis is in [the repair record](diagnosis-close-return-type.md).
