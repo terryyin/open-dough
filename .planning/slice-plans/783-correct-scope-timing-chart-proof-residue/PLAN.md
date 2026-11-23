@@ -7,7 +7,9 @@
 
 SEED-413#speed-intent-scope-timing-reading delivered plan 777 on its story
 branch in `5119da43d..91ebbc1fa`. Recover plan 777, its source review and
-cohort comparison from `91ebbc1fa:.planning/slice-plans/777-speed-intent-scope-timing-reading/`.
+cohort comparison from `d156695c5:.planning/slice-plans/777-speed-intent-scope-timing-reading/`
+(the before-cleanup revision); its story is at
+`d156695c5:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading`.
 The execution retrospective's independent outcome review found the following
 at `91ebbc1fa`. The coordinator confirmed findings 2 and 4 by reading the
 files.
