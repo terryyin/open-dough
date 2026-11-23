@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "4be68f07-10cb-4c0e-a31f-d65c9e0ef537",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T09:23:14.016Z",
+  "story": "SEED-423#install-without-ci-reuse-recipes",
+  "ranges": [
+    {
+      "base": "7b8eb58e3a49a1f0bef1d256e354657975518a31",
+      "candidate": "c1b999037266c94aafb82977baca82748f2d4a23"
+    },
+    {
+      "base": "c1b999037266c94aafb82977baca82748f2d4a23",
+      "candidate": "7717dff12296442754e601259b02adb8cb320f38"
+    },
+    {
+      "base": "7717dff12296442754e601259b02adb8cb320f38",
+      "candidate": "d516ab3ebac31265c991f9b88fb8cf57f125c1e0"
+    },
+    {
+      "base": "d516ab3ebac31265c991f9b88fb8cf57f125c1e0",
+      "candidate": "d653a4a05df44507c17a5c7819b1852dad84c91f"
+    }
+  ]
+}
