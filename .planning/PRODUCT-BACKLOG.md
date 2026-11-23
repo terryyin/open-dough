@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Bring launch test feedback to about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#reach-eight-second-launch-feedback) — SEED-413#reach-eight-second-launch-feedback ([plan](slice-plans/787-reach-eight-second-launch-feedback/PLAN.md))
 - [Use proportionate refactoring for small test edits](seeds/SEED-345-session-token-efficiency.md#use-proportionate-refactoring-for-small-test-edits) — SEED-345#use-proportionate-refactoring-for-small-test-edits ([plan](slice-plans/788-use-proportionate-refactoring-for-small-test-edits/PLAN.md))
-- [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof ([plan](slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md))
 
 ## Backlog list
 
