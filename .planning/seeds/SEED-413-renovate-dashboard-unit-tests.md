@@ -1070,3 +1070,22 @@ A scratch experiment in this checkout ran 24 copies of one history-render
 case at two workers. It took 3.63 s wall in separate files and 2.32 s together.
 This establishes a file cost for that component. Measure the full group to
 judge the campaign outcome.
+
+<a id="remove-observation-proof-overlap"></a>
+
+### Remove observation proof that the typed page entry duplicated
+
+**Identity:** SEED-413#remove-observation-proof-overlap
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+```
+
+**Goal:** Remove test cases whose proof the typed page-entry story's new
+observation cases, or a surviving journey, already carry, lowering the
+dashboard case count and CI case-seconds without losing a distinct behavior.
+
+Retained CI attempt 45160078753 at `8b4a5afd0` timed the overlapping E2E
+revision-stream and branch-refresh journeys at 6–9 case-seconds each, while
+the nine new observation Vitest cases total 0.3 case-seconds. Count removed
+cases and compare CI case-seconds for the touched files; use the
+[failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
