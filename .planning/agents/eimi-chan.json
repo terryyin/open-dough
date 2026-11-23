@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Eimi-chan",
+  "email": "eimi-chan@example.org",
+  "identity": "SEED-413#speed-intent-scope-timing-reading",
+  "mode": "story-branch",
+  "branch": "claude/get-fast-proof-of-intent-collected-scope-timing",
+  "host": "claude"
+}

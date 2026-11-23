@@ -1,24 +1,22 @@
 # Finding names and current follow-up
 
-## Combined maintenance — 2026-11-18 (Asia/Singapore)
+## Combined maintenance — 2026-11-23 (Asia/Singapore)
 
-Open Dough, Doughnut, Pygardon, Lizard and Clipboard supplied shared logs.
-Terry Talks has process retrospective off and has no project findings record.
-Local maintenance concentrated on shorter client records and preserved active
-observations. [Prior review and decisions](https://github.com/terryyin/open-dough/blob/5da5acc11ab3aa58fba24425a5d41213d23ad7b1/docs/maintainer/finding-names.md).
+Shared source coverage includes Open Dough, Doughnut, Pygardon, Clipboard
+and Lizard. Lizard enabled process retrospectives on `origin/master` before
+publication. Terry Talks has process retrospectives enabled and has no
+canonical log. See the
+[watch assessment](near-term-watch-list.md).
 
-[ODF-482](findings/ODF-482.md) leads the queue. Open Dough and Lizard each
-had a valid Take rejected by single-base selection and recovered through
-accepted-target integration. The current check still selects a single base.
-[ODF-121](findings/ODF-121.md) caused longer historical coverage gaps.
-Its current observer already retries several error paths, and the observed
-request failures need current-path verification before another response.
-[ODF-150](findings/ODF-150.md) gained Pygardon static-proof evidence;
-use of its newest response remains unverified. [ODF-481](findings/ODF-481.md)
-shipped in v0.3.102 and still needs ordinary-use evidence. Neither requires
-another implementation story on this evidence.
+[ODF-329](findings/ODF-329.md) leads after repeated late lint refusals in
+delegated work. The queued [small-test refactor trial](findings/ODF-141.md)
+follows, supported by measured repeat effort and a useful shared-support
+control. [ODF-150](findings/ODF-150.md) retains four counterexamples after its
+latest released proof guidance. [ODF-482](findings/ODF-482.md) shipped in
+v0.3.107 and still needs relevant ordinary use. Earlier priorities and
+dispositions are [recoverable in Git](https://github.com/terryyin/open-dough/blob/f2dc005fa61b97ac1d8f645c0e09a23a9770b475/docs/maintainer/finding-names.md).
 
-Codes are permanent. Highest allocated is ODF-518.
+Codes are permanent. Highest allocated is ODF-549.
 
 ## Retained evidence
 
@@ -381,3 +379,34 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-516 — [Planning omits size decisions for files a slice will edit](findings/ODF-516.md) <a id="odf-516"></a>
 ## ODF-517 — [A resplit hands execution uncheckable obligations and review ownership](findings/ODF-517.md) <a id="odf-517"></a>
 ## ODF-518 — [Formatted-line planning samples miss construction shapes that wrap](findings/ODF-518.md) <a id="odf-518"></a>
+## ODF-519 — [A reused remote Story Branch reports publication without advancing](findings/ODF-519.md) <a id="odf-519"></a>
+## ODF-520 — [Source-only input rules omit promises outside three named sections](findings/ODF-520.md) <a id="odf-520"></a>
+## ODF-521 — [Self-reported active time overstates measured slice time](findings/ODF-521.md) <a id="odf-521"></a>
+## ODF-522 — [Intermediate proof is used to settle a real-history total](findings/ODF-522.md) <a id="odf-522"></a>
+## ODF-523 — [An empty scratch store stands in for populated store reconciliation](findings/ODF-523.md) <a id="odf-523"></a>
+## ODF-524 — [Controlled proof is planned beyond the CI job deadline](findings/ODF-524.md) <a id="odf-524"></a>
+## ODF-525 — [A compound fault check cannot isolate the promised guard](findings/ODF-525.md) <a id="odf-525"></a>
+## ODF-526 — [Planning records dominate the output of a consumer trace](findings/ODF-526.md) <a id="odf-526"></a>
+## ODF-527 — [Readiness relies on a natural load window the agent cannot control](findings/ODF-527.md) <a id="odf-527"></a>
+## ODF-528 — [Post-landing observation is placed inside the same Story Branch execution](findings/ODF-528.md) <a id="odf-528"></a>
+## ODF-529 — [Changed-only lint misses type-aware errors in unchanged consumers](findings/ODF-529.md) <a id="odf-529"></a>
+## ODF-530 — [Acceptance counts observations whose cases never assert the promise](findings/ODF-530.md) <a id="odf-530"></a>
+## ODF-531 — [Hidden preparation repeatedly forces active slice splits](findings/ODF-531.md) <a id="odf-531"></a>
+## ODF-532 — [A human decision wait is counted as active slice time](findings/ODF-532.md) <a id="odf-532"></a>
+## ODF-533 — [A CI repair refactor weakens an exact read budget](findings/ODF-533.md) <a id="odf-533"></a>
+## ODF-534 — [Publication proof stops before the actual Land route](findings/ODF-534.md) <a id="odf-534"></a>
+## ODF-535 — [Converted cases omit or self-supply previous assertion inputs](findings/ODF-535.md) <a id="odf-535"></a>
+## ODF-536 — [Recording an observation with obligation fields clears the existing Slice cell](findings/ODF-536.md) <a id="odf-536"></a>
+## ODF-537 — [Absorbed plan status credits trunk behavior absent from the branch tip](findings/ODF-537.md) <a id="odf-537"></a>
+## ODF-538 — [Topic-sized migration slices exhaust the plan cap mid-execution](findings/ODF-538.md) <a id="odf-538"></a>
+## ODF-539 — [An interrupted slice-clock command leaves subsequent time unmeasurable](findings/ODF-539.md) <a id="odf-539"></a>
+## ODF-540 — [A coordinator keeps waiting after delegated verification ends](findings/ODF-540.md) <a id="odf-540"></a>
+## ODF-541 — [A coordinator asks for a queue decision about already completed work](findings/ODF-541.md) <a id="odf-541"></a>
+## ODF-542 — [A coordinator loosens a recorded plan constraint before approval](findings/ODF-542.md) <a id="odf-542"></a>
+## ODF-543 — [Replay proof uses files unlike the records Git actually pairs](findings/ODF-543.md) <a id="odf-543"></a>
+## ODF-544 — [Reshaped cases lose the retired cases’ focus settling step](findings/ODF-544.md) <a id="odf-544"></a>
+## ODF-545 — [Green proof is accepted without the committed production layout ancestors](findings/ODF-545.md) <a id="odf-545"></a>
+## ODF-546 — [Refinement assigns legacy proof by spec filename](findings/ODF-546.md) <a id="odf-546"></a>
+## ODF-547 — [A refactor brief omits commitments the pass can undo](findings/ODF-547.md) <a id="odf-547"></a>
+## ODF-548 — [Wrap-up reads scope limits as deferred promises](findings/ODF-548.md) <a id="odf-548"></a>
+## ODF-549 — [Delegated failures are handed back despite the failure policy](findings/ODF-549.md) <a id="odf-549"></a>

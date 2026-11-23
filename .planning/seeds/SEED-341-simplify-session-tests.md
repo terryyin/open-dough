@@ -94,7 +94,7 @@ homes before work starts.
 
 **Identity:** SEED-341#keep-attention-completion-journey-within-timeout
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/776-keep-attention-completion-journey-within-timeout/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ffcba45c6828b3d024db7c285a0b2009a27e364eec0aa5ad04bf009f3965720a","plan":"700f5ee20d1364bf669cb03755b4b19823c0b01350fec15087e518605d0588b7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
 **Goal:** Developers get the same `agent-completion-attention` result locally
@@ -103,37 +103,19 @@ Each case finishes inside the default 30 s test timeout.
 
 **Scope:**
 
-- Split the journey in `e2e/sessions/agent-completion-attention.spec.ts`
-  ("installed attention report stays open, durable and readable through
-  column change, retirement, restart, Mark as read and Mark as done") into
-  two owners, the split the completed quiet completion journey established
-  (`agent-completion-quiet.spec.ts` keeps the installed closure and reporting
-  without the `page` fixture; `agent-completion-quiet-done.spec.ts` reads a
-  record composed through `retainedReport.ts` `retained()` and a recent
-  MakeMe completion receipt; under load 40–71 its cases took 27% less time,
-  and `DEBUG=pw:browser` shows whether a worker launched a browser):
-  - **Closure and reporting** proves, without a browser page, that the real
-    launch's installed attention report records a completion and leaves the
-    session open: the receipt and stored completion, no `doneAt`, no native
-    steering, a later unfinished report that still leaves `doneAt` unset,
-    the installed command still returning a receipt after the workspace is
-    removed, and the stored receipt surviving a dashboard restart.
-  - **Page** proves, from a composed Codex record that already carries the
-    attention completion, what the story card shows. It runs no launch, no
-    installed closure, and no installed reporting.
-- Keep every current observation, each at the owner named above. Remove no
-  observation unless another test already proves the same rule for a Codex
-  attention completion.
+- Keep the journey in `e2e/sessions/agent-completion-attention.spec.ts`
+  inside the default timeout under load, with every observation it already
+  makes. Make that case simpler. Add no test support: test support may hold
+  only data builders and page objects.
 - Keep the default timeout. Add no timeout override.
-- Scope limit: no other completion spec (`-quiet`, `-cursor`, `-execution`,
-  `-quiet-claude`) changes; no dashboard behavior changes. Fixture cost stays
-  inside the test budget, the lever the quiet journey's developer rejected.
-  Refused deliveries stay in
+- No other completion spec (`-quiet`, `-cursor`, `-execution`,
+  `-quiet-claude`) changes, and no dashboard behavior changes. Fixture cost
+  stays inside the test budget. Refused deliveries stay in
   `dashboard/backend-tests/sessions/agent-completion-identity.spec.ts`.
 
 **Key examples:**
 
-- At load about 50 on 16 cores, each case in both owners passes inside 30 s.
+- At load about 50 on 16 cores, the journey's cases pass inside 30 s.
 - Installed completed-with-attention: the receipt records the message and
   the Codex session, the store keeps that completion, `doneAt` is absent, and
   the native session receives no interrupt, rename, or new turn. A later
@@ -141,12 +123,12 @@ Each case finishes inside the default 30 s test timeout.
   message, with `doneAt` still absent. After the workspace directory is
   removed, the installed command still returns a receipt. After the
   dashboard process restarts, the stored receipt is that retained receipt.
-- A composed attention completion's story card shows the message as text
-  (the script tag is not an element), Working, "Unread report: Completed
-  with attention", and Mark as read. After the stored completion is
-  unfinished, the open card shows "Unfinished work". When the published
-  backlog moves that story from Backlog to Taken, the message is on the
-  Taken card, and removing the workspace path does not clear it.
+- The story card shows the message as text (the script tag is not an
+  element), Working, "Unread report: Completed with attention", and Mark as
+  read. After the stored completion is unfinished, the open card shows
+  "Unfinished work". When the published backlog moves that story from
+  Backlog to Taken, the message is on the Taken card, and removing the
+  workspace path does not clear it.
 - The final report panel shows the native report and not the reminder, and
   offers no Mark as read. Mark as read clears the button, records
   `reportRead`, leaves `doneAt` unset, and adds no panel control. Mark as
@@ -156,8 +138,32 @@ Each case finishes inside the default 30 s test timeout.
   message stays collapsed under "Unfinished work" until expanded; the final
   report is still the native report.
 
+**What the reverted attempt showed:**
+
+The planned split was executed and then reverted. It replaced the 245-line
+spec with a 117-line closure spec, a new 246-line page spec, and 115 lines
+of new helpers, `composedAttentionRecord.ts` and `composedAttentionPage.ts`.
+No dashboard production file changed. The suite grew from 245 lines to about
+478. Those helpers are test support outside data builders and page objects,
+which the North Star forbids. They were added so the page file stayed under
+250 lines and did not call `retained()`.
+
+A loaded run on 16 cores with 46 `yes` burners did show the browser-free
+closure cases finishing in 7.5, 10.2, and 11.9 seconds, against 17.7, 18.0,
+and 20.0 seconds for the previous combined case. That measurement does not
+justify the extra helpers or the second spec.
+
+The first attempt to write the whole page journey crossed the active-time
+limit before any proof, and the draft was 291 lines. The replacement was
+seven slices. On the published revision, distribution share 3 hit the
+320-second job cutoff because that runner was about 1.65 times slower than
+the previous green run of the same tests. This story's files were not what
+that job executed. The share-pattern edit published with the attempt is
+reverted with the rest.
+
 **Baseline:** On 22 November 2026, during the preparation observations for
 the quiet completion split, the case timed out at 30 s once under 86 CPU
 burners plus the four sibling completion specs on `--workers 4`
-(load 52 → 59). The developer had already chosen the journey split over
-moving fixture cost or overriding the timeout.
+(load 52 → 59). The developer had already chosen a journey split over
+moving fixture cost or overriding the timeout. The executed split is the
+attempt recorded above, and it was reverted.

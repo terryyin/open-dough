@@ -8,56 +8,22 @@ allocation (DD-NNN) and removed-finding recovery references. An occurrence in
 this repository alone does not make a cause project-specific. Original finding
 codes and occurrence evidence are retained.
 
-Reviewed on 2026-10-12 against `11d48b956607e3485f5771c59509b111be3626b8`.
-Frequency counts distinct executions, not commands, retries, or repairs.
-Grouping related symptoms does not establish a shared cause or duplicate an
-execution. A repaired individual race does not resolve every suite failure.
-
 ## Priority assessment
 
-**Maintenance assessment (2026-11-15):** SEED-375 was queued to protect a
-live host test-suite owner during container diagnostics.
-[DD-529](docs/maintainer/project-test-findings.md#dd-529)
-records the browser capacity finding. The load cases below retain the
-limits of the available post-response proof.
+Reviewed 2026-11-23 against `02704075db03df96b94f9d7bcb7e99a627a4dfee`. The main open cost is
+load-sensitive proof. [DD-476](#dd-476) includes Settings and evaluation cases
+outside the completed SEED-287 response. [DD-473](#dd-473) and [DD-479](#dd-479)
+lack comparable post-response runs. [DD-617](#dd-617) records concurrent
+suite pressure. SEED-367's [queued load-sensitive proof story](.planning/seeds/SEED-367-bounded-slice-active-time.md#wait-for-a-quiet-machine-before-load-sensitive-proof)
+covers admission to the required load window.
 
-**Maintenance assessment (2026-11-11):** The named node-job deadline and
-hosted-font diagnostic both landed. [DD-426](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#dd-426)
-is retired after the named timeout and bounded cleanup proof in
-[SEED-289's completion record](.planning/done/SEED-289_name-a-test-job-past-its-deadline.json).
-[DD-435](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#dd-435)
-is retired after the [local CI container](Distribution/tests/ci/ci-container.md#hosted-fonts-and-layout-checks)
-reproduced both historical overflows and passed the repaired journey. The
-[prior assessment](https://github.com/terryyin/open-dough/blob/abc1e0a2cee4912f1c87fb15f929772f6c52ce0e/ProjectFindings.md#priority-assessment)
-records the original selection. [DD-473](#dd-473), [DD-479](#dd-479) and the
-dashboard load facet of [DD-476](#dd-476) remain covered by
-[SEED-287#fit-dashboard-journeys-in-default-timeout](https://github.com/terryyin/open-dough/blob/3d0246825ae7a03cc0c0b7b2076c4b1cce7d531c/.planning/seeds/SEED-287-dashboard-journeys-within-default-timeout.md#fit-dashboard-journeys-in-default-timeout).
-[DD-486](#dd-486) records two late TypeScript refusals caught by the project's
-commit hook. No new local response was selected.
+[DD-216/DD-243](#dd-216) has opt-in selection evidence from 24 passing checks
+in 21.999 seconds. [DD-278](#dd-278) retains the open click-settling risk after
+repairing both reported spec families. [DD-275](#dd-275) retains incomplete
+load attribution. [DD-187](#dd-187) retains two still-exposed shell helpers.
+[DD-486](#dd-486) was contained by the existing commit hook.
 
-**Maintenance assessment (2026-11-08):** [DD-442](docs/maintainer/project-maintenance-findings.md#dd-442) belongs to this repository’s historical trial preflight. The corrected third checkout rejected a later object. [DD-445](docs/maintainer/project-test-findings.md#dd-445) records two repaired timeout regressions and remaining hosted variance, alongside the existing dashboard fixture-cost work. DD-452 is a repaired mismatch between this repository’s shell CI job and its selected proof. No new local story was selected. The three source sections are recoverable at `ef5c3aca3158eacd1deb4b4a11e96ce4f64a9bd6:DearDough.md`.
-
-1. **Proof-selection visibility — opt-in verified locally.** [DD-216/DD-243](#dd-216)
-   repeats across five executions (plans 217, 261, 263, 264, 297), costing
-   extra listings or reruns. [Opt-in selection records](dashboard/tests/README.md)
-   now provide same-run selection/attempt evidence through the configured strict
-   reporter: the observed focused run selected and passed 24 tests in 21.999
-   seconds, retained its JSON record, and removed its passing output directory.
-   Choosing a fresh path and reading it remain manual. The general acceptance mistake of overriding that policy remains
-   DD-262 in DearDough.md; it is not another project occurrence.
-2. **Browser journey stability — open, unqueued.** [DD-278](#dd-278)
-   records three CI failures across two executions. Both concrete spec families
-   were repaired; plan 293 ran a branch predating the repair, so it is not
-   recurrence after the fix. Shared interaction helpers still allow a click
-   before all page reads settle. Retain that qualified residual, not a claim
-   that the repaired specs still fail.
-3. **Suite diagnosis — DD-275 open, unqueued.** [DD-275](#dd-275) records one
-   execution whose within-run load was unobserved. The repaired individual
-   timeout DD-280 and shell budget breach DD-283 are removed below.
-4. **Shell observation reliability — open, unqueued.** [DD-187](#dd-187)
-   records one Linux SIGPIPE repair cycle. The named observer was fixed;
-   early-exit pipelines remain in two repository test helpers. Those are
-   residual risks, not additional observed failures.
+[Previous assessment and retirement proofs](https://github.com/terryyin/open-dough/blob/02704075db03df96b94f9d7bcb7e99a627a4dfee/ProjectFindings.md#priority-assessment).
 
 ## Dashboard specs can lose a mouse press to a reflow (open, unqueued)
 
@@ -142,25 +108,9 @@ DD-243 remains the same finding; its later occurrences are
 
 <a id="dd-275"></a> [DD-275 — Acceptance runs recorded machine load only at their start and end, so a failure could not be placed against the story's load bound](docs/maintainer/project-test-findings.md#dd-275).
 
-## Observer journeys wait on a judgement that can predate the test's provider change (repaired, unqueued)
-
-<a id="dd-302"></a> [DD-302 — An integrated-state journey's wait accepted a stale judgement and failed only in CI](docs/maintainer/project-test-findings.md#dd-302).
-
 ## Installer declarations sit at the line limit beside a single-entry anchor convention (open, unqueued)
 
 <a id="dd-303"></a> [DD-303 — Joining `install.sh` lines to stay at 250 broke a test that treats single-entry lines as anchors](docs/maintainer/project-test-findings.md#dd-303).
-
-## Selective formatting during delivery (implemented and measured, released in v0.3.67)
-
-<a id="dd-309"></a>
-
-[DD-309 evidence and measured response](docs/maintainer/project-test-findings.md#dd-309) retain seven distinct executions, their provenance, qualified cost and the implemented formatter's measured selection and output.
-
-## Hosted worker population regression (repaired)
-
-<a id="dd-312"></a>
-
-[DD-312 evidence and same-execution repair](docs/maintainer/project-test-findings.md#dd-312) retain the hosted and local observations. No new implementation story is selected.
 
 ## Corpus drafts mis-place the cut after repeated commands (open, unqueued)
 
