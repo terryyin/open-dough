@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "da95cd24-698e-4dfb-8447-328bb0913067",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T11:23:28.429Z",
+  "story": "SEED-345#start-implementers-from-a-role-sized-tool-set",
+  "ranges": [
+    {
+      "base": "c2a0c51ceb8af8a56492a76ef6077e0c95b0e447",
+      "candidate": "7c2689e4668af85db875348546e12216fda78bcf"
+    }
+  ]
+}
