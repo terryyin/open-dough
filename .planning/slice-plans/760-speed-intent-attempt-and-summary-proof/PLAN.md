@@ -348,3 +348,7 @@ Disposition: proved by slice 6: `slice6-final-pair-before.proof.json` and `slice
   independent second outcome or repeated special-case design remains across
   successive slices.
 - No remaining slice-specific concern.
+
+## Execution complete
+
+Product advice: Keep the current backlog order. All 49 tests now prove their behavior through the typed Intent page. The end-to-end journeys still own the artifact, server and browser interaction, and the existing runner-retirement story still owns the other legacy frontend cases. The supported paired speed improvement and support retirement need no product correction.
