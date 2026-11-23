@@ -23,6 +23,7 @@ import {
 
 export type BoardFrameMachine = {
   readonly answer?: MachineAnswer & { readonly revision?: string };
+  readonly read?: MachineReadSource["readSessionsSince"];
   readonly accept?: (
     ...args: Parameters<MachineReadSource["requestAcceptance"]>
   ) => Promise<AcceptanceAnswer>;
@@ -40,6 +41,7 @@ export async function mountBoardFrame(
     done,
     ci,
     review,
+    awaitSessionsRead = true,
   }: {
     otherWork?: readonly PublishedWork[];
     initialReadError?: Error;
@@ -47,6 +49,7 @@ export async function mountBoardFrame(
     done?: DoneRecordReadSource;
     ci?: IntentCiReadSource;
     review?: ReviewSource;
+    awaitSessionsRead?: boolean;
   } = {},
 ) {
   withPagePreferences();
@@ -66,6 +69,7 @@ export async function mountBoardFrame(
   const supply = boardFrameObservationSupplying(snapshots, {
     ...(initialReadError === undefined ? {} : { initialReadError }),
     machineAnswer: machine.answer ?? emptyMachineAnswer(),
+    ...(machine.read === undefined ? {} : { machineRead: machine.read }),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),
   });
   const dashboard = createElement(ProjectsOnPage, {
@@ -99,7 +103,11 @@ export async function mountBoardFrame(
       .poll(() => {
         const taken = page.getByRole("region", { name: "Taken" }).query();
         if (taken === null) return true;
-        if (page.getByText("Reading sessions…").query() !== null) return false;
+        if (
+          awaitSessionsRead &&
+          page.getByText("Reading sessions…").query() !== null
+        )
+          return false;
         return (
           page
             .getByRole("region", { name: "Taken" })

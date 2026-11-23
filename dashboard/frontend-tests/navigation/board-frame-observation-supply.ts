@@ -46,10 +46,13 @@ export function boardFrameObservationSupplying(
   {
     initialReadError,
     machineAnswer = emptyMachineAnswer(),
+    machineRead,
     accept,
   }: {
     initialReadError?: Error;
     machineAnswer?: MachineAnswer & { readonly revision?: string };
+    // A case-owned reader it can change, hold pending or fail.
+    machineRead?: MachineReadSource["readSessionsSince"];
     accept?: (
       ...args: Parameters<MachineReadSource["requestAcceptance"]>
     ) => Promise<AcceptanceAnswer>;
@@ -177,19 +180,21 @@ export function boardFrameObservationSupplying(
   });
 
   const machine: MachineReadSource = {
-    readSessionsSince: (...[held, , options]) => {
-      if (
-        options?.fresh !== true &&
-        held !== undefined &&
-        held === (machineAnswer.revision ?? "m".repeat(40))
-      ) {
-        return Promise.resolve({
-          unchanged: true,
-          revision: held,
-        });
-      }
-      return Promise.resolve(fullAnswer());
-    },
+    readSessionsSince:
+      machineRead ??
+      ((...[held, , options]) => {
+        if (
+          options?.fresh !== true &&
+          held !== undefined &&
+          held === (machineAnswer.revision ?? "m".repeat(40))
+        ) {
+          return Promise.resolve({
+            unchanged: true,
+            revision: held,
+          });
+        }
+        return Promise.resolve(fullAnswer());
+      }),
     requestAcceptance:
       accept ??
       (() =>

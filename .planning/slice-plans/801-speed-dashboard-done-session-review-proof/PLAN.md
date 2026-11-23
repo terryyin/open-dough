@@ -57,7 +57,7 @@ Coordinate session-test cleanup with
 
 | Starting evidence and action | Observed result | Slice |
 | --- | --- | --- |
-| Sessions reads retained work across projects and the reader expands or scrolls Recently done | Correct rows, order, completion age, accessible room and range through refresh | 1 |
+| Sessions reads retained work across projects and the reader expands or scrolls Recently done | Correct rows, order, completion age, accessible room and range through refresh | 1, 9 |
 | A reader selects a linked or standalone Done row during another read | Intent or Development shows the right destination, preserves reading where applicable, and a stale answer cannot take over | 2 |
 | A local launch or a published follow-up appears while the Board reads its catalog | One visible entry stands for the right session, and only resolved membership changes the source card | 3 |
 | The reader follows a Taken follow-up's source beyond the visible range | The source is revealed or its specific gap is shown, with selection and any open panel preserved | 4 |
@@ -91,21 +91,21 @@ legacy assertions before deletion and removes support with no callers.
 ### 1. Find the right completed sessions in the sidebar
 
 Type: Behavior
-Status: planned
+Status: done
 
-**Roster (7 cases).** `sessions/recently-done-sessions-sidebar{,-paging,-projects,-room,-touch}.spec.ts`.
+**Roster.** Started from all seven cases in
+`sessions/recently-done-sessions-sidebar{,-paging,-projects,-room,-touch}.spec.ts`;
+the assertion map names what moved. Room, touch, reload and ticking age moved
+to slice 9; Select and Open destinations moved to slice 2.
 
-**Proof.** Use the production Sessions sidebar and its projection of
-retained rows. With several projects and both optional sections, verify
-project identity, newest-first order, completion age, empty versus reading,
-progressive scroll, refresh and the short-window geometry. Keep resize,
-independent scroll and saved size observations. Put the actual reload and
-collapsed-section restoration in a representative E2E session sidebar
-journey. Start from `e2e/sessions/cursor-sessions-sidebar-size-kept.spec.ts`
-for existing persistence and preserve the three-section distinction where
-it affects the result. Exercise independent Board detail reads through
-`e2e/sessions/recently-done-sessions-sidebar-paging-board.spec.ts` if that
-boundary changes.
+**Proof.** The production Sessions sidebar mounted in `ConfiguredDashboard`
+over a case-owned machine reader that answers, holds or fails
+(`sessions/recently-done-sidebar-mount-page.ts`). Across three projects it
+proves project identity, newest-first order, completion and launch age,
+empty versus reading, progressive scroll to 20/40/45 with tie order, the
+range kept through collapse, hiding, project change, Select and refresh,
+focus off a removed row, a failed refresh, independent open-list scroll and
+the named, keyed divider.
 
 ### 2. Select the current Done destination without interrupting the reading
 
@@ -121,7 +121,11 @@ the current file or report where appropriate. Hold an association and then
 choose a different row, project or Open. Settle the first request and check
 that the later choice stands. Distinguish refusable, unreadable and absent
 association evidence, preserve retry, and verify the separate touch actions
-and narrow overlay. The real terminal attach remains in
+and narrow overlay. Take over the sidebar destinations slice 1 left in
+`sessions/recently-done-sessions-sidebar{,-paging}.spec.ts`: Select switches
+project and reveals the Board entry with no terminal, and Open's destination.
+In the slice 1 mount Select pressed the row without switching project, likely
+awaiting the association read this slice supplies. The real terminal attach remains in
 `e2e/sessions/recently-done-sessions-select-open.spec.ts`.
 
 ### 3. Attribute a session to its resolved Done card
@@ -225,6 +229,26 @@ and restores, verify the diff's room and the kept files width. Save a file
 note and inspect its paths, exact baseline/tree and absent line. Keep the
 real published note in `e2e/review/story-review-diff-add-note.spec.ts`.
 
+### 9. Keep the sidebar's room, touch disclosure and reload
+
+Type: Behavior
+Status: planned
+
+**Roster.** The cases slice 1 left in
+`sessions/recently-done-sessions-sidebar{,-paging,-room,-touch}.spec.ts`
+(see the assertion map).
+
+**Proof.** Measure the three lists' floors, shared room with Running Cursor,
+drag to floor, exact key step and short-window reachability in the slice 1
+mount with native Chromium input. Prove ages ticking with the clock there.
+The touch disclosure needs `any-pointer: coarse`, which the mount does not
+emulate; keep it on a touch-enabled page. Put reload reset to 20, the open
+sidebar and collapsed section after reload, and the saved size in one
+representative E2E session sidebar journey, starting from
+`e2e/sessions/cursor-sessions-sidebar-size-kept.spec.ts`. Delete the
+remaining legacy sidebar files once every case is mapped, then pair the
+original seven cases with their replacements under comparable load.
+
 ## Local gates and review
 
 On macOS use the maintained [sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
@@ -244,5 +268,35 @@ proof together and check for zero scoped legacy registrations.
 
 The slice review found no remaining concerns after grouping proof by the
 reader's actions and assigning each legacy case once. A separate refinement
-pass was unnecessary. Fit the 15 active-minute limit by keeping representative
+pass was unnecessary.
+
+Slice 1 returned unfinished at 11.9 of 15 active minutes: the sidebar's room
+geometry, touch disclosure and reload restoration each needed a different
+entry from the mounted reading cases. Its delivered part kept the mounted
+proof; the rest became slice 9. At comparable load (5.4 → 4.7) the slice's
+own selection took 13.12 s against the legacy 10.67 s, because it starts the
+Vitest engine while most legacy cost remains; the story-level pair, whose
+baseline already runs both engines, decides the timing outcome.
+
+Trunk `0bdef6cb2` ("Revert completion-time ad hoc story creation") changed
+the production Recently done listing and selection and the slice 3 roster
+files `recently-done-follow-up-grouping` and
+`recently-done-published-session-story`. Merge trunk and recheck the slice 1
+mount specs before slice 3 reconciles its roster. Fit the 15 active-minute limit by keeping representative
 rendered scenarios and checking distinct variants at their smallest owner.
+
+## Assertion map
+
+Slice 1 (legacy cases not listed as replaced remain their owners until slices 2 and 9).
+Replacement path: `sessions/recently-done-sessions-sidebar-mount.spec.ts`
+("mount spec"), over `ConfiguredDashboard` with a case-owned machine reader.
+
+| Old case | Distinct observations | Replacement or equivalent |
+| --- | --- | --- |
+| `sessions/recently-done-sessions-sidebar-projects.spec.ts` — "of two projects' kept executions, Recently done lists only the one marked Done yesterday, under its project" (deleted) | Only the Done record is listed; the open one stays in the open list; the day-old execution names its project and kind | Mount spec "Recently done lists completed sessions across projects newest completion first, with completion age and project identity": exact Done titles, open list holds only the open session, `1d`, `Pygardon · Execution`. Distinguishes the recorded `doneSessionsOf` filter regression (an open record breaks the exact title list and region exclusion). |
+| `sessions/recently-done-sessions-sidebar-paging.spec.ts` — "delayed first session read and a failed refresh keep existing read semantics" (deleted from the file) | "Reading sessions…" with no rows before the first answer; newest 20 after release; a failed refresh keeps the shown rows and no empty message | Mount spec "Recently done reads, reveals 20, 40 and 45 newest first, keeps that range through collapse, hiding, a cross-project Select and refresh, and moves focus off a removed row": held first read, then failed read (read count proves the poll ran) keeps all rows and shows no empty message. |
+| `sessions/recently-done-sessions-sidebar-paging.spec.ts` — "scrolling Recently done reaches all 45 retained sessions and refresh keeps the reached older range" (kept) | 20/40/45, inert scroll, tie order, range through collapse/hide/project change/Select, refresh adds new and drops removed while keeping range and focus | Mount paging case above, plus mount "the reached range of 45 survives a project change". Independent open-list scroll: `sessions/recently-done-sessions-sidebar-room-mount.spec.ts` "scrolling the open list to its end leaves Recently done's range unchanged". Still owned by legacy: Select switching project and revealing the Board entry with no terminal (in the mount, Select presses the row but the project does not switch even with real timers, likely awaiting an association read the mount leaves unread; slice 2 territory); reload reset to 20 (planned E2E). |
+| `sessions/recently-done-sessions-sidebar.spec.ts` — "empty and reading states stay distinct, and fewer than 20 shows every Done session" (kept) | Empty message; fewer than 20 shows all; reload keeps sidebar open with section collapsed | Empty: mount "an expanded Recently done with no retained sessions says none are listed"; reading: mount paging case; fewer than 20: mount cross-project case (3 of 3). Still owned by legacy: reload restoration (planned E2E). |
+| `sessions/recently-done-sessions-sidebar.spec.ts` — "finds and opens the newest completed sessions across projects…" (kept) | Collapsed default, cross-project order, completion ages, open-row launch age and Launched tooltip | Mount cross-project case; open-row `4m` and `Launched …` tooltip: mount "an open session in the Sessions sidebar shows its launch age and Launched time". Still owned by legacy: ages ticking with the clock, Select/Open destinations and project switch, reload collapse. |
+| `sessions/recently-done-sessions-sidebar-touch.spec.ts` (kept) | Completion, not launch, in Session details | Facts text in the mount cross-project case; touch disclosure tap still legacy. |
+| `sessions/recently-done-sessions-sidebar-room.spec.ts` (kept) | Three-list room geometry, resize, short window, reload preference | Partly: `sessions/recently-done-sessions-sidebar-room-mount.spec.ts` "the Recently done divider is named and keyed arrows resize the section" (accessible name, ArrowUp grows aria-valuenow). Still owned by legacy: three-list floors and shared room with Running Cursor, drag to floor, exact key step, short window reachability, reload preference. |

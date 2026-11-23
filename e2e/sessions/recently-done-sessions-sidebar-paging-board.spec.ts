@@ -9,10 +9,10 @@ import {
 } from "../../dashboard/test-support/recentlyDoneProgressiveJourney.ts";
 import { recordsAsked } from "../../dashboard/test-support/recentlyDoneProgressivePage.ts";
 import {
-  fortyFiveDoneSessions,
   preferShortRecentlyDoneBody,
   revealRecentlyDoneThrough,
 } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPaging.ts";
+import { fortyFiveDoneSessions } from "../../dashboard/test-support/retainedDoneSessions.ts";
 import {
   recentlyDoneHeightKey,
   showRecentlyDone,

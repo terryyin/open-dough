@@ -4,7 +4,6 @@
 // Board isolation of detail reads:
 // ../../../e2e/sessions/recently-done-sessions-sidebar-paging-board.spec.ts.
 import {
-  agentLaunchEndpoint,
   recentlyDoneSessionsInitialLimit,
   type LaunchRecord,
 } from "../../src/agentLaunch.ts";
@@ -17,10 +16,10 @@ import {
 import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
 import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
 import {
-  fortyFiveDoneSessions,
   preferShortRecentlyDoneBody,
   revealRecentlyDoneThrough,
 } from "../../test-support/recentlyDoneSessionsSidebarPaging.ts";
+import { fortyFiveDoneSessions } from "../../test-support/retainedDoneSessions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   expectRecentlyDone,
@@ -34,7 +33,6 @@ import {
   openSessionsSidebar,
 } from "../../test-support/sessionsSidebarPage.ts";
 import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
 import { openFrontendThreeProjects } from "../../test-support/support/frontendRecentlyDoneSidebar.ts";
 
 test("scrolling Recently done reaches all 45 retained sessions and refresh keeps the reached older range", async ({
@@ -183,60 +181,4 @@ test("scrolling Recently done reaches all 45 retained sessions and refresh keeps
     await shown.header.click();
     await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
   });
-});
-
-test("delayed first session read and a failed refresh keep existing read semantics", async ({
-  page,
-  frontendServices,
-}) => {
-  const opened = new Date("2026-10-28T12:00:00.000Z");
-  await pausePageClockAt(page, opened);
-  const { passOnePace } = await watchRecordReads(page);
-  const { records, titles } = fortyFiveDoneSessions(opened.getTime());
-  await preferShortRecentlyDoneBody(page, recentlyDoneHeightKey);
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer.observingUnavailable(...records).please(),
-  );
-  let releaseFirst = () => {};
-  const firstHeld = new Promise<void>((resolve) => {
-    releaseFirst = resolve;
-  });
-  await page.route(
-    (url) => url.pathname === agentLaunchEndpoint,
-    async (route) => {
-      if (route.request().method() !== "GET") {
-        await fulfillJson(route, { error: "Not used in frontend tests." }, 405);
-        return;
-      }
-      await firstHeld;
-      if (frontendServices.machine === undefined) {
-        await fulfillJson(route, { error: "Ask again." }, 503);
-        return;
-      }
-      await fulfillJson(route, frontendServices.machine);
-    },
-  );
-  await openFrontendThreeProjects(page, frontendServices);
-  const shown = await showRecentlyDone(page);
-  await expect(shown.body).toContainText("Reading sessions…");
-  await expect(shown.entries).toHaveCount(0);
-  releaseFirst();
-  await expect(shown.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
-  expect(await shown.titles.allTextContents()).toEqual(
-    titles.slice(0, recentlyDoneSessionsInitialLimit),
-  );
-
-  await revealRecentlyDoneThrough(shown, 40);
-  await page.route(
-    (url) => url.pathname === agentLaunchEndpoint,
-    async (route) => {
-      await (route.request().method() === "GET"
-        ? route.abort("connectionrefused")
-        : route.continue());
-    },
-  );
-  frontendServices.answerMachine(makeMe.aMachineAnswer.please());
-  await passOnePace();
-  await expect(shown.entries).toHaveCount(40);
-  await expect(shown.body).not.toContainText("No sessions marked done");
 });
