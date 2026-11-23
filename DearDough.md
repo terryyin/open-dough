@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 631. Removed numbers are never reused.
+- Highest allocated local number: 632. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
@@ -565,6 +565,15 @@ The story promised a third of the story-notes time on the strength of phone-boar
   - Evidence: plan 724 premise "five passes in 2.07 s" from a scratch probe against the family finish: five moved cases summed 6.97–8.00 s mounted against 6.28 s built-app; a profile put 60–75% of each case in browser clicks (~150 ms) and the `actSettled` frame round (~85 ms).
   - Observed effect: a recurrence; the family delivered no case-time gain, and the comparison and a candidate settle change went to the later families' story.
 
+- Execution: SEED-413#reach-eight-second-launch-feedback (plan 787; first related commit `575ab48fd`, no implementation commit)
+  - Timestamp: 2026-11-23T14:49:00+08:00 (Slice 1 return)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111
+  - Evidence: plan 787's premise required "at least 6.536–6.852 aggregate case-seconds" from case sums alone; Slice 1 (`575ab48fd`, plan Slice 1 results) found 2.95 s of non-case overhead (14.2 − 22.5/2), raising the need to about 12.4; Slice 2 (`35aabbb28`) found only 1.0–1.3 s of it removable; Slice 3 (`67c8d82a7`) found the merged refinement case cost the same as its predecessors.
+  - Observed effect: the maintainer closed the story at the measured gap after three slices, with no product change.
+  - Inference: matched as a recurrence because the speed goal was again sized without the real cost composition (here non-case overhead and click-bound cases). Checking the target against the shell total, not the case sum, while planning would likely have raised the gap before Take.
+
 ## DD-589 — A unit-test approach states a whole machine instead of the input its handler reads <a id="dd-589"></a>
 
 Plan 721's readiness-approved approach had each in-process case state a machine home through MakeMe stored documents and mount the project list through `mountProjectConfiguration`, which the plan called a production function though only test support called it. No planning or readiness check asked whether a case builds only the data its handler reads. The typed input later proposed in its place was again stated from the adapter's reads and named a source nothing under the handler reads.
@@ -962,3 +971,18 @@ Source-review commitment 1 (each touched Intent test reads at one level) was all
   - Evidence: slice 8 brief and first return; the coordinator returned the two cases (`intent-reading-place.spec.ts` reset count, `intent-home-activation-scope.spec.ts` story note) and the second return fixed them through `story.pressedControlCount()` and `ci.notes()`.
   - Observed effect: one extra implementer round and proof run of about 4 minutes.
   - Inference: a brief carrying a story-wide commitment needs the story-wide edit authority that commitment implies.
+
+## DD-632 — Timing comparisons ran while another worktree's deliberate stress experiment saturated the shared machine <a id="dd-632"></a>
+
+A timing-goal execution measured paired runs while another worktree ran a deliberate load experiment (`yes` processes and concurrent browser runs). Nothing told either execution about the other, so no uncontended series was possible and every conclusion stayed relative.
+
+### Occurrences
+
+- Execution: SEED-413#reach-eight-second-launch-feedback (plan 787; first related commit `575ab48fd`, no implementation commit)
+  - Timestamp: 2026-11-23T14:49:00+08:00 (Slice 1 return; stress seen 14:41–15:05)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111
+  - Evidence: Slice 1 report (load 21–94, 86 `/usr/bin/yes` children of `keep-the-attention-completion-journey-within-its/.../loaded-completion.sh`); Slice 3 runs `s3-pair-after-1` and `s3-pair-base-3` timed out on a two-lane click stall at 15:04–15:05, then `s3-repro-1..5` passed at load 13–18.
+  - Observed effect: the maintainer decided the target on load-inflated relative numbers, and one stall needed a reproduction check before classification.
+  - Inference: a machine-wide notice or admission for deliberate stress or timing work would let a timing execution wait or let the stress run defer. Cost is qualified: the closure decision probably would not have changed.

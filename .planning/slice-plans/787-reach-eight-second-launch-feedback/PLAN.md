@@ -283,3 +283,10 @@ Eight slices were planned. After Slice 1's measurement, Slice 2 was widened from
 Reported: slice 3 — "Eight seconds is not credible on this route; the merged refinement case saved no reproducible time."
 Story clause: "The maintainer closed this story at the measured gap"
 Disposition: owner changed "The maintainer closed this story at the measured gap: the launch selection is not brought to about eight seconds, and the remaining case-shortening work is dropped."
+
+## Execution complete
+
+Product advice: no new story. Size the remaining SEED-413 speed targets from a measured shell
+composition, not case sums: about 2.6 s for a single-file selection, 1.1–1.6 s for each project's
+cold first file, 0.10–0.15 s of isolation per further file per lane, and case time dominated by
+real clicks and dialog settling.
