@@ -4,20 +4,15 @@
 // above the comparison on a phone. The collection-to-Summary journey owns
 // actual retained evidence.
 import { expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { rowTextsOf } from "./intent-ci-comparison-page.ts";
 import { comparisonIn } from "./intent-ci-scope-page.tsx";
+import { openDoneScopeHistory } from "./intent-done-scope-history.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
-import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
 import {
   doneEntryComparisonRows,
   doneEntryOwnFigures,
-  openDoneStoryComparison,
-  publishedCompletion,
 } from "./intent-story-compare-stories.ts";
 
 const collected = (path: string, selectedRevision: string) =>
@@ -52,25 +47,19 @@ const collected = (path: string, selectedRevision: string) =>
 test("a failed local entry history read keeps the selected Done story and comparison and offers its own retry", async () => {
   let reads = 0;
   let release: () => void = () => undefined;
-  await openDoneStoryComparison({
-    review: () => Promise.resolve(publishedCompletion()),
-    ci: {
-      readScopeHistory: (...[, path, endpoint]) => {
-        reads += 1;
-        if (reads === 1)
-          return Promise.reject(new Error("Local history unavailable"));
-        return new Promise((resolve) => {
-          release = () => {
-            resolve(collected(path, endpoint.revision));
-          };
-        });
-      },
+  const { summary, history } = await openDoneScopeHistory(
+    (path, selectedRevision) => {
+      reads += 1;
+      if (reads === 1)
+        return Promise.reject(new Error("Local history unavailable"));
+      return new Promise((resolve) => {
+        release = () => {
+          resolve(collected(path, selectedRevision));
+        };
+      });
     },
-  });
-  await page.viewport(390, 844);
-  await intentStoryCompare().chooseTab("Changes");
-  const summary = await openScopeSummary("dashboard/tests");
-  const history = scopeHistoryIn(summary);
+    { phone: true },
+  );
   const table = summary.getByRole("table", {
     name: "CI proof of the immediate folders and files of dashboard/tests",
     exact: true,

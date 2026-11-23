@@ -59,6 +59,8 @@ function chartIn(
   return {
     drawn: () => readoutElement() !== null,
     marks: () => box()?.querySelectorAll("button").length ?? 0,
+    // Each drawn part's title: a mark's date, timing, unit and build role.
+    titles: () => within("title").map((node) => node.textContent),
     readout: () => {
       const node = readoutElement();
       return node === null ? "" : visibleText(node);

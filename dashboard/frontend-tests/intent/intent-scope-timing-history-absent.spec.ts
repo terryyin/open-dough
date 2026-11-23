@@ -6,19 +6,11 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { comparisonIn } from "./intent-ci-scope-page.tsx";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
-import {
-  doneCompletion,
-  doneEntryComparisonRows,
-  doneEntryOwnFigures,
-  openDoneStoryComparison,
-  publishedCompletion,
-} from "./intent-story-compare-stories.ts";
+  expectDoneEntryComparisonKept,
+  openDoneScopeHistory,
+} from "./intent-done-scope-history.ts";
+import { doneCompletion } from "./intent-story-compare-stories.ts";
 
 const gap = {
   status: "unavailable",
@@ -27,55 +19,47 @@ const gap = {
 
 for (const variant of ["empty", "all gaps"] as const) {
   test(`${variant} scope history explains the absence of measurements without drawing an empty chart`, async () => {
-    await openDoneStoryComparison({
-      review: () => Promise.resolve(publishedCompletion()),
-      ci: {
-        readScopeHistory: (...[, path, endpoint]) =>
-          Promise.resolve(
-            makeMe.aScopeHistoryGlance
-              .with({
-                path,
-                selectedRevision: endpoint.revision,
-                availability: variant === "empty" ? "empty" : "retained",
-                entries:
-                  variant === "empty"
-                    ? []
-                    : [
-                        {
+    const { summary, history } = await openDoneScopeHistory(
+      (path, selectedRevision) =>
+        makeMe.aScopeHistoryGlance
+          .with({
+            path,
+            selectedRevision,
+            availability: variant === "empty" ? "empty" : "retained",
+            entries:
+              variant === "empty"
+                ? []
+                : [
+                    {
+                      key: "run/43/1",
+                      kind: "gap",
+                      date: "2026-11-06T10:00:00Z",
+                      selected: true,
+                      landings: [{ selected: true, provenance: "exact" }],
+                      readings: [{ kind: "gap", unit: "case", ...gap }],
+                      gap,
+                    },
+                  ],
+            references:
+              variant === "empty"
+                ? []
+                : [
+                    {
+                      unit: "case",
+                      reference: {
+                        endpoint: selectedRevision,
+                        selected: {
                           key: "run/43/1",
-                          kind: "gap",
                           date: "2026-11-06T10:00:00Z",
-                          selected: true,
-                          landings: [{ selected: true, provenance: "exact" }],
-                          readings: [{ kind: "gap", unit: "case", ...gap }],
-                          gap,
+                          reason: gap.reason,
                         },
-                      ],
-                references:
-                  variant === "empty"
-                    ? []
-                    : [
-                        {
-                          unit: "case",
-                          reference: {
-                            endpoint: endpoint.revision,
-                            selected: {
-                              key: "run/43/1",
-                              date: "2026-11-06T10:00:00Z",
-                              reason: gap.reason,
-                            },
-                            sampleCount: 0,
-                          },
-                        },
-                      ],
-              })
-              .please(),
-          ),
-      },
-    });
-    await intentStoryCompare().chooseTab("Changes");
-    const summary = await openScopeSummary("dashboard/tests");
-    const history = scopeHistoryIn(summary);
+                        sampleCount: 0,
+                      },
+                    },
+                  ],
+          })
+          .please(),
+    );
     if (variant === "empty") {
       await expect.poll(history.status).toBe("No collected history");
       expect(history.text()).toContain(
@@ -97,14 +81,6 @@ for (const variant of ["empty", "all gaps"] as const) {
     }
     expect(history.charts()).toBe(0);
     expect(history.lists()).toBe(0);
-    const comparison = comparisonIn(summary);
-    expect(
-      comparison.rowsOf(
-        "CI proof of the immediate folders and files of dashboard/tests",
-      ),
-    ).toEqual(doneEntryComparisonRows);
-    expect(comparison.figuresOf("CI proof of dashboard/tests")).toEqual(
-      doneEntryOwnFigures,
-    );
+    expectDoneEntryComparisonKept(summary);
   });
 }

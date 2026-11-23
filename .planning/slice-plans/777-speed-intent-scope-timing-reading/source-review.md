@@ -18,16 +18,16 @@ final story, and coordination.
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 1a | Done selected landing without its own build, later trunk build stands in: readout names the expired proof and the later build | slice 4 | |
-| 1b | Same stand-in case: the average reads Insufficient history and no chart is drawn | slice 4 | |
-| 1c | Same stand-in case at 390 px: nothing scrolls sideways | slice 4 | |
-| 1d | A pending selected build reads `Pending · CI queued or running` with no measured time | slice 4 | |
+| 1a | Done selected landing without its own build, later trunk build stands in: readout names the expired proof and the later build | slice 4 | observed: dashboard/frontend-tests/intent/intent-scope-timing-history-gaps.spec.ts "a selected proof gap from a later trunk build…" (Vitest, 390×844): readout selected names Expired CI proof summary and Later trunk build, includes later changes; stand-in wording break check failed it |
+| 1b | Same stand-in case: the average reads Insufficient history and no chart is drawn | slice 4 | observed: dashboard/frontend-tests/intent/intent-scope-timing-history-gaps.spec.ts same case: average Prior-build average · Insufficient history, history.charts() 0 |
+| 1c | Same stand-in case at 390 px: nothing scrolls sideways | slice 4 | observed: dashboard/frontend-tests/intent/intent-scope-timing-history-gaps.spec.ts same case at 390×844: history.scrollingSideways() equals [] |
+| 1d | A pending selected build reads `Pending · CI queued or running` with no measured time | slice 4 | observed: dashboard/frontend-tests/intent/intent-scope-timing-history-gaps.spec.ts pending case with the literal pending answer: reads Pending · CI queued or running and No complete test execution times are available for this scope., no chart; selected-gap status fallback break check failed it |
 | 2a | One attempt with case and file timing: choosing Test files redraws the chart with file values and their own selected gap | slice 5 | |
 | 2b | Legacy-only evidence states that its unit is unknown | slice 5 | |
 | 3a | Earlier segments stay readable beside a selected gap | slice 5 | |
 | 3b | The line never joins incompatible segments | slice 5 | |
-| 3c | A later trunk build that supplies the selected timing stays named | slice 4 | |
-| 3d | Each mark names its build's role | slice 4 | |
+| 3c | A later trunk build that supplies the selected timing stays named | slice 4 | observed: dashboard/frontend-tests/intent/intent-scope-timing-history-provenance.spec.ts (Vitest): readout selected names Later trunk build, includes later changes with 2.4 s; stand-in wording break check failed it |
+| 3d | Each mark names its build's role | slice 4 | observed: dashboard/frontend-tests/intent/intent-scope-timing-history-provenance.spec.ts: chart.titles() names each mark's build role (e.g. Nov 8 · 2.4 s · test cases · Later trunk build, includes later changes · Selected landing) |
 | 4 | A failed entry history read keeps the selected Done story and comparison and offers its own Retry | slice 3 | observed: dashboard/frontend-tests/intent/intent-scope-timing-history-reading.spec.ts (Vitest): failed first read keeps Story A, the comparison rows, own figures and history-above-table order; Retry rereads (1 → 2, break-checked), held read shows "Reading collected test execution times…", answer charts above the unchanged comparison at 390×844 |
 | 5a | Done and Project charts show failed, unavailable, zero and selected marks | slice 7 | |
 | 5b | Hovering a mark shows the matching readout (Done and Project) | slice 7 | |

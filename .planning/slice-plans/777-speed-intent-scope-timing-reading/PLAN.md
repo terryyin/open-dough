@@ -229,7 +229,7 @@ prior builds.
 ### 4. Selected gaps and their stand-ins read their status
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-scope-timing-history-gaps` (3 cases) and
 `intent-scope-timing-history-provenance` (1 case), using the literal pending
@@ -245,6 +245,17 @@ role.
 **Proof.** The two moved files pass on Vitest at the legacy viewports, and
 each has the full no-sideways check where legacy had one. Delete the legacy
 files.
+
+**Accepted proof.** The two moved specs pass on Vitest (4 cases), with
+`scrollingSideways()` at 390×844 where legacy checked it. Breaking the
+selected-gap status fallback failed the pending case, and shortening the
+stand-in wording failed the expired-gap and provenance cases. The legacy
+short-SHA exclusions could not fail. Provenance now carries the later
+revision in its adapter key and fails if keys render. The gaps exclusions
+were removed because the glance carries no such field;
+`dashboard/backend-tests/intent/ci-history-slim-response.spec.ts` owns that.
+Later slices open a Done scope history through `openDoneScopeHistory` and
+`expectDoneEntryComparisonKept` (`intent/intent-done-scope-history.ts`).
 
 ### 5. Case and file units and segments chart separately
 
