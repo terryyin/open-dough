@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison ([plan](slice-plans/791-read-ci-proof-for-the-selected-comparison/PLAN.md))
 - [Call custom CI through a minimal adapter interface](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter ([plan](slice-plans/793-call-custom-ci-through-a-minimal-adapter-interface/PLAN.md))
 - [Update from the previous release without legacy readers](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats ([plan](slice-plans/794-update-from-the-previous-release-without-legacy/PLAN.md))
 - [Read and collect CI proof only in declared units](seeds/SEED-423-shrink-the-installed-distribution.md#require-declared-units-in-ci-proof) — SEED-423#require-declared-units-in-ci-proof ([plan](slice-plans/795-require-declared-units-in-ci-proof/PLAN.md))
@@ -36,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
 - [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof

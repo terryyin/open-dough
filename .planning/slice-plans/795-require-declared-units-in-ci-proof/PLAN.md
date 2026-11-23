@@ -70,7 +70,7 @@ from `/opt/homebrew/bin` and the AC sleep guard.
 
 The worktree baseline predates the adapter work in
 [plan 793](../793-call-custom-ci-through-a-minimal-adapter-interface/PLAN.md)
-and the selected comparison work in [plan 791](../791-read-ci-proof-for-the-selected-comparison/PLAN.md).
+and the selected comparison story in [SEED-420](../../seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison).
 Neither supplies a missing capability. Before editing a path those plans also
 change, trace the landed caller and rerun the affected focused proofs if the
 boundary moved. Keep the adapter command, proof acquisition rules and

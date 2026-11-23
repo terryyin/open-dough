@@ -31,7 +31,7 @@ usable change, independently of the later polish.
 
 **Identity:** SEED-420#read-proof-for-the-comparison
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/791-read-ci-proof-for-the-selected-comparison/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"104802e7239241fea950d7813fb778ab0813f7d940ffc9409693464ab8309bd5","plan":"4056545ae782c7851c27dffecf197fbc2a330c6e1066595362786a2bc0f0a228"}}
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
 ```
 
 **Goal.** A reviewer reading a story in Intent can tell what CI measured for
@@ -99,6 +99,29 @@ is out of scope. This story reads existing runs.
 **Effort hypothesis:** M, medium confidence. Existing endpoint lookups
 generalize from the story's start and result to the comparison's start and
 end. The comparison read must carry the selection.
+
+**Learning.** An attempt to build this was abandoned before a reviewer could
+see a selected comparison. The read can carry an optional pair of full
+40-hex revisions and refuse a malformed or half pair before any Git or
+GitHub call. For a published Done story that pair resolves with the
+existing lookups: the start side is the newest completed build at or before
+the start, and the end side is the build at the end, kept in the landed
+slot. The branch slot stays today's Trunk Mode explanation. Without a pair,
+the whole-story comparison is unchanged. Remember the answer per story and
+selection. Keep that resolution in its own module. Folding it into
+`intentCiComparisonResolve.ts` grew that file past its size limit, and it
+did not typecheck. The end walk already excludes the start's own build.
+
+Intent never sent the pair, so the screen still describes the whole story.
+Wiring that send, and then showing Baseline and Selection instead of the
+whole-story note, did not fit the slice limit. Five attempts overran before
+proof. Sending the pair while the note still says the view describes the
+whole story would show the selection's builds under that note. Passing an
+optional selection as `undefined` fails `exactOptionalPropertyTypes`; omit
+the prop when there is no pair. The missing-delta wording and a Taken
+commit range, which still needs the chosen commit's first parent, were not
+started. Plan the next attempt from this learning. The abandoned plan is
+not current.
 
 <a id="choose-review-scope"></a>
 
