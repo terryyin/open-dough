@@ -106,7 +106,7 @@ as written.
 ### 2. The watcher reports the configured provider's verdict and failure evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
 With an installed watcher and project-owned adapter, register an exact revision
 and observe pending, success or a diagnosed failure using the documented
@@ -120,6 +120,21 @@ cases, integrated-state and queue cases, and `ci-github-acquisition.test.mjs`
 and `ci-github-diagnostic.test.mjs`. Assert the request for the failed attempt,
 one bounded excerpt or unavailability, no GitHub fallback from invalid custom
 output, and GitHub selection with absent or empty adapter configuration.
+
+**Delivered.** `manuals/custom-ci.md` (246→227 lines) states `discover` as one
+field table and `diagnose` separately, gathers limits and failures under the
+contract, and moves observer retention, registration and integrated-state
+completion under "How the observer uses the answers". Provider-query advice and
+duplicate read-only statements are gone; runtime unchanged. Existing tests cover
+the promises: `ci-command-adapter-cli` (configured command; absent or empty
+setting selects GitHub), `ci-command-adapter-failures` (one 16 KiB bounded
+excerpt or unavailability, keyed by the failed `attemptId`; no test asserts the
+request shape itself), `ci-command-adapter-unavailable` (no GitHub fallback;
+known failure survives lost diagnostics), `ci-integrated-state-*` and
+`ci-queue-coverage` — 101 cases passed. The install checks
+(`payload-declaration-links`, `execution-payload-update`,
+`install-public-payload`, `install-preserves-open-dough-json`) passed and ran
+the manual's example for discover and diagnose.
 
 ### 3. Intent reads proof from the selected attempt
 
