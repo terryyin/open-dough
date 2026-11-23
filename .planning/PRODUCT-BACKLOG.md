@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Keep the attention completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout) — SEED-341#keep-attention-completion-journey-within-timeout ([plan](slice-plans/782-keep-attention-completion-journey-within-timeout/PLAN.md))
 - [Catch delegated lint failures before guarded delivery](seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery) — SEED-345#catch-delegated-lint-before-delivery ([plan](slice-plans/786-catch-delegated-lint-before-delivery/PLAN.md))
-- [Bring launch test feedback to about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#reach-eight-second-launch-feedback) — SEED-413#reach-eight-second-launch-feedback ([plan](slice-plans/787-reach-eight-second-launch-feedback/PLAN.md))
 
 ## Backlog list
 
