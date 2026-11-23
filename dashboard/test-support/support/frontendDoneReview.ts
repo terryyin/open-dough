@@ -22,7 +22,7 @@ export async function prepareFrontendDoneReview(
       .with({ kind: "modified", path: "dashboard/src/App.tsx" })
       .please(),
   ];
-  const setup = await prepareFrontendDoneIntent(page, services, undefined, {
+  const setup = await prepareFrontendDoneIntent(page, services, {
     files: { [path]: `${historical}\n` },
     changed: files,
     locations: [

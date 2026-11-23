@@ -548,7 +548,7 @@ E2E and scratch observations still apply. See `slice-7-refactor.md`.
 ### 8. Show recorded progress, execution completion and coverage with their gaps
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `stories/taken-slice-progress`, `stories/plan-execution-complete-detail`
 and `intent/intent-story-coverage` (6 legacy cases) over the existing
@@ -566,6 +566,101 @@ advice from the recorded completion. Coverage preserves reported,
 insufficient, unavailable, absent and failed/retry meanings. Opening a
 disclosure adds no read if the facts were already projected, and future
 plan proof provides no completed coverage.
+
+**Accepted behavior and case disposition.** All six cases moved at their
+original paths. Typed projections drive the actual Taken bar, count and
+Inspect list at successive revisions and keep absent and uninterpretable
+plans distinct. Opening actual Inspect shows exact multiline product
+advice as text, a completion with an unreadable advice gap, or no
+completion. It adds no detail-file read when the plan facts are present.
+Three settled cases render the coverage owner directly. The fourth uses
+the real selected Done record reader, observes its pending and failed
+states and actual Retry, then reads the exact saved result. A prospective
+plan recipe remains visible in Inspect while the same active story's
+Coverage view has no completed assessment.
+
+The mixed gate passed six mounted and eight existing Playwright caller
+cases. All six mounted cases caught the deliberate progress, coverage
+or future-proof regressions and production bytes were restored. Typecheck
+passed. Existing `story-readiness.spec.ts` verified publication of a new
+two-slice plan, reload, and exact inspected-detail request count. The
+existing branch-progress and completion E2E retain plan interpretation
+and provenance in the paired E2E selection.
+
+The Playwright `expectSliceBar` and the historical Done fixture's unused
+saved coverage argument retired. Active historical review callers keep
+the remaining fixture shape, and their observed journeys passed. The
+browser MakeMe entry exports the existing Node-free slice plan builder.
+The progress spec still imports the `PlanSlice` type. The completion
+spec and reached outside-proof and Summary-file specs keep zero direct
+production imports. The coverage spec adds `IntentStoryCoverage` and
+the `DoneRecordReadSource` type. The historical test fixture drops the
+Distribution coverage type, retaining three product imports. Its adapter,
+the card fact helpers and page MakeMe keep zero direct product imports.
+Source review C27–C33 and `slice-8-return.md` record actual observations,
+the trace and terminal runs. The independent pass compares the held and
+retried Done requests with the fixture's independent project, revision
+and record path. That exact Retry case passed again. It also updates
+the transport-holder helper's caller comment as the mounted coverage
+case leaves it. Neither file gains a direct production import. See
+`slice-8-refactor.md`.
+
+Source and plan were unchanged at pinned trunk `11f4900b`. The landed
+scope-timing sibling adds other observed figures to the shared compared
+story fixture without changing its reached read contract. Its Board
+test refactor removes alias exports and updates their consumers without
+changing the Notes subscription or this slice's mounted Board entry.
+The candidate and pinned trunk have a clean three-way integration.
+
+## Cohort case disposition
+
+The [complete case disposition](case-disposition.md) reconciles the original
+41 Playwright cases, the two shortcut retirements, the additional
+outside-locations note and the six preexisting mounted Notes checks.
+Independent engine listings found 40 Playwright and six Vitest cases at
+the execution base. The candidate selects zero Playwright and 46 Vitest.
+One combined Notes keyboard and close-focus journey offsets the additional
+mounted header-appearance case. The retained built-page selection adds
+one catalog Retry case for nine E2E cases.
+
+## Paired timing
+
+Both selections ran with two workers, default timeouts and the maintained
+AC sleep guard on the same 16-logical-core Mac with Node 24.21.0 and the
+locked Chromium. The original checkout was `57cd409a3`. The candidate
+was `330f14ea` with the final Slice 8 test and support edits. Candidate
+then original ran consecutively for each pair. All four proof receipts
+were strictly green. Times are shell elapsed and include preparation.
+
+| Selection | Before | After | Before cases | After cases |
+| --- | ---: | ---: | --- | --- |
+| Dashboard frontend | 77.10 s | 44.91 s | 40 Playwright and 6 Vitest | 46 Vitest |
+| Retained and promoted E2E | 61.55 s | 52.21 s | 8 Playwright | 9 Playwright |
+| Combined | 138.65 s | 97.12 s | 54 | 55 |
+
+Frontend wall time fell 41.8% in this pair. Frontend summed case time
+fell from 114.99 s to 57.48 s. The largest remaining mounted cases were
+selected-only inventory (4.22 s) and historical refresh (3.55 s).
+The retained readable-workspace and historical renamed-source E2E
+cases took 14.67 s and 11.82 s. The extra catalog Retry took 3.04 s
+within the nine-case run. The whole measured selection was 29.95%
+faster. The E2E timings vary with harness preparation and shared host
+load, so the frontend pair is the direct evidence for the migration's
+gain.
+
+Five-minute host load at the before and after frontend launches was
+43.29 and 46.52, and free memory was 56% and 58%. The E2E launches
+were 38.32 and 39.58, with the same 56% and 58% free memory. Other
+worktrees and host services shared the machine. The earlier pair's
+frontend runs also passed at 104.08 s and 59.53 s while load rose.
+Its candidate E2E run started at one-minute load 84.42 and timed out
+near the retained-workspace case's last assertion. That trace records
+the historical and live Review checks reaching the final diff read.
+The second, more comparable pair passed that case in both selections
+under the original timeout. The failed E2E receipt is excluded from
+the timing table. The worktree's Git evidence has the exact four
+`pair2-*` commands, host snapshots and proof records, the rejected
+first pair's timeout trace and the independent engine listings.
 
 ## Slice review
 

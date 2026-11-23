@@ -33,19 +33,12 @@ test("an outside file's Proof names the story's CI comparison and says it has no
   frontendServices,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  const setup = await prepareFrontendDoneIntent(
-    page,
-    frontendServices,
-    undefined,
-    {
-      comparison: (story) =>
-        story.withChanged(
-          makeMe.aReviewedFile
-            .with({ kind: "modified", path: landing })
-            .please(),
-        ),
-    },
-  );
+  const setup = await prepareFrontendDoneIntent(page, frontendServices, {
+    comparison: (story) =>
+      story.withChanged(
+        makeMe.aReviewedFile.with({ kind: "modified", path: landing }).please(),
+      ),
+  });
   setup.review.answerFile(
     frontendFileDiff(
       landing,
