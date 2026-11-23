@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "ee25aaa1-f81e-4460-931c-43379d2b3b96",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T11:28:20.402Z",
+  "story": "SEED-413#optimize-done-capture-family-cases",
+  "ranges": [
+    {
+      "base": "e4c34934b165da2e4a7929f99668165b70218bbe",
+      "candidate": "c303982fa3c3bd9c95e701dc67ed2a93bd0366f0"
+    }
+  ]
+}
