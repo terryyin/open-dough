@@ -107,12 +107,12 @@ Exclude unrelated test families, new E2E cases, and a change in worker count.
   share a mount, it may merge them to remove per-file isolation, keeping
   pointer project assignment and every mapped witness. Slice 8 brings the
   measured gap and a re-target decision to the maintainer.
-- **Hold after Slice 3 (2026-11-23).** The first case slice's premise also
-  failed: merging the No Approach and refusal cases saved nothing, because
-  the case time is the real option and dialog interaction itself. With
-  eight seconds already not credible (Slice 2) and no reproducible case
-  saving, slices 4–8 are held for the maintainer's decision on the target
-  and remaining route, as the story's Evaluation directs.
+- **Closure after Slice 3 (2026-11-23).** The first case slice's premise
+  also failed: merging the No Approach and refusal cases saved nothing,
+  because the case time is the real option and dialog interaction itself.
+  With eight seconds already not credible after Slice 2, the maintainer
+  chose to close the story at the measured gap and drop the remaining
+  case-shortening slices; the story records that decision.
 
 ## Local gates and timing
 
@@ -155,14 +155,9 @@ accepted increments and record incomplete target proof.
 
 | Promise | Owner and observation |
 | --- | --- |
-| Complete launch feedback in about eight seconds with two workers | Slices 1 and 8. Strict focused-group runs, exact roster and shell real time over both pairs. |
-| Refinement offer gating and reload, No Approach, refusal/reopen/Cancel, and exact start arguments | Slice 3. The card still sees held/reread offers and the real launcher still submits and resets through its real dialog. |
-| Desktop offers, notes and action order, native hover, keyboard focus and return, contrast | Slice 4. Observe both offers in desktop Chromium, with the current markup, CSS and focus signals. |
-| Narrow and zoomed geometry, responsive workspace policies, touch and real keyboard reachability | Slice 5. Run the launch layout and touch witnesses and keep the native policy/input and geometry observations. |
-| Dictation, transcription, and the draft after interruption | Slice 6. Retain both Cancel and Escape, track/request disposal, and the next draft after late results. |
-| Host defaults, effort and dismissals on the shared and composed launch entries | Slice 7. Verify actual dialog state and chosen launch across its callers. |
-| Runner preparation changes preserve selection, isolation, project assignments, and proof output | Slice 2 if changed. Full frontend gate, exercised runner modes, and affected shared consumers. |
-| Typed creation, launch record association, composed startup/notes, and existing E2E wiring | Slice 8. Whole launch roster and evidence for any affected composed consumers from the trace. |
+| Complete launch feedback in about eight seconds with two workers | Slices 1–3 measured the route; the maintainer closed the story at the measured gap (G1). |
+| Refinement offer gating and reload, No Approach, refusal/reopen/Cancel, and exact start arguments | Slice 3. The existing card-mounted cases still observe them; the trial was reverted. |
+| Runner preparation changes preserve selection, isolation, project assignments, and proof output | Slice 2 if changed. Not triggered: no runner change was kept. |
 
 ## Slices
 
@@ -278,74 +273,13 @@ runs were active. Five focused reruns at load 13–18 after that stress ended
 all passed (`s3-repro-1..5`), so it is classified as extreme-load only,
 outside the maintainer's ~32 load profile. Report: execution evidence `slice-3-report.md`.
 
-### 4. Shorten the fine-pointer Start offer checks
-Type: Behavior
-Status: planned
-
-Use `story-card-launch-offers` and `story-card-startup`. Keep the ready,
-unassessed, Preparing, unavailable, and Taken distinctions, both notes and
-exact dialog wording, both tooltip presentations, visible focus and return,
-glyphs and contrast. Check which duplicate launcher interactions only set up
-assertions already owned by shared Start behavior. Keep actual hover, Tab,
-Enter and Escape where they distinguish the user outcome, including the
-narrow and zoomed paths. Look for 1–1.5 case-seconds of duplicated
-preparation or redundant input out of 3.18 in the offers file. Verify the
-fine-pointer media match on both remaining desktop specs.
-
-### 5. Shorten the responsive dialog matrix
-Type: Behavior
-Status: planned
-
-Use `ad-hoc-start-session-layout`, `ad-hoc-launch-dialog` and
-`ad-hoc-refinement-touch`. Drive the real `StartSession` with offered and
-unavailable policies and the real `StartLaunch` with the dense shipped
-definition. Keep both workspace choices and the four policy/viewport
-observations, the refusal explanation, collapsed options, and every
-containment and reachability assertion. Use the current viewport and zoom
-helpers. Compare lower-overhead activation for setup and local geometry
-reads after the corresponding committed render. Keep native tab order and
-touch rotation/draft continuity. Expected removable cost to test is
-1–1.5 case-seconds in the two layout files (3.16 historically).
-
-### 6. Shorten voice and transcript setup
-Type: Behavior
-Status: planned
-
-Use `mounted-instruction-voice`, `mounted-instruction-voice-overflow`,
-`mounted-instruction-voice-capture-failures` and `transcript-review`.
-Reuse the typed recorder and transcription fixtures and direct mounted
-dialog. Measure setup for recording, late permission and late transcription,
-and repeated review opening. Keep actual permission, track-end, retry,
-Discard, Cancel and Escape outcomes, including an explicit focus wait before
-keyboard navigation after review appears. Keep the 4,000-character and final
-Start payload observations at their owners. Look for 1.5–2.0
-case-seconds out of the historical 3.95 in the mounted voice files.
-
-### 7. Shorten shared dialog setup across launcher cases
-Type: Behavior
-Status: planned
-
-Use `launch-model-effort`, `launch-host-catalog`,
-`story-card-launch-dialogs` and `ad-hoc-start-session.spec.ts`. Keep exact
-host/model/effort choices, late/aborted catalog answers and reset on
-host switch and dismissal through the existing typed catalog mount. Retain
-the real launcher and native focus return where that is the observed
-handoff. Measure up to 1.0 case-second of repeated host setup. This slice
-owns host setup. Slice 3 owns option offers and refusal/reset.
-
-### 8. Verify the whole-selection target and retained proof
-Type: Behavior
-Status: planned
-
-Run the two comparable pairs with the standard selection and retain their
-elapsed results and exact rosters. Map original cases to surviving witnesses.
-Check typed unresolved creation and both pointer projects. Inspect affected
-composed startup, note handoff and record-detail evidence. Replay existing
-E2E where the trace reaches it. Apply the gap decision if the target remains open.
-
 ## Plan review
 
-Eight slices; Slice 2 was widened from the runner-parse experiment and moved first after Slice 1's measurement. Separate refinement was unnecessary because each experiment
-owns one measured cost and identifies its surviving behavior witnesses.
-The probe resolves current cost and biases before dependent edits. No
-additional slice-specific blocking concern was found.
+Eight slices were planned. After Slice 1's measurement, Slice 2 was widened from the runner-parse experiment and moved first. After Slice 3, the maintainer closed the story at the measured gap and the remaining case slices were dropped.
+
+## Story obligations
+
+### G1. Launch selection not brought to about eight seconds
+Reported: slice 3 — "Eight seconds is not credible on this route; the merged refinement case saved no reproducible time."
+Story clause: "The maintainer closed this story at the measured gap"
+Disposition: owner changed "The maintainer closed this story at the measured gap: the launch selection is not brought to about eight seconds, and the remaining case-shortening work is dropped."

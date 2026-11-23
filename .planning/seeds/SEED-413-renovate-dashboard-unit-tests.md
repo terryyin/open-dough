@@ -708,6 +708,9 @@ on 22 November 2026, when its correction found that rendering production
   on similar host load. Count elapsed preparation and report exact case
   rosters. If the measured savings leave no credible path to about eight
   seconds, bring the remaining gap and a decision to the maintainer.
+- **Decision (2026-11-23).** The maintainer closed this story at the
+  measured gap: the launch selection is not brought to about eight seconds,
+  and the remaining case-shortening work is dropped.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 
