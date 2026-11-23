@@ -308,6 +308,13 @@ push.
   session-record suites and two quiet-completion E2E cases passed again.
   See `slice-6-return.md` and `slice-6-refactor-return.md` in Git evidence.
 
+## Execution complete
+
+Product advice: No change to the product backlog. The previous-release policy
+and retirement of the selected compatibility readers meet the story's
+examples. The separately scoped CI proof and installer declaration stories
+keep their existing priorities.
+
 ## Plan review
 
 Resplit CI proof `schemaVersion: 1` and `unit: "legacy"` retirement to plan 795
