@@ -417,24 +417,47 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#speed-dashboard-done-session-review-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/801-speed-dashboard-done-session-review-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"838f1324bf67081a56df9f72c4362088f34cc2f4a5f4f7991e129a9989128bae","plan":"38becf03ec9abb8f111442468fb76c8346a795bb871dca8389fffe5f50d02411"}}
 ```
 
-- **Outcome.** Developers get fast proof that a Done session appears for
-  the right project or story, opens the right review, and carries truthful
-  evidence and navigation through Review. Evaluate selected versus stale
-  results, published versus local evidence, and exact comparison and diff
-  provenance through the rendered owner.
-- **Boundary.** Own `sessions/recently-done*`, `sessions/follow-up-source-navigation*`,
-  `stories/recently-done*` and all remaining legacy `review/` cases.
-  These include Review actions, sidebar width and retained diff text,
-  grammar, retry and appearance interactions. Preserve production selection
-  and update ownership, existing mounted review proof, and the separately
-  queued renamed-path regression assertion.
-- **Effort and stopping point.** Large, medium confidence. Start from
-  `StoryReview`'s typed reading source and the existing page owners for
-  Done and Review. Distinct real publication, Git and install behavior
-  keeps its existing service or E2E owner.
+**Goal.** Dashboard developers get faster feedback that the Done session
+they find opens the right review and that its evidence stays attributable to
+the chosen project, story, session and comparison. Measure the complete
+selection at two workers, including preparation, against a comparable legacy
+baseline. Keep the distinct observations that make the proof credible.
+
+**Scope.** Migrate the remaining legacy `sessions/recently-done*`,
+`sessions/follow-up-source-navigation*`, `stories/recently-done*` and
+`review/` cases under the [shared acceptance](#acceptance-shared-by-the-frontend-stories).
+Use the production page for cross-view selection, read races and shared review
+state. Use the production Review and diff owners for comparison, notes, text
+recovery, grammar, appearance and layout. Keep exact requests, wording,
+focus, responsive behavior and negative observations where they distinguish
+a regression. Map retired assertions to their replacement or an existing
+equivalent. Carry the existing mounted checks through the focused verification.
+The sibling stories own live sessions, terminal internals and runner retirement.
+Real publication, Git and installation keep their service or E2E proof owners.
+The separate renamed-path grammar correction keeps its own acceptance example.
+
+**Key examples.**
+
+- A Done session linked to a story in another project is selected from Intent
+  or Development. The selected destination and visible reading place match
+  that choice. A later choice survives a delayed earlier association response.
+- A published follow-up arrives from another machine. It joins its originating
+  Done card when the association is established, while a competing association
+  remains unresolved until the reader chooses. Revealing an older source
+  preserves the current selection and any open Side panel.
+- A Done row and its card share one project's review state. Delayed or failed
+  evidence leaves the cue unknown. After a successful state change, a late
+  pre-save result cannot restore the old cue.
+- A finished session has multiple saved comparisons or runs. The reader
+  chooses an older one, refreshes or opens a changed file, and reads the
+  same comparison's name, endpoints and evidence. Empty and unavailable
+  answers remain distinguishable.
+- A comparison's diff is visible before its source text arrives. Retry or
+  arrival preserves the readable diff and uses the selected snapshot's grammar
+  and text. A file note records the exact comparison and paths it came from.
 
 <a id="speed-dashboard-live-session-and-terminal-proof"></a>
 
