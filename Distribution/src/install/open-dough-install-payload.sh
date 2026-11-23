@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091,SC2154,SC2310,SC2312
-# Check the caller's managed_files declaration against the source checkout and
-# copy it into each native destination; refuse invalid shipped-directory entries.
+# Read the source checkout's payload inventory into managed_files, check it
+# against the checkout and copy it into each native destination.
 # Sourced by install.sh, bringing the platform and host-hook helpers.
-# install.sh assembles the declaration; release inspection reads its current
-# groups or historical inline array as data. Caller assigns managed_files,
+# The inventory replaces any managed_files the caller assigned. Caller assigns
 # source_dir, target, recorded_source, force, and replace_verified.
 # shellcheck source=Distribution/src/install/open-dough-platform.sh
 source "${source_dir}/Distribution/src/install/open-dough-platform.sh"
@@ -20,9 +19,18 @@ declared_payload_bytes() {
   payload_bytes_run "${mode}" "${source_dir}/Distribution/src/skills" "${root}" "${managed_files[@]}"
 }
 
-# Refuses a source checkout that lacks any declared file.
+# Refuses a source checkout that lacks any declared file, after taking
+# managed_files from the source's payload inventory.
 require_declared_payload() {
-  local managed_file
+  local managed_file declared
+  declared=$(read_release_payload "${source_dir}") || {
+    echo "Client payload is unreadable: ${source_dir}" >&2
+    exit 1
+  }
+  managed_files=()
+  while IFS= read -r managed_file; do
+    managed_files+=("${managed_file}")
+  done <<< "${declared}"
   for managed_file in "${managed_files[@]}"; do
     [[ -f "${source_dir}/Distribution/src/skills/${managed_file}" ]] || {
       echo "Client payload is incomplete: missing ${managed_file}" >&2

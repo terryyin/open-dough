@@ -235,7 +235,7 @@ refusal; slice 7 adds the drift refusal with the pinned-inspection guidance.
 
 ### 6. Share the current inventory across install, update, and release fixtures
 Type: Structure
-Status: planned
+Status: done
 Estimated active work: 10–14 minutes.
 
 Enable slice 7's single cutover. Route the current installer, candidate
@@ -251,6 +251,15 @@ Proof. Run `install-public-payload.sh`, `dough-update-guidance-payload.sh`,
 builder and installed entry checks. Inspect the same install paths and
 installed bytes as before. Run any additional reached consumers identified
 in the trace.
+
+Delivered: the installer's `require_declared_payload`, the current side of
+`managed_payload_unchanged`, `declaredPayload(root)` and the maintained fixture
+helpers read `read_release_payload`; fixtures copy all of `src/install/`. A
+fresh install from the candidate matched `8c1ee6b3` across 757 files. Slice 7
+must replace `${relative,,}` in `refuse_invalid_shipped_entries`, which macOS
+`/bin/bash` 3.2 rejects, and rewrite the incomplete-source case in
+`Distribution/tests/support/assert-public-payload-install.sh`, which omits a
+listed file.
 
 ### 7. Install the payload from the shipped directory
 Type: Behavior

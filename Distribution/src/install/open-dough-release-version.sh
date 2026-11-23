@@ -14,19 +14,18 @@ managed_payload_unchanged() {
   local dest=$1
   local checkout=$2
   local skill_root managed_file historical_files
-  local self_root source current_declaration mismatch=''
+  local self_root source current_payload mismatch=''
   local -a files=() delivered=()
 
-  # This file's own repository always ships install.sh's managed_files
-  # declaration alongside it in the same commit, so the current side of the
-  # comparison is read from that sibling rather than duplicated here by hand.
+  # The current side of the comparison is the payload inventory of this
+  # file's own source checkout, which ships in the same commit.
   self_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
-  if ! current_declaration=$(read_managed_files_declaration "${self_root}/install.sh"); then
+  if ! current_payload=$(read_release_payload "${self_root}"); then
     return 1
   fi
   while IFS= read -r managed_file; do
     files+=("${managed_file}")
-  done <<< "${current_declaration}"
+  done <<< "${current_payload}"
 
   if ! historical_files=$(read_release_payload "${checkout}"); then
     return 1

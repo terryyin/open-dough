@@ -41,8 +41,8 @@ const withholds = (prefix, path) => path !== "" && path.startsWith(prefix);
 const removes = (removed, path) => `${path}/`.startsWith(`${removed}/`);
 
 /**
- * The managed payload paths a source tree's install.sh declares, read through
- * that tree's own declaration reader; the working tree's by default.
+ * The managed payload paths a source tree delivers, read through that tree's
+ * own payload inventory in either release format; the working tree's by default.
  * @param {string} [root]
  */
 export function declaredPayload(root = openDoughSource) {
@@ -50,10 +50,10 @@ export function declaredPayload(root = openDoughSource) {
     "bash",
     [
       "-c",
-      'source "$1"; read_managed_files_declaration "$2"',
+      'source "$1"; read_release_payload "$2"',
       "release-payload",
-      join(root, "Distribution/src/install/open-dough-payload-declaration.sh"),
-      join(root, "install.sh"),
+      join(root, "Distribution/src/install/open-dough-payload-inventory.sh"),
+      root,
     ],
     { encoding: "utf8" },
   )

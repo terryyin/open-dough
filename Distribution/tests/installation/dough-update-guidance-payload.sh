@@ -20,14 +20,21 @@ grep -Fxq "${source_dir}/Distribution/src/skills/dough-update/SKILL.md" "${tempo
 
 # A release can add dependencies without a corresponding guide edit.
 candidate="${temporary_dir}/candidate"
-mkdir -p -- "${candidate}/Distribution/src" "${candidate}/src/install"
+mkdir -p -- "${candidate}/Distribution/src" "${candidate}/src"
 cp -R -- "${source_dir}/Distribution/src/skills" "${source_dir}/Distribution/src/install" "${candidate}/Distribution/src/"
-cp -- "${source_dir}/src/install/open-dough-execution-payload.sh" "${candidate}/src/install/"
+cp -R -- "${source_dir}/src/install" "${candidate}/src/"
+cp -- "${source_dir}/install.sh" "${candidate}/install.sh"
 extra_path='dough-update/references/inspection-extra.md'
-awk -v extra="${extra_path}" '
-  { print }
-  /^managed_files=\(/ { print "  " extra }
-' "${source_dir}/install.sh" > "${candidate}/install.sh"
+# A list-format candidate names the added file; a directory-format one ships it.
+# shellcheck disable=SC1091 # The selective check does not follow companion modules.
+# shellcheck source=Distribution/src/install/open-dough-payload-inventory.sh
+source "${source_dir}/Distribution/src/install/open-dough-payload-inventory.sh"
+if ! directory_format_installer "${candidate}/install.sh"; then
+  awk -v extra="${extra_path}" '
+    { print }
+    /^managed_files=\(/ { print "  " extra }
+  ' "${source_dir}/install.sh" > "${candidate}/install.sh"
+fi
 mkdir -p -- "${candidate}/Distribution/src/skills/${extra_path%/*}"
 printf '%s\n' 'Additional release dependency to inspect.' > "${candidate}/Distribution/src/skills/${extra_path}"
 snapshot="${candidate}" release_source="${candidate}/Distribution/src" bash "${inspection}" > "${temporary_dir}/candidate-paths"
