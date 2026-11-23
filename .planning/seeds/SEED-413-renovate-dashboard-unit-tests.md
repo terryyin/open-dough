@@ -619,6 +619,9 @@ eight slices. Its plan is
 ### Correct the proof residue of Intent collected scope timing and chart marks
 
 **Identity:** SEED-413#correct-scope-timing-chart-proof-residue
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/783-correct-scope-timing-chart-proof-residue/PLAN.md"}
+```
 
 Correction from the execution retrospective of
 [Get fast proof of Intent collected scope timing and chart marks](#speed-intent-scope-timing-reading)

@@ -37,6 +37,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Correct the proof residue of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-scope-timing-chart-proof-residue) — SEED-413#correct-scope-timing-chart-proof-residue
 - [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading
 - [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof
 - [Drive the published observation through the typed page entry](seeds/SEED-413-renovate-dashboard-unit-tests.md#drive-published-observation-through-page-entry) — SEED-413#drive-published-observation-through-page-entry

@@ -30,7 +30,10 @@ files.
 3. **The Project dark pass cannot tell dark from light.**
    `intent-project-ci-history-chart-marks.spec.ts:72-79` expects the same
    all-true `painting` for both schemes. Nothing checks that the scheme
-   switched. The legacy case had the same weakness.
+   switched. The legacy case had the same weakness. Intent Coverage at
+   `973e1faf` showed the dark pass already fails when only the chart's marks
+   ignore the dark scheme. The remaining risk is an app that ignores the
+   scheme entirely, which would rerun light.
 4. **Spent shared support.** `dashboard/test-support/historyChartPage.ts`
    members `partial`, `failed` and `averageLabel` have no consumer. `failed`
    lost its last consumers in plan 777.
@@ -38,6 +41,12 @@ files.
    `intent-scope-timing-history-reading.spec.ts:71-75,85-86,95-96`
    re-implements `expectDoneEntryComparisonKept` through `rowTextsOf` and its
    own `ownFigures`.
+6. **`openScopeSummary` waits within Vitest's default poll timeout.**
+   During the Intent Coverage check at `973e1faf`, its poll for the location
+   name control (`intent-scope-history-page.ts:134`) timed out at load about
+   44 before the case reached its subject. The fault was CSS-only, so the
+   timeout was unrelated to it. The failure policy treats this load flake as
+   a defect. Every moved Done scope history case opens through it.
 
 The review also found that the dark-chart step in
 `intent-story-dark-appearance.spec.ts:138-191` duplicates the Project
@@ -67,7 +76,7 @@ schemes and at the narrowest width. Change only the files named above.
 
 ## Slices
 
-### 1. Unit and scheme checks fail on their regressions
+### 1. Unit and scheme checks fail on their regressions, and the Summary opens under load
 
 Type: Structure
 Status: planned
@@ -77,9 +86,15 @@ In the legacy-only unit case, assert that the history shows no timing
 the chart's paint differs from the previous scheme before reading
 `painting`.
 
+Make `openScopeSummary` wait for the location name control as long as the
+mount needs under load, waiting on the control itself rather than lengthening
+any case timeout.
+
 **Proof.** Run both specs. Render a scratch "0 ms" in the legacy-only status
 and require the units case to fail. Ignore `prefers-color-scheme` for the
-chart in scratch and require the Project case to fail on the dark pass.
+whole page in scratch and require the Project case to fail on the dark pass.
+Run the scope history specs that use `openScopeSummary` under comparable
+load, at about 40, and require no timeout.
 
 ### 2. One pointer and keyboard chart-mark case, with no spent support
 
