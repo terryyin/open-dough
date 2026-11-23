@@ -12,6 +12,9 @@ export async function openSummaryComparison(story: ComparedStory) {
   const { locations, changed } = story.scope;
   const taken = story.work.taken.length > 0;
   const review = makeMe.aStoryReview;
+  const unavailableReview = makeMe.aStoryReview
+    .unavailable("No review for this story.")
+    .please();
   if (!taken) review.published(story.work.revision);
   for (const file of changed) {
     switch (file.kind) {
@@ -82,7 +85,10 @@ export async function openSummaryComparison(story: ComparedStory) {
       },
       ci: scope.source,
       review: {
-        review: () => Promise.resolve(review.please()),
+        review: ({ identity }) =>
+          Promise.resolve(
+            identity === story.identity ? review.please() : unavailableReview,
+          ),
         range: () => Promise.reject(new Error("Unexpected review range")),
         fileDiff: () => Promise.reject(new Error("Unexpected file diff")),
         fileText: () => Promise.reject(new Error("Unexpected file text")),
@@ -92,5 +98,9 @@ export async function openSummaryComparison(story: ComparedStory) {
   });
   await mounted.selectStory(story.identity, title);
   await intentStoryCompare().chooseTab("Changes");
-  return { proofReads: scope.asked.proofs };
+  return {
+    selectStory: (identity: string, title: string) =>
+      mounted.selectStory(identity, title),
+    proofReads: scope.asked.proofs,
+  };
 }

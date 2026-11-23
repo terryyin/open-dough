@@ -3,7 +3,10 @@ import { page, type Locator } from "vitest/browser";
 import { cueOf } from "./intent-ci-comparison-page.ts";
 import { comparisonIn } from "./intent-ci-scope-page.tsx";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
-import { evidenceLabels } from "./intent-summary-evidence-page.ts";
+import {
+  evidenceLabels,
+  labelsHeardAs,
+} from "./intent-summary-evidence-page.ts";
 import {
   expectOwnScopeFigures,
   expectProofTableRows,
@@ -72,6 +75,14 @@ export async function expectObservedBuildFraming(region: Locator) {
   await expect
     .poll(() => comparison.framing()[0])
     .toBe("Observed builds; differences are not attributed to the story");
+}
+
+export async function expectNoComparisonFraming(region: Locator) {
+  const comparison = comparisonIn(region);
+  await expect.poll(comparison.frames).toEqual([]);
+  await expect
+    .poll(() => labelsHeardAs(region, "Observed, not attributed"))
+    .toEqual([]);
 }
 
 export async function expectFallback(

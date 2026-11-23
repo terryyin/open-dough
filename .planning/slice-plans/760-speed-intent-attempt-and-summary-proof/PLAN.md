@@ -113,6 +113,7 @@ local-gate command above. Scratch edits were reverted.
   and published as the initial story-branch base.
 - Slice 1 accepted on the story branch at `cc4d0b9fa966c9fd7de360122593773f731297b4`.
 - Slice 2 accepted on the story branch at `32b31b9da1bf15abac0aec93209cb8d504c451ff`.
+- Slice 3 accepted on the story branch at `3e8ff6f21410a20e83b91936634da4d316dbbdd4`.
 - GitHub Actions `ci.yml` observes the published story branch. The active
   observer identity and increment receipts are retained in the execution conversation.
 
@@ -221,7 +222,7 @@ Accepted proof: the local gate selected the three migrated specs and four existi
 ### 4. Compared Summary gaps explain partial and absent evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-summary-story-comparison-gaps` (1 file, 5 legacy cases) through
 `openDoneStoryComparison`.
@@ -232,6 +233,19 @@ comparison framing.
 
 **Proof.** The moved file passes on Vitest. Removing a gap label's accessible
 description fails its case. Delete the legacy file.
+
+The five legacy titles remain as Vitest cases. The Summary and file Proof are driven through real card, Changes, scope and Proof controls. Their replacement observations are:
+
+| Legacy case and check | Mounted assertion |
+| --- | --- |
+| Baseline lacks file breakdown | Typed no-breakdown entries keep exact entry totals, absolute Branch and Landed values and every child's full gap words. The mounted comparison retains observed-build framing. |
+| Landed running | Exact native figures and rows preserve each Branch value and running Landed explanation. |
+| Done Trunk | Heard endpoint labels, the full Branch not-applicable wording and every Landed value or gap stay distinct. |
+| Queued after Done | Select a queued card in the same mounted page after observing the Done comparison. The reopened Summary clears framing, the prior identity and Baseline header. |
+| Taken Story Branch | Exact Provisional and Landed labels retain their full words. Entry, folder and file Proof show the missing and unbroken-down parts with accessible descriptions. A temporary removal left the visible label intact and failed the description assertion. The original product bytes were restored. |
+
+Accepted proof: 15 Vitest Chromium cases passed across the migrated spec and three affected comparison specs, and dashboard typecheck passed. The Git evidence directory holds the literal commands, consumer map and break result in `slice4-implementation-report.md` and `slice4-gap-description-break.log`.
+The formatter's detached-method check was corrected within the reviewed helper. The queued-selection regression passed again (`slice4-queued-bound.log.run.json`).
 
 ### 5. File drill-down gives renamed, partial, and selected files their exact evidence and bindings
 
