@@ -104,12 +104,22 @@ local-gate command above. Scratch edits were reverted.
   `intent-ci-cues-dark-contrast.spec.ts` and Done scope-history mounts use the
   same entry.
 
+## Execution context
+
+- Kaoru-chan, Story Branch Mode, `codex/get-fast-proof-of-intent-attempt-and-summary-pro`.
+  Publisher `dashboard-territory.local-open-dough`. Starting revision
+  `5d7701f0604457b29d758e07822039ef4a020b95`; Take
+  `2c9c98322143935902f8642bc8a6fd6fd385c925` accepted on `origin/main`
+  and published as the initial story-branch base.
+- GitHub Actions `ci.yml` observes the published story branch. The active
+  observer identity and increment receipts are retained in the execution conversation.
+
 ## Slices
 
 ### 1. Homepage attempt proof preserves grouped locations, surviving shards, and accessibility
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-ci-proof`, `intent-ci-proof-accessibility`, and
 `intent-ci-proof-grouped-location` (3 files, 5 legacy cases) onto
@@ -124,6 +134,20 @@ controls and words without sideways scroll.
 **Proof.** The three moved files pass on Vitest with legacy assertions mapped.
 A held proof still shows Failed beside Checking; releasing it fills the rows.
 Delete the three legacy files.
+
+The five legacy cases keep their files and case titles as Vitest browser cases.
+`mountFailedAttemptProof` supplies the run judgment, declared locations and
+proof through the production page's typed reads. The new observation owners are:
+
+| Legacy case and check | Mounted assertion |
+| --- | --- |
+| Held failed attempt, link and entry navigation | `ci.answers`, the visible Checking cue and their order establish the held state. `showsAttemptAndRevision`, the single linked attempt and `showsRows` establish the released result. The typed read records one exact run and attempt. The configured entry opens Summary, presses the location control and focuses the pane. The retired entry has no action. |
+| Missing part | `showsRows` observes the surviving 110 cases and Part 4 missing. The timing cell keeps the full accessible description. |
+| Unavailable proof | The Proof region exposes the exact unavailable text beside the Failed judgment. |
+| Grouped location | `showsRows` checks four rows in declared order, three headers, cell roles, per-unit labels and mixed figures. The gap also keeps its title and accessible description. |
+| Narrow and zoomed reading | At 640×450 and 320×256 CSS pixels, Chromium measures whole words, table containment and no sideways overflow. The case checks the same rows, verdict and gap description and uses Tab and Space to reach the same controls and focused Summary. |
+
+Accepted proof: the local gate selected the three migrated specs plus `intent-ci-status-execution-time.spec.ts` and `intent-ci-status-sort.spec.ts`, with 11 Vitest Chromium cases passing in 3.835 s. `npm run typecheck:dashboard` passed. The Git evidence directory retains the literal commands and observations in `slice1-refactor-report.md` and the two `slice1-refactor-*.log.run.json` records.
 
 ### 2. Single-attempt Summary proof preserves kept carryover, gaps, table membership, and sorting
 
