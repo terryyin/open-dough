@@ -316,7 +316,7 @@ remain available for the cohort comparison in slice 8.
 ### 8. The cohort comparison measures faster feedback with proof intact
 
 Type: Behavior
-Status: planned
+Status: done
 
 Account for the original 15 files and all 22 legacy cases. The baseline
 at `6c51cc4eb` on 22 November 2026 was 22 Playwright `chromium` cases,
@@ -342,6 +342,25 @@ by engine, the slowest remaining cases, and observed savings or limits
 under paired load. Check remaining `dashboard/test-support/` imports and
 record an owner for every retired observation.
 
+**Delivered.** The retained `s5-legacy-baseline.json` was gone, so the
+baseline was reconstructed in a disposable `6c51cc4eb` checkout. It reproduced
+22 passing Playwright cases. Two alternating two-worker pairs at load 9.5–20.5
+measured time with preparation: baseline 41 and 40 s; current 29 and 36 s
+(four retained legacy cases 15 and 13 s, 31 Vitest cases 14 and 23 s), saving
+12 s and 4 s. Summed case time fell from 68.7/63.2 s to 30.4/38.9 s. The
+original 26.8 s runner time is not comparable at that load, and Vitest time
+is noisy under load. The E2E selection (`intent-project-visit-ci`,
+`published-work`, `story-readiness`, `direction-disclosure`, 8 cases each
+side) took 26/26 s and 20/20 s; the new URL steps add about 1 s. The four
+retained cases, led by `intent-project-visit` and `-selection` at about 4 s
+each, cost about as much as the 31 Vitest cases and leave with the
+observation story, as do `frontendIntentRevisionJourney`,
+`intentRevisionJourney` and `frontendIntentReuseAnswers`. Maintained cases
+rose from 22 to 35 because each risk is named separately; the developer
+accepted that in the story. The developer moved making the
+`mountIntentCiPage` page shell a production owner to the observation story
+(G1).
+
 ## Slice review
 
 Slice-plan refinement reviewed all eight boundaries against the observed entry and proof.
@@ -353,3 +372,12 @@ selection and routing. Separate the Candidates data correction and
 popup correction from the reader and timing analyses so each has its
 own proving run. The slices reuse the page's reading place, readers and scope ownership.
 This review found no remaining slice-specific concerns.
+
+
+## Story obligations
+
+### G1. mountIntentCiPage recomposes ConfiguredDashboard's page shell (reported by slice 8 measurement)
+Reported: slice 8 — "mountIntentCiPage still restates ConfiguredDashboard's frame, banner and story-navigation composition."
+Story clause: "Use the production Intent body and typed page reads for the existing revision and pinned-source cases"
+Disposition: owner changed "making the page shell that `mountIntentCiPage` recomposes from `ConfiguredDashboard` a production owner"
+Commitment: 19

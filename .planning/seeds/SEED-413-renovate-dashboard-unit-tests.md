@@ -684,12 +684,16 @@ on 23 November 2026 at plan 762's delivered Slice 9 boundary.
   while startup detail completes keep their existing checks for
   [the observation story](#drive-published-observation-through-page-entry).
   That story also owns moving the Candidates backoff case off its current
-  recovery mount.
+  recovery mount, and making the page shell that `mountIntentCiPage`
+  recomposes from `ConfiguredDashboard` a production owner.
 - **Evaluation.** Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories).
   Record a proof owner for each retired assertion and compare two-worker
   preparation and runtime for the original 15-file cohort, with the four
   retained legacy cases and any E2E cost visible. The legacy baseline was
   22 Playwright cases in 26.8 seconds at load 10.0 on 22 November 2026.
+  The cohort may keep more maintained cases than the 22 it started with
+  when each added case names a distinct risk, as long as built-app cases
+  fall.
 
 <a id="drive-published-observation-through-page-entry"></a>
 
@@ -717,7 +721,9 @@ on 22 November 2026, when its correction found that rendering production
   page, standing-limit end, the wait shared with published detail) move onto
   `ConfiguredDashboard`, and the `PageIntentRecovery` copy and
   `intent-candidates-publication.ts`'s `mountIntentOnObservationRecovery`
-  composition are deleted. The
+  composition are deleted. The page shell `mountIntentCiPage` recomposes
+  from `ConfiguredDashboard` (frame, story navigation, banner and notice
+  around `BoardOrIntent`) becomes a production owner that both render. The
   retired legacy source-navigation case's check that showing story links
   reads exactly the in-repository canonical files returns here, on the
   observation's preparation reads, and the retired Gherkin layout case's
