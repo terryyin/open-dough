@@ -27,6 +27,7 @@ export function developmentCard(title: string) {
   const card = page.getByRole("article", { name: title, exact: true });
   return {
     async toggle() {
+      await expect.element(card).toBeInTheDocument();
       await showColumnOf(card.element());
       await userEvent.click(
         card.getByRole("heading", { name: title, exact: true }),

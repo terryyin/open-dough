@@ -269,7 +269,7 @@ migration, the consumer trace and the terminal `s2-final`, `s2-e2e`,
 ### 3. Read a Done story's own historical Intent
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent/intent-done-project-refresh`, `intent/intent-done-source-selection`
 and `intent/intent-story-dark-appearance` (3 legacy cases). Use typed
@@ -287,6 +287,45 @@ When a Done selection supersedes another, hold both comparison and
 locations and see no prior story's tree or source during either wait. The
 new story's own source arrives and the Done evidence stays readable in dark
 appearance.
+
+**Accepted proof and case disposition.** All three legacy cases moved at
+their original paths and titles. Historical refresh commits newer work
+while Done Purpose is open, cycles Done tabs, requests the latest Project
+Intent locations, and returns to the same file, diff and exact nonzero scroll
+position while that reply is held. The comparison ledger stays at one
+historical read. The second case changes the selected Done story through the
+actual Sessions sidebar with Intent open. Neither held response permits the
+prior tree or source to show, and the new completion supplies its own file.
+The dark case retains numeric contrast, keyboard focus and file-layout
+observations across desktop and phone widths as well as light/dark switching.
+The first probe caught borrowed historical locations and lost dark-token
+contrast. The second showed 0 px in place of the saved 1,000 px when reading
+place was broken. The real title assertion now waits for the Done body
+before measuring or clicking the card.
+
+The restored two-worker gate passed nine cases across these three specs
+and the reached Taken selection, phone paging/layout and Done cue specs
+in 27.605 s. Typecheck passed. The five retained built-page Done cases
+reuse the strict claim baseline because their production, setup and
+assertions remain applicable. That proof retains actual publication,
+historic-versus-live reads, unavailable history and Project refresh.
+The consumer trace found the removed `frontendDoneSelection.ts` helper
+had exactly one migrated consumer.
+
+Direct production imports stayed zero in the refresh, appearance and
+Development card sources. The selection spec dropped
+`storyReviewContract.ts`, the new fixture imports the `PageReads` type,
+and the compared story fixture keeps the same three type imports. Retired
+Done selection support used `authenticatedReadRules.ts`. The worktree's
+Git evidence directory holds `slice-3-return.md`, the consumer trace and
+run records. Source review C11–C13 records the observing assertions.
+The independent pass checks the dark root text and measured chart mark,
+shares the existing contrast reader with the related mounted CI cue case,
+and checks the whole Purpose region for absence of Story A's source.
+All three affected cases passed in 12.24 s outer wall. The runner's
+strict receipt was written before the evidence wrapper rejected its
+shell status variable assignment. The extra cue spec still has zero
+production imports. See `slice-3-refactor.md`.
 
 ### 4. Reveal a Done destination and honor superseding input
 
