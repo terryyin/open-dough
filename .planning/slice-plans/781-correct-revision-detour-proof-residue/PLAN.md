@@ -412,4 +412,11 @@ test changes to the listed behavior. The cumulative change removes
 duplicated interaction knowledge and leaves real routing and observation
 with the existing built-dashboard journey.
 
+## Execution complete
+
+Product advice: no change. The touched Intent cases read at one level and
+the cohort shows no repeatable slowdown. The typed production page entry
+stays with the queued published observation story. `intent-ci-status-page.ts`
+is now at the 250-line limit, so its next addition needs a cohesive split.
+
 ## Story obligations

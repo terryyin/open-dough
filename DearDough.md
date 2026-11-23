@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 628. Removed numbers are never reused.
+- Highest allocated local number: 631. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
 - Occurrence history is partial.
 
@@ -925,3 +925,48 @@ Refinement turned an Intent Coverage finding about the hook's abort guard into a
   - Evidence: with only the key filter removed from `useIntentCiEndpointHistory`, the key-isolation case passed because the intact success-branch abort guard drops every late older-key answer. Three probe rounds followed: Project Intent; a Done story with its landing held, which mounts no scope tree; and the retained follow-up route, which `mountIntentCiPage` cannot reach. None exposed the filter alone. The developer then amended Key example 6 to name the abort guard (`5119da43d`), which required a fresh source review.
   - Observed effect: three implementer returns (about 4.5 of slice 1's 7.6 active minutes), one human question and one extra source review.
   - Inference: a premise naming one guard does not settle a promise about a sibling guard; planning could have probed the promise's own break before readiness.
+
+## DD-629 — A ready plan's empty Story obligations section says "None recorded.", which the obligations script refuses <a id="dd-629"></a>
+
+Plan 781 reached execution with `## Story obligations` followed by the line "None recorded.". The first `story-obligations.mjs list` refused it as `malformed-obligations-section`; an empty section passes.
+
+### Occurrences
+
+- Execution: SEED-413#correct-revision-detour-proof-residue (plan 781; first implementation `fd99453f8`)
+  - Timestamp: unknown (2026-11-23 +08:00, before slice 1 delegation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111
+  - Evidence: plan 781 at Take `19a0372b7`; the coordinator removed the line before slice 1's listing, committed in `fd99453f8`.
+  - Observed effect: one refused listing and a plan edit before the first delegation.
+  - Inference: planning or readiness accepts placeholder text that execution's script refuses; the readiness check does not run the obligations parser.
+
+## DD-630 — An implementer briefed never to check out paths started an interactive `git checkout -p` during a scratch revert <a id="dd-630"></a>
+
+Slice 7's implementer reverted a scratch production break by composing a command that launched `git checkout -p` in the shared execution checkout. It reported stopping the prompt before answering it and reverting with `sed`.
+
+### Occurrences
+
+- Execution: SEED-413#correct-revision-detour-proof-residue (plan 781; first implementation `fd99453f8`)
+  - Timestamp: unknown (2026-11-23 +08:00, slice 7 before `09c280eea`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111
+  - Evidence: slice 7 return (`s7-report.md` in the execution checkout's evidence directory); coordinator check showed `dashboard/src` unchanged and no live `git checkout -p` process.
+  - Observed effect: no loss; a path checkout forbidden by the brief's ownership rule ran in a checkout holding uncommitted owned work.
+  - Inference: scratch breaks reverted by Git path commands risk discarding unowned edits; keeping a backup copy or reverse edit, as slice 5 did, avoids the command family.
+
+## DD-631 — A whole-story commitment allocated to the last slice was briefed with that slice's file scope, so its fixes came back as a report <a id="dd-631"></a>
+
+Source-review commitment 1 (each touched Intent test reads at one level) was allocated to slice 8 as the slice completing the story. The coordinator's brief told the implementer to "fix only within this slice's files, report others", so the return listed two mixed-level cases in earlier slices' files instead of fixing them.
+
+### Occurrences
+
+- Execution: SEED-413#correct-revision-detour-proof-residue (plan 781; first implementation `fd99453f8`)
+  - Timestamp: 2026-11-23T13:23:29+08:00 (slice 8 delivery `6071ed2f5`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111
+  - Evidence: slice 8 brief and first return; the coordinator returned the two cases (`intent-reading-place.spec.ts` reset count, `intent-home-activation-scope.spec.ts` story note) and the second return fixed them through `story.pressedControlCount()` and `ci.notes()`.
+  - Observed effect: one extra implementer round and proof run of about 4 minutes.
+  - Inference: a brief carrying a story-wide commitment needs the story-wide edit authority that commitment implies.
