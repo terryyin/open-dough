@@ -34,7 +34,7 @@ usable change, independently of the later polish.
 {"schemaVersion":1,"identity":"SEED-420#review-standalone-done-work","dependencies":[{"supplier":{"identity":"SEED-418#attribute-every-workflow-session-record","href":"seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record"},"implementation":"Published session records for ad hoc Land and ad hoc story follow-ups, carrying the associated story identity","rationale":"The Done story is published with the session's record and read across machines through it. Building it first would define the record's story association and the ad hoc Land publication path twice.","condition":"An ad hoc session's Land and an ad hoc story follow-up's Land each publish a versioned session record on trunk that carries the UUID, close time, comparisons and story identity when associated, and the Dashboard reads it from another clone.","state":"satisfied","resolution":{"revision":"c546ff771b47b42f549a153cbbef4604bb89560d","path":".planning/seeds/SEED-418-review-published-session-changes.md#attribute-every-workflow-session-record","summary":"Satisfied: a Dashboard-launched ad hoc Land and an ad hoc story follow-up Land each publish a versioned record with UUID, close time, comparisons and the associated story identity, and the Dashboard reads it from another clone. Delivered at before-cleanup c546ff771 and integrated on main at 3dbaff36c. Proof: Land closes (Distribution/tests/skills/dough-land/session-record-publication.test.mjs, session-close-resume.test.mjs), Trunk Mode wrap-up (dough-story-wrap-up/trunk-closure-session-record*.test.mjs read from a default-branch-only clone), Story Branch wrap-up (story-branch-session-record.test.mjs), refinement and ad hoc follow-up Lands (dough-story-refinement/preparation-*session-record-land.test.mjs), and another machine reviewing each range (e2e/sessions/recently-done-published-sessions.spec.ts).\nCondition satisfied: An ad hoc session's Land and an ad hoc story follow-up's Land each publish a versioned session record on trunk that carries the UUID, close time, comparisons and story identity when associated, and the Dashboard reads it from another clone.\nAccepted integration: 3dbaff36c0b21730ff23ba5948b5199522b0f103 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/756-reopen-completed-ad-hoc-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ca95967715c47174aa8d7ecdbf27d7dceb1313c8da50865b723318f01cc2e69e","plan":"593d31baf36cf1ed44907b3e890190e868281ef545c9b52f04e1c2a0e4d45bb5"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/756-reopen-completed-ad-hoc-work/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7d52617075cb0e0be64ce12922313b8af12355998760de9122f3dfadcf5d690d","plan":"9c32af159260f67e24598d51c27d615c8aff0e17f5645f647e81c8268d7a2257"}}
 ```
 
 **Goal.** A developer can return to completed ad hoc work as a story, from
@@ -64,7 +64,9 @@ other Done story.
   only. It appears under Recently done and its review states that there is
   no published comparison.
 - In Recently done sessions, choosing a new ad hoc Done row selects its
-  Done story, as a linked row does.
+  Done story, as a linked row does. Intent opens the story on the original
+  session's published comparison. Follow-up sessions keep their own
+  comparisons.
 - Standalone records from before this change keep their existing
   references and still open their own comparison. Attach an older session
   to a story only when a published record or a launch record names that
@@ -86,8 +88,9 @@ does not migrate older standalone records in bulk.
 **Key examples.**
 
 - Ad hoc session `A` lands and is marked Done. A Done story named for `A`'s
-  UUID appears with `A` attached. On another clone after fetching, the same
-  story and `A`'s published comparison appear.
+  UUID appears with `A` attached. On another clone after fetching, choosing
+  the same Done story opens `A`'s published changes in Intent. A changed
+  file opens against that recorded comparison even after trunk advances.
 - `A`'s Done is repeated after a lost response, and a quiet completion
   report and a manual Done race on the same session. One story and one
   record of `A`, with its original close time, result.
