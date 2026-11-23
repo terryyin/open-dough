@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "sessionId": "b62b29d1-f43b-42eb-b246-2c2cc2858db7",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T12:17:32.816Z",
+  "story": "SEED-345#finish-slices-within-a-bounded-working-context",
+  "ranges": [
+    {
+      "base": "417150eba820acdbea22917093414ccde4600d92",
+      "candidate": "91f51dfd6c65c4d21818cac21d799c7874cb62f1"
+    },
+    {
+      "base": "91f51dfd6c65c4d21818cac21d799c7874cb62f1",
+      "candidate": "575d1016f8de12e2f8356afd166e98960764c505"
+    },
+    {
+      "base": "575d1016f8de12e2f8356afd166e98960764c505",
+      "candidate": "f8afb98618109d4b230e256d2e207731162bee99"
+    },
+    {
+      "base": "f8afb98618109d4b230e256d2e207731162bee99",
+      "candidate": "f1a790ed68852ae0f2a1293c725137b3b043c0a5"
+    },
+    {
+      "base": "f1a790ed68852ae0f2a1293c725137b3b043c0a5",
+      "candidate": "e91bc270e7cd25759c297bd936aa0fc0db2a3411"
+    }
+  ]
+}
