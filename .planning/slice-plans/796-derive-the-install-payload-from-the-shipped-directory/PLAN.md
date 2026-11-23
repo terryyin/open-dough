@@ -208,21 +208,30 @@ current list.
 
 ### 5. Keep local snapshot drift out of a pinned directory release
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 9–13 minutes.
 
-Given a pinned directory-format checkout with the expected HEAD, reject
-extra files or changed bytes under the shipped directory before ordinary
-or forced apply reaches its first target write. Check the tag's tree
-against the inspected checkout, including untracked entries, so the
-filesystem enumeration can safely serve clean snapshots. Keep direct
-working-tree installation available for existing local developer usage.
-Use a marked fixture while the production installer still ships its list.
+Given a pinned checkout with the expected HEAD, reject extra files or
+changed bytes under the shipped directory before ordinary or forced apply
+reaches its first target write. The check applies to every pinned checkout,
+whatever its format, so one rule serves the directory release. Check the
+tag's tree against the inspected checkout, including untracked and ignored
+entries, so the filesystem enumeration can safely serve clean snapshots. Keep
+direct working-tree installation available for existing local developer usage.
 
-Proof. Extend the pinned `apply --checkout` route in `pin-and-inspect.sh`
-with an untracked candidate path and edited managed bytes. Observe refusal
-and an unchanged target, then run with the clean tag and observe successful
-apply. Keep the current higher-tag refusal.
+Proof. Exercise the pinned `apply --checkout` route used by
+`pin-and-inspect.sh`, in a separate drift check that reuses its helpers, with
+an untracked candidate path and edited managed bytes on a marked and a
+list-era fixture. Observe refusal and an unchanged target for ordinary and
+forced apply, then apply the clean list-era tag successfully. Keep the current
+higher-tag refusal. A marked tag cannot install until slice 7 gives the
+installer the directory selection, so slice 7 owns its clean pinned apply.
+
+Delivered: `refuse_shipped_drift_from_head` in the inventory module runs in
+`require_pinned_checkout` after the HEAD check, and
+`pin-apply-refuses-checkout-drift.sh` proves it. Step d of
+`Distribution/src/skills/dough-update/SKILL.md` still names only the HEAD
+refusal; slice 7 adds the drift refusal with the pinned-inspection guidance.
 
 ### 6. Share the current inventory across install, update, and release fixtures
 Type: Structure
@@ -262,7 +271,8 @@ required file named only by its directory entry, a Proposed control outside
 the tree, and a dropped legacy file. Assert exact tagged bytes, the removal,
 and untouched project data in both roots. Repeat at equal version and refuse
 an invalid source before writing. Ensure the pinned inspection and direct
-install cases name the new helpers. Run the maintained installation group
+install cases name the new helpers, and a clean marked tag applies
+through pinned `apply --checkout`. Run the maintained installation group
 and reached fixture consumers, including `repository-release.test.mjs`, the
 installed entry check, and release-source evaluation cases whose inputs
 changed.

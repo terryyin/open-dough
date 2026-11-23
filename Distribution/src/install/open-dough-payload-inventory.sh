@@ -39,6 +39,19 @@ refuse_invalid_shipped_entries() {
   return "${failed}"
 }
 
+# Refuses a checkout whose shipped directory differs from its HEAD tree: an
+# untracked or ignored entry, or staged or unstaged changed bytes, each named.
+# At a pinned tag's HEAD this keeps local drift out of the delivered payload.
+refuse_shipped_drift_from_head() {
+  local checkout=$1 drift
+  drift=$(git -C "${checkout}" --no-optional-locks status --porcelain \
+    --untracked-files=all --ignored -- Distribution/src/skills) || return 1
+  [[ -z "${drift}" ]] && return 0
+  printf 'Pinned checkout differs from its tagged shipped directory; not installing local changes:\n%s\n' \
+    "${drift}" >&2
+  return 1
+}
+
 # Succeeds when the installer file marks its release as directory-format.
 directory_format_installer() {
   grep -qx 'open_dough_payload_format=directory' "$1" 2> /dev/null
