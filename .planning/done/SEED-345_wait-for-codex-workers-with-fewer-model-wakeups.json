@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-345#wait-for-codex-workers-with-fewer-model-wakeups",
+  "title": "Wait for Codex workers with fewer model wakeups",
+  "completedAt": "2026-11-23T10:25:30.042Z",
+  "developer": "Terry Yin",
+  "agent": "Koharu-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
