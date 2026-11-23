@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "sessionId": "5c2ba96f-6b8f-4ad0-bc8a-074fefde8c7f",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T05:50:01.326Z",
+  "story": "SEED-413#correct-revision-detour-proof-residue",
+  "ranges": [
+    {
+      "base": "19a0372b74b03850661ea8e2ad0ab407d78297e3",
+      "candidate": "fd99453f81538888ab1f5dcfced220d3fdcd7a9e"
+    },
+    {
+      "base": "fd99453f81538888ab1f5dcfced220d3fdcd7a9e",
+      "candidate": "7457236d0dbe58c0e0b4278619f2e816f2f4999e"
+    },
+    {
+      "base": "7457236d0dbe58c0e0b4278619f2e816f2f4999e",
+      "candidate": "7b6dbfe7f086e15f7e8df96f74ada861fb1a81e9"
+    },
+    {
+      "base": "7b6dbfe7f086e15f7e8df96f74ada861fb1a81e9",
+      "candidate": "2d8bd1bdf44dcf2d5c46d7a7909266959d54abd7"
+    },
+    {
+      "base": "2d8bd1bdf44dcf2d5c46d7a7909266959d54abd7",
+      "candidate": "4bb466202c3104acf490255baf91381efd53a6a4"
+    },
+    {
+      "base": "4bb466202c3104acf490255baf91381efd53a6a4",
+      "candidate": "762ab4aee3bb3e64bd3ab69874054a0f562e289f"
+    },
+    {
+      "base": "762ab4aee3bb3e64bd3ab69874054a0f562e289f",
+      "candidate": "09c280eea93ec4bc73a5c54cd79ac49e46cc712f"
+    },
+    {
+      "base": "09c280eea93ec4bc73a5c54cd79ac49e46cc712f",
+      "candidate": "6071ed2f5a19321abc24ed2fd9842c3130dc6cc8"
+    },
+    {
+      "base": "6071ed2f5a19321abc24ed2fd9842c3130dc6cc8",
+      "candidate": "b0111b2283d4056274c60337cde8059dfba0c26d"
+    },
+    {
+      "base": "b0111b2283d4056274c60337cde8059dfba0c26d",
+      "candidate": "8074fe9c38ea9f0bc6af71404ccedd472704f18c"
+    }
+  ]
+}
