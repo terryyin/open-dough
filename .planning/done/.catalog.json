@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_open-review-changes-from-a-story-card.json",
+      "identity": "SEED-420#open-review-changes-from-a-story-card",
+      "completedAt": "2026-11-23T05:10:33.944Z",
+      "blob": "f211c1b9c33a56dbf989f9253fd95e3b0933fe8b"
+    },
+    {
       "fileName": "SEED-413_speed-intent-source-browsing-and-detours.json",
       "identity": "SEED-413#speed-intent-source-browsing-and-detours",
       "completedAt": "2026-11-22T23:39:27.186Z",
@@ -2892,12 +2898,6 @@
       "identity": "SEED-150#story-queue-aware-completion",
       "completedAt": "2026-10-24T22:28:32.056Z",
       "blob": "866fc8664943264264f3fb5b8790551643314c63"
-    },
-    {
-      "fileName": "SEED-010_assess-client-product-improvement-in-use.json",
-      "identity": "SEED-010#assess-client-product-improvement-in-use",
-      "completedAt": "2026-10-24T00:01:59.400Z",
-      "blob": "7af96d159f16f067db24c7ff29e4ba1dffb2bb9d"
     }
   ],
   "unreadable": []
