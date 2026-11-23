@@ -89,8 +89,12 @@ export function intentStoryCompare() {
           .element()
           .querySelectorAll(".intent-ci-comparison-identity")[2],
       ),
-    // The header's leading control, which a collapsible header would offer.
-    collapsedControl: header.getByRole("button", { expanded: false }),
+    // Comparison facts can expand independently of the header.
+    collapsedControl: header.getByRole("button", {
+      expanded: false,
+      name: /^(?!Branch )/,
+    }),
+    workspaceContext: header.getByRole("button", { name: /^Branch / }),
     revisions: () =>
       textOf(header.element().querySelector(".intent-story-revisions")),
     choice: (name: string) => compare.getByRole("radio", { name }),

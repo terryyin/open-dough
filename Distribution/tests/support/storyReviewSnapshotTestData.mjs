@@ -3,7 +3,7 @@
 // (dashboard/src/storyReviewContract.ts): its branch, its commits (one by
 // default, or the story's own from ./reviewCommitTestData.mjs) and, when its
 // committed part can be told apart or is asked for, its uncommitted changes;
-// commits a Trunk Mode agent published that its baseline keeps; and the range
+// commits a Trunk Mode agent published that its baseline keeps or subtracts; and the range
 // read of a commit range. Node-free, for ./storyReviewTestData.mjs.
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").TakenStoryReview} TakenStoryReview */
 /** @typedef {import("../../../dashboard/src/storyReviewContract.ts").ReviewRange} ReviewRange */
@@ -31,7 +31,7 @@ export const storyReviewIds = Object.freeze({
  * @property {ReviewedFile[] | undefined} committed its committed part's files
  * @property {ReviewCommit[] | undefined} commits newest first
  * @property {boolean} uncommitted uncommitted changes over the newest commit
- * @property {number | undefined} publishedKept
+ * @property {{ commits: number, trunk?: string, kept?: "not-restated" } | undefined} published
  */
 
 /**
@@ -40,13 +40,12 @@ export const storyReviewIds = Object.freeze({
  */
 export function takenSnapshot(parts) {
   const snapshot = withCommits(oneCommitSnapshot(parts), parts);
-  if (parts.publishedKept === undefined) return snapshot;
+  if (parts.published === undefined) return snapshot;
   return {
     ...snapshot,
     published: {
       trunk: parts.baseline,
-      commits: parts.publishedKept,
-      kept: "not-restated",
+      ...parts.published,
     },
   };
 }

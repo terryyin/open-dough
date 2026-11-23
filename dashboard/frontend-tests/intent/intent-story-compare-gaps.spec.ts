@@ -54,7 +54,7 @@ test("an unavailable commit range is explained in the header, not as a story wit
   // All changes again compares the story.
   await story.choose("All changes");
   await expect.element(story.alert).not.toBeInTheDocument();
-  await expect.poll(story.revisions).toContain("Compared");
+  await expect.element(story.workspaceContext).toBeVisible();
 });
 
 test("a failed read of a chosen commit range offers Retry, which reads it again", async () => {

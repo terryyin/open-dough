@@ -10,6 +10,7 @@ import {
   type ReviewComparison,
   type ReviewRange,
   type StoryReview,
+  type TakenStoryReview,
 } from "./storyReviewContract.ts";
 import type { ReviewReadState } from "./useReviewRead.ts";
 
@@ -50,6 +51,22 @@ export function unreadRange(range: RangeRead): UnreadComparison | undefined {
     : undefined;
 }
 
+export function KeptPublishedCommits({
+  snapshot,
+}: {
+  readonly snapshot: TakenStoryReview | undefined;
+}) {
+  const published = snapshot?.published;
+  if (published?.kept === undefined) return null;
+  return (
+    <p>
+      This machine&apos;s Git cannot take the story&apos;s {published.commits}{" "}
+      published {published.commits === 1 ? "commit" : "commits"} out of trunk,
+      so All changes shows only what is not yet published.
+    </p>
+  );
+}
+
 export function ReviewFeedback({
   review,
   reading,
@@ -68,8 +85,6 @@ export function ReviewFeedback({
   readonly round: number;
 }) {
   const snapshot = review?.kind === "snapshot" ? review : undefined;
-  const kept =
-    snapshot?.published?.kept === undefined ? undefined : snapshot.published;
   // A review already showing changes stays shown while it is read again.
   const showsChanges =
     review?.kind === "snapshot" ||
@@ -135,13 +150,7 @@ export function ReviewFeedback({
           result at Done.
         </p>
       )}
-      {kept !== undefined && (
-        <p>
-          This machine&apos;s Git cannot take the story&apos;s {kept.commits}{" "}
-          published {kept.commits === 1 ? "commit" : "commits"} out of trunk, so
-          All changes shows only what is not yet published.
-        </p>
-      )}
+      <KeptPublishedCommits snapshot={snapshot} />
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
       {review?.deliveryGap !== undefined && <p>{review.deliveryGap}</p>}
       {problem !== undefined && <p>{reviewReadFailure(problem)}</p>}

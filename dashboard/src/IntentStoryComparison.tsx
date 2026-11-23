@@ -7,8 +7,12 @@
 import { shortRevision } from "./publishedWork.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { ComparedRange, type StoryCompare } from "./IntentStoryCompare.tsx";
-import { baselineRevision, type StoryReview } from "./storyReviewContract.ts";
-import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
+import type { StoryReview } from "./storyReviewContract.ts";
+import { ReviewContext } from "./StoryReviewContext.tsx";
+import {
+  KeptPublishedCommits,
+  type UnreadComparison,
+} from "./StoryReviewFeedback.tsx";
 
 // What Intent knows of the selected story's comparison.
 export type LensComparison =
@@ -88,8 +92,8 @@ export function WholeStoryNote({
   );
 }
 
-// The two sides the comparison runs between, as Review changes names them.
-function ComparedRevisions({
+// The facts of the comparison Intent is currently showing.
+function ComparedContext({
   shown,
   review,
   uncommittedLeftOut,
@@ -98,28 +102,29 @@ function ComparedRevisions({
   readonly review: StoryReview | undefined;
   readonly uncommittedLeftOut: boolean;
 }) {
-  const from =
-    review?.kind === "snapshot"
-      ? baselineRevision(review)
-      : shown.comparison.from;
   const rev = (revision: string) => (
     <code title={revision}>{shortRevision(revision)}</code>
   );
   return (
-    <p className="intent-story-revisions">
-      Compared {rev(from)} with{" "}
-      {review?.kind === "snapshot" ? (
+    <div className="intent-story-revisions intent-story-comparison-context">
+      <ReviewContext review={review} />
+      {review?.kind === "snapshot" && (
         <>
-          worktree <code>{review.workspace}</code> at {rev(review.head)}
-          {!uncommittedLeftOut && <>, uncommitted changes included</>}
+          <p>
+            Head {rev(review.head)}
+            {!uncommittedLeftOut && <>, uncommitted changes included</>}.
+          </p>
+          <KeptPublishedCommits snapshot={review} />
         </>
-      ) : review?.kind === "published" ? (
-        <>completion {rev(review.completion)}</>
-      ) : (
-        <>the landed run&apos;s tree {rev(shown.tree)}</>
       )}
-      .
-    </p>
+      {review?.kind !== "snapshot" &&
+        review?.kind !== "published" &&
+        review?.kind !== "landed" && (
+          <p>
+            Compared {rev(shown.comparison.from)} with tree {rev(shown.tree)}.
+          </p>
+        )}
+    </div>
   );
 }
 
@@ -212,7 +217,7 @@ export function ComparisonDetail({
   return comparison.compare?.shown === "commits" ? (
     <ComparedRange compare={comparison.compare} />
   ) : (
-    <ComparedRevisions
+    <ComparedContext
       shown={comparison.shown}
       review={comparison.review}
       uncommittedLeftOut={comparison.compare?.includeUncommitted === false}

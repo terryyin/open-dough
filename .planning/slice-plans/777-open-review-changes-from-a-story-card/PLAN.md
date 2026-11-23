@@ -4,6 +4,21 @@
 **Identity:** SEED-420#open-review-changes-from-a-story-card
 **Source review:** [Source-only review carried forward from plan 761](source-review.md)
 
+## Execution context
+
+- Publisher `dashboard-territory.local-open-dough`, agent `Maria-chan`, Story
+  Branch Mode, remote `origin`, integration target `main`.
+- Execution checkout `open-dough/.worktrees/open-review-changes-on-a-story-card-in-intent`,
+  branch `codex/open-review-changes-on-a-story-card-in-intent`. Starting revision
+  `804be7996757ded7d4cacf0a3230c21c3a544e2d`. Claim accepted on trunk and the
+  execution branch at `0f9df4dccc363dde681f6cbae2969b68120a93a0`.
+- Checkout setup passed with `npm ci` and `npm run typecheck:dashboard`.
+  Execution keeps routine in-scope plan refinement authority.
+- Codex observer for `terryyin/open-dough` on the execution branch, workflow
+  `ci.yml` (CI), coordinator `maria-chan-seed-420-card`, directory
+  `/tmp/dough-ci-501/watch-tfd2pT`, PID `56058`, session `13505`, cell `g247:20`.
+  The established trunk claim predates execution-branch observation.
+
 ## Goal and scope
 
 Developers open a story's diff from its card, alongside CI comparison and
@@ -102,7 +117,7 @@ failing observations for their new card arrival before changing the product.
 ### 1. Intent identifies the branch, baseline, worktree and captured result
 
 Type: Behavior
-Status: planned
+Status: done
 
 A developer reading a workspace, landed run or published completion in
 Intent opens the comparison detail and sees the facts of the comparison
@@ -117,6 +132,23 @@ and the full baseline disclosure, plus Done landed and published completion
 facts. Keep the existing compare specs green and update the context wording
 assertions in `e2e/intent/intent-story-completed.spec.ts` and other traced
 Intent readers in this slice.
+
+**Observed.** `intent-story-compare-context.spec.ts` reads the worktree and
+branch in the comparison disclosure, checks both compact and expanded
+baselines, and distinguishes the subtraction and older-Git cases.
+`intent-story-compare-done.spec.ts` names the selected captured run's workflow,
+time, target and revisions. The real-Git `intent-story-changes.spec.ts` and
+`intent-story-completed.spec.ts` read the workspace and published comparison
+respectively. The focused frontend run passed 18 mounted tests and the
+selected Playwright specs. The 10 selected E2E specs and Dashboard typecheck
+passed. Run records and the consumer trace are in the checkout's Git evidence
+directory under `s1-front-final`, `s1-e2e`, `s1-typecheck`, and
+`s1-consumer-trace.md`. The trace follows the shared context and older-Git
+cue into the legacy panel, and the renamed comparison facts into Intent's
+header, uncommitted and commit reads, gap recovery, and historical reading.
+Independent refactoring scoped the context styles away from the commit heading.
+The six mounted cases and selected Playwright layout cases passed again in
+`s1-refactor-front`.
 
 ### 2. Commit and trunk comparison journeys exercise Intent
 

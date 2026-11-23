@@ -32,8 +32,8 @@ const landedRuns: Readonly<Record<string, StoryReview>> = {
   [newer.key]: landedOn(newer, "newer"),
 };
 
-test("a Done story opens on its published completion, chooses a captured landed run and returns, while its locations and landed CI endpoint stay put", async () => {
-  const { locationRevisions, outsideCalls } = await openDoneStoryComparison({
+const openDoneWithCapturedRuns = () =>
+  openDoneStoryComparison({
     review: (query) =>
       Promise.resolve(
         query.historical === "true"
@@ -41,6 +41,9 @@ test("a Done story opens on its published completion, chooses a captured landed 
           : (landedRuns[query.run ?? ""] ?? publishedCompletion()),
       ),
   });
+
+test("a Done story opens on its published completion, chooses a captured landed run and returns, while its locations and landed CI endpoint stay put", async () => {
+  const { locationRevisions, outsideCalls } = await openDoneWithCapturedRuns();
   const story = intentStoryCompare();
   await story.chooseTab("CI comparison");
   await expect.poll(story.landedEndpoint).not.toBe("");
@@ -77,6 +80,33 @@ test("a Done story opens on its published completion, chooses a captured landed 
   await expect.element(story.run).not.toBeInTheDocument();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
   expect(outsideCalls()).toEqual([]);
+});
+
+test("Intent names the launch, destination and captured revisions of the landed run being compared", async () => {
+  await openDoneWithCapturedRuns();
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  await story.choose("Landed runs");
+  await story.chooseRun(older.key);
+
+  await expect
+    .element(
+      story.header.getByRole("heading", { name: "Landed run", exact: true }),
+    )
+    .toBeVisible();
+  await expect
+    .poll(story.revisions)
+    .toMatch(/Refinement launched .*, delivered to origin\/main\./);
+  await expect
+    .element(
+      story.header.getByText(new Date(older.launchedAt).toLocaleString(), {
+        exact: true,
+      }),
+    )
+    .toBeVisible();
+  await expect
+    .poll(story.revisions)
+    .toContain(`From ${oid("1")} to ${oid("2")}.`);
 });
 
 test("a newer default run moves an unchosen run but not a chosen one while the old run is still listed", async () => {

@@ -11,7 +11,6 @@ import {
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { shortRevision } from "../../test-support/dashboardParts.ts";
 import { expectStackedInOrder } from "../../test-support/partArrangement.ts";
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import {
@@ -53,9 +52,9 @@ test("a long story title shows once in full above the story's views, whichever i
 
   await storyHeaderDetail(intent);
   await expect(storyHeaderReading(intent).identity).toHaveText("SEED-A#a");
-  await expect(storyHeaderReading(intent).revisions).toContainText(
-    `Compared ${shortRevision(baseline)} with worktree `,
-  );
+  await expect(
+    storyHeaderReading(intent).workspaceContext,
+  ).toHaveAccessibleName(new RegExp(`Baseline ${baseline} .* Worktree `));
 
   for (const view of ["CI comparison", "Intent coverage", "Changes"] as const) {
     await chooseStoryTab(intent, view);

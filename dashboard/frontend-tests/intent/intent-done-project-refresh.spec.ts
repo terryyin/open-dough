@@ -138,7 +138,7 @@ test("project refresh returns the same Done historical Purpose file and reading 
   );
   await expect.poll(() => intentReadingScroll(intent)).toBe(offset);
   expect(await readIntentDiff(intent)).toBe(originalDiff);
-  await expect(revisions).toHaveText(endpoints);
+  await expect(revisions).toHaveText(endpoints, { useInnerText: true });
   await fileReadingTab(intent, "Proof").click();
   await expect(proofRegion(intent)).toBeVisible();
   await openProjectIntent(intent);

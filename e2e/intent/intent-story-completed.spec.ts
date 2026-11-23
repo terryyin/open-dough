@@ -18,7 +18,6 @@ import { assumeReviewChanges } from "../../dashboard/test-support/reviewChangesP
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { shortRevision } from "../../dashboard/test-support/dashboardParts.ts";
 import { expandIntentGroup } from "../../dashboard/test-support/intentPerspectivePage.ts";
 import {
   expect,
@@ -59,7 +58,6 @@ test("Intent overlays a completed story's published history comparison, naming i
     });
   const story = intentStory(intent);
   const scoped = story.summary;
-  let baseline = "";
 
   await test.step("Intent names the completed story by its done record's title and identity", async () => {
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
@@ -86,20 +84,12 @@ test("Intent overlays a completed story's published history comparison, naming i
   });
 
   await test.step("the compared revisions are the published comparison's, not Intent's published revision", async () => {
-    const revisions = story.header.revisions;
-    await expect(revisions).toContainText(
-      `with completion ${shortRevision(completion)}.`,
-    );
-    const shown = revisions.locator("code");
-    await expect(shown).toHaveCount(2);
-    baseline = (await shown.first().getAttribute("title")) ?? "";
-    await expect(shown.nth(1)).toHaveAttribute("title", completion);
+    await expect(story.header.publishedCompletion).toHaveText(completion);
+    await expect(story.header.publishedBaseline).toHaveText(/^[a-f0-9]{40}$/);
+    const baseline = await story.header.publishedBaseline.innerText();
     expect(published).not.toBe(completion);
     expect(baseline).not.toBe(published);
     expect(baseline).not.toBe(completion);
-    await expect(revisions).toHaveText(
-      `Compared ${shortRevision(baseline)} with completion ${shortRevision(completion)}.`,
-    );
   });
 
   await test.step("the deleted file is absent from the published tree", () => {

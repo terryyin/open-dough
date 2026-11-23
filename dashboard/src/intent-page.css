@@ -87,6 +87,20 @@
   display: none;
 }
 
+.intent-story-comparison-context {
+  min-width: 0;
+}
+
+.intent-story-comparison-context .story-review-context-line {
+  border: 0;
+  padding: 0;
+}
+
+.intent-story-comparison-context h3 {
+  margin: 0;
+  font-size: inherit;
+}
+
 .intent-story-state button {
   margin-left: var(--space-1);
 }

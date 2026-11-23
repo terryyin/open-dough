@@ -18,6 +18,7 @@ import { expect, type Locator } from "@playwright/test";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import { storyReviewWaitMs } from "../../src/storyReviewContract.ts";
 import { purposeRegion } from "../intentPerspectivePage.ts";
+import { contextValues } from "./reviewContextLine.ts";
 
 // Intent says it is reading the selected story's changes from the story's
 // selection until it shows the answer, which the boundary may take up to its
@@ -40,12 +41,16 @@ export {
 // Story-specific readings within the persistent selected-story header.
 export function storyHeaderReading(intent: Locator) {
   const region = storySummary(intent);
+  const revisions = region.locator(".intent-story-revisions");
   return {
     region,
     crumb: region.locator(".intent-story-crumb"),
     leadingControl: region.locator(":scope > *").first().getByRole("button"),
     identity: region.locator(".record-identity"),
-    revisions: region.locator(".intent-story-revisions"),
+    revisions,
+    workspaceContext: contextValues(revisions),
+    publishedBaseline: revisions.getByText(/^Baseline /).locator("code"),
+    publishedCompletion: revisions.getByText(/^Completion /).locator("code"),
     status: region.getByRole("status"),
     done: region.locator(".intent-story-done"),
   };
@@ -56,11 +61,14 @@ export const storyTitle = (intent: Locator) =>
   storySummary(intent).getByRole("heading", { level: 2 });
 
 // What the header says beyond the title: the identity, and the revisions or
-// full explanation of the comparison. Nothing collapses it.
+// full explanation of the comparison. The workspace detail can expand, and
+// the header itself stays open.
 export async function storyHeaderDetail(intent: Locator) {
   const header = storySummary(intent);
   await expect(header).toBeVisible();
-  await expect(header.getByRole("button", { expanded: false })).toHaveCount(0);
+  await expect(
+    header.getByRole("button", { expanded: false, name: /^(?!Branch )/ }),
+  ).toHaveCount(0);
   return header;
 }
 
