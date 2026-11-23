@@ -1,6 +1,7 @@
 # Catch delegated lint failures before guarded delivery
 
 **Source:** [SEED-345#catch-delegated-lint-before-delivery](../../seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
@@ -23,7 +24,7 @@ Catch an applicable authored-file lint failure while the worker can fix it and b
 
 ### 1. Catch scoped lint before focused proof
 Type: Behavior
-Status: planned
+Status: done
 
 Shorten the worker briefing restriction in the distribution source under the [skill authoring behavior review](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review). Leave the shared delivery rule as the single owner of staged lint. Use the normal proof path with the project's explicit command and owned paths. Walk implementation and refactor returns through the existing evidence contract. Estimate 10–15 active minutes.
 
@@ -34,5 +35,24 @@ Shorten the worker briefing restriction in the distribution source under the [sk
 Run the focused replay above under the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md). Start long macOS runs fully awake with `caffeinate -s -i` on AC. On battery, plug in or keep the lid open under `caffeinate -i` and inspect the sleep log afterward. [Machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 
 One Behavior slice owns the earlier feedback and its proof. Further slice refinement is unnecessary because the change removes a restriction and uses the same command, evidence and delivery boundaries. No remaining slice concern was identified.
+
+## Execution context
+
+Story Branch Mode. Owned checkout `/Users/terryyin/git/open-dough/.worktrees/catch-delegated-lint-failures-before-guarded-del` on `codex/catch-delegated-lint-failures-before-guarded-del`. Yua-chan continues the published claim `67f8d37bfd8cb4ad61dc3d6a9ce2675e13bdb905`, which started at `94de28b8edc463b821d805c5a035ac93cb2a8702`. The remote story branch confirms the claim revision and `origin/main` contains it.
+
+The checkout passed `node scripts/setup-native.mjs npm` and `node node_modules/eslint/bin/eslint.js --max-warnings=0 --no-warn-ignored -- dashboard/src/attachedTerminal.ts`. Branch CI uses GitHub Actions `ci.yml` on `terryyin/open-dough`. Codex coordinator `yua-chan-786` owns the yielded stream `/tmp/dough-ci-501/watch-au4U0y` (PID 60535, session 69604, cell `g367:8`). The trunk claim preceded this branch observer.
+
+
+## Accepted proof
+
+At `67f8d37bfd8cb4ad61dc3d6a9ce2675e13bdb905`, a scratch clone with its own locked install and no remote replayed the historical socket edit. Both defective inputs moved the binary type assignment into `attachTerminal` and restored the writable socket type. The baseline ran `npm run typecheck:dashboard` and `npm run test:dashboard:frontend -- --workers=1 frontend-tests/terminals/session-terminal-keyboard.spec.ts`. All four selected Chromium cases passed in the 36.74 s focused round. Local-only fresh preparation with `npm run format` then refused `no-param-reassign` in 6.46 s, before the staged hook or commit. The coordinator-role repair moved the assignment back to the opener and restored the readonly type. The same proof passed again, and the guarded retry committed through the real hook.
+
+The paired implementation handoff prefixed the same focused command with `node node_modules/eslint/bin/eslint.js --max-warnings=0 --no-warn-ignored -- dashboard/src/attachedTerminal.ts` and Bash `&&`. ESLint returned 1 on the same defect after 3.35 s without changing the input bytes or reaching the proof marker. After the same mechanical repair in the worker role, lint passed in 3.90 s, all four cases and typecheck passed, and the first guarded attempt committed through the real hook. Baseline versus scoped replay used two versus one focused rounds and two versus one guard attempts. Each needed one repair. The clean scoped check took 2.12 s before usual typecheck. A refactor changed the checked attachment path, renewed lint in 1.97 s, and passed typecheck and guarded delivery. Both the staged-only and whole-repository-only handoffs supplied usual typecheck without a scoped worker command. Both passed typecheck and local-only fresh with their normal formatter and real staged hook.
+
+The worker brief went from 180 to 179 lines and 11,052 to 11,013 bytes. The representative walk followed its existing literal command, return and checked-path proof reuse. The delivery guidance retains coordinator formatting, hook-owned staged lint and guarded publication. The selected shell check `Distribution/evaluation/tests/delivery-evidence/delivery-evidence-native-routing.sh` passed through `scripts/test.sh` with Bash 5. It checked the installed briefing's input identity in the credential-free routing fixture.
+
+**Decision.** Retain the deletion. Earlier feedback removed a refused delivery and its renewed proof in this replay, with a measured 2.12 s clean check. The initial replay hit its outer deadline under load and resumed outstanding arms with live capture. The first routing launch stopped at the Bash version check. Different host loads, a focused four-case replay, and modeled handoffs limit the comparison to the observed work. Real-world frequency, net savings and agent behavior remain unmeasured. The named source observations and the terminal records are indexed in `implementation-return.md` under this worktree's Git evidence directory.
+
+Independent post-change review found no refactor candidates or invalidated proof. The ODF-329 evaluation is a coordinator records-only edit.
 
 ## Story obligations
