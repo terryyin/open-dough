@@ -1131,3 +1131,22 @@ A scratch experiment in this checkout ran 24 copies of one history-render
 case at two workers. It took 3.63 s wall in separate files and 2.32 s together.
 This establishes a file cost for that component. Measure the full group to
 judge the campaign outcome.
+
+<a id="speed-story-comparison-frontend-proof"></a>
+
+### Speed up Intent story comparison frontend proof
+
+**Identity:** SEED-413#speed-story-comparison-frontend-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+```
+
+**Goal:** Bring the story comparison evidence and fixed comparison frontend
+cases to about 100 ms each, preserving distinct coverage and the existing
+branch comparison E2E journeys. Audit sibling Intent timings and apply
+bounded savings where the same unnecessary setup is used.
+
+Retained CI attempt 45154927932 totals 6.9 case-seconds for the two specs.
+The local two-worker Vitest baseline totals 17.0 case-seconds across five
+cases. Compare focused local runs with two workers and use the
+[failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).

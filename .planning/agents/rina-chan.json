@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rina-chan",
+  "email": "rina-chan@example.org",
+  "identity": "SEED-413#speed-story-comparison-frontend-proof",
+  "mode": "trunk",
+  "branch": "origin/main",
+  "host": "codex"
+}
