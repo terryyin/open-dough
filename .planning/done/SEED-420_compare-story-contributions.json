@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-420#compare-story-contributions",
+  "title": "Compare a story branch with and without incoming trunk changes",
+  "completedAt": "2026-11-23T09:53:05.794Z",
+  "developer": "Terry Yin",
+  "agent": "Shunka-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

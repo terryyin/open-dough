@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_compare-story-contributions.json",
+      "identity": "SEED-420#compare-story-contributions",
+      "completedAt": "2026-11-23T09:53:05.794Z",
+      "blob": "354be0d833619360ca03b05c254aaba63948273f"
+    },
+    {
       "fileName": "SEED-345_use-proportionate-refactoring-for-small-test-edits.json",
       "identity": "SEED-345#use-proportionate-refactoring-for-small-test-edits",
       "completedAt": "2026-11-23T08:05:14.424Z",

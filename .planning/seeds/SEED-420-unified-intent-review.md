@@ -119,63 +119,6 @@ not add a third kind of Done row.
 **Effort hypothesis:** L, medium confidence. The critical uncertainty is
 reconciling workflow publication and local Done across machines.
 
-<a id="compare-story-contributions"></a>
-
-### Compare a story branch with and without incoming trunk changes
-
-**Identity:** SEED-420#compare-story-contributions
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/790-compare-story-contributions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4a951e3d4aa09ea4f4cdcd9de8f362a9e0bbccd35e2bcd6052922545b9dea2f9","plan":"a744ba215417f6b60c692dc558af78a08d02e00a0e1350d17374eeafac4c23b5"}}
-```
-
-**Goal.** A developer reviewing a story in Intent can see what the story
-branch contributed and inspect the incoming trunk changes it picked up when
-those changes matter to the review.
-
-**Scope.** Intent opens a Story Branch Mode comparison with the story's
-contribution. The **Include merged changes** checkbox widens that comparison
-to the net diff across the same branch interval. A cumulative interval
-starts at the established story start. A selected commit interval starts
-at its first selected item's parent. Both views end at the same selected
-revision or snapshot, with the existing uncommitted choice still in effect.
-The file list, folder counts, header, file diff and note context follow the
-displayed comparison. Keep the selected file when it is still in the
-comparison and clear its diff when it drops out.
-
-The contribution includes the branch's own merge edits. Flag files whose
-resolution mixes branch and trunk work and use their actual diff baselines.
-Offer the checkbox only when the history establishes a branch interval and
-its comparison choices. Explain missing history or attribution when it
-prevents a comparison, since a raw diff could otherwise be mistaken for
-isolated work. Captured landed runs and published Trunk Mode session ranges
-keep their recorded endpoints. Surface the recorded shared-checkout warning
-with the affected range.
-
-The story covers the existing Taken workspace, commit-range and Done
-completion selections. Session selection and combining session ranges
-belong to [SEED-418](SEED-418-review-published-session-changes.md).
-[Comparison-specific CI proof](#read-proof-for-the-comparison) is separate.
-Until then, the existing whole-story evidence keeps its provenance when the
-reviewer chooses a wider comparison.
-
-**Key examples**
-
-- A developer opens the Done landing-record story after its worktree is
-  retired. The handoff spec is absent from the attributed diff from
-  `44a059b` to `daf6997`. Checking **Include merged changes** reveals the
-  other story's edit from the recorded story start `f7190a3b1` to the same
-  completion. The folder summary and file diff include it. Unchecking clears
-  the incoming-only file's diff if it was selected.
-- A developer selects a live branch interval spanning a trunk merge. The
-  contribution shows a branch edit made in the merge and flags a conflict
-  resolved with both sides' changes. Widening adds a clean incoming-only
-  path. A later trunk commit outside the selected interval never appears.
-- A developer reviews a direct-trunk session with a recorded range marked
-  as shared checkout. The review shows that range and its warning. A recorded
-  range without that marker has no shared-checkout warning.
-
-**Effort hypothesis:** M, medium confidence, using existing Git attribution.
-
 <a id="read-proof-for-the-comparison"></a>
 
 ### Read CI proof for the selected comparison
@@ -220,9 +163,8 @@ hand.
 
 Out of scope: proof for several selected sessions with disjoint ranges.
 [SEED-418](SEED-418-review-published-session-changes.md#review-selected-sessions-together)
-already owns per-range evidence for that selection. The story-only view in
-[compare-story-contributions](#compare-story-contributions) is also out of
-scope. Its base tree has no build of its own, so under the rule above it
+already owns per-range evidence for that selection. The story-only view of a branch
+is also out of scope. Its base tree has no build of its own, so under the rule above it
 shows the completion side with a missing matching baseline. This story
 makes no delivery commitment for that view. Running new or paired CI builds
 is out of scope. This story reads existing runs.
