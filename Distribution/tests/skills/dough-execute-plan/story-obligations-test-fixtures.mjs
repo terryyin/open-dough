@@ -1,6 +1,6 @@
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { makeMe } from "../../support/makeMe.mjs";
 import { renderPlanSlice } from "../../support/published-plan.mjs";
 
@@ -47,10 +47,7 @@ Story clause: "${example.clause}"
 Disposition: ${disposition}`;
 }
 
-export function slicePlan(
-  entries,
-  { done = [], indices = [1, 2, 3, 4], review = false } = {},
-) {
+export function slicePlan(entries, { done = [], indices = [1, 2, 3, 4] } = {}) {
   const slices = indices.map((index) =>
     makeMe.aPlanSlice
       .with({
@@ -63,7 +60,6 @@ export function slicePlan(
   return `# Replay plan
 
 **Source:** [selected story](story.md#selected).
-${review ? "**Source review:** [source review](source-review.md)\n" : ""}
 ## Ordered slices
 ${slices.map(renderPlanSlice).join("\n\n")}
 
@@ -89,33 +85,4 @@ export function fixture(
   const writePlan = (text) => writeFileSync(plan, text);
   writePlan(slicePlan(obligation(example, disposition), options));
   return { plan, story, writePlan };
-}
-
-// A retained reviewer return in its record form: rows are
-// [id, source text, allocation, observation or obligation id].
-export function sourceReview(rows) {
-  return `# Source review
-
-Launch: fresh reviewer, source text only.
-
-## Commitments
-
-| Id | Source commitment | Slice | Observation or obligation |
-| --- | --- | --- | --- |
-${rows.map((row) => `| ${row.join(" | ")} |`).join("\n")}
-`;
-}
-
-// A plan linking its retained return, with the return's rows written beside it.
-export function reviewed(
-  t,
-  rows,
-  { entries = "", done = [], example = holdings } = {},
-) {
-  const { plan, writePlan } = fixture(t, example);
-  const writeReview = (next) =>
-    writeFileSync(join(dirname(plan), "source-review.md"), sourceReview(next));
-  writePlan(slicePlan(entries, { done, review: true }));
-  writeReview(rows);
-  return { plan, writePlan, writeReview };
 }

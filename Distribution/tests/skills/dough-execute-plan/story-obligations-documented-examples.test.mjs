@@ -1,24 +1,11 @@
 // The record format's documented examples, run through the obligations reader
 // and CLI, so the documented form stays one the tools accept.
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { readStoryObligations } from "../../../src/skills/dough-execute-plan/scripts/story-obligations.mjs";
-import {
-  fixture,
-  holdings,
-  obligation,
-  reviewed,
-  slicePlan,
-} from "./story-obligations-test-fixtures.mjs";
-import {
-  check,
-  list,
-  record,
-  refuses,
-  refusesCommitment,
-} from "./story-obligations-test-cli.mjs";
+import { fixture, slicePlan } from "./story-obligations-test-fixtures.mjs";
+import { check, list, refuses } from "./story-obligations-test-cli.mjs";
 
 const reference = (name) =>
   readFileSync(
@@ -68,65 +55,4 @@ test("the documented obligation is read, listed, and blocks commit until proved"
   );
   assert.equal(check(plan, "--slice", "4").ok, true);
   assert.equal(check(plan, "--completion").ok, true);
-});
-
-test("record refuses an explicit commitment-field and preserves the review", (t) => {
-  const { plan } = reviewed(t, [["1", documentedStory.clause, "slice 4", ""]]);
-  const review = join(dirname(plan), "source-review.md");
-  const original = readFileSync(review, "utf8");
-  const result = record(
-    plan,
-    "--commitment",
-    "1",
-    "--observed",
-    "result-source.test.mjs",
-    "--commitment-field",
-    "1",
-  );
-  assert.equal(result.ok, false);
-  assert.equal(result.problems[0].reason, "invalid-input");
-  assert.match(
-    result.problems[0].message,
-    /Unknown option '--commitment-field'/,
-  );
-  assert.equal(readFileSync(review, "utf8"), original);
-});
-
-test("the documented Commitments table allocates a lifecycle owner that checks list unobserved", (t) => {
-  const table = /```markdown\n(## Commitments[\s\S]*?)\n```/.exec(
-    obligations,
-  )?.[1];
-  assert.ok(table, "the source review has an executable Commitments example");
-  const { plan, writePlan } = reviewed(t, []);
-  const done = [1, 2, 3, 4, 5, 6];
-  const g2 = obligation(holdings, "receiving slice 8", "G2");
-  writePlan(
-    slicePlan(g2, { done, indices: [1, 2, 3, 4, 5, 6, 7, 8], review: true }),
-  );
-  const writeTable = (source) =>
-    writeFileSync(
-      join(dirname(plan), "source-review.md"),
-      `# Source review\n\n${source}\n`,
-    );
-  writeTable(table);
-  // Slice 7 is about to finish: its own row needs an observation, the
-  // target CI row does not and is listed as pending lifecycle.
-  const result = check(plan, "--slice", "7");
-  refusesCommitment(result, "unobserved-commitment", "7", { slice: 7 });
-  assert.equal(result.problems.length, 1, JSON.stringify(result));
-  assert.deepEqual(result.pendingLifecycle, [
-    { id: "8", text: "Final target CI is settled", owner: "target CI" },
-  ]);
-  writeTable(
-    table.replace(
-      "| target CI | |",
-      "| target CI | observed: branch CI run 42 |",
-    ),
-  );
-  refusesCommitment(
-    check(plan, "--slice", "6"),
-    "observed-lifecycle-commitment",
-    "8",
-    { owner: "target CI" },
-  );
 });

@@ -191,7 +191,6 @@ dashboard shards cancelled at the 6-minute job cap during slow artifact uploads.
 
 ## Repository authoring and host observations
 
-- <a id="dd-363"></a> [Coordinator source-review hard-breaks fail fresh delivery](docs/maintainer/project-maintenance-findings.md#dd-363)
 - <a id="dd-365"></a> [Commit-specific preparation approval repeats after safe reconciliation](docs/maintainer/project-maintenance-findings.md#dd-365)
 - <a id="dd-370"></a> [New Markdown docs with trailing blank EOF fail staged whitespace](docs/maintainer/project-maintenance-findings.md#dd-370)
 - <a id="dd-371"></a> [Delivery typecheck first catches exactOptionalPropertyTypes after green proof](docs/maintainer/project-maintenance-findings.md#dd-371)

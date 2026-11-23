@@ -167,7 +167,7 @@ The [test-optimization skill](../../Distribution/src/skills/dough-test-optimizat
 
 The maintainer runbook is more complete than a one-way feedback inbox. It deduplicates by project and execution identity, verifies which release contained a response, distinguishes old-release reports from post-fix recurrence, and starts its one-week watch from verified use. A week without relevant use is explicitly unexercised. Its retirement decision is explicitly operational, not proof that recurrence is impossible. These are useful foundations to preserve.
 
-The internal [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md) provides finite collection, cleanup, prioritization, and publication across projects. The [bounded ODF-139 assessment](findings/ODF-139.md#bounded-effectiveness-evaluation--structured-obligations-2026-10-20) retains the response-effectiveness result and the next required ordinary-use evidence.
+The internal [shared-feedback skill](../../.agents/skills/collect-client-feedback/SKILL.md) provides finite collection, cleanup, prioritization, and publication across projects. The [bounded ODF-139 assessment](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/docs/maintainer/findings/ODF-139.md#bounded-effectiveness-evaluation--structured-obligations-2026-10-20) retains the response-effectiveness result and the next required ordinary-use evidence.
 
 ## A useful definition of improvement
 

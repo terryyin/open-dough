@@ -92,7 +92,6 @@ story_closure_write_evidence_identity() {
   native_result_input_hash_lines \
     Distribution/src/skills/dough-story-wrap-up/SKILL.md \
     Distribution/src/skills/dough-story-wrap-up/references/story-branch-integration.md \
-    Distribution/src/skills/dough-story-wrap-up/references/lifecycle-commitments.md \
     Distribution/src/skills/dough-execute-plan/references/trunk-publication.md \
     Distribution/src/skills/dough-execute-plan/references/wrap-up-closure-publication.md \
     Distribution/src/skills/dough-execute-plan/references/ci-monitor.md \

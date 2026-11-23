@@ -2,7 +2,6 @@
 
 **Identity:** SEED-389#verify-silent-supplier-wait-in-use
 **Source:** [Verify the silent supplier wait in Codex](../../seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use)
-**Source review:** [Independent source review](source-review.md)
 
 ## Goal and scope
 

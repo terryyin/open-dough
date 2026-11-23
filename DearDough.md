@@ -9,6 +9,7 @@ observations and context beyond those catalog records. See
 
 - Highest allocated local number: 631. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
+- [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
 
 ## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
@@ -89,17 +90,6 @@ Former local code: DD-543.
 - SEED-301#serve-frontend-dashboard-answers-through-makeme (plan 655; first implementation `b03df3cbb`)
 
 [Account and evidence at ODF-519](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-519.md#evidence-2026-11-23-open-dough-dd-543).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
-
-## ODF-520 — Source-only review omits a promise stated outside Goal, Scope and Key examples
-
-<a id="dd-544"></a>
-<a id="dd-544--source-only-review-omits-a-promise-stated-outside-goal-scope-and-key-examples"></a>
-Former local code: DD-544.
-
-- SEED-383#compare-codex-and-claude-code-token-usage (plan 658; first implementation `6cb3aac`)
-
-[Account and evidence at ODF-520](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-520.md#evidence-2026-11-23-open-dough-dd-544).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## DD-545 — A Behavior slice holding view state, controls, styling, specs and E2E migration overran
@@ -752,16 +742,6 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
   - Evidence: slice 3 dropped the scope's own figures row from `expectComparisonScopeRows` (returned, restored in `ebe6c545f`). Slice 4 kept three legacy short-SHA exclusions that could not fail because the answer never held the SHA (returned: one made discriminating, two removed in `6bb025623`). Slice 6 left six drawing checks without a Done owner (story obligation G1, proved by slice 7 in `8d288cd06`). Slice 5 replaced the legacy-only case's no-timing check with a unit-name check, and acceptance took it (`758ca0df1`, `intent-scope-timing-history-units.spec.ts:103`); only the retrospective's independent outcome review found it, now [plan 783](.planning/slice-plans/783-correct-scope-timing-chart-proof-residue/PLAN.md) finding 2.
   - Observed effect: three acceptance returns and one loss shipped on the story branch.
   - Inference: legacy assertions that could not fail were copied as owners, a related failure the brief's preserve rule does not name.
-
-## ODF-536 — Recording an observation with a Story obligation entry clears the commitment's Slice cell <a id="dd-606"></a>
-
-<a id="dd-606--recording-an-observation-with-a-story-obligation-entry-clears-the-commitments-slice-cell"></a>
-Former local code: DD-606.
-
-- SEED-413#mount-story-review-changes-panel (plan 748; first implementation `277d5717c67aed5babc1806881797d52a0ec8235`)
-
-[Account and evidence at ODF-536](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-536.md#evidence-2026-11-23-open-dough-dd-606).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-537 — Plan-status absorb marks trunk-delivered Behavior done while the story-branch tip still holds the defect <a id="dd-607"></a>
 

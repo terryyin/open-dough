@@ -18,6 +18,11 @@ dispositions are [recoverable in Git](https://github.com/terryyin/open-dough/blo
 
 Codes are permanent. Highest allocated is ODF-549.
 
+The retired review procedure closes ODF-326, 339, 367, 374, 377, 383, 391,
+434, 436, 447, 478, 481, 510, 514, 520 and 536. The
+[archived catalog](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/docs/maintainer/finding-names.md)
+retains their names, evidence, source-project mappings and response history.
+
 ## Retained evidence
 
 Linked records own each finding’s meaning, evidence and disposition. Count
@@ -175,7 +180,6 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-323 — [A caller-written plan-status mutation survives a later delivery refusal](findings/ODF-323.md) <a id="odf-323"></a>
 ## ODF-324 — [Native checks keep asking the developer after attribution is established](findings/ODF-324.md) <a id="odf-324"></a>
 ## ODF-325 — [Empty delegation while waiting](findings/ODF-325.md) <a id="odf-325"></a>
-## ODF-326 — [Unchanged source-only reviews repeat per slice](findings/ODF-326.md) <a id="odf-326"></a>
 ## ODF-327 — [Evaluation criteria follow the event being judged](findings/ODF-327.md) <a id="odf-327"></a>
 ## ODF-329 — [Delegation omits read-only lint before coordinator formatting](findings/ODF-329.md) <a id="odf-329"></a>
 ## ODF-330 — [Hand-built delivery paths corrupt porcelain status spacing](findings/ODF-330.md) <a id="odf-330"></a>
@@ -190,7 +194,6 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-350 — [Broad supplied terms overwhelm a consumer trace](findings/ODF-350.md) <a id="odf-350"></a>
 ## ODF-352 — [Data-derived search terms overwhelm a consumer trace](findings/ODF-352.md) <a id="odf-352"></a>
 ## ODF-335 — [Lifecycle admission begins before canonical inputs resolve](findings/ODF-335.md) <a id="odf-335"></a>
-## ODF-339 — [Line-range extraction truncates source-only review input](findings/ODF-339.md) <a id="odf-339"></a>
 ## ODF-342 — [Slice proof omits observations assigned by its proof table](findings/ODF-342.md) <a id="odf-342"></a>
 ## ODF-344 — [Rare-crash capture covers only the debugger-attached child](findings/ODF-344.md) <a id="odf-344"></a>
 ## ODF-345 — [No-fault comparisons ignore the baseline event rate](findings/ODF-345.md) <a id="odf-345"></a>
@@ -215,23 +218,19 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-364 — [A plan deferred API client generation past the slices that added routes, against the project's CI check](findings/ODF-364.md) <a id="odf-364"></a>
 ## ODF-365 — [A page slice's plan omitted the reload its own generate journey needed](findings/ODF-365.md) <a id="odf-365"></a>
 ## ODF-366 — [A delegation brief named the "complete" pytest command as a broad check within a slice](findings/ODF-366.md) <a id="odf-366"></a>
-## ODF-367 — [Slice briefs carried only the plan's proof minimum, so story qualifications returned at acceptance](findings/ODF-367.md) <a id="odf-367"></a>
 ## ODF-368 — [A plan nested its slices under Current decisions, so guarded delivery could not mark them done](findings/ODF-368.md) <a id="odf-368"></a>
 ## ODF-369 — [A delegated broad test run with no external time bound busy-spun for 32 hours while the coordinator waited](findings/ODF-369.md) <a id="odf-369"></a>
 ## ODF-370 — [A brief's "ownership: only these paths" made a refactor pass revert coherent edits](findings/ODF-370.md) <a id="odf-370"></a>
 ## ODF-371 — [Slice acceptance checked each example's trigger but not a once-only reading made repeating](findings/ODF-371.md) <a id="odf-371"></a>
 ## ODF-372 — [A "pre-existing failure" baseline was taken after earlier slices of the same execution](findings/ODF-372.md) <a id="odf-372"></a>
 ## ODF-373 — [A correction slice reopened the defect class an earlier slice of the same correction had closed](findings/ODF-373.md) <a id="odf-373"></a>
-## ODF-374 — [A source-only review inherited execution context and became a product review](findings/ODF-374.md) <a id="odf-374"></a>
 ## ODF-375 — [Guarded fresh delivery refused directory paths listed in ownedPaths](findings/ODF-375.md) <a id="odf-375"></a>
 ## ODF-376 — [Codex stream can yield before exposing observer identity](findings/ODF-376.md) <a id="odf-376"></a>
-## ODF-377 — [Incomplete source-only reviewer inputs](findings/ODF-377.md) <a id="odf-377"></a>
 ## ODF-378 — [Trunk landing expectations block story-branch publication](findings/ODF-378.md) <a id="odf-378"></a>
 ## ODF-379 — [Delegation omits the required proof runtime wrapper](findings/ODF-379.md) <a id="odf-379"></a>
 ## ODF-380 — [Bounded CI diagnostics omit failed-test identities](findings/ODF-380.md) <a id="odf-380"></a>
-## ODF-381 — [Source-review allocations use the wrong reader grammar](findings/ODF-381.md) <a id="odf-381"></a>
+## ODF-381 — [A hand-written Story obligation fails the reader’s Reported-field grammar](findings/ODF-381.md) <a id="odf-381"></a>
 ## ODF-382 — [Helper-gone proof substitutes an address-drift fixture](findings/ODF-382.md) <a id="odf-382"></a>
-## ODF-383 — [A deletion-only amendment remaps the full source review](findings/ODF-383.md) <a id="odf-383"></a>
 ## ODF-384 — [CI layout repair checks successive assertions in isolation](findings/ODF-384.md) <a id="odf-384"></a>
 ## ODF-385 — [Story heading shape defeats obligation clause quotes](findings/ODF-385.md) <a id="odf-385"></a>
 ## ODF-386 — [Misplaced Source metadata blocks an empty obligations section](findings/ODF-386.md) <a id="odf-386"></a>
@@ -239,7 +238,6 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-388 — [Off-hours research depends on a long in-process wait](findings/ODF-388.md) <a id="odf-388"></a>
 ## ODF-389 — [Observer stream output allowance truncates protocol records](findings/ODF-389.md) <a id="odf-389"></a>
 ## ODF-390 — [Plan paraphrases change source cause classes](findings/ODF-390.md) <a id="odf-390"></a>
-## ODF-391 — [Hand-edited source-review observations repeatedly fail parsing](findings/ODF-391.md) <a id="odf-391"></a>
 ## ODF-392 — [CI-host DNS loss terminates observation](findings/ODF-392.md) <a id="odf-392"></a>
 ## ODF-393 — [A planned rebase rewrites a published story branch](findings/ODF-393.md) <a id="odf-393"></a>
 ## ODF-394 — [Process review selection precedes its setting read](findings/ODF-394.md) <a id="odf-394"></a>
@@ -276,15 +274,13 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-425 — [Refactor renames a helper while its verification cohort is still running](findings/ODF-425.md) <a id="odf-425"></a>
 ## ODF-426 — [Required fresh refactor blocked by host agent authentication failure](findings/ODF-426.md) <a id="odf-426"></a>
 ## ODF-427 — [Story Branch keep-worktree landing requires a hand-written publication script](findings/ODF-427.md) <a id="odf-427"></a>
-## ODF-428 — [Post-change refactor moves tests after acceptance cited them in `source-review.md`](findings/ODF-428.md) <a id="odf-428"></a>
+## ODF-428 — [Proof citations in the plan become stale after refactoring](findings/ODF-428.md) <a id="odf-428"></a>
 ## ODF-429 — [Overlapping sibling story lands on trunk mid-execution and surfaces only at the final done-mark](findings/ODF-429.md) <a id="odf-429"></a>
 ## ODF-430 — [Story integration moves another active agent profile into `done/`](findings/ODF-430.md) <a id="odf-430"></a>
 ## ODF-431 — [Lettered slice numbers in a plan fail the obligations reader](findings/ODF-431.md) <a id="odf-431"></a>
 ## ODF-432 — [Plan decision chooses a costlier mechanism than the story's one-step case and fails existing cost guards](findings/ODF-432.md) <a id="odf-432"></a>
 ## ODF-433 — [Plan no-op shortcut contradicts a story clause and is exposed by the implementer's gap report](findings/ODF-433.md) <a id="odf-433"></a>
-## ODF-434 — [Coordinator sends an unsubstituted shell placeholder to the source-only reviewer](findings/ODF-434.md) <a id="odf-434"></a>
 ## ODF-435 — [Test-removal plan maps story examples to surviving tests without checking a deleted test's other observations](findings/ODF-435.md) <a id="odf-435"></a>
-## ODF-436 — [List-item `Source review` link under a `## Source` heading is refused as `unlinked-source-review`](findings/ODF-436.md) <a id="odf-436"></a>
 ## ODF-437 — [Token-only removal sweep leaves natural-language wording describing the removed feature](findings/ODF-437.md) <a id="odf-437"></a>
 ## ODF-438 — [Existing-suite premise run does not discriminate cross-read consistency](findings/ODF-438.md) <a id="odf-438"></a>
 ## ODF-439 — [Deletion planning checks import-only consumers and misses packaging `COPY`](findings/ODF-439.md) <a id="odf-439"></a>
@@ -295,7 +291,6 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-444 — [Single anomalous premise probe is recorded as settled and contradicted by a clean rerun](findings/ODF-444.md) <a id="odf-444"></a>
 ## ODF-445 — [Multi-OS GitHub Actions CI-proof recipe omits `shell: bash` for Windows runners](findings/ODF-445.md) <a id="odf-445"></a>
 ## ODF-446 — [Near-zero guidance row headroom turns ordinary additions into structural packing](findings/ODF-446.md) <a id="odf-446"></a>
-## ODF-447 — [Range-shaped commitment IDs block recording source observations](findings/ODF-447.md) <a id="odf-447"></a>
 ## ODF-448 — [Story Branch startup arms a redundant trunk observer](findings/ODF-448.md) <a id="odf-448"></a>
 ## ODF-449 — [Acceptance credits a surface through an endpoint the surface never displays](findings/ODF-449.md) <a id="odf-449"></a>
 ## ODF-450 — [Post-push confirmation races an unrelated tracking-ref update](findings/ODF-450.md) <a id="odf-450"></a>
@@ -325,10 +320,8 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-475 — [Successive slices extend an inherited mechanism no acceptance questions](findings/ODF-475.md) <a id="odf-475"></a>
 ## ODF-476 — [CI observation is armed before CLI authentication is verified](findings/ODF-476.md) <a id="odf-476"></a>
 ## ODF-477 — [Delivery launches before the freshness result is inspected](findings/ODF-477.md) <a id="odf-477"></a>
-## ODF-478 — [Slice delivery publishes without that slice’s source-review observations](findings/ODF-478.md) <a id="odf-478"></a>
 ## ODF-479 — [Admission refuses one workspace serving as both integration and owned workspace](findings/ODF-479.md) <a id="odf-479"></a>
 ## ODF-480 — [Admission accepts only the colon Goal label](findings/ODF-480.md) <a id="odf-480"></a>
-## ODF-481 — [Source-only review allocates rows that have no independent proof](findings/ODF-481.md) <a id="odf-481"></a>
 
 ## ODF-482 — [A pre-Take merge base causes a false source-freshness hold](findings/ODF-482.md) <a id="odf-482"></a>
 
@@ -370,17 +363,14 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-507 — [Trunk changes overlap accepted uncommitted work without a practiced reconciliation path](findings/ODF-507.md) <a id="odf-507"></a>
 ## ODF-508 — [A plan omits the per-ref scope of a multi-ref command](findings/ODF-508.md) <a id="odf-508"></a>
 ## ODF-509 — [A reported gap is accepted using an unmeasured estimate of its exposure window](findings/ODF-509.md) <a id="odf-509"></a>
-## ODF-510 — [The source-review recorder leaves an incomplete reverse link for a shared obligation](findings/ODF-510.md) <a id="odf-510"></a>
 ## ODF-511 — [An existing one-family sizing limit is omitted from the first slice after handoff](findings/ODF-511.md) <a id="odf-511"></a>
 ## ODF-512 — [A migration sizing probe samples only light cases and misses context overruns](findings/ODF-512.md) <a id="odf-512"></a>
 ## ODF-513 — [Live acceptance depends on an uncontrolled qualifying event](findings/ODF-513.md) <a id="odf-513"></a>
-## ODF-514 — [Updating a shared obligation discards existing reverse links](findings/ODF-514.md) <a id="odf-514"></a>
 ## ODF-515 — [Records-only planned completion lacks a documented guarded context](findings/ODF-515.md) <a id="odf-515"></a>
 ## ODF-516 — [Planning omits size decisions for files a slice will edit](findings/ODF-516.md) <a id="odf-516"></a>
 ## ODF-517 — [A resplit hands execution uncheckable obligations and review ownership](findings/ODF-517.md) <a id="odf-517"></a>
 ## ODF-518 — [Formatted-line planning samples miss construction shapes that wrap](findings/ODF-518.md) <a id="odf-518"></a>
 ## ODF-519 — [A reused remote Story Branch reports publication without advancing](findings/ODF-519.md) <a id="odf-519"></a>
-## ODF-520 — [Source-only input rules omit promises outside three named sections](findings/ODF-520.md) <a id="odf-520"></a>
 ## ODF-521 — [Self-reported active time overstates measured slice time](findings/ODF-521.md) <a id="odf-521"></a>
 ## ODF-522 — [Intermediate proof is used to settle a real-history total](findings/ODF-522.md) <a id="odf-522"></a>
 ## ODF-523 — [An empty scratch store stands in for populated store reconciliation](findings/ODF-523.md) <a id="odf-523"></a>
@@ -396,7 +386,6 @@ Unknown execution releases cannot establish post-fix recurrence.
 ## ODF-533 — [A CI repair refactor weakens an exact read budget](findings/ODF-533.md) <a id="odf-533"></a>
 ## ODF-534 — [Publication proof stops before the actual Land route](findings/ODF-534.md) <a id="odf-534"></a>
 ## ODF-535 — [Converted cases omit or self-supply previous assertion inputs](findings/ODF-535.md) <a id="odf-535"></a>
-## ODF-536 — [Recording an observation with obligation fields clears the existing Slice cell](findings/ODF-536.md) <a id="odf-536"></a>
 ## ODF-537 — [Absorbed plan status credits trunk behavior absent from the branch tip](findings/ODF-537.md) <a id="odf-537"></a>
 ## ODF-538 — [Topic-sized migration slices exhaust the plan cap mid-execution](findings/ODF-538.md) <a id="odf-538"></a>
 ## ODF-539 — [An interrupted slice-clock command leaves subsequent time unmeasurable](findings/ODF-539.md) <a id="odf-539"></a>

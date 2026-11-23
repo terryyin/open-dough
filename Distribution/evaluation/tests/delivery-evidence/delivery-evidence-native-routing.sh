@@ -99,7 +99,6 @@ for host in claude codex; do
     [[ ${case_name} != drift ]] || expected_inputs+=(
       dough-execute-plan/scripts/story-obligations.mjs
       dough-execute-plan/scripts/story-obligation-reader.mjs
-      dough-execute-plan/scripts/story-obligation-source-review.mjs
       dough-execute-plan/references/story-obligations.md
     )
     awk '{ print $2 }' "${delivery_evidence_root}/installed-inputs.sha256" \

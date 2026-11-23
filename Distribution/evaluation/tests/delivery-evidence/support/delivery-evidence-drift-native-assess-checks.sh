@@ -11,7 +11,6 @@ review-complete: true
 native-acceptance-observed: true
 product-boundary-inspected: true
 workflow-state-inspected: true
-per-commitment-comparison-retained: true
 reviewed-disposition: withheld
 disposition-basis: source-commitment
 source-contradiction-found: true
@@ -25,7 +24,6 @@ unreviewed review review-complete: false
 quote-only native native-acceptance-observed: false
 no-product-inspection product product-boundary-inspected: false
 no-workflow-inspection workflow workflow-state-inspected: false
-no-comparison comparison per-commitment-comparison-retained: false
 unchanged-accepted disposition reviewed-disposition: unchanged-accepted
 fabricated-amendment disposition reviewed-disposition: amended-accepted
 plan-decision-as-exclusion basis disposition-basis: plan-current-decision
@@ -53,7 +51,6 @@ unquoted-amendment amendment amendment-quoted: false
 amendment-as-plan-decision basis disposition-basis: plan-current-decision
 invented-work disposition reviewed-disposition: withheld
 amended-unchanged disposition reviewed-disposition: unchanged-accepted
-amended-no-comparison comparison per-commitment-comparison-retained: false
 ROWS
   rm -rf -- "${root}"
   return "${rc}"

@@ -145,9 +145,9 @@ environment to run one scenario. `Distribution/evaluation/tests/delivery-evidenc
 that the narrowed product contradicts the source while its tests pass, that a
 corrected control satisfies it and the amended control carries the amendment,
 and that the drift assessor rejects quote-only, plan-decision-as-exclusion,
-unchanged-accepted, fabricated-amendment and comparison-free reviews. The
-request names source, plan and return only; inspect the retained product
-observation, per-commitment comparison and acceptance/obligation state yourself.
+unchanged-accepted and fabricated-amendment verdicts. The request names the
+source, plan and return. Inspect the retained product observation and workflow
+state to judge whether acceptance honored the story or its amendment.
 
 `--case delivery-evidence/amended` replays [ODF-354](../../docs/maintainer/findings/ODF-354.md):
 a coordinator delivering slice 3 of a Taken Story Branch execution after

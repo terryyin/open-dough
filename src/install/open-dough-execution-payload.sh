@@ -42,7 +42,6 @@ managed_files+=(
   dough-execute-plan/references/interrupted-delegation.md
   dough-execute-plan/references/live-action-regression-proof.md
   dough-execute-plan/references/maintain-default-checkout.md
-  dough-execute-plan/references/obtain-source-review.md
   dough-execute-plan/references/one-shot.md
   dough-execute-plan/references/one-shot-escalation.md
   dough-execute-plan/references/other-completion-paths.md
@@ -73,10 +72,6 @@ managed_files+=(
   dough-execute-plan/scripts/ci-command-run.mjs
   dough-execute-plan/scripts/applicable-candidate-proof.mjs
   dough-execute-plan/scripts/story-obligation-reader.mjs
-  dough-execute-plan/scripts/story-obligation-source-review.mjs
-  dough-execute-plan/scripts/story-obligation-source-review-record.mjs
-  dough-execute-plan/scripts/story-obligation-source-review-write.mjs
-  dough-execute-plan/scripts/story-obligations-cli.mjs
   dough-execute-plan/scripts/story-obligations.mjs
   dough-execute-plan/scripts/source-freshness.mjs
   dough-execute-plan/scripts/source-freshness-comparison.mjs

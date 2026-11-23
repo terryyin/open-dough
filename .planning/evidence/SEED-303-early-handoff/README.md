@@ -28,12 +28,10 @@ creates an automatic dependency or authorizes execution.
 
 ## Evidence and recovery
 
-The original complete source, plan and 74-commitment source review are recoverable
-at `2a4a8d6f9f3bd61dc21d8679705e863c838883b9`. This folder moves the retained
-research records out of the remaining plan's cleanup lifetime. `source-review.md`
-and `execution-context.md` are historical; they do not allocate current work or
-hold an active agent/observer. Former worktree paths and raw `/tmp` paths describe
-past observations, not resources required for a new Take.
+The original story, plan and acceptance evidence are recoverable at
+`2a4a8d6f9f3bd61dc21d8679705e863c838883b9`. This folder holds the research
+that later work still uses. The paths and sessions in `execution-context.md`
+describe the original observations.
 
 - [Comparable original baseline](comparable-baseline.md): 45/45, whole
   266.38/287.15/303.80 s; current families must re-establish matched baselines.

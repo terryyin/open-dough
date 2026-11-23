@@ -127,7 +127,6 @@ done
 gate_scripts=(
   Distribution/src/skills/dough-execute-plan/scripts/story-obligations.mjs
   Distribution/src/skills/dough-execute-plan/scripts/story-obligation-reader.mjs
-  Distribution/src/skills/dough-execute-plan/scripts/story-obligation-source-review.mjs
 )
 gate_guidance=Distribution/src/skills/dough-execute-plan/references/story-obligations.md
 for index in "${!identity_writers[@]}"; do

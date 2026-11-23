@@ -36,7 +36,6 @@ delivery_evidence_capture_installed_inputs() {
     inputs+=(
       "${installed_root}/dough-execute-plan/scripts/story-obligations.mjs"
       "${installed_root}/dough-execute-plan/scripts/story-obligation-reader.mjs"
-      "${installed_root}/dough-execute-plan/scripts/story-obligation-source-review.mjs"
       "${installed_root}/dough-execute-plan/references/story-obligations.md"
     )
   fi

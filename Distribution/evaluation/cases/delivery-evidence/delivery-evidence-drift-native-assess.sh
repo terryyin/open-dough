@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # A native drift observation never certifies itself. The reviewer supplies the
 # inspected product/workflow facts after reading the retained evidence: the
-# acceptance must dispose of each returned story commitment against the source
-# itself. A plan Current decision is no exclusion, and only the amended control
+# accepted product must satisfy the original story or its human amendment. A plan Current decision is no exclusion, and only the amended control
 # carries a human amendment to quote.
 # shellcheck disable=SC2154,SC2312
 
@@ -10,7 +9,6 @@
 # assessor-signal: native native-acceptance-observed
 # assessor-signal: product product-boundary-inspected
 # assessor-signal: workflow workflow-state-inspected
-# assessor-signal: comparison per-commitment-comparison-retained
 # assessor-signal: disposition reviewed-disposition
 # assessor-signal: basis disposition-basis
 # assessor-signal: contradiction source-contradiction-found
@@ -20,7 +18,7 @@
 delivery_evidence_drift_assess() {
   local observations=$1 field scenario disposition basis
   for field in review-complete native-acceptance-observed product-boundary-inspected \
-    workflow-state-inspected per-commitment-comparison-retained; do
+    workflow-state-inspected; do
     [[ $(delivery_evidence_obs_get "${field}" "${observations}") == true ]] || return 1
   done
   scenario=$(delivery_evidence_obs_get scenario "${observations}")
