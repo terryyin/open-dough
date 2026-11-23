@@ -285,7 +285,7 @@ of slices 3–5.
 ### 7. A compatible tagged contract is available to Pygardon
 
 Type: Behavior
-Status: planned
+Status: done
 
 After candidate compatibility is proved, ship the simplified contract and its
 upgrade instructions in the selected release. Give the published tag and
@@ -303,6 +303,22 @@ authorizes release. In Story Branch Mode, that same go-ahead covers Dough Land
 repository's release workflow and keep Pygardon's live installation on its
 compatible installed pair until its adoption story. Live admission belongs to
 the released production Dashboard under that adoption story.
+
+**Delivered.** The maintainer selected 0.3.113 and authorized the release.
+Dough Land `--keep-worktree` integrated the story at `488645e95`, and
+`v0.3.113` was cut from trunk at `3202dbdc9`. Hosted CI passed at `e47487a99`,
+and later commits before the tag changed only planning records and ADR 0003.
+The self-installation check passed. A disposable Pygardon clone at `49023bf9e`
+updated through the pinned tag with `open-dough-release.sh apply` for both
+skill roots. Both report 0.3.113, `.planning/open-dough.json` is unchanged and
+still selects `infrastructure/ci/pygardon-ci-adapter.mjs` for `ciAdapter` and
+`ciRebuild`, and no reuse recipe is installed. The installed CI contract files
+match the tag, which matches slice 6's candidate, so slice 6's operation
+evidence stands. Pygardon's live installation stays on 0.3.112 until its
+[adoption story](https://github.com/terryyin/pygardon/blob/main/.planning/seeds/SEED-20261119-adopt-the-simplified-open-dough-ci-adapter.md#adopt-the-simplified-open-dough-ci-adapter),
+which receives `v0.3.113` as the compatible tag. The slice clock reported 73.6
+active minutes because the hosted CI waits ran outside its `run` wrapper; the
+maintainer chose to finish the release.
 
 ## Verification and delivery
 
