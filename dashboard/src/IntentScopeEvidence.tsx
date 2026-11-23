@@ -1,18 +1,15 @@
-// The CI evidence a selected entry's or folder's Summary
-// (`./IntentScopeProof.tsx`) or a selected file's Proof
-// (`./IntentFileProof.tsx`) names, from Intent's one CI evidence owner
-// (`./IntentCiEvidence.tsx`): the summary of a named attempt -- the attempt,
-// its revision, the judged branch and whether it is a running result's
-// completed ancestor -- or a selected story's CI comparison endpoints with
-// each endpoint's proof summary already held by the owner -- or the one line
-// saying why there is none, as the homepage says it
-// (`./useIntentCiShownProof.ts`). Either way, a judgment previously
-// retrieved, not newly verified, and a failed refresh beside it are kept
-// (`./IntentCiJudgedBranch.tsx`). Its labels: `./IntentScopeEvidenceLabels.tsx`.
+// Summary and file Proof read the named attempt, comparison endpoints, or
+// gap already held by IntentCiEvidence. A previously retrieved judgment
+// retains its checked time and any refresh failure.
 
 import type { ReactNode } from "react";
 import type { CiEvidence } from "./IntentCiEvidence.tsx";
-import { selectedComparisonOf } from "./intentCiEvidenceModel.ts";
+import {
+  selectedComparisonOf,
+  type SelectedComparisonEvidence,
+} from "./intentCiEvidenceModel.ts";
+import type { SelectedComparisonEndpointProofs } from "./ciComparisonProofs.ts";
+import type { SelectedCiComparisonAnswer } from "./selectedCiComparison.ts";
 import { previouslyRetrievedAt } from "./IntentCiJudgedBranch.tsx";
 import type { ShownCiProofRun } from "./shownCiProofRun.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
@@ -51,6 +48,15 @@ export type ScopeEvidence = (
       readonly story: string;
       readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
       readonly proofs: ComparisonEndpointProofs;
+    }
+  | {
+      readonly kind: "selection";
+      readonly story: string;
+      readonly answer: Extract<
+        SelectedCiComparisonAnswer,
+        { kind: "selection" }
+      >;
+      readonly proofs: SelectedComparisonEndpointProofs;
     }
   | {
       readonly kind: "none";
@@ -94,13 +100,45 @@ function comparisonFrom(
   };
 }
 
-export function scopeEvidenceOf(evidence: CiEvidence): ScopeEvidence {
-  if (selectedComparisonOf(evidence) !== undefined)
+export type ScopeComparisonEvidence = Extract<
+  ScopeEvidence,
+  { kind: "comparison" | "selection" }
+>;
+
+function selectionFrom(
+  { comparison, endpointProofs }: SelectedComparisonEvidence,
+  story: string | undefined,
+): ScopeEvidence {
+  const answer = comparison.shown;
+  if (answer?.kind === "selection" && endpointProofs !== undefined) {
     return {
-      kind: "none",
-      checking: false,
-      line: "See CI comparison for the selected range.",
+      kind: "selection",
+      story: story ?? answer.identity,
+      answer,
+      proofs: endpointProofs,
     };
+  }
+  const reason =
+    comparison.failed ??
+    (answer?.kind === "unavailable" ? answer.explanation : undefined);
+  return {
+    kind: "none",
+    checking: reason === undefined,
+    line: reason ?? "Reading CI comparison…",
+  };
+}
+
+export function scopeEvidenceOf(evidence: CiEvidence): ScopeEvidence {
+  const selection = selectedComparisonOf(evidence);
+  if (selection !== undefined) {
+    const story =
+      evidence.kind === "judged"
+        ? (evidence.comparisonStory ?? evidence.story)
+        : evidence.kind === "comparison"
+          ? evidence.story
+          : undefined;
+    return selectionFrom(selection, story);
+  }
   if (evidence.kind === "inactive")
     return { kind: "none", checking: true, line: "Checking the CI…" };
   if (evidence.kind === "retained") {

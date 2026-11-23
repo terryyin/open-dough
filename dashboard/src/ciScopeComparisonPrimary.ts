@@ -154,7 +154,33 @@ export function outsidePartsOf(
   branch: ComparisonEndpointProof,
   landed: ComparisonEndpointProof,
 ): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
-  const entry = primaryEntryOf(path, baseline, branch, landed, units);
+  return outsidePartsOfEntry(
+    primaryEntryOf(path, baseline, branch, landed, units),
+    path,
+    children,
+  );
+}
+
+export function selectionOutsideParts(
+  path: string,
+  children: readonly SummaryChild[],
+  units: readonly CiProofUnit[] | undefined,
+  baseline: ComparisonEndpointProof,
+  selection: ComparisonEndpointProof,
+): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
+  return outsidePartsOfEntry(
+    entryForProof(selection, path, units) ??
+      entryForProof(baseline, path, units),
+    path,
+    children,
+  );
+}
+
+function outsidePartsOfEntry(
+  entry: CiProofEntry | undefined,
+  path: string,
+  children: readonly SummaryChild[],
+): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
   if (entry === undefined) return partsCellsOf(entry);
   return partsCellsOf(
     entry,

@@ -20,12 +20,12 @@ import {
   type CiProofColumn,
 } from "./ciProofSort.ts";
 import { unitName } from "./ciProofUnits.ts";
-import type { CiProofCells, CiProofUnitLine } from "./ciProofWording.ts";
+import type { CiProofUnitLine } from "./ciProofWording.ts";
 import { TimeChangeFigure } from "./IntentCiTimeChange.tsx";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import {
   isComparisonCells,
-  type ComparisonEntryCells,
+  type ProofFigureCells,
 } from "./storyCiComparisonEntries.ts";
 
 export type FigureHeader = {
@@ -37,11 +37,18 @@ const proofHeaders: readonly FigureHeader[] = [
   { column: "counts", label: "Counts" },
   { column: "executionTime", label: "Test execution time" },
 ];
-const comparisonHeaders: readonly FigureHeader[] = [
+const baselineHeaders: readonly FigureHeader[] = [
   { column: "counts", label: "Counts" },
   { column: "baseline", label: "Baseline" },
+];
+const comparisonHeaders: readonly FigureHeader[] = [
+  ...baselineHeaders,
   { column: "branch", label: "Branch" },
   { column: "landed", label: "Landed" },
+];
+const selectionHeaders: readonly FigureHeader[] = [
+  ...baselineHeaders,
+  { column: "selection", label: "Selection" },
 ];
 
 const changeHeader: FigureHeader = { column: "change", label: "Change" };
@@ -57,19 +64,19 @@ export const changeKindWords: Record<ChangeKind, string> = {
 
 // The figure columns of a story comparison when COMPARISON, led by Change when
 // CHANGES, else of one run.
-export const figureHeadersFor = (
-  comparison: boolean,
+export function figureHeadersFor(
+  cells: ProofFigureCells | undefined,
   changes = false,
-): readonly FigureHeader[] =>
-  comparison
-    ? changes
-      ? [changeHeader, ...comparisonHeaders]
-      : comparisonHeaders
-    : proofHeaders;
+): readonly FigureHeader[] {
+  if (cells === undefined || !isComparisonCells(cells)) return proofHeaders;
+  const comparison =
+    "selection" in cells ? selectionHeaders : comparisonHeaders;
+  return changes ? [changeHeader, ...comparison] : comparison;
+}
 
 // The selected scope's own figures, including its parts completeness.
-export const figureHeadersOf = (cells: CiProofCells | ComparisonEntryCells) => [
-  ...figureHeadersFor(isComparisonCells(cells)),
+export const figureHeadersOf = (cells: ProofFigureCells) => [
+  ...figureHeadersFor(cells),
   partsHeader,
 ];
 
@@ -117,7 +124,7 @@ function unitLinesFigure(
 
 // The figure CELLS show under COLUMN.
 export function figureOf(
-  cells: CiProofCells | ComparisonEntryCells,
+  cells: ProofFigureCells,
   column: CiProofColumn | "parts",
 ): Figure {
   const lines = unitLinesIn(cells);

@@ -1,7 +1,8 @@
 // The comparison's endpoint labels shared by Summary and file Proof.
 import { CircleDashed, GitCommitHorizontal, Hourglass } from "lucide-react";
 import { EvidenceLabels, type EvidenceLabel } from "./CiEvidenceLabels.tsx";
-import type { ScopeEvidence } from "./IntentScopeEvidence.tsx";
+import type { ScopeComparisonEvidence } from "./IntentScopeEvidence.tsx";
+import { SelectedBuildIdentity } from "./IntentCiComparisonEndpoints.tsx";
 import type { StoryCiComparisonSlot } from "./storyCiComparison.ts";
 import type { ComparisonEndpointName } from "./storyCiComparisonEntries.ts";
 import { slotShortWords } from "./storyCiComparisonSlotWords.ts";
@@ -10,8 +11,9 @@ import { slotShortWords } from "./storyCiComparisonSlotWords.ts";
 // "Landed Not landed yet", its full status or explanation heard after it --
 // the status words Intent's homepage comparison identity uses.
 function endpointLabel(
-  endpoint: ComparisonEndpointName | "Provisional",
+  endpoint: ComparisonEndpointName | "Provisional" | "Selection",
   slot: StoryCiComparisonSlot,
+  showRun = false,
 ): EvidenceLabel {
   const { status, revision, full } = slotShortWords(slot);
   return {
@@ -22,7 +24,12 @@ function endpointLabel(
         {endpoint}
         {status === undefined ? "" : ` ${status}`}
         {revision === undefined ? "" : " "}
-        {revision !== undefined && <code>{revision}</code>}
+        {revision !== undefined &&
+          (showRun && (slot.kind === "build" || slot.kind === "running") ? (
+            <SelectedBuildIdentity slot={slot} />
+          ) : (
+            <code>{revision}</code>
+          ))}
       </>
     ),
     ...(full === undefined ? {} : { full }),
@@ -42,23 +49,30 @@ const provisionalLabel: EvidenceLabel = {
 export function ComparisonNamed({
   evidence,
 }: {
-  readonly evidence: Extract<ScopeEvidence, { kind: "comparison" }>;
+  readonly evidence: ScopeComparisonEvidence;
 }) {
   const { answer, story } = evidence;
   return (
     <EvidenceLabels
       label={`CI timing comparison of ${story}`}
-      labels={[
-        ...(answer.phase === "taken" && answer.provisional === undefined
-          ? [provisionalLabel]
-          : []),
-        endpointLabel("Baseline", answer.baseline),
-        endpointLabel("Branch", answer.branch),
-        ...(answer.provisional === undefined
-          ? []
-          : [endpointLabel("Provisional", answer.provisional)]),
-        endpointLabel("Landed", answer.landed),
-      ]}
+      labels={
+        answer.kind === "selection"
+          ? [
+              endpointLabel("Baseline", answer.baseline, true),
+              endpointLabel("Selection", answer.selection, true),
+            ]
+          : [
+              ...(answer.phase === "taken" && answer.provisional === undefined
+                ? [provisionalLabel]
+                : []),
+              endpointLabel("Baseline", answer.baseline),
+              endpointLabel("Branch", answer.branch),
+              ...(answer.provisional === undefined
+                ? []
+                : [endpointLabel("Provisional", answer.provisional)]),
+              endpointLabel("Landed", answer.landed),
+            ]
+      }
     />
   );
 }

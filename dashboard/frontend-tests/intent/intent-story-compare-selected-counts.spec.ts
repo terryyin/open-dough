@@ -1,8 +1,12 @@
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
+import { page, type Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { CiProofEntry } from "../../src/ciProof.ts";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import {
+  activateComparisonControl,
+  comparisonRead,
+  intentStoryCompare,
+} from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
   openDoneStoryComparison,
@@ -27,6 +31,9 @@ const missingBaseline =
   "No completed CI build was found at or before the selected start.";
 const missingSelection = "No completed CI build includes the selected changes.";
 
+const missingBuild = (explanation: string) =>
+  makeMe.aStoryCiComparisonSlot.with({ kind: "none", explanation }).please();
+
 function entryFor(count: number, unit: "case" | "file" = "case") {
   return makeMe.aCiProofEntry
     .at(entryPath)
@@ -48,6 +55,7 @@ async function openCapturedRun({
     .published(doneCompletion)
     .modifying(filePath)
     .please();
+  const observedAttempts: (typeof selectedBaseline)[] = [];
   await openDoneStoryComparison({
     review: (query) =>
       Promise.resolve(
@@ -65,21 +73,11 @@ async function openCapturedRun({
               range,
               baseline:
                 noBuild === "baseline"
-                  ? makeMe.aStoryCiComparisonSlot
-                      .with({
-                        kind: "none",
-                        explanation: missingBaseline,
-                      })
-                      .please()
+                  ? missingBuild(missingBaseline)
                   : builds.baseline,
               selection:
                 noBuild === "selection"
-                  ? makeMe.aStoryCiComparisonSlot
-                      .with({
-                        kind: "none",
-                        explanation: missingSelection,
-                      })
-                      .please()
+                  ? missingBuild(missingSelection)
                   : builds.landed,
             })
             .please(),
@@ -97,6 +95,10 @@ async function openCapturedRun({
             attempt.runAttempt === subject.runAttempt &&
             attempt.revision === subject.revision,
         );
+        if (proof !== undefined) {
+          const { runId, runAttempt, revision } = subject;
+          observedAttempts.push({ runId, runAttempt, revision });
+        }
         return Promise.resolve(
           makeMe.aCiProof
             .summaryFor(subject, [proof?.[1] ?? entryFor(4)], source.repository)
@@ -107,42 +109,104 @@ async function openCapturedRun({
   });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
-  return { story, file: story.file(`Modified ${filePath}`) };
+  return { story, file: story.file(`Modified ${filePath}`), observedAttempts };
 }
 
-test("Changes compares the captured attempts and restores the default count", async () => {
-  const { file, story } = await openCapturedRun();
+const locationControl = () =>
+  page
+    .getByRole("tabpanel", { name: "Changes", exact: true })
+    .getByRole("button", { name: /^dashboard\/tests, / });
+
+async function openSummary() {
+  await activateComparisonControl(locationControl());
+  return page.getByRole("table", {
+    name: `CI proof of the immediate folders and files of ${entryPath}`,
+  });
+}
+
+async function openFileProof(
+  story: ReturnType<typeof intentStoryCompare>,
+  file: Locator,
+) {
+  await activateComparisonControl(file);
+  await story.chooseProof();
+  const name = `CI proof of ${filePath}`;
+  return page.getByRole("table", { name, exact: true });
+}
+
+async function expectComparedProof(table: Locator, counts: RegExp) {
+  const column = table.getByRole("columnheader", { name: "Selection" });
+  await expect.element(column).toBeVisible();
+  await expect.element(table.getByRole("cell", { name: counts })).toBeVisible();
+  const labels = page.getByRole("list", { name: /^CI timing comparison of/ });
+  const words = () => labels.query()?.textContent;
+  const baseline = /Baseline.*6666666.*Run 71 · attempt 2/;
+  const selection = /Selection.*2222222.*Run 72 · attempt 3/;
+  await comparisonRead(words).toMatch(baseline);
+  await comparisonRead(words).toMatch(selection);
+}
+
+test("Changes, Summary and file Proof share the captured attempts and restore the default count", async () => {
+  const { file, story, observedAttempts } = await openCapturedRun();
   await expect.element(file).toHaveAccessibleName(/4 test cases \(no change\)/);
 
   await story.choose("Landed runs");
   const counts = /1 → 9 test cases \(\+8\)/;
   await expect.element(file).toHaveAccessibleName(counts);
   expect(file.element().getAttribute("title")).toMatch(counts);
-  const tree = page.getByRole("tabpanel", { name: "Changes", exact: true });
-  await expect
-    .element(tree.getByRole("button", { name: /^dashboard\/tests, / }))
-    .toHaveAccessibleName(counts);
+  await expect.element(locationControl()).toHaveAccessibleName(counts);
+  const expected = [selectedBaseline, selectedEnd];
+  expect(observedAttempts).toHaveLength(2);
+  expect(observedAttempts).toEqual(expect.arrayContaining(expected));
+
+  await expectComparedProof(await openSummary(), counts);
+  await expectComparedProof(await openFileProof(story, file), counts);
+  expect(observedAttempts).toHaveLength(2);
+
+  await story.choosePurpose();
+  await comparisonRead(story.diffName).toContain("a.spec.ts");
+  await expect.element(file).toHaveAttribute("aria-pressed", "true");
+  await expect.element(story.run).toHaveValue(run.key);
 
   await story.choose("Published completion");
   await expect.element(file).toHaveAccessibleName(/4 test cases \(no change\)/);
 });
 
-test("Changes keeps the selected count when there is no baseline build", async () => {
+async function expectOneSidedProof(
+  table: Locator,
+  measured: RegExp,
+  missing: string,
+) {
+  const count = table.getByRole("cell", { name: measured });
+  const words = () => count.query()?.textContent ?? "";
+  await comparisonRead(words).toContain(missing);
+  expect(words()).not.toContain("→");
+}
+
+test("The selected count stays visible in Changes, Summary and file Proof when there is no baseline build", async () => {
   const { file, story } = await openCapturedRun({ noBuild: "baseline" });
   await story.choose("Landed runs");
   await expect.element(file).toHaveAccessibleName(/9 test cases at Selection/);
   const title = file.element().getAttribute("title");
   expect(title).toContain(missingBaseline);
   expect(title).not.toContain("→");
+  const measured = /9 test cases at Selection/;
+  await expectOneSidedProof(await openSummary(), measured, missingBaseline);
+  const proof = await openFileProof(story, file);
+  await expectOneSidedProof(proof, measured, missingBaseline);
 });
 
-test("Changes keeps the baseline count when no build includes the selected work", async () => {
+test("The baseline count stays visible in Changes, Summary and file Proof when no build includes the selected work", async () => {
   const { file, story } = await openCapturedRun({ noBuild: "selection" });
   await story.choose("Landed runs");
   await expect.element(file).toHaveAccessibleName(/1 test case at Baseline/);
   const title = file.element().getAttribute("title");
   expect(title).toContain(missingSelection);
   expect(title).not.toContain("→");
+  const measured = /1 test case at Baseline/;
+  await expectOneSidedProof(await openSummary(), measured, missingSelection);
+  const proof = await openFileProof(story, file);
+  await expectOneSidedProof(proof, measured, missingSelection);
 });
 
 test("Changes keeps a measured count with its missing-part explanation", async () => {

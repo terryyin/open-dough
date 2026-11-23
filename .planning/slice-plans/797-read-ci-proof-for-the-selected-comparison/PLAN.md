@@ -243,7 +243,7 @@ directory. Summary and file Proof can share `selectionScopeComparisonRowsOf`.
 ### 5. Read the same proof in Summary and file Proof
 
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 10–14 minutes.
 
 Open a scope Summary or file Proof from the selected Changes. Show the
@@ -259,6 +259,13 @@ their counts with Changes. Give missing baseline and unbuilt range cases
 their one-sided observations. Keep the established Summary/file rename,
 proof-unit and proof-gap checks for shared projection, and the existing
 Home/default CI proof checks for the unaffected route.
+
+Accepted proof shows the same measured Baseline and Selection attempts
+and 1 → 9 in Changes, Summary and file Proof, with both one-sided reasons
+and returning to the same path and comparison. The 170-case mounted
+group, nine-case final mounted run, nine E2E cases, 17 Distribution specs
+and typecheck passed. See `slice-e-return.md` in the checkout's Git
+evidence directory.
 
 ### 6. Carry the first-parent commit through Review
 
@@ -344,6 +351,10 @@ routes. The review identified no remaining slice-specific concern.
   `c215a5a99ab7d4129a70c26c91ecf3bf368d842a`.
 - Slice 3 was accepted on the execution branch at
   `8eb04d479e69be3e9be23971fce64483cb3af401`.
+- Slice 4 was accepted on the execution branch at
+  `9e2ed0796b0b5e06174edfff54965a21b4ccbcea`. The recovery test repair
+  was accepted at `d8af5a05f45292e7fdd689ea244d3019950be6aa` and the
+  paused Slice 5 work restored.
 - Codex observer of `ci.yml` on the execution branch, coordinator
   `nao-9b9c27ea`, directory `/tmp/dough-ci-501/watch-dv7wpQ`, process
   `33667`, cell `g458:11`, session `61453`. The claim preceded this observer.
@@ -360,7 +371,7 @@ Disposition: proved by slice 4: Mounted captured-run file and location controls 
 
 Reported: slice 3 — "Summary and file Proof direct the reviewer to CI comparison while the selected comparison is attached."
 Story clause: "For a Taken story's commit range or a Done story's captured landed run with revisions, the endpoint table, Changes counts, the selected scope's Summary and file Proof share one pair of build readings."
-Disposition: interim until slices 5
+Disposition: proved by slice 5: Mounted captured-run Summary and file Proof in dashboard/frontend-tests/intent/intent-story-compare-selected-counts.spec.ts observe the same measured attempts and counts as Changes, both missing-build cases, and retained navigation.
 
 ### G3. Revision formats admitted by Intent
 

@@ -195,8 +195,8 @@ test("a Done story's CI comparison switches to the captured run's measured build
 
   const file = story.file(`Modified ${landing}`);
   await openProof(story, file);
-  await comparisonRead(() => story.viewText("Proof")).toContain(
-    "See CI comparison for the selected range.",
+  await comparisonRead(() => story.viewText("Proof")).toMatch(
+    /Baseline.*6666666.*Run 71 · attempt 2.*Selection.*2222222.*Run 72 · attempt 3/s,
   );
   await story.choose("Published completion");
   await story.chooseTab("CI comparison");

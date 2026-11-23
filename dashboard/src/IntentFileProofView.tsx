@@ -45,7 +45,7 @@ export function IntentFileProofView({
   if (treeFile?.outside === true) {
     return (
       <>
-        {evidence.kind === "comparison" ? (
+        {evidence.kind === "comparison" || evidence.kind === "selection" ? (
           <ComparisonNamed evidence={evidence} />
         ) : (
           <EvidenceNamed evidence={evidence} revision={revision} />
@@ -57,7 +57,7 @@ export function IntentFileProofView({
     );
   }
 
-  if (evidence.kind === "comparison") {
+  if (evidence.kind === "comparison" || evidence.kind === "selection") {
     const compared = { path, treeFile, evidence };
     return preference === undefined ? (
       <FileComparison {...compared} />

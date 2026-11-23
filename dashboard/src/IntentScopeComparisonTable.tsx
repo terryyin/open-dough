@@ -11,19 +11,23 @@
 // file reuses ComparisonNamed for its Proof
 // (`./IntentFileProof.tsx`).
 
-import { ComparisonNamed } from "./IntentComparisonNamed.tsx";
 import { CiProofTable, type CiProofSorting } from "./CiProofTable.tsx";
 import {
   outsideComparisonRowsOf,
   primaryEndpointOf,
-  scopeComparisonRowsOf,
 } from "./ciScopeComparison.ts";
 import {
   entryOutsidesOf,
   immediateChildrenOf,
   owningEntryOf,
 } from "./ciScopeProof.ts";
-import type { ScopeEvidence } from "./IntentScopeEvidence.tsx";
+import type { ScopeComparisonEvidence } from "./IntentScopeEvidence.tsx";
+import { IntentScopeComparisonFrame } from "./IntentScopeComparisonFrame.tsx";
+import {
+  scopeComparisonReadingOf,
+  scopeComparisonRowsFor,
+} from "./intentScopeComparison.ts";
+import { selectionOutsideComparisonRowsOf } from "./selectionScopeComparison.ts";
 import { ScopeFigures, scopeTableLabel } from "./IntentScopeFigures.tsx";
 import {
   childUnitRowsOf,
@@ -31,22 +35,13 @@ import {
   OutsideExplanation,
   outsideRowOf,
 } from "./IntentScopeSummaryRows.tsx";
-import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
+import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type { IntentSelection } from "./intentWorkspaceSelection.ts";
-import { comparisonEndpointProofsChecking } from "./storyCiComparisonEntries.ts";
-import { IntentCiComparisonFrameView } from "./IntentCiComparisonFrameView.tsx";
+import { proofRelativeTimings } from "./storyCiComparisonEntries.ts";
 import {
   useCiComparisonPreference,
   type ComparisonPreference,
 } from "./IntentCiComparisonPreference.tsx";
-import { activeComparisonAfterSideOf } from "./useIntentCiComparisonEntries.ts";
-
-function changeOf(
-  treeFiles: ReadonlyMap<string, IntentTreeFile> | undefined,
-  path: string,
-): IntentTreeFile | undefined {
-  return treeFiles?.get(path);
-}
 
 export function ComparisonTableView({
   path,
@@ -59,76 +54,60 @@ export function ComparisonTableView({
 }: {
   readonly path: string;
   readonly inventory: readonly string[];
-  readonly evidence: Extract<ScopeEvidence, { kind: "comparison" }>;
+  readonly evidence: ScopeComparisonEvidence;
   readonly treeFiles: ReadonlyMap<string, IntentTreeFile> | undefined;
   readonly onOpen: (next: IntentSelection) => void;
   readonly sorting: CiProofSorting;
   readonly preference: ComparisonPreference;
 }) {
-  const { proofs, answer } = evidence;
   const children = immediateChildrenOf(path, inventory);
-  const checking = comparisonEndpointProofsChecking(
-    proofs.baseline,
-    proofs.branch,
-    proofs.landed,
-  );
-  const afterSide = activeComparisonAfterSideOf(answer, proofs);
-  const primary = primaryEndpointOf(
-    proofs.landed,
-    proofs.branch,
-    proofs.baseline,
-  );
+  const reading = scopeComparisonReadingOf(evidence);
+  const primary =
+    reading.kind === "selection"
+      ? reading.proofs.selection.kind === "summary"
+        ? { endpoint: "Selection", proof: reading.proofs.selection }
+        : { endpoint: "Baseline", proof: reading.proofs.baseline }
+      : primaryEndpointOf(
+          reading.proofs.landed,
+          reading.proofs.branch,
+          reading.proofs.baseline,
+        );
   const entry =
     primary.proof.kind === "summary"
       ? owningEntryOf(primary.proof.entries, path)
       : undefined;
-  const rowsFor = (scopePath: string) => {
-    const file = changeOf(treeFiles, scopePath);
-    return scopeComparisonRowsOf(
-      scopePath,
-      proofs.baseline,
-      proofs.branch,
-      proofs.landed,
-      "precise",
-      baselinePathOf(file, scopePath),
-      file?.kind,
-      afterSide,
-    );
-  };
+  const rowsFor = (scopePath: string) =>
+    scopeComparisonRowsFor(reading, scopePath, treeFiles?.get(scopePath));
   const rows = childUnitRowsOf(children, onOpen, rowsFor);
   const outsides =
     entry === undefined ? [] : entryOutsidesOf(entry, path, children);
   if (outsides.length > 0) {
-    outsideComparisonRowsOf(
-      path,
-      children,
-      proofs.baseline,
-      proofs.branch,
-      proofs.landed,
-      "precise",
-      afterSide,
-    ).forEach((cells, at) => {
+    const outsideRows =
+      reading.kind === "selection"
+        ? selectionOutsideComparisonRowsOf(path, children, reading.proofs)
+        : outsideComparisonRowsOf(
+            path,
+            children,
+            reading.proofs.baseline,
+            reading.proofs.branch,
+            reading.proofs.landed,
+            "precise",
+            reading.afterSide,
+          );
+    outsideRows.forEach((cells, at) => {
       rows.push(outsideRowOf(cells, at));
     });
   }
   const own = rowsFor(path);
   const relatives = [...own, ...rows.map((row) => row.cells)].flatMap(
-    (cells) =>
-      "baseline" in cells ? [cells.branch.relative, cells.landed.relative] : [],
+    proofRelativeTimings,
   );
   return (
-    <IntentCiComparisonFrameView
+    <IntentScopeComparisonFrame
       preference={preference}
-      answer={answer}
-      proofs={proofs}
+      evidence={evidence}
       relatives={relatives}
     >
-      <ComparisonNamed evidence={evidence} />
-      {checking && (
-        <p className="intent-ci-reading" role="status">
-          Reading entry comparison…
-        </p>
-      )}
       {own.map((cells) => (
         <ScopeFigures
           key={cells.units ?? ""}
@@ -155,7 +134,7 @@ export function ComparisonTableView({
       {entry !== undefined && (
         <OutsideExplanation entry={entry} path={path} outsides={outsides} />
       )}
-    </IntentCiComparisonFrameView>
+    </IntentScopeComparisonFrame>
   );
 }
 

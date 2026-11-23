@@ -124,6 +124,14 @@ function EndpointIdentity({
   return requestedStatusOrExplanation(slot);
 }
 
+export function SelectedBuildIdentity({
+  slot,
+}: {
+  readonly slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>;
+}) {
+  return <BuildIdentity slot={slot} provisional={false} showRun />;
+}
+
 function EndpointRow({
   label,
   slot,

@@ -1,7 +1,7 @@
 // Scope rows for Intent's Baseline and Selection pair. Both endpoints use
 // the same declared-unit interpretation as the whole-story comparison.
 import type { SelectedComparisonEndpointProofs } from "./ciComparisonProofs.ts";
-import { joinedAnd, type TimingCell } from "./ciProofTiming.ts";
+import { joinedAnd } from "./ciProofTiming.ts";
 import { comparableUnits, unitName, whyNotCompared } from "./ciProofUnits.ts";
 import {
   afterCountText,
@@ -16,23 +16,25 @@ import {
   type ScopeEndpointCount,
 } from "./ciScopeComparisonCounts.ts";
 import { scopeComparisonCuesOf } from "./ciScopeComparisonCues.ts";
-import { selectionPartsForPath } from "./ciScopeComparisonPrimary.ts";
+import {
+  selectionOutsideParts,
+  selectionPartsForPath,
+} from "./ciScopeComparisonPrimary.ts";
 import { baselineRowCellOf } from "./ciScopeComparisonRow.ts";
 import { afterCellOf } from "./ciScopeComparisonTiming.ts";
 import {
   comparedRowsOf,
+  outsideEndpointUnitsOf,
   rowEndpointOf,
   scopeEndpointUnitsOf,
   showsResults,
+  type ComparedRow,
+  type EndpointUnits,
   type RowEndpoint,
 } from "./ciScopeComparisonUnits.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
-import type { ComparisonEntryCells } from "./storyCiComparisonEntries.ts";
-
-export type SelectionScopeComparisonRow = Omit<
-  ComparisonEntryCells,
-  "branch" | "landed"
-> & { readonly selection: TimingCell };
+import type { SummaryChild } from "./ciScopeProof.ts";
+import type { SelectionScopeComparisonRow } from "./storyCiComparisonEntries.ts";
 
 export function selectionScopeComparisonRowsOf(
   path: string,
@@ -42,12 +44,58 @@ export function selectionScopeComparisonRowsOf(
 ): readonly SelectionScopeComparisonRow[] {
   const baseline = scopeEndpointUnitsOf(proofs.baseline, baselineLookup);
   const selection = scopeEndpointUnitsOf(proofs.selection, path);
+  return selectionRowsOf(baseline, selection, {
+    renamedFrom: baselineLookup !== path ? baselineLookup : undefined,
+    changeKind,
+    parts: ({ units }) =>
+      selectionPartsForPath(
+        path,
+        baselineLookup,
+        units,
+        proofs.baseline,
+        proofs.selection,
+      ),
+  });
+}
+
+export function selectionOutsideComparisonRowsOf(
+  path: string,
+  children: readonly SummaryChild[],
+  proofs: SelectedComparisonEndpointProofs,
+): readonly SelectionScopeComparisonRow[] {
+  return selectionRowsOf(
+    outsideEndpointUnitsOf(proofs.baseline, path, children),
+    outsideEndpointUnitsOf(proofs.selection, path, children),
+    {
+      parts: ({ units }) =>
+        selectionOutsideParts(
+          path,
+          children,
+          units,
+          proofs.baseline,
+          proofs.selection,
+        ),
+    },
+  );
+}
+
+function selectionRowsOf(
+  baseline: EndpointUnits,
+  selection: EndpointUnits,
+  {
+    renamedFrom,
+    changeKind,
+    parts,
+  }: {
+    readonly renamedFrom?: string | undefined;
+    readonly changeKind?: ChangeKind | undefined;
+    readonly parts: (
+      row: ComparedRow,
+    ) => Pick<SelectionScopeComparisonRow, "completeness" | "gaps">;
+  },
+): readonly SelectionScopeComparisonRow[] {
   const presentLater = showsResults(selection);
   const presentBefore = showsResults(baseline) || changeKind === "deleted";
-  const renamedFrom =
-    baselineLookup !== path && showsResults(baseline)
-      ? baselineLookup
-      : undefined;
   return comparedRowsOf(baseline, selection).map((row) => {
     const before = rowEndpointOf(baseline, row);
     const after = rowEndpointOf(selection, row);
@@ -63,7 +111,12 @@ export function selectionScopeComparisonRowsOf(
       countedResults:
         countedResultsOfCount(after.count) ??
         countedResultsOfCount(before.count),
-      baseline: baselineRowCellOf(before, presentLater, "precise", renamedFrom),
+      baseline: baselineRowCellOf(
+        before,
+        presentLater,
+        "precise",
+        showsResults(baseline) ? renamedFrom : undefined,
+      ),
       selection: afterCellOf(
         after.timing,
         before.timing,
@@ -71,13 +124,7 @@ export function selectionScopeComparisonRowsOf(
         "precise",
         changeKind,
       ),
-      ...selectionPartsForPath(
-        path,
-        baselineLookup,
-        row.units,
-        proofs.baseline,
-        proofs.selection,
-      ),
+      ...parts(row),
       cues: scopeComparisonCuesOf(
         before.count,
         after.count,

@@ -5,8 +5,6 @@
 // Counts and after-side words and takes the cue its rows agree on
 // (`./ciScopeComparisonAgreedCues.ts`). Folder rows stay uncued.
 
-import { scopeComparisonRowsOf } from "./ciScopeComparison.ts";
-import type { SelectedComparisonEndpointProofs } from "./ciComparisonProofs.ts";
 import { combinedCuesOf } from "./ciScopeComparisonAgreedCues.ts";
 import type {
   ComparisonAfterSide,
@@ -14,44 +12,27 @@ import type {
 } from "./ciScopeComparisonCues.ts";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import type { CiEvidence } from "./IntentCiEvidence.tsx";
-import { selectedComparisonOf } from "./intentCiEvidenceModel.ts";
-import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
-import { selectionScopeComparisonRowsOf } from "./selectionScopeComparison.ts";
+import {
+  scopeComparisonReadingOf,
+  scopeComparisonRowsFor,
+  type ScopeComparisonReading,
+} from "./intentScopeComparison.ts";
+import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type {
+  ComparedProofCells,
   ComparisonEndpointProof,
-  ComparisonEndpointProofs,
-  ComparisonEntryCells,
 } from "./storyCiComparisonEntries.ts";
-import { activeComparisonAfterSideOf } from "./useIntentCiComparisonEntries.ts";
 
 export type TreeComparisonReading =
-  | { readonly kind: "none" }
-  | {
-      readonly kind: "selection";
-      readonly proofs: SelectedComparisonEndpointProofs;
-    }
-  | {
-      readonly kind: "comparison";
-      readonly afterSide: ComparisonAfterSide;
-      readonly proofs: ComparisonEndpointProofs;
-    };
+  { readonly kind: "none" } | ScopeComparisonReading;
 
 export function treeComparisonReadingOf(
   evidence: CiEvidence,
 ): TreeComparisonReading {
-  const selection = selectedComparisonOf(evidence);
-  if (selection !== undefined) {
-    return selection.endpointProofs === undefined
-      ? { kind: "none" }
-      : { kind: "selection", proofs: selection.endpointProofs };
-  }
   const scope = scopeEvidenceOf(evidence);
-  if (scope.kind !== "comparison") return { kind: "none" };
-  return {
-    kind: "comparison",
-    afterSide: activeComparisonAfterSideOf(scope.answer, scope.proofs),
-    proofs: scope.proofs,
-  };
+  return scope.kind === "comparison" || scope.kind === "selection"
+    ? scopeComparisonReadingOf(scope)
+    : { kind: "none" };
 }
 
 // True when PATH is a declared entry in any compared endpoint summary.
@@ -73,49 +54,29 @@ export type TreeComparison = {
   readonly cues: ScopeComparisonCues;
 };
 
-function afterWordsOf(
-  cells: ComparisonEntryCells,
-  afterSide: ComparisonAfterSide,
+function treeRowWords(
+  cells: ComparedProofCells,
+  afterSide: ComparisonAfterSide | undefined,
 ): string {
-  return (afterSide === "landed" ? cells.landed : cells.branch).text;
+  if ("selection" in cells) {
+    return cells.selection.ms === undefined
+      ? cells.counts
+      : `${cells.counts}, ${cells.selection.text}`;
+  }
+  const timing = afterSide === "landed" ? cells.landed : cells.branch;
+  return `${cells.counts}, ${timing.text}`;
 }
 
 function treeScopeComparisonOf(
-  reading: Exclude<TreeComparisonReading, { kind: "none" }>,
+  reading: ScopeComparisonReading,
   path: string,
   treeFile?: IntentTreeFile,
 ): TreeComparison {
-  if (reading.kind === "selection") {
-    const rows = selectionScopeComparisonRowsOf(
-      path,
-      reading.proofs,
-      baselinePathOf(treeFile, path),
-      treeFile?.kind,
-    );
-    return {
-      words: rows
-        .map(({ counts, selection }) =>
-          selection.ms === undefined ? counts : `${counts}, ${selection.text}`,
-        )
-        .join("; "),
-      cues: combinedCuesOf(rows.map(({ cues }) => cues)),
-    };
-  }
-  const { proofs, afterSide } = reading;
-  const rows = scopeComparisonRowsOf(
-    path,
-    proofs.baseline,
-    proofs.branch,
-    proofs.landed,
-    "precise",
-    baselinePathOf(treeFile, path),
-    treeFile?.kind,
-    afterSide,
-  );
+  const rows = scopeComparisonRowsFor(reading, path, treeFile);
+  const afterSide =
+    reading.kind === "comparison" ? reading.afterSide : undefined;
   return {
-    words: rows
-      .map((cells) => `${cells.counts}, ${afterWordsOf(cells, afterSide)}`)
-      .join("; "),
+    words: rows.map((cells) => treeRowWords(cells, afterSide)).join("; "),
     cues: combinedCuesOf(rows.map(({ cues }) => cues)),
   };
 }
