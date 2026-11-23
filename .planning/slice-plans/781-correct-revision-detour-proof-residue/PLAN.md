@@ -6,9 +6,9 @@
 ## Correction input
 
 - **Provenance.** This plan follows the execution retrospective of
-  [SEED-413#speed-intent-revision-and-detour-reading](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading)
-  ([plan 778](../778-speed-intent-revision-and-detour-reading/PLAN.md) and its
-  [source review](../778-speed-intent-revision-and-detour-reading/source-review.md),
+  SEED-413#speed-intent-revision-and-detour-reading (completed; plan 778 and
+  its source review recoverable at
+  `3619577173:.planning/slice-plans/778-speed-intent-revision-and-detour-reading/`,
   commits `702d1a213..a96f35847`: `ea316f671`, `388cde76a`, `98b040787`,
   `8d94095b8`, `9f8184d42`, `54109973e`). Each finding below was rechecked
   in code at `a96f35847` on 23 November 2026.
