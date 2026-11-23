@@ -16,7 +16,11 @@ import {
   git,
   retireLaunchWorkspace,
 } from "../../dashboard/test-support/support/launchLanding.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import {
+  storyReviewEndpoint,
+  storyReviewSchema,
+} from "../../dashboard/src/storyReviewContract.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   claimedRecord,
@@ -29,7 +33,7 @@ import {
 
 const repository = "terryyin/open-dough";
 
-test("a retired Story Branch integration is reviewed from its done card on its fixed pair, having been offered under Landed runs beside an earlier one-shot run while its workspace remained", async ({
+test("a Done story offers the captured Story Branch integration before and after workspace retirement", async ({
   page,
   dashboard,
   origin,
@@ -51,6 +55,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     repoDir: origin.origin,
     revision: accepted,
     repository,
+    follows: true,
   });
   await page.goto("/");
   await showColumn(page, "Recently done");
@@ -59,13 +64,13 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     exact: true,
   });
 
-  // While the integrated workspace remains, the review opens on it and the
-  // Comparison switch lists the integration and the earlier one-shot run.
-  const opened = await openReviewChanges(page, card);
+  // Done opens its published completion even while the integrated workspace
+  // remains. The same picker offers the integration and earlier refinement.
+  const opened = await openIntentReviewChanges(page, card);
   const live = opened.answer;
-  expect(live?.kind).toBe("snapshot");
-  expect(live?.selectedRun).toBeUndefined();
-  expect(live?.runs).toEqual([
+  expect(live.kind).toBe("published");
+  expect(live.selectedRun).toBeUndefined();
+  expect(live.runs).toEqual([
     {
       key: reporting.reference,
       workflow: "execution",
@@ -90,7 +95,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     Date.parse(refinement.record.launchedAt),
   );
   await opened.comparison.expectOffered("Landed runs");
-  await opened.comparison.expectChosen("All changes");
+  await opened.comparison.expectChosen("Published completion");
   await opened.landedRun.expectNotShown();
   await opened.comparison.choose("Landed runs");
   await opened.landedRun.expectChosen(reporting.reference, [
@@ -98,7 +103,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     `Refinement — ${await browserLocaleString(page, refinement.record.launchedAt)} — ${refinement.receipt.revision.slice(0, 8)}`,
   ]);
   await opened.landedRun.expectShown(accepted);
-  await opened.close();
+  await opened.returnToDevelopment();
 
   // Wrap-up retires the worktree and both branches once trunk holds the work.
   retireLaunchWorkspace(start, origin, accepted, start.branch);
@@ -106,8 +111,20 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     await origin.originGit("for-each-ref", `refs/heads/${start.branch}`),
   ).toBe("");
 
-  const review = await openReviewChanges(page, card);
-  const { answer } = review;
+  const review = await openIntentReviewChanges(page, card);
+  expect(review.answer.kind).toBe("published");
+  await review.comparison.expectChosen("Published completion");
+  const landedRead = () =>
+    page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return (
+        url.pathname === storyReviewEndpoint &&
+        url.searchParams.get("run") === reporting.reference
+      );
+    });
+  const landed = landedRead();
+  await review.comparison.choose("Landed runs");
+  const answer = storyReviewSchema.parse(await (await landed).json());
   expect(answer).toMatchObject({
     kind: "landed",
     baseline: trunkTip,
@@ -124,7 +141,7 @@ test("a retired Story Branch integration is reviewed from its done card on its f
       revision: accepted,
     },
   });
-  if (answer?.kind !== "landed") throw new Error("No landed review");
+  if (answer.kind !== "landed") throw new Error("No landed review");
   const files = answer.files;
   expect(files.map((file) => file.path)).toEqual(delivered);
   expect(files).toEqual(
@@ -137,17 +154,18 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     reporting.reference,
     refinement.key,
   ]);
-  await review.frame.expectHeading("Story A");
-  await review.comparison.expectOnly("Landed runs");
+  await review.expectStory("Story A");
+  await review.comparison.expectChosen("Landed runs");
   await review.landedRun.expectShown(
     `Execution launched ${await browserLocaleString(page, record.launchedAt)}, delivered to origin/main.`,
     `From ${trunkTip} to ${accepted}.`,
   );
   await review.landedRun.expectLaunchedAt(record.launchedAt);
-  await review.files.expectNotShown(/trunk-only\.txt/);
+  await review.files.expectNotShown("Added trunk-only.txt");
+  await review.files.expectNotShown("Added merged-trunk-only.txt");
   // The file both changed shows the story's change against trunk's at the
   // base: trunk's own line is no change.
-  await review.files.chooseShown("Modified shared.txt");
+  await review.files.choose("Modified shared.txt");
   await review.diffs.expectChangedLines("Modified shared.txt", {
     removed: ["-line 1"],
     added: ["+the story's line"],
@@ -165,7 +183,9 @@ test("a retired Story Branch integration is reviewed from its done card on its f
   expect((await origin.originGit("rev-parse", "main")).trim()).not.toBe(
     accepted,
   );
-  const again = (await review.refreshAndAnswer()).answer;
+  const refreshed = landedRead();
+  await review.refresh();
+  const again = storyReviewSchema.parse(await (await refreshed).json());
   expect(again).toMatchObject({
     kind: "landed",
     baseline: trunkTip,
@@ -173,11 +193,11 @@ test("a retired Story Branch integration is reviewed from its done card on its f
     selectedRun: reporting.reference,
     files,
   });
-  await review.status.expectFeedbackSays(
+  await review.expectFeedback(
     `Review refreshed: ${files.length} changed files in the captured landed comparison.`,
   );
   await review.landedRun.expectShown(`From ${trunkTip} to ${accepted}.`);
   await review.files.expectNotShown("Added later.txt");
-  expect(published.revision).toBe(accepted);
+  expect(published.revision).not.toBe(accepted);
   expect((await claimedRecord(dashboard)).landing).toEqual(record.landing);
 });

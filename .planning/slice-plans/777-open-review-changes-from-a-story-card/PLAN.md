@@ -236,17 +236,29 @@ Independent refactoring made Refresh and Retry use the same comparison
 scope key as the selected result. The 11 mounted cases, selected frontend
 gap journey, five real-Git journeys and Dashboard typecheck passed again.
 See `s3-refactor.md` and its command records in Git evidence.
+Slice 3 published at `8991db356fd9c8e4bfc1733a53f61902c0d070d2`.
 
-### 4. Landed and completed story journeys exercise Intent
+### 4. Intent explains landed and completed story comparisons
 
-Type: Structure
-Status: planned
+Type: Behavior
+Status: done
 
-Prepare the historical review readers for slice 7, preserving the published
-completion, captured runs including missing and empty runs, merge edits, and
-the original file and line follow-up context. Use Intent's own reads of
-historical source. Keep the local retained session types on the session
-surface, including one-shot work that is only a session entry.
+Use Intent's historical reads for published completions, captured runs, merge
+edits, and file and line follow-ups. A valid empty captured run shows its
+empty outcome. An unavailable historical run keeps its available context and
+explains the gap with an empty file area. The comparison controls remain
+available. While a new run is pending, keep the previously readable
+comparison. Reuse the shared historical outcome and run context. Retained
+session entries continue to use the Side panel.
+
+If historical location attribution is unavailable while a captured comparison
+is readable, show its changed files outside the configured locations. Read
+them at the captured tree and keep the explanation of the location gap.
+
+The port exposed missing historical outcome text and a published-tree
+fallback when the selected captured run was unavailable. Correct those cases
+within the same historical proof loop. Workspace and commit-range readers
+keep the fallback where their established behavior calls for it.
 
 **Proof.** Trace and port `story-review-{landed,story-branch-landed,completed,completed-merge-edits,follow-up,one-shot,one-shot-choice,one-shot-choice-races,one-shot-choice-refresh,one-shot-unavailable}.spec.ts`
 where the subject is a story. Preserve the story/standalone distinction in
@@ -256,7 +268,25 @@ where the subject is a story. Preserve the story/standalone distinction in
 `intent-story-follow-up.spec.ts`. Record the original and receiving
 assertion when an existing Intent journey covers the same promise. File
 and line Follow up must still carry the comparison, path and line when
-present, and open the existing dialog.
+present, and open the existing dialog. The captured-run journeys also
+observe the empty outcome and the unavailable reason with its retained
+launch facts and no substitute file list.
+The Recently done one-shot journeys also exercise a readable capture whose
+published completion cannot establish a historical location basis.
+
+**Observed.** The focused E2E groups passed 21 core, six native one-shot, and
+14 receiving cases. They read the exact Story Branch capture before and after
+retirement, the fixed CLI completion across trunk changes, the three
+historical gaps, and exact file and old-line follow-up context. Both
+Recently done cases read an independently valid capture at its own tree with
+all eight changed rows and three exact file diffs while the historical
+location explanation remains. The genuine standalone session action still
+opens the Side panel and returns focus. Mounted and selected browser frontend
+checks and final Dashboard typecheck passed. See `s4-implementation.md`,
+`s4-consumer-trace.md` and its linked run records.
+Independent refactoring removed the unused Story card return from the
+captured review test helper. The three focused historical cases and
+Dashboard typecheck passed again in `s4-refactor.md`.
 
 ### 5. Previous file and Next file work in Intent Changes
 
@@ -419,4 +449,24 @@ Disposition: receiving slice 6
 ### G8. Historical review explains missing captured landing information
 Reported: slice 3 — "Two missing-captured-landing journeys in story-review-nothing.spec.ts still open the story through the legacy review. Carry the available and unavailable comparisons to their historical readers."
 Story clause: "landed runs, published completion"
-Disposition: receiving slice 4
+Disposition: proved by slice 4: story-review-nothing.spec.ts checks both missing-capture workspace cases through Intent, including the live-to-retired refresh transition, exact explanation, available run context and absence of a substitute diff.
+
+### G9. A historical comparison names an empty or unavailable outcome
+Reported: slice 4 — "Intent omits the empty captured-run message and supplies the published file tree for an unavailable chosen run."
+Story clause: "An empty or unavailable comparison shows its explanation"
+Disposition: proved by slice 4: story-review-one-shot-unavailable.spec.ts checks the actual empty capture and missing object or repository messages. intent-story-compare-gaps.spec.ts verifies the captured gap has no substitute tree and ordinary range recovery remains available.
+
+### G10. A readable capture keeps its changed files through a location gap
+Reported: slice 4 — "The chosen Landed runs comparison names its exact captured revisions but the browser suppresses its eight changed files because the default historical location revision is unavailable."
+Story clause: "landed runs, published completion"
+Disposition: proved by slice 4: both recently-done-one-shot-review.spec.ts journeys observe the genuine captured pair, separate historical location explanation, eight outside rows and exact historical diff contents.
+
+### G11. The retired capture retains its line description and file movement
+Reported: slice 4 — "The retired capture's Intent journey reads the actual binary diff and the capture wire proves each file delta. Its former first row was described as '2 lines added, 0 lines removed' and Next file moved to the binary row."
+Story clause: "File and line actions on a diff keep their comparison context."
+Disposition: receiving slice 5
+
+### G12. A narrow session review retains divider and covering behavior
+Reported: slice 4 — "The former one-shot race used the Side panel divider, tested the 420px covering layout, a browser above the diff and Close focus. The new story race tests Intent at 420px and the underlying panel assertions still need genuine session fixtures."
+Story clause: "still opens the Side panel review."
+Disposition: receiving slice 6

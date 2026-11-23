@@ -1,6 +1,5 @@
 // Captured-through-CLI evidence survives actual retirement and changing trunk.
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
-import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { mkdirSync, readFileSync } from "node:fs";
 import {
   test,
@@ -39,7 +38,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   mkdirSync(workspace, { recursive: true });
   const before = repositoryObservation(origin.project);
   const index = readFileSync(before.index);
-  const { card, review } = await openCapturedReview(page, origin);
+  const review = await openCapturedReview(page, origin);
   const { answer } = review;
   expect(answer).toMatchObject({
     kind: "landed",
@@ -47,7 +46,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
     tree: receipt.revision,
     landing: { reference: receipt.reference },
   });
-  if (answer?.kind !== "landed") throw new Error("No captured review");
+  if (answer.kind !== "landed") throw new Error("No captured review");
   expect(answer.files).toEqual([
     { kind: "added", path: "added.txt", lines: { added: 2, removed: 0 } },
     { kind: "modified", path: "binary.bin" },
@@ -67,29 +66,22 @@ test("a retired one-shot's common file browser reads only its captured pair afte
     "origin/main",
   );
   const { files, diffs } = review;
-  const list = "5 changed files";
-  await files.expectListed(list);
-  await files.expectDescribed(
-    "Added added.txt",
-    "2 lines added, 0 lines removed",
-  );
-  await files.choose(list, "Added added.txt");
+  await files.expectOutsideCount(5);
+  await files.choose("Added added.txt");
   await diffs.expectShows("Added added.txt", "+one");
-  await files.move("Next file");
+  await files.choose("Modified binary.bin");
   await diffs.expectShows("Modified binary.bin", "Git reads it as binary");
-  await files.choose(list, "Renamed old.txt → new/moved.txt");
+  await files.choose("Renamed old.txt → new/moved.txt");
   await diffs.expectShows(
     "Renamed old.txt → new/moved.txt",
     "+renamed addition",
   );
-  await files.choose(list, "Modified text.txt");
+  await files.choose("Modified text.txt");
   await diffs.expectShows("Modified text.txt", "-before", "+extra");
   // The toolbar names the comparison, never the selected run.
-  await review.expectComparisonNamed("Landed runs");
+  await review.comparison.expectChosen("Landed runs");
   await review.hideFiles();
-  await review.expectFilesShown(false);
-  await review.showFiles();
-  await review.expectFilesShown(true);
+  await review.setFilesShown(true);
   expect(repositoryObservation(origin.project)).toEqual(before);
   expect(readFileSync(before.index)).toEqual(index);
   advanceAndRevert(origin.project, receipt);
@@ -97,8 +89,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   expect((await review.refreshAndAnswer()).answer).toEqual(answer);
   await diffs.expectShows("Modified text.txt", "+extra");
   expect(repositoryObservation(origin.project)).toEqual(afterTrunk);
-  await review.close();
-  await expect(reviewChanges(card)).toBeFocused();
+  await review.returnToDevelopment();
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
   const restarted = await startDashboardServer({
@@ -112,16 +103,17 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   });
   try {
     await page.reload();
-    const reopened = await openReviewChanges(
+    const reopened = await openIntentReviewChanges(
       page,
       parts(page).backlog.getByRole("article", { name: "Story A" }),
     );
     expect(reopened.answer).toEqual(answer);
+    await reopened.files.choose("Renamed old.txt → new/moved.txt");
     await reopened.diffs.expectShows(
       "Renamed old.txt → new/moved.txt",
       "+renamed addition",
     );
-    await reopened.files.chooseShown("Added added.txt");
+    await reopened.files.choose("Added added.txt");
     await reopened.diffs.expectShows("Added added.txt", "+one");
     expect(repositoryObservation(origin.project)).toEqual(afterTrunk);
   } finally {

@@ -23,7 +23,7 @@ for (const captured of [true, false]) {
       const receipt = captured ? captureReviewRun(run, origin) : undefined;
       const base = run.established.startingRevision ?? "";
       retireReviewRun(run, origin, receipt?.revision ?? base);
-      const { review } = await openCapturedReview(page, origin);
+      const review = await openCapturedReview(page, origin);
       const { answer } = review;
       if (captured) {
         expect(answer).toMatchObject({
@@ -36,20 +36,15 @@ for (const captured of [true, false]) {
         expect(answer).toMatchObject({ kind: "landing-unavailable" });
         await review.expectText("cannot be reconstructed from today's trunk");
       }
-      // As opened: the explanation shows with the details collapsed.
-      await review.status.expectShownText(
+      await review.expectText(
         captured
           ? /empty delivered comparison/
           : /no captured landing comparison/,
       );
-      await review.details.expectCollapsed();
-      await review.files.expectNoLists();
-      // The toolbar names the comparison, never the run, and offers no
-      // sidebar toggle without files.
-      await review.expectComparisonNamed("Landed runs");
-      await review.expectNoFilesToggle();
-      await review.details.show();
-      await review.details.expectRevealed();
+      await review.comparison.expectOnly("Landed runs");
+      await review.files.expectNone();
+      if (!captured) await review.files.expectNoBrowser();
+      await review.diffs.expectAbsent();
     },
   );
 }
@@ -63,8 +58,8 @@ test("missing captured objects or the saved common repository expose an unavaila
   commit(run.established.workspace, "delivered.txt");
   const receipt = captureReviewRun(run, origin);
   const repository = retireReviewRun(run, origin, receipt.revision);
-  const { review } = await openCapturedReview(page, origin);
-  await review.files.expectListed("1 changed file");
+  const review = await openCapturedReview(page, origin);
+  await review.files.expectOutsideCount(1);
   const refresh = () => review.refreshAndAnswer().then(({ answer }) => answer);
   const object = path.join(
     repository,
@@ -75,23 +70,32 @@ test("missing captured objects or the saved common repository expose an unavaila
   const bytes = readFileSync(object);
   unlinkSync(object);
   try {
+    const explanation =
+      "The captured landing comparison objects are missing or unreadable.";
     expect(await refresh()).toMatchObject({
       kind: "landing-unavailable",
-      explanation:
-        "The captured landing comparison objects are missing or unreadable.",
+      explanation,
     });
-    await review.files.expectNoLists();
+    await review.expectText(explanation);
+    await review.comparison.expectChosen("Landed runs");
+    await review.files.expectNoBrowser();
+    await review.diffs.expectAbsent();
   } finally {
     writeFileSync(object, bytes);
   }
   const held = `${repository}-held`;
   renameSync(repository, held);
   try {
+    const explanation =
+      "The captured landing repository is missing or unreadable.";
     expect(await refresh()).toMatchObject({
       kind: "landing-unavailable",
-      explanation: "The captured landing repository is missing or unreadable.",
+      explanation,
     });
-    await review.files.expectNoLists();
+    await review.expectText(explanation);
+    await review.comparison.expectChosen("Landed runs");
+    await review.files.expectNoBrowser();
+    await review.diffs.expectAbsent();
   } finally {
     renameSync(held, repository);
   }

@@ -16,7 +16,7 @@ import {
   retireLaunchWorkspace,
   scripts,
 } from "./launchLanding.ts";
-import { openReviewChanges } from "../reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../reviewChangesPage.ts";
 import { context } from "./oneShotLanding.ts";
 import { openBacklog } from "./sessionDialog.ts";
 
@@ -96,8 +96,7 @@ export const retireReviewRun = (
 ) => retireLaunchWorkspace(run.established, origin, revision);
 // Opens Story A's review from its Backlog card, as the reader first meets it.
 export async function openCapturedReview(page: Page, origin: StartOrigin) {
-  const card = await openBacklog(page, origin);
-  return { card, review: await openReviewChanges(page, card) };
+  return openIntentReviewChanges(page, await openBacklog(page, origin));
 }
 export function repositoryObservation(project: string) {
   return {

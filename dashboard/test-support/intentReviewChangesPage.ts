@@ -12,10 +12,12 @@ import {
   filesColumn,
   filesToggle,
   storySummary,
+  storyTabPanel,
 } from "./intentModePage.ts";
 import { ReviewCommits } from "./reviewChangesCommits.ts";
 import { ReviewComparison } from "./reviewChangesComparison.ts";
 import { ReviewContext } from "./reviewChangesContext.ts";
+import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
 import { ReviewDiffs } from "./reviewChangesDiffs.ts";
 import { emptyArea } from "./storyCardSelection.ts";
 import {
@@ -107,6 +109,7 @@ class IntentReviewChanges {
   readonly context: ReviewContext;
   readonly files: IntentReviewFiles;
   readonly diffs: ReviewDiffs;
+  readonly landedRun: ReviewLandedRun;
 
   constructor(
     readonly page: Page,
@@ -120,6 +123,7 @@ class IntentReviewChanges {
       await this.expectRead();
     });
     this.context = new ReviewContext(this.#header, reach);
+    this.landedRun = new ReviewLandedRun(this.#header, reach);
     this.files = new IntentReviewFiles(this.#intent);
     const diff = intentDiffReading(this.#intent);
     this.diffs = new ReviewDiffs(this.#intent, (file) =>
@@ -157,6 +161,11 @@ class IntentReviewChanges {
     return this;
   }
 
+  async expectChangesExplanation(message: string) {
+    await expect(storyTabPanel(this.#intent, "Changes")).toContainText(message);
+    return this;
+  }
+
   async expectFeedback(message: string | RegExp) {
     await expect(this.#header.getByRole("status")).toContainText(message);
     return this;
@@ -187,6 +196,11 @@ class IntentReviewChanges {
 
   filesToMeasure() {
     return filesColumn(this.#intent);
+  }
+
+  async returnToDevelopment() {
+    await parts(this.page).development.click();
+    await expect(parts(this.page).intent).toBeHidden();
   }
 
   async expectFilesHidden() {

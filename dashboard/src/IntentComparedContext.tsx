@@ -1,3 +1,9 @@
+import { RefreshedWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
+import {
+  emptyLandedReview,
+  emptyPublishedReview,
+  RefreshedHistoricalComparison,
+} from "./StoryReviewHistoricalOutcome.tsx";
 import { shortRevision } from "./publishedWork.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
@@ -36,6 +42,42 @@ export function ComparedContext({
             Compared {rev(shown.comparison.from)} with tree {rev(shown.tree)}.
           </p>
         )}
+    </div>
+  );
+}
+
+export function EmptyHistoricalContext({
+  review,
+}: {
+  readonly review: StoryReview | undefined;
+}) {
+  if (review?.kind === "landed") return <p>{emptyLandedReview}</p>;
+  if (review?.kind === "published") return <p>{emptyPublishedReview}</p>;
+  return null;
+}
+
+export function RefreshedComparison({
+  review,
+  count,
+  commitsReview,
+}: {
+  readonly review: StoryReview | undefined;
+  readonly count: number;
+  readonly commitsReview: boolean;
+}) {
+  const result =
+    review?.kind === "snapshot" ? (
+      <RefreshedWorkspaceComparison
+        snapshot={review}
+        count={count}
+        commitsReview={commitsReview}
+      />
+    ) : review?.kind === "landed" || review?.kind === "published" ? (
+      <RefreshedHistoricalComparison kind={review.kind} count={count} />
+    ) : null;
+  return result === null ? null : (
+    <div className="intent-story-state" role="status">
+      {result}
     </div>
   );
 }

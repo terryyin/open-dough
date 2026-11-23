@@ -2,6 +2,7 @@
 // Refresh's displayed comparison counts, read failures, and, for as
 // long as the snapshot is shown, that this machine's Git kept a Trunk Mode
 // story's published commits in its baseline.
+import { RefreshedHistoricalComparison } from "./StoryReviewHistoricalOutcome.tsx";
 import { RefreshedWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
@@ -112,12 +113,14 @@ export function ReviewFeedback({
             commitsReview={shown === "commits"}
           />
         )}
-      {!reading && round > 0 && review?.kind === "landed" && (
-        <p>
-          Review refreshed: {changedFiles(review.files.length)} in the captured
-          landed comparison.
-        </p>
-      )}
+      {!reading &&
+        round > 0 &&
+        (review?.kind === "landed" || review?.kind === "published") && (
+          <RefreshedHistoricalComparison
+            kind={review.kind}
+            count={review.files.length}
+          />
+        )}
       {!reading && round > 0 && review?.kind === "session-commits" && (
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the kept
@@ -128,12 +131,6 @@ export function ReviewFeedback({
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the published
           changes.
-        </p>
-      )}
-      {!reading && round > 0 && review?.kind === "published" && (
-        <p>
-          Review refreshed: {changedFiles(review.files.length)} in the fixed
-          published completion.
         </p>
       )}
       {!reading && round > 0 && review?.kind === "branch-result" && (

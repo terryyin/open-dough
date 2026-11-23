@@ -170,7 +170,7 @@ export function useIntentStoryLens({
                       explanation: review.explanation,
                       compare,
                       ...(review.kind !== "unavailable"
-                        ? {}
+                        ? { unavailableLanding: true }
                         : {
                             ...(review.ambiguousWorktrees === true
                               ? { ambiguousWorktrees: true }

@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { FileBrowserToggle } from "./FileBrowserToggle.tsx";
 import { Icon } from "./Icon.tsx";
 import { IntentBrowser } from "./IntentBrowser.tsx";
+import { intentBrowserSource } from "./intentBrowserSource.ts";
 import { focusReturnEntry } from "./IntentCandidatesSections.tsx";
 import { IntentCiComparisonPreference } from "./IntentCiComparisonPreference.tsx";
 import { IntentCiEntryNavigation } from "./IntentCiEntryLink.tsx";
@@ -61,21 +62,13 @@ export function IntentPage({
   readonly onBackToStory?: (() => void) | undefined;
 }) {
   const { notice, locations, shownRevision } = shown;
-  // Without configured locations, a compared story's Changes still lists its
-  // changed files, all outside, under the explanation.
-  const comparison = story?.summary.comparison;
-  const worktreeAmbiguity =
-    comparison?.state === "unavailable" &&
-    comparison.ambiguousWorktrees === true;
-  const browserLocations = worktreeAmbiguity
-    ? undefined
-    : (locations ?? (shown.unconfigured && story?.compared ? [] : undefined));
-  // The explanation stands in the browser's place, or leads it once it shows.
-  const explanation =
-    browserLocations === undefined && !worktreeAmbiguity
-      ? shown.explanation
-      : undefined;
-  const lead = browserLocations === undefined ? undefined : shown.explanation;
+  const {
+    comparisonSourceUnavailable,
+    locations: browserLocations,
+    revision: browserRevision,
+    explanation,
+    lead,
+  } = intentBrowserSource(shown, story?.summary.comparison);
   const { tab, chooseTab } = useStoryTab(story?.selection);
   const wholeStory = wholeStoryOf(story?.summary);
   const [filesShown, setFilesShown] = useKeptReading("filesShown", () => true);
@@ -183,7 +176,7 @@ export function IntentPage({
             <IntentCiStatus />
           </div>
         )}
-        {(explanation !== undefined || worktreeAmbiguity) && (
+        {(explanation !== undefined || comparisonSourceUnavailable) && (
           <div {...panel(story === undefined ? view : "changes")}>
             {explanation}
             {story === undefined && project.mode === "ci" ? (
@@ -198,10 +191,10 @@ export function IntentPage({
           </div>
         )}
       </div>
-      {browserLocations !== undefined && shownRevision !== undefined && (
+      {browserLocations !== undefined && browserRevision !== undefined && (
         <IntentBrowser
           source={source}
-          revision={shownRevision}
+          revision={browserRevision}
           locations={browserLocations}
           lead={lead}
           project={story === undefined ? project : undefined}

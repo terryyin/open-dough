@@ -19,11 +19,13 @@ async function chooseLandedRun(
   key: string,
   name?: string,
 ) {
-  const { review } = await openCapturedReview(page, origin);
+  const review = await openCapturedReview(page, origin);
   await review.comparison.choose("Landed runs");
   await review.landedRun.choose(key);
-  if (name !== undefined)
+  if (name !== undefined) {
+    await review.files.choose(`Added ${name}.txt`);
     await review.diffs.expectLines("added", [`+${name}.txt`]);
+  }
   return review;
 }
 
@@ -55,7 +57,8 @@ test("Refresh preserves a selected run after a new capture and after its native 
   ]);
   const review = await chooseLandedRun(page, origin, first.key, "first");
   const third = await storedCapturedChoice(dashboard, origin, "third");
-  await review.status.refreshAndRead();
+  await review.refresh();
+  await review.expectRead();
   await review.landedRun.expectChosen(first.key);
   await review.landedRun.expectRunKeys([third.key, first.key, legacy.key]);
   await review.diffs.expectLines("added", ["+first.txt"]);
@@ -69,7 +72,8 @@ test("Refresh preserves a selected run after a new capture and after its native 
     first.record.session,
     recoveredChoice(keptFirst),
   ]);
-  await review.status.refreshAndRead();
+  await review.refresh();
+  await review.expectRead();
   await review.landedRun.expectChosen(first.key);
   await review.diffs.expectLines("added", ["+first.txt"]);
 });
@@ -101,9 +105,11 @@ test("Refresh replaces a deleted choice whose native session was replaced with t
     "open-dough",
     replacement.session,
   ]);
-  await review.status.refreshAndRead();
+  await review.refresh();
+  await review.expectRead();
   await review.landedRun.expectChosen(third.key);
   await review.landedRun.expectRunCount(3);
+  await review.files.choose("Added third.txt");
   await review.diffs.expectLines("added", ["+third.txt"]);
 });
 
@@ -125,17 +131,21 @@ test("Refresh replaces an expired choice with the remaining captured run and fal
     third.record.session,
     "2000-01-01T00:00:00.000Z",
   ]);
-  await review.status.refreshAndRead();
+  await review.refresh();
+  await review.expectRead();
   await review.landedRun.expectChosen(second.key);
   await review.landedRun.expectRunCount(2);
+  await review.files.choose("Added second.txt");
   await review.diffs.expectLines("added", ["+second.txt"]);
   await recordOperation(dashboard, "deleteRecord", [
     "open-dough",
     second.record.session,
   ]);
-  await review.status.refreshAndRead();
+  await review.refresh();
+  await review.expectRead();
   await review.landedRun.expectChosen(legacy.key);
   await review.landedRun.expectRunCount(1);
   await review.expectText("no captured landing comparison");
-  await review.files.expectNoLists();
+  await review.files.expectNoBrowser();
+  await review.diffs.expectAbsent();
 });

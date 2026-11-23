@@ -42,6 +42,7 @@ test("an unavailable commit range is explained in the header, not as a story wit
   await expect.poll(story.alertText).toBe(unreadable);
   await expect.element(story.retryControl).not.toBeInTheDocument();
   await expect.poll(story.headerText).toContain(missing);
+  await expect.element(story.filesToggle).toBeVisible();
   expect(story.headerText()).not.toContain("No comparison is available");
 
   // CI comparison and Intent coverage say they describe the whole story.
@@ -109,6 +110,7 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
+  await expect.element(story.filesToggle).toBeVisible();
 
   // Landed runs is explained, not as a story without changes.
   await story.choose("Landed runs");
@@ -117,6 +119,8 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
     .poll(story.headerText)
     .toContain("The landed run's objects are missing from this machine.");
   expect(story.headerText()).not.toContain("No comparison is available");
+  await expect.element(story.filesToggle).not.toBeInTheDocument();
+  await expect.element(story.run).toHaveValue(run.key);
 
   // CI comparison and Intent coverage say they describe the whole story at
   // the measured build.
@@ -135,6 +139,7 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
   await story.choose("Published completion");
   await expect.element(story.alert).not.toBeInTheDocument();
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
+  await expect.element(story.filesToggle).toBeVisible();
   expect(outsideCalls()).toEqual([]);
 });
 

@@ -40,6 +40,7 @@ export function intentStoryCompare() {
   });
   return {
     header,
+    filesToggle: intent.getByRole("button", { name: /^(Hide|Show) files$/ }),
     headerText: () => textOf(header.element()),
     // A chosen comparison that cannot be read, with Retry after a failed read.
     alert,

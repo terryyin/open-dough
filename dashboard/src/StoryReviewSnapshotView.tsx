@@ -32,6 +32,10 @@ import {
   FileTree,
 } from "./StoryReviewFileTree.tsx";
 import { isReviewedStorySubject } from "./reviewedWorkSubject.ts";
+import {
+  emptyLandedReview,
+  emptyPublishedReview,
+} from "./StoryReviewHistoricalOutcome.tsx";
 import { useProjects } from "./projectList.tsx";
 import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
 import { StoryReviewWorkarea } from "./StoryReviewWorkarea.tsx";
@@ -57,13 +61,10 @@ function NoChanges({
   readonly branchResult: boolean;
 }) {
   if (snapshot === undefined) {
-    let words =
-      "No changes: this landed run has an empty delivered comparison.";
+    let words = emptyLandedReview;
     if (branchResult)
       words = "No changes: the branch at Done matches its starting revision.";
-    else if (published)
-      words =
-        "No changes: this completed story has an empty published comparison.";
+    else if (published) words = emptyPublishedReview;
     else if (sessionSubject)
       words = sessionCommits
         ? "No changes: these session commits leave no difference."

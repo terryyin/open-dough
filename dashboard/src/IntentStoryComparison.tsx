@@ -8,11 +8,12 @@ import { shortRevision } from "./publishedWork.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { ComparedRange, type StoryCompare } from "./IntentStoryCompare.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
+import { EmptyWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
 import {
-  EmptyWorkspaceComparison,
-  RefreshedWorkspaceComparison,
-} from "./StoryReviewWorkspaceOutcome.tsx";
-import { ComparedContext } from "./IntentComparedContext.tsx";
+  ComparedContext,
+  EmptyHistoricalContext,
+  RefreshedComparison,
+} from "./IntentComparedContext.tsx";
 import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
 
 // What Intent knows of the selected story's comparison.
@@ -27,6 +28,7 @@ export type LensComparison =
       readonly state: "unavailable";
       readonly explanation?: string;
       readonly ambiguousWorktrees?: true;
+      readonly unavailableLanding?: true;
       readonly workspace?: string;
       readonly compare?: StoryCompare | undefined;
     }
@@ -102,6 +104,15 @@ export function WholeStoryNote({
 const unavailableWords =
   "No comparison is available for this story: no workspace on this machine holds it.";
 
+export const hasUnavailableComparisonSource = (
+  comparison: LensComparison | undefined,
+) =>
+  (comparison?.state === "unavailable" &&
+    (comparison.ambiguousWorktrees === true ||
+      comparison.unavailableLanding === true)) ||
+  ((comparison?.state === "unreadable" || comparison?.state === "failed") &&
+    comparison.compare?.shown === "landed");
+
 // What the compact summary says of a comparison it cannot show yet or at all.
 export function CompactComparisonState({
   comparison,
@@ -150,14 +161,12 @@ export function CompactComparisonState({
         )}
       </p>
     );
-  return comparison.refreshed && comparison.review?.kind === "snapshot" ? (
-    <div className="intent-story-state" role="status">
-      <RefreshedWorkspaceComparison
-        snapshot={comparison.review}
-        count={comparison.shown.comparison.files.length}
-        commitsReview={comparison.compare?.shown === "commits"}
-      />
-    </div>
+  return comparison.refreshed ? (
+    <RefreshedComparison
+      review={comparison.review}
+      count={comparison.shown.comparison.files.length}
+      commitsReview={comparison.compare?.shown === "commits"}
+    />
   ) : null;
 }
 
@@ -180,7 +189,7 @@ export function ComparisonDetail({
             Worktree <code>{comparison.workspace}</code>.
           </>
         )}
-        {comparison.ambiguousWorktrees !== true &&
+        {!hasUnavailableComparisonSource(comparison) &&
           (completed
             ? " The story's historical test source is unavailable."
             : " Intent shows the published tree without the story's changes.")}
@@ -190,9 +199,10 @@ export function ComparisonDetail({
     return (
       <p className="intent-story-problem">
         {comparison.problem}{" "}
-        {completed
-          ? "The story's historical test source is unavailable."
-          : "Intent shows the published tree without them."}
+        {!hasUnavailableComparisonSource(comparison) &&
+          (completed
+            ? "The story's historical test source is unavailable."
+            : "Intent shows the published tree without them.")}
       </p>
     );
   if (comparison.state === "unreadable")
@@ -202,8 +212,9 @@ export function ComparisonDetail({
           <ComparedRange compare={comparison.compare} />
         )}
         <p className="intent-story-problem">
-          {comparison.unreadable.explanation} Intent shows the published tree
-          without the chosen changes.
+          {comparison.unreadable.explanation}
+          {!hasUnavailableComparisonSource(comparison) &&
+            " Intent shows the published tree without the chosen changes."}
         </p>
       </>
     );
@@ -220,13 +231,16 @@ export function ComparisonDetail({
           uncommittedLeftOut={compare?.includeUncommitted === false}
         />
       )}
-      {review?.kind === "snapshot" && shown.comparison.files.length === 0 && (
-        <EmptyWorkspaceComparison
-          snapshot={review}
-          commitsReview={commitsReview}
-          committedOnly={compare?.includeUncommitted === false}
-        />
-      )}
+      {shown.comparison.files.length === 0 &&
+        (review?.kind === "snapshot" ? (
+          <EmptyWorkspaceComparison
+            snapshot={review}
+            commitsReview={commitsReview}
+            committedOnly={compare?.includeUncommitted === false}
+          />
+        ) : (
+          <EmptyHistoricalContext review={review} />
+        ))}
     </>
   );
 }
