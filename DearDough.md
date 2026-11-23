@@ -66,6 +66,10 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 - SEED-413#repair-refinement-touch-tap-hang (plan 770; first implementation `5aee5b463`)
 - SEED-413#speed-intent-scope-timing-history (plan 774; first implementation `e19c1a4c0`)
 
+### Occurrences
+
+- Execution: SEED-424#poll-open-codex-sessions (plan 784, first implementation `b5b4a3ed8`). Timestamp: 2026-11-23T13:19:34+08:00 (initial formatting refusal). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION). Evidence: the passing focused test return and independent refactor preceded guarded delivery's errors on require-await and an unused index callback argument in the new Vitest case. The coordinator's first repair also exposed an unsafe spread. An explicit fixture array type cleared it. Observed effect: two preparation refusals before the slice could commit, plus one renewed targeted test. Inference: the existing delegated lint follow-up covers finding the initial errors while the author still has the fixture context.
+
 [Account and evidence at ODF-329](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-329.md#evidence-2026-11-23-open-dough-odf-329).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
@@ -273,6 +277,8 @@ Former local code: DD-611.
 - SEED-418#resume-shared-checkout-closes-as-their-own-session (plan 771)
 
 - Execution: SEED-423#remove-unreached-distribution-code (plan 779, first implementation `67b66d67c`). Timestamp: 2026-11-23T11:05:54+08:00 (local gate start). Tool: Codex. Open Dough release: 0.3.110 (installed .agents guidance at Take `25e0878ad`). Evidence: `287001929:.planning/slice-plans/779-remove-unreached-distribution-code/PLAN.md` records the clean `e8e1c7f1f` combined Distribution and evaluation run with three local workers at observed load 35 on 16 logical CPUs. It passed 654 of 667 files, with twelve native deadline failures and one supplier-watch assertion. The thirteen passed in two one-worker runs at the same revision, and [CI run 45103865999](https://github.com/terryyin/open-dough/actions/runs/45103865999) passed all 667. Observed effect: two diagnostic gates were needed after the combined run. Inference: local worker fan-out can compound shared host load even when this execution runs one suite at a time.
+
+- Execution: SEED-424#poll-open-codex-sessions (plan 784, first implementation `b5b4a3ed8`). Timestamp: 2026-11-23T05:11:01Z (browser proof start). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION). Evidence: `b5b4a3ed8:.planning/slice-plans/784-poll-open-codex-sessions/PLAN.md` records the accepted proof. The first E2E command overlapped backend and typecheck proof, timed out on two review cases at board navigation, and took 200 seconds. At diagnosis the 16-CPU Mac was at load 37 with 18 GB compressed memory. A different, one-worker selection including both cases after those owned commands ended passed in 43 seconds at default timeouts. Observed effect: two trace inspections and one separate focused proof run. Inference: shared workload contributed to the timeouts. The selection and background load changed. A throughput comparison would require equivalent conditions.
 
 [Account and evidence at ODF-209](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-209.md#evidence-2026-11-23-open-dough-dd-611).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.

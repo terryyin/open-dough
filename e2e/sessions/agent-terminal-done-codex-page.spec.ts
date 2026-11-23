@@ -121,11 +121,19 @@ for (const attached of [false, true]) {
     await expect(sessionStateOf(retained)).toHaveText("Done");
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
     codexTerminalMode(native, "fail");
+    const beforeAttach = native.calls.length;
     await openTerminalControl(retained).click();
     await expect(panel.getByRole("status")).toContainText(
       "The session could not be attached",
     );
     expect(stored(dashboard.home)[0]?.doneAt).toBe(doneAt);
+    await expect(sessionStateOf(retained)).toHaveText("Done");
+    expect(
+      native.calls
+        .slice(beforeAttach)
+        .filter(({ method }) => method === "thread/read")
+        .map(({ params }) => params["threadId"]),
+    ).toEqual([native.threadId]);
     codexTerminalMode(native, "ready");
     await panel.getByRole("button", { name: "Reconnect" }).click();
     await expect(terminalScreenParts(panel).rows).toContainText(
@@ -163,7 +171,7 @@ for (const attached of [false, true]) {
   });
 }
 
-test("native interrupt refusal remains Working with retained local intent and diagnostic through reload, cleared only by successful native ready", async ({
+test("native interrupt refusal retains Done and its diagnostic through reload, cleared only by successful native ready", async ({
   page,
   dashboard,
   codexProtocol,
@@ -205,7 +213,7 @@ test("native interrupt refusal remains Working with retained local intent and di
     notRefinedStory,
     native.threadId,
   );
-  await expect(sessionStateOf(doneEntry)).toHaveText("Working");
+  await expect(sessionStateOf(doneEntry)).toHaveText("Done");
   await expect(doneEntry).not.toContainText("Named done-");
   await expect(doneEntry).toContainText("Intended name done-");
   await expect(doneEntry.getByRole("status").first()).toContainText(
@@ -219,7 +227,7 @@ test("native interrupt refusal remains Working with retained local intent and di
     notRefinedStory,
     native.threadId,
   );
-  await expect(sessionStateOf(retained)).toHaveText("Working");
+  await expect(sessionStateOf(retained)).toHaveText("Done");
   await expect(retained).toContainText(problem ?? "missing diagnostic");
   codexTerminalMode(native, "review");
   await openTerminalControl(retained).click();

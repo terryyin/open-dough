@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Correct the proof residue of Intent revision reading and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-revision-detour-proof-residue) — SEED-413#correct-revision-detour-proof-residue ([plan](slice-plans/781-correct-revision-detour-proof-residue/PLAN.md))
-- [Keep open Codex session status current](seeds/SEED-424-poll-open-codex-sessions.md#poll-open-codex-sessions) — SEED-424#poll-open-codex-sessions ([plan](slice-plans/784-poll-open-codex-sessions/PLAN.md))
 
 ## Backlog list
 

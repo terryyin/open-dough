@@ -175,9 +175,9 @@ export type LaunchRecord = z.infer<typeof launchRecordSchema>;
 
 export { establishedPlace, recordedWorkspace } from "./establishedPlace.ts";
 
-// Current native availability and activity, normalized by the host. A retained
-// conversation can be continued even when unloaded. Unknown observation is
-// distinct from confirmed absence; none of this live evidence is stored.
+// Native availability and activity, normalized by the host. Retained native
+// conversations remain resumable. An unreadable or skipped observation
+// confirms no absence. This state is never stored.
 export const sessionStateSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("available"),
@@ -198,6 +198,7 @@ export const sessionStateSchema = z.discriminatedUnion("kind", [
     unknownReason: z.enum(["unrecognized", "incomplete"]).optional(),
   }),
   z.object({ kind: z.literal("unavailable") }),
+  z.object({ kind: z.literal("not-observed") }),
   z.object({
     kind: z.literal("unknown"),
     // Words this observation shows as written. Absent uses the host's
@@ -205,11 +206,10 @@ export const sessionStateSchema = z.discriminatedUnion("kind", [
     label: z.string().min(1).optional(),
   }),
 ]);
-
 export type SessionState = z.infer<typeof sessionStateSchema>;
 
-// Whether a session offers Open terminal: for each available conversation,
-// including retained history, and while observation is unknown.
+// A session can offer Open terminal until the host confirms the conversation
+// is unavailable. An unreadable or skipped observation leaves that check open.
 export function attachOpens(sessionState: SessionState): boolean {
   return sessionState.kind !== "unavailable";
 }
