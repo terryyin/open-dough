@@ -33,8 +33,8 @@ export class StoryReviewBuilder {
   #selected;
   /** @type {ReviewedFile[] | undefined} */
   #committed;
-  /** @type {number | undefined} */
-  #publishedKept;
+  /** @type {import("./storyReviewSnapshotTestData.mjs").SnapshotParts["published"]} */
+  #published;
   /** @type {string | undefined} */
   #completion;
   /** @type {ReviewCommit[] | undefined} */
@@ -70,7 +70,16 @@ export class StoryReviewBuilder {
    * @param {number} commits
    */
   keepingPublishedCommits(commits) {
-    this.#publishedKept = commits;
+    this.#published = { commits, kept: "not-restated" };
+    return this;
+  }
+
+  /**
+   * @param {number} commits the story's published commits taken out of the baseline
+   * @param {string} trunk the trunk revision before the subtraction
+   */
+  subtractingPublishedCommits(commits, trunk) {
+    this.#published = { commits, trunk };
     return this;
   }
 
@@ -229,7 +238,7 @@ export class StoryReviewBuilder {
       committed: this.#committed,
       commits: this.#commits,
       uncommitted: this.#uncommitted,
-      publishedKept: this.#publishedKept,
+      published: this.#published,
     });
   }
 }

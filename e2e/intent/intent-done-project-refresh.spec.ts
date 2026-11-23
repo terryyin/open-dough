@@ -78,7 +78,7 @@ test("all Done tabs ignore project freshness while Project Intent notices the la
     await expect(revisionNotice(intent)).toHaveCount(0);
     await expect(browserRevision(intent)).toHaveCount(0);
     await expect(showLatestRevision(intent)).toHaveCount(0);
-    await expect(revisions).toHaveText(endpoints);
+    await expect(revisions).toHaveText(endpoints, { useInnerText: true });
     if (tab === "Intent coverage")
       await expect(intent.locator(".intent-story-coverage-text")).toHaveText(
         report,

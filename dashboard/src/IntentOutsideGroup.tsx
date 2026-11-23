@@ -7,6 +7,7 @@
 // folder icon does and summarizes nothing. Its folders open as the story's
 // expansion asks (`./useIntentStoryTree.ts`), kept apart from every location.
 
+import { useIntentRowReveal } from "./useIntentRowReveal.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { intentFileCountWords } from "./intentSelectionCoverage.ts";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
@@ -21,6 +22,7 @@ import { FileTree } from "./StoryReviewFileTree.tsx";
 import {
   useLocationOpenFolders,
   type LocationExpansion,
+  type TreeReveal,
 } from "./useLocationOpenFolders.ts";
 import "./story-review-files.css";
 import "./intent-location-group.css";
@@ -30,18 +32,25 @@ const idPrefix = "intent-outside-locations";
 export function IntentOutsideGroup({
   files,
   expansion,
+  reveal,
   selection,
   onSelect,
 }: {
   // The outside files, each at its repository path.
   readonly files: readonly IntentTreeFile[];
   readonly expansion: LocationExpansion | undefined;
+  readonly reveal: TreeReveal | undefined;
   readonly selection: IntentSelection;
   readonly onSelect: (next: IntentSelection) => void;
 }) {
   const tree = reviewFileTree(files);
   const selectedPath =
     selectionScope(selection) === "file" ? selection.path : "";
+  const outsideReveal =
+    reveal !== undefined && files.some((file) => file.path === reveal.path)
+      ? reveal
+      : undefined;
+  const section = useIntentRowReveal(outsideReveal);
   const { collapsed, toggleFolder } = useLocationOpenFolders({
     location: "",
     tree,
@@ -49,12 +58,16 @@ export function IntentOutsideGroup({
       ? selectedPath
       : "",
     expansion,
-    reveal: undefined,
+    reveal:
+      outsideReveal === undefined
+        ? undefined
+        : { request: outsideReveal, path: outsideReveal.path },
   });
   const comparison = treeComparisonReadingOf(useIntentCiEvidence());
   if (files.length === 0) return null;
   return (
     <section
+      ref={section}
       className="intent-outside-locations story-review-files"
       aria-labelledby={`${idPrefix}-heading`}
       data-contains-changes

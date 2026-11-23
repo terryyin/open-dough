@@ -14,13 +14,9 @@ import {
   reviewsLanding,
   reviewsPublishedSession,
   reviewsSessionCommits,
-  type ReviewComparison,
   type StoryReview,
 } from "./storyReviewContract.ts";
-import {
-  comparisonName,
-  type ComparisonChoice,
-} from "./StoryReviewComparison.tsx";
+import { comparisonName } from "./StoryReviewComparison.tsx";
 import { sessionCommitsName } from "./StoryReviewSessionCommitsContext.tsx";
 import { publishedSessionName } from "./StoryReviewPublishedSessionContext.tsx";
 import { branchResultName } from "./sessionReviewComparisons.ts";
@@ -28,15 +24,9 @@ import { sessionComparisonName } from "./StoryReviewSessionRuns.tsx";
 import "./story-review-toolbar.css";
 
 // Whether the comparison actually shown lists files for the sidebar.
-export function reviewListsFiles(
-  review: StoryReview | undefined,
-  comparison: ReviewComparison | undefined,
-) {
-  if (review?.kind === "snapshot")
-    return comparison !== undefined && comparison.files.length > 0;
+export function reviewListsFiles(review: StoryReview | undefined) {
   return (
     (review?.kind === "landed" ||
-      review?.kind === "published" ||
       review?.kind === "branch-result" ||
       review?.kind === "session-commits" ||
       review?.kind === "published-session") &&
@@ -49,7 +39,6 @@ export function reviewListsFiles(
 // (including a selected evidence gap) as Landed runs, else the switch's words.
 export const toolbarComparisonName = (
   review: StoryReview | undefined,
-  shown: ComparisonChoice,
   sessionComparison?: string,
 ) => {
   const name = sessionComparisonName(sessionComparison);
@@ -60,7 +49,7 @@ export const toolbarComparisonName = (
   if (review.kind === "branch-result") return branchResultName;
   if (reviewsPublishedSession(review)) return publishedSessionName;
   if (reviewsSessionCommits(review)) return sessionCommitsName;
-  return comparisonName(reviewsLanding(review) ? "landed" : shown);
+  return reviewsLanding(review) ? comparisonName("landed") : "";
 };
 
 // The review details as the review places them: the section's id, whether

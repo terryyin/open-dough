@@ -1,38 +1,66 @@
-// Review changes opens on the diff: the comparison choices, the context of
-// the comparison shown and the uncommitted check wait behind the toolbar's
-// eye, while the reading place and Commits' own work stay in view.
+// Details and their focus behavior in a retained Default main session review.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ReviewedWorkSubject } from "../../src/reviewedWorkSubject.ts";
 import {
-  doneStory,
+  frontendReviewIds,
+  frontendSessionCommitsReview,
+} from "../../test-support/support/frontendStoryReview.ts";
+import {
+  adHocSession,
   mountReviewChanges,
   reviewSourceAnswering,
 } from "./story-review-panel-page.ts";
 
-const threeFiles = makeMe.aStoryReview
+const { baseline, tree, head, commit } = frontendReviewIds;
+const doneAt = "2026-01-02T12:00:00.000Z";
+const record = makeMe.aLaunchRecord
+  .adHoc({ title: "Interrupted Main session" })
+  .launchedAt("2026-01-02T10:00:00.000Z")
+  .keptSessionCommits({
+    repository: "/tmp/default-main/.git",
+    runs: [
+      { base: baseline, revision: tree },
+      { base: head, revision: commit },
+    ],
+  })
+  .markedDoneAt(doneAt)
+  .please();
+const opened = makeMe.aStoryReview
+  .sessionCommits()
   .adding("first.txt")
   .adding("second.txt")
-  .adding("third.txt");
-// A workspace snapshot whose committed part can be told from its
-// uncommitted changes, so the uncommitted check is offered.
-const workspace = threeFiles.committedAs(threeFiles).please();
+  .adding("third.txt")
+  .please();
+const picked = makeMe.aStoryReview
+  .sessionCommits()
+  .adding("fourth.txt")
+  .please();
+if (opened.kind !== "session-commits" || picked.kind !== "session-commits")
+  throw new Error("The mounted fixture requires session commits.");
+const facts = [
+  { commits: 1, subject: "First run", committedAt: doneAt },
+  { commits: 2, subject: "Second run", committedAt: doneAt },
+];
+const firstRun = frontendSessionCommitsReview(record, opened.files, 0, facts);
+const secondRun = frontendSessionCommitsReview(record, picked.files, 1, facts);
+const secondRunLabel = `2 commits — Second run — ${new Date(doneAt).toLocaleString()}`;
 const linesOf: Record<string, string[]> = {
   "first.txt": ["alpha"],
   "second.txt": Array.from({ length: 300 }, (...[, at]) => `second ${at}`),
   "third.txt": ["gamma"],
+  "fourth.txt": ["delta"],
 };
-const workspaceSource = reviewSourceAnswering({
-  review: () => Promise.resolve(workspace),
-  range: () => Promise.resolve(threeFiles.pleaseRange()),
+const sessionSource = reviewSourceAnswering({
+  review: (query) => Promise.resolve(query.run === "1" ? secondRun : firstRun),
   fileDiff: ({ path = "" }) =>
     Promise.resolve(
       makeMe.aReviewedFileDiff.adding(path, ...(linesOf[path] ?? [])).please(),
     ),
 });
-const otherStory: ReviewedWorkSubject = {
-  ...doneStory,
-  identity: "SEED-2#other-story",
+const otherSession: ReviewedWorkSubject = {
+  ...adHocSession,
+  session: "00000000-0000-4000-8000-000000000003",
 };
 const [first, second, third] = [
   "Added first.txt",
@@ -40,13 +68,13 @@ const [first, second, third] = [
   "Added third.txt",
 ];
 
-test("a workspace review opens on the diff and keeps its place while the eye reveals and hides its details", async () => {
-  const review = await mountReviewChanges(workspaceSource, doneStory);
+test("a session review opens on the diff and keeps its place while the eye reveals and hides its details", async () => {
+  const review = await mountReviewChanges(sessionSource, adHocSession);
   // Compact opening: toggle, name, eye; files and the first diff readable.
   await review.expectListed("3 changed files");
   await review.expectDiffShows(first, "+alpha");
   await review.expectDetailsCollapsed();
-  await review.expectFilesToggleLeads("All changes");
+  await review.expectFilesToggleLeads("Session commits");
   await review.expectEyeBesideComparison();
 
   // The second file, its diff scrolled.
@@ -57,14 +85,13 @@ test("a workspace review opens on the diff and keeps its place while the eye rev
 
   await review.revealDetails();
   await review.expectEyeBesideComparison("Hide review details");
-  await review.expectComparisonChosen("All changes");
-  await review.expectDetailsSay("claude/taken");
-  await review.expectUncommittedIncluded(true);
+  await review.expectDetailsSay("Commits made in the Default main checkout");
+  await review.expectDetailsSay(`From ${baseline} to ${tree}.`);
   await review.expectSelected(second);
   expect(review.codeScrollTop(second)).toBe(readingAt);
 
   await review.hideDetails();
-  await review.expectComparisonNamed("All changes");
+  await review.expectComparisonNamed("Session commits");
   await review.expectSelected(second);
   expect(review.codeScrollTop(second)).toBe(readingAt);
 
@@ -75,35 +102,29 @@ test("a workspace review opens on the diff and keeps its place while the eye rev
   await review.expectDetailsRevealed();
   await review.showFiles();
   await review.expectSelected(second);
-
-  // Leaving uncommitted changes out keeps the details revealed.
-  await review.includeUncommitted(false);
-  await review.expectUncommittedIncluded(false);
-  await review.expectDetailsRevealed();
 });
 
-test("choosing Commits in the details renames the toolbar, and the range and commit list stay when the details hide", async () => {
-  const review = await mountReviewChanges(workspaceSource, doneStory);
+test("the chosen session run survives Refresh and Escape returns focus to the eye", async () => {
+  const review = await mountReviewChanges(sessionSource, adHocSession);
   await review.revealDetails();
-  await review.chooseComparison("Commits");
-  await review.expectComparisonNamed("Commits");
-  await review.expectComparisonChosen("Commits");
+  await review.chooseComparison(secondRunLabel);
+  await review.expectComparisonChosen(secondRunLabel);
   await review.expectDetailsRevealed();
-  await review.expectCommitsAndRangeShown();
+  await review.expectDetailsSay(`From ${head} to ${commit}.`);
+  await review.expectDiffShows("Added fourth.txt", "+delta");
 
-  // The revealed state lasts across Refresh.
   await review.refresh();
   await review.expectFeedbackSays("Review refreshed");
   await review.expectDetailsRevealed();
-  await review.expectComparisonNamed("Commits");
+  await review.expectComparisonChosen(secondRunLabel);
 
-  await review.escapeFromComparison("Commits");
-  await review.expectCommitsAndRangeShown();
-  await review.expectComparisonNamed("Commits");
+  await review.escapeFromComparison(secondRunLabel);
+  await review.expectComparisonNamed("Session commits");
+  await review.expectDiffShows("Added fourth.txt", "+delta");
 });
 
-test("another story's review opens collapsed with the files shown, whatever the last one left", async () => {
-  const review = await mountReviewChanges(workspaceSource, doneStory);
+test("another session's review opens collapsed with the files shown, whatever the last one left", async () => {
+  const review = await mountReviewChanges(sessionSource, adHocSession);
   // Details collapsed, third file selected: the sidebar toggle works.
   await review.chooseFile(third);
   await review.expectSelected(third);
@@ -119,7 +140,7 @@ test("another story's review opens collapsed with the files shown, whatever the 
   await review.hideFiles();
   await review.expectFilesShown(false);
 
-  const next = review.openAnother(otherStory);
+  const next = review.openAnother(otherSession);
   await next.expectListed("3 changed files");
   await next.expectDetailsCollapsed();
   await next.expectFilesShown(true);

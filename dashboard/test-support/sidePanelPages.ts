@@ -16,6 +16,7 @@
 
 import type { Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
+import { expectStoryTab, storyTab } from "./intentModePage.ts";
 import { FinalReport } from "./finalReportPages.ts";
 import { PageObject } from "./fluentPageObject.ts";
 import { box } from "./pageLayout.ts";
@@ -75,6 +76,13 @@ export class Intent extends PageObject {
     return this.cueHere(`Intent: reads ${identity} as the Selected story`, () =>
       expect(this.#intent).toHaveAttribute("data-selected-story", identity),
     );
+  }
+
+  expectFocusedStoryTab(name: Parameters<typeof storyTab>[1]) {
+    return this.cueHere(`Intent: ${name} is selected and focused`, async () => {
+      await expectStoryTab(this.#intent, name);
+      await expect(storyTab(this.#intent, name)).toBeFocused();
+    });
   }
 
   expectNotShown() {

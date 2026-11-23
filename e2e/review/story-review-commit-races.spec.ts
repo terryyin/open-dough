@@ -5,7 +5,7 @@ import {
   test,
 } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import { storyReviewRangeEndpoint } from "../../dashboard/src/storyReviewContract.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import { storyWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
@@ -18,7 +18,10 @@ test("an earlier pending range cannot answer the later chosen range", async ({
 }) => {
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
-  const review = await openReviewChanges(page, await openBacklog(page, origin));
+  const review = await openIntentReviewChanges(
+    page,
+    await openBacklog(page, origin),
+  );
   const { commits, files, diffs } = review;
   const held = await holdNextReviewResponse(
     page,
@@ -39,7 +42,7 @@ test("an earlier pending range cannot answer the later chosen range", async ({
     await commits.press(3);
     await commits.choose(3);
     await commits.expectRange("Changes in 1 commit", "story file to");
-    await files.choose("1 changed file", "Added story.txt");
+    await files.choose("Added story.txt");
     await diffs.expectLines("added", ["+story"]);
     held.release();
     await held.delivery;
@@ -54,9 +57,8 @@ test("an earlier pending range cannot answer the later chosen range", async ({
         }),
     );
     await commits.expectRange("Changes in 1 commit", "story file to");
-    await files.expectListed("1 changed file", ["Added story.txt"]);
+    await files.expectOutsideFiles(1, ["Added story.txt"]);
     await diffs.expectLines("added", ["+story"]);
-    await review.expectNoText("The chosen commits changed nothing.");
   } finally {
     held.release();
     await held.delivery;

@@ -12,7 +12,7 @@ import {
   storyWorktree,
   unchangedRepository,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import { withLocalState } from "../../Distribution/tests/support/repository-local-state.mjs";
 
@@ -34,7 +34,7 @@ test.describe("from Story A's declared history", () => {
     const { workspace } = storyWorktree(origin);
     const before = observed(workspace);
     keepLaunchRecord(dashboard, workspace);
-    const review = await openReviewChanges(
+    const review = await openIntentReviewChanges(
       page,
       await openBacklog(page, origin),
     );
@@ -51,19 +51,19 @@ test.describe("from Story A's declared history", () => {
     await commits.expectNoTime(0);
     await commits.expectChosen(0);
     await commits.expectRange(/^Uncommitted changes$/);
-    await files.expectRows("3 changed files", [
+    await files.expectOutsideRows([
       "fresh",
       "  new.txt",
       "staged.txt",
       "unstaged.txt",
     ]);
-    await files.choose("3 changed files", "Modified staged.txt");
+    await files.choose("Modified staged.txt");
     await diffs.expectLines("added", ["+more"]);
-    await files.choose("3 changed files", "Modified unstaged.txt");
+    await files.choose("Modified unstaged.txt");
     await diffs.expectLines("removed", ["-unstaged 5"]);
-    await files.choose("3 changed files", "Added fresh/new.txt");
+    await files.choose("Added fresh/new.txt");
     await diffs.expectLines("added", ["+untracked"]);
-    await files.expectListLacks("3 changed files", "ignored.log");
+    await files.expectOutsideLacks("ignored.log");
     const rangeRead = page.waitForResponse(
       (response) =>
         new URL(response.url()).pathname === storyReviewRangeEndpoint,
@@ -78,7 +78,7 @@ test.describe("from Story A's declared history", () => {
       "Changes in 4 commits and Uncommitted changes",
       "to Uncommitted changes.",
     );
-    await files.expectListed("7 changed files");
+    await files.expectOutsideCount(7);
     expect(observed(workspace)).toEqual(before);
   });
 });
@@ -90,11 +90,15 @@ test("an uncommitted-only snapshot offers Commits without inventing a commit", a
 }) => {
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
-  const review = await openReviewChanges(page, await openBacklog(page, origin));
+  const review = await openIntentReviewChanges(
+    page,
+    await openBacklog(page, origin),
+  );
   expect(review.snapshot.commits).toEqual([]);
   await review.comparison.choose("Commits");
   await review.expectRead();
   await review.commits.expectRows(["Uncommitted changes"]);
-  await review.files.expectListed("1 changed file", ["Added only.txt"]);
+  await review.files.expectOutsideFiles(1, ["Added only.txt"]);
+  await review.files.choose("Added only.txt");
   await review.diffs.expectLines("added", ["+only uncommitted"]);
 });

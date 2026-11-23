@@ -34,8 +34,10 @@ test("a long story title shows once in full above the story's views, whichever i
   if (comparison.kind !== "snapshot")
     throw new Error("Expected a worktree comparison");
   await expect
-    .poll(story.revisions)
-    .toContain(`Compared ${comparison.baseline.slice(0, 7)} with worktree `);
+    .element(story.workspaceContext)
+    .toHaveAccessibleName(
+      `Branch ${comparison.branch} Baseline ${comparison.baseline} where ${comparison.branch} meets origin/main Worktree ${comparison.workspace}`,
+    );
 
   for (const view of ["CI comparison", "Intent coverage", "Changes"] as const) {
     await story.chooseTab(view);

@@ -1,14 +1,12 @@
-// One Intent page for project evidence and an optional selected-story context.
-// Each is mounted inside its own evidence and reading owners by
-// IntentPerspective. The persistent header and views use the same arrangement;
-// only the project shows its revision notice. The browser stays mounted while
-// another view shows.
+// Project evidence and selected-story Intent views share this page layout.
+// The browser stays mounted while another view shows.
 
 import { ArrowLeft, Layers } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FileBrowserToggle } from "./FileBrowserToggle.tsx";
 import { Icon } from "./Icon.tsx";
 import { IntentBrowser } from "./IntentBrowser.tsx";
+import { intentBrowserSource } from "./intentBrowserSource.ts";
 import { focusReturnEntry } from "./IntentCandidatesSections.tsx";
 import { IntentCiComparisonPreference } from "./IntentCiComparisonPreference.tsx";
 import { IntentCiEntryNavigation } from "./IntentCiEntryLink.tsx";
@@ -26,6 +24,7 @@ import {
   StoryCiReturnProvider,
   storyTabs,
   useStoryTab,
+  useStoryChangesArrival,
 } from "./intentStoryTabs.tsx";
 import { IntentTabs, intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";
@@ -35,6 +34,7 @@ import type { SelectedStory } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { intentHomeMarks } from "./storyCardFocus.ts";
 import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
+import { storyReviewFileReadiness } from "./useFirstStoryChangedFile.ts";
 import "./intent-page.css";
 import "./intent-open-link.css";
 
@@ -61,14 +61,13 @@ export function IntentPage({
   readonly onBackToStory?: (() => void) | undefined;
 }) {
   const { notice, locations, shownRevision } = shown;
-  // Without configured locations, a compared story's Changes still lists its
-  // changed files, all outside, under the explanation.
-  const browserLocations =
-    locations ?? (shown.unconfigured && story?.compared ? [] : undefined);
-  // The explanation stands in the browser's place, or leads it once it shows.
-  const explanation =
-    browserLocations === undefined ? shown.explanation : undefined;
-  const lead = browserLocations === undefined ? undefined : shown.explanation;
+  const {
+    comparisonSourceUnavailable,
+    locations: browserLocations,
+    revision: browserRevision,
+    explanation,
+    lead,
+  } = intentBrowserSource(shown, story?.summary.comparison);
   const { tab, chooseTab } = useStoryTab(story?.selection);
   const wholeStory = wholeStoryOf(story?.summary);
   const [filesShown, setFilesShown] = useKeptReading("filesShown", () => true);
@@ -76,6 +75,18 @@ export function IntentPage({
     story === undefined
       ? project.modeIdPrefix
       : `${project.modeIdPrefix}-story`;
+  const fileReadiness = storyReviewFileReadiness(
+    story?.summary.comparison,
+    shown.reading === true,
+    browserLocations !== undefined && browserRevision !== undefined,
+  );
+  useStoryChangesArrival(
+    story?.selection?.project,
+    tabsIdPrefix,
+    tab,
+    chooseTab,
+    fileReadiness !== "unavailable",
+  );
   const files = { id: `${tabsIdPrefix}-locations`, shown: filesShown };
   const { clearSelection, setSelection } = useIntentWorkspaceSelection();
   const [entryReturns, setEntryReturns] = useState(0);
@@ -176,7 +187,7 @@ export function IntentPage({
             <IntentCiStatus />
           </div>
         )}
-        {explanation !== undefined && (
+        {(explanation !== undefined || comparisonSourceUnavailable) && (
           <div {...panel(story === undefined ? view : "changes")}>
             {explanation}
             {story === undefined && project.mode === "ci" ? (
@@ -191,15 +202,16 @@ export function IntentPage({
           </div>
         )}
       </div>
-      {browserLocations !== undefined && shownRevision !== undefined && (
+      {browserLocations !== undefined && browserRevision !== undefined && (
         <IntentBrowser
           source={source}
-          revision={shownRevision}
+          revision={browserRevision}
           locations={browserLocations}
           lead={lead}
           project={story === undefined ? project : undefined}
           storySummary={story?.summary}
           story={story?.compared}
+          reviewFileReady={fileReadiness === "ready"}
           files={files}
           panel={{
             id: intentTabPanelId(tabsIdPrefix, browserView),

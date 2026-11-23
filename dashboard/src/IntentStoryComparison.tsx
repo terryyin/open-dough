@@ -7,7 +7,13 @@
 import { shortRevision } from "./publishedWork.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { ComparedRange, type StoryCompare } from "./IntentStoryCompare.tsx";
-import { baselineRevision, type StoryReview } from "./storyReviewContract.ts";
+import type { StoryReview } from "./storyReviewContract.ts";
+import { EmptyWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
+import {
+  ComparedContext,
+  EmptyHistoricalContext,
+  RefreshedComparison,
+} from "./IntentComparedContext.tsx";
 import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
 
 // What Intent knows of the selected story's comparison.
@@ -18,8 +24,19 @@ export type LensComparison =
       readonly defaultReview?: StoryReview | undefined;
       readonly compare?: StoryCompare | undefined;
     }
-  | { readonly state: "unavailable"; readonly explanation?: string }
-  | { readonly state: "failed"; readonly problem: string }
+  | {
+      readonly state: "unavailable";
+      readonly explanation?: string;
+      readonly ambiguousWorktrees?: true;
+      readonly unavailableLanding?: true;
+      readonly workspace?: string;
+      readonly compare?: StoryCompare | undefined;
+    }
+  | {
+      readonly state: "failed";
+      readonly problem: string;
+      readonly compare?: StoryCompare | undefined;
+    }
   | {
       readonly state: "compared";
       readonly shown: ShownStoryComparison;
@@ -31,6 +48,7 @@ export type LensComparison =
       readonly compare?: StoryCompare | undefined;
       // The last comparison stays while a newer read is in flight.
       readonly reading?: boolean;
+      readonly refreshed?: boolean;
     }
   // A chosen comparison that cannot be read, with the choice still offered.
   | {
@@ -49,12 +67,7 @@ export const defaultReviewOf = (comparison: LensComparison) =>
     : undefined;
 
 // The choice of what is compared, while one is offered.
-export const compareOf = (comparison: LensComparison) =>
-  comparison.state === "compared" ||
-  comparison.state === "unreadable" ||
-  comparison.state === "reading"
-    ? comparison.compare
-    : undefined;
+export const compareOf = (comparison: LensComparison) => comparison.compare;
 
 // Whether a comparison other than the story's default is chosen, while the
 // CI views keep describing the whole story through its default.
@@ -88,43 +101,17 @@ export function WholeStoryNote({
   );
 }
 
-// The two sides the comparison runs between, as Review changes names them.
-function ComparedRevisions({
-  shown,
-  review,
-  uncommittedLeftOut,
-}: {
-  readonly shown: ShownStoryComparison;
-  readonly review: StoryReview | undefined;
-  readonly uncommittedLeftOut: boolean;
-}) {
-  const from =
-    review?.kind === "snapshot"
-      ? baselineRevision(review)
-      : shown.comparison.from;
-  const rev = (revision: string) => (
-    <code title={revision}>{shortRevision(revision)}</code>
-  );
-  return (
-    <p className="intent-story-revisions">
-      Compared {rev(from)} with{" "}
-      {review?.kind === "snapshot" ? (
-        <>
-          worktree <code>{review.workspace}</code> at {rev(review.head)}
-          {!uncommittedLeftOut && <>, uncommitted changes included</>}
-        </>
-      ) : review?.kind === "published" ? (
-        <>completion {rev(review.completion)}</>
-      ) : (
-        <>the landed run&apos;s tree {rev(shown.tree)}</>
-      )}
-      .
-    </p>
-  );
-}
-
 const unavailableWords =
   "No comparison is available for this story: no workspace on this machine holds it.";
+
+export const hasUnavailableComparisonSource = (
+  comparison: LensComparison | undefined,
+) =>
+  (comparison?.state === "unavailable" &&
+    (comparison.ambiguousWorktrees === true ||
+      comparison.unavailableLanding === true)) ||
+  ((comparison?.state === "unreadable" || comparison?.state === "failed") &&
+    comparison.compare?.shown === "landed");
 
 // What the compact summary says of a comparison it cannot show yet or at all.
 export function CompactComparisonState({
@@ -141,6 +128,8 @@ export function CompactComparisonState({
     return (
       <p className="intent-story-state quiet" role="status">
         Reading the story&apos;s changes…
+        {comparison.state === "compared" &&
+          " The previous comparison stays visible."}
       </p>
     );
   if (comparison.state === "unavailable")
@@ -172,7 +161,13 @@ export function CompactComparisonState({
         )}
       </p>
     );
-  return null;
+  return comparison.refreshed ? (
+    <RefreshedComparison
+      review={comparison.review}
+      count={comparison.shown.comparison.files.length}
+      commitsReview={comparison.compare?.shown === "commits"}
+    />
+  ) : null;
 }
 
 // The full explanation, or the compared revisions, behind the disclosure.
@@ -187,35 +182,65 @@ export function ComparisonDetail({
   if (comparison.state === "unavailable")
     return (
       <p className="intent-story-problem">
-        {comparison.explanation ?? unavailableWords}{" "}
-        {completed
-          ? "The story's historical test source is unavailable."
-          : "Intent shows the published tree without the story's changes."}
+        {comparison.explanation ?? unavailableWords}
+        {comparison.workspace !== undefined && (
+          <>
+            {" "}
+            Worktree <code>{comparison.workspace}</code>.
+          </>
+        )}
+        {!hasUnavailableComparisonSource(comparison) &&
+          (completed
+            ? " The story's historical test source is unavailable."
+            : " Intent shows the published tree without the story's changes.")}
       </p>
     );
   if (comparison.state === "failed")
     return (
       <p className="intent-story-problem">
         {comparison.problem}{" "}
-        {completed
-          ? "The story's historical test source is unavailable."
-          : "Intent shows the published tree without them."}
+        {!hasUnavailableComparisonSource(comparison) &&
+          (completed
+            ? "The story's historical test source is unavailable."
+            : "Intent shows the published tree without them.")}
       </p>
     );
   if (comparison.state === "unreadable")
     return (
-      <p className="intent-story-problem">
-        {comparison.unreadable.explanation} Intent shows the published tree
-        without the chosen changes.
-      </p>
+      <>
+        {comparison.compare.shown === "commits" && (
+          <ComparedRange compare={comparison.compare} />
+        )}
+        <p className="intent-story-problem">
+          {comparison.unreadable.explanation}
+          {!hasUnavailableComparisonSource(comparison) &&
+            " Intent shows the published tree without the chosen changes."}
+        </p>
+      </>
     );
-  return comparison.compare?.shown === "commits" ? (
-    <ComparedRange compare={comparison.compare} />
-  ) : (
-    <ComparedRevisions
-      shown={comparison.shown}
-      review={comparison.review}
-      uncommittedLeftOut={comparison.compare?.includeUncommitted === false}
-    />
+  const { compare, review, shown } = comparison;
+  const commitsReview = compare?.shown === "commits";
+  return (
+    <>
+      {commitsReview ? (
+        <ComparedRange compare={compare} />
+      ) : (
+        <ComparedContext
+          shown={shown}
+          review={review}
+          uncommittedLeftOut={compare?.includeUncommitted === false}
+        />
+      )}
+      {shown.comparison.files.length === 0 &&
+        (review?.kind === "snapshot" ? (
+          <EmptyWorkspaceComparison
+            snapshot={review}
+            commitsReview={commitsReview}
+            committedOnly={compare?.includeUncommitted === false}
+          />
+        ) : (
+          <EmptyHistoricalContext review={review} />
+        ))}
+    </>
   );
 }

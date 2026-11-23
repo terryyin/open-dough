@@ -6,17 +6,16 @@
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
-import type { ReviewedFile } from "./storyReviewContract.ts";
 
-export function FileMoves({
+export function FileMoves<File extends { readonly path: string }>({
   order,
   selectedPath,
   onMove,
 }: {
   // The files in the browser's order, and the one selected among them.
-  readonly order: readonly ReviewedFile[];
+  readonly order: readonly File[];
   readonly selectedPath: string;
-  readonly onMove: (to: ReviewedFile) => void;
+  readonly onMove: (to: File) => void;
 }) {
   const at = order.findIndex((file) => file.path === selectedPath);
   const previous = at > 0 ? order[at - 1] : undefined;

@@ -9,7 +9,6 @@
 // and by its identity until that record says more; what is known of that
 // record also qualifies its Intent coverage (`./IntentStoryCoverage.tsx`).
 
-import { useState } from "react";
 import { useDoneDetails } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
@@ -127,7 +126,6 @@ export function useIntentStoryLens({
             story.completed,
           )
         : undefined;
-  const [round, setRound] = useState(0);
   const {
     review,
     defaultReview,
@@ -136,14 +134,12 @@ export function useIntentStoryLens({
     shown,
     compare,
     unreadable,
+    refreshed,
+    onRefresh,
   } = useStoryComparison({
     source: source.id,
     identity: story?.identity ?? "",
     completed: story?.completed ?? false,
-    round,
-    onRefresh: () => {
-      setRound((n) => n + 1);
-    },
     enabled: offered === true,
   });
   const comparison: LensComparison =
@@ -158,18 +154,32 @@ export function useIntentStoryLens({
               review,
               defaultReview,
               compare,
-              ...(reading ? { reading: true } : {}),
+              ...(reading ? { reading: true } : { refreshed }),
             }
           : reading
             ? { state: "reading", defaultReview, compare }
             : unreadable !== undefined && compare !== undefined
               ? { state: "unreadable", unreadable, defaultReview, compare }
               : problem !== undefined
-                ? { state: "failed", problem }
+                ? { state: "failed", problem, compare }
                 : review !== undefined &&
                     (review.kind === "unavailable" ||
                       review.kind === "landing-unavailable")
-                  ? { state: "unavailable", explanation: review.explanation }
+                  ? {
+                      state: "unavailable",
+                      explanation: review.explanation,
+                      compare,
+                      ...(review.kind !== "unavailable"
+                        ? { unavailableLanding: true }
+                        : {
+                            ...(review.ambiguousWorktrees === true
+                              ? { ambiguousWorktrees: true }
+                              : {}),
+                            ...(review.workspace === undefined
+                              ? {}
+                              : { workspace: review.workspace }),
+                          }),
+                    }
                   : { state: "reading", defaultReview, compare };
   return {
     story,
@@ -182,8 +192,6 @@ export function useIntentStoryLens({
             wholeStory: wholeStoryOf({ story, comparison }),
           }
         : undefined,
-    retry: () => {
-      setRound((n) => n + 1);
-    },
+    retry: onRefresh,
   };
 }

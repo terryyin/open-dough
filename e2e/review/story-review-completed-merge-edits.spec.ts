@@ -1,11 +1,7 @@
 // Review changes for a completed story whose integration merge resolved a
 // conflict, made its own edits and restored a trunk file that `merge-tree`
 // directory-rename heuristics moved (SEED-253 key example 1).
-import {
-  fileDiff,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   expect,
   test,
@@ -13,7 +9,6 @@ import {
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
-import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
 import { ownConflictExtraCompletedHistory } from "../../dashboard/test-support/support/completedOwnMergeHistory.ts";
 
 test.use({ originRepository: ownConflictExtraCompletedHistory() });
@@ -34,26 +29,20 @@ test("a completed story's integration edits open with their diffs beside its mix
     name: "Story A",
     exact: true,
   });
-  expect(await readReview(page, card)).toMatchObject({
+  const review = await openIntentReviewChanges(page, card);
+  expect(review.answer).toMatchObject({
     kind: "published",
     completion,
   });
-  const review = reviewRegion(page);
-  await expect(review).toContainText("Published completion");
-  await expect(review).not.toContainText("other.json");
+  await review.comparison.expectChosen("Published completion");
+  await review.files.expectNotShown("Added other.json");
   const shared = "Modified shared.txt, includes trunk's changes";
-  await listedFile(review, shared, { exact: true }).click();
-  await expect(fileDiff(review, shared, { exact: true })).toContainText(
-    "+resolved story and trunk",
-  );
+  await review.files.choose(shared);
+  await review.diffs.expectShows(shared, "+resolved story and trunk");
   const edit = "Added merge-resolution.txt";
-  await listedFile(review, edit, { exact: true }).click();
-  await expect(fileDiff(review, edit, { exact: true })).toContainText(
-    "+integration edit",
-  );
+  await review.files.choose(edit);
+  await review.diffs.expectShows(edit, "+integration edit");
   const renamed = "Renamed checks/before.test.mjs → checks/after.test.mjs";
-  await listedFile(review, renamed, { exact: true }).click();
-  await expect(fileDiff(review, renamed, { exact: true })).toContainText(
-    "+renamed",
-  );
+  await review.files.choose(renamed);
+  await review.diffs.expectShows(renamed, "+renamed");
 });

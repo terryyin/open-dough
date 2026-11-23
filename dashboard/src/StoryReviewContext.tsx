@@ -1,6 +1,7 @@
 // Context follows the comparison actually shown, while each source of
 // evidence keeps its own description and completion facts.
 import {
+  reviewTargetName,
   reviewsLanding,
   reviewsPublishedSession,
   reviewsSessionCommits,
@@ -61,7 +62,10 @@ export function ReviewContext({
         <time dateTime={review.completedAt}>
           {new Date(review.completedAt).toLocaleString()}
         </time>{" "}
-        · {review.remote}/{review.target}
+        · {reviewTargetName(review)}
+      </p>
+      <p>
+        Baseline <code>{review.baseline}</code>.
       </p>
       <p>
         Completion <code>{review.completion}</code>. Changes attributed from

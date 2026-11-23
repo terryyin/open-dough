@@ -120,8 +120,6 @@ export function useStoryReviewComparison({
     selectedItems,
     shown,
     committed,
-    // Whether all changes leave the snapshot's uncommitted changes out.
-    committedOnly: committedShown !== undefined,
     range,
     comparison,
     tree,

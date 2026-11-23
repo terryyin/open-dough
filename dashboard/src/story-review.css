@@ -1,4 +1,4 @@
-/* A story review (./StoryReview.tsx) in the page's side panel, whose
+/* A session review (./StoryReview.tsx) in the page's Side panel, whose
    frame, header, Refresh, and panel controls it shares with the terminal
    (./side-panel.css). Beneath the header, the toolbar
    (./story-review-toolbar.css) names the comparison; the review details it
@@ -15,16 +15,6 @@
    Paths keep their lines and scroll sideways inside the file browser, and
    code lines inside the diff, never the page. The card's action shares the launch actions' look
    (./agent-launch.css). */
-
-.story-review .side-panel-actions:has(> .story-notes-problem) {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  max-width: calc(4 * var(--control-size) + 3 * var(--space-1));
-}
-
-.story-review .side-panel-actions > .story-notes-problem {
-  flex-basis: 100%;
-}
 
 .story-review-above {
   flex: none;

@@ -1,5 +1,4 @@
 // Every retained run is a keyboard choice beside the live workspace.
-import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   test,
   expect,
@@ -17,20 +16,23 @@ test("keyboard choices show each retained captured or legacy run beside the live
   origin,
   codexProtocol,
 }) => {
+  // Three real launches must settle in order before the browser opens review.
+  test.setTimeout(60_000);
   if (codexProtocol === undefined) throw new Error("No native fixture");
   const choices = await reviewChoices(dashboard, origin, codexProtocol);
-  const { card, review } = await openCapturedReview(page, origin);
+  const review = await openCapturedReview(page, origin);
   const { answer } = review;
-  expect(answer?.kind).toBe("snapshot");
-  expect(answer?.runs?.map((run) => run.key)).toEqual([
+  expect(answer.kind).toBe("snapshot");
+  expect(answer.runs?.map((run) => run.key)).toEqual([
     choices.second.key,
     choices.first.key,
     choices.legacy.key,
   ]);
   const { files, landedRun, commits, diffs } = review;
   addLiveEdit(choices.workspace);
-  await review.status.refreshAndRead();
-  await review.status.expectFeedbackSays(
+  await review.refresh();
+  await review.expectRead();
+  await review.expectFeedback(
     "Review refreshed: 2 changed files against baseline",
   );
   await review.comparison.expectChosen("All changes");
@@ -44,7 +46,8 @@ test("keyboard choices show each retained captured or legacy run beside the live
     );
     await review.landedRun.expectChosen(run.key);
     await review.comparison.expectChosen("Landed runs");
-    await files.expectListed("1 changed file", [`Added ${run.name}.txt`]);
+    await files.expectOutsideFiles(1, [`Added ${run.name}.txt`]);
+    await files.choose(`Added ${run.name}.txt`);
     await diffs.expectLines("added", [`+${run.name}.txt`]);
     await landedRun.expectShown(
       run.receipt.base,
@@ -59,7 +62,8 @@ test("keyboard choices show each retained captured or legacy run beside the live
   await review.expectText("no captured landing comparison");
   await review.expectText("cannot be reconstructed from today's trunk");
   await landedRun.expectLaunchedAt(choices.legacy.launchedAt);
-  await files.expectNoLists();
+  await files.expectNoBrowser();
+  await diffs.expectAbsent();
   expect(
     stored(dashboard.home).find(
       (record) => record.session.sessionId === choices.legacy.session.sessionId,
@@ -67,19 +71,20 @@ test("keyboard choices show each retained captured or legacy run beside the live
   ).toBeUndefined();
   await review.comparison.choose("All changes", "keyboard");
   await review.landedRun.expectNoPicker();
-  await files.expectListed("2 changed files", ["Added live-edit.txt"]);
+  await files.expectOutsideFiles(2, ["Added live-edit.txt"]);
   await review.comparison.choose("Commits");
   await commits.expectRowCount(2);
   await commits.chooseAlone(1);
   await commits.expectChosen(1);
   await commits.expectChosen(0, false);
+  await files.choose("Added live.txt");
   await diffs.expectLines("added", ["+live.txt"]);
   await review.comparison.choose("Landed runs");
   await review.landedRun.expectChosen(choices.second.key);
   await review.comparison.choose("Commits");
   await commits.expectChosen(1);
   await commits.expectChosen(0, false);
+  await files.choose("Added live.txt");
   await diffs.expectLines("added", ["+live.txt"]);
-  await review.close();
-  await expect(reviewChanges(card)).toBeFocused();
+  await review.returnToDevelopment();
 });

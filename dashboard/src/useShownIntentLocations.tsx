@@ -21,6 +21,7 @@ import { useIntentLocations } from "./useIntentLocations.ts";
 
 export type ShownIntentLocations = {
   readonly notice: ReactNode;
+  readonly reading?: true;
   // The revision whose locations are shown, once one is.
   readonly shownRevision: string | undefined;
   readonly locations: readonly IntentLocation[] | undefined;
@@ -55,6 +56,7 @@ export function useShownIntentLocations(
       : settledLocationsOf(intent, source.label, retryLocations);
   return {
     notice,
+    ...(settled === undefined ? { reading: true } : {}),
     shownRevision,
     locations:
       settled !== undefined && "locations" in settled

@@ -1,6 +1,6 @@
 // Follow up from a Done story's file header in Review changes: on Published
 // completion or a landed run, beside the path, even when the card offers Open
-// terminal; absent on a retained workspace snapshot. Start opens the existing
+// terminal. Start opens the existing
 // dialog with the story subject and file context, and the stored first input
 // holds that context and the typed instruction.
 // Intent's Purpose entry: ../intent/intent-story-follow-up.spec.ts.
@@ -26,7 +26,7 @@ import { claimant } from "../../dashboard/test-support/support/completedStoryThr
 import { agentWorktree } from "../../dashboard/test-support/support/agentAuthoredWorktree.ts";
 import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import { listed } from "../../dashboard/test-support/recentlyDoneColumn.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   expect,
   test,
@@ -65,14 +65,14 @@ test.describe("published file Follow up", () => {
       name: "Story A",
       exact: true,
     });
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     const first = review.answer;
-    expect(first?.kind).toBe("published");
-    if (first?.kind !== "published")
+    expect(first.kind).toBe("published");
+    if (first.kind !== "published")
       throw new Error("expected published review");
     const comparison = `Published completion ${first.baseline} → ${first.tree}`;
     await review.expectText("Published completion");
-    await review.files.chooseShown(sharedFile);
+    await review.files.choose(sharedFile);
     const dialog = fileFollowUpDialog(page);
     // Key-example wording; Kept short enough for Taken's accessible name.
     const instruction = "Check pinned revision on project switch";
@@ -98,12 +98,13 @@ test.describe("published file Follow up", () => {
     await test.step("Start sends the file context and the typed instruction", async () => {
       await startSessionField(dialog).fill(instruction);
       await dialog.getByRole("button", { name: "Start", exact: true }).click();
+      await expect(dialog).toBeHidden();
+      await review.returnToDevelopment();
       await expect(
         parts(page).taken.getByRole("article", {
           name: standaloneSessionName("Ad hoc", instruction),
         }),
       ).toBeVisible({ timeout: 30_000 });
-      await expect(dialog).toBeHidden();
       const [started, ...others] = dashboard.claudeLaunches();
       expect(others).toEqual([]);
       const firstInput = started?.instruction ?? "";
@@ -114,10 +115,10 @@ test.describe("published file Follow up", () => {
   });
 });
 
-test.describe("retained workspace snapshot", () => {
+test.describe("retained Done workspace", () => {
   test.use({ originRepository: ordinaryJourneyCompletedHistory() });
 
-  test("a retained workspace snapshot offers no file Follow up; Landed runs and Open terminal still do", async ({
+  test("a Done story retains Open terminal and follows up its published or landed file", async ({
     page,
     dashboard,
     origin,
@@ -155,6 +156,7 @@ test.describe("retained workspace snapshot", () => {
       repoDir: origin.origin,
       revision: git(origin.origin, "rev-parse", "main"),
       repository: "terryyin/open-dough",
+      follows: true,
     });
     await page.goto("/");
     await showColumn(page, "Recently done");
@@ -169,13 +171,14 @@ test.describe("retained workspace snapshot", () => {
       await expect(fileFollowUp(card, storyName)).toHaveCount(0);
     });
 
-    const review = await openReviewChanges(page, card);
-    expect(review.answer?.kind).toBe("snapshot");
+    const review = await openIntentReviewChanges(page, card);
+    expect(review.answer).toMatchObject({ kind: "published", completion });
 
-    await test.step("a retained workspace snapshot offers no file Follow up", async () => {
-      await review.files.chooseShown(sharedFile);
+    await test.step("the Done story opens on Published completion with file Follow up", async () => {
+      await review.files.choose(sharedFile);
       await review.diffs.expectShows(sharedFile);
-      await review.diffs.expectFollowUp(storyName, false);
+      await review.comparison.expectChosen("Published completion");
+      await review.diffs.expectFollowUp(storyName);
     });
 
     await test.step("Landed runs offer Follow up with the landed comparison", async () => {
@@ -196,7 +199,7 @@ test.describe("retained workspace snapshot", () => {
       await review.landedRun.expectShown();
       // The landed pair lists completion artifacts; pick one known path.
       const doneRecord = "Added .planning/done/SEED-A_a.json";
-      await review.files.chooseShown(doneRecord);
+      await review.files.choose(doneRecord);
       await review.diffs.expectFollowUp(storyName);
       await review.diffs.followUp(storyName);
       await expectFileFollowUpDialog(dialog, storyName, [

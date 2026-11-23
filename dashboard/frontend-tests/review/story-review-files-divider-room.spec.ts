@@ -12,17 +12,15 @@ import {
   maximizeSidePanel,
   restoreSidePanel,
 } from "../../test-support/sidePanelFrame.ts";
-import {
-  openReview,
-  takenStoryWithReview,
-} from "../../test-support/support/frontendSidePanelWidth.ts";
+import { openSessionReviewForWidth } from "../../test-support/support/frontendSidePanelWidth.ts";
 
 test("the Side panel's room limits the file sidebar while its chosen width stays kept", async ({
   page,
   frontendServices,
 }) => {
-  await takenStoryWithReview(page, frontendServices);
-  const review = await openReview(page);
+  const opened = await openSessionReviewForWidth(page, frontendServices);
+  await opened.expectComparisonNamed("Session commits");
+  const review = opened.frame.partsToMeasure().panel;
   const files = filesDividerOf(review);
   const chosen = await files.dragToUpperBound();
   await files.showsSidebarWidth(chosen);

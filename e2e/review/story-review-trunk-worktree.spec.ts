@@ -21,7 +21,7 @@ import {
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   commitAll,
   git,
@@ -45,7 +45,7 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
   await openBacklog(page, origin);
   const card = parts(page).taken.getByRole("article", { name: "Story A" });
   await expect(reviewChanges(card)).toBeVisible();
-  const review = await openReviewChanges(page, card);
+  const review = await openIntentReviewChanges(page, card);
   const opened = review.snapshot;
   const { commits, files } = review;
 
@@ -61,7 +61,7 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
         workspace: "~/git/open-dough/.worktrees/trunk-a",
       }),
     );
-    await files.expectRows("2 changed files", ["notes.md", "slice.txt"]);
+    await files.expectOutsideRows(["notes.md", "slice.txt"]);
     await review.comparison.choose("Commits");
     await commits.expectRowCount(2);
     await commits.expectRowText(0, /^Uncommitted changes$/);
@@ -82,7 +82,7 @@ test("a Trunk Mode story started outside the dashboard offers its worktree's rev
     expect(published.baseline).not.toBe(published.head);
     expect(published.commits).toEqual([]);
     expect(published.uncommitted).toBeDefined();
-    await files.expectRows("2 changed files", ["notes.md", "slice.txt"]);
+    await files.expectOutsideRows(["notes.md", "slice.txt"]);
     await review.comparison.choose("Commits");
     await commits.expectRows(["Uncommitted changes"]);
     await review.comparison.choose("All changes");

@@ -85,7 +85,7 @@ test("a failed comparison read explains itself with a retry that then shows the 
   await showsUsablePublishedTree();
 
   await story.retry();
-  await expect.poll(story.revisions).toContain("Compared");
+  await expect.element(story.workspaceContext).toBeVisible();
   await expect.element(story.alert).not.toBeInTheDocument();
   await expect.element(story.onlyChangedFiles).not.toBeChecked();
   for (const name of [changed.product, changed.notes])

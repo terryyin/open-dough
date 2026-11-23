@@ -161,7 +161,7 @@ function IntentBody({
               : { doneEndpointReason })}
           >
             {storyPage !== undefined && (
-              <IntentWorkspaceSelectionProvider>
+              <IntentWorkspaceSelectionProvider story={selection}>
                 {storyPage.summary.story.completed ? (
                   <HistoricalStoryPage
                     key={storyPage.summary.story.identity}

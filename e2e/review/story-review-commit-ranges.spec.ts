@@ -6,7 +6,7 @@ import {
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { olderGit } from "../../dashboard/test-support/support/storyReviewOlderGit.ts";
 import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import {
@@ -25,7 +25,10 @@ test("two ends select three commits in either direction, reset to one, and survi
   const { workspace } = storyWorktree(origin);
   const before = observed(workspace);
   keepLaunchRecord(dashboard, workspace);
-  const review = await openReviewChanges(page, await openBacklog(page, origin));
+  const review = await openIntentReviewChanges(
+    page,
+    await openBacklog(page, origin),
+  );
   const { snapshot, commits, files, diffs } = review;
   const fourFiles = ["gone.txt", "image.png", "new.txt", "story.txt"];
   await review.comparison.choose("Commits");
@@ -37,8 +40,8 @@ test("two ends select three commits in either direction, reset to one, and survi
   );
   for (const at of [2, 3, 4]) await commits.expectChosen(at);
   await commits.expectChosen(0, false);
-  await files.expectRows("4 changed files", fourFiles);
-  await files.choose("4 changed files", "Renamed old.txt → new.txt");
+  await files.expectOutsideRows(fourFiles);
+  await files.choose("Renamed old.txt → new.txt");
   await diffs.expectLines("added", ["+renamed"]);
   await review.expectNoText("Trunk was integrated within the range");
 
@@ -48,12 +51,12 @@ test("two ends select three commits in either direction, reset to one, and survi
   await commits.expectChosen(3, false);
   await commits.choose("last");
   await commits.expectRange("Changes in 3 commits");
-  await files.expectRows("4 changed files", fourFiles);
+  await files.expectOutsideRows(fourFiles);
   await review.comparison.choose("All changes");
   await commits.expectNoRange("Changes in 3 commits");
   await review.comparison.choose("Commits");
   await commits.expectRange("Changes in 3 commits");
-  await files.expectRows("4 changed files", fourFiles);
+  await files.expectOutsideRows(fourFiles);
   expect(observed(workspace)).toEqual(before);
 });
 
@@ -62,7 +65,7 @@ olderGit(
   async ({ page, dashboard, origin }) => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
-    const review = await openReviewChanges(
+    const review = await openIntentReviewChanges(
       page,
       await openBacklog(page, origin),
     );
@@ -70,20 +73,21 @@ olderGit(
     await review.comparison.choose("Commits");
     await commits.chooseAlone(1);
     await commits.choose("last");
-    await commits.expectRange("Changes in 4 commits");
-    await review.status.expectFeedbackSays(
+    for (const at of [1, 2, 3, 4]) await commits.expectChosen(at);
+    await review.expectText(
       "This machine's Git cannot leave out trunk's changes integrated within the chosen commits, so this range cannot be compared across them.",
     );
     await files.expectNone();
+    await commits.expectRange("Changes in 4 commits");
     await commits.choose("last");
     await commits.choose(2);
     await commits.expectRange("Changes in 3 commits");
-    await files.expectRows("4 changed files", [
+    await files.expectOutsideRows([
       "gone.txt",
       "image.png",
       "new.txt",
       "story.txt",
     ]);
-    await review.status.expectFeedbackSays("cannot be compared", false);
+    await review.expectNoText("cannot be compared");
   },
 );

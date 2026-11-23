@@ -6,17 +6,13 @@
 // its kind told by the name's style, a modified one's distinct from plain;
 // its control is named, and titled, by its kind and full path, and selecting
 // a nested file heads its diff with them.
-// The review opens on the first file in the browser's order, inside the
-// folders that come first.
 // Folders collapse and expand in ./story-review-tree-collapse.spec.ts.
 
 import {
   diffHeading,
   diffLines,
 } from "../../dashboard/test-support/support/reviewPanes.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
-import { storyReviewWaitMs } from "../../dashboard/src/storyReviewContract.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   expect,
   test,
@@ -25,18 +21,12 @@ import {
   kindStyles,
   nameStyle,
 } from "../../dashboard/test-support/support/changeKindStyle.ts";
-import {
-  expectTreeRows,
-  nestedTreeRows,
-  treeFolder,
-  changedFilesList,
-  listedFile,
-  fileDiff,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { nestedTreeRows } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   nestedRepository,
   storyWorktree,
+  writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
@@ -48,15 +38,14 @@ test("a story's changed files show by name under their folders", async ({
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
+  writeAt(workspace, "dashboard/src/a.tsx", "added\nconst example = 1;\n");
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  await reviewChanges(card).click();
-  const review = reviewRegion(page);
-  const files = changedFilesList(review, "6 changed files");
-  await expect(files).toBeVisible({ timeout: storyReviewWaitMs });
+  const { files, diffs } = await openIntentReviewChanges(page, card);
+  await files.expectOutsideCount(6);
 
   await test.step("files sit under their expanded folders, a chain as one row, the root file at the top level", async () => {
-    await expectTreeRows(files, nestedTreeRows);
+    await files.expectOutsideRows(nestedTreeRows);
     for (const name of [
       "Deleted dashboard/server/c.ts",
       "Added dashboard/src/a.tsx",
@@ -65,7 +54,7 @@ test("a story's changed files show by name under their folders", async ({
       "Renamed old/a.ts → new/a.ts",
       "Modified README.md",
     ]) {
-      const file = listedFile(files, name, { exact: true });
+      const file = files.row(name);
       await expect(file).toBeVisible();
       await expect(file).toHaveAttribute("title", name);
     }
@@ -76,20 +65,17 @@ test("a story's changed files show by name under their folders", async ({
       "docs/adrs/drafts",
       "new",
     ]) {
-      await expect(treeFolder(review, name)).toHaveAttribute(
-        "aria-expanded",
-        "true",
-      );
+      await expect(files.folder(name)).toHaveAttribute("aria-expanded", "true");
     }
   });
 
-  await test.step("the review opens on the first file in the browser's order", async () => {
-    const first = listedFile(files, "Deleted dashboard/server/c.ts", {
-      exact: true,
-    });
-    await expect(first).toHaveAttribute("aria-pressed", "true");
-    await expect(files.locator('button[aria-pressed="true"]')).toHaveCount(1);
-    const diff = fileDiff(review, "Deleted dashboard/server/c.ts");
+  await test.step("selecting the first changed row opens its diff", async () => {
+    await files.choose("Deleted dashboard/server/c.ts");
+    await files.expectSelected("Deleted dashboard/server/c.ts");
+    await expect(
+      files.outsideList.locator('button[aria-pressed="true"]'),
+    ).toHaveCount(1);
+    const diff = diffs.toRead("Deleted dashboard/server/c.ts");
     await expect(diffHeading(diff, { level: 3 })).toHaveText(
       "Deleted dashboard/server/c.ts",
     );
@@ -97,7 +83,7 @@ test("a story's changed files show by name under their folders", async ({
   });
 
   await test.step("each file's kind shows only in the style of its name", async () => {
-    const style = await kindStyles(files);
+    const style = await kindStyles(files.outsideList);
     for (const [name, expected] of [
       ["Added dashboard/src/a.tsx", style.added],
       ["Added docs/adrs/drafts/0009-tree.md", style.added],
@@ -106,14 +92,11 @@ test("a story's changed files show by name under their folders", async ({
       ["Deleted dashboard/server/c.ts", style.deleted],
       ["Renamed old/a.ts → new/a.ts", style.renamed],
     ] as const) {
-      expect(
-        await nameStyle(listedFile(files, name, { exact: true })),
-        name,
-      ).toEqual(expected);
+      expect(await nameStyle(files.row(name)), name).toEqual(expected);
     }
     // Each row carries its kind from the shared change-kind model.
     await expect(
-      files.getByRole("listitem").filter({
+      files.outsideList.getByRole("listitem").filter({
         has: page.getByRole("button", {
           name: "Modified README.md",
           exact: true,
@@ -133,7 +116,7 @@ test("a story's changed files show by name under their folders", async ({
 
   await test.step("a keyboard-focused file says its kind and full path in words", async () => {
     // The browser's first file follows its folder in the tab order.
-    await treeFolder(review, "server").focus();
+    await files.folderName("server").focus();
     await page.keyboard.press("Tab");
     await expect(page.locator(":focus")).toHaveAccessibleName(
       "Deleted dashboard/server/c.ts",
@@ -143,15 +126,16 @@ test("a story's changed files show by name under their folders", async ({
   });
 
   await test.step("selecting a nested file heads its diff with its kind and full path", async () => {
-    await listedFile(files, "Added dashboard/src/a.tsx").press("Enter");
-    const diff = fileDiff(review, "Added dashboard/src/a.tsx");
+    await files.choose("Added dashboard/src/a.tsx", "keyboard");
+    const diff = diffs.toRead("Added dashboard/src/a.tsx");
     await expect(diffHeading(diff, { level: 3 })).toHaveText(
       "Added dashboard/src/a.tsx",
     );
-    await expect(diffLines(diff)).toHaveText(["+added"]);
-    await listedFile(files, "Renamed old/a.ts → new/a.ts").press("Enter");
+    await expect(diffLines(diff)).toHaveText(["+added", "+const example = 1;"]);
+    await diffs.expectSyntaxToken("Added dashboard/src/a.tsx", "const");
+    await files.choose("Renamed old/a.ts → new/a.ts", "keyboard");
     await expect(
-      diffHeading(fileDiff(review, "Renamed old/a.ts → new/a.ts"), {
+      diffHeading(diffs.toRead("Renamed old/a.ts → new/a.ts"), {
         level: 3,
       }),
     ).toHaveText("Renamed old/a.ts → new/a.ts");

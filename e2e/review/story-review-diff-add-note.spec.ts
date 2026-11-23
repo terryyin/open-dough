@@ -11,16 +11,10 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
-import {
-  fileDiff,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { expandContextFile } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 import { storyNotesPage } from "../../dashboard/test-support/support/storyNotesPage.ts";
 
 test.use({ originRepository: expandContextAddNoteHistory() });
@@ -38,11 +32,11 @@ async function openNotesReview(page: Page, origin: StartOrigin) {
     name: "Story A",
     exact: true,
   });
-  expect((await readReview(page, card)).kind).toBe("published");
-  const review = reviewRegion(page);
+  const review = await openIntentReviewChanges(page, card);
+  expect(review.answer.kind).toBe("published");
   const label = `Modified ${expandContextFile}`;
-  await listedFile(review, label, { exact: true }).click();
-  const diff = fileDiff(review, label, { exact: true });
+  await review.files.choose(label);
+  const diff = review.diffs.toRead(label);
   return { review, diff, card };
 }
 
@@ -56,7 +50,7 @@ test("Published diff file and line notes show and keep their immutable context",
   await notes.fromFile(diff);
   await notes.expectComposerContext([
     "Story A",
-    "Review changes",
+    "Intent → Changes",
     expandContextFile,
     comparison,
   ]);
@@ -73,7 +67,7 @@ test("Published diff file and line notes show and keep their immutable context",
   for (const { side, number, text } of lineNotes) {
     await notes.fromLine(diff, side, number);
     await notes.expectComposerContext([
-      "Review changes",
+      "Intent → Changes",
       expandContextFile,
       "Published completion",
       `Line ${number} · ${side}`,
@@ -81,7 +75,7 @@ test("Published diff file and line notes show and keep their immutable context",
     ]);
     await notes.saveDiffNote(`${side} ${number} observation`);
   }
-  await closeSidePanel(review);
+  await review.returnToDevelopment();
   await showColumn(page, "Recently done");
   await notes.open(card);
   for (const { side, number, text } of lineNotes) {

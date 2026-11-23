@@ -1,3 +1,4 @@
+import { intentFile } from "../../test-support/support/intentStoryPage.ts";
 // In both appearances, the diff and Intent show the same syntax styling.
 // Switching appearance in the review needs no additional file read.
 
@@ -17,11 +18,10 @@ import {
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { frontendRevision } from "../../test-support/support/frontendServiceState.ts";
 import { frontendReviewSnapshot } from "../../test-support/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
-  fileDiff,
-  fileRow,
-} from "../../test-support/support/reviewTreeRows.ts";
+  openFrontendStoryReview,
+  selectedFrontendStoryDiff,
+} from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
   greetDiff,
   greetText,
@@ -87,8 +87,11 @@ test("diff tokens match Intent's source reading of the same code in both appeara
       answers.answerFileText(greetText, path);
     },
   );
-  await fileRow(review, `Modified ${path}`).click();
-  const diff = storyReviewDiff(fileDiff(review, `Modified ${path}`));
+  await intentFile(review, `Modified ${path}`).click();
+  await intentFile(review, `Modified ${path}`).click();
+  const diff = storyReviewDiff(
+    await selectedFrontendStoryDiff(review, `Modified ${path}`),
+  );
   const lines = {
     unchanged: diff.newLine(28),
     added: diff.newLine(29),
@@ -112,8 +115,7 @@ test("diff tokens match Intent's source reading of the same code in both appeara
   const inDiff = await appearances(page, diffTokens);
   expect(reads()).toEqual([]);
 
-  const { intentChoice, intent } = parts(page);
-  await intentChoice.click();
+  const { intent } = parts(page);
   // The review selected its story; Project Intent lists the project's source.
   await intent.getByRole("button", { name: "Project Intent" }).click();
   await expandIntentGroup(intent, "dashboard/tests");

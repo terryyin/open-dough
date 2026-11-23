@@ -1,21 +1,24 @@
-import { assumeReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
-// Done Intent reads the immutable completion even while ordinary Review can
-// still read a retained workspace's later uncommitted edits.
+// Both the banner and the Done card read the immutable completion even
+// while the retained workspace holds later uncommitted edits.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
+import {
+  expectReviewed,
+  markAsReviewed,
+} from "../../dashboard/test-support/doneStoryReviewPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import {
   expandIntentGroup,
   purposeRegion,
 } from "../../dashboard/test-support/intentPerspectivePage.ts";
-import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
 import {
   expect,
   test,
@@ -138,10 +141,21 @@ test("a readable Done workspace cannot replace published locations, inventory, u
   expect(originalRename).toContain("renamed at completion");
   await parts(page).development.click();
   await showColumn(page, "Recently done");
-  expect((await readReview(page, card)).kind).toBe("snapshot");
-  const review = await assumeReviewChanges(page);
-  await review.files.chooseShown(modified);
-  await review.diffs.expectShows(modified, "local mutable after completion");
+  await expectReviewed(card, false);
+  await markAsReviewed(card).click();
+  await expectReviewed(card, true);
+  const review = await openIntentReviewChanges(page, card);
+  expect(review.answer).toMatchObject({ kind: "published", completion });
+  await review.comparison.expectChosen("Published completion");
+  await expandIntentGroup(intent, "dashboard/tests");
+  const openedFromCard = await intentDiff(intent, modified);
+  expect(openedFromCard).toBe(original);
+  await expect(intentFile(intent, "dashboard/tests/local.spec.ts")).toHaveCount(
+    0,
+  );
+  await review.returnToDevelopment();
+  await showColumn(page, "Recently done");
+  await expectReviewed(card, true);
 });
 
 test("unrecoverable history remains unavailable despite a readable Done workspace", async ({

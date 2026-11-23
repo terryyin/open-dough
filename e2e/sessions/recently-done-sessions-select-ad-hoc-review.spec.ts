@@ -8,7 +8,6 @@ import {
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { shortRevision } from "../../dashboard/test-support/dashboardParts.ts";
 import { showRecentlyDone } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/adHocCompletedAssociation.ts";
 import {
@@ -81,19 +80,13 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
     ).toContainText("Range-resume assessment survives cleanup.");
   });
 
-  await test.step("historical revisions differ from current trunk and Review lists the vendor fixture edit", async () => {
+  await test.step("historical comparison names its own baseline and completion", async () => {
     await chooseStoryTab(intent, "Changes");
-    const revisions = storyHeaderReading(intent).revisions;
-    await expect(revisions).toContainText(
-      `with completion ${shortRevision(linked.completion)}.`,
-    );
-    const shownRevisions = revisions.locator("code");
-    await expect(shownRevisions).toHaveCount(2);
-    await expect(shownRevisions.nth(1)).toHaveAttribute(
-      "title",
-      linked.completion,
-    );
-    const baseline = (await shownRevisions.first().getAttribute("title")) ?? "";
+    const { publishedBaseline, publishedCompletion } =
+      storyHeaderReading(intent);
+    await expect(publishedCompletion).toHaveText(linked.completion);
+    await expect(publishedBaseline).toHaveText(/^[a-f0-9]{40}$/);
+    const baseline = await publishedBaseline.innerText();
     expect(baseline).not.toBe(published);
     expect(baseline).not.toBe(linked.completion);
     expect(published).not.toBe(linked.completion);

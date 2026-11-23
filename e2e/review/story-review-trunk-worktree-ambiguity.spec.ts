@@ -6,7 +6,7 @@
 // reads `trunk-a` alone. Two worktrees holding the story's claim are not
 // chosen between: Review changes opens a review that says so and names both
 // as the context line would show them, with no context line, file browser,
-// diff, or comparison controls, and the boundary refuses to read either.
+// diff, or comparison choices, and the boundary refuses to read either.
 // ./story-review-trunk-worktree.spec.ts keeps the real terminal start.
 
 import path from "node:path";
@@ -18,13 +18,19 @@ import {
   storyReviewRangeEndpoint,
 } from "../../dashboard/src/storyReviewContract.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  openProjectIntent,
+  returnToStory,
+} from "../../dashboard/test-support/intentModePage.ts";
+import { locationGroup } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   queuedIdentity,
@@ -62,7 +68,7 @@ async function expectStoryWorktreeReviewedAlone(
 
   await openBacklog(page, origin);
   const card = parts(page).taken.getByRole("article", { name: "Story A" });
-  const review = await openReviewChanges(page, card);
+  const review = await openIntentReviewChanges(page, card);
   const opened = review.snapshot;
   expect(opened.baseline).toBe(claim);
   expect(opened.head).toBe(git(workspace, "rev-parse", "HEAD"));
@@ -70,7 +76,7 @@ async function expectStoryWorktreeReviewedAlone(
   await review.context.expectWords(
     contextWords({ branch, baseline: claim, workspace: shown("trunk-a") }),
   );
-  await review.files.expectRows("1 changed file", ["slice.txt"]);
+  await review.files.expectOutsideRows(["slice.txt"]);
 }
 
 test.describe("worktrees without this story's published claim", () => {
@@ -97,17 +103,31 @@ test.describe("two worktrees holding the story's claim", () => {
     const claim = origin.revision("take Story A");
     const explanation = `Several worktrees on this machine hold this story's claim for ${yui.agent}: ${shown("trunk-a")}, ${shown("trunk-b")}. The review cannot choose one.`;
 
+    publishIntentTrunk(origin.project);
     await openBacklog(page, origin);
     const card = parts(page).taken.getByRole("article", { name: "Story A" });
-    const review = await openReviewChanges(page, card);
-    expect(review.answer).toEqual({ kind: "unavailable", explanation });
+    const review = await openIntentReviewChanges(page, card);
+    expect(review.answer).toEqual({
+      kind: "unavailable",
+      ambiguousWorktrees: true,
+      explanation,
+    });
 
-    // Read the explanation directly; do not reveal empty details.
-    await review.status.expectFeedback(explanation);
-    await review.status.expectNoContextLine();
-    await review.status.expectBodyEmpty();
-    await review.frame.expectNoFilesOrComparisons();
-    await review.status.expectRefreshAndCloseOffered();
+    await review.expectText(explanation);
+    await review.context.expectAbsent();
+    await review.files.expectNoBrowser();
+    await review.diffs.expectAbsent();
+    await review.comparison.expectOffered("All changes", false);
+    await review.expectRead();
+
+    // Even with a published file browser available, the ambiguous comparison
+    // shows neither its tree nor a substitute list of published files.
+    const { intent } = parts(page);
+    await openProjectIntent(intent);
+    await expect(locationGroup(intent, "dashboard/tests")).toBeVisible();
+    await returnToStory(intent);
+    await review.expectText(explanation);
+    await review.files.expectNoBrowser();
 
     // The boundary refuses to read either worktree with the same explanation.
     const story = { source: "open-dough", identity: queuedIdentity };

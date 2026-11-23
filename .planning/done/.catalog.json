@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_open-review-changes-from-a-story-card.json",
+      "identity": "SEED-420#open-review-changes-from-a-story-card",
+      "completedAt": "2026-11-23T05:10:33.944Z",
+      "blob": "f211c1b9c33a56dbf989f9253fd95e3b0933fe8b"
+    },
+    {
       "fileName": "SEED-413_speed-story-changes-notes-and-progress-reading.json",
       "identity": "SEED-413#speed-story-changes-notes-and-progress-reading",
       "completedAt": "2026-11-23T04:39:43.017Z",

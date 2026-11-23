@@ -50,6 +50,7 @@ export function intentStoryCompare() {
   });
   return {
     header,
+    filesToggle: intent.getByRole("button", { name: /^(Hide|Show) files$/ }),
     headerText: () => textOf(header.element()),
     // A chosen comparison that cannot be read, with Retry after a failed read.
     alert,
@@ -111,8 +112,12 @@ export function intentStoryCompare() {
           .element()
           .querySelectorAll(".intent-ci-comparison-identity")[2],
       ),
-    // The header's leading control, which a collapsible header would offer.
-    collapsedControl: header.getByRole("button", { expanded: false }),
+    // Comparison facts can expand independently of the header.
+    collapsedControl: header.getByRole("button", {
+      expanded: false,
+      name: /^(?!Branch )/,
+    }),
+    workspaceContext: header.getByRole("button", { name: /^Branch / }),
     revisions: () =>
       textOf(header.element().querySelector(".intent-story-revisions")),
     choice: (name: string) => compare.getByRole("radio", { name }),

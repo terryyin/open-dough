@@ -69,13 +69,17 @@ export const listed = (sessionId: string) => ({
   shortId: sessionId.slice(0, 8),
 });
 
-// Every review read the page asks from now on, by the story it names.
+// Every review read the page asks from now on, by the subject it names.
 export function storyReviewReads(page: Page) {
   const reads: string[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url());
-    if (url.pathname === storyReviewEndpoint)
-      reads.push(url.searchParams.get("identity") ?? "");
+    if (url.pathname === storyReviewEndpoint) {
+      const query = url.searchParams;
+      const subject =
+        query.get("published") ?? query.get("session") ?? query.get("identity");
+      if (subject !== null) reads.push(subject);
+    }
   });
   return reads;
 }
@@ -83,7 +87,7 @@ export function storyReviewReads(page: Page) {
 // The panel's named items: whichever of them the page shows.
 export const sidePanelContents = (page: Page) =>
   page.getByRole("region", {
-    name: /^(Terminal|Final report|Story review)$/,
+    name: /^(Terminal|Final report|Story review|Session review)$/,
   });
 
 // What a session's kept record says of it: its state and whether it is done.

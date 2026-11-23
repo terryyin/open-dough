@@ -4,13 +4,13 @@ import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { emulateMedia, emulateTouch } from "./browser-session.ts";
 import {
-  doneStory,
+  adHocSession,
   mountReviewChanges,
   reviewSourceAnswering,
 } from "./story-review-panel-page.ts";
 
 const keptStatus =
-  "This machine's Git cannot take the story's 2 published commits out of trunk";
+  "Review refreshed: 1 changed file in the kept session commits.";
 const file = "Added story.txt";
 
 test("revealed details and status share one height budget above a usable code pane", async () => {
@@ -21,23 +21,21 @@ test("revealed details and status share one height budget above a usable code pa
     reviewSourceAnswering({
       review: () =>
         Promise.resolve(
-          makeMe.aStoryReview
-            .adding("story.txt")
-            .keepingPublishedCommits(2)
-            .please(),
+          makeMe.aStoryReview.sessionCommits().adding("story.txt").please(),
         ),
       fileDiff: () =>
         Promise.resolve(
           makeMe.aReviewedFileDiff.adding("story.txt", "kept line").please(),
         ),
     }),
-    doneStory,
+    adHocSession,
     { viewport: { width: 780, height: 390 } },
   );
 
-  await review.expectFeedbackSays(keptStatus);
   await review.expectDetailsCollapsed();
   await review.expectDiffShows(file, "+kept line");
+  await review.refresh();
+  await review.expectFeedbackSays(keptStatus);
 
   await review.revealDetails();
   await review.expectDetailsLack(keptStatus);

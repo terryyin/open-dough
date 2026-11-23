@@ -4,17 +4,12 @@ import {
   restoreSidePanel,
 } from "../sidePanelFrame.ts";
 // The touch review journey that keeps its context: the chosen file and both
-// panes' reading places through rotation and panel controls, on story A's
+// panes' reading places through rotation and panel controls, on the session's
 // comparison opened by touch (./storyReviewTouchJourney.ts), which also says
 // which viewport owns what no arrangement changes.
 import { listedFile, fileDiff } from "./reviewTreeRows.ts";
 
-import {
-  reviewRefresh,
-  comparisonChoice,
-  detailsToggle,
-  filesToggle,
-} from "./reviewControls.ts";
+import { reviewRefresh, detailsToggle, filesToggle } from "./reviewControls.ts";
 import type { Locator, Page } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { box, tapWhereShown } from "../pageLayout.ts";
@@ -24,17 +19,12 @@ import {
   resizeUntilArranged,
 } from "../sidePanelWidthPage.ts";
 import { scrollByTouch } from "../touchGestures.ts";
-import type { DashboardServer } from "./dashboardServer.ts";
 import { longA, longB } from "./largeReviewFiles.ts";
 import { expect } from "./preparationPage.ts";
 import { reviewFeedback } from "./reviewContextLine.ts";
-import { pageFits, scrollTopOf, codePane, diffHeading } from "./reviewPanes.ts";
+import { pageFits, scrollTopOf, codePane } from "./reviewPanes.ts";
 import { expectReviewRead } from "./reviewRead.ts";
-import {
-  chooseLargeChangesCommitByTouch,
-  leaveUncommittedOutByTouchLabel,
-  selectAddedFileByTouch,
-} from "./reviewTouchReading.ts";
+import { selectAddedFileByTouch } from "./reviewTouchReading.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import {
   openReviewByTouch,
@@ -52,32 +42,31 @@ type ChosenFile = {
 };
 
 // Rotation, Maximize and Restore, and Hide files and Show files each keep the
-// chosen file, All changes and both panes' reading places.
+// chosen file, published comparison and both panes' reading places.
 async function expectKept(
   { browser, review }: TouchReview,
   { selected, code, codeAt, browserAt }: ChosenFile,
 ) {
   await expect(selected).toHaveAttribute("aria-pressed", "true");
-  await expect(comparisonChoice(review, "All changes")).toBeChecked();
+  await expect(review).toContainText("Published changes");
   expect(await scrollTopOf(code)).toBe(codeAt);
   expect(await scrollTopOf(browser)).toBe(browserAt);
 }
 
 // Every viewport chooses the long file under the comparison the review opens
 // with, moves both panes by touch and rotates to landscape and back: the
-// file, All changes and both reading places stay, with the panel covering the
+// file, published comparison and both reading places stay, with the panel covering the
 // page up to 800 px wide and through Maximize and Restore beside it, and the
 // review is read no further. The phone, owner of what no arrangement changes,
 // goes on through the panel controls; any other viewport ends with the
 // rotation.
 export async function keepReviewContextThroughTouch(
   page: Page,
-  dashboard: DashboardServer,
   origin: StartOrigin,
   portrait: Viewport,
   landscape: Viewport,
 ) {
-  const opened = await openReviewByTouch(page, dashboard, origin);
+  const opened = await openReviewByTouch(page, origin);
   const { review, browser } = opened;
   const diff = await selectAddedFileByTouch(review, longA);
   const code = codePane(diff);
@@ -114,26 +103,16 @@ export async function keepReviewContextThroughTouch(
   }
   expect(reads).toBe(0);
   if (ownsSharedObservations(page))
-    await keepReviewContextThroughPanelControls(
-      page,
-      opened,
-      chosen,
-      portrait,
-      landscape,
-    );
+    await keepReviewContextThroughPanelControls(page, opened, chosen);
 }
 
 // What no arrangement changes, after the rotation: Hide files and Show files
 // keep what the rotation kept, Next file opens at its top, Refresh keeps the
-// chosen file, explicit Commits keeps its file and reading place through
-// rotation, uncommitted changes stay left out, and Close returns focus to
-// Review changes.
+// chosen file and Close returns focus to the session review action.
 async function keepReviewContextThroughPanelControls(
   page: Page,
   opened: TouchReview,
   chosen: ChosenFile,
-  portrait: Viewport,
-  landscape: Viewport,
 ) {
   const { action, review, browser, changedFiles } = opened;
   // The toolbar's two toggles are tap-sized; the sidebar's keeps its place.
@@ -155,40 +134,11 @@ async function keepReviewContextThroughPanelControls(
   await tapWhereShown(reviewRefresh(review, { exact: true }));
   await expectReviewRead(review);
   await expect(reviewFeedback(review)).toHaveText(
-    new RegExp(
-      `^Review refreshed: ${String(changedFiles)} changed files against baseline [0-9a-f]{7}\\.$`,
-    ),
+    `Review refreshed: ${String(changedFiles)} changed files in the published changes.`,
   );
   await expect(listedFile(browser, `Added ${longB}`)).toHaveAttribute(
     "aria-pressed",
     "true",
-  );
-  // Explicit Commits on the range that holds every changed file, chosen here
-  // where it is read; with files hidden its reading place survives rotation.
-  await chooseLargeChangesCommitByTouch(review, browser, changedFiles);
-  await expect(reviewFeedback(review)).toHaveText(
-    `Review refreshed: ${String(changedFiles)} changed files in the chosen range.`,
-  );
-  await selectAddedFileByTouch(review, longB);
-  await tapWhereShown(filesToggle(review));
-  const nextCode = codePane(next);
-  await scrollByTouch(page, nextCode, -180, "vertical", undefined, nextCode);
-  await expect.poll(() => scrollTopOf(nextCode)).toBeGreaterThan(0);
-  const nextAt = await scrollTopOf(nextCode);
-  await resizeUntilArranged(review, landscape);
-  await expect(
-    comparisonChoice(review, "Commits", { exact: true }),
-  ).toBeChecked();
-  await expect(diffHeading(next)).toHaveText(`Added ${longB}`);
-  expect(await scrollTopOf(nextCode)).toBe(nextAt);
-  expect((await box(nextCode)).height).toBeGreaterThanOrEqual(44);
-  expect(await pageFits(page)).toBe(true);
-  // Every changed file but the uncommitted one.
-  await leaveUncommittedOutByTouchLabel(
-    review,
-    browser,
-    portrait,
-    changedFiles - 1,
   );
   await closeSidePanel(review, { using: "touch" });
   await expect(review).toHaveCount(0);

@@ -9,6 +9,7 @@
 // Activating Project Intent's CI status tab returns home
 // (`./IntentPage.tsx`).
 
+import type { ReactNode } from "react";
 import { StoryNoteView } from "./StoryDiffNote.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
@@ -38,6 +39,7 @@ export function IntentSelectionReading({
   selectedSyntaxHint,
   treeFiles,
   story,
+  moves,
   read,
   onFileRetry,
   onOpen,
@@ -59,6 +61,7 @@ export function IntentSelectionReading({
   // included.
   readonly treeFiles: ReadonlyMap<string, IntentTreeFile>;
   readonly story: ComparedStory | undefined;
+  readonly moves: ReactNode;
   readonly read: FileRead | undefined;
   readonly onFileRetry: () => void;
   readonly onOpen: (next: IntentSelection) => void;
@@ -108,6 +111,7 @@ export function IntentSelectionReading({
             caseTarget={selection.caseTarget}
             treeFile={selectedFile}
             story={story}
+            moves={moves}
             onFileRetry={onFileRetry}
           />
         </StoryNoteView.Provider>

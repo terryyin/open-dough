@@ -13,13 +13,29 @@ type Name = string | RegExp;
 
 export class ReviewDiffs {
   readonly #review: Locator;
+  readonly #locateDiff: (file?: Name) => Locator;
 
-  constructor(review: Locator) {
+  constructor(
+    review: Locator,
+    locateDiff = (file?: Name) =>
+      file === undefined
+        ? review.locator(".story-review-diff")
+        : fileDiff(review, file, { exact: true }),
+  ) {
     this.#review = review;
+    this.#locateDiff = locateDiff;
   }
 
   #diff(file: Name) {
-    return fileDiff(this.#review, file, { exact: true });
+    return this.#locateDiff(file);
+  }
+
+  async expectSyntaxToken(file: string, token: string) {
+    const span = this.#diff(file)
+      .locator(".source-token")
+      .filter({ hasText: token });
+    await expect(span).toHaveText(token);
+    return this;
   }
 
   // The named file's diff, for reading its structure.
@@ -29,7 +45,7 @@ export class ReviewDiffs {
 
   // Exactly these added, or removed, lines of the diff shown, in order.
   async expectLines(kind: "added" | "removed", lines: readonly string[]) {
-    await expect(this.#review.locator(`.story-review-${kind}`)).toHaveText(
+    await expect(this.#shown().locator(`.story-review-${kind}`)).toHaveText(
       lines,
     );
     return this;
@@ -45,23 +61,19 @@ export class ReviewDiffs {
 
   // The diff shown reads nothing more: its own status says nothing.
   async expectSettled() {
-    await expect(
-      this.#review.locator(".story-review-diff [role=status]"),
-    ).toBeEmpty();
+    await expect(this.#shown().getByRole("status")).toBeEmpty();
     return this;
   }
 
   // The diff shown says it is reading, as in “Reading the file's diff…”.
   async expectReading(text: string) {
-    await expect(
-      this.#review.locator(".story-review-diff").getByRole("status"),
-    ).toHaveText(text);
+    await expect(this.#shown().getByRole("status")).toHaveText(text);
     return this;
   }
 
   // Whatever diff is shown.
   #shown() {
-    return this.#review.locator(".story-review-diff");
+    return this.#locateDiff();
   }
 
   // The chosen file's diff, by the file's name, containing each text given.
@@ -77,6 +89,11 @@ export class ReviewDiffs {
     await (shown
       ? expect(this.#shown()).toContainText(text)
       : expect(this.#shown()).not.toContainText(text));
+    return this;
+  }
+
+  async expectAbsent() {
+    await expect(this.#shown()).toHaveCount(0);
     return this;
   }
 

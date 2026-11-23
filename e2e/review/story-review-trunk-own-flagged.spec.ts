@@ -16,8 +16,8 @@ import {
 import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import {
-  openReviewChanges,
-  type ReviewChanges,
+  openIntentReviewChanges,
+  type IntentReviewChanges,
 } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   openTaken,
@@ -82,7 +82,7 @@ test.describe("rewrite after the review opens", () => {
     const beforeStory = treeBeforeStory(origin, workspace);
     keepLaunchRecord(dashboard, workspace);
     const card = await openTaken(page, origin);
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     const { snapshot, context } = review;
 
     await test.step("the context line counts one published commit", async () => {
@@ -113,7 +113,7 @@ test.describe("rewrite after the review opens", () => {
     const refreshed = await review.refreshAndAnswer();
     const later = refreshed.snapshot;
     const { files, diffs } = refreshed;
-    const expectFlaggedDiff = async (shown: ReviewChanges) => {
+    const expectFlaggedDiff = async (shown: IntentReviewChanges) => {
       await shown.diffs.expectChangedLines(flagged, {
         removed: ["-c 3"],
         added: ["+c trunk"],
@@ -125,14 +125,15 @@ test.describe("rewrite after the review opens", () => {
     await test.step("the file is flagged, counted and diffed from trunk before the story changed it", async () => {
       expect(later.published).toEqual({ trunk, commits: 2 });
       expect(flags(later.files)).toEqual(allFlaggedFrom(beforeStory));
-      await files.expectRows("4 changed files", allRows);
+      await files.expectOutsideRows(allRows);
+      await files.expectTrunkQualifier(flagged);
       await files.expectLineCounts(flagged, "+1 −1");
-      await files.chooseShown(flagged, "keyboard");
+      await files.choose(flagged, "keyboard");
       await expectFlaggedDiff(refreshed);
     });
 
     await test.step("the other files stay as before", async () => {
-      await files.chooseShown("Modified src/a.ts", "keyboard");
+      await files.choose("Modified src/a.ts", "keyboard");
       await diffs.expectChangedLines("Modified src/a.ts", {
         removed: ["-a 0"],
         added: ["+a one"],
@@ -146,13 +147,15 @@ test.describe("rewrite after the review opens", () => {
         { file: "src/c.ts", includesTrunkFrom: beforeStory },
       ]);
       await refreshed.comparison.includeUncommitted(false);
-      await files.expectRows("3 changed files", [
+      await files.expectOutsideRows([
         "src",
         "  a.ts",
         "  c.ts includes trunk's changes",
         "d.md",
       ]);
-      await files.chooseShown(flagged, "keyboard");
+      await files.expectTrunkQualifier(flagged);
+      await files.expectLineCounts(flagged, "+1 −1");
+      await files.choose(flagged, "keyboard");
       await expectFlaggedDiff(refreshed);
     });
   });
@@ -174,14 +177,15 @@ test.describe("declared rewritten-line history", () => {
     expect(beforeStory).not.toBe(git(workspace, "rev-parse", "HEAD~2^{tree}"));
     keepLaunchRecord(dashboard, workspace);
     const card = await openTaken(page, origin);
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     const { snapshot, files, diffs } = review;
 
     expect(snapshot.published).toEqual({ trunk, commits: 3 });
     expect(flags(snapshot.files)).toEqual(allFlaggedFrom(beforeStory));
-    await files.expectRows("4 changed files", allRows);
+    await files.expectOutsideRows(allRows);
+    await files.expectTrunkQualifier(flagged);
     await files.expectLineCounts(flagged, "+2 −2");
-    await files.chooseShown(flagged, "keyboard");
+    await files.choose(flagged, "keyboard");
     // The older story change beside the line trunk rewrote.
     await diffs.expectChangedLines(flagged, {
       removed: ["-c 3", "-c 9"],

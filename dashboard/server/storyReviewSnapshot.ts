@@ -83,7 +83,11 @@ async function answered(
       }
     );
   if ("explanation" in request)
-    return { kind: "unavailable", explanation: request.explanation };
+    return {
+      kind: "unavailable",
+      ambiguousWorktrees: true,
+      explanation: request.explanation,
+    };
   if ("readSession" in request) return request.readSession(signal);
   let local: StoryReview;
   if ("run" in request) {

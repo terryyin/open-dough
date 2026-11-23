@@ -15,9 +15,11 @@ import { expectReviewRead } from "./support/reviewRead.ts";
 
 export class ReviewCommits {
   readonly #review: Locator;
+  readonly #waitForRead: () => Promise<void>;
 
-  constructor(review: Locator) {
+  constructor(review: Locator, waitForRead = () => expectReviewRead(review)) {
     this.#review = review;
+    this.#waitForRead = waitForRead;
   }
 
   #rows() {
@@ -60,7 +62,7 @@ export class ReviewCommits {
     at: number | "last",
     press: (row: Locator) => Promise<void> = (row) => row.click(),
   ) {
-    await chooseCommit(this.#review, this.#row(at), press);
+    await chooseCommit(this.#review, this.#row(at), press, this.#waitForRead);
     return this;
   }
 
@@ -97,7 +99,7 @@ export class ReviewCommits {
   }
 
   async expectRead() {
-    await expectReviewRead(this.#review);
+    await this.#waitForRead();
     return this;
   }
 

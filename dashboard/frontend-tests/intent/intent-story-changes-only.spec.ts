@@ -121,7 +121,7 @@ test("a product-only or empty comparison explains why no tests changed and keeps
   await openStoryChanges({ review: () => Promise.resolve(review) });
   const story = intentStoryCompare();
   await story.chooseTab("Changes");
-  await expect.poll(story.revisions).toContain("Compared");
+  await expect.element(story.workspaceContext).toBeVisible();
   await expect.element(story.onlyChangedFiles).not.toBeChecked();
   await expect.element(story.outsideFile(changed.product)).toBeVisible();
   await expect.element(noTestChanges).not.toBeInTheDocument();

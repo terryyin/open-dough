@@ -61,6 +61,7 @@ export function IntentTreeGroups({
       <IntentOutsideGroup
         files={shownOverlay.outside}
         expansion={tree.outsideExpansion}
+        reveal={reveal}
         selection={selection}
         onSelect={onSelect}
       />

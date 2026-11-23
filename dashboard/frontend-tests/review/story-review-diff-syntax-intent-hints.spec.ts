@@ -12,12 +12,12 @@ import {
 import {
   openFrontendDoneStoryReview,
   openFrontendStoryReview,
+  selectedFrontendStoryDiff,
 } from "../../test-support/support/frontendStoryReviewOpen.ts";
-import {
-  fileDiff,
-  fileRow,
-} from "../../test-support/support/reviewTreeRows.ts";
+import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import { expandIntentGroup } from "../../test-support/intentPerspectivePage.ts";
 import { codePane } from "../../test-support/support/reviewPanes.ts";
+import { intentFile } from "../../test-support/support/intentStoryPage.ts";
 import { storyReviewDiff } from "../../test-support/support/reviewDiffSyntax.ts";
 import { recordIntentLocations } from "../../test-support/support/intentDoneProjectRefresh.ts";
 import type { Locator } from "@playwright/test";
@@ -30,8 +30,8 @@ const renamedPath = "scripts/setup-renamed.test";
 const plainOutsidePath = "notes.txt";
 
 async function shownFile(review: Locator, name: string) {
-  await fileRow(review, name).click();
-  const diff = storyReviewDiff(fileDiff(review, name));
+  await intentFile(review, name).click();
+  const diff = storyReviewDiff(await selectedFrontendStoryDiff(review, name));
   await expect(codePane(diff.locator)).toHaveAttribute("aria-busy", "false");
   const line = diff.newLine(1);
   await expect(line.line).toBeVisible();
@@ -44,21 +44,33 @@ test("a live review supplies a diff's hint from Intent settings at the snapshot 
 }) => {
   const tree = frontendReviewIds.tree;
   const intentReads = recordIntentLocations(page);
+  const files = [hintedPath, renamedPath];
+  const location = makeMe.anIntentLocation
+    .at("scripts")
+    .withSources({ include: ["**/*.test"], syntax: "shell" })
+    .selecting(...files)
+    .please();
   Object.assign(frontendServices, {
     revision: frontendReviewIds.head,
     locations: {
-      revision: tree,
+      revision: frontendReviewIds.head,
       locations: [
         makeMe.anIntentLocation
           .at("scripts")
-          .withSources({ include: ["**/*.test"], syntax: "shell" })
-          .selecting(hintedPath, renamedPath)
+          .withSources({ include: ["**/*.test"] })
+          .selecting(...files)
           .please(),
       ],
-      recovery: undefined,
     },
   });
-
+  await page.route(
+    (url) =>
+      url.pathname === authenticatedReadEndpoint &&
+      url.searchParams.get("intent") === "locations" &&
+      url.searchParams.get("revision") === tree,
+    (route) =>
+      route.fulfill({ json: { revision: tree, locations: [location] } }),
+  );
   const cases = [
     { path: hintedPath, code: shellCode },
     { path: plainOutsidePath, code: typescriptCode },
@@ -90,6 +102,7 @@ test("a live review supplies a diff's hint from Intent settings at the snapshot 
     },
   );
 
+  await expandIntentGroup(review, "scripts");
   const shellLine = await shownFile(review, `Modified ${hintedPath}`);
   await expect(shellLine.token(/^if$/)).toHaveText("if");
   await expect(shellLine.line).toHaveText(`+${shellCode}`);
@@ -139,6 +152,7 @@ test("a published Done review styles by completion Intent settings, not a later 
       );
     },
   );
+  await expandIntentGroup(review, "scripts");
   const line = await shownFile(review, `Modified ${hintedPath}`);
   await expect(line.token(/^if$/)).toHaveText("if");
 });

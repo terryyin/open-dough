@@ -11,10 +11,7 @@ import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
 import { storyReviewEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  openReviewChanges,
-  reviewChangesAfter,
-} from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   expect,
   test,
@@ -48,15 +45,16 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   const { workspace, base: trunk } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const review = await openReviewChanges(page, card);
+  const review = await openIntentReviewChanges(page, card);
   await review.expectRead();
   await review.context.expectWords(
     contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
   );
-  await review.files.expectNothingShown();
-  await review.expectComparisonNamed("All changes");
-  await review.expectNoFilesToggle();
-  await review.status.expectBodyFixedContext(
+  await review.files.expectNone();
+  await review.files.expectNoSelection();
+  await review.diffs.expectAbsent();
+  await review.comparison.expectChosen("All changes");
+  await review.expectText(
     `No changes: the worktree matches baseline ${trunk.slice(0, 7)}.`,
   );
 });
@@ -75,15 +73,13 @@ test.describe("from Story A's declared history", () => {
     const fetchedTrunk = () => git(origin.project, "rev-parse", "origin/main");
     expect(fetchedTrunk()).toBe(merged);
     const card = await openBacklog(page, origin);
-    const review = await openReviewChanges(page, card);
-    await review.status.expectFeedback(gapExplanation);
+    const review = await openIntentReviewChanges(page, card);
+    await review.expectText(gapExplanation);
     await review.comparison.expectOnly("Landed runs");
-    // The explanation is the status above the work area; the body beneath it
-    // shows nothing, and there is no context line.
-    await review.status.expectBodyEmptyBelowFeedback();
-    await review.status.expectNoContextLine();
-    await review.files.expectNothingShown();
-    await review.status.expectRefreshAndCloseOffered();
+    await review.context.expectAbsent();
+    await review.files.expectNoBrowser();
+    await review.diffs.expectAbsent();
+    await review.expectRead();
     expect(fetchedTrunk()).toBe(merged);
   });
 
@@ -105,12 +101,11 @@ test.describe("from Story A's declared history", () => {
       .please();
     keepLaunchRecords(dashboard, [record]);
     const card = await openBacklog(page, origin);
-    const open = reviewChanges(card);
-    const review = await reviewChangesAfter(page, open);
+    const review = await openIntentReviewChanges(page, card);
     const live = review.answer;
-    expect(live?.kind).toBe("snapshot");
-    expect(live?.runs).toBeUndefined();
-    await review.files.expectListed(/changed file/);
+    expect(live.kind).toBe("snapshot");
+    expect(live.runs).toBeUndefined();
+    await review.files.expectOutsideCount(7);
     await review.comparison.expectOffered("Landed runs", false);
 
     // The worktree is removed with nothing captured for the launch.
@@ -131,25 +126,24 @@ test.describe("from Story A's declared history", () => {
         },
       ],
     });
-    expect(gap?.runs?.[0]?.comparison).toBeUndefined();
-    await review.status.expectFeedback(gapExplanation);
+    expect(gap.runs?.[0]?.comparison).toBeUndefined();
+    await review.expectText(gapExplanation);
     await review.comparison.expectChosen("Landed runs");
     await review.landedRun.expectOptions([
       /^Execution — .+ — No captured comparison$/,
     ]);
     await review.expectText("Execution launched");
     await review.expectText("target origin/main");
-    await review.status.expectBodyEmpty();
-    await review.files.expectNoLists();
+    await review.files.expectNoBrowser();
 
     // A later opening reads the same gap.
-    await review.close();
-    const reopened = await reviewChangesAfter(page, open);
+    await review.returnToDevelopment();
+    const reopened = await openIntentReviewChanges(page, card);
     expect(reopened.answer).toMatchObject({
       kind: "landing-unavailable",
       selectedRun: reference,
     });
-    await reopened.files.expectNoLists();
+    await reopened.files.expectNoBrowser();
   });
 
   test("a trunk that cannot be fetched names its remote and target and shows no list until Refresh reaches it", async ({
@@ -160,28 +154,29 @@ test.describe("from Story A's declared history", () => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     await review.expectRead();
-    await review.files.expectListed("7 changed files");
+    await review.files.expectOutsideCount(7);
 
     // The story's remote points at nothing reachable.
     const reachable = git(workspace, "config", "--get", "remote.origin.url");
     const unreachable = `${origin.machine}/unreachable.git`;
     git(workspace, "config", "remote.origin.url", unreachable);
-    await review.status.refreshByKeyboard();
-    await review.status.expectFeedbackSays(
+    await review.refresh("keyboard");
+    await review.expectText(
       "Trunk could not be fetched (target main from remote origin), so there is no baseline to compare with:",
     );
-    await review.status.expectFeedbackSays(`Worktree ${shownWorkspace}.`);
-    await review.files.expectNoLists();
-    await review.status.expectNoContextLine();
-    await review.status.expectRefreshFocused();
+    await review.expectText(`Worktree ${shownWorkspace}.`);
+    await review.files.expectNone();
+    await review.diffs.expectAbsent();
+    await review.context.expectAbsent();
+    await review.expectRefreshFocused();
 
     git(workspace, "config", "remote.origin.url", reachable);
-    await review.status.refreshByKeyboard();
+    await review.refresh("keyboard");
     // The list, named by its seven files, is back.
-    await review.files.expectListed("7 changed files");
-    await review.status.expectFeedbackSays("could not be fetched", false);
+    await review.files.expectOutsideCount(7);
+    await review.expectNoText("could not be fetched");
   });
 });
 

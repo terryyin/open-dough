@@ -27,7 +27,14 @@ case ${SOURCE_BEHAVIOR} in
   failed) exit 23 ;;
   stalled) exec /bin/sleep 30 ;;
   interrupted)
-    /bin/bash -c 'printf "%s\n" "$$" > "${CHILD_READY}"; /bin/sleep 1; /usr/bin/touch "${LATE_WRITE}"' &
+    /bin/bash -c '
+      printf "%s\n" "$$" > "${CHILD_READY}"
+      while [[ ! -e ${LATE_WRITE}.release ]]; do
+        ((SECONDS < 15)) || exit 1
+        /bin/sleep 0.05
+      done
+      /usr/bin/touch "${LATE_WRITE}"
+    ' &
     wait
     ;;
 esac
@@ -204,32 +211,34 @@ if ! native_workflow_cache_guard "${workflow}"; then
   exit 1
 fi
 
-# Interrupt the real entrypoint after its source has started a descendant.
-# Neither an interrupted source nor its descendant may keep writing afterward.
+# Interrupt the real entrypoint after its source has started a descendant
+# but before spawn returns. Expect termination of the whole source group.
 for signal in INT TERM; do
   rm -f -- "${temporary_dir}/source-call" "${temporary_dir}/late-write" "${temporary_dir}/child-ready"
+  rm -f -- "${temporary_dir}/spawn-release" "${temporary_dir}/late-write.release"
   interrupt_deadline=$("${node}" -e 'console.log(Date.now()+180000)')
   (cd -- "${temporary_dir}" && exec env PATH="${temporary_dir}/bin" \
     OPEN_DOUGH_SETUP_DEADLINE_MS="${interrupt_deadline}" \
     SOURCE_CALL="${temporary_dir}/source-call" SOURCE_BEHAVIOR=interrupted \
     LATE_WRITE="${temporary_dir}/late-write" CHILD_READY="${temporary_dir}/child-ready" \
-    "${node}" "${script}" npm) > "${temporary_dir}/interrupt-${signal}.log" 2>&1 &
+    SPAWN_RELEASE="${temporary_dir}/spawn-release" \
+    "${node}" --import "${source_dir}/Distribution/tests/helpers/native-setup-spawn-gate.mjs" "${script}" npm) > "${temporary_dir}/interrupt-${signal}.log" 2>&1 &
   setup_pid=$!
   # node→setup→stub→descendant can exceed 1s under CI load.
   wait_for 'the setup source descendant to start' 5 "[[ -s '${temporary_dir}/child-ready' ]]"
   descendant=$(< "${temporary_dir}/child-ready")
   kill -"${signal}" "${setup_pid}"
+  touch -- "${temporary_dir}/spawn-release"
   result=0
   wait "${setup_pid}" || result=$?
+  touch -- "${temporary_dir}/late-write.release"
+  wait_for "the ${signal}-interrupted setup descendant to stop" 5 "! process_running '${descendant}'"
   case ${signal} in
     INT) [[ ${result} -eq 130 ]] ;;
     TERM) [[ ${result} -eq 143 ]] ;;
     *) exit 1 ;;
   esac
   expect_in_log "${temporary_dir}/interrupt-${signal}.log" -F -- "npm source acquisition interrupted (SIG${signal})"
-  # A surviving descendant ends only by writing late; once it is gone, any
-  # late write has already happened.
-  wait_for "the ${signal}-interrupted setup descendant to stop" 5 "! process_running '${descendant}'"
   if [[ -e ${temporary_dir}/late-write ]]; then
     echo "FAIL: ${signal} interruption left a setup descendant writing." >&2
     exit 1

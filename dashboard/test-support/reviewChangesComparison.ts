@@ -35,9 +35,11 @@ export class ReviewComparison {
     await this.#reach();
     const choice = this.#choice(name);
     if (using === "keyboard") await choice.press("Space");
-    else if (using === "touch")
-      await tapWhereShown(comparisonLabel(this.#review, name));
-    else await choice.check();
+    else if (using === "touch") {
+      const label = comparisonLabel(this.#review, name);
+      await label.scrollIntoViewIfNeeded();
+      await tapWhereShown(label);
+    } else await choice.check();
     return this;
   }
 
@@ -105,12 +107,23 @@ export class ReviewComparison {
     return this;
   }
 
+  async touchTargetsToMeasure(...choices: string[]) {
+    await this.#reach();
+    return [
+      ...choices.map((choice) => comparisonLabel(this.#review, choice)),
+      uncommittedLabel(this.#review),
+    ];
+  }
+
   // Sets Include uncommitted changes, without waiting for any read.
   async includeUncommitted(include: boolean, using: Using = "mouse") {
     await this.#reach();
     const check = uncommittedCheck(this.#review);
-    if (using === "touch") await tapWhereShown(uncommittedLabel(this.#review));
-    else if (using === "keyboard") await check.press("Space");
+    if (using === "touch") {
+      const label = uncommittedLabel(this.#review);
+      await label.scrollIntoViewIfNeeded();
+      await tapWhereShown(label);
+    } else if (using === "keyboard") await check.press("Space");
     else await check.setChecked(include);
     if (using !== "mouse")
       await expect(check).toBeChecked({ checked: include });

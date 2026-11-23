@@ -21,12 +21,18 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useLayoutEffect,
   useRef,
   type ReactNode,
   type RefObject,
 } from "react";
 import { intentTabId, type IntentTabOption } from "./IntentTabs.tsx";
+import {
+  useFinishStoryReviewOpening,
+  useShowStoryReviewOpening,
+  useStoryReviewOpening,
+} from "./pageStoryReviewOpening.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 
@@ -111,17 +117,54 @@ export function useStoryTab(selection: SelectedStory | undefined) {
   return { tab: choice, chooseTab: choose };
 }
 
+// Card arrivals choose Changes and take focus after the tab has mounted.
+export function useStoryChangesArrival(
+  project: string | undefined,
+  tabsIdPrefix: string,
+  tab: IntentStoryTab,
+  chooseTab: (tab: IntentStoryTab) => void,
+  canOpenFile: boolean,
+) {
+  const finish = useFinishStoryReviewOpening();
+  const shown = useShowStoryReviewOpening();
+  const opening = useStoryReviewOpening(project);
+  useEffect(() => {
+    if (opening === undefined) return;
+    if (opening.phase === "show") {
+      chooseTab("changes");
+      document.getElementById(intentTabId(tabsIdPrefix, "changes"))?.focus();
+      shown?.(opening);
+    } else if (tab !== "changes" || !canOpenFile) {
+      finish?.(opening);
+    }
+  }, [opening, tabsIdPrefix, tab, chooseTab, canOpenFile, shown, finish]);
+}
+
 // What Intent shows for the page's `selection`, and the way to the other.
 // Project Intent shows only when chosen during this selection.
 export function useIntentScope(selection: SelectedStory | undefined) {
+  const opening = useStoryReviewOpening(selection?.project);
+  const finish = useFinishStoryReviewOpening();
+  const openingChanges = opening?.phase === "show";
   const { choice, choose } = useChoiceFor<IntentScope>(
     "scope",
     selection,
     "story",
   );
+  useEffect(() => {
+    if (openingChanges && choice !== "story") choose("story");
+  }, [openingChanges, choice, choose]);
   return {
-    scope: selection === undefined ? ("project" as const) : choice,
-    chooseScope: choose,
+    scope:
+      selection === undefined
+        ? ("project" as const)
+        : openingChanges
+          ? ("story" as const)
+          : choice,
+    chooseScope: (next: IntentScope) => {
+      if (next === "project" && opening !== undefined) finish?.(opening);
+      choose(next);
+    },
   };
 }
 

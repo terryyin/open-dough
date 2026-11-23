@@ -1,36 +1,24 @@
-// The review panel's header title and subtitle for the reviewed-work subject
-// the request names: a story's title and identity, or an ad hoc session's
-// label and session id, or a published session's UUID.
-
+// The Side panel’s review identifies the kept session or published close record.
 import { SidePanelTitle } from "./SidePanelTitle.tsx";
-import {
-  reviewedSessionName,
-  reviewedStoryIdentity,
-  type ReviewedWorkSubject,
-} from "./reviewedWorkSubject.ts";
-
-export function storyReviewPanelLabel(subject: ReviewedWorkSubject): string {
-  return reviewedSessionName(subject) === undefined
-    ? "Story review"
-    : "Session review";
-}
+import type { SessionReviewSubject } from "./pageSessionReviews.ts";
 
 export function StoryReviewHeading({
   subject,
   title,
   headingId,
 }: {
-  readonly subject: ReviewedWorkSubject;
+  readonly subject: SessionReviewSubject;
   readonly title: string;
   readonly headingId: string;
 }) {
-  const kind = storyReviewPanelLabel(subject);
-  const code = reviewedSessionName(subject) ?? reviewedStoryIdentity(subject);
   return (
     <div className="side-panel-names">
       <SidePanelTitle title={title} id={headingId} />
       <p className="quiet">
-        {kind} <code>{code}</code>
+        Session review{" "}
+        <code>
+          {"session" in subject ? subject.session : subject.published}
+        </code>
       </p>
     </div>
   );

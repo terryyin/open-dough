@@ -7,7 +7,10 @@ import {
 } from "../../test-support/support/frontendApp.ts";
 import { installFrontendStoryNotes } from "../../test-support/support/frontendStoryNotes.ts";
 import { installFrontendTranscription } from "../../test-support/support/frontendTranscriptionSubstitutes.ts";
-import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import {
+  openFrontendStoryReview,
+  selectedFrontendStoryDiff,
+} from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
   frontendFileDiff,
   frontendReviewIds,
@@ -20,7 +23,7 @@ import {
   holdMicrophonePermission,
 } from "../../test-support/support/voicePage.ts";
 import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
-import { fileDiff } from "../../test-support/support/reviewTreeRows.ts";
+import { intentFile } from "../../test-support/support/intentStoryPage.ts";
 import { parts } from "../../test-support/dashboardPage.ts";
 import { takenStory, takenIdentity } from "../../test-support/launchJourney.ts";
 
@@ -47,17 +50,18 @@ test("Taken line dictation waits for permission and transcription, then permits 
       answers.answerFile(frontendFileDiff("story.txt", ["+Kept line"]));
     },
   );
+  await intentFile(review, "Added story.txt").click();
   const notes = storyNotesPage(page);
   const voice = storyNoteVoicePage(page);
   await notes.fromLine(
-    fileDiff(review, "Added story.txt", { exact: true }),
+    await selectedFrontendStoryDiff(review, "Added story.txt"),
     "new",
     1,
   );
   await notes.expectComposerContext([
     takenStory,
     takenIdentity,
-    "Review changes",
+    "Intent → Changes",
     "story.txt",
     "Line 1 · new",
     "Kept line",
@@ -79,7 +83,7 @@ test("Taken line dictation waits for permission and transcription, then permits 
   await expect.poll(() => stoppedTracks(page)).toBe(true);
   expect(transcription.clips()).toBe(0);
   await notes.fromLine(
-    fileDiff(review, "Added story.txt", { exact: true }),
+    await selectedFrontendStoryDiff(review, "Added story.txt"),
     "new",
     1,
   );
@@ -103,7 +107,7 @@ test("Taken line dictation waits for permission and transcription, then permits 
       identity: takenIdentity,
       text: "Typed observation\n\nCheck this corrected line",
       context: {
-        view: "Review changes",
+        view: "Intent → Changes",
         path: "story.txt",
         comparison: {
           name: "All changes",

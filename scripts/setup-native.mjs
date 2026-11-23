@@ -91,16 +91,6 @@ const args =
 console.log(
   `Native setup: ${operation}, at most ${Math.ceil(remaining / 1000)}s`,
 );
-const child = spawn(command, args, {
-  stdio: "inherit",
-  detached: true,
-  env: {
-    ...process.env,
-    NPM_CONFIG_AUDIT: "false",
-    NPM_CONFIG_FUND: "false",
-    PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT: "20000",
-  },
-});
 let timedOut = false;
 let interruption;
 function stopStage() {
@@ -116,8 +106,19 @@ function interrupt(signal) {
 }
 const onInterrupt = () => interrupt("SIGINT");
 const onTerminate = () => interrupt("SIGTERM");
+// A detached source can start before spawn returns to this process.
 process.on("SIGINT", onInterrupt);
 process.on("SIGTERM", onTerminate);
+const child = spawn(command, args, {
+  stdio: "inherit",
+  detached: true,
+  env: {
+    ...process.env,
+    NPM_CONFIG_AUDIT: "false",
+    NPM_CONFIG_FUND: "false",
+    PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT: "20000",
+  },
+});
 const timer = setTimeout(() => {
   timedOut = true;
   // Stop the entire stage process group, including browser/download children.

@@ -21,6 +21,7 @@ import {
   outsideGroup,
   storyOnly,
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
+import { intentReviewFiles } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { selectTakenStoryInIntent } from "../../dashboard/test-support/support/selectTakenStoryInIntent.ts";
 import {
   kindStyles,
@@ -73,9 +74,9 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
         expect(await nameStyle(file)).toEqual(expected);
       }
       // The rename out of `dashboard/tests` sits at its old path, by name.
-      await expect(intentFile(intent, changed.outOf)).toHaveText(
-        "leaving.spec.ts",
-      );
+      await expect(
+        intentFile(intent, changed.outOf).locator("code"),
+      ).toHaveText("leaving.spec.ts");
       // The rename between locations left its old folder behind.
       await expect(intent.getByRole("button", { name: /between/ })).toHaveCount(
         0,
@@ -83,7 +84,7 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
       await expandIntentGroup(intent, "tests");
       const between = intentFile(intent, changed.between);
       await expect(between).toHaveCount(1);
-      await expect(between).toHaveText("moved.sh");
+      await expect(between.locator("code")).toHaveText("moved.sh");
       expect(await nameStyle(between)).toEqual(style.renamed);
       await expect(intentFile(intent, "tests/check.sh")).toHaveCount(
         only ? 0 : 1,
@@ -113,4 +114,25 @@ test("deletions and renames admitted by either path stay reviewable in Intent wi
     expect(inIntent.get(changed.deleted)).toContain("gone 0");
     expect(inIntent.get(changed.between)).toContain("renamed");
   });
+});
+
+test("file movement follows the displayed location order and then outside files", async ({
+  page,
+  origin,
+}) => {
+  const { intent } = await selectTakenStoryInIntent(page, origin);
+  const files = intentReviewFiles(intent);
+  await files.choose(changed.outOf);
+  await files.move("Next file", "keyboard");
+  await files.expectSelected(changed.modified);
+  await files.move("Next file", "keyboard");
+  await files.expectSelected(changed.deleted);
+  await files.move("Next file", "keyboard");
+  await files.expectSelected(changed.between);
+  await expect(files.moveControl("Next file")).toBeFocused();
+  await files.move("Next file", "keyboard");
+  await files.expectSelected("Modified dashboard/src/App.tsx");
+  await files.move("Previous file", "keyboard");
+  await files.expectSelected(changed.between);
+  await expect(files.moveControl("Previous file")).toBeFocused();
 });

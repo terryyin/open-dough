@@ -1,4 +1,4 @@
-// One story review selects a workspace, captured run or published completion.
+// One session review selects a comparison from its kept or published evidence.
 // Refresh preserves selection; the common body and frame keep navigation and focus.
 import { SidePanelHeader } from "./SidePanelHeader.tsx";
 import { useEffect, useId, useRef, useState } from "react";
@@ -8,11 +8,8 @@ import { SidePanelControls } from "./SidePanelControls.tsx";
 import { reviewDescription } from "./StoryReviewContext.tsx";
 import { ReviewBody } from "./StoryReviewBody.tsx";
 import { ReviewFeedback } from "./StoryReviewFeedback.tsx";
-import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
-import type { StoryReviewRequest } from "./pageStoryReviews.ts";
-import { useStoryReviewRequest } from "./useStoryReviewRequest.ts";
-import { CommitRangeHeading } from "./StoryReviewCommits.tsx";
-import { shownChoice } from "./StoryReviewComparison.tsx";
+import type { SessionReviewRequest } from "./pageSessionReviews.ts";
+import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
 import {
   ReviewToolbar,
   reviewListsFiles,
@@ -23,12 +20,7 @@ import {
   reviewHoldsDetails,
 } from "./StoryReviewDetailsSection.tsx";
 import { PanelDivider } from "./PanelDivider.tsx";
-import {
-  StoryReviewHeading,
-  storyReviewPanelLabel,
-} from "./StoryReviewHeading.tsx";
-import { StoryNotes } from "./StoryNotesControl.tsx";
-import { isReviewedStorySubject } from "./reviewedWorkSubject.ts";
+import { StoryReviewHeading } from "./StoryReviewHeading.tsx";
 import "./frame-controls.css";
 import "./side-panel.css";
 import "./story-review.css";
@@ -41,7 +33,7 @@ export function StoryReview({
   offerMaximize,
   onClose,
 }: {
-  readonly request: StoryReviewRequest;
+  readonly request: SessionReviewRequest;
   readonly maximized: boolean;
   readonly onMaximize: (maximized: boolean) => void;
   // False while covering: Maximize/Restore is not offered.
@@ -72,45 +64,15 @@ export function StoryReview({
     review,
     problem,
     reading,
-    runs,
-    selectedRun,
     sessionRuns,
     sessionComparisonKeys,
     runKey,
-    snapshot: workspace,
-    published: availablePublished,
-    chosen,
-    onChoose,
     onRun,
-    includeUncommitted,
-    setIncludeUncommitted,
-  } = useStoryReviewRequest(request, round);
-  const {
-    items,
-    selectedItems,
-    trunkIntegrated,
-    shown,
-    committed,
-    committedOnly,
-    range,
-    comparison,
-    tree,
-    onSelect,
-  } = useStoryReviewComparison({
-    subject,
-    snapshot: workspace,
-    chosen,
-    includeUncommitted,
-    active: selectedRun === undefined,
-  });
-  const shownComparison = shownChoice(shown, review, selectedRun);
+  } = useStoryReviewSelection({ subject, round });
   const holdsDetails = reviewHoldsDetails({
     review,
-    runs,
-    workspaceChoices: items.length > 0,
     sessionRuns,
     sessionComparisonKeys,
-    selectedRun,
   });
   useEffect(() => {
     body.current?.focus();
@@ -118,7 +80,7 @@ export function StoryReview({
   return (
     <section
       className="side-panel story-review"
-      aria-label={storyReviewPanelLabel(subject)}
+      aria-label="Session review"
       aria-describedby={descriptionId}
     >
       <PanelDivider />
@@ -129,13 +91,6 @@ export function StoryReview({
           headingId={headingId}
         />
         <div className="side-panel-actions">
-          {isReviewedStorySubject(subject) && (
-            <StoryNotes
-              sourceId={subject.source}
-              identity={subject.identity}
-              title={title}
-            />
-          )}
           {/* Unavailable while reading, yet still focusable, so the
               keyboard stays on it. */}
           <IconButton
@@ -160,10 +115,9 @@ export function StoryReview({
       <ReviewToolbar
         name={toolbarComparisonName(
           review,
-          shownComparison,
           sessionComparisonKeys === undefined ? undefined : runKey,
         )}
-        browser={reviewListsFiles(review, comparison) ? browser : undefined}
+        browser={reviewListsFiles(review) ? browser : undefined}
         onShowBrowser={setBrowserShown}
         details={holdsDetails ? details : undefined}
       />
@@ -171,54 +125,26 @@ export function StoryReview({
         <StoryReviewDetailsSection
           details={details}
           review={review}
-          runs={runs}
-          items={items}
           sessionRuns={sessionRuns}
           sessionComparisonKeys={sessionComparisonKeys}
-          selectedRun={selectedRun}
           runKey={runKey}
-          shownComparison={shownComparison}
-          workspace={workspace}
-          availablePublished={availablePublished}
-          committed={committed}
-          includeUncommitted={includeUncommitted}
-          onChoose={onChoose}
           onRun={onRun}
-          setIncludeUncommitted={setIncludeUncommitted}
         />
         <div className="story-review-top">
           <ReviewFeedback
             review={review}
             reading={reading}
             problem={problem}
-            range={range}
-            shown={selectedRun === undefined ? shown : "all"}
-            comparison={comparison}
             round={round}
           />
-          {review?.kind === "snapshot" &&
-            shown === "commits" &&
-            selectedItems.length > 0 && (
-              <CommitRangeHeading
-                selected={selectedItems}
-                trunkIntegrated={trunkIntegrated}
-              />
-            )}
         </div>
       </div>
       <div ref={body} className="story-review-body" tabIndex={-1}>
         <ReviewBody
           review={review}
-          shown={shown}
-          items={items}
-          selectedItems={selectedItems}
-          onSelect={onSelect}
-          comparison={comparison}
-          tree={tree}
           subject={subject}
           headingId={headingId}
           browser={browser}
-          committedOnly={committedOnly}
         />
       </div>
     </section>

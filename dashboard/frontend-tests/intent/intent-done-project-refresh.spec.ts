@@ -85,7 +85,7 @@ test("project refresh returns the same Done historical Purpose file and reading 
   await expect.poll(story.diffCode).toContain("historical 120");
   const originalDiff = story.diffCode();
   const endpoints = story.revisions();
-  expect(endpoints).toContain(firstCompletion.slice(0, 7));
+  expect(endpoints).toContain(`Completion ${firstCompletion}`);
   const offset = await browser.scrollHalfway();
 
   await done.showFreshWork();

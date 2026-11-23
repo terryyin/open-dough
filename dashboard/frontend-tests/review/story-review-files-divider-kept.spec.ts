@@ -14,23 +14,25 @@ import {
   rem,
 } from "./story-review-files-divider-view.ts";
 import {
-  doneStory,
+  adHocSession,
   mountReviewChanges,
   reviewSourceAnswering,
 } from "./story-review-panel-page.ts";
 
 const oneFile = reviewSourceAnswering({
   review: () =>
-    Promise.resolve(makeMe.aStoryReview.adding("first.txt").please()),
+    Promise.resolve(
+      makeMe.aStoryReview.sessionCommits().adding("first.txt").please(),
+    ),
   fileDiff: () =>
     Promise.resolve(
       makeMe.aReviewedFileDiff.adding("first.txt", "alpha").please(),
     ),
 });
 const desktop = { viewport: { width: 1280, height: 720 } };
-const otherStory: ReviewedWorkSubject = {
-  ...doneStory,
-  identity: "SEED-2#other-story",
+const otherSession: ReviewedWorkSubject = {
+  ...adHocSession,
+  session: "00000000-0000-4000-8000-000000000002",
 };
 
 // Each case starts and ends with nothing kept, and collects the page's
@@ -47,15 +49,15 @@ function freshStorageWatchingErrors() {
   return errors;
 }
 
-test("the chosen file sidebar width serves another story's review", async () => {
+test("the chosen file sidebar width serves another session's review", async () => {
   freshStorageWatchingErrors();
-  const review = await mountReviewChanges(oneFile, doneStory, desktop);
+  const review = await mountReviewChanges(oneFile, adHocSession, desktop);
   await review.pressOnFilesDivider("ArrowRight", 3);
   await review.expectSidebarWidth(19 * rem);
   expect(keptFilesWidth()).toBe(String(19 * rem));
 
   // Another story's review opens anew, reading the kept width.
-  const other = review.openAnother(otherStory);
+  const other = review.openAnother(otherSession);
   await other.expectDiffShows("Added first.txt", "+alpha");
   await other.expectSidebarWidth(19 * rem);
 });
@@ -63,7 +65,7 @@ test("the chosen file sidebar width serves another story's review", async () => 
 test("an unusable kept file sidebar width gives 16rem", async () => {
   const errors = freshStorageWatchingErrors();
   keepFilesWidth("wide");
-  const review = await mountReviewChanges(oneFile, doneStory, desktop);
+  const review = await mountReviewChanges(oneFile, adHocSession, desktop);
   await review.expectSidebarWidth(16 * rem);
   expect(errors).toEqual([]);
 });
@@ -87,7 +89,7 @@ test("where the browser refuses storage, the sidebar is 16rem and resizes withou
       Object.defineProperty(Storage.prototype, name, kept[at] ?? {});
     });
   });
-  const review = await mountReviewChanges(oneFile, doneStory, desktop);
+  const review = await mountReviewChanges(oneFile, adHocSession, desktop);
   await review.expectSidebarWidth(16 * rem);
   await review.dragFilesDivider(48);
   await review.expectSidebarWidth(16 * rem + 48);

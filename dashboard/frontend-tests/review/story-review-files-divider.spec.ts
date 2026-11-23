@@ -10,14 +10,16 @@ import {
   rem,
 } from "./story-review-files-divider-view.ts";
 import {
-  doneStory,
+  adHocSession,
   mountReviewChanges,
   reviewSourceAnswering,
 } from "./story-review-panel-page.ts";
 
 const oneFile = reviewSourceAnswering({
   review: () =>
-    Promise.resolve(makeMe.aStoryReview.adding("first.txt").please()),
+    Promise.resolve(
+      makeMe.aStoryReview.sessionCommits().adding("first.txt").please(),
+    ),
   fileDiff: () =>
     Promise.resolve(
       makeMe.aReviewedFileDiff.adding("first.txt", "alpha").please(),
@@ -27,7 +29,7 @@ const oneFile = reviewSourceAnswering({
 test("the Files divider resizes the file sidebar against the diff within both minimums", async () => {
   forgetFilesWidth();
   onTestFinished(forgetFilesWidth);
-  const review = await mountReviewChanges(oneFile, doneStory, {
+  const review = await mountReviewChanges(oneFile, adHocSession, {
     viewport: { width: 1280, height: 720 },
   });
   await review.expectDiffShows("Added first.txt", "+alpha");

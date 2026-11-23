@@ -1,4 +1,4 @@
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import {
   expect,
@@ -8,6 +8,8 @@ import {
   parts,
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import { expectReviewed } from "../../dashboard/test-support/doneStoryReviewPage.ts";
+import { storyHeaderReading } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import path from "node:path";
@@ -38,31 +40,35 @@ test("a CLI-completed story without a local launch opens fixed published changes
   });
   await expect(sessionEntriesIn(card)).toHaveCount(0);
   await expect(reviewChanges(card)).toBeVisible();
-  const review = await openReviewChanges(page, card);
+  await expectReviewed(card, false);
+  const review = await openIntentReviewChanges(page, card);
   const first = review.answer;
-  expect(first?.kind).toBe("published");
-  if (first?.kind !== "published") throw new Error("No published review");
+  expect(first.kind).toBe("published");
+  if (first.kind !== "published") throw new Error("No published review");
   expect(first.completion).toBe(completion);
   expect(first.files.map((file) => file.path)).toContain("[literal]*.txt");
   expect(first.files.map((file) => file.path)).not.toContain("other-story.txt");
   const { files, diffs } = review;
   await review.expectText("Published completion");
-  await files.chooseShown("Modified shared.txt");
+  await expect(
+    storyHeaderReading(parts(page).intent).revisions.locator("time"),
+  ).toHaveAttribute("datetime", first.completedAt);
+  await review.expectText(first.target);
+  await files.choose("Modified shared.txt");
   await diffs.expectChangedLines("Modified shared.txt", {
     removed: ["-line 0"],
     added: ["+story first"],
   });
-  await review.expectComparisonNamed("Published completion");
+  await review.comparison.expectChosen("Published completion");
   await review.hideFiles();
-  await review.expectFilesShown(false);
-  await review.showFiles();
-  await review.expectFilesShown(true);
+  await review.setFilesShown(true);
   advanceCompletedTrunk(origin);
   expect((await review.refreshAndAnswer()).answer).toEqual(first);
-  await review.close();
-  const reopened = await openReviewChanges(page, card);
+  await review.returnToDevelopment();
+  await expectReviewed(card, false);
+  const reopened = await openIntentReviewChanges(page, card);
   expect(reopened.answer).toEqual(first);
-  await reopened.files.chooseShown("Added [literal]*.txt");
+  await reopened.files.choose("Added [literal]*.txt");
   await reopened.diffs.expectShows(
     "Added [literal]*.txt",
     "+delivered on another machine",
@@ -94,5 +100,9 @@ test("a CLI-completed story without a local launch opens fixed published changes
   );
   await reopened.comparison.choose("Published completion");
   await reopened.comparison.expectChosen("Published completion");
-  await reopened.files.expectListed(/changed file/, ["Added [literal]*.txt"]);
+  await reopened.files.choose("Added [literal]*.txt");
+  await reopened.diffs.expectShows(
+    "Added [literal]*.txt",
+    "+delivered on another machine",
+  );
 });

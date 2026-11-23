@@ -4,7 +4,6 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { storyReviewIds } from "../../../Distribution/tests/support/storyReviewSnapshotTestData.mjs";
 import type { PageReads } from "../../src/pageReads.tsx";
 import { storyNotesNames as names } from "../../test-support/storyNotesNames.ts";
-import { notesKept } from "../review/story-review-page-contexts.ts";
 import { printedDiff } from "../review/styledDiffCases.ts";
 import { intentBrowser } from "./intent-browser-page.ts";
 import {
@@ -12,6 +11,7 @@ import {
   productPath,
 } from "./intent-story-changes-fixtures.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { notesKept } from "./intent-story-notes-fixture.ts";
 
 const identity = "SEED-A#a";
 const deepPath = "dashboard/tests/boundary/deep/long.spec.ts";

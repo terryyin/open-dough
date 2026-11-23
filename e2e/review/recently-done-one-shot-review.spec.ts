@@ -1,12 +1,10 @@
-import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Actual queued closure, installed publication/reporting and workspace retirement
-// feed Recently done's shared historical review, including its unread details.
+// feed the Done story's captured comparison in Intent.
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
-  fileDiff,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
-import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
+  storyReviewEndpoint,
+  storyReviewSchema,
+} from "../../dashboard/src/storyReviewContract.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   test,
@@ -14,7 +12,6 @@ import {
   stored,
 } from "../../dashboard/test-support/support/codexStart.ts";
 import { completedExecution } from "../../dashboard/test-support/support/oneShotExecutionReview.ts";
-import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
 import { git } from "../../dashboard/test-support/support/launchLanding.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
@@ -41,7 +38,20 @@ async function inspectDelivered(
   receipt: z.infer<typeof landingReceiptSchema>,
   repository: string,
 ) {
-  const answer = await readReview(page, card);
+  const review = await openIntentReviewChanges(page, card);
+  await review.expectText(
+    "The published completion record names no execution agent",
+  );
+  await review.comparison.expectOffered("Landed runs");
+  const run = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      url.pathname === storyReviewEndpoint &&
+      url.searchParams.get("run") === receipt.reference
+    );
+  });
+  await review.comparison.choose("Landed runs");
+  const answer = storyReviewSchema.parse(await (await run).json());
   expect(answer).toMatchObject({
     kind: "landed",
     baseline: receipt.base,
@@ -49,6 +59,10 @@ async function inspectDelivered(
     landing: { reference: receipt.reference },
   });
   if (answer.kind !== "landed") throw new Error("No delivered review");
+  await review.expectChangesExplanation(
+    "The story's historical Intent locations and test source are unavailable",
+  );
+  await review.files.expectOutsideCount(answer.files.length);
   expect(answer.files.map((file) => file.path)).toEqual(
     git(
       repository,
@@ -73,19 +87,18 @@ async function inspectDelivered(
       }),
     ]),
   );
-  const review = reviewRegion(page);
-  await expect(review).toContainText("Execution launched");
-  await expect(review).toContainText(receipt.base);
-  await expect(review).toContainText(receipt.revision);
+  await review.landedRun.expectShown(
+    "Execution launched",
+    receipt.base,
+    receipt.revision,
+  );
   for (const [file, content] of [
     ["earlier.txt", "+earlier local commit"],
     ["pending.txt", "+pending default-checkout work"],
     ["result.txt", "+queued execution result"],
   ]) {
-    await listedFile(review, `Added ${file}`).click();
-    await expect(fileDiff(review, `Added ${file}`)).toContainText(
-      content ?? "",
-    );
+    await review.files.choose(`Added ${file}`);
+    await review.diffs.expectShows(`Added ${file}`, content ?? "");
   }
   return review;
 }
@@ -126,11 +139,8 @@ test("a completed queued one-shot is reviewable from its published done card aft
     "Done: Native session is still working",
   );
   const review = await inspectDelivered(page, card, receipt, origin.origin);
-  await expect(
-    review.getByRole("heading", { name: "Story A", exact: true }),
-  ).toBeVisible();
-  await closeSidePanel(review);
-  await expect(reviewChanges(card)).toBeFocused();
+  await review.expectStory("Story A");
+  await review.returnToDevelopment();
   // The deleted source cannot supply the review or done title.
   expect(
     published.requests.filter(
@@ -186,29 +196,22 @@ test("an unfinished attention session outside its done card still supplies revie
   await expect(sessionEntriesIn(taken)).toContainText(
     "Live observation unavailable: Continue this conversation in Codex",
   );
-  const review = await inspectDelivered(page, unread, receipt, origin.origin);
-  await expect(
-    review.getByRole("heading", { name: queuedIdentity, exact: true }),
-  ).toBeVisible();
-  await closeSidePanel(review);
-  await expect(reviewChanges(unread)).toBeFocused();
+  const pending = await inspectDelivered(page, unread, receipt, origin.origin);
+  await pending.expectStory(queuedIdentity);
+  await pending.returnToDevelopment();
   release();
   await expect(unread).toContainText("This done story could not be read.");
-  await readReview(page, unread);
-  await closeSidePanel(review);
-  await expect(reviewChanges(unread)).toBeFocused();
+  const failed = await inspectDelivered(page, unread, receipt, origin.origin);
+  await failed.expectStory(queuedIdentity);
+  await failed.returnToDevelopment();
   restore();
   await recent.getByRole("button", { name: "Retry done stories" }).click();
   const card = recent.getByRole("article", { name: "Story A", exact: true });
   await expect(card).toBeVisible();
   await expect(sessionEntriesIn(card)).toHaveCount(0);
   await expect(columnCountOf(recent)).toHaveText("1 entry");
-  await readReview(page, card);
-  await expect(
-    review.getByRole("heading", { name: "Story A", exact: true }),
-  ).toBeVisible();
-  await closeSidePanel(review);
-  await expect(reviewChanges(card)).toBeFocused();
+  const readable = await inspectDelivered(page, card, receipt, origin.origin);
+  await readable.expectStory("Story A");
   const saved = stored(dashboard.home).find(
     (each) => each.request.reporting?.reference === receipt.reference,
   );

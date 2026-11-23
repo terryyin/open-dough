@@ -1,6 +1,6 @@
-// Hold delivery of one real story-review response: the next one, whose
+// Hold delivery of one real story-review response: the next matching one, whose
 // payload callers inspect, then release in finally and await delivery before
-// proceeding; or one story's, released and drained between a journey's
+// proceeding; or a published session's, released and drained between a journey's
 // phases.
 import type { APIResponse, Page, Route } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
@@ -10,6 +10,7 @@ export async function holdNextReviewResponse(
   page: Page,
   origin: string,
   endpoint: string,
+  matches: (query: URLSearchParams) => boolean = () => true,
 ) {
   let release!: () => void;
   let captured!: (response: APIResponse) => void;
@@ -25,7 +26,7 @@ export async function holdNextReviewResponse(
   });
   let intercepted = false;
   await page.route(`**${endpoint}?*`, async (route) => {
-    if (intercepted) {
+    if (intercepted || !matches(new URL(route.request().url()).searchParams)) {
       await route.continue();
       return;
     }
@@ -42,17 +43,31 @@ export async function holdNextReviewResponse(
   return { ready, release, delivery };
 }
 
-// Holds the answer to the page's first review read of the story `identity`;
-// every other read passes. `reached` settles once that read is held, its real
-// answer fetched. `releaseAndDrain` lets the answer through and waits until
-// its delivery ends -- answered, or dropped because the page no longer waits
-// for it -- before removing the hold, whether or not the read ever came: call
-// it in a `finally`, so that a failing test does not leave the page's
-// teardown waiting on a held read.
-export async function holdReviewOf(page: Page, identity: string) {
+// Hold the first matching review read while letting other reads through.
+// `reached` exposes the real response before it reaches the page.
+// Call `releaseAndDrain` in finally to drain delivery and remove the hold,
+// including when the page has already moved on or never requested the read.
+export function holdPublishedReviewOf(
+  page: Page,
+  origin: string,
+  session: string,
+) {
+  return holdReviewOf(page, origin, "published", session);
+}
+
+export function holdStoryReviewOf(page: Page, origin: string, story: string) {
+  return holdReviewOf(page, origin, "identity", story);
+}
+
+async function holdReviewOf(
+  page: Page,
+  origin: string,
+  parameter: string,
+  value: string,
+) {
   const reads = `**${storyReviewEndpoint}?**`;
-  let reached!: () => void;
-  const reachedHold = new Promise<void>((resolve) => {
+  let reached!: (response: APIResponse) => void;
+  const reachedHold = new Promise<APIResponse>((resolve) => {
     reached = resolve;
   });
   let release!: () => void;
@@ -65,15 +80,18 @@ export async function holdReviewOf(page: Page, identity: string) {
   });
   let intercepted = false;
   const hold = async (route: Route) => {
-    const read = new URL(route.request().url()).searchParams.get("identity");
-    if (intercepted || read !== identity) {
-      await route.continue();
+    const read = new URL(route.request().url()).searchParams.get(parameter);
+    if (intercepted || read !== value) {
+      await route.fallback();
       return;
     }
     intercepted = true;
     try {
-      const response = await route.fetch();
-      reached();
+      const response = await route.fetch({
+        headers: { ...route.request().headers(), Origin: origin },
+      });
+      expect(response.status()).toBe(200);
+      reached(response);
       await held;
       await route.fulfill({ response }).catch(() => undefined);
     } finally {

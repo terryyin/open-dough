@@ -27,6 +27,10 @@ Former local code: DD-259.
 [Account and evidence at ODF-150](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-150.md#evidence-2026-11-23-open-dough-odf-150).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
+### Occurrences
+
+- Execution: SEED-420#open-review-changes-from-a-story-card (plan 777, first implementation `e8466f474`). Timestamp: 2026-11-23T04:01:10Z (first failed frontend case in run 45108969606, attempt 1). Tool: Codex. Open Dough release: 0.3.110 (installed `.agents/skills/dough-update/VERSION` at Take `0f9df4dcc`). Evidence: Slice 6 migrated the named frame cases and Slice 7 removed the Story card Side panel route. The navigation width fixture `side-panel-width-view.ts` still pressed the old card action and expected a panel. Nine callers across five specs failed on runs 45108969606 and 45111917098. The repair after `d31aee723` reached the actual ad hoc Done entry and preserved all nine frame observations. The single migrated landed-note coverage probe caught a wrong comparison baseline, and verified restoration. Observed effect: two failing branch attempts and a separate repair. Inference: tracing Test Support imports outside the review spec group and reading their actual openers before accepting the route change would have exposed the obsolete fixture.
+
 ## DD-613 — Parity proof answers every read at once <a id="dd-613"></a>
 
 A story promising parity with an existing view proved only settled states; every substituted read answered at once, so in-flight behavior the original view had went unplanned and unproved.

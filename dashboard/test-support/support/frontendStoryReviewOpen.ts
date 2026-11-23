@@ -1,11 +1,13 @@
 // Opens Review changes on the Taken story with a kept story-branch launch and
-// controllable story-review answers for frontend-only journeys. Answers that
-// must hold from the first read, such as the first file's diff that opening
-// selects, are given through `prepare` before the review opens.
+// controllable story-review answers for frontend-only journeys. A scenario can
+// arrange the first read through `prepare` before opening.
 
 import type { Locator, Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { takenStory } from "../launchJourney.ts";
+import { parts } from "../dashboardParts.ts";
+import { intentDiffReading } from "./intentStoryPage.ts";
+import { expectStoryTab } from "../intentModePage.ts";
 import { showColumn } from "../boardPage.ts";
 import { reviewChanges } from "../storyCardControls.ts";
 import { tapWhereShown } from "../pageLayout.ts";
@@ -23,17 +25,11 @@ import {
   type FrontendStoryReview,
 } from "./frontendStoryReview.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
-import { reviewRegion, showReviewDetails } from "./reviewControls.ts";
 import {
   openFrontendBoardReview,
   storyA,
 } from "./frontendRecentlyDoneBoardReview.ts";
 import { doneCard } from "../doneStoryReviewPage.ts";
-import {
-  assumeReviewChanges,
-  type ReviewChanges,
-} from "../reviewChangesPage.ts";
-
 // The Taken story's kept story-branch launch, which offers Review changes.
 export function keepTakenReviewLaunch(services: FrontendServiceState): void {
   services.answerMachine(
@@ -54,7 +50,7 @@ export function keepTakenReviewLaunch(services: FrontendServiceState): void {
   );
 }
 
-// The Taken story's review with its details readable.
+// The Taken story’s Changes opened by its card.
 export async function openFrontendStoryReview(
   page: Page,
   frontendServices: FrontendServiceState,
@@ -63,8 +59,6 @@ export async function openFrontendStoryReview(
 ): Promise<{
   readonly card: Locator;
   readonly review: Locator;
-  // The same review as the Review changes page object, to continue from.
-  readonly reviewChanges: ReviewChanges;
   readonly answers: FrontendStoryReview;
 }> {
   keepTakenReviewLaunch(frontendServices);
@@ -72,13 +66,11 @@ export async function openFrontendStoryReview(
   prepare(answers);
   await openFrontendTakenBacklog(page);
   // A short landscape can show one Board column; Taken then stays
-  // height-clipped until paged into view (same gate as openReview in
-  // frontendSidePanelWidth).
+  // height-clipped until paged into view.
   await showColumn(page, "Taken");
   const card = takenStoryCard(page);
-  // A card still reading grows and moves Review changes (same gate as
-  // pressReviewChanges). The kept open session then lengthens the card
-  // above that action once host facts arrive.
+  // A card still reading can move Review changes as its facts arrive.
+  // The kept open session also adds controls above that action.
   await expect(card).not.toContainText(/Reading [^…]*…/);
   await expect(
     card.getByRole("button", { name: "Open terminal" }),
@@ -87,21 +79,15 @@ export async function openFrontendStoryReview(
   await action.scrollIntoViewIfNeeded();
   // Touch: tap the shown control once. Playwright's click waits for
   // multi-frame stability while late card facts can still move it on a
-  // short landscape, which exhausts the default timeout with no panel.
+  // short landscape, which can exhaust the default timeout before navigation.
   if ((await page.evaluate(() => navigator.maxTouchPoints)) > 0) {
     await tapWhereShown(action);
   } else {
     await action.click();
   }
-  const review = reviewRegion(page);
-  await expect(review).toBeVisible();
-  await showReviewDetails(review);
-  return {
-    card,
-    review,
-    reviewChanges: await assumeReviewChanges(page),
-    answers,
-  };
+  const review = parts(page).intent;
+  await expectStoryTab(review, "Changes");
+  return { card, review, answers };
 }
 
 // Opens Review changes on a Recently done story (whose line numbers offer
@@ -116,5 +102,14 @@ export async function openFrontendDoneStoryReview(
   prepare(answers);
   await openFrontendBoardReview(page, frontendServices);
   await reviewChanges(doneCard(page, storyA.title)).click();
-  return { review: await showReviewDetails(reviewRegion(page)), answers };
+  const review = parts(page).intent;
+  await expectStoryTab(review, "Changes");
+  return { review, answers };
+}
+
+// The current Intent reader for the file that the scenario just selected.
+export async function selectedFrontendStoryDiff(intent: Locator, name: string) {
+  const reading = intentDiffReading(intent);
+  await expect(reading.name).toHaveText(name);
+  return reading.container;
 }

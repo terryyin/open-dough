@@ -92,9 +92,6 @@ test("a published-session refresh names published changes", async () => {
       review: publishedSessionReview(),
       reading: false,
       problem: undefined,
-      range: { reading: false },
-      shown: "all",
-      comparison: undefined,
       round: 1,
     }),
   );

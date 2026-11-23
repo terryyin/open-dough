@@ -4,7 +4,7 @@
 // handles story notes and opens the Start session dialog for line Follow up.
 
 import { useDiffStoryNote } from "./StoryDiffNote.tsx";
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 import type { DiffLineSide } from "./DiffLineNumber.tsx";
 import { useDoneStoryFollowUp } from "./doneStoryFollowUp.ts";
 import {
@@ -47,6 +47,7 @@ export function FileDiff({
   tree,
   file,
   syntaxHint,
+  readingArea,
 }: {
   readonly reviewed: ReviewedWork;
   readonly from: string;
@@ -54,6 +55,7 @@ export function FileDiff({
   readonly file: ReviewedFile;
   // Intent `syntax` hint when the path names no grammar (`./diffLineTokens.ts`).
   readonly syntaxHint?: string;
+  readonly readingArea?: RefObject<HTMLElement | null>;
 }) {
   const note = useDiffStoryNote(reviewed, from, tree, file);
   const query = reviewFileQuery(reviewed, from, tree, file);
@@ -98,6 +100,7 @@ export function FileDiff({
           {...(text === undefined ? {} : { text })}
           {...(syntaxHint === undefined ? {} : { syntaxHint })}
           {...(textProblem === undefined ? {} : { textProblem })}
+          {...(readingArea === undefined ? {} : { readingArea })}
           contextReading={textRead.reading}
           onRetryText={() => {
             setTextRound((round) => round + 1);

@@ -1,5 +1,5 @@
-// Review changes, the Side panel content a card's or session's Review changes
-// opens, as one fluent page object for review journeys in every browser test
+// A session's Review changes opens the Side panel, with one page object for
+// review journeys in every browser test
 // group. It owns where each of the review's controls lives, so a change to
 // the review's layout edits these objects, not the journeys. The review
 // itself holds the toolbar: the comparison's name and the file sidebar
@@ -10,10 +10,9 @@
 // `frame`. An operation that needs a control the details hold reveals them
 // first, so a scenario names what it chooses, never where the choice sits.
 //
-// Journeys reach it from a root: `openReviewChanges` presses a card's Review
-// changes, `reviewChangesAfter` activates another control that opens or
-// rereads it, `openReviewChangesFrom` presses one without awaiting its read,
-// and `assumeReviewChanges` resumes a review already open.
+// Journeys reach it from the session entry: `openReviewChanges` presses its
+// Review changes, and `reviewChangesAfter` activates another control that opens or
+// rereads it, and `assumeReviewChanges` resumes a session review already open.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
@@ -47,6 +46,11 @@ import { ReviewFiles } from "./reviewChangesFiles.ts";
 import { ReviewFrame } from "./reviewChangesFrame.ts";
 
 export type { Using };
+export { intentReviewFiles } from "./intentReviewFiles.ts";
+export {
+  openIntentReviewChanges,
+  type IntentReviewChanges,
+} from "./intentReviewChangesPage.ts";
 
 async function activate(control: Locator, using: Using) {
   if (using === "keyboard") await control.press("Enter");
@@ -179,16 +183,19 @@ class ReviewChanges {
   }
 
   // Closes the review; the Side panel then holds nothing of it.
-  async close() {
-    await closeSidePanel(this.#region);
+  async close(using: "mouse" | "keyboard" = "mouse") {
+    await closeSidePanel(
+      this.#region,
+      using === "keyboard" ? { using, key: "Enter" } : { using },
+    );
     await expect(reviewRegion(this.page)).toHaveCount(0);
   }
 }
 
 export type { ReviewChanges };
 
-// Presses the card's Review changes once the card reads nothing more (a card
-// still reading grows and moves the action), and answers the review it shows,
+// Presses Review changes after the session entry settles (reading can move
+// the action), and answers the review it shows,
 // as the reader first meets it.
 export async function openReviewChanges(page: Page, card: Locator) {
   await expect(card).not.toContainText(/Reading [^…]*…/);
@@ -197,16 +204,9 @@ export async function openReviewChanges(page: Page, card: Locator) {
 }
 
 // The review a control other than a card's Review changes opens or rereads,
-// such as an Intent comparison or a session's review action.
+// such as a session entry's review action.
 export async function reviewChangesAfter(page: Page, control: Locator) {
   return new ReviewChanges(page, await reviewAfter(page, control));
-}
-
-// Activates a Review changes control without waiting for the read it starts,
-// as a held or refused read needs; the review then faces its reader.
-export async function openReviewChangesFrom(page: Page, control: Locator) {
-  await control.click();
-  return assumeReviewChanges(page);
 }
 
 // The review already open, as the reader now faces it.

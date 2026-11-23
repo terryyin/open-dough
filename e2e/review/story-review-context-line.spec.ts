@@ -13,7 +13,7 @@ import {
   contextWords,
   expectFixedWhileScrolled,
 } from "../../dashboard/test-support/support/reviewContextLine.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import {
   branch,
@@ -28,8 +28,9 @@ test("a story review's context line keeps to one line until activated and stays 
 }) => {
   const { workspace, merged } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
+  await page.setViewportSize({ width: 660, height: 760 });
   const card = await openBacklog(page, origin);
-  const review = await openReviewChanges(page, card);
+  const review = await openIntentReviewChanges(page, card);
   await review.expectRead();
   const words = contextWords({
     branch,
@@ -86,10 +87,6 @@ test("a story review's context line keeps to one line until activated and stays 
   });
 
   await test.step("the context line stays in place while the file browser scrolls beneath it", async () => {
-    await expectFixedWhileScrolled(
-      page,
-      review.frame.partsToMeasure().fileBrowser,
-      [line],
-    );
+    await expectFixedWhileScrolled(page, review.filesToMeasure(), [line]);
   });
 });

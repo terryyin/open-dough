@@ -74,19 +74,14 @@ test("Intent highlights a selected Taken story's test changes over the published
     await expect(story.storyOnly(column)).not.toBeChecked();
   });
 
-  await test.step("the header names the story and the revisions its comparison runs between, with nothing to collapse", async () => {
+  await test.step("the persistent header names the story and its workspace comparison", async () => {
     await story.headerDetail();
     await expect(header.identity).toHaveText("SEED-A#a");
-    const revisions = header.revisions;
-    await expect(revisions).toContainText(
-      `Compared ${shortRevision(baseline)} with worktree `,
+    await expect(header.workspaceContext).toHaveAccessibleName(
+      new RegExp(`Baseline ${baseline} .* Worktree .*another-agent-workspace`),
     );
-    await expect(revisions).toContainText(
-      `at ${shortRevision(head)}, uncommitted changes included.`,
-    );
-    await expect(revisions.locator(`code[title="${baseline}"]`)).toHaveCount(1);
-    await expect(revisions.locator("code").nth(1)).toContainText(
-      "another-agent-workspace",
+    await expect(header.revisions).toContainText(
+      `Head ${shortRevision(head)}, uncommitted changes included.`,
     );
   });
 

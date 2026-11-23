@@ -6,7 +6,7 @@
 
 import type { LaunchRecord } from "./launchRecord.ts";
 import { launchSubject } from "./launchWorkflow.ts";
-import { useOpenStoryReview } from "./pageStoryReviews.ts";
+import { useOpenSessionReview } from "./pageSessionReviews.ts";
 import { ReviewChangesButton } from "./ReviewChangesButton.tsx";
 import "./story-review.css";
 
@@ -17,14 +17,14 @@ export function AdHocSessionReviewAction({
   readonly record: LaunchRecord;
   readonly sourceId: string;
 }) {
-  const openStoryReview = useOpenStoryReview();
+  const openSessionReview = useOpenSessionReview();
   if (record.request.workflow !== "ad-hoc" || record.doneAt === undefined)
     return null;
   const { title } = launchSubject(record.request);
   return (
     <ReviewChangesButton
       onClick={(event) => {
-        openStoryReview({
+        openSessionReview({
           subject: {
             source: sourceId,
             host: record.session.host,

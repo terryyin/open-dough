@@ -1,24 +1,6 @@
-// Configured Intent locations browser, drawn once for each reading scope
-// (`./pageIntentReading.tsx`), each with its own selection, reading and
-// arrangement: Project Intent's CI status view, beside its Test Optimization
-// Candidates record, or the selected story's **Changes** view (each
-// `./IntentPage.tsx`'s), its panel named by the caller and hidden, still
-// mounted, while another view shows. Locations (book icon) and folders (folder
-// icon) share toggle (expansion only) and name (select; toggle once selected)
-// controls; a toggle never changes selection or the reading pane. What a
-// selection reads is `./IntentSelectionReading.tsx`'s; a Summary's child names
-// open their target as the record's links do (`./IntentCandidatesRecord.tsx`).
-// A failed file read keeps its own explanation and retry. Selection is owned by
-// the scope's Intent workspace (`./intentWorkspaceSelection.ts`). With a
-// selected story's comparison, the trees follow it (`./useIntentStoryTree.ts`)
-// under its "Selected story only" choice. A file the published revision does
-// not list is never read. The browser unmounts with its scope, whose reading
-// place keeps the selection, expanded location, reveal, Purpose/Proof choice
-// and scroll; a story selected while Intent is hidden starts its tree's
-// arrangement afresh, toggle off. The story's changed files outside every
-// location follow them (`./IntentTreeGroups.tsx`). Hide files hides the
-// column, still mounted. A lead, as the explanation that no locations are
-// configured, heads the column.
+// The configured locations and reading of one Intent scope. The comparison
+// overlays its tree. Disclosure only expands, selection opens the reading, and
+// the caller may hide a tab or column without losing its place.
 
 import type { ReactNode } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -39,8 +21,13 @@ import {
   useIntentWorkspaceSelection,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
-import { overlayFilesByPath } from "./intentStoryOverlay.ts";
+import { FileMoves } from "./StoryReviewFileMoves.tsx";
+import {
+  intentChangedFileOrder,
+  overlayFilesByPath,
+} from "./intentStoryOverlay.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { useFirstStoryChangedFile } from "./useFirstStoryChangedFile.ts";
 import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
 import type { TreeReveal } from "./useLocationOpenFolders.ts";
@@ -66,6 +53,7 @@ export function IntentBrowser({
   project,
   storySummary,
   story,
+  reviewFileReady,
   files,
   panel,
 }: {
@@ -77,6 +65,7 @@ export function IntentBrowser({
   // comparison once read.
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
+  readonly reviewFileReady: boolean;
   // The locations column's id and whether Hide files / Show files shows it.
   readonly files: FileBrowserPlace;
   readonly panel: IntentBrowserPanel;
@@ -119,11 +108,12 @@ export function IntentBrowser({
     project?.onModeChange("ci");
   }
 
-  // Opening from the candidate record or drilling down from a summary
-  // selects as the tree does (a record entry is a file without a scope),
-  // chooses Purpose, starts a fresh reading positioned on its case, and
-  // reveals the target in the tree: its location opens and the folders
-  // holding it open.
+  function revealInTree(path: string, location: string | undefined) {
+    if (location !== undefined) setExpandedPath(location);
+    setReveal({ path });
+  }
+
+  // Directed file opens reveal their row and start a fresh Purpose reading.
   function openRevealed(next: IntentSelection, entrySlug?: string) {
     select(
       next.scope === undefined ? { ...next, scope: "file" } : next,
@@ -131,16 +121,34 @@ export function IntentBrowser({
     );
     fileReading.setTab("purpose");
     setRevealedOpens((n) => n + 1);
-    const owning = owningLocation(locations, next);
-    if (owning !== undefined) setExpandedPath(owning.path);
-    setReveal({ path: next.path });
+    revealInTree(next.path, owningLocation(locations, next)?.path);
   }
+  useFirstStoryChangedFile({
+    project: source.id,
+    storyIdentity: storySummary?.story.identity,
+    locations,
+    canChooseFile: reviewFileReady && !panel.hidden,
+    overlay: storyTree.shownOverlay,
+    fileSelected: scope === "file",
+    open: openRevealed,
+  });
 
-  // The selection starts empty for each project, its reading place mounted
-  // again for it (`./IntentPerspective.tsx`).
   const treeFiles = overlayFilesByPath(locations, overlay);
   const selectedFile =
     scope === "file" ? treeFiles.get(selectedPath) : undefined;
+  const selectedChange = storyDiffOf(story, selectedFile);
+  const moves =
+    selectedChange === undefined ? undefined : (
+      <FileMoves
+        order={intentChangedFileOrder(locations, storyTree.shownOverlay)}
+        selectedPath={selectedPath}
+        onMove={({ path, location }) => {
+          select({ path, scope: "file" });
+          revealInTree(path, location);
+          fileReading.readingArea.current?.scrollTo({ top: 0 });
+        }}
+      />
+    );
   // A selected path the shown revision does not hold, as after moving to a
   // revision that deleted it, is explained in Purpose, nothing else selected.
   // A file the story's comparison adds may yet appear while it is read.
@@ -159,7 +167,7 @@ export function IntentBrowser({
     unread:
       missing ||
       selectedFile?.published === false ||
-      storyDiffOf(story, selectedFile) !== undefined ||
+      selectedChange !== undefined ||
       storySummary?.comparison.state === "reading",
   });
 
@@ -212,6 +220,7 @@ export function IntentBrowser({
             selectedSyntaxHint={selectedSyntaxHint}
             treeFiles={treeFiles}
             story={story}
+            moves={moves}
             read={fileRead.read}
             onFileRetry={fileRead.retry}
             onOpen={openRevealed}
