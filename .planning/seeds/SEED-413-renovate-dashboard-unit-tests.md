@@ -307,7 +307,7 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
 
 ### Remaining dashboard frontend renovation
 
-The former catch-all backlog entry is superseded by the eight stories below.
+The former catch-all backlog entry is superseded by the stories below.
 The split covers every legacy frontend case listed at `42a660a17` on
 21 November 2026. The normal command
 `caffeinate -s -i npm run --silent test:dashboard:frontend -- --list --reporter=line`
@@ -337,7 +337,8 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
 | 7 | [Get fast proof of live sessions and terminal work](#speed-dashboard-live-session-and-terminal-proof) | 77 | 31 |
-| 8 | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | 61 | 22 |
+| 8a | [Get fast proof of the dashboard frame, navigation and settings](#speed-dashboard-frame-and-navigation-proof) | ≈67 | 22 |
+| 8b | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | ≈11 | 3 |
 | | **Total** | **594** | **249** |
 
 The first two cover the evidence maintainers use to review a story's intent.
@@ -345,16 +346,19 @@ They reuse production owners already accepting typed evidence and exercise
 the highest-leverage distinction early: presentation can consume held
 evidence, while refresh and stale-answer protection must exercise the real
 reader. The next five each deliver faster proof for a complete workflow and
-can be used independently. The last includes the remaining frame and
-navigation integration, the harness audit, and complete frontend runner
-retirement, which accounts for its smaller case inventory. The effort
+can be used independently. Story 8a moves the remaining frame, navigation
+and settings cases. Story 8b audits the harness and retires the frontend
+runner. It starts once every other story has moved its legacy cases, which
+accounts for its small case inventory. Counts for 8a and 8b come from the
+legacy specs at `24ae92074` and include three Intent story-changes specs
+that no completed story moved. The effort
 hypotheses are large relative to the recent 23- and 29-case stories.
 Confidence is highest for owners that take typed props. Full-page history,
 live terminal behavior, and runner integration carry more uncertainty.
 Moving only the engine would leave whole-app setup and repetitive cases.
 Continuing one component at a time would extend the life of both runners.
 
-#### Acceptance shared by the eight stories
+#### Acceptance shared by the frontend stories
 
 - Use plain Vitest for all frontend unit checks. Use production logic for
   pure rules and the smallest production owner in headless Chromium for
@@ -460,49 +464,123 @@ Continuing one component at a time would extend the life of both runners.
   must observe the delivered input or update and any recovery it claims
   before the legacy setup retires.
 
+<a id="speed-dashboard-frame-and-navigation-proof"></a>
+
+### Get fast proof of the dashboard frame, navigation and settings
+
+**Identity:** SEED-413#speed-dashboard-frame-and-navigation-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Goal:** Developers get fast Vitest proof that the dashboard frame,
+project switching, recent stories, story references and settings behave
+correctly. This removes the last frontend legacy cases outside Done review,
+live sessions and the harness. The runner retirement then waits only on
+those stories.
+
+**Scope:**
+
+- Move the 22 legacy specs (about 67 cases) at `24ae92074` onto plain Vitest
+  under the [shared acceptance](#acceptance-shared-by-the-frontend-stories):
+  - `navigation/`: header, compact header and connection logo; project
+    selection and project keyboard navigation with its focus and
+    eligibility; recent stories; story reference navigation, identity and
+    recovery; story URL destination with its unavailable and repeat-cue
+    cases.
+  - `configuration/`: system appearance, system settings look and
+    navigation, and project hide selection.
+  - `stories/agent-roster-collection`.
+  - The three Intent story-changes specs that still mount the built app:
+    `intent-story-outside-proof`, `intent-story-outside-locations` and
+    `intent-story-changes-no-locations`.
+- Prove real deep links, reload and Back/Forward through a named E2E journey
+  only where a mounted owner cannot observe them. Reuse an existing journey
+  when it already proves the behavior.
+- Remove support that loses its last consumer here. The built-app runner
+  itself stays for stories 6, 7 and 8b.
+- Scope limit: the cases owned by
+  [Done review](#speed-dashboard-done-session-review-proof),
+  [live sessions](#speed-dashboard-live-session-and-terminal-proof) and
+  `test-harness/`.
+
+**Key examples:**
+
+- A story URL opened directly selects the project and opens the story. When
+  the story is unavailable, the page shows the unavailable result. The
+  mounted page frame proves both through its required page-reads entry.
+  Only a reload or Back/Forward check that needs a real page load goes to
+  E2E.
+- A keyboard shortcut moves through eligible projects and keeps focus. The
+  three legacy keyboard specs collapse into fewer cases when they share
+  setup and each failure still names its distinct rule.
+- Choosing System appearance in settings changes the dashboard look in the
+  same mounted frame. The legacy built-app spec retires once every assertion
+  it made has a new owner.
+
 <a id="retire-legacy-dashboard-frontend-runner"></a>
 
 ### Run the entire dashboard frontend unit suite on Vitest
 
 **Identity:** SEED-413#retire-legacy-dashboard-frontend-runner
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#retire-legacy-dashboard-frontend-runner","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-done-session-review-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a Done review spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s Done review boundary remains on trunk.","state":"waiting"},{"supplier":{"identity":"SEED-413#speed-dashboard-live-session-and-terminal-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a live session and terminal spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s live session and terminal boundary remains on trunk.","state":"waiting"},{"supplier":{"identity":"SEED-413#speed-dashboard-frame-and-navigation-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a frame, navigation and settings spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s frame, navigation and settings boundary remains on trunk.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/800-run-the-entire-dashboard-frontend-unit-suite-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"70ced1c4fd5f863a78561fdc7753002f72fd3a45fc8360d0ad1d93b113c6f725","plan":"db4d681532b2f73a01775427f30b9cbcb1e4d466bd487aac3c00e307ef743135"}}
 ```
 
-- **Outcome.** A maintainer can list, filter, run and review CI proof for
-  the complete dashboard frontend unit suite using Vitest. The final
-  checkout has no frontend unit path to `@playwright/test`, or frontend
-  legacy config, setup, output, fixture or built-app substitute infrastructure.
-- **Boundary.** Own the last frame/header, project switching, recent
-  stories and direct URL/reference navigation cases in `navigation/`
-  outside the earlier stories, all remaining legacy `configuration/`,
-  Stories' `agent-roster-collection`, and all `test-harness/` cases.
-  Prove real deep links, reload and Back/Forward through a named E2E journey
-  when required. Audit harness specs for genuine measurement, touch and
-  reachability assertions before retiring checks for deleted scaffolding.
-- **Cutover.** After the other seven migration outcomes, retire
-  `frontend.playwright.config.ts`, its registration and frontend-specific
-  Playwright selection and output branches, `frontendGlobalSetup.ts`,
-  `frontendApp.ts`, the comparison bundle/mount and `pageTest.ts` paths
-  with no surviving consumers,
-  `frontendServiceSubstitutes.ts`, `frontendSubstituteAnswers.ts` and
-  spent `frontend*Rule.ts`/route state. Trace their transitive imports,
+**Goal:** A maintainer can list, filter, run and review CI proof for the
+complete dashboard frontend unit suite using Vitest alone. The final
+checkout has no frontend unit path to `@playwright/test`. It also has no
+frontend legacy config, setup, output, fixture or built-app substitute
+infrastructure. The suite completes in about one minute at two workers,
+or the report states the remaining cost.
+
+**Scope:**
+
+- **Harness audit.** Audit the three `pageTest.ts` specs in `test-harness/`
+  (observation measurements, control reachability and touch reading). Keep
+  each genuine measurement, touch or reachability assertion on a Vitest
+  owner. Retire checks that only prove deleted scaffolding, and map each
+  one to its reason.
+- **Cutover.** Retire `frontend.playwright.config.ts`, its registration and
+  frontend-specific Playwright selection and output branches in the group
+  command and runner support. Retire `frontendGlobalSetup.ts`,
+  `frontendApp.ts`, `frontendAppServer.ts`, the comparison bundle and mount,
+  `pageTest.ts`, `frontendServiceSubstitutes.ts`,
+  `frontendSubstituteAnswers.ts` and the spent `frontend*` substitute,
+  rule and route-state modules. Trace their transitive imports,
   documentation, package commands, CI and generated-output settings.
-  Where E2E or backend owns a shared utility, preserve that use and remove
-  its frontend legacy path. Preserve the npm command, filter and list
-  behavior, worker admission and deadline, frontend shards, timings, CI
-  proof label and publication. Vitest's Chromium browser provider remains
-  the driver for mounted unit tests. Keep Playwright Test with E2E and
-  the separately scheduled backend migration.
-- **Proof and effort.** Large, lower confidence because it retires shared
-  entry points. Verify a complete two-worker run including preparation,
-  focused file/title and empty selections, the full roster partitioned
-  across both CI shards without omissions or duplicates, and timings and
-  CI proof consumption. Verify the absence of legacy frontend execution
-  and configuration through imports and runner selection, the continued
-  E2E/backend entry points, and the behavior and case-count ledger for all
-  eight stories. Every intermediate migration is usable on its own while
-  the legacy entry still has a consumer.
+  Backend specs that assert the frontend preparation, such as
+  `test-preparation-frontend` and `dashboard-artifact-demand`, change to
+  the preparation that remains.
+- **Preserved behavior.** Keep the npm command and its file, title, list
+  and empty selections; worker admission and deadline; frontend shards and
+  timings; and the CI proof label and its publication. Where E2E or
+  backend owns a shared utility, keep that use and remove only the
+  frontend legacy path. Vitest's Chromium browser provider remains the
+  driver for mounted unit tests. Playwright Test stays with E2E and the
+  separately scheduled backend migration.
+- **Scope limit.** Evaluation case overlays that run against a pinned
+  revision keep that revision's files.
+
+**Key examples:**
+
+- `npm run test:dashboard:frontend -- --list` lists every frontend case
+  under the Vitest projects only. A file filter, a title filter, and a
+  filter that matches nothing each behave as they did with two runners.
+- The CI `dashboard-frontend` shards together run the full roster with no
+  omission or duplicate. The published proof and the timings that the
+  shard split reads come from Vitest alone.
+- A search of the dashboard for frontend imports of `@playwright/test` and
+  for the retired modules finds nothing. The E2E and backend commands still
+  list and run their own cases.
+- A complete local two-worker run including preparation is measured
+  against the [campaign baseline](#frontend-campaign-baseline) of 7 min
+  15 s. The report gives the actual time and the slowest remaining cases.
+- The behavior and case-count ledger accounts for every story in the frontend
+  campaign.
 
 <a id="hold-adapter-proof-reasons-in-default-timeout"></a>
 
