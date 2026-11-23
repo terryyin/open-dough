@@ -1,6 +1,8 @@
-// Intent's location browser meets the page column's left edge, and it and the
-// reading pane reach the viewport's bottom and scroll on their own, on the
-// page's Intent body (./intent-ci-page-mount.ts, ../../src/IntentBrowser.tsx).
+// Intent fills the height below the banner; the location browser meets the
+// page column's left edge; it and the reading pane reach the viewport bottom
+// and scroll on their own while the outer region stays stationary
+// (./intent-ci-page-mount.ts, ../../src/IntentBrowser.tsx,
+// ../../src/configuredDashboardContent.tsx).
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { unreadCiReads } from "../../test-support/component-mount/unreadPageReads.ts";
@@ -27,7 +29,7 @@ const element = (selector: string) => {
   return found;
 };
 
-test("the location browser meets the column's left edge, and it and the reading pane fill the height below the banner and scroll on their own", async () => {
+test("Intent fills the height below the banner; the location browser meets the left edge and it and the reading pane scroll on their own", async () => {
   const work = makeMe.aPublishedWork
     .of(makeMe.aPublishedSource.pygardon.please())
     .at("f8".repeat(20))
@@ -42,15 +44,24 @@ test("the location browser meets the column's left edge, and it and the reading 
     )
     .please();
   const intent = intentReadsPublishing(locations, files);
-  await mountIntentCiPage({ work, reads: { intent, ci: unreadCiReads } });
+  await mountIntentCiPage({
+    work,
+    viewport: { width: 1280, height: 600 },
+    reads: { intent, ci: unreadCiReads },
+  });
   const tree = intentScopeTree();
   await tree.toggle(featuresPath).click();
   await tree.toggle("area").click();
   await (await tree.openFile(longPath)).shows("Feature: Long");
 
-  // The location browser and the reading pane, as the page styles them.
+  const region = element(".intent-scroll");
   const browser = element(".intent-locations");
   const reading = element(".intent-reading");
+  expect(
+    region.scrollHeight > region.clientHeight,
+    "the page below the banner does not scroll",
+  ).toBe(false);
+
   const column = element(".page-column").getBoundingClientRect();
   const browserBox = browser.getBoundingClientRect();
   const readingBox = reading.getBoundingClientRect();
@@ -63,4 +74,11 @@ test("the location browser meets the column's left edge, and it and the reading 
   await expect.poll(tops).toEqual([200, 0]);
   reading.scrollTo({ top: 300 });
   await expect.poll(tops).toEqual([200, 300]);
+  expect(
+    region.scrollHeight > region.clientHeight,
+    "the outer region stays stationary while the panes scroll",
+  ).toBe(false);
+  expect([region.scrollTop, browser.scrollTop, reading.scrollTop]).toEqual([
+    0, 200, 300,
+  ]);
 });

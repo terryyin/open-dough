@@ -10,9 +10,18 @@ import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 import type { ObservationOutcomes } from "./observationOutcomes.ts";
 import { withProgressSources } from "./progressSource.ts";
+import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { withSliceClocks } from "./sliceClockStart.ts";
 import { withinReadWait } from "./readWaitBound.ts";
+
+type MovedProgressReads = Pick<
+  PublishedObservationReadSource,
+  | "readBranchHead"
+  | "readFileOnBranch"
+  | "readCommitTime"
+  | "readProfileAddition"
+>;
 
 // The watched branches whose head the check found differs from the one shown,
 // each with the head found: undefined when it is no longer published.
@@ -35,6 +44,7 @@ export async function readMovedProgress(
   moved: StoryBranchHeads,
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
+  reads: MovedProgressReads,
 ): Promise<PublishedWork> {
   return withinReadWait(signal, async (untilEither, bound) => {
     const resourced = await withProgressSources(
@@ -42,6 +52,7 @@ export async function readMovedProgress(
       untilEither,
       outcomes,
       bound,
+      reads,
       moved,
     );
     const reread = resourced.taken.filter(
@@ -55,10 +66,12 @@ export async function readMovedProgress(
         untilEither,
         outcomes,
         bound,
+        reads.readProfileAddition,
       ),
       untilEither,
       outcomes,
       bound,
+      reads.readCommitTime,
     );
     signal.throwIfAborted();
     return {

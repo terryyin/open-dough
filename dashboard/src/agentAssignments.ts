@@ -136,6 +136,7 @@ export async function readAssignments(
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
+  readProfiles: typeof readAgentProfilesAt = readAgentProfilesAt,
 ): Promise<ProfilesRead> {
   const question = profilesQuestion(source.id, revision);
   const prior = outcomes.of(question);
@@ -148,13 +149,11 @@ export async function readAssignments(
       };
     }
     // Answered: the listing memo answers without re-settling under the bound.
-    return interpretProfiles(
-      await readAgentProfilesAt(source, revision, signal),
-    );
+    return interpretProfiles(await readProfiles(source, revision, signal));
   }
   try {
     const read = interpretProfiles(
-      await readAgentProfilesAt(source, revision, signal),
+      await readProfiles(source, revision, signal),
     );
     settleAnswered(outcomes, question);
     return read;

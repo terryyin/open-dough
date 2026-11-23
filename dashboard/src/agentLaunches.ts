@@ -5,8 +5,8 @@ import { sessionKey } from "./sessionReference.ts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Alerts, MachineAnswer, LaunchWithState } from "./agentLaunch.ts";
 import { replaced } from "./sessionRecords.ts";
-import { readMachineSessionsSince } from "./machineSessionsReads.ts";
 import { useLaunchAttempts, type LaunchAttempts } from "./launchAttempts.ts";
+import type { MachineReadSource } from "./machineReadSource.ts";
 import type { PublishedShown } from "./startupReconciliation.ts";
 import {
   useLaunchRecordActions,
@@ -17,7 +17,6 @@ import { usePageVisibility } from "./pageVisibility.ts";
 import { checkIntervalMs } from "./revisionCheckSchedule.ts";
 import type { ReadSessions } from "./readSessions.ts";
 import { useRetainedHistory } from "./retainedHistory.ts";
-import { requestAgentAcceptance } from "./agentLaunchClient.ts";
 import { awaitAttemptChange } from "./attemptChangeWaits.ts";
 
 export type MachineSessions = ReadSessions &
@@ -29,8 +28,12 @@ export type MachineSessions = ReadSessions &
 type ReadFacts = Omit<MachineAnswer, "records">;
 
 // `published` is what the page shows of published work, which settled
-// launches reconcile with.
-export function useAgentLaunches(published: PublishedShown): MachineSessions {
+// launches reconcile with. `machine` is the page-supplied sessions and
+// acceptance reads.
+export function useAgentLaunches(
+  published: PublishedShown,
+  machine: MachineReadSource,
+): MachineSessions {
   const projects = useProjects();
   const lastProjects = useRef(projects);
   const [sessions, setSessions] = useState<
@@ -106,7 +109,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
   const retained = useRetainedHistory(known, historyRevision);
   const attempts = useLaunchAttempts({
     source: {
-      accept: requestAgentAcceptance,
+      accept: machine.requestAcceptance,
       waitForChange: awaitAttemptChange,
     },
     observed,
@@ -141,36 +144,38 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       const ask = asks.current;
       const fresh = freshAsk.current;
       freshAsk.current = false;
-      void readMachineSessionsSince(
-        heldRevision.current,
-        unwanted.signal,
-        fresh ? { fresh: true } : undefined,
-      ).then((answered) => {
-        if (!current) return;
-        if (answered !== undefined && "unchanged" in answered) {
-          // What the page holds still stands: only this ask answered it.
-          setSessions((current) => ({ ...current, answeredAsk: ask }));
-        } else if (answered !== undefined) {
-          const { records, revision, ...facts } = answered;
-          heldRevision.current = revision;
-          const kept = records.filter(
-            (record) =>
-              (deletedAt.current.get(sessionKey(record.session)) ?? -1) <
-              askedAt,
-          );
-          setSessions((current) => ({
-            known: replaced(kept, current.known, current.read ? askedAt : 0),
-            read: true,
-            answeredAsk: ask,
-            ...facts,
-          }));
-        }
-        setOffersReading(false);
-        everRead.current = true;
-        settleRevealed();
-        setReadsSettled((settled) => settled + 1);
-        setSettledFor(projects);
-      });
+      void machine
+        .readSessionsSince(
+          heldRevision.current,
+          unwanted.signal,
+          fresh ? { fresh: true } : undefined,
+        )
+        .then((answered) => {
+          if (!current) return;
+          if (answered !== undefined && "unchanged" in answered) {
+            // What the page holds still stands: only this ask answered it.
+            setSessions((current) => ({ ...current, answeredAsk: ask }));
+          } else if (answered !== undefined) {
+            const { records, revision, ...facts } = answered;
+            heldRevision.current = revision;
+            const kept = records.filter(
+              (record) =>
+                (deletedAt.current.get(sessionKey(record.session)) ?? -1) <
+                askedAt,
+            );
+            setSessions((current) => ({
+              known: replaced(kept, current.known, current.read ? askedAt : 0),
+              read: true,
+              answeredAsk: ask,
+              ...facts,
+            }));
+          }
+          setOffersReading(false);
+          everRead.current = true;
+          settleRevealed();
+          setReadsSettled((settled) => settled + 1);
+          setSettledFor(projects);
+        });
     };
     if (
       visibility === "revealed" ||
@@ -192,7 +197,7 @@ export function useAgentLaunches(published: PublishedShown): MachineSessions {
       clearTimeout(waiting);
       unwanted.abort();
     };
-  }, [visibility, readsSettled, settleRevealed, requested, projects]);
+  }, [visibility, readsSettled, settleRevealed, requested, projects, machine]);
 
   const setFacts = useCallback((facts: ReadFacts) => {
     // Same as setRecords: facts from an action are not the poll's revision.

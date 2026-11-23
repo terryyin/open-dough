@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 633. Removed numbers are never reused.
+- Highest allocated local number: 634. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
@@ -67,6 +67,8 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 - Execution: SEED-420#compare-story-contributions (plan 790, first implementation `b159f51e1`). Timestamp: unknown (2026-11-23 +08:00, delivery of slices 1, 2 and 4). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `f3c0fe94a`). Evidence: each slice returned passing focused tests and independent refactor before guarded formatting caught unsafe matcher or fixture types, an unnecessary optional chain, unused parameters or an unbound method. Observed effect: three formatting refusals and three focused reruns after mechanical repairs. Inference: reading lint while the author still holds the fixture context would have exposed these issues before delivery.
 - Execution: SEED-424#poll-open-codex-sessions (plan 784, first implementation `b5b4a3ed8`). Timestamp: 2026-11-23T13:19:34+08:00 (initial formatting refusal). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION). Evidence: the passing focused test return and independent refactor preceded guarded delivery's errors on require-await and an unused index callback argument in the new Vitest case. The coordinator's first repair also exposed an unsafe spread. An explicit fixture array type cleared it. Observed effect: two preparation refusals before the slice could commit, plus one renewed targeted test. Inference: the existing delegated lint follow-up covers finding the initial errors while the author still has the fixture context.
+
+- Execution: SEED-413#drive-published-observation-through-page-entry (plan 789, first implementation `a99bc3797`). Timestamp: 2026-11-23T16:18:15+08:00 (first Slice 1 format refusal). Tool: Cursor. Open Dough release: 0.3.112 (installed `.agents/skills/dough-update/VERSION` at Take `8a41b269fa`). Evidence: after focused frontend proof, guarded format failed on `@typescript-eslint/no-unused-expressions` and `no-unnecessary-condition` in the new observation fixtures (`slice1-format-retry.log`); repair then delivered `a99bc3797`. Installed `.claude`/`.agents` delegation still banned independent hook-owned lint while Distribution already had SEED-345's scoped-lint edit. Slice 2 repeated it (`slice2-preflight-format.log`). Observed effect: two coordinator format repairs before Slices 1–2 could commit. Inference: installed 0.3.112 still withheld the SEED-345 remedy from implementers.
 
 [Account and evidence at ODF-329](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-329.md#evidence-2026-11-23-open-dough-odf-329).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
@@ -998,3 +1000,18 @@ Plan 783 recorded that `historyChart().failed` has no reader. `e2e/intent/intent
 
 ### Occurrences
 - Execution: SEED-413#speed-intent-attempt-and-summary-proof (plan 760, first implementation `cc4d0b9fa`). Timestamp: 2026-11-23T09:26:05+00:00 (first fresh pair). Tool: Codex. Open Dough release: 0.3.112 (installed guidance at Take `2c9c98322`). Evidence: `bacba5db52673a2d3afa18cdba01c7fe746189a4:.planning/slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md` retains the 37.900 s historical baseline without load, the near-27 s provisional result, and two fresh exact-roster pairs in both run orders that found the candidate slower. Observed effect: four runs accounting for 111.0 s of runner time ruled out the apparent improvement. After reducing repeated fixture activation cost, a load-matched pair measured 23.652 s legacy and 15.386 s mounted. Inference: starting with a fresh paired baseline and inspecting mounted setup cost before the final migration gate would expose smaller or reversed gains sooner.
+
+## DD-634 — Workspace `open-dough/` evidence pollutes consumer-trace discovery <a id="dd-634"></a>
+
+Writing evidence under a workspace `open-dough/` tree instead of `git rev-parse --git-path open-dough/evidence` leaves untracked paths that consumer-trace treats as changed files.
+
+### Occurrences
+
+- Execution: SEED-413#drive-published-observation-through-page-entry (plan 789, first implementation `a99bc3797`)
+  - Timestamp: unknown (Slice 8 consumer-trace on 2026-11-23 +08:00)
+  - Tool: Cursor
+  - Open Dough release: 0.3.112 (installed at Take `8a41b269fa`)
+  - Evidence: `slice8-consumer-trace.txt` lists dozens of `open-dough/evidence/*` changed-path hits; wrap-up notes untracked workspace `open-dough/evidence/*` noise; proof-evidence already names the git-path.
+  - Observed effect: consumer-trace dispositions had to ignore misplaced evidence noise once.
+  - Inference: agents must resolve the git-path before writing evidence; installed `proof-evidence.md` already names that location.
+

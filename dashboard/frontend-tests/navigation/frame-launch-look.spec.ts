@@ -20,7 +20,6 @@ import {
   visibleParts,
 } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { noSessions } from "./board-mount.ts";
 import { boardWork, story } from "./board-work.ts";
 
 const wideViewport = { width: 1440, height: 900 };
@@ -133,10 +132,7 @@ async function startSessionReadsAt(viewport: {
   width: number;
   height: number;
 }) {
-  await mountBoardFrame(boardWork([]), viewport, "stories", {
-    ...noSessions,
-    sessionPolicyOffer: () => "unavailable",
-  });
+  await mountBoardFrame(boardWork([]), viewport, "stories");
   await page
     .getByRole("button", { name: "Start session in Open Dough" })
     .click();

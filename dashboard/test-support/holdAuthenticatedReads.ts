@@ -1,32 +1,17 @@
-// Holds authenticated reads, of one path or matching a query, until release
-// or failure, for Intent journeys that observe a read still in flight
-// (`../frontend-tests/intent/intent-selection-reads.spec.ts`,
-// `../frontend-tests/intent/intent-summary-story-comparison-file.spec.ts`), and of one
-// project's reads for navigation journeys
+// Holds authenticated reads matching a query until release or failure, for
+// Intent journeys that observe a read still in flight
+// (`../frontend-tests/intent/intent-summary-story-comparison-file.spec.ts`), and
+// of one project's reads for navigation journeys
 // (`../frontend-tests/navigation/project-keyboard-navigation-focus.spec.ts`,
 // `../frontend-tests/navigation/story-url-destination.spec.ts`,
-// `./support/frontendStoryReferenceRecovery.ts`). Its route
-// pattern also serves journeys that observe Session details' reads
+// `./support/frontendStoryReferenceRecovery.ts`). Its route pattern also
+// serves journeys that observe Session details' reads
 // (`./support/historicalCreditReads.ts`).
 
 import type { Page, Route } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 
 export const authenticatedReadRoute = `**${authenticatedReadEndpoint}?*`;
-
-// Holds the page's reads of `path` until the returned release. Push the
-// release onto `releases` so afterEach can free a held journey that failed.
-export function holdAuthenticatedReadsOf(
-  page: Page,
-  path: string,
-  releases: (() => void)[],
-) {
-  return holdAuthenticatedReadsWhere(
-    page,
-    (params) => params.get("path") === path,
-    releases,
-  );
-}
 
 // Holds the page's reads of project `source` until the returned release.
 export function holdProjectReads(

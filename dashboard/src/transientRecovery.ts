@@ -3,95 +3,164 @@
 // then 60 seconds after settlement. A standing GitHub wait takes precedence
 // (`./readingLimit.ts`), and a hidden page waits until it is seen again.
 // The backoff ends when every contributor has an answer or the project is left.
+// One schedule instance is owned by the mounted page (or by Intent when it
+// mounts outside that page); another mount keeps its own due time and step.
 
-import { useEffect, useSyncExternalStore } from "react";
+import {
+  createContext,
+  createElement,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import type { Visibility } from "./pageVisibility.ts";
 
 const waitAfterSettlementSeconds = [15, 30, 60] as const;
 
 export type TransientRecoveryContributor = "published-observation" | "intent";
 
-let recoversUntil = 0;
-let failureCount = 0;
-const pending = new Set<TransientRecoveryContributor>();
-const listeners = new Set<() => void>();
+export type TransientRecoverySchedule = {
+  readonly noteFailure: (contributor: TransientRecoveryContributor) => void;
+  readonly clearFailure: (contributor: TransientRecoveryContributor) => void;
+  readonly clearAll: () => void;
+  readonly isPending: (contributor: TransientRecoveryContributor) => boolean;
+  readonly isDue: (contributor: TransientRecoveryContributor) => boolean;
+  readonly recoversUntil: () => number;
+  readonly subscribe: (listener: () => void) => () => void;
+  readonly wake: () => void;
+};
 
-function changed(): void {
-  for (const listener of listeners) listener();
-}
+export function createTransientRecoverySchedule(): TransientRecoverySchedule {
+  let recoversUntil = 0;
+  let failureCount = 0;
+  const pending = new Set<TransientRecoveryContributor>();
+  const listeners = new Set<() => void>();
 
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
+  function changed(): void {
+    for (const listener of listeners) listener();
+  }
+
+  return {
+    noteFailure(contributor) {
+      const alreadyPending = pending.has(contributor);
+      pending.add(contributor);
+      const now = Date.now();
+      if (now >= recoversUntil) {
+        const step = Math.min(
+          failureCount,
+          waitAfterSettlementSeconds.length - 1,
+        );
+        const waitSeconds = waitAfterSettlementSeconds[step] ?? 60;
+        failureCount += 1;
+        recoversUntil = now + waitSeconds * 1000;
+      } else if (alreadyPending) {
+        return;
+      }
+      changed();
+    },
+    clearFailure(contributor) {
+      if (!pending.delete(contributor)) return;
+      if (pending.size === 0) {
+        failureCount = 0;
+        recoversUntil = 0;
+      }
+      changed();
+    },
+    clearAll() {
+      pending.clear();
+      failureCount = 0;
+      recoversUntil = 0;
+      changed();
+    },
+    isPending(contributor) {
+      return pending.has(contributor);
+    },
+    isDue(contributor) {
+      return pending.has(contributor) && Date.now() >= recoversUntil;
+    },
+    recoversUntil() {
+      return recoversUntil;
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    wake: changed,
   };
 }
 
-// Failures settling during the same wait share its due time and step.
-export function noteTransientFailure(
-  contributor: TransientRecoveryContributor,
-): void {
-  const alreadyPending = pending.has(contributor);
-  pending.add(contributor);
-  const now = Date.now();
-  if (now >= recoversUntil) {
-    const step = Math.min(failureCount, waitAfterSettlementSeconds.length - 1);
-    const waitSeconds = waitAfterSettlementSeconds[step] ?? 60;
-    failureCount += 1;
-    recoversUntil = now + waitSeconds * 1000;
-  } else if (alreadyPending) {
-    return;
-  }
-  changed();
+const TransientRecoveryContext =
+  createContext<TransientRecoverySchedule | null>(null);
+
+// Mounted once for the production page (or by Intent when it recovers alone).
+// The shared timer wakes all contributors on this schedule.
+export function TransientRecoveryOnPage({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
+  const [schedule] = useState(createTransientRecoverySchedule);
+  useStandingTransientTimer(schedule);
+  return createElement(
+    TransientRecoveryContext.Provider,
+    { value: schedule },
+    children,
+  );
 }
 
-export function clearTransientFailure(
-  contributor: TransientRecoveryContributor,
-): void {
-  if (!pending.delete(contributor)) return;
-  if (pending.size === 0) {
-    clearAllTransientFailures();
-  } else {
-    changed();
-  }
+function useStandingTransientTimer(schedule: TransientRecoverySchedule): void {
+  const until = useSyncExternalStore(
+    schedule.subscribe,
+    schedule.recoversUntil,
+  );
+  useEffect(() => {
+    if (until === 0) return;
+    const left = until - Date.now();
+    if (left <= 0) {
+      schedule.wake();
+      return;
+    }
+    const ending = setTimeout(schedule.wake, left);
+    return () => {
+      clearTimeout(ending);
+    };
+  }, [schedule, until]);
 }
 
-export function clearAllTransientFailures(): void {
-  pending.clear();
-  failureCount = 0;
-  recoversUntil = 0;
-  changed();
+export function useOptionalTransientRecoverySchedule(): TransientRecoverySchedule | null {
+  return useContext(TransientRecoveryContext);
+}
+
+export function useTransientRecoverySchedule(): TransientRecoverySchedule {
+  const schedule = useOptionalTransientRecoverySchedule();
+  if (schedule === null) {
+    throw new Error("Transient recovery schedule is missing.");
+  }
+  return schedule;
 }
 
 export function useTransientRecoveryPending(
   contributor: TransientRecoveryContributor,
 ): boolean {
-  return useSyncExternalStore(subscribe, () => pending.has(contributor));
+  const schedule = useTransientRecoverySchedule();
+  return useSyncExternalStore(schedule.subscribe, () =>
+    schedule.isPending(contributor),
+  );
 }
 
-// Mounted once by the published observation. The shared timer wakes all
-// contributors. Keep the due time while pending, including after it passes.
+// Keep the due time while pending, including after it passes. The page's
+// TransientRecoveryOnPage owns the shared wake timer.
 export function useStandingTransientRecovery(): Date | undefined {
-  const until = useSyncExternalStore(subscribe, () => recoversUntil);
-  useEffect(() => {
-    if (until === 0) return;
-    const left = until - Date.now();
-    if (left <= 0) {
-      changed();
-      return;
-    }
-    const ending = setTimeout(changed, left);
-    return () => {
-      clearTimeout(ending);
-    };
-  }, [until]);
+  const schedule = useTransientRecoverySchedule();
+  const until = useSyncExternalStore(
+    schedule.subscribe,
+    schedule.recoversUntil,
+  );
   return until > 0 ? new Date(until) : undefined;
-}
-
-export function transientRecoveryIsDue(
-  contributor: TransientRecoveryContributor,
-): boolean {
-  return pending.has(contributor) && Date.now() >= recoversUntil;
 }
 
 export function useTransientRecoveryDue(
@@ -99,8 +168,9 @@ export function useTransientRecoveryDue(
   visibility: Visibility,
   limitStands: boolean,
 ): boolean {
-  const due = useSyncExternalStore(subscribe, () =>
-    transientRecoveryIsDue(contributor),
+  const schedule = useTransientRecoverySchedule();
+  const due = useSyncExternalStore(schedule.subscribe, () =>
+    schedule.isDue(contributor),
   );
   return due && visibility !== "hidden" && !limitStands;
 }

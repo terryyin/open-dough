@@ -1,77 +1,80 @@
-import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
 // Selection changes after Project Intent visits (../../src/IntentPerspective.tsx):
 // every new selection opens CI comparison, even when cleared and selected again
 // while Intent is hidden. Clearing selection opens Project Intent's CI status,
 // whichever view the previous visit ended on.
-
-import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
+import { expect, test } from "vitest";
+import { intentCandidates, intentViewTab } from "./intent-candidates-page.ts";
+import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
-  backToStory,
-  chooseOptimizationCandidates,
-  expectIntentModeChosen,
-  openProjectIntent,
-  intentPageFrame,
-} from "../../test-support/intentModePage.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { expectSelected } from "../../test-support/storyCardSelection.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  expectStoryTab,
-  storySummary,
-} from "../../test-support/support/intentStoryPage.ts";
+  development,
+  intent,
+  intentChoice,
+  intentContext,
+  mountProjectVisit,
+  selectTakenStoryInIntent,
+  story,
+  storyA,
+} from "./intent-project-visit-fixtures.ts";
+import { boardReading as board } from "../navigation/board-reading-page.ts";
 
-test("each new selection opens the story at CI comparison, even one cleared and selected again while Intent is hidden, and clearing lands on Project Intent's CI status after a visit that ended on Optimization Candidates", async ({
-  page,
-  frontendServices,
-}) => {
-  const { card, intent } = await selectTakenStoryInIntent(
-    page,
-    frontendServices,
-  );
-  await expectStoryTab(intent, "Changes");
-  await openProjectIntent(intent);
-  await chooseOptimizationCandidates(intent);
-  const { development, intentChoice } = parts(page);
-  const heading = card.getByRole("heading", { level: 3 });
-
-  await test.step("cleared and selected again while Intent is hidden: the story's CI comparison", async () => {
-    await development.click();
-    await heading.click();
-    await expectSelected(card, false);
-    await heading.click();
-    await expectSelected(card, true);
-    await intentChoice.click();
-    await expect(storySummary(intent)).toBeVisible();
-    await expect(intentPageFrame(intent)).toHaveAttribute(
-      "data-intent-context",
-      "story",
-    );
-    await expectStoryTab(intent, "CI comparison");
-    await expect(backToStory(intent)).toHaveCount(0);
-    // Project Intent, visited for this new selection, opens on CI status.
-    await openProjectIntent(intent);
-    await expectIntentModeChosen(intent, "CI status");
-    await chooseOptimizationCandidates(intent);
+test("each new selection opens the story at CI comparison, even one cleared and selected again while Intent is hidden, and clearing lands on Project Intent's CI status after a visit that ended on Optimization Candidates", async () => {
+  await mountProjectVisit();
+  const card = await selectTakenStoryInIntent();
+  await expect
+    .element(story.viewTab("Changes"))
+    .toHaveAttribute("aria-selected", "true");
+  await story.projectIntent.click();
+  await intentCandidates().choose();
+  const heading = card.getByRole("heading", {
+    name: storyA.title,
+    exact: true,
   });
 
-  await test.step("cleared after a visit on Optimization Candidates: Project Intent's CI status", async () => {
-    await development.click();
-    await heading.click();
-    await expectSelected(card, false);
-    await intentChoice.click();
-    await expect(intent).not.toHaveAttribute("data-selected-story");
-    await expect(storySummary(intent)).toHaveCount(0);
-    await expect(
+  await development.click();
+  await heading.click();
+  await board.expectStorySelection(card, false);
+  await heading.click();
+  await board.expectStorySelection(card, true);
+  await intentChoice.click();
+  await expect
+    .element(
+      intent.getByRole("region", { name: "Selected story", exact: true }),
+    )
+    .toBeVisible();
+  await expect.poll(intentContext).toBe("story");
+  await expect
+    .element(story.viewTab("CI comparison"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect.element(story.backToStory).not.toBeInTheDocument();
+  await story.projectIntent.click();
+  await expect
+    .element(intentViewTab("CI status"))
+    .toHaveAttribute("aria-selected", "true");
+  await intentCandidates().choose();
+
+  await development.click();
+  await heading.click();
+  await board.expectStorySelection(card, false);
+  await intentChoice.click();
+  await expect.element(intent).not.toHaveAttribute("data-selected-story");
+  await expect
+    .element(
+      intent.getByRole("region", { name: "Selected story", exact: true }),
+    )
+    .not.toBeInTheDocument();
+  await expect
+    .element(
       intent.getByRole("heading", { name: "No story selected", exact: true }),
-    ).toBeVisible();
-    await expect(intentPageFrame(intent)).toHaveAttribute(
-      "data-intent-context",
-      "project",
-    );
-    await expect(
+    )
+    .toBeVisible();
+  await expect.poll(intentContext).toBe("project");
+  await expect
+    .element(
       intent.getByRole("region", { name: "Project Intent", exact: true }),
-    ).toBeVisible();
-    await expectIntentModeChosen(intent, "CI status");
-    await expect(ciPanel(intent)).toContainText("CI status of main");
-  });
+    )
+    .toBeVisible();
+  await expect
+    .element(intentViewTab("CI status"))
+    .toHaveAttribute("aria-selected", "true");
+  await intentCiStatus().judges("main");
 });

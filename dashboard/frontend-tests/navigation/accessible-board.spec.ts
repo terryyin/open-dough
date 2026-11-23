@@ -17,13 +17,16 @@ const longIdentity = `SEED-090#${"a-long-anchor-".repeat(8)}end`;
 const longTitle = `Keep ${"Uninterruptedlyconcatenated".repeat(5)} readable across the Board`;
 const longPlan = `slice-plans/090-${"readable-".repeat(12)}overview/PLAN.md`;
 const longAddress = `https://example.test/${"unbrokenaddress".repeat(9)}`;
-const unusableTarget = `malformed source ${"unbrokentarget".repeat(9)}`;
+// Backlog markdown cannot carry spaces in hrefs; an anchor-only target stays
+// unusable after typed snapshot interpretation and keeps a long unbroken name.
+const unusableTarget = `#${"unbrokentarget".repeat(9)}`;
+const longPlanUrl = `https://example.test/${longPlan}`;
 const longStory = story(longTitle, 90, {
   identity: longIdentity,
   plan: {
     kind: "external",
-    recorded: longPlan,
-    url: `https://example.test/${longPlan}`,
+    recorded: longPlanUrl,
+    url: longPlanUrl,
   },
 });
 const external = story("Read the hosting provider's note", 91, {
@@ -99,12 +102,10 @@ test("accessible Board reflows long published work for a narrow window and page 
     });
     const identity = detail.getByText(longIdentity, { exact: true });
     const plan = detail.getByRole("link", {
-      name: `Slice plan ${longPlan}`,
+      name: `Slice plan ${longPlanUrl}`,
       exact: true,
     });
-    await expect
-      .element(plan)
-      .toHaveAttribute("href", `https://example.test/${longPlan}`);
+    await expect.element(plan).toHaveAttribute("href", longPlanUrl);
     expect(readsWhole(identity.element(), card.element())).toBe(true);
     expect(readsWhole(plan.element(), card.element())).toBe(true);
     await card.getByRole("button", { name: "Hide detail" }).click();

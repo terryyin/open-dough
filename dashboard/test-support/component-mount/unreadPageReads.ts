@@ -7,6 +7,7 @@ import type { CiFollowUpReadSource } from "../../src/ciFollowUpReadSource.ts";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
 import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
@@ -17,6 +18,10 @@ import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesRea
 
 const unread = (name: string) => () =>
   Promise.reject(new Error(`Unexpected ${name} read`));
+
+const unreadSync = (name: string) => () => {
+  throw new Error(`Unexpected ${name}`);
+};
 
 const unreadIntentReads: IntentReadSource = {
   readLocations: unread("Intent locations"),
@@ -44,9 +49,7 @@ const unreadReviewReads: ReviewSource = {
 const unreadSessionServices: SessionServices = {
   readFinalReport: unread("final report"),
   readHostStatus: unread("host status"),
-  openTerminal: () => {
-    throw new Error("Unexpected terminal attach");
-  },
+  openTerminal: unreadSync("terminal attach"),
 };
 
 const unreadDoneRecordReads: DoneRecordReadSource = {
@@ -68,6 +71,19 @@ const unreadObservation: PublishedObservationReadSource = {
   readSnapshot: unread("published snapshot"),
   readDetailFile: unread("published detail file"),
   checkRevision: unread("revision check"),
+  subscribeRevision: unreadSync("revision subscription read"),
+  readProfiles: unread("published profiles"),
+  readProfileAddition: unread("published profile addition"),
+  readDoneCatalog: unread("published done catalog"),
+  listPublishedSessions: unread("published sessions"),
+  readBranchHead: unread("published branch head"),
+  readFileOnBranch: unread("published branch file"),
+  readCommitTime: unread("published commit time"),
+};
+
+const unreadMachine: MachineReadSource = {
+  readSessionsSince: unread("machine sessions"),
+  requestAcceptance: unread("agent acceptance"),
 };
 
 // The page's reads with only SUPPLIED answering; every other read rejects.
@@ -83,6 +99,7 @@ export const pageReadsSupplying = (
   ciFollowUp: unreadCiFollowUp,
   reviewStates: unreadReviewStates,
   observation: unreadObservation,
+  machine: unreadMachine,
   highlight: highlightSourceLines,
   ...supplied,
 });

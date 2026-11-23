@@ -1,12 +1,11 @@
 import { expect, onTestFinished, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { noSessions } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
+import { emptyMachineAnswer } from "./board-frame-observation-supply.ts";
 import {
   answerTerminal,
   backlogCard,
-  machineWorking,
   openRecord,
   openSidebarSession,
   sessions,
@@ -42,14 +41,15 @@ test("a Sessions sidebar entry from Intent goes to its project's Development sto
     })
     .inClaudeSession({ sessionId: pygardonStory.identity })
     .please();
+  const answer = {
+    ...emptyMachineAnswer(),
+    ...makeMe.aMachineAnswer
+      .observingOpen(openRecord(openDoughStory), pygardonSession)
+      .please(),
+  };
   await mountPerspectiveFrame(
     { width: 1440, height: 900 },
-    {
-      sessions: {
-        ...noSessions,
-        ...machineWorking(openRecord(openDoughStory), pygardonSession),
-      },
-    },
+    { machine: { answer } },
   );
 
   await intentChoice.click();

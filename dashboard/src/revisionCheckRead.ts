@@ -135,6 +135,55 @@ export function revisionStreamUrl(
   return `${authenticatedReadEndpoint}?source=${encodeURIComponent(source.id)}&${revisionStreamAtParameter}=${encodeURIComponent(shown)}${watchedBranchesQuery(watched)}`;
 }
 
+// Typed handlers for one revision-stream subscription: decoded checks and
+// stream-shaped failures, or transport loss while the EventSource is held.
+export type RevisionStreamHandlers = {
+  readonly onCheck: (check: RevisionCheck) => void;
+  readonly onFailure: (error: unknown) => void;
+  readonly onLost: () => void;
+};
+
+export type RevisionStreamSubscription = {
+  readonly close: () => void;
+};
+
+// Opens the browser EventSource for one source's revision stream and delivers
+// decoded `RevisionCheck` answers or stream failures. Transport loss is
+// reported through `onLost`; the caller closes so the browser does not retry
+// sooner than the page's pace (`./revisionStreamSchedule.ts`).
+export function subscribePublishedRevision(
+  source: PublishedSource,
+  shown: string,
+  watched: readonly string[],
+  handlers: RevisionStreamHandlers,
+): RevisionStreamSubscription {
+  const reading = readingRefOf(source);
+  const stream = new EventSource(revisionStreamUrl(source, shown, watched));
+  stream.onmessage = (event) => {
+    const data: unknown = event.data;
+    if (typeof data !== "string") {
+      return;
+    }
+    try {
+      handlers.onCheck(
+        revisionCheckFromStreamData(data, shown, watched, reading),
+      );
+    } catch (error: unknown) {
+      handlers.onFailure(error);
+    }
+  };
+  stream.onerror = () => {
+    handlers.onLost();
+  };
+  return {
+    close: () => {
+      stream.onmessage = null;
+      stream.onerror = null;
+      stream.close();
+    },
+  };
+}
+
 // Checks the source's ref, and the heads of `watched`: story branches Taken
 // entries' profiles record at the revision shown, which the local boundary
 // confirms from that revision's records before answering.

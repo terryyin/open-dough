@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#drive-published-observation-through-page-entry",
+  "title": "Drive the published observation through the typed page entry",
+  "completedAt": "2026-11-23T10:43:16.989Z",
+  "developer": "Terry Yin",
+  "agent": "Nao-chan",
+  "host": "cursor",
+  "model": "auto",
+  "intentCoverage": {
+    "report": "Intent Coverage at 4c29182259930f932d6237dd5929172a00bcfff9: Caught. Shared-wait detail-heals-first on ConfiguredDashboard; assertion intent-read-recovery.spec.ts:165 ([2,2] vs [2,3]). No follow-up.\n"
+  }
+}

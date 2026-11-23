@@ -13,8 +13,34 @@
 // around the action sees the status gone and takes the keyboard for itself
 // (Recently done's entry, `./recentlyDoneFocus.ts`).
 
-import { useLayoutEffect, useRef, useState, type RefObject } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type RefObject,
+} from "react";
 import { keyboardRestsOn } from "./launchHandoff.ts";
+
+// Open on keydown so a same-turn Board re-render after modal focus return
+// cannot drop the platform's Enter/Space click synthesis.
+export function openDialogFromActivation(
+  open: () => void,
+  blocked = false,
+): {
+  readonly onClick: () => void;
+  readonly onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
+} {
+  return {
+    onClick: open,
+    onKeyDown: (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      if (blocked || event.repeat) return;
+      event.preventDefault();
+      open();
+    },
+  };
+}
 
 export function useLaunchDialogLauncher(
   starting: boolean,
@@ -50,12 +76,17 @@ export function useLaunchDialogLauncher(
     if (heldUnavailable) return;
     // The return follows the dialog's close event, after the developer may
     // already have moved the keyboard on; it moves the keyboard only from
-    // where the closing left it.
+    // where the closing left it. A same-turn Board update after the modal
+    // unmounts can steal activation from a lone layout focus, so reclaim
+    // once more after that turn if the keyboard still rests here.
+    const button = launcher.current;
     const rests =
-      when === "at-once"
-        ? keyboardRestsOn(launcher.current)
-        : keyboardRestsOn(target);
-    if (rests) launcher.current?.focus();
+      when === "at-once" ? keyboardRestsOn(button) : keyboardRestsOn(target);
+    if (!rests) return;
+    button?.focus();
+    queueMicrotask(() => {
+      if (keyboardRestsOn(button)) button?.focus();
+    });
   }, [open, starting, heldUnavailable, handoff]);
   return {
     launcher,

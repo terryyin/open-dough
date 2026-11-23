@@ -20,6 +20,7 @@ import {
   publishedDetailPath,
   publishedReadStatus,
   setDocumentVisibility,
+  workWithPublishedDetail,
 } from "./intent-read-recovery-page.tsx";
 import { intentSettingsExplanation } from "./intent-settings-explanation-page.ts";
 
@@ -121,7 +122,7 @@ test("Intent locations make no recovery request while hidden and ask once on rev
 
 test("published detail and Intent locations share a wait, and healing detail leaves Intent pending", async () => {
   onRecoveryClock();
-  const work = makeMe.aPublishedWork.ofPygardon.at("d3".repeat(20)).please();
+  const work = workWithPublishedDetail("d3".repeat(20));
   const locations = controlledLocations(work);
   let detailReads = 0;
   let detailHealthy = false;

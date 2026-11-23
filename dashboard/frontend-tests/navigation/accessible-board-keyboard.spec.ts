@@ -12,7 +12,9 @@ import { boardWork, story } from "./board-work.ts";
 
 const revision = "b".repeat(40);
 const record = "seeds/SEED-008-sync.md";
-const recordUrl = `https://github.com/terryyin/open-dough/blob/${revision}/.planning/${record}`;
+// boardWork publishes open-dough under example/open-dough; production resolves
+// snapshot links from that repository.
+const recordUrl = `https://github.com/example/open-dough/blob/${revision}/.planning/${record}`;
 const dependencies = {
   status: "unavailable",
   problem: "Canonical dependency facts could not be read.",

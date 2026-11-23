@@ -47,7 +47,10 @@ import {
 import { LaunchDialog } from "./LaunchDialog.tsx";
 import { instructionTranscription } from "./instructionTranscriptionSource.ts";
 import { requestLaunchHostOptions } from "./launchHostOptionsClient.ts";
-import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
+import {
+  openDialogFromActivation,
+  useLaunchDialogLauncher,
+} from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import type { OpenTerminal } from "./pageSessions.ts";
 import { keyboardRestsOn } from "./launchHandoff.ts";
@@ -64,13 +67,8 @@ export type AdHocLaunches = Pick<
   "adHocAttemptOf" | "rereadOffers" | "sessionPolicyOffer" | "startAdHoc"
 >;
 
-// The selected host's installed skills decide whether a session with no story
-// is established (`sessionPolicyOffer`); without it only the default choices
-// are offered. Another host's offers are read again (`rereadOffers`). The last
-// launch from this button that has not started a session is its own
-// (`adHocAttemptOf`), the project's or, for a follow-up, its source's.
-// A line-number Follow up opens the same dialog without a second heading
-// trigger (`autoOpen`, `showTrigger`).
+// Session policy offer, reread, and this button's last unfinished launch
+// (`adHocAttemptOf`). Line-number Follow up uses `autoOpen` / `showTrigger`.
 export function StartSession({
   project,
   sourceId,
@@ -141,10 +139,10 @@ export function StartSession({
         aria-describedby={attempt !== undefined ? answerId : undefined}
         disabled={starting}
         tabIndex={showTrigger ? undefined : -1}
-        onClick={() => {
+        {...openDialogFromActivation(() => {
           onOpen?.();
           openDialog();
-        }}
+        }, starting)}
       >
         {showTrigger && (
           <>

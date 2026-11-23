@@ -1,52 +1,56 @@
 import { createElement } from "react";
-import { onTestFinished, vi } from "vitest";
-import {
-  useAgentLaunches,
-  type MachineSessions,
-} from "../../src/agentLaunches.ts";
+import { expect, onTestFinished } from "vitest";
+import { page } from "vitest/browser";
+import type { MachineAnswer } from "../../src/agentLaunch.ts";
+import type { AcceptanceAnswer } from "../../src/agentLaunchClient.ts";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
-import { useObservedRevisionDelivery } from "../../src/observedRevisionDelivery.ts";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import { readPublishedWork } from "../../src/publishedWorkRead.ts";
+import type { ReviewSource } from "../../src/reviewSource.ts";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import { withPagePreferences } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { noSessions } from "./board-mount.ts";
+import {
+  boardFrameObservationSupplying,
+  emptyMachineAnswer,
+  forceRevisionStreamDelivery,
+} from "./board-frame-observation-supply.ts";
 
-vi.mock(import("../../src/agentLaunches.ts"), () => ({
-  useAgentLaunches: vi.fn(),
-}));
-vi.mock(import("../../src/publishedWorkRead.ts"), () => ({
-  readPublishedWork: vi.fn(),
-}));
-vi.mock(import("../../src/observedRevisionDelivery.ts"), () => ({
-  useObservedRevisionDelivery: vi.fn(),
-}));
-
-export const workRead = vi.mocked(readPublishedWork);
+export type BoardFrameMachine = {
+  readonly answer?: MachineAnswer & { readonly revision?: string };
+  readonly accept?: (
+    ...args: Parameters<MachineReadSource["requestAcceptance"]>
+  ) => Promise<AcceptanceAnswer>;
+};
 
 export async function mountBoardFrame(
   work: PublishedWork,
   viewport: { width: number; height: number },
   view: "stories" | "roster" = "stories",
-  sessions: MachineSessions = noSessions,
+  machine: BoardFrameMachine = {},
   {
     otherWork = [],
     initialReadError,
     intentReads,
     done,
+    ci,
+    review,
   }: {
     otherWork?: readonly PublishedWork[];
     initialReadError?: Error;
     intentReads?: IntentReadSource;
     done?: DoneRecordReadSource;
+    ci?: IntentCiReadSource;
+    review?: ReviewSource;
   } = {},
 ) {
   withPagePreferences();
+  forceRevisionStreamDelivery();
   const originalUrl = location.href;
   const originalState: unknown = history.state;
   if (view === "roster") {
@@ -59,22 +63,10 @@ export async function mountBoardFrame(
     history.replaceState(originalState, "", originalUrl);
   });
   const snapshots = [work, ...otherWork];
-  workRead.mockReset().mockImplementation((source) => {
-    const snapshot = snapshots.find(
-      ({ source: each }) => each.id === source.id,
-    );
-    return snapshot === undefined
-      ? Promise.reject(new Error(`No published work fixture for ${source.id}.`))
-      : Promise.resolve(snapshot);
-  });
-  if (initialReadError !== undefined)
-    workRead.mockRejectedValueOnce(initialReadError);
-  vi.mocked(useAgentLaunches).mockReturnValue(sessions);
-  let revisionAnswers:
-    Parameters<typeof useObservedRevisionDelivery>[0] | undefined;
-  vi.mocked(useObservedRevisionDelivery).mockImplementation((answers) => {
-    revisionAnswers = answers;
-    return "connected";
+  const supply = boardFrameObservationSupplying(snapshots, {
+    ...(initialReadError === undefined ? {} : { initialReadError }),
+    machineAnswer: machine.answer ?? emptyMachineAnswer(),
+    ...(machine.accept === undefined ? {} : { accept: machine.accept }),
   });
   const dashboard = createElement(ProjectsOnPage, {
     projects: snapshots.map(({ source }) => source),
@@ -82,8 +74,12 @@ export async function mountBoardFrame(
     children: createElement(ConfiguredDashboard, {
       reads: pageReadsSupplying({
         sessions: authenticatedSessionServices,
+        observation: supply.observation,
+        machine: supply.machine,
         ...(intentReads === undefined ? {} : { intent: intentReads }),
         ...(done === undefined ? {} : { done }),
+        ...(ci === undefined ? {} : { ci }),
+        ...(review === undefined ? {} : { review }),
       }),
       settingsOpen: false,
       onOpenSettings: () => {},
@@ -91,17 +87,34 @@ export async function mountBoardFrame(
     }),
   });
   await mountComponent(dashboard, { viewport, fillsViewport: true });
-  const delivery = () => {
-    if (revisionAnswers === undefined)
-      throw new Error("The Board hasn't bound its revision delivery.");
-    return revisionAnswers;
-  };
+  // Production launches settle through typed machine reads; wait out the first
+  // answer before cases interact so Cancel→Enter reopen is not racing that
+  // Board/Recently done update (Slice 4 removed the sync useAgentLaunches mock).
+  // Failed or empty published reads show no Board — only wait when Taken is up.
+  if (view === "stories") {
+    await expect
+      .element(page.getByRole("button", { name: /^Start session in / }))
+      .toBeVisible();
+    await expect
+      .poll(() => {
+        const taken = page.getByRole("region", { name: "Taken" }).query();
+        if (taken === null) return true;
+        if (page.getByText("Reading sessions…").query() !== null) return false;
+        return (
+          page
+            .getByRole("region", { name: "Taken" })
+            .getByText(/^\d+ entr(?:y|ies)$/)
+            .query() !== null
+        );
+      })
+      .toBe(true);
+  }
   return {
-    revisionChanged: (revision: string) => {
-      delivery().onChanged(revision);
-    },
-    revisionCheckFailed: (error: Error) => {
-      delivery().onFailed(error);
-    },
+    revisionChanged: supply.revisionChanged,
+    revisionCheckFailed: supply.revisionCheckFailed,
+    queueSnapshot: supply.queueSnapshot,
+    snapshotAsks: supply.snapshotAsks,
+    detailPaths: supply.detailPaths,
+    subscriptionCount: supply.subscriptionCount,
   };
 }

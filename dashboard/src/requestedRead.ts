@@ -50,7 +50,7 @@ export function carryOutRead(
     reports.settle(revealing);
   };
   if (movedBranches !== undefined && shown !== undefined) {
-    readMovedProgress(shown, movedBranches, signal, outcomes).then(
+    readMovedProgress(shown, movedBranches, signal, outcomes, reads).then(
       (read) => {
         landed(false, () => {
           reports.show(read, false);

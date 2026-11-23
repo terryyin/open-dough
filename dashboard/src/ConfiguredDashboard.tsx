@@ -13,16 +13,30 @@ import { parseRoute } from "./dashboardRouteUrl.ts";
 import { useDashboardNavigation } from "./dashboardNavigation.ts";
 import { LaunchesOnPage } from "./pageLaunches.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import { StoryReferenceNavigation } from "./storyNavigation.tsx";
 import { ConfiguredDashboardContent } from "./configuredDashboardContent.tsx";
+import { ConfiguredDashboardFrame } from "./configuredDashboardFrame.tsx";
 import { PageReadsOnPage, type PageReads } from "./pageReads.tsx";
+import { TransientRecoveryOnPage } from "./transientRecovery.ts";
 
 export type DashboardSelection = {
   readonly source: PublishedSource | undefined;
   readonly select: (source: PublishedSource | undefined) => void;
 };
 
-export function ConfiguredDashboard({
+export function ConfiguredDashboard(props: {
+  readonly reads: PageReads;
+  readonly settingsOpen: boolean;
+  readonly onOpenSettings: () => void;
+  readonly onDashboardReady: (value: DashboardSelection) => void;
+}) {
+  return (
+    <TransientRecoveryOnPage>
+      <ConfiguredDashboardBody {...props} />
+    </TransientRecoveryOnPage>
+  );
+}
+
+function ConfiguredDashboardBody({
   reads,
   settingsOpen,
   onOpenSettings,
@@ -54,12 +68,15 @@ export function ConfiguredDashboard({
     selectSource,
   } = usePublishedObservation(initialSource.current, reads.observation);
   const readFailure = attempt.status === "failed" ? attempt.problem : undefined;
-  const launches = useAgentLaunches({
-    shown,
-    reading,
-    failure: readFailure,
-    readAfresh,
-  });
+  const launches = useAgentLaunches(
+    {
+      shown,
+      reading,
+      failure: readFailure,
+      readAfresh,
+    },
+    reads.machine,
+  );
 
   const {
     route,
@@ -100,86 +117,92 @@ export function ConfiguredDashboard({
     />
   );
 
+  const stories = {
+    selected: source?.id ?? "",
+    shown: showsBoard ? work?.source.id : undefined,
+    show: showStories,
+    select: selectProject,
+    development: !showsIntent,
+    work,
+  };
+  const showIntent = () => {
+    selectPerspective("intent");
+  };
+  const followUpSelection = (
+    <FollowUpSelection
+      project={source?.id ?? ""}
+      destination={route.followUp}
+      navigate={openFollowUp}
+    />
+  );
+
   return (
     <PageReadsOnPage reads={reads}>
       <LaunchesOnPage value={launches}>
         <FollowUpNavigationOnPage value={openFollowUp}>
-          <PageFrame
-            sessions={launches}
-            showIntent={() => {
-              selectPerspective("intent");
-            }}
-            stories={{
-              selected: source?.id ?? "",
-              shown: showsBoard ? work?.source.id : undefined,
-              show: showStories,
-              select: selectProject,
-              development: !showsIntent,
-              work,
-            }}
-          >
-            <FollowUpSelection
-              project={source?.id ?? ""}
-              destination={route.followUp}
-              navigate={openFollowUp}
-            />
-            {source === undefined ? (
-              <>
-                {banner}
-                <main className="frame-state">
-                  <h1>All projects are hidden</h1>
-                  <p>
-                    Open System settings → Projects to show a project on this
-                    dashboard.
-                  </p>
-                </main>
-              </>
-            ) : (
-              <StoryReferenceNavigation
-                projects={projects}
-                selected={source.id}
-                work={work}
-                reading={reading}
-                failure={readFailure}
-                show={showStories}
-                retry={readAfresh}
-                suspended={settingsOpen || !showsBoard}
-              >
-                {(storyNotice) => (
-                  <>
-                    {banner}
-                    <ConfiguredDashboardContent
-                      source={source}
-                      work={work}
-                      route={route}
-                      destination={destination}
-                      showsIntent={showsIntent}
-                      showsRoster={showsRoster}
-                      showsBoard={showsBoard}
-                      storyNotice={storyNotice}
-                      attempt={attempt}
-                      reading={reading}
-                      withheld={withheld}
-                      recoversAt={recoversAt}
-                      limitedUntil={limitedUntil}
-                      notice={notice}
-                      launches={launches}
-                      visibility={visibility}
-                      readFailure={readFailure}
-                      openRoster={openRoster}
-                      rosterAgent={
-                        opening?.sourceId === source.id
-                          ? opening.agent
-                          : undefined
-                      }
-                      onBack={onBack}
-                      showStories={showStories}
-                    />
-                  </>
-                )}
-              </StoryReferenceNavigation>
-            )}
-          </PageFrame>
+          {source === undefined ? (
+            <PageFrame
+              sessions={launches}
+              showIntent={showIntent}
+              stories={stories}
+            >
+              {followUpSelection}
+              {banner}
+              <main className="frame-state">
+                <h1>All projects are hidden</h1>
+                <p>
+                  Open System settings → Projects to show a project on this
+                  dashboard.
+                </p>
+              </main>
+            </PageFrame>
+          ) : (
+            <ConfiguredDashboardFrame
+              launches={launches}
+              stories={stories}
+              showIntent={showIntent}
+              followUpSelection={followUpSelection}
+              storyReference={{
+                projects,
+                selected: source.id,
+                work,
+                reading,
+                failure: readFailure,
+                show: showStories,
+                retry: readAfresh,
+                suspended: settingsOpen || !showsBoard,
+              }}
+              banner={banner}
+            >
+              {(storyNotice) => (
+                <ConfiguredDashboardContent
+                  source={source}
+                  work={work}
+                  route={route}
+                  destination={destination}
+                  showsIntent={showsIntent}
+                  showsRoster={showsRoster}
+                  showsBoard={showsBoard}
+                  storyNotice={storyNotice}
+                  attempt={attempt}
+                  reading={reading}
+                  withheld={withheld}
+                  recoversAt={recoversAt}
+                  limitedUntil={limitedUntil}
+                  notice={notice}
+                  launches={launches}
+                  visibility={visibility}
+                  readFailure={readFailure}
+                  openRoster={openRoster}
+                  rosterAgent={
+                    opening?.sourceId === source.id ? opening.agent : undefined
+                  }
+                  onBack={onBack}
+                  showStories={showStories}
+                />
+              )}
+            </ConfiguredDashboardFrame>
+          )}
         </FollowUpNavigationOnPage>
       </LaunchesOnPage>
     </PageReadsOnPage>

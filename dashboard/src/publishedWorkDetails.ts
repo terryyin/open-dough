@@ -6,7 +6,6 @@
 // not answered yet (`./carriedFacts.ts`).
 
 import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
-import type { readRepositoryFileAt } from "./authenticatedRead.ts";
 import { enrichPreparation } from "./preparationEnrichment.ts";
 import { readAssignments, type ProfilesRead } from "./agentAssignments.ts";
 import { withAssignments } from "./assignmentPlacement.ts";
@@ -14,11 +13,11 @@ import { readAttributedAssignments } from "./assignmentAttribution.ts";
 import { profileAdditionsAt } from "./authenticatedProfileRead.ts";
 import { readDoneStories, type DoneStories } from "./doneStories.ts";
 import {
-  boundaryPublishedSessions,
   readPublishedSessions,
   type PublishedSessions,
 } from "./publishedSessions.ts";
 import type { ObservationOutcomes } from "./observationOutcomes.ts";
+import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import {
   awaitingProgressSources,
   withKnownProgressSources,
@@ -27,12 +26,17 @@ import {
 import { awaitingSliceClocks, withSliceClocks } from "./sliceClockStart.ts";
 import { withCarriedFacts } from "./carriedFacts.ts";
 
+type DetailReads = Omit<
+  PublishedObservationReadSource,
+  "readSnapshot" | "checkRevision" | "subscribeRevision"
+>;
+
 // Enriches a membership snapshot with independent detail groups. Same-
 // revision recovery keeps counted progress and clocks that already answered.
 // `carriedFrom`, the shown snapshot of an earlier revision, lends its facts to
 // every part not yet answered.
 export async function readPublishedDetails(
-  readDetailFile: typeof readRepositoryFileAt,
+  reads: DetailReads,
   work: PublishedWork,
   sameRevision: boolean,
   carriedFrom: PublishedWork | undefined,
@@ -42,6 +46,17 @@ export async function readPublishedDetails(
   outcomes: ObservationOutcomes,
   onPartial?: PublishedWorkProgress,
 ): Promise<PublishedWork> {
+  const {
+    readDetailFile,
+    readProfiles,
+    readProfileAddition,
+    readDoneCatalog,
+    listPublishedSessions,
+    readCommitTime,
+    readBranchHead,
+    readFileOnBranch,
+  } = reads;
+  const branchReads = { readBranchHead, readFileOnBranch };
   let prepared = work;
   let progress: PublishedWork | undefined = sameRevision ? work : undefined;
   let credited: ProfilesRead | undefined;
@@ -94,13 +109,14 @@ export async function readPublishedDetails(
     untilEither,
     outcomes,
     bound,
+    readDoneCatalog,
   ).then((read) => {
     done = read;
     show();
   });
   // Published sessions, like done stories, are their own gap.
   const sessionsRead = readPublishedSessions(
-    boundaryPublishedSessions(work.source),
+    (revision, ask) => listPublishedSessions(work.source, revision, ask),
     work.revision,
     untilEither,
     bound,
@@ -130,6 +146,7 @@ export async function readPublishedDetails(
     untilEither,
     outcomes,
     bound,
+    readProfiles,
   ).then((read) => {
     credited = read;
     show();
@@ -145,6 +162,7 @@ export async function readPublishedDetails(
     untilEither,
     outcomes,
     bound,
+    readProfileAddition,
   );
   const attributed = profilesRead.then((assignments) =>
     readAttributedAssignments(
@@ -174,11 +192,14 @@ export async function readPublishedDetails(
       progress = sameRevision ? owned : awaitingSliceClocks(owned);
       show();
       // Branch routing needs both the canonical plan and profiles.
-      progress = sameRevision
-        ? await withProgressSources(owned, untilEither, outcomes, bound)
-        : awaitingSliceClocks(
-            await withProgressSources(owned, untilEither, outcomes, bound),
-          );
+      const branched = await withProgressSources(
+        owned,
+        untilEither,
+        outcomes,
+        bound,
+        branchReads,
+      );
+      progress = sameRevision ? branched : awaitingSliceClocks(branched);
       signal.throwIfAborted();
       show();
       // Only core snapshot reads fail the observation at the bound;
@@ -190,6 +211,7 @@ export async function readPublishedDetails(
         untilEither,
         outcomes,
         bound,
+        readCommitTime,
         (partial) => {
           progress = partial;
           show();

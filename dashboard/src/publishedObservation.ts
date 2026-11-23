@@ -26,7 +26,7 @@ import type { PublishedWork } from "./publishedWork.ts";
 import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
 import { limitsMetSince } from "./readingLimit.ts";
 import { recordSettledOutcomes, useLimitRecovery } from "./limitRecovery.ts";
-import { clearAllTransientFailures } from "./transientRecovery.ts";
+import { useTransientRecoverySchedule } from "./transientRecovery.ts";
 import { useObservationRecoveryWait } from "./observationRecoveryWait.ts";
 import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
@@ -46,6 +46,7 @@ export function usePublishedObservation(
   initialSource: PublishedSource | undefined,
   reads: PublishedObservationReadSource,
 ) {
+  const schedule = useTransientRecoverySchedule();
   // The project this dashboard is currently observing. Selecting another
   // project replaces this whole, never merges into what is already shown.
   const [source, setSource] = useState(initialSource);
@@ -128,13 +129,13 @@ export function usePublishedObservation(
           setRecoveryAsk(false);
           if (limitMet()) withhold();
           setReadSettled(true);
-          recordSettledOutcomes(outcomes);
+          recordSettledOutcomes(outcomes, schedule);
           if (revealing) settleRevealed(askedAsOf);
         },
       },
     );
     return unbind;
-  }, [readRequest, source]);
+  }, [readRequest, source, schedule]);
 
   // Ref afresh, or the revision a check named. Recovery asks mark the wait
   // so hide can release that ask alone.
@@ -180,6 +181,7 @@ export function usePublishedObservation(
 
   const connection = useObservedRevisionDelivery({
     checkRevision: reads.checkRevision,
+    subscribeRevision: reads.subscribeRevision,
     source,
     shownRevision: work?.revision,
     watchedHeads,
@@ -220,7 +222,7 @@ export function usePublishedObservation(
     heldFocus.current = undefined;
     deferredFocus.current = undefined;
     setRecoveryAsk(false);
-    clearAllTransientFailures();
+    schedule.clearAll();
     setSource(next);
     if (next !== undefined) askRead(undefined);
     else setReadSettled(false);

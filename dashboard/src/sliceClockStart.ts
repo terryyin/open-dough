@@ -15,7 +15,6 @@ import {
   additionQuestion,
   type ProfileAdditions,
 } from "./authenticatedProfileRead.ts";
-import { readLastCommitTimeAt } from "./authenticatedRead.ts";
 import {
   shouldAsk,
   trackSettledAsk,
@@ -23,6 +22,7 @@ import {
   type ReadQuestion,
 } from "./observationOutcomes.ts";
 import { countedPlanBranch } from "./progressSource.ts";
+import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork, WorkEntry } from "./publishedWork.ts";
 import {
@@ -35,6 +35,8 @@ import {
   takeSourceOf,
   takeTimeOf,
 } from "./sliceClockTake.ts";
+
+type CommitTimeRead = PublishedObservationReadSource["readCommitTime"];
 
 export type SliceClock =
   | { readonly status: "loading" }
@@ -72,6 +74,7 @@ async function startOf(
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
+  readCommitTime: CommitTimeRead,
 ): Promise<SliceClock> {
   const take = takeSourceOf(entry);
   if (take.kind === "unknown") {
@@ -108,7 +111,7 @@ async function startOf(
       askPlan
         ? trackSettledAsk(
             outcomes,
-            readLastCommitTimeAt(
+            readCommitTime(
               source,
               planPath,
               revision,
@@ -123,7 +126,7 @@ async function startOf(
               unreadable: "The last plan commit could not be read.",
             },
           )
-        : readLastCommitTimeAt(
+        : readCommitTime(
             source,
             planPath,
             revision,
@@ -175,6 +178,7 @@ export async function withSliceClocks(
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
+  readCommitTime: CommitTimeRead,
   onClocked?: (work: PublishedWork) => void,
 ): Promise<PublishedWork> {
   const { source, revision } = work;
@@ -194,6 +198,7 @@ export async function withSliceClocks(
         signal,
         outcomes,
         bound,
+        readCommitTime,
       );
       clocked = {
         ...clocked,

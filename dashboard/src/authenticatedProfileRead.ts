@@ -93,7 +93,7 @@ export type ProfileAdditions = (
 // Which commit added the agent profile at `profilePath` as of `revision`, as
 // the local boundary walked that profile's history back from the revision.
 // An answer for another revision or profile is never taken for this one.
-async function readProfileAdditionAt(
+export async function readProfileAdditionAt(
   source: PublishedSource,
   profilePath: string,
   revision: string,
@@ -140,6 +140,7 @@ export function profileAdditionsAt(
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
+  readAddition: typeof readProfileAdditionAt = readProfileAdditionAt,
 ): ProfileAdditions {
   const asked = new Map<string, Promise<ProfileAddition>>();
   return (profilePath) => {
@@ -166,17 +167,12 @@ export function profileAdditionsAt(
         } else {
           // Answered: reuse the walk memo without re-settling under the
           // shared bound another gap may still be waiting on.
-          addition = readProfileAdditionAt(
-            source,
-            profilePath,
-            revision,
-            signal,
-          );
+          addition = readAddition(source, profilePath, revision, signal);
         }
       } else {
         addition = trackSettledAsk(
           outcomes,
-          readProfileAdditionAt(source, profilePath, revision, signal),
+          readAddition(source, profilePath, revision, signal),
           {
             question,
             of: (added) => (added === null ? "missing" : "answered"),
