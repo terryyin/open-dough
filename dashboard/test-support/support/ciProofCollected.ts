@@ -69,13 +69,13 @@ export type Producer = {
 
 // The summary text `summarize` writes for RUN from PRODUCERS' fragments,
 // declaring EXPECT: each entry's part count and the unit they are counted
-// in, when one is declared.
+// in.
 export function collectedSummary(
   run: ProofRun,
   expect: readonly {
     readonly entry: string;
     readonly parts: number;
-    readonly unit?: "case" | "file";
+    readonly unit: "case" | "file";
   }[],
   producers: readonly Producer[],
 ): string {
@@ -122,7 +122,7 @@ export function collectedSummary(
       fragments,
       ...expect.flatMap(({ entry, parts, unit }) => [
         "--expect",
-        `${entry}=${String(parts)}${unit === undefined ? "" : `:${unit}`}`,
+        `${entry}=${String(parts)}:${unit}`,
       ]),
       "--repository",
       run.repository,

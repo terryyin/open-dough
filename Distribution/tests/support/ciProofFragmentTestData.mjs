@@ -5,14 +5,13 @@
 // in its unit, with its counts and optional time.
 import { fragment } from "../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
 
-/** @typedef {import("./ciProofEvidenceTestData.mjs").CiProofUnitFacts} CiProofUnitFacts */
 /** @typedef {import("./ciProofEvidenceTestData.mjs").Counts} Counts */
 
 // One fragment, as the collector's own constructor writes it, of a GitHub
 // Actions run attempt unless an adapter attempt is named.
 export class CiProofFragmentBuilder {
   #entry = "tests";
-  /** @type {CiProofUnitFacts} */
+  /** @type {{ unit: "case" | "file" }} */
   #unit = { unit: "case" };
   #part = 1;
   #of = 1;
@@ -36,15 +35,6 @@ export class CiProofFragmentBuilder {
    */
   inUnit(unit) {
     this.#unit = { unit };
-    return this;
-  }
-
-  /**
-   * Legacy results, their unit spelled LABEL.
-   * @param {string} label
-   */
-  legacy(label) {
-    this.#unit = { unit: "legacy", label };
     return this;
   }
 

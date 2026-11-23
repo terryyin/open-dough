@@ -78,11 +78,11 @@ test("the command line writes fragments per entry and one summary from them", (t
     "--fragments",
     fragments,
     "--expect",
-    "dashboard/tests=2",
+    "dashboard/tests=2:case",
     "--expect",
-    "tests=1",
+    "tests=1:file",
     "--expect",
-    "src/skills=1",
+    "src/skills=1:file",
     "--repository",
     "owner/repo",
     "--run-id",
@@ -186,7 +186,7 @@ test("the command line refuses incomplete records, malformed declarations, a uni
         out,
         "tests",
       ),
-      "--expect tests is not <entry>=<parts>[:<unit>]",
+      "--expect tests is not <entry>=<parts>:<unit>",
     ],
     [
       summarizeTests(
@@ -223,4 +223,23 @@ test("the command line refuses incomplete records, malformed declarations, a uni
     );
   }
   assert.equal(existsSync(out), false);
+});
+
+test("the command line's usage names the unit of each report and declaration", () => {
+  const result = cli();
+  assert.equal(result.status, 1);
+  assert.match(
+    result.stderr,
+    /^ci-proof-summary: usage: ci-proof-summary\.mjs fragment\n/,
+  );
+  // What the usage names, wherever its lines wrap.
+  const usage = result.stderr.replace(/\s+/g, " ");
+  for (const named of [
+    "--outcomes <report> --unit case|file",
+    "--expect <entry>=<parts>:case|file",
+    "A Playwright record's tests are test cases.",
+    "Outcomes reports require --unit.",
+  ]) {
+    assert.ok(usage.includes(named), named);
+  }
 });

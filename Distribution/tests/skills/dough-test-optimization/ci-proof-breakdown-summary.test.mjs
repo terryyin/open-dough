@@ -42,7 +42,7 @@ test("two present parts where only one publishes a breakdown: entry totals inclu
   );
   const { summary } = summarize({
     fragments: [broken, plain].map(source),
-    expect: [{ entry: "dashboard/tests", parts: 3 }],
+    expect: [{ entry: "dashboard/tests", parts: 3, unit: "case" }],
     run,
   });
   assert.deepEqual(summaryProblems(summary), []);
@@ -102,7 +102,7 @@ test("one file with a timed and an untimed test keeps its known subtotal partial
   ];
   const { summary } = summarize({
     fragments: fragments.map(source),
-    expect: [{ entry: "dashboard/tests", parts: 2 }],
+    expect: [{ entry: "dashboard/tests", parts: 2, unit: "case" }],
     run,
   });
   assert.deepEqual(summaryProblems(summary), []);
@@ -174,7 +174,7 @@ test("a breakdown that does not account for its counts, or names a path outside 
 
   const { summary } = summarize({
     fragments: [source(value, 0)],
-    expect: [{ entry: "tests", parts: 1 }],
+    expect: [{ entry: "tests", parts: 1, unit: "file" }],
     run,
   });
   assert.deepEqual(summaryProblems(summary), []);

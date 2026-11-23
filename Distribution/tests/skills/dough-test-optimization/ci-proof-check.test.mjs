@@ -79,6 +79,47 @@ for (const [name, change, problem] of [
   });
 }
 
+for (const status of ["missing", "ambiguous"]) {
+  test(`a retired unit with all parts ${status} makes the attempt's proof invalid`, () => {
+    const entry = makeMe.aCiProofEntry
+      .holding(
+        makeMe.aCiProofEvidence
+          .inUnit("file")
+          .inParts(2, { [status]: [1, 2] })
+          .please(),
+      )
+      .please();
+    const summary = makeMe.aCiProofSummary
+      .inRepository(repository)
+      .ofRun(run)
+      .withEntries(entry)
+      .please();
+    const [unobserved] = entry.evidence;
+    const refused = (evidence) =>
+      checkedSummary(
+        { ...summary, entries: [{ ...entry, evidence }] },
+        {
+          repository,
+          ...run,
+        },
+      );
+    assert.deepEqual(
+      refused([{ ...unobserved, unit: "legacy", label: null }]),
+      {
+        why: "invalid",
+        problems: ["entries[0].evidence[0].unit is not case, file"],
+      },
+    );
+    assert.deepEqual(
+      refused([unobserved, { ...unobserved, unit: "legacy", label: "checks" }]),
+      {
+        why: "invalid",
+        problems: ["entries[0].evidence[1].unit is not case, file"],
+      },
+    );
+  });
+}
+
 test("a valid summary is a run attempt's only when it names its repository in any case, its run, attempt and revision", () => {
   const asked = { repository, ...run };
   const usable = makeMe.aCiProofSummary

@@ -12,7 +12,7 @@ import {
   run,
 } from "./ci-proof-test-fixtures.mjs";
 
-test("a fragment and a summary's evidence name one unit; only legacy results carry the label their unit was spelled with", () => {
+test("fragments and summary evidence require a declared unit and reject retired evidence", () => {
   const valid = makeMe.aCiProofFragment
     .at("tests")
     .part(1, 1)
@@ -21,14 +21,15 @@ test("a fragment and a summary's evidence name one unit; only legacy results car
     .please();
   assert.deepEqual(fragmentProblems(valid), []);
   assert.deepEqual(fragmentProblems({ ...valid, unit: "checks" }), [
-    "unit is not case, file, legacy",
+    "unit is not case, file",
   ]);
   assert.deepEqual(fragmentProblems({ ...valid, label: "checks" }), [
     "label is given for file results",
   ]);
-  assert.deepEqual(fragmentProblems({ ...valid, unit: "legacy" }), [
-    "label is not a string",
-  ]);
+  assert.deepEqual(
+    fragmentProblems({ ...valid, unit: "legacy", label: "checks" }),
+    ["unit is not case, file"],
+  );
   assert.deepEqual(fragmentProblems({ ...valid, schemaVersion: 1 }), [
     "schemaVersion is not 2",
   ]);

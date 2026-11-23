@@ -185,14 +185,12 @@ node <ci-scripts>/ci-proof-summary.mjs summarize \
 
 Upload that file as `ci-proof-summary-attempt-${{ github.run_attempt }}`
 (`if-no-files-found: error`, retention from step 5). `--expect` lists proved
-entries in `intent.locations` order, once per unit (`case` or `file`) their
-reports give, with that unit's part count; fragments present never add an
-entry, unit or part. A `tests` location whose Playwright specs run in one
+entries in `intent.locations` order. Each declaration requires the unit
+(`case` or `file`) and its part count. A `tests` location whose Playwright specs run in one
 job and whose Node test files run one job per file across a three-part
-matrix declares `--expect tests=1:case --expect tests=3:file`. A fragment of
-an undeclared unit is excluded with a note, and a declared unit no fragment
-reached is missing in every part. Declare the unit: a declaration without
-`:<unit>` takes whichever one unit its entry's fragments report.
+matrix declares `--expect tests=1:case --expect tests=3:file`. Fragments can
+fill only declared parts for their own unit. The collector reports excluded
+fragments and marks each declared part with no matching fragment missing.
 
 The tab reads only that artifact name holding `ci-proof-summary.json`, at
 most 1 MiB; a file breakdown of about 1,400 test files measured about

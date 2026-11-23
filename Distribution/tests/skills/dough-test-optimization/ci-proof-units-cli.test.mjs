@@ -10,7 +10,12 @@ import { join } from "node:path";
 import test from "node:test";
 import { readCommandProof } from "../../../src/skills/dough-execute-plan/scripts/ci-command-attempt.mjs";
 import { summaryProblems } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-summary.mjs";
-import { cli, fragmentTests, temporary } from "./ci-proof-cli-fixtures.mjs";
+import {
+  cli,
+  fragmentTests,
+  summarizeTests,
+  temporary,
+} from "./ci-proof-cli-fixtures.mjs";
 import {
   attemptId,
   locatedRecord,
@@ -223,21 +228,16 @@ process.stdout.write(\`{"summary":\${readFileSync("summary.json", "utf8")}}\`);
   );
 });
 
-test("the command line's usage names the unit of each report and declaration", () => {
-  const result = cli();
-  assert.equal(result.status, 1);
-  assert.match(
-    result.stderr,
-    /^ci-proof-summary: usage: ci-proof-summary\.mjs fragment\n/,
+test("summarize refuses an omitted expectation unit before writing", (t) => {
+  const directory = temporary(t);
+  const out = join(directory, "summary.json");
+  const result = summarizeTests(
+    directory,
+    ["--run-id", "7", "--attempt", "2"],
+    out,
+    "tests=1",
   );
-  // What the usage names, wherever its lines wrap.
-  const usage = result.stderr.replace(/\s+/g, " ");
-  for (const named of [
-    "--outcomes <report> --unit case|file",
-    "--expect <entry>=<parts>:case|file",
-    "A Playwright record's tests are test cases.",
-    "Outcomes reports require --unit.",
-  ]) {
-    assert.ok(usage.includes(named), named);
-  }
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /--expect tests=1 is not <entry>=<parts>:<unit>/);
+  assert.equal(existsSync(out), false);
 });

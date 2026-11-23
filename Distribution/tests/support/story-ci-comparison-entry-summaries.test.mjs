@@ -75,47 +75,19 @@ test("several present parts keep their breakdown once and keep an unbroken part'
   assert.deepEqual(summary.entries[0].evidence[0], evidence);
 });
 
-test("entirely missing or ambiguous declared units remain unobserved and served mixed proof is rejected by the reader", () => {
+test("entirely missing or ambiguous declared units retain their part status in served proof", () => {
   for (const status of ["missing", "ambiguous"]) {
     const absent = makeMe.aCiProofEvidence
       .inUnit("file")
       .inParts(2, { [status]: [1, 2] })
       .please();
-    const legacy = makeMe.aCiProofEvidence
-      .legacy("checks")
-      .counting(0)
-      .please();
-    const entry = makeMe.aCiProofEntry.at("t").holding(absent, legacy).please();
+    const entry = makeMe.aCiProofEntry.at("t").holding(absent).please();
     const { summary } = entryProofs(revisions, {
       baseline: [entry],
       branch: [entry],
       landed: [entry],
     })[101];
-    assert.deepEqual(summaryProblems(summary), [
-      "entries[0].evidence[1].unit is not case, file",
-    ]);
+    assert.deepEqual(summaryProblems(summary), []);
     assert.deepEqual(summary.entries[0], entry);
-  }
-});
-
-test("legacy units with no present part are invalid at every compared build", () => {
-  for (const status of ["missing", "ambiguous"]) {
-    const evidence = makeMe.aCiProofEvidence
-      .legacy(null)
-      .inParts(2, { [status]: [1, 2] })
-      .please();
-    const entry = makeMe.aCiProofEntry.at("t").holding(evidence).please();
-    const served = entryProofs(revisions, {
-      baseline: [entry],
-      branch: [entry],
-      landed: [entry],
-    });
-    for (const run of [101, 102, 103]) {
-      const { summary } = served[run];
-      assert.deepEqual(summaryProblems(summary), [
-        "entries[0].evidence[0].unit is not case, file",
-      ]);
-      assert.deepEqual(summary.entries[0], entry);
-    }
   }
 });

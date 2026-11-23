@@ -234,7 +234,7 @@ and installed-payload check passed. Commands and observations are in
 
 ### 5. Collect only matching declared parts
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 12–15 minutes.
 
 Behavior. An expectation without a case or file unit fails before producing
@@ -248,6 +248,21 @@ and breakdown checks. Keep the `ci-proof-actions` and
 `ci-proof-frontend-report` action paths green. Remove the unused collector
 and raw fragment compatibility branches and update the shipped proof
 usage.
+
+Accepted proof. The real command refused an omitted or unsupported
+expectation unit without writing a summary, and the exported collector
+rejected the same undeclared input. Wrong-unit and retired fragments
+produced exclusion diagnostics and left the declared parts missing. A
+separate duplicate remained ambiguous. Valid collection kept distinct case
+and file counts, timing and breakdown. The action replay, frontend report,
+installed payload, focused Dashboard suites and type checks passed.
+Full selections and consumer dispositions are in `slice-e-return.md`.
+
+The adapter sibling closed at `8315c956c`. Its implementation tip
+`018d173c5` was already an ancestor of the Take, and comparison with pinned
+trunk `25c05447f` found no incoming change to the Dashboard, Distribution
+source or browser tests. The focused provider and follow-up suites exercised
+the current adapter contract.
 
 ### 6. Use only declared readings in retained scope timing
 Type: Structure
@@ -310,6 +325,8 @@ type checks and the reached mounted comparison and scope-proof specs.
   `f379ad88f6cc049ff057660d5dd07c814b6d26de`. The exact local failure control
   and passing regression proof are in [the diagnosis](diagnosis-intent-read-recovery.md).
   Slice 4 was restored with its implementation and proof inputs intact.
+- Slice 4 was accepted on the story branch at
+  `3c2634e9853fd5a4bda134e34337b830609bfef7`.
 
 ## Story obligations
 
@@ -321,7 +338,7 @@ Disposition: proved by slice 2: the shared reader, CLI, both live providers and 
 ### G2. The collector has temporary undeclared inputs
 Reported: slice 2 — "Collection still accepts undeclared fragment or expectation input during these intermediate slices."
 Story clause: "Outcomes reports require `--unit case|file`, and summary expectations require a unit for each entry and part count."
-Disposition: interim until slices 3, 5
+Disposition: proved by slice 5: the accepted proof under slices 3 and 5 covers the outcomes and expectations refusals, the output boundary and invalid fragment exclusion.
 
 ### G3. Dashboard projections still have legacy unit branches
 Reported: slice 2 — "The Dashboard's remaining typed fixture and projection branches for legacy evidence still have owners in slices 6 and 7."

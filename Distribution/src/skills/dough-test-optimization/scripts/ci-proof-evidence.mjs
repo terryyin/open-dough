@@ -7,10 +7,7 @@
 //
 // Units. Every result is counted in one unit: `case`, one test case outcome
 // a runner reported; `file`, one aggregate outcome for running one file,
-// however many cases that file holds; or `legacy`, results whose publisher
-// declared no unit. Legacy results keep the raw `label` their counted unit
-// was spelled with (`tests`, `checks`, or null when nothing said) as
-// provenance only: a label is never read as `case` or `file`.
+// however many cases that file holds.
 import {
   addedFigures,
   breakdownProblems,
@@ -22,34 +19,21 @@ import {
 
 export const PART_STATUSES = ["present", "missing", "ambiguous"];
 
-// The units a publisher declares, and the unit of results it declared none
-// for.
 export const DECLARED_UNITS = ["case", "file"];
-export const LEGACY_UNIT = "legacy";
-export const UNITS = [...DECLARED_UNITS, LEGACY_UNIT];
-
-// The unit of VALUE, a fragment or summary evidence: `{unit}`, with a legacy
-// unit's `label`.
-export const unitOf = ({ unit, label }) =>
-  unit === LEGACY_UNIT ? { unit, label } : { unit };
 
 // What results are called in each unit, as Intent names them.
 const UNIT_NOUNS = {
   case: ["test case", "test cases"],
   file: ["test file", "test files"],
-  legacy: ["legacy test result", "legacy test results"],
 };
 
 // What COUNT results in UNIT are called: "1 test case", "3 test files".
 export const unitNoun = (unit, count) => UNIT_NOUNS[unit][count === 1 ? 0 : 1];
 
 // Why VALUE does not use an allowed unit, or its label is invalid.
-export function unitProblems(value, where, units = UNITS) {
-  if (!units.includes(value.unit)) {
-    return [`${where}unit is not ${units.join(", ")}`];
-  }
-  if (value.unit === LEGACY_UNIT) {
-    return isText(value.label) ? [] : [`${where}label is not a string`];
+export function unitProblems(value, where) {
+  if (!DECLARED_UNITS.includes(value.unit)) {
+    return [`${where}unit is not ${DECLARED_UNITS.join(", ")}`];
   }
   return value.label === undefined
     ? []

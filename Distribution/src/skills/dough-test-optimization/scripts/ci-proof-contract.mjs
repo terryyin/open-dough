@@ -9,11 +9,7 @@
 // partitioned by unit as `evidence`, at most one per unit, each with its own
 // counts, timing, parts and file breakdown: no figure is added across units,
 // and how many paths a breakdown names never counts as test files.
-import {
-  DECLARED_UNITS,
-  resultsProblems,
-  unitProblems,
-} from "./ci-proof-evidence.mjs";
+import { resultsProblems, unitProblems } from "./ci-proof-evidence.mjs";
 import {
   breakdownProblems,
   figuresProblems,
@@ -24,11 +20,8 @@ import {
 export { COUNT_FIELDS, zeroCounts } from "./ci-proof-figures.mjs";
 export {
   DECLARED_UNITS,
-  LEGACY_UNIT,
   PART_STATUSES,
-  UNITS,
   unitNoun,
-  unitOf,
 } from "./ci-proof-evidence.mjs";
 
 export const FRAGMENT_SCHEMA_VERSION = 2;
@@ -78,12 +71,11 @@ export const summaryAttempt = (run) =>
     : { runId: run.runId, runAttempt: run.attempt };
 
 // One entry's fragment for one part of one attempt's revision, its results
-// counted in UNIT: `{unit: "case"}`, `{unit: "file"}`, or legacy results
-// `{unit: "legacy", label}` with the label their unit was spelled with.
+// counted in the declared unit, `case` or `file`.
 // EXTRAS may carry optional `durationMs` (summed test execution time for
 // this part) and, for a fragment broken down by file, `untimed`, `files` and
 // `unassigned` (ci-proof-figures.mjs, "File breakdown").
-export function fragment(identity, entry, unit, counts, extras = {}) {
+export function fragment(identity, entry, { unit }, counts, extras = {}) {
   return {
     schemaVersion: FRAGMENT_SCHEMA_VERSION,
     entry,
@@ -91,7 +83,7 @@ export function fragment(identity, entry, unit, counts, extras = {}) {
     of: identity.of,
     ...fragmentAttempt(identity),
     revision: identity.revision,
-    ...unit,
+    unit,
     ...counts,
     ...extras,
   };
@@ -162,7 +154,7 @@ function entryProblems(entry, index) {
       problems.push(`${where}evidence[${at}] is not an object`);
       return;
     }
-    const unit = unitProblems(evidence, here, DECLARED_UNITS);
+    const unit = unitProblems(evidence, here);
     if (unit.length === 0 && units.has(evidence.unit)) {
       unit.push(`${here}unit ${evidence.unit} is repeated`);
     }

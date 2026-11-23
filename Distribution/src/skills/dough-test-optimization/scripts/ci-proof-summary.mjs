@@ -56,9 +56,8 @@ const USAGE = `usage: ci-proof-summary.mjs fragment
          --revision <revision> --out <summary file>
 A Playwright record's tests are test cases. --unit file counts each outcomes line as one
 test file's aggregate outcome, however many cases the file holds; --unit case as one test
-case. Outcomes reports require --unit. Declare each entry once per unit it reports, with
-that unit's part count. A declaration without :<unit> takes whichever one unit its
-entry's fragments report.`;
+case. Outcomes reports require --unit. Every --expect declares one entry, its part count
+and its unit. Repeat --expect for an entry that reports both units.`;
 
 function jsonFiles(directory) {
   return readdirSync(directory, { recursive: true, withFileTypes: true })
@@ -147,9 +146,10 @@ function runSummarize(argv) {
     optional: ["run-id", "attempt", "attempt-id"],
     multiple: ["expect"],
   });
+  const expect = values.expect.map(parseExpect);
   const { summary, notes } = summarize({
     fragments: readFragments(values.fragments),
-    expect: values.expect.map(parseExpect),
+    expect,
     run: {
       repository: values.repository,
       ...attemptIdentity("summarize", values, {
