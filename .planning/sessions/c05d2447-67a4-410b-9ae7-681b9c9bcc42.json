@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "c05d2447-67a4-410b-9ae7-681b9c9bcc42",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T07:49:50.655Z",
+  "story": "SEED-345#catch-delegated-lint-before-delivery",
+  "ranges": [
+    {
+      "base": "67f8d37bfd8cb4ad61dc3d6a9ce2675e13bdb905",
+      "candidate": "ffed8fb1b54018f30db2a8f8269d6ad0f9e6c775"
+    },
+    {
+      "base": "ffed8fb1b54018f30db2a8f8269d6ad0f9e6c775",
+      "candidate": "d7704c7bc467e7060e06e4f554a8e4f641265e3e"
+    },
+    {
+      "base": "d7704c7bc467e7060e06e4f554a8e4f641265e3e",
+      "candidate": "0460e7ceb1d94cf4a44d61e0ff2145cf0c532c30"
+    }
+  ]
+}
