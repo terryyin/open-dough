@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "4fd12fea-a82e-499a-a52c-486458c6c039",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T03:01:27.273Z",
+  "story": "SEED-341#keep-attention-completion-journey-within-timeout",
+  "ranges": [
+    {
+      "base": "c6dd0464539c4f43a0ae32a9a29a49f5451fed8d",
+      "candidate": "55ad9c3fb2c1f2eb761e4e6f71d6cb8be7ec5bba"
+    }
+  ]
+}
