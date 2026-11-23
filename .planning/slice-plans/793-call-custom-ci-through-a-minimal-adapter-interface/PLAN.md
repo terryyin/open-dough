@@ -206,7 +206,7 @@ is a test defect for a later correction.
 ### 5. The Dashboard requests one rebuild of the original landed revision
 
 Type: Behavior
-Status: planned
+Status: done
 
 With a qualifying landing and `ciRebuild` configured, pass the original attempt
 through the shared command boundary. Document that separate permission and
@@ -219,6 +219,18 @@ watcher and a Dashboard with no configured trigger read-only.
 `landed-ci-adapter-repeat-comparability` specs. Check the submitted original SHA
 and attempt, pending and comparable completion, and refusal/uncertainty across
 later collection or restart. Use fixture CI for admission.
+
+**Delivered.** The Dashboard already submits through the shared
+`requestCommandRebuild` (`ciFollowUpAdapterProvider.ts`, separate `ciRebuild`
+command, original `adapterAttempt` with the landed revision, from the project
+folder) and observes the repeat with `ciAdapter` only, so only the manual
+changed. `custom-ci-rebuild.md` (126→131) presents the trigger as a separate
+permission and request in the shared `diagnose` shape, links the shared
+protocol and limits instead of repeating them, and states that a failed or
+invalid call counts as uncertain and is never resent. Proof:
+`ci-command-rebuild.test.mjs` (5), backend `landed-ci-adapter-repeat`,
+`-repeat-rejections` and `-repeat-comparability` (31, load 20–27) and the
+install checks passed.
 
 ### 6. Pygardon's existing command works with the candidate install
 
