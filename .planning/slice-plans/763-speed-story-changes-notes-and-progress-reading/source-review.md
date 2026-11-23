@@ -43,7 +43,7 @@ outside-locations diff and line-note subject.
 | C23 | Changed-file line note records Intent view, explicitly including outside-Intent-locations files. | slice 6 | observed: intent-story-notes.spec.ts saves actual line notes from the added test at new line 13 and the modified product file outside locations at new line 1. The independently captured add commands contain Intent → Changes and the exact paths, comparison and line subjects. |
 | C24 | Closing Notes restores focus. | slice 6 | observed: intent-story-notes.spec.ts opens Notes with native Enter and observes the original Notes control regain focus after the real Close action. |
 | C25 | Closing Notes keeps selected file. | slice 6 | observed: intent-story-notes.spec.ts observes the same selected file still pressed, the same diff name, and the exact nonzero reading offset after Notes closes. |
-| C26 | Saved note stays visible after older project read finishes. | slice 7 | |
+| C26 | Saved note stays visible after older project read finishes. | slice 7 | observed: story-notes-control.spec.ts saves through the actual dialog and observes the row and Notes (1) before the older empty read answers. It releases that read, observes a new rendered title, then checks the same saved row and count. |
 | C27 | Recorded counts are displayed as applicable when opening progress, execution completion or coverage for a story with records. | slice 8 | |
 | C28 | Recorded advice is displayed as applicable when opening progress, execution completion or coverage for a story with records. | slice 8 | |
 | C29 | Recorded result is displayed as applicable when opening progress, execution completion or coverage for a story with records. | slice 8 | |
@@ -52,7 +52,7 @@ outside-locations diff and line-note subject.
 | C32 | Coverage shows applicable read gap. | slice 8 | |
 | C33 | Future plan proof supplies no completion evidence. | slice 8 | |
 | P01 | Move remaining original-cohort checks from Playwright to Vitest under the representative-proof qualification. | slice 8 | |
-| P02 | Narrow existing Vitest Story Notes control proof to project's subscribed notes state. | slice 7 | |
+| P02 | Narrow existing Vitest Story Notes control proof to project's subscribed notes state. | slice 7 | observed: story-notes-control.spec.ts uses mountComponent with the production StoryNotesControl and the actual localSettingState subscription. Its open-list refresh observes a single subscriber and the same count and dialog updating after the periodic read. |
 | P03 | Retain representative built-page proof for journeys requiring real navigation, publication or reload. | slice 8 | |
 | P04 | Retire shared support when its last consumer moves. | slice 8 | |
 | P05 | Record each original case disposition, explicitly including cases retired with shortcut and added line-note case. | slice 8 | |

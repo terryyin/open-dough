@@ -491,7 +491,7 @@ The five Notes cases reran strictly green in 15.65 s. See
 ### 7. Subscribe the Story Notes control to the project's notes state
 
 Type: Behavior
-Status: planned
+Status: done
 
 Narrow `stories/story-notes-control` (6 existing Vitest cases). Wire the
 production control at the existing per-project state and observe the
@@ -506,6 +506,44 @@ keyboard activation and focus return. A save is visible before the held
 read resolves, and a post-resolution render observes that the stale reply
 cannot replace it. Keep one project subscription for the control and its
 open dialog.
+
+**Accepted proof and case disposition.** The wrapper uses the existing
+page-held, machine-local project Notes state. The control subscribes once
+and gives its open dialog the same answer and change operation. The
+mounted test passes `localSettingState` directly and uses real UI actions.
+The six former checks now run as five cases. Count and waiting, unreadable,
+periodic refresh and stale response keep distinct cases. Enter opening
+and Close returning focus share one journey with both assertions.
+
+The save appears while the older reply is held. After that reply resolves,
+a new rendered title confirms a later render before the same count and
+note are checked again. Removing stale-answer protection fails the later
+note check after the earlier ones pass. Adding a second active subscription
+fails the open-dialog subscription count. Both probes were restored.
+Source review C26 and P02 records these live observations.
+
+The mounted core and supplemental gates passed 31 and six cases, reaching
+Board, Intent header, Review, diff notes, dialog and attachment callers.
+The exact five control cases passed after both probes. The isolated
+built-page Done card and terminal lifetime cases passed, as did final
+Dashboard typecheck. The terminal case initially ran out of its default
+30 s budget under load. Trace inspection showed Notes and the subsequent
+echo had passed. After the isolated run reached reload, the local repair
+reused exact visible Board membership and the retained session as its
+reload cues and removed a redundant setup settle already covered by
+launch readiness. It retains the original terminal, reconnect and
+reload assertions and timeout. The passing repaired case took 28.998 s
+at one-minute load 29.51. The Done case took 20.247 s.
+
+The control spec keeps five direct production imports, replacing the
+transport types module with `localSettingState.ts` and using the core
+note module as types. The terminal spec and existing page helper retain
+zero direct product imports. `slice-7-return.md` and
+`s7-consumer-trace-final.md` in Git evidence retain the direct caller
+disposition, failed traces, commands and strict receipts. The independent
+pass reuses the existing Notes selectors and shared membership type.
+The five mounted control cases then passed strictly in 5.71 s. The
+E2E and scratch observations still apply. See `slice-7-refactor.md`.
 
 ### 8. Show recorded progress, execution completion and coverage with their gaps
 

@@ -15,12 +15,18 @@ const storyNotesState = (
   source: (change?: StoryNoteChange) => Promise<StoryNotesAnswer>,
 ) => localSettingState<StoryNotesAnswer, StoryNoteChange>(source);
 
-const useProjectNotes = heldOnPagePerKey((reads, project) =>
+export type StoryNotesState = ReturnType<typeof storyNotesState>;
+
+export const useProjectStoryNotes = heldOnPagePerKey((reads, project) =>
   storyNotesState((change) => reads.storyNotes(project, change)),
 );
 
+export function useStoryNotesAnswer(state: StoryNotesState) {
+  return useSyncExternalStore(state.subscribe, state.snapshot);
+}
+
 export function useStoryNotes(project: string): StoryNotes {
-  const state = useProjectNotes(project);
-  const answer = useSyncExternalStore(state.subscribe, state.snapshot);
+  const state = useProjectStoryNotes(project);
+  const answer = useStoryNotesAnswer(state);
   return { answer, change: state.change };
 }
