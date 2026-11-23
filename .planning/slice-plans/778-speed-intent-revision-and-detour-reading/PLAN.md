@@ -118,7 +118,7 @@ and end in `--workers=2`. Scratch edits were disposable.
   measurement is retained for historical comparison; use a paired run
   to attribute changes to the cleanup.
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. Revision and pinned-source reading use the production Intent body
 
