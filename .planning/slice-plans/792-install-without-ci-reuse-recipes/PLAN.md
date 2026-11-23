@@ -81,7 +81,7 @@ passed 56 of 56; the recipe-side consumers passed earlier, 41 of 41.
 ### 2. A fresh install and an update carry no CI reuse recipe
 
 Type: Behavior
-Status: planned
+Status: done
 
 Pre-condition: the release source with this story. Trigger: install, or
 update a project installed from the previous release. Result: no
@@ -115,6 +115,14 @@ checks. `payload-declaration-links.sh` and `install-public-payload.sh` pass.
 nothing. Slice 1's integrated-state cases stay green. The consumer trace with
 `--term ci-reuse --term reuse-ci --term aCiReusePolicy` shows every reached
 consumer run or removed.
+
+**Accepted.** The update check finds no `*reuse*` file in either installed
+`dough-execute-plan` root; the same predicate finds the seven recipe files in
+the earlier installed layout. All 28 installation scripts passed. After the
+refactor, twelve integrated-state, judge, background and wrap-up files passed
+72 of 72, and the moved `anIntegratedStatePolicy` and `anAnsweredCiRun`
+builders' dashboard consumer passed. `runtime-setup.md` also lost its reuse
+clause.
 
 ## Verification and delivery
 

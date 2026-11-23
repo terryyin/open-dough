@@ -21,16 +21,8 @@ function describedIncrement({ description }) {
   return { path, content: String(content) };
 }
 
-// Actual covered and target-only children are independent of provider facts.
-// `labels` (unit, configuration, context) name the covered check's report.
-export function createCheckCommands(
-  fixture,
-  labels = {
-    unit: "covered",
-    configuration: "checks-v1",
-    context: "inputs-v1",
-  },
-) {
+// The actual covered child is independent of provider facts.
+export function createCheckCommands(fixture) {
   const increment = describedIncrement(fixture);
   const executions = join(fixture.fixture, "executions.jsonl");
   const covered = join(fixture.fixture, "covered.mjs");
@@ -43,9 +35,8 @@ import { execFileSync } from 'node:child_process';
 const [sha, failed] = process.argv.slice(2);
 const content = execFileSync('git', ['show', sha + ':' + ${JSON.stringify(increment.path)}], {encoding:'utf8'});
 assert.equal(content, ${JSON.stringify(increment.content)});
-appendFileSync(${JSON.stringify(executions)}, JSON.stringify({sha,kind:'covered'})+'\\n');
+appendFileSync(${JSON.stringify(executions)}, JSON.stringify({sha})+'\\n');
 if (failed === 'true') process.exit(1);
-console.log('DOUGH_CI_DIRECT '+JSON.stringify({sha,...${JSON.stringify({ unit: labels.unit, configuration: labels.configuration, context: labels.context })}}));
 `,
   );
   const coveredCommand = (sha, failed = false) => [
@@ -54,21 +45,15 @@ console.log('DOUGH_CI_DIRECT '+JSON.stringify({sha,...${JSON.stringify({ unit: l
     sha,
     String(failed),
   ];
-  const targetOnlyCommand = (sha, failed = false) => [
-    process.execPath,
-    "-e",
-    `require('node:fs').appendFileSync(${JSON.stringify(executions)}, ${JSON.stringify(`${JSON.stringify({ sha, kind: "target-only" })}\n`)});process.exit(${failed ? 1 : 0})`,
-  ];
   return {
     coveredCommand,
-    targetOnlyCommand,
-    count(sha, kind = "covered") {
+    count(sha) {
       if (!existsSync(executions)) return 0;
       return readFileSync(executions, "utf8")
         .trim()
         .split("\n")
         .map(JSON.parse)
-        .filter((entry) => entry.sha === sha && entry.kind === kind).length;
+        .filter((entry) => entry.sha === sha).length;
     },
     async runCovered(sha, failed = false) {
       const [command, ...args] = coveredCommand(sha, failed);
@@ -76,11 +61,6 @@ console.log('DOUGH_CI_DIRECT '+JSON.stringify({sha,...${JSON.stringify({ unit: l
         cwd: fixture.execution,
       }).catch((error) => error);
       return { success: !(result instanceof Error), log: result.stdout };
-    },
-    async runTargetOnly(sha, failed = false) {
-      const [command, ...args] = targetOnlyCommand(sha, failed);
-      const result = await exec(command, args).catch((error) => error);
-      return !(result instanceof Error);
     },
   };
 }

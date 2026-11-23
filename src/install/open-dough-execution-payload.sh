@@ -15,8 +15,6 @@ managed_files+=(
   dough-execute-plan/manuals/custom-ci.md
   dough-execute-plan/manuals/custom-ci-proof.md
   dough-execute-plan/manuals/custom-ci-rebuild.md
-  dough-execute-plan/manuals/custom-reuse-ci.md
-  dough-execute-plan/manuals/reuse-ci.md
   dough-execute-plan/manuals/custom-ci-queue.md
   dough-execute-plan/references/admit-accepted-work.md
   dough-execute-plan/references/agent-commits.md
@@ -85,11 +83,6 @@ managed_files+=(
   dough-execute-plan/scripts/ci-github-actions.mjs
   dough-execute-plan/scripts/ci-integrated-state.mjs
   dough-execute-plan/scripts/ci-integrated-state-ancestry.mjs
-  dough-execute-plan/scripts/ci-reuse-policy.mjs
-  dough-execute-plan/scripts/ci-reuse-gate.mjs
-  dough-execute-plan/scripts/ci-reuse-github.mjs
-  dough-execute-plan/scripts/ci-reuse-github-command.mjs
-  dough-execute-plan/scripts/ci-reuse-custom-example.mjs
   dough-execute-plan/scripts/ci-integrated-state-policy.mjs
   dough-execute-plan/scripts/ci-github-diagnostic.mjs
   dough-execute-plan/scripts/ci-host-bridge.mjs

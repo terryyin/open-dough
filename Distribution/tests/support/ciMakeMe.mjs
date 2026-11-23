@@ -22,7 +22,7 @@ import { GitHubJobBuilder } from "./ciJobTestData.mjs";
 import { CiRunBuilder, RevisionCiRunBuilder } from "./ciRunTestData.mjs";
 import { aCiQueueEntry } from "./ciQueueTestData.mjs";
 import { aRevisionCoverage } from "./ciRevisionCoverageTestData.mjs";
-import { ciReusePolicyMakeMeProperties } from "./ciReusePolicyTestData.mjs";
+import { ciIntegratedStatePolicyMakeMeProperties } from "./ciIntegratedStatePolicyTestData.mjs";
 import { ciComparisonAnswerMakeMeProperties } from "./ciComparisonAnswerTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
@@ -36,7 +36,7 @@ import { comparedStoryMakeMeProperties } from "./comparedStoryTestData.mjs";
 /**
  * CI builders exposed on MakeMe (fresh on each access).
  *
- * @typedef {CiOwnMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").ComparisonViewMakeMe & import("./ciReusePolicyTestData.mjs").CiReusePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
+ * @typedef {CiOwnMakeMe & import("./ciHistoryAnswerTestData.mjs").CiHistoryAnswerMakeMe & import("./ciProofTestData.mjs").CiProofMakeMe & import("./comparisonViewTestData.mjs").ComparisonViewMakeMe & import("./ciIntegratedStatePolicyTestData.mjs").CiIntegratedStatePolicyMakeMe & import("./ciComparisonAnswerTestData.mjs").CiComparisonAnswerMakeMe & import("./comparedStoryTestData.mjs").ComparedStoryMakeMe} CiMakeMe
  */
 /**
  * @typedef {object} CiOwnMakeMe
@@ -174,7 +174,7 @@ export function ciMakeMeProperties() {
         return new GitHubJobBuilder();
       },
     },
-    ...ciReusePolicyMakeMeProperties(),
+    ...ciIntegratedStatePolicyMakeMeProperties(),
     ...ciComparisonAnswerMakeMeProperties(),
     ...comparedStoryMakeMeProperties(),
     ...comparisonViewMakeMeProperties(),

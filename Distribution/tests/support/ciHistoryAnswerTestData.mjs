@@ -6,6 +6,7 @@
 // its own landing (exact) at its start unless the case states otherwise, and
 // carries a measure only when the case names one, as a wall-time reader's
 // answer does.
+import { copyFacts } from "./factBuilder.mjs";
 
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").LandedCiHistory} LandedCiHistory */
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").LandedCiEntry} LandedCiEntry */
@@ -13,6 +14,15 @@
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").FinalGap} FinalGap */
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").PendingGap} PendingGap */
 /** @typedef {import("../../../dashboard/src/landedCiHistory.ts").Provenance} Provenance */
+
+/**
+ * History-read answer for one GitHub run's first attempt (`answeredRun`).
+ * @typedef {{
+ *   runUrl: string,
+ *   runId: number,
+ *   runAttempt: number,
+ * }} AnsweredCiRun
+ */
 
 /** @param {number} runId */
 const firstAttemptOf = (runId) => ({
@@ -113,6 +123,7 @@ export class CiHistoryAnswerBuilder {
 /**
  * @typedef {object} CiHistoryAnswerMakeMe
  * @property {CiHistoryAnswerBuilder} aCiHistoryAnswer
+ * @property {import("./factBuilder.mjs").FactBuilder<AnsweredCiRun>} anAnsweredCiRun
  */
 
 /** @returns {PropertyDescriptorMap} */
@@ -122,6 +133,12 @@ export function ciHistoryAnswerMakeMeProperties() {
       enumerable: true,
       get() {
         return new CiHistoryAnswerBuilder();
+      },
+    },
+    anAnsweredCiRun: {
+      enumerable: true,
+      get() {
+        return { with: copyFacts };
       },
     },
   };

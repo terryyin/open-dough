@@ -225,10 +225,6 @@ or later `time` on another attempt of that check (or `time` only on the other)
 leaves evidence unresolved. Each poll rejudges from discovery; a failed discovery
 withdraws it. Without the declaration or these fields, completion stays exact.
 
-## Runnable provider with optional reuse
-
-Follow [custom CI with validation reuse](custom-reuse-ci.md) for provider-side reuse: shared gate, target aggregates through the adapter contract above.
-
 ## Outcomes, coverage, and failures
 
 Delivery registers each successfully pushed SHA independently of discovery.
