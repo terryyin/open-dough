@@ -57,7 +57,6 @@ test("unread failures survive resume and a later failure is delivered", async (t
     candidateSha: accepted,
     targetRef: trunkTarget,
     repo,
-    publishedRevisions: [accepted],
     defaultCheckout: fixture.integration,
   });
   assert.equal(resumed.observation.state, "recovered");
@@ -122,7 +121,6 @@ test("undiscovered revision through completion reports truthful unproved coverag
     candidateSha: accepted,
     targetRef: trunkTarget,
     repo,
-    publishedRevisions: [accepted],
     defaultCheckout: fixture.integration,
   });
   assert.equal(resumed.observation.state, "recovered");

@@ -12,18 +12,13 @@ import {
   withExplicitSession,
 } from "./ci-host-bridge.mjs";
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
-import {
-  completeRevision,
-  mailboxRoot,
-  receiptPrefix,
-  registerPushedRevision,
-} from "./ci-mailbox.mjs";
+import { completeRevision, mailboxRoot, receiptPrefix } from "./ci-mailbox.mjs";
 import {
   isLiveMatchingMailbox,
   listOwnedMailboxes,
 } from "./ci-mailbox-match.mjs";
 import { writePredecessors } from "./ci-mailbox-predecessors.mjs";
-import { listRegisteredRevisions } from "./ci-mailbox-revision-records.mjs";
+import { registerPushedRevision } from "./ci-mailbox-revision-records.mjs";
 import { codexStreamOwner } from "./ci-observer-owner.mjs";
 import {
   coverageGap,
@@ -156,9 +151,7 @@ export async function recoverExecutionCompletion(request) {
   }
 
   const directory = observation.directory;
-  if (!listRegisteredRevisions(directory).includes(acceptedSha.toLowerCase())) {
-    registerPushedRevision(directory, acceptedSha);
-  }
+  registerPushedRevision(directory, acceptedSha, { onlyIfMissing: true });
 
   const receipt = await completeRevision(directory, acceptedSha, {
     root: observerRoot,

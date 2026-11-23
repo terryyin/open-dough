@@ -66,7 +66,7 @@ repository runner with Homebrew Bash 5 and Node 24 passed these focused baseline
 
 Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. Slice 1 was published as `67b66d67ce7b7905d9fb5e780baf3090a47ceb33` on the story branch. The Take has no owned trunk CI observation.
 
-The latest accepted story-branch revision is `633cf4d2832fbfe9fc41e0f3b859ddef85e9c634` after Slice 4.
+The latest accepted story-branch revision is `1975c03b1ffdc233beac13dd236663253c8f84de` after Slice 5.
 Codex observer for the execution branch uses GitHub Actions `ci.yml` (CI). Coordinator `5f0cec34-e7f0-4f74-8aa2-de18cfa45a2b`, mailbox `/tmp/dough-ci-501/watch-QmFpcm`, PID `84936`, session `52487`, cell `g245:20`. Runtime and owner are bound to the established execution checkout.
 
 ## Local gate
@@ -189,20 +189,20 @@ direct unit boundary. All 38 selected Distribution and evaluation checks and thr
 ### 6. Resume the exact publication and register where the owner needs it
 
 Type: Behavior
-Status: planned
+Status: done
 
 On resuming a published candidate, remove the test-driven published identity
 list, count and bookkeeping obligation. Observe the exact accepted SHA and
 keep its comparison evidence. Keep registration in the caller that owns the
 observer. Preserve trunk closure's missing-receipt registration for its
 selected live observer, ordinary resume's registration and an accepted
-candidate's no-push path. Align the recovery reference with those owners.
+candidate's no-push path. The 254-line Trunk publication reference delegates repeated recovery rules to Publish the candidate and keeps its own execution target, checkout, caller and refresh links. The resulting 249-line guidance preserves the command and anchor.
 
 **Proof:** Run `publication-resume*`, managed resume lifecycle and owner
 checks, session close and installed `trunk-closure-codex-owner`, resume and
 rebased rerun checks. Inspect target and push counts alongside the observation
 and unchanged foreign or already-covered mailbox. Use an old accepted
-candidate with a live observer missing its receipt.
+candidate with a live observer missing its receipt. All 35 focused files and 17 refactor checks passed. The installed old-closure case records its missing receipt on the owning live worker without pushing again. Checkout evidence uses the `slice6-` prefix.
 
 ### 7. Deliver and complete without test-only option transport
 
@@ -215,7 +215,7 @@ across delivery, completion and closure, and publisher callback fields whose
 callers are only fixtures. Preserve on-target registration, the exact
 candidate, and single retry. Keep the used `beforePush` and ownership/proof
 callbacks. Use the existing attempt callback, a transport hook or the
-advanced local remote to arrange contention.
+advanced local remote to arrange contention. The 253-line managed-delivery test fixture keeps checkout deployment, controlled provider and observer lifetime. Remove the obsolete alias input, retained alias and duration request slots together. Keep helper callers and renew installed delivery, resume and completion proof.
 
 **Proof:** Run managed delivery and completion recovery checks with controlled
 clock or observer inputs, and run the racing suffix and queued one-shot race

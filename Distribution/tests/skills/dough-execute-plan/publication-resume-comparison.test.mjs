@@ -35,7 +35,6 @@ test("an interrupted candidate retains its comparison through its first accepted
   const published = await resumeInterruptedPublication({
     ownedWorkspace: fixture.execution,
     ...comparison,
-    publishedRevisions: [],
   });
   assert.equal(published.pushCount, 1);
   assert.equal(published.suffixBase, fixture.trunkSha);
@@ -68,7 +67,6 @@ test("a retained empty comparison is valid when its two commits are equal", asyn
   const published = await resumeInterruptedPublication({
     ownedWorkspace: fixture.execution,
     ...comparison,
-    publishedRevisions: [],
   });
   assert.equal(published.classification, "already-published");
   assert.equal(published.pushCount, 0);
@@ -87,7 +85,7 @@ test("a retained empty comparison is valid when its two commits are equal", asyn
   );
 });
 
-test("non-commit, moving, missing and unrelated retained comparison ends stop before fetch, push or registration", async (t) => {
+test("non-commit, moving, missing and unrelated retained comparison ends stop before fetch or push", async (t) => {
   const fixture = await materializeRepository(trunkWithOneIncrement);
   t.after(fixture.cleanup);
   const otherWriter = await advanceOriginFromAnotherWriter(fixture.origin);
@@ -95,8 +93,6 @@ test("non-commit, moving, missing and unrelated retained comparison ends stop be
   const tree = await revParse(fixture.execution, `${fixture.trunkSha}^{tree}`);
   const refsBefore = (await git(fixture.execution, "for-each-ref")).stdout;
   const checkoutBefore = await captureCheckout(fixture.execution);
-  const publishedRevisions = [];
-  const receipts = [];
   const attempts = [];
   // Leave another advance unfetched; invalid requests must not fetch it.
   const latestWriter = await advanceOriginFromAnotherWriter(fixture.origin, {
@@ -113,19 +109,11 @@ test("non-commit, moving, missing and unrelated retained comparison ends stop be
       resumeInterruptedPublication({
         ownedWorkspace: fixture.execution,
         ...comparison,
-        publishedRevisions,
-        observer: {
-          bound: true,
-          receipts,
-          register: (...receipt) => receipts.push(receipt),
-        },
         onFetchedTarget: () => {
           attempts.push("fetched");
         },
       }),
     );
-    assert.deepEqual(publishedRevisions, []);
-    assert.deepEqual(receipts, []);
     assert.deepEqual(attempts, []);
     assert.equal(
       (await git(fixture.execution, "for-each-ref")).stdout,

@@ -25,17 +25,6 @@ import { trunkWithOneUnpublishedIncrement } from "./publication-clean-trunk-fixt
 
 const storyTarget = "refs/heads/cursor/story-execution";
 
-function createObserverStub() {
-  const receipts = [];
-  return {
-    bound: true,
-    receipts,
-    register(sha, target = "refs/heads/main") {
-      receipts.push({ sha, target });
-    },
-  };
-}
-
 test("a retained Story Branch candidate already on that remote stays published and does not push trunk", async (t) => {
   const { origin, integration, execution, trunkSha, candidateSha, cleanup } =
     await materializeRepository(trunkWithOneUnpublishedIncrement);
@@ -67,8 +56,6 @@ test("a retained Story Branch candidate already on that remote stays published a
   const rewrittenSha = await revParse(execution, "exec/story");
   assert.notEqual(rewrittenSha, candidateSha);
   await pushExactRef(execution, rewrittenSha, storyTarget);
-  const publishedRevisions = [];
-  const observer = createObserverStub();
   const comparison = makeMe.aRetainedComparison
     .with({ candidateSha: rewrittenSha, suffixBase: trunkSha })
     .please();
@@ -79,16 +66,12 @@ test("a retained Story Branch candidate already on that remote stays published a
     ...comparison,
     defaultCheckout: integration,
     supersededShas: [candidateSha],
-    publishedRevisions,
-    observer,
     targetRef: storyTarget,
   });
 
   assert.equal(resumed.classification, "already-published");
   assert.equal(resumed.pushCount, 0);
   assert.equal(resumed.acceptedSha, rewrittenSha);
-  assert.deepEqual(publishedRevisions, [rewrittenSha]);
-  assert.equal(publishedRevisions.includes(candidateSha), false);
   assert.equal(await lsRemoteSha(origin, storyTarget), rewrittenSha);
   assert.equal(await lsRemoteSha(origin, "refs/heads/main"), trunkSha);
   assert.deepEqual(
@@ -110,7 +93,6 @@ test("a retained Story Branch candidate already on that remote stays published a
     assert.equal(error.code, 1);
   }
   assert.equal(preRebaseOnRemote, false);
-  assert.deepEqual(observer.receipts, []);
 });
 
 test("an unpublished Story Branch candidate is pushed only to the recorded remote ref", async (t) => {
@@ -132,8 +114,6 @@ test("an unpublished Story Branch candidate is pushed only to the recorded remot
     expectation,
   );
   const originalExpectation = await openFirstLandingExpectation(expectation);
-  const publishedRevisions = [];
-  const observer = createObserverStub();
   const comparison = makeMe.aRetainedComparison
     .with({ candidateSha, suffixBase: trunkSha })
     .please();
@@ -143,18 +123,12 @@ test("an unpublished Story Branch candidate is pushed only to the recorded remot
     branch: "exec/story",
     ...comparison,
     defaultCheckout: integration,
-    publishedRevisions,
-    observer,
     targetRef: storyTarget,
   });
 
   assert.equal(published.classification, "not-on-remote");
   assert.equal(published.pushCount, 1);
   assert.equal(published.acceptedSha, candidateSha);
-  assert.equal(published.registration.target, storyTarget);
-  assert.deepEqual(observer.receipts, [
-    { sha: candidateSha, target: storyTarget },
-  ]);
   assert.equal(await lsRemoteSha(origin, storyTarget), candidateSha);
   assert.equal(await lsRemoteSha(origin, "refs/heads/main"), trunkSha);
   assert.deepEqual(
@@ -168,7 +142,6 @@ test("an unpublished Story Branch candidate is pushed only to the recorded remot
     ownedWorkspace: execution,
     branch: "exec/story",
     ...comparison,
-    publishedRevisions,
     targetRef: "refs/heads/main",
   });
   assert.equal(landed.acceptedSha, candidateSha);

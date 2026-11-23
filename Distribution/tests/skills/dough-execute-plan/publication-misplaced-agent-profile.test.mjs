@@ -39,16 +39,14 @@ for (const file of [".planning/PRODUCT-BACKLOG.md", "delivery/custom.md"]) {
       });
       const { profile, misplacedPath } = fixture;
       const before = await captureCheckout(fixture.execution);
-      const publishedRevisions = [];
 
-      const result = await publish(publisher, fixture, { publishedRevisions });
+      const result = await publish(publisher, fixture);
 
       const { misplaced, error } = await assertHeld(
         result,
         "misplaced-agent-profile",
         fixture,
         before,
-        publishedRevisions,
       );
       assert.deepEqual(misplaced, [{ path: misplacedPath, home: profile }]);
       assert.ok(error.includes(misplacedPath), error);

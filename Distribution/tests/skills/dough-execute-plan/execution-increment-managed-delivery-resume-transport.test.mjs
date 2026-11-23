@@ -21,7 +21,6 @@ const resumeFor = (fixture, candidateSha) => () =>
     candidateSha,
     targetRef: trunkTarget,
     repo: "owner/project",
-    publishedRevisions: [],
     defaultCheckout: fixture.integration,
   });
 
@@ -97,6 +96,7 @@ test("a stalled push under resume stops with the push issued and the retry pushe
   assert.equal(retried.publication, "accepted");
   assert.equal(retried.classification, "not-on-remote");
   assert.equal(retried.pushCount, 1);
+  assertCoveredOnce(retried, fixture.candidateSha);
   assert.equal(receivePacks(stall), 3);
   assert.equal(
     await lsRemoteSha(fixture.origin, trunkTarget),

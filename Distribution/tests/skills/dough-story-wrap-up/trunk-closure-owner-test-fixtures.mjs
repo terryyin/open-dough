@@ -181,14 +181,14 @@ export function assertCompletedAndStopped(result, observer, final) {
 export async function assertUnresolvedCoverage(
   fixture,
   { result, code },
-  { final, ownership, reason },
+  { final, targetTip = final, ownership, reason },
 ) {
   assert.equal(code, 1);
   assert.equal(result.ok, false);
   assert.equal(result.step, "observation");
   assert.equal(result.publication, "accepted");
   assert.equal(result.acceptedSha, final);
-  assert.equal(await lsRemoteSha(fixture.origin, "refs/heads/main"), final);
+  assert.equal(await lsRemoteSha(fixture.origin, "refs/heads/main"), targetTip);
   assert.equal(result.observation.state, "unobserved");
   assert.equal(result.observation.pendingCi, "unobserved");
   assert.equal(result.observation.ownership, ownership);
