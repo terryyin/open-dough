@@ -350,6 +350,18 @@ mounted run, 10-case final mounted run, 31 backend cases, seven E2E cases,
 and typecheck passed. See `slice-h-return.md` in the checkout's Git evidence
 directory.
 
+## Execution complete
+
+Product advice: no change. Captured landings and Taken ranges use the same
+selected comparison and measured attempts. The mounted proofs distinguish
+whole-story and selected evidence, retain the measured side in either gap,
+and restore the default. The independent integrated journeys exercise the
+existing authenticated comparison, Review and Home paths. The workspace
+notice uses the committed head through the same read boundary.
+Recheck the shared proof policy on the combined candidate with trunk's
+declared-unit changes. Process review is deferred to wrap-up's selected
+Intent Coverage check because existing scope assertions changed.
+
 ## Preparation assessment
 
 A separate slice-plan refinement pass was unnecessary once the read,
@@ -398,6 +410,8 @@ routes. The review identified no remaining slice-specific concern.
   the complete failed job log are in the checkout's Git evidence directory.
 - Slice 7 was accepted on the execution branch at
   `aab0d95c69225a375e193eb4f3a2efdaad348a6f`.
+- Slice 8 was accepted on the execution branch at
+  `c972631bd688da776642a969e92e245fbf72024e`.
 - Codex observer of `ci.yml` on the execution branch, coordinator
   `nao-9b9c27ea`, directory `/tmp/dough-ci-501/watch-dv7wpQ`, process
   `33667`, cell `g458:11`, session `61453`. The claim preceded this observer.
