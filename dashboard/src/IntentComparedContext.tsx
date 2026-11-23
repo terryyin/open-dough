@@ -25,7 +25,7 @@ export function ComparedContext({
   );
   return (
     <div className="intent-story-revisions intent-story-comparison-context">
-      <ReviewContext review={review} />
+      <ReviewContext review={review} shown={shown} />
       {review?.kind === "snapshot" && (
         <>
           <p>

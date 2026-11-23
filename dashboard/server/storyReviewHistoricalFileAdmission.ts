@@ -113,11 +113,13 @@ async function admitPublishedCompletion(
         ? review.explanation
         : "Published comparison unavailable.",
     );
-  if (
-    completion !== review.completion ||
-    file.tree !== review.tree ||
-    !belongsOnPublished(review.files, review.baseline, file)
-  )
+  const withMerged = review.withMerged;
+  const listed =
+    belongsOnPublished(review.files, review.baseline, file) ||
+    (withMerged !== undefined &&
+      file.baseline === withMerged.from &&
+      belongsOnRetainedPair(withMerged.files, file));
+  if (completion !== review.completion || file.tree !== review.tree || !listed)
     throw new RefusedRequest(
       409,
       "The file or comparison does not belong to this published completion.",

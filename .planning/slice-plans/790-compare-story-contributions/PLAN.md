@@ -65,12 +65,12 @@ commands below ran from this worktree.
 | Read a live or historical comparison through Intent's production entry | `caffeinate -s -i npm run test:e2e -- --reporter=list --workers=2 intent-story-changes.spec.ts intent-story-changes-moves.spec.ts intent-done-retained-workspace.spec.ts` passed five Chromium cases. They reached the Taken worktree diff, moved and deleted files, and the published Done comparison and history gap with a retained worktree still present. |
 | Read a bounded trunk merge, a direct-trunk story and a captured landing | `caffeinate -s -i npm run test:e2e -- --reporter=list --workers=2 story-review-commit-trunk.spec.ts story-review-trunk-own-changes.spec.ts story-review-story-branch-landed.spec.ts` passed seven Chromium cases. The range displayed the story's edits, genuine conflicts and original or destination baseline as appropriate. Direct-trunk changes followed their published attribution, and the captured landing read the fixed pair after retirement. The range boundary is shared with Intent. |
 
-## Slices and outside-in proof
+## Ordered slices
 
 ### 1. A Done branch comparison widens from its recorded story start
 
 Type: Behavior
-Status: planned
+Status: done
 
 From a fetched Done story whose branch history is recoverable, open Intent and
 show the attributed comparison. Widen to the net changes from the recorded
@@ -79,7 +79,7 @@ paths and folder counts to the selected comparison. Keep diff and note reads
 on the corresponding admitted pair. Use the existing unavailability response
 when history cannot establish the choice.
 
-**Proof.** Use a Done branch-only history fixture with an incoming edit on a
+Proof: Use a Done branch-only history fixture with an incoming edit on a
 separate path. Open the story after retirement through its normal Intent
 entry. Observe the two bases against one completion, the folder count, the
 appearing file and its diff. Uncheck on the incoming-only file and observe
@@ -88,6 +88,13 @@ note context. At the real-Git read boundary admit the correct widened
 historical pair and refuse a wrong baseline or unlisted rename path. Cover
 the existing missing-history and retained-workspace behavior in
 `e2e/intent/intent-done-retained-workspace.spec.ts`.
+
+Accepted: Dashboard typecheck, the retired and retained Done Intent journeys,
+file and line notes, touch Review, and the focused Chromium comparison, context,
+reading, evidence and session cases passed. Real-Git historical admission
+observed a shared end tree, the widened text pair, rename refusal and acceptance,
+and the same pair in follow-up. The shared checkbox and displayed baseline passed
+focused browser reruns after independent refactoring.
 
 ### 2. A Taken branch widens with the current worktree choice
 
@@ -101,7 +108,7 @@ and commit points to establish the interval, including the start before a
 trunk integration. Keep the uncommitted control independent from widening.
 Refresh keeps the selected choice when the refreshed history supports it.
 
-**Proof.** Add incoming trunk work, a branch change and an uncommitted file to
+Proof: Add incoming trunk work, a branch change and an uncommitted file to
 a real Taken branch fixture. In Intent switch the merged and uncommitted
 controls and check the raw and attributed paths, header and selected diff.
 Refresh after an additional branch commit and check the new revision while
@@ -121,7 +128,7 @@ the file-specific baselines for mixed paths. Widen using the same range's
 original first-parent start and end tree. Offer no fabricated attributed
 result if Git cannot restate a needed integration.
 
-**Proof.** Extend the real-Git histories used by
+Proof: Extend the real-Git histories used by
 `e2e/review/story-review-commit-trunk.spec.ts`. Inspect the range in Intent.
 Cover an incoming-only path, an edit authored during a clean merge, a mixed
 conflict with a readable resolution diff, and subsequent trunk outside the
@@ -141,7 +148,7 @@ default contribution of a newly opened branch story. When a wider branch
 view is displayed, keep whole-story CI comparison, Proof and Intent
 coverage attached to the evidence they already read.
 
-**Proof.** In a mounted production Intent case, switch between a widened
+Proof: In a mounted production Intent case, switch between a widened
 branch, captured landing and a Trunk Mode story, and check the checkbox,
 header, selected file and whole-story evidence note. Hold an old reply
 across a story switch to ensure it cannot populate files for another
@@ -149,6 +156,12 @@ story. Rerun the marked and unmarked session-range cases with their
 warning and diff, and the existing gap, retry and evidence cases in
 `dashboard/frontend-tests/intent/intent-story-compare-{gaps,evidence}.spec.ts`.
 
+## Execution evidence
+
+- Story Branch Mode uses `codex/compare-a-story-branch-with-and-without-incoming`
+  and `origin/main`. Start `388848a640e5f937e952ea2a59b94701d144a2be`,
+  published claim `f3c0fe94ab66cf39d500dc0e76f4ab3cdf4ae3f7`.
+  GitHub Actions `ci.yml` observes the remote story branch during execution.
 ## Verification and delivery
 
 - Run focused checks from the owned checkout. The [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)

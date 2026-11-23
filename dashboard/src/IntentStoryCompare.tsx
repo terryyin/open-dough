@@ -6,8 +6,8 @@
 // landed runs. Refresh reads the worktree again and keeps the choice.
 
 import {
+  ComparisonInclusion,
   ComparisonSwitch,
-  UncommittedCheck,
   type ComparisonChoice,
 } from "./StoryReviewComparison.tsx";
 import { CommitList, CommitRangeHeading } from "./StoryReviewCommits.tsx";
@@ -37,6 +37,8 @@ export type StoryCompare = {
   // all changes are shown of a worktree holding some.
   readonly includeUncommitted: boolean | undefined;
   readonly onIncludeUncommitted: (include: boolean) => void;
+  readonly includeMergedChanges: boolean | undefined;
+  readonly onIncludeMergedChanges: (include: boolean) => void;
   readonly onRefresh: () => void;
   // A range, run, or refresh still in flight. Refresh stays focusable.
   readonly reading: boolean;
@@ -87,9 +89,18 @@ export function IntentStoryCompare({
         />
       )}
       {compare.includeUncommitted !== undefined && (
-        <UncommittedCheck
+        <ComparisonInclusion
+          label="Include uncommitted changes"
           included={compare.includeUncommitted}
           onInclude={compare.onIncludeUncommitted}
+        />
+      )}
+      {compare.includeMergedChanges !== undefined && (
+        <ComparisonInclusion
+          label="Include merged changes"
+          included={compare.includeMergedChanges}
+          disabled={compare.reading}
+          onInclude={compare.onIncludeMergedChanges}
         />
       )}
       {compare.shown === "commits" && (
