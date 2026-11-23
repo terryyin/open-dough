@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_retire-finished-migrations-and-legacy-formats.json",
+      "identity": "SEED-423#retire-finished-migrations-and-legacy-formats",
+      "completedAt": "2026-11-23T13:26:06.265Z",
+      "blob": "edfc6cd338f8d7a0b070c857de54015d3e2490cc"
+    },
+    {
       "fileName": "SEED-413_speed-story-comparison-frontend-proof.json",
       "identity": "SEED-413#speed-story-comparison-frontend-proof",
       "completedAt": "2026-11-23T10:59:47.270Z",
