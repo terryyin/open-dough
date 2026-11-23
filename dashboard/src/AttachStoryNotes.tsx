@@ -9,45 +9,59 @@ import {
   attachStoryNotesLabel,
   attachStoryNotesNone,
 } from "./attachStoryNotesWords.ts";
-import { storyNoteIsWaiting, storyNotesFor } from "./storyNote.ts";
+import {
+  storyNoteIsWaiting,
+  storyNotesFor,
+  type StoryNotesAnswer,
+} from "./storyNote.ts";
 import { useStoryNotes } from "./storyNotes.ts";
 import { storyNotesUnreadable } from "./storyNotesReadSource.ts";
 import type { DialogSession } from "./LaunchSessionPolicy.tsx";
 import "./follow-up.css";
 
+type StoryNotesAttachmentProps = {
+  readonly sourceId: string;
+  readonly identity: string;
+  readonly onAttach: (attach: boolean) => void;
+};
+
 // Mounts Attach story notes above the Session group for a story follow-up.
 export function sessionAttachingStoryNotes(
   session: DialogSession,
-  attach:
-    | {
-        readonly sourceId: string;
-        readonly identity: string;
-        readonly onAttach: (attach: boolean) => void;
-      }
-    | undefined,
+  attach: StoryNotesAttachmentProps | undefined,
 ): DialogSession {
   if (attach === undefined) return session;
   return {
     ...session,
     group: (id) => (
       <>
-        <AttachStoryNotes {...attach} />
+        <StoryNotesAttachment {...attach} />
         {session.group(id)}
       </>
     ),
   };
 }
 
-function AttachStoryNotes({
+export function StoryNotesAttachment({
   sourceId,
   identity,
   onAttach,
+}: StoryNotesAttachmentProps) {
+  const { answer } = useStoryNotes(sourceId);
+  return (
+    <AttachStoryNotes answer={answer} identity={identity} onAttach={onAttach} />
+  );
+}
+
+function AttachStoryNotes({
+  answer,
+  identity,
+  onAttach,
 }: {
-  readonly sourceId: string;
+  readonly answer: StoryNotesAnswer | undefined;
   readonly identity: string;
   readonly onAttach: (attach: boolean) => void;
 }) {
-  const { answer } = useStoryNotes(sourceId);
   const { notes, unreadable } = storyNotesFor(answer, identity);
   const waiting = notes.filter(storyNoteIsWaiting).length;
   const total = notes.length;

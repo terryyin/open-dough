@@ -222,6 +222,25 @@ The repair keeps the two existing pointer assignments and all test
 assertions. The [diagnosis](diagnosis-start-execution-cancel-viewport.md)
 records the controlled proof and the whole frontend compatibility gate.
 
+**Follow-up note attachment.** The production reader supplies its
+required typed answer to the existing checkbox. The waiting, no-waiting,
+and unreadable cases observe the actual reader and checkbox together. The
+composed Start session case retains the chosen and unchosen request
+shapes, the defaults on reopening, and the Cancel callback count. The
+Taken-card note and four existing Chromium follow-up journeys passed.
+
+The two unavailable-note cases together took 1,212 to 195 ms and
+817 to 217 ms in their before and after pairs. Full-file elapsed time
+increased in both pairs amid variable startup and host load. The shorter
+case bodies establish the effect of removing repeated launch setup and
+submission from those cases. The whole elapsed target remains open. The
+five-case browser proof passed again after the viewport repair. The
+consumer map, paired measurements, exact E2E selection and terminal
+receipts are in `open-dough/evidence/notes-slice.9yey0lZo/report.md`.
+Independent refactoring found the typed owner and case boundaries
+cohesive and reused the accepted proof without edits. Its consumer
+trace is retained beside that report.
+
 ## Timing evidence and decisions
 
 - The [seed evidence](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
@@ -335,7 +354,7 @@ consumers of any changed audio or dialog mount.
 ### 5. Follow-up note attachment renders the typed answer
 
 Type: Behavior
-Status: planned
+Status: done
 
 Let the existing notes reader render the choice from its required note
 answer, with the waiting, no-waiting and unreadable cases on that owner.

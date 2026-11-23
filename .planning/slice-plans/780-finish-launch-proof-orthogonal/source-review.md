@@ -6,11 +6,11 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 
 | Id | Source commitment | Slice | Observation or obligation |
 | --- | --- | --- | --- |
-| 01 | Note attachment receives its notes answer through a required typed input. (Scope and note-attachment example) | slice 5 | |
-| 02 | The reading wrapper renders the waiting state for the corresponding notes answer. (Scope and note-attachment example) | slice 5 | |
-| 03 | The reading wrapper renders the distinct no-waiting state for the corresponding notes answer. (Scope and note-attachment example) | slice 5 | |
-| 04 | The reading wrapper renders the distinct unreadable state for the corresponding notes answer. (Scope and note-attachment example) | slice 5 | |
-| 05 | One composed Start session journey for a Follow-up request remains covered. (Note-attachment example and Goal) | slice 5 | |
+| 01 | Note attachment receives its notes answer through a required typed input. (Scope and note-attachment example) | slice 5 | observed: AttachStoryNotes.tsx requires answer of type StoryNotesAnswer \| undefined and the actual StoryNotesAttachment reader supplies it explicitly, passed Dashboard typecheck |
+| 02 | The reading wrapper renders the waiting state for the corresponding notes answer. (Scope and note-attachment example) | slice 5 | observed: follow-up-note-handoff.spec.ts mounts the actual reader and observes 1 waiting of 2 notes, enabled and selected, and the typed true choice |
+| 03 | The reading wrapper renders the distinct no-waiting state for the corresponding notes answer. (Scope and note-attachment example) | slice 5 | observed: follow-up-note-handoff.spec.ts observes No waiting notes, disabled and unchecked, and the typed false choice from a sent-only answer |
+| 04 | The reading wrapper renders the distinct unreadable state for the corresponding notes answer. (Scope and note-attachment example) | slice 5 | observed: follow-up-note-handoff.spec.ts observes The notes could not be read, disabled and unchecked, and the typed false choice from an unreadable answer |
+| 05 | One composed Start session journey for a Follow-up request remains covered. (Note-attachment example and Goal) | slice 5 | observed: follow-up-note-handoff.spec.ts observes both exact story requests through StartSession, notes only when chosen, no request on Cancel, and the independent Taken-card note cue |
 | 06 | An unattached startup attempt in progress is shown on the project-actions row. (Scope and unattached-startup example) | slice 6 | |
 | 07 | A refused unattached startup attempt is shown on the project-actions row. (Scope and unattached-startup example) | slice 6 | |
 | 08 | A blank keyboard start presents the terminal. (Unattached-startup example) | slice 6 | |
