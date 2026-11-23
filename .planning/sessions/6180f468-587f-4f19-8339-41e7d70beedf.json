@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "6180f468-587f-4f19-8339-41e7d70beedf",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T03:24:25.604Z",
+  "story": "SEED-413#correct-revision-detour-proof-residue",
+  "ranges": [
+    {
+      "base": "ce3aa906a925bc7491c83c2e89c0ab36cacd9b15",
+      "candidate": "7ca1606e8ec2afebc6103cf5cbb233d7ee51d0d6"
+    }
+  ]
+}
