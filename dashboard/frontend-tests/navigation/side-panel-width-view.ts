@@ -8,6 +8,7 @@ import {
   withClosedSessionsSidebar,
   withFramePreference,
 } from "../../test-support/component-mount/framePreferences.ts";
+import { standaloneSessionName } from "../../test-support/dashboardParts.ts";
 import { browserSession } from "../review/browser-session.ts";
 import { reviewFiles } from "../review/story-review-files-view.ts";
 import { reviewSourceAnswering } from "../review/story-review-panel-page.ts";
@@ -22,10 +23,11 @@ export const keyStep = 32;
 export const widthKey = "open-dough.sidePanel.width";
 export { sidebarKey };
 
-const reviewed = story("Inspect the chosen width", 59);
+const sessionTitle = "Inspect the chosen width";
+const taken = story("Work in progress", 59);
 
 export const panel = page.getByRole("region", {
-  name: "Story review",
+  name: "Session review",
   exact: true,
 });
 export const divider = panel.getByRole("separator", {
@@ -42,11 +44,13 @@ export const button = (name: string) =>
 export const files = reviewFiles(panel);
 
 export async function openReview() {
-  const taken = boardReading.column("Taken");
-  const action = taken.getByRole("button", {
-    name: "Review changes",
-    exact: true,
-  });
+  const action = boardReading
+    .column("Recently done")
+    .getByRole("article", {
+      name: standaloneSessionName("Ad hoc", sessionTitle),
+      exact: true,
+    })
+    .getByRole("button", { name: "Review changes", exact: true });
   await expect.element(action).toBeInTheDocument();
   const control = action.element();
   if (!(control instanceof HTMLElement))
@@ -54,7 +58,7 @@ export async function openReview() {
   control.focus();
   await userEvent.keyboard("{Enter}");
   await expect
-    .element(panel.getByRole("heading", { level: 2, name: reviewed.title }))
+    .element(panel.getByRole("heading", { level: 2, name: sessionTitle }))
     .toBeVisible();
 }
 
@@ -62,17 +66,17 @@ export async function mountWidthReview(
   viewport = wide,
   backlog: readonly WorkEntry[] = [],
 ) {
-  const snapshot = makeMe.aStoryReview
+  const comparison = makeMe.aStoryReview
+    .sessionCommits()
     .adding("story.txt")
     .modifying("unstaged.txt")
     .please();
   const record = makeMe.aLaunchRecord
-    .executing(reviewed)
-    .onStoryBranch({ workspace: "/tmp/review-width", branch: "claude/width" })
-    .inClaudeSession({ sessionId: "width-review", shortId: "width-rev" })
+    .adHoc({ title: sessionTitle })
+    .markedDone()
     .please();
   const { records } = makeMe.aMachineAnswer.observingOpen(record).please();
-  const review = vi.fn<ReviewSource["review"]>().mockResolvedValue(snapshot);
+  const review = vi.fn<ReviewSource["review"]>().mockResolvedValue(comparison);
   const fileDiff = vi
     .fn<ReviewSource["fileDiff"]>()
     .mockImplementation((query) => {
@@ -82,7 +86,7 @@ export async function mountWidthReview(
       );
     });
   const frame = await mountBoard(
-    [boardWork(backlog, { taken: [reviewed] })],
+    [boardWork(backlog, { taken: [taken] })],
     viewport,
     { records, launched: records },
     {
@@ -92,13 +96,11 @@ export async function mountWidthReview(
   );
   await expect
     .element(
-      boardReading
-        .column("Taken")
-        .getByRole("article", { name: reviewed.title }),
+      boardReading.column("Taken").getByRole("article", { name: taken.title }),
     )
     .toBeInTheDocument();
   await openReview();
-  return { ...frame, review, fileDiff, story: reviewed };
+  return { ...frame, review, fileDiff, story: taken };
 }
 
 export function measured() {

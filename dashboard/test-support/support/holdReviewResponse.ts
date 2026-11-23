@@ -1,4 +1,4 @@
-// Hold delivery of one real story-review response: the next one, whose
+// Hold delivery of one real story-review response: the next matching one, whose
 // payload callers inspect, then release in finally and await delivery before
 // proceeding; or a published session's, released and drained between a journey's
 // phases.
@@ -10,6 +10,7 @@ export async function holdNextReviewResponse(
   page: Page,
   origin: string,
   endpoint: string,
+  matches: (query: URLSearchParams) => boolean = () => true,
 ) {
   let release!: () => void;
   let captured!: (response: APIResponse) => void;
@@ -25,7 +26,7 @@ export async function holdNextReviewResponse(
   });
   let intercepted = false;
   await page.route(`**${endpoint}?*`, async (route) => {
-    if (intercepted) {
+    if (intercepted || !matches(new URL(route.request().url()).searchParams)) {
       await route.continue();
       return;
     }

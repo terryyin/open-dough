@@ -495,6 +495,14 @@ context proof carries a protection risk for the wrap-up check. Process
 review remains selected and continues there after that check. The
 execution-branch CI result is pending at this record.
 
+CI runs 45108969606 and 45111917098 exposed remaining legacy width fixtures,
+keyboard input while a native startup disabled the card, and a refresh
+test holding an earlier file request. The repair keeps the original frame,
+run and refresh assertions through the session route, an enabled card
+control and the exact requested file. It changes test code only. Nine
+frontend and nine E2E cases passed, as did Dashboard typecheck. See
+[repair diagnosis](diagnosis-review-ci.md) for the matched failure proof.
+
 ## Plan refinement and gates
 
 Slice-plan refinement realigned the inherited plan in place. Eight slices

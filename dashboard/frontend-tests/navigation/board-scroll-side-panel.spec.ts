@@ -105,6 +105,7 @@ test("the Board alone scrolls after Close from a covering Side panel at 700×800
   await button("Close").click();
   await expect.element(panel).not.toBeInTheDocument();
   await expect.element(page.getByRole("banner")).toBeVisible();
+  await board.control("Taken").click();
   await board.control("Backlog").click();
   await board.shows(["Backlog"], ["Taken 1 entry"]);
   const first = board.column("Backlog").getByRole("article").first().element();

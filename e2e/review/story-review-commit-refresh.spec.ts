@@ -46,6 +46,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
     page,
     dashboard.origin,
     storyReviewFileEndpoint,
+    (query) => query.get("path") === "second.txt",
   );
   try {
     await review.comparison.choose("Commits");
@@ -54,7 +55,10 @@ test("the first Commits default uses the current snapshot, then new commits and 
     await commits.expectRowText(0, "second story commit");
     await files.expectOutsideFiles(1, ["Added second.txt"]);
     await files.choose("Added second.txt");
-    expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
+    expect(await (await held.ready).json()).toMatchObject({
+      kind: "diff",
+      printed: expect.stringContaining("+second"),
+    });
     await diffs.expectReading("Reading the file's diff…");
     writeAt(workspace, "third.txt", "third\n");
     commitAll(workspace, "third story commit");

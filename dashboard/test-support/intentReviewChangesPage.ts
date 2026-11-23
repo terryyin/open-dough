@@ -149,6 +149,9 @@ class IntentReviewChanges {
 export type { IntentReviewChanges };
 
 export async function openIntentReviewChanges(page: Page, card: Locator) {
-  const answer = await reviewAfter(page, reviewChanges(card), "keyboard");
+  const action = reviewChanges(card);
+  // The card can display the action before its startup enables the fieldset.
+  await expect(action).toBeEnabled();
+  const answer = await reviewAfter(page, action, "keyboard");
   return new IntentReviewChanges(page, answer);
 }

@@ -21,7 +21,7 @@ import {
   withWidthStorage,
 } from "./side-panel-width-view.ts";
 
-test("review keeps its story, chosen file and reads through width and sidebar changes", async () => {
+test("review keeps its session, chosen file and reads through width and sidebar changes", async () => {
   withWidthStorage();
   const { review, fileDiff } = await mountWidthReview();
   const room = measured();
