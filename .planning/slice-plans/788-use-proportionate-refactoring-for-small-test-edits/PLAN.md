@@ -89,7 +89,7 @@ records the baseline.
 
 ### 1. Skip the fresh pass on a clean own-spec change
 Type: Behavior
-Status: planned
+Status: done
 
 Merge step 1's special cases into the one rule and generalize step 2 and the
 post-change refactor discovery. Apply the
@@ -121,6 +121,15 @@ to both distributed skills. Estimate 30–45 active minutes, mostly replay.
 - Record the length comparison, the replay's request counts, prices and
   outcomes, its own cost, and the keep-or-stop decision in ODF-141 under the
   2026-11-23 DD-610 evidence.
+
+**Accepted proof.** Both files total 19,575 bytes and step 1 names one rule.
+The read-budget test passes. The replay, recorded in ODF-141, skips slices 2,
+3 and 5 and the CI repair for about $0.52 against $1.97 of retained passes. It
+routes slices 1, 4 and 7, the plan 249 control (naming `markAsDone`) and the
+scratch duplication (naming both siblings) to the fresh pass. Slice 6 also
+goes to the fresh pass, naming a sibling spec that still inlines the attempt
+chain `reportingFor` replaces. Decision: keep. The replay read each parent
+revision through `git grep` and `git show` instead of scratch worktrees.
 
 ## Local gate and readiness
 
