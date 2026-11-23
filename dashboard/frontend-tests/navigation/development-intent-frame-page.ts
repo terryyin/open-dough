@@ -1,9 +1,10 @@
 import { expect } from "vitest";
 import { page } from "vitest/browser";
-import type { MachineSessions } from "../../src/agentLaunches.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
-import { mountBoardFrame } from "./board-frame-mount.ts";
-import { noSessions } from "./board-mount.ts";
+import {
+  mountBoardFrame,
+  type BoardFrameMachine,
+} from "./board-frame-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 
@@ -43,11 +44,11 @@ const intentReads: IntentReadSource = {
 export function mountPerspectiveFrame(
   viewport = { width: 1280, height: 800 },
   {
-    sessions = noSessions,
+    machine = {},
     failure,
-  }: { sessions?: MachineSessions; failure?: Error } = {},
+  }: { machine?: BoardFrameMachine; failure?: Error } = {},
 ) {
-  return mountBoardFrame(openDough, viewport, "stories", sessions, {
+  return mountBoardFrame(openDough, viewport, "stories", machine, {
     otherWork: [doughnut, pygardon],
     ...(failure === undefined ? {} : { initialReadError: failure }),
     intentReads,

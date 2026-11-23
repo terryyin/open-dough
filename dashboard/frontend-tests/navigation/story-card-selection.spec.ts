@@ -4,7 +4,7 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { contrastRatio } from "../../test-support/composedColours.ts";
 import { decorativeIcon, paintedBackground } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { noSessions } from "./board-mount.ts";
+import { emptyMachineAnswer } from "./board-frame-observation-supply.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 import { tapWhereShown } from "./board-touch-page.ts";
@@ -65,23 +65,22 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
     .launchedAt(new Date(Date.now() - 120_000).toISOString())
     .markedDoneAt(new Date(Date.now() - 60_000).toISOString())
     .please();
-  const { records } = makeMe.aMachineAnswer
-    .observingUnavailable(closed)
-    .please();
+  const answer = {
+    ...emptyMachineAnswer(),
+    ...makeMe.aMachineAnswer.observingUnavailable(closed).please(),
+  };
   const { done, doneReads } = makeMe.aDoneCatalog.holding([completed]).please();
-  const startLaunch = vi.fn();
-  const readHistory = vi.fn();
+  const accept = vi.fn(() =>
+    Promise.resolve({
+      kind: "failed" as const,
+      explanation: "Story card selection does not accept launches.",
+    }),
+  );
   await mountBoardFrame(
     boardWork([activeStory], { taken: [], done }),
     { width: 1280, height: 900 },
     "stories",
-    {
-      ...noSessions,
-      records,
-      launched: records,
-      start: startLaunch,
-      readHistory,
-    },
+    { answer, accept },
     { done: doneReads },
   );
 
@@ -127,7 +126,7 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
   await tapWhereShown(start.element());
   await board.expectStoryHighlight(active);
   await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
-  expect(startLaunch).not.toHaveBeenCalled();
+  expect(accept).not.toHaveBeenCalled();
 
   await doneArea.click();
   await board.expectStoryHighlight(doneCard);
@@ -143,7 +142,6 @@ test("empty-area clicks toggle the selected story on active and Recently done ca
     .click();
   await board.expectStoryHighlight(doneCard);
   await expect.element(detail(doneCard)).not.toBeInTheDocument();
-  expect(readHistory).toHaveBeenCalled();
   expect(document.querySelector(".side-panel")).toBeNull();
 
   const intent = page.getByRole("main", { name: "Intent", exact: true });

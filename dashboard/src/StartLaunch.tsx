@@ -41,25 +41,21 @@ import {
   optionsLine,
   type OptionsOffer,
 } from "./optionsOffer.ts";
-import { Play, PencilLine, type LucideIcon } from "lucide-react";
 import { FrameTooltip, Icon } from "./Icon.tsx";
 import { LaunchDialog } from "./LaunchDialog.tsx";
 import { instructionTranscription } from "./instructionTranscriptionSource.ts";
 import { requestLaunchHostOptions } from "./launchHostOptionsClient.ts";
 import { storySession } from "./LaunchSessionPolicy.tsx";
 import type { StartAnswer } from "./useLaunchConfirmation.tsx";
-import { useLaunchDialogLauncher } from "./launchDialogLauncher.ts";
+import {
+  openDialogFromActivation,
+  useLaunchDialogLauncher,
+} from "./launchDialogLauncher.ts";
 import { LaunchProblemAnswer } from "./LaunchProblemAnswer.tsx";
 import { useFrameDescription } from "./protectedFrame.ts";
+import { startIcons } from "./startLaunchIcons.ts";
 import { storyCard } from "./storyCardFocus.ts";
 import "./agent-launch.css";
-
-// The glyph each workflow's Start leads with. It stays beside the card rather
-// than in `launchWorkflows`, which the server reads too.
-const startIcons: Record<LaunchWorkflow, LucideIcon> = {
-  execution: Play,
-  refinement: PencilLine,
-};
 
 export function StartLaunch({
   work,
@@ -166,7 +162,7 @@ export function StartLaunch({
             aria-haspopup="dialog"
             aria-describedby={described}
             disabled={unavailable}
-            onClick={openDialog}
+            {...openDialogFromActivation(openDialog, unavailable)}
           >
             <Icon icon={startIcons[workflow]} />
             Start {named}

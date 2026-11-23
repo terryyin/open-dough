@@ -130,7 +130,7 @@ Retain the typed polling path and the pause imposed by a standing rate limit.
 ### 4. The Board frame responds to published and machine answers
 
 Type: Behavior
-Status: planned
+Status: done
 
 Give `useAgentLaunches` required page-supplied machine session and agent
 acceptance operations. Replace `board-frame-mount.ts` module mocks with typed
@@ -268,7 +268,8 @@ remaining slice-specific concern.
 - Publisher ID: `dashboard-territory.local-open-dough`; agent: Nao-chan
 - Retained published revisions: claim `8a41b269fa1b1591fb5f1e55a62dde54a2a6b2e2`
   on `origin/main`; increments `a99bc3797fc4fc1c99dbf1abd4f2783174a1dc18`,
-  `ec1e99e6139f0653f0990845b0227a2094d36d9f` on
+  `ec1e99e6139f0653f0990845b0227a2094d36d9f`,
+  `4daa9c40a0d6acb1530b704fb4281b98bba46644` on
   `refs/heads/cursor/drive-the-published-observation-through-the-type`
 - CI observer: `/tmp/dough-ci-501/watch-dxk8N6` (attached at Slice 1 publish)
 - Replanning permission: preserve existing (allowed)
@@ -332,6 +333,34 @@ remaining slice-specific concern.
 - Evidence: `open-dough/evidence/slice3-implementation-return.md`,
   `open-dough/evidence/refactor-slice3-return.md`
 
+### Slice 4 — Board frame typed published and machine answers
+
+- Promise: page-supplied `MachineReadSource` on `useAgentLaunches`; retire
+  board-frame module mocks; typed snapshot/detail/revision/machine through
+  `pageReadsSupplying`; acceptance and machine refresh through production
+  launch owner; full/unchanged/fresh distinctions; Board consumers incl.
+  Sources/`expectedDetailPaths` and indirect `development-intent-frame-page`
+- Boundary: `PageReads.machine` → `useAgentLaunches`; observation typed reads →
+  `ConfiguredDashboard` via `board-frame-mount` without `vi.mock`
+- Flake fix: parallel `frame-launch-look` Cancel→Enter reopen — wait for first
+  machine-session settle in `mountBoardFrame`; reclaim launcher focus after
+  modal close; open Start on Enter/Space `keydown` (`openDialogFromActivation`)
+- Observations:
+  - Board announcements / accessible / Sources / frame board-launch-roster /
+    story selection / development-intent frame (+keyboard/sessions) / unread
+    machine ops
+  - `board-sources-canonical-paths.spec.ts`: detailPaths ===
+    `expectedDetailPaths`
+  - narrow Cancel→Enter Start session stable under parallel Board suite
+- Command (accepted parallel Board suite after flake fix):
+  `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/navigation/accessible-board-announcements.spec.ts dashboard/frontend-tests/navigation/accessible-board.spec.ts dashboard/frontend-tests/navigation/accessible-board-keyboard.spec.ts dashboard/frontend-tests/navigation/accessible-board-scroll.spec.ts dashboard/frontend-tests/navigation/board-sources-canonical-paths.spec.ts dashboard/frontend-tests/navigation/board-reading-keys.spec.ts dashboard/frontend-tests/navigation/board-scroll.spec.ts dashboard/frontend-tests/navigation/frame-board-look.spec.ts dashboard/frontend-tests/navigation/frame-launch-look.spec.ts dashboard/frontend-tests/navigation/frame-roster-look.spec.ts dashboard/frontend-tests/navigation/story-card-selection.spec.ts dashboard/frontend-tests/navigation/development-intent-frame.spec.ts dashboard/frontend-tests/navigation/development-intent-frame-keyboard.spec.ts dashboard/frontend-tests/navigation/development-intent-frame-sessions.spec.ts dashboard/frontend-tests/test-harness/unread-page-reads.spec.ts --workers=2`
+  (pass ×2: `slice4-flake-parallel-3/4.log.run.json` exit 0; typecheck pass)
+- Evidence: `open-dough/evidence/slice4-implementation-return.md`,
+  `diagnosis-slice4-frame-launch-look-flake.md`,
+  `open-dough/evidence/refactor-slice4-return.md`,
+  `open-dough/evidence/slice4-flake-parallel-3.log`,
+  `open-dough/evidence/slice4-flake-parallel-4.log`
+
 ## Learnings
 
 - Frontend Vitest Chromium cases must use browser-safe `pageMakeMe` and
@@ -340,3 +369,6 @@ remaining slice-specific concern.
   from the path-mix supply.
 - `progressSource` resolve/read lives in `branchPlanRead.ts`; projection and
   the watch set stay in `progressSource.ts`.
+- Replacing sync `useAgentLaunches` mocks with typed machine reads exposes
+  Cancel→Enter reopen races; settle the first machine answer before Board
+  interaction and open Start on keydown, not click synthesis alone.

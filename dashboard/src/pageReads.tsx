@@ -1,10 +1,10 @@
 // The page's reads of Intent, its CI, the story review, done records, story
-// notes, CI follow-up, story review states and the published observation; its
-// calls for a shown session; and its source highlighter. The app
-// (`./App.tsx`) gives `./ConfiguredDashboard.tsx` the authenticated
-// implementations. The dashboard hands the published observation its reads;
-// every other consumer reaches them through this one entry and fails outside
-// it.
+// notes, CI follow-up, story review states, the published observation, and the
+// machine's sessions and agent acceptance; its calls for a shown session; and
+// its source highlighter. The app (`./App.tsx`) gives
+// `./ConfiguredDashboard.tsx` the authenticated implementations. The dashboard
+// hands the published observation and launch owner their reads; every other
+// consumer reaches them through this one entry and fails outside it.
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import {
@@ -27,6 +27,10 @@ import {
   authenticatedCiFollowUpReads,
   type CiFollowUpReadSource,
 } from "./ciFollowUpReadSource.ts";
+import {
+  authenticatedMachineReads,
+  type MachineReadSource,
+} from "./machineReadSource.ts";
 import {
   highlightSourceLines,
   type SourceHighlighter,
@@ -55,6 +59,7 @@ export type PageReads = {
   readonly ciFollowUp: CiFollowUpReadSource;
   readonly reviewStates: StoryReviewStatesReadSource;
   readonly observation: PublishedObservationReadSource;
+  readonly machine: MachineReadSource;
   readonly highlight: SourceHighlighter;
 };
 
@@ -68,6 +73,7 @@ export const authenticatedPageReads: PageReads = {
   ciFollowUp: authenticatedCiFollowUpReads,
   reviewStates: authenticatedStoryReviewStatesReads,
   observation: authenticatedPublishedObservationReads,
+  machine: authenticatedMachineReads,
   highlight: highlightSourceLines,
 };
 

@@ -7,6 +7,7 @@ import type { CiFollowUpReadSource } from "../../src/ciFollowUpReadSource.ts";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { PageReads } from "../../src/pageReads.tsx";
 import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
@@ -80,6 +81,11 @@ const unreadObservation: PublishedObservationReadSource = {
   readCommitTime: unread("published commit time"),
 };
 
+const unreadMachine: MachineReadSource = {
+  readSessionsSince: unread("machine sessions"),
+  requestAcceptance: unread("agent acceptance"),
+};
+
 // The page's reads with only SUPPLIED answering; every other read rejects.
 export const pageReadsSupplying = (
   supplied: Partial<PageReads>,
@@ -93,6 +99,7 @@ export const pageReadsSupplying = (
   ciFollowUp: unreadCiFollowUp,
   reviewStates: unreadReviewStates,
   observation: unreadObservation,
+  machine: unreadMachine,
   highlight: highlightSourceLines,
   ...supplied,
 });
