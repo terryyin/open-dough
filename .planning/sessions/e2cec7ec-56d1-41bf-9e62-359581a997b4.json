@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "sessionId": "e2cec7ec-56d1-41bf-9e62-359581a997b4",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T12:24:17.383Z",
+  "story": "SEED-413#remove-observation-proof-overlap",
+  "ranges": [
+    {
+      "base": "488645e95fe49110418f94953944bea1beb3afec",
+      "candidate": "1cecc12316fbf86eee1cc718ac6eaa4e5999efa3"
+    },
+    {
+      "base": "828c547441bd63c716b2c2fce3d659fb37dc8663",
+      "candidate": "8f26a089f3b6ec0200a16e129a9735d8c1380591"
+    }
+  ]
+}
