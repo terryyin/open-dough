@@ -306,6 +306,16 @@ Decisions during slice 7 (developer, 2026-11-23):
   for `scripts/build-test-entry-rules.mjs`, not runtime code. Move it out of
   the shipped directory so the payload stays identical to the list-era one.
 
+## Execution complete
+
+Product advice: no change to backlog order. Two seed-level lessons for
+wrap-up: when two stories in one seed touch the `install.sh` or fragment
+layout, the seed should record which goes first; and a static check that
+relative `.mjs` imports in shipped scripts stay inside `Distribution/src/skills/`
+is a candidate follow-up, since today only installed-run tests would catch an
+import that escapes the tree. `git-publication-native-one-shot.sh` needs a
+follow-up for its run time against the job deadline.
+
 ## Learnings
 
 - `Distribution/tests/installation/self-installation-baseline.sh` runs close to
