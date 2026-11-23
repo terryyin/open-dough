@@ -3,10 +3,8 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import {
-  publishMailboxEvent,
-  receiptPrefix,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { publishMailboxEvent } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import { receiptPrefix } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import {
   configuredHook,
   claudeInput,

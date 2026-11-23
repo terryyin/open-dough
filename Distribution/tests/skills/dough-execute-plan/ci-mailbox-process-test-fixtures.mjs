@@ -4,10 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import {
-  createMailbox,
-  recordWorkerIdentity,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { recordWorkerIdentity } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
+
 import { publishJson } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
 import {
   fixtureTeardown,

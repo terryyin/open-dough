@@ -12,22 +12,22 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { test } from "node:test";
 import { setImmediate } from "node:timers/promises";
+import { runMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-operations.mjs";
+import { requestMailboxStop } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
   checkoutRoot,
-  createMailbox,
   mailboxRoot,
-  publishMailboxEvent,
   readMailbox,
   readMailboxEvents,
   readWorkerIdentity,
   registerPushedRevision,
-  recordWorkerIdentity,
-  requestMailboxStop,
-  runMailboxWorker,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import {
   terminalResultDeadlineMs,
   waitForTerminalResult,
+  publishMailboxEvent,
+  recordWorkerIdentity,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import { overrideTerminalResultDeadline } from "./ci-mailbox-complete-test-fixtures.mjs";
 

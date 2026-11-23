@@ -123,7 +123,7 @@ function bridgeContext(output) {
   );
 }
 
-export async function invokeHostHook(
+async function invokeHostHook(
   host,
   input,
   { hookPath = defaultHook, cwd, env } = {},
@@ -203,18 +203,4 @@ export async function bindHostObserver({
     context,
     output,
   };
-}
-
-export function deliverHostBoundary({
-  host,
-  session,
-  workspace,
-  hookPath = defaultHook,
-  env,
-}) {
-  return invokeHostHook(host, hookInput(host, session, ""), {
-    hookPath,
-    cwd: workspace,
-    env,
-  });
 }

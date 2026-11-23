@@ -3,12 +3,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
-  mailboxWorkerLoss,
   publishMailboxEvent,
+  workerLossReason,
+} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import {
+  mailboxWorkerLoss,
   readMailboxEvents,
   readRevisionCoverage,
   readWorkerIdentity,
-  workerLossReason,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import {
   exec,

@@ -10,8 +10,8 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
+import { publishMailboxEvent } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import {
-  publishMailboxEvent,
   readMailboxEvents,
   readWorkerIdentity,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";

@@ -5,8 +5,8 @@
 // registration and gap below is a product outcome.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { publishMailboxEvent } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import {
-  publishMailboxEvent,
   readDeliveryProgress,
   readMailboxEvents,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";

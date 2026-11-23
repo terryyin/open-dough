@@ -5,9 +5,9 @@
 import { execFile } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
-import { configureDeclaredAgentAuthorship } from "../../../Distribution/src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import {
   commitDeclaredRevision,
+  configureDeclaredAgentAuthorship,
   configureIdentity,
   declaredParents,
 } from "../../../Distribution/tests/support/repository-revision-commit.mjs";

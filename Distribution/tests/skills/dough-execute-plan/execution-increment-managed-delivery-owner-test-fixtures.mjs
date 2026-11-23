@@ -11,7 +11,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
-import { invokeHostHook } from "../../../src/skills/dough-execute-plan/scripts/ci-host-bridge.mjs";
+import { runHostHook } from "./ci-host-hook-test-fixtures.mjs";
 import {
   readRevisionCoverage,
   receiptPrefix,
@@ -103,11 +103,11 @@ export async function siblingCheckouts(t, host) {
     // host reports it; `stdout` is that call's output. Returns hook context.
     async hook(checkout, coordinator, stdout = "") {
       const { runtime, root } = checkouts[checkout];
-      const output = await invokeHostHook(
+      const output = await runHostHook(
         host,
         hosts[host].hookInput(coordinator, stdout),
         {
-          hookPath: join(runtime.skill, "scripts/ci-host-hook.mjs"),
+          path: join(runtime.skill, "scripts/ci-host-hook.mjs"),
           cwd: root,
           env: env(coordinator),
         },

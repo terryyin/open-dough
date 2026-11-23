@@ -7,10 +7,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { makeMe } from "../../support/makeMe.mjs";
 import { landingReceiver } from "../dough-execute-plan/dashboard-landing-test-fixtures.mjs";
-import {
-  refinementSessionWorkflow,
-  standaloneSessionWorkflow,
-} from "../../../src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { refinementSessionWorkflow } from "../../../src/skills/dough-execute-plan/scripts/session-record.mjs";
 import {
   createWorkspace,
   git,
@@ -74,7 +71,7 @@ test("a refinement and a later follow-up of its story each publish their own ses
   writeFileSync(join(followUp.workspace, "c-follow-up.txt"), "follow-up\n");
   const followed = await landSession(t, followUp, {
     message: "Follow up story C",
-    session: { workflow: standaloneSessionWorkflow, story: identityC },
+    session: { workflow: "ad-hoc", story: identityC },
     launch: () =>
       makeMe.aLandingContext
         .reportingTo(origin)

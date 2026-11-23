@@ -7,12 +7,12 @@ import { makeMe } from "../../support/makeMe.mjs";
 import { awaitRevision } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-await.mjs";
 import { publishJson } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
 import { whileObserving } from "./ci-mailbox-await-test-fixtures.mjs";
+import { runMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-operations.mjs";
+import { requestMailboxStop } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
-  createMailbox,
   readRevisionCoverage,
   registerPushedRevision,
-  requestMailboxStop,
-  runMailboxWorker,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import {
   deferWorkerStop,

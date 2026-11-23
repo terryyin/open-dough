@@ -66,6 +66,7 @@ repository runner with Homebrew Bash 5 and Node 24 passed these focused baseline
 
 Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. Slice 1 was published as `67b66d67ce7b7905d9fb5e780baf3090a47ceb33` on the story branch. The Take has no owned trunk CI observation.
 
+The latest accepted story-branch revision is `fa058e69c14f1ed93f629fecf12dad03575e63ca` after Slice 2.
 Codex observer for the execution branch uses GitHub Actions `ci.yml` (CI). Coordinator `5f0cec34-e7f0-4f74-8aa2-de18cfa45a2b`, mailbox `/tmp/dough-ci-501/watch-QmFpcm`, PID `84936`, session `52487`, cell `g245:20`. Runtime and owner are bound to the established execution checkout.
 
 ## Local gate
@@ -106,7 +107,7 @@ direct and symlink entries, GitHub fallback, configured provider discovery,
 exact revision outcome and normal shutdown. Assert that the two installed
 roots lack the wrapper after fresh install and update from a declaring tag.
 
-Accepted proof: Distribution, native evaluation, and the two Dashboard closure cases passed. The independent refactor preserved the assertions and passed its nine affected checks. Exact runs and consumer traces are in the checkout evidence directory under `slice1-`.
+Distribution, native evaluation, and the two Dashboard closure cases passed. The independent refactor preserved the assertions and passed its nine affected checks. Exact runs and consumer traces are in the checkout evidence directory under `slice1-`.
 
 ### 2. Select MakeMe rules through the shared installed entry point
 
@@ -126,12 +127,12 @@ Check the generated bundle with the builder's `--check` option. Inspect both
 native roots and declarations for absence of both wrappers and verify the
 matched rules in the installer fixture.
 
-Accepted proof: All 20 selected checks passed after the fixture migration. The independent refactor passed 16 affected checks and the bundle verification. Retained commands and traces use the `slice2-` prefix in checkout evidence.
+All 20 selected checks passed after the fixture migration. The independent refactor passed 16 affected checks and the bundle verification. Retained commands and traces use the `slice2-` prefix in checkout evidence.
 
 ### 3. Keep only used exports at the installed module boundaries
 
 Type: Behavior
-Status: planned
+Status: done
 
 When callers deliver CI events, run hooks or attribute a session, the current
 entry points still serve those uses with the audit's test-only exports
@@ -146,7 +147,7 @@ only a retired export.
 and authorship tests. Confirm the hook is invoked in the installed layout and
 retains its output. Recheck removed names against runtime imports, including
 dynamic imports and Dashboard use. Move narrower unit checks to the
-remaining owner only where they still prove a distinct contract.
+remaining owner only where they still prove a distinct contract. 77 Distribution checks, three Dashboard end-to-end specs, 27 backend tests and 20 focused refactor checks passed. Checkout evidence uses the `slice3-` prefix.
 
 ### 4. Reconcile backlog changes through the Git adapters alone
 

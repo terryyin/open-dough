@@ -7,7 +7,6 @@
 import {
   sessionRecordVersion,
   sharedCheckoutUncertainty,
-  standaloneSessionWorkflow,
 } from "../../src/skills/dough-execute-plan/scripts/session-record.mjs";
 
 /**
@@ -66,7 +65,7 @@ export class SessionRecordBuilder {
     return {
       version: sessionRecordVersion,
       sessionId: globalThis.crypto.randomUUID(),
-      workflow: standaloneSessionWorkflow,
+      workflow: "ad-hoc",
       closedAt: this.#closedAt ?? new Date().toISOString(),
       ranges: this.#ranges,
     };

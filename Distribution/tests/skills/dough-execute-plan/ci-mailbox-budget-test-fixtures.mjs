@@ -4,7 +4,8 @@ import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
-import { runMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { runMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-operations.mjs";
+
 import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 
 export function snapshotMailboxRecords(directory) {

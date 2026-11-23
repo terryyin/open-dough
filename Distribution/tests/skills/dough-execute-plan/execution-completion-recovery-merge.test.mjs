@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { completionBudgetMs } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-completion-state.mjs";
-import {
-  createMailbox,
-  registerPushedRevision,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
+import { registerPushedRevision } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import { completeRevision } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs";
 import { claimMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-observer-owner.mjs";
 import { publishJson } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-json-file.mjs";

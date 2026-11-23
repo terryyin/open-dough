@@ -13,7 +13,7 @@ import { promisify } from "node:util";
 import { beginNativeSession } from "../../../src/skills/dough-execute-plan/scripts/execution-session-evidence.mjs";
 import {
   executionSessionWorkflow,
-  sessionRecordRelativePath,
+  sessionRecordPathBeside,
 } from "../../../src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { advanceOriginFromAnotherWriter } from "../dough-execute-plan/publication-test-fixtures.mjs";
 import { git } from "../dough-execute-plan/execution-increment-managed-delivery-test-fixtures.mjs";
@@ -129,7 +129,7 @@ test("a wrapped-up session's record read from a default-branch-only clone holds 
     sessionRecordFiles,
   );
   assert.deepEqual(files, [
-    `.planning/${sessionRecordRelativePath(sessionId)}`,
+    sessionRecordPathBeside(".planning/PRODUCT-BACKLOG.md", sessionId),
   ]);
   const published = JSON.parse(await clone.read("show", `HEAD:${files[0]}`));
   assert.equal(published.workflow, executionSessionWorkflow);

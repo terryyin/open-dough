@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
+import { publishMailboxEvent } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import {
-  publishMailboxEvent,
   readMailboxEvents,
   registerPushedRevision,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";

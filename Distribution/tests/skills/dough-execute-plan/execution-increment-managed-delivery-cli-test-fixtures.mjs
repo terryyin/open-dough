@@ -5,7 +5,7 @@
 import { execFile } from "node:child_process";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { invokeHostHook } from "../../../src/skills/dough-execute-plan/scripts/ci-host-bridge.mjs";
+import { runHostHook } from "./ci-host-hook-test-fixtures.mjs";
 import { receiptPrefix } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 
 // Runs the taught `deliver` for one increment of the fixture's execution
@@ -118,8 +118,8 @@ export const claudeHookInput = (session_id, extra = {}) => ({
 
 // What the fixture's installed Claude Code hook returns for one tool call.
 export function invokeInstalledClaudeHook(fixture, input, env) {
-  return invokeHostHook("claude", input, {
-    hookPath: join(fixture.skill, "scripts/ci-host-hook.mjs"),
+  return runHostHook("claude", input, {
+    path: join(fixture.skill, "scripts/ci-host-hook.mjs"),
     cwd: fixture.execution,
     env,
   });
@@ -141,8 +141,8 @@ export const cursorHookInput = (
 
 // What the fixture's installed Cursor hook returns for one tool call.
 export function invokeInstalledCursorHook(fixture, input, env) {
-  return invokeHostHook("cursor", input, {
-    hookPath: join(fixture.skill, "scripts/ci-host-hook.mjs"),
+  return runHostHook("cursor", input, {
+    path: join(fixture.skill, "scripts/ci-host-hook.mjs"),
     cwd: fixture.execution,
     env,
   });
