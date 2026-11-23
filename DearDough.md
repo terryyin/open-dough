@@ -7,14 +7,10 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 634. Removed numbers are never reused.
-- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158.
+- Highest allocated local number: 635. Removed numbers are never reused.
+- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The removed ODF-368 effect line remains at `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md`. The removed DD-548 and DD-632 effect lines remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`. `bacba5db52673a2d3afa18cdba01c7fe746189a4:DearDough.md` retains the removed catalog-only pointers to ODF-229 and ODF-158. `488645e95fe49110418f94953944bea1beb3afec:DearDough.md` retains the exact removed pointers to ODF-154, ODF-205, ODF-169 and ODF-338.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
-
-## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
-
-Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: DD-231. [Evidence and current response](docs/maintainer/findings/ODF-154.md).
 
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 
@@ -31,6 +27,7 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 ### Occurrences
 
 - Execution: SEED-420#open-review-changes-from-a-story-card (plan 777, first implementation `e8466f474`). Timestamp: 2026-11-23T04:01:10Z (first failed frontend case in run 45108969606, attempt 1). Tool: Codex. Open Dough release: 0.3.110 (installed `.agents/skills/dough-update/VERSION` at Take `0f9df4dcc`). Evidence: Slice 6 migrated the named frame cases and Slice 7 removed the Story card Side panel route. The navigation width fixture `side-panel-width-view.ts` still pressed the old card action and expected a panel. Nine callers across five specs failed on runs 45108969606 and 45111917098. The repair after `d31aee723` reached the actual ad hoc Done entry and preserved all nine frame observations. The single migrated landed-note coverage probe caught a wrong comparison baseline, and verified restoration. Observed effect: two failing branch attempts and a separate repair. Inference: tracing Test Support imports outside the review spec group and reading their actual openers before accepting the route change would have exposed the obsolete fixture.
+- Execution: SEED-420#review-standalone-done-work (plan 756, first implementation `7a8697b8a`). Timestamp: 2026-11-23T08:26:39Z (failed lint step in run 45138365896). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `7a3a582db`). Evidence: the first Land slice passed focused Distribution proof, but the untouched `e2e/sessions/recently-done-published-sessions.spec.ts` received untyped comparisons; CI found the unsafe access, and `04a44e6ec` restored the typed boundary. Run 45145976785 caught the existing quiet Claude row query matching both the row and its containing article after the Board slice; `fa1ab88e2` scoped it to the session. Observed effect: two failing branch attempts and two separate repairs. Inference: checking the untouched clone consumer and row-query callers before delivery would have exposed both.
 
 ## DD-613 — Parity proof answers every read at once <a id="dd-613"></a>
 
@@ -46,13 +43,6 @@ A story promising parity with an existing view proved only settled states; every
 ### Occurrences
 
 - Execution: SEED-345#catch-delegated-lint-before-delivery (plan 786, first implementation `ffed8fb1b`). Timestamp: unknown (startup on 2026-11-23 +08:00). Tool: Codex. Open Dough release: 0.3.111 (installed guidance at Take `67f8d37bf`). Evidence: the initial parallel read of skill-authoring guidance, ODF-329 and execution references returned 28,521 tokens before truncation. Targeted follow-up reads recovered the delegation, source-review and obligation passages. Observed effect: the combined return hid required context and was followed by narrower reads. Inference: retrieving only the relevant finding section and the passages needed at each boundary would reduce that rereading. Token and time savings were unmeasured.
-
-## ODF-205 — Execution starts on a red trunk unannounced <a id="odf-205"></a>
-
-- SEED-381#fixed-pattern-shards-for-the-distribution-suite (plan 654; first implementation `f8cb342e63ac25064fe6f3e54d8af8b8f164b5db`)
-
-[Account and evidence at ODF-205](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-205.md#evidence-2026-11-23-open-dough-odf-205).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-329 — Delegation omits read-only lint before coordinator formatting <a id="odf-329"></a>
 
@@ -71,13 +61,6 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 - Execution: SEED-413#drive-published-observation-through-page-entry (plan 789, first implementation `a99bc3797`). Timestamp: 2026-11-23T16:18:15+08:00 (first Slice 1 format refusal). Tool: Cursor. Open Dough release: 0.3.112 (installed `.agents/skills/dough-update/VERSION` at Take `8a41b269fa`). Evidence: after focused frontend proof, guarded format failed on `@typescript-eslint/no-unused-expressions` and `no-unnecessary-condition` in the new observation fixtures (`slice1-format-retry.log`); repair then delivered `a99bc3797`. Installed `.claude`/`.agents` delegation still banned independent hook-owned lint while Distribution already had SEED-345's scoped-lint edit. Slice 2 repeated it (`slice2-preflight-format.log`). Observed effect: two coordinator format repairs before Slices 1–2 could commit. Inference: installed 0.3.112 still withheld the SEED-345 remedy from implementers.
 
 [Account and evidence at ODF-329](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-329.md#evidence-2026-11-23-open-dough-odf-329).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
-
-## ODF-169 — Stale replay base includes sibling commits <a id="odf-169"></a>
-
-- SEED-301#serve-frontend-dashboard-answers-through-makeme (plan 655; first implementation `b03df3cbb`)
-
-[Account and evidence at ODF-169](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-169.md#evidence-2026-11-23-open-dough-odf-169).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ## ODF-519 — Story Branch start reports a reused remote branch published without advancing it
@@ -137,7 +120,6 @@ this execution.
   - Open Dough release: unknown (checkout-bound installed guidance at Take `ac8d1fc21`)
   - Timestamp: unknown (2026-11-18, slice 8 briefing)
   - Evidence: SEED-382#run-the-integrated-group-as-one-ci-job closed on trunk (`175762614`) before this Take; plan 689 slice 8 still told the slice to set `dashboard-integrated` to one shard in `ci.yml`, `shards.md` and the shard check. The coordinator found them landed while briefing and aligned the plan text.
-  - Observed effect: one inspection; no merge or conflict.
 
 ## DD-548 — Removal and CI-switch slices overran with proof complete
 
@@ -329,13 +311,6 @@ Former local code: DD-563.
 [Account and evidence at ODF-435](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-435.md#evidence-2026-11-23-open-dough-dd-563).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
-## ODF-338 — Concurrent slices invalidate proof in one checkout <a id="odf-338"></a>
-
-- SEED-334#move-intent-ci-proof-comparison-and-candidate-checks (plan 651; first implementation `e7aac254bbe59f5dc277d473386359dddf56132d`)
-
-[Account and evidence at ODF-338](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-338.md#evidence-2026-11-23-open-dough-odf-338).
-Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
-
 ## ODF-525 — A compound scratch break is accepted as proof that one guard is protected <a id="dd-566"></a>
 
 <a id="dd-566--a-compound-scratch-break-is-accepted-as-proof-that-one-guard-is-protected"></a>
@@ -498,6 +473,7 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
   - Open Dough release: 0.3.111 (trunk guidance update `27c47b235` before Take `419aeed53`)
   - Evidence: the first `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice` for `## Slices and outside-in proof`; renaming it to `## Slices` gave `ok: true`, and the rename was committed with slice 1 (`5119da43d`), so delivery did not refuse.
 - Execution: SEED-423#install-without-ci-reuse-recipes (plan 792; first implementation `c1b999037`). Timestamp: unknown (2026-11-23, minutes before the `c1b999037` commit at 16:37:44+08:00). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.112 (installed `.claude/skills/dough-update/VERSION` at Take `7b8eb58e3`). Evidence: a Ready plan headed `## Slices and outside-in proof`; `story-obligations.mjs list --slice 1` returned `ok: true` with no entries, then guarded fresh delivery refused `plan/status mutation`: no `## Ordered slices` or `## Slices` section. Renaming the heading in the working plan let the retried delivery commit and publish slice 1. Observed effect: one refused delivery and a retry; no extra commit. Inference: the obligations listing no longer catches the heading, so delivery is now the first reader to refuse it.
+- Execution: SEED-423#retire-finished-migrations-and-legacy-formats (plan 794, first implementation `bfc9baea1`). Timestamp: unknown (2026-11-23 +08:00, before publication at 19:46). Tool: Codex. Open Dough release: 0.3.112 (installed at Take `c11059cb4`). Evidence: the ready plan used `## Slices and outside-in proof`. Obligations listing returned no entries, but guarded delivery refused the plan-status mutation because the section was neither `## Ordered slices` nor `## Slices`. Renaming the heading let the same slice publish in `bfc9baea1`. Observed effect: one refused status mutation and one repeated formatter pass. Inference: early validation against the delivery reader would expose the mismatch.
 
 ## ODF-528 — A plan puts slices that wait for a week of post-landing ordinary work inside one Story Branch execution <a id="dd-580"></a>
 
@@ -1015,3 +991,10 @@ Writing evidence under a workspace `open-dough/` tree instead of `git rev-parse 
   - Observed effect: consumer-trace dispositions had to ignore misplaced evidence noise once.
   - Inference: agents must resolve the git-path before writing evidence; installed `proof-evidence.md` already names that location.
 
+## DD-635 — Native replay preflight misses the test sandbox boundary <a id="dd-635"></a>
+
+The paid probe proved the Codex launch and accounting path. The baseline test command had only been checked outside the native write sandbox.
+
+### Occurrences
+
+- Execution: SEED-345#finish-slices-within-a-bounded-working-context (plan 794, first delivery `91f51dfd6`). Timestamp: 2026-11-23T09:40:40.616Z (first control backend command exit). Tool: Codex. Model: gpt-6.2-sol. Open Dough release: unreleased, pinned revision `417150eba820acdbea22917093414ccde4600d92`. Evidence: plan 794 accepted probe and trial proof, control `slice-1-backend-first.log.run.json` and `slice-1-local-fixture-recovery.md`, candidate `branch-backend-1.log.run.json` and slice 1 implementation receipt. Observed effect: both arms lost initial backend proof to the sandbox blocking the system process observer at teardown and independently verified local replacements. Inference: one representative test through the exact native sandbox could expose this prerequisite before paid replay. The delays attributable to the boundary were not measured.
