@@ -10,7 +10,10 @@ import { page, userEvent, type Locator } from "vitest/browser";
 import { paintContrast } from "../configuration/system-settings-reading.ts";
 import { tapWhereShown } from "../navigation/board-touch-page.ts";
 import { visibleText } from "./intent-ci-comparison-page.ts";
-import { locationNameControl } from "./intent-ci-homepage-page.ts";
+import {
+  locationNameControl,
+  locationNameDrawn,
+} from "./intent-ci-homepage-page.ts";
 import {
   chartIn,
   type ChartEndpoint,
@@ -134,7 +137,7 @@ const summaryPath = () =>
 
 // The Summary of the location at PATH, opened by its name.
 export async function openScopeSummary(path: string) {
-  await expect.poll(() => locationNameControl(path)).toBeTruthy();
+  await locationNameDrawn(path);
   await userEvent.click(locationNameControl(path));
   await expect.poll(summaryPath).toBe(path);
   return summary();

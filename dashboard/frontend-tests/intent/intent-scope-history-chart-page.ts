@@ -180,5 +180,10 @@ export function chartIn(
       await tapWhereShown(mark);
     },
     readoutElement,
+    // The readout's text colour in the current appearance.
+    readoutInk: () => {
+      const readout = readoutElement();
+      return readout && getComputedStyle(readout).color;
+    },
   };
 }

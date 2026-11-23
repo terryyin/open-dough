@@ -102,6 +102,8 @@ test("legacy-only collected evidence states its unknown unit without declaring a
   // Its unknown unit as the brief status, with no declared unit history.
   await expect.poll(history.status).toBe("legacy unit unknown");
   expect(history.text()).not.toMatch(/test cases|test files/i);
+  // No timing either; the joined text runs a unit into the next word.
+  expect(history.text()).not.toMatch(/\d+(?:\.\d+)?\s*(?:ms|s)(?![a-z])/);
   expect(history.charts()).toBe(0);
   expectDoneEntryComparisonKept(summary);
 });

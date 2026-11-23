@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#correct-scope-timing-chart-proof-residue
 **Source:** [Correct the proof residue of Intent collected scope timing and chart marks](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-scope-timing-chart-proof-residue)
+**Source review:** [source-review.md](source-review.md)
 
 ## Correction input
 
@@ -109,10 +110,11 @@ slice-specific concern.
 ### 1. Unit and scheme checks fail on their regressions, and the Summary opens under load
 
 Type: Structure
-Status: planned
+Status: done
 
 In the legacy-only unit case, assert that the history shows no timing
-(`\d+(?:\.\d+)?\s*(?:ms|s)\b`). In the Project chart-mark loop, wait until
+(`\d+(?:\.\d+)?\s*(?:ms|s)(?![a-z])`: the joined history text runs a unit
+into the next word, which `\b` missed in the break check). In the Project chart-mark loop, wait until
 the chart's paint differs from the previous scheme before reading
 `painting`.
 
@@ -125,6 +127,14 @@ and require the units case to fail. Ignore `prefers-color-scheme` for the
 whole page in scratch and require the Project case to fail on the dark pass.
 Run the scope history specs that use `openScopeSummary` under comparable
 load, at about 40, and require no timeout.
+
+**Accepted proof (2026-11-23, load 26–88).** Both changed specs 4/4; the 17
+`openScopeSummary` consumer specs, 26 cases, passed at load 64→47 with no
+timeout. A scratch "0 ms" beside the legacy status fails the units case at its
+no-timing check; unmatched dark-scheme queries fail the Project dark pass on its
+readout-ink change poll, rechecked after refactoring. Refactoring moved
+`locationNameDrawn` beside `locationNameControl` in `intent-ci-homepage-page.ts`
+and the readout ink reader into `intent-scope-history-chart-page.ts`.
 
 ### 2. One pointer and keyboard chart-mark case, with no spent support
 

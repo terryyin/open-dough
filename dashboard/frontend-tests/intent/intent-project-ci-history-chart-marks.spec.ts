@@ -69,14 +69,18 @@ test("a Project Intent scope history chart marks the observed trunk endpoint's b
   }).toEqual({ zero: true, endpoint: true, failed: true, unavailable: true });
   expect(chart.markY(zero)).toBeCloseTo(chart.floorY(), 0);
   expect(chart.markY(failed)).toBeGreaterThan(chart.floorY() + 8);
+  let previousInk: string | null = null;
   for (const scheme of ["light", "dark"]) {
     await emulateMedia([{ name: "prefers-color-scheme", value: scheme }]);
+    // Each scheme repaints the chart rather than rereading the last one.
+    await expect.poll(chart.readoutInk).not.toBe(previousInk);
     await expect.poll(chart.painting).toEqual({
       failedInProblemColour: true,
       hollowOnSurface: true,
       marksRead: true,
       readoutRead: true,
     });
+    previousInk = chart.readoutInk();
     await userEvent.hover(chart.mark(failed));
     await expect.poll(chart.readout).toBe(failed);
     await userEvent.unhover(chart.mark(failed));
