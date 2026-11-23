@@ -93,8 +93,7 @@ test("add refuses missing identity, collisions, and ambiguous homes unchanged", 
         "--after",
         skipRetrospective,
       ],
-      expect:
-        /Missing identity: supply --identity\..*identity-adoption operation/s,
+      expect: /Missing identity: supply --identity\..*canonical home/,
     },
     {
       why: "identity already queued",

@@ -29,7 +29,6 @@ export const usage = `Usage: product-backlog.mjs add --identity <id> --title <ti
                              [--file <path>]
        product-backlog.mjs direction (--text <text> | --clear)
                              (--expect <text> | --expect-none) [--file <path>]
-       product-backlog.mjs adopt --all [--file <path>]
        product-backlog.mjs record-state --identity <id> --link <href>
                              --refinement not-refined|refined
                              --approach unselected|planned|planless
@@ -118,10 +117,6 @@ in either list. The direction the request was written against is always stated:
 --expect names the text you read, and --expect-none says you read none. A
 request whose expectation no longer holds is refused with nothing written, so a
 direction someone else has since changed is never overwritten unknowingly.
-
-adopt records one identity for every active entry in the canonical homes its
-links name, reusing the ID each home already carries. It changes no membership,
-order, or direction, and never runs implicitly: --all is required.
 
 record-state writes one versioned story-state block into the canonical home
 --link names: refinement, approach, and optional readiness assessment. A

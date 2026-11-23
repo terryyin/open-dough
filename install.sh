@@ -12,7 +12,6 @@ managed_files=(
   dough-product-backlog/references/merge-conflicts.md
   dough-product-backlog/references/record-preparation.md
   dough-product-backlog/scripts/product-backlog-add.mjs
-  dough-product-backlog/scripts/product-backlog-adopt.mjs
   dough-product-backlog/scripts/product-backlog-agent-profile.mjs
   dough-product-backlog/scripts/product-backlog-combine.mjs
   dough-product-backlog/scripts/product-backlog-complete.mjs

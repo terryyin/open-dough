@@ -4,18 +4,16 @@
 // order, and the untouched canonical homes by whole-file bytes.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { run } from "./product-backlog-fixture.mjs";
 import {
-  adoptedBacklog,
+  expectedBacklog,
   correctionLink,
-  headings,
+  homes,
   identities,
   seedEight,
   seedOne,
   takenLink,
-} from "./product-backlog-adoption-fixture.mjs";
-import { run } from "./product-backlog-fixture.mjs";
-import {
-  adoptedProject,
+  refreshProject,
   afterMove,
   backlogWith,
   lines,
@@ -24,7 +22,6 @@ import {
   movedPlan,
   movedSeed,
   queuedFirst,
-  recording,
   refresh,
   unspelledSeed,
   unspelledStory,
@@ -50,12 +47,7 @@ async function placedFirst(project, identity, refreshed, line) {
 
 test("refresh reference carries the identity to a renamed canonical home", async (t) => {
   const retitled = "Skip process retrospectives until a project asks for them";
-  const project = afterMove(
-    t,
-    seedOne,
-    movedSeed,
-    recording(seedOne, [[headings.retrospective, identities.retrospective]]),
-  );
+  const project = afterMove(t, seedOne, movedSeed);
   const home = project.readHome(movedSeed);
 
   const result = await run(
@@ -91,7 +83,7 @@ test("refresh reference carries the identity to a renamed canonical home", async
 
 test("refresh reference retitles an entry without touching its link", async (t) => {
   const retitled = "Queue trunk integration between agents on one machine";
-  const project = adoptedProject(t);
+  const project = refreshProject(t);
   const before = project.snapshot();
 
   const result = await run(
@@ -112,12 +104,7 @@ test("refresh reference retitles an entry without touching its link", async (t) 
 });
 
 test("refresh reference repoints an entry at its relocated plan", async (t) => {
-  const project = afterMove(
-    t,
-    takenLink,
-    movedPlan,
-    recording(takenLink, [[headings.plan, identities.taken]]),
-  );
+  const project = afterMove(t, takenLink, movedPlan);
 
   const result = await run(
     project,
@@ -136,7 +123,7 @@ test("refresh reference repoints an entry at its relocated plan", async (t) => {
 });
 
 test("refresh reference changes no byte when the entry already reads as requested", async (t) => {
-  const project = adoptedProject(t);
+  const project = refreshProject(t);
 
   const result = await run(
     project,
@@ -152,7 +139,7 @@ test("refresh reference changes no byte when the entry already reads as requeste
   );
 
   assert.equal(result.code, 0, result.stderr);
-  assert.equal(project.read(), adoptedBacklog);
+  assert.equal(project.read(), expectedBacklog);
   assert.match(result.stdout, /already reads as requested/);
 });
 
@@ -160,9 +147,7 @@ test("refresh reference carries the identity to a home whose link spells none of
   // The seed was renamed so its file name no longer holds the seed token, and
   // the story was re-anchored. The moved document's own record is what says
   // this is still the same work item; the link is only where it is now.
-  const reanchored = recording(seedOne, [
-    [headings.retrospective, identities.retrospective],
-  ]).replace(
+  const reanchored = homes[seedOne].replace(
     '<a id="default-skip-process-retrospective"></a>',
     '<a id="skip-process-retrospectives"></a>',
   );
@@ -195,12 +180,7 @@ test("refresh reference follows a correction plan identified by its old path", a
   // A bounded correction's identity is the path it was allocated at. Moving
   // the plan to another directory changes where it is, not which work it is,
   // so the old path stays its identity and becomes what the entry records.
-  const project = afterMove(
-    t,
-    correctionLink,
-    movedCorrection,
-    recording(correctionLink, [[headings.correction, identities.correction]]),
-  );
+  const project = afterMove(t, correctionLink, movedCorrection);
   const home = project.readHome(movedCorrection);
 
   const result = await run(

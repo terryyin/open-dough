@@ -80,7 +80,9 @@ node "${source_dir}/Distribution/tests/support/release-source.mjs" "${fixture}" 
       "dough-product-backlog/references/record-preparation.md"]}},
   {"name": "release 0.1.2 with-backlog-scripts", "release": {
     "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
-    "marker": "with-backlog-scripts"}}
+    "marker": "with-backlog-scripts", "added": {
+      "dough-product-backlog/scripts/product-backlog-adopt.mjs": "// Retired migration payload fixture.\n"
+    }}}
 ]}
 JSON
 checkout_tagged_release "${fixture}" "${older}" 0.1.1
@@ -126,6 +128,7 @@ for platform in cursor claude; do
       echo "FAIL: ${platform}: update did not deliver product-backlog.mjs under ${root}." >&2
       exit 1
     fi
+    test -f "${target}/${root}/dough-product-backlog/scripts/product-backlog-adopt.mjs"
   done
   assert_story_state_payload "${target}"
   if [[ "$(cat "${target}/${project_backlog_rel}")" != "${project_backlog_before}" ]]; then
@@ -133,6 +136,35 @@ for platform in cursor claude; do
     exit 1
   fi
   assert_sentinels "${target}"
+done
+
+# A later release retires a previously installed migration without touching
+# the project's backlog. Fresh installs omit the retired file too.
+node "${source_dir}/Distribution/tests/support/release-source.mjs" --add "${fixture}" << 'JSON'
+{"revisions": [
+  {"name": "release 0.1.3 without-backlog-migration",
+    "remove": ["Distribution/src/skills/dough-product-backlog/scripts/product-backlog-adopt.mjs"],
+    "release": {
+    "version": "0.1.3", "taggedAt": "2026-09-03T00:00:00",
+    "marker": "without-backlog-migration"}}
+]}
+JSON
+fresh="${temporary_dir}/fresh"
+prepare_target "${fresh}"
+bash "${helper}" apply --url "${fixture}" --target "${fresh}" --platform codex > /dev/null
+for root in .agents/skills .claude/skills; do
+  assert_payload "${fresh}/${root}/dough-update" 0.1.3 without-backlog-migration
+  test ! -e "${fresh}/${root}/dough-product-backlog/scripts/product-backlog-adopt.mjs"
+done
+for platform in cursor claude; do
+  target="${temporary_dir}/${platform}"
+  project_backlog_before=$(cat "${target}/${project_backlog_rel}")
+  bash "${helper}" apply --target "${target}" --platform "${platform}" > /dev/null
+  for root in .agents/skills .claude/skills; do
+    assert_payload "${target}/${root}/dough-update" 0.1.3 without-backlog-migration
+    test ! -e "${target}/${root}/dough-product-backlog/scripts/product-backlog-adopt.mjs"
+  done
+  [[ "$(cat "${target}/${project_backlog_rel}")" == "${project_backlog_before}" ]]
 done
 
 # Real installed use, with the release source unavailable: the Claude Code

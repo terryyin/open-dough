@@ -127,33 +127,3 @@ export function reportRecordState(outcome, file) {
     `${assessmentText} ${backlogText}`
   );
 }
-
-export function reportAdopt(outcome, file) {
-  if (outcome.written.length === 0 && outcome.relabelled.length === 0) {
-    return (
-      `All ${outcome.entries} active entries already record their identity; ` +
-      `${file} is unchanged.`
-    );
-  }
-  const report =
-    outcome.written.length === 0
-      ? [
-          `All ${outcome.entries} active entries already record their ` +
-            `identity in their canonical homes.`,
-        ]
-      : [
-          `Recorded ${outcome.written.length} identities for ${outcome.entries} active entries:`,
-          ...outcome.written.map(
-            (home) => `  ${home.identity} in ${home.relative}`,
-          ),
-        ];
-  if (outcome.relabelled.length > 0) {
-    report.push(
-      `Entries now naming their identity in ${file}:`,
-      ...outcome.relabelled.map(
-        (entry) => `  ${entry.identity} — ${entry.title}`,
-      ),
-    );
-  }
-  return report.join("\n");
-}

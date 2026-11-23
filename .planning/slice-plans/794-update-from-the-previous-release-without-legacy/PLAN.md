@@ -131,7 +131,7 @@ holds `src/install/open-dough-execution-payload.sh` updates cleanly to `latest`.
 ### 3. Product backlog drops `adopt --all` and `recordIdentity`
 
 Type: Behavior
-Status: planned
+Status: done
 
 Delete `Distribution/src/skills/dough-product-backlog/scripts/product-backlog-adopt.mjs`
 and remove its entry from `install.sh`. Remove the `adopt` command from
@@ -265,6 +265,16 @@ push.
   consolidated the declaration fixture path, `payload-declaration-links.sh`
   passed again. See `slice-2-return.md` and `slice-2-refactor-return.md` in
   the worktree's Git evidence directory for exact commands and observations.
+- Slice 3. The real backlog CLI rejects the old invocation with
+  `Unknown operation: adopt` and preserves backlog bytes. The tagged
+  installer fixture observes removal from both roots and absence on fresh
+  install. Its offline commands still work. All 75 named Distribution checks,
+  the Dashboard default-origin case and Dashboard typecheck passed. The
+  independent refactor removed an unused re-export and the reader, CLI and
+  payload checks passed again. Moving the remaining test-only formatter has
+  three fixture consumers and reaches shared Dashboard support. It is a
+  separate test-support cleanup. See `slice-3-return.md` and
+  `slice-3-refactor-return.md` in the worktree's Git evidence directory.
 
 ## Plan review
 
