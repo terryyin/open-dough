@@ -36,6 +36,11 @@ export type ReviewItem = ReviewCommit | z.infer<typeof reviewUncommittedSchema>;
 export const reviewItemId = (item: ReviewItem) =>
   item.kind === "commit" ? item.revision : "uncommitted";
 
+// The selected range follows the snapshot's newest-first order.
+export function reviewRangeEnds(items: readonly ReviewItem[]) {
+  return { oldest: items.at(-1), newest: items[0] };
+}
+
 // A selected merge's listed parent point and its destination baseline.
 export const reviewIntegrationSchema = z.strictObject({
   fromTree: objectIdSchema,

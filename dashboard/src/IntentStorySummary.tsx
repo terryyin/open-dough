@@ -11,6 +11,7 @@ import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import type { CiComparisonRange } from "./selectedCiComparison.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
+import { reviewRangeEnds } from "./storyReviewPoints.ts";
 
 // The selected story as Intent names it.
 // A completed story carries what is known of its published done record.
@@ -102,24 +103,45 @@ function publishedDoneEvidenceOf(summary: StorySummary | undefined) {
 function selectedRangeOf(
   summary: StorySummary | undefined,
 ): CiComparisonRange | undefined {
-  const comparison = summary?.comparison;
+  if (summary === undefined) return undefined;
+  const { comparison } = summary;
+  const { compare } = comparison;
   if (
-    summary?.story.completed !== true ||
-    comparison?.state !== "compared" ||
+    comparison.state !== "compared" ||
     comparison.reading === true ||
-    comparison.review?.kind !== "landed" ||
-    comparison.compare?.shown !== "landed" ||
-    comparison.compare.isDefault
+    compare === undefined ||
+    compare.isDefault
   )
     return undefined;
-  const { base, revision } = comparison.review.landing;
-  if (
-    comparison.compare.selectedRun?.comparison === undefined ||
-    !commitShaPattern.test(base) ||
-    !commitShaPattern.test(revision)
-  )
+
+  if (summary.story.completed) {
+    if (
+      comparison.review?.kind !== "landed" ||
+      compare.shown !== "landed" ||
+      compare.selectedRun?.comparison === undefined
+    )
+      return undefined;
+    const { base, revision } = comparison.review.landing;
+    return ciRangeOf(base, revision);
+  }
+
+  if (comparison.review?.kind !== "snapshot" || compare.shown !== "commits")
     return undefined;
-  return { start: base, end: revision };
+  const { oldest, newest } = reviewRangeEnds(compare.selectedItems);
+  return oldest?.kind === "commit" && newest?.kind === "commit"
+    ? ciRangeOf(oldest.firstParent, newest.revision)
+    : undefined;
+}
+
+function ciRangeOf(
+  start: string | undefined,
+  end: string,
+): CiComparisonRange | undefined {
+  return start !== undefined &&
+    commitShaPattern.test(start) &&
+    commitShaPattern.test(end)
+    ? { start, end }
+    : undefined;
 }
 
 export function storyCiEvidenceOptionsOf(summary: StorySummary | undefined) {

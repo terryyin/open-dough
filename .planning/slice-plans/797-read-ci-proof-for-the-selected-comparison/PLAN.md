@@ -295,7 +295,7 @@ directory.
 ### 7. Follow a Taken story’s commit range
 
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 8–12 minutes.
 
 Choose a contiguous range of commits in a Taken story. Feed its first
@@ -312,6 +312,14 @@ in-range end and the same selected proof in Changes and file Proof.
 Keep the Taken mode and unreadable-range controls in their existing
 journeys. At the backend read, verify the Taken profile still uses its
 own CI source.
+
+Accepted proof selects the later contiguous range and observes the exact
+first-parent and end commit IDs, measured attempts, the retained live branch
+judgment, and 1 → 9 in Changes and file Proof. All changes restores the
+default count, and a failed range read keeps its Retry and whole-story
+scope marker. The backend proved the Taken branch supplies its own CI
+source. The 41 mounted, 36 backend and eight E2E cases, plus typecheck,
+passed. See `slice-g-return.md` in the checkout's Git evidence directory.
 
 ### 8. Explain which workspace changes CI did not measure
 
@@ -361,12 +369,25 @@ routes. The review identified no remaining slice-specific concern.
 - Slice 4 was accepted on the execution branch at
   `9e2ed0796b0b5e06174edfff54965a21b4ccbcea`. The recovery test repair
   was accepted at `d8af5a05f45292e7fdd689ea244d3019950be6aa` and the
-  paused Slice 5 work restored.
+  paused Slice 5 work restored. CI run `45204216381`, attempt 1, passed
+  on that repair.
 - Slice 5 was accepted on the execution branch at
   `f9c542318fe4199405c7b701105406b9eaaa5c8d`. Trunk's declared-unit
   delivery changes shared proof readers and row interpretation. At
   integration, preserve those rules and renew affected proof on the
-  combined candidate.
+  combined candidate. The next branch push at `2bc491da` superseded the
+  Slice 5 run `45207321721` under the workflow's same-branch
+  cancel-in-progress policy.
+- Slice 6 was accepted on the execution branch at
+  `2bc491dacf2917e67f358f7bcb56128cd5be29b7`. Its only CI failure,
+  run `45209055839` attempt 1, was Distribution shard 1's overall run
+  cutoff. Its log named four unfinished and two unstarted checks, with no
+  test assertion failure. Compared with the earlier passing run
+  `45204216381` on the same Distribution and workflow sources, 265 checks
+  had timings in both logs. The median duration doubled and 241 took at
+  least 1.5 times as long. The run budget, setup and test selection were
+  unchanged. This was a runner-wide slowdown. Both timing artifacts and
+  the complete failed job log are in the checkout's Git evidence directory.
 - Codex observer of `ci.yml` on the execution branch, coordinator
   `nao-9b9c27ea`, directory `/tmp/dough-ci-501/watch-dv7wpQ`, process
   `33667`, cell `g458:11`, session `61453`. The claim preceded this observer.

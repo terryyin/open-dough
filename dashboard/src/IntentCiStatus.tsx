@@ -101,9 +101,12 @@ export function IntentCiStatus() {
         proof={evidence.proof}
         history={evidence.history}
       />
-      {provisional !== undefined && evidence.comparisonStory !== undefined && (
+      {selected !== undefined ? (
+        <SelectedCiComparison reading={selected.comparison} />
+      ) : provisional !== undefined &&
+        evidence.comparisonStory !== undefined ? (
         <IntentCiComparison reading={provisional} />
-      )}
+      ) : null}
     </>
   );
 }
