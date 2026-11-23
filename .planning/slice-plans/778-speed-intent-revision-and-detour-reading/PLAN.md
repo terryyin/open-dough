@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-revision-and-detour-reading
 **Source:** [Get fast proof of Intent revision reading and reading-place detours](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading)
+**Source review:** [Source review](source-review.md)
 **Split from:** Plan 762 at its delivered Slice 9 boundary, recoverable at `8fb7691cc:.planning/slice-plans/762-speed-intent-source-browsing-and-detours/PLAN.md`
 
 ## Goal and scope
@@ -123,7 +124,7 @@ and end in `--workers=2`. Scratch edits were disposable.
 ### 1. Revision and pinned-source reading use the production Intent body
 
 Type: Structure
-Status: planned
+Status: done
 
 Replace the test-owned `ProjectIntentReading` and
 `IntentReadingProvider` stack in `intent-revision-fixtures.ts` with the
@@ -140,6 +141,15 @@ line, focus and scroll. Preserve their exact distinguishing assertions
 and run the Candidates and Gherkin consumers of the fixture data. The
 E2E check in `e2e/intent/intent-project-visit-ci.spec.ts` owns the
 observed-revision route.
+
+**Delivered.** `mountIntentReading` mounts `mountIntentCiPage` with typed
+intent and unread CI reads at 1280×600, chooses Candidates through its tab,
+and awaits `showWork`, `showIntent` and `showDevelopment` in each operation.
+Its direct production imports fell from 7 to 3; callers only gained
+`await`. The revision, source-target, Candidates, Gherkin, folder-summary and
+Java selection passed 36 of 36 with two workers. `mountProjectIntent` remains
+the one adapter from published features to typed replies. The production
+`IntentReadingProvider` stays for the observation story's recovery mount.
 
 ### 2. Activating CI home follows the selected scope
 

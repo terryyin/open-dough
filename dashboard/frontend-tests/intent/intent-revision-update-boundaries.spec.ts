@@ -55,13 +55,13 @@ test("switching projects during an update abandons the pending read and keeps th
   const file = await browser.open(pygardonFeatures.jobs);
   await file.shows("Scenario: Archive a job");
 
-  intent.offerRevision(latest);
+  await intent.offerRevision(latest);
   const notice = intentRevisionNotice();
   await notice.showLatest();
   await notice.reads("Updating…");
   await browser.isAt(before);
   await expect.poll(() => readLatest.mock.calls.length).toBe(1);
-  intent.showProject(other);
+  await intent.showProject(other);
   await browser.isAt(otherRevision);
   await expect.poll(() => readLatest.mock.calls[0]?.[0].aborted).toBe(true);
   release();
