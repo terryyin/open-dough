@@ -104,7 +104,6 @@ for (const [remote, branch] of [
     await git(integration, "commit", "-m", "unrelated integration commit");
     await plantHumanEdit(integration);
     const integrationBefore = await captureCheckout(integration);
-    const registered = [];
     const prepared = [];
     let racingSha;
     const commitsBefore = await remoteCommitCount(remoteUrl, target);
@@ -115,7 +114,6 @@ for (const [remote, branch] of [
         branch: executionBranch,
         remote,
         targetRef: target,
-        register: (receipt) => registered.push(receipt),
         ...options,
       });
 
@@ -187,7 +185,6 @@ for (const [remote, branch] of [
     assert.equal(publishedTree.includes("human-staged.txt"), false);
     assert.equal(publishedTree.includes("human-unstaged.txt"), false);
     assert.equal(await messageCount(remoteUrl, target, "story closure"), 1);
-    assert.deepEqual(registered, [published.receipt]);
     assert.notEqual(await revParse(integration, "HEAD"), published.receipt.sha);
     assertCheckoutUnchanged(
       integrationBefore,
@@ -225,7 +222,8 @@ for (const [remote, branch] of [
     assert.equal(retry.rejectedPushCount, 0);
     assert.equal(await remoteCommitCount(remoteUrl, target), commitsAfter);
     assert.equal(await lsRemoteSha(remoteUrl, target), published.receipt.sha);
-    assert.equal(registered.length, 1);
+    assert.equal(retry.acceptedSha, published.receipt.sha);
+    assert.equal(retry.receipt, null);
     assertCheckoutUnchanged(
       integrationBefore,
       await captureCheckout(integration),

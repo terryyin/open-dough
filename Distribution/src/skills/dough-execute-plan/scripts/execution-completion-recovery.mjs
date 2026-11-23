@@ -8,10 +8,11 @@ import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
 import {
   hostSessionOwner,
   missingIdentityReason,
+  rejectRetiredObserverFlags,
   resolveHostSession,
   withExplicitSession,
 } from "./ci-host-bridge.mjs";
-import { isDirectCliEntry } from "./ci-direct-entry.mjs";
+import { flagValues, isDirectCliEntry } from "./ci-direct-entry.mjs";
 import { completeRevision, mailboxRoot, receiptPrefix } from "./ci-mailbox.mjs";
 import {
   isLiveMatchingMailbox,
@@ -25,7 +26,6 @@ import {
   establishObservation,
 } from "./execution-increment-observation.mjs";
 import { targetBranchName } from "./publication-git.mjs";
-import { executionBudgetMs } from "./watch-ci-execution.mjs";
 
 function endedPredecessors({ repo, branch, owner, root, storage }) {
   return listOwnedMailboxes({ repo, branch, owner, root, storage }).filter(
@@ -46,7 +46,6 @@ async function recoverObservationForCompletion(request) {
     observerDirectory,
     workspace,
     runtime,
-    maxDurationMs,
     env,
     root,
     storage,
@@ -79,7 +78,6 @@ async function recoverObservationForCompletion(request) {
     observerDirectory,
     workspace,
     runtime,
-    maxDurationMs,
     env,
     root,
     storage,
@@ -103,14 +101,12 @@ export async function recoverExecutionCompletion(request) {
     targetRef,
     repo,
     host = "cursor",
-    preferredAlias,
     session,
     coordinator,
     observerDirectory,
     env = process.env,
     root,
     storage,
-    maxDurationMs = executionBudgetMs,
     now,
     sleep,
     deadlineMs,
@@ -128,7 +124,7 @@ export async function recoverExecutionCompletion(request) {
     }
   }
 
-  const runtime = resolveCheckoutRuntime(workspace, { host, preferredAlias });
+  const runtime = resolveCheckoutRuntime(workspace, { host });
   const observerRoot = root ?? runtime.checkout;
   const observerStorage = storage ?? mailboxRoot;
   const targetBranch = targetBranchName(targetRef);
@@ -141,7 +137,6 @@ export async function recoverExecutionCompletion(request) {
     observerDirectory,
     workspace,
     runtime,
-    maxDurationMs,
     env,
     root: observerRoot,
     storage: observerStorage,
@@ -176,23 +171,11 @@ export async function recoverExecutionCompletion(request) {
 function argumentsOf(argv) {
   if (argv[0] !== "complete") {
     throw new Error(
-      "usage: execution-completion-recovery.mjs complete --workspace PATH --accepted-sha SHA --target-ref REF --repo OWNER/REPO [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--session-json JSON] [--coordinator VALUE --observer-directory PATH] [--max-duration-ms MS]",
+      "usage: execution-completion-recovery.mjs complete --workspace PATH --accepted-sha SHA --target-ref REF --repo OWNER/REPO [--host cursor|claude|codex] [--session-json JSON] [--coordinator VALUE --observer-directory PATH]",
     );
   }
-  const result = {};
-  for (let index = 1; index < argv.length; index += 1) {
-    const flag = argv[index];
-    if (!flag.startsWith("--") || index + 1 >= argv.length) {
-      throw new Error(`invalid argument ${flag}`);
-    }
-    const key = flag
-      .slice(2)
-      .replace(/-[a-z]/g, (match) => match[1].toUpperCase());
-    result[key] = argv[++index];
-  }
-  if (result.maxDurationMs !== undefined) {
-    result.maxDurationMs = Number(result.maxDurationMs);
-  }
+  const result = flagValues(argv.slice(1));
+  rejectRetiredObserverFlags(result);
   return withExplicitSession(result);
 }
 

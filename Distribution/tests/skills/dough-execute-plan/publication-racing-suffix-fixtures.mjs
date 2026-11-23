@@ -77,7 +77,6 @@ export async function publishRacingSuffix({
   previouslyPublishedBase,
   branch,
   affectedCheck,
-  beforeRetryPush,
 }) {
   if (!(await pushRejected(workspace, candidateSha))) {
     return { status: "published", sha: candidateSha, replays: 0 };
@@ -102,9 +101,6 @@ export async function publishRacingSuffix({
   }
   const rewritten = await revParse(workspace, branch);
   await affectedCheck(rewritten);
-  if (beforeRetryPush) {
-    await beforeRetryPush();
-  }
   if (await pushRejected(workspace, rewritten)) {
     return {
       status: "preserved",

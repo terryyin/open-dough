@@ -1,7 +1,6 @@
 // Exact receipt and recovery use deployed fresh/managed owners with real Git.
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { readRevisionCoverage } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import { armStream } from "./execution-increment-managed-delivery-codex-test-fixtures.mjs";
@@ -14,6 +13,9 @@ import {
   lsRemoteSha,
   revParse,
 } from "./publication-test-fixtures.mjs";
+
+import { installTransportStall } from "./publication-stall-test-fixtures.mjs";
+import { transportBoundSetting } from "../../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 
 const targetRef = "refs/heads/main";
 
@@ -71,24 +73,34 @@ test("a thrown post-commit delivery retains a usable pre-push candidate/base for
 
 test("lost fresh acceptance response resumes after a later remote tip with no duplicate push or commit", async (t) => {
   const f = await localFixture(t);
-  const pushLog = join(f.fixture, "push.log");
-  writeFileSync(
-    join(f.origin, "hooks/pre-receive"),
-    `#!/bin/sh\ncat >/dev/null\necho push >> '${pushLog}'\n`,
-    { mode: 0o755 },
-  );
-  const d = await freshApi(f, {
-    register: () => {
-      throw new Error("lost acceptance response");
-    },
+  const transport = await installTransportStall({
+    fixture: f.fixture,
+    workspace: f.workspace,
+    origin: f.origin,
   });
-  assert.equal(d.status, "delivery-interrupted");
+  transport.stallAfterAcceptance();
+  const previousBound = process.env[transportBoundSetting];
+  process.env[transportBoundSetting] = "2000";
+  let d;
+  try {
+    d = await freshApi(f);
+  } finally {
+    if (previousBound === undefined) delete process.env[transportBoundSetting];
+    else process.env[transportBoundSetting] = previousBound;
+    await transport.cleanup();
+    transport.removeHooks();
+  }
+  assert.equal(d.status, "transport-timeout");
+  assert.equal(d.stage, "push");
+  assert.equal(d.pushIssued, true);
   assert.equal(await lsRemoteSha(f.origin, targetRef), d.commit.sha);
   assert.equal(d.recovery.candidateSha, d.commit.sha);
   const later = await advanceOriginFromAnotherWriter(f.origin, {
     file: "later.txt",
   });
-  const pushes = readFileSync(pushLog, "utf8");
+  const received = () =>
+    transport.calls().filter(({ service }) => service === "receive-pack");
+  assert.equal(received().length, 1);
   const resumed = await f.resumeManagedExecutionIncrement({
     ...f.requestBase,
     ...d.recovery,
@@ -96,7 +108,7 @@ test("lost fresh acceptance response resumes after a later remote tip with no du
   assert.equal(resumed.receipt.sha, d.commit.sha);
   assert.equal(resumed.pushCount, 0);
   assert.equal(await lsRemoteSha(f.origin, targetRef), later);
-  assert.equal(readFileSync(pushLog, "utf8"), pushes);
+  assert.equal(received().length, 1);
   assert.equal(readFileSync(f.hookLog, "utf8"), "commit\n");
   assert.deepEqual(
     readRevisionCoverage(resumed.observation.directory).map(({ sha }) => sha),

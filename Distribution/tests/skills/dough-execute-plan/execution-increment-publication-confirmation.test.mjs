@@ -23,30 +23,21 @@ const branch = "exec/story";
 async function publicationFixture(t) {
   const fixture = await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(fixture.cleanup);
-  const receipts = [];
   const publish = (options) =>
     publishExecutionIncrement({
       workspace: fixture.execution,
       ...makeMe.anIncrementPublication
         .with({ branch, previouslyPublishedBase: fixture.trunkSha, targetRef })
         .please(),
-      register: (receipt) => receipts.push(receipt),
       ...options,
     });
-  return { ...fixture, publish, receipts };
+  return { ...fixture, publish };
 }
 
 test("successful publication confirms the named remote target with a custom tracking ref", async (t) => {
   const fixture = await publicationFixture(t);
-  const {
-    origin,
-    execution,
-    integration,
-    trunkSha,
-    candidateSha,
-    publish,
-    receipts,
-  } = fixture;
+  const { origin, execution, integration, trunkSha, candidateSha, publish } =
+    fixture;
   const remote = "delivery";
   const delivery = await authorizedRemote(fixture, remote, "main");
   const tracking = "refs/remotes/delivery/published";
@@ -63,7 +54,6 @@ test("successful publication confirms the named remote target with a custom trac
   const result = await publish({ remote, defaultCheckout: integration });
 
   assert.deepEqual(result.receipt, { sha: candidateSha, target: targetRef });
-  assert.deepEqual(receipts, [result.receipt]);
   assert.equal(result.remoteTip, candidateSha);
   assert.equal(await lsRemoteSha(delivery, targetRef), candidateSha);
   assert.equal(await lsRemoteSha(origin, targetRef), trunkSha);
@@ -74,7 +64,7 @@ test("successful publication confirms the named remote target with a custom trac
 });
 
 test("a disappeared target is not confirmed by a different remote ref holding the candidate", async (t) => {
-  const { origin, execution, candidateSha, publish, receipts } =
+  const { origin, execution, candidateSha, publish } =
     await publicationFixture(t);
   const hooks = join(origin, "hooks");
   const saved = "refs/tags/saved/refs/heads/main";
@@ -91,7 +81,6 @@ git update-ref ${saved} "$new" &&
 
   await assert.rejects(publish(), /remote did not accept the candidate/);
 
-  assert.deepEqual(receipts, []);
   assert.equal(await revParse(execution, branch), candidateSha);
   const { stdout } = await git(execution, "ls-remote", "origin", targetRef);
   assert.equal(stdout.trim(), `${candidateSha}\t${saved}`);

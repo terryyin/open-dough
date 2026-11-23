@@ -104,8 +104,6 @@ export async function recoveryFixture(t) {
       repo,
       "--host",
       "claude",
-      "--max-duration-ms",
-      "60000",
       ...extra,
     ];
     if (spawnOptions.spawn) {
@@ -155,7 +153,6 @@ export async function recoveryFixture(t) {
         env,
         root,
         storage,
-        maxDurationMs: 60_000,
         ...request,
       });
       if (

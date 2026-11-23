@@ -5,7 +5,10 @@
 // bound stops as held stops do.
 import { resolve } from "node:path";
 import { resolveCheckoutRuntime } from "./ci-checkout-runtime.mjs";
-import { withExplicitSession } from "./ci-host-bridge.mjs";
+import {
+  rejectRetiredObserverFlags,
+  withExplicitSession,
+} from "./ci-host-bridge.mjs";
 import { mailboxRoot } from "./ci-mailbox.mjs";
 import { registerPushedRevision } from "./ci-mailbox-revision-records.mjs";
 import { isDirectCliEntry } from "./ci-direct-entry.mjs";
@@ -27,7 +30,6 @@ export async function resumeManagedExecutionIncrement(request) {
     supersededShas = [],
     defaultCheckout,
     host = "cursor",
-    preferredAlias,
     session,
     coordinator,
     observerDirectory,
@@ -51,7 +53,7 @@ export async function resumeManagedExecutionIncrement(request) {
     }
   }
 
-  const runtime = resolveCheckoutRuntime(workspace, { host, preferredAlias });
+  const runtime = resolveCheckoutRuntime(workspace, { host });
   const observerRoot = root ?? runtime.checkout;
   const observerStorage = storage ?? mailboxRoot;
   const targetBranch = targetBranchName(targetRef);
@@ -171,7 +173,7 @@ export async function resumeManagedExecutionIncrement(request) {
 function argumentsOf(argv) {
   if (argv[0] !== "resume") {
     throw new Error(
-      "usage: execution-increment-resume.mjs resume --workspace PATH --candidate-sha SHA --target-ref REF --repo OWNER/REPO [--suffix-base SHA] [--remote NAME] [--host cursor|claude|codex] [--preferred-alias .agents|.claude] [--session-json JSON] [--coordinator VALUE --observer-directory PATH] [--default-checkout PATH] [--superseded-sha SHA]... [--one-shot-identity ID] [--landing-context PATH]",
+      "usage: execution-increment-resume.mjs resume --workspace PATH --candidate-sha SHA --target-ref REF --repo OWNER/REPO [--suffix-base SHA] [--remote NAME] [--host cursor|claude|codex] [--session-json JSON] [--coordinator VALUE --observer-directory PATH] [--default-checkout PATH] [--superseded-sha SHA]... [--one-shot-identity ID] [--landing-context PATH]",
     );
   }
   const result = { supersededShas: [] };
@@ -189,6 +191,7 @@ function argumentsOf(argv) {
       .replace(/-[a-z]/g, (match) => match[1].toUpperCase());
     result[key] = argv[++index];
   }
+  rejectRetiredObserverFlags(result);
   return withExplicitSession(result);
 }
 

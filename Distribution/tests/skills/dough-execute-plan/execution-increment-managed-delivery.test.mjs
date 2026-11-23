@@ -154,7 +154,6 @@ test("missing host alias still resolves a usable checkout runtime", async (t) =>
 
   const runtime = fixture.resolveCheckoutRuntime(fixture.execution, {
     host: "claude",
-    preferredAlias: ".claude",
   });
   assert.equal(runtime.alias, ".agents");
   assert.match(runtime.entrypoint, /\.agents\/skills\/dough-execute-plan/);
@@ -162,7 +161,6 @@ test("missing host alias still resolves a usable checkout runtime", async (t) =>
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
     host: "claude",
-    preferredAlias: ".claude",
     workspace: fixture.execution,
     branch: "exec/story",
     previouslyPublishedBase: fixture.trunkSha,

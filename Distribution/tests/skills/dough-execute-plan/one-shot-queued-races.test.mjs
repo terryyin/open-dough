@@ -172,9 +172,7 @@ test("a Take landing after the retry's reconciliation is refused by the remote",
           "-m",
           "unrelated",
         ).then(() => git(trunk.integration, "push", "-q", "origin", "main"));
-    },
-    beforeRetryPush: async () => {
-      take = await rivalTake(trunk);
+      if (attempt === 1) take = await rivalTake(trunk);
     },
   });
   assert.equal(delivered.status, "persistent-contention");

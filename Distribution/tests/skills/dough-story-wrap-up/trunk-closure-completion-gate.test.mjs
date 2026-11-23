@@ -5,6 +5,8 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { test } from "node:test";
+import { listRegisteredRevisions } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
+import { awaitWorkerState } from "../dough-execute-plan/watch-ci-test-fixtures.mjs";
 import { lsRemoteSha } from "../dough-execute-plan/publication-test-fixtures.mjs";
 import {
   branchSha,
@@ -16,11 +18,6 @@ import {
 } from "./trunk-closure-test-fixtures.mjs";
 
 const main = "refs/heads/main";
-// An observer budget long enough for `finish` to register the final closure
-// on the live observer; the observation then ends at the observer's next
-// recheck, well inside the default budget.
-const unresolvedBudgetMs = 20_000;
-
 // A CI failure, or a success whose shutdown is retained by an earlier
 // revision's unread CI failure, never retires.
 for (const [receipt, beforeCi, finalCi, verdict] of [
@@ -50,22 +47,32 @@ for (const [receipt, beforeCi, finalCi, verdict] of [
   });
 }
 
-// CI reports nothing for the final closure before the observer's observation
-// budget ends, so the receipt holds no verdict although shutdown is confirmed.
+// CI reports nothing for the final closure when its observer stops,
+// leaving a receipt without a verdict.
 test("a receipt with no CI verdict for the final closure stops at completion, preserves the worktree and branch, and names the rerun or the lost-coverage report", async (t) => {
   const fixture = await createTrunkClosureFixture(t);
-  const before = await deliverBeforeCleanupThroughCli(fixture, {
-    maxDurationMs: unresolvedBudgetMs,
-  });
+  const before = await deliverBeforeCleanupThroughCli(fixture);
   const beforeCleanup = before.receipt.sha;
   const final = await commitFinalClosure(fixture);
   releaseCi(fixture, { [beforeCleanup]: "success" });
 
-  const { result, code } = await finishThroughCli(fixture, {
+  const directory = before.observation.directory;
+  const finishing = finishThroughCli(fixture, {
     beforeCleanup,
     final,
     extra: ["--created-for-work", "--default-checkout", fixture.integration],
   });
+  const [{ result, code }] = await Promise.all([
+    finishing,
+    (async () => {
+      await awaitWorkerState(
+        directory,
+        () => listRegisteredRevisions(directory).includes(final),
+        "the accepted closure was registered",
+      );
+      await fixture.stopObserver(directory);
+    })(),
+  ]);
 
   assert.equal(code, 1);
   assert.equal(result.ok, false);

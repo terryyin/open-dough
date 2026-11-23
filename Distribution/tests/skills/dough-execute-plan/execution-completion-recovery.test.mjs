@@ -1,10 +1,22 @@
 import assert from "node:assert/strict";
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { completionBudgetMs } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-completion-state.mjs";
 import { readPredecessors } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-predecessors.mjs";
 import { recoveryFixture } from "./execution-completion-recovery-test-fixtures.mjs";
+
+test("installed completion refuses --max-duration-ms before opening an observer", async (t) => {
+  const h = await recoveryFixture(t);
+  const { code, receipt, stderr } = await h.recoverThroughCli([
+    "--max-duration-ms",
+    "60000",
+  ]);
+  assert.equal(code, 2);
+  assert.equal(stderr.trim(), "invalid argument --max-duration-ms");
+  assert.equal(receipt, null);
+  assert.equal(existsSync(h.storage), false);
+});
 
 test("completion recovery on a replacement observer", async (t) => {
   const h = await recoveryFixture(t);

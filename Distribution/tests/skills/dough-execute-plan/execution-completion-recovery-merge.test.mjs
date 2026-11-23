@@ -85,9 +85,8 @@ test("command-adapter recovery of an ignored-only merge landing", async (t) => {
 
       h.releaseAncestorAttempts("pending");
       // Pending is proved only after the foreground wait times out while the
-      // applicable ancestor is still fresh; keep the observer budget above that.
+      // applicable ancestor is still fresh.
       const recovered = await h.recoverMerge({
-        maxDurationMs: 120_000,
         deadlineMs: 3_000,
       });
       assert.equal(recovered.ok, true, recovered.observation?.reason);
@@ -138,7 +137,7 @@ test("command-adapter recovery of an ignored-only merge landing", async (t) => {
 test("GitHub Actions recovery of the same ignored-only merge shape", async (t) => {
   const h = await mergeRecoveryFixture(t, { provider: "github" });
   h.holdGithub({ bOutcome: "success" });
-  const recovered = await h.recoverMerge({ maxDurationMs: 120_000 });
+  const recovered = await h.recoverMerge();
   assert.equal(recovered.ok, true, recovered.observation?.reason);
   assert.equal(recovered.receipt.verdict, "success");
   assert.equal(recovered.receipt.shutdown.status, "confirmed");

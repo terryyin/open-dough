@@ -66,7 +66,7 @@ repository runner with Homebrew Bash 5 and Node 24 passed these focused baseline
 
 Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. Slice 1 was published as `67b66d67ce7b7905d9fb5e780baf3090a47ceb33` on the story branch. The Take has no owned trunk CI observation.
 
-The latest accepted story-branch revision is `1975c03b1ffdc233beac13dd236663253c8f84de` after Slice 5.
+The latest accepted story-branch revision is `45f5737aaab713d4ae70968c42426b85bf39c35f` after Slice 6.
 Codex observer for the execution branch uses GitHub Actions `ci.yml` (CI). Coordinator `5f0cec34-e7f0-4f74-8aa2-de18cfa45a2b`, mailbox `/tmp/dough-ci-501/watch-QmFpcm`, PID `84936`, session `52487`, cell `g245:20`. Runtime and owner are bound to the established execution checkout.
 
 ## Local gate
@@ -207,7 +207,7 @@ candidate with a live observer missing its receipt. All 35 focused files and 17 
 ### 7. Deliver and complete without test-only option transport
 
 Type: Behavior
-Status: planned
+Status: done
 
 On delivery, resume and completion, use the existing host runtime order and
 observation budget. Remove the test-only alias and external duration inputs
@@ -221,7 +221,7 @@ advanced local remote to arrange contention. The 253-line managed-delivery test 
 clock or observer inputs, and run the racing suffix and queued one-shot race
 checks. Inspect one retry and the preserved candidate after a second
 rejection. Check host fallback, terminal outcomes, coverage gaps and receipt
-registration through installed commands.
+registration through installed commands. All 88 Distribution and evaluation files and six Dashboard cases passed. The parser refactor passed thirteen installed-command files, ten refusal cases and one Dashboard CLI case. Checkout evidence uses the `slice7-` prefix.
 
 ### 8. Use the guided execution utility options
 

@@ -27,7 +27,6 @@ test("Trunk Mode increment replays a suffix changing only done records through t
         targetRef: trunkTarget,
       })
       .please(),
-    register: () => {},
     validate: async () => ({ ok: true }),
   });
 

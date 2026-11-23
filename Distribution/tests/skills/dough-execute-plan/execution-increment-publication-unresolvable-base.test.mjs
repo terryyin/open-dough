@@ -122,7 +122,6 @@ for (const { name, problem, base } of unresolvableBases) {
       branch: "exec/story",
       previouslyPublishedBase: supplied,
       targetRef: trunkTarget,
-      register: () => calls.push("register"),
       validate: async () => calls.push("validate"),
       beforePush: async () => calls.push("beforePush"),
       onFetchedTarget: async () => calls.push("onFetchedTarget"),

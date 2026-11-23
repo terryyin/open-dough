@@ -72,7 +72,6 @@ async function incrementWithLiveProfile(t) {
       .please(),
   );
   t.after(fixture.cleanup);
-  const receipts = [];
   const publication = {
     workspace: fixture.execution,
     ...makeMe.anIncrementPublication
@@ -83,9 +82,8 @@ async function incrementWithLiveProfile(t) {
       })
       .please(),
     validate: async () => ({ ok: true }),
-    register: (receipt) => receipts.push(receipt),
   };
-  return { ...fixture, publication, receipts };
+  return { ...fixture, publication };
 }
 
 async function misplaceProfileOnTrunk(integration) {
@@ -104,7 +102,6 @@ async function assertHeldRewrite(result, fixture, remoteTip) {
   assert.equal(result.candidate, await revParse(fixture.execution, branch));
   assert.equal(result.suffixBase, remoteTip);
   assert.equal(result.reconciliations, 1);
-  assert.deepEqual(fixture.receipts, []);
   assert.equal(await lsRemoteSha(fixture.origin, main), remoteTip);
 }
 

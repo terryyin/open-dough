@@ -52,6 +52,18 @@ export function withExplicitSession({ sessionJson, ...args }) {
   return sessionJson ? { ...args, session: JSON.parse(sessionJson) } : args;
 }
 
+const retiredObserverFlags = [
+  ["preferredAlias", "--preferred-alias"],
+  ["maxDurationMs", "--max-duration-ms"],
+];
+
+export function rejectRetiredObserverFlags(args, usageSuffix = "") {
+  const retired = retiredObserverFlags.find(([key]) =>
+    Object.hasOwn(args, key),
+  );
+  if (retired) throw new Error(`invalid argument ${retired[1]}${usageSuffix}`);
+}
+
 export function missingIdentityReason(host, command = "deliver") {
   const identity = hostIdentity[host];
   if (!identity)

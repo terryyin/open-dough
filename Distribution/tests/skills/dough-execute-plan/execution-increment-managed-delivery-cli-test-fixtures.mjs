@@ -10,10 +10,8 @@ import { receiptPrefix } from "../../../src/skills/dough-execute-plan/scripts/ci
 
 // Runs the taught `deliver` for one increment of the fixture's execution
 // branch, or of the supplied `workspace` and `branch`, with only the supplied
-// environment under the supplied `mode` and optional `tracking`; `extra` adds
-// flags such as `--session-json` or `--authority`. `mode: null` omits
-// `--mode`. `maxDurationMs` is the observer's execution observation budget.
-// The reported observer stops at teardown.
+// Runs with the supplied mode and tracking. Use mode: null to omit --mode.
+// Extra flags reach the CLI directly. The observer stops at teardown.
 export async function deliverThroughCli(
   fixture,
   {
@@ -26,7 +24,6 @@ export async function deliverThroughCli(
     mode = "trunk",
     tracking,
     targetRef = "refs/heads/main",
-    maxDurationMs = 60_000,
   },
 ) {
   const args = [
@@ -44,8 +41,6 @@ export async function deliverThroughCli(
     "owner/project",
     "--host",
     host,
-    "--max-duration-ms",
-    String(maxDurationMs),
     ...extra,
   ];
   const script = join(
