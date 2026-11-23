@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "caf9751b-2b45-4822-9c31-0e659b034eda",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T06:30:17.177Z",
+  "story": "SEED-413#correct-scope-timing-chart-proof-residue",
+  "ranges": [
+    {
+      "base": "63a386615b8b7a4f521731ad45295cbd19fcd13c",
+      "candidate": "add2578de65da22cfe7e52e429f1f567fd48fcdf"
+    }
+  ]
+}
