@@ -61,6 +61,7 @@ bash "${source_dir}/install.sh" --target "${target}" --source "${source_dir}" \
 
 expected_source=$(cd -- "${source_dir}" && pwd -P)
 for skill_root in "${skill_roots[@]}"; do
+  [[ ! -e "${target}/${skill_root}/dough-execute-plan/scripts/watch-ci.mjs" ]]
   assert_payload_bytes_match "${source_dir}/Distribution/src/skills" "${target}/${skill_root}"
   assert_installed_ci_proof "${target}/${skill_root}"
   # Load the actual installed completion entry points and their relative imports.

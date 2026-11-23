@@ -154,7 +154,7 @@ ci_completion_create_fixture() {
   export DOUGH_CI_MAILBOX_ROOT="${ci_completion_storage}"
   local receipt
   receipt=$(cd "${ci_completion_project}" \
-    && node "${ci_completion_launcher}" start --execution owner/project exec/story 600000)
+    && node "${ci_completion_launcher}" start --execution owner/project exec/story)
   ci_completion_mailbox=$(jq -r '.directory' <<< "${receipt#CI_OBSERVER }")
   (cd "${ci_completion_project}" \
     && node "${ci_completion_launcher}" register-push \

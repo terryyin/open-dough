@@ -208,7 +208,7 @@ test("unconfirmed shutdown names the limitation and does not stop another worker
 });
 
 test("a quiet gap without completion leaves the worker alive; explicit stop stays separate", async (t) => {
-  const fixture = await setupProcessMailbox(t, undefined, {
+  const fixture = await setupProcessMailbox(t, {
     observeWorkerRechecks: true,
   });
   await register(fixture.env, fixture.mailbox);

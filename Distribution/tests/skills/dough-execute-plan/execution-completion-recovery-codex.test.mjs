@@ -69,7 +69,6 @@ test("Codex recovery arms a fresh stream after budget finish, then completes on 
       "--execution",
       repo,
       "main",
-      "60000",
       "--coordinator",
       coordinator,
     ],

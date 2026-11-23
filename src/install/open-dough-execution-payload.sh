@@ -192,7 +192,6 @@ managed_files+=(
   dough-execute-plan/scripts/publication-git-process.mjs
   dough-execute-plan/scripts/publication-git.mjs
   dough-execute-plan/scripts/watch-ci-execution.mjs
-  dough-execute-plan/scripts/watch-ci.mjs
   dough-execute-plan/scripts/slice-clock.mjs
   dough-execute-plan/scripts/slice-clock-hook.mjs
   dough-execute-plan/scripts/slice-clock-record.mjs

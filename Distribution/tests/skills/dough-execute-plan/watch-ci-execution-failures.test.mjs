@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { makeMe } from "../../support/makeMe.mjs";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
-import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs";
+import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 
 const observedJob = (facts) => makeMe.aGitHubJob.withFacts(facts).please();
 

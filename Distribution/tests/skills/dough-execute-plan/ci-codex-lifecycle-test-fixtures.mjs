@@ -86,14 +86,7 @@ export function createCodexReplay(
   teardown,
   env,
   {
-    command = [
-      launcher,
-      "stream",
-      "--execution",
-      "owner/repo",
-      "main",
-      "60000",
-    ],
+    command = [launcher, "stream", "--execution", "owner/repo", "main"],
     exitSignal = "SIGTERM",
   } = {},
 ) {

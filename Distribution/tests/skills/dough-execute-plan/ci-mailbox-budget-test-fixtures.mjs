@@ -27,7 +27,6 @@ export async function runMailboxWorkerUntilBudget({
   root,
   storage,
   observeRoot,
-  maxDurationMs = 5_000,
 }) {
   let elapsed = 0;
   await runMailboxWorker(directory, {
@@ -37,7 +36,6 @@ export async function runMailboxWorkerUntilBudget({
       watchCiExecution({
         ...request,
         ...(observeRoot !== undefined ? { root: observeRoot } : {}),
-        maxDurationMs,
         now: () => elapsed,
         pollMs: 10 * 60 * 1000,
         sleep: async () => undefined,

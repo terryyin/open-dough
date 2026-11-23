@@ -1,17 +1,9 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import {
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  symlinkSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
 import { makeMe } from "../../support/makeMe.mjs";
 import {
   callsReached,
@@ -21,23 +13,22 @@ import {
   awaitSignalWhileRunning,
   settledProbe,
 } from "./process-lifetime-test-fixtures.mjs";
+import { installLinkedSkills } from "./symlinked-skill-test-fixtures.mjs";
 
-const observer = fileURLToPath(
-  new URL(
-    "../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs",
-    import.meta.url,
-  ),
-);
-
-// Runs the observer CLI until `path` counts `count` calls, then stops it and
-// returns its stdout; the observer runs with a 60 s execution budget.
-async function runObserverUntil(path, count, fixture, entry = observer) {
+// Runs the installed stream until the provider receives its first call.
+async function observeProvider(fixture, calls, entryPath = "real") {
+  const entry = installLinkedSkills(fixture.root)(
+    "dough-execute-plan/scripts/ci-mailbox.mjs",
+  )[entryPath];
   const child = spawn(
     process.execPath,
-    [entry, "--execution", "owner/project", "feature/custom", "60000"],
+    [entry, "stream", "--execution", "owner/project", "feature/custom"],
     {
       cwd: fixture.root,
-      env: fixture.env,
+      env: {
+        ...fixture.env,
+        DOUGH_CI_MAILBOX_ROOT: join(fixture.root, "mailboxes"),
+      },
     },
   );
   const stdout = [];
@@ -47,17 +38,19 @@ async function runObserverUntil(path, count, fixture, entry = observer) {
   const closed = once(child, "close");
   try {
     await awaitSignalWhileRunning(
-      () => callsReached(path, count),
+      () => callsReached(calls, 1),
       settledProbe(closed),
       () =>
-        `observer exited (code ${child.exitCode ?? child.signalCode}) before ${path} reached ${count} calls: ${Buffer.concat(stderr)}`,
+        `observer exited before ${calls} recorded a call: ${Buffer.concat(stderr)}`,
     );
   } finally {
     child.kill("SIGTERM");
   }
   const [code] = await closed;
   assert.equal(code, 0, Buffer.concat(stderr).toString());
-  return Buffer.concat(stdout).toString();
+  const output = Buffer.concat(stdout).toString();
+  assert.match(output, /^CI_OBSERVER /);
+  assert.match(output, /^CI_OBSERVER_RESULT .*"status":"stopped"/m);
 }
 
 test("normal observer CLI selects the configured command", async (t) => {
@@ -66,9 +59,8 @@ test("normal observer CLI selects the configured command", async (t) => {
       .with({ ciAdapter: [process.execPath, adapter] })
       .please(),
   );
-  const stdout = await runObserverUntil(fixture.calls, 1, fixture);
+  await observeProvider(fixture, fixture.calls);
 
-  assert.equal(stdout, "");
   assert.equal(existsSync(fixture.ghCalls), false);
   assert.deepEqual(JSON.parse(readFileSync(fixture.requests, "utf8")), {
     operation: "discover",
@@ -82,14 +74,8 @@ test("a symlink-equivalent entry path still selects the configured command", asy
       .with({ ciAdapter: [process.execPath, adapter] })
       .please(),
   );
-  const linkDir = mkdtempSync(join(tmpdir(), "ci-command-adapter-symlink-"));
-  const entry = join(linkDir, "watch-ci-entry.mjs");
-  symlinkSync(observer, entry);
-  t.after(() => rmSync(linkDir, { recursive: true, force: true }));
+  await observeProvider(fixture, fixture.calls, "linked");
 
-  const stdout = await runObserverUntil(fixture.calls, 1, fixture, entry);
-
-  assert.equal(stdout, "");
   assert.equal(existsSync(fixture.ghCalls), false);
   assert.deepEqual(JSON.parse(readFileSync(fixture.requests, "utf8")), {
     operation: "discover",
@@ -103,9 +89,8 @@ for (const [name, configuration] of [
 ]) {
   test(`${name} ciAdapter retains GitHub discovery`, async (t) => {
     const fixture = projectFixture(t, configuration);
-    const stdout = await runObserverUntil(fixture.ghCalls, 1, fixture);
+    await observeProvider(fixture, fixture.ghCalls);
 
-    assert.equal(stdout, "");
     assert.ok(Number(readFileSync(fixture.ghCalls, "utf8")) >= 1);
     assert.equal(existsSync(fixture.calls), false);
   });

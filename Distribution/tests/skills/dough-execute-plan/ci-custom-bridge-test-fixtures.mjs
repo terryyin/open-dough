@@ -117,14 +117,7 @@ export async function runCli(path, args, options) {
 export function spawnStream(launcher, env, project) {
   return spawn(
     process.execPath,
-    [
-      launcher,
-      "stream",
-      "--execution",
-      "owner/project",
-      "feature/custom",
-      "60000",
-    ],
+    [launcher, "stream", "--execution", "owner/project", "feature/custom"],
     { cwd: project, env, stdio: ["ignore", "pipe", "pipe"] },
   );
 }

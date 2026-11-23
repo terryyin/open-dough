@@ -128,18 +128,14 @@ export function processMailboxEnvironment(
   };
 }
 
-export async function setupProcessMailbox(
-  t,
-  startArguments = ["--execution", "owner/repo", "main", "60000"],
-  options = {},
-) {
+export async function setupProcessMailbox(t, options = {}) {
   const directory = mkdtempSync(join(tmpdir(), "ci-process-test-"));
   const teardown = fixtureTeardown(directory);
   t.after(teardown.cleanup);
   const env = processMailboxEnvironment(directory, teardown, options);
   const { stdout } = await exec(
     process.execPath,
-    [launcher, "start", ...startArguments],
+    [launcher, "start", "--execution", "owner/repo", "main"],
     { env, timeout: 5000 },
   );
   const mailbox = JSON.parse(stdout.slice("CI_OBSERVER ".length)).directory;

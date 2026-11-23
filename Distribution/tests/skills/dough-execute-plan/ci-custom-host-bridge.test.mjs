@@ -84,7 +84,7 @@ for (const host of ["cursor", "claude"])
     const fixture = await createCustomBridgeFixture(t);
     const launched = await runCli(
       fixture.launcher,
-      ["start", "--execution", "owner/project", "feature/custom", "60000"],
+      ["start", "--execution", "owner/project", "feature/custom"],
       { cwd: fixture.project, env: fixture.env },
     );
     const directory = observerReceipt(launched.stdout).directory;

@@ -96,7 +96,7 @@ test("execution observation with a declared rebuild keeps its command requests r
   const { projectFixture } =
     await import("./ci-command-adapter-test-fixtures.mjs");
   const { watchCiExecution } =
-    await import("../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs");
+    await import("../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs");
   const fixture = projectFixture(t, (adapter) =>
     makeMe.projectCiSettings
       .with({

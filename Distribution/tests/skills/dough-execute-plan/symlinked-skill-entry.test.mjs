@@ -39,7 +39,6 @@ const entryPoints = [
     script: "dough-execute-plan/scripts/execution-increment-resume.mjs",
     guarded: true,
   },
-  { script: "dough-execute-plan/scripts/watch-ci.mjs", guarded: true },
   {
     script: "dough-story-refinement/scripts/preparation-assignment.mjs",
     guarded: true,

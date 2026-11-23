@@ -2,11 +2,11 @@
 
 **Identity:** SEED-423#remove-unreached-distribution-code
 **Source:** [Install only scripts that guidance, hooks or the Dashboard reach](../../seeds/SEED-423-shrink-the-installed-distribution.md#remove-unreached-distribution-code)
+**Source review:** [Source-only review](source-review.md)
 
 ## Goal and scope
 
-Remove confirmed test-only surfaces from fresh installs and tagged updates.
-Keep the supported paths and scope limits in the source story.
+Remove confirmed test-only surfaces from fresh installs and tagged updates while preserving the supported paths in the source story.
 
 ## Current decisions
 
@@ -50,10 +50,7 @@ Keep the supported paths and scope limits in the source story.
 ## Observed premises
 
 At `6d83367e9` in the owned preparation checkout on 2026-11-23, the
-repository runner with Homebrew Bash 5 and Node 24 passed these focused
-baseline checks. Installation and lifecycle fixtures use local tagged
-repositories, local remotes and simulated CI. The checked-in source supplies
-the installed payload in the fixtures.
+repository runner with Homebrew Bash 5 and Node 24 passed these focused baseline checks. Installation and lifecycle fixtures use local tagged repositories, local remotes and simulated CI. The checked-in source supplies the installed payload.
 
 | Consuming operation | Observation and result |
 | --- | --- |
@@ -65,10 +62,15 @@ the installed payload in the fixtures.
 | Managed resume lifecycle, contention and guidance CLI routes (6–8) | `execution-increment-managed-delivery-resume-lifecycle`, `publication-racing-suffix`, `wait-for-publication`, `consumer-trace`, `slice-clock`, `story-obligations` and `ci-proof-leads-cli` passed. The final check exercises the repository fallback and its diagnostic when origin supplies no identity. |
 | Retained seams for observation and races (1, 7, 8) | A real mailbox start without a budget positional observed a fixture failure and acknowledged stop. Installed delivery and replacement completion passed with a scratch edit dropping the duration and alias at command ingress, equivalent to omitting them at the request boundary. The real publisher with only `beforePush` advanced a local remote at attempts 0 and 1, reported `persistent-contention` and preserved the rival tip. The guided publication wait using a short deadline and the default interval detected a file published after its initial fetch. The clock-controlled completion budget and continued wait baseline checks also passed. |
 
+## Execution
+
+Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. The Take has no owned trunk CI observation.
+
+Codex observer for the execution branch uses GitHub Actions `ci.yml` (CI). Coordinator `5f0cec34-e7f0-4f74-8aa2-de18cfa45a2b`, mailbox `/tmp/dough-ci-501/watch-QmFpcm`, PID `84936`, session `52487`, cell `g245:20`. Runtime and owner are bound to the established execution checkout.
+
 ## Local gate
 
-Run each slice's focused checks with `bash scripts/test.sh <paths>` using
-Bash 5 or newer. Run on an awake Mac on AC power with the maintained
+Run each slice's focused checks with `bash scripts/test.sh <paths>` and Bash 5 or newer first on `PATH`. Run on an awake Mac on AC power with the maintained
 [sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 `caffeinate -s -i`. On battery, use the linked awake, lid-open `-i` procedure.
 Apply the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
@@ -88,7 +90,7 @@ broader repository suite.
 ### 1. Start the installed CI observer without a standalone wrapper
 
 Type: Behavior
-Status: planned
+Status: done
 
 When a project starts or streams a mailbox, it uses its configured CI and
 keeps the existing owner, stop and completion receipts. Move wrapper-only
@@ -103,6 +105,8 @@ compatibility for persisted request readers. Keep named-operation validation.
 direct and symlink entries, GitHub fallback, configured provider discovery,
 exact revision outcome and normal shutdown. Assert that the two installed
 roots lack the wrapper after fresh install and update from a declaring tag.
+
+Accepted proof: Distribution, native evaluation, and the two Dashboard closure cases passed. The independent refactor preserved the assertions and passed its nine affected checks. Exact runs and consumer traces are in the checkout evidence directory under `slice1-`.
 
 ### 2. Select MakeMe rules through the shared installed entry point
 

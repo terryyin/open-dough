@@ -71,7 +71,7 @@ export async function withInstalledCompletionClosure(
     const observer = await run(
       "dough-execute-plan",
       "ci-mailbox.mjs",
-      ["start", "--execution", "terryyin/open-dough", "main", "60000"],
+      ["start", "--execution", "terryyin/open-dough", "main"],
       ci.env,
     );
     mailbox = (

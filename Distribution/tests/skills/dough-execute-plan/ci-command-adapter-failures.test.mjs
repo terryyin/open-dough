@@ -12,7 +12,7 @@ import { test } from "node:test";
 import { makeMe } from "../../support/makeMe.mjs";
 import { diagnosticExcerptBytes } from "../../../src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
 import { discoverAttempt } from "./ci-command-adapter-test-fixtures.mjs";
-import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs";
+import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 
 const checkedSha = "d".repeat(40);
 

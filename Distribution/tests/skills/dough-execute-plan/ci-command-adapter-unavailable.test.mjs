@@ -12,19 +12,13 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
 import { makeMe } from "../../support/makeMe.mjs";
-import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs";
+import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 import { fixtureTeardown } from "./fixture-teardown-test-fixtures.mjs";
 import { endProcess } from "./process-lifetime-test-fixtures.mjs";
+import { installLinkedSkills } from "./symlinked-skill-test-fixtures.mjs";
 import { waitForFile, waitForPidExit } from "./watch-ci-test-fixtures.mjs";
 
-const observer = fileURLToPath(
-  new URL(
-    "../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs",
-    import.meta.url,
-  ),
-);
 const checkedSha = "e".repeat(40).toUpperCase();
 const validFailureAttempt = makeMe.aCiAdapterAttempt
   .with({
@@ -198,22 +192,35 @@ test("discovery loss after a diagnostic failure still preserves the known CI fai
 
 test("observer cancellation terminates its blocking adapter child", async (t) => {
   const fixture = unavailableFixture(t, "blocking");
+  const observer = installLinkedSkills(fixture.root)(
+    "dough-execute-plan/scripts/ci-mailbox.mjs",
+  ).real;
   const child = spawn(
     process.execPath,
-    [observer, "--execution", "owner/project", "feature/custom", "60000"],
-    { cwd: fixture.root },
+    [observer, "stream", "--execution", "owner/project", "feature/custom"],
+    {
+      cwd: fixture.root,
+      env: {
+        ...process.env,
+        DOUGH_CI_MAILBOX_ROOT: join(fixture.root, "mailboxes"),
+      },
+    },
   );
   const stdout = [];
   child.stdout.on("data", (chunk) => stdout.push(chunk));
+  const closed = once(child, "close");
   try {
     await waitForFile(fixture.pids);
   } finally {
     child.kill("SIGTERM");
   }
-  const [code, signal] = await once(child, "exit");
+  const [code, signal] = await closed;
   const adapterPid = Number(readFileSync(fixture.pids, "utf8"));
   assert.equal(code, 0, signal);
-  assert.equal(Buffer.concat(stdout).toString(), "");
+  assert.match(
+    Buffer.concat(stdout).toString(),
+    /^CI_OBSERVER_RESULT .*"status":"stopped"/m,
+  );
   assert.equal(await waitForPidExit(adapterPid), true);
   assert.equal(existsSync(fixture.requests), true);
 });
