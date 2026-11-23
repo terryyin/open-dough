@@ -37,6 +37,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Prove each adapter proof reason below the E2E journey](seeds/SEED-413-renovate-dashboard-unit-tests.md#hold-adapter-proof-reasons-in-default-timeout) — SEED-413#hold-adapter-proof-reasons-in-default-timeout
+- [Observe that a failed listing discover cancels the other branch](seeds/SEED-423-shrink-the-installed-distribution.md#observe-the-cancelled-listing-discover) — SEED-423#observe-the-cancelled-listing-discover
 - [Update from the previous release without legacy readers](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats
 - [Read and collect CI proof only in declared units](seeds/SEED-423-shrink-the-installed-distribution.md#require-declared-units-in-ci-proof) — SEED-423#require-declared-units-in-ci-proof
 - [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory

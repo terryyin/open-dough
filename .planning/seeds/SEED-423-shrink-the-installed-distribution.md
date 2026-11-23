@@ -456,6 +456,36 @@ awaiting story refinement.
 - **Depends on.** None.
 - **Safe stopping point.** Keeping only the integrated-state rule.
 
+<a id="observe-the-cancelled-listing-discover"></a>
+
+### Observe that a failed listing discover cancels the other branch
+
+**Identity:** SEED-423#observe-the-cancelled-listing-discover
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/799-observe-the-cancelled-listing-discover/PLAN.md"}
+```
+
+**Goal:** The Dashboard CI status test shows that when one branch's custom CI
+discover fails, the other branch's adapter request is stopped, not merely
+abandoned while it keeps running.
+
+**Scope:** Strengthen the observing assertion of "a ciAdapter story branch
+whose main discover fails is unread with its reason, never passed, without
+waiting for its own" in
+`Distribution/tests/support/dashboard-story-branch-ci-adapter.test.mjs` so it
+observes the other branch's adapter process after the rejection: wait past
+that adapter's delay, with its log kept outside the removed root, and assert
+the process never finished. Product behavior in
+`dashboard/server/baseCiAdapterAttempts.ts` is unchanged.
+
+**Origin:** Dough Intent Coverage at `c8c3aa62a` for
+SEED-423#install-without-the-custom-ci-adapter. With `ended.abort()` removed
+from `discoverAdapterAttempts`, the focused suite still passed 121 of 121,
+because the case reads its log immediately after rejection and then deletes
+the root the orphaned adapter writes to. A scratch witness showed the
+restored code killing the story-branch discover and the faulted code letting
+it finish.
+
 ## Ordering and scope reduction
 
 Start with CI reuse removal, the smaller custom CI interface, retirement of
