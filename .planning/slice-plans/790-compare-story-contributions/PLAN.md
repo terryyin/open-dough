@@ -220,3 +220,9 @@ with a raw original start or the attributed start and its per-file exceptions.
 The fixed record case exercises the evidence boundary for that rule. No
 additional Structure slice is needed for the selected approach. No remaining
 slice-specific concern was found.
+
+## Execution complete
+
+Product advice: no change. Intent now reads the same selected pair in its files,
+diffs and notes. Fixed comparisons and measured CI retain their own evidence.
+The existing selected-comparison CI story owns further changes to proof scope.

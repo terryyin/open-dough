@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 633. Removed numbers are never reused.
-- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
+- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The two removed older effect lines from DD-548 and DD-632 remain at `80d7a566aee3c2592e88f13a65caad0d2d61affa:DearDough.md`.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
 
@@ -72,6 +72,7 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ### Occurrences
 
+- Execution: SEED-420#compare-story-contributions (plan 790, first implementation `b159f51e1`). Timestamp: unknown (2026-11-23 +08:00, delivery of slices 1, 2 and 4). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `f3c0fe94a`). Evidence: each slice returned passing focused tests and independent refactor before guarded formatting caught unsafe matcher or fixture types, an unnecessary optional chain, unused parameters or an unbound method. Observed effect: three formatting refusals and three focused reruns after mechanical repairs. Inference: reading lint while the author still holds the fixture context would have exposed these issues before delivery.
 - Execution: SEED-424#poll-open-codex-sessions (plan 784, first implementation `b5b4a3ed8`). Timestamp: 2026-11-23T13:19:34+08:00 (initial formatting refusal). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION). Evidence: the passing focused test return and independent refactor preceded guarded delivery's errors on require-await and an unused index callback argument in the new Vitest case. The coordinator's first repair also exposed an unsafe spread. An explicit fixture array type cleared it. Observed effect: two preparation refusals before the slice could commit, plus one renewed targeted test. Inference: the existing delegated lint follow-up covers finding the initial errors while the author still has the fixture context.
 
 [Account and evidence at ODF-329](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-329.md#evidence-2026-11-23-open-dough-odf-329).
@@ -157,7 +158,6 @@ and the slice deleting the deal and correcting about 30 documents and records.
   - Model: claude-opus-5-5
   - Open Dough release: unknown (checkout-bound installed guidance at Take `7eb0efc50`; no release inferred from product VERSION)
   - Evidence: slice 4 return "about 20 minutes"; slice 6 return "about 25 minutes, not counting the 37-minute suite run"; both recorded in plan 656 Learnings at `6348334e6`.
-  - Observed effect: no discarded work; both slices delivered with accepted proof.
   - Inference: like DD-545, sizing counted the core change but not the consumer and document sweep each slice owned; a sweep across many files may deserve its own slice.
 - Execution: SEED-388#show-the-effort-a-launch-runs-with (plan 664; first implementation 535898511)
   - Timestamp: 2026-11-16T16:29:00+08:00 (slice 1 return; about 16:08–16:29 local)
@@ -487,6 +487,7 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
 ### Occurrences
 
+- Execution: SEED-420#compare-story-contributions (plan 790, first implementation `b159f51e1`). Timestamp: unknown (2026-11-23 +08:00, before the slice 1 publication at 16:47). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `f3c0fe94a`). Evidence: the Ready plan used `## Slices and outside-in proof` at `f3c0fe94a`. The empty obligation listing passed. Guarded delivery then refused the status mutation. The coordinator verified all four slices through the actual reader, corrected the heading and proof labels and published the same product slice in `b159f51e1`. Observed effect: one refused delivery and a repeated formatter pass. Inference: validating the plan with the status reader when selecting the first slice would have exposed the format before implementation.
 - Execution: SEED-413#speed-intent-revision-and-detour-reading (plan 778; first implementation `ea316f671`)
   - Timestamp: 2026-11-23T08:40:41+08:00
   - Tool: Claude Code
@@ -981,7 +982,6 @@ Plan 783 slice 1 prescribed restoring the legacy `\b` no-timing regex. Its premi
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.111
   - Evidence: break run `s1-break-units-3` passed with `\b`; `s1-break-units-4` failed with `(?![a-z])`. The plan text was amended in `4a3358649`.
-  - Observed effect: one extra break run inside slice 1, caught by the slice's own break check.
   - Inference: probing the prescribed check against the premise's scratch fault during planning would have settled the exact form, as DD-628 also suggests.
 
 ## DD-633 — A plan's "no consumer" premise searched member names and missed a wrapper's reader <a id="dd-633"></a>
