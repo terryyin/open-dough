@@ -604,7 +604,10 @@ eight slices. Its plan is
     dark. At the narrowest width, "0 ms" axis labels stay whole.
   - When a late answer for an older endpoint key arrives after the newer
     revision's history is shown, it changes nothing. The key-isolation
-    case fails when `useIntentCiEndpointHistory`'s key filter is removed.
+    case fails when `useIntentCiEndpointHistory`'s success-branch abort
+    guard is removed. That guard drops every late older-key answer, so no
+    current test entry can observe the hook's key filter on its own
+    (developer decision, 23 November 2026).
 - **Evaluation.** All 14 legacy cases across the 8 owned files have a
   traceable disposition and run on Vitest. Apply the
   [shared acceptance](#acceptance-shared-by-the-eight-stories). The legacy

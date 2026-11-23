@@ -10,6 +10,7 @@ import { userEvent } from "vitest/browser";
 import type { MeasuredHistory } from "../../src/landedCiHistory.ts";
 import { judgedRun, mountJudgedRunProof } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
+import { scrollingSidewaysIn } from "./intent-scope-history-page.ts";
 
 export const historyName = "CI time without runner waits history";
 
@@ -69,18 +70,8 @@ export async function openTrunkHistory(answer: MeasuredHistory) {
     await expect.element(evidence).toBeVisible();
     return evidence;
   };
-  // What scrolls sideways on the phone: the page, then each history element
-  // by tag name.
-  const scrollingSideways = () => {
-    const phone = document.documentElement;
-    const area = history.element();
-    return [
-      ...(phone.scrollWidth > phone.clientWidth ? ["page"] : []),
-      ...[area, ...area.querySelectorAll("*")]
-        .filter((element) => element.scrollWidth > element.clientWidth + 1)
-        .map((element) => element.tagName),
-    ];
-  };
+  // What scrolls sideways on the phone.
+  const scrollingSideways = () => scrollingSidewaysIn(history.element());
   return {
     ci,
     history,

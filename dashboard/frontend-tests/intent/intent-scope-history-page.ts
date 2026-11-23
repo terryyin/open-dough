@@ -7,11 +7,24 @@
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { paintContrast } from "../configuration/system-settings-reading.ts";
+import { centreOf } from "../configuration/system-settings-usage-chart-mark.ts";
 import { tapWhereShown } from "../navigation/board-touch-page.ts";
 import { visibleText } from "./intent-ci-comparison-page.ts";
 import { priorReferenceIn } from "./intent-ci-prior-reference-page.ts";
 
 const textsOf = (nodes: Iterable<Element>) => [...nodes].map(visibleText);
+
+// What scrolls sideways around a history AREA: the page, then the area and
+// each element inside it, by tag name.
+export function scrollingSidewaysIn(area: Element) {
+  const phone = document.documentElement;
+  return [
+    ...(phone.scrollWidth > phone.clientWidth ? ["page"] : []),
+    ...[area, ...area.querySelectorAll("*")]
+      .filter((element) => element.scrollWidth > element.clientWidth + 1)
+      .map((element) => element.tagName),
+  ];
+}
 
 // The chart for UNIT ("test cases", "test files") through ENDPOINT. Its
 // drawing is laid out only once its plot is measured, after the history's
@@ -33,8 +46,7 @@ function chartIn(
   ];
   const yOf = (node: Element | undefined) => {
     if (node === undefined) throw new Error("Chart part not drawn");
-    const { top, height } = node.getBoundingClientRect();
-    return top + height / 2;
+    return centreOf(node).y;
   };
   const markNamed = (readout: string) =>
     [...(box()?.querySelectorAll("button") ?? [])].find(
@@ -54,14 +66,14 @@ function chartIn(
       within(".history-chart-reference title").map((n) => n.textContent),
     averageY: () => yOf(within(".history-chart-reference line")[0]),
     markY: (readout: string) => yOf(markNamed(readout)),
-    // The failed build's × lies under the mark naming it.
+    // The failed build's × lies under the mark naming it, centred on it.
     failedUnder: (readout: string) => {
       const [failed] = within(".history-chart-failed");
       const mark = markNamed(readout);
       if (failed === undefined || mark === undefined) return false;
-      const a = failed.getBoundingClientRect();
-      const b = mark.getBoundingClientRect();
-      return Math.abs(a.left + a.width / 2 - (b.left + b.width / 2)) < 1.5;
+      const a = centreOf(failed);
+      const b = centreOf(mark);
+      return Math.abs(a.x - b.x) < 1.5 && Math.abs(a.y - b.y) < 1.5;
     },
     // Taps the mark naming READOUT; the chart's readout then names it.
     async tapMark(readout: string) {
@@ -164,11 +176,8 @@ export function scopeHistoryIn(scope: Locator) {
           after.getBoundingClientRect().top
       );
     },
-    // No part of the history scrolls sideways.
-    fitsWidth: () => {
-      const node = history.element();
-      return node.scrollWidth <= node.clientWidth;
-    },
+    // What scrolls sideways: see scrollingSidewaysIn.
+    scrollingSideways: () => scrollingSidewaysIn(history.element()),
   };
 }
 

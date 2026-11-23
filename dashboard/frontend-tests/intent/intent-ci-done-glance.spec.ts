@@ -59,11 +59,14 @@ test("a Done landing's CI wall time reads against its recent builds between the 
     /Builds and reference evidence|Median|calibration|retention can change its prior sample/,
   );
 
-  // Eight priors and the selected landing, the average line dashed.
+  // Eight priors and the selected landing, the average line dashed, once
+  // the chart is drawn.
+  await expect
+    .poll(history.averageLabel)
+    .toBe("Prior-build average 8 min 24 s");
   expect(history.chartMarks()).toBe(9);
   expect(history.drawn()).toEqual({ selected: 1, failed: 1, unavailable: 1 });
   expect(history.averageDashed()).toBe(true);
-  expect(history.averageLabel()).toBe("Prior-build average 8 min 24 s");
   expect(history.chartReadout()).toBe("Nov 5 · Selected landing · 8 min 4 s");
   await userEvent.hover(history.mark("Oct 29 · Failed build"));
   await expect.poll(history.chartReadout).toBe("Oct 29 · Failed build");

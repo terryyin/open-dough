@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#speed-intent-scope-timing-reading
 **Source:** [Get fast proof of Intent collected scope timing and chart marks](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading)
+**Source review:** [source-review.md](source-review.md)
 **Split from:** SEED-413#speed-intent-scope-timing-history (plan 774) before readiness on 2026-11-22, recoverable at `1b8a80724:.planning/slice-plans/774-speed-intent-scope-timing-history/PLAN.md`
 
 ## Goal and scope
@@ -133,12 +134,12 @@ the local-gate command above. Scratch edits were reverted.
   - `ScopeHistoryGlanceBuilder.through()` takes failed builds from the
     first stated unit only.
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. Delivered scope history proof regains the discrimination it lost
 
 Type: Structure
-Status: planned
+Status: done
 
 Retrospective correction of plan 774. In
 `intent-project-scope-history-key-isolation.spec.ts`, force a commit after
@@ -151,11 +152,20 @@ checks the page, the region and every descendant, as `scrollingSideways()`
 does. Use it in the recovery spec and the Done glance at 390 px. Add the
 vertical comparison to `failedUnder`.
 
-**Proof.** With `useIntentCiEndpointHistory`'s key filter or success-branch
-abort guard removed in a scratch edit, the key-isolation case fails. It
+**Proof.** With `useIntentCiEndpointHistory`'s success-branch abort guard
+removed in a scratch edit, the key-isolation case fails. It
 passes with them restored. The 9 mounted scope history and glance specs and
 the CI wall-time history specs pass. A scratch 20 px overflow inside a
 descendant of the history fails the shared check.
+
+**Accepted proof.** Typecheck and the 12 importers of the two history page
+objects passed (17 Vitest tests). Removing the abort guard failed the
+key-isolation case. A 20 px descendant overflow failed the shared
+`scrollingSidewaysIn` check where the old region-only check passed. Moving
+the failed × vertically failed `intent-scope-glance.spec.ts:114`. Removing
+only the key filter changed nothing observable through Project Intent or a
+Done story with a held landing, which led to the developer's amendment of
+Key example 6. `scopeHistoryIn(...).fitsWidth()` is now `scrollingSideways()`.
 
 ### 2. The delivered page entry support carries no residue
 

@@ -197,7 +197,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
         .getByRole("tab", { name: "Purpose", exact: true }),
     )
     .toBeVisible();
-  expect(fileHistory.fitsWidth()).toBe(true);
+  expect(fileHistory.scrollingSideways(), "scrolling sideways").toEqual([]);
 
   await emulateMedia([{ name: "prefers-color-scheme", value: "dark" }]);
   await expect.poll(fileHistory.changeCue).toBe("slower");
