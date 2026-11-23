@@ -177,7 +177,7 @@ Run `e2e/intent/intent-read-boundary-recovery.spec.ts` and the reached
 ### 6. The composed page bounds the Gherkin reading panes below the banner
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use the common production shell from `ConfiguredDashboard` and
 `mountIntentCiPage`. Let the held-work mount supply typed view inputs while
@@ -270,9 +270,10 @@ remaining slice-specific concern.
   on `origin/main`; increments `a99bc3797fc4fc1c99dbf1abd4f2783174a1dc18`,
   `ec1e99e6139f0653f0990845b0227a2094d36d9f`,
   `4daa9c40a0d6acb1530b704fb4281b98bba46644`,
-  `98a8be7fda620be498dce3461ebf0f081f52de34` on
+  `98a8be7fda620be498dce3461ebf0f081f52de34`,
+  `a1dd7faac41f3ee5ed51e42f14c353ebab921fd1` on
   `refs/heads/cursor/drive-the-published-observation-through-the-type`
-- CI observer: `/tmp/dough-ci-501/watch-dxk8N6` (attached at Slice 1 publish)
+- CI observer: `/tmp/dough-ci-501/watch-VdTqA3` (attached at Slice 5 publish)
 - Replanning permission: preserve existing (allowed)
 
 ## Accepted proof
@@ -400,6 +401,41 @@ remaining slice-specific concern.
   `open-dough/evidence/slice5-e2e-intent-boundary-3.log`,
   `open-dough/evidence/slice5-e2e-observation.log`,
   `open-dough/evidence/slice5-typecheck.log`
+
+### Slice 6 — composed page bounds Gherkin panes below the banner
+
+- Promise: shared `ConfiguredDashboardFrame` for ConfiguredDashboard and
+  held-work `mountIntentCiPage`; production owns frame/banner/notice/scroll;
+  routing/selection/published I/O stay with existing owners; below-banner
+  outer region fits height and stays stationary (scrollTop 0) while tree
+  scrolls to 200 and reading pane to 300; left-edge and pane-bottom preserved;
+  recheck Intent/Navigation mountIntentCiPage layout/notice/navigation
+- Boundary: `ConfiguredDashboardFrame` → `PageFrame` +
+  `StoryReferenceNavigation` + banner; `ConfiguredDashboardContent` owns
+  PerspectiveScroll / page-header / BoardOrIntent; empty projects stay on
+  `PageFrame` alone
+- Setup: MakeMe published work + gherkin locations/files; viewport 1280×600
+  for layout; unread CI reads; held-work typed view inputs into Frame + Content
+- Observations:
+  - `intent-gherkin-layout.spec.ts`: no outer overflow; stationary region;
+    left-edge; pane bottoms; independent scroll `[0,200,300]`
+  - Intent/Navigation mountIntentCiPage consumers: gherkin-groups,
+    reading-place, recent-stories, story-reference-done{,-reveal,-recovery,
+    -cancellation} (20 passed)
+  - Production path: accessible-board-announcements + intent-read-recovery
+    through Frame (7 passed)
+- Command (accepted layout + Done notice):
+  `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-gherkin-layout.spec.ts dashboard/frontend-tests/navigation/story-reference-done.spec.ts --workers=2`
+  (pass; `slice6-layout-proof-2.log.run.json` exit 0; consumers
+  `slice6-consumers-proof.log.run.json` exit 0; configured-path
+  `slice6-configured-path.log.run.json` exit 0; typecheck
+  `slice6-typecheck-2.log.run.json` exit 0)
+- Evidence: `open-dough/evidence/slice6-implementation-return.md`,
+  `open-dough/evidence/refactor-slice6-return.md`,
+  `open-dough/evidence/slice6-layout-proof-2.log`,
+  `open-dough/evidence/slice6-consumers-proof.log`,
+  `open-dough/evidence/slice6-configured-path.log`,
+  `open-dough/evidence/slice6-typecheck-2.log`
 
 ## Learnings
 
