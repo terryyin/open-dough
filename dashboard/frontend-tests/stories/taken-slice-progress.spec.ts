@@ -1,172 +1,147 @@
-// Each Taken card shows its recorded slice progress: one segment per slice,
-// filled for each slice recorded complete, and the count in words, from the
-// plan already read at the snapshot's revision -- or that plan's gap. Built
-// frontend against controlled backlog, seed, and plan answers; the shared
-// story-state and plan readers and the page decide everything shown.
-
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { PlanSlice } from "../../src/storyPlan.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
-import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { putFrontendPublished } from "../../test-support/support/frontendServiceState.ts";
+import { mountIntentCiPage } from "../intent/intent-ci-page-mount.ts";
 import {
-  shortRevision,
-  expectMembership,
-  parts,
-} from "../../test-support/dashboardPage.ts";
-import {
-  backlogApart,
-  describedRevisions,
-} from "../../test-support/describedRevisions.ts";
-import {
-  inspectedDetail,
-  storyCard,
-} from "../../test-support/storyCardControls.ts";
-import {
-  expectNoSliceCount,
-  expectSliceBar,
-} from "../../test-support/storyCardFacts.ts";
-
-const seedPath = ".planning/seeds/SEED-090-progress.md";
+  inertCiReads,
+  unconfiguredIntentReads,
+} from "../intent/intent-ci-status-fixtures.ts";
+import { intentStoryCompare } from "../intent/intent-story-compare-page.ts";
+import { boardReading } from "../navigation/board-reading-page.ts";
+import { boardWork, story } from "../navigation/board-work.ts";
 
 const counted = "Count recorded slices on the card";
 const planless = "Taken before plans were associated";
 const unreadable = "Plan with a status the reader refuses";
 const queued = "Queued story with a plan";
 
-const countedPlanPath = ".planning/slice-plans/090-counted/PLAN.md";
-
-const story = (title: string, anchor: string) =>
-  makeMe.aBacklogEntry
-    .with({
-      title,
-      identity: `SEED-090#${anchor}`,
-      href: `seeds/SEED-090-progress.md#${anchor}`,
-    })
-    .please();
-
-const countedStory = story(counted, "counted");
-const planlessStory = story(planless, "planless");
-const unreadableStory = story(unreadable, "unreadable");
-const queuedStory = story(queued, "queued");
-
-const planned = (anchor: string) => ({
-  identity: `SEED-090#${anchor}`,
-  href: `seeds/SEED-090-progress.md#${anchor}`,
-  ...makeMe.aStoryPreparation
-    .plannedIn(`../slice-plans/090-${anchor}/PLAN.md`)
-    .please(),
+const planWith = (statuses: readonly PlanSlice["status"][]) => ({
+  status: "interpreted" as const,
+  ...makeMe.aSlicePlan.withStatuses(statuses).please(),
 });
 
-const seed = `---
-id: SEED-090
----
+const countedStory = (statuses: readonly PlanSlice["status"][]) =>
+  story(counted, 90, { planSlices: planWith(statuses) });
 
-# Slice progress fixture
-
-${renderStorySection(countedStory)}
-${renderStorySection(planlessStory, {
-  body: "**Status:** Taken before structured story state existed.",
-})}
-${renderStorySection(unreadableStory)}
-${renderStorySection(queuedStory)}`;
-
-const unreadablePlan = `${renderSlicePlan(
-  makeMe.aSlicePlan.withStatuses(["done"]).please(),
-)}
-### 2. Slice 2
-Type: Behavior
-Status: merged into slice 1
-Proof: A journey observes slice 2.
-`;
-
-const countedPlan = (statuses: readonly PlanSlice["status"][]) =>
-  renderSlicePlan(makeMe.aSlicePlan.withStatuses(statuses).please());
-
-const { A, B } = describedRevisions(
-  makeMe.aRepository
-    .withRevision("A", {
-      backlog: {
-        taken: [countedStory, planlessStory, unreadableStory],
-        queued: [queuedStory],
-      },
-      files: {
-        [seedPath]: seed,
-        [countedPlanPath]: countedPlan(["done", "planned", "planned"]),
-        ".planning/slice-plans/090-unreadable/PLAN.md": unreadablePlan,
-        ".planning/slice-plans/090-queued/PLAN.md": countedPlan([
-          "done",
-          "planned",
-        ]),
-      },
-      storyStates: ["counted", "unreadable", "queued"].map(planned),
-    })
-    .withRevision("B", {
-      files: { [countedPlanPath]: countedPlan(["done", "done", "planned"]) },
-    })
-    .please(),
-  { A: "a1".repeat(20), B: "b2".repeat(20) },
-);
-
-test("each Taken card shows its recorded slice progress as a bar and count, or the plan's gap", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendPublished(frontendServices, backlogApart(A));
-
-  await page.goto("/");
-
-  const { taken, backlog: queue, readRevision } = parts(page);
-  await expectMembership(page, {
-    taken: [counted, planless, unreadable],
-    backlog: [queued],
+test("each Taken card shows recorded slice progress or its plan's gap as the plan changes", async () => {
+  const firstStatuses = ["done", "planned", "planned"] as const;
+  const first = countedStory(firstStatuses);
+  const work = boardWork(
+    [story(queued, 93, { planSlices: planWith(["done", "planned"]) })],
+    {
+      taken: [
+        first,
+        story(planless, 91, { planSlices: { status: "absent" } }),
+        story(unreadable, 92, {
+          planSlices: {
+            status: "uninterpretable",
+            problem: "Slice 2 records an unsupported status.",
+          },
+        }),
+      ],
+    },
+  );
+  const board = await mountIntentCiPage({
+    work,
+    initialPerspective: "development",
+    reads: { ci: inertCiReads(), intent: unconfiguredIntentReads },
   });
-  const card = (title: string) => storyCard(taken, title);
-  await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
+  const taken = boardReading.column("Taken");
+  const backlog = boardReading.column("Backlog");
+  const card = (name: string) =>
+    taken.getByRole("article", { name, exact: true });
+  const progress = card(counted);
 
-  await test.step("a plan of three slices with one done shows three segments, one filled, and the count as the bar's name", async () => {
-    await expectSliceBar(card(counted), "1 of 3 slices recorded complete", [
-      "done",
-      "planned",
-      "planned",
-    ]);
-    await expect(card(counted)).toContainText(
-      "1 of 3 slices recorded complete",
-    );
-  });
+  async function showsBar(count: string, statuses: readonly string[]) {
+    const bar = progress.getByRole("img", { name: count, exact: true });
+    await expect.element(bar).toBeVisible();
+    expect(
+      [...bar.element().querySelectorAll("[data-slice-status]")].map(
+        (segment) => segment.getAttribute("data-slice-status"),
+      ),
+    ).toEqual(statuses);
+    await expect
+      .element(progress.getByText(count, { exact: true }))
+      .toBeVisible();
+  }
 
-  await test.step("a Taken entry without an associated plan shows that gap, not zero progress", async () => {
-    await expectNoSliceCount(
-      card(planless),
-      "No associated plan is recorded for this story. This is not zero recorded completion.",
-    );
-  });
+  await showsBar("1 of 3 slices recorded complete", firstStatuses);
+  for (const [name, gap] of [
+    [
+      planless,
+      "Plan slices: No associated plan is recorded for this story. This is not zero recorded completion.",
+    ],
+    [
+      unreadable,
+      "Plan slices uninterpretable: Slice 2 records an unsupported status.",
+    ],
+  ] as const) {
+    const withoutCount = card(name);
+    await expect
+      .element(withoutCount.getByText(gap, { exact: true }))
+      .toBeVisible();
+    await expect.element(withoutCount.getByRole("img")).not.toBeInTheDocument();
+    await expect
+      .element(
+        withoutCount.getByText(/^[0-9]+ of [0-9]+ slices recorded complete$/),
+      )
+      .not.toBeInTheDocument();
+  }
+  await expect
+    .element(backlog.getByRole("article", { name: queued, exact: true }))
+    .toBeVisible();
+  await expect.element(backlog.getByRole("img")).not.toBeInTheDocument();
+  await expect
+    .element(backlog.getByText(/slices recorded complete/))
+    .not.toBeInTheDocument();
+  await expect
+    .element(taken.getByText("Reading plan slices…"))
+    .not.toBeInTheDocument();
 
-  await test.step("a plan the shared reader cannot interpret shows its gap on the card, not a count", async () => {
-    await expectNoSliceCount(card(unreadable), "Plan slices uninterpretable:");
+  await progress.getByRole("button", { name: "Inspect story" }).click();
+  const detail = page.getByRole("region", {
+    name: `Detail for ${counted}`,
+    exact: true,
   });
+  await expect
+    .element(detail.getByText("1 of 3 slices recorded complete"))
+    .toBeVisible();
+  expect(detail.element().querySelectorAll(".slice-list > li")).toHaveLength(3);
+  await expect
+    .element(
+      detail.getByText("Prospective proof recipe: A journey observes slice 3."),
+    )
+    .toBeVisible();
 
-  await test.step("a queued planned entry shows no progress bar", async () => {
-    await expect(storyCard(queue, queued)).toBeVisible();
-    await expect(queue.getByRole("img")).toHaveCount(0);
-    await expect(queue).not.toContainText("slices recorded complete");
-  });
+  await progress.getByRole("button", { name: "Hide detail" }).click();
+  const laterStatuses = ["done", "done", "planned"] as const;
+  await board.showWork(
+    makeMe.aPublishedWork
+      .with({
+        ...work,
+        revision: "b2".repeat(20),
+        taken: [countedStory(laterStatuses), ...work.taken.slice(1)],
+      })
+      .please(),
+  );
+  await showsBar("2 of 3 slices recorded complete", laterStatuses);
 
-  await test.step("the detail slice list is unchanged beside the card's bar", async () => {
-    const detail = await inspectedDetail(card(counted));
-    await expect(detail).toContainText("1 of 3 slices recorded complete");
-    await expect(detail.locator(".slice-list > li")).toHaveCount(3);
+  await board.selectStory(first.identity, counted);
+  await intentStoryCompare().chooseTab("Intent coverage");
+  const coverage = page.getByRole("region", {
+    name: "Intent coverage",
+    exact: true,
   });
-
-  await test.step("after a reload, the bar shows the plan recorded at the new revision", async () => {
-    putFrontendPublished(frontendServices, backlogApart(B));
-    await page.reload();
-    await expect(readRevision).toContainText(shortRevision(B.revision));
-    await expectSliceBar(card(counted), "2 of 3 slices recorded complete", [
-      "done",
-      "done",
-      "planned",
-    ]);
-  });
+  await expect
+    .element(
+      coverage.getByText(
+        "If an Intent Coverage assessment is saved during feature story wrap-up, it appears here once this story is completed.",
+        { exact: true },
+      ),
+    )
+    .toBeVisible();
+  await expect
+    .element(coverage.getByText(/A journey observes slice 3\.|Outcome:/))
+    .not.toBeInTheDocument();
 });

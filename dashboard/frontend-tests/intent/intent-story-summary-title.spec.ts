@@ -1,71 +1,58 @@
-import { openStoryIntent } from "../../test-support/intentModePage.ts";
-import {
-  putFrontendIntentStory,
-  answerFrontendIntentChanges,
-} from "../../test-support/support/frontendIntentStory.ts";
-// A selected Taken story's long title in the story's persistent header
-// (../../src/IntentHeader.tsx) shows once, in full, wrapping rather
-// than shortened, and stays above the story's views whichever is chosen; its
-// Intent coverage explains where an assessment saved at wrap-up appears. The rest of the
-// header: ../../../e2e/intent/intent-story-changes.spec.ts.
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { emulateMedia } from "../review/browser-session.ts";
+import { openIntentFileLayout } from "./intent-file-layout-fixture.ts";
+import { intentPage } from "./intent-file-layout-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { shortRevision } from "../../test-support/dashboardParts.ts";
-import { expectStackedInOrder } from "../../test-support/partArrangement.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  chooseStoryTab,
-  storyHeaderDetail,
-  storyTab,
-  storyTitle,
-  storyHeaderReading,
-} from "../../test-support/support/intentStoryPage.ts";
-
-test("a long story title shows once in full above the story's views, whichever is chosen", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 900, height: 720 });
+test("a long story title shows once in full above the story's views, whichever is chosen", async () => {
   const long =
     "Story A reads frontend tests in both projects and keeps every location's source beside the published revision";
-  putFrontendIntentStory(frontendServices, {
-    story: makeMe.aBacklogEntry.with({ ...storyA, title: long }).please(),
+  const { comparison } = await openIntentFileLayout({
+    viewport: { width: 900, height: 720 },
+    title: long,
   });
-  const review = await answerFrontendIntentChanges(page);
-  const snapshot = review.snapshot();
-  if (snapshot.kind !== "snapshot") throw new Error("Expected Taken snapshot");
-  const baseline = snapshot.baseline;
-  const { intent } = await openStoryIntent(page, long);
-  await chooseStoryTab(intent, "Changes");
-  const title = storyTitle(intent);
-  await expect(title).toHaveText(long);
-  await expect(intent.getByText(long, { exact: true })).toHaveCount(1);
-  const box = await title.evaluate((element) => ({
-    overflows: element.scrollWidth > element.clientWidth,
-    lines: Math.round(
-      element.getBoundingClientRect().height /
-        parseFloat(getComputedStyle(element).lineHeight),
-    ),
-  }));
-  expect(box.overflows).toBe(false);
-  expect(box.lines).toBeGreaterThan(1);
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  const title = story.header.getByRole("heading", { name: long, exact: true });
+  await expect.element(title).toBeVisible();
+  expect(intentPage.getByText(long, { exact: true }).all()).toHaveLength(1);
+  const titleFits = () => {
+    const heading = title.element();
+    expect(heading.textContent).toBe(long);
+    expect(heading.scrollWidth).toBeLessThanOrEqual(heading.clientWidth);
+    const lines =
+      heading.getBoundingClientRect().height /
+      parseFloat(getComputedStyle(heading).lineHeight);
+    expect(Math.round(lines)).toBeGreaterThan(1);
+  };
+  titleFits();
 
-  await storyHeaderDetail(intent);
-  await expect(storyHeaderReading(intent).identity).toHaveText("SEED-A#a");
-  await expect(storyHeaderReading(intent).revisions).toContainText(
-    `Compared ${shortRevision(baseline)} with worktree `,
-  );
+  await expect
+    .element(story.header.getByText("SEED-A#a", { exact: true }))
+    .toBeVisible();
+  if (comparison.kind !== "snapshot")
+    throw new Error("Expected a worktree comparison");
+  await expect
+    .poll(story.revisions)
+    .toContain(`Compared ${comparison.baseline.slice(0, 7)} with worktree `);
 
   for (const view of ["CI comparison", "Intent coverage", "Changes"] as const) {
-    await chooseStoryTab(intent, view);
-    await expectStackedInOrder([title, storyTab(intent, view)]);
+    await story.chooseTab(view);
+    expect(title.element().getBoundingClientRect().bottom).toBeLessThan(
+      story.viewTab(view).element().getBoundingClientRect().top,
+    );
   }
+  await story.chooseTab("Intent coverage");
+  const coverage = intentPage.getByRole("region", { name: "Intent coverage" });
+  await expect
+    .poll(() => coverage.query()?.querySelector("p")?.textContent)
+    .toBe(
+      "If an Intent Coverage assessment is saved during feature story wrap-up, it appears here once this story is completed.",
+    );
 
-  await chooseStoryTab(intent, "Intent coverage");
-  await expect(
-    intent.getByRole("region", { name: "Intent coverage" }).locator("p"),
-  ).toHaveText([
-    "If an Intent Coverage assessment is saved during feature story wrap-up, it appears here once this story is completed.",
-  ]);
+  await emulateMedia([{ name: "prefers-color-scheme", value: "dark" }]);
+  await page.viewport(390, 760);
+  await expect.element(title).toBeVisible();
+  titleFits();
 });

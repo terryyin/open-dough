@@ -5,7 +5,7 @@
 // stories. The case switches between Development and Intent, by the banner's
 // perspective or directly, to another project's work, and selects a story by
 // its card, as the page does.
-import { createElement, Fragment, useEffect } from "react";
+import { createElement, Fragment, useEffect, type ReactNode } from "react";
 import { expect } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
@@ -85,6 +85,8 @@ export async function mountIntentCiPage({
   projects = [work.source],
   machine = makeMe.aMachineAnswer.please(),
   viewport = { width: 1280, height: 800 },
+  initialPerspective = "intent",
+  retryReference = () => undefined,
   recentStories = [],
   reads,
 }: {
@@ -93,6 +95,8 @@ export async function mountIntentCiPage({
   // The machine's sessions and the worktrees holding a story's claim.
   readonly machine?: MachineAnswer;
   readonly viewport?: { readonly width: number; readonly height: number };
+  readonly initialPerspective?: "development" | "intent";
+  readonly retryReference?: () => void;
   // The stories this browser kept as recently selected, most recent first.
   readonly recentStories?: readonly RecentStory[];
   // Review changes' reads default to a machine without a review workspace.
@@ -106,28 +110,32 @@ export async function mountIntentCiPage({
     sessions: unmeasuredHostSessions,
     ...reads,
   });
-  let shown: Shown = { work, showsIntent: true };
+  let shown: Shown = { work, showsIntent: initialPerspective === "intent" };
   let committed: Shown | undefined;
   const onCommit = (next: Shown) => {
     committed = next;
   };
   const render = () => {
     const { source } = shown.work;
-    const body = createElement(
-      PerspectiveScroll,
-      { perspective: shown.showsIntent ? "intent" : "board" },
-      createElement(BoardOrIntent, {
-        source,
-        work: shown.work,
-        launches,
-        showsBoard: !shown.showsIntent,
-        showsIntent: shown.showsIntent,
-        followUp: undefined,
-        visibility: "visible",
-        limitStands: false,
-        openRoster: () => undefined,
-      }),
-    );
+    const body = (notice: ReactNode) =>
+      createElement(
+        PerspectiveScroll,
+        { perspective: shown.showsIntent ? "intent" : "board" },
+        shown.showsIntent
+          ? null
+          : createElement("header", { className: "page-header" }, notice),
+        createElement(BoardOrIntent, {
+          source,
+          work: shown.work,
+          launches,
+          showsBoard: !shown.showsIntent,
+          showsIntent: shown.showsIntent,
+          followUp: undefined,
+          visibility: "visible",
+          limitStands: false,
+          openRoster: () => undefined,
+        }),
+      );
     // The banner's project choice is the case's work, changed by showWork.
     const banner = createElement(DashboardBanner, {
       source,
@@ -158,10 +166,16 @@ export async function mountIntentCiPage({
           reading: false,
           failure: undefined,
           show: () => undefined,
-          retry: () => undefined,
+          retry: retryReference,
           suspended: shown.showsIntent,
           children: (notice) =>
-            createElement(Fragment, null, banner, notice, body),
+            createElement(
+              Fragment,
+              null,
+              banner,
+              shown.showsIntent ? notice : null,
+              body(notice),
+            ),
         }),
       ],
     });

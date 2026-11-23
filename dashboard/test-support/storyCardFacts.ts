@@ -1,7 +1,7 @@
 // What a Story card states about its published story in the scan view: its
 // purpose, its preparation, readiness and eligibility badges, and its slice
 // progress as a bar and count, or the gap that stops it. The scenario names
-// every expected label, count and segment; these readers only find them on the
+// every expected label and count; these readers only find them on the
 // card.
 
 import type { Locator } from "@playwright/test";
@@ -60,25 +60,6 @@ export const progressSource = (scope: Locator) =>
 // as "1 of 3 slices recorded complete", or any count matching a pattern.
 export const sliceBar = (scope: Locator, count: string | RegExp) =>
   scope.getByRole("img", { name: count });
-
-// Expects the bar named `count` to show one segment per slice, in order, each
-// by the recorded status it shows ("done", "planned", …).
-export async function expectSliceBar(
-  scope: Locator,
-  count: string,
-  statuses: readonly string[],
-) {
-  const bar = sliceBar(scope, count);
-  await expect(bar).toBeVisible();
-  await expect(bar.locator("[data-slice-status]")).toHaveCount(statuses.length);
-  expect(
-    await bar
-      .locator("[data-slice-status]")
-      .evaluateAll((segments) =>
-        segments.map((segment) => segment.getAttribute("data-slice-status")),
-      ),
-  ).toEqual(statuses);
-}
 
 // Expects `scope` to show `gap` where a count would be: no bar, and nothing
 // "recorded complete".

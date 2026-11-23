@@ -87,7 +87,7 @@ const frameContext = () =>
 async function chooseStoryTab(name: "Changes" | "CI comparison") {
   await story.chooseTab(name);
   await expect
-    .element(story.tab(name))
+    .element(story.viewTab(name))
     .toHaveAttribute("aria-selected", "true");
 }
 
@@ -200,7 +200,7 @@ test("with a story selected, activating CI comparison judges that story's branch
   await userEvent.click(backToStory);
   await expect.element(projectIntentLink).toHaveFocus();
   await expect
-    .element(story.tab("Changes"))
+    .element(story.viewTab("Changes"))
     .toHaveAttribute("aria-selected", "true");
   await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
   await expect.element(purpose).toBeVisible();

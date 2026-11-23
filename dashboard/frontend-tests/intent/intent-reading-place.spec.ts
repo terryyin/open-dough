@@ -141,14 +141,14 @@ async function chooseStoryTab(
 ) {
   await story.chooseTab(name);
   await expect
-    .element(story.tab(name))
+    .element(story.viewTab(name))
     .toHaveAttribute("aria-selected", "true");
 }
 
 // The deep spec selected with "Selected story only" on and `out` collapsed by
 // hand, its diff shown and Purpose scrolled halfway, as the developer would.
 async function readDeepSpec() {
-  await story.storyOnly.click();
+  await story.onlyChangedFiles.click();
   await story.folderToggle("out", true).click();
   await story.file(deepSpec).click();
   await expect.poll(story.diffName).toBe(deepSpec);
@@ -173,10 +173,10 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
   await expect.element(intent).not.toBeInTheDocument();
   await mounted.showIntent();
   await expect
-    .element(story.tab("Changes"))
+    .element(story.viewTab("Changes"))
     .toHaveAttribute("aria-selected", "true");
 
-  await expect.element(story.storyOnly).toBeChecked();
+  await expect.element(story.onlyChangedFiles).toBeChecked();
   await expect
     .element(story.file(deepSpec))
     .toHaveAttribute("aria-pressed", "true");
@@ -210,7 +210,7 @@ test("another project shows none of the reading place, and choosing the project 
   // selected, so Changes asks for a choice.
   await mounted.showWork(work);
   await expect
-    .element(story.tab("CI comparison"))
+    .element(story.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");
   const ciPanel = intentCiStatus().panel;
   await expect.element(ciPanel).toBeVisible();
@@ -224,7 +224,7 @@ test("another project shows none of the reading place, and choosing the project 
   await expect
     .element(intent.getByRole("region", { name: "Purpose", exact: true }))
     .not.toBeInTheDocument();
-  await expect.element(story.storyOnly).not.toBeChecked();
+  await expect.element(story.onlyChangedFiles).not.toBeChecked();
   await expect.element(story.folderToggle("out", true)).toBeVisible();
   await expect
     .element(story.file(deepSpec))

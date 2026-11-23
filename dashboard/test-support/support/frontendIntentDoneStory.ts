@@ -5,7 +5,6 @@ import type { IntentLocation } from "../../server/intentLocationsRead.ts";
 import type { Page } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { ComparedStoryBuilder } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
-import type { IntentCoverage } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import { storyB } from "../../../Distribution/tests/support/queued-repository.mjs";
@@ -29,7 +28,6 @@ import {
 export async function prepareFrontendDoneIntent(
   page: Page,
   services: FrontendServiceState,
-  intentCoverage?: IntentCoverage,
   historical: {
     readonly files?: Readonly<Record<string, string>>;
     readonly changed?: readonly ReviewedFile[];
@@ -45,13 +43,10 @@ export async function prepareFrontendDoneIntent(
   if (scope === undefined) throw new Error("The Summary scope is required");
   const completion = facts.work.revision;
   const completedAt = new Date().toISOString();
-  const record = makeMe.aDoneRecord.completed({
-    identity: facts.identity,
-    title: "Story A",
-    completedAt,
-  });
-  if (intentCoverage !== undefined) record.withIntentCoverage(intentCoverage);
-  putFrontendDoneRecords(services, "open-dough", [record.please()]);
+  const record = makeMe.aDoneRecord
+    .completed({ identity: facts.identity, title: "Story A", completedAt })
+    .please();
+  putFrontendDoneRecords(services, "open-dough", [record]);
   const backlog = describedBacklog(
     makeMe.aRepository
       .withRevision("published", { backlog: { queued: [storyB] } })

@@ -1,112 +1,114 @@
-import { prepareFrontendDoneSelection } from "../../test-support/support/frontendDoneSelection.ts";
-import { filesColumn } from "../../test-support/intentModePage.ts";
-import { sourceRevision } from "../../test-support/intentCodeBrowsePage.ts";
-// Selecting another Done story while Intent stays mounted must not lend it
-// the prior story's source during either comparison or locations reading.
-// Explicit immutable completion answers provide the starting facts. The
-// Sessions sidebar performs the ordinary selection without leaving Intent;
-// real CLI selection remains in E2E intent-done-default-answer-selection.
-
-import { storyB } from "../../../Distribution/tests/support/queued-repository.mjs";
-
-import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { showColumn } from "../../test-support/boardPage.ts";
-
-import { parts } from "../../test-support/dashboardPage.ts";
-import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { intentFileReading } from "./intent-file-reading-page.ts";
+import { heldRead } from "./intent-ci-status-fixtures.ts";
+import { scopeToggle } from "./intent-browser-page.ts";
 import {
-  expandIntentGroup,
-  purposeRegion,
-} from "../../test-support/intentPerspectivePage.ts";
-import { recentlyDoneParts } from "../../test-support/recentlyDoneSessionsSidebarPage.ts";
-import { openSessionsSidebar } from "../../test-support/sessionsSidebarPage.ts";
+  firstCompletion,
+  locationsOf,
+  openDoneReading,
+  projectRevision,
+  secondCompletion,
+  selectSecondStoryInSidebar,
+  storyA,
+  storyB,
+} from "./intent-done-reading-fixture.ts";
+import { intentPage } from "./intent-file-layout-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  chooseStoryTab,
-  intentFile,
-  storyTabPanel,
-  storyTitle,
-} from "../../test-support/support/intentStoryPage.ts";
+const firstPath = "dashboard/tests/a.spec.ts";
+const secondPath = "second/tests/b.spec.ts";
+const secondSource = "Story B historical source";
 
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
-
-const releases: (() => void)[] = [];
-test.afterEach(() => {
-  for (const release of releases.splice(0)) release();
-});
-
-test("a newly selected Done story shows only its own historical source after held comparison and locations reads", async ({
-  page,
-  frontendServices,
-}) => {
-  const { first, secondCompletion } = await prepareFrontendDoneSelection(
-    page,
-    frontendServices,
-  );
-  await openUntilRead(page);
-  await showColumn(page, "Recently done");
-  const { recentlyDone, intentChoice, intent } = parts(page);
-  await recentlyDone
-    .getByRole("article", { name: "Story A", exact: true })
-    .getByRole("heading", { level: 3 })
-    .click();
-  await intentChoice.click();
-  await chooseStoryTab(intent, "Changes");
-  await expandIntentGroup(intent, "dashboard/tests");
-  await intentFile(intent, "dashboard/tests/a.spec.ts").click();
-  await expect(purposeRegion(intent)).toContainText("a 11");
-  await expect(
-    sourceRevision(intent, "dashboard/tests/a.spec.ts"),
-  ).toContainText(first.completion.slice(0, 7));
-
-  let releaseComparison: () => void = () => undefined;
-  const comparisonReleased = new Promise<void>((resolve) => {
-    releaseComparison = resolve;
+test("a newly selected Done story shows only its own historical source after held comparison and locations reads", async () => {
+  const firstReview = makeMe.aStoryReview
+    .published(firstCompletion)
+    .modifying("dashboard/src/App.tsx")
+    .please();
+  const secondReview = makeMe.aStoryReview
+    .published(secondCompletion)
+    .adding(secondPath)
+    .please();
+  const heldComparison = heldRead<typeof secondReview>();
+  const heldLocations = heldRead<ReturnType<typeof locationsOf>>();
+  const revisions: string[] = [];
+  await openDoneReading({
+    withSecondStory: true,
+    review: ({ identity }) => {
+      if (identity === storyB.identity) return heldComparison.ask();
+      expect(identity).toBe(storyA.identity);
+      return Promise.resolve(firstReview);
+    },
+    readLocations: (...[, revision]) => {
+      revisions.push(revision);
+      return revision === secondCompletion
+        ? heldLocations.ask()
+        : Promise.resolve(locationsOf("dashboard/tests", firstPath));
+    },
+    readFile: (...[, path, revision]) => {
+      expect({ path, revision }).toEqual({
+        path: firstPath,
+        revision: firstCompletion,
+      });
+      return Promise.resolve("a 11");
+    },
+    fileDiff: () =>
+      Promise.resolve(
+        makeMe.aReviewedFileDiff.adding(secondPath, secondSource).please(),
+      ),
+    fileText: () =>
+      Promise.resolve({ kind: "text", baseline: "", tree: secondSource }),
   });
-  releases.push(releaseComparison);
-  let comparisonHeld = 0;
-  await page.route(`**${storyReviewEndpoint}?*`, async (route) => {
-    if (
-      new URL(route.request().url()).searchParams.get("identity") ===
-      storyB.identity
-    ) {
-      comparisonHeld += 1;
-      await comparisonReleased;
-    }
-    await route.fallback();
-  });
-  const locations = await holdAuthenticatedReadsWhere(
-    page,
-    (params) =>
-      params.get("intent") === "locations" &&
-      params.get("revision") === secondCompletion,
-    releases,
-  );
-  await openSessionsSidebar(page);
-  const sessions = recentlyDoneParts(page);
-  await sessions.header.click();
-  await sessions.select(storyB.title).click();
-  await expect(intent).toHaveAttribute("data-selected-story", storyB.identity);
-  await expect(storyTitle(intent)).toHaveText(storyB.title);
-  await expect.poll(() => comparisonHeld).toBeGreaterThan(0);
-  await chooseStoryTab(intent, "Changes");
-  await expect(filesColumn(intent)).toHaveCount(0);
-  await expect(storyTabPanel(intent, "Changes")).toContainText(
-    "Reading the story's historical Intent locations…",
-  );
-  await expect(purposeRegion(intent)).toHaveCount(0);
+  const story = intentStoryCompare();
+  await expect
+    .element(intentPage)
+    .toHaveAttribute("data-selected-story", storyA.identity);
+  await story.chooseTab("Changes");
+  await scopeToggle("dashboard/tests").click();
+  await story.file(firstPath).click();
+  const initial = intentFileReading(firstPath);
+  await initial.shows("a 11");
+  await initial.isAt(firstCompletion);
 
-  releaseComparison();
-  await expect.poll(() => locations.held()).toBeGreaterThan(0);
-  await expect(filesColumn(intent)).toHaveCount(0);
-  await expect(purposeRegion(intent)).toHaveCount(0);
-  locations.release();
-  await expandIntentGroup(intent, "second/tests");
-  await expect(intentFile(intent, "dashboard/tests/a.spec.ts")).toHaveCount(0);
-  await intentFile(intent, "Added second/tests/b.spec.ts").click();
-  await expect(purposeRegion(intent)).toContainText(
-    "Story B historical source",
-  );
-  await expect(purposeRegion(intent)).not.toContainText("a 11");
+  const files = () => intentPage.element().querySelector(".intent-locations");
+  const purpose = intentPage.getByRole("region", {
+    name: "Purpose",
+    exact: true,
+  });
+  await selectSecondStoryInSidebar();
+  await expect
+    .element(intentPage)
+    .toHaveAttribute("data-selected-story", storyB.identity);
+  await expect
+    .element(story.header.getByRole("heading", { name: storyB.title }))
+    .toBeVisible();
+  await expect.poll(heldComparison.asked).toBe(true);
+  await story.chooseTab("Changes");
+  await expect
+    .element(intentPage.getByRole("tabpanel", { name: "Changes", exact: true }))
+    .toHaveTextContent("Reading the story's historical Intent locations…");
+  expect(files()).toBeNull();
+  await expect.element(purpose).not.toBeInTheDocument();
+  expect(revisions.filter((revision) => revision !== projectRevision)).toEqual([
+    firstCompletion,
+  ]);
+
+  heldComparison.resolve(secondReview);
+  await expect.poll(heldLocations.asked).toBe(true);
+  expect(files()).toBeNull();
+  await expect.element(purpose).not.toBeInTheDocument();
+  heldLocations.resolve(locationsOf("second/tests", secondPath));
+
+  const secondLocation = scopeToggle("second/tests");
+  await expect.element(secondLocation).toBeVisible();
+  if (secondLocation.element().getAttribute("aria-expanded") === "false")
+    await secondLocation.click();
+  await expect.element(story.file(firstPath)).not.toBeInTheDocument();
+  await story.file(`Added ${secondPath}`).click();
+  await expect.poll(story.diffCode).toContain(secondSource);
+  expect(story.purposeText()).not.toContain("a 11");
+  expect(revisions.filter((revision) => revision !== projectRevision)).toEqual([
+    firstCompletion,
+    secondCompletion,
+  ]);
 });

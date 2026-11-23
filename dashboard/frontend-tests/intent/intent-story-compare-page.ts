@@ -33,12 +33,13 @@ export function intentStoryCompare() {
   const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
   const run = compare.getByRole("listbox", { name: "Landed run" });
   type View = "Changes" | "CI comparison" | "Intent coverage";
+  const storyViews = intent.getByRole("tablist", {
+    name: "Selected story views",
+  });
+  const viewTab = (name: View) =>
+    storyViews.getByRole("tab", { name, exact: true });
   const view = (name: View) =>
     intent.getByRole("tabpanel", { name, exact: true });
-  const tab = (name: View) =>
-    intent
-      .getByRole("tablist", { name: "Selected story views" })
-      .getByRole("tab", { name, exact: true });
   const proof = intent.getByRole("region", { name: "Proof", exact: true });
   type CiView = "CI comparison" | "Intent coverage" | "Proof";
   const ciView = (name: CiView) => (name === "Proof" ? proof : view(name));
@@ -60,6 +61,18 @@ export function intentStoryCompare() {
     chooseRun: (key: string) => userEvent.selectOptions(run, key),
     // The story's changed files outside every location.
     outside: () => textOf(outsideGroup.query()),
+    onlyChangedFiles: intent.getByRole("checkbox", {
+      name: "Selected story only",
+      exact: true,
+    }),
+    projectIntent: intent.getByRole("button", {
+      name: "Project Intent",
+      exact: true,
+    }),
+    backToStory: intent.getByRole("button", {
+      name: "Back to selected story",
+      exact: true,
+    }),
     // A CI view's text, Proof that of the selected file's Proof tab.
     viewText: (name: CiView) => textOf(ciView(name).element()),
     // What a CI view says while another comparison than the default is
@@ -120,14 +133,10 @@ export function intentStoryCompare() {
     },
     range: () =>
       textOf(header.element().querySelector(".story-review-range-heading")),
-    tab,
-    chooseTab: (name: View) => userEvent.click(tab(name)),
+    viewTab,
+    chooseTab: (name: View) => userEvent.click(viewTab(name)),
     // A listed file's control, named by its kind and path.
     file: (name: string) => intent.getByRole("button", fileNamed(name)),
-    storyOnly: intent.getByRole("checkbox", {
-      name: "Selected story only",
-      exact: true,
-    }),
     // A location's or folder's toggle, by its name and whether it is open.
     folderToggle: (name: string, open: boolean) =>
       intent.getByRole("button", {

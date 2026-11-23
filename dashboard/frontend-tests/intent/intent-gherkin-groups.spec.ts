@@ -8,10 +8,13 @@ import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { unreadCiReads } from "../../test-support/component-mount/unreadPageReads.ts";
-import { fileName, scopeToggle } from "./intent-browser-page.ts";
+import { fileName } from "./intent-browser-page.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import { intentReadsPublishing } from "./intent-revision-fixtures.ts";
-import { intentScopeTree } from "./intent-scope-tree-page.ts";
+import {
+  intentScopeTree,
+  locationHeaderLook,
+} from "./intent-scope-tree-page.ts";
 
 const featuresPath = "e2e_test/features";
 const packagedPath = "e2e_test/packaged/features";
@@ -68,26 +71,6 @@ async function mountGroups() {
 const bodyText = () =>
   page.getByRole("main", { name: "Intent", exact: true }).query()
     ?.textContent ?? "";
-
-// How the header of the location at PATH reads against its column.
-function headerLook(path: string) {
-  const header = scopeToggle(path).element().parentElement as HTMLElement;
-  const column = header.closest(".intent-locations") ?? header;
-  const box = header.getBoundingClientRect();
-  const columnLeft = column.getBoundingClientRect().left + column.clientLeft;
-  const label = header.querySelector(".intent-location-name > *") ?? header;
-  return {
-    background: getComputedStyle(header).backgroundColor,
-    mark: getComputedStyle(header).boxShadow,
-    controlsShowHeader: [...header.children].every(
-      (child) => getComputedStyle(child).backgroundColor === "rgba(0, 0, 0, 0)",
-    ),
-    fullWidth:
-      Math.abs(box.left - columnLeft) < 1 &&
-      Math.abs(box.width - column.clientWidth) < 1,
-    labelWeight: Number(getComputedStyle(label).fontWeight),
-  };
-}
 
 test("location groups start collapsed and expand exclusively, keeping Purpose across collapse and nested folders local", async () => {
   const tree = await mountGroups();
@@ -160,11 +143,11 @@ test("with no story selected, full-width bold location headers stand apart from 
   );
   expect(rowBackgrounds).toEqual([transparent, transparent]);
 
-  const expanded = headerLook(featuresPath);
-  const selected = headerLook(packagedPath);
+  const expanded = locationHeaderLook(featuresPath);
+  const selected = locationHeaderLook(packagedPath);
   expect(expanded.background).not.toBe(transparent);
   for (const path of ["empty_features", "frontend/src"])
-    expect(headerLook(path).background).toBe(expanded.background);
+    expect(locationHeaderLook(path).background).toBe(expanded.background);
   expect(selected.background).not.toBe(expanded.background);
   expect(selected.background).not.toBe(transparent);
   for (const path of [
@@ -173,7 +156,7 @@ test("with no story selected, full-width bold location headers stand apart from 
     "empty_features",
     "frontend/src",
   ]) {
-    const look = headerLook(path);
+    const look = locationHeaderLook(path);
     expect(look).toMatchObject({
       mark: "none",
       controlsShowHeader: true,

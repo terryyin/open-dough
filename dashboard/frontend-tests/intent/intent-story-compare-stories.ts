@@ -144,8 +144,12 @@ export const publishedCompletion = () =>
 // WebSocket calls made from the mount on.
 export async function openDoneStoryComparison({
   ci = {},
+  readFile = (...[, , revision]) => Promise.resolve(`${revision}\n`),
   ...review
-}: ReviewAnswers & { readonly ci?: Partial<IntentCiReadSource> }) {
+}: ReviewAnswers & {
+  readonly ci?: Partial<IntentCiReadSource>;
+  readonly readFile?: IntentReadSource["readFile"];
+}) {
   const opened = recordOutsideCalls();
   const scope = scopeReadsOf(doneStory);
   const locationRevisions: string[] = [];
@@ -182,7 +186,7 @@ export async function openDoneStoryComparison({
             locations: [...(doneStory.scope?.locations ?? [])],
           });
         },
-        readFile: (...[, , path]) => Promise.resolve(`${path}\n`),
+        readFile,
         readCandidates: () => Promise.resolve({ status: "absent" }),
       },
       ci: {
@@ -203,6 +207,7 @@ export async function openDoneStoryComparison({
   selected = true;
   await mounted.selectStory(doneStory.identity, doneTitle);
   return {
+    ...mounted,
     locationRevisions,
     proofReads: scope.asked.proofs,
     outsideCalls: () => opened,
