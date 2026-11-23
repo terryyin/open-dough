@@ -3,9 +3,10 @@
 // another revision are asked again
 // (../../src/authenticatedIntentCandidatesRead.ts, ../../src/answerMemo.ts).
 // Wire classification: ./intent-candidates-client-replies.spec.ts.
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCandidatesAnswer } from "../../server/intentCandidatesRead.ts";
+import { forgetAnswers } from "../../src/answerMemo.ts";
 import type { authenticatedGet } from "../../src/authenticatedGet.ts";
 import {
   intentCandidatesReader,
@@ -15,8 +16,11 @@ import { ReadProblem } from "../../src/readProblem.ts";
 
 const source = makeMe.aPublishedSource.pygardon.please();
 const recordText = makeMe.aTestOptimizationCandidatesRecord.please();
+const revision = "c1".repeat(20);
+const anotherRevision = "c2".repeat(20);
 
 // A transport answering each revision's reply from `replies`, counting asks.
+// The page's answer memo is emptied when the case finishes.
 function transportAnswering(
   replies: (revision: string) => IntentCandidatesAnswer,
 ) {
@@ -27,6 +31,7 @@ function transportAnswering(
     return Promise.resolve(replies(revision));
   };
   const read = intentCandidatesReader(get);
+  onTestFinished(forgetAnswers);
   return {
     asked,
     readAt: (revision: string) =>
@@ -35,7 +40,7 @@ function transportAnswering(
 }
 
 // Reads `candidates` at `revision` twice: the same record, asked once.
-async function expectAskedOnceAt(revision: string, candidates: string | null) {
+async function expectAskedOnce(candidates: string | null) {
   const reader = transportAnswering((at) => ({ revision: at, candidates }));
   const first = await reader.readAt(revision);
   const second = await reader.readAt(revision);
@@ -43,17 +48,15 @@ async function expectAskedOnceAt(revision: string, candidates: string | null) {
   expect(reader.asked).toEqual([revision]);
 }
 
-// Each case reads at its own revisions: answers are kept per revision.
 test("a present candidates reply is asked once at its revision", async () => {
-  await expectAskedOnceAt("c1".repeat(20), recordText);
+  await expectAskedOnce(recordText);
 });
 
 test("an absent candidates reply is asked once at its revision", async () => {
-  await expectAskedOnceAt("c2".repeat(20), null);
+  await expectAskedOnce(null);
 });
 
 test("a present candidates reply is kept for the page to show on return", async () => {
-  const revision = "c3".repeat(20);
   const reader = transportAnswering((at) => ({
     revision: at,
     candidates: recordText,
@@ -64,18 +67,16 @@ test("a present candidates reply is kept for the page to show on return", async 
 });
 
 test("another revision's candidates reply is asked on its own", async () => {
-  const [first, next] = ["c4".repeat(20), "c5".repeat(20)];
   const reader = transportAnswering((at) => ({
     revision: at,
-    candidates: at === first ? recordText : null,
+    candidates: at === revision ? recordText : null,
   }));
-  await reader.readAt(first);
-  expect(await reader.readAt(next)).toEqual({ status: "absent" });
-  expect(reader.asked).toEqual([first, next]);
+  await reader.readAt(revision);
+  expect(await reader.readAt(anotherRevision)).toEqual({ status: "absent" });
+  expect(reader.asked).toEqual([revision, anotherRevision]);
 });
 
 test("an unreadable candidates reply is asked again", async () => {
-  const revision = "c6".repeat(20);
   const reader = transportAnswering((at) => ({
     revision: at,
     candidates: null,
@@ -91,7 +92,6 @@ test("an unreadable candidates reply is asked again", async () => {
 });
 
 test("an invalid candidates reply fails and is asked again", async () => {
-  const revision = "c7".repeat(20);
   const reader = transportAnswering(
     (at) =>
       ({ revision: at, candidates: 42 }) as unknown as IntentCandidatesAnswer,

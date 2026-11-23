@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#correct-revision-detour-proof-residue
 **Source:** [Correct the proof residue of Intent revision reading and detours](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-revision-detour-proof-residue)
+**Source review:** [source-review.md](source-review.md)
 
 ## Correction input
 
@@ -175,7 +176,7 @@ on its assertions.
 ### 1. Candidates reader cases start with an empty answer memo
 
 Type: Structure
-Status: planned
+Status: done
 
 Use the production `forgetAnswers` teardown already exercised by
 `backend-tests/intent/intent-shared-reads.spec.ts` with
@@ -187,6 +188,11 @@ answer must retain their distinct results.
 **Proof.** Run `intent/intent-candidates-reader-reuse.spec.ts`. Remove the
 reset in scratch and require a shared-revision failure. Retain the original
 fixed-answer bypass discrimination for present, absent and kept replies.
+
+**Delivered.** Six cases pass on one revision with `onTestFinished(forgetAnswers)`.
+Without the reset, absent, another-revision, unreadable and invalid fail; a
+bypassed `fixed` predicate fails present, absent and kept. The backoff
+sequence in `intent-candidates-read-recovery.spec.ts` is unchanged.
 
 ### 2. CI activation shows the judgment for the scope the reader opens
 
@@ -347,5 +353,3 @@ duplicated interaction knowledge and leaves real routing and observation
 with the existing built-dashboard journey.
 
 ## Story obligations
-
-None recorded.
