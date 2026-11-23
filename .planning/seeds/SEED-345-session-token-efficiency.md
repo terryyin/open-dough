@@ -58,51 +58,6 @@ traces supply the examples below. Token figures come from
 
 Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
-<a id="start-implementers-from-a-role-sized-tool-set"></a>
-
-### Start dashboard Claude Code sessions without the Artifact tool
-
-**Identity:** SEED-345#start-implementers-from-a-role-sized-tool-set
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/796-start-dashboard-claude-sessions-without-artifact/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8ca0712fe093bdbbd241b55860aa83d6164e8e6839e718fc576e8dce6a1b438d","plan":"51c59c4876ec26924d04dce82575c1c887e1bd45a08f3df2329cc51f477fcd76"}}
-```
-
-**Goal.** Developers launching Claude Code sessions from the dashboard pay for
-no tool definition their sessions never use. Claude Code's Artifact tool,
-which publishes pages to claude.ai, adds about 37k characters to every
-request of a coordinator and of each worker it starts. Removing it removes no
-judgment.
-
-**Baseline (2026-11-23, Claude Code 2.1.330, local traces).** In 30 days, 731
-main sessions were offered Artifact and none, nor any worker, called it. Over
-10 days it cost about $43 of $2,441 main-session spend and $64 of $1,896
-worker spend at the Opus 5.5 rate card, about 2.5% overall. Probes started
-with `claude --bg ... --disallowedTools Artifact -- "<prompt>"` showed main
-tool definitions falling from 83.8k to 46.4k characters, and a worker it
-started from 58.2k to 21.1k, with Artifact absent from both. The tool list
-is variadic: a prompt placed after it without `--` is read as a tool name.
-
-**Scope.** Every dashboard Claude Code launch passes `--disallowedTools
-Artifact` and keeps its name, model, effort and instruction. Codex and Cursor
-launches, sessions developers start themselves, personal settings and other
-tools stay as they are. An agent definition or role-sized tool set was
-considered and dropped: its copied worker prompt would need maintaining for
-about 3% of worker spend.
-
-**Evaluation.** The launch boundary case proves the argument. Keep or stop
-from the next real dashboard-launched Claude Code execution's traces: keep
-when its coordinator and workers start without Artifact and its results read
-as usual.
-
-**Key examples.**
-
-- An execution launched from the dashboard with model and effort starts
-  `claude --bg --name <name> --model <m> --effort <e> --disallowedTools
-  Artifact -- <instruction>`.
-- A launch with no instruction still withholds Artifact.
-- The coordinator's workers start without Artifact and keep Agent, Bash,
-  Edit, Read, Write and Skill.
-
 <a id="load-execution-guidance-for-the-current-phase"></a>
 
 ### Load execution guidance for the current phase

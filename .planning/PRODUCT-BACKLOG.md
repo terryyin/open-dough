@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Call custom CI through a minimal adapter interface](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter ([plan](slice-plans/793-call-custom-ci-through-a-minimal-adapter-interface/PLAN.md))
 - [Remove observation proof that the typed page entry duplicated](seeds/SEED-413-renovate-dashboard-unit-tests.md#remove-observation-proof-overlap) — SEED-413#remove-observation-proof-overlap
 - [Update from the previous release without legacy readers](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats ([plan](slice-plans/794-update-from-the-previous-release-without-legacy/PLAN.md))
-- [Start dashboard Claude Code sessions without the Artifact tool](seeds/SEED-345-session-token-efficiency.md#start-implementers-from-a-role-sized-tool-set) — SEED-345#start-implementers-from-a-role-sized-tool-set ([plan](slice-plans/796-start-dashboard-claude-sessions-without-artifact/PLAN.md))
 
 ## Backlog list
 
