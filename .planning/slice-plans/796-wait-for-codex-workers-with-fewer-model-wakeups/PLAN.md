@@ -119,3 +119,10 @@ has one observation boundary and fits the 15 active-minute slice budget
 with the existing fixtures and command time excluded. The remaining
 native-surface and evidence premises belong to the early probe. The review
 identified no other slice-specific concern.
+
+## Execution complete
+
+Product advice: Retain the current Codex worker wait guidance. The audited
+Dashboard profile's native coordinator stopped at the 60-second instruction.
+The trial reached its early-stop outcome without measuring a longer runtime
+wait or comparative effort.
