@@ -150,6 +150,14 @@ Independent refactoring scoped the context styles away from the commit heading.
 The six mounted cases and selected Playwright layout cases passed again in
 `s1-refactor-front`.
 
+Slice 1 published at `e8466f474e4437fa6cbca0cc68f81b727f8d6cc0` on the
+execution branch. CI run `45088764753` attempt 1 surfaced one missed consumer
+of the old completion wording in
+`e2e/sessions/recently-done-sessions-select-ad-hoc-review.spec.ts`. The
+focused repair uses the shared reader to assert the full historical baseline
+and exact completion, both distinct from current trunk. The entire session
+journey passed in `s1-ci-repair-e2e`.
+
 ### 2. Commit and trunk comparison journeys exercise Intent
 
 Type: Structure
