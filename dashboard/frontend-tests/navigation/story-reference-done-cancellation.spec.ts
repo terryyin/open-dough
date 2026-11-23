@@ -1,129 +1,98 @@
-// Story A's reference to the far Done story is followed while that story's
-// record is held. A move the developer makes meanwhile, Inspect, "Show latest
-// 10", a pointer down or Tab away from Dismiss, supersedes the jump: when the
-// record arrives the keyboard stays where the developer moved it.
-
-import type { Page } from "@playwright/test";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { farDone, openDoneReferences } from "./story-reference-done-fixture.ts";
 import {
-  expectEntries,
-  showLatestAction,
-  shownEntries,
-} from "../../test-support/recentlyDoneColumn.ts";
-import { showColumn } from "../../test-support/boardPage.ts";
-import {
-  inspectionToggle,
-  pointerDownOn,
-  storyCard,
-} from "../../test-support/storyCardControls.ts";
-import {
-  expectInspected,
-  storyDetail,
-} from "../../test-support/storyCardSelection.ts";
-import {
+  destinationCues,
   dismissReference,
-  doneDestination,
+  farDestination,
+  farDestinationReading,
+  farReferencePending,
   followReference,
+  latestDone,
   openDependencies,
+  ownAction,
+  ownDetail,
+  pointerDownOn,
   referenceNotice,
-} from "../../test-support/storyReference.ts";
-import {
-  expectKeyboardAtMark,
-  markKeyboardPlace,
-} from "../../test-support/pageShortcutsPage.ts";
-import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
-import {
-  doneTitlesThrough,
-  farDone,
-  putFrontendDoneReferences,
-} from "../../test-support/support/frontendDoneReferences.ts";
-import { holdDoneRecordReads } from "../../test-support/support/frontendDoneBodyReads.ts";
+  showsDoneEntries,
+} from "./story-reference-done-page.ts";
 
-test.use({ hasTouch: true });
-
-const releases: (() => void)[] = [];
-test.afterEach(() => {
-  releases.splice(0).forEach((release) => {
-    release();
-  });
-});
-
-// With the latest ten Done stories shown, Story A's reference to the far Done
-// story is followed while every ask naming its record is held: its destination
-// waits in Recently done, still being read.
-async function followHeldFarReference(page: Page) {
-  const held = await holdDoneRecordReads(page, farDone.path, releases);
-  await page.goto("/");
-  const { backlog, recentlyDone: recent } = parts(page);
-  await expectEntries(recent, doneTitlesThrough(10));
-  const consumer = storyCard(backlog, "Story A");
-  await openDependencies(consumer);
-  await followReference(consumer, farDone.identity);
-  const destination = doneDestination(recent, farDone.identity);
-  await expect(destination).toContainText("Reading done story…");
-  return { consumer, recent, destination, release: held.release };
+async function followHeldFarReference() {
+  const fixture = await openDoneReferences({ holdFar: true });
+  await showsDoneEntries(fixture.titlesThrough(10));
+  await openDependencies();
+  await followReference(farDone.identity);
+  await expect.element(farDestinationReading).toBeVisible();
+  await expect.element(farReferencePending).toBeVisible();
+  await expect
+    .poll(fixture.requestedBodies)
+    .toEqual(fixture.pathsThrough(27, true));
+  expect(fixture.answered).not.toContain(fixture.farPath);
+  return fixture;
 }
 
-test("a developer's later move or latest-ten choice supersedes a pending Done reference", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendDoneReferences(frontendServices);
-  const { consumer, recent, destination, release } =
-    await followHeldFarReference(page);
-  const ownChoice = inspectionToggle(consumer);
-  await ownChoice.click();
-  await expect(ownChoice).toBeFocused();
-  await expect(referenceNotice(page)).toBeEmpty();
-  // A repeated reference is a new destination; explicitly returning to ten
-  // supersedes it too, even when the old record subsequently answers.
-  await followReference(consumer, farDone.identity);
-  await expect(referenceNotice(page)).toContainText("Reading Open Dough");
-  await showColumn(page, "Recently done");
-  const latest = showLatestAction(recent);
-  await latest.click();
-  await expect(shownEntries(recent)).toHaveCount(10);
-  release();
-  await untilPageRequestsAnswered(page);
-  await expectEntries(recent, doneTitlesThrough(10));
-  await expect(destination).toHaveCount(0);
-  await expect(latest).toHaveCount(0);
-  await expect(referenceNotice(page)).toBeEmpty();
-  await expect(storyDetail(consumer)).toBeVisible();
+test("a developer's later move or latest-ten choice supersedes a pending Done reference", async () => {
+  const fixture = await followHeldFarReference();
+  await ownAction.click();
+  await expect.element(ownAction).toHaveFocus();
+  await expect.element(referenceNotice).toBeEmptyDOMElement();
+  await expect.element(ownDetail).toBeVisible();
+
+  await followReference(farDone.identity);
+  await expect.element(farReferencePending).toBeVisible();
+  await latestDone.click();
+  await showsDoneEntries(fixture.titlesThrough(10));
+  const keptFocus = document.activeElement;
+  fixture.release();
+  await expect
+    .poll(() => fixture.answered.includes(fixture.farPath))
+    .toBe(true);
+
+  await showsDoneEntries(fixture.titlesThrough(10));
+  await expect.element(farDestination).not.toBeInTheDocument();
+  await expect.element(latestDone).not.toBeInTheDocument();
+  await expect.element(referenceNotice).toBeEmptyDOMElement();
+  await expect.element(ownDetail).toBeVisible();
+  expect(document.activeElement).toBe(keptFocus);
+  expect(destinationCues()).toHaveLength(0);
+  expect(fixture.requestedBodies()).toEqual(fixture.pathsThrough(27, true));
 });
 
-test("pointer down stops a pending Done jump while its data arrives and the pointer's chosen action still clicks", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendDoneReferences(frontendServices);
-  const { consumer, destination, release } = await followHeldFarReference(page);
-  const ownAction = inspectionToggle(consumer);
-  await pointerDownOn(ownAction);
-  release();
-  await expect(destination).toHaveAccessibleName(farDone.title);
-  await expect(destination).not.toBeFocused();
-  await expect(ownAction).toBeFocused();
-  await expectInspected(consumer, false);
-  await page.mouse.up();
-  await expect(storyDetail(consumer)).toBeVisible();
-  await expect(ownAction).toBeFocused();
-  await expect(referenceNotice(page)).toBeEmpty();
+test("pointer down stops a pending Done jump while its data arrives and the pointer's chosen action still clicks", async () => {
+  const fixture = await followHeldFarReference();
+  const pointerUp = await pointerDownOn(ownAction);
+  try {
+    fixture.release();
+    await expect.element(farDestination).toHaveAccessibleName(farDone.title);
+    await expect.element(farDestination).not.toHaveFocus();
+    await expect.element(ownAction).toHaveFocus();
+    await expect.element(ownAction).toHaveAccessibleName("Inspect story");
+    await expect.element(ownDetail).not.toBeInTheDocument();
+    await expect.element(farReferencePending).toBeVisible();
+    expect(destinationCues()).toHaveLength(0);
+  } finally {
+    await pointerUp();
+  }
+  await expect.element(ownDetail).toBeVisible();
+  await expect.element(ownAction).toHaveFocus();
+  await expect.element(referenceNotice).toBeEmptyDOMElement();
+  await showsDoneEntries(fixture.titlesThrough(27));
+  expect(fixture.requestedBodies()).toEqual(fixture.pathsThrough(27, true));
 });
 
-test("Tab away from a pending reference's Dismiss action supersedes its jump before held Done detail arrives", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendDoneReferences(frontendServices);
-  const { destination, release } = await followHeldFarReference(page);
-  await dismissReference(page).focus();
-  await page.keyboard.press("Tab");
-  expect(await markKeyboardPlace(page)).not.toBe("");
-  release();
-  await expect(destination).toHaveAccessibleName(farDone.title);
-  await expectKeyboardAtMark(page);
-  await expect(destination).not.toBeFocused();
-  await expect(referenceNotice(page)).toBeEmpty();
+test("Tab away from a pending reference's Dismiss action supersedes its jump before held Done detail arrives", async () => {
+  const fixture = await followHeldFarReference();
+  await expect.element(dismissReference).toBeVisible();
+  (dismissReference.element() as HTMLElement).focus();
+  await userEvent.tab();
+  const keptFocus = document.activeElement;
+  expect(keptFocus).not.toBe(document.body);
+  await expect.element(referenceNotice).toBeEmptyDOMElement();
+  fixture.release();
+  await expect.element(farDestination).toHaveAccessibleName(farDone.title);
+  await expect.element(farDestination).not.toHaveFocus();
+  expect(document.activeElement).toBe(keptFocus);
+  expect(destinationCues()).toHaveLength(0);
+  await showsDoneEntries(fixture.titlesThrough(27));
+  expect(fixture.requestedBodies()).toEqual(fixture.pathsThrough(27, true));
 });

@@ -31,11 +31,11 @@ outside-locations diff and line-note subject.
 | C11 | Done Purpose refresh preserves applicable historical file, with comparison and locations held. | slice 3 | observed: intent-done-project-refresh.spec.ts commits newer work with Done Purpose displayed, keeps any second comparison held, then returns from Project Intent while its latest locations are held. The selected historical file and its exact original diff remain. |
 | C12 | Done Purpose refresh preserves reading place, with comparison and locations held. | slice 3 | observed: intent-done-project-refresh.spec.ts measures a nonzero reading-pane scroll offset before work refresh and verifies the exact offset after cycling Done views and returning with the latest locations held. |
 | C13 | Choosing different Done story in held-answer setup waits for new selection's own historical answer. | slice 3 | observed: intent-done-source-selection.spec.ts uses the actual Sessions sidebar to select Story B while Intent stays open, observes no Story A files or Purpose during the comparison and locations holds separately, then observes only the second completion's inventory and source. |
-| C14 | Valid pending Done dependency answer reaches destination. | slice 4 | |
-| C15 | Valid pending Done dependency answer focuses destination. | slice 4 | |
-| C16 | Intervening navigation supersedes pending reveal. | slice 4 | |
-| C17 | Intervening pointer input supersedes pending reveal. | slice 4 | |
-| C18 | Intervening Tab supersedes pending reveal. | slice 4 | |
+| C14 | Valid pending Done dependency answer reaches destination. | slice 4 | observed: story-reference-done-reveal.spec.ts holds the far body after a keyboard reference, then releases it and observes the titled destination at entry 27 in the Board viewing region. |
+| C15 | Valid pending Done dependency answer focuses destination. | slice 4 | observed: story-reference-done-reveal.spec.ts verifies the actual destination gains keyboard focus on the valid answer, with a visible static cue in reduced motion. |
+| C16 | Intervening navigation supersedes pending reveal. | slice 4 | observed: story-reference-done-cancellation.spec.ts uses Inspect and then Show latest 10 to supersede two held reveals. It observes the restored ten-entry range and kept focus after the body arrives. |
+| C17 | Intervening pointer input supersedes pending reveal. | slice 4 | observed: story-reference-done-cancellation.spec.ts sends native pointer down before releasing the held body. The far destination never gains focus, and mouse-up still activates Inspect. |
+| C18 | Intervening Tab supersedes pending reveal. | slice 4 | observed: story-reference-done-cancellation.spec.ts presses Tab from Dismiss before the held body arrives. The destination resolves without taking focus from the exact element reached by Tab. |
 | C19 | Expired reference explains expired state. | slice 5 | |
 | C20 | Failed reference explains failed state. | slice 5 | |
 | C21 | Retry can recover. | slice 5 | |

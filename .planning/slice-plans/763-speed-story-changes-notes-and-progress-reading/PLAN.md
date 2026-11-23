@@ -330,7 +330,7 @@ production imports. See `slice-3-refactor.md`.
 ### 4. Reveal a Done destination and honor superseding input
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move the successful near/far and held keyboard reveal cases from
 `navigation/story-reference-done` and all three cancellation cases in
@@ -344,6 +344,36 @@ range just through its entry and keeps a longer range. A held body stays
 pending until it can focus. A later move or range reset, pointer down with a
 subsequent click, and Tab away each supersede the held reveal. Observe focus,
 cue or its end, shown range, and requested bodies after releasing the hold.
+
+**Accepted proof and case disposition.** The two successful cases moved
+to `story-reference-done-reveal.spec.ts`. Three cancellation cases moved
+in place with the same titles. The real Board shows and reads its first
+ten entries, focuses a near destination in place, grows just through entry
+27 for the far destination and retains the longer range on a subsequent
+visit. The held keyboard reveal distinguishes the pending notice and
+provisional card before focus, the visible reduced-motion cue when the
+body answers, and the cue's end. The three cancellation cases verify a
+later Inspect or Show latest 10, native pointer down before the held body
+and the following mouse-up click, and native Tab from Dismiss. Exact focus,
+rendered range and typed body-request observations distinguish the outcomes.
+
+The mounted production entry starts in Development for this family and
+renders its existing Story Reference notice. The five exact restored cases
+passed in 20.212 s. The mixed gate passed all 16 in 40.349 s with two
+retained legacy cases and nine reached mounted cases. Dashboard typecheck
+passed. Two scratch probes detected lost destination focus and ignored
+superseding input in all five cases. Production paths were restored.
+Source review C14–C18 records the observing cases. The two still-legacy
+recovery cases remain runnable for Slice 5.
+
+Direct production imports stayed at 11 in the existing Intent mount and
+zero in the two original specs. The new reveal spec and page object
+import zero and the new fixture imports the `WorkEntry` type.
+The worktree's Git evidence directory holds `slice-4-return.md`, the
+consumer trace, both probes and terminal gate records. The independent pass
+reuses one pending card and notice observation and one request-ledger reader
+across the two mounted specs. The five affected cases passed in 9.85 s.
+It adds no direct production import. See `slice-4-refactor.md`.
 
 ### 5. Explain and recover Done references from recorded read states
 
