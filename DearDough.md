@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 631. Removed numbers are never reused.
+- Highest allocated local number: 632. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
@@ -962,3 +962,18 @@ Source-review commitment 1 (each touched Intent test reads at one level) was all
   - Evidence: slice 8 brief and first return; the coordinator returned the two cases (`intent-reading-place.spec.ts` reset count, `intent-home-activation-scope.spec.ts` story note) and the second return fixed them through `story.pressedControlCount()` and `ci.notes()`.
   - Observed effect: one extra implementer round and proof run of about 4 minutes.
   - Inference: a brief carrying a story-wide commitment needs the story-wide edit authority that commitment implies.
+
+## DD-632 — A replay plan priced its baseline refactor passes but did not retain what they found <a id="dd-632"></a>
+
+Plan 788's keep criterion required the replay to catch every baseline refactor finding, but its baseline premise recorded only each pass's requests, price and eligibility. The coordinator recovered the outcomes from plan 754's transcripts during the replay.
+
+### Occurrences
+
+- Execution: SEED-345#use-proportionate-refactoring-for-small-test-edits (plan 788; first implementation `1c765d75a`)
+  - Timestamp: 2026-11-23 (+08:00; replay before delivery `1c765d75a`)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111
+  - Evidence: plan 788 premise 2 table; session `9b207e31-c252-4f3f-833e-10c0b2938b25` replay requests 24–33 searching plan 754 coordinator hand-backs and subagent `a979c851a9a70d2b7` for the CI repair's original comment.
+  - Observed effect: about 9 of the replay's 24 requests (roughly $0.4 at that context) reconstructed baseline outcomes, not applying the rule.
+  - Inference: a baseline that a keep criterion compares against should carry the compared observation, here each pass's outcome, beside its cost.

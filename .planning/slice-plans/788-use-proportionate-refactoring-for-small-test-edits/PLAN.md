@@ -146,3 +146,12 @@ existing step and the replay owns its proof. No remaining
 slice concern was identified.
 
 ## Story obligations
+
+## Execution complete
+
+Product advice: keep the one skip rule and judge its saving on the next real
+executions with small own-spec slices. The replay found older residue outside
+this story: `dashboard/backend-tests/review/ad-hoc-manual-landing-precedence.spec.ts`
+still inlines the accepted-attempt chain that `reportingFor` names, without
+`launched`. Fold it into the next Done capture case correction rather than a
+new story.
