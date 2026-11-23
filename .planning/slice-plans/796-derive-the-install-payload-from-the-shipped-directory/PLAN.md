@@ -150,12 +150,10 @@ apparatus consumers found on the diff.
 Delivered: the release builder in `Distribution/tests/support/releaseTestData.mjs`
 writes its own list-era launcher, `declaration: "grouped"` (default) or
 `"inline"`, and `declaredPayload(root)` reads any tree with its own reader.
-The grouped-versus-inline case in `repository-release.test.mjs` targets only the
-builder; retire or narrow it once slice 3's proof uses `inline`.
 
 ### 3. Compare the installed baseline using its tag's payload format
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 10–14 minutes.
 
 Given the release recorded in an installed root, the read-only comparison
@@ -173,6 +171,14 @@ withheld from the payload and a current managed file whose membership in a
 marked predecessor is established by its directory entry alone.
 Drive the no-write and collision cases through the maintained `apply` entry
 point in `update-skip-verified.sh` and `update-refuses-unverifiable.sh`.
+
+Delivered: `Distribution/src/install/open-dough-payload-inventory.sh` owns the
+inventory. `read_release_payload <checkout>` reads a tag marked by the exact
+`install.sh` line `open_dough_payload_format=directory` from its shipped tree,
+after `refuse_invalid_shipped_entries`; other tags use the legacy reader. The
+builder's `declaration: "directory"` writes that marker with no list, so such a
+tag cannot install until slice 7. `compare-payload.sh` proves both formats;
+`apply` ran only against list-era tags, and slice 7 owns a directory tag there.
 
 ### 4. Reconcile files dropped by releases of either format
 Type: Behavior

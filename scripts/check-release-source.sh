@@ -6,8 +6,8 @@ set -euo pipefail
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source_dir=$(cd -- "${script_dir}/.." && pwd)
 # shellcheck disable=SC1091
-# shellcheck source=Distribution/src/install/open-dough-install-payload.sh
-source "${source_dir}/Distribution/src/install/open-dough-install-payload.sh"
+# shellcheck source=Distribution/src/install/open-dough-payload-inventory.sh
+source "${source_dir}/Distribution/src/install/open-dough-payload-inventory.sh"
 
 if [[ $# -gt 1 ]]; then
   echo "Usage: $0 [checkout]" >&2

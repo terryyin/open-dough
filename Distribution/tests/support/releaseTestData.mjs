@@ -4,19 +4,20 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
- * A tagged list-era Open Dough release: the revision's `VERSION`, changelog
- * entry and payload marker, and the annotated `v<version>` tag dated
- * `taggedAt`. Its installer declares its payload as a list, in the historical
- * `grouped` layout (an inline array plus a data-only append fragment) or as one
- * `inline` array. `withheld` lists managed path prefixes its source tree holds
- * but its list does not declare; `removed` lists payload paths its source tree
- * omits; `added` maps each payload path it ships beyond the current payload,
- * and declares first, to its bytes.
+ * A tagged Open Dough release: the revision's `VERSION`, changelog entry and
+ * payload marker, and the annotated `v<version>` tag dated `taggedAt`. A
+ * list-era installer declares its payload as a list, in the historical
+ * `grouped` layout (an inline array plus a data-only append fragment) or as
+ * one `inline` array; a `directory` installer marks its shipped directory as
+ * the payload and lists nothing. `withheld` lists managed path prefixes its
+ * source tree holds but its list does not declare; `removed` lists payload
+ * paths its source tree omits; `added` maps each payload path it ships beyond
+ * the current payload, and declares first, to its bytes.
  * @typedef {{
  *   version: string,
  *   taggedAt: string,
  *   marker: string,
- *   declaration: "grouped" | "inline",
+ *   declaration: "grouped" | "inline" | "directory",
  *   withheld: readonly string[],
  *   removed: readonly string[],
  *   added: Readonly<Record<string, string>>,
@@ -92,6 +93,16 @@ export function releaseDeclarationFiles({ declaration, withheld, added }) {
       (path) => !withheld.some((prefix) => withholds(prefix, path)),
     ),
   ];
+  if (declaration === "directory")
+    return {
+      "install.sh": [
+        "#!/usr/bin/env bash",
+        "# shellcheck disable=SC2034",
+        "open_dough_payload_format=directory",
+        includes("Distribution/src/install/open-dough-install-entry.sh"),
+        "",
+      ].join("\n"),
+    };
   const split =
     declaration === "grouped"
       ? Math.ceil(declared.length / 2)
@@ -131,6 +142,10 @@ function release({
   ...facts
 }) {
   const declared = declaredPayload();
+  if (declaration === "directory" && withheld.length)
+    throw new Error(
+      `Directory release ${facts.version} ships its whole tree; it withholds nothing`,
+    );
   for (const prefix of withheld)
     if (!declared.some((path) => withholds(prefix, path)))
       throw new Error(

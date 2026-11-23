@@ -5,8 +5,8 @@ report_managed_payload_mismatch() {
   printf 'Managed payload mismatch: %s %s\n' "${skill_root}" "${managed_file}" >&2
 }
 # shellcheck disable=SC1091 # The selective check does not follow companion modules.
-# shellcheck source=Distribution/src/install/open-dough-payload-declaration.sh
-source "$(dirname -- "${BASH_SOURCE[0]}")/open-dough-payload-declaration.sh"
+# shellcheck source=Distribution/src/install/open-dough-payload-inventory.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/open-dough-payload-inventory.sh"
 # Read-only dest vs tagged checkout. dest is the dough-update destination;
 # skill_root is its native root. No fetches or writes. Callers with a tagged
 # tree pass it as checkout; ordinary update fetches first.
@@ -28,7 +28,7 @@ managed_payload_unchanged() {
     files+=("${managed_file}")
   done <<< "${current_declaration}"
 
-  if ! historical_files=$(read_managed_files_declaration "${checkout}/install.sh"); then
+  if ! historical_files=$(read_release_payload "${checkout}"); then
     return 1
   fi
   source=$(release_source_dir "${checkout}")
