@@ -281,6 +281,17 @@ case was shorter. The scope was the attachment spec, with the whole
 timing decision still open. Commands, title roster and source
 observations are in `open-dough/evidence/attachment-slice.85r6izym/report.md`.
 
+**Distribution CI deadline repair.** Run `45111168729` reached one
+native browser check with 7.7 s left in its job budget. A replay of
+the observed durations reproduced the late start. Two successful
+comparison runs had the same selection and runner image and fewer
+test-job seconds. The one-line share assignment moves the seven
+native comparison checks to the existing third share. The production
+selector assigns all 667 checks once. A compressed runner replay and
+the maintained split and cutoff checks passed. The hosted branch run
+is responsible for live checks on both changed shares. See the
+[diagnosis](diagnosis-distribution-native-browser-proof-deadline.md).
+
 ## Timing evidence and decisions
 
 - The [seed evidence](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
