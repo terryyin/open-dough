@@ -33,9 +33,9 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Catch delegated lint failures before guarded delivery](seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery) — SEED-345#catch-delegated-lint-before-delivery
 - [Bring launch test feedback to about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#reach-eight-second-launch-feedback) — SEED-413#reach-eight-second-launch-feedback
 - [Correct the proof residue of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-scope-timing-chart-proof-residue) — SEED-413#correct-scope-timing-chart-proof-residue
-- [Catch delegated lint failures before guarded delivery](seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery) — SEED-345#catch-delegated-lint-before-delivery
 - [Use proportionate refactoring for small test edits](seeds/SEED-345-session-token-efficiency.md#use-proportionate-refactoring-for-small-test-edits) — SEED-345#use-proportionate-refactoring-for-small-test-edits
 - [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof
 - [Drive the published observation through the typed page entry](seeds/SEED-413-renovate-dashboard-unit-tests.md#drive-published-observation-through-page-entry) — SEED-413#drive-published-observation-through-page-entry

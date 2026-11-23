@@ -209,23 +209,20 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
 **Identity:** SEED-345#catch-delegated-lint-before-delivery
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/786-catch-delegated-lint-before-delivery/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"3726be1b3c3b50710c892ed41bec1ceba7e8a2990a3bf6584f3d1db67d74bd54","plan":"6cdc23f7593f91d1f14f7a3fb561c322dc31bd10b956b7e5ed97bdb401cc6e60"}}
 ```
 
-- **Outcome.** Developers get a reviewed slice whose authored files have
-  passed the applicable read-only checks before coordinator delivery. The
-  worker can surface lint failures while it still has the editing context.
-- **Boundary.** Use the project’s existing authored-file checks when
-  available. Keep selective formatting, hook-owned lint, and guarded
-  delivery with the coordinator. Keep full affected-consumer proof where a
-  shared contract changes.
-- **Evaluation.** Replay a retained type-aware lint refusal and a clean edit.
-  Compare the first guarded delivery result and repeated focused proof
-  against the baseline. Include a project without an applicable authored-file
-  command to verify the explicit handoff. Record the actual response and
-  first containing release at [ODF-329](../../docs/maintainer/findings/ODF-329.md).
-- **Effort.** Small to medium. Applicable commands vary by project and a
-  whole-repository check would change the cost of the trial.
+**Goal.** Developers get a reviewed slice whose authored files have passed the project’s applicable read-only lint before worker handoff. The worker can fix findings while the edit and its proof are still in context. The coordinator can then validate and deliver the candidate using the existing gates.
+
+**Scope.** Update the shared execution guidance where the coordinator briefs implementation workers and where workers return verification. Reuse the check-only command the project already provides for authored files. The worker owns applicable failures and confirms the corrected result before returning. If the project has no suitable command, say so in the handoff and carry its usual checks forward. The coordinator keeps selective formatting, hook-owned lint, guarded delivery, and affected-consumer proof. [ODF-329](../../docs/maintainer/findings/ODF-329.md) covers authored files. Changes to shared contracts and typed lint on unchanged callers remain the separate concern recorded in [ODF-529](../../docs/maintainer/findings/ODF-529.md).
+
+**Key examples.**
+
+- The project offers direct read-only ESLint. A worker assigns to the injected terminal socket parameter. The check reports `no-param-reassign`. The worker corrects the assignment, reruns lint on the authored paths and renews the affected proof. The returned evidence lets the coordinator reach its first guarded delivery without the captured lint refusal.
+- A clean authored edit passes one scoped check and returns normally. The coordinator has its ordinary staged and delivery validation.
+- A project supplies only hook-owned or whole-repository lint. The worker reports the missing authored-file command and its completed focused proof. The coordinator follows the established gates.
+
+**Evaluation basis.** The historical refusal came from Open Dough plan 759, slice 2. In the 2026-11-23 scratch comparison, both readers identified the defect by inspection. The candidate additionally required a real check. Direct ESLint on the accepted file with the reported assignment restored refused at line 50. The accepted file passed. Compare where the defect is caught and which proof is repeated. Treat isolated elapsed time and model usage as descriptive. The comparison has no observed end-to-end saving. Record the delivered response and its release evidence at ODF-329.
 
 <a id="use-proportionate-refactoring-for-small-test-edits"></a>
 
