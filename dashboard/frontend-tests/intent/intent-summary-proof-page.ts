@@ -51,7 +51,14 @@ export async function expectScopeRows(
 ) {
   await expectOwnScopeFigures(summary, path, figures);
 
-  const table = scopeTable(summary, path);
+  await expectProofTableRows(scopeTable(summary, path), columns, rows);
+}
+
+export async function expectProofTableRows(
+  table: Locator,
+  headings: readonly string[],
+  rows: readonly (readonly [name: string, ...cells: string[]])[],
+) {
   const parts = table
     .or(table.getByRole("columnheader"))
     .or(table.getByRole("row"))
@@ -81,12 +88,11 @@ export async function expectScopeRows(
     )
     .toEqual([
       expected("TABLE", null, null),
-      ...columns.map((column) => expected("TH", "col", column)),
-      ...rows.flatMap(([name, counts, time]) => [
+      ...headings.map((column) => expected("TH", "col", column)),
+      ...rows.flatMap(([name, ...cells]) => [
         expected("TR", null, null),
         expected("TH", "row", name),
-        expected("TD", null, counts),
-        expected("TD", null, time),
+        ...cells.map((text) => expected("TD", null, text)),
       ]),
     ]);
 }
@@ -95,6 +101,7 @@ export async function expectOwnScopeFigures(
   summary: Locator,
   path: string,
   figures: readonly string[],
+  labels: readonly string[] = [...columns.slice(1), "Parts"],
 ) {
   const own = scopeFigures(summary, path);
   await expect
@@ -114,7 +121,7 @@ export async function expectOwnScopeFigures(
     )
     .toEqual([
       { tag: "DIV", role: "group", text: null },
-      ...[...columns.slice(1), "Parts"].flatMap((text, index) => [
+      ...labels.flatMap((text, index) => [
         { tag: "DT", role: null, text },
         { tag: "DD", role: null, text: figures[index] },
       ]),

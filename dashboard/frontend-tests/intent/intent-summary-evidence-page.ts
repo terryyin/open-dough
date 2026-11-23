@@ -14,12 +14,14 @@ function heardWords(item: Element) {
 export async function expectEvidenceLabels(
   strip: Locator,
   names: readonly string[],
+  { leading = false } = {},
 ) {
   await expect
     .poll(() =>
       strip
         .getByRole("listitem")
         .elements()
+        .slice(0, leading ? names.length : undefined)
         .map((item) => ({
           heard: heardWords(item),
           ariaLabel: item.getAttribute("aria-label"),
@@ -29,16 +31,18 @@ export async function expectEvidenceLabels(
 }
 
 export async function evidenceLabel(region: Locator, name: string) {
-  const named = () =>
-    region
-      .getByRole("listitem")
-      .elements()
-      .filter((item) => heardWords(item).some((heard) => heard === name));
+  const named = () => labelsHeardAs(region, name);
   await expect.poll(() => named().length).toBe(1);
   const label = named()[0];
   if (label === undefined) throw new Error(`No evidence label named ${name}`);
   return page.elementLocator(label);
 }
+
+export const labelsHeardAs = (region: Locator, name: string) =>
+  region
+    .getByRole("listitem")
+    .elements()
+    .filter((item) => heardWords(item).some((heard) => heard === name));
 
 export function labelWords(label: Locator) {
   return ciReadingText(

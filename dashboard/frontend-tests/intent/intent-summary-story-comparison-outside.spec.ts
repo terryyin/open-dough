@@ -1,21 +1,19 @@
 // Primary-endpoint outside evidence is named independently of the visible tree.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { expect, test } from "vitest";
+import { ciReadingText } from "./intent-attempt-proof-page.ts";
+import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
 import {
-  evidenceLabel,
   evidenceLabels,
   expectEvidenceLabels,
-  expectInFull,
+  labelsHeardAs,
   expectLabelInFull,
-} from "../../test-support/ciEvidenceLabelsPage.ts";
-import { scopeTable } from "../../test-support/intentScopeProofPage.ts";
+} from "./intent-summary-evidence-page.ts";
+import { openSummary, scopeTable } from "./intent-summary-proof-page.ts";
 
 const outsideRow = "Not in the rows above";
 
-test("Summary names the ghost file and unbroken-down part outside its final row, and names Landed for an entry with no file breakdown", async ({
-  page,
-  renderComparison,
-}) => {
+test("Summary names the ghost file and unbroken-down part outside its final row, and names Landed for an entry with no file breakdown", async () => {
   const landed = [
     makeMe.aCiProofEntry
       .at("dashboard/tests")
@@ -69,15 +67,14 @@ test("Summary names the ghost file and unbroken-down part outside its final row,
         .selecting("tests/check.sh")
         .please(),
     );
-  await renderComparison(story.please());
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
-  await expect(
-    scopeTable(summary, "dashboard/tests")
-      .locator("tbody")
-      .getByRole("row")
-      .last()
-      .getByRole("rowheader"),
-  ).toHaveText(outsideRow);
+  await openSummaryComparison(story.please());
+  const summary = await openSummary("dashboard/tests");
+  const last = scopeTable(summary, "dashboard/tests")
+    .getByRole("rowheader")
+    .last();
+  await expect
+    .poll(() => ciReadingText(last.query()?.textContent))
+    .toBe(outsideRow);
   const outside = evidenceLabels(summary, outsideRow);
   await expectEvidenceLabels(outside, [
     "1 file not in the tree",
@@ -93,17 +90,19 @@ test("Summary names the ghost file and unbroken-down part outside its final row,
     "Part 2 no breakdown",
     "part 2 of 2 has no file breakdown",
   );
-  await expect(evidenceLabel(summary, "No file breakdown")).toHaveCount(0);
-  await renderComparison(story.selecting("tests", "location").please());
-  await expect(summary.locator(".intent-summary-path")).toHaveText("tests");
-  await expect(evidenceLabels(summary, "About these figures"))
-    .toMatchAriaSnapshot(`
+  expect(labelsHeardAs(summary, "No file breakdown")).toHaveLength(0);
+  await openSummary("tests");
+  await expect.element(evidenceLabels(summary, "About these figures"))
+    .toMatchAriaInlineSnapshot(`
     - list "About these figures":
       - listitem: No file breakdown , The Landed CI proof summary does not break tests down by file
   `);
-  await expectInFull(
-    evidenceLabel(summary, "No file breakdown"),
+  await expectLabelInFull(
+    summary,
+    "No file breakdown",
     "The Landed CI proof summary does not break tests down by file",
   );
-  await expect(evidenceLabels(summary, outsideRow)).toHaveCount(0);
+  await expect
+    .element(evidenceLabels(summary, outsideRow))
+    .not.toBeInTheDocument();
 });

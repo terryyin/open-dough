@@ -112,6 +112,7 @@ local-gate command above. Scratch edits were reverted.
   `2c9c98322143935902f8642bc8a6fd6fd385c925` accepted on `origin/main`
   and published as the initial story-branch base.
 - Slice 1 accepted on the story branch at `cc4d0b9fa966c9fd7de360122593773f731297b4`.
+- Slice 2 accepted on the story branch at `32b31b9da1bf15abac0aec93209cb8d504c451ff`.
 - GitHub Actions `ci.yml` observes the published story branch. The active
   observer identity and increment receipts are retained in the execution conversation.
 
@@ -185,7 +186,7 @@ Accepted proof: the local gate selected the four migrated specs with 7 Vitest Ch
 ### 3. Compared Summary rows disclose fallback endpoints, outside evidence, and precise endpoint rows
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-summary-story-comparison-fallback`,
 `intent-summary-story-comparison-outside`, and
@@ -199,6 +200,23 @@ Summary and file Proof keep precise endpoint rows and audible labels.
 **Proof.** The three moved files pass on Vitest. A Taken Trunk case names
 Provisional and keeps the unused Landed explanation through entry, folder and
 file Proof. Delete the three legacy files.
+
+All ten legacy titles remain as Vitest cases. `openSummaryComparison` replaces the comparison markup mount with actual card selection, the Changes tab and typed endpoint reads. The real Taken list uses its published title. The Done list uses its selected story identity.
+
+| Legacy case and check | Mounted assertion |
+| --- | --- |
+| Taken Trunk | `expectFallback` and the ordered heard labels distinguish Provisional from unused Landed in entry and folder Summary and file Proof. |
+| Landed running | Entry, folder, nested folder and file Proof show Branch and the exact running explanation. The file keeps its +70 ms Branch figure. |
+| Landed with no proof | An explicitly unavailable typed Landed answer preserves the same Branch figure and exposes its own distinct explanation at all four depths. |
+| Ghost file, unbroken-down part and outside evidence | The last child row shows the ghost and part in separate heard labels with full reasons. Selecting the entry-only location shows the exact Landed no-breakdown browse snapshot. |
+| Unchanged nested Summary | `expectComparisonRows` reads exact named figures, headers, roles, and endpoint values for `c.spec.ts`. |
+| Unchanged file Proof | Real file selection and Proof show one row with the full file path, unchanged count, 340 ms Baseline and both +70 ms deltas. |
+| Audible labels and separate cues | The endpoint list keeps exact heard words, browse snapshot and observed-build framing. Every entry row preserves count and duration cues with distinct reasons. |
+| Folder cue reasons | Exact folder own and child figures show independent unchanged and below-threshold reasons. |
+| Owning merge change | The reviewed nested file has the Modified marker while its endpoint figures remain precise. |
+| Skipped Baseline | The mounted label names the ancestor and keeps the full skipped explanation in hover and browse reading. |
+
+Accepted proof: the local gate selected the three migrated specs and four existing Summary helper consumers, with 17 Vitest Chromium cases passing in 9.064 s. The refactor reran the 9 affected cases and reused 8. The Git evidence directory holds exact setup, assertions, consumer traces and terminal commands in `slice3-implementation-report.md` and `slice3-refactor-report.md`. `npm run typecheck:dashboard` passed.
 
 ### 4. Compared Summary gaps explain partial and absent evidence
 
