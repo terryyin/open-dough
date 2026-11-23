@@ -7,14 +7,10 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 633. Removed numbers are never reused.
-- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
+- Highest allocated local number: 635. Removed numbers are never reused.
+- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain. The two superseded local catalog pointers are recoverable at `f8afb98618109d4b230e256d2e207731162bee99:DearDough.md`.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
-
-## ODF-154 — Missing Cursor coordinator identity <a id="odf-154"></a>
-
-Former local code: DD-095 (plan 126 Cursor occurrence only). Former local code: DD-231. [Evidence and current response](docs/maintainer/findings/ODF-154.md).
 
 ## ODF-150 — Implementation proof misses indirect consumers <a id="odf-150"></a>
 
@@ -37,10 +33,6 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 A story promising parity with an existing view proved only settled states; every substituted read answered at once, so in-flight behavior the original view had went unplanned and unproved.
 
 ### Occurrences
-
-## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
-
-Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
 
 ## ODF-158 — Disproportionate required reference reads <a id="odf-158"></a>
 
@@ -998,3 +990,11 @@ Plan 783 recorded that `historyChart().failed` has no reader. `e2e/intent/intent
   - Evidence: run `s2-typecheck` failed with TS2339; `.failed` was kept and recorded as obligation G1 in `50d02ebe7`.
   - Observed effect: one failed typecheck and a narrowed scope commitment; nothing was lost.
   - Inference: a typecheck over the removal settles a "spent member" premise more reliably than a name search.
+
+## DD-635 — Native replay preflight misses the test sandbox boundary <a id="dd-635"></a>
+
+The paid probe proved the Codex launch and accounting path. The baseline test command had only been checked outside the native write sandbox.
+
+### Occurrences
+
+- Execution: SEED-345#finish-slices-within-a-bounded-working-context (plan 794, first delivery `91f51dfd6`). Timestamp: 2026-11-23T09:40:40.616Z (first control backend command exit). Tool: Codex. Model: gpt-6.2-sol. Open Dough release: unreleased, pinned revision `417150eba820acdbea22917093414ccde4600d92`. Evidence: plan 794 accepted probe and trial proof, control `slice-1-backend-first.log.run.json` and `slice-1-local-fixture-recovery.md`, candidate `branch-backend-1.log.run.json` and slice 1 implementation receipt. Observed effect: both arms lost initial backend proof to the sandbox blocking the system process observer at teardown and independently verified local replacements. Inference: one representative test through the exact native sandbox could expose this prerequisite before paid replay. The delays attributable to the boundary were not measured.

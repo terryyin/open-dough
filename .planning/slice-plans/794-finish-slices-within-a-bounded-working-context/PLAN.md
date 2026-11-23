@@ -272,6 +272,18 @@ was recorded about 90 seconds after the candidate exit. Those costs add to
 the work needed to run this trial. No developer intervention was needed in
 either arm after the common authorization.
 
+## Execution complete
+
+Product advice: Keep the current Codex workflow. This trial is inconclusive
+because the candidate stopped before its first accepted replay slice.
+Any future evaluation needs independent authority and a fixture proof run
+under the exact sandbox before the paid pair.
+
+The retrospective accepted the evidence limit and found no product
+correction. The outcome and proof were reviewed against Accepted ADR 0005
+and ADR 0010. The delivered changes are planning and evidence records only.
+The process observation is recorded as DD-635 in `DearDough.md`.
+
 ## Current decisions
 
 - Try the existing smaller-story rule in both arms. Shorter worker briefs
