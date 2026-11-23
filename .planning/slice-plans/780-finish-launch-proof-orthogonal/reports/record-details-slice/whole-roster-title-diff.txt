@@ -1,0 +1,28 @@
+- chromium ad-hoc-launch-dialog.spec.ts the instruction comes first, tabs in order, and the options disclosure keeps its summarized selection
+- chromium ad-hoc-launch-dialog.spec.ts with every option selected, Command details list every flag; Host stacks above Model at 320 pixels and sits beside it at 200% zoom, with every option and action reachable
+- chromium ad-hoc-start-session-layout.spec.ts Start session with automatic landing wraps both choices at 320 pixels and keeps them side by side at 200% zoom, with each workspace's effects and both actions in view
+- chromium follow-up-note-handoff.spec.ts a follow-up with no waiting notes explains why Attach is unavailable and Start still works
+- chromium follow-up-note-handoff.spec.ts a follow-up with unreadable notes explains why Attach is unavailable and Start still works
+- chromium launch-record-details.spec.ts execution and ad hoc model labels appear in their own Board entries and sidebar, with effort only when recorded
+- chromium launch-record-details.spec.ts refinement cards independently show requested options and model across all four recorded combinations
+- chromium launch-refinement-options.spec.ts a refused selection stays checked until Cancel and is clear when next opened
+- chromium launch-refinement-options.spec.ts the project's refinement offer shows options only on Start refinement
+- chromium mounted-instruction-voice.spec.ts Escape stops active recording and late permission after either dismissal cannot populate the next dialog
+- chromium-desktop story-card-launch-offers.spec.ts noted execution and preparing refinement stay readable and distinct from unavailable Starts in both schemes
++ chromium ad-hoc-launch-dialog.spec.ts a dense refinement dialog keeps its controls reachable when narrow or zoomed
++ chromium ad-hoc-launch-dialog.spec.ts refinement tabs from the instruction through the closed disclosures to Start
++ chromium ad-hoc-launch-dialog.spec.ts the refinement options disclosure keeps its selection when collapsed
++ chromium ad-hoc-start-session-layout.spec.ts both workspace policies keep the automatic landing actions in view when narrow or zoomed
++ chromium follow-up-note-handoff.spec.ts the notes reader explains why unreadable notes cannot be attached
++ chromium follow-up-note-handoff.spec.ts the notes reader leaves Attach unavailable when no notes wait
++ chromium follow-up-note-handoff.spec.ts the notes reader selects waiting notes and describes their count
++ chromium launch-record-details.spec.ts execution and ad hoc entries show the requested model and disclose effort only when recorded
++ chromium launch-record-details.spec.ts refinement entries show exactly the model and options that each launch requested
++ chromium launch-record-details.spec.ts the Board lists each launch with its own story or in Taken, and the sidebar names its own requested model
++ chromium launch-refinement-options.spec.ts Cancel clears the retained choices from a refused refinement
++ chromium launch-refinement-options.spec.ts a story's installed refinement options appear on refinement alone
++ chromium mounted-instruction-voice.spec.ts Cancel stops active recording without transcribing
++ chromium mounted-instruction-voice.spec.ts Escape stops active recording without transcribing
++ chromium mounted-instruction-voice.spec.ts late permission after either dismissal cannot populate the next dialog
++ chromium-desktop story-card-launch-offers.spec.ts noted Starts explain their offers on hover, focus and in the launch dialog
++ chromium-desktop story-card-launch-offers.spec.ts noted Starts remain visually distinct from unavailable Starts in both schemes

@@ -1,15 +1,16 @@
-# Get launch unit proof in about eight seconds
+# Speed up launch tests while preserving coverage
 
 **Identity:** SEED-413#finish-launch-proof-orthogonal
-**Source:** [Get launch unit proof in about eight seconds](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
+**Source:** [Speed up launch tests while preserving coverage](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
 
 **Source review:** [Selected-story commitments](source-review.md)
 
 ## Goal and scope
 
-Dashboard maintainers can run the whole launch unit selection in about 7–8
-seconds at two workers, including runner preparation, with the same distinct
-behavior and native browser coverage. Use the story's six reopened specs and
+Dashboard maintainers run the whole launch unit selection faster at two
+workers, including runner preparation, with the same distinct behavior
+and native browser coverage. The separate follow-up owns the 7–8 second
+target. Use the story's six reopened specs and
 seven original specs, the launch helpers those cases depend on, and production
 owners where a narrower typed entry preserves the behavior. Existing native,
 installation, backend, and composed E2E journeys keep their proof. Use the
@@ -32,7 +33,7 @@ case's prerequisites, action, and observable result.
 | Story and unattached startup keep their typed attempt, status, recovery, protected selection and blank-versus-instructed focus behavior | 6 | `responsive-story-startup`, `responsive-unattached-startup`, `ad-hoc-start-session`, `ad-hoc-start-session-answer`, and affected `story-startup-page` callers. `ad-hoc-creation-entry` keeps the typed creation proof and participates in the full selection. |
 | The launch dialog pastes text, refuses invalid images, starts with accepted images and discards on Cancel and Escape | 7 | `launch-attachments`; existing attachment E2E if the dialog or attachment contract changes |
 | The model, effort and options appear on the right recorded session and disappear when absent | 8 | `launch-record-details` through the actual card, sidebar and details owners, with independent Board association observations retained |
-| The exact whole launch command reaches the elapsed target and has a mapped case roster | 1–8 | Slice 1 establishes the timing checkpoint. Every retained change carries paired evidence. Slice 8 repeats the complete acceptance comparison. |
+| The exact whole launch command demonstrates shorter elapsed time and has a mapped case roster | 1–8 | Slice 1 establishes the timing checkpoint. Every retained change carries paired evidence. Slice 8 repeats the complete acceptance comparison. |
 
 ## Execution context
 
@@ -292,6 +293,40 @@ the maintained split and cutoff checks passed. The hosted branch run
 is responsible for live checks on both changed shares. See the
 [diagnosis](diagnosis-distribution-native-browser-proof-deadline.md).
 
+**Recorded details and whole-selection checkpoint.** The record cases
+exercise the production SessionEntry and its SessionDetails at the
+default viewport. The Board keeps a separate story-to-session and
+Taken association check, the Recently done empty cue, and the real
+sidebar's explicit, defaulted and ad hoc model text. The refined
+three-case spec passed in 2.22 s, compared with 2.62 s for the two
+original cases. The scoped case bodies fell from 722 to 184 ms.
+
+The exact `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
+comparison includes runner preparation. At the claimed starting
+revision `9fe334ce9` and the candidate on `d45528326`, the first pair
+took 22.93 s before and 14.20 s after. The reverse-order warm pair took
+21.00 s before and 14.71 s after. All 24 files passed in each arm.
+The starting selection had 62 Chromium and nine Chromium Desktop
+cases. The candidate had 67 Chromium and ten Chromium Desktop cases.
+All four selections include the typed creation entry.
+
+The candidate remains 6.20–6.71 s over eight seconds. Its recorded
+case bodies total 22.54–22.85 s, about 11.3 s at perfect two-worker
+packing before preparation and imports. The slowest remaining cases
+include refinement's refusal and choice behavior, desktop hover and
+keyboard discovery, and the responsive workspace policy layout.
+The measured remainder cannot be closed by removing runner startup
+alone. The maintainer requested wrap-up at this measured improvement. The recorded
+details change and evidence remain in the execution checkout. The
+independent review confirmed the final Prettier-only wrap preserves
+the measured source's TypeScript syntax tree and behavior. The
+published branch at `d45528326` passed all jobs in run `45112895506`.
+That run superseded the attachment-only run `45111858379` on the same
+branch. At the checkpoint the coordinator stopped observer
+`/tmp/dough-ci-501/watch-Yi3Uke` with zero unread events and confirmed
+its process exit. The exact commands, host and cache observations,
+rosters and case durations are retained under [reports](reports/record-details-slice/report.md).
+
 ## Timing evidence and decisions
 
 - The [seed evidence](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
@@ -450,7 +485,7 @@ E2E consumers of changed submission or upload behavior, including
 ### 8. Recorded launch words follow their own session
 
 Type: Behavior
-Status: planned
+Status: done
 
 Exercise `SessionEntry`, `SessionsSidebarSessionEntry` and `SessionDetails`
 with typed launch records using their existing production rendering of
@@ -460,8 +495,8 @@ composed association and empty Recently done observations wherever there
 would otherwise be no discriminating check. Remove spent support only
 after tracing its final consumer. Repeat the exact paired whole-selection
 comparison, including runner preparation, and close each case disposition.
-If the target is still out of reach, record the observed remainder and stop
-for the maintainer's decision.
+Record the remaining gap and its disposition. The maintainer requested
+wrap-up and the active follow-up owns the outstanding target.
 
 ## Proof and local gates
 
@@ -513,3 +548,10 @@ Reported: slice 1 — "The two explicit dialog Tab cases use the 640×450 CSS vi
 Story clause: "Verify dialog keyboard order in the standard viewport."
 Disposition: owner changed "Verify dialog keyboard order in the standard viewport."
 Commitment: 29, 30
+
+
+### G3. Whole launch selection exceeds the elapsed target
+Reported: slice 8 — "The two whole candidate runs with two workers and runner preparation took 14.20 and 14.71 seconds."
+Story clause: "improvement and carry the 7–8 second target into a follow-up"
+Disposition: owner changed "improvement and carry the 7–8 second target into a follow-up"
+Commitment: 82

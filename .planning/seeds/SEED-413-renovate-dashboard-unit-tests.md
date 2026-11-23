@@ -801,7 +801,7 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
 
 <a id="finish-launch-proof-orthogonal"></a>
 
-### Get launch unit proof in about eight seconds
+### Speed up launch tests while preserving coverage
 
 **Identity:** SEED-413#finish-launch-proof-orthogonal
 ```json dough-story-dependencies
@@ -811,11 +811,13 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
 {"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/780-finish-launch-proof-orthogonal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05ff0070c5f0bdddf923af9fd67339e500e8cf7a9faa01b9e67a5d12eeed59e1","plan":"5d38d7b4301097b8428551c1856184f135dbd9877558ed155633a174b14df38d"}}
 ```
 
-- **Goal.** Dashboard maintainers get the local launch unit selection in
-  about 7–8 seconds at two workers, including runner preparation, so launch
-  changes get feedback within one short wait. Distinct launch behavior and
-  the existing composed journeys stay covered. This story completes the
-  launch family's share of the campaign's one-minute frontend target.
+- **Goal.** Dashboard maintainers get faster feedback from the local launch
+  selection at two workers, including runner preparation. Distinct launch
+  behavior and the existing composed journeys stay covered.
+- **Wrap-up decision, 23 November 2026.** Close this story at the measured
+  improvement and carry the 7–8 second target into a follow-up. The candidate
+  passed 77 cases in 14.20 and 14.71 seconds. The starting 71 cases passed in
+  22.93 and 21.00 seconds in the respective comparisons.
 - **Scope.** Own `follow-up-note-handoff`, `ad-hoc-start-session`,
   `ad-hoc-start-session-answer`, `responsive-unattached-startup`,
   `ad-hoc-creation-entry`, `launch-attachments` and
@@ -849,9 +851,9 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
   `story-card-startup.spec.ts` still need the `chromium-desktop` instance.
   Apply the
   [shared acceptance](#acceptance-shared-by-the-eight-stories) mapping,
-  spent-support and timing checks. If the remaining time cannot reach the
-  target without losing a distinct observation, stop with the measured
-  remainder and its cause for the maintainer to decide.
+  spent-support and timing checks. Keep all distinct observations, measure
+  the remaining timing gap, and carry the unresolved elapsed target into
+  the follow-up.
 - **Key examples.**
   - Note attachment receives its typed notes, with distinct waiting, no
     waiting and unreadable states; one composed Start session Follow-up
@@ -879,8 +881,8 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
     the transitions once without stealing focus from the next inspection.
   - Measurement: the whole selection run with
     `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
-    reports about 7–8 s wall including preparation, compared under similar
-    machine load with a paired run of the starting selection.
+    reports wall time including preparation, compared under similar machine
+    load with a paired run of the starting selection.
 - **Evaluation.** Map the existing observations from the seven original
   files and the six reopened files to their maintained proof. Measure the
   whole launch selection as the key example states. Apply
@@ -931,6 +933,36 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
   native transcription dismissal, and story-offer status and contrast.
   The seven original specs and the runner change tested here account
   for only part of the saving the two-worker target requires.
+
+<a id="reach-eight-second-launch-feedback"></a>
+
+### Bring launch test feedback to about eight seconds
+
+**Identity:** SEED-413#reach-eight-second-launch-feedback
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Goal.** Dashboard maintainers run the complete launch unit selection in
+  about 7–8 seconds with two workers, including runner preparation. Keep the
+  distinct browser behavior and existing composed journeys covered.
+- **Starting evidence.** The preceding work passed 77 cases in 24 files in
+  14.20 and 14.71 seconds on AC macOS. Paired starting runs took 22.93 and
+  21.00 seconds with 71 cases. The candidate's case bodies total about
+  22.5–22.9 seconds, leaving at least 6.5–6.9 aggregate case-seconds to remove
+  even before accounting for preparation. Refinement refusal and choices,
+  desktop hover and keyboard discovery, and responsive workspace policy are
+  measured leads.
+- **Scope.** Profile the remaining cost and compare simpler focused tests
+  through existing typed production owners. Keep native input and responsive
+  geometry where the observation depends on them. Map each relocated
+  assertion to a witness that would catch the same regression. Any shared
+  runner change requires the full frontend group and retains its pointer
+  assignments. Add no end-to-end cases for this timing work.
+- **Evaluation.** Compare paired runs of
+  `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
+  on similar host load. Count elapsed preparation, report exact case rosters
+  and retain the typed creation entry.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 

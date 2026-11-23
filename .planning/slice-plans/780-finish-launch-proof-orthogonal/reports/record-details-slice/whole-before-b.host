@@ -1,0 +1,23 @@
+2026-11-23T12:45:15+08:00
+/tmp/dough-launch-final.5M1b0DCJ/start
+9fe334ce9faba806b8417bc8be9ab4f60893534e
+Darwin 25.6.0 arm64
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+hw.logicalcpu: 16
+12:45  up 14 days,  5:42, 1 user, load averages: 7.06 6.82 12.05
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=23003235)	100%; charged; 0:00 remaining present: true
+v24.21.0
+11.19.0
+5.1.0
+1.65.0
+/Users/terryyin/Library/Caches/ms-playwright/chromium-1254/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
+cbcb20a4bbf5de0aec537a4a696ddf0500379b61c93f0d918ae8359a23e55c3a  package-lock.json
+drwxr-xr-x@ 168 terryyin  wheel  5376 Nov 23 12:38 node_modules
+drwxr-xr-x@ 213 terryyin  wheel  6816 Nov 23 12:44 node_modules/.vitest-cache
+2026-11-23T12:45:37+08:00
+12:45  up 14 days,  5:42, 1 user, load averages: 7.58 6.94 11.94
+Now drawing from 'AC Power'
+ -InternalBattery-0 (id=23003235)	100%; charged; 0:00 remaining present: true
