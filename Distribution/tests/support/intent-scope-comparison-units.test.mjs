@@ -3,7 +3,7 @@
 // ../../../dashboard/src/ciScopeComparisonUnits.ts): at an entry, a folder and a
 // file, each declared unit Baseline and a later endpoint both show compares
 // on its own row, with its own counts, time, relative change and cues, and
-// legacy results at Baseline show both labelled ends on one row with why
+// disjoint declared units show both labelled ends on one row
 // there is no difference (SEED-281 example 39). Legacy labels, unreported
 // units, reported zeros and outside rows:
 // ./intent-scope-comparison-unit-gaps.test.mjs. Count words:
@@ -116,35 +116,60 @@ test("Baseline's five test cases and one test file against six at Branch and sev
   );
 });
 
-test("with only legacy results at Baseline, every scope shows both labelled ends and why, with no test case or test file difference, change, relative mark or cue (example 39)", () => {
-  const legacyBaseline = summary(
+test("when Baseline counts files and later builds count cases, every scope shows both labelled ends and why, with no test case or test file difference, change, relative mark or cue (example 39)", () => {
+  const filesBaseline = summary(
     makeMe.aCiProofEntry
       .at(entry)
       .holding(
         makeMe.aCiProofEvidence
-          .legacy("tests")
+          .inUnit("file")
           .brokenDown(
-            { path: aSpec, passed: 4, durationMs: 3_500 },
+            { path: aSpec, passed: 1, durationMs: 3_500 },
             { path: rootSpec, passed: 2, durationMs: 1_000 },
           )
           .please(),
       )
       .please(),
   );
-  assert.deepEqual(rowsAt(aSpec, legacyBaseline), [
+  const onlyCases = (proof) =>
+    summary(
+      ...proof.entries.map(({ path, evidence }) =>
+        makeMe.aCiProofEntry
+          .at(path)
+          .holding(...evidence.filter(({ unit }) => unit === "case"))
+          .please(),
+      ),
+    );
+  const casesBranch = onlyCases(branch);
+  const casesLanded = onlyCases(landed);
+  const cellsAt = (path) =>
+    scopeComparisonRowsOf(
+      path,
+      filesBaseline,
+      casesBranch,
+      casesLanded,
+      "precise",
+    ).map(({ units, counts, baseline, branch: mid, landed: after }) => [
+      units,
+      counts,
+      baseline.text,
+      mid.text,
+      after.text,
+    ]);
+  assert.deepEqual(cellsAt(aSpec), [
     [
-      "test cases, test files and legacy test results",
-      "4 legacy test results → 4 test cases and 1 test file → 5 test cases and 1 test file (legacy unit unknown)",
+      "test cases and test files",
+      "1 test file → 4 test cases → 5 test cases (different units)",
       "3.5 s",
-      "3.5 s (test cases); 800 ms (test files)",
-      "4.0 s (test cases); 700 ms (test files)",
+      "3.5 s",
+      "4.0 s",
     ],
   ]);
   // Equal totals in a changed unit read as no "no change".
-  assert.deepEqual(rowsAt(rootSpec, legacyBaseline), [
+  assert.deepEqual(cellsAt(rootSpec), [
     [
-      "test cases and legacy test results",
-      "2 legacy test results → 2 test cases (legacy unit unknown)",
+      "test cases and test files",
+      "2 test files → 2 test cases (different units)",
       "1.0 s",
       "1.0 s",
       "1.0 s",
@@ -152,9 +177,9 @@ test("with only legacy results at Baseline, every scope shows both labelled ends
   ]);
   for (const cells of scopeComparisonRowsOf(
     entry,
-    legacyBaseline,
-    branch,
-    landed,
+    filesBaseline,
+    casesBranch,
+    casesLanded,
     "precise",
   )) {
     assert.equal(cells.branch.changeMs, undefined);

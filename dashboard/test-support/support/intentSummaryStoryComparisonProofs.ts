@@ -80,8 +80,8 @@ function breakdownSummary(
   return collectedSummary(
     proofRun(runId, revision),
     [
-      { entry: "dashboard/tests", parts: 1 },
-      { entry: "tests", parts: 1 },
+      { entry: "dashboard/tests", parts: 1, unit: "case" },
+      { entry: "tests", parts: 1, unit: "file" },
     ],
     [dashboardProducer(at), testsProducer(at)],
   );
@@ -159,8 +159,8 @@ export function outsideLandedProofs(args: {
   const landed = collectedSummary(
     proofRun(103, args.completion),
     [
-      { entry: "dashboard/tests", parts: 2 },
-      { entry: "tests", parts: 1 },
+      { entry: "dashboard/tests", parts: 2, unit: "case" },
+      { entry: "tests", parts: 1, unit: "file" },
     ],
     [
       {

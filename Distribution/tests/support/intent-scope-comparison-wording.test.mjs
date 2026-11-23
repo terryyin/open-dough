@@ -1,9 +1,8 @@
 // Count words for Intent's shared CI comparison
 // (../../../dashboard/src/ciScopeComparisonCounts.ts,
 // ../../../dashboard/src/ciScopeComparisonCountsCell.ts): a count cell's
-// difference only between totals of one declared unit, never across units,
-// from legacy results, of several units or from a unit an endpoint does not
-// report, which show both labelled ends and why (SEED-281 examples 38, 39).
+// difference only between totals of one declared unit. Ends that cannot
+// compare show their counts with unit names (SEED-281 example 39).
 // Overall counts: ./intent-ci-comparison-overall-counts.test.mjs. Compared
 // rows per unit: ./intent-scope-comparison-units.test.mjs. Signed timing:
 // ./intent-scope-comparison-timing.test.mjs. Browser journeys:
@@ -50,7 +49,7 @@ test("count cells read before → after with the difference in parentheses", () 
   );
 });
 
-test("a count difference exists only between totals of one declared unit: different units, legacy results and several units show each endpoint in its units and why there is none", () => {
+test("a count difference exists only between totals of one declared unit: different units and several units show each endpoint in its units and why there is none", () => {
   // Once worded "5 → 1 checks (−4)", subtracting test files from test cases.
   assert.equal(
     countsCellText(
@@ -73,24 +72,13 @@ test("a count difference exists only between totals of one declared unit: differ
     ),
     "6 test cases → 6 test files (different units)",
   );
-  // Equal legacy totals are not compared either.
-  assert.equal(
-    countsCellText(
-      measured(5, "legacy"),
-      measured(5, "legacy"),
-      measured(5, "legacy"),
-      true,
-      true,
-    ),
-    "5 legacy test results → 5 legacy test results (legacy unit unknown)",
-  );
   const several = {
     kind: "units",
     counts: [measured(5, "case"), measured(1, "file")],
   };
   assert.equal(
-    countsCellText(measured(6, "legacy"), several, several, true, true),
-    "6 legacy test results → 5 test cases and 1 test file (legacy unit unknown)",
+    countsCellText(measured(6, "case"), several, several, true, true),
+    "6 test cases → 5 test cases and 1 test file (different units)",
   );
   assert.equal(
     countsCellText(
@@ -105,13 +93,13 @@ test("a count difference exists only between totals of one declared unit: differ
   // One measured end: the gap or "—" already says why.
   assert.equal(
     countsCellText(
-      measured(3, "legacy"),
+      measured(3, "file"),
       { kind: "unreported" },
       { kind: "unreported" },
       true,
       true,
     ),
-    "3 legacy test results → —",
+    "3 test files → —",
   );
 });
 

@@ -41,7 +41,12 @@ export const fragmentTests = (source, attempt, out) =>
     "--out",
     out,
   );
-export const summarizeTests = (fragments, attempt, out, expect = "tests=1") =>
+export const summarizeTests = (
+  fragments,
+  attempt,
+  out,
+  expect = "tests=1:file",
+) =>
   cli(
     "summarize",
     "--fragments",

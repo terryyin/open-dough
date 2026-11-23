@@ -73,8 +73,7 @@ function matchedTotalsOf(
       at: Side,
     ) => {
       for (const [unit, count] of units ?? []) {
-        const compares =
-          unit !== "legacy" && (other === undefined || other.has(unit));
+        const compares = other === undefined || other.has(unit);
         const counted = totals[compares ? "compared" : "apart"][at];
         if (count.total !== undefined)
           counted.set(unit, (counted.get(unit) ?? 0) + count.total);

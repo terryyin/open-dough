@@ -1,15 +1,9 @@
+// Version 1 proof is invalid through both providers.
 import {
   expectCiAnswer,
   judged,
 } from "../../dashboard/test-support/intentCiStatusPage.ts";
-// A version 1 CI proof summary, from before units, read through GitHub's
-// artifact or a ciAdapter, stays readable in Intent as legacy test results,
-// never as test cases or test files (SEED-281 example 38;
-// ../../dashboard/src/ciProofUnits.ts). Reader rules:
-// ../../Distribution/tests/skills/dough-test-optimization/ci-proof-legacy-results.test.mjs,
-// ../../Distribution/tests/support/dashboard-ci-proof-units-read.test.mjs.
-
-import { test } from "../../dashboard/test-support/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   adapterProject,
   openAdapterProof,
@@ -19,7 +13,8 @@ import {
 } from "../../dashboard/test-support/intentCiAdapterProofProject.ts";
 import {
   artifactId,
-  expectProofRows,
+  ciProofReading,
+  expectNoProofRows,
   openFailedRun,
   run,
 } from "../../dashboard/test-support/intentCiProofPage.ts";
@@ -36,37 +31,50 @@ import { summaryTextZipAnswer } from "../../dashboard/test-support/support/ciPro
 const v1Entries =
   '[{"path":"dashboard/tests","unit":"tests","passed":19,"failed":1,"other":0,"durationMs":120000,"parts":[{"part":1,"status":"present","passed":19,"failed":1,"other":0,"durationMs":120000}]},{"path":"tests","unit":"checks","passed":5,"failed":0,"other":0,"parts":[{"part":1,"status":"present","passed":5,"failed":0,"other":0}]}]';
 
-const legacyRows = [
-  ["dashboard/tests", "19 passed and 1 failed legacy test results", "2 min"],
-  ["tests", "5 passed legacy test results", "No timings"],
-] as const;
-
-test("a version 1 summary from a GitHub Actions run stays readable as legacy test results, never as test cases or test files (example 38)", async ({
+test("a version 1 summary from a GitHub Actions run is invalid and shows no results", async ({
   page,
 }) => {
-  const text = `{"schemaVersion":1,"repository":"${run.repository}","runId":${String(run.runId)},"runAttempt":${String(run.attempt)},"revision":"${judged}","entries":${v1Entries}}\n`;
-  const { proof } = await openFailedRun(
-    page,
-    () => runArtifactsAnswer(run, artifactId),
-    () => summaryTextZipAnswer(text),
-  );
-  await expectProofRows(proof, legacyRows);
+  const { proof } =
+    await test.step("When I read a GitHub Actions run that published version 1 proof", () => {
+      const text = `{"schemaVersion":1,"repository":"${run.repository}","runId":${String(run.runId)},"runAttempt":${String(run.attempt)},"revision":"${judged}","entries":${v1Entries}}\n`;
+      return openFailedRun(
+        page,
+        () => runArtifactsAnswer(run, artifactId),
+        () => summaryTextZipAnswer(text),
+      );
+    });
+  await test.step("Then proof shows a version error and no results", async () => {
+    await expect(ciProofReading(proof).unavailable).toContainText(
+      "schemaVersion is not 2",
+    );
+    await expectNoProofRows(proof);
+  });
 });
 
-test("a version 1 summary a ciAdapter answers stays readable as legacy test results (example 38)", async ({
+test("a version 1 summary a ciAdapter answers is invalid and shows no results", async ({
   page,
   dashboard,
 }) => {
-  const adapter = adapterProject(dashboard.home);
-  adapter.answer({
-    discover: { main: [passed(uuid, uuid, login, "main")] },
-    proof: {
-      summary: JSON.parse(
-        `{"schemaVersion":1,"repository":"${repository}","attemptId":"${uuid}","revision":"${login}","entries":${v1Entries}}`,
-      ) as unknown,
-    },
+  await test.step("Given the adapter publishes version 1 proof for a successful attempt", () => {
+    adapterProject(dashboard.home).answer({
+      discover: { main: [passed(uuid, uuid, login, "main")] },
+      proof: {
+        summary: JSON.parse(
+          `{"schemaVersion":1,"repository":"${repository}","attemptId":"${uuid}","revision":"${login}","entries":${v1Entries}}`,
+        ) as unknown,
+      },
+    });
   });
-  const { panel, proof } = await openAdapterProof(page);
-  await expectCiAnswer(panel, verdict);
-  await expectProofRows(proof, legacyRows);
+  const { panel, proof } =
+    await test.step("When I read that adapter attempt", () =>
+      openAdapterProof(page));
+  await test.step("Then proof shows a version error and no results", async () => {
+    await expect(ciProofReading(proof).unavailable).toContainText(
+      "schemaVersion is not 2",
+    );
+    await expectNoProofRows(proof);
+  });
+  await test.step("And the run verdict remains successful", async () => {
+    await expectCiAnswer(panel, verdict);
+  });
 });

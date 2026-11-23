@@ -3,9 +3,8 @@
 // (`../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`):
 // the run's `ci-proof-summary-attempt-<n>` artifact, listed by that name,
 // downloaded as its zip and its one `ci-proof-summary.json` extracted, then
-// validated with the collector's own contract, read in its current version
-// (a version 1 summary's results as legacy evidence) and used only when it
-// names the asked repository, run, attempt and revision (ADR 0008: missing,
+// checked for version 2 and declared units by the shared validator. The proof
+// must name the asked repository, run, attempt and revision (ADR 0008: missing,
 // outdated or conflicting evidence is never a result). Every request goes
 // through the CI evidence requests (`ci-github-actions.mjs`). This module
 // says why a read shows no summary. A summary is immutable per run attempt,

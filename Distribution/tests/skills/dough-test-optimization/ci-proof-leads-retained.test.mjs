@@ -43,7 +43,7 @@ const summaryOf = (run, inRepository = repository) =>
     .withEntries(
       makeMe.aCiProofEntry
         .at("tests")
-        .countingIn("checks")
+        .counting(1, "case")
         .withFile("tests/a.sh", { durationMs: 2500 })
         .please(),
     )

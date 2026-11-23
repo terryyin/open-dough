@@ -43,11 +43,6 @@ test("the table names the attempt, how it relates to the requested revision, the
         .counting(1, "file")
         .withFile("tests/proof.sh", { durationMs: 54_400, untimed: 0 })
         .please(),
-      makeMe.aCiProofEntry
-        .at("e2e")
-        .countingIn("checks")
-        .withFile("e2e/smoke.sh", { durationMs: 2000 })
-        .please(),
     )
     .please();
 
@@ -69,17 +64,6 @@ test("the table names the attempt, how it relates to the requested revision, the
               { unit: "file", parts: "1 of 3 parts present, 2 missing" },
             ],
           },
-          {
-            path: "e2e",
-            declared: "shell *.sh",
-            units: [
-              {
-                unit: "legacy",
-                label: "checks",
-                parts: "1 of 1 parts present",
-              },
-            ],
-          },
         ],
       },
       gaps: ["tests: 1 test file failed in this attempt"],
@@ -96,17 +80,15 @@ Attempt        run 41 attempt 1 (success) at ${revision}
 Compatibility  earlier: the attempt's revision is an ancestor of the requested one, 2 commits before it; 1 in-scope path changed since
   M  tests/proof.sh
 Selection      test-selection command not recorded in the summary; remedy: read it from .github/workflows/ci.yml
-  entry  declared    unit             parts
-  tests  shell *.sh  test cases       2 of 2 parts present
-                     test files       1 of 3 parts present, 2 missing
-  e2e    shell *.sh  legacy (checks)  1 of 1 parts present
+  entry  declared    unit        parts
+  tests  shell *.sh  test cases  2 of 2 parts present
+                     test files  1 of 3 parts present, 2 missing
 Gaps           1
   - tests: 1 test file failed in this attempt
 Scope totals   per unit; results, time, shares and means never cross units
-  unit             entries  paths  results  time s  untimed
-  test cases             1      2       14   174.7        0
-  test files             1      1        1    54.4        0
-  legacy (checks)        1      1        1     2.0        0
+  unit        entries  paths  results  time s  untimed
+  test cases        1      2       14   174.7        0
+  test files        1      1        1    54.4        0
 Leads          test cases: all 2 timed items, ranked by summed CI time
   #  time s  share  cases  mean s  path
   1   115.3  66.0%     10   11.53  dashboard/tests/runtime/watcher.spec.ts
@@ -118,25 +100,31 @@ Leads          test files: all 1 timed items, ranked by summed CI time
   1    54.4  100.0%      1   54.40  tests/proof.sh
 Folders        test files: none beyond the leads
 Tail           test files: none
-Leads          legacy (checks): all 1 timed items, ranked by summed CI time
-  #  time s   share  results  mean s  path
-  1     2.0  100.0%        1    2.00  e2e/smoke.sh
-Folders        legacy (checks): none beyond the leads
-Tail           legacy (checks): none
 `,
   );
+});
+
+test("the table accounts for an untimed unit without ranking its results", () => {
+  const summary = makeMe.aCiProofSummary
+    .withEntries(makeMe.aCiProofEntry.at("tests").counting(2, "file").please())
+    .please();
+
+  const text = leadsTable(reportOf({ ranking: rankingOf(summary) }));
+
+  assert.match(text, /^ {2}test files\s+1\s+0\s+2\s+0\.0\s+2$/m);
+  assert.match(text, /^Unranked\s+1 unit without timed items$/m);
+  assert.match(text, /^Leads\s+none: no in-scope result recorded a duration$/m);
 });
 
 test("whatever a summary holds, the table stays within its byte limit, every list capped", () => {
   const long = (index) =>
     `dashboard/tests/${"deep/".repeat(40)}folder-${index % 300}/spec-${index}.spec.ts`;
   const entries = Array.from({ length: 40 }, (...[, entry]) => {
-    const builder = makeMe.aCiProofEntry
-      .at(`area-${entry}`)
-      .countingIn(`unit-${entry}-${"u".repeat(30)}`);
+    const unit = entry % 2 === 0 ? "case" : "file";
+    const builder = makeMe.aCiProofEntry.at(`area-${entry}`).counting(1, unit);
     for (let file = 0; file < 75; file += 1)
       builder.withFile(`area-${entry}/${long(entry * 75 + file)}`, {
-        passed: 3,
+        passed: unit === "case" ? 3 : 1,
         durationMs: 1000 + file,
       });
     return builder.please();
@@ -157,9 +145,8 @@ test("whatever a summary holds, the table stays within its byte limit, every lis
       entries: entries.map((entry) => ({
         path: entry.path,
         declared: "x".repeat(500),
-        units: entry.evidence.map(({ unit, label }) => ({
+        units: entry.evidence.map(({ unit }) => ({
           unit,
-          label,
           parts: "1 of 1 parts present",
         })),
       })),
@@ -181,7 +168,6 @@ test("whatever a summary holds, the table stays within its byte limit, every lis
     "490 more changed paths",
     "30 more selection rows",
     "188 more gaps",
-    "34 more units",
   ])
     assert.match(text, new RegExp(more));
   assert.equal(
@@ -189,8 +175,8 @@ test("whatever a summary holds, the table stays within its byte limit, every lis
       .split("\n")
       .filter((line) => line.startsWith("  ") && /\.spec\.ts$/.test(line))
       .length,
-    // Changed paths, then 3 ranked units sharing 20 leads: 7 each.
-    10 + 3 * 7,
+    // Changed paths, then 20 leads shared by both units.
+    10 + 20,
   );
 
   const wideText = (index) => `${"試験".repeat(150)} ${index}`;

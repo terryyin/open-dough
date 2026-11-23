@@ -21,7 +21,7 @@ test("the command line breaks fragments down by file with --by-file", (t) => {
   writeFileSync(outcomes, "passed\ttests/a.sh\npassed\ttests/support/b.sh\n");
   writeFileSync(times, "0.5\ttests/a.sh\n");
   const fragment = fragmentTests(
-    ["--outcomes", outcomes, "--times", times, "--by-file"],
+    ["--outcomes", outcomes, "--unit", "file", "--times", times, "--by-file"],
     ["--attempt", "2"],
     fragments,
   );
@@ -60,7 +60,7 @@ test("the command line names a summary too large to read, writing it whole witho
   const fragments = join(directory, "fragments");
   assert.equal(
     fragmentTests(
-      ["--outcomes", many, "--by-file"],
+      ["--outcomes", many, "--unit", "file", "--by-file"],
       ["--attempt", "2"],
       fragments,
     ).status,

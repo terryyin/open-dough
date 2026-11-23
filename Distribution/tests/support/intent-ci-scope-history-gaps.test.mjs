@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { makeMe } from "./makeMe.mjs";
 import { scopeHistoryOf } from "../../../dashboard/server/ciScopeHistory.ts";
 
-test("failed, partial, untimed, missing, invalid and null-unit observations remain distinct nonnumeric gaps", () => {
+test("failed, partial, untimed, missing and invalid observations remain distinct nonnumeric gaps", () => {
   const landing = makeMe.aLaunchLanding
     .comparing({ base: "0".repeat(40), revision: "a".repeat(40) })
     .please();
@@ -28,17 +28,6 @@ test("failed, partial, untimed, missing, invalid and null-unit observations rema
         .please(),
     ])
     .please();
-  const unitless = makeMe.aCiProof
-    .forRun({ revision: landing.revision })
-    .entries([
-      makeMe.aCiProofEntry
-        .at("tests")
-        .holding(
-          makeMe.aCiProofEvidence.legacy(null).counting(2).timed(100).please(),
-        )
-        .please(),
-    ])
-    .please();
   const absent = makeMe.aCiProof
     .forRun({ revision: landing.revision })
     .entries([makeMe.aCiProofEntry.at("other").timed(100).please()])
@@ -47,7 +36,6 @@ test("failed, partial, untimed, missing, invalid and null-unit observations rema
     ["failed", complete, /Failed CI build/],
     ["pass", partial, /part 2 of 2 missing/],
     ["pass", untimed, /1 test case without a duration/],
-    ["pass", unitless, /legacy unit unknown/i],
     ["pass", absent, /No matching scope/],
     [
       "pass",

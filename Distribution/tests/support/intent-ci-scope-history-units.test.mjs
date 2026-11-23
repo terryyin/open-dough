@@ -4,58 +4,27 @@ import { makeMe } from "./makeMe.mjs";
 import { scopeHistoryOf } from "../../../dashboard/server/ciScopeHistory.ts";
 import { ciScopeHistorySchema } from "../../../dashboard/src/ciScopeHistory.ts";
 
-test("each declared unit keeps its own values and segments across partial, untimed and legacy evidence", () => {
-  const evidence = [
-    [
-      makeMe.aCiProofEvidence
-        .legacy("test cases")
-        .counting(9)
-        .timed(9000)
-        .please(),
-      makeMe.aCiProofEvidence.inUnit("file").counting(1).timed(10).please(),
-      makeMe.aCiProofEvidence.inUnit("case").counting(2).timed(100).please(),
-    ],
-    [
-      makeMe.aCiProofEvidence
-        .inUnit("case")
-        .counting(2)
-        .timed(200)
-        .missingPart(2)
-        .please(),
-      makeMe.aCiProofEvidence.inUnit("file").counting(1).timed(20).please(),
-    ],
-    [
-      makeMe.aCiProofEvidence.inUnit("case").counting(2).timed(300).please(),
-      makeMe.aCiProofEvidence
-        .inUnit("file")
-        .counting(2)
-        .timed(30)
-        .withUntimed(1)
-        .please(),
-    ],
-    [
-      makeMe.aCiProofEvidence.inUnit("case").counting(2).timed(400).please(),
-      makeMe.aCiProofEvidence.inUnit("file").counting(2).please(),
-    ],
-    [
-      makeMe.aCiProofEvidence
-        .legacy("test cases")
-        .counting(9)
-        .timed(9000)
-        .please(),
-    ],
-    [
-      makeMe.aCiProofEvidence.inUnit("file").counting(1).timed(50).please(),
-      makeMe.aCiProofEvidence.inUnit("case").counting(2).timed(0).please(),
-    ],
-  ];
+function collectedUnitProof(...evidence) {
+  return ({ revision, runId }) =>
+    makeMe.aCiProof
+      .forRun({ revision, runId })
+      .entries([
+        makeMe.aCiProofEntry
+          .at("tests")
+          .holding(...evidence)
+          .please(),
+      ])
+      .please();
+}
+
+function retainedBuildsWithProof(proofs) {
   const history = makeMe.aLandedCiHistory;
-  const landings = evidence.map((results, index) => {
+  const landings = proofs.map((proofForRun, index) => {
     const runId = index + 1;
     const revision = runId.toString(16).repeat(40);
     const landing = makeMe.aLaunchLanding
       .comparing({ base: index.toString(16).repeat(40), revision })
-      .deliveredAs({ delivery: `units-${runId}`, receipt: `units-${runId}` })
+      .deliveredAs({ delivery: `scope-${runId}`, receipt: `scope-${runId}` })
       .receivedAt(`2026-11-0${runId}T00:00:00Z`)
       .please();
     history.recording(
@@ -67,23 +36,52 @@ test("each declared unit keeps its own values and segments across partial, untim
           state: "pass",
           runId,
           runAttempt: 1,
-          proof: makeMe.aCiProof
-            .forRun({ revision, runId })
-            .entries([
-              makeMe.aCiProofEntry
-                .at("tests")
-                .holding(...results)
-                .please(),
-            ])
-            .please(),
+          proof: proofForRun({ revision, runId }),
         })
         .please(),
     );
     return landing;
   });
+  return { history: history.please(), landings };
+}
+
+test("each declared unit keeps its values and segments across partial, untimed and invalid proof", () => {
+  const { history, landings } = retainedBuildsWithProof([
+    collectedUnitProof(
+      makeMe.aCiProofEvidence.inUnit("file").counting(1).timed(10).please(),
+      makeMe.aCiProofEvidence.inUnit("case").counting(2).timed(100).please(),
+    ),
+    collectedUnitProof(
+      makeMe.aCiProofEvidence
+        .inUnit("case")
+        .counting(2)
+        .timed(200)
+        .missingPart(2)
+        .please(),
+      makeMe.aCiProofEvidence.inUnit("file").counting(1).timed(20).please(),
+    ),
+    collectedUnitProof(
+      makeMe.aCiProofEvidence.inUnit("case").counting(2).timed(300).please(),
+      makeMe.aCiProofEvidence
+        .inUnit("file")
+        .counting(2)
+        .timed(30)
+        .withUntimed(1)
+        .please(),
+    ),
+    collectedUnitProof(
+      makeMe.aCiProofEvidence.inUnit("case").counting(2).timed(400).please(),
+      makeMe.aCiProofEvidence.inUnit("file").counting(2).please(),
+    ),
+    () => makeMe.aCiProof.unavailable("invalid").please(),
+    collectedUnitProof(
+      makeMe.aCiProofEvidence.inUnit("file").counting(1).timed(50).please(),
+      makeMe.aCiProofEvidence.inUnit("case").counting(2).timed(0).please(),
+    ),
+  ]);
   const selected = landings.at(-1);
   const answer = scopeHistoryOf(
-    history.please(),
+    history,
     "tests",
     {
       revision: selected.revision,
@@ -119,12 +117,12 @@ test("each declared unit keeps its own values and segments across partial, untim
   assert.match(cases[1].reason, /part 2 of 2 missing/);
   assert.match(files[2].reason, /1 test file without a duration/);
   assert.match(files[3].reason, /no test execution durations/);
-  assert.match(answer.entries[0].legacyReason, /legacy unit unknown/i);
   assert.equal(answer.entries[4].kind, "gap");
-  assert.match(answer.entries[4].reason, /legacy unit unknown/i);
+  assert.match(answer.entries[4].reason, /Invalid CI proof summary/);
   assert.ok(
-    answer.entries[4].readings.every((reading) =>
-      /legacy unit unknown/i.test(reading.reason),
+    answer.entries[4].readings.every(
+      (reading) =>
+        reading.kind === "gap" && reading.reason === "Invalid CI proof summary",
     ),
   );
   assert.equal(answer.entries[5].selected, true);
@@ -132,8 +130,8 @@ test("each declared unit keeps its own values and segments across partial, untim
 });
 
 test("declared-unit scope absence, missing breakdown and absent unit remain different gaps beside supported scope timing", () => {
-  const results = [
-    [
+  const { history, landings } = retainedBuildsWithProof([
+    collectedUnitProof(
       makeMe.aCiProofEvidence
         .inUnit("case")
         .brokenDown({ path: "tests/sub/a.spec.ts", passed: 2, durationMs: 0 })
@@ -142,8 +140,8 @@ test("declared-unit scope absence, missing breakdown and absent unit remain diff
         .inUnit("file")
         .brokenDown({ path: "tests/sub/a.spec.ts", passed: 1, durationMs: 10 })
         .please(),
-    ],
-    [
+    ),
+    collectedUnitProof(
       makeMe.aCiProofEvidence
         .inUnit("case")
         .brokenDown({ path: "tests/sub/a.spec.ts", passed: 2, durationMs: 20 })
@@ -156,56 +154,24 @@ test("declared-unit scope absence, missing breakdown and absent unit remain diff
           durationMs: 200,
         })
         .please(),
-    ],
-    [
+    ),
+    collectedUnitProof(
       makeMe.aCiProofEvidence
         .inUnit("case")
         .brokenDown({ path: "tests/sub/a.spec.ts", passed: 2, durationMs: 30 })
         .please(),
       makeMe.aCiProofEvidence.inUnit("file").counting(1).timed(300).please(),
-    ],
-    [
+    ),
+    collectedUnitProof(
       makeMe.aCiProofEvidence
         .inUnit("case")
         .brokenDown({ path: "tests/sub/a.spec.ts", passed: 2, durationMs: 40 })
         .please(),
-    ],
-  ];
-  const history = makeMe.aLandedCiHistory;
-  const landings = results.map((evidence, index) => {
-    const runId = index + 1;
-    const revision = runId.toString(16).repeat(40);
-    const landing = makeMe.aLaunchLanding
-      .comparing({ base: index.toString(16).repeat(40), revision })
-      .deliveredAs({ delivery: `scope-${runId}`, receipt: `scope-${runId}` })
-      .receivedAt(`2026-11-0${runId}T00:00:00Z`)
-      .please();
-    history.recording(
-      landing,
-      `run/${runId}/1`,
-      makeMe.aKeptBuild
-        .with({
-          revision,
-          state: "pass",
-          runId,
-          runAttempt: 1,
-          proof: makeMe.aCiProof
-            .forRun({ revision, runId })
-            .entries([
-              makeMe.aCiProofEntry
-                .at("tests")
-                .holding(...evidence)
-                .please(),
-            ])
-            .please(),
-        })
-        .please(),
-    );
-    return landing;
-  });
+    ),
+  ]);
   const selected = landings.at(-1);
   const answer = scopeHistoryOf(
-    history.please(),
+    history,
     "tests/sub",
     {
       revision: selected.revision,

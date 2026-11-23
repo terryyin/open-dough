@@ -68,7 +68,19 @@ test("an adapter's proof answer with totals only states the absent breakdown as 
   const revision = revisions.requested;
   const adapter = adapterAnswering(t, {
     discover: discovered(revision),
-    proof: `{"summary":{"schemaVersion":1,"repository":"terryyin/pygardon","revision":"${revision}","attemptId":"${attemptId}","entries":[{"path":"tests","unit":"tests","passed":6412,"failed":0,"other":0,"durationMs":1830000,"parts":[{"part":1,"status":"present","passed":6412,"failed":0,"other":0,"durationMs":1830000}]}]}}`,
+    proof: JSON.stringify({
+      summary: makeMe.aCiProofSummary
+        .inRepository(repository)
+        .ofAdapterAttempt({ attemptId, revision })
+        .withEntries(
+          makeMe.aCiProofEntry
+            .at("tests")
+            .counting(6412, "case")
+            .timed(1830000)
+            .please(),
+        )
+        .please(),
+    }),
   });
   readThrough(checkout, adapter);
 
@@ -91,14 +103,13 @@ test("an adapter's proof answer with totals only states the absent breakdown as 
     rowsOf(totals.text),
     /\n 1 1,830\.0 100\.0% 6,412 0\.29 tests \(entry total, no file breakdown\)\n/,
   );
-  // A version 1 answer's results are legacy test results, never test cases.
   assert.equal(
     lineOf(totals.text, "Leads"),
-    "Leads          legacy (tests): all 1 timed items, ranked by summed CI time",
+    "Leads          test cases: all 1 timed items, ranked by summed CI time",
   );
   assert.match(
     rowsOf(totals.text),
-    /\n tests python \*\*\/test_\*\.py legacy \(tests\) 1 of 1 parts present\n/,
+    /\n tests python \*\*\/test_\*\.py test cases 1 of 1 parts present\n/,
   );
   assert.deepEqual(
     adapter

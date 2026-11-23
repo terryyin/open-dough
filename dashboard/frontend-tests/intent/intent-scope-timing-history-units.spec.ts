@@ -1,7 +1,5 @@
-// Supplemental receiving/presentation proof of a Done story's scope history
-// by timing unit, including legacy evidence of unknown unit (its
-// normalization is observed at the store boundary). Actual collection and
-// retained unit projection belong to the collector-to-Summary journey.
+// A Done story's scope history charts declared units and explains invalid
+// proof. Collection and retained unit projection are exercised separately.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
@@ -77,7 +75,7 @@ test("one collected attempt charts case and file timing one unit at a time, each
   expect(history.scrollingSideways()).toEqual([]);
 });
 
-test("legacy-only collected evidence states its unknown unit without declaring a case or file history", async () => {
+test("invalid retained proof explains why the scope has no timing", async () => {
   const { summary, history } = await openDoneScopeHistory(
     (path, selectedRevision) =>
       makeMe.aScopeHistoryGlance
@@ -93,14 +91,16 @@ test("legacy-only collected evidence states its unknown unit without declaring a
               selected: true,
               landings: [{ selected: true, provenance: "exact" }],
               readings: [],
-              gap: { status: "unavailable", reason: "legacy unit unknown" },
+              gap: {
+                status: "unavailable",
+                reason: "Invalid CI proof summary",
+              },
             },
           ],
         })
         .please(),
   );
-  // Its unknown unit as the brief status, with no declared unit history.
-  await expect.poll(history.status).toBe("legacy unit unknown");
+  await expect.poll(history.status).toBe("Invalid CI proof summary");
   expect(history.text()).not.toMatch(/test cases|test files/i);
   // No timing either; the joined text runs a unit into the next word.
   expect(history.text()).not.toMatch(/\d+(?:\.\d+)?\s*(?:ms|s)(?![a-z])/);

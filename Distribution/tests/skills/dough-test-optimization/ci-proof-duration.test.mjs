@@ -52,8 +52,8 @@ test("a summary sums present parts' durationMs onto each entry, and a part witho
         .please(),
     ),
     expect: [
-      { entry: "dashboard/tests", parts: 2 },
-      { entry: "tests", parts: 2 },
+      { entry: "dashboard/tests", parts: 2, unit: "case" },
+      { entry: "tests", parts: 2, unit: "case" },
     ],
     run,
   });
@@ -120,7 +120,7 @@ test("durationMs on a fragment, present part or entry must be a non-negative num
         .timed(10)
         .please(),
     ),
-    expect: [{ entry: "tests", parts: 1 }],
+    expect: [{ entry: "tests", parts: 1, unit: "case" }],
     run,
   });
   assert.deepEqual(summaryProblems(summary), []);
@@ -183,6 +183,8 @@ test("the command line writes durationMs from --times with --outcomes, and from 
     "fragment",
     "--outcomes",
     outcomes,
+    "--unit",
+    "file",
     "--times",
     times,
     "--entry",
@@ -191,8 +193,7 @@ test("the command line writes durationMs from --times with --outcomes, and from 
   );
   assert.deepEqual([checks.status, checks.stderr], [0, ""]);
   assert.equal(
-    JSON.parse(readFileSync(join(out, "tests-legacy-1.json"), "utf8"))
-      .durationMs,
+    JSON.parse(readFileSync(join(out, "tests-file-1.json"), "utf8")).durationMs,
     1500,
   );
   const dashboard = cli(

@@ -6,7 +6,7 @@
 // change from Baseline, by that signed change — and a story comparison's
 // Change by kind: added, modified, removed, then renamed. A homepage Proof
 // row with several units (`unitLines`) compares each unit's figures in case,
-// file, then legacy order, using the next unit only to break a tie, and never
+// then file order, using the next unit only to break a tie, and never
 // sums different units into one count, time, or sort key. A row without a
 // value for the sorted column (partial or unavailable timing, no CI result, an
 // endpoint gap, a scope the story leaves unchanged, an entry without a measured
@@ -18,7 +18,7 @@
 // single-figure path below.
 
 import type { TimingCell } from "./ciProofTiming.ts";
-import { listedUnits, type CiProofUnit } from "./ciProofUnits.ts";
+import { declaredUnits, type CiProofUnit } from "./ciProofUnits.ts";
 import type {
   CiProofCells,
   CiProofUnitLine,
@@ -172,7 +172,7 @@ function compareUnitLines(
   column: CiProofColumn,
   direction: SortDirection,
 ): number {
-  for (const unit of listedUnits) {
+  for (const unit of declaredUnits) {
     const order = compareDefined(
       lineValue(unitLine(left, unit), column),
       lineValue(unitLine(right, unit), column),

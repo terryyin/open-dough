@@ -5,20 +5,19 @@
 // (`./ciScopeComparisonUnits.ts`). An entry's results in a declared unit
 // (`./ciProofUnits.ts`) count toward that unit's difference when both builds
 // report the entry in it, or when only one build declares the entry at all
-// (added or removed). Every other result — legacy results, whose unit is not
-// known, and an entry's unit only one build reports — is no zero: those
-// results are totalled apart, each build in its units, with why there is no
-// difference. Timing and selection wording stay in
+// (added or removed). When only one build reports a unit for an entry,
+// show its total separately and explain the missing comparison. Timing and selection wording stay in
 // `./storyCiComparisonWording.ts`.
 
 import {
   countWords,
+  differentUnitsCountSuffix,
   measuredCountsChangeWords,
   countObservationWords,
 } from "./ciScopeComparisonCounts.ts";
 import { overallCountCueOf } from "./ciScopeComparisonAgreedCues.ts";
 import type { CountCue } from "./ciScopeComparisonCues.ts";
-import { declaredUnits, listedUnits, whyNotCompared } from "./ciProofUnits.ts";
+import { declaredUnits } from "./ciProofUnits.ts";
 import type { ComparisonEndpointProof } from "./storyCiComparisonEntries.ts";
 import {
   overallTotalsOf,
@@ -28,9 +27,9 @@ import {
   type Totals,
 } from "./storyCiComparisonCountTotals.ts";
 
-// "1 test file and 6 legacy test results", or "—" without any.
+// The reported totals in display order.
 function totalsWords(totals: Totals): string {
-  const units = listedUnits.filter((unit) => totals.has(unit));
+  const units = declaredUnits.filter((unit) => totals.has(unit));
   if (units.length === 0) return "—";
   return units
     .map((unit) => countWords(totals.get(unit) ?? 0, unit))
@@ -38,13 +37,11 @@ function totalsWords(totals: Totals): string {
 }
 
 // The results that do not compare, each build in its units, with why when
-// both builds have such results (`whyNotCompared`).
+// both builds have such results.
 function apartWords({ before, after }: MatchedTotals["apart"]): string[] {
   if (before.size === 0 && after.size === 0) return [];
   const why =
-    before.size === 0 || after.size === 0
-      ? ""
-      : ` (${whyNotCompared([...before.keys(), ...after.keys()])})`;
+    before.size === 0 || after.size === 0 ? "" : differentUnitsCountSuffix;
   return [`${totalsWords(before)} → ${totalsWords(after)}${why}`];
 }
 
@@ -71,7 +68,7 @@ export function overallCountsWords(
       total === undefined ? "—" : countWords(total, unit);
     return [`${side(from)} → ${side(to)}`];
   });
-  const incomplete = listedUnits.flatMap((unit) => {
+  const incomplete = declaredUnits.flatMap((unit) => {
     if (!unitHasGaps(totals, unit)) return [];
     const side = (at: "before" | "after") =>
       countObservationWords(

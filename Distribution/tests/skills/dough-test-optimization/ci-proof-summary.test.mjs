@@ -56,6 +56,8 @@ test("the command line writes fragments per entry and one summary from them", (t
       "fragment",
       "--outcomes",
       outcomes,
+      "--unit",
+      "file",
       "--entry",
       "tests",
       "--entry",
@@ -76,11 +78,11 @@ test("the command line writes fragments per entry and one summary from them", (t
     "--fragments",
     fragments,
     "--expect",
-    "dashboard/tests=2",
+    "dashboard/tests=2:case",
     "--expect",
-    "tests=1",
+    "tests=1:file",
     "--expect",
-    "src/skills=1",
+    "src/skills=1:file",
     "--repository",
     "owner/repo",
     "--run-id",
@@ -97,8 +99,8 @@ test("the command line writes fragments per entry and one summary from them", (t
     summary.stdout,
     [
       "dashboard/tests: 1 passed, 1 failed, 0 other test cases; part 2 of 2 missing",
-      "tests: 1 passed, 0 failed, 0 other legacy test results (checks)",
-      "src/skills: 1 passed, 0 failed, 0 other legacy test results (checks)",
+      "tests: 1 passed, 0 failed, 0 other test files",
+      "src/skills: 1 passed, 0 failed, 0 other test files",
       "",
     ].join("\n"),
   );
@@ -113,8 +115,8 @@ test("the command line writes fragments per entry and one summary from them", (t
     ]),
     [
       ["dashboard/tests", "case", 1, 1],
-      ["tests", "legacy", 1, 0],
-      ["src/skills", "legacy", 1, 0],
+      ["tests", "file", 1, 0],
+      ["src/skills", "file", 1, 0],
     ],
   );
 });
@@ -130,7 +132,7 @@ test("the command line writes an adapter attempt's fragment and summary, excludi
     [["--attempt", "1"], "github"],
   ]) {
     const result = fragmentTests(
-      ["--outcomes", outcomes],
+      ["--outcomes", outcomes, "--unit", "file"],
       attempt,
       join(fragments, out),
     );
@@ -144,13 +146,13 @@ test("the command line writes an adapter attempt's fragment and summary, excludi
   assert.equal(summary.status, 0);
   assert.equal(
     summary.stdout,
-    "tests: 1 passed, 0 failed, 0 other legacy test results (checks)\n",
+    "tests: 1 passed, 0 failed, 0 other test files\n",
   );
   assert.equal(
     summary.stderr,
     [
-      `excluded ${join(fragments, "another", "tests-legacy-1.json")}: attemptId another, not attemptId ${attemptId}`,
-      `excluded ${join(fragments, "github", "tests-legacy-1.json")}: attempt 1, not attemptId ${attemptId}`,
+      `excluded ${join(fragments, "another", "tests-file-1.json")}: attemptId another, not attemptId ${attemptId}`,
+      `excluded ${join(fragments, "github", "tests-file-1.json")}: attempt 1, not attemptId ${attemptId}`,
       "",
     ].join("\n"),
   );
@@ -162,7 +164,7 @@ test("the command line writes an adapter attempt's fragment and summary, excludi
   );
 });
 
-test("the command line refuses an incomplete record, a malformed declaration, an unknown unit or one a Playwright record already says, or naming both attempt identities or neither, without writing", (t) => {
+test("the command line refuses incomplete records, malformed declarations, a unit on a Playwright record and malformed attempt identities without writing", (t) => {
   const directory = temporary(t);
   const outcomes = join(directory, "outcomes.txt");
   const record = join(directory, "proof.json");
@@ -170,7 +172,7 @@ test("the command line refuses an incomplete record, a malformed declaration, an
   writeFileSync(record, JSON.stringify(playwrightRecord([], "running")));
   const out = join(directory, "out");
   const fragment = (...attempt) =>
-    fragmentTests(["--outcomes", outcomes], attempt, out);
+    fragmentTests(["--outcomes", outcomes, "--unit", "file"], attempt, out);
   const summarize = (...attempt) => summarizeTests(directory, attempt, out);
   for (const [result, message] of [
     [
@@ -184,7 +186,7 @@ test("the command line refuses an incomplete record, a malformed declaration, an
         out,
         "tests",
       ),
-      "--expect tests is not <entry>=<parts>[:<unit>]",
+      "--expect tests is not <entry>=<parts>:<unit>",
     ],
     [
       summarizeTests(
@@ -194,14 +196,6 @@ test("the command line refuses an incomplete record, a malformed declaration, an
         "tests=1:cases",
       ),
       "--expect tests=1:cases names unit cases, not case or file",
-    ],
-    [
-      fragmentTests(
-        ["--outcomes", outcomes, "--unit", "files"],
-        ["--attempt", "1"],
-        out,
-      ),
-      "--unit names unit files, not case or file",
     ],
     [
       fragmentTests(
@@ -229,4 +223,23 @@ test("the command line refuses an incomplete record, a malformed declaration, an
     );
   }
   assert.equal(existsSync(out), false);
+});
+
+test("the command line's usage names the unit of each report and declaration", () => {
+  const result = cli();
+  assert.equal(result.status, 1);
+  assert.match(
+    result.stderr,
+    /^ci-proof-summary: usage: ci-proof-summary\.mjs fragment\n/,
+  );
+  // What the usage names, wherever its lines wrap.
+  const usage = result.stderr.replace(/\s+/g, " ");
+  for (const named of [
+    "--outcomes <report> --unit case|file",
+    "--expect <entry>=<parts>:case|file",
+    "A Playwright record's tests are test cases.",
+    "Outcomes reports require --unit.",
+  ]) {
+    assert.ok(usage.includes(named), named);
+  }
 });

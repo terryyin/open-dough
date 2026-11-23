@@ -70,7 +70,7 @@ for (const [reason, changed] of [
   });
 }
 
-test("a version 1 artifact is converted before its proof is remembered", async () => {
+test("a version 1 artifact is refused and never remembered", async () => {
   // The old collector's literal schema is the input under test.
   const summary = {
     schemaVersion: 1,
@@ -96,31 +96,11 @@ test("a version 1 artifact is converted before its proof is remembered", async (
     },
   });
   const expected = {
-    kind: "summary",
-    summary: {
-      schemaVersion: 2,
-      repository,
-      ...run,
-      entries: [
-        {
-          path: "tests",
-          evidence: [
-            {
-              unit: "legacy",
-              label: "tests",
-              passed: 3,
-              failed: 0,
-              other: 0,
-              parts: [
-                { part: 1, status: "present", passed: 3, failed: 0, other: 0 },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+    kind: "unavailable",
+    reason: "invalid",
+    detail: expect.stringContaining("schemaVersion is not 2"),
   };
-  expect(await reader(repository, run, signal())).toEqual(expected);
-  expect(await reader(repository, run, signal())).toEqual(expected);
-  expect(downloads).toBe(1);
+  expect(await reader(repository, run, signal())).toMatchObject(expected);
+  expect(await reader(repository, run, signal())).toMatchObject(expected);
+  expect(downloads).toBe(2);
 });

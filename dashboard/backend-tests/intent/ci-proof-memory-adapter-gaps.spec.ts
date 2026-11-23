@@ -19,7 +19,7 @@ const attempt = makeMe.aCiAdapterProofAttempt
   .please();
 
 for (const [reason, changed] of [
-  ["invalid", { schemaVersion: 0 }],
+  ["invalid", { schemaVersion: 1 }],
   ["mismatched", { repository: "example/other" }],
   ["mismatched", { attemptId: "retry:1" }],
   ["mismatched", { revision: "b".repeat(40) }],
@@ -44,7 +44,7 @@ for (const [reason, changed] of [
       expect(rejected).toMatchObject({ kind: "unavailable", reason });
       if (reason === "invalid")
         expect(rejected).toMatchObject({
-          detail: "schemaVersion is not 1 or 2",
+          detail: "schemaVersion is not 2",
         });
       expect(
         await reader(repository, project.folder, attempt, signal()),

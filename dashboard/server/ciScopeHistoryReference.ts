@@ -2,12 +2,12 @@
 // alone owns attempt selection, local order, filtering and averaging.
 import { priorBuildReferenceOf } from "../src/ciPriorBuildReference.ts";
 import type { ScopeHistoryEntry } from "../src/ciScopeHistory.ts";
-import type { DeclaredUnit } from "../src/ciProofUnits.ts";
+import type { CiProofUnit } from "../src/ciProofUnits.ts";
 
 export function scopeHistoryReferencesOf(
   entries: readonly ScopeHistoryEntry[],
   endpoint: string,
-  expected: ReadonlyMap<DeclaredUnit, string | undefined>,
+  expected: ReadonlyMap<CiProofUnit, string | undefined>,
   order: readonly string[] | undefined,
 ) {
   const selectedKey = entries.find((entry) => entry.selected)?.key;

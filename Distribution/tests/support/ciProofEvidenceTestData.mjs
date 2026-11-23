@@ -8,7 +8,6 @@ import { figuresOf, summed } from "./ciProofFiguresTestData.mjs";
 /** @typedef {import("../../../dashboard/src/ciProof.ts").CiProofFigures} CiProofFigures */
 /** @typedef {import("../../../dashboard/src/ciProof.ts").CiProofFile} CiProofFile */
 /** @typedef {import("../../../dashboard/src/ciProof.ts").CiProofPart} CiProofPart */
-/** @typedef {{ unit: "case" } | { unit: "file" } | { unit: "legacy", label: string | null }} CiProofUnitFacts */
 /** @typedef {{ passed: number, failed: number, other: number }} Counts */
 
 /** Result counts and optional time; `untimed` defaults by whether duration is set.
@@ -20,8 +19,8 @@ import { figuresOf, summed } from "./ciProofFiguresTestData.mjs";
 
 // One unit's results at an entry.
 export class CiProofEvidenceBuilder {
-  /** @type {CiProofUnitFacts} */
-  #unit = { unit: "case" };
+  /** @type {CiProofEvidence["unit"]} */
+  #unit = "case";
   /** @type {Counts} */
   #counts = { passed: 1, failed: 0, other: 0 };
   /** @type {number | undefined} */
@@ -50,17 +49,7 @@ export class CiProofEvidenceBuilder {
    * @param {"case" | "file"} unit
    */
   inUnit(unit) {
-    this.#unit = { unit };
-    return this;
-  }
-
-  /**
-   * Legacy results, their unit spelled LABEL (null: nothing said), such as
-   * Playwright `tests` or shell `checks`.
-   * @param {string | null} label
-   */
-  legacy(label) {
-    this.#unit = { unit: "legacy", label };
+    this.#unit = unit;
     return this;
   }
 
@@ -225,7 +214,7 @@ export class CiProofEvidenceBuilder {
     const { untimed, ...totals } = summed(present);
     const anyUntimed = present.some((figures) => figures.untimed !== undefined);
     return {
-      ...this.#unit,
+      unit: this.#unit,
       ...totals,
       ...(anyUntimed ? { untimed } : {}),
       parts,

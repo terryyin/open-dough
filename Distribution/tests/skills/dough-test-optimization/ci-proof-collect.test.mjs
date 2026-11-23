@@ -40,8 +40,8 @@ test("two dashboard shards and one tests share total without overwriting or doub
         .please(),
     ),
     expect: [
-      { entry: "dashboard/tests", parts: 2 },
-      { entry: "tests", parts: 1 },
+      { entry: "dashboard/tests", parts: 2, unit: "case" },
+      { entry: "tests", parts: 1, unit: "file" },
     ],
     run,
   });
@@ -118,7 +118,7 @@ test("a missing part is a gap, a duplicated part is ambiguous, and neither is co
         .counting(9, 2, 0)
         .please(),
     ),
-    expect: [{ entry: "dashboard/tests", parts: 12 }],
+    expect: [{ entry: "dashboard/tests", parts: 12, unit: "case" }],
     run,
   });
   const [entry] = summary.entries[0].evidence;
@@ -160,7 +160,7 @@ test("the declaration is the expectation: undeclared, out-of-count and invalid f
       { schemaVersion: 2, entry: "tests" },
       undefined,
     ),
-    expect: [{ entry: "tests", parts: 3 }],
+    expect: [{ entry: "tests", parts: 3, unit: "case" }],
     run,
   });
   assert.deepEqual(
@@ -178,18 +178,17 @@ test("the declaration is the expectation: undeclared, out-of-count and invalid f
   assert.match(notes[3], /fragment is not a JSON object/);
 });
 
-test("an entry declared without a unit and with no present part says no unit, legacy with no label, and counts nothing", () => {
+test("an entry without present parts keeps its declared file unit and counts nothing", () => {
   const { summary } = summarize({
     fragments: [],
-    expect: [{ entry: "src/skills", parts: 3 }],
+    expect: [{ entry: "src/skills", parts: 3, unit: "file" }],
     run,
   });
   assert.deepEqual(summary.entries[0], {
     path: "src/skills",
     evidence: [
       {
-        unit: "legacy",
-        label: null,
+        unit: "file",
         passed: 0,
         failed: 0,
         other: 0,
@@ -225,7 +224,7 @@ test("summary validation names what is wrong", () => {
       ],
     }),
     [
-      "schemaVersion is not 1 or 2",
+      "schemaVersion is not 2",
       "runAttempt is not a positive integer",
       "entries[0].evidence[0].parts[0].status is not present, missing, ambiguous",
     ],

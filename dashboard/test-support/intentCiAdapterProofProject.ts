@@ -186,7 +186,7 @@ export const byFileTestsSummary = (
   ) as readonly unknown[];
   const { summary } = summarize({
     fragments: [{ source: "f.json", value }],
-    expect: [{ entry: "tests", parts: 1 }],
+    expect: [{ entry: "tests", parts: 1, unit: "file" }],
     run: { repository, attemptId, revision },
   }) as { readonly summary: unknown };
   return { summary };

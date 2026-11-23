@@ -161,16 +161,17 @@ test("unmatched measured-zero units name their own endpoint units without compar
   ]);
 });
 
-test("an unmatched row retains every known measured-zero unit rather than only its first group", () => {
+test("both measured-zero units keep their names beside unavailable proof", () => {
   const before = proof(
     makeMe.aCiProofEvidence.inUnit("case").counting(0).please(),
     makeMe.aCiProofEvidence.inUnit("file").counting(0).please(),
   );
-  const after = proof(
-    makeMe.aCiProofEvidence.legacy("tests").counting(0).please(),
-  );
+  const after = makeMe.aComparisonEndpointProof
+    .with({ kind: "unavailable", line: "Invalid proof summary" })
+    .please();
   assert.deepEqual(counts("x", before, after), [
-    "0 test cases and 0 test files → 0 legacy test results (legacy unit unknown)",
+    "0 test cases → Invalid proof summary",
+    "0 test files → Invalid proof summary",
   ]);
 });
 

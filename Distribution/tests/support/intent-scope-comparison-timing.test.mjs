@@ -3,7 +3,7 @@
 // ../../../dashboard/src/ciScopeComparisonTiming.ts): every compared row's and
 // a Summary's outside rows' signed timing, relative only to a positive
 // measured Baseline; a change only between times of one declared unit, never
-// across units or from legacy results, and each unit's own time on its own
+// across units, and each unit's own time on its own
 // row, never added to another's. Count words:
 // ./intent-scope-comparison-wording.test.mjs. Rows per unit:
 // ./intent-scope-comparison-units.test.mjs. Browser journeys:
@@ -78,20 +78,15 @@ const holding = (path, ...evidence) =>
     .please();
 const cases = (ms) => makeMe.aCiProofEvidence.inUnit("case").timed(ms).please();
 const files = (ms) => makeMe.aCiProofEvidence.inUnit("file").timed(ms).please();
-const legacy = (ms) =>
-  makeMe.aCiProofEvidence.legacy("tests").timed(ms).please();
-
-test("a compared row's signed change exists only between one declared unit at both ends: another unit or legacy results keep each endpoint's own time without a change, relative mark or cue, and each unit's time stays on its own row, never added to another's", () => {
+test("a compared row's signed change exists only between one declared unit at both ends: another unit keeps each endpoint's own time without a change, relative mark or cue, and each unit's time stays on its own row, never added to another's", () => {
   const before = summary(
     holding("u/same", cases(20_000)),
     holding("u/across", cases(20_000)),
-    holding("u/legacy", legacy(20_000)),
     holding("u/both", cases(20_000), files(2_000)),
   );
   const after = summary(
     holding("u/same", cases(23_000)),
     holding("u/across", files(23_000)),
-    holding("u/legacy", legacy(23_000)),
     holding("u/both", cases(24_000), files(3_000)),
   );
   const rows = (path) =>
@@ -109,10 +104,6 @@ test("a compared row's signed change exists only between one declared unit at bo
   );
   for (const [path, counts] of [
     ["u/across", "1 test case → 1 test file (different units)"],
-    [
-      "u/legacy",
-      "1 legacy test result → 1 legacy test result (legacy unit unknown)",
-    ],
   ]) {
     const [scope, ...more] = rows(path);
     assert.deepEqual(more, []);

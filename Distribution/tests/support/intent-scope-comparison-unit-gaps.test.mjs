@@ -1,7 +1,7 @@
 // Compared rows per unit in Intent's shared CI comparison
 // (../../../dashboard/src/ciScopeComparison.ts,
 // ../../../dashboard/src/ciScopeComparisonUnits.ts) where units do not match:
-// two legacy builds spelling their unit alike compare nothing, a unit an
+// different declared units keep each endpoint's figures, a unit an
 // endpoint does not report is no zero while a reported zero is a real one, a
 // unit Branch lacks keeps Landed's change, and a Summary's outside figures
 // compare each unit apart with that unit's own Parts (SEED-281 example 38).
@@ -27,8 +27,6 @@ const x = (...evidence) =>
   );
 const timed = (unit, passed, ms) =>
   makeMe.aCiProofEvidence.inUnit(unit).counting(passed).timed(ms).please();
-const legacyTimed = (label, passed, ms) =>
-  makeMe.aCiProofEvidence.legacy(label).counting(passed).timed(ms).please();
 const cellsOf = (before, after, later = after) =>
   scopeComparisonRowsOf("x", before, after, later, "precise").map(
     ({ units, counts, baseline: cell, branch: mid, landed: end }) => [
@@ -40,21 +38,19 @@ const cellsOf = (before, after, later = after) =>
     ],
   );
 
-test("two version 1 summaries spelling their unit tests, or checks, with different totals compare nothing: the same label is no unit match (example 38)", () => {
-  for (const label of ["tests", "checks"]) {
-    assert.deepEqual(
-      cellsOf(x(legacyTimed(label, 5, 2_000)), x(legacyTimed(label, 9, 3_000))),
+test("a scope that switches from files to cases keeps both measured times without a change", () => {
+  assert.deepEqual(
+    cellsOf(x(timed("file", 5, 2_000)), x(timed("case", 9, 3_000))),
+    [
       [
-        [
-          "legacy test results",
-          "5 legacy test results → 9 legacy test results (legacy unit unknown)",
-          { text: "2.0 s", ms: 2_000 },
-          { text: "3.0 s", ms: 3_000 },
-          { text: "3.0 s", ms: 3_000 },
-        ],
+        "test cases and test files",
+        "5 test files → 9 test cases (different units)",
+        { text: "2.0 s", ms: 2_000 },
+        { text: "3.0 s", ms: 3_000 },
+        { text: "3.0 s", ms: 3_000 },
       ],
-    );
-  }
+    ],
+  );
 });
 
 test("a unit an endpoint does not report shows as unreported, never as a measured zero, while a reported zero in that unit is a real zero", () => {

@@ -8,6 +8,12 @@
       "blob": "3b7c479a1a2cdec549b5e9246d68e2d6711aefdf"
     },
     {
+      "fileName": "SEED-423_require-declared-units-in-ci-proof.json",
+      "identity": "SEED-423#require-declared-units-in-ci-proof",
+      "completedAt": "2026-11-23T15:18:25.984Z",
+      "blob": "c8e47c75644d5c69180fa05f7260306c86a97b32"
+    },
+    {
       "fileName": "SEED-423_install-without-the-custom-ci-adapter.json",
       "identity": "SEED-423#install-without-the-custom-ci-adapter",
       "completedAt": "2026-11-23T13:57:41.176Z",
