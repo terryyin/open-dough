@@ -79,6 +79,7 @@ export async function mountIntentCiPage({
   machine = makeMe.aMachineAnswer.please(),
   viewport = { width: 1280, height: 800 },
   initialPerspective = "intent",
+  retryReference = () => undefined,
   reads,
 }: {
   readonly work: PublishedWork;
@@ -87,6 +88,7 @@ export async function mountIntentCiPage({
   readonly machine?: MachineAnswer;
   readonly viewport?: { readonly width: number; readonly height: number };
   readonly initialPerspective?: "development" | "intent";
+  readonly retryReference?: () => void;
   // Review changes' reads default to a machine without a review workspace.
   readonly reads: Pick<PageReads, "intent" | "ci"> & Partial<PageReads>;
 }) {
@@ -143,7 +145,7 @@ export async function mountIntentCiPage({
           reading: false,
           failure: undefined,
           show: () => undefined,
-          retry: () => undefined,
+          retry: retryReference,
           suspended: shown.showsIntent,
           children: body,
         }),

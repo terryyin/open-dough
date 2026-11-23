@@ -5,7 +5,7 @@ import { boardReading, center, pointInBrowser } from "./board-reading-page.ts";
 import { tapWhereShown } from "./board-touch-page.ts";
 import { consumer, farDone } from "./story-reference-done-fixture.ts";
 
-const recent = boardReading.column("Recently done");
+export const recent = boardReading.column("Recently done");
 export const consumerCard = boardReading
   .column("Backlog")
   .getByRole("article", {
@@ -52,10 +52,16 @@ export const reference = (name: string) =>
     })
     .getByRole("link", { name, exact: true });
 
-export async function openDependencies(using: "pointer" | "touch" = "pointer") {
-  const summary = consumerCard.getByText("Dependencies · 4 blocking", {
+export const dependencySummary = (blocking: number) =>
+  consumerCard.getByText(`Dependencies · ${blocking} blocking`, {
     exact: true,
   });
+
+export async function openDependencies(
+  using: "pointer" | "touch" = "pointer",
+  blocking = 4,
+) {
+  const summary = dependencySummary(blocking);
   if (using === "pointer") await summary.click();
   else {
     await expect.element(summary).toBeVisible();

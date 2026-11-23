@@ -36,10 +36,10 @@ outside-locations diff and line-note subject.
 | C16 | Intervening navigation supersedes pending reveal. | slice 4 | observed: story-reference-done-cancellation.spec.ts uses Inspect and then Show latest 10 to supersede two held reveals. It observes the restored ten-entry range and kept focus after the body arrives. |
 | C17 | Intervening pointer input supersedes pending reveal. | slice 4 | observed: story-reference-done-cancellation.spec.ts sends native pointer down before releasing the held body. The far destination never gains focus, and mouse-up still activates Inspect. |
 | C18 | Intervening Tab supersedes pending reveal. | slice 4 | observed: story-reference-done-cancellation.spec.ts presses Tab from Dismiss before the held body arrives. The destination resolves without taking focus from the exact element reached by Tab. |
-| C19 | Expired reference explains expired state. | slice 5 | |
-| C20 | Failed reference explains failed state. | slice 5 | |
-| C21 | Retry can recover. | slice 5 | |
-| C22 | Retry avoids older-story reads. | slice 5 | |
+| C19 | Expired reference explains expired state. | slice 5 | observed: story-reference-done-recovery.spec.ts observes the recorded title of a catalogued expired supplier, the existing exact unavailable notice on follow, and no destination or further body request. The unlisted supplier has only its identity, while loading and failed reads produce separate notices. |
+| C20 | Failed reference explains failed state. | slice 5 | observed: story-reference-done.spec.ts observes an identified failed body in its focused card. story-reference-done-recovery.spec.ts observes the catalog read failure with its exact problem and separate loading state. |
+| C21 | Retry can recover. | slice 5 | observed: story-reference-done.spec.ts activates the real body Retry and sees the read gap replaced. e2e/navigation/story-reference-catalog-retry.spec.ts clicks Retry while the clock is paused and observes a fresh catalog request at the corrected revision and actual destination focus. |
+| C22 | Retry avoids older-story reads. | slice 5 | observed: story-reference-done.spec.ts and story-reference-done-recovery.spec.ts compare exact typed body requests through the destination and named suppliers. e2e/navigation/story-reference-catalog-retry.spec.ts records only the corrected catalog and named recent body after Retry with an expired record present. |
 | C23 | Changed-file line note records Intent view, explicitly including outside-Intent-locations files. | slice 6 | |
 | C24 | Closing Notes restores focus. | slice 6 | |
 | C25 | Closing Notes keeps selected file. | slice 6 | |

@@ -378,7 +378,7 @@ It adds no direct production import. See `slice-4-refactor.md`.
 ### 5. Explain and recover Done references from recorded read states
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move the failed-detail and changed-disclosure cases from
 `navigation/story-reference-done` and the four cases in
@@ -393,6 +393,45 @@ the actual catalog or Done body failure and observe the recovered
 destination with no older body reads. Later inspection supersedes stale
 misses and failures. A replaced disclosure starts closed and reads the
 new supplier only when opened.
+
+**Accepted proof and case disposition.** The final six legacy reference
+cases moved at the same paths and titles. The catalogued expired supplier
+uses its recorded title and the existing unavailable notice when followed.
+An unlisted supplier shows its identity, while loading, catalog failure and
+body failure use their respective messages. Both actual Retry controls
+reach the named destination with the expected request set. Two intervening
+Inspect cases keep focus and the ten-entry range after the catalog heals.
+A replaced disclosure starts closed, and the new supplier's body is asked
+only on open. The mounted catalog receives a newly projected snapshot
+after its real Retry asks the typed collaborator.
+
+The additional built-page
+`e2e/navigation/story-reference-catalog-retry.spec.ts` starts from a
+malformed published catalog blob. Clicking Retry with the page clock
+paused requests the catalog at the corrected revision, reads the only
+named recent body, and focuses its actual card without reading the expired
+body. Count this one extra E2E case in the paired story run. In isolation
+it strictly passed in 90.476 s including harness preparation at the then
+current host load. The two-worker mixed frontend gate passed all 20
+selected cases in 81.179 s, including the six migrations, five reference
+controls, sidebar case and eight retained helper callers. Typecheck passed.
+The scratch run failed all six cases at their expiry, retry, cancellation
+or disclosure-request checks, and the production files were restored.
+
+The spent `frontendDoneReferences.ts` module and unused Done body
+helper operations were removed. The retained body helper still serves
+existing frontend callers. The two migrated specs, the mounted page
+object and new E2E have zero direct production imports. The mounted
+fixture retains one production module and adds the `PublishedWork` type
+beside `WorkEntry`. The Intent mount retains 11 production imports,
+the retained body helper keeps its endpoint import, and the removed
+fixture used the Distribution Done-record naming operation.
+`slice-5-return.md` in the worktree's Git evidence directory holds all
+case dispositions, consumer trace and run records. Source review C19–C22
+names the observing assertions. The independent pass gives the built-page
+journey named Playwright steps. The same selected E2E passed in 14.57 s
+including preparation on that run. Its varying absolute time makes the
+paired story comparison necessary. See `slice-5-refactor.md`.
 
 ### 6. Save notes from Intent and return to the same reading
 

@@ -1,104 +1,68 @@
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { expectEntries } from "../../test-support/recentlyDoneColumn.ts";
-import { storyCard } from "../../test-support/storyCardControls.ts";
+import { expect, test } from "vitest";
 import {
-  dependencyDisclosure,
-  dependencySummary,
-  doneDestination,
-  followReference,
-  openDependencies,
-  referenceNotice,
-  storyReference,
-} from "../../test-support/storyReference.ts";
-import {
-  passTimeUntilChecked,
-  pausePageClock,
-} from "../../test-support/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
-import {
-  donePathsWithSuppliersThrough,
-  doneTitlesThrough,
   farDone,
   laterDone,
-  putFrontendDoneReferences,
-  replacedStoryAAgreements,
-} from "../../test-support/support/frontendDoneReferences.ts";
+  openDoneReferences,
+} from "./story-reference-done-fixture.ts";
 import {
-  eachRecordOnce,
-  failDoneRecordReads,
-  recordDoneRecordsAsked,
-} from "../../test-support/support/frontendDoneBodyReads.ts";
-import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
+  consumerCard,
+  dependencySummary,
+  farDestination,
+  followReference,
+  openDependencies,
+  recent,
+  reference,
+  referenceNotice,
+  showsDoneEntries,
+  showsReached,
+} from "./story-reference-done-page.ts";
 
-test.use({ hasTouch: true });
+test("a failed Done detail reveals its identified gap and the existing Done retry recovers without reading older stories", async () => {
+  const fixture = await openDoneReferences({ failFar: true });
+  await showsDoneEntries(fixture.titlesThrough(10));
+  await openDependencies();
+  await expect.poll(fixture.failed).toBe(1);
+  await followReference(farDone.identity);
+  const bodyGap = farDestination.getByText(
+    "This done story could not be read.",
+    { exact: true },
+  );
+  await expect.element(bodyGap).toBeVisible();
+  await expect.element(farDestination).toHaveAccessibleName(farDone.identity);
+  await showsReached(farDestination);
+  await expect.element(referenceNotice).toBeEmptyDOMElement();
+  expect(fixture.failed()).toBe(2);
 
-test("a failed Done detail reveals its identified gap and the existing Done retry recovers without reading older stories", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendDoneReferences(frontendServices);
-  const unreachable = await failDoneRecordReads(page, farDone.path);
-  const recordsAsked = recordDoneRecordsAsked(page);
-  await page.goto("/");
-  const { backlog, recentlyDone: recent } = parts(page);
-  await expectEntries(recent, doneTitlesThrough(10));
-  const consumer = storyCard(backlog, "Story A");
-  await openDependencies(consumer);
-  // The failed title ask finishes before navigation makes its own ask.
-  await expect.poll(unreachable.failed).toBe(1);
-  await expect(storyReference(consumer, farDone.identity)).toBeVisible();
-  await followReference(consumer, farDone.identity);
-  const destination = doneDestination(recent, farDone.identity);
-  await expect(destination).toContainText("This done story could not be read.");
-  await expect(destination).toHaveAccessibleName(farDone.identity);
-  await expect(destination).toBeFocused();
-  await expect(destination).toBeInViewport({ ratio: 0.5 });
-  await expect(referenceNotice(page)).toBeEmpty();
-  expect(unreachable.failed()).toBe(2);
-  unreachable.restore();
+  fixture.restoreBodies();
   await recent.getByRole("button", { name: "Retry done stories" }).click();
-  await expectEntries(recent, doneTitlesThrough(27));
-  await expect(recent).not.toContainText("could not be read");
-  expect(eachRecordOnce(recordsAsked())).toEqual(
-    donePathsWithSuppliersThrough(27),
-  );
-  expect(recordsAsked().filter((path) => path === farDone.path)).toHaveLength(
-    3,
-  );
-  await followReference(consumer, farDone.identity);
-  await expect(destination).toBeFocused();
+  await showsDoneEntries(fixture.titlesThrough(27));
+  await expect.element(bodyGap).not.toBeInTheDocument();
+  expect(fixture.requestedBodies()).toEqual(fixture.pathsThrough(27, true));
+  expect(fixture.reads(fixture.farPath)).toBe(3);
+  await followReference(farDone.identity);
+  await showsReached(farDestination);
 });
 
-test("a dependency disclosure replaced after unavailable facts waits for opening before reading its new supplier title", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendDoneReferences(frontendServices);
-  const agreements = replacedStoryAAgreements(frontendServices);
-  const recordsAsked = recordDoneRecordsAsked(page);
-  await pausePageClock(page);
-  // With both stream slots held elsewhere, the page checks on its own clock.
-  await preholdRevisionStreamSlots(page);
-  await page.goto("/");
-  const card = storyCard(parts(page).backlog, "Story A");
-  await openDependencies(card);
-  await expect(storyReference(card, farDone.title)).toBeVisible();
-  agreements.publishUnreadable();
-  await passTimeUntilChecked(page);
-  await expect(card).toContainText("Dependency facts unavailable");
-  await expect(dependencyDisclosure(card)).toHaveCount(0);
-  agreements.publishReplaced();
-  await passTimeUntilChecked(page);
-  await expect(dependencySummary(card)).toHaveText("Dependencies · 1 blocking");
-  await expect(dependencyDisclosure(card)).not.toHaveAttribute("open", "");
-  await untilPageRequestsAnswered(page);
-  expect(recordsAsked()).not.toContain(laterDone.path);
-  await openDependencies(card);
-  await expect(storyReference(card, laterDone.title)).toBeVisible();
-  // Asked once by the page; the server sparing a same-revision re-ask is
-  // Backend's (authenticated-read-done-catalog.spec.ts).
-  expect(recordsAsked().filter((path) => path === laterDone.path)).toHaveLength(
-    1,
+test("a dependency disclosure replaced after unavailable facts waits for opening before reading its new supplier title", async () => {
+  const fixture = await openDoneReferences();
+  await showsDoneEntries(fixture.titlesThrough(10));
+  await openDependencies();
+  await expect.element(reference(farDone.title)).toBeVisible();
+
+  await fixture.projectUnavailableDependencies();
+  await expect
+    .element(consumerCard.getByText(/Dependency facts unavailable/))
+    .toBeVisible();
+  await expect.element(dependencySummary(4)).not.toBeInTheDocument();
+
+  await fixture.projectReplacement();
+  await expect.element(dependencySummary(1)).toBeVisible();
+  expect(dependencySummary(1).element().parentElement).not.toHaveAttribute(
+    "open",
   );
+  expect(fixture.reads(fixture.laterPath)).toBe(0);
+
+  await openDependencies("pointer", 1);
+  await expect.element(reference(laterDone.title)).toBeVisible();
+  expect(fixture.reads(fixture.laterPath)).toBe(1);
 });
