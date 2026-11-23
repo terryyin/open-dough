@@ -324,6 +324,11 @@ maps the prior assertions and focused retests in `s5-implementation.md` and
 Independent refactoring shared the browser reveal between movement and
 the established open path. Six focused E2E, three frontend cases and
 Dashboard typecheck passed again. See `s5-refactor.md`.
+Slice 5 published at `7227ee7204f05c8ce3fd88b8e96da2d597e9e553`.
+CI run `45098800346` attempt 1 exposed a signal-registration race in
+native setup. The [diagnosis](diagnosis-native-setup-sigint.md) records the
+deterministic failing launch and the corrected SIGINT/SIGTERM and process
+group termination proof. Slice 6 was paused for the repair.
 
 ### 6. Side panel mechanics are proven with session entries
 
