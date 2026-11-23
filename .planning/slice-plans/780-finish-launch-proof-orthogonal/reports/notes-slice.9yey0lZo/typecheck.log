@@ -1,3 +1,0 @@
-
-> typecheck:dashboard
-> tsc --build dashboard/tsconfig.json
