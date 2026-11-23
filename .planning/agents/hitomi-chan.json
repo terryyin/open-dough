@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Hitomi-chan",
-  "email": "hitomi-chan@example.org",
-  "identity": "SEED-423#install-without-ci-reuse-recipes",
-  "mode": "story-branch",
-  "branch": "claude/install-without-the-ci-reuse-recipes",
-  "host": "claude"
-}
