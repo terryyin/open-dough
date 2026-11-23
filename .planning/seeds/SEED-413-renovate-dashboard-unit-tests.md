@@ -670,7 +670,7 @@ boundary alongside Read Intent, CI, review and side-panel sessions through one r
 
 **Identity:** SEED-413#correct-revision-detour-proof-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/781-correct-revision-detour-proof-residue/PLAN.md","assessment":"not-ready","reasons":["Premise open: a bubbling window keydown listener in intent-home-activation-scope case 2 sees the Intent tab keys defaultPrevented, and not without IntentTabs' preventDefault; unreached scratch Vitest run (scratch runs were refused during planning).","Premise open: the reader cases on one shared revision pass with onTestFinished(forgetAnswers) and fail without it; unreached scratch Vitest run of intent-candidates-reader-reuse."],"basis":{"document":"84545629bd0d3181637b68a60c2e98f684e2c52823f258d7dacb121d23eace61","plan":"5bbcc582e0c7fe526089471642b9fe9f2ec5c90f9c96dc71ae369a2a1144ceab"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/781-correct-revision-detour-proof-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"508ea4e06c8fe345b7afbd12fa32d1c52d73b666ee731851ea228c5081eb40f2","plan":"8dbab5593875b6b9cf48e3ddc15dccfa18741dd6a46a3156de3d17b1cd4a26fe"}}
 ```
 
 Correction from the execution retrospective of
@@ -678,18 +678,20 @@ Get fast proof of Intent revision reading and reading-place detours
 (completed; recoverable at `3619577173:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading`;
 commits `702d1a213..a96f35847`). Its promises stay as written.
 
-**Goal.** Dashboard maintainers get Intent proof that fails when its
-behavior breaks and page objects they change in one place. The Intent mode
-tabs' arrow, Home and End keys are proved not to reach page-wide project
-switching, and no E2E step claims routing it cannot detect.
+**Goal.** Dashboard maintainers can see at one level of abstraction which
+regression each touched Intent test catches, with fast feedback and the
+delivered proof intact.
 
-**Scope.** Replace the E2E arrow-key URL step with a Vitest observation that
-the tabs' keys reach the page already handled. Break-check the E2E Recent
-stories step, then keep it under the risk it detects or remove it with its
-helper. Move the duplicated story-tab, Project Intent and folder-opening
-page-object code to one owner each, and reset the Candidates reader's answer
-memo between its cases. The four retained legacy cases and the page shell
-stay with
+**Scope.** Focus the long CI activation, reading-place and revision
+transition cases. Keep the story branch, focus, reading restoration,
+timed reads and recovery observable. Port pending-revision CI activation
+to plain Vitest. The selected-story read-reuse spec's port is already part
+of [plan 763](../slice-plans/763-speed-story-changes-notes-and-progress-reading/PLAN.md).
+Replace the E2E arrow-key URL step with a Vitest observation that the tabs'
+keys reach the page already handled. Break-check the Recent stories URL
+step, unify duplicated interaction knowledge and isolate the Candidates
+memo per case. Compare equivalent two-worker selections with preparation.
+The remaining observation-driven cases and production shell stay with
 [the observation story](#drive-published-observation-through-page-entry).
 Plan: [781](../slice-plans/781-correct-revision-detour-proof-residue/PLAN.md).
 
