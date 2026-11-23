@@ -191,11 +191,13 @@ and `s2-consumer-trace.md` in Git evidence. The two existing empty-commit
 panel cases continue to run while the receiving Intent observations are open.
 Independent refactoring reused the shared Refresh response reader. The
 older-Git refresh journey passed again in `s2-refactor-e2e-final`.
+Slice 2 published at `c2c1d43934247ef30cb8310dbfc2a71a8f66fc93`.
+The newer push superseded the repair-only CI attempt `45089980862`.
 
 ### 3. Intent explains workspace results while refreshing
 
 Type: Behavior
-Status: planned
+Status: done
 
 A comparison is empty, the committed-only workspace comparison has no
 commits, or more than one worktree holds the local claim. Its Changes view
@@ -211,6 +213,29 @@ Intent opener. Keep the real competing-worktree, committed-only, empty,
 renamed and in-flight responses observable. Move assertions about panel
 details or focus return to the session journeys in slice 6 when they read
 panel behavior.
+
+**Observed in Intent.** All 31 selected E2E cases passed after correcting the
+held-response fixture to preserve the request origin. The real Git Refresh
+journey checks the old file list and diff during the pending snapshot, then
+checks the new rows, baseline and diff after settlement with focus on
+Refresh. Real competing claims name both paths and leave the browser absent
+even when Project Intent has a published tree. The commit and older-Git
+cases verify the settled counts and distinct empty or unreadable reasons.
+Selected mounted/frontend, backend boundary and Dashboard typecheck passed.
+The recorded commands and trace are in Git evidence under `s3-e2e-final`,
+`s3-frontend`, `s3-backend`, `s3-typecheck` and `s3-consumer-trace.md`.
+
+The retained 63-file panel journey passed at the default timeout after
+competing local workloads drained. The one-shot choices journey still
+timed out at Close before checking focus return on a controlled run at the
+default. Its three native launches and full browser assertions passed with
+the 60-second allowance scoped to that individual test. The capacity evidence,
+commands, and retained traces are in `s3-implementation.md`.
+
+Independent refactoring made Refresh and Retry use the same comparison
+scope key as the selected result. The 11 mounted cases, selected frontend
+gap journey, five real-Git journeys and Dashboard typecheck passed again.
+See `s3-refactor.md` and its command records in Git evidence.
 
 ### 4. Landed and completed story journeys exercise Intent
 
@@ -359,12 +384,12 @@ card opening and arrival reach every story review journey.
 ### G1. Refresh announces the settled range and workspace results
 Reported: slice 2 — "Commit refresh still needs the settled counts 1, 2, 1 and 4, 4 with a separate pending diff cue where held. Older Git refresh still needs the count 2 against the retained baseline."
 Story clause: "Refresh"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: story-review-commit-refresh.spec.ts verifies counts 1, 2, 1 and 4, 4 with a separate pending file cue in both held cases. story-review-trunk-own-older-git.spec.ts verifies the count 2 and retained baseline message.
 
 ### G2. Empty comparisons and unreadable selected ranges name their cause
 Reported: slice 2 — "The empty workspace after all commits reach trunk needs the retained baseline reason. The clean merge and plain empty commit still prove their empty reason through the panel. The older Git unreadable range must keep the selected range identifiable alongside its diagnostic."
 Story clause: "An empty or unavailable comparison shows its explanation"
-Disposition: receiving slice 3
+Disposition: proved by slice 3: story-review-commits.spec.ts and story-review-commit-trunk.spec.ts verify the empty explanations. story-review-commit-ranges.spec.ts checks the named selected range and unreadable explanation. story-review-trunk-own-older-git.spec.ts names the matching retained baseline after publication.
 
 ### G3. Flagged file rows retain counts and a visible comparison qualifier
 Reported: slice 2 — "The flagged Git cases prove accessible row names and the selected Purpose heading. The former row also displayed its qualifier and counts (+1 −1 and +2 −2)."
@@ -380,3 +405,18 @@ Disposition: receiving slice 6
 Reported: slice 2 — "The Intent story review page object currently selects the card, enters Intent by the banner, then opens Changes."
 Story clause: "**Review changes** on an eligible Backlog, Taken, or Done Story card opens"
 Disposition: interim until slices 3, 4, 5, 6, 7
+
+### G6. Committed-only file rows keep their line totals and description
+Reported: slice 3 — "The Intent comparison proves exact committed and uncommitted diff lines. The former row showed +2 −0 and +1 −0 and described '1 line added, 0 lines removed'."
+Story clause: "File and line actions on a diff keep their comparison context."
+Disposition: receiving slice 5
+
+### G7. Session review retains its persistent panel status and keyboard return
+Reported: slice 3 — "The legacy workspace journeys observed the read-only description, toolbar position, keyboard return and a status area fixed between context and body during browser scroll. These are Side panel observations."
+Story clause: "still opens the Side panel review."
+Disposition: receiving slice 6
+
+### G8. Historical review explains missing captured landing information
+Reported: slice 3 — "Two missing-captured-landing journeys in story-review-nothing.spec.ts still open the story through the legacy review. Carry the available and unavailable comparisons to their historical readers."
+Story clause: "landed runs, published completion"
+Disposition: receiving slice 4

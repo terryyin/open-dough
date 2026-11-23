@@ -18,6 +18,7 @@ import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
 import { shownChoice } from "./StoryReviewComparison.tsx";
 import { unreadRange, type UnreadComparison } from "./StoryReviewFeedback.tsx";
+import { useStateKeyedBy } from "./stateKeyedBy.ts";
 
 // The comparison such a view reads of a workspace: all changes, with its
 // uncommitted changes included as Review changes includes them at every
@@ -31,17 +32,11 @@ export function useStoryComparison({
   source,
   identity,
   completed,
-  round,
-  onRefresh,
   enabled,
 }: {
   readonly source: string;
   readonly identity: string;
   readonly completed: boolean;
-  // How many times the reader asked for a new read.
-  readonly round: number;
-  // Reads the worktree again, keeping the choice.
-  readonly onRefresh: () => void;
   // A disabled comparison reads nothing and shows none.
   readonly enabled: boolean;
 }): {
@@ -57,10 +52,18 @@ export function useStoryComparison({
   readonly compare: StoryCompare | undefined;
   // Why the chosen comparison cannot be read, once settled.
   readonly unreadable?: UnreadComparison | undefined;
+  readonly refreshed: boolean;
+  // Reads the worktree again, keeping the choice.
+  readonly onRefresh: () => void;
 } {
   const subject: ReviewedStorySubject = { source, identity };
-  // The choice is the story's, and a story becoming Done opens on its result.
-  const keyedBy = `${identity}${completed ? " done" : ""}`;
+  // The choice and its refreshes belong to the story in its project. A story
+  // becoming Done opens on its result.
+  const keyedBy = JSON.stringify([source, identity, completed]);
+  const { value: round, set: setRound } = useStateKeyedBy(0, keyedBy);
+  const onRefresh = () => {
+    setRound(round + 1);
+  };
   // The last comparison this story showed, kept while a newer read is in flight.
   const shownMemory = useRef<
     | {
@@ -121,6 +124,8 @@ export function useStoryComparison({
       problem: undefined,
       shown: undefined,
       compare: undefined,
+      refreshed: false,
+      onRefresh,
     };
   const storyShown = storyComparisonShown({
     subject,
@@ -165,35 +170,33 @@ export function useStoryComparison({
     problem,
     unreadable,
     shown: shownKept,
-    compare:
-      !carry ||
-      ((snapshot === undefined || review?.kind !== "snapshot") &&
-        published === undefined &&
-        runs.length === 0)
-        ? undefined
-        : {
-            shown: shownChoice(shown, review, selectedRun),
-            isDefault:
-              review === defaultReview &&
-              chosen === defaultStoryComparison.chosen &&
-              includeUncommitted === defaultStoryComparison.includeUncommitted,
-            workspace: snapshot !== undefined,
-            published: published !== undefined,
-            runs,
-            selectedRun,
-            onRun,
-            items,
-            selectedItems,
-            trunkIntegrated,
-            onChoose,
-            onSelect,
-            includeUncommitted:
-              committed === undefined || review?.kind !== "snapshot"
-                ? undefined
-                : includeUncommitted,
-            onIncludeUncommitted: setIncludeUncommitted,
-            onRefresh,
-            reading: readingNow,
-          },
+    refreshed: round > 0,
+    onRefresh,
+    compare: !carry
+      ? undefined
+      : {
+          shown: shownChoice(shown, review, selectedRun),
+          isDefault:
+            review === defaultReview &&
+            chosen === defaultStoryComparison.chosen &&
+            includeUncommitted === defaultStoryComparison.includeUncommitted,
+          workspace: snapshot !== undefined,
+          published: published !== undefined,
+          runs,
+          selectedRun,
+          onRun,
+          items,
+          selectedItems,
+          trunkIntegrated,
+          onChoose,
+          onSelect,
+          includeUncommitted:
+            committed === undefined || review?.kind !== "snapshot"
+              ? undefined
+              : includeUncommitted,
+          onIncludeUncommitted: setIncludeUncommitted,
+          onRefresh,
+          reading: readingNow,
+        },
   };
 }

@@ -66,6 +66,7 @@ test.describe("ordinary trunk", () => {
     expect(active.status()).toBe(200);
     const ambiguity = {
       kind: "unavailable",
+      ambiguousWorktrees: true,
       explanation: `Several worktrees on this machine hold this story's claim for ${agent}: ~/git/open-dough/.worktrees/ambiguous-a, ~/git/open-dough/.worktrees/ambiguous-b. The review cannot choose one.`,
     };
     expect(await active.json()).toEqual(ambiguity);

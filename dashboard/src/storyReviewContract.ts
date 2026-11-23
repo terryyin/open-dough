@@ -206,8 +206,8 @@ export const storyReviewSchema = z
     }),
     z.object({
       kind: z.literal("unavailable"),
-      // The one workspace that could not be read; absent when the review
-      // could not choose a workspace at all.
+      ambiguousWorktrees: z.literal(true).optional(),
+      // The one workspace that could not be read, when selected.
       workspace: z.string().min(1).optional(),
       explanation: z.string().min(1),
     }),

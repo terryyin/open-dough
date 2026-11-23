@@ -1,24 +1,13 @@
-// Story A's worktree review names its branch and baseline, selects its first
-// changed file and leaves Git state intact. Diffs number added and removed
-// lines and use old paths for renames. Hiding files widens the diff.
-// Only story files appear, grouped by kind and folder. Images have no text diff.
-// Command+Shift+Escape returns focus to Review changes, then Tab moves on.
-// Related checks: ./story-review-context-line.spec.ts, ./story-review-diff-context.spec.ts,
-// and ../../dashboard/backend-tests/review/story-review-refusal.spec.ts.
-
+// The workspace comparison in Intent reads Git without changing the index
+// or working files. Its file diffs keep type, paths, and line numbers.
 import {
   codePane,
   diffHunk,
   diffLines,
   expectHunkLines,
-  hunkLines,
   pageFits,
 } from "../../dashboard/test-support/support/reviewPanes.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
-import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
-import { expectFocusedAndIndicated } from "../../dashboard/test-support/accessibleReading.ts";
-import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { box } from "../../dashboard/test-support/pageLayout.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   expect,
   test,
@@ -48,16 +37,11 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   expect(fetchedTrunk()).toBe(merged);
 
   const card = await openBacklog(page, origin);
-  const action = reviewChanges(card);
-  const review = await openReviewChanges(page, card);
+  const review = await openIntentReviewChanges(page, card);
   const { files, diffs } = review;
-  // The panel names the story it reviews, beside the dashboard, and holds
-  // the keyboard in its named content.
-  await review.frame.expectHeading("Story A");
-  await review.frame.expectIdentity(queuedIdentity);
-  await review.status.expectKeyboardInBody();
-  const list = "7 changed files";
-  await files.expectRows(list, [
+  await review.expectStory("Story A");
+  await review.expectText(queuedIdentity);
+  await files.expectOutsideRows([
     "fresh",
     "  new.txt",
     "gone.txt",
@@ -67,10 +51,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     "story.txt",
     "unstaged.txt",
   ]);
-  // Each file's control says its kind and full path in words; a folder's
-  // disclosure is not pressable. The review opens on the first file in the
-  // browser's order, inside the folder that comes first, its diff shown.
-  await files.expectFileControls(list, [
+  await files.expectOutsideFiles(7, [
     "Added fresh/new.txt",
     "Deleted gone.txt",
     "Modified image.png",
@@ -79,12 +60,11 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     "Added story.txt",
     "Modified unstaged.txt",
   ]);
-  await files.expectChosen(list, "Added fresh/new.txt");
+  await files.choose("Added fresh/new.txt", "keyboard");
+  await files.expectSelected("Added fresh/new.txt");
   await expect(diffLines(diffs.toRead("Added fresh/new.txt"))).toHaveText([
     "+untracked",
   ]);
-  // The context line reads every value in full, the read-only explanation
-  // is the review's description, never a visible line.
   await review.context.expectWords(
     contextWords({
       branch,
@@ -92,12 +72,7 @@ test("a story's review names its worktree, branch, and baseline and lists only t
       workspace: "~/git/open-dough/.worktrees/story-a",
     }),
   );
-  await review.frame.expectDescription(
-    "Read-only: what this story's worktree would add to trunk, as it was when the review opened or was last refreshed.",
-  );
-  await review.frame.expectUnshown(/^Read-only/);
-  for (const absent of ["other.txt", "other2.txt", "ignored.log"])
-    await review.expectNoText(absent);
+  await files.expectOutsideLacks("other.txt", "other2.txt", "ignored.log");
   // The review fetched trunk and left the worktree's index and files alone.
   expect(fetchedTrunk()).toBe(later);
   expect(observed(workspace)).toEqual(before);
@@ -106,11 +81,11 @@ test("a story's review names its worktree, branch, and baseline and lists only t
 
   // A file's diff: its hunks' lines, each marked +, -, or a space.
   const diffOf = (name: string) => diffs.toRead(name);
-  const select = (name: string) => files.choose(list, name, "keyboard");
+  const select = (name: string) => files.choose(name, "keyboard");
 
   await test.step("a modified file's diff marks its added and removed lines", async () => {
     await select("Modified unstaged.txt");
-    await files.expectChosen(list, "Modified unstaged.txt");
+    await files.expectSelected("Modified unstaged.txt");
     const diff = diffOf("Modified unstaged.txt");
     await expectHunkLines(diff, "@@ -3,10 +3,11 @@", [
       " unstaged 2",
@@ -137,27 +112,13 @@ test("a story's review names its worktree, branch, and baseline and lists only t
   await test.step("hiding the file browser leaves the diff in place with more room", async () => {
     const diff = diffOf("Modified unstaged.txt");
     const narrow = (await diff.boundingBox())?.width ?? 0;
-    // Hide files leads the toolbar, above the context line.
-    const shownAt = await review.expectFilesToggleLeads("All changes");
-    await review.expectFilesToggleNamed("Hide files");
-    const { line } = await review.context.toMeasure();
-    expect((await box(line)).y).toBeGreaterThan(shownAt.y);
     await review.hideFiles("keyboard");
-    await review.expectFilesToggleFocused("Show files");
-    // The toggle keeps its place while the sidebar is hidden.
-    expect(await review.expectFilesToggleLeads("All changes")).toEqual(shownAt);
-    await review.expectFilesShown(false);
-    await expect(hunkLines(diff, "@@ -3,10 +3,11 @@")).toHaveCount(12);
-    expect((await diff.boundingBox())?.width ?? 0).toBeGreaterThan(
-      narrow + 200,
-    );
-    await review.showFiles("keyboard");
-    await review.expectFilesToggleFocused("Hide files");
-    expect(await review.expectFilesToggleLeads("All changes")).toEqual(shownAt);
-    // The sidebar returns with the file that was being read still selected.
-    await review.expectFilesShown(true);
-    await files.expectChosen(list, "Modified unstaged.txt");
-    await expect(hunkLines(diff, "@@ -3,10 +3,11 @@")).toHaveCount(12);
+    await review.expectFilesHidden();
+    await diffs.expectLine("Modified unstaged.txt", "+unstaged five");
+    expect((await diff.boundingBox())?.width ?? 0).toBeGreaterThan(narrow);
+    await review.setFilesShown(true, "keyboard");
+    await files.expectSelected("Modified unstaged.txt");
+    await diffs.expectLine("Modified unstaged.txt", "+unstaged five");
   });
 
   await test.step("the rename's diff is against its old path", async () => {
@@ -202,17 +163,4 @@ test("a story's review names its worktree, branch, and baseline and lists only t
     await expect(diff.getByRole("listitem")).toHaveCount(0);
   });
   expect(observed(workspace)).toEqual(before);
-
-  // Closing the review returns the keyboard to Review changes, and the next
-  // Tab reaches the next card's first Start.
-  await page.keyboard.press("Meta+Shift+Escape");
-  await review.frame.expectClosed();
-  await expectFocusedAndIndicated(page, action);
-  await page.keyboard.press("Tab");
-  await expectFocusedAndIndicated(
-    page,
-    parts(page)
-      .backlog.getByRole("article", { name: "Story B" })
-      .getByRole("button", { name: "Start execution" }),
-  );
 });

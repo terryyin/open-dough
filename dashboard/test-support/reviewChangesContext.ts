@@ -74,6 +74,11 @@ export class ReviewContext {
     return this;
   }
 
+  async expectAbsent() {
+    await expect(contextLine(this.#review)).toHaveCount(0);
+    return this;
+  }
+
   // The line and its values as shown now, for a scenario that measures them.
   async toMeasure() {
     await this.#reveal();

@@ -17,6 +17,8 @@ test("keyboard choices show each retained captured or legacy run beside the live
   origin,
   codexProtocol,
 }) => {
+  // Three real launches must settle in order before the browser opens review.
+  test.setTimeout(60_000);
   if (codexProtocol === undefined) throw new Error("No native fixture");
   const choices = await reviewChoices(dashboard, origin, codexProtocol);
   const { card, review } = await openCapturedReview(page, origin);

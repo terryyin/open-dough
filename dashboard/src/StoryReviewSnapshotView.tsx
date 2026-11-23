@@ -12,10 +12,9 @@
 // snapshot or a comparison switch keeps the collapsed folders and selected
 // file while the file is still listed; otherwise the first file is selected.
 import { useLayoutEffect, useRef, useState } from "react";
-import { shortRevision } from "./publishedWork.ts";
+import { EmptyWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
 import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 import {
-  baselineRevision,
   type ReviewComparison,
   type ReviewedFile,
   type TakenStoryReview,
@@ -71,18 +70,12 @@ function NoChanges({
         : "No changes: this session's delivered comparison is empty.";
     return <p>{words}</p>;
   }
-  if (commitsReview) return <p>The chosen commits changed nothing.</p>;
-  if (committedOnly)
-    return (
-      <p>
-        Nothing is committed yet: every change in this worktree is uncommitted.
-      </p>
-    );
   return (
-    <p>
-      No changes: the worktree matches baseline{" "}
-      <code>{shortRevision(baselineRevision(snapshot))}</code>.
-    </p>
+    <EmptyWorkspaceComparison
+      snapshot={snapshot}
+      commitsReview={commitsReview}
+      committedOnly={committedOnly}
+    />
   );
 }
 

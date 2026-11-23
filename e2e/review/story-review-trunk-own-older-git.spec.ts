@@ -88,6 +88,9 @@ olderGit(
       const refreshed = (await review.refreshAndAnswer()).snapshot;
       expect(refreshed.published?.kept).toBe("not-restated");
       await review.files.expectOutsideCount(2);
+      await review.expectFeedback(
+        `Review refreshed: 2 changed files against baseline ${trunk.slice(0, 7)}.`,
+      );
       await review.expectText(keptIn("2 published commits"));
       await expectPlainContextLine(review, trunk);
     });
@@ -100,6 +103,10 @@ olderGit(
         const none = (await review.refreshAndAnswer()).snapshot;
         expect(none.files).toEqual([]);
         await review.files.expectNone();
+        await review.diffs.expectAbsent();
+        await review.expectText(
+          `No changes: the worktree matches baseline ${trunk.slice(0, 7)}.`,
+        );
         await review.expectText(keptIn("2 published commits"));
       },
     );

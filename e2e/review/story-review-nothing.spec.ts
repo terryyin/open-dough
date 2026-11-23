@@ -12,6 +12,7 @@ import { rmSync } from "node:fs";
 import { storyReviewEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 import { storyCardSessions } from "../../dashboard/test-support/dashboardPage.ts";
 import {
+  openIntentReviewChanges,
   openReviewChanges,
   reviewChangesAfter,
 } from "../../dashboard/test-support/reviewChangesPage.ts";
@@ -48,15 +49,15 @@ test("a worktree straight off trunk has no changes against the named baseline", 
   const { workspace, base: trunk } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const review = await openReviewChanges(page, card);
+  const review = await openIntentReviewChanges(page, card);
   await review.expectRead();
   await review.context.expectWords(
     contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
   );
-  await review.files.expectNothingShown();
-  await review.expectComparisonNamed("All changes");
-  await review.expectNoFilesToggle();
-  await review.status.expectBodyFixedContext(
+  await review.files.expectNone();
+  await review.diffs.expectAbsent();
+  await review.comparison.expectChosen("All changes");
+  await review.expectText(
     `No changes: the worktree matches baseline ${trunk.slice(0, 7)}.`,
   );
 });
@@ -160,28 +161,29 @@ test.describe("from Story A's declared history", () => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     await review.expectRead();
-    await review.files.expectListed("7 changed files");
+    await review.files.expectOutsideCount(7);
 
     // The story's remote points at nothing reachable.
     const reachable = git(workspace, "config", "--get", "remote.origin.url");
     const unreachable = `${origin.machine}/unreachable.git`;
     git(workspace, "config", "remote.origin.url", unreachable);
-    await review.status.refreshByKeyboard();
-    await review.status.expectFeedbackSays(
+    await review.refresh("keyboard");
+    await review.expectText(
       "Trunk could not be fetched (target main from remote origin), so there is no baseline to compare with:",
     );
-    await review.status.expectFeedbackSays(`Worktree ${shownWorkspace}.`);
-    await review.files.expectNoLists();
-    await review.status.expectNoContextLine();
-    await review.status.expectRefreshFocused();
+    await review.expectText(`Worktree ${shownWorkspace}.`);
+    await review.files.expectNone();
+    await review.diffs.expectAbsent();
+    await review.context.expectAbsent();
+    await review.expectRefreshFocused();
 
     git(workspace, "config", "remote.origin.url", reachable);
-    await review.status.refreshByKeyboard();
+    await review.refresh("keyboard");
     // The list, named by its seven files, is back.
-    await review.files.expectListed("7 changed files");
-    await review.status.expectFeedbackSays("could not be fetched", false);
+    await review.files.expectOutsideCount(7);
+    await review.expectNoText("could not be fetched");
   });
 });
 

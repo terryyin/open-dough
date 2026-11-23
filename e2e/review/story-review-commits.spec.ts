@@ -4,10 +4,7 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  openIntentReviewChanges,
-  openReviewChanges,
-} from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import {
@@ -109,7 +106,7 @@ test.describe("from Story A's declared history", () => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     await review.comparison.choose("Commits");
     const { commits, files } = review;
     await commits.chooseAlone(1);
@@ -117,9 +114,9 @@ test.describe("from Story A's declared history", () => {
     await commits.expectEnabled(0);
     await review.expectText("The chosen commits changed nothing.");
     await files.expectNone();
-    await review.expectNoFilesToggle();
+    await review.diffs.expectAbsent();
     await commits.chooseAlone(3);
-    await files.expectListed("1 changed file", ["Added story.txt"]);
+    await files.expectOutsideFiles(1, ["Added story.txt"]);
   });
 });
 
@@ -134,6 +131,8 @@ test("no commits and no uncommitted changes offers no Commits", async ({
   const review = await openIntentReviewChanges(page, card);
   expect(review.snapshot.commits).toEqual([]);
   await review.files.expectNone();
+  await review.expectText("No changes: the worktree matches baseline");
+  await review.diffs.expectAbsent();
   await review.comparison.expectOffered("Commits", false);
 });
 
@@ -151,12 +150,12 @@ test.describe("with one empty story commit", () => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
     const card = await openBacklog(page, origin);
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     await review.comparison.choose("Commits");
     await review.expectRead();
     await review.commits.expectRange("Changes in 1 commit");
     await review.expectText("The chosen commits changed nothing.");
     await review.files.expectNone();
-    await review.expectNoFilesToggle();
+    await review.diffs.expectAbsent();
   });
 });

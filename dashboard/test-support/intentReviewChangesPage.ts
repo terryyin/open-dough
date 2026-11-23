@@ -9,6 +9,7 @@ import { parts } from "./dashboardPage.ts";
 import {
   chooseStoryTab,
   expectFilesShown,
+  filesColumn,
   filesToggle,
   storySummary,
 } from "./intentModePage.ts";
@@ -20,6 +21,7 @@ import { emptyArea } from "./storyCardSelection.ts";
 import {
   intentDiffReading,
   intentFile,
+  storyTitle,
   intentStory,
   outsideGroup,
 } from "./support/intentStoryPage.ts";
@@ -69,6 +71,24 @@ class IntentReviewFiles {
     for (const text of texts) {
       await expect(this.#outsideList).not.toContainText(text);
     }
+    return this;
+  }
+
+  async expectSelected(file: string) {
+    await expect(intentFile(this.#intent, file)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    return this;
+  }
+
+  async expectNotShown(file: string) {
+    await expect(intentFile(this.#intent, file)).toHaveCount(0);
+    return this;
+  }
+
+  async expectNoBrowser() {
+    await expect(filesColumn(this.#intent)).toHaveCount(0);
     return this;
   }
 
@@ -132,9 +152,41 @@ class IntentReviewChanges {
     return this;
   }
 
-  async hideFiles() {
-    await filesToggle(this.#intent).click();
+  async expectStory(title: string) {
+    await expect(storyTitle(this.#intent)).toHaveText(title);
     return this;
+  }
+
+  async expectFeedback(message: string | RegExp) {
+    await expect(this.#header.getByRole("status")).toContainText(message);
+    return this;
+  }
+
+  async refresh(using: "mouse" | "keyboard" = "mouse") {
+    await (using === "keyboard"
+      ? this.#refresh.press("Enter")
+      : this.#refresh.click());
+    return this;
+  }
+
+  async expectRefreshFocused() {
+    await expect(this.#refresh).toBeFocused();
+    return this;
+  }
+
+  async hideFiles(using: "mouse" | "keyboard" = "mouse") {
+    return this.setFilesShown(false, using);
+  }
+
+  async setFilesShown(shown: boolean, using: "mouse" | "keyboard" = "mouse") {
+    const toggle = filesToggle(this.#intent);
+    await (using === "keyboard" ? toggle.press("Enter") : toggle.click());
+    await expectFilesShown(this.#intent, shown);
+    return this;
+  }
+
+  filesToMeasure() {
+    return filesColumn(this.#intent);
   }
 
   async expectFilesHidden() {

@@ -78,6 +78,7 @@ olderGit(
       "This machine's Git cannot leave out trunk's changes integrated within the chosen commits, so this range cannot be compared across them.",
     );
     await files.expectNone();
+    await commits.expectRange("Changes in 4 commits");
     await commits.choose("last");
     await commits.choose(2);
     await commits.expectRange("Changes in 3 commits");

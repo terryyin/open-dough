@@ -62,6 +62,10 @@ test("the first Commits default uses the current snapshot, then new commits and 
     await commits.expectChosen(0, false);
     await commits.expectChosen(1);
     await files.expectOutsideFiles(1, ["Added second.txt"]);
+    await review.expectFeedback(
+      "Review refreshed: 1 changed file in the chosen range.",
+    );
+    await diffs.expectReading("Reading the file's diff…");
   } finally {
     held.release();
     await held.delivery;
@@ -72,6 +76,9 @@ test("the first Commits default uses the current snapshot, then new commits and 
   commitAll(workspace, "fourth story commit");
   await review.refreshAndAnswer();
   await files.expectOutsideFiles(2, ["Added first.txt", "Added second.txt"]);
+  await review.expectFeedback(
+    "Review refreshed: 2 changed files in the chosen range.",
+  );
   await commits.expectChosen(2);
   await commits.expectChosen("last");
   await review.comparison.choose("All changes");
@@ -90,6 +97,9 @@ test("the first Commits default uses the current snapshot, then new commits and 
   await commits.expectChosen("last", false);
   await commits.expectRangeSays("fourth story commit to");
   await files.expectOutsideFiles(1, ["Added fourth.txt"]);
+  await review.expectFeedback(
+    "Review refreshed: 1 changed file in the chosen range.",
+  );
 });
 
 test.describe("from Story A's declared history", () => {
@@ -130,6 +140,9 @@ test.describe("from Story A's declared history", () => {
         "staged.txt",
         "unstaged.txt",
       ]);
+      await review.expectFeedback(
+        "Review refreshed: 4 changed files in the chosen range.",
+      );
       await diffs.expectReading("Reading the file's diff…");
     } finally {
       held.release();
@@ -147,6 +160,9 @@ test.describe("from Story A's declared history", () => {
     await commits.expectChosen("last", false);
     await commits.expectRange("Changes in 1 commit");
     await files.expectOutsideCount(4);
+    await review.expectFeedback(
+      "Review refreshed: 4 changed files in the chosen range.",
+    );
     writeAt(workspace, "again.txt", "new uncommitted changes\n");
     const again = (await review.refreshAndAnswer()).snapshot;
     expect(again.uncommitted?.kind).toBe("uncommitted");

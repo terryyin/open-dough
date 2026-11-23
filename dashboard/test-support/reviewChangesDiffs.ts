@@ -84,6 +84,11 @@ export class ReviewDiffs {
     return this;
   }
 
+  async expectAbsent() {
+    await expect(this.#shown()).toHaveCount(0);
+    return this;
+  }
+
   async expectShown() {
     await expect(this.#shown()).toBeVisible();
     return this;

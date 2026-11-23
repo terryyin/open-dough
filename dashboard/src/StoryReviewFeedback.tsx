@@ -2,11 +2,10 @@
 // Refresh's displayed comparison counts, read failures, and, for as
 // long as the snapshot is shown, that this machine's Git kept a Trunk Mode
 // story's published commits in its baseline.
-import { shortRevision } from "./publishedWork.ts";
+import { RefreshedWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import {
-  baselineRevision,
   type ReviewComparison,
   type ReviewRange,
   type StoryReview,
@@ -106,20 +105,13 @@ export function ReviewFeedback({
       {!reading &&
         round > 0 &&
         snapshot !== undefined &&
-        (shown === "commits" ? (
-          comparison !== undefined && (
-            <p>
-              Review refreshed: {changedFiles(comparison.files.length)} in the
-              chosen range.
-            </p>
-          )
-        ) : (
-          <p>
-            Review refreshed:{" "}
-            {changedFiles((comparison ?? snapshot).files.length)} against
-            baseline <code>{shortRevision(baselineRevision(snapshot))}</code>.
-          </p>
-        ))}
+        (shown !== "commits" || comparison !== undefined) && (
+          <RefreshedWorkspaceComparison
+            snapshot={snapshot}
+            count={(comparison ?? snapshot).files.length}
+            commitsReview={shown === "commits"}
+          />
+        )}
       {!reading && round > 0 && review?.kind === "landed" && (
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the captured

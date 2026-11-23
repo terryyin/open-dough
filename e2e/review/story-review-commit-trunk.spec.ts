@@ -74,6 +74,8 @@ test.describe("with a clean trunk integration", () => {
     expect(parentsConflict(origin, "story changes c")).toBe(false);
     const review = await openIntegratedRange(page, dashboard, origin);
     await review.files.expectNone();
+    await review.diffs.expectAbsent();
+    await review.expectText("The chosen commits changed nothing.");
 
     await expectRangeLeavesTrunkOut(review, {
       row: "c.ts",
