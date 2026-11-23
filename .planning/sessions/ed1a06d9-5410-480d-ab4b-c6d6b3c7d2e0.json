@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "sessionId": "ed1a06d9-5410-480d-ab4b-c6d6b3c7d2e0",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T15:44:16.296Z",
+  "story": "SEED-423#require-declared-units-in-ci-proof",
+  "ranges": [
+    {
+      "base": "cc18578a63e19d63a6eaa4a35e8c99fa5037b8e1",
+      "candidate": "1d78c4b9149e07203ea63bb85d7db38672f50b08"
+    },
+    {
+      "base": "1d78c4b9149e07203ea63bb85d7db38672f50b08",
+      "candidate": "b147240973d2d1c625bbb06f7a5a7f1ad051ff1e"
+    },
+    {
+      "base": "b147240973d2d1c625bbb06f7a5a7f1ad051ff1e",
+      "candidate": "cce5ca4466839193eeb42e26e0d1c87f9b450c61"
+    },
+    {
+      "base": "cce5ca4466839193eeb42e26e0d1c87f9b450c61",
+      "candidate": "f379ad88f6cc049ff057660d5dd07c814b6d26de"
+    },
+    {
+      "base": "f379ad88f6cc049ff057660d5dd07c814b6d26de",
+      "candidate": "3c2634e9853fd5a4bda134e34337b830609bfef7"
+    },
+    {
+      "base": "3c2634e9853fd5a4bda134e34337b830609bfef7",
+      "candidate": "48d0db83c2d7f15698871e0241ad9d0407f9e303"
+    },
+    {
+      "base": "48d0db83c2d7f15698871e0241ad9d0407f9e303",
+      "candidate": "2c93275ba6ab1d5f71afd2127326516323ba8fba"
+    },
+    {
+      "base": "2c93275ba6ab1d5f71afd2127326516323ba8fba",
+      "candidate": "5941d78baf6ad693a520d35b26b9b861706a230e"
+    },
+    {
+      "base": "5941d78baf6ad693a520d35b26b9b861706a230e",
+      "candidate": "df06d72c5b98d8132a139e1ea0f607cad87d60e5"
+    },
+    {
+      "base": "df06d72c5b98d8132a139e1ea0f607cad87d60e5",
+      "candidate": "09488877ea0edcec993a88f39270c3214257acb6"
+    }
+  ]
+}
