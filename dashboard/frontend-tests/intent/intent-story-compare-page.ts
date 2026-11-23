@@ -111,6 +111,9 @@ export function intentStoryCompare() {
           .element()
           .querySelectorAll(".intent-ci-comparison-identity")[2],
       ),
+    // How many of Intent's controls are pressed, as a selected file is.
+    pressedControlCount: () =>
+      intent.element().querySelectorAll('[aria-pressed="true"]').length,
     // The header's leading control, which a collapsible header would offer.
     collapsedControl: header.getByRole("button", { expanded: false }),
     revisions: () =>

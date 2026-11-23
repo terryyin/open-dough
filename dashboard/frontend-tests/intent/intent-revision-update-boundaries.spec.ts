@@ -1,10 +1,12 @@
 // A pending locations read is abandoned when the page switches projects.
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import { intentBrowser } from "./intent-browser-page.ts";
+import { doughnutSource } from "./intent-ci-homepage-page.ts";
 import {
   featuresOpening,
+  heldAnswer,
   mountProjectIntent,
   publishedFeatures,
 } from "./intent-revision-fixtures.ts";
@@ -16,39 +18,18 @@ test("switching projects during an update abandons the pending read and keeps th
     "ee".repeat(20),
     "ef".repeat(20),
   ];
-  const oldUpdate = featuresOpening("Purge a job");
-  let release!: () => void;
-  const pending = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  onTestFinished(release);
-  const readLatest = vi.fn(async (signal: AbortSignal) => {
-    await pending;
-    return oldUpdate.readLocations(signal);
-  });
-  const other = makeMe.aPublishedWork
-    .with({
-      ...makeMe.aPublishedWork.ofPygardon.at(otherRevision).please(),
-      source: makeMe.aPublishedSource
-        .with({
-          id: "doughnut",
-          label: "Doughnut",
-          repository: "odde/doughnut",
-        })
-        .please(),
-    })
-    .please();
-  const otherFolder = "acceptance";
-  const otherFile = `${otherFolder}/notes.feature`;
+  const update = featuresOpening("Purge a job");
+  const latestLocations = heldAnswer(update.readLocations);
+  const otherFile = "acceptance/notes.feature";
   const intent = await mountProjectIntent(before, {
     [before]: featuresOpening("Archive a job"),
-    [latest]: { ...oldUpdate, readLocations: readLatest },
+    [latest]: { ...update, readLocations: latestLocations.read },
     [otherRevision]: publishedFeatures(
       {
         [otherFile]:
           "Feature: Notes\n  Scenario: Review a note\n    Then it is visible\n",
       },
-      otherFolder,
+      "acceptance",
     ),
   });
   const browser = intentBrowser();
@@ -60,12 +41,16 @@ test("switching projects during an update abandons the pending read and keeps th
   await notice.showLatest();
   await notice.reads("Updating…");
   await browser.isAt(before);
-  await expect.poll(() => readLatest.mock.calls.length).toBe(1);
-  await intent.showProject(other);
+  await expect.poll(() => latestLocations.read.mock.calls.length).toBe(1);
+  await intent.showProject(
+    makeMe.aPublishedWork.of(doughnutSource).at(otherRevision).please(),
+  );
   await browser.isAt(otherRevision);
-  await expect.poll(() => readLatest.mock.calls[0]?.[0].aborted).toBe(true);
-  release();
-  await readLatest.mock.results[0]?.value;
+  await expect
+    .poll(() => latestLocations.read.mock.calls[0]?.[0].aborted)
+    .toBe(true);
+  latestLocations.release();
+  await latestLocations.read.mock.results[0]?.value;
 
   await notice.isGone();
   await browser.showsNoFolder(pygardonFeatures.folder);

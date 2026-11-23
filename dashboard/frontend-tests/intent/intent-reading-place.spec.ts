@@ -200,9 +200,7 @@ test("another project shows none of the reading place, and choosing the project 
     .poll(intentText)
     .toContain("No Intent locations are configured for Doughnut.");
   await expect.element(story.file(deepSpec)).not.toBeInTheDocument();
-  expect(
-    intent.element().querySelectorAll('[aria-pressed="true"]'),
-  ).toHaveLength(0);
+  expect(story.pressedControlCount()).toBe(0);
 
   // The story stays selected and opens at its CI comparison; its tree is
   // expanded as when first compared, with the toggle off and nothing

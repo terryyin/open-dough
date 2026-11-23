@@ -1,11 +1,12 @@
 // The page's reading place survives leaving Intent during a revision update.
-import { onTestFinished, test, vi } from "vitest";
+import { test, vi } from "vitest";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import { shortRevision } from "../../src/publishedWork.ts";
 import { ReadProblem } from "../../src/readProblem.ts";
 import { intentBrowser } from "./intent-browser-page.ts";
 import {
   featuresOpening,
+  heldAnswer,
   mountProjectIntent,
 } from "./intent-revision-fixtures.ts";
 import { intentRevisionNotice } from "./intent-revision-notice-page.ts";
@@ -19,18 +20,11 @@ test("reopening Project Intent after a failed update restores the old reading th
     undefined,
     "transient",
   );
-  let failOnReturn!: () => void;
-  const pending = new Promise<void>((resolve) => {
-    failOnReturn = resolve;
-  });
-  onTestFinished(failOnReturn);
+  const retryOnReturn = heldAnswer(() => Promise.reject(problem));
   const readOnReturn = vi
     .fn(newReading.readLocations)
     .mockRejectedValueOnce(problem)
-    .mockImplementationOnce(async () => {
-      await pending;
-      throw problem;
-    });
+    .mockImplementationOnce(retryOnReturn.read);
   const intent = await mountProjectIntent(before, {
     [before]: oldReading,
     [latest]: { ...newReading, readLocations: readOnReturn },
@@ -52,7 +46,7 @@ test("reopening Project Intent after a failed update restores the old reading th
   await browser.isAt(before);
   await file.shows("Scenario: Archive a job");
   await file.isSelected();
-  failOnReturn();
+  retryOnReturn.release();
 
   await notice.reads(failure);
   await notice.offers(["Retry"]);

@@ -102,11 +102,7 @@ test("activating CI comparison from Changes judges the selected story's branch u
 
   await ci.judges(failingStory.branch);
   await ci.answers("Failed at fa11ed0 (Break the login)");
-  await expect
-    .poll(
-      () => ci.panel.element().querySelector(".intent-ci-story")?.textContent,
-    )
-    .toBe("Story branch.");
+  await ci.notes("Story branch.");
   expect(ci.panel.element().textContent).not.toContain(failingStory.title);
   await expect.element(story.header).toBeVisible();
   await story.chooseTab("Changes");

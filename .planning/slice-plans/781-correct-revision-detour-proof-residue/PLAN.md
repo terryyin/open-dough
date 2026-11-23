@@ -368,7 +368,7 @@ on scope browsing, one changed-file diff and no published text.
 ### 8. Revision transition cases keep the timing and observations visible
 
 Type: Structure
-Status: planned
+Status: done
 
 Simplify the longest changed bodies in `intent-revision-apply.spec.ts`,
 `intent-revision-planning-only.spec.ts`,
@@ -387,6 +387,19 @@ recovery specs. Complete the before/after check in the local gate. Record
 the surviving assertion owners, Vitest runner selection, E2E routing result,
 last-consumer cleanup and measured cost. Revise any split that adds repeatable
 cost without making a distinct regression easier to locate.
+
+**Delivered.** The four revision cases arrange held reads with
+`heldAnswer` before the mount and read offer, Show latest, pending, release,
+effects. Removing the cleanup abort fails the project-switch case.
+Pinned-source recovery is unchanged. Inline DOM reads in the reading-place
+reset and story-branch cases became `story.pressedControlCount()` and
+`ci.notes()`. Alternated two-worker runs against a `19a0372b7` worktree show
+no repeatable slowdown: the quietest pair took 12 s wall and 11.6/11.7 s
+Vitest for 23 cases before and 33 after; louder pairs move with load. The
+legacy Playwright case (10–59 s per run) is now 0.3–1.4 s inside the cohort.
+The E2E pair took 16 s. The homepage and activation splits cost up to about
+1.8 s summed and are kept because each separates a distinct regression.
+Plan 763's landed Vitest case owns selected-story read reuse.
 
 ## Plan review
 

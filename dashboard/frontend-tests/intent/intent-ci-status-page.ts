@@ -68,6 +68,14 @@ export function intentCiStatus() {
         .toBeVisible();
       return ci;
     },
+    notes: (expected: string) =>
+      expect
+        .poll(() =>
+          cleanText(
+            panel.query()?.querySelector(".intent-ci-story")?.textContent,
+          ),
+        )
+        .toBe(expected),
     async answers(expected: string) {
       await expect
         .poll(() => cleanText(stateElement()?.textContent))

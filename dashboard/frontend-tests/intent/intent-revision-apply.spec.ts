@@ -5,13 +5,14 @@
 // Failed, unreadable and malformed-settings updates:
 // ./intent-revision-update-failures.spec.ts.
 // Reopening Intent: ./intent-revision-notice.spec.ts.
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import { shortRevision as short } from "../../src/publishedWork.ts";
 import { intentBrowser } from "./intent-browser-page.ts";
 import {
   featuresOpening,
+  heldAnswer,
   mountProjectIntent,
   publishedFeatures,
 } from "./intent-revision-fixtures.ts";
@@ -21,25 +22,14 @@ const { folder, jobs, diskSpace } = pygardonFeatures;
 
 test("newer revisions wait behind one notice, and Show latest keeps the reading while the latest is read", async () => {
   const [a, b, c] = ["d4".repeat(20), "e7".repeat(20), "e8".repeat(20)];
-  const before = featuresOpening("Archive a job");
   const intermediate = featuresOpening("Restore a job");
-  const latest = featuresOpening("Purge a job");
-  let releaseLatestLocations!: () => void;
-  const latestLocationsPending = new Promise<void>((resolve) => {
-    releaseLatestLocations = resolve;
-  });
-  onTestFinished(releaseLatestLocations);
-
   const readIntermediateLocations = vi.fn(intermediate.readLocations);
-  const readLatestLocations = vi.fn(async (signal: AbortSignal) => {
-    await latestLocationsPending;
-    signal.throwIfAborted();
-    return latest.readLocations(signal);
-  });
+  const latest = featuresOpening("Purge a job");
+  const latestLocations = heldAnswer(latest.readLocations);
   const intent = await mountProjectIntent(a, {
-    [a]: before,
+    [a]: featuresOpening("Archive a job"),
     [b]: { ...intermediate, readLocations: readIntermediateLocations },
-    [c]: { ...latest, readLocations: readLatestLocations },
+    [c]: { ...latest, readLocations: latestLocations.read },
   });
   const browser = intentBrowser();
   const notice = intentRevisionNotice();
@@ -54,7 +44,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await notice.isShownOnce();
   await notice.offers(["Show latest"]);
   await jobsReading.isFocused();
-  expect(readLatestLocations).not.toHaveBeenCalled();
+  expect(latestLocations.read).not.toHaveBeenCalled();
 
   await notice.showLatest();
   await notice.reads("Updating…");
@@ -62,7 +52,7 @@ test("newer revisions wait behind one notice, and Show latest keeps the reading 
   await jobsReading.shows("Scenario: Archive a job");
   await jobsReading.isSelected();
 
-  releaseLatestLocations();
+  latestLocations.release();
   await jobsReading.shows("Scenario: Purge a job");
   await notice.isGone();
   await browser.isAt(c);
