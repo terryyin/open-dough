@@ -15,7 +15,7 @@
 // (`./protectedFrame.ts`). The card holds the keyboard once a
 // launch dialog hands the startup off (`./launchDialogLauncher.ts`).
 
-import { useId, useRef, type ReactNode } from "react";
+import { useId, useRef, type ComponentProps, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import "./frame-controls.css";
@@ -31,7 +31,7 @@ import {
   type OpenRoster,
 } from "./AgentAssignmentFacts.tsx";
 import { storyCardMarks } from "./storyCardFocus.ts";
-import type { MachineSessions } from "./agentLaunches.ts";
+import type { ReadSessions } from "./readSessions.ts";
 import { StoryCardLaunches } from "./StoryCardLaunches.tsx";
 import { StoryCardDoneSessions } from "./StoryCardDoneSessions.tsx";
 import { SessionFollowUp } from "./FollowUp.tsx";
@@ -66,7 +66,9 @@ export function StoryCard({
   priority: number | undefined;
   // Taken cards only: queued work shows no progress.
   showsSliceProgress: boolean;
-  launches: MachineSessions;
+  launches: ComponentProps<typeof StoryCardLaunches>["launches"] &
+    ComponentProps<typeof SessionFollowUp>["launches"] &
+    Pick<ReadSessions, "records" | "workspaces">;
   // This story's own Done sessions, oldest first (`./columnSessions.ts`).
   doneSessions: readonly LaunchWithState[];
   // Backlog cards only: Taken work offers no launch.

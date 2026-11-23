@@ -241,6 +241,32 @@ Independent refactoring found the typed owner and case boundaries
 cohesive and reused the accepted proof without edits. Its consumer
 trace is retained beside that report.
 
+**Typed startup.** StoryCard consumes the existing StoryCardLaunches
+and SessionFollowUp inputs plus the records and workspaces it reads.
+Follow up consumes the existing AdHocLaunches input. The mounted
+startup cases use real typed attempts, offers, recovery and announcing
+owners. Native Enter drives the keyboard journeys after focus setup.
+The desktop case that asserts two offers share a row keeps its original
+1440 × 900 setup. Other ordinary startup mounts use the default viewport.
+
+The focused comparison passed the same 45 titles across 13 files at
+22.31 s before and 17.36 s after, with start loads 24.48 and 19.52.
+Case durations moved from 2,060 to 914 ms for story startup, from
+1,270 to 155 ms for blank terminal startup, and from 1,568 to 457 ms
+for instructed startup. The timing applies to this selection under
+the recorded conditions. The whole elapsed target remains open.
+Typecheck and the direct and indirect consumer checks passed. The
+paired evidence, exact observations and original geometry failure are
+in `open-dough/evidence/typed-startup.r0eNcg1H/report.md`.
+The independent refactor reused the verified proof without edits.
+Its consumer trace is retained beside the report. A sibling trunk
+change removed Board storage arrangement from the retained keyboard
+and paging cases and kept their observable actions. None of the
+launch changes overlap those edits.
+The two ad hoc operations are typed as callback properties to match
+their existing receiver-free closures. The declaration change
+preserves the accepted runtime proof.
+
 ## Timing evidence and decisions
 
 - The [seed evidence](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
@@ -368,7 +394,7 @@ path changes.
 ### 6. Typed attempts keep story and unattached startup behavior
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use the existing typed attempts and `LaunchAttemptSource` for tests of
 attempt progression. Wire narrow consumers through production offers,

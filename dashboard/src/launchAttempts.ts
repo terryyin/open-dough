@@ -83,18 +83,18 @@ export type LaunchAttempts = StartupRecoveries & {
   // first message, following up `followUp` when given, and answers as
   // `start` does. `presentTerminal` is called with the started session only
   // when the request carried no instruction.
-  startAdHoc(
+  startAdHoc: (
     sourceId: string,
     choices: LaunchChoices,
     presentTerminal: OnLaunched,
     followUp?: FollowUpSource,
-  ): Promise<StartAnswer>;
+  ) => Promise<StartAnswer>;
   // The project's ad hoc launch from this page in flight, or its last failed
   // or uncertain answer; a follow-up's is its source's own.
-  adHocAttemptOf(
+  adHocAttemptOf: (
     sourceId: string,
     followUp?: FollowUpSource,
-  ): LaunchAttempt | undefined;
+  ) => LaunchAttempt | undefined;
 };
 
 // Keeps each launch this page asked for under its key and follows accepted

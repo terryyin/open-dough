@@ -31,39 +31,36 @@ export async function mountStoryLaunches(
     : machine;
   const start = vi.fn<StoryLaunches["start"]>().mockResolvedValue(true);
   const answer = offerRead?.answer ?? read.please();
-  const launches: StoryLaunches = {
-    ...launchOffers(answer, true),
-    attemptEvidence: "read",
-    launched: [],
-    creations: [],
-    rereadOffers: () => {
-      if (offerRead !== undefined)
-        rerender(
-          view(entry, true, { ...launches, ...launchOffers(answer, false) }),
-        );
-    },
-    keptStartOf: () => undefined,
-    runningStartOf: () => undefined,
-    storyStartupOf: () => undefined,
-    attemptOf: () => undefined,
-    start,
-  };
-  const view = (work: WorkEntry, offersStart: boolean, state = launches) =>
+  const view = (
+    work: WorkEntry,
+    offersStart: boolean,
+    attemptEvidence: StoryLaunches["attemptEvidence"] = "read",
+    offersAnswered = true,
+  ) =>
     createElement(StoryCardLaunches, {
       sourceId: source.id,
       entry: work,
-      launches: state,
+      launches: {
+        ...launchOffers(answer, offersAnswered),
+        attemptEvidence,
+        launched: [],
+        creations: [],
+        rereadOffers: () => {
+          if (offerRead !== undefined)
+            rerender(view(work, offersStart, attemptEvidence, false));
+        },
+        keptStartOf: () => undefined,
+        runningStartOf: () => undefined,
+        storyStartupOf: () => undefined,
+        attemptOf: () => undefined,
+        start,
+      },
       offersStart,
       dependencyProblem: undefined,
       statusId: "story-startup",
     });
-  const held = {
-    ...launches,
-    ...launchOffers(answer, false),
-    attemptEvidence: "unread",
-  } satisfies StoryLaunches;
   const { rerender } = await mountComponent(
-    view(entry, true, offerRead?.held ? held : launches),
+    offerRead?.held ? view(entry, true, "unread", false) : view(entry, true),
   );
   const group = page.getByRole("group", { name: "Launch actions" });
   return {
@@ -75,7 +72,7 @@ export async function mountStoryLaunches(
       rerender(view(work, offersStart));
     },
     readingLaunches: () => {
-      rerender(view(entry, true, { ...launches, attemptEvidence: "unread" }));
+      rerender(view(entry, true, "unread"));
     },
   };
 }

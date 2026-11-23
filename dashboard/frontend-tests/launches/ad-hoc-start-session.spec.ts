@@ -20,7 +20,6 @@ test("Start session names the project and host, focuses an empty instruction, an
       launches,
       presentTerminal: vi.fn(),
     }),
-    { viewport: { width: 1000, height: 720 } },
   );
   const button = startSession(project.label);
   const form = launchDialog("Start a session in Open Dough in Claude Code");

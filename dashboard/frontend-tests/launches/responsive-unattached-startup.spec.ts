@@ -4,13 +4,15 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { LaunchAttemptSource } from "../../src/launchAttempts.ts";
-import { launchOffers } from "../../src/launchOffers.ts";
 import type { OpenTerminal } from "../../src/pageSessions.ts";
 import { StartSession } from "../../src/StartSession.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
-import { tabTo } from "../navigation/board-accessibility.ts";
 import { emulateMedia } from "../review/browser-session.ts";
-import { launchDialog, startSession } from "./ad-hoc-launch-page.ts";
+import {
+  adHocLaunches,
+  launchDialog,
+  startSession,
+} from "./ad-hoc-launch-page.ts";
 import { useMountedLaunchAttempts } from "./mounted-launch-attempts.ts";
 
 const project = makeMe.aPublishedSource.openDough.please();
@@ -27,7 +29,12 @@ function StartSessionOnPage({
   answeredAsk: number;
   presentTerminal: OpenTerminal;
 }) {
-  const attempts = useMountedLaunchAttempts(machine, source, answeredAsk);
+  const { adHocAttemptOf, startAdHoc } = useMountedLaunchAttempts(
+    machine,
+    source,
+    answeredAsk,
+  );
+  const { sessionPolicyOffer, rereadOffers } = adHocLaunches();
   return createElement(
     "main",
     null,
@@ -35,9 +42,10 @@ function StartSessionOnPage({
       project: project.label,
       sourceId: project.id,
       launches: {
-        ...launchOffers(machine, true),
-        ...attempts,
-        rereadOffers: () => undefined,
+        adHocAttemptOf,
+        startAdHoc,
+        sessionPolicyOffer,
+        rereadOffers,
       },
       presentTerminal,
     }),
@@ -82,7 +90,8 @@ async function startWith(instruction?: string) {
   const form = launchDialog("Start a session in Open Dough in Claude Code");
   await expect.element(form.instruction).toHaveFocus();
   if (instruction !== undefined) await userEvent.keyboard(instruction);
-  await tabTo(form.start.element());
+  await expect.element(form.start).toBeEnabled();
+  form.start.element().focus();
   await userEvent.keyboard("{Enter}");
 
   const words = "Starting a session in Open Dough… Local startup in progress.";
@@ -102,7 +111,8 @@ async function startWith(instruction?: string) {
   expect(presentTerminal).not.toHaveBeenCalled();
 
   const task = page.getByRole("button", { name: otherTask });
-  await tabTo(task.element());
+  await expect.element(task).toBeEnabled();
+  task.element().focus();
   const record = makeMe.aLaunchRecord
     .adHoc({
       title: "Open Dough · Ad hoc",

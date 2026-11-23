@@ -7,7 +7,6 @@
 // offers Follow up for the whole file or a line
 // (`./StoryAnchoredFollowUp.tsx`).
 
-import type { MachineSessions } from "./agentLaunches.ts";
 import type { LaunchWithState } from "./agentLaunch.ts";
 import type { DoneStory } from "./doneRecord.ts";
 import {
@@ -20,13 +19,13 @@ import type { FollowUpFile, FollowUpSource } from "./followUpRequest.ts";
 import { usePageSessions } from "./pageSessions.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { offersFollowUp } from "./sessionAccess.ts";
-import { StartSession } from "./StartSession.tsx";
+import { StartSession, type AdHocLaunches } from "./StartSession.tsx";
 
 type Launching = {
   // The project's name.
   readonly project: string;
   readonly sourceId: string;
-  readonly launches: MachineSessions;
+  readonly launches: AdHocLaunches;
 };
 
 type StoryLaunch = Launching & {

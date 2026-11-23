@@ -4,14 +4,13 @@ import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { StoryNotesAttachment } from "../../src/AttachStoryNotes.tsx";
 import type { LaunchAttemptSource } from "../../src/launchAttempts.ts";
-import { launchOffers } from "../../src/launchOffers.ts";
 import { StartSession } from "../../src/StartSession.tsx";
 import { storyContext } from "../../src/followUpContext.ts";
 import type { StoryNote, StoryNotesAnswer } from "../../src/storyNote.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { launchDialog } from "./ad-hoc-launch-page.ts";
+import { adHocLaunches, launchDialog } from "./ad-hoc-launch-page.ts";
 import { useMountedLaunchAttempts } from "./mounted-launch-attempts.ts";
 import { mountStoryStartup } from "./story-startup-page.ts";
 
@@ -38,15 +37,16 @@ const answer = (...notes: StoryNote[]): StoryNotesAnswer => ({
 const machine = makeMe.aMachineAnswer.please();
 
 function FollowUpOnPage({ source }: { source: LaunchAttemptSource }) {
-  const attempts = useMountedLaunchAttempts(machine, source, 0);
+  const { adHocAttemptOf, startAdHoc } = useMountedLaunchAttempts(
+    machine,
+    source,
+    0,
+  );
+  const { sessionPolicyOffer, rereadOffers } = adHocLaunches();
   return createElement(StartSession, {
     project: project.label,
     sourceId: project.id,
-    launches: {
-      ...launchOffers(machine, true),
-      ...attempts,
-      rereadOffers: () => undefined,
-    },
+    launches: { adHocAttemptOf, startAdHoc, sessionPolicyOffer, rereadOffers },
     presentTerminal: () => undefined,
     followUp: {
       name,

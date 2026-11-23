@@ -11,10 +11,10 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 03 | The reading wrapper renders the distinct no-waiting state for the corresponding notes answer. (Scope and note-attachment example) | slice 5 | observed: follow-up-note-handoff.spec.ts observes No waiting notes, disabled and unchecked, and the typed false choice from a sent-only answer |
 | 04 | The reading wrapper renders the distinct unreadable state for the corresponding notes answer. (Scope and note-attachment example) | slice 5 | observed: follow-up-note-handoff.spec.ts observes The notes could not be read, disabled and unchecked, and the typed false choice from an unreadable answer |
 | 05 | One composed Start session journey for a Follow-up request remains covered. (Note-attachment example and Goal) | slice 5 | observed: follow-up-note-handoff.spec.ts observes both exact story requests through StartSession, notes only when chosen, no request on Cancel, and the independent Taken-card note cue |
-| 06 | An unattached startup attempt in progress is shown on the project-actions row. (Scope and unattached-startup example) | slice 6 | |
-| 07 | A refused unattached startup attempt is shown on the project-actions row. (Scope and unattached-startup example) | slice 6 | |
-| 08 | A blank keyboard start presents the terminal. (Unattached-startup example) | slice 6 | |
-| 09 | A keyboard start with an instruction leaves the terminal closed. (Unattached-startup example) | slice 6 | |
+| 06 | An unattached startup attempt in progress is shown on the project-actions row. (Scope and unattached-startup example) | slice 6 | observed: ad-hoc-start-session-answer.spec.ts uses typed ProjectActions progress and observes exact whole words within the action row, disabled launcher and enabled after clear |
+| 07 | A refused unattached startup attempt is shown on the project-actions row. (Scope and unattached-startup example) | slice 6 | observed: ad-hoc-start-session-answer.spec.ts observes the typed refusal words and stable row bounds across native touch opening, dismissal and rotation |
+| 08 | A blank keyboard start presents the terminal. (Unattached-startup example) | slice 6 | observed: responsive-unattached-startup.spec.ts uses native Enter and observes one presentation of the settled blank session with takesKeyboard false and the other task focused |
+| 09 | A keyboard start with an instruction leaves the terminal closed. (Unattached-startup example) | slice 6 | observed: responsive-unattached-startup.spec.ts checks the exact instructed request, progress handoff and zero terminal presentations through settlement while the other task stays focused |
 | 10 | The existing image-paste observation stays with its owning dialog and attachment control. (Scope) | slice 7 | |
 | 11 | Pasting text extends the instruction. (Attachment example) | slice 7 | |
 | 12 | Pasting text attaches no image. (Attachment example) | slice 7 | |
@@ -31,7 +31,7 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 23 | The model label in the sidebar follows the launch subject for that session. (Scope and recorded-launch example) | slice 8 | |
 | 24 | Session details show the launch subject’s recorded effort when present. (Scope and recorded-launch example) | slice 8 | |
 | 25 | Session details show the launch subject’s recorded options when present. (Scope and recorded-launch example) | slice 8 | |
-| 26 | The existing `CreationEntry` case remains covered through its typed record. (Scope) | slice 6 | |
+| 26 | The existing `CreationEntry` case remains covered through its typed record. (Scope) | slice 6 | observed: ad-hoc-creation-entry.spec.ts renders the existing typed creation, stand-in host and quoted inspection arguments with no original Codex host word |
 | 27 | In a narrow dialog, the offers remain reachable in keyboard order. (Dialog and desktop-notes example) |  | G1 |
 | 28 | In a narrow dialog, the actions remain reachable in keyboard order. (Dialog and desktop-notes example) |  | G1 |
 | 29 | In a zoomed dialog, the offers remain reachable in keyboard order. (Dialog and desktop-notes example) |  | G2 |
@@ -54,11 +54,11 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 46 | Escape ends transcription when transcription work is applicable. (Recording and keyboard-startup example) | slice 4 | observed: mounted-instruction-voice.spec.ts held transcription Escape iteration observes active then aborted signal and ended tracks |
 | 47 | A late permission answer leaves the new draft empty. (Recording and keyboard-startup example) | slice 4 | observed: mounted-instruction-voice.spec.ts held permission observes an empty reopened draft and the previous live track ending on its late answer after both dismissals |
 | 48 | A late transcription answer leaves the new draft empty. (Recording and keyboard-startup example) | slice 4 | observed: mounted-instruction-voice.spec.ts held transcription resolves the previous request after each native reopen and observes the new draft stay empty |
-| 49 | Keyboard startup selects the correct story. (Recording and keyboard-startup example) | slice 6 | |
-| 50 | Keyboard startup announces each applicable transition once. (Recording and keyboard-startup example) | slice 6 | |
-| 51 | Keyboard startup leaves focus with the next inspection. (Recording and keyboard-startup example) | slice 6 | |
+| 49 | Keyboard startup selects the correct story. (Recording and keyboard-startup example) | slice 6 | observed: responsive-story-startup.spec.ts observes one acceptance for the selected story, its protected selection and details, and the other story still enabled |
+| 50 | Keyboard startup announces each applicable transition once. (Recording and keyboard-startup example) | slice 6 | observed: responsive-story-startup.spec.ts records the actual announcer mutations and observes progressing, pending published state and reconciled once each across repeated reads |
+| 51 | Keyboard startup leaves focus with the next inspection. (Recording and keyboard-startup example) | slice 6 | observed: responsive-story-startup.spec.ts uses native Enter to open the other card inspection and checks Hide detail stays focused after both settlement reads |
 | 52 | Each affected case uses the smallest production owner through the typed entry that production itself uses, with typed sources production explicitly supplies. (Scope and Shared acceptance) | slice 8 | |
-| 53 | The affected tests and helpers contain no test-built copy of a production composition. This covers the story-card launch’s machine-sessions composition and the responsive unattached-startup cases’ spread of `launchOffers`. (Scope, story-card example, and Shared acceptance) | slice 6 | |
+| 53 | The affected tests and helpers contain no test-built copy of a production composition. This covers the story-card launch’s machine-sessions composition and the responsive unattached-startup cases’ spread of `launchOffers`. (Scope, story-card example, and Shared acceptance) | slice 6 | observed: StoryCard.tsx and FollowUp.tsx accept only their existing typed inputs, story-startup-page.ts removes the Board MachineSessions fixture, and the unattached and follow-up specs supply real attempts without spreading launchOffers |
 | 54 | The affected tests contain no restated production provider stack. (Shared acceptance) | slice 8 | |
 | 55 | The affected tests make no view props by calling private pipeline functions. (Shared acceptance) | slice 8 | |
 | 56 | Any newly introduced read is supplied by a required typed source. (Shared acceptance) | slice 8 | |
@@ -68,7 +68,7 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 60 | Existing composed launch journeys retain coverage. The Follow-up request is the explicitly named journey in ID 05. (Goal) | slice 8 | |
 | 61 | Retained proof preserves the genuine browser conditions on which the existing observations depend. (Scope and Shared acceptance) | slice 8 | |
 | 62 | Retained proof preserves the existing capture race observations. (Scope) | slice 4 | observed: mounted-instruction-voice.spec.ts held permission, held transcription and unexpected track end; both sibling specs observe overflow, permission refusal, failed capture and retry |
-| 63 | Retained proof preserves the existing recovery race observations. (Scope) | slice 6 | |
+| 63 | Retained proof preserves the existing recovery race observations. (Scope) | slice 6 | observed: startup-recovery.spec.ts and startup-recovery-reads.spec.ts retain held acceptance, late uncertainty, unanswered refresh, protected inspection and confirmed progress with exact Recheck counts |
 | 64 | Existing native journeys stay at their current owners. (Scope) | slice 8 | |
 | 65 | Existing install journeys stay at their current owners. (Scope) | slice 8 | |
 | 66 | The backend group keeps its existing coverage and journeys with the current backend owners. (Scope and Shared acceptance) | slice 8 | |
@@ -78,7 +78,7 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 70 | The change adds zero E2E cases. (Scope) | slice 8 | |
 | 71 | If shared frontend runner configuration changes, whole frontend group proof accompanies the change. (Scope) | slice 8 | |
 | 72 | `story-card-launch-offers.spec.ts` retains its `chromium-desktop` instance. (Scope) | slice 2 | observed: simple-launch.aZIjH7md candidate-c.log runs all story-card-launch-offers titles on chromium-desktop |
-| 73 | `story-card-startup.spec.ts` retains its `chromium-desktop` instance. (Scope) | slice 6 | |
+| 73 | `story-card-startup.spec.ts` retains its `chromium-desktop` instance. (Scope) | slice 6 | observed: story-card-startup.spec.ts retains all six titles on chromium-desktop in the matched run and the post-typecheck consumer proof |
 | 74 | As a family moves, its React `act` wrapping is retired. (Shared acceptance) | slice 8 | |
 | 75 | As a family moves, its use of `IS_REACT_ACT_ENVIRONMENT` is retired. (Shared acceptance) | slice 8 | |
 | 76 | Spent support is removed as its last consumer moves. (Evaluation and Shared acceptance) | slice 8 | |
