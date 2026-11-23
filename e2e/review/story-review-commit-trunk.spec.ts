@@ -13,8 +13,8 @@ import {
   trunkIntegrationRepository,
 } from "../../dashboard/test-support/support/storyReviewTrunk.ts";
 import {
-  openReviewChanges,
-  type ReviewChanges,
+  openIntentReviewChanges,
+  type IntentReviewChanges,
 } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { storyWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
@@ -26,7 +26,10 @@ async function openStoryCommits(
   origin: StartOrigin,
 ) {
   keepLaunchRecord(dashboard, storyWorktree(origin).workspace);
-  const review = await openReviewChanges(page, await openBacklog(page, origin));
+  const review = await openIntentReviewChanges(
+    page,
+    await openBacklog(page, origin),
+  );
   await review.comparison.choose("Commits");
   await review.expectRead();
   return review;
@@ -47,19 +50,17 @@ async function openIntegratedRange(
 // Choosing the oldest story commit too leaves only the story's `src/c.ts`
 // change from `c 5`, listed as `row`, named `file` and adding `added`.
 async function expectRangeLeavesTrunkOut(
-  review: ReviewChanges,
+  review: IntentReviewChanges,
   { row, file, added }: { row: string; file: string; added: string },
 ) {
   const { commits, files, diffs } = review;
   await commits.choose("last");
   await commits.expectRange("Changes in 2 commits");
-  await files.expectRows("1 changed file", ["src", `  ${row}`]);
-  await files.choose("1 changed file", file);
+  await files.expectOutsideRows(["src", `  ${row}`]);
+  await files.choose(file);
   await diffs.expectLines("removed", ["-c 5"]);
   await diffs.expectLines("added", [added]);
-  await files.expectLineCounts(file, "+1 −1");
-  await review.expectNoText("landed.txt");
-  await files.expectListLacks("1 changed file", "README.md", "a.ts");
+  await files.expectOutsideLacks("landed.txt", "README.md", "a.ts");
 }
 
 test.describe("with a clean trunk integration", () => {
@@ -72,7 +73,6 @@ test.describe("with a clean trunk integration", () => {
   }) => {
     expect(parentsConflict(origin, "story changes c")).toBe(false);
     const review = await openIntegratedRange(page, dashboard, origin);
-    await review.expectText("The chosen commits changed nothing.");
     await review.files.expectNone();
 
     await expectRangeLeavesTrunkOut(review, {
@@ -96,18 +96,14 @@ test.describe("with a conflicted trunk integration", () => {
     expect(parentsConflict(origin, "story changes c")).toBe(true);
     const review = await openIntegratedRange(page, dashboard, origin);
     const { files, diffs } = review;
-    await files.expectRows("1 changed file", [
-      "src",
-      "  c.ts includes trunk's changes",
-    ]);
+    await files.expectOutsideRows(["src", "  c.ts"]);
     const flagged = "Modified src/c.ts, includes trunk's changes";
-    await files.choose("1 changed file", flagged);
+    await files.choose(flagged);
     await diffs.expectLines("removed", ["-c story"]);
     await diffs.expectLines("added", ["+c story and trunk"]);
-    await files.expectLineCounts(flagged, "+1 −1");
 
     await expectRangeLeavesTrunkOut(review, {
-      row: "c.ts includes trunk's changes",
+      row: "c.ts",
       file: flagged,
       added: "+c story and trunk",
     });
@@ -127,15 +123,11 @@ test.describe("with an integration settled back to the oldest parent", () => {
     const { commits, files, diffs } = review;
     await commits.choose("last");
     await commits.expectRange("Changes in 2 commits");
-    await files.expectRows("1 changed file", [
-      "src",
-      "  c.ts includes trunk's changes",
-    ]);
+    await files.expectOutsideRows(["src", "  c.ts"]);
     const flagged = "Modified src/c.ts, includes trunk's changes";
-    await files.choose("1 changed file", flagged);
+    await files.choose(flagged);
     await diffs.expectLines("removed", ["-c trunk"]);
     await diffs.expectLines("added", ["+c 5"]);
-    await files.expectLineCounts(flagged, "+1 −1");
   });
 });
 
@@ -170,10 +162,10 @@ test.describe("with a story edit on a separate line of a file trunk changes", ()
     const { commits, files, diffs } = review;
     await commits.choose("last");
     await commits.expectRange("Changes in 3 commits");
-    await files.expectRows("1 changed file", ["src", "  a.ts"]);
-    await files.choose("1 changed file", "Modified src/a.ts");
+    await files.expectOutsideRows(["src", "  a.ts"]);
+    await files.choose("Modified src/a.ts");
     await diffs.expectLines("removed", ["-a 0"]);
     await diffs.expectLines("added", ["+a story"]);
-    await review.expectNoText("includes trunk's changes");
+    await diffs.expectShows("Modified src/a.ts");
   });
 });

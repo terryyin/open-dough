@@ -10,10 +10,11 @@ export async function chooseCommit(
   review: Locator,
   row: Locator,
   press: (row: Locator) => Promise<void> = (shown) => shown.click(),
+  waitForRead = () => expectReviewRead(review),
 ) {
-  await expectReviewRead(review);
+  await waitForRead();
   await press(row);
-  await expectReviewRead(review);
+  await waitForRead();
 }
 
 export const commitRangeHeading = (review: Locator) =>

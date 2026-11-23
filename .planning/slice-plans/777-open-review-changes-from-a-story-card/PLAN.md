@@ -157,11 +157,13 @@ of the old completion wording in
 focused repair uses the shared reader to assert the full historical baseline
 and exact completion, both distinct from current trunk. The entire session
 journey passed in `s1-ci-repair-e2e`.
+The repair published at `30080c3849ae0dac93a95607e3709aeab3848eed` and
+was registered on the same execution-branch observer.
 
 ### 2. Commit and trunk comparison journeys exercise Intent
 
 Type: Structure
-Status: planned
+Status: done
 
 Prepare the comparison part of the review page object for the switch in
 slice 7. Use existing Intent page objects for the selected-story surface and
@@ -175,6 +177,20 @@ Migrate the seven `story-review-commit*.spec.ts` files and the
 `story-review-trunk-own-{changes,flagged,older-git}.spec.ts` cases whose
 promises lack equivalent Intent proof. Cite the actual observing assertion
 for any reuse, including the six mounted compare specs.
+
+**Observed.** The focused run passed 28 E2E cases across 12 specs, including
+the actual Git comparison journeys and the Side panel touch and session
+refresh consumers of shared test support. Dashboard typecheck passed. The
+recorded observations cover first-parent commit rows and selected range
+headings, stale response rejection with the later diff intact, refreshed and
+vanished endpoints, real integration and rename diffs, and both Trunk Mode
+baselines. The unchanged mounted commit case checks the exact range SHA
+endpoints and diff across view switches. The commands, traces and complete
+assertion map are in `s2-implementation.md`, `s2-e2e-final`, `s2-typecheck`
+and `s2-consumer-trace.md` in Git evidence. The two existing empty-commit
+panel cases continue to run while the receiving Intent observations are open.
+Independent refactoring reused the shared Refresh response reader. The
+older-Git refresh journey passed again in `s2-refactor-e2e-final`.
 
 ### 3. Intent explains workspace results while refreshing
 
@@ -337,3 +353,30 @@ Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/
 and run `npm run typecheck:dashboard` for production and test-support type
 changes. Run the whole review E2E directory for slices 7 and 8 because the
 card opening and arrival reach every story review journey.
+
+## Story obligations
+
+### G1. Refresh announces the settled range and workspace results
+Reported: slice 2 — "Commit refresh still needs the settled counts 1, 2, 1 and 4, 4 with a separate pending diff cue where held. Older Git refresh still needs the count 2 against the retained baseline."
+Story clause: "Refresh"
+Disposition: receiving slice 3
+
+### G2. Empty comparisons and unreadable selected ranges name their cause
+Reported: slice 2 — "The empty workspace after all commits reach trunk needs the retained baseline reason. The clean merge and plain empty commit still prove their empty reason through the panel. The older Git unreadable range must keep the selected range identifiable alongside its diagnostic."
+Story clause: "An empty or unavailable comparison shows its explanation"
+Disposition: receiving slice 3
+
+### G3. Flagged file rows retain counts and a visible comparison qualifier
+Reported: slice 2 — "The flagged Git cases prove accessible row names and the selected Purpose heading. The former row also displayed its qualifier and counts (+1 −1 and +2 −2)."
+Story clause: "File and line actions on a diff keep their comparison context."
+Disposition: receiving slice 5
+
+### G4. An empty session review has no file toggle
+Reported: slice 2 — "The empty legacy story-panel tests still assert there is no files toggle. Preserve the panel-specific assertion with a session fixture when moving the empty story outcomes to Intent."
+Story clause: "still opens the Side panel review."
+Disposition: receiving slice 6
+
+### G5. Use the real Story card action in the Intent review journeys
+Reported: slice 2 — "The Intent story review page object currently selects the card, enters Intent by the banner, then opens Changes."
+Story clause: "**Review changes** on an eligible Backlog, Taken, or Done Story card opens"
+Disposition: interim until slices 3, 4, 5, 6, 7

@@ -17,7 +17,7 @@ import {
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   commitUnpublished,
   openTaken,
@@ -43,7 +43,7 @@ test.describe("published Trunk Mode attribution", () => {
     expect(git(workspace, "rev-parse", "HEAD")).toBe(trunk);
     keepLaunchRecord(dashboard, workspace);
     const card = await openTaken(page, origin);
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     const { snapshot, files, diffs } = review;
 
     await test.step("the published and uncommitted files are listed, and no other commit's", async () => {
@@ -55,14 +55,9 @@ test.describe("published Trunk Mode attribution", () => {
       ]);
       expect(snapshot.published).toEqual({ trunk, commits: 2 });
       expect(snapshot.baseline).not.toBe(trunk);
-      await files.expectRows("3 changed files", [
-        "src",
-        "  a.ts",
-        "d.md",
-        "notes.md",
-      ]);
+      await files.expectOutsideRows(["src", "  a.ts", "d.md", "notes.md"]);
       // The file trunk also changed shows the story's line alone.
-      await files.choose("3 changed files", "Modified src/a.ts", "keyboard");
+      await files.choose("Modified src/a.ts", "keyboard");
       await diffs.expectChangedLines("Modified src/a.ts", {
         removed: ["-a 0"],
         added: ["+a one"],
@@ -91,9 +86,8 @@ test.describe("published Trunk Mode attribution", () => {
 
     await test.step("an unpublished commit is listed with the rest, and Commits stays the worktree's", async () => {
       commitUnpublished(workspace);
-      await review.close();
-      const reopened = await openReviewChanges(page, card);
-      const later = reopened.snapshot;
+      const refreshed = await review.refreshAndAnswer();
+      const later = refreshed.snapshot;
       expect(later.published).toEqual({ trunk, commits: 2 });
       expect(later.files.map(({ path: file }) => file)).toEqual([
         "d.md",
@@ -102,7 +96,7 @@ test.describe("published Trunk Mode attribution", () => {
         "src/g.ts",
       ]);
       expect(later.commits.map(({ subject }) => subject)).toEqual(["u1"]);
-      await reopened.files.expectRows("4 changed files", [
+      await refreshed.files.expectOutsideRows([
         "src",
         "  a.ts",
         "  g.ts",
@@ -110,15 +104,15 @@ test.describe("published Trunk Mode attribution", () => {
         "notes.md",
       ]);
 
-      await reopened.comparison.choose("Commits");
-      const { commits } = reopened;
+      await refreshed.comparison.choose("Commits");
+      const { commits } = refreshed;
       await commits.expectRowCount(2);
       await commits.expectRowText(0, /^Uncommitted changes$/);
       await commits.expectRowText(1, "u1");
 
-      await reopened.comparison.choose("All changes");
-      await reopened.comparison.includeUncommitted(false);
-      await reopened.files.expectRows("3 changed files", [
+      await refreshed.comparison.choose("All changes");
+      await refreshed.comparison.includeUncommitted(false);
+      await refreshed.files.expectOutsideRows([
         "src",
         "  a.ts",
         "  g.ts",
@@ -142,7 +136,7 @@ test.describe("nothing published since the claim", () => {
     const trunk = origin.revision("take Story A");
     keepLaunchRecord(dashboard, workspace);
     const card = await openTaken(page, origin);
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     const { snapshot } = review;
 
     expect(snapshot.published).toBeUndefined();

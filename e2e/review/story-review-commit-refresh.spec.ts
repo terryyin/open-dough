@@ -13,7 +13,7 @@ import {
   storyWorktree,
   writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { holdNextReviewResponse } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import { storyReviewFileEndpoint } from "../../dashboard/src/storyReviewContract.ts";
 import { storyARepository } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
@@ -34,12 +34,14 @@ test("the first Commits default uses the current snapshot, then new commits and 
 }) => {
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
-  const review = await openReviewChanges(page, await openBacklog(page, origin));
-  const { commits, files, diffs, status } = review;
+  const review = await openIntentReviewChanges(
+    page,
+    await openBacklog(page, origin),
+  );
+  const { commits, files, diffs } = review;
   writeAt(workspace, "second.txt", "second\n");
   commitAll(workspace, "second story commit");
   const second = (await review.refreshAndAnswer()).snapshot;
-  await diffs.expectSettled();
   const held = await holdNextReviewResponse(
     page,
     dashboard.origin,
@@ -50,18 +52,16 @@ test("the first Commits default uses the current snapshot, then new commits and 
     await review.expectRead();
     await commits.expectChosen(0);
     await commits.expectRowText(0, "second story commit");
-    await files.expectListed("1 changed file", ["Added second.txt"]);
+    await files.expectOutsideFiles(1, ["Added second.txt"]);
+    await files.choose("Added second.txt");
     expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
+    await diffs.expectReading("Reading the file's diff…");
     writeAt(workspace, "third.txt", "third\n");
     commitAll(workspace, "third story commit");
     await review.refreshAndAnswer();
     await commits.expectChosen(0, false);
     await commits.expectChosen(1);
-    await status.expectStatusCount(2);
-    await diffs.expectReading("Reading the file's diff…");
-    await review.status.expectFeedback(
-      "Review refreshed: 1 changed file in the chosen range.",
-    );
+    await files.expectOutsideFiles(1, ["Added second.txt"]);
   } finally {
     held.release();
     await held.delivery;
@@ -71,9 +71,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   writeAt(workspace, "fourth.txt", "fourth\n");
   commitAll(workspace, "fourth story commit");
   await review.refreshAndAnswer();
-  await review.status.expectFeedback(
-    "Review refreshed: 2 changed files in the chosen range.",
-  );
+  await files.expectOutsideFiles(2, ["Added first.txt", "Added second.txt"]);
   await commits.expectChosen(2);
   await commits.expectChosen("last");
   await review.comparison.choose("All changes");
@@ -91,9 +89,7 @@ test("the first Commits default uses the current snapshot, then new commits and 
   await commits.expectChosen(0);
   await commits.expectChosen("last", false);
   await commits.expectRangeSays("fourth story commit to");
-  await review.status.expectFeedback(
-    "Review refreshed: 1 changed file in the chosen range.",
-  );
+  await files.expectOutsideFiles(1, ["Added fourth.txt"]);
 });
 
 test.describe("from Story A's declared history", () => {
@@ -106,14 +102,15 @@ test.describe("from Story A's declared history", () => {
   }) => {
     const { workspace } = storyWorktree(origin);
     keepLaunchRecord(dashboard, workspace);
-    const review = await openReviewChanges(
+    const review = await openIntentReviewChanges(
       page,
       await openBacklog(page, origin),
     );
-    const { snapshot, commits, files, diffs, status } = review;
+    const { snapshot, commits, files, diffs } = review;
     await review.comparison.choose("Commits");
     await review.expectRead();
-    await files.expectListed("3 changed files");
+    await files.expectOutsideCount(3);
+    await files.choose("Modified staged.txt");
     writeAt(workspace, "later.txt", "later virtual point\n");
     await diffs.expectSettled();
     const held = await holdNextReviewResponse(
@@ -126,18 +123,14 @@ test.describe("from Story A's declared history", () => {
       expect(await (await held.ready).json()).toMatchObject({ kind: "diff" });
       expect(changed.uncommitted?.tree).not.toBe(snapshot.uncommitted?.tree);
       await commits.expectChosen(0);
-      await files.expectRows("4 changed files", [
+      await files.expectOutsideRows([
         "fresh",
         "  new.txt",
         "later.txt",
         "staged.txt",
         "unstaged.txt",
       ]);
-      await status.expectStatusCount(2);
       await diffs.expectReading("Reading the file's diff…");
-      await review.status.expectFeedback(
-        "Review refreshed: 4 changed files in the chosen range.",
-      );
     } finally {
       held.release();
       await held.delivery;
@@ -153,9 +146,7 @@ test.describe("from Story A's declared history", () => {
     await commits.expectChosen(0);
     await commits.expectChosen("last", false);
     await commits.expectRange("Changes in 1 commit");
-    await review.status.expectFeedback(
-      "Review refreshed: 4 changed files in the chosen range.",
-    );
+    await files.expectOutsideCount(4);
     writeAt(workspace, "again.txt", "new uncommitted changes\n");
     const again = (await review.refreshAndAnswer()).snapshot;
     expect(again.uncommitted?.kind).toBe("uncommitted");
@@ -164,6 +155,6 @@ test.describe("from Story A's declared history", () => {
     await commits.expectChosen(1);
     await commits.expectChosen("last", false);
     await commits.expectRange("Changes in 1 commit");
-    await files.expectListLacks("4 changed files", "again.txt");
+    await files.expectOutsideLacks("again.txt");
   });
 });

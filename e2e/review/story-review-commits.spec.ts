@@ -4,7 +4,10 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
+import {
+  openIntentReviewChanges,
+  openReviewChanges,
+} from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import {
@@ -40,7 +43,7 @@ test.describe("from Story A's declared history with a newest plain edit", () => 
     keepLaunchRecord(dashboard, workspace);
     const before = observed(workspace);
     const card = await openBacklog(page, origin);
-    const review = await openReviewChanges(page, card);
+    const review = await openIntentReviewChanges(page, card);
     const { snapshot } = review;
     const expected = git(
       workspace,
@@ -76,18 +79,20 @@ test.describe("from Story A's declared history with a newest plain edit", () => 
       "Changes in 1 commit",
       `From ${snapshot.commits[0]?.shortRevision} newest story edit to ${snapshot.commits[0]?.shortRevision} newest story edit.`,
     );
-    await files.expectListed("1 changed file", ["Modified story.txt"]);
+    await files.expectOutsideFiles(1, ["Modified story.txt"]);
+    await files.choose("Modified story.txt");
     await diffs.expectText("newest story");
     await diffs.expectText("untracked", false);
     // Extend to the older commit, then activate again to start its own range.
     await commits.chooseAlone("last");
     await commits.expectChosen("last");
-    await files.expectListed("1 changed file", ["Renamed old.txt → new.txt"]);
+    await files.expectOutsideFiles(1, ["Renamed old.txt → new.txt"]);
+    await files.choose("Renamed old.txt → new.txt");
     await diffs.expectText("renamed");
     await diffs.expectText("newest story", false);
-    await review.expectComparisonNamed("Commits");
+    await review.comparison.expectChosen("Commits");
     await review.hideFiles();
-    await review.expectFilesShown(false);
+    await review.expectFilesHidden();
     await diffs.expectShown();
     expect(observed(workspace)).toEqual(before);
   });
@@ -126,9 +131,9 @@ test("no commits and no uncommitted changes offers no Commits", async ({
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const review = await openReviewChanges(page, card);
+  const review = await openIntentReviewChanges(page, card);
   expect(review.snapshot.commits).toEqual([]);
-  await review.expectText("No changes: the worktree matches baseline");
+  await review.files.expectNone();
   await review.comparison.expectOffered("Commits", false);
 });
 

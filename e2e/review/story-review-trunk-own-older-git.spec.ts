@@ -10,8 +10,8 @@ import { expect } from "../../dashboard/test-support/support/preparationPage.ts"
 import { contextWords } from "../../dashboard/test-support/support/reviewContextLine.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 import {
-  openReviewChanges,
-  type ReviewChanges,
+  openIntentReviewChanges,
+  type IntentReviewChanges,
 } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { olderGit } from "../../dashboard/test-support/support/storyReviewOlderGit.ts";
 import {
@@ -35,7 +35,10 @@ const keptIn = (commits: string) =>
 
 // The context line names the baseline as any worktree's: the trunk revision
 // where the branch meets trunk, with nothing said taken out.
-async function expectPlainContextLine(review: ReviewChanges, trunk: string) {
+async function expectPlainContextLine(
+  review: IntentReviewChanges,
+  trunk: string,
+) {
   await review.context.expectWords(
     contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
   );
@@ -51,7 +54,10 @@ olderGit(
     const { workspace } = storyWorktree(origin);
     const trunk = origin.revision("s2");
     keepLaunchRecord(dashboard, workspace);
-    const review = await openReviewChanges(page, await openTaken(page, origin));
+    const review = await openIntentReviewChanges(
+      page,
+      await openTaken(page, origin),
+    );
     const { snapshot } = review;
 
     await olderGit.step(
@@ -68,26 +74,22 @@ olderGit(
           "notes.md",
           "src/g.ts",
         ]);
-        await review.files.expectRows("2 changed files", [
-          "src",
-          "  g.ts",
-          "notes.md",
-        ]);
+        await review.files.expectOutsideRows(["src", "  g.ts", "notes.md"]);
         expect(snapshot.commits.map(({ subject }) => subject)).toEqual(["u1"]);
       },
     );
 
     await olderGit.step("the feedback says why", async () => {
-      await review.status.expectFeedback(keptIn("2 published commits"));
+      await review.expectText(keptIn("2 published commits"));
       await expectPlainContextLine(review, trunk);
     });
 
     await olderGit.step("Refresh keeps saying it", async () => {
       const refreshed = (await review.refreshAndAnswer()).snapshot;
       expect(refreshed.published?.kept).toBe("not-restated");
-      await review.status.expectFeedback(
-        `Review refreshed: 2 changed files against baseline ${trunk.slice(0, 7)}.${keptIn("2 published commits")}`,
-      );
+      await review.files.expectOutsideCount(2);
+      await review.expectText(keptIn("2 published commits"));
+      await expectPlainContextLine(review, trunk);
     });
 
     await olderGit.step(
@@ -97,17 +99,8 @@ olderGit(
         git(workspace, "clean", "--quiet", "-f");
         const none = (await review.refreshAndAnswer()).snapshot;
         expect(none.files).toEqual([]);
-        await review.expectText(
-          `No changes: the worktree matches baseline ${trunk.slice(0, 7)}.`,
-        );
-        await review.status.expectFeedback(
-          new RegExp(
-            keptIn("2 published commits").replace(
-              /[.*+?^${}()|[\]\\]/g,
-              "\\$&",
-            ),
-          ),
-        );
+        await review.files.expectNone();
+        await review.expectText(keptIn("2 published commits"));
       },
     );
   },

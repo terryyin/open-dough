@@ -47,6 +47,10 @@ import { ReviewFiles } from "./reviewChangesFiles.ts";
 import { ReviewFrame } from "./reviewChangesFrame.ts";
 
 export type { Using };
+export {
+  openIntentReviewChanges,
+  type IntentReviewChanges,
+} from "./intentReviewChangesPage.ts";
 
 async function activate(control: Locator, using: Using) {
   if (using === "keyboard") await control.press("Enter");
