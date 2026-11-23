@@ -4,7 +4,6 @@ import type { LandingReporting } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { SessionBranchEntry } from "../src/sessionBranchResult.ts";
 import {
-  acceptsStoryless,
   copyReportingFiles,
   writeLandingContext,
 } from "./launchReportingFiles.ts";
@@ -45,7 +44,7 @@ export function acceptBranchLandingAnswer(
 }
 
 // Answers the next record and context file for `directory`, or undefined when
-// this record already reports, is done, or cannot accept a storyless landing.
+// this record already reports, is done, or has no installed landing module.
 export async function branchLandingContext(
   directory: string,
   record: LaunchRecord,
@@ -82,11 +81,7 @@ export async function branchLandingContext(
     { path: entry.workspace, shown: entry.workspace },
     directory,
   ).catch(() => undefined);
-  if (
-    files?.landingModule === undefined ||
-    !(await acceptsStoryless(files.landingModule))
-  )
-    return undefined;
+  if (files?.landingModule === undefined) return undefined;
   const file = await writeLandingContext(
     files.directory,
     { origin, source, host, reference },

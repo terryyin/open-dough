@@ -1,12 +1,9 @@
 // Intent's CI proof read on the dashboard server: the judged result names
 // its GitHub Actions run's id and attempt, which key the read
-// (../../../dashboard/server/baseCiNearest.ts). An archive the local GitHub
-// request owner passed on as text, as one an earlier Open Dough started
-// does, is unreadable with what the developer can do
-// (../../../dashboard/server/ciProofArtifact.ts), and, like an answer GitHub
-// does not label as an archive, left unanswered, so a later read may still
-// answer it. The shared read's artifact choice, and the archive extraction
-// and checks it names:
+// (../../../dashboard/server/baseCiNearest.ts). An answer without base64
+// archive bytes is unreadable and leaves the request unanswered, so a later
+// read may still answer it. The shared read's artifact choice and archive
+// extraction are exercised in:
 // ../skills/dough-test-optimization/ci-proof-read.test.mjs.
 // Summaries broken down by file: ./dashboard-ci-proof-breakdown-read.test.mjs.
 // Query-shape refusals: ./dashboard-ci-proof-parse.test.mjs.
@@ -16,7 +13,6 @@ import { judgeNearest } from "../../../dashboard/server/baseCiNearest.ts";
 import { zipOf } from "../../../dashboard/test-support/support/ciProofArtifacts.ts";
 import {
   isUnansweredProof,
-  olderRequestOwnerDetail,
   unreadableBy,
 } from "../../../dashboard/server/ciProofArtifact.ts";
 import { unavailableLine } from "../../../dashboard/src/ciProofAbsenceWording.ts";
@@ -99,28 +95,24 @@ test("an archive passed on as base64 keeps its bytes", () => {
   );
 });
 
-test("an archive the local GitHub request owner passed on as text is unreadable, saying what restarts the owner, and left unanswered", () => {
-  const proof = unreadableOf(answerOf("application/zip", "PK\u0003\u0004"));
-  assert.deepEqual(proof, {
-    kind: "unavailable",
-    reason: "unreadable",
-    detail: olderRequestOwnerDetail,
+for (const [label, contentType, body] of [
+  ["archive", "application/zip", "PK\u0003\u0004"],
+  ["HTML", "text/html", "<html></html>"],
+]) {
+  test(`a ${label}-labelled text reply leaves CI proof unreadable and unanswered`, () => {
+    const proof = unreadableOf(answerOf(contentType, body));
+    const detail = `GitHub request ${route} failed: GitHub's answer is not an archive`;
+    assert.deepEqual(proof, {
+      kind: "unavailable",
+      reason: "unreadable",
+      detail,
+    });
+    assert.equal(isUnansweredProof(proof), true);
+    // An equal answer this read did not give is not one it left unanswered.
+    assert.equal(isUnansweredProof({ ...proof }), false);
+    assert.equal(
+      unavailableLine(proof),
+      `This run's CI proof summary could not be read. ${detail}.`,
+    );
   });
-  assert.equal(isUnansweredProof(proof), true);
-  assert.equal(
-    unavailableLine(proof),
-    "This run's CI proof summary could not be read. This machine's local GitHub request owner was started by an earlier Open Dough and passes the summary on as text. Restart the Open Dough dashboards and CI observers on this machine; the next read starts a current one.",
-  );
-});
-
-test("an answer GitHub does not label as an archive is unreadable as GitHub's, and left unanswered", () => {
-  const proof = unreadableOf(answerOf("text/html", "<html></html>"));
-  assert.deepEqual(proof, {
-    kind: "unavailable",
-    reason: "unreadable",
-    detail: `GitHub request ${route} failed: GitHub's answer is not an archive`,
-  });
-  assert.equal(isUnansweredProof(proof), true);
-  // An equal answer this read did not give is not one it left unanswered.
-  assert.equal(isUnansweredProof({ ...proof }), false);
-});
+}

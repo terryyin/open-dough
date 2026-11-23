@@ -173,7 +173,7 @@ at most 250 lines.
 ### 5. Request owner and Dashboard landing reporting drop retired capability probes and text-archive fallbacks
 
 Type: Behavior
-Status: planned
+Status: done
 
 Remove `supportsWorkflowRerun` and `workflowRerunSockets` from
 `github-request-owner-endpoint-connection.mjs` and
@@ -285,6 +285,19 @@ push.
   live seed-directory helper private and passed the identity and payload checks.
   See `slice-4-return.md` and `slice-4-refactor-return.md` in the worktree's
   Git evidence directory for exact selections and observations.
+- Slice 5. Named Distribution checks observe one rerun request through the
+  current owner, exact base64 archive bytes and the ordinary unreadable
+  result for text replies. The backend and E2E selections observe direct
+  story and storyless contexts, absent optional modules and accepted
+  first-publication capture. Seventy-one backend browser cases, six backend
+  Vitest cases, 17 E2E cases and typecheck passed. The refactor preserved both
+  text-response cases in the passing proof reader suite. See
+  `slice-5-return.md` and `slice-5-refactor-return.md` in Git evidence.
+  For integration, preserve main's `7a8697b8a` title helper, title writes and
+  arguments, and both follow-up identity derivations when removing the
+  compatibility guards. Prove the combined candidate with Dashboard
+  typecheck, the retained startup landing and branch landing handoff specs,
+  and the ad hoc story close resume suite.
 
 ## Plan review
 
