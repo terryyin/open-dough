@@ -235,7 +235,7 @@ install checks passed.
 ### 6. Pygardon's existing command works with the candidate install
 
 Type: Behavior
-Status: planned
+Status: done
 
 Install and update the candidate in disposable client checkouts, retaining
 Pygardon's current `ciAdapter`, `ciRebuild` and integrated-state settings. Run
@@ -250,6 +250,37 @@ Repeat the Pygardon fixture route above against the candidate install, preservin
 the current adapter and configuration. Attach the exact candidate Dashboard
 read and rebuild requests with their corresponding fixture outcomes to this
 slice's proof. Resolve any mismatch here before requesting release.
+
+**Delivered.** No Open Dough change was needed. At candidate `3f184e313` the
+`payload-declaration-links`, `execution-payload-update` and
+`install-public-payload` checks passed with Bash 5. The six runtime and manual
+files changed by slices 1–5 are declared unchanged in
+`src/install/open-dough-execution-payload.sh` and `install.sh` and arrive
+byte-identical. A disposable Pygardon clone at `49023bf9e` took the candidate
+through `install.sh --replace-verified` for both skill roots; a plain install is
+refused against its released 0.3.112 copy, and the version reads 0.3.112 until
+the tag. `.planning/open-dough.json` stayed byte-identical (`ciAdapter`,
+`ciRebuild`, `integratedStateCompletion`). Pygardon's eight adapter and watcher
+test files passed 56 cases against the installed watcher, including recovery
+from brief loss and a withheld verdict under persistent loss. Against its real
+`pygardon-ci-adapter.mjs` and loopback provider, the candidate's
+`discoverCommandAttempts`, `readCommandProof`, `readCommandJobs` and
+`requestCommandRebuild` sent:
+
+```json
+{"operation":"discover","check":{"repo":"terryyin/pygardon","branch":"main"}}
+{"operation":"proof","check":{"repo":"terryyin/pygardon","branch":"main"},"attempt":{"runId":"checked","attemptId":"checked","sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}
+```
+
+`jobs` and `rebuild` sent the same attempt. Discover answered one
+`pygardon-ci` push attempt; proof returned the retained summary unchanged; jobs
+returned `prepared-checkout` at 90000 ms; rebuild was accepted as a new
+`repeat` attempt by the loopback fixture's POST `/rebuild`. These are the
+request shapes the Dashboard call sites build (string IDs, listing branch, full
+revision; `baseCiAdapterRevisionLookup.ts`, `ciAdapterProof.ts`,
+`ciFollowUpAdapterProvider.ts`). The Dashboard server itself was not run against
+Pygardon's command; its mapping of these answers is proved by the backend specs
+of slices 3–5.
 
 ### 7. A compatible tagged contract is available to Pygardon
 
