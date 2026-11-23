@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "Akiho-chan",
+  "email": "akiho-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-423#notify-claude-code-of-ci-through-one-path",
+  "host": "claude"
+}
