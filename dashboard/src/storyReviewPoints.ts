@@ -12,6 +12,7 @@ export type ReviewComparison = z.infer<typeof reviewComparisonSchema>;
 export const reviewCommitSchema = z.object({
   kind: z.literal("commit"),
   revision: objectIdSchema,
+  firstParent: objectIdSchema.optional(),
   shortRevision: z.string().min(1),
   subject: z.string(),
   committedAt: z.iso.datetime({ offset: true }),

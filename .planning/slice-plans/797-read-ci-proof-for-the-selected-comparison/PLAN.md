@@ -270,7 +270,7 @@ evidence directory.
 ### 6. Carry the first-parent commit through Review
 
 Type: Structure
-Status: planned
+Status: done
 Estimated active work: 7–11 minutes.
 
 Expose the first-parent commit ID from the `%P` field already read by
@@ -284,6 +284,13 @@ fixtures. Check that a selected merge's serialized parent is its first
 parent commit and differs from the other parent and from its tree.
 Retain the existing first-parent range diff and mounted commit chooser
 proof.
+
+Accepted proof parses the real workspace merge snapshot and distinguishes
+its first parent from the second parent and the first parent's tree. An older
+snapshot remains readable without `firstParent`. Seven backend Vitest
+cases, three backend admission cases, 14 mounted cases, 10 E2E cases and
+typecheck passed. See `slice-f-return.md` in this checkout's Git evidence
+directory.
 
 ### 7. Follow a Taken story’s commit range
 
@@ -355,6 +362,11 @@ routes. The review identified no remaining slice-specific concern.
   `9e2ed0796b0b5e06174edfff54965a21b4ccbcea`. The recovery test repair
   was accepted at `d8af5a05f45292e7fdd689ea244d3019950be6aa` and the
   paused Slice 5 work restored.
+- Slice 5 was accepted on the execution branch at
+  `f9c542318fe4199405c7b701105406b9eaaa5c8d`. Trunk's declared-unit
+  delivery changes shared proof readers and row interpretation. At
+  integration, preserve those rules and renew affected proof on the
+  combined candidate.
 - Codex observer of `ci.yml` on the execution branch, coordinator
   `nao-9b9c27ea`, directory `/tmp/dough-ci-501/watch-dv7wpQ`, process
   `33667`, cell `g458:11`, session `61453`. The claim preceded this observer.
