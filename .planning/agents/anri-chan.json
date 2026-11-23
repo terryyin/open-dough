@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-425#resume-existing-plans-after-upgrade",
+  "mode": "story-branch",
+  "branch": "codex/resume-an-existing-plan-after-upgrading-open-dou",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
