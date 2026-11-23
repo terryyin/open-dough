@@ -9,7 +9,6 @@ source "${source_dir}/Distribution/tests/helpers/publication-update-proof.bash"
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 source "${source_dir}/Distribution/tests/helpers/installed-wait-entrypoint-fixture.bash"
-source "${source_dir}/Distribution/tests/helpers/installed-ci-reuse-fixture.bash"
 source "${source_dir}/Distribution/tests/helpers/installed-ci-proof-fixture.bash"
 fixture="${temporary_dir}/source"
 older="${temporary_dir}/older"
@@ -64,7 +63,8 @@ assert_upgraded_execution_payload() {
     done
     # Exercise the installed runtime entrypoint in the platform layout.
     canonical_root=$(cd "${target}/${root}/dough-execute-plan" && pwd -P)
-    assert_installed_ci_reuse "${canonical_root}"
+    # The updated install carries no CI reuse recipe script or manual.
+    [[ -z $(find "${canonical_root}" -iname '*reuse*') ]]
     assert_installed_ci_proof "${target}/${root}"
     receipt=$(DOUGH_CI_MAILBOX_ROOT="${temporary_dir}/mailboxes" node "${canonical_root}/scripts/ci-mailbox.mjs" probe)
     [[ "${receipt}" == 'CI_OBSERVER '* ]]

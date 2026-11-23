@@ -1,6 +1,11 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  appendFileSync,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
-import { exec } from "./publication-test-fixtures.mjs";
+import { exec, git } from "./publication-test-fixtures.mjs";
 
 // The file and bytes the fixture description's first unpublished revision
 // adds: what every candidate built on that increment must still hold.
@@ -16,8 +21,8 @@ function describedIncrement({ description }) {
   return { path, content: String(content) };
 }
 
-// Actual covered and target-only children are independent of provider facts.
-export function createReuseCheckCommands(fixture, policy) {
+// The actual covered child is independent of provider facts.
+export function createCheckCommands(fixture) {
   const increment = describedIncrement(fixture);
   const executions = join(fixture.fixture, "executions.jsonl");
   const covered = join(fixture.fixture, "covered.mjs");
@@ -30,9 +35,8 @@ import { execFileSync } from 'node:child_process';
 const [sha, failed] = process.argv.slice(2);
 const content = execFileSync('git', ['show', sha + ':' + ${JSON.stringify(increment.path)}], {encoding:'utf8'});
 assert.equal(content, ${JSON.stringify(increment.content)});
-appendFileSync(${JSON.stringify(executions)}, JSON.stringify({sha,kind:'covered'})+'\\n');
+appendFileSync(${JSON.stringify(executions)}, JSON.stringify({sha})+'\\n');
 if (failed === 'true') process.exit(1);
-console.log('DOUGH_CI_DIRECT '+JSON.stringify({sha,...${JSON.stringify({ unit: policy.unit, configuration: policy.configuration, context: policy.context })}}));
 `,
   );
   const coveredCommand = (sha, failed = false) => [
@@ -41,21 +45,15 @@ console.log('DOUGH_CI_DIRECT '+JSON.stringify({sha,...${JSON.stringify({ unit: p
     sha,
     String(failed),
   ];
-  const targetOnlyCommand = (sha, failed = false) => [
-    process.execPath,
-    "-e",
-    `require('node:fs').appendFileSync(${JSON.stringify(executions)}, ${JSON.stringify(`${JSON.stringify({ sha, kind: "target-only" })}\n`)});process.exit(${failed ? 1 : 0})`,
-  ];
   return {
     coveredCommand,
-    targetOnlyCommand,
-    count(sha, kind = "covered") {
+    count(sha) {
       if (!existsSync(executions)) return 0;
       return readFileSync(executions, "utf8")
         .trim()
         .split("\n")
         .map(JSON.parse)
-        .filter((entry) => entry.sha === sha && entry.kind === kind).length;
+        .filter((entry) => entry.sha === sha).length;
     },
     async runCovered(sha, failed = false) {
       const [command, ...args] = coveredCommand(sha, failed);
@@ -64,10 +62,21 @@ console.log('DOUGH_CI_DIRECT '+JSON.stringify({sha,...${JSON.stringify({ unit: p
       }).catch((error) => error);
       return { success: !(result instanceof Error), log: result.stdout };
     },
-    async runTargetOnly(sha, failed = false) {
-      const [command, ...args] = targetOnlyCommand(sha, failed);
-      const result = await exec(command, args).catch((error) => error);
-      return !(result instanceof Error);
-    },
   };
+}
+
+// Keeps installed skills and project CI settings out of the checks' worktree.
+export async function ignoreInstalledSkills(fixture) {
+  const common = (
+    await git(
+      fixture.execution,
+      "rev-parse",
+      "--path-format=absolute",
+      "--git-common-dir",
+    )
+  ).stdout.trim();
+  appendFileSync(
+    join(common, "info/exclude"),
+    ".agents/\n.claude/\n.planning/open-dough.json\n",
+  );
 }

@@ -1,4 +1,4 @@
-// The installed runnable custom provider (ci-reuse-custom-example.mjs) as the
+// The test-owned custom provider (ci-custom-command-adapter.mjs) as the
 // project's command adapter for the integrated-state journey. Its target
 // attempts come from actually executed, counted covered commands. A recording
 // wrapper counts discoveries, fails them while `unavailable` holds, and can
@@ -20,13 +20,16 @@ import { join } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 import { makeMe } from "../../support/makeMe.mjs";
-import { installCustomReuseProvider } from "./ci-reuse-custom-test-fixtures.mjs";
+import {
+  customAdapterScript,
+  installCustomProvider,
+} from "./ci-integrated-state-custom-provider-test-fixtures.mjs";
 import { publishFileAsAnotherWriter } from "./publication-test-fixtures.mjs";
 
 export const customPolicy = { check: "project-checks", context: "push" };
 
 const wrapperSource = ({
-  example,
+  adapter,
   state,
   requests,
   unavailable,
@@ -35,7 +38,7 @@ const wrapperSource = ({
   shape,
 }) => `
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
-import { customAdapterResponse, discoveredAttempts } from ${JSON.stringify(example)};
+import { customAdapterResponse, discoveredAttempts } from ${JSON.stringify(adapter)};
 import { guardFixtureProcess, waitForFixtureRelease } from ${JSON.stringify(new URL("./ci-process-lifetime-test-fixtures.mjs", import.meta.url).href)};
 guardFixtureProcess(${JSON.stringify(join(state, ".."))});
 let input = '';
@@ -60,22 +63,20 @@ process.stdout.write(JSON.stringify(response));
 `;
 
 // A journey provider (see createIntegratedStateJourney) whose discovery has
-// `shape`: "example" (the provider's own), "all-branch-history" or "legacy".
-export function customProvider(shape = "example") {
+// `shape`: "adapter" (the adapter's own), "all-branch-history" or "legacy".
+export function customProvider(shape = "adapter") {
   return async (t, fixture, declared) => {
-    const provider = await installCustomReuseProvider(fixture);
+    const provider = await installCustomProvider(fixture);
     const requests = join(fixture.fixture, "adapter-requests.jsonl");
     const unavailable = join(fixture.fixture, "adapter-unavailable");
     const hold = join(fixture.fixture, "hold-adapter");
     const release = join(fixture.fixture, "release-adapter");
     const wrapper = join(fixture.fixture, "recording-adapter.mjs");
-    const example = pathToFileURL(
-      join(fixture.skill, "scripts/ci-reuse-custom-example.mjs"),
-    ).href;
+    const adapter = pathToFileURL(customAdapterScript).href;
     writeFileSync(
       wrapper,
       wrapperSource({
-        example,
+        adapter,
         state: provider.state,
         requests,
         unavailable,
@@ -109,7 +110,7 @@ export function customProvider(shape = "example") {
     // once, or once released when `held`.
     function schedule(sha, { ref = "main", failed = false, held } = {}) {
       const covered = provider.coveredCommand(sha, failed);
-      if (!held) return provider.target(sha, { ref, noPolicy: true, covered });
+      if (!held) return provider.target(sha, { ref, covered });
       const release = join(
         fixture.fixture,
         `release-${sha}-${releases.length}`,
@@ -131,7 +132,6 @@ process.exit(result.status ?? 1);
       });
       return provider.target(sha, {
         ref,
-        noPolicy: true,
         covered: [process.execPath, blocked],
       });
     }
@@ -142,7 +142,7 @@ process.exit(result.status ?? 1);
         ? JSON.parse(readFileSync(provider.state, "utf8"))
         : { entries: [] };
     return {
-      repo: provider.policy.repo,
+      repo: provider.check.repo,
       polls: () => operations().filter((name) => name === "discover").length,
       holdRequests: () => writeFileSync(hold, ""),
       releaseRequests: () => writeFileSync(release, ""),
@@ -201,7 +201,6 @@ process.exit(result.status ?? 1);
             async validate({ failed = false } = {}) {
               const { attempt } = await provider.target(sha, {
                 ref,
-                noPolicy: true,
                 covered: [
                   "/bin/sh",
                   "-c",
@@ -228,7 +227,7 @@ process.exit(result.status ?? 1);
             cwd: fixture.execution,
             input: JSON.stringify({
               operation: "discover",
-              check: { repo: provider.policy.repo, branch },
+              check: { repo: provider.check.repo, branch },
             }),
             encoding: "utf8",
           });

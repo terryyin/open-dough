@@ -8,7 +8,7 @@ observations and context beyond those catalog records. See
 ## Retention
 
 - Highest allocated local number: 633. Removed numbers are never reused.
-- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
+- Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain; `d516ab3ebac31265c991f9b88fb8cf57f125c1e0:DearDough.md` holds ODF-368's removed observed-effect line.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
 
@@ -501,7 +501,7 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
   - Model: claude-opus-5-5
   - Open Dough release: 0.3.111 (trunk guidance update `27c47b235` before Take `419aeed53`)
   - Evidence: the first `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice` for `## Slices and outside-in proof`; renaming it to `## Slices` gave `ok: true`, and the rename was committed with slice 1 (`5119da43d`), so delivery did not refuse.
-  - Observed effect: one refused listing and a heading edit before delegation.
+- Execution: SEED-423#install-without-ci-reuse-recipes (plan 792; first implementation `c1b999037`). Timestamp: unknown (2026-11-23, minutes before the `c1b999037` commit at 16:37:44+08:00). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.112 (installed `.claude/skills/dough-update/VERSION` at Take `7b8eb58e3`). Evidence: a Ready plan headed `## Slices and outside-in proof`; `story-obligations.mjs list --slice 1` returned `ok: true` with no entries, then guarded fresh delivery refused `plan/status mutation`: no `## Ordered slices` or `## Slices` section. Renaming the heading in the working plan let the retried delivery commit and publish slice 1. Observed effect: one refused delivery and a retry; no extra commit. Inference: the obligations listing no longer catches the heading, so delivery is now the first reader to refuse it.
 
 ## ODF-528 — A plan puts slices that wait for a week of post-landing ordinary work inside one Story Branch execution <a id="dd-580"></a>
 
