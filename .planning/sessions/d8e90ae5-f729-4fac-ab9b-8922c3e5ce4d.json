@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "d8e90ae5-f729-4fac-ab9b-8922c3e5ce4d",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T08:32:42.634Z",
+  "story": "SEED-423#install-without-the-custom-ci-adapter",
+  "ranges": [
+    {
+      "base": "59c4b7554a716eea7a1867a59ac029701da33a11",
+      "candidate": "3d3039f7e71b6281ec7a97bd2a5b20a34a9834be"
+    }
+  ]
+}
