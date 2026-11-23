@@ -470,6 +470,31 @@ Independent refactoring gave the tab and browser one readiness decision.
 Six affected real browser cases and Dashboard typecheck passed. See
 `s8-refactor.md` for the retained and repeated proof.
 
+## Execution complete
+
+Product advice: Keep the existing queue order. The card and the banner now
+share the story comparison, and the card can preserve a visible terminal
+or report while the developer reads the diff. The standalone Done story,
+session selection and comparison-specific proof remain separate outcomes
+with their existing homes.
+
+## Retrospective evidence
+
+The published implementation runs from `e8466f474` through `d31aee723`
+after the established Take `0f9df4dcc`. The intervening session comparison
+expectation and native setup interruption repairs belong to this execution's
+CI handling. The comparison, navigation, session, file and note
+observations above were reviewed against the original source and Accepted
+ADR 0008. The Taken card and first-file changes were driven by reproduced
+browser failures before implementation. Real Git and native-session
+journeys cover the cross-service behavior, while detailed eligibility,
+note context, and syntax cases use the frontend service boundary.
+
+Product and proof review needs no new corrective plan. The migrated note
+context proof carries a protection risk for the wrap-up check. Process
+review remains selected and continues there after that check. The
+execution-branch CI result is pending at this record.
+
 ## Plan refinement and gates
 
 Slice-plan refinement realigned the inherited plan in place. Eight slices
