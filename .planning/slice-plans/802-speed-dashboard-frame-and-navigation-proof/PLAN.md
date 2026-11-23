@@ -1,0 +1,267 @@
+# Get fast proof of the dashboard frame, navigation and settings
+
+**Identity:** SEED-413#speed-dashboard-frame-and-navigation-proof
+**Source:** [Get fast proof of the dashboard frame, navigation and settings](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof)
+
+## Goal and scope
+
+Give developers fast Vitest proof that the dashboard frame, project switching,
+recent stories, story references and settings behave correctly. Move the
+remaining frontend legacy cases outside Done review, live sessions and the
+harness onto plain Vitest under the
+[shared acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-frontend-stories).
+Prove real deep links, reload and Back/Forward through a named E2E journey only
+where a mounted owner cannot observe them; reuse an existing journey when it
+already proves the behavior. Remove support that loses its last consumer here.
+The built-app runner stays for Done review, live sessions and runner retirement.
+`test-harness/` stays with story 8b.
+
+## Current decisions
+
+- Apply the [campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-frontend-stories),
+  [Architectural North Star](../../NORTH-STAR.md)
+  (directly testable production; act as soon as the page allows; plain Vitest
+  for unit),
+  [frontend test entry guidance](../../../dashboard/frontend-tests/README.md#which-entry-a-case-uses),
+  [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md),
+  [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md),
+  and [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
+- **PFE.** Reuse `mountBoardFrame` /
+  `ConfiguredDashboard` / `pageReadsSupplying` /
+  `board-frame-observation-supply` already proven by `frame-*-look`, board
+  paging and `story-reference-done*`. Reuse colocated settings owner mounts
+  (`system-settings-*-page.ts`) for display-only settings surfaces; open
+  settings through the production frame when the proof is frame return, project
+  hide or appearance across Board/Intent/Sessions. Reuse
+  [`e2e/navigation/development-intent-history.spec.ts`](../../../e2e/navigation/development-intent-history.spec.ts)
+  as the Back/Forward/reload journey pattern; extend or add a named story-URL
+  history journey only for targeting the mounted frame cannot observe. Keep
+  `PageFrame.tsx` (250 lines) and `ConfiguredDashboard.tsx` (210 lines) within
+  their established responsibilities.
+- Map each legacy title and its distinct assertions to a named replacement or
+  inspected existing observation before deletion. Collapse the three project
+  keyboard specs when they share setup and each failure still names its distinct
+  rule. Consolidate equivalent header viewports and settings look variants when
+  setup and risk match. Keep distinct focus, eligibility, unavailable, race and
+  cue observations. Use the project's MakeMe and page-object selection; colocate
+  page objects beside the specs.
+- Act directly with retrying observations. Retire whole-app frame, navigation
+  and settings FE consumption of route substitutes as the last scoped consumer
+  moves. Keep shared E2E page objects.
+- Compare equivalent focused selections at two workers, including preparation,
+  counts by engine and destination, any E2E cost, and the slowest remaining
+  cases. Maintain an assertion map in this plan as each slice lands under
+  ADR 0010.
+
+## Outside-in proof
+
+| Starting evidence and action | Observed result | Slice |
+| --- | --- | --- |
+| A story URL opens cold, names an unavailable target, or repeats a destination cue | Project and story selection match; unavailable and cue outcomes stay distinct; only real reload/Back/Forward leave the mount for E2E | 1 |
+| Keyboard or pointer selects among eligible projects | Focus and eligibility rules hold; Board content follows the chosen project | 2 |
+| System appearance or settings chrome changes | Frame look, settings layout and project hide follow the choice through the production settings path | 3 |
+| Compact or wide header and connection logo update | Banner controls stay reachable; logo kneads once on revision delivery | 4 |
+| A story reference opens, identifies or recovers | Destination, identity and pending/failed recovery stay distinct without late focus theft | 5 |
+| Recent stories or the agent roster are used | Recent list and roster collection match selection and published settings | 6 |
+| Intent Changes lists files outside locations or with no locations | Outside listing, Purpose reading, Proof labels and no-locations explanations stay truthful | 7 |
+
+## Baseline and decisive premises
+
+Observed in the owned workspace on 2026-11-23 at `7d861c9d3`, Node 24.21.0
+from the locked install, on macOS AC power. Commands ran from the project root
+under `caffeinate -s -i`. Paths below are relative to
+`dashboard/frontend-tests/` unless noted.
+
+| Consuming operation | Observed form and result | Use in the plan |
+| --- | --- | --- |
+| Scoped selection | `npm run --silent test:dashboard:frontend --` with the 22 explicit legacy paths and `--list --reporter=line` selected **58** Playwright cases in 22 files (seed inventory at `24ae92074` was ≈67). | The explicit roster below replaces the earlier estimate. Measure executed cases from the proof record. |
+| Baseline journey and timing | The same 22 paths with `dashboard/frontend-tests/` prefixes, `--workers=2 --reporter=line`, passed **58/58 in 1.3 m** Playwright time (~81 s wall including preparation). | Reuse this baseline at this source revision for ADR 0010 comparisons. Each slice uses its roster paths. |
+| Production frame composition | Existing Vitest mounts (`frame-board-look`, `frame-roster-look`, `story-reference-done*`, board paging) already drive `ConfiguredDashboard` through `mountBoardFrame` with typed published work and page reads. | Reuse that composition for frame, project, reference and roster cases. |
+| Story-URL cold open on the mount | Early probe in slice 1: open one cold story destination through `history` + `mountBoardFrame` / required page reads and prove reveal and focus before retiring the built-app path for that family. | Bounded by slice 1 early probe. |
+| Real reload / Back / Forward | `e2e/navigation/development-intent-history.spec.ts` already proves Back, Forward, reload and System settings return for project and perspective. Story-URL reload/history cases that need a real page load extend that pattern or a named sibling journey. | Settled reuse for the history pattern; story-target specifics stay with slice 1's E2E mapping. |
+| Settings owner mounts | Configuration Vitest specs already mount `SystemSettingsUsage`, OpenAI and terminal-theme owners with typed sources. | Reuse for look variants that do not need the frame; keep frame path for appearance, hide and navigation return. |
+
+## Local gate
+
+On macOS run from an awake machine on AC with `caffeinate -s -i`, the maintained
+[sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Keep default test timeouts and follow the
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+Run each affected frontend engine's explicit paths separately through
+`npm run test:dashboard:frontend -- <paths> --workers=2` while both exist.
+Run the named E2E paths with `npm run test:e2e -- <paths> --workers=2` when
+changing their observations or their composed boundary. Typecheck changed
+dashboard production inputs and callers with `npm run typecheck:dashboard`.
+
+## Ordered slices
+
+Frontend spec names omit `.spec.ts` unless otherwise specified.
+
+### 1. Story URL destinations select, refuse and cue on the page frame
+
+Type: Behavior
+Status: planned
+
+**Roster (9 cases).** `navigation/story-url-destination`,
+`navigation/story-url-destination-unavailable`,
+`navigation/story-destination-repeat-cue`.
+
+**Early probe.** Mount one cold story-URL arrival through `mountBoardFrame`
+(or the same `ConfiguredDashboard` + required page-reads entry) with the story
+query on `history`, and prove reveal and keyboard focus before moving the
+family.
+
+**Behavior.** A cold or held story URL waits for the named project's data, then
+reveals and focuses that identity. Unavailable project or story outcomes stay
+distinct from failed reads; retry and superseding project choice prevent late
+reveals. Asking again for an already selected inspected destination cues it
+again without clearing Highlight or detail. Promote reload, Back and Forward
+story-target preservation that needs a real page load to a named E2E journey
+(reuse or extend `e2e/navigation/development-intent-history`); keep mounted
+proof for everything the frame can observe.
+
+**Proof.** Focused Vitest selection for the three files (minus any promoted E2E
+titles) stays green on the production frame. The named E2E journey covers
+reload/history story targeting. Built-app substitutes used only by these cases
+are gone once their last consumer moves.
+
+### 2. Project selection and keyboard navigation keep focus and eligibility
+
+Type: Behavior
+Status: planned
+
+**Roster (8 cases).** `navigation/project-selection`,
+`navigation/project-keyboard-navigation`,
+`navigation/project-keyboard-navigation-focus`,
+`navigation/project-keyboard-navigation-eligibility`.
+
+**Behavior.** Choosing a project shows that project's Board and re-asks its
+ref. Unmodified Left/Right cycle eligible catalog projects with wrap; focused
+radios advance once; help, editing, other arrow owners and modified keys leave
+the project unchanged. Focus stays useful across switches; held previous reads
+stay isolated. Collapse the three keyboard specs when they share setup and each
+failure still names its distinct rule.
+
+**Proof.** Mounted frame selection covers project content, keyboard cycling,
+focus and eligibility. No built-app project-keyboard path remains for these
+titles.
+
+### 3. System appearance and settings chrome follow through the frame
+
+Type: Behavior
+Status: planned
+
+**Roster (7 cases).** `configuration/dashboard-system-appearance`,
+`configuration/system-settings-look`,
+`configuration/system-settings-navigation`,
+`configuration/project-hide-selection`.
+
+**Behavior.** System appearance changes Board, Sessions, Side panel, dialog and
+Intent source readability together without an in-dashboard appearance switch.
+Settings groups stay headed, readable and reachable at narrow and phone widths.
+Global settings returns to roster with focus; browser history keeps project
+selection where the mount can observe it, otherwise the existing history E2E
+owns it. Hiding the selected project selects another visible one; hiding all
+keeps settings usable and refuses deep links to hidden projects.
+
+**Proof.** Appearance and hide run through the production frame and settings
+path. Look variants that only need the settings owner reuse the existing
+colocated mounts. Legacy built-app settings specs in this roster retire once
+every assertion has a new owner.
+
+### 4. Dashboard header chrome and connection logo stay reachable
+
+Type: Behavior
+Status: planned
+
+**Roster (7 runtime cases).** `navigation/dashboard-header`,
+`navigation/dashboard-header-compact`,
+`navigation/dashboard-connection-logo`.
+
+**Behavior.** The selected-project banner stays reachable across wide, mid and
+phone widths. Compact title select keeps Sessions, perspective, Recent stories,
+project select and settings on one line; keyboard and resize preserve choice and
+focus. The connection logo kneads once when the waiting dashboard receives
+updates. Consolidate equivalent banner viewport cases when setup and risk match.
+
+**Proof.** Mounted frame header and logo observations stay green; compact
+phone and keyboard paths use native input. Built-app header specs in this
+roster are gone.
+
+### 5. Story references navigate, identify and recover without late theft
+
+Type: Behavior
+Status: planned
+
+**Roster (8 cases).** `navigation/story-reference-navigation`,
+`navigation/story-reference-identity`,
+`navigation/story-reference-recovery`.
+
+**Behavior.** A dependency opens its active story and keeps inspection on
+repeated activation; a starting reference reveals without protected inspection
+or host action. Distinct seed identities follow keyboard and touch at a narrow
+reduced-motion viewport; each project's pinned reference opens its own telling.
+Missing, reading and failed destinations stay distinct; retry reaches a newly
+published block; leaving or choosing another inspection during a pending read
+prevents late focus or inspection theft.
+
+**Proof.** Mounted frame (reuse `story-reference-done*` composition patterns)
+covers navigation, identity and recovery. Built-app reference specs in this
+roster retire.
+
+### 6. Recent stories and agent roster follow selection and collection settings
+
+Type: Behavior
+Status: planned
+
+**Roster (7 runtime cases).** `navigation/recent-stories`,
+`stories/agent-roster-collection`.
+
+**Behavior.** Recent stories lists card and Side panel selections, caps at the
+ten most recent, survives storage failure for the page only, and choosing a row
+selects and reveals across projects including unavailable. The roster lists the
+current collection or the nerds collection from published settings; unknown
+settings say so and list no agent; an existing assignment from the other
+collection stays visible. Promote a real reload survival check that needs a
+page load to the named history E2E only when the mount cannot observe storage
+across reload.
+
+**Proof.** Mounted frame recent-stories and roster views stay green with typed
+published files / executing roster answers. Built-app consumers for these
+titles are gone.
+
+### 7. Intent outside and no-locations Changes stay truthful on Vitest
+
+Type: Behavior
+Status: planned
+
+**Roster (8 cases).** `intent/intent-story-outside-proof`,
+`intent/intent-story-outside-locations`,
+`intent/intent-story-changes-no-locations`.
+
+**Behavior.** Changed files outside every Intent location follow the locations
+in open folders, are omitted from the header count, and read as Purpose under
+Selected story only, including a Done published completion. An outside file's
+Proof names the story's CI comparison, says it has no file-level CI evidence,
+and keeps scrolled place. Without configured locations, Changes lists every
+file beside the explanation; Taken stories with no local workspace or several
+claiming worktrees keep their review explanation. Real Git overlay stays in
+`e2e/intent/intent-story-changes.spec.ts`.
+
+**Proof.** Mount Intent Changes / Proof owners over typed intent and review
+reads as prior Intent stories did. The three built-app leftovers retire. Shared
+Intent substitutes lose these consumers.
+
+## Plan review
+
+- **Refinement.** Not needed: seven Behavior slices follow distinct proof loops
+  (story URL, project keyboard, settings/appearance, header chrome, story
+  references, recent/roster, Intent outside) within the slice limit; the
+  story-URL mount premise is bounded by an authorized early probe in slice 1;
+  key examples map to slices 1–3; no duplicated domain rule remains.
+- **Remaining concerns.** None identified beyond the early-probe-bounded
+  story-URL mount premise above.
+
+## Story obligations
+
+None yet.
