@@ -2,13 +2,12 @@
 
 **Identity:** SEED-324#close-landed-ci-repeat-check-gaps
 **Source:** [canonical story](../../seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
-**Source review:** [amended source commitments](source-review.md)
 **Disposition:** unfinished; early return to the backlog authorized by Terry on 2026-11-14.
 **Next slice:** 3. Slices 1–2 are delivered; 3 is partial; 4–8 are unstarted.
 
 ## Early-return handoff
 
-Preserve this story, plan, implementation, source review and acceptance gaps.
+Preserve this story, plan, implementation and acceptance gaps.
 This execution ends and releases darren-chan; it does not complete the story.
 A future execution starts from the queued item after its recorded dependency
 is satisfied. Do not revive the old watchers or repeat completed slices blindly.
@@ -28,10 +27,6 @@ integrating its outcome and proving this correction remain consumer work.
 
 ## Preserved work and qualified proof
 
-- Slice 1: whole-comparison phone overflow assertion, three passes and F26/P3;
-  published1c04004870edef23d1628a70a06e79e83fee2db7.
-- Slice 2: queued repeat progress and same-journey finished warning, three passes
-  and F27/P4; published7348487b92dd963babcf946e3dc163ae0f3e2d0a.
 - Partial slice 3: stage-file split; shared waitingRequest/aWholePass;
   adapter prior-state readiness and coherent matching-card observations;
   pending server-start ownership; origin-owned standalone collector teardown.
@@ -55,6 +50,7 @@ requires real Git history and the origin under examination. It should run
 without an HTTP server or a rerun-request fixture.
 
 Keep all prior seven-case promises and faults F1–F11/F14–F24.
+F1 is caught by the default 30-second case bound, as in plan 599.
 The product-code exception is Terry's bounded immutable-history optimization;
 it authorizes no cross-request cache, transport redesign or weakened test bound.
 Retain default30s cases/5s expectations, no sleeps, retries, skips, test.slow()
@@ -90,7 +86,6 @@ The early-return preservation run is one run, not those three passes.
 For support moves in3/4/8, run consumer-trace with the actual change base and
 retired exports/effects. Give every caller a run, reused or reasoned excluded
 disposition. Run distinct reached behavior beyond the named starting selection.
-Keep [source-review.md](source-review.md)'s89 commitment rows and allocations.
 
 Run the ledger suite through `bash scripts/test.sh tests/support/ci-follow-up-ledger.test.mjs`.
 Run fault controls singly on scratch changes at load about27 or less; observe the
@@ -108,7 +103,11 @@ Every case passes within25s. Burners and quiet passes do not count.
 The nine specs are the first nine entries of proof-selection.txt.
 If the window is absent, stop and report the missing proof rather than waiting
 indefinitely. Terry has not waived this acceptance requirement.
-Hosted CI on the final published candidate remains required for story completion.
+Finish integration on the authorized trunk through ordinary Story Branch wrap-up
+and confirm its accepted landing receipt. Diagnose and repair failures on
+published revisions. Require a successful hosted CI completion receipt for the
+final accepted trunk revision with confirmed observer shutdown. The early-return
+publication records partial delivery.
 
 ## Remaining preparation concern
 
@@ -122,14 +121,23 @@ the recorded readiness judgment must describe it honestly.
 ### 1. The Intent phone reading checks its whole comparison for sideways scroll
 Type: Behavior
 Status: done
-Proof: retained three passes plus F26/P3; renew when affected shared UI changes.
-Keep expectNoSidewaysScrollIn(page, comparison) beyond the three part checks.
+Proof: Keep `expectNoSidewaysScrollIn(page, comparison)` beyond the three part
+checks. Renew proof if affected shared UI changes.
+Accepted: [Phone comparison](../../../e2e/intent/intent-ci-follow-up.spec.ts)
+passed three times at two workers, published as
+`1c04004870edef23d1628a70a06e79e83fee2db7`. F26/P3 made the published-landing
+line scroll inside itself. The three part checks passed and the whole-comparison
+assertion caught the overflow.
 
 ### 2. A queued repeat reads "CI rerun in progress" on a phone
 Type: Behavior
 Status: done
-Proof: retained three passes plus F27/P4; keep the finished-warning observation.
-The accepted-request backend case retains in_progress and its F16 owner.
+Proof: Keep the finished-warning observation in the same phone journey. The
+accepted-request backend case retains `in_progress` and its F16 owner.
+Accepted: [Queued-repeat phone journey](../../../e2e/intent/recently-done-ci-automatic-repeat.spec.ts)
+passed three times at two workers, published as
+`7348487b92dd963babcf946e3dc163ae0f3e2d0a`. It read queued progress and then
+the warning for the 106-second finished repeat. F27/P4 failed at “progress saved”.
 
 ### 3. The automatic-repeat checks are filed by the stage they start from
 Type: Structure
@@ -140,7 +148,8 @@ Implementation is partial and preserved; first reconcile the supplier's publishe
 fixture interfaces, CI-glance wording and settled-clock helper rename.
 Keep only the receipt journey in automatic-repeat; eligible-receipt owns refused/
 uncertain; verdict owns saved accepted outcome. waitingRequest owns run72 and
-aWholePass reads its run. Preserve the native lifetime and real-history tests.
+aWholePass reads its run. Preserve the scenario facts, expected answers,
+independent restart and ledger evidence, native lifetime and real-history tests.
 One focused diagnostic may identify a concrete remaining fault; do not repeat
 the family or extend product scope without the necessary causal evidence.
 
@@ -157,7 +166,7 @@ Remove scenario.serve(), OtherAnswers and competing scenario rerun ownership.
 Type: Behavior
 Status: planned
 Proof: new eligible-receipt case three passes; F12 and F25 each fail rerun requests;
-ledger node tests pass. Keep coverage row C5's dashboard and node owners.
+retain the independent ledger test “two independent processes serialize spend.”
 Hold run71's first preparation read after pre-check, write another writer's
 accepted request through the real ledger lock, release and complete a pass.
 Expect no provider rerun and preserve the accepted reference/submission.
@@ -222,15 +231,15 @@ Disposition: return
 
 ### G7. A shallow negative ancestry result can change after deepening
 Reported: slice 3 — "A real Git shallow boundary makes ancestry return false/exit 1 before deepening and true after removal. The prototype retained the rejected exit-1 query and incorrectly kept returning false in the same reader; the new regression reproduced this mismatch."
-Story clause: "Functional behavior, mutable-ref observation, error/abort handling and every existing test gate remain unchanged."
-Disposition: proved by slice 3: dashboard/backend-tests/intent/published-story-history-semantics.spec.ts negative ancestry deepening; real red then green, /tmp/seed324-history-shallow-follow-up.md and current graph follow-up
+Story clause: "No product behavior changes, and no new product promise."
+Disposition: proved by slice 3: [negative ancestry deepening case](../../../dashboard/backend-tests/intent/published-story-history-semantics.spec.ts) matches real Git before and after deepening on the same reader. The preceding prototype failed and the corrected reader passed the isolated [history proof](history-read-prototype-coordination.md#existing-discriminating-proof-and-limits).
 
 ### G8. Successful walks can still describe incomplete shallow history
 Reported: slice 3 — "Real Git differentials showed ordered commits, authored commits, merges and profile-path walks change after a shallow boundary is removed, while the prototype reused their incomplete lists for the same full commit IDs. Full object names alone do not establish complete graph knowledge."
-Story clause: "Functional behavior, mutable-ref observation, error/abort handling and every existing test gate remain unchanged."
-Disposition: proved by slice 3: dashboard/backend-tests/intent/published-story-history-semantics.spec.ts all four successful graph walks versus independent Git before/after deepening; /tmp/seed324-history-graph-follow-up.md, twelve-case pass plus final graph pass
+Story clause: "No product behavior changes, and no new product promise."
+Disposition: proved by slice 3: [successful graph walks case](../../../dashboard/backend-tests/intent/published-story-history-semantics.spec.ts) matches all four independent Git walks before and after deepening. The isolated [history proof](history-read-prototype-coordination.md#existing-discriminating-proof-and-limits) passed twelve cases plus a final graph-only check.
 
 ### G9. A standalone follow-up collector can outlive its test
 Reported: slice 3 — "Supplier full proof52807 reached the correct queued-rejection card and ledger after restart, then its final native collectFollowUps call continued past the case deadline. The native collector is started by ciFollowUpAdapterScenario through promisified execFile without fixture ownership; later continuation read adapter-requests.jsonl after origin cleanup. The pending-server-start registry does not own this separate collector child."
 Story clause: "finds one owner for each support responsibility"
-Disposition: proved by slice 3: landed-ci-collector-lifetime.spec.ts native red/green plus seven final focused caller/lifetime cases and typecheck; /tmp/seed324-collector-lifetime-return.md. G1–G6, full family/load and delivery remain open.
+Disposition: proved by slice 3: [native collector lifetime case](../../../dashboard/backend-tests/intent/landed-ci-collector-lifetime.spec.ts) observes the collector and held adapter exiting before origin removal. The isolated [lifetime proof](adapter-recovery-coordination.md#g9-native-collector-lifetime-delta-offered) records native red/green, seven final focused caller/lifetime cases and typecheck. G1–G6, full family/load and delivery remain open.

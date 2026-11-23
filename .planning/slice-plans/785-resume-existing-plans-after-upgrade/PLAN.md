@@ -2,6 +2,7 @@
 
 **Identity:** SEED-425#resume-existing-plans-after-upgrade
 **Source:** [Resume an existing plan after upgrading Open Dough](../../seeds/SEED-425-resume-existing-plans-after-upgrade.md#resume-existing-plans-after-upgrade)
+**Source review:** [Installed execution workflow review](source-review.md)
 
 ## Current decisions
 
@@ -13,15 +14,23 @@ Preparation on 2026-11-23 used the source candidate based on `88999346d`. Its ob
 
 The installer derives ownership from release-tag declarations. The existing previous-release fixture exercises dropped paths in both roots and protects a neighboring project file. The remaining proof is the real retired-path set combined with a partially delivered plan. Use disposable tags and project directories for that comparison.
 
+## Execution context
+
+Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent Anri-chan. The established Take `d68555025490de459cf4cb30f961dbde202e91cc` is on `origin/main` and `origin/codex/resume-an-existing-plan-after-upgrading-open-dou`. The owned checkout is `.worktrees/resume-an-existing-plan-after-upgrading-open-dou`, based on `1a1e22a0bc4f4e5231c9ad558f3fbd2b4fa16ac4`. The installed v0.3.111 workflow coordinates delivery. Candidate checks use the source payload or a disposable installation of it.
+
+Codex CI observer `anri-seed425` watches `terryyin/open-dough`, branch `codex/resume-an-existing-plan-after-upgrading-open-dou`, GitHub `ci.yml` push workflow 351271804. Mailbox `/tmp/dough-ci-501/watch-YDhPWl`, PID 11255, stream 69003, cell `g358:12`. The story branch observer does not cover the Take on trunk.
+
 ## Ordered slices
 
 ### 1. Resume the landed CI correction with its unfinished work visible
 Type: Behavior
-Status: planned
+Status: done
 
 Read plan 607, the complete amended story, the handoff and the archived observations. Reconcile the actual G7/G8 behavior and proof against the current unchanged-behavior promise. Preserve each genuinely outstanding obligation and both final delivery conditions in the plan. Remove the retired file and its link once the handoff accounts for the remaining work. Preserve the current status of the underlying story.
 
 **Proof.** Run the candidate obligation CLI on plan 607. Listing slice 3 must name G1–G6 without malformed quotes. Slice 3 and planned completion must refuse the still-open work. Verify the two completed slices and both final delivery conditions against the archived input. Verify the first uncompleted slice and the backlog identity through the normal project reader. Estimated 7–12 active minutes.
+
+Accepted: The candidate CLI lists G1–G6 for slice 3 and refuses slice 3, regular completion and planned completion. The project reader reports slice 3 as next and keeps SEED-324 queued and not ready. Both delivered phone observations and G7–G9's qualified proof match the archived record. Final trunk CI and integration remain due. Plan 692 lists slice 2 with three qualifying watches outstanding. Eight targeted distribution checks and the Chromium story-readiness case passed. Records-only refactor disposition.
 
 ### 2. Resume a previous-release project through its normal update
 Type: Behavior
