@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Eimi-chan",
+  "email": "eimi-chan@example.org",
+  "identity": "SEED-420#read-proof-for-the-comparison",
+  "mode": "story-branch",
+  "branch": "cursor/read-ci-proof-for-the-selected-comparison",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
