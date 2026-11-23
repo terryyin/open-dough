@@ -3,43 +3,37 @@
 // file CI ran that the tree does not list counts once, in a listed folder's
 // row, and outside only in that folder's own Summary; and the evidence
 // labels, the scope's own figures and the table fit a zoomed or narrow
-// window. The proof answer is controlled
-// (../../test-support/support/frontendSummaryCiProof.ts); reading CI's collected
-// bytes into it: ../../backend-tests/intent/ci-proof-extraction.spec.ts and
-// ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
+// window.
 
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { expect, onTestFinished, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { zoomedViewport } from "../navigation/board-accessibility.ts";
+import {
+  proofTableFit,
+  wordsBrokenApart,
+} from "./intent-attempt-proof-page.ts";
+import {
+  mountAttemptSummary,
+  summaryEntries,
+} from "./intent-attempt-summary-fixture.ts";
 import {
   evidenceLabels,
   expectEvidenceLabels,
   expectLabelInFull,
-} from "../../test-support/ciEvidenceLabelsPage.ts";
+} from "./intent-summary-evidence-page.ts";
 import {
   childName,
   expectScopeRows,
+  openSummary,
   scopeFigures,
   scopeTable,
-} from "../../test-support/intentScopeProofPage.ts";
-import {
-  allParts,
-  openSummary,
-} from "../../test-support/intentSummaryCiProofFixtures.ts";
-import {
-  twiceZoomedWindow,
-  zoomedWindow,
-} from "../../test-support/accessibleReading.ts";
-import { wordsBrokenApart } from "../../test-support/wholeWords.ts";
-import {
-  bothEntries,
-  openSummaryCiProof,
-} from "../../test-support/support/frontendSummaryCiProof.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+} from "./intent-summary-proof-page.ts";
 
-test("a CI file the tree does not list under a listed folder counts once, in that folder's row, and is outside only in that folder's own Summary", async ({
-  page,
-  frontendServices,
-}) => {
-  const { intent } = await openSummaryCiProof(page, frontendServices, [
+const twiceZoomedViewport = { width: 640, height: 450 };
+
+test("a CI file the tree does not list under a listed folder counts once, in that folder's row, and is outside only in that folder's own Summary", async () => {
+  await mountAttemptSummary([
     makeMe.aCiProofEntry
       .at("dashboard/tests")
       .holding(
@@ -63,16 +57,18 @@ test("a CI file the tree does not list under a listed folder counts once, in tha
       .please(),
   ]);
   const one = "1 of 1 part present";
-  const summary = await openSummary(intent, "dashboard/tests");
-  await expectScopeRows(summary, "dashboard/tests", [
+  const summary = await openSummary("dashboard/tests");
+  await expectScopeRows(summary, [
     ["dashboard/tests", "3 passed test cases", "600 ms", one],
     ["folder/", "2 passed test cases", "400 ms"],
     ["added.spec.ts", "no CI result", "no CI result"],
     ["root.spec.ts", "1 passed test case", "200 ms"],
   ]);
-  await expect(summary.locator(".intent-summary-outside")).toHaveCount(0);
-  await childName(summary, "folder/").click();
-  await expectScopeRows(summary, "dashboard/tests/folder", [
+  await expect
+    .element(evidenceLabels(summary, "Not in the rows above"))
+    .not.toBeInTheDocument();
+  await userEvent.click(childName(summary, "folder/"));
+  await expectScopeRows(summary, [
     ["dashboard/tests/folder", "2 passed test cases", "400 ms", one],
     ["nested/", "no CI result", "no CI result"],
     ["a.spec.ts", "1 passed test case", "300 ms"],
@@ -88,66 +84,51 @@ test("a CI file the tree does not list under a listed folder counts once, in tha
   );
 });
 
-test("at 200% zoom and on a narrow window a folder's Summary figures and table read whole within the reading pane, nothing scrolling sideways", async ({
-  page,
-  frontendServices,
-}) => {
-  const { intent } = await openSummaryCiProof(
-    page,
-    frontendServices,
-    bothEntries(true),
-  );
-  const summary = await openSummary(intent, "dashboard/tests");
+test("at 200% zoom and on a narrow window a folder's Summary figures and table read whole within the reading pane, nothing scrolling sideways", async () => {
+  await mountAttemptSummary(summaryEntries(true));
+  const summary = await openSummary("dashboard/tests");
   const rows = [
     [
       "dashboard/tests",
       "5 passed, 1 failed and 1 other test cases",
       "1 test case untimed",
-      allParts,
+      "2 of 2 parts present",
     ],
     ["folder/", "3 passed, 1 failed and 1 other test cases", "595 ms"],
     ["added.spec.ts", "no CI result", "no CI result"],
     ["root.spec.ts", "2 passed test cases", "1 test case untimed"],
   ] as const;
-  await expectScopeRows(summary, "dashboard/tests", rows);
+  await expectScopeRows(summary, rows);
   // A wider installed font lays the Summary out as Linux's fallback font does.
-  await page.addStyleTag({
-    content:
-      ".intent-ci-proof-box, .intent-scope-figures, .intent-evidence-labels { font-family: Verdana, sans-serif; }",
+  const font = document.head.appendChild(document.createElement("style"));
+  font.textContent =
+    ".intent-ci-proof-box, .intent-scope-figures, .intent-evidence-labels { font-family: Verdana, sans-serif; }";
+  onTestFinished(() => {
+    font.remove();
   });
+
   const table = scopeTable(summary, "dashboard/tests");
-  const box = summary.locator(".intent-proof-table");
-  const fit = () =>
-    box.evaluate((element) => {
-      const pane = element.closest(".intent-reading");
-      if (pane === null) throw new Error("no reading pane");
-      const shown = element.getBoundingClientRect();
-      const reading = pane.getBoundingClientRect();
-      return {
-        sideways: element.scrollWidth - element.clientWidth,
-        inPane: shown.left >= reading.left && shown.right <= reading.right,
-        pageSideways:
-          document.documentElement.scrollWidth >
-          document.documentElement.clientWidth,
-      };
-    });
-  for (const [window, whole] of [
-    [twiceZoomedWindow, "th, td"],
-    [zoomedWindow, "thead th, tbody td"],
+  for (const [viewport, whole] of [
+    [twiceZoomedViewport, "th, td"],
+    [zoomedViewport, "thead th, tbody td"],
   ] as const) {
-    await page.setViewportSize(window);
-    await expectScopeRows(summary, "dashboard/tests", rows);
-    await table.scrollIntoViewIfNeeded();
-    expect(await fit(), JSON.stringify(window)).toEqual({
+    await page.viewport(viewport.width, viewport.height);
+    await expectScopeRows(summary, rows);
+    table.element().scrollIntoView({ block: "nearest", inline: "nearest" });
+    expect(proofTableFit(table.element())).toEqual({
       sideways: 0,
       inPane: true,
       pageSideways: false,
     });
-    expect(await wordsBrokenApart(table, whole)).toEqual([]);
+    expect(wordsBrokenApart(table.element(), whole)).toEqual([]);
     expect(
-      await wordsBrokenApart(scopeFigures(summary, "dashboard/tests"), "dd"),
+      wordsBrokenApart(
+        scopeFigures(summary, "dashboard/tests").element(),
+        "dd",
+      ),
     ).toEqual([]);
-    // The evidence labels above wrap whole labels and words, never letters.
-    expect(await wordsBrokenApart(evidenceLabels(summary), "li")).toEqual([]);
+    expect(wordsBrokenApart(evidenceLabels(summary).element(), "li")).toEqual(
+      [],
+    );
   }
 });

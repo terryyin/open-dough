@@ -7,6 +7,16 @@
 // ../../backend-tests/intent/; the Summary's journey:
 // ../../../e2e/intent/intent-summary-ci-proof.spec.ts.
 
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { ciReadingText, intentCiProof } from "./intent-attempt-proof-page.ts";
+import {
+  mountAttemptSummary,
+  summaryEntries,
+} from "./intent-attempt-summary-fixture.ts";
+import { activateChosenCiTab } from "./intent-ci-homepage-page.ts";
+import { judgedRun, openDoughSource } from "./intent-ci-status-fixtures.ts";
+import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
   evidenceLabel,
   evidenceLabels,
@@ -14,22 +24,8 @@ import {
   expectInFull,
   expectLabelInFull,
   labelWords,
-} from "../../test-support/ciEvidenceLabelsPage.ts";
-import { expectProofRows } from "../../test-support/intentCiProofPage.ts";
-import {
-  openSummary,
-  treeGap,
-} from "../../test-support/intentSummaryCiProofFixtures.ts";
-import {
-  activateIntentHome,
-  ciStatusReading,
-  expectCiAnswer,
-} from "../../test-support/intentCiStatusPage.ts";
-import {
-  bothEntries,
-  openSummaryCiProof,
-} from "../../test-support/support/frontendSummaryCiProof.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
+} from "./intent-summary-evidence-page.ts";
+import { childName, openSummary } from "./intent-summary-proof-page.ts";
 
 const verdict = "Passed at a1b2c3d (Add login)";
 const homeRows = [
@@ -47,55 +43,66 @@ const runEvidence = [
   "Run 41 · attempt 1",
   "Revision a1b2c3d",
   "Branch main",
-  treeGap,
+  "Tree at b2b2b2b — newer files unproved here",
 ] as const;
 
-test("a Summary qualifies a previously retrieved judgment and its failed refresh as the homepage does, the judgment and its proof still readable", async ({
-  page,
-  frontendServices,
-}) => {
-  const { panel, proof, ci, intent } = await openSummaryCiProof(
-    page,
-    frontendServices,
-    bothEntries(true),
-  );
-  await expectProofRows(proof, homeRows);
-  await expect(ciStatusReading(panel).freshness).toContainText("Checked at");
-  const freshSummary = await openSummary(intent, "tests");
+test("a Summary qualifies a previously retrieved judgment and its failed refresh as the homepage does, the judgment and its proof still readable", async () => {
+  const failedServiceRead = "GitHub answered 503 Service Unavailable";
+  const { readProof } = await mountAttemptSummary(summaryEntries(true), {
+    refreshFailure: failedServiceRead,
+  });
+  const ci = intentCiStatus();
+  const proof = intentCiProof();
+  await proof.showsRows(homeRows);
+  await ci.showsChecked();
+  const freshSummary = await openSummary("tests");
   await expectEvidenceLabels(evidenceLabels(freshSummary), runEvidence);
-  await expect(freshSummary.getByRole("alert")).toHaveCount(0);
+  await expect.element(freshSummary.getByRole("alert")).not.toBeInTheDocument();
 
-  await activateIntentHome(intent);
-  ci.failNext("main", 502, "GitHub answered 503 Service Unavailable");
-  await panel.getByRole("button", { name: "Check again" }).click();
-  await expect(panel.getByRole("alert")).toContainText("503");
-  await expect(
-    panel.getByRole("button", { name: "Check again" }),
-  ).toBeEnabled();
-  const kept = (await ciStatusReading(panel).freshness.textContent()) ?? "";
+  await activateChosenCiTab("click");
+  await ci.checkAgain();
+  const homeFailure = () => ciReadingText(ci.alert.query()?.textContent);
+  await expect.poll(homeFailure).toContain("503");
+  const failure = homeFailure();
+  await expect.element(ci.checkAgainButton).toBeEnabled();
+  const kept = ciReadingText(ci.status.element().textContent);
   expect(kept).toMatch(/^Previously retrieved at .+\.$/);
-  // The previously retrieved judgment and its run's proof stay readable.
-  await expectCiAnswer(panel, verdict);
-  await expectProofRows(proof, homeRows);
-  const keptAt =
-    await ciStatusReading(panel).checkedTime.getAttribute("datetime");
-  const failure = (await panel.getByRole("alert").textContent()) ?? "";
+  await ci.answers(verdict);
+  await proof.showsRows(homeRows);
+  const keptAt = ci.status
+    .element()
+    .querySelector("time")
+    ?.getAttribute("datetime");
+  expect(keptAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
 
-  const summary = await openSummary(intent, "tests");
-  // Short labels lead the evidence: when it was retrieved, in the homepage's
-  // words, and that the refresh failed, its failure announced in full.
+  const summary = await openSummary("tests");
   await expectEvidenceLabels(evidenceLabels(summary), [
     kept,
     "Refresh failed",
     ...runEvidence,
   ]);
-  const retrieved = evidenceLabel(summary, kept);
-  await expect(labelWords(retrieved)).toHaveText(kept);
+  const retrieved = await evidenceLabel(summary, kept);
+  expect(labelWords(retrieved)).toBe(kept);
   await expectInFull(retrieved, "Previously retrieved, not newly verified");
-  await expect(retrieved.locator("time")).toHaveAttribute(
-    "datetime",
-    keptAt ?? "",
-  );
+  expect(
+    retrieved.element().querySelector("time")?.getAttribute("datetime"),
+  ).toBe(keptAt);
   await expectLabelInFull(summary, "Refresh failed", failure);
-  await expect(summary.getByRole("alert")).toHaveText(failure);
+  await expect
+    .poll(() => ciReadingText(summary.getByRole("alert").query()?.textContent))
+    .toBe(failure);
+
+  await userEvent.click(childName(summary, "root.sh"));
+  await expect
+    .element(page.getByLabelText("tests/root.sh source", { exact: true }))
+    .toBeVisible();
+  const returned = await openSummary("tests");
+  await expectEvidenceLabels(evidenceLabels(returned), [
+    kept,
+    "Refresh failed",
+    ...runEvidence,
+  ]);
+  expect(
+    readProof.mock.calls.map(([source, subject]) => [source, subject]),
+  ).toEqual([[openDoughSource, judgedRun]]);
 });

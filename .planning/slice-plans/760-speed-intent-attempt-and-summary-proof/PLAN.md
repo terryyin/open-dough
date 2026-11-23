@@ -111,6 +111,7 @@ local-gate command above. Scratch edits were reverted.
   `5d7701f0604457b29d758e07822039ef4a020b95`; Take
   `2c9c98322143935902f8642bc8a6fd6fd385c925` accepted on `origin/main`
   and published as the initial story-branch base.
+- Slice 1 accepted on the story branch at `cc4d0b9fa966c9fd7de360122593773f731297b4`.
 - GitHub Actions `ci.yml` observes the published story branch. The active
   observer identity and increment receipts are retained in the execution conversation.
 
@@ -152,7 +153,7 @@ Accepted proof: the local gate selected the three migrated specs plus `intent-ci
 ### 2. Single-attempt Summary proof preserves kept carryover, gaps, table membership, and sorting
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-summary-ci-proof-gaps`, `intent-summary-ci-proof-kept`,
 `intent-summary-ci-proof-sort`, and `intent-summary-ci-proof-table` (4 files,
@@ -166,6 +167,20 @@ Table membership and sort stay readable.
 
 **Proof.** The four moved files pass on Vitest. A kept-carryover case fails
 when navigating rereads proof. Delete the four legacy files.
+
+The seven legacy titles keep their names as Vitest cases. `mountAttemptSummary` replaces the frontend route stand-ins with typed read answers. The production location, folder, file and perspective controls own navigation.
+
+| Legacy case and check | Mounted assertion |
+| --- | --- |
+| Missing shard plus no breakdown | `expectScopeRows` preserves entry totals and every immediate child's figures. Entry and folder gaps have exact text, title and accessible description. The unmeasured file has an empty description and the outside list gives the full no-breakdown reason. |
+| Entry-only proof | Own figures and all child gaps are exact. The About these figures list retains its browse-mode snapshot. The child opens its file source. |
+| Unavailable summary | Home and Scope give the same no-summary wording. Own figures and the child table stay readable, and a child opens its folder. |
+| Kept attempt after failed refresh | Homepage and Summary preserve the same full alert, prior timestamp, visible judgment and attempt evidence. The child source opens and the returned Summary keeps the typed proof call count at one. A temporary real file-selection reread failed this exact assertion, and the product edit was restored. |
+| Counts sort and drill-down | Native header metadata, click and Enter, row order and the stationary own figures are checked on entry and folder. Development and Intent controls retain the folder sort. The URL matches its initial value and storage has no sort value. |
+| File missing from tree | Exact rows show the unlisted file counted once under its listed folder. The folder's outside row and one heard label disclose it with full wording. |
+| Narrow and zoomed Summary | Chromium measures local and page overflow, table fit and whole words in the table, figures and evidence list at the legacy CSS viewport sizes. |
+
+Accepted proof: the local gate selected the four migrated specs with 7 Vitest Chromium cases passing in 5.440 s. The refactor reran all 6 affected cases in 5.298 s and reused the kept proof. The Git evidence directory holds the case, helper and consumer map, literal run commands and caught reread in `slice2-implementation-report.md` and `slice2-refactor-report.md`. `npm run typecheck:dashboard` passed.
 
 ### 3. Compared Summary rows disclose fallback endpoints, outside evidence, and precise endpoint rows
 
