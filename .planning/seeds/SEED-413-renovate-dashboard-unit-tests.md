@@ -442,27 +442,66 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#speed-dashboard-live-session-and-terminal-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/800-speed-dashboard-live-session-and-terminal-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6814271bd53e87f50b91d75ff14fd0819afb0af7d361b85b47a8dc23c5e41710","plan":"51158d94d52518089460d7cc627aaa899868870216d245bee5a647139adcb4c2"}}
 ```
 
-- **Outcome.** Developers get fast feedback on live session discovery,
-  actions and reporting, and terminal operation. Evaluate a held terminal
-  or session update while the reader interacts, including the right
-  selection, input, completion or recovery result.
-- **Boundary.** Own the remaining legacy `sessions/` specs outside Done
-  review, all `terminals/`, and Stories' `story-note-voice*`. Cover live
-  listings, card actions, Mark Done interactions, final reports, terminal
-  layout and input, touch selection, prompts and transcription recovery.
-  Retain native keyboard, touch, clipboard or terminal behavior at the
-  boundary where each is observable. Real processes and transports belong
-  in existing backend or E2E owners. Also own the mounted Sessions sidebar
-  open-list mount (`dashboard/frontend-tests/sessions/sessions-sidebar-open-mount.ts`),
-  which still renders `usePageSidePanel` and `SessionsSidebarOpenList`
-  itself: its cases render the production page frame through the required
-  page-reads entry instead.
-- **Effort and stopping point.** Large, medium confidence. A replacement
-  must observe the delivered input or update and any recovery it claims
-  before the legacy setup retires.
+**Goal.** Dashboard maintainers get faster feedback that live sessions
+appear with the right order, status and actions, that Mark Done, delete,
+unread-report and retirement flows stay truthful under held or refused
+answers, and that terminal layout, input, touch selection, prompts and
+dictation recover correctly when an update or capture is interrupted.
+
+**Scope.** Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)
+to the remaining legacy `sessions/` specs outside Done review, all
+`terminals/`, and Stories' `story-note-voice*` (31 sources, 77 cases at the
+campaign inventory): live open listings and compact entries, card and
+sidebar session actions, Mark Done and Delete record interactions, final
+and unread reports, workspace-retirement held reports, Cursor runner
+session reads, terminal keyboard and touch input, touch select and paste,
+prompts, voice capture, and transcription recovery. Remount the open
+Sessions sidebar family
+(`dashboard/frontend-tests/sessions/sessions-sidebar-open-mount.ts` and its
+consumers) through the production page frame and required page-reads entry
+instead of composing `SessionsSidebarOpenList` in the mount helper.
+Keep distinct host-status, attention-order, compact-disclosure and
+touch-report distinctions observable where the UI owns them. Retain
+journeys that need a real process, native host transport, clipboard or
+microphone provider at existing `e2e/sessions/`, `e2e/terminals/` and
+backend owners. [Done session review](#speed-dashboard-done-session-review-proof)
+owns `sessions/recently-done*`, `sessions/follow-up-source-navigation*`,
+`stories/recently-done*` and remaining legacy `review/`.
+[Composing and starting a launch](#speed-dashboard-launch-proof) owns
+pre-start launch dialogs. The final campaign story owns frontend runner
+retirement.
+
+A replacement must observe the delivered input or update and any recovery
+it claims before the legacy setup retires.
+
+**Key examples**
+
+- Open Sessions lists sessions that need the developer earliest-first, then
+  other open sessions newest-first, with host status, row age and state edge
+  accurate; a slow or retrying machine read keeps the listed sessions and a
+  hidden page stops waiting on its read.
+- Mark as done on a card or ended terminal that the boundary refuses keeps
+  the entry and says so; confirming Delete record… removes a State unknown
+  or Session unavailable entry everywhere and leaves Working or Needs input
+  without that offer; a late mark after another session replaced the panel
+  leaves the keyboard in the new terminal.
+- An unfinished retained report stays readable by touch with choices in
+  reach; changing selection cancels a held report so its text never appears
+  as the next session; an unread message marks read beside its own Mark as
+  done without scrolling either control away.
+- Phone Select pauses terminal text for copy and return while later output
+  waits; an ended terminal keeps the transcript with Open again feedback
+  and Paste names Open again without sending until Insert transcript;
+  unavailable prompt input refuses presets, names recovery and requires a
+  new choice; dictation overflow and abandoned transcription keep or drop
+  drafts without populating the next composer.
+- Taken-line story-note dictation waits for permission and transcription,
+  permits correction before save, and on setup, permission or Close or
+  Cancel recovery keeps typed text while a new composer receives no late
+  reply.
 
 <a id="speed-dashboard-frame-and-navigation-proof"></a>
 
