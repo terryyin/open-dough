@@ -695,6 +695,34 @@ on 23 November 2026 at plan 762's delivered Slice 9 boundary.
   when each added case names a distinct risk, as long as built-app cases
   fall.
 
+<a id="correct-revision-detour-proof-residue"></a>
+
+### Correct the proof residue of Intent revision reading and detours
+
+**Identity:** SEED-413#correct-revision-detour-proof-residue
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/781-correct-revision-detour-proof-residue/PLAN.md","assessment":"not-ready","reasons":["Premise open: a bubbling window keydown listener in intent-home-activation-scope case 2 sees the Intent tab keys defaultPrevented, and not without IntentTabs' preventDefault; unreached scratch Vitest run (scratch runs were refused during planning).","Premise open: the reader cases on one shared revision pass with onTestFinished(forgetAnswers) and fail without it; unreached scratch Vitest run of intent-candidates-reader-reuse."],"basis":{"document":"84545629bd0d3181637b68a60c2e98f684e2c52823f258d7dacb121d23eace61","plan":"5bbcc582e0c7fe526089471642b9fe9f2ec5c90f9c96dc71ae369a2a1144ceab"}}
+```
+
+Correction from the execution retrospective of
+[Get fast proof of Intent revision reading and reading-place detours](#speed-intent-revision-and-detour-reading)
+(commits `702d1a213..a96f35847`). Its promises stay as written.
+
+**Goal.** Dashboard maintainers get Intent proof that fails when its
+behavior breaks and page objects they change in one place. The Intent mode
+tabs' arrow, Home and End keys are proved not to reach page-wide project
+switching, and no E2E step claims routing it cannot detect.
+
+**Scope.** Replace the E2E arrow-key URL step with a Vitest observation that
+the tabs' keys reach the page already handled. Break-check the E2E Recent
+stories step, then keep it under the risk it detects or remove it with its
+helper. Move the duplicated story-tab, Project Intent and folder-opening
+page-object code to one owner each, and reset the Candidates reader's answer
+memo between its cases. The four retained legacy cases and the page shell
+stay with
+[the observation story](#drive-published-observation-through-page-entry).
+Plan: [781](../slice-plans/781-correct-revision-detour-proof-residue/PLAN.md).
+
 <a id="drive-published-observation-through-page-entry"></a>
 
 ### Drive the published observation through the typed page entry

@@ -361,6 +361,18 @@ accepted that in the story. The developer moved making the
 `mountIntentCiPage` page shell a production owner to the observation story
 (G1).
 
+## Execution complete
+
+Product advice: Take the observation story
+(SEED-413#drive-published-observation-through-page-entry) next. Its four
+retained legacy cases now cost about as much as the cohort's 31 Vitest cases.
+It also owns making the `mountIntentCiPage` page shell a production owner
+(G1). The retrospective correction
+[SEED-413#correct-revision-detour-proof-residue](../781-correct-revision-detour-proof-residue/PLAN.md)
+is small and independent. It replaces an E2E URL step that cannot fail with a
+Vitest check that Intent tab keys are prevented, break-checks the Recent
+stories URL step, and removes duplicated page-object code.
+
 ## Slice review
 
 Slice-plan refinement reviewed all eight boundaries against the observed entry and proof.
