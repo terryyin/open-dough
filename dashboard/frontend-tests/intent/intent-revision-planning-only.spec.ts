@@ -34,7 +34,7 @@ test("a planning-only update advances the browser with no file selected and keep
   await userEvent.click(home);
   await browser.showsNoSource();
 
-  intent.offerRevision(latest);
+  await intent.offerRevision(latest);
   const notice = intentRevisionNotice();
   await notice.showLatest();
   await notice.reads("Updating…");
@@ -48,9 +48,9 @@ test("a planning-only update advances the browser with no file selected and keep
   const updated = await browser.open(pygardonFeatures.jobs);
   await updated.shows("Scenario: Archive a job");
 
-  intent.closeReading(latest);
+  await intent.closeReading(latest);
   await browser.isClosed();
-  intent.offerRevision(latest);
+  await intent.offerRevision(latest);
   await browser.isAt(latest);
   await file.shows("Scenario: Archive a job");
   await file.isSelected();

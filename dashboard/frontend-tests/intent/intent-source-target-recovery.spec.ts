@@ -133,7 +133,7 @@ test("a selected source case keeps line 44 and reading while the new revision's 
   const { intent, source, offset } = await openClipSource(readSource);
   const browser = intentBrowser();
 
-  intent.offerRevision(after);
+  await intent.offerRevision(after);
   await intentRevisionNotice().showLatest();
   await browser.isAt(after);
   await expect.poll(() => reads).toContain(`${clipPath}@${after}`);
@@ -160,7 +160,7 @@ test("a selected source case keeps line 44 and reading while the new revision's 
   const { intent, source, offset } = await openClipSource(readSource);
   const browser = intentBrowser();
 
-  intent.offerRevision(after);
+  await intent.offerRevision(after);
   await intentRevisionNotice().showLatest();
   await browser.isAt(after);
   await browser.failsWith(

@@ -22,16 +22,40 @@ export const scopeName = (path: string) =>
 export const fileName = (path: string) =>
   page.getByRole("button", { name: path, exact: true });
 
+// The pane the selected file's reading scrolls in. It has no accessible name,
+// so it is found by its class.
+export const intentReadingPane = () =>
+  document.querySelector<HTMLElement>(".intent-reading");
+
+// Scrolls the reading pane halfway, as a reader would, and answers the offset
+// once the pane's scroll event has reported it to the page.
+export const scrollReadingHalfway = () =>
+  new Promise<number>((resolve, reject) => {
+    const pane = intentReadingPane();
+    const most = pane === null ? 0 : pane.scrollHeight - pane.clientHeight;
+    if (pane === null || most < 40) {
+      reject(new Error("The reading pane cannot scroll halfway"));
+      return;
+    }
+    pane.addEventListener(
+      "scroll",
+      () => {
+        resolve(pane.scrollTop);
+      },
+      {
+        once: true,
+      },
+    );
+    pane.scrollTo({ top: Math.floor(most / 2) });
+  });
+
 export function intentBrowser() {
   const revision = page.getByLabelText("Test browser revision", {
     exact: true,
   });
   const purpose = page.getByRole("region", { name: "Purpose", exact: true });
-  // The focusable area the selected file's reading scrolls in.
   const readingPane = () => {
-    let pane = purpose.element().parentElement;
-    while (pane !== null && !pane.hasAttribute("tabindex"))
-      pane = pane.parentElement;
+    const pane = intentReadingPane();
     if (pane === null) throw new Error("Intent shows no reading pane");
     return pane;
   };
@@ -108,12 +132,9 @@ export function intentBrowser() {
     },
     // Scrolls the reading pane halfway, answering the offset it reached.
     async scrollHalfway() {
-      const pane = readingPane();
-      const most = pane.scrollHeight - pane.clientHeight;
-      expect(most).toBeGreaterThan(40);
-      pane.scrollTo({ top: Math.floor(most / 2) });
-      await vi.waitUntil(() => pane.scrollTop > 20);
-      return pane.scrollTop;
+      const offset = await scrollReadingHalfway();
+      expect(offset).toBeGreaterThan(20);
+      return offset;
     },
     // The reading pane's current offset, once scrolled from its start.
     async scrolledOffset() {

@@ -31,12 +31,12 @@ intent introduced or affected by a newly developed story.
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/780-finish-launch-proof-orthogonal/PLAN.md))
 - [Install only scripts that guidance, hooks or the Dashboard reach](seeds/SEED-423-shrink-the-installed-distribution.md#remove-unreached-distribution-code) — SEED-423#remove-unreached-distribution-code ([plan](slice-plans/779-remove-unreached-distribution-code/PLAN.md))
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#open-review-changes-from-a-story-card) — SEED-420#open-review-changes-from-a-story-card ([plan](slice-plans/777-open-review-changes-from-a-story-card/PLAN.md))
-- [Get fast proof of Intent revision reading and reading-place detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading) — SEED-413#speed-intent-revision-and-detour-reading ([plan](slice-plans/778-speed-intent-revision-and-detour-reading/PLAN.md))
 - [Get fast proof of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading) — SEED-413#speed-intent-scope-timing-reading ([plan](slice-plans/777-speed-intent-scope-timing-reading/PLAN.md))
 - [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading ([plan](slice-plans/763-speed-story-changes-notes-and-progress-reading/PLAN.md))
 
 ## Backlog list
 
+- [Correct the proof residue of Intent revision reading and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-revision-detour-proof-residue) — SEED-413#correct-revision-detour-proof-residue
 - [Keep the attention completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout) — SEED-341#keep-attention-completion-journey-within-timeout
 - [Catch delegated lint failures before guarded delivery](seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery) — SEED-345#catch-delegated-lint-before-delivery
 - [Use proportionate refactoring for small test edits](seeds/SEED-345-session-token-efficiency.md#use-proportionate-refactoring-for-small-test-edits) — SEED-345#use-proportionate-refactoring-for-small-test-edits

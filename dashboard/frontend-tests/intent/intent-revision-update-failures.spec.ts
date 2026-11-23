@@ -33,7 +33,7 @@ async function showLatest(
   const browser = intentBrowser();
   const jobsReading = await browser.open(jobs);
   await jobsReading.shows("Scenario: Archive a job");
-  intent.offerRevision(latest);
+  await intent.offerRevision(latest);
   const notice = await intentRevisionNotice().showLatest();
   return { browser, notice, jobsReading };
 }
@@ -55,7 +55,7 @@ test("after a failed locations update, the old tree stays usable and Retry appli
   const browser = intentBrowser();
   const diskSpaceReading = await browser.open(diskSpace);
   await diskSpaceReading.shows("Report free space");
-  intent.offerRevision(c);
+  await intent.offerRevision(c);
   const notice = await intentRevisionNotice().showLatest();
 
   await notice.reads(

@@ -23,9 +23,9 @@ test("reopening Project Intent after a newer revision was observed restores the 
   const file = await browser.open(pygardonFeatures.jobs);
   await file.shows("Scenario: Archive a job");
 
-  intent.closeReading(latest);
+  await intent.closeReading(latest);
   await browser.isClosed();
-  intent.offerRevision(latest);
+  await intent.offerRevision(latest);
 
   const notice = intentRevisionNotice();
   await notice.reads(

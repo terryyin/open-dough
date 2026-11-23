@@ -1,6 +1,5 @@
 // Open Dough's published Test Optimization Candidates record and sources for
-// Intent journeys (`../frontend-tests/intent/intent-read-reuse.spec.ts`),
-// shaped like the real Open Dough record summarised in SEED-192.
+// Intent journeys, shaped like the real Open Dough record summarised in SEED-192.
 
 import { testOptimizationCandidatesPath } from "../src/testOptimizationCandidatesPath.ts";
 import { browseSpec, shellCheck } from "./intentCodeBrowseFixtures.ts";

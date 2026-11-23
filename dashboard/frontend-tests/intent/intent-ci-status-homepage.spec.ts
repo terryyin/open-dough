@@ -24,6 +24,7 @@ import {
   folderNameControl,
   locationNameControl,
   presentElement,
+  pressedFileCount,
   workOf,
 } from "./intent-ci-homepage-page.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
@@ -148,9 +149,7 @@ test("CI status fills Intent's reading with nothing selected; the strip has no C
     await expect.element(ci.panel).toBeVisible();
     await ci.answers("Passed at a1b2c3d (Add login)");
     await expect.element(reading).not.toBeInTheDocument();
-    expect(
-      document.querySelectorAll('.intent-locations [aria-pressed="true"]'),
-    ).toHaveLength(0);
+    expect(pressedFileCount()).toBe(0);
     expect(locationToggle()?.getAttribute("aria-expanded")).toBe("true");
     await expect
       .element(page.getByRole("button", { name: deep, exact: true }))

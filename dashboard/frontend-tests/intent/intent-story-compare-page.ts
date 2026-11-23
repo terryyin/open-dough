@@ -2,8 +2,13 @@
 // (./intent-story-compare-stories.ts) as a reader meets its comparison: the
 // header's revisions line and its Compare group (the comparison choice, the
 // story's commits, the uncommitted check, Refresh and the range read), the
-// story's views, the Changes file list and the selected file's diff.
+// story's views, the Changes file list, its folders and "Selected story
+// only" filter, and the selected file's diff in the reading pane.
 import { page, userEvent } from "vitest/browser";
+import {
+  intentReadingPane as readingPane,
+  scrollReadingHalfway,
+} from "./intent-browser-page.ts";
 
 const escaped = (name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -30,6 +35,10 @@ export function intentStoryCompare() {
   type View = "Changes" | "CI comparison" | "Intent coverage";
   const view = (name: View) =>
     intent.getByRole("tabpanel", { name, exact: true });
+  const tab = (name: View) =>
+    intent
+      .getByRole("tablist", { name: "Selected story views" })
+      .getByRole("tab", { name, exact: true });
   const proof = intent.getByRole("region", { name: "Proof", exact: true });
   type CiView = "CI comparison" | "Intent coverage" | "Proof";
   const ciView = (name: CiView) => (name === "Proof" ? proof : view(name));
@@ -111,14 +120,24 @@ export function intentStoryCompare() {
     },
     range: () =>
       textOf(header.element().querySelector(".story-review-range-heading")),
-    chooseTab: (name: View) =>
-      userEvent.click(
-        intent
-          .getByRole("tablist", { name: "Selected story views" })
-          .getByRole("tab", { name, exact: true }),
-      ),
+    tab,
+    chooseTab: (name: View) => userEvent.click(tab(name)),
     // A listed file's control, named by its kind and path.
     file: (name: string) => intent.getByRole("button", fileNamed(name)),
+    storyOnly: intent.getByRole("checkbox", {
+      name: "Selected story only",
+      exact: true,
+    }),
+    // A location's or folder's toggle, by its name and whether it is open.
+    folderToggle: (name: string, open: boolean) =>
+      intent.getByRole("button", {
+        name: `${open ? "Collapse" : "Expand"} ${name}`,
+        exact: true,
+      }),
+    readingShown: () => readingPane()?.checkVisibility() ?? false,
+    readingText: () => textOf(readingPane()),
+    readingOffset: () => readingPane()?.scrollTop,
+    scrollReadingHalfway,
     purposeText: () => textOf(purpose.element()),
     diffName: () =>
       textOf(

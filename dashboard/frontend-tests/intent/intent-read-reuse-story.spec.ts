@@ -5,7 +5,7 @@ import { selectTakenStoryInIntent } from "../../test-support/support/frontendInt
 // file's Purpose is the story's diff alone, with no read of its published
 // text beside it, and opening it again asks for the diff no more
 // (../../src/StoryReviewFileDiff.tsx, ../../src/answerMemo.ts). Without a story:
-// ./intent-read-reuse.spec.ts.
+// ./intent-candidates-reader-reuse.spec.ts and ./intent-cached-reads.spec.ts.
 
 import type { Page } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
