@@ -9,8 +9,7 @@ import { projectFolder } from "./projectFolders.ts";
 import { completedStoryAttribution } from "./storyCompletedCommits.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
-import { listedFrom } from "./storyReviewComparison.ts";
-import { changedFrom } from "./storyReviewFiles.ts";
+import { compareOriginalTrees, listedFrom } from "./storyReviewComparison.ts";
 
 export async function publishedStoryReview(
   source: PublishedSource,
@@ -59,10 +58,7 @@ export async function publishedStoryReview(
     const mixed = new Map([...less.inseparable, ...attributed.resolutions]);
     const withMerged =
       facts.mode === "story-branch"
-        ? {
-            from: facts.storyStart,
-            files: await changedFrom(facts.storyStart, tree, call),
-          }
+        ? await compareOriginalTrees(facts.storyStart, tree, call)
         : undefined;
     return {
       kind: "published",

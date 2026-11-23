@@ -79,6 +79,8 @@ export function useStoryReviewComparison({
   // whole snapshot.
   const committed = shown === "all" ? snapshot?.committed : undefined;
   const committedShown = includeUncommitted ? undefined : committed;
+  const branchCommitRange =
+    snapshot?.withMerged !== undefined && oldest?.kind === "commit";
   const range = useReviewRead(
     "range",
     {
@@ -88,6 +90,7 @@ export function useStoryReviewComparison({
       tree: newest?.tree ?? "",
       baseline: newest?.baseline ?? "",
       integrations: JSON.stringify(reviewIntegrations(selectedItems)),
+      ...(branchCommitRange ? { withMerged: "1" } : {}),
     },
     { round, enabled: active && shown === "commits" },
   );
@@ -109,7 +112,11 @@ export function useStoryReviewComparison({
       ? rangeComparison?.tree
       : (committedShown?.tree ?? snapshot?.tree);
   const withMerged =
-    shown !== "all" ? undefined : (committedShown ?? snapshot)?.withMerged;
+    shown === "all"
+      ? (committedShown ?? snapshot)?.withMerged
+      : branchCommitRange
+        ? rangeComparison?.withMerged
+        : undefined;
   return {
     items,
     selectedItems,

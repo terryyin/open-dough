@@ -2,6 +2,7 @@
 // chosen by its two ends. Every item within the range states its membership.
 import { Moment } from "./Moment.tsx";
 import { reviewItemId, type ReviewItem } from "./storyReviewContract.ts";
+import { shortRevision } from "./publishedWork.ts";
 import "./story-review-commits.css";
 
 export function CommitList({
@@ -48,9 +49,13 @@ export function CommitList({
 export function CommitRangeHeading({
   selected,
   trunkIntegrated,
+  includesMergedChanges,
+  pair,
 }: {
   readonly selected: readonly ReviewItem[];
   readonly trunkIntegrated: boolean;
+  readonly includesMergedChanges: boolean;
+  readonly pair: { readonly from: string; readonly tree: string } | undefined;
 }) {
   const newest = selected[0];
   const oldest = selected.at(-1);
@@ -75,10 +80,18 @@ export function CommitRangeHeading({
         From <ReviewItemName item={oldest} /> to{" "}
         <ReviewItemName item={newest} />.
       </p>
+      {pair !== undefined && (
+        <p>
+          Baseline <code title={pair.from}>{shortRevision(pair.from)}</code>
+          {" · "}End tree{" "}
+          <code title={pair.tree}>{shortRevision(pair.tree)}</code>.
+        </p>
+      )}
       {trunkIntegrated && (
         <p>
-          Trunk was integrated within the range: changes that came only from
-          trunk are left out.
+          {includesMergedChanges
+            ? "Trunk was integrated within the range. Incoming trunk changes are included."
+            : "Trunk was integrated within the range: changes that came only from trunk are left out."}
         </p>
       )}
     </div>

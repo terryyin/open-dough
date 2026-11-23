@@ -20,6 +20,7 @@ export interface AdmittedStoryReviewRange {
   readonly tree: string;
   readonly baseline: string;
   readonly integrations: readonly ReviewIntegration[];
+  readonly withMerged?: "1" | undefined;
 }
 
 const rangeQuerySchema = z.object({
@@ -28,6 +29,7 @@ const rangeQuerySchema = z.object({
   tree: objectIdSchema,
   baseline: objectIdSchema,
   integrations: z.array(reviewIntegrationSchema),
+  withMerged: z.literal("1").optional(),
 });
 
 export async function rangeRequest(
@@ -43,6 +45,7 @@ export async function rangeRequest(
       "tree",
       "baseline",
       ...(url.searchParams.has("integrations") ? ["integrations"] : []),
+      ...(url.searchParams.has("withMerged") ? ["withMerged"] : []),
     ],
     "commit range",
   );

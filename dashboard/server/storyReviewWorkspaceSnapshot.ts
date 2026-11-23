@@ -30,8 +30,11 @@ import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { fetchGitTarget } from "./gitTargetFetch.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { storyCommits } from "./storyReviewCommits.ts";
-import { compareReviewPoints, listedFrom } from "./storyReviewComparison.ts";
-import { changedFrom } from "./storyReviewFiles.ts";
+import {
+  compareOriginalTrees,
+  compareReviewPoints,
+  listedFrom,
+} from "./storyReviewComparison.ts";
 import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import { publishedStoryEvidence } from "./storyPublishedEvidence.ts";
 import { storyReviewBranchStart } from "./storyReviewBranchStart.ts";
@@ -143,10 +146,7 @@ export async function storyReviewSnapshot(
         ...(storyStart === undefined
           ? {}
           : {
-              withMerged: {
-                from: storyStart,
-                files: await changedFrom(storyStart, to, call),
-              },
+              withMerged: await compareOriginalTrees(storyStart, to, call),
             }),
       };
     };

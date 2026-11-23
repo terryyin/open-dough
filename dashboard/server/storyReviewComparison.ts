@@ -21,6 +21,14 @@ import { mergeTreeOutput } from "./mergeTreeOutput.ts";
 import { reviewPointObjects, type ReviewPoint } from "./storyReviewPoints.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
 
+export async function compareOriginalTrees(
+  from: string,
+  tree: string,
+  call: GitCall,
+): Promise<ReviewComparison> {
+  return { from, files: await changedFrom(from, tree, call) };
+}
+
 // Whether the repository holds the point's tree and baseline commit.
 async function holdsPoint(point: ReviewPoint, call: GitCall) {
   try {

@@ -150,6 +150,7 @@ export function useStoryComparison({
     withMerged,
     tree,
     includeMergedChanges: includeMerged,
+    workspaceComparison: shown,
   });
   // A selection read keeps the previous answer until the new one arrives.
   // That answer belongs to this story only when this story already showed a
@@ -179,8 +180,7 @@ export function useStoryComparison({
   const canIncludeMerged =
     (reviewKept?.kind === "published" && reviewKept.withMerged !== undefined) ||
     (reviewKept?.kind === "snapshot" &&
-      shown === "all" &&
-      (readingNow
+      (readingNow && shown === "all"
         ? reviewKept.withMerged !== undefined
         : withMerged !== undefined));
   // A chosen run other than the answer's own, or a chosen commit range, read

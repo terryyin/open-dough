@@ -59,6 +59,7 @@ export const reviewRangeSchema = z.discriminatedUnion("kind", [
     trunkIntegrated: z.boolean(),
     kind: z.literal("comparison"),
     tree: objectIdSchema,
+    withMerged: reviewComparisonSchema.optional(),
   }),
   z.object({ kind: z.literal("unavailable"), explanation: z.string().min(1) }),
 ]);

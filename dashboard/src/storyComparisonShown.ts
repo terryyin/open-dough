@@ -16,12 +16,14 @@ import type {
   StoryReview,
 } from "./storyReviewContract.ts";
 import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
+import type { ShownComparison } from "./StoryReviewComparison.tsx";
 
 export type ShownStoryComparison = {
   readonly reviewed: ReviewedWork;
   readonly comparison: ReviewComparison;
   readonly tree: string;
   readonly includesMergedChanges?: true;
+  readonly workspaceComparison?: ShownComparison;
 };
 
 export function storyComparisonShown({
@@ -31,6 +33,7 @@ export function storyComparisonShown({
   withMerged,
   tree,
   includeMergedChanges = false,
+  workspaceComparison,
 }: {
   readonly subject: ReviewedWorkSubject;
   readonly review: StoryReview | undefined;
@@ -39,6 +42,7 @@ export function storyComparisonShown({
   readonly withMerged?: ReviewComparison | undefined;
   readonly tree: string | undefined;
   readonly includeMergedChanges?: boolean;
+  readonly workspaceComparison?: ShownComparison;
 }): ShownStoryComparison | undefined {
   const show = (
     reviewed: ReviewedWork,
@@ -72,7 +76,10 @@ export function storyComparisonShown({
     comparison !== undefined &&
     tree !== undefined
   )
-    return show({ subject }, comparison, tree, withMerged);
+    return {
+      ...show({ subject }, comparison, tree, withMerged),
+      ...(workspaceComparison === undefined ? {} : { workspaceComparison }),
+    };
   return undefined;
 }
 

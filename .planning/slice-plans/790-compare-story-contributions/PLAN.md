@@ -127,7 +127,7 @@ survived Refresh. Done, captured landing, live rename and Trunk Mode cases passe
 ### 3. A selected commit range widens only between its own endpoints
 
 Type: Behavior
-Status: planned
+Status: done
 
 Choose a contiguous branch range across a trunk merge. Its attributed read
 uses the existing range restatement, including the owning merge's edits and
@@ -141,6 +141,14 @@ Cover an incoming-only path, an edit authored during a clean merge, a mixed
 conflict with a readable resolution diff, and subsequent trunk outside the
 range. Observe membership, range labels and per-file baselines in each
 choice. Keep ordinary commit and uncommitted-only selections readable.
+
+Accepted: Dashboard typecheck and focused real-Git backend, Chromium and
+end-to-end cases passed. Intent selected the two middle integrations and
+showed the clean merge edit and mixed-file resolution. Widening used the
+selected first-parent tree and the same end in the heading and note. Incoming
+files entered the list while later integrated trunk stayed outside the range.
+The file lost its attribution flag in the widened view. The unsupported-Git
+case returned the attribution gap without an alternate pair.
 
 ### 4. Fixed and unavailable comparisons explain their own evidence
 

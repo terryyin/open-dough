@@ -223,7 +223,7 @@ export function ComparisonDetail({
   return (
     <>
       {commitsReview ? (
-        <ComparedRange compare={compare} />
+        <ComparedRange compare={compare} shown={shown} />
       ) : (
         <ComparedContext
           shown={shown}

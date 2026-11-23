@@ -14,6 +14,7 @@ import { CommitList, CommitRangeHeading } from "./StoryReviewCommits.tsx";
 import { RunChoice } from "./StoryReviewRunChoice.tsx";
 import type { ReviewItem } from "./storyReviewContract.ts";
 import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
+import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
 
@@ -45,12 +46,26 @@ export type StoryCompare = {
 };
 
 // The chosen commit range's name in place of the compared revisions.
-export function ComparedRange({ compare }: { readonly compare: StoryCompare }) {
+export function ComparedRange({
+  compare,
+  shown,
+}: {
+  readonly compare: StoryCompare;
+  readonly shown?: ShownStoryComparison;
+}) {
+  const settled =
+    !compare.reading && compare.includeMergedChanges !== undefined;
+  const pair =
+    settled && shown !== undefined
+      ? { from: shown.comparison.from, tree: shown.tree }
+      : undefined;
   return (
     <div className="intent-story-revisions">
       <CommitRangeHeading
         selected={compare.selectedItems}
         trunkIntegrated={compare.trunkIntegrated}
+        includesMergedChanges={shown?.includesMergedChanges === true}
+        pair={pair}
       />
     </div>
   );
