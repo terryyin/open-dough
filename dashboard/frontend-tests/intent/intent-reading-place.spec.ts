@@ -1,12 +1,13 @@
 // Intent's reading place is kept by the page for the project
 // (../../src/pageIntentReading.tsx): with a selected Taken story whose
-// changes add a long spec two folders deep, that file selected, "Selected
-// story only" on, a folder collapsed by hand and Purpose scrolled show the
-// same after the story's other views (../../src/intentStoryTabs.tsx), and
-// after Development and back on the same Changes view, and the return reads
-// neither the locations nor the file's diff or published text again
-// (../../src/answerMemo.ts). Another project shows none of it, and choosing
-// the project again starts its reading afresh, at the story's CI comparison.
+// changes add a long spec two folders deep, that file selected with Purpose
+// scrolled shows the same after the story's other views
+// (../../src/intentStoryTabs.tsx); with "Selected story only" on and a folder
+// collapsed by hand as well, all of it shows the same after Development and
+// back on the same Changes view. Neither return reads the locations nor the
+// file's diff or published text again (../../src/answerMemo.ts). Another
+// project shows none of it, and choosing the project again starts its reading
+// afresh, at the story's CI comparison.
 
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
@@ -136,30 +137,36 @@ async function openStoryChanges() {
   return { ...mounted, reads };
 }
 
-// The deep spec selected with "Selected story only" on and `out` collapsed by
-// hand, its diff shown and Purpose scrolled halfway, as the developer would.
-async function readDeepSpec() {
-  await story.storyOnly.click();
-  await story.folderToggle("out", true).click();
+test("the deep spec read to an offset is shown at that offset after the story's other views, without reading again", async () => {
+  const mounted = await openStoryChanges();
   await story.file(deepSpec).click();
-  await expect.poll(story.diffName).toBe(deepSpec);
   await expect.poll(story.diffCode).toContain("long 120");
   const offset = await story.scrollReadingHalfway();
   expect(offset).toBeGreaterThan(20);
-  return offset;
-}
-
-test("a file selected two folders deep, with Selected story only and Purpose scrolled, is shown the same after Development and back without reading again", async () => {
-  const mounted = await openStoryChanges();
-  const offset = await readDeepSpec();
 
   mounted.reads.length = 0;
   for (const view of ["CI comparison", "Intent coverage"] as const) {
     await story.chooseTab(view);
     await expect.poll(story.readingShown).toBe(false);
     await story.chooseTab("Changes");
+    await expect
+      .element(story.file(deepSpec))
+      .toHaveAttribute("aria-pressed", "true");
     await expect.poll(story.readingOffset).toBe(offset);
   }
+  expect(mounted.reads).toEqual([]);
+});
+
+test("the deep spec read with Selected story only on, out collapsed and Purpose scrolled is shown the same after Development and back, without reading again", async () => {
+  const mounted = await openStoryChanges();
+  await story.storyOnly.click();
+  await story.folderToggle("out", true).click();
+  await story.file(deepSpec).click();
+  await expect.poll(story.diffCode).toContain("long 120");
+  const offset = await story.scrollReadingHalfway();
+  expect(offset).toBeGreaterThan(20);
+
+  mounted.reads.length = 0;
   await mounted.showDevelopment();
   await expect.element(intent).not.toBeInTheDocument();
   await mounted.showIntent();
@@ -173,10 +180,7 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
     .toHaveAttribute("aria-pressed", "true");
   await expect.poll(story.diffName).toBe(deepSpec);
   await expect.poll(story.diffCode).toContain("long 120");
-  await expect
-    .element(story.folderToggle("dashboard/tests", true))
-    .toBeVisible();
-  for (const name of ["boundary", "deep", "arriving"])
+  for (const name of ["dashboard/tests", "boundary", "deep", "arriving"])
     await expect.element(story.folderToggle(name, true)).toBeVisible();
   await expect.element(story.folderToggle("out", false)).toBeVisible();
   await expect.poll(story.readingOffset).toBe(offset);
@@ -185,7 +189,11 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
 
 test("another project shows none of the reading place, and choosing the project again starts its reading afresh", async () => {
   const mounted = await openStoryChanges();
-  await readDeepSpec();
+  await story.storyOnly.click();
+  await story.folderToggle("out", true).click();
+  await story.file(deepSpec).click();
+  await expect.poll(story.diffCode).toContain("long 120");
+  expect(await story.scrollReadingHalfway()).toBeGreaterThan(20);
 
   await mounted.showWork(doughnutWork);
   await expect

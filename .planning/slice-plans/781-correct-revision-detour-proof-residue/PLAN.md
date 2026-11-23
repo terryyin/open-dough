@@ -280,7 +280,7 @@ the mounted return case fails the same way. The step and
 ### 5. Changes preserves the reading place across a detour and resets it per project
 
 Type: Structure
-Status: planned
+Status: done
 
 Make `intent-reading-place.spec.ts` show the selected file and its recorded
 scroll offset as the input to a detour. Keep tab detours and the Development
@@ -293,6 +293,13 @@ content, scroll offset and zero extra reads where they distinguish restoration.
 **Proof.** Run `intent/intent-reading-place.spec.ts`. Match both restoration
 and reset observations to the original. Repeat the recorded scroll-loss
 fault to show the exact offset remains load-bearing.
+
+**Delivered.** The combined detour case is now a tab-detour case (file and
+offset kept, no reads) and a Development round trip (filter, folders, file,
+Purpose, offset, no reads); the project reset case is unchanged. The repeated
+scroll-loss fault fails the Development case on its offset. Tab detours only
+hide the reading pane, so that fault cannot reach the tab case; no fault for
+tab-detour scroll was tried.
 
 ### 6. CI homepage cases state one transition each
 
