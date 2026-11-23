@@ -43,6 +43,7 @@ case's prerequisites, action, and observable result.
 - Slice 1 delivery rearmed the same coordinator for the story branch in `/tmp/dough-ci-501/watch-gTzJHM`, process `32161`, Codex shell session `96216`, cell `g262:89`. Trunk source freshness was confirmed at `57cd409a`.
 - Slice 1 was published at `41f3948b8` and passed GitHub Actions run `45093545949`. The viewport correction and desktop offer delivery use the same coordinator in `/tmp/dough-ci-501/watch-YI0eJX`, process `95043`, Codex shell session `60942`, cell `g277:39`. Trunk source freshness was confirmed at `9d9736778`.
 - The focused-case correction and desktop offers were published at `bfeb86d98`. Ordinary refinement delivery reuses the same live branch observer. Trunk source freshness remains unchanged at `9d9736778`.
+- Ordinary refinement was published at `1830ffb17`. On resumption the coordinator recovered the stopped branch observer and armed `/tmp/dough-ci-501/watch-sGXDju`, process `85012`, Codex shell session `7696`, cell `g290:5`. Trunk source freshness is unchanged at `6452dcce`.
 
 ## Current decisions
 
@@ -191,6 +192,23 @@ cases in both runs, at 26.16 and 32.44 s. Host load rose from 9.72 to
 speedup. Preserve the simpler test setup and keep the elapsed target
 open. Proof is in `open-dough/evidence/ordinary-launch.LtnaHNdg`.
 
+**Voice dismissal.** The existing fixture starts with LaunchDialog open
+at the default viewport. Disposable phase timing found seven initial
+clicks that took 1.816 summed case-seconds. The real Record and Stop
+clicks and the six required reopens remain part of the verification.
+Active Cancel and Escape each have a focused case with real live and
+ended tracks and no transcription or launch request. Held permission
+and held transcription still verify their independent late answers
+against the reopened draft. The three voice specs passed their paired
+runs in 17.07 s (seven cases) and 14.44 s (nine cases), with start loads
+29.13 and 28.83, respectively. The candidate ended at load 33.79.
+This is focused elapsed evidence. The proof and consumer map are in
+`open-dough/evidence/voice-slice.lnZb4lRt/report.md`. Independent
+refactoring gave each active-recording case a literal title. The
+static listing found both titles and the five cases in the main
+voice spec passed again. The refactor proof is in
+`voice-slice.lnZb4lRt/refactor.SL2YPWx8`.
+
 ## Timing evidence and decisions
 
 - The [seed evidence](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
@@ -290,7 +308,7 @@ four option cases and the affected mount callers in paired runs.
 ### 4. Dismissing recording work leaves the next draft clean
 
 Type: Behavior
-Status: planned
+Status: done
 
 Time permission and recording transitions separately from opening and
 reopening the dialog. The existing `LaunchDialog` mount runs MediaRecorder

@@ -61,7 +61,7 @@ export async function mountInstructionVoice() {
   const hostOptions = makeMe.aLaunchHostOptions.with({ models: [] }).please();
   const readOptions = () => Promise.resolve(hostOptions);
   function Launcher() {
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(true);
     return [
       createElement(
         "button",
@@ -93,12 +93,8 @@ export async function mountInstructionVoice() {
         : null,
     ];
   }
-  // Vitest skips the outer browser resize if the viewport matches its default.
-  await mountComponent(createElement(Launcher), {
-    viewport: { width: 390, height: 760 },
-  });
+  await mountComponent(createElement(Launcher));
   const action = page.getByRole("button", { name: "Open launch" });
-  await action.click();
   const form = launchDialog();
   const inDialog = form.dialog;
   const status = inDialog.getByRole("status");

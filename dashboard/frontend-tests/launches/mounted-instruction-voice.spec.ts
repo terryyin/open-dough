@@ -46,16 +46,33 @@ test("Cancel and Escape each abandon a held transcription and a late reply leave
   expect(voice.send).not.toHaveBeenCalled();
 });
 
-test("Escape stops active recording and late permission after either dismissal cannot populate the next dialog", async () => {
+type InstructionVoice = Awaited<ReturnType<typeof mountInstructionVoice>>;
+
+async function expectRecordingStops(
+  dismiss: (voice: InstructionVoice) => Promise<void>,
+) {
   const capture = audioInput();
   const voice = await mountInstructionVoice();
   await voice.begin();
-  await escape();
+  expect(capture.tracks().map((track) => track.readyState)).toEqual(["live"]);
+  await dismiss(voice);
   await expect.element(voice.dialog).not.toBeInTheDocument();
   expect(capture.tracks().map((track) => track.readyState)).toEqual(["ended"]);
   expect(voice.transcribe).not.toHaveBeenCalled();
-  await voice.action.click();
+  expect(voice.send).not.toHaveBeenCalled();
+}
 
+test("Cancel stops active recording without transcribing", async () => {
+  await expectRecordingStops((voice) => voice.cancel.click());
+});
+
+test("Escape stops active recording without transcribing", async () => {
+  await expectRecordingStops(escape);
+});
+
+test("late permission after either dismissal cannot populate the next dialog", async () => {
+  const capture = audioInput();
+  const voice = await mountInstructionVoice();
   for (const dismiss of ["Cancel", "Escape"] as const) {
     const pending = hold<MediaStream>();
     const requested = hold<MediaStream>();

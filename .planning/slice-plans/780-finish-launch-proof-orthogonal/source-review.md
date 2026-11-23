@@ -48,12 +48,12 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 40 | A held offer follows its applicable submission rule. (Refinement example) | slice 3 | observed: launch-refinement-options.spec.ts unavailability is on the real disabled Start refinement button while the initial offer is held |
 | 41 | A host reread follows its applicable availability rule. (Refinement example) | slice 3 | observed: launch-refinement-options.spec.ts host reread shows Reading options and exposes no choice controls while held |
 | 42 | A host reread follows its applicable submission rule. (Refinement example) | slice 3 | observed: launch-refinement-options.spec.ts held host reread submits a Claude start through the typed callback without an options field |
-| 43 | Cancel ends recording when recording work is applicable. (Recording and keyboard-startup example) | slice 4 | |
-| 44 | Cancel ends transcription when transcription work is applicable. (Recording and keyboard-startup example) | slice 4 | |
-| 45 | Escape ends recording when recording work is applicable. (Recording and keyboard-startup example) | slice 4 | |
-| 46 | Escape ends transcription when transcription work is applicable. (Recording and keyboard-startup example) | slice 4 | |
-| 47 | A late permission answer leaves the new draft empty. (Recording and keyboard-startup example) | slice 4 | |
-| 48 | A late transcription answer leaves the new draft empty. (Recording and keyboard-startup example) | slice 4 | |
+| 43 | Cancel ends recording when recording work is applicable. (Recording and keyboard-startup example) | slice 4 | observed: mounted-instruction-voice.spec.ts Cancel stops active recording without transcribing, with a real live then ended track and no launch |
+| 44 | Cancel ends transcription when transcription work is applicable. (Recording and keyboard-startup example) | slice 4 | observed: mounted-instruction-voice.spec.ts held transcription Cancel iteration observes active then aborted signal and ended tracks |
+| 45 | Escape ends recording when recording work is applicable. (Recording and keyboard-startup example) | slice 4 | observed: mounted-instruction-voice.spec.ts Escape stops active recording without transcribing, with a real live then ended track and no launch |
+| 46 | Escape ends transcription when transcription work is applicable. (Recording and keyboard-startup example) | slice 4 | observed: mounted-instruction-voice.spec.ts held transcription Escape iteration observes active then aborted signal and ended tracks |
+| 47 | A late permission answer leaves the new draft empty. (Recording and keyboard-startup example) | slice 4 | observed: mounted-instruction-voice.spec.ts held permission observes an empty reopened draft and the previous live track ending on its late answer after both dismissals |
+| 48 | A late transcription answer leaves the new draft empty. (Recording and keyboard-startup example) | slice 4 | observed: mounted-instruction-voice.spec.ts held transcription resolves the previous request after each native reopen and observes the new draft stay empty |
 | 49 | Keyboard startup selects the correct story. (Recording and keyboard-startup example) | slice 6 | |
 | 50 | Keyboard startup announces each applicable transition once. (Recording and keyboard-startup example) | slice 6 | |
 | 51 | Keyboard startup leaves focus with the next inspection. (Recording and keyboard-startup example) | slice 6 | |
@@ -67,7 +67,7 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 59 | All frontend unit checks run in plain Vitest. (Shared acceptance) | slice 8 | |
 | 60 | Existing composed launch journeys retain coverage. The Follow-up request is the explicitly named journey in ID 05. (Goal) | slice 8 | |
 | 61 | Retained proof preserves the genuine browser conditions on which the existing observations depend. (Scope and Shared acceptance) | slice 8 | |
-| 62 | Retained proof preserves the existing capture race observations. (Scope) | slice 4 | |
+| 62 | Retained proof preserves the existing capture race observations. (Scope) | slice 4 | observed: mounted-instruction-voice.spec.ts held permission, held transcription and unexpected track end; both sibling specs observe overflow, permission refusal, failed capture and retry |
 | 63 | Retained proof preserves the existing recovery race observations. (Scope) | slice 6 | |
 | 64 | Existing native journeys stay at their current owners. (Scope) | slice 8 | |
 | 65 | Existing install journeys stay at their current owners. (Scope) | slice 8 | |
