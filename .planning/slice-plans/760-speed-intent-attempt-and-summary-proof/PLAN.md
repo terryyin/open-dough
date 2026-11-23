@@ -115,6 +115,7 @@ local-gate command above. Scratch edits were reverted.
 - Slice 2 accepted on the story branch at `32b31b9da1bf15abac0aec93209cb8d504c451ff`.
 - Slice 3 accepted on the story branch at `3e8ff6f21410a20e83b91936634da4d316dbbdd4`.
 - Slice 4 accepted on the story branch at `3caae305cbe7e532ab37f26c9e62cb84787c84dd`.
+- Slice 5 accepted on the story branch at `076613eabaa11a3385e4d907050f004cd3a9831f`.
 - GitHub Actions `ci.yml` observes the published story branch. The active
   observer identity and increment receipts are retained in the execution conversation.
 
@@ -285,7 +286,7 @@ The two mechanically corrected file specs passed all seven cases again after del
 ### 6. Compared Summary sorting and Show % stay with the reader, spent support is removed, and proof runs faster
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-summary-story-comparison-column-sort`,
 `intent-summary-story-comparison-relative`,
@@ -304,6 +305,41 @@ drill-down and return.
 remain across the 18 owned files; spent support is gone; two-worker Vitest
 feedback is faster than the `37.9 s` baseline under comparable load. Delete
 the four legacy files.
+
+All fourteen legacy titles remain as Vitest cases. Native story, scope, file and header controls replace the comparison markup and built frontend fixtures. Their former sorting, geometry and evidence helpers map to these mounted observations:
+
+| Legacy case and check | Mounted assertion |
+| --- | --- |
+| Change and Landed column sort | Both Change directions keep unchanged rows last. Landed descending keeps incomparable rows last, stays selected in a child folder and leaves the exact own figures above the table. Both use the exact row orders and one active accessible header and arrow. |
+| Zoomed comparison Summary | Chromium measures the 640×450 CSS layout with the original font override, whole table words, no sideways overflow and table containment. |
+| Entry, folder and nested relative scales | Separate cases inspect each scope's mark reach and centered geometry on its own scale. Exact displayed percentages are +79%, +68% and +21%. |
+| File geometry under Show % | The same file mark geometry survives the native Show % toggle between +70 ms+21% and +70 ms. |
+| Added versus measured-zero file | Added has absolute 800 ms and no relative marks or percentages. Returning to an unchanged file keeps the toggle on and shows 0 ms0% with a centered zero-length mark. |
+| Removed file and retained sort | Toggling Show % preserves the exact Landed ordering. Removed keeps its exact Change cell and shows no relative presentation or later-only row. |
+| Signed Branch, Landed and Baseline sort | Three cases use distinct actual headers with exact both-direction values, sort metadata and gaps last. Branch and Landed show the specified signed percentages, and Baseline retains its absolute ordering. |
+| Zero Baseline | The root file's zero Baseline and +30.0 s differences keep their signed quantities with no relative marks or percentages. |
+| Story selection and preference | The two typed tree revisions give the Done and queued cards distinct children. Real selection and deselection retain the Landed sort when the column returns, and a Test execution time sort falls back to tree order when its column is absent. |
+
+The 18 paths reconcile exactly to the 49 historical case titles, all mounted in Vitest Chromium. Ten support modules lost their last executable caller. Their names and reference checks are in `slice6-implementation-report.md` and `slice6-consumers.md` in the Git evidence directory. The remaining comparison artifact and markup owners have separate callers.
+
+The first fresh timing pairs were 25.496 s Playwright versus 26.953 s Vitest, and in reverse order 28.870 s Playwright versus 29.689 s Vitest. Both matched all 49 titles and passed. The provisional improvement against 37.900 s did not hold against the fresh setup. The remaining correction targets browser-level input cost in scope setup while retaining native keyboard, focus, sorting and layout observations.
+Direct scope setup activation moved the paired Vitest result to 21.797 s, but the same pair's Playwright result was 17.461 s. The next bounded change targets the repeated initial story-card and Changes-tab setup. It retains the actual selection and the existing native controls where cases exercise a reader's input.
+
+The final mounted fixture starts in Development, activates the rendered card, verifies the exact selected identity in Intent, and activates the rendered Changes tab. The ordinary scope setup steps use direct DOM activation. The native input observations and all 49 case titles remain. The final sequential pair used Node 24.21.0, AC, two workers and the same three selectors in the local gate. One-minute load was 8.37 before the first run, 8.97 between runs and 8.99 at the end.
+
+| Candidate | Case selection | Elapsed with preparation | Summed case time |
+| --- | --- | --- | --- |
+| Legacy revision `7cc05f008` | 49 Playwright Chromium cases in 18 files, strict pass | 23.652 s | 28.862 s |
+| Final mounted candidate based on `076613eab` | The same 49 titles in 18 files, all Vitest Chromium, strict pass | 15.386 s | 19.946 s |
+
+Elapsed feedback improved by 34.9% in the paired run. The longest mounted case was cross-story sort retention at 2.658 s. Dashboard typecheck passed. The Git evidence directory retains exact commands and terminal records in `slice6-final-pair-*.log.run.json`, case outcomes in the matching proof JSONs, and load observations in `slice6-final-pair-conditions.txt`.
+
+## Story obligations
+
+### G1. Fresh pairs do not show faster feedback
+Reported: slice 6 — "The fresh Playwright selections were faster than the final mounted selection in both run orders."
+Story clause: "Summary proof gives faster feedback as soon as its slices land."
+Disposition: proved by slice 6: `slice6-final-pair-before.proof.json` and `slice6-final-pair-after.proof.json`, exact matching roster and 23.652 s to 15.386 s under comparable load
 
 ## Concern evidence and readiness
 

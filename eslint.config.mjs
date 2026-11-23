@@ -30,7 +30,7 @@ const unusedVars = ["error", { args: "all", caughtErrors: "all" }];
 
 // The modules whose `test` runs a Frontend spec against substitutes.
 const frontendTestModules =
-  "dashboard/test-support/support/frontendApp.ts, dashboard/test-support/support/pageTest.ts or dashboard/test-support/support/comparisonMountPage.ts";
+  "dashboard/test-support/support/frontendApp.ts or dashboard/test-support/support/pageTest.ts";
 
 export default defineConfig(
   globalIgnores(ignores),

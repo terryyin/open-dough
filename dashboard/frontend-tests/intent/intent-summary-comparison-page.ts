@@ -2,7 +2,6 @@ import { expect } from "vitest";
 import { page, type Locator } from "vitest/browser";
 import { cueOf } from "./intent-ci-comparison-page.ts";
 import { comparisonIn } from "./intent-ci-scope-page.tsx";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   evidenceLabels,
   labelsHeardAs,
@@ -107,14 +106,28 @@ export async function expectFallback(
   else await readReason.toBe(reason);
 }
 
+async function openComparedChild(summary: Locator, name: string) {
+  const child = summary
+    .getByRole("table")
+    .getByRole("rowheader")
+    .getByRole("button", { name, exact: true })
+    .first();
+  await expect.element(child).toBeVisible();
+  (child.element() as HTMLElement).click();
+}
+
 export async function openComparedFolder(summary: Locator, path: string) {
-  await comparisonIn(summary).open(`${path.split("/").at(-1)}/`);
+  await openComparedChild(summary, `${path.split("/").at(-1)}/`);
   await showsSummaryPath(summary, path);
 }
 
 export async function openComparedFileProof(summary: Locator, name: string) {
-  await comparisonIn(summary).open(name);
-  await intentStoryCompare().chooseProof();
+  await openComparedChild(summary, name);
+  const proofTab = page
+    .getByRole("tablist", { name: "Purpose and Proof", exact: true })
+    .getByRole("tab", { name: "Proof", exact: true });
+  await expect.element(proofTab).toBeVisible();
+  (proofTab.element() as HTMLElement).click();
   return page.getByRole("region", { name: "Proof", exact: true });
 }
 

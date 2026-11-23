@@ -93,8 +93,9 @@ State the case's facts as steps, such as `.wallTimed()`, `.inSummaryScope()`
 answers a new value at each `.please()`, so one case can render a scope and
 then its folder. The `renderComparison` and `renderComparisonTree` fixtures
 render the built story, turning its published proofs into endpoint proofs
-through the real comparison owner, and `comparisonServices.serve(story)`
-answers its reads in a mounted case.
+through the real comparison owner. Mounted Summary cases use
+`openSummaryComparison(story)` to answer typed reads on the production Intent
+page.
 [Compared story builder](../support/comparedStoryTestData.mjs) ·
 [Rendering fixtures](../../../dashboard/test-support/support/pageTest.ts) ·
-[Mounted services](../../../dashboard/test-support/support/comparisonMountPage.ts)
+[Mounted Summary fixture](../../../dashboard/frontend-tests/intent/intent-summary-comparison-fixture.ts)

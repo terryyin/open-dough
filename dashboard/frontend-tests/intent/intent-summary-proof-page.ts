@@ -1,5 +1,5 @@
 import { expect } from "vitest";
-import { page, userEvent, type Locator } from "vitest/browser";
+import { page, type Locator } from "vitest/browser";
 import { ciReadingText } from "./intent-attempt-proof-page.ts";
 import {
   locationNameControl,
@@ -24,7 +24,9 @@ export async function showsSummaryPath(summary: Locator, path: string) {
 
 export async function openSummary(path: string) {
   await locationNameDrawn(path);
-  await userEvent.click(locationNameControl(path));
+  const location = locationNameControl(path);
+  await expect.element(location).toBeVisible();
+  (location.element() as HTMLElement).click();
   const summary = summaryRegion();
   await showsSummaryPath(summary, path);
   return summary;
