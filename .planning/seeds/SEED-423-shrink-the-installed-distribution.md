@@ -112,27 +112,57 @@ their dedicated tests about 2,400 lines.
 **Identity:** SEED-423#install-without-the-custom-ci-adapter
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/793-call-custom-ci-through-a-minimal-adapter-interface/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9d97bb01f509e921e9f7c7f12fd0327b452c2bd64e287559736b86a12d70d9a3","plan":"90a9e881d9975830e5ee61cd33c7fb1971d368d8b7bce459d069258549538880"}}
 ```
 
-- **For / why.** A developer using Pygardon CI can observe and act on its
-  results through Open Dough while maintaining provider behavior in Pygardon.
-- **Scope.** Pygardon owns provider access, interpretation and operations.
-  Open Dough defines the smallest interface its workflow and Dashboard need,
-  invokes the configured adapter, and uses its normalized results in shared
-  CI behavior. Compare the custom path with the GitHub Actions path for the
-  same outcomes. The custom path should be simpler because it delegates
-  provider behavior. Follow [ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md)
-  for project-owned configuration.
-- **Evaluation.** The watcher and Dashboard use the same documented contract
-  and invocation code. Check the candidate with Pygardon's adapter for CI
-  status and failure diagnosis, attempt proof and job timing, and rebuild
-  where enabled. Existing GitHub Actions workflows retain their behavior.
-  Publish the contract and adoption instructions, and keep Pygardon's live
-  integration on a compatible release and adapter throughout the handoff.
+**Goal.** A Pygardon developer can follow CI in the Open Dough execution
+watcher and Dashboard using a smaller shared adapter interface. Pygardon owns
+changes to its CI provider, and Open Dough carries less code and guidance for
+turning adapter replies into the same outcomes it shows for GitHub Actions.
+
+**Scope.**
+
+- Use one documented command contract and shared invocation and response
+  boundary for `discover`, `diagnose`, `proof`, `jobs`, and the separately
+  enabled `rebuild`. Pygardon owns service access, provider interpretation,
+  diagnostic selection, and admission. Open Dough owns the meaning of CI
+  evidence, its revision and attempt matching, and workflow decisions based
+  on that evidence.
+- Preserve exact verdicts, bounded failure evidence, queue and integrated-state
+  semantics, attempt proof and job timing, and the Dashboard's existing
+  one-request rebuild behavior. Preserve the default GitHub Actions path and
+  the distinction between missing evidence and an observed verdict.
+- Keep Pygardon's current command and project settings usable through the
+  first release that carries the simplified contract. Ship the contract and
+  adoption instructions with that release. The Pygardon adoption story owns
+  its deployment and any downstream changes. The CI reuse recipes and
+  changes to GitHub Actions behavior are outside this story.
+- Follow [ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md).
+  The commands and their credentials stay under project ownership, and
+  ordinary Open Dough use reads the installed contract and code locally.
+
+**Key examples.**
+
+- With Pygardon's adapter configured, a pending attempt becomes passing or
+  failing for the observed revision. A failure delivers the selected excerpt
+  or the reason it is unavailable. A different revision's green result and
+  queue evidence alone cannot certify the observed revision.
+- A completed attempt selected in Dashboard Intent supplies its own proof
+  and job timings through the same adapter boundary. Ambiguous identity or
+  missing evidence leaves the build visible with the reason for the gap.
+- A qualifying landed attempt with `ciRebuild` enabled requests one new
+  check of its original revision. The Dashboard follows the new exact
+  attempt if admitted and reports refusal or uncertain admission without
+  another request. The execution watcher remains read-only.
+- GitHub Actions projects still observe their configured checks, diagnose
+  failures, and read attempt evidence through their existing default path.
+  A client update can install the simplified contract and retain Pygardon's
+  existing settings and command while adoption is pending.
+
 - **Effort hypothesis.** M, medium confidence. Start from the roughly 1,700
   lines identified across the Distribution and Dashboard and measure how much
-  provider-specific code the simpler boundary removes.
+  adapter-specific code and guidance the simpler boundary removes. The audit
+  estimate describes the area to inspect and sets no reduction quota.
 - **Depends on.** None. The
   [Pygardon adoption story](https://github.com/terryyin/pygardon/blob/main/.planning/seeds/SEED-20261119-adopt-the-simplified-open-dough-ci-adapter.md#adopt-the-simplified-open-dough-ci-adapter)
   follows delivery of this contract.
