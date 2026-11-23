@@ -1,7 +1,6 @@
 // A recorded canonical or plan target leads to a file of the inspected
 // revision, to an external web address, or nowhere, by the production rule
-// (../../src/sourceLink.ts). Rendering is owned by ./source-links.spec.ts and
-// the popup by ../../../e2e/navigation/source-navigation.spec.ts.
+// (../../src/sourceLink.ts). Rendering is owned by ./source-links.spec.ts.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {

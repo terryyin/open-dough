@@ -70,24 +70,6 @@ export const canonicalRecord = (scope: Locator) =>
 export const slicePlanLink = (scope: Locator) =>
   scope.getByRole("link", { name: /^Slice plan / });
 
-// Clicks a source link and returns the address the new tab it opens reaches;
-// the tab is closed again. Whether the dashboard stays put is the caller's.
-export async function followInNewTab(link: Locator): Promise<string> {
-  const [tab] = await Promise.all([
-    link.page().waitForEvent("popup"),
-    link.click(),
-  ]);
-  await tab.waitForLoadState();
-  const reached = tab.url();
-  await tab.close();
-  return reached;
-}
-
-// Clicks a recorded target that `scope` shows as text, not as a link.
-export async function clickRecordedTarget(scope: Locator, recorded: string) {
-  await scope.getByText(recorded).click();
-}
-
 // Puts the keyboard on the card's Canonical record link, in the detail opened
 // for it, and returns that link.
 export async function focusCanonicalRecord(card: Locator): Promise<Locator> {

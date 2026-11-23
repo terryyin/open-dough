@@ -241,28 +241,24 @@ observations before and after the limit expires. Remove
 `noteLimitUntil` in scratch and verify the standing-limit case detects
 the missing wait. Restore the edit before delivery.
 
-### 7. The popup journey retains distinct source-link behavior
+### 7. Existing Board journeys cover source navigation
 
 Type: Structure
-Status: planned
+Status: done
 
-Apply the plan 762 retrospective correction to
-`e2e/navigation/source-navigation.spec.ts` in place. Keep a plan popup
-at its pinned revision and anchor, no external-host request when links
-render, the external link opening at the recorded address, and the open
-story detail after following a link. The existing published-work journey
-opens a canonical source at the inspected revision. Direction's literal
-markup has its own disclosure journey. Story readiness observes the
-plan read and detail. This journey owns opening the pinned plan in a popup.
+The follow-up removed `e2e/navigation/source-navigation.spec.ts`.
+`published-work.spec.ts` opens the pinned canonical record and checks that
+the Board keeps its detail open, displays the recorded external address,
+and makes no request to the external host. `story-readiness.spec.ts`
+already opens the pinned plan in a new tab and checks plan fragments in
+the rendered links. Title and direction markup are covered by the Board
+and direction disclosure cases. The Vitest source-link specs check
+recorded addresses, the external link's new-tab target, and refused targets.
 
-**Proof.** Run the slimmed popup journey, the canonical popup in
-`e2e/stories/published-work.spec.ts`, the literal-markup case in
-`e2e/stories/direction-disclosure.spec.ts` and the Vitest
-`navigation/source-links.spec.ts` and `navigation/source-link-rules.spec.ts`
-cases. Preserve the hostile title, refused target and unchanged document
-observations where their existing proof is weaker. Record before/after
-popup runtime separately and treat the inherited 3–8 s saving as an
-estimate.
+**Proof.** Seven E2E cases across `published-work`, `story-readiness`, and
+`direction-disclosure` and seven Vitest cases across `source-links` and
+`source-link-rules` passed with two workers. The earlier standalone timings
+remain available for the cohort comparison in slice 8.
 
 ### 8. The cohort comparison measures faster feedback with proof intact
 

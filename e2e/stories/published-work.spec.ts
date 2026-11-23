@@ -17,17 +17,21 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { expectSideBySideInOrder } from "../../dashboard/test-support/pageLayout.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
+  canonicalRecord,
   focusCanonicalRecord,
   hideDetail,
   inspectedDetail,
   storyCard,
 } from "../../dashboard/test-support/storyCardControls.ts";
+import { storyDetail } from "../../dashboard/test-support/storyCardSelection.ts";
 
 const revision = "4f2a9c1e7b3d5a6089c0d1e2f3a4b5c6d7e8f901";
 const installTitle = "Repair the installer's update report";
 const overviewTitle = "See the project's published work in a story dashboard";
 const sourceTitle = "Prepare stories in a clear developer workspace workflow";
 const queueTitle = "Queue trunk integration for agents on the same machine";
+const externalNoteTitle = "Show <em>markup</em> in a title as the text it is";
+const externalNote = "https://status.example.com/notes/2026-09?view=full#api";
 const installPlan = "slice-plans/059-installer-update-report/PLAN.md";
 const workspaceFile = `https://github.com/terryyin/open-dough/blob/${revision}/.planning/seeds/SEED-008-worktree-branch-trunk-sync.md`;
 const workspaceSource = `${workspaceFile}#planning-workspace-procedure`;
@@ -51,7 +55,7 @@ Derive it solely from Git state published to origin.
 
 - [${sourceTitle}](seeds/SEED-008-worktree-branch-trunk-sync.md#planning-workspace-procedure) — SEED-008#planning-workspace-procedure
 - [${queueTitle}](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008
-- [Show <em>markup</em> in a title as the text it is](seeds/SEED-030-titles.md#markup-as-text) — SEED-030#markup-as-text
+- [${externalNoteTitle}](${externalNote}) — SEED-030#markup-as-text
 `;
 
 // "Owner not recorded" states that no agent profile names an owner.
@@ -78,6 +82,11 @@ test("published Board shows Backlog and Taken work read at one revision", async 
       releaseRef = resolve;
     }),
   });
+  const externalReads: string[] = [];
+  await page.context().route("https://status.example.com/**", async (route) => {
+    externalReads.push(route.request().url());
+    await route.abort();
+  });
 
   await page.goto("/");
 
@@ -93,11 +102,7 @@ test("published Board shows Backlog and Taken work read at one revision", async 
   await test.step("membership and recorded order", async () => {
     await expectMembership(page, {
       taken: [installTitle, overviewTitle],
-      backlog: [
-        sourceTitle,
-        queueTitle,
-        "Show <em>markup</em> in a title as the text it is",
-      ],
+      backlog: [sourceTitle, queueTitle, externalNoteTitle],
     });
     await expect(dashboard.reading).toHaveCount(0);
   });
@@ -119,6 +124,14 @@ test("published Board shows Backlog and Taken work read at one revision", async 
 
   await test.step("titles are text, never markup", async () => {
     await expect(board.locator("em")).toHaveCount(0);
+  });
+  await test.step("the external note shows its recorded address", async () => {
+    const card = storyCard(backlog, externalNoteTitle);
+    await expect(canonicalRecord(await inspectedDetail(card))).toHaveAttribute(
+      "href",
+      externalNote,
+    );
+    await hideDetail(card);
   });
 
   await test.step("Given the published source is available", async () => {
@@ -145,7 +158,9 @@ test("published Board shows Backlog and Taken work read at one revision", async 
   });
   await test.step("When I return to the Board", async () => {
     await source.close();
-    await hideDetail(storyCard(backlog, sourceTitle));
+    const card = storyCard(backlog, sourceTitle);
+    await expect(storyDetail(card)).toBeVisible();
+    await hideDetail(card);
   });
 
   await test.step("backlog priority and column counts", async () => {
@@ -217,6 +232,7 @@ test("published Board shows Backlog and Taken work read at one revision", async 
         `${repository}/contents/.planning/PRODUCT-BACKLOG.md?ref=${revision}`,
       ],
     ]);
+    expect(externalReads).toEqual([]);
   });
 });
 

@@ -2,7 +2,8 @@
 // (../../src/WorkSourceLinks.tsx) from the links production resolves
 // (../../src/sourceLink.ts): snapshot files name the inspected revision,
 // external references stay apart, and refused targets are readable text that
-// cannot be followed. The popup is ../../../e2e/navigation/source-navigation.spec.ts.
+// cannot be followed. The existing published-work and story-readiness E2E
+// journeys exercise opening pinned links from the Board.
 import { createElement } from "react";
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
@@ -71,12 +72,14 @@ test("external references are links kept apart from the snapshot", async () => {
     "https://status.example.com/notes/2026-09?view=full#api",
     "http://plans.example.org/note-7",
   );
+  const canonical = sources.getByRole("link", { name: /^Canonical record/ });
   await expect
-    .element(sources.getByRole("link", { name: /^Canonical record/ }))
+    .element(canonical)
     .toHaveAttribute(
       "href",
       "https://status.example.com/notes/2026-09?view=full#api",
     );
+  await expect.element(canonical).toHaveAttribute("target", "_blank");
   await expect
     .element(sources.getByRole("link", { name: /^Slice plan/ }))
     .toHaveAttribute("rel", "noopener noreferrer");
