@@ -66,7 +66,7 @@ export function markOf(figure: Locator) {
 }
 
 // One shown region's comparison readings and controls.
-function comparisonIn(region: Locator) {
+export function comparisonIn(region: Locator) {
   const texts = textsIn(region);
   return {
     region,

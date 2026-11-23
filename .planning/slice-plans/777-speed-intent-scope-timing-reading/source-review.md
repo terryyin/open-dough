@@ -28,7 +28,7 @@ final story, and coordination.
 | 3b | The line never joins incompatible segments | slice 5 | |
 | 3c | A later trunk build that supplies the selected timing stays named | slice 4 | |
 | 3d | Each mark names its build's role | slice 4 | |
-| 4 | A failed entry history read keeps the selected Done story and comparison and offers its own Retry | slice 3 | |
+| 4 | A failed entry history read keeps the selected Done story and comparison and offers its own Retry | slice 3 | observed: dashboard/frontend-tests/intent/intent-scope-timing-history-reading.spec.ts (Vitest): failed first read keeps Story A, the comparison rows, own figures and history-above-table order; Retry rereads (1 → 2, break-checked), held read shows "Reading collected test execution times…", answer charts above the unchanged comparison at 390×844 |
 | 5a | Done and Project charts show failed, unavailable, zero and selected marks | slice 7 | |
 | 5b | Hovering a mark shows the matching readout (Done and Project) | slice 7 | |
 | 5c | A Tab walk across the marks shows the matching readout (Done and Project) | slice 7 | |
@@ -40,8 +40,8 @@ final story, and coordination.
 | 7a | Cases wait for the late key-isolation answer and the drawn Done glance chart before asserting | slice 1 | observed: key-isolation spec awaits old.ask() then page.showIntent() before its synchronous read; intent-ci-done-glance.spec.ts polls averageLabel until the drawn chart's "Prior-build average 8 min 24 s" before reading marks |
 | 7b | The history page objects provide one full no-sideways-scroll check | slice 1 | observed: scrollingSidewaysIn in dashboard/frontend-tests/intent/intent-scope-history-page.ts (page, area, every descendant), used by intent-ci-wall-time-history-page.ts, the recovery spec and intent-scope-glance.spec.ts at 390 px; slice 1 break check — a 20 px descendant overflow failed it where the old region-only check passed |
 | 7c | The failed build's vertical position is checked | slice 1 | observed: failedUnder in intent-scope-history-page.ts compares vertical centres; slice 1 break check — the failed × moved vertically only failed intent-scope-glance.spec.ts:114 |
-| 7d | The builder has one settled default rule | slice 3 | |
-| 7e | Mismatched failed positions are rejected | slice 3 | |
+| 7d | The builder has one settled default rule | slice 3 | observed: Distribution/tests/support/scopeHistoryGlanceTestData.mjs: no averaging call states too few prior builds; doneWallTimeHistoryTestData.mjs priors() resets stated reference figures to too few to average until averaging/tooFewToAverage |
+| 7e | Mismatched failed positions are rejected | slice 3 | observed: ScopeHistoryGlanceBuilder.through() throws "Every stated unit fails at the same builds" for mismatched failed positions (scratch one-unit "failed" call threw); matched calls build no NaN; 21 consumer paths passed |
 | 7f | Page-object residue is removed | slice 2 | observed: dashboard/frontend-tests/intent/intent-scope-history-page.ts: scopeHistoryIn has no shown member; openScopeSummary uses locationNameControl and openFileProof uses intentStoryCompare().chooseProof(); navigation/board-mount.ts exports no positionKey/formerPositionKey (board-scroll and board-kept-position import framePreferences.ts); typecheck and 36 consumer files pass |
 | 7g | The Board mounts' redundant `withBoardStorage("0")` calls are removed | slice 2 | observed: dashboard/frontend-tests/navigation: the only withBoardStorage("0") left is board-kept-position.spec.ts precondition; the 19 Board specs and development-intent-frame-page.ts consumers pass on the default position |
 | 8a | The 8 legacy specs (14 cases) move to mounted Vitest cases with typed `readScopeHistory` answers built as data through `makeMe.aScopeHistoryGlance`; the legacy specs no longer run | slice 8 | |

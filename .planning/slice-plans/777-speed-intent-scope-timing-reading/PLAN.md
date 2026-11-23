@@ -194,7 +194,7 @@ lines net.
 ### 3. Absent histories and a failed history read explain themselves
 
 Type: Behavior
-Status: planned
+Status: done
 
 Settle the builder default rule from Current decisions. In
 `ScopeHistoryGlanceBuilder`, `through()` rejects mismatched failed
@@ -215,6 +215,16 @@ A scratch builder call with a `"failed"` prior in only one unit throws.
 `intent-ci-compact-readout.spec.ts` and every consumer of
 `aScopeHistoryGlance` and `aDoneWallTimeHistory` pass. Delete the legacy
 files.
+
+**Accepted proof.** The two moved specs pass on Vitest (3 cases). A Retry
+that does not reread and a dropped Counts figure each failed them. A
+one-unit `"failed"` prior throws. The 21 builder consumer paths, the
+Distribution scope history read test and typecheck passed. Learnings for
+slices 4–7: the Vitest Done mount's review states fewer changes than the
+legacy server fixture, so moved Done cases assert `doneEntryComparisonRows`
+and `doneEntryOwnFigures` through `comparisonIn(summary)`.
+`tooFewToAverage` is gone; with no `averaging` call a unit states too few
+prior builds.
 
 ### 4. Selected gaps and their stand-ins read their status
 

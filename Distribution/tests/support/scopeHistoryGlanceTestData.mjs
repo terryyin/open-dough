@@ -60,19 +60,12 @@ export class ScopeHistoryGlanceBuilder {
    * @param {number} used
    */
   averaging(unit, ms, used) {
-    return this.#referring(unit, { sampleCount: used, averageMs: ms });
-  }
-
-  /** @param {Unit} unit @param {number} used */
-  tooFewToAverage(unit, used) {
-    return this.#referring(unit, { sampleCount: used });
-  }
-
-  /** @param {Unit} unit @param {UnitTimings["reference"]} reference */
-  #referring(unit, reference) {
     const timings = this.#units[unit];
     if (timings === undefined) throw new Error(`State ${unit} timing first`);
-    this.#units[unit] = { ...timings, reference };
+    this.#units[unit] = {
+      ...timings,
+      reference: { sampleCount: used, averageMs: ms },
+    };
     return this;
   }
 
@@ -84,6 +77,10 @@ export class ScopeHistoryGlanceBuilder {
     });
     const [first] = stated;
     if (first === undefined) throw new Error("State a unit's timing");
+    const failedAt = (/** @type {UnitTimings} */ { priors }) =>
+      priors.map((ms) => ms === "failed").join();
+    if (stated.some((timings) => failedAt(timings) !== failedAt(first)))
+      throw new Error("Every stated unit fails at the same builds");
     const count = first.priors.length + 1;
     const msOf = (
       /** @type {UnitTimings} */ timings,
