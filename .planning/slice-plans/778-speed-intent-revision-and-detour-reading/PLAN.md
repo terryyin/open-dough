@@ -212,7 +212,7 @@ Candidates and CI E2E specs passed.
 ### 4. Returning to Changes restores the nested diff and its reading place
 
 Type: Behavior
-Status: planned
+Status: done
 
 With a nested diff selected, Purpose scrolled, Selected story only on and
 an adjacent folder manually collapsed, leave for CI comparison, Intent
@@ -229,6 +229,15 @@ and diff replies through the established mount. Wait for the actual
 scroll event before leaving. Exercise both resets through `showWork`
 with distinct project snapshots. Retire legacy-only reading-place
 support after the consumer trace.
+
+**Delivered.** Both `intent-reading-place` cases run on `mountIntentCiPage`
+with counted typed reads; returning after CI comparison, Intent coverage and
+Development reads nothing. Vitest page objects share `intentReadingPane` and
+`scrollReadingHalfway` (resolved on the pane's scroll event) from
+`intent-browser-page.ts`. The old spec's helpers all keep other consumers;
+the consumerless `expectReadingOffset` and `scrollIntentReadingToStart` were
+removed. All 259 `intent/` cases passed. The reading pane has no accessible
+name, like the Files column.
 
 ### 5. Recent stories restores or changes the story in Intent
 
