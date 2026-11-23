@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sessionId": "87649605-36ed-44e3-9f6e-0bcf90b40cd3",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T10:09:40.985Z",
+  "story": "SEED-420#compare-story-contributions",
+  "ranges": [
+    {
+      "base": "f3c0fe94ab66cf39d500dc0e76f4ab3cdf4ae3f7",
+      "candidate": "b159f51e145ad90d9d2783af714d63f74b9bf285"
+    },
+    {
+      "base": "b159f51e145ad90d9d2783af714d63f74b9bf285",
+      "candidate": "8700fc5e11a61eadeb42ccff43f483cfc7eff64f"
+    },
+    {
+      "base": "8700fc5e11a61eadeb42ccff43f483cfc7eff64f",
+      "candidate": "7d0766f12b77da3917a4ecb5a14087f7edc60b8c"
+    },
+    {
+      "base": "7d0766f12b77da3917a4ecb5a14087f7edc60b8c",
+      "candidate": "80d7a566aee3c2592e88f13a65caad0d2d61affa"
+    },
+    {
+      "base": "80d7a566aee3c2592e88f13a65caad0d2d61affa",
+      "candidate": "ee8da7eb47284592e6ef5495c116ee0eb86b1f88"
+    },
+    {
+      "base": "ee8da7eb47284592e6ef5495c116ee0eb86b1f88",
+      "candidate": "d0a3d02bc61df194f9944e8131aa10406113c1b7"
+    }
+  ]
+}
