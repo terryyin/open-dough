@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Shunka-chan",
+  "email": "shunka-chan@example.org",
+  "identity": "SEED-413#speed-dashboard-live-session-and-terminal-proof",
+  "mode": "story-branch",
+  "branch": "codex/get-fast-proof-of-live-sessions-and-terminal-wor",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
