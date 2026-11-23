@@ -21,7 +21,7 @@ import {
   lockedNodeProject,
   npmEnv,
   originInstallMarker,
-} from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
+} from "../../../tests/support/execution-worktree-preparation-project.mjs";
 
 const exec = promisify(execFile);
 

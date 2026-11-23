@@ -6,6 +6,15 @@ import { withoutBreakingHints } from "./intent-file-reading-page.ts";
 const cleanText = (text: string | null | undefined) =>
   withoutBreakingHints(text).trim().replace(/\s+/g, " ");
 
+// The nearest ancestor of `element` that scrolls its content when it
+// overflows.
+function scrollRegionOf(element: Element): HTMLElement | null {
+  for (let at = element.parentElement; at !== null; at = at.parentElement) {
+    if (/auto|scroll/.test(getComputedStyle(at).overflowY)) return at;
+  }
+  return null;
+}
+
 export function intentCiStatus() {
   const panel = page.getByRole("region", { name: "CI status", exact: true });
   const status = panel.getByRole("status");
@@ -26,6 +35,24 @@ export function intentCiStatus() {
     status,
     alert,
     checkAgainButton,
+    // Intent fills the page body's scroll region without overflowing it,
+    // and CI status overflows a pane inside Intent that scrolls it.
+    scrollsWithinIntent() {
+      const intent = page
+        .getByRole("main", { name: "Intent", exact: true })
+        .query();
+      const shown = panel.query();
+      if (intent === null || shown === null) return false;
+      const body = scrollRegionOf(intent);
+      const pane = scrollRegionOf(shown);
+      return (
+        body !== null &&
+        body.scrollHeight <= body.clientHeight &&
+        pane !== null &&
+        intent.contains(pane) &&
+        pane.scrollHeight > pane.clientHeight
+      );
+    },
     async isAbsent() {
       await expect.element(panel).not.toBeInTheDocument();
       return ci;

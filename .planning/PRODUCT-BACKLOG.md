@@ -28,21 +28,26 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Get fast proof of Intent CI wall-time history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-timing-history-on-vitest) — SEED-413#speed-intent-timing-history-on-vitest ([plan](slice-plans/772-speed-intent-timing-history-on-vitest/PLAN.md))
-- [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/771-finish-launch-proof-orthogonal/PLAN.md))
+- [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/780-finish-launch-proof-orthogonal/PLAN.md))
+- [Install only scripts that guidance, hooks or the Dashboard reach](seeds/SEED-423-shrink-the-installed-distribution.md#remove-unreached-distribution-code) — SEED-423#remove-unreached-distribution-code ([plan](slice-plans/779-remove-unreached-distribution-code/PLAN.md))
+- [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#open-review-changes-from-a-story-card) — SEED-420#open-review-changes-from-a-story-card ([plan](slice-plans/777-open-review-changes-from-a-story-card/PLAN.md))
+- [Get fast proof of Intent revision reading and reading-place detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading) — SEED-413#speed-intent-revision-and-detour-reading ([plan](slice-plans/778-speed-intent-revision-and-detour-reading/PLAN.md))
+- [Get fast proof of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading) — SEED-413#speed-intent-scope-timing-reading ([plan](slice-plans/777-speed-intent-scope-timing-reading/PLAN.md))
+- [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading ([plan](slice-plans/763-speed-story-changes-notes-and-progress-reading/PLAN.md))
 
 ## Backlog list
 
-- [Get fast proof of Intent scope timing history](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-history) — SEED-413#speed-intent-scope-timing-history
-- [Resume shared-checkout Land closes as their own session](seeds/SEED-418-review-published-session-changes.md#resume-shared-checkout-closes-as-their-own-session) — SEED-418#resume-shared-checkout-closes-as-their-own-session
-- [Keep the expired-record prune when a record commit is retried](seeds/SEED-418-review-published-session-changes.md#prune-expired-records-after-a-retried-record-commit) — SEED-418#prune-expired-records-after-a-retried-record-commit
-- [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#route-review-changes-to-intent) — SEED-420#route-review-changes-to-intent
-- [Get fast proof of Intent source browsing, pinned links and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours) — SEED-413#speed-intent-source-browsing-and-detours
-- [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading
+- [Catch delegated lint failures before guarded delivery](seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery) — SEED-345#catch-delegated-lint-before-delivery
+- [Use proportionate refactoring for small test edits](seeds/SEED-345-session-token-efficiency.md#use-proportionate-refactoring-for-small-test-edits) — SEED-345#use-proportionate-refactoring-for-small-test-edits
 - [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof
+- [Drive the published observation through the typed page entry](seeds/SEED-413-renovate-dashboard-unit-tests.md#drive-published-observation-through-page-entry) — SEED-413#drive-published-observation-through-page-entry
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
 - [Compare a story branch with and without incoming trunk changes](seeds/SEED-420-unified-intent-review.md#compare-story-contributions) — SEED-420#compare-story-contributions
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
+- [Install without the CI reuse recipes](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-ci-reuse-recipes) — SEED-423#install-without-ci-reuse-recipes
+- [Call custom CI through a minimal adapter interface](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter
+- [Update from the previous release without legacy readers](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats
+- [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof
@@ -52,8 +57,11 @@ intent introduced or affected by a newly developed story.
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context
-- [Use proportionate refactoring for small test edits](seeds/SEED-345-session-token-efficiency.md#use-proportionate-refactoring-for-small-test-edits) — SEED-345#use-proportionate-refactoring-for-small-test-edits
 - [Wait for Codex workers with fewer model wakeups](seeds/SEED-345-session-token-efficiency.md#wait-for-codex-workers-with-fewer-model-wakeups) — SEED-345#wait-for-codex-workers-with-fewer-model-wakeups
+- [Notify Claude Code of CI results through one path](seeds/SEED-423-shrink-the-installed-distribution.md#notify-claude-code-of-ci-through-one-path) — SEED-423#notify-claude-code-of-ci-through-one-path
+- [Trim the product backlog command to guided operations](seeds/SEED-423-shrink-the-installed-distribution.md#trim-the-product-backlog-command-to-guided-operations) — SEED-423#trim-the-product-backlog-command-to-guided-operations
+- [Reconcile backlog merges and rebases through one Git adapter](seeds/SEED-423-shrink-the-installed-distribution.md#reconcile-the-backlog-through-one-git-adapter) — SEED-423#reconcile-the-backlog-through-one-git-adapter
+- [Publish to trunk through one loop](seeds/SEED-423-shrink-the-installed-distribution.md#publish-to-trunk-through-one-loop) — SEED-423#publish-to-trunk-through-one-loop
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream
 - [Continue a ready split story automatically after wrap-up](seeds/SEED-366-continue-split-stories-automatically.md#continue-a-ready-split-story-automatically) — SEED-366#continue-a-ready-split-story-automatically
@@ -79,6 +87,9 @@ intent introduced or affected by a newly developed story.
 - [See host status while the sidebar is open](seeds/SEED-336-live-dashboard-status.md#stream-host-status) — SEED-336#stream-host-status
 - [Read only the history the dashboard needs](seeds/SEED-337-dashboard-history-reads.md#read-only-the-history-the-dashboard-needs) — SEED-337#read-only-the-history-the-dashboard-needs
 - [Observe dashboard traffic after optimization](seeds/SEED-338-observe-dashboard-traffic.md#observe-dashboard-traffic-after-optimization) — SEED-338#observe-dashboard-traffic-after-optimization
+- [Read test optimization leads from a smaller reader](seeds/SEED-423-shrink-the-installed-distribution.md#read-test-leads-from-a-smaller-reader) — SEED-423#read-test-leads-from-a-smaller-reader
+- [Decide whether GitHub requests need a shared owner process](seeds/SEED-423-shrink-the-installed-distribution.md#ask-github-without-a-shared-request-owner) — SEED-423#ask-github-without-a-shared-request-owner
+- [Report a missing exact run without inferring coverage](seeds/SEED-423-shrink-the-installed-distribution.md#report-a-missing-exact-run-without-inferring-coverage) — SEED-423#report-a-missing-exact-run-without-inferring-coverage
 - [Match touch review titles to what each viewport runs](seeds/SEED-321-match-touch-review-titles-to-viewport-coverage.md#match-touch-review-titles-to-viewport-coverage) — SEED-321#match-touch-review-titles-to-viewport-coverage
 - [Declare retained landing and recovery state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-retained-landing-recovery-state) — SEED-353#declare-retained-landing-recovery-state
 - [Declare launch and session repository state through MakeMe](seeds/SEED-353-declarative-git-test-state.md#declare-launch-session-repository-state) — SEED-353#declare-launch-session-repository-state

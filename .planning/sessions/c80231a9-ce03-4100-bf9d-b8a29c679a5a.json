@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "c80231a9-ce03-4100-bf9d-b8a29c679a5a",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-22T23:35:10.903Z",
+  "story": "SEED-418#resume-shared-checkout-closes-as-their-own-session",
+  "ranges": [
+    {
+      "base": "7c82a4e2c66b4e0068bc55b97e15796da3fe2079",
+      "candidate": "c08a72a367db7a44627f114eb733c83809fb152c"
+    }
+  ]
+}

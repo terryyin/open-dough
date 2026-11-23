@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maria-chan",
+  "email": "maria-chan@example.org",
+  "identity": "SEED-420#open-review-changes-from-a-story-card",
+  "mode": "story-branch",
+  "branch": "codex/open-review-changes-on-a-story-card-in-intent",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

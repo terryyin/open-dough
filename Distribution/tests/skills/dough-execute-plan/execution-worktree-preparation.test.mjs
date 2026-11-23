@@ -12,8 +12,8 @@ import { test } from "node:test";
 import {
   assessWorktreePreparation,
   directoryPresenceObservation,
-} from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-assessor.mjs";
-import { runReadinessGate } from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs";
+} from "../../support/execution-worktree-preparation-assessor.mjs";
+import { runReadinessGate } from "../../support/execution-worktree-preparation-readiness-gate.mjs";
 import {
   createLockedNodeFixture,
   observePreparation,

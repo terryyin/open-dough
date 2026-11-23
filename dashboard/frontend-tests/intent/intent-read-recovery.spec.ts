@@ -1,8 +1,9 @@
 // Failed Intent locations recover on the page's shared transient and rate-limit
 // schedule, wait while hidden, share transient waits with published detail
-// without letting healed detail clear Intent's wait, and keep malformed
-// settings visible until manual Retry (../../src/intentReadRecovery.tsx,
-// ../../src/limitRecovery.ts, ../../src/transientRecovery.ts).
+// without letting healed detail clear Intent's wait
+// (../../src/intentReadRecovery.tsx, ../../src/limitRecovery.ts,
+// ../../src/transientRecovery.ts), and keep malformed settings visible on the
+// page's Intent body until manual Retry (./intent-ci-page-mount.ts).
 // Companion to ../../../e2e/intent/intent-read-boundary-recovery.spec.ts.
 import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
@@ -10,9 +11,9 @@ import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { readRepositoryFileAt } from "../../src/authenticatedRead.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import { noteLimit, standingLimit } from "../../src/readingLimit.ts";
-import { ReadProblem } from "../../src/readProblem.ts";
+import { unreadCiReads } from "../../test-support/component-mount/unreadPageReads.ts";
 import { intentBrowser } from "./intent-browser-page.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
   mountIntentRecovery,
   onRecoveryClock,
@@ -32,15 +33,11 @@ const configuredLocations = makeMe.anIntentLocationsAnswer
   )
   .please();
 
-const unreachable = () =>
-  new ReadProblem(
-    "The local authenticated read could not be reached",
-    undefined,
-    "transient",
-  );
-
 function controlledLocations(work: PublishedWork) {
-  let current = (): Promise<IntentLocations> => Promise.reject(unreachable());
+  let current = (): Promise<IntentLocations> =>
+    Promise.reject(
+      makeMe.anUnreachableAuthenticatedRead.at(work.revision).please(),
+    );
   let count = 0;
   const readSource: IntentReadSource = {
     readLocations(source, revision) {
@@ -137,7 +134,12 @@ test("published detail and Intent locations share a wait, and healing detail lea
     detailReads += 1;
     return detailHealthy
       ? Promise.resolve("# Queued seed\n")
-      : Promise.reject(unreachable());
+      : Promise.reject(
+          makeMe.anUnreachableAuthenticatedRead
+            .reading(publishedDetailPath)
+            .at(work.revision)
+            .please(),
+        );
   };
 
   await mountIntentRecovery(locations.readSource, work, detailRead);
@@ -173,7 +175,10 @@ test("malformed Intent settings stay visible until manual Retry", async () => {
     .please();
   locations.answerWith(() => Promise.resolve(malformed));
 
-  await mountIntentRecovery(locations.readSource, work);
+  await mountIntentCiPage({
+    work,
+    reads: { intent: locations.readSource, ci: unreadCiReads },
+  });
   const explanation = intentSettingsExplanation();
   await explanation.reads(".planning/open-dough.json is not valid JSON");
   await vi.advanceTimersByTimeAsync(70_000);
@@ -189,26 +194,18 @@ test("rate-limited Intent locations reread when the standing limit ends", async 
   onRecoveryClock();
   const work = makeMe.aPublishedWork.ofPygardon.at("d5".repeat(20)).please();
   const locations = controlledLocations(work);
-  const directedSeconds = 15;
-  let resumesAt = 0;
-  locations.answerWith(() => {
-    noteLimit(directedSeconds);
-    const standing = standingLimit() ?? new Date(0);
-    resumesAt = standing.getTime();
-    return Promise.reject(
-      new ReadProblem("GitHub limited the rate", {
-        reading: "locations",
-        resumesAt: standing,
-      }),
-    );
-  });
+  const limited = makeMe.aRateLimitedIntentReply
+    .saying("GitHub limited the rate")
+    .resumingIn(15)
+    .please();
+  locations.answerWith(() => Promise.reject(limited));
 
   await mountIntentRecovery(locations.readSource, work);
   const explanation = intentSettingsExplanation();
   const status = publishedReadStatus();
   await explanation.reads("GitHub limited the rate");
   const noticedUntil = await status.noticedLimitUntil();
-  expect(noticedUntil).toBe(resumesAt);
+  expect(noticedUntil).toBe(limited.limited?.resumesAt.getTime());
   locations.pass();
 
   await vi.advanceTimersByTimeAsync(noticedUntil - Date.now() - 1);

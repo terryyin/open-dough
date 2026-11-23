@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { git, lsRemoteSha, revParse } from "./publication-test-fixtures.mjs";
-import { runReadinessGate } from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs";
+import { runReadinessGate } from "../../support/execution-worktree-preparation-readiness-gate.mjs";
 import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { setupMarkers } from "./workspace-publication-fixtures.mjs";
 

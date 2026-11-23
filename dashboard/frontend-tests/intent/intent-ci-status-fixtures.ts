@@ -7,6 +7,7 @@ import "../../src/intent-ci-status.css";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
+import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 
 export const openDoughSource: PublishedSource = makeMe.aPublishedSource
@@ -106,8 +107,8 @@ export function inertCiReads(
       Promise.resolve(makeMe.aCiHistoryAnswer.pleaseMeasured()),
     // Collected Done wall-time and scope history stay pending unless a case
     // answers them.
-    readDoneWallTimeHistory: () => new Promise<never>(() => undefined),
-    readScopeHistory: () => new Promise<never>(() => undefined),
+    readDoneWallTimeHistory: unanswered,
+    readScopeHistory: unanswered,
     readComparison: (source, identity) =>
       Promise.resolve({
         kind: "unavailable",
@@ -126,31 +127,47 @@ export const unconfiguredIntentReads: IntentReadSource = {
   readCandidates: () => Promise.resolve({ status: "absent" }),
 };
 
+// Main's run 41 at a1b2c3d, the run `mountJudgedRunProof` judges.
+export const judgedRun = {
+  revision: fullSha("a1b2c3d"),
+  runId: 41,
+  runAttempt: 1,
+};
+
 // Intent's CI status homepage judging main's run 41 passed at a1b2c3d, its
-// proof answered with `entries`.
-export async function mountJudgedRunProof(
-  entries: readonly CiProofEntry[],
-  extra: Partial<Judgment> = {},
-) {
-  const revision = fullSha("a1b2c3d");
-  const run = { revision, runId: 41, runAttempt: 1 };
+// proof answered with `entries`, its judgment amended by `judgment`; `viewport`
+// sizes the page and `ci` answers the page's other CI reads.
+export async function mountJudgedRunProof({
+  entries,
+  judgment = {},
+  viewport,
+  ci = {},
+}: {
+  readonly entries: readonly CiProofEntry[];
+  readonly judgment?: Partial<Judgment>;
+  readonly viewport?: { readonly width: number; readonly height: number };
+  readonly ci?: Partial<IntentCiReadSource>;
+}) {
+  const { revision } = judgedRun;
   const judged = judgedStatus("main", "pass", revision, "Add login", {
-    ...run,
+    ...judgedRun,
     runBranch: "main",
     runUrl: "https://ci.invalid/runs/41",
-    ...extra,
+    ...judgment,
   });
   const proof = makeMe.aCiProof
-    .forRun({ repository: openDoughSource.repository, ...run })
+    .forRun({ repository: openDoughSource.repository, ...judgedRun })
     .entries([...entries])
     .please();
   await mountIntentCiPage({
     work: makeMe.aPublishedWork.of(openDoughSource).at(revision).please(),
+    ...(viewport && { viewport }),
     reads: {
       intent: unconfiguredIntentReads,
       ci: inertCiReads({
         readStatus: () => Promise.resolve(judged),
         readProof: () => Promise.resolve(proof),
+        ...ci,
       }),
     },
   });

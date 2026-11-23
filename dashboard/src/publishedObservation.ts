@@ -20,6 +20,7 @@ import {
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import { watchedBranchHeads } from "./progressSource.ts";
 import { usePageVisibility } from "./pageVisibility.ts";
+import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
@@ -43,6 +44,7 @@ const noBranchHeads: StoryBranchHeads = new Map();
 
 export function usePublishedObservation(
   initialSource: PublishedSource | undefined,
+  reads: PublishedObservationReadSource,
 ) {
   // The project this dashboard is currently observing. Selecting another
   // project replaces this whole, never merges into what is already shown.
@@ -98,6 +100,7 @@ export function usePublishedObservation(
     const limitMet = limitsMetSince();
     const askedAsOf = visibilityChanges();
     letGoOfRead.current = carryOutRead(
+      reads,
       readRequest,
       source,
       shownWork.current,
@@ -176,6 +179,7 @@ export function usePublishedObservation(
     });
 
   const connection = useObservedRevisionDelivery({
+    checkRevision: reads.checkRevision,
     source,
     shownRevision: work?.revision,
     watchedHeads,

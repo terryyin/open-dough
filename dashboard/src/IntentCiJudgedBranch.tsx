@@ -20,7 +20,7 @@ import type { ShownProof } from "./useIntentCiShownProof.ts";
 // The shown judgment's check time when it is a previously retrieved answer,
 // not one newly verified; undefined otherwise.
 export function previouslyRetrievedAt(
-  judged: JudgedReading,
+  judged: Omit<JudgedReading, "round">,
 ): string | undefined {
   const { shown, previouslyRetrieved } = judged;
   return shown !== undefined &&
@@ -86,7 +86,9 @@ export function JudgedBranch({
 }: {
   readonly branch: string;
   readonly story: string | undefined;
-  readonly judged: JudgedReading;
+  // The judgment as shown; its refresh round keys the history's read
+  // (`./useIntentCiHistory.ts`), not this presentation.
+  readonly judged: Omit<JudgedReading, "round">;
   readonly proof: ShownProof | undefined;
   // The trunk's collected CI time without runner waits history; none for a
   // story branch.

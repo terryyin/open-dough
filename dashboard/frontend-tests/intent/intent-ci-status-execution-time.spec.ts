@@ -90,7 +90,7 @@ const runTimes = {
 };
 
 test("complete entry durations include entries with empty shards and stay distinct from CI wall time", async () => {
-  await mountJudgedRunProof(timedEntries(), runTimes);
+  await mountJudgedRunProof({ entries: timedEntries(), judgment: runTimes });
   const ci = intentCiStatus();
   const proof = intentCiProof();
   await ci.answers("Passed at a1b2c3d (Add login)");
@@ -106,7 +106,7 @@ test("complete entry durations include entries with empty shards and stay distin
 });
 
 test("an older summary without durations shows No timings while wall time still shows", async () => {
-  await mountJudgedRunProof(olderEntries(), runTimes);
+  await mountJudgedRunProof({ entries: olderEntries(), judgment: runTimes });
   const proof = intentCiProof();
   await proof.showsEvidenceLabel(wallTime);
   await proof.showsRows([
@@ -123,7 +123,10 @@ test("an older summary without durations shows No timings while wall time still 
 });
 
 test("a missing shard shows Part 2 missing with the full explanation", async () => {
-  await mountJudgedRunProof(missingShardEntries(), runTimes);
+  await mountJudgedRunProof({
+    entries: missingShardEntries(),
+    judgment: runTimes,
+  });
   const proof = intentCiProof();
   await proof.showsRows([
     ["dashboard/tests", "10 passed test cases", "Part 2 missing"],
@@ -143,8 +146,8 @@ test("a missing shard shows Part 2 missing with the full explanation", async () 
 });
 
 test("an untimed part shows Part 2 untimed while parts timed at zero show 0 ms", async () => {
-  await mountJudgedRunProof(
-    [
+  await mountJudgedRunProof({
+    entries: [
       makeMe.aCiProofEntry
         .at("tests")
         .holding(
@@ -181,8 +184,8 @@ test("an untimed part shows Part 2 untimed while parts timed at zero show 0 ms",
         )
         .please(),
     ],
-    runTimes,
-  );
+    judgment: runTimes,
+  });
   const proof = intentCiProof();
   await expect.element(proof.table).toBeVisible();
   const [zeroTimed, untimed] = proof.executionCells();

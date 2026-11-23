@@ -14,7 +14,7 @@ import {
   npmEnv,
   originInstallMarker,
   readTraces,
-} from "../../../src/skills/dough-execute-plan/scripts/execution-worktree-preparation-project.mjs";
+} from "../../support/execution-worktree-preparation-project.mjs";
 
 const exec = promisify(execFile);
 

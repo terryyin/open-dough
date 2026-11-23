@@ -15,52 +15,6 @@ The [unified Intent review seed](SEED-420-unified-intent-review.md) owns
 the review destination, the Recent stories regression and the identity of
 standalone Done work. This seed owns session attribution and selection.
 
-<a id="resume-shared-checkout-closes-as-their-own-session"></a>
-
-### Resume each shared-checkout close as its own session and keep notes advisory
-
-**Identity:** SEED-418#resume-shared-checkout-closes-as-their-own-session
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md","assessment":"not-ready","reasons":["Slice 1 premise open: consumers of the first-landing expectation file (story-branch-landing-*, agent-launch-* and worktree-release-apply backend specs, publication-landing-target, publication-resume-story-branch and dashboard-landing tests, execution-payload-update.sh, install-all-tools.sh) were not run against the per-launch layout; unreached operation: those suites on a scratch application of slice 1.","Slice 2 premise open: that no caller relies on implicit close identity is traced, not observed; unreached operation: the dough-land, preparation-native-session-record-land and dough-story-wrap-up session-record suites on a scratch application of the ambiguity refusal."],"basis":{"document":"189cde8d80839331ab666d43f45c49f483de88d9eb9ff9b39379dd636b67581a","plan":"28f0e9bbb17fbcaa86c4ac4214a0875c4244be4436e8f6235b377127916d1407"}}
-```
-
-Correction found by the execution retrospective of
-SEED-418#disclose-shared-checkout-overlap, recoverable as
-`7667fc3a8:.planning/seeds/SEED-418-review-published-session-changes.md`.
-
-**Goal.** A developer or agent who resumes or closes a Land session in a
-shared checkout gets that session's own record. A shared-checkout note that
-cannot be written or read neither reports a kept launch as unrecorded nor
-blocks a later launch or close. Each session's local close state has one owner
-and is removed once its record is published.
-
-**Scope.** Session close identity on resume and the Land resume guidance; how
-the Dashboard writes notes and how the publisher reads them; the local Land
-close state store and its removal after publication; and which module owns the
-published uncertainty value. Plan:
-[771](../slice-plans/771-resume-shared-checkout-closes-as-their-own-session/PLAN.md).
-
-<a id="prune-expired-records-after-a-retried-record-commit"></a>
-
-### Keep the expired-record prune when a record commit is retried
-
-**Identity:** SEED-418#prune-expired-records-after-a-retried-record-commit
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/769-prune-expired-records-after-a-retried-record-commit/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"34e9dc1e71b75b410ff6acac243d8d51f2f6b494d0fa7bce9faa03c22df3d43b","plan":"6ebb4d90d3f8a49990ab46c5c2273b82ce3dbb679069ee1a55a85948f0d04743"}}
-```
-
-Correction found by the execution retrospective of
-Expire published session records after 30 days (`16cebb43ec9588615183f7286427a62a3ee85a55:.planning/seeds/SEED-418-review-published-session-changes.md#expire-published-session-records`).
-
-**Goal.** A developer whose session close resumes after its record commit
-failed gets the same record commit a first attempt would have made: its own
-record plus the removal of the expired records, with no deletion left staged
-in the workspace.
-
-**Scope.** The record commit's selection and commit of expired record files in
-the shared sealed-record publisher, when that commit is retried after a
-failure. Plan: [769](../slice-plans/769-prune-expired-records-after-a-retried-record-commit/PLAN.md).
-
 <a id="select-a-story-session-for-review"></a>
 
 ### Choose a session in a story’s change review

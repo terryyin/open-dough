@@ -71,10 +71,11 @@ session record; for ordinary reviewed work, report that none was written.
 A `published` record settles the close. Otherwise, including after an
 interruption or an unanswered push such as `transport-timeout`, call
 `resumeSessionClose` from the same module with the same `workspace`, `branch`,
-`targetRef`, `backlogPath` and `session`, plus the result's `record.record`
-as `record` when it holds one. Otherwise the close resumes from the state it
-saved in the workspace for the session its landing context or
-`session.sessionId` names; only when that state is absent, pass the stopped
+`targetRef`, `backlogPath` and `session`, a Dashboard launch's own
+`landingContext`, and the result's `record.record` as `record` when it holds
+one. Otherwise the close resumes from the state it saved in the workspace for
+the session its landing context or `session.sessionId` names; only when that
+state is absent, pass the stopped
 work's `candidate` as `candidateSha` with its `suffixBase`. It never publishes
 accepted work again. Report its `record.status`, and `work` when present, and
 act on the first row that fits:

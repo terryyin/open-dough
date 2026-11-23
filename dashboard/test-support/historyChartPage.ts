@@ -103,7 +103,7 @@ const paintOf = (shape: Locator) =>
   });
 
 // In the current appearance: a failed build's × in the failure colour.
-export async function expectFailedMarkPainted(page: Page, chart: HistoryChart) {
+async function expectFailedMarkPainted(page: Page, chart: HistoryChart) {
   const failed = await paintOf(chart.failed.first());
   expect(failed.stroke).toBe(await tokenColour(page, "--problem"));
   expect(failed.fill).toBe("none");

@@ -22,17 +22,11 @@ export type ComparisonMount = {
   readonly identity: string | undefined;
   readonly scope?: ComparisonScope | undefined;
   readonly doneEndpoint?: ScopeHistoryEndpoint;
-  readonly shown?: boolean;
 };
-export type ComparisonSelection = Pick<
-  ComparisonMount,
-  "work" | "identity" | "scope" | "doneEndpoint" | "shown"
->;
 
 declare global {
   interface Window {
     mountCiComparison(facts: ComparisonMount): void;
-    updateCiComparison(facts: ComparisonSelection): void;
     unmountCiComparison(): void;
   }
 }

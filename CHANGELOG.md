@@ -1,3 +1,16 @@
+## 0.3.111 - 2026-11-23
+
+- Land and Story Wrap Up publish per-session change records for refinement, execution, and follow-ups, including individual accepted ranges. A shared checkout keeps each launch's own close state, and a resumed close uses the original session. Records expire after 30 days. A retried record commit still removes expired records in the same commit.
+- Dashboard review opens individual ranges and warns when their attribution is uncertain because sessions shared a checkout. Intent can compare a story or a selected run. Usage shows provisional tasks that are still awaiting a settled reading.
+- Execute Plan reuses validation for an immutable publication candidate and checks the exact target after a successful push. The release retires three unused installed files and moves preparation fixtures into test support. Slice planning asks plans to cite each North Star topic that applies to their work.
+- Dashboard proof moves more detailed cases to mounted views and typed entry points. Distribution CI redistributes its existing test shares to restore deadline headroom.
+
+The Promoted payload contains 391 files. It adds nine, revises 26, and retires three. Dashboard and CI changes are in the source repository.
+
+The self-installation baseline, fresh install, update, retired-path removal, and the two session recovery regressions passed locally. Representative review covered two closes in one shared checkout, a refused record commit followed by retry, and citing an applicable North Star topic in a plan. [Hosted CI passed at `aacf609cb`](https://github.com/terryyin/open-dough/actions/runs/45089114761).
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), discovery and hook registration reuse existing native evidence. The session-record and publication changes use the existing host entry points and have deterministic Git and Dashboard proof. This release adds no fresh native acceptance. The existing supplier-watch, freshness-ordering, and oversized-file observations remain open.
+
 ## 0.3.110 - 2026-11-21
 
 - Dough Land publishes an accepted comparison as a session record when ordinary reviewed work has a Dashboard landing context. Other landing routes keep their existing publisher. The shared record identifies the accepted Git range and close time so another machine can review the published changes.

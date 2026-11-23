@@ -41,7 +41,7 @@ usable change, independently of the later polish.
 any machine once the work is published. Each ad hoc session marked Done
 with no story gets a new Done story, and the session is attached to it.
 Later follow-ups join that story, so the Board, Recent stories and the
-[shared Intent review](#route-review-changes-to-intent) treat the work like any
+[shared Intent review](#open-review-changes-from-a-story-card) treat the work like any
 other Done story.
 
 **Scope.**
@@ -116,65 +116,64 @@ not add a third kind of Done row.
 **Effort hypothesis:** L, medium confidence. The critical uncertainty is
 reconciling workflow publication and local Done across machines.
 
-<a id="route-review-changes-to-intent"></a>
+<a id="open-review-changes-from-a-story-card"></a>
 
 ### Open Review changes on a Story card in Intent
 
-**Identity:** SEED-420#route-review-changes-to-intent
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-420#route-review-changes-to-intent","dependencies":[{"supplier":{"identity":"SEED-420#open-review-in-intent","href":"seeds/SEED-420-unified-intent-review.md#open-review-in-intent"},"implementation":"Intent's Changes view listing every file a story's comparison changed","rationale":"Sending Review changes to Intent before it lists production code would remove the only review of those files. Shared direction cannot avoid that, since the card has one destination.","condition":"A selected story's Changes view in Intent lists every changed file, inside and outside Intent locations, each with its diff.","state":"satisfied","resolution":{"revision":"5a98723474a8a3fb83e1d3263ec06d5afd849040","path":".planning/seeds/SEED-420-unified-intent-review.md#open-review-in-intent","summary":"Intent Changes lists changed files in Intent locations and under Outside Intent locations, with a diff when a file is selected. Plan 759 slices 1 and 5 record accepted proof in intent-story-outside-locations.spec.ts and intent-story-changes-no-locations.spec.ts, including a Done story's published completion and a project with no configured locations.\nCondition satisfied: A selected story's Changes view in Intent lists every changed file, inside and outside Intent locations, each with its diff.\nAccepted integration: f7964681321d5914abbf1060e4ac9ed724780e32 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-420#choose-story-comparison-in-intent","href":"seeds/SEED-420-unified-intent-review.md#choose-story-comparison-in-intent"},"implementation":"The story review's comparison choices offered in Intent","rationale":"Sending Review changes to Intent before it offers commits, uncommitted changes and landed runs would remove those choices for a story. The card has one destination, so both cannot stay reachable.","condition":"In Intent a developer chooses a story's worktree commits, uncommitted changes, landed run or published completion, and the tree and diffs follow the choice.","state":"satisfied","resolution":{"revision":"beb2e240890f812d99e23dab4ba289789bf5e53a","path":".planning/seeds/SEED-420-unified-intent-review.md#choose-story-comparison-in-intent","summary":"Intent Compare offers worktree commits, inclusion of uncommitted changes, landed runs and published completion. Plan 760 slices 2 to 4 record accepted proof in intent-story-compare-commits.spec.ts, intent-story-compare-uncommitted.spec.ts and intent-story-compare-done.spec.ts that the file list and diffs follow the chosen comparison.\nCondition satisfied: In Intent a developer chooses a story's worktree commits, uncommitted changes, landed run or published completion, and the tree and diffs follow the choice.\nAccepted integration: c64549aac9232c2accc70e8d8fd170efcc64cfac on origin/refs/heads/main."}}]}
-```
+**Identity:** SEED-420#open-review-changes-from-a-story-card
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/761-route-review-changes-to-intent/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ceaffc06f2e91f999669e593c506d9d39ba1415a6f8629c0aa82e2941539e3bb","plan":"c8a4f7579ee36a2b5835207f52756240c3e7d2ac6266a93922798e35aca4fa05"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/777-open-review-changes-from-a-story-card/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4b2a88da23e671ed98874ea2a7924416f24fa2255d754c01a0c1a2a57e7c352d","plan":"867f97bcadd14940ffefd829accd8a2f4b2d022dc9c72a3a76969334716e8443"}}
 ```
 
-Split from the completed SEED-420#open-review-in-intent
-with a [provisional plan](../slice-plans/761-route-review-changes-to-intent/PLAN.md).
+Continues the card-opening outcome split from
+SEED-420#route-review-changes-to-intent after that story kept a story's
+comparison on screen during its own read. The original identity remains on
+the delivered story for recovery.
 
-**Goal.** A developer reviewing a story's changes reaches them in one place,
-Intent, beside the story's CI comparison and coverage, while the terminal
-they were watching stays in the Side panel. **Review changes** on a Story
-card opens Intent on that story's **Changes** instead of a separate review in
-the Side panel. This delivers the first sentence of the
+**Goal.** A developer can open a story's diff from its card and move between
+its changes, CI comparison, and Intent coverage in the same perspective.
+They can keep watching the story's terminal or reading its final report
+beside the review. This delivers the card opening in
 [Review in Intent](../../docs/dashboard-ux-ui-north-star.md#review-in-intent)
 direction; the later SEED-420 stories refine what Intent then shows.
 
 **Scope.**
 
-- **Review changes** on any Story card that offers it today opens the review
-  in Intent. Today that covers a Backlog or Taken card with a kept launch or
-  preparation workspace or a worktree holding its claim, and every Done card
-  on the Board and in Recently done. When the action is offered is unchanged.
-- Pressing it makes that story the Selected story, switches to Intent as one
-  history entry, shows the story's views rather than Project Intent, chooses
-  **Changes**, and puts the keyboard on the **Changes** tab. When no file of
-  that story is selected in Intent, the first changed file in the tree's
-  order is selected and its diff shows once the comparison is read. A file
-  already selected for that story stays selected. The comparison is the
-  story's default, as entering Intent shows it.
+- **Review changes** on an eligible Backlog, Taken, or Done Story card opens
+  Intent. Backlog and Taken use the existing offer rule because the action
+  needs a local review source or an ambiguity it can explain. A kept launch
+  or preparation workspace qualifies, as do worktrees found holding the
+  story's claim. Every Done card on the Board and in Recently done offers
+  the action because its historical result can be read without a workspace.
+- Pressing the action makes that story the Selected story and opens its
+  **Changes** tab in Intent in one history entry, with keyboard focus on
+  that tab. It opens the default comparison. Keep a file already selected
+  in that story's reading place. With no file selected, choose the first
+  changed file in the displayed tree order and show its diff when the
+  comparison settles. An empty or unavailable comparison shows its
+  explanation, with no automatic file selection.
 - The Side panel keeps what it showed, so a terminal or final report stays
   beside the review. Returning to Development, by the perspective choice or
   browser Back, shows the Board with the story still selected.
 - Entering Intent another way keeps today's behavior: a newly selected
   story opens on **CI comparison**, and **Changes** lists the same files and
   comparison.
-- Everything the Side panel review offered a story stays reachable in Intent:
-  the comparison choices, commits, uncommitted changes, landed runs, the
-  published completion, Refresh, the explanation for several worktrees
-  holding the claim, and story notes. Intent also names what the comparison
-  runs between as the Side panel's context does: the branch, the baseline
-  and what it leaves out, such as a Trunk Mode story's published commits,
-  the worktree, and a landed run's facts. The Done card's review state stays on
-  the card. One reading goes: a Done story's retained workspace, including
-  edits made after completion, is no longer reviewed from its card. A Done
-  story's review is its completion; later edits belong to a follow-up.
+- Intent keeps the story's comparison choices, commits, uncommitted changes,
+  landed runs, published completion, Refresh, worktree ambiguity explanation,
+  and story notes reachable. File and line actions on a diff keep their
+  comparison context. Intent identifies the branch, baseline and what it
+  includes, and worktree for a workspace comparison, and names the facts of
+  a landed run or published completion when one is shown. A Done card keeps
+  its review state and opens the story's published completion. Later edits
+  in its retained workspace belong to a follow-up.
 - **Review changes** on an ad hoc session entry or a published session entry
   still opens the Side panel review. These have no story for Intent to
   select until
   [completed ad hoc work becomes a Done story](#review-standalone-done-work).
   The Side panel review's story-only paths have no caller left and go.
 
-Out of scope: session selection inside the review
+Out of scope: the in-flight comparison already delivered by
+SEED-420#route-review-changes-to-intent, session selection inside the review
 ([SEED-418](SEED-418-review-published-session-changes.md#select-a-story-session-for-review)),
 the bookmark's scope choices ([below](#choose-review-scope)), the file
 filters ([below](#filter-review-files)), and a link or URL that reopens a
@@ -191,6 +190,10 @@ page state under ADR 0008.
   `S`'s **Intent coverage** with `spec.ts` selected under **Changes**.
   **Review changes** on `S`'s card shows `S`'s **Changes** with `spec.ts`
   still selected.
+- A final report is showing in the Side panel. **Review changes** on a
+  different Story card opens that story's **Changes** and keeps the same
+  report visible. Choosing **Development** shows the newly selected
+  card on the Board.
 - Story `T` is selected and the developer switches to Intent from the
   banner. **CI comparison** shows first. **Changes** lists the files the card
   action would show.
@@ -202,8 +205,8 @@ page state under ADR 0008.
   explaining that several worktrees hold it, and lists no files.
 - A Taken story has no workspace on this machine. Its card offers no
   **Review changes**, as today.
-- **Review changes** on a retained ad hoc Done entry opens that session's
-  comparison in the Side panel, as today.
+- **Review changes** on a retained ad hoc Done entry or a published session
+  entry opens that session's comparison in the Side panel.
 
 **Architecture.** The card action stops being a Side panel request and
 becomes a page-level request to show a story's Changes, which the Intent
@@ -215,13 +218,15 @@ review sets the Selected story, as [ADR 0008](../../docs/adrs/0008-project-dashb
 defines; the [Board interaction](../../docs/dashboard-board-interaction.md)
 text describing a story's review in the Side panel changes with it.
 
-**Effort hypothesis:** L, medium confidence. The product change is small.
-The cost is the story review journeys: about 25 end-to-end specs reach the
-review from a card through
+**Effort hypothesis:** L, medium confidence. The cost is moving the story
+review journeys that reach the review from a card through
 [`reviewChangesPage.ts`](../../dashboard/test-support/reviewChangesPage.ts),
-and its frame, details and divider parts have no Intent counterpart. Each
-journey moves to Intent, moves to a session entry where it proves Side panel
-mechanics, or retires where plans 759 and 760 already prove it in Intent.
+along with direct card readers. The story comparison and diff are already
+shared. Test the review through Intent and keep Side panel mechanics covered
+through session entries.
+
+The executable slices are in
+[plan 777](../slice-plans/777-open-review-changes-from-a-story-card/PLAN.md).
 
 <a id="compare-story-contributions"></a>
 
@@ -341,8 +346,10 @@ Prioritize readable, retry-safe session identity and existing record-format
 work before designs that depend on those facts. The shared review and its
 proof baseline are the first opportunity to replay the reported discrepancy.
 The review opens in Intent through three stories in order: every changed
-file, then the comparison choices, then **Review changes** on the card. Each
-of the first two is useful while the Side panel review remains.
+file, then the comparison choices, then **Review changes** on the card.
+The first two are delivered. Keeping the comparison on screen during a read
+is delivered as SEED-420#route-review-changes-to-intent. The card opening
+continues as SEED-420#open-review-changes-from-a-story-card.
 The bookmark repair travels with scope selection at ordinary priority. Whole
 project browsing can be deferred while story review, once delivered, remains
 useful. Structure and generating new paired CI runs are separate directions.

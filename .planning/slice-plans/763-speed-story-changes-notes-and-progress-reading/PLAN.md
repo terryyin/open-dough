@@ -2,155 +2,290 @@
 
 **Identity:** SEED-413#speed-story-changes-notes-and-progress-reading
 **Source:** [Get fast proof of story changes, Done references, notes and recorded progress](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading)
-**Split from:** SEED-413#speed-intent-source-and-story-reading (plan `755`, former Slices 5–9) on 2026-11-21 at its delivered Slice 2 boundary
+**Split from:** Plan 755 at its delivered Slice 2 boundary
 
-This provisional plan is **awaiting story refinement — not ready for slice-plan refinement or execution**.
-It resumes through `dough-story-refinement` and plan realignment; the original
-slices' readiness does not carry over.
+## Goal and scope
 
-## Goal and provisional scope
+Give Dashboard maintainers faster proof of selected-story changes, Done
+historical Intent, Done dependency navigation, Story Notes, and recorded
+progress, execution completion and coverage. Migrate the 40 current
+Playwright cases across 17 specs and narrow the six mounted Notes control
+cases to the project's subscribed state. Preserve real-page provenance,
+publication and reload checks in E2E. Retire support once its last consumer
+moves and compare time and maintained case count.
 
-Dashboard maintainers get fast Vitest feedback on what a developer sees about a
-selected or Done story's Changed tests, historical or live source across Review
-modes, Done story references, Story notes, and recorded slice progress,
-execution completion, and coverage. Move the 41 legacy Playwright cases across
-19 files:
-- `dashboard/frontend-tests/intent/`: `intent-read-reuse-story`,
-  `intent-sidebar-toggle`, `intent-story-changes-gaps`,
-  `intent-story-changes-only`, `intent-story-ci-cues`,
-  `intent-story-dark-appearance`, `intent-story-summary-title`,
-  `intent-story-views-narrow`, `intent-done-landed-review-mode`,
-  `intent-done-project-refresh`, `intent-done-review-modes`,
-  `intent-done-source-selection`, `intent-story-notes`, and
-  `intent-story-coverage` (14 files, 27 legacy cases)
-- `dashboard/frontend-tests/navigation/`: `story-reference-done`,
-  `story-reference-done-cancellation`, and `story-reference-done-recovery`
-  (3 files, 11 legacy cases)
-- `dashboard/frontend-tests/stories/`: `taken-slice-progress` and
-  `plan-execution-complete-detail` (2 files, 3 legacy cases)
-Also narrow `dashboard/frontend-tests/stories/story-notes-control.spec.ts` to
-its project's subscribed notes state without `act` or
-`IS_REACT_ACT_ENVIRONMENT`, remove spent `dashboard/test-support/` modules
-whose last consumer across `e2e/` and `dashboard/frontend-tests/` has moved,
-and record the two-worker before/after comparison for this 19-file / 41-case
-cohort.
+The original 19-file/41-case selection is the starting inventory. Record the
+two cases retired by `ffb4ef63d` (`intent-done-landed-review-mode` and
+`intent-done-review-modes`) against the removed Intent shortcut to the Side
+panel. Record the outside-locations line note added by `88d7b0553` in Slice 6.
+Ordinary Review controls and the new Review entry from the Intent story card
+are owned by [that story](../../seeds/SEED-420-unified-intent-review.md#open-review-changes-from-a-story-card).
+The published-observation recovery migration, Locations recovery, source
+browsing and reading-place detours retain their separate owners.
 
-## Preserved decisions and premises from `plan 755`
+## Current decisions
 
-- Reuse typed `makeMe.anIntentLocationsAnswer` (`Distribution/tests/support/intentLocationTestData.mjs`)
-  landed by `SEED-413#speed-intent-source-and-story-reading`. Supply every
-  read through the required typed page entry (plan 759 Slice 1, with the page
-  observation's reads added by plan 762 Slice 1) and render the production
-  Intent body or `ConfiguredDashboard`, as
-  [plan 762's correction](../762-speed-intent-source-browsing-and-detours/PLAN.md#correction-of-the-locations-recovery-test-entry)
-  establishes. `loadRepositoryTexts`'s former optional `readFile` and the
-  provider composition in `intent-candidates-publication.ts` were the
-  test-entry defects that correction removes; do not reuse either.
-- No spec or colocated helper builds a test copy of a production
-  composition, restates a provider stack, calls a private pipeline such as
-  `enrichPreparation` to make props, spies on `fetch`, or calls transport or
-  module-state functions. Build replies and recurring inputs with MakeMe
-  steps. Record each touched file's production import count before and after;
-  keep it to the entry, its typed inputs and stylesheets.
-- Follow [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md):
-  published source, Done records, and Taken progress retain their actual
-  provenance while Story Notes stay on the machine-local project subscription
-  (`storyNotesState` and `localSettingState`). Resolve the shared project
-  state at the control's production entry so card and Review callers keep
-  working while `story-notes-control.spec.ts` supplies the subscribed state
-  directly.
-- At `f981fc912` on 2026-11-21 (`--workers=2`, `caffeinate -s -i`),
-  `story-notes-control.spec.ts` passed proving refresh updates the open list
-  and a late read leaves a saved note visible, and the pre-split 37-file /
-  71-case legacy cohort ran in `209.26 s` (`376.66` summed case-seconds). At
-  `c7c1a5b38` on 2026-11-21, listing the 19 scoped files reported `41` legacy
-  `chromium` cases. During story refinement and plan realignment, check slice
-  sizes against the 15-minute active-time budget (especially Provisional
-  Slices 1 and 3, which carry 16 and 11 legacy cases respectively and will
-  likely split along narrower mount boundaries).
+- Apply [the campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories),
+  [frontend entry guidance](../../../dashboard/frontend-tests/README.md#which-entry-a-case-uses)
+  and the North Star topics
+  [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support),
+  [Act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows)
+  and [Plain Vitest for unit tests; Playwright only for E2E](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).
+  Select MakeMe and page-object conventions for the actual source paths.
+  Record production imports before and after for each touched spec or helper.
+  Remove spent Playwright support only after tracing frontend and E2E callers.
+- Reuse `mountIntentCiPage` for `BoardOrIntent` with a committed work snapshot
+  and production card selection. Supply actual `PageReads` collaborators
+  via `pageReadsSupplying` and page-loadable MakeMe replies, including
+  `anIntentLocationsAnswer`. Use typed review comparisons, file answers and
+  historical revisions. Keep existing shared readers and selection rules.
+- Use the existing Done owner, `StoryReferenceNavigation`, with the range
+  owned by `PageFrame`, its production Board destination and typed
+  `done.readBodies`. Reuse the production composition from a narrow entry
+  where the case needs the three together. The current Board fixture's
+  stubbed `StoryNavigationOnPage` and `board-frame-mount`'s module mocks
+  cannot prove this journey. Supply published work already projected by its
+  owner for mounted behavior. A built-page case owns actual catalog
+  re-observation after Retry if the mounted proof uses a supplied snapshot
+  transition. Leave the broader typed observation and launch entry work with
+  [its owner](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#drive-published-observation-through-page-entry).
+- [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+  keeps selected work, published comparison and progress facts tied to their
+  own source and revision. Notes share the page's machine-local per-project
+  state across controls. Preserve that ownership when the view takes a
+  subscribed project state. [ADR 0010, Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
+  calls for reducing feedback cost while preserving distinct proof.
+  [ADR 0002, Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  supports preserving observable automated proof through the migration.
 
-## Provisional slices (mapped from `plan 755` Slices 5–9)
+## Local gate
 
-### 1. Changed tests stays usable with the selected story's context
+On macOS use `caffeinate -s -i`
+on AC power, as required by the [maintained sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Use two workers, default timeouts, and the shared
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+Use `npm run --silent test:dashboard:frontend -- <owned spec paths> --workers=2`
+for focused browser proof, `npm run typecheck:dashboard` when changing TS
+contracts or mounts, and `npm run --silent test:e2e -- <named spec paths> --workers=2`
+for reached real-page behaviors. Keep the proof record with
+`OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD` or `OPEN_DOUGH_E2E_PROOF_RECORD`
+pointed to a fresh path. Use the installed consumer trace on the actual
+candidate and apply the [executable proof rules](../../../.agents/skills/dough-story-refinement/references/executable-proof.md).
+Prove each migrated check can discriminate its promised outcome before retiring
+its legacy owner. Run independent engine selections for inventory and include
+any E2E promotion in the paired timing.
 
-Type: Behavior
-Status: planned
+## Current baseline and premises
 
-Capture the 19-file / 41-case legacy baseline at `--workers=2` before
-replacing the first legacy file, and move `intent-read-reuse-story`,
-`intent-sidebar-toggle`, `intent-story-changes-gaps`,
-`intent-story-changes-only`, `intent-story-ci-cues`,
-`intent-story-dark-appearance`, `intent-story-summary-title`, and
-`intent-story-views-narrow` (8 files, 16 legacy cases), retaining
-`e2e/intent/intent-story-changes.spec.ts`.
+Observed on 23 November 2026 in the established preparation worktree at
+`e538dcccb`, on AC with Node 24.21.0 and Chromium 158. The 16-logical-core
+host reported load 24.28 and 51% free memory before the focused runs. Use a
+comparable pair when workload or host load has shifted.
 
-**Proof.** Selected story only follows the current revision, empty or failed
-comparisons name their cause while keeping the tree usable, opened changed
-files reuse their diff without rereading published text, and title, accessible
-CI cues, dark appearance, narrow layout, and sidebar state hold.
+- **Current cohort and runner.** The two-worker frontend command above used
+  the 17 legacy paths named in Slices 1–6 and 8, plus Slice 7's existing
+  mounted notes spec. Its proof record was strictly green with 40 legacy
+  and six Vitest cases in 85.05 s shell elapsed, including setup.
+  Summed case time was 119.94 s legacy and 0.16 s mounted. The longest cases
+  were Selected story only (8.76 s), Done refresh (8.09 s), and Done dark
+  appearance (6.49 s). This is the current cohort baseline. The historical
+  37-file/71-case pre-split measurement has a different selection.
+- **Built-page proof.** With the E2E command above and two workers, select
+  `intent/intent-(story-changes|done-project-refresh|story-completed-source|done-retained-workspace)\.spec\.ts|stories/(branch-slice-progress|taken-execution-complete)\.spec\.ts`
+  as the path expression. All eight cases passed in 50.24 s, including
+  preparation. This reached the published diff, retained live checkout versus
+  immutable historical source, Done refresh and reading place, branch/trunk
+  progress and awaiting wrap-up. It is the retained E2E selection for Slices
+  1, 3 and 8.
+- **Done reference mount.** The scratch
+  `navigation/story-reference-preparation-probe.spec.ts` ran under the
+  two-worker frontend command above. It used the Board mount's real
+  `PageFrame` and `Board`, the production `StoryReferenceNavigation`
+  in place of the stub, and `makeMe.aDoneCatalog` with a current and an
+  expired record. Following the reference showed the catalog failure with
+  zero body reads. Retry supplied the recovered snapshot, focused the
+  correct card, cleared the notice, and requested only the current record
+  (the Board and disclosure can ask for its same body independently).
+  Removing `revealStory` left the card visible without focus and failed the
+  focus assertion. The restored probe passed again. Scratch sources were
+  removed. Snapshot replacement proves the journey from the projected
+  catalog. The actual Retry refetch belongs to Slice 5's built-page proof.
+- **Typed Intent route.** The preparation observation at `bb42f3886`, recorded
+  in `e538dcccb:.planning/slice-plans/778-speed-intent-revision-and-detour-reading/PLAN.md`, mounted the production Intent body with typed story review and
+  diff answers, selected a story through its card, and restored a nested
+  diff at its exact scroll offset after Development, with zero extra reads.
+  Its broken-scroll-recording run returned at 0 px instead of 1,054 px.
+  The current cohort additionally observed selected-story reuse and gaps
+  and the held historical comparison/locations transition at the built-page
+  boundary. Use the existing typed entry at those same transitions as the
+  replacement cases move.
 
-### 2. Done Intent and ordinary Review use the selected historical or live source
+## Slices
 
-Type: Behavior
-Status: planned
+Paths below are relative to `dashboard/frontend-tests/` and name the
+corresponding `.spec.ts` unless stated otherwise.
 
-Move `intent-done-landed-review-mode`, `intent-done-project-refresh`,
-`intent-done-review-modes`, and `intent-done-source-selection` (4 files, 5
-legacy cases), retaining `e2e/intent/intent-done-project-refresh.spec.ts` and
-`e2e/intent/intent-story-completed-source.spec.ts`.
-
-**Proof.** A new Done story replaces the old source only with its own
-historical answer, refresh leaves Done Purpose and its reading place readable,
-switching Review modes waits for each mode's actual answer without showing the
-other selection's text, and ordinary Review clears the captured-run selection.
-
-### 3. Done references lead to the intended story or explain what stopped them
-
-Type: Behavior
-Status: planned
-
-Move `navigation/story-reference-done`,
-`navigation/story-reference-done-cancellation`, and
-`navigation/story-reference-done-recovery` (3 files, 11 legacy cases) over
-`useStoryReferenceJourney` and its production notice and destination (keeping
-a representative composed reveal in `e2e/` if built-app destination focus
-requires it).
-
-**Proof.** Pending, unavailable, expired, and failed Done references stay
-distinct, Retry recovers without reading older stories, navigation/pointer/Tab
-can supersede a held reveal, and replaced dependency disclosures wait for
-opening before reading.
-
-### 4. Story notes update in place and keep the reader's context
-
-Type: Behavior
-Status: planned
-
-Move `intent-story-notes` (1 file, 4 legacy cases) and narrow
-`stories/story-notes-control.spec.ts` to the subscribed project notes state
-without `act` or `IS_REACT_ACT_ENVIRONMENT`, verifying
-`e2e/terminals/agent-terminal-lifetime.spec.ts` if shared project wiring
-changes.
-
-**Proof.** Note icons and unreadable warnings fit beside the title, opening
-and closing Notes preserves the file and focus, line notes record the Intent
-subject, refresh updates the subscribed control, and a late older read never
-overwrites a saved note.
-
-### 5. Recorded slice progress, execution completion and story coverage expose their actual evidence
+### 1. Read the selected story's Changed tests from its comparison
 
 Type: Behavior
 Status: planned
 
-Move `stories/taken-slice-progress`, `stories/plan-execution-complete-detail`,
-and `intent-story-coverage` (3 files, 5 legacy cases) over `SliceProgress`,
-`StoryDetail`, and `IntentStoryCoverage`, retaining
+Move `intent/intent-read-reuse-story`, `intent/intent-story-changes-gaps`
+and `intent/intent-story-changes-only` (7 legacy cases). Use the production
+Intent page entry with typed comparison, locations, and file replies.
+Retain `e2e/intent/intent-story-changes.spec.ts` for the real published
+selection and the Review changes diff.
+
+**Proof.** Inspect the changed-only inventory, expansion and refresh at a new
+revision. Open a changed file and observe one diff ask and no published-text
+ask for it. Keep the empty/product-only and missing-location explanations,
+and fail then retry a comparison while the tree remains usable.
+
+### 2. Keep Intent controls and CI cues usable as the reading space changes
+
+Type: Behavior
+Status: planned
+
+Move `intent/intent-sidebar-toggle`, `intent/intent-story-views-narrow`,
+`intent/intent-story-summary-title` and `intent/intent-story-ci-cues` (8 legacy
+cases). Use the same mounted Intent frame and browser viewport as the proof
+surface. Reuse the location header look already exercised by
+`intent/intent-gherkin-groups`. Consolidate the header look read with that
+case. The other current consumer is
+`e2e/intent/intent-story-changes.spec.ts`. Move its equivalent location
+header appearance assertions only after the mounted proof distinguishes the
+changed, selected and unmarked states and the visible controls. Keep its
+publication, folder/file markings and diff assertions intact. Remove
+`dashboard/test-support/intentLocationHeaderLook.ts` after both consumers
+have moved.
+
+**Proof.** Hide and show files through the story and Project views. Observe
+the reading pane's width or height, preserved file and proof, project-local
+choice, keyboard order and activation. Check the full title and selected,
+focused and group CI cues in Chromium, including their distinct geometry
+or appearance assertions.
+
+### 3. Read a Done story's own historical Intent
+
+Type: Behavior
+Status: planned
+
+Move `intent/intent-done-project-refresh`, `intent/intent-done-source-selection`
+and `intent/intent-story-dark-appearance` (3 legacy cases). Use typed
+historical comparison and location replies. Preserve the actual sidebar
+selection while Intent is open. Reuse the mounted frame and feed the work
+update through the committed-work entry for the refresh assertions.
+Retain `e2e/intent/intent-done-project-refresh.spec.ts`,
+`e2e/intent/intent-story-completed-source.spec.ts` and
+`e2e/intent/intent-done-retained-workspace.spec.ts` for publication,
+historical source and live workspace provenance.
+
+**Proof.** Refresh leaves the same historical file and reading place usable
+through Done tabs; Project Intent can later return updated evidence.
+When a Done selection supersedes another, hold both comparison and
+locations and see no prior story's tree or source during either wait. The
+new story's own source arrives and the Done evidence stays readable in dark
+appearance.
+
+### 4. Reveal a Done destination and honor superseding input
+
+Type: Behavior
+Status: planned
+
+Move the successful near/far and held keyboard reveal cases from
+`navigation/story-reference-done` and all three cancellation cases in
+`navigation/story-reference-done-cancellation` (5 legacy cases). Exercise the
+production range, notice and destination against a typed catalog and held
+record body. Use the actual pointer or keyboard event where cancellation
+depends on it.
+
+**Proof.** The near destination focuses in place; a far destination grows the
+range just through its entry and keeps a longer range. A held body stays
+pending until it can focus. A later move or range reset, pointer down with a
+subsequent click, and Tab away each supersede the held reveal. Observe focus,
+cue or its end, shown range, and requested bodies after releasing the hold.
+
+### 5. Explain and recover Done references from recorded read states
+
+Type: Behavior
+Status: planned
+
+Move the failed-detail and changed-disclosure cases from
+`navigation/story-reference-done` and the four cases in
+`navigation/story-reference-done-recovery` (6 legacy cases). Reuse Slice 4's
+production entry and count typed read requests. Preserve actual catalog
+Retry at the built-page boundary, with a representative E2E path if the
+focused mount owns only the request and re-projected result. Any additional
+E2E costs count in the comparison.
+
+**Proof.** Distinguish expired, unlisted, pending and failed answers. Retry
+the actual catalog or Done body failure and observe the recovered
+destination with no older body reads. Later inspection supersedes stale
+misses and failures. A replaced disclosure starts closed and reads the
+new supplier only when opened.
+
+### 6. Save notes from Intent and return to the same reading
+
+Type: Behavior
+Status: planned
+
+Move `intent/intent-story-notes` (5 legacy cases) with typed Notes and Review
+replies. Use the mounted Intent entry and actual Notes and diff controls,
+including the Changed tests file outside Intent locations.
+
+**Proof.** Observe the unreadable cue next to the long title, and capture the
+stored line-note subject from each distinct entry. Close Notes and observe
+the selected file and opener focus. Keep the case added for the
+outside-locations file in the disposition map.
+
+### 7. Subscribe the Story Notes control to the project's notes state
+
+Type: Behavior
+Status: planned
+
+Narrow `stories/story-notes-control` (6 existing Vitest cases). Wire the
+production control at the existing per-project state and observe the
+mounted control with the same subscribed state, using `localSettingState`
+and `mountComponent`. Drop its `act` wrapping and global settle flag.
+Trace reached callers including `StoryNotesDialog`, Board and Done cards,
+Intent header and Story Review. Run
+`e2e/terminals/agent-terminal-lifetime.spec.ts` for shared page wiring.
+
+**Proof.** Verify count, waiting and unreadable notices, open-list refresh,
+keyboard activation and focus return. A save is visible before the held
+read resolves, and a post-resolution render observes that the stale reply
+cannot replace it. Keep one project subscription for the control and its
+open dialog.
+
+### 8. Show recorded progress, execution completion and coverage with their gaps
+
+Type: Behavior
+Status: planned
+
+Move `stories/taken-slice-progress`, `stories/plan-execution-complete-detail`
+and `intent/intent-story-coverage` (6 legacy cases) over the existing
+`SliceProgress`, `StoryDetail` and `IntentStoryCoverage` owners. Reuse typed
+plan facts and Done record replies. Treat plan interpretation, provenance and
+reload as the existing
 `e2e/stories/branch-slice-progress.spec.ts` and
-`e2e/stories/taken-execution-complete.spec.ts`. Remove spent
-`dashboard/test-support/` modules and record the two-worker before/after
-comparison for the 19-file cohort.
+`e2e/stories/taken-execution-complete.spec.ts` boundaries. Check the final
+disposition ledger across slices, retire spent support, and record the
+paired two-worker case counts, wall time and remaining costs.
 
-**Proof.** Completed slices, plan gaps, product advice, and coverage states
-(`absent`, `unavailable`, `failed`, `insufficient`) render from recorded
-evidence without reading on disclosure or treating future plan proof as
-completed, and the 19-file Vitest suite runs faster at two workers.
+**Proof.** An updated plan changes the recorded slice bar/count. The plan
+and completion gaps remain distinct from an empty result. Show execution
+advice from the recorded completion. Coverage preserves reported,
+insufficient, unavailable, absent and failed/retry meanings. Opening a
+disclosure adds no read if the facts were already projected, and future
+plan proof provides no completed coverage.
+
+## Slice review
+
+The provisional wide changes and Done-navigation slices were separated by
+their proof boundary during construction. The eight resulting slices each
+own one proof loop and are sized for 15 active minutes, with typed fixture
+reuse and command time outside that budget. Further slice-plan refinement
+was unnecessary after that split. The changed-tree and layout slices reuse
+one Intent production entry, the two reference slices reuse one navigation
+and range owner, and the Notes slices preserve the same project state.
+No slice-specific blocking concern remains.

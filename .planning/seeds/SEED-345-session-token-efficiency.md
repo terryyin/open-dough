@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-14
 planted_during: Terry Yin requested Codex, Cursor and Claude Code token-efficiency audits and retention of their reconciled findings
 trigger_when: Terry selects an efficiency story for refinement
-scope: ten stories
+scope: eleven stories
 ---
 
 # SEED-345 — Improve session token efficiency across Open Dough projects
@@ -202,6 +202,30 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
   [Cursor handoff evidence](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#c1-avoid-paying-twice-for-large-task-prompts-and-skill-re-reads)
 
 ## Follow-ups from the November 20–22 execution audit
+
+<a id="catch-delegated-lint-before-delivery"></a>
+
+### Catch delegated lint failures before guarded delivery
+
+**Identity:** SEED-345#catch-delegated-lint-before-delivery
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Outcome.** Developers get a reviewed slice whose authored files have
+  passed the applicable read-only checks before coordinator delivery. The
+  worker can surface lint failures while it still has the editing context.
+- **Boundary.** Use the project’s existing authored-file checks when
+  available. Keep selective formatting, hook-owned lint, and guarded
+  delivery with the coordinator. Keep full affected-consumer proof where a
+  shared contract changes.
+- **Evaluation.** Replay a retained type-aware lint refusal and a clean edit.
+  Compare the first guarded delivery result and repeated focused proof
+  against the baseline. Include a project without an applicable authored-file
+  command to verify the explicit handoff. Record the actual response and
+  first containing release at [ODF-329](../../docs/maintainer/findings/ODF-329.md).
+- **Effort.** Small to medium. Applicable commands vary by project and a
+  whole-repository check would change the cost of the trial.
 
 <a id="use-proportionate-refactoring-for-small-test-edits"></a>
 

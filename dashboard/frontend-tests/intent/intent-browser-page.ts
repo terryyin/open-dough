@@ -7,21 +7,26 @@ import { shortRevision } from "../../src/publishedWork.ts";
 import { activateButton } from "../page-objects/activateButton.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
 
+// The disclosure toggle of the location or folder at `path`.
+export const scopeToggle = (path: string) =>
+  page.getByRole("button", {
+    name: new RegExp(`^(Expand|Collapse) ${path}$`),
+  });
+
+// The selectable name of the location or folder at `path`.
+export const scopeName = (path: string) =>
+  page.getByRole("button", {
+    name: new RegExp(`^${path}(\\s|$)`),
+  });
+
+export const fileName = (path: string) =>
+  page.getByRole("button", { name: path, exact: true });
+
 export function intentBrowser() {
   const revision = page.getByLabelText("Test browser revision", {
     exact: true,
   });
   const purpose = page.getByRole("region", { name: "Purpose", exact: true });
-  const folder = (path: string) =>
-    page.getByRole("button", {
-      name: new RegExp(`^(Expand|Collapse) ${path}$`),
-    });
-  const location = (path: string) =>
-    page.getByRole("button", {
-      name: new RegExp(`^${path}(\\s|$)`),
-    });
-  const file = (path: string) =>
-    page.getByRole("button", { name: path, exact: true });
   // The focusable area the selected file's reading scrolls in.
   const readingPane = () => {
     let pane = purpose.element().parentElement;
@@ -46,31 +51,31 @@ export function intentBrowser() {
     },
     // Opens the file, expanding its folder when collapsed.
     async open(path: string) {
-      const toggle = folder(path.slice(0, path.lastIndexOf("/")));
+      const toggle = scopeToggle(path.slice(0, path.lastIndexOf("/")));
       await expect.element(toggle).toBeVisible();
       if (toggle.element().getAttribute("aria-expanded") === "false")
         await userEvent.click(toggle);
-      await userEvent.click(file(path));
+      await userEvent.click(fileName(path));
       return intentFileReading(path);
     },
     async showsFolderExpanded(path: string) {
       await expect
-        .element(folder(path))
+        .element(scopeToggle(path))
         .toHaveAttribute("aria-expanded", "true");
       return browser;
     },
     async showsLocation(path: string) {
-      await expect.element(location(path)).toBeVisible();
+      await expect.element(scopeName(path)).toBeVisible();
       return browser;
     },
     async showsNoFolder(path: string) {
-      await expect.element(folder(path)).not.toBeInTheDocument();
+      await expect.element(scopeToggle(path)).not.toBeInTheDocument();
       return browser;
     },
     async listsUnselected(path: string) {
-      await expect.element(file(path)).toBeVisible();
+      await expect.element(fileName(path)).toBeVisible();
       await expect
-        .element(file(path))
+        .element(fileName(path))
         .not.toHaveAttribute("aria-pressed", "true");
       return browser;
     },

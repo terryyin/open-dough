@@ -1,10 +1,7 @@
 // A project's published features beside its Test Optimization Candidates
 // record, read through one source that counts each record and file read, and
-// Project Intent mounted on that source as the reader enters it on the page.
+// the production Intent body mounted on that source through the page entry.
 import { createElement } from "react";
-import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import type { PublishedFiles } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
-import type { IntentCandidatesReadResult } from "../../src/authenticatedIntentCandidatesRead.ts";
 import {
   IntentModeProvider,
   useIntentModeChoice,
@@ -13,16 +10,23 @@ import {
   StorySelectionProvider,
   usePageStorySelection,
 } from "../../src/pageStorySelection.tsx";
-import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
-import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
 import { IntentReadingProvider } from "../../src/pageIntentReading.tsx";
 import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
 import { useLimitRecovery } from "../../src/limitRecovery.ts";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { PublishedFiles } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
+import type { IntentCandidatesReadResult } from "../../src/authenticatedIntentCandidatesRead.ts";
+import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import {
+  pageReadsSupplying,
+  unreadCiReads,
+} from "../../test-support/component-mount/unreadPageReads.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
   featuresOpening,
   fixtureFor,
@@ -157,26 +161,28 @@ export const publishedWithCandidates = (
     },
   ]);
 
-// Mounts Project Intent for `work` as the reader enters it on the page,
-// reading through `readSource`. `showProject` switches the page to another
-// project's published work.
-export async function mountPageIntentReading(
+// Mounts the production Intent body for `work` through the page entry,
+// reading through `readSource`, as ./intent-ci-page-mount.ts offers it.
+export const mountPageIntentReading = (
+  readSource: IntentReadSource,
+  work: PublishedWork,
+) =>
+  mountIntentCiPage({ work, reads: { intent: readSource, ci: unreadCiReads } });
+
+// G1/G2 interim: Project Intent on the observation's recovery schedule, for
+// the one case whose automatic transient and limit recovery needs the
+// published observation's timers until
+// SEED-413#drive-published-observation-through-page-entry lands.
+export async function mountIntentOnObservationRecovery(
   readSource: IntentReadSource,
   work: PublishedWork,
 ) {
-  const reading = (shown: PublishedWork) =>
+  await mountComponent(
     createElement(
       PageReadsOnPage,
       { reads: pageReadsSupplying({ intent: readSource }) },
-      createElement(PageIntent, { work: shown }),
-    );
-  const intent = await mountComponent(reading(work), {
-    viewport: { width: 1280, height: 900 },
-    fillsViewport: true,
-  });
-  return {
-    showProject: (shown: PublishedWork) => {
-      intent.rerender(reading(shown));
-    },
-  };
+      createElement(PageIntent, { work }),
+    ),
+    { viewport: { width: 1280, height: 900 }, fillsViewport: true },
+  );
 }

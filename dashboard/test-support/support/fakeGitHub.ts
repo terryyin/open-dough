@@ -17,6 +17,7 @@ import {
 import { avatarsAt } from "../avatarAnswers.ts";
 import { asGhReply } from "./ghReply.ts";
 import { parseRequest, type GhRequest } from "./ghRequest.ts";
+import { unanswered } from "./waitUntil.ts";
 
 export { publishes } from "./publishedRepository.ts";
 
@@ -73,8 +74,7 @@ export type FakeGitHub = {
 };
 
 // Never answers.
-export const hangs: RepositoryAnswerer = () =>
-  new Promise<never>(() => undefined);
+export const hangs: RepositoryAnswerer = unanswered;
 
 // Fails as `gh` does, printing `stderr`.
 export function failsWith(stderr: string): RepositoryAnswerer {

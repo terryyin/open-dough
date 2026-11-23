@@ -1,5 +1,6 @@
 // @ts-check
 // Prepared canonical answers for the production Intent providers.
+import { takenEntry } from "./comparedStoryWorkTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
 
@@ -105,28 +106,14 @@ class PublishedWorkAtBuilder {
    */
   taking({ identity, title, branch, agent = "engineer" }, facts = {}) {
     this.#taken.push({
-      identity,
-      title,
-      canonical: {
-        kind: "external",
-        recorded: "https://example.test/story",
-        url: "https://example.test/story",
-      },
-      owner: {
-        status: "recorded",
-        assignments: [
-          {
-            profilePath: `.planning/agents/${agent}.json`,
-            name: agent,
-            agent,
-            mode: "story-branch",
-            branch,
-            host: "claude",
-            model: undefined,
-            human: { status: "no-addition" },
-          },
-        ],
-      },
+      ...takenEntry({
+        identity,
+        title,
+        mode: "story-branch",
+        branch,
+        agent,
+        host: "claude",
+      }),
       ...facts,
     });
     return this;

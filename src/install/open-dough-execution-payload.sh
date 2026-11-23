@@ -117,7 +117,6 @@ managed_files+=(
   dough-execute-plan/scripts/ci-mailbox.mjs
   dough-execute-plan/scripts/ci-monitor-unavailable.mjs
   dough-execute-plan/scripts/ci-observation-throttle.mjs
-  dough-execute-plan/scripts/ci-observer-stream.mjs
   dough-execute-plan/scripts/ci-path-applicability.mjs
   dough-execute-plan/scripts/ci-revision-applicability-classification.mjs
   dough-execute-plan/scripts/ci-repair-stash-applied.mjs
@@ -155,7 +154,8 @@ managed_files+=(
   dough-execute-plan/scripts/execution-increment-observation-recovery.mjs
   dough-execute-plan/scripts/execution-increment-publication.mjs
   dough-execute-plan/scripts/session-record-publication.mjs
-  dough-execute-plan/scripts/session-close-state.mjs
+  dough-execute-plan/scripts/session-close-identity.mjs
+  dough-execute-plan/scripts/git-path-json-store.mjs
   dough-execute-plan/scripts/sealed-session-record.mjs
   dough-execute-plan/scripts/shared-checkout-note.mjs
   dough-execute-plan/scripts/session-record-pruning.mjs
@@ -183,7 +183,6 @@ managed_files+=(
   dough-execute-plan/scripts/execution-start-carry.mjs
   dough-execute-plan/scripts/execution-session-evidence.mjs
   dough-execute-plan/scripts/one-shot-ownership.mjs
-  dough-execute-plan/scripts/execution-worktree-preparation-readiness-gate.mjs
   dough-execute-plan/scripts/history-preserving-candidate.mjs
   dough-execute-plan/scripts/history-preserving-publication.mjs
   dough-execute-plan/scripts/supplier-integration.mjs

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "sessionId": "3fcdcbd6-bad4-4052-8bd2-5f8a5261bab5",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-23T00:30:00.341Z",
+  "ranges": [
+    {
+      "base": "702d1a213f777c9a43a136857533892d818c3620",
+      "candidate": "aacf609cb86cecd727fe891db75df8c9ef4c3994"
+    }
+  ]
+}

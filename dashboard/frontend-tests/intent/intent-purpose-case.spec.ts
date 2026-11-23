@@ -1,135 +1,80 @@
+// Opening a recorded case from Optimization Candidates reads its file once and
+// shows Purpose at the case's line; highlighting that arrives later leaves the
+// reader where they scrolled, and opening the case again after reading away
+// returns to its line (../../src/IntentBrowser.tsx,
+// ../../src/IntentFileReading.tsx), on the page's Intent body
+// (./intent-ci-page-mount.ts). Case lines per record form:
+// ./intent-candidates-case.spec.ts.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import {
-  filesToggle,
-  expectFilesShown,
-} from "../../test-support/intentModePage.ts";
-import { sourceLineText } from "../../test-support/intentCodeBrowsePage.ts";
-import { putFrontendIntentSources } from "../../test-support/support/frontendIntentSources.ts";
-// Opening a recorded file from Optimization Candidates shows Purpose
-// positioned on its case, and opening it again after reading away from the
-// case starts a fresh reading positioned on it once more
-// (../../src/IntentBrowser.tsx, ../../src/IntentFileReading.tsx). The case targets
-// themselves are `./intent-candidates-case.spec.ts`.
+  highlightSourceLines,
+  type SourceHighlighter,
+} from "../../src/sourceHighlight.ts";
+import { unreadCiReads } from "../../test-support/component-mount/unreadPageReads.ts";
+import { intentCandidates } from "./intent-candidates-page.ts";
+import { publishedWithCandidates } from "./intent-candidates-publication.ts";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
-import {
-  candidateEntry,
-  chooseOptimizationCandidates,
-  intentModeTab,
-} from "../../test-support/intentModePage.ts";
-import { purposeRegion } from "../../test-support/intentPerspectivePage.ts";
-import {
-  expectReadingOffset,
-  intentReadingScroll,
-  scrollIntentReadingToStart,
-} from "../../test-support/intentReadingPlacePage.ts";
-import {
-  expectSourceTargetLine,
-  fileSource,
-  sourceFile,
-  sourceTargetLine,
-} from "../../test-support/intentCodeBrowsePage.ts";
-import { doughnut } from "../../test-support/intentCodeBrowseFixtures.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { holdGrammar } from "../../test-support/support/syntaxGrammar.ts";
-import {
-  doughnutCaseFeaturePath,
-  doughnutUniqueScenario,
-  doughnutUniqueScenarioLine,
-  doughnutCaseFeatureSource,
-  doughnutCaseCandidatesRecord,
-} from "../../test-support/intentCandidatesCasePositionFixtures.ts";
+const revision = "5c".repeat(20);
+const featurePath = `${pygardonFeatures.folder}/case_position.feature`;
+const scenario = "unique cold path";
+const feature = [
+  "Feature: case position",
+  ...[...Array(40).keys()].map((index) => `  # pad ${index}`),
+  `  Scenario: ${scenario}`,
+  "    Given unique",
+].join("\n");
+const record = makeMe.aTestOptimizationCandidatesRecord
+  .pending("unique-scenario-once", `\`${featurePath}::${scenario}\``)
+  .please();
 
-test("opening a recorded file shows Purpose on its case, reading it once, and opening it again after reading away returns to the case", async ({
-  page,
-  frontendServices,
-}) => {
-  // Short enough that the case sits below the start of Purpose.
-  await page.setViewportSize({ width: 1280, height: 640 });
-  const grammar = await holdGrammar(page, "gherkin");
-  putFrontendIntentSources(
-    frontendServices,
-    doughnut,
-    [
-      makeMe.anIntentLocation
-        .at("e2e_test/features")
-        .ofKind("gherkin")
-        .selecting(doughnutCaseFeaturePath)
-        .please(),
-    ],
-    { [doughnutCaseFeaturePath]: doughnutCaseFeatureSource },
+test("a recorded case reads its file once at the case's line, keeps the reader's place as highlighting arrives, and returns to the line when opened again", async () => {
+  const { readSource, fileReads } = publishedWithCandidates(record, {
+    [featurePath]: feature,
+  });
+  // Highlighting waits until the case releases it.
+  let release = () => {};
+  const released = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const highlight: SourceHighlighter = async (text, language) => {
+    await released;
+    return highlightSourceLines(text, language);
+  };
+  await mountIntentCiPage({
+    work: makeMe.aPublishedWork.ofPygardon.at(revision).please(),
+    reads: { intent: readSource, ci: unreadCiReads, highlight },
+  });
+  const candidates = await (
+    await intentCandidates().choose()
+  ).isRecordedAt(revision);
+
+  const opened = await candidates.openSource(
+    "unique-scenario-once",
+    featurePath,
   );
-  Object.assign(frontendServices, {
-    candidates: {
-      revision: doughnut.revision,
-      candidates: doughnutCaseCandidatesRecord,
-    },
-  });
-  const requests: URLSearchParams[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname === "/__authenticated-read")
-      requests.push(url.searchParams);
-  });
-  try {
-    await openUntilRead(page, "/?project=doughnut");
-    const { intent, intentChoice } = parts(page);
-    await intentChoice.click();
-    const fileName = sourceFile(intent, doughnutCaseFeaturePath);
-    const caseEntry = candidateEntry(intent, "unique-scenario-once");
-    const source = fileSource(intent, doughnutCaseFeaturePath);
+  await (
+    await (await opened.shows(`Scenario: ${scenario}`)).isSelected()
+  ).targets(42);
+  expect(fileReads.filter(({ path }) => path === featurePath)).toHaveLength(1);
 
-    await chooseOptimizationCandidates(intent);
-    await sourceFile(caseEntry, doughnutCaseFeaturePath).click();
-    await grammar.requested;
-    await expect(intentModeTab(intent, "CI status")).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
-    await expect(source).toContainText(`Scenario: ${doughnutUniqueScenario}`);
-    await expectSourceTargetLine(source, doughnutUniqueScenarioLine);
-    await expect(fileName).toHaveAttribute("aria-pressed", "true");
-    expect(
-      requests.filter(
-        (params) =>
-          params.get("path") === doughnutCaseFeaturePath &&
-          !params.has("committed"),
-      ).length,
-    ).toBe(1);
+  const pane = document.querySelector<HTMLElement>(".intent-reading");
+  if (pane === null) throw new Error("No Intent reading pane");
+  // The case sits below the start of Purpose; the reader scrolls back to it.
+  expect(pane.scrollTop).toBeGreaterThan(0);
+  pane.scrollTop = 0;
+  release();
+  await expect
+    .poll(() => document.querySelectorAll(".source-token").length)
+    .toBeGreaterThan(0);
+  expect(pane.scrollTop).toBe(0);
 
-    const offset = await intentReadingScroll(intent);
-    expect(offset).toBeGreaterThan(0);
-    await parts(page).development.click();
-    await intentChoice.click();
-    await expect(fileName).toHaveAttribute("aria-pressed", "true");
-    await expectReadingOffset(intent, offset);
-    await filesToggle(intent).press("Enter");
-    await expectFilesShown(intent, false);
-    await expect(sourceLineText(source)).toHaveText(
-      doughnutCaseFeatureSource.split("\n"),
-    );
-    await expectSourceTargetLine(source, 35);
-    await expectReadingOffset(intent, offset);
-    await filesToggle(intent).press("Space");
-    await expectFilesShown(intent, true);
-    await expect(fileName).toHaveAttribute("aria-pressed", "true");
-    await expectReadingOffset(intent, offset);
-
-    await test.step("highlighting keeps the reader at the start, opening the recorded file again shows Purpose on its case", async () => {
-      await scrollIntentReadingToStart(intent);
-      await expect(sourceTargetLine(source)).not.toBeInViewport();
-      grammar.release();
-      await expect(intent.locator(".source-token").first()).toBeAttached();
-      await expect(sourceTargetLine(source)).not.toBeInViewport();
-      await chooseOptimizationCandidates(intent);
-      await sourceFile(caseEntry, doughnutCaseFeaturePath).click();
-      await expect(purposeRegion(intent)).toBeVisible();
-      await expect(source).toContainText(`Scenario: ${doughnutUniqueScenario}`);
-      await expectSourceTargetLine(source, doughnutUniqueScenarioLine);
-      await expect(fileName).toHaveAttribute("aria-pressed", "true");
-    });
-  } finally {
-    grammar.release();
-  }
+  await candidates.choose();
+  const again = await candidates.openSource(
+    "unique-scenario-once",
+    featurePath,
+  );
+  await (await again.isSelected()).targets(42);
 });

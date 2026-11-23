@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "0324ef37-3244-41a7-808b-292653fe48b9",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T00:05:30.635Z",
+  "story": "SEED-413#speed-intent-revision-and-detour-reading",
+  "ranges": [
+    {
+      "base": "25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b",
+      "candidate": "390a4f2aa5de7a44eeef62c00c37552426b4de12"
+    }
+  ]
+}

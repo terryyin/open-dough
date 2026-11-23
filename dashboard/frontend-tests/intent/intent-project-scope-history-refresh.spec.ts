@@ -1,134 +1,109 @@
-import {
-  scopeHistory,
-  scopeHistoryReading,
-} from "../../test-support/intentScopeHistoryPage.ts";
-// Same-head reads, snapshot timestamps and refresh failures use only local history.
+// Check again reads the same observed head's scope history afresh, showing
+// the kept history as previously retrieved until the answer; a failed
+// refresh keeps the kept history and live Scope Proof and recovers on Retry;
+// a new observed head reads its own history, borrowing none on failure.
+// Same-head time-only refreshes reading nothing are
+// intent-project-scope-history-key-isolation's.
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { ScopeHistoryGlance } from "../../src/ciScopeHistory.ts";
 import { shortSha } from "../../src/baseCiWording.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import { activateIntentHome } from "../../test-support/intentCiStatusPage.ts";
-import { openSummary } from "../../test-support/intentSummaryCiProofFixtures.ts";
+import { intentViewTab } from "./intent-candidates-page.ts";
+import { workOf } from "./intent-ci-homepage-page.ts";
+import { heldRead, openDoughSource } from "./intent-ci-status-fixtures.ts";
+import { intentCiStatus } from "./intent-ci-status-page.ts";
 import {
-  openUntilRead,
-  passCheckPace,
-  untilPageReadsAnswered,
-} from "../../test-support/pageRequestNotes.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { fulfillEventStream } from "../../test-support/support/frontendSubstituteAnswers.ts";
+  caseTimingHistory,
+  mountUnprovenScopeHistory,
+} from "./intent-project-scope-history-fixtures.ts";
 import {
-  scopeHistoryPoint,
-  serveUnreadProjectCi,
-} from "../../test-support/support/projectScopeHistoryFacts.ts";
+  openScopeSummary,
+  scopeHistoryIn,
+} from "./intent-scope-history-page.ts";
 
-test("Check again refreshes the same observed head, while time-only checks and failed reads keep their own freshness", async ({
-  page,
-  frontendServices,
-}) => {
-  await pausePageClockAt(page, new Date("2026-11-11T07:00:00Z"));
-  const revision = frontendServices.revision;
-  await serveUnreadProjectCi(page, "a".repeat(40));
-  // Frontend app pages hold a real stream slot; answer it as SSE while the
-  // project stays at the shown revision (the substitutes answer a move).
-  await page.route(
-    (url) => url.searchParams.get("at") === frontendServices.revision,
-    (route) =>
-      fulfillEventStream(route, {
-        revision: frontendServices.revision,
-        changed: false,
-        branches: [],
-      }),
-  );
-  let duration = 8000;
-  let fail = false;
-  let release: (() => void) | undefined;
-  let held: Promise<void> | undefined;
+const first = makeMe.aPublishedWork
+  .with({
+    ...workOf(openDoughSource, "a1a1a1a"),
+    retrievedAt: new Date("2026-11-11T07:00:00Z"),
+  })
+  .please();
+
+// Return to Project Intent's CI status and Check again.
+async function checkAgain() {
+  await userEvent.click(intentViewTab("CI status"));
+  await intentCiStatus().checkAgain();
+}
+
+test("Check again refreshes the same observed head, while failed reads keep their own freshness", async () => {
+  const answering = (ms: number) => (path: string, revision: string) =>
+    Promise.resolve(caseTimingHistory(path, ms, revision));
+  let answer = answering(8000);
   const endpoints: string[] = [];
-  await page.route(/intent=ci-history.*scope=/, async (route) => {
-    const params = new URL(route.request().url()).searchParams;
-    const endpoint = params.get("revision") ?? "";
-    endpoints.push(endpoint);
-    await held;
-    await route.fulfill(
-      fail
-        ? { status: 502, json: { error: "Matching history refresh failed" } }
-        : {
-            json: scopeHistoryPoint(
-              endpoint,
-              params.get("scope") ?? "",
-              duration,
-            ),
-          },
-    );
+  const shown = await mountUnprovenScopeHistory({
+    work: first,
+    readScopeHistory: (...[, path, endpoint]) => {
+      endpoints.push(endpoint.revision);
+      return answer(path, endpoint.revision);
+    },
   });
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const { intent } = parts(page);
-  const summary = await openSummary(intent, "dashboard/tests");
-  const history = scopeHistory(summary);
-  const evidence = scopeHistoryReading(history).selected;
-  await expect(evidence).toContainText("8.0 s");
-  await expect(history).toContainText("History read");
-  const observed =
-    await scopeHistoryReading(history).endpointTime.getAttribute("datetime");
-  const firstAnswer =
-    await scopeHistoryReading(history).answeredAt.getAttribute("datetime");
-  await untilPageReadsAnswered(page);
-  await passCheckPace(page);
-  await untilPageReadsAnswered(page);
-  expect(endpoints).toEqual([revision]);
-  await expect(scopeHistoryReading(history).endpointTime).toHaveAttribute(
-    "datetime",
-    observed ?? "",
-  );
+  const summary = await openScopeSummary("dashboard/tests");
+  const history = scopeHistoryIn(summary);
+  const selected = () => history.readout().selected;
+  await expect.poll(selected).toContain("8.0 s");
+  expect(history.text()).toContain("History read");
+  const observed = history.endpointTime();
+  const firstAnswer = history.answeredAt();
+  expect(endpoints).toEqual([first.revision]);
 
-  duration = 11000;
-  const home = await activateIntentHome(intent);
-  await home.getByRole("button", { name: "Check again", exact: true }).click();
-  held = new Promise<void>((resolve) => {
-    release = resolve;
+  const held = heldRead<ScopeHistoryGlance>();
+  answer = () => held.ask();
+  await checkAgain();
+  await openScopeSummary("dashboard/tests");
+  await expect.poll(() => endpoints.length).toBe(2);
+  expect(selected()).toContain("8.0 s");
+  expect(history.text()).toContain("Previously retrieved history");
+  held.resolve(caseTimingHistory("dashboard/tests", 11000, first.revision));
+  await expect.poll(selected).toContain("11.0 s");
+  expect(history.text()).not.toContain("Previously retrieved history");
+  expect(history.answeredAt()).not.toBe(firstAnswer);
+
+  answer = () => Promise.reject(new Error("Matching history refresh failed"));
+  await checkAgain();
+  await openScopeSummary("dashboard/tests");
+  await expect
+    .element(history.failure)
+    .toHaveTextContent("Matching history refresh failed");
+  expect(selected()).toContain("11.0 s");
+  expect(history.text()).toContain("Previously retrieved history");
+  await expect.element(summary.getByRole("table")).toBeVisible();
+  answer = answering(9000);
+  await userEvent.click(history.retry);
+  await expect.poll(selected).toContain("9.0 s");
+  expect(history.failure.query()).toBeNull();
+  expect(endpoints).toEqual(Array(4).fill(first.revision));
+
+  // A new head's failed read borrows no other endpoint's history.
+  const next = workOf(openDoughSource, "b2b2b2b");
+  answer = () => Promise.reject(new Error("New head history failed"));
+  await shown.showWork({
+    ...next,
+    retrievedAt: new Date("2026-11-11T07:05:00Z"),
   });
-  try {
-    await openSummary(intent, "dashboard/tests");
-    await expect.poll(() => endpoints.length).toBe(2);
-    await expect(evidence).toContainText("8.0 s");
-    await expect(history).toContainText("Previously retrieved history");
-  } finally {
-    release?.();
-    held = undefined;
-  }
-  await expect(evidence).toContainText("11.0 s");
-  await expect(history).not.toContainText("Previously retrieved history");
-  await expect(scopeHistoryReading(history).answeredAt).not.toHaveAttribute(
-    "datetime",
-    firstAnswer ?? "",
-  );
-
-  await activateIntentHome(intent);
-  await home.getByRole("button", { name: "Check again", exact: true }).click();
-  fail = true;
-  await openSummary(intent, "dashboard/tests");
-  await expect(scopeHistoryReading(history).failure).toContainText(
-    "Matching history refresh failed",
-  );
-  await expect(evidence).toContainText("11.0 s");
-  await expect(history).toContainText("Previously retrieved history");
-  await expect(summary.getByRole("table")).toBeVisible();
-  fail = false;
-  duration = 9000;
-  await scopeHistoryReading(history).retry.click();
-  await expect(evidence).toContainText("9.0 s");
-  await expect(scopeHistoryReading(history).failure).toHaveCount(0);
-  expect(endpoints).toEqual([revision, revision, revision, revision]);
-
-  const next = "b".repeat(40);
-  Object.assign(frontendServices, { revision: next });
-  await passCheckPace(page);
-  await untilPageReadsAnswered(page);
-  await expect(evidence).toHaveText(
-    `Observed trunk endpoint ${shortSha(next)} · 9.0 s`,
-  );
-  expect(endpoints).toEqual([revision, revision, revision, revision, next]);
-  await expect(scopeHistoryReading(history).endpointTime).not.toHaveAttribute(
-    "datetime",
-    observed ?? "",
-  );
+  await expect
+    .element(history.failure)
+    .toHaveTextContent("New head history failed");
+  expect(history.text()).not.toContain("9.0 s");
+  await expect.element(summary.getByRole("table")).toBeVisible();
+  answer = answering(9000);
+  await userEvent.click(history.retry);
+  await expect
+    .poll(selected)
+    .toBe(`Observed trunk endpoint ${shortSha(next.revision)} · 9.0 s`);
+  expect(endpoints).toEqual([
+    ...Array<string>(4).fill(first.revision),
+    next.revision,
+    next.revision,
+  ]);
+  expect(history.endpointTime()).not.toBe(observed);
 });

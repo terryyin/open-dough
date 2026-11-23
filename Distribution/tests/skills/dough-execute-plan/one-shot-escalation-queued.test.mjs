@@ -36,7 +36,7 @@ import {
   growAttempt,
   workspaceBytes,
 } from "./one-shot-escalation-test-fixtures.mjs";
-import { queuedRepositoryWithUnrefinedB2 } from "../../../src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs";
+import { queuedRepositoryWithUnrefinedB2 } from "../../support/one-shot-queued-repository.mjs";
 import { configureDeveloper } from "./workspace-publication-startup-test-fixtures.mjs";
 
 const queued = { identity: identityB, link: "seeds/B.md#b", title: "Story B" };

@@ -9,7 +9,7 @@ import { test } from "node:test";
 import { promisify } from "node:util";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
 import { rebaseInProgress } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
-import { queuedRepositoryWithUnrefinedB2 } from "../../../src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs";
+import { queuedRepositoryWithUnrefinedB2 } from "../../support/one-shot-queued-repository.mjs";
 import {
   commitQueuedResult,
   deliverQueued,

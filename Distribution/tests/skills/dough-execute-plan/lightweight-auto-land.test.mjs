@@ -39,7 +39,7 @@ import {
   configureDeveloper,
   lostPushResponse,
 } from "./workspace-publication-startup-test-fixtures.mjs";
-import { queuedRepositoryWithUnrefinedB2 } from "../../../src/skills/dough-execute-plan/scripts/one-shot-queued-repository.mjs";
+import { queuedRepositoryWithUnrefinedB2 } from "../../support/one-shot-queued-repository.mjs";
 
 // Starts B with automatic landing and commits its verified result with B's
 // closure; nothing reaches the remote before delivery.

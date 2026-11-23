@@ -1,8 +1,10 @@
 // The page's one record of GitHub's rate limit on the local `gh` login: the
 // page-clock time before which this page withholds reads that acquire upstream
 // evidence. `./authenticatedGet.ts` sets it where the boundary answers a read
-// as limited (`retryAfterSeconds`), and while it stands answers each upstream read as
-// limited itself, without asking. Collected history reads remain local and
+// as limited (`retryAfterSeconds`), and while it stands answers each upstream
+// read as limited itself, without asking; Intent reading
+// (`./intentReadRecovery.tsx`) also sets it from a limited answer it receives
+// (`resumesAt`). Collected history reads remain local and
 // are not withheld by this upstream limit. A further limited answer only moves it
 // later; nothing but its time ends it, and it outlives the observed project,
 // since the limit is the login's, not a project's. The revision check
@@ -21,19 +23,25 @@ let limitedUntil = 0;
 let limitsMet = 0;
 const listeners = new Set<() => void>();
 
-function changed(): void {
-  for (const listener of listeners) listener();
-}
-
-// The boundary answered a read as limited for `retryAfterSeconds` more:
-// the record stands until then, unless it already stands longer.
-export function noteLimit(retryAfterSeconds: number): void {
-  limitsMet += 1;
-  const until = Date.now() + retryAfterSeconds * 1000;
+// The record stands until `until`, unless it already stands longer.
+function standUntil(until: number): void {
   if (until > limitedUntil) {
     limitedUntil = until;
-    changed();
+    for (const listener of listeners) listener();
   }
+}
+
+// The boundary answered a read as limited for `retryAfterSeconds` more.
+export function noteLimit(retryAfterSeconds: number): void {
+  limitsMet += 1;
+  standUntil(Date.now() + retryAfterSeconds * 1000);
+}
+
+// A reader received a limited answer that resumes at `resumesAt`. The
+// boundary's own limited answer was counted where it arrived, so this counts
+// nothing.
+export function noteLimitUntil(resumesAt: Date): void {
+  standUntil(resumesAt.getTime());
 }
 
 // When the standing limit ends, or undefined when none stands. A read asked

@@ -8,59 +8,33 @@ import { PageFrame } from "../../src/PageFrame.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { PerspectiveScroll } from "../../src/perspectiveScroll.tsx";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import { StoryNavigationOnPage } from "../../src/storyNavigation.tsx";
 import {
-  withClosedSessionsSidebar,
+  formerPositionKey,
+  positionKey,
   withFramePreference,
+  withPagePreferences,
 } from "../../test-support/component-mount/framePreferences.ts";
+import { machineSessionsRefusing } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { emulateMedia } from "../review/browser-session.ts";
 
-const answer = makeMe.aMachineAnswer.please();
-
-const noOperation = () => undefined;
+const refusal = "This Board reading does not operate a session.";
 const unexpected = () => {
-  throw new Error("This Board reading does not operate a session.");
+  throw new Error(refusal);
 };
 
 export const noSessions: MachineSessions = {
-  records: [],
-  launched: [],
-  sessionsSettled: true,
+  ...machineSessionsRefusing({
+    answer: makeMe.aMachineAnswer.please(),
+    refusal,
+  }),
   alerts: { available: true },
-  workspaces: answer.workspaces,
-  creations: answer.creations,
-  hostOperations: answer.hostOperations,
-  feedbackMaintenance: answer.feedbackMaintenance,
-  rereadOffers: noOperation,
-  rereadSessions: noOperation,
-  readHistory: noOperation,
-  keptStartOf: noOperation,
-  runningStartOf: noOperation,
-  establishesStart: () => false,
-  sessionPolicyOffer: () => "reading",
-  optionsOffer: noOperation,
-  recoveriesOf: () => [],
-  attemptEvidence: "read",
-  continueStartup: unexpected,
-  updateWorktreeAndRetry: unexpected,
-  recheckStartups: unexpected,
-  attemptOf: noOperation,
-  storyStartupOf: noOperation,
-  storyStartupsOf: () => [],
-  start: unexpected,
-  startAdHoc: unexpected,
-  adHocAttemptOf: noOperation,
-  markDone: unexpected,
-  markRead: unexpected,
-  deleteRecord: unexpected,
-  recoverSession: unexpected,
-  stopSession: unexpected,
-  readSession: unexpected,
 };
 
 function ReadingBoard({
@@ -103,25 +77,18 @@ function ReadingBoard({
             onSelectPerspective: unexpected,
           }),
           createElement(
-            "div",
-            {
-              key: "board",
-              className: "board-scroll",
-            },
+            PerspectiveScroll,
+            { key: "board", perspective: "board" },
             createElement(
-              "div",
-              { className: "scroll-content" },
-              createElement(
-                "main",
-                null,
-                createElement(Board, {
-                  sourceId: work.source.id,
-                  project: work.source.label,
-                  work,
-                  launches: sessions,
-                  onOpenRoster: unexpected,
-                }),
-              ),
+              "main",
+              null,
+              createElement(Board, {
+                sourceId: work.source.id,
+                project: work.source.label,
+                work,
+                launches: sessions,
+                onOpenRoster: unexpected,
+              }),
             ),
           ),
         ],
@@ -149,7 +116,7 @@ export async function mountBoard(
     done?: DoneRecordReadSource;
   } = {},
 ) {
-  if (sessionsSidebar === "closed") withClosedSessionsSidebar();
+  withPagePreferences({ sessionsSidebar });
   let sessions = { ...noSessions, ...observed };
   let work = projects;
   const reading = (next: readonly PublishedWork[], key = 0) => {
@@ -193,8 +160,7 @@ export async function mountBoard(
   };
 }
 
-export const positionKey = "open-dough.board.position";
-export const formerPositionKey = "open-dough.dashboardColumns.position";
+export { formerPositionKey, positionKey };
 
 export function withBoardStorage(initial?: string) {
   withFramePreference(positionKey, initial ?? null);

@@ -105,7 +105,8 @@ async function commitRecord({ workspace, backlogPath, now }, path, record) {
     backlogPath,
     now(),
   );
-  if (expired.length) await git(workspace, "rm", "--quiet", "--", ...expired);
+  if (expired.length)
+    await git(workspace, "rm", "--quiet", "--ignore-unmatch", "--", ...expired);
   await git(
     workspace,
     "commit",

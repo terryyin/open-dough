@@ -1,9 +1,10 @@
 // @ts-check
 // Builders of a published revision as Intent reads it: its source, work,
-// published files, Intent locations and their answer, and CI scope history
-// glance. Node-free, so makeMe.mjs and pageMakeMe.mjs expose them from these
-// definitions.
+// published files, Intent locations and their answer, CI scope history
+// glance, and a Done story's collected CI wall-time history. Node-free, so
+// makeMe.mjs and pageMakeMe.mjs expose them from these definitions.
 import { PublishedWorkBuilder } from "./comparisonViewTestData.mjs";
+import { DoneWallTimeHistoryBuilder } from "./doneWallTimeHistoryTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import {
   IntentLocationBuilder,
@@ -11,6 +12,7 @@ import {
 } from "./intentLocationTestData.mjs";
 import { PublishedFilesBuilder } from "./publishedFilesTestData.mjs";
 import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
+import { ScopeHistoryGlanceBuilder } from "./scopeHistoryGlanceTestData.mjs";
 
 /** @typedef {import("../../../dashboard/src/publishedWork.ts").WorkEntry} WorkEntry */
 
@@ -22,7 +24,8 @@ import { PublishedSourceBuilder } from "./publishedSourceTestData.mjs";
  * @property {PublishedFilesBuilder} somePublishedFiles
  * @property {IntentLocationBuilder} anIntentLocation
  * @property {IntentLocationsAnswerBuilder} anIntentLocationsAnswer
- * @property {import("./factBuilder.mjs").FactBuilder<import("../../../dashboard/src/ciScopeHistory.ts").ScopeHistoryGlance>} aScopeHistoryGlance
+ * @property {ScopeHistoryGlanceBuilder} aScopeHistoryGlance
+ * @property {DoneWallTimeHistoryBuilder} aDoneWallTimeHistory
  */
 
 class WorkEntryBuilder {
@@ -84,7 +87,13 @@ export function publishedReadingMakeMeProperties() {
     aScopeHistoryGlance: {
       enumerable: true,
       get() {
-        return { with: copyFacts };
+        return new ScopeHistoryGlanceBuilder();
+      },
+    },
+    aDoneWallTimeHistory: {
+      enumerable: true,
+      get() {
+        return new DoneWallTimeHistoryBuilder();
       },
     },
   };

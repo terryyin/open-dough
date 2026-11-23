@@ -21,7 +21,7 @@ import {
   type IntentLocations,
 } from "./authenticatedIntentRead.ts";
 import {
-  intentRecoveryOf,
+  noteFailedIntentRead,
   useIntentReadRecovery,
 } from "./intentReadRecovery.tsx";
 import { useIntentReads } from "./pageReads.tsx";
@@ -165,7 +165,7 @@ export function useIntentLocations(
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         const failed = error instanceof ReadProblem ? error : undefined;
-        recordSettled(intentRecoveryOf(failed));
+        recordSettled(noteFailedIntentRead(failed));
         setRead(({ shown }) =>
           settleFailedLocationsRead(
             keepPrevious ? shown : undefined,

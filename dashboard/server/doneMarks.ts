@@ -80,7 +80,13 @@ export class NativeDoneMarks {
     const marked = await this.captureReportedDone(sourceId, receipt);
     if (this.closed || !reportedNativeDonePending(marked, receipt)) return;
     const key = sessionKey(marked.session);
-    if (this.running.has(key)) return;
+    // A running Done of the session may still leave native Done pending, so
+    // this report resumes from the record that Done leaves.
+    const running = this.running.get(key);
+    if (running !== undefined) {
+      void running.settled.then(() => this.reported(sourceId, receipt));
+      return;
+    }
     await this.track(key, (stopped) =>
       finishNativeDone(
         sourceId,
