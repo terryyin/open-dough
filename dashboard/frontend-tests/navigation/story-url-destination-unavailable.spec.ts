@@ -1,18 +1,18 @@
 import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import type { ProjectSettingsSource } from "../../src/projectSettingsSource.ts";
+import { storyCard } from "./board-reading-page.ts";
+import { holdPublishedSnapshot } from "./board-frame-observation-supply.ts";
 import {
   coldStoryUrl,
   destination,
   doughnut,
   doughnutStory,
-  holdStorySnapshot,
   mountStoryUrl,
   openDough,
   openDoughStory,
   projectChoice,
   revealsOnPage,
-  storyCard,
   storyInAddress,
   wide,
 } from "./story-url-frame.ts";
@@ -76,7 +76,7 @@ test("a failed read leaves its identity visible and offers Retry", async () => {
 });
 
 test("a project choice supersedes the held story read without a late reveal", async () => {
-  const held = holdStorySnapshot(doughnut);
+  const held = holdPublishedSnapshot(doughnut);
   coldStoryUrl(doughnut.source.id, doughnutStory.identity);
   const reveals = revealsOnPage();
   const frame = await mountStoryUrl(wide, {

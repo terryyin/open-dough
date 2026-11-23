@@ -156,7 +156,7 @@ unchanged Vitest run. Exact commands and assertions are in Git evidence
 ### 2. Project selection and keyboard navigation keep focus and eligibility
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (8 cases).** `navigation/project-selection`,
 `navigation/project-keyboard-navigation`,
@@ -173,6 +173,28 @@ failure still names its distinct rule.
 **Proof.** Mounted frame selection covers project content, keyboard cycling,
 focus and eligibility. No built-app project-keyboard path remains for these
 titles.
+
+**Accepted assertion map.**
+
+| Retired case | Replacement observation |
+| --- | --- |
+| Project selection and ref re-ask | `project-selection` checks both projects' distinct Boards, revisions, direction, Highlight and commit-pinned source links for a shared identity, plus a fresh ref ask on return. |
+| Project selection with no direction | `project-selection` switches from a populated Board to exact empty Taken and Backlog groups, with the selected project's revision and no direction or error. |
+| Page arrows and wrap | `project-keyboard-navigation` drives both native arrow orders with exact Board, revision and address checks. |
+| Focused radio and wrap | `project-keyboard-navigation` checks one native advance at a time, including wrap and radio focus. |
+| History and roster | `project-keyboard-navigation` restores keyboard choices through Back and Forward and keeps the roster aligned on a keyboard switch. |
+| Focus and held earlier read | `project-keyboard-navigation` preserves banner focus, moves focus from departed content to the selected radio, observes the real abort and checks a late answer leaves the current Board intact. |
+| Modal, editing, native controls and prevented events | `project-keyboard-navigation` checks both arrows in the production help dialog, focused input controls, prevented arrows and normal cycling after dismissing help. |
+| Modified arrows | The same protected-keys case checks each modifier with separate failure context and confirms an unmodified arrow still selects the next project. |
+
+**Result.** Seven Vitest cases took 6.18 s with preparation versus 9.65 s for
+eight legacy cases at two workers. There was no new E2E cost. Shared identity
+and ref re-ask (1.54 s) and protected keys (1.30 s) were the slowest cases. The two
+eligibility cases share their setup while focus and the late-read race keep
+their own case. Ten affected mount checks and typecheck passed. Exact proof
+and commands are in Git evidence `slice2-return.md`. After unifying held
+snapshot and exact card setup, the final seven navigation cases took 7.11 s
+including preparation, and nine affected Story URL cases and typecheck passed.
 
 ### 3. System appearance and settings chrome follow through the frame
 

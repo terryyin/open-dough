@@ -1,25 +1,24 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { emulateMedia } from "../review/browser-session.ts";
-import { boardReading } from "./board-reading-page.ts";
+import { boardReading, storyCard } from "./board-reading-page.ts";
+import { holdPublishedSnapshot } from "./board-frame-observation-supply.ts";
 import { boardWork, longBacklog, story } from "./board-work.ts";
 import {
   coldStoryUrl,
   destination,
   doughnut,
   doughnutStory,
-  holdStorySnapshot,
   mountStoryUrl,
   openDoughStory,
   projectChoice,
   revealsOnPage,
-  storyCard,
   storyInAddress,
   wide,
 } from "./story-url-frame.ts";
 
 test("a cold story URL waits for the named project's read, then reveals and focuses its encoded story", async () => {
-  const held = holdStorySnapshot(doughnut);
+  const held = holdPublishedSnapshot(doughnut);
   coldStoryUrl(doughnut.source.id, doughnutStory.identity);
   const reveals = revealsOnPage();
   const frame = await mountStoryUrl(wide, {

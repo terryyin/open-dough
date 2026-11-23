@@ -1,175 +1,163 @@
-// Two published projects, each with its own revision and its own telling of
-// a story identity the two happen to share. Selecting a project shows only
-// that project's Board, through the same reader and presentation Open Dough
-// already used when it was the only source. The page's one selected story
-// names its project: a project that does not own it has none, even for the
-// identity they share, and selecting one of its cards moves the selection.
-
-import type { CatalogPublication } from "../../test-support/catalogProjectRecords.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { answerOnlyPublications } from "../../test-support/support/frontendCatalogProjects.ts";
-import { countProjectReads } from "../../test-support/support/frontendAuthenticatedReadControl.ts";
-import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { PublishedWork } from "../../src/publishedWork.ts";
+import { mountBoardFrame } from "./board-frame-mount.ts";
+import { boardReading as board, storyCard } from "./board-reading-page.ts";
+import { boardWork, story } from "./board-work.ts";
 import {
-  shortRevision,
-  expectMembership,
-  expectProjectChoice,
-  openDirection,
-  parts,
-  projectTab,
-} from "../../test-support/dashboardPage.ts";
-import {
-  doughnutPublication,
-  doughnutSharedTitle,
-  doughnutTakenTitle,
-  openDoughPublication,
-  openDoughSharedTitle,
-  openDoughTakenTitle,
-  sharedStoryIdentity,
-  titlesOfDoughnut,
-  titlesOfOpenDough,
-} from "../../test-support/projectSelectionProjects.ts";
-import { describedRevision } from "../../test-support/describedRevisions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  emptyArea,
-  expectSelected,
-} from "../../test-support/storyCardSelection.ts";
-import {
-  canonicalRecord,
-  inspectedDetail,
-} from "../../test-support/storyCardControls.ts";
+  projectRadio,
+  projectViewport,
+  readsDirection,
+  showsProjectBoard,
+} from "./project-navigation-frame.ts";
 
-const sharedHref = ({ repository, revision }: CatalogPublication) =>
-  `https://github.com/${repository}/blob/${revision}/.planning/seeds/SEED-777-shared.md#shared-story`;
+const identity = "SEED-777#shared-story";
+const canonicalPath = "seeds/SEED-777-shared.md#shared-story";
+const openDoughTitle = "Open Dough's telling of the shared story";
+const doughnutTitle = "Doughnut's telling of the shared story";
 
-test("project selection shows each project's own Board, and returning to a project asks its ref again", async ({
-  page,
-  frontendServices,
-}) => {
-  await answerOnlyPublications(page, frontendServices, [
-    openDoughPublication,
-    doughnutPublication,
-  ]);
-  const openDoughReads = countProjectReads(page, openDoughPublication.id);
-  const doughnutReads = countProjectReads(page, doughnutPublication.id);
-
-  await page.goto("/");
-  const { direction, readRevision } = parts(page);
-  const body = page.locator("body");
-  const card = (title: string) =>
-    page.getByRole("article", { name: title, exact: true });
-
-  await test.step("Open Dough is the default selection, and Doughnut is not read", async () => {
-    await expect(projectTab(page, "Open Dough")).toBeChecked();
-    await expectMembership(page, titlesOfOpenDough);
-    await openDirection(page);
-    await expect(direction).toContainText(
-      "Show Open Dough's own published direction",
-    );
-    await expectProjectChoice(page, "Open Dough");
-    await expect(readRevision).toContainText(
-      shortRevision(openDoughPublication.revision),
-    );
-    await untilPageReadsAnswered(page);
-    expect(openDoughReads()).toBeGreaterThan(0);
-    expect(doughnutReads()).toBe(0);
-    await emptyArea(card(openDoughSharedTitle)).click();
-    await expectSelected(card(openDoughSharedTitle), true);
+function projectWithSharedStory({
+  id,
+  label,
+  repository,
+  revision,
+  title,
+  number,
+}: {
+  id: string;
+  label: string;
+  repository: string;
+  revision: string;
+  title: string;
+  number: number;
+}) {
+  const source = makeMe.aPublishedSource
+    .with({ id, label, repository })
+    .please();
+  const shared = story(title, 777, {
+    identity,
+    canonical: {
+      kind: "snapshot",
+      recorded: canonicalPath,
+      revision,
+      url: `https://github.com/${repository}/blob/${revision}/.planning/${canonicalPath}`,
+    },
   });
-
-  const openDoughOpening = openDoughReads();
-
-  await test.step("selecting Doughnut shows only Doughnut's Board; Open Dough is not read again", async () => {
-    await projectTab(page, "Doughnut").check();
-    await expectMembership(page, titlesOfDoughnut);
-    await openDirection(page);
-    await expect(direction).toContainText(
-      "Show Doughnut's own published direction",
-    );
-    await expectProjectChoice(page, "Doughnut");
-    await expect(readRevision).toContainText(
-      shortRevision(doughnutPublication.revision),
-    );
-    await expect(body).not.toContainText(openDoughTakenTitle);
-    await expect(body).not.toContainText(openDoughSharedTitle);
-    await untilPageReadsAnswered(page);
-    expect(doughnutReads()).toBeGreaterThan(0);
-    expect(openDoughReads()).toBe(openDoughOpening);
-    // Open Dough owns the selection, so Doughnut's telling has none.
-    await expectSelected(card(doughnutSharedTitle), false);
+  return boardWork([shared, story(`${label}'s own queued story`, number)], {
+    source,
+    revision,
+    taken: [story(`${label}'s own taken story`, number + 10)],
+    direction: `Show ${label}'s own published direction.`,
   });
+}
 
-  await test.step("the shared story identity is Doughnut's own entry, linked into Doughnut's snapshot", async () => {
-    const sharedCard = card(doughnutSharedTitle);
-    await emptyArea(sharedCard).click();
-    await expectSelected(sharedCard, true);
-    const detail = await inspectedDetail(sharedCard);
-    await expect(sharedCard).toContainText(sharedStoryIdentity);
-    await expect(canonicalRecord(detail)).toHaveAttribute(
-      "href",
-      sharedHref(doughnutPublication),
-    );
-  });
-
-  await test.step("returning to Open Dough shows its Board again, read afresh", async () => {
-    await projectTab(page, "Open Dough").check();
-    await expectMembership(page, titlesOfOpenDough);
-    await openDirection(page);
-    await expect(direction).toContainText(
-      "Show Open Dough's own published direction",
-    );
-    await expect(readRevision).toContainText(
-      shortRevision(openDoughPublication.revision),
-    );
-    await expect(body).not.toContainText(doughnutSharedTitle);
-    await expect(body).not.toContainText(doughnutTakenTitle);
-    // A fresh observation, not a replay: Open Dough is asked again.
-    await expect.poll(openDoughReads).toBeGreaterThan(openDoughOpening);
-    // Selecting Doughnut's card moved the page's one selection there.
-    await expectSelected(card(openDoughSharedTitle), false);
-    const detail = await inspectedDetail(card(openDoughSharedTitle));
-    await expect(canonicalRecord(detail)).toHaveAttribute(
-      "href",
-      sharedHref(openDoughPublication),
-    );
-  });
+const openDough = projectWithSharedStory({
+  id: "open-dough",
+  label: "Open Dough",
+  repository: "terryyin/open-dough",
+  revision: "d0".repeat(20),
+  title: openDoughTitle,
+  number: 301,
+});
+const doughnut = projectWithSharedStory({
+  id: "doughnut",
+  label: "Doughnut",
+  repository: "nerds-odd-e/doughnut",
+  revision: "9f".repeat(20),
+  title: doughnutTitle,
+  number: 302,
 });
 
-test("project selection preserves empty Taken/Backlog groups and no-direction handling for the newly selected project", async ({
-  page,
-  frontendServices,
-}) => {
-  // Doughnut publishes nothing in its backlog at its own revision.
-  await answerOnlyPublications(page, frontendServices, [
-    openDoughPublication,
+async function showsOwnCanonicalRecord(work: PublishedWork, title: string) {
+  const card = storyCard(title);
+  await card
+    .getByRole("button", { name: "Inspect story", exact: true })
+    .click();
+  const link = card
+    .getByRole("region", { name: `Detail for ${title}` })
+    .getByRole("link", { name: /^Canonical record/ });
+  await expect
+    .element(link)
+    .toHaveAttribute(
+      "href",
+      `https://github.com/${work.source.repository}/blob/${work.revision}/.planning/${canonicalPath}`,
+    );
+  await expect.element(card.getByText(identity, { exact: true })).toBeVisible();
+}
+
+test("choosing a project shows its own Board, keeps shared identities separate, and re-asks the ref on return", async () => {
+  const frame = await mountBoardFrame(
+    openDough,
+    projectViewport,
+    "stories",
+    {},
     {
-      ...doughnutPublication,
-      ...describedRevision(
-        makeMe.aRepository.please(),
-        doughnutPublication.revision,
-      ),
+      otherWork: [doughnut],
     },
+  );
+  const openCard = storyCard(openDoughTitle);
+  const doughnutCard = storyCard(doughnutTitle);
+  await showsProjectBoard(openDough);
+  await readsDirection(openDough.direction);
+  expect(frame.snapshotAsks).toEqual([
+    { sourceId: "open-dough", revision: undefined },
   ]);
-  await page.goto("/");
-  await expectMembership(page, titlesOfOpenDough);
-  const { backlog, taken, direction, readRevision } = parts(page);
+  await openCard.getByRole("heading", { name: openDoughTitle }).click();
+  await board.expectStorySelection(openCard, true);
 
-  await projectTab(page, "Doughnut").check();
+  await projectRadio("Doughnut").click();
+  await showsProjectBoard(doughnut);
+  await readsDirection(doughnut.direction);
+  await board.expectStorySelection(doughnutCard, false);
+  expect(frame.snapshotAsks).toEqual([
+    { sourceId: "open-dough", revision: undefined },
+    { sourceId: "doughnut", revision: undefined },
+  ]);
+  await doughnutCard.getByRole("heading", { name: doughnutTitle }).click();
+  await board.expectStorySelection(doughnutCard, true);
+  await showsOwnCanonicalRecord(doughnut, doughnutTitle);
 
-  await expect(taken).toContainText("No Taken entries are recorded.");
-  await expect(taken).toContainText("0 entries");
-  await expect(backlog).toContainText("No Backlog entries are recorded.");
-  await expect(backlog).toContainText("0 entries");
-  await openDirection(page);
-  await expect(direction).toContainText(
-    "No near-future direction is recorded.",
+  await projectRadio("Open Dough").click();
+  await showsProjectBoard(openDough);
+  await readsDirection(openDough.direction);
+  await board.expectStorySelection(openCard, false);
+  await showsOwnCanonicalRecord(openDough, openDoughTitle);
+  expect(frame.snapshotAsks).toEqual([
+    { sourceId: "open-dough", revision: undefined },
+    { sourceId: "doughnut", revision: undefined },
+    { sourceId: "open-dough", revision: undefined },
+  ]);
+});
+
+test("choosing an empty project announces both empty columns and no near-future direction", async () => {
+  const empty = makeMe.aPublishedWork
+    .of(doughnut.source)
+    .at(doughnut.revision)
+    .please();
+  await mountBoardFrame(
+    openDough,
+    projectViewport,
+    "stories",
+    {},
+    {
+      otherWork: [empty],
+    },
   );
-  await expectProjectChoice(page, "Doughnut");
-  await expect(readRevision).toContainText(
-    shortRevision(doughnutPublication.revision),
-  );
-  await expect(page.getByRole("alert")).toHaveCount(0);
-  await expect(page.locator("body")).not.toContainText(openDoughSharedTitle);
-  await expect(page.locator("body")).not.toContainText(openDoughTakenTitle);
+  await showsProjectBoard(openDough);
+  await projectRadio("Doughnut").click();
+  await showsProjectBoard(empty);
+  for (const column of ["Taken", "Backlog"] as const) {
+    const region = board.column(column);
+    await expect
+      .element(
+        region.getByText(`No ${column} entries are recorded.`, { exact: true }),
+      )
+      .toBeVisible();
+    await expect
+      .element(region.getByText("0 entries", { exact: true }))
+      .toBeVisible();
+  }
+  await readsDirection("No near-future direction is recorded.");
+  await expect.element(page.getByRole("alert")).not.toBeInTheDocument();
 });

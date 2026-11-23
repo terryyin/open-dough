@@ -4,12 +4,11 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { destinationCueMs } from "../../src/destinationCue.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { reviewSourceAnswering } from "../review/story-review-panel-page.ts";
-import { boardReading } from "./board-reading-page.ts";
+import { boardReading, storyCard } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 import {
   coldStoryUrl,
   mountStoryUrl,
-  storyCard,
   storyInAddress,
 } from "./story-url-frame.ts";
 

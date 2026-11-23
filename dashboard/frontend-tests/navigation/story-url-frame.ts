@@ -1,6 +1,5 @@
 import { expect, onTestFinished, vi } from "vitest";
 import { page } from "vitest/browser";
-import type { PublishedWork } from "../../src/publishedWork.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import {
   mountBoardFrame,
@@ -33,8 +32,6 @@ export const wide = { width: 1440, height: 900 };
 export const destination = page.getByRole("region", {
   name: "Story destination",
 });
-export const storyCard = (title: string) =>
-  page.getByRole("article", { name: title, exact: true });
 export const projectChoice = (label: string) =>
   page.getByRole("radio", { name: label, exact: true });
 export const storyInAddress = () =>
@@ -56,18 +53,6 @@ export function revealsOnPage() {
         behavior: typeof options === "object" ? options.behavior : undefined,
       };
     });
-}
-
-export function holdStorySnapshot(work: PublishedWork) {
-  let answer: (work: PublishedWork) => void = () => {};
-  const snapshot = new Promise<PublishedWork>((resolve) => {
-    answer = resolve;
-  });
-  const release = () => {
-    answer(work);
-  };
-  onTestFinished(release);
-  return { snapshot, release };
 }
 
 export function coldStoryUrl(project: string, identity: string) {

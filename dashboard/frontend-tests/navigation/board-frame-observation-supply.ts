@@ -1,4 +1,5 @@
 // Typed observation and machine replies for Board frame ConfiguredDashboard mounts.
+import { onTestFinished } from "vitest";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { AcceptanceAnswer } from "../../src/agentLaunchClient.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
@@ -25,6 +26,24 @@ export {
   forceRevisionStreamDelivery,
 } from "./board-frame-fixture-text.ts";
 
+type SnapshotAnswer =
+  | PublishedWork
+  | Promise<PublishedWork>
+  | Error
+  | ((signal: AbortSignal) => Promise<PublishedWork>);
+
+export function holdPublishedSnapshot(work: PublishedWork) {
+  let answer: (work: PublishedWork) => void = () => {};
+  const snapshot = new Promise<PublishedWork>((resolve) => {
+    answer = resolve;
+  });
+  const release = () => {
+    answer(work);
+  };
+  onTestFinished(release);
+  return { snapshot, release };
+}
+
 export type BoardFrameObservation = {
   readonly observation: PublishedObservationReadSource;
   readonly machine: MachineReadSource;
@@ -33,9 +52,7 @@ export type BoardFrameObservation = {
     readonly revision: string | undefined;
   }[];
   readonly detailPaths: string[];
-  readonly queueSnapshot: (
-    work: PublishedWork | Promise<PublishedWork> | Error,
-  ) => void;
+  readonly queueSnapshot: (work: SnapshotAnswer) => void;
   readonly revisionChanged: (revision: string) => void;
   readonly revisionCheckFailed: (error: Error) => void;
   readonly subscriptionCount: () => number;
@@ -56,7 +73,7 @@ export function boardFrameObservationSupplying(
   } = {},
 ): BoardFrameObservation {
   const bySource = new Map(snapshots.map((work) => [work.source.id, work]));
-  const queued: (PublishedWork | Promise<PublishedWork> | Error)[] = [];
+  const queued: SnapshotAnswer[] = [];
   if (initialSnapshot !== undefined) queued.push(initialSnapshot);
   const snapshotAsks: BoardFrameObservation["snapshotAsks"] = [];
   const detailPaths: string[] = [];
@@ -65,6 +82,7 @@ export function boardFrameObservationSupplying(
 
   const resolveSnapshot = async (
     sourceId: string,
+    signal: AbortSignal,
     knownRevision: string | undefined,
   ): Promise<{ revision: string; backlog: string }> => {
     snapshotAsks.push({ sourceId, revision: knownRevision });
@@ -74,7 +92,7 @@ export function boardFrameObservationSupplying(
         throw new Error(`Queued snapshot for ${sourceId} vanished.`);
       }
       if (next instanceof Error) throw next;
-      const work = await next;
+      const work = await (typeof next === "function" ? next(signal) : next);
       bySource.set(work.source.id, work);
       return {
         revision: work.revision,
@@ -95,8 +113,8 @@ export function boardFrameObservationSupplying(
 
   const observation: PublishedObservationReadSource = {
     ...unread,
-    readSnapshot: (...[source, , knownRevision]) =>
-      resolveSnapshot(source.id, knownRevision),
+    readSnapshot: (...[source, signal, knownRevision]) =>
+      resolveSnapshot(source.id, signal, knownRevision),
     readDetailFile: (...[, path]) => {
       detailPaths.push(path);
       for (const work of bySource.values()) {

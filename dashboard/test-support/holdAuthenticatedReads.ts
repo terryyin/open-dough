@@ -1,30 +1,10 @@
-// Holds authenticated reads matching a query until release or failure, for
-// Intent journeys that observe a read still in flight
-// (`../frontend-tests/intent/intent-summary-story-comparison-file.spec.ts`), and
-// of one project's reads for navigation journeys
-// (`../frontend-tests/navigation/project-keyboard-navigation-focus.spec.ts`,
-// `../frontend-tests/navigation/story-url-destination.spec.ts`,
-// `./support/frontendStoryReferenceRecovery.ts`). Its route pattern also
-// serves journeys that observe Session details' reads
-// (`./support/historicalCreditReads.ts`).
+// Holds matching authenticated reads for journeys that observe an in-flight
+// request. The route pattern also serves Session details read observations.
 
 import type { Page, Route } from "@playwright/test";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 
 export const authenticatedReadRoute = `**${authenticatedReadEndpoint}?*`;
-
-// Holds the page's reads of project `source` until the returned release.
-export function holdProjectReads(
-  page: Page,
-  source: string,
-  releases: (() => void)[],
-) {
-  return holdAuthenticatedReadsWhere(
-    page,
-    (params) => params.get("source") === source,
-    releases,
-  );
-}
 
 // Holds the page's authenticated reads whose query matches `which`. `release`
 // lets the held reads be answered; `fail` ends them as an unreachable
