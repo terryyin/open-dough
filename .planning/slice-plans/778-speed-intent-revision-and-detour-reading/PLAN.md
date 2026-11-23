@@ -242,7 +242,7 @@ name, like the Files column.
 ### 5. Recent stories restores or changes the story in Intent
 
 Type: Behavior
-Status: planned
+Status: done
 
 Render the production banner in the existing page mount for this
 journey, inside the real story reference and selection providers. Render
@@ -259,6 +259,15 @@ readable story start, focused perspective and empty notice. The existing
 itself. Add the real-page perspective URL assertion to the
 `e2e/intent/intent-project-visit-ci.spec.ts` visit, with a Recent stories
 return action, before removing the legacy case.
+
+**Delivered.** `mountIntentCiPage` renders the production `DashboardBanner`
+and story-reference notice inside `StoryReferenceNavigation`, as
+`ConfiguredDashboard` composes them, with an isolated kept Recent stories
+preference. Three mounted cases replace the legacy case; the readable start
+uses production `startIsReadable`. The E2E visit asserts `perspective=intent`
+after a Recent stories return through
+`returnFromProjectIntentWithRecentStories`. `recentStoriesIntentPage.ts` lost
+its last consumer and was removed. That URL assertion has no break check.
 
 ### 6. A typed Candidates reply establishes the standing limit in the recovery case
 

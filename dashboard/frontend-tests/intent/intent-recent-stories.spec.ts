@@ -1,29 +1,78 @@
-// Recent stories in Intent (../../src/recentStoriesControl.tsx): return from
-// Project Intent, choose another row while Intent stays, and select an
-// unavailable Board story with nothing new added.
-import { test } from "../../test-support/support/frontendApp.ts";
+// Recent stories in Intent (../../src/recentStoriesControl.tsx), on the
+// banner of the production page: from Project Intent the button returns to
+// the selected story's view at its start, a remembered row selects another
+// story while Intent stays, and a remembered story no longer on the Board is
+// selected with no story reference notice added. The URL's perspective on
+// return: ../../../e2e/intent/intent-project-visit-ci.spec.ts. The history
+// kept across reloads: ../navigation/recent-stories.spec.ts.
+
+import { expect, test } from "vitest";
+import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import {
-  chooseStoryBWhileInIntent,
-  chooseUnavailableInIntent,
-  openTakenStoryInIntent,
-  returnFromProjectIntentThenList,
-} from "../../test-support/recentStoriesIntentPage.ts";
+  failingStory,
+  inertCiReads,
+  openDoughSource,
+  runningStory,
+  storiesTakenWork,
+} from "./intent-ci-status-fixtures.ts";
+import { intentRecentStories } from "./intent-recent-stories-page.ts";
 
-test("Recent stories reveal the story view in Intent and keep the perspective when choosing a row", async ({
-  page,
-  frontendServices,
-}) => {
-  const { card, intent } = await openTakenStoryInIntent(page, frontendServices);
+const intentReads = {
+  intent: {
+    readLocations: () =>
+      Promise.resolve({ status: "configured" as const, locations: [] }),
+    readFile: () => Promise.reject(new Error("Unexpected file read")),
+    readCandidates: () => Promise.resolve({ status: "absent" as const }),
+  },
+  ci: inertCiReads(),
+};
+const recent = intentRecentStories(openDoughSource);
 
-  await test.step("with A selected and Project Intent chosen, the button shows A's story view from its start; a second click opens the list", async () => {
-    await returnFromProjectIntentThenList(page, intent);
+test("Recent stories return from Project Intent to the selected story's start", async () => {
+  const mounted = await mountIntentCiPage({
+    work: storiesTakenWork,
+    reads: intentReads,
   });
+  await mounted.selectStory(failingStory.identity, failingStory.title);
+  await recent.openProjectIntent();
 
-  await test.step("choosing B's row keeps Intent and shows B's story view from its start", async () => {
-    await chooseStoryBWhileInIntent(page, intent, card);
-  });
+  await recent.choose();
+  await recent.showsStoryFromStart(failingStory.identity);
+  await recent.lists([{ identity: failingStory.identity, checked: true }]);
+});
 
-  await test.step("choosing a row whose story is no longer on the Board selects it with nothing new added", async () => {
-    await chooseUnavailableInIntent(page, intent);
+test("choosing another remembered story in Intent shows its start while Intent stays", async () => {
+  const mounted = await mountIntentCiPage({
+    work: storiesTakenWork,
+    reads: intentReads,
   });
+  await mounted.selectStory(runningStory.identity, runningStory.title);
+  await mounted.selectStory(failingStory.identity, failingStory.title);
+  await recent.lists([
+    { identity: failingStory.identity, checked: true },
+    { identity: runningStory.identity, checked: false },
+  ]);
+
+  await recent.chooseRow(runningStory.identity);
+  await recent.showsStoryFromStart(runningStory.identity);
+  await recent.isLabelled(runningStory.identity);
+});
+
+test("a remembered story no longer on the Board is selected in Intent with no story reference notice", async () => {
+  const gone = "GONE-1#nope";
+  await mountIntentCiPage({
+    work: storiesTakenWork,
+    reads: intentReads,
+    recentStories: [
+      { project: openDoughSource.id, identity: gone },
+      { project: openDoughSource.id, identity: failingStory.identity },
+    ],
+  });
+  await recent.isLabelled(undefined);
+
+  await recent.chooseRow(gone);
+  await recent.selects(gone);
+  await recent.isLabelled(gone);
+  await recent.intentStays();
+  expect(recent.noticeText()).toBe("");
 });
