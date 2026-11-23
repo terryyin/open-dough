@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "9e049626-1e5a-4398-bf6f-d1e4a05e9d61",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T13:08:49.006Z",
+  "story": "SEED-423#derive-the-install-payload-from-the-shipped-directory",
+  "ranges": [
+    {
+      "base": "1bea3f555148f13ed5a12906fe73dea3ea47df31",
+      "candidate": "1c7207738116a7a63b18193a5b4585041a19eec5"
+    }
+  ]
+}
