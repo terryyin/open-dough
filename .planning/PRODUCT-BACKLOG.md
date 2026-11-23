@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/780-finish-launch-proof-orthogonal/PLAN.md))
 - [Install only scripts that guidance, hooks or the Dashboard reach](seeds/SEED-423-shrink-the-installed-distribution.md#remove-unreached-distribution-code) — SEED-423#remove-unreached-distribution-code ([plan](slice-plans/779-remove-unreached-distribution-code/PLAN.md))
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#open-review-changes-from-a-story-card) — SEED-420#open-review-changes-from-a-story-card ([plan](slice-plans/777-open-review-changes-from-a-story-card/PLAN.md))
-- [Correct the proof residue of Intent revision reading and detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-revision-detour-proof-residue) — SEED-413#correct-revision-detour-proof-residue ([plan](slice-plans/781-correct-revision-detour-proof-residue/PLAN.md))
 
 ## Backlog list
 
