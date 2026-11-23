@@ -56,3 +56,9 @@ The worker brief went from 180 to 179 lines and 11,052 to 11,013 bytes. The repr
 Independent post-change review found no refactor candidates or invalidated proof. The ODF-329 evaluation is a coordinator records-only edit.
 
 ## Story obligations
+
+## Execution complete
+
+Product advice: No backlog change. The controlled replay supports retaining the shorter brief for projects with suitable read-only lint. Real slice frequency and total savings remain unmeasured. Lint effects in unchanged consumers remain with ODF-529.
+
+The retrospective traced the accepted product change to `ffed8fb1b` and the Take to `67f8d37bf`. The deletion observes the source's scoped lint, clean, refactor and no-command examples through the existing proof and delivery contracts. It made no architectural or test-boundary changes and added no tracked test. The focused browser cases check rendered terminal interactions that can run with a substituted socket. The controlled guard replay directly uses the commit boundary. There is no correction or coverage follow-up. The process review recorded the startup truncation in [ODF-264](../../../DearDough.md#odf-264). Branch CI remained pending at review.

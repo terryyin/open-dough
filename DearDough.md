@@ -51,6 +51,10 @@ Former local code: DD-128. [Meaning, evidence and response](docs/maintainer/find
 
 [Meaning, evidence and response](docs/maintainer/findings/ODF-264.md).
 
+### Occurrences
+
+- Execution: SEED-345#catch-delegated-lint-before-delivery (plan 786, first implementation `ffed8fb1b`). Timestamp: unknown (startup on 2026-11-23 +08:00). Tool: Codex. Open Dough release: 0.3.111 (installed guidance at Take `67f8d37bf`). Evidence: the initial parallel read of skill-authoring guidance, ODF-329 and execution references returned 28,521 tokens before truncation. Targeted follow-up reads recovered the delegation, source-review and obligation passages. Observed effect: the combined return hid required context and was followed by narrower reads. Inference: retrieving only the relevant finding section and the passages needed at each boundary would reduce that rereading. Token and time savings were unmeasured.
+
 ## ODF-205 — Execution starts on a red trunk unannounced <a id="odf-205"></a>
 
 - SEED-381#fixed-pattern-shards-for-the-distribution-suite (plan 654; first implementation `f8cb342e63ac25064fe6f3e54d8af8b8f164b5db`)
