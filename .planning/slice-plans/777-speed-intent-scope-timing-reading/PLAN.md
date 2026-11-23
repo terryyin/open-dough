@@ -260,7 +260,7 @@ Later slices open a Done scope history through `openDoneScopeHistory` and
 ### 5. Case and file units and segments chart separately
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-scope-timing-history-units` (2 cases) and
 `intent-scope-timing-history-segments` (1 case).
@@ -273,6 +273,12 @@ beside a selected gap, and the line never joins incompatible segments.
 **Proof.** The two moved files pass on Vitest. A scratch change that joins
 segments across a `segment` change makes the segments case fail. Delete
 the legacy files.
+
+**Accepted proof.** The two moved specs pass on Vitest (3 cases). A line
+joined across a `segment` change failed the segments case. Charting case
+readings for every unit failed the units case at its Test files chart. The
+17 specs using the scope history page object and typecheck passed. The
+chart reader gained `markNames()`, `builds()` and `line()`.
 
 ### 6. Done history chart marks read by pointer, keyboard and touch
 

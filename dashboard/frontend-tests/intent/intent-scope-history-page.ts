@@ -50,15 +50,27 @@ function chartIn(
     if (node === undefined) throw new Error("Chart part not drawn");
     return centreOf(node).y;
   };
+  const markButtons = () => [...(box()?.querySelectorAll("button") ?? [])];
   const markNamed = (readout: string) =>
-    [...(box()?.querySelectorAll("button") ?? [])].find(
-      (mark) => mark.getAttribute("aria-label") === readout,
-    );
+    markButtons().find((mark) => mark.getAttribute("aria-label") === readout);
   const readoutElement = () =>
     box()?.querySelector(".history-chart-readout") ?? null;
   return {
     drawn: () => readoutElement() !== null,
-    marks: () => box()?.querySelectorAll("button").length ?? 0,
+    marks: () => markButtons().length,
+    // Each mark's name: its date, timing and build role.
+    markNames: () =>
+      markButtons().map((mark) => mark.getAttribute("aria-label")),
+    // How many builds are drawn measured, as the selected point, or hollow
+    // for no timing.
+    builds: () => ({
+      measured: within(":is(circle, polygon).history-chart-point").length,
+      selected: within("path.history-chart-point").length,
+      unavailable: within(".history-chart-unavailable").length,
+    }),
+    // The line's strokes; each "M" starts a stroke not joined to the last.
+    line: () =>
+      within(".history-chart-line")[0]?.getAttribute("d") ?? undefined,
     // Each drawn part's title: a mark's date, timing, unit and build role.
     titles: () => within("title").map((node) => node.textContent),
     readout: () => {
