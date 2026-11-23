@@ -267,6 +267,20 @@ The two ad hoc operations are typed as callback properties to match
 their existing receiver-free closures. The declaration change
 preserves the accepted runtime proof.
 
+**Launch attachments.** The same StartSession opens through its
+existing autoOpen input at the default viewport. Tests still use
+browser paste, the real file input, native Start, Cancel and Escape,
+and the real launcher when reopening. They observe the exact accepted
+names, refusal words, draft, emitted host and default policy, and no
+upload from either dismissal. The image-paste end-to-end owner passed
+on the unchanged runtime in GitHub run `45108770652`.
+
+The four exact Chromium titles passed in 6.36 s before and 5.27 s
+after. Starting host load fell from 19.73 to 17.33. Every individual
+case was shorter. The scope was the attachment spec, with the whole
+timing decision still open. Commands, title roster and source
+observations are in `open-dough/evidence/attachment-slice.85r6izym/report.md`.
+
 ## Timing evidence and decisions
 
 - The [seed evidence](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
@@ -412,7 +426,7 @@ consumer of the changed mount. If `StartSession` handoff changes, reuse
 ### 7. The dialog keeps accepted attachments and discards them on dismissal
 
 Type: Behavior
-Status: planned
+Status: done
 
 Use the existing launch dialog and its attachment controls with the typed
 options/submit collaborators they already take. Move only observations they

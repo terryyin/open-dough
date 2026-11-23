@@ -15,18 +15,18 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 07 | A refused unattached startup attempt is shown on the project-actions row. (Scope and unattached-startup example) | slice 6 | observed: ad-hoc-start-session-answer.spec.ts observes the typed refusal words and stable row bounds across native touch opening, dismissal and rotation |
 | 08 | A blank keyboard start presents the terminal. (Unattached-startup example) | slice 6 | observed: responsive-unattached-startup.spec.ts uses native Enter and observes one presentation of the settled blank session with takesKeyboard false and the other task focused |
 | 09 | A keyboard start with an instruction leaves the terminal closed. (Unattached-startup example) | slice 6 | observed: responsive-unattached-startup.spec.ts checks the exact instructed request, progress handoff and zero terminal presentations through settlement while the other task stays focused |
-| 10 | The existing image-paste observation stays with its owning dialog and attachment control. (Scope) | slice 7 | |
-| 11 | Pasting text extends the instruction. (Attachment example) | slice 7 | |
-| 12 | Pasting text attaches no image. (Attachment example) | slice 7 | |
-| 13 | Attachment refusal explains why the input was refused. (Attachment example) | slice 7 | |
-| 14 | Attachment refusal preserves already accepted images. (Attachment example) | slice 7 | |
-| 15 | Attachment refusal preserves the instruction draft. (Attachment example) | slice 7 | |
-| 16 | Cancel discards the instruction draft. (Attachment example) | slice 7 | |
-| 17 | Cancel discards attachments. (Attachment example) | slice 7 | |
-| 18 | Cancel triggers no upload. (Attachment example) | slice 7 | |
-| 19 | Escape discards the instruction draft. (Attachment example) | slice 7 | |
-| 20 | Escape discards attachments. (Attachment example) | slice 7 | |
-| 21 | Escape triggers no upload. (Attachment example) | slice 7 | |
+| 10 | The existing image-paste observation stays with its owning dialog and attachment control. (Scope) | slice 7 | observed: agent-launch-ad-hoc-attachments.spec.ts pastes an image into the real instruction and observes pasted.png plus the sent and copied path, all three cases passed in CI 45108770652 |
+| 11 | Pasting text extends the instruction. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts uses native clipboard paste and observes the pasted text appended to its existing instruction value |
+| 12 | Pasting text attaches no image. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts checks there is no Attached images list after the native text paste |
+| 13 | Attachment refusal explains why the input was refused. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts observes the exact invalid MIME type, 10 MB and five-image-limit refusal words from the real file control |
+| 14 | Attachment refusal preserves already accepted images. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts observes card.png and only the accepted previews after refusals, then exact five names in the typed Start request |
+| 15 | Attachment refusal preserves the instruction draft. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts observes the retained draft after each rejection and the same instruction in the typed Start request |
+| 16 | Cancel discards the instruction draft. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts clicks native Cancel and reopens through the actual Start session launcher, then observes an empty instruction |
+| 17 | Cancel discards attachments. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts observes the accepted preview before native Cancel and no attachment list after the real reopen |
+| 18 | Cancel triggers no upload. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts observes no Start callback and no attachment endpoint fetch after native Cancel |
+| 19 | Escape discards the instruction draft. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts dismisses with native Escape and reopens through the actual launcher, then observes an empty instruction |
+| 20 | Escape discards attachments. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts observes the accepted preview before native Escape and no attachment list after the real reopen |
+| 21 | Escape triggers no upload. (Attachment example) | slice 7 | observed: launch-attachments.spec.ts observes no Start callback and no attachment endpoint fetch after native Escape |
 | 22 | The model label on the card follows the launch subject for that session. (Scope and recorded-launch example) | slice 8 | |
 | 23 | The model label in the sidebar follows the launch subject for that session. (Scope and recorded-launch example) | slice 8 | |
 | 24 | Session details show the launch subject’s recorded effort when present. (Scope and recorded-launch example) | slice 8 | |
