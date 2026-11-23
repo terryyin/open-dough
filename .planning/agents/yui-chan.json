@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-341#keep-attention-completion-journey-within-timeout",
+  "mode": "story-branch",
+  "branch": "codex/keep-the-attention-completion-journey-within-its",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
