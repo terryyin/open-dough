@@ -150,7 +150,7 @@ evidence directory with `slice-a-return.md`.
 ### 2. Bind a CI reading to its comparison
 
 Type: Structure
-Status: planned
+Status: done
 Estimated active work: 8–12 minutes.
 
 Extend the typed client and reading owner for slice 3. Identify and validate
@@ -170,6 +170,15 @@ Proof. Use the client wire-validation spec and a typed delayed-read case at
 observe that the old result cannot populate the new selection. Exercise
 Check again and returning to default. Keep the current mounted default
 lifecycle and strict-mode checks green.
+
+Accepted proof covers authenticated source, story and range validation, a
+held answer released after changing ranges, Check again, restoration of the
+default answer, and the actual measured numeric and adapter attempts.
+The 42 backend and 153 mounted Chromium cases, the default and Taken
+adapter E2E journeys, and dashboard typecheck passed. See
+`slice-b-return.md` and its run records in this checkout's Git evidence
+directory. The provider takes an optional `selectedRange` and exposes
+`selectedComparison` alongside its whole-story reading.
 
 ### 3. Name the measured builds for a captured landed run
 
@@ -314,6 +323,8 @@ routes. The review identified no remaining slice-specific concern.
   `4402f50fd76ef8394a948605a293fa05961cf1c2` was accepted on `origin/main`
   and published to the execution branch. The authorized trunk is
   `origin/main`. Use the existing authority for in-plan refinement.
+- Slice 1 was accepted on the execution branch at
+  `29cd3167dc1e598ad77c8669a2f1673dd73c8320`.
 - Codex observer of `ci.yml` on the execution branch, coordinator
   `nao-9b9c27ea`, directory `/tmp/dough-ci-501/watch-dv7wpQ`, process
   `33667`, cell `g458:11`, session `61453`. The claim preceded this observer.

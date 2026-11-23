@@ -11,7 +11,10 @@
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import type { SelectedCiComparisonAnswer } from "../src/selectedCiComparison.ts";
+import {
+  selectedCiComparisonKey,
+  type SelectedCiComparisonAnswer,
+} from "../src/selectedCiComparison.ts";
 import {
   ciComparisonAnswerKey,
   keptCiComparisonAnswer,
@@ -72,15 +75,7 @@ export function ciComparisonReader(
   ): Promise<Outcome> => {
     const { identity, range } = read;
     if (range !== undefined) {
-      const key = JSON.stringify([
-        source.id,
-        source.repository.toLowerCase(),
-        source.ref,
-        source.backlogPath,
-        identity,
-        range.start,
-        range.end,
-      ]);
+      const key = selectedCiComparisonKey(source, identity, range);
       const kept = selected.get(key);
       if (kept !== undefined) return answered(kept);
       const answer = await performSelectedComparison(

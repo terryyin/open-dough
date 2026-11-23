@@ -1,12 +1,18 @@
-// Disposable reading state for one selected story. The authenticated reader
+// Disposable reading state for one story or revision pair. The authenticated reader
 // and server still own response validation, comparison rules and final memory.
-import type { readIntentCiComparison } from "./authenticatedIntentCiComparisonRead.ts";
+import type {
+  readIntentCiComparison,
+  readSelectedIntentCiComparison,
+} from "./authenticatedIntentCiComparisonRead.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
+import {
+  selectedCiComparisonKey,
+  type CiComparisonRange,
+} from "./selectedCiComparison.ts";
 
-export type ComparisonReadState = {
+export type ComparisonReadState<Answer> = {
   readonly key: string | undefined;
-  readonly shown: StoryCiComparisonAnswer | undefined;
+  readonly shown: Answer | undefined;
   readonly reading: boolean;
   readonly failed: string | undefined;
   readonly checkedAgain: number;
@@ -17,17 +23,27 @@ export const comparisonReadingKey = (
   identity: string | undefined,
 ) => (identity === undefined ? undefined : `${source.id}#${identity}`);
 
-export function createCiComparisonReading(
-  readComparison: typeof readIntentCiComparison,
+type StoryRequest = {
+  readonly identity: string;
+  readonly head?: string | undefined;
+};
+type SelectedRequest = StoryRequest & { readonly range: CiComparisonRange };
+
+function createComparisonReading<Request extends StoryRequest, Answer>(
+  readComparison: (
+    source: PublishedSource,
+    target: Request,
+    signal: AbortSignal,
+  ) => Promise<Answer>,
+  keyOf: (source: PublishedSource, target: Request) => string | undefined,
 ) {
   let selected:
     | {
         source: PublishedSource;
-        identity: string | undefined;
-        head: string | undefined;
+        target: Request | undefined;
       }
     | undefined;
-  let state: ComparisonReadState = {
+  let state: ComparisonReadState<Answer> = {
     key: undefined,
     shown: undefined,
     reading: true,
@@ -38,19 +54,19 @@ export function createCiComparisonReading(
   let controller: AbortController | undefined;
   let active = false;
   const listeners = new Set<() => void>();
-  const publish = (next: ComparisonReadState) => {
+  const publish = (next: ComparisonReadState<Answer>) => {
     state = next;
     for (const listener of listeners) listener();
   };
   const read = () => {
     controller?.abort();
     const current = selected;
-    if (current?.identity === undefined) return;
+    if (current?.target === undefined) return;
     const request = new AbortController();
     controller = request;
     const round = askedAgain;
     publish({ ...state, reading: true, failed: undefined });
-    return readComparison(current.source, current.identity, request.signal)
+    return readComparison(current.source, current.target, request.signal)
       .then((shown) => {
         if (request.signal.aborted) return;
         publish({ ...state, shown, checkedAgain: round, reading: false });
@@ -76,21 +92,18 @@ export function createCiComparisonReading(
         listeners.delete(listener);
       };
     },
-    select(
-      source: PublishedSource,
-      identity: string | undefined,
-      head?: string,
-    ) {
-      const key = comparisonReadingKey(source, identity);
+    select(source: PublishedSource, target: Request | undefined) {
+      const key = target === undefined ? undefined : keyOf(source, target);
       const changed = state.key !== key;
+      const previous = selected?.target;
       const reread =
         !active ||
         selected?.source !== source ||
-        selected.identity !== identity ||
-        (selected.head !== undefined &&
-          head !== undefined &&
-          selected.head !== head);
-      selected = { source, identity, head };
+        previous?.identity !== target?.identity ||
+        (previous?.head !== undefined &&
+          target?.head !== undefined &&
+          previous.head !== target.head);
+      selected = { source, target };
       active = true;
       if (changed) {
         askedAgain = 0;
@@ -115,4 +128,38 @@ export function createCiComparisonReading(
       controller?.abort();
     },
   };
+}
+
+export function createCiComparisonReading(
+  readComparison: typeof readIntentCiComparison,
+) {
+  const owner = createComparisonReading(
+    (source, target: StoryRequest, signal) =>
+      readComparison(source, target.identity, signal),
+    (source, target) => comparisonReadingKey(source, target.identity),
+  );
+  return {
+    ...owner,
+    select(
+      source: PublishedSource,
+      identity: string | undefined,
+      head?: string,
+    ) {
+      return owner.select(
+        source,
+        identity === undefined ? undefined : { identity, head },
+      );
+    },
+  };
+}
+
+export function createSelectedCiComparisonReading(
+  readComparison: typeof readSelectedIntentCiComparison,
+) {
+  return createComparisonReading(
+    (source, target: SelectedRequest, signal) =>
+      readComparison(source, target.identity, target.range, signal),
+    (source, target) =>
+      selectedCiComparisonKey(source, target.identity, target.range),
+  );
 }

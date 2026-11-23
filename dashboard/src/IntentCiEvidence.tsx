@@ -30,9 +30,13 @@ import { ciTargetOf } from "./intentCiTarget.ts";
 import { intentCiHistorySourceKey } from "./intentCiHistorySourceKey.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import type { CiComparisonRange } from "./selectedCiComparison.ts";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import { useIntentCiComparison } from "./useIntentCiComparison.ts";
-import { useIntentCiComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts";
+import {
+  useIntentCiComparisonEndpointProofs,
+  useSelectedComparisonEvidence,
+} from "./useIntentCiComparisonEntries.ts";
 import { useIntentCiJudgment } from "./useIntentCiJudgment.ts";
 import { useIntentCiHistory } from "./useIntentCiHistory.ts";
 import { useIntentCiShownProof } from "./useIntentCiShownProof.ts";
@@ -81,6 +85,7 @@ export function IntentCiEvidenceProvider({
   active,
   doneEndpoint,
   doneEndpointReason,
+  selectedRange,
   children,
 }: {
   readonly source: PublishedSource;
@@ -91,6 +96,7 @@ export function IntentCiEvidenceProvider({
   readonly active: boolean;
   readonly doneEndpoint?: ScopeHistoryEndpoint;
   readonly doneEndpointReason?: string;
+  readonly selectedRange?: CiComparisonRange;
   readonly children: ReactNode;
 }) {
   const target = ciTargetOf(source, work, selectedIdentity);
@@ -134,6 +140,13 @@ export function IntentCiEvidenceProvider({
     comparison.shown,
     comparison.checkedAgain,
   );
+  const selectedComparison = useSelectedComparisonEvidence(
+    source,
+    comparisonIdentity,
+    selectedRange,
+  );
+  const selectedEvidence =
+    selectedComparison === undefined ? {} : { selectedComparison };
   let evidence: CiEvidence = { kind: "inactive" };
   if (active && target.kind === "gap") evidence = target;
   else if (active && target.kind === "comparison")
@@ -145,6 +158,7 @@ export function IntentCiEvidenceProvider({
       identity: target.identity,
       comparison,
       endpointProofs,
+      ...selectedEvidence,
       ...(target.phase === "done" && doneEndpoint !== undefined
         ? { doneEndpoint }
         : {}),
@@ -168,6 +182,7 @@ export function IntentCiEvidenceProvider({
             comparison,
             comparisonStory: target.story ?? target.comparisonIdentity,
             ...(endpointProofs === undefined ? {} : { endpointProofs }),
+            ...selectedEvidence,
           }),
     };
   return (

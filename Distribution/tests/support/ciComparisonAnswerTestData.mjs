@@ -14,6 +14,7 @@ import { copyFacts } from "./factBuilder.mjs";
 /** @typedef {import("../../../dashboard/server/landedCiHistoryStore.ts").ProjectHistory} ProjectHistory */
 /** @typedef {ProjectHistory["builds"][string]} KeptBuild */
 /** @typedef {import("../../../dashboard/src/storyCiComparison.ts").StoryCiComparisonSlot} StoryCiComparisonSlot */
+/** @typedef {Extract<import("../../../dashboard/src/selectedCiComparison.ts").SelectedCiComparisonAnswer, { kind: "selection" }>} SelectedCiComparison */
 /** @typedef {import("../../../dashboard/server/intentCiProofRead.ts").IntentCiProofAnswer} IntentCiProofAnswer */
 /** @typedef {import("../../../dashboard/src/ciProof.ts").CiProofRun} CiProofRun */
 /** @typedef {import("../../../dashboard/src/ciProof.ts").CiAdapterProofAttempt} CiAdapterProofAttempt */
@@ -114,6 +115,22 @@ export class StoryCiComparisonSlotBuilder {
   }
 }
 
+export class SelectedCiComparisonBuilder {
+  /**
+   * @param {Pick<SelectedCiComparison, "source" | "identity" | "range" | "baseline" | "selection"> & Partial<Pick<SelectedCiComparison, "phase" | "checkedAt">>} facts
+   */
+  with(facts) {
+    return copyFacts(
+      /** @type {SelectedCiComparison} */ ({
+        kind: "selection",
+        phase: "done",
+        checkedAt: "2026-11-09T00:00:00Z",
+        ...facts,
+      }),
+    );
+  }
+}
+
 export class IntentCiProofAnswerBuilder {
   /** @template {IntentCiProofAnswer} Facts @param {Facts} facts */
   with(facts) {
@@ -125,6 +142,7 @@ export class IntentCiProofAnswerBuilder {
  * @typedef {object} CiComparisonAnswerMakeMe
  * @property {KeptBuildBuilder} aKeptBuild
  * @property {StoryCiComparisonSlotBuilder} aStoryCiComparisonSlot
+ * @property {SelectedCiComparisonBuilder} aSelectedCiComparison
  * @property {IntentCiProofAnswerBuilder} anIntentCiProofAnswer
  * @property {FactBuilder<CiProofRun>} aCiProofRun
  * @property {FactBuilder<CiAdapterProofAttempt>} aCiAdapterProofAttempt
@@ -146,6 +164,12 @@ export function ciComparisonAnswerMakeMeProperties() {
       enumerable: true,
       get() {
         return new StoryCiComparisonSlotBuilder();
+      },
+    },
+    aSelectedCiComparison: {
+      enumerable: true,
+      get() {
+        return new SelectedCiComparisonBuilder();
       },
     },
     anIntentCiProofAnswer: {
