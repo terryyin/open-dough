@@ -183,14 +183,13 @@ push it again, or push a superseded pre-rebase SHA. A lost or unknown push
 response is this published case whenever the retained candidate is an
 ancestor. It is not a rejected push.
 
-When the caller retained the delivery comparison before push, supply its
-`suffixBase` with that candidate. Resume validates both full commit IDs and
-base ancestry before any fetch, push, or registration, and returns that base
+Supply the `suffixBase` retained before push with that candidate. Resume
+validates both full commit IDs and base ancestry before any fetch, push, or
+registration, and returns that base
 unchanged even after the target advances. Equal ends are a valid empty
-comparison. Without an explicitly retained base, ordinary publication recovery
-still applies, but the result has no historical comparison. Do not substitute
-the candidate's parent, today's target, or an earlier starting revision after
-a rewrite.
+comparison. If the base is missing, recover the retained pair before trying
+again. Do not substitute the candidate's parent, today's target, or an earlier
+starting revision after a rewrite.
 
 Continue from the observed boundary below. Preserve the caller's commit,
 workspace, and any pending human edit on the default checkout. Inspect

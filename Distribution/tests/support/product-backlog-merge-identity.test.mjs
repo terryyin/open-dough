@@ -12,11 +12,6 @@ import assert from "node:assert/strict";
 import { mergeBacklogs } from "../../src/skills/dough-product-backlog/scripts/product-backlog-merge.mjs";
 import { test } from "node:test";
 import {
-  correctionLink,
-  headings,
-  identities,
-} from "./product-backlog-adoption-fixture.mjs";
-import {
   backlogOf,
   occurrences,
   run,
@@ -24,12 +19,13 @@ import {
 } from "./product-backlog-fixture.mjs";
 import { branchFrom, mergeRefusal } from "./product-backlog-merge-fixture.mjs";
 import {
+  correctionLink,
+  identities,
   afterMove,
-  arrangedAdoptedBacklog,
+  arrangedBacklog,
   backlogWith,
   lines,
   movedCorrection,
-  recording,
   refresh,
 } from "./product-backlog-refresh-fixture.mjs";
 
@@ -39,12 +35,7 @@ import {
 // longer spells it, where the ancestor's entry records nothing at all because
 // its link spelled the identity exactly.
 async function recordedRelocation(t) {
-  const project = afterMove(
-    t,
-    correctionLink,
-    movedCorrection,
-    recording(correctionLink, [[headings.correction, identities.correction]]),
-  );
+  const project = afterMove(t, correctionLink, movedCorrection);
   const moved = await run(
     project,
     refresh(identities.correction, "--link", movedCorrection),
@@ -60,7 +51,7 @@ test("merge identity reconciles a relocated canonical home as the same work", as
   const retitled = "Finish the hook-registration corrections";
   const renamed = await branchFrom(
     t,
-    arrangedAdoptedBacklog,
+    arrangedBacklog,
     refresh(identities.correction, "--title", retitled),
   );
   assert.notEqual(relocated, renamed);
@@ -73,7 +64,7 @@ test("merge identity reconciles a relocated canonical home as the same work", as
     [relocated, renamed],
     [renamed, relocated],
   ]) {
-    const merged = mergeBacklogs(arrangedAdoptedBacklog, ...sides);
+    const merged = mergeBacklogs(arrangedBacklog, ...sides);
 
     // Exactly one item, carrying the identity it was recorded under, the home
     // the move gave it, and the title the other branch gave it. Every other
@@ -93,7 +84,7 @@ test("merge identity refuses two recorded identities whose links coincide", asyn
   const successor = "SEED-008#gate-and-deliver-scripted-backlog";
   const replaced = await branchFrom(
     t,
-    arrangedAdoptedBacklog,
+    arrangedBacklog,
     ["complete", "--identity", identities.correction],
     [
       "add",
@@ -108,7 +99,7 @@ test("merge identity refuses two recorded identities whose links coincide", asyn
     ],
   );
 
-  const refused = mergeRefusal(arrangedAdoptedBacklog, relocated, replaced);
+  const refused = mergeRefusal(arrangedBacklog, relocated, replaced);
 
   // Both competing identities are named, and the reason given is that their
   // links have come to coincide rather than that either work item changed.

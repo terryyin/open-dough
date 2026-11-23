@@ -178,13 +178,14 @@ test("missing observation attachment recovers its coordinator's live observer wi
     ...fixture.requestBase,
     workspace: fixture.execution,
     candidateSha: accepted,
+    suffixBase: delivered.suffixBase,
     targetRef: trunkTarget,
     repo,
     defaultCheckout: fixture.integration,
   });
 
   assert.equal(resumed.pushCount, 0);
-  assert.equal(Object.hasOwn(resumed, "suffixBase"), false);
+  assert.equal(resumed.suffixBase, delivered.suffixBase);
   assert.equal(resumed.observation.state, "recovered");
   assert.equal(resumed.observation.directory, delivered.observation.directory);
   assert.equal(watchCount(fixture.storage), watchesBefore);

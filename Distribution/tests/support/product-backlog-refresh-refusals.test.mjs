@@ -4,25 +4,21 @@
 // nothing, and the same identity is never left reachable twice.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { run } from "./product-backlog-fixture.mjs";
 import {
-  adoptedBacklog,
-  headings,
+  expectedBacklog,
   homes,
   identities,
   seedEight,
   seedOne,
   takenLink,
-} from "./product-backlog-adoption-fixture.mjs";
-import { run } from "./product-backlog-fixture.mjs";
-import {
-  adoptedProject,
+  refreshProject,
   afterMove,
   backlogWith,
   lines,
   movedAnchor,
   movedPlan,
   movedSeed,
-  recording,
   refresh,
   renamedSeedEight,
 } from "./product-backlog-refresh-fixture.mjs";
@@ -37,13 +33,10 @@ test("refresh reference refuses a canonical home the backlog already lists", asy
   // refreshing the old entry onto it would list the same work twice.
   const stray = `- [Queue trunk integration for agents on the same machine](${renamedSeedEight}#same-machine-merge-queue)`;
   const backlog = backlogWith(lines.trunk, `${lines.trunk}\n${stray}`);
-  const project = adoptedProject(t, {
+  const project = refreshProject(t, {
     backlog,
     extra: {
-      [renamedSeedEight]: recording(seedEight, [
-        [headings.queue, identities.queue],
-        [headings.taken, identities.taken],
-      ]),
+      [renamedSeedEight]: homes[seedEight],
     },
   });
 
@@ -66,7 +59,13 @@ test("refresh reference refuses a canonical home the backlog already lists", asy
 });
 
 test("refresh reference refuses a home that does not record the identity", async (t) => {
-  const project = afterMove(t, seedOne, movedSeed, homes[seedOne]);
+  const recordedIdentity = `\n**Identity:** ${identities.retrospective}\n`;
+  const project = afterMove(
+    t,
+    seedOne,
+    movedSeed,
+    homes[seedOne].replace(recordedIdentity, ""),
+  );
 
   const unrecorded = await run(
     project,
@@ -74,11 +73,11 @@ test("refresh reference refuses a home that does not record the identity", async
   );
   assert.equal(unrecorded.code, 1, unrecorded.stdout);
   assert.match(unrecorded.stderr, /records no identity/);
-  assert.equal(project.read(), adoptedBacklog);
+  assert.equal(project.read(), expectedBacklog);
 
   project.write(
     movedSeed,
-    recording(seedOne, [[headings.retrospective, identities.queue]]),
+    homes[seedOne].replace(identities.retrospective, identities.queue),
   );
   const other = await run(
     project,
@@ -89,15 +88,13 @@ test("refresh reference refuses a home that does not record the identity", async
     other.stderr,
     /records identity "SEED-008#same-machine-merge-queue", not "SEED-001#default-skip-process-retrospective"/,
   );
-  assert.equal(project.read(), adoptedBacklog);
+  assert.equal(project.read(), expectedBacklog);
 });
 
 test("refresh reference refuses while the old home still records the identity", async (t) => {
-  const project = adoptedProject(t, {
+  const project = refreshProject(t, {
     extra: {
-      [movedSeed]: recording(seedOne, [
-        [headings.retrospective, identities.retrospective],
-      ]),
+      [movedSeed]: homes[seedOne],
     },
   });
   const before = project.snapshot();
@@ -119,7 +116,7 @@ test("refresh reference refuses a home its identity could not be read back from"
   // Relocating a correction plan is ordinary, but this identity names no
   // anchor, and written beside a link that names one it would read back as
   // different work. That ambiguity is a human's to settle, not a guess.
-  const project = adoptedProject(t);
+  const project = refreshProject(t);
   const before = project.snapshot();
 
   const result = await run(
@@ -136,7 +133,7 @@ test("refresh reference refuses a home its identity could not be read back from"
 });
 
 test("refresh reference refuses a request it cannot carry out", async (t) => {
-  const project = adoptedProject(t);
+  const project = refreshProject(t);
 
   const unlisted = await run(
     project,
@@ -159,16 +156,13 @@ test("refresh reference refuses a request it cannot carry out", async (t) => {
   for (const result of [unlisted, nothing, dropped]) {
     assert.equal(result.code, 1, result.stdout);
   }
-  assert.equal(project.read(), adoptedBacklog);
+  assert.equal(project.read(), expectedBacklog);
 });
 
 test("refresh reference refuses a plan it cannot link", async (t) => {
-  const project = adoptedProject(t, {
+  const project = refreshProject(t, {
     extra: {
-      [renamedSeedEight]: recording(seedEight, [
-        [headings.queue, identities.queue],
-        [headings.taken, identities.taken],
-      ]),
+      [renamedSeedEight]: homes[seedEight],
     },
   });
   const before = project.snapshot();
@@ -234,6 +228,6 @@ test("refresh reference refuses a plan it cannot link", async (t) => {
   for (const result of [unplanned, absent, ownHome, homeFile, movedHome]) {
     assert.equal(result.code, 1, result.stdout);
   }
-  assert.equal(project.read(), adoptedBacklog);
+  assert.equal(project.read(), expectedBacklog);
   assert.deepEqual(project.snapshot(), before);
 });

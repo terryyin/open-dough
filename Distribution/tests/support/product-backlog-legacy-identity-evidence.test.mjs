@@ -1,4 +1,4 @@
-// Real CLI evidence for readable legacy context and identity-bearing homes.
+// Real CLI evidence for current identity-bearing homes and unnumbered history.
 import assert from "node:assert/strict";
 import { symlinkSync } from "node:fs";
 import { join } from "node:path";
@@ -47,7 +47,7 @@ test("readable context allocates nothing while numeric filenames and old identit
   assert.deepEqual(snapshot(project), before);
 });
 
-test("removed legacy paths retain identities from later versions and preserve nonnumeric identities", async (t) => {
+test("removed unnumbered paths contribute no history evidence for identities", async (t) => {
   const project = await legacyProject(t);
   projectFile(project, "seeds/legacy.md", "# Initial context\n");
   projectFile(project, "seeds/removed-context.md", "# Evidence only\n");
@@ -56,7 +56,7 @@ test("removed legacy paths retain identities from later versions and preserve no
   projectFile(
     project,
     "seeds/legacy.md",
-    "# Earlier layout\n\n**Identity:** SEED-125#earlier\n",
+    "# Earlier layout\n\n**Identity:** SEED-085#earlier\n",
   );
   projectFile(
     project,
@@ -65,11 +65,10 @@ test("removed legacy paths retain identities from later versions and preserve no
   );
   git(project.directory, "add", "-A");
   git(project.directory, "commit", "-q", "-m", "Record legacy identities");
-  const allocated = git(project.directory, "rev-parse", "HEAD");
   projectFile(
     project,
     "seeds/legacy.md",
-    "# Later layout\n\n**Identity:** SEED-115#later\n",
+    "# Later layout\n\n**Identity:** SEED-088#later\n",
   );
   git(project.directory, "add", "-A");
   git(
@@ -91,28 +90,22 @@ test("removed legacy paths retain identities from later versions and preserve no
   const before = snapshot(project);
   const head = git(project.directory, "rev-parse", "HEAD");
 
-  const earlier = await evidence(project, "--identity", "SEED-125#earlier");
-  const later = await evidence(project, "--identity", "SEED-115#later");
-  const nonnumeric = await evidence(
-    project,
-    "--identity",
+  for (const identity of [
+    "SEED-085#earlier",
+    "SEED-088#later",
     "scheduler-wake#overdue-jobs",
-  );
-
-  assert.deepEqual(earlier.gaps, []);
-  assert.equal(earlier.highest.seed, "SEED-125");
-  assert.equal(earlier.highest.commit, allocated);
-  assert.equal(earlier.next, "SEED-126");
-  for (const report of [earlier, later, nonnumeric])
-    assert.equal(report.candidate.status, "in-history");
-  assert.deepEqual(nonnumeric.candidate.history, {
-    story: { evidence: "seeds/scheduler-wake.md", commit: allocated },
-  });
+  ]) {
+    const report = await evidence(project, "--identity", identity);
+    assert.deepEqual(report.candidate, { identity, status: "unlisted" });
+    assert.deepEqual(report.gaps, []);
+    assert.equal(report.highest.seed, "SEED-090");
+    assert.equal(report.next, "SEED-091");
+  }
   assert.deepEqual(snapshot(project), before);
   assert.equal(git(project.directory, "rev-parse", "HEAD"), head);
 });
 
-test("malformed current and historical identity evidence remains a gap", async (t) => {
+test("malformed current identity evidence remains a gap beside removed unnumbered files", async (t) => {
   const project = await legacyProject(t);
   projectFile(
     project,
@@ -148,12 +141,10 @@ test("malformed current and historical identity evidence remains a gap", async (
     [
       ["seed-directory", "seeds/current-malformed.md"],
       ["seed-directory", "seeds/malformed-metadata.md"],
-      ["history", "seeds/old-malformed.md"],
     ],
   );
   assert.match(report.gaps[0].reason, /cannot be written in an entry/);
   assert.match(report.gaps[1].reason, /malformed seed ID/);
-  assert.match(report.gaps[2].reason, /malformed Identity record/);
   assert.deepEqual(snapshot(project), before);
 });
 

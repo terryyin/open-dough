@@ -40,11 +40,14 @@ function controlledLocations(work: PublishedWork) {
       makeMe.anUnreachableAuthenticatedRead.at(work.revision).please(),
     );
   let count = 0;
+  let settledAt = Date.now();
   const readSource: IntentReadSource = {
     readLocations(source, revision) {
       expect([source.id, revision]).toEqual([work.source.id, work.revision]);
       count += 1;
-      return current();
+      return current().finally(() => {
+        settledAt = Date.now();
+      });
     },
     readFile: (...[, path]) =>
       Promise.reject(new Error(`Unexpected file read for ${path}`)),
@@ -53,6 +56,7 @@ function controlledLocations(work: PublishedWork) {
   return {
     readSource,
     reads: () => count,
+    settledAt: () => settledAt,
     answerWith(next: () => Promise<IntentLocations>) {
       current = next;
     },
@@ -72,23 +76,18 @@ test("unreachable Intent locations recover after 15, 30, 60 and 60 seconds", asy
   await explanation.reads("The local authenticated read could not be reached");
   await explanation.offersRetry();
   await publishedReadStatus().showsNoUnansweredDetail();
-  expect(locations.reads()).toBe(1);
-
-  await vi.advanceTimersByTimeAsync(14_999);
-  expect(locations.reads()).toBe(1);
-  await vi.advanceTimersByTimeAsync(251);
-  await expect.poll(() => locations.reads()).toBe(2);
-  await explanation.reads("could not be reached");
-
   for (const [wait, before] of [
+    [15_000, 1],
     [30_000, 2],
     [60_000, 3],
     [60_000, 4],
   ] as const) {
-    await vi.advanceTimersByTimeAsync(wait - 1_000);
+    // The UI observations can advance fake time after the failure settled.
+    const dueAt = locations.settledAt() + wait;
+    await vi.advanceTimersByTimeAsync(dueAt - Date.now() - 1);
     expect(locations.reads()).toBe(before);
     if (before === 4) locations.pass();
-    await vi.advanceTimersByTimeAsync(1_250);
+    await vi.advanceTimersByTimeAsync(251);
     await expect.poll(() => locations.reads()).toBe(before + 1);
     if (before < 4) await explanation.reads("could not be reached");
   }

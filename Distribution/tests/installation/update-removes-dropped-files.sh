@@ -32,14 +32,14 @@ retired_changed='dough-makeme/scripts/changed-makeme.mjs'
 # wrappers. Each added file's bytes name its release.
 build_dropped_files_fixture() {
   local composed_files
-  # This historical data fragment deliberately differs from the current one.
-  # Only its same-tag bytes declare A; flattening every fixture would miss it.
+  # This older tag declares A only in a fragment at the former root path.
+  # Both the tag and its fragment are read as historical data.
   composed_files=$(
     node - "${leftover_a}" "${leftover_b}" << 'NODE'
 const [a, b] = process.argv.slice(2);
 process.stdout.write(JSON.stringify({
-  "install.sh": 'managed_files=(\n  dough-update/SKILL.md\n)\nsource "$(dirname -- "${BASH_SOURCE[0]}")/Distribution/src/install/open-dough-execution-payload.sh"\n',
-  "Distribution/src/install/open-dough-execution-payload.sh": `managed_files+=(\n  ${a}\n  ${b}\n)\n`,
+  "install.sh": 'managed_files=(\n  dough-update/SKILL.md\n)\nsource "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-execution-payload.sh"\n',
+  "src/install/open-dough-execution-payload.sh": `managed_files+=(\n  ${a}\n  ${b}\n)\n`,
 }));
 NODE
   )
@@ -61,7 +61,7 @@ NODE
       "${retired_watcher}": "// Retired observer from 0.1.1\\n",
       "${retired_select}": "// Retired source selector from 0.1.1\\n",
       "${retired_changed}": "// Retired changed selector from 0.1.1\\n"}},
-    "remove": ["Distribution/src/skills/${leftover_a%%/*}"]},
+    "remove": ["src/install", "Distribution/src/skills/${leftover_a%%/*}"]},
   {"name": "release 0.1.2", "release": {
     "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
     "marker": "payload-0.1.2"},

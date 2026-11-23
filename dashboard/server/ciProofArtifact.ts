@@ -43,11 +43,6 @@ const unavailable = (
   ...(detail === undefined ? {} : { detail }),
 });
 
-// What a developer can do when the local GitHub request owner passes an
-// archive on as text: it ends once nothing on this machine uses it.
-export const olderRequestOwnerDetail =
-  "This machine's local GitHub request owner was started by an earlier Open Dough and passes the summary on as text. Restart the Open Dough dashboards and CI observers on this machine; the next read starts a current one";
-
 // The unreadable answers of this process's reads that GitHub left
 // unanswered, as each was answered.
 const unanswered = new WeakSet<CiProof>();
@@ -77,17 +72,8 @@ export function unreadableBy(error: unknown): CiProof {
         `GitHub directed a wait of ${String(error.waitSeconds)} s before the next request`,
       ),
     );
-  if (error instanceof GitHubAcquisitionFailed) {
-    const { failure } = error as { readonly failure?: { kind?: unknown } };
-    return unansweredAs(
-      unavailable(
-        "unreadable",
-        failure?.kind === "archive-as-text"
-          ? olderRequestOwnerDetail
-          : error.message,
-      ),
-    );
-  }
+  if (error instanceof GitHubAcquisitionFailed)
+    return unansweredAs(unavailable("unreadable", error.message));
   throw error;
 }
 

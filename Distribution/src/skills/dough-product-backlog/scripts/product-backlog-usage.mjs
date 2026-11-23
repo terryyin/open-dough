@@ -29,7 +29,6 @@ export const usage = `Usage: product-backlog.mjs add --identity <id> --title <ti
                              [--file <path>]
        product-backlog.mjs direction (--text <text> | --clear)
                              (--expect <text> | --expect-none) [--file <path>]
-       product-backlog.mjs adopt --all [--file <path>]
        product-backlog.mjs record-state --identity <id> --link <href>
                              --refinement not-refined|refined
                              --approach unselected|planned|planless
@@ -119,10 +118,6 @@ in either list. The direction the request was written against is always stated:
 request whose expectation no longer holds is refused with nothing written, so a
 direction someone else has since changed is never overwritten unknowingly.
 
-adopt records one identity for every active entry in the canonical homes its
-links name, reusing the ID each home already carries. It changes no membership,
-order, or direction, and never runs implicitly: --all is required.
-
 record-state writes one versioned story-state block into the canonical home
 --link names: refinement, approach, and optional readiness assessment. A
 planned approach stores --plan relative to that home file and requires that
@@ -155,7 +150,7 @@ identity-evidence prints, as JSON, what the project shows about the
 identities it has already used, so a new one can be chosen above all of it.
 Each source — the seed directory (--seeds, by default seeds/ beside the
 backlog), the backlog's two lists, the done records under
-${doneRecordDirectory}/, ${doneCatalogPath}, and history (the seed and
+${doneRecordDirectory}/, ${doneCatalogPath}, and history (numbered seed files and
 ${doneRecordDirectory}/ files Git history reachable from HEAD shows added, at the
 revision it names, including those cleanup has since removed) — reports its
 highest seed number with the file or record behind it, and from history the

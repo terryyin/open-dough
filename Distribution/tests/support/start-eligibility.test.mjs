@@ -214,6 +214,18 @@ for (const { name, source, expected } of cases) {
   });
 }
 
+test("start eligibility: changed story content retains the ready assessment's eligibility", () => {
+  const source = home({ assessment: "ready" }).replace(
+    "Execute A.",
+    "Execute revised A.",
+  );
+  assert.equal(
+    readStoryState(source, href).assessment.changedSinceReview,
+    true,
+  );
+  assert.deepEqual(eligibilityOf(source), { status: "eligible", blockers: [] });
+});
+
 test("start eligibility: a refused story-state reader is a preparation gap", () => {
   const source = home({ assessment: "ready" });
   const duplicated = source.replace(

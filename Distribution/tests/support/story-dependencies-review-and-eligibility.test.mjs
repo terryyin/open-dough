@@ -87,7 +87,7 @@ test("a supplier's resolution leaves the readiness review unchanged while an agr
   assert.equal(await changedSinceReview(project), true);
 });
 
-test("a record reviewed over the dependency fence as written stays accurate", async (t) => {
+test("a former as-written dependency digest shows a change before and after supplier resolution", async (t) => {
   const project = scratchProject(t);
   plantSeed(project);
   assert.equal(
@@ -104,31 +104,16 @@ test("a record reviewed over the dependency fence as written stays accurate", as
   assert.notEqual(planted, seedBytes(project));
   plantSeed(project, planted);
 
-  const unchanged = await readState(project, first);
-  assert.equal(unchanged.assessment.basis.document, legacy);
-  assert.equal(unchanged.assessment.changedSinceReview, false);
+  const waiting = await readState(project, first);
+  assert.equal(waiting.assessment.status, "ready");
+  assert.equal(waiting.assessment.basis.document, legacy);
+  assert.equal(waiting.assessment.changedSinceReview, true);
 
   const satisfied = await updateSecondSupplierAgreement(project, {
     state: "satisfied",
     resolution,
   });
   assert.equal(satisfied.code, 0, satisfied.stderr);
-  assert.equal(await changedSinceReview(project), false);
-
-  const decisionNeeded = await updateSecondSupplierAgreement(project, {
-    state: "decision-needed",
-    decision: "Which endpoint behavior satisfies this consumer?",
-  });
-  assert.equal(decisionNeeded.code, 0, decisionNeeded.stderr);
-  assert.equal(await changedSinceReview(project), false);
-
-  plantSeed(
-    project,
-    seedBytes(project).replace(
-      "Goal, scope, and examples for the first story.",
-      "Goal, scope, and examples for the first story, revised.",
-    ),
-  );
   assert.equal(await changedSinceReview(project), true);
 });
 

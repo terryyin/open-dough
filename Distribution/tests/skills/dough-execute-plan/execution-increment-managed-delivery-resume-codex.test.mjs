@@ -54,6 +54,7 @@ async function interruptedRegistration(t) {
     resume: (extra = []) =>
       resumeThroughCli(fixture, {
         candidate: interrupted.accepted,
+        suffixBase: fixture.trunkSha,
         host: "codex",
         extra,
       }),

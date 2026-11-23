@@ -1,11 +1,10 @@
 // What the unattached landing-capture specs share on a real start origin
 // (./startOrigin.ts): the landing handoff a launch that established a session
 // was given, the installed delivery command a one-shot landing runs, given
-// that handoff, and an installation whose landing module predates a context
-// with no story.
+// that handoff.
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { installedSkillPath } from "../../server/launchHosts.ts";
@@ -184,22 +183,4 @@ export function deliver(record: LaunchRecord, origin: StartOrigin) {
       ),
     ),
   );
-}
-
-// Leaves the project's installed landing module as one released before a
-// context could name no story: it says nothing of accepting one. Published,
-// so the default checkout stays clean and a new worktree holds it too.
-export function withOlderLandingModule(origin: StartOrigin) {
-  // Claude's installation, the host these specs launch.
-  const module = path.join(scripts(origin.project), "dashboard-landing.mjs");
-  const current = readFileSync(module, "utf8");
-  const older = current.replace(
-    /^export const acceptsLandingWithoutIdentity = true;\n/m,
-    "",
-  );
-  if (older === current)
-    throw new Error("The module names no such capability.");
-  writeFileSync(module, older);
-  git(origin.project, "commit", "-am", "older landing module");
-  git(origin.project, "push", "origin", "main");
 }

@@ -37,7 +37,6 @@ export const options = {
   expect: { type: "string" },
   "expect-none": { type: "boolean", default: false },
   return: { type: "boolean", default: false },
-  all: { type: "boolean", default: false },
   dropped: { type: "boolean", default: false },
   "intent-coverage": { type: "string" },
   "intent-coverage-unavailable": { type: "string" },

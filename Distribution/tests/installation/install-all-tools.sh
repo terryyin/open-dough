@@ -230,9 +230,9 @@ fi
 fixture="${temporary_dir}/fixture.git"
 # The shared "latest" release source in Distribution/tests/support/release-sources.mjs.
 node "${source_dir}/Distribution/tests/support/release-source.mjs" "${fixture}" latest
-old_checkout="${temporary_dir}/release-0.1.1"
-checkout_tagged_release "${fixture}" "${old_checkout}" 0.1.1
-update_target="${temporary_dir}/update"
+old_checkout="${temporary_dir}/release-0.1.2"
+checkout_tagged_release "${fixture}" "${old_checkout}" 0.1.2
+update_target="${temporary_dir}/update"$'\t'"project"
 prepare_target "${update_target}"
 seed_empty_host_settings "${update_target}"
 bash "${old_checkout}/install.sh" --target "${update_target}" --source "${fixture}" --platform codex > /dev/null

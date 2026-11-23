@@ -63,12 +63,15 @@ working-tree helper. The updater:
 4. Uses the running tool only as an entry-context hint, then verifies every
    existing native root and adds missing roots.
 5. Validates the fetched installer against the release-declared client payload.
-6. Compares every existing updater's `VERSION` record. An ordinary update
-   without a supplied URL fetches each tagged baseline as data without
-   executing it and compares the complete managed payload before skipping,
-   preserving, or replacing. Missing siblings are added; a conflicting source,
-   newer root, or missing/edited/unverifiable managed root refuses the whole
-   operation before writing. It does not infer the client remote or treat an
+6. Checks every existing updater's `VERSION` record before fetching a
+   baseline. Ordinary update supports latest and the immediately previous
+   numeric release, when one exists. Older versions refuse before any
+   installed-file writes and report the explicit `--force` reinstall option.
+   The updater fetches each supported tagged baseline as data and compares
+   the complete managed payload before skipping or replacing.
+   Missing siblings are added. A conflicting source, newer root, or
+   missing/edited/unverifiable managed root refuses the whole operation
+   before writing. It does not infer the client remote or treat an
    existing destination as a clean first install.
    The baseline installer declaration determines which paths were managed; a
    file present only in release source was not installed. Newly declared paths
@@ -94,17 +97,16 @@ working-tree helper. The updater:
    when absent. See [Optional process-review preference](installation-and-updates.md#optional-process-review-preference).
 
 An equal recorded version that still matches its recorded release produces no
-installed-file writes. An older unchanged installation advances to the selected
-release; after its installer succeeds, unedited leftovers are removed, then
-directories that removal left empty, and the result lists the removed files per
-root. An equal recorded version removes no leftovers; the next update to a newer
+installed-file writes. An unchanged installation at the previous release
+advances to latest. After the installer succeeds, it removes unedited leftovers
+and any directories that removal left empty. The result lists the removed files
+per root. An equal recorded version removes no leftovers; the next update to a newer
 release does. Ordinary update without a supplied URL refuses when the recorded
 baseline cannot be established, including missing or malformed SOURCE or
 VERSION, an unavailable tag or source, baseline metadata mismatch, and changed
 or missing managed files, even when the recorded version equals latest. A
-supplied-URL missing record still advances to the selected release. A verified
-newer record is preserved without a downgrade; an unverifiable newer record is
-unsupported without writes. A malformed VERSION is refused. Explicit `--force`
+supplied-URL missing record still advances to the selected release. A newer
+record refuses without a downgrade. A malformed VERSION is refused. Explicit `--force`
 skips that comparison and replaces the selected installation with the
 inspected latest payload, then `SOURCE` and `VERSION`, including edited,
 incomplete, equal, or newer files. After that install it removes and lists

@@ -81,9 +81,9 @@ apply_release() {
   local force=0
   local checkout=''
   local supplied_url=0
-  local work resolved tag commit version
+  local work resolved tag commit version previous
   local dest installed relation
-  local -a fetched_release=()
+  local fetched_checkout=''
   # Non-local: EXIT trap must still see the path if set -e aborts this function
   # before an explicit clear (bash 5 drops locals when the function unwinds).
   _open_dough_apply_work_root=
@@ -156,7 +156,7 @@ apply_release() {
       return 1
     fi
   fi
-  IFS=$'\t' read -r tag commit version << EOF
+  IFS=$'\t' read -r tag commit version previous << EOF
 ${resolved}
 EOF
 
@@ -202,9 +202,9 @@ EOF
 
   # A fetched release is a clean tagged tree; a caller's inspected checkout
   # may carry local edits, so it never stands in for a recorded baseline.
-  [[ -n "${checkout}" ]] || fetched_release=("${version}" "${work}")
-  if ! all_roots_verified_for_release "${target}" "${url}" "${_open_dough_apply_work_root}" "${version}" \
-    ${fetched_release[@]+"${fetched_release[@]}"}; then
+  [[ -n "${checkout}" ]] || fetched_checkout=${work}
+  if ! all_roots_verified_for_release "${target}" "${url}" "${_open_dough_apply_work_root}" \
+    "${version}" "${previous}" "${fetched_checkout}"; then
     report_unverifiable_installation "${dest}"
     clear_apply_work_root
     return 1

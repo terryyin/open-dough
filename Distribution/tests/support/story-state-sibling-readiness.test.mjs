@@ -1,8 +1,6 @@
 // Proof that a story's readiness basis covers its own section, the seed's
-// shared context, and its plan — not a sibling story in the same seed. The
-// product recorder and reader produce every ready outcome under test; example
-// 6 plants only the former whole-seed digest a record from before story
-// scoping carries.
+// shared context, and its plan while ignoring sibling story sections. The
+// former whole-seed case plants only the digest an earlier record carried.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { pathToFileURL } from "node:url";
@@ -146,7 +144,7 @@ test("story-state: a change to the seed's shared context keeps ready with a chan
   );
 });
 
-test("story-state: a former whole-seed record stays interpretable and is replaced by a fresh assessment", async (t) => {
+test("story-state: a former whole-seed digest shows a change until reviewed again", async (t) => {
   const project = scratchProject(t);
   plantSeed(project);
   const scoped = await recordReady(project);
@@ -157,19 +155,9 @@ test("story-state: a former whole-seed record stays interpretable and is replace
 
   const former = await readState(project, first);
   assert.equal(former.assessment.status, "ready");
-  assert.equal(former.assessment.changedSinceReview, false);
+  assert.equal(former.assessment.changedSinceReview, true);
   assert.equal(former.assessment.basis.document, whole);
   assert.equal(former.basis.document, scoped);
-
-  editSeed(
-    project,
-    "Goal, scope, and examples for the second story.",
-    "Goal, scope, and examples for the second story, now refined.",
-  );
-  const outdated = await readState(project, first);
-  assert.equal(outdated.assessment.status, "ready");
-  assert.equal(outdated.assessment.changedSinceReview, true);
-  assert.equal(outdated.assessment.basis.document, whole);
 
   const fresh = await recordReady(project);
   assert.equal(fresh, scoped);
@@ -181,8 +169,8 @@ test("story-state: a former whole-seed record stays interpretable and is replace
 
   editSeed(
     project,
+    "Goal, scope, and examples for the second story.",
     "Goal, scope, and examples for the second story, now refined.",
-    "Goal, scope, and examples for the second story, refined again.",
   );
   assert.equal(await assessmentOf(project), "ready");
   assert.equal(

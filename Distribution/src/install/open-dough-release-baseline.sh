@@ -34,13 +34,11 @@ recorded_baseline_unchanged() {
   fi
 }
 
-# fetched_version and fetched_checkout name a clean tagged tree already fetched
-# from url in this run, if any. Each other recorded release is fetched once,
-# and roots recording a fetched release compare against it.
-all_roots_verified_for_release() {
-  local target=$1 url=$2 work_root=$3 latest_version=$4
-  local fetched_version=${5:-} fetched_checkout=${6:-}
-  local current_platform current_dest installed relation baseline
+# Read every existing root before fetching any recorded baseline.
+release_baseline_candidates() {
+  local target=$1 url=$2 latest_version=$3 previous_version=$4
+  local minimum_version=${previous_version:-"${latest_version}"}
+  local current_platform current_dest installed
 
   while IFS=$'\t' read -r current_platform current_dest; do
     if [[ ! -d "${current_dest}" ]]; then
@@ -59,6 +57,28 @@ all_roots_verified_for_release() {
       echo "${current_platform}: missing or malformed VERSION; ordinary all-tool update refuses without writes." >&2
       return 1
     fi
+    if [[ $(compare_versions "${installed}" "${latest_version}") == newer ]]; then
+      echo "${current_platform}: installed ${installed} is newer than source ${latest_version}; ordinary all-tool update refuses without a downgrade." >&2
+      return 1
+    fi
+    if [[ $(compare_versions "${installed}" "${minimum_version}") == older ]]; then
+      echo "${current_platform}: installed ${installed} is older than the supported update baseline (previous ${previous_version:-none}, latest ${latest_version}). Use --force to explicitly reinstall latest." >&2
+      return 1
+    fi
+    # The last read field preserves tabs inside the destination path.
+    printf '%s\t%s\t%s\n' "${current_platform}" "${installed}" "${current_dest}"
+  done < <(all_destinations_for "${target}")
+}
+
+# A fetched latest checkout is clean and can serve as its recorded baseline.
+all_roots_verified_for_release() {
+  local target=$1 url=$2 work_root=$3 latest_version=$4 previous_version=$5
+  local fetched_version=${latest_version} fetched_checkout=$6
+  local candidates current_platform current_dest installed baseline
+
+  candidates=$(release_baseline_candidates "${target}" "${url}" "${latest_version}" "${previous_version}") || return 1
+  while IFS=$'\t' read -r current_platform installed current_dest; do
+    [[ -n "${installed}" ]] || continue
     if [[ -z "${fetched_checkout}" || "${installed}" != "${fetched_version}" ]]; then
       baseline="${work_root}/baseline-${current_platform}"
       fetch_tagged_release "${url}" "${baseline}" "${installed}" > /dev/null || return 1
@@ -66,10 +86,5 @@ all_roots_verified_for_release() {
       fetched_checkout=${baseline}
     fi
     recorded_baseline_unchanged "${current_dest}" "${fetched_checkout}" "${installed}" || return 1
-    relation=$(compare_versions "${installed}" "${latest_version}")
-    if [[ "${relation}" == newer ]]; then
-      echo "${current_platform}: installed ${installed} is newer than source ${latest_version}; ordinary all-tool update refuses without a downgrade." >&2
-      return 1
-    fi
-  done < <(all_destinations_for "${target}")
+  done <<< "${candidates}"
 }
