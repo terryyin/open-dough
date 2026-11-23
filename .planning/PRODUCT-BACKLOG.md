@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Install only scripts that guidance, hooks or the Dashboard reach](seeds/SEED-423-shrink-the-installed-distribution.md#remove-unreached-distribution-code) — SEED-423#remove-unreached-distribution-code ([plan](slice-plans/779-remove-unreached-distribution-code/PLAN.md))
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#open-review-changes-from-a-story-card) — SEED-420#open-review-changes-from-a-story-card ([plan](slice-plans/777-open-review-changes-from-a-story-card/PLAN.md))
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal ([plan](slice-plans/780-finish-launch-proof-orthogonal/PLAN.md))
+- [Get fast proof of Intent revision reading and reading-place detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading) — SEED-413#speed-intent-revision-and-detour-reading ([plan](slice-plans/778-speed-intent-revision-and-detour-reading/PLAN.md))
 
 ## Backlog list
 
-- [Get fast proof of Intent revision reading and reading-place detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading) — SEED-413#speed-intent-revision-and-detour-reading
 - [Get fast proof of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading) — SEED-413#speed-intent-scope-timing-reading
 - [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading
 - [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Rio-chan",
+  "email": "rio-chan@example.org",
+  "identity": "SEED-413#speed-intent-revision-and-detour-reading",
+  "mode": "story-branch",
+  "branch": "claude/get-fast-proof-of-intent-revision-reading-and-re",
+  "host": "claude",
+  "model": "opus"
+}
