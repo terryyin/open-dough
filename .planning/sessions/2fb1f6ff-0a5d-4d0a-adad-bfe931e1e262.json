@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "2fb1f6ff-0a5d-4d0a-adad-bfe931e1e262",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T10:27:28.765Z",
+  "story": "SEED-345#wait-for-codex-workers-with-fewer-model-wakeups",
+  "ranges": [
+    {
+      "base": "ebc5cae2ef4b822417c88559aa000ef706d29a3a",
+      "candidate": "7912b791a4794bc27e2ef4559e2ae7d923db6b46"
+    },
+    {
+      "base": "7912b791a4794bc27e2ef4559e2ae7d923db6b46",
+      "candidate": "e613ccaf63669f55f07faf5fb01a31a9a07588e0"
+    },
+    {
+      "base": "e613ccaf63669f55f07faf5fb01a31a9a07588e0",
+      "candidate": "ae1d9a0a4d8b6e1581ebdf54db5c00b6d6eed8a3"
+    }
+  ]
+}
