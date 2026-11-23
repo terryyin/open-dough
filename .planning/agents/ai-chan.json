@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Ai-chan",
-  "email": "ai-chan@example.org",
-  "identity": "SEED-413#reach-eight-second-launch-feedback",
-  "mode": "story-branch",
-  "branch": "claude/bring-launch-test-feedback-to-about-eight-second",
-  "host": "claude"
-}

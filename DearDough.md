@@ -38,7 +38,6 @@ A story promising parity with an existing view proved only settled states; every
 
 ### Occurrences
 
-
 ## ODF-229 — Interrupted Cursor implementation loses its proof return <a id="odf-229"></a>
 
 Former local code: DD-265. [Meaning, evidence and response](docs/maintainer/findings/ODF-229.md).
@@ -571,6 +570,8 @@ The story promised a third of the story-notes time on the strength of phone-boar
   - Evidence: plan 724 premise "five passes in 2.07 s" from a scratch probe against the family finish: five moved cases summed 6.97–8.00 s mounted against 6.28 s built-app; a profile put 60–75% of each case in browser clicks (~150 ms) and the `actSettled` frame round (~85 ms).
   - Observed effect: a recurrence; the family delivered no case-time gain, and the comparison and a candidate settle change went to the later families' story.
 
+- Execution: SEED-413#reach-eight-second-launch-feedback (plan 787, first related commit `575ab48fd`, no implementation commit). Timestamp: 2026-11-23T14:49:00+08:00 (Slice 1 return). Tool: Claude Code. Model: claude-opus-5-5. Open Dough release: 0.3.111. Evidence: plan 787's premise sized the eight-second goal from case sums ("at least 6.536–6.852 aggregate case-seconds"); Slice 1 (`575ab48fd`) found 2.95 s of non-case overhead, raising the need to about 12.4; Slice 2 (`35aabbb28`) found only 1.0–1.3 s removable; Slice 3 (`67c8d82a7`) found a merged click-bound refinement case cost the same as its predecessors. Observed effect: the maintainer closed the story at the measured gap after three slices with no product change. Inference: a recurrence of sizing a speed goal without its real cost composition; checking the target against shell totals while planning would likely have raised the gap before Take.
+
 ## DD-589 — A unit-test approach states a whole machine instead of the input its handler reads <a id="dd-589"></a>
 
 Plan 721's readiness-approved approach had each in-process case state a machine home through MakeMe stored documents and mount the project list through `mountProjectConfiguration`, which the plan called a production function though only test support called it. No planning or readiness check asked whether a case builds only the data its handler reads. The typed input later proposed in its place was again stated from the adapter's reads and named a source nothing under the handler reads.
@@ -614,7 +615,6 @@ Slice acceptance recorded source-review commitment 3.1 ("a handler's typed contr
 ## DD-608 — Implementers return a slice partly done with most of its clock left <a id="dd-608"></a>
 
 ### Occurrences
-
 
 ## DD-596 — Moves to composed state are accepted on assertion counts while the setup skips the step they proved <a id="dd-596"></a>
 

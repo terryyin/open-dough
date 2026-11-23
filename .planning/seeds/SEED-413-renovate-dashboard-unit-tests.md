@@ -681,55 +681,6 @@ on 22 November 2026, when its correction found that rendering production
   production observation and preserve each distinct assertion moved from the
   older cases.
 
-<a id="reach-eight-second-launch-feedback"></a>
-
-### Bring launch test feedback to about eight seconds
-
-**Identity:** SEED-413#reach-eight-second-launch-feedback
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/787-reach-eight-second-launch-feedback/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d785e208ecb20a69e19d14cd867c4bb368dad027e75ad43d9c5f13f499ca2183","plan":"342f4ce73112ca73ee742cbc16f3e272e9eb780c911bbeb0d2a8e561a6dc3a4f"}}
-```
-
-- **Goal.** Dashboard maintainers get trustworthy feedback from the complete
-  launch unit selection in about 7–8 seconds of elapsed command time with two
-  workers, including runner preparation. Faster feedback makes it practical to
-  rerun launch proof while editing.
-- **Starting evidence.** The preceding work passed 77 cases in 24 files in
-  14.20 and 14.71 seconds on AC macOS. Paired starting runs took 22.93 and
-  21.00 seconds with 71 cases. The candidate's case bodies total about
-  22.5–22.9 seconds, leaving at least 6.5–6.9 aggregate case-seconds to remove
-  even before accounting for preparation. Refinement refusal and choices,
-  desktop hover and keyboard discovery, and responsive workspace policy are
-  measured leads.
-  The paired measurements and case mapping are recoverable from
-  `107af7aa7d6ff663fcfae55057c22e7641dc6a64:.planning/slice-plans/780-finish-launch-proof-orthogonal/reports/record-details-slice/report.md`.
-- **Scope.** Measure case, setup, and runner costs. Compare simpler focused
-  cases through existing typed production owners and consider shared runner
-  preparation only when it accounts for a recoverable part of the elapsed
-  time. Keep native input and responsive geometry where the observation depends
-  on them, existing composed journeys, and the typed creation entry. Map each
-  relocated assertion and synchronization dependency to a witness for the same
-  regression. Any shared runner change requires the full frontend group and
-  retains its pointer assignments. Add no end-to-end cases for this timing work.
-- **Key examples.**
-  - Given comparable awake AC macOS runs, running
-    `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
-    yields a complete passing roster with preparation included. Two paired
-    comparisons substantiate the gain and target.
-  - After a refinement submission is refused, reopening shows the previous
-    selection. Cancel and reopen clears it. Choosing No Approach clears A,
-    retains C, and sends only C. The proof still observes each of those
-    outcomes through the production owner.
-  - On a fine-pointer desktop the Start notes appear on hover and keyboard
-    focus. At 320 CSS pixels and 200% zoom the relevant launch dialog controls
-    still fit and can be reached. Chromium still observes these browser
-    behaviors, alongside the touch and composed startup journeys.
-- **Evaluation.** Compare paired runs of
-  `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
-  on similar host load. Count elapsed preparation and report exact case
-  rosters. If the measured savings leave no credible path to about eight
-  seconds, bring the remaining gap and a decision to the maintainer.
-
 <a id="speed-dashboard-done-session-review-proof"></a>
 
 ### Get fast proof of finding and reviewing Done sessions
