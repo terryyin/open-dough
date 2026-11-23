@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "76fd56a6-a4c8-4c72-ac33-5c17523b86ab",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T08:13:46.025Z",
+  "story": "SEED-345#use-proportionate-refactoring-for-small-test-edits",
+  "ranges": [
+    {
+      "base": "44d67d0d066da7a2ac13bda686ada13c42bed647",
+      "candidate": "1c765d75a972c702ea367195dd224e5ec48d63d0"
+    },
+    {
+      "base": "1c765d75a972c702ea367195dd224e5ec48d63d0",
+      "candidate": "442c2911b8153b89ac0e2ec7aed3ec69ec901062"
+    },
+    {
+      "base": "442c2911b8153b89ac0e2ec7aed3ec69ec901062",
+      "candidate": "004f46fb0c98d70ebe2649e992c7e8b317fcfa56"
+    },
+    {
+      "base": "004f46fb0c98d70ebe2649e992c7e8b317fcfa56",
+      "candidate": "02325c9983d0235eabdf007c39aa20da775f0d7f"
+    }
+  ]
+}
