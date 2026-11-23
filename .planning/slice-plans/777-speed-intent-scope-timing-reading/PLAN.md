@@ -339,7 +339,7 @@ support down by about 271 lines.
 ### 8. The cohort comparison measures faster feedback with proof intact
 
 Type: Behavior
-Status: planned
+Status: done
 
 Account for all 14 legacy cases. Map each to its mounted owner by path and
 title, and give each retired helper check its new owner.
@@ -352,6 +352,11 @@ runs under comparable load. Report:
 - counts by engine;
 - the slowest remaining cases; and
 - observed savings or limits.
+
+**Accepted proof.** See [cohort comparison](cohort-comparison.md). Three
+interleaved pairs at load 30–36 went from 39.4 s to 30.0 s mean elapsed
+(−24 %), 14 Playwright to 14 Vitest cases. One pair inverted at load about
+33 against a floor of about 17 s from Vitest import and preparation.
 
 ## Story obligations
 
