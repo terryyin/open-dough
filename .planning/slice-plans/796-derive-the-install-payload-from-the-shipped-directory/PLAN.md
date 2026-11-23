@@ -310,9 +310,11 @@ Decisions during slice 7 (developer, 2026-11-23):
 - `Distribution/tests/installation/self-installation-baseline.sh` runs close to
   the runner's 180 s job deadline under load. During slice 4 at load averages
   of 23–50, trunk `28785ac04` took 146 s and then timed out at 182 s, while the
-  candidate took 81 s and 165 s. CI passed. The failure policy makes it this
-  execution's defect to repair before completion; the cause is its run time,
-  not this story's change.
+  candidate took 81 s and 165 s. CI passed. Its 14 sequential cases each paid
+  a template copy and a no-writes snapshot. The repair splits it by promise into
+  `self-installation-baseline.sh`, `self-installation-version-records.sh` and
+  `self-installation-source-records.sh` over a shared fixture helper; under
+  load 19–31 the slowest job took 78 s against 162 s before.
 - CI run 45207498839 on slice 7's `19977e98` failed
   `git-publication-fixture-identity.sh`, which deleted a payload file and
   expected the identity to refuse. Local proof missed it because slice 7's trace
