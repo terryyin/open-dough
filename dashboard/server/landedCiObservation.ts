@@ -16,7 +16,7 @@ import { z } from "zod";
 import { attemptTimingBasis } from "../src/ciAttemptTiming.ts";
 import { buildKeyOf } from "../src/landedCiBuildKey.ts";
 import { runIdentityShape } from "../src/baseCiConfirmation.ts";
-import { ciProofSchema } from "../src/ciProof.ts";
+import { ciProofSchema, type CiProofUnavailable } from "../src/ciProof.ts";
 import {
   currentSummaryOf,
   summaryProblems,
@@ -45,27 +45,33 @@ const keptRunSchema = z.object({
 
 export type KeptRun = z.infer<typeof keptRunSchema>;
 
-// Stored summaries bypass the upstream readers. Apply their same readable
-// contract and canonical conversion locally before the current schema parses.
-const retainedProofSchema = z.preprocess((value, context) => {
-  if (
-    typeof value !== "object" ||
-    value === null ||
-    !("kind" in value) ||
-    value.kind !== "summary" ||
-    !("summary" in value)
-  )
-    return value;
-  const problems = summaryProblems(value.summary) as readonly string[];
-  if (problems.length > 0) {
-    context.addIssue({
-      code: "custom",
-      message: `Invalid retained CI proof summary: ${problems.join("; ")}`,
-    });
-    return z.NEVER;
+const invalidSummary = (detail: string): CiProofUnavailable => ({
+  kind: "unavailable",
+  reason: "invalid",
+  detail: `Invalid retained CI proof summary: ${detail}`,
+});
+
+// Stored summaries bypass the upstream readers. Apply their readable contract
+// locally and keep a failed summary's diagnosis with its measured build.
+const retainedProofSchema = z.unknown().transform((value, context) => {
+  const claimsSummary =
+    typeof value === "object" &&
+    value !== null &&
+    "kind" in value &&
+    value.kind === "summary";
+  let candidate = value;
+  if (claimsSummary) {
+    const summary = "summary" in value ? value.summary : undefined;
+    const problems = summaryProblems(summary) as readonly string[];
+    if (problems.length > 0) return invalidSummary(problems.join("; "));
+    candidate = { ...value, summary: currentSummaryOf(summary) as unknown };
   }
-  return { ...value, summary: currentSummaryOf(value.summary) as unknown };
-}, ciProofSchema);
+  const parsed = ciProofSchema.safeParse(candidate);
+  if (parsed.success) return parsed.data;
+  if (claimsSummary) return invalidSummary(z.prettifyError(parsed.error));
+  for (const issue of parsed.error.issues) context.addIssue({ ...issue });
+  return z.NEVER;
+});
 
 // One completed build as its CI read named it.
 export const keptBuildSchema = z.object({

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { historyWallTimeMs } from "../../../dashboard/src/landedCiHistory.ts";
 import { makeMe } from "./makeMe.mjs";
 import { storeOnMachine } from "./landedCiHistoryMachineTest.mjs";
 
@@ -172,3 +173,79 @@ test("stored v1 and v2 proof with an old gap normalize locally without inferring
     result.scope.entries[2].readings.every((reading) => reading.kind === "gap"),
   );
 });
+
+for (const [name, corrupt, detail] of [
+  [
+    "missing summary payload",
+    () => ({ kind: "summary" }),
+    /summary is not a JSON object/,
+  ],
+  [
+    "malformed fields on an unreported part",
+    (proof) => {
+      const wireProof = structuredClone(proof);
+      wireProof.summary.entries[0].evidence[0].parts[0] = {
+        part: 1,
+        status: "missing",
+        passed: "invalid",
+      };
+      return wireProof;
+    },
+    /at summary/,
+  ],
+]) {
+  test(`history keeps measured builds and their neighbours through a write with ${name}`, (t) => {
+    const earlier = makeMe.aLaunchLanding
+      .comparing({ base: "0".repeat(40), revision: "a".repeat(40) })
+      .deliveredAs({ delivery: "earlier", receipt: "earlier" })
+      .please();
+    const later = makeMe.aLaunchLanding
+      .comparing({ base: earlier.revision, revision: "b".repeat(40) })
+      .deliveredAs({ delivery: "later", receipt: "later" })
+      .please();
+    const proofOf = (landing, runId) =>
+      makeMe.aCiProof
+        .forRun({ revision: landing.revision, runId })
+        .entries([makeMe.aCiProofEntry.at("tests").timed(200).please()])
+        .please();
+    const validProof = proofOf(later, 2);
+    const history = makeMe.aLandedCiHistory
+      .measuredLanding({
+        ...earlier,
+        runId: 1,
+        startedAt: "2026-11-01T00:00:00Z",
+        completedAt: "2026-11-01T00:01:00Z",
+      })
+      .measuredLanding({ ...later, runId: 2 })
+      .proofFor("run/2/1", validProof)
+      .please();
+    history.builds["run/1/1"].proof = corrupt(proofOf(earlier, 1));
+    const order = [earlier.revision, later.revision];
+    const { first, kept, disk } = storeOnMachine(
+      t,
+      history,
+      `
+      const first=await readLandedCiHistory('open-dough');
+      await keepLandedCiOrder('open-dough',facts.order);
+      const kept=await readLandedCiHistory('open-dough');
+      const disk=JSON.parse(readFileSync(process.env.HOME+'/.open-dough/dashboard/landed-ci-history.json','utf8'))['open-dough'];
+      console.log(JSON.stringify({first,kept,disk}));
+    `,
+      { order },
+    );
+    for (const record of [first, kept, disk]) {
+      assert.equal(record.landings[earlier.receipt].observed.build, "run/1/1");
+      const build = record.builds["run/1/1"];
+      assert.equal(build.revision, earlier.revision);
+      assert.equal(
+        historyWallTimeMs(build.startedAt, build.completedAt),
+        60_000,
+      );
+      assert.equal(build.proof.kind, "unavailable");
+      assert.equal(build.proof.reason, "invalid");
+      assert.match(build.proof.detail, detail);
+      assert.deepEqual(record.builds["run/2/1"].proof, validProof);
+    }
+    assert.deepEqual(kept.trunkOrder, order);
+  });
+}

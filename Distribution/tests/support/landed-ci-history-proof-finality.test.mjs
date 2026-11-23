@@ -56,3 +56,24 @@ test("atomic proof writes preserve classified finality, promote validated summar
   assert.deepEqual(result.kept.builds["run/41/1"].proof, summary);
   assert.deepEqual(result.kept.landings, history.landings);
 });
+
+for (const [name, malformed] of [
+  ["build revision", { revision: "not a commit" }],
+  ["classified proof", { proof: { kind: "unavailable", reason: "unknown" } }],
+]) {
+  test(`a malformed retained ${name} keeps the history schema error`, (t) => {
+    const landing = makeMe.aLaunchLanding
+      .comparing({ base: "0".repeat(40), revision: "a".repeat(40) })
+      .please();
+    const history = makeMe.aLandedCiHistory
+      .measuredLanding({ ...landing, runId: 1 })
+      .please();
+    Object.assign(history.builds["run/1/1"], malformed);
+    const unreadable = storeOnMachine(
+      t,
+      history,
+      "console.log(JSON.stringify((await readLandedCiHistory('open-dough')) === undefined));",
+    );
+    assert.equal(unreadable, true);
+  });
+}

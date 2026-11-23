@@ -65,7 +65,7 @@ from `/opt/homebrew/bin` and the AC sleep guard.
 | GitHub jobs and the custom CI producer supply declared units | The maintained workflow/config audit checked Open Dough at `c2a0c51ce`, Doughnut at `c5bf470abf`, Pygardon at `49023bf9e`, Terry Talks at `f3e72cd`, Lizard at `22672c39`, and Clipboard at `4efe81d`. Doughnut uses composite actions with declared expectations. Pygardon's configured adapter delivers summaries from `infrastructure/ci/emit-ci-proof-summary.sh`, which uses case outcomes and `:case` expectations. The read-only Dashboard snapshot held declared version 2 proofs from five projects. Doughnut's retained summaries were all from the old cohort, so its checked producer configuration supplies that project's current evidence. |
 | The Open Dough actions collect reports for the actual workflow declarations | `bash scripts/test.sh` on the support checks `ci-proof-actions`, `ci-proof-declaration` and `ci-proof-frontend-report` passed. The action harness exercises Distribution file and case outcomes and the browser group's Playwright-record format. The workflow-declaration check matches the actual parts and units. The frontend report still consumes the collector's version 2 output. The eight CLI and collector checks used below also passed at the preparation revision, including the old-format acceptance witnesses. |
 | Both machine stores must keep otherwise usable build records | Read-only local inventory found 22 retained builds with legacy units, all with wall time, across Doughnut (14), Terry Talks (5) and Clipboard (3). The store held no v1 summaries and none of the legacy summaries mixed declared units. The follow-up ledger held 85 stored uses of summaries and none were retired. Both stores call `keptBuildSchema` and validate whole documents. |
-| A strict validator needs proof-local failure handling before it can ship | In a disposable fixture home under `storeOnMachine`, exercised `readStoredLandedCiHistory`, `keepLandedCiOrder`, `readFollowUps` and `changeFollowUps` with legacy and declared version 2 builds and a second project. Baseline read and wrote both documents. A scratch strict shared validator alone made both documents unreadable. Adding a scratch invalid-proof return from the retained decoder restored both reads and writes, retained a 60,000 ms build and the neighbouring project's declared proof, and preserved the assessed ledger row. Scratch edits were restored. The modified scoped projection and no-refetch assertion are owned by B's boundary proof. |
+| A strict validator needs proof-local failure handling before it can ship | In a disposable fixture home under `storeOnMachine`, exercised `readStoredLandedCiHistory`, `keepLandedCiOrder`, `readFollowUps` and `changeFollowUps` with legacy and declared version 2 builds and a second project. Baseline read and wrote both documents. A scratch strict shared validator alone made both documents unreadable. Adding a scratch invalid-proof return from the retained decoder restored both reads and writes, retained a 60,000 ms build and the neighbouring project's declared proof, and preserved the assessed ledger row. Scratch edits were restored. The modified scoped projection and no-refetch assertion are owned by slice 2's boundary proof. |
 | Existing Dashboard baselines reach the maintained proof boundaries | Six focused Distribution support checks passed, including `landed-ci-history-proof-versions`, `dashboard-ci-proof-units-read`, `dashboard-ci-adapter-proof`, `intent-ci-scope-history-{units,timing}`, and `story-ci-comparison-entry-summaries`. `npm run test:dashboard:backend --` passed the focused `landed-ci-scope-legacy-gap.spec.ts` and `landed-ci-proof-adapter-units.spec.ts` run. The Distribution `ci-follow-up-ledger` and `ci-follow-up-reading` support checks also passed. The mounted runner passed seven cases in `intent-ci-comparison-{units,legacy}.spec.ts` and `intent-scope-timing-history-units.spec.ts`, including the current gap wording and distinct unit displays. |
 
 The worktree baseline predates the adapter work in
@@ -103,19 +103,19 @@ comparison, and scope-history views.
 
 | Final promise | Owner and observing boundary |
 | --- | --- |
-| Outcomes require a unit; Playwright records still publish cases | C, collector CLI and existing composite-action fixture inputs |
-| Expectations require units; unusable parts cannot fill a declared part | E, collector CLI and workflow-produced combined summary |
-| CLI reads and ranks only valid declared evidence | B for input refusal and D for formatting and ranking on the CLI |
-| Dashboard classifies refused live proof on both providers | B, archive and custom adapter fixtures through the production readers |
-| Retained invalid proof leaves history and follow-up accounting usable | A for store validation and writes, B for the retired formats and the scoped history gap |
-| Project and scope timing preserve their separate meanings | B and F, retained backend journey and scoped timing views |
-| Declared case and file counts and times stay separate through comparison and drill-down | G, mounted Intent and typed proof response, with the non-overlapping browser journey from B |
+| Outcomes require a unit; Playwright records still publish cases | 3, collector CLI and existing composite-action fixture inputs |
+| Expectations require units; unusable parts cannot fill a declared part | 5, collector CLI and workflow-produced combined summary |
+| CLI reads and ranks only valid declared evidence | 2 for input refusal and 4 for formatting and ranking on the CLI |
+| Dashboard classifies refused live proof on both providers | 2, archive and custom adapter fixtures through the production readers |
+| Retained invalid proof leaves history and follow-up accounting usable | 1 for store validation and writes, 2 for the retired formats and the scoped history gap |
+| Project and scope timing preserve their separate meanings | 2 and 6, retained backend journey and scoped timing views |
+| Declared case and file counts and times stay separate through comparison and drill-down | 7, mounted Intent and typed proof response, with the non-overlapping browser journey from slice 2 |
 
 ## Slices
 
-### A. Keep a build record with invalid proof
+### 1. Keep a build record with invalid proof
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 10–13 minutes.
 
 Behavior. Given a retained build whose summary fails validation, reading and
@@ -123,7 +123,7 @@ updating history or a follow-up record preserves the readable document, its
 other records, and that build's provenance and wall time. The invalid summary
 is returned as an unavailable proof with validator detail. Other malformed
 build fields remain store-schema errors. Keep currently accepted summaries
-readable until B.
+readable until slice 2.
 
 Proof. Extend `landed-ci-history-proof-versions.test.mjs` at the real store
 read/write boundary with deliberately malformed wire proof and an independent
@@ -132,7 +132,18 @@ assessment or request with the same bad build evidence. Observe the same key
 and accounting through a write, alongside the invalid proof result.
 Use the fixture home and the real production store and decoder.
 
-### B. Refuse retired summaries across CLI, Dashboard and retained history
+Accepted proof. The shared retained-build decoder classifies invalid summaries,
+including a missing payload or typed parse failure, within the proof field.
+The history store's atomic read and write retained the original build key,
+revision, 60-second wall interval, and neighbouring valid proof. The new
+`ci-follow-up-ledger-proof.test.mjs` store case observed the same recorded
+receipt, original build, and spent allowance through an outcome update.
+The existing ledger selection was preserved. The four store checks and three
+reached consumer checks passed 30 cases with Bash 5 and the macOS AC guard.
+Dashboard type checking passed. Commands, selections and trace remain in
+`slice-a-return.md` in this checkout's Git evidence directory.
+
+### 2. Refuse retired summaries across CLI, Dashboard and retained history
 Type: Behavior
 Status: planned
 Estimated active work: 13–15 minutes.
@@ -140,7 +151,7 @@ Estimated active work: 13–15 minutes.
 Behavior. Given v1, v2 with a missing unit, or v2 mixing a retired unit with
 a declared unit, reading the attempt refuses the summary as a whole. Valid
 v2 case and file evidence remains readable. A stored retired summary takes
-A's invalid path and keeps its wall-time point. A's refusal never starts a
+slice 1's invalid path and keeps its wall-time point. Slice 1's refusal never starts a
 replacement proof request. Distinct malformed, missing, expired, oversize
 and wrong-attempt cases retain the existing classifications.
 
@@ -154,13 +165,13 @@ paired valid points, atomic re-read and unchanged request count. Change the
 old-format E2E journey to read invalid proof. Give the declared-unit E2E
 journey modern collected evidence and retain its independent drill-down and
 missing-part checks. Remove obsolete `currentSummaryOf` and v1 validation here.
-Typed view and fixture branches for the retired unit remain temporarily until F and G.
-Collection can still emit legacy output until E, while maintained jobs
+Typed view and fixture branches for the retired unit remain temporarily until slices 6 and 7.
+Collection can still emit legacy output until slice 5, while maintained jobs
 already use declared units. Run
 `Distribution/tests/installation/execution-payload-update.sh` because both
 installed skill roots exercise the changed custom adapter summary reader.
 
-### C. Require a unit when turning outcomes into fragments
+### 3. Require a unit when turning outcomes into fragments
 Type: Behavior
 Status: planned
 Estimated active work: 9–12 minutes.
@@ -176,20 +187,20 @@ Keep the action fixture and workflow declaration checks green. Update
 `fragmentsFromOutcomes` fixture call sites to say what they count, including
 the by-file and custom adapter fixtures.
 
-### D. Drop the retired unit from CLI projections
+### 4. Drop the retired unit from CLI projections
 Type: Structure
 Status: planned
 Estimated active work: 8–11 minutes.
 
 Structure. Change the scope, gaps, table and ranking projections to use
-declared unit identity and wording, allowing E to remove the remaining
+declared unit identity and wording, allowing slice 5 to remove the remaining
 Distribution legacy helpers. Preserve the CLI's accepted output for cases,
-files, missing parts, partial timing, and attempt refusals after B.
+files, missing parts, partial timing, and attempt refusals after slice 2.
 Proof. Run `ci-proof-{ranking,scope,scope-units,leads-gaps}.test.mjs` around the
 CLI projections. Observe separate ranking groups and labeled scope counts
 and times, including mixed declared units and no timing for an unusable part.
 
-### E. Collect only matching declared parts
+### 5. Collect only matching declared parts
 Type: Behavior
 Status: planned
 Estimated active work: 12–15 minutes.
@@ -206,29 +217,29 @@ and breakdown checks. Keep the `ci-proof-actions` and
 and raw fragment compatibility branches and update the shipped proof
 usage.
 
-### F. Use only declared readings in retained scope timing
+### 6. Use only declared readings in retained scope timing
 Type: Structure
 Status: planned
 Estimated active work: 8–11 minutes.
 
 Structure. Remove the unused legacy timing cue and `legacyReason` from the
-scoped history projection, response and mounted fixtures so G can narrow the
-shared unit type. B already makes retired summaries invalid at both
+scoped history projection, response and mounted fixtures so slice 7 can narrow the
+shared unit type. Slice 2 already makes retired summaries invalid at both
 stores. Preserve that gap, the acquisition rules, the wall-time points, and
 selected case and file points on their own series.
 
 Proof. Run `intent-ci-scope-history-{units,timing,gaps}.test.mjs` and the
 mounted `intent-scope-timing-history-units.spec.ts` cases. Reuse the backend
-retained history and follow-up proof from B on the actual projection change.
+retained history and follow-up proof from slice 2 on the actual projection change.
 The 257-line `intent-ci-scope-history-timing.test.mjs` already exceeds the
 file limit. Retire the internal legacy-only fixture and its old cue from the
 test that covers declared timing continuity and terminal gaps, keeping
-invalid raw proof coverage at B's store boundary. Keep the independent
+invalid raw proof coverage at slice 2's store boundary. Keep the independent
 owning-entry/selected-unit comparability case. If still over 250 lines,
 move the ownership-change case to the scope-matching spec or its own file
 and run both affected checks.
 
-### G. Read Dashboard proof and comparisons in declared units
+### 7. Read Dashboard proof and comparisons in declared units
 Type: Behavior
 Status: planned
 Estimated active work: 12–15 minutes.
@@ -248,11 +259,28 @@ unavailable or non-overlapping declared-unit cases according to the promise
 they own. Keep raw invalid input in the wire-boundary proofs. Run Dashboard
 type checks and the reached mounted comparison and scope-proof specs.
 
+## Execution context
+
+- Tsubomi-chan, Story Branch Mode on
+  `codex/read-and-collect-ci-proof-only-in-declared-units`. The established Take
+  `cc18578a63e19d63a6eaa4a35e8c99fa5037b8e1` was accepted on `origin/main`
+  from `678701204fc07654897a8341178c94d8df8772e0`.
+- The Codex observer covers the story branch using GitHub Actions `ci.yml`.
+  Coordinator `seed-423-units-ed1a06d9`, mailbox
+  `/tmp/dough-ci-501/watch-sX111F`, PID `72385`, cell `g446:13`, session `51637`.
+
+## Story obligations
+
+### G1. Retired summaries remain readable during slice 1
+Reported: slice 1 — "Valid classified proof and readable v1/v2 summaries keep their established behavior during A."
+Story clause: "Read version 2 summaries whose evidence uses declared units throughout."
+Disposition: interim until slices 2
+
 ## Readiness review
 
 Slice-plan refinement placed the CLI projection cleanup immediately before
 it enables collector helper removal. The retained decoder comes before the
 shared reader cutover, and the scope projection cleanup immediately precedes
 narrowing the Dashboard unit type. Seven slices fit the eight-slice limit.
-E and G settle the recorded interim behavior. No remaining slice-specific
+Slices 5 and 7 settle the recorded interim behavior. No remaining slice-specific
 concern was identified in the sequencing, sizing, or ownership review.
