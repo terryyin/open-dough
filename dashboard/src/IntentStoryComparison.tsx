@@ -6,7 +6,10 @@
 
 import { shortRevision } from "./publishedWork.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
-import { measuredStoryResult } from "./intentCiEvidenceModel.ts";
+import {
+  measuredStoryResult,
+  selectedComparisonOf,
+} from "./intentCiEvidenceModel.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { ComparedRange, type StoryCompare } from "./IntentStoryCompare.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
@@ -71,19 +74,21 @@ export const defaultReviewOf = (comparison: LensComparison) =>
 // The choice of what is compared, while one is offered.
 export const compareOf = (comparison: LensComparison) => comparison.compare;
 
-// Whether a comparison other than the story's default is chosen, while the
-// CI views keep describing the whole story through its default.
+// Whether a comparison other than the story's default is chosen.
 export const otherThanDefaultChosen = (comparison: LensComparison) =>
   compareOf(comparison)?.isDefault === false;
 
-// The note names the existing CI comparison's measured build.
 export function WholeStoryNote({
   whole,
+  coverage = false,
 }: {
   readonly whole: boolean | undefined;
+  readonly coverage?: boolean;
 }) {
-  const revision = measuredStoryResult(useIntentCiEvidence());
-  if (!whole) return null;
+  const evidence = useIntentCiEvidence();
+  if (!whole || (!coverage && selectedComparisonOf(evidence) !== undefined))
+    return null;
+  const revision = measuredStoryResult(evidence);
   return (
     <p className="intent-story-whole quiet" role="note">
       Describes the whole story

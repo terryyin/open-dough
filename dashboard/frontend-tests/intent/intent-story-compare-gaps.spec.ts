@@ -3,9 +3,13 @@
 // changes, while the other choices stay offered; a failed read offers Retry,
 // which reads it again. The case's review answers own the Git judgment.
 import { expect, test } from "vitest";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import {
+  activateComparisonControl,
+  intentStoryCompare,
+} from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
   openDoneStoryComparison,
@@ -178,4 +182,59 @@ test("a failed read of a chosen landed run offers Retry, which reads that run ag
   await expect.element(story.alert).not.toBeInTheDocument();
   expect(runAsks).toBeGreaterThan(asked);
   expect(outsideCalls()).toEqual([]);
+});
+
+test("a captured run with no end build keeps the measured baseline and can check again in place", async () => {
+  const { baseline } = makeMe.aComparedStory.please().answer;
+  if (baseline.kind !== "build")
+    throw new Error("Arrange a measured baseline.");
+  const gap = "No completed CI build includes the selected changes.";
+  const selection = makeMe.aStoryCiComparisonSlot
+    .with({ kind: "none", explanation: gap })
+    .please();
+  let asks = 0;
+  await openDoneStoryComparison({
+    ci: {
+      readSelectedComparison: (source, identity, range) => {
+        asks += 1;
+        return Promise.resolve(
+          makeMe.aSelectedCiComparison
+            .with({
+              source: source.id,
+              identity,
+              range,
+              baseline,
+              selection,
+            })
+            .please(),
+        );
+      },
+    },
+    review: (query) =>
+      Promise.resolve(
+        query.run === run.key
+          ? makeMe.aStoryReview
+              .landed()
+              .adding("chosen.txt")
+              .onRun(run)
+              .please()
+          : offeringRun(),
+      ),
+  });
+  const story = intentStoryCompare();
+  await story.chooseTab("CI comparison");
+  await story.choose("Landed runs");
+  const endpoints = page.getByRole("table", {
+    name: "Baseline and selection CI builds with timing",
+  });
+  await expect.element(endpoints.getByText(gap)).toBeVisible();
+  await expect
+    .element(endpoints.getByText(baseline.revision.slice(0, 7)))
+    .toBeVisible();
+  await activateComparisonControl(
+    page.getByRole("button", { name: "Check again" }),
+  );
+  await expect.poll(() => asks).toBe(2);
+  await expect.element(endpoints.getByText(gap)).toBeVisible();
+  await expect.element(story.run).toHaveValue(run.key);
 });

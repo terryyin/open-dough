@@ -19,15 +19,11 @@
 
 import type { TimingCell } from "./ciProofTiming.ts";
 import { declaredUnits, type CiProofUnit } from "./ciProofUnits.ts";
-import type {
-  CiProofCells,
-  CiProofUnitLine,
-  CountedResults,
-} from "./ciProofWording.ts";
+import type { CiProofUnitLine, CountedResults } from "./ciProofWording.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import {
   isComparisonCells,
-  type ComparisonEntryCells,
+  type ProofFigureCells,
 } from "./storyCiComparisonEntries.ts";
 
 export type SortDirection = "ascending" | "descending";
@@ -39,7 +35,8 @@ export type CiProofColumn =
   | "executionTime"
   | "baseline"
   | "branch"
-  | "landed";
+  | "landed"
+  | "selection";
 
 export type ColumnSort = {
   readonly column: CiProofColumn;
@@ -50,7 +47,7 @@ export type ColumnSort = {
 // stays last whatever the sort.
 export type SortableRow = {
   readonly name?: string;
-  readonly cells: CiProofCells | ComparisonEntryCells;
+  readonly cells: ProofFigureCells;
   readonly pinned?: true;
 };
 
@@ -73,21 +70,20 @@ export function nextSort(
 // The timing cell CELLS show under COLUMN, if COLUMN is one of their timing
 // columns.
 export function timingCellIn(
-  cells: CiProofCells | ComparisonEntryCells,
+  cells: ProofFigureCells,
   column: CiProofColumn,
 ): TimingCell | undefined {
   if (!isComparisonCells(cells))
     return column === "executionTime" ? cells.executionTime : undefined;
-  return column === "baseline" || column === "branch" || column === "landed"
-    ? cells[column]
-    : undefined;
+  if (column === "baseline") return cells.baseline;
+  if ("selection" in cells)
+    return column === "selection" ? cells.selection : undefined;
+  return column === "branch" || column === "landed" ? cells[column] : undefined;
 }
 
 // The story change CELLS show under Change: a story comparison's change of
 // its scope, none for a scope the story leaves unchanged or one run's figures.
-export const changeIn = (
-  cells: CiProofCells | ComparisonEntryCells,
-): ChangeKind | undefined =>
+export const changeIn = (cells: ProofFigureCells): ChangeKind | undefined =>
   isComparisonCells(cells) ? cells.change : undefined;
 
 // The order of story change kinds under Change.
@@ -108,13 +104,13 @@ function valueOf(row: SortableRow, column: CiProofColumn): SortValue {
   const cell = timingCellIn(row.cells, column);
   const byChange =
     isComparisonCells(row.cells) &&
-    (column === "branch" || column === "landed");
+    (column === "branch" || column === "landed" || column === "selection");
   return byChange ? cell?.changeMs : cell?.ms;
 }
 
 // Homepage entry unit lines when CELLS carry them; none for a comparison row.
 export const unitLinesIn = (
-  cells: CiProofCells | ComparisonEntryCells,
+  cells: ProofFigureCells,
 ): readonly CiProofUnitLine[] | undefined =>
   isComparisonCells(cells) ? undefined : cells.unitLines;
 

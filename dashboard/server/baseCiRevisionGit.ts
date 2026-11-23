@@ -7,7 +7,12 @@ export async function firstParentChain(
 ): Promise<string[]> {
   return (
     await runGit(
-      ["rev-list", "--first-parent", `--max-count=${String(limit)}`, start],
+      [
+        "rev-list",
+        "--first-parent",
+        ...(limit === Infinity ? [] : [`--max-count=${String(limit)}`]),
+        start,
+      ],
       call,
     )
   ).stdout

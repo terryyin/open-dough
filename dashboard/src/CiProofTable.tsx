@@ -31,7 +31,6 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import { nextSort, sortedRows, type ColumnSort } from "./ciProofSort.ts";
 import { scopeCueRowAttrs } from "./ciScopeComparisonCuePresentation.ts";
-import type { CiProofCells } from "./ciProofWording.ts";
 import {
   figureHeadersFor,
   figureOf,
@@ -39,7 +38,7 @@ import {
 } from "./CiProofFigures.tsx";
 import {
   isComparisonCells,
-  type ComparisonEntryCells,
+  type ProofFigureCells,
 } from "./storyCiComparisonEntries.ts";
 import "./ci-proof-table.css";
 import "./intent-ci-cues.css";
@@ -50,7 +49,7 @@ export type CiProofTableRow = {
   readonly scope: ReactNode;
   // The scope's path name, by which its column sorts.
   readonly name?: string;
-  readonly cells: CiProofCells | ComparisonEntryCells;
+  readonly cells: ProofFigureCells;
   // A row that is not one of the scopes, kept last under any sort.
   readonly pinned?: true;
 };
@@ -156,9 +155,9 @@ export function CiProofTable({
   // Whether a story comparison's rows show their story change under Change.
   readonly changes?: boolean;
 }) {
-  const comparison = rows.some((row) => isComparisonCells(row.cells));
+  const comparison = rows.find((row) => isComparisonCells(row.cells))?.cells;
   const noteOf = (column: string) =>
-    comparison && (column === "branch" || column === "landed")
+    column === "branch" || column === "landed" || column === "selection"
       ? "vs baseline"
       : undefined;
   const headers = figureHeadersFor(comparison, changes);

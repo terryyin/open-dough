@@ -10,11 +10,10 @@
 // each figure says why.
 
 import { figureHeadersOf, figureOf } from "./CiProofFigures.tsx";
-import type { CiProofCells } from "./ciProofWording.ts";
 import { scopeCueElementAttrs } from "./ciScopeComparisonCuePresentation.ts";
 import {
   isComparisonCells,
-  type ComparisonEntryCells,
+  type ProofFigureCells,
 } from "./storyCiComparisonEntries.ts";
 import "./intent-summary.css";
 
@@ -29,7 +28,7 @@ export function ScopeFigures({
   unit,
 }: {
   readonly path: string;
-  readonly cells: CiProofCells | ComparisonEntryCells;
+  readonly cells: ProofFigureCells;
   // The unit's name ("test cases") when the scope shows several units.
   readonly unit?: string;
 }) {

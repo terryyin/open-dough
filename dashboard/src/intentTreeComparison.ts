@@ -5,7 +5,6 @@
 // Counts and after-side words and takes the cue its rows agree on
 // (`./ciScopeComparisonAgreedCues.ts`). Folder rows stay uncued.
 
-import { scopeComparisonRowsOf } from "./ciScopeComparison.ts";
 import { combinedCuesOf } from "./ciScopeComparisonAgreedCues.ts";
 import type {
   ComparisonAfterSide,
@@ -13,39 +12,35 @@ import type {
 } from "./ciScopeComparisonCues.ts";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import type { CiEvidence } from "./IntentCiEvidence.tsx";
-import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
+import {
+  scopeComparisonReadingOf,
+  scopeComparisonRowsFor,
+  type ScopeComparisonReading,
+} from "./intentScopeComparison.ts";
+import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import type {
-  ComparisonEndpointProofs,
-  ComparisonEntryCells,
+  ComparedProofCells,
+  ComparisonEndpointProof,
 } from "./storyCiComparisonEntries.ts";
-import { activeComparisonAfterSideOf } from "./useIntentCiComparisonEntries.ts";
 
 export type TreeComparisonReading =
-  | { readonly kind: "none" }
-  | {
-      readonly kind: "comparison";
-      readonly afterSide: ComparisonAfterSide;
-      readonly proofs: ComparisonEndpointProofs;
-    };
+  { readonly kind: "none" } | ScopeComparisonReading;
 
 export function treeComparisonReadingOf(
   evidence: CiEvidence,
 ): TreeComparisonReading {
   const scope = scopeEvidenceOf(evidence);
-  if (scope.kind !== "comparison") return { kind: "none" };
-  return {
-    kind: "comparison",
-    afterSide: activeComparisonAfterSideOf(scope.answer, scope.proofs),
-    proofs: scope.proofs,
-  };
+  return scope.kind === "comparison" || scope.kind === "selection"
+    ? scopeComparisonReadingOf(scope)
+    : { kind: "none" };
 }
 
 // True when PATH is a declared entry in any compared endpoint summary.
-export function comparedEntryPathOf(
-  proofs: ComparisonEndpointProofs,
+function comparedEntryPathOf(
+  proofs: readonly ComparisonEndpointProof[],
   path: string,
 ): boolean {
-  for (const proof of [proofs.baseline, proofs.branch, proofs.landed]) {
+  for (const proof of proofs) {
     if (proof.kind !== "summary") continue;
     if (proof.entries.some((entry) => entry.path === path)) return true;
   }
@@ -59,33 +54,29 @@ export type TreeComparison = {
   readonly cues: ScopeComparisonCues;
 };
 
-function afterWordsOf(
-  cells: ComparisonEntryCells,
-  afterSide: ComparisonAfterSide,
+function treeRowWords(
+  cells: ComparedProofCells,
+  afterSide: ComparisonAfterSide | undefined,
 ): string {
-  return (afterSide === "landed" ? cells.landed : cells.branch).text;
+  if ("selection" in cells) {
+    return cells.selection.ms === undefined
+      ? cells.counts
+      : `${cells.counts}, ${cells.selection.text}`;
+  }
+  const timing = afterSide === "landed" ? cells.landed : cells.branch;
+  return `${cells.counts}, ${timing.text}`;
 }
 
-export function treeScopeComparisonOf(
-  reading: Extract<TreeComparisonReading, { kind: "comparison" }>,
+function treeScopeComparisonOf(
+  reading: ScopeComparisonReading,
   path: string,
   treeFile?: IntentTreeFile,
 ): TreeComparison {
-  const { proofs, afterSide } = reading;
-  const rows = scopeComparisonRowsOf(
-    path,
-    proofs.baseline,
-    proofs.branch,
-    proofs.landed,
-    "precise",
-    baselinePathOf(treeFile, path),
-    treeFile?.kind,
-    afterSide,
-  );
+  const rows = scopeComparisonRowsFor(reading, path, treeFile);
+  const afterSide =
+    reading.kind === "comparison" ? reading.afterSide : undefined;
   return {
-    words: rows
-      .map((cells) => `${cells.counts}, ${afterWordsOf(cells, afterSide)}`)
-      .join("; "),
+    words: rows.map((cells) => treeRowWords(cells, afterSide)).join("; "),
     cues: combinedCuesOf(rows.map(({ cues }) => cues)),
   };
 }
@@ -103,8 +94,9 @@ export function treeLocationComparisonOf(
   reading: TreeComparisonReading,
   locationPath: string,
 ): TreeComparison | undefined {
-  if (reading.kind !== "comparison") return undefined;
-  if (!comparedEntryPathOf(reading.proofs, locationPath)) return undefined;
+  if (reading.kind === "none") return undefined;
+  if (!comparedEntryPathOf(Object.values(reading.proofs), locationPath))
+    return undefined;
   return treeScopeComparisonOf(reading, locationPath);
 }
 
@@ -113,7 +105,7 @@ export function treeFileComparisonOf(
   path: string,
   treeFile?: IntentTreeFile,
 ): TreeComparison | undefined {
-  return reading.kind === "comparison"
-    ? treeScopeComparisonOf(reading, path, treeFile)
-    : undefined;
+  return reading.kind === "none"
+    ? undefined
+    : treeScopeComparisonOf(reading, path, treeFile);
 }

@@ -6,12 +6,9 @@
 // (`./ciScopeComparisonCues.ts`) that differ only between figures of one
 // declared unit (`./ciProofUnits.ts`), with the row's units named.
 
-import { joinedAnd } from "./ciProofTiming.ts";
+import { joinedAnd, type TimingCell } from "./ciProofTiming.ts";
 import { unitName } from "./ciProofUnits.ts";
-import {
-  countedResultsOfCount,
-  type ScopeEndpointCount,
-} from "./ciScopeComparisonCounts.ts";
+import { countedResultsOfCount } from "./ciScopeComparisonCounts.ts";
 import { countsCellText } from "./ciScopeComparisonCountsCell.ts";
 import {
   scopeComparisonCuesOf,
@@ -27,6 +24,7 @@ import {
   showsResults,
   type ComparedRow,
   type EndpointUnits,
+  type RowEndpoint,
 } from "./ciScopeComparisonUnits.ts";
 import type { ChangeKind } from "./reviewFileTree.ts";
 import type { ComparisonEntryCells } from "./storyCiComparisonEntries.ts";
@@ -43,16 +41,28 @@ export type RowContext = {
   readonly precision: ComparisonTimingPrecision;
   readonly afterSide: ComparisonAfterSide;
   readonly changeKind?: ChangeKind;
-  // Said after Baseline's own figures: " (was tests/old.sh)".
-  readonly renameNote?: string;
+  readonly renamedFrom?: string;
   readonly parts: (
     row: ComparedRow,
   ) => Pick<ComparisonEntryCells, "completeness" | "gaps">;
 };
 
-// Whether COUNT holds the scope's results in the row's units.
-const holdsResults = (count: ScopeEndpointCount) =>
-  count.kind !== "unreported" && count.kind !== "absent";
+// Keep a rename beside the Baseline figures only in rows where they exist.
+export function baselineRowCellOf(
+  baseline: RowEndpoint,
+  presentLater: boolean,
+  precision: ComparisonTimingPrecision,
+  renamedFrom?: string,
+): TimingCell {
+  const cell = baselineCellOf(baseline.timing, presentLater, precision);
+  if (
+    renamedFrom === undefined ||
+    baseline.count.kind === "unreported" ||
+    baseline.count.kind === "absent"
+  )
+    return cell;
+  return { ...cell, text: `${cell.text} (was ${renamedFrom})` };
+}
 
 // The cells of ROW across ENDPOINTS: the scope was there later when a later
 // endpoint holds it, and before when Baseline holds it or the story removed
@@ -71,11 +81,6 @@ export function rowCellsOf(
   const branch = rowEndpointOf(endpoints.branch, row);
   const landed = rowEndpointOf(endpoints.landed, row);
   const after = context.afterSide === "landed" ? landed : branch;
-  const baselineCell = baselineCellOf(before.timing, presentLater, precision);
-  const renameNote =
-    context.renameNote !== undefined && holdsResults(before.count)
-      ? context.renameNote
-      : "";
   return {
     counts: countsCellText(
       before.count,
@@ -88,10 +93,12 @@ export function rowCellsOf(
     ),
     countedResults: countedResultsOfCount(after.count),
     ...context.parts(row),
-    baseline:
-      renameNote === ""
-        ? baselineCell
-        : { ...baselineCell, text: `${baselineCell.text}${renameNote}` },
+    baseline: baselineRowCellOf(
+      before,
+      presentLater,
+      precision,
+      context.renamedFrom,
+    ),
     branch: afterCellOf(
       branch.timing,
       before.timing,

@@ -1,6 +1,6 @@
 // A story review snapshot's commits (`./storyReviewSnapshot.ts`): the
 // story's own first-parent line after its baseline, newest first, each with
-// its tree and baseline and its first parent's, the points a commit range
+// its first-parent commit ID and the tree and baseline points a commit range
 // compares (`./storyReviewRange.ts`).
 
 import type { ReviewCommit } from "../src/storyReviewContract.ts";
@@ -38,15 +38,16 @@ export async function storyCommits(
       commitTree = "",
     ] = fields.slice(at, at + 6);
     const parents = parentList.split(" ");
-    const parent = parents[0] ?? "";
+    const firstParent = parents[0] ?? "";
     const [commitBaseline, fromBaseline, fromTree] = await Promise.all([
       git(["merge-base", revision, trunk]),
-      git(["merge-base", parent, trunk]),
-      git(["rev-parse", `${parent}^{tree}`]),
+      git(["merge-base", firstParent, trunk]),
+      git(["rev-parse", `${firstParent}^{tree}`]),
     ]);
     commits.push({
       kind: "commit",
       revision,
+      ...(firstParent === "" ? {} : { firstParent }),
       shortRevision,
       subject,
       committedAt,

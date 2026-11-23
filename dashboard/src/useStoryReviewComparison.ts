@@ -4,8 +4,12 @@
 // holding uncommitted changes can leave them out: its committed work alone,
 // to the head's tree, which came with the snapshot.
 import type { ShownComparison } from "./StoryReviewComparison.tsx";
-import { reviewItemId, type TakenStoryReview } from "./storyReviewContract.ts";
-import { reviewIntegrations } from "./storyReviewPoints.ts";
+import type { TakenStoryReview } from "./storyReviewContract.ts";
+import {
+  reviewIntegrations,
+  reviewItemId,
+  reviewRangeEnds,
+} from "./storyReviewPoints.ts";
 import { useReviewRead } from "./useReviewRead.ts";
 import { useStateKeyedBy } from "./stateKeyedBy.ts";
 import {
@@ -64,8 +68,7 @@ export function useStoryReviewComparison({
           Math.min(...selectedIndexes),
           Math.max(...selectedIndexes) + 1,
         );
-  const newest = selectedItems[0];
-  const oldest = selectedItems.at(-1);
+  const { oldest, newest } = reviewRangeEnds(selectedItems);
   const onSelect = (id: string) => {
     setEnds(
       selectedItems.length === 1 && newest !== undefined

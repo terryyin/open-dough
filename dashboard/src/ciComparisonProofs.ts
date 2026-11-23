@@ -5,14 +5,23 @@ import type { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
 import { createCiProofReading } from "./ciProofReading.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import {
+  selectedCiComparisonKey,
+  type SelectedCiComparisonAnswer,
+} from "./selectedCiComparison.ts";
+import {
   branchResultOf,
   type StoryCiComparisonAnswer,
   type StoryCiComparisonSlot,
 } from "./storyCiComparison.ts";
 import {
   comparisonProofOf,
-  type ComparisonEndpointProofs,
+  type ComparisonEndpointProof,
 } from "./storyCiComparisonEntries.ts";
+
+export type SelectedComparisonEndpointProofs = {
+  readonly baseline: ComparisonEndpointProof;
+  readonly selection: ComparisonEndpointProof;
+};
 
 function subjectOf(
   slot: StoryCiComparisonSlot | undefined,
@@ -40,39 +49,43 @@ function subjectOf(
 
 function slotRead(
   source: PublishedSource,
-  identity: string | undefined,
+  comparisonKey: string | undefined,
   slot: StoryCiComparisonSlot | undefined,
   round: number,
 ) {
   const subject = subjectOf(slot);
   const key =
-    identity === undefined || subject === undefined
+    comparisonKey === undefined || subject === undefined
       ? undefined
       : JSON.stringify([
           source.id,
           source.repository,
-          identity,
+          comparisonKey,
           subject,
           round,
         ]);
   return { key, subject };
 }
 
-function slotsOf(
-  answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>,
-) {
-  return [answer.baseline, branchResultOf(answer).slot, answer.landed] as const;
-}
+type ComparisonProofRead<Endpoint extends string> = {
+  readonly key: string;
+  readonly slots: Readonly<Record<Endpoint, StoryCiComparisonSlot>>;
+};
 
-export function createCiComparisonProofs(readProof: typeof readIntentCiProof) {
-  const readers = [
-    createCiProofReading(readProof),
-    createCiProofReading(readProof),
-    createCiProofReading(readProof),
-  ] as const;
+function createEndpointProofs<Answer, Endpoint extends string>(
+  readProof: typeof readIntentCiProof,
+  endpoints: readonly Endpoint[],
+  comparisonOf: (
+    answer: Answer | undefined,
+    source: PublishedSource,
+  ) => ComparisonProofRead<Endpoint> | undefined,
+) {
+  const readers = endpoints.map(
+    (endpoint) => [endpoint, createCiProofReading(readProof)] as const,
+  );
   const listeners = new Set<() => void>();
   let version = 0;
-  for (const reader of readers)
+  for (const [, reader] of readers)
     reader.subscribe(() => {
       version += 1;
       for (const listener of listeners) listener();
@@ -85,64 +98,98 @@ export function createCiComparisonProofs(readProof: typeof readIntentCiProof) {
         listeners.delete(listener);
       };
     },
-    select(
-      source: PublishedSource,
-      answer: StoryCiComparisonAnswer | undefined,
-      round: number,
-    ) {
-      const identity =
-        answer?.kind === "comparison" ? answer.identity : undefined;
-      const slots =
-        answer?.kind === "comparison"
-          ? slotsOf(answer)
-          : ([undefined, undefined, undefined] as const);
+    select(source: PublishedSource, answer: Answer | undefined, round: number) {
+      const comparison = comparisonOf(answer, source);
       return Promise.all(
-        slots.map((slot, index) => {
-          const { key, subject } = slotRead(source, identity, slot, round);
-          return (
-            readers[index]?.select(source, key, subject) ?? Promise.resolve()
+        readers.map(([endpoint, reader]) => {
+          const { key, subject } = slotRead(
+            source,
+            comparison?.key,
+            comparison?.slots[endpoint],
+            round,
           );
+          return reader.select(source, key, subject) ?? Promise.resolve();
         }),
       );
     },
     proofsFor(
       source: PublishedSource,
-      answer: StoryCiComparisonAnswer | undefined,
+      answer: Answer | undefined,
       round: number,
-    ): ComparisonEndpointProofs | undefined {
-      if (answer?.kind !== "comparison") return undefined;
-      const [baseline, branch, landed] = slotsOf(answer);
-      const proofOf = (slot: StoryCiComparisonSlot, index: number) => {
-        const { key, subject } = slotRead(source, answer.identity, slot, round);
-        const current = readers[index]?.getSnapshot();
-        let proof: CiProof | undefined;
-        if (slot.kind === "build" && subject === undefined)
-          proof = { kind: "unavailable", reason: "none" };
-        else if (key !== undefined && current?.key === key)
-          proof =
-            current.read.kind === "unanswered"
-              ? {
-                  kind: "unavailable",
-                  reason: "unreadable",
-                  ...(current.read.detail === undefined
-                    ? {}
-                    : { detail: current.read.detail }),
-                }
-              : current.read;
-        return comparisonProofOf(
-          slot,
-          proof,
-          key !== undefined && current?.key !== key,
-        );
-      };
-      return {
-        baseline: proofOf(baseline, 0),
-        branch: proofOf(branch, 1),
-        landed: proofOf(landed, 2),
-      };
+    ): Record<Endpoint, ComparisonEndpointProof> | undefined {
+      const comparison = comparisonOf(answer, source);
+      if (comparison === undefined) return undefined;
+      return Object.fromEntries(
+        readers.map(([endpoint, reader]) => {
+          const slot = comparison.slots[endpoint];
+          const { key, subject } = slotRead(
+            source,
+            comparison.key,
+            slot,
+            round,
+          );
+          const current = reader.getSnapshot();
+          let proof: CiProof | undefined;
+          if (slot.kind === "build" && subject === undefined)
+            proof = { kind: "unavailable", reason: "none" };
+          else if (key !== undefined && current?.key === key)
+            proof =
+              current.read.kind === "unanswered"
+                ? {
+                    kind: "unavailable",
+                    reason: "unreadable",
+                    ...(current.read.detail === undefined
+                      ? {}
+                      : { detail: current.read.detail }),
+                  }
+                : current.read;
+          return [
+            endpoint,
+            comparisonProofOf(
+              slot,
+              proof,
+              key !== undefined && current?.key !== key,
+            ),
+          ];
+        }),
+      ) as Record<Endpoint, ComparisonEndpointProof>;
     },
     dispose() {
-      for (const reader of readers) reader.dispose();
+      for (const [, reader] of readers) reader.dispose();
     },
   };
+}
+
+export function createCiComparisonProofs(readProof: typeof readIntentCiProof) {
+  return createEndpointProofs(
+    readProof,
+    ["baseline", "branch", "landed"],
+    (answer: StoryCiComparisonAnswer | undefined) =>
+      answer?.kind === "comparison"
+        ? {
+            key: answer.identity,
+            slots: {
+              baseline: answer.baseline,
+              branch: branchResultOf(answer).slot,
+              landed: answer.landed,
+            },
+          }
+        : undefined,
+  );
+}
+
+export function createSelectedCiComparisonProofs(
+  readProof: typeof readIntentCiProof,
+) {
+  return createEndpointProofs(
+    readProof,
+    ["baseline", "selection"],
+    (answer: SelectedCiComparisonAnswer | undefined, source) =>
+      answer?.kind === "selection"
+        ? {
+            key: selectedCiComparisonKey(source, answer.identity, answer.range),
+            slots: answer,
+          }
+        : undefined,
+  );
 }

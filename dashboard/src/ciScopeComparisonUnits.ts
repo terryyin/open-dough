@@ -35,11 +35,10 @@ const unitsOf = (endpoint: EndpointUnits): readonly CiProofUnit[] =>
 // The rows a scope compares in across BASELINE and the later endpoints.
 export function comparedRowsOf(
   baseline: EndpointUnits,
-  branch: EndpointUnits,
-  landed: EndpointUnits,
+  ...after: readonly EndpointUnits[]
 ): readonly ComparedRow[] {
   const before = unitsOf(baseline);
-  const later = [...unitsOf(branch), ...unitsOf(landed)];
+  const later = after.flatMap(unitsOf);
   const shown = declaredUnits.filter(
     (unit) => before.includes(unit) || later.includes(unit),
   );

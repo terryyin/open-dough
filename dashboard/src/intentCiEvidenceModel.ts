@@ -1,17 +1,24 @@
 // Shared evidence meanings; the provider owns live and retained read lifecycles.
 import type { CiFollowUpReading } from "./ciFollowUpReading.ts";
+import type { SelectedComparisonEndpointProofs } from "./ciComparisonProofs.ts";
 import type { ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
 import type { CiTarget } from "./intentCiTarget.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import type { SelectedCiComparisonAnswer } from "./selectedCiComparison.ts";
 import { branchResultOf } from "./storyCiComparison.ts";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
 import type { ComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts";
 import type { JudgedReading } from "./useIntentCiJudgment.ts";
 import type { HistoryReading } from "./useIntentCiHistory.ts";
 import type { ShownProof } from "./useIntentCiShownProof.ts";
+import type { UncommittedCiEvidence } from "./useUncommittedCiEvidence.ts";
 
-export type CiEvidence =
-  // Nothing here reads CI (no owner, or not active).
+export type SelectedComparisonEvidence = {
+  readonly comparison: ComparisonReading<SelectedCiComparisonAnswer>;
+  readonly endpointProofs: SelectedComparisonEndpointProofs | undefined;
+};
+
+export type CiEvidence = (
   | { readonly kind: "inactive" }
   | {
       readonly kind: "retained";
@@ -32,6 +39,7 @@ export type CiEvidence =
       readonly identity: string;
       readonly comparison: ComparisonReading;
       readonly endpointProofs: ComparisonEndpointProofs | undefined;
+      readonly selectedComparison?: SelectedComparisonEvidence;
       readonly doneEndpoint?: ScopeHistoryEndpoint;
       readonly doneEndpointReason?: string;
     }
@@ -49,7 +57,17 @@ export type CiEvidence =
       readonly comparison?: ComparisonReading;
       readonly comparisonStory?: string;
       readonly endpointProofs?: ComparisonEndpointProofs;
-    };
+      readonly selectedComparison?: SelectedComparisonEvidence;
+    }
+) & { readonly uncommittedCi?: UncommittedCiEvidence };
+
+export function selectedComparisonOf(
+  evidence: CiEvidence,
+): SelectedComparisonEvidence | undefined {
+  return evidence.kind === "comparison" || evidence.kind === "judged"
+    ? evidence.selectedComparison
+    : undefined;
+}
 
 export function measuredStoryResult(evidence: CiEvidence): string | undefined {
   const comparison =

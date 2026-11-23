@@ -11,6 +11,7 @@ import type {
 } from "../src/ciScopeHistory.ts";
 import type { DoneWallTimeGlance } from "../src/ciDoneWallTimeHistory.ts";
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
+import type { SelectedCiComparisonAnswer } from "../src/selectedCiComparison.ts";
 import type { IntentCiProofAnswer } from "./intentCiProofRead.ts";
 import type {
   IntentCiStatusAnswer,
@@ -102,6 +103,7 @@ type Answer =
   | IntentCiStatusNone
   | IntentCiProofAnswer
   | StoryCiComparisonAnswer
+  | SelectedCiComparisonAnswer
   // The project's measured landed builds (`./intentCiHistoryRead.ts`), and
   // a selected or scoped read's history, in full or as its glance.
   | LandedCiHistory

@@ -8,7 +8,10 @@ import {
   type LensComparison,
 } from "./IntentStoryComparison.tsx";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
+import { commitShaPattern } from "./authenticatedReadRules.ts";
+import type { CiComparisonRange } from "./selectedCiComparison.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
+import { reviewRangeEnds } from "./storyReviewPoints.ts";
 
 // The selected story as Intent names it.
 // A completed story carries what is known of its published done record.
@@ -53,26 +56,6 @@ export function useStorySummary(
   return story === undefined ? undefined : { story, comparison, onRetry };
 }
 
-// The completed result owns the history endpoint, even when newer publications
-// share its story identity or the measured CI build is a later revision.
-export function publishedDoneEndpointOf(
-  storySummary: Pick<StorySummary, "story" | "comparison"> | undefined,
-) {
-  const review =
-    storySummary === undefined
-      ? undefined
-      : defaultReviewOf(storySummary.comparison);
-  return storySummary?.story.completed !== true
-    ? undefined
-    : review?.kind === "published"
-      ? review.landingRevision === undefined
-        ? undefined
-        : { revision: review.landingRevision, at: review.completedAt }
-      : review?.kind === "landed"
-        ? { revision: review.landing.revision, at: review.landing.receivedAt }
-        : undefined;
-}
-
 // Whether the CI views need the whole-story note beside the chosen comparison.
 export function wholeStoryOf(
   summary: Pick<StorySummary, "comparison"> | undefined,
@@ -80,28 +63,92 @@ export function wholeStoryOf(
   return summary !== undefined && otherThanDefaultChosen(summary.comparison);
 }
 
-// Absence while reading is pending; a settled owner must explain absence.
-export function publishedDoneEndpointReasonOf(
-  storySummary: StorySummary | undefined,
-): string | undefined {
-  if (
-    storySummary?.story.completed !== true ||
-    publishedDoneEndpointOf(storySummary) !== undefined
-  )
-    return undefined;
-  const comparison = storySummary.comparison;
-  if (comparison.state === "reading") return undefined;
-  if (comparison.state === "failed") return comparison.problem;
+// The completed result owns the history endpoint while another comparison is
+// chosen. When no endpoint remains after reading, explain its absence.
+function publishedDoneEvidenceOf(summary: StorySummary | undefined) {
+  if (summary?.story.completed !== true) return {};
+  const { comparison } = summary;
+  const review = defaultReviewOf(comparison);
+  if (review?.kind === "published" && review.landingRevision !== undefined)
+    return {
+      doneEndpoint: {
+        revision: review.landingRevision,
+        at: review.completedAt,
+      },
+    };
+  if (review?.kind === "landed")
+    return {
+      doneEndpoint: {
+        revision: review.landing.revision,
+        at: review.landing.receivedAt,
+      },
+    };
+  if (comparison.state === "reading") return {};
+  if (comparison.state === "failed")
+    return { doneEndpointReason: comparison.problem };
   if (comparison.state === "unavailable")
-    return (
-      comparison.explanation ??
-      "The selected Done result’s published landing is unavailable."
-    );
-  const review = comparison.defaultReview;
-  return review?.kind === "unavailable" ||
-    review?.kind === "landing-unavailable"
-    ? review.explanation
-    : "Published history does not identify this Done result’s represented landing.";
+    return {
+      doneEndpointReason:
+        comparison.explanation ??
+        "The selected Done result’s published landing is unavailable.",
+    };
+  return {
+    doneEndpointReason:
+      review?.kind === "unavailable" || review?.kind === "landing-unavailable"
+        ? review.explanation
+        : "Published history does not identify this Done result’s represented landing.",
+  };
+}
+
+function settledComparisonEvidenceOf(summary: StorySummary | undefined) {
+  if (summary === undefined) return {};
+  const { comparison } = summary;
+  if (comparison.state !== "compared" || comparison.reading === true) return {};
+  const { compare, review } = comparison;
+  if (compare === undefined) return {};
+
+  if (summary.story.completed) {
+    if (
+      review?.kind !== "landed" ||
+      compare.shown !== "landed" ||
+      compare.selectedRun?.comparison === undefined ||
+      compare.isDefault
+    )
+      return {};
+    const { base, revision } = review.landing;
+    return ciRangeEvidenceOf(base, revision);
+  }
+
+  if (review?.kind !== "snapshot") return {};
+  if (compare.shown === "all") {
+    const includesEdits = compare.includeUncommitted !== false;
+    const hasEdits =
+      review.committed !== undefined || review.uncommitted !== undefined;
+    return includesEdits && hasEdits ? { uncommittedHead: review.head } : {};
+  }
+  if (compare.shown !== "commits" || compare.isDefault) return {};
+  const { oldest, newest } = reviewRangeEnds(compare.selectedItems);
+  return oldest?.kind === "commit" && newest?.kind === "commit"
+    ? ciRangeEvidenceOf(oldest.firstParent, newest.revision)
+    : {};
+}
+
+function ciRangeEvidenceOf(
+  start: string | undefined,
+  end: string,
+): { readonly selectedRange?: CiComparisonRange } {
+  return start !== undefined &&
+    commitShaPattern.test(start) &&
+    commitShaPattern.test(end)
+    ? { selectedRange: { start, end } }
+    : {};
+}
+
+export function storyCiEvidenceOptionsOf(summary: StorySummary | undefined) {
+  return {
+    ...publishedDoneEvidenceOf(summary),
+    ...settledComparisonEvidenceOf(summary),
+  };
 }
 
 // "Selected story only" heading the Changes tree, with its message when

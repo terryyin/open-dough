@@ -102,7 +102,7 @@ export function scopeComparisonRowsOf(
       precision,
       afterSide,
       ...(changeKind === undefined ? {} : { changeKind }),
-      ...(renamed ? { renameNote: ` (was ${baselineLookup})` } : {}),
+      ...(renamed ? { renamedFrom: baselineLookup } : {}),
       parts: ({ units }) => partsForPath(path, units, baseline, branch, landed),
     }),
   );

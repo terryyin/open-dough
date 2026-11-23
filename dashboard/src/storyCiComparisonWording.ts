@@ -56,7 +56,7 @@ export function selectionWords(
 ): string {
   const selection =
     slot.kind === "build" && slot.laterRunning === true
-      ? `ancestor · a later attempt is still running`
+      ? `${slot.selection === "exact" ? "exact revision" : "ancestor"} · a later attempt is still running`
       : selectionRuleWords(slot);
   // Taken stories label the live tip provisional, not final.
   return provisional ? `provisional · ${selection}` : selection;

@@ -8,7 +8,7 @@
 // outdated or conflicting evidence is never a result). Every request goes
 // through the CI evidence requests (`ci-github-actions.mjs`). This module
 // says why a read shows no summary. A summary is immutable per run attempt,
-// so a valid one is remembered by repository, run and attempt for this
+// so a valid one is remembered by repository, run, attempt and revision for this
 // process's lifetime and never asked of GitHub again; every other answer is
 // asked again on the next read. A read GitHub left unanswered -- a wait it
 // directed, a request that failed, or an artifact listing that is not one --
@@ -121,7 +121,7 @@ type ArtifactReads = {
 };
 
 const rememberedKey = (repository: string, run: CiProofRun) =>
-  `${repository.toLowerCase()}#${String(run.runId)}#${String(run.runAttempt)}`;
+  `${repository.toLowerCase()}#${String(run.runId)}#${String(run.runAttempt)}#${run.revision}`;
 
 // The proof of `run` in `repository`: its summary, or why there is none to
 // show.

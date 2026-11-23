@@ -1,22 +1,22 @@
 // File comparison content uses the same selected scope and file-unit scale as production.
 import type { ReactNode } from "react";
 import { CiProofTable, ScopePath } from "./CiProofTable.tsx";
-import { scopeComparisonRowsOf } from "./ciScopeComparison.ts";
-import type { CiProofCells } from "./ciProofWording.ts";
-import type { ScopeEvidence } from "./IntentScopeEvidence.tsx";
-import { IntentCiComparisonFrameView } from "./IntentCiComparisonFrameView.tsx";
+import type { ScopeComparisonEvidence } from "./IntentScopeEvidence.tsx";
+import { IntentScopeComparisonFrame } from "./IntentScopeComparisonFrame.tsx";
+import {
+  scopeComparisonReadingOf,
+  scopeComparisonRowsFor,
+} from "./intentScopeComparison.ts";
 import {
   useCiComparisonPreference,
   type ComparisonPreference,
 } from "./IntentCiComparisonPreference.tsx";
-import { ComparisonNamed } from "./IntentComparisonNamed.tsx";
 import { changeKindWords } from "./CiProofFigures.tsx";
-import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
+import type { IntentTreeFile } from "./intentStoryOverlay.ts";
 import {
-  comparisonEndpointProofsChecking,
-  type ComparisonEntryCells,
+  proofRelativeTimings,
+  type ProofFigureCells,
 } from "./storyCiComparisonEntries.ts";
-import { activeComparisonAfterSideOf } from "./useIntentCiComparisonEntries.ts";
 
 // The file's table: one row of the file for each of CELLS.
 export function FileProofTable({
@@ -26,7 +26,7 @@ export function FileProofTable({
 }: {
   readonly path: string;
   readonly scope: ReactNode;
-  readonly cells: readonly (CiProofCells | ComparisonEntryCells)[];
+  readonly cells: readonly ProofFigureCells[];
 }) {
   return (
     <CiProofTable
@@ -49,44 +49,23 @@ export function FileComparisonContent({
 }: {
   readonly path: string;
   readonly treeFile: IntentTreeFile | undefined;
-  readonly evidence: Extract<ScopeEvidence, { kind: "comparison" }>;
+  readonly evidence: ScopeComparisonEvidence;
   readonly preference: ComparisonPreference;
 }) {
   const marker = treeFile?.kind;
-  const afterSide = activeComparisonAfterSideOf(
-    evidence.answer,
-    evidence.proofs,
-  );
-  const rows = scopeComparisonRowsOf(
+  const rows = scopeComparisonRowsFor(
+    scopeComparisonReadingOf(evidence),
     path,
-    evidence.proofs.baseline,
-    evidence.proofs.branch,
-    evidence.proofs.landed,
-    "precise",
-    baselinePathOf(treeFile, path),
-    marker,
-    afterSide,
+    treeFile,
   );
-  const { baseline, branch, landed } = evidence.proofs;
-  const checking = comparisonEndpointProofsChecking(baseline, branch, landed);
 
   return (
     <div className="intent-file-proof">
-      <IntentCiComparisonFrameView
+      <IntentScopeComparisonFrame
         preference={preference}
-        answer={evidence.answer}
-        proofs={evidence.proofs}
-        relatives={rows.flatMap((cells) => [
-          cells.branch.relative,
-          cells.landed.relative,
-        ])}
+        evidence={evidence}
+        relatives={rows.flatMap(proofRelativeTimings)}
       >
-        <ComparisonNamed evidence={evidence} />
-        {checking && (
-          <p className="intent-ci-reading" role="status">
-            Reading entry comparison…
-          </p>
-        )}
         <FileProofTable
           path={path}
           scope={
@@ -97,7 +76,7 @@ export function FileComparisonContent({
           }
           cells={rows}
         />
-      </IntentCiComparisonFrameView>
+      </IntentScopeComparisonFrame>
     </div>
   );
 }

@@ -1,8 +1,7 @@
 // A Done story whose worktree is retired chooses in Intent's Compare, through
 // Review changes' own selection, between its published completion and one of
-// its captured landed runs. Its Intent locations and the CI comparison's
-// landed endpoint stay on the story's landed result whatever is chosen. The
-// case's review answers own the Git judgment.
+// its captured landed runs. Its Intent locations stay on the story's landed
+// result whatever is chosen. The case's review answers own the Git judgment.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
@@ -42,12 +41,9 @@ const openDoneWithCapturedRuns = () =>
       ),
   });
 
-test("a Done story opens on its published completion, chooses a captured landed run and returns, while its locations and landed CI endpoint stay put", async () => {
+test("a Done story keeps its published locations when choosing captured changes and returning to Published completion", async () => {
   const { locationRevisions, outsideCalls } = await openDoneWithCapturedRuns();
   const story = intentStoryCompare();
-  await story.chooseTab("CI comparison");
-  await expect.poll(story.landedEndpoint).not.toBe("");
-  const landedText = story.landedEndpoint();
   await story.chooseTab("Changes");
 
   // It opens on Published completion, naming the completion revision,
@@ -68,12 +64,8 @@ test("a Done story opens on its published completion, chooses a captured landed 
   await expect.poll(story.outside).toContain("older.txt");
   await expect.poll(story.revisions).toContain(oid("2").slice(0, 7));
 
-  // Its locations and the CI comparison's landed endpoint stay at the landed
-  // result.
+  // Its locations stay at the published completion.
   expect(new Set(locationRevisions)).toEqual(new Set([doneCompletion]));
-  await story.chooseTab("CI comparison");
-  await expect.poll(story.landedEndpoint).toBe(landedText);
-  await story.chooseTab("Changes");
 
   // Published completion again returns to it.
   await story.choose("Published completion");

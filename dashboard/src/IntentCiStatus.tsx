@@ -18,11 +18,16 @@
 // nothing again.
 
 import { IntentCiFollowUp } from "./IntentCiFollowUp.tsx";
-import { IntentCiComparison } from "./IntentCiComparison.tsx";
+import {
+  IntentCiComparison,
+  SelectedCiComparison,
+} from "./IntentCiComparison.tsx";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
+import { selectedComparisonOf } from "./intentCiEvidenceModel.ts";
 import { JudgedBranch } from "./IntentCiJudgedBranch.tsx";
 import type { CiTarget } from "./intentCiTarget.ts";
 import { suppressesComparisonBesideJudgment } from "./storyCiComparison.ts";
+import { UncommittedCiNote } from "./UncommittedCiNote.tsx";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
 import "./intent-ci-status.css";
 
@@ -59,6 +64,15 @@ function provisionalBesideJudgment(
 }
 
 export function IntentCiStatus() {
+  return (
+    <>
+      <UncommittedCiNote />
+      <CiStatusContent />
+    </>
+  );
+}
+
+function CiStatusContent() {
   const evidence = useIntentCiEvidence();
   if (evidence.kind === "inactive") return null;
   if (evidence.kind === "retained")
@@ -75,6 +89,9 @@ export function IntentCiStatus() {
       </>
     );
   if (evidence.kind === "gap") return <StoryGap target={evidence} />;
+  const selected = selectedComparisonOf(evidence);
+  if (selected !== undefined && evidence.kind === "comparison")
+    return <SelectedCiComparison reading={selected.comparison} />;
   if (evidence.kind === "comparison")
     return (
       <IntentCiComparison
@@ -94,9 +111,12 @@ export function IntentCiStatus() {
         proof={evidence.proof}
         history={evidence.history}
       />
-      {provisional !== undefined && evidence.comparisonStory !== undefined && (
+      {selected !== undefined ? (
+        <SelectedCiComparison reading={selected.comparison} />
+      ) : provisional !== undefined &&
+        evidence.comparisonStory !== undefined ? (
         <IntentCiComparison reading={provisional} />
-      )}
+      ) : null}
     </>
   );
 }

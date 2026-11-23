@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-420_read-proof-for-the-comparison.json",
+      "identity": "SEED-420#read-proof-for-the-comparison",
+      "completedAt": "2026-11-23T16:34:09.266Z",
+      "blob": "8f82216f2c43eba2e5b74dc8f469c6c3e1bd77c9"
+    },
+    {
       "fileName": "SEED-413_optimize-done-capture-family-cases.json",
       "identity": "SEED-413#optimize-done-capture-family-cases",
       "completedAt": "2026-11-23T15:18:34.286Z",

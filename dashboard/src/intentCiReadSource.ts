@@ -1,4 +1,7 @@
-import { readIntentCiComparison } from "./authenticatedIntentCiComparisonRead.ts";
+import {
+  readIntentCiComparison,
+  readSelectedIntentCiComparison,
+} from "./authenticatedIntentCiComparisonRead.ts";
 import {
   readIntentCiDoneWallTimeHistory,
   readIntentCiHistory,
@@ -14,6 +17,7 @@ import {
 // attempt and refresh-round checks; the authenticated readers validate.
 export type IntentCiReadSource = {
   readonly readComparison: typeof readIntentCiComparison;
+  readonly readSelectedComparison?: typeof readSelectedIntentCiComparison;
   readonly readProof: typeof readIntentCiProof;
   readonly readStatus: typeof readIntentCiStatus;
   readonly readKeptStatus: typeof readKeptIntentCiStatus;
@@ -24,6 +28,7 @@ export type IntentCiReadSource = {
 
 export const authenticatedIntentCiReads: IntentCiReadSource = {
   readComparison: readIntentCiComparison,
+  readSelectedComparison: readSelectedIntentCiComparison,
   readProof: readIntentCiProof,
   readStatus: readIntentCiStatus,
   readKeptStatus: readKeptIntentCiStatus,

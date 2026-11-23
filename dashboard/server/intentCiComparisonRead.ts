@@ -12,9 +12,14 @@ import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import type { StoryCiComparisonAnswer } from "../src/storyCiComparison.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
+  selectedCiComparisonKey,
+  type SelectedCiComparisonAnswer,
+} from "../src/selectedCiComparison.ts";
+import {
   ciComparisonAnswerKey,
   keptCiComparisonAnswer,
   rememberCiComparisonAnswer,
+  selectedCiComparisonAnswers,
   type CiComparisonAnswers,
 } from "./intentCiComparisonAnswers.ts";
 import {
@@ -25,7 +30,9 @@ import {
   performDoneComparison,
   performTakenComparison,
 } from "./intentCiComparisonResolve.ts";
+import { performSelectedComparison } from "./intentCiSelectedComparisonResolve.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
+import { rememberedByKey } from "./rememberedByKey.ts";
 import {
   storyCiComparisonSource,
   type StoryCiComparisonSource,
@@ -50,14 +57,15 @@ export async function performIntentCiComparisonRead(
   return defaultReader(source, read, signal, evidence);
 }
 
-const defaultReader = ciComparisonReader({
-  get: keptCiComparisonAnswer,
-  set: rememberCiComparisonAnswer,
-});
+const defaultReader = ciComparisonReader(
+  { get: keptCiComparisonAnswer, set: rememberCiComparisonAnswer },
+  selectedCiComparisonAnswers,
+);
 
 // The authenticated reader and isolated owners execute this same read path.
 export function ciComparisonReader(
   answers: Pick<CiComparisonAnswers, "get" | "set">,
+  selected = rememberedByKey<SelectedCiComparisonAnswer>(),
 ) {
   return async (
     source: PublishedSource,
@@ -65,14 +73,39 @@ export function ciComparisonReader(
     signal: AbortSignal,
     evidence?: StoryCiComparisonSource,
   ): Promise<Outcome> => {
+    const { identity, range } = read;
+    if (range !== undefined) {
+      const key = selectedCiComparisonKey(source, identity, range);
+      const kept = selected.get(key);
+      if (kept !== undefined) return answered(kept);
+      const answer = await performSelectedComparison(
+        evidence ?? comparisonAcquisition(source, signal),
+        source.id,
+        identity,
+        range,
+        new Date().toISOString(),
+      );
+      signal.throwIfAborted();
+      if (
+        answer.kind === "selection" &&
+        answer.phase === "done" &&
+        answer.baseline.kind === "build" &&
+        answer.selection.kind === "build" &&
+        answer.baseline.selection === "exact" &&
+        answer.selection.selection === "exact" &&
+        answer.baseline.laterRunning !== true &&
+        answer.selection.laterRunning !== true
+      )
+        selected.set(key, answer);
+      return answered(answer);
+    }
+
     const key = ciComparisonAnswerKey(source.repository, read.identity);
     const kept = answers.get(key);
     if (kept !== undefined) return answered(kept);
 
-    const bound = AbortSignal.timeout(readWaitLimitMs);
-    const controller = AbortSignal.any([bound, signal]);
     const checkedAt = new Date().toISOString();
-    const acquisition = evidence ?? storyCiComparisonSource(source, controller);
+    const acquisition = evidence ?? comparisonAcquisition(source, signal);
     const done = await performDoneComparison(
       acquisition,
       read.identity,
@@ -85,4 +118,9 @@ export function ciComparisonReader(
     if (done?.landedPending !== true) answers.set(key, answer);
     return answered(answer);
   };
+}
+
+function comparisonAcquisition(source: PublishedSource, signal: AbortSignal) {
+  const bound = AbortSignal.timeout(readWaitLimitMs);
+  return storyCiComparisonSource(source, AbortSignal.any([bound, signal]));
 }

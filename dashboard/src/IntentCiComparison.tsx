@@ -31,6 +31,9 @@ import { useIntentCiEvidence, type CiEvidence } from "./IntentCiEvidence.tsx";
 import { ciTimingHeading } from "./IntentCiComparisonFrameView.tsx";
 import { useCiComparisonPreference } from "./IntentCiComparisonPreference.tsx";
 import { IntentCiComparisonContent } from "./IntentCiComparisonContent.tsx";
+import { SelectedComparisonEndpointsTable } from "./IntentCiComparisonEndpoints.tsx";
+import type { SelectedComparisonEvidence } from "./intentCiEvidenceModel.ts";
+import { observedNotAttributedInFull } from "./storyCiComparisonWording.ts";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
 import type { ComparisonEndpointProofs } from "./storyCiComparisonEntries.ts";
 import "./intent-ci-cues.css";
@@ -137,6 +140,37 @@ export function IntentCiComparison(props: IntentCiComparisonProps) {
   return (
     <section aria-label="CI timing comparison">
       <CiComparisonContents {...props} done={done} />
+    </section>
+  );
+}
+
+export function SelectedCiComparison({
+  reading,
+}: {
+  readonly reading: SelectedComparisonEvidence["comparison"];
+}) {
+  const answer = reading.shown;
+  return (
+    <section className="intent-ci-status" aria-label="CI timing comparison">
+      <h3>{ciTimingHeading}</h3>
+      {answer?.kind === "selection" ? (
+        <>
+          <p className="intent-ci-comparison-framing">
+            {observedNotAttributedInFull}
+          </p>
+          <SelectedComparisonEndpointsTable
+            baseline={answer.baseline}
+            selection={answer.selection}
+          />
+        </>
+      ) : reading.reading ? (
+        <p className="intent-ci-reading" role="status">
+          Reading CI comparison…
+        </p>
+      ) : (
+        <p className="intent-ci-gap">{reading.failed ?? answer?.explanation}</p>
+      )}
+      <CheckAgain reading={reading.reading} checkAgain={reading.checkAgain} />
     </section>
   );
 }

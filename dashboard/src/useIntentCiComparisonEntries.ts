@@ -11,9 +11,15 @@
 // home ask CI nothing again.
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { createCiComparisonProofs } from "./ciComparisonProofs.ts";
+import type { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
+import {
+  createCiComparisonProofs,
+  createSelectedCiComparisonProofs,
+} from "./ciComparisonProofs.ts";
+import type { SelectedComparisonEvidence } from "./intentCiEvidenceModel.ts";
 import { useIntentCiReads } from "./pageReads.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
+import type { CiComparisonRange } from "./selectedCiComparison.ts";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
 import {
   comparisonAfterSideOf,
@@ -25,6 +31,7 @@ import {
   type ComparisonEntries,
 } from "./storyCiComparisonEntries.ts";
 import { activeComparisonOf } from "./storyCiComparisonWording.ts";
+import { useSelectedIntentCiComparison } from "./useIntentCiComparison.ts";
 
 export type { ComparisonEndpointProofs };
 
@@ -34,8 +41,53 @@ export function useIntentCiComparisonEndpointProofs(
   answer: StoryCiComparisonAnswer | undefined,
   checkedAgain: number,
 ): ComparisonEndpointProofs | undefined {
+  return useEndpointProofs(
+    createCiComparisonProofs,
+    source,
+    answer,
+    checkedAgain,
+  );
+}
+
+export function useSelectedComparisonEvidence(
+  source: PublishedSource,
+  identity: string | undefined,
+  range: CiComparisonRange | undefined,
+): SelectedComparisonEvidence | undefined {
+  const comparison = useSelectedIntentCiComparison(source, identity, range);
+  const endpointProofs = useEndpointProofs(
+    createSelectedCiComparisonProofs,
+    source,
+    comparison.shown,
+    comparison.checkedAgain,
+  );
+  return identity === undefined || range === undefined
+    ? undefined
+    : { comparison, endpointProofs };
+}
+
+function useEndpointProofs<Answer, Proofs>(
+  create: (readProof: typeof readIntentCiProof) => {
+    readonly subscribe: (listener: () => void) => () => void;
+    readonly getSnapshot: () => number;
+    readonly dispose: () => void;
+    readonly select: (
+      source: PublishedSource,
+      answer: Answer | undefined,
+      round: number,
+    ) => unknown;
+    readonly proofsFor: (
+      source: PublishedSource,
+      answer: Answer | undefined,
+      round: number,
+    ) => Proofs | undefined;
+  },
+  source: PublishedSource,
+  answer: Answer | undefined,
+  checkedAgain: number,
+): Proofs | undefined {
   const { readProof } = useIntentCiReads();
-  const [owner] = useState(() => createCiComparisonProofs(readProof));
+  const [owner] = useState(() => create(readProof));
   useSyncExternalStore(owner.subscribe, owner.getSnapshot, owner.getSnapshot);
   useEffect(
     () => () => {

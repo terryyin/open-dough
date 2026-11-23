@@ -20,6 +20,7 @@ import {
 } from "./IntentFileReading.tsx";
 import { IntentPathNotInRevision } from "./IntentRevisionNotice.tsx";
 import { IntentSummary } from "./IntentSummary.tsx";
+import { WholeStoryNote } from "./IntentStoryComparison.tsx";
 import { filesOfSelection } from "./intentSelectionCoverage.ts";
 import {
   selectionScope,
@@ -88,15 +89,18 @@ export function IntentSelectionReading({
         <IntentPathNotInRevision path={selection.path} revision={revision} />
       ) : (scope === "location" || scope === "folder") &&
         selectedLocation !== undefined ? (
-        <IntentSummary
-          key={`${revision}:${selection.path}`}
-          path={selection.path}
-          files={filesOfSelection(treeFiles, selection)}
-          treeFiles={treeFiles}
-          location={selectedLocation}
-          revision={revision}
-          onOpen={onOpen}
-        />
+        <>
+          <WholeStoryNote whole={story?.wholeStory} />
+          <IntentSummary
+            key={`${revision}:${selection.path}`}
+            path={selection.path}
+            files={filesOfSelection(treeFiles, selection)}
+            treeFiles={treeFiles}
+            location={selectedLocation}
+            revision={revision}
+            onOpen={onOpen}
+          />
+        </>
       ) : scope === "file" ? (
         <StoryNoteView.Provider value="Intent → Changes">
           <IntentFileReading

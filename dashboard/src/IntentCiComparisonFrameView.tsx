@@ -8,6 +8,7 @@ import {
   RelativeTimingProvider,
 } from "./IntentCiTimeChange.tsx";
 import type { StoryCiComparisonAnswer } from "./storyCiComparison.ts";
+import type { SelectedCiComparisonAnswer } from "./selectedCiComparison.ts";
 import type { ComparisonEndpointProofs } from "./storyCiComparisonEntries.ts";
 import {
   activeComparisonOf,
@@ -25,8 +26,10 @@ export function IntentCiComparisonFrameView({
   children,
   preference,
 }: {
-  readonly answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>;
-  readonly proofs: ComparisonEndpointProofs | undefined;
+  readonly answer:
+    | Extract<StoryCiComparisonAnswer, { kind: "comparison" }>
+    | Extract<SelectedCiComparisonAnswer, { kind: "selection" }>;
+  readonly proofs?: ComparisonEndpointProofs | undefined;
   readonly relatives: readonly (number | undefined)[];
   // A containing story comparison owns its region across all CI states.
   readonly labelled?: boolean;
@@ -35,7 +38,13 @@ export function IntentCiComparisonFrameView({
 }) {
   const { showPercent, onShowPercent } = preference;
   const active =
-    proofs === undefined ? undefined : activeComparisonOf(answer, proofs);
+    answer.kind !== "comparison" || proofs === undefined
+      ? undefined
+      : activeComparisonOf(answer, proofs);
+  const title =
+    answer.kind === "selection"
+      ? "Baseline with Selection"
+      : (active?.title ?? ciTimingHeading);
   return (
     <section
       className="intent-ci-comparison-frame"
@@ -43,9 +52,7 @@ export function IntentCiComparisonFrameView({
     >
       <div className="intent-ci-comparison-head">
         <div>
-          <h3 className="intent-ci-comparison-active">
-            {active?.title ?? ciTimingHeading}
-          </h3>
+          <h3 className="intent-ci-comparison-active">{title}</h3>
           <p className="intent-ci-comparison-framing">
             {observedNotAttributedInFull}
           </p>

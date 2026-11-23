@@ -16,6 +16,8 @@ export class ReviewCommitBuilder {
   #position = 1;
   /** @type {string} */
   #subject = "story change";
+  /** @type {string | undefined} */
+  #firstParent;
 
   /**
    * The story's `position`-th commit, oldest first.
@@ -28,12 +30,21 @@ export class ReviewCommitBuilder {
     return this;
   }
 
+  /** @param {string} revision */
+  afterRevision(revision) {
+    this.#firstParent = revision;
+    return this;
+  }
+
   /** @returns {ReviewCommit} */
   please() {
     const n = this.#position;
     return {
       kind: "commit",
       revision: oid(0x100 + n),
+      ...(this.#firstParent === undefined
+        ? {}
+        : { firstParent: this.#firstParent }),
       shortRevision: `c${n}c${n}c${n}c`,
       subject: this.#subject,
       committedAt: new Date(Date.UTC(2026, 0, n)).toISOString(),

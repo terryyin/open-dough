@@ -9,6 +9,7 @@ import { GitFailure, runGit, type GitCall } from "./gitRunner.ts";
 import { parseDiffNameStatus } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-path-applicability.mjs";
 
 export type ComparisonHistory = {
+  // Infinity asks for all readable first parents, including the starting commit.
   readonly firstParents: (
     revision: string,
     limit: number,

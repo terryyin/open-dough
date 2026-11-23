@@ -47,15 +47,9 @@ export type ComparisonEndpointProofs = {
 };
 
 export function comparisonEndpointProofsChecking(
-  baseline: ComparisonEndpointProof,
-  branch: ComparisonEndpointProof,
-  landed: ComparisonEndpointProof,
+  ...proofs: readonly ComparisonEndpointProof[]
 ): boolean {
-  return (
-    baseline.kind === "checking" ||
-    branch.kind === "checking" ||
-    landed.kind === "checking"
-  );
+  return proofs.some((proof) => proof.kind === "checking");
 }
 
 // One compared row of a scope (`./ciScopeComparison.ts`): its Counts words,
@@ -82,12 +76,28 @@ export type ComparisonEntryCells = {
   readonly units?: string;
 };
 
+export type SelectionScopeComparisonRow = Omit<
+  ComparisonEntryCells,
+  "branch" | "landed"
+> & { readonly selection: TimingCell };
+
+export type ComparedProofCells =
+  ComparisonEntryCells | SelectionScopeComparisonRow;
+export type ProofFigureCells = CiProofCells | ComparedProofCells;
+
 // Whether a CI figures table row's CELLS compare endpoints rather than show
 // one run's figures.
 export function isComparisonCells(
-  cells: CiProofCells | ComparisonEntryCells,
-): cells is ComparisonEntryCells {
+  cells: ProofFigureCells,
+): cells is ComparedProofCells {
   return "baseline" in cells;
+}
+
+export function proofRelativeTimings(cells: ProofFigureCells) {
+  if (!isComparisonCells(cells)) return [];
+  return "selection" in cells
+    ? [cells.selection.relative]
+    : [cells.branch.relative, cells.landed.relative];
 }
 
 // One row of an entry: its path, and its cells in one compared unit, or in

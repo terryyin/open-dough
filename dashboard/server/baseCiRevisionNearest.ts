@@ -16,6 +16,7 @@ import {
   isBuildConclusion,
   isPositive,
   judgeAttempt,
+  latestCompletedAttemptOf,
   selectRevisionAttempt,
 } from "./baseCiRevisionAttempt.ts";
 import { newestRunFor, type ListedRun } from "./baseCiNearest.ts";
@@ -81,6 +82,9 @@ export function proofRunOf(build: RevisionCiBuild): CiProofRun | undefined {
 export type RevisionCiLookup = {
   // Runs listed for one head_sha (workflow runs?head_sha=).
   readonly listRunsAt: (sha: string) => Promise<readonly ListedRun[]>;
+  // Some providers narrow their ordinary listing to the latest attempt.
+  // A selected baseline can reuse a completed attempt at the same revision.
+  readonly completedRunsAt?: (sha: string) => Promise<readonly ListedRun[]>;
   // A provisional adapter result can show its completed ancestor while
   // a newer attempt is running.
   readonly preferCompletedAncestor?: true;
@@ -110,6 +114,7 @@ export type RevisionProofUsable = (build: RevisionCiBuild) => Promise<boolean>;
 
 export type NearestRevisionBuildOptions = {
   readonly preferCompletedAncestor?: boolean;
+  readonly preferCompletedAtRevision?: boolean;
   readonly proofUsable?: RevisionProofUsable;
 };
 
@@ -134,13 +139,16 @@ export async function nearestRevisionBuild(
     if (boundExclusive !== undefined && sha === boundExclusive) break;
     const listed = await lookup.listRunsAt(sha);
     const newest = newestRunFor(listed, sha);
+    const runningLatest =
+      judgeAttempt(newest?.status, newest?.conclusion) === "running";
     let earlier: readonly ListedRun[] = [];
     if (
       newest !== undefined &&
       isPositive(newest.databaseId) &&
       isPositive(newest.attempt) &&
-      newest.status === "completed" &&
-      !isBuildConclusion(newest.conclusion) &&
+      ((options?.preferCompletedAtRevision === true && runningLatest) ||
+        (newest.status === "completed" &&
+          !isBuildConclusion(newest.conclusion))) &&
       lookup.earlierAttemptsOf !== undefined
     ) {
       earlier = await lookup.earlierAttemptsOf(
@@ -148,7 +156,25 @@ export async function nearestRevisionBuild(
         newest.attempt,
       );
     }
-    const run = selectRevisionAttempt(listed, sha, earlier);
+    const attempt = selectRevisionAttempt(listed, sha, earlier);
+    const completed =
+      options?.preferCompletedAtRevision === true &&
+      newest !== undefined &&
+      !(
+        attempt?.status === "completed" && isBuildConclusion(attempt.conclusion)
+      )
+        ? ((isPositive(newest.databaseId)
+            ? latestCompletedAttemptOf(newest, listed, earlier)
+            : undefined) ??
+          newestRunFor(
+            ((await lookup.completedRunsAt?.(sha)) ?? listed).filter(
+              (attempt) => isBuildConclusion(attempt.conclusion),
+            ),
+            sha,
+            true,
+          ))
+        : undefined;
+    const run = completed ?? attempt;
     if (run === undefined) {
       skipped += 1;
       continue;
@@ -180,6 +206,9 @@ export async function nearestRevisionBuild(
         state === "pass" ? "pass" : state === "failed" ? "failed" : "running",
       selection: skipped === 0 ? "exact" : "ancestor",
       laterWithoutResult: skipped,
+      ...(completed !== undefined && runningLatest
+        ? { laterRunning: true as const }
+        : {}),
       ...runLinkOf(run),
       ...runBranchOf(run),
       ...attemptTimesOf(run),

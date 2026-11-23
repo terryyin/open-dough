@@ -1,7 +1,11 @@
 // The snapshot's first-parent line, newest first, with a contiguous range
 // chosen by its two ends. Every item within the range states its membership.
 import { Moment } from "./Moment.tsx";
-import { reviewItemId, type ReviewItem } from "./storyReviewContract.ts";
+import {
+  reviewItemId,
+  reviewRangeEnds,
+  type ReviewItem,
+} from "./storyReviewPoints.ts";
 import { shortRevision } from "./publishedWork.ts";
 import "./story-review-commits.css";
 
@@ -57,8 +61,7 @@ export function CommitRangeHeading({
   readonly includesMergedChanges: boolean;
   readonly pair: { readonly from: string; readonly tree: string } | undefined;
 }) {
-  const newest = selected[0];
-  const oldest = selected.at(-1);
+  const { oldest, newest } = reviewRangeEnds(selected);
   if (newest === undefined || oldest === undefined) {
     return null;
   }

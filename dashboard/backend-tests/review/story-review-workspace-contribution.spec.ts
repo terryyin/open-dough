@@ -7,6 +7,7 @@ import {
 } from "../../server/projectConfiguration.ts";
 import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { storyReviewSchema } from "../../src/storyReviewContract.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { takenBranchContributionHistory } from "../../test-support/support/takenBranchContributionHistory.ts";
@@ -15,6 +16,9 @@ const subject = { source: "open-dough", identity: queuedIdentity };
 const signal = new AbortController().signal;
 let cleanRepository: (() => Promise<void>) | undefined;
 let storyStart: string;
+let branchContribution: string;
+let mergeRevision: string;
+let firstParentTree: string;
 let endTree: string;
 let integrated: string;
 let unmount: (() => void) | undefined;
@@ -35,18 +39,48 @@ beforeAll(async () => {
       .please(),
   );
   storyStart = fixture.revisions["story start"];
+  branchContribution = fixture.revisions["branch contribution"];
+  mergeRevision = fixture.revisions["merge trunk"];
   integrated = fixture.revisions["incoming trunk"];
-  endTree = git(
+  firstParentTree = git(
     fixture.integration,
     "rev-parse",
-    `${fixture.revisions["merge trunk"]}^{tree}`,
+    `${branchContribution}^{tree}`,
   );
+  endTree = git(fixture.integration, "rev-parse", `${mergeRevision}^{tree}`);
 });
 
 afterAll(async () => {
   unmount?.();
   vi.unstubAllEnvs();
   await cleanRepository?.();
+});
+
+test("a merge in the Review snapshot names its first-parent commit separately from its tree", async () => {
+  const result = await storyReview({ read: { subject } }, signal);
+  const snapshot = storyReviewSchema.parse(JSON.parse(JSON.stringify(result)));
+  if (snapshot.kind !== "snapshot") throw new Error("No Review snapshot");
+  const merge = snapshot.commits.find(
+    ({ revision }) => revision === mergeRevision,
+  );
+  expect(merge).toMatchObject({
+    firstParent: branchContribution,
+    fromTree: firstParentTree,
+  });
+  expect(merge?.firstParent).not.toBe(integrated);
+  expect(merge?.firstParent).not.toBe(firstParentTree);
+});
+
+test("the Review reader accepts older snapshots with no first-parent commit ID", () => {
+  const older = JSON.stringify(
+    makeMe.aStoryReview.please(),
+    (key: string, value: unknown) =>
+      key === "firstParent" ? undefined : value,
+  );
+  const snapshot = storyReviewSchema.parse(JSON.parse(older));
+  if (snapshot.kind !== "snapshot") throw new Error("No Review snapshot");
+  expect(snapshot.commits[0]).toMatchObject({ kind: "commit" });
+  expect(snapshot.commits[0]).not.toHaveProperty("firstParent");
 });
 
 test("a Taken branch compares the two bases to the same committed and working trees", async () => {

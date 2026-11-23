@@ -75,7 +75,7 @@ export function IntentScopeProofView({
     );
   }
 
-  if (evidence.kind === "comparison") {
+  if (evidence.kind === "comparison" || evidence.kind === "selection") {
     const compared = { path, inventory, evidence, treeFiles, onOpen, sorting };
     return preference === undefined ? (
       <ComparisonTable {...compared} />
