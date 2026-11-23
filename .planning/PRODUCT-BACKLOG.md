@@ -28,15 +28,16 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Call custom CI through a minimal adapter interface](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter ([plan](slice-plans/793-call-custom-ci-through-a-minimal-adapter-interface/PLAN.md))
+- [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison ([plan](slice-plans/797-read-ci-proof-for-the-selected-comparison/PLAN.md))
 - [Update from the previous release without legacy readers](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats ([plan](slice-plans/794-update-from-the-previous-release-without-legacy/PLAN.md))
 - [Read and collect CI proof only in declared units](seeds/SEED-423-shrink-the-installed-distribution.md#require-declared-units-in-ci-proof) — SEED-423#require-declared-units-in-ci-proof ([plan](slice-plans/795-require-declared-units-in-ci-proof/PLAN.md))
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases ([plan](slice-plans/757-optimize-done-capture-family-cases/PLAN.md))
 - [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory ([plan](slice-plans/796-derive-the-install-payload-from-the-shipped-directory/PLAN.md))
-- [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison ([plan](slice-plans/797-read-ci-proof-for-the-selected-comparison/PLAN.md))
 
 ## Backlog list
 
+- [Prove each adapter proof reason below the E2E journey](seeds/SEED-413-renovate-dashboard-unit-tests.md#hold-adapter-proof-reasons-in-default-timeout) — SEED-413#hold-adapter-proof-reasons-in-default-timeout
+- [Observe that a failed listing discover cancels the other branch](seeds/SEED-423-shrink-the-installed-distribution.md#observe-the-cancelled-listing-discover) — SEED-423#observe-the-cancelled-listing-discover
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof
 - [Get fast proof of live sessions and terminal work](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof) — SEED-413#speed-dashboard-live-session-and-terminal-proof
