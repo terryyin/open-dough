@@ -195,7 +195,7 @@ the `github-request-owner*` suites, `npm run typecheck:dashboard`, and
 ### 6. Publication resume requires `suffixBase` and slice clock settles ended sessions from `lastClockCommandAt`
 
 Type: Behavior
-Status: planned
+Status: done
 
 Require `suffixBase` in `validateRetainedComparison`
 (`publication-comparison.mjs`), `resumeInterruptedPublication`
@@ -298,6 +298,15 @@ push.
   compatibility guards. Prove the combined candidate with Dashboard
   typecheck, the retained startup landing and branch landing handoff specs,
   and the ad hoc story close resume suite.
+- Slice 6. The installed resume CLI refuses an omitted `suffixBase` with
+  zero Git transport calls. A retained rewritten comparison and accepted
+  single-commit closure resume with their actual bases. Ended-session checks
+  observe settlement at `lastClockCommandAt`, including a stopped in-flight
+  command, hooks, and renamed or split slices. Fifty-four named Distribution
+  files, six Dashboard backend cases, four E2E cases and typecheck passed.
+  The refactor reused one closure comparison helper, and seven closure and
+  session-record suites and two quiet-completion E2E cases passed again.
+  See `slice-6-return.md` and `slice-6-refactor-return.md` in Git evidence.
 
 ## Plan review
 

@@ -172,6 +172,7 @@ export async function publish(
       : resumeInterruptedPublication({
           ownedWorkspace: execution,
           candidateSha: candidate,
+          suffixBase: remoteTip,
           backlogPath,
         });
 }

@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
-import { recordPath } from "../../../src/skills/dough-execute-plan/scripts/slice-clock-record.mjs";
 import { until } from "../../support/local-test-suite-fixtures.mjs";
 import {
   limitReport,
@@ -20,7 +19,7 @@ const slice = (key = "3") => ["--identity", story, "--slice", key];
 const { withinLimit, overrun } = limitReportsOf(story);
 const at = (time) => Date.parse(`2026-11-16T${time}:00Z`);
 
-test("run completion records its end, and a legacy record settles at its latest command timestamp", async (t) => {
+test("run completion records the clock command time used to settle an ended session", async (t) => {
   const { worktree, scratch, time, clock } = await executionWorktree(t);
   await clock(worktree, "start", ...slice());
   time.at(2);
@@ -30,10 +29,7 @@ test("run completion records its end, and a legacy record settles at its latest 
     proofFiles(scratch, "suite"),
     time.shellStepTo(9),
   );
-  const legacy = await clockRecord(worktree);
-  assert.equal(legacy.lastClockCommandAt, at("09:09"));
-  delete legacy.lastClockCommandAt;
-  writeFileSync(recordPath(worktree), JSON.stringify(legacy));
+  assert.equal((await clockRecord(worktree)).lastClockCommandAt, at("09:09"));
   time.at(249);
   const resumed = await clock(
     worktree,
@@ -48,16 +44,14 @@ test("run completion records its end, and a legacy record settles at its latest 
   );
 });
 
-test("a legacy record with only periods settles at its latest period timestamp", async (t) => {
+test("a session with only periods settles at the last start command time", async (t) => {
   const { worktree, time, clock } = await executionWorktree(t);
   await clock(worktree, "start", ...slice());
   time.at(2);
   await clock(worktree, "pause");
   time.at(7);
   await clock(worktree, "start", ...slice("4"));
-  const legacy = await clockRecord(worktree);
-  delete legacy.lastClockCommandAt;
-  writeFileSync(recordPath(worktree), JSON.stringify(legacy));
+  assert.equal((await clockRecord(worktree)).lastClockCommandAt, at("09:07"));
   time.at(247);
   const resumed = await clock(
     worktree,

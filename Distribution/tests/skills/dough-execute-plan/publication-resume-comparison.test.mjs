@@ -1,5 +1,5 @@
-// Optional retained comparisons cannot alter publication acceptance or infer
-// a historical base for legacy callers. Invalid pairs stop before side effects.
+// Publication resume requires the retained comparison, and invalid pairs
+// stop before fetching or pushing.
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { makeMe } from "../../support/makeMe.mjs";
@@ -99,6 +99,7 @@ test("non-commit, moving, missing and unrelated retained comparison ends stop be
     file: "latest-writer.txt",
   });
   for (const comparison of [
+    { candidateSha: fixture.candidateSha },
     { candidateSha: fixture.candidateSha, suffixBase: tree },
     { candidateSha: tree, suffixBase: fixture.trunkSha },
     { candidateSha: fixture.candidateSha, suffixBase: "HEAD" },

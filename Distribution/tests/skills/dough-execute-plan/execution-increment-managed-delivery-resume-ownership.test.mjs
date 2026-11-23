@@ -47,6 +47,7 @@ test("an observer of another target branch is never adopted, even under this coo
     ...fixture.requestBase,
     workspace: fixture.execution,
     candidateSha: accepted,
+    suffixBase: delivered.suffixBase,
     targetRef: trunkTarget,
     repo,
     defaultCheckout: fixture.integration,

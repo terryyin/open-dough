@@ -87,6 +87,7 @@ export async function interruptedRegistration(t, host) {
     resume: (coordinator, extra = []) =>
       resumeThroughCli(fixture, {
         candidate: interrupted.accepted,
+        suffixBase: fixture.trunkSha,
         host,
         extra,
         env: env(coordinator),
