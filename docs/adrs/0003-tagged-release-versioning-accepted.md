@@ -16,18 +16,22 @@ client payload.
 
 Use three stages for a revision of Distribution guidance:
 
-| Stage | Meaning and location |
-| --- | --- |
-| **Proposed** | Drafted under `Distribution/src/skills/<name>/`, outside the declared client payload. |
-| **Promoted** | Reviewed and selected by a maintainer for the next release. Files stay in place; promotion adds the skill and required runtime dependencies to `install.sh`'s `managed_files`, the one payload declaration, which `Distribution/src/install/open-dough-release-version.sh` reads. Keep payload fixtures aligned. |
-| **Released** | Included in the client payload at an immutable version tag available from the source repository. Clients can install that tagged content. Source files outside that tag's payload remain Proposed even if present in the snapshot. |
+| Stage        | Meaning and location                                                                                                                                                                                                               |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Proposed** | New guidance and supporting files are drafted outside the shipped directory until a maintainer selects them. Edits to existing shipped files are Proposed until a maintainer selects the edited revision.                          |
+| **Promoted** | Reviewed and selected by a maintainer for the next release. Promote new files by placing them, with their required runtime dependencies, under `Distribution/src/skills/`. Promote edits there by selecting the reviewed revision. |
+| **Released** | Included in the client payload at an immutable version tag available from the source repository. Clients can install that tagged content.                                                                                          |
+
+`Distribution/src/skills/` is the shipped directory and the sole declaration
+of the client payload for releases using this layout. The payload consists of
+all files in that directory at the tagged revision. Keep Proposed additions,
+test fixtures, and maintainer material outside it. Derive the file set from
+the directory for installation, updates, and release checks.
 
 Promotion requires the representative [behavior review](../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review) and the
-applicable delivery checks under ADR 0005. Payload declarations and release tags
-establish stage; do not maintain a separate status registry. For an already
-declared skill, edits begin as Proposed changes; maintainer selection after
-review promotes that revision without re-adding its paths. Its earlier released
-revision remains Released.
+applicable delivery checks under [ADR 0005](./0005-cross-tool-validation-accepted.md).
+Shipped files and release tags establish the payload at each stage. When an
+installed version's tag uses a file list, verify against that tag's declaration.
 
 **Installed** describes a copy in a particular client project, at its recorded
 release version. It is not a fourth stage. Use Proposed, Promoted, and Released
@@ -54,9 +58,9 @@ public only for accessibility.
 - A release's identity, content, and description can be matched. A branch edit
   becomes available to client projects when a new version is tagged and published
   through Git.
-- Authoring under `Distribution/src/skills/` creates Proposed guidance. Promotion selects the complete runtime
-  dependency set without copying it to a separate staging directory. Release
-  makes that selection available to client projects.
+- Maintainers promote or remove a payload file by changing the shipped
+  directory. The installable file set follows that change at release time
+  without a separate file list to synchronize.
 - Installation-record paths, helper layout, and native skill adaptation are
   implementation details. This ADR does not prescribe a release pipeline,
   registry, prerelease policy, rollback, or version-selection interface.

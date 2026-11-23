@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Yumi-chan",
-  "email": "yumi-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-423#derive-the-install-payload-from-the-shipped-directory",
-  "host": "codex",
-  "model": "gpt-6.2-sol"
-}
