@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "c36f40f2-47c5-4b94-8468-46816488be08",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T12:23:46.027Z",
+  "story": "SEED-345#start-implementers-from-a-role-sized-tool-set",
+  "ranges": [
+    {
+      "base": "e4c34934b165da2e4a7929f99668165b70218bbe",
+      "candidate": "381161ab3a629d61ab7198c40af71f06bec04c85"
+    },
+    {
+      "base": "381161ab3a629d61ab7198c40af71f06bec04c85",
+      "candidate": "b5ebcca94dbeda9ac3f7afd58667e7e9451f8a86"
+    },
+    {
+      "base": "b5ebcca94dbeda9ac3f7afd58667e7e9451f8a86",
+      "candidate": "fd5f6a684451d761748d11ede65353d8acea7802"
+    }
+  ]
+}
