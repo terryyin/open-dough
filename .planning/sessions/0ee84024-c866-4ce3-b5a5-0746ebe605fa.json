@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "sessionId": "0ee84024-c866-4ce3-b5a5-0746ebe605fa",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T14:17:24.394Z",
+  "story": "SEED-423#install-without-the-custom-ci-adapter",
+  "ranges": [
+    {
+      "base": "29b57860265bb45d2f3654456bf15dd69a8e1673",
+      "candidate": "05d51ec1b6ad27b104c4fd33239a90688be0da4a"
+    },
+    {
+      "base": "05d51ec1b6ad27b104c4fd33239a90688be0da4a",
+      "candidate": "55cd145e5f75892ba1664b839b31e35aca31fed1"
+    },
+    {
+      "base": "55cd145e5f75892ba1664b839b31e35aca31fed1",
+      "candidate": "e67ec7f21a8add48b7714b66fd3732a38f848e7a"
+    },
+    {
+      "base": "e67ec7f21a8add48b7714b66fd3732a38f848e7a",
+      "candidate": "4cc546a9c67b9847c8300da8456b28c85a1fac38"
+    },
+    {
+      "base": "4cc546a9c67b9847c8300da8456b28c85a1fac38",
+      "candidate": "3f184e313fb67f73f796b0ef127be27fa8d86a59"
+    },
+    {
+      "base": "3f184e313fb67f73f796b0ef127be27fa8d86a59",
+      "candidate": "018d173c5a4b3f816e2cb3be9b2550036301fdbb"
+    },
+    {
+      "base": "018d173c5a4b3f816e2cb3be9b2550036301fdbb",
+      "candidate": "844af0d940f2cac012e0f560ae75b0d26e1aa895"
+    },
+    {
+      "base": "844af0d940f2cac012e0f560ae75b0d26e1aa895",
+      "candidate": "c8c3aa62af81c1cf1bb13eeb6eb79dc0b67b8c7b"
+    },
+    {
+      "base": "c8c3aa62af81c1cf1bb13eeb6eb79dc0b67b8c7b",
+      "candidate": "da7105fa36abb08e2ced11fe9424eb44cb81a24d"
+    }
+  ]
+}
