@@ -53,6 +53,11 @@ function chartIn(
   const markButtons = () => [...(box()?.querySelectorAll("button") ?? [])];
   const markNamed = (readout: string) =>
     markButtons().find((mark) => mark.getAttribute("aria-label") === readout);
+  const markFor = (readout: string) => {
+    const mark = markNamed(readout);
+    if (mark === undefined) throw new Error(`No mark ${readout}`);
+    return mark;
+  };
   const readoutElement = () =>
     box()?.querySelector(".history-chart-readout") ?? null;
   return {
@@ -91,10 +96,16 @@ function chartIn(
       const b = centreOf(mark);
       return Math.abs(a.x - b.x) < 1.5 && Math.abs(a.y - b.y) < 1.5;
     },
+    // The mark naming READOUT, for pointer or keyboard.
+    mark: markFor,
+    // The name of the mark that has focus.
+    focusedMark: () =>
+      markButtons()
+        .find((mark) => mark === document.activeElement)
+        ?.getAttribute("aria-label"),
     // Taps the mark naming READOUT; the chart's readout then names it.
     async tapMark(readout: string) {
-      const mark = markNamed(readout);
-      if (mark === undefined) throw new Error(`No mark ${readout}`);
+      const mark = markFor(readout);
       mark.scrollIntoView({ block: "center" });
       await tapWhereShown(mark);
     },

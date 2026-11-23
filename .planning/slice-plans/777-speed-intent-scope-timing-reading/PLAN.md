@@ -283,7 +283,7 @@ chart reader gained `markNames()`, `builds()` and `line()`.
 ### 6. Done history chart marks read by pointer, keyboard and touch
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-ci-history-chart-marks` (2 cases) onto
 `openDoneStoryComparison`. Put the marked-history answer beside the spec as
@@ -296,6 +296,13 @@ its mark. Nothing scrolls sideways.
 
 **Proof.** Both cases pass on Vitest. The Tab walk reads every mark in
 order, and the tap case fails without the tap.
+
+**Accepted proof.** Both cases pass on Vitest. Disabling hover in
+`HistoryChart.tsx` failed the pointer case, and removing the tap failed the
+touch case. The Tab walk asserts all 7 readouts in order. The 15 importers
+of the scope history page objects passed. Until slice 7 moves the Project
+legacy case, it still runs `expectMarkedScopeHistoryDrawn` on the same chart
+(G1).
 
 ### 7. Project history chart marks hold in both schemes and the narrowest width
 
@@ -335,6 +342,13 @@ runs under comparable load. Report:
 - counts by engine;
 - the slowest remaining cases; and
 - observed savings or limits.
+
+## Story obligations
+
+### G1. Done chart-mark drawing checks move with the Project chart
+Reported: slice 6 — "Some drawing checks from expectMarkedScopeHistoryDrawn are not on the Done half: the selected diamond's shape, the dashed average line, the axis labels, marks running left to right by x position, the button over the drawn shape for the zero, selected and unavailable marks, and the zero mark sitting exactly on the axis floor."
+Story clause: "All 14 legacy cases across the 8 owned files have a traceable disposition"
+Disposition: receiving slice 7
 
 ## Slice review
 
