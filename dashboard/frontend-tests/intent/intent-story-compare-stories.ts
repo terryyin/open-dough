@@ -65,7 +65,10 @@ const intentReads: IntentReadSource = {
 };
 
 // Intent with Story A selected, its review read from `review`.
-export async function openStoryAComparison(review: ReviewAnswers) {
+export async function openStoryAComparison(
+  review: ReviewAnswers,
+  ci: Partial<IntentCiReadSource> = {},
+) {
   const mounted = await mountIntentCiPage({
     work: makeMe.aPublishedWork
       .of(openDoughSource)
@@ -76,7 +79,7 @@ export async function openStoryAComparison(review: ReviewAnswers) {
       .please(),
     reads: {
       intent: intentReads,
-      ci: inertCiReads(),
+      ci: { ...inertCiReads(), ...ci },
       review: answering(review),
     },
     machine: makeMe.aMachineAnswer
@@ -144,27 +147,26 @@ export const publishedCompletion = () =>
 // WebSocket calls made from the mount on.
 export async function openDoneStoryComparison({
   ci = {},
+  otherDone,
   readFile = (...[, , revision]) => Promise.resolve(`${revision}\n`),
   ...review
 }: ReviewAnswers & {
   readonly ci?: Partial<IntentCiReadSource>;
+  readonly otherDone?: { readonly identity: string; readonly title: string };
   readonly readFile?: IntentReadSource["readFile"];
 }) {
   const opened = recordOutsideCalls();
   const scope = scopeReadsOf(doneStory);
   const locationRevisions: string[] = [];
   let selected = false;
-  const { done, doneReads } = makeMe.aDoneCatalog
-    .holding([
-      makeMe.aDoneRecord
-        .completed({
-          identity: doneStory.identity,
-          title: doneTitle,
-          completedAt: "2026-11-01T00:00:00.000Z",
-        })
-        .please(),
-    ])
-    .please();
+  const stories = [{ identity: doneStory.identity, title: doneTitle }];
+  if (otherDone !== undefined) stories.push(otherDone);
+  const records = stories.map((story) =>
+    makeMe.aDoneRecord
+      .completed({ ...story, completedAt: "2026-11-01T00:00:00.000Z" })
+      .please(),
+  );
+  const { done, doneReads } = makeMe.aDoneCatalog.holding(records).please();
   const mounted = await mountIntentCiPage({
     work: makeMe.aPublishedWork
       .with({
@@ -208,6 +210,7 @@ export async function openDoneStoryComparison({
   await mounted.selectStory(doneStory.identity, doneTitle);
   return {
     ...mounted,
+    selectDoneStory: () => mounted.selectStory(doneStory.identity, doneTitle),
     locationRevisions,
     proofReads: scope.asked.proofs,
     outsideCalls: () => opened,

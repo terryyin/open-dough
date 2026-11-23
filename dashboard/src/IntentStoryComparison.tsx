@@ -5,6 +5,8 @@
 // (`./useStoryComparison.ts`). Neither gap reads as a story without changes.
 
 import { shortRevision } from "./publishedWork.ts";
+import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
+import { measuredStoryResult } from "./intentCiEvidenceModel.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { ComparedRange, type StoryCompare } from "./IntentStoryCompare.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
@@ -74,26 +76,21 @@ export const compareOf = (comparison: LensComparison) => comparison.compare;
 export const otherThanDefaultChosen = (comparison: LensComparison) =>
   compareOf(comparison)?.isDefault === false;
 
-// The whole story a CI view describes while another comparison is chosen:
-// the build its default comparison measured, when known.
-export type WholeStory = { readonly revision?: string };
-
-// What each CI view says while another comparison is chosen; nothing while
-// the default is.
+// The note names the existing CI comparison's measured build.
 export function WholeStoryNote({
   whole,
 }: {
-  readonly whole: WholeStory | undefined;
+  readonly whole: boolean | undefined;
 }) {
-  if (whole === undefined) return null;
+  const revision = measuredStoryResult(useIntentCiEvidence());
+  if (!whole) return null;
   return (
     <p className="intent-story-whole quiet" role="note">
       Describes the whole story
-      {whole.revision !== undefined && (
+      {revision !== undefined && (
         <>
           {" "}
-          at build{" "}
-          <code title={whole.revision}>{shortRevision(whole.revision)}</code>
+          at build <code title={revision}>{shortRevision(revision)}</code>
         </>
       )}
       , not the chosen comparison.

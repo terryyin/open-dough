@@ -153,7 +153,7 @@ case returned the attribution gap without an alternate pair.
 ### 4. Fixed and unavailable comparisons explain their own evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
 On switching from a branch to a captured landing, direct-trunk story,
 recorded session pair, or an unavailable branch comparison, use the
@@ -170,6 +170,14 @@ across a story switch to ensure it cannot populate files for another
 story. Rerun the marked and unmarked session-range cases with their
 warning and diff, and the existing gap, retry and evidence cases in
 `dashboard/frontend-tests/intent/intent-story-compare-{gaps,evidence}.spec.ts`.
+
+Accepted: Dashboard typecheck and focused mounted, client, real-Git and
+browser cases passed. Fixed captures and Trunk Mode used their own pairs, and
+reopening the branch restored its contribution. A reply held across a story
+switch could not replace the new explanation or paths. CI comparison, Proof
+and Intent coverage named the measured later build while the Git comparison
+kept the original completion. Taken used the existing provisional build.
+Published session warnings and exact range reads passed on marked and unmarked pairs.
 
 ## Execution evidence
 

@@ -16,6 +16,7 @@ import {
 } from "./ciScopeComparisonCues.ts";
 import { timeChangeOf, type TimeChange } from "./storyCiRelativeChange.ts";
 import {
+  branchResultOf,
   notLandedYetExplanation,
   type StoryCiComparisonAnswer,
   type StoryCiComparisonSlot,
@@ -177,22 +178,12 @@ export function activeComparisonOf(
       landedUnusedReason: undefined,
     };
   }
-  const reason = landedUnusedReasonOf(answer.landed, proofs.landed);
-  if (answer.provisional !== undefined) {
-    return {
-      endpoint: "Provisional",
-      slot: answer.provisional,
-      proof: proofs.branch,
-      title: "Baseline compared with Provisional",
-      landedUnusedReason: reason,
-    };
-  }
+  const branch = branchResultOf(answer);
   return {
-    endpoint: "Branch",
-    slot: answer.branch,
+    ...branch,
     proof: proofs.branch,
-    title: "Baseline compared with Branch",
-    landedUnusedReason: reason,
+    title: `Baseline compared with ${branch.endpoint}`,
+    landedUnusedReason: landedUnusedReasonOf(answer.landed, proofs.landed),
   };
 }
 

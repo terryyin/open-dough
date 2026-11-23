@@ -189,7 +189,7 @@ export function useIntentStoryLens({
         ? {
             lens: story,
             shown: comparison.shown,
-            wholeStory: wholeStoryOf({ story, comparison }),
+            wholeStory: wholeStoryOf({ comparison }),
           }
         : undefined,
     retry: onRefresh,
