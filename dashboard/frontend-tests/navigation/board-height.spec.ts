@@ -1,11 +1,7 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { boardReading as board } from "./board-reading-page.ts";
-import {
-  mountBoard,
-  reducedBoardMotion,
-  withBoardStorage,
-} from "./board-mount.ts";
+import { mountBoard, reducedBoardMotion } from "./board-mount.ts";
 import { boardWork, longBacklog, story } from "./board-work.ts";
 
 function publishedDone(count: number) {
@@ -33,7 +29,6 @@ const doneCard = (index: number) =>
   });
 
 test("a hidden long Recently done contributes no blank tail and its oldest story is reachable when shown", async () => {
-  withBoardStorage("0");
   await reducedBoardMotion();
   const { done, doneReads } = publishedDone(40);
   await mountBoard(
@@ -74,7 +69,6 @@ test("a hidden long Recently done contributes no blank tail and its oldest story
 });
 
 test("opening an inspection adds its full purpose to the reading room and closing it restores the Board's length", async () => {
-  withBoardStorage("0");
   await reducedBoardMotion();
   const end = "The purpose ends here.";
   const inspected = story("Prepare worktrees", 8, {
@@ -126,7 +120,6 @@ test("opening an inspection adds its full purpose to the reading room and closin
 });
 
 test("Done stories arriving in the hidden column leave the shown Board's length unchanged", async () => {
-  withBoardStorage("0");
   await reducedBoardMotion();
   const viewport = { width: 864, height: 600 };
   const backlog = longBacklog.slice(0, 4);

@@ -1,11 +1,7 @@
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { expectDocumentStill } from "./board-accessibility.ts";
-import {
-  mountBoard,
-  reducedBoardMotion,
-  withBoardStorage,
-} from "./board-mount.ts";
+import { mountBoard, reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import {
   answerTerminal,
@@ -36,7 +32,6 @@ async function prepareReading(
   viewport: { width: number; height: number },
   inspect = true,
 ) {
-  withBoardStorage("0");
   withWidthStorage();
   await reducedBoardMotion();
   answerTerminal();

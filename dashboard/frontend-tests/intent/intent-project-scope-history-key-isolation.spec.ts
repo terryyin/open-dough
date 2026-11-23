@@ -54,7 +54,9 @@ test("a newer timestamp at the same head issues no history read, and a late old 
   const shown = `Observed trunk endpoint ${shortSha(next)} · 11.0 s`;
   await expect.poll(() => history.readout().selected).toBe(shown);
   old.resolve(caseTimingHistory("dashboard/tests", 8000, first.revision));
+  // The page commits a render after the late answer was handled.
   await old.ask();
-  await expect.poll(() => history.readout().selected).toBe(shown);
+  await page.showIntent();
+  expect(history.readout().selected).toBe(shown);
   expect(requests).toEqual([first.revision, next]);
 });

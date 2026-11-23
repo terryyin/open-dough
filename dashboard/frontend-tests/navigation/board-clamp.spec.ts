@@ -1,15 +1,10 @@
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { boardReading as board } from "./board-reading-page.ts";
-import {
-  mountBoard,
-  reducedBoardMotion,
-  withBoardStorage,
-} from "./board-mount.ts";
+import { mountBoard, reducedBoardMotion } from "./board-mount.ts";
 import { boardWork, longBacklog, story } from "./board-work.ts";
 
 test("paging down a long Backlog clamps at the shorter columns' end and restores the Backlog's length", async () => {
-  withBoardStorage("0");
   await reducedBoardMotion();
   const taken = [
     story("Repair installation", 50),

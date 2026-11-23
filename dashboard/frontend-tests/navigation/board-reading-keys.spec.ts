@@ -2,7 +2,7 @@ import { expect, onTestFinished, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { expectDocumentStill } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { reducedBoardMotion, withBoardStorage } from "./board-mount.ts";
+import { reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, longBacklog } from "./board-work.ts";
 
@@ -11,7 +11,6 @@ const legend = () =>
   page.getByRole("button", { name: "Preparation badge legend" });
 
 async function longBoard() {
-  withBoardStorage("0");
   await reducedBoardMotion();
   const work = boardWork(
     longBacklog.map((entry) => ({

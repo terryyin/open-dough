@@ -2,12 +2,11 @@ import { expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
 import { expectDocumentStill } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { reducedBoardMotion, withBoardStorage } from "./board-mount.ts";
+import { reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, longBacklog } from "./board-work.ts";
 
 test("accessible Board reads a backlog longer than one screen by scrolling the Board", async () => {
-  withBoardStorage("0");
   await reducedBoardMotion();
   await mountBoardFrame(boardWork(longBacklog), { width: 1440, height: 700 });
   await board.shows(["Backlog", "Taken", "Recently done"], []);

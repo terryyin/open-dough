@@ -106,6 +106,30 @@ export const doneSource = doneStory.source;
 export const doneIdentity = doneStory.identity;
 // The Done story's own CI comparison answer.
 export const doneComparison = doneStory.answer;
+// The Done comparison's own figures for dashboard/tests in its Summary:
+// Counts, Baseline, Branch, Landed and Parts.
+export const doneEntryOwnFigures = [
+  "4 → 6 test cases (+2) → 5 test cases (+1)",
+  "12.0 s",
+  "+9.5 s",
+  "+6.5 s",
+  "1 of 1 part present",
+];
+// The Done comparison's rows in the dashboard/tests Summary's table: each
+// child's Change, Counts, Baseline, Branch and Landed.
+export const doneEntryComparisonRows = [
+  [
+    "folder/",
+    "",
+    "2 → 3 test cases (+1) → 2 test cases (0)",
+    "10.3 s",
+    "+7.1 s",
+    "+4.1 s",
+  ],
+  ["added.spec.ts", "", "added → 1 test case", "added", "800 ms", "800 ms"],
+  ["renamed.spec.ts", "", "added → 1 test case", "added", "2.1 s", "2.1 s"],
+  ["root.spec.ts", "", "1 test case (no change)", "1.2 s", "0 ms", "0 ms"],
+];
 // The published completion Review changes answers by default.
 export const publishedCompletion = () =>
   makeMe.aStoryReview

@@ -79,10 +79,7 @@ test("brief statuses name a pending, missing, out-of-retention or insufficient h
       average: usableAverage,
     },
     {
-      history: done()
-        .priors([100000, 100000, 100000, 100000])
-        .tooFewToAverage(4)
-        .measured(120000),
+      history: done().priors([100000, 100000, 100000, 100000]).measured(120000),
       selected: "2 min",
       average: noAverage(4),
     },

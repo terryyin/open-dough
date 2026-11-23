@@ -111,7 +111,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
   expect(entryChart.marks()).toBe(7);
   expect(entryChart.readout()).toBe("Nov 7 · Selected landing · 1.4 s");
   // The failed build is its × under its mark.
-  expect(entryChart.failedUnder("Nov 6 · Failed build")).toBe(true);
+  expect(entryChart.drawnUnder("Nov 6 · Failed build", "failed")).toBe(true);
   expect(entryChart.averageLabel()).toEqual(["Prior-build average 618 ms"]);
 
   await openScopeChild("folder/", "dashboard/tests/folder");
@@ -197,7 +197,7 @@ test("drilling from a Done story's test entry to a folder and a test file reads 
         .getByRole("tab", { name: "Purpose", exact: true }),
     )
     .toBeVisible();
-  expect(fileHistory.fitsWidth()).toBe(true);
+  expect(fileHistory.scrollingSideways(), "scrolling sideways").toEqual([]);
 
   await emulateMedia([{ name: "prefers-color-scheme", value: "dark" }]);
   await expect.poll(fileHistory.changeCue).toBe("slower");

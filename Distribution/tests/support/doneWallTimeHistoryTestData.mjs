@@ -20,7 +20,8 @@ const wholeSeconds = (/** @type {number} */ ms) =>
 // whether the history is retained there, the prior builds before it, and
 // how the landing itself was measured, and the reference figures the read
 // states for those priors. Five priors of 1 min 43 s averaging 1 min 43 s
-// and an uncollected landing unless a step says otherwise.
+// and an uncollected landing unless a step says otherwise; other priors
+// state too few prior builds to average unless `averaging` says otherwise.
 export class DoneWallTimeHistoryBuilder {
   /** @type {DoneWallTimeHistory["availability"]} */
   #availability = "uncollected";
@@ -51,6 +52,9 @@ export class DoneWallTimeHistoryBuilder {
   /** @param {readonly (number | "failed" | "missing")[]} durations */
   priors(durations) {
     this.#priors = durations;
+    this.#reference = {
+      sampleCount: durations.filter((ms) => typeof ms === "number").length,
+    };
     return this;
   }
 
@@ -61,13 +65,6 @@ export class DoneWallTimeHistoryBuilder {
    */
   averaging(ms, used) {
     this.#reference = { sampleCount: used, averageMs: ms };
-    return this;
-  }
-
-  // Too few prior builds were used for an average.
-  /** @param {number} used how many prior builds were usable */
-  tooFewToAverage(used) {
-    this.#reference = { sampleCount: used };
     return this;
   }
 

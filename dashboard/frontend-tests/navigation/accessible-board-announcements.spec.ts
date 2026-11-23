@@ -9,7 +9,6 @@ import {
   zoomedViewport,
 } from "./board-accessibility.ts";
 import { mountBoardFrame, workRead } from "./board-frame-mount.ts";
-import { withBoardStorage } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 
@@ -38,7 +37,6 @@ const card = (title: string) =>
   board.column("Backlog").getByRole("article", { name: title, exact: true });
 
 test("accessible Board announces reading, the read result, and a failure while focus stays where it is", async () => {
-  withBoardStorage("0");
   const mounted = await mountBoardFrame(before, { width: 1440, height: 900 });
   await expect.element(card(earlierStory.title)).toBeVisible();
   await expect
@@ -123,7 +121,6 @@ test("accessible Board announces reading, the read result, and a failure while f
 });
 
 test("accessible Board keeps a read problem and the retained work reachable in a narrow window", async () => {
-  withBoardStorage("0");
   const mounted = await mountBoardFrame(before, zoomedViewport);
   await expect.element(card(earlierStory.title)).toBeVisible();
   await tabTo(settings().element());

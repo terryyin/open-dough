@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import type { WorkDependencies } from "../../src/storyDependencies.ts";
-import { mountBoard, withBoardStorage } from "./board-mount.ts";
+import { mountBoard } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 
@@ -12,7 +12,6 @@ type Dependency = Extract<
 >["entries"][number];
 
 test("a dependency disclosure and its explanation text do not change the selected story or open detail", async () => {
-  withBoardStorage("0");
   const first = story("Story B", 21);
   const second = story("Story C", 22);
   const supplier = (entry: typeof first) => ({

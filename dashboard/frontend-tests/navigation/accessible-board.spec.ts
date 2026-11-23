@@ -7,7 +7,7 @@ import {
   zoomedViewport,
 } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { reducedBoardMotion, withBoardStorage } from "./board-mount.ts";
+import { reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 
@@ -38,7 +38,6 @@ const unusable = story("Keep an unusable target readable", 92, {
 });
 
 test.beforeEach(async () => {
-  withBoardStorage("0");
   await reducedBoardMotion();
 });
 

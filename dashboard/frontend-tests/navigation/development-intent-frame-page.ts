@@ -3,7 +3,7 @@ import { page } from "vitest/browser";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
-import { noSessions, withBoardStorage } from "./board-mount.ts";
+import { noSessions } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { boardWork, story } from "./board-work.ts";
 
@@ -47,7 +47,6 @@ export function mountPerspectiveFrame(
     failure,
   }: { sessions?: MachineSessions; failure?: Error } = {},
 ) {
-  withBoardStorage("0");
   return mountBoardFrame(openDough, viewport, "stories", sessions, {
     otherWork: [doughnut, pygardon],
     ...(failure === undefined ? {} : { initialReadError: failure }),

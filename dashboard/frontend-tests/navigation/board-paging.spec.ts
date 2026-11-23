@@ -1,11 +1,7 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { boardReading as board, columns } from "./board-reading-page.ts";
-import {
-  mountBoard,
-  reducedBoardMotion,
-  withBoardStorage,
-} from "./board-mount.ts";
+import { mountBoard, reducedBoardMotion } from "./board-mount.ts";
 import { boardWork, longBacklog } from "./board-work.ts";
 
 const narrow = { width: 640, height: 800 };
@@ -13,7 +9,6 @@ const twoColumns = { width: 864, height: 700 };
 const backlogControl = `Backlog ${longBacklog.length} entries`;
 
 test("one whole Board column follows each page move and the chosen column returns after widening", async () => {
-  withBoardStorage("0");
   await mountBoard([boardWork(longBacklog)], narrow);
   await board.shows(["Backlog"], ["Taken 1 entry"]);
   const cards = board.column("Backlog").getByRole("article");
@@ -38,7 +33,6 @@ test("one whole Board column follows each page move and the chosen column return
 });
 
 test("the keyboard stays on the paging control and hands off when it disappears", async () => {
-  withBoardStorage("0");
   await mountBoard([boardWork(longBacklog)], narrow);
   await board.shows(["Backlog"], ["Taken 1 entry"]);
 
@@ -53,7 +47,6 @@ test("the keyboard stays on the paging control and hands off when it disappears"
 });
 
 test("the heading and paging control stay in reach below the banner while reading the long Backlog", async () => {
-  withBoardStorage("0");
   await reducedBoardMotion();
   await mountBoard([boardWork(longBacklog)], twoColumns);
   await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
@@ -99,7 +92,6 @@ test("the heading and paging control stay in reach below the banner while readin
 });
 
 test("reducing motion pages the Board immediately without a slide", async () => {
-  withBoardStorage("0");
   await reducedBoardMotion();
   await mountBoard([boardWork(longBacklog)], narrow);
   await board.shows(["Backlog"], ["Taken 1 entry"]);
@@ -113,7 +105,6 @@ test("reducing motion pages the Board immediately without a slide", async () => 
 });
 
 test("reverse Tab from Taken reveals the final Backlog card without taking its focus", async () => {
-  withBoardStorage("0");
   await mountBoard([boardWork(longBacklog)], twoColumns);
   await board.shows(["Backlog", "Taken"], ["Recently done 0 entries"]);
   await board.control("Recently done").click();

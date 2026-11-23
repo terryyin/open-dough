@@ -16,10 +16,6 @@ export const scopeHistory = (scope: Locator | Page) =>
     exact: true,
   });
 
-// The chosen unit's readout and chart, named by its unit: "Test cases".
-export const scopeHistoryUnit = (history: Locator, unit: string) =>
-  history.getByRole("region", { name: unit, exact: true });
-
 export function scopeHistoryReading(history: Locator) {
   const units = history.getByRole("group", {
     name: "Timing unit",

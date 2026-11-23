@@ -13,7 +13,7 @@ import {
   textContrast,
   zoomedViewport,
 } from "./board-accessibility.ts";
-import { mountBoard, withBoardStorage } from "./board-mount.ts";
+import { mountBoard } from "./board-mount.ts";
 import {
   answerTerminal,
   openRecord,
@@ -102,7 +102,6 @@ async function expectIconControl(
 }
 
 test("the Sessions sidebar and terminal read clearly, keep their names, and fit a narrow and a zoomed window", async () => {
-  withBoardStorage("0");
   withWidthStorage();
   answerTerminal();
   const browser = browserSession();
