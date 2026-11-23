@@ -4,64 +4,55 @@
 
 ## Goal and scope
 
-When a slice's change edits only the spec files the slice names as its subject,
-plus planning records, the coordinator reviews it against the refactor checks
-during its acceptance of the return instead of launching a fresh refactor agent.
-The review keeps the fresh pass's whole-product reach and escalates any
-candidate to the fresh pass before delivery, including a small edit that tips a
-repeated pattern, a file's size or a test's boundary into needing structural
-change. Shared test support, production code, configuration, documentation and
-consumers outside the slice keep the fresh pass. The refactor checks, the fresh
-pass and the records-only and already-traced dispositions stay as they are.
-[ODF-141](../../../docs/maintainer/findings/ODF-141.md#evidence-2026-11-23-open-dough-dd-610)
+Delivery step 1 replaces its two special cases for skipping the fresh refactor
+pass with one rule: skip it when the change edits only records, or only an
+accepted refactor return's traced paths or the slice's subject specs and the
+coordinator's acceptance read, with a product search for existing
+representations of what the edit adds, finds no refactor-check candidate.
+Otherwise, or when unsure, the fresh pass runs, given any candidate by name.
+The edited guidance ends shorter in total than today and names fewer special
+cases, without losing an existing condition. Whole-product focus is unchanged and not
+in question. [ODF-141](../../../docs/maintainer/findings/ODF-141.md#evidence-2026-11-23-open-dough-dd-610)
 records the baseline.
 
 ## Current decisions
 
-- **Whole-product focus is the restriction's reason.**
-  [ADR 0002 principle 2](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#2-whole-product-focus)
-  gives each concept one representation and lets no story boundary limit a
-  necessary solution. The focused review narrows how evidence is gathered, not
-  which issues count. Any candidate goes to the fresh pass, which keeps its
-  edits beyond the slice's files and its existing stops. The focused review
-  edits nothing.
-- **The review rides on acceptance.** One coordinator request at the plan 754
-  median context costs about a sixth of a no-edit fresh pass. The review
-  therefore reuses the acceptance diff read and the implementer's consumer
-  trace, adds one product search for existing representations of what the
-  edit introduces, and records its disposition. It reads
-  [refactor checks](../../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md)
-  at most once per execution.
-- **Guidance home.** Step 1 of
+- **Simplify, never add.** The change replaces the records-only and
+  already-traced special cases in
   [deliver the change](../../../Distribution/src/skills/dough-execute-plan/references/deliver-the-change.md)
-  owns refactor dispositions, so the focused-review disposition joins
-  records-only and already-traced there. Step 2's marker requirement and the
+  step 1 with the one rule, and step 2 and the
   [post-change refactor](../../../Distribution/src/skills/dough-post-change-refactor/SKILL.md)
-  discovery of supplied dispositions name the dispositions generally rather
-  than listing two. The delivery boundary row has about 1,000 bytes of headroom
-  (premise 1), so the added rule fits there or the step is compacted to fit.
-  The shared budget stays unchanged.
-- **Keep or stop.** Keep the guidance only if the replay below prices eligible
-  no-edit slices clearly below their retained fresh passes, catches or
-  escalates every baseline finding, and routes ineligible slices to the fresh
-  pass. Otherwise revert the guidance and record no change. Either way, record
-  the decision and its numbers in ODF-141. The next real execution with
-  isolated test edits supplies the later keep-or-stop check the seed names.
-- Follow [ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md)
-  for executing-agent wording and
-  [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
-  for counting the replay's own cost against the result.
+  discovery refer to "a retained disposition" instead of listing kinds. The two
+  files end shorter in total than premise 1's baseline of 19,582 bytes. Records-only and
+  already-traced deliveries behave exactly as before, and the next fresh pass
+  still reviews every disposition's committed diff. If the rule cannot be
+  stated clearly for an executing agent
+  ([ADR 0006](../../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md))
+  within that length, revert and record no change. A scratch draft of the
+  merged step 1 measured about 50 bytes longer than today's two cases, while
+  dropping the post-change refactor's listed kinds saves about 85, so the
+  budget is tight but reachable.
+- **The judgment rides on acceptance.** The coordinator already holds the
+  accepted diff and consumer trace. The rule adds one product search and a
+  retained disposition, and links the
+  [refactor checks](../../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md)
+  as the standard rather than restating them.
+- **Keep or stop.** Keep the change only if it is shorter as above and the
+  replay below prices eligible no-edit slices clearly below their retained
+  fresh passes, catches every baseline finding and routes ineligible slices to
+  the fresh pass. Otherwise revert and record no change. Either way, record the
+  decision and its numbers in ODF-141, counting the replay's own cost under
+  [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
 ## Decisive premises
 
-1. **Read budget.** On 2026-11-23 at `089df69be`, a scratch copy of
-   [read-budget.test.mjs](../../../Distribution/tests/skills/dough-execute-plan/read-budget.test.mjs)
-   in the job tmp directory, with absolute paths and `BUDGET_BYTES = 0`,
-   printed each boundary row under Node 24.21.0. The row "Before delivery, or a
-   validated increment or owned repair publication" read 28,998 bytes against
-   the 30,000-byte budget. "Before accepting a return" read 15,770. The
-   unmodified test passed. Any text added to `deliver-the-change.md` counts
-   against both rows.
+1. **Baseline length.** At `c35d3a8b3`, `wc -c` reads 9,536 bytes for
+   `deliver-the-change.md` and 10,046 for `dough-post-change-refactor/SKILL.md`.
+   Step 1 names two special cases, and the post-change refactor discovery lists
+   both by name. On 2026-11-23 at `089df69be`, the
+   [read budget](../../../Distribution/tests/skills/dough-execute-plan/read-budget.test.mjs)
+   row "Before delivery, or a validated increment or owned repair publication"
+   read 28,998 of 30,000 bytes, so a shorter step 1 only adds headroom.
 2. **Baseline cost.** The plan 754 coordinator session
    `c4b4c5bf-6c4c-466b-8329-490437de3ca0` and its subagents remain under
    `~/.claude/projects/-Users-terryyin-git-open-dough--worktrees-tie-done-capture-cases-to-the-real-branch-entry/`.
@@ -96,37 +87,40 @@ records the baseline.
 
 ## Ordered slices
 
-### 1. Review own-spec changes during acceptance
+### 1. Skip the fresh pass on a clean own-spec change
 Type: Behavior
 Status: planned
 
-Add the focused-review disposition to delivery step 1 and generalize the
-disposition wording in step 2 and in the post-change refactor's discovery.
-Apply the [skill authoring behavior review](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review)
+Merge step 1's special cases into the one rule and generalize step 2 and the
+post-change refactor discovery. Apply the
+[skill authoring behavior review](../../../.agents/skills/author-open-dough-skills/SKILL.md#behavior-review)
 to both distributed skills. Estimate 30–45 active minutes, mostly replay.
 
 **Proof.**
 
+- `wc -c` on both edited files totals below premise 1's 19,582 bytes, and
+  step 1 names one skip rule where it named two special cases.
 - `bash scripts/test.sh Distribution/tests/skills/dough-execute-plan/read-budget.test.mjs`
   passes with the edited guidance.
 - Replay, with the edited guidance, by the executing coordinator in its own
   context. For each case, check out the parent revision in a scratch
-  worktree, apply the case's diff, and perform the focused review as written.
+  worktree, apply the case's diff, and apply the rule as written.
   Count the added requests and tokens from this session's transcript.
   Price them at premise 2's median coordinator context, because this
   session's context differs from that of a mid-execution coordinator.
-  - Plan 754 slices 2, 3, 5, 6 and the CI repair are eligible and record the
-    disposition with no candidate. Each is priced below its retained pass.
-  - Plan 754 slices 1, 4 and 7 are classified ineligible from their paths
-    alone and route to the fresh pass.
-  - The reconstructed plan 249 slice 1 diff escalates on the existing
-    `markAsDone` helper.
-  - The tipping-point case is a scratch edit to one plan 754 Done capture spec
-    that inlines setup that two sibling specs already repeat. It escalates as
-    aggravated duplication. Revert it after the observation.
-- Record the replay's request counts, prices and outcomes, the replay's own
-  cost, and the keep-or-stop decision in ODF-141 under the 2026-11-23 small
-  test edits section.
+  - Plan 754 slices 2, 3, 5, 6 and the CI repair skip the fresh pass with no
+    candidate. Each is priced below its retained pass.
+  - Plan 754 slices 1, 4 and 7 keep the fresh pass from their paths alone.
+  - The reconstructed plan 249 slice 1 diff runs the fresh pass with the
+    existing `markAsDone` helper named.
+  - A scratch edit to one plan 754 Done capture spec that inlines setup two
+    sibling specs already repeat runs the fresh pass with the duplication
+    named. Revert it after the observation.
+  - A records-only change and an already-traced repair skip the pass as they
+    do today.
+- Record the length comparison, the replay's request counts, prices and
+  outcomes, its own cost, and the keep-or-stop decision in ODF-141 under the
+  2026-11-23 DD-610 evidence.
 
 ## Local gate and readiness
 
@@ -138,8 +132,8 @@ No long run is planned. If one becomes necessary, start it fully awake with
 [Machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
 
 One Behavior slice owns the guidance, its evaluation and the keep-or-stop
-record. Slice-plan refinement is not needed, because the change adds one
-disposition to an existing step and the replay owns its proof. No remaining
+record. Slice-plan refinement is not needed, because the change rewrites one
+existing step and the replay owns its proof. No remaining
 slice concern was identified.
 
 ## Story obligations
