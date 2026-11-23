@@ -4,7 +4,7 @@
 // endpoint measured in the one declared unit Baseline measured
 // (`./ciProofUnits.ts`). A gap endpoint shows its gap, an endpoint reporting
 // none of the row's units shows "—", and endpoints counting in different
-// units, several units, or legacy results show each endpoint with its units
+// units or several units show each endpoint with its units
 // and why no difference exists, never an invented one.
 
 import type { CiProofUnit } from "./ciProofUnits.ts";

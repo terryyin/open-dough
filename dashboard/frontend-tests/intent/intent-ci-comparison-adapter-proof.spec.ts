@@ -18,7 +18,7 @@ test("adapter proof size limit, invalid summary and attempt ambiguity each keep 
       )
       .withProofs(
         makeMe.aCiProof
-          .unavailable("invalid", "schemaVersion is not 1 or 2")
+          .unavailable("invalid", "schemaVersion is not 2")
           .please(),
         makeMe.aCiProof.tooLarge(1024 * 1024).please(),
         undefined,
@@ -28,7 +28,7 @@ test("adapter proof size limit, invalid summary and attempt ambiguity each keep 
   await expect
     .poll(() => comparison.entryEvidence())
     .toContain(
-      "Baseline — This attempt's CI proof summary is not a valid summary: schemaVersion is not 1 or 2.",
+      "Baseline — This attempt's CI proof summary is not a valid summary: schemaVersion is not 2.",
     );
   expect(comparison.entryEvidence()).toContain(
     "Branch — This attempt's CI proof is larger than the 1 MiB proof limit.",

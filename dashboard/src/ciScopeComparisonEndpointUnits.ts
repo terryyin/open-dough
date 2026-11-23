@@ -8,7 +8,7 @@
 // Each declared unit that Baseline and a later endpoint both show compares
 // on its own row. The units matching nothing on the other side share one
 // row, each endpoint showing its own, when both sides have such units
-// (legacy test results → test cases, test files → test cases), so that row
+// (test files → test cases), so that row
 // shows both labelled ends and no difference; otherwise each such unit has
 // its own row, where an endpoint reporting the scope only in other units
 // shows it unreported, never as a zero.

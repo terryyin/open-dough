@@ -2,7 +2,7 @@
 // (../../../dashboard/src/ciProofSort.ts): at every comparison scope by signed
 // change from Baseline in one declared unit, each compared unit's row by its
 // own, not by time or relative change, with ties in their given order, added
-// entries, gaps, times of another unit or legacy results and a unit Baseline
+// entries, gaps, times of another unit and a unit Baseline
 // does not report last in either direction, and a Summary's outside row
 // pinned last; Baseline by measured time. Other
 // comparison columns: ./intent-ci-comparison-sort.test.mjs. Browser journey:
@@ -133,7 +133,7 @@ test("Summary comparisons sort the shown signed changes, keep ties and uncompara
   ]);
 });
 
-test("each compared unit's row sorts by its own signed change, while a time in another unit, as legacy results, or of a unit Baseline does not report gives Branch and Landed no change to sort by, so it follows comparable changes either way while Baseline still sorts its measured time", () => {
+test("each compared unit's row sorts by its own signed change, while a time in another unit or of a unit Baseline does not report gives Branch and Landed no change to sort by, so it follows comparable changes either way while Baseline still sorts its measured time", () => {
   const holding = (path, ...evidence) =>
     makeMe.aCiProofEntry
       .at(path)
@@ -143,21 +143,15 @@ test("each compared unit's row sorts by its own signed change, while a time in a
     makeMe.aCiProofEvidence.inUnit("case").timed(ms).please();
   const files = (ms) =>
     makeMe.aCiProofEvidence.inUnit("file").timed(ms).please();
-  const legacy = (ms) =>
-    makeMe.aCiProofEvidence.legacy("tests").timed(ms).please();
-  // Subtracted, test cases 10 s → a test file's 1 s would be the largest
-  // reduction and legacy 15 s → 60 s the largest increase.
   const before = summary(
     holding("s/across", cases(10_000)),
     holding("s/up", cases(20_000)),
-    holding("s/legacy", legacy(15_000)),
     holding("s/down", cases(30_000)),
     holding("s/both", cases(5_000)),
   );
   const after = summary(
     holding("s/across", files(1_000)),
     holding("s/up", cases(23_000)),
-    holding("s/legacy", legacy(60_000)),
     holding("s/down", cases(25_000)),
     // Its test cases +45 s; its test files Baseline did not report.
     holding("s/both", cases(50_000), files(3_000)),
@@ -169,7 +163,6 @@ test("each compared unit's row sorts by its own signed change, while a time in a
   );
   const uncomparable = [
     "s/across test cases and test files",
-    "s/legacy legacy test results",
     "s/both test files",
   ];
   for (const column of ["branch", "landed"]) {
@@ -189,7 +182,6 @@ test("each compared unit's row sorts by its own signed change, while a time in a
   assert.deepEqual(sortBy(rows, "baseline", "ascending"), [
     "s/both test cases",
     "s/across test cases and test files",
-    "s/legacy legacy test results",
     "s/up test cases",
     "s/down test cases",
     "s/both test files",

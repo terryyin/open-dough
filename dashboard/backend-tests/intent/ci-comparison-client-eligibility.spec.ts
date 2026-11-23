@@ -65,7 +65,7 @@ test("only the unambiguous Baseline adapter attempt is read and its invalid proo
               revision: "a".repeat(40),
               checkedAt: facts.answer.checkedAt,
               proof: makeMe.aCiProof
-                .unavailable("invalid", "schemaVersion is not 1 or 2")
+                .unavailable("invalid", "schemaVersion is not 2")
                 .please(),
             })
             .please(),
@@ -82,7 +82,7 @@ test("only the unambiguous Baseline adapter attempt is read and its invalid proo
       baseline: {
         kind: "unavailable",
         adapter: true,
-        line: "This attempt's CI proof summary is not a valid summary: schemaVersion is not 1 or 2.",
+        line: "This attempt's CI proof summary is not a valid summary: schemaVersion is not 2.",
       },
       branch: {
         kind: "unavailable",

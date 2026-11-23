@@ -9,26 +9,27 @@ export const folder = `${entry}/folder`;
 export const aSpec = `${folder}/a.spec.ts`;
 const rootSpec = `${entry}/root.spec.ts`;
 
-// dashboard/tests: a.spec.ts's test cases (or legacy results) and root.spec.ts's
-// two, each broken down by file and timed, beside a.spec.ts's own test file
+// dashboard/tests: a.spec.ts's results and root.spec.ts's, each broken down
+// by file and timed, beside a.spec.ts's own test file
 // outcome when FILE_MS is given.
 export function dashboardTests(
-  unit: { readonly cases: true } | { readonly legacy: string },
+  unit: "case" | "file",
   aCount: number,
   aMs: number,
   fileMs?: number,
 ) {
-  const results =
-    "legacy" in unit
-      ? makeMe.aCiProofEvidence.legacy(unit.legacy)
-      : makeMe.aCiProofEvidence.inUnit("case");
   return makeMe.aCiProofEntry
     .at(entry)
     .holding(
-      results
+      makeMe.aCiProofEvidence
+        .inUnit(unit)
         .brokenDown(
           { path: aSpec, passed: aCount, durationMs: aMs },
-          { path: rootSpec, passed: 2, durationMs: 10_000 },
+          {
+            path: rootSpec,
+            passed: unit === "case" ? 2 : 1,
+            durationMs: 10_000,
+          },
         )
         .please(),
       ...(fileMs === undefined

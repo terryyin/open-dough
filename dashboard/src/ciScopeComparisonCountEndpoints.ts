@@ -2,17 +2,11 @@
 // observation's unit and evidence gaps, classify absent/unreported endpoints,
 // and choose readable endpoints when their units cannot be compared.
 
-import {
-  comparableUnits,
-  unitName,
-  unitNoun,
-  whyNotCompared,
-  type CiProofUnit,
-} from "./ciProofUnits.ts";
+import { unitName, unitNoun, type CiProofUnit } from "./ciProofUnits.ts";
 import {
   countHasGaps,
+  differentUnitsCountSuffix,
   formatTotal,
-  measuredUnitsOf,
   observedCountWords,
   type MeasuredCount,
   type ScopeEndpointCount,
@@ -104,8 +98,7 @@ export function comparedUnitOf(
   const [first] = measured;
   if (first?.kind !== "measured") return undefined;
   return measured.every(
-    (count) =>
-      count.kind === "measured" && comparableUnits(first.unit, count.unit),
+    (count) => count.kind === "measured" && first.unit === count.unit,
   )
     ? first.unit
     : undefined;
@@ -134,17 +127,15 @@ export function nounAfter(
     : "";
 }
 
-// Why the measured endpoints of SHOWN do not compare (`whyNotCompared`).
+// Name a unit mismatch when several endpoints have measured results.
 // Nothing when fewer than two endpoints are measured, as a gap or "—"
 // already says why.
 function uncomparedReason(shown: readonly ScopeEndpointCount[]): string {
-  const measured = shown.filter(isMeasured);
-  if (measured.length < 2) return "";
-  return ` (${whyNotCompared(measured.flatMap(measuredUnitsOf))})`;
+  return shown.filter(isMeasured).length < 2 ? "" : differentUnitsCountSuffix;
 }
 
 // A Counts cell whose measured endpoints count in different units, several
-// units, or legacy results, which never compare: each endpoint in its own
+// units: each endpoint in its own
 // words with its units, after endpoints chosen as a compared cell chooses
 // them, and why there is no difference.
 export function uncomparedCountsText(

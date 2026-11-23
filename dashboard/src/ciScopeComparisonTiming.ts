@@ -22,7 +22,6 @@ import {
   type TimingCell,
 } from "./ciProofTiming.ts";
 import {
-  comparableUnits,
   unitName,
   type CiEntryEvidence,
   type CiProofUnit,
@@ -110,7 +109,7 @@ export function baselineCellOf(
 // the row's units, several units' times kept apart, or one unit's time,
 // measured as its signed change from the BASELINE timing when that is
 // measured in the same declared unit; otherwise (no measured baseline,
-// another unit, legacy results, a timing gap) as it is, with no change,
+// another unit, a timing gap) as it is, with no change,
 // relative mark or change to sort by.
 export function afterCellOf(
   timing: ScopeEndpointTiming,
@@ -133,7 +132,7 @@ export function afterCellOf(
   if (
     timing.kind !== "measured" ||
     baseline.kind !== "measured" ||
-    !comparableUnits(baseline.unit, timing.unit)
+    baseline.unit !== timing.unit
   )
     return timingCellOf(timing, words.value);
   return {

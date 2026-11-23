@@ -1,7 +1,7 @@
 // Compared unit rows and their endpoint figures. Endpoint evidence is
 // interpreted by ./ciScopeComparisonEndpointUnits.ts; this module matches
 // units across builds and selects the figures for each resulting row.
-import { listedUnits, type CiProofUnit } from "./ciProofUnits.ts";
+import { declaredUnits, type CiProofUnit } from "./ciProofUnits.ts";
 import type { ScopeEndpointCount } from "./ciScopeComparisonCounts.ts";
 import type { ScopeEndpointTiming } from "./ciScopeComparisonTiming.ts";
 import type {
@@ -40,13 +40,12 @@ export function comparedRowsOf(
 ): readonly ComparedRow[] {
   const before = unitsOf(baseline);
   const later = [...unitsOf(branch), ...unitsOf(landed)];
-  const shown = listedUnits.filter(
+  const shown = declaredUnits.filter(
     (unit) => before.includes(unit) || later.includes(unit),
   );
   if (shown.length === 0) return [{ units: undefined }];
   const matched = shown.filter(
-    (unit) =>
-      unit !== "legacy" && before.includes(unit) && later.includes(unit),
+    (unit) => before.includes(unit) && later.includes(unit),
   );
   const unmatched = (units: readonly CiProofUnit[]) =>
     units.some((unit) => !matched.includes(unit));

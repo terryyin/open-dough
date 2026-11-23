@@ -297,7 +297,7 @@ retains its independent ownership case. Commands and observations are in
 
 ### 7. Read Dashboard proof and comparisons in declared units
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 12–15 minutes.
 
 Behavior. The Dashboard proof-response contract accepts only declared-unit
@@ -314,6 +314,14 @@ Adapt reached legacy-oriented specifications and common builders to test
 unavailable or non-overlapping declared-unit cases according to the promise
 they own. Keep raw invalid input in the wire-boundary proofs. Run Dashboard
 type checks and the reached mounted comparison and scope-proof specs.
+
+Accepted proof. The authenticated response accepted declared case and file
+evidence and rejected the complete response when one entry used an
+undeclared unit. The mounted comparisons retained distinct case and file
+counts and timings through Summary, location, folder and file Proof.
+Different units kept both endpoints visible without a computed change.
+Focused Distribution, backend, mounted, E2E and Dashboard type checks
+passed. Commands and consumer dispositions are in `slice-g-return.md`.
 
 ## Execution context
 
@@ -338,6 +346,13 @@ type checks and the reached mounted comparison and scope-proof specs.
   `3c2634e9853fd5a4bda134e34337b830609bfef7`.
 - Slice 5 was accepted on the story branch at
   `48d0db83c2d7f15698871e0241ad9d0407f9e303`.
+- Slice 6 was accepted on the story branch at
+  `2c93275ba6ab1d5f71afd2127326516323ba8fba`.
+- Trunk `97e724fbb` includes a concurrent retry-test repair, the GitHub
+  request-owner simplification, and a scoped history test driver change.
+  The merge preview reports one conflict in `intent-read-recovery.spec.ts`.
+  Confirm the combined recovery, archive proof and scope readers before
+  publishing the trunk integration.
 
 ## Story obligations
 
@@ -354,7 +369,7 @@ Disposition: proved by slice 5: the accepted proof under slices 3 and 5 covers t
 ### G3. Dashboard projections still have legacy unit branches
 Reported: slice 2 — "The Dashboard's remaining typed fixture and projection branches for legacy evidence still have owners in slices 6 and 7."
 Story clause: "A count with an unknown unit cannot be attributed safely, and skipping one unit or entry within an invalid summary would present partial proof as complete."
-Disposition: interim until slices 6, 7
+Disposition: proved by slice 7: the scoped history shape, authenticated wire refusal, and mixed-unit and changed-unit journeys are recorded under slices 6 and 7.
 
 ## Readiness review
 

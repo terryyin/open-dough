@@ -6,7 +6,7 @@ import {
   declaredUnits,
   hasFileBreakdown,
   unitName,
-  type DeclaredUnit,
+  type CiProofUnit,
 } from "../src/ciProofUnits.ts";
 import { isKnownFailed } from "../src/ciFailedBuild.ts";
 import { owningEntryOf, scopeFiguresOf } from "../src/ciScopeProof.ts";
@@ -22,7 +22,7 @@ const proofGap = {
   "too-large": "CI proof summary exceeds the read size limit",
 } as const;
 
-const signatureOf = (path: string, entry: string, unit: DeclaredUnit): string =>
+const signatureOf = (path: string, entry: string, unit: CiProofUnit): string =>
   `${path}\n${entry}\n${unit}`;
 
 function entryOf(
@@ -38,7 +38,7 @@ function entryOf(
 export function scopeHistoryDeclaredUnitsOf(
   build: KeptBuild | undefined,
   path: string,
-): readonly DeclaredUnit[] {
+): readonly CiProofUnit[] {
   const entry = entryOf(build, path);
   return entry === undefined
     ? []
@@ -50,7 +50,7 @@ export function scopeHistoryDeclaredUnitsOf(
 export function scopeHistorySignatureOf(
   build: KeptBuild | undefined,
   path: string,
-  unit: DeclaredUnit,
+  unit: CiProofUnit,
 ): string | undefined {
   const entry = entryOf(build, path);
   return entry === undefined ||
@@ -62,12 +62,12 @@ export function scopeHistorySignatureOf(
 type ScopeUnitTiming =
   | {
       readonly kind: "gap";
-      readonly unit: DeclaredUnit;
+      readonly unit: CiProofUnit;
       readonly reason: string;
     }
   | {
       readonly kind: "point";
-      readonly unit: DeclaredUnit;
+      readonly unit: CiProofUnit;
       readonly ms: number;
       readonly entry: string;
       readonly signature: string;
@@ -87,9 +87,9 @@ export function scopeHistoryTimingsOf(
   build: KeptBuild | undefined,
   selection: StoryCiBuildSelection,
   path: string,
-  expected: ReadonlyMap<DeclaredUnit, string | undefined>,
+  expected: ReadonlyMap<CiProofUnit, string | undefined>,
   hasMeasuredDate: boolean,
-  units: readonly DeclaredUnit[],
+  units: readonly CiProofUnit[],
 ): ScopeTimings {
   const gap = (reason: string): ScopeTimings => ({
     readings: units.map((unit) => ({ kind: "gap", unit, reason })),

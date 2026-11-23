@@ -4,8 +4,7 @@
 // (`./ciProofEntryCells.ts`); when it reports several units they stay as
 // labeled lines of that unit's own counts and time, never summed. A Summary's
 // table cells (`./CiProofTable.tsx`) still show one unit's results
-// (`./ciProofUnits.ts`): counts naming that unit (test cases, test files or
-// legacy test results) and cumulative test execution time (measured, partial,
+// (`./ciProofUnits.ts`): counts naming that unit (test cases or test files) and cumulative test execution time (measured, partial,
 // or not recorded). The selected scope's own figures also show how many of
 // that unit's declared parts are present and any gaps. Timing is classified
 // by `./ciProofTiming.ts` and durations are worded by `./ciProofTimeWords.ts`;
@@ -52,7 +51,7 @@ export const nothingCountedAs = (unit: CiProofUnit | undefined): string =>
     : `nothing counted as ${unitName(unit)}`;
 
 const nothingCountedWords = (evidence: CiProofEvidence): string =>
-  nothingCountedAs(evidence.unit === "legacy" ? undefined : evidence.unit);
+  nothingCountedAs(evidence.unit);
 
 // "19 passed and 1 failed test cases": every nonzero outcome of FIGURES,
 // then EVIDENCE's unit, singular for one result.
