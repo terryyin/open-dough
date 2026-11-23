@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "493087c5-95cc-48d8-929c-3c1806b9889f",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T06:55:32.992Z",
+  "story": "SEED-413#speed-intent-attempt-and-summary-proof",
+  "ranges": [
+    {
+      "base": "9a4fd54d2f20021169321d0f24629ae55e87ac24",
+      "candidate": "ae0bd0f363f3962a9afbc2a367617e9d8c60472d"
+    }
+  ]
+}
