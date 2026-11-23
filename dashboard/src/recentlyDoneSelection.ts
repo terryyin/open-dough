@@ -1,33 +1,8 @@
-// The Recently done sessions row the developer chose (ADR 0008, Dashboard UI
-// concepts). Choosing a row selects; its Open control alone opens the
-// session (`./PageFrame.tsx`). A row linked to a published done story selects
-// that story as the page's Selected story in its project, keeping the
-// perspective; a standalone row selects its retained session and leaves the
-// Selected story, project and reading as they are. Neither changes the Side
-// panel.
-//
-// A newly completed local story can be selected from its retained Done mark.
-// A story launch is linked when the done catalog its project publishes now
-// lists that exact story identity within the recent window Board Recently
-// done uses (`recentDoneRecords`). An ad hoc row may derive a completed-story
-// association from retained launch and published claim/completion evidence
-// (`./completedStoryAssociation.ts`) without rewriting its request identity
-// or Ad hoc label; that association may name a catalogued Done story beyond
-// the recent window. The shown project's current-revision catalog is reused;
-// another project's is read on demand through the same authenticated snapshot
-// reader and the Board's catalog reading (`cataloguedAt`), and no done record
-// body is read. An unread catalog or association is checking, and a failed
-// one, a catalog gap said in the Board's words, or one naming the story's
-// record as unreadable is unknown, each said apart from a confirmed miss,
-// which selects the session. A later choice, an explicit Open, or another
-// project chosen meanwhile supersedes an unanswered check. A linked row stays
-// chosen while its story is the page's Selected story.
-//
-// In Development the choice also shows its project's stories and brings into
-// view its done story's card, or, for a standalone row, its session's entry,
-// which is marked selected (`ChosenSessionOnPage`); the page's Recently done
-// range extends as far as that entry (`./sessionNavigation.ts`). Only the
-// current choice goes there, as the perspective is when its check answers.
+// A Recently done sessions row selects its resolved story or standalone
+// session in the current perspective. Open alone changes the Side panel.
+// The row uses the owning project's story evidence, including an on-demand
+// read when its published snapshot is unavailable locally to the page.
+// Another selection or an explicit Open supersedes an unanswered check.
 
 import {
   createContext,
@@ -50,6 +25,7 @@ import {
   currentCatalog,
   currentSessionCloses,
   linkIn,
+  needsSessionClose,
   readLink,
   type DoneLink,
 } from "./recentlyDoneLink.ts";
@@ -195,13 +171,23 @@ export function useRecentlyDoneSelection(
         },
       );
     };
-    if (membership !== undefined) {
+    const settleRetained = () => {
+      if (membership === undefined) {
+        standalone();
+        return;
+      }
       const localStory = recentLocalDoneStory(membership, new Date());
       if (localStory !== undefined) {
         settle("linked", localStory.identity);
         return;
       }
       checkCatalog(membership.identity, membership.kind !== "linked");
+    };
+    if (
+      membership !== undefined &&
+      !needsSessionClose(now.current.stories.work, record)
+    ) {
+      settleRetained();
       return;
     }
     const controller = new AbortController();
@@ -212,11 +198,21 @@ export function useRecentlyDoneSelection(
       (answer) => {
         if (checking.current !== controller) return;
         checking.current = undefined;
-        // Association already validated published claim/completion evidence.
-        // Select that identity without the recent-window catalog gate story
-        // launches use; Board reveal may still include a catalogued older Done.
-        if (typeof answer === "object" && "kind" in answer) {
-          settle("linked", answer.identity);
+        if (answer === "absent") {
+          settleRetained();
+          return;
+        }
+        if ("kind" in answer) {
+          if (answer.kind === "conflict") {
+            standalone();
+            return;
+          }
+          const local = recentLocalDoneStory(membership, new Date());
+          if (answer.kind === "linked" || local?.identity === answer.identity) {
+            settle("linked", answer.identity);
+            return;
+          }
+          checkCatalog(answer.identity, false);
           return;
         }
         settle(answer);

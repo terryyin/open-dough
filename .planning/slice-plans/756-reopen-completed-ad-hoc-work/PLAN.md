@@ -256,11 +256,13 @@ standalone file. A separate local-only story displays the missing published
 comparison. Typed overview, diff and text share the admitted original pair
 and refuse another pair or file. See `slice-6-implementation.md` in the
 worktree's Git evidence directory.
+The independent review proved the same admitted range through both reads
+in `slice-6-refactor.md`.
 
 ### 7. Recently done surfaces conflicting story association
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a session's retained and published evidence name different
 stories → Recently done shows the candidates and withholds the session's
@@ -277,6 +279,15 @@ snapshot is absent, so the sidebar and Board reach the same decision.
 Keep the original Done attachment and the saved choice through late native
 updates, session replacement and rebinding. Observe those write paths with
 older native data after the current attachment or choice was saved.
+
+The mounted conflict case shows both candidates and one standalone native
+entry, then a single entry under the chosen card after reload. The real
+write verifies the exact project, session and candidate pair, rejects
+stale and alternate submissions, and reads the chosen association through
+normal follow-up admission. It observes the original Done attachment and
+choice after stale update, replacement and rebind. The unloaded-project
+row selects its published story through the on-demand association read.
+See `slice-7-implementation.md` in the worktree's Git evidence directory.
 
 ## Local gates and review
 
@@ -326,6 +337,8 @@ older native data after the current attachment or choice was saved.
 - The Codex lifetime fixture repair was accepted at
   `60ed6f6c38362950db8c559cb3ca739a715114ee` on that branch and observer.
   See [the repair record](diagnosis-codex-deletion-connection.md).
+- Slice 6 was accepted at `f7c19ab077ade56bb73ce3f61172c0ea91402fed`
+  on that branch and observer.
 
 ## Story obligations
 
@@ -333,10 +346,10 @@ older native data after the current attachment or choice was saved.
 
 Reported: slice 5 — "A retained row from another project can fall back to claim history when its own published snapshot is not shown, missing an association named by its published session record."
 Story clause: "In Recently done sessions, choosing a new ad hoc Done row selects its Done story, as a linked row does."
-Disposition: receiving slice 7
+Disposition: proved by slice 7: recently-done-published-session-story.spec.ts selects the published Pygardon story while viewing Open Dough; ad-hoc-done-story-association.spec.ts admits the exact project close without claim history.
 
 ### G2. A late native write can drop the saved story attachment
 
 Reported: slice 5 — "The Codex repair traced native continuation updates to updateRecord, which preserves doneAt and doneProblem but spreads a stale record without the newer doneStory. replaceKeptSession has the same omission."
 Story clause: "Marking an ad hoc session Done with no story creates a Done story and attaches the session to it."
-Disposition: receiving slice 7
+Disposition: proved by slice 7: ad-hoc-done-story-association.spec.ts reads the Done attachment, original time and saved choice after stale update, session replacement and native rebind.

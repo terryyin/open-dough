@@ -13,6 +13,7 @@ import {
   currentCatalog,
   currentSessionCloses,
   linkIn,
+  needsSessionClose,
 } from "./recentlyDoneLink.ts";
 import {
   publishedCloseFor,
@@ -96,10 +97,11 @@ export function useShownDoneLinks(
                 continue;
               }
               const identity = launchSubject(record.request).identity;
-              if (identity === undefined) historical.push(record);
+              if (identity === undefined || needsSessionClose(work, record))
+                historical.push(record);
               else launches.push({ record, identity, recentOnly: true });
             }
-            const catalog = async (): Promise<DoneStories | undefined> => {
+            const readCatalog = async (): Promise<DoneStories | undefined> => {
               const current = currentCatalog(work, source.id);
               if (current !== undefined) return current;
               // The selected project's Board owns its catalog read and recovery.
@@ -113,6 +115,11 @@ export function useShownDoneLinks(
               } catch {
                 return undefined;
               }
+            };
+            let requestedCatalog: Promise<DoneStories | undefined> | undefined;
+            const catalog = () => {
+              requestedCatalog ??= readCatalog();
+              return requestedCatalog;
             };
             await Promise.all([
               ...(launches.length === 0
@@ -133,8 +140,33 @@ export function useShownDoneLinks(
                   record,
                   signal,
                 );
-                if (typeof associated === "object" && "kind" in associated)
-                  links.set(sessionKey(record.session), associated.identity);
+                if (typeof associated === "object" && "kind" in associated) {
+                  if (associated.kind === "linked")
+                    links.set(sessionKey(record.session), associated.identity);
+                  if (associated.kind === "recorded") {
+                    const done = await catalog();
+                    if (
+                      done?.status === "catalogued" &&
+                      linkIn(done, associated.identity, {
+                        recentOnly: false,
+                      }) === "linked"
+                    )
+                      links.set(
+                        sessionKey(record.session),
+                        associated.identity,
+                      );
+                  }
+                } else if (associated === "absent") {
+                  const identity = launchSubject(record.request).identity;
+                  if (identity !== undefined) {
+                    const done = await catalog();
+                    if (
+                      done?.status === "catalogued" &&
+                      linkIn(done, identity, { recentOnly: true }) === "linked"
+                    )
+                      links.set(sessionKey(record.session), identity);
+                  }
+                }
                 publish();
               }),
             ]);

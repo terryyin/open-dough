@@ -21,6 +21,7 @@ import {
 } from "./retainedStoryMembership.ts";
 import { reportingReferenceOf } from "./sessionListing.ts";
 import { sessionKey } from "./sessionReference.ts";
+import type { StoryAssociationCandidates } from "./storyAssociationChoice.ts";
 
 type CardSessions = {
   readonly at: number;
@@ -40,7 +41,11 @@ type ListedCard = CardSessions &
 
 export type Listed =
   | ListedCard
-  | { readonly at: number; readonly session: LaunchWithState }
+  | {
+      readonly at: number;
+      readonly session: LaunchWithState;
+      readonly conflict?: StoryAssociationCandidates | undefined;
+    }
   // A session the project published a close record for, with no kept launch
   // on this machine whose reporting reference is the record's UUID: such a
   // launch (Done or live) stands for it with its native controls.
@@ -151,7 +156,17 @@ export function newestFirst(
     ...sessions
       .filter((session) => !held.has(session))
       .toReversed()
-      .map((session) => ({ at: Date.parse(session.launchedAt), session })),
+      .map((session) => {
+        const association = sessionStoryAssociation(
+          session,
+          publishedCloseFor(session, byId),
+        );
+        return {
+          at: Date.parse(session.launchedAt),
+          session,
+          conflict: association?.kind === "conflict" ? association : undefined,
+        };
+      }),
     ...unrepresented
       .filter((record) => !grouped.has(record))
       .map((record) => ({

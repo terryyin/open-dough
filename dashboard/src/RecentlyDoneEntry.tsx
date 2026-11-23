@@ -9,6 +9,7 @@ import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-p
 import { adHocStorySessionId } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { CiFollowUpCard } from "./CiFollowUpViews.tsx";
+import { ChooseSessionStory } from "./ChooseSessionStory.tsx";
 import type { CiFollowUpAnswer } from "./ciFollowUp.ts";
 import { readingDoneStory, type DoneDetail } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
@@ -83,12 +84,20 @@ export function ListedEntry({
               record={each.session}
               sourceId={sourceId}
             />
-            <SessionFollowUp
-              record={each.session}
-              project={project}
-              sourceId={sourceId}
-              launches={launches}
-            />
+            {each.conflict === undefined ? (
+              <SessionFollowUp
+                record={each.session}
+                project={project}
+                sourceId={sourceId}
+                launches={launches}
+              />
+            ) : (
+              <ChooseSessionStory
+                record={each.session}
+                candidates={each.conflict}
+                readSession={launches.readSession}
+              />
+            )}
           </>
         }
       />

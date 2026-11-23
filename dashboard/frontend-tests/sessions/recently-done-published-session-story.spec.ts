@@ -1,6 +1,7 @@
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { showColumn } from "../../test-support/boardPage.ts";
 import {
+  expectProjectChoice,
   parts,
   sessionEntryShowing,
   standaloneSessionName,
@@ -16,10 +17,16 @@ import {
   type FrontendServiceState,
 } from "../../test-support/support/frontendServiceState.ts";
 import { installFrontendStoryReview } from "../../test-support/support/frontendStoryReview.ts";
+import { installFrontendCompletedStoryAssociation } from "../../test-support/support/frontendCompletedStoryAssociation.ts";
+import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
 import { openBoard } from "../../test-support/support/recentlyDoneFollowUpGrouping.ts";
 import { preholdRevisionStreamSlots } from "../../test-support/support/revisionStreamSlots.ts";
 import { sessionDetailsControl } from "../../test-support/support/sessionEntryDisclosure.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
+import {
+  storyAssociationChoiceEndpoint,
+  storyAssociationChoiceRequestSchema,
+} from "../../src/storyAssociationChoice.ts";
 
 const source = "open-dough";
 const originId = "1cb9c626-6bfb-4a59-a723-09560b26feda";
@@ -114,7 +121,7 @@ test("a retained launch represents its linked published session and keeps its na
   await expect(card).toHaveClass(/story-card-selected/);
 });
 
-test("a retained launch with competing published membership stays outside both cards", async ({
+test("a retained launch with competing membership stays outside both cards until a story is chosen", async ({
   page,
   frontendServices,
 }) => {
@@ -148,6 +155,7 @@ test("a retained launch with competing published membership stays outside both c
 
   const key = "claude:retained-conflict";
   const recent = parts(page).recentlyDone;
+  const session = sessionEntryShowing(recent, key);
   await expect(sessionEntryShowing(recent, key)).toHaveCount(1);
   await expect(row(recent, originId)).toHaveCount(0);
   for (const name of [title, other.title]) {
@@ -157,4 +165,81 @@ test("a retained launch with competing published membership stays outside both c
   await expect(sessionEntryShowing(recent, key)).toContainText(
     "Selected session",
   );
+  await page.route(
+    (url) => url.pathname === storyAssociationChoiceEndpoint,
+    async (route) => {
+      const request = storyAssociationChoiceRequestSchema.parse(
+        route.request().postDataJSON(),
+      );
+      frontendServices.answerMachine(
+        makeMe.aMachineAnswer
+          .observingDone({ ...kept, storyAssociationChoice: request.choice })
+          .please(),
+      );
+      await fulfillJson(route, { saved: true });
+    },
+  );
+  const chooser = session.getByRole("group", {
+    name: "Choose a story for this session",
+  });
+  await expect(
+    chooser.getByRole("button", { name: `This machine: ${other.identity}` }),
+  ).toBeVisible();
+  const posted = page.waitForRequest(
+    (request) =>
+      new URL(request.url()).pathname === storyAssociationChoiceEndpoint,
+  );
+  await chooser.getByRole("button", { name: `Published: ${identity}` }).click();
+  expect(
+    storyAssociationChoiceRequestSchema.parse((await posted).postDataJSON()),
+  ).toEqual({
+    source,
+    host: "claude",
+    session: "retained-conflict",
+    choice: {
+      close: originId,
+      retained: other.identity,
+      published: identity,
+      selected: "published",
+    },
+  });
+  await expect(sessionEntryShowing(doneCard(page, title), key)).toHaveCount(1);
+  await expect(sessionEntryShowing(recent, key)).toHaveCount(1);
+  await page.reload();
+  await showColumn(page, "Recently done");
+  await expect(sessionEntryShowing(doneCard(page, title), key)).toHaveCount(1);
+  await expect(doneCard(page, other.title)).toBeVisible();
+  await expect(
+    sessionEntryShowing(doneCard(page, other.title), key),
+  ).toHaveCount(0);
+});
+
+test("a retained row can select its published story from another project", async ({
+  page,
+  frontendServices,
+}) => {
+  frontendServices.listThreeProjects();
+  const { original } = close();
+  const kept = makeMe.aLaunchRecord
+    .adHoc({ title, source: "pygardon" })
+    .inClaudeSession({ sessionId: "other-project" })
+    .withDeclaredLanding({ reference: originId })
+    .markedDoneAt(original.closedAt)
+    .please();
+  putFrontendDoneRecords(frontendServices, "pygardon", [
+    makeMe.aDoneRecord
+      .with({ identity, title, completedAt: original.closedAt })
+      .please(),
+  ]);
+  putFrontendPublishedSessions(frontendServices, "pygardon", [original]);
+  const association = await installFrontendCompletedStoryAssociation(page, {
+    kind: "recorded",
+    identity,
+  });
+  await openBoard(page, frontendServices, [kept]);
+  await expectProjectChoice(page, "Open Dough");
+  await (await showRecentlyDone(page)).select(title).click();
+  await expectProjectChoice(page, "Pygardon");
+  await expect(doneCard(page, title)).toHaveClass(/story-card-selected/);
+  expect(association.asked()).toContain(kept.session.sessionId);
 });

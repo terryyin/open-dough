@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { storyAssociationChoiceSchema } from "./storyAssociationChoice.ts";
 
 export const launchDoneSchema = z.object({
   doneAt: z.iso.datetime().optional(),
@@ -22,4 +23,14 @@ export const launchDoneSchema = z.object({
       }),
     ])
     .optional(),
+  storyAssociationChoice: storyAssociationChoiceSchema.optional(),
 });
+
+export function keptDoneEvidence({
+  doneAt,
+  doneProblem,
+  doneStory,
+  storyAssociationChoice,
+}: z.infer<typeof launchDoneSchema>) {
+  return { doneAt, doneProblem, doneStory, storyAssociationChoice };
+}

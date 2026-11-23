@@ -2,6 +2,7 @@
 // verification, recovery and session actions.
 
 import { sessionAttachmentEndpoint } from "../src/agentTerminal.ts";
+import { storyAssociationChoiceEndpoint } from "../src/storyAssociationChoice.ts";
 import { sessionBranchEntryEndpoint } from "../src/sessionBranchResult.ts";
 import {
   landingEndpoint,
@@ -187,6 +188,7 @@ export const launchBoundaryPaths: ReadonlySet<string> = new Set([
   completionEndpoint,
   sessionBranchEntryEndpoint,
   sessionAttachmentEndpoint,
+  storyAssociationChoiceEndpoint,
   landingEndpoint,
   landingPrepareEndpoint,
   launchHostOptionsEndpoint,

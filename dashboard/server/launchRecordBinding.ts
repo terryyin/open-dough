@@ -5,6 +5,7 @@ import { prepareReportedDone } from "./doneSessionRecord.ts";
 import { type CompletionReport } from "../src/completionReport.ts";
 import { withKeptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
+import { keptDoneEvidence } from "../src/launchDone.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { keptBranchEvidence } from "../src/sessionBranchResult.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
@@ -105,9 +106,7 @@ export async function bindRecord(
                 : record
               : {
                   ...record,
-                  doneAt: existing.doneAt,
-                  doneProblem: existing.doneProblem,
-                  doneStory: existing.doneStory,
+                  ...keptDoneEvidence(existing),
                   ...keptBranchEvidence(existing),
                 };
           return {

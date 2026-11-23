@@ -6,6 +6,7 @@ import type { LaunchRecord } from "./launchRecord.ts";
 import { storyOf } from "./launchWorkflow.ts";
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import { reportingReferenceOf } from "./sessionListing.ts";
+import { sameStoryAssociation } from "./storyAssociationChoice.ts";
 
 export function retainedStoryOf(record: LaunchRecord) {
   const { request, doneStory } = record;
@@ -33,16 +34,34 @@ export function sessionStoryAssociation(
   record: LaunchRecord,
   published: PublishedSessionRecord | undefined,
 ) {
+  const association = observedStoryAssociation(record, published);
+  const choice = record.storyAssociationChoice;
+  if (
+    association?.kind !== "conflict" ||
+    !sameStoryAssociation(choice, association)
+  )
+    return association;
+  return choice?.selected === "retained"
+    ? retainedStoryOf(record)
+    : ({ kind: "linked", identity: association.published } as const);
+}
+
+export function observedStoryAssociation(
+  record: LaunchRecord,
+  published: PublishedSessionRecord | undefined,
+) {
   const retained = retainedStoryOf(record);
-  const identity =
-    published?.sessionId === reportingReferenceOf(record)
-      ? published?.story
-      : undefined;
-  if (identity === undefined) return retained;
+  if (
+    published?.story === undefined ||
+    published.sessionId !== reportingReferenceOf(record)
+  )
+    return retained;
+  const identity = published.story;
   if (retained === undefined) return { kind: "linked", identity } as const;
   if (retained.identity === identity) return retained;
   return {
     kind: "conflict",
+    close: published.sessionId,
     retained: retained.identity,
     published: identity,
   } as const;

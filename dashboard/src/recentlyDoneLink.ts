@@ -13,6 +13,7 @@ import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { currentPublishedSessions } from "./recentlyDoneListing.ts";
 import { publishedSessionsById } from "./retainedStoryMembership.ts";
+import { reportingReferenceOf } from "./sessionListing.ts";
 
 export type DoneLink = "linked" | "absent" | { readonly problem: string };
 
@@ -21,7 +22,8 @@ export type DoneLink = "linked" | "absent" | { readonly problem: string };
 export type AssociationAnswer =
   | "absent"
   | { readonly problem: string }
-  | { readonly kind: "linked"; readonly identity: string };
+  | { readonly kind: "linked" | "recorded"; readonly identity: string }
+  | { readonly kind: "conflict" };
 
 // Whether the catalog lists the story, lacks it, or cannot say. `recentOnly`
 // keeps the Board's default window for story launches; ad hoc association may
@@ -65,6 +67,17 @@ export function currentSessionCloses(
   );
 }
 
+export function needsSessionClose(
+  work: PublishedWork | undefined,
+  record: LaunchRecord,
+) {
+  return (
+    reportingReferenceOf(record) !== undefined &&
+    (work?.source.id !== record.request.source ||
+      work.publishedSessions?.status !== "listed")
+  );
+}
+
 export async function readLink(
   source: PublishedSource,
   identity: string,
@@ -93,10 +106,9 @@ export async function associatedIdentity(
       record.session,
       signal,
     );
-    if (answer.kind === "linked")
-      return { kind: "linked", identity: answer.identity };
     if (answer.kind === "absent") return "absent";
-    return { problem: answer.explanation };
+    if (answer.kind === "unavailable") return { problem: answer.explanation };
+    return answer;
   } catch (error) {
     return { problem: error instanceof Error ? error.message : String(error) };
   }
