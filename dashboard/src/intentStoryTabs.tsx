@@ -30,6 +30,7 @@ import {
 import { intentTabId, type IntentTabOption } from "./IntentTabs.tsx";
 import {
   useFinishStoryReviewOpening,
+  useShowStoryReviewOpening,
   useStoryReviewOpening,
 } from "./pageStoryReviewOpening.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
@@ -120,24 +121,31 @@ export function useStoryTab(selection: SelectedStory | undefined) {
 export function useStoryChangesArrival(
   project: string | undefined,
   tabsIdPrefix: string,
-  chooseChanges: () => void,
+  tab: IntentStoryTab,
+  chooseTab: (tab: IntentStoryTab) => void,
+  canOpenFile: boolean,
 ) {
   const finish = useFinishStoryReviewOpening();
+  const shown = useShowStoryReviewOpening();
   const opening = useStoryReviewOpening(project);
   useEffect(() => {
     if (opening === undefined) return;
-    chooseChanges();
-    document.getElementById(intentTabId(tabsIdPrefix, "changes"))?.focus();
-    finish?.(opening);
-  }, [opening, tabsIdPrefix, chooseChanges, finish]);
+    if (opening.phase === "show") {
+      chooseTab("changes");
+      document.getElementById(intentTabId(tabsIdPrefix, "changes"))?.focus();
+      shown?.(opening);
+    } else if (tab !== "changes" || !canOpenFile) {
+      finish?.(opening);
+    }
+  }, [opening, tabsIdPrefix, tab, chooseTab, canOpenFile, shown, finish]);
 }
 
 // What Intent shows for the page's `selection`, and the way to the other.
 // Project Intent shows only when chosen during this selection.
-export function useIntentScope(
-  selection: SelectedStory | undefined,
-  openingChanges = false,
-) {
+export function useIntentScope(selection: SelectedStory | undefined) {
+  const opening = useStoryReviewOpening(selection?.project);
+  const finish = useFinishStoryReviewOpening();
+  const openingChanges = opening?.phase === "show";
   const { choice, choose } = useChoiceFor<IntentScope>(
     "scope",
     selection,
@@ -153,7 +161,10 @@ export function useIntentScope(
         : openingChanges
           ? ("story" as const)
           : choice,
-    chooseScope: choose,
+    chooseScope: (next: IntentScope) => {
+      if (next === "project" && opening !== undefined) finish?.(opening);
+      choose(next);
+    },
   };
 }
 

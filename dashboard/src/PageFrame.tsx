@@ -6,11 +6,9 @@
 // navigation reveals the chosen project or story without remounting the page.
 //
 // Choosing a Recently done sessions row selects it, and in Development shows
-// what it selected (`./recentlyDoneSelection.ts`). A row's Open, there as on
-// every Sessions sidebar row, opens its session and abandons a selection
-// check still unanswered. The page's one Recently done range
-// (`./recentlyDoneRange.ts`) and retained history read
-// (`./retainedHistory.ts`) are kept here.
+// what it selected (`./recentlyDoneSelection.ts`). Opening a session abandons
+// a pending selection check. The Recently done range and retained history
+// read belong here.
 
 import { useCallback, useRef, type ReactNode } from "react";
 import { sessionKey } from "./sessionReference.ts";
@@ -72,8 +70,6 @@ export function PageFrame({
   showIntent,
   children,
 }: {
-  // The machine's sessions the sidebar lists and the panel decides by;
-  // `readSession` keeps its identity across renders.
   readonly sessions: Pick<
     MachineSessions,
     | "records"
@@ -95,6 +91,7 @@ export function PageFrame({
   readonly children: ReactNode;
 }) {
   const projects = useVisibleProjects();
+  const intentProject = stories.development ? undefined : stories.selected;
   const sidebar = useSessionsSidebar(records, alerts);
   const range = useRecentlyDoneRange(stories.shown);
   const selection = usePageStorySelection();
@@ -160,7 +157,10 @@ export function PageFrame({
         <RetainedHistoryOnPage value={readHistory}>
           <SessionReviewsOnPage value={sidePanel.openSessionReview}>
             <StorySelectionProvider selection={selection}>
-              <StoryReviewOpeningProvider showIntent={showIntent}>
+              <StoryReviewOpeningProvider
+                showIntent={showIntent}
+                intentProject={intentProject}
+              >
                 <StoryInspectionProvider>
                   <SessionsSidebarOnPage value={sidebar}>
                     <PanelDividerOnPage

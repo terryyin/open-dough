@@ -433,7 +433,7 @@ cases, eleven mounted tests and typecheck passed. See `s7-refactor.md`.
 ### 8. A fresh story review opens its first changed file
 
 Type: Behavior
-Status: planned
+Status: done
 
 With no file selected for the story, the card arrival waits for the
 default comparison, selects the first changed file in displayed tree order
@@ -449,6 +449,26 @@ diff text. Replay with a kept file, a delayed response from a previous
 selection, and an empty result. Run the directly affected reading and
 navigation specs, including the card journeys through
 `e2e/review`, and the comparison or Purpose readers reached by the change.
+
+**Observed.** The actual Taken card showed the nested first changed row
+unselected before implementation. On the accepted change it reveals both
+collapsed levels, selects the row in configured tree order and displays
+the exact Purpose diff while Changes keeps focus. A kept file survives
+Project Intent and coverage reopens. An intentional choice during a held
+read stays selected with its keyboard focus, and releasing Story A's
+response while Story B waits supplies neither a file nor a diff to B.
+Empty and ambiguous comparisons open with their explanations.
+
+The selected receiving E2E cases passed 13 of 13. Both final response-race
+cases passed, as did the isolated Taken journey at the default timeout,
+nine frontend browser cases, three mounted cases and Dashboard typecheck.
+One grouped replay reached the second card action with 0.230 seconds left
+in its deadline. The same case passed unchanged in isolation. Evidence is
+in `s8-implementation.md` and `s8-consumer-trace-ready.md`.
+
+Independent refactoring gave the tab and browser one readiness decision.
+Six affected real browser cases and Dashboard typecheck passed. See
+`s8-refactor.md` for the retained and repeated proof.
 
 ## Plan refinement and gates
 
@@ -548,4 +568,4 @@ Disposition: proved by slice 7: story-review-details-runs, story-review-complete
 ### G14. Select a file on a fresh card opening
 Reported: slice 7 — "A new card opening reaches focused Changes with the default comparison. With no kept file, it still requires a manual file choice."
 Story clause: "With no file selected, choose the first changed file in the displayed tree order"
-Disposition: receiving slice 8
+Disposition: proved by slice 8: story-card-review-intent.spec.ts opens the actual Taken card, observes the first changed row after revealing the collapsed tree and reads its exact Purpose diff. Its former unselected row failed before the implementation.

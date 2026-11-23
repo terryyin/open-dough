@@ -14,9 +14,12 @@ import {
   createContext,
   createElement,
   useContext,
+  useState,
   type ReactNode,
 } from "react";
 import { useKeptReading } from "./pageIntentReading.tsx";
+import { useStoryReviewOpening } from "./pageStoryReviewOpening.tsx";
+import type { SelectedStory } from "./pageStorySelection.tsx";
 
 export type IntentSelectionScope = "location" | "folder" | "file";
 
@@ -56,13 +59,41 @@ const IntentSelectionContext = createContext<
 
 export function IntentWorkspaceSelectionProvider({
   children,
+  story,
 }: {
   readonly children: ReactNode;
+  readonly story?: SelectedStory | undefined;
 }) {
-  const [selection, setSelection] = useKeptReading<IntentSelection>(
+  const [selection, showSelection] = useKeptReading<IntentSelection>(
     "selection",
     () => emptySelection,
   );
+  const [storySelections, keepStorySelections] = useKeptReading(
+    "storySelections",
+    () => new Map<string, IntentSelection>(),
+  );
+  const opening = useStoryReviewOpening(story?.project);
+  const [opened, setOpened] = useState<number>();
+  // Normal navigation still keeps the current reading. A card opening
+  // restores only a file chosen while its own story was selected.
+  if (
+    opening !== undefined &&
+    opening.identity === story?.identity &&
+    opening.sequence !== opened
+  ) {
+    setOpened(opening.sequence);
+    showSelection(storySelections.get(opening.identity) ?? emptySelection);
+  }
+  const setSelection = (next: IntentSelection) => {
+    showSelection(next);
+    if (story === undefined) return;
+    keepStorySelections((current) => {
+      const kept = new Map(current);
+      if (selectionScope(next) === "file") kept.set(story.identity, next);
+      else kept.delete(story.identity);
+      return kept;
+    });
+  };
   return createElement(
     IntentSelectionContext.Provider,
     {

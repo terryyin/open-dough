@@ -1,8 +1,5 @@
-// One Intent page for project evidence and an optional selected-story context.
-// Each is mounted inside its own evidence and reading owners by
-// IntentPerspective. The persistent header and views use the same arrangement;
-// only the project shows its revision notice. The browser stays mounted while
-// another view shows.
+// Project evidence and selected-story Intent views share this page layout.
+// The browser stays mounted while another view shows.
 
 import { ArrowLeft, Layers } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -37,6 +34,7 @@ import type { SelectedStory } from "./pageStorySelection.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { intentHomeMarks } from "./storyCardFocus.ts";
 import type { ShownIntentLocations } from "./useShownIntentLocations.tsx";
+import { storyReviewFileReadiness } from "./useFirstStoryChangedFile.ts";
 import "./intent-page.css";
 import "./intent-open-link.css";
 
@@ -77,9 +75,18 @@ export function IntentPage({
     story === undefined
       ? project.modeIdPrefix
       : `${project.modeIdPrefix}-story`;
-  useStoryChangesArrival(story?.selection?.project, tabsIdPrefix, () => {
-    chooseTab("changes");
-  });
+  const fileReadiness = storyReviewFileReadiness(
+    story?.summary.comparison,
+    shown.reading === true,
+    browserLocations !== undefined && browserRevision !== undefined,
+  );
+  useStoryChangesArrival(
+    story?.selection?.project,
+    tabsIdPrefix,
+    tab,
+    chooseTab,
+    fileReadiness !== "unavailable",
+  );
   const files = { id: `${tabsIdPrefix}-locations`, shown: filesShown };
   const { clearSelection, setSelection } = useIntentWorkspaceSelection();
   const [entryReturns, setEntryReturns] = useState(0);
@@ -204,6 +211,7 @@ export function IntentPage({
           project={story === undefined ? project : undefined}
           storySummary={story?.summary}
           story={story?.compared}
+          reviewFileReady={fileReadiness === "ready"}
           files={files}
           panel={{
             id: intentTabPanelId(tabsIdPrefix, browserView),

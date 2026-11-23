@@ -31,6 +31,9 @@ export function useHistoricalIntentLocations(
   if (revision === undefined || intent === "loading") {
     return {
       notice: undefined,
+      ...(comparison.state === "reading" || revision !== undefined
+        ? { reading: true }
+        : {}),
       shownRevision: undefined,
       locations: undefined,
       unconfigured: false,

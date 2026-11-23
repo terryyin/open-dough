@@ -51,6 +51,7 @@ test("a worktree straight off trunk has no changes against the named baseline", 
     contextWords({ branch, baseline: trunk, workspace: shownWorkspace }),
   );
   await review.files.expectNone();
+  await review.files.expectNoSelection();
   await review.diffs.expectAbsent();
   await review.comparison.expectChosen("All changes");
   await review.expectText(

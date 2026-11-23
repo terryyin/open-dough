@@ -1,6 +1,8 @@
 import { expect, type Locator } from "@playwright/test";
 import { filesColumn } from "./intentModePage.ts";
+import { intentGroupToggle } from "./intentPerspectivePage.ts";
 import {
+  folderToggle,
   intentFile,
   intentStory,
   outsideGroup,
@@ -61,6 +63,29 @@ export class IntentReviewFiles {
       "aria-pressed",
       "true",
     );
+    return this;
+  }
+
+  async expectNoSelection() {
+    await expect(
+      filesColumn(this.#intent).locator(
+        'li[data-kind] button[aria-pressed="true"]',
+      ),
+    ).toHaveCount(0);
+    return this;
+  }
+
+  async collapseFolder(name: string) {
+    await folderToggle(this.#intent, name, true).click();
+    await expect(folderToggle(this.#intent, name, false)).toBeVisible();
+    return this;
+  }
+
+  async collapseLocation(path: string) {
+    const toggle = intentGroupToggle(this.#intent, path);
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
     return this;
   }
 
