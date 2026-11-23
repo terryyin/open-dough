@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Call custom CI through a minimal adapter interface](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter ([plan](slice-plans/793-call-custom-ci-through-a-minimal-adapter-interface/PLAN.md))
 - [Update from the previous release without legacy readers](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats ([plan](slice-plans/794-update-from-the-previous-release-without-legacy/PLAN.md))
 - [Read and collect CI proof only in declared units](seeds/SEED-423-shrink-the-installed-distribution.md#require-declared-units-in-ci-proof) — SEED-423#require-declared-units-in-ci-proof ([plan](slice-plans/795-require-declared-units-in-ci-proof/PLAN.md))
-- [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases ([plan](slice-plans/757-optimize-done-capture-family-cases/PLAN.md))
 
 ## Backlog list
 
