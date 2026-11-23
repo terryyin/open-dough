@@ -808,11 +808,11 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
 {"schemaVersion":1,"identity":"SEED-413#finish-launch-proof-orthogonal","dependencies":[{"supplier":{"identity":"SEED-413#make-launch-proof-orthogonal","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal"},"implementation":"Slices 1–6 reshape the launch dialog, dictation, story card status and startup recovery specs, narrow TranscriptReview and StartupRecovery in production, and change shared launch page helpers.","rationale":"This story reshapes the same launch page helpers (story-card-launch-page.ts, story-startup-page.ts) and measures the whole launch selection; starting from the unintegrated branch would conflict on those helpers and measure against a selection trunk does not hold. Reconciliation cannot help because the supplier's changes are not yet on trunk.","condition":"SEED-413#make-launch-proof-orthogonal is integrated on trunk with its reshaped launch selection.","state":"satisfied","resolution":{"revision":"265d6750b2aff5f953fee6e6684dbfd28d507b89","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#make-launch-proof-orthogonal","summary":"Slices 1–6 integrated: dense launch layout, model and effort reset, TranscriptReview, native recording races, typed StartupStatus and StartupRecovery, with plan 768's mappings and paired timing (reshaped families 21.4–21.7 s against 26.0–29.0 s at load about 13) at 265d6750b:.planning/slice-plans/768-make-launch-proof-orthogonal/PLAN.md. The merged launch selection passed 71/71 and the whole frontend group 452/452 before integration.\nCondition satisfied: SEED-413#make-launch-proof-orthogonal is integrated on trunk with its reshaped launch selection.\nAccepted integration: ac398c66a245cca4b63758b5b742e31df369492b on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/780-finish-launch-proof-orthogonal/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05ff0070c5f0bdddf923af9fd67339e500e8cf7a9faa01b9e67a5d12eeed59e1","plan":"5d38d7b4301097b8428551c1856184f135dbd9877558ed155633a174b14df38d"}}
 ```
 
 - **Goal.** Dashboard maintainers get the local launch unit selection in
-  about 7–8 seconds at two workers, including preparation, so launch
+  about 7–8 seconds at two workers, including runner preparation, so launch
   changes get feedback within one short wait. Distinct launch behavior and
   the existing composed journeys stay covered. This story completes the
   launch family's share of the campaign's one-minute frontend target.
@@ -836,9 +836,13 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
   option words are read from the launch subject on the session entry and
   its details. The creation entry already mounts `CreationEntry` with a
   typed record; keep that case and include the file in the selection
-  timing. Delivered files this story does not own stay as they are,
-  including `launch-refinement-options.spec.ts`. Preserve genuine browser
-  conditions, capture and recovery races, and the existing native,
+  timing. The maintainer approved reopening the measured slow proof:
+  `ad-hoc-launch-dialog`, `ad-hoc-start-session-layout`,
+  `story-card-launch-offers`, `responsive-story-startup`,
+  `launch-refinement-options` and `mounted-instruction-voice`, including
+  shared launch helpers these cases use. Time the slow steps and simplify
+  setup or synchronization where the step's cost and proof justify it.
+  Preserve genuine browser conditions, capture and recovery races, and the existing native,
   install and backend journeys at their current owners. Add no E2E case.
   A change to the shared frontend runner configuration is allowed only
   with whole frontend group proof; `story-card-launch-offers.spec.ts` and
@@ -855,14 +859,30 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
   - Unattached startup receives its typed attempt: progress and refusal
     stay on the project-actions row, and a blank keyboard start presents
     the terminal while an instructed start leaves it closed.
+  - Pasting text extends the instruction without attaching an image.
+    Refusal explains why and preserves the accepted images and draft.
+    Cancel and Escape discard the draft and attachments without uploading.
+  - Recorded model labels follow their own session on the card and
+    sidebar. Details show the recorded effort and options when present.
   - Story card launches mount without a hand-built copy of the machine
     sessions composition.
+  - In a narrow or zoomed dialog, the offers and actions remain reachable
+    in keyboard order. On desktop, launch notes remain discoverable by
+    hover and keyboard, with legible, distinct states in both schemes.
+  - Refusing refinement leaves the chosen options checked on reopening.
+    Cancel clears them for the next open. A held offer or host reread obeys
+    its own availability and submission rules.
+  - Cancel and Escape each end the applicable recording or transcription
+    work. Late permission and transcription answers leave the new draft
+    empty. Keyboard startup still selects the correct story and announces
+    the transitions once without stealing focus from the next inspection.
   - Measurement: the whole selection run with
     `npm run test:dashboard:frontend -- dashboard/frontend-tests/launches --workers=2`
     reports about 7–8 s wall including preparation, compared under similar
     machine load with a paired run of the starting selection.
-- **Evaluation.** The seven owned files have a traceable disposition and
-  the whole launch selection is measured as the key example states. Apply
+- **Evaluation.** Map the existing observations from the seven original
+  files and the six reopened files to their maintained proof. Measure the
+  whole launch selection as the key example states. Apply
   the [shared acceptance](#acceptance-shared-by-the-eight-stories) mapping,
   spent-support and timing checks.
 - **Carried evidence.** Split from
@@ -890,6 +910,26 @@ Get fast proof of Intent source browsing and pinned links (completed; recoverabl
   milliseconds inside that wall. Sharing one production launches mapping
   and pointing the launch helpers at it did not move the wall time. Plan
   771 was removed with the try.
+- **Refinement evidence, 23 November 2026.** At `1764d8dea`, on AC power
+  with a 16-logical-CPU macOS host and one-minute load 7.27–10.45, the
+  timing command above, under `caffeinate -s -i`, passed 71 cases in 24
+  files. The two runs with the checked-in runner took 28.03 s and 29.64 s.
+  With the single scratch change `isolate: false` in
+  `dashboard/frontend.vitest.config.mts`, the same case roster passed in
+  18.18 s and 19.79 s. Adding Chromium's `--disable-frame-rate-limit`
+  to both browser instances with that setting took 27.03 s. The runner
+  configuration was restored after the probes. Whole frontend group
+  validation of the isolation change remains open.
+
+  In the faster 18.18 s run, the 19 cases in the seven owned specs
+  accounted for 4.87 summed case-seconds. The 52 cases in the other 17
+  files accounted for 26.99. Those 17 files alone passed in 19.14 s
+  using the same command with the 17 explicit paths in place of the
+  folder. This is a diagnostic selection. The slow remaining journeys
+  include narrow and zoomed layout, refused refinement option reset,
+  native transcription dismissal, and story-offer status and contrast.
+  The seven original specs and the runner change tested here account
+  for only part of the saving the two-worker target requires.
 
 <a id="speed-dashboard-done-session-review-proof"></a>
 
