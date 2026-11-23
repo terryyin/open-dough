@@ -96,60 +96,71 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
 **Identity:** SEED-345#finish-slices-within-a-bounded-working-context
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/794-finish-slices-within-a-bounded-working-context/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e48cd9b27eccdb43de3532c5dfa879ce8e25f702dad3e47810265d52a74eb558","plan":"33306cbccf8cb486652f26381060b756521b23b86241ddd0f8bc1db0bef01c6b"}}
 ```
 
-- **Scope and beneficiary.** Shared measured trial. A developer's long story
-  reaches the same results while no coordinator or implementer context keeps
-  growing to several hundred thousand tokens.
-- **Evaluation.** On comparable long executions, slices finish within a
-  bounded working context, either through earlier scope decisions or by
-  continuing from recorded execution state at a slice boundary. Outcomes,
-  proof, judgment and interventions match the baseline; peak context and
-  total effort fall. A loss of needed judgment rejects the variant.
-- **Priority, November 19.** Queue this trial after the real-execution
-  evaluation of recoverable proof evidence. The potential saving spans many
-  worker requests. A shorter handoff can also omit a decision or trigger
-  expensive fresh reads, so the trial needs the same review and proof.
-- **Codex evidence.** Across the two ten-task windows, mean cached-input
-  contribution rose from 3.46M to 8.15M index units per execution, accounting
-  for 92% of the increase in the mean total. In the 23.26M execution, 20 of
-  22 workers inherited the full conversation. Their first requests had a
-  median of 309k input tokens. The trace establishes the size of the handoff.
-  A matched trial must establish how much of it workers need.
-- **Codex handoff trial.** On comparable well-defined slices, compare full
-  history with a brief containing the original requirements, current decisions,
-  relevant files and required checks. Give the worker access to supporting
-  context on demand. Hold model, effort, independent review and tests
-  constant. Count coordinator and worker usage through rereads, repairs and
-  acceptance. At Sol rates, 15k fresh tokens cost the same as 300k cached.
-  Adopt the brief only if combined index falls and the trial preserves
-  required behavior, acceptance evidence and material review findings.
-  [Earlier compact-handoff trial](../../docs/maintainer/findings/ODF-150.md).
-- **Earlier evidence.** Smaller stories remain
-  the preferred policy; use a current baseline under that policy on each host.
-  The 8-slice cap and `medium` effort reduced Claude Code's observed exposure;
-  that does not establish the remaining Codex exposure. It was the largest
-  cost driver on both hosts that report tokens: 7,586 Codex requests at or
-  above 250k input, and 54% of Claude Code coordinator cost in such requests.
-  In the 2026-11-15
-  re-measurement, 20 Claude Code workers above 150 requests carried 35% of
-  worker cost. Slice boundaries chosen at planning time are the lower-risk
-  variant to try first. That re-measurement ran at effort `high`. At `medium`,
-  0–2% of slice agents exceeded 150 turns in every period from 2026-10-17 to
-  2026-11-16. Coordinator peaks of 550–890k came from 9–12-slice plans and
-  from `max` effort. Since the 8-slice cap, the median coordinator peak is
-  293k ([spike analysis](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#state-on-2026-11-16)).
-  Re-baseline Claude Code at `medium` before sizing this trial. A recent Codex
-  SEED-334#move-intent-reading-and-review-checks launch still used 1,548
-  attributed requests and reached about 453k coordinator input tokens; later
-  human-turn attribution may add work. Preserve each host's observed settings
-  rather than treating Claude Code's effort change as a Codex result.
-- **Effort and boundary.** Medium, low confidence. Builds on oversized-slice
-  handling ([ODF-206](../../docs/maintainer/findings/ODF-206.md),
-  [ODF-260](../../docs/maintainer/findings/ODF-260.md)). Host mechanisms such
-  as compaction settings are trial variants, not defaults.
-  [Context growth](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#5-bound-how-long-one-context-keeps-growing)
+**Goal.** Give maintainers evidence that a long Open Dough execution can finish
+with equivalent behavior, proof, judgment and human involvement while lowering
+peak working context and combined agent effort. The trial starts on Codex,
+where the retained own-branch review run shows exposure in both roles. The
+[retained-proof prerequisite](../done/SEED-345_reach-a-proof-decision-from-retained-evidence.json)
+is complete.
+
+**Scope.** Compare the same selected long-work case in two isolated Codex runs.
+The control uses the current small-story and slice rules, one continuing
+coordinator and full-history workers. The candidate starts workers with the
+slice requirements, decisions, affected areas and required checks, with access
+to original evidence on demand. At a preselected accepted slice boundary, a
+fresh coordinator continues on the same workspace, execution identity and
+published state. The maintainer judges this candidate as one change in how
+context crosses execution boundaries. Results give separate peaks by role and
+support no attribution of savings to either change alone.
+
+Preserve independent review, required proof, approvals, publication and CI
+ownership. Carry unresolved decisions and the source of each accepted proof.
+Match model, effort, tier, guidance, task and evaluation boundaries, and count
+both roles through acceptance, including fresh reads, retries, review, repair
+and recovery. Compare useful outcomes and human interventions first. A keep
+recommendation requires an exposed control, a candidate peak below 250,000
+input tokens per request in both roles, and lower combined effort at the same
+rate card. The threshold is the retained audit's exposure band, used here as a
+trial criterion. Missing measurements or a control below that band leave the
+trial inconclusive. A lost consequential decision, proof obligation or review
+finding rejects the candidate even when effort falls.
+
+The trial yields a recommendation for the tested case. Cross-host
+qualification, released defaults, host compaction settings, and any change to
+story-sizing policy remain deferred. Claude Code's latest medium-effort cohort
+in the retained audit had a 293k median coordinator peak and no slice agent
+beyond 150 turns. A later Claude Code evaluation needs its own current
+medium-effort baseline. [Claude Code audit](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/claude-code-execution-usage-spikes-2026-11.md#state-on-2026-11-16)
+
+**Key examples.**
+
+- Two accepted slices have retained commits, exact proof, current decisions
+  and an identified next slice → a fresh coordinator reads those sources → it
+  checks the accepted boundary and starts the next slice once under the same
+  execution identity, preserving open obligations and approval boundaries.
+- A delegated slice changes a behavior with an indirect consumer → a fresh
+  worker starts with the brief and retrieves the supporting sources → the
+  hand-back and independent review still identify and prove the consumer. A
+  missing consequential finding rejects the variant, as in the
+  [earlier compact-handoff trial](../../docs/maintainer/findings/ODF-150.md).
+- Both arms complete → the maintainer reviews the same behavior, proof and
+  intervention criteria and prices all attributable requests → the evidence
+  supports keep for this case, reject, or inconclusive. A coordinator still in
+  the audit exposure band defeats the candidate even if its workers cost less.
+
+**Architecture.** Borrow the recovery boundary from database checkpoints.
+Accepted commits and the plan's resume evidence play the role of durable
+state. The replacement coordinator verifies that state and resumes at the
+first unfinished slice. This works only after the old writer and work in
+flight have settled. Git, the plan, native records, and existing CI receipts
+retain their current ownership. Unlike a database restart, the next agent
+reconstructs judgment from evidence, and reconstructing it can cost more than
+re-reading cached input. The trial tests both risks under
+[ADR 0005](../../docs/adrs/0005-cross-tool-validation-accepted.md) and
+[ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
 <a id="load-execution-guidance-for-the-current-phase"></a>
 
