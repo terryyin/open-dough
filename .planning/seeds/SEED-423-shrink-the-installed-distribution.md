@@ -176,36 +176,159 @@ turning adapter replies into the same outcomes it shows for GitHub Actions.
 **Identity:** SEED-423#retire-finished-migrations-and-legacy-formats
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/794-update-from-the-previous-release-without-legacy/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ccf1335d73b580d2a9e23124d9a1a319978b83726c32882ead006bf5c93ac7cd","plan":"a0988e77d9f80874a02e309794f41ba71555be399e3c139f941e83bc6e93c1a5"}}
 ```
 
-- **For / why.** A developer who keeps Open Dough current can update one
-  release at a time while the installer and runtime carry less compatibility
-  code.
-- **Update policy.** All six maintained installations were on `0.3.110`
-  on 2026-11-22. Use that as the initial floor. After rollout, the supported
-  update baseline moves with each release. The immediately previous numeric
-  release can update directly to the latest, the latest is a no-op, and an
-  older installation gets a clear stop before writes. Preserve the tagged
-  baseline check and project configuration under
+**Resplit before readiness** on 2026-11-23 when the combined installer,
+backlog, execution/publication, and CI-proof/Dashboard legacy-format scope
+required ten slices at 15 active minutes per slice, exceeding the eight-slice
+plan limit. Unit-less CI proof entries and summary schema 1 moved to
+[Read and collect CI proof only in declared units](#require-declared-units-in-ci-proof)
+([plan 795](../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md)).
+Plan:
+[plan 794](../slice-plans/794-update-from-the-previous-release-without-legacy/PLAN.md).
+
+**Goal.** A developer who keeps Open Dough current updates directly from the
+immediately previous numeric release while `latest` stays a zero-write no-op
+and older installations stop cleanly before any file changes, and the
+installer, product backlog, execution runtime, GitHub request owner, and
+Dashboard reporting drop finished migrations and legacy readers that no
+maintained installation or persisted project record uses.
+
+**Scope.**
+
+- Enforce the moving previous-release ordinary update policy across
+  `open-dough-release-*.sh` and `dough-update/SKILL.md` under
   [ADR 0003, Release lifecycle and versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-  and [ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md).
-- **Evaluation.** Prove a previous-to-latest update, a latest-to-latest no-op,
-  and rejection of an older installation before any managed files change.
-  Retire old layout and record readers once the supported baseline and live
-  project records no longer need them. Candidates include `adopt --all` and
-  `recordIdentity`; `legacyBasesFor`, `waitingBody` and
-  `earlierBases`; `legacyDocumentHistory`; the unit-less CI proof entries and
-  summary schema 1 across twelve `ci-proof-*` scripts and the Dashboard
-  readers; the request owner's `supportsWorkflowRerun` and `archive-as-text`
-  fallbacks; `acceptsLandingWithoutIdentity`; the optional `suffixBase`; the
-  slice clock's timestamp scan; and the pre-0.3.99 forwarders under
-  `src/install/` with `update-from-pre-distribution.sh`. About 700 lines.
-  Check persisted project records separately from installed versions and
-  migrate any still needed before retiring their readers.
-- **Effort hypothesis.** M, medium confidence. Each format is independent.
+  and [ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md):
+  an unchanged installation at `latest` stays a no-op (still repairing missing
+  host hooks without payload writes), an unchanged installation at the
+  immediately previous numeric release tag updates directly to `latest` after
+  tagged baseline verification, and an installation at an older release tag
+  stops before any managed-file write with explicit `--force` recovery
+  guidance. Preserve `--force` reinstall recovery, newer-version refusal
+  without downgrade, and project-owned `.planning/open-dough.json`.
+- Retire the pre-`0.3.99` root `src/` forwarders and checkout fallback: move
+  `src/install/open-dough-execution-payload.sh` to
+  `Distribution/src/install/open-dough-execution-payload.sh`, remove
+  `src/install/open-dough-release.sh`,
+  `src/install/open-dough-register-hooks.mjs`, the `src/skills` symlink,
+  `Distribution/tests/installation/update-from-pre-distribution.sh`, and
+  `release_source_dir`'s `${checkout}/src` fallback, while keeping
+  `(Distribution\/)?src/install/` in `open-dough-payload-declaration.sh` and
+  `open-dough-release-leftovers.sh` so the `0.3.112` tagged baseline and
+  release history verify cleanly across the transition release.
+- Retire finished product-backlog migrations and legacy readers:
+  `product-backlog.mjs adopt --all`, `product-backlog-adopt.mjs` (and its
+  `install.sh` payload entry), `recordIdentity` in `product-backlog-home.mjs`,
+  legacy story-state basis digests (`legacyBasesFor`, `waitingBody`,
+  `dependencyFences`, `earlierBases`) in `product-backlog-story-state*.mjs`,
+  and unnumbered historical seed scanning (`legacyDocumentHistory`) in
+  `product-backlog-identity-history.mjs`.
+- Retire finished execution, request-owner, landing-reporting,
+  publication-resume, and slice-clock shims: `supportsWorkflowRerun` and
+  `workflowRerunSockets` in `github-request-owner-endpoint-connection.mjs` and
+  `github-request-owner-link.mjs`, `"archive-as-text"` in
+  `ci-github-actions.mjs` and `olderRequestOwnerDetail` in
+  `dashboard/server/ciProofArtifact.ts`, `acceptsLandingWithoutIdentity` and
+  `acceptsStoryless` in `dashboard-landing.mjs` and
+  `dashboard/server/{launchReportingFiles,completionReporting,branchLandingContext}.ts`,
+  optional `suffixBase` across `publication-comparison.mjs`,
+  `publication-resume.mjs`, and `execution-increment-resume.mjs` (passing
+  `suffixBase` from `trunk-closure-settlement.mjs`), and the period/command
+  timestamp fallback scan in `slice-clock-slices.mjs`.
+- Scope limits: unit-less CI proof entries (`LEGACY_UNIT` / `unit: "legacy"`)
+  and summary `schemaVersion: 1` across `ci-proof-*` and the Dashboard belong
+  to
+  [Read and collect CI proof only in declared units](#require-declared-units-in-ci-proof).
+  Installed copies under `.agents/skills/` and `.claude/skills/` in maintained
+  repositories update on the next release rollout.
+
+**Key examples.**
+
+- Against a release source with `0.1.1`, `0.1.2`, and `0.1.10`, an unchanged
+  `0.1.2` installation updates directly to `0.1.10`, an unchanged `0.1.10`
+  installation is a zero-write no-op, an installation at `0.1.1` refuses
+  before any file or mtime changes while naming the previous release `0.1.2`
+  and `--force`, and explicit `--force` replaces `0.1.1` with `0.1.10` while
+  leaving `.planning/open-dough.json` untouched.
+- An installation recorded at a `0.3.112`-shaped previous release (whose
+  tagged `install.sh` sources `src/install/open-dough-execution-payload.sh`)
+  updates cleanly to the new release whose repository has no root `src/` tree
+  and declares its execution payload under `Distribution/src/install/`.
+- `product-backlog.mjs adopt --all` fails as an unknown operation,
+  `product-backlog-adopt.mjs` is absent from fresh and updated installations,
+  `read-state` evaluates `changedSinceReview` solely against the current
+  story-scoped basis, and `identity-evidence` reads numbered seed history
+  without scanning unnumbered paths.
+- GitHub request-owner links require workflow-rerun support and base64 archive
+  replies without text-archive fallbacks, Dashboard launches write
+  `landing-context.json` directly for both story and storyless sessions
+  without probing `acceptsLandingWithoutIdentity`, publication resume and
+  `trunk-closure.mjs finish` require `suffixBase`, and `--after-ended-session`
+  settles running periods directly at `lastClockCommandAt`.
+
+**Evidence.** Checked on 2026-11-23 across all six maintained repositories
+(Open Dough, Doughnut, Pygardon, Terry Talks, Lizard, and Clipboard): all
+twelve physical skill roots record `0.3.112`; active backlogs hold 0 shorthand
+entries and 0 unrecorded canonical homes; `.planning/**/*.md` holds 0 legacy
+story-state basis matches; Pygardon's two historical unnumbered seeds sit
+below `SEED-20261119` (`next: SEED-20261120`); running request-owner processes
+are `0.3.112` (`protocol = 2`); and every `.git/.../open-dough/slice-clock`
+file carries `lastClockCommandAt`.
+
+- **Effort hypothesis.** M, high confidence (6 slices).
 - **Depends on.** None.
-- **Safe stopping point.** Any single format.
+- **Safe stopping point.** Any completed slice.
+
+<a id="require-declared-units-in-ci-proof"></a>
+
+### Read and collect CI proof only in declared units
+
+**Identity:** SEED-423#require-declared-units-in-ci-proof
+
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment."],"basis":{"document":"9ee66b628730aee17758b3906bfcaba51c4f2794c381fb16177dc03aca8bc492","plan":"8eff96ab4219f8087ab961837d85e26e099819a0df93bd9dea3a4744c9a08f24"}}
+```
+
+**Split from** SEED-423#retire-finished-migrations-and-legacy-formats before
+readiness on 2026-11-23, when retiring CI proof summary `schemaVersion: 1` and
+`unit: "legacy"` alongside the installer, backlog, and execution legacy
+readers exceeded the eight-slice plan limit. Its provisional plan is
+[plan 795](../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md),
+awaiting story refinement.
+
+- **For / why.** A developer or agent reading CI proof in the CLI or Dashboard
+  sees every entry counted and compared in declared `case` or `file` units,
+  without maintaining parallel `legacy` unit and `schemaVersion: 1` readers
+  across twelve `ci-proof-*` scripts and fifteen Dashboard modules.
+- **Scope.** Retire `READABLE_SUMMARY_VERSIONS` version `1`,
+  `currentSummaryOf`, `LEGACY_UNIT`, unit-less `--expect` / fragment collection
+  options, and `unit: "legacy"` / `legacyReason` handling across the twelve
+  `ci-proof-*` scripts, `ci-proof-read.mjs`, `references/ci-proof-summary.md`,
+  and the Dashboard CI proof, comparison, and landed-history modules. On
+  2026-11-23 all six maintained projects' CI workflows already pass explicit
+  `case` or `file` units and emit `schemaVersion: 2`, while
+  `~/.open-dough/dashboard/landed-ci-history.json` still retains 22 builds
+  from 2026-11-05..2026-11-10 (`doughnut`, `terry-talks`, `clipboard`) whose
+  stored `proof.summary` carries `unit: "legacy"`; `retainedProofSchema` in
+  `dashboard/server/landedCiObservation.ts` must map retired/invalid retained
+  summaries to `{ kind: "unavailable", reason: "invalid", detail }` (matching
+  live `ciProofArtifact.ts` and `ciAdapterProof.ts`) so the machine store and
+  retained wall-time points remain readable without keeping legacy unit code,
+  following [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+- **Evaluation.** Collecting or reading a `schemaVersion: 1` or unit-less
+  summary refuses or surfaces `unavailable` (`invalid`); declared `case` and
+  `file` collection, ranking, comparison, and landed scope history work
+  unchanged; and a `landed-ci-history.json` cohort holding older v1 or
+  `unit: "legacy"` build summaries stays readable across reads and atomic
+  writes with wall-time points intact and scoped test-execution readings
+  reported as invalid proof gaps.
+- **Effort hypothesis.** L, medium-high confidence (~4–5 slices across
+  Distribution scripts and Dashboard).
+- **Depends on.** None.
+- **Safe stopping point.** Collector and CLI scripts retired while Dashboard
+  readers follow, or after `retainedProofSchema` normalization is in place.
 
 <a id="derive-the-install-payload-from-the-shipped-directory"></a>
 
