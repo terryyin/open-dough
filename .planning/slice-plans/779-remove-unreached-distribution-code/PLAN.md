@@ -66,7 +66,7 @@ repository runner with Homebrew Bash 5 and Node 24 passed these focused baseline
 
 Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. Slice 1 was published as `67b66d67ce7b7905d9fb5e780baf3090a47ceb33` on the story branch. The Take has no owned trunk CI observation.
 
-The latest accepted story-branch revision is `a3fd91929a8425a012aae56913831a7b41f3262c` after Slice 7.
+The latest accepted story-branch revision is `e8e1c7f1f9d3b0d2d787603b5045d8846a11e247` after Slice 8.
 Codex observer for the execution branch uses GitHub Actions `ci.yml` (CI). Coordinator `5f0cec34-e7f0-4f74-8aa2-de18cfa45a2b`, mailbox `/tmp/dough-ci-501/watch-QmFpcm`, PID `84936`, session `52487`, cell `g245:20`. Runtime and owner are bound to the established execution checkout.
 
 ## Local gate
@@ -248,3 +248,11 @@ Plan refinement was unnecessary. The eight slices keep proof with the
 surviving command or module contracts and isolate publication registration
 from option transport. Existing fixtures exercise the proposed observation
 and race boundaries. No slice-specific readiness concern remains.
+
+## Combined proof
+
+At the exact Slice 8 revision, GitHub Actions run 45103865999 passed all three Distribution and evaluation shards with 667 scheduled files. The local three-worker run passed 654 files and recorded 12 native-fixture safety timeouts and a supplier-watch failure under shared Mac load. All 13 passed on the same clean revision in the two one-worker diagnostic runs on AC. The local and CI file inventories match. Checkout evidence retains the initial result, serial results and CI shard times.
+
+## Execution complete
+
+Product advice: no change. Keep the separately selected SEED-423 stories and retain the current testability direction. Process review is deferred into Story Wrap Up for the independent intent check.
