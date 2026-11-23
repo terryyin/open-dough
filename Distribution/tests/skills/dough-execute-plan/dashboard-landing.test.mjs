@@ -8,7 +8,6 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import {
-  acceptsLandingWithoutIdentity,
   captureAcceptedLanding,
   reportLanding,
   retainLandingComparison,
@@ -42,10 +41,6 @@ async function plantedExpectationKeys(t, branch) {
     branch,
   };
 }
-
-test("this installation says it takes a context that names no story", () => {
-  assert.equal(acceptsLandingWithoutIdentity, true);
-});
 
 test("a context naming no story is retained before the push and recorded after acceptance by its launch reference alone", async (t) => {
   const { origin, requests } = await landingReceiver(t);

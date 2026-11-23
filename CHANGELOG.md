@@ -1,3 +1,16 @@
+## 0.3.113 - 2026-11-23
+
+- Custom CI follows one small project-command contract. The custom CI manual describes `discover`, `diagnose`, `proof` and `jobs` as provider-independent requests, with their limits and failure handling in one place. The rebuild trigger is documented as its own permission and request. The watcher, Dashboard and test-optimization reader share one discovery call, and proof and job reads share one answer check. The wire format and settings are unchanged, so existing `ciAdapter`, `ciRebuild` and integrated-state configurations keep working.
+- Installs and updates no longer carry the opt-in CI reuse recipe scripts and their manuals.
+- Dough Land and session records keep ad hoc and follow-up work under its Done story, including when the session is identified by its native session and title. A concurrent session close keeps its typed result. Delivery skips the fresh refactor pass for clean changes confined to the slice's own specs, and delegated proof may run project-scoped lint. Retrospectives classify their process findings and leave judgment on other improvements to humans.
+- The Dashboard lets developers resolve conflicting session story associations, groups published sessions under their Done story, and compares Done and Taken stories with incoming trunk changes. Dashboard and test changes are source-only.
+
+The Promoted payload revises 24 paths and retires seven, the CI reuse recipes and their manuals. No file is added.
+
+The self-installation baseline passed at `28785ac04`. A disposable Pygardon checkout took the candidate install with its `ciAdapter`, `ciRebuild` and integrated-state settings unchanged. Its 56 adapter and watcher cases passed against the installed watcher, and its real command answered discover, proof, jobs and one fixture-admitted rebuild. The CI contract files are identical between that candidate and this release. [Hosted CI passed at `e47487a99`](https://github.com/terryyin/open-dough/actions/runs/45172833143). Later commits through the release change planning records and ADR 0003.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), the CI command boundary, session records and guidance changes use the existing host entry points. They have deterministic command, installation and Dashboard proof, so fresh native acceptance was unnecessary. At load average about 50, one Intent proof-reasons case timed out after its assertions passed. Its fixture setup bound is a test defect to correct later. The existing supplier-watch, freshness-ordering and oversized-file observations remain open.
+
 ## 0.3.112 - 2026-11-23
 
 - Execute Plan reads the complete selected story and its approved amendments during delegation and proof acceptance. Open gaps stay in the plan's Story obligations. A plan that still links a legacy source review stops until its outstanding work and evidence have been carried forward.

@@ -2,11 +2,11 @@
 
 Open Dough installs one project-local client payload into two physical skill
 roots: `.agents/skills/` (shared by Codex and Cursor) and `.claude/skills/`.
-Each release's shipped `skills/` directory, under the source tree named by its
-installer, is the complete payload for each root. A release whose
-[`install.sh`](../install.sh) holds the line `open_dough_payload_format=directory`
-delivers every file in that directory; an older release delivers the files its
-`install.sh` lists in `managed_files`. Inspect the payload in the pinned snapshot using
+Each release's shipped `Distribution/src/skills/` directory is the complete
+payload for each root. A release whose [`install.sh`](../install.sh) holds the
+line `open_dough_payload_format=directory` delivers every file in that
+directory; an older release delivers the files its `install.sh` lists in
+`managed_files`. Inspect the payload in the pinned snapshot using
 the procedure below, rather than assuming a fixed list of skills or dependencies.
 Installation preserves unrelated project files, home-level guidance, and any
 other tool's separate installation.
@@ -136,10 +136,8 @@ inspection and execution into an unattended one-shot command.
      `git -C "${snapshot}" rev-parse HEAD` equals `selected_commit`.
      Never run a helper or installer from an unpinned clone or the default branch.
 
-4. Read the pinned snapshot's root `install.sh` and locate the source tree it
-   names. Set `release_source` to that directory within the snapshot, such as
-   `"${snapshot}/Distribution/src"` for the Distribution layout or
-   `"${snapshot}/src"` for older releases. Read and inspect
+4. Read the pinned snapshot's root `install.sh` and set `release_source` to
+   `"${snapshot}/Distribution/src"`. Read and inspect
    `install/open-dough-release.sh`, `install/open-dough-install-payload.sh`,
    `install/open-dough-payload-inventory.sh`, and all helpers that these files
    or the installer source or run before executing them.

@@ -207,10 +207,9 @@ node <installed>/dough-execute-plan/scripts/execution-increment-resume.mjs resum
   [--one-shot-identity <identity>]
 ```
 
-Use the returned receipt and `suffixBase` for that delivery comparison. A
-legacy recovery without retained base context omits `--suffix-base`; it can
-recover publication but cannot establish a historical comparison by guessing
-its base. Missing coverage still follows the observer recovery contract.
+Use the returned receipt and `suffixBase` for that delivery comparison.
+Recover the exact retained base before attempting resume if it is missing.
+Missing coverage still follows the observer recovery contract.
 
 In that shared table, "Missing registration" is this project's CI
 registration: a published SHA absent from the existing observer's coverage or

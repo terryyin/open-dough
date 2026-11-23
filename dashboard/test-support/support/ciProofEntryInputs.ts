@@ -19,7 +19,7 @@ export function proofInputsForEntries(
     expect: results.map(({ path, evidence }) => ({
       entry: path,
       parts: evidence.parts.length,
-      ...(evidence.unit === "legacy" ? {} : { unit: evidence.unit }),
+      unit: evidence.unit,
     })),
     fragments: results.flatMap(({ path, evidence }) => {
       // The first broken-down present part owns the files/unassigned figures;
@@ -37,9 +37,7 @@ export function proofInputsForEntries(
             revision: run.revision,
           },
           path,
-          evidence.unit === "legacy"
-            ? { unit: "legacy", label: evidence.label ?? "results" }
-            : { unit: evidence.unit },
+          { unit: evidence.unit },
           {
             passed: part.passed ?? 0,
             failed: part.failed ?? 0,
@@ -65,8 +63,7 @@ export function proofInputsForEntries(
           source: `${path}-${evidence.unit}-${String(part.part)}.json`,
           value,
         };
-        // Duplicate candidates leave an ambiguous part uncounted. With no
-        // observed legacy part its summary label remains null.
+        // Duplicate candidates leave an ambiguous part uncounted.
         return part.status === "ambiguous"
           ? [candidate, candidate]
           : [candidate];

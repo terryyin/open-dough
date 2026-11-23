@@ -3,8 +3,7 @@ import { expectFileProofRows } from "../../dashboard/test-support/intentFileProo
 // ../../dashboard/src/IntentScopeProof.tsx, ../../dashboard/src/IntentFileProof.tsx,
 // ../../dashboard/src/ciProofUnits.ts): raw runner reports go through the collector's
 // command line, a Playwright record's tests as test cases, an outcomes
-// report declared `--unit file` as test files and one without a unit as
-// legacy results, against declarations naming their units. CI status shows
+// report declared `--unit file` as test files. CI status shows
 // one row per location with labeled unit lines; an entry's and a folder's
 // Summary and a file's Proof show each unit's results apart with their own
 // time and parts, never one combined count, and a declared unit no fragment
@@ -67,8 +66,7 @@ const unitsSummary = () =>
     [
       { entry: "dashboard/tests", parts: 1, unit: "case" },
       { entry: "dashboard/tests", parts: 1, unit: "file" },
-      // The outcomes report below declares no unit, as before units were.
-      { entry: "tests", parts: 1 },
+      { entry: "tests", parts: 1, unit: "file" },
       // Declared, but no fragment arrives.
       { entry: "tests", parts: 1, unit: "case" },
     ],
@@ -99,6 +97,7 @@ const unitsSummary = () =>
         part: 1,
         of: 1,
         byFile: true,
+        unit: "file",
         outcomes: "passed\ttests/root.sh\n",
         times: "2.5\ttests/root.sh\n",
       },
@@ -128,10 +127,10 @@ test("one location's test cases and test files stay apart, never one count, thro
       [
         "tests",
         [
-          "legacy test results: 1 passed legacy test result",
+          "test files: 1 passed test file",
           "test cases: nothing counted as test cases",
         ],
-        ["legacy test results: 2.5 s", "test cases: Part 1 missing"],
+        ["test files: 2.5 s", "test cases: Part 1 missing"],
       ],
     ]);
   });

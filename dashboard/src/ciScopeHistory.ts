@@ -5,6 +5,7 @@
 // membership; the glance views read its slim projection (`ScopeHistoryGlance`,
 // `../server/ciHistoryGlance.ts`).
 import { z } from "zod";
+import { ciProofUnitSchema } from "./ciProof.ts";
 import { runIdentityShape } from "./baseCiConfirmation.ts";
 import { commitIdSchema } from "./launchLanding.ts";
 import { runUrlSchema } from "./landedCiHistory.ts";
@@ -41,19 +42,17 @@ const entryFields = z.object({
   // A pending gap can name an attempt without claiming a measured build.
   run: ciScopeHistoryRunSchema.optional(),
   selected: z.boolean(),
-  legacyReason: z.string().min(1).optional(),
 });
-const unitSchema = z.enum(["case", "file"]);
 const pointReadingSchema = z.object({
   kind: z.literal("point"),
-  unit: unitSchema,
+  unit: ciProofUnitSchema,
   ms: z.number().nonnegative(),
   entry: z.string().min(1),
   segment: z.string().min(1),
 });
 const gapReadingSchema = z.object({
   kind: z.literal("gap"),
-  unit: unitSchema,
+  unit: ciProofUnitSchema,
   reason: z.string().min(1),
 });
 export const scopeHistoryReadingSchema = z.discriminatedUnion("kind", [
@@ -101,7 +100,7 @@ export const ciScopeHistorySchema = z.object({
   references: z
     .array(
       z.object({
-        unit: unitSchema,
+        unit: ciProofUnitSchema,
         reason: z.string().optional(),
         reference: priorBuildReferenceSchema,
       }),
@@ -159,7 +158,7 @@ export const scopeHistoryGlanceSchema = z.object({
   references: z
     .array(
       z.object({
-        unit: unitSchema,
+        unit: ciProofUnitSchema,
         reason: z.string().optional(),
         reference: priorBuildFiguresSchema,
       }),

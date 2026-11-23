@@ -5,8 +5,7 @@
 // developer asks for later; a launch with the default choices establishes no
 // session, is handed no landing context, and has no landing admitted,
 // whatever a request names; a context naming a story is refused for a launch
-// that has none; an installation whose landing module requires an identity
-// is handed no landing context; and a Codex session's installed delivery
+// that has none; and a Codex session's installed delivery
 // command, as a one-shot landing runs it, captures its landing. The handoff
 // and the capture themselves are in
 // ../../../e2e/launches/agent-launch-start-session-landing-context.spec.ts.
@@ -33,7 +32,6 @@ import {
   land,
   landingHandoff,
   repositoryOf,
-  withOlderLandingModule,
 } from "../../test-support/support/startSessionLandingContext.ts";
 import { sessionBlock } from "../../test-support/support/startSessionLanding.ts";
 
@@ -131,27 +129,6 @@ childPublication(
     ).toBeUndefined();
   },
 );
-
-test("an installation whose landing module requires an identity is handed no landing context, so a landing never fails on one it cannot validate", async ({
-  dashboard,
-  origin,
-}) => {
-  withOlderLandingModule(origin);
-  const { record, sent } = await launched(dashboard, {
-    policy: { workspace: "isolated", landing: "auto-land" } satisfies Policy,
-  });
-  const session = record.establishedSession;
-  if (session === undefined) throw new Error("No established session.");
-  const [block, reportingBlock, ...extra] = sent.split("\n\n");
-  expect(block).toBe(sessionBlock(session));
-  expect(extra).toEqual([]);
-  expectReportingBlock(reportingBlock, record.request, dashboard);
-  expect(record.request.reporting).not.toHaveProperty("landingContext");
-  expect(sent).not.toContain("--landing-context");
-  expect(sent).not.toContain("cannot capture a landing comparison");
-  for (const kept of keptAttempts(dashboard))
-    expect(kept).not.toHaveProperty("landingRepository");
-});
 
 test.describe("Codex", () => {
   test.use({

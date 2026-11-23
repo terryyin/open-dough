@@ -21,6 +21,9 @@ test("an origin started with no description holds one commit of the installed sk
     expect(files.filter((file) => file.startsWith(".planning/"))).toEqual([
       ".planning/PRODUCT-BACKLOG.md",
     ]);
+    expect(
+      await origin.originGit("show", "main:.planning/PRODUCT-BACKLOG.md"),
+    ).not.toMatch(/^- /m);
     const backlog = installedSkillPath(
       "claude",
       { path: origin.project, shown: origin.project },
@@ -30,13 +33,21 @@ test("an origin started with no description holds one commit of the installed sk
     );
     const { stdout } = await exec(
       process.execPath,
-      [backlog, "adopt", "--all"],
+      [backlog, "identity-evidence"],
       {
         cwd: origin.project,
       },
     );
-    expect(stdout).toMatch(
-      /All 0 active entries already record their identity/,
+    expect(JSON.parse(stdout)).toHaveProperty(
+      "sources",
+      expect.arrayContaining([
+        {
+          source: "backlog",
+          path: "PRODUCT-BACKLOG.md",
+          read: true,
+          highest: null,
+        },
+      ]),
     );
   } finally {
     origin.cleanup();

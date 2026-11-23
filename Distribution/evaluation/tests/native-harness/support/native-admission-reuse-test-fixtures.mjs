@@ -31,7 +31,6 @@ const context = {
 };
 const sourcePathspecs = [
   "Distribution/src",
-  "src/install",
   "Distribution/tests/support",
   "Distribution/evaluation/src",
   "Distribution/evaluation/cases",

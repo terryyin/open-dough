@@ -1,12 +1,9 @@
 // @ts-check
 // Builds a described repository history at a fixture layout.
 import { cpSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { createBareFixtureRemote } from "../skills/dough-execute-plan/bare-remote-test-fixtures.mjs";
-import {
-  exec,
-  git,
-} from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
 import {
   commitDeclaredRevision,
@@ -87,13 +84,14 @@ async function startHistory(
     };
   }
   if (origin) await createBareFixtureRemote(origin, trunkBranch);
-  await exec("git", [
+  await git(
+    dirname(integration),
     "init",
     ...(gitTemplates ? [] : ["--template="]),
     "-b",
     trunkBranch,
     integration,
-  ]);
+  );
   await git(integration, "config", "maintenance.auto", "false");
   await configureIdentity(integration, checkoutIdentity);
   if (origin) await git(integration, "remote", "add", "origin", origin);

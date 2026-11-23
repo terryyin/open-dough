@@ -138,7 +138,8 @@ const summaryPath = () =>
 // The Summary of the location at PATH, opened by its name.
 export async function openScopeSummary(path: string) {
   await locationNameDrawn(path);
-  await userEvent.click(locationNameControl(path));
+  // The comparison can rename this button before the native click arrives.
+  await userEvent.click(locationNameControl(path).element());
   await expect.poll(summaryPath).toBe(path);
   return summary();
 }

@@ -31,7 +31,7 @@ usable change, independently of the later polish.
 
 **Identity:** SEED-420#read-proof-for-the-comparison
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/797-read-ci-proof-for-the-selected-comparison/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"b118e6148c611ea377758a09f8674232c2c089e7be993c9fb6891d38ae24f008","plan":"ab31fec05090dc7d9952a1227179a14602a674ea35ef41f042fa5e58befa8550"}}
 ```
 
 **Goal.** A reviewer reading a story in Intent can tell what CI measured for
@@ -43,24 +43,25 @@ hand.
 
 **Scope.**
 
-- Intent's CI proof follows Intent's **Compare** selection: a Taken
-  story's commit range, a Done story's captured landed run, or the default
-  comparison. The endpoint table, the Changes counts and a selected scope's
-  Summary and file Proof all read the same two measured builds. They no
-  longer say that they describe the whole story. Intent coverage is not CI
-  proof, so it keeps that note. A captured run that recorded no revisions
-  also keeps the note, and its proof stays on the whole story.
+- Intent's CI proof follows **Compare**. For a Taken story's commit range
+  or a Done story's captured landed run with revisions, the endpoint table,
+  Changes counts, the selected scope's Summary and file Proof share one
+  pair of build readings. Each reflects the selected range. Intent coverage
+  still describes the whole story and keeps its note. A captured run that
+  recorded no revisions keeps the whole-story proof and note as well.
 - Each side names its measured revision and run. The start side uses the
   newest completed build at or before the comparison's start. The end side
-  uses the build at its end or the nearest measured ancestor after the
-  start. Each side states how the build relates to the requested
-  revision, in today's selection words: exact, ancestor with N revisions
-  without a build, equivalent or later trunk build.
+  uses the build at its end or the nearest measured ancestor inside the
+  comparison. For selected commits, start means the first chosen commit's
+  first parent and end means the last chosen commit. A captured landed run
+  uses its recorded start and end revisions. Each side uses the existing
+  vocabulary for the relationship between requested and measured revisions.
 - A delta, such as **1 → 9** cases, appears only when both sides have a
   build and the end-side build includes some of the selected work.
-  Otherwise the side that ran is still shown, for example **9 passed at
-  completion**. The reason for the missing delta is given in place: no
-  matching baseline, or no build includes the selected changes.
+  Existing proof availability and unit rules still apply. If only one side
+  ran, that side's evidence stays visible, for example **9 passed at
+  completion**. Explain the missing delta where it would appear, naming the
+  missing baseline or the absence of a build that includes selected work.
 - Uncommitted workspace changes have no CI. When they are included, the
   proof says that they were not measured.
 - The default comparison keeps today's Baseline, Branch and Landed rules
@@ -92,7 +93,10 @@ is out of scope. This story reads existing runs.
   its start, shows the start side's build. It says that no build includes
   the selected changes, and shows no delta.
 - A captured landed run is chosen. The proof switches to that run's start
-  and end builds. Returning to the default restores the story's comparison.
+  and end builds across the endpoint table, Changes counts, Summary and file
+  Proof. Returning to **Published completion** restores the story's default
+  proof. Choosing a run without recorded revisions keeps the whole-story
+  proof and its scope note.
 - All changes, including uncommitted changes, shows the last commit's build
   and says that the uncommitted changes were not measured.
 

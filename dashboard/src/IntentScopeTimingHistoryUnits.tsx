@@ -4,7 +4,7 @@
 // share a scale. A file's case timing is the aggregate of its test cases.
 import { useId, useState } from "react";
 import { buildDateWords, standInBuildWords } from "./ciHistoryWords.ts";
-import { declaredUnits, unitName, type DeclaredUnit } from "./ciProofUnits.ts";
+import { declaredUnits, unitName, type CiProofUnit } from "./ciProofUnits.ts";
 import { executionTimeWords } from "./ciProofTimeWords.ts";
 import type { ScopeHistoryGlance, ScopeGlanceEntry } from "./ciScopeHistory.ts";
 import { isMeasured, type HistoryChartEntry } from "./historyChartSeries.ts";
@@ -29,13 +29,13 @@ function provenanceWords(entry: ScopeGlanceEntry): string {
     : "Exact build";
 }
 
-const unitTitle = (unit: DeclaredUnit) => {
+const unitTitle = (unit: CiProofUnit) => {
   const name = unitName(unit);
   return `${name[0]?.toUpperCase() ?? ""}${name.slice(1)}`;
 };
 
 // The choice of a unit: a file's own outcome is its "Test file".
-const choiceWords = (unit: DeclaredUnit, file: boolean) =>
+const choiceWords = (unit: CiProofUnit, file: boolean) =>
   file && unit === "file" ? "Test file" : unitTitle(unit);
 
 function UnitHistory({
@@ -45,7 +45,7 @@ function UnitHistory({
   heading,
 }: {
   readonly history: ScopeHistoryGlance;
-  readonly unit: DeclaredUnit;
+  readonly unit: CiProofUnit;
   readonly context: ScopeHistoryContext;
   readonly heading: boolean;
 }) {
@@ -125,7 +125,7 @@ export function IntentScopeTimingHistoryUnits({
   // Whether the scope is one test file rather than an entry or folder.
   readonly file: boolean;
 }) {
-  const [chosen, choose] = useState<DeclaredUnit | undefined>(undefined);
+  const [chosen, choose] = useState<CiProofUnit | undefined>(undefined);
   const units = declaredUnits.filter((unit) =>
     history.entries.some((entry) =>
       entry.readings.some((reading) => reading.unit === unit),

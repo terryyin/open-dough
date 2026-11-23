@@ -132,7 +132,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     `server/sessionCommitsCapture.ts` are pure logic over log entries, but
     are reachable only through real repositories. As a result, all 21 specs
     are Git, file-store and ref integration tests. That is the cost behind
-    [the family's timeout margin](#optimize-done-capture-family-cases).
+    the family's timeout margin.
   - *Decisions.* Split each write action into a typed decision and an
     effect-only shell, so only the adapter persists and pins. Review-topic
     cases compose Done and branch-entry state with MakeMe and call the typed
@@ -196,134 +196,6 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
 - **Scope.** One maintained case for the choice of path given to diff styling.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
-
-<a id="optimize-done-capture-family-cases"></a>
-
-### Bring the Done capture family's cases to 100–200 ms
-
-**Identity:** SEED-413#optimize-done-capture-family-cases
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#optimize-done-capture-family-cases","dependencies":[{"supplier":{"identity":"SEED-413#split-done-mark-decision-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store"},"implementation":"Typed Done transition, Git branch-result capture, and review cases composed from Done state.","rationale":"Profiling the old review setup would measure machine-store writes and Done replay that this story removes.","condition":"The typed Done transition and Git capture are separate from the store adapter, and review-topic cases use composed Done records without replaying the store-backed Done action.","state":"satisfied","resolution":{"revision":"6250b73992afc1df2fd9b12bb502008527e568d6","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#split-done-mark-decision-from-store","summary":"Satisfied at integration 2a7260d6d: dashboard/server/doneTransition.ts holds the pure Done transition and sessionBranchCapture.ts exports the Git-only captureBranchResult as setRecordDoneAt's collaborator; review-topic cases compose Done records without markDone (plan 734 slices 1, 2, 4–7). The correction SEED-413#restore-done-capture-proof-after-composed-reviews, queued first, adds back a few adapter cases before this measurement.\nCondition satisfied: The typed Done transition and Git capture are separate from the store adapter, and review-topic cases use composed Done records without replaying the store-backed Done action.\nAccepted integration: 2a7260d6d2596365b432d11731b6b57d01dc0f0f on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#split-branch-entry-proposal-from-store","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store"},"implementation":"Typed branch-entry proposal, production pin-ref query, and review cases composed from branch-entry state.","rationale":"The optimization needs to measure the branch-entry setup that remains after repeated store-backed entry actions are removed from review cases.","condition":"Branch-entry proposals are separate from persistence, the session pin-ref query is available, and cases where branch entry is a precondition use composed branch-entry state.","state":"satisfied","resolution":{"revision":"9969388902eb48c56588d9a1d30f45d8be6ac4b3","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#split-branch-entry-proposal-from-store","summary":"Directly satisfied. The proposal is separate from persistence (branchEntryProposal.ts vs sessionBranchEntry.ts), the session pin-ref query is production sessionBranchPins in launchRecordPins.ts (with heldLandingPins for one-shot pins), and cases where the entry is a precondition compose it with makeMe enteredBranch; no test-side identifyBranch, aDeclaringLaunch or aDeclaredBranch remains. Proved by the branch-entry and pin specs and hosted CI run 44783274270 on e8b7e417.\nCondition satisfied: Branch-entry proposals are separate from persistence, the session pin-ref query is available, and cases where branch entry is a precondition use composed branch-entry state.\nAccepted integration: e8b7e4170c63f978270efba32e2396989fd555a1 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#fold-done-capture-launches-into-makeme","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme"},"implementation":"Done capture launch cases built through domain-named MakeMe steps.","rationale":"The launch arrangement changes the setup that the optimization measures, so the remaining costs need to be established with the delivered builders.","condition":"The Done capture cases use MakeMe launch and repository steps, with the checkout, record, and timeline carried by one case object.","state":"satisfied","resolution":{"revision":"47af39ca65b8c40ee3bd1b352db274a3330c975d","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#fold-done-capture-launches-into-makeme","summary":"Directly satisfied at integration 7b89046e3. The 36-spec Done capture family builds through aDoneCaptureCase() (dashboard/backend-tests/support/doneCaptureCaseBuilder.ts), whose please() returns one value carrying checkout, records, timeline, work and the case clock; its launch steps compose the MakeMe named examples startedOnMainOf, establishedOnMainOf and isolatedIn (from 1cf323753) and the repository step withBaseBeforeEveryLaunch. The preset modules declaredPublisherBranch.ts, reportedIsolatedBranch.ts and reportedDoneCase.ts are retired. Family roster passed at one worker on the merged state; the load-sensitive race cost (ad-hoc-branch-result-race, captureBranchResult's sequential Git calls) is recorded in this consumer's Measured notes. The queued correction SEED-413#tie-done-capture-cases-to-production slightly changes this setup and precedes this story.\nCondition satisfied: The Done capture cases use MakeMe launch and repository steps, with the checkout, record, and timeline carried by one case object.\nAccepted integration: 7b89046e3586e4d407ee231164934840b11365f5 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#observe-done-deliveries-over-typed-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records"},"implementation":"Typed delivery-observation decision over composed Done records, with the store adapter alone saving deliveries and pins.","rationale":"Profiling the observation cases before the split would measure machine-store reads and writes in a stubbed HOME that this story removes.","condition":"Delivery observation decides from typed kept records separately from its store adapter, and observation cases other than the adapter's races use composed records.","state":"satisfied","resolution":{"revision":"24864be6360f87cc9fec3dc4333de5361de165eb","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#observe-done-deliveries-over-typed-records","summary":"Directly satisfied. Plan 736's typed decision, witness, retry and offline restart cases use composed Done state and real Git; the explicit adapter cases own live record and pin races. The final seven-spec observation family has no direct machine-store imports, HOME setup or Mark Done calls. All 26 passed with the ordinary two workers and default timeouts. The paired ADR 0010 results are recoverable in the completed plan and showed no consistent timing change.\nCondition satisfied: Delivery observation decides from typed kept records separately from its store adapter, and observation cases other than the adapter's races use composed records.\nAccepted integration: 0747fb0a2558f72b185b4299a3ecbb28cd9f3327 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#decide-landings-over-typed-attempts-and-records","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records"},"implementation":"Typed landing decision over composed attempts and records, production landing request admission, and the publisher bridge delegating to it.","rationale":"Profiling the publication cases before the split would measure attempt and record store writes and the test-side receiver that this story removes.","condition":"Landing preparation and recording decide from typed attempts and records separately from their store adapter, the landing request admission is a production function, and only the publisher-topic cases run the installed publisher.","state":"satisfied","resolution":{"revision":"086faa5a284a7030a101032405772eff1cf69077","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#decide-landings-over-typed-attempts-and-records","summary":"Directly satisfied. SEED-413#decide-landings-over-typed-attempts-and-records delivered decideLanding over composed attempts/records, LandingStores on handleLanding, caller-directed branchLandingContext, admitLandingRequest, and the installed-publisher bridge on production admission with composed stores. Key examples and Intent Coverage Caught at 233d31e6c (ad-hoc-prepared-landing-done). Approved remainders (HOME for blank/worktree machine deletion; 29 server specs; local LandingStores until ObservedLandingStore) do not block this condition. Recoverable story/plan at 086faa5a; accepted on origin/main at 4a5ceb24.\nCondition satisfied: Landing preparation and recording decide from typed attempts and records separately from their store adapter, the landing request admission is a production function, and only the publisher-topic cases run the installed publisher.\nAccepted integration: 4a5ceb24a2d50569dfe181e16a1a6a6b1efa9798 on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/757-optimize-done-capture-family-cases/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fa6e1945fdf13117685b04ff9ae05d9a7b11696d63b08db01c3c1f7d756ccb31","plan":"84db52af8d5e847da94ea99770bd5451d84031433bbb289900f5ff25d446d3ca"}}
-```
-
-Follows the closed SEED-413#arrange-done-ad-hoc-observation-and-publication
-(plan recoverable at
-`0f1fe2cdd:.planning/slice-plans/730-arrange-done-ad-hoc-observation-and-publication/PLAN.md`),
-which made its ten cases plain Vitest, about twice as fast as their
-Playwright versions.
-Queued after the five [Done capture import-list stories](#done-capture-import-list-analysis),
-which move most of the family off the machine store and the replayed
-actions. Profile what remains after them. The Git binary finding below
-does not depend on them.
-
-- **Goal.** Dashboard maintainers get Done capture proof that runs at about
-  100–200 ms per case and passes reliably under local load. The family's
-  cases now take about 1–2 s each at load 6–12 and 3–5 s at load 14–16. Under
-  Vitest's 5 s default, two or three of them time out at that load. Hosted CI
-  runs them in under 1 s.
-- **Measured on 2026-11-20 at `78778ad74`** (trunk's 21 specs and 65 cases
-  that import `doneCaptureCase.ts`, macOS, `--workers=2`, load 12–19 from
-  other sessions).
-  - Each case starts about 41 Git processes (2,685 for the family, counted
-    with `GIT_TRACE2_EVENT`). Git itself runs about 7 ms in each. The most
-    frequent are `rev-parse` (579), `rev-list` (250), `update-ref` (214),
-    `add` (195), `cat-file` (175) and `commit` (148). `push`, `clone` and
-    `pull` are few and take 73–87 ms each.
-  - `git` resolves to `/usr/bin/git`, Apple's `xcrun` launcher. Starting it
-    from Node took 36 ms at load 15, against 7 ms for the binary it runs
-    (`xcrun -f git`) and 4 ms for `/usr/bin/true`. Linux has no launcher,
-    which fits the hosted CI times.
-  - With that binary's directory first on `PATH`, two interleaved pairs of
-    family runs summed 54.7 s and 26.3 s of case time, against 70.1 s and
-    109.1 s unchanged. Cases of 2 s or more fell from 7 and 23 to 3 and 0.
-    The second unchanged run timed one case out at 5 s. At load 12–14 the
-    median case was 357 ms and 20 of 65 cases ran within 200 ms.
-  - That directory also holds `python3`, `make` and `clang`, so putting it
-    first on `PATH` changes more than Git. A private directory holding one
-    `git` script that runs the binary gave 61.6 s and 58.5 s against 67.9 s
-    unchanged: the extra shell start spends most of the saving. A symbolic
-    link starts as fast as the binary, but Git then looks for its templates
-    under `/Applications/Xcode.app` and warns on `init`.
-  - Load moved between runs and the same arrangement varied twofold, so a
-    duration at a named load does not reproduce. The count of Git processes
-    per case does.
-- **Observed during the fold (2026-11-21, plan 737 at `b3cd1acfe`).**
-  `ad-hoc-branch-result-race` took 1.3–2.3 s at load 8.6 and timed out once at
-  5 s at load 27–30: case setup 421–762 ms, the held first capture about
-  300–500 ms, the quiet-Done delivery 410–810 ms, review and pins about 100 ms.
-  Every phase grew with load; no timer, wait or race was involved.
-  `captureBranchResult` (`dashboard/server/sessionBranchCapture.ts`) runs
-  about ten Git calls one after another, and the origin cannot be dropped
-  because the review then reads `unavailable`. `ad-hoc-branch-result` cases
-  also timed out twice in a long one-worker roster run at load 12–17.
-- **Scope.**
-  - On macOS the dashboard server and installed publisher run the Git binary
-    selected by `xcrun -f git` when the effective `PATH` selects Apple’s
-    launcher. Reuse the selection within the process for the same environment.
-    Preserve a caller-selected Git, normal invocation on other platforms, and
-    Git's existing fallback when the developer-tool lookup fails. Leave
-    selection of other tools to the caller’s `PATH`.
-  - Cut the Git processes each case starts, in the family's support and in
-    production seams that still start more than their answer needs after
-    the capture read consolidation in `615f8d8db`. The family is
-    the Git-heavy Done capture cases under `dashboard/backend-tests/review/`
-    and `dashboard/backend-tests/launches/`, with their shared support:
-    the case builder `doneCaptureCaseBuilder.ts` with
-    `doneCaptureCaseMaterialization.ts` and `doneCaptureCasePlaces.ts`,
-    `doneCaptureCase.ts`, `doneCaptureReview.ts`, `installedPublisher.ts`
-    and `adHocBranchRefs.ts`, as the five import-list stories leave them.
-    Profile per case first, covering checkout creation, checkout work,
-    production Done capture, observation and review reads.
-    After the branch-entry story, entry setup is gone; the Done review,
-    attribution, declared publication and lifecycle deletion cases still take
-    4.1–4.6 s at load ~20 in real Done capture and fixture Git.
-  - Keep the Git that developers run, the production handlers and every
-    assertion. The proof is of Git's own behavior (reflog times, merges,
-    worktrees, pins), so a Git library in the test process does not replace
-    it. Raising timeouts is out of scope.
-- **Decision (Terry, 2026-11-21).** The Git runners own selection.
-  `dashboard/server/gitRunner.ts` and the installed `publication-git.mjs`
-  use the selected binary for their own calls. The existing Playwright
-  service setup has separate `PATH` handling. The Done capture Vitest group
-  does not run that setup.
-- **Alternatives considered.**
-  - Prepending the toolchain’s directory to the test `PATH` also changes
-    how checks find `python3`, `make` and `clang`.
-  - Cutting Git calls is the second experiment. Start from the repository
-    fixture’s existing private copies of shared templates and its repair of
-    origin and worktree paths.
-  - A long-lived `git cat-file --batch` process would cover object reads
-    only and add a process lifetime to the server. It is outside this story.
-- **Key examples.**
-  - When Apple’s launcher is first on `PATH`, a Done capture and an
-    installed publication start the selected Git binary directly. An earlier
-    Git executable on `PATH` still receives the calls.
-  - A Done branch capture with a real merge and a typed review read targets
-    about 200 ms in the low-load comparison. The review keeps the accepted
-    trunk parent and actual merge resolution.
-  - At load 15 or more, the family passes several runs in a row at
-    `--workers=2` with no timeout.
-  - A case whose topic is the review of an already Done session starts no
-    more Git processes than its real commits and its review reads need.
-- **Evaluation.** Use [`dough-test-optimization`](../../.agents/skills/dough-test-optimization/SKILL.md)
-  and the [`done-capture-family-timeout-margin`](../TEST-OPTIMIZATION-CANDIDATES.md#done-capture-family-timeout-margin)
-  candidate. Count Git processes per case before and after with
-  `GIT_TRACE2_EVENT`. Freeze the spec paths and Vitest case names at the
-  execution baseline. Compare per-case durations in interleaved runs before
-  and after using that roster and the same worker count. Record the load of
-  each run under
-  [ADR 0010](../../docs/adrs/0010-definition-of-improvement-accepted.md).
-  If 100–200 ms is not reachable, report the measured floor and the Git
-  processes that remain for each case. Explain why they cannot be removed
-  without losing protection, and give the margin the family reaches instead.
-- **Architecture.** One server-side selector supplies the dashboard and the
-  installed publisher. Each runner still owns its process lifecycle. The
-  publisher's `publication-git-process.mjs` already owns both local Git calls
-  and bounded transport. Its installed closure follows
-  [ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md).
 
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
@@ -435,7 +307,7 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
 
 ### Remaining dashboard frontend renovation
 
-The former catch-all backlog entry is superseded by the eight stories below.
+The former catch-all backlog entry is superseded by the stories below.
 The split covers every legacy frontend case listed at `42a660a17` on
 21 November 2026. The normal command
 `caffeinate -s -i npm run --silent test:dashboard:frontend -- --list --reporter=line`
@@ -465,7 +337,8 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
 | 7 | [Get fast proof of live sessions and terminal work](#speed-dashboard-live-session-and-terminal-proof) | 77 | 31 |
-| 8 | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | 61 | 22 |
+| 8a | [Get fast proof of the dashboard frame, navigation and settings](#speed-dashboard-frame-and-navigation-proof) | ≈67 | 22 |
+| 8b | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | ≈11 | 3 |
 | | **Total** | **594** | **249** |
 
 The first two cover the evidence maintainers use to review a story's intent.
@@ -473,16 +346,19 @@ They reuse production owners already accepting typed evidence and exercise
 the highest-leverage distinction early: presentation can consume held
 evidence, while refresh and stale-answer protection must exercise the real
 reader. The next five each deliver faster proof for a complete workflow and
-can be used independently. The last includes the remaining frame and
-navigation integration, the harness audit, and complete frontend runner
-retirement, which accounts for its smaller case inventory. The effort
+can be used independently. Story 8a moves the remaining frame, navigation
+and settings cases. Story 8b audits the harness and retires the frontend
+runner. It starts once every other story has moved its legacy cases, which
+accounts for its small case inventory. Counts for 8a and 8b come from the
+legacy specs at `24ae92074` and include three Intent story-changes specs
+that no completed story moved. The effort
 hypotheses are large relative to the recent 23- and 29-case stories.
 Confidence is highest for owners that take typed props. Full-page history,
 live terminal behavior, and runner integration carry more uncertainty.
 Moving only the engine would leave whole-app setup and repetitive cases.
 Continuing one component at a time would extend the life of both runners.
 
-#### Acceptance shared by the eight stories
+#### Acceptance shared by the frontend stories
 
 - Use plain Vitest for all frontend unit checks. Use production logic for
   pure rules and the smallest production owner in headless Chromium for
@@ -541,24 +417,47 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#speed-dashboard-done-session-review-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/801-speed-dashboard-done-session-review-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"838f1324bf67081a56df9f72c4362088f34cc2f4a5f4f7991e129a9989128bae","plan":"38becf03ec9abb8f111442468fb76c8346a795bb871dca8389fffe5f50d02411"}}
 ```
 
-- **Outcome.** Developers get fast proof that a Done session appears for
-  the right project or story, opens the right review, and carries truthful
-  evidence and navigation through Review. Evaluate selected versus stale
-  results, published versus local evidence, and exact comparison and diff
-  provenance through the rendered owner.
-- **Boundary.** Own `sessions/recently-done*`, `sessions/follow-up-source-navigation*`,
-  `stories/recently-done*` and all remaining legacy `review/` cases.
-  These include Review actions, sidebar width and retained diff text,
-  grammar, retry and appearance interactions. Preserve production selection
-  and update ownership, existing mounted review proof, and the separately
-  queued renamed-path regression assertion.
-- **Effort and stopping point.** Large, medium confidence. Start from
-  `StoryReview`'s typed reading source and the existing page owners for
-  Done and Review. Distinct real publication, Git and install behavior
-  keeps its existing service or E2E owner.
+**Goal.** Dashboard developers get faster feedback that the Done session
+they find opens the right review and that its evidence stays attributable to
+the chosen project, story, session and comparison. Measure the complete
+selection at two workers, including preparation, against a comparable legacy
+baseline. Keep the distinct observations that make the proof credible.
+
+**Scope.** Migrate the remaining legacy `sessions/recently-done*`,
+`sessions/follow-up-source-navigation*`, `stories/recently-done*` and
+`review/` cases under the [shared acceptance](#acceptance-shared-by-the-frontend-stories).
+Use the production page for cross-view selection, read races and shared review
+state. Use the production Review and diff owners for comparison, notes, text
+recovery, grammar, appearance and layout. Keep exact requests, wording,
+focus, responsive behavior and negative observations where they distinguish
+a regression. Map retired assertions to their replacement or an existing
+equivalent. Carry the existing mounted checks through the focused verification.
+The sibling stories own live sessions, terminal internals and runner retirement.
+Real publication, Git and installation keep their service or E2E proof owners.
+The separate renamed-path grammar correction keeps its own acceptance example.
+
+**Key examples.**
+
+- A Done session linked to a story in another project is selected from Intent
+  or Development. The selected destination and visible reading place match
+  that choice. A later choice survives a delayed earlier association response.
+- A published follow-up arrives from another machine. It joins its originating
+  Done card when the association is established, while a competing association
+  remains unresolved until the reader chooses. Revealing an older source
+  preserves the current selection and any open Side panel.
+- A Done row and its card share one project's review state. Delayed or failed
+  evidence leaves the cue unknown. After a successful state change, a late
+  pre-save result cannot restore the old cue.
+- A finished session has multiple saved comparisons or runs. The reader
+  chooses an older one, refreshes or opens a changed file, and reads the
+  same comparison's name, endpoints and evidence. Empty and unavailable
+  answers remain distinguishable.
+- A comparison's diff is visible before its source text arrives. Retry or
+  arrival preserves the readable diff and uses the selected snapshot's grammar
+  and text. A file note records the exact comparison and paths it came from.
 
 <a id="speed-dashboard-live-session-and-terminal-proof"></a>
 
@@ -566,71 +465,218 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#speed-dashboard-live-session-and-terminal-proof
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/800-speed-dashboard-live-session-and-terminal-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6814271bd53e87f50b91d75ff14fd0819afb0af7d361b85b47a8dc23c5e41710","plan":"51158d94d52518089460d7cc627aaa899868870216d245bee5a647139adcb4c2"}}
 ```
 
-- **Outcome.** Developers get fast feedback on live session discovery,
-  actions and reporting, and terminal operation. Evaluate a held terminal
-  or session update while the reader interacts, including the right
-  selection, input, completion or recovery result.
-- **Boundary.** Own the remaining legacy `sessions/` specs outside Done
-  review, all `terminals/`, and Stories' `story-note-voice*`. Cover live
-  listings, card actions, Mark Done interactions, final reports, terminal
-  layout and input, touch selection, prompts and transcription recovery.
-  Retain native keyboard, touch, clipboard or terminal behavior at the
-  boundary where each is observable. Real processes and transports belong
-  in existing backend or E2E owners. Also own the mounted Sessions sidebar
-  open-list mount (`dashboard/frontend-tests/sessions/sessions-sidebar-open-mount.ts`),
-  which still renders `usePageSidePanel` and `SessionsSidebarOpenList`
-  itself: its cases render the production page frame through the required
-  page-reads entry instead.
-- **Effort and stopping point.** Large, medium confidence. A replacement
-  must observe the delivered input or update and any recovery it claims
-  before the legacy setup retires.
+**Goal.** Dashboard maintainers get faster feedback that live sessions
+appear with the right order, status and actions, that Mark Done, delete,
+unread-report and retirement flows stay truthful under held or refused
+answers, and that terminal layout, input, touch selection, prompts and
+dictation recover correctly when an update or capture is interrupted.
+
+**Scope.** Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)
+to the remaining legacy `sessions/` specs outside Done review, all
+`terminals/`, and Stories' `story-note-voice*` (31 sources, 77 cases at the
+campaign inventory): live open listings and compact entries, card and
+sidebar session actions, Mark Done and Delete record interactions, final
+and unread reports, workspace-retirement held reports, Cursor runner
+session reads, terminal keyboard and touch input, touch select and paste,
+prompts, voice capture, and transcription recovery. Remount the open
+Sessions sidebar family
+(`dashboard/frontend-tests/sessions/sessions-sidebar-open-mount.ts` and its
+consumers) through the production page frame and required page-reads entry
+instead of composing `SessionsSidebarOpenList` in the mount helper.
+Keep distinct host-status, attention-order, compact-disclosure and
+touch-report distinctions observable where the UI owns them. Retain
+journeys that need a real process, native host transport, clipboard or
+microphone provider at existing `e2e/sessions/`, `e2e/terminals/` and
+backend owners. [Done session review](#speed-dashboard-done-session-review-proof)
+owns `sessions/recently-done*`, `sessions/follow-up-source-navigation*`,
+`stories/recently-done*` and remaining legacy `review/`.
+[Composing and starting a launch](#speed-dashboard-launch-proof) owns
+pre-start launch dialogs. The final campaign story owns frontend runner
+retirement.
+
+A replacement must observe the delivered input or update and any recovery
+it claims before the legacy setup retires.
+
+**Key examples**
+
+- Open Sessions lists sessions that need the developer earliest-first, then
+  other open sessions newest-first, with host status, row age and state edge
+  accurate; a slow or retrying machine read keeps the listed sessions and a
+  hidden page stops waiting on its read.
+- Mark as done on a card or ended terminal that the boundary refuses keeps
+  the entry and says so; confirming Delete record… removes a State unknown
+  or Session unavailable entry everywhere and leaves Working or Needs input
+  without that offer; a late mark after another session replaced the panel
+  leaves the keyboard in the new terminal.
+- An unfinished retained report stays readable by touch with choices in
+  reach; changing selection cancels a held report so its text never appears
+  as the next session; an unread message marks read beside its own Mark as
+  done without scrolling either control away.
+- Phone Select pauses terminal text for copy and return while later output
+  waits; an ended terminal keeps the transcript with Open again feedback
+  and Paste names Open again without sending until Insert transcript;
+  unavailable prompt input refuses presets, names recovery and requires a
+  new choice; dictation overflow and abandoned transcription keep or drop
+  drafts without populating the next composer.
+- Taken-line story-note dictation waits for permission and transcription,
+  permits correction before save, and on setup, permission or Close or
+  Cancel recovery keeps typed text while a new composer receives no late
+  reply.
+
+<a id="speed-dashboard-frame-and-navigation-proof"></a>
+
+### Get fast proof of the dashboard frame, navigation and settings
+
+**Identity:** SEED-413#speed-dashboard-frame-and-navigation-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+```
+
+**Goal:** Developers get fast Vitest proof that the dashboard frame,
+project switching, recent stories, story references and settings behave
+correctly. This removes the last frontend legacy cases outside Done review,
+live sessions and the harness. The runner retirement then waits only on
+those stories.
+
+**Scope:**
+
+- Move the 22 legacy specs (about 67 cases) at `24ae92074` onto plain Vitest
+  under the [shared acceptance](#acceptance-shared-by-the-frontend-stories):
+  - `navigation/`: header, compact header and connection logo; project
+    selection and project keyboard navigation with its focus and
+    eligibility; recent stories; story reference navigation, identity and
+    recovery; story URL destination with its unavailable and repeat-cue
+    cases.
+  - `configuration/`: system appearance, system settings look and
+    navigation, and project hide selection.
+  - `stories/agent-roster-collection`.
+  - The three Intent story-changes specs that still mount the built app:
+    `intent-story-outside-proof`, `intent-story-outside-locations` and
+    `intent-story-changes-no-locations`.
+- Prove real deep links, reload and Back/Forward through a named E2E journey
+  only where a mounted owner cannot observe them. Reuse an existing journey
+  when it already proves the behavior.
+- Remove support that loses its last consumer here. The built-app runner
+  itself stays for stories 6, 7 and 8b.
+- Scope limit: the cases owned by
+  [Done review](#speed-dashboard-done-session-review-proof),
+  [live sessions](#speed-dashboard-live-session-and-terminal-proof) and
+  `test-harness/`.
+
+**Key examples:**
+
+- A story URL opened directly selects the project and opens the story. When
+  the story is unavailable, the page shows the unavailable result. The
+  mounted page frame proves both through its required page-reads entry.
+  Only a reload or Back/Forward check that needs a real page load goes to
+  E2E.
+- A keyboard shortcut moves through eligible projects and keeps focus. The
+  three legacy keyboard specs collapse into fewer cases when they share
+  setup and each failure still names its distinct rule.
+- Choosing System appearance in settings changes the dashboard look in the
+  same mounted frame. The legacy built-app spec retires once every assertion
+  it made has a new owner.
 
 <a id="retire-legacy-dashboard-frontend-runner"></a>
 
 ### Run the entire dashboard frontend unit suite on Vitest
 
 **Identity:** SEED-413#retire-legacy-dashboard-frontend-runner
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-413#retire-legacy-dashboard-frontend-runner","dependencies":[{"supplier":{"identity":"SEED-413#speed-dashboard-done-session-review-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a Done review spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s Done review boundary remains on trunk.","state":"waiting"},{"supplier":{"identity":"SEED-413#speed-dashboard-live-session-and-terminal-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a live session and terminal spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s live session and terminal boundary remains on trunk.","state":"waiting"},{"supplier":{"identity":"SEED-413#speed-dashboard-frame-and-navigation-proof","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof"},"implementation":"The supplier moves every legacy frontend case in its boundary onto Vitest and removes the support those cases alone used.","rationale":"The cutover deletes the legacy frontend runner, its built-app setup and its substitutes. While a frame, navigation and settings spec still runs on that runner, deleting it would drop that proof, and moving those cases is the supplier’s own scope.","condition":"No legacy frontend spec in the supplier’s frame, navigation and settings boundary remains on trunk.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/800-run-the-entire-dashboard-frontend-unit-suite-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"70ced1c4fd5f863a78561fdc7753002f72fd3a45fc8360d0ad1d93b113c6f725","plan":"db4d681532b2f73a01775427f30b9cbcb1e4d466bd487aac3c00e307ef743135"}}
 ```
 
-- **Outcome.** A maintainer can list, filter, run and review CI proof for
-  the complete dashboard frontend unit suite using Vitest. The final
-  checkout has no frontend unit path to `@playwright/test`, or frontend
-  legacy config, setup, output, fixture or built-app substitute infrastructure.
-- **Boundary.** Own the last frame/header, project switching, recent
-  stories and direct URL/reference navigation cases in `navigation/`
-  outside the earlier stories, all remaining legacy `configuration/`,
-  Stories' `agent-roster-collection`, and all `test-harness/` cases.
-  Prove real deep links, reload and Back/Forward through a named E2E journey
-  when required. Audit harness specs for genuine measurement, touch and
-  reachability assertions before retiring checks for deleted scaffolding.
-- **Cutover.** After the other seven migration outcomes, retire
-  `frontend.playwright.config.ts`, its registration and frontend-specific
-  Playwright selection and output branches, `frontendGlobalSetup.ts`,
-  `frontendApp.ts`, the comparison bundle/mount and `pageTest.ts` paths
-  with no surviving consumers,
-  `frontendServiceSubstitutes.ts`, `frontendSubstituteAnswers.ts` and
-  spent `frontend*Rule.ts`/route state. Trace their transitive imports,
+**Goal:** A maintainer can list, filter, run and review CI proof for the
+complete dashboard frontend unit suite using Vitest alone. The final
+checkout has no frontend unit path to `@playwright/test`. It also has no
+frontend legacy config, setup, output, fixture or built-app substitute
+infrastructure. The suite completes in about one minute at two workers,
+or the report states the remaining cost.
+
+**Scope:**
+
+- **Harness audit.** Audit the three `pageTest.ts` specs in `test-harness/`
+  (observation measurements, control reachability and touch reading). Keep
+  each genuine measurement, touch or reachability assertion on a Vitest
+  owner. Retire checks that only prove deleted scaffolding, and map each
+  one to its reason.
+- **Cutover.** Retire `frontend.playwright.config.ts`, its registration and
+  frontend-specific Playwright selection and output branches in the group
+  command and runner support. Retire `frontendGlobalSetup.ts`,
+  `frontendApp.ts`, `frontendAppServer.ts`, the comparison bundle and mount,
+  `pageTest.ts`, `frontendServiceSubstitutes.ts`,
+  `frontendSubstituteAnswers.ts` and the spent `frontend*` substitute,
+  rule and route-state modules. Trace their transitive imports,
   documentation, package commands, CI and generated-output settings.
-  Where E2E or backend owns a shared utility, preserve that use and remove
-  its frontend legacy path. Preserve the npm command, filter and list
-  behavior, worker admission and deadline, frontend shards, timings, CI
-  proof label and publication. Vitest's Chromium browser provider remains
-  the driver for mounted unit tests. Keep Playwright Test with E2E and
-  the separately scheduled backend migration.
-- **Proof and effort.** Large, lower confidence because it retires shared
-  entry points. Verify a complete two-worker run including preparation,
-  focused file/title and empty selections, the full roster partitioned
-  across both CI shards without omissions or duplicates, and timings and
-  CI proof consumption. Verify the absence of legacy frontend execution
-  and configuration through imports and runner selection, the continued
-  E2E/backend entry points, and the behavior and case-count ledger for all
-  eight stories. Every intermediate migration is usable on its own while
-  the legacy entry still has a consumer.
+  Backend specs that assert the frontend preparation, such as
+  `test-preparation-frontend` and `dashboard-artifact-demand`, change to
+  the preparation that remains.
+- **Preserved behavior.** Keep the npm command and its file, title, list
+  and empty selections; worker admission and deadline; frontend shards and
+  timings; and the CI proof label and its publication. Where E2E or
+  backend owns a shared utility, keep that use and remove only the
+  frontend legacy path. Vitest's Chromium browser provider remains the
+  driver for mounted unit tests. Playwright Test stays with E2E and the
+  separately scheduled backend migration.
+- **Scope limit.** Evaluation case overlays that run against a pinned
+  revision keep that revision's files.
+
+**Key examples:**
+
+- `npm run test:dashboard:frontend -- --list` lists every frontend case
+  under the Vitest projects only. A file filter, a title filter, and a
+  filter that matches nothing each behave as they did with two runners.
+- The CI `dashboard-frontend` shards together run the full roster with no
+  omission or duplicate. The published proof and the timings that the
+  shard split reads come from Vitest alone.
+- A search of the dashboard for frontend imports of `@playwright/test` and
+  for the retired modules finds nothing. The E2E and backend commands still
+  list and run their own cases.
+- A complete local two-worker run including preparation is measured
+  against the [campaign baseline](#frontend-campaign-baseline) of 7 min
+  15 s. The report gives the actual time and the slowest remaining cases.
+- The behavior and case-count ledger accounts for every story in the frontend
+  campaign.
+
+<a id="hold-adapter-proof-reasons-in-default-timeout"></a>
+
+### Prove each adapter proof reason below the E2E journey
+
+**Identity:** SEED-413#hold-adapter-proof-reasons-in-default-timeout
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/798-prove-adapter-proof-reasons-below-the-journey/PLAN.md"}
+```
+
+**Goal:** The adapter proof reasons journey gives the same verdict under the
+usual local load as in hosted CI. Each adapter proof reason keeps its exact
+line at the Dashboard proof-read boundary. The journey keeps one
+representative reason workflow in the Intent tab within the default timeout.
+
+**Scope:** Move the per-answer lines of the eight-round case in
+`e2e/intent/intent-ci-proof-adapter-reasons.spec.ts` into
+`Distribution/tests/support/dashboard-ci-adapter-proof.test.mjs`: exit
+nonzero, `schemaVersion` 3, another repository, attempt or revision, and a
+wrong envelope. Keep only the E2E rounds that need the real tab: one adapter
+reason with a neutral border, the oversized reason with the problem border,
+an unchanged verdict and attempt with no proof rows, and Check again reading
+discover and proof again. Update both file headers. The spec's other two
+cases and the reason wording stay unchanged.
+
+**Origin:** In SEED-423#install-without-the-custom-ci-adapter (plan 793,
+slice 4), at load average about 50, the eight-round case timed out twice
+(33.7 s and 39.7 s against 30 s) after every assertion passed. Its
+test-scoped Dashboard fixture used about 26 of the 30 seconds. It passed in
+11.2 s at load 25. Each reason line is a pure mapping from
+`dashboard/server/ciAdapterProof.ts` through `adapterUnavailableLine` in
+`dashboard/src/ciProofAbsenceWording.ts`, which the support test already
+proves for other reasons. Apply the
+[failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 
 <a id="frontend-renovation-evidence"></a>
 

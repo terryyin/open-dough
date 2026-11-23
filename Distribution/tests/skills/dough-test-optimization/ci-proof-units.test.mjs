@@ -2,8 +2,8 @@
 // converters say what a report establishes or its publisher declares, and
 // the collector keeps one location's test cases and test files apart, each
 // with its own outcomes, time and parts, never relabelling or adding them.
-// Declarations: ci-proof-unit-declarations.test.mjs; legacy results:
-// ci-proof-legacy-results.test.mjs; command line: ci-proof-units-cli.test.mjs.
+// Declarations: ci-proof-unit-declarations.test.mjs; command line:
+// ci-proof-units-cli.test.mjs.
 import assert from "node:assert/strict";
 import test from "node:test";
 import {

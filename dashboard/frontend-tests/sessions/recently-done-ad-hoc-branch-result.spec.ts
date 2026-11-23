@@ -46,10 +46,9 @@ test("Recently done opens the saved branch comparison and its changed file", asy
 
   await sidePanelPages(page).phase("open the saved branch", (pages) => {
     const review = pages.board.reviewDoneSession(title);
+    review.expectChangedFile("1 changed file", "Added draft.txt");
     pages.reviewToolbar.expectName("Branch at Done");
-    review
-      .expectChangedFile("1 changed file", "Added draft.txt")
-      .expectFileDiff("Added draft.txt", "draft text");
+    review.expectFileDiff("Added draft.txt", "draft text");
   });
 });
 

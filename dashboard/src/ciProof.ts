@@ -1,12 +1,10 @@
 // The CI proof of one CI attempt, as the local authenticated read boundary
 // answers it (`../server/intentCiProofRead.ts`): a GitHub Actions run
 // attempt's or a ciAdapter attempt's proof summary, in the collector's
-// current versioned summary schema
-// (`../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs`;
-// the boundary reads a version 1 summary's results as legacy evidence), or
+// version 2 summary schema
+// (`../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs`), or
 // the one reason no proof can be shown for that attempt. Each declared entry
-// keeps its results partitioned by unit (`./ciProofUnits.ts`): test cases,
-// test files, or legacy test results, never added together.
+// keeps test case and test file results separate.
 import { z } from "zod";
 
 // The GitHub Actions run a proof read is keyed by: the judged result's run id
@@ -111,18 +109,9 @@ const resultsSchema = z.object({
   unassigned: figuresSchema.optional(),
 });
 
-// The results of one unit: test cases, test files, or legacy results whose
-// publisher declared no unit, with the label that unit was spelled with
-// (`tests`, `checks`, or null when no part was present to say) as
-// provenance only.
-const evidenceSchema = z.discriminatedUnion("unit", [
-  resultsSchema.extend({ unit: z.literal("case") }),
-  resultsSchema.extend({ unit: z.literal("file") }),
-  resultsSchema.extend({
-    unit: z.literal("legacy"),
-    label: z.string().min(1).nullable(),
-  }),
-]);
+// Every proof unit is declared by the publisher.
+export const ciProofUnitSchema = z.enum(["case", "file"]);
+const evidenceSchema = resultsSchema.extend({ unit: ciProofUnitSchema });
 export type CiProofEvidence = z.infer<typeof evidenceSchema>;
 
 // One declared entry, an Intent location path, with its results in each unit

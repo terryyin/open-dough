@@ -117,8 +117,6 @@ invalid_source="${temporary_dir}/invalid source"
 unsafe_entry=dough-update/linked-guidance.md
 mkdir -p -- "${invalid_source}/Distribution/src/skills"
 cp -- "${source_dir}/install.sh" "${invalid_source}/install.sh"
-mkdir -p -- "${invalid_source}/src"
-cp -R -- "${source_dir}/src/install" "${invalid_source}/src/"
 cp -- "${source_dir}/VERSION" "${invalid_source}/VERSION"
 cp -- "${source_dir}/CHANGELOG.md" "${invalid_source}/CHANGELOG.md"
 cp -R -- "${source_dir}/Distribution/src/install" "${invalid_source}/Distribution/src/install"

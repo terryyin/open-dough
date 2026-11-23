@@ -7,7 +7,6 @@
 // across several rows or units, such as the tree's one control per scope,
 // are `./ciScopeComparisonAgreedCues.ts`'s.
 
-import { comparableUnits } from "./ciProofUnits.ts";
 import {
   countHasGaps,
   type ScopeEndpointCount,
@@ -109,7 +108,7 @@ export function countCueOf(
   if (before.kind !== "measured" || after.kind !== "measured") {
     return { kind: "none", reason: "no comparable count" };
   }
-  if (!comparableUnits(before.unit, after.unit)) {
+  if (before.unit !== after.unit) {
     return { kind: "none", reason: unitsNotComparable };
   }
   const delta = after.total - before.total;
@@ -140,7 +139,7 @@ export function durationCueOf(
   if (before.kind !== "measured" || after.kind !== "measured") {
     return { kind: "none", reason: "no comparable duration" };
   }
-  if (!comparableUnits(before.unit, after.unit)) {
+  if (before.unit !== after.unit) {
     return { kind: "none", reason: unitsNotComparable };
   }
   return measuredDurationCueOf(before.ms, after.ms);

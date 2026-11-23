@@ -37,16 +37,6 @@ export class CiProofEntryBuilder {
   }
 
   /**
-   * Its one unit's results are legacy ones, their unit spelled LABEL, such
-   * as Playwright `tests` or shell `checks`.
-   * @param {string | null} label
-   */
-  countingIn(label) {
-    this.#single.legacy(label);
-    return this;
-  }
-
-  /**
    * Its one unit's first present part's summed test execution time.
    * @param {number} durationMs
    */

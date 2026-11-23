@@ -3,9 +3,8 @@
 // (`../../Distribution/src/skills/dough-test-optimization/scripts/ci-proof-read.mjs`):
 // the run's `ci-proof-summary-attempt-<n>` artifact, listed by that name,
 // downloaded as its zip and its one `ci-proof-summary.json` extracted, then
-// validated with the collector's own contract, read in its current version
-// (a version 1 summary's results as legacy evidence) and used only when it
-// names the asked repository, run, attempt and revision (ADR 0008: missing,
+// checked for version 2 and declared units by the shared validator. The proof
+// must name the asked repository, run, attempt and revision (ADR 0008: missing,
 // outdated or conflicting evidence is never a result). Every request goes
 // through the CI evidence requests (`ci-github-actions.mjs`). This module
 // says why a read shows no summary. A summary is immutable per run attempt,
@@ -43,11 +42,6 @@ const unavailable = (
   ...(detail === undefined ? {} : { detail }),
 });
 
-// What a developer can do when the local GitHub request owner passes an
-// archive on as text: it ends once nothing on this machine uses it.
-export const olderRequestOwnerDetail =
-  "This machine's local GitHub request owner was started by an earlier Open Dough and passes the summary on as text. Restart the Open Dough dashboards and CI observers on this machine; the next read starts a current one";
-
 // The unreadable answers of this process's reads that GitHub left
 // unanswered, as each was answered.
 const unanswered = new WeakSet<CiProof>();
@@ -77,17 +71,8 @@ export function unreadableBy(error: unknown): CiProof {
         `GitHub directed a wait of ${String(error.waitSeconds)} s before the next request`,
       ),
     );
-  if (error instanceof GitHubAcquisitionFailed) {
-    const { failure } = error as { readonly failure?: { kind?: unknown } };
-    return unansweredAs(
-      unavailable(
-        "unreadable",
-        failure?.kind === "archive-as-text"
-          ? olderRequestOwnerDetail
-          : error.message,
-      ),
-    );
-  }
+  if (error instanceof GitHubAcquisitionFailed)
+    return unansweredAs(unavailable("unreadable", error.message));
   throw error;
 }
 

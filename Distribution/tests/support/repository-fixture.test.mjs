@@ -27,10 +27,22 @@ test("the default repository has one main commit with an empty backlog the CLI r
     (await git(origin, "rev-list", "--count", "main")).stdout.trim(),
     "1",
   );
-  const { stdout } = await exec(process.execPath, [cli, "adopt", "--all"], {
+  assert.doesNotMatch(
+    (await git(origin, "show", "main:.planning/PRODUCT-BACKLOG.md")).stdout,
+    /^- /m,
+  );
+  const { stdout } = await exec(process.execPath, [cli, "identity-evidence"], {
     cwd: integration,
   });
-  assert.match(stdout, /All 0 active entries already record their identity/);
+  const backlog = JSON.parse(stdout).sources.find(
+    ({ source }) => source === "backlog",
+  );
+  assert.deepEqual(backlog, {
+    source: "backlog",
+    path: "PRODUCT-BACKLOG.md",
+    read: true,
+    highest: null,
+  });
 });
 
 test("a workspace suffix is committed on its branch beside an origin that holds only the trunk", async (t) => {

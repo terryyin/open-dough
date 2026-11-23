@@ -61,11 +61,12 @@ EOF
   tag_commits="${filtered}${version} ${sha}"$'\n'
 }
 
-resolve_url() {
+# Resolve the highest numeric tag and the highest version strictly below it.
+resolve_release_window() {
   local url=$1
   local listing
   local sha version
-  local best='' best_sha=''
+  local best='' best_sha='' previous=''
   local relation
   local line
 
@@ -89,8 +90,16 @@ EOF
     fi
     relation=$(compare_versions "${best}" "${version}")
     if [[ "${relation}" == older ]]; then
+      previous="${best}"
       best="${version}"
       best_sha="${sha}"
+    elif [[ "${relation}" == newer ]]; then
+      if [[ -z "${previous}" ]]; then
+        previous="${version}"
+      else
+        relation=$(compare_versions "${previous}" "${version}")
+        [[ "${relation}" != older ]] || previous="${version}"
+      fi
     fi
   done << EOF
 ${tag_commits}
@@ -100,7 +109,13 @@ EOF
     echo "No numeric release tags in ${url}" >&2
     return 1
   fi
-  printf 'v%s\t%s\t%s\n' "${best}" "${best_sha}" "${best}"
+  printf 'v%s\t%s\t%s\t%s\n' "${best}" "${best_sha}" "${best}" "${previous}"
+}
+
+resolve_url() {
+  local resolved
+  resolved=$(resolve_release_window "$1") || return 1
+  printf '%s\n' "${resolved%$'\t'*}"
 }
 
 # Require checkout VERSION and changelog to match the resolved tag.
@@ -181,7 +196,7 @@ fetch_release() {
   local dest=$2
   local resolved
 
-  resolved=$(resolve_url "${url}") || return 1
+  resolved=$(resolve_release_window "${url}") || return 1
   fetch_resolved_release "${url}" "${dest}" "${resolved}"
 }
 
@@ -201,7 +216,7 @@ require_pinned_checkout() {
   local url=$2
   local resolved tag commit head
 
-  resolved=$(resolve_url "${url}") || return 1
+  resolved=$(resolve_release_window "${url}") || return 1
   IFS=$'\t' read -r tag commit _ << EOF
 ${resolved}
 EOF

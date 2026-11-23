@@ -2,6 +2,30 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_optimize-done-capture-family-cases.json",
+      "identity": "SEED-413#optimize-done-capture-family-cases",
+      "completedAt": "2026-11-23T15:18:34.286Z",
+      "blob": "3b7c479a1a2cdec549b5e9246d68e2d6711aefdf"
+    },
+    {
+      "fileName": "SEED-423_require-declared-units-in-ci-proof.json",
+      "identity": "SEED-423#require-declared-units-in-ci-proof",
+      "completedAt": "2026-11-23T15:18:25.984Z",
+      "blob": "c8e47c75644d5c69180fa05f7260306c86a97b32"
+    },
+    {
+      "fileName": "SEED-423_install-without-the-custom-ci-adapter.json",
+      "identity": "SEED-423#install-without-the-custom-ci-adapter",
+      "completedAt": "2026-11-23T13:57:41.176Z",
+      "blob": "22ff24b4b147a167b52c934536f646cb969b887b"
+    },
+    {
+      "fileName": "SEED-423_retire-finished-migrations-and-legacy-formats.json",
+      "identity": "SEED-423#retire-finished-migrations-and-legacy-formats",
+      "completedAt": "2026-11-23T13:26:06.265Z",
+      "blob": "edfc6cd338f8d7a0b070c857de54015d3e2490cc"
+    },
+    {
       "fileName": "SEED-413_remove-observation-proof-overlap.json",
       "identity": "SEED-413#remove-observation-proof-overlap",
       "completedAt": "2026-11-23T12:23:07.284Z",

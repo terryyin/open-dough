@@ -1,30 +1,46 @@
-// Starting precondition for the reference-refresh tests: a backlog whose four
-// entries carry their identities, and actual canonical homes that record the
-// same identities, as they stand once adoption has run. Each test then acts on
-// a rename or move that has already been made to those documents.
+// A backlog and its canonical homes share the same recorded identities.
+// The reference-refresh tests arrange the document changes before calling the CLI.
 
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
-import { identityLine } from "../../src/skills/dough-product-backlog/scripts/product-backlog-identity.mjs";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { makeMe } from "./makeMe.mjs";
 import {
-  adoptedBacklog,
-  correctionLink,
+  backlogOf,
   direction,
-  headings,
-  homes,
-  identities,
-  legacyProject,
-  seedEight,
-  seedOne,
-  takenLink,
-} from "./product-backlog-adoption-fixture.mjs";
-import {
   occurrences,
+  projectFile,
+  queued,
   queuedBacklogEntries,
+  scratchProject,
   takenBacklogEntry,
+  takenEntry,
 } from "./product-backlog-fixture.mjs";
 import { renderPublishedBacklog } from "./published-backlog.mjs";
+import { renderStorySection, renderStorySeed } from "./published-seed.mjs";
+
+export const takenLink = takenBacklogEntry.plan.target;
+export const correctionLink =
+  "slice-plans/032-refuse-managed-hook-command-variants/PLAN.md";
+export const seedEight = "seeds/SEED-008-worktree-branch-trunk-sync.md";
+export const seedOne = "seeds/SEED-001-install-and-update-open-dough.md";
+
+const [trunkQueue, retrospective] = queuedBacklogEntries;
+const correction = makeMe.aBacklogEntry
+  .with({
+    identity: correctionLink,
+    title:
+      "Complete hook-registration corrections and deferred Claude Code acceptance",
+    href: correctionLink,
+  })
+  .please();
+
+export const identities = {
+  taken: takenBacklogEntry.identity,
+  queue: trunkQueue.identity,
+  correction: correction.identity,
+  retrospective: retrospective.identity,
+};
 
 // Where each document has already been renamed or moved to, before any run.
 // Nothing here moves a file: the command records a move a human has made.
@@ -38,81 +54,97 @@ export const renamedSeedEight = "seeds/SEED-008-trunk-sync.md";
 export const unspelledSeed = "seeds/install-open-dough.md";
 export const unspelledStory = `${unspelledSeed}#skip-process-retrospectives`;
 
-// The entry lines in the independent adopted backlog expectation.
 export const lines = {
-  taken:
-    "- [Update the product backlog without hand-editing the shared list](seeds/SEED-008-worktree-branch-trunk-sync.md#script-product-backlog-list-updates) — SEED-008#script-product-backlog-list-updates ([plan](slice-plans/057-script-product-backlog/PLAN.md))",
-  trunk:
-    "- [Queue trunk integration for agents on the same machine](seeds/SEED-008-worktree-branch-trunk-sync.md#same-machine-merge-queue) — SEED-008#same-machine-merge-queue",
-  retrospective:
-    "- [Skip process retrospectives by default for new installations](seeds/SEED-001-install-and-update-open-dough.md#default-skip-process-retrospective) — SEED-001#default-skip-process-retrospective",
+  taken: takenEntry,
+  trunk: queued[0],
+  retrospective: queued[1],
   correction:
     "- [Complete hook-registration corrections and deferred Claude Code acceptance](slice-plans/032-refuse-managed-hook-command-variants/PLAN.md)",
 };
 
-const correction = makeMe.aBacklogEntry
-  .with({
-    identity: identities.correction,
-    title:
-      "Complete hook-registration corrections and deferred Claude Code acceptance",
-    href: correctionLink,
-  })
-  .please();
+export const expectedBacklog = backlogOf(
+  [lines.taken],
+  [lines.trunk, lines.correction, lines.retrospective],
+);
 
-export const arrangedAdoptedBacklog = renderPublishedBacklog({
+export const arrangedBacklog = renderPublishedBacklog({
   taken: [takenBacklogEntry],
-  queued: [queuedBacklogEntries[0], correction, queuedBacklogEntries[1]],
+  queued: [trunkQueue, correction, retrospective],
   direction,
 });
 
-// The whole backlog with exactly one entry line rewritten in place. Every
-// other line, the order of both lists, and the direction come across
-// untouched, and the one-occurrence check keeps an expectation from silently
-// agreeing with a backlog that never changed.
+// Builds an independent byte expectation with exactly one entry line changed.
 export function backlogWith(before, after) {
-  assert.equal(occurrences(adoptedBacklog, before), 1, before);
-  return adoptedBacklog.replace(before, after);
+  assert.equal(occurrences(expectedBacklog, before), 1, before);
+  return expectedBacklog.replace(before, after);
 }
 
-// A canonical home as it stands after its identity was adopted: the recorded
-// line under the heading the work item lives beneath.
-export function recording(relative, records) {
-  let source = homes[relative];
-  for (const [heading, identity] of records) {
-    source = source.replace(
-      `${heading}\n`,
-      `${heading}\n\n${identityLine(identity)}\n`,
-    );
-  }
-  return source;
-}
+export const homes = {
+  [seedEight]: `${renderStorySeed(
+    trunkQueue,
+    "Integrate verified work without discarding changes.",
+  )}\n${renderStorySection(takenBacklogEntry, {
+    body: "Apply an explicit backlog change.",
+  })}`,
+  [seedOne]: renderStorySeed(
+    retrospective,
+    "Run process retrospectives when requested.",
+  ),
+  [takenLink]: `# Safely edit and reconcile the product backlog through scripts
 
-export const adoptedHomes = {
-  [seedEight]: recording(seedEight, [
-    [headings.queue, identities.queue],
-    [headings.taken, identities.taken],
-  ]),
-  [seedOne]: recording(seedOne, [
-    [headings.retrospective, identities.retrospective],
-  ]),
-  [takenLink]: recording(takenLink, [[headings.plan, identities.taken]]),
-  [correctionLink]: recording(correctionLink, [
-    [headings.correction, identities.correction],
-  ]),
+**Identity:** ${identities.taken}
+
+## Slices
+
+### 1. Add an identified item without losing existing work
+Type: Behavior
+Status: done
+`,
+  [correctionLink]: `# ${correction.title}
+
+**Identity:** ${identities.correction}
+
+## Slices
+
+### 1. Refuse a conflicting managed hook command variant
+Type: Behavior
+Status: done
+`,
 };
 
-export function adoptedProject(
+export function refreshProject(
   t,
-  { extra = {}, backlog = arrangedAdoptedBacklog } = {},
+  { extra = {}, backlog = arrangedBacklog } = {},
 ) {
-  return legacyProject(t, { backlog, extra: { ...adoptedHomes, ...extra } });
+  const project = scratchProject(t, backlog);
+  const documents = { ...homes, ...extra };
+  for (const [relative, body] of Object.entries(documents)) {
+    projectFile(project, relative, body);
+  }
+  const path = (relative) => join(dirname(project.file), relative);
+  const readHome = (relative) => readFileSync(path(relative), "utf8");
+
+  return {
+    ...project,
+    path,
+    write: (relative, contents) =>
+      writeFileSync(path(relative), contents, "utf8"),
+    readHome,
+    snapshot: () => ({
+      backlog: project.read(),
+      ...Object.fromEntries(
+        Object.keys(documents).map((relative) => [
+          relative,
+          readHome(relative),
+        ]),
+      ),
+    }),
+  };
 }
 
-// The state a run finds after a move a human has already made: the canonical
-// home now lives at `to`, holding whatever it records there, and the path it
-// left is gone. Nothing here moves a file; the move is the precondition.
-export function afterMove(t, from, to, home) {
-  const project = adoptedProject(t, { extra: { [to]: home } });
+// Models a document that already lives at its new path before refresh runs.
+export function afterMove(t, from, to, home = homes[from]) {
+  const project = refreshProject(t, { extra: { [to]: home } });
   rmSync(project.path(from));
   return project;
 }

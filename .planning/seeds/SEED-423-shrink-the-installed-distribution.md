@@ -37,252 +37,6 @@ Dashboard and installed scripts share.
 
 ## Story decomposition
 
-<a id="install-without-the-custom-ci-adapter"></a>
-
-### Call custom CI through a minimal adapter interface
-
-**Identity:** SEED-423#install-without-the-custom-ci-adapter
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/793-call-custom-ci-through-a-minimal-adapter-interface/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9d97bb01f509e921e9f7c7f12fd0327b452c2bd64e287559736b86a12d70d9a3","plan":"90a9e881d9975830e5ee61cd33c7fb1971d368d8b7bce459d069258549538880"}}
-```
-
-**Goal.** A Pygardon developer can follow CI in the Open Dough execution
-watcher and Dashboard using a smaller shared adapter interface. Pygardon owns
-changes to its CI provider, and Open Dough carries less code and guidance for
-turning adapter replies into the same outcomes it shows for GitHub Actions.
-
-**Scope.**
-
-- Use one documented command contract and shared invocation and response
-  boundary for `discover`, `diagnose`, `proof`, `jobs`, and the separately
-  enabled `rebuild`. Pygardon owns service access, provider interpretation,
-  diagnostic selection, and admission. Open Dough owns the meaning of CI
-  evidence, its revision and attempt matching, and workflow decisions based
-  on that evidence.
-- Preserve exact verdicts, bounded failure evidence, queue and integrated-state
-  semantics, attempt proof and job timing, and the Dashboard's existing
-  one-request rebuild behavior. Preserve the default GitHub Actions path and
-  the distinction between missing evidence and an observed verdict.
-- Keep Pygardon's current command and project settings usable through the
-  first release that carries the simplified contract. Ship the contract and
-  adoption instructions with that release. The Pygardon adoption story owns
-  its deployment and any downstream changes. The CI reuse recipes and
-  changes to GitHub Actions behavior are outside this story.
-- Follow [ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md).
-  The commands and their credentials stay under project ownership, and
-  ordinary Open Dough use reads the installed contract and code locally.
-
-**Key examples.**
-
-- With Pygardon's adapter configured, a pending attempt becomes passing or
-  failing for the observed revision. A failure delivers the selected excerpt
-  or the reason it is unavailable. A different revision's green result and
-  queue evidence alone cannot certify the observed revision.
-- A completed attempt selected in Dashboard Intent supplies its own proof
-  and job timings through the same adapter boundary. Ambiguous identity or
-  missing evidence leaves the build visible with the reason for the gap.
-- A qualifying landed attempt with `ciRebuild` enabled requests one new
-  check of its original revision. The Dashboard follows the new exact
-  attempt if admitted and reports refusal or uncertain admission without
-  another request. The execution watcher remains read-only.
-- GitHub Actions projects still observe their configured checks, diagnose
-  failures, and read attempt evidence through their existing default path.
-  A client update can install the simplified contract and retain Pygardon's
-  existing settings and command while adoption is pending.
-
-- **Effort hypothesis.** M, medium confidence. Start from the roughly 1,700
-  lines identified across the Distribution and Dashboard and measure how much
-  adapter-specific code and guidance the simpler boundary removes. The audit
-  estimate describes the area to inspect and sets no reduction quota.
-- **Depends on.** None. The
-  [Pygardon adoption story](https://github.com/terryyin/pygardon/blob/main/.planning/seeds/SEED-20261119-adopt-the-simplified-open-dough-ci-adapter.md#adopt-the-simplified-open-dough-ci-adapter)
-  follows delivery of this contract.
-- **Safe stopping point.** Share one invocation boundary while preserving
-  Pygardon's current command contract.
-
-<a id="retire-finished-migrations-and-legacy-formats"></a>
-
-### Update from the previous release without legacy readers
-
-**Identity:** SEED-423#retire-finished-migrations-and-legacy-formats
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/794-update-from-the-previous-release-without-legacy/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ccf1335d73b580d2a9e23124d9a1a319978b83726c32882ead006bf5c93ac7cd","plan":"a0988e77d9f80874a02e309794f41ba71555be399e3c139f941e83bc6e93c1a5"}}
-```
-
-**Resplit before readiness** on 2026-11-23 when the combined installer,
-backlog, execution/publication, and CI-proof/Dashboard legacy-format scope
-required ten slices at 15 active minutes per slice, exceeding the eight-slice
-plan limit. Unit-less CI proof entries and summary schema 1 moved to
-[Read and collect CI proof only in declared units](#require-declared-units-in-ci-proof)
-([plan 795](../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md)).
-Plan:
-[plan 794](../slice-plans/794-update-from-the-previous-release-without-legacy/PLAN.md).
-
-**Goal.** A developer who keeps Open Dough current updates directly from the
-immediately previous numeric release while `latest` stays a zero-write no-op
-and older installations stop cleanly before any file changes, and the
-installer, product backlog, execution runtime, GitHub request owner, and
-Dashboard reporting drop finished migrations and legacy readers that no
-maintained installation or persisted project record uses.
-
-**Scope.**
-
-- Enforce the moving previous-release ordinary update policy across
-  `open-dough-release-*.sh` and `dough-update/SKILL.md` under
-  [ADR 0003, Release lifecycle and versioning](../../docs/adrs/0003-tagged-release-versioning-accepted.md)
-  and [ADR 0004, Client installation and update](../../docs/adrs/0004-client-installation-and-update-accepted.md):
-  an unchanged installation at `latest` stays a no-op (still repairing missing
-  host hooks without payload writes), an unchanged installation at the
-  immediately previous numeric release tag updates directly to `latest` after
-  tagged baseline verification, and an installation at an older release tag
-  stops before any managed-file write with explicit `--force` recovery
-  guidance. Preserve `--force` reinstall recovery, newer-version refusal
-  without downgrade, and project-owned `.planning/open-dough.json`.
-- Retire the pre-`0.3.99` root `src/` forwarders and checkout fallback: move
-  `src/install/open-dough-execution-payload.sh` to
-  `Distribution/src/install/open-dough-execution-payload.sh`, remove
-  `src/install/open-dough-release.sh`,
-  `src/install/open-dough-register-hooks.mjs`, the `src/skills` symlink,
-  `Distribution/tests/installation/update-from-pre-distribution.sh`, and
-  `release_source_dir`'s `${checkout}/src` fallback, while keeping
-  `(Distribution\/)?src/install/` in `open-dough-payload-declaration.sh` and
-  `open-dough-release-leftovers.sh` so the `0.3.112` tagged baseline and
-  release history verify cleanly across the transition release.
-- Retire finished product-backlog migrations and legacy readers:
-  `product-backlog.mjs adopt --all`, `product-backlog-adopt.mjs` (and its
-  `install.sh` payload entry), `recordIdentity` in `product-backlog-home.mjs`,
-  legacy story-state basis digests (`legacyBasesFor`, `waitingBody`,
-  `dependencyFences`, `earlierBases`) in `product-backlog-story-state*.mjs`,
-  and unnumbered historical seed scanning (`legacyDocumentHistory`) in
-  `product-backlog-identity-history.mjs`.
-- Retire finished execution, request-owner, landing-reporting,
-  publication-resume, and slice-clock shims: `supportsWorkflowRerun` and
-  `workflowRerunSockets` in `github-request-owner-endpoint-connection.mjs` and
-  `github-request-owner-link.mjs`, `"archive-as-text"` in
-  `ci-github-actions.mjs` and `olderRequestOwnerDetail` in
-  `dashboard/server/ciProofArtifact.ts`, `acceptsLandingWithoutIdentity` and
-  `acceptsStoryless` in `dashboard-landing.mjs` and
-  `dashboard/server/{launchReportingFiles,completionReporting,branchLandingContext}.ts`,
-  optional `suffixBase` across `publication-comparison.mjs`,
-  `publication-resume.mjs`, and `execution-increment-resume.mjs` (passing
-  `suffixBase` from `trunk-closure-settlement.mjs`), and the period/command
-  timestamp fallback scan in `slice-clock-slices.mjs`.
-- Scope limits: unit-less CI proof entries (`LEGACY_UNIT` / `unit: "legacy"`)
-  and summary `schemaVersion: 1` across `ci-proof-*` and the Dashboard belong
-  to
-  [Read and collect CI proof only in declared units](#require-declared-units-in-ci-proof).
-  Installed copies under `.agents/skills/` and `.claude/skills/` in maintained
-  repositories update on the next release rollout.
-
-**Key examples.**
-
-- Against a release source with `0.1.1`, `0.1.2`, and `0.1.10`, an unchanged
-  `0.1.2` installation updates directly to `0.1.10`, an unchanged `0.1.10`
-  installation is a zero-write no-op, an installation at `0.1.1` refuses
-  before any file or mtime changes while naming the previous release `0.1.2`
-  and `--force`, and explicit `--force` replaces `0.1.1` with `0.1.10` while
-  leaving `.planning/open-dough.json` untouched.
-- An installation recorded at a `0.3.112`-shaped previous release (whose
-  tagged `install.sh` sources `src/install/open-dough-execution-payload.sh`)
-  updates cleanly to the new release whose repository has no root `src/` tree
-  and declares its execution payload under `Distribution/src/install/`.
-- `product-backlog.mjs adopt --all` fails as an unknown operation,
-  `product-backlog-adopt.mjs` is absent from fresh and updated installations,
-  `read-state` evaluates `changedSinceReview` solely against the current
-  story-scoped basis, and `identity-evidence` reads numbered seed history
-  without scanning unnumbered paths.
-- GitHub request-owner links require workflow-rerun support and base64 archive
-  replies without text-archive fallbacks, Dashboard launches write
-  `landing-context.json` directly for both story and storyless sessions
-  without probing `acceptsLandingWithoutIdentity`, publication resume and
-  `trunk-closure.mjs finish` require `suffixBase`, and `--after-ended-session`
-  settles running periods directly at `lastClockCommandAt`.
-
-**Evidence.** Checked on 2026-11-23 across all six maintained repositories
-(Open Dough, Doughnut, Pygardon, Terry Talks, Lizard, and Clipboard): all
-twelve physical skill roots record `0.3.112`; active backlogs hold 0 shorthand
-entries and 0 unrecorded canonical homes; `.planning/**/*.md` holds 0 legacy
-story-state basis matches; Pygardon's two historical unnumbered seeds sit
-below `SEED-20261119` (`next: SEED-20261120`); running request-owner processes
-are `0.3.112` (`protocol = 2`); and every `.git/.../open-dough/slice-clock`
-file carries `lastClockCommandAt`.
-
-- **Effort hypothesis.** M, high confidence (6 slices).
-- **Depends on.** None.
-- **Safe stopping point.** Any completed slice.
-
-<a id="require-declared-units-in-ci-proof"></a>
-
-### Read and collect CI proof only in declared units
-
-**Identity:** SEED-423#require-declared-units-in-ci-proof
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"dba30be7228492bb6b357ef3ecd690d149a0c7111418c9bad49ff434541ece98","plan":"1283275234432fdc94ea916201ce494e385d1698893365dc7a9ec7fdf82ab17a"}}
-```
-
-**Split from** SEED-423#retire-finished-migrations-and-legacy-formats before
-readiness on 2026-11-23. The shared legacy-retirement plan exceeded the
-eight-slice limit. See [plan 795](../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md).
-
-**Goal.** Developers and agents who read CI proof in the CLI or Dashboard can
-interpret every count and test-execution time in a declared unit. Maintainers
-can retire the old proof formats while developers keep the build timing and
-provenance already recorded for earlier landings.
-
-**Scope.**
-
-- Collect version 2 summaries from fragments counted as `case` or `file`.
-  Outcomes reports require `--unit case|file`, and summary expectations
-  require a unit for each entry and part count. A Playwright record already
-  defines its observations as test cases. Preserve attempt and revision
-  checks, missing and ambiguous parts, and separate evidence by unit.
-- Read version 2 summaries whose evidence uses declared units throughout.
-  Refuse unsupported proof through the existing invalid-proof paths. A count
-  with an unknown unit cannot be attributed safely, and skipping one unit or
-  entry within an invalid summary would present partial proof as complete.
-- In retained builds, record the invalid proof as an unavailable result
-  while preserving the build, measured revision, wall time, and neighbouring
-  records. Keep scoped test-execution history explicit about the invalid
-  proof. Apply the same rule to a retained build used by the CI follow-up
-  ledger so the ledger can still account for its recorded requests.
-- Historical conversion, archive backfill, changes to the comparison
-  selection or history window, and rollout of the next release to client
-  repositories are outside this story.
-
-**Key examples.**
-
-- A job has case and file outcomes for one location. With declarations for
-  both, collection writes separate evidence and uses the declared unit even
-  for a part whose fragment never arrived. The CLI ranks timing within its unit,
-  and the Dashboard compares counts and timing within their units. An omitted unit on an outcomes
-  report or expectation fails before output is written. An old fragment
-  supplied alongside valid ones is diagnosed and cannot fill a declared part.
-- A GitHub artifact or custom adapter reports version 1, or version 2 whose
-  evidence omits the unit or includes a retired unit alongside a declared
-  unit. Reading this attempt returns invalid proof with a reason and supplies
-  no counts or test-execution times from that summary.
-- An older retained build with otherwise usable timing holds retired proof,
-  and the same store has a newer build with declared proof. Reading the
-  history and then writing an ordinary update preserves the build points,
-  their wall time, and the newer build's scoped timing. The older build's
-  scoped timing is an invalid-proof gap, and the retention reader makes no
-  replacement CI request. An old proof in a recorded follow-up likewise
-  leaves the request and its allowance accounted for.
-
-**Architecture.** Use the existing summary validator for the proof contract.
-  Classify invalid proof at each input boundary before projecting it. The
-  retained build decoder serves both machine stores, so a proof failure stays
-  within the build's proof field. Revision identity and comparable evidence
-  follow [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
-
-- **Effort hypothesis.** L, medium confidence. See the bounded slices in plan 795.
-- **Depends on.** None.
-- **Safe stopping point.** Any proved slice. Settle retained-store isolation
-  before the reader rejects retired summaries.
-
 <a id="derive-the-install-payload-from-the-shipped-directory"></a>
 
 ### Derive the install payload from the shipped directory
@@ -498,6 +252,36 @@ shipped directory.
   path policy.
 - **Depends on.** None.
 - **Safe stopping point.** Keeping only the integrated-state rule.
+
+<a id="observe-the-cancelled-listing-discover"></a>
+
+### Observe that a failed listing discover cancels the other branch
+
+**Identity:** SEED-423#observe-the-cancelled-listing-discover
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/799-observe-the-cancelled-listing-discover/PLAN.md"}
+```
+
+**Goal:** The Dashboard CI status test shows that when one branch's custom CI
+discover fails, the other branch's adapter request is stopped, not merely
+abandoned while it keeps running.
+
+**Scope:** Strengthen the observing assertion of "a ciAdapter story branch
+whose main discover fails is unread with its reason, never passed, without
+waiting for its own" in
+`Distribution/tests/support/dashboard-story-branch-ci-adapter.test.mjs` so it
+observes the other branch's adapter process after the rejection: wait past
+that adapter's delay, with its log kept outside the removed root, and assert
+the process never finished. Product behavior in
+`dashboard/server/baseCiAdapterAttempts.ts` is unchanged.
+
+**Origin:** Dough Intent Coverage at `c8c3aa62a` for
+SEED-423#install-without-the-custom-ci-adapter. With `ended.abort()` removed
+from `discoverAdapterAttempts`, the focused suite still passed 121 of 121,
+because the case reads its log immediately after rejection and then deletes
+the root the orphaned adapter writes to. A scratch witness showed the
+restored code killing the story-branch discover and the faulted code letting
+it finish.
 
 ## Ordering and scope reduction
 

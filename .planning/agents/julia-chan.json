@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Julia-chan",
-  "email": "julia-chan@example.org",
-  "identity": "SEED-413#optimize-done-capture-family-cases",
-  "mode": "story-branch",
-  "branch": "claude/bring-the-done-capture-family-s-cases-to-100-200",
-  "host": "claude"
-}

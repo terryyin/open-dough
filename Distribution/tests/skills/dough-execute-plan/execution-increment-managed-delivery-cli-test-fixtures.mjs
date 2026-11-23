@@ -65,7 +65,7 @@ export async function deliverThroughCli(
 // command printed none.
 export async function resumeThroughCli(
   fixture,
-  { candidate, host = "claude", extra = [], env = fixture.env },
+  { candidate, suffixBase, host = "claude", extra = [], env = fixture.env },
 ) {
   const { stdout, stderr, code } = await promisify(execFile)(
     process.execPath,
@@ -73,6 +73,7 @@ export async function resumeThroughCli(
       join(fixture.skill, "scripts/execution-increment-resume.mjs"),
       "resume",
       ...["--workspace", fixture.execution, "--candidate-sha", candidate],
+      ...(suffixBase === undefined ? [] : ["--suffix-base", suffixBase]),
       ...["--target-ref", "refs/heads/main", "--repo", "owner/project"],
       ...["--host", host, ...extra],
     ],

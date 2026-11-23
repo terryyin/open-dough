@@ -1,7 +1,7 @@
 // The part of a CI proof summary a lead reading's scope holds
 // (./ci-proof-scope.mjs): its items at the granularity the summary supports,
 // its entries' part statuses, and the gaps that keep its figures partial.
-// An entry with results in several units, and legacy results:
+// An entry with both declared units:
 // ./ci-proof-scope-units.test.mjs. Ranking them: ./ci-proof-ranking.test.mjs.
 import assert from "node:assert/strict";
 import { test } from "node:test";

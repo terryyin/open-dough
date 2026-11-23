@@ -121,8 +121,8 @@ assert_sentinels "${present_cursor}"
 fixture="${temporary_dir}/fixture.git"
 # The shared "latest" release source in Distribution/tests/support/release-sources.mjs.
 node "${source_dir}/Distribution/tests/support/release-source.mjs" "${fixture}" latest
-old_checkout="${temporary_dir}/release-0.1.1"
-checkout_tagged_release "${fixture}" "${old_checkout}" 0.1.1
+old_checkout="${temporary_dir}/release-0.1.2"
+checkout_tagged_release "${fixture}" "${old_checkout}" 0.1.2
 helper="${source_dir}/Distribution/src/install/open-dough-release.sh"
 
 update_present="${temporary_dir}/update present"
@@ -137,12 +137,24 @@ bash "${helper}" apply --target "${update_present}" --platform cursor > /dev/nul
 assert_config_bytes "${update_present}" "${expected_present}" \
   'ordinary update with existing config'
 assert_sentinels "${update_present}"
-bash "${helper}" apply --target "${update_present}" --platform claude --force \
-  > /dev/null
-assert_config_bytes "${update_present}" "${expected_present}" \
-  'force update with existing config'
-assert_custom_ci_manual "${update_present}"
-assert_sentinels "${update_present}"
+
+# A release outside the ordinary update window can still recover by force.
+oldest_checkout="${temporary_dir}/release-0.1.1"
+checkout_tagged_release "${fixture}" "${oldest_checkout}" 0.1.1
+force_present="${temporary_dir}/force present"
+prepare_target "${force_present}"
+seed_empty_host_settings "${force_present}"
+write_skip_true_unknown "${force_present}/${config_rel}"
+bash "${oldest_checkout}/install.sh" --target "${force_present}" \
+  --source "${fixture}" --platform claude > /dev/null
+bash "${helper}" apply --target "${force_present}" --platform claude --force > /dev/null
+for root in .agents/skills .claude/skills; do
+  assert_payload "${force_present}/${root}/dough-update" 0.1.10 payload-0.1.10
+done
+assert_config_bytes "${force_present}" "${expected_present}" \
+  'force update from an older release with existing config'
+assert_custom_ci_manual "${force_present}"
+assert_sentinels "${force_present}"
 
 update_absent="${temporary_dir}/update absent"
 prepare_target "${update_absent}"

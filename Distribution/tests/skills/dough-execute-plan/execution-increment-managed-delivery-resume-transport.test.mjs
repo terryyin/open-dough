@@ -3,6 +3,7 @@
 // the same `resume` run again settles acceptance from the remote.
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { resumeThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import {
   assertCoveredOnce,
   assertTransportStop,
@@ -19,10 +20,28 @@ const resumeFor = (fixture, candidateSha) => () =>
     ...fixture.requestBase,
     workspace: fixture.execution,
     candidateSha,
+    suffixBase: fixture.trunkSha,
     targetRef: trunkTarget,
     repo: "owner/project",
     defaultCheckout: fixture.integration,
   });
+
+test("the installed resume CLI refuses a missing retained base before Git transport", async (t) => {
+  const { fixture, stall } = await stalledDeliveryFixture(t);
+  const { code, resumed } = await resumeThroughCli(fixture, {
+    candidate: fixture.candidateSha,
+  });
+
+  assert.equal(code, 1);
+  assert.equal(resumed.publication, "refused");
+  assert.equal(resumed.error, "missing suffixBase");
+  assert.equal(resumed.receipt, null);
+  assert.deepEqual(stall.calls(), []);
+  assert.equal(
+    await lsRemoteSha(fixture.origin, trunkTarget),
+    fixture.trunkSha,
+  );
+});
 
 test("a stalled fetch under resume stops with the candidate preserved and no push", async (t) => {
   const { fixture, stall, deliver } = await stalledDeliveryFixture(t);

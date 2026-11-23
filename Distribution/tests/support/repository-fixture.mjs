@@ -9,13 +9,14 @@ import {
   mkdirSync,
   mkdtempSync,
   readdirSync,
+  readFileSync,
   realpathSync,
   rmSync,
+  writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fixtureTeardown } from "../skills/dough-execute-plan/fixture-teardown-test-fixtures.mjs";
-import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { buildRepository, layout } from "./repository-history.mjs";
 import { locateSnapshot } from "./repository-snapshot.mjs";
 
@@ -87,6 +88,17 @@ function repositoryTemplate(description, shape) {
 }
 
 /**
+ * Rewrite `file`'s absolute paths under the template `root` to `copy`.
+ * @param {string} file @param {string} root @param {string} copy
+ */
+function relocate(file, root, copy) {
+  writeFileSync(
+    file,
+    readFileSync(file, "utf8").replaceAll(`${root}/`, `${copy}/`),
+  );
+}
+
+/**
  * A private mutable copy of the described history's template.
  * @template {string} Name
  * @param {import("./repositoryTestData.mjs").RepositoryDescription<Name>} description
@@ -96,22 +108,22 @@ async function copyTemplate(description, { parent, ...shape }) {
   const { root, built } = repositoryTemplate(description, shape);
   const { revisions, trunkSha, candidateSha } = await built;
   const fixture = realpathSync(mkdtempSync(join(parent, "workspace-claim-")));
-  const { origin, integration, execution } = layout(fixture);
+  const { integration, execution } = layout(fixture);
   const { cleanup, defer } = fixtureTeardown(fixture);
   try {
     cpSync(root, fixture, { recursive: true });
-    // The copied remote, worktree and its administrative entry still name
-    // the template's paths; point them at this copy.
+    // The copied remote URL, each worktree's administrative `gitdir` and its
+    // `.git` link still name the template's absolute paths; point them at
+    // this copy, as `remote set-url` and `worktree repair` would.
     if (shape.origin)
-      await git(integration, "remote", "set-url", "origin", origin);
-    if (candidateSha !== undefined) {
-      // Copied worktrees still name the template paths; repair each.
-      await git(integration, "worktree", "repair", execution);
-      const linked = join(integration, ".worktrees");
-      if (existsSync(linked))
-        for (const slug of readdirSync(linked))
-          await git(integration, "worktree", "repair", join(linked, slug));
-    }
+      relocate(join(integration, ".git", "config"), root, fixture);
+    const administrative = join(integration, ".git", "worktrees");
+    if (existsSync(administrative))
+      for (const entry of readdirSync(administrative)) {
+        const gitdir = join(administrative, entry, "gitdir");
+        relocate(gitdir, root, fixture);
+        relocate(readFileSync(gitdir, "utf8").trim(), root, fixture);
+      }
     return {
       ...(candidateSha === undefined ? {} : { execution, candidateSha }),
       integration,

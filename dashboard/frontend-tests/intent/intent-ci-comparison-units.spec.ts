@@ -18,9 +18,9 @@ const unitsStory = () =>
   makeMe.aComparedStory
     .inSummaryScope()
     .withEntries([
-      [dashboardTests({ cases: true }, 3, 30_000, 7_000)],
-      [dashboardTests({ cases: true }, 4, 35_000, 8_000)],
-      [dashboardTests({ cases: true }, 5, 40_000, 7_000)],
+      [dashboardTests("case", 3, 30_000, 7_000)],
+      [dashboardTests("case", 4, 35_000, 8_000)],
+      [dashboardTests("case", 5, 40_000, 7_000)],
     ])
     .please();
 

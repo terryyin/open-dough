@@ -20,9 +20,8 @@ grep -Fxq "${source_dir}/Distribution/src/skills/dough-update/SKILL.md" "${tempo
 
 # A release can add dependencies without a corresponding guide edit.
 candidate="${temporary_dir}/candidate"
-mkdir -p -- "${candidate}/Distribution/src" "${candidate}/src"
+mkdir -p -- "${candidate}/Distribution/src"
 cp -R -- "${source_dir}/Distribution/src/skills" "${source_dir}/Distribution/src/install" "${candidate}/Distribution/src/"
-cp -R -- "${source_dir}/src/install" "${candidate}/src/"
 cp -- "${source_dir}/install.sh" "${candidate}/install.sh"
 extra_path='dough-update/references/inspection-extra.md'
 mkdir -p -- "${candidate}/Distribution/src/skills/${extra_path%/*}"

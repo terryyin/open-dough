@@ -5,7 +5,7 @@ import type {
   ScopeHistoryReading,
 } from "../src/ciScopeHistory.ts";
 import { z } from "zod";
-import { declaredUnits, type DeclaredUnit } from "../src/ciProofUnits.ts";
+import { declaredUnits, type CiProofUnit } from "../src/ciProofUnits.ts";
 import {
   scopeHistoryDeclaredUnitsOf,
   scopeHistorySignatureOf,
@@ -56,8 +56,8 @@ export function scopeHistoryOf(
   );
   const entries: ScopeHistoryEntry[] = [];
   const byAttempt = new Map<string, number>();
-  const segments = new Map<DeclaredUnit, number>();
-  const previousSignatures = new Map<DeclaredUnit, string>();
+  const segments = new Map<CiProofUnit, number>();
+  const previousSignatures = new Map<CiProofUnit, string>();
   for (const landing of cohort) {
     const observed = landing.observed;
     const represented = {
@@ -147,18 +147,11 @@ export function scopeHistoryOf(
         segment: String(segment),
       };
     });
-    const details = {
-      ...common,
-      readings,
-      ...(timing.legacyReason === undefined
-        ? {}
-        : { legacyReason: timing.legacyReason }),
-    };
     if (readings.some((reading) => reading.kind === "point"))
-      entries.push({ ...details, kind: "point" });
+      entries.push({ ...common, kind: "point", readings });
     else
       entries.push({
-        ...details,
+        ...common,
         kind: "gap",
         readings: readings.filter((reading) => reading.kind === "gap"),
         ...(timing.reason === undefined ? {} : { reason: timing.reason }),

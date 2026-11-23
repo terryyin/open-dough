@@ -19,10 +19,12 @@ const installerFiles = execFileSync(
     "-C",
     source,
     "ls-files",
+    "--cached",
+    "--others",
+    "--exclude-standard",
     "-z",
     "--",
     "Distribution/src/install",
-    "src/install",
   ],
   { encoding: "utf8" },
 )

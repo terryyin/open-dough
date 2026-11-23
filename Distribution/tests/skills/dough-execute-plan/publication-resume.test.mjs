@@ -46,6 +46,7 @@ test("an interrupted publication before acceptance pushes the retained candidate
     ownedWorkspace: execution,
     defaultCheckout: integration,
     candidateSha,
+    suffixBase: trunkSha,
   });
 
   assert.equal(published.classification, "not-on-remote");
@@ -74,6 +75,7 @@ test("an interrupted publication before acceptance pushes the retained candidate
     ownedWorkspace: execution,
     defaultCheckout: integration,
     candidateSha,
+    suffixBase: trunkSha,
   });
   assert.equal(again.classification, "already-published");
   assert.equal(again.pushCount, 0);
@@ -116,6 +118,7 @@ test("a lost success after a rewritten push stays published when another writer 
     ownedWorkspace: execution,
     defaultCheckout: integration,
     candidateSha: rewrittenSha,
+    suffixBase: firstRemote,
     supersededShas: [candidateSha],
   });
 

@@ -3,12 +3,10 @@
 import { ciProofSchema, type CiProofEntry } from "../src/ciProof.ts";
 import { entryTimingOf, scopeTimingOf } from "../src/ciProofTiming.ts";
 import {
-  comparableUnits,
   declaredUnits,
-  entryEvidenceOf,
   hasFileBreakdown,
   unitName,
-  type DeclaredUnit,
+  type CiProofUnit,
 } from "../src/ciProofUnits.ts";
 import { isKnownFailed } from "../src/ciFailedBuild.ts";
 import { owningEntryOf, scopeFiguresOf } from "../src/ciScopeProof.ts";
@@ -24,7 +22,7 @@ const proofGap = {
   "too-large": "CI proof summary exceeds the read size limit",
 } as const;
 
-const signatureOf = (path: string, entry: string, unit: DeclaredUnit): string =>
+const signatureOf = (path: string, entry: string, unit: CiProofUnit): string =>
   `${path}\n${entry}\n${unit}`;
 
 function entryOf(
@@ -40,23 +38,23 @@ function entryOf(
 export function scopeHistoryDeclaredUnitsOf(
   build: KeptBuild | undefined,
   path: string,
-): readonly DeclaredUnit[] {
+): readonly CiProofUnit[] {
   const entry = entryOf(build, path);
   return entry === undefined
     ? []
     : declaredUnits.filter((unit) =>
-        entry.evidence.some((evidence) => comparableUnits(evidence.unit, unit)),
+        entry.evidence.some((evidence) => evidence.unit === unit),
       );
 }
 
 export function scopeHistorySignatureOf(
   build: KeptBuild | undefined,
   path: string,
-  unit: DeclaredUnit,
+  unit: CiProofUnit,
 ): string | undefined {
   const entry = entryOf(build, path);
   return entry === undefined ||
-    !entry.evidence.some((evidence) => comparableUnits(evidence.unit, unit))
+    !entry.evidence.some((evidence) => evidence.unit === unit)
     ? undefined
     : signatureOf(path, entry.path, unit);
 }
@@ -64,12 +62,12 @@ export function scopeHistorySignatureOf(
 type ScopeUnitTiming =
   | {
       readonly kind: "gap";
-      readonly unit: DeclaredUnit;
+      readonly unit: CiProofUnit;
       readonly reason: string;
     }
   | {
       readonly kind: "point";
-      readonly unit: DeclaredUnit;
+      readonly unit: CiProofUnit;
       readonly ms: number;
       readonly entry: string;
       readonly signature: string;
@@ -78,22 +76,20 @@ type ScopeUnitTiming =
 type ScopeTimings = {
   readonly readings: readonly ScopeUnitTiming[];
   readonly reason?: string;
-  readonly legacyReason?: string;
   readonly failed?: true;
 };
 
 // The gap reason a failed measured build gives every requested unit.
 const failedBuildReason = "Failed CI build";
 
-// Every requested declared unit is evaluated independently, including absent
-// units. unitResultsAt's first-result placeholder never chooses a history.
+// Evaluate each requested declared unit independently, including absent units.
 export function scopeHistoryTimingsOf(
   build: KeptBuild | undefined,
   selection: StoryCiBuildSelection,
   path: string,
-  expected: ReadonlyMap<DeclaredUnit, string | undefined>,
+  expected: ReadonlyMap<CiProofUnit, string | undefined>,
   hasMeasuredDate: boolean,
-  units: readonly DeclaredUnit[],
+  units: readonly CiProofUnit[],
 ): ScopeTimings {
   const gap = (reason: string): ScopeTimings => ({
     readings: units.map((unit) => ({ kind: "gap", unit, reason })),
@@ -111,22 +107,16 @@ export function scopeHistoryTimingsOf(
   const entry = owningEntryOf(parsed.data.summary.entries, path);
   if (entry === undefined)
     return gap("No matching scope in this build's CI proof");
-  const evidence = entryEvidenceOf(entry);
-  const hasLegacy = evidence.some((result) => result.unit === "legacy");
-  const legacyReason = "Legacy unit unknown in this build's CI proof";
-  const declared = evidence.some((result) => result.unit !== "legacy");
   const readings = units.map((unit): ScopeUnitTiming => {
     const unitGap = (reason: string): ScopeUnitTiming => ({
       kind: "gap",
       unit,
       reason,
     });
-    const result = evidence.find((candidate) =>
-      comparableUnits(candidate.unit, unit),
-    );
+    const result = entry.evidence.find((candidate) => candidate.unit === unit);
     if (result === undefined)
       return unitGap(
-        `No declared ${unitName(unit)} evidence in this build's CI proof${hasLegacy ? "; legacy unit unknown" : ""}`,
+        `No declared ${unitName(unit)} evidence in this build's CI proof`,
       );
     const signature = signatureOf(path, entry.path, unit);
     const selectedSignature = expected.get(unit);
@@ -147,15 +137,5 @@ export function scopeHistoryTimingsOf(
       ? { kind: "point", unit, ms: timing.ms, entry: entry.path, signature }
       : unitGap(timing.explanation);
   });
-  return {
-    readings,
-    ...(!declared
-      ? {
-          reason: hasLegacy
-            ? legacyReason
-            : "Counted unit unavailable in this build's CI proof",
-        }
-      : {}),
-    ...(hasLegacy && declared ? { legacyReason } : {}),
-  };
+  return { readings };
 }

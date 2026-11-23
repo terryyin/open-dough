@@ -13,7 +13,6 @@ import {
   ownerRecords,
   processGone,
 } from "./github-request-owner-test-fixtures.mjs";
-import { refusingOwner } from "./github-request-owner-refusal-test-fixtures.mjs";
 
 const signal = () => new AbortController().signal;
 const read = ["api", "repos/owner/repo/actions/runs/71"];
@@ -47,27 +46,6 @@ async function posted(github) {
     await new Promise((resolve) => realSetTimeout(resolve, 20));
   }
 }
-
-test("a legacy read-only owner is still usable for reads and receives no action frame without its declared capability", async (t) => {
-  const github = provider(t);
-  const owner = await refusingOwner(github, "read-only");
-  const client = new GitHubRequests(options);
-  await client.request(read, signal());
-  assert.deepEqual(await client.repeatWorkflow("owner/repo", 71, signal()), {
-    kind: "refused",
-    reason: "owner-unavailable",
-    ownerCause: "operation-unavailable",
-  });
-  assert.equal(
-    owner.messages.filter(({ request }) => request?.args !== undefined).length,
-    1,
-  );
-  assert.deepEqual(
-    owner.messages.filter(({ request }) => request?.operation !== undefined),
-    [],
-  );
-  assert.deepEqual(github.asked(), []);
-});
 
 test("a lost owner socket after the POST leaves uncertainty; a replacement serves a later read without resending the action", async (t) => {
   const github = provider(t);

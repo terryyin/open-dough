@@ -2,8 +2,7 @@
 // (../../../dashboard/server/ciAdapterProof.ts): an adapter that runs past its
 // time limit or answers what is not JSON answered no proof read, and the
 // tab's one line says so with that limit and the runner's error; a valid
-// summary of either readable version is read in the current one, a version
-// 1 summary's results as legacy evidence, each unit's results apart. Every
+// version 2 summary keeps its declared units apart. Every
 // other reason, through the tab:
 // ../../../e2e/intent/intent-ci-proof-adapter-reasons.spec.ts.
 import assert from "node:assert/strict";
@@ -87,23 +86,19 @@ test("cached proofs distinguish opaque identities containing separators", async 
     ["pipeline#1", "2"],
     ["pipeline", "1#2"],
   ]) {
-    const summary = {
-      schemaVersion: 1,
-      repository,
-      revision,
-      attemptId,
-      entries: [],
-    };
+    const summary = makeMe.aCiProofSummary
+      .inRepository(repository)
+      .ofAdapterAttempt({ attemptId, revision })
+      .please();
     const proof = await readCiAdapterProof(
       repository,
       adapterProject(t, JSON.stringify({ summary })),
       { runId, attemptId, branch: "main", revision },
       new AbortController().signal,
     );
-    // Read in the current version.
     assert.deepEqual(proof, {
       kind: "summary",
-      summary: { ...summary, schemaVersion: 2 },
+      summary,
     });
   }
 });
@@ -120,24 +115,18 @@ async function adapterProofOf(t, attemptId, summary) {
   return ciProofSchema.parse(proof);
 }
 
-test("an adapter's version 1 summary stays readable as legacy results, and its version 2 summary keeps one location's test cases and test files apart (examples 36, 38)", async (t) => {
+test("an adapter's version 1 summary is rejected before reaching the browser", async (t) => {
   // As a version 1 collector wrote it, literally.
   const v1 = JSON.parse(
     `{"schemaVersion":1,"repository":"terryyin/open-dough","attemptId":"v1","revision":"${revision}","entries":[{"path":"tests","unit":"tests","passed":1000,"failed":0,"other":3,"parts":[{"part":1,"status":"present","passed":1000,"failed":0,"other":3}]}]}`,
   );
-  const legacy = await adapterProofOf(t, "v1", v1);
-  assert.deepEqual(
-    legacy.summary.entries.map(({ path, evidence }) => [
-      path,
-      evidence.map(({ unit, label, passed, other }) => [
-        unit,
-        label,
-        passed,
-        other,
-      ]),
-    ]),
-    [["tests", [["legacy", "tests", 1000, 3]]]],
-  );
+  const rejected = await adapterProofOf(t, "v1", v1);
+  assert.equal(rejected.kind, "unavailable");
+  assert.equal(rejected.reason, "invalid");
+  assert.match(rejected.detail, /schemaVersion is not 2/);
+});
+
+test("an adapter's version 2 summary keeps one location's cases and files apart", async (t) => {
   const fragment = (unit, passed, failed) =>
     makeMe.aCiProofFragment
       .at("tests")

@@ -5,7 +5,7 @@
 // measured Baseline execution time and, in Branch and Landed, one signed
 // whole-second change from it when both ends are measured in that declared
 // unit, relative to a positive Baseline (`./storyCiRelativeChange.ts`) (a
-// new entry, or results in another unit or as legacy results, keeps its
+// new entry, or results in another unit, keeps its
 // measured time; a gap keeps its words), counted-results differences in
 // Counts, mark added and removed entries, and keep parts completeness from
 // the comparison's chosen build (`./ciScopeComparisonPrimary.ts`).
@@ -60,8 +60,7 @@ export function comparisonEndpointProofsChecking(
 
 // One compared row of a scope (`./ciScopeComparison.ts`): its Counts words,
 // the active after endpoint's counted results and each endpoint's timing,
-// in the units it compares (`units`, named: "test cases", or "legacy test
-// results and test cases" for units matching nothing on the other side).
+// in the units it compares (`units`, named: "test cases", or "test cases and test files" for units matching nothing on the other side).
 // Baseline sorts by measured time; Branch and Landed show and sort by signed
 // change from it. Parts completeness belongs to the selected scope's own
 // figures.

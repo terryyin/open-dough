@@ -2,7 +2,7 @@
 // attempt the shared Landed resolver named, without inventing scoped timing.
 import { isKnownFailed } from "../src/ciFailedBuild.ts";
 import { gapReasonWords } from "../src/ciHistoryGapWords.ts";
-import type { DeclaredUnit } from "../src/ciProofUnits.ts";
+import type { CiProofUnit } from "../src/ciProofUnits.ts";
 import type { ScopeHistoryEntry } from "../src/ciScopeHistory.ts";
 import type { ProjectHistory } from "./landedCiHistoryStore.ts";
 import { historyBuildOf, runOf } from "./landedCiHistoryEntries.ts";
@@ -22,7 +22,7 @@ const gapReason = (observed: Unmeasured) =>
 export function scopeHistoryGapOf(
   landing: KeptLanding & { readonly observed: Unmeasured },
   represented: ScopeHistoryEntry["landings"][number],
-  units: readonly DeclaredUnit[],
+  units: readonly CiProofUnit[],
 ): Extract<ScopeHistoryEntry, { kind: "gap" }> {
   const observed = landing.observed;
   const build = observed.kind === "gap" ? observed.build : undefined;

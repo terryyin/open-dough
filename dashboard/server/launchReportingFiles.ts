@@ -5,7 +5,6 @@ import { sessionTitlePathBeside } from "../../Distribution/src/skills/dough-exec
 import type { LandingRepository } from "../src/launchLanding.ts";
 import type { AgentLaunchRequest } from "../src/launchRequest.ts";
 import type { ProjectFolder } from "./projectFolders.ts";
-import { installedExports } from "./startLaunch.ts";
 import {
   IncompleteReportingSupport,
   reportingSupport,
@@ -40,20 +39,6 @@ export async function copyReportingFiles(
   await copy(landingModule);
   await copy(expectationModule);
   return { directory, script, landingModule, expectationModule };
-}
-
-// Older installations cannot validate an ad hoc context without a story.
-export async function acceptsStoryless(
-  landingModule: string,
-): Promise<boolean> {
-  try {
-    const installed = await installedExports<{
-      acceptsLandingWithoutIdentity?: unknown;
-    }>(landingModule);
-    return installed.acceptsLandingWithoutIdentity === true;
-  } catch {
-    return false;
-  }
 }
 
 export async function writeLandingContext(

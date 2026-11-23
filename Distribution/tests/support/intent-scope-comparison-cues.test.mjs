@@ -26,15 +26,11 @@ const measuredCount = (total, unit = "case") => ({
 });
 const measuredMs = (ms, unit = "case") => ({ kind: "measured", ms, unit });
 
-test("a cue compares only figures of one declared unit: never test cases with test files, legacy results, or several units", () => {
+test("a cue compares only figures of one declared unit: test cases and test files give no shared cue", () => {
   const notComparable = { kind: "none", reason: "units not comparable" };
   const several = { kind: "none", reason: "several units" };
   assert.deepEqual(
     countCueOf(measuredCount(5, "case"), measuredCount(1, "file")),
-    notComparable,
-  );
-  assert.deepEqual(
-    countCueOf(measuredCount(5, "legacy"), measuredCount(9, "legacy")),
     notComparable,
   );
   assert.deepEqual(
@@ -45,7 +41,7 @@ test("a cue compares only figures of one declared unit: never test cases with te
     several,
   );
   assert.deepEqual(
-    durationCueOf(measuredMs(8_000, "legacy"), measuredMs(12_000, "legacy")),
+    durationCueOf(measuredMs(8_000, "case"), measuredMs(12_000, "file")),
     notComparable,
   );
   assert.deepEqual(

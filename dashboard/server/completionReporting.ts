@@ -20,7 +20,6 @@ import { shellCommand } from "../src/sessionCapabilities.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import { preparesReporting } from "./launchWorkspaceReporting.ts";
 import {
-  acceptsStoryless,
   copyReportingFiles,
   writeLandingContext,
 } from "./launchReportingFiles.ts";
@@ -55,11 +54,7 @@ export async function reportingContext(
   // trunk target. An ad hoc follow-up carries the story resolved at admission.
   const identity =
     establishedStory(established) ?? followUpStoryIdentity(attempt.request);
-  if (
-    landingModule !== undefined &&
-    established !== undefined &&
-    (identity !== undefined || (await acceptsStoryless(landingModule)))
-  ) {
+  if (landingModule !== undefined && established !== undefined) {
     const repository = (
       await runGit(
         ["rev-parse", "--path-format=absolute", "--git-common-dir"],

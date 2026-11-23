@@ -6,7 +6,6 @@
 import { dirname } from "node:path";
 import { parseArgs } from "node:util";
 import { addQueueEntry } from "./product-backlog-add.mjs";
-import { adoptIdentities } from "./product-backlog-adopt.mjs";
 import {
   closeBesideBacklog,
   completeEntry,
@@ -27,7 +26,6 @@ import {
 } from "./product-backlog-request.mjs";
 import {
   reportAdd,
-  reportAdopt,
   reportCatalogDone,
   reportComplete,
   reportDirection,
@@ -158,19 +156,6 @@ async function direction(file, values) {
   console.log(reportDirection(outcome, values.file));
 }
 
-async function adopt(file, values) {
-  if (!values.all) {
-    throw new BacklogError(
-      `adopt needs --all, so that recording identities for every active ` +
-        `entry is always an explicit request.\n\n${usage}`,
-    );
-  }
-  const outcome = await applyReportedChange(file, (source) =>
-    adoptIdentities(source, dirname(file)),
-  );
-  console.log(reportAdopt(outcome, values.file));
-}
-
 // Operations on canonical story homes; their refusals say nothing was
 // written rather than that the backlog was unchanged.
 const preparationOperations = {
@@ -191,16 +176,27 @@ const operations = {
   "catalog-done": catalogDone,
   refresh,
   direction,
-  adopt,
   "identity-evidence": printIdentityEvidence,
   ...preparationOperations,
 };
+
+function unknownOperation(name) {
+  return new BacklogError(`Unknown operation: ${name || "(none)"}\n\n${usage}`);
+}
 
 async function main(argv) {
   let parsed;
   try {
     parsed = parseArgs({ args: argv, options, allowPositionals: true });
   } catch (error) {
+    const [command] = argv;
+    if (
+      command &&
+      !command.startsWith("-") &&
+      !Object.hasOwn(operations, command)
+    ) {
+      throw unknownOperation(command);
+    }
     throw new BacklogError(`${error.message}\n\n${usage}`);
   }
   const { values, positionals } = parsed;
@@ -211,9 +207,7 @@ async function main(argv) {
   }
   const named = positionals.length === 1 ? positionals[0] : "";
   if (!Object.hasOwn(operations, named)) {
-    throw new BacklogError(
-      `Unknown operation: ${positionals.join(" ") || "(none)"}\n\n${usage}`,
-    );
+    throw unknownOperation(positionals.join(" "));
   }
   await operations[named](resolvePath(values.file), values);
 }

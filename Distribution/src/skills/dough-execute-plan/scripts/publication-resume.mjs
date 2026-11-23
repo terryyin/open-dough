@@ -29,9 +29,8 @@ const defaultTargetRef = "refs/heads/main";
 // Confirms publication of the retained candidate. The caller owns CI
 // registration, checkout maintenance and cleanup. `candidateSha` is the SHA
 // retained immediately before the push, including after a rewrite.
-// `suffixBase`, when retained with it, is returned unchanged even when the
-// accepted candidate is an ancestor of a newer remote tip. Its absence leaves
-// the comparison unavailable; publication recovery still works as before.
+// `suffixBase` is required and is returned unchanged when the accepted
+// candidate is an ancestor of a newer remote tip.
 // `supersededShas` are pre-rebase identities and are never pushed. Before a
 // push, an `onFetchedTarget` stop (see applicable-candidate-proof.mjs) for
 // the fetched target tip is reported as `held` instead. A fetch or push that
@@ -56,6 +55,7 @@ export async function resumeInterruptedPublication({
     );
   }
 
+  await validateRetainedComparison(ownedWorkspace, candidateSha, suffixBase);
   const landingContext = await resolvePublicationLandingContext({
     landingContext: suppliedLandingContext,
     workspace: ownedWorkspace,
@@ -63,8 +63,6 @@ export async function resumeInterruptedPublication({
     remote,
     targetRef,
   });
-  await validateRetainedComparison(ownedWorkspace, candidateSha, suffixBase);
-  const comparison = suffixBase === undefined ? {} : { suffixBase };
   const captureLanding = () =>
     landingContext
       ? captureAcceptedLanding(landingContext, {
@@ -103,7 +101,7 @@ export async function resumeInterruptedPublication({
       return {
         classification: "not-on-remote",
         pushCount: 0,
-        ...comparison,
+        suffixBase,
         held,
       };
     if (landingContext)
@@ -150,7 +148,7 @@ export async function resumeInterruptedPublication({
     classification: accepted ? "already-published" : "not-on-remote",
     pushCount: accepted ? 0 : 1,
     acceptedSha: candidateSha,
-    ...comparison,
+    suffixBase,
     maintenance,
     cleanup: "not-performed",
     preservedHead: preserved.head,

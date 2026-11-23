@@ -51,8 +51,7 @@ export function playwrightRecord(tests: readonly RecordedTest[]): unknown {
 
 // One job part's report: a Playwright record for one entry, its tests test
 // cases, or outcomes (`<status>\t<check>` lines) with optional times for
-// several, each line one result of the declared `unit` (`--unit`), or
-// legacy results without one.
+// several, each line one result of its declared unit.
 export type Producer = {
   readonly entries: readonly string[];
   readonly part: number;
@@ -64,19 +63,19 @@ export type Producer = {
   | {
       readonly outcomes: string;
       readonly times?: string;
-      readonly unit?: "case" | "file";
+      readonly unit: "case" | "file";
     }
 );
 
 // The summary text `summarize` writes for RUN from PRODUCERS' fragments,
 // declaring EXPECT: each entry's part count and the unit they are counted
-// in, when one is declared.
+// in.
 export function collectedSummary(
   run: ProofRun,
   expect: readonly {
     readonly entry: string;
     readonly parts: number;
-    readonly unit?: "case" | "file";
+    readonly unit: "case" | "file";
   }[],
   producers: readonly Producer[],
 ): string {
@@ -91,12 +90,11 @@ export function collectedSummary(
         report.push("--playwright-record", at("record.json"));
       } else {
         writeFileSync(at("outcomes.txt"), producer.outcomes);
-        report.push("--outcomes", at("outcomes.txt"));
+        report.push("--outcomes", at("outcomes.txt"), "--unit", producer.unit);
         if (producer.times !== undefined) {
           writeFileSync(at("times.txt"), producer.times);
           report.push("--times", at("times.txt"));
         }
-        if (producer.unit !== undefined) report.push("--unit", producer.unit);
       }
       const out = join(fragments, `producer-${String(index)}`);
       mkdirSync(out, { recursive: true });
@@ -124,7 +122,7 @@ export function collectedSummary(
       fragments,
       ...expect.flatMap(({ entry, parts, unit }) => [
         "--expect",
-        `${entry}=${String(parts)}${unit === undefined ? "" : `:${unit}`}`,
+        `${entry}=${String(parts)}:${unit}`,
       ]),
       "--repository",
       run.repository,

@@ -50,17 +50,8 @@ export type ScopeEndpointCount =
   // Several units' totals at the scope, kept apart.
   | { readonly kind: "units"; readonly counts: readonly UnitCount[] };
 
-// The units COUNT measured totals in; none for a gap or nothing counted.
-export const measuredUnitsOf = (
-  count: ScopeEndpointCount,
-): readonly CiProofUnit[] =>
-  count.kind === "units"
-    ? count.counts.map(({ unit }) => unit)
-    : count.kind === "measured"
-      ? [count.unit]
-      : [];
-
 const minus = "−";
+export const differentUnitsCountSuffix = " (different units)";
 
 export const totalCounted = (figures: CiProofFigures): number =>
   countedResultsOf(figures).total;

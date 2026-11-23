@@ -37,10 +37,8 @@ copy_installer_modules() {
   local mjs_file
   local -a mjs_files=()
 
-  mkdir -p -- "${dest}/Distribution/src/install" "${dest}/src"
+  mkdir -p -- "${dest}/Distribution/src/install"
   cp -- "${modules_root}/Distribution/src/install/"*.sh "${dest}/Distribution/src/install/"
-  # Whatever root-level install modules the source's installer sources.
-  cp -R -- "${modules_root}/src/install" "${dest}/src/"
   # Hook registration helpers travel with the installer (Node merge logic).
   for mjs_file in "${modules_root}/Distribution/src/install/"*.mjs; do
     [[ -f "${mjs_file}" ]] || continue

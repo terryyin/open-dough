@@ -53,7 +53,7 @@ test("an earlier attempt's, an adapter attempt's or another revision's fragment 
         .counting(8)
         .please(),
     ),
-    expect: [{ entry: "dashboard/tests", parts: 2 }],
+    expect: [{ entry: "dashboard/tests", parts: 2, unit: "case" }],
     run,
   });
   const [evidence] = summary.entries[0].evidence;
@@ -98,7 +98,7 @@ test("an adapter attempt's summary names its attemptId and keeps only fragments 
         .counting(0)
         .please(),
     ),
-    expect: [{ entry: "tests", parts: 1 }],
+    expect: [{ entry: "tests", parts: 1, unit: "case" }],
     run: adapterRun,
   });
   assert.deepEqual(notes, [
@@ -156,13 +156,12 @@ test("the summary artifact name carries the attempt", () => {
 });
 
 test("an adapter attempt's identity names its fragment by attemptId", () => {
-  const [value] = fragmentsFromOutcomes("passed\ttests/a.sh\n", {
-    entries: ["tests"],
-    part: 1,
-    of: 1,
-    attemptId,
-    revision,
-  });
+  const [value] = fragmentsFromOutcomes(
+    "passed\ttests/a.sh\n",
+    { entries: ["tests"], part: 1, of: 1, attemptId, revision },
+    undefined,
+    { unit: "file" },
+  );
   assert.equal(value.attemptId, attemptId);
   assert.equal("attempt" in value, false);
   assert.deepEqual(fragmentProblems(value), []);
