@@ -36,6 +36,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep open Codex session status current](seeds/SEED-424-poll-open-codex-sessions.md#poll-open-codex-sessions) — SEED-424#poll-open-codex-sessions
 - [Correct the proof residue of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#correct-scope-timing-chart-proof-residue) — SEED-413#correct-scope-timing-chart-proof-residue
 - [Keep the attention completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout) — SEED-341#keep-attention-completion-journey-within-timeout
 - [Catch delegated lint failures before guarded delivery](seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery) — SEED-345#catch-delegated-lint-before-delivery
