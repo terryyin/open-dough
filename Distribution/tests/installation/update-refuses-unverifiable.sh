@@ -18,8 +18,8 @@ fixture="${temporary_dir}/fixture.git"
 # The shared "latest" release source in Distribution/tests/support/release-sources.mjs.
 node "${source_dir}/Distribution/tests/support/release-source.mjs" "${fixture}" latest
 expected_source=$(cd -- "${fixture}" && pwd -P)
-older_checkout="${temporary_dir}/release-0.1.1"
-checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.1
+older_checkout="${temporary_dir}/release-0.1.2"
+checkout_tagged_release "${fixture}" "${older_checkout}" 0.1.2
 
 # The project's own origin remote: a release source whose 9.9.9 must never be
 # read in place of the recorded source.
@@ -39,6 +39,7 @@ assert_ordinary_update_refuses_unwritten() {
   local needle=$2
   local dest=$3
   local apply_tmp=$4
+  shift 4
   local skill_root before after output
   local selected_path selected_mtime index
   local -a watched_paths=()
@@ -60,7 +61,7 @@ assert_ordinary_update_refuses_unwritten() {
   mkdir -p -- "${apply_tmp}"
   : > "${trace_file}"
   if output=$(TMPDIR="${apply_tmp}" bash "${helper}" apply --target "${unverifiable}" \
-    --platform cursor 2>&1); then
+    --platform cursor "$@" 2>&1); then
     echo "FAIL: ${label}: ordinary update must refuse an unverifiable installation." >&2
     printf '%s\n' "${output}" >&2
     exit 1
@@ -182,13 +183,20 @@ assert_ordinary_update_refuses_unwritten \
   "${unverifiable_dest}" \
   "${unverifiable_tmp}"
 
-# The recorded 0.1.1 is tagged on a payload whose VERSION says 0.1.8.
+restore_clean_older_cursor
+printf '%s\n' '0.2.0' > "${unverifiable_dest}/VERSION"
+assert_ordinary_update_refuses_unwritten \
+  'recorded installation newer than the source' \
+  'installed 0.2.0 is newer than source 0.1.10' \
+  "${unverifiable_dest}" "${unverifiable_tmp}"
+
+# The recorded 0.1.2 is tagged on a payload whose VERSION says 0.1.8.
 mismatch="${temporary_dir}/mismatch.git"
 node "${source_dir}/Distribution/tests/support/release-source.mjs" "${mismatch}" << 'JSON'
 {"revisions": [
-  {"name": "tagged 0.1.1 with mismatched VERSION", "release": {
-    "version": "0.1.1", "taggedAt": "2026-06-01T00:00:00",
-    "marker": "payload-0.1.1"}, "files": {"VERSION": "0.1.8\n"}},
+  {"name": "tagged 0.1.2 with mismatched VERSION", "release": {
+    "version": "0.1.2", "taggedAt": "2026-06-01T00:00:00",
+    "marker": "payload-0.1.2"}, "files": {"VERSION": "0.1.8\n"}},
   {"name": "release 0.1.10", "release": {
     "version": "0.1.10", "taggedAt": "2020-01-01T00:00:00",
     "marker": "payload-0.1.10"}}
@@ -197,8 +205,43 @@ JSON
 restore_clean_older_cursor
 mismatch_source=$(cd -- "${mismatch}" && pwd -P)
 printf '%s\n' "${mismatch_source}" > "${unverifiable_dest}/SOURCE"
+printf '%s\n' "${mismatch_source}" > "${unverifiable_claude_dest}/SOURCE"
 assert_ordinary_update_refuses_unwritten \
   'baseline metadata mismatch' \
   'not falling back to another release or branch' \
   "${unverifiable_dest}" \
   "${unverifiable_tmp}"
+
+git -C "${mismatch}" tag -d v0.1.2 > /dev/null
+assert_ordinary_update_refuses_unwritten \
+  'older recorded installation when the source has a single release' \
+  'installed 0.1.2 is older than the supported update baseline (previous none, latest 0.1.10). Use --force' \
+  "${unverifiable_dest}" "${unverifiable_tmp}"
+
+# Even the current invoking root must wait for the sibling's baseline
+# eligibility before fetching any baseline from the pinned source.
+oldest_checkout="${temporary_dir}/release-0.1.1"
+latest_checkout="${temporary_dir}/release-0.1.10"
+checkout_tagged_release "${fixture}" "${oldest_checkout}" 0.1.1
+checkout_tagged_release "${fixture}" "${latest_checkout}" 0.1.10
+oldest_target="${temporary_dir}/oldest project"
+prepare_target "${oldest_target}"
+bash "${oldest_checkout}/install.sh" --target "${oldest_target}" \
+  --source "${fixture}" --platform claude > /dev/null
+restore_clean_older_cursor
+bash "${latest_checkout}/install.sh" --target "${unverifiable}" \
+  --source "${fixture}" --platform cursor --force > /dev/null
+rm -rf -- "${unverifiable}/.claude/skills"
+cp -a -- "${oldest_target}/.claude/skills" "${unverifiable}/.claude/skills"
+touch -t 202001010000 -- "${unverifiable_claude_dest}/SKILL.md" \
+  "${unverifiable_claude_dest}/VERSION" "${unverifiable_claude_dest}/SOURCE"
+git_trace="${temporary_dir}/git-trace.json"
+GIT_TRACE2_EVENT="${git_trace}" assert_ordinary_update_refuses_unwritten \
+  'installed release older than the previous numeric tag' \
+  'installed 0.1.1 is older than the supported update baseline (previous 0.1.2, latest 0.1.10). Use --force' \
+  "${unverifiable_claude_dest}" "${unverifiable_tmp}" --checkout "${latest_checkout}"
+[[ -s "${git_trace}" ]]
+if grep -Fq '"fetch"' "${git_trace}"; then
+  echo 'FAIL: an older sibling must refuse before any baseline fetch.' >&2
+  exit 1
+fi

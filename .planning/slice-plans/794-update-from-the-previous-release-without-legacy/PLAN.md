@@ -74,12 +74,12 @@ update at the next release rollout.
 | Installer and update gates pass from the baseline layout | In this preparation workspace at `2dea3a847`, `PATH=/opt/homebrew/bin:$PATH /opt/homebrew/bin/bash scripts/test.sh` over `Distribution/tests/installation/{update-refuses-unverifiable,update-skip-verified,update-force-restores-latest,update-removes-dropped-files,payload-declaration-links,install-preserves-open-dough-json}.sh` and `Distribution/evaluation/tests/git-publication/git-publication-fixture-identity.sh` exited `0`. |
 | Backlog, request-owner, landing, publication-resume, trunk-closure, and slice-clock suites pass at baseline | In this preparation workspace at `2dea3a847`, `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES node --test` over the 16 backlog, story-state, request-owner, `dashboard-landing`, `publication-resume*`, `execution-increment-managed-delivery-resume`, and `slice-clock-ended-session*` suites passed 71/71 cases, `trunk-closure.test.mjs` passed 9/9 cases, and `npm run test:dashboard:backend -- --workers 1 '(start-origin-default\|agent-launch-start-session-landing-admission)\.spec\.ts$'` exited `0`. |
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. Ordinary update accepts the previous release and latest, and refuses older installations before writes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Resolve the immediately previous numeric release tag beside `latest` in
 `open-dough-release-resolve.sh` and enforce the moving update baseline in
@@ -232,6 +232,28 @@ push.
   against each slice's diff.
 - Apply [`dough-post-change-refactor`](../../../.claude/skills/dough-post-change-refactor/SKILL.md)
   before each slice commit.
+
+## Execution context
+
+- Yua-chan, Story Branch Mode, `codex/update-from-the-previous-release-without-legacy`.
+  Take `c11059cb46d3244ebee90c6347ac44ad2661fd72` was accepted on `origin/main`.
+  The story branch is observed by the Codex coordinator using `ci.yml`.
+- Slice 1. The maintained runner's six planned checks passed across the initial
+  selection and targeted reruns. `install-all-tools.sh` asserts the 0.1.2 to
+  0.1.10 transition, payload and hook state in both roots, including a target
+  path with a tab. `update-refuses-unverifiable.sh` observes unchanged bytes
+  and mtimes and no baseline fetch for a mixed latest/older installation. It
+  also covers the single-tag, untagged and newer cases. The latest no-op,
+  force recovery, project config and dropped-file checks passed. Additional
+  payload, native delivery and real Dashboard worktree update observations
+  passed. Literal commands, run records and consumer dispositions are in
+  `slice-1-return.md` and `slice-1-refactor-consumer-trace.md` in the worktree's
+  Git evidence directory. The baseline-mismatch fixture now gives both roots
+  the same recorded source so it reaches tagged baseline verification.
+  After the formatter flagged a masked comparison status, the comparison
+  moved to a separate assignment. The maintained runner passed
+  `compare-versions.sh`, `install-latest-release.sh`, and `install-all-tools.sh`
+  with that change.
 
 ## Plan review
 
