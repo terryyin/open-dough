@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "sessionId": "6e14e0f8-b8e5-4359-95d0-1255cca2b454",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T14:58:55.449Z",
+  "story": "SEED-423#retire-finished-migrations-and-legacy-formats",
+  "ranges": [
+    {
+      "base": "c11059cb46d3244ebee90c6347ac44ad2661fd72",
+      "candidate": "bfc9baea15d66e8f0c4d3f935c510ed5d40e26c2"
+    },
+    {
+      "base": "bfc9baea15d66e8f0c4d3f935c510ed5d40e26c2",
+      "candidate": "eeadc8534dab753f5eaca0d42d585a8c65188c20"
+    },
+    {
+      "base": "eeadc8534dab753f5eaca0d42d585a8c65188c20",
+      "candidate": "b41e902c6adde3307a279766904ef3b03f2c75e3"
+    },
+    {
+      "base": "b41e902c6adde3307a279766904ef3b03f2c75e3",
+      "candidate": "9cd93eced2729aac6341f9f447208e0acfc7a0b8"
+    },
+    {
+      "base": "9cd93eced2729aac6341f9f447208e0acfc7a0b8",
+      "candidate": "403e285ab3a91360f5f39c2dc1ec51fa6c9fbf8f"
+    },
+    {
+      "base": "403e285ab3a91360f5f39c2dc1ec51fa6c9fbf8f",
+      "candidate": "6e9ddacac4c4aa7823fc594929c58253da351482"
+    },
+    {
+      "base": "6e9ddacac4c4aa7823fc594929c58253da351482",
+      "candidate": "8ed7250e2d0dd93afd6eb995f02152f1e8452ae7"
+    },
+    {
+      "base": "8ed7250e2d0dd93afd6eb995f02152f1e8452ae7",
+      "candidate": "e3dd69aa21e0aab09922899648bf6ca0e48df1ba"
+    },
+    {
+      "base": "e3dd69aa21e0aab09922899648bf6ca0e48df1ba",
+      "candidate": "2dd0eb94f11f0d21d49f43c3a45bc195fd8d0939"
+    }
+  ]
+}
