@@ -3,14 +3,8 @@
 # Shared platform destinations, requested-version refusal, and payload bytes.
 # Sourced by install.sh and open-dough-release.sh.
 
-# Older immutable release tags have the original root-level source directory.
 release_source_dir() {
-  local checkout=$1
-  if [[ -d "${checkout}/Distribution/src" ]]; then
-    printf '%s\n' "${checkout}/Distribution/src"
-  else
-    printf '%s\n' "${checkout}/src"
-  fi
+  printf '%s\n' "$1/Distribution/src"
 }
 
 # Reports an installer failure partway through a replacement and exits;

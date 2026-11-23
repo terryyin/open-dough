@@ -68,11 +68,12 @@ Ordinary Open Dough release updates remain available from the recorded source.
    b. `git init` the work directory, `git fetch --depth 1 <source-url>
       <commit>`, and check out that commit detached. Confirm
       `git rev-parse HEAD` equals the peeled commit.
-   c. Read the pinned snapshot's root `install.sh` to locate its source tree
-      (`Distribution/src/` in current releases, `src/` in older ones). Inspect
+   c. Read the pinned snapshot's root `install.sh`. Under its
+      `Distribution/src/` tree, inspect `install/open-dough-execution-payload.sh`,
       `install/open-dough-release.sh`, `install/open-dough-release-apply.sh`,
-      `install/open-dough-install-payload.sh`, and every helper they source or
-      run, including payload-byte and hook-registration helpers when present.
+      `install/open-dough-install-payload.sh`, and every helper the installer
+      or these files source or run, including payload-byte and hook-registration
+      helpers when present.
       Inspect every payload file the snapshot declares under `skills/`.
    d. Run the inspected helper, quoting paths. Codex may omit `--platform`.
       For an ordinary update of a recorded installation, run

@@ -181,6 +181,5 @@ managed_files=(
   dough-makeme/scripts/minimatch.bundle.mjs
   dough-makeme/scripts/repository-path.mjs
 )
-# Keep the data fragment at the path read by already released updaters.
-source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-execution-payload.sh"
+source "$(dirname -- "${BASH_SOURCE[0]}")/Distribution/src/install/open-dough-execution-payload.sh"
 source "$(dirname -- "${BASH_SOURCE[0]}")/Distribution/src/install/open-dough-install-entry.sh"

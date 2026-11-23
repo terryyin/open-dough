@@ -104,7 +104,7 @@ preserving `.planning/open-dough.json`.
 ### 2. The repository ships no root `src/` forwarder tree while `0.3.112` baselines still update cleanly
 
 Type: Structure
-Status: planned
+Status: done
 
 `git mv src/install/open-dough-execution-payload.sh Distribution/src/install/open-dough-execution-payload.sh`
 and update `install.sh`. Delete `src/install/open-dough-release.sh`,
@@ -254,6 +254,17 @@ push.
   moved to a separate assignment. The maintained runner passed
   `compare-versions.sh`, `install-latest-release.sh`, and `install-all-tools.sh`
   with that change.
+- Slice 2. A private source archived the actual `v0.3.112` tag and paired it
+  with a Distribution-only candidate fixture. The pinned helper's ordinary
+  apply updated both native roots, candidate payload comparison passed for
+  each, and the project config stayed byte-identical. The root `src/` is
+  absent and the moved declaration matches its original bytes. The runner
+  passed 35 installation, fixture identity and delivery checks plus three
+  deterministic native checks. `update-removes-dropped-files.sh` observes
+  removal of a path declared only in a historical root fragment. After review
+  consolidated the declaration fixture path, `payload-declaration-links.sh`
+  passed again. See `slice-2-return.md` and `slice-2-refactor-return.md` in
+  the worktree's Git evidence directory for exact commands and observations.
 
 ## Plan review
 

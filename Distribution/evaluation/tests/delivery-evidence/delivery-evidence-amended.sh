@@ -183,11 +183,7 @@ done
 # is refused before any fixture is made.
 wrap_up=dough-execute-plan/references/wrap-up.md
 delivery_evidence_payload_revision=HEAD fixture plan-amended
-revision_path="Distribution/src/skills/${wrap_up}"
-if ! git -C "${source_dir}" cat-file -e "HEAD:${revision_path}" 2> /dev/null; then
-  revision_path="src/skills/${wrap_up}"
-fi
-git -C "${source_dir}" show "HEAD:${revision_path}" | cmp - "${workspace}/.claude/skills/${wrap_up}"
+git -C "${source_dir}" show "HEAD:Distribution/src/skills/${wrap_up}" | cmp - "${workspace}/.claude/skills/${wrap_up}"
 status=0
 # shellcheck disable=SC2310 # The refusal's status is the observation.
 delivery_evidence_payload_revision=no-such-revision \
