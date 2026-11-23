@@ -3,6 +3,8 @@
 **Identity:** SEED-413#finish-launch-proof-orthogonal
 **Source:** [Get launch unit proof in about eight seconds](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
 
+**Source review:** [Selected-story commitments](source-review.md)
+
 ## Goal and scope
 
 Dashboard maintainers can run the whole launch unit selection in about 7–8
@@ -31,6 +33,101 @@ case's prerequisites, action, and observable result.
 | The launch dialog pastes text, refuses invalid images, starts with accepted images and discards on Cancel and Escape | 7 | `launch-attachments`; existing attachment E2E if the dialog or attachment contract changes |
 | The model, effort and options appear on the right recorded session and disappear when absent | 8 | `launch-record-details` through the actual card, sidebar and details owners, with independent Board association observations retained |
 | The exact whole launch command reaches the elapsed target and has a mapped case roster | 1–8 | Slice 1 establishes the timing checkpoint. Every retained change carries paired evidence. Slice 8 repeats the complete acceptance comparison. |
+
+## Execution context
+
+- Story Branch Mode, publisher `dashboard-territory.local-open-dough`, agent Mihiro-chan.
+- Owned workspace `/Users/terryyin/git/open-dough/.worktrees/get-launch-unit-proof-in-about-eight-seconds`, branch `codex/get-launch-unit-proof-in-about-eight-seconds`.
+- Starting revision `ddaa7234c4c5c7a0149bb784c9e9f00212c339ef`. Claim and story-branch base confirmed at `9fe334ce9faba806b8417bc8be9ab4f60893534e` on `origin/main` and `origin/codex/get-launch-unit-proof-in-about-eight-seconds`.
+- GitHub Actions `ci.yml`, observer coordinator `mihiro-e0b72832`, directory `/tmp/dough-ci-501/watch-o4eLbf`, process `14663`, Codex shell session `45163`, cell `g253:20`. Shutdown was confirmed at the slice 1 stop with zero unread events. Pending CI is unobserved.
+- Slice 1 delivery rearmed the same coordinator for the story branch in `/tmp/dough-ci-501/watch-gTzJHM`, process `32161`, Codex shell session `96216`, cell `g262:89`. Trunk source freshness was confirmed at `57cd409a`.
+
+## Current decisions
+
+**Slice 1 checkpoint, 23 November 2026.** At `9fe334ce9` on AC macOS
+with two workers and the maintained isolation setting, the exact launch
+selection took 22.41 s including preparation. The checkbox candidate
+took 32.87 s. Both passed the same 71 cases in 24 files, 62 on Chromium
+and nine on Chromium Desktop, including creation and native touch
+rotation. The candidate shortened the all-flags case in the focused
+runs (2.234 and 2.428 s before, 1.815 and 1.411 s after). The whole
+selection and the same case within it showed no gain. Other cases
+slowed too, so the paired wall result does not isolate a regression
+from the edit. The candidate and timing instrumentation were removed.
+
+The 22.41 s baseline leaves 14.41 s of wall time to reach eight seconds.
+Its case durations total 30.794 s. Even with no runner overhead, two
+workers would need to remove 14.794 case-seconds. The named files in
+slices 2–8 account for 16.360 case-seconds total, of which the existing
+input, rendering and race observations consume a substantial share.
+The prior 18.18 s isolation probe still leaves 10.18 s of wall time
+and has open cross-file and whole-frontend proof. These results give no
+measured route to the target through the remaining setup changes.
+
+That checkpoint paused before the desktop-offer edit. The maintainer
+kept the elapsed target and authorized profiling and a different test
+approach. Prefer the highest typed production boundary and real
+collaborators. Consider a narrower boundary for a specific observation
+when paired proof demonstrates a substantial speed and stability gain.
+
+Run records, the five-case layout roster, the 71-case launch roster,
+per-phase timings and the discarded diff are in the checkout's
+`open-dough/evidence` Git path, indexed by `s1-layout-return.md`. The
+slice clock is paused at 5.9 active minutes. Trunk freshness was
+unchanged at `995fdf725` for the story and plan, and the incoming
+revision did not touch the launch selection or its runner.
+
+**Profiling and approach, 23 November 2026.** GitHub Actions run
+`45086986501`, attempt 1 at `e1593a0f2`, recorded all 71 launch
+cases across 24 files. The launch specs are in the remainder frontend
+shard. Local profiles used the same selection at `9fe334ce9` on AC
+macOS. In the action profile, 159 locator clicks took 33.12 of 56.69
+summed case-seconds. Tab, keyboard and hover or unhover accounted for
+4.04, 3.20 and 2.90 case-seconds. The instrumented host had variable
+load. The stage profile attributed 2.33 s to runner preparation and
+42.93 s to the Vitest browser run. Uninstrumented warm runs through
+npm took 15.88 and 16.24 s. Direct Node entry took 16.54 and 19.60 s
+and did not demonstrate a gain.
+
+Use in-browser control activation for incidental actions that exercise
+the mounted production owner. Keep native input where the assertion
+depends on trusted browser input, focus navigation, hit geometry,
+hover, touch, capture behavior or handoff. Preserve the full composed
+Follow up submission. An early activation probe re-opened a closed but
+still mounted dialog and submitted the notes choice before its effect
+reached the form owner. Wait for actual unmount before re-opening and
+for the control's observable readiness before activation. Use explicit
+actions at the case sites in any maintained version.
+
+The bounded prototype retained the entire 71-case roster in 13.48 s
+with normal isolation. The preceding unchanged run took 43.09 s, under
+different host load. The pilot results support the approach and leave
+the comparable wall-time gain and stability to be established on
+maintained changes. Adding browser state reuse passed at 14.50 s and
+18.29 s with two file orders, with no demonstrated additional gain.
+Keep normal isolation. After changing the high-cost actions, profile
+the remainder again. The retained 13.48 s trial's largest cases were
+desktop offers in both schemes (1.94 s), the two over-limit voice
+journeys (2.01 s together) and the three responsive keyboard startup
+journeys (2.12 s together). Each needs an observation-specific design.
+Raw profiles, phase totals, trial logs and proof records are in
+`launch-profile.7fbgrUHO`, `launch-entry.tvuJR4WZ` and `launch-phases`
+under the checkout's `open-dough/evidence` Git path.
+
+**Slice 1 retained change.** The existing `focusStops` recorder captures
+each real Tab transition from one browser keyboard command. The three
+consuming specs kept their 11 titles. The refinement dialog now records
+the full sequence at 320 CSS pixels and DPR 2, and Start session records
+its sequence at DPR 2. The all-flags layout case uses direct activation
+for checkbox setup and still checks the exact command and the hit
+geometry at both sizes. The disclosure case retains its native clicks.
+The focused selection passed in 14.88 s after 23.29 s before, while
+one-minute host load was 35.36–34.05 and 18.20–29.92, respectively.
+The maintained whole command passed the identical 71 titles in 24 files.
+Its 78.26 s elapsed was observed at natural load 80.51–72.38 and is
+behavior evidence only. The eight-second elapsed proof remains open.
+The paired focused commands, whole proof and independent consumer
+review are under `launch-phases/layout-*` in the evidence location.
 
 ## Timing evidence and decisions
 
@@ -83,7 +180,7 @@ case's prerequisites, action, and observable result.
 ### 1. Narrow and zoomed launch dialogs keep their full browser proof
 
 Type: Behavior
-Status: planned
+Status: done
 
 Begin with the costly layout cases in `ad-hoc-launch-dialog` and
 `ad-hoc-start-session-layout`. With temporary per-phase timestamps, measure
@@ -96,14 +193,13 @@ instrumentation before verifying the candidate. A before/after run of both
 files observes each layout and action cue. If the helper changes, include all
 its callers, including the native touch rotation case.
 
-At this first checkpoint run the whole selection at two workers with the
-chosen comparison condition. Record the remaining wall gap and which
-measured steps in later slices can close it. At the best exploratory time
-the gap is still about ten seconds. Continue only when the measured costs
-support a route to the target through simpler proof with equivalent
-observations. If the gap cannot plausibly close, stop before the next edit
-and name the remaining costs, rejected approaches and decision needed.
-Apply this check again after any result that changes the remaining estimate.
+Run the whole selection at two workers and preserve its case roster. Use
+the action-profile evidence to distinguish changes in incidental setup
+from the native observations. Reuse the focus recorder from
+`board-accessibility.ts` for dialog Tab sequences. Keep actual Tab on the
+explicit 320-pixel and DPR 2 paths. Record the remaining wall gap and
+which measured steps can still close it. Apply this check after every
+result that changes the remaining estimate.
 
 ### 2. Desktop offers keep their hover, keyboard and contrast observations
 
@@ -111,8 +207,9 @@ Type: Behavior
 Status: planned
 
 Measure offer transitions, hover/focus and light/dark changes separately.
-Try shortening setup before these observations or using one settled render
-for adjacent synchronous checks. Keep both note identities and both
+Start with the residual native offer case at 1.94 s in the 13.48 s
+prototype. Try sharing one real pointer transition with adjacent checks
+that consume the same state. Keep both note identities and both
 availability states, real hover and Tab disclosure, dialog wording,
 dismissal/focus, glyph, accessible description and both scheme comparisons.
 Use the typed `StoryCardLaunches` input with production offers and callbacks
@@ -248,3 +345,17 @@ the measurement route. Slice 1 bounds the open future saving with an early
 experiment and stop. A shared runner change is optional and has a separate
 proof requirement. The preparation found no additional slice-specific
 concern.
+
+
+## Story obligations
+
+### G1. Dialog keyboard order at 320 pixels
+Reported: slice 1 — "The 320px and DPR 2 dialog cases check rendered Host/Model or policy arrangement and hit geometry, and do not run the full Tab sequence at either condition."
+Story clause: "In a narrow or zoomed dialog, the offers and actions remain reachable in keyboard order."
+Disposition: proved by slice 1: ad-hoc-launch-dialog.spec.ts all-flags case enters the 320-pixel production dialog, records each native focus stop and verifies its order before checking flags and geometry
+Commitment: 27, 28
+### G2. Dialog keyboard order at DPR 2
+Reported: slice 1 — "The two explicit dialog Tab cases use the 640×450 CSS viewport. They do not apply or verify DPR 2."
+Story clause: "In a narrow or zoomed dialog, the offers and actions remain reachable in keyboard order."
+Disposition: proved by slice 1: the native Tab cases in ad-hoc-launch-dialog.spec.ts and ad-hoc-start-session-layout.spec.ts verify DPR 2 and each focus stop through the production dialog actions
+Commitment: 29, 30

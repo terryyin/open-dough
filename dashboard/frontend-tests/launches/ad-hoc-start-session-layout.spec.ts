@@ -39,6 +39,7 @@ async function open(offer: SessionPolicyOffer, viewport = twiceZoomedDialog) {
 
 test("Start session tabs from instruction through session choices and closed command details to Start", async () => {
   const form = await open("offered");
+  await zoomToTwoHundredPercent();
   const where = form.dialog.getByText(
     "The session runs in this project's folder on default main, with its existing changes.",
     { exact: true },

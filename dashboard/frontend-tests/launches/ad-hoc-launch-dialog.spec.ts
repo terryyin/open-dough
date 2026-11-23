@@ -14,10 +14,33 @@ import { openRefinement, refinementChoices } from "./refinement-launch-page.ts";
 const effect = "The session runs in this project's folder.";
 const preview = (identity: string) => `/dough-story-refinement ${identity}`;
 
-test("the instruction comes first, tabs in order, and the options disclosure keeps its summarized selection", async () => {
-  const { form, launcher, work, start } =
-    await openRefinement(twiceZoomedDialog);
+function followsRefinementTabOrder(
+  form: Awaited<ReturnType<typeof openRefinement>>["form"],
+) {
   const { dialog, host, model, effort, options, command, cancel } = form;
+  return followsTabOrder([
+    dialog.getByRole("button", { name: "Record", exact: true }),
+    dialog.getByRole("button", { name: "Attach images" }),
+    host,
+    model,
+    effort,
+    dialog.getByRole("radio", { name: "Standard" }),
+    options,
+    command,
+    cancel,
+    form.start,
+  ]);
+}
+
+test("the instruction comes first, tabs in order, and the options disclosure keeps its summarized selection", async () => {
+  const { form, launcher, work, start } = await openRefinement(
+    twiceZoomedDialog,
+    async (launcher) => {
+      await zoomToTwoHundredPercent();
+      await launcher.click();
+    },
+  );
+  const { dialog, host, model, options, cancel } = form;
   await expect.element(dialog.getByText(work.title)).toBeVisible();
   await expect.element(dialog.getByText(work.identity)).toBeVisible();
   await expect
@@ -41,18 +64,7 @@ test("the instruction comes first, tabs in order, and the options disclosure kee
   await expect.element(explore).not.toBeInTheDocument();
   await expect.element(code).not.toBeVisible();
   await expect.element(code).toHaveTextContent(preview(work.identity));
-  await followsTabOrder([
-    dialog.getByRole("button", { name: "Record", exact: true }),
-    dialog.getByRole("button", { name: "Attach images" }),
-    host,
-    model,
-    effort,
-    dialog.getByRole("radio", { name: "Standard" }),
-    options,
-    command,
-    cancel,
-    form.start,
-  ]);
+  await followsRefinementTabOrder(form);
 
   await options.click();
   await uxUi.click();
@@ -94,9 +106,16 @@ function fitsWithActionsInView(form: {
 test("with every option selected, Command details list every flag; Host stacks above Model at 320 pixels and sits beside it at 200% zoom, with every option and action reachable", async () => {
   const { form, work } = await openRefinement(narrowDialog);
   const { host, model, options, command, dialog } = form;
+  await followsRefinementTabOrder(form);
   await options.click();
-  for (const { label } of refinementChoices)
-    await dialog.getByRole("checkbox", { name: label, exact: true }).click();
+  for (const { label } of refinementChoices) {
+    const option = dialog.getByRole("checkbox", { name: label, exact: true });
+    await expect.element(option).toBeEnabled();
+    const input = option.element();
+    if (!(input instanceof HTMLInputElement))
+      throw new Error(`"${label}" is not an option checkbox.`);
+    input.click();
+  }
   await expect
     .poll(() => options.element().textContent)
     .toMatch(new RegExp(`\\(${refinementChoices.length}\\)$`));
