@@ -692,6 +692,40 @@ on 22 November 2026, when its correction found that rendering production
   eight stories. Every intermediate migration is usable on its own while
   the legacy entry still has a consumer.
 
+<a id="hold-adapter-proof-reasons-in-default-timeout"></a>
+
+### Prove each adapter proof reason below the E2E journey
+
+**Identity:** SEED-413#hold-adapter-proof-reasons-in-default-timeout
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/798-prove-adapter-proof-reasons-below-the-journey/PLAN.md"}
+```
+
+**Goal:** The adapter proof reasons journey gives the same verdict under the
+usual local load as in hosted CI. Each adapter proof reason keeps its exact
+line at the Dashboard proof-read boundary. The journey keeps one
+representative reason workflow in the Intent tab within the default timeout.
+
+**Scope:** Move the per-answer lines of the eight-round case in
+`e2e/intent/intent-ci-proof-adapter-reasons.spec.ts` into
+`Distribution/tests/support/dashboard-ci-adapter-proof.test.mjs`: exit
+nonzero, `schemaVersion` 3, another repository, attempt or revision, and a
+wrong envelope. Keep only the E2E rounds that need the real tab: one adapter
+reason with a neutral border, the oversized reason with the problem border,
+an unchanged verdict and attempt with no proof rows, and Check again reading
+discover and proof again. Update both file headers. The spec's other two
+cases and the reason wording stay unchanged.
+
+**Origin:** In SEED-423#install-without-the-custom-ci-adapter (plan 793,
+slice 4), at load average about 50, the eight-round case timed out twice
+(33.7 s and 39.7 s against 30 s) after every assertion passed. Its
+test-scoped Dashboard fixture used about 26 of the 30 seconds. It passed in
+11.2 s at load 25. Each reason line is a pure mapping from
+`dashboard/server/ciAdapterProof.ts` through `adapterUnavailableLine` in
+`dashboard/src/ciProofAbsenceWording.ts`, which the support test already
+proves for other reasons. Apply the
+[failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+
 <a id="frontend-renovation-evidence"></a>
 
 ### Frontend renovation evidence

@@ -320,6 +320,22 @@ which receives `v0.3.113` as the compatible tag. The slice clock reported 73.6
 active minutes because the hosted CI waits ran outside its `run` wrapper; the
 maintainer chose to finish the release.
 
+## Execution complete
+
+Product advice: The simplified custom CI contract shipped in v0.3.113 without
+changing the command wire contract. Pygardon's released command and settings
+work unchanged, so its adoption story reduces to updating to v0.3.113 and
+confirming live Dashboard admission and rebuild; its command needs no change.
+The size reduction was small, about 12 lines of touched runtime and 37 of
+manuals against the roughly 1,700-line audited area, because the boundary was
+already near-minimal and most of that area is shared CI behavior still in use.
+Remaining SEED-423 distribution-shrink stories should not count on further
+savings from the custom CI adapter. Pass this note to the Pygardon adoption
+story and keep current backlog priorities. The reasons-journey timeout under
+load is corrected by SEED-413#hold-adapter-proof-reasons-in-default-timeout
+(plan 798). Process review is deferred into wrap-up behind its Intent Coverage
+check.
+
 ## Verification and delivery
 
 - Use the [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
