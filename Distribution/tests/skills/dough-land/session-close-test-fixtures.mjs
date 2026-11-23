@@ -1,5 +1,7 @@
 // Shared setup for session close publication and resume proofs: one
 // unpublished edit in a Land workspace, closed through publishSessionClose.
+import { writeFile } from "node:fs/promises";
+import { sessionTitlePathBeside } from "../../../src/skills/dough-execute-plan/scripts/dashboard-landing.mjs";
 import { makeMe } from "../../support/makeMe.mjs";
 import { materializeRepository } from "../../support/repository-fixture.mjs";
 import { publishSessionClose } from "../../../src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
@@ -31,13 +33,16 @@ export const pulledBeforeOneUnpublishedEdit = makeMe.aRepository
 
 // A Dashboard launch's landing context, with the Dashboard's shared-checkout
 // note beside it when `sharedSince` is given.
-export async function aLaunchLandingContext(t, sharedSince) {
+export async function aLaunchLandingContext(t, sharedSince, title) {
   const receiver = await landingReceiver(t);
   const file = await landingContextFile(
     t,
     makeMe.aLandingContext.reportingTo(receiver.origin).please(),
   );
   if (sharedSince !== undefined) await noteSharedCheckout(file, sharedSince);
+  if (title !== undefined) {
+    await writeFile(sessionTitlePathBeside(file), JSON.stringify(title));
+  }
   return file;
 }
 

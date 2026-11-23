@@ -4,7 +4,8 @@
 // and trunk later moves on without it.
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { publishSessionClose } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import {
   landingReceiver,
   noteSharedCheckout,
@@ -50,6 +51,29 @@ export function addedOnBranch(
   writeAt(workspace, file, "published by another machine\n");
   commitAll(workspace, "Edit on the originating machine");
   return { workspace, trunk };
+}
+
+export async function closePublishedSession(
+  origin: StartOrigin,
+  sessionId: string,
+  file: string,
+  { title, landingContext }: { title?: string; landingContext?: string } = {},
+) {
+  const branch = `land/${sessionId}`;
+  const machine = addedOnBranch(origin, branch, file);
+  const close = await publishSessionClose({
+    workspace: machine.workspace,
+    session: { sessionId, workflow: "ad-hoc", story: undefined, title },
+    ...(landingContext === undefined ? {} : { landingContext }),
+    ...makeMe.anIncrementPublication
+      .with({
+        branch,
+        targetRef: "refs/heads/main",
+        previouslyPublishedBase: machine.trunk,
+      })
+      .please(),
+  });
+  expect(close.record.status).toBe("published");
 }
 
 // Trunk moves on from the originating clone with `file` written; answers the

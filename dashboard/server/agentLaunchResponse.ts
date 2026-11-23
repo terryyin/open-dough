@@ -32,11 +32,12 @@ import type { submitCompletion } from "./completionReporting.ts";
 import type { submitSessionBranchEntry } from "./sessionBranchEntry.ts";
 
 import type { LandingReceipt } from "../src/launchLanding.ts";
-import type { CompletedStoryAssociation } from "./completedStoryAssociation.ts";
+import type { CompletedStoryAssociationAnswer } from "../src/completedStoryAssociation.ts";
 
 export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: { readonly path: string } }
   | { readonly status: number; readonly body: { readonly drained: true } }
+  | { readonly status: number; readonly body: { readonly saved: true } }
   | { readonly status: number; readonly body: LandingReceipt }
   | {
       readonly status: number;
@@ -57,7 +58,7 @@ export type AgentLaunchAnswer =
   | { readonly status: number; readonly body: ChangedAnswer }
   | { readonly status: number; readonly body: ReconciledAnswer }
   | { readonly status: number; readonly body: VerifiedAnswer }
-  | { readonly status: number; readonly body: CompletedStoryAssociation }
+  | { readonly status: number; readonly body: CompletedStoryAssociationAnswer }
   // An answer serialized once and shared (`./machineSessionObservation.ts`),
   // with its shared gzip encoding when it has one.
   | ({ readonly status: number } & SharedAnswer)

@@ -2,6 +2,7 @@
 // done card, share that card across anchors, and return to Taken when reopened.
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
 import {
   parts,
   sessionStateOf,
@@ -13,12 +14,100 @@ import { doneCard } from "../../test-support/doneStoryReviewPage.ts";
 import { takenAdHocSession } from "../../test-support/support/startedAdHocSession.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { publishSourceCard } from "../../test-support/support/followUpSourceCatalog.ts";
+import { fileFollowUpDialog } from "../../test-support/support/fileFollowUpPage.ts";
+import { frontendAttempt } from "../../test-support/support/frontendLaunchAttempts.ts";
+import { installFrontendLaunchBoundary } from "../../test-support/support/frontendLaunchSubstitutes.ts";
+import { putFrontendDoneRecords } from "../../test-support/support/frontendServiceState.ts";
 import {
   adHocName,
   openBoard,
   sourceStory,
   storyFollowUp,
+  revision,
 } from "../../test-support/support/recentlyDoneFollowUpGrouping.ts";
+
+for (const from of [
+  "published card",
+  "local card",
+  "attached local session",
+] as const) {
+  test(`a follow-up from the ${from} is added to its original Done card`, async ({
+    page,
+    frontendServices,
+  }) => {
+    const reference = "22222222-2222-4222-8222-222222222222";
+    const story = {
+      identity: `ad-hoc#${reference}`,
+      title: "Keep the drafted work",
+      completedAt: new Date().toISOString(),
+    };
+    const original = makeMe.aLaunchRecord
+      .adHoc({ title: story.title, instruction: "Draft the release notes" })
+      .inClaudeSession({ sessionId: "original-draft", shortId: "original" })
+      .markedDoneAt(story.completedAt)
+      .originatedDoneStory(story)
+      .please();
+    if (from === "published card")
+      putFrontendDoneRecords(frontendServices, "open-dough", [
+        makeMe.aDoneRecord.with({ ...story, developer: "Terry Yin" }).please(),
+      ]);
+    await installFrontendSessionActions(page, frontendServices);
+    await openBoard(page, frontendServices, [original], {
+      unavailable: [original],
+    });
+    const attempt = frontendAttempt(
+      frontendServices,
+      frontendServices.machine?.records,
+    );
+    const boundary = await installFrontendLaunchBoundary(page, {
+      accept: attempt.accept,
+    });
+    const card = doneCard(page, story.title);
+    const byCard = from !== "attached local session";
+    const request =
+      from === "published card"
+        ? makeMe.aFollowUp.ofStory(story, revision)
+        : byCard
+          ? makeMe.aFollowUp.ofLocalStory(story.identity)
+          : makeMe.aFollowUp.ofSession(original);
+    await card
+      .getByRole("button", {
+        name: `Follow up ${byCard ? `${story.identity} — ${story.title}` : story.title}`,
+        exact: true,
+      })
+      .click();
+    const dialog = fileFollowUpDialog(page);
+    await expect(dialog).toContainText("Draft the release notes");
+    await expect(dialog.getByText(/^Status: Done\./)).toHaveCount(
+      byCard ? 1 : 0,
+    );
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect
+      .poll(() => boundary.acceptances)
+      .toEqual([expect.objectContaining({ followUp: request.please() })]);
+
+    const title = "Extend the notes";
+    const parent = byCard ? request : request.underStory(story.identity);
+    const started = makeMe.aLaunchRecord
+      .adHoc({ title, followUp: parent.please() })
+      .inClaudeSession({ sessionId: "draft-follow-up", shortId: "draft-fo" })
+      .please();
+    attempt.launch(started);
+    await boundary.tellChanged();
+    await showColumn(page, "Taken");
+    await markDoneAnyway(takenAdHocSession(page, title));
+    await showColumn(page, "Recently done");
+    await expect(card).toHaveCount(1);
+    await expect(storyCardSessions(card)).toHaveCount(2);
+    await expect(
+      storyCardSessions(card).filter({ hasText: title }),
+    ).toBeVisible();
+    await expect(
+      storyCardSessions(card).filter({ hasText: story.title }),
+    ).toBeVisible();
+    await expect(doneCard(page, title)).toHaveCount(0);
+  });
+}
 
 test("marking a follow-up Done moves it from Taken onto its source card", async ({
   page,

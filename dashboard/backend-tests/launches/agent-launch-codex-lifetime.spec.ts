@@ -188,20 +188,45 @@ test("deleting an unreadable Codex record remains deleted after a later native c
       }
     ).kind,
   ).toBe("launched");
-  expect(native.sockets.size).toBe(1);
-  native.readError = true; // Observation must be unreadable before established deletion is eligible.
-  expect(
-    (
-      await deleteRecord(dashboard, {
-        source: "open-dough",
-        session: native.threadId,
-        host: "codex",
-      })
-    ).status,
-  ).toBe(200);
-  expect(stored(dashboard.home)).toEqual([]);
-  native.failConnection();
-  await expect.poll(() => native.sockets.size).toBe(0);
+  const turnConnection = native.turnInputConnection;
+  if (turnConnection === undefined)
+    throw new Error("Missing native turn input connection.");
+  const reads = () =>
+    native.calls.filter(
+      ({ method, params }) =>
+        method === "thread/read" &&
+        params["threadId"] === native.threadId &&
+        params["includeTurns"] === false,
+    ).length;
+  const seen = reads();
+  native.observations.set(native.threadId, {
+    status: { type: "idle" },
+    turns: [],
+    holdRead: true,
+  });
+  const pending = machineSessions(dashboard);
+  try {
+    await expect.poll(reads).toBeGreaterThan(seen);
+    // An independent observation stays pending while the deletion's own read fails.
+    native.observations.delete(native.threadId);
+    native.readError = true;
+    expect(
+      (
+        await deleteRecord(dashboard, {
+          source: "open-dough",
+          session: native.threadId,
+          host: "codex",
+        })
+      ).status,
+    ).toBe(200);
+    expect(stored(dashboard.home)).toEqual([]);
+    expect(native.sockets.has(turnConnection)).toBe(true);
+    turnConnection.terminate();
+    await expect.poll(() => native.sockets.has(turnConnection)).toBe(false);
+  } finally {
+    native.releaseReads();
+    await pending;
+  }
   expect(stored(dashboard.home)).toEqual([]);
   expect(await machineSessions(dashboard)).toEqual([]);
 });

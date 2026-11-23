@@ -1,9 +1,11 @@
 // Binding takes the attempt lock before the record lock, like completion delivery.
 import { completionClosure, returnedOutcome } from "./completionClosure.ts";
-import { doneSessionRecord, type NativeDoneMarks } from "./doneMarks.ts";
+import type { NativeDoneMarks } from "./doneMarks.ts";
+import { prepareReportedDone } from "./doneSessionRecord.ts";
 import { type CompletionReport } from "../src/completionReport.ts";
 import { withKeptAttempts } from "./launchAttemptStore.ts";
 import { sameLaunch } from "../src/launchRequest.ts";
+import { keptDoneEvidence } from "../src/launchDone.ts";
 import { sessionKey } from "../src/sessionReference.ts";
 import { keptBranchEvidence } from "../src/sessionBranchResult.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
@@ -65,6 +67,9 @@ export async function bindRecord(
       completion === undefined
         ? "open"
         : await completionClosure(accepted, completion);
+    const markReportedDone = await prepareReportedDone(
+      closure === "open" ? undefined : accepted,
+    );
     await withBranchResultAtDone(
       accepted,
       closure === "open" ? undefined : completion?.receivedAt,
@@ -93,7 +98,7 @@ export async function bindRecord(
             existing === undefined
               ? reported !== undefined && closure !== "open"
                 ? await settle(
-                    doneSessionRecord(
+                    markReportedDone(
                       { ...accepted, landingReporting },
                       reported.receivedAt,
                     ),
@@ -101,8 +106,7 @@ export async function bindRecord(
                 : record
               : {
                   ...record,
-                  doneAt: existing.doneAt,
-                  doneProblem: existing.doneProblem,
+                  ...keptDoneEvidence(existing),
                   ...keptBranchEvidence(existing),
                 };
           return {

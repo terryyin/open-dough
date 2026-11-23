@@ -9,6 +9,7 @@ import type { PublishedWork } from "./publishedWork.ts";
 import { RecentlyDone } from "./RecentlyDone.tsx";
 import { useRecentlyDone } from "./recentlyDoneView.ts";
 import { columnSessionsOf } from "./columnSessions.ts";
+import { currentSessionCloses } from "./recentlyDoneLink.ts";
 import { columnsOf, Columns } from "./Columns.tsx";
 import { boardMarks } from "./storyCardFocus.ts";
 import { useBoardSwipe } from "./boardSwipe.ts";
@@ -47,6 +48,7 @@ export function Board({
     sourceId,
     launches.launched,
     unfinishedIdentities,
+    currentSessionCloses(work, sourceId),
   );
   const read = launches.records !== undefined;
   const sessions = {

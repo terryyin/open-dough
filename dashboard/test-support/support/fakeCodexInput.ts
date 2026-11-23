@@ -39,6 +39,7 @@ export function answerCodexInput(
   fixture.beforeInput?.();
   const accepted = () => {
     if (client.readyState !== 1) return;
+    Object.assign(fixture, { turnInputConnection: client });
     reply({ turn: { id: "native-turn-id", status: "inProgress" } });
     if (fixture.afterAcceptance === "complete")
       client.send(

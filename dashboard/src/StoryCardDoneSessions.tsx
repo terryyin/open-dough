@@ -43,7 +43,7 @@ export function StoryCardDoneSessions({
               record={record}
               onStoryCard
               storyCardAssignments={storyCardAssignments}
-              followUp={followUpOf(record)}
+              additionalActions={followUpOf(record)}
             />
           </li>
         ))}

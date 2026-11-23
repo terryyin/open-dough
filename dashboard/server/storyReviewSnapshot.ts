@@ -12,7 +12,11 @@ import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { withResponseSignal } from "./responseSignal.ts";
 import { knownSource } from "./sessionAdmission.ts";
-import { reviewInput, type StoryReviewInput } from "./storyReviewInput.ts";
+import {
+  missingOriginatingComparison,
+  reviewInput,
+  type StoryReviewInput,
+} from "./storyReviewInput.ts";
 import type { AdmittedStoryReview } from "./storyReviewRequest.ts";
 import {
   keptStoryReview,
@@ -20,7 +24,10 @@ import {
 } from "./storyReviewRecordAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
-import { publishedSessionReview } from "./publishedSessionReview.ts";
+import {
+  publishedSessionReview,
+  reviewPublishedSessionRange,
+} from "./publishedSessionReview.ts";
 import { historicalStoryReview } from "./storyReviewHistorical.ts";
 import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
 
@@ -43,6 +50,17 @@ export async function storyReview(
   input: StoryReviewInput,
   signal: AbortSignal,
 ): Promise<StoryReview> {
+  if ("originating" in input) {
+    const comparison = input.originating;
+    return comparison === undefined
+      ? { kind: "unavailable", explanation: missingOriginatingComparison }
+      : reviewPublishedSessionRange(
+          comparison.source,
+          comparison.range,
+          comparison.closedAt,
+          signal,
+        );
+  }
   if ("published" in input)
     return publishedSessionReview(
       input.published,

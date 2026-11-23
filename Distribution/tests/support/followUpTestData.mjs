@@ -35,6 +35,8 @@ export class FollowUpBuilder {
   #attachNotes = false;
   /** @type {string | undefined} */
   #context;
+  /** @type {string | undefined} */
+  #storyIdentity;
   /** @type {AttachedStoryNote[] | undefined} */
   #attached;
 
@@ -52,12 +54,23 @@ export class FollowUpBuilder {
   /**
    * Follows up this done story at the revision the page showed.
    * @param {string | { readonly identity: string }} story
-   * @param {string} revision
+   * @param {string} [revision]
    */
   ofStory(story, revision) {
     this.#kind = "story";
     this.#identity = typeof story === "string" ? story : story.identity;
     this.#revision = revision;
+    return this;
+  }
+
+  /** Follows up a local Done card. @param {string} identity */
+  ofLocalStory(identity) {
+    return this.ofStory(identity);
+  }
+
+  /** Membership kept by admission for a session source. @param {string} identity */
+  underStory(identity) {
+    this.#storyIdentity = identity;
     return this;
   }
 
@@ -121,18 +134,17 @@ export class FollowUpBuilder {
       return {
         session: { ...this.#session },
         ...(this.#context === undefined ? {} : { context: this.#context }),
+        ...(this.#storyIdentity === undefined
+          ? {}
+          : { storyIdentity: this.#storyIdentity }),
       };
     }
-    if (
-      this.#kind !== "story" ||
-      this.#identity === undefined ||
-      this.#revision === undefined
-    )
+    if (this.#kind !== "story" || this.#identity === undefined)
       throw new Error("state .ofSession(...) or .ofStory(story, revision)");
     return {
       story: {
         identity: this.#identity,
-        revision: this.#revision,
+        ...(this.#revision === undefined ? {} : { revision: this.#revision }),
         ...(this.#file === undefined ? {} : { file: { ...this.#file } }),
         ...(this.#attachNotes ? { notes: true } : {}),
       },

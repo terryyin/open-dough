@@ -60,11 +60,13 @@ export type FrontendSessionActions = {
 function markedDone(
   record: LaunchWithState,
   doneProblem: string | undefined,
+  doneStory: LaunchWithState["doneStory"],
 ): LaunchWithState {
   return {
     ...record,
     doneAt: new Date().toISOString(),
     ...(doneProblem === undefined ? {} : { doneProblem }),
+    ...(doneStory === undefined ? {} : { doneStory }),
     sessionState:
       record.sessionState.kind === "available"
         ? { kind: "available", availability: "retained", activity: "review" }
@@ -76,7 +78,13 @@ function markedDone(
 export async function installFrontendSessionActions(
   page: Page,
   services: FrontendServiceState,
-  { doneProblem }: { readonly doneProblem?: string } = {},
+  {
+    doneProblem,
+    doneStory,
+  }: {
+    readonly doneProblem?: string;
+    readonly doneStory?: LaunchWithState["doneStory"];
+  } = {},
 ): Promise<FrontendSessionActions> {
   const asked: Record<SessionAction, string[]> = {
     done: [],
@@ -100,7 +108,7 @@ export async function installFrontendSessionActions(
     }
     const changed =
       action === "done"
-        ? markedDone(record, doneProblem)
+        ? markedDone(record, doneProblem, doneStory)
         : { ...record, reportRead: record.completion?.receipt };
     put(records().map((kept) => (kept === record ? changed : kept)));
     return { record: changed };

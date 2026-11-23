@@ -46,10 +46,6 @@ Still ahead:
   proof. Opening a file's Proof and returning to its diff restores the path,
   line and comparison. Code and CI can have different evidence available:
   name the measured build, and explain a missing matching baseline.
-- **Done work.** Marking an ad hoc session Done creates a Done story only if
-  it has no story. The original session and its follow-ups appear under that
-  story with their own session IDs. A retained standalone record from before
-  this change still opens its own comparison.
 
 Open choices that are not interface direction stay in
 [project visibility requirements](project-visibility-requirements.md#questions-retained-for-later-design).

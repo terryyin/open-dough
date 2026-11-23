@@ -21,11 +21,13 @@ import type {
 } from "../src/followUpRequest.ts";
 import { storyNotesContext } from "../src/followUpStoryNotes.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { sessionStoryAssociation } from "../src/retainedStoryMembership.ts";
 import { storyNoteVersion } from "../src/storyNote.ts";
 import { admitFollowUpFile } from "./followUpFileAdmission.ts";
-import { doneStorySessions, publishedDoneStory } from "./followUpStory.ts";
+import { doneStoryFollowUp } from "./followUpStory.ts";
 import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
+import { publishedLaunchClose } from "./publishedLaunchClose.ts";
 import { waitingStoryNotes } from "./storyNotes.ts";
 
 async function resolveFollowUp(
@@ -34,10 +36,10 @@ async function resolveFollowUp(
 ): Promise<{
   context: FollowUpContext;
   notes?: AttachedStoryNote[];
+  storyIdentity?: string;
 }> {
   if ("story" in followUp) {
-    const story = await publishedDoneStory(source, followUp.story);
-    const sessions = await doneStorySessions(source, followUp.story.identity);
+    const { story, sessions } = await doneStoryFollowUp(source, followUp.story);
     const file =
       followUp.story.file === undefined
         ? undefined
@@ -46,7 +48,12 @@ async function resolveFollowUp(
             followUp.story.identity,
             followUp.story.file,
           );
-    const base = storyContext(story, sessions, file);
+    const base = storyContext(
+      story,
+      sessions,
+      file,
+      followUp.story.revision === undefined,
+    );
     if (followUp.story.notes !== true) return { context: base };
     const waiting = await waitingStoryNotes(source.id, followUp.story.identity);
     if (waiting === "unreadable")
@@ -65,7 +72,27 @@ async function resolveFollowUp(
       404,
       "The session this follows up is no longer kept on this machine.",
     );
-  return { context: { sessions: [sessionContext(record)] } };
+  const membership =
+    record.doneAt === undefined
+      ? undefined
+      : sessionStoryAssociation(
+          record,
+          await publishedLaunchClose(
+            source,
+            record,
+            AbortSignal.timeout(10_000),
+          ),
+        );
+  if (membership?.kind === "conflict")
+    throw new RefusedRequest(
+      409,
+      "Choose the session's story before starting a follow-up.",
+    );
+  const storyIdentity = membership?.identity;
+  return {
+    context: { sessions: [sessionContext(record)] },
+    ...(storyIdentity === undefined ? {} : { storyIdentity }),
+  };
 }
 
 export async function withFollowUpContext(
@@ -84,6 +111,9 @@ export async function withFollowUpContext(
       ...request.followUp,
       context: followUpContextText(resolved.context),
       ...(resolved.notes === undefined ? {} : { notes: resolved.notes }),
+      ...(resolved.storyIdentity === undefined
+        ? {}
+        : { storyIdentity: resolved.storyIdentity }),
     },
   };
 }

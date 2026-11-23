@@ -1,6 +1,8 @@
 // Shared review-read adapter: turns a typed wire or page read into the
 // handler's ReviewInput, admitting the named kept launch for a session read.
+import { adHocStorySessionId } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
 import type {
   PublishedSessionFileRead,
   ReviewedFileRead,
@@ -22,10 +24,17 @@ import type {
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { projectFolder } from "./projectFolders.ts";
-import type { PublishedSessionSource } from "./publishedSessionReview.ts";
+import {
+  publishedSessionRecord,
+  type PublishedSessionRange,
+  type PublishedSessionSource,
+} from "./publishedSessionReview.ts";
 import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
 import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
-import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
+import {
+  admissionBound,
+  throwIfRequestAborted,
+} from "./storyReviewHistoricalFileAdmission.ts";
 
 // The story path keeps its read. A session read carries the admitted record
 // and the comparison or file fields its handler needs.
@@ -49,19 +58,76 @@ export interface PublishedSessionInput<
   readonly now: Date;
 }
 
+type OriginatingStoryComparison = {
+  readonly source: PublishedSessionSource;
+  readonly range: PublishedSessionRange;
+  readonly closedAt: string;
+};
+
+type OriginatingStoryInput<R> = {
+  readonly read: R;
+  readonly originating: OriginatingStoryComparison | undefined;
+};
+
+export const missingOriginatingComparison =
+  "No published comparison is available for this story.";
+
 export type KeptStoryReviewInput = ReviewInput<
   StoryReviewRead & { readonly subject: ReviewedStorySubject },
   SessionReviewRead
 >;
 export type StoryReviewInput =
-  KeptStoryReviewInput | PublishedSessionInput<PublishedSessionReviewRead>;
+  | KeptStoryReviewInput
+  | PublishedSessionInput<PublishedSessionReviewRead>
+  | OriginatingStoryInput<StoryReviewRead>;
 
 export type ReviewedFileInput =
   | ReviewInput<
       ReviewedFileRead & { readonly subject: ReviewedStorySubject },
       SessionFileRead
     >
-  | PublishedSessionInput<PublishedSessionFileRead>;
+  | PublishedSessionInput<PublishedSessionFileRead>
+  | OriginatingStoryInput<ReviewedFileRead>;
+
+async function publishedSourceFor(
+  source: PublishedSource,
+  session: string,
+  signal: AbortSignal,
+) {
+  return fetchedPublishedSessionSource(
+    projectFolder(source).path,
+    source,
+    session,
+    {
+      admission: () => admissionBound(signal),
+      fetch: () => admissionBound(signal),
+    },
+  );
+}
+
+async function originatingStoryComparison(
+  subject: ReviewedStorySubject,
+  session: string,
+  signal: AbortSignal,
+): Promise<OriginatingStoryComparison | undefined> {
+  const project = knownSource(subject.source);
+  try {
+    const source = await publishedSourceFor(project, session, signal);
+    const record = await publishedSessionRecord(
+      source,
+      session,
+      new Date(),
+      signal,
+    );
+    const [range] = record.ranges;
+    if (record.story === subject.identity && range !== undefined)
+      return { source, range, closedAt: record.closedAt };
+  } catch (error) {
+    throwIfRequestAborted(signal);
+    if (!(error instanceof RefusedRequest) || error.status !== 404) throw error;
+  }
+  return undefined;
+}
 
 // Resolve the session once at the shared comparison and file boundary.
 async function admitReviewSession(
@@ -86,13 +152,13 @@ async function admitReviewSession(
 // to SessionReviewRead / SessionFileRead so story-only fields cannot reach the
 // session handlers.
 export async function reviewInput(
-  read: StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead,
-  signal: AbortSignal,
-): Promise<StoryReviewInput>;
-export async function reviewInput(
   read: ReviewedFileRead | SessionFileRead | PublishedSessionFileRead,
   signal: AbortSignal,
 ): Promise<ReviewedFileInput>;
+export async function reviewInput(
+  read: StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead,
+  signal: AbortSignal,
+): Promise<StoryReviewInput>;
 export async function reviewInput(
   read:
     | StoryReviewRead
@@ -104,17 +170,12 @@ export async function reviewInput(
   signal: AbortSignal,
 ): Promise<StoryReviewInput | ReviewedFileInput> {
   if (isPublishedRead(read)) {
-    const source = knownSource(read.subject.source);
     return {
       read,
-      published: await fetchedPublishedSessionSource(
-        projectFolder(source).path,
-        source,
+      published: await publishedSourceFor(
+        knownSource(read.subject.source),
         read.subject.published,
-        {
-          admission: () => admissionBound(signal),
-          fetch: () => admissionBound(signal),
-        },
+        signal,
       ),
       now: new Date(),
     };
@@ -146,6 +207,12 @@ export async function reviewInput(
   // Published and session subjects were answered above; only a story remains.
   if (!isReviewedStorySubject(subject))
     throw new RefusedRequest(400, "The review request is malformed.");
+  const session = adHocStorySessionId(subject.identity);
+  if (session !== undefined)
+    return {
+      read,
+      originating: await originatingStoryComparison(subject, session, signal),
+    };
   return { read: { ...read, subject } };
 }
 

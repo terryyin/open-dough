@@ -1,5 +1,5 @@
 // What Recently done lists for the project shown. It combines published
-// stories by completion time and the saved Done sessions the Board's
+// and local stories by completion time and the saved Done sessions the Board's
 // placement leaves to it (`./columnSessions.ts`) by launch time; listed
 // cards nest their own closed sessions and closed story follow-ups
 // (`./recentlyDoneListing.ts`), and unknown or failed published details
@@ -68,8 +68,13 @@ function useDestinationAnswer(
       range.settle(id, 0, "absent");
       return;
     }
-    if (done === undefined || done.status === "loading") return;
     const at = listed.findIndex((each) => holdsEntry(each, entry));
+    const destination = listed[at];
+    if (
+      (done === undefined || done.status === "loading") &&
+      (destination === undefined || !("localStory" in destination))
+    )
+      return;
     if (at < 0) {
       range.settle(id, 0, "absent");
       return;
@@ -134,25 +139,10 @@ export function useRecentlyDone({
   const revision =
     done?.status === "catalogued" ? done.revision : work.revision;
   const now = new Date();
-  const recent = recentDoneRecords(done, now);
-  const extras = [
-    ...new Set(
-      [includeIdentity, range.includedStory(sourceId)].filter(
-        (identity): identity is string => identity !== undefined,
-      ),
-    ),
-  ];
-  const included =
-    extras.length === 0 || done?.status !== "catalogued"
-      ? recent
-      : [
-          ...recent,
-          ...done.records.filter(
-            (record) =>
-              extras.includes(record.identity) &&
-              !recent.some((each) => each.identity === record.identity),
-          ),
-        ];
+  const included = recentDoneRecords(done, now, [
+    includeIdentity,
+    range.includedStory(sourceId),
+  ]);
   const { publishedSessions } = work;
   const listed = newestFirst(
     included,
@@ -160,6 +150,7 @@ export function useRecentlyDone({
     sourceId,
     keptLaunches,
     currentPublishedSessions(publishedSessions, now),
+    now,
   );
   // The entry holding the keyboard stays shown wherever it now stands.
   const held = range.heldIn(sourceId);

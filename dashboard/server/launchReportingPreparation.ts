@@ -76,6 +76,7 @@ export async function prepareAttemptReporting(
   folder: ProjectFolder,
   pending: LaunchRecord | undefined,
   kept: LaunchAttemptRecord["reporting"] | undefined,
+  sessionTitle: string,
 ): Promise<
   | { readonly kind: "prepared"; readonly prepared?: PreparedAttemptReporting }
   | { readonly kind: "failed"; readonly result: LaunchResult }
@@ -91,6 +92,7 @@ export async function prepareAttemptReporting(
             establishedPlace(
               pending ?? establishedLaunch(start)?.handoff.established ?? {},
             ),
+            sessionTitle,
           )
         : { reporting: kept };
     return prepared === undefined

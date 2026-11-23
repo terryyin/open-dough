@@ -31,6 +31,7 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 ### Occurrences
 
 - Execution: SEED-420#open-review-changes-from-a-story-card (plan 777, first implementation `e8466f474`). Timestamp: 2026-11-23T04:01:10Z (first failed frontend case in run 45108969606, attempt 1). Tool: Codex. Open Dough release: 0.3.110 (installed `.agents/skills/dough-update/VERSION` at Take `0f9df4dcc`). Evidence: Slice 6 migrated the named frame cases and Slice 7 removed the Story card Side panel route. The navigation width fixture `side-panel-width-view.ts` still pressed the old card action and expected a panel. Nine callers across five specs failed on runs 45108969606 and 45111917098. The repair after `d31aee723` reached the actual ad hoc Done entry and preserved all nine frame observations. The single migrated landed-note coverage probe caught a wrong comparison baseline, and verified restoration. Observed effect: two failing branch attempts and a separate repair. Inference: tracing Test Support imports outside the review spec group and reading their actual openers before accepting the route change would have exposed the obsolete fixture.
+- Execution: SEED-420#review-standalone-done-work (plan 756, first implementation `7a8697b8a`). Timestamp: 2026-11-23T08:26:39Z (failed lint step in run 45138365896). Tool: Codex. Open Dough release: 0.3.112 (installed dough-update VERSION at Take `7a3a582db`). Evidence: the first Land slice passed focused Distribution proof, but the untouched `e2e/sessions/recently-done-published-sessions.spec.ts` received untyped comparisons; CI found the unsafe access, and `04a44e6ec` restored the typed boundary. Run 45145976785 caught the existing quiet Claude row query matching both the row and its containing article after the Board slice; `fa1ab88e2` scoped it to the session. Observed effect: two failing branch attempts and two separate repairs. Inference: checking the untouched clone consumer and row-query callers before delivery would have exposed both.
 
 ## DD-613 — Parity proof answers every read at once <a id="dd-613"></a>
 
@@ -137,7 +138,6 @@ this execution.
   - Open Dough release: unknown (checkout-bound installed guidance at Take `ac8d1fc21`)
   - Timestamp: unknown (2026-11-18, slice 8 briefing)
   - Evidence: SEED-382#run-the-integrated-group-as-one-ci-job closed on trunk (`175762614`) before this Take; plan 689 slice 8 still told the slice to set `dashboard-integrated` to one shard in `ci.yml`, `shards.md` and the shard check. The coordinator found them landed while briefing and aligned the plan text.
-  - Observed effect: one inspection; no merge or conflict.
 
 ## DD-548 — Removal and CI-switch slices overran with proof complete
 
