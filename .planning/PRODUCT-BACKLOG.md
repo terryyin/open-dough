@@ -33,10 +33,10 @@ intent introduced or affected by a newly developed story.
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison ([plan](slice-plans/791-read-ci-proof-for-the-selected-comparison/PLAN.md))
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context ([plan](slice-plans/794-finish-slices-within-a-bounded-working-context/PLAN.md))
 - [Speed up Intent story comparison frontend proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-comparison-frontend-proof) — SEED-413#speed-story-comparison-frontend-proof
+- [Call custom CI through a minimal adapter interface](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter ([plan](slice-plans/793-call-custom-ci-through-a-minimal-adapter-interface/PLAN.md))
 
 ## Backlog list
 
-- [Call custom CI through a minimal adapter interface](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter
 - [Update from the previous release without legacy readers](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats
 - [Read and collect CI proof only in declared units](seeds/SEED-423-shrink-the-installed-distribution.md#require-declared-units-in-ci-proof) — SEED-423#require-declared-units-in-ci-proof
 - [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory

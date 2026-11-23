@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yui-chan",
+  "email": "yui-chan@example.org",
+  "identity": "SEED-423#install-without-the-custom-ci-adapter",
+  "mode": "story-branch",
+  "branch": "claude/call-custom-ci-through-a-minimal-adapter-interfa",
+  "host": "claude"
+}
