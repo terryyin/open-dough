@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "5c3a25ce-38ad-4ff4-922f-d5406af58747",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T06:37:44.145Z",
+  "story": "SEED-425#resume-existing-plans-after-upgrade",
+  "ranges": [
+    {
+      "base": "d68555025490de459cf4cb30f961dbde202e91cc",
+      "candidate": "9cff32a6a456cc47e143496f108284c28c736ce1"
+    },
+    {
+      "base": "9cff32a6a456cc47e143496f108284c28c736ce1",
+      "candidate": "201585eeccbcf1f2c1a3870f2b16efc9187b1613"
+    },
+    {
+      "base": "201585eeccbcf1f2c1a3870f2b16efc9187b1613",
+      "candidate": "bcb8a81482ca7213036ff8fd9a63c7d30f937c35"
+    },
+    {
+      "base": "bcb8a81482ca7213036ff8fd9a63c7d30f937c35",
+      "candidate": "c7e312248ece9c233a8c85c6cdb577a178dd9432"
+    }
+  ]
+}
