@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "sessionId": "1373783a-6f53-46c2-be31-5adf7cd10b61",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T07:49:36.139Z",
+  "story": "SEED-413#correct-scope-timing-chart-proof-residue",
+  "ranges": [
+    {
+      "base": "d4a9e355b8f7fa4535d5233e1475a43331918d96",
+      "candidate": "4a33586493b96ba0cc99c9dc52291bb4e7412c2e"
+    },
+    {
+      "base": "4a33586493b96ba0cc99c9dc52291bb4e7412c2e",
+      "candidate": "50d02ebe7b0af66a00c48c9c7543dafd96eaccf7"
+    },
+    {
+      "base": "50d02ebe7b0af66a00c48c9c7543dafd96eaccf7",
+      "candidate": "46d4932f6640744d103eade04c405937788bfa30"
+    },
+    {
+      "base": "46d4932f6640744d103eade04c405937788bfa30",
+      "candidate": "ff7fdc2f141bd76d297856c8fcd7536b3b5c14e7"
+    },
+    {
+      "base": "ff7fdc2f141bd76d297856c8fcd7536b3b5c14e7",
+      "candidate": "1b0f34a1582e6b20c40548c72b0808b1facff2cc"
+    }
+  ]
+}
