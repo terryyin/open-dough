@@ -182,7 +182,7 @@ tag cannot install until slice 7. `compare-payload.sh` proves both formats;
 
 ### 4. Reconcile files dropped by releases of either format
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 11–15 minutes.
 
 Given a retired managed path present in either native root, read the same-tag
@@ -198,6 +198,13 @@ directory-format tag supplying a tracked leftover and a list-era tag
 containing a withheld file. Observe removal and refusal/force at the
 `apply` boundary in both roots, and preservation of the withheld and
 project-owned files.
+
+Delivered: history reads each tag's `install.sh` first; directory tags take
+paths and blobs from their tree through `read_release_tree_payload`, and only
+list-era tags fetch fragments for the legacy reader. Leftovers compare with the
+incoming `read_release_payload`. A project copy of a withheld file is observable
+only under force, because the existing baseline check guards every path in the
+current list.
 
 ### 5. Keep local snapshot drift out of a pinned directory release
 Type: Behavior
@@ -259,6 +266,15 @@ install cases name the new helpers. Run the maintained installation group
 and reached fixture consumers, including `repository-release.test.mjs`, the
 installed entry check, and release-source evaluation cases whose inputs
 changed.
+
+## Learnings
+
+- `Distribution/tests/installation/self-installation-baseline.sh` runs close to
+  the runner's 180 s job deadline under load. During slice 4 at load averages
+  of 23–50, trunk `28785ac04` took 146 s and then timed out at 182 s, while the
+  candidate took 81 s and 165 s. CI passed. The failure policy makes it this
+  execution's defect to repair before completion; the cause is its run time,
+  not this story's change.
 
 ## Plan review
 

@@ -39,11 +39,28 @@ refuse_invalid_shipped_entries() {
   return "${failed}"
 }
 
+# Succeeds when the installer file marks its release as directory-format.
+directory_format_installer() {
+  grep -qx 'open_dough_payload_format=directory' "$1" 2> /dev/null
+}
+
+# Prints "<path>\t<blob>" for each file a directory-format tag delivers, read
+# from the tag's Git tree, so a blob-filtered history needs no file contents.
+read_release_tree_payload() {
+  local repository=$1 tag=$2
+  git -C "${repository}" ls-tree -r "${tag}" -- Distribution/src/skills | awk -F'\t' '
+    { split($1, meta, " ") }
+    meta[2] == "blob" && meta[1] != "120000" {
+      sub(/^Distribution\/src\/skills\//, "", $2); print $2 "\t" meta[3]
+    }
+  '
+}
+
 # Prints the payload paths the release at checkout delivers, one per line.
 # A directory-format tree with an invalid entry fails verification.
 read_release_payload() {
   local checkout=$1 skills=$1/Distribution/src/skills
-  if grep -qx 'open_dough_payload_format=directory' "${checkout}/install.sh" 2> /dev/null; then
+  if directory_format_installer "${checkout}/install.sh"; then
     refuse_invalid_shipped_entries "${checkout}" || return 1
     (cd -- "${skills}" && find . -type f) | sed 's|^[.]/||' | LC_ALL=C sort
   else
