@@ -1,102 +1,94 @@
-// Mark as done in the page's one terminal, against a controlled machine read,
-// done boundary (../../test-support/support/frontendSessionActions.ts) and attached
-// terminal: a refused mark keeps the panel open and says so as a problem, as
-// an ended terminal does, and a mark answered after another session replaced
-// the panel leaves the keyboard in the new terminal. The real mark that
-// closes the panel and renames the session is
-// ../../../e2e/sessions/agent-terminal-done.spec.ts; pending and failed
-// answers are ./agent-terminal-done-pending.spec.ts.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import {
+  execution,
+  holdExecutionMark,
+  mountSessionCards,
+  otherStory,
+  sessionsReading,
+  workingSession,
+} from "./session-card-mount.ts";
+import { cardSession, namedCard } from "./session-card-page.ts";
+import {
+  markWorkingTerminalDone,
+  openCardTerminal,
+  terminal,
+  terminalInput,
+  terminalMarkDone,
+  terminalStatus,
+} from "./session-terminal-page.ts";
+import {
+  openAttachedTerminal,
+  terminalSocket,
+} from "./session-terminal-socket.ts";
 
-import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import {
-  cardSession,
-  cardSessionEntry,
-  openCardSessionTerminal,
-} from "../../test-support/support/frontendCardSessions.ts";
-import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
-import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
-import { directedApplication } from "../../test-support/support/terminalSubstituteApplication.ts";
-import {
-  markAsDone,
-  markDoneAnyway,
-  sendDoneMarkAnyway,
-} from "../../test-support/support/markDone.ts";
-import {
-  notRefinedStory,
-  readyStory,
-} from "../../test-support/launchJourney.ts";
-import { colourOf, tokenColour } from "../../test-support/pageColours.ts";
-import { terminalScreenParts } from "../../test-support/terminalScreenPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+function problemColour() {
+  const sample = document.body.appendChild(document.createElement("span"));
+  sample.style.color = "var(--problem)";
+  const colour = getComputedStyle(sample).color;
+  sample.remove();
+  return colour;
+}
 
-const working = makeMe.aSessionState.loaded("working").please();
-
-test("a refused mark keeps the panel open and says so as a problem, as an ended terminal does", async ({
-  page,
-  frontendServices,
-}) => {
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(cardSession("Execution", readyStory, working))
-      .please(),
-  );
-  const actions = await installFrontendSessionActions(page, frontendServices);
-  const terminal = directedApplication("attached abcdef12\r\nClaude Code\r\n");
-  await installAttachedTerminalSubstitute(page, {
-    application: terminal.application,
+test("a refused mark keeps the panel open and says so as a problem, as an ended terminal does", async () => {
+  let endTerminal: () => void = () => {
+    throw new Error("The execution terminal was not opened.");
+  };
+  await mountSessionCards({
+    reading: sessionsReading("working", workingSession(execution)),
+    markDone: () => Promise.resolve({ kind: "refused" }),
+    openTerminal: () => {
+      const connection = terminalSocket("attached execution");
+      endTerminal = connection.end;
+      return connection.socket;
+    },
   });
-  await openFrontendTakenBacklog(page);
-  const panel = await openCardSessionTerminal(page, readyStory, "Execution");
-  const status = panel.getByRole("status");
-  actions.refuseNext("done", "The project folder could not be found.");
+  await openCardTerminal();
+  await markWorkingTerminalDone();
 
-  await markDoneAnyway(panel);
+  const refused = terminalStatus.getByText(
+    "The session could not be marked done.",
+  );
+  await expect.element(refused).toBeVisible();
+  expect(getComputedStyle(refused.element()).color).toBe(problemColour());
+  await expect.element(terminal).toBeVisible();
+  await expect.element(terminalMarkDone).toBeEnabled();
 
-  const refused = status.getByText("The session could not be marked done.");
-  await expect(refused).toBeVisible();
-  expect(await colourOf(refused)).toBe(await tokenColour(page, "--problem"));
-  await expect(panel).toBeVisible();
-  await expect(markAsDone(panel)).toBeEnabled();
-
-  // The attached CLI ending on its own still shows as a problem.
-  terminal.end();
-  const ended = status.getByText("The terminal ended");
-  await expect(ended).toBeVisible();
-  expect(await colourOf(ended)).toBe(await tokenColour(page, "--problem"));
+  endTerminal();
+  const ended = terminalStatus.getByText("The terminal ended");
+  await expect.element(ended).toBeVisible();
+  expect(getComputedStyle(ended.element()).color).toBe(problemColour());
+  await expect
+    .element(terminalStatus.getByRole("button", { name: "Open again" }))
+    .toBeEnabled();
 });
 
-test("a mark answered after another session replaced the panel leaves the keyboard in the new terminal", async ({
-  page,
-  frontendServices,
-}) => {
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        cardSession("Execution", readyStory, working),
-        cardSession("Refinement", notRefinedStory, working),
-      )
-      .please(),
+test("a mark answered after another session replaced the panel leaves the keyboard in the new terminal", async () => {
+  const refinement = makeMe.aLaunchRecord.refining(otherStory).please();
+  const mark = holdExecutionMark();
+  await mountSessionCards({
+    reading: sessionsReading(
+      "working",
+      workingSession(execution),
+      workingSession(refinement),
+    ),
+    markDone: () => mark.answer,
+    openTerminal: openAttachedTerminal,
+  });
+  await openCardTerminal();
+  await markWorkingTerminalDone();
+  await expect.element(terminalStatus).toHaveTextContent("Marking as done…");
+
+  await openCardTerminal(
+    cardSession(namedCard(otherStory.title), "Refinement session"),
   );
-  const actions = await installFrontendSessionActions(page, frontendServices);
-  await installAttachedTerminalSubstitute(page);
-  await openFrontendTakenBacklog(page);
-  const panel = await openCardSessionTerminal(page, readyStory, "Execution");
-  const held = actions.holdNext("done");
-  await sendDoneMarkAnyway(panel);
-  await expect(panel.getByRole("status")).toHaveText("Marking as done…");
+  const refinementPanel = terminal.getByText("Refinement session", {
+    exact: true,
+  });
+  await expect.element(refinementPanel).toBeVisible();
+  mark.release();
 
-  await openCardSessionTerminal(page, notRefinedStory, "Refinement");
-  await expect(panel).toContainText("Refinement session");
-  const typing = terminalScreenParts(panel).input;
-  await expect(typing).toBeFocused();
-  held.release();
-  await held.delivered;
-
-  await expect(cardSessionEntry(page, readyStory, "Execution")).toHaveCount(0);
-  await expect(panel).toContainText("Refinement session");
-  await expect(typing).toBeFocused();
+  await expect.element(cardSession().entry).not.toBeInTheDocument();
+  await expect.element(refinementPanel).toBeVisible();
+  await expect.element(terminalInput).toHaveFocus();
 });

@@ -1,116 +1,82 @@
-// Mark as done in the page's one terminal (./agent-terminal-done.spec.ts)
-// decides whether to ask first by the session as the page reads it now, not
-// as the panel was opened with it: while another project is shown, where the
-// session has no entry, it still asks about the session's reading, and marking
-// closes the panel; a session opened while Ready for review that then reads
-// Working is asked about as working. Against a controlled machine read, done
-// boundary (../../test-support/support/frontendSessionActions.ts) and attached
-// terminal. The question following a real session's reading is
-// ../../../e2e/sessions/agent-launch-done-question-follows.spec.ts.
-
+import { expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import { boardWork } from "../navigation/board-work.ts";
 import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
+  execution,
+  markedExecution,
+  mountSessionCards,
+  revealPage,
+  sessionsReading,
+  workingSession,
+} from "./session-card-mount.ts";
+import { cardSession } from "./session-card-page.ts";
 import {
-  cardSession,
-  cardSessionEntry,
-  openCardSessionTerminal,
-} from "../../test-support/support/frontendCardSessions.ts";
-import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
-import { doughnutSource } from "../../test-support/support/frontendServiceState.ts";
-import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
-import {
-  expectAsked,
-  markDone,
-  stillWorking,
-} from "../../test-support/support/markDone.ts";
-import { setPageVisibility } from "../../test-support/autoRefreshJourney.ts";
-import {
-  chooseProject,
-  expectProjectChoice,
-  sessionStateOf,
-} from "../../test-support/dashboardPage.ts";
-import {
-  notRefinedStory,
-  readyStory,
-} from "../../test-support/launchJourney.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  markWorkingTerminalDone,
+  openCardTerminal,
+  terminal,
+} from "./session-terminal-page.ts";
+import { openAttachedTerminal } from "./session-terminal-socket.ts";
 
 test.describe("Mark as done in the terminal asks by the session's current reading", () => {
-  test("Mark as done from the panel while another project is shown, where the session has no entry, closes the panel", async ({
-    page,
-    frontendServices,
-  }) => {
-    Object.assign(frontendServices, {
-      projects: [...frontendServices.projects, doughnutSource],
+  test("Mark as done from the panel while another project is shown, where the session has no entry, closes the panel", async () => {
+    const markDone = vi.fn<MachineReadSource["markDone"]>();
+    markDone.mockResolvedValue(markedExecution());
+    const doughnut = boardWork([], {
+      id: "doughnut",
+      label: "Doughnut",
+      taken: [],
     });
-    frontendServices.answerMachine(
-      makeMe.aMachineAnswer
-        .observing(
-          cardSession(
-            "Execution",
-            notRefinedStory,
-            makeMe.aSessionState.loaded("working").please(),
-          ),
-        )
-        .please(),
-    );
-    const actions = await installFrontendSessionActions(page, frontendServices);
-    await installAttachedTerminalSubstitute(page);
-    await openFrontendTakenBacklog(page);
-    const panel = await openCardSessionTerminal(
-      page,
-      notRefinedStory,
-      "Execution",
-    );
-    await chooseProject(page, "Doughnut");
-    await expectProjectChoice(page, "Doughnut");
-    await expect(
-      cardSessionEntry(page, notRefinedStory, "Execution"),
-    ).toHaveCount(0);
+    await mountSessionCards({
+      reading: sessionsReading("working", workingSession(execution)),
+      markDone,
+      openTerminal: openAttachedTerminal,
+      otherProjects: [doughnut],
+    });
+    await page.viewport(1440, 900);
+    await openCardTerminal();
+    const anotherProject = page.getByRole("radio", {
+      name: "Doughnut",
+      exact: true,
+    });
+    await userEvent.click(anotherProject);
+    await expect.element(anotherProject).toBeChecked();
+    await expect.element(cardSession().entry).not.toBeInTheDocument();
 
-    const question = await expectAsked(panel, stillWorking);
-    await markDone(question);
+    await markWorkingTerminalDone();
 
-    await expect(panel).toHaveCount(0);
-    expect(actions.asked("done")).toHaveLength(1);
+    await expect.element(terminal).not.toBeInTheDocument();
+    expect(markDone).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ session: execution.session }),
+    );
   });
 
-  test("a session opened while Ready for review that then reads Working is asked about as working", async ({
-    page,
-    frontendServices,
-  }) => {
-    const observe = (activity: "review" | "working") => {
-      frontendServices.answerMachine(
-        makeMe.aMachineAnswer
-          .observing(
-            cardSession(
-              "Execution",
-              readyStory,
-              makeMe.aSessionState.loaded(activity).please(),
-            ),
-          )
-          .please(),
-      );
-    };
-    observe("review");
-    await installFrontendSessionActions(page, frontendServices);
-    await installAttachedTerminalSubstitute(page);
-    await openFrontendTakenBacklog(page);
-    const listed = cardSessionEntry(page, readyStory, "Execution");
-    await expect(sessionStateOf(listed)).toHaveText("Ready for review");
-    const panel = await openCardSessionTerminal(page, readyStory, "Execution");
+  test("a session opened while Ready for review that then reads Working is asked about as working", async () => {
+    const review = makeMe.anObservedLaunch
+      .of(execution)
+      .withSessionState(makeMe.aSessionState.loaded("review").please())
+      .please();
+    const machine = await mountSessionCards({
+      reading: sessionsReading("review", review),
+      markDone: () => Promise.resolve(markedExecution()),
+      openTerminal: openAttachedTerminal,
+    });
+    await expect
+      .element(
+        cardSession().entry.getByText("Ready for review", { exact: true }),
+      )
+      .toBeVisible();
+    await openCardTerminal();
 
-    observe("working");
-    await setPageVisibility(page, "hidden");
-    await setPageVisibility(page, "visible");
-    await expect(sessionStateOf(listed)).toHaveText("Working");
+    const revealWorking = revealPage();
+    machine.answerWith(sessionsReading("working", workingSession(execution)));
+    revealWorking();
+    await expect.element(cardSession().state).toHaveTextContent("Working");
 
-    const question = await expectAsked(panel, stillWorking);
-    await markDone(question);
-    await expect(panel).toHaveCount(0);
-    await expect(listed).toHaveCount(0);
+    await markWorkingTerminalDone();
+
+    await expect.element(terminal).not.toBeInTheDocument();
+    await expect.element(cardSession().entry).not.toBeInTheDocument();
   });
 });

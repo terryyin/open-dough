@@ -186,7 +186,7 @@ Done E2E cases passed in 12.827 s. No E2E cases were added. See
 ### 3. Terminal Mark Done refuses, holds, and follows the current session
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `sessions/agent-terminal-done`, `sessions/agent-terminal-done-pending`,
 and `sessions/agent-terminal-done-question` (6). Mount `Terminal` over typed
@@ -197,6 +197,16 @@ and ask-follows journeys in `e2e/sessions/`.
 terminal does. A held or failed mark still allows Maximize and Close. A late
 mark after another session replaced the panel leaves the keyboard in the new
 terminal. Ask-first follows the current session reading.
+
+**Accepted implementation proof.** Six named replacements passed in 8.016 s
+wall at two workers. Cases open production Terminal through the actual
+page frame with typed mark answers and socket events. Release after a
+panel switch removed the first active entry while the second terminal
+retained keyboard focus. Refused, ended, held, unresolved and
+current-reading cases kept their own observations. The ten existing
+card cases and dashboard typecheck passed. Native Done and ask-follows
+E2E remain at their existing boundary. See `slice-3-mapping.md` and
+`slice-3-return.md` in the worktree's Git evidence.
 
 ### 4. Final and unread reports stay readable under held or cancelled answers
 

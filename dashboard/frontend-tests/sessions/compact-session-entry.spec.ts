@@ -1,7 +1,6 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import type { TerminalSocket } from "../../src/sessionServices.ts";
 import {
   mountSessionCards,
   readyStory,
@@ -10,27 +9,8 @@ import {
   workingSession,
 } from "./session-card-mount.ts";
 import { card, cardSession, recentExecution } from "./session-card-page.ts";
-
-function openedTerminal(): TerminalSocket {
-  const events = new EventTarget();
-  queueMicrotask(() => {
-    events.dispatchEvent(new Event("open"));
-    events.dispatchEvent(
-      new MessageEvent("message", { data: "attached to execution" }),
-    );
-  });
-  return {
-    binaryType: "arraybuffer",
-    readyState: WebSocket.OPEN,
-    send: () => undefined,
-    close: () => undefined,
-    addEventListener: (type, listener) => {
-      events.addEventListener(type, (event) => {
-        listener(event as WebSocketEventMap[typeof type]);
-      });
-    },
-  };
-}
+import { terminal, terminalClose } from "./session-terminal-page.ts";
+import { terminalSocket } from "./session-terminal-socket.ts";
 
 test("a compact session discloses technical details and secondary actions without hiding attention or terminal access", async () => {
   const launch = makeMe.aLaunchRecord
@@ -45,7 +25,7 @@ test("a compact session discloses technical details and secondary actions withou
   const machine = await mountSessionCards({
     reading: sessionsReading("empty"),
     markDone: () => Promise.resolve({ kind: "marked", record: done }),
-    openTerminal: openedTerminal,
+    openTerminal: () => terminalSocket("attached to execution").socket,
   });
   const ready = card.getByText("Ready for execution", { exact: true });
   const inspect = card.getByRole("button", {
@@ -98,13 +78,10 @@ test("a compact session discloses technical details and secondary actions withou
   await expect.element(session.details).toHaveFocus();
 
   await userEvent.click(session.open);
-  const terminal = page.getByRole("region", { name: "Terminal" });
   await expect
     .element(terminal.getByText("attached to execution", { exact: true }))
     .toBeVisible();
-  await userEvent.click(
-    terminal.getByRole("button", { name: "Close", exact: true }),
-  );
+  await userEvent.click(terminalClose);
   await expect.element(session.open).toHaveFocus();
 
   session.actions.element().focus();

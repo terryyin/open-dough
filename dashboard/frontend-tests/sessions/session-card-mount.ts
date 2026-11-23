@@ -10,6 +10,8 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
+import type { PublishedWork } from "../../src/publishedWork.ts";
+import type { MarkDoneResult } from "../../src/sessionRecordRequests.ts";
 import type { SessionServices } from "../../src/sessionServices.ts";
 import { withPagePreferences } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
@@ -36,7 +38,8 @@ export const readyStory = makeMe.aWorkEntry
 export const otherStory = story("Keep the session history", 2);
 const work = boardWork([readyStory, otherStory]);
 
-export const execution = makeMe.aLaunchRecord.executing(readyStory).please();
+const readyExecution = () => makeMe.aLaunchRecord.executing(readyStory);
+export const execution = readyExecution().please();
 export const unknown = makeMe.anObservedLaunch
   .of(execution)
   .withSessionState(makeMe.aSessionState.unknown().please())
@@ -70,6 +73,28 @@ export function workingSession(record: LaunchRecord) {
     .please();
 }
 
+export function markedExecution(): MarkDoneResult {
+  return {
+    kind: "marked",
+    record: makeMe.anObservedLaunch
+      .of(readyExecution().markedDone().please())
+      .withSessionState(makeMe.aSessionState.retained("review").please())
+      .please(),
+  };
+}
+
+export function holdExecutionMark() {
+  let release: () => void = () => {
+    throw new Error("Execution mark is missing its answer.");
+  };
+  const answer = new Promise<MarkDoneResult>((resolve) => {
+    release = () => {
+      resolve(markedExecution());
+    };
+  });
+  return { answer, release };
+}
+
 export function sessionsReading(
   revision: string,
   ...records: LaunchWithState[]
@@ -82,14 +107,17 @@ export async function mountSessionCards({
   deleteRecord,
   markDone,
   openTerminal,
+  otherProjects = [],
 }: {
   reading: MachineSessionsRead;
   deleteRecord?: MachineReadSource["deleteRecord"];
   markDone?: MachineReadSource["markDone"];
   openTerminal?: SessionServices["openTerminal"];
+  otherProjects?: readonly PublishedWork[];
 }) {
   withPagePreferences();
-  const supply = boardFrameObservationSupplying([work]);
+  const projects = [work, ...otherProjects];
+  const supply = boardFrameObservationSupplying(projects);
   const defaults = pageReadsSupplying({});
   let next = Promise.resolve(reading);
   const readSessionsSince = vi.fn(() => next);
@@ -120,7 +148,7 @@ export async function mountSessionCards({
   });
   await mountComponent(
     createElement(ProjectsOnPage, {
-      projects: [work.source],
+      projects: projects.map(({ source }) => source),
       replaceProjects: () => undefined,
       children: createElement(ConfiguredDashboard, {
         reads,
