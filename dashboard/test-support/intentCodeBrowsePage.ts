@@ -1,5 +1,5 @@
-// Intent file choices and source readings, shared by Code, Gherkin, Purpose,
-// revision journeys and candidate records (../src/IntentSourceLines.tsx).
+// Intent file choices and source readings, shared by Code, Gherkin, Purpose
+// and candidate records (../src/IntentSourceLines.tsx).
 
 import { expect, type Locator } from "@playwright/test";
 import {

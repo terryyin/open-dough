@@ -44,9 +44,11 @@ export function judgedStatus(
 
 export function heldRead<T>() {
   let resolve!: (value: T) => void;
+  let reject!: (reason: Error) => void;
   let asked = false;
-  const promise = new Promise<T>((res) => {
+  const promise = new Promise<T>((res, rej) => {
     resolve = res;
+    reject = rej;
   });
   return {
     ask() {
@@ -55,6 +57,7 @@ export function heldRead<T>() {
     },
     asked: () => asked,
     resolve,
+    reject,
   };
 }
 

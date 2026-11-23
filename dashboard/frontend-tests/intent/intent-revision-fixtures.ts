@@ -1,3 +1,4 @@
+import { onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   pygardonFeatures,
@@ -54,6 +55,21 @@ export const featuresOpening = (scenario: string, files?: PublishedFiles) =>
       .please(),
     ...files,
   });
+
+// A read held until `release()`, then answering as `answer` does. The test's
+// end releases it, so no read stays pending past the case.
+export function heldAnswer<T>(answer: Read<T>) {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  onTestFinished(release);
+  const read = vi.fn(async (signal: AbortSignal) => {
+    await held;
+    return answer(signal);
+  });
+  return { read, release };
+}
 
 export function fixtureFor<T>(
   fixtures: Readonly<Record<string, T>>,
