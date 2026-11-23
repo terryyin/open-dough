@@ -65,12 +65,12 @@ belong to their separate stories.
 | The focused command checks distinguish all five operations | In the preparation workspace at `d78f19df1`, controlled scratch edits to `ci-command-run.mjs` skipped `discover`, substituted unavailable diagnosis, or stopped `proof`, `jobs` and `rebuild` one operation at a time. `node --test --test-name-pattern` over the Dashboard trunk-discovery case, bounded failure-diagnostics case, documented proof request, selected job-graph request and exact rebuild request each failed its selected case under the corresponding control. The unchanged cases passed in the baseline runs above. Scratch edits reverted. |
 | The install gate reaches the runtime and its contract | In the preparation workspace at `d78f19df1`, `PATH=/opt/homebrew/bin:$PATH /opt/homebrew/bin/bash scripts/test.sh Distribution/tests/installation/{payload-declaration-links,execution-payload-update,install-public-payload}.sh` passed with Bash 5.3.20. The temporary tagged-source update exercised both installed skill roots and preserved project configuration. The shipped manual's example answered discover and diagnose, and installed proof was read through the payload. |
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. Watcher and Dashboard share discovery directly
 
 Type: Structure
-Status: planned
+Status: done
 
 Extract the one-shot command discovery from watcher polling state, reusing its
 normalization. Have Dashboard branch listings and any equivalent read-only
@@ -87,10 +87,26 @@ versus retained attempts, target versus story branch cancellation and listing,
 queue withdrawal, and historical and integrated-state decisions. Use the
 final file names for the consumer trace if the recipes story has landed.
 
+**Delivered.** `discoverCommandAttempts(options, signal)` in
+`ci-command-adapter.mjs` is the shared one-shot discovery: every answered
+attempt plus the branch queue. The watcher's acquisition calls it per poll;
+`baseCiAdapterAttempts.ts` and `ci-proof-attempts.mjs` call it directly and
+apply `latestCommandAttempts` where they retain. The per-listing watcher state
+and the `discoverAnsweredAttempts` read-back are gone. Lines: adapter 210→211,
+`ci-proof-attempts.mjs` 217→219, `baseCiAdapterAttempts.ts` 114→110; no files
+added. Proof at `29b578602` plus the change: the focused node suite (116 cases
+across `ci-command-*`, `ci-integrated-state-*`, GitHub acquisition/diagnostic,
+`ci-proof-{read,leads}-adapter` and the three Dashboard adapter support tests),
+`npm run typecheck:dashboard`, the backend `ci-proof-memory-adapter*`,
+`ci-time-without-adapter-runner-waits` and `landed-ci-*adapter*` specs, and
+`e2e/intent/intent-ci-proof-adapter.spec.ts` (4 cases) passed. No test asserts
+that a failed branch discover cancels the other listing; the behavior is kept
+as written.
+
 ### 2. The watcher reports the configured provider's verdict and failure evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
 With an installed watcher and project-owned adapter, register an exact revision
 and observe pending, success or a diagnosed failure using the documented
@@ -105,10 +121,25 @@ and `ci-github-diagnostic.test.mjs`. Assert the request for the failed attempt,
 one bounded excerpt or unavailability, no GitHub fallback from invalid custom
 output, and GitHub selection with absent or empty adapter configuration.
 
+**Delivered.** `manuals/custom-ci.md` (246→227 lines) states `discover` as one
+field table and `diagnose` separately, gathers limits and failures under the
+contract, and moves observer retention, registration and integrated-state
+completion under "How the observer uses the answers". Provider-query advice and
+duplicate read-only statements are gone; runtime unchanged. Existing tests cover
+the promises: `ci-command-adapter-cli` (configured command; absent or empty
+setting selects GitHub), `ci-command-adapter-failures` (one 16 KiB bounded
+excerpt or unavailability, keyed by the failed `attemptId`; no test asserts the
+request shape itself), `ci-command-adapter-unavailable` (no GitHub fallback;
+known failure survives lost diagnostics), `ci-integrated-state-*` and
+`ci-queue-coverage` — 101 cases passed. The install checks
+(`payload-declaration-links`, `execution-payload-update`,
+`install-public-payload`, `install-preserves-open-dough-json`) passed and ran
+the manual's example for discover and diagnose.
+
 ### 3. Intent reads proof from the selected attempt
 
 Type: Behavior
-Status: planned
+Status: done
 
 With a completed attempt selected in CI status or comparison, use the shared
 selected-attempt request and proof decoder from that attempt's listing branch.
@@ -122,10 +153,26 @@ affected Dashboard proof readers. Check the exact read, a valid old and new
 summary, the oversized response, and an attempt whose identity is ambiguous.
 Run the analogous GitHub proof readers when the shared summary decoder is reached.
 
+**Delivered.** The runtime already had one selected-attempt request
+(`readCiAdapterSummary` in `ci-proof-read.mjs`, listing branch, 1 MiB) and one
+decoder (`readCommandProof` in `ci-command-attempt.mjs`), shared by
+`dashboard/server/ciAdapterProof.ts` and `ci-proof-attempts.mjs`, so only the
+manuals changed. `custom-ci.md` (227→247) gains a `### proof` contract
+subsection with the identity check, and its limits name the 1 MiB answer and
+the 600-byte reason. `custom-ci-proof.md` (132→99) keeps only Intent's
+selection, completeness, schema, oversize, display, ambiguity and memory rules.
+Proof: `ci-command-adapter-proof`, `ci-proof-read-adapter` and
+`dashboard-ci-adapter-proof` (13 cases), backend `ci-proof-memory-adapter(-gaps)`
+(9), `dashboard-story-branch-ci-adapter` ambiguity (6) and the
+`payload-declaration-links`/`execution-payload-update` install checks passed;
+the slice 1 `intent-ci-proof-adapter` e2e pass stands for the unchanged runtime.
+`custom-ci.md` is 3 lines under the file-size limit, and the `jobs` section of
+`custom-ci-proof.md` still repeats the request JSON and 600-byte rule for slice 4.
+
 ### 4. Intent reads job timing from the selected attempt
 
 Type: Behavior
-Status: planned
+Status: done
 
 With a completed comparison endpoint, use the same selected-attempt call to
 read `jobs`. Document job timing alongside `proof`. Timing follows measured
@@ -139,10 +186,27 @@ Check the requested attempt and listing branch, the measured critical chain,
 and the individual refusal reasons. Compare with the existing GitHub timing
 behavior for the same outcome if the shared timing model is reached.
 
+**Delivered.** `jobs` already used the shared selected-attempt call
+(`readCommandJobs` → `runAdapterForAttempt` from
+`baseCiAdapterRevisionLookup.ts`). Its copy of the proof answer check, with
+the 600-byte reason cut, is now one private `readAttemptAnswer` in
+`ci-command-attempt.mjs` (105→94); errors are unchanged, and JSDoc keeps the
+Dashboard's types. `custom-ci.md` (247→248) gives `proof` and `jobs` one request
+shape; `custom-ci-proof.md` (99→88) keeps only the jobs answer, timing and
+refusal rules. Proof: the revision-lookup, adapter-proof (jobs cases),
+proof-read and proof-units node tests (25 cases), `npm run typecheck:dashboard`,
+backend `ci-time-without-adapter-runner-waits` (13) with the GitHub
+`ci-time-without-runner-waits` (9), the install checks, and e2e
+`intent-ci-proof-adapter` (4) and `intent-ci-proof-adapter-reasons` (3) passed.
+At load average about 50 the reasons spec's eight-round "answers no proof" case
+timed out twice after every assertion passed: its test-scoped Dashboard
+fixture used about 26 of the 30 seconds. It passed at load 25. That fixed bound
+is a test defect for a later correction.
+
 ### 5. The Dashboard requests one rebuild of the original landed revision
 
 Type: Behavior
-Status: planned
+Status: done
 
 With a qualifying landing and `ciRebuild` configured, pass the original attempt
 through the shared command boundary. Document that separate permission and
@@ -156,10 +220,22 @@ watcher and a Dashboard with no configured trigger read-only.
 and attempt, pending and comparable completion, and refusal/uncertainty across
 later collection or restart. Use fixture CI for admission.
 
+**Delivered.** The Dashboard already submits through the shared
+`requestCommandRebuild` (`ciFollowUpAdapterProvider.ts`, separate `ciRebuild`
+command, original `adapterAttempt` with the landed revision, from the project
+folder) and observes the repeat with `ciAdapter` only, so only the manual
+changed. `custom-ci-rebuild.md` (126→131) presents the trigger as a separate
+permission and request in the shared `diagnose` shape, links the shared
+protocol and limits instead of repeating them, and states that a failed or
+invalid call counts as uncertain and is never resent. Proof:
+`ci-command-rebuild.test.mjs` (5), backend `landed-ci-adapter-repeat`,
+`-repeat-rejections` and `-repeat-comparability` (31, load 20–27) and the
+install checks passed.
+
 ### 6. Pygardon's existing command works with the candidate install
 
 Type: Behavior
-Status: planned
+Status: done
 
 Install and update the candidate in disposable client checkouts, retaining
 Pygardon's current `ciAdapter`, `ciRebuild` and integrated-state settings. Run
@@ -174,6 +250,37 @@ Repeat the Pygardon fixture route above against the candidate install, preservin
 the current adapter and configuration. Attach the exact candidate Dashboard
 read and rebuild requests with their corresponding fixture outcomes to this
 slice's proof. Resolve any mismatch here before requesting release.
+
+**Delivered.** No Open Dough change was needed. At candidate `3f184e313` the
+`payload-declaration-links`, `execution-payload-update` and
+`install-public-payload` checks passed with Bash 5. The six runtime and manual
+files changed by slices 1–5 are declared unchanged in
+`src/install/open-dough-execution-payload.sh` and `install.sh` and arrive
+byte-identical. A disposable Pygardon clone at `49023bf9e` took the candidate
+through `install.sh --replace-verified` for both skill roots; a plain install is
+refused against its released 0.3.112 copy, and the version reads 0.3.112 until
+the tag. `.planning/open-dough.json` stayed byte-identical (`ciAdapter`,
+`ciRebuild`, `integratedStateCompletion`). Pygardon's eight adapter and watcher
+test files passed 56 cases against the installed watcher, including recovery
+from brief loss and a withheld verdict under persistent loss. Against its real
+`pygardon-ci-adapter.mjs` and loopback provider, the candidate's
+`discoverCommandAttempts`, `readCommandProof`, `readCommandJobs` and
+`requestCommandRebuild` sent:
+
+```json
+{"operation":"discover","check":{"repo":"terryyin/pygardon","branch":"main"}}
+{"operation":"proof","check":{"repo":"terryyin/pygardon","branch":"main"},"attempt":{"runId":"checked","attemptId":"checked","sha":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}}
+```
+
+`jobs` and `rebuild` sent the same attempt. Discover answered one
+`pygardon-ci` push attempt; proof returned the retained summary unchanged; jobs
+returned `prepared-checkout` at 90000 ms; rebuild was accepted as a new
+`repeat` attempt by the loopback fixture's POST `/rebuild`. These are the
+request shapes the Dashboard call sites build (string IDs, listing branch, full
+revision; `baseCiAdapterRevisionLookup.ts`, `ciAdapterProof.ts`,
+`ciFollowUpAdapterProvider.ts`). The Dashboard server itself was not run against
+Pygardon's command; its mapping of these answers is proved by the backend specs
+of slices 3–5.
 
 ### 7. A compatible tagged contract is available to Pygardon
 

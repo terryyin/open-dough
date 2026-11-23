@@ -57,7 +57,7 @@ const controlledDiscoverAttempts = [
   }),
 ];
 
-// Newest-first unit-check answers used by acquisition retention proof.
+// Newest-first answers for one unit check: the newer attempt supersedes the older.
 export const answeredUnitAttempts = [
   discoverAttempt({
     runId: "r2",

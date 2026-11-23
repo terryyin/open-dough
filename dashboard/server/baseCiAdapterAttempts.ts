@@ -1,5 +1,6 @@
 // Adapter attempts for the dashboard's CI status and story comparison reads.
-import { createCommandAcquisition } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
+import { discoverCommandAttempts } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-adapter.mjs";
+import { latestCommandAttempts } from "../../Distribution/src/skills/dough-execute-plan/scripts/ci-command-attempts.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { type ListedRun, unread } from "./baseCiNearest.ts";
 import { ciAdapterTimeoutMs } from "./ciAdapterTimeout.ts";
@@ -70,32 +71,27 @@ export async function discoverAdapterAttempts(
   const asked = AbortSignal.any([signal, ended.signal]);
   const listed = await Promise.all(
     branches.map(async (listedBranch) => {
-      const acquisition = createCommandAcquisition({
-        command,
-        repo: source.repository,
-        branch: listedBranch,
-        root,
-        includeOtherBranches: comparison,
-        timeoutMs: ciAdapterTimeoutMs(),
-      });
-      try {
-        await acquisition.acquireRuns(asked);
-      } catch (error) {
+      const discovered = (await discoverCommandAttempts(
+        {
+          command,
+          repo: source.repository,
+          branch: listedBranch,
+          root,
+          includeOtherBranches: comparison,
+          timeoutMs: ciAdapterTimeoutMs(),
+        },
+        asked,
+      ).catch((error: unknown) => {
         ended.abort();
         throw error;
-      }
-      const fromListing = (run: DiscoveredAttempt) => ({
+      })) as { readonly attempts: readonly DiscoveredAttempt[] };
+      const answered = discovered.attempts.map((run) => ({
         ...run,
         branch: listedBranch,
-      });
-      const answered = (
-        (await acquisition.discoverAnsweredAttempts()) as DiscoveredAttempt[]
-      ).map(fromListing);
+      }));
       const retained = comparison
         ? answered
-        : (
-            (await acquisition.discoverAncestorCandidates()) as DiscoveredAttempt[]
-          ).map(fromListing);
+        : (latestCommandAttempts(answered) as DiscoveredAttempt[]);
       return { retained, answered };
     }),
   );
