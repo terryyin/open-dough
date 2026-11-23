@@ -288,6 +288,9 @@ normal follow-up admission. It observes the original Done attachment and
 choice after stale update, replacement and rebind. The unloaded-project
 row selects its published story through the on-demand association read.
 See `slice-7-implementation.md` in the worktree's Git evidence directory.
+The independent review reused that proof. The delivery cue cases also
+passed after the lint correction. See `slice-7-refactor.md` and
+`slice-7-delivery-cues.log.run.json`.
 
 ## Local gates and review
 
@@ -339,6 +342,8 @@ See `slice-7-implementation.md` in the worktree's Git evidence directory.
   See [the repair record](diagnosis-codex-deletion-connection.md).
 - Slice 6 was accepted at `f7c19ab077ade56bb73ce3f61172c0ea91402fed`
   on that branch and observer.
+- Slice 7 was accepted at `9060761cb65fc3828a91c1f2acf2c3aa995ccecc`
+  on that branch and observer after full local lint and focused proof.
 
 ## Story obligations
 
@@ -353,3 +358,18 @@ Disposition: proved by slice 7: recently-done-published-session-story.spec.ts se
 Reported: slice 5 — "The Codex repair traced native continuation updates to updateRecord, which preserves doneAt and doneProblem but spreads a stale record without the newer doneStory. replaceKeptSession has the same omission."
 Story clause: "Marking an ad hoc session Done with no story creates a Done story and attaches the session to it."
 Disposition: proved by slice 7: ad-hoc-done-story-association.spec.ts reads the Done attachment, original time and saved choice after stale update, session replacement and native rebind.
+
+## Execution complete
+
+Product advice: no change. The delivered flow follows the selected Done
+work direction. Retain the existing follow-up context and session-selection
+stories at their current scope. File and history admission use typed Git
+proof; the real cross-clone browser journey drove the historical locations
+fix and still proves the selected comparison and the legacy row. The mounted
+Board proves replacement, follow-up placement and persisted conflict choice.
+The outcomes leave no evidenced product correction or test cleanup.
+
+The configured intent check is warranted by the change to existing Done
+and native lifecycle assertions. Check that a late native update cannot
+drop the original attachment or the developer's selected association.
+Process review is deferred until wrap-up has that result.
