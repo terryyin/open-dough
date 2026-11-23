@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "sessionId": "deacc745-08af-4036-a8d3-c23205f64080",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T04:53:21.908Z",
+  "story": "SEED-413#speed-story-changes-notes-and-progress-reading",
+  "ranges": [
+    {
+      "base": "57cd409a3d685bc2cceb50c4338ad8c5c8d9ea48",
+      "candidate": "796e1197ecb70c6241be3373866472e2f103a8a9"
+    },
+    {
+      "base": "796e1197ecb70c6241be3373866472e2f103a8a9",
+      "candidate": "476913c4ac74f1609ea198d59f0ba3720ac54f0f"
+    },
+    {
+      "base": "476913c4ac74f1609ea198d59f0ba3720ac54f0f",
+      "candidate": "3f8e9355d5aedb039f29da032ff3fa839499f34f"
+    },
+    {
+      "base": "3f8e9355d5aedb039f29da032ff3fa839499f34f",
+      "candidate": "d5e523046c72e1290f80a11d7b2d4735068663b3"
+    },
+    {
+      "base": "d5e523046c72e1290f80a11d7b2d4735068663b3",
+      "candidate": "fef328683c2f6da5e7da392fa5ce2ede2ff4ac3c"
+    },
+    {
+      "base": "fef328683c2f6da5e7da392fa5ce2ede2ff4ac3c",
+      "candidate": "91e3a026019f4f6d9ec47ebea1456404c02ff710"
+    },
+    {
+      "base": "91e3a026019f4f6d9ec47ebea1456404c02ff710",
+      "candidate": "330f14eab60f3c4e951f79e2ebc823f6aea0a637"
+    },
+    {
+      "base": "330f14eab60f3c4e951f79e2ebc823f6aea0a637",
+      "candidate": "7384ac78116bd98fcca9b73f5566c21c048bc5fa"
+    },
+    {
+      "base": "7384ac78116bd98fcca9b73f5566c21c048bc5fa",
+      "candidate": "4773bae1b39a5b479e780ee55c584363f2494f96"
+    },
+    {
+      "base": "4773bae1b39a5b479e780ee55c584363f2494f96",
+      "candidate": "82c5daf5ba87bef3d4d8af097ed02cff0b5d8686"
+    }
+  ]
+}
