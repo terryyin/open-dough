@@ -230,26 +230,93 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
 **Identity:** SEED-345#use-proportionate-refactoring-for-small-test-edits
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/788-use-proportionate-refactoring-for-small-test-edits/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0d850bd6a5cc92f65b20d529d8b221b9e44267f457136c9891128343a274572a","plan":"bcfd3d7684a396016fd668e6e47e61746cd45daced962dd5536dc267d4289c10"}}
 ```
 
-- **Outcome.** A developer gets the same independent judgment on a small
-  slice confined to its own specs with less repeated model work. Trial a
-  focused refactor review using the accepted consumer trace and proof.
-  Retain full independent refactoring when a change reaches shared test
-  support, production behavior, or consumers outside the slice.
-- **Evaluation.** Compare comparable isolated test edits under the current
-  fresh-agent pass and a focused review. Count coordinator and worker usage
-  through any rereads, escalation, and acceptance. Keep the focused path
-  only if it lowers combined usage and preserves meaningful findings and
-  proof. Include a shared-support case to check the escalation boundary.
-- **Evidence and effort.** Six passes on edits of 4–37 lines returned no
-  changes and used about 320k reported subagent tokens in one Claude Code
-  execution. The shared-support pass in that execution made useful edits.
-  The earlier ODF-141 response covered records-only changes and already-traced
-  repairs. Small to medium, medium confidence. Trial the narrow case first
-  while Dashboard test migrations still provide representative examples.
-  [DD-610](../../DearDough.md#dd-610) · [ODF-141](../../docs/maintainer/findings/ODF-141.md)
+**Goal.** A developer gets the same refactoring judgment on a slice whose
+change stays inside its own specs, with less repeated model work. The
+coordinator has already read the accepted diff and the implementer's consumer
+trace, so it reviews that change against the refactor checks instead of
+launching a fresh agent to reread the same context. Whole-product focus is
+unchanged: when a small edit is the tipping point that makes a larger
+structural refactoring necessary, execution stops to do that refactoring before
+delivery.
+
+**Scope.**
+
+- **Eligibility by location.** The focused review applies when the change edits
+  only spec files that the slice names as its subject, plus planning records.
+  An edit to shared test support (support modules, builders, page objects,
+  fixtures), production code, configuration, documentation, or a consumer
+  outside the slice keeps the fresh independent pass. Line count alone neither
+  qualifies nor disqualifies a change. When unsure, the fresh pass runs, as it
+  does today.
+- **Same judgment, same reach.** The focused review applies every
+  [refactor check](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md)
+  with the fresh pass's whole-product reach. It changes how evidence is
+  gathered, from the accepted consumer trace, proof and the coordinator's
+  acceptance read, not which issues count. It searches the product for an
+  existing representation of anything the edit introduces, such as a helper,
+  page-object operation, builder step or setup. It runs as part of the
+  coordinator's acceptance of the return, reusing that diff read. It asks whether the edit
+  introduces, exposes or materially aggravates an issue, including when the
+  edit is the last increment that makes a repeated pattern, a file's size or a
+  test's boundary need structural change.
+- **Any candidate escalates.** A candidate from the focused review goes to the
+  fresh [post-change refactor](../../Distribution/src/skills/dough-post-change-refactor/SKILL.md)
+  pass with that candidate named, before delivery. That pass keeps its
+  whole-product reach, edits beyond the slice's files and existing stops. The
+  focused review itself edits nothing. With no candidate, the coordinator
+  retains a focused-review disposition beside the slice, and the next fresh pass
+  receives it with the other dispositions since the last pass.
+- **Required restriction.** Location eligibility and unconditional escalation
+  hold because
+  [ADR 0002 principle 2](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#2-whole-product-focus)
+  gives each concept one representation and lets no story boundary limit a
+  necessary solution. A cheaper review that let a small edit add the next copy
+  of a concept, or deferred the refactoring it triggers, would lose more than
+  it saves.
+- **Scope limits.** The refactor checks, the fresh pass and the records-only
+  and already-traced dispositions in
+  [deliver the change](../../Distribution/src/skills/dough-execute-plan/references/deliver-the-change.md)
+  stay as they are. CI repair, one-shot and bug-fixing paths already defer to
+  that delivery step. A cheaper worker model or tool set for the fresh pass
+  belongs to
+  [role-sized tool sets](#start-implementers-from-a-role-sized-tool-set).
+
+**Key examples.**
+
+- Plan 754 slice 3 (`dc5ffe2f5`) moves three Done capture specs onto the
+  existing builder at setup, 11 changed lines. The focused review finds no new
+  representation and no aggravated pattern, records its disposition, and the
+  slice delivers without a fresh agent. The baseline fresh pass cost $0.41 at
+  list price and made no edits.
+- Plan 249 slice 1 (`ebb48d6ee`) adds a local `Mark as done` locator to one
+  spec. The focused review finds the existing `markAsDone` page-object
+  operation and escalates. The fresh pass replaces the locator, as the
+  baseline pass did.
+- A slice adds six lines to its own spec that repeat a multi-step setup two
+  other specs already inline, or that take its spec past the file-size limit.
+  The focused review flags the aggravated duplication or size and escalates.
+  The fresh pass extracts the shared setup across all three specs, or splits
+  the file, before delivery, under its existing rules.
+- Plan 754 slice 4 (`c8bf873fd`) edits `support/doneCaptureCase.ts`, and slice
+  7 (`b854edc8b`) deletes a support module. Both keep the fresh pass, which
+  made useful edits on slice 4.
+
+**Evaluation.** The saving ceiling is small. In plan 754, each no-edit fresh
+pass cost $0.33–0.43 at list price over 7–12 requests, while one coordinator
+request at its median 204k context cost $0.065. A focused review saves only if
+it adds about three coordinator requests or fewer, counting the context it
+carries afterwards. Replay the retained plan 754 and plan 249 slice 1 diffs
+through the focused review and price its added requests against those
+retained passes, without paying for new baseline runs. Keep the focused path
+only if eligible no-edit slices cost clearly less, every baseline finding is
+caught or escalated, and ineligible slices keep the fresh pass. Then judge
+keep or stop on the next real execution with isolated test edits, checking
+later passes and review for any structural issue a focused review missed.
+[DD-610](../../DearDough.md#dd-610) ·
+[ODF-141](../../docs/maintainer/findings/ODF-141.md#evidence-2026-11-23-open-dough-dd-610)
 
 <a id="wait-for-codex-workers-with-fewer-model-wakeups"></a>
 
