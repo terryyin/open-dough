@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "01a2069c-c9c8-7ff1-a1fa-5cf048279f16",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T04:32:31.068Z",
+  "story": "SEED-424#poll-open-codex-sessions",
+  "ranges": [
+    {
+      "base": "e3542cc8ceda92d54e5afc7f00e18bde1c8dc6de",
+      "candidate": "3740bbb2aab7d7d9901003131e89117161859993"
+    }
+  ]
+}
