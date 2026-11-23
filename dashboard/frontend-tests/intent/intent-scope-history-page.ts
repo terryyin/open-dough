@@ -89,8 +89,11 @@ export function scopeHistoryIn(scope: Locator) {
     // Choose a unit by touch or keyboard focus and Enter; it is then pressed.
     async choose(choice: string, by: "touch" | "keyboard") {
       const button = unit(choice);
-      if (by === "touch") await tapWhereShown(button.element());
-      else {
+      if (by === "touch") {
+        const control = button.element();
+        control.scrollIntoView({ block: "center" });
+        await tapWhereShown(control);
+      } else {
         (button.element() as HTMLElement).focus();
         await userEvent.keyboard("{Enter}");
       }
