@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "sessionId": "f7c20398-e407-40bb-a417-dc7d3a2db1c5",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T11:00:35.965Z",
+  "story": "SEED-413#speed-story-comparison-frontend-proof",
+  "ranges": [
+    {
+      "base": "9dbf6c6c67a935edf4eb171852ca1e9f1c1ed156",
+      "candidate": "8b4a5afd023f8c83de2434e042ab6a334a62cc0b"
+    },
+    {
+      "base": "8b4a5afd023f8c83de2434e042ab6a334a62cc0b",
+      "candidate": "c794b422667c97c8d79e75ea9775cd45ea47b530"
+    }
+  ]
+}
