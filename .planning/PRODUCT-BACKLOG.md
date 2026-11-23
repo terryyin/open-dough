@@ -33,10 +33,10 @@ intent introduced or affected by a newly developed story.
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work ([plan](slice-plans/756-reopen-completed-ad-hoc-work/PLAN.md))
 - [Compare a story branch with and without incoming trunk changes](seeds/SEED-420-unified-intent-review.md#compare-story-contributions) — SEED-420#compare-story-contributions ([plan](slice-plans/790-compare-story-contributions/PLAN.md))
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison ([plan](slice-plans/791-read-ci-proof-for-the-selected-comparison/PLAN.md))
+- [Install without the CI reuse recipes](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-ci-reuse-recipes) — SEED-423#install-without-ci-reuse-recipes ([plan](slice-plans/792-install-without-ci-reuse-recipes/PLAN.md))
 
 ## Backlog list
 
-- [Install without the CI reuse recipes](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-ci-reuse-recipes) — SEED-423#install-without-ci-reuse-recipes
 - [Call custom CI through a minimal adapter interface](seeds/SEED-423-shrink-the-installed-distribution.md#install-without-the-custom-ci-adapter) — SEED-423#install-without-the-custom-ci-adapter
 - [Update from the previous release without legacy readers](seeds/SEED-423-shrink-the-installed-distribution.md#retire-finished-migrations-and-legacy-formats) — SEED-423#retire-finished-migrations-and-legacy-formats
 - [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory
