@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yua-chan",
+  "email": "yua-chan@example.org",
+  "identity": "SEED-423#retire-finished-migrations-and-legacy-formats",
+  "mode": "story-branch",
+  "branch": "codex/update-from-the-previous-release-without-legacy",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
