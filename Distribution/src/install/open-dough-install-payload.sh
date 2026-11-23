@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091,SC2154,SC2310,SC2312
 # Check the caller's managed_files declaration against the source checkout and
-# copy it into each native destination.
+# copy it into each native destination; refuse invalid shipped-directory entries.
 # Sourced by install.sh, bringing the platform and host-hook helpers.
 # install.sh assembles the declaration; release inspection reads its current
 # groups or historical inline array as data. Caller assigns managed_files,
@@ -27,6 +27,36 @@ require_declared_payload() {
       exit 1
     }
   done
+}
+
+# Refuses a shipped skills tree holding test material or entries that cannot
+# round-trip safely as payload paths, naming each offending path.
+refuse_invalid_shipped_entries() {
+  local skills=$1/Distribution/src/skills
+  local entry relative name failed=0
+  [[ -d "${skills}" && ! -L "${skills}" ]] || {
+    echo "Shipped directory is missing or unsafe: ${skills}" >&2
+    return 1
+  }
+  while IFS= read -r -d '' entry; do
+    relative=${entry#"${skills}/"}
+    name=${relative##*/}
+    if [[ -L "${entry}" ]]; then
+      printf 'Unsafe shipped entry (symlink): %q\n' "${relative}" >&2
+      failed=1
+    elif [[ ! -f "${entry}" && ! -d "${entry}" ]]; then
+      printf 'Unsafe shipped entry (not a file or directory): %q\n' "${relative}" >&2
+      failed=1
+    elif [[ ! "${relative}" =~ ^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$ || "/${relative}/" == */-* ]]; then
+      printf 'Unsafe shipped entry (path name): %q\n' "${relative}" >&2
+      failed=1
+    elif [[ "${name}" == *.test.* || "${name}" == *.spec.* ||
+      "${relative,,}" == *fixture* ]]; then
+      printf 'Test material in shipped directory: %s\n' "${relative}" >&2
+      failed=1
+    fi
+  done < <(find "${skills}" -mindepth 1 -print0)
+  return "${failed}"
 }
 
 create_payload_directories() {

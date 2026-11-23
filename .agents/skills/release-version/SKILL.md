@@ -40,11 +40,13 @@ Do not add Proposed guidance to the payload as an incidental release step.
    `CHANGELOG.md`, commits, or tags.
 
 4. When the request includes finalization, run
+   `bash scripts/check-release-source.sh` and
    `bash scripts/check-self-installation.sh` from the repository root (or
    with the repository path) before writing `VERSION` or `CHANGELOG.md`,
-   staging, committing, or tagging. If the check fails, stop without
+   staging, committing, or tagging. If either check fails, stop without
    creating, editing, or deleting `VERSION`, `CHANGELOG.md`, commits, or
-   tags. Cite the check failure. Skip this check for preparation-only.
+   tags. Cite the check failure and the paths it names. Skip these checks
+   for preparation-only.
 
 5. For preparation, write `VERSION` containing only the requested version
    followed by a newline. In `CHANGELOG.md`, insert a newest-first heading

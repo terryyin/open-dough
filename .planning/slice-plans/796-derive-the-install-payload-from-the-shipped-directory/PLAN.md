@@ -64,11 +64,11 @@ Observations ran in the owned preparation checkout at `76aac85a8` on
 
 | Consuming operation | Observation and consequence |
 | --- | --- |
-| The root installer selects what reaches each native root | Added `Distribution/src/skills/dough-update/payload-preparation-probe.txt` and ran `/opt/homebrew/bin/bash install.sh --target <temporary-project> --source <preparation-checkout> --platform codex`. Both roots installed `dough-update/SKILL.md` but neither installed the new file. The scratch file and target were removed. Slice G's independent positive assertion must fail with the current selection. |
-| Local tagged fixtures can exercise source resolution, legacy comparison, and clean update | `caffeinate -s -i bash scripts/test.sh` with `Distribution/tests/installation/` paths `install-latest-release.sh`, `update-adds-new-payload-skill.sh`, `update-refuses-unverifiable.sh` and `update-skip-verified.sh` passed. These cover numeric tagged selection, a list-era predecessor missing newly managed paths, refusal without writes, and an equal-version no-write outcome. A directory-era tag is new proof owned by C and E. |
-| History classifies dropped files from the same tag's data | The same runner passed `Distribution/tests/installation/update-removes-dropped-files.sh`. The ordinary, edited and force cases read same-tag declaration fragments, protect adjacent project content, and remove the expected files in both roots. D owns the analogous directory-tag case. |
-| Current protection and link proofs reach their boundaries | The same runner passed `Distribution/tests/installation/install-omits-internal.sh`, `install-refuses-unsafe-topology.sh` and `payload-declaration-links.sh`. The checker detects undeclared linked targets with a counterexample. A and G retain that proof purpose using the shipped directory. |
-| Real entry points and fixture setup support the transition | The same runner passed `Distribution/tests/installation/` paths `install-public-payload.sh`, `pin-and-inspect.sh`, `update-from-pre-distribution.sh`, `self-installation-baseline.sh`, `dough-update-guidance-payload.sh`, and `retrospective-reference-payload.sh`, plus `Distribution/tests/support/repository-release.test.mjs`. Pinned apply of a clean tag reaches both roots, self-installation reads the tag as data, and legacy fixtures reach the updater boundary. E owns the new pinned checkout drift proof. |
+| The root installer selects what reaches each native root | Added `Distribution/src/skills/dough-update/payload-preparation-probe.txt` and ran `/opt/homebrew/bin/bash install.sh --target <temporary-project> --source <preparation-checkout> --platform codex`. Both roots installed `dough-update/SKILL.md` but neither installed the new file. The scratch file and target were removed. Slice 7's independent positive assertion must fail with the current selection. |
+| Local tagged fixtures can exercise source resolution, legacy comparison, and clean update | `caffeinate -s -i bash scripts/test.sh` with `Distribution/tests/installation/` paths `install-latest-release.sh`, `update-adds-new-payload-skill.sh`, `update-refuses-unverifiable.sh` and `update-skip-verified.sh` passed. These cover numeric tagged selection, a list-era predecessor missing newly managed paths, refusal without writes, and an equal-version no-write outcome. A directory-era tag is new proof owned by slices 3 and 5. |
+| History classifies dropped files from the same tag's data | The same runner passed `Distribution/tests/installation/update-removes-dropped-files.sh`. The ordinary, edited and force cases read same-tag declaration fragments, protect adjacent project content, and remove the expected files in both roots. Slice 4 owns the analogous directory-tag case. |
+| Current protection and link proofs reach their boundaries | The same runner passed `Distribution/tests/installation/install-omits-internal.sh`, `install-refuses-unsafe-topology.sh` and `payload-declaration-links.sh`. The checker detects undeclared linked targets with a counterexample. Slices 1 and 7 retain that proof purpose using the shipped directory. |
+| Real entry points and fixture setup support the transition | The same runner passed `Distribution/tests/installation/` paths `install-public-payload.sh`, `pin-and-inspect.sh`, `update-from-pre-distribution.sh`, `self-installation-baseline.sh`, `dough-update-guidance-payload.sh`, and `retrospective-reference-payload.sh`, plus `Distribution/tests/support/repository-release.test.mjs`. Pinned apply of a clean tag reaches both roots, self-installation reads the tag as data, and legacy fixtures reach the updater boundary. Slice 5 owns the new pinned checkout drift proof. |
 
 ## Proof and local gates
 
@@ -88,7 +88,7 @@ searched `managed_files`, `read_managed_files_declaration`,
 installer, baseline and history readers, release fixtures, source inspection,
 self-installation, installed-entry checks, and the evaluation fixtures that
 construct or copy release sources. Trace the actual diff at each slice and run
-the reached checks. The broad installation check in G is justified by the
+the reached checks. The broad installation check in slice 7 is justified by the
 release data and byte-assertion helpers shared by install and update journeys.
 Current implementation guidance follows the cutover. Historical findings,
 past fixtures, and already installed copies describe the versions that
@@ -96,16 +96,16 @@ produced them.
 
 | Final promise | Owner and observing boundary |
 | --- | --- |
-| Detectable fixture material, unsafe source entries, and missing local dependencies fail verification | A at the release preflight and G at the current install boundary, with path diagnostics and a valid runtime-file control |
-| A tagged shipped file is installed in both roots with the tagged bytes, while Proposed files remain outside both | E at pinned `apply` for local checkout drift, and G at direct install and pinned `apply` for installed membership |
-| Older declaration formats continue to verify; equal and altered baselines have their existing outcomes | B at the tagged fixture boundary, C at `compare-payload` and `apply`, and G at the end-to-end format transition |
-| Retired files use tagged membership and byte identity; ordinary refusal, explicit force, and unrelated files retain their outcomes | D at ordinary and forced `apply` in both roots and G on a list-to-directory update |
+| Detectable fixture material, unsafe source entries, and missing local dependencies fail verification | Slice 1 at the release preflight and slice 7 at the current install boundary, with path diagnostics and a valid runtime-file control |
+| A tagged shipped file is installed in both roots with the tagged bytes, while Proposed files remain outside both | Slice 5 at pinned `apply` for local checkout drift, and slice 7 at direct install and pinned `apply` for installed membership |
+| Older declaration formats continue to verify; equal and altered baselines have their existing outcomes | Slice 2 at the tagged fixture boundary, slice 3 at `compare-payload` and `apply`, and slice 7 at the end-to-end format transition |
+| Retired files use tagged membership and byte identity; ordinary refusal, explicit force, and unrelated files retain their outcomes | Slice 4 at ordinary and forced `apply` in both roots and slice 7 on a list-to-directory update |
 
 ## Slices
 
-### A. Refuse invalid contents of the shipped directory
+### 1. Refuse invalid contents of the shipped directory
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 10–14 minutes.
 
 Given an otherwise valid source with a misplaced test fixture or unsafe
@@ -115,18 +115,24 @@ have release finalization run it alongside its self-installation baseline
 check. Keep historical metadata validation separate. A valid
 runtime supporting file and a draft outside the tree remain valid. Preserve
 the linked-file check for missed dependencies; switch its membership input
-at cutover in G. Keep the current installer list until G.
+at cutover in slice 7. Keep the current installer list until slice 7.
 
 Proof. Exercise the actual preflight used for release finalization with a
 synthetic misplaced fixture, a symlink and a valid control. Verify
 `payload-declaration-links.sh` still refuses the missing target it creates.
 
-### B. Make list-era test releases independent of current installer syntax
+Delivered: `refuse_invalid_shipped_entries` in
+`Distribution/src/install/open-dough-install-payload.sh` is the shipped-directory
+check; `scripts/check-release-source.sh` runs it at release finalization and
+`Distribution/tests/installation/release-source-preflight.sh` proves it. The
+installer does not call it yet; slice 7 wires it into install.
+
+### 2. Make list-era test releases independent of current installer syntax
 Type: Structure
 Status: planned
 Estimated active work: 10–14 minutes.
 
-Enable C's mixed-format proof. Isolate historical installer declaration data
+Enable slice 3's mixed-format proof. Isolate historical installer declaration data
 in the existing MakeMe release data builder. Its fixture input distinguishes
 list-era selection from files omitted from the source tree, so cases can
 represent a file present in a tag but withheld from that tag's payload. Keep
@@ -141,7 +147,7 @@ The history fixtures still distinguish present-on-source from installed, and
 the installer and updater see the same selected paths. Recheck fixture
 apparatus consumers found on the diff.
 
-### C. Compare the installed baseline using its tag's payload format
+### 3. Compare the installed baseline using its tag's payload format
 Type: Behavior
 Status: planned
 Estimated active work: 10–14 minutes.
@@ -153,7 +159,7 @@ directory-format tag from its installer as data. Keep old inline and grouped
 declarations readable, including legacy source roots. Preserve absence
 checks for paths newly managed by the current release and verification of
 both installed roots before any ordinary write. Keep current-source
-installation on its list until G.
+installation on its list until slice 7.
 
 Proof. Drive `open-dough-release.sh compare-payload` with equal and modified
 installed bytes against each tagged format. Include a list-era source file
@@ -162,7 +168,7 @@ marked predecessor is established by its directory entry alone.
 Drive the no-write and collision cases through the maintained `apply` entry
 point in `update-skip-verified.sh` and `update-refuses-unverifiable.sh`.
 
-### D. Reconcile files dropped by releases of either format
+### 4. Reconcile files dropped by releases of either format
 Type: Behavior
 Status: planned
 Estimated active work: 11–15 minutes.
@@ -181,7 +187,7 @@ containing a withheld file. Observe removal and refusal/force at the
 `apply` boundary in both roots, and preservation of the withheld and
 project-owned files.
 
-### E. Keep local snapshot drift out of a pinned directory release
+### 5. Keep local snapshot drift out of a pinned directory release
 Type: Behavior
 Status: planned
 Estimated active work: 9–13 minutes.
@@ -199,18 +205,18 @@ with an untracked candidate path and edited managed bytes. Observe refusal
 and an unchanged target, then run with the clean tag and observe successful
 apply. Keep the current higher-tag refusal.
 
-### F. Share the current inventory across install, update, and release fixtures
+### 6. Share the current inventory across install, update, and release fixtures
 Type: Structure
 Status: planned
 Estimated active work: 10–14 minutes.
 
-Enable G's single cutover. Route the current installer, candidate
+Enable slice 7's single cutover. Route the current installer, candidate
 comparison, and dropped-file selection through the inventory interface
-from C and D. The production current format stays list-based here.
+from slices 3 and 4. The production current format stays list-based here.
 Use the format-neutral inventory in maintained fixture setup and remove
 current-source copies or assumptions about the specific append fragment.
 Keep path and byte expectations independent of the installer in the tests
-that own selection. Retain dedicated list-era test data from B.
+that own selection. Retain dedicated list-era test data from slice 2.
 
 Proof. Run `install-public-payload.sh`, `dough-update-guidance-payload.sh`,
 `pin-and-inspect.sh`, `self-installation-baseline.sh`, and the shared release
@@ -218,16 +224,16 @@ builder and installed entry checks. Inspect the same install paths and
 installed bytes as before. Run any additional reached consumers identified
 in the trace.
 
-### G. Install the payload from the shipped directory
+### 7. Install the payload from the shipped directory
 Type: Behavior
 Status: planned
-Estimated active work: 11–15 minutes after B–F.
+Estimated active work: 11–15 minutes after slices 2–6.
 
 Given the latest tagged directory release, enumerate and validate the shipped
 tree once per source boundary for installation and use the same selection for
 copy, comparison, and release checks. Switch the current format and retire
 the production lists. Keep old tag parsing available to
-C and D. Use the new rule in the shipped updater's pinned inspection
+slices 3 and 4. Use the new rule in the shipped updater's pinned inspection
 instructions and maintainer release and promotion guidance. Keep review
 explicit for Proposed content and keep the current installer and published
 guidance compatible while earlier slices are in progress.
@@ -246,5 +252,5 @@ changed.
 
 Slice-plan refinement moved inventory wiring and pinned-checkout protection out
 of the cutover. Each format reads membership from one source. The existing
-installer list is interim through F and is removed in G. The plan review found
+installer list is interim through slice 6 and is removed in slice 7. The plan review found
 no remaining slice-specific concern.
