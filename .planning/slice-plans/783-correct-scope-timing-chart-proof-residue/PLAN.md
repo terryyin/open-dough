@@ -163,6 +163,13 @@ pointer and keyboard 4578 ms and touch 2901 ms (load 16–28) to Project
 stays: `e2e/intent/intent-ci-wall-time-history-later.spec.ts:135` reads it
 through `measureHistoryChart` (G1). The refactor pass found nothing to change.
 
+## Execution complete
+
+Product advice: no change. The outcome review at `50d02ebe7` found no defect
+or residue: every moved check has a break check that fails without it, the
+Done touch case remains the Done entry's chart-mark proof, and the chart-mark
+specs got faster. `historyChart().failed` stays as a live e2e reader (G1).
+
 ## Story obligations
 
 ### G1. `historyChart().failed` still has a consumer

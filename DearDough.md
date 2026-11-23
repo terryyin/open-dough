@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 631. Removed numbers are never reused.
+- Highest allocated local number: 633. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
 - [Retired DD-544 and DD-606 occurrences](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/DearDough.md) are recoverable under their former codes.
 - Occurrence history is partial.
@@ -962,3 +962,33 @@ Source-review commitment 1 (each touched Intent test reads at one level) was all
   - Evidence: slice 8 brief and first return; the coordinator returned the two cases (`intent-reading-place.spec.ts` reset count, `intent-home-activation-scope.spec.ts` story note) and the second return fixed them through `story.pressedControlCount()` and `ci.notes()`.
   - Observed effect: one extra implementer round and proof run of about 4 minutes.
   - Inference: a brief carrying a story-wide commitment needs the story-wide edit authority that commitment implies.
+
+## DD-632 — A plan prescribed a restored assertion whose premise proved the defect but not the restored check's failure <a id="dd-632"></a>
+
+Plan 783 slice 1 prescribed restoring the legacy `\b` no-timing regex. Its premise showed the case passing with a scratch "0 ms", but nobody probed the restored regex. The page object's joined text runs "0 ms" into the next word, so `\b` still passed.
+
+### Occurrences
+
+- Execution: SEED-413#correct-scope-timing-chart-proof-residue (plan 783; first implementation `4a3358649`)
+  - Timestamp: unknown (2026-11-23 +08:00, slice 1)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111
+  - Evidence: break run `s1-break-units-3` passed with `\b`; `s1-break-units-4` failed with `(?![a-z])`. The plan text was amended in `4a3358649`.
+  - Observed effect: one extra break run inside slice 1, caught by the slice's own break check.
+  - Inference: probing the prescribed check against the premise's scratch fault during planning would have settled the exact form, as DD-628 also suggests.
+
+## DD-633 — A plan's "no consumer" premise searched member names and missed a wrapper's reader <a id="dd-633"></a>
+
+Plan 783 recorded that `historyChart().failed` has no reader. `e2e/intent/intent-ci-wall-time-history-later.spec.ts:135` reads `.failed` through `measureHistoryChart`, which wraps `historyChart`. The dashboard typecheck caught the removal.
+
+### Occurrences
+
+- Execution: SEED-413#correct-scope-timing-chart-proof-residue (plan 783; first implementation `4a3358649`)
+  - Timestamp: unknown (2026-11-23 +08:00, slice 2)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111
+  - Evidence: run `s2-typecheck` failed with TS2339; `.failed` was kept and recorded as obligation G1 in `50d02ebe7`.
+  - Observed effect: one failed typecheck and a narrowed scope commitment; nothing was lost.
+  - Inference: a typecheck over the removal settles a "spent member" premise more reliably than a name search.
