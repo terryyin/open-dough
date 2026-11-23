@@ -254,7 +254,7 @@ eligibility spec pass.
 ### 4. Recent stories retains only a demonstrated E2E routing check
 
 Type: Behavior
-Status: planned
+Status: done
 
 From Project Intent, using Recent stories returns to the selected story.
 The three mounted cases already own story selection, readable start,
@@ -270,6 +270,12 @@ frame alone overlaps with the mounted proof. If the step distinguishes
 the wrong route, name that risk in its title and assert the URL at that
 transition. Otherwise remove the step and its single-use helper and imports.
 Record the observed outcome in the Delivered note.
+
+**Delivered.** Scratch-routing the Intent choice through
+`navigation.follow` switched the route to the Development perspective. The
+E2E step failed only on the missing story frame, before its URL check, and
+the mounted return case fails the same way. The step and
+`returnFromProjectIntentWithRecentStories` were removed; both E2E specs pass.
 
 ### 5. Changes preserves the reading place across a detour and resets it per project
 
