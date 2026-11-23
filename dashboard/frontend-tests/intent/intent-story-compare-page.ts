@@ -30,6 +30,10 @@ export function intentStoryCompare() {
   type View = "Changes" | "CI comparison" | "Intent coverage";
   const view = (name: View) =>
     intent.getByRole("tabpanel", { name, exact: true });
+  const tab = (name: View) =>
+    intent
+      .getByRole("tablist", { name: "Selected story views" })
+      .getByRole("tab", { name, exact: true });
   const proof = intent.getByRole("region", { name: "Proof", exact: true });
   type CiView = "CI comparison" | "Intent coverage" | "Proof";
   const ciView = (name: CiView) => (name === "Proof" ? proof : view(name));
@@ -111,12 +115,8 @@ export function intentStoryCompare() {
     },
     range: () =>
       textOf(header.element().querySelector(".story-review-range-heading")),
-    chooseTab: (name: View) =>
-      userEvent.click(
-        intent
-          .getByRole("tablist", { name: "Selected story views" })
-          .getByRole("tab", { name, exact: true }),
-      ),
+    tab,
+    chooseTab: (name: View) => userEvent.click(tab(name)),
     // A listed file's control, named by its kind and path.
     file: (name: string) => intent.getByRole("button", fileNamed(name)),
     purposeText: () => textOf(purpose.element()),

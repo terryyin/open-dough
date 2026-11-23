@@ -88,3 +88,25 @@ export const folderNameControl = (folderName: string) =>
       ].find((button) => button.textContent.includes(folderName)),
     ),
   );
+
+// How many of the Files column's controls are selected.
+export const pressedFileCount = () =>
+  document.querySelectorAll('.intent-locations [aria-pressed="true"]').length;
+
+// Opens each closed location and folder of the Files column in turn.
+export async function openEveryFolder() {
+  const closed = () =>
+    document.querySelector<HTMLElement>(
+      '.intent-locations button.intent-location-toggle[aria-expanded="false"], .intent-locations button.story-review-folder[aria-expanded="false"]',
+    );
+  const anyToggle = () =>
+    document.querySelector(".intent-locations .intent-location-toggle");
+  await expect.poll(anyToggle).not.toBeNull();
+  for (let toggle = closed(); toggle !== null; toggle = closed()) {
+    await userEvent.click(page.elementLocator(toggle));
+    // Located again: the opened toggle's name says Collapse.
+    await expect
+      .element(page.elementLocator(toggle))
+      .toHaveAttribute("aria-expanded", "true");
+  }
+}

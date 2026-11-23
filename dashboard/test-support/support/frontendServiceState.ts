@@ -11,7 +11,6 @@ import { openDoughCandidatesRecord } from "../intentCandidatesFixtures.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { describedRevisions } from "../describedRevisions.ts";
-import { storyBoardFiles } from "../intentCiStoryBoard.ts";
 import {
   defaultFrontendPublishedFiles,
   doughnutSource,
@@ -196,14 +195,6 @@ export function putFrontendBacklog(
   published: { readonly revision: string; readonly backlog: string },
 ): void {
   putFrontendPublished(services, { ...published, files: {} });
-}
-
-// Publishes the story board's backlog and files.
-export function publishCiStoryBoard(services: FrontendServiceState): void {
-  Object.assign(services, {
-    files: { ...services.files, ...storyBoardFiles },
-    backlog: storyBoardFiles[".planning/PRODUCT-BACKLOG.md"],
-  });
 }
 
 // Publishes Doughnut beside Open Dough, its intent locations not configured.

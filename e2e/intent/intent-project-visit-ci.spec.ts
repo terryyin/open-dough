@@ -31,6 +31,8 @@ import {
   untilPageReadsAnswered,
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
+  expectIntentModeChosen,
+  intentModeTab,
   openProjectIntent,
   returnToStory,
 } from "../../dashboard/test-support/intentModePage.ts";
@@ -73,6 +75,20 @@ test("a Project Intent visit reuses both CI readings, while hidden trunk and sto
     await expectCiScope(ciPanel(intent), failing.branch);
     await untilPageReadsAnswered(page);
     expect(branchJudgmentCalls(calls.slice(before))).toEqual([]);
+  });
+
+  await test.step("arrow keys choosing Project Intent's view keep the page's URL", async () => {
+    await openProjectIntent(intent);
+    const visited = page.url();
+    const ciTab = intentModeTab(intent, "CI status");
+    await ciTab.press("ArrowRight");
+    await expectIntentModeChosen(intent, "Optimization Candidates");
+    await intentModeTab(intent, "Optimization Candidates").press("ArrowLeft");
+    await expectIntentModeChosen(intent, "CI status");
+    await expect(ciTab).toBeFocused();
+    expect(page.url()).toBe(visited);
+    await returnToStory(intent);
+    await untilPageReadsAnswered(page);
   });
 
   await test.step("a trunk advance while the story shows reads exactly the trunk judgment", async () => {

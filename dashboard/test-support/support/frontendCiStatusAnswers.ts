@@ -14,7 +14,6 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { IntentCiStatus } from "../../src/authenticatedIntentCiStatusRead.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { parts } from "../dashboardPage.ts";
-import { failing, running } from "../intentCiStoryBoard.ts";
 import { chooseCiStatus } from "../intentCiStatusPage.ts";
 import { openUntilRead } from "../pageRequestNotes.ts";
 import {
@@ -109,26 +108,6 @@ export async function openFrontendCiStatus(
 export async function openIntentCiStatusPanel(page: Page) {
   await openUntilRead(page, "/?project=open-dough&perspective=intent");
   return chooseCiStatus(parts(page).intent);
-}
-
-// Fresh answers for trunk at 4774f60 Passed, the failing story's branch
-// Failed at fa11ed0 and the running story's Running at 70a0001.
-export function storyBoardCiAnswers(): Record<string, IntentCiStatus> {
-  return {
-    main: judgedCiStatus("main", "pass", "4774f60", "Add login"),
-    [failing.branch]: judgedCiStatus(
-      failing.branch,
-      "failed",
-      "fa11ed0",
-      "Break the login",
-    ),
-    [running.branch]: judgedCiStatus(
-      running.branch,
-      "running",
-      "70a0001",
-      "Start the story",
-    ),
-  };
 }
 
 // A fresh judgment of `branch`: `state` at the commit `short` abbreviates,

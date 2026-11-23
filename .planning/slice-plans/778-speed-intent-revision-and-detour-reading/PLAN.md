@@ -154,7 +154,7 @@ the one adapter from published features to typed replies. The production
 ### 2. Activating CI home follows the selected scope
 
 Type: Behavior
-Status: planned
+Status: done
 
 When a story file is selected, activating CI comparison judges the story
 branch, and switching to Project Intent judges trunk with an independent
@@ -170,6 +170,16 @@ identities, file selection, names, focus and mode with the production DOM.
 Carry the project URL assertion to a keyboard step on
 `e2e/intent/intent-project-visit-ci.spec.ts`. Keep the third legacy case
 for the observation story.
+
+**Delivered.** `intent-home-activation-scope.spec.ts` replaces the first two
+legacy cases on `mountIntentCiPage`, observing recorded `readStatus` branches,
+the review query identity and file reads. `frontendIntentActivation.ts`,
+`storyBoardCiAnswers` and `publishCiStoryBoard` lost their last consumer and
+were removed. With one project the built page omits `project=` from the URL,
+so the E2E keyboard step asserts that arrow keys keep the visited URL. The
+Files column has no accessible name and its two folder-toggle variants are
+named differently, so `openEveryFolder` and `pressedFileCount` still use class
+selectors; naming them needs a production change outside this story.
 
 ### 3. A fixed Candidates reply is reused at its published revision
 
