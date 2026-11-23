@@ -184,7 +184,7 @@ selectors; naming them needs a production change outside this story.
 ### 3. A fixed Candidates reply is reused at its published revision
 
 Type: Behavior
-Status: planned
+Status: done
 
 Make the authenticated transport a required collaborator of the existing
 Candidates reader, with production explicitly wiring `authenticatedGet`.
@@ -200,6 +200,14 @@ cache bypass must fail the reuse assertion. The existing
 `intent-ci-status-kept` and `intent-cached-reads` cases own the record and
 mode after returning to Intent and the matching locations read count.
 Retire the legacy case when those owners cover all three signals.
+
+**Delivered.** `intentCandidatesReader(get)` takes the transport as a
+required collaborator and production wires `authenticatedGet`.
+`intent-candidates-reader-reuse.spec.ts` holds six reader cases; a scratch
+`fixed` bypass failed three of them. `intent-read-reuse.spec.ts`,
+`frontendIntentCandidates.ts` and `putFrontendCandidates` were retired after
+their last consumer moved. All 259 `intent/` frontend cases and the
+Candidates and CI E2E specs passed.
 
 ### 4. Returning to Changes restores the nested diff and its reading place
 

@@ -151,13 +151,6 @@ export function putFrontendDoneRecords(
   putFrontendDonePublication(services, sourceId, { catalog, bodies });
 }
 
-export function putFrontendCandidates(
-  services: FrontendServiceState,
-  candidates: IntentCandidatesAnswer,
-): void {
-  Object.assign(services, { candidates });
-}
-
 // The project as published with its stories listed as `stories` says, at
 // `revision`.
 export function putFrontendStories(
