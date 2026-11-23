@@ -124,6 +124,12 @@ refactor, twelve integrated-state, judge, background and wrap-up files passed
 builders' dashboard consumer passed. `runtime-setup.md` also lost its reuse
 clause.
 
+## Execution complete
+
+Product advice: no change. The delivered install drops the recipes as the
+story promised, and the next queued SEED-423 story, the custom CI adapter
+interface, proceeds as planned.
+
 ## Verification and delivery
 
 - Local gate follows the [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
