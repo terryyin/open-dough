@@ -459,7 +459,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 3a | Get fast proof of Intent locations read recovery and settings problems (completed; recoverable at `e0f7d6a6a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading`) | 7 | 2 |
 | 3b | Get fast proof of Intent source browsing and pinned links (completed; recoverable at `8fb7691cc:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours`) | 12 | 10 |
 | 3b′ | Get fast proof of Intent revision reading and reading-place detours (completed; recoverable at `3619577173:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading`) | 10 | 7 |
-| 3c | [Get fast proof of story changes, Done references, notes and recorded progress](#speed-story-changes-notes-and-progress-reading) | 41 | 19 |
+| 3c | Get fast proof of story changes, Done references, notes and recorded progress (completed; recoverable at `981048196:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading`) | 41 | 19 |
 | 4 | Get fast proof of board and side-panel interactions (completed) | 63 | 28 |
 | 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
@@ -741,64 +741,6 @@ on 22 November 2026, when its correction found that rendering production
 - **Evaluation.** Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories);
   every added read is a required member of the typed page entry, and no test
   file copies the published observation.
-
-<a id="speed-story-changes-notes-and-progress-reading"></a>
-
-### Get fast proof of story changes, Done references, notes and recorded progress
-
-**Identity:** SEED-413#speed-story-changes-notes-and-progress-reading
-```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-413#speed-story-changes-notes-and-progress-reading","dependencies":[{"supplier":{"identity":"SEED-413#speed-intent-source-and-story-reading","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading"},"implementation":"Reshapes makeMe.anIntentLocationsAnswer to build typed IntentLocations, forwards optional readFile on loadRepositoryTexts, and lands the narrowed SEED-413 story split on main.","rationale":"Story-changes, Done-Intent, Done-reference, notes, and progress slices share the typed IntentLocations builder and narrowed SEED-413 story split landed by SEED-413#speed-intent-source-and-story-reading.","condition":"SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.","state":"satisfied","resolution":{"revision":"e0f7d6a6a52e3ecec7c4556171c6e7a95ddd303f","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-and-story-reading","summary":"Delivered Slices 1-2 (done) reshaped makeMe.anIntentLocationsAnswer in Distribution/tests/support/intentLocationTestData.mjs to build typed IntentLocations, forwarded optional readFile on loadRepositoryTexts in dashboard/src/repositoryFileReads.ts, proved the 2-file locations cohort on Vitest, and integrated the narrowed SEED-413 story split on main.\nCondition satisfied: SEED-413#speed-intent-source-and-story-reading has landed its typed makeMe.anIntentLocationsAnswer builder, loadRepositoryTexts readFile seam, and narrowed story split on main.\nAccepted integration: 6fa6ef623823d329f9e466994ff0b6500cda9a15 on origin/refs/heads/main."}},{"supplier":{"identity":"SEED-413#speed-intent-source-browsing-and-detours","href":"seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours"},"implementation":"Slices 1–4 of plan 762 add the page observation's reads to the required typed page entry, have Intent reading record the standing rate limit when it receives a typed limited reply, and render the settings-problem and malformed-settings cases through the production Intent body with MakeMe replies, keeping the observation-driven recovery cases on an interim copy until SEED-413#drive-published-observation-through-page-entry.","rationale":"Story changes, Done Intent and Done-reference cases read published detail and Intent sources through the page observation. Starting before that correction would extend the test-only reader and the test copy of the page observation, or duplicate the correction inside this story.","condition":"SEED-413#speed-intent-source-browsing-and-detours has landed its Slices 1–4 test-entry correction on main.","state":"satisfied","resolution":{"revision":"8fb7691cc258b6141c7e867b8717b39ab51f5c80","path":".planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours","summary":"Plan 762 Slices 1–4 are done at the before-cleanup revision: the published observation's reads are a required PageReads member with no defaulted reader; Intent reading records the standing limit when it receives a typed limited reply (noteFailedIntentRead → noteLimitUntil); the settings-problem and malformed-settings cases render BoardOrIntent through mountIntentCiPage with MakeMe replies; the observation-driven recovery cases stay on the recorded PageIntentRecovery interim until SEED-413#drive-published-observation-through-page-entry. Branch CI succeeded through 446a972b6.\nCondition satisfied: SEED-413#speed-intent-source-browsing-and-detours has landed its Slices 1–4 test-entry correction on main.\nCondition satisfied: SEED-413#speed-intent-source-browsing-and-detours has landed its Slices 1–4 test-entry correction on main.\nAccepted integration: 75c1b62dc35352f926d90964e56e3429d1270842 on origin/refs/heads/main."}}]}
-```
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/763-speed-story-changes-notes-and-progress-reading/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"d298227a1c3edca83b69dac83da4eac75ee8ddb399305219f6963f5c9f34af2a","plan":"95fe7d9a30e06b265df1b628eee4ff3d664ce165e89aa78133c9e964137a3be6"}}
-```
-
-**Split from** SEED-413#speed-intent-source-and-story-reading at its delivered
-Slice 2 boundary, alongside the completed source-browsing story (recoverable
-at `8fb7691cc:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-source-browsing-and-detours`).
-
-- **Goal.** Dashboard maintainers get faster Vitest feedback on what
-  developers see when reading a selected story’s changes or a Done story’s
-  historical Intent, following a Done reference, keeping notes, or checking a
-  story’s recorded progress, execution completion and coverage.
-- **Scope.** Migrate the remaining Playwright checks from the original cohort
-  and narrow the existing Vitest Story Notes control proof to the project's
-  subscribed notes state. Use the smallest production owner that can prove
-  each behavior with its typed collaborators. Keep representative built-page
-  proof for journeys that require real navigation, publication or reload, and
-  retire shared support when its last consumer moves. The Intent header
-  shortcut to the Side panel and its two Review mode specs were retired by
-  `ffb4ef63d`. Ordinary Review and any new entry from a Story card are
-  covered by their own work. The production Changes view still owns the added
-  outside-locations diff and its line-note subject. Locations recovery,
-  source browsing, reading-place detours and the published-observation
-  recovery migration have separate story owners.
-- **Key examples.**
-  - Select a story, turn on Selected story only, then refresh to a newer
-    revision. The filter follows the selection. Opening a changed file
-    reads its diff once without rereading published text. Empty or failed
-    comparisons explain the gap and leave the tree usable. The title, file
-    toggle and CI cues stay usable at the supported viewports and appearances.
-  - With Done Purpose open, refresh the project or choose a different Done
-    story while that story’s comparison and locations are held. Refresh
-    preserves the applicable historical file and reading place. Changing
-    selection waits for the newly selected story’s own historical answer.
-  - Follow a Done dependency whose detail is pending. A valid answer reaches
-    and focuses its destination, and navigation, pointer input or Tab can
-    supersede that reveal. An expired or failed reference explains its actual
-    state. Retry can recover without reading older stories.
-  - Add a line note from a changed file, including a file outside Intent
-    locations. The note records its Intent view. Closing Notes restores
-    focus and keeps the selected file. A save stays visible when an older
-    project read answers afterwards.
-  - Open progress, execution completion or coverage for a story with records
-    or a read gap. The Dashboard shows the recorded counts, advice, result
-    or applicable gap. A plan's future proof supplies no completion evidence.
-- **Evaluation.** Record each original case’s disposition, including cases
-  retired with the old shortcut and the line-note case added since the split.
-  Apply the [shared acceptance](#acceptance-shared-by-the-eight-stories)
-  for paired two-worker timing, coverage, case count, and spent support.
 
 <a id="finish-launch-proof-orthogonal"></a>
 

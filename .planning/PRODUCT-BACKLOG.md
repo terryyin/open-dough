@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Install only scripts that guidance, hooks or the Dashboard reach](seeds/SEED-423-shrink-the-installed-distribution.md#remove-unreached-distribution-code) — SEED-423#remove-unreached-distribution-code ([plan](slice-plans/779-remove-unreached-distribution-code/PLAN.md))
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#open-review-changes-from-a-story-card) — SEED-420#open-review-changes-from-a-story-card ([plan](slice-plans/777-open-review-changes-from-a-story-card/PLAN.md))
 - [Get fast proof of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading) — SEED-413#speed-intent-scope-timing-reading ([plan](slice-plans/777-speed-intent-scope-timing-reading/PLAN.md))
-- [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading ([plan](slice-plans/763-speed-story-changes-notes-and-progress-reading/PLAN.md))
 
 ## Backlog list
 
