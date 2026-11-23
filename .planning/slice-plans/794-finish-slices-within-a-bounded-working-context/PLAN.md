@@ -142,11 +142,14 @@ probe qualifies this launch and accounting route for the matched pair.
 
 ### 2. Run both arms through independent acceptance
 Type: Behavior
-Status: planned
-Proof: The matching fixture histories, accepted slice receipts, independent
-proof and native IDs cover the same three slice outcomes. At the candidate
-boundary, a distinct coordinator resumes at the accepted SHA and starts
-slice 3 once. Every spawned worker, retry and repair belongs to a known arm.
+Status: done
+Proof: For a completed pair, the fixture histories, accepted slice receipts,
+independent proof and native IDs cover the same three outcomes. At the
+candidate boundary, a distinct coordinator resumes at the accepted SHA and
+starts slice 3 once. For the plan's bounded-stop outcome, the two fixture
+histories, terminal receipts and exact outstanding proof identify the
+accepted prefix and first blocked boundary. Every spawned worker, retry and
+repair belongs to a known arm.
 
 Behavior: A qualified replay runs control and candidate sequentially, on the
 same Codex version, `gpt-6.2-sol`, `xhigh`, default tier, pinned payload,
@@ -160,6 +163,36 @@ receipts to check ownership. Reacquire missing evidence or stop at the same
 approval boundary as the control. Retain exact acceptance and termination
 boundaries, branch and root session IDs for each arm, and any human
 intervention through review, repair and acceptance, including failed attempts.
+
+**Bounded trial result.** The common brief is
+`/private/tmp/open-dough-345.XMjth1A9/arm-brief.txt`. Both arms have the same
+product and guidance baseline and separate `workspace`, `origin.git`,
+and `evidence` directories under `control` and `candidate` in that trial
+root. Both begin on `replay/own-branch-session-review`. The control root
+`01a207ba-f711-7bf1-a5b9-0419068e57f9` exited after about 91 minutes.
+Its private origin accepted slices 1–3 at `1894275c1bea5e6414979f4a818d986ce6e2a1b1`,
+`01b3a24247d6f93931c91ac3f1ebade0cde01776`, and
+`c8ad7937006b21ee2598dbe8f01dac0c354887a6`. Its source plan and Git evidence
+directory retain exact local proof, independent review, and macOS
+process-query recovery. After it exited, candidate root
+`01a20810-41ce-7143-9916-06ecc2794067` began with brief-only workers and stopped
+after about 51 wall minutes, when its first slice used 15.2 of 15 active
+minutes. The private replay ref and clean checkout stayed at the common
+baseline `98582de224666644d36a21a423abfe7abeb9b926`.
+
+The candidate's independent review found interrupted pin cleanup and
+Codex disconnect evidence-loss gaps. Three focused repair cases passed
+before the last canonical repository-path correction. The final revision
+still needed renewed proof, independent review and commit gates. The
+candidate stopped with zero publications and parked its changes in
+`candidate/workspace/.git/open-dough/evidence/slice-1-unaccepted.patch`
+beside the stop and review receipts. It never reached the second-slice
+handoff. Both arms independently verified a local recovery for sandbox
+process observation, and neither required a new developer decision.
+The quality assessment made before reading effort is in
+`assessment-before-effort.md` at the trial root. This boundary is the
+prespecified insufficient-evidence outcome. No additional paid arm is
+authorized by the trial.
 
 ### 3. Decide what the measured pair supports
 Type: Behavior
