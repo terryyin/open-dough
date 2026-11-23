@@ -1,6 +1,5 @@
 import { readFinalReport } from "../../dashboard/test-support/finalReportPages.ts";
-import type { submitCompletion } from "../../dashboard/server/completionReporting.ts";
-import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
+import { completionReceiptSchema } from "../../dashboard/src/completionReport.ts";
 // Real preview/launch/installed report child/store/polling/rendering. Only native transport is fake.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -11,9 +10,12 @@ import {
   expect,
   stored,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import { machineSessions } from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
-import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
+import {
+  launch,
+  machineSessions,
+} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+import { storyA } from "../../Distribution/tests/support/queued-repository.mjs";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
   parts,
@@ -42,7 +44,6 @@ import {
 import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
 import { watchRecordReads } from "../../dashboard/test-support/sessionStatePace.ts";
 
-type CompletionReceipt = Awaited<ReturnType<typeof submitCompletion>>;
 const exec = promisify(execFile);
 const nativeReport = "The saved conversation's final report.";
 
@@ -63,40 +64,15 @@ test("installed attention report stays open, durable and readable through column
     revision: (await origin.originGit("rev-parse", "main")).trim(),
     repository: "terryyin/open-dough",
   });
-  // Page time stands still, so the open page reads its sessions again only
-  // as each steady pace is let pass: a delivered report reaches it then.
-  await pausePageClockAt(page, new Date());
-  const { passOnePace } = await watchRecordReads(page);
-  await page.goto("/");
-  const queued = parts(page).backlog.getByRole("article", {
-    name: "Story A",
-    exact: true,
-  });
-  await queued.getByRole("button", { name: "Start execution" }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("combobox", { name: "Host" }).selectOption("codex");
-  const acceptance = nextAcceptedAttemptId(page);
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  // The final startup change asks for an immediate read. Finish that page
-  // work before measuring the records reads at their steady polling pace.
-  await settledOutcome(dashboard, await acceptance);
-  await untilPageRequestsAnswered(page);
-  // Real Git/workspace/session creation can take longer on a loaded machine.
-  await expect
-    .poll(
-      () =>
-        existsSync(launchStoreFile(dashboard.home))
-          ? stored(dashboard.home).length
-          : 0,
-      { timeout: 30_000 },
-    )
-    .toBe(1);
-  await expect
-    .poll(() => stored(dashboard.home)[0]?.firstInput?.state, {
-      timeout: 30_000,
-    })
-    .toBe("confirmed");
-  const record = stored(dashboard.home)[0];
+  const started = await launch(
+    dashboard,
+    makeMe.aLaunchRequest.executing({ ...storyA, host: "codex" }).please(),
+  );
+  expect(started.status).toBe(200);
+  const records = stored(dashboard.home);
+  expect(records).toHaveLength(1);
+  const [record] = records;
+  expect(record?.firstInput?.state).toBe("confirmed");
   if (record?.request.reporting === undefined)
     throw new Error("No actual reporting context");
   const context = record.request.reporting;
@@ -107,6 +83,20 @@ test("installed attention report stays open, durable and readable through column
   const workspace = record.start?.workspace;
   if (workspace === undefined) throw new Error("No selected workspace");
   expectInstalledReportingScript(workspace);
+
+  // Keep the Board on the queued revision and observe its settled read
+  // before reporting. Each later receipt reaches it on one steady pace.
+  await pausePageClockAt(page, new Date());
+  const { passOnePace } = await watchRecordReads(page);
+  await page.goto("/");
+  const queued = parts(page).backlog.getByRole("article", {
+    name: storyA.title,
+    exact: true,
+  });
+  await expect(sessionStateOf(queued)).toHaveText("Working");
+  await untilPageRequestsAnswered(page);
+  const queuedReport = messagePartOf(queued);
+  await expect(queuedReport.part).toHaveCount(0);
   const text =
     "Publication finished. Reminder: inspect the migration before release.\n<script>must remain text</script>";
   const message = path.join(origin.machine, "attention.txt");
@@ -115,7 +105,7 @@ test("installed attention report stays open, durable and readable through column
   const report = async (outcome: "completed" | "unfinished") => {
     const command = `${context.command} --outcome ${outcome} --message-file '${message}'`;
     const child = await exec("bash", ["-c", command], { cwd: origin.machine });
-    return JSON.parse(child.stdout) as CompletionReceipt;
+    return completionReceiptSchema.parse(JSON.parse(child.stdout));
   };
   const steering = ["turn/interrupt", "thread/name/set", "turn/start"];
   const nativeSince = (from: number, methods: readonly string[] = steering) =>
@@ -131,38 +121,42 @@ test("installed attention report stays open, durable and readable through column
   });
   expect(stored(dashboard.home)[0]?.completion).toMatchObject({
     receipt: receipt.receipt,
+    outcome: "completed",
     message: text,
   });
   expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   await passOnePace();
-  await expect(messagePartOf(queued).text).toHaveText(text);
-  await expect(queued.locator(".session-attention-message script")).toHaveCount(
-    0,
-  );
+  await expect(queuedReport.text).toHaveText(text);
+  await expect(queuedReport.part.locator("script")).toHaveCount(0);
   await expect(sessionStateOf(queued)).toHaveText("Working");
   await expect(sessionUnreadReportOf(queued)).toHaveText(
     "Unread report: Completed with attention",
   );
-  await expect(
-    queued.getByRole("button", { name: "Mark as read" }),
-  ).toBeVisible();
+  await expect(queuedReport.markRead).toBeVisible();
   expect(nativeSince(before)).toEqual([]);
-  expect((await report("unfinished")).outcome).toBe("unfinished");
+  const unfinished = await report("unfinished");
+  expect(unfinished.outcome).toBe("unfinished");
+  expect(stored(dashboard.home)[0]?.completion).toMatchObject({
+    receipt: unfinished.receipt,
+    outcome: "unfinished",
+    message: text,
+  });
   expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
   await passOnePace();
-  await expect(queued).toContainText("Unfinished work");
+  await expect(queuedReport.heading).toHaveAccessibleName("Unfinished work");
   const revision = (await origin.originGit("rev-parse", "main")).trim();
   published.advanceTo(revision);
   await reloadUntilRead(page);
   const claimed = parts(page).taken.getByRole("article", {
-    name: "Story A",
+    name: storyA.title,
     exact: true,
   });
   await expect(messagePartOf(claimed).text).toHaveText(text);
+  await expect(queued).toHaveCount(0);
   rmSync(workspace, { recursive: true, force: true });
   // The prepared installed copy remains callable after workspace removal.
-  const retainedReceipt = (await report("unfinished")).receipt;
-  await expect(messagePartOf(claimed).text).toHaveText(text);
+  expect(existsSync(workspace)).toBe(false);
+  const { receipt: retainedReceipt } = await report("unfinished");
   const port = Number(new URL(dashboard.baseURL).port);
   await dashboard.close();
   const restarted = await startDashboardServer({
@@ -176,9 +170,10 @@ test("installed attention report stays open, durable and readable through column
   try {
     await reloadUntilRead(page);
     await expect(messagePartOf(claimed).text).toHaveText(text);
-    expect(stored(restarted.home)[0]?.completion?.receipt).toBe(
-      retainedReceipt,
-    );
+    expect(stored(restarted.home)[0]?.completion).toMatchObject({
+      receipt: retainedReceipt,
+      message: text,
+    });
     keepFinalReport(native, workspace, nativeReport);
     // The final report is Codex's own; the message stays on the entry.
     const { panel, reportText } = await readFinalReport(claimed);
@@ -215,7 +210,7 @@ test("installed attention report stays open, durable and readable through column
     await reloadUntilRead(page);
     const doneEntry = await shownDoneSessionEntriesOf(
       page,
-      "Story A",
+      storyA.title,
       native.threadId,
     );
     await expect(sessionStateOf(doneEntry)).toHaveText("Done");

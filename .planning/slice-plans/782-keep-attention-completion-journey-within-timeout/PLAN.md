@@ -2,6 +2,20 @@
 
 **Identity:** SEED-341#keep-attention-completion-journey-within-timeout
 **Source:** [Attention completion journey](../../seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout)
+**Source review:** [Independent source review](source-review.md)
+
+## Execution context
+
+- Story Branch Mode on `codex/keep-the-attention-completion-journey-within-its`,
+  owned dashboard worktree, publisher `dashboard-territory.local-open-dough`,
+  agent Yui-chan. Integration checkout is `/Users/terryyin/git/open-dough`.
+- Starting revision `e313d887db5072de5fa3edd0fb0533a002703211`.
+  Established claim, initial candidate and published branch base
+  `497eed2c20fc57eca705f184765a1d2f70f5d92d` on `origin`.
+- Authorized closure target `origin/main`. GitHub Actions `ci.yml`
+  (CI) observes the execution branch during slice delivery, coordinator
+  `codex-fa1b57e7`, directory `/tmp/dough-ci-501/watch-1t2yyr`,
+  stream cell `g362:9`, shell session 35327 and observer PID 48150.
 
 ## Goal and scope
 
@@ -75,7 +89,7 @@ fresh `OPEN_DOUGH_E2E_PROOF_RECORD` per run. Scratch edits were restored.
 ### 1. The installed report reaches the Board from one confirmed launch
 
 Type: Structure
-Status: planned
+Status: done
 
 Capture the timed unsplit baseline from the execution base before editing.
 Replace the Start dialog arrangement and duplicate store polling with the
@@ -92,6 +106,30 @@ the fresh Taken read after restart.
 Proof is the full focused attention spec with the new arrangement. Check
 the existing Start control proof owner before removing setup and assert
 first input confirmation directly.
+
+Execution baseline at `497eed2c2` on 23 November 2026: awake AC macOS
+26.6.2, Node 24.21.0, Chromium 158.0.8127.18 and 16 logical CPUs. The five
+specs named in the loaded gate ran with four workers, a fresh dashboard
+build and normal per-test fixtures. 86 synthetic `yes` processes at nice 5
+raised the one-minute load from the natural 8.78 to 43.53 before the run
+and 87.55 at its end. The unsplit case reached the default 30-second
+limit in the final Done reload (32.966 s reported with teardown).
+All seven neighboring cases passed in 17.155–22.954 s. The runner elapsed
+time was 84.57 s. `baseline-loaded.log.run.json`, `baseline-loaded.json`
+and the failure trace are in this checkout's Git evidence directory.
+Use the same workload for the first final comparison. The upper end of
+the observed load exceeded the earlier 52–59 report.
+
+Focused execution proof on the changed spec at `497eed2c2`: the full
+combined case passed in 8.230 s (12.471 s runner), one Chromium worker,
+with the local sleep guard and no supplemental workload. The launch
+stored exactly one confirmed input and sent the installed command to
+Codex. The two reports, the Board reads, Taken placement, workspace
+removal, restart and the original Read and Done all passed. The unchanged
+Codex card start spec remains the owner of the Start control. Inspect
+`slice-1-focused.log.run.json`, `slice-1-focused.json` and
+`slice-1-implementation.md` in Git evidence for the selection, terminal
+result, setup and assertions.
 
 ### 2. The developer can read or finish a retained unfinished report
 
