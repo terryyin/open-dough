@@ -209,25 +209,27 @@ async function sendRecord(publication, path, record, now) {
       "The workspace has unvalidated commits above the session close.",
     );
   }
+  /** @type {Awaited<ReturnType<typeof settledRecordAt>>} */
+  let settlement;
   const published = await publishExecutionIncrement({
     ...publication,
     previouslyPublishedBase: recordBase,
     onFetchedTarget: async (observation) => {
-      const settlement = await settledRecordAt(
+      settlement = await settledRecordAt(
         workspace,
         observation.remoteTip,
         path,
         record,
       );
       return settlement
-        ? { status: settlement.status, fields: { settlement } }
+        ? { status: settlement.status }
         : onFetchedTarget?.(observation);
     },
     // A record commit is never the launch's landing, even while its landing
     // expectation is still open.
     landingContext: null,
   });
-  if (published.settlement) return published.settlement;
+  if (settlement) return settlement;
   return {
     status: published.ok ? "published" : "stopped",
     path,
