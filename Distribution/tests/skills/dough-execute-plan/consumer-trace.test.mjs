@@ -36,16 +36,17 @@ const consumerShapes = {
   ".gitignore": "build/\n",
 };
 
-test("readers of a changed shared text are found in every kind across the whole checkout, untracked included and ignored excluded", async (t) => {
+test("base-derived and supplied effects find readers across the whole checkout", async (t) => {
   const root = await repository(t, consumerShapes, {
     "src/skills/greet/scripts/draft.mjs": "// untracked: reads message.md\n",
     "build/render.mjs": "// ignored copy reading message.md\n",
   });
+  writeFileSync(join(root, sharedText), "Say hello in the current message.\n");
   const result = trace(
     "--checkout",
     root,
-    "--path",
-    sharedText,
+    "--base",
+    "HEAD",
     "--term",
     "ordinary greeting",
     "--term",
@@ -62,19 +63,23 @@ test("readers of a changed shared text are found in every kind across the whole 
   assert.match(output, /\| `ordinary greeting` \| supplied \|/);
   assert.match(
     output,
-    /Whole checkout at `[0-9a-f]{12}`, including uncommitted and untracked files: 10 tracked and untracked non-ignored files searched/,
+    /Whole checkout at `[0-9a-f]{12}`, including uncommitted and untracked files: \d+ tracked and untracked non-ignored files searched/,
   );
 
   const production = section(output, "Production");
   assert.match(
     production,
-    /`src\/skills\/greet\/scripts\/render\.mjs` \| `message\.md` \| 2: /,
+    /`src\/skills\/greet\/scripts\/render\.mjs` \| `message\.md`[^|]*\| 2: /,
   );
-  assert.match(production, /`src\/skills\/greet\/scripts\/draft\.mjs`/);
+  assert.doesNotMatch(production, /draft\.mjs/);
+  assert.match(
+    output,
+    /\| `src\/skills\/greet\/scripts\/draft\.mjs` \| changed path \|/,
+  );
   assert.doesNotMatch(production, /unrelated/);
   assert.match(
     section(output, "Test"),
-    /`src\/skills\/greet\/scripts\/message-guidance\.test\.mjs` \| `src\/skills\/greet\/references\/message\.md`, `message\.md` \| 1: /,
+    /`src\/skills\/greet\/scripts\/message-guidance\.test\.mjs` \| `src\/skills\/greet\/references\/message\.md`, `message\.md`[^|]*\| 1: /,
   );
   assert.match(
     section(output, "Test support or stand-in"),
@@ -99,7 +104,6 @@ test("readers of a changed shared text are found in every kind across the whole 
   assert.doesNotMatch(output, /build\/render\.mjs/, "ignored files stay out");
   for (const path of [
     "src/skills/greet/scripts/render.mjs",
-    "src/skills/greet/scripts/draft.mjs",
     "tests/support/fakeRenderer.mjs",
     "journeys/greeting.feature",
     "docs/greeting.md",
@@ -112,13 +116,18 @@ test("readers of a changed shared text are found in every kind across the whole 
   );
   assert.match(output, /Disposition \|/);
   assert.match(output, /`run`, `reused` or `excluded: <reason/);
+
+  const termsOnly = trace("--checkout", root, "--term", "message.md");
+  assert.equal(termsOnly.status, 0, termsOnly.stderr);
+  assert.match(section(termsOnly.stdout, "Production"), /draft\.mjs/);
+  assert.doesNotMatch(termsOnly.stdout, /build\/render\.mjs/);
 });
 
 test("a rename inside one file that nothing else observes yields every kind empty", async (t) => {
   const root = await repository(t, {
     "src/calc.mjs": "function total(values) { return values.length }\n",
     "src/calc.test.mjs": 'import { sum } from "./sum.mjs";\n',
-    "README.md": "# Calculator\n",
+    "README.md": "# Arithmetic\n",
   });
   writeFileSync(
     join(root, "src/calc.mjs"),
@@ -127,8 +136,8 @@ test("a rename inside one file that nothing else observes yields every kind empt
   const result = trace(
     "--checkout",
     root,
-    "--path",
-    "src/calc.mjs",
+    "--base",
+    "HEAD",
     "--term",
     "total(",
   );
@@ -138,7 +147,7 @@ test("a rename inside one file that nothing else observes yields every kind empt
   assert.match(result.stdout, /2 tracked and untracked non-ignored files/);
 });
 
-test("a missing checkout, no effect to search, or a changed path outside the checkout exits 2", async (t) => {
+test("invalid checkout, effect, or base inputs exit 2", async (t) => {
   const root = await repository(t, { "a.mjs": "export {}\n" });
   const outside = mkdtempSync(join(tmpdir(), "dough-consumer-trace-plain-"));
   t.after(() => rmSync(outside, { recursive: true, force: true }));
@@ -146,9 +155,6 @@ test("a missing checkout, no effect to search, or a changed path outside the che
     ["--checkout", join(root, "missing"), "--term", "a"],
     ["--checkout", outside, "--term", "a"],
     ["--checkout", root],
-    ["--path", "a.mjs"],
-    ["--checkout", root, "--path", "../elsewhere.mjs"],
-    ["--checkout", root, "--path", join(outside, "b.mjs")],
     ["--checkout", root, "--term", ""],
     ["--checkout", root, "--base", "no-such-revision"],
     ["--checkout", root, "--base", ""],
@@ -158,6 +164,10 @@ test("a missing checkout, no effect to search, or a changed path outside the che
     assert.match(result.stderr, /usage: consumer-trace\.mjs/);
     assert.equal(result.stdout, "");
   }
+  const retired = trace("--checkout", root, "--path", "a.mjs");
+  assert.equal(retired.status, 2);
+  assert.match(retired.stderr, /Unknown option '--path'/);
+  assert.equal(retired.stdout, "");
 });
 
 test("kind follows one documented precedence so each file has exactly one kind", () => {

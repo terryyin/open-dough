@@ -35,15 +35,22 @@ test("a 13-minute slice refined in place with a new title resumes with 2 minutes
     "--continues",
     "3",
   );
-  const oldKey = await clock(worktree, "status", ...slice("3"));
   time.at(42);
   const atLimit = await clock(worktree, "status");
+  await clock(worktree, "pause");
+  const oldKey = await clock(
+    worktree,
+    "start",
+    ...slice("5"),
+    "--continues",
+    "3",
+  );
 
   assert.deepEqual(limitReport(retitled), withinLimit("3", 13, 0));
   assert.equal(retitled.result.remainingMinutes, 2);
   assert.deepEqual(limitReport(renumbered), withinLimit("4", 13, 0));
   assert.equal(renumbered.result.state, "running");
-  assert.equal(oldKey.stderr, `no record of slice 3 of ${story}\n`);
+  assert.equal(oldKey.stderr, `no record of slice 3 of ${story} to continue\n`);
   assert.deepEqual(limitReport(atLimit), overrun("4", 15, 1));
 });
 

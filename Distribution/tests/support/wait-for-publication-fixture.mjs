@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  mkdtempSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -63,29 +69,61 @@ export async function outcomeChange(supplier, before, commit) {
   };
 }
 
-// Starts the real command in the watching checkout, passing `args` (refs,
-// `--deadline`, `--duration-minutes`) through unchanged, with a sub-second
-// interval unless `args` name one.
-export function startWait(t, watcher, ...args) {
-  const interval = args.includes("--interval-seconds")
-    ? []
-    : ["--interval-seconds", "0.05"];
+// Run the real CLI and Git with a test-only timer preload. No probe adds
+// anything to the command's argument contract.
+function launchWait(t, watcher, args, { clock, allowPoll = true } = {}) {
+  const control = encodeURIComponent(`
+    import timers from "node:timers/promises";
+    import { readFileSync } from "node:fs";
+    import { syncBuiltinESMExports } from "node:module";
+    const clock = ${JSON.stringify(clock ?? null)};
+    if (clock) Date.now = () => Number(readFileSync(clock, "utf8"));
+    const pause = timers.setTimeout;
+    timers.setTimeout = (ms, ...args) => {
+      if (!${allowPoll}) throw new Error("the continued wait reached the poll timer");
+      return pause(Math.min(ms, 50), ...args);
+    };
+    syncBuiltinESMExports();
+  `);
   const child = spawn(
     process.execPath,
-    [script, "--remote", "origin", ...interval, ...args],
+    [
+      `--import=data:text/javascript,${control}`,
+      script,
+      "--remote",
+      "origin",
+      ...args,
+    ],
     { cwd: watcher },
   );
   t.after(() => child.kill("SIGKILL"));
   const wait = { stdout: "", stderr: "" };
   for (const name of ["stdout", "stderr"])
     child[name].on("data", (chunk) => {
-      wait.printedAt ??= Date.now();
       wait[name] += chunk;
     });
-  wait.ended = new Promise((resolve) =>
-    child.on("close", (code) => resolve({ code, endedAt: Date.now() })),
-  );
+  wait.ended = new Promise((resolve) => {
+    child.on("close", (code) => resolve({ code }));
+  });
   return wait;
+}
+
+export function startWait(t, watcher, ...args) {
+  return launchWait(t, watcher, args);
+}
+
+export function continueBeforePolling(t, watcher, ...args) {
+  return launchWait(t, watcher, args, { allowPoll: false });
+}
+
+export function startWaitWithClock(t, watcher, time, ...args) {
+  const clock = join(watcher, ".git", "fixture-time");
+  const advanceTo = (now) => {
+    writeFileSync(`${clock}.pending`, String(now));
+    renameSync(`${clock}.pending`, clock);
+  };
+  advanceTo(time);
+  return Object.assign(launchWait(t, watcher, args, { clock }), { advanceTo });
 }
 
 // What the watching checkout last fetched: empty after a failed observation.

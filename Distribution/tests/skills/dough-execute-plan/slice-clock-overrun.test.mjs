@@ -35,7 +35,7 @@ test("an implementer who passes 15 active minutes without a command reads the ov
   time.at(17);
   const ran = await shellThroughClock(clock, worktree, suite, "exit 0");
   const handedBack = await clock(worktree, "pause");
-  const later = await clock(worktree, "status", ...slice("3"));
+  const later = await clock(worktree, "start", ...slice("3"));
 
   assert.deepEqual(limitReport(before), withinLimit("3", 14, 0));
   assert.deepEqual(limitReport(atLimit), overrun("3", 15, 1));
@@ -103,7 +103,6 @@ test("a slice split after an overrun onto its own number starts at 15 remaining,
     ...slice("4"),
     ...splitFromThree,
   );
-  const newThree = await clock(worktree, "status", ...slice("3"));
   const both = await clock(
     worktree,
     "start",
@@ -112,6 +111,8 @@ test("a slice split after an overrun onto its own number starts at 15 remaining,
     "--continues",
     "3",
   );
+  await clock(worktree, "pause");
+  const newThree = await clock(worktree, "start", ...slice("3"));
 
   assert.deepEqual(limitReport(first), withinLimit("3", 0, 1));
   assert.equal(first.result.remainingMinutes, 15);

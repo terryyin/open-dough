@@ -128,7 +128,7 @@ test("proof run through the clock inside a round does not count toward the round
     time.shellStepTo(25),
   );
   time.at(35);
-  const ended = await clock(worktree, "status", ...diagnosis);
+  const ended = await clock(worktree, "status");
   const told = await hook("claude", {
     hook_event_name: "PostToolUse",
     session_id: "diagnosing-agent",
@@ -162,7 +162,7 @@ test("a new session settles a running round at its last clock command and starts
   assert.deepEqual(roundReport(next), round(2, 0, 10));
   time.at(245);
   assert.deepEqual(
-    roundReport(await clock(worktree, "status", ...diagnosis)),
+    roundReport(await clock(worktree, "status")),
     round(2, 5, 15),
   );
 });

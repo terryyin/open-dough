@@ -66,7 +66,7 @@ repository runner with Homebrew Bash 5 and Node 24 passed these focused baseline
 
 Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. Slice 1 was published as `67b66d67ce7b7905d9fb5e780baf3090a47ceb33` on the story branch. The Take has no owned trunk CI observation.
 
-The latest accepted story-branch revision is `45f5737aaab713d4ae70968c42426b85bf39c35f` after Slice 6.
+The latest accepted story-branch revision is `a3fd91929a8425a012aae56913831a7b41f3262c` after Slice 7.
 Codex observer for the execution branch uses GitHub Actions `ci.yml` (CI). Coordinator `5f0cec34-e7f0-4f74-8aa2-de18cfa45a2b`, mailbox `/tmp/dough-ci-501/watch-QmFpcm`, PID `84936`, session `52487`, cell `g245:20`. Runtime and owner are bound to the established execution checkout.
 
 ## Local gate
@@ -226,7 +226,7 @@ registration through installed commands. All 88 Distribution and evaluation file
 ### 8. Use the guided execution utility options
 
 Type: Behavior
-Status: planned
+Status: done
 
 Agents tracing a diff, recording obligations, reading the current slice clock
 or waiting for a supplier use the guided forms. Drop `consumer-trace --path`,
@@ -240,7 +240,7 @@ the candidate trace and recheck payload import closure.
 status/continuation and both publication-wait suites. Observe base-derived
 paths and terms, obligation receipts, active/ended clock state and a ref/path
 publication versus deadline. Control test timing without adding another
-public switch. Check retired arguments against the resulting CLI boundary.
+public switch. Check retired arguments against the resulting CLI boundary. All 28 focused files and five independent refactor checks passed. The cumulative audit found 388 installed paths, 905 resolved dependencies and 44 retired exports absent. Checkout evidence uses the `slice8-` prefix.
 
 ## Readiness review
 
