@@ -614,6 +614,27 @@ eight slices. Its plan is
   baseline was 14 Playwright cases, 43.0 s elapsed including preparation
   at two workers, load 26.7 → 25.8, at `2a0c35342` on 23 November 2026.
 
+<a id="correct-scope-timing-chart-proof-residue"></a>
+
+### Correct the proof residue of Intent collected scope timing and chart marks
+
+**Identity:** SEED-413#correct-scope-timing-chart-proof-residue
+
+Correction from the execution retrospective of
+[Get fast proof of Intent collected scope timing and chart marks](#speed-intent-scope-timing-reading)
+(commits `5119da43d..91ebbc1fa`). Its promises stay as written.
+
+**Goal.** Dashboard maintainers get scope history and chart-mark proof in
+which every moved assertion can fail and no case repeats another's checks.
+
+**Scope.** Restore the legacy-only unit case's no-timing check. Make the
+Project chart-mark dark pass prove that the scheme changed. Fold the Done
+pointer and keyboard chart-mark case into the Project case, keeping the
+Done touch case. Remove the spent `historyChart()` members and the reading
+spec's copy of the Done comparison check. Compare the two chart-mark specs
+at two workers before and after.
+Plan: [783](../slice-plans/783-correct-scope-timing-chart-proof-residue/PLAN.md).
+
 <a id="speed-intent-attempt-and-summary-proof"></a>
 
 ### Get fast proof of Intent attempt and Summary proof

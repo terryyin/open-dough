@@ -365,6 +365,16 @@ Reported: slice 6 — "Some drawing checks from expectMarkedScopeHistoryDrawn ar
 Story clause: "All 14 legacy cases across the 8 owned files have a traceable disposition"
 Disposition: proved by slice 7: dashboard/frontend-tests/intent/intent-project-ci-history-chart-marks.spec.ts case 1 asserts selectedShape, averageDashes, the exact axis labels, markXs strictly increasing, drawnUnder for zero, selected, failed and unavailable marks, floorY for zero, and dateLabels Nov 2, Nov 5, Nov 8 (blanking Nov 2 failed it)
 
+## Execution complete
+
+Product advice: no change to queue priorities. The retrospective's outcome
+review found no product bugs and five proof-residue findings, which
+[plan 783](../783-correct-scope-timing-chart-proof-residue/PLAN.md) owns as
+SEED-413#correct-scope-timing-chart-proof-residue. The dark-chart step in
+`intent-story-dark-appearance.spec.ts:138-191` now duplicates the Project
+chart-mark `painting` assertion. Its migration story should drop that step.
+Process review is deferred into wrap-up with Intent Coverage.
+
 ## Slice review
 
 Slice-plan refinement was not needed. The premise probes reached the mounted
