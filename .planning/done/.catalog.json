@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-425_resume-existing-plans-after-upgrade.json",
+      "identity": "SEED-425#resume-existing-plans-after-upgrade",
+      "completedAt": "2026-11-23T06:34:52.713Z",
+      "blob": "684514991f93f3893962857528f64839d4a5fed0"
+    },
+    {
       "fileName": "SEED-413_correct-revision-detour-proof-residue.json",
       "identity": "SEED-413#correct-revision-detour-proof-residue",
       "completedAt": "2026-11-23T05:36:32.042Z",

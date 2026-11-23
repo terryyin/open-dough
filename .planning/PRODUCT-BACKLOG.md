@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Resume an existing plan after upgrading Open Dough](seeds/SEED-425-resume-existing-plans-after-upgrade.md#resume-existing-plans-after-upgrade) — SEED-425#resume-existing-plans-after-upgrade ([plan](slice-plans/785-resume-existing-plans-after-upgrade/PLAN.md))
-
 ## Backlog list
 
 - [Bring launch test feedback to about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#reach-eight-second-launch-feedback) — SEED-413#reach-eight-second-launch-feedback

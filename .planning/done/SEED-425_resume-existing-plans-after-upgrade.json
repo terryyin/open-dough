@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-425#resume-existing-plans-after-upgrade",
+  "title": "Resume an existing plan after upgrading Open Dough",
+  "completedAt": "2026-11-23T06:34:52.713Z",
+  "developer": "Terry Yin",
+  "agent": "Anri-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
