@@ -1,3 +1,16 @@
+## 0.3.112 - 2026-11-23
+
+- Execute Plan reads the complete selected story and its approved amendments during delegation and proof acceptance. Open gaps stay in the plan's Story obligations. A plan that still links a legacy source review stops until its outstanding work and evidence have been carried forward.
+- Publication recovery reuses the accepted revision and registers it with the caller's live CI observer. If that observer cannot be recovered, the caller reports the coverage gap. The release removes the standalone CI watcher and uses the shared test-entry selector for MakeMe.
+- Dashboard Story cards open Review changes in Intent and reveal the first changed file. Intent explains historical and workspace comparisons and lets readers move between changed files. The Dashboard polls open Codex sessions and rechecks the selected session when its terminal reopens, preserving saved Done outcomes.
+- Dashboard proof moves launch, Intent, and review cases to typed entry points and mounted views. Distribution removes unused helper commands and gives its slower browser checks more deadline headroom.
+
+The Promoted payload contains 382 files, with 61 revised paths and nine retired paths. Dashboard and CI changes are source-only.
+
+The self-installation baseline, 12 focused Distribution checks, and Dashboard type-check passed locally. Representative review covered a linked legacy plan with open obligations, recovery of an already-published revision, and reused host-hook registration. The [previous-release upgrade proof](https://github.com/terryyin/open-dough/blob/201585eeccbcf1f2c1a3870f2b16efc9187b1613/.planning/slice-plans/785-resume-existing-plans-after-upgrade/PLAN.md#2-resume-a-previous-release-project-through-its-normal-update) verified both skill roots and an unwritten repeat update. [Hosted CI passed at `1a1e22a0b`](https://github.com/terryyin/open-dough/actions/runs/45120506976). Later commits through the source candidate change planning and maintainer records.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), the existing discovery, hook registration, and host event interfaces reuse their native evidence. Plan migration and CI observer recovery have deterministic proof. Fresh native acceptance was unnecessary for these changes. The existing supplier-watch, freshness-ordering, and oversized-file observations remain open.
+
 ## 0.3.111 - 2026-11-23
 
 - Land and Story Wrap Up publish per-session change records for refinement, execution, and follow-ups, including individual accepted ranges. A shared checkout keeps each launch's own close state, and a resumed close uses the original session. Records expire after 30 days. A retried record commit still removes expired records in the same commit.
