@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "fd8d9295-6cf7-44f4-a35c-5af66402f2cb",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T06:43:13.437Z",
+  "story": "SEED-345#use-proportionate-refactoring-for-small-test-edits",
+  "ranges": [
+    {
+      "base": "e84c8b67bdd1f08df5a3468d35d7873227aefe54",
+      "candidate": "e745aca006dc7f81d6bf1f880b522d06e584c76e"
+    }
+  ]
+}
