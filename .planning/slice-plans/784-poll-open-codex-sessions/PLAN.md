@@ -148,3 +148,18 @@ boundary for each promise. The implementation return and consumer trace in
 the Git evidence directory cover the shared machine read, notifications
 and counts, terminal and report access, and fresh delete admission. The
 independent refactor clarified two comments and reused the same proof.
+
+## Execution complete
+
+Product advice: Keep the recorded Done mark as the polling boundary. Open
+Codex work has deterministic target-set proof at the shared observation
+entry, and the existing browser journeys show reopening, completion, and
+review. The observation changes stay within this story's scope. No product
+follow-up is needed for the delivered change.
+
+Implementation published at `b5b4a3ed8fce7d915d7a72eaf193c33823947e0d` on the
+story branch. The typed Vitest regression drove the change. Browser proof
+covers the representative cross-boundary workflows, including actual
+terminal readiness and the passive retained report. CI remains pending at
+this review boundary. Process review continues in wrap-up after the intent
+coverage check of the replaced Done assertions.
