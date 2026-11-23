@@ -268,6 +268,8 @@ Former local code: DD-611.
 - SEED-421#stop-repeating-git-work-in-shared-publication (plan 763, first implementation `6d6cbebcf`)
 - SEED-418#resume-shared-checkout-closes-as-their-own-session (plan 771)
 
+- Execution: SEED-423#remove-unreached-distribution-code (plan 779, first implementation `67b66d67c`). Timestamp: 2026-11-23T11:05:54+08:00 (local gate start). Tool: Codex. Open Dough release: 0.3.110 (installed .agents guidance at Take `25e0878ad`). Evidence: `287001929:.planning/slice-plans/779-remove-unreached-distribution-code/PLAN.md` records the clean `e8e1c7f1f` combined Distribution and evaluation run with three local workers at observed load 35 on 16 logical CPUs. It passed 654 of 667 files, with twelve native deadline failures and one supplier-watch assertion. The thirteen passed in two one-worker runs at the same revision, and [CI run 45103865999](https://github.com/terryyin/open-dough/actions/runs/45103865999) passed all 667. Observed effect: two diagnostic gates were needed after the combined run. Inference: local worker fan-out can compound shared host load even when this execution runs one suite at a time.
+
 [Account and evidence at ODF-209](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-209.md#evidence-2026-11-23-open-dough-dd-611).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 

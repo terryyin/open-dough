@@ -46,7 +46,6 @@ export function installedStream(
       "--execution",
       "owner/project",
       branch,
-      "60000",
       ...(coordinator ? ["--coordinator", coordinator] : []),
     ],
   });

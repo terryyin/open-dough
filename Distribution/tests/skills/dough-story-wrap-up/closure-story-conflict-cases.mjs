@@ -57,7 +57,6 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
     execution,
   );
   const prepared = [];
-  const registered = [];
   const publish = () =>
     publishHistoryPreservingCandidate({
       ownedWorkspace: execution,
@@ -65,7 +64,6 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
         .with({ publishedTip: closureSha, branch: executionBranch })
         .please(),
       beforePush: (comparison) => prepared.push(comparison),
-      register: (receipt) => registered.push(receipt),
     });
   // The merge stopped on `base`, unresolved, with nothing pushed.
   const assertConflictLeftOn = async (base) => {
@@ -126,7 +124,6 @@ test("a conflicted integration is preserved as Git left it, and its resolved mer
   assert.deepEqual(prepared, [
     { attempt: 0, candidate: resolved, suffixBase: movedSha },
   ]);
-  assert.deepEqual(registered, [published.receipt]);
   assert.equal(await lsRemoteSha(origin, trunkTarget), resolved);
   assert.notEqual(resolved, outdated);
   assert.equal(

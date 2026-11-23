@@ -4,13 +4,9 @@ import assert from "node:assert/strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import {
-  deliverHostBoundary,
-  invokeHostHook,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-host-bridge.mjs";
+import { publishMailboxEvent } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import {
   completeRevision,
-  publishMailboxEvent,
   readDeliveryProgress,
   readMailboxEvents,
   readRevisionCoverage,
@@ -21,6 +17,10 @@ import {
   git,
   waitForFailureEvent,
 } from "./execution-increment-managed-delivery-test-fixtures.mjs";
+import {
+  cursorHookInput,
+  invokeInstalledCursorHook,
+} from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
 const repo = "owner/project";
@@ -57,7 +57,6 @@ test("unread failures survive resume and a later failure is delivered", async (t
     candidateSha: accepted,
     targetRef: trunkTarget,
     repo,
-    publishedRevisions: [accepted],
     defaultCheckout: fixture.integration,
   });
   assert.equal(resumed.observation.state, "recovered");
@@ -82,13 +81,14 @@ test("unread failures survive resume and a later failure is delivered", async (t
   fixture.releaseFailure(later.receipt.sha, "main");
   await waitForFailureEvent(later.observation.directory);
 
-  const boundary = await deliverHostBoundary({
-    host: "cursor",
-    session: fixture.session,
-    workspace: fixture.execution,
-    hookPath: join(fixture.skill, "scripts/ci-host-hook.mjs"),
-    env: fixture.env,
-  });
+  const boundary = await invokeInstalledCursorHook(
+    fixture,
+    cursorHookInput(
+      fixture.session.conversation_id,
+      fixture.session.generation_id,
+    ),
+    fixture.env,
+  );
   const context =
     boundary.additional_context ??
     boundary.hookSpecificOutput?.additionalContext ??
@@ -121,7 +121,6 @@ test("undiscovered revision through completion reports truthful unproved coverag
     candidateSha: accepted,
     targetRef: trunkTarget,
     repo,
-    publishedRevisions: [accepted],
     defaultCheckout: fixture.integration,
   });
   assert.equal(resumed.observation.state, "recovered");
@@ -174,28 +173,14 @@ test("ended observer receipt never reports active attachment on the host hook", 
   // Re-parse a push-style receipt through the installed hook process so the
   // owner hash matches the original coordinator binding path encoding.
   const receipt = `${receiptPrefix}${JSON.stringify({ directory })}\n`;
-  const output = await invokeHostHook(
-    "cursor",
-    {
-      session_id: fixture.session.session_id,
-      conversation_id: fixture.session.conversation_id,
-      generation_id: fixture.session.generation_id,
-      transcript_path: "/tmp/dough-managed-delivery.jsonl",
-      hook_event_name: "postToolUse",
-      tool_name: "Shell",
-      tool_output: JSON.stringify({
-        stdout: receipt,
-        output: receipt,
-        exitCode: 0,
-      }),
-      tool_response: { stdout: receipt },
-      cursor_version: "0.0.0",
-    },
-    {
-      hookPath: join(fixture.skill, "scripts/ci-host-hook.mjs"),
-      cwd: fixture.execution,
-      env: fixture.env,
-    },
+  const output = await invokeInstalledCursorHook(
+    fixture,
+    cursorHookInput(
+      fixture.session.conversation_id,
+      fixture.session.generation_id,
+      receipt,
+    ),
+    fixture.env,
   );
   const text =
     output.additional_context ??

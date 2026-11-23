@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readHostStream } from "../../src/native-host-stream.mjs";
-import { selectionResolved } from "./makeme-native-selection-observe.mjs";
+import { commonSelectionResolved } from "./makeme-common-selection-observe.mjs";
 import { runTests } from "./makeme-native-test-run.mjs";
 import { guidanceReadCount } from "./makeme-native-guidance-observe.mjs";
 import {
@@ -28,7 +28,11 @@ export function loaded(read, path, marker) {
 }
 
 export function assessGuidance(read, journey, configurationPath) {
-  const resolved = selectionResolved(read, journey, configurationPath);
+  const resolved = commonSelectionResolved(read, {
+    configuration: configurationPath,
+    selected: journey === "mixed" ? ["backend/tests/access.test.mjs"] : [],
+    optedOut: journey === "mixed" ? [] : ["frontend/tests/preview.test.mjs"],
+  });
   const skill =
     loaded(read, "dough-makeme/SKILL.md", "# Apply MakeMe to selected tests") ||
     loaded(

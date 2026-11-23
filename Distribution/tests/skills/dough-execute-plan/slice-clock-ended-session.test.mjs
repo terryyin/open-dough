@@ -70,8 +70,9 @@ test("a new session starts a different slice without pause, while a plain start 
     "--after-ended-session",
   );
   assert.deepEqual(limitReport(started), withinLimit("4", 0, 0));
-  const previous = await clock(worktree, "status", ...slice());
-  assert.equal(previous.result.state, "paused");
+  await clock(worktree, "pause");
+  const previous = await clock(worktree, "start", ...slice());
+  assert.equal(previous.result.state, "running");
   assert.deepEqual(limitReport(previous), withinLimit("3", 9, 0));
 });
 

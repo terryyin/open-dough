@@ -28,7 +28,7 @@ test("a copied candidate and passing baseline do not count as authoring proof", 
 test("resolver evidence and conditional reads distinguish mixed from opted-out use", () => {
   // Exact observation inputs are under proof; no domain starting data here.
   const command =
-    "/bin/zsh -lc 'node .agents/skills/dough-makeme/scripts/select-makeme.mjs --project /project -- frontend/tests/preview.test.mjs'";
+    "node .agents/skills/dough-execute-plan/scripts/test-entry-rules.mjs --project /project";
   const read = {
     status: "complete",
     reads: [],
@@ -40,12 +40,16 @@ test("resolver evidence and conditional reads distinguish mixed from opted-out u
         exitCode: 0,
       },
       {
-        command,
+        command: `/bin/zsh -lc '${command} --source frontend/tests/preview.test.mjs'`,
         output: JSON.stringify({
-          status: "not-selected",
-          configuration: "/project/.planning/open-dough.json",
-          files: [],
-          entries: [],
+          status: "resolved",
+          sources: [
+            {
+              path: "frontend/tests/preview.test.mjs",
+              makeMe: false,
+              pageObjects: false,
+            },
+          ],
         }),
         exitCode: 0,
       },
@@ -53,12 +57,15 @@ test("resolver evidence and conditional reads distinguish mixed from opted-out u
   };
   assert.equal(assessGuidance(read, "mixed").gateHeld, false);
   assert.equal(assessGuidance(read, "opted-out").gateHeld, true);
+  read.calls[1].command = `${command} --source backend/tests/access.test.mjs`;
   read.calls[1].output = JSON.stringify({
-    status: "selected",
-    configuration: "/project/.planning/open-dough.json",
-    files: ["backend/tests/access.test.mjs"],
-    entries: [
-      { path: "backend/tests", files: ["backend/tests/access.test.mjs"] },
+    status: "resolved",
+    sources: [
+      {
+        path: "backend/tests/access.test.mjs",
+        makeMe: true,
+        pageObjects: false,
+      },
     ],
   });
   read.calls.push({
@@ -71,7 +78,17 @@ test("resolver evidence and conditional reads distinguish mixed from opted-out u
   read.calls[1].exitCode = 1;
   assert.equal(assessGuidance(read, "mixed").selectionResolved, false);
   read.calls[1].exitCode = 0;
-  read.calls[1].command = "echo 'I ran select-makeme.mjs'";
+  read.calls[1].command = "echo 'I ran test-entry-rules.mjs'";
+  assert.equal(assessGuidance(read, "mixed").selectionResolved, false);
+  read.calls[1].command =
+    "node .agents/skills/dough-makeme/scripts/select-makeme.mjs --project /project -- backend/tests/access.test.mjs";
+  const files = ["backend/tests/access.test.mjs"];
+  read.calls[1].output = JSON.stringify({
+    status: "selected",
+    configuration: "/project/.planning/open-dough.json",
+    files,
+    entries: [{ path: "backend/tests", files }],
+  });
   assert.equal(assessGuidance(read, "mixed").selectionResolved, false);
 });
 
@@ -106,12 +123,16 @@ test("native skill expansion and statusless shell reads retain their real eviden
     calls: [
       {
         command:
-          "node .claude/skills/dough-makeme/scripts/select-makeme.mjs --project /project -- frontend/tests/preview.test.mjs",
+          "node .claude/skills/dough-execute-plan/scripts/test-entry-rules.mjs --project /project --source frontend/tests/preview.test.mjs",
         output: JSON.stringify({
-          status: "not-selected",
-          configuration: "/project/.planning/open-dough.json",
-          files: [],
-          entries: [],
+          status: "resolved",
+          sources: [
+            {
+              path: "frontend/tests/preview.test.mjs",
+              makeMe: false,
+              pageObjects: false,
+            },
+          ],
         }),
         exitCode: null,
       },

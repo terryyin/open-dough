@@ -57,7 +57,6 @@ test("Story Branch cleanup after integration retires the execution worktree, its
     ownedWorkspace: execution,
     publishedTip: closureSha,
     branch: executionBranch,
-    register: () => {},
   });
   assert.notEqual(published.receipt.sha, closureSha);
 

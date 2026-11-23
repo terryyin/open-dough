@@ -3,6 +3,8 @@
 // touches the backlog, then pushed once. A conflict or a second rejection
 // preserves that state and does not loop. Lost-response classification is not this file.
 import assert from "node:assert/strict";
+import { makeMe } from "../../support/makeMe.mjs";
+import { publishExecutionIncrement } from "../../../src/skills/dough-execute-plan/scripts/execution-increment-publication.mjs";
 import { test } from "node:test";
 import { rebaseInProgress } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-git-operation-state.mjs";
 import { backlogOf } from "../../support/product-backlog-fixture.mjs";
@@ -145,58 +147,62 @@ test("a second rejection preserves the once-rewritten candidate and does not rec
   t.after(cleanup);
 
   const before = await captureCheckout(integration);
-  const siblingSha = await advanceOriginBacklog(
-    origin,
-    backlogOf([], [itemA, siblingB, itemC, itemD]),
-    "sibling backlog change",
-  );
-
+  let siblingSha;
   let checkedSha;
-  const outcome = await publishRacingSuffix({
+  const attempts = [];
+  const result = await publishExecutionIncrement({
     workspace: execution,
-    origin,
-    candidateSha,
-    previouslyPublishedBase: trunkSha,
-    branch: "exec/story",
-    affectedCheck: async (sha) => {
+    ...makeMe.anIncrementPublication
+      .with({
+        previouslyPublishedBase: trunkSha,
+        branch: "exec/story",
+        targetRef: "refs/heads/main",
+      })
+      .please(),
+    validate: async (sha) => {
       checkedSha = sha;
       await assertAffectedCombination(fixture, sha);
+      return { ok: true };
     },
-    beforeRetryPush: () => advanceOriginFromAnotherWriter(origin),
+    beforePush: async ({ attempt }) => {
+      attempts.push(attempt);
+      if (attempt === 0)
+        siblingSha = await advanceOriginBacklog(
+          origin,
+          backlogOf([], [itemA, siblingB, itemC, itemD]),
+          "sibling backlog change",
+        );
+      else await advanceOriginFromAnotherWriter(origin);
+    },
   });
+  assert.deepEqual(attempts, [0, 1]);
+  assert.equal(result.status, "persistent-contention");
+  assert.equal(result.reconciliations, 1);
+  const { candidate: localSha, remoteTip: remoteSha } = result;
 
-  assert.equal(outcome.status, "preserved");
-  assert.equal(outcome.reason, "persistent-contention");
-  assert.equal(outcome.replays, 1);
-  assert.equal(checkedSha, outcome.localSha);
-  assert.notEqual(outcome.remoteSha, siblingSha);
-  assert.notEqual(outcome.localSha, candidateSha);
-  assert.equal(await revParse(execution, "exec/story"), outcome.localSha);
+  assert.equal(checkedSha, localSha);
+  assert.notEqual(remoteSha, siblingSha);
+  assert.notEqual(localSha, candidateSha);
+  assert.equal(await revParse(execution, "exec/story"), localSha);
   assert.equal(
-    (await git(execution, "rev-parse", `${outcome.localSha}^`)).stdout.trim(),
+    (await git(execution, "rev-parse", `${localSha}^`)).stdout.trim(),
     siblingSha,
     "the one replay stays based on the first remote advance",
   );
   let absorbed = true;
   try {
-    await git(
-      execution,
-      "merge-base",
-      "--is-ancestor",
-      outcome.remoteSha,
-      outcome.localSha,
-    );
+    await git(execution, "merge-base", "--is-ancestor", remoteSha, localSha);
   } catch {
     absorbed = false;
   }
   assert.equal(absorbed, false, "the later remote commit was not absorbed");
   assert.equal(
     (
-      await git(execution, "ls-tree", "-r", "--name-only", outcome.localSha)
+      await git(execution, "ls-tree", "-r", "--name-only", localSha)
     ).stdout.includes("other-writer.txt"),
     false,
   );
   assert.equal(rebaseInProgress(execution), undefined);
-  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), outcome.remoteSha);
+  assert.equal(await lsRemoteSha(origin, "refs/heads/main"), remoteSha);
   assertCheckoutUnchanged(before, await captureCheckout(integration));
 });

@@ -3,10 +3,10 @@ import test from "node:test";
 import { makeMe } from "../support/makeMe.mjs";
 import {
   materializeSelectionProject,
-  runMakeMeSelection,
+  runSourceSelection,
+  selectedMakeMePaths,
   intentSettingsForLocations,
 } from "../support/makeme-selection-project.mjs";
-import { join } from "node:path";
 
 // New source paths are intentionally absent; selection precedes test authoring.
 test("standalone command selects only opted-in source membership, with no npm installation", async (t) => {
@@ -25,7 +25,7 @@ test("standalone command selects only opted-in source membership, with no npm in
         .please(),
     ),
   );
-  const { code, answer } = runMakeMeSelection(
+  const { code, answer } = runSourceSelection(
     root,
     "backend/tests/nested/new.spec.ts",
     "backend/tests/helper.ts",
@@ -34,19 +34,10 @@ test("standalone command selects only opted-in source membership, with no npm in
     "frontend/tests/new.spec.ts",
   );
   assert.equal(code, 0);
-  assert.deepEqual(answer, {
-    status: "selected",
-    configuration: join(root, ".planning/open-dough.json"),
-    files: ["backend/tests/nested/new.spec.ts"],
-    entries: [
-      { path: "backend/tests", files: ["backend/tests/nested/new.spec.ts"] },
-    ],
-    convention: join(
-      root,
-      ".agents/skills/dough-makeme",
-      "references/convention.md",
-    ),
-  });
+  assert.equal(answer.status, "resolved");
+  assert.deepEqual(selectedMakeMePaths(answer), [
+    "backend/tests/nested/new.spec.ts",
+  ]);
 });
 
 test("an overlapping opt-out does not veto an enabled entry", async (t) => {
@@ -66,8 +57,8 @@ test("an overlapping opt-out does not veto an enabled entry", async (t) => {
     ),
   );
   assert.deepEqual(
-    runMakeMeSelection(root, "checks/nested/a.test.mjs").answer.entries,
-    [{ path: "checks/nested", files: ["checks/nested/a.test.mjs"] }],
+    runSourceSelection(root, "checks/nested/a.test.mjs").answer.sources,
+    [{ path: "checks/nested/a.test.mjs", makeMe: true, pageObjects: false }],
   );
 });
 
@@ -86,14 +77,14 @@ test("sources override legacy fields and match custom extensions case-sensitivel
       include: ["**/*.ts"],
     }),
   );
-  const { answer } = runMakeMeSelection(
+  const { answer } = runSourceSelection(
     root,
     "checks/nested/a.check",
     "checks/nested/a.CHECK",
     "checks/nested/a.ts",
     "checks/nested/deeper/a.check",
   );
-  assert.deepEqual(answer.files, ["checks/nested/a.check"]);
+  assert.deepEqual(selectedMakeMePaths(answer), ["checks/nested/a.check"]);
 });
 
 test("kind extension filters remain required even when include matches", async (t) => {
@@ -108,13 +99,15 @@ test("kind extension filters remain required even when include matches", async (
     ),
   );
   assert.deepEqual(
-    runMakeMeSelection(
-      root,
-      "checks/a.sh",
-      "checks/nested/a.bash",
-      "checks/a.SH",
-      "checks/a.md",
-    ).answer.files,
+    selectedMakeMePaths(
+      runSourceSelection(
+        root,
+        "checks/a.sh",
+        "checks/nested/a.bash",
+        "checks/a.SH",
+        "checks/a.md",
+      ).answer,
+    ),
     ["checks/a.sh", "checks/nested/a.bash"],
   );
 });
@@ -131,13 +124,15 @@ test("sources retain extglob and brace selection grammar", async (t) => {
     ),
   );
   assert.deepEqual(
-    runMakeMeSelection(
-      root,
-      "checks/cases/alpha.test",
-      "checks/cases/beta.check",
-      "checks/cases/gamma.test",
-      "checks/cases/ALPHA.test",
-    ).answer.files,
+    selectedMakeMePaths(
+      runSourceSelection(
+        root,
+        "checks/cases/alpha.test",
+        "checks/cases/beta.check",
+        "checks/cases/gamma.test",
+        "checks/cases/ALPHA.test",
+      ).answer,
+    ),
     ["checks/cases/alpha.test", "checks/cases/beta.check"],
   );
 });

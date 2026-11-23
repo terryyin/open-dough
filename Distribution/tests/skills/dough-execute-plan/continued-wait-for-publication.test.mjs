@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  continueBeforePolling,
   delivered,
   objectAt,
   observed,
@@ -14,9 +15,6 @@ import {
 } from "../../support/wait-for-publication-fixture.mjs";
 
 const beyondJudgment = ["--duration-minutes", "1"];
-// An interval no wait in these tests reaches: only an observation made at
-// start can end such a wait before its deadline.
-const noLaterObservation = ["--interval-seconds", "3600"];
 
 // A wait on the outcome that ends with a publication result for an outcome
 // the coordinator does not accept.
@@ -36,13 +34,12 @@ test("a supplier that publishes a slice and then its completion while the previo
   await publish(supplier, "main", { "src/slice.md": "x\n" });
   const completed = await publish(supplier, "main", delivered);
 
-  const rerun = startWait(
+  const rerun = continueBeforePolling(
     t,
     watcher,
     ...watchedOutcome,
     "--deadline",
     deadline,
-    ...noLaterObservation,
   );
 
   assert.deepEqual(await onlyResult(rerun), {

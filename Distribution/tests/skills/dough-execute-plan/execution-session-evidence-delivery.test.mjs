@@ -107,7 +107,6 @@ test("an increment whose push response was lost joins the session evidence once,
     ...request,
     candidateSha: interrupted,
     suffixBase: first.receipt.sha,
-    publishedRevisions: [],
   };
   const resumed = await fixture.resumeManagedExecutionIncrement(resume);
   assert.equal(resumed.ok, true, JSON.stringify(resumed));

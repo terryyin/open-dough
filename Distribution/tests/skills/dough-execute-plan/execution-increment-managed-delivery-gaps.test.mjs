@@ -23,6 +23,30 @@ import {
 const trunkTarget = "refs/heads/main";
 const repo = "owner/project";
 
+for (const [flag, value] of [
+  ["--preferred-alias", ".claude"],
+  ["--max-duration-ms", "60000"],
+]) {
+  test(`installed delivery refuses ${flag} before publication or observation`, async (t) => {
+    const fixture = await createManagedFixture();
+    t.after(fixture.cleanup);
+
+    const { code, stderr, delivered } = await deliverThroughCli(fixture, {
+      base: fixture.trunkSha,
+      extra: [flag, value],
+    });
+
+    assert.equal(code, 2);
+    assert.equal(stderr.trim(), `invalid argument ${flag}`);
+    assert.equal(delivered, null);
+    assert.equal(
+      await lsRemoteSha(fixture.origin, trunkTarget),
+      fixture.trunkSha,
+    );
+    assert.equal(existsSync(fixture.storage), false);
+  });
+}
+
 test("an unavailable host bridge reports unobserved coverage and preserves acceptance", async (t) => {
   const fixture = await createManagedFixture();
   t.after(fixture.cleanup);

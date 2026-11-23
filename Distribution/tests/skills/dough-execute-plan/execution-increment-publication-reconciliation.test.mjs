@@ -27,16 +27,6 @@ const trunkWithIncrement = makeMe.aRepository
   });
 const trunkWithOneIncrement = trunkWithIncrement.please();
 
-function receiptsOf() {
-  const receipts = [];
-  return {
-    receipts,
-    register(receipt) {
-      receipts.push(receipt);
-    },
-  };
-}
-
 async function ancestor(workspace, ancestorSha, descendant) {
   try {
     await git(
@@ -60,7 +50,6 @@ test("Trunk Mode increment returns needs-validation when another writer advances
 
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
   const before = await captureCheckout(integration);
-  const observer = receiptsOf();
 
   const published = await publishExecutionIncrement({
     workspace: execution,
@@ -71,7 +60,6 @@ test("Trunk Mode increment returns needs-validation when another writer advances
         targetRef: trunkTarget,
       })
       .please(),
-    register: observer.register,
   });
 
   assert.equal(published.ok, false);
@@ -80,7 +68,6 @@ test("Trunk Mode increment returns needs-validation when another writer advances
   assert.equal(published.remoteTip, disjointSha);
   assert.equal(published.preRebaseSha, candidateSha);
   assert.notEqual(published.candidate, candidateSha);
-  assert.deepEqual(observer.receipts, []);
   assert.equal(await lsRemoteSha(origin, trunkTarget), disjointSha);
   assert.equal(
     (
@@ -111,7 +98,6 @@ test("Trunk Mode retains a multi-commit comparison before publishing its validat
 
   const disjointSha = await advanceOriginFromAnotherWriter(origin);
   const before = await captureCheckout(integration);
-  const observer = receiptsOf();
   const validated = [];
   const retained = [];
 
@@ -124,7 +110,6 @@ test("Trunk Mode retains a multi-commit comparison before publishing its validat
         targetRef: trunkTarget,
       })
       .please(),
-    register: observer.register,
     validate: async (candidate, context) => {
       validated.push({ candidate, ...context });
       return { ok: true };
@@ -166,11 +151,6 @@ test("Trunk Mode retains a multi-commit comparison before publishing its validat
     sha: published.receipt.sha,
     target: trunkTarget,
   });
-  assert.deepEqual(observer.receipts, [published.receipt]);
-  assert.equal(
-    observer.receipts.some((receipt) => receipt.sha === candidateSha),
-    false,
-  );
   assert.equal(await lsRemoteSha(origin, trunkTarget), published.receipt.sha);
   assert.equal(await lsRemoteSha(origin, "refs/heads/exec/story"), "");
   assert.equal(await lsRemoteSha(origin, recordedStoryBranch), "");

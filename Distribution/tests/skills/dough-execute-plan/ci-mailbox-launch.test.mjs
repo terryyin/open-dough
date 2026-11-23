@@ -10,8 +10,8 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
+import { publishMailboxEvent } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import {
-  publishMailboxEvent,
   readMailboxEvents,
   readWorkerIdentity,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
@@ -25,6 +25,26 @@ import {
   spawnIdleNode,
 } from "./ci-mailbox-process-test-fixtures.mjs";
 import { awaitWorkerSignal, waitForFile } from "./watch-ci-test-fixtures.mjs";
+
+test("start and stream reject the retired budget positional before creating a mailbox", async (t) => {
+  const storage = mkdtempSync(join(tmpdir(), "retired-mailbox-budget-"));
+  t.after(() => rmSync(storage, { recursive: true, force: true }));
+  const mailboxes = join(storage, "mailboxes");
+  const env = { ...process.env, DOUGH_CI_MAILBOX_ROOT: mailboxes };
+
+  for (const operation of ["start", "stream"]) {
+    await assert.rejects(
+      exec(
+        process.execPath,
+        [launcher, operation, "--execution", "owner/repo", "main", "1"],
+        { env },
+      ),
+      { stderr: /Expected --execution OWNER\/REPO BRANCH/ },
+      operation,
+    );
+  }
+  assert.equal(existsSync(mailboxes), false);
+});
 
 test("a symlink-equivalent entry path still runs the probe CLI body", async (t) => {
   const storage = mkdtempSync(join(tmpdir(), "ci-mailbox-symlink-storage-"));
@@ -55,12 +75,7 @@ test("a symlink-equivalent entry path still runs the probe CLI body", async (t) 
 });
 
 test("execution launcher returns before startup discovery and appends its eventual failure", async (t) => {
-  const { directory, mailbox, stdout, deliver } = await setupProcessMailbox(t, [
-    "--execution",
-    "owner/repo",
-    "main",
-    "60000",
-  ]);
+  const { directory, mailbox, stdout, deliver } = await setupProcessMailbox(t);
   await awaitWorkerSignal(mailbox, join(directory, "started"));
   assert.equal(existsSync(join(mailbox, "result.json")), false);
   writeFileSync(join(directory, "caller-continued"), "");
@@ -129,12 +144,7 @@ test("launcher retains its exact worker while receipt and normal stop stay uncha
     mailbox,
     stdout: launchReceipt,
     env,
-  } = await setupProcessMailbox(t, [
-    "--execution",
-    "owner/repo",
-    "main",
-    "60000",
-  ]);
+  } = await setupProcessMailbox(t);
   await awaitWorkerSignal(mailbox, join(directory, "started"));
   assert.deepEqual(readWorkerIdentity(mailbox), {
     pid: Number(readFileSync(join(directory, "worker-pid"))),
@@ -168,12 +178,7 @@ test("launcher retains its exact worker while receipt and normal stop stay uncha
 });
 
 test("missing terminal publication stops only the retained worker and reports lost coverage", async (t) => {
-  const { directory, mailbox, env } = await setupProcessMailbox(t, [
-    "--execution",
-    "owner/repo",
-    "main",
-    "60000",
-  ]);
+  const { directory, mailbox, env } = await setupProcessMailbox(t);
   await awaitWorkerSignal(mailbox, join(directory, "started"));
   const { pid } = readWorkerIdentity(mailbox);
   const unrelated = await spawnIdleNode(t, [launcher, "worker"]);
@@ -209,12 +214,7 @@ test("missing terminal publication stops only the retained worker and reports lo
 
 test("stop and publication race retains prior unread evidence without continuation", async (t) => {
   const { directory, mailbox, stdout, deliver, env } =
-    await setupProcessMailbox(t, [
-      "--execution",
-      "owner/repo",
-      "main",
-      "60000",
-    ]);
+    await setupProcessMailbox(t);
   await awaitWorkerSignal(mailbox, join(directory, "started"));
   await deliver("cursor", stdout);
   const retained = { type: "CI_FAILURE", runId: 41, attempt: 1 };

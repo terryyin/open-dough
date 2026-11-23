@@ -21,7 +21,7 @@ import { makeMe } from "../../support/makeMe.mjs";
 import { reportingReference } from "../../support/launchLandingTestData.mjs";
 import { beginNativeSession } from "../../../src/skills/dough-execute-plan/scripts/execution-session-evidence.mjs";
 import { publishHistoryPreservingCandidate } from "../../../src/skills/dough-execute-plan/scripts/history-preserving-publication.mjs";
-import { sessionRecordRelativePath } from "../../../src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { sessionRecordPathBeside } from "../../../src/skills/dough-execute-plan/scripts/session-record.mjs";
 import {
   landingContextFile,
   landingReceiver,
@@ -178,7 +178,10 @@ test("a launched story-branch session's record keeps its branch pairs once under
 
   assert.equal(await read("rev-parse", "HEAD"), record.sha);
   assert.equal(await read("rev-parse", "HEAD^"), s.integrated.acceptedSha);
-  const path = `.planning/${sessionRecordRelativePath(reportingReference)}`;
+  const path = sessionRecordPathBeside(
+    ".planning/PRODUCT-BACKLOG.md",
+    reportingReference,
+  );
   assert.deepEqual(
     (await read("show", "--name-only", "--format=", "HEAD")).split("\n"),
     [path],
@@ -225,6 +228,6 @@ test("a refused record push stops at the record stage, holds retirement, and the
     ".planning/sessions",
   );
   assert.deepEqual(added.split("\n"), [
-    `.planning/${sessionRecordRelativePath(s.nativeId)}`,
+    sessionRecordPathBeside(".planning/PRODUCT-BACKLOG.md", s.nativeId),
   ]);
 });

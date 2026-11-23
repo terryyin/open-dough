@@ -4,7 +4,8 @@ import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
-import { runMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { runMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-operations.mjs";
+
 import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 
 export function snapshotMailboxRecords(directory) {
@@ -27,7 +28,6 @@ export async function runMailboxWorkerUntilBudget({
   root,
   storage,
   observeRoot,
-  maxDurationMs = 5_000,
 }) {
   let elapsed = 0;
   await runMailboxWorker(directory, {
@@ -37,7 +37,6 @@ export async function runMailboxWorkerUntilBudget({
       watchCiExecution({
         ...request,
         ...(observeRoot !== undefined ? { root: observeRoot } : {}),
-        maxDurationMs,
         now: () => elapsed,
         pollMs: 10 * 60 * 1000,
         sleep: async () => undefined,

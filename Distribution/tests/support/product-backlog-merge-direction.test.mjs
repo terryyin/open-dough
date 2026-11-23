@@ -8,6 +8,7 @@
 // text merging makes of the same three files; that is the test watching Git,
 // not the tool asking it anything.
 import assert from "node:assert/strict";
+import { mergeBacklogs } from "../../src/skills/dough-product-backlog/scripts/product-backlog-merge.mjs";
 import { execFile } from "node:child_process";
 import { test } from "node:test";
 import { promisify } from "node:util";
@@ -17,12 +18,15 @@ import {
   backlogOf,
   direction,
   occurrences,
+  projectFile,
   queued,
-  run,
   scratchProject,
   takenEntry,
 } from "./product-backlog-fixture.mjs";
-import { versionPath, versions } from "./product-backlog-merge-fixture.mjs";
+import {
+  mergeRefusal,
+  reportedMergeChanges,
+} from "./product-backlog-merge-fixture.mjs";
 
 const [trunk, retrospective, review] = queued;
 
@@ -53,8 +57,12 @@ const saying = (text) => backlogOf([takenEntry], queued, text);
 // file. The exit status is the number of conflicts it could not resolve.
 const exec = promisify(execFile);
 
-async function textMerge(project) {
-  const named = ["one", "ancestor", "other"].map(versionPath);
+async function textMerge(project, ancestor, one, other) {
+  const named = [
+    projectFile(project, "first.md", one),
+    projectFile(project, "ancestor.md", ancestor),
+    projectFile(project, "second.md", other),
+  ];
   try {
     const { stdout } = await exec("git", ["merge-file", "-p", ...named], {
       cwd: project.directory,
@@ -65,112 +73,96 @@ async function textMerge(project) {
   }
 }
 
-test("merge direction carries a one-sided update across other item edits", async (t) => {
-  const project = scratchProject(t);
+test("merge direction carries a one-sided update across other item edits", () => {
   // One branch chose a new direction and closed the architecture story.
   const chose = backlogOf([takenEntry], [trunk, retrospective], chosen);
   // The other took the trunk-integration story and left the direction alone.
   const took = backlogOf([takenEntry, trunk], [retrospective, review]);
 
-  const merged = await run(project, versions(project, backlog, chose, took));
+  const merged = mergeBacklogs(backlog, chose, took);
 
-  assert.equal(merged.code, 0, merged.stderr);
   assert.equal(
-    project.read(),
+    merged.source,
     backlogOf([takenEntry, trunk], [retrospective], chosen),
   );
-  assert.equal(occurrences(project.read(), direction), 0);
+  assert.equal(occurrences(merged.source, direction), 0);
   // The report is what a caller checks the published result against before
   // accepting it, so a strategy one branch rewrote has to appear in it.
-  assert.match(merged.stdout, /changed the "## Near-future direction"/);
+  assert.match(
+    reportedMergeChanges(merged),
+    /changed the "## Near-future direction"/,
+  );
 
   // Which branch left the direction alone is not what carried the other
   // branch's text across — the ancestor is — so naming the two the other way
   // round gives the same file and says the same thing about it.
-  const backwards = await run(project, versions(project, backlog, took, chose));
+  const backwards = mergeBacklogs(backlog, took, chose);
 
-  assert.equal(backwards.code, 0, backwards.stderr);
   assert.equal(
-    project.read(),
+    backwards.source,
     backlogOf([takenEntry, trunk], [retrospective], chosen),
   );
-  assert.equal(backwards.stdout, merged.stdout);
+  assert.deepEqual(backwards.changes, merged.changes);
 });
 
-test("merge direction is left out of the report when neither branch moved it", async (t) => {
+test("merge direction is left out of the report when neither branch moved it", () => {
   // The same two item edits with the direction left as the ancestor wrote it.
   // A report that named the direction whatever happened would tell a caller
   // nothing, so what makes the line above mean something is its absence here.
-  const project = scratchProject(t);
 
-  const merged = await run(
-    project,
-    versions(
-      project,
-      backlog,
-      backlogOf([takenEntry], [trunk, retrospective]),
-      backlogOf([takenEntry, trunk], [retrospective, review]),
-    ),
+  const merged = mergeBacklogs(
+    backlog,
+    backlogOf([takenEntry], [trunk, retrospective]),
+    backlogOf([takenEntry, trunk], [retrospective, review]),
   );
 
-  assert.equal(merged.code, 0, merged.stderr);
-  assert.match(merged.stdout, new RegExp(`removed "${architecture}"`));
-  assert.doesNotMatch(merged.stdout, /Near-future direction/);
+  const changes = reportedMergeChanges(merged);
+  assert.match(changes, new RegExp(`removed "${architecture}"`));
+  assert.doesNotMatch(changes, /Near-future direction/);
 });
 
-test("merge direction applies an identical replacement on both branches once", async (t) => {
-  const project = scratchProject(t);
+test("merge direction applies an identical replacement on both branches once", () => {
   const both = saying(chosen);
 
-  const merged = await run(project, versions(project, backlog, both, both));
+  const merged = mergeBacklogs(backlog, both, both);
 
-  assert.equal(merged.code, 0, merged.stderr);
-  assert.equal(project.read(), both);
-  assert.equal(occurrences(project.read(), chosen), 1);
-  assert.equal(occurrences(project.read(), direction), 0);
-  assert.match(merged.stdout, /changed the "## Near-future direction"/);
+  assert.equal(merged.source, both);
+  assert.equal(occurrences(merged.source, chosen), 1);
+  assert.equal(occurrences(merged.source, direction), 0);
+  assert.match(
+    reportedMergeChanges(merged),
+    /changed the "## Near-future direction"/,
+  );
 });
 
-test("merge direction applies an identical clearing on both branches once", async (t) => {
+test("merge direction applies an identical clearing on both branches once", () => {
   // Both branches decided the backlog should carry no direction at all. That
   // is one change made the same way, not two changes to reconcile, so the
   // section goes and its heading goes with it.
-  const project = scratchProject(t);
   const cleared = saying("");
 
-  const merged = await run(
-    project,
-    versions(project, backlog, cleared, cleared),
-  );
+  const merged = mergeBacklogs(backlog, cleared, cleared);
 
-  assert.equal(merged.code, 0, merged.stderr);
-  assert.equal(project.read(), cleared);
-  assert.equal(occurrences(project.read(), "## Near-future direction"), 0);
-  assert.match(merged.stdout, /changed the "## Near-future direction"/);
+  assert.equal(merged.source, cleared);
+  assert.equal(occurrences(merged.source, "## Near-future direction"), 0);
+  assert.match(
+    reportedMergeChanges(merged),
+    /changed the "## Near-future direction"/,
+  );
 });
 
-test("merge direction refuses a replacement on one branch against a deletion on the other", async (t) => {
+test("merge direction refuses a replacement on one branch against a deletion on the other", () => {
   // One branch rewrote the direction and the other removed it. Clearing a
   // direction is a change like any other, so this is two different changes to
   // one value, and no lifecycle order says a deletion beats a rewrite.
-  const project = scratchProject(t);
 
-  const refused = await run(
-    project,
-    versions(project, backlog, saying(chosen), saying("")),
-  );
+  const refused = mergeRefusal(backlog, saying(chosen), saying(""));
 
-  assert.equal(refused.code, 1);
-  assert.equal(project.read(), backlog, "the destination was written");
   assert.match(
-    refused.stderr,
+    refused,
     /"## Near-future direction": the versions give it different text/,
   );
-  assert.match(
-    refused.stderr,
-    /never writes, summarises, or chooses strategy text/,
-  );
-  assert.match(refused.stderr, /The backlog was not changed\./);
+  assert.match(refused, /never writes, summarises, or chooses strategy text/);
 });
 
 test("merge direction refuses edits an ordinary text merge would run together", async (t) => {
@@ -199,14 +191,9 @@ test("merge direction refuses edits an ordinary text merge would run together", 
     "taken, so a human decides which stories run in parallel next.";
 
   const project = scratchProject(t, ancestor);
-  const arguments_ = versions(
-    project,
-    ancestor,
-    saying(sequential),
-    saying(scheduled),
-  );
-
-  const text = await textMerge(project);
+  const one = saying(sequential);
+  const other = saying(scheduled);
+  const text = await textMerge(project, ancestor, one, other);
   assert.equal(
     text.conflicts,
     0,
@@ -219,24 +206,20 @@ test("merge direction refuses edits an ordinary text merge would run together", 
   assert.equal(occurrences(sequential, invented), 0);
   assert.equal(occurrences(scheduled, invented), 0);
 
-  const refused = await run(project, arguments_);
+  const refused = mergeRefusal(ancestor, one, other);
 
-  assert.equal(refused.code, 1);
-  assert.equal(project.read(), ancestor, "the destination was written");
-  assert.equal(occurrences(project.read(), invented), 0);
   assert.match(
-    refused.stderr,
+    refused,
     /"## Near-future direction": the versions give it different text/,
   );
 
   // Neither branch is the one this tool keeps, so naming them the other way
   // round says exactly the same thing about exactly the same file.
-  const backwards = await run(
-    project,
-    versions(project, ancestor, saying(scheduled), saying(sequential)),
+  const backwards = mergeRefusal(
+    ancestor,
+    saying(scheduled),
+    saying(sequential),
   );
 
-  assert.equal(backwards.code, 1);
-  assert.equal(backwards.stderr, refused.stderr);
-  assert.equal(project.read(), ancestor, "the destination was written");
+  assert.equal(backwards, refused);
 });

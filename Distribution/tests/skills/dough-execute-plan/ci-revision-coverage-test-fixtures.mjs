@@ -114,11 +114,23 @@ export async function createRevisionCoverageFixture(
   );
 
   const launcher = join(installed, "scripts/ci-mailbox.mjs");
-  const mailbox = await import(pathToFileURL(launcher));
-  const watcher = await import(
-    pathToFileURL(join(installed, "scripts/watch-ci-execution.mjs"))
+  const fromInstalled = (script) =>
+    import(pathToFileURL(join(installed, "scripts", script)));
+  const { createMailbox, receiptPrefix } = await fromInstalled(
+    "ci-mailbox-location.mjs",
   );
-  const directory = mailbox.createMailbox(
+  const { publishMailboxEvent, readMailboxEvents } = await fromInstalled(
+    "ci-mailbox-store.mjs",
+  );
+  const { completeRevision, requestMailboxStop } = await fromInstalled(
+    "ci-mailbox-complete.mjs",
+  );
+  const { readRevisionCoverage, registerPushedRevision } = await fromInstalled(
+    "ci-mailbox-revision-records.mjs",
+  );
+  const { runMailboxWorker } = await fromInstalled("ci-mailbox-operations.mjs");
+  const { watchCiExecution } = await fromInstalled("watch-ci-execution.mjs");
+  const directory = createMailbox(
     {
       mode: "execution",
       repo: "owner/project",
@@ -143,11 +155,11 @@ export async function createRevisionCoverageFixture(
       ],
     }),
   );
-  const worker = mailbox.runMailboxWorker(directory, {
+  const worker = runMailboxWorker(directory, {
     root: project,
     storage,
     observe: (request) =>
-      watcher.watchCiExecution({
+      watchCiExecution({
         ...request,
         root: project,
         sleep: polls.sleep,
@@ -155,10 +167,10 @@ export async function createRevisionCoverageFixture(
       }),
   });
   deferWorkerStop(repository, worker, () =>
-    mailbox.requestMailboxStop(directory, { root: project, storage }),
+    requestMailboxStop(directory, { root: project, storage }),
   );
   const adapterCallCount = () => Number(readFileSync(adapterCalls, "utf8"));
-  const poll = polls.of(worker, () => mailbox.readMailboxEvents(directory));
+  const poll = polls.of(worker, () => readMailboxEvents(directory));
   await poll.reached();
   assert.equal(adapterCallCount(), 1, "initial poll");
   let expectedCalls = 1;
@@ -191,7 +203,7 @@ export async function createRevisionCoverageFixture(
     );
     assert.match(stdout, /^CI_OBSERVER \{.+\}\n$/);
     assert.equal(
-      JSON.parse(stdout.slice(mailbox.receiptPrefix.length)).revision.sha,
+      JSON.parse(stdout.slice(receiptPrefix.length)).revision.sha,
       sha,
     );
     // The registration wakes the paused observer for one immediate poll.
@@ -208,7 +220,15 @@ export async function createRevisionCoverageFixture(
     project,
     storage,
     directory,
-    mailbox,
+    mailbox: {
+      completeRevision,
+      publishMailboxEvent,
+      readMailboxEvents,
+      readRevisionCoverage,
+      receiptPrefix,
+      registerPushedRevision,
+      requestMailboxStop,
+    },
     worker,
     deliver,
     advancePoll,

@@ -11,11 +11,9 @@ import {
   parseReceipt,
   register,
 } from "./ci-mailbox-await-test-fixtures.mjs";
-import {
-  createMailbox,
-  publishMailboxEvent,
-  registerPushedRevision,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { publishMailboxEvent } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
+import { registerPushedRevision } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import { publishJson } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
 import { publishRevisionRecord } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";
 import {

@@ -12,10 +12,10 @@ import {
   launchComplete,
   parseReceipt,
 } from "./ci-mailbox-await-test-fixtures.mjs";
+import { recordWorkerIdentity } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import {
   receiptPrefix,
   readWorkerIdentity,
-  recordWorkerIdentity,
   registerPushedRevision,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import {

@@ -6,7 +6,8 @@ import { makeMe } from "../support/makeMe.mjs";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import {
   materializeSelectionProject,
-  runChangedMakeMeSelection,
+  runChangedSelection,
+  selectedMakeMePaths,
   intentSettingsForLocations,
 } from "../support/makeme-selection-project.mjs";
 
@@ -52,21 +53,24 @@ test("changed scope includes index-only, working-tree and untracked sources with
   writeFileSync(join(root, "enabled/new\ncase.spec.ts"), "new\n");
   writeFileSync(join(root, "enabled/helper.ts"), "support\n");
   writeFileSync(join(root, "disabled/off.spec.ts"), "local\n");
-  const { code, answer } = runChangedMakeMeSelection(root);
+  const { code, answer } = runChangedSelection(root);
   assert.equal(code, 0);
-  assert.equal(answer.status, "selected");
-  assert.deepEqual(answer.files, [
+  assert.equal(answer.status, "resolved");
+  assert.deepEqual(selectedMakeMePaths(answer), [
     "enabled/new\ncase.spec.ts",
     "enabled/staged.spec.ts",
     "enabled/unstaged.spec.ts",
   ]);
-  assert.deepEqual(answer.changedPaths, [
-    "disabled/off.spec.ts",
-    "enabled/helper.ts",
-    "enabled/new\ncase.spec.ts",
-    "enabled/staged.spec.ts",
-    "enabled/unstaged.spec.ts",
-  ]);
+  assert.deepEqual(
+    answer.sources.map(({ path }) => path),
+    [
+      "disabled/off.spec.ts",
+      "enabled/helper.ts",
+      "enabled/new\ncase.spec.ts",
+      "enabled/staged.spec.ts",
+      "enabled/unstaged.spec.ts",
+    ],
+  );
 });
 
 test("supplied committed ranges and disposition paths use the same current entry check", async (t) => {
@@ -93,8 +97,8 @@ test("supplied committed ranges and disposition paths use the same current entry
   writeFileSync(join(root, "enabled/committed.spec.ts"), "committed\n");
   await git(root, "add", "--", "enabled/committed.spec.ts");
   await git(root, "commit", "-m", "Change a test before refactoring");
-  assert.equal(runChangedMakeMeSelection(root).answer.status, "not-selected");
-  const { code, answer } = runChangedMakeMeSelection(
+  assert.deepEqual(runChangedSelection(root).answer.sources, []);
+  const { code, answer } = runChangedSelection(
     root,
     "--committed",
     "HEAD~1..HEAD",
@@ -104,15 +108,18 @@ test("supplied committed ranges and disposition paths use the same current entry
     "disabled/off.spec.ts",
   );
   assert.equal(code, 0);
-  assert.deepEqual(answer.files, [
+  assert.deepEqual(selectedMakeMePaths(answer), [
     "enabled/committed.spec.ts",
     "enabled/disposition.spec.ts",
   ]);
-  assert.deepEqual(answer.changedPaths, [
-    "disabled/off.spec.ts",
-    "enabled/committed.spec.ts",
-    "enabled/disposition.spec.ts",
-  ]);
+  assert.deepEqual(
+    answer.sources.map(({ path }) => path),
+    [
+      "disabled/off.spec.ts",
+      "enabled/committed.spec.ts",
+      "enabled/disposition.spec.ts",
+    ],
+  );
   assert.equal(
     (await git(root, "status", "--porcelain")).stdout,
     "",
@@ -132,42 +139,46 @@ test("production-only and empty changes provide no selected test source", async 
     ),
     { "enabled/product.ts": "before\n" },
   );
-  assert.deepEqual(runChangedMakeMeSelection(root).answer.files, []);
+  assert.deepEqual(runChangedSelection(root).answer.sources, []);
   writeFileSync(join(root, "enabled/product.ts"), "product\n");
-  const { code, answer } = runChangedMakeMeSelection(root);
+  const { code, answer } = runChangedSelection(root);
   assert.equal(code, 0);
-  assert.equal(answer.status, "not-selected");
-  assert.deepEqual(answer.changedPaths, ["enabled/product.ts"]);
-  assert.deepEqual(answer.files, []);
-  assert.equal("convention" in answer, false);
+  assert.equal(answer.status, "resolved");
+  assert.deepEqual(answer.sources, [
+    { path: "enabled/product.ts", makeMe: false, pageObjects: false },
+  ]);
 });
 
 test("failed Git and configuration checks cannot claim successful empty scope", async (t) => {
   const malformed = await materializeSelectionProject(t, "{broken");
   const noGit = await materializeSelectionProject(t);
   rmSync(join(noGit, ".git"), { recursive: true });
-  for (const [root, reason] of [
-    [malformed, "configuration-malformed"],
-    [noGit, "changed-scope-unreadable"],
-  ]) {
-    const { code, answer } = runChangedMakeMeSelection(root);
-    assert.equal(code, 1);
-    assert.equal(answer.status, "unresolved");
-    assert.equal(answer.reason, reason);
-    assert.equal("files" in answer, false);
-  }
+  const malformedSelection = runChangedSelection(malformed);
+  assert.equal(malformedSelection.code, 1);
+  assert.deepEqual(malformedSelection.answer, {
+    status: "unresolved",
+    problem: "malformed",
+    sources: [],
+  });
+  const missingRepository = runChangedSelection(noGit);
+  assert.equal(missingRepository.code, 2);
+  assert.match(missingRepository.stderr, /not a git repository/i);
+  assert.equal(missingRepository.answer, undefined);
 });
 
 test("invalid caller dispositions stay unresolved", async (t) => {
   const root = await materializeSelectionProject(t);
-  for (const [args, reason] of [
-    [["--committed", "missing-revision..HEAD"], "changed-scope-unreadable"],
-    [["--committed", "--output=unexpected.patch"], "changed-scope-unreadable"],
-    [["--path", "../outside.spec.ts"], "invalid-test-path"],
+  for (const [args, diagnostic] of [
+    [["--committed", "missing-revision..HEAD"], /missing-revision\.\.HEAD/],
+    [["--committed=--output=unexpected.patch"], /Needed a single revision/],
+    [
+      ["--path", "../outside.spec.ts"],
+      /Expected project-relative test source paths/,
+    ],
   ]) {
-    const { code, answer } = runChangedMakeMeSelection(root, ...args);
-    assert.equal(code, 1);
-    assert.equal(answer.reason, reason);
-    assert.equal("files" in answer, false);
+    const { code, stderr, answer } = runChangedSelection(root, ...args);
+    assert.equal(code, 2);
+    assert.match(stderr, diagnostic);
+    assert.equal(answer, undefined);
   }
 });

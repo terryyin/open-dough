@@ -7,9 +7,9 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import { hostSessionOwner } from "../../../src/skills/dough-execute-plan/scripts/ci-host-bridge.mjs";
+import { publishMailboxEvent } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
-  createMailbox,
-  publishMailboxEvent,
   readMailboxEvents,
   registerPushedRevision,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
@@ -104,8 +104,6 @@ export async function recoveryFixture(t) {
       repo,
       "--host",
       "claude",
-      "--max-duration-ms",
-      "60000",
       ...extra,
     ];
     if (spawnOptions.spawn) {
@@ -155,7 +153,6 @@ export async function recoveryFixture(t) {
         env,
         root,
         storage,
-        maxDurationMs: 60_000,
         ...request,
       });
       if (

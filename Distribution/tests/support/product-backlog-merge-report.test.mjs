@@ -1,46 +1,31 @@
-// What a reconciliation says it did, observed as the real command's own
-// standard output. The report is what a caller reads before accepting a
-// published result, so it is checked against the same run's bytes: everything
-// a merge decided has to be named, and the claim that neither branch changed
-// anything has to be reserved for the runs where that is true.
-//
-// These read the report for its meaning — the identity named and the kind of
-// change named — rather than for a whole line, so the wording can improve
-// without a test standing in its way.
+// Changes returned by the merge policy are printed by the Git driver.
 import assert from "node:assert/strict";
+import { mergeBacklogs } from "../../src/skills/dough-product-backlog/scripts/product-backlog-merge.mjs";
 import { test } from "node:test";
 import {
   added,
   addArguments,
   arrangedBacklog,
   backlogOf,
-  run,
-  scratchProject,
   takenEntry,
   trunkQueue,
 } from "./product-backlog-fixture.mjs";
 import {
   branchFrom,
-  item,
   list,
   mergeBacklog,
   named,
-  versions,
+  reportedMergeChanges,
 } from "./product-backlog-merge-fixture.mjs";
-
-// The claim a report is entitled to make only when the three versions really
-// do say the same thing: that neither branch changed the ancestor at all.
-const claimedNoChange = /neither changed/;
 
 // The report naming one work item and what became of it.
 const saidOf = (identity, did) => new RegExp(`${did} "${identity}"`);
 
-test("merge report names a one-sided reprioritization instead of claiming nothing changed", async (t) => {
+test("merge changes name a one-sided reprioritization", async (t) => {
   // The queue is A, B, C, D. One branch gave D the front of it with the real
   // placement command; the other wrote the queue out as the ancestor had it.
   // The published priority is D's new one, so the report has to say so.
   const ancestor = mergeBacklog({ queued: "ABCD" });
-  const project = scratchProject(t, ancestor);
   const reprioritized = await branchFrom(t, ancestor, [
     "place",
     "--identity",
@@ -49,52 +34,42 @@ test("merge report names a one-sided reprioritization instead of claiming nothin
     named("A"),
   ]);
 
-  const merged = await run(
-    project,
-    versions(project, ancestor, reprioritized, ancestor),
-  );
+  const merged = mergeBacklogs(ancestor, reprioritized, ancestor);
 
-  assert.equal(merged.code, 0, merged.stderr);
-  assert.equal(project.read(), backlogOf([], list("DABC")));
-  assert.doesNotMatch(merged.stdout, claimedNoChange);
-  assert.match(merged.stdout, saidOf(named("D"), "reprioritized"));
-  assert.match(merged.stdout, /reprioritized .* in "## Backlog list"/);
+  assert.equal(merged.source, backlogOf([], list("DABC")));
+  const changes = reportedMergeChanges(merged);
+  assert.match(changes, saidOf(named("D"), "reprioritized"));
+  assert.match(changes, /reprioritized .* in "## Backlog list"/);
   // Only the work whose place among the rest changed is named. A and B and C
   // stand in the order they stood in, one number further down the list.
   for (const letter of "ABC") {
-    assert.doesNotMatch(merged.stdout, saidOf(named(letter), "reprioritized"));
+    assert.doesNotMatch(changes, saidOf(named(letter), "reprioritized"));
   }
 });
 
-test("merge report does not read work shifting up behind a removal as a reprioritization", async (t) => {
+test("merge changes do not read work shifting up behind a removal as a reprioritization", async (t) => {
   // One branch closed A with the real completion command; the other left the
   // queue alone. B and C each end up one place higher, and neither of them was
   // given a different priority by anybody.
   const ancestor = mergeBacklog({ queued: "ABC" });
-  const project = scratchProject(t, ancestor);
   const closed = await branchFrom(t, ancestor, [
     "complete",
     "--identity",
     named("A"),
   ]);
 
-  const merged = await run(
-    project,
-    versions(project, ancestor, closed, ancestor),
-  );
+  const merged = mergeBacklogs(ancestor, closed, ancestor);
 
-  assert.equal(merged.code, 0, merged.stderr);
-  assert.equal(project.read(), backlogOf([], list("BC")));
-  assert.match(merged.stdout, saidOf(named("A"), "removed"));
-  assert.doesNotMatch(merged.stdout, /reprioritized/);
-  assert.doesNotMatch(merged.stdout, claimedNoChange);
+  assert.equal(merged.source, backlogOf([], list("BC")));
+  const changes = reportedMergeChanges(merged);
+  assert.match(changes, saidOf(named("A"), "removed"));
+  assert.doesNotMatch(changes, /reprioritized/);
 });
 
-test("merge report names the work each branch added and changed", async (t) => {
+test("merge changes name the work each branch added and changed", async (t) => {
   // One branch claimed the queued trunk story; the other queued new work.
   // Both are the real operations' own doing, and the report has to name both,
   // because a caller accepts or rejects the published result by reading it.
-  const project = scratchProject(t, arrangedBacklog);
   const claimed = await branchFrom(t, arrangedBacklog, [
     "take",
     "--identity",
@@ -103,72 +78,52 @@ test("merge report names the work each branch added and changed", async (t) => {
   ]);
   const queuedMore = await branchFrom(t, arrangedBacklog, addArguments());
 
-  const merged = await run(
-    project,
-    versions(project, arrangedBacklog, claimed, queuedMore),
-  );
+  const merged = mergeBacklogs(arrangedBacklog, claimed, queuedMore);
 
-  assert.equal(merged.code, 0, merged.stderr);
-  assert.match(merged.stdout, saidOf(added.identity, "added"));
-  assert.match(merged.stdout, /added .* to "## Backlog list"/);
-  assert.match(merged.stdout, saidOf(trunkQueue, "changed"));
+  const changes = reportedMergeChanges(merged);
+  assert.match(changes, saidOf(added.identity, "added"));
+  assert.match(changes, /added .* to "## Backlog list"/);
+  assert.match(changes, saidOf(trunkQueue, "changed"));
   assert.match(
-    merged.stdout,
+    changes,
     new RegExp(`changed "${trunkQueue}", now in "## Taken"`),
   );
-  assert.doesNotMatch(merged.stdout, claimedNoChange);
 });
 
-test("merge report names changed text around the two lists", async (t) => {
+test("merge changes name changed text around the two lists", () => {
   // Neither the text above the lists nor the text below them is written by any
   // backlog operation, and both are carried across whole. A caller whose
   // published file gained a paragraph is told that it did.
   const ancestor = mergeBacklog({ queued: "AB" });
-  const project = scratchProject(t, ancestor);
   const opening = "Everything this project has agreed to do next.";
   // The text below the lists begins with a heading of its own, because that is
   // what ends the queue's own section.
   const closing =
     "## How this list is kept\n\nEach entry's canonical home lives under seeds/.";
 
-  const merged = await run(
-    project,
-    versions(
-      project,
-      ancestor,
-      ancestor.replace(
-        "# Product backlog\n",
-        `# Product backlog\n\n${opening}\n`,
-      ),
-      `${ancestor}\n${closing}\n`,
+  const merged = mergeBacklogs(
+    ancestor,
+    ancestor.replace(
+      "# Product backlog\n",
+      `# Product backlog\n\n${opening}\n`,
     ),
+    `${ancestor}\n${closing}\n`,
   );
 
-  assert.equal(merged.code, 0, merged.stderr);
   assert.equal(
-    project.read(),
+    merged.source,
     `# Product backlog\n\n${opening}\n${ancestor.slice("# Product backlog\n".length)}\n${closing}\n`,
   );
-  assert.doesNotMatch(merged.stdout, claimedNoChange);
-  assert.match(merged.stdout, /changed the text above the two lists/);
-  assert.match(merged.stdout, /changed the text below the two lists/);
+  const changes = reportedMergeChanges(merged);
+  assert.match(changes, /changed the text above the two lists/);
+  assert.match(changes, /changed the text below the two lists/);
 });
 
-test("merge report says neither branch changed the ancestor only when neither did", async (t) => {
-  // The one run entitled to the no-change claim: three versions that say the
-  // same thing. It still names how much it carried across.
+test("merge records no changes when both branches match the ancestor", () => {
   const ancestor = backlogOf([takenEntry], list("AB"));
-  const project = scratchProject(t, ancestor);
 
-  const merged = await run(
-    project,
-    versions(project, ancestor, ancestor, ancestor),
-  );
+  const merged = mergeBacklogs(ancestor, ancestor, ancestor);
 
-  assert.equal(merged.code, 0, merged.stderr);
-  assert.equal(project.read(), ancestor);
-  assert.match(merged.stdout, claimedNoChange);
-  assert.match(merged.stdout, /3 entries/);
-  assert.doesNotMatch(merged.stdout, /reprioritized|added|removed/);
-  assert.doesNotMatch(merged.stdout, new RegExp(item("A")));
+  assert.equal(merged.source, ancestor);
+  assert.deepEqual(merged.changes, []);
 });

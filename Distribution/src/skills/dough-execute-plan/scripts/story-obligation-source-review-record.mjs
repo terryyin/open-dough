@@ -47,12 +47,6 @@ function entryProblems(entry) {
     [!entry.reported?.trim(), "reported text is required"],
     [!entry.storyClause?.trim(), "story clause is required"],
     [!entry.disposition?.trim(), "disposition is required"],
-    [
-      entry.commitments &&
-        (!entry.commitments.length ||
-          !entry.commitments.every((id) => commitmentId.test(id))),
-      "Commitment field must name valid commitment ids",
-    ],
   ].flatMap(([failed, message]) => (failed ? [invalid(message)] : []));
 }
 
@@ -202,14 +196,8 @@ export async function recordStoryCommitment(planPath, request = {}) {
     const entry = {
       ...request.entry,
       reportedSlice: Number(request.entry.reportedSlice),
-      commitments:
-        request.entry.commitments ??
-        (hasObligation || request.obligation || next.obligation
-          ? [commitment]
-          : undefined),
+      commitments: hasObligation || next.obligation ? [commitment] : undefined,
     };
-    if (entry.commitments && !entry.commitments.includes(commitment))
-      entry.commitments = [...entry.commitments, commitment];
     nextPlan = upsertObligationEntry(planSource, entry);
     const parsed = readStoryObligations(nextPlan);
     const written = parsed.entries.find((item) => item.id === entry.id);

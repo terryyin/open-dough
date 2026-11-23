@@ -108,7 +108,6 @@ export async function mergeRecoveryFixture(t, { provider = "command" } = {}) {
       env: request.env ?? env,
       root,
       storage,
-      maxDurationMs: 60_000,
       ...request,
     });
     if (

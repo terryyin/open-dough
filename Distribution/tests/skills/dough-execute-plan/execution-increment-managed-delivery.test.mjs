@@ -6,7 +6,6 @@ import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { lsRemoteSha } from "./publication-test-fixtures.mjs";
-import { deliverHostBoundary } from "../../../src/skills/dough-execute-plan/scripts/ci-host-bridge.mjs";
 import {
   readDeliveryProgress,
   readRevisionCoverage,
@@ -21,6 +20,8 @@ import {
   claudeHookInput,
   deliverThroughCli,
   invokeInstalledClaudeHook,
+  cursorHookInput,
+  invokeInstalledCursorHook,
 } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 
 const trunkTarget = "refs/heads/main";
@@ -57,13 +58,14 @@ test("Trunk Mode managed delivery establishes observation, attaches the accepted
 
   fixture.releaseFailure(delivered.receipt.sha, "main");
   await waitForFailureEvent(delivered.observation.directory);
-  const boundary = await deliverHostBoundary({
-    host: "cursor",
-    session: fixture.session,
-    workspace: fixture.execution,
-    hookPath: join(fixture.skill, "scripts/ci-host-hook.mjs"),
-    env: fixture.env,
-  });
+  const boundary = await invokeInstalledCursorHook(
+    fixture,
+    cursorHookInput(
+      fixture.session.conversation_id,
+      fixture.session.generation_id,
+    ),
+    fixture.env,
+  );
   const context =
     boundary.additional_context ??
     boundary.hookSpecificOutput?.additionalContext ??
@@ -152,7 +154,6 @@ test("missing host alias still resolves a usable checkout runtime", async (t) =>
 
   const runtime = fixture.resolveCheckoutRuntime(fixture.execution, {
     host: "claude",
-    preferredAlias: ".claude",
   });
   assert.equal(runtime.alias, ".agents");
   assert.match(runtime.entrypoint, /\.agents\/skills\/dough-execute-plan/);
@@ -160,7 +161,6 @@ test("missing host alias still resolves a usable checkout runtime", async (t) =>
   const delivered = await fixture.deliverManagedExecutionIncrement({
     ...fixture.requestBase,
     host: "claude",
-    preferredAlias: ".claude",
     workspace: fixture.execution,
     branch: "exec/story",
     previouslyPublishedBase: fixture.trunkSha,

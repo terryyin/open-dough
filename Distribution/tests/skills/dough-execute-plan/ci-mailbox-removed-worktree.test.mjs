@@ -37,14 +37,7 @@ async function armedFromWorktree(t) {
   const { directory } = receiptOf(
     await exec(
       process.execPath,
-      [
-        launchers.worktree,
-        "start",
-        "--execution",
-        "owner/repo",
-        "main",
-        "60000",
-      ],
+      [launchers.worktree, "start", "--execution", "owner/repo", "main"],
       { cwd: worktree, env },
     ),
   );

@@ -5,10 +5,10 @@
 // revisions, and local state.
 import { basename, join } from "node:path";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
-import { configureDeclaredAgentAuthorship } from "../../src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
 import { writeLocalState } from "./repository-local-state.mjs";
 import {
   commitDeclaredRevision,
+  configureDeclaredAgentAuthorship,
   configureIdentity,
   declaredParents,
   tagRevision,

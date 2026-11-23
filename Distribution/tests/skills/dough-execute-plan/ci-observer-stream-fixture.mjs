@@ -3,7 +3,8 @@ import { join } from "node:path";
 import { makeMe } from "../../support/makeMe.mjs";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
-import { streamMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { streamMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-operations.mjs";
+
 import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 
 import {

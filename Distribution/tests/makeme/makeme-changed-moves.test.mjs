@@ -6,11 +6,11 @@ import { makeMe } from "../support/makeMe.mjs";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import {
   materializeSelectionProject,
-  runChangedMakeMeSelection,
+  runChangedSelection,
   intentSettingsForLocations,
 } from "../support/makeme-selection-project.mjs";
 
-test("both move paths are context while only the current destination can select MakeMe", async (t) => {
+test("only the current move destination can select MakeMe", async (t) => {
   for (const [source, destination, selected] of [
     ["enabled/moved.spec.ts", "disabled/moved.spec.ts", false],
     ["disabled/moved.spec.ts", "enabled/moved.spec.ts", true],
@@ -36,16 +36,16 @@ test("both move paths are context while only the current destination can select 
       },
     );
     await git(root, "mv", source, destination);
-    const { code, answer } = runChangedMakeMeSelection(root);
+    const { code, answer } = runChangedSelection(root);
     assert.equal(code, 0);
-    assert.deepEqual(answer.changedPaths, [source, destination].sort());
-    assert.deepEqual(answer.currentPaths, [destination]);
-    assert.deepEqual(answer.files, selected ? [destination] : []);
-    assert.equal(answer.status, selected ? "selected" : "not-selected");
+    assert.equal(answer.status, "resolved");
+    assert.deepEqual(answer.sources, [
+      { path: destination, makeMe: selected, pageObjects: false },
+    ]);
   }
 });
 
-test("deleting an enabled source retains context without inventing conversion", async (t) => {
+test("deleting an enabled source leaves no test to convert", async (t) => {
   const root = await materializeSelectionProject(
     t,
     intentSettingsForLocations(
@@ -58,11 +58,8 @@ test("deleting an enabled source retains context without inventing conversion", 
     { "enabled/deleted.spec.ts": "deleted source\n" },
   );
   rmSync(join(root, "enabled/deleted.spec.ts"));
-  const { code, answer } = runChangedMakeMeSelection(root);
+  const { code, answer } = runChangedSelection(root);
   assert.equal(code, 0);
-  assert.deepEqual(answer.changedPaths, ["enabled/deleted.spec.ts"]);
-  assert.deepEqual(answer.currentPaths, []);
-  assert.deepEqual(answer.files, []);
-  assert.equal(answer.status, "not-selected");
-  assert.equal("convention" in answer, false);
+  assert.equal(answer.status, "resolved");
+  assert.deepEqual(answer.sources, []);
 });

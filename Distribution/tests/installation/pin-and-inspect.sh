@@ -202,6 +202,7 @@ fi
 
 mismatch_target="${temporary_dir}/mismatch project"
 prepare_target "${mismatch_target}"
+mismatch_before=$(snapshot_path_state "${mismatch_target}")
 : > "${leak}"
 if output=$(bash "${poisoned}/Distribution/src/install/open-dough-release.sh" apply \
   --url "${fixture}" --target "${mismatch_target}" --platform cursor \
@@ -210,7 +211,8 @@ if output=$(bash "${poisoned}/Distribution/src/install/open-dough-release.sh" ap
   exit 1
 fi
 [[ "${output}" == *'not replacing inspected files'* ]]
-[[ ! -e "${mismatch_target}/.agents/skills/dough-update" ]]
+mismatch_after=$(snapshot_path_state "${mismatch_target}")
+[[ "${mismatch_after}" == "${mismatch_before}" ]]
 assert_sentinels "${mismatch_target}"
 grep -qx helper "${leak}"
 head_after=$(git -C "${poisoned}" rev-parse HEAD)

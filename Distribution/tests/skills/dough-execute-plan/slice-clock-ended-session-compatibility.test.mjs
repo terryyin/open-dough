@@ -169,7 +169,8 @@ test("settlement itself does not detect another slice's overrun, but reporting i
       (await clockRecord(worktree)).stories[story].slices[3].overrunDetectedAt,
       undefined,
     );
-    const settled = await clock(worktree, "status", ...slice());
+    await clock(worktree, "pause");
+    const settled = await clock(worktree, "start", ...slice());
     assert.deepEqual(limitReport(settled), overrun("3", 15, 1));
   } finally {
     writeFileSync(release, "");

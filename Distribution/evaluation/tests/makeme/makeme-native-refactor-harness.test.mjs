@@ -35,10 +35,15 @@ test("refactor evidence requires the actual command, full mixed scope and one co
     "backend/tests/title.test.mjs",
   ];
   const answer = {
-    status: "selected",
-    files,
-    entries: [{ path: "backend/tests", files }],
-    changedPaths: [...files, "frontend/tests/preview.test.mjs"],
+    status: "resolved",
+    sources: [
+      ...files.map((path) => ({ path, makeMe: true, pageObjects: false })),
+      {
+        path: "frontend/tests/preview.test.mjs",
+        makeMe: false,
+        pageObjects: false,
+      },
+    ],
   };
   const read = {
     status: "complete",
@@ -57,7 +62,7 @@ test("refactor evidence requires the actual command, full mixed scope and one co
       },
       {
         command:
-          "/bin/zsh -lc 'node .agents/skills/dough-makeme/scripts/changed-makeme.mjs --project /project'",
+          "/bin/zsh -lc 'node .agents/skills/dough-execute-plan/scripts/test-entry-rules.mjs --project /project --changed'",
         output: JSON.stringify(answer),
         exitCode: 0,
       },
@@ -74,11 +79,20 @@ test("refactor evidence requires the actual command, full mixed scope and one co
   );
   read.calls[2].output = JSON.stringify({
     ...answer,
-    files: files.slice(0, 1),
+    sources: answer.sources.filter(({ path }) => path !== files[1]),
   });
   assert.equal(assessRefactorGuidance(read).changedSelectionResolved, false);
   read.calls[2].output = JSON.stringify(answer);
-  read.calls[2].command = "echo 'I ran changed-makeme.mjs'";
+  read.calls[2].command = "echo 'I ran test-entry-rules.mjs'";
+  assert.equal(assessRefactorGuidance(read).changedSelectionResolved, false);
+  read.calls[2].command =
+    "node .agents/skills/dough-makeme/scripts/changed-makeme.mjs --project /project";
+  read.calls[2].output = JSON.stringify({
+    status: "selected",
+    files,
+    entries: [{ path: "backend/tests", files }],
+    changedPaths: [...files, "frontend/tests/preview.test.mjs"],
+  });
   assert.equal(assessRefactorGuidance(read).changedSelectionResolved, false);
   read.calls.push({ ...read.calls[3] });
   assert.equal(assessRefactorGuidance(read).sharedConventionLoadedOnce, false);

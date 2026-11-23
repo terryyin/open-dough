@@ -186,7 +186,6 @@ test("a lost push response resumes the one-shot result without a duplicate commi
     suffixBase: started.receipt.startingRevision,
     targetRef: trunkTarget,
     repo,
-    publishedRevisions: [],
     defaultCheckout: trunk.integration,
   });
   assert.equal(resumed.ok, true, JSON.stringify(resumed));

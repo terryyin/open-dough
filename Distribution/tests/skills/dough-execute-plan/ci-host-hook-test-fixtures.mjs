@@ -5,7 +5,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { receiptPrefix } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import {
+  checkoutRoot,
+  receiptPrefix,
+} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 
 const exec = promisify(execFile);
 export const hookPath = fileURLToPath(
@@ -15,7 +18,7 @@ export const hookPath = fileURLToPath(
   ),
 );
 
-export function setup(root = "/test/example") {
+export function setup(root = checkoutRoot) {
   const storage = mkdtempSync(join(tmpdir(), "ci-hook-test-"));
   return { root, storage };
 }
@@ -61,10 +64,16 @@ export const context = (output) =>
 export async function runHostHook(
   host,
   hookInput,
-  { storage, path = hookPath },
+  {
+    env = process.env,
+    storage = env.DOUGH_CI_MAILBOX_ROOT,
+    path = hookPath,
+    cwd,
+  },
 ) {
   const child = exec(process.execPath, [path, host], {
-    env: { ...process.env, DOUGH_CI_MAILBOX_ROOT: storage },
+    cwd,
+    env: { ...env, DOUGH_CI_MAILBOX_ROOT: storage },
     maxBuffer: 4 * 1024 * 1024,
   });
   child.child.stdin.end(JSON.stringify(hookInput));

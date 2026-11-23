@@ -173,7 +173,7 @@ run_offline_record_state_and_reader_proof \
 for runtime in "${agents_scripts_root}" "${scripts_root}"; do
   node --input-type=module - "${runtime}/product-backlog.mjs" "${temporary_dir}" << 'NODE'
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 const [cli, temporary] = process.argv.slice(2);
@@ -196,6 +196,11 @@ const snapshot = () => readdirSync(planning, { recursive: true }).sort().map(nam
 });
 const before = snapshot();
 const head = git('rev-parse', 'HEAD');
+const retired = spawnSync(process.execPath, [cli, 'merge'], { cwd: root, encoding: 'utf8' });
+assert.equal(retired.status, 1);
+assert.match(retired.stderr, /Unknown operation: merge/);
+assert.doesNotMatch(retired.stderr, /product-backlog\.mjs merge/);
+assert.deepEqual(snapshot(), before);
 const report = JSON.parse(execFileSync(process.execPath, [cli, 'identity-evidence', '--identity', 'scheduler-wake#overdue-jobs'], { cwd: root, encoding: 'utf8' }));
 assert.deepEqual(report.gaps, []);
 assert.equal(report.highest.seed, 'SEED-100');

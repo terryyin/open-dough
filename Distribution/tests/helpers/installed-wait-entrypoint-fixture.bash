@@ -58,7 +58,7 @@ EOF
   for root in .agents/skills .claude/skills; do
     canonical_root=$(cd "${target}/${root}/dough-execute-plan" && pwd -P)
     receipt=$(PATH="${provider_bin}:${PATH}" DOUGH_CI_MAILBOX_ROOT="${storage}" \
-      node "${canonical_root}/scripts/ci-mailbox.mjs" start --execution owner/repo main 60000)
+      node "${canonical_root}/scripts/ci-mailbox.mjs" start --execution owner/repo main)
     mailbox=$(node -e 'process.stdout.write(JSON.parse(process.argv[1].slice("CI_OBSERVER ".length)).directory)' "${receipt}")
     DOUGH_CI_MAILBOX_ROOT="${storage}" \
       node "${canonical_root}/scripts/ci-mailbox.mjs" register-push "${mailbox}" \

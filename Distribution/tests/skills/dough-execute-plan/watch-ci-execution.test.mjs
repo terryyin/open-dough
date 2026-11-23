@@ -5,7 +5,7 @@ import {
   scriptedGithub,
 } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
-import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs";
+import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 
 test("execution observation emits only new main push CI failures", async () => {
   const controller = new AbortController();

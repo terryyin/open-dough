@@ -24,7 +24,7 @@ import {
   awaitSignalWhileRunning,
   settledProbe,
 } from "./process-lifetime-test-fixtures.mjs";
-import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs";
+import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 
 // Observes `watchCiExecution` with a 60 s execution budget until the adapter
 // counting its calls in `path` reaches `count`, then stops it and returns the

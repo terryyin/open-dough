@@ -124,13 +124,11 @@ test("a slice handed back at 11 minutes and resumed after a 20-minute review has
   time.at(11);
   const handedBack = await clock(worktree, "pause");
   time.at(31);
-  const reviewed = await clock(worktree, "status", ...sliceThree);
   const resumed = await clock(elsewhereInWorktree, "start", ...sliceThree);
   const replacement = await clock(elsewhereInWorktree, "status");
-  const laterSession = await clock(worktree, "status", ...sliceThree);
+  const laterSession = await clock(worktree, "status");
 
   assert.deepEqual(handedBack.result, reported("pause", "paused", 11));
-  assert.deepEqual(reviewed.result, reported("status", "paused", 11));
   assert.deepEqual(resumed.result, reported("start", "running", 11));
   assert.equal(resumed.result.remainingMinutes, 4);
   assert.deepEqual(replacement.result, reported("status", "running", 11));
@@ -142,16 +140,17 @@ test("an accepted slice keeps its elapsed time through the refactor pass and CI 
   await clock(worktree, "start", ...sliceThree);
   time.at(10);
 
-  await clock(worktree, "pause");
+  const accepted = await clock(worktree, "pause");
   time.at(55);
 
-  assert.deepEqual(
-    (await clock(worktree, "status", ...sliceThree)).result,
-    reported("status", "paused", 10),
-  );
+  assert.deepEqual(accepted.result, reported("pause", "paused", 10));
   const unnamed = await clock(worktree, "status");
   assert.equal(unnamed.exitStatus, 1);
   assert.equal(unnamed.stderr, "no slice is running in this checkout\n");
+  assert.deepEqual(
+    (await clock(worktree, "start", ...sliceThree)).result,
+    reported("start", "running", 10),
+  );
 });
 
 test("each story's and each quick execution's slice has its own clock", async (t) => {
@@ -176,9 +175,23 @@ test("each story's and each quick execution's slice has its own clock", async (t
     `slice 1 of ${quick} is running in this checkout; pause it first\n`,
   );
   assert.equal((await clock(worktree, "status")).result.elapsedMinutes, 2);
+  await clock(worktree, "pause");
   assert.equal(
-    (await clock(worktree, "status", ...sliceThree)).result.elapsedMinutes,
+    (await clock(worktree, "start", ...sliceThree)).result.elapsedMinutes,
     7,
+  );
+});
+
+test("status refuses a named slice and leaves the running slice readable", async (t) => {
+  const { worktree, time, clock } = await executionWorktree(t);
+  await clock(worktree, "start", ...sliceThree);
+  time.at(2);
+  const retired = await clock(worktree, "status", ...sliceThree);
+  assert.equal(retired.exitStatus, 2);
+  assert.match(retired.stderr, /unknown flag for identity/);
+  assert.deepEqual(
+    (await clock(worktree, "status")).result,
+    reported("status", "running", 2),
   );
 });
 

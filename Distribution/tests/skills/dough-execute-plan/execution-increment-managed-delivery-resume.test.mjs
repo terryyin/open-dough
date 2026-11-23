@@ -106,7 +106,6 @@ test("lost push response resumes the retained multi-commit comparison after anot
     ...comparison,
     targetRef: trunkTarget,
     repo,
-    publishedRevisions: [],
     defaultCheckout: fixture.integration,
   });
 
@@ -181,7 +180,6 @@ test("missing observation attachment recovers its coordinator's live observer wi
     candidateSha: accepted,
     targetRef: trunkTarget,
     repo,
-    publishedRevisions: [accepted],
     defaultCheckout: fixture.integration,
   });
 

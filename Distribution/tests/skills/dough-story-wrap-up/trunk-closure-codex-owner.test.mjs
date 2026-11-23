@@ -23,6 +23,7 @@ import {
   createManagedFixture,
   installManagedDelivery,
 } from "../dough-execute-plan/execution-increment-managed-delivery-test-fixtures.mjs";
+import { advanceOriginFromAnotherWriter } from "../dough-execute-plan/publication-test-fixtures.mjs";
 import {
   armingCheckouts,
   assertObserverEnded,
@@ -156,6 +157,7 @@ test("a Codex finish without its retained stream, or naming a sibling's, reports
   await commitFinalClosure(fixture);
   // The interrupted `finish` pushed the final closure and registered nothing.
   const final = await acceptedIncrement(fixture);
+  const later = await advanceOriginFromAnotherWriter(fixture.origin);
   releaseCi(fixture, { [beforeCleanup]: "success", [final]: "success" });
   const pushes = await countClosurePushes(fixture);
 
@@ -172,6 +174,7 @@ test("a Codex finish without its retained stream, or naming a sibling's, reports
     const { observation } = unowned.result;
     await assertUnresolvedCoverage(fixture, unowned, {
       final,
+      targetTip: later,
       ownership,
       reason,
     });
@@ -188,6 +191,7 @@ test("a Codex finish without its retained stream, or naming a sibling's, reports
 
   assert.equal(code, 0, stderr);
   assert.equal(result.pushCount, 0);
+  assert.equal(result.acceptedSha, final);
   assert.equal(pushes(), 0);
   assert.equal(result.observation.state, "recovered");
   assert.equal(result.observation.directory, publisher.directory);
@@ -197,7 +201,7 @@ test("a Codex finish without its retained stream, or naming a sibling's, reports
   assert.equal(result.completion.shutdown.status, "confirmed");
   assertObserverEnded(publisher.directory);
   assert.equal(result.cleanup.worktree, "removed");
-  assert.ok(await targetHolds(fixture, final));
+  assert.ok(await targetHolds(fixture, later));
   journey.assertSiblingUntouched();
 });
 

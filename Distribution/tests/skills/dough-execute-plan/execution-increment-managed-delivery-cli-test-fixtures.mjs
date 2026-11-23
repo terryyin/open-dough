@@ -5,15 +5,13 @@
 import { execFile } from "node:child_process";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { invokeHostHook } from "../../../src/skills/dough-execute-plan/scripts/ci-host-bridge.mjs";
+import { runHostHook } from "./ci-host-hook-test-fixtures.mjs";
 import { receiptPrefix } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 
 // Runs the taught `deliver` for one increment of the fixture's execution
 // branch, or of the supplied `workspace` and `branch`, with only the supplied
-// environment under the supplied `mode` and optional `tracking`; `extra` adds
-// flags such as `--session-json` or `--authority`. `mode: null` omits
-// `--mode`. `maxDurationMs` is the observer's execution observation budget.
-// The reported observer stops at teardown.
+// Runs with the supplied mode and tracking. Use mode: null to omit --mode.
+// Extra flags reach the CLI directly. The observer stops at teardown.
 export async function deliverThroughCli(
   fixture,
   {
@@ -26,7 +24,6 @@ export async function deliverThroughCli(
     mode = "trunk",
     tracking,
     targetRef = "refs/heads/main",
-    maxDurationMs = 60_000,
   },
 ) {
   const args = [
@@ -44,8 +41,6 @@ export async function deliverThroughCli(
     "owner/project",
     "--host",
     host,
-    "--max-duration-ms",
-    String(maxDurationMs),
     ...extra,
   ];
   const script = join(
@@ -118,8 +113,8 @@ export const claudeHookInput = (session_id, extra = {}) => ({
 
 // What the fixture's installed Claude Code hook returns for one tool call.
 export function invokeInstalledClaudeHook(fixture, input, env) {
-  return invokeHostHook("claude", input, {
-    hookPath: join(fixture.skill, "scripts/ci-host-hook.mjs"),
+  return runHostHook("claude", input, {
+    path: join(fixture.skill, "scripts/ci-host-hook.mjs"),
     cwd: fixture.execution,
     env,
   });
@@ -141,8 +136,8 @@ export const cursorHookInput = (
 
 // What the fixture's installed Cursor hook returns for one tool call.
 export function invokeInstalledCursorHook(fixture, input, env) {
-  return invokeHostHook("cursor", input, {
-    hookPath: join(fixture.skill, "scripts/ci-host-hook.mjs"),
+  return runHostHook("cursor", input, {
+    path: join(fixture.skill, "scripts/ci-host-hook.mjs"),
     cwd: fixture.execution,
     env,
   });

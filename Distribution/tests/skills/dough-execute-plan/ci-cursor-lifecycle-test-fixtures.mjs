@@ -85,7 +85,7 @@ export function createCursorReplay(
       launches += 1;
       const { stdout } = await exec(
         process.execPath,
-        [launcher, "start", "--execution", "owner/repo", "main", "60000"],
+        [launcher, "start", "--execution", "owner/repo", "main"],
         { cwd: checkout, env: launcherEnv },
       );
       const directory = JSON.parse(

@@ -77,7 +77,7 @@ test("originating Cursor hook attaches READY then start from a same-repo worktre
 
   const started = await exec(
     process.execPath,
-    [launchers.worktree, "start", "--execution", "owner/repo", "main", "60000"],
+    [launchers.worktree, "start", "--execution", "owner/repo", "main"],
     { cwd: execution, env },
   );
   const startReceipt = JSON.parse(started.stdout.slice("CI_OBSERVER ".length));

@@ -14,7 +14,7 @@ import {
   completedJob,
   completedJobs,
   instrumentedGithubFixture,
-  startInstalledScript,
+  startInstalledMailboxStream,
 } from "./ci-github-test-fixtures.mjs";
 import { apiRun } from "./github-actions-api-test-fixtures.mjs";
 
@@ -56,12 +56,7 @@ test("the observer asks GitHub one admitted API request per route and page", asy
     attempts: { "42/1": { status: "completed", conclusion: "success" } },
     jobs: completedJobs([120]),
   });
-  const observer = startInstalledScript(github, "watch-ci.mjs", [
-    "--execution",
-    "owner/repo",
-    "main",
-    "60000",
-  ]);
+  const observer = startInstalledMailboxStream(github, "owner/repo", "main");
 
   const failure = await observer.event("CI_FAILURE");
 
@@ -110,12 +105,7 @@ test("a rate limit suspends the observer until the directed time without losing 
   });
   // Three limits in a row: as observation errors they would end coverage.
   github.limit(3, "/runs?");
-  const observer = startInstalledScript(github, "watch-ci.mjs", [
-    "--execution",
-    "owner/repo",
-    "main",
-    "60000",
-  ]);
+  const observer = startInstalledMailboxStream(github, "owner/repo", "main");
 
   await observer.event("CI_FAILURE");
 

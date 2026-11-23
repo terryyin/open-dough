@@ -4,10 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import {
-  createMailbox,
-  recordWorkerIdentity,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { recordWorkerIdentity } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
+
 import { publishJson } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-json-file.mjs";
 import {
   fixtureTeardown,
@@ -128,18 +127,14 @@ export function processMailboxEnvironment(
   };
 }
 
-export async function setupProcessMailbox(
-  t,
-  startArguments = ["--execution", "owner/repo", "main", "60000"],
-  options = {},
-) {
+export async function setupProcessMailbox(t, options = {}) {
   const directory = mkdtempSync(join(tmpdir(), "ci-process-test-"));
   const teardown = fixtureTeardown(directory);
   t.after(teardown.cleanup);
   const env = processMailboxEnvironment(directory, teardown, options);
   const { stdout } = await exec(
     process.execPath,
-    [launcher, "start", ...startArguments],
+    [launcher, "start", "--execution", "owner/repo", "main"],
     { env, timeout: 5000 },
   );
   const mailbox = JSON.parse(stdout.slice("CI_OBSERVER ".length)).directory;

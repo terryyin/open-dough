@@ -151,7 +151,6 @@ test("a lost push response of an auto-landed result resumes the retained candida
     suffixBase: base,
     targetRef: trunkTarget,
     repo: "owner/project",
-    publishedRevisions: [],
     defaultCheckout: trunk.integration,
     oneShotIdentity: identityB,
   });

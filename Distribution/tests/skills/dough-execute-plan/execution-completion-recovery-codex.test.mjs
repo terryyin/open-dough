@@ -69,7 +69,6 @@ test("Codex recovery arms a fresh stream after budget finish, then completes on 
       "--execution",
       repo,
       "main",
-      "60000",
       "--coordinator",
       coordinator,
     ],
@@ -89,7 +88,6 @@ test("Codex recovery arms a fresh stream after budget finish, then completes on 
     env: fixture.env,
     root,
     storage,
-    maxDurationMs: 60_000,
   });
   assert.equal(recovered.ok, true, recovered.observation?.reason);
   assert.equal(recovered.observation.directory, fresh.directory);

@@ -26,7 +26,7 @@ trunk_closure_arm_observer() {
   trunk_closure_mailbox=
   [[ ${host} == codex ]] || return 0
   (cd "${trunk_closure_workspace}" && exec node "${trunk_closure_launcher}" \
-    stream --execution owner/project main 600000 \
+    stream --execution owner/project main \
     --coordinator "${trunk_closure_coordinator}") > "${stream}" 2>&1 &
   trunk_closure_stream=$!
   wait_for 'observer stream' 30 "grep -q '^CI_OBSERVER ' '${stream}'" || return

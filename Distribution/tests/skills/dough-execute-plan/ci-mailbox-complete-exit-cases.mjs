@@ -5,11 +5,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { makeMe } from "../../support/makeMe.mjs";
+import { workerLossReason } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
   completeRevision,
-  createMailbox,
   registerPushedRevision,
-  workerLossReason,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import { stopMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs";
 import { publishRevisionRecord } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-revision-records.mjs";

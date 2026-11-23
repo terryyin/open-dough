@@ -3,11 +3,8 @@ set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
 # shellcheck disable=SC1091
-# shellcheck source=Distribution/tests/helpers/public-payload-fixture.bash
-source "${source_dir}/Distribution/tests/helpers/public-payload-fixture.bash"
-# shellcheck disable=SC1091
-# shellcheck source=Distribution/tests/helpers/release-fixture.bash
-source "${source_dir}/Distribution/tests/helpers/release-fixture.bash"
+# shellcheck source=Distribution/src/install/open-dough-release-version.sh
+source "${source_dir}/Distribution/src/install/open-dough-release-version.sh"
 
 temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
@@ -21,7 +18,7 @@ assert_compare() {
   local expected=$3
   local output
 
-  output=$(bash "${helper}" compare "${first}" "${second}" 2> "${temporary_dir}/compare.err")
+  output=$(compare_versions "${first}" "${second}" 2> "${temporary_dir}/compare.err")
   [[ ! -s "${temporary_dir}/compare.err" ]]
   [[ "${output}" == "${expected}" ]]
 }

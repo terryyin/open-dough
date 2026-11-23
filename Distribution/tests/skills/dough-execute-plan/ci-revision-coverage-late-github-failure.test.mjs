@@ -4,13 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { awaitRevision } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-await.mjs";
+import { runMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-operations.mjs";
+import { requestMailboxStop } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
-  createMailbox,
   readMailboxEvents,
   readRevisionCoverage,
   registerPushedRevision,
-  requestMailboxStop,
-  runMailboxWorker,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 import { context, input, runHostHook } from "./ci-host-hook-test-fixtures.mjs";

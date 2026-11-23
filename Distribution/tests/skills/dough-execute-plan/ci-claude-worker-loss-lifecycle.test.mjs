@@ -25,7 +25,7 @@ test("Claude Code reports its detached observer lost once when the worker dies, 
 
   const { stdout } = await exec(
     process.execPath,
-    [launcher, "start", "--execution", "owner/repo", "main", "60000"],
+    [launcher, "start", "--execution", "owner/repo", "main"],
     { cwd: checkout, env },
   );
   const directory = JSON.parse(stdout.slice(receiptPrefix.length)).directory;

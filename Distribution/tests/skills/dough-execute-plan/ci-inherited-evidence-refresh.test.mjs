@@ -8,8 +8,8 @@ import {
   targetCommandAttempts,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-command-attempts.mjs";
 import { recordedCompletion } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-await.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
-  createMailbox,
   readRevisionCoverage,
   registerPushedRevision,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";

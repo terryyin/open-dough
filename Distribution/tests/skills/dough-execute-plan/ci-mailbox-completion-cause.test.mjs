@@ -4,12 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { githubApi } from "./github-actions-api-test-fixtures.mjs";
+import { runMailboxWorker } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-operations.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
   completeRevision,
-  createMailbox,
   readMailboxEvents,
   registerPushedRevision,
-  runMailboxWorker,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import { runMailboxWorkerUntilBudget } from "./ci-mailbox-budget-test-fixtures.mjs";
 import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";

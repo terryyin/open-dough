@@ -16,6 +16,8 @@ import {
 } from "./fixture-teardown-test-fixtures.mjs";
 import { requestOwnerEnvironment } from "./github-request-owner-test-fixtures.mjs";
 import { instrumentedGithub } from "./instrumented-github-test-fixtures.mjs";
+import { settledProbe } from "./process-lifetime-test-fixtures.mjs";
+import { installLinkedSkills } from "./symlinked-skill-test-fixtures.mjs";
 
 export {
   completedJob,
@@ -122,8 +124,12 @@ const script = (name) =>
 // Starts an installed script as its own process against the fixture's `gh`,
 // collecting what it prints; the fixture's teardown ends it.
 export function startInstalledScript(github, name, args) {
-  const child = spawn(process.execPath, [script(name), ...args], {
-    env: github.env,
+  return startScript(github, script(name), args, github.env);
+}
+
+function startScript(github, entry, args, env) {
+  const child = spawn(process.execPath, [entry, ...args], {
+    env,
     stdio: ["ignore", "pipe", "pipe"],
   });
   deferChildExit(github.teardown, child);
@@ -135,29 +141,49 @@ export function startInstalledScript(github, name, args) {
   child.stderr.on("data", (chunk) => {
     stderr += chunk;
   });
-  const exited = new Promise((resolve) =>
-    child.once("exit", (code) => resolve(code)),
-  );
-  const lines = () =>
-    stdout
-      .split("\n")
-      .filter(Boolean)
-      .map((line) => JSON.parse(line));
   return {
-    exited,
+    exited: new Promise((resolve) =>
+      child.once("close", (code) => resolve(code)),
+    ),
     stdout: () => stdout,
     stderr: () => stderr,
-    // The JSON records printed so far, one per line.
-    events: lines,
+  };
+}
+
+export function startInstalledMailboxStream(github, repo, branch) {
+  const project = github.env.CI_GH_FIXTURE;
+  const { real } = installLinkedSkills(project)(
+    "dough-execute-plan/scripts/ci-mailbox.mjs",
+  );
+  const child = startScript(
+    github,
+    real,
+    ["stream", "--execution", repo, branch],
+    {
+      ...github.env,
+      DOUGH_CI_MAILBOX_ROOT: join(project, "mailboxes"),
+    },
+  );
+  const ended = settledProbe(child.exited);
+  const events = () =>
+    child
+      .stdout()
+      .split("\n")
+      .slice(0, -1)
+      .filter((line) => line.startsWith("{"))
+      .map((line) => JSON.parse(line).event);
+  return {
+    events,
     async event(type) {
       await until(
-        () =>
-          child.exitCode !== null || lines().some((line) => line.type === type),
-        `${name} printed ${type}; stderr: ${stderr}`,
+        () => ended() || events().some((event) => event.type === type),
+        `ci-mailbox stream printed ${type}`,
       );
-      const found = lines().find((line) => line.type === type);
+      const found = events().find((event) => event.type === type);
       if (!found)
-        throw new Error(`${name} exited before printing ${type}: ${stderr}`);
+        throw new Error(
+          `ci-mailbox stream exited before printing ${type}: ${child.stderr()}`,
+        );
       return found;
     },
   };

@@ -157,13 +157,11 @@ assert_no_managed_collision() {
   }
 }
 
-# Run match, copy, or copy-then-match for the listed files from source_root to
+# Run match or copy-then-match for the listed files from source_root to
 # dest_root in one Node process. match exits 1 on a missing or different file
-# and 2 on an unexpected read. copy exits 1 when a file cannot be written,
-# after earlier files in the listed order have already been replaced.
-# copy-then-match copies, then verifies the written bytes, exiting 3 on a
-# difference and 4 when verification cannot read a file. Without Node, fall
-# back to cp and cmp so a hook-less install or update still works.
+# and 2 on an unexpected read. copy-then-match exits 1 on a write failure,
+# 3 on a byte difference and 4 when verification cannot read a file.
+# Without Node, fall back to cp and cmp for a hook-less install or update.
 payload_bytes_run() {
   local mode=$1 source_root=$2 dest_root=$3
   shift 3
@@ -174,11 +172,12 @@ payload_bytes_run() {
     printf '%s\n' "$@" | node "${helper}" "${mode}" "${source_root}" "${dest_root}"
     return
   fi
-  if [[ ${mode} != match ]]; then
+  if [[ ${mode} == copy-then-match ]]; then
     for managed_file in "$@"; do
       cp -- "${source_root}/${managed_file}" "${dest_root}/${managed_file}" || return 1
     done
-    [[ ${mode} == copy-then-match ]] || return 0
+  elif [[ ${mode} != match ]]; then
+    return 2
   fi
   for managed_file in "$@"; do
     cmp -s -- "${source_root}/${managed_file}" "${dest_root}/${managed_file}" || {

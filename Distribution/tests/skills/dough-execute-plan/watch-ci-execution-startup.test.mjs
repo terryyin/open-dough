@@ -5,7 +5,7 @@ import {
   scriptedGithub,
 } from "./github-actions-api-test-fixtures.mjs";
 import { run } from "./watch-ci-test-fixtures.mjs";
-import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci.mjs";
+import { watchCiExecution } from "../../../src/skills/dough-execute-plan/scripts/watch-ci-execution.mjs";
 
 test("startup reports only the newest completed run and retained attempts", async () => {
   const controller = new AbortController();

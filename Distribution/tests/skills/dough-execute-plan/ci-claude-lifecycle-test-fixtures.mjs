@@ -77,7 +77,7 @@ export function createClaudeReplay(teardown, env) {
       launches += 1;
       const { stdout } = await exec(
         process.execPath,
-        [launcher, "start", "--execution", "owner/repo", "main", "60000"],
+        [launcher, "start", "--execution", "owner/repo", "main"],
         { cwd: checkout, env },
       );
       const directory = JSON.parse(

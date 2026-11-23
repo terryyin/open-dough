@@ -1,4 +1,4 @@
-// Runs the real backlog CLI to reconcile three supplied versions in which one
+// Reconciles three supplied versions in which one
 // work item's recorded identity and its canonical home have come apart. A
 // move is recorded on one branch while the other branch changes the same work,
 // and the reconciliation has to publish one item that is still the work it
@@ -9,9 +9,9 @@
 // the same recorded name — that is the ordinary changed-on-both-sides
 // disagreement every other value gets, decided by the same identity rule.
 import assert from "node:assert/strict";
+import { mergeBacklogs } from "../../src/skills/dough-product-backlog/scripts/product-backlog-merge.mjs";
 import { test } from "node:test";
 import {
-  adoptedBacklog,
   correctionLink,
   headings,
   identities,
@@ -20,10 +20,9 @@ import {
   backlogOf,
   occurrences,
   run,
-  scratchProject,
   takenEntry,
 } from "./product-backlog-fixture.mjs";
-import { branchFrom, versions } from "./product-backlog-merge-fixture.mjs";
+import { branchFrom, mergeRefusal } from "./product-backlog-merge-fixture.mjs";
 import {
   afterMove,
   arrangedAdoptedBacklog,
@@ -70,23 +69,18 @@ test("merge identity reconciles a relocated canonical home as the same work", as
     lines.correction,
     `- [${retitled}](${movedCorrection}) — ${identities.correction}`,
   );
-  const project = scratchProject(t, arrangedAdoptedBacklog);
   for (const sides of [
     [relocated, renamed],
     [renamed, relocated],
   ]) {
-    const merged = await run(
-      project,
-      versions(project, arrangedAdoptedBacklog, ...sides),
-    );
+    const merged = mergeBacklogs(arrangedAdoptedBacklog, ...sides);
 
-    assert.equal(merged.code, 0, merged.stderr);
     // Exactly one item, carrying the identity it was recorded under, the home
     // the move gave it, and the title the other branch gave it. Every other
     // line, both lists' order, and the direction come across untouched.
-    assert.equal(project.read(), reconciled);
-    assert.equal(occurrences(project.read(), identities.correction), 1);
-    assert.equal(occurrences(project.read(), movedCorrection), 1);
+    assert.equal(merged.source, reconciled);
+    assert.equal(occurrences(merged.source, identities.correction), 1);
+    assert.equal(occurrences(merged.source, movedCorrection), 1);
   }
 });
 
@@ -114,29 +108,19 @@ test("merge identity refuses two recorded identities whose links coincide", asyn
     ],
   );
 
-  const project = scratchProject(t, arrangedAdoptedBacklog);
-  const refused = await run(
-    project,
-    versions(project, arrangedAdoptedBacklog, relocated, replaced),
-  );
+  const refused = mergeRefusal(arrangedAdoptedBacklog, relocated, replaced);
 
-  assert.equal(refused.code, 1);
-  assert.equal(project.read(), adoptedBacklog, "the destination was written");
   // Both competing identities are named, and the reason given is that their
   // links have come to coincide rather than that either work item changed.
-  assert.ok(
-    refused.stderr.includes(`"${identities.correction}"`),
-    refused.stderr,
-  );
-  assert.ok(refused.stderr.includes(`"${successor}"`), refused.stderr);
+  assert.ok(refused.includes(`"${identities.correction}"`), refused);
+  assert.ok(refused.includes(`"${successor}"`), refused);
   assert.match(
-    refused.stderr,
+    refused,
     /do not become one work item by their links coming to coincide/,
   );
-  assert.match(refused.stderr, /The backlog was not changed\./);
 });
 
-test("merge identity refuses two branches giving one work item different identities outright", async (t) => {
+test("merge identity refuses two branches giving one work item different identities outright", () => {
   // Neither branch's recorded identity is contradicted by a link some other
   // recorded identity has come to share — that is the coincidence case above.
   // Here the two branches simply named the same home two different things, an
@@ -146,29 +130,21 @@ test("merge identity refuses two branches giving one work item different identit
     "seeds/SEED-002-release-the-guidance.md#publish-the-release-notes";
   const before = `- [Publish the release notes](${home})`;
   const ancestor = backlogOf([takenEntry], [before]);
-  const project = scratchProject(t, ancestor);
 
-  const refused = await run(
-    project,
-    versions(
-      project,
-      ancestor,
-      backlogOf(
-        [takenEntry],
-        [`- [Publish the release notes](${home}) — SEED-100`],
-      ),
-      backlogOf(
-        [takenEntry],
-        [`- [Publish the release notes](${home}) — SEED-200`],
-      ),
+  const refused = mergeRefusal(
+    ancestor,
+    backlogOf(
+      [takenEntry],
+      [`- [Publish the release notes](${home}) — SEED-100`],
+    ),
+    backlogOf(
+      [takenEntry],
+      [`- [Publish the release notes](${home}) — SEED-200`],
     ),
   );
 
-  assert.equal(refused.code, 1);
-  assert.equal(project.read(), ancestor, "the destination was written");
   assert.match(
-    refused.stderr,
+    refused,
     /the versions give it different identities — the first branch version has "SEED-100#publish-the-release-notes" and the second branch version has "SEED-200#publish-the-release-notes"/,
   );
-  assert.match(refused.stderr, /The backlog was not changed\./);
 });

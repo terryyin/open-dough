@@ -148,7 +148,7 @@ export async function manualMerge(
 export async function publish(
   publisher,
   fixture,
-  { publishedRevisions = [], backlogPath = fixture.file } = {},
+  { backlogPath = fixture.file } = {},
 ) {
   const { execution, publishedTip, remoteTip, candidate } = fixture;
   return publisher === "history"
@@ -172,20 +172,13 @@ export async function publish(
       : resumeInterruptedPublication({
           ownedWorkspace: execution,
           candidateSha: candidate,
-          publishedRevisions,
           backlogPath,
         });
 }
 
 // A held publication pushes nothing and leaves the owned checkout and branch
 // as they were. Returns the hold's fields, wherever the publisher reports them.
-export async function assertHeld(
-  result,
-  status,
-  fixture,
-  before,
-  publishedRevisions,
-) {
+export async function assertHeld(result, status, fixture, before) {
   const { execution, origin, remoteTip } = fixture;
   assert.equal(result.receipt ?? null, null);
   assert.equal(result.reason ?? result.status ?? result.held?.status, status);
@@ -195,6 +188,5 @@ export async function assertHeld(
     (await git(execution, "symbolic-ref", "--short", "HEAD")).stdout.trim(),
     branch,
   );
-  assert.deepEqual(publishedRevisions, []);
   return result.held?.fields ?? result;
 }

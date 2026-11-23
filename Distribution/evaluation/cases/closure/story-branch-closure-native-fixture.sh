@@ -112,7 +112,7 @@ story_closure_create_fixture() {
   export STORY_CLOSURE_INTEGRATED_SHA_FILE="${story_closure_integrated_sha_file}"
   export STORY_CLOSURE_GH_LOG="${story_closure_gh_log}"
   receipt=$(cd "${story_closure_workspace}" \
-    && node "${story_closure_launcher}" start --execution owner/project exec/story 600000)
+    && node "${story_closure_launcher}" start --execution owner/project exec/story)
   story_closure_branch_mailbox=$(jq -r '.directory' <<< "${receipt#CI_OBSERVER }")
   (cd "${story_closure_workspace}" && node "${story_closure_launcher}" \
     register-push "${story_closure_branch_mailbox}" "${story_closure_branch_sha}") \

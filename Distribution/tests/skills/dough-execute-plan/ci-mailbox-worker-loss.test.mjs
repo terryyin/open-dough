@@ -3,12 +3,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
-  mailboxWorkerLoss,
   publishMailboxEvent,
+  workerLossReason,
+} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import {
+  mailboxWorkerLoss,
   readMailboxEvents,
   readRevisionCoverage,
   readWorkerIdentity,
-  workerLossReason,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import {
   exec,
@@ -91,12 +93,7 @@ test("a mismatched worker identity yields uncertainty instead of reassurance or 
 
 test("a detached worker that dies is reported lost once at the next ordinary interaction, and a repeated receipt does not restore attachment", async (t) => {
   const { directory, mailbox, stdout, deliver, env } =
-    await setupProcessMailbox(t, [
-      "--execution",
-      "owner/repo",
-      "main",
-      "60000",
-    ]);
+    await setupProcessMailbox(t);
   await awaitWorkerSignal(mailbox, join(directory, "started"));
 
   const attached = await deliver("claude", stdout);

@@ -85,7 +85,6 @@ if (request.operation === 'discover') {
 export async function createManagedFixture({
   description = trunkWithOneUnpublishedIncrement,
   platforms = [".agents"],
-  preferredAlias,
   checkout = "execution",
 } = {}) {
   const base = await materializeRepository(description);
@@ -93,7 +92,6 @@ export async function createManagedFixture({
   return {
     ...base,
     description,
-    preferredAlias,
     teardown,
     cleanup: teardown.cleanup,
     ...(await installManagedDelivery(
@@ -177,7 +175,6 @@ export async function installManagedDelivery(
     env,
     root,
     storage,
-    maxDurationMs: 60_000,
   };
   return {
     storage,

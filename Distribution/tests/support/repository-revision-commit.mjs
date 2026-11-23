@@ -4,6 +4,11 @@ import {
   git,
   revParse,
 } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { configureAgentAuthorship } from "../../src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
+import {
+  agentIdentity,
+  agentNameOf,
+} from "../../src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { writeRevisionFiles } from "./repository-revision-files.mjs";
 
 /** @typedef {import("./repositoryTestData.mjs").RevisionFacts} RevisionFacts */
@@ -33,6 +38,18 @@ export async function configureIdentity(
     await git(checkout, "config", "extensions.worktreeConfig", "true");
   await git(checkout, "config", ...scope, "user.name", identity.name);
   await git(checkout, "config", ...scope, "user.email", identity.email);
+}
+
+/**
+ * Configure a fixture workspace's declared roster label through the same
+ * authorship operation used by an execution start.
+ * @param {string} workspace
+ * @param {string} agent
+ */
+export async function configureDeclaredAgentAuthorship(workspace, agent) {
+  const name = agentNameOf(agent);
+  if (name === undefined) throw new Error(`${agent} is no known agent.`);
+  return configureAgentAuthorship(workspace, agentIdentity(name));
 }
 
 /**

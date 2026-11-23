@@ -14,13 +14,12 @@ import {
   outcomePath,
   publish,
   startWait,
+  startWaitWithClock,
   watchedOutcome,
   watchedRemote,
 } from "../../support/wait-for-publication-fixture.mjs";
 
 const minuteMs = 60_000;
-// A duration that outlasts the command's start-up on a loaded machine.
-const beyondLoadedStartUp = ["--duration-minutes", "0.25"];
 
 test("a push touching no watched path prints nothing, and a push to a watched path ends the wait with one result naming the change and the deadline", async (t) => {
   const { supplier, watcher } = await watchedRemote(t);
@@ -107,6 +106,20 @@ test("arguments that name no ref end at once with the usage", async (t) => {
   assert.match(wait.stderr, /at least one --ref\nUsage: /);
 });
 
+test("the publication wait refuses an explicit polling interval", async (t) => {
+  const wait = startWait(
+    t,
+    tmpdir(),
+    "--ref",
+    "main",
+    "--interval-seconds",
+    "1",
+  );
+  assert.equal((await wait.ended).code, 2);
+  assert.equal(wait.stdout, "");
+  assert.match(wait.stderr, /Unknown option '--interval-seconds'/);
+});
+
 test("a first observation that cannot read the remote ends at once with its error", async (t) => {
   const { remote, watcher } = await watchedRemote(t);
   renameSync(remote, `${remote}.away`);
@@ -137,13 +150,26 @@ test("a later observation that cannot read the remote is retried silently", asyn
 
 test("a remote that stays unreadable after the first observation prints nothing until one deadline result", async (t) => {
   const { remote, supplier, watcher } = await watchedRemote(t);
-  const wait = startWait(t, watcher, ...watchedOutcome, ...beyondLoadedStartUp);
+  const startedAt = Date.parse("2026-11-16T09:00:00Z");
+  const deadline = new Date(startedAt + minuteMs).toISOString();
+  const wait = startWaitWithClock(
+    t,
+    watcher,
+    startedAt,
+    ...watchedOutcome,
+    "--deadline",
+    deadline,
+  );
   await observed(watcher, await objectAt(supplier, "HEAD"));
 
   renameSync(remote, `${remote}.away`);
+  await until("an observation fails", () => lastFetched(watcher) === "");
+  assert.equal(wait.stdout + wait.stderr, "");
+  wait.advanceTo(Date.parse(deadline));
 
-  const result = await onlyResult(wait);
-  assert.equal(lastFetched(watcher), "");
-  assert.equal(result.result, "deadline");
-  assert.ok(wait.printedAt >= Date.parse(result.deadline));
+  assert.deepEqual(await onlyResult(wait), {
+    result: "deadline",
+    remote: "origin",
+    deadline,
+  });
 });

@@ -19,14 +19,13 @@ const abbreviated = (sha) => sha.slice(0, 10);
 
 // Publishes on a fresh clean-trunk fixture prepared by `arrange`, with the
 // base `chooseBase` names and its abbreviation applied by `form`. Returns the
-// result, its registered receipts and beforePush comparisons, and the facts
+// result, its beforePush comparisons, and the facts
 // with this fixture's commit IDs replaced by stable labels.
 async function publishOnFixture(t, { arrange, chooseBase, form, targetRef }) {
   const fixture = await materializeRepository(trunkWithOneUnpublishedIncrement);
   t.after(fixture.cleanup);
   const arranged = (await arrange?.(fixture)) ?? {};
   const base = chooseBase(fixture);
-  const receipts = [];
   const comparisons = [];
   const publication = makeMe.anIncrementPublication
     .with({
@@ -39,7 +38,6 @@ async function publishOnFixture(t, { arrange, chooseBase, form, targetRef }) {
     workspace: fixture.execution,
     ...publication,
     previouslyPublishedBase: form(publication.previouslyPublishedBase),
-    register: (receipt) => receipts.push(receipt),
     beforePush: async (comparison) => comparisons.push(comparison),
   });
   const labels = new Map([
@@ -50,10 +48,10 @@ async function publishOnFixture(t, { arrange, chooseBase, form, targetRef }) {
   if (published.candidate && !labels.has(published.candidate)) {
     labels.set(published.candidate, "<rewritten>");
   }
-  let text = JSON.stringify({ published, receipts, comparisons });
+  let text = JSON.stringify({ published, comparisons });
   for (const [sha, label] of labels) text = text.replaceAll(sha, label);
   const facts = JSON.parse(text);
-  return { fixture, base, published, receipts, comparisons, facts, arranged };
+  return { fixture, base, published, comparisons, facts, arranged };
 }
 
 async function publishFullAndAbbreviated(t, scenario) {
@@ -66,7 +64,7 @@ test("a ten-character base on an unchanged target publishes with the full base I
   const { full, short } = await publishFullAndAbbreviated(t, {
     chooseBase: ({ trunkSha }) => trunkSha,
   });
-  const { published, receipts, comparisons, fixture } = short;
+  const { published, comparisons, fixture } = short;
 
   assert.equal(published.ok, true, JSON.stringify(published));
   assert.equal(published.reconciliations, 0);
@@ -75,7 +73,6 @@ test("a ten-character base on an unchanged target publishes with the full base I
     sha: fixture.candidateSha,
     target: trunkTarget,
   });
-  assert.deepEqual(receipts, [published.receipt]);
   assert.deepEqual(comparisons, [
     {
       attempt: 0,

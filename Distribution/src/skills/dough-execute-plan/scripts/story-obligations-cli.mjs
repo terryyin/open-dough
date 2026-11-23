@@ -39,11 +39,6 @@ function parseRecordRequest(values) {
       storyClause: values["story-clause"],
       disposition: values.disposition,
     };
-    if (values["commitment-field"] !== undefined) {
-      request.entry.commitments = values["commitment-field"]
-        .split(/,\s*/)
-        .filter(Boolean);
-    }
   }
   return request;
 }
@@ -73,7 +68,6 @@ export async function runStoryObligationsCli({
         "reported-slice": { type: "string" },
         "story-clause": { type: "string" },
         disposition: { type: "string" },
-        "commitment-field": { type: "string" },
         "expected-review": { type: "string" },
         "expected-plan": { type: "string" },
       },

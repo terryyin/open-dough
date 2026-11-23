@@ -15,6 +15,7 @@ import {
 import {
   check,
   list,
+  record,
   refuses,
   refusesCommitment,
 } from "./story-obligations-test-cli.mjs";
@@ -67,6 +68,28 @@ test("the documented obligation is read, listed, and blocks commit until proved"
   );
   assert.equal(check(plan, "--slice", "4").ok, true);
   assert.equal(check(plan, "--completion").ok, true);
+});
+
+test("record refuses an explicit commitment-field and preserves the review", (t) => {
+  const { plan } = reviewed(t, [["1", documentedStory.clause, "slice 4", ""]]);
+  const review = join(dirname(plan), "source-review.md");
+  const original = readFileSync(review, "utf8");
+  const result = record(
+    plan,
+    "--commitment",
+    "1",
+    "--observed",
+    "result-source.test.mjs",
+    "--commitment-field",
+    "1",
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.problems[0].reason, "invalid-input");
+  assert.match(
+    result.problems[0].message,
+    /Unknown option '--commitment-field'/,
+  );
+  assert.equal(readFileSync(review, "utf8"), original);
 });
 
 test("the documented Commitments table allocates a lifecycle owner that checks list unobserved", (t) => {

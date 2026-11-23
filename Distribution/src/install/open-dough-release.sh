@@ -28,8 +28,7 @@ source "${script_dir}/open-dough-release-apply.sh"
 
 usage() {
   echo "Usage: $0 <command> [args]" >&2
-  echo "Commands: validate-checkout, compare, compare-payload, destination," >&2
-  echo "          resolve-url, fetch-release, pin-latest, apply" >&2
+  echo "Commands: validate-checkout, compare-payload, resolve-url, apply" >&2
   exit 1
 }
 
@@ -44,33 +43,13 @@ case "${command}" in
     [[ $# -eq 1 ]] || usage
     validate_checkout "$1"
     ;;
-  compare)
-    [[ $# -eq 2 ]] || usage
-    if ! is_release_version "$1" || ! is_release_version "$2"; then
-      echo "Refusing to compare non-release versions" >&2
-      exit 1
-    fi
-    compare_versions "$1" "$2"
-    ;;
   compare-payload)
     [[ $# -eq 2 ]] || usage
     managed_payload_unchanged "$1" "$2"
     ;;
-  destination)
-    [[ $# -eq 2 ]] || usage
-    destination_for "$1" "$2"
-    ;;
   resolve-url)
     [[ $# -eq 1 ]] || usage
     resolve_url "$1"
-    ;;
-  fetch-release)
-    [[ $# -eq 2 ]] || usage
-    fetch_release "$1" "$2"
-    ;;
-  pin-latest)
-    [[ $# -eq 1 || $# -eq 2 ]] || usage
-    pin_latest "$1" "${2:-}"
     ;;
   apply)
     apply_release "$@"

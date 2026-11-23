@@ -33,7 +33,7 @@ cp -- "${source_dir}/install.sh" "${release_source}/"
 cp -R -- "${source_dir}/Distribution/src/install" "${release_source}/Distribution/src/"
 cp -R -P -- "${source_dir}/src/install" "${source_dir}/src/skills" "${release_source}/src/"
 mkdir -p -- "${release_source}/Distribution/src/skills"
-payload_bytes_transfer copy "${source_dir}/Distribution/src/skills" "${release_source}/Distribution/src/skills"
+copy_declared_payload "${source_dir}/Distribution/src/skills" "${release_source}/Distribution/src/skills"
 printf '%s\n' "${candidate_version}" > "${release_source}/VERSION"
 printf '## %s - 2026-11-14\n\nCandidate.\n' "${candidate_version}" > "${release_source}/CHANGELOG.md"
 commit_all "${release_source}" 'Candidate with relocated guidance'

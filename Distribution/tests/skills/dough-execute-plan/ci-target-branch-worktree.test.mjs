@@ -50,7 +50,7 @@ test("worktree launch observes target-branch final SHA and ignores old coverage"
 
   const launched = await exec(
     process.execPath,
-    [launcher, "start", "--execution", "owner/project", "main", "60000"],
+    [launcher, "start", "--execution", "owner/project", "main"],
     { cwd: execution, env },
   );
   const directory = observerReceipt(launched.stdout).directory;

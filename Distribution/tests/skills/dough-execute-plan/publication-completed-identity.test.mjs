@@ -42,16 +42,14 @@ for (const [file, list] of [
       const before = await captureCheckout(execution);
       const sourceBefore = readFileSync(join(execution, file), "utf8");
       const doneBefore = readFileSync(join(execution, donePath), "utf8");
-      const publishedRevisions = [];
 
-      const result = await publish(publisher, fixture, { publishedRevisions });
+      const result = await publish(publisher, fixture);
 
       const { error } = await assertHeld(
         result,
         "completed-identity",
         fixture,
         before,
-        publishedRevisions,
       );
       assert.match(error, /A#A/);
       assert.ok(error.includes(donePath));

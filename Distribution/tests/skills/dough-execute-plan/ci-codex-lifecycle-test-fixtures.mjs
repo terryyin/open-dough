@@ -3,10 +3,10 @@ import { once } from "node:events";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { recordWorkerIdentity } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
 import {
-  createMailbox,
   receiptPrefix,
-  recordWorkerIdentity,
   registerPushedRevision,
 } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
 import {
@@ -86,14 +86,7 @@ export function createCodexReplay(
   teardown,
   env,
   {
-    command = [
-      launcher,
-      "stream",
-      "--execution",
-      "owner/repo",
-      "main",
-      "60000",
-    ],
+    command = [launcher, "stream", "--execution", "owner/repo", "main"],
     exitSignal = "SIGTERM",
   } = {},
 ) {

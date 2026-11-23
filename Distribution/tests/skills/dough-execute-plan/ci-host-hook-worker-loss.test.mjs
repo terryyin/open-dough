@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { createMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-location.mjs";
+import { checkoutRoot } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { stopMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs";
 import {
-  checkoutRoot,
-  createMailbox,
+  recordLostTerminalResult,
   publishMailboxEvent,
   workerLossReason,
-} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
-import { stopMailbox } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-complete.mjs";
-import { recordLostTerminalResult } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
+} from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox-store.mjs";
 import {
   context,
   failure,
