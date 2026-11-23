@@ -6,8 +6,10 @@ import { mkdtempSync } from "node:fs";
 import { join } from "node:path";
 import {
   exec,
+  git,
   revParse,
 } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import { gitExecutable } from "../../src/skills/dough-execute-plan/scripts/git-executable.mjs";
 import {
   commitDeclaredRevision,
   integrationDeveloper,
@@ -29,18 +31,17 @@ import { writeRevisionFiles } from "./repository-revision-files.mjs";
  * @param {string[]} args
  * @param {NodeJS.ProcessEnv} [editors]
  */
-const gitAt = (cwd, at, args, editors) =>
-  exec("git", args, {
-    cwd,
-    env: {
-      ...process.env,
-      GIT_COMMITTER_DATE: at,
-      GIT_AUTHOR_DATE: at,
-      GIT_EDITOR: "true",
-      GIT_SEQUENCE_EDITOR: "true",
-      ...editors,
-    },
-  });
+async function gitAt(cwd, at, args, editors) {
+  const env = {
+    ...process.env,
+    GIT_COMMITTER_DATE: at,
+    GIT_AUTHOR_DATE: at,
+    GIT_EDITOR: "true",
+    GIT_SEQUENCE_EDITOR: "true",
+    ...editors,
+  };
+  return exec(await gitExecutable({ env, cwd }), args, { cwd, env });
+}
 
 /** @param {string} cwd @param {DatedCommit} work */
 const commitAt = (cwd, { at, message, files }) =>
@@ -89,7 +90,7 @@ async function cloneOrigin({ fixture, origin }) {
       "Work from another checkout needs a repository with an origin.",
     );
   const other = mkdtempSync(join(fixture, "other-checkout-"));
-  await exec("git", ["clone", "--quiet", origin, other]);
+  await git(fixture, "clone", "--quiet", origin, other);
   return other;
 }
 
@@ -161,18 +162,18 @@ async function publishTrunkWork(checkout, work) {
 async function takeInTrunkWork(checkout, work) {
   const { integration } = checkout;
   const { branch, published } = await publishTrunkWork(checkout, work);
-  const git = (/** @type {string[]} */ ...args) =>
+  const dated = (/** @type {string[]} */ ...args) =>
     gitAt(integration, work.at, args);
   if (work.kind === "rebase-onto") {
-    await git("fetch", "--quiet", "origin", branch);
-    await git("rebase", "--quiet", "--onto", `origin/${branch}`, "HEAD~1");
+    await dated("fetch", "--quiet", "origin", branch);
+    await dated("rebase", "--quiet", "--onto", `origin/${branch}`, "HEAD~1");
   } else {
     const pullOptions = {
       "fast-forward": ["--ff-only"],
       merge: ["--no-rebase", "--no-edit"],
       rebase: ["--rebase"],
     };
-    await git("pull", "--quiet", ...pullOptions[work.kind], "origin", branch);
+    await dated("pull", "--quiet", ...pullOptions[work.kind], "origin", branch);
   }
   return work.kind === "merge" ? revParse(integration, "HEAD") : published;
 }

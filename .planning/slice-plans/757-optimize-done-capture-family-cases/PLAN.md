@@ -157,7 +157,7 @@ the landing specs copy keeps plain `git` until the next release (G2).
 ### 3. Case checkouts start fewer Git processes
 
 Type: Behavior
-Status: planned
+Status: done
 
 A case that requests a real checkout, dated work or an already Done record
 retains its private setup and pays for fewer setup commands. First try
@@ -177,6 +177,21 @@ Include `done-kept-session-commits.spec.ts`,
 Observe canonical worktree lookup, dated reflog choices, file contents,
 kept pins, and independence when a copied checkout's peer moves or retires.
 Use the phase traces to distinguish launcher bypass from fewer Git starts.
+
+**Accepted.** Disconfirmed: `worktree add -b` in
+`repository-workspace-materialize.mjs` saves nothing, because Git starts
+`git branch` itself (71 Trace2 starts either way). Kept: `copyTemplate` in
+`repository-fixture.mjs` rewrites the template root in the copied origin URL,
+each worktree `gitdir` and its `.git` link, replacing `remote set-url` and
+`worktree repair`. That saves one start per origin and per linked worktree:
+the named-worktree case went from 57 + 14 to 55 + 14, and the already Done case
+stayed at 20. The fixture's dated work, clone and init use the selector. The
+reached Distribution tests passed (except the maintenance test that also fails
+on base under direct `node --test`), and so did the 52 reached backend specs.
+The named-worktree floor is template 15 (once per template), dated work 6,
+capture about 18, retirement 5 and review 10. A `worktree list` read comes
+from the product reading path. Slice 4 weighs that and the remaining plain
+`git` calls in template-time support.
 
 ### 4. Retained reviews establish the remaining Done capture cost
 
