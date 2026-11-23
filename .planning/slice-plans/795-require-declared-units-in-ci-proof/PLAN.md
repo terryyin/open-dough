@@ -353,6 +353,8 @@ passed. Commands and consumer dispositions are in `slice-g-return.md`.
   The merge preview reports one conflict in `intent-read-recovery.spec.ts`.
   Confirm the combined recovery, archive proof and scope readers before
   publishing the trunk integration.
+- Slice 7 was accepted on the story branch at
+  `5941d78baf6ad693a520d35b26b9b861706a230e`.
 
 ## Story obligations
 
@@ -379,3 +381,12 @@ shared reader cutover, and the scope projection cleanup immediately precedes
 narrowing the Dashboard unit type. Seven slices fit the eight-slice limit.
 Slices 5 and 7 settle the recorded interim behavior. No remaining slice-specific
 concern was identified in the sequencing, sizing, or ownership review.
+
+## Execution complete
+
+Product advice: no change to the backlog. The CLI and Dashboard share the
+declared-unit validation, retained proof failure leaves the build and
+follow-up accounting usable, and the selected comparison story can keep
+its separate work on which attempts to read. The archive, adapter, retained
+store, authenticated reader and mounted comparisons have distinct observing
+checks. The execution did not identify a correction to the delivered scope.
