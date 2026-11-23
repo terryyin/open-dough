@@ -436,7 +436,7 @@ paired story comparison necessary. See `slice-5-refactor.md`.
 ### 6. Save notes from Intent and return to the same reading
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent/intent-story-notes` (5 legacy cases) with typed Notes and Review
 replies. Use the mounted Intent entry and actual Notes and diff controls,
@@ -446,6 +446,47 @@ including the Changed tests file outside Intent locations.
 stored line-note subject from each distinct entry. Close Notes and observe
 the selected file and opener focus. Keep the case added for the
 outside-locations file in the disposition map.
+
+**Accepted proof and case disposition.** The five legacy checks moved at
+their original path and titles. The unreadable warning preserves a
+visible Notes icon beside the full long title. The inside-locations line
+13 and outside-locations line 1 cases open the actual diff menu and save,
+then independently inspect the persisted command's Intent view, path,
+comparison and line subject. The outside-locations case originated at
+`88d7b0553`. The stored legacy Changed tests note retains its display
+label. Opening with Enter and closing Notes restores the opener and
+keeps the same file, diff and exact nonzero scroll.
+
+The four-spec gate passed 12 cases in 11.234 s and typecheck passed.
+Five cases detected the warning, stored view, legacy label and focus
+faults. The separate scroll mutation observed 0 px instead of 1,000 px.
+Production bytes were restored. The spec gained one type-only
+`PageReads` import. The existing fixture went from one to two type-only
+production imports to supply real Notes and file replies. Source review
+C23–C25 records the observing assertions and `slice-6-return.md` the
+full case disposition and trace.
+
+During acceptance the named revision/detour sibling, plan 778, landed
+at `c6dd04645` on the trunk pinned at `55ad9c3f`. Its banner, kept
+Recent stories and reading-place helpers overlap this branch's mounted
+Intent and Board entry. Merge `b43be89c` combines those behaviors with
+the Development entry and actual Retry collaborator, retains mounted
+read reuse, and shares one view-tab and changed-only control lookup.
+The backlog adapter carried the incoming catalog and took no new
+claim. A two-worker gate on the reconciled mount passed 46 selected
+mounted cases, including all five Notes checks and the reached Changes,
+layout, historical, reference, reading-place, recent stories and
+revision observers. A second selector gate passed four cases after
+updating both reached sibling call sites. The merge hook passed lint
+and typecheck. Git evidence records `s6-sibling-focused`,
+`s6-sibling-views` and `s6-sibling-merge-final`. The mount's 11 direct
+production imports grew to 13 from the sibling's banner and recent
+story imports. The two sibling reading and activation specs each retain
+their three type-only production imports. The read-reuse spec and story
+page object retain zero direct production imports. The independent pass
+reuses the mounted Review diff printer with one outside-file baseline.
+The five Notes cases reran strictly green in 15.65 s. See
+`slice-6-refactor.md` and `s6-sibling-consumer-trace-final.md`.
 
 ### 7. Subscribe the Story Notes control to the project's notes state
 

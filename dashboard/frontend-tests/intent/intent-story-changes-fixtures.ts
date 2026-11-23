@@ -1,4 +1,5 @@
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { PageReads } from "../../src/pageReads.tsx";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
@@ -17,10 +18,6 @@ const storyA = {
 export const storyB = makeMe.aWorkEntry
   .with({ identity: "SEED-B#b", title: "Story B" })
   .please();
-const queuedA = makeMe.aWorkEntry
-  .with({ identity: storyA.identity, title: storyA.title })
-  .please();
-
 export const initialRevision = "a1".repeat(20);
 export const modifiedPath = "dashboard/tests/a.spec.ts";
 export const keptPath = "dashboard/tests/boundary/kept.spec.ts";
@@ -76,12 +73,20 @@ const configured = () =>
     )
     .please();
 
-const workAt = (revision: string, hasWorkspace: boolean) => {
+const workAt = (revision: string, hasWorkspace: boolean, title: string) => {
   const work = makeMe.aPublishedWork.of(openDoughSource).at(revision);
+  const story = { ...storyA, title };
   return makeMe.aPublishedWork
     .with({
-      ...(hasWorkspace ? work.taking(storyA) : work).please(),
-      backlog: hasWorkspace ? [storyB] : [queuedA, storyB],
+      ...(hasWorkspace ? work.taking(story) : work).please(),
+      backlog: hasWorkspace
+        ? [storyB]
+        : [
+            makeMe.aWorkEntry
+              .with({ identity: story.identity, title })
+              .please(),
+            storyB,
+          ],
     })
     .please();
 };
@@ -89,12 +94,26 @@ const workAt = (revision: string, hasWorkspace: boolean) => {
 export async function openStoryChanges({
   hasWorkspace = true,
   hasLocations = true,
+  title = storyA.title,
   review: readReview = () => Promise.resolve(storyChanges()),
+  fileDiff = () =>
+    Promise.resolve(
+      makeMe.aReviewedFileDiff.adding(modifiedPath, "more").please(),
+    ),
+  fileText = () =>
+    Promise.resolve({
+      kind: "text",
+      baseline: publishedText,
+      tree: `${publishedText}more\n`,
+    }),
+  storyNotes,
 }: {
   readonly hasWorkspace?: boolean;
   readonly hasLocations?: boolean;
+  readonly title?: string;
   readonly review?: ReviewSource["review"];
-} = {}) {
+} & Partial<Pick<ReviewSource, "fileDiff" | "fileText">> &
+  Partial<Pick<PageReads, "storyNotes">> = {}) {
   const revision = hasLocations ? initialRevision : "b2".repeat(20);
   const locations = hasLocations
     ? configured()
@@ -110,7 +129,7 @@ export async function openStoryChanges({
   };
   const review = pageReadsSupplying({}).review;
   const mounted = await mountIntentCiPage({
-    work: workAt(revision, hasWorkspace),
+    work: workAt(revision, hasWorkspace, title),
     machine: hasWorkspace
       ? makeMe.aMachineAnswer
           .holdingWorkspaces({
@@ -123,6 +142,7 @@ export async function openStoryChanges({
           .please()
       : makeMe.aMachineAnswer.please(),
     reads: {
+      ...(storyNotes === undefined ? {} : { storyNotes }),
       intent: {
         ...intent,
         readLocations: (...asked) => {
@@ -143,30 +163,24 @@ export async function openStoryChanges({
       review: {
         ...review,
         review: readReview,
-        fileDiff: (query) => {
-          reads.diffs.push(query.path ?? "");
-          return Promise.resolve(
-            makeMe.aReviewedFileDiff.adding(modifiedPath, "more").please(),
-          );
+        fileDiff: (...asked) => {
+          reads.diffs.push(asked[0].path ?? "");
+          return fileDiff(...asked);
         },
-        fileText: (query) => {
-          reads.texts.push(query.path ?? "");
-          return Promise.resolve({
-            kind: "text",
-            baseline: publishedText,
-            tree: `${publishedText}more\n`,
-          });
+        fileText: (...asked) => {
+          reads.texts.push(asked[0].path ?? "");
+          return fileText(...asked);
         },
       },
     },
   });
-  const selectStoryA = () => mounted.selectStory(storyA.identity, storyA.title);
+  const selectStoryA = () => mounted.selectStory(storyA.identity, title);
   await selectStoryA();
   return {
     ...mounted,
     selectStoryA,
     refreshWork: (revision: string) =>
-      mounted.showWork(workAt(revision, hasWorkspace)),
+      mounted.showWork(workAt(revision, hasWorkspace, title)),
     reads,
     locationRevisions,
   };

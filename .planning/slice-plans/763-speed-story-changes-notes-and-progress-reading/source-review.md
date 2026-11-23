@@ -40,9 +40,9 @@ outside-locations diff and line-note subject.
 | C20 | Failed reference explains failed state. | slice 5 | observed: story-reference-done.spec.ts observes an identified failed body in its focused card. story-reference-done-recovery.spec.ts observes the catalog read failure with its exact problem and separate loading state. |
 | C21 | Retry can recover. | slice 5 | observed: story-reference-done.spec.ts activates the real body Retry and sees the read gap replaced. e2e/navigation/story-reference-catalog-retry.spec.ts clicks Retry while the clock is paused and observes a fresh catalog request at the corrected revision and actual destination focus. |
 | C22 | Retry avoids older-story reads. | slice 5 | observed: story-reference-done.spec.ts and story-reference-done-recovery.spec.ts compare exact typed body requests through the destination and named suppliers. e2e/navigation/story-reference-catalog-retry.spec.ts records only the corrected catalog and named recent body after Retry with an expired record present. |
-| C23 | Changed-file line note records Intent view, explicitly including outside-Intent-locations files. | slice 6 | |
-| C24 | Closing Notes restores focus. | slice 6 | |
-| C25 | Closing Notes keeps selected file. | slice 6 | |
+| C23 | Changed-file line note records Intent view, explicitly including outside-Intent-locations files. | slice 6 | observed: intent-story-notes.spec.ts saves actual line notes from the added test at new line 13 and the modified product file outside locations at new line 1. The independently captured add commands contain Intent → Changes and the exact paths, comparison and line subjects. |
+| C24 | Closing Notes restores focus. | slice 6 | observed: intent-story-notes.spec.ts opens Notes with native Enter and observes the original Notes control regain focus after the real Close action. |
+| C25 | Closing Notes keeps selected file. | slice 6 | observed: intent-story-notes.spec.ts observes the same selected file still pressed, the same diff name, and the exact nonzero reading offset after Notes closes. |
 | C26 | Saved note stays visible after older project read finishes. | slice 7 | |
 | C27 | Recorded counts are displayed as applicable when opening progress, execution completion or coverage for a story with records. | slice 8 | |
 | C28 | Recorded advice is displayed as applicable when opening progress, execution completion or coverage for a story with records. | slice 8 | |
