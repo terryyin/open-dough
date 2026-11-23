@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sessionId": "50ef5094-bec2-4034-bd3b-9e78d16c9ded",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T08:13:41.974Z",
+  "story": "SEED-413#reach-eight-second-launch-feedback",
+  "ranges": [
+    {
+      "base": "e84c8b67bdd1f08df5a3468d35d7873227aefe54",
+      "candidate": "575ab48fdf432de3e6add1544443826769f0387c"
+    },
+    {
+      "base": "575ab48fdf432de3e6add1544443826769f0387c",
+      "candidate": "35aabbb288b9f5b44f5b3b426387b01e38289a93"
+    },
+    {
+      "base": "35aabbb288b9f5b44f5b3b426387b01e38289a93",
+      "candidate": "67c8d82a791bfdf86aa7780dd4fe9a27b81cf0d1"
+    },
+    {
+      "base": "67c8d82a791bfdf86aa7780dd4fe9a27b81cf0d1",
+      "candidate": "25e0c76c01fd886680ec03c0eb98db5f9772fc9f"
+    },
+    {
+      "base": "25e0c76c01fd886680ec03c0eb98db5f9772fc9f",
+      "candidate": "bcf986b8ac68b9015ab899fddeb0df9d0bfa0b16"
+    },
+    {
+      "base": "bcf986b8ac68b9015ab899fddeb0df9d0bfa0b16",
+      "candidate": "78b28bd89cb5c046f79b85809b7f58b74e45d385"
+    }
+  ]
+}
