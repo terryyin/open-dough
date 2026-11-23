@@ -152,7 +152,7 @@ including the indirect readers of `development-intent-frame-page.ts`.
 ### 5. Published detail and Intent share a recovery wait owned by their page
 
 Type: Behavior
-Status: planned
+Status: done
 
 Mount one transient schedule for the production page, shared by the
 observation and Intent, with independent state for another page mount.
@@ -269,7 +269,8 @@ remaining slice-specific concern.
 - Retained published revisions: claim `8a41b269fa1b1591fb5f1e55a62dde54a2a6b2e2`
   on `origin/main`; increments `a99bc3797fc4fc1c99dbf1abd4f2783174a1dc18`,
   `ec1e99e6139f0653f0990845b0227a2094d36d9f`,
-  `4daa9c40a0d6acb1530b704fb4281b98bba46644` on
+  `4daa9c40a0d6acb1530b704fb4281b98bba46644`,
+  `98a8be7fda620be498dce3461ebf0f081f52de34` on
   `refs/heads/cursor/drive-the-published-observation-through-the-type`
 - CI observer: `/tmp/dough-ci-501/watch-dxk8N6` (attached at Slice 1 publish)
 - Replanning permission: preserve existing (allowed)
@@ -360,6 +361,45 @@ remaining slice-specific concern.
   `open-dough/evidence/refactor-slice4-return.md`,
   `open-dough/evidence/slice4-flake-parallel-3.log`,
   `open-dough/evidence/slice4-flake-parallel-4.log`
+
+### Slice 5 — page-owned transient recovery shared by observation and Intent
+
+- Promise: page-owned `TransientRecoverySchedule` (`TransientRecoveryOnPage`);
+  observation and Intent share one due time; independent state per mount;
+  standing GitHub limit stays at `readingLimit.ts`; four observation-driven
+  Intent recovery cases and Candidates standing-limit through
+  `ConfiguredDashboard`; delete `PageIntentRecovery` /
+  `mountIntentOnObservationRecovery`; 15/30/60/60 retries; hidden→reveal;
+  healing detail leaves Intent pending; locations wait for standing limit;
+  new mount starts at first step without reset; malformed/refusal/absent on
+  existing owners; IC shared-wait Caught+restored; e2e intent-boundary and
+  reached observation lifecycle/limit
+- Boundary: `ConfiguredDashboard` → `TransientRecoveryOnPage` →
+  `usePublishedObservation` / `recordSettledOutcomes(schedule)` +
+  `IntentReadRecovery`; Intent creates own schedule when mounted alone
+- Setup: `onRecoveryClock` fake timers (no module reset);
+  `mountIntentRecovery` / `mountIntentOnConfiguredDashboard` with typed
+  observation+intent via `boardFrameObservationSupplying`;
+  `workWithPublishedDetail` for shared-wait
+- Observations:
+  - `intent-read-recovery.spec.ts`: 15/30/60/60; hidden→reveal; shared wait
+    `[2,3]` after 30 s; rate-limited locations; malformed/refusal/absent
+  - `intent-candidates-read-recovery.spec.ts`: standing-limit withhold past
+    shorter transient; refusal/absent/mismatched on existing owner
+  - IC restored: shared-wait discriminating break Caught then restored
+  - `e2e/intent/intent-read-boundary-recovery.spec.ts` (3); reached
+    `e2e/observation` lifecycle/transient/limit (10)
+- Command (accepted frontend):
+  `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-read-recovery.spec.ts dashboard/frontend-tests/intent/intent-candidates-read-recovery.spec.ts --workers=2`
+  (pass; `slice5-frontend-proof-3.log.run.json` exit 0; IC restored;
+  typecheck `npm run typecheck:dashboard` pass)
+- Evidence: `open-dough/evidence/slice5-implementation-return.md`,
+  `open-dough/evidence/refactor-slice5-return.md`,
+  `open-dough/evidence/slice5-frontend-proof-3.log`,
+  `open-dough/evidence/slice5-ic-restored.log`,
+  `open-dough/evidence/slice5-e2e-intent-boundary-3.log`,
+  `open-dough/evidence/slice5-e2e-observation.log`,
+  `open-dough/evidence/slice5-typecheck.log`
 
 ## Learnings
 

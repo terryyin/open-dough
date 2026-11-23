@@ -18,8 +18,7 @@ import type { ObservationOutcomes } from "./observationOutcomes.ts";
 import type { Visibility } from "./pageVisibility.ts";
 import { useStandingLimit } from "./readingLimit.ts";
 import {
-  clearTransientFailure,
-  noteTransientFailure,
+  type TransientRecoverySchedule,
   useStandingTransientRecovery,
   useTransientRecoveryDue,
   useTransientRecoveryPending,
@@ -29,11 +28,14 @@ const publishedObservation = "published-observation";
 
 // After a settled read: schedule project-local recovery when any question is
 // still eligible and unanswered; clear the backoff when none remain.
-export function recordSettledOutcomes(outcomes: ObservationOutcomes): void {
+export function recordSettledOutcomes(
+  outcomes: ObservationOutcomes,
+  schedule: TransientRecoverySchedule,
+): void {
   if (outcomes.hasEligibleUnanswered()) {
-    noteTransientFailure(publishedObservation);
+    schedule.noteFailure(publishedObservation);
   } else {
-    clearTransientFailure(publishedObservation);
+    schedule.clearFailure(publishedObservation);
   }
 }
 

@@ -1,79 +1,21 @@
 // A project's published features beside its Test Optimization Candidates
 // record, read through one source that counts each record and file read, and
 // the production Intent body mounted on that source through the page entry.
-import { createElement } from "react";
-import {
-  IntentModeProvider,
-  useIntentModeChoice,
-} from "../../src/pageIntentMode.tsx";
-import {
-  StorySelectionProvider,
-  usePageStorySelection,
-} from "../../src/pageStorySelection.tsx";
-import { PageReadsOnPage } from "../../src/pageReads.tsx";
-import { ProjectIntentReading } from "../../src/ProjectIntentReading.tsx";
-import { IntentReadingProvider } from "../../src/pageIntentReading.tsx";
-import { IntentReadRecovery } from "../../src/intentReadRecovery.tsx";
-import { useLimitRecovery } from "../../src/limitRecovery.ts";
-import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { PublishedFiles } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import type { IntentCandidatesReadResult } from "../../src/authenticatedIntentCandidatesRead.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import {
-  pageReadsSupplying,
-  unreadCiReads,
-} from "../../test-support/component-mount/unreadPageReads.ts";
+import { unreadCiReads } from "../../test-support/component-mount/unreadPageReads.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
+import { mountIntentRecovery } from "./intent-read-recovery-page.tsx";
 import {
   featuresOpening,
   fixtureFor,
   readsOf,
   type FeaturePublication,
 } from "./intent-revision-fixtures.ts";
-
-// Project Intent on the view the page keeps for its project and selected
-// story, as the page offers it when the reader enters Intent.
-function PageChosenView({ work }: { readonly work: PublishedWork }) {
-  return createElement(ProjectIntentReading, {
-    source: work.source,
-    work,
-    project: useIntentModeChoice(work.source.id),
-    projectShown: true,
-  });
-}
-
-// Project Intent recovers on the page's one schedule: `useLimitRecovery`
-// mounts the shared transient timer and follows the standing limit, as the
-// published observation does for `configuredDashboardContent.tsx`.
-function PageIntent({ work }: { readonly work: PublishedWork }) {
-  const { limitedUntil } = useLimitRecovery({
-    withheld: false,
-    readSettled: true,
-    visibility: "visible",
-    readAfresh: () => undefined,
-  });
-  return createElement(IntentReadRecovery, {
-    visibility: "visible",
-    limitStands: limitedUntil !== undefined,
-    children: createElement(PageIntentReading, { work }),
-  });
-}
-
-function PageIntentReading({ work }: { readonly work: PublishedWork }) {
-  return createElement(StorySelectionProvider, {
-    selection: usePageStorySelection(),
-    children: createElement(IntentModeProvider, {
-      project: work.source.id,
-      children: createElement(IntentReadingProvider, {
-        project: work.source.id,
-        children: createElement(PageChosenView, { work }),
-      }),
-    }),
-  });
-}
 
 // A project's published source, its features opening its jobs feature with
 // `scenario` beside any further published `files`, any Python `tests` its
@@ -169,20 +111,8 @@ export const mountPageIntentReading = (
 ) =>
   mountIntentCiPage({ work, reads: { intent: readSource, ci: unreadCiReads } });
 
-// G1/G2 interim: Project Intent on the observation's recovery schedule, for
-// the one case whose automatic transient and limit recovery needs the
-// published observation's timers until
-// SEED-413#drive-published-observation-through-page-entry lands.
-export async function mountIntentOnObservationRecovery(
+// Project Intent on ConfiguredDashboard's page-owned recovery schedule.
+export const mountIntentOnConfiguredDashboard = (
   readSource: IntentReadSource,
   work: PublishedWork,
-) {
-  await mountComponent(
-    createElement(
-      PageReadsOnPage,
-      { reads: pageReadsSupplying({ intent: readSource }) },
-      createElement(PageIntent, { work }),
-    ),
-    { viewport: { width: 1280, height: 900 }, fillsViewport: true },
-  );
-}
+) => mountIntentRecovery(readSource, work);

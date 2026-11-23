@@ -10,10 +10,11 @@ import { ReadProblem } from "../../src/readProblem.ts";
 import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
 import { intentCandidates } from "./intent-candidates-page.ts";
 import {
-  mountIntentOnObservationRecovery,
+  mountIntentOnConfiguredDashboard,
   mountPageIntentReading,
   publishedWithCandidates,
 } from "./intent-candidates-publication.ts";
+import { onRecoveryClock } from "./intent-read-recovery-page.tsx";
 
 const recordText = makeMe.aTestOptimizationCandidatesRecord.please();
 const { record } = intentCandidates();
@@ -47,7 +48,7 @@ async function mountRecord(
   source: IntentReadSource,
   mount:
     | typeof mountPageIntentReading
-    | typeof mountIntentOnObservationRecovery = mountPageIntentReading,
+    | typeof mountIntentOnConfiguredDashboard = mountPageIntentReading,
 ) {
   const work = makeMe.aPublishedWork.ofPygardon.at("c5".repeat(20)).please();
   await mount(source, work);
@@ -61,7 +62,7 @@ const present = () =>
   });
 
 test("candidates wait for the standing GitHub limit after their shorter backoff is due", async () => {
-  onSharedClock();
+  onRecoveryClock();
   let resumesAt = 0;
   const { reads, source } = answering(
     () =>
@@ -80,7 +81,7 @@ test("candidates wait for the standing GitHub limit after their shorter backoff 
     },
     present,
   );
-  await mountRecord(source, mountIntentOnObservationRecovery);
+  await mountRecord(source, mountIntentOnConfiguredDashboard);
   await expect.element(retry).toBeVisible();
   expect(reads).toHaveLength(1);
 

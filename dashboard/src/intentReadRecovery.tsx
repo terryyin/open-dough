@@ -1,7 +1,8 @@
 // Intent's contribution to the page's existing read recovery schedule. A
 // failed reader stays unanswered during its reread, and one reader answering
 // cannot clear another's wait. The page supplies visibility and the standing
-// limit, so Intent starts no timer of its own.
+// limit, so Intent starts no timer of its own when the page already owns the
+// schedule. Mounted outside that page, Intent creates its own schedule.
 
 import {
   createContext,
@@ -19,10 +20,10 @@ import type { PublishedSource } from "./publishedSource.ts";
 import type { ReadProblem } from "./readProblem.ts";
 import { noteLimitUntil, standingLimit } from "./readingLimit.ts";
 import {
-  clearTransientFailure,
-  noteTransientFailure,
-  transientRecoveryIsDue,
+  TransientRecoveryOnPage,
+  useOptionalTransientRecoverySchedule,
   useTransientRecoveryDue,
+  useTransientRecoverySchedule,
 } from "./transientRecovery.ts";
 
 type Recovery = "limited" | "transient" | undefined;
@@ -44,6 +45,44 @@ const intentRecovery = createContext<{
   readonly record: (reader: symbol, recovery: Recovery) => void;
 } | null>(null);
 
+function IntentReadRecoveryBody({
+  visibility,
+  limitStands,
+  children,
+}: {
+  readonly visibility: Visibility;
+  readonly limitStands: boolean;
+  readonly children: ReactNode;
+}) {
+  const schedule = useTransientRecoverySchedule();
+  const unanswered = useRef(new Set<symbol>());
+  const transientDue = useTransientRecoveryDue(
+    "intent",
+    visibility,
+    limitStands,
+  );
+  const limitedDue = visibility !== "hidden" && !limitStands;
+  const record = useCallback(
+    (reader: symbol, recovery: Recovery) => {
+      if (recovery !== undefined) {
+        unanswered.current.add(reader);
+        if (recovery === "transient") schedule.noteFailure("intent");
+      } else if (
+        unanswered.current.delete(reader) &&
+        unanswered.current.size === 0
+      ) {
+        schedule.clearFailure("intent");
+      }
+    },
+    [schedule],
+  );
+  return (
+    <intentRecovery.Provider value={{ transientDue, limitedDue, record }}>
+      {children}
+    </intentRecovery.Provider>
+  );
+}
+
 export function IntentReadRecovery({
   visibility,
   limitStands,
@@ -53,33 +92,28 @@ export function IntentReadRecovery({
   readonly limitStands: boolean;
   readonly children: ReactNode;
 }) {
-  const unanswered = useRef(new Set<symbol>());
-  const transientDue = useTransientRecoveryDue(
-    "intent",
-    visibility,
-    limitStands,
-  );
-  const limitedDue = visibility !== "hidden" && !limitStands;
-  const record = useCallback((reader: symbol, recovery: Recovery) => {
-    if (recovery !== undefined) {
-      unanswered.current.add(reader);
-      if (recovery === "transient") noteTransientFailure("intent");
-    } else if (
-      unanswered.current.delete(reader) &&
-      unanswered.current.size === 0
-    ) {
-      clearTransientFailure("intent");
-    }
-  }, []);
+  const existing = useOptionalTransientRecoverySchedule();
+  if (existing === null) {
+    return (
+      <TransientRecoveryOnPage>
+        <IntentReadRecoveryBody
+          visibility={visibility}
+          limitStands={limitStands}
+        >
+          {children}
+        </IntentReadRecoveryBody>
+      </TransientRecoveryOnPage>
+    );
+  }
   return (
-    <intentRecovery.Provider value={{ transientDue, limitedDue, record }}>
+    <IntentReadRecoveryBody visibility={visibility} limitStands={limitStands}>
       {children}
-    </intentRecovery.Provider>
+    </IntentReadRecoveryBody>
   );
 }
 
 // A reader mounted outside the page's recovery schedule recovers on the
-// document's own visibility and the standing limit.
+// document's own visibility and the standing limit, with its own schedule.
 export function IntentReadRecoveryOfItsOwn({
   children,
 }: {
@@ -107,6 +141,7 @@ export function useIntentReadRecovery(
 ) {
   const recovery = useContext(intentRecovery);
   if (recovery === null) throw new Error("Intent read recovery is missing.");
+  const schedule = useTransientRecoverySchedule();
   const { transientDue, limitedDue, record } = recovery;
   const reader = useMemo(() => Symbol(), [source, revision]);
   const active = useRef<symbol | undefined>(reader);
@@ -141,7 +176,7 @@ export function useIntentReadRecovery(
     const due =
       (failure.current === "transient" &&
         transientDue &&
-        transientRecoveryIsDue("intent")) ||
+        schedule.isDue("intent")) ||
       (failure.current === "limited" && limitedDue);
     if (
       due &&

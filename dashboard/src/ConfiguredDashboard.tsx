@@ -16,13 +16,27 @@ import type { PublishedSource } from "./publishedSource.ts";
 import { StoryReferenceNavigation } from "./storyNavigation.tsx";
 import { ConfiguredDashboardContent } from "./configuredDashboardContent.tsx";
 import { PageReadsOnPage, type PageReads } from "./pageReads.tsx";
+import { TransientRecoveryOnPage } from "./transientRecovery.ts";
 
 export type DashboardSelection = {
   readonly source: PublishedSource | undefined;
   readonly select: (source: PublishedSource | undefined) => void;
 };
 
-export function ConfiguredDashboard({
+export function ConfiguredDashboard(props: {
+  readonly reads: PageReads;
+  readonly settingsOpen: boolean;
+  readonly onOpenSettings: () => void;
+  readonly onDashboardReady: (value: DashboardSelection) => void;
+}) {
+  return (
+    <TransientRecoveryOnPage>
+      <ConfiguredDashboardBody {...props} />
+    </TransientRecoveryOnPage>
+  );
+}
+
+function ConfiguredDashboardBody({
   reads,
   settingsOpen,
   onOpenSettings,
