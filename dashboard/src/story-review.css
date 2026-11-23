@@ -21,7 +21,7 @@
 }
 
 .story-review-range-heading,
-.story-review-uncommitted {
+.story-review-inclusion {
   padding: 0.4rem 1rem;
   border-bottom: 1px solid var(--line);
 }
@@ -31,7 +31,7 @@
   font-size: 1rem;
 }
 
-.story-review-uncommitted label {
+.story-review-inclusion label {
   cursor: pointer;
 }
 

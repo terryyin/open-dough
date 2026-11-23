@@ -130,6 +130,27 @@ export class ReviewComparison {
     return this;
   }
 
+  #mergedCheck() {
+    return this.#review.getByRole("checkbox", {
+      name: "Include merged changes",
+      exact: true,
+    });
+  }
+
+  async includeMerged(include: boolean) {
+    await this.#reach();
+    await this.#mergedCheck().setChecked(include);
+    return this;
+  }
+
+  async expectMergedIncluded(included: boolean | "not offered") {
+    await this.#reach();
+    await (included === "not offered"
+      ? expect(this.#mergedCheck()).toHaveCount(0)
+      : expect(this.#mergedCheck()).toBeChecked({ checked: included }));
+    return this;
+  }
+
   // Whether Include uncommitted changes is offered, and if so checked.
   async expectUncommittedIncluded(included: boolean | "not offered") {
     await this.#reach();

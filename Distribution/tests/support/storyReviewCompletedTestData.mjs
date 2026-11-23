@@ -13,10 +13,17 @@ import { storyReviewIds } from "./storyReviewSnapshotTestData.mjs";
 /**
  * A story's published comparison; a given `completion` also names the trunk
  * landing it represents.
- * @param {Compared & { completion: string | undefined }} compared
+ * @param {Compared & { completion: string | undefined, storyStart?: string | undefined, widened?: ReviewedFile[] | undefined }} compared
  * @returns {StoryReview}
  */
-export function publishedComparison({ baseline, tree, files, completion }) {
+export function publishedComparison({
+  baseline,
+  tree,
+  files,
+  completion,
+  storyStart,
+  widened,
+}) {
   return {
     kind: "published",
     completion: completion ?? storyReviewIds.completion,
@@ -28,6 +35,9 @@ export function publishedComparison({ baseline, tree, files, completion }) {
     baseline,
     tree,
     files,
+    ...(storyStart !== undefined && widened !== undefined
+      ? { withMerged: { from: storyStart, files: structuredClone(widened) } }
+      : {}),
   };
 }
 

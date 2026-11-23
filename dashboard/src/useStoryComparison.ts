@@ -72,6 +72,10 @@ export function useStoryComparison({
     sequence ?? lastOpening,
   ]);
   const { value: round, set: setRound } = useStateKeyedBy(0, keyedBy);
+  const { value: includeMerged, set: setIncludeMerged } = useStateKeyedBy(
+    false,
+    keyedBy,
+  );
   const onRefresh = () => {
     setRound(round + 1);
   };
@@ -110,6 +114,7 @@ export function useStoryComparison({
   });
   const {
     comparison,
+    withMerged,
     tree,
     committed,
     items,
@@ -142,7 +147,10 @@ export function useStoryComparison({
     subject,
     review,
     comparison,
+    withMerged,
     tree,
+    includeMergedChanges: includeMerged,
+    workspaceComparison: shown,
   });
   // A selection read keeps the previous answer until the new one arrives.
   // That answer belongs to this story only when this story already showed a
@@ -168,6 +176,13 @@ export function useStoryComparison({
         ? review
         : (remembered?.review ?? review);
   const readingNow = reading || (carry && range.reading);
+  const includesMerged = shownKept?.includesMergedChanges === true;
+  const canIncludeMerged =
+    (reviewKept?.kind === "published" && reviewKept.withMerged !== undefined) ||
+    (reviewKept?.kind === "snapshot" &&
+      (readingNow && shown === "all"
+        ? reviewKept.withMerged !== undefined
+        : withMerged !== undefined));
   // A chosen run other than the answer's own, or a chosen commit range, read
   // as the Side panel review explains them.
   const unreadable =
@@ -189,6 +204,7 @@ export function useStoryComparison({
           shown: shownChoice(shown, review, selectedRun),
           isDefault:
             review === defaultReview &&
+            !includesMerged &&
             chosen === defaultStoryComparison.chosen &&
             includeUncommitted === defaultStoryComparison.includeUncommitted,
           workspace: snapshot !== undefined,
@@ -206,6 +222,8 @@ export function useStoryComparison({
               ? undefined
               : includeUncommitted,
           onIncludeUncommitted: setIncludeUncommitted,
+          includeMergedChanges: canIncludeMerged ? includesMerged : undefined,
+          onIncludeMergedChanges: setIncludeMerged,
           onRefresh,
           reading: readingNow,
         },

@@ -159,3 +159,12 @@ export const storyCiComparisonAnswerSchema = z.discriminatedUnion("kind", [
 export type StoryCiComparisonAnswer = z.infer<
   typeof storyCiComparisonAnswerSchema
 >;
+
+// The provisional result occupies the Branch proof position while Taken.
+export function branchResultOf(
+  answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>,
+) {
+  return answer.provisional === undefined
+    ? ({ endpoint: "Branch", slot: answer.branch } as const)
+    : ({ endpoint: "Provisional", slot: answer.provisional } as const);
+}

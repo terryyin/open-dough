@@ -3,6 +3,7 @@ import type { CiFollowUpReading } from "./ciFollowUpReading.ts";
 import type { ScopeHistoryEndpoint } from "./ciScopeHistory.ts";
 import type { CiTarget } from "./intentCiTarget.ts";
 import type { PublishedSource } from "./publishedSource.ts";
+import { branchResultOf } from "./storyCiComparison.ts";
 import type { ComparisonReading } from "./useIntentCiComparison.ts";
 import type { ComparisonEndpointProofs } from "./useIntentCiComparisonEntries.ts";
 import type { JudgedReading } from "./useIntentCiJudgment.ts";
@@ -49,3 +50,16 @@ export type CiEvidence =
       readonly comparisonStory?: string;
       readonly endpointProofs?: ComparisonEndpointProofs;
     };
+
+export function measuredStoryResult(evidence: CiEvidence): string | undefined {
+  const comparison =
+    evidence.kind === "comparison" || evidence.kind === "judged"
+      ? evidence.comparison?.shown
+      : undefined;
+  if (comparison?.kind !== "comparison") return undefined;
+  const result =
+    comparison.phase === "done"
+      ? comparison.landed
+      : branchResultOf(comparison).slot;
+  return result.kind === "build" ? result.revision : undefined;
+}

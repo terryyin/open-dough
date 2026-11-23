@@ -41,6 +41,10 @@ export function intentStoryCompare() {
   const view = (name: View) =>
     intent.getByRole("tabpanel", { name, exact: true });
   const proof = intent.getByRole("region", { name: "Proof", exact: true });
+  const fileTabs = intent.getByRole("tablist", {
+    name: "Purpose and Proof",
+    exact: true,
+  });
   type CiView = "CI comparison" | "Intent coverage" | "Proof";
   const ciView = (name: CiView) => (name === "Proof" ? proof : view(name));
   const alert = header.getByRole("alert");
@@ -87,9 +91,11 @@ export function intentStoryCompare() {
     // Chooses the selected file's Proof tab.
     chooseProof: () =>
       userEvent.click(
-        intent
-          .getByRole("tablist", { name: "Purpose and Proof", exact: true })
-          .getByRole("tab", { name: "Proof", exact: true }),
+        fileTabs.getByRole("tab", { name: "Proof", exact: true }),
+      ),
+    choosePurpose: () =>
+      userEvent.click(
+        fileTabs.getByRole("tab", { name: "Purpose", exact: true }),
       ),
     // A changed file outside every location, by its kind and path.
     outsideFile: (name: string) =>
@@ -128,6 +134,9 @@ export function intentStoryCompare() {
       userEvent.click(compare.getByRole("radio", { name })),
     includeUncommitted: compare.getByRole("checkbox", {
       name: "Include uncommitted changes",
+    }),
+    includeMerged: compare.getByRole("checkbox", {
+      name: "Include merged changes",
     }),
     refreshButton: compare.getByRole("button", { name: "Refresh" }),
     refresh: () =>

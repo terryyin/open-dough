@@ -6,7 +6,6 @@ import {
   defaultReviewOf,
   otherThanDefaultChosen,
   type LensComparison,
-  type WholeStory,
 } from "./IntentStoryComparison.tsx";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
@@ -27,7 +26,7 @@ export type ComparedStory = {
   readonly shown: ShownStoryComparison;
   // While another comparison than the default is chosen, the CI views'
   // whole-story note.
-  readonly wholeStory: WholeStory | undefined;
+  readonly wholeStory: boolean;
 };
 
 // The "Selected story only" choice over a compared story's tree and whether
@@ -74,15 +73,11 @@ export function publishedDoneEndpointOf(
         : undefined;
 }
 
-// While another comparison is chosen, what the CI views say describes the
-// whole story: the build its default comparison measured, when known.
+// Whether the CI views need the whole-story note beside the chosen comparison.
 export function wholeStoryOf(
-  summary: Pick<StorySummary, "story" | "comparison"> | undefined,
-): WholeStory | undefined {
-  if (summary === undefined || !otherThanDefaultChosen(summary.comparison))
-    return undefined;
-  const endpoint = publishedDoneEndpointOf(summary);
-  return endpoint === undefined ? {} : { revision: endpoint.revision };
+  summary: Pick<StorySummary, "comparison"> | undefined,
+): boolean {
+  return summary !== undefined && otherThanDefaultChosen(summary.comparison);
 }
 
 // Absence while reading is pending; a settled owner must explain absence.

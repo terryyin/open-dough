@@ -75,6 +75,12 @@ export class IntentReviewFiles {
     return this;
   }
 
+  async expandFolder(name: string) {
+    await folderToggle(this.#intent, name, false).click();
+    await expect(folderToggle(this.#intent, name, true)).toBeVisible();
+    return this;
+  }
+
   async collapseFolder(name: string) {
     await folderToggle(this.#intent, name, true).click();
     await expect(folderToggle(this.#intent, name, false)).toBeVisible();
@@ -116,6 +122,11 @@ export class IntentReviewFiles {
 
   folderName(name: string) {
     return this.outsideList.getByRole("button", { name, exact: true });
+  }
+
+  async expectFolderName(name: string) {
+    await expect(this.folderName(name)).toBeVisible();
+    return this;
   }
 
   async expectLineCounts(file: string, visible: string, description?: string) {

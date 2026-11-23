@@ -24,7 +24,7 @@
   .story-review-context-values,
   .story-review-files button,
   .story-review-comparison label,
-  .story-review-uncommitted label,
+  .story-review-inclusion label,
   .story-review-commits button {
     min-height: var(--control-size);
   }
@@ -32,7 +32,7 @@
   .story-review-context-values,
   .story-review-files button,
   .story-review-comparison label,
-  .story-review-uncommitted label {
+  .story-review-inclusion label {
     min-width: var(--control-size);
   }
 
@@ -42,7 +42,7 @@
   }
 
   .story-review-comparison label,
-  .story-review-uncommitted label {
+  .story-review-inclusion label {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;

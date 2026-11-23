@@ -110,26 +110,29 @@ export function ComparisonSwitch({
   );
 }
 
-// Whether all changes include the workspace's uncommitted changes, offered
-// while it holds some.
-export function UncommittedCheck({
+export function ComparisonInclusion({
+  label,
   included,
+  disabled,
   onInclude,
 }: {
+  readonly label: string;
   readonly included: boolean;
+  readonly disabled?: boolean;
   readonly onInclude: (include: boolean) => void;
 }) {
   return (
-    <div className="story-review-uncommitted">
+    <div className="story-review-inclusion">
       <label>
         <input
           type="checkbox"
           checked={included}
+          disabled={disabled}
           onChange={(event) => {
             onInclude(event.target.checked);
           }}
         />{" "}
-        Include uncommitted changes
+        {label}
       </label>
     </div>
   );

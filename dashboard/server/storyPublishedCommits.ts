@@ -2,34 +2,15 @@
 // Live workspaces use their configured author; completed stories use recorded
 // owners. Both comparisons subtract those commits through the same restatement
 // rule, retaining an explicit baseline for inseparable paths.
-import { publishedStoryHistory } from "./publishedStoryHistory.ts";
 import type { TakenStoryReview } from "../src/storyReviewContract.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
 import { restatedPoint } from "./storyReviewComparison.ts";
-import {
-  publishedStoryEvidence,
-  type PublishedCommit,
-  type ReviewedStory,
-} from "./storyPublishedEvidence.ts";
+import type { PublishedCommit } from "./storyPublishedEvidence.ts";
 export {
   namesExecutionClaim,
   type PublishedCommit,
   type ReviewedStory,
 } from "./storyPublishedEvidence.ts";
-
-// The story's published commits among those `trunk` holds, newest first:
-// none when the worktree names no agent or the agent published nothing since
-// the story's claim.
-export async function publishedStoryCommits(
-  story: ReviewedStory,
-  // Where the worktree's head meets the fetched trunk.
-  trunk: string,
-  call: GitCall,
-): Promise<PublishedCommit[]> {
-  return (
-    await publishedStoryEvidence(story, trunk, publishedStoryHistory(call))
-  ).commits;
-}
 
 // Trunk less the story's published commits: its tree, and each path Git
 // could not separate from trunk's changes with the tree it is compared from

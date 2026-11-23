@@ -1,8 +1,9 @@
 // The comparison a story's diff reads (`./StoryReviewFileDiff.tsx`), as one
 // derivation for every view that shows a story's changes: the story reviewed,
 // the comparison's *from* tree and changed files, and the tree it reaches. A
-// published completion, a landed run, a published session or a session's kept
-// commits show their fixed comparison; a workspace snapshot shows the
+// published completion can show the story's contribution or its full branch
+// interval. A landed run, a published session or a session's kept commits
+// show their fixed comparison; a workspace snapshot shows the
 // comparison chosen for it (`./useStoryReviewComparison.ts`), once that is
 // known. A changed file's diff runs from its own tree when it includes trunk's
 // changes, else from the comparison's *from* tree (`diffStartOf`), in Review
@@ -15,25 +16,48 @@ import type {
   StoryReview,
 } from "./storyReviewContract.ts";
 import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
+import type { ShownComparison } from "./StoryReviewComparison.tsx";
 
 export type ShownStoryComparison = {
   readonly reviewed: ReviewedWork;
   readonly comparison: ReviewComparison;
   readonly tree: string;
+  readonly includesMergedChanges?: true;
+  readonly workspaceComparison?: ShownComparison;
 };
 
 export function storyComparisonShown({
   subject,
   review,
   comparison,
+  withMerged,
   tree,
+  includeMergedChanges = false,
+  workspaceComparison,
 }: {
   readonly subject: ReviewedWorkSubject;
   readonly review: StoryReview | undefined;
   // A snapshot's chosen comparison and the tree it reaches.
   readonly comparison: ReviewComparison | undefined;
+  readonly withMerged?: ReviewComparison | undefined;
   readonly tree: string | undefined;
+  readonly includeMergedChanges?: boolean;
+  readonly workspaceComparison?: ShownComparison;
 }): ShownStoryComparison | undefined {
+  const show = (
+    reviewed: ReviewedWork,
+    comparison: ReviewComparison,
+    tree: string,
+    wider?: ReviewComparison,
+  ): ShownStoryComparison => {
+    const merged = includeMergedChanges ? wider : undefined;
+    return {
+      reviewed,
+      comparison: merged ?? comparison,
+      tree,
+      ...(merged === undefined ? {} : { includesMergedChanges: true }),
+    };
+  };
   if (
     review?.kind === "published" ||
     review?.kind === "landed" ||
@@ -41,17 +65,21 @@ export function storyComparisonShown({
     review?.kind === "published-session" ||
     review?.kind === "branch-result"
   )
-    return {
-      reviewed: { subject, ...fixedComparisonName(review) },
-      comparison: { from: review.baseline, files: review.files },
-      tree: review.tree,
-    };
+    return show(
+      { subject, ...fixedComparisonName(review) },
+      { from: review.baseline, files: review.files },
+      review.tree,
+      review.kind === "published" ? review.withMerged : undefined,
+    );
   if (
     review?.kind === "snapshot" &&
     comparison !== undefined &&
     tree !== undefined
   )
-    return { reviewed: { subject }, comparison, tree };
+    return {
+      ...show({ subject }, comparison, tree, withMerged),
+      ...(workspaceComparison === undefined ? {} : { workspaceComparison }),
+    };
   return undefined;
 }
 

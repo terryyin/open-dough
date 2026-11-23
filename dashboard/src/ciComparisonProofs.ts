@@ -4,9 +4,10 @@ import type { CiProof, CiProofSubject } from "./ciProof.ts";
 import type { readIntentCiProof } from "./authenticatedIntentCiProofRead.ts";
 import { createCiProofReading } from "./ciProofReading.ts";
 import type { PublishedSource } from "./publishedSource.ts";
-import type {
-  StoryCiComparisonAnswer,
-  StoryCiComparisonSlot,
+import {
+  branchResultOf,
+  type StoryCiComparisonAnswer,
+  type StoryCiComparisonSlot,
 } from "./storyCiComparison.ts";
 import {
   comparisonProofOf,
@@ -57,15 +58,10 @@ function slotRead(
   return { key, subject };
 }
 
-// Taken Trunk's provisional tip occupies the Branch proof position.
 function slotsOf(
   answer: Extract<StoryCiComparisonAnswer, { kind: "comparison" }>,
 ) {
-  return [
-    answer.baseline,
-    answer.provisional ?? answer.branch,
-    answer.landed,
-  ] as const;
+  return [answer.baseline, branchResultOf(answer).slot, answer.landed] as const;
 }
 
 export function createCiComparisonProofs(readProof: typeof readIntentCiProof) {

@@ -14,7 +14,11 @@ import type { LocalWorkspace } from "./localWorkspace.ts";
 export type ReviewedWorkspace = Pick<
   EstablishedContext,
   "workspace" | "branch" | "remote" | "target"
->;
+> & {
+  readonly mode?: "story-branch";
+  readonly publishedSha?: string | undefined;
+  readonly agent?: string | undefined;
+};
 
 // The workspace a story's review reads. A kept launch record comes first,
 // with what it established: the most recent by `launchedAt` of the story's

@@ -199,9 +199,12 @@ export class StoryReviewBuilder {
     return commitRange(this.#files, oldest, newest);
   }
 
-  /** @returns {StoryReview} */
-  please() {
-    const review = this.#comparison();
+  /** @param {{ from: string, changes: StoryReviewBuilder }} [withMerged] @returns {StoryReview} */
+  please(withMerged) {
+    const review = this.#comparison(
+      withMerged?.from,
+      withMerged === undefined ? undefined : withMerged.changes.#files,
+    );
     if (!this.#selected) return review;
     return {
       ...review,
@@ -210,8 +213,8 @@ export class StoryReviewBuilder {
     };
   }
 
-  /** @returns {StoryReview} */
-  #comparison() {
+  /** @param {string} [storyStart] @param {ReviewedFile[]} [widened] @returns {StoryReview} */
+  #comparison(storyStart, widened) {
     const run = this.#selected;
     const baseline = run?.comparison?.base ?? storyReviewIds.baseline;
     const tree = run?.comparison?.revision ?? storyReviewIds.tree;
@@ -228,6 +231,8 @@ export class StoryReviewBuilder {
         tree,
         files,
         completion: this.#completion,
+        storyStart,
+        widened,
       });
     if (this.#kind === "landed")
       return landedComparison({ baseline, tree, files, run });

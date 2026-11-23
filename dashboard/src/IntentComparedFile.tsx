@@ -8,6 +8,8 @@ import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
 import { pathLanguage } from "./sourceHighlight.ts";
 import { FileDiff } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
+import { comparisonWords } from "./StoryReviewComparison.tsx";
+import { StoryNoteComparison } from "./StoryDiffNote.tsx";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
 
 export function IntentComparedFile({
@@ -38,24 +40,27 @@ export function IntentComparedFile({
     file.path,
   );
   const syntax = pinnedSyntax ?? syntaxHint;
+  const name = comparisonWords[story.workspaceComparison ?? "all"];
   return (
-    <div className="intent-story-diff">
-      <ReviewedFileHeader
-        reviewed={reviewed}
-        from={from}
-        tree={tree}
-        file={file}
-        moves={moves}
-      />
-      <FileDiff
-        key={`${from}:${tree}:${file.path}`}
-        reviewed={reviewed}
-        from={from}
-        tree={tree}
-        file={file}
-        readingArea={readingArea}
-        {...(syntax === undefined ? {} : { syntaxHint: syntax })}
-      />
-    </div>
+    <StoryNoteComparison.Provider value={name}>
+      <div className="intent-story-diff">
+        <ReviewedFileHeader
+          reviewed={reviewed}
+          from={from}
+          tree={tree}
+          file={file}
+          moves={moves}
+        />
+        <FileDiff
+          key={`${from}:${tree}:${file.path}`}
+          reviewed={reviewed}
+          from={from}
+          tree={tree}
+          file={file}
+          readingArea={readingArea}
+          {...(syntax === undefined ? {} : { syntaxHint: syntax })}
+        />
+      </div>
+    </StoryNoteComparison.Provider>
   );
 }

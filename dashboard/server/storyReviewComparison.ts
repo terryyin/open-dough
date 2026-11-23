@@ -21,6 +21,14 @@ import { mergeTreeOutput } from "./mergeTreeOutput.ts";
 import { reviewPointObjects, type ReviewPoint } from "./storyReviewPoints.ts";
 import { changedFrom } from "./storyReviewFiles.ts";
 
+export async function compareOriginalTrees(
+  from: string,
+  tree: string,
+  call: GitCall,
+): Promise<ReviewComparison> {
+  return { from, files: await changedFrom(from, tree, call) };
+}
+
 // Whether the repository holds the point's tree and baseline commit.
 async function holdsPoint(point: ReviewPoint, call: GitCall) {
   try {
@@ -146,7 +154,12 @@ export async function compareReviewPoints(
 > {
   if (!(await holdsPoint(from, call)))
     return { kind: "uncomparable", reason: "unreadable" };
-  const restatement = await restatedPoint(from, to.baseline, call);
+  // A cumulative branch starts with trunk's own tree. Restating it there
+  // leaves the destination baseline itself; integrations can still conflict.
+  const restatement =
+    from.tree === from.baseline
+      ? { tree: to.baseline, inseparable: new Set<string>() }
+      : await restatedPoint(from, to.baseline, call);
   if (restatement === undefined)
     return { kind: "uncomparable", reason: "not-restated" };
   const { tree, inseparable } = restatement;

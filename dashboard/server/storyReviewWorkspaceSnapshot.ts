@@ -16,18 +16,28 @@
 // there is no baseline without it.
 import {
   publishedAnswer,
-  publishedStoryCommits,
   trunkLess,
   type ReviewedStory,
 } from "./storyPublishedCommits.ts";
 import { realpath } from "node:fs/promises";
-import type { StoryReview } from "../src/storyReviewContract.ts";
+import type {
+  ReviewComparison,
+  StoryReview,
+} from "../src/storyReviewContract.ts";
 import type { ReviewedWorkspace } from "../src/storyReviewWorkspace.ts";
+import { reviewIntegrations } from "../src/storyReviewPoints.ts";
 import { gitProblem, runGit, type GitCall } from "./gitRunner.ts";
 import { fetchGitTarget } from "./gitTargetFetch.ts";
 import { directoryState } from "./sessionWorkspace.ts";
 import { storyCommits } from "./storyReviewCommits.ts";
-import { listedFrom } from "./storyReviewComparison.ts";
+import {
+  compareOriginalTrees,
+  compareReviewPoints,
+  listedFrom,
+} from "./storyReviewComparison.ts";
+import { publishedStoryHistory } from "./publishedStoryHistory.ts";
+import { publishedStoryEvidence } from "./storyPublishedEvidence.ts";
+import { storyReviewBranchStart } from "./storyReviewBranchStart.ts";
 import { writeWorkingTree } from "./workingTreeSnapshot.ts";
 
 const outputLimit = 64 * 1024 * 1024;
@@ -75,16 +85,28 @@ export async function storyReviewSnapshot(
     const trunk = await git(["merge-base", head, `${remote}/${target}`]);
     // Trunk less the story's published commits, when it has some and this
     // machine's Git can take them out; else they stay in the baseline.
-    const published = await publishedStoryCommits(story, trunk, call);
+    const history = publishedStoryHistory(call);
+    const evidence = await publishedStoryEvidence(story, trunk, history);
+    const published = evidence.commits;
     const less =
       published.length === 0
         ? undefined
         : await trunkLess(published, trunk, call);
-    const baseline = less?.tree ?? trunk;
-    // The files from the baseline; one Git cannot separate from trunk's
-    // changes is listed from where the story first changed it.
-    const changed = (to: string) =>
-      listedFrom(baseline, to, less?.inseparable ?? new Map(), trunk, call);
+    const storyStart = await storyReviewBranchStart({
+      reviewed,
+      story,
+      head,
+      trunk,
+      evidence,
+      history,
+      call,
+    });
+    const attributionUnavailable = () =>
+      unavailable(
+        "This machine's Git cannot separate the story branch's changes from the trunk changes integrated into it.",
+      );
+    if (storyStart !== undefined && published.length > 0 && less === undefined)
+      return attributionUnavailable();
     const tree = await writeWorkingTree(head, call);
     // The worktree's own commits and uncommitted changes keep trunk's
     // revision as their points.
@@ -95,12 +117,44 @@ export async function storyReviewSnapshot(
       call,
     );
     const headTree = await git(["rev-parse", `${head}^{tree}`]);
-    const files = await changed(tree);
-    // The committed work alone, when the snapshot holds more than it.
-    const committed =
-      tree === headTree
-        ? undefined
-        : { from: baseline, tree: headTree, files: await changed(headTree) };
+    const integrations = reviewIntegrations(commits);
+    const compare = async (to: string) => {
+      let branch: ReviewComparison | undefined;
+      if (storyStart !== undefined) {
+        const attributed = await compareReviewPoints(
+          { tree: storyStart, baseline: storyStart },
+          { tree: to, baseline: trunk },
+          call,
+          integrations,
+        );
+        if (attributed.kind === "uncomparable") return undefined;
+        branch = attributed.comparison;
+      }
+      const from = less?.tree ?? branch?.from ?? trunk;
+      const mixed = new Map(less?.inseparable);
+      for (const file of branch?.files ?? []) {
+        if (file.includesTrunkFrom !== undefined)
+          mixed.set(file.path, file.includesTrunkFrom);
+      }
+      return {
+        from,
+        tree: to,
+        files:
+          branch !== undefined && less === undefined
+            ? branch.files
+            : await listedFrom(from, to, mixed, trunk, call),
+        ...(storyStart === undefined
+          ? {}
+          : {
+              withMerged: await compareOriginalTrees(storyStart, to, call),
+            }),
+      };
+    };
+    const current = await compare(tree);
+    const committed = tree === headTree ? undefined : await compare(headTree);
+    if (current === undefined || (tree !== headTree && committed === undefined))
+      return attributionUnavailable();
+    const { from: baseline, files, withMerged } = current;
     return {
       kind: "snapshot",
       workspace: shown,
@@ -113,6 +167,15 @@ export async function storyReviewSnapshot(
       tree,
       files,
       commits,
+      ...(withMerged !== undefined
+        ? { withMerged }
+        : reviewed.mode === "story-branch" &&
+            reviewed.publishedSha !== undefined
+          ? {
+              mergedChangesUnavailable:
+                "The story branch's recorded start could not be recovered.",
+            }
+          : {}),
       ...(committed === undefined
         ? {}
         : {

@@ -10,6 +10,7 @@ import {
   storyB,
   storyPlanPath,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { lines } from "./storyReviewWorktree.ts";
 import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import {
   author,
@@ -18,9 +19,11 @@ import {
   freshYuiCompletion,
   integrated,
   otherStory,
+  storyBranch,
   storyBranchThroughInterleaving,
   trunkThroughInterleaving,
   trunkWriterShared,
+  yuiClaim,
   yuiCompletion,
 } from "./completedStoryThroughInterleaving.ts";
 
@@ -181,4 +184,39 @@ export function missingAgentTrunkCompletedHistory() {
 
 export function missingAgentStoryBranchCompletedHistory() {
   return storyBranchLanding(missingAgentCompletion()).please();
+}
+
+export function completedStoryContributionHistory() {
+  const document = lines("guide");
+  return queuedReadyRepository()
+    .withRevision("story start", {
+      files: {
+        "guides/branch.txt": "original branch line\n",
+        "guides/before.txt": document,
+      },
+    })
+    .withRevision("claim", yuiClaim(storyBranch))
+    .withRevision("implementation", {
+      author,
+      files: { "guides/branch.txt": "story contribution\n" },
+    })
+    .withRevision("incoming", {
+      parents: ["claim"],
+      files: {
+        "guides/incoming.txt": "incoming trunk line\n",
+        "guides/after.txt": document,
+      },
+      remove: ["guides/before.txt"],
+    })
+    .withRevision("integration", {
+      parents: ["implementation", "incoming"],
+      author,
+      files: {
+        "guides/incoming.txt": "incoming trunk line\n",
+        "guides/after.txt": document,
+      },
+      remove: ["guides/before.txt"],
+    })
+    .withRevision("completion", { ...freshYuiCompletion(), author })
+    .please();
 }

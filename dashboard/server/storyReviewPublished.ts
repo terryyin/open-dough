@@ -9,7 +9,7 @@ import { projectFolder } from "./projectFolders.ts";
 import { completedStoryAttribution } from "./storyCompletedCommits.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
-import { listedFrom } from "./storyReviewComparison.ts";
+import { compareOriginalTrees, listedFrom } from "./storyReviewComparison.ts";
 
 export async function publishedStoryReview(
   source: PublishedSource,
@@ -56,6 +56,10 @@ export async function publishedStoryReview(
     // A resolved integration file includes both writers, regardless of whether
     // reversing single-parent story commits could otherwise hide that file.
     const mixed = new Map([...less.inseparable, ...attributed.resolutions]);
+    const withMerged =
+      facts.mode === "story-branch"
+        ? await compareOriginalTrees(facts.storyStart, tree, call)
+        : undefined;
     return {
       kind: "published",
       completion: facts.completion,
@@ -71,6 +75,7 @@ export async function publishedStoryReview(
       baseline: less.tree,
       tree,
       files: await listedFrom(less.tree, tree, mixed, less.tree, call),
+      ...(withMerged === undefined ? {} : { withMerged }),
     };
   } catch (error) {
     return unavailable(

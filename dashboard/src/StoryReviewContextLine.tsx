@@ -19,14 +19,16 @@ import {
 // machine's Git kept them in reads as any baseline.
 export function ContextLine({
   snapshot,
+  storyStart,
 }: {
   readonly snapshot: TakenStoryReview;
+  readonly storyStart?: string | undefined;
 }) {
   const [full, setFull] = useState(false);
   const { branch, workspace } = snapshot;
   const published =
     snapshot.published?.kept === undefined ? snapshot.published : undefined;
-  const baseline = baselineRevision(snapshot);
+  const baseline = storyStart ?? baselineRevision(snapshot);
   const trunk = <code>{reviewTargetName(snapshot)}</code>;
   const noun = published?.commits === 1 ? "commit" : "commits";
   const commits =
@@ -53,7 +55,15 @@ export function ContextLine({
         </span>{" "}
         <span className="story-review-context-value story-review-context-baseline">
           <span className="story-review-context-label">Baseline</span>{" "}
-          {full ? (
+          {storyStart !== undefined ? (
+            <>
+              <code title={storyStart} aria-hidden={!full}>
+                {full ? storyStart : shortRevision(storyStart)}
+              </code>
+              {!full && <span className="visually-hidden">{storyStart}</span>}{" "}
+              at the recorded story start
+            </>
+          ) : full ? (
             <>
               <code>{baseline}</code> where <code>{branch}</code> meets {trunk}
               {lessPublished}

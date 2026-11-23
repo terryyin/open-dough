@@ -91,6 +91,33 @@ test("CI comparison, Proof and Intent coverage say they describe the whole story
   }
 });
 
+test("a Taken branch range names the build of its already shown provisional CI comparison", async () => {
+  const measured = "f".repeat(40);
+  const provisional = makeMe.aComparedStory
+    .takenOnStoryBranch()
+    .withBranch({ revision: measured })
+    .please().answer;
+  await openStoryAComparison(
+    {
+      review: () =>
+        Promise.resolve(makeMe.aStoryReview.onCommits(first).please()),
+      range: () => Promise.resolve(makeMe.aStoryReview.pleaseRange(first)),
+    },
+    {
+      readComparison: (...[, identity]) =>
+        Promise.resolve({ ...provisional, identity }),
+    },
+  );
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  await story.choose("Commits");
+  await expect.poll(story.range).toContain("first change");
+  await story.chooseTab("CI comparison");
+  const short = measured.slice(0, 7);
+  await expect.poll(() => story.noteBuild("CI comparison")).toBe(short);
+  expect(story.viewText("CI comparison")).toMatch(/provisional/i);
+});
+
 const landing = "dashboard/src/landing.ts";
 const run = makeMe.aReviewRun
   .keyed("capture-run")

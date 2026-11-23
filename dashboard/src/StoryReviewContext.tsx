@@ -8,6 +8,7 @@ import {
   type StoryReview,
 } from "./storyReviewContract.ts";
 import { LandedContext } from "./StoryReviewLandedContext.tsx";
+import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { ContextLine } from "./StoryReviewContextLine.tsx";
 import {
   SessionCommitsContext,
@@ -34,8 +35,10 @@ export function reviewDescription(review: StoryReview | undefined) {
 
 export function ReviewContext({
   review,
+  shown,
 }: {
   readonly review: StoryReview | undefined;
+  readonly shown?: ShownStoryComparison;
 }) {
   if (review?.kind === "landed")
     return <LandedContext landing={review.landing} />;
@@ -43,7 +46,17 @@ export function ReviewContext({
     return <PublishedSessionContext review={review} />;
   if (review?.kind === "session-commits")
     return <SessionCommitsContext review={review} />;
-  if (review?.kind === "snapshot") return <ContextLine snapshot={review} />;
+  if (review?.kind === "snapshot")
+    return (
+      <ContextLine
+        snapshot={review}
+        storyStart={
+          shown?.includesMergedChanges === true
+            ? shown.comparison.from
+            : undefined
+        }
+      />
+    );
   if (review?.kind === "branch-result")
     return (
       <p>
@@ -65,11 +78,13 @@ export function ReviewContext({
         · {reviewTargetName(review)}
       </p>
       <p>
-        Baseline <code>{review.baseline}</code>.
+        Baseline <code>{shown?.comparison.from ?? review.baseline}</code>.
       </p>
       <p>
-        Completion <code>{review.completion}</code>. Changes attributed from
-        published execution history.
+        Completion <code>{review.completion}</code>.{" "}
+        {shown?.includesMergedChanges === true
+          ? "Net changes from the recorded story start."
+          : "Changes attributed from published execution history."}
       </p>
     </div>
   );
