@@ -540,7 +540,7 @@ Continuing one component at a time would extend the life of both runners.
 
 **Identity:** SEED-413#correct-scope-timing-chart-proof-residue
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/783-correct-scope-timing-chart-proof-residue/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/783-correct-scope-timing-chart-proof-residue/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bba0d70e60c14f665d490af5b5644d2a3d267fff964245d60194fed8ac9ecb7e","plan":"af701caed17296ffd0de26c5cd6c3925698d2cb9f2ff1ec37ad47727ab1182ca"}}
 ```
 
 Correction from the execution retrospective of

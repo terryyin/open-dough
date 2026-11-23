@@ -76,6 +76,34 @@ schemes and at the narrowest width. Change only the files named above.
   Apply the shared
   [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 
+## Decisive premises
+
+Observed on 2026-11-23 at `e313d887d` in the preparation worktree after
+`npm ci` (Node 24.21.0), each with
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run --silent test:dashboard:frontend -- <spec> --workers=2`
+and the default reporter. Every scratch edit was reverted and
+`git status --porcelain` was empty afterwards. Since `91ebbc1fa`, trunk
+changed only `intent-scope-history-page.ts`'s touch `choose` among the named
+files, which none of these paths reach.
+
+| Premise | Consuming operation | Observation | Result |
+| --- | --- | --- | --- |
+| Finding 2: the units case passes when the legacy-only history shows a time | `intent-scope-timing-history-units.spec.ts` | Scratch `<span> 0 ms</span>` beside the "legacy unit unknown" status in `IntentCiHistoryPanel.tsx` (load about 10) | Passed 2/2; the legacy-only case took 969 ms |
+| Finding 3: the Project dark pass passes on a page that ignores the dark scheme | `intent-project-ci-history-chart-marks.spec.ts` | Scratch: every `prefers-color-scheme: dark` query in `dashboard/src` (`appearance.css`, `intent-ci-cues.css`, `source-tokens.css`) renamed to an unmatched scheme (load about 16–38) | Passed 2/2; the unfaulted run also passed, in 1.73 s |
+| Slice 2: the Done case's line pattern, unavailable-at-failed level, zero and unavailable hovers and full Tab walk hold on the Project entry | `intent-project-ci-history-chart-marks.spec.ts` | Scratch: the Done case's assertions added to the Project case before its scheme loop, with `[...readoutsBefore, endpoint]` as the walk (load about 40–60) | Passed 2/2; line `M58 70 L190.7 58.4 M456 128 M721.3 35.2 M854 41`; the case took 3.44 s |
+| Finding 6: `openScopeSummary`'s default poll times out under load | Same command on `intent-project-ci-history-chart-marks.spec.ts` | Retained Intent Coverage run 1 at `973e1faf8` (load about 44), recorded in `.planning/done/SEED-413_speed-intent-scope-timing-reading.json` | Timed out at `intent-scope-history-page.ts:134`; `openScopeSummary` is unchanged since |
+
+Findings 1, 4 and 5 rest on the files as read at `e313d887d`: the two
+chart-mark cases, `historyChartPage.ts` lines 25, 26 and 30 with no
+`partial`, `failed` or `averageLabel` reader in `dashboard`, `e2e` or
+`Distribution`, and the reading spec's `rowTextsOf` and `ownFigures`.
+
+## Planning review
+
+Slice-plan refinement was not needed: two Structure slices with separate
+proof, each within one change set. This review found no remaining
+slice-specific concern.
+
 ## Slices
 
 ### 1. Unit and scheme checks fail on their regressions, and the Summary opens under load
