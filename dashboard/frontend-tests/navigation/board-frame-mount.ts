@@ -5,10 +5,12 @@ import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { AcceptanceAnswer } from "../../src/agentLaunchClient.ts";
 import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
+import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
+import type { ReviewSource } from "../../src/reviewSource.ts";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
 import { withPagePreferences } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
@@ -36,11 +38,15 @@ export async function mountBoardFrame(
     initialReadError,
     intentReads,
     done,
+    ci,
+    review,
   }: {
     otherWork?: readonly PublishedWork[];
     initialReadError?: Error;
     intentReads?: IntentReadSource;
     done?: DoneRecordReadSource;
+    ci?: IntentCiReadSource;
+    review?: ReviewSource;
   } = {},
 ) {
   withPagePreferences();
@@ -72,6 +78,8 @@ export async function mountBoardFrame(
         machine: supply.machine,
         ...(intentReads === undefined ? {} : { intent: intentReads }),
         ...(done === undefined ? {} : { done }),
+        ...(ci === undefined ? {} : { ci }),
+        ...(review === undefined ? {} : { review }),
       }),
       settingsOpen: false,
       onOpenSettings: () => {},

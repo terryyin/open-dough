@@ -195,7 +195,7 @@ consumers of `mountIntentCiPage` for layout, notice, and navigation behavior.
 ### 7. Visiting Project Intent preserves the Board selection and separate reading places
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-project-visit.spec.ts` and
 `intent-project-visit-selection.spec.ts` to the production observation.
@@ -271,7 +271,8 @@ remaining slice-specific concern.
   `ec1e99e6139f0653f0990845b0227a2094d36d9f`,
   `4daa9c40a0d6acb1530b704fb4281b98bba46644`,
   `98a8be7fda620be498dce3461ebf0f081f52de34`,
-  `a1dd7faac41f3ee5ed51e42f14c353ebab921fd1` on
+  `a1dd7faac41f3ee5ed51e42f14c353ebab921fd1`,
+  `d6475f771fac0d16429b90794d33ffc6792dcec4` on
   `refs/heads/cursor/drive-the-published-observation-through-the-type`
 - CI observer: `/tmp/dough-ci-501/watch-VdTqA3` (attached at Slice 5 publish)
 - Replanning permission: preserve existing (allowed)
@@ -437,6 +438,43 @@ remaining slice-specific concern.
   `open-dough/evidence/slice6-configured-path.log`,
   `open-dough/evidence/slice6-typecheck-2.log`
 
+### Slice 7 — Visiting Project Intent preserves Board selection and reading places
+
+- Promise: move `intent-project-visit.spec.ts` and
+  `intent-project-visit-selection.spec.ts` onto production observation via
+  `mountBoardFrame`; typed snapshot/detail, Intent source/Candidates, story
+  and project CI; select story on visible Board; switch perspectives through
+  page controls; keep Purpose/Proof, file and scroll across Project visit;
+  candidate shows pinned published source and trunk CI; return focuses
+  candidate without reread and restores story reading; clear/reselect while
+  Intent hidden opens story CI comparison; clear after Candidates opens
+  project CI; keep `e2e/intent/intent-project-visit-ci.spec.ts` separate
+- Boundary: `ConfiguredDashboard` via `mountBoardFrame` optional `ci`/`review`
+  into `pageReadsSupplying`; `intent-project-visit-fixtures` mount/selection
+- Setup: MakeMe published Taken work; memoized Intent candidates/text;
+  review diffs/text; `inertCiReads` + `judgedStatus` for trunk; Board Taken
+  card + Development/Intent radios
+- Observations:
+  - `intent-project-visit.spec.ts`: deepSpec scroll restore; published
+    candidate `a 11` without `more`; `data-candidates-reads` stable; keyboard
+    CI home; reads `["candidates", text path]`
+  - `intent-project-visit-selection.spec.ts`: hidden clear/reselect → story
+    CI comparison; clear after Candidates → Project CI of main
+  - Timing at workers=2: Playwright BEFORE ~6094ms; Vitest AFTER ~5533–6915ms;
+    engines after move Playwright 0 / Vitest 2 for these files
+- Command (accepted visit + selection):
+  `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/intent/intent-project-visit.spec.ts dashboard/frontend-tests/intent/intent-project-visit-selection.spec.ts --workers=2`
+  (pass after refactor and format; typecheck
+  `caffeinate -s -i npm run typecheck:dashboard` pass on implementation)
+- Evidence: `open-dough/evidence/slice7-implementation-return.md`,
+  `open-dough/evidence/refactor-slice7-return.md`,
+  `open-dough/evidence/slice7-vitest-proof-3.log`,
+  `open-dough/evidence/slice7-vitest-after.log`,
+  `open-dough/evidence/refactor-slice7-vitest-proof.log`,
+  `open-dough/evidence/slice7-vitest-postformat.log`,
+  `open-dough/evidence/slice7-typecheck.log`,
+  `open-dough/evidence/slice7-timing.md`
+
 ## Learnings
 
 - Frontend Vitest Chromium cases must use browser-safe `pageMakeMe` and
@@ -448,3 +486,7 @@ remaining slice-specific concern.
 - Replacing sync `useAgentLaunches` mocks with typed machine reads exposes
   Cancel→Enter reopen races; settle the first machine answer before Board
   interaction and open Start on keydown, not click synthesis alone.
+- Vitest browser `toHaveAttribute` does not accept a RegExp expected value;
+  use `expect.poll(...).toMatch`.
+- Typed Intent reads must memoize candidates/file fetches like `answerMemo`
+  when asserting one-shot HTTP-style accounting after Project Intent remounts.
