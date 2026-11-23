@@ -49,3 +49,7 @@ Run targeted obligation and installation checks. Apply the [failure policy](../.
 Each slice has one observable resume outcome. The identified stale quotes have a bounded reconciliation in slice 1. The upgrade experiment uses local fixtures and requires no external publication. No further refinement concerns identified.
 
 ## Story obligations
+
+## Execution complete
+
+Product advice: no change. The plan conversion preserves the correction's next slice, accepted evidence and open work. The tagged upgrade demonstrates the shared installer behavior. The release and rollout retain their existing ownership.
