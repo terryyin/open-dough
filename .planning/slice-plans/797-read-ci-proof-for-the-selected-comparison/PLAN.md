@@ -324,7 +324,7 @@ passed. See `slice-g-return.md` in the checkout's Git evidence directory.
 ### 8. Explain which workspace changes CI did not measure
 
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 7–10 minutes.
 
 In a Taken workspace showing All changes with uncommitted edits, say
@@ -341,6 +341,14 @@ Proof. Use the dirty workspace setup from
 IDs and a named head build. Toggle inclusion, then check the visible
 notice and its build in the affected CI proof. Exercise a head without a
 matching build so prior proof is never described as a build of that head.
+
+Accepted proof observes a distinct workspace head and working tree,
+reuse of a known head build, one independent exact head lookup,
+the missing-build explanation, and abort when leaving All changes.
+CI comparison, Summary and file Proof share the notice. The 53-case
+mounted run, 10-case final mounted run, 31 backend cases, seven E2E cases,
+and typecheck passed. See `slice-h-return.md` in the checkout's Git evidence
+directory.
 
 ## Preparation assessment
 
@@ -388,6 +396,8 @@ routes. The review identified no remaining slice-specific concern.
   least 1.5 times as long. The run budget, setup and test selection were
   unchanged. This was a runner-wide slowdown. Both timing artifacts and
   the complete failed job log are in the checkout's Git evidence directory.
+- Slice 7 was accepted on the execution branch at
+  `aab0d95c69225a375e193eb4f3a2efdaad348a6f`.
 - Codex observer of `ci.yml` on the execution branch, coordinator
   `nao-9b9c27ea`, directory `/tmp/dough-ci-501/watch-dv7wpQ`, process
   `33667`, cell `g458:11`, session `61453`. The claim preceded this observer.

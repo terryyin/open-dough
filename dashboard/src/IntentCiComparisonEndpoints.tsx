@@ -75,10 +75,12 @@ function BuildIdentity({
   slot,
   provisional,
   showRun,
+  showSource = true,
 }: {
   readonly slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>;
   readonly provisional: boolean;
   readonly showRun: boolean;
+  readonly showSource?: boolean;
 }): ReactNode {
   const failed =
     slot.kind === "build" && slot.state === "failed" ? " failed build" : "";
@@ -88,7 +90,7 @@ function BuildIdentity({
   return (
     <>
       <code>{shortSha(slot.revision)}</code>{" "}
-      <BuildSourceCue slot={slot} provisional={provisional} />
+      {showSource && <BuildSourceCue slot={slot} provisional={provisional} />}
       {failed}
       {showRun && (
         <>
@@ -126,10 +128,19 @@ function EndpointIdentity({
 
 export function SelectedBuildIdentity({
   slot,
+  showSource = true,
 }: {
   readonly slot: Extract<StoryCiComparisonSlot, { kind: "build" | "running" }>;
+  readonly showSource?: boolean;
 }) {
-  return <BuildIdentity slot={slot} provisional={false} showRun />;
+  return (
+    <BuildIdentity
+      slot={slot}
+      provisional={false}
+      showRun
+      showSource={showSource}
+    />
+  );
 }
 
 function EndpointRow({

@@ -40,6 +40,7 @@ import {
 import { useIntentCiJudgment } from "./useIntentCiJudgment.ts";
 import { useIntentCiHistory } from "./useIntentCiHistory.ts";
 import { useIntentCiShownProof } from "./useIntentCiShownProof.ts";
+import { useUncommittedCiEvidence } from "./useUncommittedCiEvidence.ts";
 
 export type { CiEvidence } from "./intentCiEvidenceModel.ts";
 import type { CiEvidence } from "./intentCiEvidenceModel.ts";
@@ -86,6 +87,7 @@ export function IntentCiEvidenceProvider({
   doneEndpoint,
   doneEndpointReason,
   selectedRange,
+  uncommittedHead,
   children,
 }: {
   readonly source: PublishedSource;
@@ -97,6 +99,7 @@ export function IntentCiEvidenceProvider({
   readonly doneEndpoint?: ScopeHistoryEndpoint;
   readonly doneEndpointReason?: string;
   readonly selectedRange?: CiComparisonRange;
+  readonly uncommittedHead?: string;
   readonly children: ReactNode;
 }) {
   const target = ciTargetOf(source, work, selectedIdentity);
@@ -147,6 +150,12 @@ export function IntentCiEvidenceProvider({
   );
   const selectedEvidence =
     selectedComparison === undefined ? {} : { selectedComparison };
+  const uncommittedCi = useUncommittedCiEvidence(
+    source,
+    comparisonIdentity,
+    active ? uncommittedHead : undefined,
+    comparison,
+  );
   let evidence: CiEvidence = { kind: "inactive" };
   if (active && target.kind === "gap") evidence = target;
   else if (active && target.kind === "comparison")
@@ -186,7 +195,11 @@ export function IntentCiEvidenceProvider({
           }),
     };
   return (
-    <CiEvidenceContext.Provider value={evidence}>
+    <CiEvidenceContext.Provider
+      value={
+        uncommittedCi === undefined ? evidence : { ...evidence, uncommittedCi }
+      }
+    >
       {children}
     </CiEvidenceContext.Provider>
   );

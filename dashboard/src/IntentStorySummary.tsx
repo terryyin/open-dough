@@ -100,55 +100,54 @@ function publishedDoneEvidenceOf(summary: StorySummary | undefined) {
   };
 }
 
-function selectedRangeOf(
-  summary: StorySummary | undefined,
-): CiComparisonRange | undefined {
-  if (summary === undefined) return undefined;
+function settledComparisonEvidenceOf(summary: StorySummary | undefined) {
+  if (summary === undefined) return {};
   const { comparison } = summary;
-  const { compare } = comparison;
-  if (
-    comparison.state !== "compared" ||
-    comparison.reading === true ||
-    compare === undefined ||
-    compare.isDefault
-  )
-    return undefined;
+  if (comparison.state !== "compared" || comparison.reading === true) return {};
+  const { compare, review } = comparison;
+  if (compare === undefined) return {};
 
   if (summary.story.completed) {
     if (
-      comparison.review?.kind !== "landed" ||
+      review?.kind !== "landed" ||
       compare.shown !== "landed" ||
-      compare.selectedRun?.comparison === undefined
+      compare.selectedRun?.comparison === undefined ||
+      compare.isDefault
     )
-      return undefined;
-    const { base, revision } = comparison.review.landing;
-    return ciRangeOf(base, revision);
+      return {};
+    const { base, revision } = review.landing;
+    return ciRangeEvidenceOf(base, revision);
   }
 
-  if (comparison.review?.kind !== "snapshot" || compare.shown !== "commits")
-    return undefined;
+  if (review?.kind !== "snapshot") return {};
+  if (compare.shown === "all") {
+    const includesEdits = compare.includeUncommitted !== false;
+    const hasEdits =
+      review.committed !== undefined || review.uncommitted !== undefined;
+    return includesEdits && hasEdits ? { uncommittedHead: review.head } : {};
+  }
+  if (compare.shown !== "commits" || compare.isDefault) return {};
   const { oldest, newest } = reviewRangeEnds(compare.selectedItems);
   return oldest?.kind === "commit" && newest?.kind === "commit"
-    ? ciRangeOf(oldest.firstParent, newest.revision)
-    : undefined;
+    ? ciRangeEvidenceOf(oldest.firstParent, newest.revision)
+    : {};
 }
 
-function ciRangeOf(
+function ciRangeEvidenceOf(
   start: string | undefined,
   end: string,
-): CiComparisonRange | undefined {
+): { readonly selectedRange?: CiComparisonRange } {
   return start !== undefined &&
     commitShaPattern.test(start) &&
     commitShaPattern.test(end)
-    ? { start, end }
-    : undefined;
+    ? { selectedRange: { start, end } }
+    : {};
 }
 
 export function storyCiEvidenceOptionsOf(summary: StorySummary | undefined) {
-  const selectedRange = selectedRangeOf(summary);
   return {
     ...publishedDoneEvidenceOf(summary),
-    ...(selectedRange === undefined ? {} : { selectedRange }),
+    ...settledComparisonEvidenceOf(summary),
   };
 }
 

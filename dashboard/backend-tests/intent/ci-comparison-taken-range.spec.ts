@@ -12,7 +12,7 @@ import {
 } from "../support/comparisonRead.ts";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 
-test("a selected Taken range asks the claimed branch for its CI builds", async () => {
+test("a selected Taken range and the workspace head ask the claimed branch for their CI builds", async () => {
   const storyBranch = "codex/taken";
   const evidence = storyCiComparisonEvidence({
     history: makeMe.aRepository
@@ -64,5 +64,29 @@ test("a selected Taken range asks the claimed branch for its CI builds", async (
       adapterAttempt: { runId: "taken/build", attemptId: "retry/3" },
     },
   });
-  expect(evidence.reads.branches).toEqual([storyBranch]);
+
+  const head = { start: branch, end: branch };
+  const headOutcome = await reader(
+    comparisonProject,
+    { kind: "intent-ci-comparison", identity: "SEED-1#story", range: head },
+    new AbortController().signal,
+    evidence.source,
+  );
+  if (headOutcome.kind !== "answered")
+    throw new Error("No workspace head answer");
+  expect(
+    selectedCiComparisonAnswerSchema.parse(headOutcome.answer),
+  ).toMatchObject({
+    kind: "selection",
+    phase: "taken",
+    range: head,
+    baseline: {
+      kind: "build",
+      revision: branch,
+      selection: "exact",
+      adapterAttempt: { runId: "taken/build", attemptId: "retry/3" },
+    },
+    selection: { kind: "none" },
+  });
+  expect(evidence.reads.branches).toEqual([storyBranch, storyBranch]);
 });

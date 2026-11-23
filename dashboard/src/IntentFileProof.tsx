@@ -17,6 +17,7 @@ import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import { IntentFileProofView } from "./IntentFileProofView.tsx";
 import { IntentScopeTimingHistory } from "./IntentScopeTimingHistory.tsx";
+import { UncommittedCiNote } from "./UncommittedCiNote.tsx";
 
 function FileProofContent(
   props: Omit<
@@ -36,6 +37,7 @@ function FileProofContent(
 export function IntentFileProof(props: Parameters<typeof FileProofContent>[0]) {
   return (
     <>
+      <UncommittedCiNote />
       <IntentScopeTimingHistory path={props.path} file />
       <FileProofContent {...props} />
     </>
