@@ -94,7 +94,7 @@ by the slices below.
 ### 1. Land publishes an ad hoc Done story with its originating session
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: an ad hoc session with a valid close UUID, a title and no story →
 Land → the accepted close commit holds the Done card facts, the updated
@@ -110,6 +110,19 @@ range excludes the record commit, and a retry preserves title and close time.
 Retain named-story, non-Dashboard and historical standalone close behavior.
 Exercise the title handoff and include the identity contract update with the
 behavior, using the repository's skill-authoring guidance.
+
+The Land fixture reads all three artifacts from the accepted commit and
+compares the recorded range with the original work. The recovery fixtures
+hold the first title, time and comparison across lost responses, settle a
+competing association as a conflict, and read both catalog entries after
+reconciliation. A later unrelated shared-checkout commit stays local.
+Both Dashboard title handoffs and the existing capture wire path passed.
+The commands and assertions are indexed in `slice-1-implementation.md` in
+the worktree's Git evidence directory.
+The independent refactor reran the affected Land and Dashboard handoff
+proof and typecheck. Its commands and observations are in
+`slice-1-refactor.md` in the same directory. A losing concurrent close
+retains the local candidate if normal retirement requires it.
 
 ### 2. Done writes one local attachment for the original session
 
@@ -227,3 +240,17 @@ Until this slice delivers the choice, ambiguous membership stays unresolved.
   the story in Intent. Each of the seven slices has a single proof loop.
   Slices 2 and 5 supply the local and durable evidence that slices 6 and 7
   consume. No remaining slice-specific concern was found.
+
+## Execution context
+
+- Maria-chan, Story Branch Mode, publisher `dashboard-territory.local-open-dough`.
+  The Take `7a3a582dba57d4fb03d965c7db29f99cac345c36` was accepted on
+  `origin/main` and published as the starting tip of
+  `origin/codex/reopen-completed-ad-hoc-work-and-its-follow-ups`. The worktree
+  is `.worktrees/reopen-completed-ad-hoc-work-and-its-follow-ups` relative to the
+  repository's default checkout. The starting revision was
+  `8a41b269fa1b1591fb5f1e55a62dde54a2a6b2e2`. Locked setup ran `npm ci` and
+  confirmed TypeScript 6.0.3 from this worktree.
+- Codex observes GitHub Actions `ci.yml` (CI) on the remote execution branch.
+  Coordinator `maria-chan-seed-420`, mailbox `/tmp/dough-ci-501/watch-ko8sUU`,
+  PID `23782`, stream session `12451`, cell `g375:8`.

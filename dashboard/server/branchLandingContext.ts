@@ -91,6 +91,7 @@ export async function branchLandingContext(
     files.directory,
     { origin, source, host, reference },
     authority,
+    record.request.title,
   );
   return {
     record: {

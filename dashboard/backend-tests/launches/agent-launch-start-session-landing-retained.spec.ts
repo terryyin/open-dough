@@ -12,6 +12,7 @@ import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { expect, stored, test } from "../../test-support/support/codexStart.ts";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { commit, git } from "../../test-support/support/launchLanding.ts";
+import { readLandingSessionTitle } from "../../test-support/support/landingSessionTitle.ts";
 import {
   dropExpiredAttempts,
   landingRetentionClock,
@@ -26,6 +27,26 @@ import {
 
 // No page: the local boundaries alone answer these requests.
 test.use({ serverMode: "boundary" });
+
+test("an unattached launch hands Land its retained session title", async ({
+  dashboard,
+}) => {
+  const request = await test.step("Given an ad hoc launch request", () =>
+    makeMe.aLaunchRequest
+      .adHoc({ host: "codex", instruction: "Review the launch results" })
+      .withPolicy({ workspace: "isolated", landing: "auto-land" })
+      .please());
+  await test.step("When the dashboard starts the session", async () => {
+    expect((await launch(dashboard, request)).status).toBe(200);
+  });
+  await test.step("Then the landing handoff carries the retained title", () => {
+    const record = stored(dashboard.home)[0];
+    if (record === undefined) throw new Error("No bound launch");
+    expect(readLandingSessionTitle(landingHandoff(record).file)).toBe(
+      record.request.title,
+    );
+  });
+});
 
 test("an unattached launch's kept record captures its landing after its startup attempt expired, with no identity", async ({
   dashboard,

@@ -22,6 +22,7 @@ import {
   keptLaunchRecords,
   keepLaunchStore,
 } from "../../test-support/support/launchStore.ts";
+import { readLandingSessionTitle } from "../../test-support/support/landingSessionTitle.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import { keep, minutesAgo, source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
@@ -123,6 +124,18 @@ test("a same-origin branch handoff without Origin answers with the publisher fil
   expect(
     JSON.parse(await readFile(answer.landingContext, "utf8")),
   ).toMatchObject({ source, reference: context?.reference });
+});
+
+test("a declared branch handoff carries the retained session title", async () => {
+  const { record, request } = await aKeptBranchHandoff();
+
+  const answer = await handleSessionBranchEntry(request, dashboardOrigin);
+
+  if (answer.landingContext === undefined)
+    throw new Error("No saved context file.");
+  expect(readLandingSessionTitle(answer.landingContext)).toBe(
+    record.request.title,
+  );
 });
 
 test("a branch handoff saves its context alongside newer record evidence", async () => {

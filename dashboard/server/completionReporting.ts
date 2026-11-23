@@ -38,6 +38,7 @@ export async function reportingContext(
   attempt: LaunchAttemptRecord,
   folder: ProjectFolder,
   established?: EstablishedContext | EstablishedSession,
+  sessionTitle?: string,
 ): Promise<PreparedReporting | undefined> {
   if (!preparesReporting(attempt)) return undefined;
   const files = await copyReportingFiles(
@@ -83,6 +84,7 @@ export async function reportingContext(
         reference: attempt.id,
       },
       landingRepository,
+      sessionTitle,
     );
     // Durable pointer outside the working tree so first trunk publication can
     // resolve this prepared context when the agent omits --landing-context.
