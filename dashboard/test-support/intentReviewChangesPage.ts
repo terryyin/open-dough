@@ -7,7 +7,6 @@ import {
 } from "../src/storyReviewContract.ts";
 import { parts } from "./dashboardPage.ts";
 import {
-  chooseStoryTab,
   expectFilesShown,
   filesColumn,
   filesToggle,
@@ -19,7 +18,7 @@ import { ReviewComparison } from "./reviewChangesComparison.ts";
 import { ReviewContext } from "./reviewChangesContext.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
 import { ReviewDiffs } from "./reviewChangesDiffs.ts";
-import { emptyArea } from "./storyCardSelection.ts";
+import { reviewChanges } from "./storyCardControls.ts";
 import { intentDiffReading, storyTitle } from "./support/intentStoryPage.ts";
 import { reviewAfter } from "./support/launchLandingReview.ts";
 import { reviewRefresh } from "./support/reviewControls.ts";
@@ -149,13 +148,7 @@ class IntentReviewChanges {
 
 export type { IntentReviewChanges };
 
-// While the card still opens the Side panel, select it and enter Changes
-// through the dashboard banner.
 export async function openIntentReviewChanges(page: Page, card: Locator) {
-  const { intent, intentChoice } = parts(page);
-  const classes = (await card.getAttribute("class"))?.split(/\s+/);
-  if (!classes?.includes("story-card-selected")) await emptyArea(card).click();
-  const answer = await reviewAfter(page, intentChoice);
-  await chooseStoryTab(intent, "Changes");
+  const answer = await reviewAfter(page, reviewChanges(card), "keyboard");
   return new IntentReviewChanges(page, answer);
 }

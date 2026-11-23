@@ -3,6 +3,9 @@ import {
   diffStartOf,
   type ShownStoryComparison,
 } from "./storyComparisonShown.ts";
+import { useProjects } from "./projectList.tsx";
+import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
+import { pathLanguage } from "./sourceHighlight.ts";
 import { FileDiff } from "./StoryReviewFileDiff.tsx";
 import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
 import type { ReviewedFile } from "./storyReviewFiles.ts";
@@ -22,6 +25,19 @@ export function IntentComparedFile({
 }) {
   const from = diffStartOf(story.comparison, file);
   const { reviewed, tree } = story;
+  const source = useProjects().find(
+    (project) => project.id === reviewed.subject.source,
+  );
+  const settingsRevision =
+    pathLanguage(file.path) === undefined
+      ? (reviewed.completion ?? tree)
+      : undefined;
+  const pinnedSyntax = useReviewDiffSyntaxHint(
+    source,
+    settingsRevision,
+    file.path,
+  );
+  const syntax = pinnedSyntax ?? syntaxHint;
   return (
     <div className="intent-story-diff">
       <ReviewedFileHeader
@@ -38,7 +54,7 @@ export function IntentComparedFile({
         tree={tree}
         file={file}
         readingArea={readingArea}
-        {...(syntaxHint === undefined ? {} : { syntaxHint })}
+        {...(syntax === undefined ? {} : { syntaxHint: syntax })}
       />
     </div>
   );

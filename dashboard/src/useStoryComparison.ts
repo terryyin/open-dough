@@ -5,12 +5,12 @@
 // An active workspace shows all changes, including uncommitted work. Done
 // Intent reads the completed result even while that workspace remains.
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   storyComparisonShown,
   type ShownStoryComparison,
 } from "./storyComparisonShown.ts";
-import type { RequestedComparison } from "./pageStoryReviews.ts";
+import { useStoryReviewOpening } from "./pageStoryReviewOpening.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
 import { useStoryReviewComparison } from "./useStoryReviewComparison.ts";
 import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
@@ -23,10 +23,10 @@ import { useStateKeyedBy } from "./stateKeyedBy.ts";
 // The comparison such a view reads of a workspace: all changes, with its
 // uncommitted changes included as Review changes includes them at every
 // opening.
-export const defaultStoryComparison: RequestedComparison = {
+const defaultStoryComparison = {
   chosen: "all",
   includeUncommitted: true,
-};
+} as const;
 
 export function useStoryComparison({
   source,
@@ -59,7 +59,18 @@ export function useStoryComparison({
   const subject: ReviewedStorySubject = { source, identity };
   // The choice and its refreshes belong to the story in its project. A story
   // becoming Done opens on its result.
-  const keyedBy = JSON.stringify([source, identity, completed]);
+  const opening = useStoryReviewOpening(source);
+  const sequence =
+    opening?.identity === identity ? opening.sequence : undefined;
+  const [lastOpening, setLastOpening] = useState(sequence);
+  if (sequence !== undefined && sequence !== lastOpening)
+    setLastOpening(sequence);
+  const keyedBy = JSON.stringify([
+    source,
+    identity,
+    completed,
+    sequence ?? lastOpening,
+  ]);
   const { value: round, set: setRound } = useStateKeyedBy(0, keyedBy);
   const onRefresh = () => {
     setRound(round + 1);

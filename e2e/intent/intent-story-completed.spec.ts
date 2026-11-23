@@ -12,9 +12,8 @@
 // reading: ./intent-story-completed-source.spec.ts. Intent coverage shows the
 // saved assessment as stored. Workspace: ./intent-story-changes.spec.ts.
 // The done card's Review changes selects it too, and toggling its selection
-// clears it while the review stays open.
+// clears it on the Board.
 
-import { assumeReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
@@ -133,23 +132,21 @@ test("Intent overlays a completed story's published history comparison, naming i
     expect(inIntent.get(changed.added)).toContain("added");
   });
 
-  await test.step("the done card's Review changes selects and highlights it for Intent's summary; toggling its selection clears it and leaves the review open", async () => {
+  await test.step("the Done card opens Changes and keeps its Board Highlight until cleared", async () => {
     const { development, intentChoice } = parts(page);
     await development.click();
     await showColumn(page, "Recently done");
     await emptyArea(card).click();
     await expectSelected(card, false);
     await reviewChanges(card).press("Enter");
-    const review = await assumeReviewChanges(page);
-    await expectSelected(card, true);
-    await intentChoice.click();
+    await expect(story.panel("Changes")).toBeVisible();
     await expect(intent).toHaveAttribute("data-selected-story", "SEED-A#a");
     await expect(story.title).toHaveText("Story A");
     await development.click();
     await showColumn(page, "Recently done");
+    await expectSelected(card, true);
     await emptyArea(card).click();
     await expectSelected(card, false);
-    await review.expectFilesShown(true);
     await intentChoice.click();
     await expect(intent).not.toHaveAttribute("data-selected-story");
     await expect(scoped).toHaveCount(0);

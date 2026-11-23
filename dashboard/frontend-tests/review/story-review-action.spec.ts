@@ -2,7 +2,7 @@
 // record: it follows Inspect story and Notes in the card's inspection group,
 // below the launch group's Starts, and the keyboard reaches it in that order. It
 // leads with a decorative review glyph and ends with a decorative arrow
-// toward the side panel.
+// toward Intent.
 
 import type { Page } from "@playwright/test";
 import {
@@ -31,10 +31,19 @@ import {
   expectStackedInOrder,
 } from "../../test-support/pageLayout.ts";
 import { expectSettledPage, parts } from "../../test-support/dashboardPage.ts";
-import { notRefinedStory } from "../../test-support/launchJourney.ts";
+import {
+  notRefinedIdentity,
+  notRefinedStory,
+  takenStory,
+} from "../../test-support/launchJourney.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { frontendStoryLaunch } from "../../test-support/support/frontendServiceState.ts";
-import { reviewRegion } from "../../test-support/support/reviewControls.ts";
+import {
+  frontendStoryLaunch,
+  putFrontendStories,
+} from "../../test-support/support/frontendServiceState.ts";
+import { installFrontendStoryReview } from "../../test-support/support/frontendStoryReview.ts";
+import { showColumn } from "../../test-support/boardPage.ts";
+import { expectStoryTab, storyTab } from "../../test-support/intentModePage.ts";
 
 async function expectSettledLayout(page: Page) {
   await expectSettledPage(page);
@@ -67,7 +76,7 @@ test("the inspection group sits below the launch group, wraps in reading order, 
     exact: true,
   });
   const action = reviewChanges(inspectionGroup(card));
-  const review = reviewRegion(page);
+  const { intent, development } = parts(page);
   const starts = storyCardLaunchActions.map((name) =>
     launchGroup(card).getByRole("button", { name }),
   );
@@ -109,6 +118,81 @@ test("the inspection group sits below the launch group, wraps in reading order, 
     await expect(detail).toBeVisible();
     await expectTabOrder(page, [notes, action]);
     await page.keyboard.press("Enter");
-    await expect(review).toBeVisible();
+    await expectStoryTab(intent, "Changes");
+    await expect(storyTab(intent, "Changes")).toBeFocused();
+    await development.click();
   }
 });
+
+const workspace = {
+  workspace: "/tmp/card-review-intent",
+  branch: "claude/story-c",
+};
+const subject = { title: notRefinedStory, identity: notRefinedIdentity };
+const sources = {
+  launch: () =>
+    makeMe.aMachineAnswer
+      .observingOpen(
+        makeMe.aLaunchRecord
+          .executing(subject)
+          .onStoryBranch(workspace)
+          .please(),
+      )
+      .please(),
+  preparation: () =>
+    makeMe.aMachineAnswer
+      .observingOpen(
+        makeMe.aLaunchRecord
+          .refining(subject)
+          .onStoryBranch(workspace)
+          .please(),
+      )
+      .please(),
+  claim: () =>
+    makeMe.aMachineAnswer
+      .holdingWorkspaces({
+        ...workspace,
+        source: "open-dough",
+        identity: notRefinedIdentity,
+        agent: "Yui",
+      })
+      .please(),
+  none: () => makeMe.aMachineAnswer.please(),
+};
+
+for (const column of ["Backlog", "Taken"] as const) {
+  for (const [source, machine] of Object.entries(sources)) {
+    test(`${column} card Review changes eligibility and route with ${source}`, async ({
+      page,
+      frontendServices,
+    }) => {
+      putFrontendStories(frontendServices, {
+        taken:
+          column === "Taken" ? [takenStory, notRefinedStory] : [takenStory],
+      });
+      frontendServices.answerMachine(machine());
+      await installFrontendStoryReview(page);
+      await page.goto("/");
+      await showColumn(page, column);
+      const { backlog, taken, intent } = parts(page);
+      const card = (column === "Taken" ? taken : backlog).getByRole("article", {
+        name: notRefinedStory,
+        exact: true,
+      });
+      await expect(card).toBeVisible();
+      const action = reviewChanges(inspectionGroup(card));
+      if (source === "none") {
+        await expect(action).toHaveCount(0);
+        return;
+      }
+      await expect(action).toBeVisible();
+      await action.click();
+      await expectStoryTab(intent, "Changes");
+      await expect(intent).toHaveAttribute(
+        "data-selected-story",
+        notRefinedIdentity,
+      );
+      await expect(storyTab(intent, "Changes")).toBeFocused();
+    });
+  }
+}

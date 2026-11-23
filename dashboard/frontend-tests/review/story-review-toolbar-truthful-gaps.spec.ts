@@ -3,6 +3,11 @@
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import {
+  deliveredChangesName,
+  sessionBranchRun,
+  sessionDeliveryRun,
+} from "../../src/sessionReviewComparisons.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
 import {
   adHocSession,
@@ -45,21 +50,24 @@ test("an empty session comparison has no files toggle", async () => {
   await review.expectNoFilesToggle();
 });
 
-test("a selected landed gap offers Landed runs and the eye", async () => {
-  const gap = makeMe.aReviewRun.keyed("gap-run-1").please();
+test("a selected session delivery gap keeps its comparison and the eye", async () => {
   const explanation =
     "Accepted publication has a recoverable review evidence gap.";
-  const gapReview = makeMe.aStoryReview
-    .landingGap(explanation)
-    .onRun(gap)
-    .please();
-  const review = await mountReviewChanges(sourceOf(gapReview), adHocSession);
+  const gap = makeMe.aStoryReview.landingGap(explanation).please();
+  const review = await mountReviewChanges(
+    sourceOf({
+      ...gap,
+      selectedRun: sessionDeliveryRun,
+      sessionComparisonKeys: [sessionDeliveryRun, sessionBranchRun],
+    }),
+    adHocSession,
+  );
   await review.expectFeedback(explanation);
-  await review.expectComparisonNamed("Landed runs");
+  await review.expectComparisonNamed(deliveredChangesName);
   await review.expectDetailsCollapsed();
   await review.expectNoFilesToggle();
   await review.revealDetails();
-  await review.expectLandedRunChosen(gap.key);
+  await review.expectComparisonChosen(deliveredChangesName);
 });
 
 test("a bare landing gap names Landed runs without an eye", async () => {

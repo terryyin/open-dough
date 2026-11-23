@@ -1,8 +1,8 @@
 // A direct story destination asked for again while its card is already the
-// selected story, in view, inspected, and shown in the Side panel's review:
+// selected story, in view and inspected after a visit to its Changes:
 // each way the page asks for that same destination again, Back from Intent and
 // Back to dashboard from System settings, shows the destination cue again,
-// while the Highlight, open detail, and the review stay as they were.
+// while the Highlight and open detail stay as they were.
 
 import {
   expect,
@@ -11,7 +11,7 @@ import {
 } from "../../test-support/support/frontendApp.ts";
 import { keepTakenReviewLaunch } from "../../test-support/support/frontendStoryReviewOpen.ts";
 import { installFrontendStoryReview } from "../../test-support/support/frontendStoryReview.ts";
-import { reviewRegion } from "../../test-support/support/reviewControls.ts";
+import { expectStoryTab } from "../../test-support/intentModePage.ts";
 import { pausePageClock } from "../../test-support/autoRefreshJourney.ts";
 import { expectRoute } from "../../test-support/agentRosterRecords.ts";
 import { storyUrl } from "../../test-support/notificationStoryJourney.ts";
@@ -32,9 +32,9 @@ import {
   expectCueEnds,
   expectDestinationCue,
 } from "../../test-support/destinationCue.ts";
-import { takenIdentity, takenStory } from "../../test-support/launchJourney.ts";
+import { takenIdentity } from "../../test-support/launchJourney.ts";
 
-test("asking again for the selected, inspected and reviewed destination cues it again and keeps its Highlight, detail and review", async ({
+test("asking again for the selected and inspected destination cues it again and keeps its Highlight and detail", async ({
   page,
   frontendServices,
 }) => {
@@ -49,10 +49,8 @@ test("asking again for the selected, inspected and reviewed destination cues it 
   await expectDestinationCue(page, card, { motion: true });
   await expectCueEnds(page, card);
   await reviewChanges(card).click();
-  const review = reviewRegion(page);
-  await expect(review.getByRole("heading", { level: 2 })).toHaveText(
-    takenStory,
-  );
+  await expectStoryTab(parts(page).intent, "Changes");
+  await page.goBack();
   await inspectionToggle(card).click();
   await expectSelected(card, true);
   await expectInspected(card, true);
@@ -76,9 +74,6 @@ test("asking again for the selected, inspected and reviewed destination cues it 
     await expectDestinationCue(page, card, { motion: true });
     await expectSelected(card, true);
     await expectInspected(card, true);
-    await expect(review.getByRole("heading", { level: 2 })).toHaveText(
-      takenStory,
-    );
     await expectCueEnds(page, card);
     await expectSelected(card, true);
   }

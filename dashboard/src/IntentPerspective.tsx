@@ -43,6 +43,7 @@ import {
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import { useIntentModeChoice, type ModeChoice } from "./pageIntentMode.tsx";
+import { useStoryReviewOpening } from "./pageStoryReviewOpening.tsx";
 import { ProjectIntentReadingPlace } from "./pageIntentReading.tsx";
 import {
   useStorySelection,
@@ -89,7 +90,10 @@ function IntentBody({
   readonly storySummary: StorySummary | undefined;
   readonly story: ComparedStory | undefined;
 }) {
-  const { scope, chooseScope } = useIntentScope(selection);
+  const { scope, chooseScope } = useIntentScope(
+    selection,
+    useStoryReviewOpening(source.id) !== undefined,
+  );
   useProvideIntentScopeChooser(chooseScope);
   const storyShown = storySummary !== undefined && scope === "story";
   // Project Intent's trunk evidence is read from its first showing on.

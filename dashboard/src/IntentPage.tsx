@@ -27,6 +27,7 @@ import {
   StoryCiReturnProvider,
   storyTabs,
   useStoryTab,
+  useStoryChangesArrival,
 } from "./intentStoryTabs.tsx";
 import { IntentTabs, intentTabId, intentTabPanelId } from "./IntentTabs.tsx";
 import { useIntentWorkspaceSelection } from "./intentWorkspaceSelection.ts";
@@ -76,6 +77,9 @@ export function IntentPage({
     story === undefined
       ? project.modeIdPrefix
       : `${project.modeIdPrefix}-story`;
+  useStoryChangesArrival(story?.selection?.project, tabsIdPrefix, () => {
+    chooseTab("changes");
+  });
   const files = { id: `${tabsIdPrefix}-locations`, shown: filesShown };
   const { clearSelection, setSelection } = useIntentWorkspaceSelection();
   const [entryReturns, setEntryReturns] = useState(0);

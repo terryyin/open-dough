@@ -379,7 +379,7 @@ typecheck passed again. See `s6-refactor.md`.
 ### 7. Review changes on a Story card opens that story's Changes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Press the action on the Board or in Recently done. Intent shows the
 Selected story's default comparison and focuses Changes as one history
@@ -405,6 +405,30 @@ order and the retained workspace fixture to prove the new opening uses the
 published completion. Run `e2e/review`, the affected Intent and navigation
 readers, and both session entry routes. Trace the removed symbols and the
 former panel provider stand-ins before acceptance.
+
+**Observed.** The real Taken card opens the same default comparison as the
+banner, focuses Changes, keeps its original terminal attachment and returns
+to the selected card in one browser Back. The Project Intent and coverage
+reopens retain the chosen file. The final report remains mounted beside the
+other story, and Development returns to its card. Board and Recently done
+open the historical completion, including a retained workspace with later
+edits, separately available captured runs and the persistent Reviewed state.
+
+The former story-only panel request and test stand-ins are gone. Session
+routes, exact comparison ranges, notes, diff syntax and unchanged frame
+behavior were observed through their receiving owners. The review suite
+initially passed 71 of 74. Targeted proofs passed the three affected
+journeys, including captured Story Branch review before and after retirement
+with a 90-second timeout confined to that test. The subsequent whole rerun
+was interrupted under host contention. Affected Intent and navigation
+proof, the corrected frontend journeys, 102 mounted tests and Dashboard
+typecheck passed. See `s7-implementation.md` and
+`s7-consumer-trace-final.md` in Git evidence for provenance and exact runs.
+
+Independent refactoring named the session-only request, extracted the
+shared replacement fixture and removed the obsolete card-to-panel helper
+and note styles. The seven affected E2E cases, three frontend browser
+cases, eleven mounted tests and typecheck passed. See `s7-refactor.md`.
 
 ### 8. A fresh story review opens its first changed file
 
@@ -478,7 +502,7 @@ Disposition: proved by slice 6: story-review-toolbar-truthful-gaps.spec.ts reads
 ### G5. Use the real Story card action in the Intent review journeys
 Reported: slice 2 — "The Intent story review page object currently selects the card, enters Intent by the banner, then opens Changes."
 Story clause: "**Review changes** on an eligible Backlog, Taken, or Done Story card opens"
-Disposition: interim until slices 3, 4, 5, 6, 7
+Disposition: proved by slice 7: openIntentReviewChanges activates the actual card action. Its workspace, ambiguous, empty, held Done and historical consumers exercise Changes directly.
 
 ### G6. Committed-only file rows keep their line totals and description
 Reported: slice 3 — "The Intent comparison proves exact committed and uncommitted diff lines. The former row showed +2 −0 and +1 −0 and described '1 line added, 0 lines removed'."
@@ -518,4 +542,10 @@ Disposition: proved by slice 6: story-review-panes.spec.ts tests the 32px divide
 ### G13. Replace the remaining story-only panel test requests
 Reported: slice 6 — "The mounted details-runs, details-published, uncommitted-check, notes and note-context wrappers still depend on the story panel request. The launch story-startup wrapper still supplies the former provider."
 Story clause: "The Side panel review's story-only paths have no caller left and go."
-Disposition: receiving slice 7
+Disposition: proved by slice 7: story-review-details-runs, story-review-completed, story-review-uncommitted-check, the Intent note journeys and story-note-voice retain the receiving observations. The former request and launch mount stand-ins are removed.
+
+
+### G14. Select a file on a fresh card opening
+Reported: slice 7 — "A new card opening reaches focused Changes with the default comparison. With no kept file, it still requires a manual file choice."
+Story clause: "With no file selected, choose the first changed file in the displayed tree order"
+Disposition: receiving slice 8

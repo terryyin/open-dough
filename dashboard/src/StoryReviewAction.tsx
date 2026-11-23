@@ -1,18 +1,10 @@
-// A Story card's action opens its story review (`./StoryReview.tsx`) in
-// the Side panel (`./PageFrame.tsx`), replacing its previous content: offered from a kept launch workspace, including a retired
-// landed run's captured result, or from the worktrees local Git found holding
-// the story's claim, by the boundary's same selection rule: one is reviewed,
-// and several open a review that names them. Closing the review returns the
-// keyboard to this action. Every completed card offers the same action and
-// permits the boundary to recover its published historical comparison.
-// It leads with a review glyph and ends with an
-// arrow toward the panel, both decorative.
+// A Story card opens its Changes in Intent when its comparison is offered.
 
 import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import type { WorkEntry } from "./publishedWork.ts";
 import { storyComparisonOffered } from "./storyReviewWorkspace.ts";
-import { useOpenStoryReview } from "./pageStoryReviews.ts";
+import { useOpenStoryChanges } from "./pageStoryReviewOpening.tsx";
 import { ReviewChangesButton } from "./ReviewChangesButton.tsx";
 import "./story-review.css";
 
@@ -29,10 +21,10 @@ export function StoryReviewAction({
   // may hold one.
   readonly workspaces?: readonly LocalWorkspace[];
   readonly sourceId: string;
-  readonly work: Pick<WorkEntry, "identity" | "title">;
+  readonly work: Pick<WorkEntry, "identity">;
   readonly completed?: boolean;
 }) {
-  const openStoryReview = useOpenStoryReview();
+  const openStoryChanges = useOpenStoryChanges();
   if (
     !storyComparisonOffered(
       records,
@@ -45,14 +37,9 @@ export function StoryReviewAction({
     return null;
   return (
     <ReviewChangesButton
-      onClick={(event) => {
-        openStoryReview({
-          subject: { source: sourceId, identity: work.identity },
-          title: work.title,
-          control: event.currentTarget,
-          ...(completed ? { completed } : {}),
-        });
-      }}
+      onClick={() =>
+        openStoryChanges?.({ project: sourceId, identity: work.identity })
+      }
     />
   );
 }

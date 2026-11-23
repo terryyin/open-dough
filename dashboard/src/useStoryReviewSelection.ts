@@ -24,8 +24,6 @@ export function useStoryReviewSelection({
   round,
   completed = false,
   enabled = true,
-  initial = "all",
-  includesUncommitted = true,
   historical: historicalComparison = false,
   keyedBy,
   followsDefault = false,
@@ -35,10 +33,6 @@ export function useStoryReviewSelection({
   readonly completed?: boolean | undefined;
   // A disabled selection reads nothing.
   readonly enabled?: boolean;
-  // The workspace choice it opens on.
-  readonly initial?: ShownComparison | undefined;
-  // Whether all changes open with the workspace's uncommitted changes.
-  readonly includesUncommitted?: boolean | undefined;
   // Historical Review asks for a completed result rather than a retained workspace.
   readonly historical?: boolean | undefined;
   // A changed key drops the choice, so the selection opens on its default.
@@ -65,11 +59,11 @@ export function useStoryReviewSelection({
     // Whether the developer chose the run.
     explicit?: boolean;
     workspace: ShownComparison;
-  }>({ of: undefined, workspace: initial }, keyedBy);
+  }>({ of: undefined, workspace: "all" }, keyedBy);
   const answer = defaultRead.answer;
   const snapshot = answer?.kind === "snapshot" ? answer : undefined;
   const { value: includeUncommitted, set: setIncludeUncommitted } =
-    useStateKeyedBy(includesUncommitted, keyedBy);
+    useStateKeyedBy(true, keyedBy);
   // A snapshot without uncommitted changes offers no check; the next that
   // holds some offers it on.
   if (!includeUncommitted && snapshot !== undefined && !snapshot.committed)
@@ -143,8 +137,6 @@ export function useStoryReviewSelection({
     sessionRuns: sessionRunsOf(review ?? answer),
     sessionComparisonKeys: answer?.sessionComparisonKeys,
     runKey: selection.run,
-    // The run the workspace answer itself shows: its landed fallback.
-    answerRun: answer?.selectedRun,
     snapshot,
     published: answer?.kind === "published" ? answer : undefined,
     chosen: selection.workspace,

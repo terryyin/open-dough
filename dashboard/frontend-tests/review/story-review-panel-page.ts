@@ -7,15 +7,11 @@ import { createElement } from "react";
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import {
-  storyReviewPanelKey,
-  type StoryReviewRequest,
-} from "../../src/pageStoryReviews.ts";
-import {
-  reviewedStoryIdentity,
-  type ReviewedWorkSubject,
-} from "../../src/reviewedWorkSubject.ts";
+  sessionReviewPanelKey,
+  type SessionReviewRequest,
+  type SessionReviewSubject,
+} from "../../src/pageSessionReviews.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
-import type { StoryNotesReadSource } from "../../src/storyNotesReadSource.ts";
 import { StoryReview } from "../../src/StoryReview.tsx";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
@@ -26,15 +22,10 @@ import {
 } from "./story-review-details-view.ts";
 import { reviewFilesDivider } from "./story-review-files-divider-view.ts";
 import { reviewFiles } from "./story-review-files-view.ts";
-import { reviewNotes } from "./story-review-notes-view.ts";
-import { doneStoryTitle, onReviewPage } from "./story-review-page-contexts.ts";
+import { onReviewPage } from "./story-review-page-contexts.ts";
 import { reviewTouchBudget } from "./story-review-touch-budget-view.ts";
 
-export {
-  adHocSession,
-  doneStory,
-  doneStoryTitle,
-} from "./story-review-page-contexts.ts";
+export { adHocSession } from "./story-review-page-contexts.ts";
 
 // A review source answering `reads`; any other read stays unanswered.
 export const reviewSourceAnswering = (
@@ -49,42 +40,32 @@ export const reviewSourceAnswering = (
 
 // Opens the panel on `subject`'s review, read from `source`; another subject's
 // review replaces it, keyed as the page keys each opening. The panel fills
-// the case's viewport, as a maximized panel fills the page. The story's notes
-// are read and saved through `notes`.
+// the case's viewport, as a maximized panel fills the page.
 export async function mountReviewChanges(
   source: ReviewSource,
-  subject: ReviewedWorkSubject,
+  subject: SessionReviewSubject,
   {
-    completed = false,
     viewport,
-    notes,
   }: {
-    completed?: boolean;
-    notes?: StoryNotesReadSource;
     viewport?: { readonly width: number; readonly height: number };
   } = {},
 ) {
-  const panelOn = (shown: ReviewedWorkSubject) => {
-    const request: StoryReviewRequest = {
+  const panelOn = (shown: SessionReviewSubject) => {
+    const request: SessionReviewRequest = {
       subject: shown,
-      title:
-        reviewedStoryIdentity(shown) === undefined
-          ? "Done session"
-          : doneStoryTitle,
+      title: "Done session",
       control: document.body,
-      ...(completed ? { completed } : {}),
     };
     return onReviewPage(
       source,
       createElement(StoryReview, {
-        key: storyReviewPanelKey(request),
+        key: sessionReviewPanelKey(request),
         request,
         maximized: false,
         onMaximize: () => undefined,
         offerMaximize: false,
         onClose: () => undefined,
       }),
-      notes,
     );
   };
   const mounted = await mountComponent(panelOn(subject), {
@@ -93,7 +74,7 @@ export async function mountReviewChanges(
   });
   return {
     ...reviewChanges(),
-    openAnother(another: ReviewedWorkSubject) {
+    openAnother(another: SessionReviewSubject) {
       mounted.rerender(panelOn(another));
       return reviewChanges();
     },
@@ -101,7 +82,7 @@ export async function mountReviewChanges(
 }
 
 function reviewChanges() {
-  const region = page.getByRole("region", { name: /(?:Story|Session) review/ });
+  const region = page.getByRole("region", { name: "Session review" });
   const toolbar = region.getByRole("group", { name: "Review toolbar" });
   const details = reviewDetails(region, toolbar);
   const comparisonName = () => comparisonNameIn(toolbar);
@@ -126,7 +107,6 @@ function reviewChanges() {
     ...reviewFiles(region),
     ...reviewFilesDivider(region),
     ...reviewTouchBudget(region),
-    ...reviewNotes(region, refresh),
 
     // Whether the file browser is shown beside the diff.
     async expectFilesShown(shown: boolean) {

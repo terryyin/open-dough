@@ -1,13 +1,7 @@
-// The story review's one status region: snapshot and range read progress,
-// Refresh's displayed comparison counts, read failures, and, for as
-// long as the snapshot is shown, that this machine's Git kept a Trunk Mode
-// story's published commits in its baseline.
+// Session review progress, refresh and failures, beside the shared unread explanations.
 import { RefreshedHistoricalComparison } from "./StoryReviewHistoricalOutcome.tsx";
-import { RefreshedWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
 import { changedFiles } from "./StoryReviewFileTree.tsx";
-import type { ShownComparison } from "./StoryReviewComparison.tsx";
 import {
-  type ReviewComparison,
   type ReviewRange,
   type StoryReview,
   type TakenStoryReview,
@@ -71,31 +65,21 @@ export function ReviewFeedback({
   review,
   reading,
   problem,
-  range,
-  shown,
-  comparison,
   round,
 }: {
   readonly review: StoryReview | undefined;
   readonly reading: boolean;
   readonly problem: string | undefined;
-  readonly range: RangeRead;
-  readonly shown: ShownComparison;
-  readonly comparison: ReviewComparison | undefined;
   readonly round: number;
 }) {
-  const snapshot = review?.kind === "snapshot" ? review : undefined;
   // A review already showing changes stays shown while it is read again.
   const showsChanges =
-    review?.kind === "snapshot" ||
     review?.kind === "landed" ||
     review?.kind === "session-commits" ||
     review?.kind === "published-session" ||
-    review?.kind === "branch-result" ||
-    review?.kind === "published";
+    review?.kind === "branch-result";
   return (
     <div role="status">
-      {shown === "commits" && <RangeFeedback range={range} />}
       {reading && !showsChanges && <p>Reading the story&apos;s changes…</p>}
       {reading && showsChanges && (
         <p>
@@ -103,24 +87,12 @@ export function ReviewFeedback({
           earlier.
         </p>
       )}
-      {!reading &&
-        round > 0 &&
-        snapshot !== undefined &&
-        (shown !== "commits" || comparison !== undefined) && (
-          <RefreshedWorkspaceComparison
-            snapshot={snapshot}
-            count={(comparison ?? snapshot).files.length}
-            commitsReview={shown === "commits"}
-          />
-        )}
-      {!reading &&
-        round > 0 &&
-        (review?.kind === "landed" || review?.kind === "published") && (
-          <RefreshedHistoricalComparison
-            kind={review.kind}
-            count={review.files.length}
-          />
-        )}
+      {!reading && round > 0 && review?.kind === "landed" && (
+        <RefreshedHistoricalComparison
+          kind={review.kind}
+          count={review.files.length}
+        />
+      )}
       {!reading && round > 0 && review?.kind === "session-commits" && (
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the kept
@@ -139,32 +111,10 @@ export function ReviewFeedback({
           result at Done.
         </p>
       )}
-      <KeptPublishedCommits snapshot={snapshot} />
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
       {review?.deliveryGap !== undefined && <p>{review.deliveryGap}</p>}
       {problem !== undefined && <p>{reviewReadFailure(problem)}</p>}
-      {review?.kind === "unavailable" && (
-        <p>
-          {review.explanation}
-          {review.workspace !== undefined && (
-            <>
-              {" "}
-              Worktree <code>{review.workspace}</code>.
-            </>
-          )}
-        </p>
-      )}
+      {review?.kind === "unavailable" && <p>{review.explanation}</p>}
     </div>
-  );
-}
-
-// Range feedback is rendered in the panel's one status region.
-function RangeFeedback({ range }: { readonly range: RangeRead }) {
-  const unread = unreadRange(range);
-  return (
-    <>
-      {range.reading && <p>Reading the chosen commits&apos; changes…</p>}
-      {unread !== undefined && <p>{unread.explanation}</p>}
-    </>
   );
 }

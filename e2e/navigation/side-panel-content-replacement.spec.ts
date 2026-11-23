@@ -1,71 +1,19 @@
 // Native final reports and published session reviews replace each other in
 // the Side panel. A held Git comparison must not answer a later session.
 import { expect } from "@playwright/test";
-import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keyStep } from "../../dashboard/test-support/sidePanelWidthPage.ts";
-import { sidePanelPages } from "../../dashboard/test-support/sidePanelPages.ts";
 import { holdPublishedReviewOf } from "../../dashboard/test-support/support/holdReviewResponse.ts";
-import { test as base } from "../../dashboard/test-support/support/preparationPage.ts";
-import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
-import { otherQueuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
+import { finalReportParts } from "../../dashboard/test-support/finalReportPages.ts";
+import {
+  otherQueuedIdentity,
+  queuedIdentity,
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   keptSession,
-  retiredCodexSession,
-  storyBBranch,
   storyBReport,
-  storyBWorktree,
-  storyReviewReads,
 } from "../../dashboard/test-support/support/sidePanelContents.ts";
-import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
-import {
-  publishedPairAdding,
-  trunkAdvancedWith,
-} from "../../dashboard/test-support/originatingMachine.ts";
-import { publishReviewSession } from "../../dashboard/test-support/support/publishedReviewSession.ts";
+import { test } from "../../dashboard/test-support/support/sidePanelReplacement.ts";
 
-const test = base.extend<{
-  storiesAAndB: {
-    reviewReads: readonly string[];
-    journey: ReturnType<typeof sidePanelPages>;
-    storyBSession: string;
-    first: string;
-    second: string;
-  };
-}>({
-  storiesAAndB: async ({ page, dashboard, origin, codexProtocol }, use) => {
-    if (codexProtocol === undefined) throw new Error("Missing native fixture");
-    const started = publishedPairAdding(origin, "first.txt");
-    const candidate = trunkAdvancedWith(origin, "second.txt");
-    const first = publishReviewSession(origin, {
-      base: started.base,
-      candidate,
-    });
-    const second = publishReviewSession(
-      origin,
-      publishedPairAdding(origin, "story-b.txt"),
-    );
-    const workspaceB = storyBWorktree(origin.project);
-    keepLaunchRecords(dashboard, [
-      makeMe.aLaunchRecord
-        .executing({ identity: otherQueuedIdentity, title: "Story B" })
-        .onStoryBranch({ workspace: workspaceB, branch: storyBBranch })
-        .inCodexSession(
-          retiredCodexSession(codexProtocol, workspaceB, storyBReport),
-        )
-        .please(),
-    ]);
-    const reviewReads = storyReviewReads(page);
-    await page.setViewportSize({ width: 2400, height: 900 });
-    await openBacklog(page, origin);
-    await use({
-      reviewReads,
-      journey: sidePanelPages(page),
-      first,
-      second,
-      storyBSession: codexProtocol.threadId,
-    });
-  },
-});
 test.use({ preparationHost: "codex" });
 
 test("a session review, another session's review, and a final report replace each other in the one side panel", async ({
@@ -235,4 +183,42 @@ test("a review and a final report stay shown with their selection while the page
   );
   // Reading the report left its session not done.
   expect((await keptSession(dashboard, storyBSession)).doneAt).toBe(undefined);
+});
+
+test("a Story card opens Intent beside another story's final report", async ({
+  page,
+  storiesAAndB: { journey },
+}) => {
+  const report =
+    await test.step("Given Story B's final report is open", async () => {
+      await journey.phase("Read Story B's report", ({ board }) =>
+        board.storyCard("Story B").readFinalReport().expectText(storyBReport),
+      );
+      return finalReportParts(page).reportBody.elementHandle();
+    });
+  await test.step("When I review changes on Story A's card by keyboard", () =>
+    journey.phase("Open Story A's Changes", ({ board }) =>
+      board.storyCard("Story A").openChanges("keyboard"),
+    ));
+  await test.step("Then Changes has focus beside the same report", () =>
+    journey.phase("Story A is selected in Intent", ({ intent, sidePanel }) => {
+      intent
+        .expectSelectedStory(queuedIdentity)
+        .expectFocusedStoryTab("Changes");
+      sidePanel.finalReport.expectText(storyBReport).sidePanel.expectItems(1);
+    }));
+  await test.step("When I return to Development", () =>
+    journey.phase("Choose Development", ({ perspective }) =>
+      perspective.choose("Development"),
+    ));
+  await test.step("Then Story A remains selected and the original report stays mounted", async () => {
+    await journey.phase(
+      "Development shows both stories' content",
+      ({ board, sidePanel }) => {
+        board.storyCard("Story A").expectSelected();
+        sidePanel.finalReport.expectText(storyBReport).sidePanel.expectItems(1);
+      },
+    );
+    expect(await report.evaluate((body) => body.isConnected)).toBe(true);
+  });
 });

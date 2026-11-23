@@ -3,11 +3,10 @@
 
 import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { frontendReviewSnapshot } from "../../test-support/support/frontendStoryReview.ts";
-import { openFrontendStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
-  fileDiff,
-  fileRow,
-} from "../../test-support/support/reviewTreeRows.ts";
+  openFrontendStoryReview,
+  selectedFrontendStoryDiff,
+} from "../../test-support/support/frontendStoryReviewOpen.ts";
 import {
   greetDiff,
   greetText,
@@ -16,6 +15,7 @@ import {
   storyReviewDiff,
   type StoryReviewDiff,
 } from "../../test-support/support/reviewDiffSyntax.ts";
+import { intentFile } from "../../test-support/support/intentStoryPage.ts";
 import { failGrammar } from "../../test-support/support/syntaxGrammar.ts";
 import { greetingDiffHunkLines } from "./greetingDiffExpectations.ts";
 
@@ -55,13 +55,17 @@ test("text that cannot be read leaves plain lines with only the context problem 
   );
   const problem = `Additional context could not be read: ${unavailable.explanation} Retry`;
 
-  await fileRow(review, `Modified ${plainPath}`).click();
-  const plain = storyReviewDiff(fileDiff(review, `Modified ${plainPath}`));
+  await intentFile(review, `Modified ${plainPath}`).click();
+  const plain = storyReviewDiff(
+    await selectedFrontendStoryDiff(review, `Modified ${plainPath}`),
+  );
   await expect(plain.locator.getByRole("alert")).toHaveText(problem);
   const plainWords = await plain.words(plainPath);
 
-  await fileRow(review, `Modified ${styledPath}`).click();
-  const diff = storyReviewDiff(fileDiff(review, `Modified ${styledPath}`));
+  await intentFile(review, `Modified ${styledPath}`).click();
+  const diff = storyReviewDiff(
+    await selectedFrontendStoryDiff(review, `Modified ${styledPath}`),
+  );
   await expect(diff.locator.getByRole("alert")).toHaveText(problem);
   await expectPlainAndComplete(diff);
   expect(await diff.words(styledPath)).toBe(plainWords);
@@ -88,14 +92,18 @@ test("a grammar that fails to load leaves the code plain with nothing added", as
     },
   );
 
-  await fileRow(review, `Modified ${plainPath}`).click();
-  const plain = storyReviewDiff(fileDiff(review, `Modified ${plainPath}`));
+  await intentFile(review, `Modified ${plainPath}`).click();
+  const plain = storyReviewDiff(
+    await selectedFrontendStoryDiff(review, `Modified ${plainPath}`),
+  );
   await plain.showPrecedingLines().click();
   await expect(plain.revealedBefore()).toHaveCount(20);
   const plainWords = await plain.words(plainPath);
 
-  await fileRow(review, `Modified ${styledPath}`).click();
-  const diff = storyReviewDiff(fileDiff(review, `Modified ${styledPath}`));
+  await intentFile(review, `Modified ${styledPath}`).click();
+  const diff = storyReviewDiff(
+    await selectedFrontendStoryDiff(review, `Modified ${styledPath}`),
+  );
   await grammar.failed;
   await expectPlainAndComplete(diff);
   await diff.showPrecedingLines().click();

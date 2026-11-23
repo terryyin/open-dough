@@ -106,6 +106,9 @@ export function ConfiguredDashboard({
         <FollowUpNavigationOnPage value={openFollowUp}>
           <PageFrame
             sessions={launches}
+            showIntent={() => {
+              selectPerspective("intent");
+            }}
             stories={{
               selected: source?.id ?? "",
               shown: showsBoard ? work?.source.id : undefined,

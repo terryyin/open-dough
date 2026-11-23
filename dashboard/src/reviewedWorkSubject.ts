@@ -49,15 +49,6 @@ export const isReviewedPublishedSessionSubject = (
   subject: ReviewedWorkSubject,
 ): subject is ReviewedPublishedSessionSubject => "published" in subject;
 
-// The session a session review names: its local session id or published UUID.
-export function reviewedSessionName(
-  subject: ReviewedWorkSubject,
-): string | undefined {
-  if (isReviewedSessionSubject(subject)) return subject.session;
-  if (isReviewedPublishedSessionSubject(subject)) return subject.published;
-  return undefined;
-}
-
 // The story subject when this names a story; undefined for a session.
 export function reviewedStorySubject(
   subject: ReviewedWorkSubject,

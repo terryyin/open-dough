@@ -39,6 +39,9 @@ test("a Done story offers the captured Story Branch integration before and after
   origin,
   codexProtocol,
 }) => {
+  // Two installed native launches, real trunk integration and retirement
+  // precede the browser comparisons before and after retirement.
+  test.setTimeout(90_000);
   if (codexProtocol === undefined) throw new Error("No native fixture");
   const { refinement, story } = await storyBranchExecutionAfterRefinement(
     dashboard,

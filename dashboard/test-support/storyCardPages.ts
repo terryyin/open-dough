@@ -8,12 +8,11 @@ import { openTerminalControl } from "./terminalScreenPage.ts";
 // the page object the reader is then at (./fluentPageObject.ts); the phase
 // runs the cues.
 
-import { reviewChanges } from "./storyCardControls.ts";
 import type { Locator } from "@playwright/test";
 import { parts, storyCardSessions } from "./dashboardParts.ts";
 import { PageObject } from "./fluentPageObject.ts";
 import type { SidePanelPages } from "./sidePanelPages.ts";
-import { hideDetail, storyCard } from "./storyCardControls.ts";
+import { hideDetail, reviewChanges, storyCard } from "./storyCardControls.ts";
 import {
   emptyArea,
   expectInspected,
@@ -99,11 +98,6 @@ export class StoryCard extends PageObject {
     this.#card = storyCard(parts(pages.page).board, title);
   }
 
-  // The card's one Review changes action.
-  get #reviewChanges() {
-    return reviewChanges(this.#card);
-  }
-
   get #shownInTerminal() {
     return storyCardSessions(this.#card).getByText("Shown in terminal");
   }
@@ -122,32 +116,23 @@ export class StoryCard extends PageObject {
     return this.cueHere(`${this.#named}: ${state}`, expectation);
   }
 
-  reviewChanges() {
-    return this.cue(
-      `${this.#named}: Review changes`,
-      () => this.#reviewChanges.click(),
-      this.pages.storyReview,
-    );
-  }
-
-  // Review changes from the keyboard: focused, then Enter.
-  reviewChangesByKeyboard() {
-    return this.cue(
-      `${this.#named}: Review changes by keyboard`,
-      async () => {
-        await this.#reviewChanges.focus();
-        await this.#reviewChanges.press("Enter");
-      },
-      this.pages.storyReview,
-    );
-  }
-
   // Read final report on the card's session entry.
   readFinalReport() {
     return this.cue(
       `${this.#named}: Read final report`,
       () => readFinalReportControl(storyCardSessions(this.#card)).click(),
       this.pages.finalReport,
+    );
+  }
+
+  openChanges(using: "mouse" | "keyboard") {
+    return this.cue(
+      `${this.#named}: Review changes`,
+      () => {
+        const action = reviewChanges(this.#card);
+        return using === "keyboard" ? action.press("Enter") : action.click();
+      },
+      this.pages.intent,
     );
   }
 
@@ -180,12 +165,6 @@ export class StoryCard extends PageObject {
 
   expectShown() {
     return this.#expect("shown", () => expect(this.#card).toBeVisible());
-  }
-
-  expectReviewChangesFocused() {
-    return this.#expect("Review changes has the keyboard", () =>
-      expect(this.#reviewChanges).toBeFocused(),
-    );
   }
 
   // Its story is the Selected story, highlighted.

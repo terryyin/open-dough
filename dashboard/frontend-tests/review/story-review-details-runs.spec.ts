@@ -1,14 +1,20 @@
+import { storyA } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 // A Done story with two captured runs opens on the newer run's diff: the
-// picker and run facts wait behind the eye; choosing the older run updates
-// the details and the diff together, survives Refresh, and Escape returns
-// focus to the eye.
-import { test } from "vitest";
+// older run updates the details and diff together and survives Refresh.
+import { expect, test } from "../../test-support/support/frontendApp.ts";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { openFrontendDoneStoryReview } from "../../test-support/support/frontendStoryReviewOpen.ts";
+import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
 import {
-  doneStory,
-  mountReviewChanges,
-  reviewSourceAnswering,
-} from "./story-review-panel-page.ts";
+  intentDiffReading,
+  intentFile,
+  storySummary,
+} from "../../test-support/support/intentStoryPage.ts";
+import { ReviewLandedRun } from "../../test-support/reviewChangesLandedRun.ts";
+import {
+  comparisonChoice,
+  reviewRefresh,
+} from "../../test-support/support/reviewControls.ts";
 
 const oid = (digit: string) => digit.repeat(40);
 const older = {
@@ -31,53 +37,44 @@ const runs = [newer.run, older.run];
 const landedOn = ({ name, run }: typeof older) =>
   makeMe.aStoryReview.landed().adding(`${name}.txt`).onRun(run, runs).please();
 
-// Answers the newer run unless the read names the older one.
-const capturedRuns = reviewSourceAnswering({
-  review: (query) =>
-    Promise.resolve(landedOn(query.run === older.run.key ? older : newer)),
-  fileDiff: (query) => {
-    const { name } = query.path === `${older.name}.txt` ? older : newer;
-    return Promise.resolve(
-      makeMe.aReviewedFileDiff.adding(`${name}.txt`, `${name}.txt`).please(),
-    );
-  },
-});
-
-test("a Done story opens on the newer of two captured runs and Escape from the picker returns to the eye", async () => {
-  const review = await mountReviewChanges(capturedRuns, doneStory, {
-    completed: true,
-  });
-
-  // Compact opening: Landed runs, files toggle, newest file and first diff;
-  // picker and run facts wait behind the eye.
-  await review.expectComparisonNamed("Landed runs");
-  await review.expectFilesToggleNamed("Hide files");
-  await review.expectDiffShows(`Added ${newer.name}.txt`, `+${newer.name}.txt`);
-  await review.expectDetailsCollapsed();
-  await review.expectNoCodeShown(oid("4"));
-
-  await review.revealDetails();
-  await review.expectLandedRunChosen(newer.run.key);
-  await review.expectComparisonChosen("Landed runs");
+test("a Done card opens on the latest captured run, keeping an older choice across Refresh", async ({
+  page,
+  frontendServices,
+}) => {
+  const { review: intent } = await openFrontendDoneStoryReview(
+    page,
+    frontendServices,
+    landedOn(newer),
+    (answers) => {
+      answers.answerHistoricalSnapshot(storyA.identity, landedOn(newer));
+      answers.answerRunSnapshot(older.run.key, landedOn(older));
+      for (const { name } of [older, newer])
+        answers.answerFile(
+          frontendFileDiff(`${name}.txt`, [`+${name}.txt`]),
+          `${name}.txt`,
+        );
+    },
+  );
+  const summary = storySummary(intent);
+  const picker = new ReviewLandedRun(summary, async () => {});
+  await picker.expectChosen(newer.run.key);
+  await picker.expectRunKeys(runs.map((run) => run.key));
+  await expect(comparisonChoice(summary, "Landed runs")).toBeChecked();
   for (const { name, run } of [newer, older]) {
-    await review.chooseLandedRun(run.key);
-    await review.expectLandedRunChosen(run.key);
-    await review.expectComparisonNamed("Landed runs");
-    await review.expectDetailsRevealed();
-    await review.expectDetailsSay("Refinement launched");
-    await review.expectDetailsTime(run.launchedAt);
-    await review.expectDetailsSay("origin/main");
+    await picker.choose(run.key);
+    await picker.expectChosen(run.key);
+    await picker.expectLaunchedAt(run.launchedAt);
     const { base, revision } = run.comparison ?? {};
-    await review.expectDetailsSay(`From ${base} to ${revision}.`);
-    await review.expectDiffShows(`Added ${name}.txt`, `+${name}.txt`);
+    await picker.expectShown(
+      "Refinement launched",
+      "origin/main",
+      `From ${base} to ${revision}.`,
+    );
+    await intentFile(intent, `Added ${name}.txt`).click();
+    await expect(intentDiffReading(intent).code).toContainText(`+${name}.txt`);
   }
-
-  // The revealed state and the older run last across Refresh.
-  await review.refresh();
-  await review.expectFeedbackSays("Review refreshed");
-  await review.expectDetailsRevealed();
-  await review.expectLandedRunChosen(older.run.key);
-
-  await review.escapeFromLandedRuns();
-  await review.expectDiffShows(`Added ${older.name}.txt`, `+${older.name}.txt`);
+  await reviewRefresh(summary).click();
+  await expect(summary.getByRole("status")).toContainText("Review refreshed");
+  await picker.expectChosen(older.run.key);
+  await expect(intentDiffReading(intent).code).toContainText("+first.txt");
 });

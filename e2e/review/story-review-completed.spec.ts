@@ -8,6 +8,8 @@ import {
   parts,
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import { expectReviewed } from "../../dashboard/test-support/doneStoryReviewPage.ts";
+import { storyHeaderReading } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import path from "node:path";
@@ -38,6 +40,7 @@ test("a CLI-completed story without a local launch opens fixed published changes
   });
   await expect(sessionEntriesIn(card)).toHaveCount(0);
   await expect(reviewChanges(card)).toBeVisible();
+  await expectReviewed(card, false);
   const review = await openIntentReviewChanges(page, card);
   const first = review.answer;
   expect(first.kind).toBe("published");
@@ -47,6 +50,10 @@ test("a CLI-completed story without a local launch opens fixed published changes
   expect(first.files.map((file) => file.path)).not.toContain("other-story.txt");
   const { files, diffs } = review;
   await review.expectText("Published completion");
+  await expect(
+    storyHeaderReading(parts(page).intent).revisions.locator("time"),
+  ).toHaveAttribute("datetime", first.completedAt);
+  await review.expectText(first.target);
   await files.choose("Modified shared.txt");
   await diffs.expectChangedLines("Modified shared.txt", {
     removed: ["-line 0"],
@@ -58,6 +65,7 @@ test("a CLI-completed story without a local launch opens fixed published changes
   advanceCompletedTrunk(origin);
   expect((await review.refreshAndAnswer()).answer).toEqual(first);
   await review.returnToDevelopment();
+  await expectReviewed(card, false);
   const reopened = await openIntentReviewChanges(page, card);
   expect(reopened.answer).toEqual(first);
   await reopened.files.choose("Added [literal]*.txt");

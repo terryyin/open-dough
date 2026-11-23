@@ -14,8 +14,7 @@
   pointer-events: none;
 }
 
-.intent-story-title-line > .story-notes-problem,
-.story-review .side-panel-actions > .story-notes-problem {
+.intent-story-title-line > .story-notes-problem {
   order: 1;
   font-size: var(--text-xs);
 }

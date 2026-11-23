@@ -1,4 +1,3 @@
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import { reviewChanges } from "../../dashboard/test-support/storyCardControls.ts";
 import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
@@ -134,5 +133,6 @@ test("a completed story whose comparison cannot be recovered keeps saved coverag
   const { development } = parts(page);
   await development.click();
   await reviewChanges(card).click();
-  await expect(reviewRegion(page)).toContainText(unrecoverable);
+  await expect(story.panel("Changes")).toBeVisible();
+  await expect(story.summary).toContainText(unrecoverable);
 });

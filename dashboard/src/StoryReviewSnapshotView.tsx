@@ -1,5 +1,4 @@
-// A story review's snapshot (`./storyReviewContract.ts`) as its panel's body shows
-// it, beneath the review's toolbar, details and feedback: the story's
+// A session comparison beneath the review's toolbar, details and feedback: its
 // changed files in the comparison shown, with their change kinds, in a file
 // browser the toolbar hides or shows (`./StoryReviewToolbar.tsx`). The
 // browser shows each file by name under folders that collapse and expand
@@ -12,12 +11,10 @@
 // snapshot or a comparison switch keeps the collapsed folders and selected
 // file while the file is still listed; otherwise the first file is selected.
 import { useLayoutEffect, useRef, useState } from "react";
-import { EmptyWorkspaceComparison } from "./StoryReviewWorkspaceOutcome.tsx";
 import { reviewFileOrder, reviewFileTree } from "./reviewFileTree.ts";
 import {
   type ReviewComparison,
   type ReviewedFile,
-  type TakenStoryReview,
 } from "./storyReviewContract.ts";
 import { diffStartOf } from "./storyComparisonShown.ts";
 import type { FileBrowserPlace } from "./FileBrowserToggle.tsx";
@@ -31,11 +28,6 @@ import {
   FileRow,
   FileTree,
 } from "./StoryReviewFileTree.tsx";
-import { isReviewedStorySubject } from "./reviewedWorkSubject.ts";
-import {
-  emptyLandedReview,
-  emptyPublishedReview,
-} from "./StoryReviewHistoricalOutcome.tsx";
 import { useProjects } from "./projectList.tsx";
 import { useReviewDiffSyntaxHint } from "./reviewDiffSyntaxHint.ts";
 import { StoryReviewWorkarea } from "./StoryReviewWorkarea.tsx";
@@ -43,64 +35,37 @@ import { StoryReviewWorkarea } from "./StoryReviewWorkarea.tsx";
 // What the review says in place of the browser when the comparison shown
 // lists no files.
 function NoChanges({
-  snapshot,
-  commitsReview,
-  committedOnly,
-  published,
-  sessionSubject,
   sessionCommits,
   branchResult,
 }: {
-  readonly snapshot?: TakenStoryReview;
-  readonly commitsReview: boolean;
-  readonly committedOnly: boolean;
-  readonly published: boolean;
-  readonly sessionSubject: boolean;
-  // A session's kept commits rather than its landing, which names a launch.
   readonly sessionCommits: boolean;
   readonly branchResult: boolean;
 }) {
-  if (snapshot === undefined) {
-    let words = emptyLandedReview;
-    if (branchResult)
-      words = "No changes: the branch at Done matches its starting revision.";
-    else if (published) words = emptyPublishedReview;
-    else if (sessionSubject)
-      words = sessionCommits
-        ? "No changes: these session commits leave no difference."
-        : "No changes: this session's delivered comparison is empty.";
-    return <p>{words}</p>;
-  }
+  if (branchResult)
+    return <p>No changes: the branch at Done matches its starting revision.</p>;
   return (
-    <EmptyWorkspaceComparison
-      snapshot={snapshot}
-      commitsReview={commitsReview}
-      committedOnly={committedOnly}
-    />
+    <p>
+      {sessionCommits
+        ? "No changes: these session commits leave no difference."
+        : "No changes: this session's delivered comparison is empty."}
+    </p>
   );
 }
 
 export function SnapshotView({
   reviewed,
-  snapshot,
   comparison,
   headingId,
   browser,
   tree: comparedTree,
-  commitsReview = false,
-  committedOnly = false,
   branchResult = false,
   settingsRevision,
 }: {
   readonly reviewed: ReviewedWork;
-  readonly snapshot?: TakenStoryReview;
   readonly comparison: ReviewComparison;
   readonly headingId: string;
   readonly browser: FileBrowserPlace;
   readonly tree: string;
-  readonly commitsReview?: boolean;
-  // Whether all changes leave the snapshot's uncommitted changes out.
-  readonly committedOnly?: boolean;
   readonly branchResult?: boolean;
   // Intent locations revision for path-grammar fallback (`./reviewDiffSyntaxHint.ts`).
   readonly settingsRevision?: string;
@@ -157,11 +122,6 @@ export function SnapshotView({
   const diffHeadingId = `${headingId}-diff`;
   return selected === undefined ? (
     <NoChanges
-      {...(snapshot === undefined ? {} : { snapshot })}
-      commitsReview={commitsReview}
-      committedOnly={committedOnly}
-      published={reviewed.completion !== undefined}
-      sessionSubject={!isReviewedStorySubject(reviewed.subject)}
       sessionCommits={reviewed.reference === undefined}
       branchResult={branchResult}
     />

@@ -21,12 +21,17 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useLayoutEffect,
   useRef,
   type ReactNode,
   type RefObject,
 } from "react";
 import { intentTabId, type IntentTabOption } from "./IntentTabs.tsx";
+import {
+  useFinishStoryReviewOpening,
+  useStoryReviewOpening,
+} from "./pageStoryReviewOpening.tsx";
 import { useKeptReading } from "./pageIntentReading.tsx";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 
@@ -111,16 +116,43 @@ export function useStoryTab(selection: SelectedStory | undefined) {
   return { tab: choice, chooseTab: choose };
 }
 
+// Card arrivals choose Changes and take focus after the tab has mounted.
+export function useStoryChangesArrival(
+  project: string | undefined,
+  tabsIdPrefix: string,
+  chooseChanges: () => void,
+) {
+  const finish = useFinishStoryReviewOpening();
+  const opening = useStoryReviewOpening(project);
+  useEffect(() => {
+    if (opening === undefined) return;
+    chooseChanges();
+    document.getElementById(intentTabId(tabsIdPrefix, "changes"))?.focus();
+    finish?.(opening);
+  }, [opening, tabsIdPrefix, chooseChanges, finish]);
+}
+
 // What Intent shows for the page's `selection`, and the way to the other.
 // Project Intent shows only when chosen during this selection.
-export function useIntentScope(selection: SelectedStory | undefined) {
+export function useIntentScope(
+  selection: SelectedStory | undefined,
+  openingChanges = false,
+) {
   const { choice, choose } = useChoiceFor<IntentScope>(
     "scope",
     selection,
     "story",
   );
+  useEffect(() => {
+    if (openingChanges && choice !== "story") choose("story");
+  }, [openingChanges, choice, choose]);
   return {
-    scope: selection === undefined ? ("project" as const) : choice,
+    scope:
+      selection === undefined
+        ? ("project" as const)
+        : openingChanges
+          ? ("story" as const)
+          : choice,
     chooseScope: choose,
   };
 }

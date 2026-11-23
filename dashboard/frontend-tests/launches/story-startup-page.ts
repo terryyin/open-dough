@@ -6,7 +6,6 @@ import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { LaunchAttemptSource } from "../../src/launchAttempts.ts";
 import { launchOffers } from "../../src/launchOffers.ts";
 import { SessionsOnPage } from "../../src/pageSessions.ts";
-import { StoryReviewsOnPage } from "../../src/pageStoryReviews.ts";
 import type { WorkEntry } from "../../src/publishedWork.ts";
 import { StartupAnnouncer } from "../../src/StartupAnnouncer.tsx";
 import { StartupRecovery } from "../../src/StartupRecovery.tsx";
@@ -137,20 +136,17 @@ export async function mountStoryStartup(
     storyNotes: () => Promise.resolve(notes),
   });
   const view = (read: ReadState) =>
-    createElement(StoryReviewsOnPage, {
-      value: nothing,
-      children: createElement(SessionsOnPage, {
-        value: inertPageSessions,
-        children: createElement(PageReadsOnPage, {
-          reads,
-          children: createElement(StartupOnPage, {
-            entry,
-            other,
-            read,
-            source,
-            reread,
-            taken,
-          }),
+    createElement(SessionsOnPage, {
+      value: inertPageSessions,
+      children: createElement(PageReadsOnPage, {
+        reads,
+        children: createElement(StartupOnPage, {
+          entry,
+          other,
+          read,
+          source,
+          reread,
+          taken,
         }),
       }),
     });

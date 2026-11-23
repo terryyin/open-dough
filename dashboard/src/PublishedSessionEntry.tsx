@@ -6,7 +6,7 @@
 // (`./AdHocSessionReviewAction.tsx`). It has no native controls.
 
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
-import { useOpenStoryReview } from "./pageStoryReviews.ts";
+import { useOpenSessionReview } from "./pageSessionReviews.ts";
 import { ReviewChangesButton } from "./ReviewChangesButton.tsx";
 import "./agent-launch.css";
 import "./story-review.css";
@@ -20,7 +20,7 @@ export function PublishedSessionEntry({
   readonly record: PublishedSessionRecord;
   readonly sourceId: string;
 }) {
-  const openStoryReview = useOpenStoryReview();
+  const openSessionReview = useOpenSessionReview();
   const { sessionId, closedAt } = record;
   const name = `${publishedSessionTitle} ${sessionId}`;
   return (
@@ -32,7 +32,7 @@ export function PublishedSessionEntry({
       </p>
       <ReviewChangesButton
         onClick={(event) => {
-          openStoryReview({
+          openSessionReview({
             subject: { source: sourceId, published: sessionId },
             title: name,
             control: event.currentTarget,

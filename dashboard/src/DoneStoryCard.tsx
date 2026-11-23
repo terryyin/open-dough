@@ -150,7 +150,7 @@ export function DoneStoryCard({
           completed
           sourceId={sourceId}
           records={launchRecords}
-          work={{ identity, title }}
+          work={{ identity }}
         />
         <StoryNotes sourceId={sourceId} identity={identity} title={title} />
         {reviewState}
