@@ -307,7 +307,7 @@ legacy case, it still runs `expectMarkedScopeHistoryDrawn` on the same chart
 ### 7. Project history chart marks hold in both schemes and the narrowest width
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-project-ci-history-chart-marks` (2 cases) onto
 `mountIntentCiPage`. Set the colour scheme with `emulateMedia`. Remove
@@ -325,6 +325,16 @@ the marks stay painted with focus. At the narrowest supported width, the
 **Proof.** Both cases pass on Vitest. `npm run typecheck:dashboard` passes.
 A search for each removed module or member finds no consumer, and the
 support line count falls.
+
+**Accepted proof.** Both Project cases pass on Vitest in light and dark, and
+at 320×256. Turning off the focus outline, moving the axis labels 40 px left
+and blanking a date label each failed them. The Done and Project chart-mark
+specs share `intent-marked-scope-history-fixtures.ts`. The chart reader moved
+to `intent-scope-history-chart-page.ts`, and `failedUnder` became
+`drawnUnder(readout, part)`. The 16 importers and typecheck passed. Removing
+`summaryScopeHistory.ts`, `scopeHistoryMarksScenario.ts` and the spent
+`historyChartPage.ts`/`intentScopeHistoryPage.ts` members took shared test
+support down by about 271 lines.
 
 ### 8. The cohort comparison measures faster feedback with proof intact
 
@@ -348,7 +358,7 @@ runs under comparable load. Report:
 ### G1. Done chart-mark drawing checks move with the Project chart
 Reported: slice 6 — "Some drawing checks from expectMarkedScopeHistoryDrawn are not on the Done half: the selected diamond's shape, the dashed average line, the axis labels, marks running left to right by x position, the button over the drawn shape for the zero, selected and unavailable marks, and the zero mark sitting exactly on the axis floor."
 Story clause: "All 14 legacy cases across the 8 owned files have a traceable disposition"
-Disposition: receiving slice 7
+Disposition: proved by slice 7: dashboard/frontend-tests/intent/intent-project-ci-history-chart-marks.spec.ts case 1 asserts selectedShape, averageDashes, the exact axis labels, markXs strictly increasing, drawnUnder for zero, selected, failed and unavailable marks, floorY for zero, and dateLabels Nov 2, Nov 5, Nov 8 (blanking Nov 2 failed it)
 
 ## Slice review
 

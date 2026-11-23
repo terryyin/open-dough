@@ -18,7 +18,7 @@ export function tokenColour(page: Page, token: string): Promise<string> {
 export const colourOf = (element: Locator) =>
   element.evaluate((node) => getComputedStyle(node).color);
 
-export const backgroundOf = (element: Locator) =>
+const backgroundOf = (element: Locator) =>
   element.evaluate((node) => getComputedStyle(node).backgroundColor);
 
 // The first highlighted token in a source reading whose text matches `text`.

@@ -1,87 +1,99 @@
 // The shared history chart's marks and readouts on Project Intent's scope
-// timing history for the configured trunk, in the whole app: each build's
-// timing or status by shape and readout under the observed trunk endpoint's
-// words, painted readably in light and dark appearance, with whole duration
-// labels at the narrowest supported width. The Done story's chart, its walk
-// through every mark by keyboard, and touch are in
-// ./intent-ci-history-chart-marks.spec.ts.
+// timing history for the configured trunk: each build's timing or status by
+// shape and place under the observed trunk endpoint's words, painted readably
+// with focus shown in light and dark appearance, with whole duration labels at
+// the narrowest supported width. The Done story's chart, its walk through
+// every mark by keyboard, and touch are in
+// ./intent-ci-history-chart-marks.spec.ts. The integrated journeys own
+// collection; the typed scope history read answers each scope.
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { zoomedViewport } from "../navigation/board-accessibility.ts";
+import { emulateMedia } from "../review/browser-session.ts";
+import { workOf } from "./intent-ci-homepage-page.ts";
+import { openDoughSource } from "./intent-ci-status-fixtures.ts";
 import {
-  expectFocusedAndIndicated,
-  zoomedWindow,
-} from "../../test-support/accessibleReading.ts";
+  failed,
+  markedHistory,
+  readoutsBefore,
+  unavailable,
+  zero,
+} from "./intent-marked-scope-history-fixtures.ts";
+import { mountUnprovenScopeHistory } from "./intent-project-scope-history-fixtures.ts";
 import {
-  expectMarksByTab,
-  expectMarksPainted,
-  historyChart,
-  inspectMark,
-} from "../../test-support/historyChartPage.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { scopeHistory } from "../../test-support/intentScopeHistoryPage.ts";
-import { openSummary } from "../../test-support/intentSummaryCiProofFixtures.ts";
-import { expectNoSidewaysScrollIn } from "../../test-support/pageLayout.ts";
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  expectMarkedScopeHistoryDrawn,
-  failedReadout,
-  serveMarkedScopeHistory,
-} from "../../test-support/support/scopeHistoryMarksScenario.ts";
-import { setColorScheme } from "../../test-support/systemAppearanceReading.ts";
-import type { Page } from "@playwright/test";
+  openScopeSummary,
+  scopeHistoryIn,
+} from "./intent-scope-history-page.ts";
 
 const endpoint = "Nov 8 · Endpoint · 1.5 s";
+const durations = ["0 ms", "500 ms", "1.0 s", "1.5 s", "2.0 s"];
+const work = workOf(
+  makeMe.aPublishedSource.with({ ...openDoughSource, ref: "trunk" }).please(),
+  "a1a1a1a",
+);
 
-// Project Intent's Summary for the configured trunk with the retained
-// history beside an unread live status.
-async function openProjectChart(page: Page, revision: string) {
-  await serveMarkedScopeHistory(page, revision);
-  await page.route(/intent=ci-status/, (route) =>
-    route.fulfill({ status: 502, json: { error: "Live proof unavailable" } }),
-  );
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const summary = await openSummary(parts(page).intent, "dashboard/tests");
+// Project Intent's Summary for the configured trunk, its retained history
+// marked, beside an unread live status.
+async function openProjectChart(viewport?: typeof zoomedViewport) {
+  await mountUnprovenScopeHistory({
+    work,
+    ...(viewport && { viewport }),
+    readScopeHistory: (...[, path, observed]) =>
+      Promise.resolve(markedHistory(path, observed.revision)),
+  });
+  const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
   return {
-    history: scopeHistory(summary),
-    chart: historyChart(
-      summary,
-      "Test execution time for test cases by build date; observed trunk endpoint marked",
-    ),
+    history,
+    chart: await history.chart("test cases", "observed trunk endpoint"),
   };
 }
 
-test("a Project Intent scope history chart marks the observed trunk endpoint's builds and reads them by pointer and keyboard in light and dark", async ({
-  page,
-  frontendServices,
-}) => {
-  const { chart } = await openProjectChart(page, frontendServices.revision);
-  await expect(chart.readout).toHaveText(endpoint);
-  await expectMarkedScopeHistoryDrawn(chart, endpoint);
-  for (const scheme of ["light", "dark"] as const) {
-    await setColorScheme(page, scheme);
-    await expectMarksPainted(page, chart);
+test("a Project Intent scope history chart marks the observed trunk endpoint's builds and reads them by pointer and keyboard in light and dark", async () => {
+  const { chart } = await openProjectChart();
+  expect(chart.readout()).toBe(endpoint);
+  expect(chart.markNames()).toEqual([...readoutsBefore, endpoint]);
+  expect(chart.builds()).toEqual({ measured: 4, selected: 1, unavailable: 1 });
+  expect(chart.selectedShape()).toMatch(/^M[^M]+Z$/);
+  expect(chart.averageDashes()).toMatch(/\d/);
+  expect(chart.axisLabels()).toEqual(durations);
+  expect(chart.dateLabels()).toEqual(["Nov 2", "Nov 5", "Nov 8"]);
+  const across = chart.markXs();
+  expect(across).toEqual([...across].sort((a, b) => a - b));
+  expect(new Set(across).size).toBe(across.length);
+  expect({
+    zero: chart.drawnUnder(zero, "measured"),
+    endpoint: chart.drawnUnder(endpoint, "selected"),
+    failed: chart.drawnUnder(failed, "failed"),
+    unavailable: chart.drawnUnder(unavailable, "unavailable"),
+  }).toEqual({ zero: true, endpoint: true, failed: true, unavailable: true });
+  expect(chart.markY(zero)).toBeCloseTo(chart.floorY(), 0);
+  expect(chart.markY(failed)).toBeGreaterThan(chart.floorY() + 8);
+  for (const scheme of ["light", "dark"]) {
+    await emulateMedia([{ name: "prefers-color-scheme", value: scheme }]);
+    await expect.poll(chart.painting).toEqual({
+      failedInProblemColour: true,
+      hollowOnSurface: true,
+      marksRead: true,
+      readoutRead: true,
+    });
+    await userEvent.hover(chart.mark(failed));
+    await expect.poll(chart.readout).toBe(failed);
+    await userEvent.unhover(chart.mark(failed));
+    // Tab walks from the build without timing on to the endpoint's mark.
+    chart.mark(unavailable).focus();
+    await expect.poll(chart.readout).toBe(unavailable);
+    await userEvent.tab();
+    await userEvent.tab();
+    await expect.poll(chart.focusedMark).toBe(endpoint);
+    await expect.poll(chart.readout).toBe(endpoint);
+    expect(chart.focusPainted()).toBe(true);
   }
-  await inspectMark(chart, failedReadout, "pointer");
-  await page.mouse.move(0, 0);
-  // Tab reaches the endpoint's mark, whose readout and focus show.
-  await expectMarksByTab(page, chart, [endpoint]);
-  await expectFocusedAndIndicated(page, chart.mark(endpoint));
 });
 
-test("at the narrowest supported width the duration axis labels stay whole inside the chart", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize(zoomedWindow);
-  const { history, chart } = await openProjectChart(
-    page,
-    frontendServices.revision,
-  );
-  await expect(chart.axisLabels.first()).toHaveText("0 ms");
-  const drawn = await chart.drawing.boundingBox();
-  if (drawn === null) throw new Error("chart is not drawn");
-  for (const label of await chart.axisLabels.all()) {
-    const box = await label.boundingBox();
-    expect(box?.x ?? -1).toBeGreaterThanOrEqual(drawn.x);
-  }
-  await expectNoSidewaysScrollIn(page, history);
+test("at the narrowest supported width the duration axis labels stay whole inside the chart", async () => {
+  const { history, chart } = await openProjectChart(zoomedViewport);
+  expect(chart.axisLabels()).toEqual(durations);
+  expect(chart.axisLabelsInside()).toBe(durations.length);
+  expect(history.scrollingSideways()).toEqual([]);
 });

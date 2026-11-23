@@ -1,16 +1,20 @@
 // A selected scope's test execution time history
 // (../../src/IntentScopeTimingHistory.tsx) as a reader meets it in a Summary
 // or a file's Proof: the compact readout's lines and change cue, the Test
-// cases / Test file choice, the chosen unit's chart, and where the history
+// cases / Test file choice, the chosen unit's chart
+// (./intent-scope-history-chart-page.ts), and where the history
 // stands against the part after it; and the drill from a location's Summary
 // through its folders into a file's Proof that reaches each scope.
 import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { paintContrast } from "../configuration/system-settings-reading.ts";
-import { centreOf } from "../configuration/system-settings-usage-chart-mark.ts";
 import { tapWhereShown } from "../navigation/board-touch-page.ts";
 import { visibleText } from "./intent-ci-comparison-page.ts";
 import { locationNameControl } from "./intent-ci-homepage-page.ts";
+import {
+  chartIn,
+  type ChartEndpoint,
+} from "./intent-scope-history-chart-page.ts";
 import { priorReferenceIn } from "./intent-ci-prior-reference-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
@@ -26,91 +30,6 @@ export function scrollingSidewaysIn(area: Element) {
       .filter((element) => element.scrollWidth > element.clientWidth + 1)
       .map((element) => element.tagName),
   ];
-}
-
-// The chart for UNIT ("test cases", "test files") through ENDPOINT. Its
-// drawing is laid out only once its plot is measured, after the history's
-// readout settles; it is drawn when its marks and readout are shown.
-function chartIn(
-  history: Locator,
-  unit: string,
-  endpoint: "selected landing" | "observed trunk endpoint",
-) {
-  const drawing = () =>
-    history
-      .element()
-      .querySelector(
-        `[role=img][aria-label="Test execution time for ${unit} by build date; ${endpoint} marked"]`,
-      );
-  const box = () => drawing()?.closest(".history-chart-chart") ?? null;
-  const within = (selector: string) => [
-    ...(drawing()?.querySelectorAll(selector) ?? []),
-  ];
-  const yOf = (node: Element | undefined) => {
-    if (node === undefined) throw new Error("Chart part not drawn");
-    return centreOf(node).y;
-  };
-  const markButtons = () => [...(box()?.querySelectorAll("button") ?? [])];
-  const markNamed = (readout: string) =>
-    markButtons().find((mark) => mark.getAttribute("aria-label") === readout);
-  const markFor = (readout: string) => {
-    const mark = markNamed(readout);
-    if (mark === undefined) throw new Error(`No mark ${readout}`);
-    return mark;
-  };
-  const readoutElement = () =>
-    box()?.querySelector(".history-chart-readout") ?? null;
-  return {
-    drawn: () => readoutElement() !== null,
-    marks: () => markButtons().length,
-    // Each mark's name: its date, timing and build role.
-    markNames: () =>
-      markButtons().map((mark) => mark.getAttribute("aria-label")),
-    // How many builds are drawn measured, as the selected point, or hollow
-    // for no timing.
-    builds: () => ({
-      measured: within(":is(circle, polygon).history-chart-point").length,
-      selected: within("path.history-chart-point").length,
-      unavailable: within(".history-chart-unavailable").length,
-    }),
-    // The line's strokes; each "M" starts a stroke not joined to the last.
-    line: () =>
-      within(".history-chart-line")[0]?.getAttribute("d") ?? undefined,
-    // Each drawn part's title: a mark's date, timing, unit and build role.
-    titles: () => within("title").map((node) => node.textContent),
-    readout: () => {
-      const node = readoutElement();
-      return node === null ? "" : visibleText(node);
-    },
-    axisLabels: () => textsOf(within("g:has(> .history-chart-grid) > text")),
-    averageLabel: () =>
-      within(".history-chart-reference title").map((n) => n.textContent),
-    averageY: () => yOf(within(".history-chart-reference line")[0]),
-    markY: (readout: string) => yOf(markNamed(readout)),
-    // The failed build's × lies under the mark naming it, centred on it.
-    failedUnder: (readout: string) => {
-      const [failed] = within(".history-chart-failed");
-      const mark = markNamed(readout);
-      if (failed === undefined || mark === undefined) return false;
-      const a = centreOf(failed);
-      const b = centreOf(mark);
-      return Math.abs(a.x - b.x) < 1.5 && Math.abs(a.y - b.y) < 1.5;
-    },
-    // The mark naming READOUT, for pointer or keyboard.
-    mark: markFor,
-    // The name of the mark that has focus.
-    focusedMark: () =>
-      markButtons()
-        .find((mark) => mark === document.activeElement)
-        ?.getAttribute("aria-label"),
-    // Taps the mark naming READOUT; the chart's readout then names it.
-    async tapMark(readout: string) {
-      const mark = markFor(readout);
-      mark.scrollIntoView({ block: "center" });
-      await tapWhereShown(mark);
-    },
-    readoutElement,
-  };
 }
 
 export function scopeHistoryIn(scope: Locator) {
@@ -178,10 +97,7 @@ export function scopeHistoryIn(scope: Locator) {
       await expect.element(button).toHaveAttribute("aria-pressed", "true");
     },
     // The chart UNIT draws through ENDPOINT, once it is drawn.
-    async chart(
-      unitName: string,
-      endpoint: "selected landing" | "observed trunk endpoint",
-    ) {
+    async chart(unitName: string, endpoint: ChartEndpoint) {
       const chart = chartIn(history, unitName, endpoint);
       await expect.poll(chart.drawn).toBe(true);
       return chart;
