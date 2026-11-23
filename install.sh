@@ -176,13 +176,11 @@ managed_files=(
   dough-page-objects/references/convention.md
   dough-makeme/SKILL.md
   dough-makeme/references/convention.md
-  dough-makeme/scripts/changed-makeme.mjs
   dough-makeme/scripts/intent-location-selection.mjs
   dough-makeme/scripts/intent-location-settings.mjs
   dough-makeme/scripts/minimatch.LICENSE.md
   dough-makeme/scripts/minimatch.bundle.mjs
   dough-makeme/scripts/repository-path.mjs
-  dough-makeme/scripts/select-makeme.mjs
 )
 # Keep the data fragment at the path read by already released updaters.
 source "$(dirname -- "${BASH_SOURCE[0]}")/src/install/open-dough-execution-payload.sh"

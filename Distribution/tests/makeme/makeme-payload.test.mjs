@@ -10,13 +10,11 @@ import { openDoughSource } from "../support/releaseTestData.mjs";
 const ruleFiles = [
   "SKILL.md",
   "references/convention.md",
-  "scripts/changed-makeme.mjs",
   "scripts/intent-location-selection.mjs",
   "scripts/intent-location-settings.mjs",
   "scripts/minimatch.bundle.mjs",
   "scripts/minimatch.LICENSE.md",
   "scripts/repository-path.mjs",
-  "scripts/select-makeme.mjs",
 ];
 
 test("installation and update deliver the complete standalone MakeMe rule to both native roots without changing project opt-ins", async (t) => {
@@ -58,7 +56,7 @@ test("installation and update deliver the complete standalone MakeMe rule to bot
         makeMe.anIntentLocation
           .at("frontend/tests")
           .ofKind("typescript")
-          .usingMakeMe(false)
+          .withRules({ pageObjects: true })
           .please(),
       )
       .please(),
@@ -96,16 +94,24 @@ test("installation and update deliver the complete standalone MakeMe rule to bot
       "cursor",
     ]);
   const assertInstalled = (target) => {
-    const execute = (command, args) =>
-      execFileSync(command, args, {
-        cwd: target,
-        encoding: "utf8",
-      });
     assert.equal(existsSync(join(target, "node_modules")), false);
     for (const [path, bytes] of Object.entries(sentinels))
       assert.equal(readFileSync(join(target, path), "utf8"), bytes, path);
     for (const alias of [".agents", ".claude"]) {
       const skill = join(target, alias, "skills/dough-makeme");
+      const selector = join(
+        target,
+        alias,
+        "skills/dough-execute-plan/scripts/test-entry-rules.mjs",
+      );
+      const selectRules = (...args) =>
+        JSON.parse(
+          execFileSync(
+            process.execPath,
+            [selector, "--project", target, ...args],
+            { cwd: target, encoding: "utf8" },
+          ),
+        );
       for (const path of ruleFiles)
         assert.deepEqual(
           readFileSync(join(skill, path)),
@@ -113,33 +119,61 @@ test("installation and update deliver the complete standalone MakeMe rule to bot
             join(openDoughSource, "Distribution/src/skills/dough-makeme", path),
           ),
         );
-      const select = JSON.parse(
-        execute(process.execPath, [
-          join(skill, "scripts/select-makeme.mjs"),
-          "--project",
-          target,
-          "--",
+      assert.deepEqual(
+        selectRules(
+          "--source",
           "backend/tests/new.spec.ts",
+          "--source",
           "backend/tests/helper.ts",
+          "--source",
           "frontend/tests/new.spec.ts",
-        ]),
+        ),
+        {
+          status: "resolved",
+          sources: [
+            {
+              path: "backend/tests/new.spec.ts",
+              makeMe: true,
+              pageObjects: false,
+            },
+            {
+              path: "backend/tests/helper.ts",
+              makeMe: false,
+              pageObjects: false,
+            },
+            {
+              path: "frontend/tests/new.spec.ts",
+              makeMe: false,
+              pageObjects: true,
+            },
+          ],
+        },
       );
-      assert.equal(select.status, "selected");
-      assert.deepEqual(select.files, ["backend/tests/new.spec.ts"]);
-      assert.equal(select.convention, join(skill, "references/convention.md"));
-      const changed = JSON.parse(
-        execute(process.execPath, [
-          join(skill, "scripts/changed-makeme.mjs"),
-          "--project",
-          target,
-          "--path",
-          "backend/tests/current.spec.ts",
-          "--path",
-          "frontend/tests/current.spec.ts",
-        ]),
+      const changed = selectRules(
+        "--changed",
+        "--path",
+        "backend/tests/current.spec.ts",
+        "--path",
+        "frontend/tests/current.spec.ts",
       );
-      assert.equal(changed.status, "selected");
-      assert.deepEqual(changed.files, ["backend/tests/current.spec.ts"]);
+      assert.equal(changed.status, "resolved");
+      assert.deepEqual(
+        changed.sources.filter(
+          ({ makeMe, pageObjects }) => makeMe || pageObjects,
+        ),
+        [
+          {
+            path: "backend/tests/current.spec.ts",
+            makeMe: true,
+            pageObjects: false,
+          },
+          {
+            path: "frontend/tests/current.spec.ts",
+            makeMe: false,
+            pageObjects: true,
+          },
+        ],
+      );
     }
   };
 

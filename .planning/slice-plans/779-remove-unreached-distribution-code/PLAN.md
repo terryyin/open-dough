@@ -64,7 +64,7 @@ repository runner with Homebrew Bash 5 and Node 24 passed these focused baseline
 
 ## Execution
 
-Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. The Take has no owned trunk CI observation.
+Story Branch Mode in the established linked worktree on `codex/install-only-scripts-that-guidance-hooks-or-the`. The Take at `25e0878adadb1ee0ce2b2c3db4dc78ca1341d81b` is on `origin/main` and on the execution branch as its initial published base. Slice 1 was published as `67b66d67ce7b7905d9fb5e780baf3090a47ceb33` on the story branch. The Take has no owned trunk CI observation.
 
 Codex observer for the execution branch uses GitHub Actions `ci.yml` (CI). Coordinator `5f0cec34-e7f0-4f74-8aa2-de18cfa45a2b`, mailbox `/tmp/dough-ci-501/watch-QmFpcm`, PID `84936`, session `52487`, cell `g245:20`. Runtime and owner are bound to the established execution checkout.
 
@@ -111,7 +111,7 @@ Accepted proof: Distribution, native evaluation, and the two Dashboard closure c
 ### 2. Select MakeMe rules through the shared installed entry point
 
 Type: Behavior
-Status: planned
+Status: done
 
 Given mixed locations and changed test paths, `test-entry-rules --source`
 and `--changed` still return the relevant MakeMe and page-object rules.
@@ -125,6 +125,8 @@ the affected `makeme` suite and the two deterministic MakeMe harness tests.
 Check the generated bundle with the builder's `--check` option. Inspect both
 native roots and declarations for absence of both wrappers and verify the
 matched rules in the installer fixture.
+
+Accepted proof: All 20 selected checks passed after the fixture migration. The independent refactor passed 16 affected checks and the bundle verification. Retained commands and traces use the `slice2-` prefix in checkout evidence.
 
 ### 3. Keep only used exports at the installed module boundaries
 

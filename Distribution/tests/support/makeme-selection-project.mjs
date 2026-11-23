@@ -1,4 +1,3 @@
-import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -6,7 +5,8 @@ import { makeMe } from "./makeMe.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 import { makeMeSkillFiles } from "./makeme-skill-files.mjs";
 
-const installed = ".agents/skills/dough-makeme";
+const installed =
+  ".agents/skills/dough-execute-plan/scripts/test-entry-rules.mjs";
 
 export async function materializeSelectionProject(t, settings, sources = {}) {
   const files = {
@@ -26,20 +26,29 @@ export async function materializeSelectionProject(t, settings, sources = {}) {
   t.after(fixture.cleanup);
   return fixture.integration;
 }
-export function runMakeMeSelection(root, ...paths) {
-  return runSelection(root, "select-makeme.mjs", ["--", ...paths]);
+export function runSourceSelection(root, ...paths) {
+  return runSelection(
+    root,
+    paths.flatMap((path) => ["--source", path]),
+  );
 }
-export function runChangedMakeMeSelection(root, ...args) {
-  return runSelection(root, "changed-makeme.mjs", args);
+export function runChangedSelection(root, ...args) {
+  return runSelection(root, ["--changed", ...args]);
 }
-function runSelection(root, command, args) {
+function runSelection(root, args) {
   const result = spawnSync(
     process.execPath,
-    [join(root, installed, `scripts/${command}`), "--project", root, ...args],
+    [join(root, installed), "--project", root, ...args],
     { cwd: root, encoding: "utf8" },
   );
-  assert.equal(result.stderr, "");
-  return { code: result.status, answer: JSON.parse(result.stdout) };
+  return {
+    code: result.status,
+    stderr: result.stderr,
+    answer: result.stdout ? JSON.parse(result.stdout) : undefined,
+  };
+}
+export function selectedMakeMePaths(answer) {
+  return answer.sources.filter(({ makeMe }) => makeMe).map(({ path }) => path);
 }
 export function intentSettingsForLocations(...locations) {
   return makeMe.intentSettings.withLocations(...locations).please();

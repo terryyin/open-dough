@@ -1,4 +1,4 @@
-import { readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readHostStream } from "../../src/native-host-stream.mjs";
@@ -33,51 +33,12 @@ export function assessRefactorGuidance(read, configurationPath, expansion) {
         text(entry.input)?.includes("dough-post-change-refactor") &&
         entry.output === "Launching skill: dough-post-change-refactor",
     );
-  const resolved =
-    commonSelectionResolved(read, {
-      configuration: configurationPath,
-      selected,
-      optedOut: ["frontend/tests/preview.test.mjs"],
-      changed: true,
-    }) ||
-    read.calls.some((call) => {
-      if (
-        !/(?:^|[;&\n]|-(?:lc|c)\s+['"])\s*(?:\S*\/)?node\s+[^\n;]*changed-makeme\.mjs/.test(
-          call.command,
-        ) ||
-        ![0, null].includes(call.exitCode)
-      )
-        return false;
-      return String(call.output)
-        .split("\n")
-        .some((line) => {
-          let answer;
-          try {
-            answer = JSON.parse(line);
-          } catch {
-            return false;
-          }
-          if (configurationPath !== undefined) {
-            try {
-              if (
-                realpathSync(answer.configuration) !==
-                realpathSync(configurationPath)
-              )
-                return false;
-            } catch {
-              return false;
-            }
-          }
-          return (
-            answer.status === "selected" &&
-            JSON.stringify(answer.files) === JSON.stringify(selected) &&
-            JSON.stringify(answer.entries) ===
-              JSON.stringify([{ path: "backend/tests", files: selected }]) &&
-            selected.every((path) => answer.changedPaths?.includes(path)) &&
-            answer.changedPaths?.includes("frontend/tests/preview.test.mjs")
-          );
-        });
-    });
+  const resolved = commonSelectionResolved(read, {
+    configuration: configurationPath,
+    selected,
+    optedOut: ["frontend/tests/preview.test.mjs"],
+    changed: true,
+  });
   const conventionPath = "dough-makeme/references/convention.md";
   const conventionMarker = "# Shared MakeMe convention";
   const conventionReads = guidanceReadCount(

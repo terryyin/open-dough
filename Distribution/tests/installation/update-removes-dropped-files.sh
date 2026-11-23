@@ -24,10 +24,12 @@ leftover_a='dough-retired/references/a.md'
 leftover_b='dough-adr-awareness/extras/b.md'
 project_beside_b='dough-adr-awareness/extras/project-notes.md'
 retired_watcher='dough-execute-plan/scripts/watch-ci.mjs'
+retired_select='dough-makeme/scripts/select-makeme.mjs'
+retired_changed='dough-makeme/scripts/changed-makeme.mjs'
 
 # 0.0.9's declaration is unreadable, as in early real releases. 0.1.0 adds A
-# and B. 0.1.1 removes A and adds the watcher. 0.1.2 removes B and the
-# watcher. Each added file's bytes name its release.
+# and B. 0.1.1 removes A and adds the wrappers. 0.1.2 removes B and the
+# wrappers. Each added file's bytes name its release.
 build_dropped_files_fixture() {
   local composed_files
   # This historical data fragment deliberately differs from the current one.
@@ -56,12 +58,15 @@ NODE
     "version": "0.1.1", "taggedAt": "2026-09-01T00:00:00",
     "marker": "payload-0.1.1", "added": {
       "${leftover_b}": "${leftover_b} from 0.1.1\\n",
-      "${retired_watcher}": "// Retired observer from 0.1.1\\n"}},
+      "${retired_watcher}": "// Retired observer from 0.1.1\\n",
+      "${retired_select}": "// Retired source selector from 0.1.1\\n",
+      "${retired_changed}": "// Retired changed selector from 0.1.1\\n"}},
     "remove": ["Distribution/src/skills/${leftover_a%%/*}"]},
   {"name": "release 0.1.2", "release": {
     "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
     "marker": "payload-0.1.2"},
-    "remove": ["Distribution/src/skills/${leftover_b%/*}", "Distribution/src/skills/${retired_watcher}"]}
+    "remove": ["Distribution/src/skills/${leftover_b%/*}", "Distribution/src/skills/${retired_watcher}",
+      "Distribution/src/skills/${retired_select}", "Distribution/src/skills/${retired_changed}"]}
 ]}
 JSON
 }
@@ -82,7 +87,8 @@ prepare_recorded_target() {
     git -C "${fixture}" show "v0.1.0:Distribution/src/skills/${leftover_a}" > "${root}/${leftover_a}"
     printf '%s\n' 'Project notes beside a leftover.' > "${root}/${project_beside_b}"
     [[ -f "${root}/${leftover_b}" ]]
-    [[ -f "${root}/${retired_watcher}" ]]
+    [[ -f "${root}/${retired_watcher}" && -f "${root}/${retired_select}" &&
+      -f "${root}/${retired_changed}" ]]
   done
 }
 
@@ -100,7 +106,8 @@ removed_listing() {
 assert_leftovers_replaced_by_release() {
   local target=$1 output=$2 platform_root platform root listed installed_version expected_removed
 
-  expected_removed=$(printf '%s\n' "${leftover_a}" "${leftover_b}" "${retired_watcher}" | LC_ALL=C sort)
+  expected_removed=$(printf '%s\n' "${leftover_a}" "${leftover_b}" \
+    "${retired_watcher}" "${retired_select}" "${retired_changed}" | LC_ALL=C sort)
   for platform_root in "codex:${target}/.agents/skills" "claude:${target}/.claude/skills"; do
     platform=${platform_root%%:*}
     root=${platform_root#*:}
@@ -110,7 +117,8 @@ assert_leftovers_replaced_by_release() {
       exit 1
     fi
     [[ ! -e "${root}/${leftover_a}" && ! -e "${root}/${leftover_b}" ]]
-    [[ ! -e "${root}/${retired_watcher}" ]]
+    [[ ! -e "${root}/${retired_watcher}" && ! -e "${root}/${retired_select}" &&
+      ! -e "${root}/${retired_changed}" ]]
     assert_payload_bytes_match "${fixture}/Distribution/src/skills" "${root}"
     installed_version=$(cat "${root}/dough-update/VERSION")
     [[ "${installed_version}" == '0.1.2' ]]

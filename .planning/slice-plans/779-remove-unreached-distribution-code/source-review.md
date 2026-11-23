@@ -12,25 +12,25 @@ The review treats the goal and earlier fixture moves as context. It retains the 
 | P02 | When a test still needs fixture behavior from a retired candidate, that behavior is available in test support. (Scope) | slice 8 | |
 | P03 | Retired paths are absent from the first payload declaration. (Scope) | slice 8 | |
 | P04 | Retired paths are absent from the second payload declaration. (Scope) | slice 8 | |
-| P05 | A clean install from the new source leaves the retired wrappers absent from its installed roots. (Example 1) | slice 2 | |
-| P06 | An update from a tag that declared the retired wrappers leaves them absent from its installed roots. (Example 1) | slice 2 | |
-| P07 | That update advances the recorded version. (Example 1) | slice 2 | |
-| P08 | That update preserves project guidance. (Example 1) | slice 2 | |
-| P09 | That update preserves project configuration. (Example 1) | slice 2 | |
+| P05 | A clean install from the new source leaves the retired wrappers absent from its installed roots. (Example 1) | slice 2 | observed: install-public-payload.sh executes the current installer and assert-public-payload-install.sh observes each retired wrapper absent under both native roots. |
+| P06 | An update from a tag that declared the retired wrappers leaves them absent from its installed roots. (Example 1) | slice 2 | observed: update-removes-dropped-files.sh installs a tag declaring all three wrappers, applies the current payload and asserts emitted removal and absence under both roots. |
+| P07 | That update advances the recorded version. (Example 1) | slice 2 | observed: update-removes-dropped-files.sh checks dough-update/VERSION advances to 0.1.2 under each root and the resulting payload bytes match. |
+| P08 | That update preserves project guidance. (Example 1) | slice 2 | observed: update-removes-dropped-files.sh preserves project skill, local sentinels and project notes beside a retired path. |
+| P09 | That update preserves project configuration. (Example 1) | slice 2 | observed: update-removes-dropped-files.sh checks seeded local configuration bytes after apply; makeme-payload.test.mjs observes preserved mixed configuration. |
 | P10 | The standalone `watch-ci.mjs` invocation is retired, including the test-only inputs belonging to that invocation. (Scope bullet 1) | slice 1 | observed: assert-public-payload-install.sh and update-removes-dropped-files.sh observe omission and tagged removal in both native roots; the wrapper and its payload entry are deleted. |
 | P11 | From the smaller installation, a developer can start the guided mailbox observer against an exact revision and receive its outcome. (Scope bullet 1, Example 2) | slice 1 | observed: execution-payload-update.sh and installed-wait-entrypoint-fixture.bash register the selected SHA, observe exact success and stop the mailbox in both installed roots; ci-custom-host-bridge checks exact failure delivery. |
 | P12 | From the smaller installation, a developer can complete the guided mailbox observer against an exact revision and receive its outcome. (Scope bullet 1, Example 2) | slice 7 | |
 | P13 | The guided observer still accepts `--execution`. (Scope bullet 1) | slice 1 | observed: ci-command-adapter-cli.test.mjs starts the installed mailbox with --execution from direct and symlink paths; execution-payload-update.sh runs installed start --execution. |
 | P14 | The observer retains its existing lifetime behavior. (Scope bullet 1) | slice 1 | observed: ci-mailbox-launch.test.mjs observes launch before discovery, exact worker PID, failure delivery, confirmed stop and retained unread records; configured-provider stream shutdown cleans up the attempt. |
 | P15 | The observer remains compatible with persisted requests. (Scope bullet 1) | slice 1 | observed: ci-mailbox-completion-cause.test.mjs advances the clock for a persisted request with 5000 ms and observes its exact budget-expiry reason, terminal cause and completion receipt. |
-| P16 | `select-makeme.mjs` is retired. (Scope bullet 2, Example 3) | slice 2 | |
-| P17 | `changed-makeme.mjs` is retired. (Scope bullet 2, Example 3) | slice 2 | |
-| P18 | The former MakeMe selector export is retired. (Scope bullet 2) | slice 2 | |
-| P19 | The shared matcher remains available to its surviving consumers. (Scope bullet 2) | slice 2 | |
-| P20 | The existing location rules remain in effect. (Scope bullet 2) | slice 2 | |
-| P21 | With mixed MakeMe and page-object rules, selecting a named test through `test-entry-rules.mjs` still reports its matching rules. (Scope bullet 2, Example 3) | slice 2 | |
-| P22 | With mixed MakeMe and page-object rules, selecting changed tests through `test-entry-rules.mjs` still reports their matching rules. (Scope bullet 2, Example 3) | slice 2 | |
-| P23 | The MakeMe evaluation cases recognize the current CLI. (Scope bullet 2) | slice 2 | |
+| P16 | `select-makeme.mjs` is retired. (Scope bullet 2, Example 3) | slice 2 | observed: install.sh and Distribution/src omit select-makeme.mjs; fresh and tagged installer scenarios observe absence under each root. |
+| P17 | `changed-makeme.mjs` is retired. (Scope bullet 2, Example 3) | slice 2 | observed: install.sh and Distribution/src omit changed-makeme.mjs; fresh and tagged installer scenarios observe absence under each root. |
+| P18 | The former MakeMe selector export is retired. (Scope bullet 2) | slice 2 | observed: test-entry-rules-selection.mjs and the generated runtime no longer export selectMakeMeEntries; the maintained builder --check passed. |
+| P19 | The shared matcher remains available to its surviving consumers. (Scope bullet 2) | slice 2 | observed: makeme-selection.test.mjs exercises existing shared extglob, braces, extension, case, membership and overlapping rules; makeme-payload.test.mjs compares the retained helper bytes. |
+| P20 | The existing location rules remain in effect. (Scope bullet 2) | slice 2 | observed: test-entry-rules.test.mjs and the compatibility cases observe independent flags, boolean opt-in, Git ranges and explicit paths; malformed input and boundary cases are exercised by the MakeMe suite. |
+| P21 | With mixed MakeMe and page-object rules, selecting a named test through `test-entry-rules.mjs` still reports its matching rules. (Scope bullet 2, Example 3) | slice 2 | observed: test-entry-rules-installed.test.mjs executes the maintained installed selector on a named source with mixed rules and checks the exact rules in each root. |
+| P22 | With mixed MakeMe and page-object rules, selecting changed tests through `test-entry-rules.mjs` still reports their matching rules. (Scope bullet 2, Example 3) | slice 2 | observed: makeme-payload.test.mjs observes independent enabled rows via changed CLI after install and update in each root; test-entry-rules-standalone.test.mjs triggers selection with a real Git edit. |
+| P23 | The MakeMe evaluation cases recognize the current CLI. (Scope bullet 2) | slice 2 | observed: makeme-native-use.sh runs both deterministic assessors, which accept the supported source and changed commands, verify fixture and scope, and reject retired or fabricated invocations. |
 | P24 | `product-backlog.mjs` no longer offers a separately callable `merge` verb or that verb’s report. (Scope bullet 3, Example 4) | slice 4 | |
 | P25 | The existing merge policy is given directly as text. (Scope bullet 3) | slice 4 | |
 | P26 | The real Git merge driver remains usable. (Scope bullet 3) | slice 4 | |

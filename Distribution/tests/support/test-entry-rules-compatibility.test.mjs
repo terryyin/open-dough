@@ -1,6 +1,4 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { makeMe } from "./makeMe.mjs";
@@ -8,29 +6,12 @@ import { materializeLocalCheckout } from "./repository-fixture.mjs";
 import { makeMeSkillFiles } from "./makeme-skill-files.mjs";
 import {
   materializeSelectionProject,
-  runMakeMeSelection,
+  runChangedSelection,
+  runSourceSelection,
   intentSettingsForLocations,
 } from "./makeme-selection-project.mjs";
 
-function common(root, ...args) {
-  return JSON.parse(
-    execFileSync(
-      process.execPath,
-      [
-        join(
-          root,
-          ".agents/skills/dough-execute-plan/scripts/test-entry-rules.mjs",
-        ),
-        "--project",
-        root,
-        ...args,
-      ],
-      { encoding: "utf8" },
-    ),
-  );
-}
-
-test("the common and legacy installed commands retain independent entry choices", async (t) => {
+test("the installed source command retains independent entry choices", async (t) => {
   const locations = [
     makeMe.anIntentLocation
       .at("both")
@@ -61,20 +42,13 @@ test("the common and legacy installed commands retain independent entry choices"
     "data/new.test.mjs",
     "neither/new.test.mjs",
   ];
-  assert.deepEqual(
-    common(root, ...paths.flatMap((path) => ["--source", path])).sources,
-    [
-      { path: paths[0], makeMe: true, pageObjects: true },
-      { path: paths[1], makeMe: false, pageObjects: true },
-      { path: paths[2], makeMe: true, pageObjects: false },
-      { path: paths[3], makeMe: false, pageObjects: false },
-    ],
-  );
-  const legacy = runMakeMeSelection(root, ...paths).answer;
-  assert.deepEqual(legacy.files, [paths[0], paths[2]]);
-  assert.deepEqual(legacy.entries, [
-    { path: "both", files: [paths[0]] },
-    { path: "data", files: [paths[2]] },
+  const { code, answer } = runSourceSelection(root, ...paths);
+  assert.equal(code, 0);
+  assert.deepEqual(answer.sources, [
+    { path: paths[0], makeMe: true, pageObjects: true },
+    { path: paths[1], makeMe: false, pageObjects: true },
+    { path: paths[2], makeMe: true, pageObjects: false },
+    { path: paths[3], makeMe: false, pageObjects: false },
   ]);
 });
 
@@ -110,33 +84,20 @@ test("the common changed command keeps exact commits, explicit ranges and caller
       })
       .please(),
   );
-  const selected = (answer) => answer.sources.map((source) => source.path);
+  const selected = (...args) => {
+    const { code, answer } = runChangedSelection(root, ...args);
+    assert.equal(code, 0);
+    return answer.sources.map((source) => source.path);
+  };
+  assert.deepEqual(selected("--committed", revisions.first), [
+    "browser/first.mjs",
+  ]);
   assert.deepEqual(
-    selected(common(root, "--changed", "--committed", revisions.first)),
-    ["browser/first.mjs"],
-  );
-  assert.deepEqual(
-    selected(
-      common(
-        root,
-        "--changed",
-        "--committed",
-        `${revisions.base}..${revisions.later}`,
-      ),
-    ),
+    selected("--committed", `${revisions.base}..${revisions.later}`),
     ["browser/first.mjs", "browser/later.mjs"],
   );
   assert.deepEqual(
-    selected(
-      common(
-        root,
-        "--changed",
-        "--committed",
-        revisions.first,
-        "--path",
-        "browser/explicit.mjs",
-      ),
-    ),
+    selected("--committed", revisions.first, "--path", "browser/explicit.mjs"),
     ["browser/explicit.mjs", "browser/first.mjs"],
   );
 });
