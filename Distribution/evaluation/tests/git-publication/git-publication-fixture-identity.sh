@@ -158,23 +158,30 @@ for family in "${families[@]}"; do
 done
 
 # Every family identity fails, even for a caller with errexit disabled, when
-# a required input it traces through imports or reads from the installer's
-# declaration is missing; it never prints a partial identity as complete.
-for input in "${fixture_helper}" "${installer_probe}" Distribution/src/skills/dough-execute-plan/assets/claude-hooks.json; do
-  mv -- "${identity_source}/${input}" "${identity_out}/removed"
+# a required input it traces or sources is missing, or its shipped payload
+# directory holds an unsafe entry; it never prints a partial identity.
+refuses_identity() {
   for family in "${families[@]}"; do
     identity_status=$(
       set +e
-      family_identity "${family}" > "${identity_out}/missing-input" 2> /dev/null
+      family_identity "${family}" > "${identity_out}/refused-identity" 2> /dev/null
       echo "$?"
     )
-    if [[ ${identity_status} == 0 || -s ${identity_out}/missing-input ]]; then
-      printf 'FAIL: %s evidence identity succeeded or printed a partial identity without %s.\n' "${family}" "${input}" >&2
+    if [[ ${identity_status} == 0 || -s ${identity_out}/refused-identity ]]; then
+      printf 'FAIL: %s evidence identity succeeded or printed a partial identity %s.\n' "${family}" "$1" >&2
       identity_failures=1
     fi
   done
+}
+for input in "${fixture_helper}" "${installer_probe}"; do
+  mv -- "${identity_source}/${input}" "${identity_out}/removed"
+  refuses_identity "without ${input}"
   mv -- "${identity_out}/removed" "${identity_source}/${input}"
 done
+unsafe_entry=Distribution/src/skills/dough-update/identity-probe-link
+ln -s SKILL.md "${identity_source}/${unsafe_entry}"
+refuses_identity "with the unsafe shipped entry ${unsafe_entry}"
+rm -- "${identity_source}/${unsafe_entry}"
 
 # A journey retains its record with its family's identity. Without a required
 # input, a caller that captures the journey's status with errexit disabled

@@ -313,6 +313,11 @@ Decisions during slice 7 (developer, 2026-11-23):
   candidate took 81 s and 165 s. CI passed. The failure policy makes it this
   execution's defect to repair before completion; the cause is its run time,
   not this story's change.
+- CI run 45207498839 on slice 7's `19977e98` failed
+  `git-publication-fixture-identity.sh`, which deleted a payload file and
+  expected the identity to refuse. Local proof missed it because slice 7's trace
+  followed text matches, not consumers of `read_release_payload`. The repair
+  refuses an unsafe shipped entry instead.
 
 ## Plan review
 
