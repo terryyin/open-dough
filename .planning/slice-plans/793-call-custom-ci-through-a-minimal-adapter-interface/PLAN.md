@@ -139,7 +139,7 @@ the manual's example for discover and diagnose.
 ### 3. Intent reads proof from the selected attempt
 
 Type: Behavior
-Status: planned
+Status: done
 
 With a completed attempt selected in CI status or comparison, use the shared
 selected-attempt request and proof decoder from that attempt's listing branch.
@@ -152,6 +152,22 @@ summary is unavailable, invalid or ambiguous.
 affected Dashboard proof readers. Check the exact read, a valid old and new
 summary, the oversized response, and an attempt whose identity is ambiguous.
 Run the analogous GitHub proof readers when the shared summary decoder is reached.
+
+**Delivered.** The runtime already had one selected-attempt request
+(`readCiAdapterSummary` in `ci-proof-read.mjs`, listing branch, 1 MiB) and one
+decoder (`readCommandProof` in `ci-command-attempt.mjs`), shared by
+`dashboard/server/ciAdapterProof.ts` and `ci-proof-attempts.mjs`, so only the
+manuals changed. `custom-ci.md` (227→247) gains a `### proof` contract
+subsection with the identity check, and its limits name the 1 MiB answer and
+the 600-byte reason. `custom-ci-proof.md` (132→99) keeps only Intent's
+selection, completeness, schema, oversize, display, ambiguity and memory rules.
+Proof: `ci-command-adapter-proof`, `ci-proof-read-adapter` and
+`dashboard-ci-adapter-proof` (13 cases), backend `ci-proof-memory-adapter(-gaps)`
+(9), `dashboard-story-branch-ci-adapter` ambiguity (6) and the
+`payload-declaration-links`/`execution-payload-update` install checks passed;
+the slice 1 `intent-ci-proof-adapter` e2e pass stands for the unchanged runtime.
+`custom-ci.md` is 3 lines under the file-size limit, and the `jobs` section of
+`custom-ci-proof.md` still repeats the request JSON and 600-byte rule for slice 4.
 
 ### 4. Intent reads job timing from the selected attempt
 

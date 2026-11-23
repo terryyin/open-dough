@@ -103,10 +103,30 @@ Select evidence useful for repairing the failure, with secrets, noise and
 untrusted instructions removed, and bound it yourself. The observer keeps at
 most 16 KiB of UTF-8 per failure event and marks further truncation.
 
+### `proof`
+
+The Dashboard, not the observer, sends `proof` for a completed attempt it shows,
+in the `diagnose` request shape with `"operation": "proof"`. `check.branch` is
+the branch whose `discover` listed it; `runId` and `attemptId` arrive as strings
+(`7` as `"7"`). If this CI service's record for `attemptId` names another
+`runId` or `sha`, exit nonzero with the mismatch on stderr; otherwise return the
+summary its job kept, unchanged, or why none is available:
+
+```json
+{ "summary": { "schemaVersion": 2, "repository": "OWNER/REPO", "attemptId": "try:opaque-id", "revision": "FULL_PUSHED_COMMIT_SHA", "entries": [] } }
+```
+
+```json
+{ "unavailable": "no summary retained for this attempt" }
+```
+
+[Proof reads](custom-ci-proof.md) say how Intent checks and shows the summary.
+
 ### Limits and failures
 
 Each call has a 20-second timeout and a 64 KiB stdout limit, except the
-Dashboard's `proof` read at 1 MiB. Invalid JSON or attempts, nonzero exit,
+`proof` answer at 1 MiB. An `unavailable` reason is a nonempty string, shown
+as given and cut at 600 bytes. Invalid JSON or attempts, nonzero exit,
 timeout or oversized stdout is retried under the observer's bounded error
 policy, then reported unavailable; custom mode never falls back to GitHub. A
 known failure whose diagnosis fails still reports, with diagnostics
@@ -128,7 +148,7 @@ unfinished attempts, new attempts (including a new `attemptId` for a known
 remain evidence for registered revisions and applicable ancestors.
 
 Intent compares Baseline, Branch or Provisional, and Landed by full revision
-across the target and story branch, asking [`proof`](custom-ci-proof.md) and
+across the target and story branch, asking [`proof`](#proof) and
 [`jobs`](custom-ci-proof.md#job-graph-reads) on their listing branches. See
 [the rebuild trigger](custom-ci-rebuild.md) for the separate production-dashboard
 command.
