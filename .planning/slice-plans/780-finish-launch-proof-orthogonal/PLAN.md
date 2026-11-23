@@ -44,6 +44,7 @@ case's prerequisites, action, and observable result.
 - Slice 1 was published at `41f3948b8` and passed GitHub Actions run `45093545949`. The viewport correction and desktop offer delivery use the same coordinator in `/tmp/dough-ci-501/watch-YI0eJX`, process `95043`, Codex shell session `60942`, cell `g277:39`. Trunk source freshness was confirmed at `9d9736778`.
 - The focused-case correction and desktop offers were published at `bfeb86d98`. Ordinary refinement delivery reuses the same live branch observer. Trunk source freshness remains unchanged at `9d9736778`.
 - Ordinary refinement was published at `1830ffb17`. On resumption the coordinator recovered the stopped branch observer and armed `/tmp/dough-ci-501/watch-sGXDju`, process `85012`, Codex shell session `7696`, cell `g290:5`. Trunk source freshness is unchanged at `6452dcce`.
+- Voice was published at `a625e1da2`. Run `45100433154` exposed the native Cancel failure and paused slice 5. Round 4 resumed with observer `/tmp/dough-ci-501/watch-Yi3Uke`, process `25221`, Codex shell session `59227`, cell `g319:4`. Trunk source freshness is unchanged at `eb193439`.
 
 ## Current decisions
 
@@ -208,6 +209,18 @@ refactoring gave each active-recording case a literal title. The
 static listing found both titles and the five cases in the main
 voice spec passed again. The refactor proof is in
 `voice-slice.lnZb4lRt/refactor.SL2YPWx8`.
+
+**Default viewport repair.** A real Chromium device-metrics clear
+returned the outer page to Playwright's 1280 × 720 initial viewport
+while Vitest's iframe stayed 390 × 844. Playwright rejected the native
+Cancel at y=775–819, and the failure screenshot matched the first
+hosted failure byte for byte. Supplying Vitest's existing default to
+both Playwright contexts kept both viewports at 390 × 844 after the
+same clear, and the unchanged Cancel journey passed. The original
+hosted attempt did not capture its preceding viewport transition.
+The repair keeps the two existing pointer assignments and all test
+assertions. The [diagnosis](diagnosis-start-execution-cancel-viewport.md)
+records the controlled proof and the whole frontend compatibility gate.
 
 ## Timing evidence and decisions
 

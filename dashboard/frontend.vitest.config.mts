@@ -9,6 +9,8 @@ import { useDisposableTestHome } from "./test-support/support/runnerConfig.mjs";
 
 useDisposableTestHome();
 
+const defaultViewport = { width: 390, height: 844 };
+
 const desktopLaunchSpecs = [
   "dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts",
   "dashboard/frontend-tests/launches/story-card-startup.spec.ts",
@@ -27,10 +29,10 @@ export default defineConfig({
     browser: {
       enabled: true,
       headless: true,
-      viewport: { width: 390, height: 844 },
+      viewport: defaultViewport,
       provider: playwright({
         launchOptions: { args: dashboardBrowserArgs },
-        contextOptions: { hasTouch: true },
+        contextOptions: { hasTouch: true, viewport: defaultViewport },
       }),
       instances: [
         { browser: "chromium", exclude: desktopLaunchSpecs },
@@ -41,7 +43,7 @@ export default defineConfig({
           include: desktopLaunchSpecs,
           provider: playwright({
             launchOptions: { args: dashboardBrowserArgs },
-            contextOptions: { hasTouch: false },
+            contextOptions: { hasTouch: false, viewport: defaultViewport },
           }),
         },
       ],
