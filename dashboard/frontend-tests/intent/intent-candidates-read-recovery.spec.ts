@@ -6,8 +6,8 @@ import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCandidatesReadResult } from "../../src/authenticatedIntentCandidatesRead.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
-import { noteLimit, standingLimit } from "../../src/readingLimit.ts";
 import { ReadProblem } from "../../src/readProblem.ts";
+import { testOptimizationCandidatesPath } from "../../src/testOptimizationCandidatesPath.ts";
 import { intentCandidates } from "./intent-candidates-page.ts";
 import {
   mountIntentOnObservationRecovery,
@@ -64,17 +64,19 @@ test("candidates wait for the standing GitHub limit after their shorter backoff 
   onSharedClock();
   let resumesAt = 0;
   const { reads, source } = answering(
-    () => Promise.reject(new ReadProblem("reset", undefined, "transient")),
+    () =>
+      Promise.reject(
+        makeMe.anUnreachableAuthenticatedRead
+          .reading(testOptimizationCandidatesPath)
+          .please(),
+      ),
     () => {
-      noteLimit(45);
-      const standing = standingLimit() ?? new Date(0);
-      resumesAt = standing.getTime();
-      return Promise.reject(
-        new ReadProblem("GitHub limited the rate", {
-          reading: "candidates",
-          resumesAt: standing,
-        }),
-      );
+      const limited = makeMe.aRateLimitedIntentReply
+        .reading(testOptimizationCandidatesPath)
+        .resumingIn(45)
+        .please();
+      resumesAt = limited.limited?.resumesAt.getTime() ?? 0;
+      return Promise.reject(limited);
     },
     present,
   );

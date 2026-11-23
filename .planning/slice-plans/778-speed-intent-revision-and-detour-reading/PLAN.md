@@ -272,7 +272,7 @@ its last consumer and was removed. That URL assertion has no break check.
 ### 6. A typed Candidates reply establishes the standing limit in the recovery case
 
 Type: Structure
-Status: planned
+Status: done
 
 Apply the plan 762 retrospective correction for the test. Give
 `makeMe.aRateLimitedIntentReply` a `.reading(kind)` step while keeping
@@ -286,6 +286,13 @@ on the controlled clock, retaining the retry and exact read-count
 observations before and after the limit expires. Remove
 `noteLimitUntil` in scratch and verify the standing-limit case detects
 the missing wait. Restore the edit before delivery.
+
+**Delivered.** `makeMe.aRateLimitedIntentReply.reading(path)` names what was
+read (a free-form label, `locations` by default). The backoff case answers
+`anUnreachableAuthenticatedRead` and then the rate-limited Candidates reply,
+which alone starts the standing limit; reads stay at two until the limit ends
+and reach three after it. Removing `noteLimitUntil` left the case at two
+reads. The recovery mount stays for the observation story.
 
 ### 7. Existing Board journeys cover source navigation
 
