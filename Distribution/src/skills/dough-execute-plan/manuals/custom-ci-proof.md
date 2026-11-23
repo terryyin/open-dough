@@ -50,20 +50,8 @@ be read again when the view next asks for its proof.
 
 Intent's story comparison can show CI time without runner waits for each
 selected completed endpoint. The dashboard asks the adapter for that attempt's
-job graph. This optional `jobs` operation uses the same request shape as
-`proof`, with the listing branch, string IDs and full revision.
-
-```json
-{
-  "operation": "jobs",
-  "check": { "repo": "OWNER/REPO", "branch": "BRANCH" },
-  "attempt": {
-    "runId": "pipeline/opaque-id",
-    "attemptId": "try:opaque-id",
-    "sha": "FULL_PUSHED_COMMIT_SHA"
-  }
-}
-```
+job graph through the shared contract's optional [`jobs`](custom-ci.md#proof)
+operation, on the attempt's listing branch.
 
 Answer with the selected attempt's job graph or the reason it is unavailable.
 
@@ -87,13 +75,14 @@ the IDs of jobs it waited for. Use an empty `needs` array for independent jobs.
 Report each matrix or shard instance as its own job and use `durationMs` 0
 for jobs skipped by a failed attempt. Intent measures the longest dependency
 chain, which is 90 seconds in the example. The dashboard makes this read only
-for story comparisons, within the 20-second timeout and 64 KiB stdout limit.
-An ambiguous attempt ID at the revision skips the read.
+for story comparisons, under the shared
+[limits](custom-ci.md#limits-and-failures). An ambiguous attempt ID at the
+revision skips the read.
 
-Intent shows the adapter's `unavailable` reason, bounded to 600 UTF-8 bytes.
-For command failures, Intent reports a nonzero exit with its last stderr line,
-invalid JSON, timeout, or output over the limit, as it does for proof reads.
-An unsupported operation can be reported with a nonzero exit and a reason
-on stderr. Intent also explains a graph with no jobs, empty or duplicate IDs,
-invalid durations, missing dependencies, or a cycle.
+Intent shows the adapter's `unavailable` reason. For command failures, Intent
+reports a nonzero exit with its last stderr line, invalid JSON, timeout, or
+output over the limit, as it does for proof reads. An unsupported operation can
+be reported with a nonzero exit and a reason on stderr. Intent also explains a
+graph with no jobs, empty or duplicate IDs, invalid durations, missing
+dependencies, or a cycle.
 The endpoint's wall time and proof remain available independently of timing.

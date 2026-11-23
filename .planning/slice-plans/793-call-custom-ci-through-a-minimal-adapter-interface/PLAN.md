@@ -172,7 +172,7 @@ the slice 1 `intent-ci-proof-adapter` e2e pass stands for the unchanged runtime.
 ### 4. Intent reads job timing from the selected attempt
 
 Type: Behavior
-Status: planned
+Status: done
 
 With a completed comparison endpoint, use the same selected-attempt call to
 read `jobs`. Document job timing alongside `proof`. Timing follows measured
@@ -185,6 +185,23 @@ timing readers, including `ci-time-without-adapter-runner-waits.spec.ts`.
 Check the requested attempt and listing branch, the measured critical chain,
 and the individual refusal reasons. Compare with the existing GitHub timing
 behavior for the same outcome if the shared timing model is reached.
+
+**Delivered.** `jobs` already used the shared selected-attempt call
+(`readCommandJobs` → `runAdapterForAttempt` from
+`baseCiAdapterRevisionLookup.ts`). Its copy of the proof answer check, with
+the 600-byte reason cut, is now one private `readAttemptAnswer` in
+`ci-command-attempt.mjs` (105→94); errors are unchanged, and JSDoc keeps the
+Dashboard's types. `custom-ci.md` (247→248) gives `proof` and `jobs` one request
+shape; `custom-ci-proof.md` (99→88) keeps only the jobs answer, timing and
+refusal rules. Proof: the revision-lookup, adapter-proof (jobs cases),
+proof-read and proof-units node tests (25 cases), `npm run typecheck:dashboard`,
+backend `ci-time-without-adapter-runner-waits` (13) with the GitHub
+`ci-time-without-runner-waits` (9), the install checks, and e2e
+`intent-ci-proof-adapter` (4) and `intent-ci-proof-adapter-reasons` (3) passed.
+At load average about 50 the reasons spec's eight-round "answers no proof" case
+timed out twice after every assertion passed: its test-scoped Dashboard
+fixture used about 26 of the 30 seconds. It passed at load 25. That fixed bound
+is a test defect for a later correction.
 
 ### 5. The Dashboard requests one rebuild of the original landed revision
 
