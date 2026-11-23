@@ -2,7 +2,7 @@
 
 Terry authorized early integration, agent disengagement and return to the
 backlog top on 2026-11-14. This ends one execution; the story stays unfinished.
-Keep the canonical story, compact PLAN, source-review rows and all implementation.
+Keep the canonical story, compact PLAN, accepted proof and all implementation.
 Do not create a Done record, delete the plan or run automatic completion cleanup.
 
 ## Recoverable source
@@ -11,6 +11,9 @@ Do not create a Done record, delete the plan or run automatic completion cleanup
 - Complete pre-return checkpoint: 1e7e6f98153870b4ce04fb347d882dc79ece1975.
   `git show <checkpoint>:.planning/slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md`
   recovers the original plan, fault recipes, proof qualifications and full history.
+- The [retired source review](https://github.com/terryyin/open-dough/blob/88999346d263df2003faae7785af4994e999df14/.planning/slice-plans/607-close-landed-ci-repeat-check-gaps/source-review.md)
+  preserves the historical allocations and observations. Resume from the plan's
+  accepted proof, story obligations and delivery conditions.
 - Current-main reconciliation: 694219d0b, merging main7a100c396 without rewriting
   the published 1c0400487/7348487 history. The backlog merge used its domain adapter.
 - An additional raw backup is /tmp/seed324-early-wrap-20261114/manifest.json and
@@ -33,7 +36,7 @@ The snapshot passed normal formatting, lint and dashboard typecheck hooks.
 
 ## Proof limits
 
-Accepted slice1/2 observations and controls stay in PLAN and source-review.md.
+Accepted slice 1 and 2 observations and controls are recorded in the plan.
 Isolated history/lifetime proof was meaningful, but no three-pass current
 slice3 family or natural30–50/25-second final profile was established here.
 The receiver's ordinary-pool full passed2793 with one expected benchmark skip;
