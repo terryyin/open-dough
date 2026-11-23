@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sessionId": "91f87de1-85c3-4f04-8f77-e61dc1497c59",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T15:31:15.006Z",
+  "story": "SEED-413#optimize-done-capture-family-cases",
+  "ranges": [
+    {
+      "base": "1bea3f555148f13ed5a12906fe73dea3ea47df31",
+      "candidate": "6f64191cc5732a8c80e93f8f1f6b8a2ea1d52823"
+    },
+    {
+      "base": "6f64191cc5732a8c80e93f8f1f6b8a2ea1d52823",
+      "candidate": "e62607b2adc503db2a2c174001fc1c5192a05f40"
+    },
+    {
+      "base": "e62607b2adc503db2a2c174001fc1c5192a05f40",
+      "candidate": "4320ec6d1872019dab2be3225e6ff67b1fba497d"
+    },
+    {
+      "base": "4320ec6d1872019dab2be3225e6ff67b1fba497d",
+      "candidate": "b3c34756795bdfbd8179b2a18840a93af0416ab8"
+    },
+    {
+      "base": "b3c34756795bdfbd8179b2a18840a93af0416ab8",
+      "candidate": "2450f25df1834af4bc893975edfa1dac0871688d"
+    },
+    {
+      "base": "2450f25df1834af4bc893975edfa1dac0871688d",
+      "candidate": "d44d56545d3e14ca8e252165de978087ec920c84"
+    },
+    {
+      "base": "d44d56545d3e14ca8e252165de978087ec920c84",
+      "candidate": "1c67fc453f34b7ae991996367b97ab9bfb869aaf"
+    }
+  ]
+}
