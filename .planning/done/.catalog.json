@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-341_keep-attention-completion-journey-within-timeout.json",
+      "identity": "SEED-341#keep-attention-completion-journey-within-timeout",
+      "completedAt": "2026-11-23T07:25:55.467Z",
+      "blob": "a477a1333395d3809061ab85da934331824510bf"
+    },
+    {
       "fileName": "SEED-413_correct-revision-detour-proof-residue.json",
       "identity": "SEED-413#correct-revision-detour-proof-residue",
       "completedAt": "2026-11-23T05:36:32.042Z",
