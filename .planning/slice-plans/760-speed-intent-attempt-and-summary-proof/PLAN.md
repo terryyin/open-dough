@@ -114,6 +114,7 @@ local-gate command above. Scratch edits were reverted.
 - Slice 1 accepted on the story branch at `cc4d0b9fa966c9fd7de360122593773f731297b4`.
 - Slice 2 accepted on the story branch at `32b31b9da1bf15abac0aec93209cb8d504c451ff`.
 - Slice 3 accepted on the story branch at `3e8ff6f21410a20e83b91936634da4d316dbbdd4`.
+- Slice 4 accepted on the story branch at `3caae305cbe7e532ab37f26c9e62cb84787c84dd`.
 - GitHub Actions `ci.yml` observes the published story branch. The active
   observer identity and increment receipts are retained in the execution conversation.
 
@@ -250,7 +251,7 @@ The formatter's detached-method check was corrected within the reviewed helper. 
 ### 5. File drill-down gives renamed, partial, and selected files their exact evidence and bindings
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `intent-summary-story-comparison-file`,
 `intent-summary-story-comparison-file-proof-counts`, and
@@ -264,6 +265,22 @@ chosen attempt without another live proof read.
 
 **Proof.** The three moved files pass on Vitest. A renamed-across-units case
 fails when counts are merged with another file. Delete the three legacy files.
+
+The eight legacy titles remain as Vitest cases. The mounted page controls replace the built-app routes and the comparison markup fixture. Typed review and CI reads supply initial file evidence and the held comparison.
+
+| Legacy case and check | Mounted assertion |
+| --- | --- |
+| Clean merge file journey | Changes opens while the comparison is held. Purpose shows the modified diff without framing. Proof shows the exact row, heard labels and unchanged three endpoint requests. Native Enter focuses the comparison tab, and ArrowRight returns to the same pressed file and Proof. Added and renamed selections preserve their own words, times and marks. |
+| Merge-edited file journey | Purpose and Proof stay distinct across modified, added and owning-merge nested files. The merge-edited diff and its precise 340 ms baseline and +70 ms differences appear once, with the same endpoint requests. |
+| Modified file counts | The exact one-row Proof keeps 1 → 2 → 1 cases, its Baseline and both timing differences, and the independent count and duration cues. |
+| Added file counts | The row preserves the added case, both 800 ms figures and both added cue reasons. |
+| Renamed across units | The exact old file and new case, path note, separate times, cue reasons and absent relative marks remain. The unrelated root count is distinct. The temporary count blend failed the exact Counts assertion. Production bytes were restored. |
+| Unchanged file counts | The root file's exact row shows one unchanged case, its baseline and two measured zeros, with unchanged cues. |
+| Owning merge modified counts | The nested file preserves its Modified marker, precise row and separate unchanged-count and below-threshold reasons. |
+| Header binding | Native click, Enter and Space drive the four exact row orders and sort metadata, with one comparison and three selected endpoint reads. |
+
+Accepted proof: 23 Vitest Chromium cases passed across the three moved specs and four fixture consumers. The refactor reran 7 affected cases, including both file journeys with the identity-checked held answer, and reused the other 16 cases and the caught count break. Dashboard typecheck passed. The Git evidence directory retains the assertion map, exact commands and break evidence in `slice5-implementation-report.md` and `slice5-refactor-report.md`.
+The two mechanically corrected file specs passed all seven cases again after delivery formatting flagged the hold's type argument and the row's null check (`slice5-mechanical-frontend.log.run.json`).
 
 ### 6. Compared Summary sorting and Show % stay with the reader, spent support is removed, and proof runs faster
 

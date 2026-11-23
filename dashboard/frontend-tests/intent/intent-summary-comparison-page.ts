@@ -47,7 +47,9 @@ export async function expectComparisonRows(
   await expectProofTableRows(scopeTable(summary, path), tableHeadings, rows);
 }
 
-type ExpectedCues = Partial<Record<keyof ReturnType<typeof cueOf>, string>>;
+export type ExpectedCues = Partial<
+  Record<keyof ReturnType<typeof cueOf>, string>
+>;
 
 export async function expectComparisonCues(
   summary: Locator,
@@ -118,3 +120,29 @@ export async function openComparedFileProof(summary: Locator, name: string) {
 
 export const fileProofTable = (proof: Locator, path: string) =>
   proof.getByRole("table", { name: `CI proof of ${path}`, exact: true });
+
+export function expectNoFileTimingMarks(proof: Locator) {
+  expect(proof.element().querySelectorAll(".intent-ci-time-mark")).toHaveLength(
+    0,
+  );
+}
+
+export type FileComparisonRow = readonly [
+  pathAndChange: string,
+  counts: string,
+  baseline: string,
+  branch: string,
+  landed: string,
+];
+
+export function expectFileComparisonRow(
+  proof: Locator,
+  path: string,
+  row: FileComparisonRow,
+) {
+  return expectProofTableRows(
+    fileProofTable(proof, path),
+    ["Scope", ...tableHeadings.slice(2)],
+    [row],
+  );
+}

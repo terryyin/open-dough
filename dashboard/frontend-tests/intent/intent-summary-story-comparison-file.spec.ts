@@ -1,195 +1,185 @@
-// File-level Purpose and CI Proof in the built app (../../src/IntentFileProof.tsx).
-// Purpose shows the changed file's diff without comparison above it; Proof
-// keeps the compared row of a modified, added, renamed-across-units and
-// merge-edited file, and returns directly to the story's CI comparison
-// (../../src/intentStoryTabs.tsx), Changes keeping the file and Proof
-// for the way back. The changed files, merge edit included, are the
-// Backend's explicit review answer; its Git judgment is
-// ../../../e2e/intent/intent-summary-story-comparison-{source,renamed}.spec.ts's.
-// Row counts, times and cue rules are
-// intent-summary-story-comparison-file-proof-counts.spec.ts's.
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { timeMarks } from "../../test-support/support/relativeTimingMarks.ts";
-import { comparisonReading } from "../../test-support/intentCiComparisonPage.ts";
-import { expectFileComparisonRow } from "../../test-support/intentFileProofPage.ts";
-import { holdAuthenticatedReadsWhere } from "../../test-support/holdAuthenticatedReads.ts";
-import { untilPageReadsAnswered } from "../../test-support/pageRequestNotes.ts";
+// A changed file's Purpose and Proof through the production Intent page.
+// The review answer names the owning merge's changed files. Endpoint figures
+// and cue reasons also have individual cases in file-proof-counts.spec.ts.
+import { expect, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
+import { heldReply } from "./intent-ci-evidence-page.tsx";
+import {
+  addedFile,
+  addedFileRow,
+  mergeEditedFile,
+  mergeEditedFileRow,
+  modifiedFile,
+  modifiedFileRow,
+  renamedFile,
+  renamedFileRow,
+} from "./intent-compared-file-expected.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
 import {
   comparisonLabels,
-  expectEvidenceLabels,
+  expectFileComparisonRow,
   expectNoComparisonFraming,
-  expectObservedNotAttributed,
-} from "../../test-support/ciEvidenceLabelsPage.ts";
-import {
-  fileReadingTab,
-  proofRegion,
-  purposeRegion,
-} from "../../test-support/intentPerspectivePage.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { prepareFrontendDoneIntent } from "../../test-support/support/frontendIntentDoneStory.ts";
-import { frontendFileDiff } from "../../test-support/support/frontendStoryReview.ts";
-import { summaryComparisonChanges } from "../../test-support/support/intentSummaryStoryComparisonShared.ts";
-import {
-  expectStoryTab,
-  intentFile,
-  storyTab,
-  storyTabPanel,
-  intentDiffReading,
-} from "../../test-support/support/intentStoryPage.ts";
-import { selectDoneStoryForChanges } from "../../test-support/support/selectDoneStoryForSummaryComparison.ts";
-import {
-  addedFileRow,
-  mergeEditedFileRow,
-  modifiedFileRow,
-  renamedFileRow,
-} from "../../test-support/support/summaryComparisonFileExpectedRows.ts";
+  expectNoFileTimingMarks,
+  expectObservedBuildFraming,
+} from "./intent-summary-comparison-page.ts";
+import { expectEvidenceLabels } from "./intent-summary-evidence-page.ts";
 
-const releases: (() => void)[] = [];
-test.afterEach(() => {
-  for (const release of releases.splice(0)) release();
+const diffLines = new Map([
+  [modifiedFile, "changed"],
+  [addedFile, "added"],
+  [renamedFile, "renamed"],
+  [mergeEditedFile, "merge edit"],
+]);
+
+async function openSelectedFileProof(story: ComparedStory) {
+  const held = heldReply<undefined>();
+  const { comparisonReads, proofReads } = await openSummaryComparison(story, {
+    holdComparisonUntil: held.promise,
+    fileDiff: ({ path }) => {
+      if (path === undefined) throw new Error("No file path requested");
+      const line = diffLines.get(path);
+      if (line === undefined)
+        throw new Error(`No file diff arranged for ${path}`);
+      return Promise.resolve(
+        makeMe.aReviewedFileDiff.adding(path, line).please(),
+      );
+    },
+  });
+  const view = intentStoryCompare();
+  await expect
+    .element(view.viewTab("Changes"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect
+    .poll(() => comparisonReads.map(({ identity }) => identity))
+    .toEqual([story.identity]);
+  expect(proofReads).toHaveLength(0);
+  held.resolve(undefined);
+
+  const file = view.file(`Modified ${modifiedFile}`);
+  await file.click();
+  const intent = page.getByRole("main", { name: "Intent", exact: true });
+  const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
+  const proof = intent.getByRole("region", { name: "Proof", exact: true });
+  const tabs = intent.getByRole("tablist", {
+    name: "Purpose and Proof",
+    exact: true,
+  });
+  const purposeTab = tabs.getByRole("tab", { name: "Purpose", exact: true });
+  const proofTab = tabs.getByRole("tab", { name: "Proof", exact: true });
+  await expect.element(purposeTab).toHaveAttribute("aria-selected", "true");
+  await expect.poll(view.diffName).toBe(`Modified ${modifiedFile}`);
+  await expect.poll(view.diffCode).toContain("changed");
+  await expect.element(purpose.getByRole("table")).not.toBeInTheDocument();
+  await expectNoComparisonFraming(purpose);
+  await expect
+    .element(intent.getByRole("region", { name: "File summary", exact: true }))
+    .not.toBeInTheDocument();
+
+  await expect
+    .poll(() => proofReads.map(({ subject }) => subject.runId))
+    .toEqual([1, 2, 3]);
+  const originalAttempts = proofReads.map(({ subject }) => subject);
+
+  await proofTab.click();
+  await expect.element(proofTab).toHaveAttribute("aria-selected", "true");
+  await expectEvidenceLabels(comparisonLabels(proof, story.identity), [
+    "Baseline No build aaaaaaa",
+    "Branch bbbbbbb",
+    "Landed ccccccc",
+  ]);
+  await expectObservedBuildFraming(proof);
+  await expectFileComparisonRow(proof, modifiedFile, modifiedFileRow);
+  expect(proofReads.map(({ subject }) => subject)).toEqual(originalAttempts);
+
+  return {
+    view,
+    file,
+    proof,
+    purposeTab,
+    proofTab,
+    proofReads,
+    originalAttempts,
+  };
+}
+
+async function showsAddedFile({
+  view,
+  proof,
+  proofTab,
+  purposeTab,
+}: Awaited<ReturnType<typeof openSelectedFileProof>>) {
+  await view.file(`Added ${addedFile}`).click();
+  await expect.element(proofTab).toHaveAttribute("aria-selected", "true");
+  await expectFileComparisonRow(proof, addedFile, addedFileRow);
+  await purposeTab.click();
+  await expect.poll(view.diffName).toBe(`Added ${addedFile}`);
+}
+
+test("a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with clean merges", async () => {
+  const reading = await openSelectedFileProof(
+    makeMe.aComparedStory.inSummaryScope().please(),
+  );
+  const {
+    view,
+    file,
+    proof,
+    proofTab,
+    purposeTab,
+    proofReads,
+    originalAttempts,
+  } = reading;
+  const toComparison = proof.getByRole("button", {
+    name: "View story CI comparison",
+    exact: true,
+  });
+  (toComparison.element() as HTMLElement).focus();
+  await userEvent.keyboard("{Enter}");
+  const comparisonTab = view.viewTab("CI comparison");
+  await expect.element(comparisonTab).toHaveAttribute("aria-selected", "true");
+  await expect.element(comparisonTab).toHaveFocus();
+  await expect
+    .element(page.getByRole("table", { name: "CI entry timing comparison" }))
+    .toBeVisible();
+  await expect.element(proof).not.toBeInTheDocument();
+
+  await userEvent.keyboard("{ArrowRight}");
+  await expect
+    .element(view.viewTab("Changes"))
+    .toHaveAttribute("aria-selected", "true");
+  await expect.element(file).toHaveAttribute("aria-pressed", "true");
+  await expect.element(proofTab).toHaveAttribute("aria-selected", "true");
+  await expect.element(proof).toBeVisible();
+
+  await showsAddedFile(reading);
+  await view.file(`Renamed tests/old.sh → ${renamedFile}`).click();
+  await proofTab.click();
+  await expectFileComparisonRow(proof, renamedFile, renamedFileRow);
+  expectNoFileTimingMarks(proof);
+  await purposeTab.click();
+  expect(proofReads.map(({ subject }) => subject)).toEqual(originalAttempts);
 });
 
-const mergeEdited = "dashboard/tests/folder/nested/c.spec.ts";
+test("a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with merge-edited merges", async () => {
+  const edit = makeMe.aStoryReview.modifying(mergeEditedFile).pleaseRange();
+  if (edit.kind !== "comparison") throw new Error("Arrange the owning merge");
+  const story = makeMe.aComparedStory
+    .inSummaryScope()
+    .withChanged(...edit.files)
+    .please();
+  const reading = await openSelectedFileProof(story);
+  const { view, proof, proofTab, purposeTab, proofReads, originalAttempts } =
+    reading;
 
-for (const merge of ["clean", "merge-edited"] as const) {
-  test(`a selected done story's changed test file shows Purpose as the diff and Proof as the compact comparison with ${merge} merges`, async ({
-    page,
-    frontendServices,
-  }) => {
-    const setup = await prepareFrontendDoneIntent(
-      page,
-      frontendServices,
-      merge === "clean"
-        ? {}
-        : {
-            comparison: (story) =>
-              story.withChanged(
-                makeMe.aReviewedFile
-                  .with({ kind: "modified", path: mergeEdited })
-                  .please(),
-              ),
-          },
-    );
-    for (const [path, line] of [
-      ["dashboard/tests/added.spec.ts", "added"],
-      ["dashboard/tests/renamed.spec.ts", "renamed"],
-      [mergeEdited, "merge edit"],
-    ] as const)
-      setup.review.answerFile(frontendFileDiff(path, [line]), path);
-    const ci = await holdAuthenticatedReadsWhere(
-      page,
-      (params) => params.get("intent") === "ci-comparison",
-      releases,
-    );
-    const { intent } = await selectDoneStoryForChanges(page);
-    // Choosing Changes does not depend on the CI comparison finishing.
-    await expect.poll(() => ci.held()).toBeGreaterThan(0);
-    ci.release();
-
-    await intentFile(intent, summaryComparisonChanges.modified).click();
-    const purpose = purposeRegion(intent);
-    const purposeTab = fileReadingTab(intent, "Purpose");
-    const proofTab = fileReadingTab(intent, "Proof");
-    await expect(purposeTab).toHaveAttribute("aria-selected", "true");
-    await expect(intentDiffReading(intent).name).toHaveText(
-      summaryComparisonChanges.modified,
-    );
-    await expect(intentDiffReading(intent).code).toContainText("changed");
-    await expect(purpose.getByRole("table")).toHaveCount(0);
-    await expectNoComparisonFraming(purpose);
-    await expect(
-      intent.getByRole("region", { name: "File summary", exact: true }),
-    ).toHaveCount(0);
-
-    await proofTab.click();
-    await untilPageReadsAnswered(page);
-    const proof = proofRegion(intent);
-    await expect(proofTab).toHaveAttribute("aria-selected", "true");
-    // The file's Proof shares the Summary's comparison labels.
-    await expectEvidenceLabels(comparisonLabels(proof, setup.identity), [
-      "Baseline No build aaaaaaa",
-      "Branch bbbbbbb",
-      "Landed ccccccc",
-    ]);
-    await expectObservedNotAttributed(proof);
-    await expectFileComparisonRow(
-      proof,
-      "dashboard/tests/folder/a.spec.ts",
-      modifiedFileRow,
-    );
-
-    if (merge === "clean")
-      await test.step("the file's Proof returns directly to the story's CI comparison by keyboard, and Changes keeps the file and Proof", async () => {
-        await proof
-          .getByRole("button", {
-            name: "View story CI comparison",
-            exact: true,
-          })
-          .focus();
-        await page.keyboard.press("Enter");
-        await expectStoryTab(intent, "CI comparison");
-        await expect(storyTab(intent, "CI comparison")).toBeFocused();
-        await expect(
-          comparisonReading(storyTabPanel(intent, "CI comparison")).entryTable,
-        ).toBeVisible();
-        await expect(proof).toBeHidden();
-        // Arrow keys move along the story's views.
-        await page.keyboard.press("ArrowRight");
-        await expectStoryTab(intent, "Changes");
-        await expect(
-          intentFile(intent, summaryComparisonChanges.modified),
-        ).toHaveAttribute("aria-pressed", "true");
-        await expect(proofTab).toHaveAttribute("aria-selected", "true");
-        await expect(proof).toBeVisible();
-      });
-
-    await test.step("an added file keeps Proof selected and shows added with no baseline difference", async () => {
-      await intentFile(intent, summaryComparisonChanges.added).click();
-      await expect(proofTab).toHaveAttribute("aria-selected", "true");
-      await expectFileComparisonRow(
-        proofRegion(intent),
-        "dashboard/tests/added.spec.ts",
-        addedFileRow,
-      );
-      await purposeTab.click();
-      await expect(intentDiffReading(intent).name).toHaveText(
-        summaryComparisonChanges.added,
-      );
-    });
-
-    if (merge === "clean")
-      await test.step("a file renamed from a shell check's test file into a Playwright test case keeps each endpoint's own time, with no mark across units", async () => {
-        await intentFile(intent, summaryComparisonChanges.renamed).click();
-        await proofTab.click();
-        const renamedProof = proofRegion(intent);
-        await expectFileComparisonRow(
-          renamedProof,
-          "dashboard/tests/renamed.spec.ts",
-          renamedFileRow,
-        );
-        await expect(timeMarks(renamedProof)).toHaveCount(0);
-        await purposeTab.click();
-      });
-
-    if (merge === "merge-edited")
-      await test.step("a test file only the integration merge edited shows that edit and keeps Proof", async () => {
-        await intentFile(intent, summaryComparisonChanges.mergeEdited).click();
-        await expect(intentDiffReading(intent).name).toHaveText(
-          summaryComparisonChanges.mergeEdited,
-        );
-        await expect(intentDiffReading(intent).code).toContainText(
-          "merge edit",
-        );
-        await expect(intentDiffReading(intent).code).not.toContainText(
-          "changed",
-        );
-        await proofTab.click();
-        await expectFileComparisonRow(
-          proofRegion(intent),
-          mergeEdited,
-          mergeEditedFileRow,
-        );
-        await purposeTab.click();
-      });
-  });
-}
+  await showsAddedFile(reading);
+  await view.file(`Modified ${mergeEditedFile}`).click();
+  await expect.poll(view.diffName).toBe(`Modified ${mergeEditedFile}`);
+  await expect.poll(view.diffCode).toContain("merge edit");
+  expect(view.diffCode()).not.toContain("changed");
+  await proofTab.click();
+  await expectFileComparisonRow(proof, mergeEditedFile, mergeEditedFileRow);
+  await purposeTab.click();
+  expect(proofReads.map(({ subject }) => subject)).toEqual(originalAttempts);
+});

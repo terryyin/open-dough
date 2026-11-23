@@ -1,5 +1,6 @@
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
+import type { ReviewSource } from "../../src/reviewSource.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import { scopeReadsOf } from "./intent-ci-scope-page.tsx";
@@ -7,7 +8,13 @@ import { unconfiguredIntentReads } from "./intent-ci-status-fixtures.ts";
 
 const title = "Story A";
 
-export async function openSummaryComparison(story: ComparedStory) {
+export async function openSummaryComparison(
+  story: ComparedStory,
+  options: {
+    readonly holdComparisonUntil?: Promise<void>;
+    readonly fileDiff?: ReviewSource["fileDiff"];
+  } = {},
+) {
   if (story.scope === undefined) throw new Error("Arrange the compared scope");
   const { locations, changed } = story.scope;
   const taken = story.work.taken.length > 0;
@@ -44,6 +51,15 @@ export async function openSummaryComparison(story: ComparedStory) {
     ])
     .please();
   const scope = scopeReadsOf(story);
+  const { holdComparisonUntil } = options;
+  if (holdComparisonUntil !== undefined) {
+    const answerComparison = scope.answers.comparison;
+    scope.answers.comparison = async (identity) => {
+      const answer = answerComparison(identity);
+      await holdComparisonUntil;
+      return answer;
+    };
+  }
   scope.answers.proof = (subject) => {
     const slots = [
       story.answer.baseline,
@@ -90,7 +106,9 @@ export async function openSummaryComparison(story: ComparedStory) {
             identity === story.identity ? review.please() : unavailableReview,
           ),
         range: () => Promise.reject(new Error("Unexpected review range")),
-        fileDiff: () => Promise.reject(new Error("Unexpected file diff")),
+        fileDiff:
+          options.fileDiff ??
+          (() => Promise.reject(new Error("Unexpected file diff"))),
         fileText: () => Promise.reject(new Error("Unexpected file text")),
       },
       done: doneReads,
@@ -101,6 +119,7 @@ export async function openSummaryComparison(story: ComparedStory) {
   return {
     selectStory: (identity: string, title: string) =>
       mounted.selectStory(identity, title),
+    comparisonReads: scope.asked.comparisons,
     proofReads: scope.asked.proofs,
   };
 }
