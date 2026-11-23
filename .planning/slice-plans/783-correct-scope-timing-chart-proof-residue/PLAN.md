@@ -139,13 +139,13 @@ and the readout ink reader into `intent-scope-history-chart-page.ts`.
 ### 2. One pointer and keyboard chart-mark case, with no spent support
 
 Type: Structure
-Status: planned
+Status: done
 
 Move the Done case's distinct checks into the Project case: the full 7-mark
 Tab walk, the broken-line pattern, the zero and unavailable hovers, and the
 unavailable mark level with the failed one. Then delete the Done pointer and
-keyboard case. Remove `historyChart().partial`, `.failed` and
-`.averageLabel`. Make the reading spec call `expectDoneEntryComparisonKept`,
+keyboard case. Remove `historyChart().partial` and `.averageLabel`;
+`.failed` keeps an e2e reader (G1). Make the reading spec call `expectDoneEntryComparisonKept`,
 keeping its table only for `standsAbove`.
 
 **Proof.** The chart-mark, reading and scope-glance specs pass, as does
@@ -153,3 +153,20 @@ keeping its table only for `standsAbove`.
 Project owner, and break-check the Tab walk and hover there. A whole-repo
 search finds no consumer of the removed members. Compare the two chart-mark
 specs at two workers before and after, with load recorded.
+
+**Accepted proof (2026-11-23).** Chart-mark, reading and both scope-glance
+specs 6/6 and the dashboard typecheck pass. Scratch removals of the zero mark's
+Tab stop and its pointer-enter fail the Project case's walk and hover. At two
+workers, the chart-mark specs went from Project 5347 ms, narrow 862 ms, Done
+pointer and keyboard 4578 ms and touch 2901 ms (load 16–28) to Project
+3559 ms, narrow 576 ms and touch 2861 ms (load 13–18). `historyChart().failed`
+stays: `e2e/intent/intent-ci-wall-time-history-later.spec.ts:135` reads it
+through `measureHistoryChart` (G1). The refactor pass found nothing to change.
+
+## Story obligations
+
+### G1. `historyChart().failed` still has a consumer
+Reported: slice 2 — "The e2e wall-time history spec reads `measureHistoryChart(history).failed` (`e2e/intent/intent-ci-wall-time-history-later.spec.ts:135`), so `.failed` is not spent; only `partial` and `averageLabel` were removed."
+Story clause: "Remove the spent `historyChart()` members"
+Disposition: no user cost "no case repeats another's checks": `.failed` is a live reader of the failed-build mark in the e2e wall-time history journey, not spent support; removing it would delete a check, while `partial` and `averageLabel` (no reader in dashboard, e2e or Distribution) are removed
+Commitment: 7

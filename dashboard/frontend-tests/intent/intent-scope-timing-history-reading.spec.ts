@@ -6,14 +6,11 @@
 import { expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { rowTextsOf } from "./intent-ci-comparison-page.ts";
-import { comparisonIn } from "./intent-ci-scope-page.tsx";
-import { openDoneScopeHistory } from "./intent-done-scope-history.ts";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
-  doneEntryComparisonRows,
-  doneEntryOwnFigures,
-} from "./intent-story-compare-stories.ts";
+  expectDoneEntryComparisonKept,
+  openDoneScopeHistory,
+} from "./intent-done-scope-history.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 const collected = (path: string, selectedRevision: string) =>
   makeMe.aScopeHistoryGlance
@@ -68,11 +65,7 @@ test("a failed local entry history read keeps the selected Done story and compar
     .element(history.failure)
     .toHaveTextContent("Local history unavailable");
   expect(intentStoryCompare().headerText()).toContain("Story A");
-  const rows = rowTextsOf(table);
-  expect(rows).toEqual(doneEntryComparisonRows);
-  const ownFigures = () =>
-    comparisonIn(summary).figuresOf("CI proof of dashboard/tests");
-  expect(ownFigures()).toEqual(doneEntryOwnFigures);
+  expectDoneEntryComparisonKept(summary);
   expect(history.standsAbove(table)).toBe(true);
   expect(reads).toBe(1);
 
@@ -82,8 +75,7 @@ test("a failed local entry history read keeps the selected Done story and compar
     .poll(history.text)
     .toContain("Reading collected test execution times…");
   expect(history.failure.query()).toBeNull();
-  expect(rowTextsOf(table)).toEqual(rows);
-  expect(ownFigures()).toEqual(doneEntryOwnFigures);
+  expectDoneEntryComparisonKept(summary);
 
   release();
   // The history charts above the comparison it leaves intact.
@@ -92,8 +84,7 @@ test("a failed local entry history read keeps the selected Done story and compar
   expect(chart.marks()).toBe(2);
   expect(() => chart.markY("Nov 5 · 1.2 s")).not.toThrow();
   expect(history.failure.query()).toBeNull();
-  expect(rowTextsOf(table)).toEqual(rows);
-  expect(ownFigures()).toEqual(doneEntryOwnFigures);
+  expectDoneEntryComparisonKept(summary);
   expect(intentStoryCompare().headerText()).toContain("Story A");
   expect(history.standsAbove(table)).toBe(true);
   expect(history.scrollingSideways()).toEqual([]);

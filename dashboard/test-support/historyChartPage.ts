@@ -22,12 +22,10 @@ export function historyChart(scope: Locator, name: string | RegExp) {
     readout: box.locator(".history-chart-readout"),
     measured: drawing.locator(":is(circle, polygon).history-chart-point"),
     selected: drawing.locator("path.history-chart-point"),
-    partial: drawing.locator(".history-chart-partial"),
     failed: drawing.locator(".history-chart-failed"),
     unavailable: drawing.locator(".history-chart-unavailable"),
     line: drawing.locator(".history-chart-line"),
     average: drawing.locator(".history-chart-reference line"),
-    averageLabel: drawing.locator(".history-chart-reference title"),
   };
 }
 

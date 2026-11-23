@@ -1,9 +1,9 @@
 // The shared history chart's marks and readouts on Project Intent's scope
 // timing history for the configured trunk: each build's timing or status by
 // shape and place under the observed trunk endpoint's words, painted readably
-// with focus shown in light and dark appearance, with whole duration labels at
-// the narrowest supported width. The Done story's chart, its walk through
-// every mark by keyboard, and touch are in
+// with focus shown in light and dark appearance, read by pointer and a
+// keyboard walk through every mark, with whole duration labels at the
+// narrowest supported width. The Done story's chart by touch is in
 // ./intent-ci-history-chart-marks.spec.ts. The integrated journeys own
 // collection; the typed scope history read answers each scope.
 import { expect, test } from "vitest";
@@ -52,7 +52,8 @@ async function openProjectChart(viewport?: typeof zoomedViewport) {
 test("a Project Intent scope history chart marks the observed trunk endpoint's builds and reads them by pointer and keyboard in light and dark", async () => {
   const { chart } = await openProjectChart();
   expect(chart.readout()).toBe(endpoint);
-  expect(chart.markNames()).toEqual([...readoutsBefore, endpoint]);
+  const readouts = [...readoutsBefore, endpoint];
+  expect(chart.markNames()).toEqual(readouts);
   expect(chart.builds()).toEqual({ measured: 4, selected: 1, unavailable: 1 });
   expect(chart.selectedShape()).toMatch(/^M[^M]+Z$/);
   expect(chart.averageDashes()).toMatch(/\d/);
@@ -69,6 +70,25 @@ test("a Project Intent scope history chart marks the observed trunk endpoint's b
   }).toEqual({ zero: true, endpoint: true, failed: true, unavailable: true });
   expect(chart.markY(zero)).toBeCloseTo(chart.floorY(), 0);
   expect(chart.markY(failed)).toBeGreaterThan(chart.floorY() + 8);
+  expect(chart.markY(unavailable)).toBeCloseTo(chart.markY(failed), 0);
+  // Broken by the failed and untimed builds and the incompatible endpoint.
+  expect(chart.line()).toMatch(/^M[^ML]+L[^ML]+M[^ML]+M[^ML]+M[^ML]+$/);
+  for (const readout of [unavailable, zero]) {
+    await userEvent.hover(chart.mark(readout));
+    await expect.poll(chart.readout).toBe(readout);
+  }
+  await userEvent.unhover(chart.mark(zero));
+  // Tab reaches the first mark from the stop before it, then walks on.
+  const [first = ""] = readouts;
+  chart.mark(first).focus();
+  await userEvent.tab({ shift: true });
+  const walked: string[] = [];
+  for (let step = 0; step < readouts.length; step += 1) {
+    await userEvent.tab();
+    await expect.poll(chart.readout).toBe(chart.focusedMark());
+    walked.push(chart.readout());
+  }
+  expect(walked).toEqual(readouts);
   let previousInk: string | null = null;
   for (const scheme of ["light", "dark"]) {
     await emulateMedia([{ name: "prefers-color-scheme", value: scheme }]);
