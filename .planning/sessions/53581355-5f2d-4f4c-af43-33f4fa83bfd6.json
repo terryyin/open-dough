@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "sessionId": "53581355-5f2d-4f4c-af43-33f4fa83bfd6",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-23T23:52:39.877Z",
+  "story": "SEED-423#derive-the-install-payload-from-the-shipped-directory",
+  "ranges": [
+    {
+      "base": "28785ac04017643f726a78af6eaefc90302a5d7d",
+      "candidate": "f3c94837b43ac5cccf6a2b3bd4ef23e47eb3f01d"
+    },
+    {
+      "base": "f3c94837b43ac5cccf6a2b3bd4ef23e47eb3f01d",
+      "candidate": "977b4ce68d38a9e9a11c8b32f1e264076e8dece2"
+    },
+    {
+      "base": "977b4ce68d38a9e9a11c8b32f1e264076e8dece2",
+      "candidate": "14f7aa413d8f7916a4fdb0020c6e5f7856e70f1f"
+    },
+    {
+      "base": "14f7aa413d8f7916a4fdb0020c6e5f7856e70f1f",
+      "candidate": "86fba84d8e4e75b435b7ed4ebe8309b9d38f1800"
+    },
+    {
+      "base": "86fba84d8e4e75b435b7ed4ebe8309b9d38f1800",
+      "candidate": "8c1ee6b3448347ea85ef16dec061d1d94ab6e029"
+    },
+    {
+      "base": "8c1ee6b3448347ea85ef16dec061d1d94ab6e029",
+      "candidate": "1bfd44d3d48e57962408ea3912084bf3c678cef6"
+    },
+    {
+      "base": "1bfd44d3d48e57962408ea3912084bf3c678cef6",
+      "candidate": "19977e9838a70dc72681a36f29a7992f7b776a35"
+    },
+    {
+      "base": "19977e9838a70dc72681a36f29a7992f7b776a35",
+      "candidate": "3a3ab710cb820651d6387eb841f1490455fe6c80"
+    },
+    {
+      "base": "3a3ab710cb820651d6387eb841f1490455fe6c80",
+      "candidate": "581a1296f63de8bd763936f0c33a8ea7fc6815e6"
+    },
+    {
+      "base": "581a1296f63de8bd763936f0c33a8ea7fc6815e6",
+      "candidate": "277dd162f276a518a77a1874f7fcb4f6af2faad1"
+    },
+    {
+      "base": "277dd162f276a518a77a1874f7fcb4f6af2faad1",
+      "candidate": "80087ac3086625e928680a3d495d2526a3fd144f"
+    },
+    {
+      "base": "80087ac3086625e928680a3d495d2526a3fd144f",
+      "candidate": "7f0279b489e871b6946e8f1c1bdec214f5620664"
+    }
+  ]
+}
