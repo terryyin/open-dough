@@ -27,6 +27,7 @@ import {
   chooseProject,
   storyCardSessions,
   expectMembership,
+  expectShownMembership,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import {
@@ -86,7 +87,7 @@ test.describe("the terminal's lifetime", () => {
     machine,
   }) => {
     dashboard.claudeScenario("launched");
-    const { card, settled, launch } = await openStoryColumnsJourney(
+    const { card, launch } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
@@ -98,8 +99,7 @@ test.describe("the terminal's lifetime", () => {
       taken: [],
       backlog: [takenStory, readyStory, notRefinedStory],
     };
-    await expectMembership(page, queued);
-    await settled();
+    await expectShownMembership(page, queued);
 
     await launch(notRefinedStory, "Execution");
     const listed = storyCardSessions(card(notRefinedStory));
@@ -193,9 +193,9 @@ test.describe("the terminal's lifetime", () => {
 
       await test.step("a reload shows no terminal, and the card still lists the session", async () => {
         await page.reload();
-        await expectMembership(page, queued);
-        await expect(panel).toHaveCount(0);
+        await expectShownMembership(page, queued);
         await expect(listed).toHaveCount(1);
+        await expect(panel).toHaveCount(0);
       });
     } finally {
       await restarted?.close();

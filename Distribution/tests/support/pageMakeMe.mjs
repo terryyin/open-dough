@@ -14,6 +14,7 @@ import { storyReviewMakeMeProperties } from "./storyReviewMakeMe.mjs";
 import { reviewCommitMakeMeProperties } from "./reviewCommitTestData.mjs";
 import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandidatesTestData.mjs";
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
+import { SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { DoneCatalogBuilder } from "./doneCatalogTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
@@ -47,6 +48,7 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *     readonly anUnreachableAuthenticatedRead: UnreachableAuthenticatedReadBuilder;
  *     readonly aLaunchRecord: LaunchRecordBuilder;
  *     readonly aDoneCatalog: DoneCatalogBuilder;
+ *     readonly aSlicePlan: SlicePlanBuilder;
  *     readonly aLaunchHostOptions: import("./factBuilder.mjs").FactBuilder<
  *       import("../../../dashboard/src/launchHostOptions.ts").LaunchHostOptions
  *     >;
@@ -100,6 +102,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new TestOptimizationCandidatesRecordBuilder();
+    },
+  },
+  aSlicePlan: {
+    enumerable: true,
+    get() {
+      return new SlicePlanBuilder();
     },
   },
   aDoneRecord: {

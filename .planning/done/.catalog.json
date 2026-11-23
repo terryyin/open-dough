@@ -2,6 +2,18 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_speed-story-changes-notes-and-progress-reading.json",
+      "identity": "SEED-413#speed-story-changes-notes-and-progress-reading",
+      "completedAt": "2026-11-23T04:39:43.017Z",
+      "blob": "a322338aa405fc863bd618d3d311bdd9b4e3dd56"
+    },
+    {
+      "fileName": "SEED-413_speed-intent-scope-timing-reading.json",
+      "identity": "SEED-413#speed-intent-scope-timing-reading",
+      "completedAt": "2026-11-23T03:42:06.668Z",
+      "blob": "724809f3510860b0e00705efc6b4f4aa218902ae"
+    },
+    {
       "fileName": "SEED-413_speed-intent-revision-and-detour-reading.json",
       "identity": "SEED-413#speed-intent-revision-and-detour-reading",
       "completedAt": "2026-11-23T02:44:48.017Z",

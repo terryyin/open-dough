@@ -1,7 +1,7 @@
 import { expect, onTestFinished, test } from "vitest";
 import { page } from "vitest/browser";
 import { expectDocumentStill } from "./board-accessibility.ts";
-import { reducedBoardMotion, withBoardStorage } from "./board-mount.ts";
+import { reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { scroller } from "./board-session-view.ts";
 import { longBacklog } from "./board-work.ts";
@@ -23,7 +23,6 @@ const bounds = (element: Element) => {
 };
 
 test("the Board alone scrolls with an open Side panel at 1400×420", async () => {
-  withBoardStorage("0");
   withWidthStorage();
   await reducedBoardMotion();
   const track = document.head.appendChild(document.createElement("style"));
@@ -94,7 +93,6 @@ test("the Board alone scrolls with an open Side panel at 1400×420", async () =>
 });
 
 test("the Board alone scrolls after Close from a covering Side panel at 700×800", async () => {
-  withBoardStorage("0");
   withWidthStorage();
   await reducedBoardMotion();
   await mountWidthReview({ width: 700, height: 800 }, longBacklog);

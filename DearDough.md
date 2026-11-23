@@ -7,7 +7,7 @@ observations and context beyond those catalog records. See
 
 ## Retention
 
-- Highest allocated local number: 627. Removed numbers are never reused.
+- Highest allocated local number: 628. Removed numbers are never reused.
 - Recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md` contains the pre-maintenance log and its earlier recovery chain.
 - Occurrence history is partial.
 
@@ -488,6 +488,13 @@ Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
   - Evidence: a Ready plan headed `## Slices and outside-in proof`. The first `story-obligations.mjs list --slice 1` refused `unreadable-slices`; after renaming to `## Slices` in the working plan, guarded fresh delivery refused "slice 7 is done … but not in its committed plan", because the committed heading was still unreadable. Repaired by the separate records commit `f5c5f876c`.
   - Observed effect: one refused listing, one refused delivery and one extra commit before slice 1 published.
   - Inference: the working-tree rename alone does not satisfy delivery, which also reads `HEAD`; planning or readiness rejecting the heading would avoid both stops.
+- Execution: SEED-413#speed-intent-scope-timing-reading (plan 777; first implementation `5119da43d`)
+  - Timestamp: unknown (2026-11-23 +08:00, before slice 1 delegation)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111 (trunk guidance update `27c47b235` before Take `419aeed53`)
+  - Evidence: the first `story-obligations.mjs list --slice 1` refused `unreadable-slices` and `unknown-slice` for `## Slices and outside-in proof`; renaming it to `## Slices` gave `ok: true`, and the rename was committed with slice 1 (`5119da43d`), so delivery did not refuse.
+  - Observed effect: one refused listing and a heading edit before delegation.
 
 ## ODF-528 — A plan puts slices that wait for a week of post-landing ordinary work inside one Story Branch execution <a id="dd-580"></a>
 
@@ -723,6 +730,17 @@ Former local code: DD-605.
 [Account and evidence at ODF-535](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-535.md#evidence-2026-11-23-open-dough-dd-605).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
+### Occurrences
+
+- Execution: SEED-413#speed-intent-scope-timing-reading (plan 777; first implementation `5119da43d`)
+  - Timestamp: unknown (2026-11-23 +08:00, slices 3–8 acceptance)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111 (trunk guidance update `27c47b235` before Take `419aeed53`)
+  - Evidence: slice 3 dropped the scope's own figures row from `expectComparisonScopeRows` (returned, restored in `ebe6c545f`). Slice 4 kept three legacy short-SHA exclusions that could not fail because the answer never held the SHA (returned: one made discriminating, two removed in `6bb025623`). Slice 6 left six drawing checks without a Done owner (story obligation G1, proved by slice 7 in `8d288cd06`). Slice 5 replaced the legacy-only case's no-timing check with a unit-name check, and acceptance took it (`758ca0df1`, `intent-scope-timing-history-units.spec.ts:103`); only the retrospective's independent outcome review found it, now [plan 783](.planning/slice-plans/783-correct-scope-timing-chart-proof-residue/PLAN.md) finding 2.
+  - Observed effect: three acceptance returns and one loss shipped on the story branch.
+  - Inference: legacy assertions that could not fail were copied as owners, a related failure the brief's preserve rule does not name.
+
 ## ODF-536 — Recording an observation with a Story obligation entry clears the commitment's Slice cell <a id="dd-606"></a>
 
 <a id="dd-606--recording-an-observation-with-a-story-obligation-entry-clears-the-commitments-slice-cell"></a>
@@ -893,3 +911,17 @@ Plan 778's Current decisions and slice 5 directed rendering the production banne
   - Observed effect: one human stop at the last slice and a source-review rerun after the story amendment.
   - Inference: comparing each Current decision with the shared acceptance during readiness would have raised this before execution.
 
+## DD-628 — A story promised a break check on a guard that another guard makes unobservable <a id="dd-628"></a>
+
+Refinement turned an Intent Coverage finding about the hook's abort guard into a key example saying the case fails when the key filter is removed. The plan's premise recorded only the abort-guard finding, so no probe tested the key filter alone before execution.
+
+### Occurrences
+
+- Execution: SEED-413#speed-intent-scope-timing-reading (plan 777; first implementation `5119da43d`)
+  - Timestamp: unknown (2026-11-23 +08:00, slice 1)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.111 (trunk guidance update `27c47b235` before Take `419aeed53`)
+  - Evidence: with only the key filter removed from `useIntentCiEndpointHistory`, the key-isolation case passed because the intact success-branch abort guard drops every late older-key answer. Three probe rounds followed: Project Intent; a Done story with its landing held, which mounts no scope tree; and the retained follow-up route, which `mountIntentCiPage` cannot reach. None exposed the filter alone. The developer then amended Key example 6 to name the abort guard (`5119da43d`), which required a fresh source review.
+  - Observed effect: three implementer returns (about 4.5 of slice 1's 7.6 active minutes), one human question and one extra source review.
+  - Inference: a premise naming one guard does not settle a promise about a sibling guard; planning could have probed the promise's own break before readiness.

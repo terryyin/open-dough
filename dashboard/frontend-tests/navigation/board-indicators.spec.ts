@@ -1,10 +1,6 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
-import {
-  mountBoard,
-  reducedBoardMotion,
-  withBoardStorage,
-} from "./board-mount.ts";
+import { mountBoard, reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import {
   portrait,
@@ -21,7 +17,6 @@ const taken = () =>
 const done = () => board.shows(["Recently done"], ["Taken 1 entry"]);
 
 test.beforeEach(async () => {
-  withBoardStorage("0");
   await useTouchScreen();
   await reducedBoardMotion();
 });

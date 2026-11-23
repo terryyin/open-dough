@@ -1,35 +1,21 @@
 // How a reused equivalent or later trunk build stands for the landings its
-// timing represents. The collection-to-Summary journey owns actual retained
-// evidence; this route supplies one retained history to the mounted
-// comparison.
-import {
-  scopeHistoryChart,
-  scopeHistoryReading,
-} from "../../test-support/intentScopeHistoryPage.ts";
-import { expectNoSidewaysScrollIn } from "../../test-support/pageLayout.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/comparisonMountPage.ts";
-import { openSummaryScopeHistory } from "../../test-support/support/summaryScopeHistory.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+// timing represents in a Done story's scope history. The collection-to-Summary
+// journey owns actual retained evidence.
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { shortSha } from "../../src/baseCiWording.ts";
+import { openDoneScopeHistory } from "./intent-done-scope-history.ts";
+import { doneCompletion } from "./intent-story-compare-stories.ts";
 
-test("a later trunk build that supplies the selected timing stays named in the readout and each mark names its build's role", async ({
-  page,
-  comparisonServer,
-  comparisonServices,
-}) => {
+test("a later trunk build that supplies the selected timing stays named in the readout and each mark names its build's role", async () => {
   const later = "d".repeat(40);
-  await page.setViewportSize({ width: 390, height: 844 });
-  const { completion, history } = await openSummaryScopeHistory(
-    page,
-    comparisonServer,
-    comparisonServices,
-    (selectedRevision) =>
+  // The later build's attempt key carries its revision, never shown.
+  const standIn = `adapter/${JSON.stringify(["42", "1", later])}`;
+  const { history } = await openDoneScopeHistory(
+    (path, selectedRevision) =>
       makeMe.aScopeHistoryGlance
         .with({
-          path: "dashboard/tests",
+          path,
           selectedRevision,
           availability: "retained",
           entries: [
@@ -44,17 +30,27 @@ test("a later trunk build that supplies the selected timing stays named in the r
                 { selected: false, provenance: "equivalent" },
               ],
               readings: [
-                { kind: "point", unit: "case", ms: 1200, segment: "case/1" },
+                {
+                  kind: "point",
+                  unit: "case",
+                  ms: 1200,
+                  segment: "case/1",
+                },
               ],
             },
             {
-              key: "run/42/1",
+              key: standIn,
               kind: "point",
               date: "2026-11-08T10:00:00Z",
               selected: true,
               landings: [{ selected: true, provenance: "later" }],
               readings: [
-                { kind: "point", unit: "case", ms: 2400, segment: "case/1" },
+                {
+                  kind: "point",
+                  unit: "case",
+                  ms: 2400,
+                  segment: "case/1",
+                },
               ],
             },
           ],
@@ -64,7 +60,7 @@ test("a later trunk build that supplies the selected timing stays named in the r
               reference: {
                 endpoint: selectedRevision,
                 selected: {
-                  key: "run/42/1",
+                  key: standIn,
                   date: "2026-11-08T10:00:00Z",
                   ms: 2400,
                 },
@@ -74,17 +70,18 @@ test("a later trunk build that supplies the selected timing stays named in the r
           ],
         })
         .please(),
-  );
-  await expect(scopeHistoryReading(history).selected).toHaveText(
-    `Selected landing ${shortSha(completion)} · 2.4 s · Later trunk build, includes later changes`,
+    { phone: true },
   );
   // Each measured build by its date, timing and role.
-  const chart = scopeHistoryChart(history, "test cases");
-  await expect(chart.drawing.locator("title")).toHaveText([
+  const chart = await history.chart("test cases", "selected landing");
+  expect(history.readout().selected).toBe(
+    `Selected landing ${shortSha(doneCompletion)} · 2.4 s · Later trunk build, includes later changes`,
+  );
+  expect(chart.titles()).toEqual([
     "Nov 4 · 1.2 s · test cases · Reused equivalent first-parent build",
     "Nov 8 · 2.4 s · test cases · Later trunk build, includes later changes · Selected landing",
   ]);
-  await expect(chart.readout).toHaveText("Nov 8 · Selected landing · 2.4 s");
-  await expect(history).not.toContainText(shortSha(later));
-  await expectNoSidewaysScrollIn(page, history);
+  expect(chart.readout()).toBe("Nov 8 · Selected landing · 2.4 s");
+  expect(history.text()).not.toContain(shortSha(later));
+  expect(history.scrollingSideways()).toEqual([]);
 });

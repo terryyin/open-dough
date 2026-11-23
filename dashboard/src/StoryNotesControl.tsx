@@ -9,21 +9,36 @@ import {
   storyNotesFor,
   storyNotesWaitingDescription,
 } from "./storyNote.ts";
-import { useStoryNotes } from "./storyNotes.ts";
+import {
+  useProjectStoryNotes,
+  useStoryNotesAnswer,
+  type StoryNotesState,
+} from "./storyNotes.ts";
 import { storyNotesUnreadable } from "./storyNotesReadSource.ts";
 import "./launch-dialog.css";
 import "./story-notes.css";
 
-export function StoryNotes({
-  sourceId,
-  identity,
-  title,
-}: {
-  readonly sourceId: string;
+type StoryNotesSubject = {
   readonly identity: string;
   readonly title: string;
+};
+
+export function StoryNotes({
+  sourceId,
+  ...subject
+}: StoryNotesSubject & { readonly sourceId: string }) {
+  const state = useProjectStoryNotes(sourceId);
+  return <StoryNotesControl {...subject} state={state} />;
+}
+
+export function StoryNotesControl({
+  state,
+  identity,
+  title,
+}: StoryNotesSubject & {
+  readonly state: StoryNotesState;
 }) {
-  const { answer, change } = useStoryNotes(sourceId);
+  const answer = useStoryNotesAnswer(state);
   const problemId = useId();
   const waitingId = useId();
   const [open, setOpen] = useState(false);
@@ -69,7 +84,7 @@ export function StoryNotes({
           title={title}
           notes={notes}
           unreadable={unreadable}
-          onChange={change}
+          onChange={state.change}
           onClose={() => {
             setOpen(false);
             opener.current?.focus();

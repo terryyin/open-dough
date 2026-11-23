@@ -1,154 +1,87 @@
-// The detail of a story whose plan records its execution as complete shows
-// "Execution complete" and the recorded product advice as plain text, or the
-// record's gap when it has no readable advice; a plan without the record shows
-// no completion. Built frontend against controlled backlog, seed, and plan
-// answers; the shared story-state and plan readers and the page decide
-// everything shown.
-
-import { renderSlicePlan } from "../../../Distribution/tests/support/published-plan.mjs";
-import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { putFrontendPublished } from "../../test-support/support/frontendServiceState.ts";
-import { expectMembership, parts } from "../../test-support/dashboardPage.ts";
+import { expect, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+import { mountIntentCiPage } from "../intent/intent-ci-page-mount.ts";
 import {
-  backlogApart,
-  describedRevision,
-} from "../../test-support/describedRevisions.ts";
-import {
-  inspectedDetail,
-  storyCard,
-} from "../../test-support/storyCardControls.ts";
-
-const revision = "c3".repeat(20);
-
-const completed = "Execution recorded complete";
-const unfinished = "Execution without a completion record";
-const adviceless = "Completion record without advice";
-
-const stories = [
-  { title: completed, anchor: "completed" },
-  { title: unfinished, anchor: "unfinished" },
-  { title: adviceless, anchor: "adviceless" },
-];
-
-const planPath = (anchor: string) =>
-  `.planning/slice-plans/094-${anchor}/PLAN.md`;
+  inertCiReads,
+  unconfiguredIntentReads,
+} from "../intent/intent-ci-status-fixtures.ts";
+import { boardReading } from "../navigation/board-reading-page.ts";
+import { boardWork, story } from "../navigation/board-work.ts";
 
 const advice = `Queue a story to show <b>advice</b> on the card.
 - Keep the detail wording as it is.`;
+const problem =
+  "This plan’s “## Execution complete” record has no readable “Product advice:” entry.";
 
-const slices = [
-  makeMe.aPlanSlice
-    .with({
-      index: 1,
-      name: "Only slice",
-      status: "done",
-      accepted: "The journey passed.",
-    })
-    .please(),
-];
-const unfinishedPlan = renderSlicePlan(
-  makeMe.aSlicePlan.with({ slices }).please(),
-);
-
-const plans: Record<string, string> = {
-  completed: renderSlicePlan(
-    makeMe.aSlicePlan.with({ slices, completion: { advice } }).please(),
-  ),
-  unfinished: unfinishedPlan,
-  adviceless: `${unfinishedPlan}
-## Execution complete
-
-The retrospective found nothing to record.
-`,
-};
-
-const seedPath = ".planning/seeds/SEED-094-complete.md";
-const href = (anchor: string) => `seeds/SEED-094-complete.md#${anchor}`;
-
-const membership = stories.map(({ title, anchor }) =>
-  makeMe.aBacklogEntry
-    .with({ title, identity: `SEED-094#${anchor}`, href: href(anchor) })
-    .please(),
-);
-
-const seed = `---
-id: SEED-094
----
-
-# Execution complete fixture
-
-${membership.map((story) => renderStorySection(story)).join("\n")}`;
-
-const published = backlogApart(
-  describedRevision(
-    makeMe.aRepository
-      .withRevision("completion", {
-        backlog: {
-          taken: membership,
-        },
-        files: {
-          [seedPath]: seed,
-          ...Object.fromEntries(
-            stories.map(({ anchor }) => [planPath(anchor), plans[anchor]]),
-          ),
-        },
-        storyStates: stories.map(({ anchor }) => ({
-          identity: `SEED-094#${anchor}`,
-          href: href(anchor),
-          ...makeMe.aStoryPreparation
-            .plannedIn(`../slice-plans/094-${anchor}/PLAN.md`)
-            .please(),
-        })),
-      })
-      .please(),
-    revision,
-  ),
-);
-
-test("the story detail shows a plan's recorded execution completion and product advice, its gap, or no completion", async ({
-  page,
-  frontendServices,
-}) => {
-  putFrontendPublished(frontendServices, published);
-  await page.goto("/");
-  await expectMembership(page, {
-    taken: stories.map(({ title }) => title),
-    backlog: [],
-  });
-  const { taken } = parts(page);
-  const detailOf = async (title: string) => {
-    const detail = await inspectedDetail(storyCard(taken, title));
-    await expect(detail).toContainText("1 of 1 slices recorded complete");
-    return detail;
+test("the story detail shows recorded advice as text, a completion gap, or no completion without reading the plan again", async () => {
+  const completed = "Execution recorded complete";
+  const unfinished = "Execution without a completion record";
+  const adviceless = "Completion record without advice";
+  const allDone = {
+    status: "interpreted" as const,
+    ...makeMe.aSlicePlan.withStatuses(["done"]).please(),
   };
+  const work = boardWork([], {
+    taken: [
+      story(completed, 94, {
+        planSlices: { ...allDone, completion: { advice } },
+      }),
+      story(unfinished, 95, { planSlices: allDone }),
+      story(adviceless, 96, {
+        planSlices: { ...allDone, completion: { problem } },
+      }),
+    ],
+  });
+  const observation = pageReadsSupplying({}).observation;
+  const readDetailFile = vi.fn(observation.readDetailFile);
+  await mountIntentCiPage({
+    work,
+    initialPerspective: "development",
+    reads: {
+      ci: inertCiReads(),
+      intent: unconfiguredIntentReads,
+      observation: { ...observation, readDetailFile },
+    },
+  });
 
-  await test.step("a completed plan's detail shows Execution complete and the advice exactly as recorded, as plain text", async () => {
-    const detail = await detailOf(completed);
-    await expect(
-      detail.getByRole("heading", { name: "Execution complete" }),
-    ).toBeVisible();
-    await expect(detail.locator(".product-advice")).toHaveText(advice, {
-      useInnerText: true,
+  async function inspect(title: string) {
+    const card = boardReading.column("Taken").getByRole("article", {
+      name: title,
+      exact: true,
     });
-    await expect(detail.locator("b")).toHaveCount(0);
-  });
+    await card.getByRole("button", { name: "Inspect story" }).click();
+    const detail = page.getByRole("region", {
+      name: `Detail for ${title}`,
+      exact: true,
+    });
+    await expect
+      .element(detail.getByText("1 of 1 slices recorded complete"))
+      .toBeVisible();
+    return detail;
+  }
 
-  await test.step("a record without product advice shows that gap", async () => {
-    const detail = await detailOf(adviceless);
-    await expect(
-      detail.getByRole("heading", { name: "Execution complete" }),
-    ).toBeVisible();
-    await expect(detail).toContainText(
-      "This plan’s “## Execution complete” record has no readable “Product advice:” entry.",
-    );
-    await expect(detail.locator(".product-advice")).toHaveCount(0);
-  });
+  const recorded = await inspect(completed);
+  await expect
+    .element(recorded.getByRole("heading", { name: "Execution complete" }))
+    .toBeVisible();
+  await expect.element(recorded.getByText("Product advice:")).toBeVisible();
+  expect(recorded.element().querySelector(".product-advice")?.textContent).toBe(
+    advice,
+  );
+  expect(recorded.element().querySelector("b")).toBeNull();
 
-  await test.step("a plan without the record shows no completion", async () => {
-    const detail = await detailOf(unfinished);
-    await expect(detail).not.toContainText("Execution complete");
-    await expect(detail).not.toContainText("Product advice");
-  });
+  const gap = await inspect(adviceless);
+  await expect
+    .element(gap.getByRole("heading", { name: "Execution complete" }))
+    .toBeVisible();
+  await expect.element(gap.getByText(problem, { exact: true })).toBeVisible();
+  expect(gap.element().querySelector(".product-advice")).toBeNull();
+
+  const missing = await inspect(unfinished);
+  await expect
+    .element(missing.getByText(/Execution complete|Product advice/))
+    .not.toBeInTheDocument();
+  expect(readDetailFile).not.toHaveBeenCalled();
 });

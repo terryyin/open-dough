@@ -3,10 +3,9 @@ import { page } from "vitest/browser";
 import { boardReading as board } from "./board-reading-page.ts";
 import {
   formerPositionKey,
-  mountBoard,
   positionKey,
-  withBoardStorage,
-} from "./board-mount.ts";
+} from "../../test-support/component-mount/framePreferences.ts";
+import { mountBoard, withBoardStorage } from "./board-mount.ts";
 import { boardWork, story } from "./board-work.ts";
 
 const viewport = { width: 864, height: 800 };

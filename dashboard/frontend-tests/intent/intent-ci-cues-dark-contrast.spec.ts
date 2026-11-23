@@ -6,10 +6,8 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import {
-  composeBackgrounds,
-  contrastRatio,
-} from "../../test-support/composedColours.ts";
+import { contrastRatio } from "../../test-support/composedColours.ts";
+import { textContrast } from "../navigation/board-accessibility.ts";
 import {
   doneCompletion,
   openDoneStoryComparison,
@@ -66,19 +64,6 @@ function tokenColour(token: string): string {
   const colour = getComputedStyle(probe).color;
   probe.remove();
   return colour;
-}
-
-function expectReadableContrast(element: Element, minimum = 4.5) {
-  const color = getComputedStyle(element).color;
-  const backgrounds: string[] = [];
-  for (let at: Element | null = element; at !== null; at = at.parentElement) {
-    backgrounds.push(getComputedStyle(at).backgroundColor);
-  }
-  const background = composeBackgrounds(backgrounds);
-  expect(
-    contrastRatio(color, background),
-    `contrast of ${element.textContent}`,
-  ).toBeGreaterThanOrEqual(minimum);
 }
 
 // The Done story's Summary of its scope location on the production page,
@@ -138,6 +123,6 @@ test("composed CI cue variants stay readable on dark surfaces", async () => {
   const cued = summary.element().querySelector("[class*='intent-ci-cue-']");
   if (cued === null) throw new Error("Expected at least one CI cue element");
   await expect.element(page.elementLocator(cued)).toBeVisible();
-  expectReadableContrast(cued);
-  expectReadableContrast(ownFigures.element());
+  textContrast(cued);
+  textContrast(ownFigures.element());
 });

@@ -59,7 +59,6 @@ for (const merge of ["clean", "merge-edited"] as const) {
     const setup = await prepareFrontendDoneIntent(
       page,
       frontendServices,
-      undefined,
       merge === "clean"
         ? {}
         : {

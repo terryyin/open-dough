@@ -2,11 +2,7 @@ import { expect, test, vi } from "vitest";
 import { page } from "vitest/browser";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
-import {
-  mountBoard,
-  reducedBoardMotion,
-  withBoardStorage,
-} from "./board-mount.ts";
+import { mountBoard, reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { sessions } from "./board-session-view.ts";
 import {
@@ -45,7 +41,6 @@ const tapIndicator = (name: Parameters<typeof board.control>[0]) =>
   tapWhereShown(board.control(name).element());
 
 test.beforeEach(async () => {
-  withBoardStorage("0");
   await useTouchScreen();
 });
 

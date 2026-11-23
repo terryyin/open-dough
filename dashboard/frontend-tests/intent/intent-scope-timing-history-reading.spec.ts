@@ -1,55 +1,35 @@
+// A failed local entry history read beside a Done story's comparison: the
+// story, its comparison and the part order stay, and the history offers its
+// own Retry, reads while the retried read is held, then charts its answer
+// above the comparison on a phone. The collection-to-Summary journey owns
+// actual retained evidence.
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { rowTextsOf } from "./intent-ci-comparison-page.ts";
+import { comparisonIn } from "./intent-ci-scope-page.tsx";
+import { openDoneScopeHistory } from "./intent-done-scope-history.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
-  scopeHistory,
-  scopeHistoryReading,
-  scopeHistoryChart,
-} from "../../test-support/intentScopeHistoryPage.ts";
-// Supplemental UI recovery proof for the locally collected scope history.
-// The collection-to-Summary journey owns actual retained evidence; this
-// substitute fails only the local history read beside an existing comparison.
+  doneEntryComparisonRows,
+  doneEntryOwnFigures,
+} from "./intent-story-compare-stories.ts";
 
-import {
-  expect,
-  test,
-  mountComparison,
-} from "../../test-support/support/comparisonMountPage.ts";
-import {
-  expectComparisonScopeRows,
-  scopeTable,
-} from "../../test-support/intentScopeProofPage.ts";
-import { expectStackedInOrder } from "../../test-support/partArrangement.ts";
-import { entryComparisonRows } from "../../test-support/support/summaryComparisonExpectedRows.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expectNoSidewaysScrollIn } from "../../test-support/pageLayout.ts";
-
-test("a failed local entry history read keeps the selected Done story and comparison and offers its own retry", async ({
-  page,
-  comparisonServer,
-  comparisonServices,
-}) => {
-  const story = makeMe.aComparedStory.inSummaryScope().please();
-  comparisonServices.serve(story);
-  const setup = { completion: story.work.revision };
-  const previous = "1".repeat(40);
-  const adapterAttemptId = "opaque-attempt+#";
-  const collected = makeMe.aScopeHistoryGlance
+const collected = (path: string, selectedRevision: string) =>
+  makeMe.aScopeHistoryGlance
     .with({
-      path: "dashboard/tests",
-      selectedRevision: setup.completion,
+      path,
+      selectedRevision,
       availability: "retained",
       entries: [
         {
-          key: `adapter/${JSON.stringify(["run-a", adapterAttemptId, previous])}`,
+          key: `adapter/${JSON.stringify(["run-a", "opaque-attempt+#", "1".repeat(40)])}`,
           kind: "point",
           date: "2026-11-05T10:00:00Z",
           selected: false,
           landings: [{ selected: false, provenance: "exact" }],
           readings: [
-            {
-              kind: "point",
-              unit: "case",
-              ms: 1200,
-              segment: "case/1",
-            },
+            { kind: "point", unit: "case", ms: 1200, segment: "case/1" },
           ],
         },
         {
@@ -58,79 +38,63 @@ test("a failed local entry history read keeps the selected Done story and compar
           date: "2026-11-06T10:00:00Z",
           selected: true,
           landings: [{ selected: true, provenance: "exact" }],
-          readings: [
-            {
-              kind: "point",
-              unit: "case",
-              ms: 0,
-              segment: "case/1",
-            },
-          ],
+          readings: [{ kind: "point", unit: "case", ms: 0, segment: "case/1" }],
         },
       ],
     })
     .please();
+
+test("a failed local entry history read keeps the selected Done story and comparison and offers its own retry", async () => {
   let reads = 0;
-  let available = false;
-  let releaseHistory: () => void = () => undefined;
-  const heldHistory = new Promise<void>((resolve) => {
-    releaseHistory = resolve;
-  });
-  await page.route(
-    /\/__authenticated-read\?.*intent=ci-history.*scope=/,
-    async (route) => {
+  let release: () => void = () => undefined;
+  const { summary, history } = await openDoneScopeHistory(
+    (path, selectedRevision) => {
       reads += 1;
-      if (available) await heldHistory;
-      await route.fulfill(
-        available
-          ? { json: collected }
-          : { status: 503, json: { error: "Local history unavailable" } },
-      );
+      if (reads === 1)
+        return Promise.reject(new Error("Local history unavailable"));
+      return new Promise((resolve) => {
+        release = () => {
+          resolve(collected(path, selectedRevision));
+        };
+      });
     },
+    { phone: true },
   );
-  await page.setViewportSize({ width: 390, height: 844 });
-  await mountComparison(page, comparisonServer, {
-    ...story,
-    doneEndpoint: { revision: setup.completion, at: "2026-11-09T00:00:00Z" },
+  const table = summary.getByRole("table", {
+    name: "CI proof of the immediate folders and files of dashboard/tests",
+    exact: true,
   });
-  const summary = page.getByRole("region", { name: "Summary", exact: true });
-  const history = scopeHistory(summary);
-  await expect(scopeHistoryReading(history).failure).toContainText(
-    "Local history unavailable",
-  );
-  await expectComparisonScopeRows(
-    summary,
-    "dashboard/tests",
-    entryComparisonRows,
-  );
+  await expect
+    .element(history.failure)
+    .toHaveTextContent("Local history unavailable");
+  expect(intentStoryCompare().headerText()).toContain("Story A");
+  const rows = rowTextsOf(table);
+  expect(rows).toEqual(doneEntryComparisonRows);
+  const ownFigures = () =>
+    comparisonIn(summary).figuresOf("CI proof of dashboard/tests");
+  expect(ownFigures()).toEqual(doneEntryOwnFigures);
+  expect(history.standsAbove(table)).toBe(true);
   expect(reads).toBe(1);
-  available = true;
-  try {
-    await scopeHistoryReading(history).retry.click();
-    await expect.poll(() => reads).toBe(2);
-    await expect(history).toContainText(
-      "Reading collected test execution times…",
-    );
-    await expect(scopeHistoryReading(history).failure).toHaveCount(0);
-    await expectComparisonScopeRows(
-      summary,
-      "dashboard/tests",
-      entryComparisonRows,
-    );
-  } finally {
-    releaseHistory();
-  }
-  await expect(scopeHistoryReading(history).failure).toHaveCount(0);
-  await expectComparisonScopeRows(
-    summary,
-    "dashboard/tests",
-    entryComparisonRows,
-  );
-  // The history reads above the comparison it leaves intact.
-  const chart = scopeHistoryChart(history, "test cases");
-  await expect(chart.readout).toHaveText("Nov 6 · Selected landing · 0 ms");
-  await expect(chart.mark("Nov 5 · 1.2 s")).toHaveCount(1);
-  await expect(chart.marks).toHaveCount(2);
-  await expectStackedInOrder([history, scopeTable(summary, "dashboard/tests")]);
-  await expectNoSidewaysScrollIn(page, history);
+
+  await userEvent.click(history.retry);
+  await expect.poll(() => reads).toBe(2);
+  await expect
+    .poll(history.text)
+    .toContain("Reading collected test execution times…");
+  expect(history.failure.query()).toBeNull();
+  expect(rowTextsOf(table)).toEqual(rows);
+  expect(ownFigures()).toEqual(doneEntryOwnFigures);
+
+  release();
+  // The history charts above the comparison it leaves intact.
+  const chart = await history.chart("test cases", "selected landing");
+  expect(chart.readout()).toBe("Nov 6 · Selected landing · 0 ms");
+  expect(chart.marks()).toBe(2);
+  expect(() => chart.markY("Nov 5 · 1.2 s")).not.toThrow();
+  expect(history.failure.query()).toBeNull();
+  expect(rowTextsOf(table)).toEqual(rows);
+  expect(ownFigures()).toEqual(doneEntryOwnFigures);
+  expect(intentStoryCompare().headerText()).toContain("Story A");
+  expect(history.standsAbove(table)).toBe(true);
+  expect(history.scrollingSideways()).toEqual([]);
 });

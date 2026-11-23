@@ -32,19 +32,32 @@ async function readAndNothingMoreWillBeRead(page: Page): Promise<boolean> {
 const nothingMoreWillBeRead =
   "the page says the published work could not be read and it reads no more on its own";
 
+type StoryMembership = {
+  readonly taken: string[];
+  readonly backlog: string[];
+};
+
+const titlesIn = (column: Locator) =>
+  column.locator("[data-story-card] > fieldset > h3");
+
+// The story titles currently shown, with the first complete match as the cue.
+export async function expectShownMembership(
+  page: Page,
+  titles: StoryMembership,
+) {
+  const { taken, backlog } = parts(page);
+  await expect(titlesIn(taken)).toHaveText(titles.taken);
+  await expect(titlesIn(backlog)).toHaveText(titles.backlog);
+}
+
 // The published story titles in each column, excluding standalone sessions,
 // once no read of the published work is on its way: the titles then wait on
 // the page showing what it read, however long GitHub took to answer. When
 // the page says that read failed for good, nothing can still bring a title,
 // so what the Board shows is compared at once.
-export async function expectMembership(
-  page: Page,
-  titles: { readonly taken: string[]; readonly backlog: string[] },
-) {
-  const { taken, backlog } = parts(page);
-  const titlesIn = (column: Locator) =>
-    column.locator("[data-story-card] > fieldset > h3");
+export async function expectMembership(page: Page, titles: StoryMembership) {
   if (await readAndNothingMoreWillBeRead(page)) {
+    const { taken, backlog } = parts(page);
     expect(
       {
         taken: await titlesIn(taken).allTextContents(),
@@ -54,8 +67,7 @@ export async function expectMembership(
     ).toEqual({ taken: titles.taken, backlog: titles.backlog });
     return;
   }
-  await expect(titlesIn(taken)).toHaveText(titles.taken);
-  await expect(titlesIn(backlog)).toHaveText(titles.backlog);
+  await expectShownMembership(page, titles);
 }
 
 // A first card in the board, once no read of the published work is on its
@@ -81,7 +93,7 @@ async function expectFirstCard(page: Page) {
 // only that; the reads a later reading sent are awaited after it.
 export async function expectSettledPage(
   page: Page,
-  membership?: { readonly taken: string[]; readonly backlog: string[] },
+  membership?: StoryMembership,
   { timeout }: { readonly timeout?: number } = {},
 ) {
   if (membership === undefined) {
@@ -115,7 +127,7 @@ export async function expectWholeSnapshot(
   page: Page,
   shown: {
     readonly revision: string;
-    readonly titles: { readonly taken: string[]; readonly backlog: string[] };
+    readonly titles: StoryMembership;
     readonly retrievedAt?: Date;
   },
   otherRevisions: string[],

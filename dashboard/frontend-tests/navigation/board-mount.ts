@@ -160,8 +160,6 @@ export async function mountBoard(
   };
 }
 
-export { formerPositionKey, positionKey };
-
 export function withBoardStorage(initial?: string) {
   withFramePreference(positionKey, initial ?? null);
   withFramePreference(formerPositionKey, null);

@@ -3,11 +3,7 @@ import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { openSessionStartReason } from "../../src/agentLaunch.ts";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
-import {
-  mountBoard,
-  reducedBoardMotion,
-  withBoardStorage,
-} from "./board-mount.ts";
+import { mountBoard, reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import {
   landscape,
@@ -83,7 +79,6 @@ async function chooseProject(label: string) {
 }
 
 test.beforeEach(async () => {
-  withBoardStorage("0");
   await useTouchScreen();
   await reducedBoardMotion();
 });

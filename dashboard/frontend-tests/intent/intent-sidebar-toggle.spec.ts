@@ -1,206 +1,228 @@
-import { selectTakenStoryInIntent } from "../../test-support/support/frontendIntentVisits.ts";
-// Hide files / Show files (../../src/FileBrowserToggle.tsx) in Project
-// Intent's strip on CI status (../../src/IntentPage.tsx), or ending a
-// selected story's view row on Changes
-// (../../src/intentStoryTabs.tsx): hiding the locations column gives the
-// reading pane the content width (narrow, the height under the strip), with
-// the story's header still above it; showing it returns the tree as it was,
-// also after visiting the story's other views. Each scope keeps its own
-// choice with Intent's reading place (../../src/pageIntentReading.tsx) across
-// views, a visit to the other scope and Development, and a project change
-// shows the column again. A narrow
-// selected story's view row: ../../frontend-tests/intent/intent-story-views-narrow.spec.ts.
-
-import type { Locator, Page } from "@playwright/test";
-import { box } from "../../test-support/partArrangement.ts";
-import { storyA } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { chooseProject, parts } from "../../test-support/dashboardPage.ts";
-import { ciPanel } from "../../test-support/intentCiStatusPage.ts";
+import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { scopeName, scopeToggle } from "./intent-browser-page.ts";
 import {
-  chooseOptimizationCandidates,
-  expectFilesShown,
-  filesToggle,
-  intentModeBar,
-  intentModeTab,
-  openProjectIntent,
-  returnToStory,
-  storyViewBar,
-  filesScroll,
-  scrollFilesHalfway,
-  intentBrowser,
-} from "../../test-support/intentModePage.ts";
+  deepFile,
+  openIntentFileLayout,
+} from "./intent-file-layout-fixture.ts";
 import {
-  fileReadingTab,
-  proofRegion,
-} from "../../test-support/intentPerspectivePage.ts";
-import { intentReadingPane } from "../../test-support/intentReadingPlacePage.ts";
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { intentStory } from "../../test-support/support/intentStoryPage.ts";
-import { deepSpec } from "../../test-support/support/intentStoryWorktree.ts";
-import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
-import { putFrontendIntentStory } from "../../test-support/support/frontendIntentStory.ts";
-import { answerFrontendIntentCi } from "../../test-support/support/frontendIntentCi.ts";
-import { openUntilRead } from "../../test-support/pageRequestNotes.ts";
+  fileLayout,
+  intentPage,
+  projectView,
+  toggleFilesFromKeyboard,
+} from "./intent-file-layout-page.ts";
+import { developmentCard } from "./intent-ci-development-card-page.ts";
+import {
+  locationHeader,
+  locationHeaderLook,
+} from "./intent-scope-tree-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
-// The reading pane spans the browser's whole width, and its whole height.
-async function expectReadingFillsBrowser(intent: Locator) {
-  const browser = await box(intentBrowser(intent));
-  const pane = await box(intentReadingPane(intent));
-  expect(Math.abs(pane.width - browser.width)).toBeLessThanOrEqual(1);
-  expect(Math.abs(pane.x - browser.x)).toBeLessThanOrEqual(1);
-  expect(Math.abs(pane.y + pane.height - (browser.y + browser.height)))
-    // The browser's top border sits above the pane.
-    .toBeLessThanOrEqual(1);
-  expect(pane.y - browser.y).toBeLessThanOrEqual(1);
-  return pane;
-}
+const proof = intentPage.getByRole("region", { name: "Proof", exact: true });
+const proofTab = intentPage
+  .getByRole("tablist", { name: "Purpose and Proof", exact: true })
+  .getByRole("tab", { name: "Proof", exact: true });
+const ciStatus = intentPage.getByRole("region", {
+  name: "CI status",
+  exact: true,
+});
 
-// Intent with its locations published and no story selected.
-async function openIntentWithoutStory(
-  page: Page,
-  services: FrontendServiceState,
-) {
-  putFrontendIntentStory(services);
-  await answerFrontendIntentCi(page, services.revision);
-  await openUntilRead(page, "/?project=open-dough&perspective=intent");
-  const { intent } = parts(page);
-  await expect(ciPanel(intent)).toBeVisible();
-  await expectFilesShown(intent, true);
-  return intent;
-}
+test("Hide files gives the reading pane the width under the story's header; after the other views, Show files returns the column, test and Proof as they were", async () => {
+  await openIntentFileLayout({
+    viewport: { width: 1280, height: 560 },
+  });
+  const files = fileLayout();
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  await story.onlyChangedFiles.click();
+  const selected = story.file(deepFile);
+  await selected.click();
+  await expect.poll(story.diffName).toBe(deepFile);
+  await story.chooseProof();
+  await expect.element(proof).toBeVisible();
+  const offset = await files.scrollFilesHalfway();
+  const before = files.reading();
 
-test("Hide files gives the reading pane the width under the story's header; after the other views, Show files returns the column, test and Proof as they were", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 560 });
-  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
-  const story = intentStory(intent);
-  await story.storyOnly().check();
-  await story.file(deepSpec).click();
-  await expect(story.diffReading.name).toHaveText(deepSpec);
-  const proofTab = fileReadingTab(intent, "Proof");
-  await proofTab.click();
-  await expect(proofRegion(intent)).toBeVisible();
-  const offset = await scrollFilesHalfway(intent);
-  expect(offset).toBeGreaterThan(20);
-  const before = await box(intentReadingPane(intent));
-
-  // The toggle ends the story's view row, after the tabs.
-  const bar = storyViewBar(intent);
-  const toggleBox = await box(filesToggle(intent));
-  const tabsBox = await box(story.views);
-  const barBox = await box(bar);
-  expect(toggleBox.x).toBeGreaterThan(tabsBox.x + tabsBox.width);
+  const toggleBounds = files.toggle.element().getBoundingClientRect();
+  const tabs = intentPage.getByRole("tablist", {
+    name: "Selected story views",
+  });
+  expect(toggleBounds.left).toBeGreaterThan(
+    tabs.element().getBoundingClientRect().right,
+  );
   expect(
-    Math.abs(toggleBox.x + toggleBox.width - (barBox.x + barBox.width)),
+    Math.abs(toggleBounds.right - files.tabBar().right),
   ).toBeLessThanOrEqual(32);
-  await expect(intentModeBar(intent).getByRole("button")).toHaveCount(0);
+  await expect.element(projectView("CI status")).not.toBeInTheDocument();
 
-  await filesToggle(intent).click();
-  await expectFilesShown(intent, false);
-  const hidden = await expectReadingFillsBrowser(intent);
-  expect(hidden.width).toBeGreaterThan(before.width);
-  await expect(proofRegion(intent)).toBeVisible();
-  // The header stays above the full-width reader.
-  const header = await box(story.summary);
-  expect(hidden.y).toBeGreaterThanOrEqual(header.y + header.height);
+  await files.toggle.click();
+  await files.showsFiles(false);
+  await files.showsFullReader();
+  expect(files.reading().width).toBeGreaterThan(before.width);
+  expect(files.reading().top).toBeGreaterThanOrEqual(
+    story.header.element().getBoundingClientRect().bottom,
+  );
+  await expect.element(proof).toBeVisible();
 
   for (const view of ["Intent coverage", "CI comparison"] as const) {
     await story.chooseTab(view);
-    await expect(filesToggle(intent)).toHaveCount(0);
-    await expect(intentReadingPane(intent)).toBeHidden();
+    await expect.element(files.toggle).not.toBeInTheDocument();
+    await expect.poll(files.readerVisible).toBe(false);
     await story.chooseTab("Changes");
-    await expectFilesShown(intent, false);
-    await expect(proofRegion(intent)).toBeVisible();
+    await files.showsFiles(false);
+    await expect.element(proof).toBeVisible();
   }
 
-  await filesToggle(intent).click();
-  await expectFilesShown(intent, true);
-  await expect(story.storyOnly()).toBeChecked();
-  await expect(story.file(deepSpec)).toHaveAttribute("aria-pressed", "true");
+  await files.toggle.click();
+  await files.showsFiles(true);
+  await expect.element(story.onlyChangedFiles).toBeChecked();
+  await expect.element(selected).toHaveAttribute("aria-pressed", "true");
   for (const name of ["boundary", "deep"])
-    await expect(story.folderToggle(name, true)).toBeVisible();
-  await expect.poll(() => filesScroll(intent)).toBe(offset);
-  await expect(proofTab).toHaveAttribute("aria-selected", "true");
+    await expect
+      .element(scopeToggle(name))
+      .toHaveAttribute("aria-expanded", "true");
+  await expect.poll(files.fileScroll).toBe(offset);
+  await expect.element(proofTab).toHaveAttribute("aria-selected", "true");
 });
 
-test("the hidden column stays hidden through a Project Intent visit, which keeps its own choice, and Development, and a project change shows it", async ({
-  page,
-  frontendServices,
-}) => {
-  const { intent } = await selectTakenStoryInIntent(page, frontendServices);
-  const story = intentStory(intent);
-  await filesToggle(intent).click();
-  await expectFilesShown(intent, false);
+test("changed locations keep their own full-width header and change mark when selected", async () => {
+  const mounted = await openIntentFileLayout({
+    viewport: { width: 1280, height: 800 },
+  });
+  await intentStoryCompare().chooseTab("Changes");
+  const folder = scopeToggle("boundary");
+  await expect.element(folder).toBeVisible();
+  const markedFolder = folder.element().closest(".story-review-folder-row");
+  if (!markedFolder)
+    throw new Error("Expected the changed boundary folder row");
+  expect(
+    markedFolder.parentElement?.getAttribute("data-contains-changes"),
+  ).toBe("true");
+  const folderBackground = getComputedStyle(markedFolder).backgroundColor;
+  const transparent = "rgba(0, 0, 0, 0)";
+  expect(folderBackground).not.toBe(transparent);
 
-  // Project Intent's column is its own, still shown.
-  await openProjectIntent(intent);
-  await expectFilesShown(intent, true);
-  await chooseOptimizationCandidates(intent);
-  await expect(filesToggle(intent)).toHaveCount(0);
-  await returnToStory(intent);
-  await story.expectTab("Changes");
-  await expectFilesShown(intent, false);
+  const changed = "dashboard/tests";
+  const otherLocation = "tests";
+  for (const path of [changed, otherLocation]) {
+    await expect.element(scopeToggle(path)).toBeVisible();
+    await expect.element(scopeName(path)).toBeVisible();
+    expect(
+      locationHeader(path)
+        .closest(".intent-location")
+        ?.getAttribute("data-contains-changes"),
+    ).toBe("true");
+    const marked = locationHeaderLook(path);
+    expect(marked.background).not.toBe(transparent);
+    expect(marked.background).not.toBe(folderBackground);
+    expect(marked.mark).not.toBe("none");
+    expect(marked.labelWeight).toBeGreaterThanOrEqual(600);
+    expect(marked).toMatchObject({ fullWidth: true, controlsShowHeader: true });
+  }
+  const marked = locationHeaderLook(changed);
+  await scopeName(changed).click();
+  await expect
+    .element(scopeName(changed))
+    .toHaveAttribute("aria-pressed", "true");
+  await expect
+    .element(scopeToggle(changed))
+    .toHaveAttribute("aria-expanded", "true");
+  const selectedHeader = locationHeaderLook(changed);
+  expect(selectedHeader.background).not.toBe(marked.background);
+  expect(selectedHeader.background).not.toBe(folderBackground);
+  expect(selectedHeader).toMatchObject({
+    mark: marked.mark,
+    fullWidth: true,
+    controlsShowHeader: true,
+  });
 
-  const { development, intentChoice } = parts(page);
-  await development.click();
-  await expect(intent).toHaveCount(0);
-  await intentChoice.click();
-  await expectFilesShown(intent, false);
+  await mounted.showDevelopment();
+  await developmentCard("Story A").toggle();
+  await mounted.showIntent();
+  await expect
+    .element(
+      intentPage.getByRole("heading", {
+        name: "No story selected",
+        exact: true,
+      }),
+    )
+    .toBeVisible();
+  await expect.element(scopeName(otherLocation)).toBeVisible();
+  expect(locationHeaderLook(otherLocation)).toMatchObject({
+    mark: "none",
+    background: marked.background,
+  });
+});
 
-  // Without locations, the explanation in their place offers no toggle.
-  await chooseProject(page, "Doughnut");
-  await expect(intent).toContainText(
-    "No Intent locations are configured for Doughnut.",
-  );
-  await expect(filesToggle(intent)).toHaveCount(0);
-  await chooseProject(page, "Open Dough");
-  // The restored story replaces the temporary header while its work is read.
-  await expect(story.title).toHaveText(storyA.title);
+test("the hidden column stays hidden through a Project Intent visit, which keeps its own choice, and Development, and a project change shows it", async () => {
+  const mounted = await openIntentFileLayout({
+    viewport: { width: 1280, height: 800 },
+  });
+  const files = fileLayout();
+  const story = intentStoryCompare();
   await story.chooseTab("Changes");
-  await expectFilesShown(intent, true);
+  await files.toggle.click();
+  await files.showsFiles(false);
+
+  await story.projectIntent.click();
+  await files.showsFiles(true);
+  await projectView("Optimization Candidates").click();
+  await expect.element(files.toggle).not.toBeInTheDocument();
+  await story.backToStory.click();
+  await expect
+    .element(story.viewTab("Changes"))
+    .toHaveAttribute("aria-selected", "true");
+  await files.showsFiles(false);
+
+  await mounted.showDevelopment();
+  await expect.element(intentPage).not.toBeInTheDocument();
+  await mounted.showIntent();
+  await files.showsFiles(false);
+
+  await mounted.showOtherProject();
+  await expect
+    .poll(() => intentPage.query()?.textContent)
+    .toContain("No Intent locations are configured for Doughnut.");
+  await expect.element(files.toggle).not.toBeInTheDocument();
+  await mounted.showFirstProject();
+  await expect
+    .element(
+      story.header.getByRole("heading", { name: "Story A", exact: true }),
+    )
+    .toBeVisible();
+  await story.chooseTab("Changes");
+  await files.showsFiles(true);
 });
 
-test("with no story, the toggle is reached by Tab after the tabs, works with Enter and Space, and CI status takes the width", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  const intent = await openIntentWithoutStory(page, frontendServices);
-
-  await intentModeTab(intent, "CI status").focus();
-  await page.keyboard.press("Tab");
-  await expect(filesToggle(intent)).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expectFilesShown(intent, false);
-  await expect(intentModeBar(intent).getByRole("tab")).toHaveText([
-    "CI status",
-    "Optimization Candidates",
-  ]);
-  await expect(filesToggle(intent)).toHaveAccessibleName("Show files");
-  await expect(ciPanel(intent)).toBeVisible();
-  await expectReadingFillsBrowser(intent);
-
-  await expect(filesToggle(intent)).toBeFocused();
-  await page.keyboard.press("Space");
-  await expectFilesShown(intent, true);
+test("with no story, the toggle is reached by Tab after the tabs, works with Enter and Space, and CI status takes the width", async () => {
+  await openIntentFileLayout({
+    viewport: { width: 1280, height: 800 },
+    selected: false,
+  });
+  const files = fileLayout();
+  await toggleFilesFromKeyboard(projectView("CI status"));
+  await expect
+    .element(intentPage.getByRole("tablist", { name: "Project Intent views" }))
+    .toHaveTextContent("CI statusOptimization Candidates");
+  await expect.element(ciStatus).toBeVisible();
+  await files.showsFullReader();
+  await userEvent.keyboard(" ");
+  await files.showsFiles(true);
 });
 
-test("narrow, the hidden column gives the reading pane the height under the strip", async ({
-  page,
-  frontendServices,
-}) => {
-  await page.setViewportSize({ width: 640, height: 720 });
-  const intent = await openIntentWithoutStory(page, frontendServices);
-  const browser = await box(intentBrowser(intent));
-  const before = await box(intentReadingPane(intent));
-  expect(before.height).toBeLessThan(browser.height - 40);
+test("narrow, the hidden column gives the reading pane the height under the strip", async () => {
+  await openIntentFileLayout({
+    viewport: { width: 640, height: 720 },
+    selected: false,
+  });
+  const files = fileLayout();
+  await files.showsFiles(true);
+  const before = files.reading();
+  expect(before.height).toBeLessThan(files.browser().height - 40);
 
-  await filesToggle(intent).click();
-  await expectFilesShown(intent, false);
-  const pane = await expectReadingFillsBrowser(intent);
-  expect(pane.height).toBeGreaterThan(before.height);
-  const bar = await box(intentModeBar(intent));
-  expect(pane.y).toBeGreaterThanOrEqual(bar.y + bar.height);
+  await files.toggle.click();
+  await files.showsFiles(false);
+  await files.showsFullReader();
+  expect(files.reading().height).toBeGreaterThan(before.height);
+  expect(files.reading().top).toBeGreaterThanOrEqual(files.tabBar().bottom);
 });

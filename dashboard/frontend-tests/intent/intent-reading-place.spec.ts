@@ -159,7 +159,7 @@ test("the deep spec read to an offset is shown at that offset after the story's 
 
 test("the deep spec read with Selected story only on, out collapsed and Purpose scrolled is shown the same after Development and back, without reading again", async () => {
   const mounted = await openStoryChanges();
-  await story.storyOnly.click();
+  await story.onlyChangedFiles.click();
   await story.folderToggle("out", true).click();
   await story.file(deepSpec).click();
   await expect.poll(story.diffCode).toContain("long 120");
@@ -171,10 +171,10 @@ test("the deep spec read with Selected story only on, out collapsed and Purpose 
   await expect.element(intent).not.toBeInTheDocument();
   await mounted.showIntent();
   await expect
-    .element(story.tab("Changes"))
+    .element(story.viewTab("Changes"))
     .toHaveAttribute("aria-selected", "true");
 
-  await expect.element(story.storyOnly).toBeChecked();
+  await expect.element(story.onlyChangedFiles).toBeChecked();
   await expect
     .element(story.file(deepSpec))
     .toHaveAttribute("aria-pressed", "true");
@@ -189,7 +189,7 @@ test("the deep spec read with Selected story only on, out collapsed and Purpose 
 
 test("another project shows none of the reading place, and choosing the project again starts its reading afresh", async () => {
   const mounted = await openStoryChanges();
-  await story.storyOnly.click();
+  await story.onlyChangedFiles.click();
   await story.folderToggle("out", true).click();
   await story.file(deepSpec).click();
   await expect.poll(story.diffCode).toContain("long 120");
@@ -209,7 +209,7 @@ test("another project shows none of the reading place, and choosing the project 
   // selected, so Changes asks for a choice.
   await mounted.showWork(work);
   await expect
-    .element(story.tab("CI comparison"))
+    .element(story.viewTab("CI comparison"))
     .toHaveAttribute("aria-selected", "true");
   const ciPanel = intentCiStatus().panel;
   await expect.element(ciPanel).toBeVisible();
@@ -223,7 +223,7 @@ test("another project shows none of the reading place, and choosing the project 
   await expect
     .element(intent.getByRole("region", { name: "Purpose", exact: true }))
     .not.toBeInTheDocument();
-  await expect.element(story.storyOnly).not.toBeChecked();
+  await expect.element(story.onlyChangedFiles).not.toBeChecked();
   await expect.element(story.folderToggle("out", true)).toBeVisible();
   await expect
     .element(story.file(deepSpec))

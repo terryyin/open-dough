@@ -1,18 +1,13 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import {
-  mountBoard,
-  reducedBoardMotion,
-  withBoardStorage,
-} from "./board-mount.ts";
+import { mountBoard, reducedBoardMotion } from "./board-mount.ts";
 import { boardReading as board } from "./board-reading-page.ts";
 import { sessions, sidebar } from "./board-session-view.ts";
 import { withWidthStorage } from "./side-panel-width-view.ts";
 import { boardWork, story } from "./board-work.ts";
 
 test("opening and leaving Start execution on a shown Taken card keeps the view on Taken and Recently done", async () => {
-  withBoardStorage("0");
   withWidthStorage();
   await reducedBoardMotion();
   const taken = story("Resume the Taken story", 59);

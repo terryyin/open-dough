@@ -57,7 +57,7 @@ test("configured trunk keeps its observed endpoint through failed and empty read
   expect(history.charts()).toBe(0);
   expect(endpoints).toEqual([work.revision, work.revision]);
   await expect.element(summary.getByRole("table")).toBeVisible();
-  expect(history.fitsWidth()).toBe(true);
+  expect(history.scrollingSideways(), "scrolling sideways").toEqual([]);
 });
 
 test("project endpoint words mark a measured zero and explain partial-unit gaps without joining them", async () => {

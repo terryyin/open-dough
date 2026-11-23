@@ -143,7 +143,7 @@ test("Project Intent and Back to selected story focus each other's control, and 
 
   await expect.element(projectIntentLink).toHaveFocus();
   await expect
-    .element(story.tab("Changes"))
+    .element(story.viewTab("Changes"))
     .toHaveAttribute("aria-selected", "true");
   await expect.element(fileControl()).toHaveAttribute("aria-pressed", "true");
   await expect.element(purpose).toBeVisible();
