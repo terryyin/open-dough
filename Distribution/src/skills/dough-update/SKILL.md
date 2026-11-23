@@ -105,7 +105,7 @@ Ordinary Open Dough release updates remain available from the recorded source.
    than the previous release, or older than latest when there is only one tag,
    report the refusal and the explicit `--force` reinstall option. For a
    supported recorded version, the helper compares the installation with the
-   payload declared by its tagged release before any skip or replacement.
+   payload its tagged release delivered before any skip or replacement.
    Payload paths newly added by the release must be absent before the helper
    may add them; a pre-existing collision refuses without writes. Equal
    recorded versions that still match that baseline must not invoke
@@ -114,7 +114,7 @@ Ordinary Open Dough release updates remain available from the recorded source.
    managed files, or an unavailable recorded tag, refuse without writing even
    when the recorded version equals latest. An installation at the previous
    release advances to latest when those files are unchanged. Edited files at
-   paths an earlier release declared and latest does not also refuse without
+   paths an earlier release delivered and latest does not also refuse without
    writes; unedited ones are removed. If ordinary
    update cannot establish that baseline — missing or unusable SOURCE or
    VERSION, an unavailable recorded tag or source, baseline metadata mismatch,
@@ -122,7 +122,7 @@ Ordinary Open Dough release updates remain available from the recorded source.
    treating the destination as a first install. Explicit `--force` skips that
    comparison and replaces the selected installation with latest, including
    edited, incomplete, equal, or newer files, writing the payload then SOURCE
-   then VERSION, and removes files at paths latest no longer declares, edited
+   then VERSION, and removes files at paths latest no longer delivers, edited
    or not. A supplied-URL missing selected record advances directly to
    latest. A newer recorded version refuses without a downgrade. A malformed
    selected `VERSION` is an error, not unknown. Fetch, tag, and invalid-highest

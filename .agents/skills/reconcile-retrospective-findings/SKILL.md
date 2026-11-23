@@ -7,7 +7,7 @@ description: Reconciles supplied retrospective findings under stable internal Op
 
 You are the maintainer agent working in the Open Dough source repository. This
 skill is internal ([ADR 0003](../../../docs/adrs/0003-tagged-release-versioning-accepted.md)):
-it is not in the released payload and must not be added to `install.sh`. Do not create a second procedure under `Distribution/src/skills/`.
+it is not in the released payload and must not be placed under `Distribution/src/skills/`, nor given a second procedure there.
 
 Follow [maintainer skill guidance](../author-open-dough-skills/SKILL.md) when editing this skill.
 

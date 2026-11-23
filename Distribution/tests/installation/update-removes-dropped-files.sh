@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154 # Sourced fixture defines managed_files.
-# An update removes installed files that earlier releases declared and the new
-# release does not, found through the release tags at the recorded source.
+# An update to a directory-format release removes installed files that earlier
+# releases delivered and it does not, found through the release tags at the
+# recorded source.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
@@ -21,8 +21,8 @@ fixture="${temporary_dir}/fixture.git"
 # A is declared only by 0.1.0, so a target recorded at 0.1.1 still holding it
 # was stranded by an earlier update. B is declared through 0.1.1 and dropped by
 # 0.1.2. Its directory also holds a project file in the target. W is in every
-# list-era source tree but no release delivers it: never installed, and a copy
-# kept through explicit force stays.
+# list-era source tree but no release delivers it: never installed, and a
+# project copy kept through explicit force stays.
 leftover_c='dough-directory-retired/c.md'
 withheld_w='dough-manual-testing/references/exploration-workspace.md'
 leftover_a='dough-retired/references/a.md'
@@ -33,9 +33,9 @@ retired_select='dough-makeme/scripts/select-makeme.mjs'
 retired_changed='dough-makeme/scripts/changed-makeme.mjs'
 
 # 0.0.9's declaration is unreadable, as in early real releases. 0.0.10 ships
-# its directory with C and without W. 0.1.0 removes C and adds A and B; later
-# releases withhold W. 0.1.1 removes A and adds the wrappers. 0.1.2 removes B
-# and the wrappers. Each added file's bytes name its release.
+# its directory with C and without W. 0.1.0 removes C and adds A and B. 0.1.1
+# withholds W, removes A and adds the wrappers. The directory-format 0.1.2
+# ships without W, B and the wrappers. Each added file's bytes name its release.
 build_dropped_files_fixture() {
   local composed_files
   # This older tag declares A only in a fragment at the former root path.
@@ -75,7 +75,7 @@ NODE
     "remove": ["src/install", "Distribution/src/skills/${leftover_a%%/*}"]},
   {"name": "release 0.1.2", "release": {
     "version": "0.1.2", "taggedAt": "2026-09-02T00:00:00",
-    "marker": "payload-0.1.2", "declaration": "grouped", "withheld": ["${withheld_w}"]},
+    "marker": "payload-0.1.2", "declaration": "directory", "removed": ["${withheld_w}"]},
     "remove": ["Distribution/src/skills/${leftover_b%/*}", "Distribution/src/skills/${retired_watcher}",
       "Distribution/src/skills/${retired_select}", "Distribution/src/skills/${retired_changed}"]}
 ]}
@@ -109,7 +109,7 @@ prepare_recorded_target() {
 # Print the indented paths the output lists under platform's removal heading.
 removed_listing() {
   local output=$1 platform=$2 root=$3
-  printf '%s\n' "${output}" | awk -v heading="${platform}: removed files 0.1.2 no longer declares from ${root}:" '
+  printf '%s\n' "${output}" | awk -v heading="${platform}: removed files 0.1.2 no longer delivers from ${root}:" '
     $0 == heading { listing = 1; next }
     listing && /^  / { sub(/^  /, ""); print; next }
     { listing = 0 }
@@ -156,10 +156,10 @@ assert_project_files_kept() {
 
 build_dropped_files_fixture "${fixture}"
 recorded_source=$(cd -- "${fixture}" && pwd -P)
-# The installed payload is 0.1.2's own declaration, which withholds W.
-installed_declaration=$(read_managed_files_declaration "${fixture}/install.sh")
+# The installed payload is 0.1.2's shipped directory, which omits W.
+installed_payload=$(read_release_payload "${fixture}")
 # shellcheck disable=SC2034 # The sourced payload-bytes helpers read managed_files.
-mapfile -t managed_files <<< "${installed_declaration}"
+mapfile -t managed_files <<< "${installed_payload}"
 older="${temporary_dir}/release-0.1.1"
 checkout_tagged_release "${fixture}" "${older}" 0.1.1
 
@@ -193,9 +193,9 @@ if output=$(bash "${helper}" apply --target "${target}" --platform codex 2>&1); 
   printf 'FAIL: ordinary update accepted an edited leftover:\n%s\n' "${output}" >&2
   exit 1
 fi
-expected_refusal="codex: edited files at paths 0.1.2 no longer declares in ${target}/.agents/skills:
+expected_refusal="codex: edited files at paths 0.1.2 no longer delivers in ${target}/.agents/skills:
   ${leftover_b}
-claude: edited files at paths 0.1.2 no longer declares in ${target}/.claude/skills:
+claude: edited files at paths 0.1.2 no longer delivers in ${target}/.claude/skills:
   ${leftover_c}
   ${leftover_b}
 Ordinary update refuses without writes. Use --force to explicitly reinstall and remove them."
@@ -212,15 +212,15 @@ fi
 assert_project_files_kept "${target}"
 
 # Explicit force installs 0.1.2 and removes every leftover, edited or not,
-# keeping a copy of W with its tagged bytes.
+# keeping a project copy of W with the bytes 0.1.1's source tree held.
 for root in "${target}/.agents/skills" "${target}/.claude/skills"; do
   mkdir -p -- "${root}/${withheld_w%/*}"
-  git -C "${fixture}" show "v0.1.2:Distribution/src/skills/${withheld_w}" > "${root}/${withheld_w}"
+  git -C "${fixture}" show "v0.1.1:Distribution/src/skills/${withheld_w}" > "${root}/${withheld_w}"
 done
 output=$(bash "${helper}" apply --target "${target}" --platform codex --force 2>&1)
 [[ "${output}" == *'Outcome: installed 0.1.2 in the shared Codex/Cursor root and Claude Code by explicit force.'* ]]
 assert_leftovers_replaced_by_release "${target}" "${output}"
 assert_project_files_kept "${target}"
 for root in "${target}/.agents/skills" "${target}/.claude/skills"; do
-  git -C "${fixture}" show "v0.1.2:Distribution/src/skills/${withheld_w}" | cmp -s - "${root}/${withheld_w}"
+  git -C "${fixture}" show "v0.1.1:Distribution/src/skills/${withheld_w}" | cmp -s - "${root}/${withheld_w}"
 done

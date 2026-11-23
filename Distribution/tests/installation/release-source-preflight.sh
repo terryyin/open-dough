@@ -37,9 +37,12 @@ expect_refusal() {
   fi
 }
 
-# A runtime supporting file and a draft outside the tree stay valid.
+# A runtime supporting file, guidance merely named after fixtures, and a draft
+# outside the tree stay valid.
 valid=$(fresh_checkout valid)
 printf '%s\n' 'export const value = 1;' > "${valid}/Distribution/src/skills/dough-update/scripts-helper.mjs"
+mkdir -p -- "${valid}/Distribution/src/skills/dough-makeme/references"
+printf '%s\n' 'Guidance' > "${valid}/Distribution/src/skills/dough-makeme/references/fixture-builders.md"
 mkdir -p -- "${valid}/Distribution/proposed/dough-draft"
 printf '%s\n' 'Draft' > "${valid}/Distribution/proposed/dough-draft/SKILL.md"
 ln -s ../proposed "${valid}/Distribution/proposed-link"
@@ -53,6 +56,10 @@ misplaced_fixture=$(fresh_checkout misplaced-fixture)
 mkdir -p -- "${misplaced_fixture}/Distribution/src/skills/dough-update/fixtures"
 printf '%s\n' 'data' > "${misplaced_fixture}/Distribution/src/skills/dough-update/fixtures/case.json"
 expect_refusal "${misplaced_fixture}" 'Test material in shipped directory: dough-update/fixtures'
+
+named_fixture=$(fresh_checkout named-fixture)
+printf '%s\n' 'data' > "${named_fixture}/Distribution/src/skills/dough-update/release-fixture.json"
+expect_refusal "${named_fixture}" 'Test material in shipped directory: dough-update/release-fixture.json'
 
 symlinked=$(fresh_checkout symlinked)
 ln -s SKILL.md "${symlinked}/Distribution/src/skills/dough-update/alias.md"

@@ -73,22 +73,25 @@ working-tree helper. The updater:
    missing/edited/unverifiable managed root refuses the whole operation
    before writing. It does not infer the client remote or treat an
    existing destination as a clean first install.
-   The baseline installer declaration determines which paths were managed; a
-   file present only in release source was not installed. Newly declared paths
-   must be absent locally before an ordinary update can add them; collisions
-   are preserved and refused. An unreadable or unrecognized baseline declaration
-   refuses comparison.
+   The baseline release's payload determines which paths were managed: a
+   directory-format release delivered every file it shipped under
+   `Distribution/src/skills/`, and a list-era release delivered only the files
+   its installer listed, so a list-era release source file outside that list
+   was not installed. Paths new in latest's payload must be absent locally
+   before an ordinary update can add them; collisions are preserved and
+   refused. An unreadable or unrecognized baseline payload format refuses
+   comparison.
    Before writing, it also finds leftovers: installed files in each native root
-   at paths that some release tag up to latest declared and latest does not.
-   The release tags at the recorded source supply each release's declaration
+   at paths that some release tag up to latest delivered and latest does not.
+   The release tags at the recorded source supply each release's payload paths
    and file blob ids, fetched without file contents into the temporary apply
-   copy; no installed manifest or checksum record is kept. A tag whose
-   declaration cannot be read contributes no paths. A leftover is unedited when
-   its blob id equals the one a declaring release held at that path. An edited
-   leftover, or release history that cannot be fetched, refuses the whole
-   operation before writing, naming each root's edited files and pointing to
-   explicit `--force`. Paths no release declared, including `SOURCE` and
-   `VERSION`, are never leftovers.
+   copy; no installed manifest or checksum record is kept. A tag whose payload
+   cannot be read contributes no paths. A leftover is unedited when its blob id
+   equals the one a delivering release held at that path. An edited leftover,
+   or release history that cannot be fetched, refuses the whole operation
+   before writing, naming each root's edited files and pointing to explicit
+   `--force`. Paths no release delivered, including `SOURCE` and `VERSION`,
+   are never leftovers.
 7. Verifies that all installed payload files byte-match the fetched sources in every
    native root and that distributable source, unrelated project files, and home
    guidance remain unchanged. Optional

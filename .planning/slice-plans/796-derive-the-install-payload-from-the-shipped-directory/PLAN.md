@@ -39,7 +39,8 @@ Release tagging and client rollout are outside this plan.
   The history reader already gets paths and blob IDs with `git ls-tree`;
   extend its selection at that boundary while retaining partial-clone behavior.
   Keep one decision about which files belong to a release per source format.
-- [Plan 794](../794-update-from-the-previous-release-without-legacy/PLAN.md)
+- The sibling story "Update from the previous release without legacy readers",
+  landed on trunk at `8315c956c`,
   also touches historical source layout, update eligibility, and the list
   fragment's location. Use the current names and eligibility at execution.
   This story changes payload membership and does not extend the supported
@@ -297,10 +298,10 @@ decides whether to reword it.
 Decisions during slice 7 (developer, 2026-11-23):
 - A pre-`0.3.99` updater that runs its own helper against a directory tag
   cannot read a list. `update-from-pre-distribution.sh` now asserts that it
-  stops before any write. [Plan 794](../794-update-from-the-previous-release-without-legacy/PLAN.md)
-  still owns deleting that test and the root `src/` forwarders. This story
-  deletes `src/install/open-dough-execution-payload.sh` with the lists, so
-  794's move of that fragment becomes unnecessary.
+  stops before any write. The sibling story then landed on trunk first,
+  deleting that test and the root `src/` tree and moving the fragment to
+  `Distribution/src/install/`. The merge of trunk at `6284018b` keeps its
+  layout and two-release window and deletes the moved fragment with the lists.
 - `dough-execute-plan/scripts/test-entry-rules-selection.mjs` is a build input
   for `scripts/build-test-entry-rules.mjs`, not runtime code. Move it out of
   the shipped directory so the payload stays identical to the list-era one.
@@ -320,6 +321,16 @@ Decisions during slice 7 (developer, 2026-11-23):
   expected the identity to refuse. Local proof missed it because slice 7's trace
   followed text matches, not consumers of `read_release_payload`. The repair
   refuses an unsafe shipped entry instead.
+- The outcome review's trial merge found the sibling story's 13 conflicting
+  hunks on trunk; source freshness reports only record changes. The merge at
+  `6284018b` reconciled them, and the three Distribution CI shards passed
+  locally. The review's follow-ups landed with it: release-skill and safety-doc
+  wording, a narrowed test-material rule (developer decision: a `fixtures/`
+  directory and `*-fixture.*`, `*.test.*`, `*.spec.*` names), and dropped-file
+  and drift tests that use a directory-format incoming release.
+- `Distribution/evaluation/tests/git-publication/git-publication-native-one-shot.sh`
+  takes about 100 s alone against the 180 s job deadline and timed out once at
+  load 45. This story does not reach it; it needs its own follow-up.
 
 ## Plan review
 

@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # apply --checkout refuses a pinned checkout whose shipped directory drifted
 # from its tag, by an untracked path or edited managed bytes, before ordinary or
-# forced apply writes, for marked directory-format and list-era tags alike; each
-# clean tag applies.
+# forced apply writes; the clean tag applies.
 set -euo pipefail
 
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
@@ -17,12 +16,6 @@ temporary_dir=$(mktemp -d)
 trap 'rm -rf -- "${temporary_dir}"' EXIT
 cd -- "${temporary_dir}"
 
-listed="${temporary_dir}/listed.git"
-node "${source_dir}/Distribution/tests/support/release-source.mjs" "${listed}" << 'JSON'
-{"revisions": [{"name": "list-era 0.1.10", "release": {"version": "0.1.10",
-  "taggedAt": "2026-10-01T00:00:00", "marker": "payload-0.1.10",
-  "declaration": "grouped"}}]}
-JSON
 marked="${temporary_dir}/marked.git"
 node "${source_dir}/Distribution/tests/support/release-source.mjs" "${marked}" << 'JSON'
 {"revisions": [{"name": "directory 0.3.0", "release": {"version": "0.3.0",
@@ -54,33 +47,25 @@ assert_drift_refused() {
   done
 }
 
-# Drifts a fresh pinned checkout of each tag both ways, then restores it.
-for fixture_version in "${listed}:0.1.10" "${marked}:0.3.0"; do
-  fixture=${fixture_version%:*}
-  checkout="${temporary_dir}/checkout ${fixture_version##*:}"
-  checkout_tagged_release "${fixture}" "${checkout}" "${fixture_version##*:}"
-  skills="${checkout}/Distribution/src/skills"
+# Drifts a fresh pinned checkout of the tag both ways, then restores it.
+checkout="${temporary_dir}/checkout 0.3.0"
+checkout_tagged_release "${marked}" "${checkout}" 0.3.0
+skills="${checkout}/Distribution/src/skills"
 
-  printf 'candidate\n' > "${skills}/dough-update/untracked-candidate.md"
-  assert_drift_refused "${fixture}" "${checkout}" dough-update/untracked-candidate.md
-  rm -- "${skills}/dough-update/untracked-candidate.md"
+printf 'candidate\n' > "${skills}/dough-update/untracked-candidate.md"
+assert_drift_refused "${marked}" "${checkout}" dough-update/untracked-candidate.md
+rm -- "${skills}/dough-update/untracked-candidate.md"
 
-  printf 'local edit\n' >> "${skills}/dough-update/SKILL.md"
-  assert_drift_refused "${fixture}" "${checkout}" dough-update/SKILL.md
-  git -C "${checkout}" checkout --quiet -- Distribution/src/skills
-done
+printf 'local edit\n' >> "${skills}/dough-update/SKILL.md"
+assert_drift_refused "${marked}" "${checkout}" dough-update/SKILL.md
+git -C "${checkout}" checkout --quiet -- Distribution/src/skills
 
-# Each restored checkout is clean and applies its tagged payload.
-for fixture_version in "${listed}:0.1.10" "${marked}:0.3.0"; do
-  fixture=${fixture_version%:*}
-  version=${fixture_version##*:}
-  clean_target="${temporary_dir}/clean target ${version}"
-  prepare_target "${clean_target}"
-  output=$(bash "${temporary_dir}/checkout ${version}/Distribution/src/install/open-dough-release.sh" apply \
-    --url "${fixture}" --target "${clean_target}" --platform cursor \
-    --checkout "${temporary_dir}/checkout ${version}")
-  [[ "${output}" == *"Outcome: installed ${version}"* ]]
-  assert_payload "${clean_target}/.agents/skills/dough-update" "${version}" "payload-${version}"
-  assert_payload "${clean_target}/.claude/skills/dough-update" "${version}" "payload-${version}"
-  assert_sentinels "${clean_target}"
-done
+# The restored checkout is clean and applies its tagged payload.
+clean_target="${temporary_dir}/clean target"
+prepare_target "${clean_target}"
+output=$(bash "${checkout}/Distribution/src/install/open-dough-release.sh" apply \
+  --url "${marked}" --target "${clean_target}" --platform cursor --checkout "${checkout}")
+[[ "${output}" == *'Outcome: installed 0.3.0'* ]]
+assert_payload "${clean_target}/.agents/skills/dough-update" 0.3.0 payload-0.3.0
+assert_payload "${clean_target}/.claude/skills/dough-update" 0.3.0 payload-0.3.0
+assert_sentinels "${clean_target}"

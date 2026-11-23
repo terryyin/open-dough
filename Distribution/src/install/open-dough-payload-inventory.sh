@@ -10,7 +10,9 @@
 source "$(dirname -- "${BASH_SOURCE[0]}")/open-dough-payload-declaration.sh"
 
 # Refuses a shipped skills tree holding test material or entries that cannot
-# round-trip safely as payload paths, naming each offending path.
+# round-trip safely as payload paths, naming each offending path. Test material
+# is a `fixtures` directory (any case) and everything under it, a `*-fixture.*`
+# name, or a `*.test.*` or `*.spec.*` name.
 refuse_invalid_shipped_entries() {
   local skills=$1/Distribution/src/skills
   local entry relative name failed=0
@@ -31,7 +33,9 @@ refuse_invalid_shipped_entries() {
       printf 'Unsafe shipped entry (path name): %q\n' "${relative}" >&2
       failed=1
     elif [[ "${name}" == *.test.* || "${name}" == *.spec.* ||
-      "${relative}" == *[Ff][Ii][Xx][Tt][Uu][Rr][Ee]* ]]; then
+      "${name}" == *-[Ff][Ii][Xx][Tt][Uu][Rr][Ee].* ||
+      "/${relative}" == */[Ff][Ii][Xx][Tt][Uu][Rr][Ee][Ss]/* ||
+      (-d "${entry}" && "${name}" == [Ff][Ii][Xx][Tt][Uu][Rr][Ee][Ss]) ]]; then
       printf 'Test material in shipped directory: %s\n' "${relative}" >&2
       failed=1
     fi

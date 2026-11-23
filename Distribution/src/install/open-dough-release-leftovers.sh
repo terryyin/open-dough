@@ -193,7 +193,7 @@ edited_leftovers_absent() {
     [[ -s "${work_root}/leftovers-${current_platform}" ]] || continue
     edited=$(awk -F'\t' '$1 == "edited" { print "  " $2 }' "${work_root}/leftovers-${current_platform}")
     [[ -z "${edited}" ]] && continue
-    printf '%s: edited files at paths %s no longer declares in %s:\n%s\n' \
+    printf '%s: edited files at paths %s no longer delivers in %s:\n%s\n' \
       "${current_platform}" "${version}" "$(dirname -- "${current_dest}")" "${edited}" >&2
     found=1
   done < <(all_destinations_for "${target}")
@@ -213,7 +213,7 @@ remove_found_leftovers() {
     root=$(dirname -- "${current_dest}")
     removed=$(remove_listed_leftovers "${root}" "${work_root}/leftovers-${current_platform}" "${statuses}")
     [[ -n "${removed}" ]] || continue
-    printf '%s: removed files %s no longer declares from %s:\n' "${current_platform}" "${version}" "${root}"
+    printf '%s: removed files %s no longer delivers from %s:\n' "${current_platform}" "${version}" "${root}"
     printf '%s\n' "${removed}" | sed 's/^/  /'
   done < <(all_destinations_for "${target}")
 }
