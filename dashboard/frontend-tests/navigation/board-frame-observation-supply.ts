@@ -177,6 +177,7 @@ export function boardFrameObservationSupplying(
   });
 
   const machine: MachineReadSource = {
+    ...pageReadsSupplying({}).machine,
     readSessionsSince: (...[held, , options]) => {
       if (
         options?.fresh !== true &&

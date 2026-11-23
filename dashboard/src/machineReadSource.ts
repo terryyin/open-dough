@@ -1,8 +1,7 @@
 // The page's machine-side reads for launch ownership (`./agentLaunches.ts`):
-// sessions since a held revision (`./machineSessionsReads.ts`) and agent
-// acceptance (`./agentLaunchClient.ts`). The authenticated implementation
-// binds the local launch boundary; cases supply typed replies through
-// `PageReads.machine`.
+// sessions since a held revision, agent acceptance, and actions which update
+// the page's records. The authenticated implementation binds the local launch
+// boundary; cases supply typed replies through `PageReads.machine`.
 
 import {
   requestAgentAcceptance,
@@ -14,6 +13,10 @@ import {
   type MachineSessionsReadOptions,
 } from "./machineSessionsReads.ts";
 import type { MachineSessionsRead } from "./machineSessionsRevision.ts";
+import {
+  requestDeleteRecord,
+  requestMarkDone,
+} from "./sessionRecordRequests.ts";
 
 export type MachineReadSource = {
   readonly readSessionsSince: (
@@ -25,9 +28,13 @@ export type MachineReadSource = {
     request: AgentLaunchRequest,
     attachTerminal?: boolean,
   ) => Promise<AcceptanceAnswer>;
+  readonly deleteRecord: typeof requestDeleteRecord;
+  readonly markDone: typeof requestMarkDone;
 };
 
 export const authenticatedMachineReads: MachineReadSource = {
   readSessionsSince: readMachineSessionsSince,
   requestAcceptance: requestAgentAcceptance,
+  deleteRecord: requestDeleteRecord,
+  markDone: requestMarkDone,
 };

@@ -158,7 +158,7 @@ evidence directory.
 ### 2. Card and compact session actions keep Mark Done and Delete truthful
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `sessions/compact-session-entry`, `sessions/compact-session-entry-cursor`,
 `sessions/agent-launch-story-card-delete`,
@@ -172,6 +172,16 @@ paths in `e2e/sessions/` and backend refusal owners.
 asks first; Keep and Escape delete nothing; confirming removes State unknown
 or Session unavailable everywhere; Working or Needs input offers no Delete.
 A refused Mark as done keeps the card entry and says so.
+
+**Accepted implementation proof.** All ten legacy titles have mounted
+Vitest replacements. The page's required machine source now supplies
+typed Delete and Done requests through the existing authenticated adapters.
+The stale-read case lets a second Working card prove the late reply was
+applied before checking the deleted entry stayed gone. The ten-case
+comparison took 7.328 s wall at two workers. An 18-file mounted consumer
+selection passed all 35 cases, and three unchanged native Delete and
+Done E2E cases passed in 12.827 s. No E2E cases were added. See
+`slice-2-mapping.md` and `slice-2-return.md` in the worktree's Git evidence.
 
 ### 3. Terminal Mark Done refuses, holds, and follows the current session
 

@@ -1,206 +1,139 @@
-// Delete record… on a card's session, against a controlled machine read and
-// delete boundary (../../test-support/support/frontendSessionActions.ts): a State
-// unknown or Session unavailable entry asks in place, with the keyboard on
-// Keep; Keep and Escape delete nothing; confirming removes the entry from its
-// card, Recently done and the Sessions sidebar without a success message and
-// moves the keyboard to the card. Working and Needs input offer none. How
-// the boundary deletes a record is
-// ../../backend-tests/sessions/agent-launch-delete.spec.ts; real deletions from
-// a card and Recently done are
-// ../../../e2e/sessions/agent-launch-recent-delete*.spec.ts.
-
+import { expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { cardSession } from "../../test-support/support/frontendCardSessions.ts";
-import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
-import {
-  askToDeleteRecord,
-  deleteRecordQuestion,
-  sessionAction,
-} from "../../test-support/support/sessionEntryDisclosure.ts";
-import {
-  expectMembership,
-  parts,
-  sessionStateOf,
-  standaloneSessionName,
-  storyCardAttentionOf,
-  storyCardSessionOf,
-  storyCardSessions,
-} from "../../test-support/dashboardPage.ts";
-import {
-  backlogLaunchers,
-  takenBacklogStories,
-} from "../../test-support/launchStoryCardPage.ts";
-import {
-  notRefinedStory,
+  execution,
+  mountSessionCards,
+  otherStory,
   readyStory,
-} from "../../test-support/launchJourney.ts";
-import { sessionsSidebarParts } from "../../test-support/sessionsSidebarPage.ts";
-import { openTerminalControl } from "../../test-support/terminalScreenPage.ts";
-import type { SessionState } from "../../src/launchRecord.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+  sessionsReading,
+  unknown,
+} from "./session-card-mount.ts";
+import {
+  card,
+  cardSession,
+  expectDeletedSession,
+  namedCard,
+  sidebar,
+  sidebarButton,
+} from "./session-card-page.ts";
 
-const question =
-  "Delete this session's dashboard record? The conversation stays in Claude Code; a running session keeps running.";
+const unknownState =
+  "State unknown: Claude Code's session list could not be read";
 
-const readyExecution = (state: SessionState) =>
-  cardSession("Execution", readyStory, state);
-
-test("Delete record… on a State unknown entry asks first, Keep and Escape delete nothing, and confirming removes the entry everywhere and moves the keyboard", async ({
-  page,
-  frontendServices,
-}) => {
-  const unknown = readyExecution(makeMe.aSessionState.unknown().please());
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer.observing(unknown).please(),
+test("Delete record… on a State unknown entry asks first, Keep and Escape delete nothing, and confirming removes the entry everywhere and moves the keyboard", async () => {
+  const deleteRecord = vi.fn<MachineReadSource["deleteRecord"]>(() =>
+    Promise.resolve({ kind: "deleted" }),
   );
-  const actions = await installFrontendSessionActions(page, frontendServices);
-  await openFrontendTakenBacklog(page);
-  const { card } = backlogLaunchers(page);
-  const sidebar = sessionsSidebarParts(page);
-  const execution = storyCardSessionOf(card(readyStory), "Execution");
-  const inRecent = parts(page).recentlyDone.getByRole("article", {
-    name: standaloneSessionName("Execution", readyStory),
+  await mountSessionCards({
+    reading: sessionsReading("unknown", unknown),
+    deleteRecord,
   });
-  const deleteButton = () => sessionAction(execution, "Delete record…");
-  const asked = deleteRecordQuestion(execution);
+  const session = cardSession();
+  await userEvent.click(sidebarButton);
+  await expect
+    .element(sidebar.getByRole("heading", { name: readyStory.title }))
+    .toBeVisible();
+  await expect.element(session.state).toHaveTextContent(unknownState);
+  expect(card.element().querySelector(".story-card-attention")).toBeNull();
 
-  await test.step("the entry says State unknown and offers Delete record…", async () => {
-    await sidebar.button.click();
-    await expect(sidebar.entries).toHaveCount(1);
-    await expect(sessionStateOf(execution)).toHaveText(
-      "State unknown: Claude Code's session list could not be read",
+  const topInBoard = () => {
+    const element = card.element();
+    return (
+      element.getBoundingClientRect().top +
+      (element.closest(".board-scroll")?.scrollTop ?? 0)
     );
-    await expect(await deleteButton()).toBeVisible();
-    await expect(storyCardAttentionOf(card(readyStory))).toHaveCount(0);
-  });
+  };
+  const top = topInBoard();
+  await session.askToDelete();
+  await expect.element(session.confirm).toBeEnabled();
+  await expect.element(session.keep).toHaveFocus();
+  await expect.element(session.remove).not.toBeInTheDocument();
+  await expect.element(session.state).toHaveTextContent(unknownState);
+  await expect.element(session.open).toBeVisible();
+  expect(topInBoard()).toBe(top);
 
-  await test.step("pressing it asks in place, keeping the entry's words and Open terminal, with the keyboard on Keep", async () => {
-    const cardTop = () =>
-      card(readyStory).evaluate((element) => {
-        const region = element.closest(".board-scroll");
-        return element.getBoundingClientRect().top + (region?.scrollTop ?? 0);
-      });
-    const before = await cardTop();
+  await userEvent.click(session.keep);
+  await expect.element(session.remove).toHaveFocus();
+  await expect.element(session.question).not.toBeInTheDocument();
+  expect(deleteRecord).not.toHaveBeenCalled();
 
-    await askToDeleteRecord(execution);
+  await session.askToDelete();
+  await expect.element(session.keep).toHaveFocus();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(session.remove).toHaveFocus();
+  await expect.element(session.question).not.toBeInTheDocument();
+  expect(deleteRecord).not.toHaveBeenCalled();
 
-    await expect(asked.question).toHaveAccessibleName(question);
-    await expect(asked.confirm).toBeEnabled();
-    await expect(asked.keep).toBeFocused();
-    await expect(await deleteButton()).toHaveCount(0);
-    await expect(sessionStateOf(execution)).toContainText("State unknown");
-    await expect(openTerminalControl(execution)).toBeVisible();
-    expect(await cardTop()).toBe(before);
-  });
-
-  await test.step("Keep restores the button with the keyboard on it and deletes nothing", async () => {
-    await asked.keep.click();
-
-    await expect(await deleteButton()).toBeFocused();
-    await expect(asked.question).toHaveCount(0);
-  });
-
-  await test.step("Escape does the same", async () => {
-    await askToDeleteRecord(execution);
-    await expect(asked.keep).toBeFocused();
-
-    await page.keyboard.press("Escape");
-
-    await expect(await deleteButton()).toBeFocused();
-    await expect(asked.question).toHaveCount(0);
-    expect(actions.asked("delete")).toEqual([]);
-  });
-
-  await test.step("Delete record removes the entry from the card, Recently done and the sidebar without a success announcement, and moves the keyboard to the card", async () => {
-    await (await askToDeleteRecord(execution)).confirm.click();
-
-    await expect(execution).toHaveCount(0);
-    await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
-    await expect(inRecent).toHaveCount(0);
-    await expect(sidebar.entries).toHaveCount(0);
-    await expect(card(readyStory)).toBeFocused();
-    await expect(
-      page.getByText("Session record deleted", { exact: true }),
-    ).toHaveCount(0);
-    expect(actions.asked("delete")).toEqual([unknown.session.sessionId]);
-    await expectMembership(page, takenBacklogStories);
-  });
+  await session.askToDelete();
+  await userEvent.click(session.confirm);
+  await expectDeletedSession();
+  await expect.element(card).toHaveFocus();
+  expect(deleteRecord).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({ session: unknown.session }),
+  );
+  const backlog = page.getByRole("region", { name: "Backlog", exact: true });
+  for (const { title } of [readyStory, otherStory]) {
+    await expect
+      .element(backlog.getByRole("article", { name: title }))
+      .toBeVisible();
+  }
+  await expect
+    .element(
+      page
+        .getByRole("region", { name: "Taken" })
+        .getByRole("article", { name: "Repair the installer's update report" }),
+    )
+    .toBeVisible();
 });
 
-test("a Session unavailable entry offers Delete record…, asks, and confirming removes it from its card, Recently done and the sidebar", async ({
-  page,
-  frontendServices,
-}) => {
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(readyExecution(makeMe.aSessionState.unavailable().please()))
-      .please(),
-  );
-  await installFrontendSessionActions(page, frontendServices);
-  await openFrontendTakenBacklog(page);
-  const { card } = backlogLaunchers(page);
-  const sidebar = sessionsSidebarParts(page);
-  const unavailable = storyCardSessionOf(card(readyStory), "Execution");
-  await sidebar.button.click();
-  await expect(sidebar.entries).toHaveCount(1);
-  await expect(sessionStateOf(unavailable)).toHaveText("Session unavailable");
-
-  const asked = await askToDeleteRecord(unavailable);
-
-  await expect(asked.question).toHaveAccessibleName(question);
-  await expect(asked.keep).toBeFocused();
-
-  await asked.confirm.click();
-
-  await expect(unavailable).toHaveCount(0);
-  await expect(
-    parts(page).recentlyDone.getByRole("article", {
-      name: standaloneSessionName("Execution", readyStory),
-    }),
-  ).toHaveCount(0);
-  await expect(sidebar.entries).toHaveCount(0);
-  await expect(
-    page.getByText("Session record deleted", { exact: true }),
-  ).toHaveCount(0);
-  await expect(storyCardSessions(card(readyStory))).toHaveCount(0);
+test("a Session unavailable entry offers Delete record…, asks, and confirming removes it from its card, Recently done and the sidebar", async () => {
+  const unavailable = makeMe.anObservedLaunch
+    .of(execution)
+    .withSessionState(makeMe.aSessionState.unavailable().please())
+    .please();
+  await mountSessionCards({
+    reading: sessionsReading("unavailable", unavailable),
+    deleteRecord: () => Promise.resolve({ kind: "deleted" }),
+  });
+  await userEvent.click(sidebarButton);
+  await expect
+    .element(sidebar.getByRole("heading", { name: readyStory.title }))
+    .toBeVisible();
+  const session = cardSession();
+  await expect.element(session.state).toHaveTextContent("Session unavailable");
+  await session.askToDelete();
+  await expect.element(session.keep).toHaveFocus();
+  await userEvent.click(session.confirm);
+  await expectDeletedSession();
 });
 
-test("a Working or Needs input entry offers no Delete record…", async ({
-  page,
-  frontendServices,
-}) => {
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        cardSession(
-          "Refinement",
-          readyStory,
-          makeMe.aSessionState.loaded("waiting").please(),
-        ),
-        cardSession(
-          "Execution",
-          notRefinedStory,
-          makeMe.aSessionState.loaded("working").please(),
-        ),
-      )
-      .please(),
-  );
-  await openFrontendTakenBacklog(page);
-  const { card } = backlogLaunchers(page);
-  const blocked = storyCardSessionOf(card(readyStory), "Refinement");
-  const working = storyCardSessionOf(card(notRefinedStory), "Execution");
-
-  for (const [entry, words] of [
+test("a Working or Needs input entry offers no Delete record…", async () => {
+  const refining = makeMe.aLaunchRecord.refining(readyStory).please();
+  const working = makeMe.aLaunchRecord.executing(otherStory).please();
+  await mountSessionCards({
+    reading: sessionsReading(
+      "active",
+      makeMe.anObservedLaunch
+        .of(refining)
+        .withSessionState(makeMe.aSessionState.loaded("waiting").please())
+        .please(),
+      makeMe.anObservedLaunch
+        .of(working)
+        .withSessionState(makeMe.aSessionState.loaded("working").please())
+        .please(),
+    ),
+  });
+  const blocked = cardSession(card, "Refinement session");
+  const active = cardSession(namedCard(otherStory.title));
+  for (const [session, state] of [
     [blocked, "Needs input"],
-    [working, "Working"],
+    [active, "Working"],
   ] as const) {
-    await expect(sessionStateOf(entry)).toHaveText(words);
-    await expect(
-      entry.getByRole("button", { name: /^Delete record/ }),
-    ).toHaveCount(0);
+    await expect.element(session.state).toHaveTextContent(state);
+    await userEvent.click(session.actions);
+    await expect.element(session.done).toBeVisible();
+    await expect.element(session.remove).not.toBeInTheDocument();
   }
 });

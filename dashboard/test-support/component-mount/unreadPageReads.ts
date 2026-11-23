@@ -84,6 +84,8 @@ const unreadObservation: PublishedObservationReadSource = {
 const unreadMachine: MachineReadSource = {
   readSessionsSince: unread("machine sessions"),
   requestAcceptance: unread("agent acceptance"),
+  deleteRecord: unread("session record deletion"),
+  markDone: unread("session mark done"),
 };
 
 // The page's reads with only SUPPLIED answering; every other read rejects.

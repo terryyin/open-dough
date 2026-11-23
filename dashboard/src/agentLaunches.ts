@@ -92,7 +92,6 @@ export function useAgentLaunches(
     },
     [],
   );
-  // How many reads were asked so far.
   const asks = useRef(0);
   const [readsSettled, setReadsSettled] = useState(0);
   // The project list under which the latest ended read was asked.
@@ -205,6 +204,7 @@ export function useAgentLaunches(
     setSessions((current) => ({ ...current, ...facts }));
   }, []);
   const recordActions = useLaunchRecordActions({
+    requests: machine,
     setRecords,
     setFacts,
     deletedAt,

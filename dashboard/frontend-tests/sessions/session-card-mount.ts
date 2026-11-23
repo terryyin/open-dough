@@ -1,0 +1,155 @@
+import { createElement } from "react";
+import { onTestFinished, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { renderStorySeed } from "../../../Distribution/tests/support/published-seed.mjs";
+import { recordStoryState } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-story-state.mjs";
+import { computeBasis } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-story-state-basis.mjs";
+import { ConfiguredDashboard } from "../../src/ConfiguredDashboard.tsx";
+import type { LaunchWithState } from "../../src/agentLaunch.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
+import { ProjectsOnPage } from "../../src/projectList.tsx";
+import type { SessionServices } from "../../src/sessionServices.ts";
+import { withPagePreferences } from "../../test-support/component-mount/framePreferences.ts";
+import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
+import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+import { boardFrameObservationSupplying } from "../navigation/board-frame-observation-supply.ts";
+import { boardWork, story } from "../navigation/board-work.ts";
+
+const readyStoryFile = "seeds/SEED-1.md";
+const readyStoryHref = `${readyStoryFile}#ship-launch-guide`;
+
+export const readyStory = makeMe.aWorkEntry
+  .with({
+    identity: "SEED-1#ship-launch-guide",
+    canonical: {
+      kind: "snapshot",
+      recorded: readyStoryHref,
+      url: `https://example.test/${readyStoryHref}`,
+      revision: "a".repeat(40),
+    },
+    title: "Ship the launch guide",
+  })
+  .please();
+
+export const otherStory = story("Keep the session history", 2);
+const work = boardWork([readyStory, otherStory]);
+
+export const execution = makeMe.aLaunchRecord.executing(readyStory).please();
+export const unknown = makeMe.anObservedLaunch
+  .of(execution)
+  .withSessionState(makeMe.aSessionState.unknown().please())
+  .please();
+
+const canonical = renderStorySeed(
+  {
+    identity: readyStory.identity,
+    title: readyStory.title,
+    href: readyStory.canonical.recorded,
+  },
+  "## Goal\n\nShip the launch guide.",
+);
+const preparedSeed: unknown = recordStoryState(canonical, {
+  href: readyStory.canonical.recorded,
+  identity: readyStory.identity,
+  refinement: "refined",
+  approach: "planless",
+  assessment: "ready",
+  expectedBasis: computeBasis(canonical),
+}).source;
+if (typeof preparedSeed !== "string") {
+  throw new Error("Could not prepare the ready story.");
+}
+const readySeed = preparedSeed;
+
+export function workingSession(record: LaunchRecord) {
+  return makeMe.anObservedLaunch
+    .of(record)
+    .withSessionState(makeMe.aSessionState.loaded("working").please())
+    .please();
+}
+
+export function sessionsReading(
+  revision: string,
+  ...records: LaunchWithState[]
+): MachineSessionsRead {
+  return { ...makeMe.aMachineAnswer.observing(...records).please(), revision };
+}
+
+export async function mountSessionCards({
+  reading,
+  deleteRecord,
+  markDone,
+  openTerminal,
+}: {
+  reading: MachineSessionsRead;
+  deleteRecord?: MachineReadSource["deleteRecord"];
+  markDone?: MachineReadSource["markDone"];
+  openTerminal?: SessionServices["openTerminal"];
+}) {
+  withPagePreferences();
+  const supply = boardFrameObservationSupplying([work]);
+  const defaults = pageReadsSupplying({});
+  let next = Promise.resolve(reading);
+  const readSessionsSince = vi.fn(() => next);
+  const reads = pageReadsSupplying({
+    observation: {
+      ...supply.observation,
+      readDetailFile: (...args) =>
+        args[1].endsWith(readyStoryFile)
+          ? Promise.resolve(readySeed)
+          : supply.observation.readDetailFile(...args),
+    },
+    machine: {
+      ...supply.machine,
+      readSessionsSince,
+      deleteRecord: deleteRecord ?? defaults.machine.deleteRecord,
+      markDone: markDone ?? defaults.machine.markDone,
+    },
+    sessions: {
+      ...defaults.sessions,
+      readHostStatus: () =>
+        Promise.resolve(
+          makeMe.aHostStatus
+            .with({ cpuPercent: null, freeBytes: null })
+            .please(),
+        ),
+      openTerminal: openTerminal ?? defaults.sessions.openTerminal,
+    },
+  });
+  await mountComponent(
+    createElement(ProjectsOnPage, {
+      projects: [work.source],
+      replaceProjects: () => undefined,
+      children: createElement(ConfiguredDashboard, {
+        reads,
+        settingsOpen: false,
+        onOpenSettings: () => undefined,
+        onDashboardReady: () => undefined,
+      }),
+    }),
+    { viewport: { width: 1200, height: 840 }, fillsViewport: true },
+  );
+  return {
+    readSessionsSince,
+    answerWith: (
+      answer: MachineSessionsRead | Promise<MachineSessionsRead>,
+    ) => {
+      next = Promise.resolve(answer);
+    },
+  };
+}
+
+export function revealPage() {
+  const visibility = vi.spyOn(document, "visibilityState", "get");
+  onTestFinished(() => {
+    visibility.mockRestore();
+  });
+  visibility.mockReturnValue("hidden");
+  document.dispatchEvent(new Event("visibilitychange"));
+  return () => {
+    visibility.mockReturnValue("visible");
+    document.dispatchEvent(new Event("visibilitychange"));
+  };
+}
