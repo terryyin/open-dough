@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "2785cf62-0382-48c3-96a9-a2005cade3e8",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T08:18:47.614Z",
+  "story": "SEED-423#install-without-ci-reuse-recipes",
+  "ranges": [
+    {
+      "base": "9c0ad05a8ec4c83ed3c701193f6b2049a91c211e",
+      "candidate": "785d128a43fb36d3367789009d86921823c41ce1"
+    }
+  ]
+}
