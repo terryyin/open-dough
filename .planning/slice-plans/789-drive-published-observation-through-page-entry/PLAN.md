@@ -534,3 +534,15 @@ remaining slice-specific concern.
   alone can clear while detail remains held.
 - Evidence for this story must use `git rev-parse --git-path open-dough/evidence`;
   an untracked workspace `open-dough/` pollutes consumer-trace discovery.
+
+## Execution complete
+
+Product advice: Keep the SEED-413 queue as-is. This story's unlock is the
+required typed observation and machine entry through `ConfiguredDashboard` /
+`pageReadsSupplying`, so later family migrations can mount production without
+interim observation compositions. Do not invent a new story for that unlock;
+runner retirement and remaining families stay their existing owners.
+Moved-selection timings are modest or noisy at workers=2 — campaign-level suite
+measurement stays with those later stories. Process review was selected and
+deferred into wrap-up after Intent Coverage (`skipProcessRetrospective: false`
+with `intentCoverage: true`).
