@@ -1,0 +1,260 @@
+# Drive the published observation through the typed page entry
+
+**Identity:** SEED-413#drive-published-observation-through-page-entry
+**Source:** [Drive the published observation through the typed page entry](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#drive-published-observation-through-page-entry)
+
+## Goal and scope
+
+Dashboard maintainers get fast Vitest proof of the real published observation
+and page composition. Complete the required page reads, make transient recovery
+page-owned, and move the named recovery, Board frame and Intent cases onto their
+production owners. Restore the canonical-request and below-banner scroll checks.
+Preserve transport, rate-limit semantics, and the published versus machine-local
+sources of truth. Runner retirement and migration of other test families are
+separate stories.
+
+## Decisions and existing owners
+
+- [ADR 0002 — Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md) and
+  [ADR 0008 — Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#observe-workflow-outcomes-without-owning-them)
+  guide direct typed contracts over the existing wire adapters. Keep the
+  published snapshot, moved-branch answer, and machine answer distinct. Keep
+  authenticated SSE and its current fallback, close, and limit behavior.
+- [ADR 0010 — Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
+  governs the comparison. Measure the cases whose proof moves and account for
+  removed copies and retained independent assertions.
+- [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support).
+  Extend `PageReads.observation` and the page's machine-side contract with
+  required operations. Keep the migrated cases free of fetch or EventSource
+  stubs and production module mocks. Reuse authenticated implementations at the page
+  boundary, `PageReadsOnPage` for descendants, and `pageReadsSupplying` for
+  cases. Supply pinned backlog text and typed collaborator replies. Let
+  `readPublishedWork` interpret membership and fill detail itself. Reuse
+  page-loadable MakeMe data and the generic mount and preference helpers.
+- [Act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows)
+  and [Plain Vitest for unit tests; Playwright only for E2E](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e).
+  Mounted cases act in Chromium and wait on visible changes or the typed
+  request they cause. The test-entry selector enables MakeMe for frontend and
+  E2E sources and the shared page-object convention for E2E. Keep true
+  navigation, authenticated transport, and service integration proof in E2E.
+- Reuse the production ownership already divided between
+  `ConfiguredDashboard` and `ConfiguredDashboardContent`. Extract the shared
+  configured frame where it already composes banner, story navigation, notice,
+  and content. Pass observation and navigation as typed inputs across that
+  boundary. A held-work case can render the same shell directly. Recovery
+  cases need `ConfiguredDashboard` since the shell cannot observe read
+  settlement on its own.
+- `transientRecovery.ts` currently supplies both contributors. Keep its
+  scheduling rule in a page-owned instance with one shared due time.
+  `ProjectIntentReading` already has an independent production entry through
+  `IntentReadRecoveryOfItsOwn`. Let that entry own its recovery when mounted
+  independently. Preserve the login-wide limit in `readingLimit.ts`.
+
+## Decisive premises
+
+Observations are from the preparation worktree at `05f60fc746c1` on
+2026-11-23, using Node 24.21.0 and AC power.
+
+| Consuming operation | Observation and result |
+| --- | --- |
+| Production membership, then detail, through the mounted page | Ran `caffeinate -s -i npm run test:dashboard:frontend -- intent/published-observation-preparation-probe.spec.ts --workers=2`. The temporary Chromium case mounted `ConfiguredDashboard` with one MakeMe Pygardon source and a typed snapshot of a valid backlog containing `SEED-302#queued`. It observed one canonical read of `.planning/seeds/SEED-302-queued.md` through `readDetailFile`. A fresh resource timing buffer then observed the page's direct `agents=profiles` and `done=catalog` requests to the local Vitest server, which has no authenticated service. The check passed and the scratch spec was removed. |
+| Existing assertions that the new entry must carry | Ran `caffeinate -s -i npm run test:dashboard:frontend -- intent/intent-read-recovery.spec.ts intent/intent-candidates-read-recovery.spec.ts intent/intent-gherkin-layout.spec.ts navigation/accessible-board-announcements.spec.ts navigation/story-card-selection.spec.ts --workers=2`. All 13 Chromium cases passed in five files. Their current entries are the interim recovery compositions, the held-work shell copy, and the Board frame with module mocks. Their assertions supply the before-state for the proof moves. |
+| Legacy reader selection for Slices 7 and 8 | Ran `node_modules/.bin/playwright test --config dashboard/frontend.playwright.config.ts 'intent-(project-visit(-selection)?\|selection-reads)\.spec\.ts$' --project=chromium --list --reporter=list`. It collected one visit, one selection-transition and one startup-detail case. This settles the runner selection. Capture elapsed comparison runs under comparable load at execution. |
+| Shared-wait assertion can discriminate loss of the pending contributor | [Prior Intent Coverage](../../done/SEED-413_speed-intent-source-and-story-reading.json) at `3d1fef8a` caught clearing all contributors when detail healed. The observed read counts were `[2, 2]` where `[2, 3]` was required. It exercised the old composition. Slice 5 reruns that discriminating change on the production page path. |
+
+## Slices and outside-in proof
+
+### 1. Published detail reads only the reachable records at the inspected revision
+
+Type: Behavior
+Status: planned
+
+Extend the required observation reads for published sessions, profiles and
+profile-addition history, and the Done catalog. Pass the current typed
+replies into `readPublishedDetails` and its existing assignment, attribution,
+Done and sessions owners. Keep their pins, partial answers, and abort
+semantics. Keep one profile-addition lookup shared by assignment attribution
+and the slice clock.
+
+**Proof.** Give `readPublishedWork` a pinned typed snapshot with the retired
+source-navigation fixture's path mix and typed detail replies. Observe link
+kinds and exactly the distinct canonical file paths at that revision. Include
+the local seed, local plan, root-relative path, and path with dot segments or
+encoded spaces. External and refused targets stay out of these requests.
+Assert the observed profile/owner, published sessions and Done results,
+including a group that fails while the others answer. Connect the exact
+request set to the visible story Sources control in Slice 4. Retain the
+transport proof in `e2e/stories/published-work.spec.ts` and
+`e2e/sessions/recently-done-published-sessions.spec.ts`. Recover the legacy assertion with `git show e007256601^:dashboard/frontend-tests/navigation/source-navigation.spec.ts`.
+
+### 2. Moved branches refresh their own progress and clocks at the delivered head
+
+Type: Behavior
+Status: planned
+
+Supply the required typed branch head, branch file, and commit time operations
+through the same observation reads. Use them for startup details and
+`requestedRead` → `readMovedProgress`. Keep profile attribution and the
+distinction between a known head, a vanished branch, and a head still to read.
+`progressSource.ts` is already 278 lines. Separate resolving and reading one
+branch's plan from projecting and watching its progress source. Keep the
+projection used by `publishedWorkDetails`, `movedBranchProgress`, and
+`publishedObservation` cohesive, and preserve the branch watch set.
+
+**Proof.** Drive the production read with typed branch replies for an assigned
+branch plus a trunk sibling. Observe the branch plan and clock at the supplied
+head. Drive a moved-head answer, verify exactly the affected branch and clock
+reads, and keep the trunk sibling's observed progress. A disappeared branch
+shows its own gap. Run the reached observations in
+`e2e/stories/branch-progress-reading.spec.ts` and
+`e2e/stories/taken-slice-clock.spec.ts`.
+
+### 3. Revision delivery enters through a typed subscription
+
+Type: Behavior
+Status: planned
+
+Bind the existing authenticated SSE adapter to a required subscription beside
+`checkRevision`. Let the production scheduler still own the watch, polling
+fallback, silence deadline, visibility, close, and reopen. Keep wire decoding
+and browser `EventSource` in the adapter. Reorganization of the 249-line
+`revisionStreamSchedule.ts` follows that existing boundary.
+
+**Proof.** Supply a typed revision message or delivery loss to the production
+delivery owner. Observe a changed pin requested once, correct fallback, and
+subscription close on departure. Use `e2e/observation/revision-stream.spec.ts`,
+`revision-stream-visibility.spec.ts`, `revision-stream-lost.spec.ts` and
+`revision-stream-return.spec.ts` for transport and scheduling integration.
+Retain the typed polling path and the pause imposed by a standing rate limit.
+
+### 4. The Board frame responds to published and machine answers
+
+Type: Behavior
+Status: planned
+
+Give `useAgentLaunches` required page-supplied machine session and agent
+acceptance operations. Replace `board-frame-mount.ts` module mocks with typed
+snapshot, details, revision subscription and machine replies. Let an accepted
+request and subsequent machine answer flow through the production launch owner.
+Retain the full/unchanged/fresh machine read distinctions. Keep the launch
+client's transport and other call sites intact.
+
+**Proof.** Board announcements, retained work, focus, selection, narrow
+layout and roster still read correctly on the real configured page. Exercise
+ordered typed replies and observe the requests at their boundary, including
+the exact new revision after a delivery and no fresh snapshot for a failed
+check. Open Sources on the canonical-path case and verify the request set
+from Slice 1. Observe the acceptance and machine refresh through the consuming
+page, with the existing launch-client spec and a reached launch E2E journey
+for wire and lifecycle evidence. Run every reached Board frame consumer,
+including the indirect readers of `development-intent-frame-page.ts`.
+
+### 5. Published detail and Intent share a recovery wait owned by their page
+
+Type: Behavior
+Status: planned
+
+Mount one transient schedule for the production page, shared by the
+observation and Intent, with independent state for another page mount.
+Retain the standing GitHub limit at the existing shared boundary. Move the
+four observation-driven cases in `intent-read-recovery.spec.ts` and the
+Candidates standing-limit case in `intent-candidates-read-recovery.spec.ts`
+through `ConfiguredDashboard`. Delete `PageIntentRecovery` and
+`mountIntentOnObservationRecovery`, retaining only the necessary clock,
+visibility and DOM observations.
+
+**Proof.** Controlled typed file and locations replies distinguish the 15,
+30, 60 and 60 s retries, a hidden page doing no recovery until reveal,
+healing detail leaving Intent pending, and locations waiting until the standing limit ends. Candidates stay
+withheld past their shorter transient backoff until that end. A new
+mount after a pending failure starts with its own first step without a reset
+call. Leave malformed settings, refusal and absent-record cases on their
+existing production owner and keep the distinctions. Repeat the prior
+shared-wait break on the new entry and restore it before accepting the slice.
+Run `e2e/intent/intent-read-boundary-recovery.spec.ts` and the reached
+`e2e/observation` lifecycle and limit cases.
+
+### 6. The composed page bounds the Gherkin reading panes below the banner
+
+Type: Behavior
+Status: planned
+
+Use the common production shell from `ConfiguredDashboard` and
+`mountIntentCiPage`. Let the held-work mount supply typed view inputs while
+the production owner decides the frame, banner, notice and scroll
+composition. Keep routing, selection and published I/O with their existing
+production owners.
+
+**Proof.** Extend `intent-gherkin-layout.spec.ts` with the below-banner check
+from `06aa8eeb1^:dashboard/frontend-tests/intent/intent-gherkin-layout.spec.ts`.
+With visible Gherkin content, the outer region fits its height and remains
+stationary while the tree scrolls to 200 and the reading pane to 300. Preserve
+the left-edge and pane-bottom checks. Recheck reached Intent and Navigation
+consumers of `mountIntentCiPage` for layout, notice, and navigation behavior.
+
+### 7. Visiting Project Intent preserves the Board selection and separate reading places
+
+Type: Behavior
+Status: planned
+
+Move `intent-project-visit.spec.ts` and
+`intent-project-visit-selection.spec.ts` to the production observation.
+Supply typed snapshot and detail replies for the story card, typed Intent
+source and Candidates replies, and typed story and project CI replies.
+Select the story on the visible Board and switch perspectives through the
+page controls.
+
+**Proof.** Keep the story Purpose/Proof, file and scroll across a Project
+visit. In Project Intent the candidate shows the pinned published source
+and trunk CI. Returning focuses the candidate and restores story reading
+without rereading the candidate or source. Clearing and reselecting while
+Intent is hidden opens the selected story's CI comparison, and clearing
+after a Candidates visit returns to project CI. Keep the separate
+`e2e/intent/intent-project-visit-ci.spec.ts` service-cost proof.
+
+### 8. Startup detail settles without displacing the feature being read
+
+Type: Behavior
+Status: planned
+
+Move `intent-selection-reads.spec.ts` onto the configured page. Hold the
+canonical source reply through its required typed read while membership is
+visible, and use typed locations and file replies for the same revision.
+
+**Proof.** Select the feature while the canonical detail is held. Release
+it, observe the actual detail settling, and confirm the expanded location,
+selected file, Purpose and single locations read. Retire legacy helpers
+whose last consumers have moved.
+
+## Verification and delivery
+
+- Local gate follows the [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+  Run from the owned checkout under `caffeinate -s -i` on AC. On battery,
+  plug in or start fully awake with the lid open under `caffeinate -i` and inspect the sleep log. Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+- Use the dashboard typecheck for the required contracts and
+  `npm run test:dashboard:frontend -- <reached specs> --workers=2` for
+  mounted proof. Retain wire, server, and navigation integration evidence
+  where the change reaches those boundaries. Use the installed
+  [consumer trace](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
+  against each actual diff. Initial term search linked the frame helper to
+  the Intent reading, CI, Gherkin and story-comparison suites and linked
+  the Board helper to keyboard, scroll, announcement, roster and
+  Development/Intent specs. Include indirect frame and status observers.
+- At comparable load, run the three legacy files before their conversion
+  and the moved cases after it, at two workers. Use the dedicated Playwright
+  and Vitest selections, recording elapsed time including runner preparation,
+  counts by engine, remaining slow cases, and any E2E proof that moved.
+  Compare the recovery and frame selections with the same cases and scope
+  as above. The high load during the diagnostic mount makes its timing
+  unsuitable for comparison. Keep reachability proof separate from
+  measurement, and retain each displaced assertion's destination.
+- Refactor and verify at each slice boundary through the installed
+  [execution workflow](../../../.agents/skills/dough-execute-plan/SKILL.md).
+
+## Readiness review
+
+Dedicated slice-plan refinement was unnecessary. The eight slices follow the
+existing read owners, reuse the same page mount and recovery semantics, and
+each names its own outside-in observation. The delivery sequence moves proof
+only once its production boundary can be exercised. This review found no
+remaining slice-specific concern.
