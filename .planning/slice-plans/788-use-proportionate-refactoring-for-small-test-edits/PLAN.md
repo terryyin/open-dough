@@ -131,6 +131,11 @@ goes to the fresh pass, naming a sibling spec that still inlines the attempt
 chain `reportingFor` replaces. Decision: keep. The replay read each parent
 revision through `git grep` and `git show` instead of scratch worktrees.
 
+**CI repair.** Distribution Tests (3/3) hit its run deadline on `442c2911b`
+(run 45129166651) with no failing test. The maintainer accepted moving
+`Distribution/tests/support/**` to share 2 (rebalance-ci-shards). The share
+tests pass.
+
 ## Local gate and readiness
 
 Only the read-budget test and the replay above run locally, under the
