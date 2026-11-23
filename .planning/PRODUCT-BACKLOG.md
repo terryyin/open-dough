@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work ([plan](slice-plans/756-reopen-completed-ad-hoc-work/PLAN.md))
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison ([plan](slice-plans/791-read-ci-proof-for-the-selected-comparison/PLAN.md))
 - [Finish slices within a bounded working context](seeds/SEED-345-session-token-efficiency.md#finish-slices-within-a-bounded-working-context) — SEED-345#finish-slices-within-a-bounded-working-context ([plan](slice-plans/794-finish-slices-within-a-bounded-working-context/PLAN.md))
+- [Wait for Codex workers with fewer model wakeups](seeds/SEED-345-session-token-efficiency.md#wait-for-codex-workers-with-fewer-model-wakeups) — SEED-345#wait-for-codex-workers-with-fewer-model-wakeups ([plan](slice-plans/796-wait-for-codex-workers-with-fewer-model-wakeups/PLAN.md))
 
 ## Backlog list
 
@@ -47,7 +48,6 @@ intent introduced or affected by a newly developed story.
 - [Prove a renamed file's Review diff reads its grammar from the new path](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-renamed-diff-grammar-from-new-path) — SEED-413#prove-renamed-diff-grammar-from-new-path
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
-- [Wait for Codex workers with fewer model wakeups](seeds/SEED-345-session-token-efficiency.md#wait-for-codex-workers-with-fewer-model-wakeups) — SEED-345#wait-for-codex-workers-with-fewer-model-wakeups
 - [Notify Claude Code of CI results through one path](seeds/SEED-423-shrink-the-installed-distribution.md#notify-claude-code-of-ci-through-one-path) — SEED-423#notify-claude-code-of-ci-through-one-path
 - [Trim the product backlog command to guided operations](seeds/SEED-423-shrink-the-installed-distribution.md#trim-the-product-backlog-command-to-guided-operations) — SEED-423#trim-the-product-backlog-command-to-guided-operations
 - [Reconcile backlog merges and rebases through one Git adapter](seeds/SEED-423-shrink-the-installed-distribution.md#reconcile-the-backlog-through-one-git-adapter) — SEED-423#reconcile-the-backlog-through-one-git-adapter
