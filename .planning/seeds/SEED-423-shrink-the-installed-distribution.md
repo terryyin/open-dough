@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-22
 planted_during: Terry Yin requested a dead-code and simplification audit of the Distribution scripts
 trigger_when: selected from the product backlog
-scope: twelve stories
+scope: eleven stories
 ---
 
 # SEED-423 — Shrink the installed distribution to code that serves a purpose
@@ -27,94 +27,15 @@ estimates from that reading at `8a9643c0f`.
 ## Alternatives and decision
 
 Remove code by purpose, not by file count: merging files to pass a count
-leaves the same code installed. The strongest simpler alternative is to stop
-after the first story, which removes everything already shown to be unreached
-and needs no product decision. The later stories each remove a capability or
-replace a mechanism, so each needs either a decision about who still uses it
-or a measured comparison.
+leaves the same code installed. The remaining stories each remove a capability
+or replace a mechanism, so each needs either a decision about who still uses
+it or a measured comparison.
 
 Effort bands are relative. S is one script area with its tests. M crosses
 script areas or changes guidance agents follow. L changes a mechanism the
 Dashboard and installed scripts share.
 
 ## Story decomposition
-
-<a id="remove-unreached-distribution-code"></a>
-
-### Install only scripts that guidance, hooks or the Dashboard reach
-
-**Identity:** SEED-423#remove-unreached-distribution-code
-
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/779-remove-unreached-distribution-code/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c5f1cb320f1b9abd9eae7615626589c4e55e3516a03470b356ac94da8ac24353","plan":"53aae2aa18dcaffb7aec6e60e440998f733348584421d219883c022edb2f624c"}}
-```
-
-**Goal.** Developers get a smaller Open Dough installation that still runs
-the workflows they use. Maintainers can exercise those workflows without
-keeping extra commands and exports solely to drive tests.
-
-**Scope.** Recheck the audit candidates against current guidance, hooks,
-installer paths, Dashboard calls, repository tooling and transitive consumers.
-Remove candidates reached only by tests. Move fixture behavior to test support
-where a test still needs it and direct workflow proof through the surviving
-entry points. Remove retired paths from both payload declarations. Recheck the
-candidate inventory and the full supported caller paths after the changes.
-
-- Retire the standalone `watch-ci.mjs` wrapper and its test-only invocation
-  inputs. Preserve the guided mailbox commands, the `--execution` argument and
-  the observer lifetime and persisted request compatibility.
-- Retire `select-makeme.mjs`, `changed-makeme.mjs` and the former selector
-  export. Keep the shared matcher and location rules. Update the MakeMe
-  evaluation cases to recognize the current CLI.
-- Retire the separately callable `product-backlog.mjs merge` verb and its
-  report. Give the existing merge policy text directly while retaining the
-  real Git driver and merge, rebase and cherry-pick adapters.
-- Remove test-only delivery, completion, resume and execution-tool inputs:
-  `--preferred-alias`, the delivery/completion `--max-duration-ms`, the
-  mailbox `[BUDGET_MS]`, `consumer-trace --path`, `story-obligations record
-  --commitment-field`, `slice-clock status --identity`, and `wait-for-publication
-  --interval-seconds`. Preserve the underlying behaviors and exercise them
-  through existing command, clock, transport or observer boundaries. Remove
-  the publication callbacks used only to arrange tests where those boundaries
-  can still prove the same race and receipt behavior.
-- Simplify the resume layer's published-identity bookkeeping. Ordinary
-  execution resume already owns its registration. Trunk closure resume
-  supplies the accepted revision and can still reach the registration branch
-  when its live observer lacks a receipt. Preserve that recovery effect.
-- Remove the installer test commands `compare`, `destination`, `fetch-release`
-  and `pin-latest`, and the standalone payload `copy` mode. Preserve the
-  documented `resolve-url` recheck and the `ci-proof-leads --repository`
-  fallback advertised when origin supplies no repository identity.
-- Privatize audit-listed helpers and re-exports after tracing their consumers,
-  including the CI host and mailbox modules, session/authorship helpers and
-  Git adapter entry points. Reuse existing helpers when a changed path has
-  the same contract. General deduplication, CI reuse recipe changes, custom
-  adapter changes, legacy migration changes, and installer redesign remain
-  separate from this cleanup.
-
-**Key examples.**
-
-- A clean install from the new source and an update from a tag that declared
-  the retired wrappers both leave them absent from the installed roots.
-  The update advances the recorded version and preserves project guidance
-  and configuration.
-- From the smaller installation, a developer starts or completes the guided
-  observer against an exact revision and receives its outcome. If trunk
-  already accepted a closure whose live observer lacks its receipt, resuming
-  records that closure on the observer and issues no second push.
-- In a project with mixed MakeMe and page-object rules, selecting a named test
-  and selecting changed tests still report the matching rules through
-  `test-entry-rules.mjs`. The old MakeMe wrappers are absent.
-- Git still reconciles concurrent backlog changes through the installed
-  adapters, including clean merges that need reconciliation and conflicts
-  that must be preserved. The standalone `merge` verb is no longer offered.
-- An inspected checkout still rechecks its selected release via `resolve-url`
-  before applying it. Release mismatch still stops before managed writes.
-
-Worktree preparation and one-shot fixtures already moved into
-`Distribution/tests/support/` and the test-only readiness gate already left
-the payload in `c08a72a36`. Each remaining group can leave a working, smaller
-installation on its own.
 
 <a id="install-without-ci-reuse-recipes"></a>
 
@@ -334,8 +255,7 @@ installation on its own.
   twenty fields.
 - **Effort hypothesis.** L, medium confidence; 300 to 450 lines. Race
   handling is subtle and the results are an agent-facing contract.
-- **Depends on.** None. The first story removes the resume obligation this
-  would otherwise carry.
+- **Depends on.** None.
 - **Safe stopping point.** Resume expressed as the publisher with rewriting
   disabled.
 
@@ -411,12 +331,12 @@ installation on its own.
 
 ## Ordering and scope reduction
 
-The dead-code story comes first. CI reuse removal, the smaller custom CI
-interface, retirement of legacy formats, and payload derivation follow. The
-notification, backlog command, Git adapter and publication stories change
-mechanisms agents use daily and carry medium confidence. The leads reader,
-request owner and coverage inference are last: largest uncertainty, and the
-last two could cost reliability. They are the first to drop.
+Start with CI reuse removal, the smaller custom CI interface, retirement of
+legacy formats, and payload derivation. The notification, backlog command,
+Git adapter and publication stories change mechanisms agents use daily and
+carry medium confidence. The leads reader, request owner and coverage
+inference are last: largest uncertainty, and the last two could cost
+reliability. They are the first to drop.
 
 Not proposed: merging files that the 250-line limit split. It removes no code.
 `execution-start*` is ten files for one command and is the clearest case for
@@ -424,8 +344,7 @@ a redesign by responsibility when that area is next changed.
 
 ## When to surface
 
-When the first story is selected, and again whenever a release adds files to
-the installation.
+Whenever a release adds files to the installation.
 
 ## Breadcrumbs
 
