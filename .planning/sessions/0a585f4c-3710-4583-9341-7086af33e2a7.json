@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "0a585f4c-3710-4583-9341-7086af33e2a7",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T08:54:21.229Z",
+  "story": "SEED-345#finish-slices-within-a-bounded-working-context",
+  "ranges": [
+    {
+      "base": "2dea3a8470c77150da53a598dc34e1a3ab04289a",
+      "candidate": "231c54f1412412d2b3d3549e1294cad2b9f5a8b2"
+    }
+  ]
+}
