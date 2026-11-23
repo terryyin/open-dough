@@ -60,35 +60,48 @@ Each trial is judged with `dashboard/server/compareAgentEffort.ts`.
 
 <a id="start-implementers-from-a-role-sized-tool-set"></a>
 
-### Start Claude Code implementers from a role-sized tool set
+### Start dashboard Claude Code sessions without the Artifact tool
 
 **Identity:** SEED-345#start-implementers-from-a-role-sized-tool-set
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/796-start-dashboard-claude-sessions-without-artifact/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8ca0712fe093bdbbd241b55860aa83d6164e8e6839e718fc576e8dce6a1b438d","plan":"51c59c4876ec26924d04dce82575c1c887e1bd45a08f3df2329cc51f477fcd76"}}
 ```
 
-- **Scope and beneficiary.** Claude Code adaptation delivered with the Open
-  Dough release. A developer's delegated implementers, CI repairers and
-  refactor passes start with the tools their role uses, so every request of
-  a long execution carries a smaller fixed start.
-- **Evaluation.** On a representative Claude Code execution, delegated
-  workers start without tool definitions their role never uses, such as
-  Artifact, Agent and worktree entry, while keeping the shell, file, skill,
-  monitor and background-task tools they used. The installed release supplies
-  any host configuration this needs. Results, proof and hand-backs match a
-  comparable baseline while worker start context and total worker effort
-  fall. A worker that needs a withheld tool reports the gap.
-- **Priority.** First. In the 2026-11-15 re-measurement, the Artifact tool
-  definition alone was about 37k characters, roughly a quarter of the 40.5k
-  token subagent start, written and re-read on every subagent request:
-  about $45 of $1,005 subagent list-price cost across 16 executions. It
-  removes no judgment, so confidence is high.
-- **Effort and boundary.** Small, high confidence. The release installs only
-  skills and hooks today, so a host agent definition or setting is a new
-  installed kind whose installation, update and coexistence keep their
-  checks. Coordinator tools, project instructions and personal memory stay
-  outside this story; skill descriptions belong to the phase-guidance story.
-  [Start floor](https://github.com/terryyin/open-dough/blob/ffdd3dd800a7325237adcfc9c54920956bb63f7b/docs/maintainer/session-token-efficiency-research.md#cc5-every-subagent-pays-a-fixed-start-up-floor)
+**Goal.** Developers launching Claude Code sessions from the dashboard pay for
+no tool definition their sessions never use. Claude Code's Artifact tool,
+which publishes pages to claude.ai, adds about 37k characters to every
+request of a coordinator and of each worker it starts. Removing it removes no
+judgment.
+
+**Baseline (2026-11-23, Claude Code 2.1.330, local traces).** In 30 days, 731
+main sessions were offered Artifact and none, nor any worker, called it. Over
+10 days it cost about $43 of $2,441 main-session spend and $64 of $1,896
+worker spend at the Opus 5.5 rate card, about 2.5% overall. Probes started
+with `claude --bg ... --disallowedTools Artifact -- "<prompt>"` showed main
+tool definitions falling from 83.8k to 46.4k characters, and a worker it
+started from 58.2k to 21.1k, with Artifact absent from both. The tool list
+is variadic: a prompt placed after it without `--` is read as a tool name.
+
+**Scope.** Every dashboard Claude Code launch passes `--disallowedTools
+Artifact` and keeps its name, model, effort and instruction. Codex and Cursor
+launches, sessions developers start themselves, personal settings and other
+tools stay as they are. An agent definition or role-sized tool set was
+considered and dropped: its copied worker prompt would need maintaining for
+about 3% of worker spend.
+
+**Evaluation.** The launch boundary case proves the argument. Keep or stop
+from the next real dashboard-launched Claude Code execution's traces: keep
+when its coordinator and workers start without Artifact and its results read
+as usual.
+
+**Key examples.**
+
+- An execution launched from the dashboard with model and effort starts
+  `claude --bg --name <name> --model <m> --effort <e> --disallowedTools
+  Artifact -- <instruction>`.
+- A launch with no instruction still withholds Artifact.
+- The coordinator's workers start without Artifact and keep Agent, Bash,
+  Edit, Read, Write and Skill.
 
 <a id="finish-slices-within-a-bounded-working-context"></a>
 
