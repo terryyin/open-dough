@@ -29,12 +29,12 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Keep the attention completion journey within its timeout under load](seeds/SEED-341-simplify-session-tests.md#keep-attention-completion-journey-within-timeout) — SEED-341#keep-attention-completion-journey-within-timeout ([plan](slice-plans/776-keep-attention-completion-journey-within-timeout/PLAN.md))
+- [Install only scripts that guidance, hooks or the Dashboard reach](seeds/SEED-423-shrink-the-installed-distribution.md#remove-unreached-distribution-code) — SEED-423#remove-unreached-distribution-code ([plan](slice-plans/779-remove-unreached-distribution-code/PLAN.md))
 
 ## Backlog list
 
 - [Get launch unit proof in about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal) — SEED-413#finish-launch-proof-orthogonal
 - [Get fast proof of Intent revision reading and reading-place detours](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-revision-and-detour-reading) — SEED-413#speed-intent-revision-and-detour-reading
-- [Install only scripts that guidance, hooks or the Dashboard reach](seeds/SEED-423-shrink-the-installed-distribution.md#remove-unreached-distribution-code) — SEED-423#remove-unreached-distribution-code
 - [Open Review changes on a Story card in Intent](seeds/SEED-420-unified-intent-review.md#open-review-changes-from-a-story-card) — SEED-420#open-review-changes-from-a-story-card
 - [Get fast proof of Intent collected scope timing and chart marks](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-scope-timing-reading) — SEED-413#speed-intent-scope-timing-reading
 - [Get fast proof of story changes, Done references, notes and recorded progress](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading) — SEED-413#speed-story-changes-notes-and-progress-reading
