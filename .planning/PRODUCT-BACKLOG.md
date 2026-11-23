@@ -31,10 +31,10 @@ intent introduced or affected by a newly developed story.
 - [Bring launch test feedback to about eight seconds](seeds/SEED-413-renovate-dashboard-unit-tests.md#reach-eight-second-launch-feedback) — SEED-413#reach-eight-second-launch-feedback ([plan](slice-plans/787-reach-eight-second-launch-feedback/PLAN.md))
 - [Use proportionate refactoring for small test edits](seeds/SEED-345-session-token-efficiency.md#use-proportionate-refactoring-for-small-test-edits) — SEED-345#use-proportionate-refactoring-for-small-test-edits ([plan](slice-plans/788-use-proportionate-refactoring-for-small-test-edits/PLAN.md))
 - [Get fast proof of Intent attempt and Summary proof](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof) — SEED-413#speed-intent-attempt-and-summary-proof ([plan](slice-plans/760-speed-intent-attempt-and-summary-proof/PLAN.md))
+- [Drive the published observation through the typed page entry](seeds/SEED-413-renovate-dashboard-unit-tests.md#drive-published-observation-through-page-entry) — SEED-413#drive-published-observation-through-page-entry ([plan](slice-plans/789-drive-published-observation-through-page-entry/PLAN.md))
 
 ## Backlog list
 
-- [Drive the published observation through the typed page entry](seeds/SEED-413-renovate-dashboard-unit-tests.md#drive-published-observation-through-page-entry) — SEED-413#drive-published-observation-through-page-entry
 - [Reopen completed ad hoc work and its follow-ups under one identity](seeds/SEED-420-unified-intent-review.md#review-standalone-done-work) — SEED-420#review-standalone-done-work
 - [Compare a story branch with and without incoming trunk changes](seeds/SEED-420-unified-intent-review.md#compare-story-contributions) — SEED-420#compare-story-contributions
 - [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
