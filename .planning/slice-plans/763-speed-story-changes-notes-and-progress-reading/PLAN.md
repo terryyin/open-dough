@@ -693,8 +693,17 @@ The eliminated helper surfaces have no source callers. The remaining
 published-observation work and revision-detour correction have existing
 owners. The review found no additional product correction to queue.
 
-Branch CI is pending at review. Process review remains selected and will
-use the wrap-up Intent Coverage report.
+Branch CI accepted the execution-complete revision using the successful
+code revision `7384ac78` and confirmed observer shutdown. Wrap-up completed
+the deferred process review with the [Intent Coverage report](intent-coverage.md).
+The faulted Retry run failed at the expected reveal assertion, and both
+controls passed. No proof follow-up is needed.
+
+The overloaded first comparison and the strict matched rerun above
+illustrate existing shared-host guidance (ODF-228). The controlled repeat
+supplied the comparison, and the terminal test kept its default timeout
+after redundant ready checks were removed. The run history supports no
+separate process finding or live test-optimization candidate.
 
 ## Execution complete
 
