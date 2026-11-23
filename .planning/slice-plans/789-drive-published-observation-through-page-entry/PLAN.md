@@ -62,12 +62,12 @@ Observations are from the preparation worktree at `05f60fc746c1` on
 | Legacy reader selection for Slices 7 and 8 | Ran `node_modules/.bin/playwright test --config dashboard/frontend.playwright.config.ts 'intent-(project-visit(-selection)?\|selection-reads)\.spec\.ts$' --project=chromium --list --reporter=list`. It collected one visit, one selection-transition and one startup-detail case. This settles the runner selection. Capture elapsed comparison runs under comparable load at execution. |
 | Shared-wait assertion can discriminate loss of the pending contributor | [Prior Intent Coverage](../../done/SEED-413_speed-intent-source-and-story-reading.json) at `3d1fef8a` caught clearing all contributors when detail healed. The observed read counts were `[2, 2]` where `[2, 3]` was required. It exercised the old composition. Slice 5 reruns that discriminating change on the production page path. |
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. Published detail reads only the reachable records at the inspected revision
 
 Type: Behavior
-Status: planned
+Status: done
 
 Extend the required observation reads for published sessions, profiles and
 profile-addition history, and the Done catalog. Pass the current typed
@@ -258,3 +258,45 @@ existing read owners, reuse the same page mount and recovery semantics, and
 each names its own outside-in observation. The delivery sequence moves proof
 only once its production boundary can be exercised. This review found no
 remaining slice-specific concern.
+
+## Execution context
+
+- Mode: story-branch; workspace
+  `/Users/terryyin/git/open-dough/.worktrees/drive-the-published-observation-through-the-type`;
+  branch `cursor/drive-the-published-observation-through-the-type`; remote
+  `origin`; target `main`
+- Publisher ID: `dashboard-territory.local-open-dough`; agent: Nao-chan
+- Retained published revisions: claim `8a41b269fa1b1591fb5f1e55a62dde54a2a6b2e2`
+  on `origin/main` (first-increment previously-published base)
+- Replanning permission: preserve existing (allowed)
+
+## Accepted proof
+
+### Slice 1 — reachable published detail and typed detail groups
+
+- Promise: observation reads for profiles, profile-addition, Done catalog and
+  published sessions; `readPublishedWork` path-mix detail set; partial sessions
+  gap while profiles and Done answer
+- Boundary: `PublishedObservationReadSource` → `readPublishedDetails` owners;
+  unread `pageReadsSupplying` observation
+- Setup: pinned typed snapshot with legacy source-navigation path mix; typed
+  detail, profiles, addition, sessions and Done replies via
+  `published-detail-path-mix-supply.ts`
+- Observations:
+  - `dashboard/frontend-tests/observation/published-detail-reachable-records.spec.ts`
+    link kinds and exact four reachable detail paths; owner/sessions/Done;
+    sessions unavailable while Done and owner answer
+  - `dashboard/frontend-tests/test-harness/unread-page-reads.spec.ts` unread
+    rejects new observation ops
+- Command:
+  `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/observation/published-detail-reachable-records.spec.ts dashboard/frontend-tests/test-harness/unread-page-reads.spec.ts --workers=2`
+  (pass; typecheck `npm run typecheck:dashboard` pass)
+- Evidence: `open-dough/evidence/slice1-implementation-return.md`,
+  `open-dough/evidence/refactor-slice1-return.md`
+
+## Learnings
+
+- Frontend Vitest Chromium cases must use browser-safe `pageMakeMe` and
+  `renderPublishedBacklog`, not Node `makeMe.mjs` / `describedRevisions`.
+- Slice 4 must open Sources against the same `expectedDetailPaths` set exported
+  from the path-mix supply.

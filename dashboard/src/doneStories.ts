@@ -75,8 +75,9 @@ export async function cataloguedAt(
   source: PublishedSource,
   revision: string,
   signal: AbortSignal,
+  readCatalog: typeof readDoneCatalogAt = readDoneCatalogAt,
 ): Promise<Exclude<DoneStories, { status: "loading" }>> {
-  const catalog = await readDoneCatalogAt(source, revision, signal);
+  const catalog = await readCatalog(source, revision, signal);
   return catalog.status === "gap"
     ? {
         status: "unavailable",
@@ -100,6 +101,7 @@ export async function readDoneStories(
   signal: AbortSignal,
   outcomes: ObservationOutcomes,
   bound: AbortSignal,
+  readCatalog: typeof readDoneCatalogAt = readDoneCatalogAt,
 ): Promise<DoneStories> {
   const question = doneCatalogQuestion(source, revision);
   const prior = outcomes.of(question);
@@ -109,11 +111,11 @@ export async function readDoneStories(
       return unavailableGap(gapCauseFromOutcome(prior, problem) ?? { problem });
     }
     // Answered: the read memo answers without re-settling under the bound.
-    return await cataloguedAt(source, revision, signal);
+    return await cataloguedAt(source, revision, signal, readCatalog);
   }
   let done: DoneStories;
   try {
-    done = await cataloguedAt(source, revision, signal);
+    done = await cataloguedAt(source, revision, signal, readCatalog);
   } catch (error) {
     const cause = headedGapCause(
       doneUnreadProblem,

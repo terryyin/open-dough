@@ -28,7 +28,7 @@ export async function readPublishedWork(
   onPartial: PublishedWorkProgress | undefined,
   knownRevision: string | undefined,
   shown: PublishedWork | undefined,
-  { readSnapshot, readDetailFile }: PublishedObservationReadSource,
+  reads: PublishedObservationReadSource,
 ): Promise<PublishedWork> {
   return withinReadWait(signal, async (untilEither, bound) => {
     try {
@@ -45,7 +45,7 @@ export async function readPublishedWork(
             };
       const snapshot = await trackSettledAsk(
         outcomes,
-        readSnapshot(source, untilEither, knownRevision),
+        reads.readSnapshot(source, untilEither, knownRevision),
         {
           question: membershipQuestion,
           of: (read) => ({
@@ -93,7 +93,7 @@ export async function readPublishedWork(
       const carriedFrom =
         !sameRevision && shown?.source.id === source.id ? shown : undefined;
       return await readPublishedDetails(
-        readDetailFile,
+        reads,
         work,
         sameRevision,
         carriedFrom,

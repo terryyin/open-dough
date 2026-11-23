@@ -68,6 +68,10 @@ const unreadObservation: PublishedObservationReadSource = {
   readSnapshot: unread("published snapshot"),
   readDetailFile: unread("published detail file"),
   checkRevision: unread("revision check"),
+  readProfiles: unread("published profiles"),
+  readProfileAddition: unread("published profile addition"),
+  readDoneCatalog: unread("published done catalog"),
+  listPublishedSessions: unread("published sessions"),
 };
 
 // The page's reads with only SUPPLIED answering; every other read rejects.
