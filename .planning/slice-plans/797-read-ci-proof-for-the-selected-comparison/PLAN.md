@@ -216,7 +216,7 @@ run records in this checkout's Git evidence directory.
 ### 4. Show selected build counts in Changes
 
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 8–12 minutes.
 
 In a selected captured run, the Changes counts read the same Baseline
@@ -231,6 +231,14 @@ and nine selection cases, and different counts in the default builds.
 Choose the run, observe 1 → 9 in Changes, and return to the default. Feed
 the same entry point a one-sided build and check the observed count and
 reason. Keep the unrelated overview and count-unit cases unchanged.
+
+Accepted proof shows the captured builds' 1 → 9 in the file and location
+controls and restores the default count of 4. Separate mounted cases
+keep the measured side visible with the missing baseline or end reason,
+and retain partial counts and different declared units without a delta.
+The 151 frontend cases, nine E2E cases, 13 Distribution specs and
+typecheck passed. See `slice-d-return.md` in the checkout's Git evidence
+directory. Summary and file Proof can share `selectionScopeComparisonRowsOf`.
 
 ### 5. Read the same proof in Summary and file Proof
 
@@ -334,6 +342,8 @@ routes. The review identified no remaining slice-specific concern.
   `29cd3167dc1e598ad77c8669a2f1673dd73c8320`.
 - Slice 2 was accepted on the execution branch at
   `c215a5a99ab7d4129a70c26c91ecf3bf368d842a`.
+- Slice 3 was accepted on the execution branch at
+  `8eb04d479e69be3e9be23971fce64483cb3af401`.
 - Codex observer of `ci.yml` on the execution branch, coordinator
   `nao-9b9c27ea`, directory `/tmp/dough-ci-501/watch-dv7wpQ`, process
   `33667`, cell `g458:11`, session `61453`. The claim preceded this observer.
@@ -344,7 +354,7 @@ routes. The review identified no remaining slice-specific concern.
 
 Reported: slice 3 — "Changes tree counts are suppressed while the selected comparison is attached."
 Story clause: "For a Taken story's commit range or a Done story's captured landed run with revisions, the endpoint table, Changes counts, the selected scope's Summary and file Proof share one pair of build readings."
-Disposition: interim until slices 4
+Disposition: proved by slice 4: Mounted captured-run file and location controls in dashboard/frontend-tests/intent/intent-story-compare-selected-counts.spec.ts, including default restoration, one-sided readings, partial proof and distinct units.
 
 ### G2. Selected Summary and file Proof
 

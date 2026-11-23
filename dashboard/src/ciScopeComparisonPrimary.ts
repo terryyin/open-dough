@@ -42,6 +42,20 @@ export const primaryProofOf = (
   baseline: ComparisonEndpointProof,
 ): ComparisonEndpointProof => primaryEndpointOf(landed, branch, baseline).proof;
 
+function entryForProof(
+  proof: ComparisonEndpointProof,
+  path: string,
+  units: readonly CiProofUnit[] | undefined,
+): CiProofEntry | undefined {
+  if (proof.kind !== "summary") return undefined;
+  const entry = owningEntryOf(proof.entries, path);
+  const evidence =
+    entry?.evidence.filter(({ unit }) => inRowUnits(units, unit)) ?? [];
+  return entry === undefined || evidence.length === 0
+    ? undefined
+    : { ...entry, evidence };
+}
+
 // The entry holding PATH with only its results a compared row in UNITS
 // takes (`inRowUnits`; every unit's without UNITS): the chosen build's, else
 // the first other endpoint's with such results.
@@ -52,15 +66,8 @@ function primaryEntryOf(
   landed: ComparisonEndpointProof,
   units?: readonly CiProofUnit[],
 ): CiProofEntry | undefined {
-  const from = (proof: ComparisonEndpointProof) => {
-    if (proof.kind !== "summary") return undefined;
-    const entry = owningEntryOf(proof.entries, path);
-    const evidence =
-      entry?.evidence.filter(({ unit }) => inRowUnits(units, unit)) ?? [];
-    return entry === undefined || evidence.length === 0
-      ? undefined
-      : { ...entry, evidence };
-  };
+  const from = (proof: ComparisonEndpointProof) =>
+    entryForProof(proof, path, units);
   return (
     from(primaryProofOf(landed, branch, baseline)) ??
     from(branch) ??
@@ -102,6 +109,14 @@ function partsCellsOf(
   };
 }
 
+function partsOfEntryAtPath(
+  entry: CiProofEntry | undefined,
+  path: string,
+): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
+  if (entry === undefined || path === entry.path) return partsCellsOf(entry);
+  return partsCellsOf(entry, unitResultsAt(entry, path));
+}
+
 // Parts of PATH in a compared row's UNITS (`primaryEntryOf`).
 export function partsForPath(
   path: string,
@@ -110,9 +125,23 @@ export function partsForPath(
   branch: ComparisonEndpointProof,
   landed: ComparisonEndpointProof,
 ): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
-  const entry = primaryEntryOf(path, baseline, branch, landed, units);
-  if (entry === undefined || path === entry.path) return partsCellsOf(entry);
-  return partsCellsOf(entry, unitResultsAt(entry, path));
+  return partsOfEntryAtPath(
+    primaryEntryOf(path, baseline, branch, landed, units),
+    path,
+  );
+}
+
+export function selectionPartsForPath(
+  path: string,
+  baselineLookup: string,
+  units: readonly CiProofUnit[] | undefined,
+  baseline: ComparisonEndpointProof,
+  selection: ComparisonEndpointProof,
+): Pick<ComparisonEntryCells, "completeness" | "gaps"> {
+  const selectedEntry = entryForProof(selection, path, units);
+  const entry = selectedEntry ?? entryForProof(baseline, baselineLookup, units);
+  const lookup = selectedEntry === undefined ? baselineLookup : path;
+  return partsOfEntryAtPath(entry, lookup);
 }
 
 // Parts of what PATH holds outside CHILDREN's rows in a compared row's UNITS

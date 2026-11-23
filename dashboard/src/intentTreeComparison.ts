@@ -6,6 +6,7 @@
 // (`./ciScopeComparisonAgreedCues.ts`). Folder rows stay uncued.
 
 import { scopeComparisonRowsOf } from "./ciScopeComparison.ts";
+import type { SelectedComparisonEndpointProofs } from "./ciComparisonProofs.ts";
 import { combinedCuesOf } from "./ciScopeComparisonAgreedCues.ts";
 import type {
   ComparisonAfterSide,
@@ -13,8 +14,11 @@ import type {
 } from "./ciScopeComparisonCues.ts";
 import { scopeEvidenceOf } from "./IntentScopeEvidence.tsx";
 import type { CiEvidence } from "./IntentCiEvidence.tsx";
+import { selectedComparisonOf } from "./intentCiEvidenceModel.ts";
 import { baselinePathOf, type IntentTreeFile } from "./intentStoryOverlay.ts";
+import { selectionScopeComparisonRowsOf } from "./selectionScopeComparison.ts";
 import type {
+  ComparisonEndpointProof,
   ComparisonEndpointProofs,
   ComparisonEntryCells,
 } from "./storyCiComparisonEntries.ts";
@@ -22,6 +26,10 @@ import { activeComparisonAfterSideOf } from "./useIntentCiComparisonEntries.ts";
 
 export type TreeComparisonReading =
   | { readonly kind: "none" }
+  | {
+      readonly kind: "selection";
+      readonly proofs: SelectedComparisonEndpointProofs;
+    }
   | {
       readonly kind: "comparison";
       readonly afterSide: ComparisonAfterSide;
@@ -31,6 +39,12 @@ export type TreeComparisonReading =
 export function treeComparisonReadingOf(
   evidence: CiEvidence,
 ): TreeComparisonReading {
+  const selection = selectedComparisonOf(evidence);
+  if (selection !== undefined) {
+    return selection.endpointProofs === undefined
+      ? { kind: "none" }
+      : { kind: "selection", proofs: selection.endpointProofs };
+  }
   const scope = scopeEvidenceOf(evidence);
   if (scope.kind !== "comparison") return { kind: "none" };
   return {
@@ -41,11 +55,11 @@ export function treeComparisonReadingOf(
 }
 
 // True when PATH is a declared entry in any compared endpoint summary.
-export function comparedEntryPathOf(
-  proofs: ComparisonEndpointProofs,
+function comparedEntryPathOf(
+  proofs: readonly ComparisonEndpointProof[],
   path: string,
 ): boolean {
-  for (const proof of [proofs.baseline, proofs.branch, proofs.landed]) {
+  for (const proof of proofs) {
     if (proof.kind !== "summary") continue;
     if (proof.entries.some((entry) => entry.path === path)) return true;
   }
@@ -66,11 +80,27 @@ function afterWordsOf(
   return (afterSide === "landed" ? cells.landed : cells.branch).text;
 }
 
-export function treeScopeComparisonOf(
-  reading: Extract<TreeComparisonReading, { kind: "comparison" }>,
+function treeScopeComparisonOf(
+  reading: Exclude<TreeComparisonReading, { kind: "none" }>,
   path: string,
   treeFile?: IntentTreeFile,
 ): TreeComparison {
+  if (reading.kind === "selection") {
+    const rows = selectionScopeComparisonRowsOf(
+      path,
+      reading.proofs,
+      baselinePathOf(treeFile, path),
+      treeFile?.kind,
+    );
+    return {
+      words: rows
+        .map(({ counts, selection }) =>
+          selection.ms === undefined ? counts : `${counts}, ${selection.text}`,
+        )
+        .join("; "),
+      cues: combinedCuesOf(rows.map(({ cues }) => cues)),
+    };
+  }
   const { proofs, afterSide } = reading;
   const rows = scopeComparisonRowsOf(
     path,
@@ -103,8 +133,9 @@ export function treeLocationComparisonOf(
   reading: TreeComparisonReading,
   locationPath: string,
 ): TreeComparison | undefined {
-  if (reading.kind !== "comparison") return undefined;
-  if (!comparedEntryPathOf(reading.proofs, locationPath)) return undefined;
+  if (reading.kind === "none") return undefined;
+  if (!comparedEntryPathOf(Object.values(reading.proofs), locationPath))
+    return undefined;
   return treeScopeComparisonOf(reading, locationPath);
 }
 
@@ -113,7 +144,7 @@ export function treeFileComparisonOf(
   path: string,
   treeFile?: IntentTreeFile,
 ): TreeComparison | undefined {
-  return reading.kind === "comparison"
-    ? treeScopeComparisonOf(reading, path, treeFile)
-    : undefined;
+  return reading.kind === "none"
+    ? undefined
+    : treeScopeComparisonOf(reading, path, treeFile);
 }

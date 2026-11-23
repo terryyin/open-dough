@@ -198,8 +198,6 @@ test("a Done story's CI comparison switches to the captured run's measured build
   await comparisonRead(() => story.viewText("Proof")).toContain(
     "See CI comparison for the selected range.",
   );
-  await expect.element(file).toHaveAccessibleName(`Modified ${landing}`);
-
   await story.choose("Published completion");
   await story.chooseTab("CI comparison");
   await comparisonRead(story.landedEndpoint).toBe(measured);
