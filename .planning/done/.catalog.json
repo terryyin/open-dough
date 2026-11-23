@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_remove-observation-proof-overlap.json",
+      "identity": "SEED-413#remove-observation-proof-overlap",
+      "completedAt": "2026-11-23T12:23:07.284Z",
+      "blob": "c4ab16a5ecbc9a3cfad03ab30365cf6fba9a628c"
+    },
+    {
       "fileName": "SEED-345_start-implementers-from-a-role-sized-tool-set.json",
       "identity": "SEED-345#start-implementers-from-a-role-sized-tool-set",
       "completedAt": "2026-11-23T12:14:45.415Z",
