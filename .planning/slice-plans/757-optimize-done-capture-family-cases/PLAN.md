@@ -248,6 +248,15 @@ element and poll checks advance fake timers by 50 ms, so a fixed 14,999 ms
 advance could reach the 15 s retry. The repair at `b3c347567` measures each
 wait from the time its read settled.
 
+## Execution complete
+
+Product advice: The Done capture family now meets the 100–200 ms target for
+its median case at load 10–13, with no timeouts in any measured run. The tail
+of multi-checkout, landing and retirement cases stays at 0.6–1.3 s. That is
+the measured floor: each remaining capture call proves a distinct fact. This
+repository's own installed publisher takes the selector at the next release.
+Open no further optimization story unless the tail blocks maintainers.
+
 ## Local gates and measurement
 
 - On AC power, use
