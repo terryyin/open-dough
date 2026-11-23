@@ -1,13 +1,13 @@
-// A streaming Board whose every stream open fails, or that waits out a
-// rate-limited answer, shows lost freshness with its snapshot kept once the
-// silence bound has passed from the last answer or observation start (or from
-// reopen after the wait), reopens no more often than the pace, and catches up
-// on the first answer after a reopen. Slots stay free; the server pace is
-// lowered. GitHub's wait is kept by the request owner's clock alone, so the
-// rate-limited case asks through an owner of its own whose time it advances
-// (../../dashboard/test-support/support/ownerClockTest.ts): its directed wait passes when the case moves
-// owner and page time to it. The other cases keep the shared owner and its
-// real clock.
+// A streaming Board that waits out a rate-limited answer and whose every
+// reopen then fails shows lost freshness with its snapshot kept once the
+// silence bound has passed from reopen after the wait, and catches up on the
+// first answer. Slots stay free; the server pace is lowered. GitHub's wait is
+// kept by the request owner's clock alone, so the case asks through an owner
+// of its own whose time it advances
+// (../../dashboard/test-support/support/ownerClockTest.ts): its directed wait
+// passes when the case moves owner and page time to it. The silence bound
+// from observation start and pace reopens of unanswered attempts:
+// ../../dashboard/frontend-tests/observation/revision-stream-delivery.spec.ts.
 
 import {
   expect,
@@ -18,7 +18,6 @@ import {
   expectMembership,
   expectSettledPage,
   parts,
-  shortRevision,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   checksAskedWhilePassing,
@@ -27,8 +26,6 @@ import {
   recordsAt,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
-  expectLostFreshnessProblem,
-  expectStreamOpenGapsAtLeastPace,
   isRevisionStream,
   openStreamingAtA,
   routeFailingRevisionStreams,
@@ -38,7 +35,6 @@ import {
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
 import {
   backlogB,
-  revisionA,
   revisionB,
   titlesOfA,
   titlesOfB,
@@ -55,42 +51,6 @@ test.use({
   extraEnv: async ({ extraEnv }, use) => {
     await use({ ...extraEnv, ...streamServerEnv });
   },
-});
-
-test("failed stream opens show lost freshness at 45s; pace holds; first answer clears and catches up", async ({
-  page,
-}) => {
-  const stopFailing = await routeFailingRevisionStreams(page);
-  const origin = await openStreamingAtA(page);
-  const { problem, retrievedAt, readRevision } = parts(page);
-  const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
-  expect(retrievedA).not.toBe("");
-  await expect(readRevision).toContainText(shortRevision(revisionA));
-
-  await test.step("40s of page time: no lost-freshness problem", async () => {
-    await passPageMs(page, revisionStreamSilenceMs - 5_000);
-    await expect(problem).toHaveCount(0);
-  });
-
-  await test.step("45s plus one page-time step: problem with snapshot retrieval time", async () => {
-    await passPageMs(page, 5_000 + pageTimeStepMs);
-    await expectLostFreshnessProblem(page, retrievedA, titlesOfA);
-  });
-
-  await test.step("open gaps stay at least the pace across failed opens", async () => {
-    await expectStreamOpenGapsAtLeastPace(page);
-  });
-
-  await test.step("unroute and push B: first answer clears the problem and catches up", async () => {
-    await stopFailing();
-    origin.push(revisionB, backlogB, recordsAt("B"));
-    const caughtUp = untilStreamingAt(page, revisionB);
-    await passPageMs(page, checkIntervalMs);
-    await expectSettledPage(page, titlesOfB);
-    await expect(readRevision).toContainText(shortRevision(revisionB));
-    await expect(problem).toHaveCount(0);
-    await caughtUp;
-  });
 });
 
 ownerClockTest(

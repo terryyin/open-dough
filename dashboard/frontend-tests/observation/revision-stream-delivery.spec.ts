@@ -1,8 +1,9 @@
 // Revision delivery enters through a typed subscription beside checkRevision.
 // The production stream scheduler owns watch, silence, reopen, rate-limit
-// pause and close; polling keeps its typed check path.
+// pause and close.
 import { expect, test, vi } from "vitest";
 import { ReadProblem } from "../../src/readProblem.ts";
+import { revisionStreamSilenceMs } from "../../src/revisionStreamSchedule.ts";
 import {
   checkIntervalMs,
   controlledRevisionDelivery,
@@ -10,8 +11,6 @@ import {
   mountRevisionDelivery,
   nextRevision,
   onDeliveryClock,
-  shownRevision,
-  source,
 } from "./revision-stream-delivery-supply.ts";
 
 test("a typed changed revision asks the pin once and closes the subscription", async () => {
@@ -33,7 +32,7 @@ test("a typed changed revision asks the pin once and closes the subscription", a
   expect(control.subscriptions.length).toBe(1);
 });
 
-test("delivery loss reports fallback and reopens at the pace", async () => {
+test("an unanswered loss reopens at the pace and reports at the silence bound from observation start; an answered loss reports at once", async () => {
   onDeliveryClock();
   const control = controlledRevisionDelivery();
   const mounted = await mountRevisionDelivery({
@@ -42,21 +41,31 @@ test("delivery loss reports fallback and reopens at the pace", async () => {
   });
   await expect.poll(() => control.subscriptions.length).toBe(1);
 
-  control.deliverCheck(0, {
-    changed: false,
-    heads: new Map(),
-  });
-  expect(mounted.unchanged).toBe(1);
   control.deliverLoss(0);
   expect(mounted.lost).toBe(1);
-  expect(mounted.failed).toHaveLength(1);
-  expect(mounted.failed[0]).toBeInstanceOf(ReadProblem);
+  expect(mounted.failed).toEqual([]);
   expect(control.subscriptions[0]?.close).toHaveBeenCalledTimes(1);
-
   await vi.advanceTimersByTimeAsync(checkIntervalMs - 1);
   expect(control.subscriptions.length).toBe(1);
   await vi.advanceTimersByTimeAsync(1);
-  await expect.poll(() => control.subscriptions.length).toBe(2);
+  expect(control.subscriptions.length).toBe(2);
+
+  // The bound runs from the observation start, the first open.
+  const silenceAt =
+    (control.subscriptions[0]?.openedAt ?? 0) + revisionStreamSilenceMs;
+  await vi.advanceTimersByTimeAsync(silenceAt - 1 - Date.now());
+  expect(mounted.failed).toEqual([]);
+  await vi.advanceTimersByTimeAsync(1);
+  expect(mounted.failed).toHaveLength(1);
+  expect(mounted.failed[0]).toBeInstanceOf(ReadProblem);
+  expect(control.subscriptions[1]?.close).toHaveBeenCalledTimes(1);
+
+  await vi.advanceTimersByTimeAsync(checkIntervalMs);
+  expect(control.subscriptions.length).toBe(3);
+  control.deliverCheck(2, { changed: false, heads: new Map() });
+  expect(mounted.unchanged).toBe(1);
+  control.deliverLoss(2);
+  expect(mounted.failed).toHaveLength(2);
 });
 
 test("departure closes the held subscription", async () => {
@@ -71,24 +80,6 @@ test("departure closes the held subscription", async () => {
   await expect
     .poll(() => control.subscriptions[0]?.close.mock.calls.length ?? 0)
     .toBe(1);
-});
-
-test("polling delivery asks through the typed check path", async () => {
-  onDeliveryClock();
-  const control = controlledRevisionDelivery();
-  await mountRevisionDelivery({
-    ...control,
-    delivery: "check",
-    visibility: "revealed",
-  });
-  await vi.advanceTimersByTimeAsync(0);
-  await expect.poll(() => control.checks.length).toBe(1);
-  expect(control.checks[0]).toEqual({
-    source,
-    shown: shownRevision,
-    watched: [],
-  });
-  expect(control.subscriptions.length).toBe(0);
 });
 
 test("a standing rate limit pauses opening the subscription until it ends", async () => {

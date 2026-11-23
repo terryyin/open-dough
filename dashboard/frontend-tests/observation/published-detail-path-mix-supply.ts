@@ -1,5 +1,5 @@
 // Pinned path-mix snapshot and typed detail replies for published-detail
-// reachable-record proof. Exact paths match Slice 4's Sources control set.
+// reachable-record proof.
 import { expect } from "vitest";
 import {
   agentIdentity,

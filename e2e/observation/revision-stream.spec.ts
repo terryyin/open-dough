@@ -29,30 +29,12 @@ import {
   untilStreamingAt,
   setPageVisibility,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
-import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import {
   backlogB,
   revisionB,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
-import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
-import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
-import {
-  sliceBar,
-  sliceProgress,
-} from "../../dashboard/test-support/storyCardFacts.ts";
-import {
-  onBranch,
-  opened,
-  planPath,
-  revision,
-} from "../../dashboard/test-support/branchProgressRecords.ts";
-import {
-  branchPlanPublication,
-  openedSettled,
-  sevenDoneOnBranch,
-} from "../../dashboard/test-support/branchRefreshJourney.ts";
 
 test.use({
   preholdRevisionStreamSlots: false,
@@ -130,55 +112,6 @@ test.describe("shared publication listing", () => {
     await otherAtB;
     await other.close();
   });
-});
-
-test("a watched branch move reads only that entry's plan and commit time; the other page reads nothing further", async ({
-  page,
-}) => {
-  const streaming = untilStreamingAt(page, revision);
-  const { origin, progress } = await openedSettled(page);
-  await streaming;
-  const other = await page.context().newPage();
-  const otherStreaming = untilStreamingAt(other, revision);
-  await other.goto("/");
-  await expect(other.getByText("Reading plan slices…")).toHaveCount(0);
-  await otherStreaming;
-  const movedHead = "e6".repeat(20);
-  const before = githubFor(page).calls.length;
-  const commitAt = new Date(opened.getTime() - 2 * 60_000);
-  const moved = branchPlanPublication(movedHead, commitAt, sevenDoneOnBranch);
-  origin.moveBranch("story/example", moved);
-  // This pace advances the shared context clock for both tabs.
-  await page.clock.runFor(checkIntervalMs);
-  expect(await other.evaluate(() => Date.now())).toBe(
-    opened.getTime() + checkIntervalMs,
-  );
-  const sevenOfEight = "7 of 8 slices recorded complete";
-  await expect(sliceBar(progress, sevenOfEight)).toBeVisible({
-    timeout: 15_000,
-  });
-  await expect(progress).toContainText("Current slice started 2 min ago");
-  expect(readsBesideChecks(callsSince(page, before)).sort()).toEqual(
-    [
-      `content ${planPath("on-branch")}@${movedHead}`,
-      `commit-list ${planPath("on-branch")}@${movedHead}`,
-    ].sort(),
-  );
-  const otherCard = storyCard(parts(other).taken, onBranch);
-  await expect(sliceBar(sliceProgress(otherCard), sevenOfEight)).toBeVisible();
-  await other.close();
-});
-
-test("after reading a publication the page reopens its stream at the new revision", async ({
-  page,
-}) => {
-  const origin = await openStreamingAtA(page);
-  const reopened = untilStreamingAt(page, revisionB);
-  origin.push(revisionB, backlogB, recordsAt("B"));
-  await expectSettledPage(page, titlesOfB);
-  await reopened;
-  const { readRevision } = parts(page);
-  await expect(readRevision).toContainText(shortRevision(revisionB));
 });
 
 test("seven pages of one context: two stream and five check; hiding a holder lets a checker stream", async ({

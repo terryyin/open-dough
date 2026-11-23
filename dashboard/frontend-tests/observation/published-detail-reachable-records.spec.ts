@@ -1,6 +1,5 @@
 // Published detail asks only the reachable in-repository records at the
-// pinned revision, plus typed profiles, sessions and Done replies. The exact
-// path set below is what Slice 4's story Sources control must match.
+// pinned revision, plus typed profiles, sessions and Done replies.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { ObservationOutcomes } from "../../src/observationOutcomes.ts";
@@ -93,7 +92,7 @@ test("published detail reads only reachable records and typed detail groups at t
       plan: undefined,
     },
   ]);
-  // Slice 4 Sources control: exactly these distinct canonical file paths.
+  // Exactly these distinct canonical file paths.
   expect([...new Set(detailPaths)].sort()).toEqual(expectedDetailPaths);
 
   const owned = work.taken.find((entry) => entry.identity === ownerIdentity);

@@ -5,7 +5,6 @@ import { createElement } from "react";
 import { onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { StoryBranchHeads } from "../../src/authenticatedBranchRead.ts";
-import type { Visibility } from "../../src/pageVisibility.ts";
 import { noteLimit } from "../../src/readingLimit.ts";
 import type {
   RevisionCheck,
@@ -20,19 +19,15 @@ import {
 import { useRevisionStreamSchedule } from "../../src/revisionStreamSchedule.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 
-export const shownRevision = "a1".repeat(20);
+const shownRevision = "a1".repeat(20);
 export const nextRevision = "b2".repeat(20);
-export const source = makeMe.aPublishedSource.openDough.please();
+const source = makeMe.aPublishedSource.openDough.please();
 
 export type ControlledSubscription = {
   readonly handlers: RevisionStreamHandlers;
   readonly close: ReturnType<typeof vi.fn>;
-};
-
-type AskedCheck = {
-  readonly source: typeof source;
-  readonly shown: string;
-  readonly watched: readonly string[];
+  // Delivery-clock time of the open.
+  readonly openedAt: number;
 };
 
 let nextEpoch = Date.parse("2020-01-01T00:00:00.000Z");
@@ -41,12 +36,10 @@ export function controlledRevisionDelivery(): {
   readonly subscribeRevision: RevisionDeliveryAnswers["subscribeRevision"];
   readonly checkRevision: RevisionDeliveryAnswers["checkRevision"];
   readonly subscriptions: ControlledSubscription[];
-  readonly checks: AskedCheck[];
   readonly deliverCheck: (at: number, check: RevisionCheck) => void;
   readonly deliverLoss: (at: number) => void;
 } {
   const subscriptions: ControlledSubscription[] = [];
-  const checks: AskedCheck[] = [];
   const subscribeRevision: RevisionDeliveryAnswers["subscribeRevision"] = (
     ...args
   ) => {
@@ -58,23 +51,23 @@ export function controlledRevisionDelivery(): {
       throw new Error(`Unexpected watched branches ${watched.join(",")}`);
     }
     const close = vi.fn();
-    const held: ControlledSubscription = { handlers, close };
+    const held: ControlledSubscription = {
+      handlers,
+      close,
+      openedAt: Date.now(),
+    };
     subscriptions.push(held);
     return { close } satisfies RevisionStreamSubscription;
   };
-  const checkRevision: RevisionDeliveryAnswers["checkRevision"] = (...args) => {
-    const [askedSource, shown, watched] = args;
-    checks.push({ source: askedSource, shown, watched });
-    return Promise.resolve({
+  const checkRevision: RevisionDeliveryAnswers["checkRevision"] = () =>
+    Promise.resolve({
       changed: false,
       heads: new Map(),
     });
-  };
   return {
     subscribeRevision,
     checkRevision,
     subscriptions,
-    checks,
     deliverCheck: (at, check) => {
       subscriptions[at]?.handlers.onCheck(check);
     },
@@ -109,7 +102,6 @@ export async function mountRevisionDelivery(
     RevisionDeliveryAnswers,
     "subscribeRevision" | "checkRevision" | "delivery"
   > & {
-    readonly visibility?: Visibility;
     readonly watchedHeads?: StoryBranchHeads;
   },
 ): Promise<{
@@ -132,7 +124,7 @@ export async function mountRevisionDelivery(
     shownRevision,
     watchedHeads: options.watchedHeads ?? new Map(),
     readSettled: true,
-    visibility: options.visibility ?? "visible",
+    visibility: "visible",
     delivery: options.delivery,
     onReceived: () => {
       received += 1;
