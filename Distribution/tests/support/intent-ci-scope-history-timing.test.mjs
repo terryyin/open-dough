@@ -101,54 +101,6 @@ test("a missing terminal proof retains earlier unit segments and distinct gaps w
   assert.match(read.entries[2].reason, /expired/i);
   assert.equal("ms" in read.entries[2], false);
   assert.equal(read.entries[2].selected, true);
-  const unitless = makeMe.aLandedCiHistory
-    .recording(first, "run/1/1", history.builds["run/1/1"])
-    .recording(second, "run/2/1", history.builds["run/2/1"])
-    .recording(
-      terminal,
-      "run/3/1",
-      makeMe.aKeptBuild
-        .with({
-          revision: terminal.revision,
-          state: "pass",
-          proof: makeMe.aCiProof
-            .forRun({ revision: terminal.revision, runId: 3 })
-            .entries([
-              makeMe.aCiProofEntry
-                .at("tests")
-                .holding(
-                  makeMe.aCiProofEvidence
-                    .legacy("test cases")
-                    .counting(2)
-                    .timed(300)
-                    .please(),
-                )
-                .please(),
-            ])
-            .please(),
-        })
-        .please(),
-    )
-    .please();
-  const missingUnit = scopeHistoryOf(
-    unitless,
-    "tests",
-    { revision: terminal.revision, at: terminal.receivedAt },
-    [first.revision, second.revision, terminal.revision],
-  );
-  assert.deepEqual(
-    missingUnit.entries.map((entry) => entry.kind),
-    ["point", "point", "gap"],
-  );
-  assert.match(missingUnit.entries[2].reason, /legacy unit unknown/i);
-  assert.ok(
-    missingUnit.entries[2].readings.every(
-      (reading) =>
-        reading.kind === "gap" && /legacy unit unknown/i.test(reading.reason),
-    ),
-  );
-  assert.equal(missingUnit.entries[0].readings[1].ms, 100);
-  assert.equal(missingUnit.entries[1].readings[0].ms, 200);
   const onlyCase = makeMe.aLandedCiHistory
     .recording(first, "run/1/1", history.builds["run/1/1"])
     .recording(second, "run/2/1", history.builds["run/2/1"])

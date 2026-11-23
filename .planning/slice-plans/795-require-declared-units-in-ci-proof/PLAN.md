@@ -266,7 +266,7 @@ the current adapter contract.
 
 ### 6. Use only declared readings in retained scope timing
 Type: Structure
-Status: planned
+Status: done
 Estimated active work: 8–11 minutes.
 
 Structure. Remove the unused legacy timing cue and `legacyReason` from the
@@ -285,6 +285,15 @@ invalid raw proof coverage at slice 2's store boundary. Keep the independent
 owning-entry/selected-unit comparability case. If still over 250 lines,
 move the ownership-change case to the scope-matching spec or its own file
 and run both affected checks.
+
+Accepted proof. The scope projection reads each declared unit by identity.
+The current response and decoder dropped the retired timing field. The
+previous deployed decoder still accepted the full response. Backend and
+store cases retained the measured build and wall time, showed the invalid
+gap, and observed no replacement request. Distribution, mounted, backend,
+E2E and type checks passed. The oversized timing spec now has 209 lines and
+retains its independent ownership case. Commands and observations are in
+`slice-f-return.md`. The typed comparison portion of G3 remains with slice 7.
 
 ### 7. Read Dashboard proof and comparisons in declared units
 Type: Behavior
@@ -327,6 +336,8 @@ type checks and the reached mounted comparison and scope-proof specs.
   Slice 4 was restored with its implementation and proof inputs intact.
 - Slice 4 was accepted on the story branch at
   `3c2634e9853fd5a4bda134e34337b830609bfef7`.
+- Slice 5 was accepted on the story branch at
+  `48d0db83c2d7f15698871e0241ad9d0407f9e303`.
 
 ## Story obligations
 

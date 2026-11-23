@@ -41,7 +41,6 @@ const entryFields = z.object({
   // A pending gap can name an attempt without claiming a measured build.
   run: ciScopeHistoryRunSchema.optional(),
   selected: z.boolean(),
-  legacyReason: z.string().min(1).optional(),
 });
 const unitSchema = z.enum(["case", "file"]);
 const pointReadingSchema = z.object({
