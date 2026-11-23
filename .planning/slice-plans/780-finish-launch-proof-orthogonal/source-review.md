@@ -42,12 +42,12 @@ Codex ran `/root/source_review` with no conversation inheritance. Its input was 
 | 34 | On desktop, launch-note states remain legible in the other scheme. (Dialog and desktop-notes example) | slice 2 | observed: story-card-launch-offers.spec.ts dedicated light and dark case checks glyph legibility and compares available and unavailable text and border colors |
 | 35 | On desktop, launch-note states remain distinguishable in the first of the two schemes. (Dialog and desktop-notes example) | slice 2 | observed: story-card-launch-offers.spec.ts dedicated light and dark case checks glyph legibility and compares available and unavailable text and border colors |
 | 36 | On desktop, launch-note states remain distinguishable in the other scheme. (Dialog and desktop-notes example) | slice 2 | observed: story-card-launch-offers.spec.ts dedicated light and dark case checks glyph legibility and compares available and unavailable text and border colors |
-| 37 | After refinement is refused, the chosen options are still checked on reopening. (Refinement example) | slice 3 | |
-| 38 | After refinement is canceled, the chosen options are cleared on the next open. (Refinement example) | slice 3 | |
-| 39 | A held offer follows its applicable availability rule. (Refinement example) | slice 3 | |
-| 40 | A held offer follows its applicable submission rule. (Refinement example) | slice 3 | |
-| 41 | A host reread follows its applicable availability rule. (Refinement example) | slice 3 | |
-| 42 | A host reread follows its applicable submission rule. (Refinement example) | slice 3 | |
+| 37 | After refinement is refused, the chosen options are still checked on reopening. (Refinement example) | slice 3 | observed: launch-refinement-options.spec.ts unsuccessful typed start callback, reopened dialog checks both A and C; agent-launch-options-kept.spec.ts observes the real boundary refusal and retained choice |
+| 38 | After refinement is canceled, the chosen options are cleared on the next open. (Refinement example) | slice 3 | observed: launch-refinement-options.spec.ts Cancel closes the reopened dialog, the next open clears both choices and selects No Approach, and only one start was attempted |
+| 39 | A held offer follows its applicable availability rule. (Refinement example) | slice 3 | observed: launch-refinement-options.spec.ts held initial read disables Start refinement until the offer is answered |
+| 40 | A held offer follows its applicable submission rule. (Refinement example) | slice 3 | observed: launch-refinement-options.spec.ts unavailability is on the real disabled Start refinement button while the initial offer is held |
+| 41 | A host reread follows its applicable availability rule. (Refinement example) | slice 3 | observed: launch-refinement-options.spec.ts host reread shows Reading options and exposes no choice controls while held |
+| 42 | A host reread follows its applicable submission rule. (Refinement example) | slice 3 | observed: launch-refinement-options.spec.ts held host reread submits a Claude start through the typed callback without an options field |
 | 43 | Cancel ends recording when recording work is applicable. (Recording and keyboard-startup example) | slice 4 | |
 | 44 | Cancel ends transcription when transcription work is applicable. (Recording and keyboard-startup example) | slice 4 | |
 | 45 | Escape ends recording when recording work is applicable. (Recording and keyboard-startup example) | slice 4 | |

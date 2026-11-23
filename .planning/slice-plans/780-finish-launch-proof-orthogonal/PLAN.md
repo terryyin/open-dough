@@ -42,6 +42,7 @@ case's prerequisites, action, and observable result.
 - GitHub Actions `ci.yml`, observer coordinator `mihiro-e0b72832`, directory `/tmp/dough-ci-501/watch-o4eLbf`, process `14663`, Codex shell session `45163`, cell `g253:20`. Shutdown was confirmed at the slice 1 stop with zero unread events. Pending CI is unobserved.
 - Slice 1 delivery rearmed the same coordinator for the story branch in `/tmp/dough-ci-501/watch-gTzJHM`, process `32161`, Codex shell session `96216`, cell `g262:89`. Trunk source freshness was confirmed at `57cd409a`.
 - Slice 1 was published at `41f3948b8` and passed GitHub Actions run `45093545949`. The viewport correction and desktop offer delivery use the same coordinator in `/tmp/dough-ci-501/watch-YI0eJX`, process `95043`, Codex shell session `60942`, cell `g277:39`. Trunk source freshness was confirmed at `9d9736778`.
+- The focused-case correction and desktop offers were published at `bfeb86d98`. Ordinary refinement delivery reuses the same live branch observer. Trunk source freshness remains unchanged at `9d9736778`.
 
 ## Current decisions
 
@@ -169,6 +170,27 @@ the workspace policy effects with wrapping and viewport coverage.
 Exact rosters, host load and run logs are under
 `open-dough/evidence/simple-launch.aZIjH7md` in the execution Git path.
 
+**Ordinary refinement tests.** The shared story-launch mount now uses
+the runner's viewport. The story's installed options are checked at
+`StoryCardLaunches`, which supplies real offers to Start execution and
+Start refinement. The Start session case observes that its own dialog
+has no refinement options. The retention and Cancel case sends the
+real selected flags through the typed callback and exercises the
+actual dialog on the unsuccessful answer. The composed refusal reason
+and boundary request remain covered by
+`e2e/launches/agent-launch-options-kept.spec.ts`, including retained flags
+after the installed definition changes. That unchanged E2E shard
+passed in CI run `45093545949`.
+
+All 21 cases in the five affected specs passed before and after. The
+focused command took 20.02 s before and 14.00 s after. The story offer
+case fell from 1.60 to 1.24 case-seconds in the focused pair and from
+1.51 to 1.05 in the full selection. The exact whole command passed 73
+cases in both runs, at 26.16 and 32.44 s. Host load rose from 9.72 to
+18.88 during the latter, and the timings supply no whole-selection
+speedup. Preserve the simpler test setup and keep the elapsed target
+open. Proof is in `open-dough/evidence/ordinary-launch.LtnaHNdg`.
+
 ## Timing evidence and decisions
 
 - The [seed evidence](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#finish-launch-proof-orthogonal)
@@ -256,18 +278,14 @@ complete launch selection to verify the shared mount's other users.
 ### 3. Refinement options keep both submission and refusal behavior
 
 Type: Behavior
-Status: planned
+Status: done
 
-Trace display through `launchOffers` and the dialog, and refusal through
-`LaunchAttemptSource.accept` and the reopened dialog. Measure the repeated
-arrangement of option choices and reopening. Use existing typed offer and
-acceptance seams to reduce incidental setup. Keep the action that exercises
-each contract: native keyboard clear, held reread, exact send, refused
-selection retained on reopen, and Cancel clearing the next open. Retain
-the Board case if it uniquely observes workflow eligibility or title
-ownership. Compare all four cases in paired runs before retaining any
-arrangement change. Mapping must preserve the refusal reason and its effect
-on the actual dialog.
+Observe story display through `launchOffers` and `StoryCardLaunches`.
+Exercise native keyboard clear, held reads, exact send, refused selection
+on reopen and Cancel in that mount. Observe the absent refinement
+options on Start session in its own dialog case. Preserve the composed
+boundary refusal and its explanation in the existing E2E. Compare all
+four option cases and the affected mount callers in paired runs.
 
 ### 4. Dismissing recording work leaves the next draft clean
 

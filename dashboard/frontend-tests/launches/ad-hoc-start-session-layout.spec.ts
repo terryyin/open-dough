@@ -46,6 +46,7 @@ test("Start session tabs from instruction through session choices and closed com
     { exact: true },
   );
   await expect.element(where).not.toBeVisible();
+  await expect.element(form.options).not.toBeInTheDocument();
   await followsTabOrder([
     form.dialog.getByRole("button", { name: "Record", exact: true }),
     form.dialog.getByRole("button", { name: "Attach images" }),

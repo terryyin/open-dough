@@ -1,14 +1,10 @@
 import { expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { offeredShape } from "../../src/commandOptions.ts";
-import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
-import { noSessions } from "../navigation/board-mount.ts";
-import { boardWork, story } from "../navigation/board-work.ts";
-import { launchOffers } from "../../src/launchOffers.ts";
-import { launchDialog, startSession } from "./ad-hoc-launch-page.ts";
+import { story } from "../navigation/board-work.ts";
+import { launchDialog } from "./ad-hoc-launch-page.ts";
 import { mountStoryLaunches } from "./story-card-launch-page.ts";
-import { mountStoryStartup } from "./story-startup-page.ts";
 
 const project = makeMe.aPublishedSource.openDough.please();
 const entry = story("Review the draft approach", 731, {
@@ -40,20 +36,12 @@ async function choices(form: ReturnType<typeof launchDialog>) {
   };
 }
 
-test("the project's refinement offer shows options only on Start refinement", async () => {
-  await mountBoardFrame(
-    boardWork([entry]),
-    { width: 1440, height: 900 },
-    "stories",
-    {
-      ...noSessions,
-      ...launchOffers(machine, true),
-    },
-  );
+test("a story's installed refinement options appear on refinement alone", async () => {
+  const { execution, refinement } = await mountStoryLaunches(entry, {
+    offerRead: { answer: machine, held: false },
+  });
   const form = launchDialog();
-  await page
-    .getByRole("button", { name: "Start execution", exact: true })
-    .click();
+  await execution.click();
   await expect
     .element(form.dialog.getByText(entry.title, { exact: true }))
     .toBeVisible();
@@ -61,15 +49,7 @@ test("the project's refinement offer shows options only on Start refinement", as
   await expect.element(optionsGroup(form)).not.toBeInTheDocument();
   await form.cancel.click();
 
-  await startSession(project.label).click();
-  await expect.element(form.dialog).toBeVisible();
-  await expect.element(form.options).not.toBeInTheDocument();
-  await expect.element(optionsGroup(form)).not.toBeInTheDocument();
-  await form.cancel.click();
-
-  await page
-    .getByRole("button", { name: "Start refinement", exact: true })
-    .click();
+  await refinement.click();
   const { a, c } = await choices(form);
   await expect.element(a).toBeVisible();
   await expect.element(c).toBeVisible();
@@ -129,12 +109,11 @@ test("a held initial read disables refinement and a held host reread submits no 
   expect(start.mock.calls[0]?.[3]).not.toHaveProperty("options");
 });
 
-test("a refused selection stays checked until Cancel and is clear when next opened", async () => {
-  const { accept, card, refinement } = await mountStoryStartup(entry, {
-    machine,
+test("Cancel clears the retained choices from a refused refinement", async () => {
+  const { refinement, start } = await mountStoryLaunches(entry, {
+    offerRead: { answer: machine, held: false },
   });
-  const explanation = "Option --c is not one the installed skill defines.";
-  accept.mockResolvedValueOnce({ kind: "failed", explanation });
+  start.mockResolvedValueOnce(false);
   const form = launchDialog();
   await refinement.click();
   const selected = await choices(form);
@@ -142,15 +121,13 @@ test("a refused selection stays checked until Cancel and is clear when next open
   await selected.c.click();
   await form.start.click();
   await expect.element(form.dialog).not.toBeInTheDocument();
-  await expect
-    .element(card.getByText(`Launch failed: ${explanation}`))
-    .toBeVisible();
-  expect(accept.mock.calls).toHaveLength(1);
-  expect(accept.mock.calls[0]?.[0]).toMatchObject({
-    identity: entry.identity,
-    workflow: "refinement",
-    options: ["--a", "--c"],
-  });
+  expect(start).toHaveBeenCalledExactlyOnceWith(
+    project.id,
+    entry,
+    "refinement",
+    expect.objectContaining({ options: ["--a", "--c"] }),
+    expect.any(Function),
+  );
 
   await refinement.click();
   const kept = await choices(form);
@@ -163,5 +140,5 @@ test("a refused selection stays checked until Cancel and is clear when next open
   await expect.element(cleared.a).not.toBeChecked();
   await expect.element(cleared.c).not.toBeChecked();
   await expect.element(cleared.none).toBeChecked();
-  expect(accept).toHaveBeenCalledTimes(1);
+  expect(start).toHaveBeenCalledTimes(1);
 });

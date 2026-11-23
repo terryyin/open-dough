@@ -14,11 +14,9 @@ export async function mountStoryLaunches(
   entry: WorkEntry,
   {
     establishesExecution = false,
-    viewport = { width: 1440, height: 900 },
     offerRead,
   }: {
     establishesExecution?: boolean;
-    viewport?: { width: number; height: number };
     offerRead?: { answer: MachineAnswer; held: boolean };
   } = {},
 ) {
@@ -66,7 +64,6 @@ export async function mountStoryLaunches(
   } satisfies StoryLaunches;
   const { rerender } = await mountComponent(
     view(entry, true, offerRead?.held ? held : launches),
-    { viewport },
   );
   const group = page.getByRole("group", { name: "Launch actions" });
   return {
