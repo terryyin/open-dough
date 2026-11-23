@@ -12,8 +12,15 @@ import {
   admitHistoricalReviewedFile,
   type AdmittedReviewedFile,
 } from "./storyReviewHistoricalFileAdmission.ts";
-import type { ReviewedFileInput } from "./storyReviewInput.ts";
-import { admitPublishedSessionFile } from "./publishedSessionReview.ts";
+import {
+  missingOriginatingComparison,
+  type ReviewedFileInput,
+} from "./storyReviewInput.ts";
+import {
+  admitPublishedSessionFile,
+  admitPublishedSessionPairFile,
+} from "./publishedSessionReview.ts";
+import { RefusedRequest } from "./localOrigin.ts";
 import { admitSessionReviewedFile } from "./storyReviewSessionFileAdmission.ts";
 import { storyWorkspace } from "./storyReviewWorkspaceAdmission.ts";
 
@@ -24,6 +31,23 @@ export async function admitReviewedFile(
   input: ReviewedFileInput,
   signal: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
+  if ("originating" in input) {
+    const { originating } = input;
+    if (originating === undefined)
+      throw new RefusedRequest(404, missingOriginatingComparison);
+    const { baseline, tree, path, oldPath, reference, completion } = input.read;
+    if (reference !== undefined || completion !== undefined)
+      throw new RefusedRequest(
+        409,
+        "This story uses its originating session's published comparison.",
+      );
+    return admitPublishedSessionPairFile(
+      originating.source,
+      [originating.range],
+      { baseline, tree, path, ...(oldPath === undefined ? {} : { oldPath }) },
+      signal,
+    );
+  }
   if ("published" in input) {
     const { subject, ...file } = input.read;
     return admitPublishedSessionFile(

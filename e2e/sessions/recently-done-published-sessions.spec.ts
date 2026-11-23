@@ -16,7 +16,7 @@ import {
 import { openReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
-  addedOnBranch,
+  closePublishedSession,
   launchSharingCheckout,
   publishedPairAdding,
   trunkAdvancedWith,
@@ -29,7 +29,6 @@ import {
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import { sessionDetailsControl } from "../../dashboard/test-support/support/sessionEntryDisclosure.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
-import { publishSessionClose } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record-publication.mjs";
 import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { defaultBacklogPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-store.mjs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -44,31 +43,6 @@ const laterFile = "after-publication.txt";
 const title = "Originating session";
 const ownEntry = standaloneSessionName("Ad hoc", title);
 const minutesAgo = (minutes: number) => Date.now() - minutes * 60_000;
-
-// An ad hoc session closed under `sessionId` whose branch adds `file`,
-// through its Dashboard launch's `landingContext` when one is given.
-async function closed(
-  origin: StartOrigin,
-  sessionId: string,
-  file: string,
-  landingContext?: string,
-) {
-  const branch = `land/${sessionId}`;
-  const machine = addedOnBranch(origin, branch, file);
-  const close = await publishSessionClose({
-    workspace: machine.workspace,
-    session: { sessionId, workflow: "ad-hoc", story: undefined },
-    ...(landingContext === undefined ? {} : { landingContext }),
-    ...makeMe.anIncrementPublication
-      .with({
-        branch,
-        targetRef: "refs/heads/main",
-        previouslyPublishedBase: machine.trunk,
-      })
-      .please(),
-  });
-  expect(close.record.status).toBe("published");
-}
 
 // This machine's ad hoc launch in the Claude session `sessionId`, Done and
 // reporting under its published record's UUID.
@@ -91,9 +65,9 @@ test("Recently done lists this machine's published session once and reviews anot
   origin,
 }) => {
   await test.step("Given another machine published an ad hoc session that adds a file", () =>
-    closed(origin, otherSession, otherFile));
+    closePublishedSession(origin, otherSession, otherFile));
   await test.step("And this machine published the ad hoc session it launched", () =>
-    closed(origin, ownSession, ownFile));
+    closePublishedSession(origin, ownSession, ownFile));
   await test.step("And trunk moves on after both records", async () => {
     await publishCommittedOrigin(page, {
       repoDir: origin.origin,
@@ -202,19 +176,16 @@ test("Recently done warns that another machine's published session may include a
   origin,
 }) => {
   await test.step("Given another machine closed a session while another session was open in its checkout", async () =>
-    closed(
-      origin,
-      sharedSession,
-      sharedFile,
-      await launchSharingCheckout(
+    closePublishedSession(origin, sharedSession, sharedFile, {
+      landingContext: await launchSharingCheckout(
         origin,
         page,
         sharedSession,
         new Date(minutesAgo(60)),
       ),
-    ));
+    }));
   await test.step("And it closed another session in a checkout of its own", () =>
-    closed(origin, otherSession, otherFile));
+    closePublishedSession(origin, otherSession, otherFile));
   await test.step("And trunk moves on after both records", async () => {
     await publishCommittedOrigin(page, {
       repoDir: origin.origin,

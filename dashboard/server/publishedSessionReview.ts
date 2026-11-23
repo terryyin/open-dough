@@ -1,4 +1,4 @@
-// A standalone session's review read from its published close record: the
+// A session's review read from its published close record: the
 // UUID resolves through the configured project's published revision, and the
 // recorded pair is read from that project's Git objects alone. No launch
 // history is needed. A record is read as valid only at its own UUID's path,
@@ -30,6 +30,8 @@ export interface PublishedSessionSource {
   readonly revision: string;
   readonly backlogPath: string;
 }
+
+export type PublishedSessionRange = PublishedSessionRecord["ranges"][number];
 
 const unknownSession = () =>
   new RefusedRequest(404, "This project published no such session.");
@@ -76,7 +78,7 @@ export async function publishedSessionRecord(
 // objects.
 const recordedPairFiles = (
   source: PublishedSessionSource,
-  { base, candidate }: PublishedSessionRecord["ranges"][number],
+  { base, candidate }: PublishedSessionRange,
   signal: AbortSignal,
 ) =>
   retainedCommitPairFiles(
@@ -107,6 +109,27 @@ export async function publishedSessionReview(
 ): Promise<StoryReview> {
   const record = await publishedSessionRecord(source, session, now, signal);
   const range = selectedRange(record, run);
+  const review = await reviewPublishedSessionRange(
+    source,
+    range,
+    record.closedAt,
+    signal,
+  );
+  if (review.kind !== "published-session" || record.ranges.length === 1)
+    return review;
+  return {
+    ...review,
+    ranges: record.ranges.length,
+    selectedRun: String(record.ranges.indexOf(range)),
+  };
+}
+
+export async function reviewPublishedSessionRange(
+  source: PublishedSessionSource,
+  range: PublishedSessionRange,
+  closedAt: string,
+  signal: AbortSignal,
+): Promise<StoryReview> {
   const read = await recordedPairFiles(source, range, signal);
   if ("missing" in read)
     return {
@@ -123,15 +146,9 @@ export async function publishedSessionReview(
   return {
     kind: "published-session",
     session: {
-      closedAt: record.closedAt,
+      closedAt,
       ...(range.uncertainty === sharedCheckoutUncertainty && { shared: true }),
     },
-    ...(record.ranges.length === 1
-      ? {}
-      : {
-          ranges: record.ranges.length,
-          selectedRun: String(record.ranges.indexOf(range)),
-        }),
     baseline: range.base,
     tree: range.candidate,
     files: read.files,
@@ -148,7 +165,16 @@ export async function admitPublishedSessionFile(
   signal: AbortSignal,
 ): Promise<AdmittedReviewedFile> {
   const record = await publishedSessionRecord(source, session, now, signal);
-  const range = record.ranges.find(
+  return admitPublishedSessionPairFile(source, record.ranges, file, signal);
+}
+
+export async function admitPublishedSessionPairFile(
+  source: PublishedSessionSource,
+  ranges: readonly PublishedSessionRange[],
+  file: HistoricalReviewedFileFields,
+  signal: AbortSignal,
+): Promise<AdmittedReviewedFile> {
+  const range = ranges.find(
     ({ base, candidate }) => base === file.baseline && candidate === file.tree,
   );
   const read =

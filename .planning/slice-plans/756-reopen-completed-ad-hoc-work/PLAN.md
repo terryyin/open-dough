@@ -229,11 +229,13 @@ the single Done catalog row from A. The pinned listing and mounted Board
 prove both UUIDs, one kept native entry per UUID, the independent older
 record and exact per-session review. See `slice-5-implementation.md` in the
 worktree's Git evidence directory.
+The independent review and delivery fixture checks are retained as
+`slice-5-refactor.md` and the `slice-5-delivery-*` proof records.
 
 ### 6. Intent reads the Done story's originating comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: choose a published ad hoc Done story in a second clone after
 trunk has advanced → Intent opens on A's recorded changes. Opening a file
@@ -246,6 +248,14 @@ file from another clone after an unrelated trunk change. Read a prior
 standalone session through its existing row in that fixture. Exercise the
 local-only gap through the same story-opening boundary. Preserve historical
 review for selected Done stories and reject a file outside the admitted pair.
+
+The real second clone opens the Done story in Intent after further trunk
+edits, stays selected, displays the recorded shared-checkout warning and
+reads only the originating addition. The same journey opens the historical
+standalone file. A separate local-only story displays the missing published
+comparison. Typed overview, diff and text share the admitted original pair
+and refuse another pair or file. See `slice-6-implementation.md` in the
+worktree's Git evidence directory.
 
 ### 7. Recently done surfaces conflicting story association
 
@@ -264,6 +274,9 @@ candidate from another project or a stale choice cannot attach the session.
 Until this slice delivers the choice, ambiguous membership stays unresolved.
 Read the clicked row's own project's published association when its Board
 snapshot is absent, so the sidebar and Board reach the same decision.
+Keep the original Done attachment and the saved choice through late native
+updates, session replacement and rebinding. Observe those write paths with
+older native data after the current attachment or choice was saved.
 
 ## Local gates and review
 
@@ -308,6 +321,11 @@ snapshot is absent, so the sidebar and Board reach the same decision.
   See [the repair record](diagnosis-done-session-locator.md).
 - Slice 4 was accepted at `8fde90438b7359a391fe91a6223e2c8629466bca`
   on that branch and observer after full local lint and follow-up proof.
+- Slice 5 was accepted at `81055d1c345da92ecef21ee586d022a8d476e2bd`
+  on that branch and observer.
+- The Codex lifetime fixture repair was accepted at
+  `60ed6f6c38362950db8c559cb3ca739a715114ee` on that branch and observer.
+  See [the repair record](diagnosis-codex-deletion-connection.md).
 
 ## Story obligations
 
@@ -315,4 +333,10 @@ snapshot is absent, so the sidebar and Board reach the same decision.
 
 Reported: slice 5 — "A retained row from another project can fall back to claim history when its own published snapshot is not shown, missing an association named by its published session record."
 Story clause: "In Recently done sessions, choosing a new ad hoc Done row selects its Done story, as a linked row does."
+Disposition: receiving slice 7
+
+### G2. A late native write can drop the saved story attachment
+
+Reported: slice 5 — "The Codex repair traced native continuation updates to updateRecord, which preserves doneAt and doneProblem but spreads a stale record without the newer doneStory. replaceKeptSession has the same omission."
+Story clause: "Marking an ad hoc session Done with no story creates a Done story and attaches the session to it."
 Disposition: receiving slice 7
