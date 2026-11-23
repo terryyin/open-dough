@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-345#start-implementers-from-a-role-sized-tool-set",
+  "title": "Start dashboard Claude Code sessions without the Artifact tool",
+  "completedAt": "2026-11-23T12:14:45.415Z",
+  "developer": "Terry Yin",
+  "agent": "Mana-chan",
+  "host": "claude"
+}

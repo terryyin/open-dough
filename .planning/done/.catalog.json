@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-345_start-implementers-from-a-role-sized-tool-set.json",
+      "identity": "SEED-345#start-implementers-from-a-role-sized-tool-set",
+      "completedAt": "2026-11-23T12:14:45.415Z",
+      "blob": "7d16544d505b3e9489fb2193ac51582e02a1b0d1"
+    },
+    {
       "fileName": "SEED-413_speed-story-comparison-frontend-proof.json",
       "identity": "SEED-413#speed-story-comparison-frontend-proof",
       "completedAt": "2026-11-23T10:59:47.270Z",
