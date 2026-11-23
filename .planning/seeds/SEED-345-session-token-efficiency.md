@@ -220,28 +220,64 @@ re-reading cached input. The trial tests both risks under
 
 **Identity:** SEED-345#wait-for-codex-workers-with-fewer-model-wakeups
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/796-wait-for-codex-workers-with-fewer-model-wakeups/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"05e9b75e7040d36808b281aa6cc678e2e3a34d200f031edaae7b1b238f550fc4","plan":"b78aa733b47f38bf393ce34b50c246c772ff928e581aa9917f488e8d22266281"}}
 ```
 
-- **Outcome.** A Codex coordinator can wait for a delegated implementation,
-  refactor or repair to return without repeatedly restarting model work
-  on timeouts that bring no new result. It still acts on the worker's
-  handback, an overdue verification, or a deadline in time.
-- **Evaluation.** Compare representative long worker waits with the retained
-  `wait_agent` baseline at matched model, effort, and worker responsibilities.
-  Count timeout wakeups, coordinator and worker usage through acceptance,
-  handback latency, missed outcomes, and human interventions. Adopt a
-  candidate only if combined usage falls and completion and recovery
-  remain reliable. The prior delegation experiment reduced wakes in one
-  wait but increased combined effort.
-- **Evidence and effort.** The November 21–22 Board and Side panel proof and
-  launch proof executions recorded 126 and 111 timed-out `wait_agent`
-  calls. An earlier execution on 0.3.106 recorded 166. Medium, low confidence
-  until a viable host mechanism is demonstrated. This trial concerns
-  delegated worker completion. The released shell and CI wait and the
-  queued supplier-watch evaluation have separate scopes.
-  [Foreground-wait release](../../CHANGELOG.md#03107---2026-11-19) ·
-  [Supplier-watch evaluation](SEED-389-verify-silent-supplier-wait.md)
+**Goal.** A developer relying on a Codex coordinator gets timely results
+from delegated work with fewer model requests spent waiting and lower
+combined coordinator and worker effort through acceptance.
+
+**Scope.** Compare the current short `wait_agent` cadence with a native wait
+bounded by the earliest existing reason to act. Keep the same workers,
+responsibilities, proof, approvals and recovery in both arms. Use an isolated
+native probe for completion and overdue recovery, then a matched pair on
+representative long delegated work. Measure distinct empty wake requests,
+fresh and cached input and output for both roles, handback latency, missed
+outcomes and human interventions. Judge proof and timely handling first.
+Adopt the candidate for the observed profile only if empty wakes and combined
+effort both fall and completion and recovery remain reliable.
+
+The November 21–22 rollout recheck found 126 timeout receipts in one Codex
+0.171.0 coordinator and 121 in another. A file with 111 receipts contained
+inherited coordinator history, so it supplies no independent baseline.
+The earlier [native delegation candidate](https://github.com/terryyin/open-dough/blob/70db7200e/.planning/slice-plans/714-get-long-verification-results-without-empty-wakes/candidate.md)
+still woke at 60 seconds and cost 28.6% more combined effort in one matched
+success journey. A lower wake count can still lose through worker effort or
+fresh context on resume. Historical counts establish exposure. The matched
+control supplies the comparison.
+
+Defer cross-host qualification, package release and host changes. The
+[released shell and CI wait](../../CHANGELOG.md#03107---2026-11-19) and
+[supplier-watch evaluation](SEED-389-verify-silent-supplier-wait.md) cover
+different events and retain their own lifecycles.
+
+**Key examples.**
+
+- A native worker is still running beyond the short wait cadence and the
+  next check is later → the coordinator waits for that worker → its handback
+  arrives before the due check and is accepted once with the same proof.
+- Required worker proof is still pending at its expected check or before
+  relevant CI coverage lapses → the existing due action wins the wait → the
+  coordinator inspects the original owned command and continues it or returns
+  the specific unfinished obligation and recovery owner.
+- A supported host return arrives early or a deadline expires → the
+  coordinator resumes the same pending work against its original due time or
+  applies the deadline procedure. The wait itself provides no proof verdict.
+- The matched pair completes with fewer timeout wakes but higher combined
+  effort, or misses a handback or due action → reject the candidate. Missing
+  comparable exposure or reliable accounting makes the trial inconclusive.
+
+**Architecture.** Borrow a condition-variable wait. The native worker's
+handback is the state change and the coordinator's existing due time bounds
+the wait. An early return rechecks the same worker and deadline. The analogy
+ends at the host boundary, where tool schema and a requested duration give
+no guarantee about the effective wait or the events it delivers. Qualify the
+native path before changing guidance. Keep the rule in the existing
+[delegation reference](../../Distribution/src/skills/dough-execute-plan/references/delegation.md#await-delegated-results-without-empty-calls),
+with worker results owned by the host and overdue verification judgment owned
+by the coordinator. [ADR 0005 — Native validation and A/B testing](../../docs/adrs/0005-cross-tool-validation-accepted.md),
+[ADR 0006 — Write skills for executing agents](../../docs/adrs/0006-write-skills-for-executing-agents-accepted.md),
+[ADR 0010 — Definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
 ## Ordering and scope reduction
 
