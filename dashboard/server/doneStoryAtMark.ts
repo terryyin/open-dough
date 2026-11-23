@@ -1,6 +1,7 @@
 // Read existing membership before the record lock, then apply it to the same
 // retained launch when its Done time is saved.
 import { adHocStoryIdentity } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { followUpStoryIdentity } from "../src/followUpRequest.ts";
 import { landingReportingReference } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import { sessionKey } from "../src/sessionReference.ts";
@@ -17,7 +18,7 @@ function needsStoryAssociation(record: LaunchRecord): boolean {
   return (
     request.workflow === "ad-hoc" &&
     record.doneStory === undefined &&
-    !(request.followUp !== undefined && "story" in request.followUp)
+    followUpStoryIdentity(request) === undefined
   );
 }
 

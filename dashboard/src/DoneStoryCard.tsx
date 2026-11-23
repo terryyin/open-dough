@@ -56,6 +56,7 @@ export function DoneStoryCard({
   launchRecords,
   selected,
   onSelect,
+  sessionFollowUp,
   followUp,
   ciFollowUp,
   reviewState,
@@ -76,6 +77,8 @@ export function DoneStoryCard({
   readonly sourceId: string;
   readonly selected: boolean;
   readonly onSelect: (identity: string) => void;
+  readonly sessionFollowUp?:
+    ((record: LaunchWithState) => ReactNode) | undefined;
   // The story's Follow up, when it offers one.
   readonly followUp?: ReactNode;
   readonly ciFollowUp?: ReactNode;
@@ -137,6 +140,7 @@ export function DoneStoryCard({
         sessions={nested}
         className="done-story-sessions"
         onStoryCard={false}
+        followUpFor={sessionFollowUp}
       />
       <div
         className="story-card-action-group story-card-inspection-group"

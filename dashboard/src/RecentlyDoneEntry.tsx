@@ -6,6 +6,7 @@
 // until its record is read, what it says instead.
 
 import type { CataloguedDoneRecord } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
+import { adHocStorySessionId } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { MachineSessions } from "./agentLaunches.ts";
 import { CiFollowUpCard } from "./CiFollowUpViews.tsx";
 import type { CiFollowUpAnswer } from "./ciFollowUp.ts";
@@ -115,6 +116,18 @@ export function ListedEntry({
       launchRecords={launches.records}
       selected={selectedIdentity === identity}
       onSelect={onSelect}
+      sessionFollowUp={
+        adHocStorySessionId(identity) === undefined
+          ? undefined
+          : (record) => (
+              <SessionFollowUp
+                record={record}
+                project={project}
+                sourceId={sourceId}
+                launches={launches}
+              />
+            )
+      }
       ciFollowUp={
         <CiFollowUpCard
           answer={ciFollowUps}
@@ -126,10 +139,10 @@ export function ListedEntry({
         <StoryReviewStateAction identity={identity} states={reviewStates} />
       }
       followUp={
-        detail?.status === "read" && (
+        story !== undefined && (
           <StoryFollowUp
-            story={detail.story}
-            revision={revision}
+            story={story}
+            revision={published === undefined ? undefined : revision}
             sessions={sessions}
             project={project}
             sourceId={sourceId}

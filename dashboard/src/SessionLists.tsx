@@ -39,6 +39,7 @@ export function StorySessions({
   onStoryCard,
   launchedHere,
   storyCardAssignments,
+  followUpFor,
 }: {
   // The story's sessions, oldest first.
   readonly sessions: readonly LaunchWithState[];
@@ -46,6 +47,7 @@ export function StorySessions({
   readonly onStoryCard: boolean;
   readonly launchedHere?: string | undefined;
   readonly storyCardAssignments?: readonly AgentAssignment[] | undefined;
+  readonly followUpFor?: ((record: LaunchWithState) => ReactNode) | undefined;
 }) {
   if (sessions.length === 0) return null;
   return (
@@ -57,6 +59,7 @@ export function StorySessions({
             onStoryCard={onStoryCard}
             takesFocus={launchedHere === sessionKey(record.session)}
             storyCardAssignments={storyCardAssignments}
+            followUp={followUpFor?.(record)}
           />
         </li>
       ))}

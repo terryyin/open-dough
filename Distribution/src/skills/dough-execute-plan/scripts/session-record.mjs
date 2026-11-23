@@ -34,8 +34,17 @@ export function isSessionId(value) {
   );
 }
 
+const adHocStoryPrefix = "ad-hoc#";
+
 export function adHocStoryIdentity(sessionId) {
-  return isSessionId(sessionId) ? `ad-hoc#${sessionId}` : undefined;
+  return isSessionId(sessionId) ? `${adHocStoryPrefix}${sessionId}` : undefined;
+}
+
+/** @param {string} identity */
+export function adHocStorySessionId(identity) {
+  if (!identity.startsWith(adHocStoryPrefix)) return undefined;
+  const sessionId = identity.slice(adHocStoryPrefix.length);
+  return isSessionId(sessionId) ? sessionId : undefined;
 }
 
 export function adHocCloseTitle(workflow, title) {

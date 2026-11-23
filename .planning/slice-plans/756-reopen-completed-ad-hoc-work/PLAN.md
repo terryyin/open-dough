@@ -170,11 +170,13 @@ Recently done sessions row and bookmark, with the report still open through
 published card replacement. The placement test keeps a Done follow-up
 under its Taken identity. The commands and observations are in
 `slice-3-implementation.md` in the worktree's Git evidence directory.
+The independent review shared the local Done window and card facts between
+their callers and repeated the affected checks in `slice-3-refactor.md`.
 
 ### 4. A follow-up keeps its parent story and gets a session of its own
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: follow up from the Done card or its attached session → B starts
 with its own UUID and the same story identity. A published card supplies the
@@ -187,6 +189,13 @@ separate Done card.
 to observe the launch request and the transition into the parent card when B
 is marked Done. Cover a local source through the follow-up admission, and
 preserve the contexts sent by both follow-up actions.
+
+The mounted cases start follow-ups through published and local cards and an
+attached session, then place the closed follow-up beside the original. The
+real server cases verify the new UUID, parent story, both context forms,
+invalid source refusal and both Land handoffs. Anchored follow-up cases
+preserve their comparison contexts. See `slice-4-implementation.md` in the
+worktree's Git evidence directory.
 
 ### 5. Recently done groups published sessions on a second machine
 
@@ -276,3 +285,8 @@ Until this slice delivers the choice, ambiguous membership stays unresolved.
   Its diagnosis is in [the repair record](diagnosis-close-return-type.md).
 - Slice 2 was accepted at `4e6477942e6113092b62cbdfac1ac1ef98a4cfc1`
   on that branch and observer after full local lint and focused lifecycle proof.
+- Slice 3 was accepted at `95a8bbaa766d361aa936f147558bed184d6f0e3f`
+  on that branch and observer.
+- The native Done locator repair was accepted at
+  `fa1ab88e2f9724a3b4ac186aa4c65fe3f4c07680` on that branch and observer.
+  See [the repair record](diagnosis-done-session-locator.md).

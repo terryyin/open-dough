@@ -19,6 +19,7 @@
  *   sessionCommitsFailedAt?: string,
  *   branchResult?: StatedBranchResult,
  *   branchResultFailedAt?: string,
+ *   doneStory?: LaunchRecord["doneStory"],
  * }} DoneCapture
  */
 
@@ -26,6 +27,15 @@
 export class LaunchDoneCaptureBuilder {
   /** @type {DoneCapture} */
   #capture = {};
+
+  /** A local story the original session's Done created. @param {{ identity: string, title: string, completedAt: string }} story */
+  originatedDoneStory(story) {
+    this.#capture = {
+      ...this.#capture,
+      doneStory: { kind: "originating", ...story },
+    };
+    return this;
+  }
 
   /**
    * The commits the session made in its Default main checkout, kept at Done:
@@ -78,8 +88,10 @@ export class LaunchDoneCaptureBuilder {
       sessionCommitsFailedAt,
       branchResult,
       branchResultFailedAt,
+      doneStory,
     } = this.#capture;
     return {
+      ...(doneStory !== undefined && { doneStory: { ...doneStory } }),
       ...(sessionCommitsFailedAt !== undefined && { sessionCommitsFailedAt }),
       ...(sessionCommits && {
         sessionCommits: {

@@ -1,5 +1,6 @@
 // Explicit reports use an accepted launch's identity, never the newest story session.
 import type { IncomingMessage } from "node:http";
+import { followUpStoryIdentity } from "../src/followUpRequest.ts";
 import type { EstablishedContext } from "../src/launchRecord.ts";
 import type { EstablishedSession } from "../src/unattachedSession.ts";
 import { defaultGitOutputLimit, runGit } from "./gitRunner.ts";
@@ -51,8 +52,9 @@ export async function reportingContext(
   let landingContext: string | undefined;
   let landingRepository: LandingRepository | undefined;
   // Every established start, preparation or unattached session names its
-  // trunk target; only a story's names an identity.
-  const identity = establishedStory(established);
+  // trunk target. An ad hoc follow-up carries the story resolved at admission.
+  const identity =
+    establishedStory(established) ?? followUpStoryIdentity(attempt.request);
   if (
     landingModule !== undefined &&
     established !== undefined &&

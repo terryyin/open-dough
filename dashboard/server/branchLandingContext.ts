@@ -1,5 +1,6 @@
 // The explicit handoff gives the installed publisher a context for this launch.
 import { randomUUID } from "node:crypto";
+import { followUpStoryIdentity } from "../src/followUpRequest.ts";
 import type { LandingReporting } from "../src/launchLanding.ts";
 import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { SessionBranchEntry } from "../src/sessionBranchResult.ts";
@@ -69,12 +70,14 @@ export async function branchLandingContext(
   const entry = record.branchEntry;
   if (entry?.trunk === undefined || record.doneAt !== undefined)
     return undefined;
+  const identity = followUpStoryIdentity(record.request);
   const authority = {
     repository: entry.repository,
     workspace: entry.workspace,
     branch: entry.branch,
     remote: entry.trunk.remote,
     target: entry.trunk.target,
+    ...(identity === undefined ? {} : { identity }),
   };
   const host = record.session.host;
   const files = await copyReportingFiles(
@@ -84,7 +87,7 @@ export async function branchLandingContext(
   ).catch(() => undefined);
   if (
     files?.landingModule === undefined ||
-    !(await acceptsStoryless(files.landingModule))
+    (identity === undefined && !(await acceptsStoryless(files.landingModule)))
   )
     return undefined;
   const file = await writeLandingContext(

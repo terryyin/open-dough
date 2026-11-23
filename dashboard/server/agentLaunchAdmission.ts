@@ -135,6 +135,9 @@ async function launchRequest(req: IncomingMessage): Promise<Admitted> {
     (request.maintenance !== undefined ||
       request.followUp?.context !== undefined ||
       (request.followUp !== undefined &&
+        "storyIdentity" in request.followUp &&
+        request.followUp.storyIdentity !== undefined) ||
+      (request.followUp !== undefined &&
         "notes" in request.followUp &&
         request.followUp.notes !== undefined))
   ) {

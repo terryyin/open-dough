@@ -1,6 +1,6 @@
 // What a Start session request names when it follows up an entry in Recently
 // done (`./followUpContext.ts` composes the context): the source it follows
-// up, a retained session or a done story at the revision the page showed it,
+// up, a retained session or a done story from this machine or a pinned revision,
 // optionally a file and line on that story's comparison, and, once the server
 // resolved it at admission, the context text it sends
 // (`../server/followUpAdmission.ts`). A page names only the source; one
@@ -11,6 +11,10 @@
 
 import { z } from "zod";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
+import type {
+  AgentLaunchRequest,
+  RecordedLaunchRequest,
+} from "./launchRequest.ts";
 import { objectIdSchema, reviewedPathSchema } from "./storyReviewFiles.ts";
 import { sessionHostSchema, sessionKey } from "./sessionReference.ts";
 
@@ -48,14 +52,16 @@ const followUpFileSchema = z
       });
   });
 
-const followUpStorySchema = z.strictObject({
-  identity: z.string().min(1).max(200),
-  // The published revision whose done record the page showed.
-  revision: z.string().regex(commitShaPattern),
-  file: followUpFileSchema.optional(),
-  // Attach waiting notes from the machine store at admission.
-  notes: z.literal(true).optional(),
-});
+const followUpStorySchema = z
+  .strictObject({
+    identity: z.string().min(1).max(200),
+    // The published revision whose done record the page showed, absent for a local card.
+    revision: z.string().regex(commitShaPattern).optional(),
+    file: followUpFileSchema.optional(),
+    // Attach waiting notes from the machine store at admission.
+    notes: z.literal(true).optional(),
+  })
+  .refine(({ revision, file }) => revision !== undefined || file === undefined);
 
 // The context resolved from the records at Start, kept so a retry, a
 // recovery or a rebuilt input resends it without reading again.
@@ -73,7 +79,12 @@ const attachedNotes = z
 
 export const followUpSchema = z.union([
   // One retained session of the project.
-  z.strictObject({ session: followUpSessionSchema, context: resolvedContext }),
+  z.strictObject({
+    session: followUpSessionSchema,
+    context: resolvedContext,
+    // A session keeps its source context. Admission records its parent separately.
+    storyIdentity: z.string().min(1).max(200).optional(),
+  }),
   // One done story of the project, with the sessions its card holds.
   z.strictObject({
     story: followUpStorySchema,
@@ -94,6 +105,14 @@ export type AttachedStoryNote = NonNullable<
 export type FollowUpSource =
   | { readonly session: z.infer<typeof followUpSessionSchema> }
   | { readonly story: z.infer<typeof followUpStorySchema> };
+
+export function followUpStoryIdentity(
+  request: AgentLaunchRequest | RecordedLaunchRequest,
+) {
+  const followUp = request.workflow === "ad-hoc" ? request.followUp : undefined;
+  if (followUp === undefined) return undefined;
+  return "story" in followUp ? followUp.story.identity : followUp.storyIdentity;
+}
 
 function followUpFileKey(file: FollowUpFile): string {
   const comparison =
