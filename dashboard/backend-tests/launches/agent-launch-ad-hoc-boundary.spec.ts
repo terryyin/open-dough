@@ -77,6 +77,9 @@ test.describe(`agent launch boundary, ad hoc`, () => {
       `Open Dough · Ad hoc · ${label}`,
       "--effort",
       "medium",
+      "--disallowedTools",
+      "Artifact",
+      "--",
       text,
     ]);
     expect(record.request).toMatchObject({

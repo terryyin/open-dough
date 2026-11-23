@@ -44,13 +44,29 @@ developers start themselves are excluded.
 ### 1. Dashboard Claude launches withhold the Artifact tool
 
 Type: Behavior
-Status: planned
+Status: done
 
 Pass `--disallowedTools Artifact --` before the instruction in every
 dashboard `claude --bg` launch, and update the launch boundary cases.
 
 **Proof.** The two launch boundary specs pass with the new argv and fail
 without the flag.
+
+**Accepted proof (2026-11-23).** `npm run test:dashboard:backend --
+dashboard/backend-tests/launches/` exits 0. Against the pre-change runtime,
+the `agent-launch-boundary`, `agent-launch-model-boundary` and
+`agent-launch-ad-hoc-boundary` cases fail; with it they pass. Typecheck and
+lint pass.
+
+**Learnings.** The ad hoc boundary spec also pins the argv. The shared
+`claudeLaunch` reader read `--` as an option and lost the instruction, so it
+now treats `--` as the end of options. `scripts/test.sh` takes files only;
+dashboard specs run through `npm run test:dashboard:backend -- <paths>`.
+
+**Refactor follow-up.** Three follow-up launch specs
+(`agent-launch-follow-up-boundary`, `-file`, `-identity`) read the
+instruction as `argv.at(-1)`; reading it through `claudeLaunch` would drop
+that position dependence. Settle at wrap-up.
 
 ## Plan review
 
@@ -62,6 +78,6 @@ No remaining slice-specific concern.
 - On AC power, run tests under `caffeinate -s -i` with
   `env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR`, as
   [machine sleep on macOS](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
-  describes. Run `bash scripts/test.sh dashboard/backend-tests/launches/`,
-  then `npm run typecheck:dashboard` and `npm run lint`. Keep default
+  describes. Run
+  `npm run test:dashboard:backend -- dashboard/backend-tests/launches/`, then `npm run typecheck:dashboard` and `npm run lint`. Keep default
   timeouts; never `test.slow()`.

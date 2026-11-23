@@ -137,6 +137,9 @@ test.describe(`agent launch boundary, chosen model`, () => {
       "opus",
       "--effort",
       "high",
+      "--disallowedTools",
+      "Artifact",
+      "--",
       `/dough-execute-plan ${identity}\n\ngo`,
     ]);
     expect(record.request).toEqual(request);

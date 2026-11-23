@@ -53,8 +53,8 @@ function execClaude(
 }
 
 // `claude --bg --name <name> [--model <alias>] [--effort <level>]
-// [<instruction>]` in the project folder: one background session, whose short
-// id it prints. With no instruction the session starts without a first prompt;
+// --disallowedTools Artifact [-- <instruction>]` in the project folder: one
+// background session, whose short id it prints. With no instruction the session starts without a first prompt;
 // with no model, Claude Code's own model setting applies. A new launch always
 // records an effort (`../../agentLaunchAccept.ts`); only an attempt recorded
 // without one starts at Claude Code's own effort setting. A passed effort
@@ -80,7 +80,12 @@ export function startClaudeInBackground(
       name,
       ...(model === undefined ? [] : ["--model", model]),
       ...(effort === undefined ? [] : ["--effort", effort]),
-      ...(instruction === undefined ? [] : [instruction]),
+      // Without the Artifact tool's definition the session and the workers it
+      // starts carry a smaller tool set. The tool list takes several values,
+      // so `--` ends it before the instruction.
+      "--disallowedTools",
+      "Artifact",
+      ...(instruction === undefined ? [] : ["--", instruction]),
     ],
     folder,
     signal,

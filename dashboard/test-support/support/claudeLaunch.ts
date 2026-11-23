@@ -1,5 +1,5 @@
 // One `claude --bg` launch the fake recorded, as tests read it: each option
-// by name and the instruction, wherever the command line places them. A test
+// by name, and the instruction after the `--` that ends the options. A test
 // about one of them reads that one; the whole command line is the subject of
 // the boundary specs alone (../../backend-tests/launches/agent-launch-boundary.spec.ts
 // and its ad hoc sibling).
@@ -20,11 +20,11 @@ export function claudeLaunch(call: ClaudeCall): ClaudeLaunch {
   const rest = call.argv.slice(1);
   for (let at = 0; at < rest.length; at += 1) {
     const word = rest[at] ?? "";
-    if (word.startsWith("--") && at + 1 < rest.length) {
-      options.set(word, rest[(at += 1)] ?? "");
-    } else {
-      instruction = word;
+    if (word === "--") {
+      instruction = rest[at + 1];
+      break;
     }
+    options.set(word, rest[(at += 1)] ?? "");
   }
   const named = (key: "name" | "model" | "effort") => {
     const value = options.get(`--${key}`);
