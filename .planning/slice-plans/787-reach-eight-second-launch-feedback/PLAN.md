@@ -2,6 +2,7 @@
 
 **Identity:** SEED-413#reach-eight-second-launch-feedback
 **Source:** [Bring launch test feedback to about eight seconds](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#reach-eight-second-launch-feedback)
+**Source review:** [source-review.md](source-review.md)
 
 ## Goal and scope
 
@@ -80,6 +81,20 @@ Exclude unrelated test families, new E2E cases, and a change in worker count.
   Run the installed consumer trace on changed paths and terms, including
   unaffected tests that read the changed behavior. Before landing any test
   change, apply MakeMe and page-object selection from the repository guidance.
+- **Route after Slice 1 (2026-11-23).** Slice 1's runner logging
+  (execution evidence `slice-1-report.md`) showed that the premise "at least
+  6.5 case-seconds" omitted non-case overhead: 14.2 s − 22.5/2 leaves 2.95 s,
+  mostly per-file prepare and import (about 6.3 aggregate s), so eight
+  seconds needs about 12.4 case-seconds removed. Slices 3–7 are now
+  estimated at 4.4–6.4, ending near 10.2–10.6 s. That leaves the case
+  slices' value intact but makes the target depend on shared overhead,
+  which the story's scope lets this plan measure and reduce. The former
+  runner-parse Slice 7 is therefore widened into Slice 2, which runs
+  first because it decides whether eight seconds stays credible. If
+  Slice 2 cannot show enough removable overhead, the case slices continue
+  for their measured gains and Slice 8 brings the remaining gap and a
+  re-target decision to the maintainer, as the story's Evaluation directs.
+  Timing comparisons stay relative until an uncontended series is possible.
 
 ## Local gates and timing
 
@@ -123,19 +138,19 @@ accepted increments and record incomplete target proof.
 | Promise | Owner and observation |
 | --- | --- |
 | Complete launch feedback in about eight seconds with two workers | Slices 1 and 8. Strict focused-group runs, exact roster and shell real time over both pairs. |
-| Refinement offer gating and reload, No Approach, refusal/reopen/Cancel, and exact start arguments | Slice 2. The card still sees held/reread offers and the real launcher still submits and resets through its real dialog. |
-| Desktop offers, notes and action order, native hover, keyboard focus and return, contrast | Slice 3. Observe both offers in desktop Chromium, with the current markup, CSS and focus signals. |
-| Narrow and zoomed geometry, responsive workspace policies, touch and real keyboard reachability | Slice 4. Run the launch layout and touch witnesses and keep the native policy/input and geometry observations. |
-| Dictation, transcription, and the draft after interruption | Slice 5. Retain both Cancel and Escape, track/request disposal, and the next draft after late results. |
-| Host defaults, effort and dismissals on the shared and composed launch entries | Slice 6. Verify actual dialog state and chosen launch across its callers. |
-| Runner preparation changes preserve selection, isolation, project assignments, and proof output | Slice 7 if changed. Full frontend gate, exercised runner modes, and affected shared consumers. |
+| Refinement offer gating and reload, No Approach, refusal/reopen/Cancel, and exact start arguments | Slice 3. The card still sees held/reread offers and the real launcher still submits and resets through its real dialog. |
+| Desktop offers, notes and action order, native hover, keyboard focus and return, contrast | Slice 4. Observe both offers in desktop Chromium, with the current markup, CSS and focus signals. |
+| Narrow and zoomed geometry, responsive workspace policies, touch and real keyboard reachability | Slice 5. Run the launch layout and touch witnesses and keep the native policy/input and geometry observations. |
+| Dictation, transcription, and the draft after interruption | Slice 6. Retain both Cancel and Escape, track/request disposal, and the next draft after late results. |
+| Host defaults, effort and dismissals on the shared and composed launch entries | Slice 7. Verify actual dialog state and chosen launch across its callers. |
+| Runner preparation changes preserve selection, isolation, project assignments, and proof output | Slice 2 if changed. Full frontend gate, exercised runner modes, and affected shared consumers. |
 | Typed creation, launch record association, composed startup/notes, and existing E2E wiring | Slice 8. Whole launch roster and evidence for any affected composed consumers from the trace. |
 
 ## Slices
 
 ### 1. Measure the launch selection's current bottleneck
 Type: Structure
-Status: planned
+Status: done
 
 Reestablish an uncontended same-checkout baseline using the local gate and
 pin its source revision. Capture shell time, case and file sums, worker tail,
@@ -150,7 +165,57 @@ phase evidence remain unavailable, hold the affected measurement-dependent
 work and record the exact missing observation. This enables the first
 bounded proof optimization without depending on the noisy planning run.
 
-### 2. Shorten the refinement choices and refusal checks
+**Slice 1 results** (at `e84c8b67b`, AC, M4 Max, Node 24.21.0, Vitest 5.1.0,
+two workers; load never healthy: 1-min load 21–94 with external stress).
+Roster: 77 cases in 24 files, 67 `chromium` and 10 `chromium-desktop`
+(offers and startup). Measured shell 16.30–21.81 s with case sums
+24.6–30.9 s (stressed runs 35 s/41 s excluded). Phase split from runner
+logging, now removed: npm/node 0.26–0.36 s, `createVitest` 0.62–0.79 s,
+glob 0.01 s, `parseSpecifications` 0.07–0.40 s, run 17.7–20.0 s, close
+0.04–0.20 s. Inside the run, browser launch is ~0.8–1.5 s (inferred
+residual). Per-file prepare+import adds ~6.3 aggregate s, including
+~1.6 s for the first file in each project. Lanes differ by 0.26–0.52 s,
+so packing is not the bottleneck. Family case sums from m2, m3 and i1:
+refinement 5.2–6.5 (refusal/Cancel 1.3–2.1), offers 3.0–4.6 (hover notes 1.2–2.1),
+responsive 3.7–4.0 (both policies 1.1–1.3), voice 4.8–5.7 (held transcription 1.2–1.3)
+and host setup 3.8–4.4. Recalculated historical-scale savings: refinement 1.2–1.6,
+offers 0.8–1.2, responsive 0.8–1.2, voice 1.2–1.6, host setup 0.4–0.8,
+parse at most 0.4 s serial. The plan premise failed. Historical overhead is
+2.95 s (14.2 − 22.5/2), so 8 s needs at least 12.4 removed case-seconds,
+not 6.5. The case slices reach about 10.2–10.6 s. Shared per-file import and
+prepare cost was unowned; see the route decision in Current decisions.
+Missing: an uncontended series (another worktree's deliberate stress load
+ran throughout) and per-action wait splits. The report is retained in the
+execution evidence as `slice-1-report.md`.
+
+### 2. Reduce shared per-file preparation and import cost
+Type: Structure
+Status: planned
+
+Slice 1 left about 6.3 aggregate seconds of per-file prepare and import,
+including about 1.6 s for each project's first file, and 0.07–0.40 s in
+the preliminary `parseSpecifications`. In a scratch observation, split that
+cost between Vitest browser prepare, each spec's module graph (shared page
+modules, production imports, CSS) and the second project's first file.
+Set the trial limit before editing: at most two bounded experiments at the
+largest measured part, each kept only when its relative shell gain on
+paired same-conditions runs exceeds the run-to-run variation. Candidates
+include narrowing a spec's or page module's import graph, removing duplicate
+module transforms between the two projects, and skipping the preliminary
+parse in `groupVitest.mjs` when every case of the selected files runs (keep
+it for listing, grep/invert and source coordinates). Preserve file and
+project selection, pointer assignments, isolation, collection failures,
+strict proof, timing, deadlines and mixed-runner behavior. Revert an
+experiment that cannot establish a saving with equivalent behavior.
+For a runner change, prove ordinary, listing, filtering and split modes,
+including an empty selection and a broken collection in scratch, run
+`node --test Distribution/tests/support/{ci-browser-groups,browser-group-shards,frontend-test-proof}.test.mjs`
+and the full `npm run test:dashboard:frontend -- --workers=2` with the
+macOS guard, and run affected backend runner consumers. Record the
+measured removable overhead and whether the eight-second route remains
+credible.
+
+### 3. Shorten the refinement choices and refusal checks
 Type: Behavior
 Status: planned
 
@@ -165,7 +230,7 @@ Check the existing exclusive-option composed E2E journey if any shared
 production path changes. Test whether this removes roughly
 2 case-seconds from the historical 3.48 in the refinement-options file.
 
-### 3. Shorten the fine-pointer Start offer checks
+### 4. Shorten the fine-pointer Start offer checks
 Type: Behavior
 Status: planned
 
@@ -179,7 +244,7 @@ narrow and zoomed paths. Look for 1–1.5 case-seconds of duplicated
 preparation or redundant input out of 3.18 in the offers file. Verify the
 fine-pointer media match on both remaining desktop specs.
 
-### 4. Shorten the responsive dialog matrix
+### 5. Shorten the responsive dialog matrix
 Type: Behavior
 Status: planned
 
@@ -194,7 +259,7 @@ reads after the corresponding committed render. Keep native tab order and
 touch rotation/draft continuity. Expected removable cost to test is
 1–1.5 case-seconds in the two layout files (3.16 historically).
 
-### 5. Shorten voice and transcript setup
+### 6. Shorten voice and transcript setup
 Type: Behavior
 Status: planned
 
@@ -208,7 +273,7 @@ keyboard navigation after review appears. Keep the 4,000-character and final
 Start payload observations at their owners. Look for 1.5–2.0
 case-seconds out of the historical 3.95 in the mounted voice files.
 
-### 6. Shorten shared dialog setup across launcher cases
+### 7. Shorten shared dialog setup across launcher cases
 Type: Behavior
 Status: planned
 
@@ -218,24 +283,7 @@ host/model/effort choices, late/aborted catalog answers and reset on
 host switch and dismissal through the existing typed catalog mount. Retain
 the real launcher and native focus return where that is the observed
 handoff. Measure up to 1.0 case-second of repeated host setup. This slice
-owns host setup. Slice 2 owns option offers and refusal/reset.
-
-### 7. Remove unnecessary runner preparation where measured
-Type: Structure
-Status: planned
-
-If Slice 1 measures material cost in preliminary `parseSpecifications`,
-test skipping that pass in `groupVitest.mjs` when running all cases in the
-selected files. Keep it for listing, grep/invert and source coordinates.
-Preserve file and project selection, collection failures, strict proof,
-timing, deadlines and mixed-runner behavior. Revert the experiment if it
-cannot establish a saving with equivalent runner behavior.
-Prove ordinary, listing, filtering and split modes, including an empty
-selection and a broken collection in scratch. Run
-`node --test Distribution/tests/support/{ci-browser-groups,browser-group-shards,frontend-test-proof}.test.mjs`
-and the full `npm run test:dashboard:frontend -- --workers=2` with the
-macOS guard because all frontend cases share preparation. Run affected
-backend runner consumers because the same module serves that group.
+owns host setup. Slice 3 owns option offers and refusal/reset.
 
 ### 8. Verify the whole-selection target and retained proof
 Type: Behavior
@@ -249,7 +297,7 @@ E2E where the trace reaches it. Apply the gap decision if the target remains ope
 
 ## Plan review
 
-Eight slices. Separate refinement was unnecessary because each experiment
+Eight slices; Slice 2 was widened from the runner-parse experiment and moved first after Slice 1's measurement. Separate refinement was unnecessary because each experiment
 owns one measured cost and identifies its surviving behavior witnesses.
 The probe resolves current cost and biases before dependent edits. No
 additional slice-specific blocking concern was found.
