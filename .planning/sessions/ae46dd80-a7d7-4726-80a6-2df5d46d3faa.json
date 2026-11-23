@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "ae46dd80-a7d7-4726-80a6-2df5d46d3faa",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T15:32:46.133Z",
+  "story": "SEED-413#retire-legacy-dashboard-frontend-runner",
+  "ranges": [
+    {
+      "base": "c78a3aec0deb7c183f7b8f7805d86d70246130e4",
+      "candidate": "81b656afdb7823a5ef90036d891ae338c475e4d9"
+    }
+  ]
+}
