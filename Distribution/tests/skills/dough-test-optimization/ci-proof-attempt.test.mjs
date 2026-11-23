@@ -156,13 +156,12 @@ test("the summary artifact name carries the attempt", () => {
 });
 
 test("an adapter attempt's identity names its fragment by attemptId", () => {
-  const [value] = fragmentsFromOutcomes("passed\ttests/a.sh\n", {
-    entries: ["tests"],
-    part: 1,
-    of: 1,
-    attemptId,
-    revision,
-  });
+  const [value] = fragmentsFromOutcomes(
+    "passed\ttests/a.sh\n",
+    { entries: ["tests"], part: 1, of: 1, attemptId, revision },
+    undefined,
+    { unit: "file" },
+  );
   assert.equal(value.attemptId, attemptId);
   assert.equal("attempt" in value, false);
   assert.deepEqual(fragmentProblems(value), []);

@@ -101,12 +101,12 @@ reported in both units numbers each unit's parts separately.
 
 `fragment` reads one of two report formats:
 
-- `--outcomes FILE --unit case|file`: one `<status><TAB><check path>` line
-  per result, status `passed`, `failed` or anything else (counted as other):
-  `--unit file` when each line is one file's aggregate outcome, as from a
+- `--outcomes FILE --unit case|file` reads one `<status><TAB><check path>` line
+  per result, with status `passed`, `failed` or anything else (counted as other).
+  Use `--unit file` when each line is one file's aggregate outcome, as from a
   runner that runs each test file as one job, `--unit case` when each is one
-  test case; without `--unit`, legacy test results. Each line counts toward
-  the `--entry` whose path contains it (the longest), so one job may report
+  test case. The command requires a unit before writing fragments. Each line
+  counts toward the `--entry` whose path contains it (the longest), so one job may report
   several entries, and toward none outside them. Optional `--times FILE`, one
   `<seconds><TAB><check path>` line per check, gives each matching entry's
   fragment `durationMs`, its checks' summed seconds in milliseconds.

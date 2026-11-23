@@ -14,25 +14,20 @@ import { cli, fragmentTests, temporary } from "./ci-proof-cli-fixtures.mjs";
 import {
   attemptId,
   locatedRecord,
-  playwrightRecord,
   revision,
 } from "./ci-proof-test-fixtures.mjs";
 
-test("the command line counts an outcomes report in its declared unit and collects each declared unit of a location apart, a declared unit without fragments missing in that unit", (t) => {
+test("the command line counts case and file outcomes separately and reports a missing part in its declared unit", (t) => {
   const directory = temporary(t);
-  const record = join(directory, "proof.json");
-  const outcomes = join(directory, "outcomes.txt");
+  const cases = join(directory, "cases.txt");
+  const files = join(directory, "files.txt");
   const fragments = join(directory, "fragments");
-  writeFileSync(
-    record,
-    JSON.stringify(playwrightRecord(Array(5).fill("expected"))),
-  );
-  // The same location's own file outcome: failed, without a case report.
-  writeFileSync(outcomes, "failed\ttests/b.test.mjs\n");
+  writeFileSync(cases, "passed\ttests/a.test.mjs\n".repeat(5));
+  writeFileSync(files, "failed\ttests/b.test.mjs\n");
   const attempt = ["--attempt", "2"];
   for (const [source, out] of [
-    [["--playwright-record", record], "cases"],
-    [["--outcomes", outcomes, "--unit", "file"], "files"],
+    [["--outcomes", cases, "--unit", "case"], "cases"],
+    [["--outcomes", files, "--unit", "file"], "files"],
   ]) {
     const result = fragmentTests(source, attempt, join(fragments, out));
     assert.deepEqual(
@@ -102,6 +97,26 @@ test("the command line counts an outcomes report in its declared unit and collec
     ],
   );
 });
+
+for (const [label, options, diagnosis] of [
+  ["omitted", [], /--unit is required with --outcomes/],
+  ["invalid", ["--unit", "files"], /--unit names unit files/],
+]) {
+  test(`fragment refuses ${label} outcomes unit before writing`, (t) => {
+    const directory = temporary(t);
+    const outcomes = join(directory, "outcomes.txt");
+    const out = join(directory, "fragments");
+    writeFileSync(outcomes, "passed\ttests/a.sh\n");
+    const result = fragmentTests(
+      ["--outcomes", outcomes, ...options],
+      ["--attempt", "1"],
+      out,
+    );
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, diagnosis);
+    assert.equal(existsSync(out), false);
+  });
+}
 
 test("a CI adapter's attempt collects one path's test cases and test files apart in its own job, and its adapter answers that summary unchanged", async (t) => {
   const directory = temporary(t);
@@ -221,7 +236,7 @@ test("the command line's usage names the unit of each report and declaration", (
     "--outcomes <report> --unit case|file",
     "--expect <entry>=<parts>:case|file",
     "A Playwright record's tests are test cases.",
-    "Outcomes without --unit are legacy test results",
+    "Outcomes reports require --unit.",
   ]) {
     assert.ok(usage.includes(named), named);
   }

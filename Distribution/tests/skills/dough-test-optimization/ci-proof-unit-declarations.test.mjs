@@ -12,10 +12,7 @@ import {
   summarize,
 } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-collect.mjs";
 import { summaryProblems } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-contract.mjs";
-import {
-  fragmentFromPlaywrightRecord,
-  fragmentsFromOutcomes,
-} from "../../../src/skills/dough-test-optimization/scripts/ci-proof-fragments.mjs";
+import { fragmentFromPlaywrightRecord } from "../../../src/skills/dough-test-optimization/scripts/ci-proof-fragments.mjs";
 import {
   byFile,
   fragmentsRead as read,
@@ -34,16 +31,17 @@ test("a declaration without a unit takes its entry's fragments in the one unit t
     partIdentity(["dashboard/tests"]),
     byFile,
   );
-  // An outcomes report under a path a Playwright run would use, without a
-  // declared unit: legacy, never read as test cases from its path.
-  const outcomes = fragmentsFromOutcomes(
-    "passed\tdashboard/backend-tests/a.spec.ts\nfailed\ttests/a.sh\n",
-    partIdentity(["dashboard/backend-tests", "tests"]),
-    undefined,
-    byFile,
-  );
+  const legacyPart = (entry) =>
+    makeMe.aCiProofFragment
+      .at(entry)
+      .ofAttempt(run.attempt, revision)
+      .legacy("checks");
   const { summary, notes } = summarize({
-    fragments: read(...playwright, ...outcomes),
+    fragments: read(
+      ...playwright,
+      legacyPart("dashboard/backend-tests").counting(1).please(),
+      legacyPart("tests").counting(0, 1).please(),
+    ),
     expect: [
       { entry: "dashboard/tests", parts: 1 },
       { entry: "dashboard/backend-tests", parts: 1 },

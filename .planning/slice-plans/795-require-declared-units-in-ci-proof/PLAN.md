@@ -188,7 +188,7 @@ changes in that interval. The adapter sibling remained Taken.
 
 ### 3. Require a unit when turning outcomes into fragments
 Type: Behavior
-Status: planned
+Status: done
 Estimated active work: 9–12 minutes.
 
 Behavior. A fragment request with outcomes plus a declared case or file unit
@@ -201,6 +201,16 @@ invalid unit, and the Playwright-record form in `ci-proof-units-cli.test.mjs`.
 Keep the action fixture and workflow declaration checks green. Update
 `fragmentsFromOutcomes` fixture call sites to say what they count, including
 the by-file and custom adapter fixtures.
+
+Accepted proof. The CLI rejects missing and unsupported outcomes units
+before output creation. Case and file outcomes write separate fragments,
+and the Playwright-record command still supplies cases and rejects outcomes
+options. The action replay and workflow declaration proof cover their actual
+inputs. The custom adapter by-file producer already declares `file`.
+Focused Distribution, backend, E2E and Dashboard type checks passed. The
+literal commands and consumer trace are retained in `slice-c-return.md`.
+The outcomes part of G2 is proved here. The expectation and incoming
+fragment requirements stay with slice 5.
 
 ### 4. Drop the retired unit from CLI projections
 Type: Structure
@@ -285,6 +295,8 @@ type checks and the reached mounted comparison and scope-proof specs.
   `/tmp/dough-ci-501/watch-sX111F`, PID `72385`, cell `g446:13`, session `51637`.
 - Slice 1 was accepted on the story branch at
   `1d78c4b9149e07203ea63bb85d7db38672f50b08`.
+- Slice 2 was accepted on the story branch at
+  `b147240973d2d1c625bbb06f7a5a7f1ad051ff1e`.
 
 ## Story obligations
 

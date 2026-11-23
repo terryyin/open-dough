@@ -100,7 +100,7 @@ test("an outcomes file broken down by file keeps each check's path and leaves a 
     outcomes,
     partIdentity(["tests", "src/skills"]),
     times,
-    byFile,
+    { ...byFile, unit: "file" },
   );
   for (const value of [tests, skills])
     assert.deepEqual(fragmentProblems(value), []);
@@ -134,7 +134,7 @@ test("an outcomes file broken down by file keeps each check's path and leaves a 
     outcomes,
     partIdentity(["tests"]),
     undefined,
-    byFile,
+    { ...byFile, unit: "file" },
   );
   assert.equal("durationMs" in untimed, false);
   assert.equal(untimed.untimed, 2);
@@ -146,7 +146,7 @@ test("timed and untimed outcomes in one file keep a partial duration", () => {
     [`passed\t${path}`, `other\t${path}`, `failed\t${path}`].join("\n"),
     partIdentity(["tests"]),
     [`0.125\t${path}`, `0.375\t${path}`].join("\n"),
-    byFile,
+    { ...byFile, unit: "case" },
   );
   assert.equal(value.untimed, 1);
   assert.deepEqual(value.files, [
@@ -159,7 +159,7 @@ test("an outcomes label that is not a path inside its entry is unassigned, keepi
     "passed\ttests/./odd.sh\nfailed\ttests/a.sh\n",
     partIdentity(["tests"]),
     "2\ttests/./odd.sh\n",
-    byFile,
+    { ...byFile, unit: "file" },
   );
   assert.deepEqual(fragmentProblems(value), []);
   assert.deepEqual(value.files, [

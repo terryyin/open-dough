@@ -183,6 +183,8 @@ test("the command line writes durationMs from --times with --outcomes, and from 
     "fragment",
     "--outcomes",
     outcomes,
+    "--unit",
+    "file",
     "--times",
     times,
     "--entry",
@@ -191,8 +193,7 @@ test("the command line writes durationMs from --times with --outcomes, and from 
   );
   assert.deepEqual([checks.status, checks.stderr], [0, ""]);
   assert.equal(
-    JSON.parse(readFileSync(join(out, "tests-legacy-1.json"), "utf8"))
-      .durationMs,
+    JSON.parse(readFileSync(join(out, "tests-file-1.json"), "utf8")).durationMs,
     1500,
   );
   const dashboard = cli(
