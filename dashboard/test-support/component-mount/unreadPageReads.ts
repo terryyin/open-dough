@@ -72,6 +72,9 @@ const unreadObservation: PublishedObservationReadSource = {
   readProfileAddition: unread("published profile addition"),
   readDoneCatalog: unread("published done catalog"),
   listPublishedSessions: unread("published sessions"),
+  readBranchHead: unread("published branch head"),
+  readFileOnBranch: unread("published branch file"),
+  readCommitTime: unread("published commit time"),
 };
 
 // The page's reads with only SUPPLIED answering; every other read rejects.

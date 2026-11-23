@@ -26,13 +26,9 @@ import {
 import { awaitingSliceClocks, withSliceClocks } from "./sliceClockStart.ts";
 import { withCarriedFacts } from "./carriedFacts.ts";
 
-type DetailReads = Pick<
+type DetailReads = Omit<
   PublishedObservationReadSource,
-  | "readDetailFile"
-  | "readProfiles"
-  | "readProfileAddition"
-  | "readDoneCatalog"
-  | "listPublishedSessions"
+  "readSnapshot" | "checkRevision"
 >;
 
 // Enriches a membership snapshot with independent detail groups. Same-
@@ -56,7 +52,11 @@ export async function readPublishedDetails(
     readProfileAddition,
     readDoneCatalog,
     listPublishedSessions,
+    readCommitTime,
+    readBranchHead,
+    readFileOnBranch,
   } = reads;
+  const branchReads = { readBranchHead, readFileOnBranch };
   let prepared = work;
   let progress: PublishedWork | undefined = sameRevision ? work : undefined;
   let credited: ProfilesRead | undefined;
@@ -192,11 +192,14 @@ export async function readPublishedDetails(
       progress = sameRevision ? owned : awaitingSliceClocks(owned);
       show();
       // Branch routing needs both the canonical plan and profiles.
-      progress = sameRevision
-        ? await withProgressSources(owned, untilEither, outcomes, bound)
-        : awaitingSliceClocks(
-            await withProgressSources(owned, untilEither, outcomes, bound),
-          );
+      const branched = await withProgressSources(
+        owned,
+        untilEither,
+        outcomes,
+        bound,
+        branchReads,
+      );
+      progress = sameRevision ? branched : awaitingSliceClocks(branched);
       signal.throwIfAborted();
       show();
       // Only core snapshot reads fail the observation at the bound;
@@ -208,6 +211,7 @@ export async function readPublishedDetails(
         untilEither,
         outcomes,
         bound,
+        readCommitTime,
         (partial) => {
           progress = partial;
           show();

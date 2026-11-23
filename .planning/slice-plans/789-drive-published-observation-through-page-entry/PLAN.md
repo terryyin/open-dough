@@ -90,7 +90,7 @@ transport proof in `e2e/stories/published-work.spec.ts` and
 ### 2. Moved branches refresh their own progress and clocks at the delivered head
 
 Type: Behavior
-Status: planned
+Status: done
 
 Supply the required typed branch head, branch file, and commit time operations
 through the same observation reads. Use them for startup details and
@@ -267,7 +267,9 @@ remaining slice-specific concern.
   `origin`; target `main`
 - Publisher ID: `dashboard-territory.local-open-dough`; agent: Nao-chan
 - Retained published revisions: claim `8a41b269fa1b1591fb5f1e55a62dde54a2a6b2e2`
-  on `origin/main` (first-increment previously-published base)
+  on `origin/main`; increment `a99bc3797fc4fc1c99dbf1abd4f2783174a1dc18` on
+  `refs/heads/cursor/drive-the-published-observation-through-the-type`
+- CI observer: `/tmp/dough-ci-501/watch-dxk8N6` (attached at Slice 1 publish)
 - Replanning permission: preserve existing (allowed)
 
 ## Accepted proof
@@ -294,9 +296,30 @@ remaining slice-specific concern.
 - Evidence: `open-dough/evidence/slice1-implementation-return.md`,
   `open-dough/evidence/refactor-slice1-return.md`
 
+### Slice 2 — moved-branch progress and clocks through typed observation
+
+- Promise: typed branch-head, branch-file, commit-time reads; startup plan and
+  clock at supplied head; moved head rereads only the affected branch/clock;
+  trunk sibling kept; vanished branch own gap; `progressSource` split
+- Boundary: `PublishedObservationReadSource` → `withProgressSources` /
+  `readMovedProgress` / `withSliceClocks`; `branchPlanRead` resolve/read;
+  `progressSource` projection/watch
+- Setup: `moved-branch-progress-supply.ts` with story-branch + trunk sibling +
+  vanished branch typed replies
+- Observations:
+  - `moved-branch-progress.spec.ts` startup and moved-head cases
+  - `unread-page-reads.spec.ts` new branch/commit ops
+- Command:
+  `caffeinate -s -i npm run test:dashboard:frontend -- dashboard/frontend-tests/observation/moved-branch-progress.spec.ts dashboard/frontend-tests/test-harness/unread-page-reads.spec.ts --workers=2`
+  (pass; typecheck pass)
+- Evidence: `open-dough/evidence/slice2-implementation-return.md`,
+  `open-dough/evidence/refactor-slice2-return.md`
+
 ## Learnings
 
 - Frontend Vitest Chromium cases must use browser-safe `pageMakeMe` and
   `renderPublishedBacklog`, not Node `makeMe.mjs` / `describedRevisions`.
 - Slice 4 must open Sources against the same `expectedDetailPaths` set exported
   from the path-mix supply.
+- `progressSource` resolve/read lives in `branchPlanRead.ts`; projection and
+  the watch set stay in `progressSource.ts`.

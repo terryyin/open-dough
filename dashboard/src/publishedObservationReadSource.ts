@@ -1,17 +1,24 @@
 // The published observation's reads (`./publishedObservation.ts`): the
 // selected project's published snapshot and membership, a file at a revision
 // for preparation detail (`./preparationEnrichment.ts`), the scheduled
-// revision check (`./revisionCheckSchedule.ts`), and the detail groups that
+// revision check (`./revisionCheckSchedule.ts`), the detail groups that
 // enrich one membership snapshot (`./publishedWorkDetails.ts`): profiles,
-// profile-addition history, published sessions, and the Done catalog. The
+// profile-addition history, published sessions, and the Done catalog, and the
+// branch head, branch-file, and commit-time reads that place Taken progress
+// and clocks (`./progressSource.ts`, `./sliceClockStart.ts`). The
 // authenticated implementation binds the local boundary.
 
+import {
+  readBranchHeadAt,
+  readFileOnBranch,
+} from "./authenticatedBranchRead.ts";
 import {
   readAgentProfilesAt,
   readProfileAdditionAt,
 } from "./authenticatedProfileRead.ts";
 import { readDoneCatalogAt } from "./authenticatedDoneRead.ts";
 import {
+  readLastCommitTimeAt,
   readPublishedSnapshot,
   readRepositoryFileAt,
 } from "./authenticatedRead.ts";
@@ -32,6 +39,9 @@ export type PublishedObservationReadSource = {
     revision: string,
     signal: AbortSignal,
   ) => Promise<readonly PublishedSessionRecord[]>;
+  readonly readBranchHead: typeof readBranchHeadAt;
+  readonly readFileOnBranch: typeof readFileOnBranch;
+  readonly readCommitTime: typeof readLastCommitTimeAt;
 };
 
 export const authenticatedPublishedObservationReads: PublishedObservationReadSource =
@@ -44,4 +54,7 @@ export const authenticatedPublishedObservationReads: PublishedObservationReadSou
     readDoneCatalog: readDoneCatalogAt,
     listPublishedSessions: (source, revision, signal) =>
       boundaryPublishedSessions(source)(revision, signal),
+    readBranchHead: readBranchHeadAt,
+    readFileOnBranch,
+    readCommitTime: readLastCommitTimeAt,
   };
