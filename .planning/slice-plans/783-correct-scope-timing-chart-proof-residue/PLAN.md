@@ -170,6 +170,11 @@ or residue: every moved check has a break check that fails without it, the
 Done touch case remains the Done entry's chart-mark proof, and the chart-mark
 specs got faster. `historyChart().failed` stays as a live e2e reader (G1).
 
+CI repair: run 45129558680 at `46d4932f6` exhausted Distribution Tests (3/3)'s
+320 s run deadline after `d45528326` left the native-comparison checks on that
+catch-all shard. Share 2 now claims `Distribution/tests/support/**`; the
+balance projection moves shard 3 from 921 to 630 summed seconds.
+
 ## Story obligations
 
 ### G1. `historyChart().failed` still has a consumer
