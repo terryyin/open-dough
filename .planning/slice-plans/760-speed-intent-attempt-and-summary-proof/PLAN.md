@@ -4,80 +4,126 @@
 **Source:** [Get fast proof of Intent attempt and Summary proof](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-intent-attempt-and-summary-proof)
 **Split from:** SEED-413#speed-intent-proof-and-timing (recoverable at `3acae5160:.planning/slice-plans/752-speed-intent-proof-and-timing/PLAN.md`, former Slices 7–10) on 2026-11-21 at its delivered Slice 3 boundary
 
-This provisional plan is **awaiting story refinement — not ready for slice-plan refinement or execution**.
-It resumes through `dough-story-refinement` and plan realignment; the original
-slices' readiness does not carry over.
+## Goal and scope
 
-## Goal and provisional scope
+Give maintainers fast Vitest proof of the chosen CI attempt's Proof and compared
+Summary rows at the homepage, location, folder, and file. Move the 18 legacy
+specs (49 cases) onto the corrected production Intent page entry with typed CI
+reads. Remove spent `dashboard/test-support/` modules whose last consumer moves
+with this cohort, and compare the cohort's two-worker time with the recorded
+baseline. CI status, wall-time history, scope history, collected timing and
+chart marks, and source browsing stay with their completed sibling stories.
+Reads that still leave `ConfiguredDashboard` outside the page entry stay with
+[Drive the published observation through the typed page entry](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#drive-published-observation-through-page-entry).
 
-Dashboard maintainers get fast Vitest feedback on what the chosen CI attempt's
-proof and compared Summary rows say at the homepage, location, folder, and
-file, including surviving shard figures, fallback and owning-merge endpoints,
-renamed and outside files, and retained sorting and Show % presentation across
-drill-down and return. Move the 49 legacy cases across 18 files in
-`dashboard/frontend-tests/intent/`:
-- `intent-ci-proof`, `intent-ci-proof-accessibility`,
-  `intent-ci-proof-grouped-location` (3 files, 5 legacy cases)
-- `intent-summary-ci-proof-{gaps,kept,sort,table}` (4 files, 7 legacy cases)
-- `intent-summary-story-comparison-{fallback,gaps,outside,rows,file,file-proof-counts,presentation-bindings,column-sort,relative,signed-sort,sort}`
-  (11 files, 37 legacy cases)
-Remove spent `dashboard/test-support/` modules whose last consumer across
-`e2e/` and `dashboard/frontend-tests/` has migrated, and record the two-worker
-before/after comparison for this 18-file / 49-case cohort (plus the combined
-95-case pre-split baseline `36,187 ms` from `58b829487` alongside `plan 752`'s
-`8,315 ms` status result and `plan 764`'s history result when available).
+## Current decisions
 
-## Preserved decisions and premises from `plan 752`
+- Mount homepage attempt-proof cases through `mountJudgedRunProof` /
+  `mountIntentCiPage` with typed `readStatus` and `readProof` answers built by
+  Node-free `aCiProofEntry` / `aCiProofEvidence` on `pageMakeMe.mjs`. Mount
+  single-attempt Summary cases the same way, then open the selected location,
+  folder or file as the production Intent tree does.
+- Mount compared Summary and file-Proof cases through `openDoneStoryComparison`
+  (or the same `mountIntentCiPage` + Done selection path) with typed
+  `readComparison` / `readProof` answers from `aComparedStory` / `scopeReadsOf`.
+  Do not keep `renderComparison`, the comparison-mount markup path, or
+  `ComparisonMountScope` / hand-built `StoryCiEvidence` compositions as the
+  Vitest destination. Do not call `ciTargetOf`, `scopeEvidenceOf`,
+  `comparisonProofOf`, `intentStoryOverlay`, `overlayFilesByPath`,
+  `owningLocation` or `filesOfSelection` to build view props, and do not wrap
+  views in hand-written ancestor classes.
+- Keep each spec's and helper's production imports to the page entry, its typed
+  inputs and stylesheets. Keep colocated helpers in dedicated files without
+  modifying sibling-owned page objects (`intent-ci-scope-page.tsx`,
+  `intent-ci-evidence-page.tsx`, `intent-done-story-page.tsx`,
+  `intent-browser-page.ts`, `intent-candidates-page.ts`,
+  `intent-file-reading-page.ts`) except to stop importing a spent shared helper
+  this story removes.
+- For each legacy helper a move replaces, the slice lists what it checked and
+  which mounted assertion now owns each check. Map each retired case's distinct
+  assertions before deletion.
+- North Star,
+  [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support):
+  cases mount the production Intent page entry with typed reads, use only
+  MakeMe data and colocated page objects, and add no wrapper. Slice 6 only
+  removes spent support after its last consumer moves.
+  [Act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows):
+  cases act directly and wait through retrying assertions on what the action
+  changes.
+  [Plain Vitest for unit tests; Playwright only for E2E](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e):
+  every owned case leaves the Playwright runner.
+- Apply the [campaign acceptance](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#acceptance-shared-by-the-eight-stories)
+  and the [frontend entry guidance](../../../dashboard/frontend-tests/README.md#which-entry-a-case-uses).
+  [ADR 0010, Definition of improvement](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
+  requires the moved proof to keep its promises while it gets cheaper. The
+  corrected CI status test entry (recoverable at
+  `7b9e64961:.planning/slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry`)
+  is the required mount shape.
 
-- Depend on SEED-413#speed-intent-timing-history-proof, whose plan 759
-  delivers the required typed page-reads entry, and on
-  SEED-413#speed-intent-ci-status-frame-and-timing-history, whose plan 764
-  Slices 1–3 finish correcting the CI status test entry (recoverable at
-  `7b9e64961:.planning/slice-plans/764-speed-intent-ci-status-frame-and-timing-history/PLAN.md#correction-of-the-ci-status-test-entry`).
-  Read CI through the required typed page-reads entry, never a default-valued
-  context or an optional or defaulted reader. Reuse Node-free `aCiProofEntry`,
-  `aCiProofEvidence` and `aComparedStory` on
-  `Distribution/tests/support/pageMakeMe.mjs`.
-- Render the production composition that owns attempt proof and Summary
-  (the Intent body with its reading place) for a selected scope, fed by
-  typed CI reads. Do not mount `IntentCiProof`, `IntentScopeProofView` or
-  `IntentFileProofView` with props built by calling `ciTargetOf`,
-  `scopeEvidenceOf`, `comparisonProofOf`, `intentStoryOverlay`,
-  `overlayFilesByPath`, `owningLocation` or `filesOfSelection`. Do not wrap
-  them in hand-written ancestor classes. The dark-contrast case before its
-  correction is the counterexample. Mount a view directly only when it
-  stands alone in production with typed props and the case's subject is
-  that view's own presentation. Keep each spec's and helper's production
-  imports to the entry, its typed inputs and stylesheets. Keep colocated
-  helpers in dedicated files without modifying sibling-owned page objects
-  (`intent-ci-scope-page.tsx`, `intent-ci-evidence-page.tsx`,
-  `intent-done-story-page.tsx`, `intent-browser-page.ts`,
-  `intent-candidates-page.ts`, `intent-file-reading-page.ts`).
-- The scratch check below mounted `IntentScopeProofView` over hand-built
-  evidence. It shows the view renders, not that this is the case entry.
-  Refinement re-settles the entry under the decision above.
-- At `42a660a17` on 21 November 2026 (`--workers=2`, `caffeinate -s -i`), a
-  scratch Vitest Browser Mode check mounted `IntentScopeProofView` over typed
-  comparison evidence, inventory, and explicit sort/preference, verified the
-  rendered file row, and observed clicking the row invoke the selected-scope
-  callback with its exact path. At `58b829487` on 21 November 2026, the whole
-  44-file / 95-case pre-split legacy cohort ran in `36,187 ms` at `--workers=2`.
+## Local gate
 
-## Provisional slices (mapped from `plan 752` Slices 7–10)
+On macOS, run on AC with `caffeinate -s -i` under the maintained
+[sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos).
+Use two workers, default timeouts, and the shared
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+Each slice runs its focused named proof through
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES caffeinate -s -i npm run --silent test:dashboard:frontend -- <paths> --workers=2`
+and runs `npm run typecheck:dashboard` when it changes TypeScript. Retained
+Playwright outcomes are in `OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD`, which
+each run sets to a fresh path.
+
+## Decisive premises
+
+Observed 23 November 2026 in the established worktree at `7cc05f008`, using its
+`npm ci` dependencies (Node 24.21.0) and headless Chromium on AC through the
+local-gate command above. Scratch edits were reverted.
+
+- **Legacy baseline.** The selection `intent/intent-ci-proof`,
+  `intent/intent-summary-ci-proof` and `intent/intent-summary-story-comparison`
+  passed 49 Playwright `chromium` cases. Runner duration was `37,900 ms`
+  elapsed including preparation (`terminal.durationMs`); summed case time was
+  `44,253 ms`. Record:
+  [baseline-legacy-attempt-summary.proof.json](baseline-legacy-attempt-summary.proof.json).
+  This is slice 6's baseline. Pair it with a fresh baseline under comparable
+  load if load differs by more than about a third. The earlier pre-split
+  44-file / 95-case cohort at `58b829487` (`36,187 ms`) remains the campaign
+  cross-check beside plan 752's status result.
+- **Homepage attempt Proof through the page mount.** A scratch
+  `intent/intent-attempt-summary-entry-probe.spec.ts` mounted
+  `mountJudgedRunProof` with two typed `aCiProofEntry` answers. The Proof
+  region showed both declared entry rows (`dashboard/tests`, `tests`) with
+  their counts and `No timings` through `intentCiProof().showsRows`. The case
+  passed in `89 ms`. The scratch file was deleted afterwards. Existing
+  `intent-ci-status-execution-time.spec.ts` already exercises the same mount
+  for timing gaps.
+- **Done Summary comparison through the page mount.** The same scratch probe
+  opened `openDoneStoryComparison` with the Summary-scope Done story's typed
+  comparison, clicked `dashboard/tests`, and observed the Summary region's own
+  figures (`doneEntryOwnFigures`) and child rows (`doneEntryComparisonRows`).
+  The case passed in `829 ms`. Existing
+  `intent-ci-cues-dark-contrast.spec.ts` and Done scope-history mounts use the
+  same entry.
+
+## Slices
 
 ### 1. Homepage attempt proof preserves grouped locations, surviving shards, and accessibility
 
 Type: Behavior
 Status: planned
 
-Capture the 18-file / 49-case legacy baseline at `--workers=2` before
-replacing the first legacy file, and move `intent-ci-proof`,
-`intent-ci-proof-accessibility`, and `intent-ci-proof-grouped-location`
-(3 files, 5 legacy cases) over `IntentCiProof` and `IntentCiEvidenceProvider`
-through the typed page-reads entry.
+Move `intent-ci-proof`, `intent-ci-proof-accessibility`, and
+`intent-ci-proof-grouped-location` (3 files, 5 legacy cases) onto
+`mountJudgedRunProof` / `mountIntentCiPage` with typed proof reads.
 
-**Proof.** Surviving per-part figures, grouped locations, accessible group and
-row names, and narrow/zoom fit remain readable without redundant live reads.
+Behavior: a failed or partial attempt's Proof is held or answered → the
+homepage names the run once with linked attempt and revision and one row per
+declared entry, including surviving per-part figures and grouped locations →
+narrow and zoomed viewports and keyboard reading still expose the same
+controls and words without sideways scroll.
+
+**Proof.** The three moved files pass on Vitest with legacy assertions mapped.
+A held proof still shows Failed beside Checking; releasing it fills the rows.
+Delete the three legacy files.
 
 ### 2. Single-attempt Summary proof preserves kept carryover, gaps, table membership, and sorting
 
@@ -86,41 +132,69 @@ Status: planned
 
 Move `intent-summary-ci-proof-gaps`, `intent-summary-ci-proof-kept`,
 `intent-summary-ci-proof-sort`, and `intent-summary-ci-proof-table` (4 files,
-7 legacy cases) through the production Intent composition for the selected scope.
+7 legacy cases) through the page mount: open the selected location, folder or
+file after the judged attempt's proof is answered.
 
-**Proof.** Summary reuses kept attempt proof across scope navigation without
-rereading CI, counts outside files once, explains gaps, and sorts cleanly.
+Behavior: a selected entry has missing shards or no file breakdown → Summary
+keeps entry totals, leaves children partial with accessible gap labels, and
+reuses the kept attempt across scope navigation without another CI proof read.
+Table membership and sort stay readable.
 
-### 3. Compared Summary rows disclose fallback endpoints, gaps, and outside evidence
+**Proof.** The four moved files pass on Vitest. A kept-carryover case fails
+when navigating rereads proof. Delete the four legacy files.
+
+### 3. Compared Summary rows disclose fallback endpoints, outside evidence, and precise endpoint rows
 
 Type: Behavior
 Status: planned
 
 Move `intent-summary-story-comparison-fallback`,
-`intent-summary-story-comparison-gaps`,
 `intent-summary-story-comparison-outside`, and
-`intent-summary-story-comparison-rows` (4 files, 14 legacy cases) through
-the production Intent composition with typed comparison reads.
+`intent-summary-story-comparison-rows` (3 files) through
+`openDoneStoryComparison` with typed comparison reads.
 
-**Proof.** Selected, ancestor, and owning-merge builds stay distinguishable,
-outside rows and fallback counts come from their intended endpoint, and each
-count, timing, and cue keeps its visible and accessible meaning.
+Behavior: Baseline, Branch, Landed and Provisional stay distinguishable;
+outside rows and fallback counts come from their intended endpoint; nested
+Summary and file Proof keep precise endpoint rows and audible labels.
 
-### 4. File drill-down gives renamed, partial, and selected files their exact evidence and bindings
+**Proof.** The three moved files pass on Vitest. A Taken Trunk case names
+Provisional and keeps the unused Landed explanation through entry, folder and
+file Proof. Delete the three legacy files.
+
+### 4. Compared Summary gaps explain partial and absent evidence
+
+Type: Behavior
+Status: planned
+
+Move `intent-summary-story-comparison-gaps` (1 file, 5 legacy cases) through
+`openDoneStoryComparison`.
+
+Behavior: partial, absent and outside gap labels keep their visible and
+accessible meanings across entry, folder and file scopes without losing the
+comparison framing.
+
+**Proof.** The moved file passes on Vitest. Removing a gap label's accessible
+description fails its case. Delete the legacy file.
+
+### 5. File drill-down gives renamed, partial, and selected files their exact evidence and bindings
 
 Type: Behavior
 Status: planned
 
 Move `intent-summary-story-comparison-file`,
 `intent-summary-story-comparison-file-proof-counts`, and
-`intent-summary-story-comparison-presentation-bindings` (3 files, 13 legacy
-cases) through the production Intent composition's file drill-down.
+`intent-summary-story-comparison-presentation-bindings` (3 files) through the
+page mount's file drill-down (Changes → file → Proof / Purpose).
 
-**Proof.** Selected and renamed paths receive their own case/file counts and
-timing once, partial/empty evidence states its reason, and drilling into Proof
-reuses the chosen attempt without another live proof read.
+Behavior: selected, renamed-across-units and merge-edited files receive their
+own case and file counts and timing once; Purpose shows the changed file's
+diff without comparison framing above it; drilling into Proof reuses the
+chosen attempt without another live proof read.
 
-### 5. Compared Summary sorting and Show % stay with the reader, spent support is removed, and proof runs faster
+**Proof.** The three moved files pass on Vitest. A renamed-across-units case
+fails when counts are merged with another file. Delete the three legacy files.
+
+### 6. Compared Summary sorting and Show % stay with the reader, spent support is removed, and proof runs faster
 
 Type: Behavior
 Status: planned
@@ -128,13 +202,25 @@ Status: planned
 Move `intent-summary-story-comparison-column-sort`,
 `intent-summary-story-comparison-relative`,
 `intent-summary-story-comparison-signed-sort`, and
-`intent-summary-story-comparison-sort` (4 files, 10 legacy cases) through the
-production Intent composition. Remove spent `dashboard/test-support/`
-modules whose last consumer migrated, and record the two-worker before/after
-timing and case-disposition comparison.
+`intent-summary-story-comparison-sort` (4 files) through the page mount.
+Remove spent `dashboard/test-support/` modules whose last consumer across
+`e2e/` and `dashboard/frontend-tests/` migrated with this cohort. Record the
+two-worker before/after timing and case-disposition comparison against the
+legacy baseline.
 
-**Proof.** Native column sorting and `Show %` preserve signed order, accessible
+Behavior: native column sorting and Show % preserve signed order, accessible
 sort direction, per-scope relative scaling, and retained preference across
-drill-down and return; zero legacy Playwright cases remain across the 18 owned
-files; spent support is removed; and two-worker Vitest feedback is faster than
-the legacy baseline.
+drill-down and return.
+
+**Proof.** The four moved files pass on Vitest; zero legacy Playwright cases
+remain across the 18 owned files; spent support is gone; two-worker Vitest
+feedback is faster than the `37.9 s` baseline under comparable load. Delete
+the four legacy files.
+
+## Concern evidence and readiness
+
+- Slice-plan refinement was not needed: six Behavior slices stay within the
+  eight-slice limit, each reuses the settled page-mount entry, and no
+  independent second outcome or repeated special-case design remains across
+  successive slices.
+- No remaining slice-specific concern.
