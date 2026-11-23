@@ -68,8 +68,14 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   const { files, diffs } = review;
   await files.expectOutsideCount(5);
   await files.choose("Added added.txt");
+  await files.expectLineCounts(
+    "Added added.txt",
+    "+2 −0",
+    "2 lines added, 0 lines removed",
+  );
   await diffs.expectShows("Added added.txt", "+one");
-  await files.choose("Modified binary.bin");
+  await files.move("Next file", "keyboard");
+  await files.expectSelected("Modified binary.bin");
   await diffs.expectShows("Modified binary.bin", "Git reads it as binary");
   await files.choose("Renamed old.txt → new/moved.txt");
   await diffs.expectShows(

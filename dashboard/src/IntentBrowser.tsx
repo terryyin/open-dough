@@ -12,13 +12,9 @@
 // the scope's Intent workspace (`./intentWorkspaceSelection.ts`). With a
 // selected story's comparison, the trees follow it (`./useIntentStoryTree.ts`)
 // under its "Selected story only" choice. A file the published revision does
-// not list is never read. The browser unmounts with its scope, whose reading
-// place keeps the selection, expanded location, reveal, Purpose/Proof choice
-// and scroll; a story selected while Intent is hidden starts its tree's
-// arrangement afresh, toggle off. The story's changed files outside every
-// location follow them (`./IntentTreeGroups.tsx`). Hide files hides the
-// column, still mounted. A lead, as the explanation that no locations are
-// configured, heads the column.
+// not list is never read. The kept reading place owns selection, reveal, tabs
+// and scroll across unmounts. The outside files follow the locations. Hide
+// files hides the column without unmounting it.
 
 import type { ReactNode } from "react";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
@@ -39,7 +35,11 @@ import {
   useIntentWorkspaceSelection,
   type IntentSelection,
 } from "./intentWorkspaceSelection.ts";
-import { overlayFilesByPath } from "./intentStoryOverlay.ts";
+import { FileMoves } from "./StoryReviewFileMoves.tsx";
+import {
+  intentChangedFileOrder,
+  overlayFilesByPath,
+} from "./intentStoryOverlay.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useIntentFileRead } from "./useIntentFileRead.ts";
 import { useIntentStoryTree } from "./useIntentStoryTree.ts";
@@ -119,11 +119,12 @@ export function IntentBrowser({
     project?.onModeChange("ci");
   }
 
-  // Opening from the candidate record or drilling down from a summary
-  // selects as the tree does (a record entry is a file without a scope),
-  // chooses Purpose, starts a fresh reading positioned on its case, and
-  // reveals the target in the tree: its location opens and the folders
-  // holding it open.
+  function revealInTree(path: string, location: string | undefined) {
+    if (location !== undefined) setExpandedPath(location);
+    setReveal({ path });
+  }
+
+  // Candidate and summary opens start fresh in Purpose at the case.
   function openRevealed(next: IntentSelection, entrySlug?: string) {
     select(
       next.scope === undefined ? { ...next, scope: "file" } : next,
@@ -131,16 +132,25 @@ export function IntentBrowser({
     );
     fileReading.setTab("purpose");
     setRevealedOpens((n) => n + 1);
-    const owning = owningLocation(locations, next);
-    if (owning !== undefined) setExpandedPath(owning.path);
-    setReveal({ path: next.path });
+    revealInTree(next.path, owningLocation(locations, next)?.path);
   }
 
-  // The selection starts empty for each project, its reading place mounted
-  // again for it (`./IntentPerspective.tsx`).
   const treeFiles = overlayFilesByPath(locations, overlay);
   const selectedFile =
     scope === "file" ? treeFiles.get(selectedPath) : undefined;
+  const selectedChange = storyDiffOf(story, selectedFile);
+  const moves =
+    selectedChange === undefined ? undefined : (
+      <FileMoves
+        order={intentChangedFileOrder(locations, storyTree.shownOverlay)}
+        selectedPath={selectedPath}
+        onMove={({ path, location }) => {
+          select({ path, scope: "file" });
+          revealInTree(path, location);
+          fileReading.readingArea.current?.scrollTo({ top: 0 });
+        }}
+      />
+    );
   // A selected path the shown revision does not hold, as after moving to a
   // revision that deleted it, is explained in Purpose, nothing else selected.
   // A file the story's comparison adds may yet appear while it is read.
@@ -159,7 +169,7 @@ export function IntentBrowser({
     unread:
       missing ||
       selectedFile?.published === false ||
-      storyDiffOf(story, selectedFile) !== undefined ||
+      selectedChange !== undefined ||
       storySummary?.comparison.state === "reading",
   });
 
@@ -212,6 +222,7 @@ export function IntentBrowser({
             selectedSyntaxHint={selectedSyntaxHint}
             treeFiles={treeFiles}
             story={story}
+            moves={moves}
             read={fileRead.read}
             onFileRetry={fileRead.retry}
             onOpen={openRevealed}

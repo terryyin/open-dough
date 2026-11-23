@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type RefObject,
 } from "react";
 import {
   omittedGaps,
@@ -62,7 +63,9 @@ export function DiffLines({
   onRetryText,
   onLineFollowUp,
   onLineAddNote,
+  readingArea,
 }: {
+  readonly readingArea?: RefObject<HTMLElement | null>;
   readonly printed: string;
   readonly sides: FileLineSides | undefined;
   // Each line's syntax tokens, or none while it reads as plain text.
@@ -125,7 +128,8 @@ export function DiffLines({
       return;
     }
     const topAfter = node.getBoundingClientRect().top;
-    scroller.scrollTop += topAfter - pending.top;
+    const viewport = readingArea?.current ?? scroller;
+    viewport.scrollTop += topAfter - pending.top;
     pendingScroll.current = null;
   });
 

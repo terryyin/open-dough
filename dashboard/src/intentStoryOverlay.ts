@@ -18,6 +18,7 @@
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { locationSelectsRepositoryPath } from "./intentLocationSelection.ts";
 import {
+  reviewFileOrder,
   reviewFileTree,
   reviewFoldersContainingChanges,
   type ChangeKind,
@@ -140,6 +141,31 @@ export function storyChangesOnly(overlay: StoryOverlay): StoryOverlay {
       files: location.files.filter((file) => file.change !== undefined),
     })),
   };
+}
+
+// Changed rows in the same order as the displayed location trees and outside
+// group. The row can use a rename's old path when placed in its former location.
+export function intentChangedFileOrder(
+  locations: readonly IntentLocation[],
+  overlay: StoryOverlay,
+) {
+  const entries = locations.flatMap(({ path: location }, index) =>
+    reviewFileOrder(reviewFileTree(overlay.locations[index]?.files ?? []))
+      .filter((file) => file.change !== undefined)
+      .map((file) => ({ path: `${location}/${file.path}`, location })),
+  );
+  const seen = new Set<string>();
+  return [
+    ...entries,
+    ...reviewFileOrder(reviewFileTree(overlay.outside)).map((file) => ({
+      path: file.path,
+      location: undefined,
+    })),
+  ].filter(({ path }) => {
+    if (seen.has(path)) return false;
+    seen.add(path);
+    return true;
+  });
 }
 
 // Each overlaid tree file by its repository path, outside files included.

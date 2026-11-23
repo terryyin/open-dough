@@ -98,14 +98,14 @@ test.describe("with a conflicted trunk integration", () => {
     expect(parentsConflict(origin, "story changes c")).toBe(true);
     const review = await openIntegratedRange(page, dashboard, origin);
     const { files, diffs } = review;
-    await files.expectOutsideRows(["src", "  c.ts"]);
+    await files.expectOutsideRows(["src", "  c.ts includes trunk's changes"]);
     const flagged = "Modified src/c.ts, includes trunk's changes";
     await files.choose(flagged);
     await diffs.expectLines("removed", ["-c story"]);
     await diffs.expectLines("added", ["+c story and trunk"]);
 
     await expectRangeLeavesTrunkOut(review, {
-      row: "c.ts",
+      row: "c.ts includes trunk's changes",
       file: flagged,
       added: "+c story and trunk",
     });
@@ -125,7 +125,7 @@ test.describe("with an integration settled back to the oldest parent", () => {
     const { commits, files, diffs } = review;
     await commits.choose("last");
     await commits.expectRange("Changes in 2 commits");
-    await files.expectOutsideRows(["src", "  c.ts"]);
+    await files.expectOutsideRows(["src", "  c.ts includes trunk's changes"]);
     const flagged = "Modified src/c.ts, includes trunk's changes";
     await files.choose(flagged);
     await diffs.expectLines("removed", ["-c trunk"]);

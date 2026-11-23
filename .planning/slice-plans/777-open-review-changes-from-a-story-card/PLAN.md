@@ -287,11 +287,12 @@ checks and final Dashboard typecheck passed. See `s4-implementation.md`,
 Independent refactoring removed the unused Story card return from the
 captured review test helper. The three focused historical cases and
 Dashboard typecheck passed again in `s4-refactor.md`.
+Slice 4 published at `f2b5e3856e9e9e7cfe1e8d2f5593bf077e4be57e`.
 
 ### 5. Previous file and Next file work in Intent Changes
 
 Type: Behavior
-Status: planned
+Status: done
 
 With a changed file open, Previous file and Next file move through changed
 files in displayed tree order, reveal the destination and keep the keyboard
@@ -309,6 +310,20 @@ an offscreen row. Move or map story-purpose observations for
 context and the shared diff's syntax, content and focus through the Intent
 file reader. Use `dashboard/frontend-tests/intent/intent-story-notes.spec.ts`
 for header Notes and focus return. Slice 8 uses the same order for arrival.
+
+**Observed.** `story-review-file-moves.spec.ts` checks both focusable ends,
+keyboard retention, nested folder reopening and an offscreen destination
+with stable document scroll. `intent-story-changes-moves.spec.ts` walks a
+renamed change in displayed order across two configured locations and the
+outside group. The mounted Notes action and real immutable file and line
+notes keep their comparison, path, side and line. The final six reveal
+cases, one real TSX syntax case, four comparison moves, 21 mounted tests,
+selected browser frontend and typecheck passed. The implementation report
+maps the prior assertions and focused retests in `s5-implementation.md` and
+`s5-consumer-trace.md`.
+Independent refactoring shared the browser reveal between movement and
+the established open path. Six focused E2E, three frontend cases and
+Dashboard typecheck passed again. See `s5-refactor.md`.
 
 ### 6. Side panel mechanics are proven with session entries
 
@@ -424,7 +439,7 @@ Disposition: proved by slice 3: story-review-commits.spec.ts and story-review-co
 ### G3. Flagged file rows retain counts and a visible comparison qualifier
 Reported: slice 2 — "The flagged Git cases prove accessible row names and the selected Purpose heading. The former row also displayed its qualifier and counts (+1 −1 and +2 −2)."
 Story clause: "File and line actions on a diff keep their comparison context."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: story-review-trunk-own-flagged.spec.ts reads the row qualifier and +1 −1 and +2 −2 before checking actual Git diff lines. story-review-commit-renames.spec.ts observes it at the renamed destination.
 
 ### G4. An empty session review has no file toggle
 Reported: slice 2 — "The empty legacy story-panel tests still assert there is no files toggle. Preserve the panel-specific assertion with a session fixture when moving the empty story outcomes to Intent."
@@ -439,7 +454,7 @@ Disposition: interim until slices 3, 4, 5, 6, 7
 ### G6. Committed-only file rows keep their line totals and description
 Reported: slice 3 — "The Intent comparison proves exact committed and uncommitted diff lines. The former row showed +2 −0 and +1 −0 and described '1 line added, 0 lines removed'."
 Story clause: "File and line actions on a diff keep their comparison context."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: story-review-uncommitted-check.spec.ts toggles committed-only and observes +2 −0, +1 −0, the exact accessible description and the actual diff lines.
 
 ### G7. Session review retains its persistent panel status and keyboard return
 Reported: slice 3 — "The legacy workspace journeys observed the read-only description, toolbar position, keyboard return and a status area fixed between context and body during browser scroll. These are Side panel observations."
@@ -464,7 +479,7 @@ Disposition: proved by slice 4: both recently-done-one-shot-review.spec.ts journ
 ### G11. The retired capture retains its line description and file movement
 Reported: slice 4 — "The retired capture's Intent journey reads the actual binary diff and the capture wire proves each file delta. Its former first row was described as '2 lines added, 0 lines removed' and Next file moved to the binary row."
 Story clause: "File and line actions on a diff keep their comparison context."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: story-review-one-shot.spec.ts reads the fixed capture after retirement, asserts the exact added-row description, moves by keyboard to the binary row and reads its diff.
 
 ### G12. A narrow session review retains divider and covering behavior
 Reported: slice 4 — "The former one-shot race used the Side panel divider, tested the 420px covering layout, a browser above the diff and Close focus. The new story race tests Intent at 420px and the underlying panel assertions still need genuine session fixtures."

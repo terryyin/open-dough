@@ -54,7 +54,13 @@ const allFlaggedFrom = (beforeStory: string) => [
   { file: "src/a.ts", includesTrunkFrom: undefined },
   { file: "src/c.ts", includesTrunkFrom: beforeStory },
 ];
-const allRows = ["src", "  a.ts", "  c.ts", "d.md", "notes.md"];
+const allRows = [
+  "src",
+  "  a.ts",
+  "  c.ts includes trunk's changes",
+  "d.md",
+  "notes.md",
+];
 
 // Named tree of `o2`, before the story's first change to `src/c.ts`.
 const treeBeforeStory = (
@@ -120,6 +126,8 @@ test.describe("rewrite after the review opens", () => {
       expect(later.published).toEqual({ trunk, commits: 2 });
       expect(flags(later.files)).toEqual(allFlaggedFrom(beforeStory));
       await files.expectOutsideRows(allRows);
+      await files.expectTrunkQualifier(flagged);
+      await files.expectLineCounts(flagged, "+1 −1");
       await files.choose(flagged, "keyboard");
       await expectFlaggedDiff(refreshed);
     });
@@ -139,7 +147,14 @@ test.describe("rewrite after the review opens", () => {
         { file: "src/c.ts", includesTrunkFrom: beforeStory },
       ]);
       await refreshed.comparison.includeUncommitted(false);
-      await files.expectOutsideRows(["src", "  a.ts", "  c.ts", "d.md"]);
+      await files.expectOutsideRows([
+        "src",
+        "  a.ts",
+        "  c.ts includes trunk's changes",
+        "d.md",
+      ]);
+      await files.expectTrunkQualifier(flagged);
+      await files.expectLineCounts(flagged, "+1 −1");
       await files.choose(flagged, "keyboard");
       await expectFlaggedDiff(refreshed);
     });
@@ -168,6 +183,8 @@ test.describe("declared rewritten-line history", () => {
     expect(snapshot.published).toEqual({ trunk, commits: 3 });
     expect(flags(snapshot.files)).toEqual(allFlaggedFrom(beforeStory));
     await files.expectOutsideRows(allRows);
+    await files.expectTrunkQualifier(flagged);
+    await files.expectLineCounts(flagged, "+2 −2");
     await files.choose(flagged, "keyboard");
     // The older story change beside the line trunk rewrote.
     await diffs.expectChangedLines(flagged, {

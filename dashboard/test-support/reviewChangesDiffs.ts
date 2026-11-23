@@ -30,6 +30,14 @@ export class ReviewDiffs {
     return this.#locateDiff(file);
   }
 
+  async expectSyntaxToken(file: string, token: string) {
+    const span = this.#diff(file)
+      .locator(".source-token")
+      .filter({ hasText: token });
+    await expect(span).toHaveText(token);
+    return this;
+  }
+
   // The named file's diff, for reading its structure.
   toRead(file: Name) {
     return this.#diff(file);

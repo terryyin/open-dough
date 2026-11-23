@@ -33,6 +33,37 @@ export const changedFiles = (count: number) =>
 const lineWords = (count: number, change: string) =>
   `${String(count)} ${count === 1 ? "line" : "lines"} ${change}`;
 
+export function useReviewFileDetails(file: ReviewedFile | undefined) {
+  const countsId = useId();
+  const lines = file?.lines;
+  const counted =
+    lines !== undefined && lines.added + lines.removed > 0 ? lines : undefined;
+  return {
+    descriptionId: counted === undefined ? undefined : countsId,
+    details: (
+      <>
+        {file?.includesTrunkFrom !== undefined && (
+          <span className="story-review-trunk"> {includesTrunkWords}</span>
+        )}
+        {counted === undefined ? null : (
+          <>
+            {" "}
+            <span className="story-review-line-counts">
+              <span className="story-review-lines-added">+{counted.added}</span>{" "}
+              <span className="story-review-lines-removed">
+                −{counted.removed}
+              </span>
+              <span id={countsId} hidden>
+                {`${lineWords(counted.added, "added")}, ${lineWords(counted.removed, "removed")}`}
+              </span>
+            </span>
+          </>
+        )}
+      </>
+    ),
+  };
+}
+
 // A file's control: its name, and its line counts when its diff adds or
 // removes any, which describe the control in words.
 export function FileRow({
@@ -46,16 +77,12 @@ export function FileRow({
   readonly selected: boolean;
   readonly onSelect: (path: string) => void;
 }) {
-  const countsId = useId();
-  const counted =
-    file.lines !== undefined && file.lines.added + file.lines.removed > 0
-      ? file.lines
-      : undefined;
+  const { descriptionId, details } = useReviewFileDetails(file);
   return (
     <button
       type="button"
       aria-label={reviewedFileWords(file)}
-      aria-describedby={counted === undefined ? undefined : countsId}
+      aria-describedby={descriptionId}
       title={reviewedFileWords(file)}
       aria-pressed={selected}
       onClick={() => {
@@ -63,23 +90,7 @@ export function FileRow({
       }}
     >
       <code>{name}</code>
-      {file.includesTrunkFrom !== undefined && (
-        <span className="story-review-trunk"> {includesTrunkWords}</span>
-      )}
-      {counted === undefined ? null : (
-        <>
-          {" "}
-          <span className="story-review-line-counts">
-            <span className="story-review-lines-added">+{counted.added}</span>{" "}
-            <span className="story-review-lines-removed">
-              −{counted.removed}
-            </span>
-            <span id={countsId} hidden>
-              {`${lineWords(counted.added, "added")}, ${lineWords(counted.removed, "removed")}`}
-            </span>
-          </span>
-        </>
-      )}
+      {details}
     </button>
   );
 }

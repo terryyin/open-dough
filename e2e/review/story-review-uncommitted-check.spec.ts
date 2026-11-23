@@ -64,6 +64,7 @@ test.describe("from Story A's declared history", () => {
     await files.choose(story, "keyboard");
 
     await diffs.expectShows(story, "+story", "+more");
+    await files.expectLineCounts(story, "+2 −0");
     const requests = reviewRequests(page);
 
     // Off: the committed files, lines, and counts alone.
@@ -77,6 +78,11 @@ test.describe("from Story A's declared history", () => {
     await files.expectOutsideCount(4);
     await diffs.expectShows(story, "+story");
     await diffs.expectLacks(story, "+more");
+    await files.expectLineCounts(
+      story,
+      "+1 −0",
+      "1 line added, 0 lines removed",
+    );
     await review.comparison.expectUncommittedIncluded(false);
 
     // On again: the whole snapshot, as read at opening.

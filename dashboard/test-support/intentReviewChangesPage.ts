@@ -20,86 +20,10 @@ import { ReviewContext } from "./reviewChangesContext.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
 import { ReviewDiffs } from "./reviewChangesDiffs.ts";
 import { emptyArea } from "./storyCardSelection.ts";
-import {
-  intentDiffReading,
-  intentFile,
-  storyTitle,
-  intentStory,
-  outsideGroup,
-} from "./support/intentStoryPage.ts";
+import { intentDiffReading, storyTitle } from "./support/intentStoryPage.ts";
 import { reviewAfter } from "./support/launchLandingReview.ts";
 import { reviewRefresh } from "./support/reviewControls.ts";
-import { expectTreeRows } from "./support/reviewTreeRows.ts";
-
-class IntentReviewFiles {
-  readonly #intent: Locator;
-
-  constructor(intent: Locator) {
-    this.#intent = intent;
-  }
-
-  get #outsideList() {
-    return outsideGroup(this.#intent).getByRole("list", {
-      name: "Changed files outside Intent locations",
-      exact: true,
-    });
-  }
-
-  async expectOutsideCount(count: number) {
-    await expect(this.#outsideList.locator("li[data-kind]")).toHaveCount(count);
-    return this;
-  }
-
-  async expectOutsideFiles(count: number, names: readonly string[]) {
-    await this.expectOutsideCount(count);
-    const story = intentStory(this.#intent);
-    for (const name of names) {
-      await expect(story.outsideFile(name)).toBeVisible();
-    }
-    return this;
-  }
-
-  async expectOutsideRows(rows: readonly string[]) {
-    await expectTreeRows(this.#outsideList, rows);
-    return this;
-  }
-
-  async expectNone() {
-    await expect(outsideGroup(this.#intent)).toHaveCount(0);
-    return this;
-  }
-
-  async expectOutsideLacks(...texts: readonly string[]) {
-    for (const text of texts) {
-      await expect(this.#outsideList).not.toContainText(text);
-    }
-    return this;
-  }
-
-  async expectSelected(file: string) {
-    await expect(intentFile(this.#intent, file)).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    return this;
-  }
-
-  async expectNotShown(file: string) {
-    await expect(intentFile(this.#intent, file)).toHaveCount(0);
-    return this;
-  }
-
-  async expectNoBrowser() {
-    await expect(filesColumn(this.#intent)).toHaveCount(0);
-    return this;
-  }
-
-  async choose(file: string, using: "mouse" | "keyboard" = "mouse") {
-    const control = intentFile(this.#intent, file);
-    await (using === "keyboard" ? control.press("Enter") : control.click());
-    return this;
-  }
-}
+import { IntentReviewFiles } from "./intentReviewFiles.ts";
 
 class IntentReviewChanges {
   readonly #intent: Locator;
@@ -192,6 +116,10 @@ class IntentReviewChanges {
     await (using === "keyboard" ? toggle.press("Enter") : toggle.click());
     await expectFilesShown(this.#intent, shown);
     return this;
+  }
+
+  readingToMeasure() {
+    return this.#intent.locator(".intent-reading");
   }
 
   filesToMeasure() {

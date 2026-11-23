@@ -14,7 +14,13 @@
 // earlier revision whose update failed stays readable under that failure and
 // its Retry.
 
-import { useId, useLayoutEffect, useRef, type RefObject } from "react";
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { ArrowRight } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
@@ -31,10 +37,8 @@ import {
   type IntentTabOption,
 } from "./IntentTabs.tsx";
 import { useKeptReading, useKeptReadingScroll } from "./pageIntentReading.tsx";
-import { diffStartOf } from "./storyComparisonShown.ts";
 import { useStoryCiReturn } from "./intentStoryTabs.tsx";
-import { FileDiff } from "./StoryReviewFileDiff.tsx";
-import { ReviewedFileHeader } from "./StoryReviewFileHeader.tsx";
+import { IntentComparedFile } from "./IntentComparedFile.tsx";
 import "./intent-file-reading.css";
 import "./intent-explanations.css";
 import "./intent-open-link.css";
@@ -99,6 +103,7 @@ export function IntentFileReading({
   caseTarget,
   treeFile,
   story,
+  moves,
   onFileRetry,
   failedRevision,
 }: {
@@ -118,6 +123,7 @@ export function IntentFileReading({
   // The selected file as the location's tree shows it.
   readonly treeFile: IntentTreeFile | undefined;
   readonly story: ComparedStory | undefined;
+  readonly moves: ReactNode;
   readonly onFileRetry: () => void;
 }) {
   const { tab, onChooseTab, idPrefix, readingArea } = place;
@@ -131,9 +137,6 @@ export function IntentFileReading({
       ? undefined
       : resolveCaseTargetLine(text, caseTarget);
   const change = storyDiffOf(story, treeFile);
-  // The selected change's *from* tree, as Review changes reads it.
-  const changeFrom =
-    story === undefined ? "" : diffStartOf(story.shown.comparison, change);
 
   function chooseTab(next: IntentReadingTab) {
     if (next === tab) return;
@@ -175,23 +178,13 @@ export function IntentFileReading({
         <section className="intent-purpose" aria-label="Purpose">
           <h3 className="visually-hidden">Purpose</h3>
           {story !== undefined && change !== undefined ? (
-            <div className="intent-story-diff">
-              <ReviewedFileHeader
-                reviewed={story.shown.reviewed}
-                from={changeFrom}
-                tree={story.shown.tree}
-                file={change}
-              />
-              <FileDiff
-                // A new comparison or file is a new read.
-                key={`${changeFrom}:${story.shown.tree}:${change.path}`}
-                reviewed={story.shown.reviewed}
-                from={changeFrom}
-                tree={story.shown.tree}
-                file={change}
-                {...(syntaxHint === undefined ? {} : { syntaxHint })}
-              />
-            </div>
+            <IntentComparedFile
+              story={story.shown}
+              file={change}
+              syntaxHint={syntaxHint}
+              moves={moves}
+              readingArea={readingArea}
+            />
           ) : read?.state === "failed" ? (
             <p className="intent-file-problem" role="alert">
               {path} could not be read.{" "}

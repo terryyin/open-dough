@@ -19,10 +19,7 @@ import {
 } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
-import {
-  openIntentReviewChanges,
-  openReviewChanges,
-} from "../../dashboard/test-support/reviewChangesPage.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import {
   commitAll,
   git,
@@ -125,11 +122,11 @@ test("with the check off the file moves stay within the committed files and a bi
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const review = await openReviewChanges(page, card);
+  const review = await openIntentReviewChanges(page, card);
   const { snapshot: shown, files, diffs } = review;
   const image = "Modified image.png";
   const noDiff = "This file has no textual diff: Git reads it as binary.";
-  await files.chooseShown(image, "keyboard");
+  await files.choose(image, "keyboard");
   await diffs.expectShows(image, noDiff);
 
   // Off: the same answer for the committed image, read to the head's tree.
@@ -159,8 +156,8 @@ test("with the check off the file moves stay within the committed files and a bi
   }
   await files.expectMoveAtEnd("Next file");
 
-  await review.close();
-  const reopened = await openReviewChanges(page, card);
+  await review.returnToDevelopment();
+  const reopened = await openIntentReviewChanges(page, card);
   await reopened.comparison.expectUncommittedIncluded(true);
-  await reopened.files.expectListed("7 changed files");
+  await reopened.files.expectOutsideCount(7);
 });

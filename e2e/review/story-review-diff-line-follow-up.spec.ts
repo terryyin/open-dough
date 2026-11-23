@@ -26,17 +26,12 @@ import {
   diffLines,
   expectContextRead,
 } from "../../dashboard/test-support/support/reviewPanes.ts";
-import { readReview } from "../../dashboard/test-support/support/launchLandingReview.ts";
-import {
-  fileDiff,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import { expandContextFile } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { seedStoryNotes } from "../../dashboard/test-support/support/storyNotesStore.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
-import { reviewRegion } from "../../dashboard/test-support/support/reviewControls.ts";
 import type { Page } from "@playwright/test";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 
@@ -63,15 +58,14 @@ test.describe("diff line Follow up menu", () => {
       name: "Story A",
       exact: true,
     });
-    const first = await readReview(page, card);
-    expect(first.kind).toBe("published");
-    const review = reviewRegion(page);
-    await listedFile(review, fileLabel, { exact: true }).click();
-    const diff = fileDiff(review, fileLabel, { exact: true });
+    const review = await openIntentReviewChanges(page, card);
+    expect(review.answer.kind).toBe("published");
+    await review.files.choose(fileLabel);
+    const diff = review.diffs.toRead(fileLabel);
     await expect(diffLines(diff).first()).toBeVisible();
     // Line numbers hold still only once the gap rows above them have arrived.
     await expectContextRead(codePane(diff));
-    return { review, diff };
+    return { diff };
   }
 
   test("selecting a diff line copies code without line numbers", async ({

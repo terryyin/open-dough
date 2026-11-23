@@ -53,8 +53,9 @@ test("a file renamed before and after conflicted integration stays flagged with 
   await review.comparison.choose("Commits");
   await commits.choose("last");
   await commits.expectRange("Changes in 4 commits");
-  await files.expectOutsideRows(["src", "  e.ts"]);
+  await files.expectOutsideRows(["src", "  e.ts includes trunk's changes"]);
   const name = "Renamed src/c.ts → src/e.ts, includes trunk's changes";
+  await files.expectTrunkQualifier(name);
   await files.choose(name);
   await diffs.expectShows(name);
   await diffs.expectLines("removed", ["-c 5"]);

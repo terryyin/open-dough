@@ -12,13 +12,8 @@ import {
   storyARepository,
   test,
 } from "../../dashboard/test-support/support/storyAReviewRepository.ts";
-import {
-  treeFolder,
-  fileLineCounts,
-  changedFilesList,
-  listedFile,
-} from "../../dashboard/test-support/support/reviewTreeRows.ts";
-import { openReview } from "../../dashboard/test-support/support/reviewRead.ts";
+import { fileLineCounts } from "../../dashboard/test-support/support/reviewTreeRows.ts";
+import { openIntentReviewChanges } from "../../dashboard/test-support/reviewChangesPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { storyWorktree } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { keepLaunchRecord } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
@@ -38,9 +33,9 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
   const { workspace } = storyWorktree(origin);
   keepLaunchRecord(dashboard, workspace);
   const card = await openBacklog(page, origin);
-  const review = await openReview(page, card);
-  const files = changedFilesList(review, "8 changed files");
-  const file = (name: string) => listedFile(files, name, { exact: true });
+  const { files } = await openIntentReviewChanges(page, card);
+  await files.expectOutsideCount(8);
+  const file = (name: string) => files.row(name);
 
   for (const [name, shown, words] of [
     ["Modified unstaged.txt", "+2 −1", "2 lines added, 1 line removed"],
@@ -48,11 +43,7 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
     ["Renamed old.txt → new.txt", "+1 −0", "1 line added, 0 lines removed"],
     ["Added fresh/new.txt", "+1 −0", "1 line added, 0 lines removed"],
   ] as const) {
-    await expect(fileLineCounts(file(name))).toHaveText(shown, {
-      useInnerText: true,
-    });
-    await expect(fileLineCounts(file(name))).toBeVisible();
-    await expect(file(name)).toHaveAccessibleDescription(words);
+    await files.expectLineCounts(name, shown, words);
   }
   // Neither the image nor the mode-only change has lines to count.
   for (const name of ["Modified image.png", "Modified other.txt"]) {
@@ -62,9 +53,7 @@ test("each file's row shows the lines its diff adds and removes, in words to ass
   }
 
   // A collapsed folder still tells its changed files, not their lines.
-  await treeFolder(review, "fresh").press("Enter");
-  await expect(treeFolder(review, "fresh 1 changed file")).toHaveAttribute(
-    "aria-expanded",
-    "false",
-  );
+  await files.folder("fresh").press("Enter");
+  await expect(files.folderName("fresh 1 file")).toBeVisible();
+  await expect(files.folder("fresh")).toHaveAttribute("aria-expanded", "false");
 });

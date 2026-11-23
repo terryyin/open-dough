@@ -11,7 +11,10 @@ import {
   treeFileComparisonOf,
 } from "./intentTreeComparison.ts";
 import type { IntentTreeFile } from "./intentStoryOverlay.ts";
-import { reviewedFileWords } from "./StoryReviewFileTree.tsx";
+import {
+  reviewedFileWords,
+  useReviewFileDetails,
+} from "./StoryReviewFileRow.tsx";
 
 export function IntentTreeFileRow({
   name,
@@ -29,6 +32,7 @@ export function IntentTreeFileRow({
   readonly path: string;
   readonly treeFile: IntentTreeFile;
 }) {
+  const { descriptionId, details } = useReviewFileDetails(treeFile.change);
   const label =
     treeFile.change === undefined ? path : reviewedFileWords(treeFile.change);
   const comparison = treeFileComparisonOf(reading, path, treeFile);
@@ -40,12 +44,14 @@ export function IntentTreeFileRow({
     <button
       type="button"
       aria-label={accessible}
+      aria-describedby={descriptionId}
       title={accessible}
       aria-pressed={selected}
       {...(comparison === undefined ? {} : scopeCueRowAttrs(comparison.cues))}
       onClick={onSelect}
     >
       <code>{name}</code>
+      {details}
     </button>
   );
 }

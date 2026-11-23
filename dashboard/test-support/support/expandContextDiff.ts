@@ -2,9 +2,8 @@
 // changes on a card prepared from expandContextRepository.
 
 import { diffLines } from "./reviewPanes.ts";
-import { fileDiff } from "./reviewTreeRows.ts";
 import type { Locator, Page } from "@playwright/test";
-import { openReview } from "./reviewRead.ts";
+import { openIntentReviewChanges } from "../reviewChangesPage.ts";
 import { expandContextFile } from "./storyReviewWorktree.ts";
 
 export const expandFirstHunk = "@@ -51,7 +51,7 @@ line 50";
@@ -29,9 +28,10 @@ export const diffHunk = (diff: Locator, header: string) =>
   diff.getByRole("list", { name: header });
 
 export async function openExpandDiff(page: Page, card: Locator) {
-  const review = await openReview(page, card);
+  const review = await openIntentReviewChanges(page, card);
   const fileName = `Modified ${expandContextFile}`;
-  const diff = fileDiff(review, fileName);
+  await review.files.choose(fileName);
+  const diff = review.diffs.toRead(fileName);
   const gap = (name: string) => diff.getByRole("list", { name });
   return {
     review,

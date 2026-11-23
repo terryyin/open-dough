@@ -47,6 +47,7 @@ import { ReviewFiles } from "./reviewChangesFiles.ts";
 import { ReviewFrame } from "./reviewChangesFrame.ts";
 
 export type { Using };
+export { intentReviewFiles } from "./intentReviewFiles.ts";
 export {
   openIntentReviewChanges,
   type IntentReviewChanges,

@@ -9,7 +9,7 @@
 // inside the body. Story comparison: file rows and compared-entry location
 // headers reuse shared cells/cues (`./intentTreeComparison.ts`); folders uncued.
 
-import { useEffect, useRef } from "react";
+import { useIntentRowReveal } from "./useIntentRowReveal.ts";
 import { IntentLocationHeader } from "./IntentLocationHeader.tsx";
 import type { IntentLocation } from "./authenticatedIntentRead.ts";
 import { useIntentCiEvidence } from "./IntentCiEvidence.tsx";
@@ -89,13 +89,7 @@ export function IntentLocationGroup({
       ? { request: reveal, path: reveal.path.slice(prefix.length) }
       : undefined,
   });
-  const sectionRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (!revealHere) return;
-    sectionRef.current
-      ?.querySelector('[aria-pressed="true"]')
-      ?.scrollIntoView({ block: "nearest" });
-  }, [reveal, revealHere]);
+  const sectionRef = useIntentRowReveal(revealHere ? reveal : undefined);
 
   const comparison = treeComparisonReadingOf(useIntentCiEvidence());
 

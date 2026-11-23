@@ -4,10 +4,8 @@
 // without whole-gap/whole-file shortcuts, keeping markers, numbers, scroll
 // place, and a readable printed diff when the text read fails until Retry.
 
-import { listedFile } from "../../dashboard/test-support/support/reviewTreeRows.ts";
 import {
   diffLines,
-  codePane,
   scrollTopOf,
 } from "../../dashboard/test-support/support/reviewPanes.ts";
 import {
@@ -53,10 +51,7 @@ test.describe("diff context expansion", () => {
       afterGap,
       hunkLines,
     } = await openExpandDiff(page, card);
-    await expect(listedFile(review, fileName)).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await review.files.expectSelected(fileName);
 
     // First paint keeps Git's default printed hunks (no raised -U).
     await expect(hunkLines(expandFirstHunk)).toHaveText(expandFirstHunkPrinted);
@@ -155,13 +150,13 @@ test.describe("diff context expansion", () => {
     });
 
     await test.step("upward expansion above a mid-viewport hunk keeps that hunk in view", async () => {
-      await page.keyboard.press("Meta+Shift+Escape");
+      await review.returnToDevelopment();
       const again = await openExpandDiff(page, card);
-      const code = codePane(again.diff);
+      const reading = again.review.readingToMeasure();
       const hunk = diffHunk(again.diff, expandFirstHunk);
       const expandUp = contextExpansion(again.beforeGap, /Show 20 preceding/);
       await hunk.evaluate((el) => {
-        const scroller = el.closest(".story-review-code");
+        const scroller = el.closest(".intent-reading");
         if (!(scroller instanceof HTMLElement)) return;
         const top =
           el.getBoundingClientRect().top -
@@ -183,7 +178,7 @@ test.describe("diff context expansion", () => {
         (el) => el.getBoundingClientRect().top,
       );
       expect(Math.abs(afterTop - beforeTop)).toBeLessThan(4);
-      expect(await scrollTopOf(code)).toBeGreaterThan(0);
+      expect(await scrollTopOf(reading)).toBeGreaterThan(0);
     });
 
     await test.step("a failed context read leaves the printed diff and offers retry", async () => {
