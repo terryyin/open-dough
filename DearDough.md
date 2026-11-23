@@ -394,6 +394,8 @@ Former local code: DD-572.
 
 - SEED-340#keep-one-time-test-preparation-out-of-case-budgets (plan 685; first implementation 06eccefa7)
 
+- Execution: SEED-341#keep-attention-completion-journey-within-timeout (plan 782, first implementation `4e31faa0f`). Timestamp: 2026-11-23T06:41:38Z (first candidate load sample). Tool: Codex. Open Dough release: 0.3.111 (checkout's installed dough-update VERSION at Take `497eed2c2`). Evidence: `bdf484822:.planning/slice-plans/782-keep-attention-completion-journey-within-timeout/PLAN.md` records three diagnostic runs with 86, 48 and 20 synthetic burners. Nominally matching the original burner count produced load over 100, and reducing the count still yielded timeouts in unchanged controls. A separate three-minute wait for natural load at or below 17 selected no tests. The same five specs at four workers, with no burners, reproduced the original timeout while both split cases and all seven controls passed at overlapping natural load and control timings. Observed effect: roughly six minutes of diagnostic runner time and one readiness wait. Inference: case times from unchanged controls made the contention comparison more informative than burner count or a load threshold alone.
+
 [Account and evidence at ODF-527](https://github.com/terryyin/open-dough/blob/9f08e8ffa820d367ac43816d10f7954bb33976b8/docs/maintainer/findings/ODF-527.md#evidence-2026-11-23-open-dough-dd-572).
 Source recovery: `f2dc005fa61b97ac1d8f645c0e09a23a9770b475:DearDough.md`.
 
