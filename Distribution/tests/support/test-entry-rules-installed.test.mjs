@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
@@ -13,6 +13,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { makeMe } from "./makeMe.mjs";
+import { declaredPayload } from "./releaseTestData.mjs";
 import { createPageObjectInstalledProject } from "../../evaluation/cases/page-objects/page-object-native-installed-fixture.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
@@ -76,22 +77,7 @@ test("a complete installed update retains standalone independent selection in ev
     configuration,
   );
   assert.equal(existsSync(join(project, "node_modules")), false);
-  const declared = execFileSync(
-    "bash",
-    [
-      "-c",
-      'source "$1"; read_managed_files_declaration "$2"',
-      "payload",
-      join(
-        source,
-        "Distribution/src/install/open-dough-payload-declaration.sh",
-      ),
-      join(source, "install.sh"),
-    ],
-    { encoding: "utf8" },
-  )
-    .trim()
-    .split("\n");
+  const declared = declaredPayload(source);
   const paths = [
     "both/new.spec.mjs",
     "pages/new.spec.mjs",

@@ -1,19 +1,22 @@
 // @ts-check
-import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
- * A tagged Open Dough release: the revision's `VERSION`, changelog entry and
- * payload marker, and the annotated `v<version>` tag dated `taggedAt`.
- * `withheld` lists managed path prefixes its installer does not declare;
- * `removed` lists payload paths it does not ship; `added` maps each payload
- * path it ships beyond the current payload, and declares first, to its bytes.
+ * A tagged list-era Open Dough release: the revision's `VERSION`, changelog
+ * entry and payload marker, and the annotated `v<version>` tag dated
+ * `taggedAt`. Its installer declares its payload as a list, in the historical
+ * `grouped` layout (an inline array plus a data-only append fragment) or as one
+ * `inline` array. `withheld` lists managed path prefixes its source tree holds
+ * but its list does not declare; `removed` lists payload paths its source tree
+ * omits; `added` maps each payload path it ships beyond the current payload,
+ * and declares first, to its bytes.
  * @typedef {{
  *   version: string,
  *   taggedAt: string,
  *   marker: string,
+ *   declaration: "grouped" | "inline",
  *   withheld: readonly string[],
  *   removed: readonly string[],
  *   added: Readonly<Record<string, string>>,
@@ -21,9 +24,9 @@ import { fileURLToPath } from "node:url";
  */
 
 /**
- * The facts a test states for a release; it withholds, removes and adds
- * nothing unless it says so.
- * @typedef {Omit<Release, "withheld" | "removed" | "added"> & Partial<Pick<Release, "withheld" | "removed" | "added">>} ReleaseFacts
+ * The facts a test states for a release; it declares a grouped list and
+ * withholds, removes and adds nothing unless it says so.
+ * @typedef {Omit<Release, "declaration" | "withheld" | "removed" | "added"> & Partial<Pick<Release, "declaration" | "withheld" | "removed" | "added">>} ReleaseFacts
  */
 
 // The Open Dough working tree whose payload a release ships.
@@ -31,27 +34,25 @@ export const openDoughSource = fileURLToPath(
   new URL("../../../", import.meta.url),
 );
 
-const installerPath = join(openDoughSource, "install.sh");
-const managedFilesDeclaration = /^managed_files=\(\n([\s\S]*?)^\)/m;
-
 /** @param {string} prefix @param {string} path */
 const withholds = (prefix, path) => path !== "" && path.startsWith(prefix);
 /** @param {string} removed @param {string} path */
 const removes = (removed, path) => `${path}/`.startsWith(`${removed}/`);
 
-/** The managed payload paths the working tree's install.sh declares. */
-export function declaredPayload() {
+/**
+ * The managed payload paths a source tree's install.sh declares, read through
+ * that tree's own declaration reader; the working tree's by default.
+ * @param {string} [root]
+ */
+export function declaredPayload(root = openDoughSource) {
   return execFileSync(
     "bash",
     [
       "-c",
       'source "$1"; read_managed_files_declaration "$2"',
       "release-payload",
-      join(
-        openDoughSource,
-        "Distribution/src/install/open-dough-payload-declaration.sh",
-      ),
-      installerPath,
+      join(root, "Distribution/src/install/open-dough-payload-declaration.sh"),
+      join(root, "install.sh"),
     ],
     { encoding: "utf8" },
   )
@@ -69,31 +70,50 @@ export function shippedPayload({ removed }) {
   );
 }
 
+// The historical list-era launcher: its declaration as data, then the
+// working tree's install entry, so the tag's installer runs the real install.
+const historicalFragment = "src/install/open-dough-execution-payload.sh";
+const includes = (/** @type {string} */ path) =>
+  `source "$(dirname -- "\${BASH_SOURCE[0]}")/${path}"`;
+/** @param {string} opening @param {readonly string[]} paths */
+const listing = (opening, paths) =>
+  [opening, ...paths.map((path) => `  ${path}`), ")"].join("\n");
+
 /**
- * The working tree's declaration files, declaring added paths first and no
- * managed path under a prefix the release withholds. Preserve the source's
- * grouped layout so release-history tests read actual fragmented declarations.
- * @param {Pick<Release, "withheld" | "added">} release
+ * The release's list-era declaration files: its installer's list declares the
+ * added paths first and no path under a prefix the release withholds. A
+ * grouped declaration appends its second half from a data-only fragment.
+ * @param {Pick<Release, "declaration" | "withheld" | "added">} release
  */
-export function releaseDeclarationFiles({ withheld, added }) {
-  const fragment = "src/install/open-dough-execution-payload.sh";
-  const keep = (/** @type {string} */ source) =>
-    source
-      .split("\n")
-      .filter(
-        (line) => !withheld.some((prefix) => withholds(prefix, line.trim())),
-      )
-      .join("\n");
-  const declared = Object.keys(added).map((path) => `  ${path}`);
-  return {
-    "install.sh": readFileSync(installerPath, "utf8").replace(
-      managedFilesDeclaration,
-      (declaration) => {
-        const [opening, ...entries] = keep(declaration).split("\n");
-        return [opening, ...declared, ...entries].join("\n");
-      },
+export function releaseDeclarationFiles({ declaration, withheld, added }) {
+  const declared = [
+    ...Object.keys(added),
+    ...declaredPayload().filter(
+      (path) => !withheld.some((prefix) => withholds(prefix, path)),
     ),
-    [fragment]: keep(readFileSync(join(openDoughSource, fragment), "utf8")),
+  ];
+  const split =
+    declaration === "grouped"
+      ? Math.ceil(declared.length / 2)
+      : declared.length;
+  const appended = declared.slice(split);
+  return {
+    "install.sh": [
+      "#!/usr/bin/env bash",
+      "# shellcheck disable=SC1091,SC2034",
+      listing("managed_files=(", declared.slice(0, split)),
+      ...(appended.length ? [includes(historicalFragment)] : []),
+      includes("Distribution/src/install/open-dough-install-entry.sh"),
+      "",
+    ].join("\n"),
+    ...(appended.length && {
+      [historicalFragment]: [
+        "#!/usr/bin/env bash",
+        "# shellcheck disable=SC2034",
+        listing("managed_files+=(", appended),
+        "",
+      ].join("\n"),
+    }),
   };
 }
 
@@ -103,7 +123,13 @@ export function releaseDeclarationFiles({ withheld, added }) {
  * @param {ReleaseFacts} facts
  * @returns {Release}
  */
-function release({ withheld = [], removed = [], added = {}, ...facts }) {
+function release({
+  declaration = "grouped",
+  withheld = [],
+  removed = [],
+  added = {},
+  ...facts
+}) {
   const declared = declaredPayload();
   for (const prefix of withheld)
     if (!declared.some((path) => withholds(prefix, path)))
@@ -122,6 +148,7 @@ function release({ withheld = [], removed = [], added = {}, ...facts }) {
       );
   return {
     ...facts,
+    declaration,
     withheld: [...withheld],
     removed: [...removed],
     added: { ...added },

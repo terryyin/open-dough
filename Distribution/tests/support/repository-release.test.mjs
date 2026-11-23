@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, realpathSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { git } from "../../src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "./makeMe.mjs";
+import { declaredPayload } from "./releaseTestData.mjs";
 import { materializeLocalCheckout } from "./repository-fixture.mjs";
 
 test("a local release checkout built in place tags its release annotated at the stated date and has no origin", async (t) => {
@@ -114,4 +116,79 @@ test("a release ships and declares the payload it adds, and a later release whos
     "",
   );
   assert.doesNotMatch(await read("show", "v0.1.1:install.sh"), /dough-retired/);
+});
+
+test("grouped and inline list-era releases declare the same payload, without the path they withhold from a source tree that holds it", async (t) => {
+  const at = join(
+    realpathSync(mkdtempSync(join(tmpdir(), "release-source-"))),
+    "source",
+  );
+  const withheld = { withheld: ["dough-makeme/"] };
+  await materializeLocalCheckout(
+    t,
+    makeMe.aRepository
+      .withRevision("release 0.1.0", {
+        backlog: null,
+        release: makeMe.aRelease
+          .with({
+            version: "0.1.0",
+            taggedAt: "2026-08-31T00:00:00",
+            marker: "payload-0.1.0",
+            ...withheld,
+          })
+          .please(),
+      })
+      .withRevision("release 0.1.1", {
+        backlog: null,
+        release: makeMe.aRelease
+          .with({
+            version: "0.1.1",
+            taggedAt: "2026-09-01T00:00:00",
+            marker: "payload-0.1.1",
+            declaration: "inline",
+            ...withheld,
+          })
+          .please(),
+      })
+      .please(),
+    { at },
+  );
+  t.after(() => rmSync(dirname(at), { recursive: true, force: true }));
+  const read = async (...args) => (await git(at, ...args)).stdout.trim();
+  const declared = (/** @type {string} */ tag) => {
+    const tree = join(dirname(at), tag);
+    mkdirSync(tree);
+    execFileSync("sh", [
+      "-c",
+      'git -C "$1" archive "$2" | tar -x -C "$3"',
+      "archive",
+      at,
+      tag,
+      tree,
+    ]);
+    return declaredPayload(tree);
+  };
+  const fragmentInclude = /open-dough-execution-payload\.sh/;
+
+  const grouped = declared("v0.1.0");
+  const inline = declared("v0.1.1");
+
+  assert.match(await read("show", "v0.1.0:install.sh"), fragmentInclude);
+  assert.doesNotMatch(await read("show", "v0.1.1:install.sh"), fragmentInclude);
+  assert.deepEqual(inline, grouped);
+  assert.ok(grouped.includes("dough-update/SKILL.md"));
+  for (const tag of ["v0.1.0", "v0.1.1"])
+    assert.match(
+      await read(
+        "ls-tree",
+        "--name-only",
+        tag,
+        "Distribution/src/skills/dough-makeme/SKILL.md",
+      ),
+      /dough-makeme\/SKILL\.md/,
+    );
+  assert.deepEqual(
+    grouped.filter((path) => path.startsWith("dough-makeme/")),
+    [],
+  );
 });

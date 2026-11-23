@@ -129,7 +129,7 @@ installer does not call it yet; slice 7 wires it into install.
 
 ### 2. Make list-era test releases independent of current installer syntax
 Type: Structure
-Status: planned
+Status: done
 Estimated active work: 10–14 minutes.
 
 Enable slice 3's mixed-format proof. Isolate historical installer declaration data
@@ -146,6 +146,12 @@ Proof. Run `repository-release.test.mjs`, `payload-declaration-links.sh`,
 The history fixtures still distinguish present-on-source from installed, and
 the installer and updater see the same selected paths. Recheck fixture
 apparatus consumers found on the diff.
+
+Delivered: the release builder in `Distribution/tests/support/releaseTestData.mjs`
+writes its own list-era launcher, `declaration: "grouped"` (default) or
+`"inline"`, and `declaredPayload(root)` reads any tree with its own reader.
+The grouped-versus-inline case in `repository-release.test.mjs` targets only the
+builder; retire or narrow it once slice 3's proof uses `inline`.
 
 ### 3. Compare the installed baseline using its tag's payload format
 Type: Behavior
