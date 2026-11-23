@@ -197,7 +197,7 @@ sequence in `intent-candidates-read-recovery.spec.ts` is unchanged.
 ### 2. CI activation shows the judgment for the scope the reader opens
 
 Type: Structure
-Status: planned
+Status: done
 
 Shorten case 1 in `intent-home-activation-scope.spec.ts`. Move typed work,
 machine claim and read recording into one local arrangement. Start the
@@ -214,6 +214,15 @@ copies of the story-tab wait where the changed panel supplies the cue.
 Map the prior checks at lines 145–206 to their focused owners. In scratch
 make `ciTargetOf` use main for the Taken story. Require the story-branch
 case to fail on the judgment after reactivation from Changes.
+
+**Delivered.** `readStoryChanges()` arranges the claimed story read in
+Changes. Three cases own the story-branch judgment after activation from
+Changes, Project Intent's main judgment and own selection, and reciprocal
+focus with the restored Changes file and review identity. The work-revision
+file read moved to the Project Intent case, where the read happens. Scratch
+`ciTargetOf` → main fails the story-branch case at its judgment.
+`projectIntentLink` and `backToStory` live in `intent-recent-stories-page.ts`;
+slice 6 reuses `backToStory` for the homepage spec's inline locator.
 
 ### 3. Intent mode keys stay handled before project cycling
 

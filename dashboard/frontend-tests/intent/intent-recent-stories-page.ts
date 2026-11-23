@@ -22,6 +22,15 @@ const rows = () =>
     }),
   );
 const notice = page.getByRole("status", { name: "Story reference navigation" });
+// The selected story's header link to Project Intent, and Project Intent's
+// way back to the story.
+export const projectIntentLink = intent
+  .getByRole("region", { name: "Selected story", exact: true })
+  .getByRole("button", { name: "Project Intent", exact: true });
+export const backToStory = intent.getByRole("button", {
+  name: "Back to selected story",
+  exact: true,
+});
 
 // The story view's start, marked as Intent's home, is readable.
 const storyStartReadable = () => {
@@ -35,11 +44,7 @@ const storyStartReadable = () => {
 export function intentRecentStories(project: PublishedSource) {
   const recent = {
     async openProjectIntent() {
-      await userEvent.click(
-        intent
-          .getByRole("region", { name: "Selected story", exact: true })
-          .getByRole("button", { name: "Project Intent", exact: true }),
-      );
+      await userEvent.click(projectIntentLink);
       await expect
         .element(intent.getByRole("heading", { name: "Project Intent" }))
         .toBeVisible();
@@ -81,9 +86,7 @@ export function intentRecentStories(project: PublishedSource) {
     async showsStoryFromStart(identity: string) {
       await recent.selects(identity);
       await recent.intentStays();
-      await expect
-        .element(intent.getByRole("button", { name: "Back to selected story" }))
-        .not.toBeInTheDocument();
+      await expect.element(backToStory).not.toBeInTheDocument();
       await expect.element(popover).not.toBeInTheDocument();
       await expect.poll(storyStartReadable).toBe(true);
     },

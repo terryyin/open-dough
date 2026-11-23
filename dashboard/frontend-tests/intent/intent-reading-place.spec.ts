@@ -132,17 +132,8 @@ async function openStoryChanges() {
       .please(),
   });
   await mounted.selectStory(storyA.identity, storyA.title);
-  await chooseStoryTab("Changes");
+  await story.chooseTab("Changes");
   return { ...mounted, reads };
-}
-
-async function chooseStoryTab(
-  name: "Changes" | "CI comparison" | "Intent coverage",
-) {
-  await story.chooseTab(name);
-  await expect
-    .element(story.tab(name))
-    .toHaveAttribute("aria-selected", "true");
 }
 
 // The deep spec selected with "Selected story only" on and `out` collapsed by
@@ -164,9 +155,9 @@ test("a file selected two folders deep, with Selected story only and Purpose scr
 
   mounted.reads.length = 0;
   for (const view of ["CI comparison", "Intent coverage"] as const) {
-    await chooseStoryTab(view);
+    await story.chooseTab(view);
     await expect.poll(story.readingShown).toBe(false);
-    await chooseStoryTab("Changes");
+    await story.chooseTab("Changes");
     await expect.poll(story.readingOffset).toBe(offset);
   }
   await mounted.showDevelopment();
@@ -214,7 +205,7 @@ test("another project shows none of the reading place, and choosing the project 
     .toHaveAttribute("aria-selected", "true");
   const ciPanel = intentCiStatus().panel;
   await expect.element(ciPanel).toBeVisible();
-  await chooseStoryTab("Changes");
+  await story.chooseTab("Changes");
   await expect
     .poll(story.readingText)
     .toContain(
