@@ -68,6 +68,14 @@ dashboard specs run through `npm run test:dashboard:backend -- <paths>`.
 instruction as `argv.at(-1)`; reading it through `claudeLaunch` would drop
 that position dependence. Settle at wrap-up.
 
+## Execution complete
+
+Product advice: no change. Judge keep or stop, as the story says, from the
+traces of the first real dashboard-launched Claude Code execution after the
+dashboard runs this revision. That execution's coordinator and workers should
+start without Artifact, and its results should read as usual. This execution
+was launched before the change, so it cannot show the effect.
+
 ## Plan review
 
 Refinement not needed: one small slice in one function with existing proof.
