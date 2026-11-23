@@ -33,10 +33,10 @@ intent introduced or affected by a newly developed story.
 - [Read and collect CI proof only in declared units](seeds/SEED-423-shrink-the-installed-distribution.md#require-declared-units-in-ci-proof) — SEED-423#require-declared-units-in-ci-proof ([plan](slice-plans/795-require-declared-units-in-ci-proof/PLAN.md))
 - [Bring the Done capture family's cases to 100–200 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#optimize-done-capture-family-cases) — SEED-413#optimize-done-capture-family-cases ([plan](slice-plans/757-optimize-done-capture-family-cases/PLAN.md))
 - [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory ([plan](slice-plans/796-derive-the-install-payload-from-the-shipped-directory/PLAN.md))
+- [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison ([plan](slice-plans/797-read-ci-proof-for-the-selected-comparison/PLAN.md))
 
 ## Backlog list
 
-- [Read CI proof for the selected comparison](seeds/SEED-420-unified-intent-review.md#read-proof-for-the-comparison) — SEED-420#read-proof-for-the-comparison
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof
 - [Get fast proof of live sessions and terminal work](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof) — SEED-413#speed-dashboard-live-session-and-terminal-proof
