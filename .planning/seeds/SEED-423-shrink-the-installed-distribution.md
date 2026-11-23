@@ -220,47 +220,68 @@ file carries `lastClockCommandAt`.
 **Identity:** SEED-423#require-declared-units-in-ci-proof
 
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md","assessment":"not-ready","reasons":["Provisional resplit remainder awaiting story refinement and plan realignment."],"basis":{"document":"9ee66b628730aee17758b3906bfcaba51c4f2794c381fb16177dc03aca8bc492","plan":"8eff96ab4219f8087ab961837d85e26e099819a0df93bd9dea3a4744c9a08f24"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"dba30be7228492bb6b357ef3ecd690d149a0c7111418c9bad49ff434541ece98","plan":"1283275234432fdc94ea916201ce494e385d1698893365dc7a9ec7fdf82ab17a"}}
 ```
 
 **Split from** SEED-423#retire-finished-migrations-and-legacy-formats before
-readiness on 2026-11-23, when retiring CI proof summary `schemaVersion: 1` and
-`unit: "legacy"` alongside the installer, backlog, and execution legacy
-readers exceeded the eight-slice plan limit. Its provisional plan is
-[plan 795](../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md),
-awaiting story refinement.
+readiness on 2026-11-23. The shared legacy-retirement plan exceeded the
+eight-slice limit. See [plan 795](../slice-plans/795-require-declared-units-in-ci-proof/PLAN.md).
 
-- **For / why.** A developer or agent reading CI proof in the CLI or Dashboard
-  sees every entry counted and compared in declared `case` or `file` units,
-  without maintaining parallel `legacy` unit and `schemaVersion: 1` readers
-  across twelve `ci-proof-*` scripts and fifteen Dashboard modules.
-- **Scope.** Retire `READABLE_SUMMARY_VERSIONS` version `1`,
-  `currentSummaryOf`, `LEGACY_UNIT`, unit-less `--expect` / fragment collection
-  options, and `unit: "legacy"` / `legacyReason` handling across the twelve
-  `ci-proof-*` scripts, `ci-proof-read.mjs`, `references/ci-proof-summary.md`,
-  and the Dashboard CI proof, comparison, and landed-history modules. On
-  2026-11-23 all six maintained projects' CI workflows already pass explicit
-  `case` or `file` units and emit `schemaVersion: 2`, while
-  `~/.open-dough/dashboard/landed-ci-history.json` still retains 22 builds
-  from 2026-11-05..2026-11-10 (`doughnut`, `terry-talks`, `clipboard`) whose
-  stored `proof.summary` carries `unit: "legacy"`; `retainedProofSchema` in
-  `dashboard/server/landedCiObservation.ts` must map retired/invalid retained
-  summaries to `{ kind: "unavailable", reason: "invalid", detail }` (matching
-  live `ciProofArtifact.ts` and `ciAdapterProof.ts`) so the machine store and
-  retained wall-time points remain readable without keeping legacy unit code,
-  following [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
-- **Evaluation.** Collecting or reading a `schemaVersion: 1` or unit-less
-  summary refuses or surfaces `unavailable` (`invalid`); declared `case` and
-  `file` collection, ranking, comparison, and landed scope history work
-  unchanged; and a `landed-ci-history.json` cohort holding older v1 or
-  `unit: "legacy"` build summaries stays readable across reads and atomic
-  writes with wall-time points intact and scoped test-execution readings
-  reported as invalid proof gaps.
-- **Effort hypothesis.** L, medium-high confidence (~4–5 slices across
-  Distribution scripts and Dashboard).
+**Goal.** Developers and agents who read CI proof in the CLI or Dashboard can
+interpret every count and test-execution time in a declared unit. Maintainers
+can retire the old proof formats while developers keep the build timing and
+provenance already recorded for earlier landings.
+
+**Scope.**
+
+- Collect version 2 summaries from fragments counted as `case` or `file`.
+  Outcomes reports require `--unit case|file`, and summary expectations
+  require a unit for each entry and part count. A Playwright record already
+  defines its observations as test cases. Preserve attempt and revision
+  checks, missing and ambiguous parts, and separate evidence by unit.
+- Read version 2 summaries whose evidence uses declared units throughout.
+  Refuse unsupported proof through the existing invalid-proof paths. A count
+  with an unknown unit cannot be attributed safely, and skipping one unit or
+  entry within an invalid summary would present partial proof as complete.
+- In retained builds, record the invalid proof as an unavailable result
+  while preserving the build, measured revision, wall time, and neighbouring
+  records. Keep scoped test-execution history explicit about the invalid
+  proof. Apply the same rule to a retained build used by the CI follow-up
+  ledger so the ledger can still account for its recorded requests.
+- Historical conversion, archive backfill, changes to the comparison
+  selection or history window, and rollout of the next release to client
+  repositories are outside this story.
+
+**Key examples.**
+
+- A job has case and file outcomes for one location. With declarations for
+  both, collection writes separate evidence and uses the declared unit even
+  for a part whose fragment never arrived. The CLI ranks timing within its unit,
+  and the Dashboard compares counts and timing within their units. An omitted unit on an outcomes
+  report or expectation fails before output is written. An old fragment
+  supplied alongside valid ones is diagnosed and cannot fill a declared part.
+- A GitHub artifact or custom adapter reports version 1, or version 2 whose
+  evidence omits the unit or includes a retired unit alongside a declared
+  unit. Reading this attempt returns invalid proof with a reason and supplies
+  no counts or test-execution times from that summary.
+- An older retained build with otherwise usable timing holds retired proof,
+  and the same store has a newer build with declared proof. Reading the
+  history and then writing an ordinary update preserves the build points,
+  their wall time, and the newer build's scoped timing. The older build's
+  scoped timing is an invalid-proof gap, and the retention reader makes no
+  replacement CI request. An old proof in a recorded follow-up likewise
+  leaves the request and its allowance accounted for.
+
+**Architecture.** Use the existing summary validator for the proof contract.
+  Classify invalid proof at each input boundary before projecting it. The
+  retained build decoder serves both machine stores, so a proof failure stays
+  within the build's proof field. Revision identity and comparable evidence
+  follow [ADR 0008, Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+
+- **Effort hypothesis.** L, medium confidence. See the bounded slices in plan 795.
 - **Depends on.** None.
-- **Safe stopping point.** Collector and CLI scripts retired while Dashboard
-  readers follow, or after `retainedProofSchema` normalization is in place.
+- **Safe stopping point.** Any proved slice. Settle retained-store isolation
+  before the reader rejects retired summaries.
 
 <a id="derive-the-install-payload-from-the-shipped-directory"></a>
 
