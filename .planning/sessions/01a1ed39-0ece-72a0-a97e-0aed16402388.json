@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "sessionId": "01a1ed39-0ece-72a0-a97e-0aed16402388",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-23T06:31:18.897Z",
+  "story": {
+    "identity": "SEED-345#catch-delegated-lint-before-delivery",
+    "href": "seeds/SEED-345-session-token-efficiency.md#catch-delegated-lint-before-delivery"
+  },
+  "ranges": [
+    {
+      "base": "ec3f48cc2703d057c06141ad8f6e07bf6db58c3a",
+      "candidate": "7bebe204d89f2a8207f6be9b07c4468d037460b6"
+    }
+  ]
+}
