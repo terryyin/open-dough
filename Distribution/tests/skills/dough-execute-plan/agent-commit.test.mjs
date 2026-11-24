@@ -16,7 +16,6 @@ import {
   takenWorkspace,
 } from "./agent-commit-test-fixtures.mjs";
 import { git } from "./publication-test-fixtures.mjs";
-import { installLinkedSkills } from "./symlinked-skill-test-fixtures.mjs";
 import {
   coAuthors,
   configureDeveloper,
@@ -183,60 +182,4 @@ test("amending an owned commit keeps its co-authors and credits the developer on
       `${model}\n${spelled.replace(/^[^:]*: /, "")}`,
     );
   }
-});
-
-test("guided work commit through a symlinked skill directory commits, or refuses, exactly as through its real path", async (t) => {
-  const { trunk, workspace } = await takenWorkspace(t);
-  const { real, linked } = installLinkedSkills(trunk.fixture)(
-    "dough-execute-plan/scripts/agent-commit.mjs",
-  );
-  await stageWork(workspace, "slice.txt");
-  const throughLink = await agentCommit(
-    workspace,
-    ["-m", "Slice work"],
-    "",
-    linked,
-  );
-  assert.equal(throughLink.code, 0, JSON.stringify(throughLink.receipt));
-  assert.deepEqual(throughLink.receipt, {
-    ok: true,
-    status: "committed",
-    agent: "Yui-chan",
-    sha: await head(workspace),
-  });
-  await stageWork(workspace, "more.txt");
-  const throughReal = await agentCommit(
-    workspace,
-    ["-m", "More work"],
-    "",
-    real,
-  );
-  assert.deepEqual(
-    { ...throughReal, receipt: { ...throughReal.receipt, sha: undefined } },
-    { ...throughLink, receipt: { ...throughLink.receipt, sha: undefined } },
-  );
-  assert.equal(
-    (await git(workspace, "log", "-2", people)).stdout.trim(),
-    `Yui-chan <yui-chan@example.org>|${developer}\n`.repeat(2).trim(),
-  );
-  // A checkout that names no agent refuses the same way through either path.
-  await stageWork(trunk.integration, "slice.txt");
-  const before = await head(trunk.integration);
-  const refusals = [];
-  for (const entry of [linked, real]) {
-    const result = await agentCommit(
-      trunk.integration,
-      ["-m", "Slice work"],
-      "",
-      entry,
-    );
-    await assertNothingCommitted(
-      trunk.integration,
-      before,
-      result,
-      "no-workspace-agent",
-    );
-    refusals.push(result);
-  }
-  assert.deepEqual(refusals[0], refusals[1]);
 });

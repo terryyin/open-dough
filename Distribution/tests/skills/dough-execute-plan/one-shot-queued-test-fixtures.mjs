@@ -4,13 +4,7 @@
 // ownership guard, and the rival holders another developer publishes through
 // the production commands.
 import assert from "node:assert/strict";
-import {
-  appendFileSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { takenHeading } from "../../../src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
@@ -19,6 +13,7 @@ import {
   startPreparation,
 } from "../dough-story-refinement/preparation-assignment-test-fixtures.mjs";
 import { readRevisionCoverage } from "../../../src/skills/dough-execute-plan/scripts/ci-mailbox.mjs";
+import { ignoreInstalledSkills } from "./ci-installed-checkouts-test-fixtures.mjs";
 import { deliverThroughCli } from "./execution-increment-managed-delivery-cli-test-fixtures.mjs";
 import { installManagedDelivery } from "./execution-increment-managed-delivery-test-fixtures.mjs";
 import { exec, git, revParse } from "./publication-test-fixtures.mjs";
@@ -86,21 +81,8 @@ export async function queuedDelivery(
   workspace,
   { excludeInstallation = false } = {},
 ) {
-  if (excludeInstallation) {
-    const common = (
-      await git(
-        workspace,
-        "rev-parse",
-        "--path-format=absolute",
-        "--git-common-dir",
-      )
-    ).stdout.trim();
-    mkdirSync(join(common, "info"), { recursive: true });
-    appendFileSync(
-      join(common, "info/exclude"),
-      "/.agents/\n/.planning/open-dough.json\n",
-    );
-  }
+  if (excludeInstallation)
+    await ignoreInstalledSkills(workspace, { anchored: true });
   const delivery = await installManagedDelivery(
     trunk,
     trunk.fixture,

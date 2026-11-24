@@ -84,7 +84,7 @@ if (request.operation === 'discover') {
 // (integration) checkout.
 export async function createManagedFixture({
   description = trunkWithOneUnpublishedIncrement,
-  platforms = [".agents"],
+  platform,
   checkout = "execution",
 } = {}) {
   const base = await materializeRepository(description);
@@ -98,28 +98,28 @@ export async function createManagedFixture({
       teardown,
       base.fixture,
       base[checkout],
-      platforms,
+      platform,
     )),
   };
 }
 
-// Installs the skill and a controlled CI adapter into an existing execution
-// checkout `root`, keeping fixture-owned state under `fixture`. Every observer
-// its delivery, resume, or mailbox start returns is stopped through
+// Installs both skill roots and a controlled CI adapter into `root`, keeping
+// fixture-owned state under `fixture`. `platform` selects the test launcher.
+// Every observer its delivery, resume, or mailbox start returns is stopped through
 // `teardown` (the fixture's `fixtureTeardown`) before the fixture is removed.
 export async function installManagedDelivery(
   teardown,
   fixture,
   root,
-  platforms = [".agents"],
+  platform = ".agents",
 ) {
   const storage = join(fixture, "mailboxes");
   const releaseName = "release.json";
   const releasePath = join(fixture, releaseName);
   const callsPath = join(fixture, "calls.jsonl");
   mkdirSync(join(root, ".planning"), { recursive: true });
-  const skills = platforms.map((platform) => deploySkill(root, platform));
-  const skill = skills[0];
+  const skill = deploySkill(root, platform);
+  deploySkill(root, platform === ".claude" ? ".agents" : ".claude");
   const adapter = writeAdapter(fixture, releasePath, callsPath);
   writeFileSync(
     join(root, ".planning/open-dough.json"),
@@ -145,10 +145,6 @@ export async function installManagedDelivery(
     "execution-increment-delivery.mjs",
   );
   const resume = await importScript(skill, "execution-increment-resume.mjs");
-  const { resolveCheckoutRuntime } = await importScript(
-    skill,
-    "ci-checkout-runtime.mjs",
-  );
   const mailbox = await importScript(skill, "ci-mailbox.mjs");
   const session = {
     conversation_id: "managed-coordinator",
@@ -193,7 +189,6 @@ export async function installManagedDelivery(
       deferStop(resumed.observation?.directory);
       return resumed;
     },
-    resolveCheckoutRuntime,
     async startExecutionMailbox(request, options) {
       const directory = await mailbox.startExecutionMailbox(request, options);
       deferStop(directory);

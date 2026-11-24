@@ -1,11 +1,6 @@
-import {
-  appendFileSync,
-  existsSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { exec, git } from "./publication-test-fixtures.mjs";
+import { exec } from "./publication-test-fixtures.mjs";
 
 // The file and bytes the fixture description's first unpublished revision
 // adds: what every candidate built on that increment must still hold.
@@ -63,20 +58,4 @@ if (failed === 'true') process.exit(1);
       return { success: !(result instanceof Error), log: result.stdout };
     },
   };
-}
-
-// Keeps installed skills and project CI settings out of the checks' worktree.
-export async function ignoreInstalledSkills(fixture) {
-  const common = (
-    await git(
-      fixture.execution,
-      "rev-parse",
-      "--path-format=absolute",
-      "--git-common-dir",
-    )
-  ).stdout.trim();
-  appendFileSync(
-    join(common, "info/exclude"),
-    ".agents/\n.claude/\n.planning/open-dough.json\n",
-  );
 }

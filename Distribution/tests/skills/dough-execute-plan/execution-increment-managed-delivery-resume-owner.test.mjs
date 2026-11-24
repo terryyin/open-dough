@@ -32,6 +32,7 @@ for (const host of Object.keys(hosts)) {
 
     const first = await resume("publisher-coordinator");
     await journey.assertAcceptedAndSiblingUntouched(first);
+    assert.equal(first.resumed.runtime.root, hosts[host].platform);
     assert.equal(first.resumed.observation.state, "recovered");
     assert.equal(first.resumed.observation.directory, publisher);
     assert.deepEqual(coverage(publisher), revisions(accepted));

@@ -9,17 +9,15 @@ import {
   callsReached,
   projectFixture,
 } from "./ci-command-adapter-test-fixtures.mjs";
+import { deployMailboxEntrypoint } from "./ci-installed-checkouts-test-fixtures.mjs";
 import {
   awaitSignalWhileRunning,
   settledProbe,
 } from "./process-lifetime-test-fixtures.mjs";
-import { installLinkedSkills } from "./symlinked-skill-test-fixtures.mjs";
 
 // Runs the installed stream until the provider receives its first call.
-async function observeProvider(fixture, calls, entryPath = "real") {
-  const entry = installLinkedSkills(fixture.root)(
-    "dough-execute-plan/scripts/ci-mailbox.mjs",
-  )[entryPath];
+async function observeProvider(fixture, calls) {
+  const entry = deployMailboxEntrypoint(fixture.root);
   const child = spawn(
     process.execPath,
     [entry, "stream", "--execution", "owner/project", "feature/custom"],
@@ -60,21 +58,6 @@ test("normal observer CLI selects the configured command", async (t) => {
       .please(),
   );
   await observeProvider(fixture, fixture.calls);
-
-  assert.equal(existsSync(fixture.ghCalls), false);
-  assert.deepEqual(JSON.parse(readFileSync(fixture.requests, "utf8")), {
-    operation: "discover",
-    check: { repo: "owner/project", branch: "feature/custom" },
-  });
-});
-
-test("a symlink-equivalent entry path still selects the configured command", async (t) => {
-  const fixture = projectFixture(t, (adapter) =>
-    makeMe.projectCiSettings
-      .with({ ciAdapter: [process.execPath, adapter] })
-      .please(),
-  );
-  await observeProvider(fixture, fixture.calls, "linked");
 
   assert.equal(existsSync(fixture.ghCalls), false);
   assert.deepEqual(JSON.parse(readFileSync(fixture.requests, "utf8")), {

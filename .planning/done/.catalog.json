@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_use-one-managed-install-layout.json",
+      "identity": "SEED-423#use-one-managed-install-layout",
+      "completedAt": "2026-11-24T13:01:17.021Z",
+      "blob": "94ef9f1f985d9f16643a4953ed8dbb217ede3c55"
+    },
+    {
       "fileName": "SEED-413_run-direct-backend-specs-on-vitest.json",
       "identity": "SEED-413#run-direct-backend-specs-on-vitest",
       "completedAt": "2026-11-24T12:33:04.838Z",

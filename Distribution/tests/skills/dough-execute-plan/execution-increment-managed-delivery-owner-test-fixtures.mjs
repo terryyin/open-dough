@@ -55,14 +55,14 @@ export const hosts = {
 // Two checkouts of one repository, each with its own installed runtime: the
 // publisher's execution worktree and a sibling coordinator's checkout.
 export async function siblingCheckouts(t, host) {
-  const platforms = [hosts[host].platform];
-  const fixture = await createManagedFixture({ platforms });
+  const { platform } = hosts[host];
+  const fixture = await createManagedFixture({ platform });
   t.after(fixture.cleanup);
   const sibling = await installManagedDelivery(
     fixture.teardown,
     fixture.fixture,
     fixture.integration,
-    platforms,
+    platform,
   );
   const checkouts = {
     publisher: { runtime: fixture, root: fixture.execution },

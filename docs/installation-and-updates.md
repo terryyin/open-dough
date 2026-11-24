@@ -1,7 +1,7 @@
 # Installation and updates
 
-Open Dough installs one project-local client payload into two physical skill
-roots: `.agents/skills/` (shared by Codex and Cursor) and `.claude/skills/`.
+Open Dough installs one project-local client payload into `.agents/skills/`
+(shared by Codex and Cursor) and `.claude/skills/`.
 Each release's shipped `Distribution/src/skills/` directory is the complete
 payload for each root. A release whose [`install.sh`](../install.sh) holds the
 line `open_dough_payload_format=directory` delivers every file in that
@@ -104,8 +104,8 @@ inspection and execution into an unattended one-shot command.
    branch was requested, stop before fetching or writing: Open Dough installs the
    latest numeric release only; requested-version installation is unsupported.
    Identify the running tool from the host, not from existing skill directories.
-   It is an entry-context hint only; each successful install/update writes both
-   physical roots:
+   Use it as the entry-context hint. Each successful installation or update
+   writes both skill roots.
 
    | Running tool | `platform` | Native skill root |
    | --- | --- | --- |

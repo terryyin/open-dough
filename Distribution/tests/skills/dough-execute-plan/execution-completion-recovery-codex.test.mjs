@@ -21,7 +21,7 @@ const repo = "owner/project";
 const targetRef = "refs/heads/main";
 
 test("Codex recovery arms a fresh stream after budget finish, then completes on it", async (t) => {
-  const fixture = await createManagedFixture({ platforms: [".agents"] });
+  const fixture = await createManagedFixture();
   t.after(fixture.cleanup);
   const root = fixture.execution;
   const storage = fixture.storage;

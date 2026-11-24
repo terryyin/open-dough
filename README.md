@@ -26,7 +26,7 @@ Open your client project in an AI agent with web and shell access, then ask:
    `--platform codex`) and Cursor (`--platform cursor`) share
    `.agents/skills/`; Claude Code (`--platform claude`) uses `.claude/skills/`.
    The platform is an entry-context hint and every successful operation writes
-   both physical roots.
+   both skill roots.
 3. Follow the shared [safe installation procedure](docs/installation-and-updates.md#common-installation-flow)
    with the supplied URL and running tool
    ([Codex](docs/installation-platforms-and-update-safety.md#codex),
