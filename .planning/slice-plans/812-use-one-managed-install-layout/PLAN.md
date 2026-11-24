@@ -185,3 +185,20 @@ again. See `slice3-return.md` and `slice3-refactor-return.md`.
 Codex observes `ci.yml` for the story branch through coordinator
 `anri-460afa7c` at `/tmp/dough-ci-501/watch-wRJJiC` (PID 30474). The earlier
 observer stopped with zero unread events before this one started.
+
+The implementation tip `8d3306fd9bc98246daa01a0a2e1d496b31ed3ce3` passed
+hosted CI in run `45386987704`. The first local full Distribution run passed
+647 checks and timed out in three native comparison baseline files at their
+180-second safety deadlines. An AC-powered two-job diagnostic on the same
+tip passed all three in 44.5 to 98.9 seconds. Repeat the full suite with two
+jobs through the maintained macOS guard before landing. Retain its outcomes
+under `full-distribution-two-jobs` in the worktree evidence directory.
+
+Intent coverage restored the missing-Claude cross-root fallback in scratch.
+The maintained missing-root assertion caught it. The original bytes and
+passing result were restored. No follow-up is needed for that promise.
+
+## Execution complete
+
+Product advice: Keep the existing priorities. The runtime selection and
+installation proof support the agreed topology, with no product correction.
