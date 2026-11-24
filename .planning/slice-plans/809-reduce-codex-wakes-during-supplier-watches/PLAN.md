@@ -234,3 +234,10 @@ premise and can stop the work before any product change. The second owns one
 handoff from an active watch to its existing result handling and proves both
 ways the watch ends. Both use the same retained Git observation and deadline.
 No remaining slice-specific concern emerged beyond the bounded early probe.
+
+## Execution complete
+
+Product advice: no change. The revised supplier example meets both limits
+and preserves result handling in the observed native profile. Existing
+proof remains sufficient for the shared observer. Release rollout is out
+of scope for this story.
