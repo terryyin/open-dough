@@ -1,6 +1,6 @@
 import { selectAdapterComparisonEndpoint } from "../../../Distribution/tests/support/dashboardCiAdapterComparisonEndpoint.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { timeWithoutAdapterRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { asComparisonSlot } from "../../server/intentCiComparisonSlots.ts";
 

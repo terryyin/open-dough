@@ -37,6 +37,9 @@ the usage family moves with the
   [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
   to a case that passes on one engine and fails on the other for a reason
   other than the timeout: it is a defect to explain, not a spec to skip.
+- Apply the same fallback when the engine import alone fails the required
+  typecheck or lint. Keep the original cohort file as the baseline denominator
+  and verify the final engine for every file.
 - Keep the default Vitest timeout. A case near it is listed under
   premises; one that exceeds it locally or in CI leaves the cohort.
 
@@ -59,13 +62,13 @@ still imports Playwright, and the rest reach a server through
 `sharedReads.ts`, `acceptedAttempts.ts`, `serverTimeControls.ts`,
 `launchLanding.ts` or `proofRecordRun.ts`.
 
-## Slices and outside-in proof
+## Slices
 
 ### 1. Intent's direct specs run on Vitest
 
 Type: Behavior
-Status: planned
-Proof: the backend runner lists the 29 `intent/` files under the Node engine and their cases pass
+Status: done
+Proof: the backend runner lists the qualifying `intent/` files under the Node engine and the original 29 files' cases pass
 
 Before editing, run the whole list on Playwright with a proof record and
 keep per-case times as the baseline:
@@ -73,6 +76,22 @@ keep per-case times as the baseline:
 Write the rewrite script and apply it to the `intent/` entries. Run those
 files through the runner. Behavior: a listed `intent/` spec on Playwright →
 rewrite → the same cases pass under Vitest with unchanged assertions.
+
+Accepted proof: at `228ad3213`, the pre-edit runner passed all 296 cases
+in the 76-file Playwright cohort in 23.095 s elapsed and 27.230 s summed
+case time. The first Node Vitest run passed all 105 cases in the 29 Intent
+files in 13.636 s, with matching file paths and expanded case titles.
+The required linter then found Vitest's `expect.stringContaining` returns
+`any` in two existing assertions. Keep `ci-comparison-client-identity.spec.ts`
+and `ci-proof-memory-github-gaps.spec.ts` on Playwright so their assertions
+keep their original form. The same 29-file selection passed all 105 cases
+again after restoring the two files, with 97 cases on Node and eight on
+Playwright.
+The seven cases in `intent-shared-reads.spec.ts` ran in the same file
+order. The runner's static listing counts parameterized declarations
+once, so use the execution record for case parity. The checkout-bound
+evidence directory holds `baseline.proof.json`, `slice1-run.proof.json`,
+`slice1-fallback.proof.json`, and the shared disposable rewrite script.
 
 ### 2. Launch and session direct specs run on Vitest
 
@@ -92,6 +111,8 @@ Proof: the runner lists the 17 `configuration/`, `observation/`, `review/`, `run
 Apply the script to the rest. Run `notifier-setup` three times; if a case
 exceeds the default timeout, return that file to Playwright and record it
 for the later families.
+Check that the platform skip in `notifier-setup.spec.ts` also works under
+Vitest with the prescribed rewrite before including it in the migration.
 
 ### 4. The group reports the moved cohort and its times
 
@@ -118,8 +139,22 @@ split by folder only to keep each within its active-time limit and to
 isolate a failing group. No remaining slice-specific concern was
 identified.
 
+## Story obligations
+
+### G1. Two Intent specs require assertion edits to satisfy lint on Vitest
+
+Reported: slice 1 — "Required ESLint rejects unsafe assignments from Vitest's `expect.stringContaining` in `ci-comparison-client-identity.spec.ts` and `ci-proof-memory-github-gaps.spec.ts`."
+Story clause: "its cases pass on Vitest under the default timeout with only the engine import changed."
+Disposition: excluded "Cases, assertions, arrangement and the production entry stay as they are."
+
 ## Verification and delivery
 
+- Execution runs on `codex/run-the-backend-specs-that-already-call-producti`
+  in the established worktree, with Story Branch Mode and `origin/main`
+  as the integration target. The accepted Take is `228ad321390efff29dd145228fe0a50bcfc6e69c`.
+- The Codex observer watches the remote story branch with `ci.yml`,
+  coordinator `akiho-seed413-plan814`, directory `/tmp/dough-ci-501/watch-rCoPB7`,
+  PID `52188`, shell session `84146`, and cell `g161:13`.
 - Local gate: use the maintained [macOS sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
   with `caffeinate -s -i` on AC power for the measured runs in slices 1
   and 4. Keep the default timeout and apply the

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { timeWithoutRunnerWaits } from "../../server/ciTimeWithoutRunnerWaits.ts";
 import { readWorkflowJobs } from "../../server/ciWorkflowJobs.ts";
 import { comparisonWorkflow } from "../../test-support/support/storyCiComparisonFixture.ts";

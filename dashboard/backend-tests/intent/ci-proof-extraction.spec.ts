@@ -7,7 +7,7 @@
 import { ciProofArtifactReader } from "../../server/ciProofArtifact.ts";
 import { collectedSummary } from "../../test-support/support/ciProofCollected.ts";
 import { zipOf } from "../../test-support/support/ciProofArtifacts.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import {
   listedArtifact,
   repository,

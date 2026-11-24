@@ -12,7 +12,7 @@
 // file by the same rule. The integrated journeys: ../../../e2e/intent/intent-story-changes-moves.spec.ts
 // and ../../../e2e/intent/intent-story-completed.spec.ts.
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import type { IntentLocation } from "../../src/authenticatedIntentRead.ts";
 import {
   intentStoryOverlay,
