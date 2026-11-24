@@ -30,10 +30,10 @@ intent introduced or affected by a newly developed story.
 
 - [Finish story-linked ad hoc sessions in the Dashboard](seeds/SEED-432-finish-story-linked-ad-hoc-sessions.md#finish-story-linked-ad-hoc-sessions) — SEED-432#finish-story-linked-ad-hoc-sessions ([plan](slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md))
 - [Compose existing sessions directly in Dashboard tests](seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly) — SEED-433#compose-existing-sessions-directly ([plan](slice-plans/817-compose-existing-sessions-directly-in-dashboard-tests/PLAN.md))
+- [Read review files without fetching](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-review-files-without-fetching) — SEED-428#read-review-files-without-fetching ([plan](slice-plans/816-read-review-files-without-fetching/PLAN.md))
 
 ## Backlog list
 
-- [Read review files without fetching](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-review-files-without-fetching) — SEED-428#read-review-files-without-fetching
 - [Run Dashboard launch tests on an installed project](seeds/SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#run-dashboard-launch-tests-on-an-installed-project) — SEED-433#run-dashboard-launch-tests-on-an-installed-project
 - [Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
