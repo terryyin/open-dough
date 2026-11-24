@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "8b3d898d-7c7d-4c97-b9d2-0b70b300214b",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T23:10:13.614Z",
+  "story": "SEED-423#trim-the-product-backlog-command-to-guided-operations",
+  "ranges": [
+    {
+      "base": "6210a17c5577b9b9c4ed89d1665d8bcbf1729129",
+      "candidate": "1ef8cc64939d363507063a26fe6dacbb5d38727a"
+    }
+  ]
+}
