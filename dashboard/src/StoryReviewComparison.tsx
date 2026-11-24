@@ -11,6 +11,7 @@ export function ComparisonChoices<Key extends string>({
   choices,
   shown,
   onChoose,
+  onReselect,
   label = "Comparison",
 }: {
   readonly choices: readonly {
@@ -19,6 +20,7 @@ export function ComparisonChoices<Key extends string>({
   }[];
   readonly shown: Key | undefined;
   readonly onChoose: (key: Key) => void;
+  readonly onReselect?: (key: Key) => void;
   readonly label?: string;
 }) {
   const name = useId();
@@ -35,6 +37,13 @@ export function ComparisonChoices<Key extends string>({
             name={name}
             value={key}
             checked={shown === key}
+            onClick={
+              shown === key && onReselect
+                ? () => {
+                    onReselect(key);
+                  }
+                : undefined
+            }
             onChange={() => {
               onChoose(key);
             }}

@@ -40,14 +40,14 @@ test("a Done story's landed run whose objects are missing is explained, and Publ
   await expect.element(story.filesToggle).toBeVisible();
 
   // Landed runs is explained, not as a story without changes.
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await expect.poll(story.alertText).toBe(unreadable);
   await expect
     .poll(story.headerText)
     .toContain("The landed run's objects are missing from this machine.");
   expect(story.headerText()).not.toContain("No comparison is available");
   await expect.element(story.filesToggle).not.toBeInTheDocument();
-  await expect.element(story.run).toHaveValue(run.key);
+  await expect.element(story.runChoice(run.key)).toBeChecked();
 
   // CI comparison and Intent coverage say they describe the whole story at
   // the measured build.
@@ -92,7 +92,7 @@ test("a failed read of a chosen landed run offers Retry, which reads that run ag
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
 
   // Landed runs whose read fails explains the failure.
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await expect.poll(story.alertText).toContain(unreadable);
   await expect
     .poll(story.headerText)
@@ -146,7 +146,7 @@ test("a captured run with no end build keeps the measured baseline and can check
   });
   const story = intentStoryCompare();
   await story.chooseTab("CI comparison");
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   const endpoints = page.getByRole("table", {
     name: "Baseline and selection CI builds with timing",
   });
@@ -159,5 +159,5 @@ test("a captured run with no end build keeps the measured baseline and can check
   );
   await expect.poll(() => asks).toBe(2);
   await expect.element(endpoints.getByText(gap)).toBeVisible();
-  await expect.element(story.run).toHaveValue(run.key);
+  await expect.element(story.runChoice(run.key)).toBeChecked();
 });

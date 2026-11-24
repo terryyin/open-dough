@@ -59,8 +59,6 @@ export function landedComparison({ baseline, tree, files, run }) {
     kind: "landed",
     landing: {
       reference: "74800000-0000-4000-8000-000000000001",
-      delivery: "74800000-0000-4000-8000-000000000002",
-      receipt: "74800000-0000-4000-8000-000000000003",
       base: baseline,
       revision: tree,
       receivedAt: "2026-01-02T13:00:00.000Z",

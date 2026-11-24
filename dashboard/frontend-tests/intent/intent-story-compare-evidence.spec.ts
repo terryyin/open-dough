@@ -99,7 +99,7 @@ test("a Done story's CI comparison switches to the captured run's measured build
   await comparisonRead(story.landedEndpoint).not.toBe("");
   const measured = story.landedEndpoint();
 
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   const endpoints = page.getByRole("table", {
     name: "Baseline and selection CI builds with timing",
   });
@@ -149,8 +149,8 @@ test("a captured run without recorded revisions keeps the whole-story CI compari
   await comparisonRead(story.landedEndpoint).not.toBe("");
   const measured = story.landedEndpoint();
 
-  await story.choose("Landed runs");
-  await expect.element(story.run).toHaveValue(legacy.key);
+  await story.chooseLatestLanding();
+  await expect.element(story.runChoice(legacy.key)).toBeChecked();
   await comparisonRead(story.revisions).toContain("From");
   await comparisonRead(() => story.noteBuild("CI comparison")).toBe(
     doneCompletion.slice(0, 7),

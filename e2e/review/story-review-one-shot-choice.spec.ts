@@ -27,14 +27,10 @@ test("keyboard choices show each retained captured or legacy run from their reco
   ]);
   const { files, landedRun, diffs } = review;
   await review.landedRun.expectChosen(choices.second.key);
-  for (const [index, run] of [choices.second, choices.first].entries()) {
-    await review.landedRun.press(
-      "Home",
-      ...(index > 0 ? ["ArrowDown"] : []),
-      "Enter",
-    );
+  for (const run of [choices.second, choices.first]) {
+    await review.landedRun.choose(run.key, "keyboard");
     await review.landedRun.expectChosen(run.key);
-    await review.comparison.expectChosen("Landed runs");
+
     await files.expectOutsideFiles(1, [`Added ${run.name}.txt`]);
     await files.choose(`Added ${run.name}.txt`);
     await diffs.expectLines("added", [`+${run.name}.txt`]);
@@ -46,7 +42,7 @@ test("keyboard choices show each retained captured or legacy run from their reco
     );
     await landedRun.expectLaunchedAt(run.record.launchedAt);
   }
-  await review.landedRun.press("End", "Enter");
+  await review.landedRun.choose(choices.legacy.key, "keyboard");
   await review.landedRun.expectChosen(choices.legacy.key);
   await review.expectText("no captured landing comparison");
   await review.expectText("cannot be reconstructed from today's trunk");

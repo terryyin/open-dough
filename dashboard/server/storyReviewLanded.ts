@@ -5,12 +5,16 @@ import {
   type LaunchRecord,
 } from "../src/launchRecord.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
+import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   landedReviewContextSchema,
   reviewLandedWorkflowSchema,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
+import { fetchGitTarget } from "./gitTargetFetch.ts";
+import { checkAncestry, gitProblem } from "./gitRunner.ts";
+import { publishedLandingCheckout } from "./storyReviewPublishedLanding.ts";
 
 export type LandingReviewSource = {
   readonly record: LaunchRecord;
@@ -20,6 +24,7 @@ export type LandingReviewSource = {
 export async function landedStoryReview(
   run: LandingReviewSource,
   signal: AbortSignal,
+  source?: PublishedSource,
 ): Promise<StoryReview> {
   const { record } = run;
   const reference = landingReportingReference(record);
@@ -36,15 +41,51 @@ export async function landedStoryReview(
         ? "This run has no captured landing comparison. Its delivered changes cannot be reconstructed from today's trunk."
         : "This run's workspace is gone and no landing comparison was captured. Its changes cannot be reconstructed from today's trunk.",
     );
-  const read = await retainedCommitPairFiles(landing, signal);
+  let repository = landing.repository;
+  if (source !== undefined) {
+    if (
+      landing.remote !== "origin" ||
+      landing.target !== `refs/heads/${source.ref}`
+    )
+      return unavailable(
+        "The landing does not name the project's configured origin target.",
+      );
+    try {
+      const call = await publishedLandingCheckout(source, signal);
+      repository = call.cwd;
+      await fetchGitTarget("origin", source.ref, call);
+      if (
+        !(await checkAncestry(landing.revision, `origin/${source.ref}`, call))
+      )
+        return unavailable(
+          "The configured origin target does not contain this accepted landing.",
+        );
+      if (!(await checkAncestry(landing.base, landing.revision, call)))
+        return unavailable(
+          "Published history does not confirm this landing's comparison base.",
+        );
+    } catch (error) {
+      if (signal.aborted) throw error;
+      return unavailable(
+        `Published history could not verify this accepted landing: ${gitProblem(error)}`,
+      );
+    }
+  }
+  const read = await retainedCommitPairFiles(
+    { ...landing, repository },
+    signal,
+  );
   if ("missing" in read)
     return unavailable(
-      {
-        repository: "The captured landing repository is missing or unreadable.",
-        objects:
-          "The captured landing comparison objects are missing or unreadable.",
-        changes: "The captured landing changes could not be read.",
-      }[read.missing],
+      source !== undefined
+        ? "The accepted landing comparison could not be read from published history."
+        : {
+            repository:
+              "The captured landing repository is missing or unreadable.",
+            objects:
+              "The captured landing comparison objects are missing or unreadable.",
+            changes: "The captured landing changes could not be read.",
+          }[read.missing],
     );
   const workflow = record.request.workflow;
   if (!reviewLandedWorkflowSchema.safeParse(workflow).success)

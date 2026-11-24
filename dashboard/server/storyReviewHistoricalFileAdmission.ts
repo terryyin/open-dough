@@ -20,11 +20,12 @@ import {
   type LandingReviewSource,
 } from "./storyReviewLanded.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
+import { recordedLandingReview } from "./storyReviewPublishedLanding.ts";
 
 export type HistoricalReviewedFileFields = ReviewedPairFile;
 
 // One admitted comparison identity for printed diff or revision file text,
-// covering workspace, historical, and kept-session file reads.
+// covering historical and kept-session file reads.
 export interface AdmittedReviewedFile extends HistoricalReviewedFileFields {
   readonly repository: string;
 }
@@ -139,13 +140,26 @@ async function admitPublishedCompletion(
   return { repository: executionCheckout(source).path, ...file };
 }
 
+function requireLandingFile(
+  review: Extract<StoryReview, { kind: "landed" }>,
+  file: HistoricalReviewedFileFields,
+): void {
+  if (
+    file.baseline !== review.baseline ||
+    file.tree !== review.tree ||
+    !belongsOnRetainedPair(review.files, file)
+  )
+    throw notOnCapturedRun();
+}
+
 // Admit a file against a landed run's exact retained pair and file list.
 export async function admitLandedRun(
   run: LandingReviewSource,
   file: HistoricalReviewedFileFields,
   signal?: AbortSignal,
+  source?: PublishedSource,
 ): Promise<AdmittedReviewedFile> {
-  const review = await landedStoryReview(run, admissionBound(signal));
+  const review = await landedStoryReview(run, admissionBound(signal), source);
   throwIfRequestAborted(signal);
   const landing = run.record.landing;
   if (review.kind !== "landed" || landing === undefined)
@@ -155,14 +169,12 @@ export async function admitLandedRun(
         ? review.explanation
         : "The captured comparison is unavailable.",
     );
-  if (
-    file.baseline !== review.baseline ||
-    file.tree !== review.tree ||
-    !belongsOnRetainedPair(review.files, file)
-  )
-    throw notOnCapturedRun();
+  requireLandingFile(review, file);
   return {
-    repository: landing.repository,
+    repository:
+      source === undefined
+        ? landing.repository
+        : executionCheckout(source).path,
     ...file,
   };
 }
@@ -187,10 +199,24 @@ export async function admitHistoricalReviewedFile(
       file,
       signal,
     );
+  const recorded = await recordedLandingReview(
+    source,
+    named.identity,
+    named.reference,
+    admissionBound(signal),
+  );
+  throwIfRequestAborted(signal);
+  if (recorded !== undefined) {
+    if (recorded.kind === "landing-unavailable")
+      throw new RefusedRequest(409, recorded.explanation);
+    requireLandingFile(recorded, file);
+    return { repository: executionCheckout(source).path, ...file };
+  }
   const { runs } = await reviewedLandedRuns(source, named.identity);
   return admitLandedRun(
     reviewedLandedRunByReference(runs, named.reference),
     file,
     signal,
+    source,
   );
 }

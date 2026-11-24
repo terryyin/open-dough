@@ -142,6 +142,9 @@ export function useStoryComparison({
     reviewKept.withMerged !== undefined;
   const unreadable =
     readingNow || shownKept !== undefined ? undefined : runUnread;
+  const hasPublishedChoice =
+    published !== undefined ||
+    (completed && defaultReview?.kind === "unavailable");
   return {
     review: reviewKept,
     defaultReview: carry ? defaultReview : undefined,
@@ -157,11 +160,11 @@ export function useStoryComparison({
           shown:
             selectedRun !== undefined
               ? "landed"
-              : published !== undefined
+              : hasPublishedChoice
                 ? "published"
                 : undefined,
           isDefault: review === defaultReview && !includesMerged,
-          published: published !== undefined,
+          published: hasPublishedChoice,
           runs,
           selectedRun,
           onRun,

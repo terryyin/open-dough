@@ -11,11 +11,19 @@ export function LandedContext({
     <div>
       <h3>Landed run</h3>
       <p>
-        {launchKindName(landing.workflow)} launched{" "}
-        <time dateTime={landing.launchedAt}>
-          {new Date(landing.launchedAt).toLocaleString()}
-        </time>
-        , delivered to <code>{reviewTargetName(landing)}</code>.
+        {launchKindName(landing.workflow)}
+        {landing.launchedAt === undefined ? (
+          " delivered to "
+        ) : (
+          <>
+            {" launched "}
+            <time dateTime={landing.launchedAt}>
+              {new Date(landing.launchedAt).toLocaleString()}
+            </time>
+            {", delivered to "}
+          </>
+        )}
+        <code>{reviewTargetName(landing)}</code>.
       </p>
       <p>
         From <code>{landing.base}</code> to <code>{landing.revision}</code>.

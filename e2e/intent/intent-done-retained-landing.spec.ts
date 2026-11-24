@@ -1,6 +1,6 @@
 import { sourceRevision } from "../../dashboard/test-support/intentCodeBrowsePage.ts";
-// Done Intent prefers its published completion, recovering the same completed
-// result from a validated capture when configured history becomes shallow.
+// Done Intent reads the published completion and explains when configured
+// history cannot establish it, even with a retained launch and workspace.
 // The real installed integration captures the completed execution; ordinary
 // live Review and multiple retained choices stay covered in the review suite.
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
@@ -11,6 +11,7 @@ import {
   storyReviewSchema,
 } from "../../dashboard/src/storyReviewContract.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
+import { filesColumn } from "../../dashboard/test-support/intentModePage.ts";
 import {
   expandIntentGroup,
   purposeRegion,
@@ -43,8 +44,8 @@ test.beforeAll(({ queuedCodexOriginReady }) =>
 const modified = "Modified dashboard/tests/a.spec.ts";
 const unchanged = "dashboard/tests/boundary/kept.spec.ts";
 
-for (const history of ["published", "capture"] as const)
-  test(`a Done story with a readable retained workspace uses ${history === "published" ? "published completion" : "validated capture recovery"} for original diff, inventory and unchanged source`, async ({
+for (const history of ["published", "shallow"] as const)
+  test(`a Done story with a retained workspace ${history === "published" ? "reads its original published diff and inventory" : "explains its shallow published history"}`, async ({
     page,
     dashboard,
     origin,
@@ -86,7 +87,7 @@ for (const history of ["published", "capture"] as const)
         writeRevisionFiles(writer, later);
       },
     );
-    if (history === "capture")
+    if (history === "shallow")
       git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
     const local = makeMe.aRepository
       .withRevision("retained-local", {
@@ -127,17 +128,21 @@ for (const history of ["published", "capture"] as const)
     });
     const { intent } = await selectDoneStoryInIntent(page);
     const answer = storyReviewSchema.parse(await (await received).json());
-    if (history === "published") {
-      expect(answer).toMatchObject({ kind: "published", completion: accepted });
-      expect(answer.selectedRun).toBeUndefined();
-    } else {
+    if (history === "shallow") {
       expect(answer).toMatchObject({
-        kind: "landed",
-        baseline: story.trunkTip,
-        tree: accepted,
-        selectedRun: story.reporting.reference,
+        kind: "unavailable",
+        explanation: expect.stringMatching(
+          /published .*history|published completion/i,
+        ),
       });
+      await chooseStoryTab(intent, "Changes");
+      await expect(filesColumn(intent)).toHaveCount(0);
+      expect(locations).not.toContain(accepted);
+      expect(sourceReads).toEqual([]);
+      return;
     }
+    expect(answer).toMatchObject({ kind: "published", completion: accepted });
+    expect(answer.selectedRun).toBeUndefined();
     await chooseStoryTab(intent, "Changes");
     await expandIntentGroup(intent, "dashboard/tests");
     await expect(intentFile(intent, modified)).toBeVisible();

@@ -44,7 +44,14 @@ export function intentStoryCompare() {
   });
   const compare = header.getByRole("group", { name: "Compare" });
   const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
-  const run = compare.getByRole("listbox", { name: "Landed run" });
+  const landingChoices = compare.getByRole("radio", { name: / — / });
+  const runChoice = (key: string) => {
+    const choice = landingChoices
+      .elements()
+      .find((element) => element.getAttribute("value") === key);
+    if (choice === undefined) throw new Error(`No landing choice ${key}`);
+    return page.elementLocator(choice);
+  };
   type View = "Changes" | "CI comparison" | "Intent coverage";
   const storyViews = intent.getByRole("tablist", {
     name: "Selected story views",
@@ -80,8 +87,11 @@ export function intentStoryCompare() {
     retry: () => userEvent.click(retryControl),
     retryControl,
     // The captured landed run chosen, offered with Landed runs.
-    run,
-    chooseRun: (key: string) => userEvent.selectOptions(run, key),
+    landingChoices,
+    runChoice,
+    chooseRun: (key: string) => activateComparisonControl(runChoice(key)),
+    chooseLatestLanding: () =>
+      activateComparisonControl(landingChoices.first()),
     // The story's changed files outside every location.
     outsideGroup,
     outside: () => textOf(outsideGroup.query()),

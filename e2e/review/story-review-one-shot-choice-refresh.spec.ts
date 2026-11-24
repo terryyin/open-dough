@@ -12,7 +12,7 @@ import { openCapturedReview } from "../../dashboard/test-support/support/oneShot
 import { recordOperation } from "../../dashboard/test-support/support/completionRecovery.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 
-// Opens story A's review with the run `key` chosen under Landed runs.
+// Opens story A's review and chooses the comparison for run `key`.
 async function chooseLandedRun(
   page: Page,
   origin: StartOrigin,
@@ -20,7 +20,6 @@ async function chooseLandedRun(
   name?: string,
 ) {
   const review = await openCapturedReview(page, origin);
-  await review.comparison.choose("Landed runs");
   await review.landedRun.choose(key);
   if (name !== undefined) {
     await review.files.choose(`Added ${name}.txt`);
@@ -120,11 +119,10 @@ test("Refresh replaces an expired choice with the remaining captured run and fal
 }) => {
   // This is the retained choice the deletion journey reaches, with only its
   // remaining captures and legacy run; no earlier mutation is needed here.
-  const { second, third, legacy } = await storedReviewChoices(
-    dashboard,
-    origin,
-    ["second", "third"],
-  );
+  const { second, third } = await storedReviewChoices(dashboard, origin, [
+    "second",
+    "third",
+  ]);
   const review = await chooseLandedRun(page, origin, third.key, "third");
   await recordOperation(dashboard, "setRecordDoneAt", [
     "open-dough",
@@ -143,8 +141,7 @@ test("Refresh replaces an expired choice with the remaining captured run and fal
   ]);
   await review.refresh();
   await review.expectRead();
-  await review.landedRun.expectChosen(legacy.key);
-  await review.landedRun.expectRunCount(1);
+  await review.comparison.expectNoSwitch();
   await review.expectText("no captured landing comparison");
   await review.files.expectNoBrowser();
   await review.diffs.expectAbsent();

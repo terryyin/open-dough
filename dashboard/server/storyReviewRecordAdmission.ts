@@ -28,6 +28,7 @@ export type KeptStoryReview =
   | {
       readonly kind: "story-review";
       readonly run: ReviewLandedRun;
+      readonly source: PublishedSource;
       readonly runs: readonly ReviewLandedRun[];
     }
   | AdmittedSessionReview;
@@ -41,7 +42,12 @@ async function admittedIdentityReview(
     read,
   );
   if (found.run !== undefined)
-    return { kind: "story-review", run: found.run, runs: found.runs };
+    return {
+      kind: "story-review",
+      run: found.run,
+      source: found.source,
+      runs: found.runs,
+    };
   const { source, identity, runs } = found;
   if (read.completed === true)
     return {
@@ -57,7 +63,7 @@ async function admittedIdentityReview(
         explanation: "No published comparison is available for this story.",
         runs,
       }
-    : { kind: "story-review", run: fallback, runs };
+    : { kind: "story-review", run: fallback, source, runs };
 }
 
 // Admit a story read or select a comparison from the admitted session record.

@@ -5,7 +5,7 @@ import {
   comparisonName,
   type ComparisonChoice,
 } from "./StoryReviewComparison.tsx";
-import { RunChoice } from "./StoryReviewRunChoice.tsx";
+import { launchKindName } from "./launchWorkflow.ts";
 import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
 import { RefreshCw } from "lucide-react";
 import { IconButton } from "./Icon.tsx";
@@ -29,19 +29,34 @@ export function IntentStoryCompare({
 }: {
   readonly compare: StoryCompare;
 }) {
+  const choices = [
+    ...(compare.published
+      ? [{ key: "published", label: comparisonName("published") }]
+      : []),
+    ...compare.runs.map((run) => ({
+      key: run.key,
+      label: [
+        launchKindName(run.workflow),
+        ...(run.launchedAt === undefined
+          ? []
+          : [new Date(run.launchedAt).toLocaleString()]),
+        run.comparison?.revision.slice(0, 8) ?? "No published comparison",
+      ].join(" — "),
+    })),
+  ];
   return (
     <div className="intent-story-compare" aria-label="Compare" role="group">
-      {(compare.published || compare.runs.length > 0) && (
+      {choices.length > 1 && (
         <ComparisonChoices
-          choices={[
-            ...(compare.published ? ["published" as const] : []),
-            ...(compare.runs.length > 0 ? ["landed" as const] : []),
-          ].map((key) => ({
-            key,
-            label: comparisonName(key),
-          }))}
-          shown={compare.shown}
-          onChoose={compare.onChoose}
+          choices={choices}
+          shown={compare.selectedRun?.key ?? compare.shown}
+          onReselect={(key) => {
+            if (key !== "published") compare.onRun(key);
+          }}
+          onChoose={(key) => {
+            if (key === "published") compare.onChoose(key);
+            else compare.onRun(key);
+          }}
         />
       )}
       <IconButton
@@ -52,13 +67,16 @@ export function IntentStoryCompare({
           if (!compare.reading) compare.onRefresh();
         }}
       />
-      {compare.selectedRun !== undefined && (
-        <RunChoice
-          runs={compare.runs}
-          selected={compare.selectedRun}
-          onSelect={compare.onRun}
-        />
-      )}
+      {compare.selectedRun?.comparison === undefined &&
+        compare.selectedRun?.launchedAt !== undefined && (
+          <p>
+            {launchKindName(compare.selectedRun.workflow)} launched{" "}
+            <time dateTime={compare.selectedRun.launchedAt}>
+              {new Date(compare.selectedRun.launchedAt).toLocaleString()}
+            </time>
+            .
+          </p>
+        )}
       {compare.includeMergedChanges !== undefined && (
         <ComparisonInclusion
           label="Include merged changes"

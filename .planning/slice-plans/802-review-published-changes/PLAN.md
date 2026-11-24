@@ -143,7 +143,7 @@ comparison readers intact. See `slice-4-proof-repair.md` and the diagnosis recor
 ### 5. Choose an accepted landing in the published review
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Adapt the real Story Branch Land and retirement journey to open a Done
 story and choose its exact accepted integration after trunk advances. Read the
 shared file's actual merge resolution and associated Proof context. Keep one
@@ -156,6 +156,7 @@ configured target confirms it. Keep the
 existing prepare/accept/retry workflow and retain only the state it consumes.
 Consolidate Published completion and Landed runs selection into the shared
 chooser. Remove fallback readers whose only purpose was local captured review.
+Checkout evidence `slice-5-report.md` records exact landing and stale-ref proof.
 
 ### 6. Open a Done session's recorded published changes
 

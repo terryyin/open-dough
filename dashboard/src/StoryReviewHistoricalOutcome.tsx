@@ -14,7 +14,7 @@ export function RefreshedHistoricalComparison({
 }) {
   const comparison =
     kind === "landed"
-      ? "captured landed comparison"
+      ? "accepted landing comparison"
       : "fixed published completion";
   return (
     <p>

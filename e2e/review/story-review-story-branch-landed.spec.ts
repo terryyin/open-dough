@@ -11,7 +11,18 @@ import {
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { browserLocaleString } from "../../dashboard/test-support/browserLocale.ts";
+import {
+  fileReadingTab,
+  proofRegion,
+} from "../../dashboard/test-support/intentPerspectivePage.ts";
+import { writeAt } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
+import { sessionRecord } from "../../Distribution/src/skills/dough-execute-plan/scripts/sealed-session-record.mjs";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
+import {
+  completedStoryQuery,
+  getReview,
+} from "../../dashboard/test-support/support/completedReviewRequests.ts";
 import {
   git,
   retireLaunchWorkspace,
@@ -33,8 +44,9 @@ import {
 
 const repository = "terryyin/open-dough";
 
-test("a Done story offers the captured Story Branch integration before and after workspace retirement", async ({
+test("a Done story offers its exact accepted landing from published history after retirement", async ({
   page,
+  request,
   dashboard,
   origin,
   codexProtocol,
@@ -97,10 +109,10 @@ test("a Done story offers the captured Story Branch integration before and after
   expect(Date.parse(record.launchedAt)).toBeGreaterThan(
     Date.parse(refinement.record.launchedAt),
   );
-  await opened.comparison.expectOffered("Landed runs");
+  await opened.landedRun.expectOffered();
   await opened.comparison.expectChosen("Published completion");
   await opened.landedRun.expectNotShown();
-  await opened.comparison.choose("Landed runs");
+  await opened.landedRun.chooseLatest();
   await opened.landedRun.expectChosen(reporting.reference, [
     `Execution — ${await browserLocaleString(page, record.launchedAt)} — ${accepted.slice(0, 8)}`,
     `Refinement — ${await browserLocaleString(page, refinement.record.launchedAt)} — ${refinement.receipt.revision.slice(0, 8)}`,
@@ -114,6 +126,38 @@ test("a Done story offers the captured Story Branch integration before and after
     await origin.originGit("for-each-ref", `refs/heads/${start.branch}`),
   ).toBe("");
 
+  // Trunk advances. The durable session records the original integration pair.
+  const later = trunkCommitFromAnotherWriter(origin, "later.txt", (writer) => {
+    const { reference } = reporting;
+    writeAt(
+      writer,
+      sessionRecordPathBeside(".planning/PRODUCT-BACKLOG.md", reference),
+      JSON.stringify(
+        sessionRecord({
+          sessionId: reference,
+          workflow: "dough-execute-plan",
+          story: queuedIdentity,
+          closedAt: new Date().toISOString(),
+          ranges: [{ base: trunkTip, candidate: accepted }],
+        }),
+      ),
+    );
+  });
+  expect(later).not.toBe(accepted);
+  expect(git(origin.project, "rev-parse", "origin/main")).not.toBe(later);
+  const named = await getReview(request, dashboard, storyReviewEndpoint, {
+    ...completedStoryQuery,
+    run: reporting.reference,
+  });
+  const namedAnswer = storyReviewSchema.parse(await named.json());
+  if (namedAnswer.kind !== "landed")
+    throw new Error("No named published landing");
+  expect(namedAnswer.landing.launchedAt).toBeUndefined();
+  expect(namedAnswer.landing).toMatchObject({
+    base: trunkTip,
+    revision: accepted,
+  });
+
   const review = await openIntentReviewChanges(page, card);
   expect(review.answer.kind).toBe("published");
   await review.comparison.expectChosen("Published completion");
@@ -125,8 +169,17 @@ test("a Done story offers the captured Story Branch integration before and after
         url.searchParams.get("run") === reporting.reference
       );
     });
+  const proof = page.waitForRequest((request) => {
+    const query = new URL(request.url()).searchParams;
+    return (
+      query.get("intent") === "ci-comparison" &&
+      query.get("identity") === queuedIdentity &&
+      query.get("start") === trunkTip &&
+      query.get("end") === accepted
+    );
+  });
   const landed = landedRead();
-  await review.comparison.choose("Landed runs");
+  await review.landedRun.chooseLatest();
   const answer = storyReviewSchema.parse(await (await landed).json());
   expect(answer).toMatchObject({
     kind: "landed",
@@ -137,7 +190,6 @@ test("a Done story offers the captured Story Branch integration before and after
       reference: reporting.reference,
       identity: queuedIdentity,
       workflow: "execution",
-      launchedAt: record.launchedAt,
       remote: "origin",
       target: "refs/heads/main",
       base: trunkTip,
@@ -153,17 +205,16 @@ test("a Done story offers the captured Story Branch integration before and after
       { kind: "modified", path: "shared.txt", lines: { added: 1, removed: 1 } },
     ]),
   );
-  expect(answer.runs?.map((run) => run.key)).toEqual([
+  expect(review.answer.runs?.map((run) => run.key)).toEqual([
     reporting.reference,
     refinement.key,
   ]);
   await review.expectStory("Story A");
-  await review.comparison.expectChosen("Landed runs");
+
   await review.landedRun.expectShown(
-    `Execution launched ${await browserLocaleString(page, record.launchedAt)}, delivered to origin/main.`,
+    "Execution delivered to origin/main.",
     `From ${trunkTip} to ${accepted}.`,
   );
-  await review.landedRun.expectLaunchedAt(record.launchedAt);
   await review.files.expectNotShown("Added trunk-only.txt");
   await review.files.expectNotShown("Added merged-trunk-only.txt");
   // The file both changed shows the story's change against trunk's at the
@@ -179,13 +230,11 @@ test("a Done story offers the captured Story Branch integration before and after
     "trunk's earlier line",
   );
 
-  // Others land after it and one reverts it: Refresh reads the same pair.
-  trunkCommitFromAnotherWriter(origin, "later.txt", (writer) => {
-    git(writer, "revert", "--no-edit", "-m", "1", accepted);
-  });
-  expect((await origin.originGit("rev-parse", "main")).trim()).not.toBe(
-    accepted,
-  );
+  const intent = parts(page).intent;
+  await fileReadingTab(intent, "Proof").click();
+  await proof;
+  await expect(proofRegion(intent)).toBeVisible();
+
   const refreshed = landedRead();
   await review.refresh();
   const again = storyReviewSchema.parse(await (await refreshed).json());
@@ -197,7 +246,7 @@ test("a Done story offers the captured Story Branch integration before and after
     files,
   });
   await review.expectFeedback(
-    `Review refreshed: ${files.length} changed files in the captured landed comparison.`,
+    `Review refreshed: ${files.length} changed files in the accepted landing comparison.`,
   );
   await review.landedRun.expectShown(`From ${trunkTip} to ${accepted}.`);
   await review.files.expectNotShown("Added later.txt");

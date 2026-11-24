@@ -77,10 +77,9 @@ test("a pending landed run keeps the Done story's locations and CI endpoint", as
   await expect.poll(locationText).not.toBe("");
   const location = locationText();
 
-  await story.choose("Landed runs");
+  await story.chooseLatestLanding();
   await expect.poll(story.headerText).toContain(reading);
   await expect.poll(story.revisions).toContain(doneCompletion.slice(0, 7));
-  await expect.element(story.choice("Landed runs")).toBeChecked();
   expect(locationText()).toBe(location);
   expect(new Set(locationRevisions)).toEqual(new Set([doneCompletion]));
   await story.chooseTab("CI comparison");

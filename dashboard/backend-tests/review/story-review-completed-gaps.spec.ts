@@ -91,7 +91,7 @@ test.describe("ordinary trunk", () => {
     });
   });
 
-  test("an unusable local captured run falls back to published completion while its explicit choice retains its gap", async ({
+  test("a missing capture repository leaves the published completion and exact landing readable", async ({
     request,
     dashboard,
     origin,
@@ -119,8 +119,9 @@ test.describe("ordinary trunk", () => {
       run: review.runs?.[0]?.key ?? "",
     });
     expect(await explicit.json()).toMatchObject({
-      kind: "landing-unavailable",
-      explanation: "The captured landing repository is missing or unreadable.",
+      kind: "landed",
+      baseline,
+      tree: completion,
     });
   });
 
@@ -151,7 +152,7 @@ test.describe("ordinary trunk", () => {
 test.describe("missing-agent trunk", () => {
   test.use({ originRepository: missingAgentTrunkCompletedHistory() });
 
-  test("an unreadable workspace preserves active captured gaps and completed review recovers the published owner", async ({
+  test("a retired workspace preserves a published prior landing and completion recovers its published owner", async ({
     request,
     dashboard,
     origin,
@@ -167,8 +168,9 @@ test.describe("missing-agent trunk", () => {
       await (await get(request, dashboard, storyReviewEndpoint, named)).json(),
     );
     expect(active).toMatchObject({
-      kind: "landing-unavailable",
-      explanation: "The captured landing repository is missing or unreadable.",
+      kind: "landed",
+      baseline,
+      tree: completion,
     });
     expect(active.selectedRun).toBe(active.runs?.[0]?.key);
     const historical = await get(

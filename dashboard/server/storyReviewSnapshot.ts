@@ -1,5 +1,5 @@
-// Done review opens authoritative completion, with verified capture recovery.
-// Active stories and explicit captured runs have their own admitted reads.
+// Done review opens the published completion. Active stories and accepted
+// landings have their own admitted reads.
 // The handler admits a typed read against the kept records and answers under
 // the caller's signal; the response adapter bounds that signal.
 import type { ServerResponse } from "node:http";
@@ -21,7 +21,11 @@ import {
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { publishedSessionReview } from "./publishedSessionReview.ts";
 import { publishedTakenReview } from "./storyReviewPublishedTaken.ts";
-import { historicalStoryReview } from "./storyReviewHistorical.ts";
+import { publishedStoryReview } from "./storyReviewPublished.ts";
+import {
+  recordedLandingChoices,
+  recordedLandingReview,
+} from "./storyReviewPublishedLanding.ts";
 
 export async function storyReviewResponse(
   { read }: AdmittedStoryReview,
@@ -60,12 +64,44 @@ export async function storyReview(
     const { source, identity } = input.read.subject;
     return publishedTakenReview(knownSource(source), identity, signal);
   }
+  if ("subject" in input.read) {
+    const { subject, run, reference } = input.read;
+    const named = run ?? reference;
+    if (named !== undefined) {
+      const recorded = await recordedLandingReview(
+        knownSource(subject.source),
+        subject.identity,
+        named,
+        signal,
+      );
+      if (recorded !== undefined) return recorded;
+    }
+  }
   const request = await keptStoryReview(input);
-  const choices =
-    request.runs.length === 0
-      ? {}
-      : { runs: request.runs.map(reviewRunChoice) };
-  return { ...(await answered(request, signal)), ...choices };
+  const review = await answered(request, signal);
+  const kept = request.runs.map(reviewRunChoice);
+  const recorded =
+    "completed" in request && review.kind === "published"
+      ? await recordedLandingChoices(
+          request.completed,
+          request.identity,
+          review.landingRevision,
+          signal,
+        )
+      : [];
+  const runs = [
+    ...recorded,
+    ...kept.filter(
+      (run) =>
+        !recorded.some(
+          (published) =>
+            published.key === run.key ||
+            (published.comparison?.base === run.comparison?.base &&
+              published.comparison?.revision === run.comparison?.revision),
+        ),
+    ),
+  ];
+  return { ...review, ...(runs.length === 0 ? {} : { runs }) };
 }
 
 async function answered(
@@ -73,11 +109,16 @@ async function answered(
   signal: AbortSignal,
 ): Promise<StoryReview> {
   if ("completed" in request)
-    return historicalStoryReview(
-      request.completed,
-      request.identity,
-      request.runs,
-      signal,
+    return (
+      (await publishedStoryReview(
+        request.completed,
+        request.identity,
+        signal,
+      )) ?? {
+        kind: "unavailable",
+        explanation:
+          "No published completion record is available for this story, so its historical changes cannot be identified.",
+      }
     );
   if ("explanation" in request)
     return {
@@ -86,7 +127,7 @@ async function answered(
     };
   if ("readSession" in request) return request.readSession(signal);
   return {
-    ...(await landedStoryReview(request.run, signal)),
+    ...(await landedStoryReview(request.run, signal, request.source)),
     selectedRun: reviewRunKey(request.run.record),
   };
 }

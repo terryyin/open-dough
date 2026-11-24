@@ -75,7 +75,7 @@ function publishedDoneEvidenceOf(summary: StorySummary | undefined) {
         at: review.completedAt,
       },
     };
-  if (review?.kind === "landed")
+  if (review?.kind === "landed" && review.landing.receivedAt !== undefined)
     return {
       doneEndpoint: {
         revision: review.landing.revision,
