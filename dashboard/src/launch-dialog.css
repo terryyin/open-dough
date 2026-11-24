@@ -1,7 +1,6 @@
 /* Launch and project dialogs share this frame layout: a scrolling body with
    effects and actions below, using ./frame-controls.css for controls. */
 
-/* The body scrolls within the viewport; effects and actions stay in view. */
 .launch-dialog {
   box-sizing: border-box;
   width: min(40rem, calc(100% - 1.5rem));
@@ -174,14 +173,6 @@
   resize: vertical;
 }
 
-/* Short windows leave the effects and actions visible. The instruction
-   scrolls within its field instead of growing taller than the dialog body. */
-@media (height <= 30rem) {
-  .launch-dialog textarea {
-    max-height: max(var(--control-size), 20dvh);
-  }
-}
-
 /* The dictation controls and their status sit in one quiet group under the
    instruction. */
 .launch-dictation {
@@ -219,7 +210,6 @@
   font-size: 0.9rem;
 }
 
-/* The session summary leads the effects on its own line. */
 .launch-dialog-summary {
   display: block;
   font-weight: 600;
@@ -246,4 +236,15 @@
 
 .launch-dialog-cutoff {
   margin: 0;
+}
+
+/* Keep room to scroll and edit the instruction above the pinned actions. */
+@media (height <= 30rem) {
+  .launch-dialog textarea {
+    max-height: max(var(--control-size), 20dvh);
+  }
+  .launch-dialog-footer {
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4);
+  }
 }
