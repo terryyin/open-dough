@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-426#start-ad-hoc-work-under-a-story",
+  "title": "Admit ad hoc work through the installed workflow",
+  "completedAt": "2026-11-24T10:29:28.491Z",
+  "developer": "Terry Yin",
+  "agent": "Sola-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
