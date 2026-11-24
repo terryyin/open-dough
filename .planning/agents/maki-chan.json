@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maki-chan",
+  "email": "maki-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-423#use-one-managed-install-layout",
+  "host": "claude"
+}
