@@ -197,48 +197,6 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
   It is either a logic case over that choice or a case through
   `StoryReviewFileDiff`. Product behavior stays unchanged.
 
-<a id="renovate-later-dashboard-backend-unit-test-families"></a>
-
-### Prove durable launch admission through the typed attempt owner
-
-**Identity:** SEED-413#renovate-later-dashboard-backend-unit-test-families
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/818-prove-durable-launch-admission/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0ca1128e9ce54ca8fff30b1227b0bc438b8d742c064214a7578376eb7356863b","plan":"cc737bbcdf04e7f53a5a070d7824873e45c0db3810c9274e65b2c0f866b54261"}}
-```
-
-- **Goal.** Dashboard maintainers get fast, compile-time-checked feedback
-  when changing the rules that keep a launch attempt before its effects and
-  prevent overlapping starts of the same story.
-- **Scope.** Move the close-during-admission and cross-server admission cases
-  to plain Node Vitest. Feed MakeMe launch requests and attempt records to
-  the production attempt owner. Exercise the real attempt file and its lock,
-  with a separate minimal process where an independent writer matters.
-  Observe whether launch effects would run at the typed callback. Require no
-  dashboard server or installed launch project for these cases.
-- **Boundary.** The [remaining backend renovation](#renovate-remaining-backend-families-after-launch-admission)
-  carries the rest of the campaign, including change-wait, settlement and
-  reconciliation cases, the Story Notes store and final runner retirement.
-  Installed start, native host and HTTP contracts stay with their current
-  proof owners, including the [installed-project launch story](SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#run-dashboard-launch-tests-on-an-installed-project)
-  and [existing-session composition](SEED-433-run-dashboard-launch-tests-on-an-installed-project.md#compose-existing-sessions-directly).
-- **Evaluation.** Compare the two-file selection under the maintained
-  backend runner before and after. Use the campaign's roughly 100 ms per
-  case target, with the cost of any process required for real contention
-  accounted for separately.
-
-**Key examples**
-
-- A typed request is being kept when its owner closes. When the write
-  finishes, the exact attempt is available for recovery and the request is
-  refused without starting any launch effect.
-- An execution request is waiting for the attempt-file lock when another
-  writer keeps a pending refinement of that story. When the lock becomes
-  available, the contender sees the newly kept attempt, answers
-  `already-starting` and starts nothing.
-- Two independent owners accept overlapping requests. For the same story,
-  one request is kept and only its effects can run. For different stories,
-  both requests are kept and both can run.
-
 <a id="renovate-remaining-backend-families-after-launch-admission"></a>
 
 ### Renovate the remaining dashboard backend unit-test families after launch admission
@@ -248,11 +206,10 @@ SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
 {"schemaVersion":1,"refinement":"refined","approach":"unselected","assessment":"not-ready","reasons":["Recount the surviving legacy specs by production boundary and select the next independently verifiable cohort before slice planning. The two durable launch-admission specs have a separate plan."],"basis":{"document":"ca5b502accf9b8622b5c901aee654008588dbc88414e88bce0fa415e1ff6b304"}}
 ```
 
-Continues the campaign after
-[durable launch admission](#renovate-later-dashboard-backend-unit-test-families).
-That cohort owns `launches/launch-attempt-admission-close.spec.ts` and
-`launches/agent-launch-cross-server-accept.spec.ts`. The scope below
-applies to the remaining inventory.
+The durable launch admission cohort moved
+`launches/launch-attempt-admission-close.spec.ts` and
+`launches/agent-launch-cross-server-accept.spec.ts` to Node Vitest.
+The scope below applies to the remaining inventory.
 
 Split from `SEED-413#renovate-remaining-dashboard-backend-unit-tests`, which
 kept the [completed Done capture family](https://github.com/terryyin/open-dough/blob/8f4cc9480ccb0b736e3b29c787ab49a6ac80d366/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-remaining-dashboard-backend-unit-tests).
@@ -358,8 +315,7 @@ smaller unit selection does not hide its cost or a lost regression check.
      Attempt evidence is complete (recoverable at
      `f1bd809e4:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence`).
      [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete.
-  3. Begin with [durable launch admission](#renovate-later-dashboard-backend-unit-test-families).
-     Select the next launch or other boundary cohort from the surviving
+  3. Select the next launch or other boundary cohort from the surviving
      runner inventory and measured CI cost.
      Intent still includes comparison, follow-up and lifecycle proof outside
      the extracted spec list, together with other Intent readers and proof
