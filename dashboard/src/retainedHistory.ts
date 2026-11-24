@@ -22,7 +22,7 @@ import {
 import { withRetainedDetail } from "./sessionListing.ts";
 import type { AttemptObservation } from "./launchOutcome.ts";
 import type { LaunchWithState } from "./launchRecord.ts";
-import { readSessionsHistorySince } from "./machineSessionsReads.ts";
+import type { MachineReadSource } from "./machineReadSource.ts";
 import { sessionKey } from "./sessionReference.ts";
 
 type HeldHistory = {
@@ -47,6 +47,7 @@ const noAttempts: readonly AttemptObservation[] = [];
 export function useRetainedHistory(
   known: readonly LaunchWithState[],
   named: string | undefined,
+  readHistorySince: MachineReadSource["readHistorySince"],
 ): RetainedHistory {
   const [held, setHeld] = useState<HeldHistory>();
   // What a read asked now goes by: the history held and the revision named.
@@ -64,7 +65,7 @@ export function useRetainedHistory(
     )
       return;
     reading.current = true;
-    void readSessionsHistorySince(holding?.revision).then((answer) => {
+    void readHistorySince(holding?.revision).then((answer) => {
       reading.current = false;
       if (answer === undefined) return;
       const now: HeldHistory | undefined =
@@ -83,7 +84,7 @@ export function useRetainedHistory(
       heldNow.current = now;
       setHeld(now);
     });
-  }, []);
+  }, [readHistorySince]);
   const records = useMemo(
     () =>
       held === undefined

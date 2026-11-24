@@ -240,7 +240,7 @@ final-report session wrapper was removed. See `slice-4-mapping.md` and
 ### 5. Live listing reads keep sessions through retry, pace, history, and Cursor demand
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `sessions/agent-launch-sessions-unanswered`,
 `sessions/session-state-pace-followed-attempt`,
@@ -257,6 +257,16 @@ and sidebar scroll-into-view stay correct. Slow Cursor answers publish under
 at most one owned read; collapse or a hidden page ends or pauses that demand;
 while expanded the list says it is reading and follows unreachable, restored
 and running answers.
+
+**Accepted implementation proof.** Eight named replacements passed in
+6.852 s wall at two workers. Production readers followed typed answers
+for retry, hidden cancellation, attempt pacing, history and Cursor
+demand. Ad hoc listing preserved exact attention, deletion focus and
+sidebar reveal. The 72 existing frontend cases, 13 existing native E2E
+cases (21.271 s) and dashboard typecheck passed. No E2E cases were
+added. The unused legacy Cursor route helpers were removed while its
+native demand tracker remained. See `slice-5-mapping.md` and
+`slice-5-return.md` in the worktree's Git evidence.
 
 ### 6. Terminal keyboard, prompts, and ended-input recovery stay usable
 

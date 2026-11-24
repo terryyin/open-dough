@@ -1,145 +1,176 @@
-// Ad hoc sessions occupy Taken without a story card, against a controlled
-// machine read, delete boundary
-// (../../test-support/support/frontendSessionActions.ts) and attached terminal: a
-// blocked one reads Needs input in Taken and the sidebar, which counts it;
-// with the listing unreadable its record can be deleted from Taken, leaving
-// the sidebar and moving the keyboard to the next entry; and with Open Dough
-// already shown its Sessions sidebar Session entry brings its Taken entry into
-// view. Opening one from another project, Mark as done and reopening are
-// ../../../e2e/sessions/agent-launch-ad-hoc-sessions.spec.ts.
-
-import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
-import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
-import { askToDeleteRecord } from "../../test-support/support/sessionEntryDisclosure.ts";
-import { takenAdHocSession } from "../../test-support/support/startedAdHocSession.ts";
-import { parts, sessionStateOf } from "../../test-support/dashboardPage.ts";
-import { showColumn } from "../../test-support/boardPage.ts";
-import { takenStory } from "../../test-support/launchJourney.ts";
-import { expectSessionShown } from "../../test-support/sessionStatePace.ts";
-import {
-  expectSessionsSidebarSessionEntryShown,
-  sessionsSidebarParts,
-} from "../../test-support/sessionsSidebarPage.ts";
-import { expectCovering } from "../../test-support/sidePanelWidthPage.ts";
-import {
-  closeTerminal,
-  terminalPanel,
-  terminalScreenParts,
-} from "../../test-support/terminalScreenPage.ts";
+import { expect, test, vi } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { SessionState } from "../../src/launchRecord.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import { mountSessionCards, sessionsReading } from "./session-card-mount.ts";
+import {
+  sessionEntry,
+  sidebarButton,
+  sidebarSession,
+  taken,
+  takenAdHocSession,
+} from "./session-card-page.ts";
+import {
+  terminal,
+  terminalClose,
+  terminalMaximize,
+  terminalRestore,
+} from "./session-terminal-page.ts";
+import { openAttachedTerminal } from "./session-terminal-socket.ts";
+import {
+  entries,
+  entryOf,
+  hiddenStateLabelOf,
+  present,
+} from "./sessions-sidebar-page.ts";
 
-// The machine observes Open Dough's ad hoc session asking `text`, launched
-// at `at`, in `state`.
-const adHoc = (text: string, state: SessionState, at?: string) => {
-  const record = makeMe.aLaunchRecord.adHoc({ instruction: text, title: text });
-  if (at !== undefined) record.launchedAt(at);
+function adHoc(title: string, state: SessionState, launchedAt?: string) {
+  const launch = makeMe.aLaunchRecord.adHoc({ instruction: title, title });
+  if (launchedAt !== undefined) launch.launchedAt(launchedAt);
   return makeMe.anObservedLaunch
-    .of(record.please())
+    .of(launch.please())
     .withSessionState(state)
     .please();
-};
+}
 
-test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and the sidebar counts it", async ({
-  page,
-  frontendServices,
-}) => {
-  const text = "what is blocking us?";
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        adHoc(
-          text,
-          makeMe.aSessionState
-            .loaded("waiting")
-            .waitingFor("input needed")
-            .please(),
-        ),
-      )
-      .please(),
-  );
-  await openFrontendTakenBacklog(page);
-  const { button, entries, badge } = sessionsSidebarParts(page);
-  const local = takenAdHocSession(page, text);
+test("a blocked ad hoc session reads Needs input in Taken and the sidebar, and the sidebar counts it", async () => {
+  const title = "what is blocking us?";
+  const words = "Needs input: input needed";
+  const waiting = makeMe.aSessionState
+    .loaded("waiting")
+    .waitingFor("input needed")
+    .please();
+  await mountSessionCards({
+    reading: sessionsReading("blocked", adHoc(title, waiting)),
+  });
+  const entry = takenAdHocSession(title);
+  const badge = page
+    .getByRole("banner")
+    .getByRole("img", { name: "1 session needs attention" });
+  await expect.element(entry.getByText(words, { exact: true })).toBeVisible();
+  const entryStyle = getComputedStyle(entry.element());
+  expect([entryStyle.borderTopStyle, entryStyle.borderLeftWidth]).toEqual([
+    "solid",
+    "4px",
+  ]);
+  await expect.element(badge).toHaveTextContent("1");
 
-  await expectSessionShown(local, "Needs input: input needed", true);
-  await expect(badge).toHaveText("1");
-  await expect(badge).toHaveAccessibleName("1 session needs attention");
-  await button.click();
-  await expect(badge).toHaveText("1");
-  await expectSessionsSidebarSessionEntryShown(
-    entries.first(),
-    "Needs input: input needed",
-    "needs-input",
-  );
+  await userEvent.click(sidebarButton);
+  await expect.element(badge).toHaveTextContent("1");
+  const open = sidebarSession(title);
+  await expect.element(open).toBeVisible();
+  expect(open.element().getAttribute("title")?.split("\n")).toContain(words);
+  const row = present(entryOf(title), "blocked sidebar row");
+  const style = getComputedStyle(row);
+  expect([
+    style.borderLeftStyle,
+    style.borderLeftWidth,
+    style.borderLeftColor,
+  ]).toEqual(["solid", "5px", "rgb(155, 28, 28)"]);
+  const accessible = hiddenStateLabelOf(row);
+  expect(accessible.textContent).toBe("Needs input");
+  const size = accessible.getBoundingClientRect();
+  expect(Math.max(size.width, size.height)).toBeLessThanOrEqual(1);
 });
 
-test("with the listing unreadable, an ad hoc session's record can be deleted from Taken, leaving the sidebar and moving the keyboard to the next entry", async ({
-  page,
-  frontendServices,
-}) => {
+test("with the listing unreadable, an ad hoc session's record can be deleted from Taken, leaving the sidebar and moving the keyboard to the next entry", async () => {
   const unknown = makeMe.aSessionState.unknown().please();
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        adHoc("the older question", unknown, "2026-01-01T00:00:00.000Z"),
-        adHoc("the newer question", unknown, "2026-01-01T00:05:00.000Z"),
-      )
-      .please(),
+  const older = adHoc(
+    "the older question",
+    unknown,
+    "2026-01-01T00:00:00.000Z",
   );
-  await installFrontendSessionActions(page, frontendServices);
-  await openFrontendTakenBacklog(page);
-  const { entries, button } = sessionsSidebarParts(page);
-  const older = takenAdHocSession(page, "the older question");
-  const newer = takenAdHocSession(page, "the newer question");
-  await button.click();
-  await expect(entries).toHaveCount(2);
-
-  await expect(sessionStateOf(newer)).toHaveText(
-    "State unknown: Claude Code's session list could not be read",
+  const newer = adHoc(
+    "the newer question",
+    unknown,
+    "2026-01-01T00:05:00.000Z",
   );
-  await showColumn(page, "Taken");
-  await (await askToDeleteRecord(newer)).confirm.click();
+  const deleteRecord = vi
+    .fn<MachineReadSource["deleteRecord"]>()
+    .mockResolvedValue({ kind: "deleted" });
+  await mountSessionCards({
+    reading: sessionsReading("unknown", older, newer),
+    deleteRecord,
+    viewport: { width: 1440, height: 900 },
+  });
+  const olderEntry = sessionEntry(takenAdHocSession(older.request.title));
+  const newerEntry = sessionEntry(takenAdHocSession(newer.request.title));
+  await userEvent.click(sidebarButton);
+  await expect.poll(() => entries()).toHaveLength(2);
+  await expect
+    .element(newerEntry.state)
+    .toHaveTextContent(
+      "State unknown: Claude Code's session list could not be read",
+    );
+  const showTaken = page.getByRole("button", { name: /^Taken \d+ entr/ });
+  if (showTaken.query() !== null) await userEvent.click(showTaken);
 
-  await expect(newer).toHaveCount(0);
-  await expect(entries).toHaveCount(1);
-  await expect(entries.first()).toContainText("the older question");
-  await expect(older).toBeFocused();
-  await (await askToDeleteRecord(older)).confirm.click();
-  await expect(older).toHaveCount(0);
-  await expect(
-    parts(page).taken.getByRole("article", { name: takenStory, exact: true }),
-  ).toBeFocused();
+  await newerEntry.askToDelete();
+  await userEvent.click(newerEntry.confirm);
+  await expect.element(newerEntry.entry).not.toBeInTheDocument();
+  await expect.poll(() => entries()).toHaveLength(1);
+  await expect.element(sidebarSession(older.request.title)).toBeVisible();
+  await expect.element(olderEntry.entry).toHaveFocus();
+
+  await olderEntry.askToDelete();
+  await userEvent.click(olderEntry.confirm);
+  await expect.element(olderEntry.entry).not.toBeInTheDocument();
+  await expect.poll(() => entries()).toHaveLength(0);
+  await expect
+    .element(
+      taken.getByRole("article", {
+        name: "Repair the installer's update report",
+      }),
+    )
+    .toHaveFocus();
+  expect(
+    deleteRecord.mock.calls.map(([record]) => record.session.sessionId),
+  ).toEqual([newer.session.sessionId, older.session.sessionId]);
 });
 
-test("with Open Dough already shown, its Sessions sidebar Session entry brings its Taken entry into view", async ({
-  page,
-  frontendServices,
-}) => {
-  const text = "where is this entry?";
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(adHoc(text, makeMe.aSessionState.loaded("working").please()))
-      .please(),
-  );
-  await installAttachedTerminalSubstitute(page);
-  await openFrontendTakenBacklog(page);
-  const { button, entry } = sessionsSidebarParts(page);
-  const local = takenAdHocSession(page, text);
-  await expect(local).toHaveCount(1);
-  // Beside the open sidebar, the local Taken entry starts outside this viewport.
-  await page.setViewportSize({ width: 700, height: 600 });
-  await button.click();
-  await expect(local).not.toBeInViewport();
-  await entry(text).click();
-  const panel = terminalPanel(page);
-  await expectCovering(panel);
-  await expect(terminalScreenParts(panel).heading).toContainText(text);
-  await closeTerminal(panel); // covering hides Board marks; then check reveal
-  await expect(local).toBeInViewport();
+test("with Open Dough already shown, its Sessions sidebar Session entry brings its Taken entry into view", async () => {
+  const title = "where is this entry?";
+  const working = makeMe.aSessionState.loaded("working").please();
+  await mountSessionCards({
+    reading: sessionsReading("working", adHoc(title, working)),
+    openTerminal: openAttachedTerminal,
+  });
+  const entry = takenAdHocSession(title);
+  await expect.element(entry).toBeInTheDocument();
+  await page.viewport(700, 600);
+  await userEvent.click(sidebarButton);
+  const inViewport = () => {
+    const { top, left, bottom, right } = entry
+      .element()
+      .getBoundingClientRect();
+    return (
+      right > 0 &&
+      bottom > 0 &&
+      left < window.innerWidth &&
+      top < window.innerHeight
+    );
+  };
+  await expect.poll(inViewport).toBe(false);
+
+  await userEvent.click(sidebarSession(title));
+  await expect
+    .element(terminal.getByRole("heading", { name: title, exact: true }))
+    .toBeVisible();
+  await expect
+    .poll(() =>
+      terminal.element().parentElement?.classList.contains("page-covering"),
+    )
+    .toBe(true);
+  expect(
+    terminal.element().parentElement?.classList.contains("page-maximized"),
+  ).toBe(true);
+  await expect.element(terminalMaximize).not.toBeInTheDocument();
+  await expect.element(terminalRestore).not.toBeInTheDocument();
+  await expect
+    .element(page.getByRole("separator", { name: /panel/i }))
+    .not.toBeInTheDocument();
+  await userEvent.click(terminalClose);
+  await expect.element(terminal).not.toBeInTheDocument();
+  await expect.poll(inViewport).toBe(true);
 });

@@ -1,7 +1,8 @@
 // The page's calls for a shown session: its final report, this machine's host
-// status and its terminal's socket. The composition root supplies the
+// status, the Cursor runner's sessions and its terminal's socket. The composition root supplies the
 // authenticated implementations through `./pageReads.tsx`.
 
+import { readRunningCursorSessions } from "./agentLaunchClient.ts";
 import type { LaunchRecord } from "./agentLaunch.ts";
 import {
   agentTerminalEndpoint,
@@ -39,6 +40,7 @@ export type SessionServices = {
     signal: AbortSignal,
   ) => Promise<FinalReportRead>;
   readonly readHostStatus: (signal: AbortSignal) => Promise<HostStatus>;
+  readonly readRunningCursorSessions: typeof readRunningCursorSessions;
   readonly openTerminal: (record: LaunchRecord) => TerminalSocket;
 };
 
@@ -67,5 +69,6 @@ function openTerminal(record: LaunchRecord): TerminalSocket {
 export const authenticatedSessionServices: SessionServices = {
   readFinalReport,
   readHostStatus,
+  readRunningCursorSessions,
   openTerminal,
 };

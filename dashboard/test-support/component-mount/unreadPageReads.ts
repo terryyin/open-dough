@@ -49,6 +49,7 @@ const unreadReviewReads: ReviewSource = {
 const unreadSessionServices: SessionServices = {
   readFinalReport: unread("final report"),
   readHostStatus: unread("host status"),
+  readRunningCursorSessions: unread("running Cursor sessions"),
   openTerminal: unreadSync("terminal attach"),
 };
 
@@ -84,6 +85,8 @@ const unreadObservation: PublishedObservationReadSource = {
 const unreadMachine: MachineReadSource = {
   readSessionsSince: unread("machine sessions"),
   requestAcceptance: unread("agent acceptance"),
+  readHistorySince: unread("session history"),
+  waitForAttemptChange: unread("launch attempt change"),
   deleteRecord: unread("session record deletion"),
   markDone: unread("session mark done"),
   markRead: unread("session mark read"),

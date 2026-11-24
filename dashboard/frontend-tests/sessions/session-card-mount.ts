@@ -107,12 +107,21 @@ export async function mountSessionCards({
   deleteRecord,
   markDone,
   markRead,
+  machineReads = {},
+  readRunningCursorSessions,
   readFinalReport,
   openTerminal,
   viewport = { width: 1200, height: 840 },
   otherProjects = [],
 }: {
-  reading: MachineSessionsRead;
+  reading?: MachineSessionsRead;
+  machineReads?: Partial<
+    Pick<
+      MachineReadSource,
+      "readSessionsSince" | "readHistorySince" | "waitForAttemptChange"
+    >
+  >;
+  readRunningCursorSessions?: SessionServices["readRunningCursorSessions"];
   deleteRecord?: MachineReadSource["deleteRecord"];
   markDone?: MachineReadSource["markDone"];
   markRead?: MachineReadSource["markRead"];
@@ -126,7 +135,9 @@ export async function mountSessionCards({
   const supply = boardFrameObservationSupplying(projects);
   const defaults = pageReadsSupplying({});
   let next = Promise.resolve(reading);
-  const readSessionsSince = vi.fn(() => next);
+  const readSessionsSince = vi.fn<MachineReadSource["readSessionsSince"]>(
+    machineReads.readSessionsSince ?? (() => next),
+  );
   const reads = pageReadsSupplying({
     observation: {
       ...supply.observation,
@@ -137,6 +148,7 @@ export async function mountSessionCards({
     },
     machine: {
       ...supply.machine,
+      ...machineReads,
       readSessionsSince,
       deleteRecord: deleteRecord ?? defaults.machine.deleteRecord,
       markDone: markDone ?? defaults.machine.markDone,
@@ -151,6 +163,9 @@ export async function mountSessionCards({
             .with({ cpuPercent: null, freeBytes: null })
             .please(),
         ),
+      readRunningCursorSessions:
+        readRunningCursorSessions ??
+        defaults.sessions.readRunningCursorSessions,
       openTerminal: openTerminal ?? defaults.sessions.openTerminal,
     },
   });
@@ -170,7 +185,10 @@ export async function mountSessionCards({
   return {
     readSessionsSince,
     answerWith: (
-      answer: MachineSessionsRead | Promise<MachineSessionsRead>,
+      answer:
+        | MachineSessionsRead
+        | undefined
+        | Promise<MachineSessionsRead | undefined>,
     ) => {
       next = Promise.resolve(answer);
     },

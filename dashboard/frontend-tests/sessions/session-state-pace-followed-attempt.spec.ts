@@ -1,134 +1,110 @@
-// A steady pace of page time (`watchRecordReads` in
-// ../../test-support/sessionStatePace.ts) on a page that still follows a launch
-// attempt: the page's wait on that attempt's next change asks for a read of
-// the machine's sessions as soon as it is answered, so the pace has to begin
-// after that read. Synthetic machine answers only; no dashboard backend or
-// native host.
-
-import type { Page } from "@playwright/test";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  agentChangedEndpoint,
-  agentLaunchEndpoint,
-  type LaunchAttemptRecord,
-  type MachineAnswer,
-} from "../../src/agentLaunch.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { LaunchAttemptRecord } from "../../src/agentLaunch.ts";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import { givePageItsTurns } from "../../test-support/pageRequestNotes.ts";
-import { watchRecordReads } from "../../test-support/sessionStatePace.ts";
 import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
+  mountSessionCards,
+  readyStory,
+  workingSession,
+} from "./session-card-mount.ts";
+import { cardSession } from "./session-card-page.ts";
 
-const pageTime = (page: Page) => page.evaluate(() => Date.now());
-
-// A pace that waited for nothing would read the page three times and then
-// let page time pass; this many rounds of page turns outlast that several
-// times over, by the order of the page's work and not by the wall clock.
-const roundsToBeginAPace = 12;
-
-// The machine's answer about the one attempt it owns: whether it still runs
-// it, and how many changes of it it has told.
-const answering = (
+function attemptAnswer(
   attempt: LaunchAttemptRecord,
-  observed: { readonly running: boolean; readonly changes: number },
-): MachineAnswer =>
-  makeMe.aMachineAnswer
-    .answeringAttempts(
-      makeMe.anAttemptObservation
-        .of(attempt)
-        .owned(true)
-        .running(observed.running)
-        .afterChanges(observed.changes)
-        .please(),
-    )
-    .please();
-
-// Holds the page's wait on a followed attempt's next change unanswered until
-// `tell` is called, which answers that it changed. `asked` settles once the
-// page has asked it. It also notes the page time of every read of the
-// machine's sessions asked after the change was told (`readsSinceTold`).
-async function holdAttemptChange(page: Page) {
-  let tell = () => {};
-  let told = false;
-  const held = new Promise<void>((resolve) => {
-    tell = () => {
-      told = true;
-      resolve();
-    };
-  });
-  let noteAsked = () => {};
-  const asked = new Promise<void>((resolve) => {
-    noteAsked = resolve;
-  });
-  const sinceTold: number[] = [];
-  await page.route(
-    (url) => url.pathname === agentChangedEndpoint,
-    async (route) => {
-      noteAsked();
-      await held;
-      await route.fulfill({ json: { changed: true } });
-    },
+  change: number,
+  running: boolean,
+) {
+  return makeMe.aMachineAnswer.answeringAttempts(
+    makeMe.anAttemptObservation
+      .of(attempt)
+      .owned(true)
+      .running(running)
+      .afterChanges(change)
+      .please(),
   );
-  await page.route(
-    (url) => url.pathname === agentLaunchEndpoint,
-    async (route) => {
-      if (route.request().method() === "GET" && told)
-        sinceTold.push(await pageTime(page));
-      await route.fallback();
-    },
-  );
-  return { asked, tell, readsSinceTold: () => [...sinceTold] };
 }
 
-test("a pace begins only once the read that a followed attempt's change asks for is answered", async ({
-  page,
-  frontendServices,
-}) => {
-  // The machine runs one attempt, of which it has told one change.
-  frontendServices.answerMachine(
-    answering(makeMe.anAcceptedAttempt.adHoc().please(), {
-      running: true,
-      changes: 1,
-    }),
+test("a pace begins only once the read that a followed attempt's change asks for is answered", async () => {
+  vi.useFakeTimers({ toFake: ["Date", "setTimeout", "clearTimeout"] });
+  onTestFinished(() => {
+    vi.useRealTimers();
+  });
+  const attempt = makeMe.anAcceptedAttempt.adHoc();
+  const running = attempt.please();
+  const finished = attempt
+    .launched({ host: "claude", sessionId: "followed-attempt" })
+    .settledAt("2026-01-01T00:00:05.000Z")
+    .please();
+  const working = workingSession(
+    makeMe.aLaunchRecord.executing(readyStory).please(),
   );
-  await pausePageClockAt(page, new Date());
-  const { passOnePace } = await watchRecordReads(page);
-  const change = await holdAttemptChange(page);
-  await openFrontendTakenBacklog(page);
-  await change.asked;
-  const opened = await pageTime(page);
-
-  // The attempt settles on the machine, which tells its second change only
-  // after the pace was asked for and the page has had its turns many times
-  // over: a pace that did not wait for the change would by then have let
-  // page time pass.
-  frontendServices.answerMachine(
-    answering(
-      makeMe.anAcceptedAttempt
-        .adHoc()
-        .launched({ host: "claude", sessionId: "followed-attempt" })
-        .settledAt("2026-01-01T00:00:05.000Z")
-        .please(),
-      { running: false, changes: 2 },
-    ),
+  const initial = {
+    ...attemptAnswer(running, 1, true).please(),
+    revision: "running",
+  };
+  const settled = {
+    ...attemptAnswer(finished, 2, false).observing(working).please(),
+    revision: "settled",
+  };
+  let tellChange = () => {};
+  let settleRead = () => {};
+  const changed = new Promise<boolean>((resolve) => {
+    tellChange = () => {
+      resolve(true);
+    };
+  });
+  const prompted = new Promise<MachineSessionsRead>((resolve) => {
+    settleRead = () => {
+      resolve(settled);
+    };
+  });
+  const waitForAttemptChange = vi.fn<MachineReadSource["waitForAttemptChange"]>(
+    () => changed,
   );
-  const paced = passOnePace();
-  for (let round = 0; round < roundsToBeginAPace; round += 1) {
-    await givePageItsTurns(page);
-  }
-  const toldAt = await pageTime(page);
-  change.tell();
-  await paced;
+  const readTimes: number[] = [];
+  const readSessionsSince = vi
+    .fn<MachineReadSource["readSessionsSince"]>(() => {
+      readTimes.push(Date.now());
+      return Promise.resolve(settled);
+    })
+    .mockImplementationOnce(() => {
+      readTimes.push(Date.now());
+      return Promise.resolve(initial);
+    })
+    .mockImplementationOnce(() => {
+      readTimes.push(Date.now());
+      return prompted;
+    });
+  await mountSessionCards({
+    machineReads: { waitForAttemptChange, readSessionsSince },
+  });
+  await expect.poll(() => waitForAttemptChange.mock.calls).toHaveLength(1);
+  expect(waitForAttemptChange.mock.lastCall?.[0]).toEqual({
+    id: running.id,
+    changes: 1,
+  });
 
-  // Page time stood still until the change was told; its read was asked
-  // before any passed, and the pace's own read exactly one pace later.
-  expect(toldAt - opened).toBe(0);
-  expect(change.readsSinceTold().map((at) => at - opened)).toEqual([
-    0,
-    checkIntervalMs,
-  ]);
+  const opened = readTimes[0];
+  if (opened === undefined) throw new Error("The initial read was not asked.");
+  await vi.advanceTimersByTimeAsync(opened + checkIntervalMs - Date.now() - 1);
+  expect(readTimes).toEqual([opened]);
+  const changedAt = Date.now();
+  tellChange();
+  await expect.poll(() => readTimes).toEqual([opened, changedAt]);
+
+  await vi.advanceTimersByTimeAsync(checkIntervalMs);
+  expect(readTimes).toEqual([opened, changedAt]);
+  const settledAt = Date.now();
+  settleRead();
+  await expect.element(cardSession().state).toHaveTextContent("Working");
+  await vi.advanceTimersByTimeAsync(
+    settledAt + checkIntervalMs - Date.now() - 1,
+  );
+  expect(readTimes).toEqual([opened, changedAt]);
+  await vi.advanceTimersByTimeAsync(1);
+  await expect
+    .poll(() => readTimes)
+    .toEqual([opened, changedAt, settledAt + checkIntervalMs]);
 });

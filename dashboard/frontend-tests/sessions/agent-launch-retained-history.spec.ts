@@ -1,34 +1,17 @@
-// A history read that fails leaves every retained session showing as before,
-// and the next opening asks again, against a controlled machine read whose
-// history answers ask again once. When the page reads the history at all,
-// and its gzip-encoded answer, are
-// ../../../e2e/sessions/agent-launch-retained-history.spec.ts.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import { mountSessionCards } from "./session-card-mount.ts";
 
-import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import { fulfillJson } from "../../test-support/support/frontendSubstituteAnswers.ts";
-import { sessionDetailsControl } from "../../test-support/support/sessionEntryDisclosure.ts";
-import { parts } from "../../test-support/dashboardPage.ts";
-import { pausePageClockAt } from "../../test-support/dashboardTest.ts";
-import { agentLaunchEndpoint } from "../../src/agentLaunch.ts";
-import {
-  sessionsAudienceParameter,
-  sessionsHistoryAudience,
-  sessionsRevisionHeader,
-} from "../../src/machineSessionsRevision.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-
-const isHistoryUrl = (url: URL) =>
-  url.pathname === agentLaunchEndpoint &&
-  url.searchParams.get(sessionsAudienceParameter) === sessionsHistoryAudience;
-
-test("a failed history read leaves retained sessions as shown and the next opening asks again", async ({
-  page,
-  frontendServices,
-}) => {
+test("a failed history read leaves retained sessions as shown and the next opening asks again", async () => {
+  vi.useFakeTimers({
+    toFake: ["Date"],
+    now: new Date("2026-10-28T10:00:00.000Z"),
+  });
+  onTestFinished(() => {
+    vi.useRealTimers();
+  });
   const title = "Retained through a failure";
   const record = makeMe.anObservedLaunch
     .of(
@@ -40,43 +23,42 @@ test("a failed history read leaves retained sessions as shown and the next openi
     )
     .withSessionState(makeMe.aSessionState.retained("review").please())
     .please();
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer.observing(record).please(),
-  );
-  // The first history read is told to ask again; later ones answer the
-  // retained session in full.
-  const asked: (string | undefined)[] = [];
-  await page.route(
-    (url) => isHistoryUrl(url),
-    async (route) => {
-      asked.push(route.request().headers()[sessionsRevisionHeader]);
-      if (asked.length === 1) {
-        await fulfillJson(route, { error: "Ask again." }, 503);
-        return;
-      }
-      await fulfillJson(route, {
-        revision: "history-1",
-        records: [record],
-        attempts: [],
-      });
+  const readHistorySince = vi
+    .fn<MachineReadSource["readHistorySince"]>()
+    .mockResolvedValueOnce(undefined)
+    .mockResolvedValue({
+      revision: "history-1",
+      records: [record],
+      attempts: [],
+    });
+  await mountSessionCards({
+    reading: {
+      ...makeMe.aMachineAnswer.observing(record).please(),
+      revision: "overview",
+      historyRevision: "history-1",
     },
-  );
-  await pausePageClockAt(page, new Date("2026-10-28T10:00:00.000Z"));
-  await openFrontendTakenBacklog(page);
-  const entry = parts(page)
-    .recentlyDone.getByRole("article")
-    .filter({ hasText: title });
-  const details = sessionDetailsControl(entry);
-  const summary = entry.locator(".session-entry-summary");
-  await expect(summary).toBeVisible();
-  const shown = await summary.textContent();
+    machineReads: { readHistorySince },
+  });
+  const entry = page
+    .getByRole("region", { name: "Recently done" })
+    .getByRole("article", { name: `Ad hoc session for ${title}` });
+  const details = entry.getByRole("button", { name: "Session details" });
+  await expect.element(entry).toBeVisible();
+  const summary = () =>
+    entry.element().querySelector(".session-entry-summary")?.textContent;
+  const shown = summary();
+  expect(shown).toContain("Done");
+  expect(readHistorySince).not.toHaveBeenCalled();
 
   await details.click();
-  await expect.poll(() => asked).toHaveLength(1);
-  await expect(details).toHaveAttribute("aria-expanded", "true");
-  await expect(summary).toHaveText(shown ?? "");
+  await expect.poll(() => readHistorySince.mock.calls).toEqual([[undefined]]);
+  await expect.element(details).toHaveAttribute("aria-expanded", "true");
+  expect(summary()).toBe(shown);
 
   await details.click();
-  await expect.poll(() => asked).toEqual([undefined, undefined]);
-  await expect(summary).toHaveText(shown ?? "");
+  await expect
+    .poll(() => readHistorySince.mock.calls)
+    .toEqual([[undefined], [undefined]]);
+  await expect.element(details).toHaveAttribute("aria-expanded", "false");
+  expect(summary()).toBe(shown);
 });

@@ -7,9 +7,11 @@ import {
   requestAgentAcceptance,
   type AcceptanceAnswer,
 } from "./agentLaunchClient.ts";
+import { awaitAttemptChange } from "./attemptChangeWaits.ts";
 import type { AgentLaunchRequest } from "./agentLaunch.ts";
 import {
   readMachineSessionsSince,
+  readSessionsHistorySince,
   type MachineSessionsReadOptions,
 } from "./machineSessionsReads.ts";
 import type { MachineSessionsRead } from "./machineSessionsRevision.ts";
@@ -29,6 +31,8 @@ export type MachineReadSource = {
     request: AgentLaunchRequest,
     attachTerminal?: boolean,
   ) => Promise<AcceptanceAnswer>;
+  readonly readHistorySince: typeof readSessionsHistorySince;
+  readonly waitForAttemptChange: typeof awaitAttemptChange;
   readonly deleteRecord: typeof requestDeleteRecord;
   readonly markDone: typeof requestMarkDone;
   readonly markRead: typeof requestMarkRead;
@@ -37,6 +41,8 @@ export type MachineReadSource = {
 export const authenticatedMachineReads: MachineReadSource = {
   readSessionsSince: readMachineSessionsSince,
   requestAcceptance: requestAgentAcceptance,
+  readHistorySince: readSessionsHistorySince,
+  waitForAttemptChange: awaitAttemptChange,
   deleteRecord: requestDeleteRecord,
   markDone: requestMarkDone,
   markRead: requestMarkRead,

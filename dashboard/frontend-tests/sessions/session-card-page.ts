@@ -12,6 +12,14 @@ export const sidebarButton = page.getByRole("button", {
   name: "Sessions",
   exact: true,
 });
+export const sidebarSession = (title: string) =>
+  sidebar.getByRole("button", { name: title, exact: true });
+export const taken = page.getByRole("region", { name: "Taken", exact: true });
+export const takenAdHocSession = (title: string) =>
+  taken.getByRole("article", {
+    name: `Ad hoc session for ${title}`,
+    exact: true,
+  });
 export const namedCard = (title: string) =>
   page.getByRole("article", { name: title, exact: true });
 export const card = namedCard(readyStory.title);
