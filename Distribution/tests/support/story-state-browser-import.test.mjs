@@ -13,13 +13,8 @@ const readerPath = fileURLToPath(
 );
 
 test("importing the pure story-state reader pulls in no filesystem or Node-only module", async () => {
-  const { visited, specifiers } = importedModules(readerPath);
+  const { specifiers } = importedModules(readerPath);
 
-  assert.ok(
-    [...visited].some((path) =>
-      path.endsWith("product-backlog-story-state.mjs"),
-    ),
-  );
   for (const specifier of specifiers) {
     assert.equal(
       specifier.startsWith("node:"),
@@ -36,10 +31,16 @@ test("importing the pure story-state reader pulls in no filesystem or Node-only 
       false,
       `unexpected filesystem home wrapper import: ${specifier}`,
     );
+    assert.equal(
+      specifier.includes("product-backlog-story-state-home"),
+      false,
+      `unexpected filesystem story-state wrapper import: ${specifier}`,
+    );
   }
 
   const loaded = await import(pathToFileURL(readerPath).href);
   assert.equal(typeof loaded.readStoryState, "function");
+  assert.equal(typeof loaded.recordStoryState, "function");
 });
 
 test("importing the pure dependency reader pulls in no filesystem or Node-only module", async () => {

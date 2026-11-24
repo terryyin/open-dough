@@ -197,7 +197,7 @@ passed after the independent test review.
 ### 4. Ship a smaller story-state implementation with one schema
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Compare the total installed bytes for story-state against 36,317,
 including relocated code. Run the six `story-state*.test.mjs` files and the
 dependency and startup cases in the baseline, plus affected supplier and
@@ -218,6 +218,13 @@ browser-safety and reader contract assertions. Delete each validator,
 module and test the single schema supersedes, and check with a search that
 no shipped script, Dashboard source or test imports a removed name. Estimated active effort
 10–15 minutes.
+
+Accepted proof: A fresh installation measured 32,494 story-state bytes
+including the moved recorder receipt, against 36,317 at preparation. All
+23 CLI comparisons matched the pre-slice exits, receipts and file bytes.
+The Dashboard agreed on distinct and canonical plan cases, planless work,
+sibling stability and changed-review evidence. All 42 focused Distribution
+jobs, 12 Chromium cases, three mounted Dashboard cases and typecheck passed.
 
 ## Preparation assessment
 
