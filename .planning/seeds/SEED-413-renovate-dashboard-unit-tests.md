@@ -219,10 +219,9 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   `dashboard/backend.playwright.config.ts` and the backend request and server
   wrappers in `dashboard/test-support/` are deleted.
 - **Remaining work.** This story keeps the campaign criteria below and owns
-  the backend specs outside the three bounded migrations already selected:
-  [wall-time history](#renovate-landed-ci-backend-proof),
-  [landed attempt evidence](#renovate-landed-ci-attempt-evidence), and
-  [Token Index](#renovate-usage-token-index-proof).
+  the backend specs outside the two remaining bounded migrations:
+  [wall-time history](#renovate-landed-ci-backend-proof) and
+  [landed attempt evidence](#renovate-landed-ci-attempt-evidence).
   It also owns final runner retirement and the Story Notes store follow-up
   below. Keep the automatic-repeat correction's separately assigned coverage
   and load obligations with its plan. Count any legacy files it leaves for
@@ -303,8 +302,8 @@ smaller unit selection does not hide its cost or a lost regression check.
      Remaining native Done cases belong to `sessions/`.
   2. Landed CI [scoped test history](https://github.com/terryyin/open-dough/blob/674da3627e1d20e3376b6fef8b4f1a98e1a3768f/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof)
      is complete. [Wall-time history](#renovate-landed-ci-backend-proof) is
-     already Taken. Next come [attempt evidence](#renovate-landed-ci-attempt-evidence)
-     and [Token Index](#renovate-usage-token-index-proof).
+     already Taken. Next comes [attempt evidence](#renovate-landed-ci-attempt-evidence).
+     [Token Index](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) is complete.
   3. Recount the remaining files against the available seams and CI cost.
      Intent still includes comparison, follow-up and lifecycle proof outside
      the extracted spec list, together with other Intent readers and proof
@@ -407,41 +406,6 @@ whole evidence path in one story.
 - Given a later landing and an older original measurement, the follow-up
   reader retains the original sample and its exclusions after history
   eviction. A repeat request's measurement does not replace that sample.
-
-<a id="renovate-usage-token-index-proof"></a>
-
-### Prove Token Index reads and refreshes through typed backend handlers
-
-**Identity:** SEED-413#renovate-usage-token-index-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/811-renovate-usage-token-index-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5026a333100f058612353387b3198eea3b68e08be429c213417569a02ef48f54","plan":"0efa864976b2a2183a5a02ca9cd817cddefe53f9c4d26600f801fa68f3d800aa"}}
-```
-
-**Goal.** Dashboard maintainers get fast feedback on whether the Token
-Index reports the right usage for completed work and reflects manual
-refresh, including partial and unpriced evidence.
-
-**Scope.** Convert all 19 backend `usage-history/token-index*.spec.ts`
-files as one family on Node Vitest. Read the typed Token Index service
-with explicit project, retained launch, tariff, check time and summary
-inputs. Drive the real usage refresh against isolated native transcript
-and usage files where importing, replacing or preserving evidence is the
-behavior. Keep the production HTTP, child-process and cache composition.
-Other usage history and effort reports remain in the original story.
-Apply the [campaign's speed and coverage criteria](#renovate-later-dashboard-backend-unit-test-families).
-
-**Key examples.**
-
-- Given configured launches with measured, estimated, or partial usage,
-  reading a cohort returns the appropriate points and excludes tasks
-  ineligible for its rolling median. A malformed period is refused
-  before reading the usage store.
-- Given a reply and worker evidence that arrives after the last check,
-  Refresh attributes each response once to the correct launch. A later
-  launch gets its own turns. Refreshing again leaves the same totals.
-- Given a missing worker, a refresh retains the partial result until
-  that evidence can be read. An unreadable store preserves the last
-  saved summary and check time and reports failure.
 
 <a id="renovate-landed-ci-backend-proof"></a>
 

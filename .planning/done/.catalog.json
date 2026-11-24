@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-usage-token-index-proof.json",
+      "identity": "SEED-413#renovate-usage-token-index-proof",
+      "completedAt": "2026-11-24T12:11:28.303Z",
+      "blob": "1cb8a819dab42a6346e50d6eb3ee73f7c1be0100"
+    },
+    {
       "fileName": "SEED-431_reduce-codex-wakes-during-supplier-watches.json",
       "identity": "SEED-431#reduce-codex-wakes-during-supplier-watches",
       "completedAt": "2026-11-24T10:11:32.127Z",
