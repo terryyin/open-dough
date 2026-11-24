@@ -12,7 +12,9 @@ import {
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import {
   reviewRepositoryHolding,
-  syncedReviewRepository,
+  reviewRepositoryRead,
+  ReviewSyncFailed,
+  withSyncFailure,
 } from "./reviewRepository.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
 import { compareOriginalTrees, listedFrom } from "./storyReviewComparison.ts";
@@ -28,10 +30,17 @@ export async function publishedStoryReview(
     explanation,
   });
   try {
-    const directory =
+    const { repository: directory, syncFailure } =
       namedCompletion === undefined
-        ? await syncedReviewRepository(source, signal)
-        : await reviewRepositoryHolding(source, namedCompletion, signal);
+        ? await reviewRepositoryRead(source, signal)
+        : {
+            repository: await reviewRepositoryHolding(
+              source,
+              namedCompletion,
+              signal,
+            ),
+            syncFailure: undefined,
+          };
     const endpoints = await publishedStoryEndpoints(
       source,
       directory,
@@ -68,8 +77,10 @@ export async function publishedStoryReview(
       remote: "origin",
       target: source.ref,
       ...compared,
+      ...withSyncFailure(syncFailure),
     };
   } catch (error) {
+    if (error instanceof ReviewSyncFailed) return unavailable(error.message);
     return unavailable(
       `Published completion history could not be read: ${gitProblem(error)}`,
     );

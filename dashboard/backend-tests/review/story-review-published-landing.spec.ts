@@ -18,7 +18,8 @@ import { git } from "../../test-support/support/storyReviewWorktree.ts";
 const reference = "11111111-1111-4111-8111-111111111111";
 const literal = "[literal]*.txt";
 
-test("a legacy receipt reads the exact accepted origin pair with the execution checkout retired, and loses authority when origin omits it", async () => {
+// A legacy receipt for an accepted landing whose execution checkout is retired.
+async function retiredLandedRun() {
   const repository = await materializeRepository(
     makeMe.aRepository
       .withRevision("base")
@@ -62,10 +63,18 @@ test("a legacy receipt reads the exact accepted origin pair with the execution c
   ]);
 
   renameSync(repository.integration, `${repository.integration}-retired`);
-
-  const signal = new AbortController().signal;
   const subject = { source: "open-dough", identity: queuedIdentity };
   const review = { read: { subject, run: reference } };
+  const moveOrigin = () => {
+    renameSync(repository.origin, `${repository.origin}-away`);
+  };
+  return { repository, base, accepted, subject, review, moveOrigin };
+}
+
+test("a legacy receipt reads the exact accepted origin pair with the execution checkout retired, and loses authority when origin omits it", async () => {
+  const { repository, base, accepted, subject, review } =
+    await retiredLandedRun();
+  const signal = new AbortController().signal;
   const file = {
     subject,
     reference,
@@ -94,4 +103,34 @@ test("a legacy receipt reads the exact accepted origin pair with the execution c
   await expect(reviewedFileDiff({ read: file }, signal)).rejects.toMatchObject({
     status: 409,
   });
+});
+
+test("a synced landed run reopens offline with the same pair and files and the sync notice", async () => {
+  const { base, accepted, review, moveOrigin } = await retiredLandedRun();
+  const signal = new AbortController().signal;
+  const synced = await storyReview(review, signal);
+  if (synced.kind !== "landed") throw new Error("No landed review");
+  moveOrigin();
+
+  const reopened = await storyReview(review, signal);
+  expect(reopened).toMatchObject({
+    kind: "landed",
+    baseline: base,
+    tree: accepted,
+    files: synced.files,
+  });
+  if (reopened.kind !== "landed") throw new Error("No landed review");
+  expect(typeof reopened.syncFailure?.lastSyncedAt).toBe("string");
+});
+
+test("a landed run never synced and opened offline is unavailable and names the failed sync", async () => {
+  const { review, moveOrigin } = await retiredLandedRun();
+  moveOrigin();
+
+  const answer = await storyReview(review, new AbortController().signal);
+
+  expect(answer.kind).toMatch(/unavailable/);
+  expect("explanation" in answer && answer.explanation).toMatch(
+    /^The review could not sync from origin/,
+  );
 });

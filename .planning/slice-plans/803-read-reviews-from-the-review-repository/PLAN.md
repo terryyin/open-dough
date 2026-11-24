@@ -251,7 +251,7 @@ Learnings for slice 5 and wrap-up:
 
 ### 5. Keep a synced review readable when origin is unreachable
 Type: Behavior
-Status: planned
+Status: done
 Proof: new E2E `e2e/review/story-review-offline.spec.ts` through `dashboard/test-support/reviewChangesPage.ts`, which alone knows where the notice and Refresh live; backend sync-record cases.
 
 Behavior:
@@ -268,12 +268,34 @@ Behavior:
 The notice wording stays consistent with the existing "Refreshing the review…"
 and "Review refreshed" lines in `StoryReviewFeedback.tsx`.
 
+Accepted proof (uncommitted candidate on a5117778): new Taken, Done and landed
+offline backend cases failed at a5117778, then passed. The full backend
+review folder, the frontend review specs and typecheck pass. E2E
+`story-review-offline` covers the four behaviors.
+`story-review-completed` covers a Done reopen with origin unreachable. Also
+passing: `story-review-story-branch-landed`, `recently-done-published-sessions`
+and `story-review-trunk-own-changes`.
+
+Learnings for wrap-up:
+- `reviewRepositoryRead` serves Done, landed and recorded-landing readers.
+  When a later sync fails, it answers from the last synced refs with
+  `syncFailure`. When the project never synced, it fails with "The review
+  could not sync from origin…". Taken keeps its two-ref sync, so a branch
+  origin lacks stays "not published on origin" (G1).
+- The notice renders the last sync time through `Moment`, the shared way to
+  show a recorded instant.
+- Named follow-up from the refactor pass: the Done offline reopen was appended
+  to the existing `e2e/review/story-review-completed.spec.ts` journey, and that
+  test's title was widened. A new promise should have its own test. Split it
+  into its own E2E test. Removing it is not enough, because no backend case
+  covers the Done offline file diff.
+
 ## Story obligations
 
 ### G1. A failed Taken branch sync reads as an unpublished branch
 Reported: slice 3 — "A failed live branch sync (network or deleted branch) reports \"The recorded story branch X is not published on origin.\""
 Story clause: "A cold review with no readable comparison stays unavailable and names the failed sync."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: dashboard/backend-tests/review/story-review-offline-sync.spec.ts "a never synced Taken review opened offline is unavailable and names the failed sync" asserts the failed-sync wording without "not published"; story-review-published-taken.spec.ts "a Taken story's unpublished branch leaves a review gap" keeps "not published on origin"; e2e/review/story-review-offline.spec.ts cold journey shows it in Intent
 
 ## Concern evidence
 

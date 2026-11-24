@@ -18,7 +18,11 @@ import {
   EmptyHistoricalContext,
   RefreshedComparison,
 } from "./IntentComparedContext.tsx";
-import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
+import {
+  ReviewSyncNotice,
+  reviewSyncFailure,
+  type UnreadComparison,
+} from "./StoryReviewFeedback.tsx";
 
 // What Intent knows of the selected story's comparison.
 export type LensComparison =
@@ -128,6 +132,16 @@ export function CompactComparisonState({
         Reading the story&apos;s changes…
         {comparison.state === "compared" &&
           " The previous comparison stays visible."}
+      </p>
+    );
+  const syncFailure =
+    comparison.state === "compared"
+      ? reviewSyncFailure(comparison.review)
+      : undefined;
+  if (syncFailure !== undefined)
+    return (
+      <p className="intent-story-state" role="status">
+        <ReviewSyncNotice failure={syncFailure} />
       </p>
     );
   if (comparison.state === "unavailable")

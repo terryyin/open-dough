@@ -1,6 +1,7 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   objectIdSchema,
+  type ReviewSyncFailure,
   type StoryReview,
 } from "../src/storyReviewContract.ts";
 import { isSafeBranchName } from "../src/authenticatedReadRules.ts";
@@ -10,8 +11,10 @@ import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { publishedStoryEvidence } from "./storyPublishedEvidence.ts";
 import { publishedStoryComparison } from "./storyReviewPublished.ts";
 import {
+  failedSyncExplanation,
   reviewRepositoryPath,
-  syncedReviewRepository,
+  reviewSyncFailure,
+  withSyncFailure,
 } from "./reviewRepository.ts";
 import { takenStoryClaim } from "./takenStoryEndpoints.ts";
 
@@ -53,10 +56,18 @@ export async function publishedTakenReview(
 ): Promise<PublishedTakenReview> {
   try {
     const live = namedHead === undefined;
-    const directory = live
-      ? await syncedReviewRepository(source, signal)
-      : reviewRepositoryPath(source);
+    const directory = reviewRepositoryPath(source);
     const call = { cwd: directory, signal, maxBuffer: 64 * 1024 * 1024 };
+    // A failed live sync keeps the last synced refs readable, with a notice.
+    let syncFailure: ReviewSyncFailure | undefined;
+    const attemptSync = async (ref: string) => {
+      const failure = await reviewSyncFailure(source, signal, ref);
+      if (failure !== undefined && !unpublishedRef(failure))
+        syncFailure = failure;
+    };
+    if (live) await attemptSync(source.ref);
+    if (syncFailure !== undefined && !(await syncedRef(source.ref, call)))
+      return unavailableAfterFailedSync(syncFailure);
     const git = async (...args: string[]) =>
       (await runGit(args, call)).stdout.trim();
     const comparisonKey = async (head: string) =>
@@ -88,10 +99,10 @@ export async function publishedTakenReview(
       return unavailable("The Taken story does not record a published branch.");
     if (!isSafeBranchName(target))
       return unavailable("The recorded branch name is not usable.");
-    const tip =
-      mode === "trunk"
-        ? trunk
-        : await syncedBranchTip(source, target, live, call);
+    if (mode === "story-branch" && live) await attemptSync(target);
+    const tip = mode === "trunk" ? trunk : await syncedRef(target, call);
+    if (tip === undefined && syncFailure !== undefined)
+      return unavailableAfterFailedSync(syncFailure);
     if (tip === undefined)
       return unavailable(
         `The recorded story branch ${target} is not published on origin.`,
@@ -143,6 +154,7 @@ export async function publishedTakenReview(
       remote: "origin",
       target,
       ...compared,
+      ...withSyncFailure(syncFailure),
     };
     keepBuiltComparison(await comparisonKey(head), review);
     return review;
@@ -154,19 +166,23 @@ export async function publishedTakenReview(
   }
 }
 
-// The story branch as last synced into the Review repository, syncing it
-// first on a live open. A branch origin does not publish has no tip.
-async function syncedBranchTip(
-  source: PublishedSource,
-  branch: string,
-  live: boolean,
+// Origin answered that it publishes no such ref: a deleted or never
+// published branch, not a failed sync.
+const unpublishedRef = ({ problem }: ReviewSyncFailure) =>
+  /couldn't find remote ref/i.test(problem);
+
+const unavailableAfterFailedSync = (failure: ReviewSyncFailure) =>
+  unavailable(failedSyncExplanation(failure));
+
+// A ref as last synced into the Review repository; absent when never synced.
+async function syncedRef(
+  ref: string,
   call: GitCall & { readonly signal: AbortSignal },
 ): Promise<string | undefined> {
   try {
-    if (live) await syncedReviewRepository(source, call.signal, branch);
     return (
       await runGit(
-        ["rev-parse", "--verify", `refs/remotes/origin/${branch}^{commit}`],
+        ["rev-parse", "--verify", `refs/remotes/origin/${ref}^{commit}`],
         call,
       )
     ).stdout.trim();

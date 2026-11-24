@@ -6,6 +6,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import type { ReviewSyncFailure } from "../src/storyReviewContract.ts";
 import { commitPresentOrFetched, GitTargetFetches } from "./gitTargetFetch.ts";
 import {
   defaultGitOutputLimit as maxBuffer,
@@ -39,7 +40,9 @@ export function reviewRepositoryPath(source: PublishedSource): string {
 const syncRecordPath = (repository: string) =>
   path.join(repository, "open-dough-sync.json");
 
-async function lastSync(repository: string): Promise<ReviewRepositorySync> {
+export async function lastSync(
+  repository: string,
+): Promise<ReviewRepositorySync> {
   try {
     return JSON.parse(
       await readFile(syncRecordPath(repository), "utf8"),
@@ -109,6 +112,54 @@ export async function syncedReviewRepository(
     }
   });
   return repository;
+}
+
+// Why a review is unavailable when its sync failed and nothing synced earlier
+// can answer it.
+export const failedSyncExplanation = ({ problem }: ReviewSyncFailure) =>
+  `The review could not sync from origin, and nothing synced earlier holds this comparison: ${problem}`;
+
+// A sync that failed with no earlier sync to read from.
+export class ReviewSyncFailed extends Error {
+  constructor(readonly failure: ReviewSyncFailure) {
+    super(failedSyncExplanation(failure));
+  }
+}
+
+// Sync `ref`; when origin cannot be reached, the failure as a notice beside
+// what the last successful sync left.
+export async function reviewSyncFailure(
+  source: PublishedSource,
+  signal: AbortSignal,
+  ref: string = source.ref,
+): Promise<ReviewSyncFailure | undefined> {
+  try {
+    await syncedReviewRepository(source, signal, ref);
+    return undefined;
+  } catch (error) {
+    if (signal.aborted) throw error;
+    const { lastSyncedAt } = await lastSync(reviewRepositoryPath(source));
+    return { problem: gitProblem(error), lastSyncedAt };
+  }
+}
+
+// A review answer carries a failed sync only when there was one.
+export const withSyncFailure = (syncFailure: ReviewSyncFailure | undefined) =>
+  syncFailure === undefined ? {} : { syncFailure };
+
+// Sync the target, or read what the last successful sync left with the
+// failure as a notice. Throws ReviewSyncFailed when the project never synced.
+export async function reviewRepositoryRead(
+  source: PublishedSource,
+  signal: AbortSignal,
+): Promise<{ repository: string; syncFailure?: ReviewSyncFailure }> {
+  const syncFailure = await reviewSyncFailure(source, signal);
+  if (syncFailure !== undefined && syncFailure.lastSyncedAt === undefined)
+    throw new ReviewSyncFailed(syncFailure);
+  return {
+    repository: reviewRepositoryPath(source),
+    ...withSyncFailure(syncFailure),
+  };
 }
 
 // The Review repository holding `revision`, syncing only when it lacks it.

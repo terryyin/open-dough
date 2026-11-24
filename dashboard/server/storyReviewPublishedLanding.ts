@@ -20,7 +20,9 @@ import { sessionRecordDirectoryOf } from "./recordsBesideBacklog.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
 import {
   reviewRepositoryPath,
-  syncedReviewRepository,
+  reviewRepositoryRead,
+  ReviewSyncFailed,
+  withSyncFailure,
 } from "./reviewRepository.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 
@@ -143,7 +145,18 @@ export async function recordedLandingReview(
 > {
   if (!isSessionId(reference)) return undefined;
   // Named reads can arrive before the Done view has fetched the close record.
-  const repository = await syncedReviewRepository(source, signal);
+  let synced: Awaited<ReturnType<typeof reviewRepositoryRead>>;
+  try {
+    synced = await reviewRepositoryRead(source, signal);
+  } catch (error) {
+    if (!(error instanceof ReviewSyncFailed)) throw error;
+    return {
+      kind: "landing-unavailable",
+      reference,
+      explanation: error.message,
+    };
+  }
+  const { repository, syncFailure } = synced;
   const endpoints = await publishedStoryEndpoints(
     source,
     repository,
@@ -185,5 +198,6 @@ export async function recordedLandingReview(
     tree: pair.revision,
     files: read.files,
     selectedRun: reference,
+    ...withSyncFailure(syncFailure),
   };
 }
