@@ -20,17 +20,6 @@ export const fileFollowUpDialog = (page: Page, project = "Open Dough") =>
 
 export { startSessionField };
 
-export async function openFileFollowUp(
-  page: Page,
-  scope: Locator,
-  storyName: string,
-) {
-  await fileFollowUp(scope, storyName).click();
-  const dialog = fileFollowUpDialog(page);
-  await expect(dialog).toBeVisible();
-  return followUpComposer(dialog);
-}
-
 export function followUpComposer(dialog: Locator) {
   const sessions = dialog.getByRole("group", { name: "Attach sessions" });
   return {
@@ -50,32 +39,12 @@ export function followUpComposer(dialog: Locator) {
         has: dialog.page().getByRole("checkbox", { name, exact: true }),
       });
       const choice = row.getByRole("checkbox");
-      const disclosure = row.locator("details");
       return {
         async toggleSelectionByKeyboard() {
           await choice.press("Space");
         },
-        async toggleDetailsByKeyboard() {
-          await disclosure.locator("summary").press("Enter");
-        },
         async expectSelection(checked: boolean) {
           await expect(choice).toBeChecked({ checked });
-        },
-        async expectChoiceState({
-          checked,
-          detailsOpen,
-        }: {
-          checked: boolean;
-          detailsOpen: boolean;
-        }) {
-          await expect(choice).toBeChecked({ checked });
-          await expect(disclosure).toHaveJSProperty("open", detailsOpen);
-        },
-        async expectDetails(...items: string[]) {
-          for (const text of items)
-            await expect(
-              disclosure.getByText(text, { exact: true }),
-            ).toBeVisible();
         },
       };
     },
