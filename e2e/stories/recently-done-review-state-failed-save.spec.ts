@@ -3,7 +3,7 @@
 // The card keeps showing the state last saved, with the keyboard on the action
 // still shown, and says the review state could not be saved; using the action
 // again once saving works saves it and clears that. Keeping the state:
-// ../../dashboard/frontend-tests/stories/recently-done-review-state.spec.ts.
+// ../../dashboard/frontend-tests/stories/recently-done-review-state-mount.spec.ts.
 
 import { chmodSync, mkdirSync } from "node:fs";
 import path from "node:path";

@@ -126,11 +126,12 @@ export function StartLaunch({
   // At handoff the keyboard goes to the story's card, which its startup
   // status describes. Open-session unavailability is held separately so
   // clearing it (Mark as done / Delete) does not reclaim this button.
-  const { launcher, open, openDialog, closeDialog } = useLaunchDialogLauncher(
-    starting,
-    useCallback(() => storyCard(work.identity), [work.identity]),
-    unavailable,
-  );
+  const { launcher, opening, openDialog, closeDialog } =
+    useLaunchDialogLauncher(
+      starting,
+      useCallback(() => storyCard(work.identity), [work.identity]),
+      unavailable,
+    );
   // The selection of the launch that failed, which the next opening keeps.
   const [kept, setKept] = useState<ReadonlySet<string>>();
   // The session policy chosen; a failed launch's stays for the next opening.
@@ -175,8 +176,9 @@ export function StartLaunch({
       {attempt !== undefined && attempt.kind !== "starting" && (
         <LaunchProblemAnswer id={answerId} problem={attempt} />
       )}
-      {open && (
+      {opening !== undefined && (
         <LaunchDialog
+          key={opening}
           readOptions={requestLaunchHostOptions}
           transcription={instructionTranscription}
           sourceId={sourceId}
@@ -232,12 +234,13 @@ export function StartLaunch({
             setKept(selected);
           }}
           onClose={(accepted) => {
-            if (!refused.current) {
+            const wasRefused = refused.current;
+            refused.current = false;
+            if (!closeDialog(opening, accepted)) return;
+            if (!wasRefused) {
               setKept(undefined);
               setPolicy(defaultSessionPolicy);
             }
-            refused.current = false;
-            closeDialog(accepted);
           }}
         />
       )}

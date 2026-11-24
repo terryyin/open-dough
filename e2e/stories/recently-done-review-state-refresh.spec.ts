@@ -1,6 +1,6 @@
 // A project refresh keeps Recently done review state, and another page of the
 // same server shows it at its next read. Card mark/unreview UI:
-// ../../dashboard/frontend-tests/stories/recently-done-review-state.spec.ts.
+// ../../dashboard/frontend-tests/stories/recently-done-review-state-mount.spec.ts.
 // Reload/restart persistence:
 // ./recently-done-review-state-persistence.spec.ts.
 

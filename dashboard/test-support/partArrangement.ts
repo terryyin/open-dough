@@ -83,34 +83,6 @@ export async function expectOnOneLine(
   expectEachEndsBeforeNext(boxes, "x", "width");
 }
 
-// Whether everything in the wrapping group fits on its line at once: the
-// group's widest single line, measured with this platform's text, against the
-// width the group has.
-async function groupLineHasRoom(group: Locator) {
-  return group.evaluate((node) => {
-    const element = node as HTMLElement;
-    const room = element.getBoundingClientRect().width;
-    const { width, flexWrap } = element.style;
-    element.style.width = "max-content";
-    element.style.flexWrap = "nowrap";
-    const needed = element.getBoundingClientRect().width;
-    element.style.width = width;
-    element.style.flexWrap = flexWrap;
-    return needed <= room + 0.5;
-  });
-}
-
-// The group's controls share its line when it has room for all of them, and
-// otherwise read in order within it.
-export async function expectOnOneLineWhenRoom(
-  group: Locator,
-  controls: Locator[],
-  alignment: "top" | "center" = "top",
-) {
-  if (await groupLineHasRoom(group)) await expectOnOneLine(controls, alignment);
-  else await expectInReadingOrder(group, controls);
-}
-
 // The parts read in their order: each follows the one before it on the same
 // line or starts on a later line, never reaching beyond the area.
 export async function expectInReadingOrder(area: Locator, parts: Locator[]) {

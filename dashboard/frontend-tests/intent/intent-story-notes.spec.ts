@@ -12,6 +12,13 @@ import {
 } from "./intent-story-changes-fixtures.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import { notesKept } from "./intent-story-notes-fixture.ts";
+import {
+  expectComposerNames,
+  notesDialog,
+  purpose,
+  savedNote,
+  saveNote,
+} from "./intent-story-notes-page.ts";
 
 const identity = "SEED-A#a";
 const deepPath = "dashboard/tests/boundary/deep/long.spec.ts";
@@ -64,13 +71,6 @@ async function openChangesWithNotes(
   return story;
 }
 
-const dialog = page.getByRole("dialog", { name: names.dialog, exact: true });
-const noteText = dialog.getByRole("textbox", {
-  name: names.field,
-  exact: true,
-});
-const purpose = page.getByRole("region", { name: "Purpose", exact: true });
-
 async function startLineNote(line: number, context: readonly string[]) {
   await purpose
     .getByRole("button", { name: `New line ${line}`, exact: true })
@@ -79,15 +79,7 @@ async function startLineNote(line: number, context: readonly string[]) {
     .getByRole("menu", { name: `New line ${line}`, exact: true })
     .getByRole("menuitem", { name: names.add, exact: true })
     .click();
-  await expect.element(noteText).toBeVisible();
-  const composer = noteText.element().closest("form");
-  for (const text of context) expect(composer?.textContent).toContain(text);
-}
-
-async function saveLineNote(text: string) {
-  await userEvent.fill(noteText, text);
-  await dialog.getByRole("button", { name: names.save, exact: true }).click();
-  await expect.element(dialog).not.toBeInTheDocument();
+  await expectComposerNames(context);
 }
 
 const workspaceComparison = {
@@ -136,7 +128,7 @@ test("a line note from Intent Changes records the Intent view", async () => {
   await story.file(deepFile).click();
   await expect.poll(story.diffName).toBe(deepFile);
   await startLineNote(13, ["Intent → Changes", "Line 13 · new"]);
-  await saveLineNote("Intent observation");
+  await saveNote("Intent observation");
   expect(notes.changes()).toEqual([
     {
       action: "add",
@@ -167,13 +159,9 @@ test("a note saved from Intent → Changed tests still reads its view", async ()
       notes: { [identity]: [note] },
     }),
   );
-  await story.header.getByRole("button", { name: names.control }).click();
-  const entry = dialog
-    .getByRole("list", { name: names.savedNotes })
-    .getByRole("listitem")
-    .filter({ hasText: "Older observation" });
-  await expect.element(entry).toBeVisible();
-  expect(entry.element().textContent).toContain("Intent → Changed tests");
+  expect(await savedNote(story.header, "Older observation")).toContain(
+    "Intent → Changed tests",
+  );
 });
 
 test("a line note can start from the diff of a file outside Intent locations", async () => {
@@ -182,7 +170,7 @@ test("a line note can start from the diff of a file outside Intent locations", a
   await story.outsideFile(outsideFile).click();
   await expect.poll(story.diffName).toBe(outsideFile);
   await startLineNote(1, ["Intent → Changes", productPath, "Line 1 · new"]);
-  await saveLineNote("Outside Intent locations");
+  await saveNote("Outside Intent locations");
   expect(notes.changes()).toEqual([
     {
       action: "add",
@@ -222,13 +210,15 @@ test("Notes from Intent keeps the selected file's reading and returns focus", as
   (opener.element() as HTMLElement).focus();
   await userEvent.keyboard("{Enter}");
   await expect
-    .element(dialog.getByText("Story A", { exact: true }))
+    .element(notesDialog.getByText("Story A", { exact: true }))
     .toBeVisible();
   await expect
-    .element(dialog.getByText(identity, { exact: true }))
+    .element(notesDialog.getByText(identity, { exact: true }))
     .toBeVisible();
-  await dialog.getByRole("button", { name: names.close, exact: true }).click();
-  await expect.element(dialog).not.toBeInTheDocument();
+  await notesDialog
+    .getByRole("button", { name: names.close, exact: true })
+    .click();
+  await expect.element(notesDialog).not.toBeInTheDocument();
   await expect.element(opener).toHaveFocus();
   await expect.element(file).toHaveAttribute("aria-pressed", "true");
   await expect.poll(story.diffName).toBe(deepFile);

@@ -6,6 +6,7 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { intentLocationIdPrefix } from "../../src/intentLocationIds.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
+import { pressAt } from "../navigation/board-reading-page.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { fullSha } from "./intent-ci-status-fixtures.ts";
 
@@ -93,6 +94,25 @@ export function locationNameDrawn(locationPath: string) {
     });
     watch.observe(document.body, { childList: true, subtree: true });
   });
+}
+
+// Presses the drawn name of the location at LOCATIONPATH with the mouse on its
+// first line of words; a narrow page shows a wrapped name only in part. A
+// comparison arriving at any moment renames the button, so the press locates
+// it by path, never by name.
+export async function pressLocationName(locationPath: string) {
+  await locationNameDrawn(locationPath);
+  const name = presentElement(locationNameElement(locationPath));
+  name.scrollIntoView({ block: "nearest", inline: "nearest" });
+  const words = document.createRange();
+  words.selectNodeContents(name);
+  const line = presentElement(words.getClientRects()[0]);
+  const point = {
+    x: line.left + line.width / 2,
+    y: line.top + line.height / 2,
+  };
+  expect(name.contains(document.elementFromPoint(point.x, point.y))).toBe(true);
+  await pressAt(point);
 }
 
 export const folderNameControl = (folderName: string) =>

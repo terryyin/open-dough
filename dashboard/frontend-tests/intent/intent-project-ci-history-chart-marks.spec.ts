@@ -21,10 +21,8 @@ import {
   zero,
 } from "./intent-marked-scope-history-fixtures.ts";
 import { mountUnprovenScopeHistory } from "./intent-project-scope-history-fixtures.ts";
-import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
+import { scopeHistoryIn } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 
 const endpoint = "Nov 8 · Endpoint · 1.5 s";
 const durations = ["0 ms", "500 ms", "1.0 s", "1.5 s", "2.0 s"];
@@ -42,7 +40,7 @@ async function openProjectChart(viewport?: typeof zoomedViewport) {
     readScopeHistory: (...[, path, observed]) =>
       Promise.resolve(markedHistory(path, observed.revision)),
   });
-  const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  const history = scopeHistoryIn(await openSummary("dashboard/tests"));
   return {
     history,
     chart: await history.chart("test cases", "observed trunk endpoint"),

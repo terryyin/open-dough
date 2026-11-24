@@ -11,10 +11,8 @@ import {
   caseTimingHistory,
   mountUnprovenScopeHistory,
 } from "./intent-project-scope-history-fixtures.ts";
-import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
+import { scopeHistoryIn } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 
 const first = makeMe.aPublishedWork
   .with({
@@ -36,7 +34,7 @@ test("a newer timestamp at the same head issues no history read, and a late old 
         : Promise.resolve(caseTimingHistory(path, 11000, endpoint.revision));
     },
   });
-  const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  const history = scopeHistoryIn(await openSummary("dashboard/tests"));
   await expect.poll(() => requests).toEqual([first.revision]);
 
   await page.showWork({

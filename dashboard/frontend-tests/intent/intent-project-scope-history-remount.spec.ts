@@ -9,10 +9,8 @@ import {
   caseTimingHistory,
   mountUnprovenScopeHistory,
 } from "./intent-project-scope-history-fixtures.ts";
-import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
+import { scopeHistoryIn } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 
 const work = makeMe.aPublishedWork
   .with({
@@ -32,7 +30,7 @@ test("reentering Intent after a same-head snapshot refresh keeps the observed en
         : Promise.reject(new Error("Local history failed after reentry"));
     },
   });
-  const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  const history = scopeHistoryIn(await openSummary("dashboard/tests"));
   await expect.poll(() => history.readout().selected).toContain("8.0 s");
 
   await page.showDevelopment();
@@ -42,7 +40,7 @@ test("reentering Intent after a same-head snapshot refresh keeps the observed en
     retrievedAt: new Date("2026-11-11T07:03:00Z"),
   });
   await page.showIntent();
-  const reentered = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  const reentered = scopeHistoryIn(await openSummary("dashboard/tests"));
   await expect
     .poll(reentered.text)
     .toContain("Local history failed after reentry");

@@ -337,7 +337,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 3c | Get fast proof of story changes, Done references, notes and recorded progress (completed; recoverable at `981048196:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-story-changes-notes-and-progress-reading`) | 41 | 19 |
 | 4 | Get fast proof of board and side-panel interactions (completed) | 63 | 28 |
 | 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
-| 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
+| 6 | Get fast proof of finding and reviewing Done sessions (completed; recoverable at `9eacf1dd1ef87a3a52ab40f14ac22ff6f11dc13c:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof`) | 77 | 34 |
 | 7 | Get fast proof of live sessions and terminal work (completed; recoverable at `290706bb1557f5437eb54df4d97da62cc1648457:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof`) | 77 | 31 |
 | 8a | Get fast proof of the dashboard frame, navigation and settings (completed; recoverable at `ad76d2ebbb88abe998fa1300963627dd10ac6551:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-frame-and-navigation-proof`) | ≈67 | 22 |
 | 8b | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | ≈11 | 3 |
@@ -412,54 +412,6 @@ Continuing one component at a time would extend the life of both runners.
   use their results when available. The migrations own the remaining
   legacy cases. Keep this campaign's test work coordinated with
   [SEED-341](SEED-341-simplify-session-tests.md).
-
-<a id="speed-dashboard-done-session-review-proof"></a>
-
-### Get fast proof of finding and reviewing Done sessions
-
-**Identity:** SEED-413#speed-dashboard-done-session-review-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/801-speed-dashboard-done-session-review-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"838f1324bf67081a56df9f72c4362088f34cc2f4a5f4f7991e129a9989128bae","plan":"38becf03ec9abb8f111442468fb76c8346a795bb871dca8389fffe5f50d02411"}}
-```
-
-**Goal.** Dashboard developers get faster feedback that the Done session
-they find opens the right review and that its evidence stays attributable to
-the chosen project, story, session and comparison. Measure the complete
-selection at two workers, including preparation, against a comparable legacy
-baseline. Keep the distinct observations that make the proof credible.
-
-**Scope.** Migrate the remaining legacy `sessions/recently-done*`,
-`sessions/follow-up-source-navigation*`, `stories/recently-done*` and
-`review/` cases under the [shared acceptance](#acceptance-shared-by-the-frontend-stories).
-Use the production page for cross-view selection, read races and shared review
-state. Use the production Review and diff owners for comparison, notes, text
-recovery, grammar, appearance and layout. Keep exact requests, wording,
-focus, responsive behavior and negative observations where they distinguish
-a regression. Map retired assertions to their replacement or an existing
-equivalent. Carry the existing mounted checks through the focused verification.
-The sibling stories own live sessions, terminal internals and runner retirement.
-Real publication, Git and installation keep their service or E2E proof owners.
-The separate renamed-path grammar correction keeps its own acceptance example.
-
-**Key examples.**
-
-- A Done session linked to a story in another project is selected from Intent
-  or Development. The selected destination and visible reading place match
-  that choice. A later choice survives a delayed earlier association response.
-- A published follow-up arrives from another machine. It joins its originating
-  Done card when the association is established, while a competing association
-  remains unresolved until the reader chooses. Revealing an older source
-  preserves the current selection and any open Side panel.
-- A Done row and its card share one project's review state. Delayed or failed
-  evidence leaves the cue unknown. After a successful state change, a late
-  pre-save result cannot restore the old cue.
-- A finished session has multiple saved comparisons or runs. The reader
-  chooses an older one, refreshes or opens a changed file, and reads the
-  same comparison's name, endpoints and evidence. Empty and unavailable
-  answers remain distinguishable.
-- A comparison's diff is visible before its source text arrives. Retry or
-  arrival preserves the readable diff and uses the selected snapshot's grammar
-  and text. A file note records the exact comparison and paths it came from.
 
 <a id="retire-legacy-dashboard-frontend-runner"></a>
 

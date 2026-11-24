@@ -61,7 +61,7 @@ test("Taken line dictation waits for permission and transcription, then permits 
 
   await open();
   await noteText.fill("Typed observation");
-  await recordNoteClip();
+  await recordNoteClip(capture);
   await expect.poll(() => transcribe.mock.calls.length).toBe(1);
   expect(transcribe.mock.lastCall?.[0].size).toBeGreaterThan(0);
   await expect
@@ -88,7 +88,7 @@ test("Taken line dictation waits for permission and transcription, then permits 
 });
 
 test("over-limit transcript is reviewed, shortened or discarded without losing the note", async () => {
-  audioInput();
+  const capture = audioInput();
   const { story, changes, transcribe, open } = await mountNoteDictation();
   const tooLong = "x".repeat(4_001);
   transcribe.mockResolvedValue({ text: tooLong });
@@ -98,7 +98,7 @@ test("over-limit transcript is reviewed, shortened or discarded without losing t
     await expect.element(noteAction(name)).toHaveFocus();
   }
   await noteText.fill("Keep this note");
-  await recordNoteClip();
+  await recordNoteClip(capture);
   await expect.element(transcriptEditor).toHaveValue(tooLong);
   await expect.element(transcriptEditor).toHaveFocus();
   await noteIsBusy();
@@ -114,7 +114,7 @@ test("over-limit transcript is reviewed, shortened or discarded without losing t
   const kept = "Keep this note\n\nCorrected transcript";
   await expect.element(noteText).toHaveValue(kept);
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    await recordNoteClip();
+    await recordNoteClip(capture);
     await expect.element(transcriptEditor).toHaveValue(tooLong);
     await userEvent.click(noteAction("Discard transcript"));
     await expect.element(transcriptEditor).not.toBeInTheDocument();

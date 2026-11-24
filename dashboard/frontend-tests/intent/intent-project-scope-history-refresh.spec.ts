@@ -17,10 +17,8 @@ import {
   caseTimingHistory,
   mountUnprovenScopeHistory,
 } from "./intent-project-scope-history-fixtures.ts";
-import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
+import { scopeHistoryIn } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 
 const first = makeMe.aPublishedWork
   .with({
@@ -47,7 +45,7 @@ test("Check again refreshes the same observed head, while failed reads keep thei
       return answer(path, endpoint.revision);
     },
   });
-  const summary = await openScopeSummary("dashboard/tests");
+  const summary = await openSummary("dashboard/tests");
   const history = scopeHistoryIn(summary);
   const selected = () => history.readout().selected;
   await expect.poll(selected).toContain("8.0 s");
@@ -59,7 +57,7 @@ test("Check again refreshes the same observed head, while failed reads keep thei
   const held = heldRead<ScopeHistoryGlance>();
   answer = () => held.ask();
   await checkAgain();
-  await openScopeSummary("dashboard/tests");
+  await openSummary("dashboard/tests");
   await expect.poll(() => endpoints.length).toBe(2);
   expect(selected()).toContain("8.0 s");
   expect(history.text()).toContain("Previously retrieved history");
@@ -70,7 +68,7 @@ test("Check again refreshes the same observed head, while failed reads keep thei
 
   answer = () => Promise.reject(new Error("Matching history refresh failed"));
   await checkAgain();
-  await openScopeSummary("dashboard/tests");
+  await openSummary("dashboard/tests");
   await expect
     .element(history.failure)
     .toHaveTextContent("Matching history refresh failed");

@@ -92,24 +92,24 @@ export function center(element: Element) {
   };
 }
 
+// Press and release the left mouse button at POINT in this page's viewport,
+// as a native press that names no target.
+export async function pressAt(point: { x: number; y: number }) {
+  for (const type of ["mousePressed", "mouseReleased"] as const)
+    await browserSession().send("Input.dispatchMouseEvent", {
+      type,
+      button: "left",
+      clickCount: 1,
+      ...pointInBrowser(point),
+    });
+}
+
 // Press the control where it is already visible. Locator clicks may scroll
 // a sticky target again to accommodate the scroll region's padding.
 async function pressWhereShown(destination: Column) {
   const button = control(destination).element();
   expect(inReadingRoom(button)).toBe(true);
-  const point = pointInBrowser(center(button));
-  await browserSession().send("Input.dispatchMouseEvent", {
-    type: "mousePressed",
-    button: "left",
-    clickCount: 1,
-    ...point,
-  });
-  await browserSession().send("Input.dispatchMouseEvent", {
-    type: "mouseReleased",
-    button: "left",
-    clickCount: 1,
-    ...point,
-  });
+  await pressAt(center(button));
 }
 
 async function wheelTo(target: number) {

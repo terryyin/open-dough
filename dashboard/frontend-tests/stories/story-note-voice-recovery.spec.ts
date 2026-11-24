@@ -87,7 +87,7 @@ test("Close stops recording and Cancel abandons transcription; a new composer re
   const held = holdAnswer<{ text: string }>();
   transcribe.mockImplementationOnce(() => held.answer);
   await open();
-  await recordNoteClip();
+  await recordNoteClip(capture);
   await expect.poll(() => transcribe.mock.calls.length).toBe(1);
   const signal = transcribe.mock.lastCall?.[1];
   expect(signal?.aborted).toBe(false);
@@ -102,7 +102,7 @@ test("Close stops recording and Cancel abandons transcription; a new composer re
   const draft = "Kept after transcription failure";
   await noteText.fill(draft);
   transcribe.mockResolvedValueOnce({ problem: instructionProblems.network });
-  await recordNoteClip();
+  await recordNoteClip(capture);
   await expect
     .element(notes.getByRole("alert"))
     .toHaveTextContent(

@@ -21,7 +21,6 @@ export {
   expectInReadingOrder,
   expectInside,
   expectOnOneLine,
-  expectOnOneLineWhenRoom,
   expectSideBySideInOrder,
   expectStackedInOrder,
   type Room,

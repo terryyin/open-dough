@@ -66,6 +66,7 @@ export async function stopDictation(
   using: DictationInput,
   capture: ReturnType<typeof audioInput>,
 ) {
+  await capture.recordedAudio();
   await pressDictationControl(stopRecording, using, " ");
   await expect
     .poll(() => capture.tracks().map((track) => track.readyState))

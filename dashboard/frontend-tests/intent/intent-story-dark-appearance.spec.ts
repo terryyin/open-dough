@@ -10,10 +10,8 @@ import { emulateMedia } from "../review/browser-session.ts";
 import { scopeToggle } from "./intent-browser-page.ts";
 import { fileLayout, focus, intentPage } from "./intent-file-layout-page.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
-import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
+import { scopeHistoryIn } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
@@ -165,7 +163,7 @@ test("a Done story's Intent evidence stays readable under the system dark appear
   textContrast(lineNumber);
   textContrast(token());
 
-  const summary = await openScopeSummary(location);
+  const summary = await openSummary(location);
   const history = scopeHistoryIn(summary);
   const chart = await history.chart("test cases", "selected landing");
   textContrast(

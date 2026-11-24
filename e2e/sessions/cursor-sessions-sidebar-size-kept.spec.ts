@@ -1,7 +1,9 @@
 // This browser keeps the one preferred height chosen with the divider between
 // the Sessions sidebar's two lists (./cursor-sessions-sidebar-resize.spec.ts): after a
-// reload the section starts collapsed, and expanding it recovers that height,
-// within the room there is now; a height the room imposes never replaces it.
+// reload the section starts collapsed, and expanding it recovers that height
+// (as Recently done recovers its divider's and starts again at its newest 20),
+// within the room there is now; a height the room imposes never replaces it
+// (./cursorSessionsSidebarRoomFitCases.ts).
 // Another browser, a refused storage or an unusable kept value starts at an
 // equal share, and the lists still resize for the page's lifetime. Only the
 // developer's choice is kept, never expansion, and the browser's other
@@ -9,6 +11,7 @@
 // storage; resizing asks the server and the cursor-agent nothing.
 import type { Page } from "@playwright/test";
 import {
+  keyDivider,
   keyStep,
   runningCursorSplit,
   type RunningCursorSplit,
@@ -24,7 +27,6 @@ import {
 } from "../../dashboard/test-support/runningCursorList.ts";
 import {
   changesAsked,
-  listFloor as floor,
   showPage,
 } from "../../dashboard/test-support/runningCursorSessionsPage.ts";
 import {
@@ -35,20 +37,28 @@ import {
   back,
   settings,
 } from "../../dashboard/test-support/support/systemSettingsPage.ts";
+import {
+  recentlyDoneHeightKey,
+  recentlyDoneParts,
+} from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
+import { revealRecentlyDoneThrough } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPaging.ts";
+import { fortyFiveDoneSessions } from "../../dashboard/test-support/retainedDoneSessions.ts";
+import { keepLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
+import { recentlyDoneSessionsInitialLimit } from "../../dashboard/src/agentLaunch.ts";
 
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
 
-// Everything this browser keeps besides the preferred height.
-const otherPreferences = (page: Page, preferredHeightKey: string) =>
+// Everything this browser keeps besides the preferred heights.
+const otherPreferences = (page: Page, ...preferredHeightKeys: string[]) =>
   page.evaluate(
-    (key) =>
+    (keys) =>
       Object.fromEntries(
         Object.entries<string>(window.localStorage).filter(
-          ([name]) => name !== key,
+          ([name]) => !keys.includes(name),
         ),
       ),
-    preferredHeightKey,
+    preferredHeightKeys,
   );
 
 // Expanded, the two lists share the room equally; returns that room.
@@ -80,12 +90,17 @@ test.describe("with two projects", () => {
     cursor,
   }) => {
     await publishOnePygardonStory(page);
+    keepLaunchRecords(
+      dashboard,
+      fortyFiveDoneSessions(Date.now(), ["open-dough"]).records,
+    );
     const asked = changesAsked(page);
     await showPage(page, origin);
     const shown = runningCursorParts(page);
     const split = runningCursorSplit(page, shown);
     const { sidebar, button, header } = shown;
     const { backlog } = parts(page);
+    const done = recentlyDoneParts(page);
     await button.click();
     await expect(sidebar).toBeVisible();
     await split.keepInBrowser("open-dough.sidePanel.width", "500");
@@ -128,13 +143,24 @@ test.describe("with two projects", () => {
       await expectChosen();
     });
 
-    await test.step("a reload starts collapsed, and expanding recovers the kept height", async () => {
+    await test.step("a reload keeps the sidebar open, starts both sections collapsed, and expanding recovers the kept heights and Recently done's newest 20", async () => {
+      await done.header.click();
+      await revealRecentlyDoneThrough(done, 40);
+      await keyDivider(done.divider, "ArrowUp");
+      const doneHeight = await done.divider.getAttribute("aria-valuenow");
       await page.reload();
       await expect(sidebar).toBeVisible();
+      await expect(done.header).toHaveAttribute("aria-expanded", "false");
       await split.expectCollapsed();
       expect(await split.keptHeight()).toBe(String(chosen));
       await header.click();
       await expectChosen();
+      await done.header.click();
+      await expect(done.entries).toHaveCount(recentlyDoneSessionsInitialLimit);
+      await expect(done.divider).toHaveAttribute(
+        "aria-valuenow",
+        doneHeight ?? "",
+      );
     });
 
     await test.step("a fresh browser context keeps nothing and starts at an equal share", async () => {
@@ -161,7 +187,9 @@ test.describe("with two projects", () => {
       await split.expectCollapsed();
       await header.click();
       await expectChosen();
-      expect(await otherPreferences(page, split.heightKey)).toEqual(others);
+      expect(
+        await otherPreferences(page, split.heightKey, recentlyDoneHeightKey),
+      ).toEqual(others);
     });
 
     expect(asked).toEqual([]);
@@ -170,59 +198,5 @@ test.describe("with two projects", () => {
   });
 });
 
-test("less room fits the shown height, also after a reload, without replacing the kept one, and more room recovers it", async ({
-  page,
-  origin,
-}) => {
-  await showPage(page, origin);
-  const shown = runningCursorParts(page);
-  const split = runningCursorSplit(page, shown);
-  const { button, header, divider } = shown;
-  await button.click();
-  const room = await expandToEqualShare(split, shown);
-  // What the sidebar's heading, header and padding take from its height.
-  const taken = wide.height - room;
-  await split.dragDivider(-150);
-  const chosen = await split.valueOf("aria-valuenow");
-  expect(chosen).toBeGreaterThan(Math.round(room / 2) + 100);
-  await split.expectSplit(room, chosen);
-  const expectKept = async () => {
-    expect(await split.keptHeight()).toBe(String(chosen));
-  };
-  await expectKept();
-  const less = Math.ceil(taken + 2 * floor + 40);
-  const fitted = Math.floor(less - taken - floor);
-  expect(fitted).toBeLessThan(chosen);
-
-  await test.step("less room fits the shown height and keeps the chosen one", async () => {
-    await page.setViewportSize({ width: wide.width, height: less });
-    await split.expectCursorHeight(less - taken, fitted);
-    await expectKept();
-  });
-
-  await test.step("too little room for both floors offers no range and keeps the chosen one", async () => {
-    await page.setViewportSize({
-      width: wide.width,
-      height: Math.floor(taken + 2 * floor - 40),
-    });
-    await expect(divider).toBeDisabled();
-    await expectKept();
-  });
-
-  await test.step("reloaded in less room, expanding fits the room and keeps the chosen one", async () => {
-    await page.setViewportSize({ width: wide.width, height: less });
-    await page.reload();
-    await split.expectCollapsed();
-    await header.click();
-    await split.expectCursorHeight(less - taken, fitted);
-    await expectKept();
-  });
-
-  await test.step("more room recovers the chosen height", async () => {
-    await page.setViewportSize(wide);
-    await split.expectCursorHeight(room, chosen);
-    await expectKept();
-  });
-});
-
+import "./cursorSessionsSidebarRoomFitCases.ts";
 import "./cursorSessionsSidebarFormerHeightCases.ts";

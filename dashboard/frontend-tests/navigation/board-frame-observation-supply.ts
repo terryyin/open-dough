@@ -65,16 +65,25 @@ export function boardFrameObservationSupplying(
     readProfiles,
     checkRevision,
     machineAnswer = emptyMachineAnswer(),
+    machineRead,
     accept,
+    association,
+    doneCatalog,
   }: {
     initialSnapshot?: Error | Promise<PublishedWork>;
     detailFile?: PublishedObservationReadSource["readDetailFile"];
     readProfiles?: PublishedObservationReadSource["readProfiles"];
     checkRevision?: PublishedObservationReadSource["checkRevision"];
     machineAnswer?: MachineAnswer & { readonly revision?: string };
+    // A case-owned reader it can change, hold pending or fail.
+    machineRead?: MachineReadSource["readSessionsSince"];
     accept?: (
       ...args: Parameters<MachineReadSource["requestAcceptance"]>
     ) => Promise<AcceptanceAnswer>;
+    // The completed-story association an ad hoc row's choice reads.
+    association?: MachineReadSource["readCompletedStoryAssociation"];
+    // A case-owned done catalog read, in place of each snapshot's catalog.
+    doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
   } = {},
 ): BoardFrameObservation {
   const bySource = new Map(snapshots.map((work) => [work.source.id, work]));
@@ -145,7 +154,8 @@ export function boardFrameObservationSupplying(
         committedAt: "2026-01-01T00:00:00.000Z",
         login: "board",
       }),
-    readDoneCatalog: (...[source]) => {
+    readDoneCatalog: (...[source, ...rest]) => {
+      if (doneCatalog !== undefined) return doneCatalog(source, ...rest);
       const work = bySource.get(source.id);
       const done = work?.done;
       if (done?.status === "catalogued") {
@@ -196,19 +206,21 @@ export function boardFrameObservationSupplying(
     ...pageReadsSupplying({}).machine,
     readHistorySince: () => Promise.resolve(undefined),
     waitForAttemptChange: () => Promise.resolve(undefined),
-    readSessionsSince: (...[held, , options]) => {
-      if (
-        options?.fresh !== true &&
-        held !== undefined &&
-        held === (machineAnswer.revision ?? "m".repeat(40))
-      ) {
-        return Promise.resolve({
-          unchanged: true,
-          revision: held,
-        });
-      }
-      return Promise.resolve(fullAnswer());
-    },
+    readSessionsSince:
+      machineRead ??
+      ((...[held, , options]) => {
+        if (
+          options?.fresh !== true &&
+          held !== undefined &&
+          held === (machineAnswer.revision ?? "m".repeat(40))
+        ) {
+          return Promise.resolve({
+            unchanged: true,
+            revision: held,
+          });
+        }
+        return Promise.resolve(fullAnswer());
+      }),
     requestAcceptance:
       accept ??
       (() =>
@@ -216,6 +228,8 @@ export function boardFrameObservationSupplying(
           kind: "failed",
           explanation: "This Board frame supplies no acceptance.",
         })),
+    readCompletedStoryAssociation:
+      association ?? (() => Promise.resolve({ kind: "absent" as const })),
   };
 
   return {

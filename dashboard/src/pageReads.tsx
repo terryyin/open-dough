@@ -4,8 +4,10 @@
 // instruction transcription; and
 // its source highlighter. The app (`./App.tsx`) gives
 // `./ConfiguredDashboard.tsx` the authenticated implementations. The dashboard
-// hands the published observation and launch owner their reads; every other
-// consumer reaches them through this one entry and fails outside it.
+// hands the published observation and launch owner their reads; Recently
+// done's links read another project's snapshot and done catalog and an ad hoc
+// session's association through `useDoneLinkReads`. Every other consumer
+// reaches them through this one entry and fails outside it.
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 import {
@@ -40,6 +42,7 @@ import {
   highlightSourceLines,
   type SourceHighlighter,
 } from "./sourceHighlight.ts";
+import type { DoneLinkReads } from "./recentlyDoneLink.ts";
 import { pageReviewSource, type ReviewSource } from "./reviewSource.ts";
 import {
   authenticatedSessionServices,
@@ -160,6 +163,17 @@ export const useInstructionTranscription = (): InstructionTranscriptionSource =>
   usePageReads().transcription;
 export const useDoneRecordReads = (): DoneRecordReadSource =>
   usePageReads().done;
+export const useDoneLinkReads = (): DoneLinkReads => {
+  const { observation, machine } = usePageReads();
+  return useMemo(
+    () => ({
+      readSnapshot: observation.readSnapshot,
+      readDoneCatalog: observation.readDoneCatalog,
+      readCompletedStoryAssociation: machine.readCompletedStoryAssociation,
+    }),
+    [observation, machine],
+  );
+};
 export const useCiFollowUpReads = (): CiFollowUpReadSource =>
   usePageReads().ciFollowUp;
 export const useSourceHighlighter = (): SourceHighlighter =>

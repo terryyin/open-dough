@@ -15,7 +15,7 @@
 // synthetic `claude` (./fixtures/fake-claude) lists the kept sessions. The
 // local read boundary, the shared done-record reader, and the page decide
 // everything shown. That a done card holds its story's sessions is
-// ../../dashboard/frontend-tests/sessions/recently-done-story-sessions.spec.ts.
+// ../../dashboard/frontend-tests/sessions/recently-done-story-card-sessions-mount.spec.ts.
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { credit } from "../../dashboard/test-support/agentCredit.ts";

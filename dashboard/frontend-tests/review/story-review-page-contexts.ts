@@ -5,7 +5,7 @@ import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { ReviewedSessionSubject } from "../../src/reviewedWorkSubject.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
-import { PageReadsOnPage } from "../../src/pageReads.tsx";
+import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
 import { machineSessionsAnswering } from "../../test-support/component-mount/machineSessionsAnswering.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import {
@@ -40,8 +40,12 @@ const launches = machineSessionsAnswering({
   answer: makeMe.aMachineAnswer.please(),
 });
 
-// A mounted session panel with its review service.
-export function onReviewPage(source: ReviewSource, panel: ReactElement) {
+// A mounted session panel with its review service and any other `reads`.
+export function onReviewPage(
+  source: ReviewSource,
+  panel: ReactElement,
+  reads: Partial<PageReads> = {},
+) {
   return createElement(ProjectsOnPage, {
     projects: [doughnut],
     replaceProjects: () => undefined,
@@ -50,7 +54,7 @@ export function onReviewPage(source: ReviewSource, panel: ReactElement) {
       children: createElement(LaunchesOnPage, {
         value: launches,
         children: createElement(PageReadsOnPage, {
-          reads: pageReadsSupplying({ review: source }),
+          reads: pageReadsSupplying({ review: source, ...reads }),
           children: panel,
         }),
       }),

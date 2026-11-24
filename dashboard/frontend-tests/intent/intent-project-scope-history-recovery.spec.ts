@@ -8,10 +8,8 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { workOf } from "./intent-ci-homepage-page.ts";
 import { openDoughSource } from "./intent-ci-status-fixtures.ts";
 import { mountUnprovenScopeHistory } from "./intent-project-scope-history-fixtures.ts";
-import {
-  openScopeSummary,
-  scopeHistoryIn,
-} from "./intent-scope-history-page.ts";
+import { scopeHistoryIn } from "./intent-scope-history-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
 
 const trunkSource = makeMe.aPublishedSource
   .with({ ...openDoughSource, ref: "trunk" })
@@ -40,7 +38,7 @@ test("configured trunk keeps its observed endpoint through failed and empty read
           );
     },
   });
-  const summary = await openScopeSummary("dashboard/tests");
+  const summary = await openSummary("dashboard/tests");
   const history = scopeHistoryIn(summary);
   await expect
     .element(history.failure)
@@ -93,7 +91,7 @@ test("project endpoint words mark a measured zero and explain partial-unit gaps 
           .please(),
       ),
   });
-  const history = scopeHistoryIn(await openScopeSummary("dashboard/tests"));
+  const history = scopeHistoryIn(await openSummary("dashboard/tests"));
   const chart = await history.chart("test cases", "observed trunk endpoint");
   expect(chart.readout()).toBe("Nov 7 · Endpoint · 0 ms");
   expect(history.pointTitle("test cases")).toBe(

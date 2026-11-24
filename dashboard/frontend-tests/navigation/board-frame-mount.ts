@@ -18,6 +18,7 @@ import type { PublishedObservationReadSource } from "../../src/publishedObservat
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
+import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
 import {
   authenticatedSessionServices,
   type SessionServices,
@@ -33,9 +34,11 @@ import {
 
 export type BoardFrameMachine = {
   readonly answer?: MachineAnswer & { readonly revision?: string };
+  readonly read?: MachineReadSource["readSessionsSince"];
   readonly accept?: (
     ...args: Parameters<MachineReadSource["requestAcceptance"]>
   ) => Promise<AcceptanceAnswer>;
+  readonly association?: MachineReadSource["readCompletedStoryAssociation"];
 };
 
 function DashboardWithSettings({
@@ -70,7 +73,10 @@ export async function mountBoardFrame(
     done,
     ci,
     review,
+    reviewStates,
+    doneCatalog,
     sessions = authenticatedSessionServices,
+    awaitSessionsRead = true,
     settingsSources,
   }: {
     otherWork?: readonly PublishedWork[];
@@ -82,7 +88,13 @@ export async function mountBoardFrame(
     done?: DoneRecordReadSource;
     ci?: IntentCiReadSource;
     review?: ReviewSource;
+    // Each project's story review states, read and changed.
+    reviewStates?: StoryReviewStatesReadSource;
+    // A case-owned published done catalog read for every project.
+    doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
+    // The shown session's final report, host status and terminal.
     sessions?: SessionServices;
+    awaitSessionsRead?: boolean;
     settingsSources?: DashboardSettingsSources;
   } = {},
 ) {
@@ -106,7 +118,12 @@ export async function mountBoardFrame(
     ...(readProfiles === undefined ? {} : { readProfiles }),
     ...(revisionCheck === undefined ? {} : { checkRevision: revisionCheck }),
     machineAnswer: machine.answer ?? emptyMachineAnswer(),
+    ...(machine.read === undefined ? {} : { machineRead: machine.read }),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),
+    ...(machine.association === undefined
+      ? {}
+      : { association: machine.association }),
+    ...(doneCatalog === undefined ? {} : { doneCatalog }),
   });
   const projects = snapshots.map(({ source }) => source);
   const reads = pageReadsSupplying({
@@ -117,6 +134,7 @@ export async function mountBoardFrame(
     ...(done === undefined ? {} : { done }),
     ...(ci === undefined ? {} : { ci }),
     ...(review === undefined ? {} : { review }),
+    ...(reviewStates === undefined ? {} : { reviewStates }),
   });
   const dashboard =
     settingsSources === undefined
@@ -152,7 +170,11 @@ export async function mountBoardFrame(
       .poll(() => {
         const taken = page.getByRole("region", { name: "Taken" }).query();
         if (taken === null) return true;
-        if (page.getByText("Reading sessions…").query() !== null) return false;
+        if (
+          awaitSessionsRead &&
+          page.getByText("Reading sessions…").query() !== null
+        )
+          return false;
         return (
           page
             .getByRole("region", { name: "Taken" })

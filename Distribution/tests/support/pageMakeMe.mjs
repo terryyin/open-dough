@@ -17,6 +17,7 @@ import { TestOptimizationCandidatesRecordBuilder } from "./testOptimizationCandi
 import { DoneRecordBuilder } from "./doneRecordTestData.mjs";
 import { SlicePlanBuilder } from "./slicePlanTestData.mjs";
 import { DoneCatalogBuilder } from "./doneCatalogTestData.mjs";
+import { FollowUpBuilder } from "./followUpTestData.mjs";
 import { copyFacts } from "./factBuilder.mjs";
 import { LaunchRecordBuilder } from "./launchTestData.mjs";
 import { AcceptedAttemptBuilder } from "./launchAttemptTestData.mjs";
@@ -59,6 +60,7 @@ import { terminalThemeSettingMakeMeProperties } from "./terminalThemeSettingTest
  *     readonly anAttemptObservation: AttemptObservationBuilder;
  *     readonly aCreationRecord: CreationRecordBuilder;
  *     readonly aDoneRecord: DoneRecordBuilder;
+ *     readonly aFollowUp: FollowUpBuilder;
  *     readonly aSessionState: SessionStateBuilder;
  *     readonly anObservedLaunch: ObservedLaunchBuilder;
  *     readonly aMachineAnswer: MachineAnswerBuilder;
@@ -125,6 +127,12 @@ export const makeMe = Object.defineProperties(/** @type {PageMakeMe} */ ({}), {
     enumerable: true,
     get() {
       return new DoneCatalogBuilder();
+    },
+  },
+  aFollowUp: {
+    enumerable: true,
+    get() {
+      return new FollowUpBuilder();
     },
   },
   // Node-free launch record; Node-only reviewed-session examples stay on makeMe.mjs.

@@ -102,8 +102,20 @@ export function reviewFilesDivider(region: Locator) {
       return files;
     },
 
+    // The widest the sidebar may be dragged in the room it now has.
+    filesUpperBound: () =>
+      Number(divider.element().getAttribute("aria-valuemax")),
+
     async expectNoFilesDivider() {
       await expect.poll(() => divider.query()).toBeNull();
+      return files;
+    },
+
+    // Stacked panes: the file sidebar ends above the diff begins.
+    async expectFilesAboveDiff() {
+      await expect
+        .poll(() => box(part(".story-review-files")).bottom)
+        .toBeLessThanOrEqual(box(part(".story-review-diff")).top);
       return files;
     },
 

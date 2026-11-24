@@ -5,10 +5,6 @@
 // and returns that same owner.
 
 import type { Locator, Page } from "@playwright/test";
-import {
-  expectControlContrast,
-  expectReadableContrast,
-} from "./accessibleReading.ts";
 import { showColumn } from "./boardPage.ts";
 import { parts } from "./dashboardParts.ts";
 import { expect } from "./dashboardTest.ts";
@@ -64,32 +60,6 @@ export async function unreviewStory(
 
 export const reviewSaveFailure = (card: Locator, message: string) =>
   card.getByRole("status").filter({ hasText: message });
-
-// A warning remains an action in words, with a filled red surface that is
-// readable and distinguishable as a control in the caller's appearance.
-export async function expectReviewWarning(
-  card: Locator,
-  colors: { readonly background: string; readonly foreground: string },
-) {
-  const action = markAsReviewed(card);
-  await expect(action).toBeVisible();
-  await expect(action).toHaveCSS("background-color", colors.background);
-  await expect(action).toHaveCSS("color", colors.foreground);
-  await expectReadableContrast(action);
-  await expectControlContrast(action);
-}
-
-// Reviewed stays reachable but quieter than the outstanding review action:
-// quiet text on a transparent fill from the card's inspection group.
-export async function expectQuietReviewed(card: Locator, quietColor: string) {
-  await expectReviewed(card, true);
-  const button = reviewedButton(card);
-  // Leave the pointer off the control so its rest fill is observed, not :hover.
-  await button.page().mouse.move(0, 0);
-  await expect(button).toHaveCSS("color", quietColor);
-  await expect(button).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-  await expectReadableContrast(button);
-}
 
 // A story's saved state occupies one action, with no separate status badge.
 export async function expectReviewed(card: Locator, reviewed: boolean) {

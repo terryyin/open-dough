@@ -5,7 +5,6 @@
 // once.
 
 import { expect, type Locator, type Page } from "@playwright/test";
-import { expectReadableContrast } from "./accessibleReading.ts";
 import { tooltipOf } from "./frameIconControl.ts";
 import { box } from "./partArrangement.ts";
 import { tapWhereShown } from "./pageLayout.ts";
@@ -142,25 +141,4 @@ export async function expectNoteTooltip(
   await expect(tip).toBeVisible();
   await start.blur();
   await expect(tip).toBeHidden();
-}
-
-// A card action's decorative Lucide glyph (`lucide-<glyph>`) at its start or
-// end, with nothing, not even text, beyond it; hidden from assistive
-// technology so the action keeps its name, and, while the action can act,
-// standing out 3:1 from what is behind it.
-export async function expectActionGlyph(
-  action: Locator,
-  name: string,
-  glyph: string,
-  at: "leading" | "trailing" = "leading",
-) {
-  await expect(action).toHaveAccessibleName(name);
-  const icon = action.locator(`svg.lucide-${glyph}`);
-  await expect(icon).toHaveAttribute("aria-hidden", "true");
-  const placed = await icon.evaluate((svg, end) => {
-    const parent = svg.parentNode;
-    return svg === (end ? parent?.lastChild : parent?.firstChild);
-  }, at === "trailing");
-  expect(placed, `${name} ${at} ${glyph}`).toBe(true);
-  if (await action.isEnabled()) await expectReadableContrast(icon, 3);
 }

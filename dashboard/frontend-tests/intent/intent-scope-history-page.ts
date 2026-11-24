@@ -11,10 +11,6 @@ import { paintContrast } from "../configuration/system-settings-reading.ts";
 import { tapWhereShown } from "../navigation/board-touch-page.ts";
 import { visibleText } from "./intent-ci-comparison-page.ts";
 import {
-  locationNameControl,
-  locationNameDrawn,
-} from "./intent-ci-homepage-page.ts";
-import {
   chartIn,
   type ChartEndpoint,
 } from "./intent-scope-history-chart-page.ts";
@@ -134,15 +130,6 @@ const summary = () =>
   intent().getByRole("region", { name: "Summary", exact: true });
 const summaryPath = () =>
   summary().element().querySelector(".intent-summary-path")?.textContent;
-
-// The Summary of the location at PATH, opened by its name.
-export async function openScopeSummary(path: string) {
-  await locationNameDrawn(path);
-  // The comparison can rename this button before the native click arrives.
-  await userEvent.click(locationNameControl(path).element());
-  await expect.poll(summaryPath).toBe(path);
-  return summary();
-}
 
 // The Summary opens its immediate child NAME, at PATH when a folder.
 export async function openScopeChild(name: string, path?: string) {

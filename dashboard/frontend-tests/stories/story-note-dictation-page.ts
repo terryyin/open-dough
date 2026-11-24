@@ -9,6 +9,7 @@ import type { StoryNoteChange, StoryNoteContext } from "../../src/storyNote.ts";
 import { StoryNotesDialog } from "../../src/StoryNotesDialog.tsx";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+import type { audioInput } from "../launches/instruction-voice-page.ts";
 
 export const notes = page.getByRole("dialog", {
   name: "Story notes",
@@ -130,7 +131,8 @@ export async function startNoteClip() {
   await noteIsBusy();
 }
 
-export async function recordNoteClip() {
+export async function recordNoteClip(capture: ReturnType<typeof audioInput>) {
   await startNoteClip();
+  await capture.recordedAudio();
   await userEvent.click(noteAction("Stop recording"));
 }
