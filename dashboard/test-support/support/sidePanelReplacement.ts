@@ -18,7 +18,8 @@ import {
   storyBWorktree,
   storyReviewReads,
 } from "./sidePanelContents.ts";
-import { otherQueuedIdentity, queuedIdentity } from "./startOrigin.ts";
+import { otherQueuedIdentity } from "./startOrigin.ts";
+import { keepPublishedStoryReview } from "./storyLaunchRecord.ts";
 
 export const test = base.extend<{
   storiesAAndB: {
@@ -47,12 +48,14 @@ export const test = base.extend<{
       branchA,
       "intent-story-a.txt",
     );
+    const { record: storyAReview } = keepPublishedStoryReview(
+      dashboard,
+      origin,
+      workspaceA,
+    );
     const workspaceB = storyBWorktree(origin.project);
     keepLaunchRecords(dashboard, [
-      makeMe.aLaunchRecord
-        .executing({ identity: queuedIdentity, title: "Story A" })
-        .onStoryBranch({ workspace: workspaceA, branch: branchA })
-        .please(),
+      storyAReview,
       makeMe.aLaunchRecord
         .executing({ identity: otherQueuedIdentity, title: "Story B" })
         .onStoryBranch({ workspace: workspaceB, branch: storyBBranch })
