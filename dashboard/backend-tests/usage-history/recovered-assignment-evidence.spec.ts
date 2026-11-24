@@ -1,7 +1,16 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   test,
   expect,
@@ -11,11 +20,7 @@ import {
   writeLegacyStore,
   writePagedStore,
 } from "../../test-support/usage-history/earlierStores.ts";
-import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 const wrapper =
@@ -28,6 +33,15 @@ for (const format of ["legacy", "paged"]) {
     home,
     root,
   }) => {
+    const options = makeMe.aUsageImportOptions
+      .with({
+        home,
+        store: usageHistoryFile(home),
+        codexRoots: [root],
+        claudeRoots: claudeUsageRoots(home),
+      })
+      .please();
+    const { store, responses } = options;
     const repo = await configuredRepository(
       home,
       makeMe.aRepository.withRevision("then", {}).please(),
@@ -59,8 +73,11 @@ for (const format of ["legacy", "paged"]) {
         })
         .please(),
     );
-    runImport(home, root);
-    const old = readImported(home);
+    await importUsageHistory(options);
+    const old = {
+      ...(await readUsageHistory(store)),
+      ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+    };
     expect(taskUsage(old, Object.keys(old.tasks)[0] ?? "").requests).toBe(1);
     const task = Object.values(old.tasks)[0];
     assert(task);
@@ -89,8 +106,11 @@ for (const format of ["legacy", "paged"]) {
         .please(),
     );
     const bytes = readFileSync(file, "utf8");
-    const report = runImport(home, root);
-    const corrected = readImported(home);
+    const report = await importUsageHistory(options);
+    const corrected = {
+      ...(await readUsageHistory(store)),
+      ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+    };
     expect(corrected.tasks[task.id]).toMatchObject({
       id: task.id,
       launchedAt: null,
@@ -128,7 +148,10 @@ for (const format of ["legacy", "paged"]) {
     });
     expect(readFileSync(file, "utf8")).toBe(bytes);
     expect(JSON.stringify(corrected)).not.toContain("PRIVATE-");
-    runImport(home, root);
-    expect(readImported(home)).toEqual(corrected);
+    await importUsageHistory(options);
+    expect({
+      ...(await readUsageHistory(store)),
+      ...(JSON.parse(readFileSync(responses, "utf8")) as UsageResponses),
+    }).toEqual(corrected);
   });
 }

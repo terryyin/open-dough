@@ -1,18 +1,21 @@
+import { readFileSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
+  readUsageHistory,
   taskUsage,
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
 import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
+import {
   test,
   expect,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 import { configuredRepository } from "../../test-support/usage-history/recoveryHarness.ts";
 
 const injectedAt = "2026-11-14T09:00:00.000Z";
@@ -23,6 +26,15 @@ test("wrapper followed by genuine mixed content corrects the same old task start
   home,
   root,
 }) => {
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store, responses } = options;
   const repo = await configuredRepository(
     home,
     makeMe.aRepository.withRevision("then", {}).please(),
@@ -68,9 +80,9 @@ test("wrapper followed by genuine mixed content corrects the same old task start
       fieldSources: { launchedAt: [{ kind: "native", file, line: 3 }] },
     })
     .please();
-  await writeUsageHistory({ tasks: [old] }, usageHistoryFile(home));
-  runImport(home, root);
-  const history = readImported(home);
+  await writeUsageHistory({ tasks: [old] }, store);
+  await importUsageHistory(options);
+  const history = await readUsageHistory(store);
   expect(Object.keys(history.tasks)).toEqual([id]);
   expect(history.tasks[id]).toMatchObject({
     launchedAt: "2026-11-14T10:00:00.000Z",
@@ -86,5 +98,10 @@ test("wrapper followed by genuine mixed content corrects the same old task start
     ]),
   });
   expect(taskUsage(history, id).tokens.output).toBe(5);
-  expect(JSON.stringify(history)).not.toContain("PRIVATE-");
+  const responseEvidence = JSON.parse(
+    readFileSync(responses, "utf8"),
+  ) as UsageResponses;
+  expect(JSON.stringify({ ...history, ...responseEvidence })).not.toContain(
+    "PRIVATE-",
+  );
 });

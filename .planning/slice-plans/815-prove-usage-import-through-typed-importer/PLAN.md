@@ -69,7 +69,7 @@ case count beyond command duplicates stays with the
 | Command starts are a material share of case time | Slices 1–5's speed aim | The same trial: 202 wrapper calls in the passing files; files without wrapper calls summed 68 s, files with them 141 s, about 0.7 s per call under that load. A lone `read` start took 0.12 s on the quieter machine | Unsettled: the per-call share was read under heavy load. Slice 1 is the probe |
 | The typed importer returns what the command prints | Slices 1–5's assertions on the import result | Read of `importUsageHistory.ts`: `console.log(JSON.stringify(result))` of the importer's return | Settled by reading; slice 1 observes it on real cases |
 
-## Slices and outside-in proof
+## Slices
 
 Stems are files in `dashboard/backend-tests/usage-history/`. Run each
 slice's files through the maintained backend command before and after,
@@ -78,7 +78,7 @@ with a proof record, and record per-case times.
 ### 1. Recovered assignments import through the typed importer
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the six files pass with no command start, and their summed case time is compared with the same run before the change
 
 Probe. Convert `recovered-assignment-legacy`, `-replay`, `-mixed`,
@@ -92,6 +92,21 @@ If summed case time for these files does not fall by at least a quarter
 on matched conditions, stop before slice 2 and replan: the remaining
 value is then the typed entry alone, and the story's speed goal needs a
 different cause.
+
+Proof result: all eight cases passed before and after. The six files replaced
+38 command wrapper calls with typed imports and store reads. Summed case time
+fell from 10,932 ms to 1,168 ms (89.3%). Runner time fell from 10,724 ms to
+2,518 ms. Both runs used Node 24.21.0, the maintained backend command with two
+workers, and `caffeinate -s -i` on AC power. Natural one-minute load was
+9.48–8.54 before and 6.36–6.36 after on 16 cores. The checkout's Git evidence
+directory contains `slice-1-{before,after}.json` and the per-case comparison
+in `slice-1-implementation.md`. Dashboard typecheck and five named Distribution
+MakeMe checks passed. Independent refactoring left the candidate as tested.
+
+The production response module supplies a writer and the `UsageResponses`
+type. Cases parse the artifact where they observe it. The options include the
+CLI's default private Claude roots when its equivalent command supplied none,
+preserving unavailable-root gaps in whole-store comparisons.
 
 ### 2. Recovery, repeated checks and historical tasks use the typed importer
 
@@ -191,3 +206,19 @@ load, so the speed gain is unsettled until that slice measures it.
   slice that adds the MakeMe builder, because distributed consumers load
   `Distribution/tests/support/makeMe.mjs`: run `scripts/test.sh` on the
   MakeMe support tests that slice touches.
+
+## Execution context
+
+- Story Branch Mode. The established `Sola-chan` workspace is on
+  `codex/prove-usage-import-through-the-typed-importer-in` at the published
+  claim `04b96eb9d673e08e36ef33ad2cc08e13c42ed729`, which was accepted on
+  `origin/main` and used as the remote execution branch's starting point.
+  Readiness changed since review. The current source and plan still agree on
+  the typed importer, retained command coverage and Vitest outcome. The three
+  Token Index fixture importers had already moved to Vitest at the claim.
+- Codex observes GitHub Actions `ci.yml` on the remote execution branch.
+  Coordinator `seed413-f763c576`, mailbox `/tmp/dough-ci-501/watch-vtN9oF`,
+  PID `20113`, shell session `8533`, cell `g172:11`.
+- The guard captured `family-before.json` at the claim before any edits. All
+  54 files and 150 cases passed. Summed case time was 171,138 ms and runner
+  time was 88,701 ms. Natural one-minute load was 7.60–15.61 on 16 cores.
