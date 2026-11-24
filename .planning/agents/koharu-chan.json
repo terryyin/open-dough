@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Koharu-chan",
+  "email": "koharu-chan@example.org",
+  "identity": "SEED-413#trim-follow-up-context-e2e-journeys",
+  "mode": "story-branch",
+  "branch": "claude/this-story-has-added-a-bit-too-many-e2e-tests-pl",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

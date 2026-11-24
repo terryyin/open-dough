@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Prove landed CI attempt evidence through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence) — SEED-413#renovate-landed-ci-attempt-evidence ([plan](slice-plans/810-renovate-landed-ci-attempt-evidence/PLAN.md))
 - [Prove Token Index reads and refreshes through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) — SEED-413#renovate-usage-token-index-proof ([plan](slice-plans/811-renovate-usage-token-index-proof/PLAN.md))
 - [Use one managed install layout](seeds/SEED-423-shrink-the-installed-distribution.md#use-one-managed-install-layout) — SEED-423#use-one-managed-install-layout ([plan](slice-plans/812-use-one-managed-install-layout/PLAN.md))
+- [Keep Follow up context E2E proof to integrated journeys](seeds/SEED-413-renovate-dashboard-unit-tests.md#trim-follow-up-context-e2e-journeys) — SEED-413#trim-follow-up-context-e2e-journeys
 
 ## Backlog list
 
