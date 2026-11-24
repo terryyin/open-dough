@@ -12,6 +12,9 @@
 // The keyboard is placed as the change is committed, before anything
 // around the action sees the status gone and takes the keyboard for itself
 // (Recently done's entry, `./recentlyDoneFocus.ts`).
+// Each opening mounts its own dialog. A dialog closes in the browser before
+// its close event reports it, so the button can be pressed again in between;
+// that press opens a new dialog, and the earlier one's late close is ignored.
 
 import {
   useLayoutEffect,
@@ -52,13 +55,17 @@ export function useLaunchDialogLauncher(
   heldUnavailable = false,
 ): {
   readonly launcher: RefObject<HTMLButtonElement | null>;
-  readonly open: boolean;
+  // The open dialog's opening, which keys it; none while closed.
+  readonly opening: number | undefined;
   readonly openDialog: () => void;
-  // Whether the launch was accepted.
-  readonly closeDialog: (accepted: boolean) => void;
+  // Closes the dialog of `opening`, saying whether the launch was accepted;
+  // false, changing nothing, when a later opening has replaced it.
+  readonly closeDialog: (opening: number, accepted: boolean) => boolean;
 } {
   const launcher = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
+  const openings = useRef(0);
+  const [opening, setOpening] = useState<number>();
+  const open = opening !== undefined;
   const returnsFocus = useRef<
     "at-once" | "handoff" | "after-startup" | undefined
   >(undefined);
@@ -90,13 +97,16 @@ export function useLaunchDialogLauncher(
   }, [open, starting, heldUnavailable, handoff]);
   return {
     launcher,
-    open,
+    opening,
     openDialog: () => {
-      setOpen(true);
+      openings.current += 1;
+      setOpening(openings.current);
     },
-    closeDialog: (accepted) => {
+    closeDialog: (closing, accepted) => {
+      if (closing !== openings.current) return false;
       returnsFocus.current = accepted ? "handoff" : "at-once";
-      setOpen(false);
+      setOpening(undefined);
+      return true;
     },
   };
 }

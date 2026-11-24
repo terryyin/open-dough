@@ -108,10 +108,11 @@ export function StartSession({
   const starting = attempt?.kind === "starting";
   const answerId = useId();
   const progress = useRef<HTMLParagraphElement>(null);
-  const { launcher, open, openDialog, closeDialog } = useLaunchDialogLauncher(
-    starting,
-    useCallback(() => progress.current, []),
-  );
+  const { launcher, opening, openDialog, closeDialog } =
+    useLaunchDialogLauncher(
+      starting,
+      useCallback(() => progress.current, []),
+    );
   const opened = useRef(false);
   const storyIdentity =
     followUp !== undefined && "story" in followUp.source
@@ -170,8 +171,9 @@ export function StartSession({
           className="start-session-answer"
         />
       )}
-      {open && (
+      {opening !== undefined && (
         <LaunchDialog
+          key={opening}
           readOptions={requestLaunchHostOptions}
           transcription={instructionTranscription}
           sourceId={sourceId}
@@ -231,8 +233,8 @@ export function StartSession({
             )
           }
           onClose={(accepted) => {
+            if (!closeDialog(opening, accepted)) return;
             setPolicy(unattachedPolicyOf({}));
-            closeDialog(accepted);
             // Keep the launcher mounted through an accepted start so the
             // blank follow-up can present its terminal; Cancel clears a
             // line-menu host and drops an unchecked attach choice.

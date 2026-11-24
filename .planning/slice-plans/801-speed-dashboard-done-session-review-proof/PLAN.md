@@ -282,7 +282,13 @@ Trunk `0bdef6cb2` ("Revert completion-time ad hoc story creation") changed
 the production Recently done listing and selection and the slice 3 roster
 files `recently-done-follow-up-grouping` and
 `recently-done-published-session-story`. Merge trunk and recheck the slice 1
-mount specs before slice 3 reconciles its roster. Fit the 15 active-minute limit by keeping representative
+mount specs before slice 3 reconciles its roster.
+
+During slice 2, `navigation/frame-launch-look.spec.ts` failed intermittently
+on base and candidate alike: Enter on the launcher right after Cancel lost the
+reopen because the native dialog's late close shut it. The repair keys each
+opening's dialog and ignores a replaced opening's close; the cause, proof and
+reproduction are in [the diagnosis record](diagnosis-frame-launch-look-focus.md). Fit the 15 active-minute limit by keeping representative
 rendered scenarios and checking distinct variants at their smallest owner.
 
 ## Assertion map

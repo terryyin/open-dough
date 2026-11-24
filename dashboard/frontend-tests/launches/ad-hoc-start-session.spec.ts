@@ -87,3 +87,35 @@ test("an instructed Start session sends the draft, hands focus to progress, and 
   await expect.element(button).toHaveFocus();
   await expect.element(progress).not.toBeInTheDocument();
 });
+
+test("Enter on the launcher right after Cancel reopens the launch dialog", async () => {
+  const project = makeMe.aPublishedSource.openDough.please();
+  await mountComponent(
+    createElement(StartSession, {
+      project: project.label,
+      sourceId: project.id,
+      launches: adHocLaunches(),
+      presentTerminal: vi.fn(),
+    }),
+  );
+  const button = startSession(project.label);
+  const form = launchDialog("Start a session in Open Dough in Claude Code");
+  await button.click();
+  await expect.element(form.instruction).toHaveFocus();
+
+  // Cancel closes the dialog at once and the keyboard is back on the
+  // launcher before the browser delivers the dialog's close event; Enter
+  // arrives in that gap.
+  form.cancel
+    .element()
+    .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  expect(document.activeElement).toBe(button.element());
+  button
+    .element()
+    .dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
+
+  await expect.element(form.instruction).toHaveFocus();
+  await expect.element(form.dialog).toBeVisible();
+});
