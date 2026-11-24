@@ -7,101 +7,88 @@ trigger_when: selected from the product backlog after the Review repository is i
 scope: one story
 ---
 
-# SEED-430 — Read published project data from local Git
+# SEED-430 — Read the published Board and Review from local Git
 
 <a id="read-published-project-data-from-local-git"></a>
 
-### Read published project data from local Git
+### Read the published Board and Review from local Git
 
 **Identity:** SEED-430#read-published-project-data-from-local-git
 ```json dough-story-dependencies
 {"schemaVersion":1,"identity":"SEED-430#read-published-project-data-from-local-git","dependencies":[{"supplier":{"identity":"SEED-428#read-reviews-from-the-review-repository","href":"seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository"},"implementation":"Dashboard-owned Review repository for each project with shared, bounded Git fetches","rationale":"The next published reader extends that live storage and freshness boundary. A temporary store or checkout reader would duplicate it and could expose a second version of the same published state.","condition":"SEED-428 has landed on origin/main. Published comparisons can use the Dashboard-owned Review repository independently of the execution checkout, and their concurrent readers share a bounded fetch.","state":"satisfied","resolution":{"revision":"5813f8d95b5816e984540785e4e3d0e439c2c1ff","path":".planning/seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository","summary":"Origin main accepted b2b66a794f6a295e82e829ab446a6334e1fcc001. dashboard/server/reviewRepository.ts keeps one bare Review repository per configured project under the machine dashboard home, fetches published refs by exact refspec through GitTargetFetches with a bounded read, and records each sync. Done, Taken, landed and published-session review readers read it without calling executionCheckout. story-review-completed.spec.ts (backend and E2E) reads the same comparison and file diff with the execution checkout renamed and leaves its refs unchanged; story-review-published-taken.spec.ts reads Taken comparisons with no checkout; story-review-completed-shared-fetch.spec.ts records one fetch for two concurrent opens. Full backend, frontend and E2E suites passed on the merged state.\nCondition satisfied: SEED-428 has landed on origin/main; published comparisons use the Dashboard-owned Review repository independently of the execution checkout, and concurrent readers share a bounded fetch. The queued correction SEED-428#read-review-files-without-fetching removes remaining per-switch fetches on landed file reads; it does not affect this condition.\nCondition satisfied: SEED-428 has landed on origin/main. Published comparisons can use the Dashboard-owned Review repository independently of the execution checkout, and their concurrent readers share a bounded fetch.\nAccepted integration: b2b66a794f6a295e82e829ab446a6334e1fcc001 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/819-read-published-board-and-review/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"bca71618d63d70e4f033d98f9b449fe4330694024915583caecbbc6aab8cccb9","plan":"efdbc2e14d1ea984b3e21a4dfa44b8ccca763a3deeee989014943ed7d173b88d"}}
 ```
 
-**Goal.** A developer can open the Board, inspect published work, and see it
-advance with origin. Opening details uses local Git, and the Dashboard shows
-when it last confirmed the published state or whether a refresh failed.
+**Goal.** A developer can open the Board, inspect published work, and follow
+changes on origin with the execution checkout absent or behind. The Board
+identifies the last confirmed view and explains a failed refresh. Board
+details and already-admitted Review files read locally at their published pins.
 
-**Starting point.** Extend the Review repository and shared fetch that SEED-428
-delivered in `dashboard/server/reviewRepository.ts`, after its correction
-[Read review files without fetching](https://github.com/terryyin/open-dough/blob/82fa2ac11bda12ca2af0f9575087a79bdf3b98ec/.planning/seeds/SEED-428-read-reviews-from-the-review-repository.md#read-review-files-without-fetching).
-That delivery left two gaps for this story's refresh design:
-- Exact-ref fetches never prune, so a story branch deleted on origin is
-  still read from its stale tracking ref, with no notice.
-- One sync record covers every ref and is not written atomically. A trunk sync
-  that succeeds before the branch sync fails reports the branch as fresh, and
-  a torn write reads as never synced.
-Origin remains authoritative for durable project records. The execution checkout
-supplies sessions and their worktrees. [Dashboard ADR](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+**Scope.** Cold Board open establishes a locally readable published view
+within a bounded check. A warm Board can show its last readable view during
+refresh. Manual Refresh and automatic observation update the confirmation
+time when origin confirms the same tips and advance the Board when new tips
+are verified. A temporary failure keeps the last confirmation and readable
+view, shows the problem, and permits recovery on Refresh. A cold failure
+leaves the Board unavailable. Explicit access refusals retain their own
+outcome.
 
-**Read inventory.** Move these reads to Git while preserving the meaning of
-their answers, including pins, reachability, and absence.
+The Board follows trunk membership and priority, Preparing and Taken
+assignments, and branch-only plan progress, including the plan's commit
+time. It reads reachable stories, plans, requests, and documents, Done
+catalog and bodies, published session records, and the pinned Done record
+used for follow-up admission. Check accepted-publication containment at the
+shown revision. Preserve the distinction between absence and an unreadable
+record, and between publication and machine-local launch or session evidence.
 
-| Published data | Current read paths |
-| --- | --- |
-| Configured trunk, watched story branch heads, branch-only plan progress, and publication containment | [Board opening](../../dashboard/server/performedRead.ts), [HTTP revision check](../../dashboard/server/performedRevisionCheck.ts), [revision stream](../../dashboard/server/sourceRevisionStream.ts), [ref listing and fallback](../../dashboard/server/ghRevision.ts), [branch heads](../../dashboard/server/branchHeads.ts), [branch detail and commit time](../../dashboard/server/performedBranchRead.ts), and [accepted commit containment](../../dashboard/server/containmentRead.ts). |
-| Backlog membership and priority, story seeds, plans, requests, and reachable documents | [Authenticated reads](../../dashboard/server/authenticatedRead.ts) and [pinned file reads](../../dashboard/server/performedRead.ts). |
-| Preparing and Taken agent profiles, Done catalog and record bodies, published session records, and the Done record that admits a follow-up | [Agent profiles](../../dashboard/server/listedRecordsRead.ts), [Done records](../../dashboard/server/doneCatalogRead.ts), [sessions](../../dashboard/server/publishedSessionsRead.ts), and [follow-up admission](../../dashboard/server/followUpStory.ts). |
-| Intent location configuration, its directory and recursive tree listings, selected source files, and proof optimization candidates | [Locations and trees](../../dashboard/server/intentLocationsRead.ts), [selected files](../../dashboard/server/performedRead.ts), and [candidates](../../dashboard/server/intentCandidatesRead.ts). |
-| Path history, last commit time, and the commit, name, and date for an agent profile's current allocation | [Path commit time](../../dashboard/server/ghCommitTime.ts), [profile-addition walk](../../dashboard/server/ghProfileAddition.ts), [commit file changes](../../dashboard/server/ghCommit.ts), and [attribution read](../../dashboard/server/additionRead.ts). Keep GitHub's account and avatar match as a provider lookup keyed by the exact adding commit. |
-| Git inputs to CI views and judgment | Replace the [branch-history GitHub call](../../dashboard/server/baseCiGitHubReads.ts) used by [CI status and launch judgment](../../dashboard/server/baseCiJudgment.ts) and the [Taken branch lookup and fetch](../../dashboard/server/takenStoryEndpoints.ts) used by CI comparisons. Source published [first-parent and subject reads](../../dashboard/server/baseCiRevisionGit.ts) and [landing order](../../dashboard/server/intentCiHistoryRead.ts) from shared history where it supplies the recorded revisions. Keep the launch judgment's fresh-read requirement and exact-run rules. |
-| Feedback maintenance watch list | [Scheduled maintenance](../../dashboard/server/feedbackMaintenanceCheck.ts) resolves trunk and reads the watch list. Use the shared refresh and pinned tree for the check that can authorize a launch. |
-| Project setup | [Add Project](../../dashboard/server/projectAddition.ts) asks GitHub for the default branch. Check access and discover symbolic `HEAD` through the same authenticated Git transport. Keep the execution-checkout origin validation as a setup check. |
+Live progress follows confirmed branch moves and reports a confirmed
+deletion. A detail already admitted at a revision keeps its pin for its
+existing lifetime through branch deletion or rewrite. Admission follows the
+configured source and the existing revision, branch, and path rules. Mere
+object presence confers no admission.
 
-**Refresh architecture.** Follow the
-[Architectural North Star](../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads).
-Scope the coordinator to the configured project and authorized origin. Cold
-opening, manual Refresh, and the active revision observer request a bounded
-check from that coordinator. Review uses it too. Reuse the
-[shared observation](../../dashboard/server/sharedObservation.ts)
-and [revision stream](../../dashboard/server/revisionStreamObservation.ts)
-for timing, with the same coordinator behind the HTTP fallback. Overlapping
-demand joins a check that covers the required refs and freshness. A request
-that needs a newer observation or an additional ref shares the next check.
-Machine maintenance and launch admission can request a fresh check with the
-same boundary and their existing wait limits.
+A Board open, manual Refresh, active revision observer, and Review open share
+the same bounded check when it covers their refs and freshness. Review
+retains its existing comparison admission, selection, and notices. File
+switching stays local. Retire superseded REST reads and caching only when
+they lose their last caller.
 
-Probe the configured trunk and relevant published story branches together.
-Fetch incrementally into the Review repository when a tip changed or its
-objects are missing. Publish a new observation only after Git can verify the
-required commits locally, including when a ref moves between probe and fetch.
-Check branch-only moves and confirmed deletions even while trunk stays still.
-If a new trunk names a new story branch, check it before reporting its head.
-Carry the observation time and result through the existing status path.
-Opening with synced data can show the last readable revision during refresh.
-A failed check preserves that revision with a stale or unavailable status.
-Cold failures and authorization refusals retain their own outcomes.
+**Architecture.** Extend the existing Review repository and bounded Git
+transport, including the landed
+[read-only Review file correction](https://github.com/terryyin/open-dough/blob/82fa2ac11bda12ca2af0f9575087a79bdf3b98ec/.planning/seeds/SEED-428-read-reviews-from-the-review-repository.md#read-review-files-without-fetching).
+Apply [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+and [ADR 0002](../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md).
+The [Architectural North Star](../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads)
+sets the common observation boundary. Stage fetched objects, verify the
+required pins, and publish the resulting observation and confirmation time
+together. A trunk success cannot confirm a branch whose check failed. Reuse
+the existing observation timing, SSE and HTTP fallback. Keep observation
+start time for launch reconciliation distinct from the displayed
+confirmation time.
 
-Read pins, trees, blobs, path history, and ancestry from the Review repository.
-Each detail read uses the requested published revision and existing source,
-branch, and path admission. Retain already-admitted pins for their existing
-read lifetime even when a branch is deleted or rewritten. An object present
-on disk alone confers no access.
-Preserve the origins of CI runs, jobs, and artifacts, GitHub account and avatar
-facts, local session state, and the Git operations that actually launch,
-publish, or land work. Retire the replaced Contents, Trees, Refs, Compare, and
-Commit REST readers and any REST response caching and retry support that loses
-its last caller. Keep the remaining provider lookups scoped to their own data.
+**Key examples.**
 
-**Key examples and proof.**
+- Given an accessible origin and an absent execution checkout, open the Board
+  cold, then open a story, branch plan, Done record, and published session
+  from the confirmed view. Board details read the admitted pins with zero
+  remote Git operations and zero GitHub API calls for these published
+  records. Record cold and warm request counts and timing.
+- Given two Board tabs and Review, refresh after origin advances a watched
+  branch while trunk stays fixed. The tabs and Review can share the check,
+  live progress follows the verified head, and an already-admitted detail
+  keeps its pin. Once a successful probe confirms deletion, the Board shows
+  that the branch is no longer published. A newly watched branch is checked
+  before its head is reported.
+- Given a previously confirmed Board and an unavailable origin or an
+  unresolved probe/fetch race, Refresh retains the current view with its old
+  confirmation time. A cold failure and an explicit access refusal are
+  distinguishable. On recovery, an unchanged check advances the confirmation
+  time with no fetch and a changed check exposes only verified revisions.
 
-- After a cold sync, open the Board, story, branch plan, Done record, session,
-  and Intent source. Verify the same data and pins, with zero GitHub API calls
-  or remote Git operations for those detail reads. Show request counts and
-  cold and warm timing through those entry points. Test provider-backed
-  enrichment independently.
-- Publish a backlog change, then advance and delete a watched branch without
-  moving trunk. Two tabs and an open review share each scheduled or explicit
-  refresh. An unchanged probe needs no fetch. The visible revisions advance
-  only when readable and the already-open pinned detail retains its revision.
-- Break origin access during an incremental refresh and reconnect. Verify
-  the last successful check time and readable pins, a separate cold failure,
-  and recovery on Refresh. Prove that a failed or raced fetch neither advances
-  the visible tip nor reports an unconfirmed branch deletion, and that stale
-  evidence never satisfies an action's fresh-check requirement.
-
-**Effort hypothesis.** L, with medium confidence until SEED-428's fetch
-contract and the launch and CI consumers' freshness rules are confirmed.
+**Follow-up stories.** The rest of the published read inventory is tracked
+in [Intent and attribution](SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git),
+[CI inputs](SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git),
+[scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git),
+and [Add Project](SEED-437-discover-project-default-branch-through-git.md#discover-project-default-branch-through-git).

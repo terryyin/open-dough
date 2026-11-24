@@ -1,0 +1,50 @@
+---
+id: SEED-435
+status: active
+planted: 2026-11-25
+planted_during: Split of SEED-430 into independently verifiable published reads
+trigger_when: selected after the Board shares a verified local Git observation
+scope: one story
+---
+
+# SEED-435 — Read published Git inputs to CI from local Git
+
+<a id="read-published-ci-inputs-from-local-git"></a>
+
+### Read published Git inputs to CI from local Git
+
+**Identity:** SEED-435#read-published-ci-inputs-from-local-git
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-435#read-published-ci-inputs-from-local-git","dependencies":[{"supplier":{"identity":"SEED-430#read-published-project-data-from-local-git","href":"seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git"},"implementation":"The shared verified project refresh and pinned Git reads in the Dashboard Review repository","rationale":"CI display and pre-launch judgment need the same published branch evidence as the Board. A separate CI fetch cannot provide the shared observation or its freshness guarantees.","condition":"SEED-430 has landed on origin/main. Board and Review use one bounded project refresh that publishes locally readable trunk and watched branch revisions and can require a new check within the caller’s wait bound.","state":"waiting"}]}
+```
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+**Goal.** A developer inspecting CI or starting work can see a judgment for
+the published revision the Dashboard verified. Published Git evidence is
+readable with the execution checkout absent or behind.
+
+**Scope to refine.** Replace the GitHub branch-history read used by CI
+status and launch judgment and the Taken branch lookup and fetch used by
+CI comparisons. Read first-parent history, commit subjects, and landing
+order from the Review repository where it holds the recorded revisions.
+Keep the existing CI providers for runs, jobs, artifacts, and adapter
+discovery. Preserve the freshness requirement for launch judgment, the
+exact-run rules, and the difference between a missing run and unavailable
+evidence. Local configuration, adapter execution, and actual launch actions
+retain their existing requirements.
+
+**Evaluation.** Compare CI status, Taken evidence, and retained landing
+history against their exact published revisions. When a launch needs a
+fresh Git check, make origin unavailable after a previously successful
+judgment and observe that the cached evidence cannot establish a fresh
+result. Verify the published Git inputs make no separate provider history
+lookup or execution-checkout fetch.
+
+**Source.** Split from [SEED-430](SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git).
+Begin with [branch history](../../dashboard/server/baseCiGitHubReads.ts),
+[CI judgment](../../dashboard/server/baseCiJudgment.ts),
+[Taken endpoints](../../dashboard/server/takenStoryEndpoints.ts),
+[revision history](../../dashboard/server/baseCiRevisionGit.ts), and
+[landing order](../../dashboard/server/intentCiHistoryRead.ts).
