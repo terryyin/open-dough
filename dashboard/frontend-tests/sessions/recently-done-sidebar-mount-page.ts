@@ -3,7 +3,8 @@
 // done section.
 import { vi } from "vitest";
 import { page } from "vitest/browser";
-import type { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { DoneStories } from "../../src/doneStories.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
@@ -80,6 +81,31 @@ export function machineReader(first: Answer) {
     },
   };
 }
+
+// `count` ad hoc sessions titled `kind 01`, `kind 02`…, newest first,
+// launched two minutes apart and, when `done`, completed a minute apart.
+export const adHocSessions = (kind: string, count: number, done: boolean) =>
+  Array.from(new Array<undefined>(count).keys(), (index) => {
+    const title = `${kind} ${String(index + 1).padStart(2, "0")}`;
+    const record = makeMe.aLaunchRecord
+      .adHoc({ instruction: title, title })
+      .inClaudeSession({ sessionId: `${kind}-${String(index)}` })
+      .launchedAt(minutesAgo(2 * (index + 1)));
+    return (
+      done ? record.markedDoneAt(minutesAgo(index + 1)) : record
+    ).please();
+  });
+
+// The open list's first session row, above Recently done.
+export const openSessionRow = () =>
+  document.querySelector<HTMLElement>(
+    ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
+  ) ?? undefined;
+
+// A session row's shown age: completion for a Done row, launch for an open one.
+export const ageShown = (row: Element | undefined) =>
+  row?.querySelector<HTMLElement>(".sessions-sidebar-session-entry-elapsed") ??
+  undefined;
 
 // Lets the next machine poll run now instead of after its interval.
 export function pollNow() {
@@ -158,6 +184,7 @@ export async function mountSessions(
     }
   };
   return {
+    sidebar: page.getByRole("complementary", { name: /Sessions/ }),
     region,
     header: region.getByRole("button", { name: "Recently done sessions" }),
     titles,

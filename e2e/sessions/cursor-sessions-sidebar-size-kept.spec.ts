@@ -35,6 +35,7 @@ import {
   back,
   settings,
 } from "../../dashboard/test-support/support/systemSettingsPage.ts";
+import { recentlyDoneParts } from "../../dashboard/test-support/recentlyDoneSessionsSidebarPage.ts";
 import { publishOnePygardonStory } from "../../dashboard/test-support/pygardonProject.ts";
 
 const sessionsSidebarOpenKey = "open-dough.sessionsSidebar.open";
@@ -86,6 +87,7 @@ test.describe("with two projects", () => {
     const split = runningCursorSplit(page, shown);
     const { sidebar, button, header } = shown;
     const { backlog } = parts(page);
+    const done = recentlyDoneParts(page);
     await button.click();
     await expect(sidebar).toBeVisible();
     await split.keepInBrowser("open-dough.sidePanel.width", "500");
@@ -128,9 +130,12 @@ test.describe("with two projects", () => {
       await expectChosen();
     });
 
-    await test.step("a reload starts collapsed, and expanding recovers the kept height", async () => {
+    await test.step("a reload keeps the sidebar open, starts both sections collapsed, and expanding recovers the kept height", async () => {
+      await done.header.click();
+      await expect(done.header).toHaveAttribute("aria-expanded", "true");
       await page.reload();
       await expect(sidebar).toBeVisible();
+      await expect(done.header).toHaveAttribute("aria-expanded", "false");
       await split.expectCollapsed();
       expect(await split.keptHeight()).toBe(String(chosen));
       await header.click();

@@ -7,8 +7,10 @@ import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
 import { fortyFiveDoneSessions } from "../../test-support/retainedDoneSessions.ts";
 import {
+  ageShown,
   machineReader,
   mountSessions,
+  openSessionRow,
   pollNow,
 } from "./recently-done-sidebar-mount-page.ts";
 
@@ -70,9 +72,7 @@ test("Recently done lists completed sessions across projects newest completion f
       ),
     ].map((heading) => heading.textContent),
   ).toEqual(["Pygardon story still open"]);
-  const ageOf = (title: string) =>
-    shown.row(title)?.querySelector(".sessions-sidebar-session-entry-elapsed")
-      ?.textContent;
+  const ageOf = (title: string) => ageShown(shown.row(title))?.textContent;
   expect(ageOf("Newest completion")).toBe("1m");
   expect(ageOf("Middle completion")).toBe("5m");
   expect(ageOf("Older completion")).toBe("1d");
@@ -101,13 +101,8 @@ test("an open session in the Sessions sidebar shows its launch age and Launched 
     .please();
   await mountSessions(makeMe.aMachineAnswer.observingOpen(stillOpen).please());
 
-  const openRow = document.querySelector(
-    ".sessions-sidebar-sessions li.sessions-sidebar-session-entry",
-  );
-  expect(
-    openRow?.querySelector(".sessions-sidebar-session-entry-elapsed")
-      ?.textContent,
-  ).toBe("4m");
+  const openRow = openSessionRow();
+  expect(ageShown(openRow)?.textContent).toBe("4m");
   expect(openRow?.querySelector("[title]")?.getAttribute("title")).toContain(
     `Launched ${new Date(stillOpen.launchedAt).toLocaleString()}`,
   );

@@ -11,6 +11,7 @@ import {
   type IntentLocations,
 } from "./authenticatedIntentRead.ts";
 import { syntaxHintOfRepositoryPath } from "./intentSelectionCoverage.ts";
+import { useIntentReads } from "./pageReads.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { StoryReview } from "./storyReviewContract.ts";
 
@@ -34,6 +35,7 @@ export function useReviewDiffSyntaxHint(
     source !== undefined && revision !== undefined
       ? keptIntentLocationsAt(source, revision)
       : undefined;
+  const { readLocations } = useIntentReads();
   const [read, setRead] = useState<IntentLocations | undefined>(kept);
   useEffect(() => {
     if (source === undefined || revision === undefined) {
@@ -47,7 +49,12 @@ export function useReviewDiffSyntaxHint(
     }
     const controller = new AbortController();
     setRead(undefined);
-    void readIntentLocationsAt(source, revision, controller.signal)
+    void readIntentLocationsAt(
+      source,
+      revision,
+      controller.signal,
+      readLocations,
+    )
       .then((answer) => {
         if (!controller.signal.aborted) setRead(answer);
       })
@@ -57,7 +64,7 @@ export function useReviewDiffSyntaxHint(
     return () => {
       controller.abort();
     };
-  }, [source, revision]);
+  }, [source, revision, readLocations]);
   const intent = kept ?? read;
   if (intent === undefined || intent.status !== "configured") return undefined;
   return syntaxHintOfRepositoryPath(path, intent.locations);

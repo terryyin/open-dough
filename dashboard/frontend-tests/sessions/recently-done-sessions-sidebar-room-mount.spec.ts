@@ -4,24 +4,14 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
-import { mountSessions } from "./recently-done-sidebar-mount-page.ts";
-
-const sessions = (kind: string, count: number, done: boolean) =>
-  Array.from(new Array<undefined>(count).keys(), (index) => {
-    const title = `${kind} ${String(index + 1).padStart(2, "0")}`;
-    const record = makeMe.aLaunchRecord
-      .adHoc({ instruction: title, title })
-      .inClaudeSession({ sessionId: `${kind}-${String(index)}` })
-      .launchedAt(minutesAgo(2 * (index + 1)));
-    return (
-      done ? record.markedDoneAt(minutesAgo(index + 1)) : record
-    ).please();
-  });
+import {
+  adHocSessions,
+  mountSessions,
+} from "./recently-done-sidebar-mount-page.ts";
 
 test("scrolling the open list to its end leaves Recently done's range unchanged", async () => {
-  const done = sessions("Done", 45, true);
-  const open = sessions("Open", 30, false);
+  const done = adHocSessions("Done", 45, true);
+  const open = adHocSessions("Open", 30, false);
   const shown = await mountSessions(
     makeMe.aMachineAnswer
       .observingUnavailable(...done)
@@ -44,8 +34,8 @@ test("scrolling the open list to its end leaves Recently done's range unchanged"
 test("the Recently done divider is named and keyed arrows resize the section", async () => {
   const shown = await mountSessions(
     makeMe.aMachineAnswer
-      .observingUnavailable(...sessions("Done", 30, true))
-      .observingOpen(...sessions("Open", 30, false))
+      .observingUnavailable(...adHocSessions("Done", 30, true))
+      .observingOpen(...adHocSessions("Open", 30, false))
       .please(),
   );
   await shown.header.click();
