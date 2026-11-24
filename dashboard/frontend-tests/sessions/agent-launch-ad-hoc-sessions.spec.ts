@@ -3,6 +3,11 @@ import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { SessionState } from "../../src/launchRecord.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import {
+  positionKey,
+  withFramePreference,
+} from "../../test-support/component-mount/framePreferences.ts";
+import { boardReading as board } from "../navigation/board-reading-page.ts";
 import { mountSessionCards, sessionsReading } from "./session-card-mount.ts";
 import {
   sessionEntry,
@@ -132,26 +137,24 @@ test("with the listing unreadable, an ad hoc session's record can be deleted fro
 test("with Open Dough already shown, its Sessions sidebar Session entry brings its Taken entry into view", async () => {
   const title = "where is this entry?";
   const working = makeMe.aSessionState.loaded("working").please();
+  const older = adHoc(title, working, "2026-01-01T00:00:00.000Z");
+  const newer = Array.from(new Array<undefined>(12).keys(), (index) =>
+    adHoc(`Newer session ${index + 1}`, working, "2026-01-01T00:05:00.000Z"),
+  );
+  withFramePreference(positionKey, "1");
   await mountSessionCards({
-    reading: sessionsReading("working", adHoc(title, working)),
+    reading: sessionsReading("working", older, ...newer),
     openTerminal: openAttachedTerminal,
+    viewport: { width: 700, height: 600 },
   });
   const entry = takenAdHocSession(title);
   await expect.element(entry).toBeInTheDocument();
-  await page.viewport(700, 600);
   await userEvent.click(sidebarButton);
-  const inViewport = () => {
-    const { top, left, bottom, right } = entry
-      .element()
-      .getBoundingClientRect();
-    return (
-      right > 0 &&
-      bottom > 0 &&
-      left < window.innerWidth &&
-      top < window.innerHeight
-    );
-  };
-  await expect.poll(inViewport).toBe(false);
+  await expect
+    .poll(
+      () => entry.element().getBoundingClientRect().top >= board.room().bottom,
+    )
+    .toBe(true);
 
   await userEvent.click(sidebarSession(title));
   await expect
@@ -172,5 +175,5 @@ test("with Open Dough already shown, its Sessions sidebar Session entry brings i
     .not.toBeInTheDocument();
   await userEvent.click(terminalClose);
   await expect.element(terminal).not.toBeInTheDocument();
-  await expect.poll(inViewport).toBe(true);
+  await expect.poll(() => board.inReadingRoom(entry.element())).toBe(true);
 });

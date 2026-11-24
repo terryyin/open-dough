@@ -268,6 +268,15 @@ added. The unused legacy Cursor route helpers were removed while its
 native demand tracker remained. See `slice-5-mapping.md` and
 `slice-5-return.md` in the worktree's Git evidence.
 
+**CI repair.** The first Linux run of slice 5 failed before its sidebar
+reveal action because the Taken entry was already visible. A controlled
+Board pager click reproduced that assertion. The revised fixture starts
+in Taken at the same viewport, with newer entries pushing the target
+below the Board's reading room. The case still opens the actual covering
+terminal through the sidebar and verifies the same entry is fully in
+view after Close. Four focused browser cases and dashboard typecheck
+passed locally. See [diagnosis](diagnosis-ad-hoc-reveal.md).
+
 ### 6. Terminal keyboard, prompts, and ended-input recovery stay usable
 
 Type: Behavior
