@@ -46,7 +46,7 @@ test("permission refusal makes no transcription request and an explicit retry wo
   capture.getUserMedia.mockRejectedValueOnce(captureError("NotAllowedError"));
   await failsToRecord(voice, capture, "permission");
   expect(voice.transcribe).not.toHaveBeenCalled();
-  await voice.recordClip();
+  await voice.recordClip(capture);
   await expect
     .element(voice.field)
     .toHaveValue(`${originalDraft}\n\nDo not implement yet`);
@@ -72,7 +72,8 @@ test("stopping an empty recording keeps the typed draft and lets the user record
   const restoreAudio = capture.captureNoAudio();
   const voice = await mountInstructionVoice();
   await voice.field.fill(originalDraft);
-  await voice.recordClip();
+  await voice.begin();
+  await voice.stop.click();
   await voice.ready();
   expect(voice.transcribe).not.toHaveBeenCalled();
   await expect
@@ -83,9 +84,7 @@ test("stopping an empty recording keeps the typed draft and lets the user record
   await expect.element(voice.field).toHaveValue(originalDraft);
 
   restoreAudio();
-  await voice.begin();
-  await capture.recordedAudio();
-  await voice.stop.click();
+  await voice.recordClip(capture);
   await expect
     .element(voice.field)
     .toHaveValue(`${originalDraft}\n\nDo not implement yet`);

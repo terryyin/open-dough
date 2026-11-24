@@ -107,3 +107,10 @@ Implementation was accepted on the story branch as
 fixture lint findings during delivery and reran the three affected mounted
 cases before publishing. The retrospective recorded the formatting retry
 under ODF-329 in `DearDough.md` and found no product follow-up.
+
+CI run `45345508896` exposed a native zero-byte Stop in an existing test
+that expected a held request. The failure screenshot showed Ready and the
+new message. The repair makes existing positive recordings wait for native
+bytes before Stop and preserves the original assertions and explicit empty
+case. All 21 focused mounted tests passed again. The [diagnosis](diagnosis-mounted-voice-capture.md)
+retains the failed attempt and the repair's observations.

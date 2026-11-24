@@ -169,8 +169,9 @@ export async function mountInstructionVoice() {
     exact: true,
   });
   const problem = inDialog.getByRole("alert");
-  const recordClip = async () => {
+  const recordClip = async (capture: ReturnType<typeof audioInput>) => {
     await begin();
+    await capture.recordedAudio();
     await stop.click();
   };
   const ready = async () => {

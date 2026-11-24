@@ -39,7 +39,7 @@ test("an ended terminal keeps the transcript with Open again feedback, Paste nam
   const transcribe = vi.fn<InstructionTranscriptionSource["transcribe"]>(
     () => answer,
   );
-  audioInput();
+  const capture = audioInput();
   const clipboardText = new Blob(["not for the ended terminal"], {
     type: "text/plain",
   });
@@ -68,6 +68,7 @@ test("an ended terminal keeps the transcript with Open again feedback, Paste nam
       ),
     )
     .toBeVisible();
+  await capture.recordedAudio();
   await tapTerminalControl(
     terminal.getByRole("button", { name: "Stop recording", exact: true }),
   );
