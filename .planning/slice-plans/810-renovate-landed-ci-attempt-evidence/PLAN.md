@@ -126,7 +126,7 @@ authenticated route dispatch if its binding changes.
 ### 4. A new reader uses the saved history after the old address is released
 
 Type: Behavior
-Status: planned
+Status: done
 
 Resolve `landed-ci-reader-restart`. Give `performIntentCiHistoryRead`
 an explicit reopened history document and provider spy. Assert identical
@@ -201,6 +201,9 @@ only after its consumers have gone.
   checkout harness left as follow-up.
 - Slice 3: narrow `RequestedRead` to `intent-ci-proof` before
   `performIntentCiProofRead`; authenticated route dispatch binding unchanged.
+- Slice 4: Vitest owns retained-history reopen; E2E
+  `e2e/intent/landed-ci-reader-restart.spec.ts` owns old-address composition
+  (wall-time E2E + chosen-port lacked that combination).
 
 ## Accepted proof (slice 1)
 
@@ -223,6 +226,14 @@ Focused: `npm run test:dashboard:backend -- ci-proof-extraction intent-ci-proof-
 Evidence: `open-dough/evidence/slice3-proof2-20261124185123.log.run.json`,
 `slice3-typecheck2-20261124185123.log.run.json`, `slice3-return-report.md`.
 Refactor disposition: skipped — subject specs plus comment-only Distribution pointer; product search finds conversion onto existing `ciProofArtifactReader` / `parseIntentCiProofRead` / `performIntentCiProofRead`; no new production representation.
+
+## Accepted proof (slice 4)
+
+Focused: `npm run test:dashboard:backend -- landed-ci-reader-restart --workers=2` (exit 0; 1 test);
+`npm run test:e2e -- intent/landed-ci-reader-restart.spec.ts --reporter=list` (exit 0; 1 test).
+Evidence: `open-dough/evidence/slice4-proof-20261124185713.log.run.json`,
+`slice4-e2e2-20261124185746.log.run.json`, `slice4-return-report.md`.
+Refactor disposition: skipped — subject Intent conversion + new E2E composition owner; no production change; no refactor-check candidate.
 
 ## Concern evidence
 
