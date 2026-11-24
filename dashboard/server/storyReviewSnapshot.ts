@@ -19,6 +19,7 @@ import {
   type KeptStoryReview,
 } from "./storyReviewRecordAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
+import { legacySessionReview } from "./storyReviewSessionAdmission.ts";
 import { publishedSessionReview } from "./publishedSessionReview.ts";
 import { publishedTakenReview } from "./storyReviewPublishedTaken.ts";
 import { publishedStoryReview } from "./storyReviewPublished.ts";
@@ -54,6 +55,13 @@ export async function storyReview(
       input.now,
       signal,
     );
+  if ("record" in input)
+    return legacySessionReview(
+      input.source,
+      input.record,
+      input.read.run,
+      signal,
+    );
   if ("subject" in input.read && input.read.taken === true) {
     if (
       input.read.completed === true ||
@@ -77,7 +85,7 @@ export async function storyReview(
       if (recorded !== undefined) return recorded;
     }
   }
-  const request = await keptStoryReview(input);
+  const request = await keptStoryReview(input.read);
   const review = await answered(request, signal);
   const kept = request.runs.map(reviewRunChoice);
   const recorded =
@@ -125,7 +133,6 @@ async function answered(
       kind: "unavailable",
       explanation: request.explanation,
     };
-  if ("readSession" in request) return request.readSession(signal);
   return {
     ...(await landedStoryReview(request.run, signal, request.source)),
     selectedRun: reviewRunKey(request.run.record),

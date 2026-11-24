@@ -31,7 +31,6 @@ export function ReviewBody({
       tree={shown.tree}
       headingId={headingId}
       browser={browser}
-      branchResult={review?.kind === "branch-result"}
       {...(settingsRevision === undefined ? {} : { settingsRevision })}
     />
   );

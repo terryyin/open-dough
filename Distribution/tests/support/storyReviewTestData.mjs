@@ -7,13 +7,13 @@
 import {
   landedComparison,
   publishedComparison,
-  sessionCommits,
+  publishedSessionComparison,
   storyReviewIds,
 } from "./storyReviewCompletedTestData.mjs";
 export class StoryReviewBuilder {
   /** @type {ReviewedFile[]} */
   #files = [];
-  /** @type {"published-taken" | "published" | "landed" | "session-commits" | "landing-unavailable" | "unavailable"} */
+  /** @type {"published-taken" | "published" | "landed" | "published-session" | "landing-unavailable" | "unavailable"} */
   #kind = "published-taken";
   /** @type {ReviewGap} */
   #gap = { explanation: "" };
@@ -85,9 +85,9 @@ export class StoryReviewBuilder {
     return this;
   }
 
-  // An execution checkout session's commits: one kept run.
-  sessionCommits() {
-    this.#kind = "session-commits";
+  // A session's published comparison.
+  publishedSession() {
+    this.#kind = "published-session";
     return this;
   }
 
@@ -147,8 +147,8 @@ export class StoryReviewBuilder {
       return { kind: "landing-unavailable", ...this.#gap };
     if (this.#kind === "unavailable")
       return { kind: "unavailable", explanation: this.#gap.explanation };
-    if (this.#kind === "session-commits")
-      return sessionCommits({ baseline, tree, files });
+    if (this.#kind === "published-session")
+      return publishedSessionComparison({ baseline, tree, files });
     if (this.#kind === "published")
       return publishedComparison({
         baseline,

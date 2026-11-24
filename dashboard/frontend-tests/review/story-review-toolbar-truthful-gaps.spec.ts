@@ -1,13 +1,8 @@
-// Session commits, a selected landed evidence gap and a bare explanation each
+// Published changes, a selected landed evidence gap and a bare explanation each
 // name the toolbar only when the review on screen supplies a comparison.
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import {
-  deliveredChangesName,
-  sessionBranchRun,
-  sessionDeliveryRun,
-} from "../../src/sessionReviewComparisons.ts";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
 import {
   adHocSession,
@@ -25,49 +20,27 @@ const sourceOf = (review: StoryReview) =>
       ),
   });
 
-test("session commits name the toolbar Session commits", async () => {
+test("a published session names the toolbar Published changes", async () => {
   const commits = makeMe.aStoryReview
-    .sessionCommits()
+    .publishedSession()
     .modifying("committed.txt")
     .please();
   const review = await mountReviewChanges(sourceOf(commits), adHocSession);
-  await review.expectComparisonNamed("Session commits");
+  await review.expectComparisonNamed("Published changes");
   await review.expectDetailsCollapsed();
   await review.expectFilesToggleNamed("Hide files");
   await review.expectDiffShows("Modified committed.txt", "+commit");
 });
 
 test("an empty session comparison has no files toggle", async () => {
-  const commits = makeMe.aStoryReview.sessionCommits().please();
+  const commits = makeMe.aStoryReview.publishedSession().please();
   const review = await mountReviewChanges(sourceOf(commits), adHocSession);
 
-  await review.expectComparisonNamed("Session commits");
+  await review.expectComparisonNamed("Published changes");
   await expect
-    .element(
-      page.getByText("No changes: these session commits leave no difference."),
-    )
+    .element(page.getByText("No changes: this published comparison is empty."))
     .toBeVisible();
   await review.expectNoFilesToggle();
-});
-
-test("a selected session delivery gap keeps its comparison and the eye", async () => {
-  const explanation =
-    "Accepted publication has a recoverable review evidence gap.";
-  const gap = makeMe.aStoryReview.landingGap(explanation).please();
-  const review = await mountReviewChanges(
-    sourceOf({
-      ...gap,
-      selectedRun: sessionDeliveryRun,
-      sessionComparisonKeys: [sessionDeliveryRun, sessionBranchRun],
-    }),
-    adHocSession,
-  );
-  await review.expectFeedback(explanation);
-  await review.expectComparisonNamed(deliveredChangesName);
-  await review.expectDetailsCollapsed();
-  await review.expectNoFilesToggle();
-  await review.revealDetails();
-  await review.expectComparisonChosen(deliveredChangesName);
 });
 
 test("a bare landing gap names Landed runs without an eye", async () => {

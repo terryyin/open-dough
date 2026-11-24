@@ -1,5 +1,4 @@
 // Done keeps its worktree snapshot through later edits and forced retirement.
-import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test, vi } from "vitest";
@@ -143,14 +142,7 @@ test("Done keeps the worktree snapshot through a later edit and forced retiremen
     { objectId: tree },
     { objectId: committedTip },
   ]);
-  expect(
-    await reviewedFileText(
-      { record: saved, read: { baseline, tree, path: "draft.txt" } },
-      new AbortController().signal,
-    ),
-  ).toEqual({
-    kind: "text",
-    baseline: null,
-    tree: "draft left for review\n",
-  });
+  expect(git(checkout.integration, "show", `${tree}:draft.txt`)).toBe(
+    "draft left for review",
+  );
 });

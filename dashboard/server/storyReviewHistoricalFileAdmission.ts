@@ -156,13 +156,12 @@ function requireLandingFile(
 export async function admitLandedRun(
   run: LandingReviewSource,
   file: HistoricalReviewedFileFields,
-  signal?: AbortSignal,
-  source?: PublishedSource,
+  signal: AbortSignal | undefined,
+  source: PublishedSource,
 ): Promise<AdmittedReviewedFile> {
   const review = await landedStoryReview(run, admissionBound(signal), source);
   throwIfRequestAborted(signal);
-  const landing = run.record.landing;
-  if (review.kind !== "landed" || landing === undefined)
+  if (review.kind !== "landed")
     throw new RefusedRequest(
       409,
       review.kind === "landing-unavailable"
@@ -171,10 +170,7 @@ export async function admitLandedRun(
     );
   requireLandingFile(review, file);
   return {
-    repository:
-      source === undefined
-        ? landing.repository
-        : executionCheckout(source).path,
+    repository: executionCheckout(source).path,
     ...file,
   };
 }

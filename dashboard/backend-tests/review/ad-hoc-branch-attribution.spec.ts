@@ -1,6 +1,5 @@
 // Capture separates isolated branch work from imported trunk, and Done
 // keeps the branch result alongside independently verified delivery.
-import path from "node:path";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -11,7 +10,6 @@ import {
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
-import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
@@ -72,7 +70,7 @@ test("capture separates an isolated branch's committed and working changes from 
   ).toBe("draft work\nworking change\n");
 });
 
-test("Done saves and pins the branch and manual delivery pairs for offline review", async () => {
+test("Done saves and pins the branch and manual delivery pairs for retirement", async () => {
   const {
     checkout,
     worktrees: { [branch]: workspace },
@@ -137,31 +135,7 @@ test("Done saves and pins the branch and manual delivery pairs for offline revie
   ).toBe("session-only.txt\n");
 
   retireAdHocBranch(integration, workspace, branch);
-  await git(
-    integration,
-    "remote",
-    "set-url",
-    "origin",
-    path.join(path.dirname(integration), "offline"),
-  );
-  expect(
-    await reviewedFileText(
-      {
-        record: saved,
-        read: {
-          reference: landing.reference,
-          baseline: trunkParent,
-          tree: merge,
-          path: "session-only.txt",
-        },
-      },
-      new AbortController().signal,
-    ),
-  ).toEqual({
-    kind: "text",
-    baseline: "Original session notes\n",
-    tree: "session-only work\n",
-  });
+  expect(await heldLandingPins(integration, landing)).toEqual(deliveryPins);
 });
 
 test("new shared first-parent history can leave branch attribution ambiguous", async () => {

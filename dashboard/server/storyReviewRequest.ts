@@ -1,7 +1,6 @@
 // The review read's adapter: the query's exact shape becomes one typed read.
 // Refusals of that shape answer here; the kept records decide the rest in the
 // handler (`storyReview` in `./storyReviewSnapshot.ts`).
-import { sessionComparisonKeySchema } from "../src/sessionReviewComparisons.ts";
 import type {
   PublishedSessionReviewRead,
   SessionReviewRead,
@@ -32,7 +31,7 @@ function sessionReviewRead(url: URL): SessionReviewRead {
     ["source", "host", "session", ...(named === null ? [] : ["run"])],
     "review",
   );
-  if (named !== null && !sessionComparisonKeySchema.safeParse(named).success)
+  if (named !== null && !/^(0|[1-9]\d*)$/.test(named))
     throw new RefusedRequest(400, "The review run is malformed.");
   return {
     subject: queriedSessionSubject(url),

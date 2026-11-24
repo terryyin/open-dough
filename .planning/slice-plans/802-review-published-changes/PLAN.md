@@ -161,7 +161,7 @@ Checkout evidence `slice-5-report.md` records exact landing and stale-ref proof.
 ### 6. Open a Done session's recorded published changes
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: Extend the existing cross-machine Recently done journey with a reader
 that has no local launch history for the session. Open a UUID with two ranges,
 select the second and read its diff. The same UUID opens the same comparison from a local Done
@@ -175,6 +175,7 @@ record. Replace the local execution-checkout and branch-result review routes
 and their user-facing claims with the published outcome or its evidence gap.
 Remove local-only proof and comparison keys. No new session records or recovery
 methods are needed to read existing published evidence.
+Checkout evidence `slice-6-report.md` verifies both readers and native actions.
 
 ### 7. Finish a session without capturing unpublished review data
 
@@ -229,10 +230,9 @@ execution uses `codex/review-published-changes` in the owned
 `review-published-changes` worktree, publisher
 `dashboard-territory.local-open-dough`, with `origin/main` as the
 integration target. Both remote branches contained the accepted Take before
-slice 1. GitHub Actions workflow `ci.yml` observes the remote execution
-branch through coordinator `yui-review-published-427`, stream
-`/tmp/dough-ci-501/watch-ou4lkf` (PID 64952, Codex cell `g20:10`, shell
-session 71952).
+slice 1. GitHub Actions `ci.yml` uses coordinator `yui-review-published-427`
+and stream `/tmp/dough-ci-501/watch-ou4lkf` (PID 64952, Codex cell `g20:10`,
+shell session 71952).
 
 The ordered slices share one model: a configured project supplies attributable
 published endpoints and files for a story or session. Merge attribution and

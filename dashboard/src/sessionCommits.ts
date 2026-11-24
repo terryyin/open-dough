@@ -15,17 +15,6 @@ export const sessionCommitRunSchema = z.object({
 });
 export type SessionCommitRun = z.infer<typeof sessionCommitRunSchema>;
 
-// A kept run as a review offers it: how many commits it holds, and its last
-// commit's subject and time.
-export const sessionRunChoiceSchema = z.object({
-  commits: z.number().int().positive(),
-  subject: z.string(),
-  committedAt: z.iso.datetime(),
-  baseline: commitIdSchema,
-  tree: commitIdSchema,
-});
-export type SessionRunChoice = z.infer<typeof sessionRunChoiceSchema>;
-
 export const sessionCommitsSchema = z.object({
   // The checkout's common Git repository, which holds the kept pairs.
   repository: z.string().min(1),

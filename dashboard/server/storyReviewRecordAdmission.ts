@@ -1,14 +1,9 @@
-// Admit a named or retained landing, published completion, or kept session.
+// Admit a story’s named or retained landing, or its published completion.
 import {
   preferredReviewRun,
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
 import { namedReviewRun } from "./storyReviewRunAdmission.ts";
-import {
-  admittedSessionReview,
-  type AdmittedSessionReview,
-} from "./storyReviewSessionAdmission.ts";
-import type { KeptStoryReviewInput } from "./storyReviewInput.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import type { StoryReviewRead } from "../src/storyReviewRead.ts";
@@ -30,10 +25,9 @@ export type KeptStoryReview =
       readonly run: ReviewLandedRun;
       readonly source: PublishedSource;
       readonly runs: readonly ReviewLandedRun[];
-    }
-  | AdmittedSessionReview;
+    };
 
-async function admittedIdentityReview(
+export async function keptStoryReview(
   read: StoryReviewRead & { readonly subject: ReviewedStorySubject },
 ): Promise<KeptStoryReview> {
   const found = await namedReviewRun(
@@ -64,13 +58,4 @@ async function admittedIdentityReview(
         runs,
       }
     : { kind: "story-review", run: fallback, source, runs };
-}
-
-// Admit a story read or select a comparison from the admitted session record.
-export async function keptStoryReview(
-  input: KeptStoryReviewInput,
-): Promise<KeptStoryReview> {
-  if ("record" in input)
-    return admittedSessionReview(input.record, input.read.run);
-  return admittedIdentityReview(input.read);
 }

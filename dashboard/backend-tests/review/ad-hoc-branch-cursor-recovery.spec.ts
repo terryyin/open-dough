@@ -1,7 +1,6 @@
 // When Cursor replaces a chat that cannot load, the branch evidence its Done
 // pinned stays owned by the original chat, and only the replacement's removal
 // releases it.
-import { retainedBranchPairFiles } from "../../server/retainedReviewPair.ts";
 import { branchResultAtDone } from "../../src/sessionBranchResult.ts";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -137,9 +136,6 @@ for (const [reason, remove] of Object.entries(removals)) {
       throw new Error("Missing the kept branch result.");
     expect(branch).toMatchObject({ base: checkout.base, revision: latest });
     expect(
-      await retainedBranchPairFiles(branch, new AbortController().signal),
-    ).toMatchObject({ files: [{ path: "latest.txt" }, { path: "prior.txt" }] });
-    expect(
       await sessionBranchPins(checkout.integration, original.session),
     ).toContainEqual(expect.objectContaining({ objectId: latest }));
     expect(
@@ -208,7 +204,4 @@ test("a stale native replacement retains a branch identified while it was pendin
   if (branchResult === undefined)
     throw new Error("Missing the kept branch result.");
   expect(branchResult.revision).toBe(entered);
-  expect(
-    await retainedBranchPairFiles(branchResult, new AbortController().signal),
-  ).toMatchObject({ files: [{ path: "entered.txt" }] });
 });

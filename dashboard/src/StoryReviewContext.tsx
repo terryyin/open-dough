@@ -4,16 +4,11 @@ import {
   reviewTargetName,
   reviewsLanding,
   reviewsPublishedSession,
-  reviewsSessionCommits,
   type StoryReview,
 } from "./storyReviewContract.ts";
 import { shortRevision } from "./publishedWork.ts";
 import { LandedContext } from "./StoryReviewLandedContext.tsx";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
-import {
-  SessionCommitsContext,
-  sessionCommitsDescription,
-} from "./StoryReviewSessionCommitsContext.tsx";
 import {
   PublishedSessionContext,
   publishedSessionDescription,
@@ -25,11 +20,6 @@ export function reviewDescription(review: StoryReview | undefined) {
   if (review?.kind === "published-taken")
     return `Read-only: changes attributed to this story on ${publishedTakenScope(review)}.`;
   if (reviewsPublishedSession(review)) return publishedSessionDescription;
-  if (review?.kind === "session-commits") return sessionCommitsDescription;
-  if (review?.kind === "branch-result")
-    return "Read-only: the branch and working files at Done, compared with the launch's starting revision.";
-  if (reviewsSessionCommits(review))
-    return "Read-only: this session's kept commits.";
   return reviewsLanding(review)
     ? "Read-only: this landed run's fixed delivered change from its captured base to its accepted revision."
     : "Read-only review of recorded changes.";
@@ -52,17 +42,6 @@ export function ReviewContext({
     return <LandedContext landing={review.landing} />;
   if (review?.kind === "published-session")
     return <PublishedSessionContext review={review} />;
-  if (review?.kind === "session-commits")
-    return <SessionCommitsContext review={review} />;
-  if (review?.kind === "branch-result")
-    return (
-      <p>
-        Done{" "}
-        <time dateTime={review.doneAt}>
-          {new Date(review.doneAt).toLocaleString()}
-        </time>
-      </p>
-    );
   if (review?.kind === "published-taken")
     return (
       <div>

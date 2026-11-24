@@ -9,8 +9,7 @@ import {
   reviewSourceAnswering,
 } from "./story-review-panel-page.ts";
 
-const keptStatus =
-  "Review refreshed: 1 changed file in the kept session commits.";
+const keptStatus = "Review refreshed: 1 changed file in the published changes.";
 const file = "Added story.txt";
 
 test("revealed details and status share one height budget above a usable code pane", async () => {
@@ -21,7 +20,7 @@ test("revealed details and status share one height budget above a usable code pa
     reviewSourceAnswering({
       review: () =>
         Promise.resolve(
-          makeMe.aStoryReview.sessionCommits().adding("story.txt").please(),
+          makeMe.aStoryReview.publishedSession().adding("story.txt").please(),
         ),
       fileDiff: () =>
         Promise.resolve(

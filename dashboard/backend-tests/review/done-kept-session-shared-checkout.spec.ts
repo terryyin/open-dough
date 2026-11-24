@@ -1,6 +1,4 @@
-// Done identifies other kept sessions that overlapped in the same checkout,
-// and the review says so.
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+// Done records when other kept sessions overlapped in its checkout.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -12,7 +10,6 @@ import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { source } from "../support/doneCaptureCase.ts";
 import type { Checkout } from "../support/doneCaptureCaseMaterialization.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
-import { aDoneSession } from "../support/doneCaptureReview.ts";
 
 // Whether Done of `record`, at its stated Done time, finds its checkout shared
 // among `kept`.
@@ -91,45 +88,4 @@ test("a session done in the execution checkout before this one launched does not
     .please();
 
   expect(sharedAtDone(checkout, session, [earlier])).toBe(false);
-});
-
-test("Review says the checkout was shared when its kept run has the flag", async () => {
-  const { checkout, performWork, at } = await aDoneCaptureCase().please();
-  const { committed } = await performWork(
-    makeMe.aCheckoutWork.committing("committed", { at: at(30) }),
-  );
-  const record = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .launchedAt(at(60))
-    .keptSessionCommits({
-      repository: checkout.integration,
-      runs: [{ base: checkout.base, revision: committed }],
-      shared: true,
-    })
-    .markedDone()
-    .please();
-
-  expect(
-    await storyReview({ record, read: {} }, new AbortController().signal),
-  ).toMatchObject({
-    kind: "session-commits",
-    session: { shared: true },
-  });
-});
-
-test("a session whose checkout was not shared reviews its commits without saying it was shared", async () => {
-  const { checkout, performWork, at } = await aDoneCaptureCase().please();
-  const { committed } = await performWork(
-    makeMe.aCheckoutWork.committing("committed", { at: at(30) }),
-  );
-  const record = aDoneSession(checkout, [
-    { base: checkout.base, revision: committed },
-  ]);
-
-  const answer = await storyReview(
-    { record, read: {} },
-    new AbortController().signal,
-  );
-  expect(answer).toMatchObject({ kind: "session-commits", tree: committed });
-  expect(answer).not.toHaveProperty("session.shared");
 });

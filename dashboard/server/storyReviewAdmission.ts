@@ -32,7 +32,13 @@ export async function admitReviewedFile(
   }
   if ("record" in input) {
     const { reference, ...file } = input.read;
-    return admitSessionReviewedFile(input.record, reference, file, signal);
+    return admitSessionReviewedFile(
+      input.source,
+      input.record,
+      reference,
+      file,
+      signal,
+    );
   }
   const { subject, reference, completion, publishedHead, ...file } = input.read;
   const { identity } = subject;

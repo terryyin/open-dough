@@ -1,11 +1,5 @@
-// Done saves an isolated ad hoc branch's result with Git references, so its
-// review outlives the worktree and branch, and only that launch's removal
-// releases them.
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
-import {
-  reviewedFileDiff,
-  reviewedFileText,
-} from "../../server/storyReviewFileResponse.ts";
+// Done pins an isolated ad hoc branch's result. Deletion and expiry release
+// only that launch's pins.
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
@@ -15,67 +9,15 @@ import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import {
   changeSessionRecord,
   deleteRecord,
-  keptSession,
 } from "../../server/launchRecordStore.ts";
 import { retireExpiredRecords } from "../../server/launchRecordRemoval.ts";
-import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
   launchRetentionDays,
   type LaunchRecord,
 } from "../../src/launchRecord.ts";
-import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
-import { markDone, minutesAgo, source } from "../support/doneCaptureCase.ts";
+import { markDone, source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
-import { aDoneBranch } from "../support/doneCaptureReview.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
-
-test("the branch comparison at Done and its files survive worktree and branch removal and pruning", async () => {
-  const {
-    checkout,
-    worktrees: { draft: workspace },
-    records: { draft: record },
-    work: { draft: tree },
-  } = await aDoneCaptureCase()
-    .withOrigin()
-    .withWorkspace("draft")
-    .withIsolatedLaunch("draft", { launched: 60 }, "draft")
-    .withWork(
-      (at) => makeMe.aCheckoutWork.committing("draft", { at: at(30) }),
-      {
-        in: "draft",
-      },
-    )
-    .kept()
-    .please();
-
-  await markDone(record);
-  retireAdHocBranch(checkout.integration, workspace, "draft");
-
-  const baseline = checkout.base;
-  const saved = await keptSession(source, record.session);
-  if (saved === undefined) throw new Error("Missing the kept launch.");
-  const signal = new AbortController().signal;
-  expect(await storyReview({ record: saved, read: {} }, signal)).toMatchObject({
-    kind: "branch-result",
-    baseline,
-    tree,
-    files: [expect.objectContaining({ path: "draft.txt", kind: "added" })],
-  });
-  const file = { record: saved, read: { baseline, tree, path: "draft.txt" } };
-  expect(await reviewedFileDiff(file, signal)).toMatchObject({
-    kind: "diff",
-    printed: expect.stringContaining("+draft work") as string,
-  });
-  expect(await reviewedFileText(file, signal)).toEqual({
-    kind: "text",
-    baseline: null,
-    tree: "draft work\n",
-  });
-  const wrongPair = { ...file.read, baseline: tree };
-  const refused = reviewedFileText({ record: saved, read: wrongPair }, signal);
-  await expect(refused).rejects.toBeInstanceOf(RefusedRequest);
-  await expect(refused).rejects.toMatchObject({ status: 409 });
-});
 
 test("Done's capture reads an empty branch and refuses a missing checkout", async () => {
   const {
@@ -99,49 +41,6 @@ test("Done's capture reads an empty branch and refuses a missing checkout", asyn
     committedTip: checkout.base,
   });
   await expect(captureBranchResult(missing, doneAt)).rejects.toThrow();
-});
-
-test("Done reviews an empty branch result apart from a missing checkout", async () => {
-  const doneAt = minutesAgo(10);
-  const {
-    checkout,
-    worktrees,
-    records: { missing: missingDone },
-    at,
-  } = await aDoneCaptureCase()
-    .withOrigin()
-    .withWorkspace("empty")
-    .withWorkspace("missing")
-    .withIsolatedLaunch(
-      "missing",
-      { launched: 60, done: 10 },
-      "missing",
-      (launch) => launch.branchResultFailedAt(doneAt),
-    )
-    .please();
-  const emptyDone = await aDoneBranch(
-    makeMe.aLaunchRecord
-      .isolatedIn(checkout, { workspace: worktrees.empty, branch: "empty" })
-      .inClaudeSession({ sessionId: "empty" })
-      .launchedAt(at(60)),
-    { doneAt },
-  );
-
-  const signal = new AbortController().signal;
-  expect(
-    await storyReview({ record: emptyDone, read: {} }, signal),
-  ).toMatchObject({
-    kind: "branch-result",
-    baseline: checkout.base,
-    tree: checkout.base,
-    files: [],
-  });
-  expect(
-    await storyReview({ record: missingDone, read: {} }, signal),
-  ).toMatchObject({
-    kind: "unavailable",
-    explanation: "This session's branch changes at Done were not captured.",
-  });
 });
 
 const retentionAgo = new Date(

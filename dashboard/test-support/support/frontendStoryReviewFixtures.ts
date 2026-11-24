@@ -1,6 +1,5 @@
 // Shared snapshot and file-diff shapes for frontend story-review substitutes.
 
-import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
   reviewedFileDiffSchema,
   type ReviewedFileDiff,
@@ -61,48 +60,6 @@ export function frontendPublishedReview(
     target: "main",
     baseline: frontendReviewIds.baseline,
     tree: frontendReviewIds.tree,
-    files,
-  };
-}
-
-// What a kept run's switch label names: its commit count and last commit.
-export type FrontendSessionRunFacts = {
-  readonly commits: number;
-  readonly subject: string;
-  readonly committedAt: string;
-};
-
-// The answer for a Done session's kept commits: the run at `position`'s
-// comparison of `files`, each kept run offered with its `facts` (one commit
-// at Done unless given), and the capture's shared mark.
-export function frontendSessionCommitsReview(
-  { launchedAt, doneAt, sessionCommits }: LaunchRecord,
-  files: ReviewedFile[],
-  position = 0,
-  facts: readonly FrontendSessionRunFacts[] = [],
-): StoryReview {
-  const runs = sessionCommits?.runs ?? [];
-  const answered = runs[position];
-  if (doneAt === undefined || answered === undefined)
-    throw new Error("The record keeps no such run of a Done session.");
-  return {
-    kind: "session-commits",
-    session: {
-      launchedAt,
-      doneAt,
-      ...(sessionCommits?.shared === true && { shared: true as const }),
-    },
-    commitRuns: runs.map(({ base, revision }, at) => ({
-      commits: 1,
-      subject: "session work",
-      committedAt: doneAt,
-      ...facts[at],
-      baseline: base,
-      tree: revision,
-    })),
-    commitRun: position,
-    baseline: answered.base,
-    tree: answered.revision,
     files,
   };
 }

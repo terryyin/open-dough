@@ -10,7 +10,6 @@ import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/localFolder.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
 import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
@@ -121,15 +120,7 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
 
   const kept = await keptSession(source, record.session);
   if (kept === undefined) throw new Error("Missing the kept launch.");
-  const reviewed = await storyReview(
-    makeMe.aSessionReviewRead.ofRecord(kept).please(),
-    new AbortController().signal,
-  );
-  expect(reviewed).toMatchObject({
-    kind: "branch-result",
-    baseline,
-    tree: later,
-  });
+  expect(kept.branchResult).toMatchObject({ base: baseline, revision: later });
   const pinned = await sessionBranchPins(checkout.integration, record.session);
   expect(pinned).toMatchObject([{ objectId: baseline }, { objectId: later }]);
   expect(pinned).not.toContainEqual(

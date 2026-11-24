@@ -42,9 +42,7 @@ export function storyComparisonShown({
     review?.kind === "published" ||
     review?.kind === "published-taken" ||
     review?.kind === "landed" ||
-    review?.kind === "session-commits" ||
-    review?.kind === "published-session" ||
-    review?.kind === "branch-result"
+    review?.kind === "published-session"
   )
     return show(
       { subject, ...fixedComparisonName(review) },
@@ -58,19 +56,13 @@ export function storyComparisonShown({
 }
 
 // What names a fixed comparison beside its subject: a published completion,
-// or a landed run's reference. A session's kept run is named by its pair
+// or a landed run's reference. A session's published range is named by its pair
 // alone.
 function fixedComparisonName(
   review: Extract<
     StoryReview,
     {
-      kind:
-        | "published"
-        | "published-taken"
-        | "landed"
-        | "session-commits"
-        | "published-session"
-        | "branch-result";
+      kind: "published" | "published-taken" | "landed" | "published-session";
     }
   >,
 ) {

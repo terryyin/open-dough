@@ -1,106 +1,104 @@
-// The typed review handler in-process answers a kept ad hoc landing as
-// landed from its captured comparison, given the session's typed kept state:
-// no server, no machine stores.
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "vitest";
+import { expect, test, onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeLocalCheckout } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
+import {
+  reviewedFileDiff,
+  reviewedFileText,
+} from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import {
+  appendConfiguredProject,
+  mountProjectConfiguration,
+} from "../../server/projectConfiguration.ts";
+import { reviewInput } from "../../server/storyReviewInput.ts";
+import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 
-const head = (repository: string) =>
-  execFileSync("git", ["rev-parse", "HEAD"], {
-    cwd: repository,
-    encoding: "utf8",
-  }).trim();
-const review = (input: Parameters<typeof storyReview>[0]) =>
-  storyReview(input, new AbortController().signal);
+const reference = "60000000-0000-4000-8000-000000000001";
+const file = "delivered[1].txt";
 
-test("Given a kept Done ad hoc landing whose trunk advanced afterwards, when its review is read, then it answers landed and leaves HEAD and the index unchanged", async () => {
-  const repository = await materializeLocalCheckout(
-    undefined,
+test("a Done session reads a legacy accepted pair through origin without its capture repository", async () => {
+  const repository = await materializeRepository(
     makeMe.aRepository
-      .withRevision("base", {
-        backlog: null,
-        files: { "delivered.txt": "before\n" },
-      })
-      .withRevision("result", { files: { "delivered.txt": "after\n" } })
-      .withRevision("later", { files: { "later-trunk.txt": "later\n" } })
+      .withRevision("base")
+      .withRevision("accepted", { files: { [file]: "accepted\n" } })
+      .withRevision("later", { files: { [file]: "advanced\n" } })
       .please(),
   );
-  try {
-    const base = repository.revisions.base;
-    const revision = repository.revisions.result;
-    const launchedAt = "2026-01-02T12:00:00.000Z";
-    const advanced = repository.revisions.later;
-    const indexPath = path.join(repository.integration, ".git", "index");
-    const index = readFileSync(indexPath);
-
-    const answer = await review(
-      makeMe.aSessionReviewRead
-        .ofLandedAdHocSession("ad-hoc-landed-session", {
-          repository: repository.integration,
-          comparing: { base, revision },
-          launchedAt,
-        })
+  vi.stubEnv("HOME", repository.fixture);
+  const unmount = mountProjectConfiguration("development");
+  onTestFinished(async () => {
+    unmount();
+    vi.unstubAllEnvs();
+    await repository.cleanup();
+  });
+  appendConfiguredProject(
+    makeMe.aConfiguredProject
+      .with({
+        id: "open-dough",
+        label: "Open Dough",
+        repository: "terryyin/open-dough",
+        localPath: repository.integration,
+      })
+      .please(),
+  );
+  const { base, accepted } = repository.revisions;
+  const record = makeMe.aLaunchRecord
+    .adHoc({ source: "open-dough", title: "Delivered work" })
+    .inClaudeSession({ sessionId: "retired-delivery" })
+    .reportingThrough({
+      origin: "http://localhost:4173",
+      reference,
+      command: "node report.mjs",
+    })
+    .markedDone()
+    .withLanding(
+      makeMe.aLaunchLanding
+        .capturedFrom({ repository: path.join(repository.fixture, "gone") })
+        .forLaunch(reference)
+        .comparing({ base, revision: accepted })
         .please(),
-    );
-
-    expect(answer).toMatchObject({
-      kind: "landed",
-      baseline: base,
-      tree: revision,
-      landing: {
-        workflow: "ad-hoc",
-        launchedAt,
-        remote: "origin",
-        target: "refs/heads/main",
-        base,
-        revision,
-      },
-      files: [
-        expect.objectContaining({ path: "delivered.txt", kind: "modified" }),
-      ],
-    });
-    expect(answer.runs).toBeUndefined();
-    expect(answer.selectedRun).toBeUndefined();
-    expect(
-      "repository" in (answer.kind === "landed" ? answer.landing : {}),
-    ).toBe(false);
-    expect(head(repository.integration)).toBe(advanced);
-    expect(readFileSync(indexPath)).toEqual(index);
-  } finally {
-    await repository.cleanup();
-  }
-});
-
-test("Given an ad hoc landing whose base and revision hold the same tree, when its review is read, then it is landed empty", async () => {
-  const repository = await materializeLocalCheckout(
-    undefined,
-    makeMe.aRepository
-      .withRevision("same", {
-        backlog: null,
-        files: { "unchanged.txt": "same\n" },
-      })
-      .please(),
-  );
-  try {
-    const tip = repository.revisions.same;
-    const read = makeMe.aSessionReviewRead
-      .ofLandedAdHocSession("empty-landing", {
-        repository: repository.integration,
-        comparing: { base: tip, revision: tip },
-      })
-      .please();
-
-    expect(await review(read)).toMatchObject({
-      kind: "landed",
-      baseline: tip,
-      tree: tip,
-      files: [],
-    });
-  } finally {
-    await repository.cleanup();
-  }
+    )
+    .please();
+  keepLaunchRecords(repository.fixture, [record]);
+  const signal = new AbortController().signal;
+  const subject = {
+    source: record.request.source,
+    host: record.session.host,
+    session: record.session.sessionId,
+  };
+  const snapshot = async () =>
+    storyReview(await reviewInput({ subject }, signal), signal);
+  await expect(snapshot()).resolves.toMatchObject({
+    kind: "landed",
+    baseline: base,
+    tree: accepted,
+  });
+  const read = {
+    subject,
+    reference,
+    baseline: base,
+    tree: accepted,
+    path: file,
+  };
+  const diff = await reviewedFileDiff(await reviewInput(read, signal), signal);
+  if (diff.kind !== "diff") throw new Error("Missing delivered diff.");
+  expect(diff.printed).toContain("+accepted");
+  const text = async () =>
+    reviewedFileText(await reviewInput(read, signal), signal);
+  await expect(text()).resolves.toEqual({
+    kind: "text",
+    baseline: null,
+    tree: "accepted\n",
+  });
+  const glob = await reviewInput({ ...read, path: "*.txt" }, signal);
+  await expect(reviewedFileDiff(glob, signal)).rejects.toMatchObject({
+    status: 409,
+  });
+  await git(repository.origin, "update-ref", "refs/heads/main", base);
+  await expect(snapshot()).resolves.toMatchObject({
+    kind: "landing-unavailable",
+  });
+  await expect(text()).rejects.toMatchObject({ status: 409 });
 });

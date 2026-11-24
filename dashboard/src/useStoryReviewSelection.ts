@@ -4,11 +4,7 @@ import type { ComparisonChoice } from "./StoryReviewComparison.tsx";
 import { useReviewRead } from "./useReviewRead.ts";
 import { useStateKeyedBy } from "./stateKeyedBy.ts";
 import { preferredReviewRun } from "./storyReviewLandedRun.ts";
-import {
-  answeredRunKey,
-  sessionRunKeys,
-  sessionRunsOf,
-} from "./StoryReviewSessionRuns.tsx";
+import { publishedRangeKeys } from "./StoryReviewSessionRuns.tsx";
 import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
 import { storyReviewQuery } from "./storyReviewRead.ts";
 import { unreadReview } from "./StoryReviewFeedback.tsx";
@@ -58,9 +54,11 @@ export function useStoryReviewSelection({
   }>({ of: undefined }, keyedBy);
   const answer = defaultRead.answer;
   const runs = answer?.runs ?? [];
-  // A session's kept runs are chosen by position; landed runs by their key.
-  const keys = [...runs.map((run) => run.key), ...sessionRunKeys(answer)];
-  const answered = answeredRunKey(answer);
+  // A published session’s ranges are chosen by position, landed runs by key.
+  const ranges =
+    answer?.kind === "published-session" ? (answer.ranges ?? 1) : 0;
+  const keys = [...runs.map((run) => run.key), ...publishedRangeKeys(ranges)];
+  const answered = answer?.selectedRun;
   if (
     keyed &&
     !defaultRead.reading &&
@@ -101,7 +99,7 @@ export function useStoryReviewSelection({
   );
   const review = !readsSelectedRun
     ? answer
-    : answeredRunKey(runRead.answer) === selection.run
+    : runRead.answer?.selectedRun === selection.run
       ? runRead.answer
       : undefined;
   const onRun = (run: string) => {
@@ -117,8 +115,6 @@ export function useStoryReviewSelection({
     review,
     runs,
     selectedRun,
-    sessionRuns: sessionRunsOf(review ?? answer),
-    sessionComparisonKeys: answer?.sessionComparisonKeys,
     runKey: selection.run,
     published: answer?.kind === "published" ? answer : undefined,
     reading: defaultRead.reading || runRead.reading,

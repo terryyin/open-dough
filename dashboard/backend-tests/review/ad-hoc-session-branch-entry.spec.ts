@@ -1,7 +1,5 @@
 // An execution checkout launch identifies its own branch: the entry keeps the state
 // and Execution checkout tip it found, and Done keeps separate captured pairs.
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
-import { retainedBranchPairFiles } from "../../server/retainedReviewPair.ts";
 import { expect, test } from "vitest";
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -131,18 +129,10 @@ test("two declared sessions each capture their own branch", async () => {
     captureBranchResult(first, at(10)),
     captureBranchResult(second, at(10)),
   ]);
-  const signal = new AbortController().signal;
-
   expect([ownBranch.revision, otherBranch.revision]).toEqual([ours, theirs]);
-  expect(await retainedBranchPairFiles(ownBranch, signal)).toMatchObject({
-    files: [{ path: "ours.txt" }],
-  });
-  expect(await retainedBranchPairFiles(otherBranch, signal)).toMatchObject({
-    files: [{ path: "theirs.txt" }],
-  });
 });
 
-test("an undeclared checkout move explains the missing branch association", async () => {
+test("an undeclared checkout move records Done without attributing the new branch", async () => {
   const {
     published,
     at,
@@ -160,15 +150,8 @@ test("an undeclared checkout move explains the missing branch association", asyn
   await setRecordDoneAt(published.id, record.session, at(10));
 
   const saved = await keptSession(published.id, record.session);
-  if (saved === undefined) throw new Error("Missing the kept launch.");
-  expect(
-    await storyReview(
-      { record: saved, read: {} },
-      new AbortController().signal,
-    ),
-  ).toMatchObject({
-    kind: "landing-unavailable",
-    explanation:
-      "No branch was identified for this session, and no execution checkout commits were captured.",
-  });
+  expect(saved?.doneAt).toBe(at(10));
+  expect(saved?.branchEntry).toBeUndefined();
+  expect(saved?.branchResult).toBeUndefined();
+  expect(saved?.landing).toBeUndefined();
 });

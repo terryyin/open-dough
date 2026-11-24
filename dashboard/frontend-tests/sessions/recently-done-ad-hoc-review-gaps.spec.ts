@@ -1,7 +1,6 @@
 // Each unavailable or empty comparison explains the gap independently.
 import { test } from "../../test-support/support/frontendApp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { StoryReview } from "../../src/storyReviewContract.ts";
 import { sessionReviewChanges } from "../../test-support/recentlyDoneColumn.ts";
 import { sidePanelPages } from "../../test-support/sidePanelPages.ts";
 import {
@@ -11,48 +10,29 @@ import {
 import { openFrontendBoardReview } from "../../test-support/support/frontendRecentlyDoneBoardReview.ts";
 import { landedReviewContextSchema } from "../../src/storyReviewLandedRun.ts";
 
-for (const { title, answer, explanation } of [
-  {
-    title: "Not captured",
-    answer: {
-      kind: "landing-unavailable",
-      comparison: "session-commits",
-      explanation: "This session's changes were not captured.",
-    },
-    explanation: "This session's changes were not captured.",
-  },
-  {
-    title: "No commits",
-    answer: {
-      kind: "landing-unavailable",
-      comparison: "session-commits",
-      explanation: "This session made no commits in the execution checkout.",
-    },
-    explanation: "This session made no commits in the execution checkout.",
-  },
-] satisfies { title: string; answer: StoryReview; explanation: string }[]) {
-  test(`an ad hoc review explains ${title.toLowerCase()}`, async ({
-    page,
-    frontendServices,
-  }) => {
-    const session = makeMe.aLaunchRecord.adHoc({ title }).markedDone().please();
-    await installFrontendStoryReview(page, answer);
-    const { recent } = await openFrontendBoardReview(page, frontendServices, {
-      doneSessions: [session],
-    });
-
-    await sessionReviewChanges(recent, title).click();
-
-    await sidePanelPages(page).phase(
-      "the panel explains the missing comparison",
-      (pages) => {
-        pages.storyReview.expectStory(title);
-        pages.storyReview.expectFeedback(explanation);
-        pages.storyReview.expectNoChangedFiles(/changed file/);
-      },
-    );
+test("an ad hoc review explains missing published provenance", async ({
+  page,
+  frontendServices,
+}) => {
+  const title = "Missing published provenance";
+  const explanation = "No published comparison is available for this session.";
+  const session = makeMe.aLaunchRecord.adHoc({ title }).markedDone().please();
+  await installFrontendStoryReview(page, { kind: "unavailable", explanation });
+  const { recent } = await openFrontendBoardReview(page, frontendServices, {
+    doneSessions: [session],
   });
-}
+
+  await sessionReviewChanges(recent, title).click();
+
+  await sidePanelPages(page).phase(
+    "the panel explains the missing comparison",
+    (pages) => {
+      pages.storyReview.expectStory(title);
+      pages.storyReview.expectFeedback(explanation);
+      pages.storyReview.expectNoChangedFiles(/changed file/);
+    },
+  );
+});
 
 test("an unavailable saved session landing keeps its landed description", async ({
   page,
@@ -60,7 +40,7 @@ test("an unavailable saved session landing keeps its landed description", async 
 }) => {
   const title = "Unreadable repository";
   const explanation =
-    "The captured landing repository is missing or unreadable.";
+    "The accepted comparison could not be confirmed on the configured origin.";
   const { baseline: base, tree: revision } = frontendReviewIds;
   const session = makeMe.aLaunchRecord
     .adHoc({ title })
@@ -125,35 +105,9 @@ test("an ad hoc review explains an empty comparison", async ({
     (pages) => {
       pages.storyReview.expectStory(title);
       pages.storyReview.expectBodyText(
-        "No changes: this session's delivered comparison is empty.",
+        "No changes: this published comparison is empty.",
       );
       pages.storyReview.expectNoChangedFiles(/changed file/);
     },
   );
-});
-
-test("an unverified delivery explains the gap alongside the saved branch files", async ({
-  page,
-  frontendServices,
-}) => {
-  const title = "Kept branch with no verified delivery";
-  const session = makeMe.aLaunchRecord.adHoc({ title }).markedDone().please();
-  const explanation =
-    "Delivery to trunk is unverified. The recorded history does not establish a merge or exact fast-forward of this session's committed tip.";
-  await installFrontendStoryReview(page, {
-    kind: "branch-result",
-    ...frontendReviewIds,
-    doneAt: session.doneAt ?? "",
-    files: [{ kind: "added", path: "draft.txt" }],
-    deliveryGap: explanation,
-  });
-  await openFrontendBoardReview(page, frontendServices, {
-    doneSessions: [session],
-  });
-
-  await sidePanelPages(page).phase("review the saved branch", (pages) => {
-    pages.board.reviewDoneSession(title);
-    pages.storyReview.expectFeedback(explanation);
-    pages.storyReview.expectChangedFiles("1 changed file");
-  });
 });

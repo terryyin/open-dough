@@ -13,7 +13,6 @@ import {
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
 import { writeLandingContext } from "../../server/launchReportingFiles.ts";
-import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { retireAdHocBranch } from "../../test-support/support/adHocBranchRefs.ts";
 import { keep, source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
@@ -28,7 +27,7 @@ const renamed = { path: "review.txt", oldPath: "draft.txt" };
 const committed = `${baseline}Delivered draft\n`;
 const working = `${baseline}Left for review\n`;
 
-test("the same Done session opens its delivery and keeps its different branch result after retirement", async () => {
+test("the same Done session keeps its delivery and its different branch result after retirement", async () => {
   const branch = "rename-the-draft";
   const sessionId = "isolated-rename-the-draft";
   const directory = mkdtempSync(path.join(tmpdir(), "dough-reporting-"));
@@ -105,33 +104,18 @@ test("the same Done session opens its delivery and keeps its different branch re
   });
   if (saved?.branchResult === undefined)
     throw new Error("Missing the retained comparisons.");
-  const deliveryPair = {
-    baseline: landing.receipt.base,
-    tree: landing.receipt.revision,
-    reference,
-  };
-  const branchPair = {
-    baseline: saved.branchResult.base,
-    tree: saved.branchResult.revision,
-  };
-  expect(
-    await reviewedFileText(
-      { record: saved, read: { ...renamed, ...deliveryPair } },
-      new AbortController().signal,
-    ),
-  ).toEqual({
-    kind: "text",
-    baseline,
-    tree: committed,
-  });
-  expect(
-    await reviewedFileText(
-      { record: saved, read: { ...renamed, ...branchPair } },
-      new AbortController().signal,
-    ),
-  ).toEqual({
-    kind: "text",
-    baseline,
-    tree: working,
-  });
+  expect(saved.branchResult.revision).not.toBe(landing.receipt.revision);
+  if (!("origin" in checkout)) throw new Error("Missing the fixture origin.");
+  const delivered = await git(
+    checkout.origin,
+    "show",
+    `${landing.receipt.revision}:${renamed.path}`,
+  );
+  const snapshot = await git(
+    checkout.integration,
+    "show",
+    `${saved.branchResult.revision}:${renamed.path}`,
+  );
+  expect(delivered.stdout).toBe(committed);
+  expect(snapshot.stdout).toBe(working);
 });

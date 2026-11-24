@@ -65,6 +65,7 @@ export async function publishedSessionRecord(
   try {
     record = await publishedRecordAt(source, file, signal);
   } catch {
+    signal.throwIfAborted();
     throw unknownSession();
   }
   if (record === undefined || !isCurrentSessionRecord(record, now))

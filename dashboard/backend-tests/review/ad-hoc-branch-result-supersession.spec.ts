@@ -1,12 +1,10 @@
 // A Done held after capture cannot outlast changes to the launch: reopening
 // keeps the saved evidence, a newer Done wins with only its pins, and
 // deletion leaves none.
-import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { deleteRecord, keptSession } from "../../server/launchRecordStore.ts";
-import { RefusedRequest } from "../../server/localOrigin.ts";
 import {
   aHeldDone,
   markDone,
@@ -40,7 +38,7 @@ async function anIsolatedDraft() {
   return { baseline: checkout.base, record, commit, pins };
 }
 
-test("reopening keeps the branch evidence and refuses the old file pair", async () => {
+test("reopening keeps the branch evidence and its pins", async () => {
   const { baseline, record, commit, pins } = await anIsolatedDraft();
   const first = await commit("first", 30);
   await markDone(record);
@@ -61,19 +59,6 @@ test("reopening keeps the branch evidence and refuses the old file pair", async 
     revision: first,
   });
   expect(await pins()).toEqual(originalPins);
-  const oldFile = reviewedFileText(
-    {
-      record: reopened,
-      read: {
-        baseline,
-        tree: first,
-        path: "first.txt",
-      },
-    },
-    new AbortController().signal,
-  );
-  await expect(oldFile).rejects.toBeInstanceOf(RefusedRequest);
-  await expect(oldFile).rejects.toMatchObject({ status: 409 });
 });
 
 test("a newer Done wins when an earlier Done waits after capture", async () => {

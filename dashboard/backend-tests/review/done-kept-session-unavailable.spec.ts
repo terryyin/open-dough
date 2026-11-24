@@ -1,6 +1,4 @@
-// Why an execution checkout session's capture finds no readable run, how its review
-// says so, and that Done keeps its timestamp when the capture fails.
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+// Done keeps its timestamp when the checkout provides no capturable run.
 import { renameSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "vitest";
@@ -16,7 +14,6 @@ import {
   source,
 } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
-import { noCommits, notCaptured } from "../support/doneCaptureReview.ts";
 
 const doneAt = minutesAgo(10);
 
@@ -30,24 +27,6 @@ const anEstablishedCase = () =>
   aDoneCaptureCase()
     .withEstablishedSession("session", { launched: 60 })
     .please();
-
-test("a blank default launch that edited files and committed nothing says it made no commits in the execution checkout", async () => {
-  const { checkout, performWork, at } = await aDoneCaptureCase().please();
-  const launch = makeMe.aLaunchRecord
-    .startedOnMainOf(checkout)
-    .launchedAt(at(60));
-  await performWork(makeMe.aCheckoutWork.editing("edit", { at: at(30) }));
-
-  const { repository, runs } = await captured(checkout, launch.please());
-  const record = launch
-    .keptSessionCommits({ repository, runs })
-    .markedDoneAt(doneAt)
-    .please();
-
-  expect(
-    await storyReview({ record, read: {} }, new AbortController().signal),
-  ).toEqual(noCommits);
-});
 
 test("a session whose only commit stays on another branch fails its capture", async () => {
   const {
@@ -96,7 +75,7 @@ for (const { when, earlier } of [
 }
 
 // The adapter keeps the Done when its capture fails.
-test("a session whose checkout log cannot be read at Done is done and says its changes were not captured", async () => {
+test("a session whose checkout log cannot be read at Done is done without retaining a capture", async () => {
   const {
     checkout,
     records: { session: record },
@@ -114,12 +93,6 @@ test("a session whose checkout log cannot be read at Done is done and says its c
   if (saved === undefined) throw new Error("Missing the kept launch.");
   expect(saved).toMatchObject({ doneAt });
   expect(saved.sessionCommits).toBeUndefined();
-  expect(
-    await storyReview(
-      { record: saved, read: {} },
-      new AbortController().signal,
-    ),
-  ).toEqual(notCaptured);
 });
 
 test("a session whose checkout log holds no entry at Done fails its capture", async () => {

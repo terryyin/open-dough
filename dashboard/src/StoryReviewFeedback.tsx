@@ -39,10 +39,7 @@ export function ReviewFeedback({
 }) {
   // A review already showing changes stays shown while it is read again.
   const showsChanges =
-    review?.kind === "landed" ||
-    review?.kind === "session-commits" ||
-    review?.kind === "published-session" ||
-    review?.kind === "branch-result";
+    review?.kind === "landed" || review?.kind === "published-session";
   return (
     <div role="status">
       {reading && !showsChanges && <p>Reading the story&apos;s changes…</p>}
@@ -58,26 +55,13 @@ export function ReviewFeedback({
           count={review.files.length}
         />
       )}
-      {!reading && round > 0 && review?.kind === "session-commits" && (
-        <p>
-          Review refreshed: {changedFiles(review.files.length)} in the kept
-          session commits.
-        </p>
-      )}
       {!reading && round > 0 && review?.kind === "published-session" && (
         <p>
           Review refreshed: {changedFiles(review.files.length)} in the published
           changes.
         </p>
       )}
-      {!reading && round > 0 && review?.kind === "branch-result" && (
-        <p>
-          Review refreshed: {changedFiles(review.files.length)} in the branch
-          result at Done.
-        </p>
-      )}
       {review?.kind === "landing-unavailable" && <p>{review.explanation}</p>}
-      {review?.deliveryGap !== undefined && <p>{review.deliveryGap}</p>}
       {problem !== undefined && <p>{reviewReadFailure(problem)}</p>}
       {review?.kind === "unavailable" && <p>{review.explanation}</p>}
     </div>

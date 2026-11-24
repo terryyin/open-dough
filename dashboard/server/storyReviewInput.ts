@@ -1,5 +1,7 @@
 // Shared review-read adapter: turns a typed wire or page read into the
 // handler's ReviewInput, admitting the named kept launch for a session read.
+import { isSessionId } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
+import type { PublishedSource } from "../src/publishedSource.ts";
 import type { LaunchRecord } from "../src/agentLaunch.ts";
 import type {
   PublishedSessionFileRead,
@@ -22,7 +24,10 @@ import type {
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { executionCheckout } from "./executionCheckout.ts";
-import type { PublishedSessionSource } from "./publishedSessionReview.ts";
+import {
+  publishedSessionRecord,
+  type PublishedSessionSource,
+} from "./publishedSessionReview.ts";
 import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
 import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
 import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
@@ -37,6 +42,7 @@ export type ReviewInput<
   | {
       readonly read: Omit<SessionR, "subject">;
       readonly record: LaunchRecord;
+      readonly source: PublishedSource;
     };
 
 // A published session read with the configured project source it reads from
@@ -65,9 +71,10 @@ export type ReviewedFileInput =
 
 // Resolve the session once at the shared comparison and file boundary.
 async function admitReviewSession(
+  source: PublishedSource,
   subject: ReviewedSessionSubject,
 ): Promise<LaunchRecord> {
-  const record = await namedKeptSession(knownSource(subject.source), {
+  const record = await namedKeptSession(source, {
     host: subject.host,
     sessionId: subject.session,
   });
@@ -86,13 +93,13 @@ async function admitReviewSession(
 // to SessionReviewRead / SessionFileRead so story-only fields cannot reach the
 // session handlers.
 export async function reviewInput(
-  read: StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead,
-  signal: AbortSignal,
-): Promise<StoryReviewInput>;
-export async function reviewInput(
   read: ReviewedFileRead | SessionFileRead | PublishedSessionFileRead,
   signal: AbortSignal,
 ): Promise<ReviewedFileInput>;
+export async function reviewInput(
+  read: StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead,
+  signal: AbortSignal,
+): Promise<StoryReviewInput>;
 export async function reviewInput(
   read:
     | StoryReviewRead
@@ -103,25 +110,37 @@ export async function reviewInput(
     | PublishedSessionFileRead,
   signal: AbortSignal,
 ): Promise<StoryReviewInput | ReviewedFileInput> {
+  const now = new Date();
   if (isPublishedRead(read)) {
     const source = knownSource(read.subject.source);
     return {
       read,
-      published: await fetchedPublishedSessionSource(
-        executionCheckout(source).path,
-        source,
-        read.subject.published,
-        {
-          admission: () => admissionBound(signal),
-          fetch: () => admissionBound(signal),
-        },
-      ),
-      now: new Date(),
+      published: await publishedSource(source, read.subject.published, signal),
+      now,
     };
   }
   const { subject } = read;
   if (isReviewedSessionSubject(subject)) {
-    const record = await admitReviewSession(subject);
+    const source = knownSource(subject.source);
+    const record = await admitReviewSession(source, subject);
+    const published = record.request.reporting?.reference;
+    if (published !== undefined && isSessionId(published)) {
+      try {
+        const project = await publishedSource(source, published, signal);
+        await publishedSessionRecord(project, published, now, signal);
+        if ("reference" in read)
+          throw new RefusedRequest(409, "Choose a recorded published range.");
+        return {
+          read: { ...read, subject: { source: subject.source, published } },
+          published: project,
+          now,
+        };
+      } catch (error) {
+        signal.throwIfAborted();
+        if (!(error instanceof RefusedRequest) || error.status !== 404)
+          throw error;
+      }
+    }
     if ("baseline" in read) {
       return {
         read: {
@@ -134,6 +153,7 @@ export async function reviewInput(
           ...(read.oldPath === undefined ? {} : { oldPath: read.oldPath }),
         },
         record,
+        source,
       };
     }
     return {
@@ -141,6 +161,7 @@ export async function reviewInput(
         ...(read.run === undefined ? {} : { run: read.run }),
       },
       record,
+      source,
     };
   }
   // Published and session subjects were answered above; only a story remains.
@@ -153,3 +174,19 @@ const isPublishedRead = (read: {
   readonly subject: ReviewedWorkSubject;
 }): read is PublishedSessionReviewRead | PublishedSessionFileRead =>
   isReviewedPublishedSessionSubject(read.subject);
+
+function publishedSource(
+  source: PublishedSource,
+  session: string,
+  signal: AbortSignal,
+) {
+  return fetchedPublishedSessionSource(
+    executionCheckout(source).path,
+    source,
+    session,
+    {
+      admission: () => admissionBound(signal),
+      fetch: () => admissionBound(signal),
+    },
+  );
+}

@@ -74,27 +74,14 @@ export function landedComparison({ baseline, tree, files, run }) {
 }
 
 /**
- * An execution checkout session's commits: one kept run.
+ * One comparison from a session's published close record.
  * @param {Compared} compared
  * @returns {StoryReview}
  */
-export function sessionCommits({ baseline, tree, files }) {
+export function publishedSessionComparison({ baseline, tree, files }) {
   return {
-    kind: "session-commits",
-    session: {
-      launchedAt: "2026-01-02T12:00:00.000Z",
-      doneAt: "2026-01-02T13:00:00.000Z",
-    },
-    commitRuns: [
-      {
-        commits: 1,
-        subject: "session commit",
-        committedAt: "2026-01-02T12:30:00.000Z",
-        baseline,
-        tree,
-      },
-    ],
-    commitRun: 0,
+    kind: "published-session",
+    session: { closedAt: "2026-01-02T13:00:00.000Z" },
     baseline,
     tree,
     files,

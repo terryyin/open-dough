@@ -1,4 +1,3 @@
-import { sessionComparisonKeySchema } from "./sessionReviewComparisons.ts";
 // The comparison selected by a published story or session review reader.
 
 import { z } from "zod";
@@ -9,7 +8,6 @@ import {
 } from "./storyReviewLandedRun.ts";
 import { reviewComparisonSchema } from "./storyReviewPoints.ts";
 import type { EstablishedContext } from "./launchRecord.ts";
-import { sessionRunChoiceSchema } from "./sessionCommits.ts";
 
 export const storyReviewEndpoint = "/__agent-launch/review";
 // The file diff reads the same comparison as the file list. The query names
@@ -85,20 +83,6 @@ export const storyReviewSchema = z
       landing: landedReviewContextSchema,
       ...fixedComparison,
     }),
-    // The commits an execution checkout session made in its checkout
-    // (`./sessionCommits.ts`): one kept run's comparison, with the kept runs
-    // oldest first and the answered run's position among them.
-    z.object({
-      kind: z.literal("session-commits"),
-      session: z.object({
-        launchedAt: z.iso.datetime(),
-        doneAt: z.iso.datetime(),
-        ...sharedCheckout,
-      }),
-      commitRuns: z.array(sessionRunChoiceSchema).min(1),
-      commitRun: z.number().int().nonnegative(),
-      ...fixedComparison,
-    }),
     // A standalone session's published close record: the selected recorded
     // pair and the session's close time. A record of several ordered ranges
     // names how many and which position is shown; launch history is not
@@ -115,13 +99,8 @@ export const storyReviewSchema = z
       ...fixedComparison,
     }),
     z.object({
-      kind: z.literal("branch-result"),
-      doneAt: z.iso.datetime(),
-      ...fixedComparison,
-    }),
-    z.object({
       kind: z.literal("landing-unavailable"),
-      comparison: z.enum(["session-commits", "published-session"]).optional(),
+      comparison: z.literal("published-session").optional(),
       reference: z.uuid().optional(),
       explanation: z.string().min(1),
     }),
@@ -134,17 +113,9 @@ export const storyReviewSchema = z
     z.object({
       runs: z.array(reviewRunChoiceSchema).optional(),
       selectedRun: z.string().min(1).optional(),
-      sessionComparisonKeys: z.array(sessionComparisonKeySchema).optional(),
-      deliveryGap: z.string().min(1).optional(),
     }),
   );
 export type StoryReview = z.infer<typeof storyReviewSchema>;
-// A session's kept commits, including when the server could not show them.
-// Published-session reviews are a distinct kind and never match here.
-export const reviewsSessionCommits = (review: StoryReview | undefined) =>
-  review?.kind === "session-commits" ||
-  (review?.kind === "landing-unavailable" &&
-    review.comparison === "session-commits");
 // A published session's recorded comparison and gaps in that comparison.
 export const reviewsPublishedSession = (review: StoryReview | undefined) =>
   review?.kind === "published-session" ||

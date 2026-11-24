@@ -34,7 +34,7 @@ test("Back from Intent and System settings cues the same destination without cha
   const answer = makeMe.aMachineAnswer.observingOpen(record).please();
   const { intent } = pageReadsSupplying({});
   const comparison = makeMe.aStoryReview
-    .sessionCommits()
+    .publishedSession()
     .adding("story.txt")
     .please();
   coldStoryUrl(work.source.id, taken.identity);

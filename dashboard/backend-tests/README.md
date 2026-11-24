@@ -41,17 +41,15 @@ A handler takes the state it reads as typed input, and only its adapter
 reads process-wide stores: `storyReview` (`dashboard/server/storyReviewSnapshot.ts`)
 and `reviewedFileDiff` and `reviewedFileText`
 (`dashboard/server/storyReviewFileResponse.ts`) take a `ReviewInput`
-(`dashboard/server/storyReviewInput.ts`) that carries one admitted launch
-record and the run or literal file fields. The shared adapter resolves
-the source and host-qualified session and refuses a story launch before any
-standalone handler runs. A case composes the admitted launch and its
-repository through MakeMe, here `makeMe.aSessionReviewRead.ofRecord(record)`. A case calls another handler in
-its arrangement only when that step is the behavior under test. The
-`review/ad-hoc-review-{landed,kept-unavailable,file}.spec.ts` specs call
-these handlers. `review/ad-hoc-review-request.spec.ts` admits standalone
-URLs through the launch routes and exercises all three responses and the
-subject refusals with an isolated kept store. The branch result and its
-handoff are proved the same way:
+(`dashboard/server/storyReviewInput.ts`) that carries the published source
+and selected range or literal file fields. The shared adapter resolves a
+host-qualified launch to its published UUID, or admits its legacy accepted
+landing, and directs story launches to their story. The
+`review/published-session-review.spec.ts` and
+`review/ad-hoc-review-landed.spec.ts` specs prove exact comparisons against
+configured Git. `review/ad-hoc-review-request.spec.ts` exercises standalone
+launch routes and their subject refusals with an isolated kept store.
+The branch result and its handoff are independent producer tests:
 `review/ad-hoc-branch-result-supersession.spec.ts`,
 `review/ad-hoc-branch-worktree-result.spec.ts`,
 `review/ad-hoc-session-branch-entry.spec.ts` and
@@ -82,18 +80,10 @@ history predates the case, its named launches with their times, and dated
 `makeMe.aCheckoutWork`, in minutes before the case's clock (`at`). Its
 machine-store effects, such as `keep` and `markDone`, stay in
 [`doneCaptureCase.ts`](support/doneCaptureCase.ts).
-Compose the Done state: a review case builds an already-Done record over the
-work's real commits with `makeMe.aLaunchRecord` steps such as
-`.keptSessionCommits(...)`, `.branchResultFrom(...)` or their `…FailedAt`
-steps, then `.markedDone()`. The recipes in
-[`doneCaptureReview.ts`](support/doneCaptureReview.ts) compose a Done session's
-kept runs or its branch result from Git. Mark Done through a private launch
-store and [`setRecordDoneAt`](../server/recordDoneAt.ts) when proving capture
-or settlement. Observe its saved record and Git pins. A historical read takes
-the saved record and calls its typed handler directly. A Review-only case
-composes the session with `makeMe.aSessionReviewRead`, as
-[`kept-session-commits-review.spec.ts`](review/kept-session-commits-review.spec.ts)
-shows.
+Compose an already-Done launch with `makeMe.aLaunchRecord` when the Done
+producer is outside the case. Mark Done through a private launch store and
+[`setRecordDoneAt`](../server/recordDoneAt.ts) when proving capture or
+settlement. Observe its saved record and Git pins.
 
 Delivery observation cases pass composed Done records to
 [`observedSessionDeliveries`](../server/observedSessionDeliveries.ts), with
