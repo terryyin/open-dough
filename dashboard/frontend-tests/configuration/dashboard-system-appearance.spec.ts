@@ -22,6 +22,8 @@ import {
 import { boardWork, story } from "../navigation/board-work.ts";
 import { withWidthStorage } from "../navigation/side-panel-width-view.ts";
 import {
+  expectReadablePlainSource,
+  highlightedSourceReading,
   intent,
   openHighlightedSource,
   openPlainSource,
@@ -186,48 +188,22 @@ test("system appearance changes frame chrome and Intent source without losing th
   await intent
     .getByRole("button", { name: "Project Intent", exact: true })
     .click();
-  const source = await openHighlightedSource();
-  const tokenMatching = (pattern: RegExp) =>
-    [...source.element().querySelectorAll(".source-token")].find((span) =>
-      pattern.test(span.textContent),
-    );
-  const keyword = () => tokenMatching(/^export$/);
-  const comment = () => tokenMatching(/greets the reader/);
-  await expect
-    .poll(() => source.query()?.textContent)
-    .toContain('export const message = "hello";');
-  await expect.poll(() => keyword()?.checkVisibility()).toBe(true);
-  const darkToken = keyword();
-  const darkComment = comment();
-  const lineNumber = source.element().querySelector(".source-line-number");
-  if (!darkToken || !darkComment || !lineNumber) {
-    throw new Error(
-      "The highlighted source is missing its tokens or line numbers.",
-    );
-  }
-  textContrast(darkToken);
-  textContrast(darkComment);
-  textContrast(lineNumber);
-  const darkKeyword = getComputedStyle(darkToken).color;
+  const source = highlightedSourceReading(await openHighlightedSource(), {
+    keyword: /^export$/,
+    comment: /greets the reader/,
+  });
+  const expectedSource = 'export const message = "hello";';
+  await source.expectText(expectedSource);
+  const darkTokens = await source.visibleTokens();
+  textContrast(darkTokens.keyword);
+  textContrast(darkTokens.comment);
+  source.expectReadableLineNumber();
+  const darkKeyword = getComputedStyle(darkTokens.keyword).color;
 
-  const unhighlighted = await openPlainSource();
-  const lines = [
-    ...unhighlighted.element().querySelectorAll(".source-line-text"),
-  ];
-  expect(lines.map((line) => line.textContent)).toEqual(plainText.split("\n"));
-  expect(
-    unhighlighted.element().querySelectorAll(".source-line-text span"),
-  ).toHaveLength(0);
-  const first = lines[0];
-  if (!first) throw new Error("The plain source has no line to read.");
-  textContrast(first);
+  expectReadablePlainSource(await openPlainSource(), plainText);
 
   await openHighlightedSource();
-  await expect.poll(() => keyword()?.checkVisibility()).toBe(true);
-  const token = keyword();
-  const commentToken = comment();
-  if (!token || !commentToken)
-    throw new Error("The selected source has no highlight tokens.");
+  const tokens = await source.visibleTokens();
   const fileReadsBefore = [...reads];
   for (const scheme of ["light", "dark"] as const) {
     await setScheme(scheme);
@@ -257,15 +233,13 @@ test("system appearance changes frame chrome and Intent source without losing th
 
     await expect.element(sessionsHeading).toBeVisible();
     textContrast(sessionsHeading.element());
-    await expect
-      .poll(() => source.query()?.textContent)
-      .toContain('export const message = "hello";');
-    expect(keyword()).toBe(token);
-    const actual = getComputedStyle(token).color;
+    await source.expectText(expectedSource);
+    expect(source.keyword()).toBe(tokens.keyword);
+    const actual = getComputedStyle(tokens.keyword).color;
     if (scheme === "light") expect(actual).not.toBe(darkKeyword);
     else expect(actual).toBe(darkKeyword);
-    textContrast(token);
-    textContrast(commentToken);
+    textContrast(tokens.keyword);
+    textContrast(tokens.comment);
     expect(reads).toEqual(fileReadsBefore);
   }
   expectNoAppearanceSwitch();

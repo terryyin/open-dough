@@ -1,8 +1,9 @@
 import { expect } from "vitest";
-import { page } from "vitest/browser";
+import { page, type Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { expandLocationAndFolders } from "../intent/intent-ci-homepage-page.ts";
+import { textContrast } from "../navigation/board-accessibility.ts";
 
 const highlighted = "dashboard/tests/example.spec.ts";
 const plain = "dashboard/checks/notes.check";
@@ -54,3 +55,45 @@ async function openFile(location: string, file: string) {
 export const openHighlightedSource = () =>
   openFile("dashboard/tests", highlighted);
 export const openPlainSource = () => openFile("dashboard/checks", plain);
+
+export function highlightedSourceReading(
+  source: Locator,
+  text: { readonly keyword: RegExp; readonly comment: RegExp },
+) {
+  const tokenMatching = (pattern: RegExp) =>
+    [...source.element().querySelectorAll(".source-token")].find((span) =>
+      pattern.test(span.textContent),
+    );
+  const keyword = () => tokenMatching(text.keyword);
+
+  return {
+    keyword,
+    async expectText(expected: string) {
+      await expect.poll(() => source.query()?.textContent).toContain(expected);
+    },
+    async visibleTokens() {
+      await expect.poll(() => keyword()?.checkVisibility()).toBe(true);
+      const keywordToken = keyword();
+      const commentToken = tokenMatching(text.comment);
+      if (!keywordToken || !commentToken)
+        throw new Error("The highlighted source is missing its tokens.");
+      return { keyword: keywordToken, comment: commentToken };
+    },
+    expectReadableLineNumber() {
+      const lineNumber = source.element().querySelector(".source-line-number");
+      if (!lineNumber)
+        throw new Error("The highlighted source is missing its line numbers.");
+      textContrast(lineNumber);
+    },
+  };
+}
+
+export function expectReadablePlainSource(source: Locator, expected: string) {
+  const element = source.element();
+  const lines = [...element.querySelectorAll(".source-line-text")];
+  expect(lines.map((line) => line.textContent)).toEqual(expected.split("\n"));
+  expect(element.querySelectorAll(".source-line-text span")).toHaveLength(0);
+  const first = lines[0];
+  if (!first) throw new Error("The plain source has no line to read.");
+  textContrast(first);
+}

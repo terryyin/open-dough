@@ -243,7 +243,12 @@ assertions and timing are in Git evidence `slice3-return.md`. The independent
 refactor passed all 12 affected mounts, both visibility E2Es and typecheck.
 The later E2E rerun took 29.01 s versus 8.50 s for the same two E2Es earlier,
 with 4.36 s in the new steps including tab lifecycle. Use the earlier pair for
-the comparison and the later run for functional confirmation.
+the comparison and the later run for functional confirmation. The final
+review found the formatter had taken the appearance spec to 273 lines.
+Its existing source observation owner now handles the related text and
+token mechanics, leaving the 247-line spec with the exact visible results
+and sequence. Focused proof and typecheck passed again
+(`appearance-size-proof.log.run.json`, `appearance-size-typecheck.log.run.json`).
 
 ### 4. Dashboard header chrome and connection logo stay reachable
 
