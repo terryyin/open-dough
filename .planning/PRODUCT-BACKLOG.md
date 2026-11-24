@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 - [Prove landed CI wall-time history through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof) — SEED-413#renovate-landed-ci-backend-proof ([plan](slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md))
 - [Prove landed CI scoped test history through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-scope-proof) — SEED-413#renovate-landed-ci-scope-proof ([plan](slice-plans/806-renovate-landed-ci-scope-proof/PLAN.md))
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context ([plan](slice-plans/808-choose-clear-follow-up-context/PLAN.md))
+- [Verify the silent supplier wait in Codex](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use) — SEED-389#verify-silent-supplier-wait-in-use ([plan](slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md))
 
 ## Backlog list
 
@@ -58,7 +59,6 @@ intent introduced or affected by a newly developed story.
 - [Filter the file browser by Intent and by changes](seeds/SEED-420-unified-intent-review.md#filter-review-files) — SEED-420#filter-review-files
 - [Read the whole repository and its CI from Project Intent](seeds/SEED-420-unified-intent-review.md#browse-the-project-at-a-revision) — SEED-420#browse-the-project-at-a-revision
 - [Load execution guidance for the current phase](seeds/SEED-345-session-token-efficiency.md#load-execution-guidance-for-the-current-phase) — SEED-345#load-execution-guidance-for-the-current-phase
-- [Verify the silent supplier wait in Codex](seeds/SEED-389-verify-silent-supplier-wait.md#verify-silent-supplier-wait-in-use) — SEED-389#verify-silent-supplier-wait-in-use ([plan](slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md))
 - [Start Cursor slices from complete Task briefs](seeds/SEED-345-session-token-efficiency.md#start-cursor-slices-from-complete-task-briefs) — SEED-345#start-cursor-slices-from-complete-task-briefs
 - [Wait for required conditions before load-sensitive proof](seeds/SEED-367-bounded-slice-active-time.md#wait-for-a-quiet-machine-before-load-sensitive-proof) — SEED-367#wait-for-a-quiet-machine-before-load-sensitive-proof
 - [Simplify the remaining session tests](seeds/SEED-341-simplify-session-tests.md#simplify-remaining-session-tests) — SEED-341#simplify-remaining-session-tests
