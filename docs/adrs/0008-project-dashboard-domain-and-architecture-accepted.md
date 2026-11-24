@@ -31,8 +31,9 @@ architecture.
 | Taken story | Work claimed for execution, with a recorded developer assignment. Taken does not prove that an agent is currently running. |
 | Developer identity | A reusable name, distinct from a story, assignment, or AI session. |
 | Developer assignment | An undertaking to prepare or execute identified work. Its profile records the current developer, activity, and available tool/model information. |
-| Launch workflow | What a dashboard launch starts on one work item, such as execution or refinement: the skill it runs. A launch is local evidence and never settles or moves a story. |
-| Follow-up | A new ad hoc session that carries the records of a retained Done session or done story whose conversation can no longer be continued. The source stays Done. |
+| Session | An Open Dough agent session in a project. It has its own identity and belongs to exactly one story from startup. A story can have several sessions. |
+| Launch workflow | What a dashboard launch starts on a story, such as refinement, execution, or ad hoc work. A recorded launch is local evidence. The workflow owns published assignments and changes in backlog membership. |
+| Follow-up | A new session for a Taken or Done story. It carries context from the source story or session, uses the source story's identity, and has its own session ID. The source story keeps its status. |
 | Execution mode | The workflow by which a story is executed and integrated. Story Branch Mode and Trunk Mode have different publication locations. |
 | Slice plan and slice | A plan organizes bounded executable slices of a selected story. Recorded slice completion supplies progress evidence; a plan is not mandatory for every story. |
 | Product intent | The maintained definition of intended behavior: what the current product is meant to do and why. It evolves with the product and survives individual stories. Each Product intent contains Purpose and Proof. |
@@ -72,9 +73,9 @@ Storage, proof representation, and presentation remain design choices.
 Detailed semantics, evidence considerations, and open questions belong in the
 [requirements](../project-visibility-requirements.md#product-intent-perspective-the-current-product).
 
-Derive Preparing from an active preparation assignment; keep refinement,
-planning, and readiness as independent story facts. One AI session may carry
-successive assignments. [ADR 0007](./0007-software-development-lifecycles.md#shared-work-assignments)
+Derive Preparing from an active preparation assignment. Keep refinement,
+planning, and readiness as independent story facts. A session may carry
+successive assignments for its story. [ADR 0007](./0007-software-development-lifecycles.md#shared-work-assignments)
 proposes assignment lifecycle and recovery; neither an assignment nor its age
 proves that an agent is running or has stopped.
 
@@ -87,24 +88,21 @@ evidence from an explicit negative result.
 | Concept | Meaning |
 | --- | --- |
 | Board | The selected project's work overview, containing the Backlog, Taken, and Recently done columns. |
-| Column | One named region of the Board, grouping work by recorded story membership or session disposition. |
+| Column | One named region of the Board, grouping stories by recorded membership. |
 | Story card | A representation of one story within a Column, holding its facts, actions, and associated Session entries. |
-| Session entry | A representation of one agent session, within a Story card, directly in a Column, or in the Sessions sidebar. |
+| Session entry | A representation of one agent session, within its Story card or in the Sessions sidebar. |
 | Sessions sidebar | The left-hand region listing open agent sessions across projects, with an optional Running Cursor sessions section. |
 | Side panel | The auxiliary region, normally to the Board's right, showing one terminal or final report at a time. |
 | Panel divider | The resize control between the Board and Side panel when they appear side by side. |
 | Scrollbar | A control that scrolls its owning region; qualify it by that region, such as Board scrollbar or Side panel scrollbar. |
-| Selected story | The page's one story, or none, that the dashboard is showing. Opening its review in Intent or its content in the Side panel, clicking an empty area of its Story card, selecting a Recently done sessions row linked to the completed story, or choosing a Recent stories row can set it. Closing the Side panel preserves the current selection. Clicking an empty area of the selected Story card or showing a session attached to no story clears it. Intent reads it. |
+| Selected story | The page's one story, or none, that the dashboard is showing. Opening its review in Intent or its content in the Side panel, clicking an empty area of its Story card, choosing one of its sessions in Recently done, or choosing a Recent stories row can set it. Closing the Side panel preserves the current selection. Clicking an empty area of the selected Story card clears it. Intent reads it. |
 | Recent stories | The banner control and its list of recently set Selected stories in this browser. A filled bookmark shows that a story is selected; an outline bookmark shows that none is. The list is most recent first, each project and story pair once, and clearing the Selected story leaves the list as it is. |
 | Highlight | The selected story's visual indication on its Story card. |
 | Inspect | Opening or closing a Story card's inline detail, which leaves the Selected story as it is. |
 
-In Recently done sessions, choosing a linked row selects its completed story.
-Choosing a standalone row selects the retained session and preserves the
-Selected story. The selection updates the current perspective and leaves the
-Side panel as it was. Development shows the selected story or session in its
-Board. Intent uses the Selected story and keeps its current reading when a
-standalone session is selected.
+Choosing a session in Recently done selects its story. The selection updates
+the current perspective and leaves the Side panel as it was. Development shows
+the Selected story on the Board. Intent uses the Selected story for its reading.
 
 Use these names directly across UI language, architecture, code, tests, and
 documentation, adapting casing only to programming syntax. Each concept has
@@ -116,10 +114,12 @@ the dashboard UI implementation.
 
 The project repository owns the workflow records for backlog membership,
 developer assignments, and published progress. A done record beside the backlog
-identifies each completed story. Each session that publishes work has its own
-record linking the session to its changes and, where applicable, its story.
-Published session identities and comparisons survive checkout retirement.
-The dashboard can rebuild its views and caches from their sources.
+identifies each completed story. For new ad hoc work, the workflow publishes
+the story and its Taken entry together before the session starts. Each
+session that publishes work has its own record linking the session to its
+changes and its story. Published session identities and comparisons survive
+checkout retirement. The dashboard can rebuild its views and caches from
+their sources.
 
 Project configuration is machine-local operational state, separate from the
 observed repositories' workflow records. There is no application/server

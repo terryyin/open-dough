@@ -16,6 +16,21 @@ Still ahead:
 - The Structure perspective. It is deferred; its later interface is separate
   design work.
 
+## Start ad hoc work under a story
+
+**Start session** shows that the work is being admitted. Once admission
+succeeds, the Board shows an ordinary Story card in **Taken** with the new
+Session entry. If admission fails, show the reason and let the developer retry
+the same start. With a blank instruction, open the terminal for the first input
+and show a card title from startup. Settle the initial title during refinement.
+
+**Follow up** on a Taken or Done story opens a new session under its Story
+card. Choosing a session in Recently done selects its story. The same story
+review in Intent is available for work started ad hoc.
+
+[SEED-426](../.planning/seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story)
+retires standalone session rows at delivery.
+
 ## Review in Intent
 
 **Review changes** opens Intent at the selected story's cumulative diff.

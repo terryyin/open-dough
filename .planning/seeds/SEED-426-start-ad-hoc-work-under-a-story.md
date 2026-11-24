@@ -20,7 +20,8 @@ scope: one story
 
 **Goal.** A developer can start work ad hoc and return to it through the same
 story on the Board, in Recently done and in Intent. Every Open Dough project
-session has a story identity from startup.
+session has a story identity from startup. Use that single lifecycle to
+substantially simplify Distribution and Dashboard code, guidance, and tests.
 
 **Developer decision.** Establish an ordinary story as part of admitting new
 ad hoc work directly to **Taken**. Use the existing product backlog admission
@@ -48,9 +49,8 @@ already provides the per-session identity and comparison.
   including their branching, persisted shapes, specialized review and
   completion logic, test fixtures and cases, and guidance. Harden the entry
   points and types so an unassociated project session cannot flow into those
-  paths. Inventory existing unassociated records and work in flight before
-  cutover, and decide their disposition during refinement. Keep published Git
-  history recoverable without carrying a parallel standalone workflow.
+  paths. Use ordinary story membership and session records across startup,
+  Land, completion, and review.
 - Remove the 21 standalone Done review cases across ten legacy frontend
   specs. In `dashboard/frontend-tests/sessions/`, these are the six
   `recently-done-ad-hoc-*` specs retained at the Done review cutover, the
@@ -63,10 +63,16 @@ already provides the per-session identity and comparison.
   path. Session selection within Intent, follow-up context
   composition, and open follow-up card cues have their own stories.
 
-**Retained standalone records.** During refinement, settle how developers
-access existing standalone records and how that disposition fits
-[ADR 0008's standalone row behavior](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts).
-Bring any change to that Accepted behavior to the developer before cutover.
+**Cutover.** Switch directly to the story-linked workflow at delivery. Retire
+standalone rows and their selection paths at the same time, following
+[ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#dashboard-ui-concepts).
+During refinement, inventory retained local and published records, identify
+work still in flight, and decide which local records need conversion. Keep
+published evidence recoverable through Git history. If needed, migrate
+production data once on this machine as part of delivery. Verify that the
+delivered Dashboard can read the complete local launch store before resuming
+writes. Remove all migration code after the migration. The delivered product
+uses only the story-linked workflow.
 
 **Key examples.**
 
@@ -81,7 +87,7 @@ Bring any change to that Accepted behavior to the developer before cutover.
   find its sessions and open the recorded changes through the same Done and
   Intent paths used by other stories.
 
-**Landing regression and cutover.** In v0.3.113, declaring a branch from a
+**Landing regression.** In v0.3.113, declaring a branch from a
 story follow-up saved its story identity in the Dashboard landing context.
 The Dashboard's retained-landing check refused a declared branch with that
 field set, before any Git push. The rollback at `0bdef6cb2` removed the
@@ -97,8 +103,8 @@ identity with a verified comparison. Cover both the new follow-up path and
 the disposition of any affected retained contexts with the existing landing
 proof. Preserve repository, workspace, branch, target, and revision checks.
 
-**Size and proof.** Use the post-revert product as the baseline. Record before
-and after source and shipped guidance size for Distribution and Dashboard,
+**Simplification proof.** Use the post-revert product as the baseline. Record
+before and after source and shipped guidance size for Distribution and Dashboard,
 and count executable cases across Distribution, Dashboard and E2E using the
 same discovery commands for both revisions. Both product areas should shrink
 and the combined case count should decrease. Keep focused coverage of
