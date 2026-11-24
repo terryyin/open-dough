@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Nana-chan",
-  "email": "nana-chan@example.org",
-  "identity": "SEED-389#verify-silent-supplier-wait-in-claude-code",
-  "mode": "story-branch",
-  "branch": "claude/verify-the-silent-supplier-wait-in-claude-code",
-  "host": "claude"
-}
