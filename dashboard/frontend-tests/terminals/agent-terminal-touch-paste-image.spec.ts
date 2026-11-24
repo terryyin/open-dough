@@ -1,131 +1,79 @@
-// Phone Paste shows the server's oversized image refusal from an explicit
-// attachment substitute; the terminal stays attached via a WebSocket substitute.
-// A held WebSocket substitute keeps the terminal connecting, where Paste says
-// so instead of naming a recovery action.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { openFrontendTerminalByTouch } from "../../test-support/support/frontendTouchTerminal.ts";
-import { echoingApplication } from "../../test-support/support/terminalSubstituteApplication.ts";
-import { copyClipboardText } from "../../test-support/terminalPastePage.ts";
-import { terminalStatus } from "../../test-support/terminalScreenPage.ts";
-import {
-  focusByTouch,
-  tapTerminalKey,
-} from "../../test-support/touchTerminalPage.ts";
-import { sessionAttachmentEndpoint } from "../../src/agentTerminal.ts";
+import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
 import {
   launchAttachmentLimitBytes,
   launchAttachmentTooLarge,
 } from "../../src/launchAttachments.ts";
-import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { SessionServices } from "../../src/sessionServices.ts";
+import { terminalStatus } from "../sessions/session-terminal-page.ts";
+import { tapTerminalControl } from "./terminal-input-controls.ts";
+import {
+  drawnRows,
+  mountTouchTerminal,
+  showsRow,
+  stubClipboard,
+  tapLiveScreen,
+  terminalKey,
+} from "./terminal-touch-input.ts";
 
-test.use({
-  viewport: phoneLaunchTouchViewport.portrait,
-  hasTouch: true,
-  permissions: ["clipboard-read", "clipboard-write"],
+test("phone Paste shows the oversized image refusal and keeps the terminal attached", async () => {
+  const image = new Blob([new Uint8Array(launchAttachmentLimitBytes + 1)], {
+    type: "image/png",
+  });
+  stubClipboard(new ClipboardItem({ "image/png": image }));
+  const storeTerminalImage = vi
+    .fn<SessionServices["storeTerminalImage"]>()
+    .mockResolvedValue({ error: launchAttachmentTooLarge });
+  const title = "Phone clipboard session";
+  const { sent } = await mountTouchTerminal(title, {
+    openingLines: ["attached paste01", "Claude Code"],
+    storeTerminalImage,
+  });
+  await tapLiveScreen();
+  await tapTerminalControl(terminalKey("Paste"));
+  await expect
+    .element(terminalStatus)
+    .toHaveTextContent(launchAttachmentTooLarge);
+  expect(storeTerminalImage).toHaveBeenCalledTimes(1);
+  const [record, uploadedImage, contentType] =
+    storeTerminalImage.mock.calls[0] ?? [];
+  expect(record?.request).toMatchObject({ title });
+  expect(uploadedImage).toBe(image);
+  expect(contentType).toBe("image/png");
+  expect(sent()).toEqual([]);
+  await userEvent.keyboard("x");
+  await expect.poll(sent).toEqual(["x"]);
+  await showsRow("x");
 });
 
-test("phone Paste shows the server's oversized image refusal and keeps the terminal attached", async ({
-  page,
-  frontendServices,
-}) => {
-  const { panel, rows, input, sent } = await openFrontendTerminalByTouch(
-    page,
-    frontendServices,
-    makeMe.aLaunchRecord
-      .adHoc({ instruction: "paste", title: "Phone clipboard session" })
-      .inClaudeSession({ sessionId: "paste-session-1", shortId: "paste01" })
-      .please(),
+test("phone Paste waits for a connecting terminal and sends text only when retried after it opens", async () => {
+  const text = "after connecting";
+  stubClipboard(
+    new ClipboardItem({
+      "text/plain": new Blob([text], { type: "text/plain" }),
+    }),
+  );
+  const { attachment, sent } = await mountTouchTerminal(
+    "Connecting clipboard session",
     {
-      application: echoingApplication("attached paste01\r\nClaude Code\r\n"),
+      connecting: true,
+      openingLines: ["attached conn01", "Claude Code"],
     },
   );
-  const status = terminalStatus(panel);
-  await expect(rows).toContainText("attached paste01");
-  await expect(rows).toContainText("Claude Code");
-  await focusByTouch(panel);
-  await page.evaluate(async () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = canvas.height = 2000;
-    const context = canvas.getContext("2d");
-    if (!context) throw new Error("Could not create an image.");
-    const pixels = context.createImageData(canvas.width, canvas.height);
-    for (let offset = 0; offset < pixels.data.length; offset += 65_536) {
-      crypto.getRandomValues(pixels.data.subarray(offset, offset + 65_536));
-    }
-    for (let offset = 3; offset < pixels.data.length; offset += 4) {
-      pixels.data[offset] = 255;
-    }
-    context.putImageData(pixels, 0, 0);
-    const image = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob);
-        else reject(new Error("Could not encode PNG."));
-      });
-    });
-    await navigator.clipboard.write([
-      new ClipboardItem({ "image/png": image }),
-    ]);
-  });
-  await page.route(`**${sessionAttachmentEndpoint}?*`, (route) =>
-    route.fulfill({ status: 413, json: { error: launchAttachmentTooLarge } }),
-  );
-  const post = page.waitForRequest(
-    (request) => new URL(request.url()).pathname === sessionAttachmentEndpoint,
-  );
-  await tapTerminalKey(panel, "Paste");
-  expect((await post).postDataBuffer()?.length).toBeGreaterThan(
-    launchAttachmentLimitBytes,
-  );
-  await expect(status).toHaveText(launchAttachmentTooLarge);
-  expect(sent).toEqual([]);
-  await input.press("x");
-  await expect.poll(() => sent).toEqual(["x"]);
-  await expect(rows).toContainText("x");
-});
+  await tapTerminalControl(terminalKey("Paste"));
+  await expect
+    .element(terminalStatus)
+    .toHaveTextContent(
+      "The terminal is still connecting. Tap Paste again once it connects.",
+    );
+  expect(drawnRows()).not.toContain("attached conn01");
+  expect(sent()).toEqual([]);
 
-test("phone Paste while the terminal is still connecting says so, sends nothing, and pastes once it connects", async ({
-  page,
-  frontendServices,
-}) => {
-  let open = () => {};
-  const opens = new Promise<void>((resolve) => {
-    open = resolve;
-  });
-  const { panel, rows, sent } = await openFrontendTerminalByTouch(
-    page,
-    frontendServices,
-    makeMe.aLaunchRecord
-      .executing({
-        identity: "SEED-901#connecting-paste",
-        title: "Connecting clipboard session",
-      })
-      .onStoryBranch({
-        workspace: "/work/connecting-paste",
-        branch: "claude/connecting-paste",
-      })
-      .inClaudeSession({ sessionId: "connecting-1", shortId: "conn01" })
-      .please(),
-    {
-      application: echoingApplication("attached conn01\r\nClaude Code\r\n"),
-      opens,
-    },
-  );
-  const status = terminalStatus(panel);
-  await copyClipboardText(page, "after connecting");
-
-  await tapTerminalKey(panel, "Paste");
-  await expect(status).toHaveText(
-    "The terminal is still connecting. Tap Paste again once it connects.",
-  );
-  await expect(rows).not.toContainText("attached conn01");
-  expect(sent).toEqual([]);
-
-  // Release the held substitute, then explicit Paste retry.
-  open();
-  await expect(rows).toContainText("attached conn01");
-  await tapTerminalKey(panel, "Paste");
-  await expect.poll(() => sent).toEqual(["after connecting"]);
-  await expect(status).toBeEmpty();
+  attachment.open();
+  await showsRow("attached conn01");
+  expect(sent()).toEqual([]);
+  await tapTerminalControl(terminalKey("Paste"));
+  await expect.poll(sent).toEqual([text]);
+  await showsRow(text);
+  await expect.element(terminalStatus).toBeEmptyDOMElement();
 });

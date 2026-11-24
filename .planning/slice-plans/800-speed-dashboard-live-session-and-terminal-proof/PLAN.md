@@ -314,7 +314,7 @@ and dashboard typecheck. No E2E cases were added. See
 ### 7. Terminal touch select, paste, and application scroll preserve paused and live text
 
 Type: Behavior
-Status: planned
+Status: done
 
 Move `terminals/agent-terminal-touch-select`,
 `terminals/agent-terminal-touch-select-held`,
@@ -332,6 +332,18 @@ fine-pointer desktop has no Select. Scrollback select and copy stay accurate.
 Soft keyboard, rotation and app-scrolled pause keep fit. Oversized image paste
 refuses; connecting paste recovers. Application wheel swipe versus no-wheel
 preserves the intended scroll owner.
+
+**Accepted implementation proof.** Fifteen mounted cases passed in 15.817 s
+wall at two workers, preserving 16 legacy cases' distinct observations.
+Equivalent wide touch geometry shares one representative case. A separate
+fine-pointer instance exercises native mouse selection and scrollback.
+Phone cases keep paused, disconnected and ended output, exact Copy text,
+fractional full scrollback, visual viewport fit, image refusal, connecting
+Paste and application-wheel ownership. The 104 mounted consumers, six
+retained voice cases, seven native E2E cases, four backend upload cases,
+and dashboard typecheck passed. No E2E cases were added. The spent touch
+and held-output substitutes were removed. See `slice-7-mapping.md` and
+`slice-7-return.md` in the worktree's Git evidence.
 
 ### 8. Terminal and story-note dictation abandon cleanly and respect limits
 

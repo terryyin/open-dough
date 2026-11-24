@@ -1,17 +1,8 @@
 import { useState } from "react";
 import type { LaunchRecord } from "./agentLaunch.ts";
-import {
-  sessionAttachmentEndpoint,
-  sessionAttachmentPathSchema,
-  sessionAttachmentRefusalSchema,
-  sessionAttachmentStorageFailure,
-  terminalSessionQuery,
-} from "./agentTerminal.ts";
+import { useSessionServices } from "./pageReads.tsx";
 import {
   isImageAttachmentType,
-  launchAttachmentNameHeader,
-  launchAttachmentNameHeaderValue,
-  pastedImageName,
   type ImageAttachmentType,
 } from "./launchAttachments.ts";
 import { withoutTerminalEscapeSequences } from "./terminalInputText.ts";
@@ -52,44 +43,12 @@ async function readClipboard(): Promise<ClipboardContent> {
   };
 }
 
-async function storeImage(
-  record: LaunchRecord,
-  image: Blob,
-  type: ImageAttachmentType,
-): Promise<{ path: string } | { error: string }> {
-  try {
-    const response = await fetch(
-      `${sessionAttachmentEndpoint}?${terminalSessionQuery(record).toString()}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": type,
-          [launchAttachmentNameHeader]: launchAttachmentNameHeaderValue(
-            pastedImageName(type),
-          ),
-        },
-        body: image,
-      },
-    );
-    const body: unknown = await response.json();
-    if (response.ok) {
-      const path = sessionAttachmentPathSchema.safeParse(body);
-      if (path.success) return path.data;
-    } else {
-      const refusal = sessionAttachmentRefusalSchema.safeParse(body);
-      if (refusal.success) return refusal.data;
-    }
-  } catch {
-    // A failed upload has no path to offer.
-  }
-  return { error: sessionAttachmentStorageFailure };
-}
-
 export function useTerminalPaste(
   record: LaunchRecord,
   getPaste: () => PasteOffer | undefined,
   recovery: () => string | undefined,
 ) {
+  const { storeTerminalImage } = useSessionServices();
   const [feedback, setFeedback] = useState<string>();
 
   async function read() {
@@ -108,7 +67,11 @@ export function useTerminalPaste(
         setFeedback(unavailable(recovery()));
         return;
       }
-      const stored = await storeImage(record, content.image, content.type);
+      const stored = await storeTerminalImage(
+        record,
+        content.image,
+        content.type,
+      );
       if ("error" in stored) setFeedback(stored.error);
       else if (!paste.offer(stored.path)) setFeedback(unavailable(recovery()));
       else setFeedback(`Image pasted as ${stored.path}.`);

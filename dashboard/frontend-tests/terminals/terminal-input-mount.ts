@@ -15,23 +15,34 @@ import { terminalSocket } from "../sessions/session-terminal-socket.ts";
 export async function mountTerminalInput({
   connecting = false,
   openingLines = ["Claude Code"],
+  program,
   record = execution,
   openSession = () => userEvent.click(cardSession().open),
   ...options
 }: Pick<
   NonNullable<Parameters<typeof mountSessionCards>[0]>,
-  "viewport" | "transcription"
+  "viewport" | "transcription" | "storeTerminalImage"
 > & {
   readonly connecting?: boolean;
   readonly openingLines?: readonly [string, ...string[]];
   readonly record?: LaunchRecord;
+  readonly program?: {
+    readonly opening: string;
+    answer(input: string): string;
+  };
   readonly openSession?: () => Promise<void>;
 } = {}) {
   const sockets: ReturnType<typeof terminalSocket>[] = [];
   const openTerminal: SessionServices["openTerminal"] = () => {
-    const attachment = terminalSocket(`${openingLines.join("\r\n")}\r\n`, {
-      connecting: connecting && sockets.length === 0,
-    });
+    const attachment = terminalSocket(
+      program?.opening ?? `${openingLines.join("\r\n")}\r\n`,
+      {
+        connecting: connecting && sockets.length === 0,
+        ...(program === undefined
+          ? {}
+          : { answer: (input: string) => program.answer(input) }),
+      },
+    );
     sockets.push(attachment);
     return attachment.socket;
   };

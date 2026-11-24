@@ -113,6 +113,7 @@ export async function mountSessionCards({
   readFinalReport,
   transcription,
   openTerminal,
+  storeTerminalImage,
   viewport = { width: 1200, height: 840 },
   otherProjects = [],
 }: {
@@ -131,6 +132,7 @@ export async function mountSessionCards({
   transcription?: InstructionTranscriptionSource;
   viewport?: { width: number; height: number };
   openTerminal?: SessionServices["openTerminal"];
+  storeTerminalImage?: SessionServices["storeTerminalImage"];
   otherProjects?: readonly PublishedWork[];
 }) {
   withPagePreferences();
@@ -171,6 +173,8 @@ export async function mountSessionCards({
         readRunningCursorSessions ??
         defaults.sessions.readRunningCursorSessions,
       openTerminal: openTerminal ?? defaults.sessions.openTerminal,
+      storeTerminalImage:
+        storeTerminalImage ?? defaults.sessions.storeTerminalImage,
     },
   });
   await mountComponent(

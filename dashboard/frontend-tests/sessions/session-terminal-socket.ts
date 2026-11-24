@@ -9,10 +9,17 @@ import type { TerminalSocket } from "../../src/sessionServices.ts";
 
 export function terminalSocket(
   output: string,
-  { connecting = false }: { readonly connecting?: boolean } = {},
+  {
+    connecting = false,
+    answer = (input) => (input === "\u007f" ? "\b \b" : input),
+  }: {
+    readonly connecting?: boolean;
+    readonly answer?: (input: string) => string;
+  } = {},
 ) {
   const events = new EventTarget();
   const sent: string[] = [];
+  const sizes: { cols: number; rows: number }[] = [];
   let readyState: number = WebSocket.CONNECTING;
 
   function print(data: string) {
@@ -53,7 +60,10 @@ export function terminalSocket(
       const parsed = terminalMessageSchema.parse(JSON.parse(message));
       if ("input" in parsed) {
         sent.push(parsed.input);
-        print(parsed.input === "\u007f" ? "\b \b" : parsed.input);
+        const reply = answer(parsed.input);
+        if (reply !== "") print(reply);
+      } else if ("resize" in parsed) {
+        sizes.push(parsed.resize);
       }
     },
     close: () => {
@@ -69,12 +79,16 @@ export function terminalSocket(
   return {
     socket,
     sent,
+    sizes,
     open,
     print,
     refuse(explanation: string) {
       opened();
       control({ attachRefusal: { explanation } });
       closeWithCode(terminalAttachRefusalCode);
+    },
+    disconnect: () => {
+      closeWithCode(1001);
     },
     end: () => {
       closeWithCode(terminalEndedCode);

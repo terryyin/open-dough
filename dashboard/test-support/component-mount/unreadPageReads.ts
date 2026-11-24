@@ -51,6 +51,7 @@ const unreadSessionServices: SessionServices = {
   readHostStatus: unread("host status"),
   readRunningCursorSessions: unread("running Cursor sessions"),
   openTerminal: unreadSync("terminal attach"),
+  storeTerminalImage: unread("terminal image upload"),
 };
 
 const unreadDoneRecordReads: DoneRecordReadSource = {

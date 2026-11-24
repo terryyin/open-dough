@@ -6,6 +6,10 @@ import { readRunningCursorSessions } from "./agentLaunchClient.ts";
 import type { LaunchRecord } from "./agentLaunch.ts";
 import {
   agentTerminalEndpoint,
+  sessionAttachmentEndpoint,
+  sessionAttachmentPathSchema,
+  sessionAttachmentRefusalSchema,
+  sessionAttachmentStorageFailure,
   terminalSessionQuery,
 } from "./agentTerminal.ts";
 import {
@@ -14,6 +18,12 @@ import {
   type FinalReportRead,
 } from "./finalReportContract.ts";
 import { readHostStatus, type HostStatus } from "./hostStatus.ts";
+import {
+  launchAttachmentNameHeader,
+  launchAttachmentNameHeaderValue,
+  pastedImageName,
+  type ImageAttachmentType,
+} from "./launchAttachments.ts";
 
 // Which session's final report a read asks for.
 export type FinalReportSubject = {
@@ -41,6 +51,7 @@ export type SessionServices = {
   ) => Promise<FinalReportRead>;
   readonly readHostStatus: (signal: AbortSignal) => Promise<HostStatus>;
   readonly readRunningCursorSessions: typeof readRunningCursorSessions;
+  readonly storeTerminalImage: typeof storeTerminalImage;
   readonly openTerminal: (record: LaunchRecord) => TerminalSocket;
 };
 
@@ -66,9 +77,43 @@ function openTerminal(record: LaunchRecord): TerminalSocket {
   return socket;
 }
 
+async function storeTerminalImage(
+  record: LaunchRecord,
+  image: Blob,
+  type: ImageAttachmentType,
+): Promise<{ path: string } | { error: string }> {
+  try {
+    const response = await fetch(
+      `${sessionAttachmentEndpoint}?${terminalSessionQuery(record).toString()}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": type,
+          [launchAttachmentNameHeader]: launchAttachmentNameHeaderValue(
+            pastedImageName(type),
+          ),
+        },
+        body: image,
+      },
+    );
+    const body: unknown = await response.json();
+    if (response.ok) {
+      const path = sessionAttachmentPathSchema.safeParse(body);
+      if (path.success) return path.data;
+    } else {
+      const refusal = sessionAttachmentRefusalSchema.safeParse(body);
+      if (refusal.success) return refusal.data;
+    }
+  } catch {
+    // A failed upload has no path to offer.
+  }
+  return { error: sessionAttachmentStorageFailure };
+}
+
 export const authenticatedSessionServices: SessionServices = {
   readFinalReport,
   readHostStatus,
   readRunningCursorSessions,
   openTerminal,
+  storeTerminalImage,
 };

@@ -11,9 +11,10 @@ useDisposableTestHome();
 
 const defaultViewport = { width: 390, height: 844 };
 
-const desktopLaunchSpecs = [
+const desktopSpecs = [
   "dashboard/frontend-tests/launches/story-card-launch-offers.spec.ts",
   "dashboard/frontend-tests/launches/story-card-startup.spec.ts",
+  "dashboard/frontend-tests/terminals/agent-terminal-touch-select-desktop.spec.ts",
 ];
 
 export default defineConfig({
@@ -35,12 +36,12 @@ export default defineConfig({
         contextOptions: { hasTouch: true, viewport: defaultViewport },
       }),
       instances: [
-        { browser: "chromium", exclude: desktopLaunchSpecs },
+        { browser: "chromium", exclude: desktopSpecs },
         // A touch context cannot acquire a Linux fine pointer by disabling touch.
         {
           browser: "chromium",
           name: "chromium-desktop",
-          include: desktopLaunchSpecs,
+          include: desktopSpecs,
           provider: playwright({
             launchOptions: { args: dashboardBrowserArgs },
             contextOptions: { hasTouch: false, viewport: defaultViewport },
