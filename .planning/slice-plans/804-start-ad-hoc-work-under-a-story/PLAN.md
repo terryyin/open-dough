@@ -56,6 +56,13 @@ trunk base `8c37a4fa84b208ccae75a56255cc4ed888cc0c20`. SEED-432 is first in
 Backlog list. The exact proof is in the worktree Git evidence log
 `split-installed-proof.log`.
 
+## CI repair
+
+[Distribution shared deadline](diagnosis-distribution-shared-deadline.md)
+records the cutoff, the measured reassignment, and its proof. The runner still
+selects all 653 files once, and 16 focused workflow and proof checks passed.
+Hosted validation applies to the published repair.
+
 ## Execution complete
 
 Product advice: no change beyond the approved split and backlog priority.
