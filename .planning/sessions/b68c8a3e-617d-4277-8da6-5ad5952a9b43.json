@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "sessionId": "b68c8a3e-617d-4277-8da6-5ad5952a9b43",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-24T02:10:08.966Z",
+  "story": "SEED-413#speed-dashboard-frame-and-navigation-proof",
+  "ranges": [
+    {
+      "base": "f733216e15155dc251b9617b6726f16e2ee588fa",
+      "candidate": "fbfc48c26ef0162b9f5533e95e953f0f794f2998"
+    },
+    {
+      "base": "fbfc48c26ef0162b9f5533e95e953f0f794f2998",
+      "candidate": "2dfed1bf1fc16b626ac989d0093a745e48466464"
+    },
+    {
+      "base": "2dfed1bf1fc16b626ac989d0093a745e48466464",
+      "candidate": "3324960c09b308ff1fbc77820a6190889a4d6287"
+    },
+    {
+      "base": "3324960c09b308ff1fbc77820a6190889a4d6287",
+      "candidate": "827f92532b4c8c65d50b14cdb64cfbbfa4f38df1"
+    },
+    {
+      "base": "827f92532b4c8c65d50b14cdb64cfbbfa4f38df1",
+      "candidate": "80576474be8850aad538795acd48ff700ad48ed8"
+    },
+    {
+      "base": "80576474be8850aad538795acd48ff700ad48ed8",
+      "candidate": "15d54275554a23d13623cb3d1e43cf7ad1da51f8"
+    },
+    {
+      "base": "15d54275554a23d13623cb3d1e43cf7ad1da51f8",
+      "candidate": "1fdc0577db5884cd2c6f1e2d4cdfacbe0b4740d4"
+    },
+    {
+      "base": "1fdc0577db5884cd2c6f1e2d4cdfacbe0b4740d4",
+      "candidate": "8e7a024f2071c69074ae3eac1e3c4e27d0f2f967"
+    },
+    {
+      "base": "8e7a024f2071c69074ae3eac1e3c4e27d0f2f967",
+      "candidate": "47fe56f7612441f75b56dee4e7e5cbd7c2f50566"
+    },
+    {
+      "base": "47fe56f7612441f75b56dee4e7e5cbd7c2f50566",
+      "candidate": "1f60b3797318cb6b33c93004e4f3acbf0b994731"
+    },
+    {
+      "base": "1f60b3797318cb6b33c93004e4f3acbf0b994731",
+      "candidate": "957e366440439526a464d3b3110e1cd627ec772f"
+    },
+    {
+      "base": "957e366440439526a464d3b3110e1cd627ec772f",
+      "candidate": "0df01adf976e662d73a732898bc3cd3184cb82c0"
+    },
+    {
+      "base": "2b5ad6affc3613c048318f12d23f5d09433fce1d",
+      "candidate": "aabd200631de835cd54be1147fe37850c4ee8649"
+    }
+  ]
+}
