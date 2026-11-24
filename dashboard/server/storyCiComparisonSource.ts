@@ -15,7 +15,7 @@ import { readStoredLandedCiHistory } from "./landedCiHistoryStore.ts";
 import type { LandingReceiptFacts } from "./landedCiReceipt.ts";
 import { observationNow } from "./observationClock.ts";
 import {
-  publishedStoryEndpoints,
+  checkoutStoryEndpoints,
   type PublishedStoryEndpointFacts,
 } from "./storyPublishedEndpoints.ts";
 import {
@@ -53,7 +53,7 @@ export function storyCiComparisonSource(
 ): StoryCiComparisonSource {
   return {
     publishedEndpoints: (identity) =>
-      publishedStoryEndpoints(source, identity, signal),
+      checkoutStoryEndpoints(source, identity, signal),
     takenEndpoints: (identity) => takenStoryEndpoints(source, identity, signal),
     async buildsFor(branch) {
       const context = await lookupContext(source, signal, branch);

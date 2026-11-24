@@ -7,6 +7,7 @@ import {
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 import { expect, test } from "../../test-support/support/codexStart.ts";
+import { shallowPublishedHistory } from "../../test-support/support/reviewRepositoryFixture.ts";
 import { ordinaryTrunkModeCompletionOntoTip } from "../../test-support/support/completedStoryHistory.ts";
 import {
   completedReviewQuery,
@@ -107,7 +108,7 @@ for (const invalid of [
     }
     // For the shallow-result case this marks M itself shallow; other cases
     // mark only later C, leaving M's valid claim history available.
-    git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+    shallowPublishedHistory(origin);
     expect(git(origin.project, "rev-parse", "--is-shallow-repository")).toBe(
       "true",
     );
@@ -160,7 +161,7 @@ test("a shallow origin cannot verify an earlier refinement or replace unavailabl
   writeRevisionFiles(origin.project, later);
   commitAll(origin.project, "later trunk after completion");
   git(origin.project, "push", "--quiet", "origin", "main");
-  git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+  shallowPublishedHistory(origin);
   const answer = storyReviewSchema.parse(
     await (
       await getReview(request, dashboard, storyReviewEndpoint, historical)

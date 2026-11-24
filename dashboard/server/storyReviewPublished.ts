@@ -5,12 +5,15 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
-import { executionCheckout } from "./executionCheckout.ts";
 import {
   publishedStoryAttribution,
   type PublishedStoryCommitEvidence,
 } from "./storyCompletedCommits.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
+import {
+  reviewRepositoryHolding,
+  syncedReviewRepository,
+} from "./reviewRepository.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
 import { compareOriginalTrees, listedFrom } from "./storyReviewComparison.ts";
 
@@ -25,8 +28,13 @@ export async function publishedStoryReview(
     explanation,
   });
   try {
+    const directory =
+      namedCompletion === undefined
+        ? await syncedReviewRepository(source, signal)
+        : await reviewRepositoryHolding(source, namedCompletion, signal);
     const endpoints = await publishedStoryEndpoints(
       source,
+      directory,
       identity,
       signal,
       namedCompletion,
@@ -35,7 +43,6 @@ export async function publishedStoryReview(
     if (endpoints.kind === "unavailable")
       return unavailable(endpoints.explanation);
     const { facts, claim } = endpoints;
-    const directory = executionCheckout(source).path;
     const call: GitCall = {
       cwd: directory,
       signal,

@@ -129,7 +129,7 @@ Learnings for later slices:
 
 ### 2. Open a Done story's review from the Review repository
 Type: Behavior
-Status: planned
+Status: done
 Proof: E2E `e2e/review/story-review-completed.spec.ts` with the checkout renamed; backend completion and file-admission cases; concurrent-open fetch count; `dashboard/backend-tests/intent/ci-comparison-taken.spec.ts` and the story CI comparison specs stay green.
 
 Behavior: a Done story's completion is published and the configured execution
@@ -141,6 +141,37 @@ Adds the Review repository module and moves Done completion resolution and its
 historical file admission onto it. `publishedStoryEndpoints` takes its
 repository, and CI keeps passing the checkout. Removes the review-only Git-root
 check from this path.
+
+Accepted proof (uncommitted candidate on a7448680, load 17–22): the new rename
+and shared-fetch cases failed first at a7448680, then passed. Also passing:
+typecheck, backend `story-review-completed*`, `intent/ci-comparison*`,
+`intent-ci-comparison*` and `landed-ci*`, E2E `story-review-completed`, and the
+Done-review E2E consumers `story-review-completed-merge-edits`,
+`story-review-follow-up`, `story-review-story-branch-landed`,
+`story-review-diff-add-note`, `recently-done-published-sessions`,
+`intent-done-completion-provenance`, `intent-story-becomes-done` and
+`recently-done-follow-up`.
+
+Learnings for later slices:
+- `dashboard/server/reviewRepository.ts` fetches trunk by exact refspec,
+  without a wildcard or `--prune`. Its `refspec(ref)` takes slice 3's Taken
+  branch refs. `GitTargetFetches` shares fetches by repository and ref. The
+  sync record lives at `<repository>/open-dough-sync.json`.
+- `checkoutStoryEndpoints` keeps the checkout path for CI and, until slice 4,
+  for `storyReviewPublishedLanding.ts`. Landed-run file admission also still
+  reads the checkout. Slice 4 moves both.
+- `dashboard/test-support/support/reviewRepositoryFixture.ts` renames the
+  checkout and plants history gaps in the Review repository. The
+  shared-fetch spec counts fetches through a `git` wrapper on PATH. Slice 3's
+  no-remote-request proof reuses that wrapper.
+- The "checkout's tracked trunk is unchanged" promise has its own backend
+  case, in which the checkout stays in place while origin advances. A
+  checkout-fetch mutation broke only that case. A renamed checkout cannot
+  observe it.
+- Slice 4: `reviewRepositoryHolding` repeats `fetchUnlessCommitPresent`
+  (`gitTargetFetch.ts`, used by `sessionBranchAttribution.ts`). Merge them
+  when session ranges move. They differ in the recheck after fetch and in the
+  failure wording.
 
 ### 3. Move Taken story comparisons and fix file reads to their endpoints
 Type: Behavior

@@ -11,6 +11,7 @@ import type { StoryReview } from "../src/storyReviewContract.ts";
 import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { executionCheckout } from "./executionCheckout.ts";
+import { reviewRepositoryPath } from "./reviewRepository.ts";
 import {
   reviewedLandedRunByReference,
   reviewedLandedRuns,
@@ -137,7 +138,7 @@ async function admitPublishedCompletion(
       409,
       "The file or comparison does not belong to this published completion.",
     );
-  return { repository: executionCheckout(source).path, ...file };
+  return { repository: reviewRepositoryPath(source), ...file };
 }
 
 function requireLandingFile(

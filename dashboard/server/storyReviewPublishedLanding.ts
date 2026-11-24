@@ -20,7 +20,7 @@ import {
 import { publishedRecordAt } from "./publishedSessionReview.ts";
 import { sessionRecordDirectoryOf } from "./recordsBesideBacklog.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
-import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
+import { checkoutStoryEndpoints } from "./storyPublishedEndpoints.ts";
 
 export async function publishedLandingCheckout(
   source: PublishedSource,
@@ -146,7 +146,7 @@ export async function recordedLandingReview(
 > {
   if (!isSessionId(reference)) return undefined;
   // Named reads can arrive before the Done view has fetched the close record.
-  const endpoints = await publishedStoryEndpoints(source, identity, signal);
+  const endpoints = await checkoutStoryEndpoints(source, identity, signal);
   if (endpoints.kind !== "facts") return undefined;
   const { facts } = endpoints;
   const landing =
