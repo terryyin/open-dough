@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Mana-chan",
-  "email": "mana-chan@example.org",
-  "identity": "SEED-428#read-review-files-without-fetching",
-  "mode": "story-branch",
-  "branch": "claude/read-review-files-without-fetching",
-  "host": "claude"
-}

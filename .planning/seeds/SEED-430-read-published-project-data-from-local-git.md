@@ -27,7 +27,7 @@ when it last confirmed the published state or whether a refresh failed.
 
 **Starting point.** Extend the Review repository and shared fetch that SEED-428
 delivered in `dashboard/server/reviewRepository.ts`, after its correction
-[Read review files without fetching](SEED-428-read-reviews-from-the-review-repository.md#read-review-files-without-fetching).
+[Read review files without fetching](https://github.com/terryyin/open-dough/blob/82fa2ac11bda12ca2af0f9575087a79bdf3b98ec/.planning/seeds/SEED-428-read-reviews-from-the-review-repository.md#read-review-files-without-fetching).
 That delivery left two gaps for this story's refresh design:
 - Exact-ref fetches never prune, so a story branch deleted on origin is
   still read from its stale tracking ref, with no notice.
