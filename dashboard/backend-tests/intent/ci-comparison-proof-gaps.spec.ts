@@ -1,6 +1,6 @@
 // Bounded proof walks through the real comparison read.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { storyCiComparisonEvidence } from "../support/storyCiComparisonEvidence.ts";
 import {
   baseline,

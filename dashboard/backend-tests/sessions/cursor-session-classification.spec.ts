@@ -6,7 +6,7 @@
 // history, and an earlier composer line is not the current one. A
 // clarifying question is proved (and its text taken) only by the
 // structural `Question N of M` line with the selection footer.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import {
   cursorSessionLabel,
   cursorWaitingQuestion,

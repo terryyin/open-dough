@@ -2,7 +2,7 @@
 // and whether it offers Open terminal (../../src/launchRecord.ts). The page
 // journeys keep one change each: ../../../e2e/sessions/agent-launch-session-state-pace.spec.ts.
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { attachOpens } from "../../src/launchRecord.ts";
 import { sessionShown } from "../../src/sessionShown.ts";

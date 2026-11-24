@@ -1,5 +1,5 @@
 // Recovery must judge the whole synchronized screen before sending a continuation.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { LaunchInstruction } from "../../server/launchInstruction.ts";
 import { showsCursorComposer } from "../../server/hosts/cursor/idleScreen.ts";
 

@@ -3,7 +3,7 @@
 import { mkdtempSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { launchHost } from "../../server/launchHosts.ts";
 import type { HostSession } from "../../src/agentLaunch.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";

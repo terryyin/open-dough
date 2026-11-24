@@ -2,7 +2,7 @@
 // with a native PTY replaced, so Recover's continuation is pasted onto the
 // idle composer and Enter submits the chip while Cursor keeps showing it until
 // a later repaint. Keep settles on that repaint, not on the submitted chip.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { TerminalAttachments } from "../../server/terminalAttachments.ts";
 import { cursorSessionLabel } from "../../server/hosts/cursor/idleScreen.ts";
 import { cursorHeldLabel } from "../../src/cursorHeldLabel.ts";

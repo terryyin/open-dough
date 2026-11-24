@@ -13,7 +13,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { observeHeldCursorSession } from "../../server/hosts/cursor/sessions.ts";
 import type { HeldCursorSession } from "../../server/hosts/cursor/heldSessions.ts";
 import { cursorBelongingSubagentsDirectory } from "../../server/hosts/cursor/unfinishedSubagents.ts";
@@ -85,14 +85,14 @@ function expectAvailableActivity(
   ).toEqual({ kind: "available", availability: "loaded", activity });
 }
 
-test.describe("follow-up with owned pending CI mailbox", () => {
+describe("follow-up with owned pending CI mailbox", () => {
   let home: string;
   let mailboxStorage: string;
-  test.beforeEach(() => {
+  beforeEach(() => {
     home = mkdtempSync(path.join(tmpdir(), "dough-cursor-ci-home-"));
     mailboxStorage = mkdtempSync(path.join(tmpdir(), "dough-cursor-ci-mail-"));
   });
-  test.afterEach(() => {
+  afterEach(() => {
     rmSync(home, { recursive: true, force: true });
     rmSync(mailboxStorage, { recursive: true, force: true });
   });
