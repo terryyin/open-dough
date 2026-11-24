@@ -31,7 +31,8 @@ that still catches the distinct regressions in these 13 source files.
   `collectedProofOf`, `scopeHistoryOf` and `performIntentCiHistoryRead`.
   Bind the pass's project, retained history, receipts, Git order, stop
   signal and CI providers explicitly. Reuse any compatible bindings
-  delivered by [wall-time history](../805-renovate-landed-ci-backend-proof/PLAN.md).
+  delivered by wall-time history: `collectLandedCiPass` and the composed
+  inputs in `dashboard/backend-tests/support/landedCiPassInputs.ts`.
   The first slice owns binding the proof readers and pass to explicit
   inputs if needed. Keep one proof reader per production lifetime and the
   existing distinction between a pending reply and immutable attempt

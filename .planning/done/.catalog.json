@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-landed-ci-backend-proof.json",
+      "identity": "SEED-413#renovate-landed-ci-backend-proof",
+      "completedAt": "2026-11-24T09:02:56.336Z",
+      "blob": "b3bf3fd928a0296bf89c25b5913d181a90f0c0fc"
+    },
+    {
       "fileName": "SEED-413_speed-dashboard-done-session-review-proof.json",
       "identity": "SEED-413#speed-dashboard-done-session-review-proof",
       "completedAt": "2026-11-24T04:24:40.300Z",
