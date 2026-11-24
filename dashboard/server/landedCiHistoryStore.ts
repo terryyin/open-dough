@@ -35,7 +35,7 @@ import {
   historyWithCollectedEvidence,
   type CollectedBuildEvidence,
 } from "./landedCiRetainedProof.ts";
-import { machineDashboardPath } from "./machineHome.ts";
+import { machineDocumentAt } from "./machineHome.ts";
 import {
   leaveMachineJson,
   readMachineJson,
@@ -66,16 +66,19 @@ const storeSchema = z.record(z.string(), projectHistorySchema);
 
 export type StoredHistory = z.infer<typeof storeSchema>;
 
-const historyStore = (): MachineJsonStore<StoredHistory> => ({
-  file: machineDashboardPath("landed-ci-history.json"),
+// `home` names the machine whose documents a caller reads; absent, this one.
+export const historyStore = (
+  home?: string,
+): MachineJsonStore<StoredHistory> => ({
+  file: machineDocumentAt("landed-ci-history.json", home),
   schema: storeSchema,
   empty: {},
 });
 
-const noHistory: ProjectHistory = { landings: {}, builds: {} };
+export const noHistory: ProjectHistory = { landings: {}, builds: {} };
 
-export function readStoredLandedCiHistory() {
-  return readMachineJson(historyStore());
+export function readStoredLandedCiHistory(home?: string) {
+  return readMachineJson(historyStore(home));
 }
 
 // An absent local document is empty; unreadable bytes remain a read failure.
@@ -83,12 +86,14 @@ export function readStoredLandedCiHistory() {
 // and public projection, preserving order evidence needed by collection.
 export async function readLandedCiHistory(
   sourceId: string,
+  home?: string,
 ): Promise<ProjectHistory | undefined> {
-  const read = await readStoredLandedCiHistory();
+  const read = await readStoredLandedCiHistory(home);
   return read.kind === "document"
     ? withOriginalFollowUpSamples(
         sourceId,
         withAdapterIdentity(read.document[sourceId] ?? noHistory),
+        home,
       )
     : undefined;
 }
@@ -96,8 +101,9 @@ export async function readLandedCiHistory(
 // Background rebuilding retains its unreadable-store convention.
 export async function keptLandedCiHistory(
   sourceId: string,
+  home?: string,
 ): Promise<ProjectHistory> {
-  return (await readLandedCiHistory(sourceId)) ?? noHistory;
+  return (await readLandedCiHistory(sourceId, home)) ?? noHistory;
 }
 
 // A trunk landing as the history refers to it: by its receipt, with its
@@ -129,16 +135,22 @@ export function keptLandingReferences(
 // subject, using the same shared window as project and scoped readers.
 // When `collected` is supplied, the first proof ask is retained in the same
 // write so a history reader never observes the measured point while that ask
-// is still outstanding.
+// is still outstanding. `home` names the machine whose history is kept.
 export async function keepLandedCiResolution(
   sourceId: string,
   landing: LandingReference,
   resolution: LandedResolution,
   order?: readonly string[],
-  collected?: CollectedBuildEvidence,
+  {
+    collected,
+    home,
+  }: {
+    readonly collected?: CollectedBuildEvidence | undefined;
+    readonly home?: string | undefined;
+  } = {},
 ): Promise<ProjectHistory> {
   let history = noHistory;
-  await replaceMachineJson(historyStore(), async (stored) => {
+  await replaceMachineJson(historyStore(home), async (stored) => {
     const original = stored[sourceId] ?? noHistory;
     const compatible = withAdapterIdentity(original);
     const supplied =
@@ -161,6 +173,7 @@ export async function keepLandedCiResolution(
         project,
         landing,
         keptResolution(resolution),
+        home,
       ),
     );
     if (decision.kind === "hold") {
@@ -210,8 +223,9 @@ export async function keepLandedCiResolution(
 export async function keepLandedCiOrder(
   sourceId: string,
   order: readonly string[],
+  home?: string,
 ): Promise<void> {
-  await replaceMachineJson(historyStore(), (stored) => {
+  await replaceMachineJson(historyStore(home), (stored) => {
     const original = stored[sourceId];
     if (original === undefined) return leaveMachineJson;
     const project = withAdapterIdentity(original);
@@ -228,20 +242,4 @@ export async function keepLandedCiOrder(
       [sourceId]: windowedHistory({ ...project, trunkOrder }),
     };
   });
-}
-
-// One project's history rewritten under the shared window and equality leave.
-export async function updateProjectHistory(
-  sourceId: string,
-  update: (project: ProjectHistory) => ProjectHistory,
-): Promise<ProjectHistory> {
-  let history = noHistory;
-  await replaceMachineJson(historyStore(), (stored) => {
-    const original = stored[sourceId] ?? noHistory;
-    history = update(original);
-    return isDeepStrictEqual(history, original)
-      ? leaveMachineJson
-      : { ...stored, [sourceId]: history };
-  });
-  return history;
 }

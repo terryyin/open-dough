@@ -1,247 +1,136 @@
-// Landed CI history across a dashboard restart and launch-record expiry.
-// Two collectors measure the pending landing once from its saved reference,
-// and the development server reads the history without asking CI.
-
+// Landed CI history across collectors (../../server/landedCiCollection.ts):
+// a landing still building when one collector closes stays a pending gap in
+// the kept history, and the next collector measures it once from the
+// history's own reference after its launch record is gone. Closing a
+// collector during a CI read it waits on writes nothing late. Separate
+// processes sharing one history are proved in
+// ./landed-ci-collector-lifetime.spec.ts.
+import { existsSync } from "node:fs";
 import path from "node:path";
-import type { CiRunAnswer } from "../../test-support/support/baseCiActions.ts";
-import { retainedHistory } from "../../test-support/support/collectedScopeHistory.ts";
-import { expectCollectedScopePoints } from "../../test-support/support/collectedScopeReadProofs.ts";
+import { expect, test } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { ListedRun } from "../../server/baseCiNearest.ts";
+import { LandedCiCollection } from "../../server/landedCiCollection.ts";
+import { keptLandedCiHistory } from "../../server/landedCiHistoryStore.ts";
 import {
-  startFakeGitHub,
-  type FakeGitHub,
-} from "../../test-support/support/fakeGitHub.ts";
-import { isActionsRequest } from "../../test-support/support/ghActionsRequest.ts";
+  collectLandedCiPass,
+  type LandedCiPassInputs,
+} from "../../server/landedCiPass.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
-  keptLandedCiHistory,
-  landedCiHistory,
-  landedRecord,
-  minutesAgo,
-  observedKinds,
-  restartAsLandedCiReader,
-} from "../../test-support/support/landedCiHistory.ts";
-import {
-  exactHistoryPoint,
-  noBuildHistoryGap,
-  pendingBuildHistoryGap,
-  publicHistoryAnswer,
-} from "../../test-support/support/landedCiHistoryAnswers.ts";
-import {
-  expect,
-  test,
-} from "../../test-support/support/landedCiHistoryTest.ts";
-import { serveCollectedTrunkRuns } from "../../test-support/support/landedCiScopeProofs.ts";
-import {
-  passedFrom,
-  publishedLanding,
-  runningFrom,
-  serveTrunkRuns,
-  trunkRun,
-} from "../../test-support/support/landedCiTrunk.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { collectedScopeFileSummary } from "../../test-support/support/scopeHistoryProofs.ts";
+  landedCiPassInputs,
+  passProject,
+} from "../support/landedCiPassInputs.ts";
 
-// No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary" });
+const revision = "4".repeat(40);
+const receipt = "aaaaaaaa-0000-4000-8000-000000000004";
+const record = makeMe.aLaunchRecord
+  .executing({ identity: "SEED-9#running", title: "running" })
+  .launchedAt("2026-11-05T09:55:00.000Z")
+  .landedAt(revision, { receipt })
+  .please();
+const run = (facts: Partial<ListedRun>) =>
+  makeMe.aRevisionCiRun
+    .with({
+      headSha: revision,
+      databaseId: 43,
+      attempt: 1,
+      createdAt: "2026-11-05T10:00:00Z",
+      startedAt: "2026-11-05T10:00:00Z",
+      ...facts,
+    })
+    .please();
 
-// Marked Done longer ago than a Done record is kept (30 days).
-const expiredDoneAt = () => minutesAgo(31 * 24 * 60);
+// A collecting server's lifecycle over these inputs, settled after its first
+// pass and then closed.
+async function collectOnce(
+  inputs: (stopped: AbortSignal) => LandedCiPassInputs,
+): Promise<void> {
+  let settled!: () => void;
+  const first = new Promise<void>((resolve) => {
+    settled = resolve;
+  });
+  const collection = new LandedCiCollection({
+    collects: () => true,
+    recheckMs: () => 60_000,
+    pass: async (stopped) => {
+      await collectLandedCiPass(inputs(stopped));
+      settled();
+    },
+  });
+  await first;
+  collection.close();
+}
 
-// The GitHubs a test starts beside its own, all closed after it.
-const githubs: FakeGitHub[] = [];
+test("a landing still building stays pending through closing and reopening, then becomes one point from the kept reference after its launch record is gone", async () => {
+  let runs: readonly ListedRun[] = [
+    run({ status: "in_progress", conclusion: null }),
+  ];
+  let records: readonly LaunchRecord[] = [record];
+  const pass = landedCiPassInputs([revision], {
+    runs: () => runs,
+    records: () => records,
+  });
 
-test.afterEach(async () => {
-  await Promise.all(githubs.splice(0).map((github) => github.close()));
+  await collectOnce(pass.inputs);
+  expect(
+    (await keptLandedCiHistory(passProject.id, pass.home)).landings,
+  ).toMatchObject({ [receipt]: { observed: { kind: "pending" } } });
+
+  runs = [run({ completedAt: "2026-11-05T10:07:10Z" })];
+  records = [];
+  await collectOnce(pass.inputs);
+
+  const kept = await keptLandedCiHistory(passProject.id, pass.home);
+  expect(kept.landings[receipt]?.observed).toMatchObject({
+    kind: "build",
+    build: "run/43/1",
+  });
+  expect(Object.keys(kept.builds)).toEqual(["run/43/1"]);
 });
 
-test("landings recorded before collection starts are collected by its first pass; one still running stays a pending gap through a restart and is measured once by two collecting processes, from the history's own reference after its Done record expired; a development server reads the same history and asks CI nothing", async ({
-  origin,
-  github,
-  startServer,
-}) => {
-  const home = path.join(origin.machine, "home");
-  // Four landings on trunk, oldest first: `expired` recorded and marked Done
-  // long ago, the others within the last hour; `unbuilt` is never built
-  // itself, and the next one is.
-  const expired = await publishedLanding(origin, {
-    title: "expired",
-    receipt: "aaaaaaaa-0000-4000-8000-000000000001",
-    at: minutesAgo(32 * 24 * 60),
+test("closing a collector while its CI read is held writes nothing once the read answers", async () => {
+  const pass = landedCiPassInputs([revision], {
+    runs: () => [run({ completedAt: "2026-11-05T10:07:10Z" })],
+    records: () => [record],
   });
-  const measured = await publishedLanding(origin, {
-    title: "measured",
-    receipt: "aaaaaaaa-0000-4000-8000-000000000002",
-    at: minutesAgo(30),
+  let answer!: () => void;
+  const held = new Promise<void>((resolve) => {
+    answer = resolve;
   });
-  const unbuilt = await publishedLanding(origin, {
-    title: "unbuilt",
-    receipt: "aaaaaaaa-0000-4000-8000-000000000003",
-    at: minutesAgo(20),
+  let reading!: () => void;
+  const asked = new Promise<void>((resolve) => {
+    reading = resolve;
   });
-  const running = await publishedLanding(origin, {
-    title: "running",
-    receipt: "aaaaaaaa-0000-4000-8000-000000000004",
-    at: minutesAgo(10),
-  });
-  // Each build from when its landing was recorded: `measured` built in
-  // 6 min 5 s; `running` still running. Recovered run 43 carries explicit
-  // case/file timings through the shared CLI summary producer.
-  let runs: readonly CiRunAnswer[] = [
-    trunkRun(expired.revision, 40, passedFrom(expired.at, 5 * 60_000)),
-    trunkRun(measured.revision, 41, passedFrom(measured.at, 365_000)),
-    trunkRun(running.revision, 43, runningFrom(running.at)),
-  ];
-  const recoveredSummary = collectedScopeFileSummary(
-    {
-      repository: "terryyin/open-dough",
-      runId: 43,
-      attempt: 1,
-      revision: running.revision,
+  let passed!: Promise<void>;
+  const collection = new LandedCiCollection({
+    collects: () => true,
+    recheckMs: () => 60_000,
+    pass: (stopped) => {
+      const inputs = pass.inputs(stopped);
+      passed = collectLandedCiPass({
+        ...inputs,
+        read: (source, signal) => {
+          const read = inputs.read(source, signal);
+          return async () => {
+            reading();
+            await held;
+            return read();
+          };
+        },
+      });
+      return passed;
     },
-    [
-      ["folder/a.spec.ts", 200, 20],
-      ["folder/zero.spec.ts", 0, 0],
-      ["root.spec.ts", 300, 30],
-    ],
-  );
-  serveCollectedTrunkRuns(
-    github,
-    origin,
-    () => runs,
-    () => ({
-      43: { kind: "collected", artifactId: 430, text: recoveredSummary },
-    }),
-  );
-  // Recorded before any server here started; `expired`'s Done record has
-  // expired, so it is outside the retained history.
-  keepLaunchRecords(home, [
-    landedRecord(expired, minutesAgo(31 * 24 * 60 + 30)),
-    landedRecord(unbuilt),
-    landedRecord(measured),
-    landedRecord(running),
-  ]);
-  const measuredPoint = exactHistoryPoint(measured, {
-    runId: 41,
-    durationMs: 365_000,
-  });
-  // CI built past `unbuilt` without building it: a final No build gap.
-  const unbuiltGap = noBuildHistoryGap(unbuilt);
-  const pendingHistory = publicHistoryAnswer([
-    measuredPoint,
-    unbuiltGap,
-    pendingBuildHistoryGap(running, 43),
-  ]);
-
-  await test.step("the first pass collects the landings already recorded: a point, then the unbuilt landing, a final gap because CI built past it, and a pending gap at the end", async () => {
-    const first = await startServer();
-    await expect
-      .poll(() => observedKinds(keptLandedCiHistory(home)))
-      .toEqual({
-        [unbuilt.receipt]: "gap",
-        [measured.receipt]: "build",
-        [running.receipt]: "pending",
-      });
-    expect(await landedCiHistory(first)).toEqual(pendingHistory);
-    // The dashboard stops while `running` is still running.
-    await first.close();
   });
 
-  // Meanwhile every Done record expires and the run completes in 7 min 10 s.
-  keepLaunchRecords(
-    home,
-    [expired, unbuilt, measured, running].map((each) =>
-      landedRecord(each, expiredDoneAt()),
+  await asked;
+  collection.close();
+  answer();
+  await passed;
+
+  expect(
+    existsSync(
+      path.join(pass.home, ".open-dough/dashboard/landed-ci-history.json"),
     ),
-  );
-  runs = [
-    ...runs.slice(0, 2),
-    trunkRun(running.revision, 43, passedFrom(running.at, 430_000)),
-  ];
-  // A development server on the machine, asking a GitHub of its own.
-  const developmentGitHub = await startFakeGitHub();
-  githubs.push(developmentGitHub);
-  serveTrunkRuns(developmentGitHub, origin, () => runs);
-  const development = await startServer({
-    github: developmentGitHub,
-    environment: "development",
-  });
-
-  await test.step("a development server reads the same history, still pending", async () => {
-    expect(await landedCiHistory(development)).toEqual(pendingHistory);
-  });
-
-  await test.step("two collecting processes start after CI completes: the pending landing is measured once, from the history's own reference, after the gap that falls between the two points", async () => {
-    const [restarted, second] = await Promise.all([
-      startServer({ liveServer: "separate process" }),
-      startServer({ liveServer: "separate process" }),
-    ]);
-    const measuredHistory = publicHistoryAnswer([
-      measuredPoint,
-      unbuiltGap,
-      exactHistoryPoint(running, { runId: 43, durationMs: 430_000 }),
-    ]);
-    await expect
-      .poll(() => landedCiHistory(restarted))
-      .toEqual(measuredHistory);
-    expect(await landedCiHistory(second)).toEqual(measuredHistory);
-    const kept = keptLandedCiHistory(home);
-    expect(observedKinds(kept)).toEqual({
-      [unbuilt.receipt]: "gap",
-      [measured.receipt]: "build",
-      [running.receipt]: "build",
-    });
-    expect(Object.keys(kept.builds).sort()).toEqual(["run/41/1", "run/43/1"]);
-    await expect
-      .poll(() => retainedHistory(home)?.builds["run/43/1"]?.proof)
-      .toEqual({
-        kind: "summary",
-        summary: JSON.parse(recoveredSummary) as unknown,
-      });
-
-    // Equal scoped responses include the older build's proof gap too.
-    await expect
-      .poll(() => retainedHistory(home)?.builds["run/41/1"]?.proof)
-      .toEqual({ kind: "unavailable", reason: "none" });
-    const recoveredScopes = [
-      ["dashboard/tests", 500, 50],
-      ["dashboard/tests/folder", 200, 20],
-      ["dashboard/tests/folder/zero.spec.ts", 0, 0],
-    ] as const;
-    const recoveredScope = {
-      key: "run/43/1",
-      revision: running.revision,
-      through: running.at,
-      scopes: recoveredScopes,
-    };
-    await expectCollectedScopePoints(
-      [restarted.origin, second.origin],
-      recoveredScope,
-    );
-
-    // The development server, started before them, reads what they
-    // collected and has asked CI nothing, before or after.
-    expect(await landedCiHistory(development)).toEqual(measuredHistory);
-    expect(
-      developmentGitHub.calls.filter(({ request }) =>
-        isActionsRequest(request),
-      ),
-    ).toEqual([]);
-
-    await second.close();
-    const reader = await restartAsLandedCiReader(
-      restarted,
-      origin,
-      "boundary",
-      "separate process",
-    );
-    try {
-      const asked = github.calls.length;
-      await expectCollectedScopePoints(
-        [reader.origin, reader.origin],
-        recoveredScope,
-      );
-      expect(github.calls).toHaveLength(asked);
-    } finally {
-      await reader.close();
-    }
-  });
+  ).toBe(false);
 });

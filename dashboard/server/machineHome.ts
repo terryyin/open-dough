@@ -10,6 +10,11 @@ export function machineDashboardDirectory(home = homedir()): string {
   return path.join(home, ".open-dough", "dashboard");
 }
 
+// One named document under `home`'s dashboard directory.
+export function machineDocumentAt(name: string, home = homedir()): string {
+  return path.join(machineDashboardDirectory(home), name);
+}
+
 // `segments` under this machine's dashboard home.
 export function machineDashboardPath(...segments: string[]): string {
   return path.join(machineDashboardDirectory(), ...segments);

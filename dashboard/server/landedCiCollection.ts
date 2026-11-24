@@ -13,11 +13,10 @@
 // A pass reads this machine's launch records (`./launchRecordStore.ts`), so
 // it finds the landings every dashboard process on this machine recorded,
 // with the landings the history itself keeps, whose records may have expired.
-// For each configured project it walks the landings onto its configured ref,
-// newest first, until the history holds `measuredWindow` measured builds for
-// it (`./landedCiMeasuredBuilds.ts`), and resolves each landing whose
-// resolution is not final yet over the project's CI read for the pass
-// (`./landedCiResolution.ts`, `./landedCiCollectionLanding.ts`). A final
+// For each configured project the ordered pass (`./landedCiPass.ts`) walks
+// the landings onto its configured ref, newest first, until the history
+// holds `measuredWindow` measured builds for it, and resolves each landing
+// whose resolution is not final yet over the project's CI read. A final
 // resolution is kept and never resolved again, except a retained equivalent
 // `No CI proof summary` gap that timed wall-time reuse without proof would
 // now measure (`reopenableRetainedNoProofSkip`, `./landedCiNoProofReopen.ts`);
@@ -36,26 +35,13 @@
 // `DOUGH_TEST_LANDED_CI_COLLECTION=off`.
 
 import { collectCiFollowUps } from "./ciFollowUpCollection.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { configuredLimit } from "./configuredLimit.ts";
-
-import {
-  keepLandedCiOrder,
-  keptLandedCiHistory,
-  keptLandingReferences,
-  type LandingReference,
-  type ProjectHistory,
-} from "./landedCiHistoryStore.ts";
-import { collectLandingResolution } from "./landedCiCollectionLanding.ts";
-import {
-  measuredWindow,
-  newestFirst,
-  mostCompleteLandingOrder,
-} from "./landedCiMeasuredBuilds.ts";
+import type { LandingReference } from "./landedCiHistoryStore.ts";
+import { collectLandedCiPass } from "./landedCiPass.ts";
+import { providerProof } from "./landedCiCollectedProof.ts";
+import { homedir } from "node:os";
 import { readLandingOrder } from "./launchLandingGit.ts";
-
 import { passRead } from "./landedCiResolution.ts";
 import { readableRecordsByProject } from "./launchRecordStore.ts";
 import {
@@ -78,26 +64,56 @@ function collects(): boolean {
   );
 }
 
-function proofSignal(stopped: AbortSignal): AbortSignal {
-  return AbortSignal.any([stopped, AbortSignal.timeout(readWaitLimitMs)]);
+// The candidates' trunk order their checkouts and the project's execution
+// checkout know.
+function localLandingOrder(
+  source: PublishedSource,
+  candidates: readonly LandingReference[],
+  stopped: AbortSignal,
+): Promise<readonly string[] | undefined> {
+  return readLandingOrder(
+    [
+      ...candidates.flatMap((landing) =>
+        landing.repository === undefined ? [] : [landing.repository],
+      ),
+      executionCheckout(source).path,
+    ],
+    candidates.map((landing) => landing.revision),
+    undefined,
+    stopped,
+  );
 }
 
-// The landings onto the project's configured ref that its records name, with
-// those the history keeps, each once by receipt. Local and retained ancestry
-// order them before collection can select or prune measurements.
-function trunkLandings(
-  source: PublishedSource,
-  records: readonly LaunchRecord[],
-  history: ProjectHistory,
-): LandingReference[] {
-  const target = `refs/heads/${source.ref}`;
-  const byReceipt = new Map<string, LandingReference>();
-  for (const landing of keptLandingReferences(history))
-    byReceipt.set(landing.receipt, landing);
-  for (const { landing } of records)
-    if (landing?.target === target) byReceipt.set(landing.receipt, landing);
-  return [...byReceipt.values()];
+// This machine's pass: its readable launch records and configured projects,
+// their checkouts' Git order, their providers' CI and proof, and its home's
+// history.
+async function machinePass(stopped: AbortSignal): Promise<void> {
+  const records = await readableRecordsByProject();
+  if (records === undefined) return;
+  await collectLandedCiPass({
+    projects: publishedProjects(),
+    records,
+    landingOrder: localLandingOrder,
+    read: passRead,
+    readProof: providerProof,
+    home: homedir(),
+    followUps: collectCiFollowUps,
+    stopped,
+  });
 }
+
+// Whether a server collects, how often it collects again, and its pass.
+export type LandedCiLifecycle = {
+  readonly collects: () => boolean;
+  readonly recheckMs: () => number;
+  readonly pass: (stopped: AbortSignal) => Promise<void>;
+};
+
+const machineLifecycle: LandedCiLifecycle = {
+  collects,
+  recheckMs,
+  pass: machinePass,
+};
 
 export class LandedCiCollection {
   private readonly stopped = new AbortController();
@@ -106,18 +122,22 @@ export class LandedCiCollection {
   // The pass asked for once the one under way ends.
   private next: Promise<void> | undefined;
 
-  constructor() {
-    if (!collects()) return;
-    void repeatUntilStopped(this.stopped.signal, recheckMs, async () => {
-      await this.collected();
-      return undefined;
-    });
+  constructor(private readonly lifecycle = machineLifecycle) {
+    if (!lifecycle.collects()) return;
+    void repeatUntilStopped(
+      this.stopped.signal,
+      lifecycle.recheckMs,
+      async () => {
+        await this.collected();
+        return undefined;
+      },
+    );
   }
 
   // Collects the recorded landings not yet final, now, or once the pass
   // under way ends; nothing where this server does not collect.
   nudge(): void {
-    if (this.ended() || !collects()) return;
+    if (this.ended() || !this.lifecycle.collects()) return;
     void this.collected();
   }
 
@@ -129,7 +149,7 @@ export class LandedCiCollection {
       this.next = undefined;
       if (this.ended()) return;
       try {
-        await this.pass();
+        await this.lifecycle.pass(this.stopped.signal);
       } catch {
         // Collected again at the next pass.
       }
@@ -142,66 +162,6 @@ export class LandedCiCollection {
   // Whether collection has ended, as it may have during any read.
   private ended(): boolean {
     return this.stopped.signal.aborted;
-  }
-
-  private async pass(): Promise<void> {
-    const records = await readableRecordsByProject();
-    if (records === undefined) return;
-    for (const source of publishedProjects()) {
-      if (this.ended()) return;
-      await this.collect(source, records.get(source.id) ?? []);
-    }
-  }
-
-  private async collect(
-    source: PublishedSource,
-    records: readonly LaunchRecord[],
-  ): Promise<void> {
-    let history = await keptLandedCiHistory(source.id);
-    const candidates = trunkLandings(source, records, history);
-    const localOrder = await readLandingOrder(
-      [
-        ...candidates.flatMap((landing) =>
-          landing.repository === undefined ? [] : [landing.repository],
-        ),
-        executionCheckout(source).path,
-      ],
-      candidates.map((landing) => landing.revision),
-      undefined,
-      this.stopped.signal,
-    );
-    const order = mostCompleteLandingOrder(candidates, [
-      history.trunkOrder,
-      localOrder,
-    ]);
-    const landings = candidates.sort(newestFirst(order));
-    const read = passRead(source, this.stopped.signal);
-    const measured = new Set<string>();
-    for (const landing of landings) {
-      if (this.ended()) return;
-      if (measured.size >= measuredWindow) break;
-      const outcome = await collectLandingResolution({
-        source,
-        landing,
-        history,
-        order,
-        read,
-        proofSignal: proofSignal(this.stopped.signal),
-        ended: () => this.ended(),
-      });
-      history = outcome.history;
-      if (outcome.kind === "ended") return;
-      if (outcome.kind === "stop-project") break;
-      if (outcome.measuredBuild !== undefined)
-        measured.add(outcome.measuredBuild);
-    }
-    if (order !== undefined) await keepLandedCiOrder(source.id, order);
-    if (!this.ended())
-      await collectCiFollowUps(
-        source,
-        await keptLandedCiHistory(source.id),
-        proofSignal(this.stopped.signal),
-      );
   }
 
   // Ends collection and any read it waits on.

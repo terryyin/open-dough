@@ -87,7 +87,7 @@ landed-ci-history-read-window.spec.ts landed-ci-scope-retained-window.spec.ts
 --workers=2` passed both cases after restoring the source. Slice 5 retains
 this discrimination at the typed reader.
 
-## Slices and outside-in proof
+## Slices
 
 Each file stem below denotes `dashboard/backend-tests/intent/landed-ci-history-<stem>.spec.ts`.
 For each slice, map the original behavioral purposes to their surviving cases,
@@ -102,7 +102,7 @@ simplify costly setup while it still owns that case.
 ### 1. Accepted landings are collected with the production lifecycle
 
 Type: Behavior
-Status: planned
+Status: done
 
 Before migrating the first case, time the baseline command above with only
 the `landed-ci-history-` selector. Use the proof record for each case duration,
@@ -121,6 +121,20 @@ it. Control the CI state transition at the typed lookup. Observe no
 collection in disabled mode and no late write when a held read is aborted.
 Keep the existing process-level lifetime cases with the correction.
 Run the scoped lifecycle consumers if the shared composition changes.
+
+**Slice 1 evidence.** Baseline at `920286793` (`landed-ci-history-` only, two
+workers, AC power): 22 cases in 14 files passed, summed case time 75.795 s,
+shell elapsed 50.22 s. The converted `collection` file took 9685 ms over 2
+cases and `lifecycle` 5469 ms over 1 case. After slice 1, the four converted
+cases run in 0.6–33.5 ms. The pass is `collectLandedCiPass` in
+`dashboard/server/landedCiPass.ts`, fed by `LandedCiPassInputs`. Unit cases
+compose those inputs through `dashboard/backend-tests/support/landedCiPassInputs.ts`.
+`LandedCiCollection` keeps scheduling and abort. Its history input is a
+machine `home`, because reads and writes also use the follow-up ledger, plus
+a separate proof read. The reads take `{ home }` options.
+`intentCiHistoryRead.ts` sits at exactly 250 lines, so any growth there
+needs a split. Two-process measurement stays with `landed-ci-collector-lifetime`,
+and the No build gap moves to slices 2 and 4.
 
 ### 2. Exact pending runs agree between history and comparison
 
@@ -227,6 +241,13 @@ attempt evidence which a read projects. The runner-wait measure derives from
 that same attempt. The slice map covers all 14 source files, with separate
 observations for expiry, recovery and passive reads. No remaining slice-specific
 concern was identified.
+
+## Story obligations
+
+### G1. Receipt-triggered collection has no unit case
+Reported: slice 1 — "no unit case for the receipt-triggered nudge"
+Story clause: "Cover initial collection and restart"
+Disposition: proved by slice 1: `dashboard/backend-tests/intent/landed-ci-proof-collection.spec.ts` lands through the installed publication and polls the retained proof with a two-minute recheck, so only the landing endpoint's nudge (`dashboard/server/launchBoundaryAnswer.ts`) collects it in time; it passed in slice 1's consumer run. A conversion of that standalone owner must keep this observation.
 
 ## Verification and delivery
 

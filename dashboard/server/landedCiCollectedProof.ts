@@ -16,6 +16,23 @@ import { readIntentCiProof } from "./intentCiProofRead.ts";
 import { executionCheckout } from "./executionCheckout.ts";
 import { isUnansweredProof } from "./ciProofArtifact.ts";
 
+// The proof one attempt's CI answers, read from its provider.
+export type ProofRead = (
+  source: PublishedSource,
+  subject: CiProofSubject,
+  signal: AbortSignal,
+) => Promise<CiProof>;
+
+// Production reads a proof as live Intent does, adapters in the execution
+// checkout.
+export const providerProof: ProofRead = (source, subject, signal) =>
+  readIntentCiProof(
+    source,
+    subject,
+    signal,
+    (asked) => executionCheckout(asked).path,
+  );
+
 export type CollectedProof = {
   readonly proof: CiProof;
   readonly pending: boolean;
@@ -51,11 +68,12 @@ export async function proofRetainedWith(
   source: PublishedSource,
   resolution: LandedResolution,
   signal: AbortSignal,
+  readProof: ProofRead = providerProof,
 ): Promise<CollectedProof | undefined> {
   if (resolution.kind !== "build") return undefined;
   const { build } = keptResolution(resolution);
   if (build === undefined || !needsCollectedProof(build[1])) return undefined;
-  return collectedProofOf(source, build[1], signal);
+  return collectedProofOf(source, build[1], signal, readProof);
 }
 
 // Judge the original read before JSON persistence loses native unanswered
@@ -64,15 +82,11 @@ export async function collectedProofOf(
   source: PublishedSource,
   build: KeptBuild,
   signal: AbortSignal,
+  readProof: ProofRead = providerProof,
 ): Promise<CollectedProof> {
   const subject = collectedProofSubjectOf(source, build);
   if ("kind" in subject) return { proof: subject, pending: false };
-  const proof = await readIntentCiProof(
-    source,
-    subject,
-    signal,
-    (asked) => executionCheckout(asked).path,
-  );
+  const proof = await readProof(source, subject, signal);
   const pending =
     collectableUnavailable(proof) &&
     (proof.reason === "none" ||

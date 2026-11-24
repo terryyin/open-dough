@@ -9,6 +9,7 @@ import {
   collectedProofOf,
   needsCollectedProof,
   proofRetainedWith,
+  type ProofRead,
 } from "./landedCiCollectedProof.ts";
 import {
   keepLandedCiResolution,
@@ -43,8 +44,12 @@ export async function collectLandingResolution(args: {
   read: Parameters<typeof landingResolution>[2];
   proofSignal: AbortSignal;
   ended: () => boolean;
+  // The machine whose history this pass keeps; absent, this one.
+  home?: string;
+  readProof?: ProofRead;
 }): Promise<CollectLandingOutcome> {
-  const { source, landing, order, read, proofSignal, ended } = args;
+  const { source, landing, order, read, proofSignal, ended, home, readProof } =
+    args;
   let history = await collectRetainedAttemptTiming(args);
   if (ended()) return { kind: "ended", history };
   const held = history.landings[landing.receipt]?.observed;
@@ -60,13 +65,19 @@ export async function collectLandingResolution(args: {
         landing,
         { kind: "pending", waitsFor: "order" },
         order,
+        { home },
       );
       return { kind: "continue", history };
     }
     const resolved = await landingResolution(source, landing, read);
     // A read the end of collection cut short says nothing of its CI.
     if (ended()) return { kind: "ended", history };
-    const collected = await proofRetainedWith(source, resolved, proofSignal);
+    const collected = await proofRetainedWith(
+      source,
+      resolved,
+      proofSignal,
+      readProof,
+    );
     if (ended()) return { kind: "ended", history };
     const measure =
       resolved.kind === "build"
@@ -90,7 +101,7 @@ export async function collectLandingResolution(args: {
       landing,
       resolved,
       order,
-      evidence,
+      { collected: evidence, home },
     );
     // CI that cannot be read now is asked again at the next pass; a CI
     // proof that cannot be read is this landing's alone.
@@ -111,16 +122,22 @@ export async function collectLandingResolution(args: {
         source,
         retained,
         proofSignal,
+        readProof,
       );
       const measure = needsCollectedMeasure(retained)
         ? await answeredCollectedMeasureOf(retained, read)
         : undefined;
       if (ended()) return { kind: "ended", history };
-      history = await keepLandedCiCollectedEvidence(source.id, observed.build, {
-        proof,
-        pending,
-        ...(measure === undefined ? {} : { timeWithoutRunnerWaits: measure }),
-      });
+      history = await keepLandedCiCollectedEvidence(
+        source.id,
+        observed.build,
+        {
+          proof,
+          pending,
+          ...(measure === undefined ? {} : { timeWithoutRunnerWaits: measure }),
+        },
+        home,
+      );
     } else {
       history = await collectRetainedMeasure({
         ...args,
