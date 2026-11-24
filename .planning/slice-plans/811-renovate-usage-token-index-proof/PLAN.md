@@ -332,6 +332,13 @@ which moved the long comparison checks off shard 1.
 passed all three Distribution shards at `53e40d69d`, which contains
 that repair. Trunk integration will carry the corrected configuration.
 
+The [final implementation run](https://github.com/terryyin/open-dough/actions/runs/45385256806/job/138414538739)
+hit the same cutoff in the same test. The story branch now carries the
+workflow file from `f5396f92c`. Local before and after selection assigned
+the same 651 files exactly once and moved only the two native comparison
+checks from shard 1 to shard 3. All 16 focused workflow and proof
+declaration checks passed. Hosted branch CI validates the new revision.
+
 ## Execution complete
 
 Product advice: no change. The typed cohort preserves the chart and
