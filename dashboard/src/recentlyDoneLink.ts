@@ -2,15 +2,23 @@
 // catalog, and how an ad hoc row recovers its completed-story identity.
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { LaunchRecord } from "./agentLaunch.ts";
-import { readPublishedSnapshot } from "./authenticatedRead.ts";
-import { readCompletedStoryAssociation } from "./completedStoryAssociation.ts";
 import {
   cataloguedAt,
   recentDoneRecords,
   type DoneStories,
 } from "./doneStories.ts";
+import type { MachineReadSource } from "./machineReadSource.ts";
+import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+
+// The page's reads a row's link uses: another project's snapshot and done
+// catalog, and an ad hoc session's completed-story association.
+export type DoneLinkReads = Pick<
+  PublishedObservationReadSource,
+  "readSnapshot" | "readDoneCatalog"
+> &
+  Pick<MachineReadSource, "readCompletedStoryAssociation">;
 
 export type DoneLink = "linked" | "absent" | { readonly problem: string };
 
@@ -52,15 +60,25 @@ export function currentCatalog(
     : undefined;
 }
 
+// Another project's done catalog at its current published revision.
+export async function catalogNow(
+  reads: DoneLinkReads,
+  source: PublishedSource,
+  signal: AbortSignal,
+) {
+  const { revision } = await reads.readSnapshot(source, signal);
+  return cataloguedAt(source, revision, signal, reads.readDoneCatalog);
+}
+
 export async function readLink(
+  reads: DoneLinkReads,
   source: PublishedSource,
   identity: string,
   signal: AbortSignal,
   recentOnly: boolean,
 ): Promise<DoneLink> {
   try {
-    const { revision } = await readPublishedSnapshot(source, signal);
-    const done = await cataloguedAt(source, revision, signal);
+    const done = await catalogNow(reads, source, signal);
     return done.status === "catalogued"
       ? linkIn(done, identity, { recentOnly })
       : { problem: done.problem };
@@ -70,12 +88,13 @@ export async function readLink(
 }
 
 export async function associatedIdentity(
+  reads: DoneLinkReads,
   source: PublishedSource,
   record: LaunchRecord,
   signal: AbortSignal,
 ): Promise<AssociationAnswer> {
   try {
-    const answer = await readCompletedStoryAssociation(
+    const answer = await reads.readCompletedStoryAssociation(
       source.id,
       record.session,
       signal,

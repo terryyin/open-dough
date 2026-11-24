@@ -13,7 +13,7 @@ import type { Page, Route } from "@playwright/test";
 import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 
 // Answers the page's later reads matching `which` with `answer`.
-export async function routeNextReads(
+async function routeNextReads(
   page: Page,
   which: (url: URL) => boolean,
   answer: (route: Route) => Promise<void>,

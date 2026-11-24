@@ -110,7 +110,7 @@ the named, keyed divider.
 ### 2. Select the current Done destination without interrupting the reading
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster (12 cases).** `sessions/recently-done-sessions-select{,-ad-hoc-check,-check,-development,-supersede,-touch}.spec.ts`.
 
@@ -124,9 +124,12 @@ association evidence, preserve retry, and verify the separate touch actions
 and narrow overlay. Take over the sidebar destinations slice 1 left in
 `sessions/recently-done-sessions-sidebar{,-paging}.spec.ts`: Select switches
 project and reveals the Board entry with no terminal, and Open's destination.
-In the slice 1 mount Select pressed the row without switching project, likely
-awaiting the association read this slice supplies. The real terminal attach remains in
-`e2e/sessions/recently-done-sessions-select-open.spec.ts`.
+Recently done's link reads (another project's snapshot and done catalog, and
+the ad hoc association) go through `PageReads` so the mount drives the real
+selection path. The real terminal attach remains in
+`e2e/sessions/recently-done-sessions-select-open.spec.ts`. The remaining
+observations of `sessions/recently-done-sessions-select.spec.ts` and all of
+`-select-touch.spec.ts` moved to slice 9.
 
 ### 3. Attribute a session to its resolved Done card
 
@@ -235,12 +238,18 @@ Type: Behavior
 Status: planned
 
 **Roster.** The cases slice 1 left in
-`sessions/recently-done-sessions-sidebar{,-paging,-room,-touch}.spec.ts`
+`sessions/recently-done-sessions-sidebar{,-paging,-room,-touch}.spec.ts`,
+and those slice 2 left in `sessions/recently-done-sessions-select{,-touch}.spec.ts`
 (see the assertion map).
 
 **Proof.** Measure the three lists' floors, shared room with Running Cursor,
 drag to floor, exact key step and short-window reachability in the slice 1
-mount with native Chromium input. Prove ages ticking with the clock there.
+mount with native Chromium input. Prove ages ticking with the clock there. In the slice 2 selection mount,
+prove the Development highlight after an Intent choice and the Intent
+Changes file and Taken card kept across standalone choices; leave Open's
+terminal reopening to `e2e/sessions/recently-done-sessions-select-open.spec.ts`
+if it needs a real attach. Row ring style, equal row heights, coarse-input
+touch sizes and the phone overlay need native layout or a touch page.
 The touch disclosure needs `any-pointer: coarse`, which the mount does not
 emulate; keep it on a touch-enabled page. Put reload reset to 20, the open
 sidebar and collapsed section after reload, and the saved size in one
@@ -288,7 +297,14 @@ During slice 2, `navigation/frame-launch-look.spec.ts` failed intermittently
 on base and candidate alike: Enter on the launcher right after Cancel lost the
 reopen because the native dialog's late close shut it. The repair keys each
 opening's dialog and ignores a replaced opening's close; the cause, proof and
-reproduction are in [the diagnosis record](diagnosis-frame-launch-look-focus.md). Fit the 15 active-minute limit by keeping representative
+reproduction are in [the diagnosis record](diagnosis-frame-launch-look-focus.md).
+
+Slice 2 returned at 12.7 of 15 active minutes after moving eight legacy
+cases into two mounted spec files: at load about 4–5.7 its 10 legacy
+Playwright cases took 10.6 s and the 12 replacements 7.9 s, while the two
+files still owned by slice 9 take 6.9 s. Splitting mounted cases across
+files matters: one file runs serially (13.4 s for ten cases against 6.4 s
+split in two). Fit the 15 active-minute limit by keeping representative
 rendered scenarios and checking distinct variants at their smallest owner.
 
 ## Assertion map
@@ -306,3 +322,23 @@ Replacement path: `sessions/recently-done-sessions-sidebar-mount.spec.ts`
 | `sessions/recently-done-sessions-sidebar.spec.ts` — "finds and opens the newest completed sessions across projects…" (kept) | Collapsed default, cross-project order, completion ages, open-row launch age and Launched tooltip | Mount cross-project case; open-row `4m` and `Launched …` tooltip: mount "an open session in the Sessions sidebar shows its launch age and Launched time". Still owned by legacy: ages ticking with the clock, Select/Open destinations and project switch, reload collapse. |
 | `sessions/recently-done-sessions-sidebar-touch.spec.ts` (kept) | Completion, not launch, in Session details | Facts text in the mount cross-project case; touch disclosure tap still legacy. |
 | `sessions/recently-done-sessions-sidebar-room.spec.ts` (kept) | Three-list room geometry, resize, short window, reload preference | Partly: `sessions/recently-done-sessions-sidebar-room-mount.spec.ts` "the Recently done divider is named and keyed arrows resize the section" (accessible name, ArrowUp grows aria-valuenow). Still owned by legacy: three-list floors and shared room with Running Cursor, drag to floor, exact key step, short window reachability, reload preference. |
+
+Slice 2 (in progress). Production now reads a row's other-project snapshot,
+done catalog and ad hoc association through `PageReads` (`useDoneLinkReads`:
+`observation.readSnapshot`/`readDoneCatalog`, `machine.readCompletedStoryAssociation`),
+which is what slice 1's mounted Select was missing. Replacements:
+`sessions/recently-done-sessions-select-mount.spec.ts` ("destination spec") and
+`sessions/recently-done-sessions-select-check-mount.spec.ts` ("check spec"),
+over `sessions/recently-done-selection-mount-page.ts`.
+
+| Old case | Distinct observations | Replacement or equivalent |
+| --- | --- | --- |
+| `sessions/recently-done-sessions-select-check.spec.ts` — "an unanswered check is superseded by a later choice, and a failed one leaves the reading with its session's Open usable" (deleted) | "Checking…" status while unread; later row supersedes (pressed moves, status gone); failed read said "could not be checked … Select again to check again." with description; project kept; Open usable | Check spec "an unanswered catalog check says checking until a later choice supersedes it, and a failed one is said apart from a miss, leaving project and Open usable". Distinguishes a stale answer taking over or a failure read as a miss (would select standalone, no status). Real Open attach: `e2e/sessions/recently-done-sessions-select-open.spec.ts`. |
+| `sessions/recently-done-sessions-select-check.spec.ts` — "a catalog naming the story's done record unreadable, or not describing the done records, is said apart from a miss…" (deleted) | Exact unreadable-record and catalog-gap texts; row stays pressed; project kept | Check spec "a catalog naming the story's done record unreadable, or not describing the done records, is said apart from a miss and leaves the project" (exact texts). |
+| `sessions/recently-done-sessions-select-ad-hoc-check.spec.ts` — "an unanswered ad hoc association is superseded by another row, and a failed one retries without moving the story" (deleted) | Held association superseded by another row; failed association said apart from a miss with retry; retry links and selects the story | Check spec "a held association is superseded by a later choice, whose project stands when the first answers" (a late `linked` answer would switch to Doughnut) and "an unreadable or refused ad hoc association is said apart from a miss and leaves the story; selecting again links its Done story" (unavailable and refused texts, then Intent `data-selected-story`). |
+| `sessions/recently-done-sessions-select-supersede.spec.ts` — "choosing another project while a linked row is still checked abandons the check…" (deleted) | Project chosen meanwhile stands; Intent kept, no selected story; row unpressed, no status | Check spec "choosing another project while a linked row is still checked abandons the check, keeping the reader in the project they chose". |
+| `sessions/recently-done-sessions-select-supersede.spec.ts` — "another row's Open while a linked row is still checked abandons the check…" (deleted) | Open supersedes the check; Development shown; row unpressed | Check spec "another row's Open while a linked row is still checked abandons the check and shows Development". Gap: the opened report text stays with the legacy `select.spec.ts` Side-panel observations and the e2e select-open spec. |
+| Slice 1 leftovers in `sessions/recently-done-sessions-sidebar{,-paging}.spec.ts` — Select switches project and reveals the Board entry with no terminal; Open's destination | Project switch, entry `selected-session` + "Selected session", no Terminal region; Open → Development | Destination spec "selecting a standalone row in Development shows its project's Board with its entry marked selected and opens no terminal", "selecting a linked done row in Development…", and check spec Open case. Legacy files keep their reload observations (planned E2E, slice 9). |
+| `sessions/recently-done-sessions-select.spec.ts` (kept, partly mapped) | Linked from Intent selects that project's story; standalone keeps project; Tab Select→Open terminal, description, ad hoc has no Open; opened final report kept in the Side panel with its row `aria-current` and unpressed | Destination spec "selecting a linked done row from Intent…", "a linked row's Select in Development brings its selected done card…; Tab reaches its separate Open terminal, which an ad hoc row lacks", and "selecting a linked row from Intent keeps the opened final report in the Side panel, its row current but not chosen" (typed `SessionServices.readFinalReport`). Slice 9: row ring style, equal row heights, Development highlight after an Intent choice, Open reopening the terminal, Intent Changes file and Taken card selection kept across standalone choices. |
+| `sessions/recently-done-sessions-select-development.spec.ts` (deleted, all three cases) | Linked done card beyond Pygardon's first ten selected in view, kept on re-select; older standalone entry beyond Doughnut's first ten revealed, marked and in view; roster view gives way to the project's Board with the entry selected | Destination spec "a linked row's Select in Development brings its selected done card, beyond Pygardon's first ten, into view and keeps it on a second Select; …", "selecting an older standalone session in Development reveals and marks its entry beyond Doughnut's first ten" (eleventh entry), "selecting a standalone session from Development's agent roster shows its project's Board with the entry selected in view". Distinguishes a reveal that stops at the default ten or a roster that stays. Gap: Side-panel report kept during these (legacy `select.spec.ts` still observes report preservation in Intent). |
+| `sessions/recently-done-sessions-select-touch.spec.ts` (kept) | Coarse-input touch sizes, phone overlay | Slice 9. |

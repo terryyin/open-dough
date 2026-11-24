@@ -48,6 +48,8 @@ export function boardFrameObservationSupplying(
     machineAnswer = emptyMachineAnswer(),
     machineRead,
     accept,
+    association,
+    doneCatalog,
   }: {
     initialReadError?: Error;
     machineAnswer?: MachineAnswer & { readonly revision?: string };
@@ -56,6 +58,10 @@ export function boardFrameObservationSupplying(
     accept?: (
       ...args: Parameters<MachineReadSource["requestAcceptance"]>
     ) => Promise<AcceptanceAnswer>;
+    // The completed-story association an ad hoc row's choice reads.
+    association?: MachineReadSource["readCompletedStoryAssociation"];
+    // A case-owned done catalog read, in place of each snapshot's catalog.
+    doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
   } = {},
 ): BoardFrameObservation {
   const bySource = new Map(snapshots.map((work) => [work.source.id, work]));
@@ -134,7 +140,8 @@ export function boardFrameObservationSupplying(
         committedAt: "2026-01-01T00:00:00.000Z",
         login: "board",
       }),
-    readDoneCatalog: (...[source]) => {
+    readDoneCatalog: (...[source, ...rest]) => {
+      if (doneCatalog !== undefined) return doneCatalog(source, ...rest);
       const work = bySource.get(source.id);
       const done = work?.done;
       if (done?.status === "catalogued") {
@@ -202,6 +209,8 @@ export function boardFrameObservationSupplying(
           kind: "failed",
           explanation: "This Board frame supplies no acceptance.",
         })),
+    readCompletedStoryAssociation:
+      association ?? (() => Promise.resolve({ kind: "absent" as const })),
   };
 
   return {

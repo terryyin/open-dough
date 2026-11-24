@@ -4,12 +4,13 @@
 // This owner never navigates or opens/attaches a session.
 import { createContext, useContext, useEffect, useState } from "react";
 import { launchSubject, type LaunchWithState } from "./agentLaunch.ts";
-import { readPublishedSnapshot } from "./authenticatedRead.ts";
-import { cataloguedAt, type DoneStories } from "./doneStories.ts";
+import type { DoneStories } from "./doneStories.ts";
+import { useDoneLinkReads } from "./pageReads.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import {
   associatedIdentity,
+  catalogNow,
   currentCatalog,
   linkIn,
 } from "./recentlyDoneLink.ts";
@@ -32,6 +33,7 @@ export function useShownDoneLinks(
   records: readonly LaunchWithState[] | undefined,
 ) {
   const { projects, selected, work } = useContext(RecentlyDoneLinkSources);
+  const reads = useDoneLinkReads();
   // Record evidence, including captured landing and reporting reference, is
   // part of the observation context. Replacing it invalidates an old answer.
   const rows = JSON.stringify(records ?? []);
@@ -79,11 +81,7 @@ export function useShownDoneLinks(
               // The selected project's Board owns its catalog read and recovery.
               if (source.id === selected) return undefined;
               try {
-                const { revision: at } = await readPublishedSnapshot(
-                  source,
-                  signal,
-                );
-                return await cataloguedAt(source, at, signal);
+                return await catalogNow(reads, source, signal);
               } catch {
                 return undefined;
               }
@@ -113,6 +111,7 @@ export function useShownDoneLinks(
                 )
                 .map(async (record) => {
                   const associated = await associatedIdentity(
+                    reads,
                     source,
                     record,
                     signal,
@@ -137,6 +136,6 @@ export function useShownDoneLinks(
       controller.abort();
       clearInterval(interval);
     };
-  }, [context]);
+  }, [context, reads]);
   return answer?.context === context ? answer.links : undefined;
 }

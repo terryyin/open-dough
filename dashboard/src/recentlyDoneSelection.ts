@@ -37,6 +37,7 @@ import {
   useState,
 } from "react";
 import { launchSubject, type LaunchRecord } from "./agentLaunch.ts";
+import { useDoneLinkReads } from "./pageReads.tsx";
 import {
   sameSelectedStory,
   type SelectedStory,
@@ -98,6 +99,7 @@ export function useRecentlyDoneSelection(
   selection: ReturnType<typeof usePageStorySelection>,
   goTo: GoToSession,
 ) {
+  const reads = useDoneLinkReads();
   const [choice, setChoice] = useState<RecentlyDoneChoice>();
   const checking = useRef<AbortController | undefined>(undefined);
   // The page as it is when an answer arrives, not as it was when chosen.
@@ -172,13 +174,17 @@ export function useRecentlyDoneSelection(
       checking.current = controller;
       setChoice({ key, kind: "checking" });
       goTo();
-      void readLink(source, identity, controller.signal, recentOnly).then(
-        (link) => {
-          if (checking.current !== controller) return;
-          checking.current = undefined;
-          settle(link, identity);
-        },
-      );
+      void readLink(
+        reads,
+        source,
+        identity,
+        controller.signal,
+        recentOnly,
+      ).then((link) => {
+        if (checking.current !== controller) return;
+        checking.current = undefined;
+        settle(link, identity);
+      });
     };
     if (requested !== undefined) {
       checkCatalog(requested, true);
@@ -188,7 +194,7 @@ export function useRecentlyDoneSelection(
     checking.current = controller;
     setChoice({ key, kind: "checking" });
     goTo();
-    void associatedIdentity(source, record, controller.signal).then(
+    void associatedIdentity(reads, source, record, controller.signal).then(
       (answer) => {
         if (checking.current !== controller) return;
         checking.current = undefined;

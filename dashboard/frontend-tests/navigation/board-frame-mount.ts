@@ -8,10 +8,14 @@ import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
-import { authenticatedSessionServices } from "../../src/sessionServices.ts";
+import {
+  authenticatedSessionServices,
+  type SessionServices,
+} from "../../src/sessionServices.ts";
 import { withPagePreferences } from "../../test-support/component-mount/framePreferences.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
@@ -27,6 +31,7 @@ export type BoardFrameMachine = {
   readonly accept?: (
     ...args: Parameters<MachineReadSource["requestAcceptance"]>
   ) => Promise<AcceptanceAnswer>;
+  readonly association?: MachineReadSource["readCompletedStoryAssociation"];
 };
 
 export async function mountBoardFrame(
@@ -41,6 +46,8 @@ export async function mountBoardFrame(
     done,
     ci,
     review,
+    doneCatalog,
+    sessions = authenticatedSessionServices,
     awaitSessionsRead = true,
   }: {
     otherWork?: readonly PublishedWork[];
@@ -49,6 +56,10 @@ export async function mountBoardFrame(
     done?: DoneRecordReadSource;
     ci?: IntentCiReadSource;
     review?: ReviewSource;
+    // A case-owned published done catalog read for every project.
+    doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
+    // The shown session's final report, host status and terminal.
+    sessions?: SessionServices;
     awaitSessionsRead?: boolean;
   } = {},
 ) {
@@ -71,13 +82,17 @@ export async function mountBoardFrame(
     machineAnswer: machine.answer ?? emptyMachineAnswer(),
     ...(machine.read === undefined ? {} : { machineRead: machine.read }),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),
+    ...(machine.association === undefined
+      ? {}
+      : { association: machine.association }),
+    ...(doneCatalog === undefined ? {} : { doneCatalog }),
   });
   const dashboard = createElement(ProjectsOnPage, {
     projects: snapshots.map(({ source }) => source),
     replaceProjects: () => {},
     children: createElement(ConfiguredDashboard, {
       reads: pageReadsSupplying({
-        sessions: authenticatedSessionServices,
+        sessions,
         observation: supply.observation,
         machine: supply.machine,
         ...(intentReads === undefined ? {} : { intent: intentReads }),

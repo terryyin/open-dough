@@ -4,16 +4,42 @@
 import { vi } from "vitest";
 import { page } from "vitest/browser";
 import type { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
+import type { DoneStories } from "../../src/doneStories.ts";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
 import type { MachineSessionsRead } from "../../src/machineSessionsRevision.ts";
+import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
+import type { SessionServices } from "../../src/sessionServices.ts";
 import { checkIntervalMs } from "../../src/revisionCheckSchedule.ts";
 import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
 import { boardWork } from "../navigation/board-work.ts";
 
-const projects = [
-  boardWork([], { id: "open-dough", label: "Open Dough" }),
-  boardWork([], { id: "doughnut", label: "Doughnut" }),
-  boardWork([], { id: "pygardon", label: "Pygardon" }),
-];
+type Catalogued = Extract<DoneStories, { status: "catalogued" }>;
+// A project's published done catalog, by project id.
+export type DoneCatalogs = Partial<
+  Record<string, Pick<Catalogued, "records"> & Partial<Catalogued>>
+>;
+
+const projectsWith = (catalogs: DoneCatalogs) =>
+  [
+    { id: "open-dough", label: "Open Dough" },
+    { id: "doughnut", label: "Doughnut" },
+    { id: "pygardon", label: "Pygardon" },
+  ].map(({ id, label }) => {
+    const work = boardWork([], { id, label });
+    const catalog = catalogs[id];
+    return catalog === undefined
+      ? work
+      : {
+          ...work,
+          done: {
+            status: "catalogued" as const,
+            unreadable: [],
+            ...catalog,
+            revision: work.revision,
+          },
+        };
+  });
 
 export type Answer = ReturnType<typeof makeMe.aMachineAnswer.please>;
 
@@ -61,16 +87,47 @@ export function pollNow() {
 
 export async function mountSessions(
   answer: Answer | ReturnType<typeof machineReader>,
-  { awaitSessionsRead = true }: { awaitSessionsRead?: boolean } = {},
+  {
+    awaitSessionsRead = true,
+    done = {},
+    association,
+    doneCatalog,
+    doneBodies,
+    view = "stories",
+    sessions,
+  }: {
+    awaitSessionsRead?: boolean;
+    // Each project's published done catalog; others list none.
+    done?: DoneCatalogs;
+    // The completed-story association an ad hoc row's choice reads.
+    association?: MachineReadSource["readCompletedStoryAssociation"];
+    // A case-owned done catalog read in place of the projects' catalogs.
+    doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
+    // The done record bodies a Board's Recently done cards read.
+    doneBodies?: DoneRecordReadSource;
+    // The first project's Development view: its stories or agent roster.
+    view?: "stories" | "roster";
+    // The shown session's final report, host status and terminal.
+    sessions?: SessionServices;
+  } = {},
 ) {
-  const [first, ...otherWork] = projects;
+  const [first, ...otherWork] = projectsWith(done);
   if (first === undefined) throw new Error("No project.");
   await mountBoardFrame(
     first,
     { width: 1280, height: 800 },
-    "stories",
-    "read" in answer ? { read: answer.read } : { answer },
-    { otherWork, awaitSessionsRead },
+    view,
+    {
+      ...("read" in answer ? { read: answer.read } : { answer }),
+      ...(association === undefined ? {} : { association }),
+    },
+    {
+      otherWork,
+      awaitSessionsRead,
+      ...(doneCatalog === undefined ? {} : { doneCatalog }),
+      ...(doneBodies === undefined ? {} : { done: doneBodies }),
+      ...(sessions === undefined ? {} : { sessions }),
+    },
   );
   await page.getByRole("button", { name: /^Sessions/ }).click();
   const region = page.getByRole("region", { name: "Recently done sessions" });
@@ -81,6 +138,8 @@ export async function mountSessions(
   ];
   const titles = () =>
     rows().map((entry) => entry.querySelector("h3")?.textContent);
+  const row = (title: string) =>
+    rows().find((entry) => entry.querySelector("h3")?.textContent === title);
   // Reaches the end of the section after leaving it, which re-arms one batch
   // per reach of the end.
   const revealOlder = () => {
@@ -97,9 +156,17 @@ export async function mountSessions(
     region,
     header: region.getByRole("button", { name: "Recently done sessions" }),
     titles,
-    row: (title: string) =>
-      rows().find((entry) => entry.querySelector("h3")?.textContent === title),
+    row,
     select: (title: string) => region.getByRole("button", { name: title }),
+    // A row's separate Open control, named by the access it opens.
+    open: (title: string) =>
+      region
+        .getByRole("listitem")
+        .filter({ has: page.getByRole("heading", { name: title }) })
+        .getByRole("button", { name: /^(Open terminal|Read final report)$/ }),
+    choiceStatus: (title: string) =>
+      row(title)?.querySelector(".sessions-sidebar-session-entry-choice")
+        ?.textContent ?? undefined,
     revealOlder,
     // The shown titles, first reaching the end again while fewer than
     // `count` are shown; poll it to reveal batch by batch.
