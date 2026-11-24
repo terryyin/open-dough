@@ -163,6 +163,34 @@ the attempt's consumer trace and file list to select families, including
 `agent-launch-ad-hoc-codex`. When a family cannot move without a behavior
 change, leave it for slice 4 and name it.
 
+The second attempt migrated no family per spec. Within the remaining time it
+added only `launchTimeoutMs` to `preparationPage`. It also found that
+`launchJourney` families, about 120 files, read a Taken `readyStory` card that
+the origin fixture's project lacks. Migrate through the shared seam instead of
+spec by spec. The default `dashboardTest` catalog project's checkout gets the
+run-wide prepared start origin from `startOriginPreparation`, which carries
+installed skills and a bare `main`. A MakeMe builder step seeds
+`launchJourney`'s Taken story into that origin. This keeps assertions
+unchanged, and the readiness check runs once in the shared fixture.
+
+The slice overran at 15 active minutes. Its final attempt disproved the
+no-behavior-change premise. The catalog project is created in
+`fakeClaude.ts`. When it is installed with a bare origin, the server's launch
+path changes:
+- launch instructions gain the reporting context;
+- story launches go through the real installed start and are refused unless
+  their story is queued on origin;
+- the not-installed refusal becomes a start refusal.
+
+With the seam wired, ad hoc E2E and the duplicate family still passed, but the
+full backend run failed 11 specs. Examples are `agent-launch-ad-hoc-boundary`,
+`agent-launch-environment`, `agent-launch-done-refusal` and
+`agent-launch-boundary`. The trace reached 364 spec files. The seam and the
+`launchTimeoutMs` change are parked as private `slice-3/attempt-4.patch`.
+Moving these consumers is behavior work for their expectations, and the plan
+is at the ten-slice cap. That makes it a human decision, not a slice
+refinement.
+
 ### 4. Open a default-checkout session on its admitted story
 Type: Behavior
 Status: planned
