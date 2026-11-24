@@ -290,6 +290,27 @@ Learnings for wrap-up:
   into its own E2E test. Removing it is not enough, because no backend case
   covers the Done offline file diff.
 
+## Execution complete
+
+Product advice: keep SEED-430 next and do not reorder it otherwise.
+- Queue the correction
+  [Read review files without fetching](../../seeds/SEED-428-read-reviews-from-the-review-repository.md#read-review-files-without-fetching)
+  ([plan 816](../816-read-review-files-without-fetching/PLAN.md)) ahead of SEED-430.
+  SEED-430 grows its coordinator on this Review repository module. The
+  correction fixes the read-without-fetch contract that SEED-430 depends on:
+  - landed, recorded-landing and Done file reads stop syncing;
+  - session sync failures are named;
+  - a hanging origin answers from the last sync;
+  - the CI Git-root guard regains its test.
+- Carry two findings into SEED-430 refinement:
+  - A branch deleted on origin is still read from its stale exact ref.
+  - The one sync record is shared across refs and is not written atomically.
+- Process review is deferred into wrap-up with the Intent Coverage check.
+- Not done in this story: shared fixture history building in
+  `Distribution/tests/support/repository-history.mjs` (`buildRepository`, one
+  add, commit and push per revision) dominates load-sensitive backend case
+  time. A test-optimization story would cut it.
+
 ## Story obligations
 
 ### G1. A failed Taken branch sync reads as an unpublished branch
