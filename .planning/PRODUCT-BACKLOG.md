@@ -28,8 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof ([plan](slice-plans/801-speed-dashboard-done-session-review-proof/PLAN.md))
-
 ## Backlog list
 
 - [Review published changes](seeds/SEED-427-review-published-changes.md#review-published-changes) — SEED-427#review-published-changes

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Airi-chan",
-  "email": "airi-chan@example.org",
-  "identity": "SEED-413#speed-dashboard-done-session-review-proof",
-  "mode": "story-branch",
-  "branch": "claude/get-fast-proof-of-finding-and-reviewing-done-ses",
-  "host": "claude"
-}
