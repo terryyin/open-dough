@@ -60,6 +60,16 @@ early-return checks passed. With cancellation restored, all six focused
 cases passed under the default timeout. The independent refactor renamed
 the local fixture helper and reran the focused suite successfully.
 
+## Execution complete
+
+Product advice: no change. The existing typed judgment test now proves the
+adapter cancellation at the subprocess boundary. The mutation exposed the
+original blind spot and confirmed the strengthened assertion catches it.
+
+The test increment `072cebb20df000f950ade5fef4b78653a3c3a896` was accepted on
+the execution branch. Process review is deferred to wrap-up after the
+automatic Intent Coverage check.
+
 ## Verification and delivery
 
 - Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
