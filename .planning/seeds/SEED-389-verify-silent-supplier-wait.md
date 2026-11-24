@@ -41,29 +41,34 @@ records the trace boundaries, cache accounting, and historical baselines.
 
 **Identity:** SEED-389#verify-silent-supplier-wait-in-use
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c229363e748d11de3473ef5ea85c6956298584cbadc9d90c3a5d423172189d2d","plan":"ea6e1bdaadd7a326512918b54d75da436acd4ee4e7018d885a789fe9da36c8b2"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/692-verify-silent-supplier-wait-in-codex/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9f868bc596f2e0a7bc68069be72c202f66dc78a277d37cde436f846ef390877a","plan":"a1de300b3f4a4e8dcbc303b4ec8acb49c152aa780e3220b9663437ce51892929"}}
 ```
 
-**Goal:** An Open Dough maintainer gets a keep, revise, or remove
-recommendation for the silent supplier wait on Codex from what real Codex
-executions did when a developer asked them to watch a paused supplier. The
-wait's saving is predicted; this turns it into an observed result or a
-correction, under the
+**Goal:** An Open Dough maintainer can decide whether to keep, revise, or
+remove the silent supplier wait on Codex based on real executions asked to
+watch a paused supplier. The review records a recommendation when the
+evidence supports one and identifies the missing evidence otherwise, under the
 [definition of improvement](../../docs/adrs/0010-definition-of-improvement-accepted.md).
 
 **Scope:**
 
 - A watch is a Codex coordinator session, on an installation at 0.3.102 or
   later, in which the developer asks an execution held on a paused supplier
-  to watch it. Find watches by that request. A watch that never runs
-  `wait-for-publication.mjs` still counts, as a missed route.
+  to watch it. Find watches by that request. Record a bypass of
+  `wait-for-publication.mjs` as a missed route. The Codex long-wait
+  correction shipped in 0.3.107. Record the installed release for each
+  watch so the recommendation identifies which guidance the evidence covers.
 - Judge once three watches from different executions each hold an unchanged
-  interval longer than five minutes. With fewer, follow the shared
-  evaluation: record the watches found and what is missing, and move the
-  story down the queue.
-- Measure each unchanged interval as the shared evaluation describes. The
-  bars are at most one model request per started five unchanged minutes and
-  at least 90% cached input summed over those requests.
+  interval longer than five minutes. Apply the same threshold to a missed
+  route when its interval can be established. With fewer qualifying
+  executions, record the watches, any clear misses, and what is missing,
+  and move the story down the queue.
+- For a command-routed wait, bound each unchanged interval by the launch
+  and the command's publication or deadline result. A rerun after a
+  nonqualifying publication starts a new interval. Apply the shared
+  request-counting exclusions. The bars are at most one model request per
+  started five unchanged minutes and, when there are counted requests, at
+  least 90% cached input summed over those requests.
 - Recommend, as Terry decided on 2026-11-18:
   - **keep** when every unchanged interval meets both bars and every
     publication and deadline was handled;
@@ -87,9 +92,12 @@ correction, under the
 - A watch runs the command once and continues on the publication, but its
   22 unchanged minutes show 21 model requests through `wait` at 60 seconds,
   99% cached → revise, naming the `wait` re-entry.
+- A watch stays in the host call for six unchanged minutes with zero model
+  requests and stops at its deadline → the interval meets the wake bar and
+  has no cache measurement.
 - The developer asks for a watch, and the session writes its own polling
-  loop without the command → that watch counts toward the three and the
-  recommendation is remove.
+  loop for nine unchanged minutes without the command → that watch can
+  count toward the three and establishes a missed route.
 - A publication arrives while an earlier one is being judged, and the rerun
   with the returned deadline reports it → handled. The rerun starts another
   unchanged interval.
@@ -98,6 +106,9 @@ correction, under the
   queue with no recommendation.
 - A watch whose only unchanged interval lasted three minutes → recorded,
   and not one of the three.
+- Three executions establish the required unchanged intervals, but a
+  truncated trace leaves the handling of a publication unknown and the
+  other evidence cannot settle the verdict → inconclusive.
 
 **Observed on 2026-11-18** in this machine's Codex rollouts, as the
 prediction the real watches are judged against, not as a verdict:
@@ -115,11 +126,11 @@ prediction the real watches are judged against, not as a verdict:
   asked for 300 seconds, and none of 791 `wait` calls asked for more than
   60 seconds. Whether `wait` honors a longer yield is unobserved.
 
-The wake bar is therefore expected to be missed for a reason shared by every
-long wait on Codex.
+These observations predict missed wake bars when Codex re-enters the model
+about once a minute.
 [Let a long Codex wait run without model requests](https://github.com/terryyin/open-dough/blob/5ecc84b8c26b6352370f5dc0ba790cbb963ab264/.planning/seeds/SEED-399-long-codex-wait-without-model-requests.md#let-a-long-codex-wait-run-without-model-requests)
-owns that correction. A watch on an installation that includes it is judged
-against the same bars.
+delivered the host-level correction. The controlled checks establish a
+comparison for evaluating later natural watches.
 
 <a id="verify-silent-supplier-wait-in-claude-code"></a>
 
