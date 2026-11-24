@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "identity": "SEED-429#skip-empty-instruction-recordings",
+  "mode": "story-branch",
+  "branch": "codex/skip-transcription-for-empty-instruction-recordi",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

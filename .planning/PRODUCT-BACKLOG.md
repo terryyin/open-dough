@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Review published changes](seeds/SEED-427-review-published-changes.md#review-published-changes) — SEED-427#review-published-changes ([plan](slice-plans/802-review-published-changes/PLAN.md))
 - [Start ad hoc work under a story](seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story) — SEED-426#start-ad-hoc-work-under-a-story ([plan](slice-plans/804-start-ad-hoc-work-under-a-story/PLAN.md))
+- [Skip transcription for empty instruction recordings](seeds/SEED-429-skip-empty-instruction-recordings.md#skip-empty-instruction-recordings) — SEED-429#skip-empty-instruction-recordings ([plan](slice-plans/807-skip-empty-instruction-recordings/PLAN.md))
 
 ## Backlog list
 
@@ -40,7 +41,6 @@ intent introduced or affected by a newly developed story.
 - [Observe that a failed listing discover cancels the other branch](seeds/SEED-423-shrink-the-installed-distribution.md#observe-the-cancelled-listing-discover) — SEED-423#observe-the-cancelled-listing-discover
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
-- [Skip transcription for empty instruction recordings](seeds/SEED-429-skip-empty-instruction-recordings.md#skip-empty-instruction-recordings) — SEED-429#skip-empty-instruction-recordings
 - [Prove a renamed file's Review diff reads its grammar from the new path](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-renamed-diff-grammar-from-new-path) — SEED-413#prove-renamed-diff-grammar-from-new-path
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
