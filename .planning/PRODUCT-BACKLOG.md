@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Derive the install payload from the shipped directory](seeds/SEED-423-shrink-the-installed-distribution.md#derive-the-install-payload-from-the-shipped-directory) — SEED-423#derive-the-install-payload-from-the-shipped-directory ([plan](slice-plans/796-derive-the-install-payload-from-the-shipped-directory/PLAN.md))
 - [Get fast proof of finding and reviewing Done sessions](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-done-session-review-proof) — SEED-413#speed-dashboard-done-session-review-proof ([plan](slice-plans/801-speed-dashboard-done-session-review-proof/PLAN.md))
-- [Get fast proof of live sessions and terminal work](seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof) — SEED-413#speed-dashboard-live-session-and-terminal-proof ([plan](slice-plans/800-speed-dashboard-live-session-and-terminal-proof/PLAN.md))
 
 ## Backlog list
 

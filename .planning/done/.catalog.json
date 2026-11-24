@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_speed-dashboard-live-session-and-terminal-proof.json",
+      "identity": "SEED-413#speed-dashboard-live-session-and-terminal-proof",
+      "completedAt": "2026-11-24T01:18:18.894Z",
+      "blob": "66cfe2ff0d3d23866f7dc0e4a3791a370a0fde8d"
+    },
+    {
       "fileName": "SEED-420_read-proof-for-the-comparison.json",
       "identity": "SEED-420#read-proof-for-the-comparison",
       "completedAt": "2026-11-23T16:34:09.266Z",
@@ -3060,12 +3066,6 @@
       "identity": "SEED-152#retry-aware-integrated-completion",
       "completedAt": "2026-10-25T10:10:39.595Z",
       "blob": "db90611165ad8ef1d08819cdd2bf9e83d646b0e3"
-    },
-    {
-      "fileName": "SEED-150_story-queue-aware-completion.json",
-      "identity": "SEED-150#story-queue-aware-completion",
-      "completedAt": "2026-10-24T22:28:32.056Z",
-      "blob": "866fc8664943264264f3fb5b8790551643314c63"
     }
   ],
   "unreadable": []

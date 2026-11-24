@@ -336,7 +336,7 @@ things, and the CI revision predates current changes to Sessions and Review.
 | 4 | Get fast proof of board and side-panel interactions (completed) | 63 | 28 |
 | 5 | Get fast proof of composing and starting a launch (completed; recoverable at `9099d16787c4d0961075c841d3da2987712f508a:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-launch-proof`) | 81 | 29 |
 | 6 | [Get fast proof of finding and reviewing Done sessions](#speed-dashboard-done-session-review-proof) | 77 | 34 |
-| 7 | [Get fast proof of live sessions and terminal work](#speed-dashboard-live-session-and-terminal-proof) | 77 | 31 |
+| 7 | Get fast proof of live sessions and terminal work (completed; recoverable at `290706bb1557f5437eb54df4d97da62cc1648457:.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#speed-dashboard-live-session-and-terminal-proof`) | 77 | 31 |
 | 8a | [Get fast proof of the dashboard frame, navigation and settings](#speed-dashboard-frame-and-navigation-proof) | ≈67 | 22 |
 | 8b | [Run the entire dashboard frontend unit suite on Vitest](#retire-legacy-dashboard-frontend-runner) | ≈11 | 3 |
 | | **Total** | **594** | **249** |
@@ -459,73 +459,6 @@ The separate renamed-path grammar correction keeps its own acceptance example.
   arrival preserves the readable diff and uses the selected snapshot's grammar
   and text. A file note records the exact comparison and paths it came from.
 
-<a id="speed-dashboard-live-session-and-terminal-proof"></a>
-
-### Get fast proof of live sessions and terminal work
-
-**Identity:** SEED-413#speed-dashboard-live-session-and-terminal-proof
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/800-speed-dashboard-live-session-and-terminal-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6814271bd53e87f50b91d75ff14fd0819afb0af7d361b85b47a8dc23c5e41710","plan":"51158d94d52518089460d7cc627aaa899868870216d245bee5a647139adcb4c2"}}
-```
-
-**Goal.** Dashboard maintainers get faster feedback that live sessions
-appear with the right order, status and actions, that Mark Done, delete,
-unread-report and retirement flows stay truthful under held or refused
-answers, and that terminal layout, input, touch selection, prompts and
-dictation recover correctly when an update or capture is interrupted.
-
-**Scope.** Apply the [shared campaign acceptance](#acceptance-shared-by-the-eight-stories)
-to the remaining legacy `sessions/` specs outside Done review, all
-`terminals/`, and Stories' `story-note-voice*` (31 sources, 77 cases at the
-campaign inventory): live open listings and compact entries, card and
-sidebar session actions, Mark Done and Delete record interactions, final
-and unread reports, workspace-retirement held reports, Cursor runner
-session reads, terminal keyboard and touch input, touch select and paste,
-prompts, voice capture, and transcription recovery. Remount the open
-Sessions sidebar family
-(`dashboard/frontend-tests/sessions/sessions-sidebar-open-mount.ts` and its
-consumers) through the production page frame and required page-reads entry
-instead of composing `SessionsSidebarOpenList` in the mount helper.
-Keep distinct host-status, attention-order, compact-disclosure and
-touch-report distinctions observable where the UI owns them. Retain
-journeys that need a real process, native host transport, clipboard or
-microphone provider at existing `e2e/sessions/`, `e2e/terminals/` and
-backend owners. [Done session review](#speed-dashboard-done-session-review-proof)
-owns `sessions/recently-done*`, `sessions/follow-up-source-navigation*`,
-`stories/recently-done*` and remaining legacy `review/`.
-[Composing and starting a launch](#speed-dashboard-launch-proof) owns
-pre-start launch dialogs. The final campaign story owns frontend runner
-retirement.
-
-A replacement must observe the delivered input or update and any recovery
-it claims before the legacy setup retires.
-
-**Key examples**
-
-- Open Sessions lists sessions that need the developer earliest-first, then
-  other open sessions newest-first, with host status, row age and state edge
-  accurate; a slow or retrying machine read keeps the listed sessions and a
-  hidden page stops waiting on its read.
-- Mark as done on a card or ended terminal that the boundary refuses keeps
-  the entry and says so; confirming Delete record… removes a State unknown
-  or Session unavailable entry everywhere and leaves Working or Needs input
-  without that offer; a late mark after another session replaced the panel
-  leaves the keyboard in the new terminal.
-- An unfinished retained report stays readable by touch with choices in
-  reach; changing selection cancels a held report so its text never appears
-  as the next session; an unread message marks read beside its own Mark as
-  done without scrolling either control away.
-- Phone Select pauses terminal text for copy and return while later output
-  waits; an ended terminal keeps the transcript with Open again feedback
-  and Paste names Open again without sending until Insert transcript;
-  unavailable prompt input refuses presets, names recovery and requires a
-  new choice; dictation overflow and abandoned transcription keep or drop
-  drafts without populating the next composer.
-- Taken-line story-note dictation waits for permission and transcription,
-  permits correction before save, and on setup, permission or Close or
-  Cancel recovery keeps typed text while a new composer receives no late
-  reply.
-
 <a id="speed-dashboard-frame-and-navigation-proof"></a>
 
 ### Get fast proof of the dashboard frame, navigation and settings
@@ -563,7 +496,7 @@ those stories.
   itself stays for stories 6, 7 and 8b.
 - Scope limit: the cases owned by
   [Done review](#speed-dashboard-done-session-review-proof),
-  [live sessions](#speed-dashboard-live-session-and-terminal-proof) and
+  live sessions and terminal work and
   `test-harness/`.
 
 **Key examples:**
