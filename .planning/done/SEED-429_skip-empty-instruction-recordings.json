@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-429#skip-empty-instruction-recordings",
+  "title": "Skip transcription for empty instruction recordings",
+  "completedAt": "2026-11-24T07:26:43.713Z",
+  "developer": "Terry Yin",
+  "agent": "Tsubomi-chan",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}

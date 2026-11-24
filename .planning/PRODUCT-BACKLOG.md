@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Review published changes](seeds/SEED-427-review-published-changes.md#review-published-changes) — SEED-427#review-published-changes ([plan](slice-plans/802-review-published-changes/PLAN.md))
 - [Start ad hoc work under a story](seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story) — SEED-426#start-ad-hoc-work-under-a-story ([plan](slice-plans/804-start-ad-hoc-work-under-a-story/PLAN.md))
-- [Skip transcription for empty instruction recordings](seeds/SEED-429-skip-empty-instruction-recordings.md#skip-empty-instruction-recordings) — SEED-429#skip-empty-instruction-recordings ([plan](slice-plans/807-skip-empty-instruction-recordings/PLAN.md))
 
 ## Backlog list
 
