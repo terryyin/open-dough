@@ -67,8 +67,10 @@ At `a75673b31` on awake AC macOS (Node 24.21.0, Homebrew Bash on PATH),
 the maintained command below exited 0. Its completed proof selected
 38 cases across both cohorts. The 16 scoped cases in 13 files all passed
 on their first attempt, summing to 44.696 s inside cases. This confirms
-the existing provenance, retry, restart and compatibility routes. Slice 1
-captures the standalone elapsed baseline before the first conversion.
+the existing provenance, retry, restart and compatibility routes. The scoped-only
+baseline at `344e50f93` passed 16 cases in 13 files on their first attempt in
+39.20 s elapsed and 58.563 s summed case time under the same conditions.
+The Git evidence directory holds `scope-baseline.json` and its shell run record.
 
 ```sh
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u NO_COLOR -u FORCE_COLOR \
@@ -92,7 +94,7 @@ landed-ci-history-read-window.spec.ts landed-ci-scope-retained-window.spec.ts
 --workers=2` passed both cases after restoring the source. Slice 5 retains
 this discrimination through the collector and store.
 
-## Slices and outside-in proof
+## Slices
 
 Each file stem below denotes `dashboard/backend-tests/intent/landed-ci-scope-<stem>.spec.ts`.
 For each slice, map the original behavioral purposes to their surviving cases,
@@ -108,25 +110,23 @@ simplify costly setup while it still owns that case.
 ### 1. An unanswered proof stays linked to the same attempt through recovery
 
 Type: Behavior
-Status: planned
+Status: done
 
-Before migrating the first case, time the baseline command above with only
-the `landed-ci-scope-` selector. Use the proof record for each case duration,
-case and file counts and summed case time. Record shell elapsed separately.
-Convert `pending-proof`, `proof-recovery` and `proof-adapter-recovery`
-using the existing ordered collection pass and history reader. Supply
-real published ancestry, accepted landing receipts and typed GitHub or
-adapter responses for the exact attempt. Bind only the proof and pass
-inputs needed for this outcome. Preserve the scheduler and its abort
-ownership in the production caller.
+The launch boundary schedules and stops the extracted ordered collection pass.
+The pass resolves real Git order and writes the same store with explicitly
+bound receipts, checkout, retained state and CI readers.
 
-**Proof.** An unanswered read produces a linked pending gap without losing
-known run identity or independent trunk order. A succeeding pass or a
-reopened collector resolves it to the same attempt. Cover distinct provider
-and proof-state behavior with representative cases. Use reopen where saved
-state affects recovery, keeping the finality interaction with slice 2. Observe
-actual writes and public scoped reads. Verify production wiring with affected
-wall-time and scoped consumers if shared composition changes.
+**Proof.** `pending-proof` checks the queued run link without proof acquisition
+and preserves independent Git order through an unread response. `proof-recovery`
+checks missing-artifact recovery in the same reader, and unanswered GitHub
+recovery after reopen from the saved receipt. Its scoped reads cover project,
+folder, file and zero duration. `proof-adapter-recovery` checks the same opaque
+run and attempt following failed acquisition and reopen. All five Node cases
+passed, with 0.668 s summed focused case time versus 15.582 s before conversion.
+Shared wiring passed 47 backend cases, three provider contract files and the
+Dashboard typecheck. Nine affected cases passed again after centralizing the
+read deadline. See `slice1-return.md` and `slice1-refactor-check.json` in Git
+evidence for exact commands, observations and timings.
 
 ### 2. A reopened collector keeps final evidence and advances pending builds
 
@@ -242,3 +242,6 @@ slice-specific concern was identified.
   Run other proof suites only where a changed effect reaches them.
 - Use the normal post-change refactor, delivery and hosted CI gates. Keep
   timing and coverage evidence in this plan for wrap-up.
+
+- Story Branch Mode on `codex/prove-landed-ci-scoped-test-history-through-type`. The branch and `origin/main` accepted the Take at `344e50f9378d72388111b10904de3d47af5721cc`.
+- GitHub Actions `ci.yml` on the story branch via Codex coordinator `scope-proof-806`, directory `/tmp/dough-ci-501/watch-RZvf48`, cell `g47:11`, session `74246`, PID `31264`.

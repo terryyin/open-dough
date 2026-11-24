@@ -80,12 +80,17 @@ export function comparisonBuildSource(
   lookup: RevisionCiLookup,
   call: GitCall,
   workflow: string,
-  proof: { readonly repository: string; readonly signal: AbortSignal },
+  proof: {
+    readonly repository: string;
+    readonly signal: AbortSignal;
+    readonly read?: typeof readCiProofArtifact;
+  },
 ): ComparisonBuildSource {
   return {
     lookup,
     history: comparisonHistory(call),
     workflow,
-    proofOf: (run) => readCiProofArtifact(proof.repository, run, proof.signal),
+    proofOf: (run) =>
+      (proof.read ?? readCiProofArtifact)(proof.repository, run, proof.signal),
   };
 }
