@@ -15,7 +15,8 @@ import { publishIntentTrunk } from "./intentStoryWorktree.ts";
 import { selectDoneStoryInIntent } from "./selectDoneStoryInIntent.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
-import { commitAll, git } from "./storyReviewWorktree.ts";
+import { shallowPublishedHistory } from "./reviewRepositoryFixture.ts";
+import { commitAll } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 
 // The completed story's test changes as Review changes names each file's
@@ -26,9 +27,10 @@ export const completedChanges = {
   deleted: "Deleted dashboard/tests/gone.spec.ts",
 } as const;
 
-// `history` "shallow" leaves the project's checkout with only trunk's last
-// commit, so the published comparison cannot be recovered. `beforeIntent`
-// runs once the card is selected, before Intent first reads the story.
+// `history` "shallow" leaves the project's checkout and Review repository with
+// only trunk's last commit, so the published comparison cannot be recovered.
+// `beforeIntent` runs once the card is selected, before Intent first reads the
+// story.
 // `implementation` supplies further story facts; `later` supplies changes
 // published on trunk after completion, independently of the historical read.
 export async function selectCompletedStoryInIntent(
@@ -70,8 +72,7 @@ export async function selectCompletedStoryInIntent(
     history === "complete"
       ? publishedCommits["advance after completion"]
       : completion;
-  if (history === "shallow")
-    git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+  if (history === "shallow") shallowPublishedHistory(origin);
   if (later !== undefined) {
     writeRevisionFiles(origin.project, later);
     published = commitAll(

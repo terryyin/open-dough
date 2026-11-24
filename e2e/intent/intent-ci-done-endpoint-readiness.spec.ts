@@ -15,7 +15,10 @@ import {
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import { publishComparedStoryBranch } from "../../dashboard/test-support/support/storyCiComparisonDoneFixture.ts";
 import { selectDoneStoryForCiComparison } from "../../dashboard/test-support/support/selectDoneStoryForCiComparison.ts";
-import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import {
+  completePublishedHistory,
+  shallowPublishedHistory,
+} from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 
 test("a Done reference waits for pending publication evidence, explains a settled missing or unavailable owner, and recovers the existing review failure without losing the comparison", async ({
   page,
@@ -87,7 +90,7 @@ test("a Done reference waits for pending publication evidence, explains a settle
   }
   // This real Git boundary makes published claim recovery unavailable. The
   // separately final CI comparison remains readable from its established cache.
-  git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+  shallowPublishedHistory(origin);
   const unavailableRead = page.waitForResponse(
     (response) => new URL(response.url()).pathname === storyReviewEndpoint,
   );
@@ -103,7 +106,7 @@ test("a Done reference waits for pending publication evidence, explains a settle
   );
   await expect(comparisonReading(panel).wallTimes.nth(2)).toHaveText("4 min");
   expect(historyRequests).toEqual([]);
-  git(origin.project, "fetch", "--quiet", "--unshallow", "origin", "main");
+  completePublishedHistory(origin);
   const failedReview = async (route: Route) => {
     await route.fulfill({
       status: 503,

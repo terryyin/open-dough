@@ -9,6 +9,13 @@ import {
 import { reviewComparisonSchema } from "./storyReviewPoints.ts";
 import type { EstablishedContext } from "./launchRecord.ts";
 
+// A failed sync from origin: its problem and when the project last synced.
+export const reviewSyncFailureSchema = z.object({
+  problem: z.string().min(1),
+  lastSyncedAt: z.string().min(1).optional(),
+});
+export type ReviewSyncFailure = z.infer<typeof reviewSyncFailureSchema>;
+
 export const storyReviewEndpoint = "/__agent-launch/review";
 // The file diff reads the same comparison as the file list. The query names
 // the start and end objects as `baseline` and `tree`, and supplies the file's
@@ -67,6 +74,7 @@ export const storyReviewSchema = z
       ...fixedComparison,
       // A branch story can also compare from its recorded story start to this tree.
       withMerged: reviewComparisonSchema.optional(),
+      syncFailure: reviewSyncFailureSchema.optional(),
     }),
     z.object({
       kind: z.literal("published-taken"),
@@ -77,11 +85,14 @@ export const storyReviewSchema = z
       target: z.string().min(1),
       ...fixedComparison,
       withMerged: reviewComparisonSchema.optional(),
+      // The sync from origin failed; the comparison is the last synced one.
+      syncFailure: reviewSyncFailureSchema.optional(),
     }),
     z.object({
       kind: z.literal("landed"),
       landing: landedReviewContextSchema,
       ...fixedComparison,
+      syncFailure: reviewSyncFailureSchema.optional(),
     }),
     // A standalone session's published close record: the selected recorded
     // pair and the session's close time. A record of several ordered ranges

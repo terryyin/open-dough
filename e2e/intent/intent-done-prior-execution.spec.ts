@@ -29,9 +29,9 @@ import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
 } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
+import { shallowPublishedHistory } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 import {
   commitAll,
-  git,
   lines,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
@@ -124,7 +124,7 @@ test("a Done story's later completion outranks its execution launch's first capt
   expect(locations).not.toContain(captured.revision);
   // If published history later becomes unavailable, the still-readable first
   // increment remains a pre-completion run, not the completed story's result.
-  git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+  shallowPublishedHistory(origin);
   const unavailable = storyReviewSchema.parse(
     await (
       await getReview(request, dashboard, storyReviewEndpoint, {

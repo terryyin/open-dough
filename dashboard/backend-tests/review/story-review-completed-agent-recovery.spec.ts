@@ -2,6 +2,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { shallowPublishedHistory } from "../../test-support/support/reviewRepositoryFixture.ts";
 import {
   getReview,
   completedReviewQuery,
@@ -125,7 +126,7 @@ test.describe("returned", () => {
     expect(
       publishedDoneRecord(origin.project, origin.revision("completion")),
     ).not.toHaveProperty("agent");
-    git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+    shallowPublishedHistory(origin);
     const response = await getReview(
       request,
       dashboard,

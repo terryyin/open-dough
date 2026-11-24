@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-428_read-reviews-from-the-review-repository.json",
+      "identity": "SEED-428#read-reviews-from-the-review-repository",
+      "completedAt": "2026-11-24T14:59:31.585Z",
+      "blob": "0125fe3e9c0a8461986a5e927cea4780d0315013"
+    },
+    {
       "fileName": "SEED-423_use-one-managed-install-layout.json",
       "identity": "SEED-423#use-one-managed-install-layout",
       "completedAt": "2026-11-24T13:01:17.021Z",
@@ -3144,24 +3150,6 @@
       "identity": "SEED-010#source-review-record-lifecycle",
       "completedAt": "2026-10-25T15:29:47.574Z",
       "blob": "c3e528056daf43855cdb5297f48f4616437c7767"
-    },
-    {
-      "fileName": "SEED-010_refresh-human-amendments-before-completion.json",
-      "identity": "SEED-010#refresh-human-amendments-before-completion",
-      "completedAt": "2026-10-25T14:30:15.342Z",
-      "blob": "f45250e01325fea4ef2903c14c7d2b4f96ecb498"
-    },
-    {
-      "fileName": "SEED-010_accept-source-promises-after-plan-drift.json",
-      "identity": "SEED-010#accept-source-promises-after-plan-drift",
-      "completedAt": "2026-10-25T13:39:41.387Z",
-      "blob": "81546abd2413a0a16539cd7278e0d215f6f1e69f"
-    },
-    {
-      "fileName": "SEED-151_tidy-share-allocator.json",
-      "identity": "SEED-151#tidy-share-allocator",
-      "completedAt": "2026-10-25T13:17:18.673Z",
-      "blob": "decf230961acab383bf7f7ce663caa6d14f3cf49"
     }
   ],
   "unreadable": []

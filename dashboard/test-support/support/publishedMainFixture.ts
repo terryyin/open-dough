@@ -24,12 +24,17 @@ import {
   materializePublishedMainSource,
   type PublishedMainSourceProfile,
 } from "./publishedMainSource.ts";
+import { routeOriginThroughHome } from "./fixtureOriginRoute.ts";
 import { reusePublishedDevelopmentRuntime } from "./publishedDevelopmentRuntime.ts";
 
 const exec = promisify(execFile);
 
 // Path contents to publish; `null` deletes the path. Nothing else changes.
 export type PathChanges = Record<string, string | Buffer | null>;
+
+// The repository a published-main project configures; the fixture HOME
+// routes its GitHub URL to the fixture origin.
+export const publishedMainRepository = "fixture/open-dough";
 
 // One test's fixture: its repositories, HOME, environment and publication.
 export type PublishedMainFixture = Awaited<
@@ -94,6 +99,7 @@ async function createPublishedMainFixture<Gh extends FakeGhPaths | undefined>(
       env,
     });
     await git("remote", "add", "origin", origin);
+    routeOriginThroughHome(home, origin, publishedMainRepository);
     const record = (message: string, ...options: string[]) =>
       git(
         "-c",

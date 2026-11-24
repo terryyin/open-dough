@@ -1,4 +1,5 @@
 import { expect, test } from "../../test-support/support/preparationPage.ts";
+import { shallowPublishedHistory } from "../../test-support/support/reviewRepositoryFixture.ts";
 import {
   getReview as get,
   completedStoryQuery as named,
@@ -130,7 +131,7 @@ test.describe("ordinary trunk", () => {
     dashboard,
     origin,
   }) => {
-    git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+    shallowPublishedHistory(origin);
     expect(git(origin.project, "rev-parse", "--is-shallow-repository")).toBe(
       "true",
     );

@@ -1,7 +1,7 @@
 // Resolve retained records through the existing published completion owner.
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { FollowUpLedger } from "./ciFollowUpStore.ts";
-import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
+import { checkoutStoryEndpoints } from "./storyPublishedEndpoints.ts";
 
 type Landing = FollowUpLedger["landings"][string];
 export type SelectedLanding = Landing & { readonly at: string };
@@ -22,7 +22,7 @@ export async function completedFollowUps(
     candidates.map((landing) => landing.identity),
   )) {
     if (identity === undefined) continue;
-    const endpoints = await publishedStoryEndpoints(source, identity, signal);
+    const endpoints = await checkoutStoryEndpoints(source, identity, signal);
     if (endpoints.kind !== "facts") continue;
     const facts = endpoints.facts;
     const revision =

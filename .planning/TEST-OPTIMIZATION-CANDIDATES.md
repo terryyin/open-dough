@@ -53,3 +53,29 @@
   starting state, which changes the case basis so saved native baselines must
   be recaptured, or to change the share's run budget or shard split; CI share-2
   times on slow runners after the merges show how much margin remains.
+
+### repository-history-build-per-revision
+
+- **Affected test or fixture:** `Distribution/tests/support/repository-history.mjs`
+  `buildRepository`, the template every `materializeRepository` history is
+  built from (`Distribution/tests/support/repository-fixture.mjs`), used across
+  `dashboard/backend-tests/review` and the E2E review and Intent journeys.
+- **Observed cost and conditions:** the first case per history in a process
+  pays the template build: 1.3–1.9 s for `takenBranchContributionHistory` and
+  `trunkModeStory` (local, 2026-11-24, load 6–17). The whole
+  `story-review-published-taken.spec.ts` spawned 622 Git processes at load 6:
+  33 `add`, 27 `commit`, and 28 each of `pack-objects` and `unpack-objects`
+  (a local push per step). Cases building a history inside their 5 s budget
+  timed out at load 17–27.
+- **Unique protection:** real published Git histories (claims, interleaved
+  trunk, merges, unpublished work) behind every Review repository reader proof.
+- **Alternatives tried:** maintenance and gc off in a reader clone (small
+  saving); reusing an already-built history in one case (saves one build);
+  building templates in a `beforeAll` through `prepareRepository`, which moves
+  the cost out of case budgets in `story-review-published-taken.spec.ts` (worst
+  case 1.1–1.4 s at load 22–28) but leaves the total cost. Untried: build
+  commits with plumbing (`hash-object`, `mktree`, `commit-tree`,
+  `update-ref`) and write every ref into the bare origin in one step.
+- **Decision or evidence needed:** a measured plumbing rewrite of
+  `buildRepository` proven against every history consumer, or a developer
+  decision to accept the cost with `prepareRepository` prewarming per spec.

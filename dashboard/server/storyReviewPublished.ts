@@ -5,12 +5,17 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
-import { executionCheckout } from "./executionCheckout.ts";
 import {
   publishedStoryAttribution,
   type PublishedStoryCommitEvidence,
 } from "./storyCompletedCommits.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
+import {
+  reviewRepositoryHolding,
+  reviewRepositoryRead,
+  ReviewSyncFailed,
+  withSyncFailure,
+} from "./reviewRepository.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
 import { compareOriginalTrees, listedFrom } from "./storyReviewComparison.ts";
 
@@ -25,8 +30,20 @@ export async function publishedStoryReview(
     explanation,
   });
   try {
+    const { repository: directory, syncFailure } =
+      namedCompletion === undefined
+        ? await reviewRepositoryRead(source, signal)
+        : {
+            repository: await reviewRepositoryHolding(
+              source,
+              namedCompletion,
+              signal,
+            ),
+            syncFailure: undefined,
+          };
     const endpoints = await publishedStoryEndpoints(
       source,
+      directory,
       identity,
       signal,
       namedCompletion,
@@ -35,7 +52,6 @@ export async function publishedStoryReview(
     if (endpoints.kind === "unavailable")
       return unavailable(endpoints.explanation);
     const { facts, claim } = endpoints;
-    const directory = executionCheckout(source).path;
     const call: GitCall = {
       cwd: directory,
       signal,
@@ -61,8 +77,10 @@ export async function publishedStoryReview(
       remote: "origin",
       target: source.ref,
       ...compared,
+      ...withSyncFailure(syncFailure),
     };
   } catch (error) {
+    if (error instanceof ReviewSyncFailed) return unavailable(error.message);
     return unavailable(
       `Published completion history could not be read: ${gitProblem(error)}`,
     );

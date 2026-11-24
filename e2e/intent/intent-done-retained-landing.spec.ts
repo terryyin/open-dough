@@ -29,6 +29,7 @@ import {
 import { retainedIntentLanding } from "../../dashboard/test-support/support/retainedIntentLanding.ts";
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
 import { trunkCommitFromAnotherWriter } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
+import { shallowPublishedHistory } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 import {
   git,
   lines,
@@ -87,8 +88,7 @@ for (const history of ["published", "shallow"] as const)
         writeRevisionFiles(writer, later);
       },
     );
-    if (history === "shallow")
-      git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+    if (history === "shallow") shallowPublishedHistory(origin);
     const local = makeMe.aRepository
       .withRevision("retained-local", {
         backlog: null,

@@ -25,8 +25,15 @@ scope: one story
 advance with origin. Opening details uses local Git, and the Dashboard shows
 when it last confirmed the published state or whether a refresh failed.
 
-**Starting point.** Extend the Review repository and shared fetch delivered by
-[SEED-428](SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository).
+**Starting point.** Extend the Review repository and shared fetch that SEED-428
+delivered in `dashboard/server/reviewRepository.ts`, after its correction
+[Read review files without fetching](SEED-428-read-reviews-from-the-review-repository.md#read-review-files-without-fetching).
+That delivery left two gaps for this story's refresh design:
+- Exact-ref fetches never prune, so a story branch deleted on origin is
+  still read from its stale tracking ref, with no notice.
+- One sync record covers every ref and is not written atomically. A trunk sync
+  that succeeds before the branch sync fails reports the branch as fresh, and
+  a torn write reads as never synced.
 Origin remains authoritative for durable project records. The execution checkout
 supplies sessions and their worktrees. [Dashboard ADR](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
 

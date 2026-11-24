@@ -15,9 +15,9 @@ import {
   queuedIdentity,
   type StartOrigin,
 } from "../../dashboard/test-support/support/startOrigin.ts";
+import { reviewRepositorySyncedTrunk } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 import { publishStorySession } from "../../dashboard/test-support/support/storySessionPublication.ts";
 import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
-import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { defaultBacklogPath } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-store.mjs";
 
@@ -137,7 +137,7 @@ test("a stale line Follow up explains the unavailable source and returns to the 
       sessionRecordPathBeside(defaultBacklogPath, record.sessionId),
       "unreadable record\n",
     );
-    git(origin.project, "fetch", "--quiet", "origin", "main");
+    reviewRepositorySyncedTrunk(origin);
   });
   await test.step("When I start the follow-up", () =>
     followUpComposer(dialog).start("Review the old line"));

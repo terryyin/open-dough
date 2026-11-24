@@ -17,8 +17,8 @@ origin is unavailable, keep the last readable comparison with its sync status.
 Review works independently of the execution checkout. Retire the superseded
 review routes and helpers once their callers use the Review repository. Remove
 this topic at wrap-up of
-[Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
-once the new path and its proof are in place. The durable repository roles are
+[Read review files without fetching](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-review-files-without-fetching)
+once every review file read stays local and its proof is in place. The durable repository roles are
 defined in [ADR 0008](../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships).
 
 ## Share one refresh for published Dashboard Git reads

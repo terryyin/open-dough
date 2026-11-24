@@ -1,5 +1,7 @@
+import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
+import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
@@ -16,7 +18,8 @@ import { git } from "../../test-support/support/storyReviewWorktree.ts";
 const reference = "11111111-1111-4111-8111-111111111111";
 const literal = "[literal]*.txt";
 
-test("a legacy receipt reads the exact accepted origin pair and loses authority when origin omits it", async () => {
+// A legacy receipt for an accepted landing whose execution checkout is retired.
+async function retiredLandedRun() {
   const repository = await materializeRepository(
     makeMe.aRepository
       .withRevision("base")
@@ -24,7 +27,7 @@ test("a legacy receipt reads the exact accepted origin pair and loses authority 
       .withRevision("later", { files: { [literal]: "later change\n" } })
       .please(),
   );
-  vi.stubEnv("HOME", repository.fixture);
+  stubFixtureHome(repository.fixture, repository.origin);
   const unmount = mountProjectConfiguration("development");
   onTestFinished(async () => {
     unmount();
@@ -36,7 +39,7 @@ test("a legacy receipt reads the exact accepted origin pair and loses authority 
       .with({
         id: "open-dough",
         label: "Open Dough",
-        repository: "terryyin/open-dough",
+        repository: fixtureRepository,
         localPath: repository.integration,
       })
       .please(),
@@ -59,9 +62,19 @@ test("a legacy receipt reads the exact accepted origin pair and loses authority 
       .please(),
   ]);
 
-  const signal = new AbortController().signal;
+  renameSync(repository.integration, `${repository.integration}-retired`);
   const subject = { source: "open-dough", identity: queuedIdentity };
   const review = { read: { subject, run: reference } };
+  const moveOrigin = () => {
+    renameSync(repository.origin, `${repository.origin}-away`);
+  };
+  return { repository, base, accepted, subject, review, moveOrigin };
+}
+
+test("a legacy receipt reads the exact accepted origin pair with the execution checkout retired, and loses authority when origin omits it", async () => {
+  const { repository, base, accepted, subject, review } =
+    await retiredLandedRun();
+  const signal = new AbortController().signal;
   const file = {
     subject,
     reference,
@@ -90,4 +103,34 @@ test("a legacy receipt reads the exact accepted origin pair and loses authority 
   await expect(reviewedFileDiff({ read: file }, signal)).rejects.toMatchObject({
     status: 409,
   });
+});
+
+test("a synced landed run reopens offline with the same pair and files and the sync notice", async () => {
+  const { base, accepted, review, moveOrigin } = await retiredLandedRun();
+  const signal = new AbortController().signal;
+  const synced = await storyReview(review, signal);
+  if (synced.kind !== "landed") throw new Error("No landed review");
+  moveOrigin();
+
+  const reopened = await storyReview(review, signal);
+  expect(reopened).toMatchObject({
+    kind: "landed",
+    baseline: base,
+    tree: accepted,
+    files: synced.files,
+  });
+  if (reopened.kind !== "landed") throw new Error("No landed review");
+  expect(typeof reopened.syncFailure?.lastSyncedAt).toBe("string");
+});
+
+test("a landed run never synced and opened offline is unavailable and names the failed sync", async () => {
+  const { review, moveOrigin } = await retiredLandedRun();
+  moveOrigin();
+
+  const answer = await storyReview(review, new AbortController().signal);
+
+  expect(answer.kind).toMatch(/unavailable/);
+  expect("explanation" in answer && answer.explanation).toMatch(
+    /^The review could not sync from origin/,
+  );
 });

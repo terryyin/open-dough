@@ -4,7 +4,10 @@ import {
   isEstablishedOneShot,
   type LaunchRecord,
 } from "../src/launchRecord.ts";
-import type { StoryReview } from "../src/storyReviewContract.ts";
+import type {
+  ReviewSyncFailure,
+  StoryReview,
+} from "../src/storyReviewContract.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import {
   landedReviewContextSchema,
@@ -12,9 +15,16 @@ import {
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
-import { fetchGitTarget } from "./gitTargetFetch.ts";
-import { checkAncestry, gitProblem } from "./gitRunner.ts";
-import { publishedLandingCheckout } from "./storyReviewPublishedLanding.ts";
+import {
+  checkAncestry,
+  defaultGitOutputLimit,
+  gitProblem,
+} from "./gitRunner.ts";
+import {
+  reviewRepositoryRead,
+  ReviewSyncFailed,
+  withSyncFailure,
+} from "./reviewRepository.ts";
 
 export type LandingReviewSource = {
   readonly record: LaunchRecord;
@@ -49,11 +59,10 @@ export async function landedStoryReview(
       "The landing does not name the project's configured origin target.",
     );
   let repository: string;
+  let syncFailure: ReviewSyncFailure | undefined;
   try {
-    const call = await publishedLandingCheckout(source, signal);
-    repository = call.cwd;
-
-    await fetchGitTarget("origin", source.ref, call);
+    ({ repository, syncFailure } = await reviewRepositoryRead(source, signal));
+    const call = { cwd: repository, signal, maxBuffer: defaultGitOutputLimit };
     if (!(await checkAncestry(landing.revision, `origin/${source.ref}`, call)))
       return unavailable(
         "The configured origin target does not contain this accepted landing.",
@@ -64,6 +73,7 @@ export async function landedStoryReview(
       );
   } catch (error) {
     if (signal.aborted) throw error;
+    if (error instanceof ReviewSyncFailed) return unavailable(error.message);
     return unavailable(
       `Published history could not verify this accepted landing: ${gitProblem(error)}`,
     );
@@ -89,5 +99,6 @@ export async function landedStoryReview(
     baseline: landing.base,
     tree: landing.revision,
     files: read.files,
+    ...withSyncFailure(syncFailure),
   };
 }

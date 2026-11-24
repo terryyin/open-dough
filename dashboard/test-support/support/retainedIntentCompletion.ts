@@ -14,7 +14,8 @@ import { publishIntentTrunk } from "./intentStoryWorktree.ts";
 import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
-import { commitAll, git } from "./storyReviewWorktree.ts";
+import { shallowPublishedHistory } from "./reviewRepositoryFixture.ts";
+import { commitAll } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 
 export async function retainedIntentCompletion(
@@ -53,8 +54,7 @@ export async function retainedIntentCompletion(
     push(origin.project);
   }
   writeRevisionFiles(story.workspace, facts.local);
-  if (facts.shallow === true)
-    git(origin.project, "fetch", "--quiet", "--depth=1", "origin", "main");
+  if (facts.shallow === true) shallowPublishedHistory(origin);
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: published,

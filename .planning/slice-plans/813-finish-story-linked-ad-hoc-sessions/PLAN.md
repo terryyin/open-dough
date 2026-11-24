@@ -27,7 +27,7 @@ their respective stories.
   supplies story scope, published comparisons and missing-evidence cues. The
   [Review repository direction](../../NORTH-STAR.md#read-published-comparisons-from-the-review-repository)
   keeps publication independent of review storage. Use the published comparison
-  contract already on trunk. If [SEED-428](../../seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
+  contract already on trunk. If [SEED-428](https://github.com/terryyin/open-dough/blob/5813f8d95b5816e984540785e4e3d0e439c2c1ff/.planning/seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository)
   lands during execution, recheck the exact-range proof on the integrated reader
   and keep its repository routing and fixed file reads.
 - Reuse Distribution's installed `execution-start.mjs` owned draft, admission

@@ -110,7 +110,7 @@ test("a published-session refresh names published changes", async () => {
 
 test("an unavailable published-session review names published changes", async () => {
   const explanation =
-    "This session's published commits are not in this machine's Git.";
+    "This session's published commits are not in this project's Review repository.";
   const gap = makeMe.aStoryReview.publishedSessionGap(explanation).please();
   const review = await mountReviewChanges(
     reviewSourceAnswering({ review: () => Promise.resolve(gap) }),
