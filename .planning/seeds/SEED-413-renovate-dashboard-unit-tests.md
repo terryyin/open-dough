@@ -215,9 +215,9 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
   state and real Git and file collaborators. The campaign ends when
   `dashboard/backend.playwright.config.ts` and the backend request and server
   wrappers in `dashboard/test-support/` are deleted.
-- **Evaluation.** Split one family at a time when it is reached, each sized
-  to one plan. A family is the cases that share a typed handler and its
-  arrangement. Recount the review families after
+- **Evaluation.** Split by a verifiable outcome and size each story to one
+  plan. Group closely related families when they use the same typed inputs
+  and arrangement. Recount the review families after
   [Review published changes](SEED-427-review-published-changes.md#review-published-changes)
   so migration covers the surviving published-review cases and fixtures.
   For each family:
@@ -257,14 +257,17 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
      retired the last two users of `adHocReview.ts` and moved the branch-entry
      command case. The other converted cases already use typed entry points.
      Remaining native Done cases belong to `sessions/`.
-  2. `intent/` landed CI, resolving the load sensitivity of `SEED-324` and
-     `SEED-319`. Preserve freshness, invalidation, and close behavior when
-     moving reads to typed handler inputs. Check whether those inputs can
-     replace the module-level memos in `followUpStory.ts`, `ciProofArtifact.ts`,
-     `ciAdapterProof.ts` and `baseCiGithubRevisionLookup.ts`. Give any cache
-     the production path still needs an explicit lifecycle owner. The earlier
-     analysis includes `LandedCiCollection.close()` (recoverable at
-     `6c628be4a:.planning/slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md`).
+  2. `intent/` landed CI starts with the two queued splits for
+     [wall-time history](#renovate-landed-ci-backend-proof) and
+     [scoped test history](#renovate-landed-ci-scope-proof). Their spec rosters
+     belong to those stories. The remaining campaign includes attempt-start,
+     standalone proof collection and reader restart, and the remaining
+     lifecycle and follow-up seams. Keep the distinct coverage and load
+     commitments of the [automatic-repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps)
+     with its own plan. Preserve freshness, invalidation, and close behavior
+     as reads move to typed inputs. Keep cache state with its production
+     lifetime owner. The earlier analysis includes `LandedCiCollection.close()`
+     (recoverable at `6c628be4a:.planning/slice-plans/715-default-dashboard-backend-checks-to-the-mounted-boundary/PLAN.md`).
   3. The remaining families by CI seconds.
 - **Family map** (2026-11-19; CI medians over five main runs, 555 files,
   2,519 s; entry kinds counted from each spec's text, so approximate).
@@ -304,6 +307,98 @@ kept the [completed Done capture family](https://github.com/terryyin/open-dough/
 - **Safe stopping point.** Every completed family stands on its own with
   faster checks, compile-time contract safety, and fewer `test-support`
   files.
+
+<a id="renovate-landed-ci-backend-proof"></a>
+
+### Prove landed CI wall-time history through typed backend handlers
+
+**Identity:** SEED-413#renovate-landed-ci-backend-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"63e8abf2e464d61c9ff819eb871ea0df4d387fc0e59ea5ddc9ef9483ae0beaa4","plan":"3f9870a5c30cdc17d6bba78e05e7d077f96d80437df581689f8f3f0c328137ca"}}
+```
+
+**Goal.** Dashboard maintainers get faster, directly runnable feedback on how
+Landed collection resolves a build and how Intent reads its wall-time history.
+The checks keep the existing distinctions between a measurement, a pending
+answer, and a final gap.
+
+**Scope.** Convert the 14 `dashboard/backend-tests/intent/landed-ci-history-*.spec.ts`
+files to typed production entries on Node Vitest. Cover initial collection and
+restart, retained order and the measured window, exact and reused builds,
+agreement with the selected Landed comparison, and CI time without runner
+waits. Compose landing receipts, Git history and saved records with MakeMe.
+Exercise actual collection when collection is the assertion. Preserve shared
+request admission and process lifetime proof at their existing owners. Scoped
+test history, automatic repeat, standalone proof collection and backend
+runner retirement stay in their own work.
+
+**Key examples.**
+
+- Given an accepted landing with a queued exact run, collecting before and
+  after completion shows a pending gap and then one measured exact build.
+  History and the selected comparison identify the same build.
+- Given a skipped landing whose equivalent build's proof read stays
+  unanswered, another collection can resolve it when proof becomes readable.
+  An answered final gap retains its reason and run identity.
+- Given 35 saved measurements with out-of-window gaps and a pending landing
+  after the newest measurement, the history read returns the newest 20
+  measured builds in trunk order and retains the relevant gaps.
+- Given a completed attempt with runner waits, asking for the derived
+  measure yields time without those waits. Wall time remains available.
+  An unanswered jobs read can recover while an answered missing graph stays
+  a final gap for that build.
+
+**Sizing and learning.** The 14-file roster is twice the seven-file source
+roster of the earlier [Default main Done capture migration](https://github.com/terryyin/open-dough/blob/8f4cc9480ccb0b736e3b29c787ab49a6ac80d366/.planning/slice-plans/723-prove-done-capture-in-process/PLAN.md).
+It tests whether the composed-state approach also works across a collection
+pass and its read model. The estimate compares source files, with separate
+slices for the distinct transition and read promises. The wall-time proof and
+its measured feedback stand on their own if scope history is deferred.
+
+<a id="renovate-landed-ci-scope-proof"></a>
+
+### Prove landed CI scoped test history through typed backend handlers
+
+**Identity:** SEED-413#renovate-landed-ci-scope-proof
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/806-renovate-landed-ci-scope-proof/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"fe298426089c5db9a2dbf4a23e44fe4aa0d574877843fc0cd546807ca2195133","plan":"3656d7d117f8275039504a2db6538e28f68a77e90c5e9883f4cd03e4b1132b0d"}}
+```
+
+**Goal.** Dashboard maintainers get faster, directly runnable feedback on how
+Landed collection turns exact CI artifacts into project and file scope history.
+The checks preserve the provenance, availability and finality of each point.
+
+**Scope.** Convert the 13 `dashboard/backend-tests/intent/landed-ci-scope-*.spec.ts`
+files to typed production entries on Node Vitest. Cover GitHub and adapter
+attempt identity, exact, equivalent and later build provenance, pending and
+final proofs across collection restarts, and the retained window. Use typed
+landing and completion inputs with real Git and temporary file stores where
+they carry the behavior. Preserve completion delivery and retry as actual
+operations in the case that observes them. Wall-time-only and runner-wait
+cases, automatic repeat, standalone proof collection and backend runner
+retirement stay in their own work.
+
+**Key examples.**
+
+- Given two receipts for one true adapter attempt, reading scope returns one
+  point. Distinct adapter runs that reuse an opaque attempt ID keep each
+  run's own proof and point.
+- Given exact and equivalent skipped landings that share one collected build,
+  the selected endpoint preserves both landing roles. A cancelled landing
+  uses its labelled later build while unrelated points stay outside the read.
+- Given an unanswered proof read, a later collector can recover the same
+  attempt. A final unreadable proof stays final while another build resolves.
+  Actual completion retry keeps one measurement.
+- Given 20 ordered measurements, an unordered new landing waits without
+  evicting one. Once ordered and measured, the twenty-first evicts the oldest
+  in trunk order. Legacy proof and explanation-only gaps remain readable.
+
+**Sizing and learning.** Thirteen source files are about 1.9 times the earlier
+seven-file roster. This story tests the same approach with immutable attempt
+evidence, compatibility and restart. It can use the current collector and
+read path independently of the wall-time story. Run it second to reuse any
+compatible seams already delivered and reconcile shared callers on the
+current branch.
 
 <a id="renovate-later-dashboard-frontend-unit-test-families"></a>
 
