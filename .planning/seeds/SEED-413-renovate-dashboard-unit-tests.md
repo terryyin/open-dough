@@ -179,24 +179,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
-<a id="prove-renamed-diff-grammar-from-new-path"></a>
-
-### Prove a renamed file's Review diff reads its grammar from the new path
-
-**Identity:** SEED-413#prove-renamed-diff-grammar-from-new-path
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/746-prove-renamed-diff-grammar-from-new-path/PLAN.md"}
-```
-
-Correction from the Intent Coverage check of
-SEED-413#reduce-review-diff-reading-to-logic-cases on 21 November 2026.
-
-- **Goal.** Dashboard maintainers get a failing test when a renamed file's
-  Review diff reads its grammar from the old path instead of the new one.
-- **Scope.** One maintained case for the choice of path given to diff styling.
-  It is either a logic case over that choice or a case through
-  `StoryReviewFileDiff`. Product behavior stays unchanged.
-
 <a id="renovate-later-dashboard-backend-unit-test-families"></a>
 
 ### Prove durable launch admission through the typed attempt owner
@@ -587,9 +569,8 @@ Continuing one component at a time would extend the life of both runners.
   measures the complete group including preparation against the recorded
   baseline, with roughly one minute at two workers as the campaign target.
   Report the actual time and any remaining cost.
-- The existing recovery/late-styling timing follow-up and renamed-diff
-  proof correction have separate owners. Preserve their commitments and
-  use their results when available. The migrations own the remaining
+- The existing recovery/late-styling timing follow-up has a separate
+  owner. Preserve its commitments and use its results when available. The migrations own the remaining
   legacy cases. Keep this campaign's test work coordinated with
   [SEED-341](SEED-341-simplify-session-tests.md).
 
