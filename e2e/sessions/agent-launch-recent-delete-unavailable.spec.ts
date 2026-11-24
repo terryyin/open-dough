@@ -24,9 +24,12 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
+  notRefinedIdentity,
   notRefinedStory,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
@@ -48,22 +51,34 @@ test.describe("deleting an unavailable session's record from its current home", 
     page,
     dashboard,
   }) => {
-    dashboard.claudeScenario("launched");
-    const { card, settled, show, launch } = await openStoryColumnsJourney(
+    const { sessionId: gone } = await composeSession(dashboard, "open-dough", {
+      identity: readyIdentity,
+      title: readyStory,
+    });
+    const { sessionId: becameKnown } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: notRefinedIdentity,
+        title: notRefinedStory,
+        workflow: "refinement",
+      },
+    );
+    const { card, settled, show } = await openStoryColumnsJourney(
       page,
       columnsJourney,
     );
     const { recentlyDone: recent } = parts(page);
     const sidebar = sessionsSidebarParts(page);
     await settled();
-    await launch(readyStory, "Execution");
-    await launch(notRefinedStory, "Refinement");
-    const gone = await sessionNamedBy(
-      storyCardSessionOf(card(readyStory), "Execution"),
-    );
-    const becameKnown = await sessionNamedBy(
-      storyCardSessionOf(card(notRefinedStory), "Refinement"),
-    );
+    expect(
+      await sessionNamedBy(storyCardSessionOf(card(readyStory), "Execution")),
+    ).toBe(gone);
+    expect(
+      await sessionNamedBy(
+        storyCardSessionOf(card(notRefinedStory), "Refinement"),
+      ),
+    ).toBe(becameKnown);
     dashboard.claudeSessionBecomes(gone, "forgotten");
     dashboard.claudeSessionBecomes(becameKnown, "forgotten");
     // The completed story has no active card, so its open session retains

@@ -19,7 +19,10 @@ import {
   sessionStateOf,
   storyCardSessionOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { readyStory } from "../../dashboard/test-support/launchJourney.ts";
+import {
+  readyIdentity,
+  readyStory,
+} from "../../dashboard/test-support/launchJourney.ts";
 import {
   openTakenBacklog,
   takenBacklogStories,
@@ -30,7 +33,7 @@ import {
   markNotReloaded,
   watchRecordReads,
 } from "../../dashboard/test-support/sessionStatePace.ts";
-import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   idleBetweenSteps,
   markDoneAnyway,
@@ -48,29 +51,24 @@ test("an action that changes a session clears the held revision so a machine ret
   dashboard,
   launchJourney,
 }) => {
+  const { sessionId: session } = await composeSession(dashboard, "open-dough", {
+    identity: readyIdentity,
+    title: readyStory,
+  });
   await pausePageClockAt(page, new Date());
   const { passOnePace, answeredDuring } = await watchRecordReads(page);
-  dashboard.claudeScenario("launched");
-  const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
+  const { card } = await openTakenBacklog(page, launchJourney);
   const story = card(readyStory);
   const onStoryCard = storyCardSessionOf(story, "Execution");
 
-  await start(readyStory).click();
-  await dialog.getByRole("button", { name: "Start" }).click();
   await expectSessionShown(onStoryCard, "Working", false);
   await expect(
     card(readyStory).getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
-  const session = await sessionNamedBy(onStoryCard);
+  expect(await sessionNamedBy(onStoryCard)).toBe(session);
   await markNotReloaded(page);
 
-  // Once the start is reconciled, one pace takes that write; the next holds A.
-  await expect
-    .poll(async () =>
-      (await attempts(dashboard)).every(({ reconciledAt }) => reconciledAt),
-    )
-    .toBe(true);
-  await passOnePace();
+  // The first machine read already holds A.
   expect(await answeredDuring()).toEqual({ held: true, unchanged: true });
   const storeAtA = readFileSync(launchStoreFile(dashboard), "utf8");
   const atA = await rawRequest({

@@ -24,6 +24,7 @@ import {
   takenBacklogStories,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
+  readyIdentity,
   readyStory,
   type LaunchJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
@@ -34,32 +35,32 @@ import {
   watchRecordReads,
 } from "../../dashboard/test-support/sessionStatePace.ts";
 import { markDoneAnyway } from "../../dashboard/test-support/support/markDone.ts";
-import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
-// Starts the ready story's execution on a paused page. Its entry reads
-// Working once the start's published read has landed, before page time
-// passes.
-async function startReadyStory(
+// Opens the ready story's working execution with page time paused.
+async function openWorkingStory(
   page: Page,
   dashboard: DashboardServer,
   launchJourney: LaunchJourney,
 ) {
+  const { sessionId: session } = await composeSession(dashboard, "open-dough", {
+    identity: readyIdentity,
+    title: readyStory,
+  });
   await pausePageClockAt(page, new Date());
   const reads = await watchRecordReads(page);
-  dashboard.claudeScenario("launched");
-  const { card, start, dialog } = await openTakenBacklog(page, launchJourney);
-  await start(readyStory).click();
-  await dialog.getByRole("button", { name: "Start" }).click();
+  const { card } = await openTakenBacklog(page, launchJourney);
   const entry = storyCardSessionOf(card(readyStory), "Execution");
   await expectSessionShown(entry, "Working", false);
   await expect(
     card(readyStory).getByRole("button", { name: "Inspect story" }),
   ).toBeEnabled();
   await markNotReloaded(page);
-  return { ...reads, entry, session: await sessionNamedBy(entry) };
+  expect(await sessionNamedBy(entry)).toBe(session);
+  return { ...reads, entry, session };
 }
 
 test("a host change shows on its entry within one pace, without a reload", async ({
@@ -67,17 +68,10 @@ test("a host change shows on its entry within one pace, without a reload", async
   dashboard,
   launchJourney,
 }) => {
-  const { entry, session, passOnePace, answeredDuring } = await startReadyStory(
-    page,
-    dashboard,
-    launchJourney,
-  );
+  const { entry, session, passOnePace, answeredDuring } =
+    await openWorkingStory(page, dashboard, launchJourney);
 
   await test.step("a pace with nothing changed is answered unchanged", async () => {
-    const reconciled = async () =>
-      (await attempts(dashboard)).every(({ reconciledAt }) => reconciledAt);
-    await expect.poll(reconciled).toBe(true);
-    await passOnePace();
     expect(await answeredDuring()).toEqual({ held: true, unchanged: true });
     await expectSessionShown(entry, "Working", false);
   });
@@ -122,7 +116,7 @@ test("attention stays through the terminal, and once marked done no host change 
   dashboard,
   launchJourney,
 }) => {
-  const { entry, session, passOnePace } = await startReadyStory(
+  const { entry, session, passOnePace } = await openWorkingStory(
     page,
     dashboard,
     launchJourney,

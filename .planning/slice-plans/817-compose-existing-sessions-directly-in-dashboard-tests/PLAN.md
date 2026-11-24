@@ -159,7 +159,7 @@ new session blocks and no launch call. See `slice3-return.md`.
 
 ### 4. Show composed sessions on cards and in Recently done in E2E
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-launch-held-revision-after-action`, `-recent-delete`,
 `-recent-delete-unavailable`, `-recent-sessions`, `-session-state-pace`,
 `-story-card-done` and `-story-card-sessions` pass plainly and with the
@@ -169,6 +169,10 @@ Composed sessions of the journey's stories → cards list them beside their
 Start actions, Recently done retains the closed ones, and Mark as done,
 Delete record and state pace act as today, without pressing Start. Replace
 the board's `launch(...)` steps where the session is a precondition.
+
+Slice 4 proof: 13 cases passed in each setup. The three adjacent card
+cases also passed after fixture reuse. See `slice4-return.md` and
+`slice4-refactor-return.md`.
 
 ### 5. Act on composed sessions from the terminal and on retired workspaces in E2E
 Type: Behavior

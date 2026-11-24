@@ -13,14 +13,8 @@ import { launchStoreFile } from "../../dashboard/test-support/support/launchStor
 
 import { readFileSync } from "node:fs";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import {
-  identityA,
-  identityB,
-} from "../../Distribution/tests/skills/dough-execute-plan/workspace-publication-fixtures.mjs";
-import {
-  launch,
-  markDone,
-} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { composeSession } from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   storyCardSessionOf,
   expectMembership,
@@ -36,7 +30,9 @@ import {
   notRefinedIdentity,
   notRefinedStory,
   publishStoryColumnsJourney,
+  readyIdentity,
   readyStory,
+  takenIdentity,
   takenStory,
   type StoryColumnsJourney,
 } from "../../dashboard/test-support/launchJourney.ts";
@@ -59,7 +55,6 @@ test.describe("deleting a Recently done entry's record", () => {
     page,
     dashboard,
   }) => {
-    dashboard.claudeScenario("launched");
     const { card, settled, show } = await openStoryColumnsJourney(
       page,
       columnsJourney,
@@ -71,26 +66,6 @@ test.describe("deleting a Recently done entry's record", () => {
       backlog: [takenStory, readyStory, notRefinedStory],
     });
     await settled();
-    // The four sessions and two done marks are setup, started and marked
-    // through the launch boundary; each launch answers once it settled.
-    const started = async (
-      story: string,
-      identity: string,
-      workflow: "execution" | "refinement",
-    ) => {
-      const answer = await launch(dashboard, {
-        source: "open-dough",
-        identity,
-        title: story,
-        workflow,
-        host: "claude",
-      });
-      const { record } = JSON.parse(answer.body) as {
-        record?: { session: { sessionId: string } };
-      };
-      if (record === undefined) throw new Error(`Not launched: ${answer.body}`);
-      return record.session.sessionId;
-    };
     const markedDoneOf = async (session: string) => {
       // Idle between steps, the mark takes the native rename at once.
       idleBetweenSteps(dashboard, session);
@@ -101,16 +76,38 @@ test.describe("deleting a Recently done entry's record", () => {
       });
       expect(answer.status, answer.body).toBe(200);
     };
-    const done = await started(readyStory, identityB, "execution");
+    const { sessionId: done } = await composeSession(dashboard, "open-dough", {
+      identity: readyIdentity,
+      title: readyStory,
+    });
     await markedDoneOf(done);
-    const inDoneStory = await started(
-      notRefinedStory,
-      notRefinedIdentity,
-      "refinement",
+    const { sessionId: inDoneStory } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: notRefinedIdentity,
+        title: notRefinedStory,
+        workflow: "refinement",
+      },
     );
     await markedDoneOf(inDoneStory);
-    const refinement = await started(readyStory, identityB, "refinement");
-    const storyA = await started(takenStory, identityA, "execution");
+    const { sessionId: refinement } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: readyIdentity,
+        title: readyStory,
+        workflow: "refinement",
+      },
+    );
+    const { sessionId: storyA } = await composeSession(
+      dashboard,
+      "open-dough",
+      {
+        identity: takenIdentity,
+        title: takenStory,
+      },
+    );
     const recordFile = launchStoreFile(dashboard.home);
     const stored = () => readFileSync(recordFile, "utf8");
     const stopsBeforeDeletes = dashboard.claudeStopCalls().length;
