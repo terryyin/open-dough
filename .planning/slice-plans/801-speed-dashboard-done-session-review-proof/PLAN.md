@@ -342,7 +342,13 @@ files in `dashboard-frontend` shard 1/2; every case that ran passed. Two
 diagnosis rounds found no test closing or exhausting the page, and a hosted
 probe passed 10 of 10 shard runs with memory, `/tmp` and `/dev/shm` far from
 their limits, so the attempt is disposed of as a runner fault; see
-[the diagnosis record](diagnosis-browser-connection-closed.md). Fit the 15 active-minute limit by keeping representative
+[the diagnosis record](diagnosis-browser-connection-closed.md).
+
+CI run 45314128135 ended `Distribution Tests (3/3)` at its 320 s deadline on
+`bc255e62`; recent main runs of that shard already took up to 298 s. With the
+developer's acceptance, `rebalance-ci-shards` moved
+`Distribution/tests/skills/dough-story-wrap-up/**` into share 2, lowering the
+slowest share's recent median total from 767 s to 681 s. Fit the 15 active-minute limit by keeping representative
 rendered scenarios and checking distinct variants at their smallest owner.
 
 ## Assertion map
