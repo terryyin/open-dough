@@ -221,6 +221,11 @@ with one opt-in skip. Plain E2E passed 776. Installed proof passed 144
 backend and 88 E2E cases. See `slice7-return.md` for exact selections and
 the paused terminal's readiness proof.
 
+## Execution complete
+
+Product advice: Keep plan 816's real launch proof and carry forward the
+observed shared-machine catalog origin initialization race.
+
 ## Concern evidence
 
 The combined installed probe passed across the migrated scope. The initial
