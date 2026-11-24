@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Prove landed CI wall-time history through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-backend-proof) — SEED-413#renovate-landed-ci-backend-proof ([plan](slice-plans/805-renovate-landed-ci-backend-proof/PLAN.md))
 - [Choose clear follow-up context](seeds/SEED-415-choose-clear-follow-up-context.md#choose-clear-follow-up-context) — SEED-415#choose-clear-follow-up-context ([plan](slice-plans/808-choose-clear-follow-up-context/PLAN.md))
 - [Reduce Codex wakes during supplier watches](seeds/SEED-431-reduce-codex-wakes-during-supplier-watches.md#reduce-codex-wakes-during-supplier-watches) — SEED-431#reduce-codex-wakes-during-supplier-watches ([plan](slice-plans/809-reduce-codex-wakes-during-supplier-watches/PLAN.md))
+- [Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository) — SEED-428#read-reviews-from-the-review-repository ([plan](slice-plans/803-read-reviews-from-the-review-repository/PLAN.md))
 
 ## Backlog list
 
-- [Read published reviews from the Review repository](seeds/SEED-428-read-reviews-from-the-review-repository.md#read-reviews-from-the-review-repository) — SEED-428#read-reviews-from-the-review-repository
 - [Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner

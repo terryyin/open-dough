@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "identity": "SEED-428#read-reviews-from-the-review-repository",
+  "mode": "story-branch",
+  "branch": "claude/read-published-reviews-from-the-review-repositor",
+  "host": "claude"
+}
