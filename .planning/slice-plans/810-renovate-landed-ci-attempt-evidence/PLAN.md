@@ -141,7 +141,7 @@ discrimination before deleting the mounted spec.
 ### 5. Follow-up uses the original measurement after later history changes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Convert `landed-ci-follow-up-reading`. Call `answerCiFollowUp` through
 its typed admitted inputs and keep `retainedFollowUpOf` and
@@ -204,6 +204,9 @@ only after its consumers have gone.
 - Slice 4: Vitest owns retained-history reopen; E2E
   `e2e/intent/landed-ci-reader-restart.spec.ts` owns old-address composition
   (wall-time E2E + chosen-port lacked that combination).
+- Slice 5: wall-time samples need retained validated CI proof on builds;
+  follow-up case inputs live in `landedCiFollowUpReadingCase.ts` (subject at
+  250 lines).
 
 ## Accepted proof (slice 1)
 
@@ -234,6 +237,16 @@ Focused: `npm run test:dashboard:backend -- landed-ci-reader-restart --workers=2
 Evidence: `open-dough/evidence/slice4-proof-20261124185713.log.run.json`,
 `slice4-e2e2-20261124185746.log.run.json`, `slice4-return-report.md`.
 Refactor disposition: skipped — subject Intent conversion + new E2E composition owner; no production change; no refactor-check candidate.
+
+## Accepted proof (slice 5)
+
+Focused: `npm run test:dashboard:backend -- landed-ci-follow-up-reading --workers=2` (exit 0; 2 tests);
+`npm run typecheck:dashboard` (exit 0).
+Evidence: `open-dough/evidence/slice5-proof-ts2.log.run.json` (renewed after
+delivery lint/size repair), `slice5-return-report.md`.
+Refactor disposition: skipped — subject Intent + case-input helper on existing
+`answerCiFollowUp` / `retainedFollowUpOf` / `withOriginalFollowUpSamples`; no
+production change; subject held under 250 via support extraction.
 
 ## Concern evidence
 
