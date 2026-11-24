@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_renovate-landed-ci-attempt-evidence.json",
+      "identity": "SEED-413#renovate-landed-ci-attempt-evidence",
+      "completedAt": "2026-11-24T12:01:30.197Z",
+      "blob": "547bf5d6bc62c6042a6a8f4db71b3da29a9a30e4"
+    },
+    {
       "fileName": "SEED-423_observe-the-cancelled-listing-discover.json",
       "identity": "SEED-423#observe-the-cancelled-listing-discover",
       "completedAt": "2026-11-24T09:16:02.298Z",
@@ -3114,12 +3120,6 @@
       "identity": "SEED-151#balance-test-shares",
       "completedAt": "2026-10-25T12:16:59.774Z",
       "blob": "0d94eef59fd51cd8e5216ff13e4c56f7627e8d86"
-    },
-    {
-      "fileName": "SEED-152_retry-aware-integrated-completion.json",
-      "identity": "SEED-152#retry-aware-integrated-completion",
-      "completedAt": "2026-10-25T10:10:39.595Z",
-      "blob": "db90611165ad8ef1d08819cdd2bf9e83d646b0e3"
     }
   ],
   "unreadable": []
