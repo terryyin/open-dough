@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "9a885560-2e2f-483e-9cb1-8de7eb7bf5b3",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T08:55:20.538Z",
+  "story": "SEED-431#reduce-codex-wakes-during-supplier-watches",
+  "ranges": [
+    {
+      "base": "0b69dd0a7022241b7d0c995973d01328ae822d5e",
+      "candidate": "0a82ce35b5a730f6d57668bdb54581d944be00d4"
+    }
+  ]
+}
