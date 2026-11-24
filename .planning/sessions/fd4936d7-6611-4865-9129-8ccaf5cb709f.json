@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "fd4936d7-6611-4865-9129-8ccaf5cb709f",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T03:18:56.469Z",
+  "story": "SEED-389#verify-silent-supplier-wait-in-use",
+  "ranges": [
+    {
+      "base": "53cdf454bf7cadbc643a7c283fc8e57488e292f8",
+      "candidate": "bccd6fd2fa153b2f9b981b8b08d5dfc92cbf1e48"
+    }
+  ]
+}
