@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_observe-the-cancelled-listing-discover.json",
+      "identity": "SEED-423#observe-the-cancelled-listing-discover",
+      "completedAt": "2026-11-24T09:16:02.298Z",
+      "blob": "ef65a22ec94bc53e02f3624a2a38e4425937276a"
+    },
+    {
       "fileName": "SEED-413_renovate-landed-ci-scope-proof.json",
       "identity": "SEED-413#renovate-landed-ci-scope-proof",
       "completedAt": "2026-11-24T09:00:51.185Z",
