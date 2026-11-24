@@ -1,12 +1,9 @@
-// The CI status judgment of a ciAdapter story branch over its trunk
-// (`../../../dashboard/server/baseCiJudgment.ts` `judgeCommandAdapter`), from a
-// fake adapter's discover answers; a GitHub Actions project's is in
-// ./dashboard-story-branch-ci.test.mjs.
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { setTimeout as delay } from "node:timers/promises";
 import { judgeCommandAdapter } from "../../../dashboard/server/baseCiJudgment.ts";
 import { makeMe } from "./makeMe.mjs";
 
@@ -16,10 +13,6 @@ const commit = (sha, subject, parent) => ({
   parents: parent === undefined ? [] : [{ sha: parent }],
 });
 
-// A ciAdapter story branch `codex/x` over trunk `main` (SEED-219
-// #ci-status-review-corrections, second key example): the fake adapter
-// answers each discover from `answers` by the asked branch (an exit failure
-// for "fail") and logs each asked branch.
 const sha = (digit) => digit.repeat(40);
 const adapterHistory = [
   commit(sha("3"), "Plan slice 2", sha("2")),
@@ -47,26 +40,31 @@ const attempt = (digit, branch, outcome, time) =>
     })
     .please();
 
-async function judgeWithAdapter(branch, answers, delayMs = 0) {
+async function judgeAdapterCi(branch, answers, { delayMs = 0, logPath } = {}) {
   const root = mkdtempSync(path.join(tmpdir(), "story-branch-ci-adapter-"));
   try {
-    const log = path.join(root, "asked.log");
+    const log = logPath ?? path.join(root, "asked.log");
     const script = path.join(root, "adapter.mjs");
     writeFileSync(
       script,
-      `import { appendFileSync } from "node:fs";
+      `import { appendFileSync, readFileSync } from "node:fs";
+import { setTimeout as delay } from "node:timers/promises";
+const log = ${JSON.stringify(log)};
 let input = "";
 for await (const chunk of process.stdin) input += chunk;
 const { operation, check } = JSON.parse(input);
 if (operation !== "discover") process.exit(1);
-appendFileSync(${JSON.stringify(log)}, "start " + check.branch + "\\n");
+appendFileSync(log, "start " + check.branch + "\\n");
 const answer = ${JSON.stringify(answers)}[check.branch] ?? [];
 if (answer === "fail") {
+  while (!readFileSync(log, "utf8").includes(${JSON.stringify(`start ${branch}\n`)})) {
+    await delay(10);
+  }
   process.stderr.write("discover of " + check.branch + " failed");
   process.exit(1);
 }
-await new Promise((resolve) => setTimeout(resolve, ${delayMs}));
-appendFileSync(${JSON.stringify(log)}, "end " + check.branch + "\\n");
+await delay(${delayMs});
+appendFileSync(log, "end " + check.branch + "\\n");
 process.stdout.write(JSON.stringify({ attempts: answer }));
 `,
     );
@@ -92,7 +90,7 @@ process.stdout.write(JSON.stringify({ attempts: answer }));
 }
 
 test("a ciAdapter story branch counts main's result for a commit in its history, run on main", async () => {
-  const { judgment, asked } = await judgeWithAdapter("codex/x", {
+  const { judgment, asked } = await judgeAdapterCi("codex/x", {
     main: [
       // On main only, not in codex/x's history: never counted.
       attempt("9", "main", "failure", "2026-11-02T00:00:00Z"),
@@ -113,14 +111,14 @@ test("a ciAdapter story branch counts main's result for a commit in its history,
 
 test("a ciAdapter story branch's nearer own failed or running result still decides", async () => {
   const trunkPass = attempt("1", "main", "success", "2026-11-01T00:00:00Z");
-  const failed = await judgeWithAdapter("codex/x", {
+  const failed = await judgeAdapterCi("codex/x", {
     main: [trunkPass],
     "codex/x": [attempt("2", "codex/x", "failure", "2026-11-02T00:00:00Z")],
   });
   assert.equal(failed.judgment.state, "failed");
   assert.equal(failed.judgment.revision, sha("2"));
   assert.equal(failed.judgment.runBranch, "codex/x");
-  const running = await judgeWithAdapter("codex/x", {
+  const running = await judgeAdapterCi("codex/x", {
     main: [trunkPass],
     "codex/x": [attempt("3", "codex/x", "pending", "2026-11-02T00:00:00Z")],
   });
@@ -137,12 +135,12 @@ test("a ciAdapter story branch's nearer own failed or running result still decid
   // Of one commit's results on both branches, the newer decides; at equal
   // times the branch's own, as with a ciWorkflow.
   const at = "2026-11-02T00:00:00Z";
-  const equal = await judgeWithAdapter("codex/x", {
+  const equal = await judgeAdapterCi("codex/x", {
     main: [attempt("1", "main", "failure", at)],
     "codex/x": [attempt("1", "codex/x", "success", at)],
   });
   assert.equal(equal.judgment.runBranch, "codex/x");
-  const newer = await judgeWithAdapter("codex/x", {
+  const newer = await judgeAdapterCi("codex/x", {
     main: [attempt("1", "main", "failure", "2026-11-03T00:00:00Z")],
     "codex/x": [attempt("1", "codex/x", "success", at)],
   });
@@ -150,25 +148,29 @@ test("a ciAdapter story branch's nearer own failed or running result still decid
   assert.equal(newer.judgment.runBranch, "main");
 });
 
-test("a ciAdapter story branch whose main discover fails is unread with its reason, never passed, without waiting for its own", async () => {
+test("a ciAdapter story branch whose main discover fails is unread with its reason, never passed, without waiting for its own", async (t) => {
+  const logDir = mkdtempSync(path.join(tmpdir(), "story-branch-ci-events-"));
+  t.after(() => rmSync(logDir, { recursive: true, force: true }));
+  const logPath = path.join(logDir, "asked.log");
+  const delayMs = 5_000;
   const started = Date.now();
-  const { judgment, events } = await judgeWithAdapter(
+  const { judgment } = await judgeAdapterCi(
     "codex/x",
     {
       main: "fail",
       "codex/x": [attempt("3", "codex/x", "success", "2026-11-02T00:00:00Z")],
     },
-    5_000,
+    { delayMs, logPath },
   );
   assert.equal(judgment.state, "unread");
   assert.match(judgment.reason, /discover of main failed/);
-  // The branch's own discover is ended, not waited for.
   assert.ok(Date.now() - started < 4_000);
-  assert.ok(!events.includes("end codex/x"));
+  await delay(delayMs + 500);
+  assert.doesNotMatch(readFileSync(logPath, "utf8"), /^end codex\/x$/m);
 });
 
 test("the ciAdapter trunk asks one discover, for main", async () => {
-  const { judgment, asked } = await judgeWithAdapter("main", {
+  const { judgment, asked } = await judgeAdapterCi("main", {
     main: [attempt("3", "main", "success", "2026-11-02T00:00:00Z")],
   });
   assert.equal(judgment.state, "pass");
@@ -177,13 +179,12 @@ test("the ciAdapter trunk asks one discover, for main", async () => {
 });
 
 test("a ciAdapter story branch asks its own and main's discovers at once", async () => {
-  const { judgment, events } = await judgeWithAdapter(
+  const { judgment, events } = await judgeAdapterCi(
     "codex/x",
     { main: [attempt("1", "main", "success", "2026-11-01T00:00:00Z")] },
-    1_000,
+    { delayMs: 1_000 },
   );
   assert.equal(judgment.state, "pass");
-  // Both discovers start before either ends.
   assert.deepEqual(
     events.slice(0, 2).map((event) => event.split(" ")[0]),
     ["start", "start"],
@@ -201,15 +202,14 @@ test("a ciAdapter result keeps its attempt's identity apart from a GitHub run, a
     time: "2026-11-02T00:00:00Z",
   };
   const numeric = makeMe.aCiAdapterAttempt.with(numericFacts).please();
-  const { judgment } = await judgeWithAdapter("codex/x", {
-    // The same attempt, discovered for both branches, is one attempt.
+  const { judgment } = await judgeAdapterCi("codex/x", {
     main: [numeric],
     "codex/x": [numeric],
   });
   assert.deepEqual(judgment.adapterAttempt, { runId: 7, attemptId: 1 });
   assert.equal(judgment.runId, undefined);
   assert.equal(judgment.runAttempt, undefined);
-  const shared = await judgeWithAdapter("main", {
+  const shared = await judgeAdapterCi("main", {
     main: [
       makeMe.aCiAdapterAttempt
         .with({ ...numericFacts, check: "unit" })
@@ -222,7 +222,7 @@ test("a ciAdapter result keeps its attempt's identity apart from a GitHub run, a
   assert.equal(shared.judgment.adapterAttempt?.ambiguous, true);
   // Same check across runs: newest retained for the verdict, ambiguity from
   // every attempt discover answered before that retention.
-  const sameCheck = await judgeWithAdapter("main", {
+  const sameCheck = await judgeAdapterCi("main", {
     main: [
       makeMe.aCiAdapterAttempt
         .with({

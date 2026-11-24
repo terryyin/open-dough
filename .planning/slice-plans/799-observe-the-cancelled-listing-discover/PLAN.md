@@ -45,7 +45,7 @@ cancel behavior beyond this case.
 ### 1. The failed-discover case observes the stopped listing
 
 Type: Structure
-Status: planned
+Status: done
 
 Strengthen the existing case's observation as decided above.
 
@@ -54,11 +54,30 @@ case fails; restore it. The restored suite
 `Distribution/tests/support/dashboard-story-branch-ci-adapter.test.mjs`
 passes, and the case's added wait stays within the default timeout.
 
+**Accepted proof.** With `ended.abort();` removed, the retained log gained
+`end codex/x` and failed the new assertion after the unread reason and
+early-return checks passed. With cancellation restored, all six focused
+cases passed under the default timeout. The independent refactor renamed
+the local fixture helper and reran the focused suite successfully.
+
 ## Verification and delivery
 
 - Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 - Run the focused support test through its maintained runner, apply the normal
   post-change refactor, and use the commit and publication gates.
+- Local gate on macOS: from an awake machine on AC power, use the maintained
+  [sleep guard](../../../Distribution/tests/local-test-resources.md#machine-sleep-on-macos)
+  with `env PATH="/opt/homebrew/bin:$PATH" caffeinate -s -i npm test -- Distribution/tests/support/dashboard-story-branch-ci-adapter.test.mjs`.
+
+## Execution context
+
+- Story Branch Mode in the established worktree on
+  `codex/observe-that-a-failed-listing-discover-cancels-t`. The Take
+  `a4fd82cfd1b91a57325a355d2a76e20da95d9c4e` was accepted on
+  `origin/main` and published to the execution branch as its base.
+- Codex observer `rio-chan-799` watches GitHub Actions `ci.yml` on the
+  execution branch from `/tmp/dough-ci-501/watch-0Dwttp`
+  (cell `g103:17`, session `18912`, PID `57517`).
 
 ## Preparation review
 
