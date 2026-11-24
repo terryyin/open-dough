@@ -127,7 +127,7 @@ that `launched()` callers still need for a launch use `launch(...)` there.
 
 ### 2. Compose sessions for backend listing, history and retention reads
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-launch-session-listing`, `-retention-scope`,
 `launch-history-aged-out` and `agent-launch-codex-observation-status` pass
 plainly and with the scratch wiring.
@@ -138,6 +138,9 @@ The direct Claude `launch(...)` and `distinctStoryRequest` sites that are
 preconditions move to composition, with each record's age stated through
 `launchedAt` or `markedDoneAt`. Codex launches stay. Their cases passed in
 the installed baseline, which failed only Claude cases.
+
+Slice 2 proof: 13 cases passed in each setup. The retention cases use the
+production Done write. Commands and observations are in `slice2-return.md`.
 
 ### 3. Raise alerts for composed sessions
 Type: Behavior

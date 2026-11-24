@@ -4,8 +4,8 @@
 // deletion, while retained records keep their scopes and the shared
 // Cursor configuration and saved conversation stay untouched. Over raw
 // HTTP at the local launch boundary, on a fresh machine directory the
-// test owns; the write that drops the expired record is an ordinary
-// Claude launch, so the dispatch is host-neutral by construction.
+// test owns; marking a Claude session Done triggers the write that drops
+// the expired Cursor record, so retention dispatch remains host-neutral.
 import {
   existsSync,
   mkdirSync,
@@ -21,7 +21,7 @@ import { expect, test } from "../../test-support/support/pageTest.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   identity,
-  launch,
+  markDone,
   title,
 } from "../../test-support/agentLaunchBoundary.ts";
 import {
@@ -32,7 +32,7 @@ import {
   keepLaunchStore,
   keptLaunchRecords,
 } from "../../test-support/support/launchStore.ts";
-import { distinctStoryRequest } from "../../test-support/openStorySessionSetup.ts";
+import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
   startDashboardServer,
   type DashboardServer,
@@ -125,14 +125,12 @@ test.describe("a scoped record dropped by retention expiry", () => {
     });
     expect(existsSync(expiredScope)).toBe(true);
 
-    // An ordinary launch writes the record store; that write drops the
-    // record marked done 31 days ago and no other.
-    server.claudeScenario("launched");
-    const launched = await launch(
-      server,
-      distinctStoryRequest("retention-scope-write"),
-    );
-    expect(launched.status).toBe(200);
+    const { sessionId } = await composeSession(server);
+    const done = await markDone(server, {
+      source: "open-dough",
+      session: sessionId,
+    });
+    expect(done.status, done.body).toBe(200);
 
     const storedIds = keptLaunchRecords(machineHome(machine)).map((entry) => {
       if (!("session" in entry)) throw new Error("Expected a kept session");
