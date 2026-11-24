@@ -50,7 +50,7 @@ Observed in this owned checkout at `d8200be3c` with Node from
 ### 1. Installation retires the background wake hook
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A project installed with the former asyncRewake Stop entry,
 unchanged, runs install or update → the entry is gone, the synchronous
@@ -66,6 +66,20 @@ repeats with a locally edited former entry and asserts it survives with no
 disabled. Run it with the other `Distribution/tests/installation/install-ci-host-hooks.sh`
 and `update-skip-verified.sh` scenarios through `scripts/test.sh`.
 
+**Learning.** The handoff tests (`ci-background-handoff.test.mjs`,
+`ci-background-lifecycle.test.mjs`, `ci-background-test-fixtures.mjs`) seed
+their settings from `claude-hooks.json` and fail once the asset drops the
+entry; their fixture is over the file-size limit. Slice 1 deletes them with
+the registration they prove; slice 2 removes the scripts.
+
+**Accepted proof.** `install-retires-ci-background-hook.sh`,
+`install-ci-host-hooks.sh`, `update-skip-verified.sh`; consumers
+`install-all-tools.sh`, `pin-and-inspect.sh`,
+`dough-update-guidance-payload.sh`, `git-publication-fixture-identity.sh`,
+`ci-claude-lifecycle.test.mjs`, `native-admission-reuse.test.mjs` pass. With
+the retirement disabled the scenario fails at the `registered Open Dough
+entries` assertion.
+
 ### 2. Claude Code completes CI through the shared operation only
 
 Type: Behavior
@@ -76,7 +90,7 @@ Behavior: A Claude Code Story Branch execution at its final handoff runs
 turn ends with the observer retained and a later failure arrives once through
 the ordinary hook at the next interaction (key examples 1 and 2). The five
 `ci-background-*` scripts, `ci-background-handoff.md`, the deference in
-`ci-host-hook.mjs`, the handoff tests and
+`ci-host-hook.mjs` and
 `docs/maintainer/ci-background-delivery.md` are gone, and
 `ci-completion-wait.md`, `ci-notify-hosts.md` and `finish-or-stop.md` no
 longer offer or mention a background alternative.

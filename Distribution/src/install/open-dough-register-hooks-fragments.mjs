@@ -13,6 +13,9 @@ import { join } from "node:path";
 // predates it; the Codex and Cursor guards are required once those hosts are
 // declared. Cursor's CI fragment and guard fragment use distinct events, so
 // combining them stays a union rather than a same-event collision.
+// `retiredEntries` lists former managed entries, by native event, that a
+// registration removes when it finds them unchanged; an edited copy is the
+// developer's and stays.
 export const HOSTS = [
   {
     id: "codex",
@@ -56,6 +59,21 @@ export const HOSTS = [
         required: false,
       },
     ],
+    retiredEntries: {
+      Stop: [
+        {
+          hooks: [
+            {
+              type: "command",
+              command:
+                'node "$CLAUDE_PROJECT_DIR/.claude/skills/dough-execute-plan/scripts/ci-background-hook.mjs"',
+              timeout: 610,
+              asyncRewake: true,
+            },
+          ],
+        },
+      ],
+    },
   },
 ];
 
