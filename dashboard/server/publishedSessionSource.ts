@@ -1,6 +1,6 @@
 // The adapter's read of where a published session record lives: the
-// project's Review repository at its last synced trunk, syncing only when
-// that ref or the UUID's record is absent.
+// project's Review repository at its last synced trunk. An open syncs only
+// when that ref or the UUID's record is absent; a file read never syncs.
 import { sessionRecordPathBeside } from "../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { runGit, type GitCall } from "./gitRunner.ts";
@@ -44,29 +44,54 @@ async function recordPresentAt(
   }
 }
 
+const notSynced = () =>
+  new RefusedRequest(
+    404,
+    "This machine has not synced this project's published trunk.",
+  );
+
+const admissionCall = (source: PublishedSource, signal: AbortSignal) => ({
+  cwd: reviewRepositoryPath(source),
+  signal,
+  maxBuffer: 1024 * 1024,
+});
+
+const sourceAt = (
+  source: PublishedSource,
+  revision: string,
+): PublishedSessionSource => ({
+  repository: reviewRepositoryPath(source),
+  revision,
+  backlogPath: source.backlogPath,
+});
+
+// The last synced trunk, without a remote request: a file read admits
+// against the record the open that showed it has already synced, and the
+// record's reader refuses a session absent from it.
+export async function lastSyncedPublishedSessionSource(
+  source: PublishedSource,
+  admission: AbortSignal,
+): Promise<PublishedSessionSource> {
+  const revision = await revisionAtOrigin(
+    source.ref,
+    admissionCall(source, admission),
+  );
+  if (revision === undefined) throw notSynced();
+  return sourceAt(source, revision);
+}
+
 export async function fetchedPublishedSessionSource(
   source: PublishedSource,
   sessionId: string,
   bounds: PublishedSessionSourceBounds,
 ): Promise<PublishedSessionSource> {
-  const { ref, backlogPath } = source;
-  const repository = reviewRepositoryPath(source);
-  const admission: GitCall = {
-    cwd: repository,
-    signal: bounds.admission(),
-    maxBuffer: 1024 * 1024,
-  };
-  const at = (revision: string): PublishedSessionSource => ({
-    repository,
-    revision,
-    backlogPath,
-  });
-  const current = await revisionAtOrigin(ref, admission);
+  const admission = admissionCall(source, bounds.admission());
+  const current = await revisionAtOrigin(source.ref, admission);
   if (
     current !== undefined &&
-    (await recordPresentAt(backlogPath, current, sessionId, admission))
+    (await recordPresentAt(source.backlogPath, current, sessionId, admission))
   )
-    return at(current);
+    return sourceAt(source, current);
 
   try {
     await syncedReviewRepository(source, bounds.fetch());
@@ -74,14 +99,5 @@ export async function fetchedPublishedSessionSource(
     // Unreachable or hung origin: the last synced trunk still names records.
   }
   // Give the fallback its read budget after the fetch settles.
-  const revision = await revisionAtOrigin(ref, {
-    ...admission,
-    signal: bounds.admission(),
-  });
-  if (revision === undefined)
-    throw new RefusedRequest(
-      404,
-      "This machine has not synced this project's published trunk.",
-    );
-  return at(revision);
+  return lastSyncedPublishedSessionSource(source, bounds.admission());
 }

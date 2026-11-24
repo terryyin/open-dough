@@ -6,7 +6,7 @@ import type { FollowUpFile } from "../src/followUpRequest.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { admitPublishedSessionFile } from "./publishedSessionReview.ts";
-import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
+import { lastSyncedPublishedSessionSource } from "./publishedSessionSource.ts";
 import {
   admissionBound,
   admitHistoricalReviewedFile,
@@ -57,10 +57,10 @@ export async function admitFollowUpFile(
     ...(oldPath === undefined ? {} : { oldPath }),
   };
   if (published !== undefined) {
-    const project = await fetchedPublishedSessionSource(source, published, {
-      admission: admissionBound,
-      fetch: admissionBound,
-    });
+    const project = await lastSyncedPublishedSessionSource(
+      source,
+      admissionBound(),
+    );
     const admitted = await admitPublishedSessionFile(
       project,
       published,

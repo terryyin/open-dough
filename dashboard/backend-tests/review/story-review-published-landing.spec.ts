@@ -1,7 +1,11 @@
 import { renameSync } from "node:fs";
-import path, { delimiter } from "node:path";
+import path from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
-import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
+import {
+  fixtureRepository,
+  stubFixtureHome,
+  stubRemoteRequestRecording,
+} from "../support/fixtureHome.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import {
@@ -11,7 +15,6 @@ import {
 import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReview.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { remoteRequestRecordingGit } from "../../test-support/support/remoteRequestRecordingGit.ts";
 import { reviewLaunch } from "../../test-support/support/reviewRunRecords.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
@@ -113,8 +116,7 @@ test("an opened landed run reads its files without a remote request after origin
   await expect(storyReview(review, signal)).resolves.toMatchObject({
     kind: "landed",
   });
-  const recording = remoteRequestRecordingGit(repository.fixture);
-  vi.stubEnv("PATH", `${recording.bin}${delimiter}${process.env.PATH ?? ""}`);
+  const recording = stubRemoteRequestRecording(repository.fixture);
   moveOrigin();
   const file = { subject, reference, baseline: base, tree: accepted };
 

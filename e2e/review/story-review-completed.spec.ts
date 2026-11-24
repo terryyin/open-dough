@@ -12,7 +12,6 @@ import { expectReviewed } from "../../dashboard/test-support/doneStoryReviewPage
 import { storyHeaderReading } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
-import { renameSync } from "node:fs";
 import path from "node:path";
 import {
   advanceCompletedTrunk,
@@ -23,7 +22,7 @@ import { renameExecutionCheckout } from "../../dashboard/test-support/support/re
 
 test.use({ originRepository: ordinaryJourneyCompletedHistory() });
 
-test("a CLI-completed story without a local launch opens fixed published changes and file diffs after trunk advances, its checkout moves and origin becomes unreachable", async ({
+test("a CLI-completed story without a local launch opens fixed published changes and file diffs after trunk advances and its checkout moves", async ({
   page,
   dashboard,
   origin,
@@ -102,16 +101,4 @@ test("a CLI-completed story without a local launch opens fixed published changes
     "Added [literal]*.txt",
     "+delivered on another machine",
   );
-  // Origin becomes unreachable: a reopen reads the last sync with its notice.
-  renameSync(origin.origin, `${origin.origin}-away`);
-  await reopened.returnToDevelopment();
-  const offline = await openIntentReviewChanges(page, card);
-  await offline.expectFeedback(
-    /Review not refreshed: origin could not be synced \(.+\)\. What is shown was last synced at \S.*\./,
-  );
-  await offline.files.choose("Modified shared.txt");
-  await offline.diffs.expectChangedLines("Modified shared.txt", {
-    removed: ["-line 0"],
-    added: ["+story first"],
-  });
 });

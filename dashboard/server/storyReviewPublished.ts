@@ -11,7 +11,7 @@ import {
 } from "./storyCompletedCommits.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import {
-  reviewRepositoryHolding,
+  lastSyncedReviewRepository,
   reviewRepositoryRead,
   ReviewSyncFailed,
   withSyncFailure,
@@ -30,17 +30,14 @@ export async function publishedStoryReview(
     explanation,
   });
   try {
-    const { repository: directory, syncFailure } =
+    // A named completion admits a file or follow-up after an open has
+    // synced: it reads the last sync, and the endpoints refuse a completion
+    // beyond the synced target.
+    const { repository: directory, syncFailure } = await (
       namedCompletion === undefined
-        ? await reviewRepositoryRead(source, signal)
-        : {
-            repository: await reviewRepositoryHolding(
-              source,
-              namedCompletion,
-              signal,
-            ),
-            syncFailure: undefined,
-          };
+        ? reviewRepositoryRead
+        : lastSyncedReviewRepository
+    )(source, signal);
     const endpoints = await publishedStoryEndpoints(
       source,
       directory,

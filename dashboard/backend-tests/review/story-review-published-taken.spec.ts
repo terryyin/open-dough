@@ -1,6 +1,5 @@
 import { renameSync } from "node:fs";
-import { delimiter } from "node:path";
-import { beforeAll, expect, test, vi } from "vitest";
+import { beforeAll, expect, test } from "vitest";
 import {
   commitStoryFile,
   publishBranch,
@@ -11,7 +10,7 @@ import {
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReview.ts";
-import { remoteRequestRecordingGit } from "../../test-support/support/remoteRequestRecordingGit.ts";
+import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
 import { trunkModeStory } from "../../test-support/support/storyReviewTrunkMode.ts";
 import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { branch, git } from "../../test-support/support/storyReviewWorktree.ts";
@@ -163,8 +162,7 @@ async function openedBranchWithOriginGone() {
   if (review.kind !== "published-taken") throw new Error("No published branch");
   const beyond = commitStoryFile(writer, "guides/later.txt", "later\n");
   publishBranch(writer);
-  const recording = remoteRequestRecordingGit(home);
-  vi.stubEnv("PATH", `${recording.bin}${delimiter}${process.env.PATH ?? ""}`);
+  const recording = stubRemoteRequestRecording(home);
   renameSync(origin, `${origin}-moved`);
   const read = {
     subject,

@@ -7,9 +7,8 @@ import {
   completedReviewQuery as completed,
 } from "../../test-support/support/completedReviewRequests.ts";
 import { ordinaryTrunkModeCompletedHistory } from "../../test-support/support/completedStoryHistory.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { fixtureReviewRepository } from "../../test-support/support/reviewRepositoryFixture.ts";
-import { remoteRequestRecordingGit } from "../../test-support/support/remoteRequestRecordingGit.ts";
+import { remoteRequestRecordingDashboard } from "../../test-support/support/remoteRequestRecordingDashboard.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 
 test.use({
@@ -22,15 +21,10 @@ test("two concurrent opens of a Done story's review share one fetch", async ({
   dashboard,
   origin,
 }) => {
-  await dashboard.close();
-  const recording = remoteRequestRecordingGit(origin.machine);
-  const server = await startDashboardServer({
-    mode: "boundary",
-    liveServer: "separate process",
-    machine: origin.machine,
-    projectFolders: ["open-dough"],
-    pathPrefix: [recording.bin],
-  });
+  const { server, recording } = await remoteRequestRecordingDashboard(
+    dashboard,
+    origin.machine,
+  );
   try {
     const reviews = await Promise.all([
       get(request, server, storyReviewEndpoint, completed),

@@ -27,7 +27,10 @@ import {
   publishedSessionRecord,
   type PublishedSessionSource,
 } from "./publishedSessionReview.ts";
-import { fetchedPublishedSessionSource } from "./publishedSessionSource.ts";
+import {
+  fetchedPublishedSessionSource,
+  lastSyncedPublishedSessionSource,
+} from "./publishedSessionSource.ts";
 import { knownSource, namedKeptSession } from "./sessionAdmission.ts";
 import { admissionBound } from "./storyReviewHistoricalFileAdmission.ts";
 
@@ -68,6 +71,14 @@ export type ReviewedFileInput =
     >
   | PublishedSessionInput<PublishedSessionFileRead>;
 
+type ReviewRead =
+  StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead;
+type FileRead = ReviewedFileRead | SessionFileRead | PublishedSessionFileRead;
+
+// A file read names one file of a comparison; a review read names none.
+const isFileRead = (read: ReviewRead | FileRead): read is FileRead =>
+  "path" in read;
+
 // Resolve the session once at the shared comparison and file boundary.
 async function admitReviewSession(
   source: PublishedSource,
@@ -92,21 +103,15 @@ async function admitReviewSession(
 // to SessionReviewRead / SessionFileRead so story-only fields cannot reach the
 // session handlers.
 export async function reviewInput(
-  read: ReviewedFileRead | SessionFileRead | PublishedSessionFileRead,
+  read: FileRead,
   signal: AbortSignal,
 ): Promise<ReviewedFileInput>;
 export async function reviewInput(
-  read: StoryReviewRead | SessionReviewRead | PublishedSessionReviewRead,
+  read: ReviewRead,
   signal: AbortSignal,
 ): Promise<StoryReviewInput>;
 export async function reviewInput(
-  read:
-    | StoryReviewRead
-    | SessionReviewRead
-    | PublishedSessionReviewRead
-    | ReviewedFileRead
-    | SessionFileRead
-    | PublishedSessionFileRead,
+  read: ReviewRead | FileRead,
   signal: AbortSignal,
 ): Promise<StoryReviewInput | ReviewedFileInput> {
   const now = new Date();
@@ -114,7 +119,12 @@ export async function reviewInput(
     const source = knownSource(read.subject.source);
     return {
       read,
-      published: await publishedSource(source, read.subject.published, signal),
+      published: await publishedSource(
+        source,
+        read.subject.published,
+        read,
+        signal,
+      ),
       now,
     };
   }
@@ -125,7 +135,7 @@ export async function reviewInput(
     const published = record.request.reporting?.reference;
     if (published !== undefined && isSessionId(published)) {
       try {
-        const project = await publishedSource(source, published, signal);
+        const project = await publishedSource(source, published, read, signal);
         await publishedSessionRecord(project, published, now, signal);
         if ("reference" in read)
           throw new RefusedRequest(409, "Choose a recorded published range.");
@@ -140,7 +150,7 @@ export async function reviewInput(
           throw error;
       }
     }
-    if ("baseline" in read) {
+    if (isFileRead(read)) {
       return {
         read: {
           ...(read.reference === undefined
@@ -174,11 +184,16 @@ const isPublishedRead = (read: {
 }): read is PublishedSessionReviewRead | PublishedSessionFileRead =>
   isReviewedPublishedSessionSubject(read.subject);
 
+// An open syncs when its record is absent; a file read reads the last sync
+// only.
 function publishedSource(
   source: PublishedSource,
   session: string,
+  read: ReviewRead | FileRead,
   signal: AbortSignal,
 ) {
+  if (isFileRead(read))
+    return lastSyncedPublishedSessionSource(source, admissionBound(signal));
   return fetchedPublishedSessionSource(source, session, {
     admission: () => admissionBound(signal),
     fetch: () => admissionBound(signal),

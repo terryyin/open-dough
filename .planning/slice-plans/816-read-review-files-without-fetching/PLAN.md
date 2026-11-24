@@ -195,7 +195,7 @@ makes published admission read-only.
 
 ### 2. Read Done completion and published-session files from the last sync only
 Type: Behavior
-Status: planned
+Status: done
 Proof: backend `dashboard/backend-tests/review/story-review-completed-offline.spec.ts` and `dashboard/backend-tests/review/published-session-review.spec.ts` with the recording wrapper; `story-review-completed-file-admission.spec.ts` and the follow-up launch specs stay green; then E2E `e2e/review/story-review-completed.spec.ts` with its appendage removed.
 
 Behavior: a Done review or published session was opened, then origin moves away
@@ -218,6 +218,17 @@ trunk advances and its checkout moves". The removed E2E part caught regressions
 in the offline file diff and the notice. The backend case now catches the
 first. `e2e/review/story-review-offline.spec.ts` keeps catching the notice in
 Intent.
+
+Accepted proof: `story-review-completed-offline.spec.ts` covers the offline
+file diff, the file read with no remote request, and a completion beyond the
+last sync refused. On the old path the Done read recorded a fetch.
+`published-session-review.spec.ts` covers a session file read with no remote
+request. A session record published after the last sync is refused with 404;
+on the old path it was fetched and served. File reads use
+`lastSyncedPublishedSessionSource`, and the session never-synced wording
+remains for slice 3. Two launches follow-up specs now open their review first,
+as the CI repair did. All 14 launches follow-up specs, 29 review backend
+consumers and 9 E2E specs pass.
 
 ### 3. Name a failed sync in published session reviews
 Type: Behavior

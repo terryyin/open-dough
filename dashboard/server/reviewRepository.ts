@@ -7,7 +7,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ReviewSyncFailure } from "../src/storyReviewContract.ts";
-import { commitPresentOrFetched, GitTargetFetches } from "./gitTargetFetch.ts";
+import { GitTargetFetches } from "./gitTargetFetch.ts";
 import {
   defaultGitOutputLimit as maxBuffer,
   gitProblem,
@@ -172,21 +172,6 @@ export const reviewRepositoryRead: ReviewRepositoryReader = async (
 // the comparison the open that showed them has already synced.
 export const lastSyncedReviewRepository: ReviewRepositoryReader = (source) =>
   Promise.resolve({ repository: reviewRepositoryPath(source) });
-
-// The Review repository holding `revision`, syncing only when it lacks it.
-export async function reviewRepositoryHolding(
-  source: PublishedSource,
-  revision: string,
-  signal: AbortSignal,
-): Promise<string> {
-  const repository = reviewRepositoryPath(source);
-  await commitPresentOrFetched(
-    revision,
-    { cwd: repository, signal, maxBuffer },
-    () => syncedReviewRepository(source, signal),
-  );
-  return repository;
-}
 
 async function record(repository: string, sync: ReviewRepositorySync) {
   await writeFile(syncRecordPath(repository), JSON.stringify(sync));

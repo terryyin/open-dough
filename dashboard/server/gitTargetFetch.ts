@@ -97,22 +97,6 @@ export async function fetchGitTarget(
   );
 }
 
-// Ensures the repository holds `revision`, running `fetch` first when it
-// lacks the commit. Rejects while the commit stays missing.
-export async function commitPresentOrFetched(
-  revision: string,
-  call: GitCall & { readonly signal: AbortSignal },
-  fetch: () => Promise<unknown>,
-): Promise<void> {
-  const commit = ["cat-file", "-e", `${revision}^{commit}`];
-  try {
-    await runGit(commit, call);
-  } catch {
-    await fetch();
-    await runGit(commit, call);
-  }
-}
-
 // Ensures the repository holds `revision`, first fetching the trunk `target`
 // from `remote` when it lacks the commit, as a machine that has not fetched
 // since another one published would.
@@ -121,7 +105,11 @@ export async function fetchUnlessCommitPresent(
   { remote, target }: { readonly remote: string; readonly target: string },
   call: GitCall & { readonly signal: AbortSignal },
 ): Promise<void> {
-  await commitPresentOrFetched(revision, call, () =>
-    fetchGitTarget(remote, target, call),
-  );
+  const commit = ["cat-file", "-e", `${revision}^{commit}`];
+  try {
+    await runGit(commit, call);
+  } catch {
+    await fetchGitTarget(remote, target, call);
+    await runGit(commit, call);
+  }
 }
