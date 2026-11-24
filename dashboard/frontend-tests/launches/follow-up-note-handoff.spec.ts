@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { FollowUpFile } from "../../src/followUpRequest.ts";
 import type { StoryNote, StoryNotesAnswer } from "../../src/storyNote.ts";
 import {
   followUpRevision as revision,
@@ -25,8 +26,11 @@ const answer = (...notes: StoryNote[]): StoryNotesAnswer => ({
   notes: { [story.identity]: notes },
 });
 
-async function mountFollowUp(notes: StoryNotesAnswer) {
-  const opened = await openStoryFollowUp(story, { notes });
+async function mountFollowUp(notes: StoryNotesAnswer, file?: FollowUpFile) {
+  const opened = await openStoryFollowUp(story, {
+    notes,
+    ...(file === undefined ? {} : { file }),
+  });
   const attach = opened.form.dialog.getByRole("checkbox", {
     name: "Attach story notes",
   });
@@ -87,6 +91,29 @@ test("waiting note details preserve the choice and only selected notes are reque
   await form.cancel.click();
   await expect.element(form.dialog).not.toBeInTheDocument();
   expect(accept).toHaveBeenCalledTimes(2);
+});
+
+test("a line Follow up requests the selected notes with its reviewed line", async () => {
+  const line: FollowUpFile = {
+    path: "dashboard/src/landing.ts",
+    baseline: "a".repeat(40),
+    tree: "b".repeat(40),
+    completion: "c".repeat(40),
+    line: 1,
+    side: "new",
+  };
+  const { form, attach, accept } = await mountFollowUp(answer(waiting), line);
+  await attach.click();
+  await form.start.click();
+  await expect.element(form.dialog).not.toBeInTheDocument();
+  expect(accept).toHaveBeenCalledWith(
+    expect.objectContaining({
+      followUp: {
+        story: { identity: story.identity, revision, file: line, notes: true },
+      },
+    }),
+    false,
+  );
 });
 
 async function leavesNotesUnattached(

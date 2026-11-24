@@ -12,6 +12,7 @@ import type { LaunchAttemptSource } from "../../src/launchAttempts.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { StartSession } from "../../src/StartSession.tsx";
 import { storyContext, storyName } from "../../src/followUpContext.ts";
+import type { FollowUpFile } from "../../src/followUpRequest.ts";
 import {
   storyFollowUpSessions,
   type FollowUpSession,
@@ -37,10 +38,12 @@ const done = (story: FollowUpStory) => ({
 
 function FollowUpOnPage({
   story,
+  file,
   source,
   sessions,
 }: {
   story: FollowUpStory;
+  file: FollowUpFile | undefined;
   source: LaunchAttemptSource;
   sessions: readonly FollowUpSession[] | undefined;
 }) {
@@ -59,21 +62,28 @@ function FollowUpOnPage({
       name: storyName(done(story)),
       context: storyContext(done(story), []),
       source: {
-        story: { identity: story.identity, revision: followUpRevision },
+        story: {
+          identity: story.identity,
+          revision: followUpRevision,
+          ...(file === undefined ? {} : { file }),
+        },
       },
       ...(sessions === undefined ? {} : { sessions }),
     },
   });
 }
 
-// Mounts the story's Follow up and opens its composer.
+// Mounts the story's Follow up, anchored on a reviewed file or line when
+// given, and opens its composer.
 export async function openStoryFollowUp(
   story: FollowUpStory,
   {
     notes = { kind: "notes", notes: { [story.identity]: [] } },
+    file,
     sessions,
   }: {
     notes?: StoryNotesAnswer;
+    file?: FollowUpFile;
     sessions?: {
       retained: readonly LaunchRecord[];
       published: readonly PublishedSessionRecord[];
@@ -103,6 +113,7 @@ export async function openStoryFollowUp(
       reads: pageReadsSupplying({ storyNotes: () => Promise.resolve(notes) }),
       children: createElement(FollowUpOnPage, {
         story,
+        file,
         source,
         sessions: offered,
       }),
