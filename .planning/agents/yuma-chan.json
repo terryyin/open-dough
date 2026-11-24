@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-426#start-ad-hoc-work-under-a-story",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
