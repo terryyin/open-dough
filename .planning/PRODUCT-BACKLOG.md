@@ -38,6 +38,8 @@ intent introduced or affected by a newly developed story.
 
 - [Use one managed install layout](seeds/SEED-423-shrink-the-installed-distribution.md#use-one-managed-install-layout) — SEED-423#use-one-managed-install-layout
 - [Read published project data from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#read-published-project-data-from-local-git) — SEED-430#read-published-project-data-from-local-git
+- [Prove landed CI attempt evidence through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-landed-ci-attempt-evidence) — SEED-413#renovate-landed-ci-attempt-evidence
+- [Prove Token Index reads and refreshes through typed backend handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-usage-token-index-proof) — SEED-413#renovate-usage-token-index-proof
 - [Renovate the later dashboard backend unit-test families around typed server handlers](seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) — SEED-413#renovate-later-dashboard-backend-unit-test-families
 - [Run the entire dashboard frontend unit suite on Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner) — SEED-413#retire-legacy-dashboard-frontend-runner
 - [Prove a renamed file's Review diff reads its grammar from the new path](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-renamed-diff-grammar-from-new-path) — SEED-413#prove-renamed-diff-grammar-from-new-path
