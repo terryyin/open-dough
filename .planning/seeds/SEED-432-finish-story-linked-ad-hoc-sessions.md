@@ -18,149 +18,96 @@ scope: one story
 {"schemaVersion":1,"identity":"SEED-432#finish-story-linked-ad-hoc-sessions","dependencies":[{"supplier":{"identity":"SEED-426#start-ad-hoc-work-under-a-story","href":"seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story"},"implementation":"Use the installed owned draft and stopped-claim recovery through the Dashboard launch boundary.","rationale":"The mapped Dashboard launch routes call the installed operation and need its authoritative behavior available on the shared integration base.","condition":"The installed owned-draft admission and retained-candidate retry are integrated on trunk with their bare-remote proof.","state":"satisfied","resolution":{"revision":"f5396f92c15036b7f1e4af81a824692414792ebd","path":".planning/seeds/SEED-426-start-ad-hoc-work-under-a-story.md#start-ad-hoc-work-under-a-story","summary":"Installed draft admission and retained-candidate retry are integrated. The first-seed and lost-response cases prove one canonical story and Taken assignment on a bare remote. The retry cases prove the losing candidate is retained, a clean same-worktree retry succeeds, and unrelated edits remain safe. Ordinary completion is covered. Fourteen focused installed cases and branch CI run 45373952427 passed.\nCondition satisfied: The installed owned-draft admission and retained-candidate retry are integrated on trunk with their bare-remote proof.\nAccepted integration: 96feeac0c68d517fc1e4432c5b750550bce92cb2 on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md","assessment":"not-ready","reasons":["Reconcile mapped slices with the current Dashboard and Review repository, including the observed default-launch compatibility failures.","Recheck live native bindings and the migrated-store rehearsal against the candidate deployment."],"basis":{"document":"ca4d1b89485e08f378823c5f3ec2b6bea185c131468a4571662c96107049993a","plan":"d25988fbaa16383749bc0271cbbded672c5a50985f42b472d350acf10cc52259"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"899d36e21db629dcb54b2b27d91909519db19613726d24adf258a9dd504beae2","plan":"2a5df5d48f13ea48efaf7131ca6117c14e19b0110e6a4f51a162193321321dfb"}}
 ```
 
-**Goal.** A developer can start ad hoc Dashboard work and come back to the same
-story on the Board, in Recently done and in Intent. Complete the launch and
-session lifecycle using the installed owned-draft admission and retry from
-`SEED-426#start-ad-hoc-work-under-a-story`. Keep the production change as one
-cutover and simplify the obsolete standalone behavior.
+**Goal.** A developer who starts ad hoc work from the Dashboard can return
+to the same story on the Board, in Recently done, and in Intent. The
+published story and any session comparison remain available after the
+session's checkout retires and from another clone.
 
-**Developer decision.** Establish an ordinary story as part of admitting new
-ad hoc work directly to **Taken**. Use the existing product backlog admission
-for accepted independent work. The story needs no place or priority in the
-queued list. A follow-up uses its source story and gets its own session ID.
-Use the ordinary story lifecycle and recorded membership for Land, completion,
-follow-ups and review, including after checkout retirement and from another
-clone. [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
-keeps the story, backlog and published progress in the project repository.
-[SEED-418's published session record work](https://github.com/terryyin/open-dough/commit/3dbaff36c0b21730ff23ba5948b5199522b0f103)
-already provides the per-session identity and comparison.
+**Developer decision.** Admit new independent ad hoc work as an ordinary
+story directly into **Taken**, using the same product backlog admission as
+accepted contextual work. A follow-up uses the source story and gets its own
+session ID. The project repository owns membership and published comparisons.
+The Dashboard keeps the local launch and recovery evidence. [ADR 0008](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#durable-project-state-and-local-operational-state)
+defines those responsibilities.
 
 **Scope.**
 
-- Establish and persist the canonical story and its Taken entry before a new
-  ad hoc session can proceed. Bind the launch to that identity. Repeated or
-  interrupted admission must converge on one story and one Taken entry for
-  the same start. A start that cannot establish or resolve its story must
-  stop at admission.
-- Trace all Open Dough session entry points. Contextual execution already
-  admits accepted independent work through startup; a Dashboard ad hoc start
-  can begin without an attached story today. Include the default checkout,
-  an isolated worktree, blank and attachment-only starts, and the scheduled
-  feedback launch through the same admission boundary. Resolve follow-ups
-  from a Taken or Done story, including from one of its sessions. A request
-  with no resolvable source cannot start as a follow-up.
-- Remove the standalone-session paths in Distribution and the Dashboard,
-  including their branching, persisted shapes, specialized review and
-  completion logic, test fixtures and cases, and guidance. Harden the entry
-  points and types so an unassociated project session cannot flow into those
-  paths. Use ordinary story membership and session records across startup,
-  Land, completion, and review.
-- Remove the 21 standalone Done review cases across ten legacy frontend
-  specs. In `dashboard/frontend-tests/sessions/`, these are the six
-  `recently-done-ad-hoc-*` specs retained at the Done review cutover, the
-  `recently-done-sessions-review-cue-{evidence,races}` specs, the standalone
-  case in `recently-done-sessions-select`, and the 31-day standalone case in
-  `recently-done-story-sessions`. Preserve applicable story-linked coverage.
+- A new independent start publishes one canonical story and its Taken
+  assignment before opening a native session. Include isolated and default
+  checkouts, blank and attachment-only starts, and scheduled feedback.
+  Preserve native access and writer checks, the chosen checkout and landing
+  policy, and the original first input. Refused admission opens no native
+  session. Continue after interruption or a lost reply uses the same attempt
+  and admits or recovers the same story.
+- Follow up from a Taken or Done story, including through one of its sessions.
+  Resolve the source against published membership and preserve its status.
+  Refuse a new follow-up whose source cannot be resolved. Continue an already
+  admitted follow-up from its retained binding.
+- Land checks the bound story and declared Git authority before push. Each
+  published session keeps its own accepted comparison and supports reporting
+  recovery without another push. Ordinary completion and review use the
+  story's membership and published session records. An admitted story with no
+  changes can still complete.
+- Retire standalone session startup, completion and review across Distribution
+  and the Dashboard, including their persisted shapes, branching, tests and
+  guidance. Remove the remaining legacy standalone frontend cases and keep
+  applicable story-linked selection, review and warning coverage.
   [Runner retirement](SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-frontend-runner)
-  waits until no standalone legacy frontend spec remains on trunk.
-- Preserve published story and per-session comparisons through the common
-  path. Session selection within Intent, follow-up context
-  composition, and open follow-up card cues have their own stories.
+  waits for that removal. Record comparable source and executable case counts
+  to show that both production surfaces and their combined proof footprint
+  shrink.
+- Session selection within Intent, follow-up context composition, open
+  follow-up card cues and Review repository adoption have their own stories.
+  This story preserves those readers' published comparison contract.
 
-**UI.** **Start session** shows admission in progress. On refusal, show the
-reason and let the developer retry that start. Use the existing instruction
-label as the initial story title. When there is no usable label, use
-“Ad hoc work” with the launch date and time, fixed on the first attempt.
-A blank start opens the terminal awaiting the developer's first instruction
-as soon as the Taken story exists. The Story card carries the Session entry
-through the ordinary Board selection and review paths.
+**UI.** **Start session** shows admission in progress. A refusal explains the
+reason and offers retry for that attempt. Use the existing instruction label
+as the initial story title. With no usable label, use “Ad hoc work” with the
+launch date and time, fixed on the first attempt. A blank start opens the
+terminal awaiting the developer's first input after admission, subject to the
+selected host's native input requirements. The new Session entry appears on
+the ordinary Story card.
 
-**Cutover.** Deliver one switch to story-linked startup, completion and
-review. Preserve historical evidence through Git and local archives. Keep
-open story-linked sessions and their original identifiers. Convert closed
-records with corroborated story membership to the ordinary shape where
-needed. Archive closed records with no corroborated story and their linked
-attempt and reporting evidence. A former standalone row, a title, or a
-shared workspace alone supplies no evidence of story membership.
-
-Read-only production inventory on 2026-11-24 found two open launches, each
-story-linked, and one unresolved standalone startup. The startup timed out
-with an established isolated checkout, no bound launch, and no unique
-commits or edits. Recheck native binding and checkout state before cutover.
-If still unbound, let Continue use its existing attempt and checkout to
-admit the story before opening a session. Keep the checkout and evidence if
-ownership or native state cannot be confirmed. Reinventory before writes
-switch, then verify that the delivered Dashboard reads the complete migrated
-store before resuming writes. The one-time conversion ships no compatibility
-path.
+**Cutover.** Switch production startup, completion and review together.
+Preserve open sessions with verified story membership and their original
+identifiers. Convert closed records when published evidence corroborates
+their story and archive the rest with their linked attempt and reporting
+evidence. A former standalone row, title or shared workspace cannot establish
+membership. Recheck open records and unresolved starts against native
+bindings, workspace ownership and published membership. A verified unbound
+start can continue with its original attempt and checkout. Preserve uncertain
+evidence and hold the switch while an open record has no safe disposition.
+Verify the complete migrated store with the delivered Dashboard reader before
+resuming writes. Keep the original store recoverable and retire migration-only
+code after acceptance.
 
 **Key examples.**
 
-- A developer submits a new instruction, or opens a blank terminal. The
-  project publishes one ordinary story and its Taken assignment, with queue
-  order preserved, before the native session opens. It opens under that
-  story and shows its Session entry. A refused admission opens no native
-  session. A retry after a lost response reuses the admitted identity.
-- A developer follows up a Taken or Done story. A new session opens with its
-  own ID under the source story. The source story keeps its status. Land
-  verifies the declared branch and records the exact accepted comparison for
-  this session. Retry reports the same comparison without a second push.
-- Completing newly admitted work and fetching in another clone shows the
-  completed story and its session comparisons through Recently done and
-  Intent, even after the checkout retires.
+- A developer submits an instruction or opens a blank terminal in a supported
+  host. The remote receives one story and Taken assignment without changing
+  queue order. On the Board, the story carries the new Session entry. When
+  the admission reply is lost, Continue reuses that identity and opens one
+  native session.
+- A developer follows up from a Taken or Done story or its session. The new
+  session has its own ID and the source keeps its status. Land verifies the
+  declared branch, records the accepted pair, and reports the same pair after
+  retry. Mismatched authority stops before push.
+- A developer completes admitted work, retires its owned checkout, and opens
+  the project in a fresh clone with empty launch storage. Recently done opens
+  the same story and Intent shows the published session's recorded endpoints
+  even after trunk advances.
+- When production data includes an open linked session, a verified unbound
+  interrupted start and a closed unassociated record, the candidate reader
+  still opens the first session with its original ID and retains Continue for
+  the second. The third remains recoverable in the archive.
 
-**Landing regression.** In v0.3.113, a story-linked follow-up's declared
-branch context was refused before Git push because it carried a story
-identity. Reproducing prepare against the retained record at `c80f0559a`
-returned 409, `This is not the session's authorized branch landing.` The
-same record is already Done, with its checkout retired and no prepared or
-accepted Dashboard comparison. The rollback was published directly through
-Git. Preserve that evidence with the exact `fe21e4639..0bdef6cb2` comparison
-in history. Keep the closed context as historical evidence. A capture
-receipt requires its own verified publication.
-
-If the delivery inventory finds an affected open context, retain its launch
-reference, verify its source story and the declared repository, workspace,
-branch, remote, target and revision, and let it complete through the same
-branch landing as new follow-ups. Refuse mismatched authority before push.
-
-**Simplification proof.** Use the post-revert product as the baseline. Record
-before and after source and shipped guidance size for Distribution and Dashboard,
-and count executable cases across Distribution, Dashboard and E2E using the
-same discovery commands for both revisions. Both product areas should shrink
-and the combined case count should decrease. Keep focused coverage of
-startup, retry, membership and ordinary completion and review. Delete obsolete
-standalone cases and support.
-
-The end state is one story-linked session lifecycle. Startup admits a story or
-resolves an existing one. Land, completion, follow-up and review use that
-binding. At cutover, trace what still calls the first leg's admission and
-recovery code and the older standalone paths. Fold shared behavior into the
-ordinary workflow and remove every superseded solution, script, test helper,
-document and shipped instruction. Retire migration-only code after acceptance
-and keep historical evidence recoverable.
-
-**Resume evidence.** Scope moved here from SEED-426. Its published
-`121b9158b0249e88f8d8979efe175970346d2380` retains the working isolated
-Dashboard path and both Dashboard retry cases before the split. The default
-checkout candidate passed focused admission, host, blank, attachment and
-scheduled-maintenance proof. The compatibility sweep found 17 failures in
-existing backend duplicate-launch and browser scenes. The unpublished candidate
-is preserved locally at `refs/dough/resplit/SEED-426-dashboard-admission`
-(`2ebb057d06e4326a8791971c49469e86c14d29ce`). The common Git directory retains
-private proof and the production snapshot in
-`open-dough/evidence/SEED-426-ad-hoc-cutover-handoff`. Recheck current deployment,
-configuration and ownership facts before using the production snapshot.
-
-**Previous approach.** SEED-420#review-standalone-done-work introduced
-session-derived Done identities, local and published completion reconciliation,
-an association conflict chooser, and specialized grouping and review. Its
-[execution merge](https://github.com/terryyin/open-dough/commit/eef6f7234dffe03e7a3fa33e41805533b0dfdacc)
-added 3,689 lines and removed 480 across Distribution, Dashboard and E2E.
-The developer withdrew that design. Its seed and plan remain recoverable at
-[preparation](https://github.com/terryyin/open-dough/commit/985168b9c1bf32c84c45814a83393bc9d17a1c2b).
-Version 0.3.113 included the withdrawn behavior. Consider its retained data
-when deciding cutover.
+**Preparation.** [Plan 813](../slice-plans/813-finish-story-linked-ad-hoc-sessions/PLAN.md)
+holds the launch evidence from SEED-426, the v0.3.113 Land regression, and the
+store and test baselines needed for the cutover. The developer withdrew
+SEED-420's separate identity, association and review model. Its
+[preparation](https://github.com/terryyin/open-dough/commit/985168b9c1bf32c84c45814a83393bc9d17a1c2b)
+and [integrated implementation](https://github.com/terryyin/open-dough/commit/eef6f7234dffe03e7a3fa33e41805533b0dfdacc)
+remain recoverable in Git.
