@@ -47,7 +47,7 @@ test("Given a session named by no UUID, when it is reviewed, then it is refused 
   });
 });
 
-test("Given a record whose commits this machine's Git lacks, when it is reviewed, then the review explains they are unavailable", async () => {
+test("Given a record whose commits the Review repository lacks, when it is reviewed, then the review explains they are unavailable", async () => {
   const absent = "0123456789abcdef0123456789abcdef01234567";
   const published = await aPublishedSession({
     base: absent,
@@ -60,7 +60,7 @@ test("Given a record whose commits this machine's Git lacks, when it is reviewed
     kind: "landing-unavailable",
     comparison: "published-session",
     explanation: expect.stringContaining(
-      "This session's published commits are not in this machine's Git.",
+      "This session's published commits are not in this project's Review repository.",
     ) as unknown,
   });
 });

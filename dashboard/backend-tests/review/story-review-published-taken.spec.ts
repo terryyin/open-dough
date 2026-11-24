@@ -1,6 +1,6 @@
 import { renameSync } from "node:fs";
 import { delimiter } from "node:path";
-import { expect, test, vi } from "vitest";
+import { beforeAll, expect, test, vi } from "vitest";
 import {
   commitStoryFile,
   publishBranch,
@@ -13,7 +13,18 @@ import {
 import { storyReview } from "../../server/storyReview.ts";
 import { remoteRequestRecordingGit } from "../../test-support/support/remoteRequestRecordingGit.ts";
 import { trunkModeStory } from "../../test-support/support/storyReviewTrunkMode.ts";
+import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { branch, git } from "../../test-support/support/storyReviewWorktree.ts";
+import { takenBranchContributionHistory } from "../../test-support/support/takenBranchContributionHistory.ts";
+
+const trunkStory = () => trunkModeStory({ published: 2, unpublished: true });
+
+// Each history's one-time template build happens here, outside any case.
+beforeAll(() =>
+  Promise.all(
+    [takenBranchContributionHistory(), trunkStory()].map(prepareRepository),
+  ),
+);
 
 test("a Taken story reads its published branch and attributable merge edit without a local launch or worktree", async () => {
   const { subject, signal, writer, revisions } = await takenStoryReader();
@@ -108,9 +119,8 @@ test("locally readable unpublished commits cannot name a published file comparis
 });
 
 test("a Taken Trunk story reads only its attributable changes from interleaved published history", async () => {
-  const { subject, signal, writer, revisions } = await takenStoryReader(
-    trunkModeStory({ published: 2, unpublished: true }),
-  );
+  const { subject, signal, writer, revisions } =
+    await takenStoryReader(trunkStory());
   const review = await storyReview({ read: { subject, taken: true } }, signal);
 
   if (review.kind !== "published-taken")

@@ -1,10 +1,12 @@
 // The launch boundary's review and file diff routes admit a published
 // session's UUID as its own typed read, and the review adapter refuses a
 // project this dashboard does not configure before any Git read. The handlers
-// decide the rest (./published-session-review.spec.ts). Fetch runs only when
-// the last fetched trunk lacks the ref or the UUID's record.
+// decide the rest (./published-session-review.spec.ts). The Review repository
+// syncs only when its last synced trunk lacks the ref or the UUID's record,
+// with the execution checkout retired.
 import { randomUUID } from "node:crypto";
-import { expect, test } from "vitest";
+import { renameSync } from "node:fs";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-revision-commit.mjs";
 import { backlogPath } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -12,6 +14,10 @@ import { sessionRecordPathBeside } from "../../../Distribution/src/skills/dough-
 import { git } from "../../../Distribution/src/skills/dough-execute-plan/scripts/publication-git.mjs";
 import { launchExactReads } from "../../server/launchExactReads.ts";
 import { publishedSessionReview } from "../../server/publishedSessionReview.ts";
+import {
+  reviewRepositoryPath,
+  syncedReviewRepository,
+} from "../../server/reviewRepository.ts";
 import { fetchedPublishedSessionSource } from "../../server/publishedSessionSource.ts";
 import { reviewInput } from "../../server/storyReviewInput.ts";
 import {
@@ -19,6 +25,7 @@ import {
   storyReviewFileEndpoint,
 } from "../../src/storyReviewContract.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
+import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
 
 const published = { source: "open-dough", published: randomUUID() };
 const file = { baseline: "a".repeat(40), tree: "b".repeat(40), path: "a.txt" };
@@ -78,71 +85,72 @@ test("Given a published session of a project this dashboard does not configure, 
   ).rejects.toMatchObject({ status: 404, message: "Unknown catalog source." });
 });
 
+const newSignal = () => new AbortController().signal;
+
 const originMain = async (cwd: string) =>
   (await git(cwd, "rev-parse", "origin/main")).stdout.trim();
 
-// A checkout whose last-fetched origin/main holds a session record while the
-// bare origin has already advanced past that revision.
+// A Review repository whose last-synced origin/main holds a session record
+// while origin has already advanced past it and the execution checkout is
+// retired.
 async function aFetchedPublishedSession() {
   const { checkout } = await aDoneCaptureCase().withOrigin().please();
-  const repository = checkout.integration;
-  const candidate = await commitDeclaredRevision(repository, {
+  const integration = checkout.integration;
+  const origin = await git(integration, "remote", "get-url", "origin");
+  stubFixtureHome(checkout.fixture, origin.stdout.trim());
+  onTestFinished(() => {
+    vi.unstubAllEnvs();
+  });
+  const candidate = await commitDeclaredRevision(integration, {
     files: { "notes.md": "edited\n" },
   });
   const record = makeMe.aSessionRecord
     .closing({ base: checkout.base, candidate })
     .please();
-  const recordedAt = await commitDeclaredRevision(repository, {
+  const recordedAt = await commitDeclaredRevision(integration, {
     files: {
       [sessionRecordPathBeside(backlogPath, record.sessionId)]:
         `${JSON.stringify(record)}\n`,
     },
   });
-  await git(repository, "push", "--quiet", "origin", "main");
+  await git(integration, "push", "--quiet", "origin", "main");
+  const source = makeMe.aPublishedSource
+    .with({
+      id: "open-dough",
+      label: "Open Dough",
+      repository: fixtureRepository,
+      backlogPath,
+    })
+    .please();
+  const repository = await syncedReviewRepository(source, newSignal());
   expect(await originMain(repository)).toBe(recordedAt);
-  await commitDeclaredRevision(repository, {
+  const advanced = await commitDeclaredRevision(integration, {
     files: { "later.md": "later\n" },
   });
-  await git(repository, "push", "--quiet", "origin", "main");
-  const advanced = await originMain(repository);
-  expect(advanced).not.toBe(recordedAt);
-  await git(repository, "update-ref", "refs/remotes/origin/main", recordedAt);
-  expect(await originMain(repository)).toBe(recordedAt);
+  await git(integration, "push", "--quiet", "origin", "main");
+  renameSync(integration, `${integration}-retired`);
+  expect(reviewRepositoryPath(source)).toBe(repository);
   return {
     repository,
     recordedAt,
     advanced,
     sessionId: record.sessionId,
-    source: makeMe.aPublishedSource
-      .with({
-        id: "open-dough",
-        label: "Open Dough",
-        repository: "terryyin/open-dough",
-        backlogPath,
-      })
-      .please(),
+    source,
   };
 }
 
-const newSignal = () => new AbortController().signal;
-
-test("a UUID at the last fetched trunk resolves without starting a fetch", async () => {
+test("a UUID at the last synced trunk resolves without starting a fetch", async () => {
   const { repository, recordedAt, sessionId, source } =
     await aFetchedPublishedSession();
   let fetches = 0;
 
-  const resolved = await fetchedPublishedSessionSource(
-    repository,
-    source,
-    sessionId,
-    {
-      admission: newSignal,
-      fetch: () => {
-        fetches += 1;
-        return newSignal();
-      },
+  const resolved = await fetchedPublishedSessionSource(source, sessionId, {
+    admission: newSignal,
+    fetch: () => {
+      fetches += 1;
+      return newSignal();
     },
-  );
+  });
 
   expect(resolved.revision).toBe(recordedAt);
   expect(await originMain(repository)).toBe(recordedAt);
@@ -153,25 +161,20 @@ test("an absent UUID starts one fetch and resolves the advanced origin/main", as
   const { repository, advanced, source } = await aFetchedPublishedSession();
   let fetches = 0;
 
-  const resolved = await fetchedPublishedSessionSource(
-    repository,
-    source,
-    randomUUID(),
-    {
-      admission: newSignal,
-      fetch: () => {
-        fetches += 1;
-        return newSignal();
-      },
+  const resolved = await fetchedPublishedSessionSource(source, randomUUID(), {
+    admission: newSignal,
+    fetch: () => {
+      fetches += 1;
+      return newSignal();
     },
-  );
+  });
 
   expect(resolved.revision).toBe(advanced);
   expect(await originMain(repository)).toBe(advanced);
   expect(fetches).toBe(1);
 });
 
-test("a hung fetch lets the review answer from the last fetched trunk", async () => {
+test("a hung fetch lets the review answer from the last synced trunk", async () => {
   const { repository, recordedAt, source } = await aFetchedPublishedSession();
   const missing = randomUUID();
   const boundMs = 500;
@@ -186,18 +189,13 @@ test("a hung fetch lets the review answer from the last fetched trunk", async ()
 
   let fetchSignal: AbortSignal | undefined;
   const review = async () => {
-    const resolved = await fetchedPublishedSessionSource(
-      repository,
-      source,
-      missing,
-      {
-        admission: () => AbortSignal.timeout(boundMs),
-        fetch: () => {
-          fetchSignal = AbortSignal.timeout(boundMs);
-          return fetchSignal;
-        },
+    const resolved = await fetchedPublishedSessionSource(source, missing, {
+      admission: () => AbortSignal.timeout(boundMs),
+      fetch: () => {
+        fetchSignal = AbortSignal.timeout(boundMs);
+        return fetchSignal;
       },
-    );
+    });
     expect(resolved.revision).toBe(recordedAt);
     return publishedSessionReview(
       resolved,

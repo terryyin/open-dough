@@ -221,7 +221,7 @@ Learnings for later slices:
 
 ### 4. Move accepted landing pairs and recorded session ranges
 Type: Behavior
-Status: planned
+Status: done
 Proof: backend `dashboard/backend-tests/review/story-review-published-landing.spec.ts` and `dashboard/backend-tests/review/published-session-review.spec.ts` with the checkout absent; E2E `e2e/sessions/recently-done-published-sessions.spec.ts` and `e2e/review/story-review-story-branch-landed.spec.ts`.
 
 Behavior: trunk has advanced and the worktree is retired → the developer opens a
@@ -229,6 +229,25 @@ landed run or a Recently done published session → its exact recorded pair,
 notes, and file diffs appear from the Review repository. After this slice no
 review reader calls `executionCheckout`. Remove the remaining review Git-root
 explanations and any support code left without a caller.
+
+Accepted proof (uncommitted candidate on 9531fa77, external load 22–39): the
+landing and published-session specs pass with the checkout retired. Typecheck
+passes. Backend review, follow-up launch, landed-CI and intent branch specs
+pass across 66 files. Frontend `published-session-subject` passes. Fifteen
+E2E specs pass, including `recently-done-published-sessions`,
+`story-review-story-branch-landed` and `story-review-one-shot-choice-races`.
+
+Learnings for slice 5 and wrap-up:
+- No review reader calls `executionCheckout`. `checkoutStoryEndpoints` remains
+  for CI only. Published-session explanations now say "synced" and name the
+  Review repository.
+- `commitPresentOrFetched` (`gitTargetFetch.ts`) backs both
+  `fetchUnlessCommitPresent` and `reviewRepositoryHolding`.
+- Backend specs that build a fixture history the first time in a case pay that
+  template build within the case's 5s budget. `prepareRepository`
+  (`Distribution/tests/support/repository-fixture.mjs`) builds it earlier in a
+  `beforeAll` at the default hook timeout, as
+  `story-review-published-taken.spec.ts` does.
 
 ### 5. Keep a synced review readable when origin is unreachable
 Type: Behavior

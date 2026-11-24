@@ -11,7 +11,6 @@ import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { executionCheckout } from "./executionCheckout.ts";
 import { reviewRepositoryPath } from "./reviewRepository.ts";
 import {
   reviewedLandedRunByReference,
@@ -201,7 +200,7 @@ export async function admitLandedRun(
     );
   requireLandingFile(review, file);
   return {
-    repository: executionCheckout(source).path,
+    repository: reviewRepositoryPath(source),
     ...file,
   };
 }
@@ -237,7 +236,7 @@ export async function admitHistoricalReviewedFile(
     if (recorded.kind === "landing-unavailable")
       throw new RefusedRequest(409, recorded.explanation);
     requireLandingFile(recorded, file);
-    return { repository: executionCheckout(source).path, ...file };
+    return { repository: reviewRepositoryPath(source), ...file };
   }
   const { runs } = await reviewedLandedRuns(source, named.identity);
   return admitLandedRun(

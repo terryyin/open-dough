@@ -6,7 +6,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { GitTargetFetches } from "./gitTargetFetch.ts";
+import { commitPresentOrFetched, GitTargetFetches } from "./gitTargetFetch.ts";
 import {
   defaultGitOutputLimit as maxBuffer,
   gitProblem,
@@ -118,16 +118,12 @@ export async function reviewRepositoryHolding(
   signal: AbortSignal,
 ): Promise<string> {
   const repository = reviewRepositoryPath(source);
-  try {
-    await runGit(["cat-file", "-e", `${revision}^{commit}`], {
-      cwd: repository,
-      signal,
-      maxBuffer,
-    });
-    return repository;
-  } catch {
-    return syncedReviewRepository(source, signal);
-  }
+  await commitPresentOrFetched(
+    revision,
+    { cwd: repository, signal, maxBuffer },
+    () => syncedReviewRepository(source, signal),
+  );
+  return repository;
 }
 
 async function record(repository: string, sync: ReviewRepositorySync) {

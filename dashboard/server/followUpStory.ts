@@ -17,7 +17,6 @@ import { storyFollowUpSessions } from "../src/followUpSessions.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { PublishedSessionRecord } from "../src/publishedSessionRecord.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
-import { executionCheckout } from "./executionCheckout.ts";
 import { keptRecords } from "./launchRecordStore.ts";
 import { listedReadConcurrency } from "./listedRecordsRead.ts";
 import { RefusedRequest } from "./localOrigin.ts";
@@ -86,20 +85,14 @@ async function readSelectedPublications(
     ),
   ];
   if (ids.length === 0) return [];
-  const repository = executionCheckout(source).path;
   const now = new Date();
   const signal = admissionBound();
   const records = await mapPool(ids, listedReadConcurrency, async (id) => {
     try {
-      const published = await fetchedPublishedSessionSource(
-        repository,
-        source,
-        id,
-        {
-          admission: () => signal,
-          fetch: () => signal,
-        },
-      );
+      const published = await fetchedPublishedSessionSource(source, id, {
+        admission: () => signal,
+        fetch: () => signal,
+      });
       return await publishedSessionRecord(published, id, now, signal);
     } catch {
       return undefined;

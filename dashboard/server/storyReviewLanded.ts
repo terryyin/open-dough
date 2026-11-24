@@ -12,9 +12,12 @@ import {
   type ReviewLandedRun,
 } from "../src/storyReviewLandedRun.ts";
 import { retainedCommitPairFiles } from "./retainedReviewPair.ts";
-import { fetchGitTarget } from "./gitTargetFetch.ts";
-import { checkAncestry, gitProblem } from "./gitRunner.ts";
-import { publishedLandingCheckout } from "./storyReviewPublishedLanding.ts";
+import {
+  checkAncestry,
+  defaultGitOutputLimit,
+  gitProblem,
+} from "./gitRunner.ts";
+import { syncedReviewRepository } from "./reviewRepository.ts";
 
 export type LandingReviewSource = {
   readonly record: LaunchRecord;
@@ -50,10 +53,8 @@ export async function landedStoryReview(
     );
   let repository: string;
   try {
-    const call = await publishedLandingCheckout(source, signal);
-    repository = call.cwd;
-
-    await fetchGitTarget("origin", source.ref, call);
+    repository = await syncedReviewRepository(source, signal);
+    const call = { cwd: repository, signal, maxBuffer: defaultGitOutputLimit };
     if (!(await checkAncestry(landing.revision, `origin/${source.ref}`, call)))
       return unavailable(
         "The configured origin target does not contain this accepted landing.",

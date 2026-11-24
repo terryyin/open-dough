@@ -139,6 +139,18 @@ async function copyTemplate(description, { parent, ...shape }) {
   }
 }
 
+/** How `materializeRepository` shapes every template it copies. */
+const publishedShape = { origin: true, gitTemplates: true };
+
+/**
+ * Build the described history's `materializeRepository` template now, so a
+ * file's cases do not pay the one-time build inside one case's time.
+ * @param {RepositoryDescription} description
+ */
+export async function prepareRepository(description) {
+  await repositoryTemplate(description, publishedShape).built;
+}
+
 /**
  * Build each described history once per process, from a registered prefix's
  * snapshot when one matches and its owner supplies it. Every caller gets its
@@ -152,8 +164,7 @@ export async function materializeRepository(
   description,
   { parent = tmpdir() } = {},
 ) {
-  const shape = { origin: true, gitTemplates: true };
-  const copy = await copyTemplate(description, { parent, ...shape });
+  const copy = await copyTemplate(description, { parent, ...publishedShape });
   return { origin: layout(copy.fixture).origin, ...copy };
 }
 

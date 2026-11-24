@@ -23,7 +23,6 @@ import type {
 } from "../src/storyReviewRead.ts";
 import { launchSubject } from "../src/launchWorkflow.ts";
 import { RefusedRequest } from "./localOrigin.ts";
-import { executionCheckout } from "./executionCheckout.ts";
 import {
   publishedSessionRecord,
   type PublishedSessionSource,
@@ -180,13 +179,8 @@ function publishedSource(
   session: string,
   signal: AbortSignal,
 ) {
-  return fetchedPublishedSessionSource(
-    executionCheckout(source).path,
-    source,
-    session,
-    {
-      admission: () => admissionBound(signal),
-      fetch: () => admissionBound(signal),
-    },
-  );
+  return fetchedPublishedSessionSource(source, session, {
+    admission: () => admissionBound(signal),
+    fetch: () => admissionBound(signal),
+  });
 }

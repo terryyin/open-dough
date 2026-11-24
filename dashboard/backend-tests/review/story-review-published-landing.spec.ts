@@ -1,3 +1,4 @@
+import { renameSync } from "node:fs";
 import path from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { fixtureRepository, stubFixtureHome } from "../support/fixtureHome.ts";
@@ -17,7 +18,7 @@ import { git } from "../../test-support/support/storyReviewWorktree.ts";
 const reference = "11111111-1111-4111-8111-111111111111";
 const literal = "[literal]*.txt";
 
-test("a legacy receipt reads the exact accepted origin pair and loses authority when origin omits it", async () => {
+test("a legacy receipt reads the exact accepted origin pair with the execution checkout retired, and loses authority when origin omits it", async () => {
   const repository = await materializeRepository(
     makeMe.aRepository
       .withRevision("base")
@@ -59,6 +60,8 @@ test("a legacy receipt reads the exact accepted origin pair and loses authority 
       )
       .please(),
   ]);
+
+  renameSync(repository.integration, `${repository.integration}-retired`);
 
   const signal = new AbortController().signal;
   const subject = { source: "open-dough", identity: queuedIdentity };

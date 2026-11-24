@@ -65,6 +65,18 @@ export function shallowPublishedHistory(origin: FixtureOrigin): void {
   );
 }
 
+// The Review repository syncs origin's current trunk, as a review open that
+// found the trunk moved would.
+export function reviewRepositorySyncedTrunk(origin: FixtureOrigin): void {
+  reviewGit(
+    origin.machine,
+    "fetch",
+    "--quiet",
+    "origin",
+    "+refs/heads/main:refs/remotes/origin/main",
+  );
+}
+
 // Both stores regain the published history `shallowPublishedHistory` cut.
 export function completePublishedHistory(origin: FixtureOrigin): void {
   git(
