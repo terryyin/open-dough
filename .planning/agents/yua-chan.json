@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yua-chan",
+  "email": "yua-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-433#run-dashboard-launch-tests-on-an-installed-project",
+  "host": "claude"
+}
