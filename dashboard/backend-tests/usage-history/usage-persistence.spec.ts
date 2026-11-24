@@ -1,4 +1,4 @@
-// Routine launch operations never scan imported usage evidence.
+// Guard filesystem reads in an isolated process during routine launch operations.
 import {
   expect,
   test,
@@ -24,7 +24,7 @@ test("ordinary operational reads and writes never open native usage or imported 
         const original = fs[method];
         fs[method] = (...args) => {
           const file = String(args[0]);
-          if (file.includes('/launch-history') || file.includes('/.codex/')) throw Error('Unexpected usage scan: ' + file);
+          if (file.includes('/launch-history') || file.includes('/.codex/') || file.includes('/.claude/')) throw Error('Unexpected usage scan: ' + file);
           return original(...args);
         };
       }

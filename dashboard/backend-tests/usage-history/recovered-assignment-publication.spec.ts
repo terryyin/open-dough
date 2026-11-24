@@ -1,18 +1,21 @@
+import { readFileSync } from "node:fs";
+import fs from "node:fs/promises";
+import { syncBuiltinESMExports } from "node:module";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
+  readUsageHistory,
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
 import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import {
   test,
   expect,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  failing,
-  readImported,
-  runImport,
-  writeCodexSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeCodexSession } from "../../test-support/usage-history/importHarness.ts";
 
 const wrapperAt = "2026-11-14T08:00:00.000Z";
 
@@ -47,14 +50,36 @@ test("failed correction publication leaves prior assignment readable before a su
       fieldSources: { launchedAt: [{ kind: "native", file, line: 3 }] },
     })
     .please();
-  await writeUsageHistory({ tasks: [task] }, usageHistoryFile(home));
-  const before = readImported(home);
-  expect(() =>
-    runImport(home, root, [], failing("rename", "/usage.json")),
-  ).toThrow("injected rename failure");
-  expect(readImported(home)).toEqual(before);
-  runImport(home, root);
-  expect(readImported(home).tasks[task.id]).toMatchObject({
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+  const { store } = options;
+  await writeUsageHistory({ tasks: [task] }, store);
+  const bytes = readFileSync(store);
+  const before = await readUsageHistory(store);
+  const rename = fs.rename;
+  fs.rename = async (source, target) => {
+    if (target === store) throw new Error("injected rename failure");
+    return rename(source, target);
+  };
+  syncBuiltinESMExports();
+  try {
+    await expect(importUsageHistory(options)).rejects.toThrow(
+      "injected rename failure",
+    );
+  } finally {
+    fs.rename = rename;
+    syncBuiltinESMExports();
+  }
+  expect(readFileSync(store)).toEqual(bytes);
+  expect(await readUsageHistory(store)).toEqual(before);
+  await importUsageHistory(options);
+  expect((await readUsageHistory(store)).tasks[task.id]).toMatchObject({
     launchedAt: null,
     gaps: expect.arrayContaining(["unsupported-task-assignment"]),
   });

@@ -9,7 +9,8 @@ Give maintainers faster feedback on usage import and recovery. The 54
 backend `usage-history/` specs outside the Token Index family share the
 usage `home` and `root` fixture module or the usage-import command
 wrapper. 45 of them start `node dashboard/server/importUsageHistory.ts`
-for every import and every read, 364 call sites in all. Call the typed
+for every import and every read. The claim has 250 direct wrapper call
+sites. Call the typed
 importer and the typed store read in this process, keep a few command
 cases for what only the command owns, and move the fixture module and
 the family to Node Vitest. The [Token Index migration](https://github.com/terryyin/open-dough/blob/d7b4d03df1826e7098dcc160ee1618812e954a72/.planning/slice-plans/811-renovate-usage-token-index-proof/PLAN.md) is complete. Reducing
@@ -184,7 +185,7 @@ Changes stayed in the subject specs and needed no independent refactor.
 ### 5. Command cases keep only what the command owns
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the nine files pass; each remaining command start names the command behavior it observes
 
 Resolve `usage-history-write-failures`, `usage-reconciliation`,
@@ -195,6 +196,23 @@ output, exit status and injected failure; an injected failure leaves the
 store's earlier bytes, observed by reading the file. Move every other
 import and read to the typed entries. Confirm one retained failure case
 fails when the command's error handling is removed in a scratch edit.
+
+Proof result: 21 baseline cases and 22 candidate cases passed across the
+same nine specs. The added case owns `--home` defaults for live and archived
+Codex, Claude and the store, plus printed import and read output. The retained
+CLI starts cover those outputs, the rename and page-removal diagnostics and
+two truly concurrent writers. An isolated process also guards operational
+reads and writes against usage scans. Typed imports with scoped rename
+faults preserve distinct earlier-store and assignment recovery observations.
+The catch-removal scratch edit failed the retained rename case on its exact
+stderr assertion. That worktree was retired.
+
+Summed case time fell from 29,628 ms to 5,386 ms before independent
+refactoring and runner time from 16,568 ms to 4,307 ms. The refactor kept
+all nine specs within 250 lines after formatting and passed the 13 cases in
+its four edited specs. Dashboard typecheck passed. The Git evidence directory
+keeps `slice-5-implementation.md`, `slice-5-refactor.md`, the associated
+timing records and `slice-5-scratch-mutation.diff`.
 
 ### 6. The usage family runs on Vitest
 
@@ -207,6 +225,15 @@ commit, with the three Token Index importers if they still need it. A
 spec that still needs a server or exceeds the default timeout after
 slices 1–5 is named and replanned, since the module cannot serve both
 engines.
+
+G1 covers the six additional specs still using the mounted Token Index
+fixture. The existing refresh and chart entries are `refreshUsageHistory`,
+`refreshUsage` for the real dashboard writer boundary, and `readTokenIndex`
+or `tokenIndexAnswer` for chart selection and values. Select by the assertion
+each case makes, preserving the overlapping writer case, persisted check
+ordering, archive restoration and paged conversion. Once all six callers
+use typed entries and private fixtures, remove the unused HTTP fixture and
+Playwright bindings from `tokenIndexHarness.ts` in the same migration.
 
 ### 7. The family reports its times and the wrapper loses its unused entries
 

@@ -1,8 +1,18 @@
 // Retained launch facts and categorized response usage survive the import process.
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   expect,
   test,
@@ -11,17 +21,22 @@ import {
 import {
   keepOperationalLaunch,
   keepRetainedLaunch,
-  nodeProcess,
-  readImported,
-  runImport,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
 test.describe("retained launch usage import", () => {
-  test("persists operational and retained launches, disjoint counters and changed observed settings across fresh reads and reruns", ({
+  test("persists operational and retained launches, disjoint counters and changed observed settings across fresh reads and reruns", async ({
     home,
     root,
   }) => {
+    const options = makeMe.aUsageImportOptions
+      .with({
+        home,
+        store: usageHistoryFile(home),
+        codexRoots: [root],
+        claudeRoots: claudeUsageRoots(home),
+      })
+      .please();
     keepOperationalLaunch(home, launch("root-one", "turn-one"));
     keepRetainedLaunch(home, launch("root-two", "turn-two"));
     const firstUsage = {
@@ -58,8 +73,14 @@ test.describe("retained launch usage import", () => {
         })
         .please(),
     );
-    runImport(home, root);
-    const stored = readImported(home);
+    await importUsageHistory(options);
+    const { store, responses } = options;
+    const stored = await readUsageHistory(store);
+    const artifact = JSON.parse(
+      readFileSync(responses, "utf8"),
+    ) as UsageResponses;
+    const storedText = readFileSync(store, "utf8");
+    const responseText = readFileSync(responses, "utf8");
     const tasks = Object.values(stored.tasks);
     const task = tasks.find((item) => item.sessionId === "root-one");
     assert(task);
@@ -67,7 +88,7 @@ test.describe("retained launch usage import", () => {
     expect(task.requested).toEqual(
       expect.objectContaining({ model: "requested-model", effort: "high" }),
     );
-    const observations = Object.values(stored.observations);
+    const observations = Object.values(artifact.observations);
     expect(observations).toHaveLength(3);
     expect(
       observations
@@ -120,15 +141,7 @@ test.describe("retained launch usage import", () => {
     );
     expect(partial.coverage).toBe("partial");
     expect(partial.gaps).toContain("missing-token-components");
-    const summary: unknown = JSON.parse(
-      nodeProcess(
-        home,
-        `
-      const { readUsageHistory, taskUsage } = await import('./dashboard/server/usageHistory.ts');
-      console.log(JSON.stringify(taskUsage(await readUsageHistory(), ${JSON.stringify(task.id)})));
-    `,
-      ),
-    );
+    const summary = taskUsage(await readUsageHistory(store), task.id);
     expect(summary).toEqual(
       expect.objectContaining({
         requests: 2,
@@ -140,46 +153,46 @@ test.describe("retained launch usage import", () => {
         }),
       }),
     );
-    const before = JSON.stringify(stored);
-    runImport(home, root);
-    expect(JSON.stringify(readImported(home))).toBe(before);
+    await importUsageHistory(options);
+    expect(await readUsageHistory(store)).toEqual(stored);
+    expect(readFileSync(store, "utf8")).toBe(storedText);
+    expect(readFileSync(responses, "utf8")).toBe(responseText);
     rmSync(root, { recursive: true });
-    expect(JSON.stringify(readImported(home))).toBe(before);
+    expect(await readUsageHistory(store)).toEqual(stored);
+    expect(readFileSync(store, "utf8")).toBe(storedText);
+    expect(readFileSync(responses, "utf8")).toBe(responseText);
   });
 
-  test("keeps unavailable usage unknown and fills the gap when native response evidence becomes available", ({
+  test("keeps unavailable usage unknown and fills the gap when native response evidence becomes available", async ({
     home,
     root,
   }) => {
+    const options = makeMe.aUsageImportOptions
+      .with({
+        home,
+        store: usageHistoryFile(home),
+        codexRoots: [root],
+        claudeRoots: claudeUsageRoots(home),
+      })
+      .please();
     keepOperationalLaunch(home, launch("missing", "turn"));
     writeCodexSession(
       root,
       makeMe.aCodexRollout.forSession("missing").please(),
     );
-    runImport(home, root);
-    const before = readImported(home);
+    await importUsageHistory(options);
+    const before = await readUsageHistory(options.store);
     expect(before.gaps).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ code: "no-attributable-response-usage" }),
       ]),
     );
-    expect(
-      JSON.parse(
-        nodeProcess(
-          home,
-          `
-      const { readUsageHistory, taskUsage } = await import('./dashboard/server/usageHistory.ts');
-      const history = await readUsageHistory();
-      console.log(JSON.stringify(taskUsage(history, Object.keys(history.tasks)[0])));
-    `,
-        ),
-      ),
-    ).toEqual(
-      expect.objectContaining({
-        requests: 0,
-        tokens: expect.objectContaining({ output: null }),
-      }),
-    );
+    const [task] = Object.values(before.tasks);
+    assert(task);
+    expect(taskUsage(before, task.id)).toMatchObject({
+      requests: 0,
+      tokens: { output: null },
+    });
     writeCodexSession(
       root,
       makeMe.aCodexRollout
@@ -187,12 +200,15 @@ test.describe("retained launch usage import", () => {
         .withResponse("turn", "one", { output_tokens: 0 })
         .please(),
     );
-    runImport(home, root);
-    const after = readImported(home);
+    await importUsageHistory(options);
+    const after = await readUsageHistory(options.store);
     expect(
       after.gaps.some((gap) => gap.code === "no-attributable-response-usage"),
     ).toBe(false);
-    const [measured] = Object.values(after.observations);
+    const { observations } = JSON.parse(
+      readFileSync(options.responses, "utf8"),
+    ) as UsageResponses;
+    const [measured] = Object.values(observations);
     assert(measured);
     expect(measured.tokens.output).toBe(0);
   });

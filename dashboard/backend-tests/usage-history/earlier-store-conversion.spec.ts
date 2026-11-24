@@ -1,17 +1,21 @@
 // The first write over a paged store an earlier dashboard left stores the
 // history document and then removes `usage.json.pages` whole; a failure on
 // either side of that leaves a readable history, and the next write finishes.
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  renameSync,
-  writeFileSync,
-} from "node:fs";
+import fs from "node:fs";
+import fsPromises from "node:fs/promises";
+import { syncBuiltinESMExports } from "node:module";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { usageHistoryFile } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  usageHistoryFile,
+  writeUsageHistory,
+} from "../../server/usageHistory.ts";
+import {
+  claudeUsageRoots,
+  importUsageHistory,
+} from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   legacyHistory,
@@ -21,9 +25,6 @@ import {
 import {
   failing,
   importFailure,
-  nodeProcess,
-  readImported,
-  runImport,
   sessionTotals,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
@@ -37,41 +38,34 @@ import {
   usageServer,
 } from "../../test-support/usage-history/tokenIndexHarness.ts";
 
+const importOptions = (home: string, root: string) =>
+  makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: claudeUsageRoots(home),
+    })
+    .please();
+
 const unnamed = `${"f".repeat(64)}.json`;
-/** Leaves a page no manifest names in the store's page directory. */
 function leaveUnnamedPage(home: string) {
-  writeFileSync(path.join(pagesOf(home), unnamed), JSON.stringify([]));
+  fs.writeFileSync(path.join(pagesOf(home), unnamed), JSON.stringify([]));
 }
-// Directories beside the page directory that are not the store's.
 const neighbours = (home: string) => [
   `${pagesOf(home)}.kept`,
   path.join(pagesOf(home), "../reports"),
 ];
 const neighbourFiles = (home: string) =>
-  neighbours(home).map((directory) => readdirSync(directory));
-const storedFormat = (home: string) =>
-  (
-    JSON.parse(readFileSync(usageHistoryFile(home), "utf8")) as {
-      format: string;
-    }
-  ).format;
-// What conversion carries over: tasks, gaps and each task's totals.
-const carried = (home: string) => {
-  const history = readImported(home);
-  return {
-    tasks: history.tasks,
-    gaps: history.gaps,
-    totals: sessionTotals(history),
-  };
-};
+  neighbours(home).map((directory) => fs.readdirSync(directory));
+const pageBytes = (directory: string) =>
+  fs
+    .readdirSync(directory)
+    .map((file) => [file, fs.readFileSync(path.join(directory, file))]);
 
-/**
- * Leaves in `home` the paged store of an import of two sessions with usage
- * and one launch without, with one page no manifest names, beside two
- * neighbouring directories that are not the store's. Returns the directory
- * the import may read from now: empty, so every total comes from the store.
- */
-function pagedStore(home: string, root: string) {
+// Seed a paged store with an unnamed page and unrelated neighbours.
+// Return an empty root so later imports can only get totals from disk.
+async function pagedStore(home: string, root: string) {
   keepLaunchStore(home, {
     "open-dough": [
       launch("kept", "turn"),
@@ -94,97 +88,114 @@ function pagedStore(home: string, root: string) {
       .withResponse("turn", "three", { output_tokens: 7 })
       .please(),
   );
-  runImport(home, root);
-  writePagedStore(home, legacyHistory(readImported(home)));
+  await importAndKeepPages(home, root);
   leaveUnnamedPage(home);
   for (const neighbour of neighbours(home)) {
-    mkdirSync(neighbour);
-    writeFileSync(path.join(neighbour, "evidence.json"), "{}");
+    fs.mkdirSync(neighbour);
+    fs.writeFileSync(path.join(neighbour, "evidence.json"), "{}");
   }
   const gone = path.join(home, "native-removed");
-  mkdirSync(gone);
+  fs.mkdirSync(gone);
   return gone;
 }
 
-test("the first import over a paged store carries its tasks, gaps and totals into the document and removes the page directory whole, and nothing beside it", ({
+async function importAndKeepPages(home: string, root: string) {
+  const options = importOptions(home, root);
+  await importUsageHistory(options);
+  const history = await readUsageHistory(options.store);
+  const responses = JSON.parse(
+    fs.readFileSync(options.responses, "utf8"),
+  ) as UsageResponses;
+  writePagedStore(home, legacyHistory({ ...history, ...responses }));
+}
+
+test("the first import over a paged store carries its tasks, gaps and totals into the document and removes the page directory whole, and nothing beside it", async ({
   home,
   root,
 }) => {
-  const gone = pagedStore(home, root);
-  const before = carried(home);
-  expect(before.totals).toEqual([
+  const gone = await pagedStore(home, root);
+  const store = usageHistoryFile(home);
+  const before = await readUsageHistory(store);
+  expect(sessionTotals(before)).toEqual([
     ["kept", 2, 5],
     ["other", 1, 7],
     ["silent", 0, null],
   ]);
   expect(before.gaps).not.toEqual([]);
-  expect(readdirSync(pagesOf(home))).toContain(unnamed);
+  expect(fs.readdirSync(pagesOf(home))).toContain(unnamed);
 
-  runImport(home, gone);
+  await importUsageHistory(importOptions(home, gone));
 
-  expect(carried(home)).toEqual(before);
-  expect(storedFormat(home)).toBe("usage-history-v2");
-  expect(existsSync(pagesOf(home))).toBe(false);
+  expect(await readUsageHistory(store)).toEqual(before);
+  const document = JSON.parse(fs.readFileSync(store, "utf8")) as {
+    format: string;
+  };
+  expect(document.format).toBe("usage-history-v2");
+  expect(fs.existsSync(pagesOf(home))).toBe(false);
   expect(neighbourFiles(home)).toEqual([["evidence.json"], ["evidence.json"]]);
 });
 
-test("a page removal that fails leaves the complete document readable, and the next write removes the directory without changing the document", ({
+test("a page removal that fails leaves the complete document readable, and the next write removes the directory without changing the document", async ({
   home,
   root,
 }) => {
-  const gone = pagedStore(home, root);
-  const before = carried(home);
+  const gone = await pagedStore(home, root);
+  const store = usageHistoryFile(home);
+  const before = await readUsageHistory(store);
 
-  expect(
-    importFailure(home, gone, failing("rm", "/usage.json.pages")),
-  ).toMatchObject({
-    status: 1,
-    stderr: expect.stringContaining("injected rm failure"),
-  });
+  expect(importFailure(home, gone, failing("rm", "/usage.json.pages"))).toEqual(
+    { status: 1, stderr: "injected rm failure\n" },
+  );
 
-  const document = readFileSync(usageHistoryFile(home), "utf8");
-  expect(storedFormat(home)).toBe("usage-history-v2");
-  expect(readdirSync(pagesOf(home))).toContain(unnamed);
-  expect(carried(home)).toEqual(before);
+  const document = fs.readFileSync(store, "utf8");
+  const { format } = JSON.parse(document) as { format: string };
+  expect(format).toBe("usage-history-v2");
+  expect(fs.readdirSync(pagesOf(home))).toContain(unnamed);
+  expect(await readUsageHistory(store)).toEqual(before);
   // A reader takes nothing from the pages any more.
-  renameSync(pagesOf(home), `${pagesOf(home)}.aside`);
-  expect(carried(home)).toEqual(before);
-  renameSync(`${pagesOf(home)}.aside`, pagesOf(home));
+  fs.renameSync(pagesOf(home), `${pagesOf(home)}.aside`);
+  expect(await readUsageHistory(store)).toEqual(before);
+  fs.renameSync(`${pagesOf(home)}.aside`, pagesOf(home));
 
   // The writer Refresh uses, with nothing new: the bytes stay, the pages go.
-  nodeProcess(
-    home,
-    `const { writeUsageHistory } = await import('./dashboard/server/usageHistory.ts');
-     await writeUsageHistory({});`,
-  );
-  expect(existsSync(pagesOf(home))).toBe(false);
-  expect(readFileSync(usageHistoryFile(home), "utf8")).toBe(document);
+  await writeUsageHistory({}, store);
+  expect(fs.existsSync(pagesOf(home))).toBe(false);
+  expect(fs.readFileSync(store, "utf8")).toBe(document);
   expect(neighbourFiles(home)).toEqual([["evidence.json"], ["evidence.json"]]);
 });
 
-test("a document replacement that fails leaves the paged store and every page as they were, and the next import converts it", ({
+test("a document replacement that fails leaves the paged store and every page as they were, and the next import converts it", async ({
   home,
   root,
 }) => {
-  const gone = pagedStore(home, root);
-  const before = carried(home);
-  const manifest = readFileSync(usageHistoryFile(home), "utf8");
-  const pages = readdirSync(pagesOf(home));
+  const gone = await pagedStore(home, root);
+  const store = usageHistoryFile(home);
+  const before = await readUsageHistory(store);
+  const options = importOptions(home, gone);
+  const manifest = fs.readFileSync(store);
+  const pages = pageBytes(pagesOf(home));
+  const rename = fsPromises.rename;
+  fsPromises.rename = async (source, target) => {
+    if (target === store) throw new Error("injected rename failure");
+    return rename(source, target);
+  };
+  syncBuiltinESMExports();
+  try {
+    await expect(importUsageHistory(options)).rejects.toThrow(
+      "injected rename failure",
+    );
+  } finally {
+    fsPromises.rename = rename;
+    syncBuiltinESMExports();
+  }
 
-  expect(
-    importFailure(home, gone, failing("rename", "/usage.json")),
-  ).toMatchObject({
-    status: 1,
-    stderr: expect.stringContaining("injected rename failure"),
-  });
+  expect(fs.readFileSync(store)).toEqual(manifest);
+  expect(pageBytes(pagesOf(home))).toEqual(pages);
+  expect(await readUsageHistory(store)).toEqual(before);
 
-  expect(readFileSync(usageHistoryFile(home), "utf8")).toBe(manifest);
-  expect(readdirSync(pagesOf(home))).toEqual(pages);
-  expect(carried(home)).toEqual(before);
-
-  runImport(home, gone);
-  expect(carried(home)).toEqual(before);
-  expect(existsSync(pagesOf(home))).toBe(false);
+  await importUsageHistory(options);
+  expect(await readUsageHistory(store)).toEqual(before);
+  expect(fs.existsSync(pagesOf(home))).toBe(false);
 });
 
 refreshTest(
@@ -216,19 +227,18 @@ refreshTest(
         })
         .please(),
     );
-    runImport(home, sessions);
-    writePagedStore(home, legacyHistory(readImported(home)));
+    await importAndKeepPages(home, sessions);
     leaveUnnamedPage(home);
     const usage = await usageServer(machine);
     const before = await usage.chart();
     expect(before.tasks.map(({ identity }) => identity)).toEqual([
       "SEED-7#paged",
     ]);
-    expect(existsSync(pagesOf(home))).toBe(true);
+    expect(fs.existsSync(pagesOf(home))).toBe(true);
 
     await usage.refresh();
 
     expect((await usage.chart()).tasks).toEqual(before.tasks);
-    expect(existsSync(pagesOf(home))).toBe(false);
+    expect(fs.existsSync(pagesOf(home))).toBe(false);
   },
 );
