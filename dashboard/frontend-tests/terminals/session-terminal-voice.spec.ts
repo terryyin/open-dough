@@ -1,108 +1,113 @@
-// Controlled transcription and attached-terminal input. Keyboard access and
-// phone layout have their own focused journeys beside this file.
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import { openFrontendTerminalVoice } from "../../test-support/support/frontendTerminalVoice.ts";
-import { microphoneBrowserOptions } from "../../test-support/support/voiceRecovery.ts";
+import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
+import type { InstructionTranscriptionSource } from "../../src/instructionTranscriptionSource.ts";
+import { audioInput } from "../launches/instruction-voice-page.ts";
 import {
-  chooseTerminalPrompt,
-  expectTerminalInputFocused,
-  expectTerminalText,
-  replaceLastTerminalCharacter,
-  submitTerminalInput,
-  writeTerminalInput,
-} from "../../test-support/terminalScreenPage.ts";
-import { observeMicrophone } from "../../test-support/support/voicePage.ts";
+  terminalInput,
+  terminalStatus,
+} from "../sessions/session-terminal-page.ts";
 import {
-  expectVoiceStatus,
-  expectVoiceStatusText,
-  finishTerminalDictation,
-  startTerminalDictation,
-} from "../../test-support/support/terminalVoicePage.ts";
+  beginDictation,
+  editAndSubmitTerminal,
+  focusActionsByKeyboard,
+  holdTerminalTranscript,
+  stopDictation,
+} from "./terminal-dictation-page.ts";
+import { promptItem, prompts } from "./terminal-input-controls.ts";
+import { mountTerminalInput } from "./terminal-input-mount.ts";
+import { drawnRows, showsRow } from "./terminal-touch-input.ts";
 
-test.use(microphoneBrowserOptions);
-test.beforeEach(async ({ page }) => {
-  await observeMicrophone(page);
-});
+const desktop = { width: 1280, height: 800 };
+const configured = () => Promise.resolve(true);
 
-test("dictation sanitizes one transcript, preserves typing during capture and transcription, and remains editable until Enter", async ({
-  page,
-  frontendServices,
-}) => {
-  const { panel, sent, transcription } = await openFrontendTerminalVoice(
-    page,
-    frontendServices,
+test("dictation sanitizes one transcript, preserves typing during capture and transcription, and remains editable until Enter", async () => {
+  const capture = audioInput();
+  const held = holdTerminalTranscript(
+    "the header\nthen \u001b[31mthe controls\u0007",
   );
-  if (transcription === undefined)
-    throw new Error("expected transcription answers");
-  transcription.answerText("the header\nthen \u001b[31mthe controls\u0007");
-  const held = transcription.holdNext();
-  await writeTerminalInput(panel, "Review ");
-  await startTerminalDictation(panel, { using: "keyboard" });
-  await writeTerminalInput(panel, "also ");
-  await finishTerminalDictation(panel, { using: "keyboard" });
-  await held.received;
-  await writeTerminalInput(panel, "later ");
-  held.release();
-  await held.delivered;
+  const transcribe = vi.fn<InstructionTranscriptionSource["transcribe"]>(
+    () => held.answer,
+  );
+  const { sent } = await mountTerminalInput({
+    viewport: desktop,
+    transcription: { configured, transcribe },
+  });
+
+  await userEvent.keyboard("Review ");
+  await beginDictation("keyboard");
+  await terminalInput.click();
+  await userEvent.keyboard("also ");
+  await stopDictation("keyboard", capture);
+  await expect.poll(() => transcribe.mock.calls.length).toBe(1);
+  expect(transcribe.mock.lastCall?.[0].size).toBeGreaterThan(0);
+  await expect.element(terminalStatus).toHaveTextContent("Transcribing…");
+  await terminalInput.click();
+  await userEvent.keyboard("later ");
+  expect(sent().join("")).toBe("Review also later ");
+  held.deliver();
+
   const transcript = "the header then the controls";
   await expect
-    .poll(() => sent.filter((value) => value === transcript))
+    .poll(() => sent().filter((input) => input === transcript))
     .toEqual([transcript]);
-  await expectTerminalText(panel, `Review also later ${transcript}`);
-  await expectTerminalInputFocused(panel);
-  expect(sent.some((value) => /[\r\n]/.test(value))).toBe(false);
-  const beforeEdit = sent.length;
-  await replaceLastTerminalCharacter(panel, "!");
-  await submitTerminalInput(panel);
-  await expect.poll(() => sent.slice(beforeEdit).join("")).toBe("\u007f!\r");
-  expect(transcription.clips()).toBe(1);
+  await showsRow(`Review also later ${transcript}`);
+  await expect.element(terminalInput).toHaveFocus();
+  expect(sent().some((input) => /[\r\n]/.test(input))).toBe(false);
+
+  const beforeEdit = sent().length;
+  await editAndSubmitTerminal("!");
+  await expect.poll(() => sent().slice(beforeEdit).join("")).toBe("\u007f!\r");
+  expect(transcribe).toHaveBeenCalledOnce();
 });
 
-test("keyboard quick replies remain usable during recording without ending dictation", async ({
-  page,
-  frontendServices,
-}) => {
-  const { panel, sent, transcription } = await openFrontendTerminalVoice(
-    page,
-    frontendServices,
+test("keyboard quick replies remain usable during recording without ending dictation", async () => {
+  const capture = audioInput();
+  const held = holdTerminalTranscript("the header");
+  const transcribe = vi.fn<InstructionTranscriptionSource["transcribe"]>(
+    () => held.answer,
   );
-  if (transcription === undefined)
-    throw new Error("expected transcription answers");
-  transcription.answerText("the header");
-  const held = transcription.holdNext();
-  await startTerminalDictation(panel, { using: "keyboard" });
-  await chooseTerminalPrompt(panel, "OK", { using: "keyboard" });
+  const { sent } = await mountTerminalInput({
+    viewport: desktop,
+    transcription: { configured, transcribe },
+  });
+
+  await beginDictation("keyboard");
+  await focusActionsByKeyboard();
+  await userEvent.keyboard("{Tab}{Tab}");
+  await expect.element(prompts).toHaveFocus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(promptItem("OK")).toHaveFocus();
+  await userEvent.keyboard("{Enter}");
+  await expect.poll(sent).toEqual(["OK"]);
   await expect
-    .poll(() => sent.filter((value) => value === "OK"))
-    .toEqual(["OK"]);
-  await expectVoiceStatus(panel, "Recording…");
-  await finishTerminalDictation(panel, { using: "keyboard" });
-  await held.received;
-  await expectVoiceStatusText(panel, "Transcribing…");
-  held.release();
-  await held.delivered;
-  await expect
-    .poll(() => sent.filter((value) => value === "the header"))
-    .toEqual(["the header"]);
+    .element(terminalStatus)
+    .toHaveTextContent("Recording… Stop recording when you are finished.");
+  expect(capture.tracks().map((track) => track.readyState)).toEqual(["live"]);
+  expect(transcribe).not.toHaveBeenCalled();
+
+  await stopDictation("keyboard", capture);
+  await expect.poll(() => transcribe.mock.calls.length).toBe(1);
+  await expect.element(terminalStatus).toHaveTextContent("Transcribing…");
+  held.deliver();
+  await expect.poll(sent).toEqual(["OK", "the header"]);
 });
 
-test("terminal dictation preserves a transcript beyond the launch field limit without submitting", async ({
-  page,
-  frontendServices,
-}) => {
+test("terminal dictation preserves a transcript beyond the launch field limit without submitting", async () => {
+  const capture = audioInput();
   const text = `${"spoken ".repeat(600)}end`;
-  const { panel, sent, transcription } = await openFrontendTerminalVoice(
-    page,
-    frontendServices,
-  );
-  if (transcription === undefined)
-    throw new Error("expected transcription answers");
-  transcription.answerText(text);
-  await startTerminalDictation(panel);
-  await finishTerminalDictation(panel);
+  const transcribe = vi
+    .fn<InstructionTranscriptionSource["transcribe"]>()
+    .mockResolvedValue({ text });
+  const { sent } = await mountTerminalInput({
+    viewport: desktop,
+    transcription: { configured, transcribe },
+  });
+
+  await beginDictation("mouse");
+  await stopDictation("mouse", capture);
+  await expect.poll(sent).toEqual([text]);
   await expect
-    .poll(() => sent.filter((value) => value === text))
-    .toEqual([text]);
-  await expectTerminalText(panel, "end");
-  expect(sent.some((value) => /[\r\n]/.test(value))).toBe(false);
+    .poll(() => drawnRows().some((row) => row.trimEnd().endsWith("end")))
+    .toBe(true);
+  expect(sent().some((input) => /[\r\n]/.test(input))).toBe(false);
 });

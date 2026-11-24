@@ -1,99 +1,74 @@
-// Pending and failed Mark as done from the page's terminal
-// (./agent-terminal-done.spec.ts), against a controlled machine read, done
-// boundary (../../test-support/support/frontendSessionActions.ts) and attached
-// terminal: Maximize and Close stay usable while the Done answer is held, and
-// releasing still closes the panel; a failed answer leaves a recoverable
-// unresolved state without refused-intent wording. A real answer held past
-// the wait bound, whose recovery reuses the settled mark without a second
-// native stop, is ../../../e2e/sessions/agent-terminal-done-pending.spec.ts.
+import { expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
+import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import {
+  execution,
+  holdExecutionMark,
+  mountSessionCards,
+  sessionsReading,
+  workingSession,
+} from "./session-card-mount.ts";
+import { cardSession } from "./session-card-page.ts";
+import {
+  markWorkingTerminalDone,
+  openCardTerminal,
+  terminal,
+  terminalClose,
+  terminalMarkDone,
+  terminalMaximize,
+  terminalRestore,
+  terminalStatus,
+} from "./session-terminal-page.ts";
+import { openAttachedTerminal } from "./session-terminal-socket.ts";
 
-import type { Page } from "@playwright/test";
-import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import {
-  cardSession,
-  cardSessionEntry,
-  openCardSessionTerminal,
-} from "../../test-support/support/frontendCardSessions.ts";
-import { installFrontendSessionActions } from "../../test-support/support/frontendSessionActions.ts";
-import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
-import { installAttachedTerminalSubstitute } from "../../test-support/support/frontendServiceSubstitutes.ts";
-import {
-  headerMarkAsDone,
-  sendDoneMarkAnyway,
-} from "../../test-support/support/markDone.ts";
-import { readyStory } from "../../test-support/launchJourney.ts";
-import { maximizeSidePanel } from "../../test-support/sidePanelFrame.ts";
-import { markDoneUnresolved } from "../../src/pageSessions.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-
-// The Ready story's working execution session, shown in the terminal.
-async function openWorkingSession(page: Page, services: FrontendServiceState) {
-  services.answerMachine(
-    makeMe.aMachineAnswer
-      .observing(
-        cardSession(
-          "Execution",
-          readyStory,
-          makeMe.aSessionState.loaded("working").please(),
-        ),
-      )
-      .please(),
-  );
-  const actions = await installFrontendSessionActions(page, services);
-  await installAttachedTerminalSubstitute(page);
-  await openFrontendTakenBacklog(page);
-  const panel = await openCardSessionTerminal(page, readyStory, "Execution");
-  return { actions, panel };
+async function openWorkingSession(markDone: MachineReadSource["markDone"]) {
+  await mountSessionCards({
+    reading: sessionsReading("working", workingSession(execution)),
+    markDone,
+    openTerminal: openAttachedTerminal,
+  });
+  await openCardTerminal();
 }
 
 test.describe("pending Mark as done from the terminal", () => {
-  test("Maximize and Close stay usable while Done is held, and releasing still closes the panel", async ({
-    page,
-    frontendServices,
-  }) => {
-    const { actions, panel } = await openWorkingSession(page, frontendServices);
-    const listed = cardSessionEntry(page, readyStory, "Execution");
-    const held = actions.holdNext("done");
-    await sendDoneMarkAnyway(panel);
-    const marking = panel.getByRole("status").getByText("Marking as done…");
-    await expect(marking).toBeVisible();
-    await expect(headerMarkAsDone(panel)).toBeDisabled();
+  test("Maximize and Close stay usable while Done is held, and releasing still closes the panel", async () => {
+    const mark = holdExecutionMark();
+    await openWorkingSession(() => mark.answer);
+    await markWorkingTerminalDone();
+    const marking = terminalStatus.getByText("Marking as done…");
+    await expect.element(marking).toBeVisible();
+    await expect.element(terminalMarkDone).toBeDisabled();
 
-    await maximizeSidePanel(panel, "click");
-    await expect(panel.getByRole("button", { name: "Restore" })).toBeVisible();
-    await expect(
-      panel.getByRole("button", { name: "Close", exact: true }),
-    ).toBeEnabled();
-    await expect(marking).toBeVisible();
-    await expect(headerMarkAsDone(panel)).toBeDisabled();
+    await userEvent.click(terminalMaximize);
+    await expect.element(terminalRestore).toBeVisible();
+    await expect.element(terminalClose).toBeEnabled();
+    await expect.element(marking).toBeVisible();
+    await expect.element(terminalMarkDone).toBeDisabled();
 
-    held.release();
-    await expect(panel).toHaveCount(0);
-    await expect(listed).toHaveCount(0);
+    mark.release();
+    await expect.element(terminal).not.toBeInTheDocument();
+    await expect.element(cardSession().entry).not.toBeInTheDocument();
   });
 
-  test("a failed Done answer leaves the same recoverable unresolved state without claiming the mark failed", async ({
-    page,
-    frontendServices,
-  }) => {
-    const { actions, panel } = await openWorkingSession(page, frontendServices);
-    actions.failNext("done");
+  test("a failed Done answer leaves the same recoverable unresolved state without claiming the mark failed", async () => {
+    const markDone = vi.fn<MachineReadSource["markDone"]>();
+    markDone.mockResolvedValue({ kind: "unresolved" });
+    await openWorkingSession(markDone);
+    await markWorkingTerminalDone();
 
-    await sendDoneMarkAnyway(panel);
-
-    const unresolved = panel.getByRole("status").getByText(markDoneUnresolved);
-    await expect(unresolved).toBeVisible();
-    await expect(
-      panel
-        .getByRole("status")
-        .getByText("The session could not be marked done."),
-    ).toHaveCount(0);
-    await expect(headerMarkAsDone(panel)).toBeEnabled();
-    await expect(panel).toBeVisible();
-    expect(actions.asked("done")).toHaveLength(1);
+    const retry = terminalStatus.getByText(
+      "Mark as done did not finish. Try again.",
+    );
+    await expect.element(retry).toBeVisible();
+    await expect
+      .element(
+        terminalStatus.getByText("The session could not be marked done."),
+      )
+      .not.toBeInTheDocument();
+    await expect.element(terminalMarkDone).toBeEnabled();
+    await expect.element(terminal).toBeVisible();
+    await expect.element(terminalMaximize).toBeEnabled();
+    await expect.element(terminalClose).toBeEnabled();
+    expect(markDone).toHaveBeenCalledTimes(1);
   });
 });

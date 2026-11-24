@@ -42,15 +42,11 @@ const unavailableReviewSource: ReviewSource = {
 // The banner's host status reads as unmeasured; a case that reads a final
 // report or attaches a terminal answers the page's sessions itself.
 export const unmeasuredHostSessions: PageReads["sessions"] = {
-  readFinalReport: () =>
-    Promise.reject(new Error("Unexpected final report read")),
+  ...pageReadsSupplying({}).sessions,
   readHostStatus: () =>
     Promise.resolve(
       makeMe.aHostStatus.with({ cpuPercent: null, freeBytes: null }).please(),
     ),
-  openTerminal: () => {
-    throw new Error("Unexpected terminal attach");
-  },
 };
 
 type Shown = { readonly work: PublishedWork; readonly showsIntent: boolean };

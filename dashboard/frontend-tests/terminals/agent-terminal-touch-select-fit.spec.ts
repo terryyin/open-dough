@@ -1,163 +1,111 @@
-// The paused terminal text that phone Select shows, where the screen under it
-// is not simply the latest output at full height: after an application that
-// scrolls its own output was swiped to an earlier screen, and when the
-// visible area shrinks under a soft keyboard or turns with the device. Runs
-// through an explicit terminal WebSocket substitute; see
-// ./agent-terminal-touch-select.spec.ts for the other variants.
-
-import { expect, test } from "../../test-support/support/frontendApp.ts";
-import {
-  openFrontendTerminalByTouch,
-  reportedSize,
-  travelOverRows,
-} from "../../test-support/support/frontendTouchTerminal.ts";
+import { expect, onTestFinished, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { landscape } from "../navigation/board-touch-page.ts";
+import { terminal } from "../sessions/session-terminal-page.ts";
 import {
   conversationLine,
   selfScrollingApplication,
-} from "../../test-support/support/terminalSubstituteApplication.ts";
-import { box } from "../../test-support/pageLayout.ts";
-import { resizeUntilArranged } from "../../test-support/sidePanelWidthPage.ts";
-import { pausedHidden } from "../../test-support/terminalPausedScrollPage.ts";
+} from "./terminal-test-output.ts";
 import {
-  expectNoTerminalText,
-  expectTerminalText,
-} from "../../test-support/terminalScreenPage.ts";
+  drawnRows,
+  liveScreen,
+  mountTouchTerminal,
+  showsRow,
+  socketSize,
+  swipeTerminal,
+  terminalKey,
+} from "./terminal-touch-input.ts";
 import {
-  expectLive,
-  expectPaused,
   expectPausedOverScreen,
   pausedLines,
   pausedText,
-  selectKey,
+  returnToTerminal,
+  selectOutput,
   selectPausedRange,
-  selectedText,
-} from "../../test-support/terminalSelectPage.ts";
-import { phoneLaunchTouchViewport } from "../../test-support/touchLaunchPage.ts";
-import {
-  clearSoftKeyboardViewport,
-  expectControlInVisualViewport,
-  focusByTouch,
-  scrollByTouch,
-  simulateSoftKeyboardViewport,
-  tapTerminalKey,
-} from "../../test-support/touchTerminalPage.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+} from "./terminal-paused-output.ts";
 
-const { portrait, landscape } = phoneLaunchTouchViewport;
-test.use({ viewport: portrait, hasTouch: true });
-
-const session = (title: string) =>
-  makeMe.aLaunchRecord
-    .adHoc({ instruction: "select", title })
-    .inClaudeSession({ sessionId: "select-fit-1", shortId: "selfit01" })
-    .please();
-
-test("after an application scrolled itself, Select pauses that earlier screen, and a finger on it reaches neither the application nor the terminal", async ({
-  page,
-  frontendServices,
-}) => {
+test("Select pauses an application-scrolled screen without giving its next swipe to the live terminal", async () => {
   const lines = 60;
   const shown = 10;
-  const latest = lines - shown + 1;
-  const { panel, screen, input, sent, sizes } =
-    await openFrontendTerminalByTouch(
-      page,
-      frontendServices,
-      session("Phone select scrolled session"),
-      { application: selfScrollingApplication({ lines, shown }) },
-    );
-  await expectTerminalText(panel, conversationLine(lines));
-  await focusByTouch(panel);
-  // Five and a half rows of finger travel show a screen five lines earlier.
-  const steps = 5;
-  const travel = await travelOverRows(screen, reportedSize(sizes).rows, steps);
-  await scrollByTouch(page, screen, travel);
-  const earliest = latest - steps;
-  await expectTerminalText(panel, conversationLine(earliest));
-  await expectNoTerminalText(panel, conversationLine(lines));
-  const swiped = sent.length;
+  const program = selfScrollingApplication({ lines, shown });
+  const { attachment, sent } = await mountTouchTerminal(
+    "Application scroll then Select",
+    {
+      program,
+      openingLines: [conversationLine(lines)],
+    },
+  );
+  const { rows } = socketSize(attachment.sizes);
+  const screen = liveScreen();
+  const travel = (screen.getBoundingClientRect().height * 5.4) / rows;
+  await swipeTerminal(screen, travel);
+  const earliest = lines - shown + 1 - 5;
+  await showsRow(conversationLine(earliest));
+  expect(drawnRows()).not.toContain(conversationLine(lines));
+  const sentAfterSwipe = sent().length;
 
-  await tapTerminalKey(panel, "Select");
-  await expectPaused(panel);
-  await expectPausedOverScreen(panel);
-  expect((await pausedLines(panel)).slice(0, shown + 1)).toEqual([
+  await selectOutput();
+  await expectPausedOverScreen();
+  expect(pausedLines().slice(0, shown + 1)).toEqual([
     ...Array.from({ length: shown }, (...[, row]) =>
       conversationLine(earliest + row),
     ),
-    // The draft row, with the space the application printed after its mark.
     "> ",
   ]);
-  // The application holds its conversation; the terminal holds this screen
-  // and no scrollback, so the paused text is that screen and no more.
-  expect(await pausedLines(panel)).toHaveLength(reportedSize(sizes).rows);
-  // Ready to copy from: a range across two of its lines selects.
-  const range = `${conversationLine(earliest + 1)}\n${conversationLine(earliest + 2)}`;
-  expect(
-    await selectPausedRange(
-      panel,
-      conversationLine(earliest + 1),
-      conversationLine(earliest + 2),
-    ),
-  ).toBe(range);
+  expect(pausedLines()).toHaveLength(rows);
+  const first = conversationLine(earliest + 1);
+  const last = conversationLine(earliest + 2);
+  expect(selectPausedRange(first, last).text).toBe(`${first}\n${last}`);
 
-  // The same stroke on the paused text is the browser's own: the application
-  // is given no wheel, so its screen is where it was on return.
-  await scrollByTouch(page, pausedText(panel), travel);
-  await tapTerminalKey(panel, "Select");
-  await expectLive(panel);
-  await expectTerminalText(panel, conversationLine(earliest));
-  await expectNoTerminalText(panel, conversationLine(earliest - 1));
-  await input.press("!");
-  await expect.poll(() => sent.slice(swiped)).toEqual(["!"]);
+  await swipeTerminal(pausedText(), travel);
+  await returnToTerminal();
+  await showsRow(conversationLine(earliest));
+  expect(drawnRows()).not.toContain(conversationLine(earliest - 1));
+  await userEvent.keyboard("!");
+  await expect.poll(() => sent().slice(sentAfterSwipe)).toEqual(["!"]);
 });
 
-test("the paused text keeps to the visible area above a soft keyboard, where a finger scrolls it, and after rotation", async ({
-  page,
-  frontendServices,
-}) => {
-  const { panel, sent } = await openFrontendTerminalByTouch(
-    page,
-    frontendServices,
-    session("Phone select fit session"),
-  );
-  await expectTerminalText(panel, "Claude Code");
-  await focusByTouch(panel);
-  await tapTerminalKey(panel, "Select");
-  await expectPaused(panel);
-  const text = pausedText(panel);
-  const paused = await pausedLines(panel);
+test("paused text fits above a soft keyboard, scrolls by touch, and survives rotation", async () => {
+  const { sent } = await mountTouchTerminal("Phone select fit", {
+    openingLines: ["attached abcdef12", "Claude Code"],
+  });
+  await selectOutput();
+  const paused = pausedLines();
   expect(paused.slice(0, 2)).toEqual(["attached abcdef12", "Claude Code"]);
-  const expectPausedFitsVisibleArea = async () => {
-    await expectPausedOverScreen(panel);
-    await expectControlInVisualViewport(text);
-    await expectControlInVisualViewport(selectKey(panel));
-    await expectPaused(panel);
-    expect(await pausedLines(panel)).toEqual(paused);
+  const original = Object.getOwnPropertyDescriptor(window, "visualViewport");
+  const viewport = window.visualViewport;
+  const restore = () => {
+    if (original) Object.defineProperty(window, "visualViewport", original);
+    else Reflect.deleteProperty(window, "visualViewport");
+    window.dispatchEvent(new Event("resize"));
   };
-
-  await test.step("above a soft keyboard, the whole paused screen is reached by an ordinary finger stroke", async () => {
-    await simulateSoftKeyboardViewport(page, 320);
-    await expect
-      .poll(async () => (await box(panel)).height)
-      .toBeCloseTo(320, 0);
-    await expectPausedFitsVisibleArea();
-    expect((await pausedHidden(panel)).below).toBeGreaterThan(100);
-    await scrollByTouch(page, text, -100, "vertical", undefined, text);
-    await expect
-      .poll(async () => (await pausedHidden(panel)).above)
-      .toBeGreaterThan(50);
-    // The device, not the dashboard, would select: the stroke selected nothing.
-    expect(await selectedText(panel)).toBe("");
+  onTestFinished(restore);
+  Object.defineProperty(window, "visualViewport", {
+    configurable: true,
+    value: { width: viewport?.width ?? innerWidth, height: 320, offsetTop: 0 },
   });
+  window.dispatchEvent(new Event("resize"));
+  await expect
+    .poll(() => terminal.element().getBoundingClientRect().height)
+    .toBeCloseTo(320, 0);
+  await expectPausedOverScreen();
+  const text = pausedText();
+  const control = terminalKey("Select").element();
+  expect(text.getBoundingClientRect().bottom).toBeLessThanOrEqual(321);
+  expect(control.getBoundingClientRect().bottom).toBeLessThanOrEqual(321);
+  expect(
+    text.scrollHeight - text.clientHeight - text.scrollTop,
+  ).toBeGreaterThan(100);
+  await swipeTerminal(text, -100);
+  await expect.poll(() => text.scrollTop).toBeGreaterThan(50);
+  expect(window.getSelection()?.toString()).toBe("");
+  expect(pausedLines()).toEqual(paused);
 
-  await test.step("after rotation", async () => {
-    await clearSoftKeyboardViewport(page);
-    await resizeUntilArranged(panel, landscape);
-    await expectPausedFitsVisibleArea();
-  });
-
-  await tapTerminalKey(panel, "Select");
-  await expectLive(panel);
-  await expectTerminalText(panel, "Claude Code");
-  expect(sent).toEqual([]);
+  restore();
+  await page.viewport(landscape.width, landscape.height);
+  await expectPausedOverScreen();
+  expect(pausedLines()).toEqual(paused);
+  await returnToTerminal();
+  await showsRow("Claude Code");
+  expect(sent()).toEqual([]);
 });

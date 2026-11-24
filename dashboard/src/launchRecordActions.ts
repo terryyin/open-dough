@@ -11,10 +11,8 @@ import type {
   MachineAnswer,
 } from "./agentLaunch.ts";
 import { readMachineSessions } from "./machineSessionsReads.ts";
+import type { MachineReadSource } from "./machineReadSource.ts";
 import {
-  requestDeleteRecord,
-  requestMarkDone,
-  requestMarkRead,
   requestRecoverSession,
   requestStopSession,
   type DeleteRecordOutcome,
@@ -48,10 +46,15 @@ export type LaunchRecordActions = {
 };
 
 export function useLaunchRecordActions({
+  requests,
   setRecords,
   setFacts,
   deletedAt,
 }: {
+  readonly requests: Pick<
+    MachineReadSource,
+    "deleteRecord" | "markDone" | "markRead"
+  >;
   readonly setRecords: (
     change: (known: readonly LaunchWithState[]) => readonly LaunchWithState[],
   ) => void;
@@ -75,29 +78,29 @@ export function useLaunchRecordActions({
 
   const markDone = useCallback(
     async (record: LaunchRecord): Promise<MarkDoneOutcome> => {
-      const marked = await requestMarkDone(record);
+      const marked = await requests.markDone(record);
       if (marked.kind === "marked") {
         replaceRecord(marked.record);
         return "marked";
       }
       return marked.kind;
     },
-    [replaceRecord],
+    [replaceRecord, requests],
   );
 
   const markRead = useCallback(
     async (record: LaunchRecord) => {
-      const read = await requestMarkRead(record);
+      const read = await requests.markRead(record);
       if (read === undefined) return false;
       replaceRecord(read);
       return true;
     },
-    [replaceRecord],
+    [replaceRecord, requests],
   );
 
   const deleteRecord = useCallback(
     async (record: LaunchRecord) => {
-      const answer = await requestDeleteRecord(record);
+      const answer = await requests.deleteRecord(record);
       if (answer.kind === "state-known") {
         replaceRecord(answer.record);
       } else if (answer.kind === "deleted") {
@@ -110,7 +113,7 @@ export function useLaunchRecordActions({
       }
       return answer;
     },
-    [replaceRecord, setRecords, deletedAt],
+    [replaceRecord, setRecords, deletedAt, requests],
   );
 
   const recoverSession = useCallback(

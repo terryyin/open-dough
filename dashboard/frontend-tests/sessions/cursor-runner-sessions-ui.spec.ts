@@ -1,187 +1,157 @@
-// Running Cursor sessions demand and feedback from synthetic runner answers —
-// no Cursor runner, fake-cursor, or dashboardServer. Page time is paused and
-// stepped, and each read is held at its route until the journey answers it,
-// so the ask gap is observed in page time and every reply arrives when the
-// journey says.
-
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { terminalPanel } from "../../test-support/terminalScreenPage.ts";
-import {
-  pausePageClock,
-  setPageVisibility,
-} from "../../test-support/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../test-support/pageRequestNotes.ts";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   askGapMs,
   type RunningCursorSessions,
 } from "../../src/cursorRunnerSessions.ts";
+import type { SessionServices } from "../../src/sessionServices.ts";
+import { mountSessionCards, revealPage } from "./session-card-mount.ts";
 import {
-  expect,
-  openFrontendTakenBacklog,
-  test,
-} from "../../test-support/support/frontendApp.ts";
-import type { FrontendServiceState } from "../../test-support/support/frontendServiceState.ts";
-import {
-  collapseRunningList,
-  openRunningList,
-} from "../../test-support/runningCursorList.ts";
-import {
-  countCursorSessionsAsks,
-  holdCursorSessionsReads,
-  trackCursorSessionsDemand,
-} from "../../test-support/support/cursorSessionsDemand.ts";
-import { parts, sessionEntriesIn } from "../../test-support/dashboardPage.ts";
+  sidebar,
+  sidebarButton,
+  sidebarSession,
+  takenAdHocSession,
+} from "./session-card-page.ts";
+import { terminal } from "./session-terminal-page.ts";
 
 const instruction = "hold this session";
-const slowerThanAskGapMs = askGapMs + 200;
-
-const heldRecord = makeMe.aLaunchRecord
+const record = makeMe.aLaunchRecord
   .adHoc({ instruction, title: instruction })
   .inCursorSession({
     sessionId: "12345678-1234-4123-8123-123456789abc",
     continuation: { workspace: "/Users/test/git/open-dough" },
   })
   .please();
-
-const heldSessions: RunningCursorSessions = makeMe.aRunningCursorSessions
-  .holding({ record: heldRecord, label: "working" })
+const heldSessions = makeMe.aRunningCursorSessions
+  .holding({ record, label: "working" })
   .please();
-const unreachable: RunningCursorSessions = makeMe.aRunningCursorSessions
-  .unreachable()
-  .please();
-const noHeldSessions: RunningCursorSessions =
-  makeMe.aRunningCursorSessions.please();
+const unreachable = makeMe.aRunningCursorSessions.unreachable().please();
+const empty = makeMe.aRunningCursorSessions.please();
 
-function holdCursorSession(frontendServices: FrontendServiceState) {
-  frontendServices.answerMachine(
-    makeMe.aMachineAnswer.observingOpen(heldRecord).please(),
-  );
+const running = sidebar.getByRole("region", {
+  name: "Running Cursor sessions",
+});
+const toggle = running.getByRole("button", {
+  name: "Running Cursor sessions",
+  exact: true,
+});
+const listed = running.getByRole("list");
+const row = listed.getByRole("button", { name: /Open Dough.*working/i });
+const openEntry = sidebarSession(instruction);
+const runningWords = "The Cursor runner is running.";
+
+async function openRunningCursorSessions() {
+  vi.useFakeTimers({ toFake: ["Date", "setTimeout", "clearTimeout"] });
+  const pending: ((answer: RunningCursorSessions) => void)[] = [];
+  let peak = 0;
+  let askedAt = 0;
+  const read = vi.fn<SessionServices["readRunningCursorSessions"]>(() => {
+    askedAt = Date.now();
+    return new Promise<RunningCursorSessions>((resolve) => {
+      pending.push(resolve);
+      peak = Math.max(peak, pending.length);
+    });
+  });
+  onTestFinished(() => {
+    for (const resolve of pending.splice(0)) resolve(empty);
+    vi.useRealTimers();
+  });
+  await mountSessionCards({
+    reading: makeMe.aMachineAnswer.observingOpen(record).please(),
+    readRunningCursorSessions: read,
+  });
+  await expect.element(takenAdHocSession(instruction)).toBeVisible();
+  await userEvent.click(sidebarButton);
+  expect(read).not.toHaveBeenCalled();
+  await userEvent.click(toggle);
+  await expect.poll(() => read.mock.calls).toHaveLength(1);
+  return {
+    read,
+    outstanding: () => pending.length,
+    peak: () => peak,
+    askedAt: () => askedAt,
+    answer: async (value: RunningCursorSessions) => {
+      const settle = pending.shift();
+      if (settle === undefined)
+        throw new Error("No Cursor sessions read is pending.");
+      const settledAt = Date.now();
+      settle(value);
+      await vi.advanceTimersByTimeAsync(0);
+      return settledAt;
+    },
+  };
 }
 
-test("slow Cursor sessions answers still publish under at most one owned read, and collapse or a hidden page ends or pauses that demand", async ({
-  page,
-  frontendServices,
-}) => {
-  holdCursorSession(frontendServices);
-  await pausePageClock(page);
-  const asked = await countCursorSessionsAsks(page);
-  const reads = await holdCursorSessionsReads(page);
-  try {
-    await openFrontendTakenBacklog(page);
-    await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
-    const demand = trackCursorSessionsDemand(page);
-    const shownTerminal = terminalPanel(page);
-    const firstRead = reads.nextArrival();
-    const running = await openRunningList(page);
-    const { sidebar, region } = running;
-    await firstRead;
+test("slow Cursor sessions answers still publish under at most one owned read, and collapse or a hidden page ends or pauses that demand", async () => {
+  const cursor = await openRunningCursorSessions();
+  await vi.advanceTimersByTimeAsync(askGapMs + 200);
+  expect(cursor.read).toHaveBeenCalledTimes(1);
+  expect(cursor.outstanding()).toBe(1);
 
-    // The first answer is slower than the ask gap: page time passes while
-    // it is held, and no second read starts.
-    await page.clock.runFor(slowerThanAskGapMs);
-    expect(await asked()).toBe(1);
-    expect(reads.held()).toBe(1);
-    await expect.poll(() => demand.outstanding()).toBe(1);
-    reads.answer(heldSessions);
-    await expect(region).toContainText("The Cursor runner is running.");
-    const row = running.heldRows(/Open Dough/);
-    await expect(row).toContainText("working");
-    await untilPageRequestsAnswered(page);
-    expect(demand.peak()).toBe(1);
+  const settledAt = await cursor.answer(heldSessions);
+  await expect.element(running.getByText(runningWords)).toBeVisible();
+  await expect.element(row).toBeVisible();
+  expect(cursor.peak()).toBe(1);
 
-    // The next read starts one whole ask gap after the answer settled.
-    await page.clock.runFor(askGapMs - 1);
-    expect(await asked()).toBe(1);
-    const followUp = reads.nextArrival();
-    await page.clock.runFor(1);
-    await followUp;
-    expect(await asked()).toBe(2);
+  await vi.advanceTimersByTimeAsync(settledAt + askGapMs - Date.now() - 1);
+  expect(cursor.read).toHaveBeenCalledTimes(1);
+  await vi.advanceTimersByTimeAsync(1);
+  expect(cursor.read).toHaveBeenCalledTimes(2);
+  expect(cursor.askedAt()).toBe(settledAt + askGapMs);
 
-    // Hidden, the page asks nothing more, even once the held read is
-    // answered and several gaps pass.
-    await setPageVisibility(page, "hidden");
-    reads.answer(heldSessions);
-    await untilPageRequestsAnswered(page);
-    await page.clock.runFor(slowerThanAskGapMs * 3);
-    expect(await asked()).toBe(2);
+  const seePage = revealPage();
+  await cursor.answer(heldSessions);
+  await vi.advanceTimersByTimeAsync(askGapMs * 3);
+  expect(cursor.read).toHaveBeenCalledTimes(2);
+  const visibleAt = Date.now();
+  seePage();
+  await expect.poll(() => cursor.read.mock.calls).toHaveLength(3);
+  expect(cursor.askedAt()).toBe(visibleAt);
+  await cursor.answer(heldSessions);
+  await expect.element(row).toBeVisible();
+  expect(cursor.peak()).toBe(1);
 
-    // Seen again, the expanded list asks at once and shows the answer.
-    const resumed = reads.nextArrival();
-    await setPageVisibility(page, "visible");
-    await resumed;
-    expect(await asked()).toBe(3);
-    reads.answer(heldSessions);
-    await expect(region).toContainText("The Cursor runner is running.");
-    await expect(row).toContainText("working");
-    await untilPageRequestsAnswered(page);
-    expect(demand.peak()).toBe(1);
-
-    // Collapsed, the list ends its demand: the armed next ask never starts.
-    await collapseRunningList(running);
-    expect(demand.outstanding()).toBe(0);
-    await page.clock.runFor(slowerThanAskGapMs * 3);
-    expect(await asked()).toBe(3);
-    expect(reads.held()).toBe(0);
-
-    await expect(shownTerminal).toHaveCount(0);
-    await expect(
-      sidebar.getByRole("button", { name: instruction, exact: true }),
-    ).toBeVisible();
-  } finally {
-    reads.releaseAll(noHeldSessions);
-  }
+  await userEvent.click(toggle);
+  await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+  await vi.advanceTimersByTimeAsync(askGapMs * 3);
+  expect(cursor.read).toHaveBeenCalledTimes(3);
+  expect(cursor.outstanding()).toBe(0);
+  await expect.element(openEntry).toBeVisible();
+  await expect.element(terminal).not.toBeInTheDocument();
 });
 
-test("while expanded, the list says it is reading, then follows each later read: unreachable, restored, and running with no held sessions", async ({
-  page,
-  frontendServices,
-}) => {
-  holdCursorSession(frontendServices);
-  await pausePageClock(page);
-  const asked = await countCursorSessionsAsks(page);
-  const reads = await holdCursorSessionsReads(page);
-  // Lets one settled ask gap of page time pass and answers the read it
-  // starts.
-  const answerNextRead = async (answer: RunningCursorSessions) => {
-    await untilPageRequestsAnswered(page);
-    const next = reads.nextArrival();
-    await page.clock.runFor(askGapMs);
-    await next;
-    reads.answer(answer);
-  };
-  try {
-    await openFrontendTakenBacklog(page);
-    await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
-    const shownTerminal = terminalPanel(page);
-    const firstRead = reads.nextArrival();
-    const { sidebar, region, listed, heldRows } = await openRunningList(page);
-    await firstRead;
-    const row = heldRows(/Open Dough/);
-    await expect(region).toContainText("Reading the Cursor runner…");
-    await expect(listed).toHaveCount(0);
-    reads.answer(heldSessions);
-    await expect(region).toContainText("The Cursor runner is running.");
-    await expect(row).toContainText("working");
+test("while expanded, the list says it is reading, then follows each later read: unreachable, restored, and running with no held sessions", async () => {
+  const cursor = await openRunningCursorSessions();
+  await expect
+    .element(running.getByText("Reading the Cursor runner…"))
+    .toBeVisible();
+  await expect.element(listed).not.toBeInTheDocument();
 
-    await answerNextRead(unreachable);
-    await expect(region).toContainText("The Cursor runner cannot be reached.");
-    await expect(listed).toHaveCount(0);
-    await expect(
-      sidebar.getByRole("button", { name: instruction, exact: true }),
-    ).toBeVisible();
+  await cursor.answer(heldSessions);
+  await expect.element(running.getByText(runningWords)).toBeVisible();
+  await expect.element(row).toBeVisible();
+  await vi.advanceTimersByTimeAsync(askGapMs);
 
-    await answerNextRead(heldSessions);
-    await expect(region).toContainText("The Cursor runner is running.");
-    await expect(row).toContainText("working");
+  await cursor.answer(unreachable);
+  await expect
+    .element(running.getByText("The Cursor runner cannot be reached."))
+    .toBeVisible();
+  await expect.element(listed).not.toBeInTheDocument();
+  await expect.element(openEntry).toBeVisible();
+  await vi.advanceTimersByTimeAsync(askGapMs);
 
-    await answerNextRead(noHeldSessions);
-    await expect(listed).toHaveCount(0);
-    await expect(region).toContainText("The Cursor runner is running.");
-    await expect(region).not.toContainText("cannot be reached");
-    expect(await asked()).toBe(4);
+  await cursor.answer(heldSessions);
+  await expect.element(running.getByText(runningWords)).toBeVisible();
+  await expect.element(row).toBeVisible();
+  await vi.advanceTimersByTimeAsync(askGapMs);
 
-    await expect(shownTerminal).toHaveCount(0);
-  } finally {
-    reads.releaseAll(noHeldSessions);
-  }
+  await cursor.answer(empty);
+  await expect.element(listed).not.toBeInTheDocument();
+  await expect.element(running.getByText(runningWords)).toBeVisible();
+  await expect
+    .element(running.getByText(/cannot be reached/))
+    .not.toBeInTheDocument();
+  expect(cursor.read).toHaveBeenCalledTimes(4);
+  await expect.element(terminal).not.toBeInTheDocument();
 });

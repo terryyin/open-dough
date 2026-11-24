@@ -49,7 +49,9 @@ const unreadReviewReads: ReviewSource = {
 const unreadSessionServices: SessionServices = {
   readFinalReport: unread("final report"),
   readHostStatus: unread("host status"),
+  readRunningCursorSessions: unread("running Cursor sessions"),
   openTerminal: unreadSync("terminal attach"),
+  storeTerminalImage: unread("terminal image upload"),
 };
 
 const unreadDoneRecordReads: DoneRecordReadSource = {
@@ -84,6 +86,11 @@ const unreadObservation: PublishedObservationReadSource = {
 const unreadMachine: MachineReadSource = {
   readSessionsSince: unread("machine sessions"),
   requestAcceptance: unread("agent acceptance"),
+  readHistorySince: unread("session history"),
+  waitForAttemptChange: unread("launch attempt change"),
+  deleteRecord: unread("session record deletion"),
+  markDone: unread("session mark done"),
+  markRead: unread("session mark read"),
 };
 
 // The page's reads with only SUPPLIED answering; every other read rejects.
@@ -94,6 +101,10 @@ export const pageReadsSupplying = (
   ci: unreadCiReads,
   review: unreadReviewReads,
   sessions: unreadSessionServices,
+  transcription: {
+    configured: unread("transcription configuration"),
+    transcribe: unread("instruction transcription"),
+  },
   done: unreadDoneRecordReads,
   storyNotes: unreadStoryNotes,
   ciFollowUp: unreadCiFollowUp,

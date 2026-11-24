@@ -13,7 +13,7 @@ import {
   type LaunchRecord,
   type LaunchWithState,
 } from "./agentLaunch.ts";
-import { readRunningCursorSessions } from "./agentLaunchClient.ts";
+import { useSessionServices } from "./pageReads.tsx";
 import {
   askGapMs,
   cursorRunnerSentence,
@@ -61,6 +61,7 @@ export function RunningCursorSessions({
   readonly divider: ReactNode;
 }) {
   const projects = useProjects();
+  const { readRunningCursorSessions } = useSessionServices();
   const contentId = useId();
   const [listed, setListed] = useState<Listed | undefined>();
   // At most one owned read while the sidebar and section are open. Schedule
@@ -111,7 +112,7 @@ export function RunningCursorSessions({
       clearWaiting();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [shown, open]);
+  }, [shown, open, readRunningCursorSessions]);
   const sessions =
     listed !== undefined &&
     listed !== "unanswered" &&
