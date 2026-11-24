@@ -5,13 +5,13 @@ import path from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
+  readUsageHistory,
   taskUsage,
   usageHistoryFile,
   writeUsageHistory,
 } from "../../server/usageHistory.ts";
+import { importUsageHistory } from "../../server/usageImport.ts";
 import {
-  readImported,
-  runImport,
   writeClaudeSession,
   writeCodexSession,
 } from "../../test-support/usage-history/importHarness.ts";
@@ -35,8 +35,15 @@ const recoveryLaunch = () =>
     });
 const codexRoot = (home: string) => path.join(home, ".codex/sessions");
 const claudeRoot = (home: string) => path.join(home, ".claude/projects");
-const importSessions = (home: string) =>
-  runImport(home, codexRoot(home), ["--claude-root", claudeRoot(home)]);
+const importOptions = (home: string) =>
+  makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [codexRoot(home)],
+      claudeRoots: [claudeRoot(home)],
+    })
+    .please();
 
 // A launched Codex session with one response of 17 output tokens.
 function codexSessionFile(home: string) {
@@ -110,66 +117,70 @@ function archivedSession(plain: string) {
   };
 }
 
-const readerGapsOf = (home: string, file: string) =>
-  readImported(home).gaps.filter(
+const readerGapsOf = async (store: string, file: string) =>
+  (await readUsageHistory(store)).gaps.filter(
     (gap) => gap.source?.kind === "native" && gap.source.file === file,
   );
 
-test("Import reports a malformed Codex row as a gap naming its host and file", ({
+test("Import reports a malformed Codex row as a gap naming its host and file", async ({
   machine: { home },
 }) => {
   const session = plainSession(codexSessionFile(home));
+  const options = importOptions(home);
   session.cutLastRow();
 
-  importSessions(home);
+  await importUsageHistory(options);
 
-  expect(readerGapsOf(home, session.file)).toContainEqual(
+  expect(await readerGapsOf(options.store, session.file)).toContainEqual(
     expect.objectContaining({ code: "malformed-native-row", host: "codex" }),
   );
 });
 
-test("Import drops a Codex malformed-row gap once the row is complete", ({
+test("Import drops a Codex malformed-row gap once the row is complete", async ({
   machine: { home },
 }) => {
   const session = plainSession(codexSessionFile(home));
+  const options = importOptions(home);
   session.cutLastRow();
-  importSessions(home);
+  await importUsageHistory(options);
 
   session.completeLastRow();
-  importSessions(home);
+  await importUsageHistory(options);
 
-  expect(readerGapsOf(home, session.file)).toEqual([]);
+  expect(await readerGapsOf(options.store, session.file)).toEqual([]);
 });
 
 test("Refresh drops a Claude unreadable-stream gap once the stream is readable", async ({
   machine,
 }) => {
   const session = archivedSession(claudeSessionFile(machine.home));
+  const options = importOptions(machine.home);
   session.corrupt();
-  importSessions(machine.home);
+  await importUsageHistory(options);
   const usage = await usageServer(machine);
 
   session.restore();
   await usage.refresh();
 
-  expect(readerGapsOf(machine.home, session.file)).toEqual([]);
+  expect(await readerGapsOf(options.store, session.file)).toEqual([]);
 });
 
 test("Rereading a session keeps its stored host-less reader gap", async ({
   machine: { home },
 }) => {
   const file = codexSessionFile(home);
+  const options = importOptions(home);
   // Deliberately old wire shape: this gap has no host even though its source
   // is the session being reread.
   const legacy = {
     code: "malformed-native-row",
     source: { kind: "native" as const, file, line: 999 },
   };
-  await writeUsageHistory({ gaps: [legacy] }, usageHistoryFile(home));
+  await writeUsageHistory({ gaps: [legacy] }, options.store);
 
-  importSessions(home);
+  await importUsageHistory(options);
 
-  expect(readerGapsOf(home, file)).toContainEqual(legacy);
+  expect(await readerGapsOf(options.store, file)).toContainEqual(legacy);
 });
 
 test("Refresh counts a response once its unreadable stream is restored", async ({
@@ -177,10 +188,11 @@ test("Refresh counts a response once its unreadable stream is restored", async (
 }) => {
   const { home } = machine;
   const session = archivedSession(codexSessionFile(home));
+  const options = importOptions(home);
   // An earlier check saw the session before its response was written, so
   // Refresh must count the restored response rather than reuse that count.
   session.holdNoRows();
-  importSessions(home);
+  await importUsageHistory(options);
   const usage = await usageServer(machine);
   session.corrupt();
   await usage.refresh();
@@ -188,7 +200,7 @@ test("Refresh counts a response once its unreadable stream is restored", async (
   session.restore();
   await usage.refresh();
 
-  const history = readImported(home);
+  const history = await readUsageHistory(options.store);
   const task = Object.values(history.tasks).find(
     (candidate) => candidate.identity === identity,
   );

@@ -1,8 +1,14 @@
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import { importUsageHistory } from "../../server/usageImport.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
 import {
   expect,
@@ -10,12 +16,10 @@ import {
 } from "../../test-support/usage-history/retainedUsageTest.ts";
 import {
   nativeFile,
-  readImported,
-  runImport,
   writeClaudeSession,
 } from "../../test-support/usage-history/importHarness.ts";
 
-test("imports retained Claude root and explicitly joined worker messages once across streaming updates and resumed tasks", ({
+test("imports retained Claude root and explicitly joined worker messages once across streaming updates and resumed tasks", async ({
   home,
   root,
 }) => {
@@ -151,25 +155,35 @@ test("imports retained Claude root and explicitly joined worker messages once ac
       })
       .please(),
   ]);
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  const history = readImported(home);
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claudeRoot],
+    })
+    .please();
+  await importUsageHistory(options);
+  const history = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   const task = Object.values(history.tasks).find(
     (item) => item.kind === "launch",
   );
   assert(task);
-  expect(task.requested).toEqual(
-    expect.objectContaining({ model: "requested-model", effort: "high" }),
-  );
+  expect(task.requested).toMatchObject({
+    model: "requested-model",
+    effort: "high",
+  });
   const usage = taskUsage(history, task.id);
   expect(usage.requests).toBe(3);
-  expect(usage.tokens).toEqual(
-    expect.objectContaining({
-      uncachedInput: 6,
-      cacheRead: 26,
-      cacheWrite: 18,
-      output: 15,
-    }),
-  );
+  expect(usage.tokens).toMatchObject({
+    uncachedInput: 6,
+    cacheRead: 26,
+    cacheWrite: 18,
+    output: 15,
+  });
   // Each response read keeps its cache-write split.
   const split = (name: "cacheWrite5m" | "cacheWrite1h") =>
     Object.values(history.observations).reduce(
@@ -185,24 +199,20 @@ test("imports retained Claude root and explicitly joined worker messages once ac
   const worker = observed.get("msg-worker");
   const later = observed.get("msg-later");
   assert(own && worker && next && later);
-  expect(own).toEqual(
-    expect.objectContaining({
-      at: "2026-11-14T10:00:00.000Z",
-      lastAt: "2026-11-14T10:00:01.000Z",
-      settings: { model: "observed-model", effort: "medium" },
-      rootTurnId: "launch-input",
-      coverage: "measured",
-    }),
-  );
+  expect(own).toMatchObject({
+    at: "2026-11-14T10:00:00.000Z",
+    lastAt: "2026-11-14T10:00:01.000Z",
+    settings: { model: "observed-model", effort: "medium" },
+    rootTurnId: "launch-input",
+    coverage: "measured",
+  });
   expect(own.gaps).not.toContain("contradictory-lineage");
-  expect(worker).toEqual(
-    expect.objectContaining({
-      agentId: "worker-1",
-      parentSessionId: sessionId,
-      settings: { model: "worker-model", effort: "high" },
-      rootTurnId: "launch-input",
-    }),
-  );
+  expect(worker).toMatchObject({
+    agentId: "worker-1",
+    parentSessionId: sessionId,
+    settings: { model: "worker-model", effort: "high" },
+    rootTurnId: "launch-input",
+  });
   expect(
     history.associations[worker.id]?.sources.some((source) =>
       source.file.endsWith(`${sessionId}.jsonl`),
@@ -219,8 +229,14 @@ test("imports retained Claude root and explicitly joined worker messages once ac
   expect(JSON.stringify(history)).not.toMatch(
     /private launch|private worker|private notification|private landing/,
   );
-  runImport(home, root, ["--claude-root", claudeRoot]);
-  expect(readImported(home)).toEqual(history);
+  await importUsageHistory(options);
+  expect({
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  }).toEqual(history);
   rmSync(claudeRoot, { recursive: true });
-  expect(readImported(home)).toEqual(history);
+  expect({
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  }).toEqual(history);
 });

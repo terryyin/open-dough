@@ -161,13 +161,25 @@ specs reuse the established inputs with no independent refactor candidate.
 ### 4. Claude transcripts import through the typed importer
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: the eight files pass with no command start
 
 Convert `claude-lineage-size`, `claude-usage-split`, `native-reader-gaps`,
 `claude-completion`, `native-line-separators`, `claude-usage`,
 `claude-nested-workers` and `claude-completion-replay`, passing the
 Claude roots as options.
+
+Proof result: all 18 cases passed across the same eight specs, with 35 usage
+command calls replaced. The long-lineage case calls the typed importer in a
+same-process Node worker, verifies its 128 MiB old-generation limit and exit,
+then checks the stored requests, tokens and response provenance. Summed case
+time fell from 23,557 ms to 7,177 ms and runner time from 14,048 ms to 5,866 ms.
+With Node 24.21.0 and two workers, natural one-minute load was 8.85–9.59
+before and 8.35–9.25 after. The checkout's Git evidence directory keeps
+`slice-4-before.json`, `slice-4-after-confirmed.json` and the observations
+and per-case comparison in `slice-4-implementation.md`. Dashboard typecheck
+passed. The test-local worker is the only bounded-heap caller of this kind.
+Changes stayed in the subject specs and needed no independent refactor.
 
 ### 5. Command cases keep only what the command owns
 
@@ -208,6 +220,11 @@ starts, summed case time, elapsed time and every case against the
 consumer trace shows unused and run `e2e/configuration/system-settings-usage*`
 if the harness changed. Update the
 [later families' recount](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families).
+
+The consumer trace identified `system-settings-usage-tools.spec.ts` calling
+`runImport` with a Claude root to arrange the initial store. Account for
+that call before removing the export and verify the existing chart, detail
+and Refresh journey with the same evidence.
 
 ## Concern evidence
 

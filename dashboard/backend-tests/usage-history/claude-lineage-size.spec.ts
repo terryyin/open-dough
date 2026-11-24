@@ -1,19 +1,23 @@
 import assert from "node:assert/strict";
+import { once } from "node:events";
+import { readFileSync } from "node:fs";
+import { Worker } from "node:worker_threads";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { keepLaunchStore } from "../../test-support/support/launchStore.ts";
-import { taskUsage } from "../../server/usageHistory.ts";
+import {
+  readUsageHistory,
+  taskUsage,
+  usageHistoryFile,
+} from "../../server/usageHistory.ts";
+import type { UsageResponses } from "../../server/usageResponsesFile.ts";
 import {
   expect,
   test,
 } from "../../test-support/usage-history/retainedUsageTest.ts";
-import {
-  readImported,
-  runImport,
-  writeClaudeSession,
-} from "../../test-support/usage-history/importHarness.ts";
+import { writeClaudeSession } from "../../test-support/usage-history/importHarness.ts";
 
-test("imports a long Claude parent chain within bounded memory and retains one response charge with its provenance", ({
+test("imports a long Claude parent chain within bounded memory and retains one response charge with its provenance", async ({
   home,
   root,
 }) => {
@@ -53,13 +57,36 @@ test("imports a long Claude parent chain within bounded memory and retains one r
     });
   }
   const file = writeClaudeSession(claude, transcript.please());
-  runImport(
-    home,
-    root,
-    ["--claude-root", claude],
-    ["--max-old-space-size=128"],
+  const options = makeMe.aUsageImportOptions
+    .with({
+      home,
+      store: usageHistoryFile(home),
+      codexRoots: [root],
+      claudeRoots: [claude],
+    })
+    .please();
+  // The worker gives the importer its own bounded heap in this process.
+  const importer = new URL("../../server/usageImport.ts", import.meta.url);
+  const source = `
+    import { workerData } from "node:worker_threads";
+    import { importUsageHistory } from ${JSON.stringify(importer.href)};
+    await importUsageHistory(workerData);
+  `;
+  const worker = new Worker(
+    new URL(`data:text/javascript,${encodeURIComponent(source)}`),
+    { workerData: options, resourceLimits: { maxOldGenerationSizeMb: 128 } },
   );
-  const history = readImported(home);
+  try {
+    expect(worker.resourceLimits?.maxOldGenerationSizeMb).toBe(128);
+    const [code] = (await once(worker, "exit")) as [number];
+    expect(code).toBe(0);
+  } finally {
+    await worker.terminate();
+  }
+  const history = {
+    ...(await readUsageHistory(options.store)),
+    ...(JSON.parse(readFileSync(options.responses, "utf8")) as UsageResponses),
+  };
   const task = Object.values(history.tasks)[0];
   assert(task);
   expect(taskUsage(history, task.id)).toMatchObject({
