@@ -1,11 +1,16 @@
 /* Launch and project dialogs share this frame layout: a scrolling body with
    effects and actions below, using ./frame-controls.css for controls. */
 
-/* The body scrolls within the viewport; effects and actions stay in view. */
+/* The body scrolls within the viewport; effects and actions stay in view.
+   The dialog keeps a window gap above and below, and its form or step fills
+   the room inside its 1px top and bottom border. */
 .launch-dialog {
+  --launch-dialog-window-gap: 1.5rem;
+  --launch-dialog-footer-padding-block: var(--space-3);
+
   box-sizing: border-box;
   width: min(40rem, calc(100% - 1.5rem));
-  max-height: calc(100dvh - 1.5rem);
+  max-height: calc(100dvh - var(--launch-dialog-window-gap));
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   padding: 0;
@@ -23,7 +28,7 @@
 .launch-changes {
   display: flex;
   flex-direction: column;
-  max-height: calc(100dvh - 1.5rem - 2px);
+  max-height: calc(100dvh - var(--launch-dialog-window-gap) - 2px);
 }
 
 /* The choices stay behind the confirmation of existing changes, kept as
@@ -175,8 +180,15 @@
 }
 
 /* Short windows leave the effects and actions visible. The instruction
-   scrolls within its field instead of growing taller than the dialog body. */
+   scrolls within its field instead of growing taller than the dialog body.
+   The dialog drops its window gap and the footer gives up padding, so the
+   field still fits when the effects wrap onto more lines. */
 @media (height <= 30rem) {
+  .launch-dialog {
+    --launch-dialog-window-gap: 0px;
+    --launch-dialog-footer-padding-block: var(--space-2);
+  }
+
   .launch-dialog textarea {
     max-height: max(var(--control-size), 20dvh);
   }
@@ -211,7 +223,7 @@
   flex-direction: column;
   gap: var(--space-2);
   border-top: 1px solid var(--line);
-  padding: var(--space-3) var(--space-5);
+  padding: var(--launch-dialog-footer-padding-block) var(--space-5);
   background: var(--surface);
 }
 

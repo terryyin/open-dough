@@ -370,7 +370,15 @@ CI run 45314128135 ended `Distribution Tests (3/3)` at its 320 s deadline on
 `bc255e62`; recent main runs of that shard already took up to 298 s. With the
 developer's acceptance, `rebalance-ci-shards` moved
 `Distribution/tests/skills/dough-story-wrap-up/**` into share 2, lowering the
-slowest share's recent median total from 767 s to 681 s. Fit the 15 active-minute limit by keeping representative
+slowest share's recent median total from 767 s to 681 s.
+
+CI run 45319588627 on the trunk merge `8b8a4ea2` failed two jobs that trunk's
+own `ba51ccece` also failed: a feedback-maintenance expectation kept the old
+"default main" wording, and the longer "Execution checkout" footer wrapped on
+Linux fonts and clipped the launch dialog's field in a short window. The
+expectation follows the rename, and short windows give the dialog the full
+height with a tighter footer; see
+[the diagnosis record](diagnosis-trunk-rename-wording.md). Fit the 15 active-minute limit by keeping representative
 rendered scenarios and checking distinct variants at their smallest owner.
 
 ## Assertion map

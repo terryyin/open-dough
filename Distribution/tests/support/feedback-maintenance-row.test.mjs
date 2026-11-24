@@ -76,11 +76,11 @@ test("a reached date nothing served says why it did not start", () => {
   );
   assert.equal(
     maintenanceRowText(answer.row),
-    "Feedback maintenance due since 2026-10-28; not started: default main has existing changes (1 changed path)",
+    "Feedback maintenance due since 2026-10-28; not started: execution checkout has existing changes (1 changed path)",
   );
   assert.equal(
     maintenanceStatusText(answer),
-    "Due since 2026-10-28. Last automatic launch: not started (due 2026-10-28): default main has existing changes (1 changed path).",
+    "Due since 2026-10-28. Last automatic launch: not started (due 2026-10-28): execution checkout has existing changes (1 changed path).",
   );
   assert.equal(
     heldReason({ kind: "failed", reason: "refused", explanation: "No." }),
