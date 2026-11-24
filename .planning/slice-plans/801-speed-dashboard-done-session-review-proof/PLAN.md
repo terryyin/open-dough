@@ -206,7 +206,7 @@ handoffs.
 ### 7. Review the evidence of the chosen session and run
 
 Type: Behavior
-Status: planned
+Status: done
 
 **Roster.** `review/story-review-details-runs.spec.ts`.
 `sessions/recently-done-ad-hoc-{branch-result,comparisons,review-gaps,session-commits,session-runs}.spec.ts`
@@ -328,7 +328,14 @@ CI run 45305912032 failed on the trunk merge `28407491` in
 `stories/story-note-voice.spec.ts`: Stop pressed before the recorder encoded
 any audio produced an empty clip. Note-clip helpers now wait for recorded
 audio before Stop; see
-[the diagnosis record](diagnosis-story-note-voice-clip.md). Fit the 15 active-minute limit by keeping representative
+[the diagnosis record](diagnosis-story-note-voice-clip.md).
+
+CI run 45308457713 on `0c1017fe` lost one Vitest browser connection between
+files in `dashboard-frontend` shard 1/2; every case that ran passed. Two
+diagnosis rounds found no test closing or exhausting the page, and a hosted
+probe passed 10 of 10 shard runs with memory, `/tmp` and `/dev/shm` far from
+their limits, so the attempt is disposed of as a runner fault; see
+[the diagnosis record](diagnosis-browser-connection-closed.md). Fit the 15 active-minute limit by keeping representative
 rendered scenarios and checking distinct variants at their smallest owner.
 
 ## Assertion map
@@ -449,3 +456,12 @@ support removed: `expectActionGlyph`, `putFrontendStories`,
 | --- | --- | --- |
 | `review/story-review-action.spec.ts` — "the inspection group sits below the launch group, wraps in reading order, and the keyboard reaches Review changes from Inspect story" (deleted) | Starts above the inspection group; Inspect, Notes, Review on one line when roomy, in reading order when wrapped (1920, 1440, narrow, 2x zoom); leading git-compare and trailing arrow glyphs; Enter on Inspect → Hide detail focused, detail shown; Tab → Notes → Review; Enter → Intent Changes selected and focused | Action spec "at 1920 px …" and "at 320 px … the keyboard reaches Review changes from Inspect story and opens Changes focused" (one-line at 1920, reading order at 320; glyph placement, each glyph aria-hidden at 3:1 contrast with the accessible name kept "Review changes"; same keyboard path and Changes focus). Each distinguishes a reordered group, a lost glyph or a broken focus handoff. 1440 and 2x zoom are between the two proven widths. |
 | `review/story-review-action.spec.ts` — "`<column>` card Review changes eligibility and route with `<source>`" (8 cases, deleted) | launch/preparation/claim offer Review in Backlog and Taken, open Changes with `data-selected-story` and focused tab; none offers nothing | Rule: `backend-tests/review/story-review-workspace.spec.ts` (preparation counts like a start; found worktree; none). Rendered: action spec "a Backlog card offered Review changes by a claim / a Taken card … by a preparation / a Backlog card … by a launch opens its Changes with the tab focused" and "a Backlog/Taken card with no workspace offers no Review changes". |
+
+Slice 7. The `sessions/recently-done-ad-hoc-*` specs stay legacy for SEED-426.
+One mounted case added to `intent/intent-story-compare-done.spec.ts`
+("compare-done"), which reads the Done story's comparison through Review
+changes' own selection and `RunChoice`. No support was left without callers.
+
+| Old case | Distinct observations | Replacement or equivalent |
+| --- | --- | --- |
+| `review/story-review-details-runs.spec.ts` — "a Done card opens on the latest captured run, keeping an older choice across Refresh" (deleted) | Opens on Landed runs with the newer run chosen; runs offered in read order, newest first; choosing each run names its launch time, "Refinement launched", `origin/main` and `From <base> to <revision>.`; that run's file reads its own diff; Refresh keeps the older choice | Default newer run and choice: compare-done "a Done story keeps its published locations when choosing captured changes…". Launch time, destination and endpoints: compare-done "Intent names the launch, destination and captured revisions of the landed run being compared". Order: new compare-done "Landed runs lists the captured runs as read, newest first, and the keyboard moves to the older run's changes" (fails when `RunChoice` reverses the options; also proves keyboard switching). Exact run file read: `intent/intent-story-compare-fixed.spec.ts` "a captured landed run reads its own diff pair…" (path, run baseline and tree). Refresh retention: compare-done "a newer default run moves an unchosen run but not a chosen one…" (stronger than the old case, which had no newer default), plus `review/story-review-details.spec.ts` "the chosen session run survives Refresh…" for "Review refreshed". Card-to-Review handoff: slice 6. Diff rendering: the diff reader specs. |

@@ -3,6 +3,7 @@
 // its captured landed runs. Its Intent locations stay on the story's landed
 // result whatever is chosen. The case's review answers own the Git judgment.
 import { expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { StoryReview } from "../../src/storyReviewContract.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
@@ -24,6 +25,9 @@ const newer = makeMe.aReviewRun
   .comparing(oid("3"), oid("4"))
   .please();
 const runs = [newer, older];
+// How Intent names a run's launch.
+const launched = (run: typeof older) =>
+  new Date(run.launchedAt).toLocaleString();
 const landedOn = (run: typeof older, name: string) =>
   makeMe.aStoryReview.landed().adding(`${name}.txt`).onRun(run, runs).please();
 const landedRuns: Readonly<Record<string, StoryReview>> = {
@@ -90,15 +94,31 @@ test("Intent names the launch, destination and captured revisions of the landed 
     .poll(story.revisions)
     .toMatch(/Refinement launched .*, delivered to origin\/main\./);
   await expect
-    .element(
-      story.header.getByText(new Date(older.launchedAt).toLocaleString(), {
-        exact: true,
-      }),
-    )
+    .element(story.header.getByText(launched(older), { exact: true }))
     .toBeVisible();
   await expect
     .poll(story.revisions)
     .toContain(`From ${oid("1")} to ${oid("2")}.`);
+});
+
+test("Landed runs lists the captured runs as read, newest first, and the keyboard moves to the older run's changes", async () => {
+  await openDoneWithCapturedRuns();
+  const story = intentStoryCompare();
+  await story.chooseTab("Changes");
+  await story.choose("Landed runs");
+  await expect.element(story.run).toHaveValue(newer.key);
+  const listed = [...story.run.element().querySelectorAll("option")];
+  expect(listed.map((option) => option.value)).toEqual(
+    runs.map((run) => run.key),
+  );
+  runs.forEach((run, at) => {
+    expect(listed[at]?.textContent).toContain(launched(run));
+  });
+
+  await userEvent.click(story.run.getByRole("option", { selected: true }));
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.element(story.run).toHaveValue(older.key);
+  await expect.poll(story.outside).toContain("older.txt");
 });
 
 test("a newer default run moves an unchosen run but not a chosen one while the old run is still listed", async () => {
