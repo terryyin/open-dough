@@ -212,6 +212,10 @@ the exact whole-story target. HTTP refused forged pairs and preserved the
 widened incoming line in native input.
 `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/intent/intent-published-range-source.spec.ts e2e/intent/intent-story-follow-up.spec.ts e2e/sessions/recently-done-published-sessions.spec.ts e2e/intent/intent-published-session-follow-up.spec.ts e2e/intent/intent-follow-up-notes.spec.ts e2e/intent/intent-story-completed.spec.ts e2e/intent/intent-story-completed-source.spec.ts e2e/review/story-review-diff-line-follow-up.spec.ts e2e/review/story-review-follow-up.spec.ts e2e/stories/recently-done-follow-up.spec.ts e2e/launches/agent-launch-follow-up-session.spec.ts --workers=1 --reporter=dot` passed all 21 cases.
 
+## Execution complete
+
+Product advice: Keep the covered Follow up behavior and its browser-to-native proof. The new HTTP launch cases use the existing Playwright backend runner. The queued [typed backend renovation](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#renovate-later-dashboard-backend-unit-test-families) owns replacing single-service cases with typed handler proof and keeping the exact delivery assertions at their consuming boundary.
+
 ## Story obligations
 
 ### G1. Retained sessions are included automatically
