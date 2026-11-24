@@ -22,7 +22,10 @@ import type { LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { storyComparisonOffered } from "./storyReviewWorkspace.ts";
+import {
+  hasRecordedStoryBranch,
+  storyComparisonOffered,
+} from "./storyReviewWorkspace.ts";
 import { useStoryComparison } from "./useStoryComparison.ts";
 
 // The selected story as Intent names it: an active story by its published
@@ -114,16 +117,21 @@ export function useIntentStoryLens({
     selectedIdentity === undefined
       ? undefined
       : lensStoryOf(work, selectedIdentity, doneRecord);
+  const taken = work?.taken.find(
+    ({ identity }) => identity === selectedIdentity,
+  );
+  const publishedReview =
+    story?.completed === true || hasRecordedStoryBranch(taken?.owner);
   const offered =
     story === undefined
       ? false
-      : story.completed || records !== undefined
+      : publishedReview || records !== undefined
         ? storyComparisonOffered(
             records,
             workspaces,
             source.id,
             story.identity,
-            story.completed,
+            publishedReview,
           )
         : undefined;
   const {
@@ -140,6 +148,7 @@ export function useIntentStoryLens({
     source: source.id,
     identity: story?.identity ?? "",
     completed: story?.completed ?? false,
+    taken: taken !== undefined,
     enabled: offered === true,
   });
   const comparison: LensComparison =

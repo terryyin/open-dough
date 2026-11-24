@@ -6,7 +6,10 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import type { StoryReview } from "../src/storyReviewContract.ts";
 import { runGit, gitProblem, type GitCall } from "./gitRunner.ts";
 import { executionCheckout } from "./executionCheckout.ts";
-import { completedStoryAttribution } from "./storyCompletedCommits.ts";
+import {
+  publishedStoryAttribution,
+  type PublishedStoryCommitEvidence,
+} from "./storyCompletedCommits.ts";
 import { publishedStoryEndpoints } from "./storyPublishedEndpoints.ts";
 import { trunkLess } from "./storyPublishedCommits.ts";
 import { compareOriginalTrees, listedFrom } from "./storyReviewComparison.ts";
@@ -38,28 +41,13 @@ export async function publishedStoryReview(
       signal,
       maxBuffer: 64 * 1024 * 1024,
     };
-    const git = async (...args: string[]) =>
-      (await runGit(args, call)).stdout.trim();
-    // Attribution composes on the claim walk endpoints already recovered.
-    const attributed = await completedStoryAttribution(
+    const compared = await publishedStoryComparison(
       claim,
       facts.completion,
+      facts.mode === "story-branch" ? facts.storyStart : undefined,
       call,
     );
-    if ("explanation" in attributed) return unavailable(attributed.explanation);
-    const less = await trunkLess(attributed.commits, facts.completion, call);
-    if (less === undefined)
-      return unavailable(
-        "This machine's Git cannot separate this story's published changes from other work.",
-      );
-    const tree = await git("rev-parse", `${facts.completion}^{tree}`);
-    // A resolved integration file includes both writers, regardless of whether
-    // reversing single-parent story commits could otherwise hide that file.
-    const mixed = new Map([...less.inseparable, ...attributed.resolutions]);
-    const withMerged =
-      facts.mode === "story-branch"
-        ? await compareOriginalTrees(facts.storyStart, tree, call)
-        : undefined;
+    if ("explanation" in compared) return unavailable(compared.explanation);
     return {
       kind: "published",
       completion: facts.completion,
@@ -72,14 +60,43 @@ export async function publishedStoryReview(
       agent: facts.agent,
       remote: "origin",
       target: source.ref,
-      baseline: less.tree,
-      tree,
-      files: await listedFrom(less.tree, tree, mixed, less.tree, call),
-      ...(withMerged === undefined ? {} : { withMerged }),
+      ...compared,
     };
   } catch (error) {
     return unavailable(
       `Published completion history could not be read: ${gitProblem(error)}`,
     );
   }
+}
+
+// The head and the story-owned commits yield the same comparison for live and
+// completed published reviews. Owning merge conflicts keep their literal base.
+export async function publishedStoryComparison(
+  evidence: PublishedStoryCommitEvidence,
+  head: string,
+  mergedFrom: string | undefined,
+  call: GitCall,
+) {
+  const attributed = await publishedStoryAttribution(evidence, head, call);
+  if ("explanation" in attributed) return attributed;
+  const less = await trunkLess(attributed.commits, head, call);
+  if (less === undefined)
+    return {
+      explanation:
+        "This machine's Git cannot separate this story's published changes from other work.",
+    };
+  const tree = (
+    await runGit(["rev-parse", `${head}^{tree}`], call)
+  ).stdout.trim();
+  const mixed = new Map([...less.inseparable, ...attributed.resolutions]);
+  const withMerged =
+    mergedFrom === undefined
+      ? undefined
+      : await compareOriginalTrees(mergedFrom, tree, call);
+  return {
+    baseline: less.tree,
+    tree,
+    files: await listedFrom(less.tree, tree, mixed, less.tree, call),
+    ...(withMerged === undefined ? {} : { withMerged }),
+  };
 }

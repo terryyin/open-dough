@@ -6,6 +6,7 @@ import {
 } from "../../../Distribution/tests/support/queued-repository.mjs";
 import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
 import { dashboardDeveloper } from "./startOriginPreparation.ts";
+import { byYui } from "./storyReviewTrunkAmbiguity.ts";
 import { yui } from "./storyReviewTrunkCommits.ts";
 import { branch } from "./storyReviewWorktree.ts";
 
@@ -43,12 +44,14 @@ export function takenBranchContributionHistory({
     })
     .withWorkspace(branch, { from: "take", agent: yui.agent })
     .withUnpublishedRevision("branch contribution", {
+      ...byYui,
       files: {
         "guides/branch.txt": "branch contribution\n",
         "guides/mixed.txt": "branch edit\n",
       },
     })
     .withUnpublishedRevision("merge trunk", {
+      ...byYui,
       parents: ["branch contribution", "incoming trunk"],
       files: {
         "guides/incoming.txt": "incoming trunk change\n",
@@ -59,6 +62,7 @@ export function takenBranchContributionHistory({
   const workspace = laterIntegrations
     ? integrated
         .withUnpublishedRevision("merge clean trunk", {
+          ...byYui,
           parents: ["merge trunk", "next trunk"],
           files: {
             "guides/second-incoming.txt": "more incoming trunk change\n",
@@ -66,6 +70,7 @@ export function takenBranchContributionHistory({
           },
         })
         .withUnpublishedRevision("merge later trunk", {
+          ...byYui,
           parents: ["merge clean trunk", "later trunk"],
           files: { "guides/later.txt": "merged after the chosen range\n" },
         })

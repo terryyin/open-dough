@@ -32,7 +32,7 @@ export function IntentComparedFile({
   );
   const settingsRevision =
     pathLanguage(file.path) === undefined
-      ? (reviewed.completion ?? tree)
+      ? (reviewed.completion ?? reviewed.publishedHead ?? tree)
       : undefined;
   const pinnedSyntax = useReviewDiffSyntaxHint(
     source,

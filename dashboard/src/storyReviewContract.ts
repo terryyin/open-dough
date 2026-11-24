@@ -92,6 +92,15 @@ export const storyReviewSchema = z
       withMerged: reviewComparisonSchema.optional(),
     }),
     z.object({
+      kind: z.literal("published-taken"),
+      head: objectIdSchema,
+      agent: z.string().min(1),
+      remote: z.string().min(1),
+      target: z.string().min(1),
+      ...fixedComparison,
+      withMerged: reviewComparisonSchema.optional(),
+    }),
+    z.object({
       kind: z.literal("landed"),
       landing: landedReviewContextSchema,
       ...fixedComparison,

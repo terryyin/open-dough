@@ -11,6 +11,7 @@ import { reviewRunChoice, reviewRunKey } from "../src/storyReviewLandedRun.ts";
 import type { AgentLaunchAnswer } from "./agentLaunchResponse.ts";
 import { agentProfileDirectoryOf } from "./recordsBesideBacklog.ts";
 import { withResponseSignal } from "./responseSignal.ts";
+import { RefusedRequest } from "./localOrigin.ts";
 import { knownSource } from "./sessionAdmission.ts";
 import { reviewInput, type StoryReviewInput } from "./storyReviewInput.ts";
 import type { AdmittedStoryReview } from "./storyReviewRequest.ts";
@@ -20,6 +21,7 @@ import {
 } from "./storyReviewRecordAdmission.ts";
 import { landedStoryReview } from "./storyReviewLanded.ts";
 import { publishedSessionReview } from "./publishedSessionReview.ts";
+import { publishedTakenReview } from "./storyReviewPublishedTaken.ts";
 import { historicalStoryReview } from "./storyReviewHistorical.ts";
 import { storyReviewSnapshot } from "./storyReviewWorkspaceSnapshot.ts";
 
@@ -50,6 +52,21 @@ export async function storyReview(
       input.now,
       signal,
     );
+  if ("subject" in input.read && input.read.taken === true) {
+    if (
+      input.read.completed === true ||
+      input.read.run !== undefined ||
+      input.read.reference !== undefined
+    )
+      throw new RefusedRequest(400, "The Taken review request is malformed.");
+    const { source, identity } = input.read.subject;
+    const published = await publishedTakenReview(
+      knownSource(source),
+      identity,
+      signal,
+    );
+    if (published !== undefined) return published;
+  }
   const request = await keptStoryReview(input);
   const choices =
     request.runs.length === 0

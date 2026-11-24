@@ -7,6 +7,7 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import type { ReviewedPairFile } from "../src/reviewedFileRead.ts";
 import type { ReviewedStorySubject } from "../src/reviewedWorkSubject.ts";
+import type { StoryReview } from "../src/storyReviewContract.ts";
 import type { ReviewedFile } from "../src/storyReviewFiles.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { executionCheckout } from "./executionCheckout.ts";
@@ -65,6 +66,20 @@ function belongsOnPublished(
   );
 }
 
+export function belongsOnPublishedStory(
+  review: Extract<StoryReview, { kind: "published" | "published-taken" }>,
+  file: HistoricalReviewedFileFields,
+): boolean {
+  const { withMerged } = review;
+  return (
+    file.tree === review.tree &&
+    (belongsOnPublished(review.files, review.baseline, file) ||
+      (withMerged !== undefined &&
+        file.baseline === withMerged.from &&
+        belongsOnRetainedPair(withMerged.files, file)))
+  );
+}
+
 export function belongsOnRetainedPair(
   files: readonly ReviewedFile[],
   fields: HistoricalReviewedFileFields,
@@ -113,13 +128,10 @@ async function admitPublishedCompletion(
         ? review.explanation
         : "Published comparison unavailable.",
     );
-  const withMerged = review.withMerged;
-  const listed =
-    belongsOnPublished(review.files, review.baseline, file) ||
-    (withMerged !== undefined &&
-      file.baseline === withMerged.from &&
-      belongsOnRetainedPair(withMerged.files, file));
-  if (completion !== review.completion || file.tree !== review.tree || !listed)
+  if (
+    completion !== review.completion ||
+    !belongsOnPublishedStory(review, file)
+  )
     throw new RefusedRequest(
       409,
       "The file or comparison does not belong to this published completion.",

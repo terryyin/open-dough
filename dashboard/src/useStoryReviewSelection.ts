@@ -23,6 +23,7 @@ export function useStoryReviewSelection({
   subject,
   round,
   completed = false,
+  taken = false,
   enabled = true,
   historical: historicalComparison = false,
   keyedBy,
@@ -31,6 +32,7 @@ export function useStoryReviewSelection({
   readonly subject: ReviewedWorkSubject;
   readonly round: number;
   readonly completed?: boolean | undefined;
+  readonly taken?: boolean;
   // A disabled selection reads nothing.
   readonly enabled?: boolean;
   // Historical Review asks for a completed result rather than a retained workspace.
@@ -45,6 +47,7 @@ export function useStoryReviewSelection({
     storyReviewQuery({
       subject,
       completed,
+      taken,
       historical: historicalComparison,
     }),
     { round, enabled },

@@ -4,6 +4,7 @@
 // the story's claim (`./localWorkspace.ts`). Several such worktrees are an
 // ambiguity the review explains instead of choosing.
 
+import type { TakenOwner } from "./agentAssignments.ts";
 import { launchSubject } from "./launchWorkflow.ts";
 import type { EstablishedContext, LaunchRecord } from "./launchRecord.ts";
 import type { LocalWorkspace } from "./localWorkspace.ts";
@@ -71,20 +72,22 @@ export function reviewWorkspaceOf<
     : { kind: "ambiguous", found: holding };
 }
 
+export const hasRecordedStoryBranch = (owner: TakenOwner | undefined) =>
+  owner?.status === "recorded" &&
+  owner.assignments.some(({ mode }) => mode === "story-branch");
+
 // Whether a story has a comparison to review, as every view that offers one
-// decides it: a completed story always does, since the boundary may recover
-// its published historical comparison; an active story does when a workspace
-// is named for it (`reviewWorkspaceOf`), including an ambiguous one the review
-// explains.
+// decides it. A recorded branch or completion is readable from origin;
+// legacy workspace review still uses the shared workspace rule.
 export function storyComparisonOffered(
   records: readonly LaunchRecord[] | undefined,
   workspaces: readonly LocalWorkspace[] | undefined,
   sourceId: string,
   identity: string,
-  completed: boolean,
+  publishedReview: boolean,
 ): boolean {
   return (
-    completed ||
+    publishedReview ||
     reviewWorkspaceOf(records, workspaces, sourceId, identity) !== undefined
   );
 }

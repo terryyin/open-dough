@@ -7,6 +7,7 @@ import {
   reviewsSessionCommits,
   type StoryReview,
 } from "./storyReviewContract.ts";
+import { shortRevision } from "./publishedWork.ts";
 import { LandedContext } from "./StoryReviewLandedContext.tsx";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 import { ContextLine } from "./StoryReviewContextLine.tsx";
@@ -22,6 +23,8 @@ import {
 export function reviewDescription(review: StoryReview | undefined) {
   if (review?.kind === "published")
     return "Read-only: this completed story's fixed changes from published completion and execution history.";
+  if (review?.kind === "published-taken")
+    return "Read-only: changes attributed to this story on its published branch.";
   if (reviewsPublishedSession(review)) return publishedSessionDescription;
   if (review?.kind === "session-commits") return sessionCommitsDescription;
   if (review?.kind === "branch-result")
@@ -65,6 +68,21 @@ export function ReviewContext({
           {new Date(review.doneAt).toLocaleString()}
         </time>
       </p>
+    );
+  if (review?.kind === "published-taken")
+    return (
+      <div>
+        <h3>Published story branch</h3>
+        <p>
+          {review.agent} · {reviewTargetName(review)}
+        </p>
+        <p>
+          Baseline <code>{shown?.comparison.from ?? review.baseline}</code>.
+        </p>
+        <p>
+          Head <code title={review.head}>{shortRevision(review.head)}</code>.
+        </p>
+      </div>
     );
   if (review?.kind !== "published") return null;
   return (

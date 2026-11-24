@@ -60,6 +60,7 @@ export function storyComparisonShown({
   };
   if (
     review?.kind === "published" ||
+    review?.kind === "published-taken" ||
     review?.kind === "landed" ||
     review?.kind === "session-commits" ||
     review?.kind === "published-session" ||
@@ -69,7 +70,9 @@ export function storyComparisonShown({
       { subject, ...fixedComparisonName(review) },
       { from: review.baseline, files: review.files },
       review.tree,
-      review.kind === "published" ? review.withMerged : undefined,
+      review.kind === "published" || review.kind === "published-taken"
+        ? review.withMerged
+        : undefined,
     );
   if (
     review?.kind === "snapshot" &&
@@ -92,6 +95,7 @@ function fixedComparisonName(
     {
       kind:
         | "published"
+        | "published-taken"
         | "landed"
         | "session-commits"
         | "published-session"
@@ -100,6 +104,7 @@ function fixedComparisonName(
   >,
 ) {
   if (review.kind === "published") return { completion: review.completion };
+  if (review.kind === "published-taken") return { publishedHead: review.head };
   if (review.kind === "landed") return { reference: review.landing.reference };
   return {};
 }

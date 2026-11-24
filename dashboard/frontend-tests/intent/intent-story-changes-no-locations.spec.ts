@@ -73,11 +73,15 @@ async function showsUnavailableChanges(explanation: string) {
     .not.toBeInTheDocument();
 }
 
-test("a Taken story no workspace on this machine holds keeps its explanation in Changes", async () => {
-  await openStoryChanges({ machine: makeMe.aMachineAnswer.please() });
-  await showsUnavailableChanges(
-    "No comparison is available for this story: no workspace on this machine holds it.",
-  );
+test("a Taken story keeps its published branch gap visible in Changes without a local worktree", async () => {
+  const explanation =
+    "The recorded story branch claude/story-a is not published on origin.";
+  await openStoryChanges({
+    machine: makeMe.aMachineAnswer.please(),
+    review: () =>
+      Promise.resolve(makeMe.aStoryReview.unavailable(explanation).please()),
+  });
+  await showsUnavailableChanges(explanation);
 });
 
 test("a story whose claim several worktrees hold keeps the review's explanation in Changes", async () => {

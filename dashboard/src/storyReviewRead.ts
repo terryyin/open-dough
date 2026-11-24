@@ -15,6 +15,8 @@ export interface StoryReviewRead {
   readonly run?: string;
   // A story launch's reporting reference.
   readonly reference?: string;
+  // Resolve a story selected from the published Taken list.
+  readonly taken?: boolean;
   // Delegate the story's default to its authoritative completion.
   readonly completed?: boolean;
   // Read the completed story's published historical comparison.
@@ -41,6 +43,7 @@ export function storyReviewQuery(
     ...reviewedWorkQuery(read.subject),
     ...(read.reference === undefined ? {} : { reference: read.reference }),
     ...(read.run === undefined ? {} : { run: read.run }),
+    ...(read.taken === true ? { taken: "true" } : {}),
     ...(read.completed === true ? { completed: "true" } : {}),
     ...(read.historical === true ? { historical: "true" } : {}),
   };

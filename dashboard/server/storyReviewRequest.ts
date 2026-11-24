@@ -46,6 +46,7 @@ function identityReviewRead(
   const reference = url.searchParams.get("reference");
   const run = url.searchParams.get("run");
   const completed = url.searchParams.get("completed");
+  const taken = url.searchParams.get("taken");
   const historical = url.searchParams.get("historical");
   requireExactQuery(
     url,
@@ -55,10 +56,19 @@ function identityReviewRead(
       ...(reference === null ? [] : ["reference"]),
       ...(run === null ? [] : ["run"]),
       ...(completed === null ? [] : ["completed"]),
+      ...(taken === null ? [] : ["taken"]),
       ...(historical === null ? [] : ["historical"]),
     ],
     "review",
   );
+  if (
+    taken !== null &&
+    (taken !== "true" ||
+      completed !== null ||
+      reference !== null ||
+      run !== null)
+  )
+    throw new RefusedRequest(400, "The Taken review request is malformed.");
   if (completed !== null && completed !== "true")
     throw new RefusedRequest(400, "The completed review request is malformed.");
   if (historical !== null && (historical !== "true" || completed !== "true"))
@@ -74,6 +84,7 @@ function identityReviewRead(
     ...(reference === null ? {} : { reference }),
     ...(run === null ? {} : { run }),
     ...(completed === null ? {} : { completed: true }),
+    ...(taken === null ? {} : { taken: true }),
     ...(historical === null ? {} : { historical: true }),
   };
 }

@@ -78,14 +78,16 @@ export function IntentStoryCompare({
 }) {
   return (
     <div className="intent-story-compare" aria-label="Compare" role="group">
-      <ComparisonSwitch
-        shown={compare.shown}
-        onSwitch={compare.onChoose}
-        workspace={compare.workspace}
-        commits={compare.items.length > 0}
-        landed={compare.runs.length > 0}
-        published={compare.published}
-      />
+      {(compare.workspace || compare.published || compare.runs.length > 0) && (
+        <ComparisonSwitch
+          shown={compare.shown}
+          onSwitch={compare.onChoose}
+          workspace={compare.workspace}
+          commits={compare.items.length > 0}
+          landed={compare.runs.length > 0}
+          published={compare.published}
+        />
+      )}
       {/* Unavailable while reading, yet still focusable, so the
           keyboard stays on it. */}
       <IconButton

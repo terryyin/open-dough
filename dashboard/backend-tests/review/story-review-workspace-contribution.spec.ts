@@ -6,7 +6,10 @@ import {
   mountProjectConfiguration,
 } from "../../server/projectConfiguration.ts";
 import { reviewedFileText } from "../../server/storyReviewFileResponse.ts";
-import { storyReview } from "../../server/storyReviewSnapshot.ts";
+import { knownSource } from "../../server/sessionAdmission.ts";
+import { storyWorkspace } from "../../server/storyReviewWorkspaceAdmission.ts";
+import { storyReviewSnapshot } from "../../server/storyReviewWorkspaceSnapshot.ts";
+import { agentProfileDirectoryOf } from "../../server/recordsBesideBacklog.ts";
 import { storyReviewSchema } from "../../src/storyReviewContract.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
@@ -56,8 +59,22 @@ afterAll(async () => {
   await cleanRepository?.();
 });
 
+async function readWorkspaceSnapshot() {
+  const source = knownSource(subject.source);
+  const established = await storyWorkspace(source, subject.identity);
+  return storyReviewSnapshot(
+    established,
+    {
+      identity: subject.identity,
+      profileDirectory: agentProfileDirectoryOf(source),
+    },
+    established.workspace,
+    signal,
+  );
+}
+
 test("a merge in the Review snapshot names its first-parent commit separately from its tree", async () => {
-  const result = await storyReview({ read: { subject } }, signal);
+  const result = await readWorkspaceSnapshot();
   const snapshot = storyReviewSchema.parse(JSON.parse(JSON.stringify(result)));
   if (snapshot.kind !== "snapshot") throw new Error("No Review snapshot");
   const merge = snapshot.commits.find(
@@ -84,7 +101,7 @@ test("the Review reader accepts older snapshots with no first-parent commit ID",
 });
 
 test("a Taken branch compares the two bases to the same committed and working trees", async () => {
-  const result = await storyReview({ read: { subject } }, signal);
+  const result = await readWorkspaceSnapshot();
   if (result.kind !== "snapshot" || result.committed === undefined)
     throw new Error("No committed and working comparisons");
   const { committed } = result;

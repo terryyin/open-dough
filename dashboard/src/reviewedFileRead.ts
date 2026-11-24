@@ -18,6 +18,8 @@ export interface ReviewedWork {
   readonly reference?: string;
   // A story's Published completion.
   readonly completion?: string;
+  // A Taken story branch head pinned by its published comparison.
+  readonly publishedHead?: string;
 }
 
 // One file within a retained pair: the trees the comparison reads between.
@@ -51,6 +53,9 @@ export function reviewedFileQuery(
     ...reviewedWorkQuery(read.subject),
     ...(read.reference === undefined ? {} : { reference: read.reference }),
     ...(read.completion === undefined ? {} : { completion: read.completion }),
+    ...(read.publishedHead === undefined
+      ? {}
+      : { publishedHead: read.publishedHead }),
     baseline: read.baseline,
     tree: read.tree,
     path: read.path,

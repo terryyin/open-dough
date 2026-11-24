@@ -40,6 +40,7 @@ export function ComparedContext({
       )}
       {review?.kind !== "snapshot" &&
         review?.kind !== "published" &&
+        review?.kind !== "published-taken" &&
         review?.kind !== "landed" && (
           <p>
             Compared {rev(shown.comparison.from)} with tree {rev(shown.tree)}.
@@ -56,6 +57,8 @@ export function EmptyHistoricalContext({
 }) {
   if (review?.kind === "landed") return <p>{emptyLandedReview}</p>;
   if (review?.kind === "published") return <p>{emptyPublishedReview}</p>;
+  if (review?.kind === "published-taken")
+    return <p>No changes attributed to this story on its published branch.</p>;
   return null;
 }
 
@@ -75,6 +78,11 @@ export function RefreshedComparison({
         count={count}
         commitsReview={commitsReview}
       />
+    ) : review?.kind === "published-taken" ? (
+      <p>
+        Review refreshed at published head{" "}
+        <code>{shortRevision(review.head)}</code>.
+      </p>
     ) : review?.kind === "landed" || review?.kind === "published" ? (
       <RefreshedHistoricalComparison kind={review.kind} count={count} />
     ) : null;

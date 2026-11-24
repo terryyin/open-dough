@@ -32,11 +32,13 @@ export function useStoryComparison({
   source,
   identity,
   completed,
+  taken,
   enabled,
 }: {
   readonly source: string;
   readonly identity: string;
   readonly completed: boolean;
+  readonly taken: boolean;
   // A disabled comparison reads nothing and shows none.
   readonly enabled: boolean;
 }): {
@@ -107,6 +109,7 @@ export function useStoryComparison({
     subject,
     round,
     completed,
+    taken,
     enabled,
     historical: completed,
     keyedBy,
@@ -178,7 +181,9 @@ export function useStoryComparison({
   const readingNow = reading || (carry && range.reading);
   const includesMerged = shownKept?.includesMergedChanges === true;
   const canIncludeMerged =
-    (reviewKept?.kind === "published" && reviewKept.withMerged !== undefined) ||
+    ((reviewKept?.kind === "published" ||
+      reviewKept?.kind === "published-taken") &&
+      reviewKept.withMerged !== undefined) ||
     (reviewKept?.kind === "snapshot" &&
       (readingNow && shown === "all"
         ? reviewKept.withMerged !== undefined

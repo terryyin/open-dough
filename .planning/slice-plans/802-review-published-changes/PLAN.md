@@ -93,7 +93,7 @@ refactor required no edits. Run records: `slice-1-report.md` in checkout evidenc
 ### 2. Read a Taken story's published branch before landing
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: From a real published claim and story branch, open Review changes on a
 reader without the writer's worktree. Read the attributable published diff,
 including a story-owned merge edit when present.
@@ -104,6 +104,10 @@ Resolve the recorded branch and Take bound from origin through the current
 configured Git source and reuse branch attribution over its published commits.
 Preserve the wider published comparison when incoming trunk work makes it
 meaningful. Trunk Mode moves to published review in slice 3.
+
+Accepted proof: isolated origin and Chromium verified the owned merge, wider
+comparison, push and Refresh. Typed reads pinned the prior published head and
+refused unrelated paths and unpublished objects. See `slice-2-report.md`.
 
 ### 3. Read a Taken Trunk story and remove the workspace comparison
 
