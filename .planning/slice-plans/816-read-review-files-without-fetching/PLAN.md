@@ -184,6 +184,15 @@ the seam: `ReviewRepositoryReader` and `lastSyncedReviewRepository` in
 landed-review E2E bodies keep the pre-split layout without Given/When/Then
 steps and parse network reads inline.
 
+CI repair (run 45428111641): `agent-launch-follow-up-file-admission.spec.ts`
+launched a landed-run file follow-up with no prior review open, so the Review
+repository did not exist. The product starts file follow-ups only from a shown
+review file (`StoryAnchoredFollowUp.tsx`), so that spec now opens the review
+first. Consumer traces for later slices must include
+`dashboard/backend-tests/launches/`. Follow-up specs that build Done state with
+`serveDoneAtTrunk` and never open the review need the same step once slice 2
+makes published admission read-only.
+
 ### 2. Read Done completion and published-session files from the last sync only
 Type: Behavior
 Status: planned

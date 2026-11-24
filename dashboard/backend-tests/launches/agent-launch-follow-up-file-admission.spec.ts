@@ -1,8 +1,9 @@
 // Landed-run file-anchored follow-up admission and refusals over raw HTTP,
-// with a real bare origin and the synthetic `claude`: a launch's landed run
-// admits its comparison; a file, line or side outside the comparison, or
-// page-supplied context text, starts nothing. Published-completion launches
-// and identity: agent-launch-follow-up-file.spec.ts.
+// with a real bare origin and the synthetic `claude`: a launch's landed run,
+// once its review open has synced, admits its comparison; a file, line or
+// side outside the comparison, or page-supplied context text, starts nothing.
+// Published-completion launches and identity:
+// agent-launch-follow-up-file.spec.ts.
 
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -21,6 +22,11 @@ import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { storyALaunch } from "../../test-support/support/storyLaunchRecord.ts";
 import { doneStoryFiles } from "../../test-support/support/followUpStories.ts";
 import { publishes } from "../../test-support/support/publishedRepository.ts";
+import {
+  completedStoryQuery,
+  getReview,
+} from "../../test-support/support/completedReviewRequests.ts";
+import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { answerOf, request } from "./followUpBoundaryCases.ts";
 
 test.use({ serverMode: "boundary" });
@@ -37,6 +43,7 @@ test.describe("after a delivered two-line file", () => {
   });
 
   test("a file follow-up on a launch's landed run admits and names its comparison", async ({
+    request: http,
     dashboard,
     origin,
   }) => {
@@ -70,6 +77,14 @@ test.describe("after a delivered two-line file", () => {
       .onLandedRunOf(record)
       .at({ path: "delivered.txt", line: 2, side: "new" })
       .please();
+    // The follow-up starts from the file the landed run's review open showed.
+    const opened = await getReview(
+      http,
+      dashboard,
+      storyReviewEndpoint,
+      completedStoryQuery,
+    );
+    expect(await opened.json()).toMatchObject({ kind: "landed" });
     dashboard.claudeScenario("launched");
 
     const launched = await answerOf(
