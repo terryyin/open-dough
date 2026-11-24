@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "d442da74-f8a4-4c09-87fa-407242f46eb5",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-24T07:31:17.063Z",
+  "story": "SEED-423#notify-claude-code-of-ci-through-one-path",
+  "ranges": [
+    {
+      "base": "15e7786706982135fa60d979c25124a49590a7da",
+      "candidate": "a0c4287f5984d80fa60108f9de0f0262b48b97ef"
+    }
+  ]
+}
