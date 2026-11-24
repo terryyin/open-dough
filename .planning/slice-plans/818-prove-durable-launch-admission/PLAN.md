@@ -103,7 +103,7 @@ the existing in-case synchronization convention. No refactor candidate arose.
 ### 2. Enforce story-specific admission across independent writers
 
 Type: Behavior
-Status: planned
+Status: done
 Proof: `agent-launch-cross-server-accept.spec.ts` runs on Node Vitest with
 its three distinct observations. Feed MakeMe execution and refinement
 requests to the existing attempt owner, with optional effects observed at
@@ -129,6 +129,36 @@ kept under that lock. The other cases retain the independent one-story and
 two-story outcomes.
 
 Estimated active work 10–15 minutes.
+
+Accepted proof: the maintained backend runner selected three Node Vitest
+cases for this file and passed. The lock cue comes from a real `EEXIST`.
+Removing freshly kept attempts from the locked conflict check in a detached
+checkout produced `accepted` and failed the `already-starting` assertion.
+The two overlapping cases held the accepted runs open through the competing
+request and checked the kept winner or both story identities. Dashboard
+typecheck passed, including the child entry in the same typed spec.
+
+The two-worker selection passed all four cases on Node 24.21.0 on macOS AC.
+Mean one-minute load at launch was 14.95 compared with about 5 for the
+preparation run, which limits a like-for-like timing comparison.
+
+| Observation | Playwright baseline | Node Vitest |
+| --- | ---: | ---: |
+| Close during admission | 444 ms | 63 ms |
+| Recheck under the held lock | 1,706 ms | 609 ms |
+| Same-story contenders | 1,988 ms | 569 ms |
+| Distinct-story contenders | 1,239 ms | 637 ms |
+| Summed case time | 5.38 s | 1.878 s |
+| Elapsed | 5.39 s | 3.65 s |
+
+The close case meets the campaign target of about 100 ms. Each contention
+case includes starting an independent Node process and loading the same owner.
+A separate three-sample probe measured 540–712 ms from fork to readiness at
+load 16.98. These samples show the cost of process startup in this profile.
+The checkout's `open-dough/evidence` holds `slice-2-return.md`, its run
+records, the combined selection and timings, and the lock mutation witness.
+Independent refactor review found no candidate after inspecting the typed
+IPC boundary, lock cue and child shutdown. The accepted proof still applies.
 
 ## Concern evidence
 
@@ -166,6 +196,8 @@ No remaining slice-specific concerns were identified.
 - Publisher `dashboard-territory.local-open-dough`. The starting revision is
   `698cbd33cead3c23ff51f211896a26d48f609d32`. The accepted claim and first
   published story-branch base are `f4bd0d8c5d57f22de27d721b8501b1c1c589a170`.
+- Slice 1 was accepted on the remote story branch at
+  `6d1ea9be8941fd7862346841ba10f16313b33efe` and registered with the observer.
 - Locked `npm ci` and `npm run typecheck:dashboard` succeeded in the execution
   checkout on Node 24.21.0. Retain the existing planning authority for overruns.
 - GitHub Actions `ci.yml` (`CI`) on the remote story branch. Codex observer
